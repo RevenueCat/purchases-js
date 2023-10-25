@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RCBilling Example</title>
+    <script src="./rc-billing.js"></script>
+    <style>
+        /* Some basic styling for our Stripe form */
+        #payment-form {
+            width: 300px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="payment-form"></div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        RCBilling.initialize('ext_QXsvnDWJsnaJgOhpMVPRWFvbcwhK', 'JAVIER');
+
+        setTimeout(() => {
+            RCBilling.renderForm(document.getElementById('payment-form'));
+        }, 3000);
+    });
+</script>
+
+</body>
+</html>
