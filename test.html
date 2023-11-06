@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RCBilling Example</title>
-    <script src="./rc-billing.js"></script>
+    <script src="./dist/rcbilling-js.iife.js"></script>
     <style>
         /* Some basic styling for our Stripe form */
         #payment-form {
@@ -22,10 +22,10 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        RCBilling.initialize('ext_QXsvnDWJsnaJgOhpMVPRWFvbcwhK', 'JAVIER');
+        var billing = new RCBilling('web_tFpmIVwEGKNprbMOyiRRzZAbzIHX', 'test_rcbilling');
 
         setTimeout(() => {
-            RCBilling.renderForm(document.getElementById('payment-form'));
+            billing.renderForm(document.getElementById('payment-form'), "monthly.product_1234");
         }, 3000);
     });
 </script>
