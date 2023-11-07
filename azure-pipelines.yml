@@ -15,7 +15,7 @@ variables:
 steps:
   - task: NodeTool@0
     inputs:
-      versionSpec: '14.x'
+      versionSpec: '18.x'
     displayName: 'Install Node.js'
 
   - task: Cache@2
@@ -27,6 +27,12 @@ steps:
 
   - script: npm ci
     displayName: 'Install dependencies'
+
+  - script: npm run lint
+    displayName: Linting
+
+  - script: npm run test
+    displayName: Unit tests
 
   - script: npm run build
     displayName: 'Build'
