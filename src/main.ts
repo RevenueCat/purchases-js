@@ -1,12 +1,9 @@
 class RCBilling {
   _API_KEY: string | null = null;
   _APP_USER_ID: string | null = null;
-  private static readonly _RC_ENDPOINT: string = "http://localhost:8000";
+  private static readonly _RC_ENDPOINT: string = process.env.RC_ENDPOINT ?? "";
   private static readonly _RC_STRIPE_PUB_KEY: string =
-    "pk_test_GCVUxZOBMRwyU6LbfLLunWj8"; // load this from backend
-
-  private static readonly _CONNECTED_ACCOUNT_ID: string =
-    "acct_1JTpQVIH87UcPban"; // garimberas, load this from backend
+    process.env.RC_STRIPE_PUB_KEY ?? "";
 
   isStripeDefined = typeof window.Stripe === "function";
   stripeInstance: any;
@@ -14,6 +11,16 @@ class RCBilling {
   constructor(apiKey: string, appUserId: string) {
     this._API_KEY = apiKey;
     this._APP_USER_ID = appUserId;
+
+    if (
+      RCBilling._RC_ENDPOINT === undefined ||
+      RCBilling._RC_STRIPE_PUB_KEY === undefined
+    ) {
+      console.error(
+        "Project was build without some of the environment variables set",
+      );
+      return;
+    }
 
     fetch(`${RCBilling._RC_ENDPOINT}/v1/subscribers/${this._APP_USER_ID}`, {
       method: "GET", // GET is the default method, so this is optional
@@ -34,11 +41,13 @@ class RCBilling {
       })
       // @ts-expect-error // eslint-disable-line
       .then((data) => {
-        // get the connected account ID from the response
+        // TODO: get the connected account ID from the response
+        const connectedAccountId = "acct_1JTpQVIH87UcPban";
+
         RCBilling.loadStripe(() => {
           if (window.Stripe != null) {
             this.stripeInstance = window.Stripe(RCBilling._RC_STRIPE_PUB_KEY, {
-              stripeAccount: RCBilling._CONNECTED_ACCOUNT_ID,
+              stripeAccount: connectedAccountId,
             });
           }
         });
