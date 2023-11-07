@@ -1,5 +1,5 @@
 import { beforeEach, expect, test, vi } from "vitest";
-import RCBilling from "./main";
+import { RCBilling } from "./main";
 
 // Mocking Stripe object
 const elementMock = {
