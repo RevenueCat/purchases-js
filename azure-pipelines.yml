@@ -28,6 +28,9 @@ steps:
   - script: npm ci
     displayName: 'Install dependencies'
 
+  - script: npm run test
+    displayName: Unit tests
+
   - script: npm run build
     displayName: 'Build'
 
