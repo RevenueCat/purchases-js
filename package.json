@@ -3,11 +3,15 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "types": "src/main.d.ts",
+  "main": "dist/rcbilling-js.js",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:dev": "tsc && vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint . --ext .ts",
+    "format": "eslint . --ext .ts --fix",
     "test": "vitest"
   },
   "devDependencies": {
