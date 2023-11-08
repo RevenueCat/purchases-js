@@ -7,9 +7,6 @@ export class RCBilling {
   private static readonly _RC_STRIPE_PUB_KEY = import.meta.env
     .VITE_RC_STRIPE_PUB_KEY as string;
 
-  isStripeDefined = typeof window.Stripe === "function";
-  stripeInstance: any;
-
   constructor(apiKey: string) {
     this._API_KEY = apiKey;
 
@@ -38,8 +35,4 @@ export class RCBilling {
     const data = await response.text();
     console.log(data);
   }
-}
-
-if (typeof window !== "undefined") {
-  window.RCBilling = RCBilling;
 }
