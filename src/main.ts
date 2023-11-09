@@ -48,6 +48,13 @@ export class RCBilling {
     console.log(data);
   }
 
+  private toOfferingsPage = (data: ServerResponse) => {
+    return {
+      offerings: data.offerings.map(toOffering),
+      priceByPackageId: data.prices_by_package_id,
+    } as OfferingsPage;
+  };
+
   public async listOfferings(): Promise<OfferingsPage> {
     const response = await fetch(
       `${RCBilling._RC_ENDPOINT}/rcbilling/v1/offerings`,
@@ -61,13 +68,6 @@ export class RCBilling {
     );
 
     const data = await response.json();
-    return toOfferingsPage(data);
+    return this.toOfferingsPage(data);
   }
 }
-
-const toOfferingsPage = (data: ServerResponse) => {
-  return {
-    offerings: data.offerings.map(toOffering),
-    priceByPackageId: data.prices_by_package_id,
-  } as OfferingsPage;
-};
