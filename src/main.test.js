@@ -29,6 +29,6 @@ beforeEach(() => {
     vi.clearAllMocks();
 });
 test("RCBilling is defined", () => {
-    const billing = new RCBilling("test_api_key", "test_app_user_id");
+    const billing = new RCBilling("test_api_key");
     expect(billing).toBeDefined();
 });
