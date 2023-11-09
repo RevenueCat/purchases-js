@@ -7,7 +7,7 @@ export interface Product {
   id: string;
   displayName: string;
   currentPrice: Price | null;
-  duration: string;
+  normalPeriodDuration: string | null;
 }
 
 export interface Package {
@@ -46,6 +46,7 @@ export const toProduct = (data: ServerResponse) => {
     id: data.id,
     displayName: data.display_name,
     currentPrice: data.current_price ? toPrice(data.current_price) : null,
+    normalPeriodDuration: data.normal_period_duration,
   } as Product;
 };
 
