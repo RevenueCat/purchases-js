@@ -1,18 +1,25 @@
-import { beforeEach, expect, test, vi } from "vitest";
-import { RCBilling } from "./main";
+import { http, HttpResponse } from "msw";
+import { setupServer } from "msw/node";
+import { beforeAll, expect, test } from "vitest";
+import { Purchases } from "./main";
 
-// Set the global Stripe
-beforeEach(() => {
-  // Since we are in a module environment, you might need to use globalThis
-  //window.Stripe = vi.fn(() => stripeMock);
+const server = setupServer(
+  http.get("http://localhost:8000/rcbilling/v1/entitlements/:appUserId", () => {
+    // const { appUserId } = params;
+    return HttpResponse.json({}, { status: 200 });
+  }),
+);
+
+beforeAll(() => {
+  server.listen();
 });
 
-// If you need to reset the mocks before each test, you can do it in a beforeEach hook
-beforeEach(() => {
-  vi.clearAllMocks();
-});
-
-test("RCBilling is defined", () => {
-  const billing = new RCBilling("test_api_key");
+test("Purchases is defined", () => {
+  const billing = new Purchases("test_api_key");
   expect(billing).toBeDefined();
+});
+
+test("Can log in with an app user ID", async () => {
+  const billing = new Purchases("test_api_key");
+  await billing.logIn("test_app_user_id");
 });

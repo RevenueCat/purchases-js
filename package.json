@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "types": "src/main.d.ts",
+  "types": "dist/main.d.ts",
   "main": "dist/rcbilling-js.js",
   "scripts": {
     "dev": "vite",
@@ -24,11 +24,13 @@
     "eslint-plugin-prettier": "^5.0.1",
     "eslint-plugin-promise": "^6.1.1",
     "jsdom": "^22.1.0",
+    "msw": "^2.0.4",
     "typescript": "^5.2.2",
     "vite": "^4.4.5",
     "vitest": "^0.34.6"
   },
   "dependencies": {
-    "prettier": "^3.0.3"
+    "prettier": "^3.0.3",
+    "vite-plugin-dts": "^3.6.3"
   }
 }
