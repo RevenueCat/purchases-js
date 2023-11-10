@@ -1,5 +1,18 @@
-import { beforeEach, expect, test, vi } from "vitest";
-import { RCBilling } from "./main";
+import { http, HttpResponse } from "msw";
+import { setupServer } from "msw/node";
+import { beforeAll, beforeEach, expect, test, vi } from "vitest";
+import { Purchases } from "./main";
+
+const server = setupServer(
+  http.get("https://api.revenuecat.com/v1/subscribers/:appUserId", () => {
+    // const { appUserId } = params;
+    return HttpResponse.json({}, { status: 200 });
+  }),
+);
+
+beforeAll(() => {
+  server.listen();
+});
 
 // Set the global Stripe
 beforeEach(() => {
@@ -12,7 +25,13 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-test("RCBilling is defined", () => {
-  const billing = new RCBilling("test_api_key");
+test("Purchases is defined", () => {
+  console.log(Purchases);
+  const billing = new Purchases("test_api_key");
   expect(billing).toBeDefined();
+});
+
+test("Can log in with an app user ID", async () => {
+  const billing = new Purchases("test_api_key");
+  await billing.logIn("test_app_user_id");
 });
