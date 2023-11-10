@@ -27,6 +27,6 @@ export class Purchases {
       },
     );
 
-    const data = await response.text();
+    const data = await response.text(); // eslint-disable-line
   }
 }
