@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "types": "src/main.d.ts",
+  "types": "dist/main.d.ts",
   "main": "dist/rcbilling-js.js",
   "scripts": {
     "dev": "vite",
@@ -30,6 +30,7 @@
     "vitest": "^0.34.6"
   },
   "dependencies": {
-    "prettier": "^3.0.3"
+    "prettier": "^3.0.3",
+    "vite-plugin-dts": "^3.6.3"
   }
 }

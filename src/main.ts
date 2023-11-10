@@ -16,17 +16,13 @@ export class Purchases {
   }
 
   public async logIn(appUserId: string): Promise<void> {
-    this._APP_USER_ID = appUserId;
-
-    const response = await fetch(
-      `${Purchases._RC_ENDPOINT}/${Purchases._BASE_PATH}/entitlements/${this._APP_USER_ID}`,
+    await fetch(
+      `${Purchases._RC_ENDPOINT}/${Purchases._BASE_PATH}/entitlements/${appUserId}`,
       {
         headers: {
           Authorization: `Bearer ${this._API_KEY}`,
         },
       },
     );
-
-    const data = await response.text(); // eslint-disable-line
   }
 }
