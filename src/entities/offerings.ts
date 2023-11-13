@@ -1,5 +1,5 @@
 export interface Price {
-  price: number;
+  amount: number;
   currency: string;
 }
 
@@ -36,7 +36,7 @@ export type ServerResponse = any; // eslint-disable-line
 
 export const toPrice = (data: ServerResponse) => {
   return {
-    price: data.price,
+    amount: data.amount,
     currency: data.currency,
   } as Price;
 };
