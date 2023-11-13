@@ -23,7 +23,7 @@ const server = setupServer(
                   id: "product_1",
                   display_name: "Product 1",
                   current_price: {
-                    price: 100,
+                    amount: 100,
                     currency: "USD",
                   },
                   normal_period_duration: "P1M",
@@ -70,7 +70,7 @@ test("can get offerings", async () => {
             rcBillingProduct: {
               currentPrice: {
                 currency: "USD",
-                price: 100,
+                amount: 100,
               },
               displayName: "Product 1",
               id: "product_1",
