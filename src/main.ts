@@ -1,3 +1,15 @@
+import {
+  Offering as InnerOffering,
+  OfferingsPage as InnerOfferingsPage,
+  Package as InnerPackage,
+  ServerResponse,
+  toOffering,
+} from "./entities/offerings";
+
+export type OfferingsPage = InnerOfferingsPage;
+export type Offering = InnerOffering;
+export type Package = InnerPackage;
+
 export class Purchases {
   _API_KEY: string | null = null;
   _APP_USER_ID: string | null = null;
@@ -24,5 +36,28 @@ export class Purchases {
         },
       },
     );
+  }
+
+  private toOfferingsPage = (data: ServerResponse) => {
+    return {
+      offerings: data.offerings.map(toOffering),
+      priceByPackageId: data.prices_by_package_id,
+    } as OfferingsPage;
+  };
+
+  public async listOfferings(): Promise<OfferingsPage> {
+    const response = await fetch(
+      `${Purchases._RC_ENDPOINT}/rcbilling/v1/offerings`,
+      {
+        headers: {
+          Authorization: `Bearer ${this._API_KEY}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      },
+    );
+
+    const data = await response.json();
+    return this.toOfferingsPage(data);
   }
 }

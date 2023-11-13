@@ -8,6 +8,34 @@ const server = setupServer(
     // const { appUserId } = params;
     return HttpResponse.json({}, { status: 200 });
   }),
+  http.get("http://localhost:8000/rcbilling/v1/offerings", () => {
+    return HttpResponse.json(
+      {
+        offerings: [
+          {
+            identifier: "offering_1",
+            display_name: "Offering 1",
+            packages: [
+              {
+                id: "package_1",
+                identifier: "package_1",
+                rc_billing_product: {
+                  id: "product_1",
+                  display_name: "Product 1",
+                  current_price: {
+                    price: 100,
+                    currency: "USD",
+                  },
+                  normal_period_duration: "P1M",
+                },
+              },
+            ],
+          },
+        ],
+      },
+      { status: 200 },
+    );
+  }),
 );
 
 beforeAll(() => {
@@ -22,4 +50,36 @@ test("Purchases is defined", () => {
 test("Can log in with an app user ID", async () => {
   const billing = new Purchases("test_api_key");
   await billing.logIn("test_app_user_id");
+});
+
+test("can get offerings", async () => {
+  const billing = new Purchases("test_api_key");
+  const offerings = await billing.listOfferings();
+
+  expect(offerings).toEqual({
+    offerings: [
+      {
+        displayName: "Offering 1",
+        id: undefined,
+        identifier: "offering_1",
+        packages: [
+          {
+            displayName: undefined,
+            id: "package_1",
+            identifier: "package_1",
+            rcBillingProduct: {
+              currentPrice: {
+                currency: "USD",
+                price: 100,
+              },
+              displayName: "Product 1",
+              id: "product_1",
+              normalPeriodDuration: "P1M",
+            },
+          },
+        ],
+      },
+    ],
+    priceByPackageId: undefined,
+  });
 });
