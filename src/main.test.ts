@@ -1,7 +1,7 @@
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 import { beforeAll, expect, test } from "vitest";
-import { Purchases } from "./main";
+import { RCBilling } from "./main";
 
 const server = setupServer(
   http.get("http://localhost:8000/rcbilling/v1/entitlements/:appUserId", () => {
@@ -36,6 +36,27 @@ const server = setupServer(
       { status: 200 },
     );
   }),
+
+  http.get(
+    "http://localhost:8000/rcbilling/v1/entitlements/someAppUserId",
+    () => {
+      return HttpResponse.json(
+        {
+          entitlements: [
+            {
+              created_at: 1699890475771,
+              display_name: "Some Entitlement Name",
+              id: "ent12345",
+              lookup_key: "someEntitlement",
+              object: "entitlement",
+              project_id: "proj12345",
+            },
+          ],
+        },
+        { status: 200 },
+      );
+    },
+  ),
 );
 
 beforeAll(() => {
@@ -43,17 +64,17 @@ beforeAll(() => {
 });
 
 test("Purchases is defined", () => {
-  const billing = new Purchases("test_api_key");
+  const billing = new RCBilling("test_api_key");
   expect(billing).toBeDefined();
 });
 
 test("Can log in with an app user ID", async () => {
-  const billing = new Purchases("test_api_key");
+  const billing = new RCBilling("test_api_key");
   await billing.logIn("test_app_user_id");
 });
 
 test("can get offerings", async () => {
-  const billing = new Purchases("test_api_key");
+  const billing = new RCBilling("test_api_key");
   const offerings = await billing.listOfferings();
 
   expect(offerings).toEqual({
