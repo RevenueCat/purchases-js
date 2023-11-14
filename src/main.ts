@@ -5,6 +5,7 @@ import {
   ServerResponse,
   toOffering,
 } from "./entities/offerings";
+import { Entitlement, toEntitlement } from "./entities/entitlements";
 
 export type OfferingsPage = InnerOfferingsPage;
 export type Offering = InnerOffering;
@@ -54,6 +55,11 @@ export class Purchases {
     appUserId: string,
     entitlementIdentifier: string,
   ): Promise<boolean> {
+    const entitlements = await this.getEntitlements(appUserId);
+    return entitlements.includes(entitlementIdentifier);
+  }
+
+  public async getEntitlements(appUserId: string): Promise<Entitlement[]> {
     const response = await fetch(
       `${Purchases._RC_ENDPOINT}/${Purchases._BASE_PATH}/entitlements/${appUserId}`,
       {
@@ -67,13 +73,30 @@ export class Purchases {
 
     const status = response.status;
     if (status === 404) {
-      return false;
+      return [];
     }
 
     const data = await response.json();
-    const entitlements = data.entitlements.map(
-      (ent: ServerResponse) => ent.lookup_key,
-    );
-    return entitlements.includes(entitlementIdentifier);
+    return data.entitlements.map(toEntitlement);
+  }
+}
+
+export class Session {
+  private readonly purchases: Purchases;
+  private loggedAppUserId: string;
+  private loggedAppUserEntitlements: Entitlement[];
+
+  constructor(apiKey: string) {
+    this.purchases = new Purchases(apiKey);
+  }
+
+  async logIn(appUserId: string): Promise<void> {
+    this.loggedAppUserEntitlements =
+      await this.purchases.getEntitlements(appUserId);
+    this.loggedAppUserId = appUserId;
+  }
+
+  async isUserEntitled(entitlementId: string): boolean {
+    return this.loggedAppUserEntitlements.map((e) => identifier);
   }
 }
