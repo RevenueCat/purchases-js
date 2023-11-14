@@ -50,7 +50,7 @@ steps:
   - bash: |
       # if [[ "$(Build.SourceBranch)" == refs/tags/v* ]]; then
         echo "Publishing to npm..."
-        npm publish
+        npm publish --access private
       # else
       # echo "Not a tag push, will not publish to npm."
       # fi
