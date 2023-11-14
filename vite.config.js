@@ -7,7 +7,7 @@ export default defineConfig({
     target: "es2015",
     lib: {
       entry: resolve(__dirname, 'src/main.ts'),
-      name: "RCBilling",
+      name: "Purchases",
       formats: ["umd", "iife", "es"]
     },
   },
