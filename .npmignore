@@ -4,3 +4,6 @@ node_modules
 azure-pipelines.yml
 vite.config.js
 vitest.*
+pull_request_template.md
+src/*
+*.test.d.ts
