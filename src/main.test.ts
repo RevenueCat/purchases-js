@@ -4,10 +4,6 @@ import { beforeAll, expect, test } from "vitest";
 import { Purchases } from "./main";
 
 const server = setupServer(
-  http.get("http://localhost:8000/rcbilling/v1/entitlements/:appUserId", () => {
-    // const { appUserId } = params;
-    return HttpResponse.json({}, { status: 200 });
-  }),
   http.get("http://localhost:8000/rcbilling/v1/offerings", () => {
     return HttpResponse.json(
       {
@@ -36,6 +32,39 @@ const server = setupServer(
       { status: 200 },
     );
   }),
+
+  http.get(
+    "http://localhost:8000/rcbilling/v1/entitlements/someAppUserId",
+    () => {
+      return HttpResponse.json(
+        {
+          entitlements: [
+            {
+              created_at: 1699890475771,
+              display_name: "Some Entitlement Name",
+              id: "ent12345",
+              lookup_key: "someEntitlement",
+              object: "entitlement",
+              project_id: "proj12345",
+            },
+          ],
+        },
+        { status: 200 },
+      );
+    },
+  ),
+
+  http.get(
+    "http://localhost:8000/rcbilling/v1/entitlements/someOtherAppUserId",
+    () => {
+      return HttpResponse.json(
+        {
+          entitlements: [],
+        },
+        { status: 200 },
+      );
+    },
+  ),
 );
 
 beforeAll(() => {
@@ -47,9 +76,22 @@ test("Purchases is defined", () => {
   expect(billing).toBeDefined();
 });
 
-test("Can log in with an app user ID", async () => {
+test("returns true if a user is entitled", async () => {
   const billing = new Purchases("test_api_key");
-  await billing.logIn("test_app_user_id");
+  const isEntitled = await billing.isEntitledTo(
+    "someAppUserId",
+    "someEntitlement",
+  );
+  expect(isEntitled).toBeTruthy();
+});
+
+test("returns true if a user is not entitled", async () => {
+  const billing = new Purchases("test_api_key");
+  const isEntitled = await billing.isEntitledTo(
+    "someOtherAppUserId",
+    "someEntitlement",
+  );
+  expect(isEntitled).not.toBeTruthy();
 });
 
 test("can get offerings", async () => {

@@ -27,17 +27,6 @@ export class Purchases {
     }
   }
 
-  public async logIn(appUserId: string): Promise<void> {
-    await fetch(
-      `${Purchases._RC_ENDPOINT}/${Purchases._BASE_PATH}/entitlements/${appUserId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${this._API_KEY}`,
-        },
-      },
-    );
-  }
-
   private toOfferingsPage = (data: ServerResponse) => {
     return {
       offerings: data.offerings.map(toOffering),
@@ -47,7 +36,7 @@ export class Purchases {
 
   public async listOfferings(): Promise<OfferingsPage> {
     const response = await fetch(
-      `${Purchases._RC_ENDPOINT}/rcbilling/v1/offerings`,
+      `${Purchases._RC_ENDPOINT}/${Purchases._BASE_PATH}/offerings`,
       {
         headers: {
           Authorization: `Bearer ${this._API_KEY}`,
@@ -59,5 +48,32 @@ export class Purchases {
 
     const data = await response.json();
     return this.toOfferingsPage(data);
+  }
+
+  public async isEntitledTo(
+    appUserId: string,
+    entitlementIdentifier: string,
+  ): Promise<boolean> {
+    const response = await fetch(
+      `${Purchases._RC_ENDPOINT}/${Purchases._BASE_PATH}/entitlements/${appUserId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${this._API_KEY}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      },
+    );
+
+    const status = response.status;
+    if (status === 404) {
+      return false;
+    }
+
+    const data = await response.json();
+    const entitlements = data.entitlements.map(
+      (ent: ServerResponse) => ent.lookup_key,
+    );
+    return entitlements.includes(entitlementIdentifier);
   }
 }
