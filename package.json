@@ -1,10 +1,11 @@
 {
-  "name": "rcbilling-js",
+  "name": "@revenuecat/purchases-js",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "types": "dist/main.d.ts",
-  "main": "dist/rcbilling-js.js",
+  "main": "dist/purchases-js.js",
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
