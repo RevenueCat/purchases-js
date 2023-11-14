@@ -31,5 +31,9 @@ npm test
 
 - Update the version in `package.json`
 - Commit the changes in main
-- Create a new tag with the version number
-- Push the tag to GitHub
+- Create a new tag with the version number and push:
+
+```
+git tag v[version_number]
+git push origin v[version_number]
+```
