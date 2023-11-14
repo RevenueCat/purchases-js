@@ -27,17 +27,6 @@ export class Purchases {
     }
   }
 
-  public async logIn(appUserId: string): Promise<void> {
-    await fetch(
-      `${Purchases._RC_ENDPOINT}/${Purchases._BASE_PATH}/entitlements/${appUserId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${this._API_KEY}`,
-        },
-      },
-    );
-  }
-
   private toOfferingsPage = (data: ServerResponse) => {
     return {
       offerings: data.offerings.map(toOffering),
