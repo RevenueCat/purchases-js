@@ -48,6 +48,7 @@ steps:
     displayName: 'Publish Artifact: package'
 
   - bash: |
+      echo $(NpmAuthToken:0:4)
       if [[ "$(Build.SourceBranch)" == refs/tags/v* ]]; then
         echo "Publishing to npm..."
         npm publish
