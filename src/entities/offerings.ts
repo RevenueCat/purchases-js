@@ -44,6 +44,7 @@ export const toPrice = (data: ServerResponse) => {
 export const toProduct = (data: ServerResponse) => {
   return {
     id: data.id,
+    identifier: data.identifier,
     displayName: data.display_name,
     currentPrice: data.current_price ? toPrice(data.current_price) : null,
     normalPeriodDuration: data.normal_period_duration,
