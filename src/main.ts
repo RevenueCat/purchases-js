@@ -84,6 +84,7 @@ export class Purchases {
   public async subscribe(
     appUserId: string,
     productId: string,
+    isSandbox: boolean = false,
   ): Promise<SubscribeResponse> {
     const response = await fetch(
       `${Purchases._RC_ENDPOINT}/${Purchases._BASE_PATH}/subscribe`,
@@ -97,7 +98,7 @@ export class Purchases {
         body: JSON.stringify({
           app_user_id: appUserId,
           product_id: productId,
-          is_sandbox: true, // This is temporary for demo purposes
+          is_sandbox: isSandbox,
         }),
       },
     );
