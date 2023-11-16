@@ -1,10 +1,14 @@
+import { ServerResponse } from "./entities/types";
 import {
   Offering as InnerOffering,
   OfferingsPage as InnerOfferingsPage,
   Package as InnerPackage,
-  ServerResponse,
   toOffering,
 } from "./entities/offerings";
+import {
+  SubscribeResponse,
+  toSubscribeResponse,
+} from "./entities/subscribe-response";
 
 export type OfferingsPage = InnerOfferingsPage;
 export type Offering = InnerOffering;
@@ -77,7 +81,10 @@ export class Purchases {
     return entitlements.includes(entitlementIdentifier);
   }
 
-  public async subscribe(appUserId: string, productId: string) {
+  public async subscribe(
+    appUserId: string,
+    productId: string,
+  ): Promise<SubscribeResponse> {
     const response = await fetch(
       `${Purchases._RC_ENDPOINT}/${Purchases._BASE_PATH}/subscribe`,
       {
@@ -90,11 +97,12 @@ export class Purchases {
         body: JSON.stringify({
           app_user_id: appUserId,
           product_id: productId,
+          is_sandbox: true, // This is temporary for demo purposes
         }),
       },
     );
 
     const data = await response.json();
-    return data;
+    return toSubscribeResponse(data);
   }
 }

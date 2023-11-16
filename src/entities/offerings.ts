@@ -1,3 +1,5 @@
+import { ServerResponse } from "./types";
+
 export interface Price {
   amount: number;
   currency: string;
@@ -31,8 +33,6 @@ export interface OfferingsPage {
   offerings: Offering[];
   priceByPackageId: { [packageId: string]: number };
 }
-
-export type ServerResponse = any; // eslint-disable-line
 
 export const toPrice = (data: ServerResponse) => {
   return {
