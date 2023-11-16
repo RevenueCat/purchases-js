@@ -22,7 +22,7 @@ export class Purchases {
 
     if (Purchases._RC_ENDPOINT === undefined) {
       console.error(
-        "Project was build without some of the environment variables set"
+        "Project was build without some of the environment variables set",
       );
     }
   }
@@ -43,7 +43,7 @@ export class Purchases {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-      }
+      },
     );
 
     const data = await response.json();
@@ -52,7 +52,7 @@ export class Purchases {
 
   public async isEntitledTo(
     appUserId: string,
-    entitlementIdentifier: string
+    entitlementIdentifier: string,
   ): Promise<boolean> {
     const response = await fetch(
       `${Purchases._RC_ENDPOINT}/${Purchases._BASE_PATH}/entitlements/${appUserId}`,
@@ -62,7 +62,7 @@ export class Purchases {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-      }
+      },
     );
 
     const status = response.status;
@@ -72,7 +72,7 @@ export class Purchases {
 
     const data = await response.json();
     const entitlements = data.entitlements.map(
-      (ent: ServerResponse) => ent.lookup_key
+      (ent: ServerResponse) => ent.lookup_key,
     );
     return entitlements.includes(entitlementIdentifier);
   }
@@ -91,7 +91,7 @@ export class Purchases {
           app_user_id: appUserId,
           product_id: productId,
         }),
-      }
+      },
     );
 
     const data = await response.json();
