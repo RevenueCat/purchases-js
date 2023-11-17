@@ -16,7 +16,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "baseUrl": ".",
+    "baseUrl": "."
   },
   "include": ["./src/**/*.ts", "global.d.ts"],
   "exclude": ["node_modules", "*.test.ts"]

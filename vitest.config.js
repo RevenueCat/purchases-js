@@ -1,10 +1,10 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   // Use the test field to define test-specific configurations
   test: {
     // Set the environment to 'jsdom' to simulate a browser environment
-    environment: 'jsdom',
+    environment: "jsdom",
 
     // Set globals that your tests might depend on
     globals: true,
@@ -17,14 +17,14 @@ export default defineConfig({
     },
 
     // Specify reporters if needed (e.g., verbose, dot, json)
-    reporters: 'default', // 'default' or an array of reporters
+    reporters: "default", // 'default' or an array of reporters
 
     // If you need to extend the default jsdom environment (e.g., with a URL)
-    setupFiles: './vitest.setup.js', // Path to the setup file
+    setupFiles: "./vitest.setup.js", // Path to the setup file
 
     // Coverage configuration if you are collecting test coverage
     coverage: {
-      provider: 'istanbul', // or 'c8'
+      provider: "istanbul", // or 'c8'
       // Additional coverage configuration options...
     },
 
