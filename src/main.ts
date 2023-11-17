@@ -84,8 +84,9 @@ export class Purchases {
   public async subscribe(
     appUserId: string,
     productId: string,
-    isSandbox: boolean = false,
+    environment: "sandbox" | "production" = "production",
   ): Promise<SubscribeResponse> {
+    const isSandbox = environment === "sandbox";
     const response = await fetch(
       `${Purchases._RC_ENDPOINT}/${Purchases._BASE_PATH}/subscribe`,
       {

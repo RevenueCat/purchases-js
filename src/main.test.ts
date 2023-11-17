@@ -145,9 +145,9 @@ test("can post to subscribe", async () => {
   );
 
   expect(subscribeResponse).toEqual({
-    next_action: "collect_payment_info",
+    nextAction: "collect_payment_info",
     data: {
-      client_secret: "seti_123",
+      clientSecret: "seti_123",
     },
   });
 });
