@@ -1,10 +1,14 @@
+import { ServerResponse } from "./entities/types";
 import {
   Offering as InnerOffering,
   OfferingsPage as InnerOfferingsPage,
   Package as InnerPackage,
-  ServerResponse,
   toOffering,
 } from "./entities/offerings";
+import {
+  SubscribeResponse,
+  toSubscribeResponse,
+} from "./entities/subscribe-response";
 
 export type OfferingsPage = InnerOfferingsPage;
 export type Offering = InnerOffering;
@@ -75,5 +79,32 @@ export class Purchases {
       (ent: ServerResponse) => ent.lookup_key,
     );
     return entitlements.includes(entitlementIdentifier);
+  }
+
+  public async subscribe(
+    appUserId: string,
+    productId: string,
+    environment: "sandbox" | "production" = "production",
+  ): Promise<SubscribeResponse> {
+    const isSandbox = environment === "sandbox";
+    const response = await fetch(
+      `${Purchases._RC_ENDPOINT}/${Purchases._BASE_PATH}/subscribe`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${this._API_KEY}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          app_user_id: appUserId,
+          product_id: productId,
+          is_sandbox: isSandbox,
+        }),
+      },
+    );
+
+    const data = await response.json();
+    return toSubscribeResponse(data);
   }
 }

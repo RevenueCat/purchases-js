@@ -65,6 +65,17 @@ const server = setupServer(
       );
     },
   ),
+  http.post("http://localhost:8000/rcbilling/v1/subscribe", () => {
+    return HttpResponse.json(
+      {
+        next_action: "collect_payment_info",
+        data: {
+          client_secret: "seti_123",
+        },
+      },
+      { status: 200 },
+    );
+  }),
 );
 
 beforeAll(() => {
@@ -123,5 +134,20 @@ test("can get offerings", async () => {
       },
     ],
     priceByPackageId: undefined,
+  });
+});
+
+test("can post to subscribe", async () => {
+  const billing = new Purchases("test_api_key");
+  const subscribeResponse = await billing.subscribe(
+    "someAppUserId",
+    "product_1",
+  );
+
+  expect(subscribeResponse).toEqual({
+    nextAction: "collect_payment_info",
+    data: {
+      clientSecret: "seti_123",
+    },
   });
 });
