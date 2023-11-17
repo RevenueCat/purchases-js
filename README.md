@@ -30,6 +30,7 @@ npm test
 # Publishing a new version
 
 - Update the version in `package.json`
+- Add a new entry in `CHANGELOG.md` including all the PR merged and crediting the authors
 - Commit the changes in main
 - Create a new tag with the version number and push:
 

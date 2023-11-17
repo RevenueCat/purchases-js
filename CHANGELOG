@@ -1,0 +1,23 @@
+# 0.0.3
+
+- Add prettier by @francocorreasosa in #13
+- Bug: fix some types by @alfondotnet in #14
+
+# 0.0.2
+
+- Fix publishing to NPM by @alfondotnet in # 10
+- BIL-40: Add subscribe method by @francocorreasosa in #11
+- Only build ES modules by @alfondotnet in #12
+
+# 0.0.1
+
+Initial release 🐱🚀
+
+- Add Vite by @alfondotnet in #1
+- add README by @alfondotnet in #2
+- Fon/add entrypoint by @alfondotnet in #3
+- Simplify existing methods + MSW by @alfondotnet in #5
+- Added the listOfferings method by @nicfix in #4
+- Migrated to the new price naming by @nicfix in #6
+- BIL-15: isEntitledTo method! by @nicfix in #7
+- Rename / Clean up package prior to publishing to NPM by @alfondotnet in #9
