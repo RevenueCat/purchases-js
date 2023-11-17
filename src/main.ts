@@ -86,7 +86,7 @@ export class Purchases {
     productId: string,
     environment: "sandbox" | "production" = "production",
   ): Promise<SubscribeResponse> {
-    const isSandbox = environment === "sandbox" ? "true" : "false";
+    const isSandbox = environment === "sandbox";
     const response = await fetch(
       `${Purchases._RC_ENDPOINT}/${Purchases._BASE_PATH}/subscribe`,
       {
