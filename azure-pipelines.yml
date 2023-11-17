@@ -64,9 +64,16 @@ jobs:
     displayName: "Publish to npm"
     condition: and(succeeded(), eq(variables['Build.Reason'], 'individualCI'), ne(variables['Build.SourceBranch'], 'refs/tags/*'))
     steps:
+      - task: DownloadPipelineArtifact@2
+        inputs:
+          artifactName: "npmPackage"
+          downloadPath: "$(System.DefaultWorkingDirectory)"
+        displayName: "Download npm package artifact"
+
       - bash: |
           echo "Publishing to npm..."
-          npm publish --access private
+          tarball=$(ls *.tgz)
+          npm publish $tarball --access private
         displayName: "Publish to npm"
         env:
           NODE_AUTH_TOKEN: $(NpmAuthToken)
