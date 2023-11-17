@@ -1,34 +1,38 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>RCBilling Example</title>
     <script src="./dist/rcbilling-js.iife.js"></script>
     <style>
-        /* Some basic styling for our Stripe form */
-        #payment-form {
-            width: 300px;
-            margin: 50px auto;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
+      /* Some basic styling for our Stripe form */
+      #payment-form {
+        width: 300px;
+        margin: 50px auto;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
+    <div id="payment-form"></div>
 
-<div id="payment-form"></div>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        var billing = new RCBilling('web_tFpmIVwEGKNprbMOyiRRzZAbzIHX', 'test_rcbilling');
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        var billing = new RCBilling(
+          "web_tFpmIVwEGKNprbMOyiRRzZAbzIHX",
+          "test_rcbilling",
+        );
 
         setTimeout(() => {
-            billing.renderForm(document.getElementById('payment-form'), "monthly.product_1234");
+          billing.renderForm(
+            document.getElementById("payment-form"),
+            "monthly.product_1234",
+          );
         }, 3000);
-    });
-</script>
-
-</body>
+      });
+    </script>
+  </body>
 </html>
