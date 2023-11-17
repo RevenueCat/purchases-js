@@ -1,4 +1,3 @@
-import { ServerResponse } from "./entities/types";
 import {
   Offering as InnerOffering,
   OfferingsPage as InnerOfferingsPage,
@@ -9,6 +8,7 @@ import {
   SubscribeResponse,
   toSubscribeResponse,
 } from "./entities/subscribe-response";
+import { ServerResponse } from "./entities/types";
 
 export type OfferingsPage = InnerOfferingsPage;
 export type Offering = InnerOffering;
@@ -31,11 +31,11 @@ export class Purchases {
     }
   }
 
-  private toOfferingsPage = (data: ServerResponse) => {
+  private toOfferingsPage = (data: ServerResponse): OfferingsPage => {
     return {
       offerings: data.offerings.map(toOffering),
       priceByPackageId: data.prices_by_package_id,
-    } as OfferingsPage;
+    };
   };
 
   public async listOfferings(): Promise<OfferingsPage> {
