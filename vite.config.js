@@ -8,7 +8,7 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, 'src/main.ts'),
       name: "Purchases",
-      formats: ["umd", "iife", "es"]
+      formats: ["es"]
     },
   },
   plugins: [dts()]
