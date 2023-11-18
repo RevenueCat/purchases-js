@@ -52,29 +52,13 @@ jobs:
       - script: npm pack
         displayName: "Pack"
 
-      - task: PublishPipelineArtifact@1
-        inputs:
-          targetPath: "$(Build.ArtifactStagingDirectory)"
-          artifact: "package"
-          publishLocation: "pipeline"
-        condition: and(succeeded(), eq(variables['Build.Reason'], 'individualCI'))
-        displayName: "Publish Artifact: package"
-
-  - job: PublishToNpm
-    displayName: "Publish to npm"
-    dependsOn: RunTests
-    condition: and(succeeded(), eq(variables['Build.Reason'], 'individualCI'), ne(variables['Build.SourceBranch'], 'refs/tags/*'))
-    steps:
-      - task: DownloadPipelineArtifact@1
-        inputs:
-          artifactName: "package"
-          downloadPath: "$(System.DefaultWorkingDirectory)"
-        displayName: "Download npm package artifact"
-
       - bash: |
-          echo "Publishing to npm..."
-          tarball=$(ls *.tgz)
-          npm publish $tarball --access private
+          if [[ "$(Build.SourceBranch)" == refs/tags/v* ]]; then
+            echo "Publishing to npm..."
+            npm publish --access private
+          else
+            echo "Not a tag push, will not publish to npm."
+          fi
         displayName: "Publish to npm"
         env:
           NODE_AUTH_TOKEN: $(NpmAuthToken)
