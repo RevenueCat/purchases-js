@@ -1,7 +1,7 @@
 {
   "name": "@revenuecat/purchases-js",
   "private": false,
-  "version": "0.0.3",
+  "version": "0.0.5",
   "type": "module",
   "types": "dist/main.d.ts",
   "main": "dist/purchases-js.js",
