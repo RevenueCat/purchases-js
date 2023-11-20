@@ -81,17 +81,17 @@ export class Purchases {
     return entitlements.includes(entitlementIdentifier);
   }
 
-  public async waitForEntitlement(
+  public waitForEntitlement(
     appUserId: string,
     entitlementIdentifier: string,
-    maxAttempts: number = 1,
+    maxAttempts: number = 10,
   ): Promise<boolean> {
     const waitMSBetweenAttempts = 1000;
     return new Promise<boolean>((resolve, reject) => {
       const checkForEntitlement = (checkCount = 1) =>
         this.isEntitledTo(appUserId, entitlementIdentifier)
           .then((hasEntitlement) => {
-            if (checkCount >= maxAttempts) {
+            if (checkCount > maxAttempts) {
               return resolve(false);
             }
 

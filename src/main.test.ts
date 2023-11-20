@@ -101,6 +101,7 @@ test("returns true if a user is entitled and uses waitForEntitlement", async () 
   const isEntitled = await billing.waitForEntitlement(
     "someAppUserId",
     "someEntitlement",
+    2,
   );
   expect(isEntitled).toBeTruthy();
 });
@@ -119,6 +120,7 @@ test("returns false if a user is not entitled and uses waitForEntitlement", asyn
   const isEntitled = await billing.waitForEntitlement(
     "someOtherAppUserId",
     "someEntitlement",
+    2,
   );
   expect(isEntitled).not.toBeTruthy();
 });
