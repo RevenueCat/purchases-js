@@ -10,30 +10,30 @@ Sign up to [get started for free](https://app.revenuecat.com/signup).
 
 Login @ [app.revenuecat.com](https://app.revenuecat.com)
 
-* Create a Project (if you haven't already)
+- Create a Project (if you haven't already)
 
 ### ======> Only while testing <======
 
-* Add the private project id (a.k.a. app_id) to the following feature flags
-    * RCBILLING
-    * GENERATE_V2_SUBSCRIPTION_MODELS_FOR_RCBILLING
-    * GENERATE_V2_SUBSCRIPTION_MODELS
+- Add the private project id (a.k.a. app_id) to the following feature flags
+  - RCBILLING
+  - GENERATE_V2_SUBSCRIPTION_MODELS_FOR_RCBILLING
+  - GENERATE_V2_SUBSCRIPTION_MODELS
 
 ### ======> Only while testing <======
 
-* Add a new RCBilling app
-    * Get the `RC_PUBLISHABLE_API_KEY` (you will need it soon)
-    * Connect your Stripe account (More payment gateways are coming soon)
-* Create some products for the RCBilling App
-* Create an offering and add packages with RCBilling products
-* Create the entitlements you need in your app and link them to the RCBilling products
+- Add a new RCBilling app
+  - Get the `RC_PUBLISHABLE_API_KEY` (you will need it soon)
+  - Connect your Stripe account (More payment gateways are coming soon)
+- Create some products for the RCBilling App
+- Create an offering and add packages with RCBilling products
+- Create the entitlements you need in your app and link them to the RCBilling products
 
 # Installation
 
 ### ======> Only during testing <======
 
-* Get a token to download the sdk from our private npm registry
-* Set the environment variable `NODE_AUTH_TOKEN`
+- Get a token to download the sdk from our private npm registry
+- Set the environment variable `NODE_AUTH_TOKEN`
 
 ```bash
 export NODE_AUTH_TOKEN="the token you got from the npm registry"
@@ -41,7 +41,7 @@ export NODE_AUTH_TOKEN="the token you got from the npm registry"
 
 ### ======> Only during testing <======
 
-* Add the library to your project's dependencies
+- Add the library to your project's dependencies
 
 ```
 npm add --save @revenuecat/purchases-js
@@ -55,14 +55,12 @@ By downloading the current Offerings you can easily build a Paywall page using t
 associated `rcBillingProduct` and price.
 
 ```typescript
-const purchases = new Purchases('your RC_PUBLISHABLE_API_KEY');
+const purchases = new Purchases("your RC_PUBLISHABLE_API_KEY");
 
 purchases.listOfferings().then((offeringsPage) => {
-    offeringsPage
-        .offerings
-        .forEach(offering => {
-            console.log(offering);
-        })
+  offeringsPage.offerings.forEach((offering) => {
+    console.log(offering);
+  });
 });
 ```
 
@@ -77,58 +75,55 @@ You can check the entitlements granted to your users throughout all the platform
 also on your website!
 
 ```typescript
-const appUserId = 'the unique id of the user in your systems';
-const entitlementId = 'the entitlementId you set up in RC';
+const appUserId = "the unique id of the user in your systems";
+const entitlementId = "the entitlementId you set up in RC";
 
-const purchases = new Purchases('your RC_PUBLISHABLE_API_KEY');
+const purchases = new Purchases("your RC_PUBLISHABLE_API_KEY");
 
-purchases.isEntitledTo(appUserId, entitlementId).then(isEntitled => {
-    if (isEntitled == true) {
-        console.log(`User ${appUserID} is entitled to ${entitlementId}`)
-    } else {
-        console.log(`User ${appUserID} is not entitled to ${entitlementId}`)
-    }
+purchases.isEntitledTo(appUserId, entitlementId).then((isEntitled) => {
+  if (isEntitled == true) {
+    console.log(`User ${appUserID} is entitled to ${entitlementId}`);
+  } else {
+    console.log(`User ${appUserID} is not entitled to ${entitlementId}`);
+  }
 });
 ```
 
 As example, you can build a cool React component with it:
 
 ```tsx
-const WithEntitlement = ({
-                             appUserId,
-                             entitlementId,
-                             children,
-                         }) => {
-    const [isEntitled, setIsEntitled] = useState<boolean | null>(null);
+const WithEntitlement = ({ appUserId, entitlementId, children }) => {
+  const [isEntitled, setIsEntitled] = useState<boolean | null>(null);
 
-    useEffect(() => {
-        const purchases = new Purchases('your RC_PUBLISHABLE_API_KEY');
-        purchases.isEntitledTo(appUserId, entitlementId).then(isEntitled => {
-            setIsEntitled(isEntitled)
-        });
+  useEffect(() => {
+    const purchases = new Purchases("your RC_PUBLISHABLE_API_KEY");
+    purchases.isEntitledTo(appUserId, entitlementId).then((isEntitled) => {
+      setIsEntitled(isEntitled);
+    });
+  }, [appUserId, entitlementId]);
 
-    }, [appUserId, entitlementId]);
+  if (isEntitled === null) {
+    return <>"loading..."</>;
+  }
 
-    if (isEntitled === null) {
-        return <>"loading..."</>;
-    }
+  if (isEntitled === true) {
+    return <>{children}</>;
+  }
 
-    if (isEntitled === true) {
-        return <>{children}</>;
-    }
-
-    return <>You are not entitled!</>;
+  return <>You are not entitled!</>;
 };
 ```
 
 And then use it in your app:
 
 ```tsx
-const App = () => <>
+const App = () => (
+  <>
     <WithEntitlement appUserId={"user12345"} entitlementId={"functionality5"}>
-        <Functionality5/>
+      <Functionality5 />
     </WithEntitlement>
-</>;
+  </>
+);
 ```
 
 ## Subscribe a User to an entitlement and allow payment with Stripe
@@ -143,30 +138,24 @@ You built your paywall, and your user just clicked on the offer they want to sub
 ### 1. Call the .subscribe method to initialise the process
 
 ```tsx
-
-const purchases = new Purchases('your RC_PUBLISHABLE_API_KEY');
+const purchases = new Purchases("your RC_PUBLISHABLE_API_KEY");
 // You can retrieve this from the offerings you downloaded, as example:
 // offeringsPage.offerings[0].packages[0].rcBillingProduct.identifier
-const rcBillingProductIndentifier = 'the Product Identifier the user wants to buy';
-const appUserId = 'the unique id of the user that wants to subscribe to your product';
+const rcBillingProductIndentifier =
+  "the Product Identifier the user wants to buy";
+const appUserId =
+  "the unique id of the user that wants to subscribe to your product";
 
-purchase.subscribe(
-    appUserId,
-    rcBillingProductIndentifier,
-).then(
-    (response) => {
-        if (response.nextAction === 'collect_payment_info') {
-            // Use the clientSecret to show the StripeElements payment components
-            showStripeElements(
-                {
-                    setupIntentClientSecret: response.data.clientSecret,
-                }
-            )
-        } else {
-            // No need to collect payment info, just wait for the entitlement to be granted
-        }
-    }
-)
+purchase.subscribe(appUserId, rcBillingProductIndentifier).then((response) => {
+  if (response.nextAction === "collect_payment_info") {
+    // Use the clientSecret to show the StripeElements payment components
+    showStripeElements({
+      setupIntentClientSecret: response.data.clientSecret,
+    });
+  } else {
+    // No need to collect payment info, just wait for the entitlement to be granted
+  }
+});
 ```
 
 ### 2. [If nextAction === 'collect_payment_info'] Show the Stripe Elements to collect payment
@@ -174,31 +163,33 @@ purchase.subscribe(
 ```tsx
 // Set up stripe as shown in their docs
 const stripePromise = loadStripe(
-    import.meta.env.VITE_RC_STRIPE_PK_KEY as string,
-    {stripeAccount: import.meta.env.VITE_RC_STRIPE_ACCOUNT_ID as string}
+  import.meta.env.VITE_RC_STRIPE_PK_KEY as string,
+  { stripeAccount: import.meta.env.VITE_RC_STRIPE_ACCOUNT_ID as string },
 );
 
-
 // Use the clientSecret obtained in the step 1. Call the .subscribe method to initialise the process
-const PaymentForm = ({clientSecret}) => {
+const PaymentForm = ({ clientSecret }) => {
+  const handleSubmit = async (e: SyntheticEvent) => {
+    e.preventDefault();
+    stripe
+      .confirmSetup({
+        elements,
+        clientSecret,
+        confirmParams: {
+          return_url: `${window.location.origin}/success`,
+        },
+        redirect: "if_required",
+      })
+      .then((response) => {
+        // All is done you can now wait for the entitlement to be granted.
+      });
+  };
 
-    const handleSubmit = async (e: SyntheticEvent) => {
-        e.preventDefault();
-        stripe.confirmSetup({
-            elements,
-            clientSecret,
-            confirmParams: {
-                return_url: `${window.location.origin}/success`,
-            },
-            redirect: 'if_required',
-        }).then(response => {
-            // All is done you can now wait for the entitlement to be granted.
-        });
-    }
-
-    return <form id="payment-form" onSubmit={handleSubmit}>
-        <PaymentElement id="payment-element" options={paymentElementOptions}/>
+  return (
+    <form id="payment-form" onSubmit={handleSubmit}>
+      <PaymentElement id="payment-element" options={paymentElementOptions} />
     </form>
+  );
 };
 ```
 
@@ -206,11 +197,6 @@ const PaymentForm = ({clientSecret}) => {
 
 You can now loop and use the `.isEntitledTo` while Stripe communicates with our servers to grant the entitlement.
 As soon as the entitlement is given, your user's payment went through!
-
-
-
-
-
 
 # Development
 
