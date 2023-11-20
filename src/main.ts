@@ -54,6 +54,23 @@ export class Purchases {
     return this.toOfferingsPage(data);
   }
 
+  public async getPackage(packageIdentifier: string): Promise<Package | null> {
+    const offeringsPage = await this.listOfferings();
+    const packages: Package[] = [];
+    offeringsPage.offerings.forEach((offering) =>
+      packages.push(...offering.packages),
+    );
+
+    const filteredPackages: Package[] = packages.filter(
+      (pakg) => pakg.identifier === packageIdentifier,
+    );
+    if (filteredPackages.length === 0) {
+      return null;
+    }
+
+    return filteredPackages[0];
+  }
+
   public async isEntitledTo(
     appUserId: string,
     entitlementIdentifier: string,
@@ -135,5 +152,22 @@ export class Purchases {
 
     const data = await response.json();
     return toSubscribeResponse(data);
+  }
+
+  public async getPackage(packageIdentifier: string): Promise<Package | null> {
+    const offeringsPage = await this.listOfferings();
+    const packages: Package[] = [];
+    offeringsPage.offerings.forEach((offering) =>
+      packages.push(...offering.packages),
+    );
+
+    const filteredPackages: Package[] = packages.filter(
+      (pakg) => pakg.identifier === packageIdentifier,
+    );
+    if (filteredPackages.length === 0) {
+      return null;
+    }
+
+    return filteredPackages[0];
   }
 }
