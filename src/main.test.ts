@@ -2,6 +2,7 @@ import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 import { beforeAll, expect, test } from "vitest";
 import { Purchases } from "./main";
+import { as } from "vitest/dist/reporters-5f784f42";
 
 const server = setupServer(
   http.get("http://localhost:8000/rcbilling/v1/offerings", () => {
@@ -170,4 +171,17 @@ test("can post to subscribe", async () => {
       clientSecret: "seti_123",
     },
   });
+});
+
+test("can get a specific Package", async () => {
+  const purchases = new Purchases("test_api_key");
+  const pkg = await purchases.getPackage("package_1");
+  expect(pkg).not.toBeNull();
+  expect(pkg?.identifier).toBe("package_1");
+});
+
+test("returns null for Package not found", async () => {
+  const purchases = new Purchases("test_api_key");
+  const pkg = await purchases.getPackage("package_not_there");
+  expect(pkg).toBeNull();
 });
