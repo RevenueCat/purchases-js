@@ -171,3 +171,16 @@ test("can post to subscribe", async () => {
     },
   });
 });
+
+test("can get a specific Package", async () => {
+  const purchases = new Purchases("test_api_key");
+  const pkg = await purchases.getPackage("package_1");
+  expect(pkg).not.toBeNull();
+  expect(pkg?.identifier).toBe("package_1");
+});
+
+test("returns null for Package not found", async () => {
+  const purchases = new Purchases("test_api_key");
+  const pkg = await purchases.getPackage("package_not_there");
+  expect(pkg).toBeNull();
+});
