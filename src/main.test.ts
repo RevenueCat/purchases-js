@@ -2,7 +2,6 @@ import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 import { beforeAll, expect, test } from "vitest";
 import { Purchases } from "./main";
-import { as } from "vitest/dist/reporters-5f784f42";
 
 const server = setupServer(
   http.get("http://localhost:8000/rcbilling/v1/offerings", () => {
