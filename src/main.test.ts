@@ -96,9 +96,27 @@ test("returns true if a user is entitled", async () => {
   expect(isEntitled).toBeTruthy();
 });
 
-test("returns true if a user is not entitled", async () => {
+test("returns true if a user is entitled and uses waitForEntitlement", async () => {
+  const billing = new Purchases("test_api_key");
+  const isEntitled = await billing.waitForEntitlement(
+    "someAppUserId",
+    "someEntitlement",
+  );
+  expect(isEntitled).toBeTruthy();
+});
+
+test("returns false if a user is not entitled", async () => {
   const billing = new Purchases("test_api_key");
   const isEntitled = await billing.isEntitledTo(
+    "someOtherAppUserId",
+    "someEntitlement",
+  );
+  expect(isEntitled).not.toBeTruthy();
+});
+
+test("returns false if a user is not entitled and uses waitForEntitlement", async () => {
+  const billing = new Purchases("test_api_key");
+  const isEntitled = await billing.waitForEntitlement(
     "someOtherAppUserId",
     "someEntitlement",
   );
