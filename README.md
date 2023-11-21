@@ -195,8 +195,27 @@ const PaymentForm = ({ clientSecret }) => {
 
 ### 3. Wait for the entitlement to be granted
 
-You can now loop and use the `.isEntitledTo` while Stripe communicates with our servers to grant the entitlement.
-As soon as the entitlement is given, your user's payment went through!
+You can use the `.waitForEntitlement` method.
+
+```tsx
+const appUserId = "the unique id of the user in your systems";
+const entitlementId = "the entitlementId you set up in RC";
+
+const purchases = new Purchases("your RC_PUBLISHABLE_API_KEY");
+const numberOfAttempts = 10;
+
+purchases
+  .waitForEntitlement(appUserId, entitlementId, numberOfAttempts)
+  .then((isEntitled) => {
+    if (isEntitled == true) {
+      console.log(`User ${appUserID} is entitled to ${entitlementId}`);
+    } else {
+      console.log(
+        `User ${appUserID} is not entitled to ${entitlementId}, even after ${numberOfAttempts} attempts`,
+      );
+    }
+  });
+```
 
 # Development
 
