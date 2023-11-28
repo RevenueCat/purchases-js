@@ -1,0 +1,102 @@
+<script lang="ts">
+  import { onMount } from "svelte";
+  import { Purchases } from "../main";
+  import Button from "./button.svelte";
+  import { Elements, PaymentElement } from "svelte-stripe";
+  import type { Stripe, StripeElements } from "@stripe/stripe-js";
+  import { loadStripe } from "@stripe/stripe-js";
+  import { SubscribeResponse } from "../entities/subscribe-response";
+  import ModalSection from "./modal-section.svelte";
+  import ModalFooter from "./modal-footer.svelte";
+  import StateLoading from "./state-loading.svelte";
+
+  export let onClose: any;
+  export let onContinue: any;
+  export let onError: any;
+  export let purchases: Purchases;
+  export let paymentInfoCollectionMetadata: SubscribeResponse;
+
+  const clientSecret = paymentInfoCollectionMetadata.data.clientSecret;
+
+  let stripe: Stripe | null = null;
+  let elements: StripeElements;
+  let processing = false;
+  let safeElements: StripeElements;
+
+  $: {
+    // @ts-ignore
+    if (elements && elements._elements.length > 0) {
+      safeElements = elements;
+    }
+  }
+
+  onMount(async () => {
+    const stripeSettings = purchases?._PAYMENT_PROVIDER_SETTINGS?.stripe;
+
+    if (!stripeSettings) {
+      throw new Error("Stripe settings not found");
+    }
+
+    const stripePk = stripeSettings.publishableKey;
+    const stripeAcctId = stripeSettings.accountId;
+
+    if (!stripePk || !stripeAcctId) {
+      throw new Error("Stripe publishable key or account ID not found");
+    }
+
+    stripe = await loadStripe(stripePk, { stripeAccount: stripeAcctId });
+  });
+
+  const handleContinue = async () => {
+    console.log("TUKI", {
+      processing,
+      stripe,
+      safeElements,
+      clientSecret: paymentInfoCollectionMetadata.data.clientSecret,
+      paymentInfoCollectionMetadata,
+    });
+    if (processing || !stripe || !safeElements) return;
+
+    processing = true;
+
+    // confirm payment with stripe
+    const result = await stripe.confirmSetup({
+      elements: safeElements,
+      redirect: "if_required",
+    });
+
+    if (result.error) {
+      // payment failed, notify user
+      processing = false;
+      onError(result.error);
+    } else {
+      onContinue();
+    }
+  };
+</script>
+
+<div>
+  {#if stripe && clientSecret}
+    <form on:submit|preventDefault={handleContinue}>
+      <Elements {stripe} {clientSecret} loader="always" bind:elements>
+        <ModalSection>
+          <PaymentElement />
+        </ModalSection>
+        <ModalFooter>
+          <Button disabled={processing}>
+            {#if processing}
+              Processing...
+            {:else}
+              Pay
+            {/if}</Button
+          >
+          <Button disabled={processing} intent="secondary" on:click={onClose}
+            >Close</Button
+          >
+        </ModalFooter>
+      </Elements>
+    </form>
+  {:else}
+    <StateLoading />
+  {/if}
+</div>

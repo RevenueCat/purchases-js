@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "types": ["vite/client"],
+    "types": ["vite/client", "svelte"],
     "useDefineForClassFields": true,
     "module": "ESNext",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
@@ -18,6 +18,6 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": "."
   },
-  "include": ["./src/**/*.ts", "global.d.ts"],
+  "include": ["./src/**/*.ts", "global.d.ts","./src/**/*.svelte"],
   "exclude": ["node_modules", "*.test.ts"]
 }
