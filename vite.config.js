@@ -5,12 +5,16 @@ import { svelte } from "@sveltejs/vite-plugin-svelte";
 
 export default defineConfig({
   build: {
-    target: "es2015",
     lib: {
       entry: resolve(__dirname, "src/main.ts"),
       name: "Purchases",
-      formats: ["es"],
+      fileName: (format) => `Purchases.${format}.js`,
     },
   },
-  plugins: [dts(), svelte()],
+  plugins: [
+    dts({
+      rollupTypes: true,
+    }),
+    svelte(),
+  ],
 });
