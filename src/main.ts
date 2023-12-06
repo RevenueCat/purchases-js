@@ -117,13 +117,6 @@ export class Purchases {
     environment: "sandbox" | "production" = "production",
   ): Promise<SubscribeResponse> {
     const isSandbox = environment === "sandbox";
-    const body: Record<string, string | boolean | number> = {
-      app_user_id: appUserId,
-      product_id: productId,
-      is_sandbox: isSandbox,
-      email: email,
-    };
-
     const response = await fetch(
       `${Purchases._RC_ENDPOINT}/${Purchases._BASE_PATH}/subscribe`,
       {
@@ -133,7 +126,12 @@ export class Purchases {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-        body: JSON.stringify(body),
+        body: JSON.stringify({
+          app_user_id: appUserId,
+          product_id: productId,
+          is_sandbox: isSandbox,
+          email: email,
+        }),
       },
     );
 
