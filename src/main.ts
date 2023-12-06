@@ -114,8 +114,17 @@ export class Purchases {
     appUserId: string,
     productId: string,
     environment: "sandbox" | "production" = "production",
+    email: string | undefined = undefined,
   ): Promise<SubscribeResponse> {
     const isSandbox = environment === "sandbox";
+    const body: Record<string, string | boolean | number> = {
+      app_user_id: appUserId,
+      product_id: productId,
+      is_sandbox: isSandbox,
+    };
+    if (email !== undefined) {
+      body["email"] = email;
+    }
     const response = await fetch(
       `${Purchases._RC_ENDPOINT}/${Purchases._BASE_PATH}/subscribe`,
       {
@@ -124,12 +133,9 @@ export class Purchases {
           Authorization: `Bearer ${this._API_KEY}`,
           "Content-Type": "application/json",
           Accept: "application/json",
+          "X-RC-Canary": "bilemail",
         },
-        body: JSON.stringify({
-          app_user_id: appUserId,
-          product_id: productId,
-          is_sandbox: isSandbox,
-        }),
+        body: JSON.stringify(body),
       },
     );
 
