@@ -132,7 +132,6 @@ export class Purchases {
           Authorization: `Bearer ${this._API_KEY}`,
           "Content-Type": "application/json",
           Accept: "application/json",
-          "X-RC-Canary": "bilemail",
         },
         body: JSON.stringify(body),
       },
