@@ -113,18 +113,17 @@ export class Purchases {
   public async subscribe(
     appUserId: string,
     productId: string,
+    email: string,
     environment: "sandbox" | "production" = "production",
-    email: string | undefined = undefined,
   ): Promise<SubscribeResponse> {
     const isSandbox = environment === "sandbox";
     const body: Record<string, string | boolean | number> = {
       app_user_id: appUserId,
       product_id: productId,
       is_sandbox: isSandbox,
+      email: email,
     };
-    if (email !== undefined) {
-      body["email"] = email;
-    }
+
     const response = await fetch(
       `${Purchases._RC_ENDPOINT}/${Purchases._BASE_PATH}/subscribe`,
       {
