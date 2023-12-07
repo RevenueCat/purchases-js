@@ -61,7 +61,7 @@
     "vitest": "^0.34.6"
   },
   "overrides": {
-    "rollup": "^4.5.1"
+    "@sveltejs/vite-plugin-svelte": "^3.0.1"
   },
   "dependencies": {
     "@stripe/stripe-js": "^2.2.0"
