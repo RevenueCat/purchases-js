@@ -12,6 +12,10 @@
     ".": {
       "import": "./dist/Purchases.es.js",
       "require": "./dist/Purchases.umd.js"
+    },
+    "./styles": {
+      "import": "./dist/style.css",
+      "require": "./dist/style.css"
     }
   },
   "license": "MIT",
