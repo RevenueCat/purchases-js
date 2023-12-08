@@ -10,6 +10,15 @@ import {
 } from "./entities/subscribe-response";
 import { ServerResponse } from "./entities/types";
 
+import { StatusCodes } from "http-status-codes";
+import {
+  AlreadySubscribedError,
+  ConcurrentSubscriberAttributeUpdateError,
+  InvalidInputDataError,
+  PaymentGatewayError,
+  UnknownServerError,
+} from "./entities/errors";
+
 export type OfferingsPage = InnerOfferingsPage;
 export type Offering = InnerOffering;
 export type Package = InnerPackage;
@@ -113,6 +122,7 @@ export class Purchases {
   public async subscribe(
     appUserId: string,
     productId: string,
+    email: string,
     environment: "sandbox" | "production" = "production",
   ): Promise<SubscribeResponse> {
     const isSandbox = environment === "sandbox";
@@ -129,12 +139,36 @@ export class Purchases {
           app_user_id: appUserId,
           product_id: productId,
           is_sandbox: isSandbox,
+          email: email,
         }),
       },
     );
 
-    const data = await response.json();
-    return toSubscribeResponse(data);
+    if (response.status === StatusCodes.BAD_REQUEST) {
+      throw new InvalidInputDataError(response.status);
+    }
+
+    if (response.status === StatusCodes.TOO_MANY_REQUESTS) {
+      throw new ConcurrentSubscriberAttributeUpdateError(response.status);
+    }
+
+    if (response.status === StatusCodes.CONFLICT) {
+      throw new AlreadySubscribedError(response.status);
+    }
+
+    if (response.status === StatusCodes.INTERNAL_SERVER_ERROR) {
+      throw new PaymentGatewayError(response.status);
+    }
+
+    if (
+      response.status === StatusCodes.OK ||
+      response.status === StatusCodes.CREATED
+    ) {
+      const data = await response.json();
+      return toSubscribeResponse(data);
+    }
+
+    throw new UnknownServerError();
   }
 
   public async getPackage(packageIdentifier: string): Promise<Package | null> {

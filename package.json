@@ -1,7 +1,7 @@
 {
   "name": "@revenuecat/purchases-js",
   "private": false,
-  "version": "0.0.5",
+  "version": "0.0.6",
   "type": "module",
   "files": [
     "dist"
@@ -42,5 +42,8 @@
     "vite": "^4.4.5",
     "vite-plugin-dts": "^3.6.3",
     "vitest": "^0.34.6"
+  },
+  "dependencies": {
+    "http-status-codes": "^2.3.0"
   }
 }
