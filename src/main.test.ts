@@ -162,6 +162,7 @@ test("can post to subscribe", async () => {
   const subscribeResponse = await billing.subscribe(
     "someAppUserId",
     "product_1",
+    "test@test.com",
   );
 
   expect(subscribeResponse).toEqual({

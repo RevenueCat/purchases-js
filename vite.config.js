@@ -15,6 +15,6 @@ export default defineConfig({
     dts({
       rollupTypes: true,
     }),
-    svelte(),
+    svelte({ compilerOptions: { css: "injected" } }),
   ],
 });

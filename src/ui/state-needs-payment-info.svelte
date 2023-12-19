@@ -48,13 +48,6 @@
   });
 
   const handleContinue = async () => {
-    console.log("TUKI", {
-      processing,
-      stripe,
-      safeElements,
-      clientSecret: paymentInfoCollectionMetadata.data.clientSecret,
-      paymentInfoCollectionMetadata,
-    });
     if (processing || !stripe || !safeElements) return;
 
     processing = true;

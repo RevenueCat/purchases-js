@@ -122,6 +122,7 @@ export class Purchases {
   public async subscribe(
     appUserId: string,
     productId: string,
+    email: string,
     environment: "sandbox" | "production" = "production",
   ): Promise<SubscribeResponse> {
     const isSandbox = environment === "sandbox";
@@ -138,6 +139,7 @@ export class Purchases {
           app_user_id: appUserId,
           product_id: productId,
           is_sandbox: isSandbox,
+          email,
         }),
       },
     );
@@ -187,29 +189,64 @@ export class Purchases {
     productId: string,
     entitlement: string,
     environment: "sandbox" | "production" = "production",
+    customerEmail?: string,
+    htmlTarget?: HTMLElement,
   ): Promise<void> {
-    const htmlTarget = document.getElementById("rcb-ui-root");
-    if (htmlTarget === null) {
+    const resolvedHTMLTarget =
+      htmlTarget ?? document.getElementById("rcb-ui-root");
+    if (resolvedHTMLTarget === null) {
       throw new Error(
-        '[RC Billing]: Could not find an element with ID "rcb-ui-root"',
+        "[RC Billing]: Could not find the HTML target element to render on",
       );
     }
+    const asModal = !Boolean(htmlTarget);
 
     return new Promise((resolve) => {
-      new RCPurchasesUI({
-        target: htmlTarget,
-        props: {
-          appUserId,
-          productId,
-          environment,
-          entitlement,
-          onFinished: () => {
-            console.log("trigger on finished");
-            resolve();
+      // Create an iframe
+      const iframe = document.createElement("iframe");
+      iframe.style.width = "100%";
+      iframe.style.height = "100%";
+      iframe.width = "100%";
+      iframe.height = "100%";
+
+      iframe.style.border = "none";
+      // iframe.style.backgroundColor = "transparent";
+
+      if (asModal) {
+        iframe.style.width = "100vw";
+        iframe.style.height = "100vh";
+        iframe.style.position = "fixed";
+        iframe.style.top = "0rem";
+        iframe.style.left = "0rem";
+      }
+
+      // Append iframe to the target element
+      resolvedHTMLTarget.appendChild(iframe);
+
+      // Wait for iframe to load
+      iframe.onload = () => {
+        // Attach the widget to the iframe's body
+        new RCPurchasesUI({
+          target: iframe.contentDocument!.body,
+          props: {
+            appUserId,
+            productId,
+            environment,
+            entitlement,
+            customerEmail,
+            onFinished: () => {
+              console.log("trigger on finished");
+              iframe.remove();
+              resolve();
+            },
+            purchases: this,
+            asModal,
           },
-          purchases: this,
-        },
-      });
+        });
+      };
+
+      // Set the srcdoc or src of the iframe to about:blank to trigger load event
+      iframe.srcdoc = "";
     });
   }
 }

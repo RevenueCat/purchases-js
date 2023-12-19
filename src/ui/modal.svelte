@@ -33,20 +33,6 @@
     overflow-y: auto;
 
     box-shadow: 0 0 1rem rgba(0, 0, 0, 0.2);
-    font-family:
-      -apple-system,
-      BlinkMacSystemFont,
-      avenir next,
-      avenir,
-      segoe ui,
-      helvetica neue,
-      helvetica,
-      Cantarell,
-      Ubuntu,
-      roboto,
-      noto,
-      arial,
-      sans-serif;
   }
 
   @media screen and (max-width: 40rem) {
