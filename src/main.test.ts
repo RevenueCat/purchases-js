@@ -127,7 +127,7 @@ test("returns false if a user is not entitled and uses waitForEntitlement", asyn
 
 test("can get offerings", async () => {
   const billing = new Purchases("test_api_key");
-  const offerings = await billing.listOfferings();
+  const offerings = await billing.listOfferings("app_user_id");
 
   expect(offerings).toEqual({
     offerings: [
@@ -175,13 +175,13 @@ test("can post to subscribe", async () => {
 
 test("can get a specific Package", async () => {
   const purchases = new Purchases("test_api_key");
-  const pkg = await purchases.getPackage("package_1");
+  const pkg = await purchases.getPackage("app_user_Id", "package_1");
   expect(pkg).not.toBeNull();
   expect(pkg?.identifier).toBe("package_1");
 });
 
 test("returns null for Package not found", async () => {
   const purchases = new Purchases("test_api_key");
-  const pkg = await purchases.getPackage("package_not_there");
+  const pkg = await purchases.getPackage("app_user_Id", "package_not_there");
   expect(pkg).toBeNull();
 });
