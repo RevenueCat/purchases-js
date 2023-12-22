@@ -71,7 +71,7 @@ export const toOffering = (
   return {
     id: offeringsData.identifier,
     identifier: offeringsData.identifier,
-    displayName: offeringsData.display_name,
+    displayName: offeringsData.description,
     packages: offeringsData.packages.map((p: ServerResponse) =>
       toPackage(p, productDetailsData),
     ),

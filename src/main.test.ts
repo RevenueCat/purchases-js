@@ -4,34 +4,53 @@ import { beforeAll, expect, test } from "vitest";
 import { Purchases } from "./main";
 
 const server = setupServer(
-  http.get("http://localhost:8000/rcbilling/v1/offerings", () => {
-    return HttpResponse.json(
-      {
-        offerings: [
-          {
-            identifier: "offering_1",
-            display_name: "Offering 1",
-            packages: [
-              {
-                id: "package_1",
-                identifier: "package_1",
-                rc_billing_product: {
-                  id: "product_1",
-                  display_name: "Product 1",
-                  current_price: {
-                    amount: 100,
-                    currency: "USD",
-                  },
-                  normal_period_duration: "P1M",
+  http.get(
+    "http://localhost:8000/v1/subscribers/someAppUserId/offerings",
+    () => {
+      return HttpResponse.json(
+        {
+          current_offering_id: "offering_1",
+          offerings: [
+            {
+              identifier: "offering_1",
+              description: "Offering 1",
+              metadata: null,
+              packages: [
+                {
+                  identifier: "package_1",
+                  platform_product_identifier: "monthly",
                 },
+              ],
+            },
+          ],
+        },
+        { status: 200 },
+      );
+    },
+  ),
+
+  http.get(
+    "http://localhost:8000/rcbilling/v1/subscribers/someAppUserId/products?id=monthly",
+    () => {
+      return HttpResponse.json(
+        {
+          product_details: [
+            {
+              current_price: {
+                amount: 300,
+                currency: "USD",
               },
-            ],
-          },
-        ],
-      },
-      { status: 200 },
-    );
-  }),
+              identifier: "monthly",
+              normal_period_duration: "PT1H",
+              product_type: "subscription",
+              title: "Monthly test",
+            },
+          ],
+        },
+        { status: 200 },
+      );
+    },
+  ),
 
   http.get(
     "http://localhost:8000/rcbilling/v1/entitlements/someAppUserId",
@@ -65,6 +84,7 @@ const server = setupServer(
       );
     },
   ),
+
   http.post("http://localhost:8000/rcbilling/v1/subscribe", () => {
     return HttpResponse.json(
       {
@@ -127,33 +147,38 @@ test("returns false if a user is not entitled and uses waitForEntitlement", asyn
 
 test("can get offerings", async () => {
   const billing = new Purchases("test_api_key");
-  const offerings = await billing.listOfferings("app_user_id");
+  const offerings = await billing.listOfferings("someAppUserId");
 
   expect(offerings).toEqual({
     offerings: [
       {
         displayName: "Offering 1",
-        id: undefined,
+        id: "offering_1",
         identifier: "offering_1",
         packages: [
           {
-            displayName: undefined,
             id: "package_1",
             identifier: "package_1",
             rcBillingProduct: {
               currentPrice: {
                 currency: "USD",
-                amount: 100,
+                amount: 300,
               },
-              displayName: "Product 1",
-              id: "product_1",
-              normalPeriodDuration: "P1M",
+              displayName: "Monthly test",
+              id: "monthly",
+              identifier: "monthly",
+              normalPeriodDuration: "PT1H",
             },
           },
         ],
       },
     ],
-    priceByPackageId: undefined,
+    priceByPackageId: {
+      package_1: {
+        amount: 300,
+        currency: "USD",
+      },
+    },
   });
 });
 
@@ -175,13 +200,13 @@ test("can post to subscribe", async () => {
 
 test("can get a specific Package", async () => {
   const purchases = new Purchases("test_api_key");
-  const pkg = await purchases.getPackage("app_user_Id", "package_1");
+  const pkg = await purchases.getPackage("someAppUserId", "package_1");
   expect(pkg).not.toBeNull();
   expect(pkg?.identifier).toBe("package_1");
 });
 
 test("returns null for Package not found", async () => {
   const purchases = new Purchases("test_api_key");
-  const pkg = await purchases.getPackage("app_user_Id", "package_not_there");
+  const pkg = await purchases.getPackage("someAppUserId", "package_not_there");
   expect(pkg).toBeNull();
 });
