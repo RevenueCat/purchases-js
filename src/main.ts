@@ -3,6 +3,7 @@ import {
   OfferingsPage as InnerOfferingsPage,
   Package as InnerPackage,
   toOffering,
+  toPrice,
 } from "./entities/offerings";
 import {
   SubscribeResponse,
@@ -23,6 +24,8 @@ export type OfferingsPage = InnerOfferingsPage;
 export type Offering = InnerOffering;
 export type Package = InnerPackage;
 
+const VERSION = "0.0.8";
+
 export class Purchases {
   _API_KEY: string | null = null;
   _APP_USER_ID: string | null = null;
@@ -40,27 +43,70 @@ export class Purchases {
     }
   }
 
-  private toOfferingsPage = (data: ServerResponse): OfferingsPage => {
+  private toOfferingsPage = (
+    offeringsData: ServerResponse,
+    productsData: ServerResponse,
+  ): OfferingsPage => {
+    const currentOffering = offeringsData.offerings.filter(
+      (o: ServerResponse) => o.identifier === offeringsData.current_offering_id,
+    );
+
+    const productsMap: ServerResponse = {};
+    productsData.product_details.forEach((p: ServerResponse) => {
+      productsMap[p.identifier] = p;
+    });
+
+    const pricesByPackageId: ServerResponse = {};
+    currentOffering[0].packages.forEach(
+      (p: ServerResponse) =>
+        (pricesByPackageId[p.identifier] = toPrice(
+          productsMap[p.platform_product_identifier].current_price,
+        )),
+    );
+
     return {
-      offerings: data.offerings.map(toOffering),
-      priceByPackageId: data.prices_by_package_id,
+      offerings: currentOffering.map((o: ServerResponse) =>
+        toOffering(o, productsMap),
+      ),
+      priceByPackageId: pricesByPackageId,
     };
   };
 
-  public async listOfferings(): Promise<OfferingsPage> {
-    const response = await fetch(
-      `${Purchases._RC_ENDPOINT}/${Purchases._BASE_PATH}/offerings`,
+  public async listOfferings(appUserId: string): Promise<OfferingsPage> {
+    const offeringsResponse = await fetch(
+      `${Purchases._RC_ENDPOINT}/v1/subscribers/${appUserId}/offerings`,
       {
         headers: {
           Authorization: `Bearer ${this._API_KEY}`,
           "Content-Type": "application/json",
           Accept: "application/json",
+          "X-Platform": "web",
+          "X-Version": VERSION,
+        },
+      },
+    );
+    const offeringsData = await offeringsResponse.json();
+    const productIds = offeringsData.offerings
+      .flatMap((o: ServerResponse) => o.packages)
+      .map((p: ServerResponse) => p.platform_product_identifier);
+
+    const productsResponse = await fetch(
+      `${Purchases._RC_ENDPOINT}/${
+        Purchases._BASE_PATH
+      }/subscribers/${appUserId}/products?id=${productIds.join("&id=")}`,
+      {
+        headers: {
+          Authorization: `Bearer ${this._API_KEY}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "X-Platform": "web",
+          "X-Version": VERSION,
         },
       },
     );
 
-    const data = await response.json();
-    return this.toOfferingsPage(data);
+    const productsData = await productsResponse.json();
+    return this.toOfferingsPage(offeringsData, productsData);
   }
 
   public async isEntitledTo(
@@ -171,8 +217,11 @@ export class Purchases {
     throw new UnknownServerError();
   }
 
-  public async getPackage(packageIdentifier: string): Promise<Package | null> {
-    const offeringsPage = await this.listOfferings();
+  public async getPackage(
+    appUserId: string,
+    packageIdentifier: string,
+  ): Promise<Package | null> {
+    const offeringsPage = await this.listOfferings(appUserId);
     const packages: Package[] = [];
     offeringsPage.offerings.forEach((offering) =>
       packages.push(...offering.packages),

@@ -16,7 +16,6 @@ export interface Product {
 export interface Package {
   id: string;
   identifier: string;
-  displayName: string;
   rcBillingProduct: Product | null;
 }
 
@@ -32,39 +31,49 @@ export interface OfferingsPage {
   priceByPackageId: { [packageId: string]: number };
 }
 
-export const toPrice = (data: ServerResponse) => {
+export const toPrice = (priceData: ServerResponse) => {
   return {
-    amount: data.amount,
-    currency: data.currency,
+    amount: priceData.amount,
+    currency: priceData.currency,
   } as Price;
 };
 
-export const toProduct = (data: ServerResponse): Product => {
+export const toProduct = (productDetailsData: ServerResponse): Product => {
   return {
-    id: data.id,
-    identifier: data.identifier,
-    displayName: data.display_name,
-    currentPrice: data.current_price ? toPrice(data.current_price) : null,
-    normalPeriodDuration: data.normal_period_duration,
-  };
-};
-
-export const toPackage = (data: ServerResponse): Package => {
-  return {
-    id: data.id,
-    identifier: data.identifier,
-    displayName: data.display_name,
-    rcBillingProduct: data.rc_billing_product
-      ? toProduct(data.rc_billing_product)
+    id: productDetailsData.identifier,
+    identifier: productDetailsData.identifier,
+    displayName: productDetailsData.title,
+    currentPrice: productDetailsData.current_price
+      ? toPrice(productDetailsData.current_price)
       : null,
+    normalPeriodDuration: productDetailsData.normal_period_duration,
   };
 };
 
-export const toOffering = (data: ServerResponse): Offering => {
+export const toPackage = (
+  packageData: ServerResponse,
+  productDetailsData: ServerResponse,
+): Package => {
+  const rcBillingProduct =
+    productDetailsData[packageData.platform_product_identifier];
+
   return {
-    id: data.id,
-    identifier: data.identifier,
-    displayName: data.display_name,
-    packages: data.packages.map(toPackage),
+    id: packageData.identifier,
+    identifier: packageData.identifier,
+    rcBillingProduct: rcBillingProduct ? toProduct(rcBillingProduct) : null,
+  };
+};
+
+export const toOffering = (
+  offeringsData: ServerResponse,
+  productDetailsData: ServerResponse,
+): Offering => {
+  return {
+    id: offeringsData.identifier,
+    identifier: offeringsData.identifier,
+    displayName: offeringsData.description,
+    packages: offeringsData.packages.map((p: ServerResponse) =>
+      toPackage(p, productDetailsData),
+    ),
   };
 };
