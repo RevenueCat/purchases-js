@@ -2,14 +2,17 @@
   export let as = "section";
 </script>
 
-<svelte:element this={as} class="rcb-modal-section">
+<svelte:element this={as} class={`rcb-modal-section`}>
   <slot />
 </svelte:element>
 
 <style>
   .rcb-modal-section {
-    border-bottom: 1px solid #ccc;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 0rem;
     display: flex;
+  }
+
+  .rcb-modal-section:last-of-type {
+    padding: 0;
   }
 </style>

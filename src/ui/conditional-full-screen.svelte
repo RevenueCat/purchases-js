@@ -4,15 +4,11 @@
   import Modal from "./modal.svelte";
 
   export let condition = false;
-  export let title = "RevenueCat Billing";
 </script>
 
 {#if condition}
   <ModalBackdrop>
-    <Modal>
-      <ModalHeader {title} />
-      <slot />
-    </Modal>
+    <slot />
   </ModalBackdrop>
 {:else}
   <slot />

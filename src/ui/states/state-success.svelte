@@ -1,7 +1,7 @@
 <script>
-  import Button from "./button.svelte";
-  import ModalFooter from "./modal-footer.svelte";
-  import ModalSection from "./modal-section.svelte";
+  import Button from "../button.svelte";
+  import ModalFooter from "../modal-footer.svelte";
+  import ModalSection from "../modal-section.svelte";
 
   export let onContinue;
 </script>

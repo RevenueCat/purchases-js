@@ -1,12 +1,4 @@
-<script>
-  import { fade } from "svelte/transition";
-  import { expoInOut } from "svelte/easing";
-</script>
-
-<div
-  class="rcb-modal-backdrop"
-  transition:fade={{ duration: 1250, easing: expoInOut }}
->
+<div class="rcb-modal-backdrop">
   <slot />
 </div>
 
@@ -17,15 +9,9 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: #0000004e;
+    background-color: transparent;
     display: flex;
     flex-direction: column;
     justify-content: space-around;
-  }
-
-  @media screen and (max-width: 40rem) {
-    .rcb-modal-backdrop {
-      justify-content: flex-end;
-    }
   }
 </style>

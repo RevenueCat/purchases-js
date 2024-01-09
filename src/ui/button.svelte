@@ -8,17 +8,16 @@
 <style>
   button {
     border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 0.25rem;
-    font-size: 0.75rem;
-    font-weight: bold;
+    border-radius: 3.5rem;
+    font-size: 1rem;
     cursor: pointer;
-    margin: 0.25rem;
+    height: 3.5rem;
+    background-color: #dfdfdf;
   }
 
   button.intent-primary {
-    background-color: #4c78af;
+    background-color: #000;
     color: white;
-    font-size: 0.9rem;
+    font-size: 1rem;
   }
 </style>

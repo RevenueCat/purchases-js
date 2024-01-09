@@ -1,5 +1,5 @@
 <script>
-  import Spinner from "./spinner.svelte";
+  import Spinner from "../spinner.svelte";
 </script>
 
 <div class="rcb-modal-loader">

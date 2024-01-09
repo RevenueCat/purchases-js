@@ -210,14 +210,11 @@ export class Purchases {
       iframe.height = "100%";
 
       iframe.style.border = "none";
-      // iframe.style.backgroundColor = "transparent";
 
       if (asModal) {
-        iframe.style.width = "100vw";
-        iframe.style.height = "100vh";
-        iframe.style.position = "fixed";
-        iframe.style.top = "0rem";
-        iframe.style.left = "0rem";
+        // We need hide the iframe to apply styles
+        // without glitching the screen while it loads
+        iframe.style.display = "none";
       }
 
       // Append iframe to the target element
@@ -225,9 +222,31 @@ export class Purchases {
 
       // Wait for iframe to load
       iframe.onload = () => {
+        if (asModal) {
+          iframe.style.backgroundColor = "transparent";
+          iframe.style.width = "100vw";
+          iframe.style.height = "100vh";
+          iframe.style.position = "fixed";
+          iframe.style.top = "0rem";
+          iframe.style.left = "0rem";
+          // @ts-expect-error - allowTransparency is not in the iframe type
+          iframe.allowTransparency = true;
+          iframe.contentDocument!.body.style.backgroundColor =
+            "rgba(49, 49, 49, 0.70)";
+          // Create a head tag for the color-sheme
+          const head = document.createElement("meta");
+          head.setAttribute("name", "color-scheme");
+          head.setAttribute("content", "dark light");
+          iframe.contentDocument!.head.appendChild(head);
+
+          // Show the iframe after it loads and styles have been set
+          iframe.style.display = "block";
+        }
+
         // Attach the widget to the iframe's body
         new RCPurchasesUI({
           target: iframe.contentDocument!.body,
+
           props: {
             appUserId,
             productId,
@@ -235,7 +254,6 @@ export class Purchases {
             entitlement,
             customerEmail,
             onFinished: () => {
-              console.log("trigger on finished");
               iframe.remove();
               resolve();
             },

@@ -2,17 +2,16 @@
   import { onMount } from "svelte";
   import SandboxBanner from "./sandbox-banner.svelte";
   import { Purchases } from "../main";
-  import StatePresentOffer from "./state-present-offer.svelte";
-  import StateLoading from "./state-loading.svelte";
-  import StateError from "./state-error.svelte";
-  import StateSuccess from "./state-success.svelte";
-  import StateNeedsPaymentInfo from "./state-needs-payment-info.svelte";
-  import StateNeedsAuthInfo from "./state-needs-auth-info.svelte";
+  import StatePresentOffer from "./states/state-present-offer.svelte";
+  import StateLoading from "./states/state-loading.svelte";
+  import StateError from "./states/state-error.svelte";
+  import StateSuccess from "./states/state-success.svelte";
+  import StateNeedsPaymentInfo from "./states/state-needs-payment-info.svelte";
+  import StateNeedsAuthInfo from "./states/state-needs-auth-info.svelte";
   import { SubscribeResponse } from "../entities/subscribe-response";
-  import StateWaitingForEntitlement from "./state-waiting-for-entitlement.svelte";
-  import ConditionalModal from "./conditional-modal.svelte";
-
-  let open = false;
+  import StateWaitingForEntitlement from "./states/state-waiting-for-entitlement.svelte";
+  import ConditionalFullScreen from "./conditional-full-screen.svelte";
+  import Shell from "./shell.svelte";
 
   export let asModal = true;
   export let customerEmail: string;
@@ -35,14 +34,28 @@
     | "success"
     | "error" = "present-offer";
 
-  onMount(async () => {
-    open = true;
+  const statesWhereOfferDetailsAreShown = [
+    "present-offer",
+    "needs-auth-info",
+    "needs-payment-info",
+    "loading",
+  ];
 
+  onMount(async () => {
     productDetails = await purchases.getProduct(productId);
+
+    if (state === "present-offer") {
+      if (customerEmail) {
+        handleSubscribe();
+      } else {
+        state = "needs-auth-info";
+      }
+
+      return;
+    }
   });
 
   const handleClose = () => {
-    open = false;
     onFinished();
   };
 
@@ -64,16 +77,6 @@
   };
 
   const handleContinue = (authInfo?: { email: string }) => {
-    if (state === "present-offer") {
-      if (customerEmail) {
-        handleSubscribe();
-      } else {
-        state = "needs-auth-info";
-      }
-
-      return;
-    }
-
     if (state === "needs-auth-info") {
       if (authInfo) {
         customerEmail = authInfo.email;
@@ -94,7 +97,6 @@
 
     if (state === "success" || state === "error") {
       onFinished();
-      open = false;
       return;
     }
 
@@ -107,55 +109,73 @@
 </script>
 
 <div class="rcb-ui-container">
-  {#if open}
-    <ConditionalModal title="CatGPT" condition={asModal}>
-      {#if environment === "sandbox"}
-        <SandboxBanner />
+  <ConditionalFullScreen condition={asModal}>
+    <div class="rcb-ui-layout">
+      {#if statesWhereOfferDetailsAreShown.includes(state)}
+        <div class="rcb-ui-aside">
+          <Shell dark title="OpenScratches, Inc.">
+            {#if productDetails}
+              <StatePresentOffer
+                {productDetails}
+                onContinue={handleContinue}
+                onClose={handleClose}
+              />
+            {/if}
+          </Shell>
+          {#if environment === "sandbox"}
+            <SandboxBanner />
+          {/if}
+        </div>
       {/if}
-      {#if state === "present-offer"}
-        <StatePresentOffer
-          {productDetails}
-          onContinue={handleContinue}
-          onClose={handleClose}
-        />
-      {/if}
-      {#if state === "needs-auth-info"}
-        <StateNeedsAuthInfo
-          {purchases}
-          onContinue={handleContinue}
-          onClose={handleClose}
-          onError={handleError}
-        />
-      {/if}
-      {#if state === "needs-payment-info" && paymentInfoCollectionMetadata}
-        <StateNeedsPaymentInfo
-          {purchases}
-          {paymentInfoCollectionMetadata}
-          onContinue={handleContinue}
-          onClose={handleClose}
-          onError={handleError}
-        />
-      {/if}
-      {#if state === "loading"}
-        <StateLoading />
-      {/if}
-      {#if state === "error"}
-        <StateError />
-      {/if}
-      {#if state === "success"}
-        <StateSuccess onContinue={handleContinue} />
-      {/if}
-      {#if state === "waiting-for-entitlement"}
-        <StateWaitingForEntitlement
-          {purchases}
-          {appUserId}
-          {entitlement}
-          onContinue={handleContinue}
-          onError={handleError}
-        />
-      {/if}
-    </ConditionalModal>
-  {/if}
+      <Shell>
+        {#if state === "present-offer" && productDetails}
+          <StatePresentOffer
+            {productDetails}
+            onContinue={handleContinue}
+            onClose={handleClose}
+          />
+        {/if}
+        {#if state === "present-offer" && !productDetails}
+          <StateLoading />
+        {/if}
+        {#if state === "needs-auth-info"}
+          <StateNeedsAuthInfo
+            {purchases}
+            onContinue={handleContinue}
+            onClose={handleClose}
+            onError={handleError}
+          />
+        {/if}
+        {#if state === "needs-payment-info" && paymentInfoCollectionMetadata}
+          <StateNeedsPaymentInfo
+            {purchases}
+            {paymentInfoCollectionMetadata}
+            onContinue={handleContinue}
+            onClose={handleClose}
+            onError={handleError}
+          />
+        {/if}
+        {#if state === "loading"}
+          <StateLoading />
+        {/if}
+        {#if state === "error"}
+          <StateError />
+        {/if}
+        {#if state === "success"}
+          <StateSuccess onContinue={handleContinue} />
+        {/if}
+        {#if state === "waiting-for-entitlement"}
+          <StateWaitingForEntitlement
+            {purchases}
+            {appUserId}
+            {entitlement}
+            onContinue={handleContinue}
+            onError={handleError}
+          />
+        {/if}
+      </Shell>
+    </div>
+  </ConditionalFullScreen>
 </div>
 
 <link
@@ -180,6 +200,7 @@
 
   .rcb-ui-container {
     font-family:
+      "PP Object Sans",
       -apple-system,
       BlinkMacSystemFont,
       avenir next,
@@ -193,5 +214,29 @@
       noto,
       arial,
       sans-serif;
+  }
+
+  .rcb-ui-layout {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  .rcb-ui-aside {
+    margin-right: 1rem;
+  }
+
+  @media screen and (max-width: 60rem) {
+    .rcb-ui-layout {
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      height: 100%;
+    }
+
+    .rcb-ui-aside {
+      margin-right: 0;
+      margin-bottom: 1rem;
+    }
   }
 </style>

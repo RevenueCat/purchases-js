@@ -1,14 +1,15 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { Purchases } from "../main";
-  import Button from "./button.svelte";
+  import { Purchases } from "../../main";
+  import Button from "../button.svelte";
   import { Elements, PaymentElement } from "svelte-stripe";
   import type { Stripe, StripeElements } from "@stripe/stripe-js";
   import { loadStripe } from "@stripe/stripe-js";
-  import { SubscribeResponse } from "../entities/subscribe-response";
-  import ModalSection from "./modal-section.svelte";
-  import ModalFooter from "./modal-footer.svelte";
+  import { SubscribeResponse } from "../../entities/subscribe-response";
+  import ModalSection from "../modal-section.svelte";
+  import ModalFooter from "../modal-footer.svelte";
   import StateLoading from "./state-loading.svelte";
+  import RowLayout from "../layout/row-layout.svelte";
 
   export let onClose: any;
   export let onContinue: any;
@@ -76,16 +77,18 @@
           <PaymentElement />
         </ModalSection>
         <ModalFooter>
-          <Button disabled={processing}>
-            {#if processing}
-              Processing...
-            {:else}
-              Pay
-            {/if}</Button
-          >
-          <Button disabled={processing} intent="secondary" on:click={onClose}
-            >Close</Button
-          >
+          <RowLayout>
+            <Button disabled={processing}>
+              {#if processing}
+                Processing...
+              {:else}
+                Pay
+              {/if}</Button
+            >
+            <Button disabled={processing} intent="secondary" on:click={onClose}
+              >Close</Button
+            >
+          </RowLayout>
         </ModalFooter>
       </Elements>
     </form>

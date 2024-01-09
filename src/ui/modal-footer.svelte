@@ -4,7 +4,6 @@
 
 <style>
   footer {
-    padding: 0.5rem 0.5rem;
     display: flex;
     flex-direction: column;
   }

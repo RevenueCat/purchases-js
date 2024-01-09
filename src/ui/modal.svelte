@@ -1,44 +1,35 @@
-<script>
-  import { fly } from "svelte/transition";
-  import { expoInOut } from "svelte/easing";
-
-  const SLIDE_Y_COORDS = window.innerHeight;
+<script lang="ts">
+  export let dark = false;
 </script>
 
-<main
-  class="rcb-modal-main"
-  in:fly={{
-    duration: 1500,
-    easing: expoInOut,
-    y: SLIDE_Y_COORDS,
-  }}
-  out:fly={{
-    duration: 500,
-    easing: expoInOut,
-    y: SLIDE_Y_COORDS,
-  }}
->
+<main class={`rcb-modal-main ${dark ? "rcb-modal-dark" : ""}`}>
   <slot />
 </main>
 
 <style>
   .rcb-modal-main {
+    box-sizing: border-box;
     border-radius: 0.5rem;
-    background-color: #eee;
+    background-color: #fff;
     color: black;
-    max-width: 30rem;
-    min-width: 20rem;
-    min-height: 15rem;
-    align-self: center;
+    max-width: 40rem;
+    min-width: 30rem;
     overflow-y: auto;
-
-    box-shadow: 0 0 1rem rgba(0, 0, 0, 0.2);
+    padding: 2.5rem;
   }
 
-  @media screen and (max-width: 40rem) {
-    .rcb-modal-main {
-      width: 100vw;
-      border-radius: 0;
+  .rcb-modal-dark {
+    background-color: #000;
+    color: #fff;
+    max-width: 30rem;
+    min-width: 20rem;
+  }
+
+  @media screen and (max-width: 60rem) {
+    .rcb-modal-main,
+    .rcb-modal-dark {
+      max-width: 40rem;
+      min-width: 90vw;
     }
   }
 </style>

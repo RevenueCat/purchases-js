@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Purchases } from "src/main";
+  import type { Purchases } from "../../main";
   import StateLoading from "./state-loading.svelte";
 
   import { onMount } from "svelte";
