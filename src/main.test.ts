@@ -3,6 +3,56 @@ import { setupServer } from "msw/node";
 import { beforeAll, expect, test } from "vitest";
 import { Purchases } from "./main";
 
+const productsResponse = {
+  product_details: [
+    {
+      current_price: {
+        amount: 300,
+        currency: "USD",
+      },
+      identifier: "monthly",
+      normal_period_duration: "PT1H",
+      product_type: "subscription",
+      title: "Monthly test",
+    },
+    {
+      current_price: {
+        amount: 500,
+        currency: "USD",
+      },
+      identifier: "monthly_2",
+      normal_period_duration: "PT1H",
+      product_type: "subscription",
+      title: "Monthly test 2",
+    },
+  ],
+};
+
+const offeringsArray = [
+  {
+    identifier: "offering_1",
+    description: "Offering 1",
+    metadata: null,
+    packages: [
+      {
+        identifier: "package_1",
+        platform_product_identifier: "monthly",
+      },
+    ],
+  },
+  {
+    identifier: "offering_2",
+    description: "Offering 2",
+    metadata: null,
+    packages: [
+      {
+        identifier: "package_2",
+        platform_product_identifier: "monthly_2",
+      },
+    ],
+  },
+];
+
 const server = setupServer(
   http.get(
     "http://localhost:8000/v1/subscribers/someAppUserId/offerings",
@@ -10,30 +60,20 @@ const server = setupServer(
       return HttpResponse.json(
         {
           current_offering_id: "offering_1",
-          offerings: [
-            {
-              identifier: "offering_1",
-              description: "Offering 1",
-              metadata: null,
-              packages: [
-                {
-                  identifier: "package_1",
-                  platform_product_identifier: "monthly",
-                },
-              ],
-            },
-            {
-              identifier: "offering_2",
-              description: "Offering 2",
-              metadata: null,
-              packages: [
-                {
-                  identifier: "package_2",
-                  platform_product_identifier: "monthly_2",
-                },
-              ],
-            },
-          ],
+          offerings: offeringsArray,
+        },
+        { status: 200 },
+      );
+    },
+  ),
+
+  http.get(
+    "http://localhost:8000/v1/subscribers/appUserIdWithoutCurrentOfferingId/offerings",
+    () => {
+      return HttpResponse.json(
+        {
+          current_offering_id: null,
+          offerings: offeringsArray,
         },
         { status: 200 },
       );
@@ -43,33 +83,14 @@ const server = setupServer(
   http.get(
     "http://localhost:8000/rcbilling/v1/subscribers/someAppUserId/products?id=monthly&id=monthly_2",
     () => {
-      return HttpResponse.json(
-        {
-          product_details: [
-            {
-              current_price: {
-                amount: 300,
-                currency: "USD",
-              },
-              identifier: "monthly",
-              normal_period_duration: "PT1H",
-              product_type: "subscription",
-              title: "Monthly test",
-            },
-            {
-              current_price: {
-                amount: 500,
-                currency: "USD",
-              },
-              identifier: "monthly_2",
-              normal_period_duration: "PT1H",
-              product_type: "subscription",
-              title: "Monthly test 2",
-            },
-          ],
-        },
-        { status: 200 },
-      );
+      return HttpResponse.json(productsResponse, { status: 200 });
+    },
+  ),
+
+  http.get(
+    "http://localhost:8000/rcbilling/v1/subscribers/appUserIdWithoutCurrentOfferingId/products?id=monthly&id=monthly_2",
+    () => {
+      return HttpResponse.json(productsResponse, { status: 200 });
     },
   ),
 
@@ -224,6 +245,62 @@ test("can get offerings", async () => {
         currency: "USD",
       },
     },
+  });
+});
+
+test("can get offerings without current offering id", async () => {
+  const billing = new Purchases("test_api_key");
+  const offerings = await billing.listOfferings(
+    "appUserIdWithoutCurrentOfferingId",
+  );
+
+  expect(offerings).toEqual({
+    offerings: [
+      {
+        displayName: "Offering 1",
+        id: "offering_1",
+        identifier: "offering_1",
+        packages: [
+          {
+            id: "package_1",
+            identifier: "package_1",
+            rcBillingProduct: {
+              currentPrice: {
+                currency: "USD",
+                amount: 300,
+              },
+              displayName: "Monthly test",
+              id: "monthly",
+              identifier: "monthly",
+              normalPeriodDuration: "PT1H",
+            },
+          },
+        ],
+      },
+      {
+        displayName: "Offering 2",
+        id: "offering_2",
+        identifier: "offering_2",
+        packages: [
+          {
+            id: "package_2",
+            identifier: "package_2",
+            rcBillingProduct: {
+              currentPrice: {
+                currency: "USD",
+                amount: 500,
+              },
+              displayName: "Monthly test 2",
+              id: "monthly_2",
+              identifier: "monthly_2",
+              normalPeriodDuration: "PT1H",
+            },
+          },
+        ],
+      },
+    ],
+    current: null,
+    priceByPackageId: {},
   });
 });
 
