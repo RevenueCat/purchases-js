@@ -27,7 +27,7 @@ export interface Offering {
 }
 
 export interface OfferingsPage {
-  all: Offering[];
+  all: { [offeringId: string]: Offering };
   current: Offering | null;
   priceByPackageId: { [packageId: string]: number };
 }

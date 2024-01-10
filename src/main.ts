@@ -73,10 +73,14 @@ export class Purchases {
         ? null
         : toOffering(currentOfferingServerResponse, productsMap);
 
+    const allOfferings: { [offeringId: string]: Offering } = {};
+    offeringsData.offerings.forEach(
+      (o: ServerResponse) =>
+        (allOfferings[o.identifier] = toOffering(o, productsMap)),
+    );
+
     return {
-      all: offeringsData.offerings.map((o: ServerResponse) =>
-        toOffering(o, productsMap),
-      ),
+      all: allOfferings,
       current: currentOffering,
       priceByPackageId: pricesByPackageId,
     };
@@ -233,7 +237,7 @@ export class Purchases {
   ): Promise<Package | null> {
     const offeringsPage = await this.listOfferings(appUserId);
     const packages: Package[] = [];
-    offeringsPage.all.forEach((offering) =>
+    Object.values(offeringsPage.all).forEach((offering) =>
       packages.push(...offering.packages),
     );
 

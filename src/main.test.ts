@@ -214,9 +214,9 @@ test("can get offerings", async () => {
   };
 
   expect(offerings).toEqual({
-    all: [
-      currentOffering,
-      {
+    all: {
+      offering_1: currentOffering,
+      offering_2: {
         displayName: "Offering 2",
         id: "offering_2",
         identifier: "offering_2",
@@ -237,7 +237,7 @@ test("can get offerings", async () => {
           },
         ],
       },
-    ],
+    },
     current: currentOffering,
     priceByPackageId: {
       package_1: {
@@ -255,8 +255,8 @@ test("can get offerings without current offering id", async () => {
   );
 
   expect(offerings).toEqual({
-    all: [
-      {
+    all: {
+      offering_1: {
         displayName: "Offering 1",
         id: "offering_1",
         identifier: "offering_1",
@@ -277,7 +277,7 @@ test("can get offerings without current offering id", async () => {
           },
         ],
       },
-      {
+      offering_2: {
         displayName: "Offering 2",
         id: "offering_2",
         identifier: "offering_2",
@@ -298,7 +298,7 @@ test("can get offerings without current offering id", async () => {
           },
         ],
       },
-    ],
+    },
     current: null,
     priceByPackageId: {},
   });
