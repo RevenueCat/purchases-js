@@ -3,7 +3,6 @@ import {
   OfferingsPage as InnerOfferingsPage,
   Package as InnerPackage,
   toOffering,
-  toPrice,
 } from "./entities/offerings";
 import {
   SubscribeResponse,
@@ -58,16 +57,6 @@ export class Purchases {
       productsMap[p.identifier] = p;
     });
 
-    const pricesByPackageId: ServerResponse = {};
-    if (currentOfferingServerResponse != null) {
-      currentOfferingServerResponse.packages.forEach(
-        (p: ServerResponse) =>
-          (pricesByPackageId[p.identifier] = toPrice(
-            productsMap[p.platform_product_identifier].current_price,
-          )),
-      );
-    }
-
     const currentOffering: InnerOffering | null =
       currentOfferingServerResponse == null
         ? null
@@ -78,7 +67,6 @@ export class Purchases {
         toOffering(o, productsMap),
       ),
       current: currentOffering,
-      priceByPackageId: pricesByPackageId,
     };
   };
 
