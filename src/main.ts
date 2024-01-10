@@ -47,9 +47,11 @@ export class Purchases {
     offeringsData: ServerResponse,
     productsData: ServerResponse,
   ): OfferingsPage => {
-    const currentOffering = offeringsData.offerings.filter(
-      (o: ServerResponse) => o.identifier === offeringsData.current_offering_id,
-    );
+    const currentOfferingServerResponse =
+      offeringsData.offerings.find(
+        (o: ServerResponse) =>
+          o.identifier === offeringsData.current_offering_id,
+      ) ?? null;
 
     const productsMap: ServerResponse = {};
     productsData.product_details.forEach((p: ServerResponse) => {
@@ -57,20 +59,25 @@ export class Purchases {
     });
 
     const pricesByPackageId: ServerResponse = {};
-    currentOffering[0].packages.forEach(
-      (p: ServerResponse) =>
-        (pricesByPackageId[p.identifier] = toPrice(
-          productsMap[p.platform_product_identifier].current_price,
-        )),
-    );
+    if (currentOfferingServerResponse != null) {
+      currentOfferingServerResponse.packages.forEach(
+        (p: ServerResponse) =>
+          (pricesByPackageId[p.identifier] = toPrice(
+            productsMap[p.platform_product_identifier].current_price,
+          )),
+      );
+    }
+
+    const currentOffering: InnerOffering | null =
+      currentOfferingServerResponse == null
+        ? null
+        : toOffering(currentOfferingServerResponse, productsMap);
 
     return {
       offerings: offeringsData.offerings.map((o: ServerResponse) =>
         toOffering(o, productsMap),
       ),
-      current: currentOffering.map((o: ServerResponse) =>
-        toOffering(o, productsMap),
-      )[0],
+      current: currentOffering,
       priceByPackageId: pricesByPackageId,
     };
   };
