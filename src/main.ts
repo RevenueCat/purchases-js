@@ -65,9 +65,12 @@ export class Purchases {
     );
 
     return {
-      offerings: currentOffering.map((o: ServerResponse) =>
+      offerings: offeringsData.offerings.map((o: ServerResponse) =>
         toOffering(o, productsMap),
       ),
+      current: currentOffering.map((o: ServerResponse) =>
+        toOffering(o, productsMap),
+      )[0],
       priceByPackageId: pricesByPackageId,
     };
   };

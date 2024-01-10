@@ -22,6 +22,17 @@ const server = setupServer(
                 },
               ],
             },
+            {
+              identifier: "offering_2",
+              description: "Offering 2",
+              metadata: null,
+              packages: [
+                {
+                  identifier: "package_2",
+                  platform_product_identifier: "monthly_2",
+                },
+              ],
+            },
           ],
         },
         { status: 200 },
@@ -30,7 +41,7 @@ const server = setupServer(
   ),
 
   http.get(
-    "http://localhost:8000/rcbilling/v1/subscribers/someAppUserId/products?id=monthly",
+    "http://localhost:8000/rcbilling/v1/subscribers/someAppUserId/products?id=monthly&id=monthly_2",
     () => {
       return HttpResponse.json(
         {
@@ -44,6 +55,16 @@ const server = setupServer(
               normal_period_duration: "PT1H",
               product_type: "subscription",
               title: "Monthly test",
+            },
+            {
+              current_price: {
+                amount: 500,
+                currency: "USD",
+              },
+              identifier: "monthly_2",
+              normal_period_duration: "PT1H",
+              product_type: "subscription",
+              title: "Monthly test 2",
             },
           ],
         },
@@ -149,30 +170,54 @@ test("can get offerings", async () => {
   const billing = new Purchases("test_api_key");
   const offerings = await billing.listOfferings("someAppUserId");
 
+  const currentOffering = {
+    displayName: "Offering 1",
+    id: "offering_1",
+    identifier: "offering_1",
+    packages: [
+      {
+        id: "package_1",
+        identifier: "package_1",
+        rcBillingProduct: {
+          currentPrice: {
+            currency: "USD",
+            amount: 300,
+          },
+          displayName: "Monthly test",
+          id: "monthly",
+          identifier: "monthly",
+          normalPeriodDuration: "PT1H",
+        },
+      },
+    ],
+  };
+
   expect(offerings).toEqual({
     offerings: [
+      currentOffering,
       {
-        displayName: "Offering 1",
-        id: "offering_1",
-        identifier: "offering_1",
+        displayName: "Offering 2",
+        id: "offering_2",
+        identifier: "offering_2",
         packages: [
           {
-            id: "package_1",
-            identifier: "package_1",
+            id: "package_2",
+            identifier: "package_2",
             rcBillingProduct: {
               currentPrice: {
                 currency: "USD",
-                amount: 300,
+                amount: 500,
               },
-              displayName: "Monthly test",
-              id: "monthly",
-              identifier: "monthly",
+              displayName: "Monthly test 2",
+              id: "monthly_2",
+              identifier: "monthly_2",
               normalPeriodDuration: "PT1H",
             },
           },
         ],
       },
     ],
+    current: currentOffering,
     priceByPackageId: {
       package_1: {
         amount: 300,

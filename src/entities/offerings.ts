@@ -28,6 +28,7 @@ export interface Offering {
 
 export interface OfferingsPage {
   offerings: Offering[];
+  current: Offering | null;
   priceByPackageId: { [packageId: string]: number };
 }
 
