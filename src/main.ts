@@ -74,7 +74,7 @@ export class Purchases {
         : toOffering(currentOfferingServerResponse, productsMap);
 
     return {
-      offerings: offeringsData.offerings.map((o: ServerResponse) =>
+      all: offeringsData.offerings.map((o: ServerResponse) =>
         toOffering(o, productsMap),
       ),
       current: currentOffering,
@@ -233,7 +233,7 @@ export class Purchases {
   ): Promise<Package | null> {
     const offeringsPage = await this.listOfferings(appUserId);
     const packages: Package[] = [];
-    offeringsPage.offerings.forEach((offering) =>
+    offeringsPage.all.forEach((offering) =>
       packages.push(...offering.packages),
     );
 

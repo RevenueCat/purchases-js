@@ -214,7 +214,7 @@ test("can get offerings", async () => {
   };
 
   expect(offerings).toEqual({
-    offerings: [
+    all: [
       currentOffering,
       {
         displayName: "Offering 2",
@@ -255,7 +255,7 @@ test("can get offerings without current offering id", async () => {
   );
 
   expect(offerings).toEqual({
-    offerings: [
+    all: [
       {
         displayName: "Offering 1",
         id: "offering_1",
