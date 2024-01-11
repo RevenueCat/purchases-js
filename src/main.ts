@@ -106,6 +106,7 @@ export class Purchases {
     );
 
     const productsData = await productsResponse.json();
+    this.logMissingProductIds(productIds, productsData.product_details);
     return this.toOfferingsPage(offeringsData, productsData);
   }
 
@@ -235,5 +236,28 @@ export class Purchases {
     }
 
     return filteredPackages[0];
+  }
+
+  private logMissingProductIds(
+    productIds: string[],
+    productDetails: ServerResponse[],
+  ) {
+    const foundProductIdsMap: { [productId: string]: ServerResponse } = {};
+    productDetails.forEach(
+      (ent: ServerResponse) => (foundProductIdsMap[ent.identifier] = ent),
+    );
+    const missingProductIds: string[] = [];
+    productIds.forEach((productId: string) => {
+      if (foundProductIdsMap[productId] === undefined) {
+        missingProductIds.push(productId);
+      }
+    });
+    if (missingProductIds.length > 0) {
+      console.log(
+        "Could not find product data for product ids: ",
+        missingProductIds,
+        ". Please check that your product configuration is correct.",
+      );
+    }
   }
 }
