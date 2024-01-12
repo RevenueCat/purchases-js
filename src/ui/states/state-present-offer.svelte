@@ -9,24 +9,20 @@
 
 <ModalSection>
   <div class="rcb-pricing-info">
-    <p>{productDetails.displayName}</p>
-    <p class="rcb-product-price">
+    <span>{productDetails.displayName}</span>
+    <span class="rcb-product-price">
       {productDetails.currentPrice.currency}{" "}{formatPrice(
         productDetails.currentPrice.amount,
         productDetails.currentPrice.currency,
       )}
-    </p>
-    <p class="rcb-product-duration">
+    </span>
+    <span class="rcb-product-duration">
       Billed {getRenewsLabel(productDetails.normalPeriodDuration)}
-    </p>
+    </span>
   </div>
 </ModalSection>
 
 <style>
-  p {
-    margin-block-start: 0;
-    margin-block-end: 0;
-  }
   .rcb-pricing-info {
     display: flex;
     flex-direction: column;
@@ -36,11 +32,9 @@
 
   .rcb-product-price {
     font-size: 1.5rem;
-    margin-top: 0.75rem;
   }
 
   .rcb-product-duration {
     opacity: 0.6;
-    margin-top: 0.75rem;
   }
 </style>

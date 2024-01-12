@@ -10,7 +10,7 @@
   <div class="rcb-header-layout">
     <div class="rcb-header-layout__business-info">
       <AppIcon />
-      <h1 class="app-title">{title}</h1>
+      <span class="app-title">{title}</span>
     </div>
     <IconCart />
   </div>

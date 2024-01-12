@@ -9,7 +9,6 @@
   import StateNeedsPaymentInfo from "./states/state-needs-payment-info.svelte";
   import StateNeedsAuthInfo from "./states/state-needs-auth-info.svelte";
   import { SubscribeResponse } from "../entities/subscribe-response";
-  import StateWaitingForEntitlement from "./states/state-waiting-for-entitlement.svelte";
   import ConditionalFullScreen from "./conditional-full-screen.svelte";
   import Shell from "./shell.svelte";
 
@@ -83,15 +82,11 @@
       }
 
       handleSubscribe();
-    }
-
-    if (state === "waiting-for-entitlement") {
-      state = "success";
       return;
     }
 
     if (state === "needs-payment-info") {
-      state = "waiting-for-entitlement";
+      state = "success";
       return;
     }
 
@@ -164,41 +159,14 @@
         {#if state === "success"}
           <StateSuccess onContinue={handleContinue} />
         {/if}
-        {#if state === "waiting-for-entitlement"}
-          <StateWaitingForEntitlement
-            {purchases}
-            {appUserId}
-            {entitlement}
-            onContinue={handleContinue}
-            onError={handleError}
-          />
-        {/if}
       </Shell>
     </div>
   </ConditionalFullScreen>
 </div>
 
-<link
-  rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"
-  integrity="sha512-NhSC1YmyruXifcj/KFRWoC561YpHpc5Jtzgvbuzx5VozKpWvQ+4nXhPdFgmx8xqexRcpAglTj9sIBWINXa8x5w=="
-  crossorigin="anonymous"
-  referrerpolicy="no-referrer"
-/>
-
 <style>
-  :global(h1),
-  :global(h2),
-  :global(h3),
-  :global(h4),
-  :global(h5),
-  :global(h6) {
-    margin: 0;
-    font-size: 1rem;
-    font-weight: normal;
-  }
-
   .rcb-ui-container {
+    color-scheme: none;
     font-family:
       "PP Object Sans",
       -apple-system,

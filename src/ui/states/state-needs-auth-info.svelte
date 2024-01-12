@@ -19,7 +19,7 @@
 <div>
   <form on:submit|preventDefault={handleContinue}>
     <ModalSection>
-      <p class="title">User authentication</p>
+      <span class="title">User authentication</span>
     </ModalSection>
     <ModalSection>
       <div class="form-container">

@@ -9,7 +9,7 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: transparent;
+    background-color: rgba(40, 40, 40, 0.75);
     display: flex;
     flex-direction: column;
     justify-content: space-around;

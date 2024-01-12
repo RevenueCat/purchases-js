@@ -74,7 +74,9 @@
     <form on:submit|preventDefault={handleContinue}>
       <Elements {stripe} {clientSecret} loader="always" bind:elements>
         <ModalSection>
-          <PaymentElement />
+          <div class="rcb-stripe-elements-container">
+            <PaymentElement />
+          </div>
         </ModalSection>
         <ModalFooter>
           <RowLayout>
@@ -96,3 +98,10 @@
     <StateLoading />
   {/if}
 </div>
+
+<style>
+  .rcb-stripe-elements-container {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+</style>

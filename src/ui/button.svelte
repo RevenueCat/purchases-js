@@ -12,6 +12,7 @@
     font-size: 1rem;
     cursor: pointer;
     height: 3.5rem;
+    color: black;
     background-color: #dfdfdf;
   }
 
