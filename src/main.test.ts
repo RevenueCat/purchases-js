@@ -239,12 +239,6 @@ test("can get offerings", async () => {
       },
     ],
     current: currentOffering,
-    priceByPackageId: {
-      package_1: {
-        amount: 300,
-        currency: "USD",
-      },
-    },
   });
 });
 
@@ -300,7 +294,6 @@ test("can get offerings without current offering id", async () => {
       },
     ],
     current: null,
-    priceByPackageId: {},
   });
 });
 
