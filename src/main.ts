@@ -3,7 +3,6 @@ import {
   OfferingsPage as InnerOfferingsPage,
   Package as InnerPackage,
   toOffering,
-  toPrice,
 } from "./entities/offerings";
 import {
   SubscribeResponse,
@@ -47,28 +46,31 @@ export class Purchases {
     offeringsData: ServerResponse,
     productsData: ServerResponse,
   ): OfferingsPage => {
-    const currentOffering = offeringsData.offerings.filter(
-      (o: ServerResponse) => o.identifier === offeringsData.current_offering_id,
-    );
+    const currentOfferingServerResponse =
+      offeringsData.offerings.find(
+        (o: ServerResponse) =>
+          o.identifier === offeringsData.current_offering_id,
+      ) ?? null;
 
     const productsMap: ServerResponse = {};
     productsData.product_details.forEach((p: ServerResponse) => {
       productsMap[p.identifier] = p;
     });
 
-    const pricesByPackageId: ServerResponse = {};
-    currentOffering[0].packages.forEach(
-      (p: ServerResponse) =>
-        (pricesByPackageId[p.identifier] = toPrice(
-          productsMap[p.platform_product_identifier].current_price,
-        )),
+    const currentOffering: InnerOffering | null =
+      currentOfferingServerResponse == null
+        ? null
+        : toOffering(currentOfferingServerResponse, productsMap);
+
+    const allOfferings: { [offeringId: string]: Offering } = {};
+    offeringsData.offerings.forEach(
+      (o: ServerResponse) =>
+        (allOfferings[o.identifier] = toOffering(o, productsMap)),
     );
 
     return {
-      offerings: currentOffering.map((o: ServerResponse) =>
-        toOffering(o, productsMap),
-      ),
-      priceByPackageId: pricesByPackageId,
+      all: allOfferings,
+      current: currentOffering,
     };
   };
 
@@ -224,7 +226,7 @@ export class Purchases {
   ): Promise<Package | null> {
     const offeringsPage = await this.listOfferings(appUserId);
     const packages: Package[] = [];
-    offeringsPage.offerings.forEach((offering) =>
+    Object.values(offeringsPage.all).forEach((offering) =>
       packages.push(...offering.packages),
     );
 

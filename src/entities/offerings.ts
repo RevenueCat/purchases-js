@@ -27,8 +27,8 @@ export interface Offering {
 }
 
 export interface OfferingsPage {
-  offerings: Offering[];
-  priceByPackageId: { [packageId: string]: number };
+  all: { [offeringId: string]: Offering };
+  current: Offering | null;
 }
 
 export const toPrice = (priceData: ServerResponse) => {
