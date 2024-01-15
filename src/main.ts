@@ -2,7 +2,6 @@ import {
   Offering as InnerOffering,
   OfferingsPage as InnerOfferingsPage,
   Package as InnerPackage,
-  Product,
   toOffering,
 } from "./entities/offerings";
 import {
