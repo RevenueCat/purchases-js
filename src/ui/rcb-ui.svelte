@@ -40,7 +40,7 @@
   ];
 
   onMount(async () => {
-    productDetails = await purchases.getProduct(productId, appUserId);
+    productDetails = rcPackage.rcBillingProduct;
 
     if (state === "present-offer") {
       if (customerEmail) {
@@ -58,7 +58,13 @@
   };
 
   const handleSubscribe = () => {
-    state = "loading";
+    if (productId === null) {
+      state = "error";
+      return;
+    } else {
+      state = "loading";
+    }
+
     purchases
       .subscribe(appUserId, productId, customerEmail, environment)
       .then((result) => {
