@@ -18,7 +18,6 @@
   export let productId: string;
   export let onFinished: () => void;
   export let purchases: Purchases;
-  export let entitlement: string;
   export let environment: "sandbox" | "production" = "sandbox";
 
   let productDetails: any = null;
@@ -29,7 +28,6 @@
     | "needs-auth-info"
     | "needs-payment-info"
     | "loading"
-    | "waiting-for-entitlement"
     | "success"
     | "error" = "present-offer";
 

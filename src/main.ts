@@ -187,7 +187,6 @@ export class Purchases {
   public purchase(
     appUserId: string,
     productId: string,
-    entitlement: string,
     environment: "sandbox" | "production" = "production",
     customerEmail?: string,
     htmlTarget?: HTMLElement,
@@ -211,7 +210,6 @@ export class Purchases {
           appUserId,
           productId,
           environment,
-          entitlement,
           customerEmail,
           onFinished: () => {
             resolve();
