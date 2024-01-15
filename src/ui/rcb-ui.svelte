@@ -39,7 +39,7 @@
   ];
 
   onMount(async () => {
-    productDetails = await purchases.getProduct(productId);
+    productDetails = await purchases.getProduct(productId, appUserId);
 
     if (state === "present-offer") {
       if (customerEmail) {
