@@ -249,10 +249,10 @@ export class Purchases {
     return filteredPackages[0];
   }
 
-  public async getProduct(productIdentifier: string): Promise<Product | null> {
-    const offeringsPage = await this.listOfferings();
+  public async getProduct(productIdentifier: string, appUserId:string): Promise<Product | null> {
+    const offeringsPage = await this.listOfferings(appUserId);
     const packages: Package[] = [];
-    offeringsPage.offerings.forEach((offering) =>
+    Object.values(offeringsPage.all).forEach((offering) =>
       packages.push(...offering.packages),
     );
 
