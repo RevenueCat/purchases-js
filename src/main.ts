@@ -249,28 +249,6 @@ export class Purchases {
     return filteredPackages[0];
   }
 
-  public async getProduct(
-    productIdentifier: string,
-    appUserId: string,
-  ): Promise<Product | null> {
-    const offeringsPage = await this.listOfferings(appUserId);
-    const packages: Package[] = [];
-    Object.values(offeringsPage.all).forEach((offering) =>
-      packages.push(...offering.packages),
-    );
-
-    const products: Product[] = (
-      packages.map((pakg) => pakg.rcBillingProduct) as unknown as Product[]
-    ).filter((p) => p !== null);
-    const filteredProducts: Product[] = products.filter(
-      (p) => p.identifier === productIdentifier,
-    );
-    if (filteredProducts.length === 0) {
-      return null;
-    }
-    return filteredProducts[0];
-  }
-
   public purchase(
     appUserId: string,
     rcPackage: Package,
