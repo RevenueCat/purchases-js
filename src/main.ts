@@ -249,7 +249,10 @@ export class Purchases {
     return filteredPackages[0];
   }
 
-  public async getProduct(productIdentifier: string, appUserId:string): Promise<Product | null> {
+  public async getProduct(
+    productIdentifier: string,
+    appUserId: string,
+  ): Promise<Product | null> {
     const offeringsPage = await this.listOfferings(appUserId);
     const packages: Package[] = [];
     Object.values(offeringsPage.all).forEach((offering) =>
@@ -304,6 +307,8 @@ export class Purchases {
         },
       });
     });
+  }
+
   private logMissingProductIds(
     productIds: string[],
     productDetails: ServerResponse[],
