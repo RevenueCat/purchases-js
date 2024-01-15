@@ -12,9 +12,20 @@ import {
 import { PaymentProviderSettings, ServerResponse } from "./entities/types";
 import RCPurchasesUI from "./ui/rcb-ui.svelte";
 
+import { StatusCodes } from "http-status-codes";
+import {
+  AlreadySubscribedError,
+  ConcurrentSubscriberAttributeUpdateError,
+  InvalidInputDataError,
+  PaymentGatewayError,
+  UnknownServerError,
+} from "./entities/errors";
+
 export type OfferingsPage = InnerOfferingsPage;
 export type Offering = InnerOffering;
 export type Package = InnerPackage;
+
+const VERSION = "0.0.8";
 
 export class Purchases {
   _API_KEY: string | null = null;
@@ -40,27 +51,74 @@ export class Purchases {
     }
   }
 
-  private toOfferingsPage = (data: ServerResponse): OfferingsPage => {
+  private toOfferingsPage = (
+    offeringsData: ServerResponse,
+    productsData: ServerResponse,
+  ): OfferingsPage => {
+    const currentOfferingServerResponse =
+      offeringsData.offerings.find(
+        (o: ServerResponse) =>
+          o.identifier === offeringsData.current_offering_id,
+      ) ?? null;
+
+    const productsMap: ServerResponse = {};
+    productsData.product_details.forEach((p: ServerResponse) => {
+      productsMap[p.identifier] = p;
+    });
+
+    const currentOffering: InnerOffering | null =
+      currentOfferingServerResponse == null
+        ? null
+        : toOffering(currentOfferingServerResponse, productsMap);
+
+    const allOfferings: { [offeringId: string]: Offering } = {};
+    offeringsData.offerings.forEach(
+      (o: ServerResponse) =>
+        (allOfferings[o.identifier] = toOffering(o, productsMap)),
+    );
+
     return {
-      offerings: data.offerings.map(toOffering),
-      priceByPackageId: data.prices_by_package_id,
+      all: allOfferings,
+      current: currentOffering,
     };
   };
 
-  public async listOfferings(): Promise<OfferingsPage> {
-    const response = await fetch(
-      `${Purchases._RC_ENDPOINT}/${Purchases._BASE_PATH}/offerings`,
+  public async listOfferings(appUserId: string): Promise<OfferingsPage> {
+    const offeringsResponse = await fetch(
+      `${Purchases._RC_ENDPOINT}/v1/subscribers/${appUserId}/offerings`,
       {
         headers: {
           Authorization: `Bearer ${this._API_KEY}`,
           "Content-Type": "application/json",
           Accept: "application/json",
+          "X-Platform": "web",
+          "X-Version": VERSION,
+        },
+      },
+    );
+    const offeringsData = await offeringsResponse.json();
+    const productIds = offeringsData.offerings
+      .flatMap((o: ServerResponse) => o.packages)
+      .map((p: ServerResponse) => p.platform_product_identifier);
+
+    const productsResponse = await fetch(
+      `${Purchases._RC_ENDPOINT}/${
+        Purchases._BASE_PATH
+      }/subscribers/${appUserId}/products?id=${productIds.join("&id=")}`,
+      {
+        headers: {
+          Authorization: `Bearer ${this._API_KEY}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "X-Platform": "web",
+          "X-Version": VERSION,
         },
       },
     );
 
-    const data = await response.json();
-    return this.toOfferingsPage(data);
+    const productsData = await productsResponse.json();
+    this.logMissingProductIds(productIds, productsData.product_details);
+    return this.toOfferingsPage(offeringsData, productsData);
   }
 
   public async isEntitledTo(
@@ -144,14 +202,40 @@ export class Purchases {
       },
     );
 
-    const data = await response.json();
-    return toSubscribeResponse(data);
+    if (response.status === StatusCodes.BAD_REQUEST) {
+      throw new InvalidInputDataError(response.status);
+    }
+
+    if (response.status === StatusCodes.TOO_MANY_REQUESTS) {
+      throw new ConcurrentSubscriberAttributeUpdateError(response.status);
+    }
+
+    if (response.status === StatusCodes.CONFLICT) {
+      throw new AlreadySubscribedError(response.status);
+    }
+
+    if (response.status === StatusCodes.INTERNAL_SERVER_ERROR) {
+      throw new PaymentGatewayError(response.status);
+    }
+
+    if (
+      response.status === StatusCodes.OK ||
+      response.status === StatusCodes.CREATED
+    ) {
+      const data = await response.json();
+      return toSubscribeResponse(data);
+    }
+
+    throw new UnknownServerError();
   }
 
-  public async getPackage(packageIdentifier: string): Promise<Package | null> {
-    const offeringsPage = await this.listOfferings();
+  public async getPackage(
+    appUserId: string,
+    packageIdentifier: string,
+  ): Promise<Package | null> {
+    const offeringsPage = await this.listOfferings(appUserId);
     const packages: Package[] = [];
-    offeringsPage.offerings.forEach((offering) =>
+    Object.values(offeringsPage.all).forEach((offering) =>
       packages.push(...offering.packages),
     );
 
@@ -220,5 +304,26 @@ export class Purchases {
         },
       });
     });
+  private logMissingProductIds(
+    productIds: string[],
+    productDetails: ServerResponse[],
+  ) {
+    const foundProductIdsMap: { [productId: string]: ServerResponse } = {};
+    productDetails.forEach(
+      (ent: ServerResponse) => (foundProductIdsMap[ent.identifier] = ent),
+    );
+    const missingProductIds: string[] = [];
+    productIds.forEach((productId: string) => {
+      if (foundProductIdsMap[productId] === undefined) {
+        missingProductIds.push(productId);
+      }
+    });
+    if (missingProductIds.length > 0) {
+      console.log(
+        "Could not find product data for product ids: ",
+        missingProductIds,
+        ". Please check that your product configuration is correct.",
+      );
+    }
   }
 }
