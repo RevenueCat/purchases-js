@@ -13,7 +13,7 @@
   import Shell from "./shell.svelte";
 
   export let asModal = true;
-  export let customerEmail: string;
+  export let customerEmail: string | undefined;
   export let appUserId: string;
   export let rcPackage: Package;
   export let onFinished: () => void;

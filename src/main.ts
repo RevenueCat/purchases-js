@@ -296,9 +296,7 @@ export class Purchases {
     return new Promise((resolve) => {
       // Attach the widget to the iframe's body
       new RCPurchasesUI({
-        // @ts-ignore
         target: resolvedHTMLTarget,
-
         props: {
           appUserId,
           rcPackage,
