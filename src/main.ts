@@ -273,10 +273,16 @@ export class Purchases {
 
   public purchase(
     appUserId: string,
-    productId: string,
-    environment: "sandbox" | "production" = "production",
-    customerEmail?: string,
-    htmlTarget?: HTMLElement,
+    rcPackage: Package,
+    {
+      environment,
+      customerEmail,
+      htmlTarget,
+    }: {
+      environment?: "sandbox" | "production";
+      customerEmail?: string;
+      htmlTarget?: HTMLElement;
+    } = { environment: "production" },
   ): Promise<void> {
     const resolvedHTMLTarget =
       htmlTarget ?? document.getElementById("rcb-ui-root");
@@ -295,7 +301,7 @@ export class Purchases {
 
         props: {
           appUserId,
-          productId,
+          rcPackage,
           environment,
           customerEmail,
           onFinished: () => {

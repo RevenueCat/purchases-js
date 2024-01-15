@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import SandboxBanner from "./sandbox-banner.svelte";
-  import { Purchases } from "../main";
+  import { Purchases, Package } from "../main";
   import StatePresentOffer from "./states/state-present-offer.svelte";
   import StateLoading from "./states/state-loading.svelte";
   import StateError from "./states/state-error.svelte";
@@ -15,13 +15,14 @@
   export let asModal = true;
   export let customerEmail: string;
   export let appUserId: string;
-  export let productId: string;
+  export let rcPackage: Package;
   export let onFinished: () => void;
   export let purchases: Purchases;
   export let environment: "sandbox" | "production" = "sandbox";
 
   let productDetails: any = null;
   let paymentInfoCollectionMetadata: SubscribeResponse | null = null;
+  const productId = rcPackage.rcBillingProduct?.id ?? null;
 
   let state:
     | "present-offer"
