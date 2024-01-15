@@ -1,4 +1,4 @@
-import { http, HttpResponse } from "msw";
+import { http, HttpResponse, RequestHandler } from "msw";
 import { setupServer } from "msw/node";
 import { beforeAll, expect, test } from "vitest";
 import { Purchases } from "./main";
@@ -7,29 +7,30 @@ const STRIPE_TEST_DATA = {
   stripe: { accountId: "acct_123", publishableKey: "pk_123" },
 } as const;
 
+const monthlyProductResponse = {
+  current_price: {
+    amount: 300,
+    currency: "USD",
+  },
+  identifier: "monthly",
+  normal_period_duration: "PT1H",
+  product_type: "subscription",
+  title: "Monthly test",
+};
+
+const monthly2ProductResponse = {
+  current_price: {
+    amount: 500,
+    currency: "USD",
+  },
+  identifier: "monthly_2",
+  normal_period_duration: "PT1H",
+  product_type: "subscription",
+  title: "Monthly test 2",
+};
+
 const productsResponse = {
-  product_details: [
-    {
-      current_price: {
-        amount: 300,
-        currency: "USD",
-      },
-      identifier: "monthly",
-      normal_period_duration: "PT1H",
-      product_type: "subscription",
-      title: "Monthly test",
-    },
-    {
-      current_price: {
-        amount: 500,
-        currency: "USD",
-      },
-      identifier: "monthly_2",
-      normal_period_duration: "PT1H",
-      product_type: "subscription",
-      title: "Monthly test 2",
-    },
-  ],
+  product_details: [monthlyProductResponse, monthly2ProductResponse],
 };
 
 const offeringsArray = [
@@ -57,46 +58,58 @@ const offeringsArray = [
   },
 ];
 
+const offeringsResponsesPerUserId: { [userId: string]: object } = {
+  someAppUserId: {
+    current_offering_id: "offering_1",
+    offerings: offeringsArray,
+  },
+  appUserIdWithoutCurrentOfferingId: {
+    current_offering_id: null,
+    offerings: offeringsArray,
+  },
+  appUserIdWithMissingProducts: {
+    current_offering_id: "offering_2",
+    offerings: offeringsArray,
+  },
+};
+
+const productsResponsesPerUserId: { [userId: string]: object } = {
+  someAppUserId: productsResponse,
+  appUserIdWithoutCurrentOfferingId: productsResponse,
+  appUserIdWithMissingProducts: { product_details: [monthlyProductResponse] },
+};
+
+function getRequestHandlers(): RequestHandler[] {
+  const requestHandlers: RequestHandler[] = [];
+  Object.keys(offeringsResponsesPerUserId).forEach((userId: string) => {
+    const body = offeringsResponsesPerUserId[userId]!;
+    requestHandlers.push(
+      http.get(
+        `http://localhost:8000/v1/subscribers/${userId}/offerings`,
+        () => {
+          return HttpResponse.json(body, { status: 200 });
+        },
+      ),
+    );
+  });
+
+  Object.keys(productsResponsesPerUserId).forEach((userId: string) => {
+    const body = productsResponsesPerUserId[userId]!;
+    requestHandlers.push(
+      http.get(
+        `http://localhost:8000/rcbilling/v1/subscribers/${userId}/products?id=monthly&id=monthly_2`,
+        () => {
+          return HttpResponse.json(body, { status: 200 });
+        },
+      ),
+    );
+  });
+
+  return requestHandlers;
+}
+
 const server = setupServer(
-  http.get(
-    "http://localhost:8000/v1/subscribers/someAppUserId/offerings",
-    () => {
-      return HttpResponse.json(
-        {
-          current_offering_id: "offering_1",
-          offerings: offeringsArray,
-        },
-        { status: 200 },
-      );
-    },
-  ),
-
-  http.get(
-    "http://localhost:8000/v1/subscribers/appUserIdWithoutCurrentOfferingId/offerings",
-    () => {
-      return HttpResponse.json(
-        {
-          current_offering_id: null,
-          offerings: offeringsArray,
-        },
-        { status: 200 },
-      );
-    },
-  ),
-
-  http.get(
-    "http://localhost:8000/rcbilling/v1/subscribers/someAppUserId/products?id=monthly&id=monthly_2",
-    () => {
-      return HttpResponse.json(productsResponse, { status: 200 });
-    },
-  ),
-
-  http.get(
-    "http://localhost:8000/rcbilling/v1/subscribers/appUserIdWithoutCurrentOfferingId/products?id=monthly&id=monthly_2",
-    () => {
-      return HttpResponse.json(productsResponse, { status: 200 });
-    },
-  ),
+  ...getRequestHandlers(),
 
   http.get(
     "http://localhost:8000/rcbilling/v1/entitlements/someAppUserId",
@@ -296,6 +309,39 @@ test("can get offerings without current offering id", async () => {
           },
         ],
       },
+    },
+    current: null,
+  });
+});
+
+test("can get offerings with missing products", async () => {
+  const billing = new Purchases("test_api_key", STRIPE_TEST_DATA);
+  const offerings = await billing.getOfferings("appUserIdWithMissingProducts");
+
+  const offering_1 = {
+    displayName: "Offering 1",
+    id: "offering_1",
+    identifier: "offering_1",
+    packages: [
+      {
+        id: "package_1",
+        identifier: "package_1",
+        rcBillingProduct: {
+          currentPrice: {
+            currency: "USD",
+            amount: 300,
+          },
+          displayName: "Monthly test",
+          id: "monthly",
+          identifier: "monthly",
+          normalPeriodDuration: "PT1H",
+        },
+      },
+    ],
+  };
+  expect(offerings).toEqual({
+    all: {
+      offering_1: offering_1,
     },
     current: null,
   });
