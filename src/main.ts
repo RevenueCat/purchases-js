@@ -36,7 +36,7 @@ export class Purchases {
 
   constructor(
     apiKey: string,
-    paymentProviderSettings?: PaymentProviderSettings,
+    paymentProviderSettings: PaymentProviderSettings,
   ) {
     this._API_KEY = apiKey;
     if (paymentProviderSettings) {
@@ -261,19 +261,29 @@ export class Purchases {
       htmlTarget?: HTMLElement;
     } = { environment: "production" },
   ): Promise<void> {
-    const resolvedHTMLTarget =
+    let resolvedHTMLTarget =
       htmlTarget ?? document.getElementById("rcb-ui-root");
+
+    if (resolvedHTMLTarget === null) {
+      const element = document.createElement("div");
+      element.className = "rcb-ui-root";
+      document.body.appendChild(element);
+      resolvedHTMLTarget = element;
+    }
+
     if (resolvedHTMLTarget === null) {
       throw new Error(
-        "[RC Billing]: Could not find the HTML target element to render on",
+        "Could not generate a mount point for the billing widget",
       );
     }
+
+    const certainHTMLTarget = resolvedHTMLTarget as unknown as HTMLElement;
+
     const asModal = !Boolean(htmlTarget);
 
     return new Promise((resolve) => {
-      // Attach the widget to the iframe's body
       new RCPurchasesUI({
-        target: resolvedHTMLTarget,
+        target: certainHTMLTarget,
         props: {
           appUserId,
           rcPackage,
@@ -281,7 +291,7 @@ export class Purchases {
           customerEmail,
           onFinished: () => {
             resolve();
-            resolvedHTMLTarget.innerHTML = "";
+            certainHTMLTarget.innerHTML = "";
           },
           purchases: this,
           asModal,
