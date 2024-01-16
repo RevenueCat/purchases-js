@@ -7,20 +7,14 @@
 
 ### Development
 
-- Login in RC's npm registry
+- Install and build dependencies in the root `purchases-js`
+  - `npm i`
+  - `npm run build`
+- Install dependencies for the rcbilling-demo app
 
-  - use `npm login` and comment `.npmrc`
-  - or generate a node auth token (better if read only) and set the `NODE_AUTH_TOKEN` env var with it.
+  - `npm i`
 
-- Install dependencies
-
-```bash
-npm i
-```
-
-(note: If npm does not find the package @revenuecat/purchases-js, something went wrong in the previous step)
-
-- Set the following env variables. You can find the defaults in 1Password: `RCBilling Demo ENV Vars`
+- Set the following env variables. You can find the defaults in 1Password: `RCBilling Demo ENV Vars`. You can set them in a `.env` file in the root of this demo app.
 
 ```bash
 export VITE_RC_API_KEY = 'your public api key'
