@@ -34,6 +34,18 @@ jobs:
         with:
           node-version: 18.x
 
+      - name: npm install purchases-js
+        run: |
+          npm ci
+        env:
+          CI: true
+
+      - name: npm build purchases-js
+        run: |
+          npm run build
+        env:
+          CI: true
+
       - name: npm install
         working-directory: ./examples/rcbilling-demo
         run: |
