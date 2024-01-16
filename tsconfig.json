@@ -13,6 +13,7 @@
 
     /* Linting */
     "strict": true,
+    "stripInternal": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,

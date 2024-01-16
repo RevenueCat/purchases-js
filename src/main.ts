@@ -27,9 +27,13 @@ export type Package = InnerPackage;
 const VERSION = "0.0.8";
 
 export class Purchases {
+  // @internal
   _API_KEY: string | null = null;
+  // @internal
   _APP_USER_ID: string | null = null;
+  // @internal
   _PAYMENT_PROVIDER_SETTINGS: PaymentProviderSettings | null = null;
+
   private static readonly _RC_ENDPOINT = import.meta.env
     .VITE_RC_ENDPOINT as string;
   private static readonly _BASE_PATH = "rcbilling/v1";
