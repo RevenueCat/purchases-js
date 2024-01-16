@@ -7,3 +7,4 @@ vitest.*
 pull_request_template.md
 src/*
 *.test.d.ts
+examples/*

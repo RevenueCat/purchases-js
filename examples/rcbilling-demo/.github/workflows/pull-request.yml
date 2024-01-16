@@ -1,0 +1,44 @@
+name: Deploy
+
+on: [push]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Use Node.js 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+
+      - name: npm install
+        run: |
+          npm ci
+        env:
+          CI: true
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+
+      - name: npm lint
+        run: |
+          npm run lint
+        env:
+          CI: true
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+
+      - name: check format
+        run: |
+          npm run prettier:ci
+        env:
+          CI: true
+
+      - name: npm build
+        run: |
+          npm run build
+        env:
+          CI: true
+          VITE_RC_API_KEY: ${{ secrets.RC_API_KEY }}
+          VITE_RC_STRIPE_ACCOUNT_ID: ${{ secrets.RC_STRIPE_ACCOUNT_ID }}
+          VITE_RC_STRIPE_PK_KEY: ${{ secrets.RC_STRIPE_PK_KEY }}
