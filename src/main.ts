@@ -248,7 +248,7 @@ export class Purchases {
     return filteredPackages[0];
   }
 
-  public purchase(
+  public purchasePackage(
     appUserId: string,
     rcPackage: Package,
     {
