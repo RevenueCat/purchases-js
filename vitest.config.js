@@ -1,6 +1,8 @@
 import { defineConfig } from "vitest/config";
+import { svelte } from "@sveltejs/vite-plugin-svelte";
 
 export default defineConfig({
+  plugins: [svelte()],
   // Use the test field to define test-specific configurations
   test: {
     // Set the environment to 'jsdom' to simulate a browser environment

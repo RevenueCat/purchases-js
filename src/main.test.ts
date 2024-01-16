@@ -3,6 +3,10 @@ import { setupServer } from "msw/node";
 import { beforeAll, expect, test } from "vitest";
 import { Purchases } from "./main";
 
+const STRIPE_TEST_DATA = {
+  stripe: { accountId: "acct_123", publishableKey: "pk_123" },
+} as const;
+
 const productsResponse = {
   product_details: [
     {
@@ -145,12 +149,12 @@ beforeAll(() => {
 });
 
 test("Purchases is defined", () => {
-  const billing = new Purchases("test_api_key");
+  const billing = new Purchases("test_api_key", STRIPE_TEST_DATA);
   expect(billing).toBeDefined();
 });
 
 test("returns true if a user is entitled", async () => {
-  const billing = new Purchases("test_api_key");
+  const billing = new Purchases("test_api_key", STRIPE_TEST_DATA);
   const isEntitled = await billing.isEntitledTo(
     "someAppUserId",
     "someEntitlement",
@@ -159,7 +163,7 @@ test("returns true if a user is entitled", async () => {
 });
 
 test("returns true if a user is entitled and uses waitForEntitlement", async () => {
-  const billing = new Purchases("test_api_key");
+  const billing = new Purchases("test_api_key", STRIPE_TEST_DATA);
   const isEntitled = await billing.waitForEntitlement(
     "someAppUserId",
     "someEntitlement",
@@ -169,7 +173,7 @@ test("returns true if a user is entitled and uses waitForEntitlement", async () 
 });
 
 test("returns false if a user is not entitled", async () => {
-  const billing = new Purchases("test_api_key");
+  const billing = new Purchases("test_api_key", STRIPE_TEST_DATA);
   const isEntitled = await billing.isEntitledTo(
     "someOtherAppUserId",
     "someEntitlement",
@@ -178,7 +182,7 @@ test("returns false if a user is not entitled", async () => {
 });
 
 test("returns false if a user is not entitled and uses waitForEntitlement", async () => {
-  const billing = new Purchases("test_api_key");
+  const billing = new Purchases("test_api_key", STRIPE_TEST_DATA);
   const isEntitled = await billing.waitForEntitlement(
     "someOtherAppUserId",
     "someEntitlement",
@@ -188,7 +192,7 @@ test("returns false if a user is not entitled and uses waitForEntitlement", asyn
 });
 
 test("can get offerings", async () => {
-  const billing = new Purchases("test_api_key");
+  const billing = new Purchases("test_api_key", STRIPE_TEST_DATA);
   const offerings = await billing.listOfferings("someAppUserId");
 
   const currentOffering = {
@@ -243,7 +247,7 @@ test("can get offerings", async () => {
 });
 
 test("can get offerings without current offering id", async () => {
-  const billing = new Purchases("test_api_key");
+  const billing = new Purchases("test_api_key", STRIPE_TEST_DATA);
   const offerings = await billing.listOfferings(
     "appUserIdWithoutCurrentOfferingId",
   );
@@ -298,7 +302,7 @@ test("can get offerings without current offering id", async () => {
 });
 
 test("can post to subscribe", async () => {
-  const billing = new Purchases("test_api_key");
+  const billing = new Purchases("test_api_key", STRIPE_TEST_DATA);
   const subscribeResponse = await billing.subscribe(
     "someAppUserId",
     "product_1",
@@ -314,14 +318,14 @@ test("can post to subscribe", async () => {
 });
 
 test("can get a specific Package", async () => {
-  const purchases = new Purchases("test_api_key");
+  const purchases = new Purchases("test_api_key", STRIPE_TEST_DATA);
   const pkg = await purchases.getPackage("someAppUserId", "package_1");
   expect(pkg).not.toBeNull();
   expect(pkg?.identifier).toBe("package_1");
 });
 
 test("returns null for Package not found", async () => {
-  const purchases = new Purchases("test_api_key");
+  const purchases = new Purchases("test_api_key", STRIPE_TEST_DATA);
   const pkg = await purchases.getPackage("someAppUserId", "package_not_there");
   expect(pkg).toBeNull();
 });
