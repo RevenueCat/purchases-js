@@ -26,23 +26,6 @@ export const formatPrice = (priceInCents: number, currency: string): string => {
   return formatter.format(price);
 };
 
-export const formatDuration = (duration: string): string => {
-  const durationRegex = /(P|P)(\d+)([A-Z])/;
-  const matches = duration.match(durationRegex);
-  if (!matches) {
-    return duration;
-  }
-
-  const [, amount, unit] = matches;
-  const label = durationUnits[unit];
-
-  if (!label) {
-    return duration;
-  }
-
-  return `${amount} ${label}`;
-};
-
 export const getRenewsLabel = (duration: string): string => {
   const unit = duration.slice(-1);
   if (unit === "D") {
