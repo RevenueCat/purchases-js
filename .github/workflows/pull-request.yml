@@ -1,4 +1,4 @@
-name: Deploy
+name: Test (rcbilling-demo)
 
 on: [push]
 
@@ -15,26 +15,28 @@ jobs:
           node-version: 18.x
 
       - name: npm install
+        working-directory: ./examples/rcbilling-demo
         run: |
           npm ci
         env:
           CI: true
-          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
 
       - name: npm lint
+        working-directory: ./examples/rcbilling-demo
         run: |
           npm run lint
         env:
           CI: true
-          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
 
       - name: check format
+        working-directory: ./examples/rcbilling-demo
         run: |
           npm run prettier:ci
         env:
           CI: true
 
       - name: npm build
+        working-directory: ./examples/rcbilling-demo
         run: |
           npm run build
         env:
