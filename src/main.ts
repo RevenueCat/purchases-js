@@ -39,13 +39,23 @@ export class Purchases {
     paymentProviderSettings: PaymentProviderSettings,
   ) {
     this._API_KEY = apiKey;
-    if (paymentProviderSettings) {
-      this._PAYMENT_PROVIDER_SETTINGS = paymentProviderSettings;
-    }
+    this._PAYMENT_PROVIDER_SETTINGS = paymentProviderSettings;
 
     if (Purchases._RC_ENDPOINT === undefined) {
       console.error(
         "Project was build without some of the environment variables set",
+      );
+    }
+
+    // Will need to change this to something more flexible
+    // if/when we end up supporting more payment gateways
+    if (
+      !this._PAYMENT_PROVIDER_SETTINGS.stripe ||
+      !this._PAYMENT_PROVIDER_SETTINGS.stripe?.accountId ||
+      !this._PAYMENT_PROVIDER_SETTINGS.stripe?.publishableKey
+    ) {
+      console.error(
+        "Project was build without the stripe payment provider settings set",
       );
     }
   }
