@@ -9,7 +9,7 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "test": "vitest",
-    "test:ci": "(vite &) && sleep 5 && vitest",
+    "test:ci": "(vite --host &) && sleep 5 && vitest",
     "prettier": "prettier --write .",
     "prettier:ci": "prettier --check ."
   },

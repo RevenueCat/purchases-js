@@ -1,7 +1,7 @@
 import { beforeAll, expect, test } from "vitest";
 import puppeteer, { Browser, ElementHandle, Frame, Page } from "puppeteer";
 
-const _LOCAL_URL = "http://localhost:3001/";
+const _LOCAL_URL = "http://0.0.0.0:3001/";
 const _CARD_CLASS = ".card";
 
 beforeAll(() => {
