@@ -43,8 +43,20 @@ test(
     const rcbRoot = await page.$(".rcb-ui-root");
     expect(rcbRoot).not.toBeNull();
     console.log("TEST 4");
-    await page.screenshot({ path: "artifacts/screenshot.png" });
+    // await page.screenshot({ path: "artifacts/screenshot.png" });
+    const frameWithReturnButton = await findFrameWithSelector(
+      page,
+      ".intent-secondary",
+    );
     console.log("TEST 5");
+    const returnHomeButton = await frameWithReturnButton.$(".intent-secondary");
+    console.log("TEST 6");
+    returnHomeButton?.click();
+    console.log("TEST 7");
+    await page.waitForNavigation();
+    await waitMilliseconds(5000);
+    console.log("TEST 8");
+    await findFrameWithSelector(page, "::-p-text(Success!)");
     // await expectElementContainsText(rcbRoot!, "Purchase Successful");
     // const returnHomeButton = await rcbRoot?.$(".intent-secondary");
     // expect(returnHomeButton).not.toBeNull();
@@ -58,7 +70,7 @@ test(
     // await waitMilliseconds(5000);
     // expect(await page.$(`::-p-text(Success!)`)).not.toBeNull();
     await browser.close();
-    console.log("TEST 8");
+    console.log("TEST 9");
   },
   { timeout: 30000, retry: 3 },
 );
@@ -102,14 +114,7 @@ async function enterEmailAndContinue(
 }
 
 async function enterCreditCardDetailsAndContinue(page: Page): Promise<void> {
-  const frames = page.frames();
-  let formFrame: Frame | null = null;
-  for (const frame of frames) {
-    if ((await frame.$('input[name="number"]')) != null) {
-      formFrame = frame;
-    }
-  }
-  expect(formFrame).not.toBeNull();
+  const formFrame = await findFrameWithSelector(page, 'input[name="number"]');
   await typeTextInFrameSelector(
     page,
     formFrame!,
@@ -126,6 +131,21 @@ async function enterCreditCardDetailsAndContinue(page: Page): Promise<void> {
   const payButton = await page.$(".intent-primary");
   expect(payButton).not.toBeNull();
   await payButton?.click();
+}
+
+async function findFrameWithSelector(
+  page: Page,
+  selector: string,
+): Promise<Frame> {
+  const frames = page.frames();
+  let foundFrame: Frame | null = null;
+  for (const frame of frames) {
+    if ((await frame.$(selector)) != null) {
+      foundFrame = frame;
+    }
+  }
+  expect(foundFrame).not.toBeNull();
+  return foundFrame!;
 }
 
 // async function expectElementContainsText(element: ElementHandle, text: string) {
