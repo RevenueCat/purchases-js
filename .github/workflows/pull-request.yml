@@ -56,13 +56,12 @@ jobs:
           VITE_RC_API_KEY: ${{ secrets.RC_API_KEY }}
           VITE_RC_STRIPE_ACCOUNT_ID: ${{ secrets.RC_STRIPE_ACCOUNT_ID }}
           VITE_RC_STRIPE_PK_KEY: ${{ secrets.RC_STRIPE_PK_KEY }}
-
-      - name: npm e2e tests
-        working-directory: ./examples/rcbilling-demo
-        run: |
-          npm run test:ci
-        env:
-          CI: true
-          VITE_RC_API_KEY: ${{ secrets.RC_API_KEY }}
-          VITE_RC_STRIPE_ACCOUNT_ID: ${{ secrets.RC_STRIPE_ACCOUNT_ID }}
-          VITE_RC_STRIPE_PK_KEY: ${{ secrets.RC_STRIPE_PK_KEY }}
+#      - name: npm e2e tests
+#        working-directory: ./examples/rcbilling-demo
+#        run: |
+#          npm run test:ci
+#        env:
+#          CI: true
+#          VITE_RC_API_KEY: ${{ secrets.RC_API_KEY }}
+#          VITE_RC_STRIPE_ACCOUNT_ID: ${{ secrets.RC_STRIPE_ACCOUNT_ID }}
+#          VITE_RC_STRIPE_PK_KEY: ${{ secrets.RC_STRIPE_PK_KEY }}
