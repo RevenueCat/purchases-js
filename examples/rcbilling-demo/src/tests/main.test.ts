@@ -10,25 +10,22 @@ beforeAll(() => {
   expect(import.meta.env.VITE_RC_STRIPE_ACCOUNT_ID).not.toBeNull();
 });
 
-// test("Get offerings displays packages", async () => {
-//   const { browser, page } = await setupTest();
-//   const packageCards = await getPackageCards(page);
-//   expect(packageCards.length).toEqual(3);
-//   await expectElementContainsText(packageCards[0], "3.00 USD");
-//   await expectElementContainsText(packageCards[1], "9.99 USD");
-//   await expectElementContainsText(packageCards[2], "19.99 USD");
-//   await browser.close();
-// });
+test("Get offerings displays packages", async () => {
+  const { browser, page } = await setupTest();
+  const packageCards = await getPackageCards(page);
+  expect(packageCards.length).toEqual(3);
+  await expectElementContainsText(packageCards[0], "3.00 USD");
+  await expectElementContainsText(packageCards[1], "9.99 USD");
+  await expectElementContainsText(packageCards[2], "19.99 USD");
+  await browser.close();
+});
 
 test(
   "Can purchase a product",
   async () => {
-    console.log("TEST 1");
     const { browser, page } = await setupTest();
-    console.log("TEST 1.5");
     const userId = `rc_billing_demo_test_${Date.now()}`;
     await changeUserId(page, userId);
-    console.log("TEST 2");
 
     // Perform purchase
     const weeklyPackageCard = (await getPackageCards(page))[1];
@@ -36,56 +33,22 @@ test(
     await enterEmailAndContinue(page, userId);
     await waitMilliseconds(2000);
     await enterCreditCardDetailsAndContinue(page);
-    // await waitMilliseconds(10000);
-    console.log("TEST 3");
-    await page.waitForSelector(".intent-secondary", { timeout: 10000 });
-    // Go back to main page
-    // const rcbRoot = await page.$(".rcb-ui-root");
-    // expect(rcbRoot).not.toBeNull();
-    // console.log("TEST 4");
-    // // await page.screenshot({ path: "artifacts/screenshot.png" });
-    // const frameWithReturnButton = await findFrameWithSelector(
-    //   page,
-    //   ".intent-secondary",
-    // );
-    // console.log("TEST 5");
-    // const returnHomeButton = await frameWithReturnButton.$(".intent-secondary");
-    // console.log("TEST 6");
-    // returnHomeButton?.click();
-    // console.log("TEST 7");
-    // await waitMilliseconds(5000);
-    // console.log("TEST 8");
-    // await findFrameWithSelector(page, "::-p-text(Success!)");
-    // await expectElementContainsText(rcbRoot!, "Purchase Successful");
-    // const returnHomeButton = await rcbRoot?.$(".intent-secondary");
-    // expect(returnHomeButton).not.toBeNull();
-    // console.log("TEST 6");
-    // await returnHomeButton?.click();
-    // await page.waitForNavigation();
-    // console.log("TEST 7");
 
-    // Needed since there is an animation after tapping on the button
-    // to go back to main page.
-    // await waitMilliseconds(5000);
-    // expect(await page.$(`::-p-text(Success!)`)).not.toBeNull();
+    // Confirm success page has shown.
+    await page.waitForSelector(".rcb-modal-success", { timeout: 10000 });
+
     await browser.close();
-    console.log("TEST 9");
   },
   { timeout: 40000, retry: 2 },
 );
 
 async function setupTest(): Promise<{ browser: Browser; page: Page }> {
-  console.log("TEST setupTest 1");
   const browser = await puppeteer.launch({
     headless: "new",
   });
-  console.log("TEST setupTest 2");
   const page = await browser.newPage();
-  console.log("TEST setupTest 3");
   await navigateToUrl(page);
-  console.log("TEST setupTest 4");
   await page.waitForSelector(_CARD_CLASS);
-  console.log("TEST setupTest 5");
   return { browser, page };
 }
 
@@ -97,9 +60,7 @@ async function changeUserId(page: Page, userId: string): Promise<void> {
   await page.evaluate((userId) => {
     localStorage.setItem("appUserId", userId);
   }, userId);
-  await navigateToUrl(page).catch((error) =>
-    console.log(`Change user id timeout: ${error}`),
-  );
+  await navigateToUrl(page);
   await waitMilliseconds(3000);
 }
 
@@ -149,19 +110,15 @@ async function findFrameWithSelector(
   return foundFrame!;
 }
 
-// async function expectElementContainsText(element: ElementHandle, text: string) {
-//   expect(await element.$(`::-p-text(${text})`)).not.toBeNull();
-// }
+async function expectElementContainsText(element: ElementHandle, text: string) {
+  expect(await element.$(`::-p-text(${text})`)).not.toBeNull();
+}
 
 async function navigateToUrl(page: Page): Promise<void> {
   const url =
     (import.meta.env.VITE_RC_BILLING_DEMO_URL as string | undefined) ??
     _LOCAL_URL;
-  console.log("TEST navigateToUrl 1");
   await page.goto(url);
-  console.log("TEST navigateToUrl 2");
-  // await page.waitForNavigation();
-  // console.log("TEST navigateToUrl 3");
 }
 
 async function typeTextInPageSelector(
