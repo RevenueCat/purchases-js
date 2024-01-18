@@ -156,8 +156,11 @@ async function navigateToUrl(page: Page): Promise<void> {
   const url =
     (import.meta.env.VITE_RC_BILLING_DEMO_URL as string | undefined) ??
     _LOCAL_URL;
+  console.log("TEST navigateToUrl 1");
   await page.goto(url);
+  console.log("TEST navigateToUrl 2");
   await page.waitForNavigation();
+  console.log("TEST navigateToUrl 3");
 }
 
 async function typeTextInPageSelector(
