@@ -34,6 +34,8 @@ test(
     await waitMilliseconds(2000);
     await enterCreditCardDetailsAndContinue(page);
 
+    await waitMilliseconds(3000);
+    await page.screenshot({ path: `artifacts/screenshot_${userId}.png` });
     // Confirm success page has shown.
     await page.waitForSelector(".rcb-modal-success", { timeout: 10000 });
 
