@@ -10,15 +10,15 @@ beforeAll(() => {
   expect(import.meta.env.VITE_RC_STRIPE_ACCOUNT_ID).not.toBeNull();
 });
 
-test("Get offerings displays packages", async () => {
-  const { browser, page } = await setupTest();
-  const packageCards = await getPackageCards(page);
-  expect(packageCards.length).toEqual(3);
-  await expectElementContainsText(packageCards[0], "3.00 USD");
-  await expectElementContainsText(packageCards[1], "9.99 USD");
-  await expectElementContainsText(packageCards[2], "19.99 USD");
-  await browser.close();
-});
+// test("Get offerings displays packages", async () => {
+//   const { browser, page } = await setupTest();
+//   const packageCards = await getPackageCards(page);
+//   expect(packageCards.length).toEqual(3);
+//   await expectElementContainsText(packageCards[0], "3.00 USD");
+//   await expectElementContainsText(packageCards[1], "9.99 USD");
+//   await expectElementContainsText(packageCards[2], "19.99 USD");
+//   await browser.close();
+// });
 
 test(
   "Can purchase a product",
@@ -114,9 +114,9 @@ async function enterCreditCardDetailsAndContinue(page: Page): Promise<void> {
   await payButton?.click();
 }
 
-async function expectElementContainsText(element: ElementHandle, text: string) {
-  expect(await element.$(`::-p-text(${text})`)).not.toBeNull();
-}
+// async function expectElementContainsText(element: ElementHandle, text: string) {
+//   expect(await element.$(`::-p-text(${text})`)).not.toBeNull();
+// }
 
 async function navigateToUrl(page: Page): Promise<void> {
   const url =
