@@ -1,58 +1,60 @@
-import { beforeAll, expect, test } from "vitest";
+import { beforeAll, describe, expect, test } from "vitest";
 import puppeteer, { Browser, ElementHandle, Frame, Page } from "puppeteer";
 
 const _LOCAL_URL = "http://0.0.0.0:3001/";
 const _CARD_CLASS = ".card";
 
-beforeAll(() => {
-  expect(import.meta.env.VITE_RC_API_KEY).not.toBeNull();
-  expect(import.meta.env.VITE_RC_STRIPE_PK_KEY).not.toBeNull();
-  expect(import.meta.env.VITE_RC_STRIPE_ACCOUNT_ID).not.toBeNull();
-});
+describe.sequential("E2E tests", () => {
+  beforeAll(() => {
+    expect(import.meta.env.VITE_RC_API_KEY).not.toBeNull();
+    expect(import.meta.env.VITE_RC_STRIPE_PK_KEY).not.toBeNull();
+    expect(import.meta.env.VITE_RC_STRIPE_ACCOUNT_ID).not.toBeNull();
+  });
 
-test("Get offerings displays packages", async () => {
-  const { browser, page } = await setupTest();
-  const packageCards = await getPackageCards(page);
-  expect(packageCards.length).toEqual(3);
-  await expectElementContainsText(packageCards[0], "3.00 USD");
-  await expectElementContainsText(packageCards[1], "9.99 USD");
-  await expectElementContainsText(packageCards[2], "19.99 USD");
-  await browser.close();
-});
-
-test(
-  "Can purchase a product",
-  async () => {
+  test("Get offerings displays packages", async () => {
     const { browser, page } = await setupTest();
-    const userId = `rc_billing_demo_test_${Date.now()}`;
-    await changeUserId(page, userId);
-
-    // Perform purchase
-    const weeklyPackageCard = (await getPackageCards(page))[1];
-    await weeklyPackageCard.click();
-    await enterEmailAndContinue(page, userId);
-    await waitMilliseconds(2000);
-    await enterCreditCardDetailsAndContinue(page);
-    await waitMilliseconds(2000);
-
-    // Go back to main page
-    const rcbRoot = await page.$(".rcb-ui-root");
-    expect(rcbRoot).not.toBeNull();
-    await page.screenshot({ path: "screenshot.png" });
-    // await expectElementContainsText(rcbRoot!, "Purchase Successful");
-    // const returnHomeButton = await rcbRoot?.$(".intent-secondary");
-    // expect(returnHomeButton).not.toBeNull();
-    // await returnHomeButton?.click();
-    // await page.waitForNavigation();
-    //
-    // // Needed since there is an animation after tapping on the button
-    // // to go back to main page.
-    // await waitMilliseconds(5000);
-    // expect(await page.$(`::-p-text(Success!)`)).not.toBeNull();
+    const packageCards = await getPackageCards(page);
+    expect(packageCards.length).toEqual(3);
+    await expectElementContainsText(packageCards[0], "3.00 USD");
+    await expectElementContainsText(packageCards[1], "9.99 USD");
+    await expectElementContainsText(packageCards[2], "19.99 USD");
     await browser.close();
-  },
-  { timeout: 30000, retry: 3 },
-);
+  });
+
+  test(
+    "Can purchase a product",
+    async () => {
+      const { browser, page } = await setupTest();
+      const userId = `rc_billing_demo_test_${Date.now()}`;
+      await changeUserId(page, userId);
+
+      // Perform purchase
+      const weeklyPackageCard = (await getPackageCards(page))[1];
+      await weeklyPackageCard.click();
+      await enterEmailAndContinue(page, userId);
+      await waitMilliseconds(2000);
+      await enterCreditCardDetailsAndContinue(page);
+      await waitMilliseconds(2000);
+
+      // Go back to main page
+      const rcbRoot = await page.$(".rcb-ui-root");
+      expect(rcbRoot).not.toBeNull();
+      await page.screenshot({ path: "artifacts/screenshot.png" });
+      // await expectElementContainsText(rcbRoot!, "Purchase Successful");
+      // const returnHomeButton = await rcbRoot?.$(".intent-secondary");
+      // expect(returnHomeButton).not.toBeNull();
+      // await returnHomeButton?.click();
+      // await page.waitForNavigation();
+      //
+      // // Needed since there is an animation after tapping on the button
+      // // to go back to main page.
+      // await waitMilliseconds(5000);
+      // expect(await page.$(`::-p-text(Success!)`)).not.toBeNull();
+      await browser.close();
+    },
+    { timeout: 30000, retry: 3 },
+  );
+});
 
 async function setupTest(): Promise<{ browser: Browser; page: Page }> {
   const browser = await puppeteer.launch({

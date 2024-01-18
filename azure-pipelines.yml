@@ -115,5 +115,5 @@ jobs:
       - task: PublishPipelineArtifact@1
         condition: always()
         inputs:
-          targetPath: $(System.DefaultWorkingDirectory)/examples/rcbilling-demo
+          targetPath: $(System.DefaultWorkingDirectory)/examples/rcbilling-demo/artifacts
           artifactName: screenshot.png
