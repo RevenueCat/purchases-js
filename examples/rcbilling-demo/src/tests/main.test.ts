@@ -1,14 +1,8 @@
-import { beforeAll, expect, test } from "vitest";
+import { expect, test } from "vitest";
 import puppeteer, { Browser, ElementHandle, Frame, Page } from "puppeteer";
 
 const _LOCAL_URL = "http://0.0.0.0:3001/";
 const _CARD_CLASS = ".card";
-
-beforeAll(() => {
-  expect(import.meta.env.VITE_RC_API_KEY).not.toBeNull();
-  expect(import.meta.env.VITE_RC_STRIPE_PK_KEY).not.toBeNull();
-  expect(import.meta.env.VITE_RC_STRIPE_ACCOUNT_ID).not.toBeNull();
-});
 
 test("Get offerings displays packages", async () => {
   const { browser, page } = await setupTest();
