@@ -40,7 +40,6 @@
   ];
 
   onMount(async () => {
-    console.log("MOUNTING RCB UI");
     productDetails = rcPackage.rcBillingProduct;
 
     if (state === "present-offer") {
@@ -69,7 +68,6 @@
     purchases
       .subscribe(appUserId, productId, customerEmail, environment)
       .then((result) => {
-        console.log(`SUBSCRIBE SUCCESS: ${result}`);
         if (result.nextAction === "collect_payment_info") {
           state = "needs-payment-info";
           paymentInfoCollectionMetadata = result;
@@ -78,7 +76,6 @@
         state = "success";
       })
       .catch((error) => {
-        console.log(`SUBSCRIBE ERROR: ${error}`);
         state = "error";
       });
   };

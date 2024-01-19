@@ -23,25 +23,19 @@ test("Get offerings displays packages", async () => {
 test(
   "Can purchase a product",
   async () => {
-    console.log("TEST 1");
     const { browser, page } = await setupTest();
-    console.log("TEST 2");
     const userId = `rc_billing_demo_test_${Date.now()}`;
     await changeUserId(page, userId);
-    console.log("TEST 3");
+
     // Perform purchase
     const weeklyPackageCard = (await getPackageCards(page))[1];
     await weeklyPackageCard.click();
     await enterEmailAndContinue(page, userId);
     await waitMilliseconds(8000);
-    await page.screenshot({
-      path: `artifacts/screenshot_${userId}_before_credit_card.png`,
-    });
-    await enterCreditCardDetailsAndContinue(page, userId);
-    console.log("TEST 4");
+    await enterCreditCardDetailsAndContinue(page);
 
     await waitMilliseconds(10000);
-    await page.screenshot({ path: `artifacts/screenshot_${userId}.png` });
+
     // Confirm success page has shown.
     await page.waitForSelector(".rcb-modal-success", { timeout: 10000 });
 
@@ -87,10 +81,7 @@ async function enterEmailAndContinue(
   await continueButton?.click();
 }
 
-async function enterCreditCardDetailsAndContinue(
-  page: Page,
-  userId: string,
-): Promise<void> {
+async function enterCreditCardDetailsAndContinue(page: Page): Promise<void> {
   const formFrame = await findFrameWithSelector(page, 'input[name="number"]');
   await typeTextInFrameSelector(
     page,
@@ -111,9 +102,6 @@ async function enterCreditCardDetailsAndContinue(
     'input[name="postalCode"',
     "42424",
   );
-  await page.screenshot({
-    path: `artifacts/screenshot_${userId}_before_pay_click.png`,
-  });
   const payButton = await page.$(".intent-primary");
   expect(payButton).not.toBeNull();
   await payButton?.click();

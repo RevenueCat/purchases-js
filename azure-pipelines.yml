@@ -111,9 +111,3 @@ jobs:
           VITE_RC_STRIPE_PK_KEY: $(VITE_RC_STRIPE_PK_KEY)
           VITE_RC_STRIPE_ACCOUNT_ID: $(VITE_RC_STRIPE_ACCOUNT_ID)
           VITE_RC_API_KEY: $(VITE_RC_API_KEY)
-
-      - task: PublishPipelineArtifact@1
-        condition: always()
-        inputs:
-          targetPath: $(System.DefaultWorkingDirectory)/examples/rcbilling-demo/artifacts
-          artifactName: screenshot.png
