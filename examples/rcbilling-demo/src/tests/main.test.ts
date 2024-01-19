@@ -23,16 +23,19 @@ test("Get offerings displays packages", async () => {
 test(
   "Can purchase a product",
   async () => {
+    console.log("TEST 1");
     const { browser, page } = await setupTest();
+    console.log("TEST 2");
     const userId = `rc_billing_demo_test_${Date.now()}`;
     await changeUserId(page, userId);
-
+    console.log("TEST 3");
     // Perform purchase
     const weeklyPackageCard = (await getPackageCards(page))[1];
     await weeklyPackageCard.click();
     await enterEmailAndContinue(page, userId);
     await waitMilliseconds(2000);
     await enterCreditCardDetailsAndContinue(page);
+    console.log("TEST 4");
 
     await waitMilliseconds(3000);
     await page.screenshot({ path: `artifacts/screenshot_${userId}.png` });
@@ -50,7 +53,7 @@ async function setupTest(): Promise<{ browser: Browser; page: Page }> {
   });
   const page = await browser.newPage();
   await navigateToUrl(page);
-  await page.waitForSelector(_CARD_CLASS);
+  await page.waitForSelector(_CARD_CLASS, { timeout: 5000 });
   return { browser, page };
 }
 

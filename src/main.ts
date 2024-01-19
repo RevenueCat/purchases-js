@@ -215,6 +215,10 @@ export class Purchases {
       },
     );
 
+    console.log(
+      `SUBSCRIBE RESPONDED WITH CODE: ${response.status} AND BODY: ${response.body}`,
+    );
+
     if (response.status === StatusCodes.BAD_REQUEST) {
       throw new InvalidInputDataError(response.status);
     }
