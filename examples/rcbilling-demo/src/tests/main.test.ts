@@ -105,6 +105,12 @@ async function enterCreditCardDetailsAndContinue(
     "0130",
   );
   await typeTextInFrameSelector(page, formFrame!, 'input[name="cvc"]', "424");
+  await typeTextInOptionalFrameSelector(
+    page,
+    formFrame!,
+    'input[name="postalCode"',
+    "42424",
+  );
   await page.screenshot({
     path: `artifacts/screenshot_${userId}_before_pay_click.png`,
   });
@@ -160,6 +166,19 @@ async function typeTextInFrameSelector(
   expect(inputText).not.toBeNull();
   await inputText?.focus();
   await page.keyboard.type(text, { delay: 100 });
+}
+
+async function typeTextInOptionalFrameSelector(
+  page: Page,
+  frame: Frame,
+  selector: string,
+  text: string,
+): Promise<void> {
+  const inputText = await frame.$(selector);
+  if (inputText != null) {
+    await inputText.focus();
+    await page.keyboard.type(text, { delay: 100 });
+  }
 }
 
 async function waitMilliseconds(milliseconds: number) {
