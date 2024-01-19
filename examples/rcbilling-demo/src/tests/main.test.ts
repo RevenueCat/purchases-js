@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 import puppeteer, { Browser, ElementHandle, Frame, Page } from "puppeteer";
 
-const _LOCAL_URL = "http://0.0.0.0:3001/";
+const _LOCAL_URL = "http://localhost:3001/";
 const _CARD_CLASS = ".card";
 
 test("Get offerings displays packages", async () => {
@@ -43,10 +43,6 @@ async function setupTest(): Promise<{ browser: Browser; page: Page }> {
     headless: "new",
   });
   const page = await browser.newPage();
-  await page.setViewport({
-    width: 1920,
-    height: 1080,
-  });
   await navigateToUrl(page);
   await page.waitForSelector(_CARD_CLASS, { timeout: 5000 });
   return { browser, page };
@@ -90,11 +86,12 @@ async function enterCreditCardDetailsAndContinue(page: Page): Promise<void> {
     "0130",
   );
   await typeTextInFrameSelector(page, formFrame!, 'input[name="cvc"]', "424");
-  await typeTextInOptionalFrameSelector(
+  await typeTextInFrameSelector(
     page,
     formFrame!,
     'input[name="postalCode"',
     "42424",
+    false,
   );
   const payButton = await page.$(".intent-primary");
   expect(payButton).not.toBeNull();
@@ -143,22 +140,13 @@ async function typeTextInFrameSelector(
   frame: Frame,
   selector: string,
   text: string,
+  failIfNotFound: boolean = true,
 ): Promise<void> {
   const inputText = await frame.$(selector);
-  expect(inputText).not.toBeNull();
-  await inputText?.focus();
-  await page.keyboard.type(text, { delay: 100 });
-}
-
-async function typeTextInOptionalFrameSelector(
-  page: Page,
-  frame: Frame,
-  selector: string,
-  text: string,
-): Promise<void> {
-  const inputText = await frame.$(selector);
-  if (inputText != null) {
-    await inputText.focus();
+  if (failIfNotFound) {
+    expect(inputText).not.toBeNull();
+  } else if (inputText != null) {
+    await inputText?.focus();
     await page.keyboard.type(text, { delay: 100 });
   }
 }

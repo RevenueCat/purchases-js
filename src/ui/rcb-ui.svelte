@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import SandboxBanner from "./sandbox-banner.svelte";
-  import { Package, Purchases } from "../main";
+  import { Purchases, Package } from "../main";
   import StatePresentOffer from "./states/state-present-offer.svelte";
   import StateLoading from "./states/state-loading.svelte";
   import StateError from "./states/state-error.svelte";
@@ -75,7 +75,7 @@
         }
         state = "success";
       })
-      .catch((error) => {
+      .catch(() => {
         state = "error";
       });
   };
