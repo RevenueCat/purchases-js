@@ -28,10 +28,8 @@ test(
     await waitMilliseconds(8000);
     await enterCreditCardDetailsAndContinue(page);
 
-    await waitMilliseconds(10000);
-
     // Confirm success page has shown.
-    await page.waitForSelector(".rcb-modal-success", { timeout: 10000 });
+    await page.waitForSelector(".rcb-modal-success", { timeout: 15000 });
 
     await browser.close();
   },
@@ -145,7 +143,8 @@ async function typeTextInFrameSelector(
   const inputText = await frame.$(selector);
   if (failIfNotFound) {
     expect(inputText).not.toBeNull();
-  } else if (inputText != null) {
+  }
+  if (inputText != null) {
     await inputText?.focus();
     await page.keyboard.type(text, { delay: 100 });
   }
