@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import SandboxBanner from "./sandbox-banner.svelte";
-  import { Purchases, Package } from "../main";
+  import { Package, Purchases } from "../main";
   import StatePresentOffer from "./states/state-present-offer.svelte";
   import StateLoading from "./states/state-loading.svelte";
   import StateError from "./states/state-error.svelte";
@@ -40,6 +40,7 @@
   ];
 
   onMount(async () => {
+    console.log("MOUNTING RCB UI");
     productDetails = rcPackage.rcBillingProduct;
 
     if (state === "present-offer") {
@@ -68,6 +69,7 @@
     purchases
       .subscribe(appUserId, productId, customerEmail, environment)
       .then((result) => {
+        console.log(`SUBSCRIBE SUCCESS: ${result}`);
         if (result.nextAction === "collect_payment_info") {
           state = "needs-payment-info";
           paymentInfoCollectionMetadata = result;
@@ -75,7 +77,8 @@
         }
         state = "success";
       })
-      .catch(() => {
+      .catch((error) => {
+        console.log(`SUBSCRIBE ERROR: ${error}`);
         state = "error";
       });
   };

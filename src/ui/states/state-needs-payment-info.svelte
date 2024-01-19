@@ -61,9 +61,11 @@
 
     if (result.error) {
       // payment failed, notify user
+      console.log(`STRIPE RESULT ERROR: ${result.error}`);
       processing = false;
       onError(result.error);
     } else {
+      console.log("STRIPE RESULT SUCCESS");
       onContinue();
     }
   };

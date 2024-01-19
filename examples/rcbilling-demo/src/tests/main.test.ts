@@ -33,11 +33,14 @@ test(
     const weeklyPackageCard = (await getPackageCards(page))[1];
     await weeklyPackageCard.click();
     await enterEmailAndContinue(page, userId);
-    await waitMilliseconds(2000);
-    await enterCreditCardDetailsAndContinue(page);
+    await waitMilliseconds(8000);
+    await page.screenshot({
+      path: `artifacts/screenshot_${userId}_before_credit_card.png`,
+    });
+    await enterCreditCardDetailsAndContinue(page, userId);
     console.log("TEST 4");
 
-    await waitMilliseconds(3000);
+    await waitMilliseconds(10000);
     await page.screenshot({ path: `artifacts/screenshot_${userId}.png` });
     // Confirm success page has shown.
     await page.waitForSelector(".rcb-modal-success", { timeout: 10000 });
@@ -52,6 +55,10 @@ async function setupTest(): Promise<{ browser: Browser; page: Page }> {
     headless: "new",
   });
   const page = await browser.newPage();
+  await page.setViewport({
+    width: 1920,
+    height: 1080,
+  });
   await navigateToUrl(page);
   await page.waitForSelector(_CARD_CLASS, { timeout: 5000 });
   return { browser, page };
@@ -80,7 +87,10 @@ async function enterEmailAndContinue(
   await continueButton?.click();
 }
 
-async function enterCreditCardDetailsAndContinue(page: Page): Promise<void> {
+async function enterCreditCardDetailsAndContinue(
+  page: Page,
+  userId: string,
+): Promise<void> {
   const formFrame = await findFrameWithSelector(page, 'input[name="number"]');
   await typeTextInFrameSelector(
     page,
@@ -95,6 +105,9 @@ async function enterCreditCardDetailsAndContinue(page: Page): Promise<void> {
     "0130",
   );
   await typeTextInFrameSelector(page, formFrame!, 'input[name="cvc"]', "424");
+  await page.screenshot({
+    path: `artifacts/screenshot_${userId}_before_pay_click.png`,
+  });
   const payButton = await page.$(".intent-primary");
   expect(payButton).not.toBeNull();
   await payButton?.click();
