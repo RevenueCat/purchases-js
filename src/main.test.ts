@@ -193,7 +193,7 @@ test("returns false if a user is not entitled and uses waitForEntitlement", asyn
 
 test("can get offerings", async () => {
   const billing = new Purchases("test_api_key", STRIPE_TEST_DATA);
-  const offerings = await billing.listOfferings("someAppUserId");
+  const offerings = await billing.getOfferings("someAppUserId");
 
   const currentOffering = {
     displayName: "Offering 1",
@@ -248,7 +248,7 @@ test("can get offerings", async () => {
 
 test("can get offerings without current offering id", async () => {
   const billing = new Purchases("test_api_key", STRIPE_TEST_DATA);
-  const offerings = await billing.listOfferings(
+  const offerings = await billing.getOfferings(
     "appUserIdWithoutCurrentOfferingId",
   );
 
@@ -315,17 +315,4 @@ test("can post to subscribe", async () => {
       clientSecret: "seti_123",
     },
   });
-});
-
-test("can get a specific Package", async () => {
-  const purchases = new Purchases("test_api_key", STRIPE_TEST_DATA);
-  const pkg = await purchases.getPackage("someAppUserId", "package_1");
-  expect(pkg).not.toBeNull();
-  expect(pkg?.identifier).toBe("package_1");
-});
-
-test("returns null for Package not found", async () => {
-  const purchases = new Purchases("test_api_key", STRIPE_TEST_DATA);
-  const pkg = await purchases.getPackage("someAppUserId", "package_not_there");
-  expect(pkg).toBeNull();
 });

@@ -26,7 +26,7 @@ export interface Offering {
   packages: Package[];
 }
 
-export interface OfferingsPage {
+export interface Offerings {
   all: { [offeringId: string]: Offering };
   current: Offering | null;
 }
