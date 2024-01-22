@@ -1,3 +1,11 @@
+# 0.0.10
+
+- Embedded UI (#24)
+- Move rcbilling-demo to purchases-js (#32)
+- Rename listOfferings to getOfferings, OfferingsPage to Offerings and remove getPackage (#34)
+- Add puppeteer to execute E2E tests of purchasing flow (#33)
+- Hide offerings with no found products (#31)
+
 # 0.0.9
 
 - Add `current` to offerings in #26
