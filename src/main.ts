@@ -85,10 +85,19 @@ export class Purchases {
         : toOffering(currentOfferingServerResponse, productsMap);
 
     const allOfferings: { [offeringId: string]: Offering } = {};
-    offeringsData.offerings.forEach(
-      (o: ServerResponse) =>
-        (allOfferings[o.identifier] = toOffering(o, productsMap)),
-    );
+    offeringsData.offerings.forEach((o: ServerResponse) => {
+      const offering = toOffering(o, productsMap);
+      if (offering != null) {
+        allOfferings[o.identifier] = offering;
+      }
+    });
+
+    if (Object.keys(allOfferings).length == 0) {
+      console.debug(
+        "Empty offerings. Please make sure you've configured offerings correctly in the " +
+          "RevenueCat dashboard and that the products are properly configured.",
+      );
+    }
 
     return {
       all: allOfferings,
