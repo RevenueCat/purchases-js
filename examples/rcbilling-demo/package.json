@@ -15,7 +15,6 @@
   },
   "dependencies": {
     "@revenuecat/purchases-js": "file:../..",
-    "puppeteer": "^21.7.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.18.0",
@@ -32,6 +31,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.3",
     "prettier": "^3.1.0",
+    "puppeteer": "^21.7.0",
     "typescript": "^5.0.2",
     "vite": "^4.4.5"
   }
