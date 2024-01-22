@@ -93,7 +93,7 @@ export class Purchases {
     });
 
     if (Object.keys(allOfferings).length == 0) {
-      console.log(
+      console.debug(
         "Empty offerings. Please make sure you've configured offerings correctly in the " +
           "RevenueCat dashboard and that the products are properly configured.",
       );
