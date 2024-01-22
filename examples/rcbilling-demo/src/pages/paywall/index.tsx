@@ -1,4 +1,4 @@
-import { OfferingsPage, Package, Purchases } from "@revenuecat/purchases-js";
+import { Offerings, Package, Purchases } from "@revenuecat/purchases-js";
 import React, { useEffect, useState } from "react";
 
 interface IPackageCardProps {
@@ -53,11 +53,11 @@ interface IPaywallPageProps {
 }
 
 const PaywallPage: React.FC<IPaywallPageProps> = ({ purchases, appUserId }) => {
-  const [offerings, setOfferings] = useState<OfferingsPage | null>(null);
+  const [offerings, setOfferings] = useState<Offerings | null>(null);
 
   useEffect(() => {
-    purchases.listOfferings(appUserId).then((offeringsPage) => {
-      setOfferings(offeringsPage);
+    purchases.getOfferings(appUserId).then((offerings) => {
+      setOfferings(offerings);
     });
   }, [purchases, appUserId]);
 

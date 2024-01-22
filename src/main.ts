@@ -1,6 +1,6 @@
 import {
   Offering as InnerOffering,
-  OfferingsPage as InnerOfferingsPage,
+  Offerings as InnerOfferings,
   Package as InnerPackage,
   toOffering,
 } from "./entities/offerings";
@@ -20,7 +20,7 @@ import {
   UnknownServerError,
 } from "./entities/errors";
 
-export type OfferingsPage = InnerOfferingsPage;
+export type Offerings = InnerOfferings;
 export type Offering = InnerOffering;
 export type Package = InnerPackage;
 
@@ -64,10 +64,10 @@ export class Purchases {
     }
   }
 
-  private toOfferingsPage = (
+  private toOfferings = (
     offeringsData: ServerResponse,
     productsData: ServerResponse,
-  ): OfferingsPage => {
+  ): Offerings => {
     const currentOfferingServerResponse =
       offeringsData.offerings.find(
         (o: ServerResponse) =>
@@ -96,7 +96,7 @@ export class Purchases {
     };
   };
 
-  public async listOfferings(appUserId: string): Promise<OfferingsPage> {
+  public async getOfferings(appUserId: string): Promise<Offerings> {
     const offeringsResponse = await fetch(
       `${Purchases._RC_ENDPOINT}/v1/subscribers/${appUserId}/offerings`,
       {
@@ -131,7 +131,7 @@ export class Purchases {
 
     const productsData = await productsResponse.json();
     this.logMissingProductIds(productIds, productsData.product_details);
-    return this.toOfferingsPage(offeringsData, productsData);
+    return this.toOfferings(offeringsData, productsData);
   }
 
   public async isEntitledTo(
@@ -240,26 +240,6 @@ export class Purchases {
     }
 
     throw new UnknownServerError();
-  }
-
-  public async getPackage(
-    appUserId: string,
-    packageIdentifier: string,
-  ): Promise<Package | null> {
-    const offeringsPage = await this.listOfferings(appUserId);
-    const packages: Package[] = [];
-    Object.values(offeringsPage.all).forEach((offering) =>
-      packages.push(...offering.packages),
-    );
-
-    const filteredPackages: Package[] = packages.filter(
-      (pakg) => pakg.identifier === packageIdentifier,
-    );
-    if (filteredPackages.length === 0) {
-      return null;
-    }
-
-    return filteredPackages[0];
   }
 
   public purchasePackage(
