@@ -26,5 +26,5 @@
     "./src/**/*.svelte",
     "src/main.test.tsx"
   ],
-  "exclude": ["node_modules", "*.test.ts"]
+  "exclude": ["node_modules", "./**/*.test.ts"]
 }
