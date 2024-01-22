@@ -17,8 +17,10 @@ import {
   ConcurrentSubscriberAttributeUpdateError,
   InvalidInputDataError,
   PaymentGatewayError,
+  ServerError,
   UnknownServerError,
 } from "./entities/errors";
+import { CustomerInfo, toCustomerInfo } from "./entities/customer-info";
 
 export type Offerings = InnerOfferings;
 export type Offering = InnerOffering;
@@ -301,6 +303,32 @@ export class Purchases {
         },
       });
     });
+  }
+
+  public async getCustomerInfo(appUserId: string): Promise<CustomerInfo> {
+    // TODO: Abstract network requests to avoid duplication
+    const response = await fetch(
+      `${Purchases._RC_ENDPOINT}/v1/subscribers/${appUserId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${this._API_KEY}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "X-Platform": "web",
+          "X-Version": VERSION,
+        },
+      },
+    );
+
+    const status = response.status;
+    if (status >= 400) {
+      // TODO: Handle errors better
+      throw new ServerError(status, await response.text());
+    }
+
+    const data = await response.json();
+
+    return toCustomerInfo(data);
   }
 
   private logMissingProductIds(
