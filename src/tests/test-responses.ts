@@ -151,6 +151,22 @@ const customerInfoResponsePerUserId: { [userId: string]: object } = {
   someAppUserId: customerInfoResponse,
 };
 
+export function getEntitlementsResponseHandlers(): RequestHandler[] {
+  const requestHandlers: RequestHandler[] = [];
+  Object.keys(entitlementsResponsesPerUserId).forEach((userId: string) => {
+    const body = entitlementsResponsesPerUserId[userId]!;
+    requestHandlers.push(
+      http.get(
+        `http://localhost:8000/rcbilling/v1/entitlements/${userId}`,
+        () => {
+          return HttpResponse.json(body, { status: 200 });
+        },
+      ),
+    );
+  });
+  return requestHandlers;
+}
+
 export function getRequestHandlers(): RequestHandler[] {
   const requestHandlers: RequestHandler[] = [];
   Object.keys(offeringsResponsesPerUserId).forEach((userId: string) => {
@@ -170,18 +186,6 @@ export function getRequestHandlers(): RequestHandler[] {
     requestHandlers.push(
       http.get(
         `http://localhost:8000/rcbilling/v1/subscribers/${userId}/products?id=monthly&id=monthly_2`,
-        () => {
-          return HttpResponse.json(body, { status: 200 });
-        },
-      ),
-    );
-  });
-
-  Object.keys(entitlementsResponsesPerUserId).forEach((userId: string) => {
-    const body = entitlementsResponsesPerUserId[userId]!;
-    requestHandlers.push(
-      http.get(
-        `http://localhost:8000/rcbilling/v1/entitlements/${userId}`,
         () => {
           return HttpResponse.json(body, { status: 200 });
         },
@@ -211,6 +215,8 @@ export function getRequestHandlers(): RequestHandler[] {
       );
     }),
   );
+
+  requestHandlers.push(...getEntitlementsResponseHandlers());
 
   return requestHandlers;
 }
