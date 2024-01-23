@@ -20,11 +20,19 @@ import {
   ServerError,
   UnknownServerError,
 } from "./entities/errors";
-import { CustomerInfo, toCustomerInfo } from "./entities/customer-info";
+import {
+  CustomerInfo as InnerCustomerInfo,
+  toCustomerInfo,
+} from "./entities/customer-info";
 
 export type Offerings = InnerOfferings;
 export type Offering = InnerOffering;
 export type Package = InnerPackage;
+export type CustomerInfo = InnerCustomerInfo;
+export type {
+  EntitlementInfos,
+  EntitlementInfo,
+} from "./entities/customer-info";
 
 const VERSION = "0.0.8";
 
