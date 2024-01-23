@@ -51,6 +51,65 @@ const offeringsArray = [
   },
 ];
 
+const customerInfoResponse = {
+  request_date: "2024-01-22T13:23:07Z",
+  request_date_ms: 1705929787636,
+  subscriber: {
+    entitlements: {
+      expiredCatServices: {
+        expires_date: "2023-12-20T16:48:42Z",
+        grace_period_expires_date: null,
+        product_identifier: "black_f_friday_worten_2",
+        purchase_date: "2023-12-19T16:48:42Z",
+      },
+      activeCatServices: {
+        expires_date: "2053-12-20T16:48:42Z",
+        grace_period_expires_date: null,
+        product_identifier: "black_f_friday_worten",
+        purchase_date: "2023-12-19T16:48:42Z",
+      },
+    },
+    first_seen: "2023-11-20T16:48:29Z",
+    last_seen: "2023-11-20T16:48:29Z",
+    management_url: "https://test-management-url.revenuecat.com",
+    non_subscriptions: {},
+    original_app_user_id: "someAppUserId",
+    original_application_version: null,
+    original_purchase_date: null,
+    other_purchases: {},
+    subscriptions: {
+      black_f_friday_worten_2: {
+        auto_resume_date: null,
+        billing_issues_detected_at: null,
+        expires_date: "2024-01-22T16:48:42Z",
+        grace_period_expires_date: null,
+        is_sandbox: true,
+        original_purchase_date: "2023-11-20T16:48:42Z",
+        period_type: "normal",
+        purchase_date: "2024-01-21T16:48:42Z",
+        refunded_at: null,
+        store: "rc_billing",
+        store_transaction_id: "one_transaction_id",
+        unsubscribe_detected_at: null,
+      },
+      black_f_friday_worten: {
+        auto_resume_date: null,
+        billing_issues_detected_at: null,
+        expires_date: "2054-01-22T16:48:42Z",
+        grace_period_expires_date: null,
+        is_sandbox: true,
+        original_purchase_date: "2023-11-20T16:48:42Z",
+        period_type: "normal",
+        purchase_date: "2024-01-21T16:48:42Z",
+        refunded_at: null,
+        store: "rc_billing",
+        store_transaction_id: "another_transaction_id",
+        unsubscribe_detected_at: null,
+      },
+    },
+  },
+};
+
 const offeringsResponsesPerUserId: { [userId: string]: object } = {
   someAppUserId: {
     current_offering_id: "offering_1",
@@ -88,6 +147,10 @@ const entitlementsResponsesPerUserId: { [userId: string]: object } = {
   someOtherAppUserId: { entitlements: [] },
 };
 
+const customerInfoResponsePerUserId: { [userId: string]: object } = {
+  someAppUserId: customerInfoResponse,
+};
+
 export function getRequestHandlers(): RequestHandler[] {
   const requestHandlers: RequestHandler[] = [];
   Object.keys(offeringsResponsesPerUserId).forEach((userId: string) => {
@@ -123,6 +186,15 @@ export function getRequestHandlers(): RequestHandler[] {
           return HttpResponse.json(body, { status: 200 });
         },
       ),
+    );
+  });
+
+  Object.keys(customerInfoResponsePerUserId).forEach((userId: string) => {
+    const body = customerInfoResponsePerUserId[userId]!;
+    requestHandlers.push(
+      http.get(`http://localhost:8000/v1/subscribers/${userId}`, () => {
+        return HttpResponse.json(body, { status: 200 });
+      }),
     );
   });
 
