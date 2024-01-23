@@ -264,6 +264,7 @@ export class Purchases {
   public purchasePackage(
     appUserId: string,
     rcPackage: Package,
+    entitlementId: string, // TODO: Remove this parameter once we don't have to poll for entitlements
     {
       environment,
       customerEmail,
@@ -273,7 +274,7 @@ export class Purchases {
       customerEmail?: string;
       htmlTarget?: HTMLElement;
     } = { environment: "production" },
-  ): Promise<void> {
+  ): Promise<boolean> {
     let resolvedHTMLTarget =
       htmlTarget ?? document.getElementById("rcb-ui-root");
 
@@ -302,8 +303,16 @@ export class Purchases {
           rcPackage,
           environment,
           customerEmail,
-          onFinished: () => {
-            resolve();
+          onFinished: async () => {
+            const hasEntitlement = await this.waitForEntitlement(
+              appUserId,
+              entitlementId,
+            );
+            resolve(hasEntitlement);
+            certainHTMLTarget.innerHTML = "";
+          },
+          onClose: () => {
+            resolve(false);
             certainHTMLTarget.innerHTML = "";
           },
           purchases: this,
