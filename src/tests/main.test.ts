@@ -1,7 +1,7 @@
 import { setupServer } from "msw/node";
 import { beforeAll, expect, test } from "vitest";
 import { Purchases } from "../main";
-import { getRequestHandlers } from "./test-responses.test";
+import { getRequestHandlers } from "./test-responses";
 
 const STRIPE_TEST_DATA = {
   stripe: { accountId: "acct_123", publishableKey: "pk_123" },
