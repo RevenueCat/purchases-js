@@ -202,20 +202,6 @@ export function getRequestHandlers(): RequestHandler[] {
     );
   });
 
-  requestHandlers.push(
-    http.post("http://localhost:8000/rcbilling/v1/subscribe", () => {
-      return HttpResponse.json(
-        {
-          next_action: "collect_payment_info",
-          data: {
-            client_secret: "seti_123",
-          },
-        },
-        { status: 200 },
-      );
-    }),
-  );
-
   requestHandlers.push(...getEntitlementsResponseHandlers());
 
   return requestHandlers;
