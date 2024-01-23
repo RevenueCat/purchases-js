@@ -46,7 +46,11 @@ function App() {
   const appUserId = localStorage.getItem("appUserId") || "someUserMario";
   purchases.getCustomerInfo(appUserId).then((customerInfo: CustomerInfo) => {
     console.log(
-      `CustomerInfo for user ${appUserId}: ${JSON.stringify(customerInfo, null, 2)}`,
+      `CustomerInfo for user ${appUserId}: ${JSON.stringify(
+        customerInfo,
+        null,
+        2,
+      )}`,
     );
   });
 
