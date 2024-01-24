@@ -12,6 +12,10 @@ export class PurchasesError extends Error {
   ) {
     super(message);
   }
+
+  toString = (): string => {
+    return `PurchasesError(code: ${ErrorCode[this.errorCode]}, message: ${this.message})`;
+  };
 }
 
 export class ServerError extends Error {
