@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import SandboxBanner from "./sandbox-banner.svelte";
-  import { Purchases, Package } from "../main";
+  import { Package, Purchases } from "../main";
   import StatePresentOffer from "./states/state-present-offer.svelte";
   import StateLoading from "./states/state-loading.svelte";
   import StateError from "./states/state-error.svelte";
@@ -11,6 +11,7 @@
   import { SubscribeResponse } from "../entities/subscribe-response";
   import ConditionalFullScreen from "./conditional-full-screen.svelte";
   import Shell from "./shell.svelte";
+  import { subscribe } from "../helpers/subscribe-helper";
 
   export let asModal = true;
   export let customerEmail: string | undefined;
@@ -66,8 +67,7 @@
       state = "loading";
     }
 
-    purchases
-      .subscribe(appUserId, productId, customerEmail, environment)
+    subscribe(purchases, appUserId, productId, customerEmail, environment)
       .then((result) => {
         if (result.nextAction === "collect_payment_info") {
           state = "needs-payment-info";

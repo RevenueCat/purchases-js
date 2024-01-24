@@ -179,22 +179,6 @@ test("can get offerings with missing products", async () => {
   });
 });
 
-test("can post to subscribe", async () => {
-  const billing = new Purchases("test_api_key", STRIPE_TEST_DATA);
-  const subscribeResponse = await billing.subscribe(
-    "someAppUserId",
-    "product_1",
-    "someone@somewhere.com",
-  );
-
-  expect(subscribeResponse).toEqual({
-    nextAction: "collect_payment_info",
-    data: {
-      clientSecret: "seti_123",
-    },
-  });
-});
-
 test("can get customer info", async () => {
   const billing = new Purchases("test_api_key", STRIPE_TEST_DATA);
   const customerInfo = await billing.getCustomerInfo("someAppUserId");

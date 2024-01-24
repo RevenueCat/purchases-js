@@ -1,8 +1,8 @@
 import { beforeAll, expect, test } from "vitest";
-import { Purchases } from "../main";
-import { waitForEntitlement } from "../helpers/entitlement-checking-helper";
+import { Purchases } from "../../main";
+import { waitForEntitlement } from "../../helpers/entitlement-checking-helper";
 import { setupServer } from "msw/node";
-import { getEntitlementsResponseHandlers } from "./test-responses";
+import { getEntitlementsResponseHandlers } from "../test-responses";
 
 const STRIPE_TEST_DATA = {
   stripe: { accountId: "acct_123", publishableKey: "pk_123" },

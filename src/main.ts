@@ -4,27 +4,16 @@ import {
   Package as InnerPackage,
   toOffering,
 } from "./entities/offerings";
-import {
-  SubscribeResponse,
-  toSubscribeResponse,
-} from "./entities/subscribe-response";
 import { PaymentProviderSettings, ServerResponse } from "./entities/types";
 import RCPurchasesUI from "./ui/rcb-ui.svelte";
 
-import { StatusCodes } from "http-status-codes";
-import {
-  AlreadySubscribedError,
-  ConcurrentSubscriberAttributeUpdateError,
-  InvalidInputDataError,
-  PaymentGatewayError,
-  ServerError,
-  UnknownServerError,
-} from "./entities/errors";
 import {
   CustomerInfo as InnerCustomerInfo,
   toCustomerInfo,
 } from "./entities/customer-info";
+import { BASE_PATH, RC_ENDPOINT } from "./helpers/network-configuration";
 import { waitForEntitlement } from "./helpers/entitlement-checking-helper";
+import { ServerError } from "./entities/errors";
 
 export type Offerings = InnerOfferings;
 export type Offering = InnerOffering;
@@ -45,10 +34,6 @@ export class Purchases {
   // @internal
   _PAYMENT_PROVIDER_SETTINGS: PaymentProviderSettings | null = null;
 
-  private static readonly _RC_ENDPOINT = import.meta.env
-    .VITE_RC_ENDPOINT as string;
-  private static readonly _BASE_PATH = "rcbilling/v1";
-
   constructor(
     apiKey: string,
     paymentProviderSettings: PaymentProviderSettings,
@@ -56,7 +41,7 @@ export class Purchases {
     this._API_KEY = apiKey;
     this._PAYMENT_PROVIDER_SETTINGS = paymentProviderSettings;
 
-    if (Purchases._RC_ENDPOINT === undefined) {
+    if (RC_ENDPOINT === undefined) {
       console.error(
         "Project was build without some of the environment variables set",
       );
@@ -118,7 +103,7 @@ export class Purchases {
 
   public async getOfferings(appUserId: string): Promise<Offerings> {
     const offeringsResponse = await fetch(
-      `${Purchases._RC_ENDPOINT}/v1/subscribers/${appUserId}/offerings`,
+      `${RC_ENDPOINT}/v1/subscribers/${appUserId}/offerings`,
       {
         headers: {
           Authorization: `Bearer ${this._API_KEY}`,
@@ -135,9 +120,7 @@ export class Purchases {
       .map((p: ServerResponse) => p.platform_product_identifier);
 
     const productsResponse = await fetch(
-      `${Purchases._RC_ENDPOINT}/${
-        Purchases._BASE_PATH
-      }/subscribers/${appUserId}/products?id=${productIds.join("&id=")}`,
+      `${RC_ENDPOINT}/${BASE_PATH}/subscribers/${appUserId}/products?id=${productIds.join("&id=")}`,
       {
         headers: {
           Authorization: `Bearer ${this._API_KEY}`,
@@ -159,7 +142,7 @@ export class Purchases {
     entitlementIdentifier: string,
   ): Promise<boolean> {
     const response = await fetch(
-      `${Purchases._RC_ENDPOINT}/${Purchases._BASE_PATH}/entitlements/${appUserId}`,
+      `${RC_ENDPOINT}/${BASE_PATH}/entitlements/${appUserId}`,
       {
         headers: {
           Authorization: `Bearer ${this._API_KEY}`,
@@ -179,58 +162,6 @@ export class Purchases {
       (ent: ServerResponse) => ent.lookup_key,
     );
     return entitlements.includes(entitlementIdentifier);
-  }
-
-  public async subscribe(
-    appUserId: string,
-    productId: string,
-    email: string,
-    environment: "sandbox" | "production" = "production",
-  ): Promise<SubscribeResponse> {
-    const isSandbox = environment === "sandbox";
-    const response = await fetch(
-      `${Purchases._RC_ENDPOINT}/${Purchases._BASE_PATH}/subscribe`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${this._API_KEY}`,
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          app_user_id: appUserId,
-          product_id: productId,
-          is_sandbox: isSandbox,
-          email,
-        }),
-      },
-    );
-
-    if (response.status === StatusCodes.BAD_REQUEST) {
-      throw new InvalidInputDataError(response.status);
-    }
-
-    if (response.status === StatusCodes.TOO_MANY_REQUESTS) {
-      throw new ConcurrentSubscriberAttributeUpdateError(response.status);
-    }
-
-    if (response.status === StatusCodes.CONFLICT) {
-      throw new AlreadySubscribedError(response.status);
-    }
-
-    if (response.status === StatusCodes.INTERNAL_SERVER_ERROR) {
-      throw new PaymentGatewayError(response.status);
-    }
-
-    if (
-      response.status === StatusCodes.OK ||
-      response.status === StatusCodes.CREATED
-    ) {
-      const data = await response.json();
-      return toSubscribeResponse(data);
-    }
-
-    throw new UnknownServerError();
   }
 
   public purchasePackage(
@@ -297,18 +228,15 @@ export class Purchases {
 
   public async getCustomerInfo(appUserId: string): Promise<CustomerInfo> {
     // TODO: Abstract network requests to avoid duplication
-    const response = await fetch(
-      `${Purchases._RC_ENDPOINT}/v1/subscribers/${appUserId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${this._API_KEY}`,
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          "X-Platform": "web",
-          "X-Version": VERSION,
-        },
+    const response = await fetch(`${RC_ENDPOINT}/v1/subscribers/${appUserId}`, {
+      headers: {
+        Authorization: `Bearer ${this._API_KEY}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "X-Platform": "web",
+        "X-Version": VERSION,
       },
-    );
+    });
 
     const status = response.status;
     if (status >= 400) {
