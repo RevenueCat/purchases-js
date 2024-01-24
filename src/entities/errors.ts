@@ -1,5 +1,19 @@
 import { StatusCodes } from "http-status-codes";
 
+export enum ErrorCode {
+  UnknownError = 0,
+  UserCancelledError = 1,
+}
+
+export class PurchasesError extends Error {
+  constructor(
+    public readonly errorCode: ErrorCode,
+    message?: string,
+  ) {
+    super(message);
+  }
+}
+
 export class ServerError extends Error {
   constructor(
     public readonly statusCode: number,

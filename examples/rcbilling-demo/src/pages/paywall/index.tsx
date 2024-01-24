@@ -1,4 +1,9 @@
-import { Offerings, Package, Purchases } from "@revenuecat/purchases-js";
+import {
+  Offerings,
+  Package,
+  PurchasesError,
+  Purchases,
+} from "@revenuecat/purchases-js";
 import React, { useEffect, useState } from "react";
 import { catServicesEntitlementId } from "../../App.tsx";
 
@@ -77,18 +82,24 @@ const PaywallPage: React.FC<IPaywallPageProps> = ({ purchases, appUserId }) => {
     }
 
     // How do we complete the purchase?
-    const hasEntitlement = await purchases.purchasePackage(
-      appUserId,
-      pkg,
-      catServicesEntitlementId,
-    );
+    try {
+      const { customerInfo } = await purchases.purchasePackage(
+        appUserId,
+        pkg,
+        catServicesEntitlementId,
+      );
 
-    if (hasEntitlement) {
+      console.log(`CustomerInfo after purchase: ${customerInfo}`);
+
       window.location.href = "/success";
-    } else {
-      console.log("Purchased package but entitlement was not granted");
-      // TODO: We should display an error here.
-      window.location.href = "/";
+    } catch (e) {
+      if (e instanceof PurchasesError) {
+        console.log(`Error performing purchase: ${e}`);
+        // TODO: We should display an error here.
+        window.location.href = "/";
+      } else {
+        console.error(`Unknown error: ${e}`);
+      }
     }
   };
 
