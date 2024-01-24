@@ -66,7 +66,9 @@ function toDateIfNotNull(value: string | null): Date | null {
   return new Date(value);
 }
 
-export function toCustomerInfo(customerInfoResponse: SubscriberResponse) {
+export function toCustomerInfo(
+  customerInfoResponse: SubscriberResponse,
+): CustomerInfo {
   return {
     entitlements: toEntitlementInfos(
       customerInfoResponse.subscriber.entitlements,

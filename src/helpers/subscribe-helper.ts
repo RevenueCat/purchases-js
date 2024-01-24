@@ -1,8 +1,5 @@
-import {
-  SubscribeProcessedResponse,
-  toSubscribeProcessedResponse,
-} from "../entities/subscribe-response";
 import { Backend } from "../networking/backend";
+import { SubscribeResponse } from "../networking/responses/subscribe-response";
 
 export type SubscribeRequestBody = {
   app_user_id: string;
@@ -15,11 +12,6 @@ export async function subscribe(
   appUserId: string,
   productId: string,
   email: string,
-): Promise<SubscribeProcessedResponse> {
-  const subscribeResponse = await backend.postSubscribe(
-    appUserId,
-    productId,
-    email,
-  );
-  return toSubscribeProcessedResponse(subscribeResponse);
+): Promise<SubscribeResponse> {
+  return await backend.postSubscribe(appUserId, productId, email);
 }

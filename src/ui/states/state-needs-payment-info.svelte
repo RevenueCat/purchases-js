@@ -5,11 +5,11 @@
   import { Elements, PaymentElement } from "svelte-stripe";
   import type { Stripe, StripeElements } from "@stripe/stripe-js";
   import { loadStripe } from "@stripe/stripe-js";
-  import { SubscribeResponse } from "../../entities/subscribe-response";
   import ModalSection from "../modal-section.svelte";
   import ModalFooter from "../modal-footer.svelte";
   import StateLoading from "./state-loading.svelte";
   import RowLayout from "../layout/row-layout.svelte";
+  import { SubscribeResponse } from "../../networking/responses/subscribe-response";
 
   export let onClose: any;
   export let onContinue: any;
@@ -17,7 +17,7 @@
   export let purchases: Purchases;
   export let paymentInfoCollectionMetadata: SubscribeResponse;
 
-  const clientSecret = paymentInfoCollectionMetadata.data.clientSecret;
+  const clientSecret = paymentInfoCollectionMetadata.data.client_secret;
 
   let stripe: Stripe | null = null;
   let elements: StripeElements;
