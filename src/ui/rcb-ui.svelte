@@ -67,7 +67,7 @@
       state = "loading";
     }
 
-    subscribe(appUserId, productId, customerEmail, environment)
+    subscribe(purchases, appUserId, productId, customerEmail, environment)
       .then((result) => {
         if (result.nextAction === "collect_payment_info") {
           state = "needs-payment-info";
