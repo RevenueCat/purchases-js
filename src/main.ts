@@ -13,25 +13,15 @@ import {
 } from "./entities/customer-info";
 import { waitForEntitlement } from "./helpers/entitlement-checking-helper";
 import { ErrorCode, PurchasesError } from "./entities/errors";
-import { performRequest } from "./networking/http-client";
-import {
-  GetCustomerInfoEndpoint,
-  GetEntitlementsEndpoint,
-  GetOfferingsEndpoint,
-  GetProductsEndpoint,
-} from "./networking/endpoints";
 import {
   OfferingResponse,
   OfferingsResponse,
   PackageResponse,
 } from "./networking/responses/offerings-response";
 import { ProductsResponse } from "./networking/responses/products-response";
-import { SubscriberResponse } from "./networking/responses/subscriber-response";
-import {
-  EntitlementResponse,
-  EntitlementsResponse,
-} from "./networking/responses/entitlements-response";
+import { EntitlementResponse } from "./networking/responses/entitlements-response";
 import { RC_ENDPOINT } from "./helpers/constants";
+import { Backend } from "./networking/backend";
 
 export type Offerings = InnerOfferings;
 export type Offering = InnerOffering;
@@ -50,6 +40,8 @@ export class Purchases {
   _APP_USER_ID: string | null = null;
   // @internal
   _PAYMENT_PROVIDER_SETTINGS: PaymentProviderSettings | null = null;
+
+  private readonly backend: Backend;
 
   constructor(
     apiKey: string,
@@ -75,6 +67,8 @@ export class Purchases {
         "Project was build without the stripe payment provider settings set",
       );
     }
+
+    this.backend = new Backend(this._API_KEY);
   }
 
   private toOfferings = (
@@ -119,17 +113,14 @@ export class Purchases {
   };
 
   public async getOfferings(appUserId: string): Promise<Offerings> {
-    const offeringsResponse = await performRequest<null, OfferingsResponse>(
-      new GetOfferingsEndpoint(appUserId),
-      this._API_KEY,
-    );
+    const offeringsResponse = await this.backend.getOfferings(appUserId);
     const productIds = offeringsResponse.offerings
       .flatMap((o: OfferingResponse) => o.packages)
       .map((p: PackageResponse) => p.platform_product_identifier);
 
-    const productsResponse = await performRequest<null, ProductsResponse>(
-      new GetProductsEndpoint(appUserId, productIds),
-      this._API_KEY,
+    const productsResponse = await this.backend.getProducts(
+      appUserId,
+      productIds,
     );
 
     this.logMissingProductIds(productIds, productsResponse.product_details);
@@ -140,10 +131,7 @@ export class Purchases {
     appUserId: string,
     entitlementIdentifier: string,
   ): Promise<boolean> {
-    const entitlementsResponse = await performRequest<
-      null,
-      EntitlementsResponse
-    >(new GetEntitlementsEndpoint(appUserId), this._API_KEY);
+    const entitlementsResponse = await this.backend.getEntitlements(appUserId);
 
     const entitlements = entitlementsResponse.entitlements.map(
       (ent: EntitlementResponse) => ent.lookup_key,
@@ -214,6 +202,7 @@ export class Purchases {
             reject(new PurchasesError(ErrorCode.UserCancelledError));
           },
           purchases: this,
+          backend: this.backend,
           asModal,
         },
       });
@@ -222,10 +211,7 @@ export class Purchases {
 
   public async getCustomerInfo(appUserId: string): Promise<CustomerInfo> {
     // TODO: Abstract network requests to avoid duplication
-    const subscriberResponse = await performRequest<null, SubscriberResponse>(
-      new GetCustomerInfoEndpoint(appUserId),
-      this._API_KEY,
-    );
+    const subscriberResponse = await this.backend.getCustomerInfo(appUserId);
 
     return toCustomerInfo(subscriberResponse);
   }

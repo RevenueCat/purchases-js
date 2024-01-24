@@ -12,6 +12,7 @@
   import ConditionalFullScreen from "./conditional-full-screen.svelte";
   import Shell from "./shell.svelte";
   import { subscribe } from "../helpers/subscribe-helper";
+  import { Backend } from "../networking/backend";
 
   export let asModal = true;
   export let customerEmail: string | undefined;
@@ -20,6 +21,7 @@
   export let onFinished: () => void;
   export let onClose: () => void;
   export let purchases: Purchases;
+  export let backend: Backend;
 
   let productDetails: any = null;
   let paymentInfoCollectionMetadata: SubscribeResponse | null = null;
