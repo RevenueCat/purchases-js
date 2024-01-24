@@ -1,17 +1,19 @@
-import { ServerResponse } from "./types";
+import { SubscribeResponse } from "../networking/responses/subscribe-response";
 
-export interface SubscribeResponse {
+export interface SubscribeProcessedResponse {
   nextAction: string;
   data: {
     clientSecret?: string;
   };
 }
 
-export const toSubscribeResponse = (raw: ServerResponse): SubscribeResponse => {
+export const toSubscribeProcessedResponse = (
+  raw: SubscribeResponse,
+): SubscribeProcessedResponse => {
   return {
     nextAction: raw.next_action,
     data: {
       clientSecret: raw.data?.client_secret ?? undefined,
     },
-  } as SubscribeResponse;
+  };
 };

@@ -1,4 +1,5 @@
 import { ServerResponse } from "./types";
+import { SubscriberResponse } from "../networking/responses/subscriber-response";
 
 export interface EntitlementInfo {
   identifier: string;
@@ -65,7 +66,7 @@ function toDateIfNotNull(value: string | null): Date | null {
   return new Date(value);
 }
 
-export function toCustomerInfo(customerInfoResponse: ServerResponse) {
+export function toCustomerInfo(customerInfoResponse: SubscriberResponse) {
   return {
     entitlements: toEntitlementInfos(
       customerInfoResponse.subscriber.entitlements,

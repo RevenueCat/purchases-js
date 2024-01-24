@@ -11,9 +11,27 @@ import {
   CustomerInfo as InnerCustomerInfo,
   toCustomerInfo,
 } from "./entities/customer-info";
-import { BASE_PATH, RC_ENDPOINT } from "./helpers/network-configuration";
 import { waitForEntitlement } from "./helpers/entitlement-checking-helper";
-import { ErrorCode, PurchasesError, ServerError } from "./entities/errors";
+import { ErrorCode, PurchasesError } from "./entities/errors";
+import { performRequest } from "./networking/http-client";
+import {
+  GetCustomerInfoEndpoint,
+  GetEntitlementsEndpoint,
+  GetOfferingsEndpoint,
+  GetProductsEndpoint,
+} from "./networking/endpoints";
+import {
+  OfferingResponse,
+  OfferingsResponse,
+  PackageResponse,
+} from "./networking/responses/offerings-response";
+import { ProductsResponse } from "./networking/responses/products-response";
+import { SubscriberResponse } from "./networking/responses/subscriber-response";
+import {
+  EntitlementResponse,
+  EntitlementsResponse,
+} from "./networking/responses/entitlements-response";
+import { RC_ENDPOINT } from "./helpers/constants";
 
 export type Offerings = InnerOfferings;
 export type Offering = InnerOffering;
@@ -25,11 +43,9 @@ export type {
 } from "./entities/customer-info";
 export { ErrorCode, PurchasesError } from "./entities/errors";
 
-const VERSION = "0.0.8";
-
 export class Purchases {
   // @internal
-  _API_KEY: string | null = null;
+  _API_KEY: string;
   // @internal
   _APP_USER_ID: string | null = null;
   // @internal
@@ -62,12 +78,12 @@ export class Purchases {
   }
 
   private toOfferings = (
-    offeringsData: ServerResponse,
-    productsData: ServerResponse,
+    offeringsData: OfferingsResponse,
+    productsData: ProductsResponse,
   ): Offerings => {
     const currentOfferingServerResponse =
       offeringsData.offerings.find(
-        (o: ServerResponse) =>
+        (o: OfferingResponse) =>
           o.identifier === offeringsData.current_offering_id,
       ) ?? null;
 
@@ -103,66 +119,34 @@ export class Purchases {
   };
 
   public async getOfferings(appUserId: string): Promise<Offerings> {
-    const offeringsResponse = await fetch(
-      `${RC_ENDPOINT}/v1/subscribers/${appUserId}/offerings`,
-      {
-        headers: {
-          Authorization: `Bearer ${this._API_KEY}`,
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          "X-Platform": "web",
-          "X-Version": VERSION,
-        },
-      },
+    const offeringsResponse = await performRequest<null, OfferingsResponse>(
+      new GetOfferingsEndpoint(appUserId),
+      this._API_KEY,
     );
-    const offeringsData = await offeringsResponse.json();
-    const productIds = offeringsData.offerings
-      .flatMap((o: ServerResponse) => o.packages)
-      .map((p: ServerResponse) => p.platform_product_identifier);
+    const productIds = offeringsResponse.offerings
+      .flatMap((o: OfferingResponse) => o.packages)
+      .map((p: PackageResponse) => p.platform_product_identifier);
 
-    const productsResponse = await fetch(
-      `${RC_ENDPOINT}/${BASE_PATH}/subscribers/${appUserId}/products?id=${productIds.join(
-        "&id=",
-      )}`,
-      {
-        headers: {
-          Authorization: `Bearer ${this._API_KEY}`,
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          "X-Platform": "web",
-          "X-Version": VERSION,
-        },
-      },
+    const productsResponse = await performRequest<null, ProductsResponse>(
+      new GetProductsEndpoint(appUserId, productIds),
+      this._API_KEY,
     );
 
-    const productsData = await productsResponse.json();
-    this.logMissingProductIds(productIds, productsData.product_details);
-    return this.toOfferings(offeringsData, productsData);
+    this.logMissingProductIds(productIds, productsResponse.product_details);
+    return this.toOfferings(offeringsResponse, productsResponse);
   }
 
   public async isEntitledTo(
     appUserId: string,
     entitlementIdentifier: string,
   ): Promise<boolean> {
-    const response = await fetch(
-      `${RC_ENDPOINT}/${BASE_PATH}/entitlements/${appUserId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${this._API_KEY}`,
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-      },
-    );
+    const entitlementsResponse = await performRequest<
+      null,
+      EntitlementsResponse
+    >(new GetEntitlementsEndpoint(appUserId), this._API_KEY);
 
-    const status = response.status;
-    if (status === 404) {
-      return false;
-    }
-
-    const data = await response.json();
-    const entitlements = data.entitlements.map(
-      (ent: ServerResponse) => ent.lookup_key,
+    const entitlements = entitlementsResponse.entitlements.map(
+      (ent: EntitlementResponse) => ent.lookup_key,
     );
     return entitlements.includes(entitlementIdentifier);
   }
@@ -238,25 +222,12 @@ export class Purchases {
 
   public async getCustomerInfo(appUserId: string): Promise<CustomerInfo> {
     // TODO: Abstract network requests to avoid duplication
-    const response = await fetch(`${RC_ENDPOINT}/v1/subscribers/${appUserId}`, {
-      headers: {
-        Authorization: `Bearer ${this._API_KEY}`,
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        "X-Platform": "web",
-        "X-Version": VERSION,
-      },
-    });
+    const subscriberResponse = await performRequest<null, SubscriberResponse>(
+      new GetCustomerInfoEndpoint(appUserId),
+      this._API_KEY,
+    );
 
-    const status = response.status;
-    if (status >= 400) {
-      // TODO: Handle errors better
-      throw new ServerError(status, await response.text());
-    }
-
-    const data = await response.json();
-
-    return toCustomerInfo(data);
+    return toCustomerInfo(subscriberResponse);
   }
 
   private logMissingProductIds(
