@@ -199,7 +199,7 @@ export class Purchases {
 
     const asModal = !Boolean(htmlTarget);
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       new RCPurchasesUI({
         target: certainHTMLTarget,
         props: {
@@ -217,15 +217,17 @@ export class Purchases {
               // TODO: Add info about transaction in result.
               resolve({ customerInfo: await this.getCustomerInfo(appUserId) });
             } else {
-              throw new PurchasesError(
-                ErrorCode.UnknownError,
-                "Did not get entitlement after polling.",
+              reject(
+                new PurchasesError(
+                  ErrorCode.UnknownError,
+                  "Did not get entitlement after polling.",
+                ),
               );
             }
           },
           onClose: () => {
             certainHTMLTarget.innerHTML = "";
-            throw new PurchasesError(ErrorCode.UserCancelledError);
+            reject(new PurchasesError(ErrorCode.UserCancelledError));
           },
           purchases: this,
           asModal,
