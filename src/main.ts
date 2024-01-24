@@ -24,6 +24,7 @@ import {
   CustomerInfo as InnerCustomerInfo,
   toCustomerInfo,
 } from "./entities/customer-info";
+import { waitForEntitlement } from "./helpers/entitlement-checking-helper";
 
 export type Offerings = InnerOfferings;
 export type Offering = InnerOffering;
@@ -180,35 +181,6 @@ export class Purchases {
     return entitlements.includes(entitlementIdentifier);
   }
 
-  public waitForEntitlement(
-    appUserId: string,
-    entitlementIdentifier: string,
-    maxAttempts: number = 10,
-  ): Promise<boolean> {
-    const waitMSBetweenAttempts = 1000;
-    return new Promise<boolean>((resolve, reject) => {
-      const checkForEntitlement = (checkCount = 1) =>
-        this.isEntitledTo(appUserId, entitlementIdentifier)
-          .then((hasEntitlement) => {
-            if (checkCount > maxAttempts) {
-              return resolve(false);
-            }
-
-            if (hasEntitlement) {
-              return resolve(true);
-            } else {
-              setTimeout(
-                () => checkForEntitlement(checkCount + 1),
-                waitMSBetweenAttempts,
-              );
-            }
-          })
-          .catch(reject);
-
-      checkForEntitlement();
-    });
-  }
-
   public async subscribe(
     appUserId: string,
     productId: string,
@@ -264,6 +236,7 @@ export class Purchases {
   public purchasePackage(
     appUserId: string,
     rcPackage: Package,
+    entitlementId: string, // TODO: Remove this parameter once we don't have to poll for entitlements
     {
       environment,
       customerEmail,
@@ -273,7 +246,7 @@ export class Purchases {
       customerEmail?: string;
       htmlTarget?: HTMLElement;
     } = { environment: "production" },
-  ): Promise<void> {
+  ): Promise<boolean> {
     let resolvedHTMLTarget =
       htmlTarget ?? document.getElementById("rcb-ui-root");
 
@@ -302,8 +275,17 @@ export class Purchases {
           rcPackage,
           environment,
           customerEmail,
-          onFinished: () => {
-            resolve();
+          onFinished: async () => {
+            const hasEntitlement = await waitForEntitlement(
+              this,
+              appUserId,
+              entitlementId,
+            );
+            resolve(hasEntitlement);
+            certainHTMLTarget.innerHTML = "";
+          },
+          onClose: () => {
+            resolve(false);
             certainHTMLTarget.innerHTML = "";
           },
           purchases: this,

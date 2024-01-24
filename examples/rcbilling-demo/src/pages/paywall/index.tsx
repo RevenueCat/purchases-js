@@ -1,5 +1,6 @@
 import { Offerings, Package, Purchases } from "@revenuecat/purchases-js";
 import React, { useEffect, useState } from "react";
+import { catServicesEntitlementId } from "../../App.tsx";
 
 interface IPackageCardProps {
   pkg: Package;
@@ -76,11 +77,22 @@ const PaywallPage: React.FC<IPaywallPageProps> = ({ purchases, appUserId }) => {
     }
 
     // How do we complete the purchase?
-    await purchases.purchasePackage(appUserId, pkg, {
-      environment: "sandbox",
-    });
+    const hasEntitlement = await purchases.purchasePackage(
+      appUserId,
+      pkg,
+      catServicesEntitlementId,
+      {
+        environment: "sandbox",
+      },
+    );
 
-    window.location.href = "/success";
+    if (hasEntitlement) {
+      window.location.href = "/success";
+    } else {
+      console.log("Purchased package but entitlement was not granted");
+      // TODO: We should display an error here.
+      window.location.href = "/";
+    }
   };
 
   console.log(packages);

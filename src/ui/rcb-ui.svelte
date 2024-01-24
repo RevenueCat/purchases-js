@@ -17,6 +17,7 @@
   export let appUserId: string;
   export let rcPackage: Package;
   export let onFinished: () => void;
+  export let onClose: () => void;
   export let purchases: Purchases;
   export let environment: "sandbox" | "production" = "sandbox";
 
@@ -54,7 +55,7 @@
   });
 
   const handleClose = () => {
-    onFinished();
+    onClose();
   };
 
   const handleSubscribe = () => {
