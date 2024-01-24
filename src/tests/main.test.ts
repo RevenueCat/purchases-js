@@ -214,3 +214,36 @@ test("can post to subscribe", async () => {
     },
   });
 });
+
+test("can get customer info", async () => {
+  const billing = new Purchases("test_api_key", STRIPE_TEST_DATA);
+  const customerInfo = await billing.getCustomerInfo("someAppUserId");
+  const activeCatServicesEntitlementInfo = {
+    identifier: "activeCatServices",
+    isActive: true,
+    originalPurchaseDate: new Date("2023-12-19T16:48:42Z"),
+    expirationDate: new Date("2053-12-20T16:48:42Z"),
+    productIdentifier: "black_f_friday_worten",
+  };
+  expect(customerInfo).toEqual({
+    entitlements: {
+      all: {
+        expiredCatServices: {
+          identifier: "expiredCatServices",
+          isActive: false,
+          originalPurchaseDate: new Date("2023-12-19T16:48:42Z"),
+          expirationDate: new Date("2023-12-20T16:48:42Z"),
+          productIdentifier: "black_f_friday_worten_2",
+        },
+        activeCatServices: activeCatServicesEntitlementInfo,
+      },
+      active: {
+        activeCatServices: activeCatServicesEntitlementInfo,
+      },
+    },
+    managementURL: "https://test-management-url.revenuecat.com",
+    requestDate: new Date("2024-01-22T13:23:07Z"),
+    firstSeenDate: new Date("2023-11-20T16:48:29Z"),
+    originalPurchaseDate: null,
+  });
+});
