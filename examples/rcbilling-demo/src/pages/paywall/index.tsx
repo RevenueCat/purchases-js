@@ -81,9 +81,6 @@ const PaywallPage: React.FC<IPaywallPageProps> = ({ purchases, appUserId }) => {
       appUserId,
       pkg,
       catServicesEntitlementId,
-      {
-        environment: "sandbox",
-      },
     );
 
     if (hasEntitlement) {
