@@ -270,4 +270,8 @@ export class Purchases {
       );
     }
   }
+
+  public isSandbox(): boolean {
+    return this._API_KEY?.includes("rcb_sb_");
+  }
 }

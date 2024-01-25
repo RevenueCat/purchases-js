@@ -24,6 +24,8 @@
   let paymentInfoCollectionMetadata: SubscribeResponse | null = null;
   const productId = rcPackage.rcBillingProduct?.id ?? null;
 
+
+
   let state:
     | "present-offer"
     | "needs-auth-info"
@@ -121,6 +123,9 @@
               />
             {/if}
           </Shell>
+          {#if purchases.isSandbox()}
+            <SandboxBanner />
+          {/if}
         </div>
       {/if}
       <Shell>
