@@ -34,15 +34,16 @@ async function handleErrors(response: Response, endpoint: SupportedEndpoint) {
     );
   } else if (statusCode >= StatusCodes.BAD_REQUEST) {
     const errorBody = await response.json();
-    const backendErrorCodeNumber: number | null = errorBody.code;
-    const backendErrorMessage: string | null = errorBody.message;
+    const errorBodyString = errorBody ? JSON.stringify(errorBody) : null;
+    const backendErrorCodeNumber: number | null = errorBody?.code;
+    const backendErrorMessage: string | null = errorBody?.message;
     if (backendErrorCodeNumber != null) {
       const backendErrorCode: BackendErrorCode | null =
         ErrorCodeUtils.convertCodeToBackendErrorCode(backendErrorCodeNumber);
       if (backendErrorCode == null) {
         throw new PurchasesError(
           ErrorCode.UnknownBackendError,
-          `Unknown backend error code. Request: ${endpoint.name}. Status code: ${statusCode}. Body: ${await response.text()}.`,
+          `Unknown backend error code. Request: ${endpoint.name}. Status code: ${statusCode}. Body: ${errorBodyString}.`,
         );
       } else {
         const errorCode =
@@ -56,7 +57,7 @@ async function handleErrors(response: Response, endpoint: SupportedEndpoint) {
     } else {
       throw new PurchasesError(
         ErrorCode.UnknownBackendError,
-        `Unknown backend error. Request: ${endpoint.name}. Status code: ${statusCode}. Body: ${await response.text()}.`,
+        `Unknown backend error. Request: ${endpoint.name}. Status code: ${statusCode}. Body: ${errorBodyString}.`,
       );
     }
   }
