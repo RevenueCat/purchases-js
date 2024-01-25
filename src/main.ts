@@ -272,6 +272,6 @@ export class Purchases {
   }
 
   public isSandbox(): boolean {
-    return this._API_KEY?.includes("rcb_sb_");
+    return this._API_KEY ? this._API_KEY.includes("rcb_sb_") : false;
   }
 }
