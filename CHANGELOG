@@ -1,3 +1,8 @@
+# 0.0.11
+- Added support to sandbox api keys
+- Removed the environment parameter
+
+
 # 0.0.10
 
 - Embedded UI (#24)
