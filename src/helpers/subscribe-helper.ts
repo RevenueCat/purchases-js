@@ -18,9 +18,7 @@ export async function subscribe(
   appUserId: string,
   productId: string,
   email: string,
-  environment: "sandbox" | "production" = "production",
 ): Promise<SubscribeResponse> {
-  const isSandbox = environment === "sandbox";
   const response = await fetch(`${RC_ENDPOINT}/${BASE_PATH}/subscribe`, {
     method: "POST",
     headers: {
@@ -31,7 +29,6 @@ export async function subscribe(
     body: JSON.stringify({
       app_user_id: appUserId,
       product_id: productId,
-      is_sandbox: isSandbox,
       email,
     }),
   });

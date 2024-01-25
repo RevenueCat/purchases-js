@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import SandboxBanner from "./sandbox-banner.svelte";
   import { Package, Purchases } from "../main";
+  import SandboxBanner from "./sandbox-banner.svelte";
   import StatePresentOffer from "./states/state-present-offer.svelte";
   import StateLoading from "./states/state-loading.svelte";
   import StateError from "./states/state-error.svelte";
@@ -20,11 +20,12 @@
   export let onFinished: () => void;
   export let onClose: () => void;
   export let purchases: Purchases;
-  export let environment: "sandbox" | "production" = "sandbox";
 
   let productDetails: any = null;
   let paymentInfoCollectionMetadata: SubscribeResponse | null = null;
   const productId = rcPackage.rcBillingProduct?.id ?? null;
+
+
 
   let state:
     | "present-offer"
@@ -67,7 +68,7 @@
       state = "loading";
     }
 
-    subscribe(purchases, appUserId, productId, customerEmail, environment)
+    subscribe(purchases, appUserId, productId, customerEmail)
       .then((result) => {
         if (result.nextAction === "collect_payment_info") {
           state = "needs-payment-info";
@@ -123,7 +124,7 @@
               />
             {/if}
           </Shell>
-          {#if environment === "sandbox"}
+          {#if purchases.isSandbox()}
             <SandboxBanner />
           {/if}
         </div>

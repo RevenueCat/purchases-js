@@ -120,7 +120,9 @@ export class Purchases {
       .map((p: ServerResponse) => p.platform_product_identifier);
 
     const productsResponse = await fetch(
-      `${RC_ENDPOINT}/${BASE_PATH}/subscribers/${appUserId}/products?id=${productIds.join("&id=")}`,
+      `${RC_ENDPOINT}/${BASE_PATH}/subscribers/${appUserId}/products?id=${productIds.join(
+        "&id=",
+      )}`,
       {
         headers: {
           Authorization: `Bearer ${this._API_KEY}`,
@@ -169,14 +171,12 @@ export class Purchases {
     rcPackage: Package,
     entitlementId: string, // TODO: Remove this parameter once we don't have to poll for entitlements
     {
-      environment,
       customerEmail,
       htmlTarget,
     }: {
-      environment?: "sandbox" | "production";
       customerEmail?: string;
       htmlTarget?: HTMLElement;
-    } = { environment: "production" },
+    } = {},
   ): Promise<boolean> {
     let resolvedHTMLTarget =
       htmlTarget ?? document.getElementById("rcb-ui-root");
@@ -204,7 +204,6 @@ export class Purchases {
         props: {
           appUserId,
           rcPackage,
-          environment,
           customerEmail,
           onFinished: async () => {
             const hasEntitlement = await waitForEntitlement(
@@ -270,5 +269,9 @@ export class Purchases {
         ". Please check that your product configuration is correct.",
       );
     }
+  }
+
+  public isSandbox(): boolean {
+    return this._API_KEY ? this._API_KEY.startsWith("rcb_sb_") : false;
   }
 }
