@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { Package, Purchases } from "../main";
+  import SandboxBanner from "./sandbox-banner.svelte";
   import StatePresentOffer from "./states/state-present-offer.svelte";
   import StateLoading from "./states/state-loading.svelte";
   import StateError from "./states/state-error.svelte";
