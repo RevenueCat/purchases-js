@@ -9,7 +9,6 @@ import {
 } from "./endpoints";
 import { SubscriberResponse } from "./responses/subscriber-response";
 import { SubscribeResponse } from "./responses/subscribe-response";
-import { SubscribeRequestBody } from "../helpers/subscribe-helper";
 import { ProductsResponse } from "./responses/products-response";
 import { EntitlementsResponse } from "./responses/entitlements-response";
 
@@ -56,6 +55,12 @@ export class Backend {
     productId: string,
     email: string,
   ): Promise<SubscribeResponse> {
+    type SubscribeRequestBody = {
+      app_user_id: string;
+      product_id: string;
+      email: string;
+    };
+
     return await performRequest<SubscribeRequestBody, SubscribeResponse>(
       new SubscribeEndpoint(),
       this.API_KEY,

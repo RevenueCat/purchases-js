@@ -242,7 +242,6 @@ describe("subscribe request", () => {
       await backend.postSubscribe(
         "someAppUserId",
         "monthly",
-        true,
         "testemail@revenuecat.com",
       ),
     ).toEqual(subscribeResponse);
@@ -256,7 +255,6 @@ describe("subscribe request", () => {
       backend.postSubscribe(
         "someAppUserId",
         "monthly",
-        true,
         "testemail@revenuecat.com",
       ),
       new PurchasesError(
@@ -280,7 +278,6 @@ describe("subscribe request", () => {
       backend.postSubscribe(
         "someAppUserId",
         "monthly",
-        true,
         "testemail@revenuecat.com",
       ),
       new PurchasesError(
