@@ -13,7 +13,7 @@ import {
 } from "./entities/customer-info";
 import { BASE_PATH, RC_ENDPOINT } from "./helpers/network-configuration";
 import { waitForEntitlement } from "./helpers/entitlement-checking-helper";
-import { ServerError } from "./entities/errors";
+import { ErrorCode, PurchasesError, ServerError } from "./entities/errors";
 
 export type Offerings = InnerOfferings;
 export type Offering = InnerOffering;
@@ -23,6 +23,7 @@ export type {
   EntitlementInfos,
   EntitlementInfo,
 } from "./entities/customer-info";
+export { ErrorCode, PurchasesError } from "./entities/errors";
 
 const VERSION = "0.0.8";
 
@@ -177,7 +178,7 @@ export class Purchases {
       customerEmail?: string;
       htmlTarget?: HTMLElement;
     } = {},
-  ): Promise<boolean> {
+  ): Promise<{ customerInfo: CustomerInfo }> {
     let resolvedHTMLTarget =
       htmlTarget ?? document.getElementById("rcb-ui-root");
 
@@ -198,7 +199,7 @@ export class Purchases {
 
     const asModal = !Boolean(htmlTarget);
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       new RCPurchasesUI({
         target: certainHTMLTarget,
         props: {
@@ -211,12 +212,22 @@ export class Purchases {
               appUserId,
               entitlementId,
             );
-            resolve(hasEntitlement);
             certainHTMLTarget.innerHTML = "";
+            if (hasEntitlement) {
+              // TODO: Add info about transaction in result.
+              resolve({ customerInfo: await this.getCustomerInfo(appUserId) });
+            } else {
+              reject(
+                new PurchasesError(
+                  ErrorCode.UnknownError,
+                  "Did not get entitlement after polling.",
+                ),
+              );
+            }
           },
           onClose: () => {
-            resolve(false);
             certainHTMLTarget.innerHTML = "";
+            reject(new PurchasesError(ErrorCode.UserCancelledError));
           },
           purchases: this,
           asModal,
