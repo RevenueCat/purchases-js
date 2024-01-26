@@ -1,5 +1,3 @@
-import { StatusCodes } from "http-status-codes";
-
 export enum ErrorCode {
   UnknownError = 0,
   UserCancelledError = 1,
