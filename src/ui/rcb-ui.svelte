@@ -10,7 +10,6 @@
   import StateNeedsAuthInfo from "./states/state-needs-auth-info.svelte";
   import ConditionalFullScreen from "./conditional-full-screen.svelte";
   import Shell from "./shell.svelte";
-  import { subscribe } from "../helpers/subscribe-helper";
   import { Backend } from "../networking/backend";
   import { SubscribeResponse } from "../networking/responses/subscribe-response";
 
@@ -70,7 +69,7 @@
       state = "loading";
     }
 
-    subscribe(backend, appUserId, productId, customerEmail)
+    backend.postSubscribe(appUserId, productId, customerEmail)
       .then((result) => {
         if (result.next_action === "collect_payment_info") {
           state = "needs-payment-info";

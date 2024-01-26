@@ -1,6 +1,12 @@
 import { SupportedEndpoint } from "./endpoints";
-import { ServerError } from "../entities/errors";
+import {
+  BackendErrorCode,
+  ErrorCode,
+  ErrorCodeUtils,
+  PurchasesError,
+} from "../entities/errors";
 import { VERSION } from "../helpers/constants";
+import { StatusCodes } from "http-status-codes";
 
 export async function performRequest<RequestBody, ResponseType>(
   endpoint: SupportedEndpoint,
@@ -14,12 +20,46 @@ export async function performRequest<RequestBody, ResponseType>(
     body: getBody(body),
   });
 
-  // TODO: Improve error handling
-  if (response.status >= 400) {
-    throw new ServerError(response.status, await response.text());
-  }
+  await handleErrors(response, endpoint);
 
   return (await response.json()) as ResponseType; // TODO: Validate response is correct.
+}
+
+async function handleErrors(response: Response, endpoint: SupportedEndpoint) {
+  const statusCode = response.status;
+  if (statusCode >= StatusCodes.INTERNAL_SERVER_ERROR) {
+    throwUnknownError(endpoint, statusCode, await response.text());
+  } else if (statusCode >= StatusCodes.BAD_REQUEST) {
+    const errorBody = await response.json();
+    const errorBodyString = errorBody ? JSON.stringify(errorBody) : null;
+    const backendErrorCodeNumber: number | null = errorBody?.code;
+    const backendErrorMessage: string | null = errorBody?.message;
+    if (backendErrorCodeNumber != null) {
+      const backendErrorCode: BackendErrorCode | null =
+        ErrorCodeUtils.convertCodeToBackendErrorCode(backendErrorCodeNumber);
+      if (backendErrorCode == null) {
+        throwUnknownError(endpoint, statusCode, errorBodyString);
+      } else {
+        throw PurchasesError.getForBackendError(
+          backendErrorCode,
+          backendErrorMessage,
+        );
+      }
+    } else {
+      throwUnknownError(endpoint, statusCode, errorBodyString);
+    }
+  }
+}
+
+function throwUnknownError(
+  endpoint: SupportedEndpoint,
+  statusCode: number,
+  errorBody: string | null,
+) {
+  throw new PurchasesError(
+    ErrorCode.UnknownBackendError,
+    `Unknown backend error. Request: ${endpoint.name}. Status code: ${statusCode}. Body: ${errorBody}.`,
+  );
 }
 
 function getBody<RequestBody>(body?: RequestBody): string | null {

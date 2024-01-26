@@ -22,11 +22,11 @@ const monthly2ProductResponse = {
   title: "Monthly test 2",
 };
 
-const productsResponse = {
+export const productsResponse = {
   product_details: [monthlyProductResponse, monthly2ProductResponse],
 };
 
-const offeringsArray = [
+export const offeringsArray = [
   {
     identifier: "offering_1",
     description: "Offering 1",
@@ -51,7 +51,7 @@ const offeringsArray = [
   },
 ];
 
-const customerInfoResponse = {
+export const customerInfoResponse = {
   request_date: "2024-01-22T13:23:07Z",
   request_date_ms: 1705929787636,
   subscriber: {
