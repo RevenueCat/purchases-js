@@ -170,6 +170,19 @@ export enum BackendErrorCode {
 }
 
 export class PurchasesError extends Error {
+  static getForBackendError(
+    backendErrorCode: BackendErrorCode,
+    backendErrorMessage: string | null,
+  ): PurchasesError {
+    const errorCode =
+      ErrorCodeUtils.getErrorCodeForBackendErrorCode(backendErrorCode);
+    return new PurchasesError(
+      errorCode,
+      ErrorCodeUtils.getPublicMessage(errorCode),
+      backendErrorMessage,
+    );
+  }
+
   constructor(
     public readonly errorCode: ErrorCode,
     message?: string,

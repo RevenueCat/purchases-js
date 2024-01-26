@@ -40,25 +40,15 @@ async function handleErrors(response: Response, endpoint: SupportedEndpoint) {
       if (backendErrorCode == null) {
         throwUnknownError(endpoint, statusCode, errorBodyString);
       } else {
-        throwBackendErrorCode(backendErrorCode, backendErrorMessage);
+        throw PurchasesError.getForBackendError(
+          backendErrorCode,
+          backendErrorMessage,
+        );
       }
     } else {
       throwUnknownError(endpoint, statusCode, errorBodyString);
     }
   }
-}
-
-function throwBackendErrorCode(
-  backendErrorCode: BackendErrorCode,
-  backendErrorMessage: string | null,
-) {
-  const errorCode =
-    ErrorCodeUtils.getErrorCodeForBackendErrorCode(backendErrorCode);
-  throw new PurchasesError(
-    errorCode,
-    ErrorCodeUtils.getPublicMessage(errorCode),
-    backendErrorMessage,
-  );
 }
 
 function throwUnknownError(
