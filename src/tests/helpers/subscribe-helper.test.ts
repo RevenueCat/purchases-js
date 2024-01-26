@@ -2,11 +2,7 @@ import { beforeAll, expect, test } from "vitest";
 import { subscribe } from "../../helpers/subscribe-helper";
 import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
-import { Purchases } from "../../main";
-
-const STRIPE_TEST_DATA = {
-  stripe: { accountId: "acct_123", publishableKey: "pk_123" },
-} as const;
+import { Backend } from "../../networking/backend";
 
 const server = setupServer(
   http.post("http://localhost:8000/rcbilling/v1/subscribe", () => {
@@ -27,18 +23,18 @@ beforeAll(() => {
 });
 
 test("can post to subscribe", async () => {
-  const billing = new Purchases("test_api_key", STRIPE_TEST_DATA);
+  const backend = new Backend("test_api_key");
   const subscribeResponse = await subscribe(
-    billing,
+    backend,
     "someAppUserId",
     "product_1",
     "someone@somewhere.com",
   );
 
   expect(subscribeResponse).toEqual({
-    nextAction: "collect_payment_info",
+    next_action: "collect_payment_info",
     data: {
-      clientSecret: "seti_123",
+      client_secret: "seti_123",
     },
   });
 });

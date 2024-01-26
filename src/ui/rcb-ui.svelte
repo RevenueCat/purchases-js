@@ -8,10 +8,11 @@
   import StateSuccess from "./states/state-success.svelte";
   import StateNeedsPaymentInfo from "./states/state-needs-payment-info.svelte";
   import StateNeedsAuthInfo from "./states/state-needs-auth-info.svelte";
-  import { SubscribeResponse } from "../entities/subscribe-response";
   import ConditionalFullScreen from "./conditional-full-screen.svelte";
   import Shell from "./shell.svelte";
   import { subscribe } from "../helpers/subscribe-helper";
+  import { Backend } from "../networking/backend";
+  import { SubscribeResponse } from "../networking/responses/subscribe-response";
 
   export let asModal = true;
   export let customerEmail: string | undefined;
@@ -20,6 +21,7 @@
   export let onFinished: () => void;
   export let onClose: () => void;
   export let purchases: Purchases;
+  export let backend: Backend;
 
   let productDetails: any = null;
   let paymentInfoCollectionMetadata: SubscribeResponse | null = null;
@@ -68,9 +70,9 @@
       state = "loading";
     }
 
-    subscribe(purchases, appUserId, productId, customerEmail)
+    subscribe(backend, appUserId, productId, customerEmail)
       .then((result) => {
-        if (result.nextAction === "collect_payment_info") {
+        if (result.next_action === "collect_payment_info") {
           state = "needs-payment-info";
           paymentInfoCollectionMetadata = result;
           return;
