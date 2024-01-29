@@ -7,7 +7,7 @@ import {
 } from "../entities/errors";
 import { VERSION } from "../helpers/constants";
 import { StatusCodes } from "http-status-codes";
-import { isApiKeySandbox } from "../helpers/api-key-helper";
+import { isSandboxApiKey } from "../helpers/api-key-helper";
 
 export async function performRequest<RequestBody, ResponseType>(
   endpoint: SupportedEndpoint,
@@ -81,7 +81,7 @@ function getHeaders(
     Accept: "application/json",
     "X-Platform": "web",
     "X-Version": VERSION,
-    "X-Is-Sandbox": `${isApiKeySandbox(apiKey)}`,
+    "X-Is-Sandbox": `${isSandboxApiKey(apiKey)}`,
   };
   if (headers != null) {
     all_headers = { ...all_headers, ...headers };

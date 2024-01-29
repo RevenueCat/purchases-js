@@ -22,7 +22,7 @@ import { ProductsResponse } from "./networking/responses/products-response";
 import { EntitlementResponse } from "./networking/responses/entitlements-response";
 import { RC_ENDPOINT } from "./helpers/constants";
 import { Backend } from "./networking/backend";
-import { isApiKeySandbox } from "./helpers/api-key-helper";
+import { isSandboxApiKey } from "./helpers/api-key-helper";
 
 export type Offerings = InnerOfferings;
 export type Offering = InnerOffering;
@@ -240,6 +240,6 @@ export class Purchases {
   }
 
   public isSandbox(): boolean {
-    return isApiKeySandbox(this._API_KEY);
+    return isSandboxApiKey(this._API_KEY);
   }
 }
