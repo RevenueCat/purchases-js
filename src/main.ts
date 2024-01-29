@@ -22,6 +22,7 @@ import { ProductsResponse } from "./networking/responses/products-response";
 import { EntitlementResponse } from "./networking/responses/entitlements-response";
 import { RC_ENDPOINT } from "./helpers/constants";
 import { Backend } from "./networking/backend";
+import { isSandboxApiKey } from "./helpers/api-key-helper";
 
 export type Offerings = InnerOfferings;
 export type Offering = InnerOffering;
@@ -210,7 +211,6 @@ export class Purchases {
   }
 
   public async getCustomerInfo(appUserId: string): Promise<CustomerInfo> {
-    // TODO: Abstract network requests to avoid duplication
     const subscriberResponse = await this.backend.getCustomerInfo(appUserId);
 
     return toCustomerInfo(subscriberResponse);
@@ -231,7 +231,7 @@ export class Purchases {
       }
     });
     if (missingProductIds.length > 0) {
-      console.log(
+      console.debug(
         "Could not find product data for product ids: ",
         missingProductIds,
         ". Please check that your product configuration is correct.",
@@ -240,6 +240,6 @@ export class Purchases {
   }
 
   public isSandbox(): boolean {
-    return this._API_KEY ? this._API_KEY.startsWith("rcb_sb_") : false;
+    return isSandboxApiKey(this._API_KEY);
   }
 }
