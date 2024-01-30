@@ -55,9 +55,10 @@ By downloading the current Offerings you can easily build a Paywall page using t
 associated `rcBillingProduct` and price.
 
 ```typescript
+const appUserId = "the unique id of the user in your systems";
 const purchases = new Purchases("your RC_PUBLISHABLE_API_KEY");
 
-purchases.getOfferings().then((offerings) => {
+purchases.getOfferings(appUserId).then((offerings) => {
   // Get current offering
   console.log(offerings.current);
   // Or a dictionary of all offerings
@@ -81,8 +82,8 @@ const entitlementId = "the entitlementId you set up in RC";
 
 const purchases = new Purchases("your RC_PUBLISHABLE_API_KEY");
 
-purchases.isEntitledTo(appUserId, entitlementId).then((isEntitled) => {
-  if (isEntitled == true) {
+purchases.getCustomerInfo(appUserId).then((customerInfo) => {
+  if (entitlementId in customerInfo.entitlements.active) {
     console.log(`User ${appUserID} is entitled to ${entitlementId}`);
   } else {
     console.log(`User ${appUserID} is not entitled to ${entitlementId}`);
@@ -96,11 +97,10 @@ As example, you can build a cool React component with it:
 const WithEntitlement = ({ appUserId, entitlementId, children }) => {
   const [isEntitled, setIsEntitled] = useState<boolean | null>(null);
 
-  useEffect(() => {
+  useEffect(async () => {
     const purchases = new Purchases("your RC_PUBLISHABLE_API_KEY");
-    purchases.isEntitledTo(appUserId, entitlementId).then((isEntitled) => {
-      setIsEntitled(isEntitled);
-    });
+    const customerInfo = await purchases.getCustomerInfo(appUserId);
+    setIsEntitled(entitlementId in customerInfo.entitlements.active);
   }, [appUserId, entitlementId]);
 
   if (isEntitled === null) {
@@ -136,86 +136,24 @@ In this example we will show Stripe, more will be supported soon!
 
 You built your paywall, and your user just clicked on the offer they want to subscribe to.
 
-### 1. Call the .subscribe method to initialise the process
-
 ```tsx
 const purchases = new Purchases("your RC_PUBLISHABLE_API_KEY");
-// You can retrieve this from the offerings you downloaded, as example:
-// offerings.current.packages[0].rcBillingProduct.identifier
-const rcBillingProductIndentifier =
-  "the Product Identifier the user wants to buy";
+// You can retrieve the package from the offerings through `getOfferings`:
+const rcBillingPackage = offerings.current.packages[0];
 const appUserId =
   "the unique id of the user that wants to subscribe to your product";
+const entitlementIdToCheck = "the entitlementId you set up in RC for your product"; // TODO: remove once this is not needed
 
-purchase.subscribe(appUserId, rcBillingProductIndentifier).then((response) => {
-  if (response.nextAction === "collect_payment_info") {
-    // Use the clientSecret to show the StripeElements payment components
-    showStripeElements({
-      setupIntentClientSecret: response.data.clientSecret,
-    });
+purchase.purchasePackage(appUserId, rcBillingPackage, entitlementIdToCheck).then((response) => {
+  const isEntitled = entitlementIdToCheck in response.customerInfo.entitlements.active;
+  if (isEntitled == true) {
+    console.log(`User ${appUserID} is entitled to ${entitlementId}`);
   } else {
-    // No need to collect payment info, just wait for the entitlement to be granted
+    console.log(
+            `User ${appUserID} is not entitled to ${entitlementId}, even after ${numberOfAttempts} attempts`,
+    );
   }
 });
-```
-
-### 2. [If nextAction === 'collect_payment_info'] Show the Stripe Elements to collect payment
-
-```tsx
-// Set up stripe as shown in their docs
-const stripePromise = loadStripe(
-  import.meta.env.VITE_RC_STRIPE_PK_KEY as string,
-  { stripeAccount: import.meta.env.VITE_RC_STRIPE_ACCOUNT_ID as string },
-);
-
-// Use the clientSecret obtained in the step 1. Call the .subscribe method to initialise the process
-const PaymentForm = ({ clientSecret }) => {
-  const handleSubmit = async (e: SyntheticEvent) => {
-    e.preventDefault();
-    stripe
-      .confirmSetup({
-        elements,
-        clientSecret,
-        confirmParams: {
-          return_url: `${window.location.origin}/success`,
-        },
-        redirect: "if_required",
-      })
-      .then((response) => {
-        // All is done you can now wait for the entitlement to be granted.
-      });
-  };
-
-  return (
-    <form id="payment-form" onSubmit={handleSubmit}>
-      <PaymentElement id="payment-element" options={paymentElementOptions} />
-    </form>
-  );
-};
-```
-
-### 3. Wait for the entitlement to be granted
-
-You can use the `.waitForEntitlement` method.
-
-```tsx
-const appUserId = "the unique id of the user in your systems";
-const entitlementId = "the entitlementId you set up in RC";
-
-const purchases = new Purchases("your RC_PUBLISHABLE_API_KEY");
-const numberOfAttempts = 10;
-
-purchases
-  .waitForEntitlement(appUserId, entitlementId, numberOfAttempts)
-  .then((isEntitled) => {
-    if (isEntitled == true) {
-      console.log(`User ${appUserID} is entitled to ${entitlementId}`);
-    } else {
-      console.log(
-        `User ${appUserID} is not entitled to ${entitlementId}, even after ${numberOfAttempts} attempts`,
-      );
-    }
-  });
 ```
 
 # Development
