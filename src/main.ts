@@ -19,7 +19,6 @@ import {
   PackageResponse,
 } from "./networking/responses/offerings-response";
 import { ProductsResponse } from "./networking/responses/products-response";
-import { EntitlementResponse } from "./networking/responses/entitlements-response";
 import { RC_ENDPOINT } from "./helpers/constants";
 import { Backend } from "./networking/backend";
 import { isSandboxApiKey } from "./helpers/api-key-helper";
@@ -128,18 +127,6 @@ export class Purchases {
     return this.toOfferings(offeringsResponse, productsResponse);
   }
 
-  public async isEntitledTo(
-    appUserId: string,
-    entitlementIdentifier: string,
-  ): Promise<boolean> {
-    const entitlementsResponse = await this.backend.getEntitlements(appUserId);
-
-    const entitlements = entitlementsResponse.entitlements.map(
-      (ent: EntitlementResponse) => ent.lookup_key,
-    );
-    return entitlements.includes(entitlementIdentifier);
-  }
-
   public purchasePackage(
     appUserId: string,
     rcPackage: Package,
@@ -181,7 +168,7 @@ export class Purchases {
           customerEmail,
           onFinished: async () => {
             const hasEntitlement = await waitForEntitlement(
-              this,
+              this.backend,
               appUserId,
               entitlementId,
             );

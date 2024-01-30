@@ -1,12 +1,8 @@
 import { beforeAll, expect, test } from "vitest";
-import { Purchases } from "../../main";
 import { waitForEntitlement } from "../../helpers/entitlement-checking-helper";
 import { setupServer } from "msw/node";
 import { getEntitlementsResponseHandlers } from "../test-responses";
-
-const STRIPE_TEST_DATA = {
-  stripe: { accountId: "acct_123", publishableKey: "pk_123" },
-} as const;
+import { Backend } from "../../networking/backend";
 
 const server = setupServer(...getEntitlementsResponseHandlers());
 
@@ -15,9 +11,9 @@ beforeAll(() => {
 });
 
 test("returns true if a user is entitled and uses waitForEntitlement", async () => {
-  const billing = new Purchases("test_api_key", STRIPE_TEST_DATA);
+  const backend = new Backend("test_api_key");
   const isEntitled = await waitForEntitlement(
-    billing,
+    backend,
     "someAppUserId",
     "someEntitlement",
     2,
@@ -26,9 +22,9 @@ test("returns true if a user is entitled and uses waitForEntitlement", async () 
 });
 
 test("returns false if a user is not entitled and uses waitForEntitlement", async () => {
-  const billing = new Purchases("test_api_key", STRIPE_TEST_DATA);
+  const backend = new Backend("test_api_key");
   const isEntitled = await waitForEntitlement(
-    billing,
+    backend,
     "someOtherAppUserId",
     "someEntitlement",
     2,

@@ -21,8 +21,10 @@ const WithoutEntitlement: React.FC<IWithEntitlementProps> = ({
 }) => {
   const [isEntitled, setIsEntitled] = useState<boolean | null>(null);
 
-  const doCheckEntitlement = useCallback((): Promise<boolean> => {
-    return purchases.isEntitledTo(appUserId, entitlementId);
+  const doCheckEntitlement = useCallback(async (): Promise<boolean> => {
+    const customerInfo = await purchases.getCustomerInfo(appUserId);
+
+    return entitlementId in customerInfo.entitlements.active;
   }, [purchases, appUserId, entitlementId]);
 
   useEffect(() => {

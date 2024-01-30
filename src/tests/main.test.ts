@@ -18,24 +18,6 @@ test("Purchases is defined", () => {
   expect(billing).toBeDefined();
 });
 
-test("returns true if a user is entitled", async () => {
-  const billing = new Purchases("test_api_key", STRIPE_TEST_DATA);
-  const isEntitled = await billing.isEntitledTo(
-    "someAppUserId",
-    "someEntitlement",
-  );
-  expect(isEntitled).toBeTruthy();
-});
-
-test("returns false if a user is not entitled", async () => {
-  const billing = new Purchases("test_api_key", STRIPE_TEST_DATA);
-  const isEntitled = await billing.isEntitledTo(
-    "someOtherAppUserId",
-    "someEntitlement",
-  );
-  expect(isEntitled).not.toBeTruthy();
-});
-
 test("can get offerings", async () => {
   const billing = new Purchases("test_api_key", STRIPE_TEST_DATA);
   const offerings = await billing.getOfferings("someAppUserId");
