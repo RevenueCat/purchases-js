@@ -127,6 +127,11 @@ const App = () => (
 );
 ```
 
+### Important note
+
+Please be aware that the information about the entitlements can be manipulated by malicious actors, so make sure
+you protect your apps against attacks that modify the entitlements by validating access through your servers.
+
 ## Subscribe a User to an entitlement and allow payment with Stripe
 
 RCBilling allows you to use your payment gateway for payments.
@@ -155,6 +160,11 @@ purchase.purchasePackage(appUserId, rcBillingPackage, entitlementIdToCheck).then
   }
 });
 ```
+
+### Important note
+
+Please be aware that the information about the entitlements can be manipulated by malicious actors, so make sure
+you protect your apps against attacks that modify the entitlements by validating access through your servers.
 
 # Development
 
