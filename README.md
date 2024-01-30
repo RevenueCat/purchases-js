@@ -147,18 +147,22 @@ const purchases = new Purchases("your RC_PUBLISHABLE_API_KEY");
 const rcBillingPackage = offerings.current.packages[0];
 const appUserId =
   "the unique id of the user that wants to subscribe to your product";
-const entitlementIdToCheck = "the entitlementId you set up in RC for your product"; // TODO: remove once this is not needed
+const entitlementIdToCheck =
+  "the entitlementId you set up in RC for your product"; // TODO: remove once this is not needed
 
-purchase.purchasePackage(appUserId, rcBillingPackage, entitlementIdToCheck).then((response) => {
-  const isEntitled = entitlementIdToCheck in response.customerInfo.entitlements.active;
-  if (isEntitled == true) {
-    console.log(`User ${appUserID} is entitled to ${entitlementId}`);
-  } else {
-    console.log(
-            `User ${appUserID} is not entitled to ${entitlementId}, even after ${numberOfAttempts} attempts`,
-    );
-  }
-});
+purchase
+  .purchasePackage(appUserId, rcBillingPackage, entitlementIdToCheck)
+  .then((response) => {
+    const isEntitled =
+      entitlementIdToCheck in response.customerInfo.entitlements.active;
+    if (isEntitled == true) {
+      console.log(`User ${appUserID} is entitled to ${entitlementId}`);
+    } else {
+      console.log(
+        `User ${appUserID} is not entitled to ${entitlementId}, even after ${numberOfAttempts} attempts`,
+      );
+    }
+  });
 ```
 
 ### Important note
