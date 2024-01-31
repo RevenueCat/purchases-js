@@ -28,6 +28,7 @@ export interface Product {
   readonly identifier: string;
   readonly currentPrice: Price | null;
   readonly normalPeriodDuration: string | null;
+  readonly presentedOfferingIdentifier: string;
 }
 
 export interface Package {
@@ -57,17 +58,22 @@ export interface Offerings {
   readonly current: Offering | null;
 }
 
-export const toProduct = (productDetailsData: ProductResponse): Product => {
+const toProduct = (
+  productDetailsData: ProductResponse,
+  presentedOfferingIdentifier: string,
+): Product => {
   return {
     id: productDetailsData.identifier,
     identifier: productDetailsData.identifier,
     displayName: productDetailsData.title,
     currentPrice: productDetailsData.current_price as Price,
     normalPeriodDuration: productDetailsData.normal_period_duration,
+    presentedOfferingIdentifier: presentedOfferingIdentifier,
   };
 };
 
-export const toPackage = (
+const toPackage = (
+  presentedOfferingIdentifier: string,
   packageData: PackageResponse,
   productDetailsData: { [productId: string]: ProductResponse },
 ): Package | null => {
@@ -78,7 +84,7 @@ export const toPackage = (
   return {
     id: packageData.identifier,
     identifier: packageData.identifier,
-    rcBillingProduct: toProduct(rcBillingProduct),
+    rcBillingProduct: toProduct(rcBillingProduct, presentedOfferingIdentifier),
     packageType: getPackageType(packageData.identifier),
   };
 };
@@ -88,7 +94,9 @@ export const toOffering = (
   productDetailsData: { [productId: string]: ProductResponse },
 ): Offering | null => {
   const packages = offeringsData.packages
-    .map((p: PackageResponse) => toPackage(p, productDetailsData))
+    .map((p: PackageResponse) =>
+      toPackage(offeringsData.identifier, p, productDetailsData),
+    )
     .filter(notEmpty);
   const packagesById: { [packageId: string]: Package } = {};
   for (const p of packages) {
