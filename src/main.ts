@@ -4,7 +4,7 @@ import {
   Package as InnerPackage,
   toOffering,
 } from "./entities/offerings";
-import { PaymentProviderSettings, ServerResponse } from "./entities/types";
+import { PaymentProviderSettings } from "./entities/types";
 import RCPurchasesUI from "./ui/rcb-ui.svelte";
 
 import {
@@ -18,7 +18,10 @@ import {
   OfferingsResponse,
   PackageResponse,
 } from "./networking/responses/offerings-response";
-import { ProductsResponse } from "./networking/responses/products-response";
+import {
+  ProductResponse,
+  ProductsResponse,
+} from "./networking/responses/products-response";
 import { EntitlementResponse } from "./networking/responses/entitlements-response";
 import { RC_ENDPOINT } from "./helpers/constants";
 import { Backend } from "./networking/backend";
@@ -76,24 +79,24 @@ export class Purchases {
     offeringsData: OfferingsResponse,
     productsData: ProductsResponse,
   ): Offerings => {
-    const currentOfferingServerResponse =
+    const currentOfferingResponse =
       offeringsData.offerings.find(
         (o: OfferingResponse) =>
           o.identifier === offeringsData.current_offering_id,
       ) ?? null;
 
-    const productsMap: ServerResponse = {};
-    productsData.product_details.forEach((p: ServerResponse) => {
+    const productsMap: { [productId: string]: ProductResponse } = {};
+    productsData.product_details.forEach((p: ProductResponse) => {
       productsMap[p.identifier] = p;
     });
 
     const currentOffering: InnerOffering | null =
-      currentOfferingServerResponse == null
+      currentOfferingResponse == null
         ? null
-        : toOffering(currentOfferingServerResponse, productsMap);
+        : toOffering(currentOfferingResponse, productsMap);
 
     const allOfferings: { [offeringId: string]: Offering } = {};
-    offeringsData.offerings.forEach((o: ServerResponse) => {
+    offeringsData.offerings.forEach((o: OfferingResponse) => {
       const offering = toOffering(o, productsMap);
       if (offering != null) {
         allOfferings[o.identifier] = offering;
@@ -218,11 +221,11 @@ export class Purchases {
 
   private logMissingProductIds(
     productIds: string[],
-    productDetails: ServerResponse[],
+    productDetails: ProductResponse[],
   ) {
-    const foundProductIdsMap: { [productId: string]: ServerResponse } = {};
+    const foundProductIdsMap: { [productId: string]: ProductResponse } = {};
     productDetails.forEach(
-      (ent: ServerResponse) => (foundProductIdsMap[ent.identifier] = ent),
+      (ent: ProductResponse) => (foundProductIdsMap[ent.identifier] = ent),
     );
     const missingProductIds: string[] = [];
     productIds.forEach((productId: string) => {

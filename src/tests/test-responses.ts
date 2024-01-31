@@ -33,7 +33,7 @@ export const offeringsArray = [
     metadata: null,
     packages: [
       {
-        identifier: "package_1",
+        identifier: "$rc_monthly",
         platform_product_identifier: "monthly",
       },
     ],
