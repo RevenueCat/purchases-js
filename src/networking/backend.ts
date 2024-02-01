@@ -1,16 +1,18 @@
 import { OfferingsResponse } from "./responses/offerings-response";
 import { performRequest } from "./http-client";
 import {
+  GetBrandingInfoEndpoint,
   GetCustomerInfoEndpoint,
   GetEntitlementsEndpoint,
   GetOfferingsEndpoint,
   GetProductsEndpoint,
-  SubscribeEndpoint,
+  SubscribeEndpoint
 } from "./endpoints";
 import { SubscriberResponse } from "./responses/subscriber-response";
 import { SubscribeResponse } from "./responses/subscribe-response";
 import { ProductsResponse } from "./responses/products-response";
 import { EntitlementsResponse } from "./responses/entitlements-response";
+import { BrandingInfoResponse } from "../entities/types";
 
 export class Backend {
   private readonly API_KEY: string;
@@ -46,6 +48,13 @@ export class Backend {
   async getEntitlements(appUserId: string): Promise<EntitlementsResponse> {
     return await performRequest<null, EntitlementsResponse>(
       new GetEntitlementsEndpoint(appUserId),
+      this.API_KEY,
+    );
+  }
+
+  async getBrandingInfo(): Promise<BrandingInfoResponse> {
+    return await performRequest<null, BrandingInfoResponse>(
+      new GetBrandingInfoEndpoint(),
       this.API_KEY,
     );
   }
