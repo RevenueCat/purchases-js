@@ -3,8 +3,6 @@
   import { formatPrice, getRenewsLabel } from "../../helpers/price-labels";
 
   export let productDetails: any;
-  export let onClose: any;
-  export let onContinue: any;
 </script>
 
 <ModalSection>
