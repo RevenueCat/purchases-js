@@ -11,7 +11,6 @@ import {
   CustomerInfo as InnerCustomerInfo,
   toCustomerInfo,
 } from "./entities/customer-info";
-import { waitForEntitlement } from "./helpers/entitlement-checking-helper";
 import { ErrorCode, PurchasesError } from "./entities/errors";
 import {
   OfferingResponse,
@@ -26,6 +25,7 @@ import { EntitlementResponse } from "./networking/responses/entitlements-respons
 import { RC_ENDPOINT } from "./helpers/constants";
 import { Backend } from "./networking/backend";
 import { isSandboxApiKey } from "./helpers/api-key-helper";
+import { PurchaseHelper } from "./helpers/purchase-helper";
 
 export type Offerings = InnerOfferings;
 export type Offering = InnerOffering;
@@ -46,6 +46,7 @@ export class Purchases {
   readonly _PAYMENT_PROVIDER_SETTINGS: PaymentProviderSettings | null = null;
 
   private readonly backend: Backend;
+  private readonly purchaseHelper: PurchaseHelper;
 
   constructor(
     apiKey: string,
@@ -73,6 +74,7 @@ export class Purchases {
     }
 
     this.backend = new Backend(this._API_KEY);
+    this.purchaseHelper = new PurchaseHelper(this.backend);
   }
 
   private toOfferings = (
@@ -146,7 +148,6 @@ export class Purchases {
   public purchasePackage(
     appUserId: string,
     rcPackage: Package,
-    entitlementId: string, // TODO: Remove this parameter once we don't have to poll for entitlements
     {
       customerEmail,
       htmlTarget,
@@ -183,29 +184,16 @@ export class Purchases {
           rcPackage,
           customerEmail,
           onFinished: async () => {
-            const hasEntitlement = await waitForEntitlement(
-              this,
-              appUserId,
-              entitlementId,
-            );
+            await this.purchaseHelper.pollCurrentPurchaseForCompletion();
             certainHTMLTarget.innerHTML = "";
-            if (hasEntitlement) {
-              // TODO: Add info about transaction in result.
-              resolve({ customerInfo: await this.getCustomerInfo(appUserId) });
-            } else {
-              reject(
-                new PurchasesError(
-                  ErrorCode.UnknownError,
-                  "Did not get entitlement after polling.",
-                ),
-              );
-            }
+            // TODO: Add info about transaction in result.
+            resolve({ customerInfo: await this.getCustomerInfo(appUserId) });
           },
           onClose: () => {
             certainHTMLTarget.innerHTML = "";
             reject(new PurchasesError(ErrorCode.UserCancelledError));
           },
-          purchases: this,
+          purchaseHelper: this.purchaseHelper,
           backend: this.backend,
           asModal,
         },

@@ -5,6 +5,7 @@ import {
   GetCustomerInfoEndpoint,
   GetEntitlementsEndpoint,
   GetOfferingsEndpoint,
+  GetOperationEndpoint,
   GetProductsEndpoint,
   SubscribeEndpoint,
 } from "./endpoints";
@@ -13,6 +14,7 @@ import { SubscribeResponse } from "./responses/subscribe-response";
 import { ProductsResponse } from "./responses/products-response";
 import { EntitlementsResponse } from "./responses/entitlements-response";
 import { BrandingInfoResponse } from "./responses/branding-response";
+import { OperationResponse } from "./responses/operation-response";
 
 export class Backend {
   private readonly API_KEY: string;
@@ -78,6 +80,13 @@ export class Backend {
         product_id: productId,
         email: email,
       },
+    );
+  }
+
+  async getOperation(operationSessionId: number): Promise<OperationResponse> {
+    return await performRequest<null, OperationResponse>(
+      new GetOperationEndpoint(operationSessionId),
+      this.API_KEY,
     );
   }
 }

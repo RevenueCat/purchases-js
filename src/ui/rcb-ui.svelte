@@ -10,10 +10,10 @@
   import StateNeedsAuthInfo from "./states/state-needs-auth-info.svelte";
   import ConditionalFullScreen from "./conditional-full-screen.svelte";
   import Shell from "./shell.svelte";
-  import { Backend } from "../networking/backend";
   import { SubscribeResponse } from "../networking/responses/subscribe-response";
   import { BrandingInfoResponse } from "../networking/responses/branding-response";
-
+  import { PurchaseHelper } from "../helpers/purchase-helper";
+  import { Backend } from "../networking/backend";
 
   export let asModal = true;
   export let customerEmail: string | undefined;
@@ -23,6 +23,7 @@
   export let onClose: () => void;
   export let purchases: Purchases;
   export let backend: Backend;
+  export let purchaseHelper: PurchaseHelper;
 
   let productDetails: any = null;
   let brandingInfo: BrandingInfoResponse | null = null;
@@ -79,7 +80,7 @@
       return;
     }
 
-    backend.postSubscribe(appUserId, productId, customerEmail)
+    purchaseHelper.startPurchase(appUserId, productId, customerEmail)
       .then((result) => {
         if (result.next_action === "collect_payment_info") {
           state = "needs-payment-info";

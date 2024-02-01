@@ -88,10 +88,25 @@ export class GetBrandingInfoEndpoint implements Endpoint {
   }
 }
 
+export class GetOperationEndpoint implements Endpoint {
+  method: HttpMethodType = "GET";
+  name: string = "getOperation";
+  private readonly operationSessionId: number;
+
+  constructor(operationSessionId: number) {
+    this.operationSessionId = operationSessionId;
+  }
+
+  url(): string {
+    return `${RC_ENDPOINT}${RC_BILLING_PATH}/operations/${this.operationSessionId}`;
+  }
+}
+
 export type SupportedEndpoint =
   | GetOfferingsEndpoint
   | SubscribeEndpoint
   | GetProductsEndpoint
   | GetCustomerInfoEndpoint
   | GetEntitlementsEndpoint
-  | GetBrandingInfoEndpoint;
+  | GetBrandingInfoEndpoint
+  | GetOperationEndpoint;
