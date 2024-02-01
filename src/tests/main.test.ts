@@ -51,6 +51,7 @@ describe("getOfferings", () => {
       id: "monthly",
       identifier: "monthly",
       normalPeriodDuration: "PT1H",
+      presentedOfferingIdentifier: "offering_1",
     },
   };
   test("can get offerings", async () => {
@@ -96,6 +97,7 @@ describe("getOfferings", () => {
                 id: "monthly_2",
                 identifier: "monthly_2",
                 normalPeriodDuration: "PT1H",
+                presentedOfferingIdentifier: "offering_2",
               },
             },
           },
@@ -155,6 +157,7 @@ describe("getOfferings", () => {
                 id: "monthly_2",
                 identifier: "monthly_2",
                 normalPeriodDuration: "PT1H",
+                presentedOfferingIdentifier: "offering_2",
               },
             },
           },
