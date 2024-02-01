@@ -18,10 +18,6 @@ import {
   OfferingsResponse,
   PackageResponse,
 } from "./networking/responses/offerings-response";
-import {
-  BrandingInfoResponse,
-  toBrandingInfoResponse,
-} from "./networking/responses/branding-response";
 import { ProductsResponse } from "./networking/responses/products-response";
 import { EntitlementResponse } from "./networking/responses/entitlements-response";
 import { RC_ENDPOINT } from "./helpers/constants";
@@ -142,12 +138,6 @@ export class Purchases {
       (ent: EntitlementResponse) => ent.lookup_key,
     );
     return entitlements.includes(entitlementIdentifier);
-  }
-
-  // @internal
-  public async getBrandingInfo(): Promise<BrandingInfoResponse> {
-    const rawResponse = await this.backend.getBrandingInfo();
-    return toBrandingInfoResponse(rawResponse);
   }
 
   public purchasePackage(

@@ -13,6 +13,7 @@
   import { Backend } from "../networking/backend";
   import { BrandingInfoResponse } from "../entities/types";
   import { SubscribeResponse } from "../networking/responses/subscribe-response";
+  import { toBrandingInfoResponse } from "../networking/responses/branding-response";
 
 
   export let asModal = true;
@@ -48,7 +49,7 @@
 
   onMount(async () => {
     productDetails = rcPackage.rcBillingProduct;
-    brandingInfo = await purchases.getBrandingInfo();
+    brandingInfo = await backend.getBrandingInfo();
 
     if (state === "present-offer") {
       if (customerEmail) {
