@@ -6,7 +6,7 @@ import {
   GetEntitlementsEndpoint,
   GetOfferingsEndpoint,
   GetProductsEndpoint,
-  SubscribeEndpoint
+  SubscribeEndpoint,
 } from "./endpoints";
 import { SubscriberResponse } from "./responses/subscriber-response";
 import { SubscribeResponse } from "./responses/subscribe-response";
