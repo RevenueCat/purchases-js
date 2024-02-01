@@ -4,12 +4,7 @@ import {
   Package as InnerPackage,
   toOffering,
 } from "./entities/offerings";
-import {
-  BrandingInfoResponse,
-  PaymentProviderSettings,
-  ServerResponse,
-  toBrandingInfoResponse,
-} from "./entities/types";
+import { PaymentProviderSettings, ServerResponse } from "./entities/types";
 import RCPurchasesUI from "./ui/rcb-ui.svelte";
 
 import {
@@ -23,6 +18,10 @@ import {
   OfferingsResponse,
   PackageResponse,
 } from "./networking/responses/offerings-response";
+import {
+  BrandingInfoResponse,
+  toBrandingInfoResponse,
+} from "./networking/responses/branding-response";
 import { ProductsResponse } from "./networking/responses/products-response";
 import { EntitlementResponse } from "./networking/responses/entitlements-response";
 import { RC_ENDPOINT } from "./helpers/constants";
