@@ -12,6 +12,7 @@
   import Shell from "./shell.svelte";
   import { Backend } from "../networking/backend";
   import { SubscribeResponse } from "../networking/responses/subscribe-response";
+  import { BrandingInfoResponse } from "../networking/responses/branding-response";
 
 
   export let asModal = true;
