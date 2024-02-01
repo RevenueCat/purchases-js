@@ -3,7 +3,7 @@ import "./App.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import PaywallPage from "./pages/paywall";
 
-import { Purchases } from "@revenuecat/purchases-js";
+import { Purchases, CustomerInfo } from "@revenuecat/purchases-js";
 import AppUserIdForm from "./components/AppUserIdForm";
 import WithEntitlement from "./components/WithEntitlement";
 import CatServices from "./pages/catServices";
@@ -44,6 +44,15 @@ const onAlreadyEntitled = () => {
 
 function App() {
   const appUserId = localStorage.getItem("appUserId") || "someUserMario";
+  purchases.getCustomerInfo(appUserId).then((customerInfo: CustomerInfo) => {
+    console.log(
+      `CustomerInfo for user ${appUserId}: ${JSON.stringify(
+        customerInfo,
+        null,
+        2,
+      )}`,
+    );
+  });
 
   return (
     <>

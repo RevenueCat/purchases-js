@@ -1,7 +1,7 @@
 {
   "name": "rcbilling-demo",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,6 +9,7 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "test": "vitest",
+    "test:ci": "(vite &) && sleep 5 && vitest",
     "prettier": "prettier --write .",
     "prettier:ci": "prettier --check ."
   },
@@ -30,6 +31,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.3",
     "prettier": "^3.1.0",
+    "puppeteer": "^21.7.0",
     "typescript": "^5.0.2",
     "vite": "^4.4.5"
   }

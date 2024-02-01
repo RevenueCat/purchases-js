@@ -1,4 +1,4 @@
-import { defineConfig } from "vitest/config";
+import { configDefaults, defineConfig } from "vitest/config";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 
 export default defineConfig({
@@ -32,6 +32,7 @@ export default defineConfig({
 
     // Other configurations like shims for APIs or polyfills can also be included
     // ...
+    exclude: [...configDefaults.exclude, "examples/**"],
   },
 
   // If you need to define other Vite configurations, they can go here

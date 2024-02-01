@@ -1,30 +1,35 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import { Package, Purchases } from "../main";
   import SandboxBanner from "./sandbox-banner.svelte";
-  import { Purchases, Package } from "../main";
   import StatePresentOffer from "./states/state-present-offer.svelte";
   import StateLoading from "./states/state-loading.svelte";
   import StateError from "./states/state-error.svelte";
   import StateSuccess from "./states/state-success.svelte";
   import StateNeedsPaymentInfo from "./states/state-needs-payment-info.svelte";
   import StateNeedsAuthInfo from "./states/state-needs-auth-info.svelte";
-  import { SubscribeResponse } from "../entities/subscribe-response";
   import ConditionalFullScreen from "./conditional-full-screen.svelte";
   import Shell from "./shell.svelte";
+  import { Backend } from "../networking/backend";
   import { BrandingInfoResponse } from "../entities/types";
+  import { SubscribeResponse } from "../networking/responses/subscribe-response";
+
 
   export let asModal = true;
   export let customerEmail: string | undefined;
   export let appUserId: string;
   export let rcPackage: Package;
   export let onFinished: () => void;
+  export let onClose: () => void;
   export let purchases: Purchases;
-  export let environment: "sandbox" | "production" = "sandbox";
+  export let backend: Backend;
 
   let productDetails: any = null;
   let brandingInfo: BrandingInfoResponse | null = null;
   let paymentInfoCollectionMetadata: SubscribeResponse | null = null;
   const productId = rcPackage.rcBillingProduct?.id ?? null;
+
+
 
   let state:
     | "present-offer"
@@ -57,7 +62,7 @@
   });
 
   const handleClose = () => {
-    onFinished();
+    onClose();
   };
 
   const handleSubscribe = () => {
@@ -68,10 +73,9 @@
       state = "loading";
     }
 
-    purchases
-      .subscribe(appUserId, productId, customerEmail, environment)
+    backend.postSubscribe(appUserId, productId, customerEmail)
       .then((result) => {
-        if (result.nextAction === "collect_payment_info") {
+        if (result.next_action === "collect_payment_info") {
           state = "needs-payment-info";
           paymentInfoCollectionMetadata = result;
           return;
@@ -121,7 +125,7 @@
               <StatePresentOffer {productDetails} />
             {/if}
           </Shell>
-          {#if environment === "sandbox"}
+          {#if purchases.isSandbox()}
             <SandboxBanner />
           {/if}
         </div>

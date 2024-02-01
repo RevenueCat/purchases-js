@@ -18,13 +18,13 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
-    "skipLibCheck": true
+    "skipLibCheck": true,
   },
   "include": [
     "./src/**/*.ts",
     "global.d.ts",
     "./src/**/*.svelte",
-    "src/main.test.tsx"
+    "src/main.test.tsx",
   ],
-  "exclude": ["node_modules", "*.test.ts"]
+  "exclude": ["node_modules", "./src/tests", "./**/*.test.ts"],
 }

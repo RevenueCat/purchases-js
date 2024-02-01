@@ -16,7 +16,7 @@ export interface Product {
 export interface Package {
   id: string;
   identifier: string;
-  rcBillingProduct: Product | null;
+  rcBillingProduct: Product;
 }
 
 export interface Offering {
@@ -26,7 +26,7 @@ export interface Offering {
   packages: Package[];
 }
 
-export interface OfferingsPage {
+export interface Offerings {
   all: { [offeringId: string]: Offering };
   current: Offering | null;
 }
@@ -53,27 +53,30 @@ export const toProduct = (productDetailsData: ServerResponse): Product => {
 export const toPackage = (
   packageData: ServerResponse,
   productDetailsData: ServerResponse,
-): Package => {
+): Package | null => {
   const rcBillingProduct =
     productDetailsData[packageData.platform_product_identifier];
+  if (rcBillingProduct === undefined) return null;
 
   return {
     id: packageData.identifier,
     identifier: packageData.identifier,
-    rcBillingProduct: rcBillingProduct ? toProduct(rcBillingProduct) : null,
+    rcBillingProduct: toProduct(rcBillingProduct),
   };
 };
 
 export const toOffering = (
   offeringsData: ServerResponse,
   productDetailsData: ServerResponse,
-): Offering => {
+): Offering | null => {
+  const packages = offeringsData.packages
+    .map((p: ServerResponse) => toPackage(p, productDetailsData))
+    .filter((p: Package | null) => p != null);
+  if (packages.length == 0) return null;
   return {
     id: offeringsData.identifier,
     identifier: offeringsData.identifier,
     displayName: offeringsData.description,
-    packages: offeringsData.packages.map((p: ServerResponse) =>
-      toPackage(p, productDetailsData),
-    ),
+    packages: packages,
   };
 };

@@ -1,5 +1,11 @@
-import { OfferingsPage, Package, Purchases } from "@revenuecat/purchases-js";
+import {
+  Offerings,
+  Package,
+  PurchasesError,
+  Purchases,
+} from "@revenuecat/purchases-js";
 import React, { useEffect, useState } from "react";
+import { catServicesEntitlementId } from "../../App.tsx";
 
 interface IPackageCardProps {
   pkg: Package;
@@ -53,11 +59,11 @@ interface IPaywallPageProps {
 }
 
 const PaywallPage: React.FC<IPaywallPageProps> = ({ purchases, appUserId }) => {
-  const [offerings, setOfferings] = useState<OfferingsPage | null>(null);
+  const [offerings, setOfferings] = useState<Offerings | null>(null);
 
   useEffect(() => {
-    purchases.listOfferings(appUserId).then((offeringsPage) => {
-      setOfferings(offeringsPage);
+    purchases.getOfferings(appUserId).then((offerings) => {
+      setOfferings(offerings);
     });
   }, [purchases, appUserId]);
 
@@ -76,11 +82,25 @@ const PaywallPage: React.FC<IPaywallPageProps> = ({ purchases, appUserId }) => {
     }
 
     // How do we complete the purchase?
-    await purchases.purchasePackage(appUserId, pkg, {
-      environment: "sandbox",
-    });
+    try {
+      const { customerInfo } = await purchases.purchasePackage(
+        appUserId,
+        pkg,
+        catServicesEntitlementId,
+      );
 
-    window.location.href = "/success";
+      console.log(`CustomerInfo after purchase: ${customerInfo}`);
+
+      window.location.href = "/success";
+    } catch (e) {
+      if (e instanceof PurchasesError) {
+        console.log(`Error performing purchase: ${e}`);
+        // TODO: We should display an error here.
+        window.location.href = "/";
+      } else {
+        console.error(`Unknown error: ${e}`);
+      }
+    }
   };
 
   console.log(packages);

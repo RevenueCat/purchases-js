@@ -1,13 +1,9 @@
 import {
   Offering as InnerOffering,
-  OfferingsPage as InnerOfferingsPage,
+  Offerings as InnerOfferings,
   Package as InnerPackage,
   toOffering,
 } from "./entities/offerings";
-import {
-  SubscribeResponse,
-  toSubscribeResponse,
-} from "./entities/subscribe-response";
 import {
   BrandingInfoResponse,
   PaymentProviderSettings,
@@ -16,32 +12,42 @@ import {
 } from "./entities/types";
 import RCPurchasesUI from "./ui/rcb-ui.svelte";
 
-import { StatusCodes } from "http-status-codes";
 import {
-  AlreadySubscribedError,
-  ConcurrentSubscriberAttributeUpdateError,
-  InvalidInputDataError,
-  PaymentGatewayError,
-  UnknownServerError,
-} from "./entities/errors";
+  CustomerInfo as InnerCustomerInfo,
+  toCustomerInfo,
+} from "./entities/customer-info";
+import { waitForEntitlement } from "./helpers/entitlement-checking-helper";
+import { ErrorCode, PurchasesError } from "./entities/errors";
+import {
+  OfferingResponse,
+  OfferingsResponse,
+  PackageResponse,
+} from "./networking/responses/offerings-response";
+import { ProductsResponse } from "./networking/responses/products-response";
+import { EntitlementResponse } from "./networking/responses/entitlements-response";
+import { RC_ENDPOINT } from "./helpers/constants";
+import { Backend } from "./networking/backend";
+import { isSandboxApiKey } from "./helpers/api-key-helper";
 
-export type OfferingsPage = InnerOfferingsPage;
+export type Offerings = InnerOfferings;
 export type Offering = InnerOffering;
 export type Package = InnerPackage;
-
-const VERSION = "0.0.8";
+export type CustomerInfo = InnerCustomerInfo;
+export type {
+  EntitlementInfos,
+  EntitlementInfo,
+} from "./entities/customer-info";
+export { ErrorCode, PurchasesError } from "./entities/errors";
 
 export class Purchases {
   // @internal
-  _API_KEY: string | null = null;
+  _API_KEY: string;
   // @internal
   _APP_USER_ID: string | null = null;
   // @internal
   _PAYMENT_PROVIDER_SETTINGS: PaymentProviderSettings | null = null;
 
-  private static readonly _RC_ENDPOINT = import.meta.env
-    .VITE_RC_ENDPOINT as string;
-  private static readonly _BASE_PATH = "rcbilling/v1";
+  private readonly backend: Backend;
 
   constructor(
     apiKey: string,
@@ -50,7 +56,7 @@ export class Purchases {
     this._API_KEY = apiKey;
     this._PAYMENT_PROVIDER_SETTINGS = paymentProviderSettings;
 
-    if (Purchases._RC_ENDPOINT === undefined) {
+    if (RC_ENDPOINT === undefined) {
       console.error(
         "Project was build without some of the environment variables set",
       );
@@ -67,15 +73,17 @@ export class Purchases {
         "Project was build without the stripe payment provider settings set",
       );
     }
+
+    this.backend = new Backend(this._API_KEY);
   }
 
-  private toOfferingsPage = (
-    offeringsData: ServerResponse,
-    productsData: ServerResponse,
-  ): OfferingsPage => {
+  private toOfferings = (
+    offeringsData: OfferingsResponse,
+    productsData: ProductsResponse,
+  ): Offerings => {
     const currentOfferingServerResponse =
       offeringsData.offerings.find(
-        (o: ServerResponse) =>
+        (o: OfferingResponse) =>
           o.identifier === offeringsData.current_offering_id,
       ) ?? null;
 
@@ -90,10 +98,19 @@ export class Purchases {
         : toOffering(currentOfferingServerResponse, productsMap);
 
     const allOfferings: { [offeringId: string]: Offering } = {};
-    offeringsData.offerings.forEach(
-      (o: ServerResponse) =>
-        (allOfferings[o.identifier] = toOffering(o, productsMap)),
-    );
+    offeringsData.offerings.forEach((o: ServerResponse) => {
+      const offering = toOffering(o, productsMap);
+      if (offering != null) {
+        allOfferings[o.identifier] = offering;
+      }
+    });
+
+    if (Object.keys(allOfferings).length == 0) {
+      console.debug(
+        "Empty offerings. Please make sure you've configured offerings correctly in the " +
+          "RevenueCat dashboard and that the products are properly configured.",
+      );
+    }
 
     return {
       all: allOfferings,
@@ -101,215 +118,51 @@ export class Purchases {
     };
   };
 
-  public async listOfferings(appUserId: string): Promise<OfferingsPage> {
-    const offeringsResponse = await fetch(
-      `${Purchases._RC_ENDPOINT}/v1/subscribers/${appUserId}/offerings`,
-      {
-        headers: {
-          Authorization: `Bearer ${this._API_KEY}`,
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          "X-Platform": "web",
-          "X-Version": VERSION,
-        },
-      },
-    );
-    const offeringsData = await offeringsResponse.json();
-    const productIds = offeringsData.offerings
-      .flatMap((o: ServerResponse) => o.packages)
-      .map((p: ServerResponse) => p.platform_product_identifier);
+  public async getOfferings(appUserId: string): Promise<Offerings> {
+    const offeringsResponse = await this.backend.getOfferings(appUserId);
+    const productIds = offeringsResponse.offerings
+      .flatMap((o: OfferingResponse) => o.packages)
+      .map((p: PackageResponse) => p.platform_product_identifier);
 
-    const productsResponse = await fetch(
-      `${Purchases._RC_ENDPOINT}/${
-        Purchases._BASE_PATH
-      }/subscribers/${appUserId}/products?id=${productIds.join("&id=")}`,
-      {
-        headers: {
-          Authorization: `Bearer ${this._API_KEY}`,
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          "X-Platform": "web",
-          "X-Version": VERSION,
-        },
-      },
+    const productsResponse = await this.backend.getProducts(
+      appUserId,
+      productIds,
     );
 
-    const productsData = await productsResponse.json();
-    this.logMissingProductIds(productIds, productsData.product_details);
-    return this.toOfferingsPage(offeringsData, productsData);
+    this.logMissingProductIds(productIds, productsResponse.product_details);
+    return this.toOfferings(offeringsResponse, productsResponse);
   }
 
   public async isEntitledTo(
     appUserId: string,
     entitlementIdentifier: string,
   ): Promise<boolean> {
-    const response = await fetch(
-      `${Purchases._RC_ENDPOINT}/${Purchases._BASE_PATH}/entitlements/${appUserId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${this._API_KEY}`,
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-      },
-    );
+    const entitlementsResponse = await this.backend.getEntitlements(appUserId);
 
-    const status = response.status;
-    if (status === 404) {
-      return false;
-    }
-
-    const data = await response.json();
-    const entitlements = data.entitlements.map(
-      (ent: ServerResponse) => ent.lookup_key,
+    const entitlements = entitlementsResponse.entitlements.map(
+      (ent: EntitlementResponse) => ent.lookup_key,
     );
     return entitlements.includes(entitlementIdentifier);
   }
 
-  public waitForEntitlement(
-    appUserId: string,
-    entitlementIdentifier: string,
-    maxAttempts: number = 10,
-  ): Promise<boolean> {
-    const waitMSBetweenAttempts = 1000;
-    return new Promise<boolean>((resolve, reject) => {
-      const checkForEntitlement = (checkCount = 1) =>
-        this.isEntitledTo(appUserId, entitlementIdentifier)
-          .then((hasEntitlement) => {
-            if (checkCount > maxAttempts) {
-              return resolve(false);
-            }
-
-            if (hasEntitlement) {
-              return resolve(true);
-            } else {
-              setTimeout(
-                () => checkForEntitlement(checkCount + 1),
-                waitMSBetweenAttempts,
-              );
-            }
-          })
-          .catch(reject);
-
-      checkForEntitlement();
-    });
-  }
-
-  public async subscribe(
-    appUserId: string,
-    productId: string,
-    email: string,
-    environment: "sandbox" | "production" = "production",
-  ): Promise<SubscribeResponse> {
-    const isSandbox = environment === "sandbox";
-    const response = await fetch(
-      `${Purchases._RC_ENDPOINT}/${Purchases._BASE_PATH}/subscribe`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${this._API_KEY}`,
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          app_user_id: appUserId,
-          product_id: productId,
-          is_sandbox: isSandbox,
-          email,
-        }),
-      },
-    );
-
-    if (response.status === StatusCodes.BAD_REQUEST) {
-      throw new InvalidInputDataError(response.status);
-    }
-
-    if (response.status === StatusCodes.TOO_MANY_REQUESTS) {
-      throw new ConcurrentSubscriberAttributeUpdateError(response.status);
-    }
-
-    if (response.status === StatusCodes.CONFLICT) {
-      throw new AlreadySubscribedError(response.status);
-    }
-
-    if (response.status === StatusCodes.INTERNAL_SERVER_ERROR) {
-      throw new PaymentGatewayError(response.status);
-    }
-
-    if (
-      response.status === StatusCodes.OK ||
-      response.status === StatusCodes.CREATED
-    ) {
-      const data = await response.json();
-      return toSubscribeResponse(data);
-    }
-
-    throw new UnknownServerError();
-  }
-
   // @internal
   public async getBrandingInfo(): Promise<BrandingInfoResponse> {
-    const response = await fetch(
-      `${Purchases._RC_ENDPOINT}/${Purchases._BASE_PATH}/branding`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${this._API_KEY}`,
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-      },
-    );
-
-    if (response.status === StatusCodes.BAD_REQUEST) {
-      throw new InvalidInputDataError(response.status);
-    }
-
-    if (response.status === StatusCodes.INTERNAL_SERVER_ERROR) {
-      throw new PaymentGatewayError(response.status);
-    }
-
-    if (response.status === StatusCodes.OK) {
-      const data = await response.json();
-      return toBrandingInfoResponse(data);
-    }
-
-    throw new UnknownServerError();
-  }
-
-  public async getPackage(
-    appUserId: string,
-    packageIdentifier: string,
-  ): Promise<Package | null> {
-    const offeringsPage = await this.listOfferings(appUserId);
-    const packages: Package[] = [];
-    Object.values(offeringsPage.all).forEach((offering) =>
-      packages.push(...offering.packages),
-    );
-
-    const filteredPackages: Package[] = packages.filter(
-      (pakg) => pakg.identifier === packageIdentifier,
-    );
-    if (filteredPackages.length === 0) {
-      return null;
-    }
-
-    return filteredPackages[0];
+    const rawResponse = await this.backend.getBrandingInfo();
+    return toBrandingInfoResponse(rawResponse);
   }
 
   public purchasePackage(
     appUserId: string,
     rcPackage: Package,
+    entitlementId: string, // TODO: Remove this parameter once we don't have to poll for entitlements
     {
-      environment,
       customerEmail,
       htmlTarget,
     }: {
-      environment?: "sandbox" | "production";
       customerEmail?: string;
       htmlTarget?: HTMLElement;
-    } = { environment: "production" },
-  ): Promise<void> {
+    } = {},
+  ): Promise<{ customerInfo: CustomerInfo }> {
     let resolvedHTMLTarget =
       htmlTarget ?? document.getElementById("rcb-ui-root");
 
@@ -330,23 +183,48 @@ export class Purchases {
 
     const asModal = !Boolean(htmlTarget);
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       new RCPurchasesUI({
         target: certainHTMLTarget,
         props: {
           appUserId,
           rcPackage,
-          environment,
           customerEmail,
-          onFinished: () => {
-            resolve();
+          onFinished: async () => {
+            const hasEntitlement = await waitForEntitlement(
+              this,
+              appUserId,
+              entitlementId,
+            );
             certainHTMLTarget.innerHTML = "";
+            if (hasEntitlement) {
+              // TODO: Add info about transaction in result.
+              resolve({ customerInfo: await this.getCustomerInfo(appUserId) });
+            } else {
+              reject(
+                new PurchasesError(
+                  ErrorCode.UnknownError,
+                  "Did not get entitlement after polling.",
+                ),
+              );
+            }
+          },
+          onClose: () => {
+            certainHTMLTarget.innerHTML = "";
+            reject(new PurchasesError(ErrorCode.UserCancelledError));
           },
           purchases: this,
+          backend: this.backend,
           asModal,
         },
       });
     });
+  }
+
+  public async getCustomerInfo(appUserId: string): Promise<CustomerInfo> {
+    const subscriberResponse = await this.backend.getCustomerInfo(appUserId);
+
+    return toCustomerInfo(subscriberResponse);
   }
 
   private logMissingProductIds(
@@ -364,11 +242,15 @@ export class Purchases {
       }
     });
     if (missingProductIds.length > 0) {
-      console.log(
+      console.debug(
         "Could not find product data for product ids: ",
         missingProductIds,
         ". Please check that your product configuration is correct.",
       );
     }
+  }
+
+  public isSandbox(): boolean {
+    return isSandboxApiKey(this._API_KEY);
   }
 }

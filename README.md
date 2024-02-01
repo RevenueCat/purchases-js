@@ -57,10 +57,11 @@ associated `rcBillingProduct` and price.
 ```typescript
 const purchases = new Purchases("your RC_PUBLISHABLE_API_KEY");
 
-purchases.listOfferings().then((offeringsPage) => {
-  offeringsPage.offerings.forEach((offering) => {
-    console.log(offering);
-  });
+purchases.getOfferings().then((offerings) => {
+  // Get current offering
+  console.log(offerings.current);
+  // Or a dictionary of all offerings
+  console.log(offerings.all);
 });
 ```
 
@@ -140,7 +141,7 @@ You built your paywall, and your user just clicked on the offer they want to sub
 ```tsx
 const purchases = new Purchases("your RC_PUBLISHABLE_API_KEY");
 // You can retrieve this from the offerings you downloaded, as example:
-// offeringsPage.offerings[0].packages[0].rcBillingProduct.identifier
+// offerings.current.packages[0].rcBillingProduct.identifier
 const rcBillingProductIndentifier =
   "the Product Identifier the user wants to buy";
 const appUserId =

@@ -66,3 +66,48 @@ jobs:
         displayName: "Publish to npm"
         env:
           NODE_AUTH_TOKEN: $(NpmAuthToken)
+
+  - job: RunRCBillingDemoTests
+    displayName: "Run RC Billing demo tests"
+    steps:
+      - task: NodeTool@0
+        inputs:
+          versionSpec: "18.x"
+        displayName: "Install Node.js"
+
+      - task: Cache@2
+        inputs:
+          key: 'npm | "$(Agent.OS)" | package-lock.json'
+          restoreKeys: 'npm | "$(Agent.OS)"'
+          path: $(npm_config_cache)
+        displayName: "Cache npm"
+
+      - script: npm ci
+        displayName: "Install dependencies"
+
+      - script: npm run build
+        displayName: "Build SDK"
+
+      - script: npm ci
+        workingDirectory: "examples/rcbilling-demo"
+        displayName: "Install dependencies rcbilling-demo"
+
+      - script: npm run lint
+        workingDirectory: "examples/rcbilling-demo"
+        displayName: Linting rcbilling-demo
+
+      - script: npm run prettier:ci
+        workingDirectory: "examples/rcbilling-demo"
+        displayName: Prettier rcbilling-demo
+
+      - script: npm run build
+        workingDirectory: "examples/rcbilling-demo"
+        displayName: "Build rcbilling-demo"
+
+      - script: npm run test:ci
+        workingDirectory: "examples/rcbilling-demo"
+        displayName: E2E tests rcbilling-demo
+        env:
+          VITE_RC_STRIPE_PK_KEY: $(VITE_RC_STRIPE_PK_KEY)
+          VITE_RC_STRIPE_ACCOUNT_ID: $(VITE_RC_STRIPE_ACCOUNT_ID)
+          VITE_RC_API_KEY: $(VITE_RC_API_KEY)
