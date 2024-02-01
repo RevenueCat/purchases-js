@@ -74,6 +74,12 @@
       state = "loading";
     }
 
+    if (!customerEmail) {
+      state = "error";
+      console.debug("Customer email was not set before purchase.");
+      return;
+    }
+
     backend.postSubscribe(appUserId, productId, customerEmail)
       .then((result) => {
         if (result.next_action === "collect_payment_info") {
@@ -135,8 +141,6 @@
         {#if state === "present-offer" && productDetails}
           <StatePresentOffer
             {productDetails}
-            onContinue={handleContinue}
-            onClose={handleClose}
           />
         {/if}
         {#if state === "present-offer" && !productDetails}
@@ -144,10 +148,7 @@
         {/if}
         {#if state === "needs-auth-info"}
           <StateNeedsAuthInfo
-            {purchases}
             onContinue={handleContinue}
-            onClose={handleClose}
-            onError={handleError}
           />
         {/if}
         {#if state === "needs-payment-info" && paymentInfoCollectionMetadata}

@@ -71,9 +71,20 @@ const PaywallPage: React.FC<IPaywallPageProps> = ({ purchases, appUserId }) => {
     return null;
   }
 
-  const packages: Package[] = offerings.current?.packages ?? [];
+  const packages: Package[] = [];
+  const currentOffering = offerings.current;
+  if (!currentOffering) {
+    console.error("No current offering found");
+    return;
+  }
+  for (const packageId in currentOffering.packages) {
+    const rcPackage = currentOffering.packages[packageId];
+    if (rcPackage) {
+      packages.push(rcPackage);
+    }
+  }
   if (packages.length == 0) {
-    console.log("No current offering or packages found");
+    console.error("No packages found in current offering.");
   }
 
   const onPackageCardClicked = async (pkg: Package) => {

@@ -1,13 +1,9 @@
 <script lang="ts">
-  import { Purchases } from "../../main";
   import Button from "../button.svelte";
   import ModalFooter from "../modal-footer.svelte";
   import ModalSection from "../modal-section.svelte";
 
-  export let onClose: any;
   export let onContinue: any;
-  export let onError: any;
-  export let purchases: Purchases;
 
   $: email = "";
 
