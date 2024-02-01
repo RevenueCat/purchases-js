@@ -28,6 +28,7 @@
     "lint": "eslint . --ext .ts",
     "format": "eslint . --ext .ts --fix",
     "test": "vitest",
+    "test:typeCheck": "tsc --project tsconfig.test.json",
     "prettier": "prettier --write .",
     "prettier:ci": "prettier --check .",
     "storybook": "storybook dev -p 6006",
