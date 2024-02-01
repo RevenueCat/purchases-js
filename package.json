@@ -30,6 +30,7 @@
     "test": "vitest",
     "prettier": "prettier --write .",
     "prettier:ci": "prettier --check .",
+    "svelte-check": "svelte-check",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
@@ -59,6 +60,7 @@
     "react-dom": "^18.2.0",
     "storybook": "^7.5.3",
     "svelte": "^4.2.7",
+    "svelte-check": "^3.6.3",
     "svelte-stripe": "^1.1.2",
     "typescript": "^5.2.2",
     "vite": "^5.0.0",
