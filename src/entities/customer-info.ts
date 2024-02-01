@@ -1,50 +1,56 @@
-import { ServerResponse } from "./types";
-import { SubscriberResponse } from "../networking/responses/subscriber-response";
+import {
+  SubscriberEntitlementResponse,
+  SubscriberResponse,
+} from "../networking/responses/subscriber-response";
 
 export interface EntitlementInfo {
-  identifier: string;
-  isActive: boolean;
-  originalPurchaseDate: Date;
-  expirationDate: Date;
-  productIdentifier: string;
+  readonly identifier: string;
+  readonly isActive: boolean;
+  readonly originalPurchaseDate: Date;
+  readonly expirationDate: Date | null;
+  readonly productIdentifier: string;
 }
 
 export interface EntitlementInfos {
-  all: { [entitlementId: string]: EntitlementInfo };
-  active: { [entitlementId: string]: EntitlementInfo };
+  readonly all: { [entitlementId: string]: EntitlementInfo };
+  readonly active: { [entitlementId: string]: EntitlementInfo };
 }
 
 export interface CustomerInfo {
-  entitlements: EntitlementInfos;
-  managementURL: string | null;
-  requestDate: Date;
-  firstSeenDate: Date;
-  originalPurchaseDate: Date | null;
+  readonly entitlements: EntitlementInfos;
+  readonly managementURL: string | null;
+  readonly requestDate: Date;
+  readonly firstSeenDate: Date;
+  readonly originalPurchaseDate: Date | null;
 }
 
-function isActive(entitlementInfoResponse: ServerResponse): boolean {
+function isActive(
+  entitlementInfoResponse: SubscriberEntitlementResponse,
+): boolean {
+  if (entitlementInfoResponse.expires_date == null) return true;
   const expirationDate = new Date(entitlementInfoResponse.expires_date);
   const currentDate = new Date();
-  // TODO: Consider giving a grace period if we end up caching this object.
   return expirationDate > currentDate;
 }
 
 function toEntitlementInfo(
   entitlementIdentifier: string,
-  entitlementInfoResponse: ServerResponse,
+  entitlementInfoResponse: SubscriberEntitlementResponse,
 ): EntitlementInfo {
   return {
     identifier: entitlementIdentifier,
     isActive: isActive(entitlementInfoResponse),
     originalPurchaseDate: new Date(entitlementInfoResponse.purchase_date),
-    expirationDate: new Date(entitlementInfoResponse.expires_date),
+    expirationDate: entitlementInfoResponse.expires_date
+      ? new Date(entitlementInfoResponse.expires_date)
+      : null,
     productIdentifier: entitlementInfoResponse.product_identifier,
   };
 }
 
-function toEntitlementInfos(
-  entitlementsResponse: ServerResponse,
-): EntitlementInfos {
+function toEntitlementInfos(entitlementsResponse: {
+  [entitlementId: string]: SubscriberEntitlementResponse;
+}): EntitlementInfos {
   const allEntitlementInfo: { [entitlementId: string]: EntitlementInfo } = {};
   const activeEntitlementInfo: { [entitlementId: string]: EntitlementInfo } =
     {};
