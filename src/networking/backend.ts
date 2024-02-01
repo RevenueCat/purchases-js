@@ -12,7 +12,7 @@ import { SubscriberResponse } from "./responses/subscriber-response";
 import { SubscribeResponse } from "./responses/subscribe-response";
 import { ProductsResponse } from "./responses/products-response";
 import { EntitlementsResponse } from "./responses/entitlements-response";
-import { BrandingInfoResponse } from "../entities/types";
+import { BrandingInfoResponse } from "./responses/branding-response";
 
 export class Backend {
   private readonly API_KEY: string;
