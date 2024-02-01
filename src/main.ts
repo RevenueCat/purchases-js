@@ -193,8 +193,8 @@ export class Purchases {
             certainHTMLTarget.innerHTML = "";
             reject(new PurchasesError(ErrorCode.UserCancelledError));
           },
+          purchases: this,
           purchaseHelper: this.purchaseHelper,
-          backend: this.backend,
           asModal,
         },
       });
