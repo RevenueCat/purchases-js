@@ -11,9 +11,7 @@
   import ConditionalFullScreen from "./conditional-full-screen.svelte";
   import Shell from "./shell.svelte";
   import { Backend } from "../networking/backend";
-  import { BrandingInfoResponse } from "../entities/types";
   import { SubscribeResponse } from "../networking/responses/subscribe-response";
-  import { toBrandingInfoResponse } from "../networking/responses/branding-response";
 
 
   export let asModal = true;
