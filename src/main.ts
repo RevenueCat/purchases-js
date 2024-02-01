@@ -34,16 +34,16 @@ export type CustomerInfo = InnerCustomerInfo;
 export type {
   EntitlementInfos,
   EntitlementInfo,
+  Store,
+  PeriodType,
 } from "./entities/customer-info";
 export { ErrorCode, PurchasesError } from "./entities/errors";
 
 export class Purchases {
   // @internal
-  _API_KEY: string;
+  readonly _API_KEY: string;
   // @internal
-  _APP_USER_ID: string | null = null;
-  // @internal
-  _PAYMENT_PROVIDER_SETTINGS: PaymentProviderSettings | null = null;
+  readonly _PAYMENT_PROVIDER_SETTINGS: PaymentProviderSettings | null = null;
 
   private readonly backend: Backend;
 

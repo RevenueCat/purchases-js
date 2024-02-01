@@ -1,8 +1,9 @@
 import { setupServer } from "msw/node";
 import { beforeAll, describe, expect, test } from "vitest";
-import { Purchases } from "../main";
+import { EntitlementInfo, Purchases } from "../main";
 import { getRequestHandlers } from "./test-responses";
 import { PackageType } from "../entities/offerings";
+import { CustomerInfo } from "../entities/customer-info";
 
 const STRIPE_TEST_DATA = {
   stripe: { accountId: "acct_123", publishableKey: "pk_123" },
@@ -208,22 +209,34 @@ describe("getOfferings", () => {
 test("can get customer info", async () => {
   const billing = new Purchases("test_api_key", STRIPE_TEST_DATA);
   const customerInfo = await billing.getCustomerInfo("someAppUserId");
-  const activeCatServicesEntitlementInfo = {
+  const activeCatServicesEntitlementInfo: EntitlementInfo = {
     identifier: "activeCatServices",
+    billingIssueDetectedAt: null,
     isActive: true,
+    isSandbox: false,
+    periodType: "normal",
     originalPurchaseDate: new Date("2023-12-19T16:48:42Z"),
     expirationDate: new Date("2053-12-20T16:48:42Z"),
     productIdentifier: "black_f_friday_worten",
+    store: "unknown",
+    unsubscribeDetectedAt: null,
+    willRenew: false,
   };
-  expect(customerInfo).toEqual({
+  const expectedCustomerInfo: CustomerInfo = {
     entitlements: {
       all: {
         expiredCatServices: {
           identifier: "expiredCatServices",
+          billingIssueDetectedAt: null,
           isActive: false,
+          isSandbox: false,
+          periodType: "normal",
           originalPurchaseDate: new Date("2023-12-19T16:48:42Z"),
           expirationDate: new Date("2023-12-20T16:48:42Z"),
           productIdentifier: "black_f_friday_worten_2",
+          store: "unknown",
+          unsubscribeDetectedAt: null,
+          willRenew: false,
         },
         activeCatServices: activeCatServicesEntitlementInfo,
       },
@@ -231,9 +244,20 @@ test("can get customer info", async () => {
         activeCatServices: activeCatServicesEntitlementInfo,
       },
     },
+    activeSubscriptions: new Set(["black_f_friday_worten"]),
+    allExpirationDatesByProduct: {
+      black_f_friday_worten: new Date("2054-01-22T16:48:42.000Z"),
+      black_f_friday_worten_2: new Date("2024-01-22T16:48:42.000Z"),
+    },
+    allPurchaseDatesByProduct: {
+      black_f_friday_worten: new Date("2024-01-21T16:48:42.000Z"),
+      black_f_friday_worten_2: new Date("2024-01-21T16:48:42.000Z"),
+    },
     managementURL: "https://test-management-url.revenuecat.com",
+    originalAppUserId: "someAppUserId",
     requestDate: new Date("2024-01-22T13:23:07Z"),
     firstSeenDate: new Date("2023-11-20T16:48:29Z"),
     originalPurchaseDate: null,
-  });
+  };
+  expect(customerInfo).toEqual(expectedCustomerInfo);
 });
