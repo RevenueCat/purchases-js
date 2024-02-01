@@ -62,7 +62,7 @@ export const toProduct = (productDetailsData: ProductResponse): Product => {
     id: productDetailsData.identifier,
     identifier: productDetailsData.identifier,
     displayName: productDetailsData.title,
-    currentPrice: productDetailsData.current_price,
+    currentPrice: productDetailsData.current_price as Price,
     normalPeriodDuration: productDetailsData.normal_period_duration,
   };
 };
