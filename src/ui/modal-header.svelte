@@ -13,7 +13,9 @@
   <div class="rcb-header-layout">
     <div class="rcb-header-layout__business-info">
       {#if brandingInfo !== null}
-        <AppIcon src={buildAssetURL(brandingInfo.app_icon_webp)} />
+        {#if brandingInfo.app_icon_webp !== null}
+          <AppIcon src={buildAssetURL(brandingInfo.app_icon_webp)} />
+        {/if}
         <span class="app-title">{brandingInfo.seller_company_name}</span>
       {:else}
         <AppIcon />
