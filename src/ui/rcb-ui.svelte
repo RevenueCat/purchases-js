@@ -11,6 +11,7 @@
   import { SubscribeResponse } from "../entities/subscribe-response";
   import ConditionalFullScreen from "./conditional-full-screen.svelte";
   import Shell from "./shell.svelte";
+  import { BrandingInfoResponse } from "../entities/types";
 
   export let asModal = true;
   export let customerEmail: string | undefined;
@@ -21,6 +22,7 @@
   export let environment: "sandbox" | "production" = "sandbox";
 
   let productDetails: any = null;
+  let brandingInfo: BrandingInfoResponse | null = null;
   let paymentInfoCollectionMetadata: SubscribeResponse | null = null;
   const productId = rcPackage.rcBillingProduct?.id ?? null;
 
@@ -36,11 +38,12 @@
     "present-offer",
     "needs-auth-info",
     "needs-payment-info",
-    "loading",
+    "loading"
   ];
 
   onMount(async () => {
     productDetails = rcPackage.rcBillingProduct;
+    brandingInfo = await purchases.getBrandingInfo();
 
     if (state === "present-offer") {
       if (customerEmail) {
@@ -113,13 +116,9 @@
     <div class="rcb-ui-layout">
       {#if statesWhereOfferDetailsAreShown.includes(state)}
         <div class="rcb-ui-aside">
-          <Shell dark title="OpenScratches, Inc.">
+          <Shell dark showHeader {brandingInfo}>
             {#if productDetails}
-              <StatePresentOffer
-                {productDetails}
-                onContinue={handleContinue}
-                onClose={handleClose}
-              />
+              <StatePresentOffer {productDetails} />
             {/if}
           </Shell>
           {#if environment === "sandbox"}
@@ -170,46 +169,45 @@
 </div>
 
 <style>
-  .rcb-ui-container {
-    color-scheme: none;
-    font-family:
-      "PP Object Sans",
-      -apple-system,
-      BlinkMacSystemFont,
-      avenir next,
-      avenir,
-      segoe ui,
-      helvetica neue,
-      helvetica,
-      Cantarell,
-      Ubuntu,
-      roboto,
-      noto,
-      arial,
-      sans-serif;
-  }
+    .rcb-ui-container {
+        color-scheme: none;
+        font-family: "PP Object Sans",
+        -apple-system,
+        BlinkMacSystemFont,
+        avenir next,
+        avenir,
+        segoe ui,
+        helvetica neue,
+        helvetica,
+        Cantarell,
+        Ubuntu,
+        roboto,
+        noto,
+        arial,
+        sans-serif;
+    }
 
-  .rcb-ui-layout {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-  }
-
-  .rcb-ui-aside {
-    margin-right: 1rem;
-  }
-
-  @media screen and (max-width: 60rem) {
     .rcb-ui-layout {
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-end;
-      height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
     }
 
     .rcb-ui-aside {
-      margin-right: 0;
-      margin-bottom: 1rem;
+        margin-right: 1rem;
     }
-  }
+
+    @media screen and (max-width: 60rem) {
+        .rcb-ui-layout {
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            height: 100%;
+        }
+
+        .rcb-ui-aside {
+            margin-right: 0;
+            margin-bottom: 1rem;
+        }
+    }
 </style>

@@ -8,7 +8,12 @@ import {
   SubscribeResponse,
   toSubscribeResponse,
 } from "./entities/subscribe-response";
-import { PaymentProviderSettings, ServerResponse } from "./entities/types";
+import {
+  BrandingInfoResponse,
+  PaymentProviderSettings,
+  ServerResponse,
+  toBrandingInfoResponse,
+} from "./entities/types";
 import RCPurchasesUI from "./ui/rcb-ui.svelte";
 
 import { StatusCodes } from "http-status-codes";
@@ -237,6 +242,36 @@ export class Purchases {
     ) {
       const data = await response.json();
       return toSubscribeResponse(data);
+    }
+
+    throw new UnknownServerError();
+  }
+
+  // @internal
+  public async getBrandingInfo(): Promise<BrandingInfoResponse> {
+    const response = await fetch(
+      `${Purchases._RC_ENDPOINT}/${Purchases._BASE_PATH}/branding`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${this._API_KEY}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      },
+    );
+
+    if (response.status === StatusCodes.BAD_REQUEST) {
+      throw new InvalidInputDataError(response.status);
+    }
+
+    if (response.status === StatusCodes.INTERNAL_SERVER_ERROR) {
+      throw new PaymentGatewayError(response.status);
+    }
+
+    if (response.status === StatusCodes.OK) {
+      const data = await response.json();
+      return toBrandingInfoResponse(data);
     }
 
     throw new UnknownServerError();

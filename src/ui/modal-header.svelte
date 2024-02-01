@@ -2,15 +2,21 @@
   import ModalSection from "./modal-section.svelte";
   import AppIcon from "./app-icon.svelte";
   import IconCart from "./assets/icon-cart.svelte";
+  import { BrandingInfoResponse } from "../entities/types";
 
   export let title = "";
+  export let brandingInfo: BrandingInfoResponse | null = null;
 </script>
 
 <ModalSection as="header">
   <div class="rcb-header-layout">
     <div class="rcb-header-layout__business-info">
-      <AppIcon />
-      <span class="app-title">{title}</span>
+      {#if brandingInfo !== null}
+        <AppIcon src={brandingInfo.appIconWebp} />
+        <span class="app-title">{brandingInfo.sellerCompanyName}</span>
+      {:else}
+        <AppIcon />
+      {/if}
     </div>
     <IconCart />
   </div>
