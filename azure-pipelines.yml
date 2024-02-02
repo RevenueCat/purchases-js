@@ -50,6 +50,9 @@ jobs:
       - script: npm run test:typeCheck
         displayName: Type checker including tests
 
+      - script: npm run svelte-check
+        displayName: Svelte check
+
       - script: npm run test
         displayName: Unit tests
 

@@ -79,9 +79,19 @@ export class GetEntitlementsEndpoint implements Endpoint {
   }
 }
 
+export class GetBrandingInfoEndpoint implements Endpoint {
+  method: HttpMethodType = "GET";
+  name: string = "getBrandingInfo";
+
+  url(): string {
+    return `${RC_ENDPOINT}${RC_BILLING_PATH}/branding`;
+  }
+}
+
 export type SupportedEndpoint =
   | GetOfferingsEndpoint
   | SubscribeEndpoint
   | GetProductsEndpoint
   | GetCustomerInfoEndpoint
-  | GetEntitlementsEndpoint;
+  | GetEntitlementsEndpoint
+  | GetBrandingInfoEndpoint;
