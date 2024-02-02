@@ -24,6 +24,7 @@ test(
     // Perform purchase
     const weeklyPackageCard = (await getPackageCards(page))[1];
     await weeklyPackageCard.click();
+    await waitMilliseconds(2000);
     await enterEmailAndContinue(page, userId);
     await waitMilliseconds(8000);
     await enterCreditCardDetailsAndContinue(page);
