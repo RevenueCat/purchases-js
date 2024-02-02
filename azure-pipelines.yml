@@ -47,6 +47,9 @@ jobs:
       - script: npm run prettier:ci
         displayName: Prettier
 
+      - script: npm run test:typeCheck
+        displayName: Type checker including tests
+
       - script: npm run svelte-check
         displayName: Svelte check
 
