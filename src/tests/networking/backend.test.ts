@@ -14,6 +14,7 @@ import {
   PurchasesError,
 } from "../../entities/errors";
 import { expectPromiseToError } from "../test-helpers";
+import { SubscribeResponse } from "../../networking/responses/subscribe-response";
 
 let server: SetupServer;
 let backend: Backend;
@@ -231,7 +232,8 @@ describe("subscribe request", () => {
   }
 
   test("can post subscribe successfully", async () => {
-    const subscribeResponse = {
+    const subscribeResponse: SubscribeResponse = {
+      operation_session_id: "test-operation-session-id",
       next_action: "collect_payment_info",
       data: {
         client_secret: "seti_123",
