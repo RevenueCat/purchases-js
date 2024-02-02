@@ -7,8 +7,8 @@ import {
   OperationSessionStatus,
 } from "../networking/responses/operation-response";
 
-export class PurchaseHelper {
-  private operationSessionId: number | null = null;
+export class PurchaseOperationHelper {
+  private operationSessionId: string | null = null;
   private readonly backend: Backend;
   private readonly maxNumberAttempts: number;
   private readonly waitMSBetweenAttempts = 1000;

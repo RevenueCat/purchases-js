@@ -83,7 +83,7 @@ export class Backend {
     );
   }
 
-  async getOperation(operationSessionId: number): Promise<OperationResponse> {
+  async getOperation(operationSessionId: string): Promise<OperationResponse> {
     return await performRequest<null, OperationResponse>(
       new GetOperationEndpoint(operationSessionId),
       this.API_KEY,

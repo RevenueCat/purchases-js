@@ -25,7 +25,7 @@ import { EntitlementResponse } from "./networking/responses/entitlements-respons
 import { RC_ENDPOINT } from "./helpers/constants";
 import { Backend } from "./networking/backend";
 import { isSandboxApiKey } from "./helpers/api-key-helper";
-import { PurchaseHelper } from "./helpers/purchase-helper";
+import { PurchaseOperationHelper } from "./helpers/purchase-operation-helper";
 
 export type Offerings = InnerOfferings;
 export type Offering = InnerOffering;
@@ -46,7 +46,7 @@ export class Purchases {
   readonly _PAYMENT_PROVIDER_SETTINGS: PaymentProviderSettings | null = null;
 
   private readonly backend: Backend;
-  private readonly purchaseHelper: PurchaseHelper;
+  private readonly purchaseOperationHelper: PurchaseOperationHelper;
 
   constructor(
     apiKey: string,
@@ -74,7 +74,7 @@ export class Purchases {
     }
 
     this.backend = new Backend(this._API_KEY);
-    this.purchaseHelper = new PurchaseHelper(this.backend);
+    this.purchaseOperationHelper = new PurchaseOperationHelper(this.backend);
   }
 
   private toOfferings = (
@@ -184,7 +184,7 @@ export class Purchases {
           rcPackage,
           customerEmail,
           onFinished: async () => {
-            await this.purchaseHelper.pollCurrentPurchaseForCompletion();
+            await this.purchaseOperationHelper.pollCurrentPurchaseForCompletion();
             certainHTMLTarget.innerHTML = "";
             // TODO: Add info about transaction in result.
             resolve({ customerInfo: await this.getCustomerInfo(appUserId) });
@@ -195,7 +195,7 @@ export class Purchases {
           },
           purchases: this,
           backend: this.backend,
-          purchaseHelper: this.purchaseHelper,
+          purchaseOperationHelper: this.purchaseOperationHelper,
           asModal,
         },
       });

@@ -91,9 +91,9 @@ export class GetBrandingInfoEndpoint implements Endpoint {
 export class GetOperationEndpoint implements Endpoint {
   method: HttpMethodType = "GET";
   name: string = "getOperation";
-  private readonly operationSessionId: number;
+  private readonly operationSessionId: string;
 
-  constructor(operationSessionId: number) {
+  constructor(operationSessionId: string) {
     this.operationSessionId = operationSessionId;
   }
 

@@ -12,7 +12,7 @@
   import Shell from "./shell.svelte";
   import { SubscribeResponse } from "../networking/responses/subscribe-response";
   import { BrandingInfoResponse } from "../networking/responses/branding-response";
-  import { PurchaseHelper } from "../helpers/purchase-helper";
+  import { PurchaseOperationHelper } from "../helpers/purchase-operation-helper";
   import { Backend } from "../networking/backend";
 
   export let asModal = true;
@@ -23,7 +23,7 @@
   export let onClose: () => void;
   export let purchases: Purchases;
   export let backend: Backend;
-  export let purchaseHelper: PurchaseHelper;
+  export let purchaseOperationHelper: PurchaseOperationHelper;
 
   let productDetails: any = null;
   let brandingInfo: BrandingInfoResponse | null = null;
@@ -80,7 +80,7 @@
       return;
     }
 
-    purchaseHelper.startPurchase(appUserId, productId, customerEmail)
+    purchaseOperationHelper.startPurchase(appUserId, productId, customerEmail)
       .then((result) => {
         if (result.next_action === "collect_payment_info") {
           state = "needs-payment-info";
