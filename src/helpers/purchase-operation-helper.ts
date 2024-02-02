@@ -4,6 +4,7 @@ import { SubscribeResponse } from "../networking/responses/subscribe-response";
 import {
   OperationError,
   OperationErrorCodes,
+  OperationResponse,
   OperationSessionStatus,
 } from "../networking/responses/operation-response";
 
@@ -42,7 +43,7 @@ export class PurchaseOperationHelper {
     }
 
     return new Promise<void>((resolve, reject) => {
-      const checkForOperationStatus = async (checkCount = 1) => {
+      const checkForOperationStatus = (checkCount = 1) => {
         if (checkCount > this.maxNumberAttempts) {
           this.clearPurchaseInProgress();
           reject(
@@ -53,24 +54,32 @@ export class PurchaseOperationHelper {
           );
           return;
         }
-        const operationResponse =
-          await this.backend.getOperation(operationSessionId);
-        switch (operationResponse.operation.status) {
-          case OperationSessionStatus.Started:
-          case OperationSessionStatus.InProgress:
-            setTimeout(
-              () => checkForOperationStatus(checkCount + 1),
-              this.waitMSBetweenAttempts,
-            );
-            break;
-          case OperationSessionStatus.Succeeded:
-            this.clearPurchaseInProgress();
-            resolve();
-            return;
-          case OperationSessionStatus.Failed:
-            this.clearPurchaseInProgress();
-            this.handlePaymentError(operationResponse.operation.error, reject);
-        }
+        this.backend
+          .getOperation(operationSessionId)
+          .then((operationResponse: OperationResponse) => {
+            switch (operationResponse.operation.status) {
+              case OperationSessionStatus.Started:
+              case OperationSessionStatus.InProgress:
+                setTimeout(
+                  () => checkForOperationStatus(checkCount + 1),
+                  this.waitMSBetweenAttempts,
+                );
+                break;
+              case OperationSessionStatus.Succeeded:
+                this.clearPurchaseInProgress();
+                resolve();
+                return;
+              case OperationSessionStatus.Failed:
+                this.clearPurchaseInProgress();
+                this.handlePaymentError(
+                  operationResponse.operation.error,
+                  reject,
+                );
+            }
+          })
+          .catch((error: PurchasesError) => {
+            reject(error);
+          });
       };
 
       checkForOperationStatus();
