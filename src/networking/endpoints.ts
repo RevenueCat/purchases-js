@@ -98,7 +98,7 @@ export class GetOperationEndpoint implements Endpoint {
   }
 
   url(): string {
-    return `${RC_ENDPOINT}${RC_BILLING_PATH}/operations/${this.operationSessionId}`;
+    return `${RC_ENDPOINT}${RC_BILLING_PATH}/checkout/${this.operationSessionId}`;
   }
 }
 
