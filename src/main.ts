@@ -194,6 +194,7 @@ export class Purchases {
             reject(new PurchasesError(ErrorCode.UserCancelledError));
           },
           purchases: this,
+          backend: this.backend,
           purchaseHelper: this.purchaseHelper,
           asModal,
         },
