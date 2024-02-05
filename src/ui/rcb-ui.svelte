@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { Package, Purchases } from "../main";
+  import { Package, Purchases, PurchasesError } from "../main";
   import SandboxBanner from "./sandbox-banner.svelte";
   import StatePresentOffer from "./states/state-present-offer.svelte";
   import StateLoading from "./states/state-loading.svelte";
@@ -12,7 +12,11 @@
   import Shell from "./shell.svelte";
   import { SubscribeResponse } from "../networking/responses/subscribe-response";
   import { BrandingInfoResponse } from "../networking/responses/branding-response";
-  import { PurchaseOperationHelper } from "../helpers/purchase-operation-helper";
+  import {
+    PurchaseFlowError,
+    PurchaseFlowErrorCode,
+    PurchaseOperationHelper,
+  } from "../helpers/purchase-operation-helper";
   import { Backend } from "../networking/backend";
 
   export let asModal = true;
@@ -28,9 +32,8 @@
   let productDetails: any = null;
   let brandingInfo: BrandingInfoResponse | null = null;
   let paymentInfoCollectionMetadata: SubscribeResponse | null = null;
+  let lastError: PurchaseFlowError | null = null;
   const productId = rcPackage.rcBillingProduct?.id ?? null;
-
-
 
   let state:
     | "present-offer"
@@ -68,15 +71,19 @@
 
   const handleSubscribe = () => {
     if (productId === null) {
-      state = "error";
+      handleError(new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "Product ID was not set before purchase."
+      ));
       return;
     } else {
       state = "loading";
     }
 
     if (!customerEmail) {
-      state = "error";
-      console.debug("Customer email was not set before purchase.");
+      handleError(new PurchaseFlowError(
+        PurchaseFlowErrorCode.MissingEmailError,
+      ));
       return;
     }
 
@@ -87,10 +94,13 @@
           paymentInfoCollectionMetadata = result;
           return;
         }
-        state = "success";
       })
-      .catch(() => {
-        state = "error";
+      .catch((e: PurchasesError) => {
+        handleError(new PurchaseFlowError(
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+          e.message,
+          e.underlyingErrorMessage,
+        ));
       });
   };
 
@@ -105,7 +115,11 @@
     }
 
     if (state === "needs-payment-info") {
-      state = "success";
+      purchaseOperationHelper.pollCurrentPurchaseForCompletion().then(() => {
+        state = "success";
+      }).catch((error: PurchaseFlowError) => {
+        handleError(error)
+      });
       return;
     }
 
@@ -117,7 +131,8 @@
     state = "success";
   };
 
-  const handleError = () => {
+  const handleError = (e: PurchaseFlowError) => {
+    lastError = e;
     state = "error";
   };
 </script>
@@ -164,7 +179,13 @@
           <StateLoading />
         {/if}
         {#if state === "error"}
-          <StateError />
+          <StateError
+            lastError={
+              lastError ?? new PurchaseFlowError(
+                PurchaseFlowErrorCode.UnknownError, "Unknown error without state set."
+              )
+            }
+            onContinue={handleClose} />
         {/if}
         {#if state === "success"}
           <StateSuccess onContinue={handleContinue} />

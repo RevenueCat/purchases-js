@@ -1,12 +1,31 @@
-import { ErrorCode, PurchasesError } from "../entities/errors";
+import { PurchasesError } from "../entities/errors";
 import { Backend } from "../networking/backend";
 import { SubscribeResponse } from "../networking/responses/subscribe-response";
 import {
+  CheckoutSessionStatus,
   CheckoutStatusError,
   CheckoutStatusErrorCodes,
   CheckoutStatusResponse,
-  CheckoutSessionStatus,
 } from "../networking/responses/checkout-status-response";
+
+export enum PurchaseFlowErrorCode {
+  ErrorSettingUpPurchase = 0,
+  ErrorChargingPayment = 1,
+  UnknownError = 2,
+  NetworkError = 3,
+  StripeError = 4,
+  MissingEmailError = 5,
+}
+
+export class PurchaseFlowError extends Error {
+  constructor(
+    public readonly errorCode: PurchaseFlowErrorCode,
+    message?: string,
+    public readonly underlyingErrorMessage?: string | null,
+  ) {
+    super(message);
+  }
+}
 
 export class PurchaseOperationHelper {
   private operationSessionId: string | null = null;
@@ -36,9 +55,9 @@ export class PurchaseOperationHelper {
   async pollCurrentPurchaseForCompletion(): Promise<void> {
     const operationSessionId = this.operationSessionId;
     if (!operationSessionId) {
-      throw new PurchasesError(
-        ErrorCode.PurchaseInvalidError,
-        "Purchase not started before waiting for completion.",
+      throw new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "No purchase in progress",
       );
     }
 
@@ -47,9 +66,9 @@ export class PurchaseOperationHelper {
         if (checkCount > this.maxNumberAttempts) {
           this.clearPurchaseInProgress();
           reject(
-            new PurchasesError(
-              ErrorCode.UnknownError,
-              "Purchase status was not finished in given timeframe",
+            new PurchaseFlowError(
+              PurchaseFlowErrorCode.UnknownError,
+              "Max attempts reached trying to get successful purchase status",
             ),
           );
           return;
@@ -78,7 +97,12 @@ export class PurchaseOperationHelper {
             }
           })
           .catch((error: PurchasesError) => {
-            reject(error);
+            reject(
+              new PurchaseFlowError(
+                PurchaseFlowErrorCode.NetworkError,
+                error.message,
+              ),
+            );
           });
       };
 
@@ -92,13 +116,13 @@ export class PurchaseOperationHelper {
 
   private handlePaymentError(
     error: CheckoutStatusError | undefined | null,
-    reject: (error: PurchasesError) => void,
+    reject: (error: PurchaseFlowError) => void,
   ) {
     if (error === null || error === undefined) {
       reject(
-        new PurchasesError(
-          ErrorCode.UnknownError,
-          "Purchase failed for unknown reason.",
+        new PurchaseFlowError(
+          PurchaseFlowErrorCode.UnknownError,
+          "Got an error status but error field is empty.",
         ),
       );
       return;
@@ -106,28 +130,25 @@ export class PurchaseOperationHelper {
     switch (error.code) {
       case CheckoutStatusErrorCodes.SetupIntentCreationFailed:
         reject(
-          new PurchasesError(
-            ErrorCode.PaymentPendingError,
-            "Purchase setup intent creation failed",
-            error.message,
+          new PurchaseFlowError(
+            PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+            "Setup intent creation failed",
           ),
         );
         return;
       case CheckoutStatusErrorCodes.PaymentMethodCreationFailed:
         reject(
-          new PurchasesError(
-            ErrorCode.PaymentPendingError,
-            "Purchase payment method creation failed",
-            error.message,
+          new PurchaseFlowError(
+            PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+            "Payment method creation failed",
           ),
         );
         return;
       case CheckoutStatusErrorCodes.PaymentChargeFailed:
         reject(
-          new PurchasesError(
-            ErrorCode.PaymentPendingError,
-            "Purchase payment charge failed",
-            error.message,
+          new PurchaseFlowError(
+            PurchaseFlowErrorCode.ErrorChargingPayment,
+            "Payment charge failed",
           ),
         );
         return;

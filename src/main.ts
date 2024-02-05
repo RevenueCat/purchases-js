@@ -184,7 +184,6 @@ export class Purchases {
           rcPackage,
           customerEmail,
           onFinished: async () => {
-            await this.purchaseOperationHelper.pollCurrentPurchaseForCompletion();
             certainHTMLTarget.innerHTML = "";
             // TODO: Add info about transaction in result.
             resolve({ customerInfo: await this.getCustomerInfo(appUserId) });
