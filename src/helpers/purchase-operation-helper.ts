@@ -2,11 +2,11 @@ import { ErrorCode, PurchasesError } from "../entities/errors";
 import { Backend } from "../networking/backend";
 import { SubscribeResponse } from "../networking/responses/subscribe-response";
 import {
-  OperationError,
-  OperationErrorCodes,
-  OperationResponse,
-  OperationSessionStatus,
-} from "../networking/responses/operation-response";
+  CheckoutStatusError,
+  CheckoutStatusErrorCodes,
+  CheckoutStatusResponse,
+  CheckoutSessionStatus,
+} from "../networking/responses/checkout-status-response";
 
 export class PurchaseOperationHelper {
   private operationSessionId: string | null = null;
@@ -55,21 +55,21 @@ export class PurchaseOperationHelper {
           return;
         }
         this.backend
-          .getOperation(operationSessionId)
-          .then((operationResponse: OperationResponse) => {
+          .getCheckoutStatus(operationSessionId)
+          .then((operationResponse: CheckoutStatusResponse) => {
             switch (operationResponse.operation.status) {
-              case OperationSessionStatus.Started:
-              case OperationSessionStatus.InProgress:
+              case CheckoutSessionStatus.Started:
+              case CheckoutSessionStatus.InProgress:
                 setTimeout(
                   () => checkForOperationStatus(checkCount + 1),
                   this.waitMSBetweenAttempts,
                 );
                 break;
-              case OperationSessionStatus.Succeeded:
+              case CheckoutSessionStatus.Succeeded:
                 this.clearPurchaseInProgress();
                 resolve();
                 return;
-              case OperationSessionStatus.Failed:
+              case CheckoutSessionStatus.Failed:
                 this.clearPurchaseInProgress();
                 this.handlePaymentError(
                   operationResponse.operation.error,
@@ -91,7 +91,7 @@ export class PurchaseOperationHelper {
   }
 
   private handlePaymentError(
-    error: OperationError | undefined | null,
+    error: CheckoutStatusError | undefined | null,
     reject: (error: PurchasesError) => void,
   ) {
     if (error === null || error === undefined) {
@@ -104,7 +104,7 @@ export class PurchaseOperationHelper {
       return;
     }
     switch (error.code) {
-      case OperationErrorCodes.SetupIntentCreationFailed:
+      case CheckoutStatusErrorCodes.SetupIntentCreationFailed:
         reject(
           new PurchasesError(
             ErrorCode.PaymentPendingError,
@@ -113,7 +113,7 @@ export class PurchaseOperationHelper {
           ),
         );
         return;
-      case OperationErrorCodes.PaymentMethodCreationFailed:
+      case CheckoutStatusErrorCodes.PaymentMethodCreationFailed:
         reject(
           new PurchasesError(
             ErrorCode.PaymentPendingError,
@@ -122,7 +122,7 @@ export class PurchaseOperationHelper {
           ),
         );
         return;
-      case OperationErrorCodes.PaymentChargeFailed:
+      case CheckoutStatusErrorCodes.PaymentChargeFailed:
         reject(
           new PurchasesError(
             ErrorCode.PaymentPendingError,

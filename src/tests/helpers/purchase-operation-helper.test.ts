@@ -8,10 +8,10 @@ import { expectPromiseToError } from "../test-helpers";
 import { ErrorCode, PurchasesError } from "../../entities/errors";
 import { SubscribeResponse } from "../../networking/responses/subscribe-response";
 import {
-  OperationErrorCodes,
-  OperationResponse,
-  OperationSessionStatus,
-} from "../../networking/responses/operation-response";
+  CheckoutStatusErrorCodes,
+  CheckoutStatusResponse,
+  CheckoutSessionStatus,
+} from "../../networking/responses/checkout-status-response";
 
 describe("PurchaseOperationHelper", () => {
   let server: SetupServer;
@@ -46,7 +46,7 @@ describe("PurchaseOperationHelper", () => {
     );
   }
 
-  function setGetOperationResponse(httpResponse: HttpResponse) {
+  function setGetCheckoutStatusResponse(httpResponse: HttpResponse) {
     server.use(
       http.get(
         `http://localhost:8000/rcbilling/v1/checkout/${operationSessionId}`,
@@ -90,7 +90,7 @@ describe("PurchaseOperationHelper", () => {
         status: StatusCodes.OK,
       }),
     );
-    setGetOperationResponse(
+    setGetCheckoutStatusResponse(
       HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
     );
 
@@ -103,7 +103,7 @@ describe("PurchaseOperationHelper", () => {
       purchaseOperationHelper.pollCurrentPurchaseForCompletion(),
       new PurchasesError(
         ErrorCode.UnknownBackendError,
-        "Unknown backend error. Request: getOperation. Status code: 500. Body: null.",
+        "Unknown backend error. Request: getCheckoutStatus. Status code: 500. Body: null.",
       ),
     );
   });
@@ -114,15 +114,15 @@ describe("PurchaseOperationHelper", () => {
         status: StatusCodes.OK,
       }),
     );
-    const getOperationResponse: OperationResponse = {
+    const getCheckoutStatusResponse: CheckoutStatusResponse = {
       operation: {
-        status: OperationSessionStatus.Succeeded,
+        status: CheckoutSessionStatus.Succeeded,
         isExpired: false,
         error: null,
       },
     };
-    setGetOperationResponse(
-      HttpResponse.json(getOperationResponse, { status: StatusCodes.OK }),
+    setGetCheckoutStatusResponse(
+      HttpResponse.json(getCheckoutStatusResponse, { status: StatusCodes.OK }),
     );
 
     await purchaseOperationHelper.startPurchase(
@@ -140,15 +140,15 @@ describe("PurchaseOperationHelper", () => {
   //       status: StatusCodes.OK,
   //     }),
   //   );
-  //   const getOperationResponse: OperationResponse = {
+  //   const getCheckoutStatusResponse: OperationResponse = {
   //     operation: {
   //       status: OperationSessionStatus.InProgress,
   //       isExpired: false,
   //       error: null,
   //     },
   //   };
-  //   setGetOperationResponse(
-  //     HttpResponse.json(getOperationResponse, { status: StatusCodes.OK }),
+  //   setGetCheckoutStatusResponse(
+  //     HttpResponse.json(getCheckoutStatusResponse, { status: StatusCodes.OK }),
   //   );
   //
   //   await purchaseOperationHelper.startPurchase(
@@ -171,18 +171,18 @@ describe("PurchaseOperationHelper", () => {
         status: StatusCodes.OK,
       }),
     );
-    const getOperationResponse: OperationResponse = {
+    const getCheckoutStatusResponse: CheckoutStatusResponse = {
       operation: {
-        status: OperationSessionStatus.Failed,
+        status: CheckoutSessionStatus.Failed,
         isExpired: false,
         error: {
-          code: OperationErrorCodes.PaymentChargeFailed,
+          code: CheckoutStatusErrorCodes.PaymentChargeFailed,
           message: "test-error-message",
         },
       },
     };
-    setGetOperationResponse(
-      HttpResponse.json(getOperationResponse, { status: StatusCodes.OK }),
+    setGetCheckoutStatusResponse(
+      HttpResponse.json(getCheckoutStatusResponse, { status: StatusCodes.OK }),
     );
 
     await purchaseOperationHelper.startPurchase(

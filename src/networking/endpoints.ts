@@ -88,9 +88,9 @@ export class GetBrandingInfoEndpoint implements Endpoint {
   }
 }
 
-export class GetOperationEndpoint implements Endpoint {
+export class GetCheckoutStatusEndpoint implements Endpoint {
   method: HttpMethodType = "GET";
-  name: string = "getOperation";
+  name: string = "getCheckoutStatus";
   private readonly operationSessionId: string;
 
   constructor(operationSessionId: string) {
@@ -109,4 +109,4 @@ export type SupportedEndpoint =
   | GetCustomerInfoEndpoint
   | GetEntitlementsEndpoint
   | GetBrandingInfoEndpoint
-  | GetOperationEndpoint;
+  | GetCheckoutStatusEndpoint;
