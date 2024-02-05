@@ -88,10 +88,25 @@ export class GetBrandingInfoEndpoint implements Endpoint {
   }
 }
 
+export class GetCheckoutStatusEndpoint implements Endpoint {
+  method: HttpMethodType = "GET";
+  name: string = "getCheckoutStatus";
+  private readonly operationSessionId: string;
+
+  constructor(operationSessionId: string) {
+    this.operationSessionId = operationSessionId;
+  }
+
+  url(): string {
+    return `${RC_ENDPOINT}${RC_BILLING_PATH}/checkout/${this.operationSessionId}`;
+  }
+}
+
 export type SupportedEndpoint =
   | GetOfferingsEndpoint
   | SubscribeEndpoint
   | GetProductsEndpoint
   | GetCustomerInfoEndpoint
   | GetEntitlementsEndpoint
-  | GetBrandingInfoEndpoint;
+  | GetBrandingInfoEndpoint
+  | GetCheckoutStatusEndpoint;

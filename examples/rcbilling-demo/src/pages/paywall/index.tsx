@@ -1,11 +1,10 @@
 import {
   Offerings,
   Package,
-  PurchasesError,
   Purchases,
+  PurchasesError,
 } from "@revenuecat/purchases-js";
 import React, { useEffect, useState } from "react";
-import { catServicesEntitlementId } from "../../App.tsx";
 
 interface IPackageCardProps {
   pkg: Package;
@@ -94,11 +93,7 @@ const PaywallPage: React.FC<IPaywallPageProps> = ({ purchases, appUserId }) => {
 
     // How do we complete the purchase?
     try {
-      const { customerInfo } = await purchases.purchasePackage(
-        appUserId,
-        pkg,
-        catServicesEntitlementId,
-      );
+      const { customerInfo } = await purchases.purchasePackage(appUserId, pkg);
 
       console.log(`CustomerInfo after purchase: ${customerInfo}`);
 
