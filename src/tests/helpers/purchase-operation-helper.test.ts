@@ -1,16 +1,20 @@
-import { afterEach, beforeEach, describe, test } from "vitest";
-import { PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
+import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import {
+  PurchaseFlowError,
+  PurchaseFlowErrorCode,
+  PurchaseOperationHelper,
+} from "../../helpers/purchase-operation-helper";
 import { Backend } from "../../networking/backend";
 import { setupServer, SetupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
 import { StatusCodes } from "http-status-codes";
-import { expectPromiseToError } from "../test-helpers";
+import { expectPromiseToError, failTest } from "../test-helpers";
 import { ErrorCode, PurchasesError } from "../../entities/errors";
 import { SubscribeResponse } from "../../networking/responses/subscribe-response";
 import {
+  CheckoutSessionStatus,
   CheckoutStatusErrorCodes,
   CheckoutStatusResponse,
-  CheckoutSessionStatus,
 } from "../../networking/responses/checkout-status-response";
 
 describe("PurchaseOperationHelper", () => {
@@ -75,11 +79,11 @@ describe("PurchaseOperationHelper", () => {
   });
 
   test("pollCurrentPurchaseForCompletion fails if startPurchase not called before", async () => {
-    await expectPromiseToError(
+    await expectPromiseToPurchaseFlowError(
       purchaseOperationHelper.pollCurrentPurchaseForCompletion(),
-      new PurchasesError(
-        ErrorCode.PurchaseInvalidError,
-        "Purchase not started before waiting for completion.",
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "No purchase in progress",
       ),
     );
   });
@@ -99,10 +103,10 @@ describe("PurchaseOperationHelper", () => {
       "test-product-id",
       "test-email",
     );
-    await expectPromiseToError(
+    await expectPromiseToPurchaseFlowError(
       purchaseOperationHelper.pollCurrentPurchaseForCompletion(),
-      new PurchasesError(
-        ErrorCode.UnknownBackendError,
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.NetworkError,
         "Unknown backend error. Request: getCheckoutStatus. Status code: 500. Body: null.",
       ),
     );
@@ -190,13 +194,32 @@ describe("PurchaseOperationHelper", () => {
       "test-product-id",
       "test-email",
     );
-    await expectPromiseToError(
+    await expectPromiseToPurchaseFlowError(
       purchaseOperationHelper.pollCurrentPurchaseForCompletion(),
-      new PurchasesError(
-        ErrorCode.PaymentPendingError,
-        "Purchase payment charge failed",
-        "test-error-message",
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorChargingPayment,
+        "Payment charge failed",
       ),
     );
   });
 });
+
+function verifyExpectedError(e: unknown, expectedError: PurchaseFlowError) {
+  expect(e).toBeInstanceOf(PurchaseFlowError);
+  const purchasesError = e as PurchaseFlowError;
+  expect(purchasesError.errorCode).toEqual(expectedError.errorCode);
+  expect(purchasesError.message).toEqual(expectedError.message);
+  expect(purchasesError.underlyingErrorMessage).toEqual(
+    expectedError.underlyingErrorMessage,
+  );
+}
+
+function expectPromiseToPurchaseFlowError(
+  f: Promise<unknown>,
+  expectedError: PurchaseFlowError,
+) {
+  return f.then(
+    () => failTest(),
+    (e) => verifyExpectedError(e, expectedError),
+  );
+}

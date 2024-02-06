@@ -25,7 +25,10 @@ import { EntitlementResponse } from "./networking/responses/entitlements-respons
 import { RC_ENDPOINT } from "./helpers/constants";
 import { Backend } from "./networking/backend";
 import { isSandboxApiKey } from "./helpers/api-key-helper";
-import { PurchaseOperationHelper } from "./helpers/purchase-operation-helper";
+import {
+  PurchaseFlowError,
+  PurchaseOperationHelper,
+} from "./helpers/purchase-operation-helper";
 
 export type Offerings = InnerOfferings;
 export type Offering = InnerOffering;
@@ -184,7 +187,6 @@ export class Purchases {
           rcPackage,
           customerEmail,
           onFinished: async () => {
-            await this.purchaseOperationHelper.pollCurrentPurchaseForCompletion();
             certainHTMLTarget.innerHTML = "";
             // TODO: Add info about transaction in result.
             resolve({ customerInfo: await this.getCustomerInfo(appUserId) });
@@ -192,6 +194,10 @@ export class Purchases {
           onClose: () => {
             certainHTMLTarget.innerHTML = "";
             reject(new PurchasesError(ErrorCode.UserCancelledError));
+          },
+          onError: (e: PurchaseFlowError) => {
+            certainHTMLTarget.innerHTML = "";
+            reject(PurchasesError.getForPurchasesFlowError(e));
           },
           purchases: this,
           backend: this.backend,

@@ -10,6 +10,7 @@
   import StateLoading from "./state-loading.svelte";
   import RowLayout from "../layout/row-layout.svelte";
   import { SubscribeResponse } from "../../networking/responses/subscribe-response";
+  import { PurchaseFlowError, PurchaseFlowErrorCode } from "../../helpers/purchase-operation-helper";
 
   export let onClose: any;
   export let onContinue: any;
@@ -62,7 +63,10 @@
     if (result.error) {
       // payment failed, notify user
       processing = false;
-      onError(result.error);
+      onError(new PurchaseFlowError(
+        PurchaseFlowErrorCode.StripeError,
+        result.error.message
+      ));
     } else {
       onContinue();
     }
