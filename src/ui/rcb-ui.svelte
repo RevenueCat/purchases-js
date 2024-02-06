@@ -40,6 +40,7 @@
     | "present-offer"
     | "needs-auth-info"
     | "needs-payment-info"
+    | "polling-purchase-status"
     | "loading"
     | "success"
     | "error" = "present-offer";
@@ -116,6 +117,7 @@
     }
 
     if (state === "needs-payment-info") {
+      state = "polling-purchase-status";
       purchaseOperationHelper.pollCurrentPurchaseForCompletion().then(() => {
         state = "success";
       }).catch((error: PurchaseFlowError) => {
@@ -166,6 +168,9 @@
           />
         {/if}
         {#if state === "present-offer" && !productDetails}
+          <StateLoading />
+        {/if}
+        {#if state === "polling-purchase-status"}
           <StateLoading />
         {/if}
         {#if state === "needs-auth-info"}
