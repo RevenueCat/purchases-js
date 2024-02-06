@@ -21,7 +21,6 @@ import {
   ProductResponse,
   ProductsResponse,
 } from "./networking/responses/products-response";
-import { EntitlementResponse } from "./networking/responses/entitlements-response";
 import { RC_ENDPOINT } from "./helpers/constants";
 import { Backend } from "./networking/backend";
 import { isSandboxApiKey } from "./helpers/api-key-helper";
@@ -140,12 +139,8 @@ export class Purchases {
     appUserId: string,
     entitlementIdentifier: string,
   ): Promise<boolean> {
-    const entitlementsResponse = await this.backend.getEntitlements(appUserId);
-
-    const entitlements = entitlementsResponse.entitlements.map(
-      (ent: EntitlementResponse) => ent.lookup_key,
-    );
-    return entitlements.includes(entitlementIdentifier);
+    const customerInfo = await this.getCustomerInfo(appUserId);
+    return entitlementIdentifier in customerInfo.entitlements.active;
   }
 
   public purchasePackage(

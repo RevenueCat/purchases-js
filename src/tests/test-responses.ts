@@ -131,41 +131,9 @@ const productsResponsesPerUserId: { [userId: string]: object } = {
   appUserIdWithMissingProducts: { product_details: [monthlyProductResponse] },
 };
 
-const entitlementsResponsesPerUserId: { [userId: string]: object } = {
-  someAppUserId: {
-    entitlements: [
-      {
-        created_at: 1699890475771,
-        display_name: "Some Entitlement Name",
-        id: "ent12345",
-        lookup_key: "someEntitlement",
-        object: "entitlement",
-        project_id: "proj12345",
-      },
-    ],
-  },
-  someOtherAppUserId: { entitlements: [] },
-};
-
 const customerInfoResponsePerUserId: { [userId: string]: object } = {
   someAppUserId: customerInfoResponse,
 };
-
-export function getEntitlementsResponseHandlers(): RequestHandler[] {
-  const requestHandlers: RequestHandler[] = [];
-  Object.keys(entitlementsResponsesPerUserId).forEach((userId: string) => {
-    const body = entitlementsResponsesPerUserId[userId]!;
-    requestHandlers.push(
-      http.get(
-        `http://localhost:8000/rcbilling/v1/entitlements/${userId}`,
-        () => {
-          return HttpResponse.json(body, { status: 200 });
-        },
-      ),
-    );
-  });
-  return requestHandlers;
-}
 
 export function getRequestHandlers(): RequestHandler[] {
   const requestHandlers: RequestHandler[] = [];
@@ -201,8 +169,6 @@ export function getRequestHandlers(): RequestHandler[] {
       }),
     );
   });
-
-  requestHandlers.push(...getEntitlementsResponseHandlers());
 
   return requestHandlers;
 }
