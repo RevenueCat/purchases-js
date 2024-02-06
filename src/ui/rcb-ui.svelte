@@ -24,6 +24,7 @@
   export let appUserId: string;
   export let rcPackage: Package;
   export let onFinished: () => void;
+  export let onError: (error: PurchaseFlowError) => void;
   export let onClose: () => void;
   export let purchases: Purchases;
   export let backend: Backend;
@@ -135,6 +136,12 @@
     lastError = e;
     state = "error";
   };
+
+  const closeWithError = () => {
+    onError(lastError ?? new PurchaseFlowError(
+      PurchaseFlowErrorCode.UnknownError, "Unknown error without state set."
+    ));
+  };
 </script>
 
 <div class="rcb-ui-container">
@@ -186,7 +193,7 @@
               )
             }
             supportEmail={brandingInfo?.seller_company_support_email}
-            onContinue={handleClose} />
+            onContinue={closeWithError} />
         {/if}
         {#if state === "success"}
           <StateSuccess onContinue={handleContinue} />

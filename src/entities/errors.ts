@@ -1,3 +1,8 @@
+import {
+  PurchaseFlowError,
+  PurchaseFlowErrorCode,
+} from "../helpers/purchase-operation-helper";
+
 export enum ErrorCode {
   UnknownError = 0,
   UserCancelledError = 1,
@@ -143,6 +148,25 @@ export class ErrorCodeUtils {
       return null;
     }
   }
+
+  static convertPurchaseFlowErrorCodeToErrorCode(
+    code: PurchaseFlowErrorCode,
+  ): ErrorCode {
+    switch (code) {
+      case PurchaseFlowErrorCode.ErrorSettingUpPurchase:
+        return ErrorCode.StoreProblemError;
+      case PurchaseFlowErrorCode.ErrorChargingPayment:
+        return ErrorCode.PaymentPendingError;
+      case PurchaseFlowErrorCode.NetworkError:
+        return ErrorCode.NetworkError;
+      case PurchaseFlowErrorCode.MissingEmailError:
+        return ErrorCode.PurchaseInvalidError;
+      case PurchaseFlowErrorCode.StripeError:
+        return ErrorCode.StoreProblemError;
+      case PurchaseFlowErrorCode.UnknownError:
+        return ErrorCode.UnknownError;
+    }
+  }
 }
 
 export enum BackendErrorCode {
@@ -180,6 +204,18 @@ export class PurchasesError extends Error {
       errorCode,
       ErrorCodeUtils.getPublicMessage(errorCode),
       backendErrorMessage,
+    );
+  }
+
+  static getForPurchasesFlowError(
+    purchasesFlowError: PurchaseFlowError,
+  ): PurchasesError {
+    return new PurchasesError(
+      ErrorCodeUtils.convertPurchaseFlowErrorCodeToErrorCode(
+        purchasesFlowError.errorCode,
+      ),
+      purchasesFlowError.message,
+      purchasesFlowError.underlyingErrorMessage,
     );
   }
 
