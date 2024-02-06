@@ -5,10 +5,6 @@ import { getRequestHandlers } from "./test-responses";
 import { PackageType } from "../entities/offerings";
 import { CustomerInfo } from "../entities/customer-info";
 
-const STRIPE_TEST_DATA = {
-  stripe: { accountId: "acct_123", publishableKey: "pk_123" },
-} as const;
-
 const server = setupServer(...getRequestHandlers());
 
 beforeAll(() => {
@@ -16,12 +12,12 @@ beforeAll(() => {
 });
 
 test("Purchases is defined", () => {
-  const billing = new Purchases("test_api_key", STRIPE_TEST_DATA);
+  const billing = new Purchases("test_api_key");
   expect(billing).toBeDefined();
 });
 
 test("returns true if a user is entitled", async () => {
-  const billing = new Purchases("test_api_key", STRIPE_TEST_DATA);
+  const billing = new Purchases("test_api_key");
   const isEntitled = await billing.isEntitledTo(
     "someAppUserId",
     "activeCatServices",
@@ -30,7 +26,7 @@ test("returns true if a user is entitled", async () => {
 });
 
 test("returns false if a user is not entitled", async () => {
-  const billing = new Purchases("test_api_key", STRIPE_TEST_DATA);
+  const billing = new Purchases("test_api_key");
   const isEntitled = await billing.isEntitledTo(
     "someAppUserId",
     "expiredEntitlement",
@@ -56,7 +52,7 @@ describe("getOfferings", () => {
     },
   };
   test("can get offerings", async () => {
-    const billing = new Purchases("test_api_key", STRIPE_TEST_DATA);
+    const billing = new Purchases("test_api_key");
     const offerings = await billing.getOfferings("someAppUserId");
 
     const currentOffering = {
@@ -116,7 +112,7 @@ describe("getOfferings", () => {
   });
 
   test("can get offerings without current offering id", async () => {
-    const billing = new Purchases("test_api_key", STRIPE_TEST_DATA);
+    const billing = new Purchases("test_api_key");
     const offerings = await billing.getOfferings(
       "appUserIdWithoutCurrentOfferingId",
     );
@@ -176,7 +172,7 @@ describe("getOfferings", () => {
   });
 
   test("can get offerings with missing products", async () => {
-    const billing = new Purchases("test_api_key", STRIPE_TEST_DATA);
+    const billing = new Purchases("test_api_key");
     const offerings = await billing.getOfferings(
       "appUserIdWithMissingProducts",
     );
@@ -207,7 +203,7 @@ describe("getOfferings", () => {
 });
 
 test("can get customer info", async () => {
-  const billing = new Purchases("test_api_key", STRIPE_TEST_DATA);
+  const billing = new Purchases("test_api_key");
   const customerInfo = await billing.getCustomerInfo("someAppUserId");
   const activeCatServicesEntitlementInfo: EntitlementInfo = {
     identifier: "activeCatServices",
