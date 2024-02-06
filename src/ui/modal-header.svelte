@@ -5,7 +5,6 @@
   import { BrandingInfoResponse } from "../networking/responses/branding-response";
   import { buildAssetURL } from "../networking/assets";
 
-  export let title = "";
   export let brandingInfo: BrandingInfoResponse | null = null;
 </script>
 

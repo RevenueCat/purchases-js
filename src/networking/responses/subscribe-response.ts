@@ -3,5 +3,7 @@ export interface SubscribeResponse {
   next_action: string;
   data: {
     client_secret?: string;
+    stripe_account_id?: string;
+    publishable_api_key?: string;
   };
 }

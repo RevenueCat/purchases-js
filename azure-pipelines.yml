@@ -114,6 +114,4 @@ jobs:
         workingDirectory: "examples/rcbilling-demo"
         displayName: E2E tests rcbilling-demo
         env:
-          VITE_RC_STRIPE_PK_KEY: $(VITE_RC_STRIPE_PK_KEY)
-          VITE_RC_STRIPE_ACCOUNT_ID: $(VITE_RC_STRIPE_ACCOUNT_ID)
           VITE_RC_API_KEY: $(VITE_RC_API_KEY)
