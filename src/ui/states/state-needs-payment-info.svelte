@@ -33,14 +33,8 @@
   }
 
   onMount(async () => {
-    const stripeSettings = purchases?._PAYMENT_PROVIDER_SETTINGS?.stripe;
-
-    if (!stripeSettings) {
-      throw new Error("Stripe settings not found");
-    }
-
-    const stripePk = stripeSettings.publishableKey;
-    const stripeAcctId = stripeSettings.accountId;
+    const stripePk = paymentInfoCollectionMetadata.data.publishable_api_key;
+    const stripeAcctId = paymentInfoCollectionMetadata.data.stripe_account_id;
 
     if (!stripePk || !stripeAcctId) {
       throw new Error("Stripe publishable key or account ID not found");

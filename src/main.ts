@@ -4,7 +4,6 @@ import {
   Package as InnerPackage,
   toOffering,
 } from "./entities/offerings";
-import { PaymentProviderSettings } from "./entities/types";
 import RCPurchasesUI from "./ui/rcb-ui.svelte";
 
 import {
@@ -44,34 +43,16 @@ export { ErrorCode, PurchasesError } from "./entities/errors";
 export class Purchases {
   // @internal
   readonly _API_KEY: string;
-  // @internal
-  readonly _PAYMENT_PROVIDER_SETTINGS: PaymentProviderSettings | null = null;
 
   private readonly backend: Backend;
   private readonly purchaseOperationHelper: PurchaseOperationHelper;
 
-  constructor(
-    apiKey: string,
-    paymentProviderSettings: PaymentProviderSettings,
-  ) {
+  constructor(apiKey: string) {
     this._API_KEY = apiKey;
-    this._PAYMENT_PROVIDER_SETTINGS = paymentProviderSettings;
 
     if (RC_ENDPOINT === undefined) {
       console.error(
         "Project was build without some of the environment variables set",
-      );
-    }
-
-    // Will need to change this to something more flexible
-    // if/when we end up supporting more payment gateways
-    if (
-      !this._PAYMENT_PROVIDER_SETTINGS.stripe ||
-      !this._PAYMENT_PROVIDER_SETTINGS.stripe?.accountId ||
-      !this._PAYMENT_PROVIDER_SETTINGS.stripe?.publishableKey
-    ) {
-      console.error(
-        "Project was build without the stripe payment provider settings set",
       );
     }
 

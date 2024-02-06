@@ -12,12 +12,7 @@ import { SuccessPage } from "./pages/success";
 import DogServices from "./pages/dogServices";
 import WithoutEntitlement from "./components/WithoutEntitlement";
 
-const purchases = new Purchases(import.meta.env.VITE_RC_API_KEY as string, {
-  stripe: {
-    publishableKey: import.meta.env.VITE_RC_STRIPE_PK_KEY as string,
-    accountId: import.meta.env.VITE_RC_STRIPE_ACCOUNT_ID as string,
-  },
-});
+const purchases = new Purchases(import.meta.env.VITE_RC_API_KEY as string);
 export const catServicesEntitlementId = "catServices";
 export const dogServicesEntitlementId = "dogServices";
 

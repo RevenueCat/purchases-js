@@ -3,7 +3,6 @@
   import Modal from "./modal.svelte";
   import { BrandingInfoResponse } from "../networking/responses/branding-response";
 
-  export let title = "";
   export let dark = false;
   export let showHeader = false;
   export let brandingInfo: BrandingInfoResponse | null = null;

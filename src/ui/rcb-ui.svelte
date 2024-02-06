@@ -96,6 +96,10 @@
           paymentInfoCollectionMetadata = result;
           return;
         }
+        if (result.next_action === 'completed') {
+          state = 'success';
+          return;
+        }
       })
       .catch((e: PurchasesError) => {
         handleError(new PurchaseFlowError(
