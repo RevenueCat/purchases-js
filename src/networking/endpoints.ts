@@ -65,20 +65,6 @@ export class GetCustomerInfoEndpoint implements Endpoint {
   }
 }
 
-export class GetEntitlementsEndpoint implements Endpoint {
-  method: HttpMethodType = "GET";
-  name: string = "getEntitlements";
-  private readonly appUserId: string;
-
-  constructor(appUserId: string) {
-    this.appUserId = appUserId;
-  }
-
-  url(): string {
-    return `${RC_ENDPOINT}${RC_BILLING_PATH}/entitlements/${this.appUserId}`;
-  }
-}
-
 export class GetBrandingInfoEndpoint implements Endpoint {
   method: HttpMethodType = "GET";
   name: string = "getBrandingInfo";
@@ -107,6 +93,5 @@ export type SupportedEndpoint =
   | SubscribeEndpoint
   | GetProductsEndpoint
   | GetCustomerInfoEndpoint
-  | GetEntitlementsEndpoint
   | GetBrandingInfoEndpoint
   | GetCheckoutStatusEndpoint;

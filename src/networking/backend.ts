@@ -2,17 +2,15 @@ import { OfferingsResponse } from "./responses/offerings-response";
 import { performRequest } from "./http-client";
 import {
   GetBrandingInfoEndpoint,
-  GetCustomerInfoEndpoint,
-  GetEntitlementsEndpoint,
-  GetOfferingsEndpoint,
   GetCheckoutStatusEndpoint,
+  GetCustomerInfoEndpoint,
+  GetOfferingsEndpoint,
   GetProductsEndpoint,
   SubscribeEndpoint,
 } from "./endpoints";
 import { SubscriberResponse } from "./responses/subscriber-response";
 import { SubscribeResponse } from "./responses/subscribe-response";
 import { ProductsResponse } from "./responses/products-response";
-import { EntitlementsResponse } from "./responses/entitlements-response";
 import { BrandingInfoResponse } from "./responses/branding-response";
 import { CheckoutStatusResponse } from "./responses/checkout-status-response";
 
@@ -43,13 +41,6 @@ export class Backend {
   ): Promise<ProductsResponse> {
     return await performRequest<null, ProductsResponse>(
       new GetProductsEndpoint(appUserId, productIds),
-      this.API_KEY,
-    );
-  }
-
-  async getEntitlements(appUserId: string): Promise<EntitlementsResponse> {
-    return await performRequest<null, EntitlementsResponse>(
-      new GetEntitlementsEndpoint(appUserId),
       this.API_KEY,
     );
   }

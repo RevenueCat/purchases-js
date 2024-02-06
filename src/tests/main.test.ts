@@ -24,7 +24,7 @@ test("returns true if a user is entitled", async () => {
   const billing = new Purchases("test_api_key", STRIPE_TEST_DATA);
   const isEntitled = await billing.isEntitledTo(
     "someAppUserId",
-    "someEntitlement",
+    "activeCatServices",
   );
   expect(isEntitled).toBeTruthy();
 });
@@ -32,8 +32,8 @@ test("returns true if a user is entitled", async () => {
 test("returns false if a user is not entitled", async () => {
   const billing = new Purchases("test_api_key", STRIPE_TEST_DATA);
   const isEntitled = await billing.isEntitledTo(
-    "someOtherAppUserId",
-    "someEntitlement",
+    "someAppUserId",
+    "expiredEntitlement",
   );
   expect(isEntitled).not.toBeTruthy();
 });
