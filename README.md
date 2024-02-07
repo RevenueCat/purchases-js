@@ -82,8 +82,8 @@ const entitlementId = "the entitlementId you set up in RC";
 
 const purchases = new Purchases("your RC_PUBLISHABLE_API_KEY");
 
-purchases.getCustomerInfo(appUserId).then((customerInfo) => {
-  if (entitlementId in customerInfo.entitlements.active) {
+purchases.isEntitledTo(appUserId, entitlementId).then((isEntitled) => {
+  if (isEntitled == true) {
     console.log(`User ${appUserID} is entitled to ${entitlementId}`);
   } else {
     console.log(`User ${appUserID} is not entitled to ${entitlementId}`);
@@ -97,10 +97,11 @@ As example, you can build a cool React component with it:
 const WithEntitlement = ({ appUserId, entitlementId, children }) => {
   const [isEntitled, setIsEntitled] = useState<boolean | null>(null);
 
-  useEffect(async () => {
+  useEffect(() => {
     const purchases = new Purchases("your RC_PUBLISHABLE_API_KEY");
-    const customerInfo = await purchases.getCustomerInfo(appUserId);
-    setIsEntitled(entitlementId in customerInfo.entitlements.active);
+    purchases.isEntitledTo(appUserId, entitlementId).then((isEntitled) => {
+      setIsEntitled(isEntitled);
+    });
   }, [appUserId, entitlementId]);
 
   if (isEntitled === null) {
@@ -127,6 +128,12 @@ const App = () => (
 );
 ```
 
+If you need further information about the user's entitlements, you can use the `getCustomerInfo` method:
+
+```ts
+const customerInfo = await purchases.getCustomerInfo(appUserId);
+```
+
 ### Important note
 
 Please be aware that the information about the entitlements can be manipulated by malicious actors, so make sure
@@ -150,25 +157,18 @@ const appUserId =
 const entitlementIdToCheck =
   "the entitlementId you set up in RC for your product"; // TODO: remove once this is not needed
 
-purchase
-  .purchasePackage(appUserId, rcBillingPackage, entitlementIdToCheck)
-  .then((response) => {
-    const isEntitled =
-      entitlementIdToCheck in response.customerInfo.entitlements.active;
-    if (isEntitled == true) {
-      console.log(`User ${appUserID} is entitled to ${entitlementId}`);
-    } else {
-      console.log(
-        `User ${appUserID} is not entitled to ${entitlementId}, even after ${numberOfAttempts} attempts`,
-      );
-    }
-  });
+purchase.purchasePackage(appUserId, rcBillingPackage).then((response) => {
+  const isEntitled =
+    entitlementIdToCheck in response.customerInfo.entitlements.active;
+  if (isEntitled == true) {
+    console.log(`User ${appUserID} is entitled to ${entitlementId}`);
+  } else {
+    console.log(
+      `User ${appUserID} is not entitled to ${entitlementId}, even after ${numberOfAttempts} attempts`,
+    );
+  }
+});
 ```
-
-### Important note
-
-Please be aware that the information about the entitlements can be manipulated by malicious actors, so make sure
-you protect your apps against attacks that modify the entitlements by validating access through your servers.
 
 # Development
 
