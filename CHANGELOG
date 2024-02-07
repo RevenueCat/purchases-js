@@ -15,7 +15,6 @@
 - Add networking layer (#41)
 - Improve `purchasePackage` API to return errors as exceptions (#40)
 
-
 # 0.0.11
 - Added support to sandbox api keys
 - Removed the environment parameter
