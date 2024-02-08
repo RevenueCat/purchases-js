@@ -1,3 +1,20 @@
+# 0.0.12
+- Update README with latest API changes (#47)
+- Use Stripe params from the server instead of env variables (#57)
+- Use getCustomerInfo internally in isEntitledTo API (#56)
+- Handle errors in magic form (#55)
+- Change to use /operation endpoint to poll for purchase status (#53)
+- Type check tests in CI (#51)
+- Consume branding info endpoint from Purchases.js (#52)
+- Add svelte-check to check for errors in svelte files (#54)
+- Add most missing `CustomerInfo` properties (#50)
+- Add `presentedOfferingIdentifier` to Product type (#49)
+- Improve offering types (#48)
+- Add `X-Is-Sandbox` header to all requests (#45)
+- Handle networking errors (#43)
+- Add networking layer (#41)
+- Improve `purchasePackage` API to return errors as exceptions (#40)
+
 # 0.0.11
 - Added support to sandbox api keys
 - Removed the environment parameter
