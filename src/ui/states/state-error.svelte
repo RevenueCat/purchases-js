@@ -6,7 +6,10 @@
   import IconError from "../assets/icon-error.svelte";
   import RowLayout from "../layout/row-layout.svelte";
   import { onMount } from "svelte";
+  import { BrandingInfoResponse } from "../../networking/responses/branding-response";
+  import BrandAndCloseHeader from "../brand-and-close-header.svelte";
 
+  export let brandingInfo: BrandingInfoResponse | null = null;
   export let lastError: PurchaseFlowError;
   export let supportEmail: string | null = null;
   export let onContinue: () => void;
@@ -38,6 +41,7 @@
 
 
 <RowLayout gutter="2rem">
+  <BrandAndCloseHeader brandingInfo={brandingInfo} onClose={onContinue} />
   <ModalSection>
     <div class="rcb-modal-error">
       <RowLayout gutter="1rem">

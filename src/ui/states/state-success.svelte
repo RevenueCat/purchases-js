@@ -1,14 +1,18 @@
-<script>
+<script lang="ts">
   import Button from "../button.svelte";
   import ModalFooter from "../modal-footer.svelte";
   import ModalSection from "../modal-section.svelte";
   import IconSuccess from "../assets/icon-success.svelte";
   import RowLayout from "../layout/row-layout.svelte";
+  import BrandAndCloseHeader from "../brand-and-close-header.svelte";
+  import { BrandingInfoResponse } from "../../networking/responses/branding-response";
 
-  export let onContinue;
+  export let brandingInfo: BrandingInfoResponse | null = null;
+  export let onContinue: () => void;
 </script>
 
 <RowLayout gutter="2rem">
+  <BrandAndCloseHeader brandingInfo={brandingInfo} onClose={onContinue} />
   <ModalSection>
     <div class="rcb-modal-success">
       <RowLayout gutter="1rem">
@@ -21,7 +25,7 @@
     </div>
   </ModalSection>
   <ModalFooter>
-    <Button intent="secondary" on:click={onContinue}>Go back to app</Button>
+    <Button on:click={onContinue}>Go back to app</Button>
   </ModalFooter>
 </RowLayout>
 

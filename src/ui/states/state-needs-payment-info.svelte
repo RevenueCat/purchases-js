@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { Purchases } from "../../main";
   import Button from "../button.svelte";
   import { Elements, PaymentElement } from "svelte-stripe";
   import type { Stripe, StripeElements } from "@stripe/stripe-js";
@@ -15,7 +14,6 @@
   export let onClose: any;
   export let onContinue: any;
   export let onError: any;
-  export let purchases: Purchases;
   export let paymentInfoCollectionMetadata: SubscribeResponse;
 
   const clientSecret = paymentInfoCollectionMetadata.data.client_secret;
