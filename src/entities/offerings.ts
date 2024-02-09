@@ -5,56 +5,173 @@ import {
 import { ProductResponse } from "../networking/responses/products-response";
 import { notEmpty } from "../helpers/type-helper";
 
+/**
+ * Enumeration of all possible Package types.
+ */
 export enum PackageType {
+  /**
+   * A package that was defined with an unrecognized RC identifier.
+   */
   Unknown = "unknown",
+  /**
+   * A package that was defined with a custom identifier.
+   */
   Custom = "custom",
+  /**
+   * A package configured with the predefined lifetime identifier.
+   */
   Lifetime = "$rc_lifetime",
+  /**
+   * A package configured with the predefined annual identifier.
+   */
   Annual = "$rc_annual",
+  /**
+   * A package configured with the predefined six month identifier.
+   */
   SixMonth = "$rc_six_month",
+  /**
+   * A package configured with the predefined three month identifier.
+   */
   ThreeMonth = "$rc_three_month",
+  /**
+   * A package configured with the predefined two month identifier.
+   */
   TwoMonth = "$rc_two_month",
+  /**
+   * A package configured with the predefined monthly identifier.
+   */
   Monthly = "$rc_monthly",
+  /**
+   * A package configured with the predefined weekly identifier.
+   */
   Weekly = "$rc_weekly",
 }
 
+/**
+ * Price information for a product.
+ */
 export interface Price {
+  /**
+   * Price in full units of the currency.
+   */
   readonly amount: number;
+  /**
+   * Returns ISO 4217 currency code for price.
+   * For example, if price is specified in British pounds sterling,
+   * currency is "GBP".
+   * If currency code cannot be determined, currency symbol is returned.
+   */
   readonly currency: string;
 }
 
+/**
+ * Represents product's listing details.
+ */
 export interface Product {
-  readonly id: string;
-  readonly displayName: string;
+  /**
+   * The product ID.
+   */
   readonly identifier: string;
-  readonly currentPrice: Price | null;
+  /**
+   * Name of the product.
+   */
+  readonly displayName: string;
+  /**
+   * Price of the product.
+   */
+  readonly currentPrice: Price;
+  /**
+   * The period duration for a subscription product.
+   */
   readonly normalPeriodDuration: string | null;
+  /**
+   * The offering ID used to obtain this product.
+   */
   readonly presentedOfferingIdentifier: string;
 }
 
+/**
+ * Contains information about the product available for the user to purchase.
+ * For more info see https://docs.revenuecat.com/docs/entitlements
+ */
 export interface Package {
-  readonly id: string;
+  /**
+   * Unique identifier for this package. Can be one a predefined package type or a custom one.
+   */
   readonly identifier: string;
+  /**
+   * The {@link Product} assigned to this package.
+   */
   readonly rcBillingProduct: Product;
+  /**
+   * The type of package.
+   */
   readonly packageType: PackageType;
 }
 
+/**
+ * An offering is a collection of {@link Package} available for the user to purchase.
+ * For more info see https://docs.revenuecat.com/docs/entitlements
+ */
 export interface Offering {
-  readonly id: string;
+  /**
+   * Unique identifier defined in RevenueCat dashboard.
+   */
   readonly identifier: string;
-  readonly displayName: string;
+  /**
+   * Offering description defined in RevenueCat dashboard.
+   */
+  readonly serverDescription: string;
+  /**
+   * Offering metadata defined in RevenueCat dashboard.
+   */
   readonly metadata: { [key: string]: unknown } | null;
+  /**
+   * A map of all the packages available for purchase keyed by package ID.
+   */
   readonly packages: { [key: string]: Package };
+  /**
+   * Lifetime package type configured in the RevenueCat dashboard, if available.
+   */
   readonly lifetimePackage: Package | null;
+  /**
+   * Annual package type configured in the RevenueCat dashboard, if available.
+   */
   readonly annualPackage: Package | null;
+  /**
+   * Six month package type configured in the RevenueCat dashboard, if available.
+   */
   readonly sixMonthPackage: Package | null;
+  /**
+   * Three month package type configured in the RevenueCat dashboard, if available.
+   */
   readonly threeMonthPackage: Package | null;
+  /**
+   * Two month package type configured in the RevenueCat dashboard, if available.
+   */
   readonly twoMonthPackage: Package | null;
+  /**
+   * Monthly package type configured in the RevenueCat dashboard, if available.
+   */
   readonly monthlyPackage: Package | null;
+  /**
+   * Weekly package type configured in the RevenueCat dashboard, if available.
+   */
   readonly weeklyPackage: Package | null;
 }
 
+/**
+ * This class contains all the offerings configured in RevenueCat dashboard.
+ * For more info see https://docs.revenuecat.com/docs/entitlements
+ */
 export interface Offerings {
+  /**
+   * Dictionary of all {@link Offering} objects keyed by their identifier.
+   */
   readonly all: { [offeringId: string]: Offering };
+  /**
+   * Current offering configured in the RevenueCat dashboard.
+   */
   readonly current: Offering | null;
 }
 
@@ -63,7 +180,6 @@ const toProduct = (
   presentedOfferingIdentifier: string,
 ): Product => {
   return {
-    id: productDetailsData.identifier,
     identifier: productDetailsData.identifier,
     displayName: productDetailsData.title,
     currentPrice: productDetailsData.current_price as Price,
@@ -82,7 +198,6 @@ const toPackage = (
   if (rcBillingProduct === undefined) return null;
 
   return {
-    id: packageData.identifier,
     identifier: packageData.identifier,
     rcBillingProduct: toProduct(rcBillingProduct, presentedOfferingIdentifier),
     packageType: getPackageType(packageData.identifier),
@@ -106,9 +221,8 @@ export const toOffering = (
   }
   if (packages.length == 0) return null;
   return {
-    id: offeringsData.identifier,
     identifier: offeringsData.identifier,
-    displayName: offeringsData.description,
+    serverDescription: offeringsData.description,
     metadata: offeringsData.metadata,
     packages: packagesById,
     lifetimePackage: packagesById[PackageType.Lifetime] ?? null,

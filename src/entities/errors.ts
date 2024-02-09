@@ -193,7 +193,12 @@ export enum BackendErrorCode {
   BackendProductIDsMalformed = 7662,
 }
 
+/**
+ * Error class for Purchases SDK. You should handle these errors and react
+ * accordingly in your app.
+ */
 export class PurchasesError extends Error {
+  /** @internal */
   static getForBackendError(
     backendErrorCode: BackendErrorCode,
     backendErrorMessage: string | null,
@@ -207,6 +212,7 @@ export class PurchasesError extends Error {
     );
   }
 
+  /** @internal */
   static getForPurchasesFlowError(
     purchasesFlowError: PurchaseFlowError,
   ): PurchasesError {
@@ -220,8 +226,19 @@ export class PurchasesError extends Error {
   }
 
   constructor(
+    /**
+     * Error code for the error. This is useful to appropriately react to
+     * different error situations.
+     */
     public readonly errorCode: ErrorCode,
+    /**
+     * Message for the error. This is useful for debugging and logging.
+     */
     message?: string,
+    /**
+     * Underlying error message. This provides more details on the error and
+     * can be useful for debugging and logging.
+     */
     public readonly underlyingErrorMessage?: string | null,
   ) {
     super(message);
