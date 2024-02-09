@@ -2,3 +2,5 @@ package-lock.json
 node_modules/
 examples/
 tsconfig.json
+docs/
+api-report/

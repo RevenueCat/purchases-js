@@ -3,8 +3,7 @@
   "projectFolder": ".",
   "mainEntryPointFilePath": "<projectFolder>/dist/Purchases.es.d.ts",
   "bundledPackages": [],
-  "compiler": {
-  },
+  "compiler": {},
   "apiReport": {
     "enabled": true,
     "reportFolder": "<projectFolder>/api-report/",
