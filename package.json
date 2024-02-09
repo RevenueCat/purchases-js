@@ -33,9 +33,13 @@
     "prettier:ci": "prettier --check .",
     "svelte-check": "svelte-check",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "extract-api": "api-extractor run --local --verbose",
+    "generate-docs": "api-documenter markdown --input-folder api-report --output-folder docs"
   },
   "devDependencies": {
+    "@microsoft/api-documenter": "^7.23.23",
+    "@microsoft/api-extractor": "^7.40.1",
     "@storybook/addon-essentials": "^7.5.3",
     "@storybook/addon-interactions": "^7.5.3",
     "@storybook/addon-links": "^7.5.3",

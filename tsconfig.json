@@ -5,6 +5,10 @@
     "useDefineForClassFields": true,
     "module": "ESNext",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "declaration": true,
+    "sourceMap": true,
+    "declarationMap": true,
+
     /* Bundler mode */
     "moduleResolution": "node",
     "resolveJsonModule": true,
