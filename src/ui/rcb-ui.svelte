@@ -184,7 +184,6 @@
         {/if}
         {#if state === "needs-payment-info" && paymentInfoCollectionMetadata}
           <StateNeedsPaymentInfo
-            {purchases}
             {paymentInfoCollectionMetadata}
             onContinue={handleContinue}
             onClose={handleClose}
@@ -196,6 +195,7 @@
         {/if}
         {#if state === "error"}
           <StateError
+            brandingInfo={brandingInfo}
             lastError={
               lastError ?? new PurchaseFlowError(
                 PurchaseFlowErrorCode.UnknownError, "Unknown error without state set."
@@ -205,7 +205,7 @@
             onContinue={closeWithError} />
         {/if}
         {#if state === "success"}
-          <StateSuccess onContinue={handleContinue} />
+          <StateSuccess brandingInfo={brandingInfo} onContinue={handleContinue} />
         {/if}
       </Shell>
     </div>
