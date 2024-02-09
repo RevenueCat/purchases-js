@@ -39,8 +39,9 @@ export { ErrorCode, PurchasesError } from "./entities/errors";
 
 /**
  * Entry point for Purchases SDK. It should be instantiated as soon as your
- * app is started.
- * @warning Only one instance of Purchases should be instantiated at a time!
+ * app is started. Only one instance of Purchases should be instantiated
+ * at a time!
+ * @public
  */
 export class Purchases {
   /** @internal */
@@ -54,7 +55,7 @@ export class Purchases {
 
   /**
    * Constructor for Purchases.
-   * @param apiKey RevenueCat API Key. Can be obtained from the RevenueCat dashboard.
+   * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.
    */
   constructor(apiKey: string) {
     this._API_KEY = apiKey;
@@ -114,7 +115,7 @@ export class Purchases {
   /**
    * Fetch the configured offerings for this user. You can configure these
    * in the RevenueCat dashboard.
-   * @param appUserId Your app's user id in your system.
+   * @param appUserId - Your app's user id in your system.
    */
   public async getOfferings(appUserId: string): Promise<Offerings> {
     const offeringsResponse = await this.backend.getOfferings(appUserId);
@@ -133,12 +134,12 @@ export class Purchases {
 
   /**
    * Convenience method to check whether a user is entitled to a specific
-   * entitlement. This will use {@link getCustomerInfo} under the hood.
-   * @param appUserId Your app's user id in your system.
-   * @param entitlementIdentifier The entitlement identifier you want to check.
+   * entitlement. This will use {@link Purchases.getCustomerInfo} under the hood.
+   * @param appUserId - Your app's user id in your system.
+   * @param entitlementIdentifier - The entitlement identifier you want to check.
    * @returns Whether the user is entitled to the specified entitlement
    * @throws {@link PurchasesError} if there is an error while fetching the customer info.
-   * @see {@link getCustomerInfo}
+   * @see {@link Purchases.getCustomerInfo}
    */
   public async isEntitledTo(
     appUserId: string,
@@ -150,13 +151,13 @@ export class Purchases {
 
   /**
    * Method to perform a purchase for a given package. You can obtain the
-   * package from {@link getOfferings}. This method will present the purchase
+   * package from {@link Purchases.getOfferings}. This method will present the purchase
    * form on your site, using the given HTML element as the mount point, if
    * provided, or as a modal if not.
-   * @param appUserId Your app's user id in your system.
-   * @param rcPackage The package you want to purchase. Obtained from {@link getOfferings}.
-   * @param customerEmail The email of the user. If null, RevenueCat will ask the customer for their email.
-   * @param htmlTarget The HTML element where the billing view should be added. If null, a new div will be created at the root of the page and appended to the body.
+   * @param appUserId - Your app's user id in your system.
+   * @param rcPackage - The package you want to purchase. Obtained from {@link Purchases.getOfferings}.
+   * @param customerEmail - The email of the user. If null, RevenueCat will ask the customer for their email.
+   * @param htmlTarget - The HTML element where the billing view should be added. If null, a new div will be created at the root of the page and appended to the body.
    * @returns The customer info after the purchase is completed successfuly.
    * @throws {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.
    */
@@ -217,7 +218,7 @@ export class Purchases {
 
   /**
    * Gets latest available {@link CustomerInfo}.
-   * @param appUserId Your app's user id in your system.
+   * @param appUserId - Your app's user id in your system.
    * @returns The latest {@link CustomerInfo}.
    * @throws {@link PurchasesError} if there is an error while fetching the customer info.
    */

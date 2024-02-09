@@ -7,6 +7,7 @@ import { notEmpty } from "../helpers/type-helper";
 
 /**
  * Enumeration of all possible Package types.
+ * @public
  */
 export enum PackageType {
   /**
@@ -49,6 +50,7 @@ export enum PackageType {
 
 /**
  * Price information for a product.
+ * @public
  */
 export interface Price {
   /**
@@ -66,6 +68,7 @@ export interface Price {
 
 /**
  * Represents product's listing details.
+ * @public
  */
 export interface Product {
   /**
@@ -93,6 +96,7 @@ export interface Product {
 /**
  * Contains information about the product available for the user to purchase.
  * For more info see https://docs.revenuecat.com/docs/entitlements
+ * @public
  */
 export interface Package {
   /**
@@ -112,6 +116,7 @@ export interface Package {
 /**
  * An offering is a collection of {@link Package} available for the user to purchase.
  * For more info see https://docs.revenuecat.com/docs/entitlements
+ * @public
  */
 export interface Offering {
   /**
@@ -163,6 +168,7 @@ export interface Offering {
 /**
  * This class contains all the offerings configured in RevenueCat dashboard.
  * For more info see https://docs.revenuecat.com/docs/entitlements
+ * @public
  */
 export interface Offerings {
   /**

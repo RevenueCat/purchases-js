@@ -6,6 +6,7 @@ import {
 
 /**
  * The store where the user originally subscribed.
+ * @public
  */
 export type Store =
   | "app_store"
@@ -22,12 +23,14 @@ export type Store =
  * - "normal" If the entitlement is not under an introductory or trial period.
  * - "intro" If the entitlement is under an introductory period.
  * - "trial" If the entitlement is under a trial period.
+ * @public
  */
 export type PeriodType = "normal" | "intro" | "trial";
 
 /**
  * This object gives you access to all the information about the status
  * of a user's entitlements.
+ * @public
  */
 export interface EntitlementInfo {
   /**
@@ -54,7 +57,7 @@ export interface EntitlementInfo {
   readonly originalPurchaseDate: Date;
   /**
    * The expiration date for the entitlement, can be `null` for lifetime
-   * access. If the {@link periodType} is `trial`, this is the trial
+   * access. If the {@link EntitlementInfo.periodType} is `trial`, this is the trial
    * expiration date.
    */
   readonly expirationDate: Date | null;
@@ -65,7 +68,7 @@ export interface EntitlementInfo {
   /**
    * The date an unsubscribe was detected. Can be `null`.
    * Note: Entitlement may still be active even if user has unsubscribed.
-   * Check the {@link isActive} property.
+   * Check the {@link EntitlementInfo.isActive} property.
    */
   readonly unsubscribeDetectedAt: Date | null;
   /**
@@ -87,6 +90,7 @@ export interface EntitlementInfo {
 
 /**
  * Contains all the entitlements associated to the user.
+ * @public
  */
 export interface EntitlementInfos {
   /**
@@ -102,6 +106,7 @@ export interface EntitlementInfos {
 
 /**
  * Type containing all information regarding the customer.
+ * @public
  */
 export interface CustomerInfo {
   /**

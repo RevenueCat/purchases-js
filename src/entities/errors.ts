@@ -3,6 +3,10 @@ import {
   PurchaseFlowErrorCode,
 } from "../helpers/purchase-operation-helper";
 
+/**
+ * Error codes for the Purchases SDK.
+ * @public
+ */
 export enum ErrorCode {
   UnknownError = 0,
   UserCancelledError = 1,
@@ -196,6 +200,7 @@ export enum BackendErrorCode {
 /**
  * Error class for Purchases SDK. You should handle these errors and react
  * accordingly in your app.
+ * @public
  */
 export class PurchasesError extends Error {
   /** @internal */
