@@ -1,15 +1,7 @@
-import {
-  Offering as InnerOffering,
-  Offerings as InnerOfferings,
-  Package as InnerPackage,
-  toOffering,
-} from "./entities/offerings";
+import { Offering, Offerings, Package, toOffering } from "./entities/offerings";
 import RCPurchasesUI from "./ui/rcb-ui.svelte";
 
-import {
-  CustomerInfo as InnerCustomerInfo,
-  toCustomerInfo,
-} from "./entities/customer-info";
+import { CustomerInfo, toCustomerInfo } from "./entities/customer-info";
 import { ErrorCode, PurchasesError } from "./entities/errors";
 import {
   OfferingResponse,
@@ -28,10 +20,15 @@ import {
   PurchaseOperationHelper,
 } from "./helpers/purchase-operation-helper";
 
-export type Offerings = InnerOfferings;
-export type Offering = InnerOffering;
-export type Package = InnerPackage;
-export type CustomerInfo = InnerCustomerInfo;
+export type {
+  Offering,
+  Offerings,
+  Package,
+  Product,
+  Price,
+} from "./entities/offerings";
+export { PackageType } from "./entities/offerings";
+export type { CustomerInfo } from "./entities/customer-info";
 export type {
   EntitlementInfos,
   EntitlementInfo,
@@ -40,13 +37,26 @@ export type {
 } from "./entities/customer-info";
 export { ErrorCode, PurchasesError } from "./entities/errors";
 
+/**
+ * Entry point for Purchases SDK. It should be instantiated as soon as your
+ * app is started. Only one instance of Purchases should be instantiated
+ * at a time!
+ * @public
+ */
 export class Purchases {
-  // @internal
+  /** @internal */
   readonly _API_KEY: string;
 
+  /** @internal */
   private readonly backend: Backend;
+
+  /** @internal */
   private readonly purchaseOperationHelper: PurchaseOperationHelper;
 
+  /**
+   * Constructor for Purchases.
+   * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.
+   */
   constructor(apiKey: string) {
     this._API_KEY = apiKey;
 
@@ -60,6 +70,7 @@ export class Purchases {
     this.purchaseOperationHelper = new PurchaseOperationHelper(this.backend);
   }
 
+  /** @internal */
   private toOfferings = (
     offeringsData: OfferingsResponse,
     productsData: ProductsResponse,
@@ -75,7 +86,7 @@ export class Purchases {
       productsMap[p.identifier] = p;
     });
 
-    const currentOffering: InnerOffering | null =
+    const currentOffering: Offering | null =
       currentOfferingResponse == null
         ? null
         : toOffering(currentOfferingResponse, productsMap);
@@ -101,6 +112,11 @@ export class Purchases {
     };
   };
 
+  /**
+   * Fetch the configured offerings for this user. You can configure these
+   * in the RevenueCat dashboard.
+   * @param appUserId - Your app's user id in your system.
+   */
   public async getOfferings(appUserId: string): Promise<Offerings> {
     const offeringsResponse = await this.backend.getOfferings(appUserId);
     const productIds = offeringsResponse.offerings
@@ -116,6 +132,15 @@ export class Purchases {
     return this.toOfferings(offeringsResponse, productsResponse);
   }
 
+  /**
+   * Convenience method to check whether a user is entitled to a specific
+   * entitlement. This will use {@link Purchases.getCustomerInfo} under the hood.
+   * @param appUserId - Your app's user id in your system.
+   * @param entitlementIdentifier - The entitlement identifier you want to check.
+   * @returns Whether the user is entitled to the specified entitlement
+   * @throws {@link PurchasesError} if there is an error while fetching the customer info.
+   * @see {@link Purchases.getCustomerInfo}
+   */
   public async isEntitledTo(
     appUserId: string,
     entitlementIdentifier: string,
@@ -124,16 +149,23 @@ export class Purchases {
     return entitlementIdentifier in customerInfo.entitlements.active;
   }
 
+  /**
+   * Method to perform a purchase for a given package. You can obtain the
+   * package from {@link Purchases.getOfferings}. This method will present the purchase
+   * form on your site, using the given HTML element as the mount point, if
+   * provided, or as a modal if not.
+   * @param appUserId - Your app's user id in your system.
+   * @param rcPackage - The package you want to purchase. Obtained from {@link Purchases.getOfferings}.
+   * @param customerEmail - The email of the user. If null, RevenueCat will ask the customer for their email.
+   * @param htmlTarget - The HTML element where the billing view should be added. If null, a new div will be created at the root of the page and appended to the body.
+   * @returns The customer info after the purchase is completed successfuly.
+   * @throws {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.
+   */
   public purchasePackage(
     appUserId: string,
     rcPackage: Package,
-    {
-      customerEmail,
-      htmlTarget,
-    }: {
-      customerEmail?: string;
-      htmlTarget?: HTMLElement;
-    } = {},
+    customerEmail?: string,
+    htmlTarget?: HTMLElement,
   ): Promise<{ customerInfo: CustomerInfo }> {
     let resolvedHTMLTarget =
       htmlTarget ?? document.getElementById("rcb-ui-root");
@@ -184,12 +216,19 @@ export class Purchases {
     });
   }
 
+  /**
+   * Gets latest available {@link CustomerInfo}.
+   * @param appUserId - Your app's user id in your system.
+   * @returns The latest {@link CustomerInfo}.
+   * @throws {@link PurchasesError} if there is an error while fetching the customer info.
+   */
   public async getCustomerInfo(appUserId: string): Promise<CustomerInfo> {
     const subscriberResponse = await this.backend.getCustomerInfo(appUserId);
 
     return toCustomerInfo(subscriberResponse);
   }
 
+  /** @internal */
   private logMissingProductIds(
     productIds: string[],
     productDetails: ProductResponse[],
@@ -213,6 +252,9 @@ export class Purchases {
     }
   }
 
+  /**
+   * @returns Whether the SDK is using a sandbox API Key.
+   */
   public isSandbox(): boolean {
     return isSandboxApiKey(this._API_KEY);
   }

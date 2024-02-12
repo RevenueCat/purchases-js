@@ -1,9 +1,15 @@
 import { setupServer } from "msw/node";
 import { beforeAll, describe, expect, test } from "vitest";
-import { EntitlementInfo, Purchases } from "../main";
+import {
+  EntitlementInfo,
+  Offering,
+  Offerings,
+  Package,
+  PackageType,
+  Purchases,
+  CustomerInfo,
+} from "../main";
 import { getRequestHandlers } from "./test-responses";
-import { PackageType } from "../entities/offerings";
-import { CustomerInfo } from "../entities/customer-info";
 
 const server = setupServer(...getRequestHandlers());
 
@@ -35,8 +41,7 @@ test("returns false if a user is not entitled", async () => {
 });
 
 describe("getOfferings", () => {
-  const expectedMonthlyPackage = {
-    id: "$rc_monthly",
+  const expectedMonthlyPackage: Package = {
     identifier: "$rc_monthly",
     packageType: PackageType.Monthly,
     rcBillingProduct: {
@@ -45,7 +50,6 @@ describe("getOfferings", () => {
         amount: 300,
       },
       displayName: "Monthly test",
-      id: "monthly",
       identifier: "monthly",
       normalPeriodDuration: "PT1H",
       presentedOfferingIdentifier: "offering_1",
@@ -55,9 +59,8 @@ describe("getOfferings", () => {
     const billing = new Purchases("test_api_key");
     const offerings = await billing.getOfferings("someAppUserId");
 
-    const currentOffering = {
-      displayName: "Offering 1",
-      id: "offering_1",
+    const currentOffering: Offering = {
+      serverDescription: "Offering 1",
       identifier: "offering_1",
       metadata: null,
       packages: {
@@ -76,13 +79,11 @@ describe("getOfferings", () => {
       all: {
         offering_1: currentOffering,
         offering_2: {
-          displayName: "Offering 2",
-          id: "offering_2",
+          serverDescription: "Offering 2",
           identifier: "offering_2",
           metadata: null,
           packages: {
             package_2: {
-              id: "package_2",
               identifier: "package_2",
               packageType: "custom",
               rcBillingProduct: {
@@ -91,7 +92,6 @@ describe("getOfferings", () => {
                   amount: 500,
                 },
                 displayName: "Monthly test 2",
-                id: "monthly_2",
                 identifier: "monthly_2",
                 normalPeriodDuration: "PT1H",
                 presentedOfferingIdentifier: "offering_2",
@@ -116,12 +116,10 @@ describe("getOfferings", () => {
     const offerings = await billing.getOfferings(
       "appUserIdWithoutCurrentOfferingId",
     );
-
-    expect(offerings).toEqual({
+    const expectedOfferings: Offerings = {
       all: {
         offering_1: {
-          displayName: "Offering 1",
-          id: "offering_1",
+          serverDescription: "Offering 1",
           identifier: "offering_1",
           metadata: null,
           packages: {
@@ -136,22 +134,19 @@ describe("getOfferings", () => {
           weeklyPackage: null,
         },
         offering_2: {
-          displayName: "Offering 2",
-          id: "offering_2",
+          serverDescription: "Offering 2",
           identifier: "offering_2",
           metadata: null,
           packages: {
             package_2: {
-              id: "package_2",
               identifier: "package_2",
-              packageType: "custom",
+              packageType: PackageType.Custom,
               rcBillingProduct: {
                 currentPrice: {
                   currency: "USD",
                   amount: 500,
                 },
                 displayName: "Monthly test 2",
-                id: "monthly_2",
                 identifier: "monthly_2",
                 normalPeriodDuration: "PT1H",
                 presentedOfferingIdentifier: "offering_2",
@@ -168,7 +163,9 @@ describe("getOfferings", () => {
         },
       },
       current: null,
-    });
+    };
+
+    expect(offerings).toEqual(expectedOfferings);
   });
 
   test("can get offerings with missing products", async () => {
@@ -177,9 +174,8 @@ describe("getOfferings", () => {
       "appUserIdWithMissingProducts",
     );
 
-    const offering_1 = {
-      displayName: "Offering 1",
-      id: "offering_1",
+    const offering_1: Offering = {
+      serverDescription: "Offering 1",
       identifier: "offering_1",
       metadata: null,
       packages: {

@@ -34,7 +34,7 @@
   let brandingInfo: BrandingInfoResponse | null = null;
   let paymentInfoCollectionMetadata: SubscribeResponse | null = null;
   let lastError: PurchaseFlowError | null = null;
-  const productId = rcPackage.rcBillingProduct?.id ?? null;
+  const productId = rcPackage.rcBillingProduct?.identifier ?? null;
 
   let state:
     | "present-offer"
