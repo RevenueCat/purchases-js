@@ -59,6 +59,18 @@ jobs:
       - script: npm run build
         displayName: "Build"
 
+      - script: npm run extract-api
+        displayName: "Extract API using api-extractor"
+
+      - script: git diff --exit-code api-report/**
+        displayName: "Check if API has changed"
+
+      - script: npm run generate-docs
+        displayName: "Generate documentation"
+
+      - script: git diff --exit-code docs/**
+        displayName: "Check if docs have changed"
+
       - script: npm pack
         displayName: "Pack"
 

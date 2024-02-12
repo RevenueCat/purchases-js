@@ -193,8 +193,37 @@ npm i /path/to/rcbilling-js
 ## Running tests
 
 ```bash
-npm test
+npm run test
 ```
+
+## Running linters
+
+```bash
+npm run test:typeCheck
+npm run svelte-check
+npm run prettier
+npm run lint
+```
+
+## Update API specs
+
+```bash
+npm run extract-api
+```
+
+This will update the files in `api-report` with the latest public API.
+If it has uncommited changes, CI tests will fail. Run this command and commit the changes if
+they are expected.
+
+## Update reference docs
+
+```bash
+npm run generate-docs
+```
+
+This will update the reference docs in the `docs` folder with the latest public API docs.
+If it has uncommited changes, CI tests will fail. Run this command and commit the changes if
+they are expected.
 
 # Publishing a new version
 

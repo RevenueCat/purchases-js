@@ -135,3 +135,5 @@ dist
 dist/
 revenuecat-purchases-*.tgz
 package/
+
+temp/
