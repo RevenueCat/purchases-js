@@ -134,7 +134,11 @@ export interface Offering {
   /**
    * A map of all the packages available for purchase keyed by package ID.
    */
-  readonly packages: { [key: string]: Package };
+  readonly packagesById: { [key: string]: Package };
+  /**
+   * A list of all the packages available for purchase.
+   */
+  readonly availablePackages: Package[];
   /**
    * Lifetime package type configured in the RevenueCat dashboard, if available.
    */
@@ -230,7 +234,8 @@ export const toOffering = (
     identifier: offeringsData.identifier,
     serverDescription: offeringsData.description,
     metadata: offeringsData.metadata,
-    packages: packagesById,
+    packagesById: packagesById,
+    availablePackages: packages,
     lifetimePackage: packagesById[PackageType.Lifetime] ?? null,
     annualPackage: packagesById[PackageType.Annual] ?? null,
     sixMonthPackage: packagesById[PackageType.SixMonth] ?? null,

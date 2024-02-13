@@ -151,7 +151,7 @@ You built your paywall, and your user just clicked on the offer they want to sub
 ```tsx
 const purchases = new Purchases("your RC_PUBLISHABLE_API_KEY");
 // You can retrieve the package from the offerings through `getOfferings`:
-const rcBillingPackage = offerings.current.packages[0];
+const rcBillingPackage = offerings.current.availablePackages[0];
 const appUserId =
   "the unique id of the user that wants to subscribe to your product";
 const entitlementIdToCheck =
