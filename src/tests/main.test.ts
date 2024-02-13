@@ -63,9 +63,10 @@ describe("getOfferings", () => {
       serverDescription: "Offering 1",
       identifier: "offering_1",
       metadata: null,
-      packages: {
+      packagesById: {
         $rc_monthly: expectedMonthlyPackage,
       },
+      availablePackages: [expectedMonthlyPackage],
       lifetimePackage: null,
       annualPackage: null,
       sixMonthPackage: null,
@@ -75,6 +76,21 @@ describe("getOfferings", () => {
       weeklyPackage: null,
     };
 
+    const package2 = {
+      identifier: "package_2",
+      packageType: "custom",
+      rcBillingProduct: {
+        currentPrice: {
+          currency: "USD",
+          amount: 500,
+        },
+        displayName: "Monthly test 2",
+        identifier: "monthly_2",
+        normalPeriodDuration: "PT1H",
+        presentedOfferingIdentifier: "offering_2",
+      },
+    };
+
     expect(offerings).toEqual({
       all: {
         offering_1: currentOffering,
@@ -82,22 +98,10 @@ describe("getOfferings", () => {
           serverDescription: "Offering 2",
           identifier: "offering_2",
           metadata: null,
-          packages: {
-            package_2: {
-              identifier: "package_2",
-              packageType: "custom",
-              rcBillingProduct: {
-                currentPrice: {
-                  currency: "USD",
-                  amount: 500,
-                },
-                displayName: "Monthly test 2",
-                identifier: "monthly_2",
-                normalPeriodDuration: "PT1H",
-                presentedOfferingIdentifier: "offering_2",
-              },
-            },
+          packagesById: {
+            package_2: package2,
           },
+          availablePackages: [package2],
           lifetimePackage: null,
           annualPackage: null,
           sixMonthPackage: null,
@@ -116,15 +120,30 @@ describe("getOfferings", () => {
     const offerings = await billing.getOfferings(
       "appUserIdWithoutCurrentOfferingId",
     );
+    const package2 = {
+      identifier: "package_2",
+      packageType: PackageType.Custom,
+      rcBillingProduct: {
+        currentPrice: {
+          currency: "USD",
+          amount: 500,
+        },
+        displayName: "Monthly test 2",
+        identifier: "monthly_2",
+        normalPeriodDuration: "PT1H",
+        presentedOfferingIdentifier: "offering_2",
+      },
+    };
     const expectedOfferings: Offerings = {
       all: {
         offering_1: {
           serverDescription: "Offering 1",
           identifier: "offering_1",
           metadata: null,
-          packages: {
+          packagesById: {
             $rc_monthly: expectedMonthlyPackage,
           },
+          availablePackages: [expectedMonthlyPackage],
           lifetimePackage: null,
           annualPackage: null,
           sixMonthPackage: null,
@@ -137,22 +156,10 @@ describe("getOfferings", () => {
           serverDescription: "Offering 2",
           identifier: "offering_2",
           metadata: null,
-          packages: {
-            package_2: {
-              identifier: "package_2",
-              packageType: PackageType.Custom,
-              rcBillingProduct: {
-                currentPrice: {
-                  currency: "USD",
-                  amount: 500,
-                },
-                displayName: "Monthly test 2",
-                identifier: "monthly_2",
-                normalPeriodDuration: "PT1H",
-                presentedOfferingIdentifier: "offering_2",
-              },
-            },
+          packagesById: {
+            package_2: package2,
           },
+          availablePackages: [package2],
           lifetimePackage: null,
           annualPackage: null,
           sixMonthPackage: null,
@@ -178,9 +185,10 @@ describe("getOfferings", () => {
       serverDescription: "Offering 1",
       identifier: "offering_1",
       metadata: null,
-      packages: {
+      packagesById: {
         $rc_monthly: expectedMonthlyPackage,
       },
+      availablePackages: [expectedMonthlyPackage],
       lifetimePackage: null,
       annualPackage: null,
       sixMonthPackage: null,

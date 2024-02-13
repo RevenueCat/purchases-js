@@ -17,11 +17,12 @@ export declare interface Offering
 |  Property | Modifiers | Type | Description |
 |  --- | --- | --- | --- |
 |  [annualPackage](./purchases-js.offering.annualpackage.md) | <code>readonly</code> | [Package](./purchases-js.package.md) \| null | Annual package type configured in the RevenueCat dashboard, if available. |
+|  [availablePackages](./purchases-js.offering.availablepackages.md) | <code>readonly</code> | [Package](./purchases-js.package.md)<!-- -->\[\] | A list of all the packages available for purchase. |
 |  [identifier](./purchases-js.offering.identifier.md) | <code>readonly</code> | string | Unique identifier defined in RevenueCat dashboard. |
 |  [lifetimePackage](./purchases-js.offering.lifetimepackage.md) | <code>readonly</code> | [Package](./purchases-js.package.md) \| null | Lifetime package type configured in the RevenueCat dashboard, if available. |
 |  [metadata](./purchases-js.offering.metadata.md) | <code>readonly</code> | { \[key: string\]: unknown; } \| null | Offering metadata defined in RevenueCat dashboard. |
 |  [monthlyPackage](./purchases-js.offering.monthlypackage.md) | <code>readonly</code> | [Package](./purchases-js.package.md) \| null | Monthly package type configured in the RevenueCat dashboard, if available. |
-|  [packages](./purchases-js.offering.packages.md) | <code>readonly</code> | { \[key: string\]: [Package](./purchases-js.package.md)<!-- -->; } | A map of all the packages available for purchase keyed by package ID. |
+|  [packagesById](./purchases-js.offering.packagesbyid.md) | <code>readonly</code> | { \[key: string\]: [Package](./purchases-js.package.md)<!-- -->; } | A map of all the packages available for purchase keyed by package ID. |
 |  [serverDescription](./purchases-js.offering.serverdescription.md) | <code>readonly</code> | string | Offering description defined in RevenueCat dashboard. |
 |  [sixMonthPackage](./purchases-js.offering.sixmonthpackage.md) | <code>readonly</code> | [Package](./purchases-js.package.md) \| null | Six month package type configured in the RevenueCat dashboard, if available. |
 |  [threeMonthPackage](./purchases-js.offering.threemonthpackage.md) | <code>readonly</code> | [Package](./purchases-js.package.md) \| null | Three month package type configured in the RevenueCat dashboard, if available. |
