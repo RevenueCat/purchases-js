@@ -1521,6 +1521,38 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!Offering#availablePackages:member",
+              "docComment": "/**\n * A list of all the packages available for purchase.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly availablePackages: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Package",
+                  "canonicalReference": "@revenuecat/purchases-js!Package:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[]"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "availablePackages",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!Offering#identifier:member",
               "docComment": "/**\n * Unique identifier defined in RevenueCat dashboard.\n */\n",
               "excerptTokens": [
@@ -1639,12 +1671,12 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!Offering#packages:member",
+              "canonicalReference": "@revenuecat/purchases-js!Offering#packagesById:member",
               "docComment": "/**\n * A map of all the packages available for purchase keyed by package ID.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "readonly packages: "
+                  "text": "readonly packagesById: "
                 },
                 {
                   "kind": "Content",
@@ -1667,7 +1699,7 @@
               "isReadonly": true,
               "isOptional": false,
               "releaseTag": "Public",
-              "name": "packages",
+              "name": "packagesById",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 4

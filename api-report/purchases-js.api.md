@@ -107,13 +107,14 @@ export enum ErrorCode {
 // @public
 export interface Offering {
     readonly annualPackage: Package | null;
+    readonly availablePackages: Package[];
     readonly identifier: string;
     readonly lifetimePackage: Package | null;
     readonly metadata: {
         [key: string]: unknown;
     } | null;
     readonly monthlyPackage: Package | null;
-    readonly packages: {
+    readonly packagesById: {
         [key: string]: Package;
     };
     readonly serverDescription: string;
