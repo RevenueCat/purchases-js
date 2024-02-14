@@ -1,3 +1,9 @@
+# 0.0.13
+- Add `availablePackages` to `Offering` type (#63)
+- Add api-extractor and api-documenter (#61)
+- Add docs for public API (#60)
+- Small magic form improvements (#59)
+
 # 0.0.12
 - Update README with latest API changes (#47)
 - Use Stripe params from the server instead of env variables (#57)
