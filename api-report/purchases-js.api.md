@@ -106,22 +106,22 @@ export enum ErrorCode {
 
 // @public
 export interface Offering {
-    readonly annualPackage: Package | null;
+    readonly annual: Package | null;
     readonly availablePackages: Package[];
     readonly identifier: string;
-    readonly lifetimePackage: Package | null;
+    readonly lifetime: Package | null;
     readonly metadata: {
         [key: string]: unknown;
     } | null;
-    readonly monthlyPackage: Package | null;
+    readonly monthly: Package | null;
     readonly packagesById: {
         [key: string]: Package;
     };
     readonly serverDescription: string;
-    readonly sixMonthPackage: Package | null;
-    readonly threeMonthPackage: Package | null;
-    readonly twoMonthPackage: Package | null;
-    readonly weeklyPackage: Package | null;
+    readonly sixMonth: Package | null;
+    readonly threeMonth: Package | null;
+    readonly twoMonth: Package | null;
+    readonly weekly: Package | null;
 }
 
 // @public
