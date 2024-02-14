@@ -1489,12 +1489,12 @@
           "members": [
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!Offering#annualPackage:member",
+              "canonicalReference": "@revenuecat/purchases-js!Offering#annual:member",
               "docComment": "/**\n * Annual package type configured in the RevenueCat dashboard, if available.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "readonly annualPackage: "
+                  "text": "readonly annual: "
                 },
                 {
                   "kind": "Reference",
@@ -1513,7 +1513,7 @@
               "isReadonly": true,
               "isOptional": false,
               "releaseTag": "Public",
-              "name": "annualPackage",
+              "name": "annual",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 3
@@ -1580,12 +1580,12 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!Offering#lifetimePackage:member",
+              "canonicalReference": "@revenuecat/purchases-js!Offering#lifetime:member",
               "docComment": "/**\n * Lifetime package type configured in the RevenueCat dashboard, if available.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "readonly lifetimePackage: "
+                  "text": "readonly lifetime: "
                 },
                 {
                   "kind": "Reference",
@@ -1604,7 +1604,7 @@
               "isReadonly": true,
               "isOptional": false,
               "releaseTag": "Public",
-              "name": "lifetimePackage",
+              "name": "lifetime",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 3
@@ -1639,12 +1639,12 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!Offering#monthlyPackage:member",
+              "canonicalReference": "@revenuecat/purchases-js!Offering#monthly:member",
               "docComment": "/**\n * Monthly package type configured in the RevenueCat dashboard, if available.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "readonly monthlyPackage: "
+                  "text": "readonly monthly: "
                 },
                 {
                   "kind": "Reference",
@@ -1663,7 +1663,7 @@
               "isReadonly": true,
               "isOptional": false,
               "releaseTag": "Public",
-              "name": "monthlyPackage",
+              "name": "monthly",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 3
@@ -1734,12 +1734,12 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!Offering#sixMonthPackage:member",
+              "canonicalReference": "@revenuecat/purchases-js!Offering#sixMonth:member",
               "docComment": "/**\n * Six month package type configured in the RevenueCat dashboard, if available.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "readonly sixMonthPackage: "
+                  "text": "readonly sixMonth: "
                 },
                 {
                   "kind": "Reference",
@@ -1758,7 +1758,7 @@
               "isReadonly": true,
               "isOptional": false,
               "releaseTag": "Public",
-              "name": "sixMonthPackage",
+              "name": "sixMonth",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 3
@@ -1766,12 +1766,12 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!Offering#threeMonthPackage:member",
+              "canonicalReference": "@revenuecat/purchases-js!Offering#threeMonth:member",
               "docComment": "/**\n * Three month package type configured in the RevenueCat dashboard, if available.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "readonly threeMonthPackage: "
+                  "text": "readonly threeMonth: "
                 },
                 {
                   "kind": "Reference",
@@ -1790,7 +1790,7 @@
               "isReadonly": true,
               "isOptional": false,
               "releaseTag": "Public",
-              "name": "threeMonthPackage",
+              "name": "threeMonth",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 3
@@ -1798,12 +1798,12 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!Offering#twoMonthPackage:member",
+              "canonicalReference": "@revenuecat/purchases-js!Offering#twoMonth:member",
               "docComment": "/**\n * Two month package type configured in the RevenueCat dashboard, if available.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "readonly twoMonthPackage: "
+                  "text": "readonly twoMonth: "
                 },
                 {
                   "kind": "Reference",
@@ -1822,7 +1822,7 @@
               "isReadonly": true,
               "isOptional": false,
               "releaseTag": "Public",
-              "name": "twoMonthPackage",
+              "name": "twoMonth",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 3
@@ -1830,12 +1830,12 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!Offering#weeklyPackage:member",
+              "canonicalReference": "@revenuecat/purchases-js!Offering#weekly:member",
               "docComment": "/**\n * Weekly package type configured in the RevenueCat dashboard, if available.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "readonly weeklyPackage: "
+                  "text": "readonly weekly: "
                 },
                 {
                   "kind": "Reference",
@@ -1854,7 +1854,7 @@
               "isReadonly": true,
               "isOptional": false,
               "releaseTag": "Public",
-              "name": "weeklyPackage",
+              "name": "weekly",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 3

@@ -142,31 +142,31 @@ export interface Offering {
   /**
    * Lifetime package type configured in the RevenueCat dashboard, if available.
    */
-  readonly lifetimePackage: Package | null;
+  readonly lifetime: Package | null;
   /**
    * Annual package type configured in the RevenueCat dashboard, if available.
    */
-  readonly annualPackage: Package | null;
+  readonly annual: Package | null;
   /**
    * Six month package type configured in the RevenueCat dashboard, if available.
    */
-  readonly sixMonthPackage: Package | null;
+  readonly sixMonth: Package | null;
   /**
    * Three month package type configured in the RevenueCat dashboard, if available.
    */
-  readonly threeMonthPackage: Package | null;
+  readonly threeMonth: Package | null;
   /**
    * Two month package type configured in the RevenueCat dashboard, if available.
    */
-  readonly twoMonthPackage: Package | null;
+  readonly twoMonth: Package | null;
   /**
    * Monthly package type configured in the RevenueCat dashboard, if available.
    */
-  readonly monthlyPackage: Package | null;
+  readonly monthly: Package | null;
   /**
    * Weekly package type configured in the RevenueCat dashboard, if available.
    */
-  readonly weeklyPackage: Package | null;
+  readonly weekly: Package | null;
 }
 
 /**
@@ -236,13 +236,13 @@ export const toOffering = (
     metadata: offeringsData.metadata,
     packagesById: packagesById,
     availablePackages: packages,
-    lifetimePackage: packagesById[PackageType.Lifetime] ?? null,
-    annualPackage: packagesById[PackageType.Annual] ?? null,
-    sixMonthPackage: packagesById[PackageType.SixMonth] ?? null,
-    threeMonthPackage: packagesById[PackageType.ThreeMonth] ?? null,
-    twoMonthPackage: packagesById[PackageType.TwoMonth] ?? null,
-    monthlyPackage: packagesById[PackageType.Monthly] ?? null,
-    weeklyPackage: packagesById[PackageType.Weekly] ?? null,
+    lifetime: packagesById[PackageType.Lifetime] ?? null,
+    annual: packagesById[PackageType.Annual] ?? null,
+    sixMonth: packagesById[PackageType.SixMonth] ?? null,
+    threeMonth: packagesById[PackageType.ThreeMonth] ?? null,
+    twoMonth: packagesById[PackageType.TwoMonth] ?? null,
+    monthly: packagesById[PackageType.Monthly] ?? null,
+    weekly: packagesById[PackageType.Weekly] ?? null,
   };
 };
 
