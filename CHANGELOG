@@ -1,3 +1,6 @@
+# 0.0.14
+- Rename package timed accessors to match other SDKs (#65)
+
 # 0.0.13
 - Add `availablePackages` to `Offering` type (#63)
 - Add api-extractor and api-documenter (#61)
