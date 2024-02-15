@@ -172,13 +172,18 @@ export interface Product {
 
 // @public
 export class Purchases {
-    constructor(apiKey: string);
-    getCustomerInfo(appUserId: string): Promise<CustomerInfo>;
-    getOfferings(appUserId: string): Promise<Offerings>;
-    isEntitledTo(appUserId: string, entitlementIdentifier: string): Promise<boolean>;
+    changeUser(newAppUserId: string): Promise<CustomerInfo>;
+    close(): void;
+    getAppUserId(): string;
+    getCustomerInfo(): Promise<CustomerInfo>;
+    static getInstance(): Purchases;
+    getOfferings(): Promise<Offerings>;
+    static initializePurchases(apiKey: string, appUserId: string): Purchases;
+    static isConfigured(): boolean;
+    isEntitledTo(entitlementIdentifier: string): Promise<boolean>;
     // (undocumented)
     isSandbox(): boolean;
-    purchasePackage(appUserId: string, rcPackage: Package, customerEmail?: string, htmlTarget?: HTMLElement): Promise<{
+    purchasePackage(rcPackage: Package, customerEmail?: string, htmlTarget?: HTMLElement): Promise<{
         customerInfo: CustomerInfo;
     }>;
 }

@@ -9,15 +9,8 @@ Gets latest available [CustomerInfo](./purchases-js.customerinfo.md)<!-- -->.
 **Signature:**
 
 ```typescript
-getCustomerInfo(appUserId: string): Promise<CustomerInfo>;
+getCustomerInfo(): Promise<CustomerInfo>;
 ```
-
-## Parameters
-
-|  Parameter | Type | Description |
-|  --- | --- | --- |
-|  appUserId | string | Your app's user id in your system. |
-
 **Returns:**
 
 Promise&lt;[CustomerInfo](./purchases-js.customerinfo.md)<!-- -->&gt;
