@@ -4,7 +4,6 @@ import IChildrenProps from "./IChildrenProps";
 
 interface IWithEntitlementProps extends IChildrenProps {
   purchases: Purchases;
-  appUserId: string;
   entitlementId: string;
   onNotEntitled?: () => void;
   onEntitled?: () => void;
@@ -13,7 +12,6 @@ interface IWithEntitlementProps extends IChildrenProps {
 
 const WithoutEntitlement: React.FC<IWithEntitlementProps> = ({
   purchases,
-  appUserId,
   entitlementId,
   children,
   onNotEntitled,
@@ -22,8 +20,8 @@ const WithoutEntitlement: React.FC<IWithEntitlementProps> = ({
   const [isEntitled, setIsEntitled] = useState<boolean | null>(null);
 
   const doCheckEntitlement = useCallback((): Promise<boolean> => {
-    return purchases.isEntitledTo(appUserId, entitlementId);
-  }, [purchases, appUserId, entitlementId]);
+    return purchases.isEntitledTo(entitlementId);
+  }, [purchases, entitlementId]);
 
   useEffect(() => {
     (async () => {
@@ -37,7 +35,7 @@ const WithoutEntitlement: React.FC<IWithEntitlementProps> = ({
         }
       });
     })();
-  }, [appUserId, entitlementId, doCheckEntitlement, onEntitled, onNotEntitled]);
+  }, [entitlementId, doCheckEntitlement, onEntitled, onNotEntitled]);
 
   if (isEntitled) {
     return null;

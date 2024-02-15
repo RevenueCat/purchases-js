@@ -54,17 +54,16 @@ export const PackageCard: React.FC<IPackageCardProps> = ({ pkg, onClick }) => {
 
 interface IPaywallPageProps {
   purchases: Purchases;
-  appUserId: string;
 }
 
-const PaywallPage: React.FC<IPaywallPageProps> = ({ purchases, appUserId }) => {
+const PaywallPage: React.FC<IPaywallPageProps> = ({ purchases }) => {
   const [offerings, setOfferings] = useState<Offerings | null>(null);
 
   useEffect(() => {
-    purchases.getOfferings(appUserId).then((offerings) => {
+    purchases.getOfferings().then((offerings) => {
       setOfferings(offerings);
     });
-  }, [purchases, appUserId]);
+  }, [purchases]);
 
   if (offerings === null) {
     return null;
@@ -87,7 +86,7 @@ const PaywallPage: React.FC<IPaywallPageProps> = ({ purchases, appUserId }) => {
 
     // How do we complete the purchase?
     try {
-      const { customerInfo } = await purchases.purchasePackage(appUserId, pkg);
+      const { customerInfo } = await purchases.purchasePackage(pkg);
 
       console.log(`CustomerInfo after purchase: ${customerInfo}`);
 

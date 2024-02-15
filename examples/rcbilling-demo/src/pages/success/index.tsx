@@ -5,7 +5,6 @@ import success from "./success.png";
 
 interface ISuccessPageProps {
   purchases: Purchases;
-  appUserId: string;
   entitlementId: string;
 }
 

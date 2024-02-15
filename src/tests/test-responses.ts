@@ -110,6 +110,23 @@ export const customerInfoResponse = {
   },
 };
 
+export const newAppUserIdCustomerInfoResponse = {
+  request_date: "2024-01-22T13:23:07Z",
+  request_date_ms: 1705929787636,
+  subscriber: {
+    entitlements: {},
+    first_seen: "2023-11-20T16:48:29Z",
+    last_seen: "2023-11-20T16:48:29Z",
+    management_url: "https://test-management-url.revenuecat.com",
+    non_subscriptions: {},
+    original_app_user_id: "newAppUserId",
+    original_application_version: null,
+    original_purchase_date: null,
+    other_purchases: {},
+    subscriptions: {},
+  },
+};
+
 const offeringsResponsesPerUserId: { [userId: string]: object } = {
   someAppUserId: {
     current_offering_id: "offering_1",
@@ -133,6 +150,7 @@ const productsResponsesPerUserId: { [userId: string]: object } = {
 
 const customerInfoResponsePerUserId: { [userId: string]: object } = {
   someAppUserId: customerInfoResponse,
+  newAppUserId: newAppUserIdCustomerInfoResponse,
 };
 
 export function getRequestHandlers(): RequestHandler[] {

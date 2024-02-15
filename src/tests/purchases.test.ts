@@ -1,43 +1,104 @@
 import { setupServer } from "msw/node";
-import { beforeAll, describe, expect, test } from "vitest";
+import { beforeAll, beforeEach, describe, expect, test } from "vitest";
 import {
+  CustomerInfo,
   EntitlementInfo,
+  ErrorCode,
   Offering,
   Offerings,
   Package,
   PackageType,
   Purchases,
-  CustomerInfo,
 } from "../main";
 import { getRequestHandlers } from "./test-responses";
+import { verifyExpectedError } from "./test-helpers";
+import { PurchasesError } from "../entities/errors";
 
 const server = setupServer(...getRequestHandlers());
+
+const testApiKey = "test_api_key";
+const testUserId = "someAppUserId";
+
+function configurePurchases(appUserId: string = testUserId): Purchases {
+  return Purchases.initializePurchases(testApiKey, appUserId);
+}
 
 beforeAll(() => {
   server.listen();
 });
 
-test("Purchases is defined", () => {
-  const billing = new Purchases("test_api_key");
-  expect(billing).toBeDefined();
+beforeEach(() => {
+  if (Purchases.isConfigured()) {
+    Purchases.getInstance().close();
+  }
 });
 
-test("returns true if a user is entitled", async () => {
-  const billing = new Purchases("test_api_key");
-  const isEntitled = await billing.isEntitledTo(
-    "someAppUserId",
-    "activeCatServices",
-  );
-  expect(isEntitled).toBeTruthy();
+describe("Purchases.isConfigured()", () => {
+  test("returns false if not configured", () => {
+    expect(Purchases.isConfigured()).toBeFalsy();
+  });
+
+  test("returns true if configured", () => {
+    Purchases.initializePurchases(testApiKey, testUserId);
+    expect(Purchases.isConfigured()).toBeTruthy();
+  });
 });
 
-test("returns false if a user is not entitled", async () => {
-  const billing = new Purchases("test_api_key");
-  const isEntitled = await billing.isEntitledTo(
-    "someAppUserId",
-    "expiredEntitlement",
-  );
-  expect(isEntitled).not.toBeTruthy();
+describe("Purchases.getInstance()", () => {
+  test("throws error if not configured", () => {
+    try {
+      Purchases.getInstance();
+    } catch (e) {
+      verifyExpectedError(
+        e,
+        new PurchasesError(
+          ErrorCode.ConfigurationError,
+          "Purchases must be configured before calling getInstance",
+        ),
+      );
+    }
+  });
+
+  test("returns same instance than one returned after initialization", () => {
+    const purchases = configurePurchases();
+    expect(purchases).toEqual(Purchases.getInstance());
+  });
+});
+
+test("Purchases is defined after initialization", () => {
+  const purchases = configurePurchases();
+  expect(purchases).toBeDefined();
+});
+
+describe("Purchases.isEntitledTo", () => {
+  test("returns true if a user is entitled", async () => {
+    const purchases = configurePurchases();
+    const isEntitled = await purchases.isEntitledTo("activeCatServices");
+    expect(isEntitled).toBeTruthy();
+  });
+
+  test("returns false if a user is not entitled", async () => {
+    const purchases = configurePurchases();
+    const isEntitled = await purchases.isEntitledTo("expiredEntitlement");
+    expect(isEntitled).not.toBeTruthy();
+  });
+});
+
+describe("Purchases.changeUser", () => {
+  test("can change user", () => {
+    const newAppUserId = "newAppUserId";
+    const purchases = configurePurchases();
+    expect(purchases.getAppUserId()).toEqual(testUserId);
+    purchases.changeUser(newAppUserId);
+    expect(purchases.getAppUserId()).toEqual(newAppUserId);
+  });
+});
+
+describe("Purchases.getAppUserId()", () => {
+  test("returns app user id", () => {
+    const purchases = configurePurchases();
+    expect(purchases.getAppUserId()).toEqual(testUserId);
+  });
 });
 
 describe("getOfferings", () => {
@@ -56,8 +117,8 @@ describe("getOfferings", () => {
     },
   };
   test("can get offerings", async () => {
-    const billing = new Purchases("test_api_key");
-    const offerings = await billing.getOfferings("someAppUserId");
+    const purchases = configurePurchases();
+    const offerings = await purchases.getOfferings();
 
     const currentOffering: Offering = {
       serverDescription: "Offering 1",
@@ -116,10 +177,8 @@ describe("getOfferings", () => {
   });
 
   test("can get offerings without current offering id", async () => {
-    const billing = new Purchases("test_api_key");
-    const offerings = await billing.getOfferings(
-      "appUserIdWithoutCurrentOfferingId",
-    );
+    const purchases = configurePurchases("appUserIdWithoutCurrentOfferingId");
+    const offerings = await purchases.getOfferings();
     const package2 = {
       identifier: "package_2",
       packageType: PackageType.Custom,
@@ -176,10 +235,8 @@ describe("getOfferings", () => {
   });
 
   test("can get offerings with missing products", async () => {
-    const billing = new Purchases("test_api_key");
-    const offerings = await billing.getOfferings(
-      "appUserIdWithMissingProducts",
-    );
+    const purchases = configurePurchases("appUserIdWithMissingProducts");
+    const offerings = await purchases.getOfferings();
 
     const offering_1: Offering = {
       serverDescription: "Offering 1",
@@ -207,8 +264,8 @@ describe("getOfferings", () => {
 });
 
 test("can get customer info", async () => {
-  const billing = new Purchases("test_api_key");
-  const customerInfo = await billing.getCustomerInfo("someAppUserId");
+  const purchases = configurePurchases();
+  const customerInfo = await purchases.getCustomerInfo();
   const activeCatServicesEntitlementInfo: EntitlementInfo = {
     identifier: "activeCatServices",
     billingIssueDetectedAt: null,
@@ -260,4 +317,13 @@ test("can get customer info", async () => {
     originalPurchaseDate: null,
   };
   expect(customerInfo).toEqual(expectedCustomerInfo);
+});
+
+describe("Purchases.close()", () => {
+  test("can close purchases", () => {
+    const purchases = configurePurchases();
+    expect(Purchases.isConfigured()).toBeTruthy();
+    purchases.close();
+    expect(Purchases.isConfigured()).toBeFalsy();
+  });
 });

@@ -12,7 +12,9 @@ import { SuccessPage } from "./pages/success";
 import DogServices from "./pages/dogServices";
 import WithoutEntitlement from "./components/WithoutEntitlement";
 
-const purchases = new Purchases(import.meta.env.VITE_RC_API_KEY as string);
+const apiKey = import.meta.env.VITE_RC_API_KEY as string;
+const initialUserId = localStorage.getItem("appUserId") || "someUserMario";
+const purchases = Purchases.initializePurchases(apiKey, initialUserId);
 export const catServicesEntitlementId = "catServices";
 export const dogServicesEntitlementId = "dogServices";
 
@@ -39,7 +41,7 @@ const onAlreadyEntitled = () => {
 
 function App() {
   const appUserId = localStorage.getItem("appUserId") || "someUserMario";
-  purchases.getCustomerInfo(appUserId).then((customerInfo: CustomerInfo) => {
+  purchases.getCustomerInfo().then((customerInfo: CustomerInfo) => {
     console.log(
       `CustomerInfo for user ${appUserId}: ${JSON.stringify(
         customerInfo,
@@ -60,11 +62,10 @@ function App() {
               element={
                 <WithoutEntitlement
                   purchases={purchases}
-                  appUserId={appUserId}
                   entitlementId={catServicesEntitlementId}
                   onEntitled={onAlreadyEntitled}
                 >
-                  <PaywallPage purchases={purchases} appUserId={appUserId} />
+                  <PaywallPage purchases={purchases} />
                 </WithoutEntitlement>
               }
             />
@@ -73,7 +74,6 @@ function App() {
               element={
                 <SuccessPage
                   purchases={purchases}
-                  appUserId={appUserId}
                   entitlementId={catServicesEntitlementId}
                 />
               }
@@ -83,7 +83,6 @@ function App() {
               element={
                 <WithEntitlement
                   purchases={purchases}
-                  appUserId={appUserId}
                   entitlementId={dogServicesEntitlementId}
                   onNotEntitled={onNotEntitledToDogServices}
                 >
@@ -97,7 +96,6 @@ function App() {
               element={
                 <WithEntitlement
                   purchases={purchases}
-                  appUserId={appUserId}
                   entitlementId={catServicesEntitlementId}
                   onNotEntitled={onNotEntitledToCatServices}
                 >
