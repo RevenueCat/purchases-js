@@ -3,7 +3,6 @@ import { beforeAll, beforeEach, describe, expect, test } from "vitest";
 import {
   CustomerInfo,
   EntitlementInfo,
-  ErrorCode,
   Offering,
   Offerings,
   Package,
@@ -11,8 +10,7 @@ import {
   Purchases,
 } from "../main";
 import { getRequestHandlers } from "./test-responses";
-import { verifyExpectedError } from "./test-helpers";
-import { PurchasesError } from "../entities/errors";
+import { UninitializedPurchasesError } from "../entities/errors";
 
 const server = setupServer(...getRequestHandlers());
 
@@ -46,17 +44,9 @@ describe("Purchases.isConfigured()", () => {
 
 describe("Purchases.getInstance()", () => {
   test("throws error if not configured", () => {
-    try {
-      Purchases.getInstance();
-    } catch (e) {
-      verifyExpectedError(
-        e,
-        new PurchasesError(
-          ErrorCode.ConfigurationError,
-          "Purchases must be configured before calling getInstance",
-        ),
-      );
-    }
+    expect(() => Purchases.getInstance()).toThrowError(
+      UninitializedPurchasesError,
+    );
   });
 
   test("returns same instance than one returned after initialization", () => {

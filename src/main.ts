@@ -2,7 +2,11 @@ import { Offering, Offerings, Package, toOffering } from "./entities/offerings";
 import RCPurchasesUI from "./ui/rcb-ui.svelte";
 
 import { CustomerInfo, toCustomerInfo } from "./entities/customer-info";
-import { ErrorCode, PurchasesError } from "./entities/errors";
+import {
+  ErrorCode,
+  PurchasesError,
+  UninitializedPurchasesError,
+} from "./entities/errors";
 import {
   OfferingResponse,
   OfferingsResponse,
@@ -62,16 +66,13 @@ export class Purchases {
   /**
    * Get the singleton instance of Purchases. It's preferred to use the instance
    * obtained from the {@link Purchases.initializePurchases} method when possible.
-   * @throws {@link PurchasesError} if the instance has not been initialized yet.
+   * @throws {@link UninitializedPurchasesError} if the instance has not been initialized yet.
    */
   static getInstance(): Purchases {
     if (Purchases.isConfigured()) {
       return Purchases.instance!;
     }
-    throw new PurchasesError(
-      ErrorCode.ConfigurationError,
-      "Purchases must be configured before calling getInstance",
-    );
+    throw new UninitializedPurchasesError();
   }
 
   /**
