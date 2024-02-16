@@ -18,7 +18,7 @@ const testApiKey = "test_api_key";
 const testUserId = "someAppUserId";
 
 function configurePurchases(appUserId: string = testUserId): Purchases {
-  return Purchases.initializePurchases(testApiKey, appUserId);
+  return Purchases.configure(testApiKey, appUserId);
 }
 
 beforeAll(() => {
@@ -27,7 +27,7 @@ beforeAll(() => {
 
 beforeEach(() => {
   if (Purchases.isConfigured()) {
-    Purchases.getInstance().close();
+    Purchases.getSharedInstance().close();
   }
 });
 
@@ -37,21 +37,21 @@ describe("Purchases.isConfigured()", () => {
   });
 
   test("returns true if configured", () => {
-    Purchases.initializePurchases(testApiKey, testUserId);
+    Purchases.configure(testApiKey, testUserId);
     expect(Purchases.isConfigured()).toBeTruthy();
   });
 });
 
-describe("Purchases.getInstance()", () => {
+describe("Purchases.getSharedInstance()", () => {
   test("throws error if not configured", () => {
-    expect(() => Purchases.getInstance()).toThrowError(
+    expect(() => Purchases.getSharedInstance()).toThrowError(
       UninitializedPurchasesError,
     );
   });
 
   test("returns same instance than one returned after initialization", () => {
     const purchases = configurePurchases();
-    expect(purchases).toEqual(Purchases.getInstance());
+    expect(purchases).toEqual(Purchases.getSharedInstance());
   });
 });
 

@@ -69,10 +69,10 @@ export class Purchases {
 
   /**
    * Get the singleton instance of Purchases. It's preferred to use the instance
-   * obtained from the {@link Purchases.initializePurchases} method when possible.
+   * obtained from the {@link Purchases.configure} method when possible.
    * @throws {@link UninitializedPurchasesError} if the instance has not been initialized yet.
    */
-  static getInstance(): Purchases {
+  static getSharedInstance(): Purchases {
     if (Purchases.isConfigured()) {
       return Purchases.instance!;
     }
@@ -87,21 +87,21 @@ export class Purchases {
   }
 
   /**
-   * Initializes the Purchases SDK. This should be called as soon as your app
+   * Configures the Purchases SDK. This should be called as soon as your app
    * has a unique user id for your user. You should only call this once, and
    * keep the returned instance around for use throughout your application.
    * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.
    * @param appUserId - Your unique id for identifying the user.
    */
-  static initializePurchases(apiKey: string, appUserId: string): Purchases {
+  static configure(apiKey: string, appUserId: string): Purchases {
     if (Purchases.instance !== undefined) {
       console.warn(
         "Purchases is already initialized. Ignoring and returning existing instance.",
       );
-      return Purchases.getInstance();
+      return Purchases.getSharedInstance();
     }
     Purchases.instance = new Purchases(apiKey, appUserId);
-    return Purchases.getInstance();
+    return Purchases.getSharedInstance();
   }
 
   /** @internal */

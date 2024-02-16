@@ -174,11 +174,11 @@ export interface Product {
 export class Purchases {
     changeUser(newAppUserId: string): Promise<CustomerInfo>;
     close(): void;
+    static configure(apiKey: string, appUserId: string): Purchases;
     getAppUserId(): string;
     getCustomerInfo(): Promise<CustomerInfo>;
-    static getInstance(): Purchases;
     getOfferings(): Promise<Offerings>;
-    static initializePurchases(apiKey: string, appUserId: string): Purchases;
+    static getSharedInstance(): Purchases;
     static isConfigured(): boolean;
     isEntitledTo(entitlementIdentifier: string): Promise<boolean>;
     // (undocumented)
