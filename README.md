@@ -55,10 +55,12 @@ By downloading the current Offerings you can easily build a Paywall page using t
 associated `rcBillingProduct` and price.
 
 ```typescript
-const appUserId = "the unique id of the user in your systems";
-const purchases = new Purchases("your RC_PUBLISHABLE_API_KEY");
+const purchases = Purchases.configure(
+  "your RC_PUBLISHABLE_API_KEY",
+  "the unique id of the user in your systems",
+);
 
-purchases.getOfferings(appUserId).then((offerings) => {
+purchases.getOfferings().then((offerings) => {
   // Get current offering
   console.log(offerings.current);
   // Or a dictionary of all offerings
@@ -77,12 +79,15 @@ You can check the entitlements granted to your users throughout all the platform
 also on your website!
 
 ```typescript
-const appUserId = "the unique id of the user in your systems";
 const entitlementId = "the entitlementId you set up in RC";
 
-const purchases = new Purchases("your RC_PUBLISHABLE_API_KEY");
+const purchases = Purchases.configure(
+  "your RC_PUBLISHABLE_API_KEY",
+  "the unique id of the user in your systems",
+);
+const appUserID = purchases.getAppUserId();
 
-purchases.isEntitledTo(appUserId, entitlementId).then((isEntitled) => {
+purchases.isEntitledTo(entitlementId).then((isEntitled) => {
   if (isEntitled == true) {
     console.log(`User ${appUserID} is entitled to ${entitlementId}`);
   } else {
@@ -94,15 +99,21 @@ purchases.isEntitledTo(appUserId, entitlementId).then((isEntitled) => {
 As example, you can build a cool React component with it:
 
 ```tsx
-const WithEntitlement = ({ appUserId, entitlementId, children }) => {
+Purchases.configure(
+  "your RC_PUBLISHABLE_API_KEY",
+  "the unique id of the user in your systems",
+);
+
+const WithEntitlement = ({ entitlementId, children }) => {
   const [isEntitled, setIsEntitled] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const purchases = new Purchases("your RC_PUBLISHABLE_API_KEY");
-    purchases.isEntitledTo(appUserId, entitlementId).then((isEntitled) => {
-      setIsEntitled(isEntitled);
-    });
-  }, [appUserId, entitlementId]);
+    Purchases.getSharedInstance()
+      .isEntitledTo(entitlementId)
+      .then((isEntitled) => {
+        setIsEntitled(isEntitled);
+      });
+  }, [entitlementId]);
 
   if (isEntitled === null) {
     return <>"loading..."</>;
@@ -121,7 +132,7 @@ And then use it in your app:
 ```tsx
 const App = () => (
   <>
-    <WithEntitlement appUserId={"user12345"} entitlementId={"functionality5"}>
+    <WithEntitlement entitlementId={"functionality5"}>
       <Functionality5 />
     </WithEntitlement>
   </>
@@ -131,7 +142,7 @@ const App = () => (
 If you need further information about the user's entitlements, you can use the `getCustomerInfo` method:
 
 ```ts
-const customerInfo = await purchases.getCustomerInfo(appUserId);
+const customerInfo = await purchases.getCustomerInfo();
 ```
 
 ### Important note
@@ -149,15 +160,17 @@ In this example we will show Stripe, more will be supported soon!
 You built your paywall, and your user just clicked on the offer they want to subscribe to.
 
 ```tsx
-const purchases = new Purchases("your RC_PUBLISHABLE_API_KEY");
+const purchases = Purchases.configure(
+  "your RC_PUBLISHABLE_API_KEY",
+  "the unique id of the user in your systems",
+);
 // You can retrieve the package from the offerings through `getOfferings`:
 const rcBillingPackage = offerings.current.availablePackages[0];
-const appUserId =
-  "the unique id of the user that wants to subscribe to your product";
+const appUserId = purchases.getAppUserId();
 const entitlementIdToCheck =
   "the entitlementId you set up in RC for your product"; // TODO: remove once this is not needed
 
-purchase.purchasePackage(appUserId, rcBillingPackage).then((response) => {
+purchase.purchasePackage(rcBillingPackage).then((response) => {
   const isEntitled =
     entitlementIdToCheck in response.customerInfo.entitlements.active;
   if (isEntitled == true) {
