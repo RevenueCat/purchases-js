@@ -237,7 +237,9 @@ export class Purchases {
           onFinished: async () => {
             certainHTMLTarget.innerHTML = "";
             // TODO: Add info about transaction in result.
-            resolve({ customerInfo: await this.getCustomerInfo() });
+            resolve({
+              customerInfo: await this._getCustomerInfoForUserId(appUserId),
+            });
           },
           onClose: () => {
             certainHTMLTarget.innerHTML = "";
@@ -262,11 +264,7 @@ export class Purchases {
    * @throws {@link PurchasesError} if there is an error while fetching the customer info.
    */
   public async getCustomerInfo(): Promise<CustomerInfo> {
-    const subscriberResponse = await this.backend.getCustomerInfo(
-      this._appUserId,
-    );
-
-    return toCustomerInfo(subscriberResponse);
+    return await this._getCustomerInfoForUserId(this._appUserId);
   }
 
   /**
@@ -329,5 +327,13 @@ export class Purchases {
         "Trying to close a Purchases instance that is not the current instance. Ignoring.",
       );
     }
+  }
+
+  private async _getCustomerInfoForUserId(
+    appUserId: string,
+  ): Promise<CustomerInfo> {
+    const subscriberResponse = await this.backend.getCustomerInfo(appUserId);
+
+    return toCustomerInfo(subscriberResponse);
   }
 }
