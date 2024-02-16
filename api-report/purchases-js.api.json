@@ -2525,45 +2525,13 @@
           "preserveMemberOrder": false,
           "members": [
             {
-              "kind": "Constructor",
-              "canonicalReference": "@revenuecat/purchases-js!Purchases:constructor(1)",
-              "docComment": "/**\n * Constructor for Purchases.\n *\n * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "constructor(apiKey: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ");"
-                }
-              ],
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "apiKey",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": false
-                }
-              ]
-            },
-            {
               "kind": "Method",
-              "canonicalReference": "@revenuecat/purchases-js!Purchases#getCustomerInfo:member(1)",
-              "docComment": "/**\n * Gets latest available {@link CustomerInfo}.\n *\n * @param appUserId - Your app's user id in your system.\n *\n * @returns The latest {@link CustomerInfo}.\n *\n * @throws\n *\n * {@link PurchasesError} if there is an error while fetching the customer info.\n */\n",
+              "canonicalReference": "@revenuecat/purchases-js!Purchases#changeUser:member(1)",
+              "docComment": "/**\n * Change the current app user id. Returns the customer info for the new user id.\n *\n * @param newAppUserId - The user id to change to.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "getCustomerInfo(appUserId: "
+                  "text": "changeUser(newAppUserId: "
                 },
                 {
                   "kind": "Content",
@@ -2606,7 +2574,7 @@
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "appUserId",
+                  "parameterName": "newAppUserId",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
@@ -2616,16 +2584,47 @@
               ],
               "isOptional": false,
               "isAbstract": false,
-              "name": "getCustomerInfo"
+              "name": "changeUser"
             },
             {
               "kind": "Method",
-              "canonicalReference": "@revenuecat/purchases-js!Purchases#getOfferings:member(1)",
-              "docComment": "/**\n * Fetch the configured offerings for this user. You can configure these in the RevenueCat dashboard.\n *\n * @param appUserId - Your app's user id in your system.\n */\n",
+              "canonicalReference": "@revenuecat/purchases-js!Purchases#close:member(1)",
+              "docComment": "/**\n * Closes the Purchases instance. You should never have to do this normally.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "getOfferings(appUserId: "
+                  "text": "close(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "close"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@revenuecat/purchases-js!Purchases#getAppUserId:member(1)",
+              "docComment": "/**\n * Gets the current app user id.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "getAppUserId(): "
                 },
                 {
                   "kind": "Content",
@@ -2633,7 +2632,107 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "): "
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "getAppUserId"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@revenuecat/purchases-js!Purchases#getCustomerInfo:member(1)",
+              "docComment": "/**\n * Gets latest available {@link CustomerInfo}.\n *\n * @returns The latest {@link CustomerInfo}.\n *\n * @throws\n *\n * {@link PurchasesError} if there is an error while fetching the customer info.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "getCustomerInfo(): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "CustomerInfo",
+                  "canonicalReference": "@revenuecat/purchases-js!CustomerInfo:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "getCustomerInfo"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@revenuecat/purchases-js!Purchases.getInstance:member(1)",
+              "docComment": "/**\n * Get the singleton instance of Purchases. It's preferred to use the instance obtained from the {@link Purchases.initializePurchases} method when possible.\n *\n * @throws\n *\n * {@link UninitializedPurchasesError} if the instance has not been initialized yet.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static getInstance(): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Purchases",
+                  "canonicalReference": "@revenuecat/purchases-js!Purchases:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "getInstance"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@revenuecat/purchases-js!Purchases#getOfferings:member(1)",
+              "docComment": "/**\n * Fetch the configured offerings for this user. You can configure these in the RevenueCat dashboard.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "getOfferings(): "
                 },
                 {
                   "kind": "Reference",
@@ -2660,34 +2759,25 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 7
+                "startIndex": 1,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "appUserId",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": false
-                }
-              ],
+              "parameters": [],
               "isOptional": false,
               "isAbstract": false,
               "name": "getOfferings"
             },
             {
               "kind": "Method",
-              "canonicalReference": "@revenuecat/purchases-js!Purchases#isEntitledTo:member(1)",
-              "docComment": "/**\n * Convenience method to check whether a user is entitled to a specific entitlement. This will use {@link Purchases.getCustomerInfo} under the hood.\n *\n * @param appUserId - Your app's user id in your system.\n *\n * @param entitlementIdentifier - The entitlement identifier you want to check.\n *\n * @returns Whether the user is entitled to the specified entitlement\n *\n * @throws\n *\n * {@link PurchasesError} if there is an error while fetching the customer info.\n *\n * @see\n *\n * {@link Purchases.getCustomerInfo}\n */\n",
+              "canonicalReference": "@revenuecat/purchases-js!Purchases.initializePurchases:member(1)",
+              "docComment": "/**\n * Initializes the Purchases SDK. This should be called as soon as your app has a unique user id for your user. You should only call this once, and keep the returned instance around for use throughout your application.\n *\n * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.\n *\n * @param appUserId - Your unique id for identifying the user.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "isEntitledTo(appUserId: "
+                  "text": "static initializePurchases(apiKey: "
                 },
                 {
                   "kind": "Content",
@@ -2695,7 +2785,95 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", entitlementIdentifier: "
+                  "text": ", appUserId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Purchases",
+                  "canonicalReference": "@revenuecat/purchases-js!Purchases:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 5,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "apiKey",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "appUserId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "initializePurchases"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@revenuecat/purchases-js!Purchases.isConfigured:member(1)",
+              "docComment": "/**\n * Returns whether the Purchases SDK is configured or not.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static isConfigured(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "isConfigured"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@revenuecat/purchases-js!Purchases#isEntitledTo:member(1)",
+              "docComment": "/**\n * Convenience method to check whether a user is entitled to a specific entitlement. This will use {@link Purchases.getCustomerInfo} under the hood.\n *\n * @param entitlementIdentifier - The entitlement identifier you want to check.\n *\n * @returns Whether the user is entitled to the specified entitlement\n *\n * @throws\n *\n * {@link PurchasesError} if there is an error while fetching the customer info.\n *\n * @see\n *\n * {@link Purchases.getCustomerInfo}\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "isEntitledTo(entitlementIdentifier: "
                 },
                 {
                   "kind": "Content",
@@ -2721,26 +2899,18 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 7
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "appUserId",
+                  "parameterName": "entitlementIdentifier",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": false
-                },
-                {
-                  "parameterName": "entitlementIdentifier",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": false
                 }
@@ -2783,19 +2953,11 @@
             {
               "kind": "Method",
               "canonicalReference": "@revenuecat/purchases-js!Purchases#purchasePackage:member(1)",
-              "docComment": "/**\n * Method to perform a purchase for a given package. You can obtain the package from {@link Purchases.getOfferings}. This method will present the purchase form on your site, using the given HTML element as the mount point, if provided, or as a modal if not.\n *\n * @param appUserId - Your app's user id in your system.\n *\n * @param rcPackage - The package you want to purchase. Obtained from {@link Purchases.getOfferings}.\n *\n * @param customerEmail - The email of the user. If null, RevenueCat will ask the customer for their email.\n *\n * @param htmlTarget - The HTML element where the billing view should be added. If null, a new div will be created at the root of the page and appended to the body.\n *\n * @returns The customer info after the purchase is completed successfuly.\n *\n * @throws\n *\n * {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.\n */\n",
+              "docComment": "/**\n * Method to perform a purchase for a given package. You can obtain the package from {@link Purchases.getOfferings}. This method will present the purchase form on your site, using the given HTML element as the mount point, if provided, or as a modal if not.\n *\n * @param rcPackage - The package you want to purchase. Obtained from {@link Purchases.getOfferings}.\n *\n * @param customerEmail - The email of the user. If null, RevenueCat will ask the customer for their email.\n *\n * @param htmlTarget - The HTML element where the billing view should be added. If null, a new div will be created at the root of the page and appended to the body.\n *\n * @returns The customer info after the purchase is completed successfuly.\n *\n * @throws\n *\n * {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "purchasePackage(appUserId: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", rcPackage: "
+                  "text": "purchasePackage(rcPackage: "
                 },
                 {
                   "kind": "Reference",
@@ -2830,7 +2992,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "<{\n          customerInfo: "
+                  "text": "<{\n           customerInfo: "
                 },
                 {
                   "kind": "Reference",
@@ -2839,7 +3001,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ";\n      }>"
+                  "text": ";\n       }>"
                 },
                 {
                   "kind": "Content",
@@ -2848,15 +3010,15 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 9,
-                "endIndex": 13
+                "startIndex": 7,
+                "endIndex": 11
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "appUserId",
+                  "parameterName": "rcPackage",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
@@ -2864,26 +3026,18 @@
                   "isOptional": false
                 },
                 {
-                  "parameterName": "rcPackage",
+                  "parameterName": "customerEmail",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  },
-                  "isOptional": false
-                },
-                {
-                  "parameterName": "customerEmail",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 5,
-                    "endIndex": 6
                   },
                   "isOptional": true
                 },
                 {
                   "parameterName": "htmlTarget",
                   "parameterTypeTokenRange": {
-                    "startIndex": 7,
-                    "endIndex": 8
+                    "startIndex": 5,
+                    "endIndex": 6
                   },
                   "isOptional": true
                 }
@@ -2927,7 +3081,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "constructor(\n          errorCode: "
+                  "text": "constructor(\n           errorCode: "
                 },
                 {
                   "kind": "Reference",
@@ -2936,7 +3090,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", \n          message?: "
+                  "text": ", \n           message?: "
                 },
                 {
                   "kind": "Content",
@@ -2944,7 +3098,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", \n          underlyingErrorMessage?: "
+                  "text": ", \n           underlyingErrorMessage?: "
                 },
                 {
                   "kind": "Content",
@@ -3108,6 +3262,53 @@
             "startIndex": 1,
             "endIndex": 2
           }
+        },
+        {
+          "kind": "Class",
+          "canonicalReference": "@revenuecat/purchases-js!UninitializedPurchasesError:class",
+          "docComment": "/**\n * Error indicating that the SDK was accessed before it was initialized.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare class UninitializedPurchasesError extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "Error",
+              "canonicalReference": "!Error:interface"
+            },
+            {
+              "kind": "Content",
+              "text": " "
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "isAbstract": false,
+          "name": "UninitializedPurchasesError",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "Constructor",
+              "canonicalReference": "@revenuecat/purchases-js!UninitializedPurchasesError:constructor(1)",
+              "docComment": "/**\n * Constructs a new instance of the `UninitializedPurchasesError` class\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "constructor();"
+                }
+              ],
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": []
+            }
+          ],
+          "extendsTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          },
+          "implementsTokenRanges": []
         }
       ]
     }

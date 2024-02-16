@@ -253,3 +253,12 @@ export class PurchasesError extends Error {
     return `PurchasesError(code: ${ErrorCode[this.errorCode]}, message: ${this.message})`;
   };
 }
+
+/**
+ * Error indicating that the SDK was accessed before it was initialized.
+ */
+export class UninitializedPurchasesError extends Error {
+  constructor() {
+    super("Purchases must be configured before calling getInstance");
+  }
+}

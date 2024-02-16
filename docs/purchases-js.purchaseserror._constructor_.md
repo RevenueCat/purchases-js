@@ -10,9 +10,9 @@ Constructs a new instance of the `PurchasesError` class
 
 ```typescript
 constructor(
-          errorCode: ErrorCode, 
-          message?: string, 
-          underlyingErrorMessage?: string | null | undefined);
+           errorCode: ErrorCode, 
+           message?: string, 
+           underlyingErrorMessage?: string | null | undefined);
 ```
 
 ## Parameters

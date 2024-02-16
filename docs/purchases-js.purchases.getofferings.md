@@ -9,15 +9,8 @@ Fetch the configured offerings for this user. You can configure these in the Rev
 **Signature:**
 
 ```typescript
-getOfferings(appUserId: string): Promise<Offerings>;
+getOfferings(): Promise<Offerings>;
 ```
-
-## Parameters
-
-|  Parameter | Type | Description |
-|  --- | --- | --- |
-|  appUserId | string | Your app's user id in your system. |
-
 **Returns:**
 
 Promise&lt;[Offerings](./purchases-js.offerings.md)<!-- -->&gt;

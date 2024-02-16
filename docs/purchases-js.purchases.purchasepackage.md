@@ -9,16 +9,15 @@ Method to perform a purchase for a given package. You can obtain the package fro
 **Signature:**
 
 ```typescript
-purchasePackage(appUserId: string, rcPackage: Package, customerEmail?: string, htmlTarget?: HTMLElement): Promise<{
-          customerInfo: CustomerInfo;
-      }>;
+purchasePackage(rcPackage: Package, customerEmail?: string, htmlTarget?: HTMLElement): Promise<{
+           customerInfo: CustomerInfo;
+       }>;
 ```
 
 ## Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  appUserId | string | Your app's user id in your system. |
 |  rcPackage | [Package](./purchases-js.package.md) | The package you want to purchase. Obtained from [Purchases.getOfferings()](./purchases-js.purchases.getofferings.md)<!-- -->. |
 |  customerEmail | string | _(Optional)_ The email of the user. If null, RevenueCat will ask the customer for their email. |
 |  htmlTarget | HTMLElement | _(Optional)_ The HTML element where the billing view should be added. If null, a new div will be created at the root of the page and appended to the body. |

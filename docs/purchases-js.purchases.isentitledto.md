@@ -9,14 +9,13 @@ Convenience method to check whether a user is entitled to a specific entitlement
 **Signature:**
 
 ```typescript
-isEntitledTo(appUserId: string, entitlementIdentifier: string): Promise<boolean>;
+isEntitledTo(entitlementIdentifier: string): Promise<boolean>;
 ```
 
 ## Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  appUserId | string | Your app's user id in your system. |
 |  entitlementIdentifier | string | The entitlement identifier you want to check. |
 
 **Returns:**

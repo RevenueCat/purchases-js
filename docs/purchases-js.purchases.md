@@ -12,19 +12,19 @@ Entry point for Purchases SDK. It should be instantiated as soon as your app is 
 export declare class Purchases 
 ```
 
-## Constructors
-
-|  Constructor | Modifiers | Description |
-|  --- | --- | --- |
-|  [(constructor)(apiKey)](./purchases-js.purchases._constructor_.md) |  | Constructor for Purchases. |
-
 ## Methods
 
 |  Method | Modifiers | Description |
 |  --- | --- | --- |
-|  [getCustomerInfo(appUserId)](./purchases-js.purchases.getcustomerinfo.md) |  | Gets latest available [CustomerInfo](./purchases-js.customerinfo.md)<!-- -->. |
-|  [getOfferings(appUserId)](./purchases-js.purchases.getofferings.md) |  | Fetch the configured offerings for this user. You can configure these in the RevenueCat dashboard. |
-|  [isEntitledTo(appUserId, entitlementIdentifier)](./purchases-js.purchases.isentitledto.md) |  | Convenience method to check whether a user is entitled to a specific entitlement. This will use [Purchases.getCustomerInfo()](./purchases-js.purchases.getcustomerinfo.md) under the hood. |
+|  [changeUser(newAppUserId)](./purchases-js.purchases.changeuser.md) |  | Change the current app user id. Returns the customer info for the new user id. |
+|  [close()](./purchases-js.purchases.close.md) |  | Closes the Purchases instance. You should never have to do this normally. |
+|  [getAppUserId()](./purchases-js.purchases.getappuserid.md) |  | Gets the current app user id. |
+|  [getCustomerInfo()](./purchases-js.purchases.getcustomerinfo.md) |  | Gets latest available [CustomerInfo](./purchases-js.customerinfo.md)<!-- -->. |
+|  [getInstance()](./purchases-js.purchases.getinstance.md) | <code>static</code> | Get the singleton instance of Purchases. It's preferred to use the instance obtained from the [Purchases.initializePurchases()](./purchases-js.purchases.initializepurchases.md) method when possible. |
+|  [getOfferings()](./purchases-js.purchases.getofferings.md) |  | Fetch the configured offerings for this user. You can configure these in the RevenueCat dashboard. |
+|  [initializePurchases(apiKey, appUserId)](./purchases-js.purchases.initializepurchases.md) | <code>static</code> | Initializes the Purchases SDK. This should be called as soon as your app has a unique user id for your user. You should only call this once, and keep the returned instance around for use throughout your application. |
+|  [isConfigured()](./purchases-js.purchases.isconfigured.md) | <code>static</code> | Returns whether the Purchases SDK is configured or not. |
+|  [isEntitledTo(entitlementIdentifier)](./purchases-js.purchases.isentitledto.md) |  | Convenience method to check whether a user is entitled to a specific entitlement. This will use [Purchases.getCustomerInfo()](./purchases-js.purchases.getcustomerinfo.md) under the hood. |
 |  [isSandbox()](./purchases-js.purchases.issandbox.md) |  |  |
-|  [purchasePackage(appUserId, rcPackage, customerEmail, htmlTarget)](./purchases-js.purchases.purchasepackage.md) |  | Method to perform a purchase for a given package. You can obtain the package from [Purchases.getOfferings()](./purchases-js.purchases.getofferings.md)<!-- -->. This method will present the purchase form on your site, using the given HTML element as the mount point, if provided, or as a modal if not. |
+|  [purchasePackage(rcPackage, customerEmail, htmlTarget)](./purchases-js.purchases.purchasepackage.md) |  | Method to perform a purchase for a given package. You can obtain the package from [Purchases.getOfferings()](./purchases-js.purchases.getofferings.md)<!-- -->. This method will present the purchase form on your site, using the given HTML element as the mount point, if provided, or as a modal if not. |
 
