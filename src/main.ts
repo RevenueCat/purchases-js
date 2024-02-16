@@ -329,6 +329,7 @@ export class Purchases {
     }
   }
 
+  /** @internal */
   private async _getCustomerInfoForUserId(
     appUserId: string,
   ): Promise<CustomerInfo> {
