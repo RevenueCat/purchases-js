@@ -14,7 +14,7 @@ import WithoutEntitlement from "./components/WithoutEntitlement";
 
 const apiKey = import.meta.env.VITE_RC_API_KEY as string;
 const initialUserId = localStorage.getItem("appUserId") || "someUserMario";
-const purchases = Purchases.initializePurchases(apiKey, initialUserId);
+const purchases = Purchases.configure(apiKey, initialUserId);
 export const catServicesEntitlementId = "catServices";
 export const dogServicesEntitlementId = "dogServices";
 

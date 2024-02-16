@@ -256,6 +256,7 @@ export class PurchasesError extends Error {
 
 /**
  * Error indicating that the SDK was accessed before it was initialized.
+ * @public
  */
 export class UninitializedPurchasesError extends Error {
   constructor() {
