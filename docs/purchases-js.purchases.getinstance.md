@@ -17,5 +17,5 @@ static getInstance(): Purchases;
 
 ## Exceptions
 
-[PurchasesError](./purchases-js.purchaseserror.md) if the instance has not been initialized yet.
+[UninitializedPurchasesError](./purchases-js.uninitializedpurchaseserror.md) if the instance has not been initialized yet.
 

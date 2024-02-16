@@ -10,6 +10,7 @@
 |  --- | --- |
 |  [Purchases](./purchases-js.purchases.md) | Entry point for Purchases SDK. It should be instantiated as soon as your app is started. Only one instance of Purchases should be instantiated at a time! |
 |  [PurchasesError](./purchases-js.purchaseserror.md) | Error class for Purchases SDK. You should handle these errors and react accordingly in your app. |
+|  [UninitializedPurchasesError](./purchases-js.uninitializedpurchaseserror.md) | Error indicating that the SDK was accessed before it was initialized. |
 
 ## Enumerations
 

@@ -39,7 +39,11 @@ export type {
   Store,
   PeriodType,
 } from "./entities/customer-info";
-export { ErrorCode, PurchasesError } from "./entities/errors";
+export {
+  ErrorCode,
+  PurchasesError,
+  UninitializedPurchasesError,
+} from "./entities/errors";
 
 /**
  * Entry point for Purchases SDK. It should be instantiated as soon as your

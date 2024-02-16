@@ -2696,7 +2696,7 @@
             {
               "kind": "Method",
               "canonicalReference": "@revenuecat/purchases-js!Purchases.getInstance:member(1)",
-              "docComment": "/**\n * Get the singleton instance of Purchases. It's preferred to use the instance obtained from the {@link Purchases.initializePurchases} method when possible.\n *\n * @throws\n *\n * {@link PurchasesError} if the instance has not been initialized yet.\n */\n",
+              "docComment": "/**\n * Get the singleton instance of Purchases. It's preferred to use the instance obtained from the {@link Purchases.initializePurchases} method when possible.\n *\n * @throws\n *\n * {@link UninitializedPurchasesError} if the instance has not been initialized yet.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -3262,6 +3262,53 @@
             "startIndex": 1,
             "endIndex": 2
           }
+        },
+        {
+          "kind": "Class",
+          "canonicalReference": "@revenuecat/purchases-js!UninitializedPurchasesError:class",
+          "docComment": "/**\n * Error indicating that the SDK was accessed before it was initialized.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare class UninitializedPurchasesError extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "Error",
+              "canonicalReference": "!Error:interface"
+            },
+            {
+              "kind": "Content",
+              "text": " "
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "isAbstract": false,
+          "name": "UninitializedPurchasesError",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "Constructor",
+              "canonicalReference": "@revenuecat/purchases-js!UninitializedPurchasesError:constructor(1)",
+              "docComment": "/**\n * Constructs a new instance of the `UninitializedPurchasesError` class\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "constructor();"
+                }
+              ],
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": []
+            }
+          ],
+          "extendsTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          },
+          "implementsTokenRanges": []
         }
       ]
     }

@@ -203,6 +203,11 @@ export class PurchasesError extends Error {
 // @public
 export type Store = "app_store" | "mac_app_store" | "play_store" | "amazon" | "stripe" | "rc_billing" | "promotional" | "unknown";
 
+// @public
+export class UninitializedPurchasesError extends Error {
+    constructor();
+}
+
 // (No @packageDocumentation comment for this package)
 
 ```
