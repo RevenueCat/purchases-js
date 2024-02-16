@@ -40,7 +40,7 @@ const onAlreadyEntitled = () => {
 };
 
 function App() {
-  const appUserId = localStorage.getItem("appUserId") || "someUserMario";
+  const appUserId = purchases.getAppUserId();
   purchases.getCustomerInfo().then((customerInfo: CustomerInfo) => {
     console.log(
       `CustomerInfo for user ${appUserId}: ${JSON.stringify(
