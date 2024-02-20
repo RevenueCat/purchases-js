@@ -228,16 +228,6 @@ This will update the files in `api-report` with the latest public API.
 If it has uncommited changes, CI tests will fail. Run this command and commit the changes if
 they are expected.
 
-## Update reference docs
-
-```bash
-npm run generate-docs
-```
-
-This will update the reference docs in the `docs` folder with the latest public API docs.
-If it has uncommited changes, CI tests will fail. Run this command and commit the changes if
-they are expected.
-
 # Publishing a new version
 
 - Update the version in `package.json`
