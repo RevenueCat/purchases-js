@@ -141,3 +141,6 @@ temp/
 # fastlane
 report.xml
 fastlane/.env
+
+# docs
+purchases-js-docs/
