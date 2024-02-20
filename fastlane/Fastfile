@@ -88,8 +88,6 @@ lane :generate_docs do
       sh(
         "npx",
         "typedoc",
-        "--name",
-        "purchases-js",
         "--out",
         docs_generation_folder
       )
