@@ -34,7 +34,7 @@
     "svelte-check": "svelte-check",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "extract-api": "api-extractor run --local --verbose",
+    "extract-api": "api-extractor run --local --verbose"
   },
   "devDependencies": {
     "@microsoft/api-documenter": "^7.23.23",
