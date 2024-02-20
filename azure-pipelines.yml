@@ -74,17 +74,6 @@ jobs:
       - script: npm pack
         displayName: "Pack"
 
-      - bash: |
-          if [[ "$(Build.SourceBranch)" == refs/tags/v* ]]; then
-            echo "Publishing to npm..."
-            npm publish --access private
-          else
-            echo "Not a tag push, will not publish to npm."
-          fi
-        displayName: "Publish to npm"
-        env:
-          NODE_AUTH_TOKEN: $(NpmAuthToken)
-
   - job: RunRCBillingDemoTests
     displayName: "Run RC Billing demo tests"
     steps:
