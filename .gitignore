@@ -137,3 +137,7 @@ revenuecat-purchases-*.tgz
 package/
 
 temp/
+
+# fastlane
+report.xml
+fastlane/.env
