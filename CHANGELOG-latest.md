@@ -1,2 +1,2 @@
-# 0.0.15
-- Move the SDK to a singleton pattern with initializer method (#67)
+# 0.0.16
+- Rename getInstance to getSharedInstance and initializePurchases to configure (#69)
