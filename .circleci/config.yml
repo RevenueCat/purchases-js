@@ -69,7 +69,7 @@ jobs:
 
   test:
     docker:
-      - image: cimg/ruby:3.3.0-node
+      - image: cimg/ruby:3.3.0-browsers
     steps:
       - checkout
       - install-dependencies
