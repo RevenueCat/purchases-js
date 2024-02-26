@@ -67,26 +67,67 @@ jobs:
           name: release
           command: bundle exec fastlane release
 
-workflows:
-  deploy:
-    when:
-      not:
-        equal: [scheduled_pipeline, << pipeline.trigger_source >>]
-    jobs:
-      - hold:
-          type: approval
-          <<: *release-branches
-      - revenuecat/tag-current-branch:
-          requires:
-            - hold
-          <<: *release-branches
-      - make-release:
-          <<: *release-tags
-      - docs-deploy:
-          <<: *release-tags
-          requires:
-            - make-release
+  test:
+    docker:
+      - image: cimg/ruby:3.3.0-node
+    steps:
+      - checkout
+      - install-dependencies
+      - revenuecat/install-gem-unix-dependencies:
+          cache-version: v1
+      - revenuecat/setup-git-credentials
+      - run:
+          name: Install node dependencies
+          command: npm ci
+      - run:
+          name: Install dependencies rcbilling-demo
+          working_directory: examples/rcbilling-demo
+          command: npm ci
+      - run:
+          name: Linting
+          command: npm run lint
+      - run:
+          name: Linting rcbilling-demo
+          working_directory: examples/rcbilling-demo
+          command: npm run lint
+      - run:
+          name: Prettier
+          command: npm run prettier:ci
+      - run:
+          name: Prettier rcbilling-demo
+          working_directory: examples/rcbilling-demo
+          command: npm run prettier:ci
+      - run:
+          name: Type checker including tests
+          command: npm run test:typeCheck
+      - run:
+          name: Svelte check
+          command: npm run svelte-check
+      - run:
+          name: Unit tests
+          command: npm run test
+      - run:
+          name: Build
+          command: npm run build
+      - run:
+          name: Extract API using api-extractor
+          command: npm run extract-api
+      - run:
+          name: Check if API has changed
+          command: git diff --exit-code api-report/**
+      - run:
+          name: Pack
+          command: npm pack
+      - run:
+          name: Build rcbilling-demo
+          working_directory: examples/rcbilling-demo
+          command: npm run build
+      - run:
+          name: E2E tests rcbilling-demo
+          working_directory: examples/rcbilling-demo
+          command: npm run test:ci
 
+workflows:
   danger:
     when:
       not:
@@ -107,3 +148,25 @@ workflows:
       equal: [bump, << pipeline.parameters.action >>]
     jobs:
       - revenuecat/automatic-bump
+
+  test-deploy:
+    when:
+      not:
+        equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
+    jobs:
+      - test
+      - hold:
+          requires:
+            - test
+          type: approval
+          <<: *release-branches
+      - revenuecat/tag-current-branch:
+          requires:
+            - hold
+          <<: *release-branches
+      - make-release:
+          <<: *release-tags
+      - docs-deploy:
+          <<: *release-tags
+          requires:
+            - make-release
