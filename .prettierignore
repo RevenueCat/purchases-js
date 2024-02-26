@@ -7,3 +7,5 @@ api-report/
 fastlane/
 CHANGELOG.md
 CHANGELOG-latest.md
+vendor/
+.circleci
