@@ -17,6 +17,7 @@
 |  Enumeration | Description |
 |  --- | --- |
 |  [ErrorCode](./purchases-js.errorcode.md) | Error codes for the Purchases SDK. |
+|  [LogLevel](./purchases-js.loglevel.md) | Possible levels to log in the console. |
 |  [PackageType](./purchases-js.packagetype.md) | Enumeration of all possible Package types. |
 
 ## Interfaces

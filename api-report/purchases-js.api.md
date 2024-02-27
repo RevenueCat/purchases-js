@@ -105,6 +105,16 @@ export enum ErrorCode {
 }
 
 // @public
+export enum LogLevel {
+    Debug = 4,
+    Error = 1,
+    Info = 3,
+    Silent = 0,
+    Verbose = 5,
+    Warn = 2
+}
+
+// @public
 export interface Offering {
     readonly annual: Package | null;
     readonly availablePackages: Package[];
@@ -186,6 +196,7 @@ export class Purchases {
     purchasePackage(rcPackage: Package, customerEmail?: string, htmlTarget?: HTMLElement): Promise<{
         customerInfo: CustomerInfo;
     }>;
+    static setLogLevel(logLevel: LogLevel): void;
 }
 
 // @public

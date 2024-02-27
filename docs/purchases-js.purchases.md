@@ -27,4 +27,5 @@ export declare class Purchases
 |  [isEntitledTo(entitlementIdentifier)](./purchases-js.purchases.isentitledto.md) |  | Convenience method to check whether a user is entitled to a specific entitlement. This will use [Purchases.getCustomerInfo()](./purchases-js.purchases.getcustomerinfo.md) under the hood. |
 |  [isSandbox()](./purchases-js.purchases.issandbox.md) |  |  |
 |  [purchasePackage(rcPackage, customerEmail, htmlTarget)](./purchases-js.purchases.purchasepackage.md) |  | Method to perform a purchase for a given package. You can obtain the package from [Purchases.getOfferings()](./purchases-js.purchases.getofferings.md)<!-- -->. This method will present the purchase form on your site, using the given HTML element as the mount point, if provided, or as a modal if not. |
+|  [setLogLevel(logLevel)](./purchases-js.purchases.setloglevel.md) | <code>static</code> | Set the log level. Logs of the given level and below will be printed in the console. Default is <code>LogLevel.Silent</code> so no logs will be printed in the console. |
 

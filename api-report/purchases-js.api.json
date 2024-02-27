@@ -1473,6 +1473,149 @@
           ]
         },
         {
+          "kind": "Enum",
+          "canonicalReference": "@revenuecat/purchases-js!LogLevel:enum",
+          "docComment": "/**\n * Possible levels to log in the console.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare enum LogLevel "
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "name": "LogLevel",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!LogLevel.Debug:member",
+              "docComment": "/**\n * Debug, info, warnings, and errors will be shown in the console.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Debug = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "4"
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "Debug"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!LogLevel.Error:member",
+              "docComment": "/**\n * Only errors will be shown in the console.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Error = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "1"
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "Error"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!LogLevel.Info:member",
+              "docComment": "/**\n * Only info, warnings, and errors will be shown in the console.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Info = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "3"
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "Info"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!LogLevel.Silent:member",
+              "docComment": "/**\n * No logs will be shown in the console.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Silent = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "0"
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "Silent"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!LogLevel.Verbose:member",
+              "docComment": "/**\n * All logs will be shown in the console.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Verbose = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "5"
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "Verbose"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!LogLevel.Warn:member",
+              "docComment": "/**\n * Only warnings and errors will be shown in the console.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Warn = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "2"
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "Warn"
+            }
+          ]
+        },
+        {
           "kind": "Interface",
           "canonicalReference": "@revenuecat/purchases-js!Offering:interface",
           "docComment": "/**\n * An offering is a collection of {@link Package} available for the user to purchase. For more info see https://docs.revenuecat.com/docs/entitlements\n *\n * @public\n */\n",
@@ -3045,6 +3188,55 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "purchasePackage"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@revenuecat/purchases-js!Purchases.setLogLevel:member(1)",
+              "docComment": "/**\n * Set the log level. Logs of the given level and below will be printed in the console. Default is `LogLevel.Silent` so no logs will be printed in the console.\n *\n * @param logLevel - LogLevel to set.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static setLogLevel(logLevel: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "LogLevel",
+                  "canonicalReference": "@revenuecat/purchases-js!LogLevel:enum"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "logLevel",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setLogLevel"
             }
           ],
           "implementsTokenRanges": []

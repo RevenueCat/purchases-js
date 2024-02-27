@@ -23,6 +23,8 @@ import {
   PurchaseFlowError,
   PurchaseOperationHelper,
 } from "./helpers/purchase-operation-helper";
+import { LogLevel } from "./entities/log-level";
+import { Logger } from "./helpers/logger";
 
 export type {
   Offering,
@@ -44,6 +46,7 @@ export {
   PurchasesError,
   UninitializedPurchasesError,
 } from "./entities/errors";
+export { LogLevel } from "./entities/log-level";
 
 /**
  * Entry point for Purchases SDK. It should be instantiated as soon as your
@@ -66,6 +69,16 @@ export class Purchases {
 
   /** @internal */
   private static instance: Purchases | undefined = undefined;
+
+  /**
+   * Set the log level. Logs of the given level and below will be printed
+   * in the console.
+   * Default is `LogLevel.Silent` so no logs will be printed in the console.
+   * @param logLevel - LogLevel to set.
+   */
+  static setLogLevel(logLevel: LogLevel) {
+    Logger.setLogLevel(logLevel);
+  }
 
   /**
    * Get the singleton instance of Purchases. It's preferred to use the instance
@@ -95,7 +108,7 @@ export class Purchases {
    */
   static configure(apiKey: string, appUserId: string): Purchases {
     if (Purchases.instance !== undefined) {
-      console.warn(
+      Logger.warnLog(
         "Purchases is already initialized. Ignoring and returning existing instance.",
       );
       return Purchases.getSharedInstance();
@@ -110,11 +123,13 @@ export class Purchases {
     this._appUserId = appUserId;
 
     if (RC_ENDPOINT === undefined) {
-      console.error(
+      Logger.errorLog(
         "Project was build without some of the environment variables set",
       );
     }
-
+    if (isSandboxApiKey(apiKey)) {
+      Logger.debugLog("Initializing Purchases SDK with sandbox API Key");
+    }
     this.backend = new Backend(this._API_KEY);
     this.purchaseOperationHelper = new PurchaseOperationHelper(this.backend);
   }
@@ -149,7 +164,7 @@ export class Purchases {
     });
 
     if (Object.keys(allOfferings).length == 0) {
-      console.debug(
+      Logger.debugLog(
         "Empty offerings. Please make sure you've configured offerings correctly in the " +
           "RevenueCat dashboard and that the products are properly configured.",
       );
@@ -231,6 +246,10 @@ export class Purchases {
     const asModal = !Boolean(htmlTarget);
     const appUserId = this._appUserId;
 
+    Logger.debugLog(
+      `Presenting purchase form for package ${rcPackage.identifier}`,
+    );
+
     return new Promise((resolve, reject) => {
       new RCPurchasesUI({
         target: certainHTMLTarget,
@@ -239,6 +258,7 @@ export class Purchases {
           rcPackage,
           customerEmail,
           onFinished: async () => {
+            Logger.debugLog("Purchase finished");
             certainHTMLTarget.innerHTML = "";
             // TODO: Add info about transaction in result.
             resolve({
@@ -247,6 +267,7 @@ export class Purchases {
           },
           onClose: () => {
             certainHTMLTarget.innerHTML = "";
+            Logger.debugLog("Purchase cancelled by user");
             reject(new PurchasesError(ErrorCode.UserCancelledError));
           },
           onError: (e: PurchaseFlowError) => {
@@ -305,10 +326,10 @@ export class Purchases {
       }
     });
     if (missingProductIds.length > 0) {
-      console.debug(
-        "Could not find product data for product ids: ",
-        missingProductIds,
-        ". Please check that your product configuration is correct.",
+      Logger.debugLog(
+        `Could not find product data for product ids: 
+        ${missingProductIds.join()}. 
+        Please check that your product configuration is correct.`,
       );
     }
   }
@@ -327,7 +348,7 @@ export class Purchases {
     if (Purchases.instance === this) {
       Purchases.instance = undefined;
     } else {
-      console.warn(
+      Logger.warnLog(
         "Trying to close a Purchases instance that is not the current instance. Ignoring.",
       );
     }
