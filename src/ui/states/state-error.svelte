@@ -16,7 +16,7 @@
   export let onContinue: () => void;
 
   onMount(() => {
-    Logger.debugLog(`Displayed error: ${PurchaseFlowErrorCode[lastError.errorCode]}. Message: ${lastError.message ?? "None"}. Underlying error: ${lastError.underlyingErrorMessage ?? "None"}`);
+    Logger.errorLog(`Displayed error: ${PurchaseFlowErrorCode[lastError.errorCode]}. Message: ${lastError.message ?? "None"}. Underlying error: ${lastError.underlyingErrorMessage ?? "None"}`);
   });
 
   function getErrorMessage(): string {

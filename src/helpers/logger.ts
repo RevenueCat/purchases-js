@@ -9,6 +9,9 @@ export class Logger {
 
   static log(message: string, logLevel: LogLevel = this.logLevel): void {
     const messageWithTag = `[Purchases] ${message}`;
+    if (this.logLevel < logLevel || logLevel === LogLevel.Silent) {
+      return;
+    }
     switch (logLevel) {
       case LogLevel.Error:
         console.error(messageWithTag);
@@ -24,9 +27,6 @@ export class Logger {
         break;
       case LogLevel.Verbose:
         console.debug(messageWithTag);
-        break;
-      case LogLevel.Silent:
-        // No-op
         break;
     }
   }
