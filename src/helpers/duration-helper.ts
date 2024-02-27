@@ -13,7 +13,7 @@ export interface Period {
 }
 
 export function parseISODuration(duration: string): Period | null {
-  const match = duration.match(/^PT?([0-9]+)([HMDYW])$/);
+  const match = duration.match(/^PT?([0-9]+)([MDYW])$/);
 
   if (!match || match.length < 3) {
     Logger.errorLog(`Invalid ISO 8601 duration format: ${duration}`);
