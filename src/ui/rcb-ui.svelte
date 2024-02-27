@@ -180,6 +180,7 @@
         {#if state === "needs-auth-info"}
           <StateNeedsAuthInfo
             onContinue={handleContinue}
+            onClose={handleClose}
           />
         {/if}
         {#if state === "needs-payment-info" && paymentInfoCollectionMetadata}

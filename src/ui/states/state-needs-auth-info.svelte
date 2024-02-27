@@ -2,14 +2,18 @@
   import Button from "../button.svelte";
   import ModalFooter from "../modal-footer.svelte";
   import ModalSection from "../modal-section.svelte";
+  import RowLayout from "../layout/row-layout.svelte";
 
   export let onContinue: any;
+  export let onClose: () => void;
 
   $: email = "";
 
   const handleContinue = async () => {
     onContinue({ email });
   };
+
+
 </script>
 
 <div>
@@ -30,7 +34,10 @@
       </div>
     </ModalSection>
     <ModalFooter>
-      <Button>Continue</Button>
+      <RowLayout>
+        <Button>Continue</Button>
+        <Button intent="secondary" on:click={onClose}>Close</Button>
+      </RowLayout>
     </ModalFooter>
   </form>
 </div>
