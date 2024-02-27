@@ -8,6 +8,7 @@
   import { onMount } from "svelte";
   import { BrandingInfoResponse } from "../../networking/responses/branding-response";
   import BrandAndCloseHeader from "../brand-and-close-header.svelte";
+  import { Logger } from "../../helpers/logger.js";
 
   export let brandingInfo: BrandingInfoResponse | null = null;
   export let lastError: PurchaseFlowError;
@@ -15,7 +16,7 @@
   export let onContinue: () => void;
 
   onMount(() => {
-    console.debug(`Displayed error: ${PurchaseFlowErrorCode[lastError.errorCode]}. Message: ${lastError.message ?? "None"}. Underlying error: ${lastError.underlyingErrorMessage ?? "None"}`);
+    Logger.debugLog(`Displayed error: ${PurchaseFlowErrorCode[lastError.errorCode]}. Message: ${lastError.message ?? "None"}. Underlying error: ${lastError.underlyingErrorMessage ?? "None"}`);
   });
 
   function getErrorMessage(): string {

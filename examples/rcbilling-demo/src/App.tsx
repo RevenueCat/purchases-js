@@ -3,7 +3,7 @@ import "./App.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import PaywallPage from "./pages/paywall";
 
-import { Purchases, CustomerInfo } from "@revenuecat/purchases-js";
+import { CustomerInfo, LogLevel, Purchases } from "@revenuecat/purchases-js";
 import AppUserIdForm from "./components/AppUserIdForm";
 import WithEntitlement from "./components/WithEntitlement";
 import CatServices from "./pages/catServices";
@@ -14,6 +14,7 @@ import WithoutEntitlement from "./components/WithoutEntitlement";
 
 const apiKey = import.meta.env.VITE_RC_API_KEY as string;
 const initialUserId = localStorage.getItem("appUserId") || "someUserMario";
+Purchases.setLogLevel(LogLevel.Verbose);
 const purchases = Purchases.configure(apiKey, initialUserId);
 export const catServicesEntitlementId = "catServices";
 export const dogServicesEntitlementId = "dogServices";
