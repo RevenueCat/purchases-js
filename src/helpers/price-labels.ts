@@ -1,3 +1,5 @@
+import { parseISODuration, PeriodUnit } from "./duration-helper";
+
 export const priceLabels: Record<string, string> = {
   P3M: "quarterly",
   P1M: "monthly",
@@ -6,14 +8,6 @@ export const priceLabels: Record<string, string> = {
   P1D: "daily",
   PT1H: "hourly",
   P1W: "weekly",
-};
-
-const durationUnits: Record<string, string> = {
-  Y: "year",
-  M: "month",
-  W: "week",
-  D: "day",
-  H: "hour",
 };
 
 export const formatPrice = (priceInCents: number, currency: string): string => {
@@ -27,10 +21,24 @@ export const formatPrice = (priceInCents: number, currency: string): string => {
 };
 
 export const getRenewsLabel = (duration: string): string => {
-  const unit = duration.slice(-1);
-  if (unit === "D") {
-    return "daily";
+  const period = parseISODuration(duration);
+  if (!period) {
+    return "unknown";
   }
 
-  return `${durationUnits[unit]}ly`;
+  const numberPeriods = period.number;
+  if (numberPeriods === 1) {
+    switch (period.unit) {
+      case PeriodUnit.Year:
+        return "yearly";
+      case PeriodUnit.Month:
+        return "monthly";
+      case PeriodUnit.Week:
+        return "weekly";
+      case PeriodUnit.Day:
+        return "daily";
+    }
+  } else {
+    return `every ${numberPeriods} ${period.unit}s`;
+  }
 };
