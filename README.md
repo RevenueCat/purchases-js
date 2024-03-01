@@ -11,16 +11,6 @@ Sign up to [get started for free](https://app.revenuecat.com/signup).
 Login @ [app.revenuecat.com](https://app.revenuecat.com)
 
 - Create a Project (if you haven't already)
-
-### ======> Only while testing <======
-
-- Add the private project id (a.k.a. app_id) to the following feature flags
-  - RCBILLING
-  - GENERATE_V2_SUBSCRIPTION_MODELS_FOR_RCBILLING
-  - GENERATE_V2_SUBSCRIPTION_MODELS
-
-### ======> Only while testing <======
-
 - Add a new RCBilling app
   - Get the `RC_PUBLISHABLE_API_KEY` (you will need it soon)
   - Connect your Stripe account (More payment gateways are coming soon)
@@ -29,17 +19,6 @@ Login @ [app.revenuecat.com](https://app.revenuecat.com)
 - Create the entitlements you need in your app and link them to the RCBilling products
 
 # Installation
-
-### ======> Only during testing <======
-
-- Get a token to download the sdk from our private npm registry
-- Set the environment variable `NODE_AUTH_TOKEN`
-
-```bash
-export NODE_AUTH_TOKEN="the token you got from the npm registry"
-```
-
-### ======> Only during testing <======
 
 - Add the library to your project's dependencies
 
@@ -216,6 +195,17 @@ npm run test:typeCheck
 npm run svelte-check
 npm run prettier
 npm run lint
+```
+
+## Running E2E tests
+
+```bash
+npm run build
+cd examples/rcbilling-demo
+npm run build
+# In a different terminal or background the process
+npm run dev
+npm run test
 ```
 
 ## Update API specs
