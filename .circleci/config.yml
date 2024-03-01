@@ -1,6 +1,7 @@
 version: 2.1
 orbs:
   revenuecat: revenuecat/sdks-common-config@3.0.0
+  aws-cli: circleci/aws-cli@4.1.3
 
 aliases:
   release-tags: &release-tags
@@ -15,6 +16,10 @@ aliases:
         ignore: /.*/
       branches:
         only: /^release\/.*/
+  only-main: &only-main
+    filters:
+      branches:
+        only: main
 
 parameters:
   action:
@@ -75,6 +80,45 @@ jobs:
       - run:
           name: release
           command: bundle exec fastlane release
+
+  deploy-demo:
+    docker:
+      - image: cimg/ruby:3.3.0-browsers
+    steps:
+      - checkout
+      - install-dependencies
+      - revenuecat/install-gem-unix-dependencies:
+          cache-version: v1
+      - run:
+          name: Install node dependencies
+          command: npm ci
+      - run:
+          name: Install dependencies rcbilling-demo
+          working_directory: examples/rcbilling-demo
+          command: npm ci
+      - run:
+          name: Build
+          command: npm run build
+      - run:
+          name: Build rcbilling-demo
+          working_directory: examples/rcbilling-demo
+          command: npm run build
+      - aws-cli/setup:
+          aws_access_key_id: AWS_ACCESS_KEY_ID
+          aws_secret_access_key: AWS_SECRET_ACCESS_KEY
+          region: AWS_REGION
+      - run:
+          name: Sync files to S3 bucket
+          working_directory: examples/rcbilling-demo
+          command: aws s3 sync dist s3://app-rcbillingdemo.revenuecat.com --delete
+      - run:
+          name: Fix cache control on index.html
+          working_directory: examples/rcbilling-demo
+          command: aws s3 cp --cache-control 'no-cache' --content-type 'text/html' s3://app-rcbillingdemo.revenuecat.com/index.html s3://app-rcbillingdemo.revenuecat.com/index.html --metadata-directive REPLACE
+      - run:
+          name: Invalidate Cloudfront Distribution
+          working_directory: examples/rcbilling-demo
+          command: aws cloudfront create-invalidation --distribution-id E31EVZCWLXEOFB --paths "/*"
 
   test:
     docker:
@@ -164,6 +208,10 @@ workflows:
         equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
     jobs:
       - test
+      - deploy-demo:
+          requires:
+            - test
+          <<: *only-main
       - hold:
           requires:
             - test
