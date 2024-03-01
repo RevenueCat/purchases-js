@@ -1,3 +1,7 @@
+## 0.0.18
+### Bugfixes
+* Fix deployment of library after moving to CircleCI (#76) via Toni Rico (@tonidero)
+
 ## 0.0.17
 ### New Features
 * Add `Logger` class and `setLogLevel` method to control what logs are printed to console. (#72) via Toni Rico (@tonidero)
