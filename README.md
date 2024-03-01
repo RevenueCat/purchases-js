@@ -228,24 +228,12 @@ This will update the files in `api-report` with the latest public API.
 If it has uncommited changes, CI tests will fail. Run this command and commit the changes if
 they are expected.
 
-## Update reference docs
-
-```bash
-npm run generate-docs
-```
-
-This will update the reference docs in the `docs` folder with the latest public API docs.
-If it has uncommited changes, CI tests will fail. Run this command and commit the changes if
-they are expected.
-
 # Publishing a new version
 
-- Update the version in `package.json`
-- Add a new entry in `CHANGELOG.md` including all the PR merged and crediting the authors
-- Commit the changes in main
-- Create a new tag with the version number and push:
+New versions are automated weekly, but you can also trigger a new release through CircleCI or locally
+following these steps:
 
-```
-git tag v[version_number]
-git push origin v[version_number]
-```
+- Run `bundle exec fastlane bump` and follow the instructions
+- A PR should be created with the changes and a hold job in CircleCI.
+- Approve the hold job once tests pass. This will create a tag and continue the release in CircleCI
+- Merge the PR once it's been released

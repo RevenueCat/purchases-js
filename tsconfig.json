@@ -31,4 +31,16 @@
     "src/main.test.tsx",
   ],
   "exclude": ["node_modules", "./src/tests", "./**/*.test.ts"],
+  "typedocOptions": {
+    "entryPoints": ["src/main.ts"],
+    "out": "docs",
+    "excludeInternal": true,
+    "excludePrivate": true,
+    "excludeProtected": true,
+    "includeVersion": true,
+    "visibilityFilters": {
+      "external": true,
+      "inherited": true
+    }
+  }
 }

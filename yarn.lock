@@ -1306,19 +1306,6 @@
     "@types/mdx" "^2.0.0"
     "@types/react" ">=16"
 
-"@microsoft/api-documenter@^7.23.23":
-  version "7.23.23"
-  resolved "https://registry.npmjs.org/@microsoft/api-documenter/-/api-documenter-7.23.23.tgz"
-  integrity sha512-77upYNmm6h9+8hdNWL7R1+vW1QaExkwKuOuSWR2v3Tdk2JHCVf+s341jybgYEnxRhIQIIxtLeiwQ/xzMFOizwQ==
-  dependencies:
-    "@microsoft/api-extractor-model" "7.28.9"
-    "@microsoft/tsdoc" "0.14.2"
-    "@rushstack/node-core-library" "3.66.0"
-    "@rushstack/ts-command-line" "4.17.1"
-    colors "~1.2.1"
-    js-yaml "~3.13.1"
-    resolve "~1.22.1"
-
 "@microsoft/api-extractor-model@7.28.3":
   version "7.28.3"
   resolved "https://registry.npmjs.org/@microsoft/api-extractor-model/-/api-extractor-model-7.28.3.tgz"
@@ -3148,6 +3135,11 @@ ansi-regex@^6.0.1:
   version "6.0.1"
   resolved "https://registry.npmjs.org/ansi-regex/-/ansi-regex-6.0.1.tgz"
   integrity sha512-n5M855fKb2SsfMIiFFoVrABHJC8QtHwVx+mHWP3QcEqBHYienj5dHSgjbxtC0WEZXYt4wcD6zrQElDPhFuZgfA==
+
+ansi-sequence-parser@^1.1.0:
+  version "1.1.1"
+  resolved "https://registry.npmjs.org/ansi-sequence-parser/-/ansi-sequence-parser-1.1.1.tgz"
+  integrity sha512-vJXt3yiaUL4UU546s3rPXlsry/RnM730G1+HkpKE012AN0sx1eOrxSu95oKDIonskeLTijMgqWZ3uDEe3NFvyg==
 
 ansi-styles@^3.2.1:
   version "3.2.1"
@@ -5982,14 +5974,6 @@ js-yaml@^4.1.0:
   dependencies:
     argparse "^2.0.1"
 
-js-yaml@~3.13.1:
-  version "3.13.1"
-  resolved "https://registry.npmjs.org/js-yaml/-/js-yaml-3.13.1.tgz"
-  integrity sha512-YfbcO7jXDdyj0DGxYVSlSeQNHbD7XPWvrVWeVUujrQEoZzWJIRrCPoyk6kL6IAjAG2IolMK4T0hNUe0HOUs5Jw==
-  dependencies:
-    argparse "^1.0.7"
-    esprima "^4.0.0"
-
 jscodeshift@^0.15.1:
   version "0.15.1"
   resolved "https://registry.npmjs.org/jscodeshift/-/jscodeshift-0.15.1.tgz"
@@ -6260,6 +6244,11 @@ lru-cache@^6.0.0:
   resolved "https://registry.npmjs.org/lru-cache/-/lru-cache-10.1.0.tgz"
   integrity sha512-/1clY/ui8CzjKFyjdvwPWJUYKiFVXG2I2cY0ssG7h4+hwk+XOIX7ZSG9Q7TW8TW3Kp3BUSqgFWBLgL4PJ+Blag==
 
+lunr@^2.3.9:
+  version "2.3.9"
+  resolved "https://registry.npmjs.org/lunr/-/lunr-2.3.9.tgz"
+  integrity sha512-zTU3DaZaF3Rt9rhN3uBMGQD3dD2/vFQqnvZCDv4dl5iOzq2IZQqTxu90r4E5J+nP70J3ilqVCrbho2eWaeW8Ow==
+
 lz-string@^1.5.0:
   version "1.5.0"
   resolved "https://registry.npmjs.org/lz-string/-/lz-string-1.5.0.tgz"
@@ -6303,6 +6292,11 @@ markdown-to-jsx@^7.1.8:
   version "7.4.0"
   resolved "https://registry.npmjs.org/markdown-to-jsx/-/markdown-to-jsx-7.4.0.tgz"
   integrity sha512-zilc+MIkVVXPyTb4iIUTIz9yyqfcWjszGXnwF9K/aiBWcHXFcmdEMTkG01/oQhwSCH7SY1BnG6+ev5BzWmbPrg==
+
+marked@^4.3.0:
+  version "4.3.0"
+  resolved "https://registry.npmjs.org/marked/-/marked-4.3.0.tgz"
+  integrity sha512-PRsaiG84bK+AMvxziE/lCFss8juXjNaWzVbN5tXAm4XjeaS9NAHhop+PjQxz2A9h8Q4M/xGmzP8vqNwy6JeK0A==
 
 mdast-util-definitions@^4.0.0:
   version "4.0.0"
@@ -7769,6 +7763,16 @@ shebang-regex@^3.0.0:
   resolved "https://registry.npmjs.org/shebang-regex/-/shebang-regex-3.0.0.tgz"
   integrity sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==
 
+shiki@^0.14.7:
+  version "0.14.7"
+  resolved "https://registry.npmjs.org/shiki/-/shiki-0.14.7.tgz"
+  integrity sha512-dNPAPrxSc87ua2sKJ3H5dQ/6ZaY8RNnaAqK+t0eG7p0Soi2ydiqbGOTaZCqaYvA/uZYfS1LJnemt3Q+mSfcPCg==
+  dependencies:
+    ansi-sequence-parser "^1.1.0"
+    jsonc-parser "^3.2.0"
+    vscode-oniguruma "^1.7.0"
+    vscode-textmate "^8.0.0"
+
 side-channel@^1.0.4:
   version "1.0.4"
   resolved "https://registry.npmjs.org/side-channel/-/side-channel-1.0.4.tgz"
@@ -8481,7 +8485,17 @@ typedarray@^0.0.6:
   resolved "https://registry.npmjs.org/typedarray/-/typedarray-0.0.6.tgz"
   integrity sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==
 
-typescript@*, typescript@^5.0.3, typescript@^5.2.2, "typescript@>= 4.3.x", "typescript@>= 4.7.x <= 5.3.x", "typescript@>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta", "typescript@>=3.9.5 || ^4.0.0 || ^5.0.0", typescript@>=4.2.0, typescript@5.3.3:
+typedoc@^0.25.8:
+  version "0.25.8"
+  resolved "https://registry.npmjs.org/typedoc/-/typedoc-0.25.8.tgz"
+  integrity sha512-mh8oLW66nwmeB9uTa0Bdcjfis+48bAjSH3uqdzSuSawfduROQLlXw//WSNZLYDdhmMVB7YcYZicq6e8T0d271A==
+  dependencies:
+    lunr "^2.3.9"
+    marked "^4.3.0"
+    minimatch "^9.0.3"
+    shiki "^0.14.7"
+
+typescript@*, typescript@^5.0.3, typescript@^5.2.2, "typescript@>= 4.3.x", "typescript@>= 4.7.x <= 5.3.x", "typescript@>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta", "typescript@>=3.9.5 || ^4.0.0 || ^5.0.0", typescript@>=4.2.0, "typescript@4.6.x || 4.7.x || 4.8.x || 4.9.x || 5.0.x || 5.1.x || 5.2.x || 5.3.x", typescript@5.3.3:
   version "5.3.3"
   resolved "https://registry.npmjs.org/typescript/-/typescript-5.3.3.tgz"
   integrity sha512-pXWcraxM0uxAS+tN0AG/BF2TyqmHO014Z070UsJ+pFvYuRSq8KH8DmWpnbXe0pEPDHXZV3FcAbJkijJ5oNEnWw==
@@ -8761,6 +8775,16 @@ vitest@^0.34.6:
     vite "^3.1.0 || ^4.0.0 || ^5.0.0-0"
     vite-node "0.34.6"
     why-is-node-running "^2.2.2"
+
+vscode-oniguruma@^1.7.0:
+  version "1.7.0"
+  resolved "https://registry.npmjs.org/vscode-oniguruma/-/vscode-oniguruma-1.7.0.tgz"
+  integrity sha512-L9WMGRfrjOhgHSdOYgCt/yRMsXzLDJSL7BPrOZt73gU0iWO4mpqzqQzOz5srxqTvMBaR0XZTSrVWo4j55Rc6cA==
+
+vscode-textmate@^8.0.0:
+  version "8.0.0"
+  resolved "https://registry.npmjs.org/vscode-textmate/-/vscode-textmate-8.0.0.tgz"
+  integrity sha512-AFbieoL7a5LMqcnOF04ji+rpXadgOXnZsxQr//r83kLPr7biP7am3g9zbaZIaBGwBRWeSvoMD4mgPdX3e4NWBg==
 
 vue-template-compiler@^2.7.14:
   version "2.7.16"
