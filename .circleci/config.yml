@@ -64,6 +64,15 @@ jobs:
           cache-version: v1
       - revenuecat/trust-github-key
       - run:
+          name: Install node dependencies
+          command: npm ci
+      - run:
+          name: Build
+          command: npm run build
+      - run:
+          name: Pack
+          command: npm pack
+      - run:
           name: release
           command: bundle exec fastlane release
 
