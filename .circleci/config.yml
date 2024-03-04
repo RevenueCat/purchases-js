@@ -90,6 +90,11 @@ jobs:
       - revenuecat/install-gem-unix-dependencies:
           cache-version: v1
       - run:
+          name: Update ENV for demo
+          command: |
+            echo 'export VITE_RC_API_KEY=${DEMO_RC_API_KEY}' >> "$BASH_ENV"
+            source "$BASH_ENV"
+      - run:
           name: Install node dependencies
           command: npm ci
       - run:
@@ -129,6 +134,11 @@ jobs:
       - revenuecat/install-gem-unix-dependencies:
           cache-version: v1
       - revenuecat/setup-git-credentials
+      - run:
+          name: Update ENV for E2E test
+          command: |
+            echo 'export VITE_RC_API_KEY=${E2E_RC_API_KEY}' >> "$BASH_ENV"
+            source "$BASH_ENV"
       - run:
           name: Install node dependencies
           command: npm ci
