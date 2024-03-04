@@ -1,7 +1,8 @@
 files_with_version_number = {
   './package.json' => ['"version": "{x}"'],
   './scripts/docs/index.html' => ['purchases-js-docs/{x}/'],
-  './.version' => ['{x}']
+  './.version' => ['{x}'],
+  './src/helpers/constants.ts' => ['VERSION = "{x}"']
 }
 
 repo_name = 'purchases-js'
