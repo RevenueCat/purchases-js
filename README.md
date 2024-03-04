@@ -10,10 +10,10 @@ Sign up to [get started for free](https://app.revenuecat.com/signup).
 
 Login @ [app.revenuecat.com](https://app.revenuecat.com)
 
+- Connect your Stripe account if you haven't already (More payment gateways are coming soon)
 - Create a Project (if you haven't already)
 - Add a new RCBilling app
-  - Get the `RC_PUBLISHABLE_API_KEY` (you will need it soon)
-  - Connect your Stripe account (More payment gateways are coming soon)
+- Get the sandbox API key or production API key (depending on the environment)
 - Create some products for the RCBilling App
 - Create an offering and add packages with RCBilling products
 - Create the entitlements you need in your app and link them to the RCBilling products
