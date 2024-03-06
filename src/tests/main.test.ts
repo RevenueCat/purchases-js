@@ -8,13 +8,14 @@ import {
   Package,
   PackageType,
   Purchases,
+  PurchasesError,
 } from "../main";
 import { getRequestHandlers } from "./test-responses";
 import { UninitializedPurchasesError } from "../entities/errors";
 
 const server = setupServer(...getRequestHandlers());
 
-const testApiKey = "test_api_key";
+const testApiKey = "rcb_test_api_key";
 const testUserId = "someAppUserId";
 
 function configurePurchases(appUserId: string = testUserId): Purchases {
@@ -29,6 +30,37 @@ beforeEach(() => {
   if (Purchases.isConfigured()) {
     Purchases.getSharedInstance().close();
   }
+});
+
+describe("Purchases.configure()", () => {
+  test("throws error if given invalid api key", () => {
+    expect(() => Purchases.configure("goog_api_key", "appUserId")).toThrowError(
+      PurchasesError,
+    );
+  });
+
+  test("throws error if given invalid user id", () => {
+    expect(() => Purchases.configure(testApiKey, "")).toThrowError(
+      PurchasesError,
+    );
+    expect(() =>
+      Purchases.configure(testApiKey, "some/AppUserId"),
+    ).toThrowError(PurchasesError);
+  });
+
+  test("configures successfully", () => {
+    const purchases = Purchases.configure(testApiKey, testUserId);
+    expect(purchases).toBeDefined();
+  });
+
+  test("configure multiple times returns same instance", () => {
+    const purchases = Purchases.configure(testApiKey, testUserId);
+    const purchases2 = Purchases.configure(
+      "rcb_another_api_key",
+      "another_user_id",
+    );
+    expect(purchases).toEqual(purchases2);
+  });
 });
 
 describe("Purchases.isConfigured()", () => {
@@ -53,11 +85,6 @@ describe("Purchases.getSharedInstance()", () => {
     const purchases = configurePurchases();
     expect(purchases).toEqual(Purchases.getSharedInstance());
   });
-});
-
-test("Purchases is defined after initialization", () => {
-  const purchases = configurePurchases();
-  expect(purchases).toBeDefined();
 });
 
 describe("Purchases.isEntitledTo", () => {
