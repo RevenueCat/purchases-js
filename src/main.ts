@@ -25,6 +25,7 @@ import {
 } from "./helpers/purchase-operation-helper";
 import { LogLevel } from "./entities/log-level";
 import { Logger } from "./helpers/logger";
+import { validateApiKey, validateAppUserId } from "./helpers/configuration-validators";
 
 export type {
   Offering,
@@ -105,6 +106,7 @@ export class Purchases {
    * keep the returned instance around for use throughout your application.
    * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.
    * @param appUserId - Your unique id for identifying the user.
+   * @throws {@link PurchasesError} if the API key or user id are invalid.
    */
   static configure(apiKey: string, appUserId: string): Purchases {
     if (Purchases.instance !== undefined) {
@@ -113,6 +115,8 @@ export class Purchases {
       );
       return Purchases.getSharedInstance();
     }
+    validateApiKey(apiKey);
+    validateAppUserId(appUserId);
     Purchases.instance = new Purchases(apiKey, appUserId);
     return Purchases.getSharedInstance();
   }
