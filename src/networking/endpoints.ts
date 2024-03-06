@@ -22,7 +22,8 @@ export class GetOfferingsEndpoint implements Endpoint {
   name: string = "getOfferings";
 
   url(): string {
-    return `${RC_ENDPOINT}${SUBSCRIBERS_PATH}/${this.appUserId}/offerings`;
+    const encodedAppUserId = encodeURIComponent(this.appUserId);
+    return `${RC_ENDPOINT}${SUBSCRIBERS_PATH}/${encodedAppUserId}/offerings`;
   }
 }
 
@@ -47,7 +48,11 @@ export class GetProductsEndpoint implements Endpoint {
   }
 
   url(): string {
-    return `${RC_ENDPOINT}${RC_BILLING_PATH}/subscribers/${this.appUserId}/products?id=${this.productIds.join("&id=")}`;
+    const encodedAppUserId = encodeURIComponent(this.appUserId);
+    const encodedProductIds = this.productIds
+      .map(encodeURIComponent)
+      .join("&id=");
+    return `${RC_ENDPOINT}${RC_BILLING_PATH}/subscribers/${encodedAppUserId}/products?id=${encodedProductIds}`;
   }
 }
 
@@ -61,7 +66,8 @@ export class GetCustomerInfoEndpoint implements Endpoint {
   }
 
   url(): string {
-    return `${RC_ENDPOINT}${SUBSCRIBERS_PATH}/${this.appUserId}`;
+    const encodedAppUserId = encodeURIComponent(this.appUserId);
+    return `${RC_ENDPOINT}${SUBSCRIBERS_PATH}/${encodedAppUserId}`;
   }
 }
 
