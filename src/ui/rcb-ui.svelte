@@ -89,8 +89,12 @@
       return;
     }
 
-    purchaseOperationHelper.startPurchase(appUserId, productId, customerEmail)
-      .then((result) => {
+    purchaseOperationHelper.startPurchase(
+      appUserId,
+      productId,
+      customerEmail,
+      rcPackage.rcBillingProduct.presentedOfferingIdentifier,
+    ).then((result) => {
         if (result.next_action === "collect_payment_info") {
           state = "needs-payment-info";
           paymentInfoCollectionMetadata = result;

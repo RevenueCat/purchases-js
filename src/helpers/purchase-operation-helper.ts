@@ -42,11 +42,13 @@ export class PurchaseOperationHelper {
     appUserId: string,
     productId: string,
     email: string,
+    offeringIdentifier: string,
   ): Promise<SubscribeResponse> {
     const subscribeResponse = await this.backend.postSubscribe(
       appUserId,
       productId,
       email,
+      offeringIdentifier,
     );
     this.operationSessionId = subscribeResponse.operation_session_id;
     return subscribeResponse;

@@ -245,6 +245,7 @@ describe("subscribe request", () => {
         "someAppUserId",
         "monthly",
         "testemail@revenuecat.com",
+        "offering_1",
       ),
     ).toEqual(subscribeResponse);
   });
@@ -258,6 +259,7 @@ describe("subscribe request", () => {
         "someAppUserId",
         "monthly",
         "testemail@revenuecat.com",
+        "offering_1",
       ),
       new PurchasesError(
         ErrorCode.UnknownBackendError,
@@ -281,6 +283,7 @@ describe("subscribe request", () => {
         "someAppUserId",
         "monthly",
         "testemail@revenuecat.com",
+        "offering_1",
       ),
       new PurchasesError(
         ErrorCode.InvalidCredentialsError,

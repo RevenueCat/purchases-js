@@ -70,6 +70,7 @@ describe("PurchaseOperationHelper", () => {
         "test-app-user-id",
         "test-product-id",
         "test-email",
+        "test-offering-id",
       ),
       new PurchasesError(
         ErrorCode.UnknownBackendError,
@@ -102,6 +103,7 @@ describe("PurchaseOperationHelper", () => {
       "test-app-user-id",
       "test-product-id",
       "test-email",
+      "test-offering-id",
     );
     await expectPromiseToPurchaseFlowError(
       purchaseOperationHelper.pollCurrentPurchaseForCompletion(),
@@ -133,6 +135,7 @@ describe("PurchaseOperationHelper", () => {
       "test-app-user-id",
       "test-product-id",
       "test-email",
+      "test-offering-id",
     );
     await purchaseOperationHelper.pollCurrentPurchaseForCompletion();
   });
@@ -193,6 +196,7 @@ describe("PurchaseOperationHelper", () => {
       "test-app-user-id",
       "test-product-id",
       "test-email",
+      "test-offering-id",
     );
     await expectPromiseToPurchaseFlowError(
       purchaseOperationHelper.pollCurrentPurchaseForCompletion(),
