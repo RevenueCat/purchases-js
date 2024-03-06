@@ -56,11 +56,13 @@ export class Backend {
     appUserId: string,
     productId: string,
     email: string,
+    offeringIdentifier: string,
   ): Promise<SubscribeResponse> {
     type SubscribeRequestBody = {
       app_user_id: string;
       product_id: string;
       email: string;
+      presented_offering_identifier: string;
     };
 
     return await performRequest<SubscribeRequestBody, SubscribeResponse>(
@@ -70,6 +72,7 @@ export class Backend {
         app_user_id: appUserId,
         product_id: productId,
         email: email,
+        presented_offering_identifier: offeringIdentifier,
       },
     );
   }
