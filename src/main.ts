@@ -25,7 +25,10 @@ import {
 } from "./helpers/purchase-operation-helper";
 import { LogLevel } from "./entities/log-level";
 import { Logger } from "./helpers/logger";
-import { validateApiKey, validateAppUserId } from "./helpers/configuration-validators";
+import {
+  validateApiKey,
+  validateAppUserId,
+} from "./helpers/configuration-validators";
 
 export type {
   Offering,
