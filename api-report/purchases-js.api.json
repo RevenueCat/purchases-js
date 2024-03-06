@@ -2763,7 +2763,7 @@
             {
               "kind": "Method",
               "canonicalReference": "@revenuecat/purchases-js!Purchases.configure:member(1)",
-              "docComment": "/**\n * Configures the Purchases SDK. This should be called as soon as your app has a unique user id for your user. You should only call this once, and keep the returned instance around for use throughout your application.\n *\n * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.\n *\n * @param appUserId - Your unique id for identifying the user.\n */\n",
+              "docComment": "/**\n * Configures the Purchases SDK. This should be called as soon as your app has a unique user id for your user. You should only call this once, and keep the returned instance around for use throughout your application.\n *\n * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.\n *\n * @param appUserId - Your unique id for identifying the user.\n *\n * @throws\n *\n * {@link PurchasesError} if the API key or user id are invalid.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -3135,7 +3135,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "<{\n           customerInfo: "
+                  "text": "<{\n            customerInfo: "
                 },
                 {
                   "kind": "Reference",
@@ -3144,7 +3144,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ";\n       }>"
+                  "text": ";\n        }>"
                 },
                 {
                   "kind": "Content",
@@ -3273,7 +3273,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "constructor(\n           errorCode: "
+                  "text": "constructor(\n            errorCode: "
                 },
                 {
                   "kind": "Reference",
@@ -3282,7 +3282,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", \n           message?: "
+                  "text": ", \n            message?: "
                 },
                 {
                   "kind": "Content",
@@ -3290,7 +3290,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", \n           underlyingErrorMessage?: "
+                  "text": ", \n            underlyingErrorMessage?: "
                 },
                 {
                   "kind": "Content",
