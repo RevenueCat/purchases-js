@@ -7,9 +7,9 @@
     color: yellowgreen;
     font-weight: bold;
     text-transform: uppercase;
-    padding: 0.5rem 0;
+    padding: 8px 0px;
     width: 100%;
-    font-size: 0.75rem;
-    border-radius: 0.5rem;
+    font-size: 12px;
+    border-radius: 8px;
   }
 </style>

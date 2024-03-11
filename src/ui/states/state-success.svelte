@@ -11,13 +11,13 @@
   export let onContinue: () => void;
 </script>
 
-<RowLayout gutter="2rem">
-  <BrandAndCloseHeader brandingInfo={brandingInfo} onClose={onContinue} />
+<RowLayout gutter="32px">
+  <BrandAndCloseHeader {brandingInfo} onClose={onContinue} />
   <ModalSection>
     <div class="rcb-modal-success">
-      <RowLayout gutter="1rem">
+      <RowLayout gutter="16px">
         <IconSuccess />
-        <RowLayout gutter="1rem">
+        <RowLayout gutter="16px">
           <span class="title">Purchase Successful</span>
           <span class="subtitle">Your plan is now active.</span>
         </RowLayout>
@@ -32,7 +32,7 @@
 <style>
   .rcb-modal-success {
     width: 100%;
-    min-height: 10rem;
+    min-height: 160px;
     display: flex;
     justify-content: center;
     align-items: center;

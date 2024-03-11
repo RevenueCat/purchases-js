@@ -49,7 +49,7 @@
     "present-offer",
     "needs-auth-info",
     "needs-payment-info",
-    "loading"
+    "loading",
   ];
 
   onMount(async () => {
@@ -73,44 +73,50 @@
 
   const handleSubscribe = () => {
     if (productId === null) {
-      handleError(new PurchaseFlowError(
-        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-        "Product ID was not set before purchase."
-      ));
+      handleError(
+        new PurchaseFlowError(
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+          "Product ID was not set before purchase.",
+        ),
+      );
       return;
     } else {
       state = "loading";
     }
 
     if (!customerEmail) {
-      handleError(new PurchaseFlowError(
-        PurchaseFlowErrorCode.MissingEmailError,
-      ));
+      handleError(
+        new PurchaseFlowError(PurchaseFlowErrorCode.MissingEmailError),
+      );
       return;
     }
 
-    purchaseOperationHelper.startPurchase(
-      appUserId,
-      productId,
-      customerEmail,
-      rcPackage.rcBillingProduct.presentedOfferingIdentifier,
-    ).then((result) => {
+    purchaseOperationHelper
+      .startPurchase(
+        appUserId,
+        productId,
+        customerEmail,
+        rcPackage.rcBillingProduct.presentedOfferingIdentifier,
+      )
+      .then((result) => {
         if (result.next_action === "collect_payment_info") {
           state = "needs-payment-info";
           paymentInfoCollectionMetadata = result;
           return;
         }
-        if (result.next_action === 'completed') {
-          state = 'success';
+        if (result.next_action === "completed") {
+          state = "success";
           return;
         }
       })
       .catch((e: PurchasesError) => {
-        handleError(new PurchaseFlowError(
-          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-          e.message,
-          e.underlyingErrorMessage,
-        ));
+        handleError(
+          new PurchaseFlowError(
+            PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+            e.message,
+            e.underlyingErrorMessage,
+          ),
+        );
       });
   };
 
@@ -126,11 +132,14 @@
 
     if (state === "needs-payment-info") {
       state = "polling-purchase-status";
-      purchaseOperationHelper.pollCurrentPurchaseForCompletion().then(() => {
-        state = "success";
-      }).catch((error: PurchaseFlowError) => {
-        handleError(error)
-      });
+      purchaseOperationHelper
+        .pollCurrentPurchaseForCompletion()
+        .then(() => {
+          state = "success";
+        })
+        .catch((error: PurchaseFlowError) => {
+          handleError(error);
+        });
       return;
     }
 
@@ -148,9 +157,13 @@
   };
 
   const closeWithError = () => {
-    onError(lastError ?? new PurchaseFlowError(
-      PurchaseFlowErrorCode.UnknownError, "Unknown error without state set."
-    ));
+    onError(
+      lastError ??
+        new PurchaseFlowError(
+          PurchaseFlowErrorCode.UnknownError,
+          "Unknown error without state set.",
+        ),
+    );
   };
 </script>
 
@@ -171,9 +184,7 @@
       {/if}
       <Shell>
         {#if state === "present-offer" && productDetails}
-          <StatePresentOffer
-            {productDetails}
-          />
+          <StatePresentOffer {productDetails} />
         {/if}
         {#if state === "present-offer" && !productDetails}
           <StateLoading />
@@ -200,17 +211,18 @@
         {/if}
         {#if state === "error"}
           <StateError
-            brandingInfo={brandingInfo}
-            lastError={
-              lastError ?? new PurchaseFlowError(
-                PurchaseFlowErrorCode.UnknownError, "Unknown error without state set."
-              )
-            }
+            {brandingInfo}
+            lastError={lastError ??
+              new PurchaseFlowError(
+                PurchaseFlowErrorCode.UnknownError,
+                "Unknown error without state set.",
+              )}
             supportEmail={brandingInfo?.seller_company_support_email}
-            onContinue={closeWithError} />
+            onContinue={closeWithError}
+          />
         {/if}
         {#if state === "success"}
-          <StateSuccess brandingInfo={brandingInfo} onContinue={handleContinue} />
+          <StateSuccess {brandingInfo} onContinue={handleContinue} />
         {/if}
       </Shell>
     </div>
@@ -218,45 +230,48 @@
 </div>
 
 <style>
-    .rcb-ui-container {
-        color-scheme: none;
-        font-family: "PP Object Sans",
-        -apple-system,
-        BlinkMacSystemFont,
-        avenir next,
-        avenir,
-        segoe ui,
-        helvetica neue,
-        helvetica,
-        Cantarell,
-        Ubuntu,
-        roboto,
-        noto,
-        arial,
-        sans-serif;
-    }
+  .rcb-ui-container {
+    color-scheme: none;
+    font-size: 16px;
+    line-height: 1.5em;
+    font-family:
+      "PP Object Sans",
+      -apple-system,
+      BlinkMacSystemFont,
+      avenir next,
+      avenir,
+      segoe ui,
+      helvetica neue,
+      helvetica,
+      Cantarell,
+      Ubuntu,
+      roboto,
+      noto,
+      arial,
+      sans-serif;
+  }
 
+  .rcb-ui-layout {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  .rcb-ui-aside {
+    margin-right: 16px;
+  }
+
+  @media screen and (max-width: 960px) {
     .rcb-ui-layout {
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      height: 100%;
     }
 
     .rcb-ui-aside {
-        margin-right: 1rem;
+      margin-right: 0;
+      margin-bottom: 16px;
     }
-
-    @media screen and (max-width: 60rem) {
-        .rcb-ui-layout {
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-end;
-            height: 100%;
-        }
-
-        .rcb-ui-aside {
-            margin-right: 0;
-            margin-bottom: 1rem;
-        }
-    }
+  }
 </style>

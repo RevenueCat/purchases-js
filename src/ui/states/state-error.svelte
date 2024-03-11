@@ -1,5 +1,8 @@
 <script lang="ts">
-  import { PurchaseFlowError, PurchaseFlowErrorCode } from "../../helpers/purchase-operation-helper";
+  import {
+    PurchaseFlowError,
+    PurchaseFlowErrorCode,
+  } from "../../helpers/purchase-operation-helper";
   import Button from "../button.svelte";
   import ModalFooter from "../modal-footer.svelte";
   import ModalSection from "../modal-section.svelte";
@@ -16,7 +19,9 @@
   export let onContinue: () => void;
 
   onMount(() => {
-    Logger.errorLog(`Displayed error: ${PurchaseFlowErrorCode[lastError.errorCode]}. Message: ${lastError.message ?? "None"}. Underlying error: ${lastError.underlyingErrorMessage ?? "None"}`);
+    Logger.errorLog(
+      `Displayed error: ${PurchaseFlowErrorCode[lastError.errorCode]}. Message: ${lastError.message ?? "None"}. Underlying error: ${lastError.underlyingErrorMessage ?? "None"}`,
+    );
   });
 
   function getErrorMessage(): string {
@@ -40,19 +45,20 @@
   }
 </script>
 
-
-<RowLayout gutter="2rem">
-  <BrandAndCloseHeader brandingInfo={brandingInfo} onClose={onContinue} />
+<RowLayout gutter="32px">
+  <BrandAndCloseHeader {brandingInfo} onClose={onContinue} />
   <ModalSection>
     <div class="rcb-modal-error">
-      <RowLayout gutter="1rem">
+      <RowLayout gutter="16px">
         <IconError />
-        <RowLayout gutter="1rem">
+        <RowLayout gutter="16px">
           <span class="title">Something went wrong.</span>
           <span class="subtitle">
             {getErrorMessage()}
             {#if supportEmail}
-              If this error persists, please contact <a href="mailto:{supportEmail}">{supportEmail}</a>.
+              If this error persists, please contact <a
+                href="mailto:{supportEmail}">{supportEmail}</a
+              >.
             {/if}
           </span>
         </RowLayout>
@@ -65,21 +71,21 @@
 </RowLayout>
 
 <style>
-    .rcb-modal-error {
-        width: 100%;
-        min-height: 10rem;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        text-align: center;
-    }
+  .rcb-modal-error {
+    width: 100%;
+    min-height: 160px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+  }
 
-    .title {
-        font-size: 24px;
-    }
+  .title {
+    font-size: 24px;
+  }
 
-    .subtitle {
-        font-size: 16px;
-    }
+  .subtitle {
+    font-size: 16px;
+  }
 </style>

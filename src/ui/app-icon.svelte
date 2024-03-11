@@ -6,7 +6,7 @@
 {#if src !== null}
   <picture class="rcb-app-icon-picture-container">
     <source type="image/webp" srcset={srcWebp} />
-    <img class="rcb-app-icon" src={src} alt="App icon" />
+    <img class="rcb-app-icon" {src} alt="App icon" />
   </picture>
 {:else}
   <div class="rcb-app-icon loading" />
@@ -14,15 +14,15 @@
 
 <style>
   .rcb-app-icon {
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 0.75rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
     box-shadow: 0px 1px 10px 0px rgba(0, 0, 0, 0.1);
-    margin-right: 1rem;
+    margin-right: 16px;
   }
 
   .rcb-app-icon-picture-container {
-    height: 2.5rem;
+    height: 40px;
   }
 
   .rcb-app-icon.loading {

@@ -12,8 +12,6 @@
   const handleContinue = async () => {
     onContinue({ email });
   };
-
-
 </script>
 
 <div>
@@ -50,25 +48,25 @@
   }
 
   .form-label {
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
+    margin-top: 8px;
+    margin-bottom: 8px;
     display: block;
   }
 
   .form-input {
-    margin-bottom: 1rem;
+    margin-bottom: 16px;
   }
 
   .title {
-    font-size: 1.5rem;
+    font-size: 24px;
     margin: 0;
-    margin-bottom: 0.5rem;
+    margin-bottom: 8px;
   }
 
   input {
     width: 94%;
-    padding: 0.5rem;
+    padding: 8px;
     border: 1px solid #ccc;
-    border-radius: 0.25rem;
+    border-radius: 4px;
   }
 </style>

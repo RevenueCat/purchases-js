@@ -24,12 +24,12 @@
   .rcb-pricing-info {
     display: flex;
     flex-direction: column;
-    height: 10rem;
+    height: 160px;
     justify-content: flex-end;
   }
 
   .rcb-product-price {
-    font-size: 1.5rem;
+    font-size: 24px;
   }
 
   .rcb-product-duration {
