@@ -144,3 +144,6 @@ fastlane/.env
 
 # docs
 purchases-js-docs/
+
+# npm package-lock.json (we are using yarn)
+package-lock.json
