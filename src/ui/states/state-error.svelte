@@ -41,7 +41,12 @@
   }
 </script>
 
-<MessageLayout title="Something went wrong" {brandingInfo} {onContinue}>
+<MessageLayout
+  title="Something went wrong"
+  {brandingInfo}
+  {onContinue}
+  type="error"
+>
   <IconError slot="icon" />
   {getErrorMessage()}
   {#if supportEmail}

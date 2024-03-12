@@ -64,6 +64,12 @@
   overflow: hidden;
 }
 
+.packages {
+  display: flex;
+  margin-top: 60px;
+  flex-direction: row;
+}
+
 .clickableCard {
   cursor: pointer;
 }
@@ -99,5 +105,9 @@ input {
 
   .main {
     margin-bottom: 200px;
+  }
+
+  .packages {
+    flex-direction: column;
   }
 }

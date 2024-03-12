@@ -7,7 +7,12 @@
   export let onContinue: () => void;
 </script>
 
-<MessageLayout title="Purchase successful" {brandingInfo} {onContinue}>
+<MessageLayout
+  type="success"
+  title="Purchase successful"
+  {brandingInfo}
+  {onContinue}
+>
   <IconSuccess slot="icon" />
   Your plan is now active.
 </MessageLayout>

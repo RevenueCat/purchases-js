@@ -9,12 +9,13 @@
   export let brandingInfo: BrandingInfoResponse | null = null;
   export let onContinue: () => void;
   export let title: string;
+  export let type: string;
 </script>
 
 <RowLayout gutter="32px">
   <BrandAndCloseHeader {brandingInfo} onClose={onContinue} />
   <ModalSection>
-    <div class="rcb-modal-error">
+    <div class="rcb-modal-message" data-type={type}>
       <RowLayout gutter="16px">
         <slot name="icon" />
         <RowLayout gutter="16px">
@@ -32,7 +33,7 @@
 </RowLayout>
 
 <style>
-  .rcb-modal-error {
+  .rcb-modal-message {
     width: 100%;
     min-height: 160px;
     display: flex;
