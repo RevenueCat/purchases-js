@@ -20,7 +20,3 @@ export VITE_RC_API_KEY = 'your public api key'
 ```bash
 yarn run dev
 ```
-
-# Deploy
-
-Just merge to main/merge PR to main, it will be deployed automatically
