@@ -85,7 +85,7 @@
           borderRadius: "12px",
           fontSizeBase: "16px",
           fontSizeSm: "16px",
-          gridRowSpacing: "16px",
+          spacingGridRow: "16px",
           colorText: "#000000",
         }}
         rules={{
