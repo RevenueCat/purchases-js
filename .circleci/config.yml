@@ -70,13 +70,13 @@ jobs:
       - revenuecat/trust-github-key
       - run:
           name: Install node dependencies
-          command: npm ci
+          command: yarn install --frozen-lockfile
       - run:
           name: Build
-          command: npm run build
+          command: yarn run build
       - run:
           name: Pack
-          command: npm pack
+          command: yarn pack
       - run:
           name: release
           command: bundle exec fastlane release
@@ -96,18 +96,18 @@ jobs:
             source "$BASH_ENV"
       - run:
           name: Install node dependencies
-          command: npm ci
+          command: yarn install --frozen-lockfile
       - run:
           name: Install dependencies rcbilling-demo
           working_directory: examples/rcbilling-demo
-          command: npm ci
+          command: yarn install --frozen-lockfile
       - run:
           name: Build
-          command: npm run build
+          command: yarn run build
       - run:
           name: Build rcbilling-demo
           working_directory: examples/rcbilling-demo
-          command: npm run build
+          command: yarn run build
       - aws-cli/setup:
           aws_access_key_id: AWS_ACCESS_KEY_ID
           aws_secret_access_key: AWS_SECRET_ACCESS_KEY
@@ -141,54 +141,54 @@ jobs:
             source "$BASH_ENV"
       - run:
           name: Install node dependencies
-          command: npm ci
+          command: yarn install --frozen-lockfile
       - run:
           name: Install dependencies rcbilling-demo
           working_directory: examples/rcbilling-demo
-          command: npm ci
+          command: yarn install --frozen-lockfile
       - run:
           name: Linting
-          command: npm run lint
+          command: yarn run lint
       - run:
           name: Linting rcbilling-demo
           working_directory: examples/rcbilling-demo
-          command: npm run lint
+          command: yarn run lint
       - run:
           name: Prettier
-          command: npm run prettier:ci
+          command: yarn run prettier:ci
       - run:
           name: Prettier rcbilling-demo
           working_directory: examples/rcbilling-demo
-          command: npm run prettier:ci
+          command: yarn run prettier:ci
       - run:
           name: Type checker including tests
-          command: npm run test:typeCheck
+          command: yarn run test:typeCheck
       - run:
           name: Svelte check
-          command: npm run svelte-check
+          command: yarn run svelte-check
       - run:
           name: Unit tests
-          command: npm run test
+          command: yarn run test
       - run:
           name: Build
-          command: npm run build
+          command: yarn run build
       - run:
           name: Extract API using api-extractor
-          command: npm run extract-api
+          command: yarn run extract-api
       - run:
           name: Check if API has changed
           command: git diff --exit-code api-report/**
       - run:
           name: Pack
-          command: npm pack
+          command: yarn pack
       - run:
           name: Build rcbilling-demo
           working_directory: examples/rcbilling-demo
-          command: npm run build
+          command: yarn run build
       - run:
           name: E2E tests rcbilling-demo
           working_directory: examples/rcbilling-demo
-          command: npm run test:ci
+          command: yarn run test:ci
 
 workflows:
   danger:
