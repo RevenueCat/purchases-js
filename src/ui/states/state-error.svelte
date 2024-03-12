@@ -3,15 +3,11 @@
     PurchaseFlowError,
     PurchaseFlowErrorCode,
   } from "../../helpers/purchase-operation-helper";
-  import Button from "../button.svelte";
-  import ModalFooter from "../modal-footer.svelte";
-  import ModalSection from "../modal-section.svelte";
   import IconError from "../assets/icon-error.svelte";
-  import RowLayout from "../layout/row-layout.svelte";
   import { onMount } from "svelte";
   import { BrandingInfoResponse } from "../../networking/responses/branding-response";
-  import BrandAndCloseHeader from "../brand-and-close-header.svelte";
   import { Logger } from "../../helpers/logger.js";
+  import MessageLayout from "../layout/message-layout.svelte";
 
   export let brandingInfo: BrandingInfoResponse | null = null;
   export let lastError: PurchaseFlowError;
@@ -45,47 +41,12 @@
   }
 </script>
 
-<RowLayout gutter="32px">
-  <BrandAndCloseHeader {brandingInfo} onClose={onContinue} />
-  <ModalSection>
-    <div class="rcb-modal-error">
-      <RowLayout gutter="16px">
-        <IconError />
-        <RowLayout gutter="16px">
-          <span class="title">Something went wrong.</span>
-          <span class="subtitle">
-            {getErrorMessage()}
-            {#if supportEmail}
-              If this error persists, please contact <a
-                href="mailto:{supportEmail}">{supportEmail}</a
-              >.
-            {/if}
-          </span>
-        </RowLayout>
-      </RowLayout>
-    </div>
-  </ModalSection>
-  <ModalFooter>
-    <Button on:click={onContinue}>Go back to app</Button>
-  </ModalFooter>
-</RowLayout>
-
-<style>
-  .rcb-modal-error {
-    width: 100%;
-    min-height: 160px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .title {
-    font-size: 24px;
-  }
-
-  .subtitle {
-    font-size: 16px;
-  }
-</style>
+<MessageLayout title="Something went wrong" {brandingInfo} {onContinue}>
+  <IconError slot="icon" />
+  {getErrorMessage()}
+  {#if supportEmail}
+    If this error persists, please contact <a href="mailto:{supportEmail}"
+      >{supportEmail}</a
+    >.
+  {/if}
+</MessageLayout>

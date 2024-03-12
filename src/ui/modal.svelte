@@ -14,7 +14,6 @@
     color: black;
     max-width: 640px;
     min-width: 480px;
-    overflow-y: auto;
     padding: 40px;
   }
 
@@ -28,8 +27,10 @@
   @media screen and (max-width: 960px) {
     .rcb-modal-main,
     .rcb-modal-dark {
+      min-width: 300px;
       max-width: 640px;
-      min-width: 90vw;
+      width: calc(100% - 80px);
+      padding: 32px;
     }
   }
 </style>

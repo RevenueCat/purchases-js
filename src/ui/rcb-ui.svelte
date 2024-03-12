@@ -234,27 +234,16 @@
     color-scheme: none;
     font-size: 16px;
     line-height: 1.5em;
-    font-family:
-      "PP Object Sans",
-      -apple-system,
-      BlinkMacSystemFont,
-      avenir next,
-      avenir,
-      segoe ui,
-      helvetica neue,
-      helvetica,
-      Cantarell,
-      Ubuntu,
-      roboto,
-      noto,
-      arial,
-      sans-serif;
+    font-weight: 400;
+    font-family: -apple-system, "system-ui", "Segoe UI", Roboto, Oxygen, Ubuntu,
+      Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   }
 
   .rcb-ui-layout {
     display: flex;
     justify-content: center;
     align-items: flex-start;
+    position: relative;
   }
 
   .rcb-ui-aside {
@@ -265,13 +254,25 @@
     .rcb-ui-layout {
       flex-direction: column;
       align-items: center;
-      justify-content: flex-end;
+      justify-content: center;
       height: 100%;
     }
 
     .rcb-ui-aside {
       margin-right: 0;
       margin-bottom: 16px;
+      min-width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+
+  @media screen and (max-width: 960px) and (max-height: 960px) {
+    .rcb-ui-layout {
+      overflow-y: scroll;
+      justify-content: flex-start;
+      padding: 40px 0px;
     }
   }
 </style>

@@ -13,6 +13,8 @@
     PurchaseFlowError,
     PurchaseFlowErrorCode,
   } from "../../helpers/purchase-operation-helper";
+  import ModalHeader from "../modal-header.svelte";
+  import IconLock from "../assets/icon-lock.svelte";
 
   export let onClose: any;
   export let onContinue: any;
@@ -73,7 +75,35 @@
 <div>
   {#if stripe && clientSecret}
     <form on:submit|preventDefault={handleContinue}>
-      <Elements {stripe} {clientSecret} loader="always" bind:elements>
+      <Elements
+        {stripe}
+        {clientSecret}
+        loader="always"
+        bind:elements
+        theme="stripe"
+        variables={{
+          borderRadius: "12px",
+          fontSizeBase: "16px",
+          fontSizeSm: "16px",
+          gridRowSpacing: "16px",
+          colorText: "#000000",
+        }}
+        rules={{
+          ".Input": {
+            boxShadow: "none",
+            border: "2px solid #ccc",
+          },
+          ".Label": {
+            marginBottom: "8px",
+            fontWeight: "500",
+            lineHeight: "22px",
+          },
+        }}
+      >
+        <ModalHeader>
+          <div>Secure Checkout</div>
+          <IconLock />
+        </ModalHeader>
         <ModalSection>
           <div class="rcb-stripe-elements-container">
             <PaymentElement />
@@ -103,6 +133,7 @@
 <style>
   .rcb-stripe-elements-container {
     width: 100%;
-    margin-bottom: 16px;
+    margin-top: 32px;
+    margin-bottom: 24px;
   }
 </style>
