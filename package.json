@@ -21,7 +21,7 @@
   },
   "license": "MIT",
   "scripts": {
-    "dev": "vite",
+    "watch": "vite build --watch",
     "build": "tsc && vite build",
     "build:dev": "tsc && vite build --mode development",
     "preview": "vite preview",

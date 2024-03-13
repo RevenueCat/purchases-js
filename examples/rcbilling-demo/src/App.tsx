@@ -55,7 +55,7 @@ function App() {
   return (
     <>
       <h1>Cats Entermeow Services</h1>
-      <div style={{ marginTop: "60px" }}>
+      <div className="main">
         <BrowserRouter>
           <Routes>
             <Route

@@ -9,7 +9,12 @@
   import StateLoading from "./state-loading.svelte";
   import RowLayout from "../layout/row-layout.svelte";
   import { SubscribeResponse } from "../../networking/responses/subscribe-response";
-  import { PurchaseFlowError, PurchaseFlowErrorCode } from "../../helpers/purchase-operation-helper";
+  import {
+    PurchaseFlowError,
+    PurchaseFlowErrorCode,
+  } from "../../helpers/purchase-operation-helper";
+  import ModalHeader from "../modal-header.svelte";
+  import IconLock from "../assets/icon-lock.svelte";
 
   export let onClose: any;
   export let onContinue: any;
@@ -55,10 +60,12 @@
     if (result.error) {
       // payment failed, notify user
       processing = false;
-      onError(new PurchaseFlowError(
-        PurchaseFlowErrorCode.StripeError,
-        result.error.message
-      ));
+      onError(
+        new PurchaseFlowError(
+          PurchaseFlowErrorCode.StripeError,
+          result.error.message,
+        ),
+      );
     } else {
       onContinue();
     }
@@ -68,7 +75,40 @@
 <div>
   {#if stripe && clientSecret}
     <form on:submit|preventDefault={handleContinue}>
-      <Elements {stripe} {clientSecret} loader="always" bind:elements>
+      <Elements
+        {stripe}
+        {clientSecret}
+        loader="always"
+        bind:elements
+        theme="stripe"
+        variables={{
+          borderRadius: "12px",
+          fontSizeBase: "16px",
+          fontSizeSm: "16px",
+          spacingGridRow: "16px",
+          colorText: "#000000",
+          focusBoxShadow: "none",
+        }}
+        rules={{
+          ".Input": {
+            boxShadow: "none",
+            border: "2px solid #ccc",
+          },
+          ".Input:focus": {
+            border: "2px solid #000080",
+            outline: "none",
+          },
+          ".Label": {
+            marginBottom: "8px",
+            fontWeight: "500",
+            lineHeight: "22px",
+          },
+        }}
+      >
+        <ModalHeader>
+          <div>Secure Checkout</div>
+          <IconLock />
+        </ModalHeader>
         <ModalSection>
           <div class="rcb-stripe-elements-container">
             <PaymentElement />
@@ -98,6 +138,7 @@
 <style>
   .rcb-stripe-elements-container {
     width: 100%;
-    margin-bottom: 1rem;
+    margin-top: 32px;
+    margin-bottom: 24px;
   }
 </style>

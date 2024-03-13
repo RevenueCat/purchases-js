@@ -2,26 +2,34 @@
   import AppIcon from "./app-icon.svelte";
   import { BrandingInfoResponse } from "../networking/responses/branding-response";
   import { buildAssetURL } from "../networking/assets";
+  import SandboxBanner from "./sandbox-banner.svelte";
 
   export let brandingInfo: BrandingInfoResponse | null = null;
+  export let isSandbox: boolean = false;
 </script>
 
 <div class="rcb-header-layout__business-info">
   {#if brandingInfo !== null}
     {#if brandingInfo.app_icon_webp !== null && brandingInfo.app_icon !== null}
-      <AppIcon src={buildAssetURL(brandingInfo.app_icon)} srcWebp={buildAssetURL(brandingInfo.app_icon_webp)} />
+      <AppIcon
+        src={buildAssetURL(brandingInfo.app_icon)}
+        srcWebp={buildAssetURL(brandingInfo.app_icon_webp)}
+      />
     {/if}
     <span class="app-title">{brandingInfo.seller_company_name}</span>
   {:else}
     <AppIcon />
+  {/if}
+  {#if isSandbox}
+    <SandboxBanner />
   {/if}
 </div>
 
 <style>
   .app-title {
     font-weight: 500;
-    margin: 0.5rem 0;
-    font-size: 1rem;
+    margin: 8px 0;
+    font-size: 16px;
   }
 
   .rcb-header-layout__business-info {

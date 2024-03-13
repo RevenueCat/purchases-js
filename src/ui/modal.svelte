@@ -9,27 +9,28 @@
 <style>
   .rcb-modal-main {
     box-sizing: border-box;
-    border-radius: 0.5rem;
+    border-radius: 8px;
     background-color: #fff;
     color: black;
-    max-width: 40rem;
-    min-width: 30rem;
-    overflow-y: auto;
-    padding: 2.5rem;
+    max-width: 640px;
+    min-width: 480px;
+    padding: 40px;
   }
 
   .rcb-modal-dark {
     background-color: #000;
     color: #fff;
-    max-width: 30rem;
-    min-width: 20rem;
+    max-width: 480px;
+    min-width: 320px;
   }
 
-  @media screen and (max-width: 60rem) {
+  @media screen and (max-width: 960px) {
     .rcb-modal-main,
     .rcb-modal-dark {
-      max-width: 40rem;
-      min-width: 90vw;
+      min-width: 300px;
+      max-width: 640px;
+      width: calc(100% - 32px);
+      padding: 32px;
     }
   }
 </style>

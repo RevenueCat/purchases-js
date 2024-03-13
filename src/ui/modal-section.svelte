@@ -8,7 +8,7 @@
 
 <style>
   .rcb-modal-section {
-    padding: 0.5rem 0rem;
+    padding: 8px 0px;
     display: flex;
   }
 

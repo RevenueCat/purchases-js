@@ -1,16 +1,10 @@
 <script lang="ts">
   import ModalSection from "./modal-section.svelte";
-  import IconCart from "./assets/icon-cart.svelte";
-  import BrandingInfoUI from "./branding-info-ui.svelte";
-  import { BrandingInfoResponse } from "../networking/responses/branding-response";
-
-  export let brandingInfo: BrandingInfoResponse | null = null;
 </script>
 
 <ModalSection as="header">
   <div class="rcb-header-layout">
-    <BrandingInfoUI {brandingInfo} />
-    <IconCart />
+    <slot />
   </div>
 </ModalSection>
 
@@ -20,5 +14,8 @@
     justify-content: space-between;
     align-items: center;
     width: 100%;
+    font-size: 24px;
+    margin: 0;
+    font-weight: 500;
   }
 </style>

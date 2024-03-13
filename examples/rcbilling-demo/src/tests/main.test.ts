@@ -30,7 +30,7 @@ test(
     await enterCreditCardDetailsAndContinue(page);
 
     // Confirm success page has shown.
-    await page.waitForSelector(".rcb-modal-success", { timeout: 15000 });
+    await page.waitForSelector('div[data-type="success"]', { timeout: 15000 });
 
     await browser.close();
   },

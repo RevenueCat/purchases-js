@@ -14,9 +14,11 @@
         productDetails.currentPrice.currency,
       )}
     </span>
-    <span class="rcb-product-duration">
-      Billed {getRenewsLabel(productDetails.normalPeriodDuration)}
-    </span>
+    <ul class="rcb-product-details">
+      <li>Billed {getRenewsLabel(productDetails.normalPeriodDuration)}</li>
+      <li>Plan continues until cancelled</li>
+      <li>Cancel anytime</li>
+    </ul>
   </div>
 </ModalSection>
 
@@ -24,15 +26,26 @@
   .rcb-pricing-info {
     display: flex;
     flex-direction: column;
-    height: 10rem;
-    justify-content: flex-end;
+    margin-top: 102px;
+    font-weight: 500;
   }
 
   .rcb-product-price {
-    font-size: 1.5rem;
+    font-size: 24px;
+    margin: 12px 0px;
   }
 
-  .rcb-product-duration {
+  .rcb-product-details {
     opacity: 0.6;
+    list-style-type: disc;
+    list-style-position: inside;
+    margin: 0px;
+    padding: 0px;
+  }
+
+  @media screen and (max-width: 960px) {
+    .rcb-pricing-info {
+      margin-top: 48px;
+    }
   }
 </style>

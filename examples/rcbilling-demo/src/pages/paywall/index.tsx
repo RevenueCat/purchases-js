@@ -118,7 +118,7 @@ const PaywallPage: React.FC<IPaywallPageProps> = ({ purchases }) => {
           Or maybe just to avoid its revenge!
         </p>
 
-        <div style={{ display: "flex", marginTop: "60px" }}>
+        <div className="packages">
           {packages.map((pkg) =>
             pkg.rcBillingProduct !== null ? (
               <PackageCard

@@ -1,4 +1,5 @@
 #root {
+  box-sizing: border-box;
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
@@ -36,6 +37,19 @@
   }
 }
 
+.appUserIdForm {
+  background: black;
+  border-top: 1px solid grey;
+  border-right: 1px solid grey;
+  padding-top: 10px;
+  height: 200px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 300px;
+  font-size: 24px;
+}
+
 .read-the-docs {
   color: #888;
 }
@@ -44,10 +58,17 @@
   padding: 2em;
   border: 2px solid white;
   border-radius: 20px;
-  width: 300px;
   text-align: center;
   margin-right: 20px;
   overflow: hidden;
+}
+
+.packages {
+  display: flex;
+  margin-top: 60px;
+  flex-direction: row;
+  overflow-x: scroll;
+  width: 100%;
 }
 
 .clickableCard {
@@ -59,14 +80,35 @@
   color: black;
 }
 
-.elements-container {
-  background-color: #eee;
-  border-radius: 0.5rem;
-  padding: 2em;
-  margin-left: -25px;
-  width: 304px;
-}
-
 input {
   height: 2.25em;
+}
+
+.main {
+  margin-top: 60px;
+}
+
+@media (max-width: 600px) {
+  .card {
+    box-sizing: border-box;
+    width: 100%;
+    margin-right: 0px;
+    margin-bottom: 20px;
+  }
+
+  .appUserIdForm {
+    position: fixed;
+    width: 100%;
+    border-right: 0px none;
+    height: 180px;
+    overflow-y: auto;
+  }
+
+  .main {
+    margin-bottom: 200px;
+  }
+
+  .packages {
+    flex-direction: column;
+  }
 }

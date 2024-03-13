@@ -10,7 +10,7 @@
 
 <ModalSection as="header">
   <div class="rcb-post-purchase-header-layout">
-    <BrandingInfoUI brandingInfo={brandingInfo} />
+    <BrandingInfoUI {brandingInfo} />
     <CloseButton on:click={onClose} />
   </div>
 </ModalSection>
@@ -21,5 +21,6 @@
     justify-content: space-between;
     align-items: center;
     width: 100%;
+    margin-top: -4px;
   }
 </style>
