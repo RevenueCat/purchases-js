@@ -29,7 +29,7 @@
     .rcb-modal-dark {
       min-width: 300px;
       max-width: 640px;
-      width: calc(100% - 80px);
+      width: calc(100% - 32px);
       padding: 32px;
     }
   }

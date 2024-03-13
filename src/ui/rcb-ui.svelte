@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { Package, Purchases, PurchasesError } from "../main";
-  import SandboxBanner from "./sandbox-banner.svelte";
   import StatePresentOffer from "./states/state-present-offer.svelte";
   import StateLoading from "./states/state-loading.svelte";
   import StateError from "./states/state-error.svelte";
@@ -18,6 +17,9 @@
     PurchaseOperationHelper,
   } from "../helpers/purchase-operation-helper";
   import { Backend } from "../networking/backend";
+  import ModalHeader from "./modal-header.svelte";
+  import IconCart from "./assets/icon-cart.svelte";
+  import BrandingInfoUI from "./branding-info-ui.svelte";
 
   export let asModal = true;
   export let customerEmail: string | undefined;
@@ -172,14 +174,18 @@
     <div class="rcb-ui-layout">
       {#if statesWhereOfferDetailsAreShown.includes(state)}
         <div class="rcb-ui-aside">
-          <Shell dark showHeader {brandingInfo}>
+          <Shell dark>
+            <ModalHeader slot="header">
+              <BrandingInfoUI
+                {brandingInfo}
+                isSandbox={purchases.isSandbox()}
+              />
+              <IconCart />
+            </ModalHeader>
             {#if productDetails}
               <StatePresentOffer {productDetails} />
             {/if}
           </Shell>
-          {#if purchases.isSandbox()}
-            <SandboxBanner />
-          {/if}
         </div>
       {/if}
       <Shell>
@@ -275,7 +281,7 @@
     .rcb-ui-layout {
       overflow-y: scroll;
       justify-content: flex-start;
-      padding: 40px 0px;
+      padding: 16px 0px;
     }
   }
 </style>
