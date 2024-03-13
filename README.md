@@ -21,146 +21,18 @@ Login @ [app.revenuecat.com](https://app.revenuecat.com)
 # Installation
 
 - Add the library to your project's dependencies
-
-```
-npm add --save @revenuecat/purchases-js
-```
+  - npm
+    ```
+    npm install --save @revenuecat/purchases-js
+    ```
+  - yarn
+    ```
+    yarn add --save @revenuecat/purchases-js
+    ```
 
 # Usage
 
-## Download the current Offerings
-
-By downloading the current Offerings you can easily build a Paywall page using the embedded Packages and their
-associated `rcBillingProduct` and price.
-
-```typescript
-const purchases = Purchases.configure(
-  "your RC_PUBLISHABLE_API_KEY",
-  "the unique id of the user in your systems",
-);
-
-purchases.getOfferings().then((offerings) => {
-  // Get current offering
-  console.log(offerings.current);
-  // Or a dictionary of all offerings
-  console.log(offerings.all);
-});
-```
-
-This should print the current offerings you have set up in your RC Account.
-
-Please check out [this file](https://github.com/RevenueCat/purchases-js/blob/main/src/entities/offerings.ts) for the
-Offering's data structure
-
-## Check User Entitlements
-
-You can check the entitlements granted to your users throughout all the platforms, now
-also on your website!
-
-```typescript
-const entitlementId = "the entitlementId you set up in RC";
-
-const purchases = Purchases.configure(
-  "your RC_PUBLISHABLE_API_KEY",
-  "the unique id of the user in your systems",
-);
-const appUserID = purchases.getAppUserId();
-
-purchases.isEntitledTo(entitlementId).then((isEntitled) => {
-  if (isEntitled == true) {
-    console.log(`User ${appUserID} is entitled to ${entitlementId}`);
-  } else {
-    console.log(`User ${appUserID} is not entitled to ${entitlementId}`);
-  }
-});
-```
-
-As example, you can build a cool React component with it:
-
-```tsx
-Purchases.configure(
-  "your RC_PUBLISHABLE_API_KEY",
-  "the unique id of the user in your systems",
-);
-
-const WithEntitlement = ({ entitlementId, children }) => {
-  const [isEntitled, setIsEntitled] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    Purchases.getSharedInstance()
-      .isEntitledTo(entitlementId)
-      .then((isEntitled) => {
-        setIsEntitled(isEntitled);
-      });
-  }, [entitlementId]);
-
-  if (isEntitled === null) {
-    return <>"loading..."</>;
-  }
-
-  if (isEntitled === true) {
-    return <>{children}</>;
-  }
-
-  return <>You are not entitled!</>;
-};
-```
-
-And then use it in your app:
-
-```tsx
-const App = () => (
-  <>
-    <WithEntitlement entitlementId={"functionality5"}>
-      <Functionality5 />
-    </WithEntitlement>
-  </>
-);
-```
-
-If you need further information about the user's entitlements, you can use the `getCustomerInfo` method:
-
-```ts
-const customerInfo = await purchases.getCustomerInfo();
-```
-
-### Important note
-
-Please be aware that the information about the entitlements can be manipulated by malicious actors, so make sure
-you protect your apps against attacks that modify the entitlements by validating access through your servers.
-
-## Subscribe a User to an entitlement and allow payment with Stripe
-
-RCBilling allows you to use your payment gateway for payments.
-In this example we will show Stripe, more will be supported soon!
-
-### Context
-
-You built your paywall, and your user just clicked on the offer they want to subscribe to.
-
-```tsx
-const purchases = Purchases.configure(
-  "your RC_PUBLISHABLE_API_KEY",
-  "the unique id of the user in your systems",
-);
-// You can retrieve the package from the offerings through `getOfferings`:
-const rcBillingPackage = offerings.current.availablePackages[0];
-const appUserId = purchases.getAppUserId();
-const entitlementIdToCheck =
-  "the entitlementId you set up in RC for your product"; // TODO: remove once this is not needed
-
-purchase.purchasePackage(rcBillingPackage).then((response) => {
-  const isEntitled =
-    entitlementIdToCheck in response.customerInfo.entitlements.active;
-  if (isEntitled == true) {
-    console.log(`User ${appUserID} is entitled to ${entitlementId}`);
-  } else {
-    console.log(
-      `User ${appUserID} is not entitled to ${entitlementId}, even after ${numberOfAttempts} attempts`,
-    );
-  }
-});
-```
+See the [RevenueCat docs](https://www.revenuecat.com/docs/web/revenuecat-billing) and the [SDK Reference](https://revenuecat.github.io/purchases-js-docs).
 
 # Development
 
