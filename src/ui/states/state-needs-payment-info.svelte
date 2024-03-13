@@ -95,7 +95,7 @@
             border: "2px solid #ccc",
           },
           ".Input:focus": {
-            border: "2px solid #0000c0",
+            border: "2px solid #000080",
             outline: "none",
           },
           ".Label": {

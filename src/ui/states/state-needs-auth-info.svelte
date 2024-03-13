@@ -92,6 +92,6 @@
 
   input:focus {
     outline: none;
-    border: 2px solid #0000c0;
+    border: 2px solid #000080;
   }
 </style>
