@@ -58,7 +58,6 @@
   padding: 2em;
   border: 2px solid white;
   border-radius: 20px;
-  width: 300px;
   text-align: center;
   margin-right: 20px;
   overflow: hidden;
@@ -68,6 +67,8 @@
   display: flex;
   margin-top: 60px;
   flex-direction: row;
+  overflow-x: scroll;
+  width: 100%;
 }
 
 .clickableCard {
