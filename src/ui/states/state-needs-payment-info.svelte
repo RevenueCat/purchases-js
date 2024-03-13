@@ -87,11 +87,16 @@
           fontSizeSm: "16px",
           spacingGridRow: "16px",
           colorText: "#000000",
+          focusBoxShadow: "none",
         }}
         rules={{
           ".Input": {
             boxShadow: "none",
             border: "2px solid #ccc",
+          },
+          ".Input:focus": {
+            border: "2px solid #0000c0",
+            outline: "none",
           },
           ".Label": {
             marginBottom: "8px",

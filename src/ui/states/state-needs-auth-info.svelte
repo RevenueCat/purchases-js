@@ -89,4 +89,9 @@
     height: 48px;
     padding: 6px 14px;
   }
+
+  input:focus {
+    outline: none;
+    border: 2px solid #0000c0;
+  }
 </style>
