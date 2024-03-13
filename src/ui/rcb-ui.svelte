@@ -240,6 +240,9 @@
   }
 
   .rcb-ui-layout {
+    width: 100vw;
+    width: 100dvw;
+    margin-right: auto;
     display: flex;
     justify-content: center;
     align-items: flex-start;
