@@ -26,7 +26,12 @@ export const SuccessPage: React.FC<ISuccessPageProps> = () => {
         <h2>Success!</h2>
         <div
           className={"card"}
-          style={{ padding: "0px", margin: "0px", maxHeight: "370px" }}
+          style={{
+            padding: "0px",
+            margin: "0px",
+            maxHeight: "300px",
+            maxWidth: "300px",
+          }}
         >
           <img src={success} style={{ width: "300px" }} alt={"Success"} />
         </div>
