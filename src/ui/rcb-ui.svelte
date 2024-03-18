@@ -59,6 +59,7 @@
     "needs-auth-info",
     "processing-auth-info",
     "needs-payment-info",
+    "polling-purchase-status",
     "loading",
   ];
 
@@ -205,9 +206,9 @@
         {#if state === "present-offer" && !productDetails}
           <StateLoading />
         {/if}
-        {#if state === "polling-purchase-status"}
+        <!-- {#if state === "polling-purchase-status"}
           <StateLoading />
-        {/if}
+        {/if} -->
         {#if state === "needs-auth-info" || state === "processing-auth-info"}
           <StateNeedsAuthInfo
             onContinue={handleContinue}
@@ -215,12 +216,13 @@
             processing={state === "processing-auth-info"}
           />
         {/if}
-        {#if state === "needs-payment-info" && paymentInfoCollectionMetadata}
+        {#if paymentInfoCollectionMetadata && (state === "needs-payment-info" || state === "polling-purchase-status")}
           <StateNeedsPaymentInfo
             {paymentInfoCollectionMetadata}
             onContinue={handleContinue}
             onClose={handleClose}
             onError={handleError}
+            processing={state === "polling-purchase-status"}
           />
         {/if}
         {#if state === "loading"}

@@ -16,17 +16,18 @@
   import ModalHeader from "../modal-header.svelte";
   import IconLock from "../assets/icon-lock.svelte";
   import { Colors } from "../../assets/colors";
+  import ProcessingAnimation from "../processing-animation.svelte";
 
   export let onClose: any;
   export let onContinue: any;
   export let onError: any;
   export let paymentInfoCollectionMetadata: SubscribeResponse;
+  export let processing = false;
 
   const clientSecret = paymentInfoCollectionMetadata.data.client_secret;
 
   let stripe: Stripe | null = null;
   let elements: StripeElements;
-  let processing = false;
   let safeElements: StripeElements;
 
   $: {
@@ -123,7 +124,7 @@
           <RowLayout>
             <Button disabled={processing}>
               {#if processing}
-                Processing...
+                <ProcessingAnimation />
               {:else}
                 Pay
               {/if}</Button
