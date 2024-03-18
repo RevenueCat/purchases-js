@@ -24,4 +24,12 @@
     color: var(--rc-color-white);
     font-size: 16px;
   }
+
+  button:disabled {
+    color: var(--rc-color-grey-text-light);
+  }
+
+  button.intent-primary:disabled {
+    color: var(--rc-color-grey-text-light);
+  }
 </style>
