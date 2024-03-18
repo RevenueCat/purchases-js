@@ -147,3 +147,5 @@ purchases-js-docs/
 
 # yarn lockfile (not using yarn)
 yarn.lock
+
+.vscode
