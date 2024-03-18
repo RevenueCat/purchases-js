@@ -47,6 +47,7 @@
   let state:
     | "present-offer"
     | "needs-auth-info"
+    | "processing-auth-info"
     | "needs-payment-info"
     | "polling-purchase-status"
     | "loading"
@@ -56,6 +57,7 @@
   const statesWhereOfferDetailsAreShown = [
     "present-offer",
     "needs-auth-info",
+    "processing-auth-info",
     "needs-payment-info",
     "loading",
   ];
@@ -88,7 +90,7 @@
         ),
       );
       return;
-    } else {
+    } else if (state === "present-offer") {
       state = "loading";
     }
 
@@ -132,6 +134,7 @@
     if (state === "needs-auth-info") {
       if (authInfo) {
         customerEmail = authInfo.email;
+        state = "processing-auth-info";
       }
 
       handleSubscribe();
@@ -205,10 +208,11 @@
         {#if state === "polling-purchase-status"}
           <StateLoading />
         {/if}
-        {#if state === "needs-auth-info"}
+        {#if state === "needs-auth-info" || state === "processing-auth-info"}
           <StateNeedsAuthInfo
             onContinue={handleContinue}
             onClose={handleClose}
+            processing={state === "processing-auth-info"}
           />
         {/if}
         {#if state === "needs-payment-info" && paymentInfoCollectionMetadata}

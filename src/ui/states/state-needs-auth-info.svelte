@@ -4,9 +4,11 @@
   import ModalSection from "../modal-section.svelte";
   import RowLayout from "../layout/row-layout.svelte";
   import ModalHeader from "../modal-header.svelte";
+  import ProcessingAnimation from "../processing-animation.svelte";
 
   export let onContinue: any;
   export let onClose: () => void;
+  export let processing: boolean;
 
   $: email = "";
   $: error = "";
@@ -39,8 +41,16 @@
   </ModalSection>
   <ModalFooter>
     <RowLayout>
-      <Button>Continue</Button>
-      <Button intent="secondary" on:click={onClose}>Close</Button>
+      <Button disabled={processing}>
+        {#if processing}
+          <ProcessingAnimation />
+        {:else}
+          Continue
+        {/if}
+      </Button>
+      <Button intent="secondary" on:click={onClose} disabled={processing}
+        >Close</Button
+      >
     </RowLayout>
   </ModalFooter>
 </form>

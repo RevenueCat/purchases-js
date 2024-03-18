@@ -14,6 +14,9 @@
     height: 56px;
     color: var(--rc-color-grey-text-dark);
     background-color: var(--rc-color-grey-ui-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   button.intent-primary {
