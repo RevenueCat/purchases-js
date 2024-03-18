@@ -35,7 +35,7 @@
             bind:value={email}
           />
         </div>
-        <div class="form-error">{error}</div>
+        {#if error}<div class="form-error">{error}</div>{/if}
       </div>
     </ModalSection>
     <ModalFooter>
@@ -53,6 +53,7 @@
     flex-direction: column;
     width: 100%;
     margin-top: 32px;
+    margin-bottom: 16px;
   }
 
   .form-label {
@@ -63,27 +64,23 @@
     line-height: 22px;
   }
 
-  .form-input {
-    margin-bottom: 16px;
-  }
-
   .form-input.error input {
-    border-color: red;
+    border-color: var(--rc-color-error);
   }
 
   .form-error {
-    font-size: 12px;
-    margin-bottom: 16px;
+    margin-top: 4px;
+    font-size: 16px;
     line-height: 20px;
     min-height: 40px;
-    color: red;
+    color: var(--rc-color-error);
   }
 
   input {
     width: 100%;
     box-sizing: border-box;
     padding: 8px;
-    border: 2px solid #ccc;
+    border: 2px solid var(--rc-color-grey-ui-dark);
     border-radius: 12px;
     font-size: 16px;
     height: 48px;
@@ -92,6 +89,6 @@
 
   input:focus {
     outline: none;
-    border: 2px solid #000080;
+    border: 2px solid var(--rc-color-focus);
   }
 </style>

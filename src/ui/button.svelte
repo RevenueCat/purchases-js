@@ -12,13 +12,13 @@
     font-size: 16px;
     cursor: pointer;
     height: 56px;
-    color: black;
-    background-color: #dfdfdf;
+    color: var(--rc-color-grey-text-dark);
+    background-color: var(--rc-color-grey-ui-dark);
   }
 
   button.intent-primary {
-    background-color: #000;
-    color: white;
+    background-color: var(--rc-color-grey-text-dark);
+    color: var(--rc-color-white);
     font-size: 16px;
   }
 </style>

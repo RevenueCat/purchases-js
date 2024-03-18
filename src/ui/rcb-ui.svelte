@@ -20,6 +20,8 @@
   import ModalHeader from "./modal-header.svelte";
   import IconCart from "./assets/icon-cart.svelte";
   import BrandingInfoUI from "./branding-info-ui.svelte";
+  import SandboxBanner from "./sandbox-banner.svelte";
+  import { Colors } from "../assets/colors";
 
   export let asModal = true;
   export let customerEmail: string | undefined;
@@ -31,6 +33,10 @@
   export let purchases: Purchases;
   export let backend: Backend;
   export let purchaseOperationHelper: PurchaseOperationHelper;
+
+  const colorVariables = Object.entries(Colors)
+    .map(([key, value]) => `--rc-color-${key}: ${value}`)
+    .join("; ");
 
   let productDetails: any = null;
   let brandingInfo: BrandingInfoResponse | null = null;
@@ -171,16 +177,17 @@
 
 <div class="rcb-ui-container">
   <ConditionalFullScreen condition={asModal}>
-    <div class="rcb-ui-layout">
+    <div class="rcb-ui-layout" style={colorVariables}>
       {#if statesWhereOfferDetailsAreShown.includes(state)}
         <div class="rcb-ui-aside">
           <Shell dark>
             <ModalHeader slot="header">
-              <BrandingInfoUI
-                {brandingInfo}
-                isSandbox={purchases.isSandbox()}
-              />
-              <IconCart />
+              <BrandingInfoUI {brandingInfo} />
+              {#if purchases.isSandbox()}
+                <SandboxBanner />
+              {:else}
+                <IconCart />
+              {/if}
             </ModalHeader>
             {#if productDetails}
               <StatePresentOffer {productDetails} />

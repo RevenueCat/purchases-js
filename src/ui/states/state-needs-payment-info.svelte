@@ -15,6 +15,7 @@
   } from "../../helpers/purchase-operation-helper";
   import ModalHeader from "../modal-header.svelte";
   import IconLock from "../assets/icon-lock.svelte";
+  import { Colors } from "../../assets/colors";
 
   export let onClose: any;
   export let onContinue: any;
@@ -86,16 +87,17 @@
           fontSizeBase: "16px",
           fontSizeSm: "16px",
           spacingGridRow: "16px",
-          colorText: "#000000",
+          colorText: Colors["grey-text-dark"],
           focusBoxShadow: "none",
+          colorDanger: Colors["error"],
         }}
         rules={{
           ".Input": {
             boxShadow: "none",
-            border: "2px solid #ccc",
+            border: `2px solid ${Colors["grey-ui-dark"]}`,
           },
           ".Input:focus": {
-            border: "2px solid #000080",
+            border: `2px solid ${Colors["focus"]}`,
             outline: "none",
           },
           ".Label": {
