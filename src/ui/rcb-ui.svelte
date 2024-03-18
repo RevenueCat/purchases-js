@@ -206,9 +206,6 @@
         {#if state === "present-offer" && !productDetails}
           <StateLoading />
         {/if}
-        <!-- {#if state === "polling-purchase-status"}
-          <StateLoading />
-        {/if} -->
         {#if state === "needs-auth-info" || state === "processing-auth-info"}
           <StateNeedsAuthInfo
             onContinue={handleContinue}
