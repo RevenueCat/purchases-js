@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { Package, Purchases, PurchasesError } from "../main";
+  import { type Package, Purchases, PurchasesError } from "../main";
   import StatePresentOffer from "./states/state-present-offer.svelte";
   import StateLoading from "./states/state-loading.svelte";
   import StateError from "./states/state-error.svelte";
@@ -9,8 +9,8 @@
   import StateNeedsAuthInfo from "./states/state-needs-auth-info.svelte";
   import ConditionalFullScreen from "./conditional-full-screen.svelte";
   import Shell from "./shell.svelte";
-  import { SubscribeResponse } from "../networking/responses/subscribe-response";
-  import { BrandingInfoResponse } from "../networking/responses/branding-response";
+  import { type SubscribeResponse } from "../networking/responses/subscribe-response";
+  import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import {
     PurchaseFlowError,
     PurchaseFlowErrorCode,

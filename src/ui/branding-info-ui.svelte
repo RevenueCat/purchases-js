@@ -1,6 +1,6 @@
 <script lang="ts">
   import AppIcon from "./app-icon.svelte";
-  import { BrandingInfoResponse } from "../networking/responses/branding-response";
+  import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import { buildAssetURL } from "../networking/assets";
 
   export let brandingInfo: BrandingInfoResponse | null = null;

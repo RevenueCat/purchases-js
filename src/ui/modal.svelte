@@ -14,7 +14,10 @@
     color: var(--rc-color-grey-text-dark);
     max-width: 640px;
     min-width: 480px;
+    min-height: 460px;
     padding: 40px;
+    flex-direction: column;
+    display: flex;
   }
 
   .rcb-modal-dark {
@@ -22,6 +25,7 @@
     color: var(--rc-color-white);
     max-width: 480px;
     min-width: 320px;
+    min-height: 0px;
   }
 
   @media screen and (max-width: 960px) {

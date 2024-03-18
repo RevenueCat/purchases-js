@@ -10,7 +10,7 @@ import { http, HttpResponse } from "msw";
 import { StatusCodes } from "http-status-codes";
 import { expectPromiseToError, failTest } from "../test-helpers";
 import { ErrorCode, PurchasesError } from "../../entities/errors";
-import { SubscribeResponse } from "../../networking/responses/subscribe-response";
+import { type SubscribeResponse } from "../../networking/responses/subscribe-response";
 import {
   CheckoutSessionStatus,
   CheckoutStatusErrorCodes,

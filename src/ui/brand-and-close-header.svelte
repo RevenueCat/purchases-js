@@ -2,7 +2,7 @@
   import ModalSection from "./modal-section.svelte";
   import CloseButton from "./close-button.svelte";
   import BrandingInfoUI from "./branding-info-ui.svelte";
-  import { BrandingInfoResponse } from "../networking/responses/branding-response";
+  import { type BrandingInfoResponse } from "../networking/responses/branding-response";
 
   export let brandingInfo: BrandingInfoResponse | null = null;
   export let onClose: () => void;

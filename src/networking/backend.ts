@@ -9,9 +9,9 @@ import {
   SubscribeEndpoint,
 } from "./endpoints";
 import { SubscriberResponse } from "./responses/subscriber-response";
-import { SubscribeResponse } from "./responses/subscribe-response";
+import { type SubscribeResponse } from "./responses/subscribe-response";
 import { ProductsResponse } from "./responses/products-response";
-import { BrandingInfoResponse } from "./responses/branding-response";
+import { type BrandingInfoResponse } from "./responses/branding-response";
 import { CheckoutStatusResponse } from "./responses/checkout-status-response";
 
 export class Backend {

@@ -1,6 +1,6 @@
 import { PurchasesError } from "../entities/errors";
 import { Backend } from "../networking/backend";
-import { SubscribeResponse } from "../networking/responses/subscribe-response";
+import { type SubscribeResponse } from "../networking/responses/subscribe-response";
 import {
   CheckoutSessionStatus,
   CheckoutStatusError,

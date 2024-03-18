@@ -8,7 +8,7 @@
   import ModalFooter from "../modal-footer.svelte";
   import StateLoading from "./state-loading.svelte";
   import RowLayout from "../layout/row-layout.svelte";
-  import { SubscribeResponse } from "../../networking/responses/subscribe-response";
+  import { type SubscribeResponse } from "../../networking/responses/subscribe-response";
   import {
     PurchaseFlowError,
     PurchaseFlowErrorCode,

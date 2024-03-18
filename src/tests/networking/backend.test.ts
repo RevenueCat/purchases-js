@@ -14,7 +14,7 @@ import {
   PurchasesError,
 } from "../../entities/errors";
 import { expectPromiseToError } from "../test-helpers";
-import { SubscribeResponse } from "../../networking/responses/subscribe-response";
+import { type SubscribeResponse } from "../../networking/responses/subscribe-response";
 
 let server: SetupServer;
 let backend: Backend;

@@ -5,7 +5,7 @@
   } from "../../helpers/purchase-operation-helper";
   import IconError from "../assets/icon-error.svelte";
   import { onMount } from "svelte";
-  import { BrandingInfoResponse } from "../../networking/responses/branding-response";
+  import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
   import { Logger } from "../../helpers/logger.js";
   import MessageLayout from "../layout/message-layout.svelte";
 
