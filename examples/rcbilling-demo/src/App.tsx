@@ -13,7 +13,8 @@ import DogServices from "./pages/dogServices";
 import WithoutEntitlement from "./components/WithoutEntitlement";
 
 const apiKey = import.meta.env.VITE_RC_API_KEY as string;
-const initialUserId = localStorage.getItem("appUserId") || "someUserMario";
+const initialUserId =
+  localStorage.getItem("appUserId") || `demo_initial_user_id_${Date.now()}`;
 Purchases.setLogLevel(LogLevel.Verbose);
 const purchases = Purchases.configure(apiKey, initialUserId);
 export const catServicesEntitlementId = "catServices";
