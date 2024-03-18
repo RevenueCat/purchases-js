@@ -105,6 +105,9 @@
             fontWeight: "500",
             lineHeight: "22px",
           },
+          ".Input--invalid": {
+            boxShadow: "none",
+          },
         }}
       >
         <ModalHeader>
