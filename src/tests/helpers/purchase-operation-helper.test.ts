@@ -5,7 +5,7 @@ import {
   PurchaseOperationHelper,
 } from "../../helpers/purchase-operation-helper";
 import { Backend } from "../../networking/backend";
-import { setupServer, SetupServer } from "msw/node";
+import { setupServer, type SetupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
 import { StatusCodes } from "http-status-codes";
 import { expectPromiseToError, failTest } from "../test-helpers";
@@ -14,7 +14,7 @@ import { type SubscribeResponse } from "../../networking/responses/subscribe-res
 import {
   CheckoutSessionStatus,
   CheckoutStatusErrorCodes,
-  CheckoutStatusResponse,
+  type CheckoutStatusResponse,
 } from "../../networking/responses/checkout-status-response";
 
 describe("PurchaseOperationHelper", () => {

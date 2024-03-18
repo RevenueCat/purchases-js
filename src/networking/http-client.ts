@@ -1,6 +1,6 @@
-import { SupportedEndpoint } from "./endpoints";
+import { type SupportedEndpoint } from "./endpoints";
 import {
-  BackendErrorCode,
+  type BackendErrorCode,
   ErrorCode,
   ErrorCodeUtils,
   PurchasesError,

@@ -1,4 +1,4 @@
-import { OfferingsResponse } from "./responses/offerings-response";
+import { type OfferingsResponse } from "./responses/offerings-response";
 import { performRequest } from "./http-client";
 import {
   GetBrandingInfoEndpoint,
@@ -8,11 +8,11 @@ import {
   GetProductsEndpoint,
   SubscribeEndpoint,
 } from "./endpoints";
-import { SubscriberResponse } from "./responses/subscriber-response";
+import { type SubscriberResponse } from "./responses/subscriber-response";
 import { type SubscribeResponse } from "./responses/subscribe-response";
-import { ProductsResponse } from "./responses/products-response";
+import { type ProductsResponse } from "./responses/products-response";
 import { type BrandingInfoResponse } from "./responses/branding-response";
-import { CheckoutStatusResponse } from "./responses/checkout-status-response";
+import { type CheckoutStatusResponse } from "./responses/checkout-status-response";
 
 export class Backend {
   private readonly API_KEY: string;

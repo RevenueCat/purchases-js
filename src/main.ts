@@ -1,29 +1,34 @@
-import { Offering, Offerings, Package, toOffering } from "./entities/offerings";
+import {
+  type Offering,
+  type Offerings,
+  type Package,
+  toOffering,
+} from "./entities/offerings";
 import RCPurchasesUI from "./ui/rcb-ui.svelte";
 
-import { CustomerInfo, toCustomerInfo } from "./entities/customer-info";
+import { type CustomerInfo, toCustomerInfo } from "./entities/customer-info";
 import {
   ErrorCode,
   PurchasesError,
   UninitializedPurchasesError,
 } from "./entities/errors";
 import {
-  OfferingResponse,
-  OfferingsResponse,
-  PackageResponse,
+  type OfferingResponse,
+  type OfferingsResponse,
+  type PackageResponse,
 } from "./networking/responses/offerings-response";
 import {
-  ProductResponse,
-  ProductsResponse,
+  type ProductResponse,
+  type ProductsResponse,
 } from "./networking/responses/products-response";
 import { RC_ENDPOINT } from "./helpers/constants";
 import { Backend } from "./networking/backend";
 import { isSandboxApiKey } from "./helpers/api-key-helper";
 import {
-  PurchaseFlowError,
+  type PurchaseFlowError,
   PurchaseOperationHelper,
 } from "./helpers/purchase-operation-helper";
-import { LogLevel } from "./entities/log-level";
+import { type LogLevel } from "./entities/log-level";
 import { Logger } from "./helpers/logger";
 import {
   validateApiKey,

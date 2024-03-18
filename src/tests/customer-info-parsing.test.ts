@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { SubscriberResponse } from "../networking/responses/subscriber-response";
-import { CustomerInfo, toCustomerInfo } from "../entities/customer-info";
+import { type SubscriberResponse } from "../networking/responses/subscriber-response";
+import { type CustomerInfo, toCustomerInfo } from "../entities/customer-info";
 
 describe("customer info parsing", () => {
   test("subscriber info with no purchases is parsed correctly", () => {

@@ -1,7 +1,7 @@
 import {
-  SubscriberEntitlementResponse,
-  SubscriberResponse,
-  SubscriberSubscriptionResponse,
+  type SubscriberEntitlementResponse,
+  type SubscriberResponse,
+  type SubscriberSubscriptionResponse,
 } from "../networking/responses/subscriber-response";
 
 /**

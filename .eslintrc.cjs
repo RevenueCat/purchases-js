@@ -26,6 +26,10 @@ module.exports = {
   },
   rules: {
     "prettier/prettier": "error",
+    "@typescript-eslint/consistent-type-imports": [
+      "error",
+      { fixStyle: "inline-type-imports" },
+    ],
   },
   ignorePatterns: ["vite.config.js", "vitest.config.js", "dist/"],
 };

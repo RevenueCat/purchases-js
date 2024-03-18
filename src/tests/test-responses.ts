@@ -1,4 +1,4 @@
-import { http, HttpResponse, RequestHandler } from "msw";
+import { http, HttpResponse, type RequestHandler } from "msw";
 
 const monthlyProductResponse = {
   current_price: {

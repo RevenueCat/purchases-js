@@ -1,11 +1,11 @@
 import { setupServer } from "msw/node";
 import { beforeAll, beforeEach, describe, expect, test } from "vitest";
 import {
-  CustomerInfo,
-  EntitlementInfo,
-  Offering,
-  Offerings,
-  Package,
+  type CustomerInfo,
+  type EntitlementInfo,
+  type Offering,
+  type Offerings,
+  type Package,
   PackageType,
   Purchases,
   PurchasesError,

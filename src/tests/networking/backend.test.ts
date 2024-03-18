@@ -1,4 +1,4 @@
-import { SetupServer, setupServer } from "msw/node";
+import { type SetupServer, setupServer } from "msw/node";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { http, HttpResponse } from "msw";
 import {

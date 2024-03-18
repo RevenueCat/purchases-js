@@ -1,11 +1,11 @@
-import { PurchasesError } from "../entities/errors";
-import { Backend } from "../networking/backend";
+import { type PurchasesError } from "../entities/errors";
+import { type Backend } from "../networking/backend";
 import { type SubscribeResponse } from "../networking/responses/subscribe-response";
 import {
   CheckoutSessionStatus,
-  CheckoutStatusError,
+  type CheckoutStatusError,
   CheckoutStatusErrorCodes,
-  CheckoutStatusResponse,
+  type CheckoutStatusResponse,
 } from "../networking/responses/checkout-status-response";
 
 export enum PurchaseFlowErrorCode {
