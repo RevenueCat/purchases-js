@@ -9,7 +9,8 @@
 <style>
   .rcb-modal-loader {
     width: 100%;
-    min-height: 160px;
+    flex-grow: 1;
+    min-height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;

@@ -21,33 +21,38 @@
   };
 </script>
 
-<div>
-  <form on:submit|preventDefault={handleContinue}>
-    <ModalHeader>Billing email address</ModalHeader>
-    <ModalSection>
-      <div class="form-container">
-        <div class="form-label"><label for="email">Email</label></div>
-        <div class="form-input {inputClass}">
-          <input
-            name="email"
-            placeholder="john@appleseed.com"
-            autocapitalize="off"
-            bind:value={email}
-          />
-        </div>
-        {#if error}<div class="form-error">{error}</div>{/if}
+<form on:submit|preventDefault={handleContinue}>
+  <ModalHeader>Billing email address</ModalHeader>
+  <ModalSection>
+    <div class="form-container">
+      <div class="form-label"><label for="email">Email</label></div>
+      <div class="form-input {inputClass}">
+        <input
+          name="email"
+          placeholder="john@appleseed.com"
+          autocapitalize="off"
+          bind:value={email}
+        />
       </div>
-    </ModalSection>
-    <ModalFooter>
-      <RowLayout>
-        <Button>Continue</Button>
-        <Button intent="secondary" on:click={onClose}>Close</Button>
-      </RowLayout>
-    </ModalFooter>
-  </form>
-</div>
+      {#if error}<div class="form-error">{error}</div>{/if}
+    </div>
+  </ModalSection>
+  <ModalFooter>
+    <RowLayout>
+      <Button>Continue</Button>
+      <Button intent="secondary" on:click={onClose}>Close</Button>
+    </RowLayout>
+  </ModalFooter>
+</form>
 
 <style>
+  form {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    flex-grow: 1;
+  }
+
   .form-container {
     display: flex;
     flex-direction: column;
