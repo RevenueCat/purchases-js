@@ -44,6 +44,12 @@ commands:
           paths:
             - .yarn/cache
 
+  copy-npm-rc:
+    steps:
+      - run:
+          name: Copy npmrc sample file to final location
+          command: cp .npmrc.SAMPLE .npmrc
+
 jobs:
   docs-deploy:
     docker:
@@ -76,6 +82,7 @@ jobs:
       - run:
           name: Pack
           command: npm pack
+      - copy-npm-rc
       - run:
           name: release
           command: bundle exec fastlane release
