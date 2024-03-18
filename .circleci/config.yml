@@ -64,7 +64,6 @@ jobs:
       - image: cimg/ruby:3.3.0-node
     steps:
       - checkout
-      - install-dependencies
       - revenuecat/install-gem-unix-dependencies:
           cache-version: v1
       - revenuecat/trust-github-key
@@ -86,7 +85,6 @@ jobs:
       - image: cimg/ruby:3.3.0-browsers
     steps:
       - checkout
-      - install-dependencies
       - revenuecat/install-gem-unix-dependencies:
           cache-version: v1
       - run:
@@ -130,7 +128,6 @@ jobs:
       - image: cimg/ruby:3.3.0-browsers
     steps:
       - checkout
-      - install-dependencies
       - revenuecat/install-gem-unix-dependencies:
           cache-version: v1
       - revenuecat/setup-git-credentials
