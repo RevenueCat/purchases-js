@@ -199,48 +199,50 @@
           </Shell>
         </div>
       {/if}
-      <Shell>
-        {#if state === "present-offer" && productDetails}
-          <StatePresentOffer {productDetails} />
-        {/if}
-        {#if state === "present-offer" && !productDetails}
-          <StateLoading />
-        {/if}
-        {#if state === "needs-auth-info" || state === "processing-auth-info"}
-          <StateNeedsAuthInfo
-            onContinue={handleContinue}
-            onClose={handleClose}
-            processing={state === "processing-auth-info"}
-          />
-        {/if}
-        {#if paymentInfoCollectionMetadata && (state === "needs-payment-info" || state === "polling-purchase-status")}
-          <StateNeedsPaymentInfo
-            {paymentInfoCollectionMetadata}
-            onContinue={handleContinue}
-            onClose={handleClose}
-            onError={handleError}
-            processing={state === "polling-purchase-status"}
-          />
-        {/if}
-        {#if state === "loading"}
-          <StateLoading />
-        {/if}
-        {#if state === "error"}
-          <StateError
-            {brandingInfo}
-            lastError={lastError ??
-              new PurchaseFlowError(
-                PurchaseFlowErrorCode.UnknownError,
-                "Unknown error without state set.",
-              )}
-            supportEmail={brandingInfo?.seller_company_support_email}
-            onContinue={closeWithError}
-          />
-        {/if}
-        {#if state === "success"}
-          <StateSuccess {brandingInfo} onContinue={handleContinue} />
-        {/if}
-      </Shell>
+      <div class="rcb-ui-main">
+        <Shell>
+          {#if state === "present-offer" && productDetails}
+            <StatePresentOffer {productDetails} />
+          {/if}
+          {#if state === "present-offer" && !productDetails}
+            <StateLoading />
+          {/if}
+          {#if state === "needs-auth-info" || state === "processing-auth-info"}
+            <StateNeedsAuthInfo
+              onContinue={handleContinue}
+              onClose={handleClose}
+              processing={state === "processing-auth-info"}
+            />
+          {/if}
+          {#if paymentInfoCollectionMetadata && (state === "needs-payment-info" || state === "polling-purchase-status")}
+            <StateNeedsPaymentInfo
+              {paymentInfoCollectionMetadata}
+              onContinue={handleContinue}
+              onClose={handleClose}
+              onError={handleError}
+              processing={state === "polling-purchase-status"}
+            />
+          {/if}
+          {#if state === "loading"}
+            <StateLoading />
+          {/if}
+          {#if state === "error"}
+            <StateError
+              {brandingInfo}
+              lastError={lastError ??
+                new PurchaseFlowError(
+                  PurchaseFlowErrorCode.UnknownError,
+                  "Unknown error without state set.",
+                )}
+              supportEmail={brandingInfo?.seller_company_support_email}
+              onContinue={closeWithError}
+            />
+          {/if}
+          {#if state === "success"}
+            <StateSuccess {brandingInfo} onContinue={handleContinue} />
+          {/if}
+        </Shell>
+      </div>
     </div>
   </ConditionalFullScreen>
 </div>
@@ -263,10 +265,19 @@
     justify-content: center;
     align-items: flex-start;
     position: relative;
+    padding: 0px 80px;
+    box-sizing: border-box;
   }
 
   .rcb-ui-aside {
     margin-right: 16px;
+    flex: 320px 1 0;
+    max-width: 480px;
+  }
+
+  .rcb-ui-main {
+    flex: 480px 1 0;
+    max-width: 640px;
   }
 
   @media screen and (max-width: 960px) {
@@ -275,6 +286,7 @@
       align-items: center;
       justify-content: center;
       height: 100%;
+      min-width: 100%;
     }
 
     .rcb-ui-aside {
@@ -284,6 +296,14 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      flex: none;
+      max-width: none;
+    }
+
+    .rcb-ui-main {
+      flex: none;
+      max-width: none;
+      min-width: 100%;
     }
   }
 
