@@ -299,12 +299,13 @@
       flex: none;
       max-width: none;
     }
-    
+
     .rcb-ui-main {
       flex: none;
       max-width: none;
-      min-width:100%;
+      min-width: 100%;
     }
+  }
 
   @media screen and (max-width: 960px) and (max-height: 960px) {
     .rcb-ui-layout {
