@@ -1,3 +1,7 @@
+## 0.1.1
+### Bugfixes
+* Jfg fix responsive design (#93) via Jens-Fabian Goetzmann (@jefago)
+
 ## 0.1.0
 ### New Features
 * Responsive UI for purchase flow (#85) via Jens-Fabian Goetzmann (@jefago)
