@@ -5,16 +5,16 @@ import {
   PurchaseOperationHelper,
 } from "../../helpers/purchase-operation-helper";
 import { Backend } from "../../networking/backend";
-import { setupServer, SetupServer } from "msw/node";
+import { setupServer, type SetupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
 import { StatusCodes } from "http-status-codes";
 import { expectPromiseToError, failTest } from "../test-helpers";
 import { ErrorCode, PurchasesError } from "../../entities/errors";
-import { SubscribeResponse } from "../../networking/responses/subscribe-response";
+import { type SubscribeResponse } from "../../networking/responses/subscribe-response";
 import {
   CheckoutSessionStatus,
   CheckoutStatusErrorCodes,
-  CheckoutStatusResponse,
+  type CheckoutStatusResponse,
 } from "../../networking/responses/checkout-status-response";
 
 describe("PurchaseOperationHelper", () => {

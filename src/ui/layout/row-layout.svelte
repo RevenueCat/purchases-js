@@ -12,5 +12,6 @@
     flex-direction: column;
     justify-content: flex-start;
     gap: var(--gap, "8px");
+    flex-grow: 1;
   }
 </style>

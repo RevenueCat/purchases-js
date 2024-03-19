@@ -3,7 +3,7 @@
   import ModalFooter from "../modal-footer.svelte";
   import ModalSection from "../modal-section.svelte";
   import RowLayout from "../layout/row-layout.svelte";
-  import { BrandingInfoResponse } from "../../networking/responses/branding-response";
+  import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
   import BrandAndCloseHeader from "../brand-and-close-header.svelte";
 
   export let brandingInfo: BrandingInfoResponse | null = null;

@@ -10,18 +10,22 @@
   .rcb-modal-main {
     box-sizing: border-box;
     border-radius: 8px;
-    background-color: #fff;
-    color: black;
+    background-color: var(--rc-color-white);
+    color: var(--rc-color-grey-text-dark);
     max-width: 640px;
     min-width: 480px;
+    min-height: 460px;
     padding: 40px;
+    flex-direction: column;
+    display: flex;
   }
 
   .rcb-modal-dark {
-    background-color: #000;
-    color: #fff;
+    background-color: var(--rc-color-grey-text-dark);
+    color: var(--rc-color-white);
     max-width: 480px;
     min-width: 320px;
+    min-height: 0px;
   }
 
   @media screen and (max-width: 960px) {

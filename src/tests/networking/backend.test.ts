@@ -1,4 +1,4 @@
-import { SetupServer, setupServer } from "msw/node";
+import { type SetupServer, setupServer } from "msw/node";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { http, HttpResponse } from "msw";
 import {
@@ -14,7 +14,7 @@ import {
   PurchasesError,
 } from "../../entities/errors";
 import { expectPromiseToError } from "../test-helpers";
-import { SubscribeResponse } from "../../networking/responses/subscribe-response";
+import { type SubscribeResponse } from "../../networking/responses/subscribe-response";
 
 let server: SetupServer;
 let backend: Backend;

@@ -8,24 +8,26 @@
   import ModalFooter from "../modal-footer.svelte";
   import StateLoading from "./state-loading.svelte";
   import RowLayout from "../layout/row-layout.svelte";
-  import { SubscribeResponse } from "../../networking/responses/subscribe-response";
+  import { type SubscribeResponse } from "../../networking/responses/subscribe-response";
   import {
     PurchaseFlowError,
     PurchaseFlowErrorCode,
   } from "../../helpers/purchase-operation-helper";
   import ModalHeader from "../modal-header.svelte";
   import IconLock from "../assets/icon-lock.svelte";
+  import { Colors } from "../../assets/colors";
+  import ProcessingAnimation from "../processing-animation.svelte";
 
   export let onClose: any;
   export let onContinue: any;
   export let onError: any;
   export let paymentInfoCollectionMetadata: SubscribeResponse;
+  export let processing = false;
 
   const clientSecret = paymentInfoCollectionMetadata.data.client_secret;
 
   let stripe: Stripe | null = null;
   let elements: StripeElements;
-  let processing = false;
   let safeElements: StripeElements;
 
   $: {
@@ -86,22 +88,26 @@
           fontSizeBase: "16px",
           fontSizeSm: "16px",
           spacingGridRow: "16px",
-          colorText: "#000000",
+          colorText: Colors["grey-text-dark"],
           focusBoxShadow: "none",
+          colorDanger: Colors["error"],
         }}
         rules={{
           ".Input": {
             boxShadow: "none",
-            border: "2px solid #ccc",
+            border: `2px solid ${Colors["grey-ui-dark"]}`,
           },
           ".Input:focus": {
-            border: "2px solid #000080",
+            border: `2px solid ${Colors["focus"]}`,
             outline: "none",
           },
           ".Label": {
             marginBottom: "8px",
             fontWeight: "500",
             lineHeight: "22px",
+          },
+          ".Input--invalid": {
+            boxShadow: "none",
           },
         }}
       >
@@ -118,7 +124,7 @@
           <RowLayout>
             <Button disabled={processing}>
               {#if processing}
-                Processing...
+                <ProcessingAnimation />
               {:else}
                 Pay
               {/if}</Button

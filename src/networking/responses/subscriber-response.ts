@@ -1,4 +1,4 @@
-import { PeriodType, Store } from "../../entities/customer-info";
+import { type PeriodType, type Store } from "../../entities/customer-info";
 
 export interface SubscriberEntitlementResponse {
   expires_date: string | null;

@@ -1,6 +1,6 @@
 <script lang="ts">
   import IconSuccess from "../assets/icon-success.svelte";
-  import { BrandingInfoResponse } from "../../networking/responses/branding-response";
+  import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
   import MessageLayout from "../layout/message-layout.svelte";
 
   export let brandingInfo: BrandingInfoResponse | null = null;

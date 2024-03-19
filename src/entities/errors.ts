@@ -1,5 +1,5 @@
 import {
-  PurchaseFlowError,
+  type PurchaseFlowError,
   PurchaseFlowErrorCode,
 } from "../helpers/purchase-operation-helper";
 

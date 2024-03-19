@@ -1,11 +1,9 @@
 <script lang="ts">
   import AppIcon from "./app-icon.svelte";
-  import { BrandingInfoResponse } from "../networking/responses/branding-response";
+  import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import { buildAssetURL } from "../networking/assets";
-  import SandboxBanner from "./sandbox-banner.svelte";
 
   export let brandingInfo: BrandingInfoResponse | null = null;
-  export let isSandbox: boolean = false;
 </script>
 
 <div class="rcb-header-layout__business-info">
@@ -19,9 +17,6 @@
     <span class="app-title">{brandingInfo.seller_company_name}</span>
   {:else}
     <AppIcon />
-  {/if}
-  {#if isSandbox}
-    <SandboxBanner />
   {/if}
 </div>
 

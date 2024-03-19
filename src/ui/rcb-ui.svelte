@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { Package, Purchases, PurchasesError } from "../main";
+  import { type Package, Purchases, PurchasesError } from "../main";
   import StatePresentOffer from "./states/state-present-offer.svelte";
   import StateLoading from "./states/state-loading.svelte";
   import StateError from "./states/state-error.svelte";
@@ -9,8 +9,8 @@
   import StateNeedsAuthInfo from "./states/state-needs-auth-info.svelte";
   import ConditionalFullScreen from "./conditional-full-screen.svelte";
   import Shell from "./shell.svelte";
-  import { SubscribeResponse } from "../networking/responses/subscribe-response";
-  import { BrandingInfoResponse } from "../networking/responses/branding-response";
+  import { type SubscribeResponse } from "../networking/responses/subscribe-response";
+  import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import {
     PurchaseFlowError,
     PurchaseFlowErrorCode,
@@ -20,6 +20,8 @@
   import ModalHeader from "./modal-header.svelte";
   import IconCart from "./assets/icon-cart.svelte";
   import BrandingInfoUI from "./branding-info-ui.svelte";
+  import SandboxBanner from "./sandbox-banner.svelte";
+  import { Colors } from "../assets/colors";
 
   export let asModal = true;
   export let customerEmail: string | undefined;
@@ -32,6 +34,10 @@
   export let backend: Backend;
   export let purchaseOperationHelper: PurchaseOperationHelper;
 
+  const colorVariables = Object.entries(Colors)
+    .map(([key, value]) => `--rc-color-${key}: ${value}`)
+    .join("; ");
+
   let productDetails: any = null;
   let brandingInfo: BrandingInfoResponse | null = null;
   let paymentInfoCollectionMetadata: SubscribeResponse | null = null;
@@ -41,6 +47,7 @@
   let state:
     | "present-offer"
     | "needs-auth-info"
+    | "processing-auth-info"
     | "needs-payment-info"
     | "polling-purchase-status"
     | "loading"
@@ -50,7 +57,9 @@
   const statesWhereOfferDetailsAreShown = [
     "present-offer",
     "needs-auth-info",
+    "processing-auth-info",
     "needs-payment-info",
+    "polling-purchase-status",
     "loading",
   ];
 
@@ -82,7 +91,7 @@
         ),
       );
       return;
-    } else {
+    } else if (state === "present-offer") {
       state = "loading";
     }
 
@@ -126,6 +135,7 @@
     if (state === "needs-auth-info") {
       if (authInfo) {
         customerEmail = authInfo.email;
+        state = "processing-auth-info";
       }
 
       handleSubscribe();
@@ -171,16 +181,17 @@
 
 <div class="rcb-ui-container">
   <ConditionalFullScreen condition={asModal}>
-    <div class="rcb-ui-layout">
+    <div class="rcb-ui-layout" style={colorVariables}>
       {#if statesWhereOfferDetailsAreShown.includes(state)}
         <div class="rcb-ui-aside">
           <Shell dark>
             <ModalHeader slot="header">
-              <BrandingInfoUI
-                {brandingInfo}
-                isSandbox={purchases.isSandbox()}
-              />
-              <IconCart />
+              <BrandingInfoUI {brandingInfo} />
+              {#if purchases.isSandbox()}
+                <SandboxBanner />
+              {:else}
+                <IconCart />
+              {/if}
             </ModalHeader>
             {#if productDetails}
               <StatePresentOffer {productDetails} />
@@ -195,21 +206,20 @@
         {#if state === "present-offer" && !productDetails}
           <StateLoading />
         {/if}
-        {#if state === "polling-purchase-status"}
-          <StateLoading />
-        {/if}
-        {#if state === "needs-auth-info"}
+        {#if state === "needs-auth-info" || state === "processing-auth-info"}
           <StateNeedsAuthInfo
             onContinue={handleContinue}
             onClose={handleClose}
+            processing={state === "processing-auth-info"}
           />
         {/if}
-        {#if state === "needs-payment-info" && paymentInfoCollectionMetadata}
+        {#if paymentInfoCollectionMetadata && (state === "needs-payment-info" || state === "polling-purchase-status")}
           <StateNeedsPaymentInfo
             {paymentInfoCollectionMetadata}
             onContinue={handleContinue}
             onClose={handleClose}
             onError={handleError}
+            processing={state === "polling-purchase-status"}
           />
         {/if}
         {#if state === "loading"}

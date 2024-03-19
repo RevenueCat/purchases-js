@@ -4,9 +4,11 @@
   import ModalSection from "../modal-section.svelte";
   import RowLayout from "../layout/row-layout.svelte";
   import ModalHeader from "../modal-header.svelte";
+  import ProcessingAnimation from "../processing-animation.svelte";
 
   export let onContinue: any;
   export let onClose: () => void;
+  export let processing: boolean;
 
   $: email = "";
   $: error = "";
@@ -21,38 +23,52 @@
   };
 </script>
 
-<div>
-  <form on:submit|preventDefault={handleContinue}>
-    <ModalHeader>Billing email address</ModalHeader>
-    <ModalSection>
-      <div class="form-container">
-        <div class="form-label"><label for="email">Email</label></div>
-        <div class="form-input {inputClass}">
-          <input
-            name="email"
-            placeholder="john@appleseed.com"
-            autocapitalize="off"
-            bind:value={email}
-          />
-        </div>
-        <div class="form-error">{error}</div>
+<form on:submit|preventDefault={handleContinue}>
+  <ModalHeader>Billing email address</ModalHeader>
+  <ModalSection>
+    <div class="form-container">
+      <div class="form-label"><label for="email">Email</label></div>
+      <div class="form-input {inputClass}">
+        <input
+          name="email"
+          placeholder="john@appleseed.com"
+          autocapitalize="off"
+          bind:value={email}
+        />
       </div>
-    </ModalSection>
-    <ModalFooter>
-      <RowLayout>
-        <Button>Continue</Button>
-        <Button intent="secondary" on:click={onClose}>Close</Button>
-      </RowLayout>
-    </ModalFooter>
-  </form>
-</div>
+      {#if error}<div class="form-error">{error}</div>{/if}
+    </div>
+  </ModalSection>
+  <ModalFooter>
+    <RowLayout>
+      <Button disabled={processing}>
+        {#if processing}
+          <ProcessingAnimation />
+        {:else}
+          Continue
+        {/if}
+      </Button>
+      <Button intent="secondary" on:click={onClose} disabled={processing}
+        >Close</Button
+      >
+    </RowLayout>
+  </ModalFooter>
+</form>
 
 <style>
+  form {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    flex-grow: 1;
+  }
+
   .form-container {
     display: flex;
     flex-direction: column;
     width: 100%;
     margin-top: 32px;
+    margin-bottom: 16px;
   }
 
   .form-label {
@@ -63,27 +79,23 @@
     line-height: 22px;
   }
 
-  .form-input {
-    margin-bottom: 16px;
-  }
-
   .form-input.error input {
-    border-color: red;
+    border-color: var(--rc-color-error);
   }
 
   .form-error {
-    font-size: 12px;
-    margin-bottom: 16px;
+    margin-top: 4px;
+    font-size: 16px;
     line-height: 20px;
     min-height: 40px;
-    color: red;
+    color: var(--rc-color-error);
   }
 
   input {
     width: 100%;
     box-sizing: border-box;
     padding: 8px;
-    border: 2px solid #ccc;
+    border: 2px solid var(--rc-color-grey-ui-dark);
     border-radius: 12px;
     font-size: 16px;
     height: 48px;
@@ -92,6 +104,6 @@
 
   input:focus {
     outline: none;
-    border: 2px solid #000080;
+    border: 2px solid var(--rc-color-focus);
   }
 </style>

@@ -12,6 +12,10 @@
     display: flex;
   }
 
+  section.rcb-modal-section {
+    flex-grow: 1;
+  }
+
   .rcb-modal-section:last-of-type {
     padding: 0;
   }

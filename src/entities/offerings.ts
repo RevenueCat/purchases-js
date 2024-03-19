@@ -1,8 +1,8 @@
 import {
-  OfferingResponse,
-  PackageResponse,
+  type OfferingResponse,
+  type PackageResponse,
 } from "../networking/responses/offerings-response";
-import { ProductResponse } from "../networking/responses/products-response";
+import { type ProductResponse } from "../networking/responses/products-response";
 import { notEmpty } from "../helpers/type-helper";
 
 /**
