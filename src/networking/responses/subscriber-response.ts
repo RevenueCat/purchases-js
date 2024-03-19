@@ -38,7 +38,7 @@ export interface SubscriberInnerResponse {
   first_seen: string;
   last_seen?: string | null;
   management_url: string | null;
-  non_subscriptions: { [key: string]: NonSubscriptionResponse[] }; // TODO: Add proper types
+  non_subscriptions: { [key: string]: NonSubscriptionResponse[] };
   original_app_user_id: string;
   original_application_version: string | null;
   original_purchase_date: string | null;
