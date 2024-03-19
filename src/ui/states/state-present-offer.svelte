@@ -16,7 +16,7 @@
     </span>
     <ul class="rcb-product-details">
       <li>Billed {getRenewsLabel(productDetails.normalPeriodDuration)}</li>
-      <li>Plan continues until cancelled</li>
+      <li>Continues until canceled</li>
       <li>Cancel anytime</li>
     </ul>
   </div>
