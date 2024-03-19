@@ -24,12 +24,21 @@ export interface SubscriberSubscriptionResponse {
   unsubscribe_detected_at: string | null;
 }
 
+export interface NonSubscriptionResponse {
+  id: string;
+  is_sandbox: boolean;
+  original_purchase_date: string;
+  purchase_date?: string | null;
+  store: Store;
+  store_transaction_id?: string | null;
+}
+
 export interface SubscriberInnerResponse {
   entitlements: { [entitlementId: string]: SubscriberEntitlementResponse };
   first_seen: string;
   last_seen?: string | null;
   management_url: string | null;
-  non_subscriptions: { [key: string]: unknown }; // TODO: Add proper types
+  non_subscriptions: { [key: string]: NonSubscriptionResponse[] }; // TODO: Add proper types
   original_app_user_id: string;
   original_application_version: string | null;
   original_purchase_date: string | null;

@@ -1,8 +1,10 @@
 import {
+  type NonSubscriptionResponse,
   type SubscriberEntitlementResponse,
   type SubscriberResponse,
   type SubscriberSubscriptionResponse,
 } from "../networking/responses/subscriber-response";
+import { ErrorCode, PurchasesError } from "./errors";
 
 /**
  * The store where the user originally subscribed.
@@ -51,6 +53,10 @@ export interface EntitlementInfo {
    * The store where this entitlement was unlocked from.
    */
   readonly store: Store;
+  /**
+   * The latest purchase or renewal date for the entitlement.
+   */
+  readonly latestPurchaseDate: Date;
   /**
    * The first date this entitlement was purchased.
    */
@@ -123,7 +129,7 @@ export interface CustomerInfo {
    * Map of productIds to purchase dates.
    */
   readonly allPurchaseDatesByProduct: {
-    [productIdentifier: string]: Date;
+    [productIdentifier: string]: Date | null;
   };
   /**
    * Set of active subscription product identifiers.
@@ -168,13 +174,42 @@ function isActive(
 function toEntitlementInfo(
   entitlementIdentifier: string,
   entitlementInfoResponse: SubscriberEntitlementResponse,
-  subscriptionResponse: SubscriberSubscriptionResponse | null, // TODO: Support non-subscription purchases
+  subscriptions: { [productId: string]: SubscriberSubscriptionResponse },
+  latestNonSubscriptionPurchaseByProduct: {
+    [key: string]: NonSubscriptionResponse;
+  },
+): EntitlementInfo {
+  const productIdentifier = entitlementInfoResponse.product_identifier;
+  if (productIdentifier in subscriptions) {
+    return toSubscriptionEntitlementInfo(
+      entitlementIdentifier,
+      entitlementInfoResponse,
+      subscriptions[productIdentifier],
+    );
+  } else if (productIdentifier in latestNonSubscriptionPurchaseByProduct) {
+    return toNonSubscriptionEntitlementInfo(
+      entitlementIdentifier,
+      entitlementInfoResponse,
+      latestNonSubscriptionPurchaseByProduct[productIdentifier],
+    );
+  }
+  throw new PurchasesError(
+    ErrorCode.CustomerInfoError,
+    "Could not find entitlement product in subscriptions or non-subscriptions.",
+  );
+}
+
+function toSubscriptionEntitlementInfo(
+  entitlementIdentifier: string,
+  entitlementInfoResponse: SubscriberEntitlementResponse,
+  subscriptionResponse: SubscriberSubscriptionResponse | null,
 ): EntitlementInfo {
   return {
     identifier: entitlementIdentifier,
     isActive: isActive(entitlementInfoResponse),
     willRenew: getWillRenew(entitlementInfoResponse, subscriptionResponse),
     store: subscriptionResponse?.store ?? "unknown",
+    latestPurchaseDate: new Date(entitlementInfoResponse.purchase_date),
     originalPurchaseDate: new Date(entitlementInfoResponse.purchase_date),
     expirationDate: toDateIfNotNull(entitlementInfoResponse.expires_date),
     productIdentifier: entitlementInfoResponse.product_identifier,
@@ -189,21 +224,47 @@ function toEntitlementInfo(
   };
 }
 
+function toNonSubscriptionEntitlementInfo(
+  entitlementIdentifier: string,
+  entitlementInfoResponse: SubscriberEntitlementResponse,
+  nonSubscriptionResponse: NonSubscriptionResponse,
+): EntitlementInfo {
+  return {
+    identifier: entitlementIdentifier,
+    isActive: true,
+    willRenew: false,
+    store: nonSubscriptionResponse.store,
+    latestPurchaseDate: new Date(entitlementInfoResponse.purchase_date),
+    originalPurchaseDate: new Date(
+      nonSubscriptionResponse.original_purchase_date,
+    ),
+    expirationDate: null,
+    productIdentifier: entitlementInfoResponse.product_identifier,
+    unsubscribeDetectedAt: null,
+    billingIssueDetectedAt: null,
+    isSandbox: nonSubscriptionResponse.is_sandbox,
+    periodType: "normal",
+  };
+}
+
 function toEntitlementInfos(
   entitlementsResponse: {
     [entitlementId: string]: SubscriberEntitlementResponse;
   },
   subscriptions: { [productId: string]: SubscriberSubscriptionResponse },
+  latestNonSubscriptionPurchaseByProduct: {
+    [key: string]: NonSubscriptionResponse;
+  },
 ): EntitlementInfos {
   const allEntitlementInfo: { [entitlementId: string]: EntitlementInfo } = {};
   const activeEntitlementInfo: { [entitlementId: string]: EntitlementInfo } =
     {};
   for (const key in entitlementsResponse) {
-    const subscription = subscriptions[key] ?? null;
     const entitlementInfo = toEntitlementInfo(
       key,
       entitlementsResponse[key],
-      subscription,
+      subscriptions,
+      latestNonSubscriptionPurchaseByProduct,
     );
     allEntitlementInfo[key] = entitlementInfo;
     if (entitlementInfo.isActive) {
@@ -227,14 +288,22 @@ export function toCustomerInfo(
   const expirationDatesByProductId =
     getExpirationDatesByProductId(customerInfoResponse);
   const subscriberResponse = customerInfoResponse.subscriber;
+
+  const latestNonSubscriptionPurchaseByProduct =
+    getLatestNonSubscriptionPurchaseByProduct(
+      subscriberResponse.non_subscriptions,
+    );
   return {
     entitlements: toEntitlementInfos(
       subscriberResponse.entitlements,
       subscriberResponse.subscriptions,
+      latestNonSubscriptionPurchaseByProduct,
     ),
     allExpirationDatesByProduct: expirationDatesByProductId,
-    allPurchaseDatesByProduct:
-      getPurchaseDatesByProductId(customerInfoResponse),
+    allPurchaseDatesByProduct: getPurchaseDatesByProductId(
+      customerInfoResponse,
+      latestNonSubscriptionPurchaseByProduct,
+    ),
     activeSubscriptions: getActiveSubscriptions(expirationDatesByProductId),
     managementURL: subscriberResponse.management_url,
     requestDate: new Date(customerInfoResponse.request_date),
@@ -261,14 +330,26 @@ function getWillRenew(
 
 function getPurchaseDatesByProductId(
   customerInfoResponse: SubscriberResponse,
-): { [productId: string]: Date } {
-  const purchaseDatesByProduct: { [productId: string]: Date } = {};
+  latestNonSubscriptionPurchaseByProduct: {
+    [key: string]: NonSubscriptionResponse;
+  },
+): { [productId: string]: Date | null } {
+  const purchaseDatesByProduct: { [productId: string]: Date | null } = {};
   for (const subscriptionId in customerInfoResponse.subscriber.subscriptions) {
     const subscription =
       customerInfoResponse.subscriber.subscriptions[subscriptionId];
     purchaseDatesByProduct[subscriptionId] = new Date(
       subscription.purchase_date,
     );
+  }
+  for (const productId in latestNonSubscriptionPurchaseByProduct) {
+    const purchaseDate =
+      latestNonSubscriptionPurchaseByProduct[productId].purchase_date;
+    if (purchaseDate == null) {
+      purchaseDatesByProduct[productId] = null;
+    } else {
+      purchaseDatesByProduct[productId] = new Date(purchaseDate);
+    }
   }
   return purchaseDatesByProduct;
 }
@@ -305,4 +386,19 @@ function getActiveSubscriptions(expirationDatesByProductId: {
     }
   }
   return activeSubscriptions;
+}
+
+function getLatestNonSubscriptionPurchaseByProduct(nonSubscriptions: {
+  [key: string]: NonSubscriptionResponse[];
+}): { [key: string]: NonSubscriptionResponse } {
+  const latestNonSubscriptionPurchaseByProduct: {
+    [key: string]: NonSubscriptionResponse;
+  } = {};
+  for (const key in nonSubscriptions) {
+    if (nonSubscriptions[key].length === 0) continue;
+    const numberPurchases = nonSubscriptions[key].length;
+    latestNonSubscriptionPurchaseByProduct[key] =
+      nonSubscriptions[key][numberPurchases - 1];
+  }
+  return latestNonSubscriptionPurchaseByProduct;
 }
