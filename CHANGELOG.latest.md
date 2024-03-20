@@ -1,2 +1,2 @@
 ### Bugfixes
-* Jfg fix responsive design (#93) via Jens-Fabian Goetzmann (@jefago)
+* Fix CustomerInfo parsing and add support to non subscription parsing (#95) via Toni Rico (@tonidero)
