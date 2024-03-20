@@ -1,3 +1,7 @@
+## 0.1.2
+### Bugfixes
+* Fix CustomerInfo parsing and add support to non subscription parsing (#95) via Toni Rico (@tonidero)
+
 ## 0.1.1
 ### Bugfixes
 * Jfg fix responsive design (#93) via Jens-Fabian Goetzmann (@jefago)
