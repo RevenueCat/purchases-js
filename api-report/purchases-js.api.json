@@ -276,7 +276,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ";\n    }"
+                  "text": " | null;\n    }"
                 },
                 {
                   "kind": "Content",
@@ -620,6 +620,34 @@
               "isOptional": false,
               "releaseTag": "Public",
               "name": "isSandbox",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!EntitlementInfo#latestPurchaseDate:member",
+              "docComment": "/**\n * The latest purchase or renewal date for the entitlement.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly latestPurchaseDate: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Date",
+                  "canonicalReference": "!Date:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "latestPurchaseDate",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2

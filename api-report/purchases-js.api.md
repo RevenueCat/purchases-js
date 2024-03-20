@@ -11,7 +11,7 @@ export interface CustomerInfo {
         [productIdentifier: string]: Date | null;
     };
     readonly allPurchaseDatesByProduct: {
-        [productIdentifier: string]: Date;
+        [productIdentifier: string]: Date | null;
     };
     readonly entitlements: EntitlementInfos;
     readonly firstSeenDate: Date;
@@ -28,6 +28,7 @@ export interface EntitlementInfo {
     readonly identifier: string;
     readonly isActive: boolean;
     readonly isSandbox: boolean;
+    readonly latestPurchaseDate: Date;
     readonly originalPurchaseDate: Date;
     readonly periodType: PeriodType;
     readonly productIdentifier: string;
