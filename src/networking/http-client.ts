@@ -15,15 +15,27 @@ export async function performRequest<RequestBody, ResponseType>(
   body?: RequestBody,
   headers?: { [key: string]: string },
 ): Promise<ResponseType> {
-  const response = await fetch(endpoint.url(), {
-    method: endpoint.method,
-    headers: getHeaders(apiKey, headers),
-    body: getBody(body),
-  });
+  try {
+    const response = await fetch(endpoint.url(), {
+      method: endpoint.method,
+      headers: getHeaders(apiKey, headers),
+      body: getBody(body),
+    });
 
-  await handleErrors(response, endpoint);
+    await handleErrors(response, endpoint);
 
-  return (await response.json()) as ResponseType; // TODO: Validate response is correct.
+    return (await response.json()) as ResponseType; // TODO: Validate response is correct.
+  } catch (error) {
+    if (error instanceof TypeError) {
+      throw new PurchasesError(
+        ErrorCode.NetworkError,
+        ErrorCodeUtils.getPublicMessage(ErrorCode.NetworkError),
+        error.message,
+      );
+    } else {
+      throw error;
+    }
+  }
 }
 
 async function handleErrors(response: Response, endpoint: SupportedEndpoint) {

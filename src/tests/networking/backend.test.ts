@@ -110,6 +110,18 @@ describe("getCustomerInfo request", () => {
       ),
     );
   });
+
+  test("throws network error if cannot reach server", async () => {
+    setCustomerInfoResponse(HttpResponse.error());
+    await expectPromiseToError(
+      backend.getCustomerInfo("someAppUserId"),
+      new PurchasesError(
+        ErrorCode.NetworkError,
+        "Error performing request.",
+        "Failed to fetch",
+      ),
+    );
+  });
 });
 
 describe("getOfferings request", () => {
@@ -167,6 +179,18 @@ describe("getOfferings request", () => {
       ),
     );
   });
+
+  test("throws network error if cannot reach server", async () => {
+    setOfferingsResponse(HttpResponse.error());
+    await expectPromiseToError(
+      backend.getOfferings("someAppUserId"),
+      new PurchasesError(
+        ErrorCode.NetworkError,
+        "Error performing request.",
+        "Failed to fetch",
+      ),
+    );
+  });
 });
 
 describe("getProducts request", () => {
@@ -217,6 +241,18 @@ describe("getProducts request", () => {
         ErrorCode.InvalidCredentialsError,
         "There was a credentials issue. Check the underlying error for more details.",
         "API key was wrong",
+      ),
+    );
+  });
+
+  test("throws network error if cannot reach server", async () => {
+    setProductsResponse(HttpResponse.error());
+    await expectPromiseToError(
+      backend.getProducts("someAppUserId", ["monthly", "monthly_2"]),
+      new PurchasesError(
+        ErrorCode.NetworkError,
+        "Error performing request.",
+        "Failed to fetch",
       ),
     );
   });
@@ -289,6 +325,23 @@ describe("subscribe request", () => {
         ErrorCode.InvalidCredentialsError,
         "There was a credentials issue. Check the underlying error for more details.",
         "API key was wrong",
+      ),
+    );
+  });
+
+  test("throws network error if cannot reach server", async () => {
+    setSubscribeResponse(HttpResponse.error());
+    await expectPromiseToError(
+      backend.postSubscribe(
+        "someAppUserId",
+        "monthly",
+        "testemail@revenuecat.com",
+        "offering_1",
+      ),
+      new PurchasesError(
+        ErrorCode.NetworkError,
+        "Error performing request.",
+        "Failed to fetch",
       ),
     );
   });
