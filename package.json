@@ -19,7 +19,21 @@
       "require": "./dist/style.css"
     }
   },
+  "author": "RevenueCat, Inc.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RevenueCat/purchases-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/RevenueCat/purchases-js/issues"
+  },
+  "keywords": [
+    "revenuecat",
+    "purchases",
+    "subscriptions",
+    "iap"
+  ],
   "scripts": {
     "watch": "vite build --watch",
     "build": "tsc && vite build",
