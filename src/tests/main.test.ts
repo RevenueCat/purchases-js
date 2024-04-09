@@ -126,6 +126,7 @@ describe("getOfferings", () => {
       currentPrice: {
         currency: "USD",
         amount: 300,
+        formattedPrice: "$3.00",
       },
       displayName: "Monthly test",
       identifier: "monthly",
@@ -161,6 +162,7 @@ describe("getOfferings", () => {
         currentPrice: {
           currency: "USD",
           amount: 500,
+          formattedPrice: "$5.00",
         },
         displayName: "Monthly test 2",
         identifier: "monthly_2",
@@ -203,6 +205,7 @@ describe("getOfferings", () => {
         currentPrice: {
           currency: "USD",
           amount: 500,
+          formattedPrice: "$5.00",
         },
         displayName: "Monthly test 2",
         identifier: "monthly_2",

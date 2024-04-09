@@ -170,6 +170,7 @@ export type PeriodType = "normal" | "intro" | "trial";
 export interface Price {
     readonly amount: number;
     readonly currency: string;
+    readonly formattedPrice: string;
 }
 
 // @public
