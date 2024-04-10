@@ -4,6 +4,7 @@ import {
 } from "../networking/responses/offerings-response";
 import { type ProductResponse } from "../networking/responses/products-response";
 import { notEmpty } from "../helpers/type-helper";
+import { formatPrice } from "../helpers/price-labels";
 
 /**
  * Enumeration of all possible Package types.
@@ -64,6 +65,10 @@ export interface Price {
    * If currency code cannot be determined, currency symbol is returned.
    */
   readonly currency: string;
+  /**
+   * Formatted price string including price and currency.
+   */
+  readonly formattedPrice: string;
 }
 
 /**
@@ -185,6 +190,14 @@ export interface Offerings {
   readonly current: Offering | null;
 }
 
+const toPrice = (priceData: { amount: number; currency: string }): Price => {
+  return {
+    amount: priceData.amount,
+    currency: priceData.currency,
+    formattedPrice: formatPrice(priceData.amount, priceData.currency),
+  };
+};
+
 const toProduct = (
   productDetailsData: ProductResponse,
   presentedOfferingIdentifier: string,
@@ -192,7 +205,7 @@ const toProduct = (
   return {
     identifier: productDetailsData.identifier,
     displayName: productDetailsData.title,
-    currentPrice: productDetailsData.current_price as Price,
+    currentPrice: toPrice(productDetailsData.current_price),
     normalPeriodDuration: productDetailsData.normal_period_duration,
     presentedOfferingIdentifier: presentedOfferingIdentifier,
   };

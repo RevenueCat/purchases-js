@@ -34,9 +34,7 @@ export const PackageCard: React.FC<IPackageCardProps> = ({ pkg, onClick }) => {
               justifyContent: "center",
             }}
           >
-            <h2>{`${(pkg.rcBillingProduct?.currentPrice?.amount / 100).toFixed(
-              2,
-            )} ${pkg.rcBillingProduct?.currentPrice?.currency}`}</h2>
+            <h2>{`${pkg.rcBillingProduct?.currentPrice?.formattedPrice}`}</h2>
 
             {pkg.rcBillingProduct.normalPeriodDuration && (
               <h3>
