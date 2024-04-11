@@ -1,3 +1,7 @@
+## 0.2.0
+### New Features
+* [BIL-292] Add `formattedPrice` to Price (#102) via Toni Rico (@tonidero)
+
 ## 0.1.3
 ### Other Changes
 * Improve package.json with some useful info to be populated in npmjs (#99) via Toni Rico (@tonidero)
