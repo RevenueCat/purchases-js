@@ -37,6 +37,9 @@ describe("Purchases.configure()", () => {
     expect(() => Purchases.configure("goog_api_key", "appUserId")).toThrowError(
       PurchasesError,
     );
+    expect(() =>
+      Purchases.configure("rcb_test invalidchar", "appUserId"),
+    ).toThrowError(PurchasesError);
   });
 
   test("throws error if given invalid user id", () => {

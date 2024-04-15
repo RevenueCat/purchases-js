@@ -1,7 +1,8 @@
 import { ErrorCode, PurchasesError } from "../entities/errors";
 
 export function validateApiKey(apiKey: string) {
-  if (!apiKey.startsWith("rcb_")) {
+  const api_key_regex = /^rcb_[a-zA-Z0-9_.-]+$/;
+  if (!api_key_regex.test(apiKey)) {
     throw new PurchasesError(
       ErrorCode.InvalidCredentialsError,
       "Invalid API key. Use your RevenueCat Billing API key.",
