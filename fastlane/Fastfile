@@ -1,10 +1,11 @@
 files_with_version_number = {
   './package.json' => ['"version": "{x}"'],
-  './scripts/docs/index.html' => ['purchases-js-docs/{x}/'],
   './.version' => ['{x}'],
   './src/helpers/constants.ts' => ['VERSION = "{x}"']
 }
-
+files_to_update_on_latest_stable_releases = {
+  './scripts/docs/index.html' => ['purchases-js-docs/{x}/']
+}
 repo_name = 'purchases-js'
 changelog_latest_path = './CHANGELOG.latest.md'
 changelog_path = './CHANGELOG.md'
@@ -20,6 +21,7 @@ lane :bump do |options|
     changelog_latest_path: changelog_latest_path,
     changelog_path: changelog_path,
     files_to_update: files_with_version_number,
+    files_to_update_on_latest_stable_releases: files_to_update_on_latest_stable_releases,
     repo_name: repo_name,
     github_rate_limit: options[:github_rate_limit],
     editor: options[:editor],
