@@ -1,3 +1,9 @@
+## 0.2.2
+### Dependency Updates
+* Bump ejs from 3.1.9 to 3.1.10 (#109) via dependabot[bot] (@dependabot[bot])
+### Other Changes
+* Only update docs index on latest stable releases (#107) via Toni Rico (@tonidero)
+
 ## 0.2.1
 ### Dependency Updates
 * Bump vite from 5.2.2 to 5.2.6 (#106) via dependabot[bot] (@dependabot[bot])
