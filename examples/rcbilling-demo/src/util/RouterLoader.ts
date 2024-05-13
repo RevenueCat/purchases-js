@@ -23,7 +23,13 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
   }
   Purchases.setLogLevel(LogLevel.Verbose);
   try {
-    const purchases = Purchases.configure(apiKey, appUserId);
+    if (!Purchases.isConfigured()) {
+      Purchases.configure(apiKey, appUserId);
+    } else {
+      Purchases.getSharedInstance().changeUser(appUserId);
+    }
+    const purchases = Purchases.getSharedInstance();
+
     const [customerInfo, offerings] = await Promise.all([
       purchases.getCustomerInfo(),
       purchases.getOfferings(),
