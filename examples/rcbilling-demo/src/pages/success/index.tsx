@@ -5,10 +5,6 @@ import AppLogo from "../../components/AppLogo";
 import LogoutButton from "../../components/LogoutButton";
 
 const SuccessPage: React.FC = () => {
-  // const onNextClicked = () => {
-  //   window.location.replace("/");
-  // };
-
   return (
     <>
       <LogoutButton />

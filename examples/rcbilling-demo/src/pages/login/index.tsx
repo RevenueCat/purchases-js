@@ -2,11 +2,7 @@ import React from "react";
 import Button from "../../components/Button";
 import { useNavigate } from "react-router-dom";
 
-type LoginPageProps = {
-  // onLogin: (appUserId: string) => void;
-};
-
-const LoginPage: React.FC<LoginPageProps> = () => {
+const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   return (
     <div className="login">

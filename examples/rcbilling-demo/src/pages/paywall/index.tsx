@@ -83,14 +83,10 @@ const PaywallPage: React.FC = () => {
 
       console.log(`CustomerInfo after purchase: ${customerInfo}`);
 
-      // window.location.href = "/success";
       navigate(`/success/${purchases.getAppUserId()}`);
     } catch (e) {
       if (e instanceof PurchasesError) {
         console.log(`Error performing purchase: ${e}`);
-        // TODO: We should display an error here.
-        // navigate("/");
-        // window.location.href = "/";
       } else {
         console.error(`Unknown error: ${e}`);
       }
