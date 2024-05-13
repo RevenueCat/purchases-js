@@ -21,7 +21,7 @@ const LoginPage: React.FC<LoginPageProps> = () => {
               document.getElementById("app-user-id") as HTMLInputElement | null
             )?.value;
             if (appUserId) {
-              navigate(`/login/${encodeURIComponent(appUserId)}`);
+              navigate(`/paywall/${encodeURIComponent(appUserId)}`);
             }
           }}
         />

@@ -1,8 +1,9 @@
 import { Offering, Package, PurchasesError } from "@revenuecat/purchases-js";
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { usePurchasesLoaderData } from "../../util/RouterLoader";
+import { usePurchasesLoaderData } from "../../util/PurchasesLoader";
 import Button from "../../components/Button";
+import LogoutButton from "../../components/LogoutButton";
 
 interface IPackageCardProps {
   pkg: Package;
@@ -57,23 +58,7 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
   );
 };
 
-interface IPaywallPageProps {
-  // purchases: Purchases;
-}
-
-const PaywallPage: React.FC<IPaywallPageProps> = () => {
-  // const [offerings, setOfferings] = useState<Offerings | null>(null);
-
-  // useEffect(() => {
-  //   purchases.getOfferings().then((offerings) => {
-  //     setOfferings(offerings);
-  //   });
-  // }, [purchases]);
-
-  // if (offerings === null) {
-  //   return null;
-  // }
-
+const PaywallPage: React.FC = () => {
   const navigate = useNavigate();
   const { purchases, offerings } = usePurchasesLoaderData();
 
@@ -117,6 +102,7 @@ const PaywallPage: React.FC<IPaywallPageProps> = () => {
 
   return (
     <>
+      <LogoutButton />
       <div className="paywall">
         <h1>
           Subscribe today and <em>save up to 25%!</em>

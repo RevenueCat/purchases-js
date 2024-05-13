@@ -10,7 +10,7 @@ import LoginPage from "./pages/login";
 import LandingPage from "./pages/landingPage";
 import PaywallPage from "./pages/paywall";
 import SuccessPage from "./pages/success";
-import { loadPurchases } from "./util/RouterLoader";
+import { loadPurchases } from "./util/PurchasesLoader";
 
 export const catServicesEntitlementId = "catServices";
 
@@ -22,18 +22,6 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: <LoginPage />,
-  },
-  {
-    path: "/login/:app_user_id",
-    loader: ({ params }) => {
-      console.log(params);
-      if (params["app_user_id"]) {
-        console.log(`Setting app user ID to ${params["app_user_id"]}`);
-        throw redirect(`/paywall/${params["app_user_id"]}`);
-      } else {
-        throw redirect("/login");
-      }
-    },
   },
   {
     path: "/logout",

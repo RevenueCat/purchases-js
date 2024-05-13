@@ -27,15 +27,6 @@ p {
   margin: 0px;
 }
 
-/* #root {
-  box-sizing: border-box;
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-  min-height: 100vh;
-} */
-
 #root {
   width: 100%;
 }
@@ -67,10 +58,6 @@ button.button {
   border-radius: 32px;
   border: 1px solid transparent;
   font-weight: 500;
-  /* padding: 0.6em 1.2em; */
-  /* font-size: 1em;
-  font-weight: 500;
-  font-family: inherit; */
   background-color: var(--color-green);
   color: #000000;
   cursor: pointer;
@@ -160,23 +147,6 @@ button.button:focus-visible {
   margin-top: 48px;
 }
 
-/* .appUserIdForm {
-  background: black;
-  border-top: 1px solid grey;
-  border-right: 1px solid grey;
-  padding-top: 10px;
-  height: 200px;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 300px;
-  font-size: 24px;
-}
-
-.read-the-docs {
-  color: #888;
-} */
-
 .paywall {
   max-width: 972px;
   padding: 32px;
@@ -222,7 +192,6 @@ button.button:focus-visible {
 
 .card {
   width: 308px;
-  /* background-color: var(--color-green); */
   padding-top: 56px;
   padding-bottom: 32px;
   display: flex;
@@ -301,13 +270,21 @@ button.button:focus-visible {
   height: 80px;
 }
 
-/* input {
-  height: 2.25em;
+.logoutButton {
+  display: block;
+  position: absolute;
+  right: 32px;
+  top: 32px;
+  background-color: var(--color-grey-ui-dark);
+  border: none;
+  outline: none;
+  font-family: "PP Object Sans", system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 12px;
+  padding: 6px 12px;
+  border-radius: 12px;
 }
-
-.main {
-  margin-top: 60px;
-} */
 
 @media (max-width: 1300px) {
   .landingMain {
@@ -400,8 +377,6 @@ button.button:focus-visible {
     margin-top: 32px;
     margin-bottom: 32px;
     font-size: 32px;
-    /* line-height: 118.2%;
-    text-align: center; */
   }
 
   .paywall h1 em {
@@ -418,16 +393,4 @@ button.button:focus-visible {
     margin-right: 0px;
     margin-bottom: 20px;
   }
-  /* 
-  .appUserIdForm {
-    position: fixed;
-    width: 100%;
-    border-right: 0px none;
-    height: 180px;
-    overflow-y: auto;
-  } */
-
-  /* .main {
-    margin-bottom: 200px;
-  } */
 }

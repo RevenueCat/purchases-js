@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import IChildrenProps from "./IChildrenProps";
-import { usePurchasesLoaderData } from "../util/RouterLoader";
+import { usePurchasesLoaderData } from "../util/PurchasesLoader";
 import { useNavigate } from "react-router-dom";
 
 interface IWithEntitlementProps extends IChildrenProps {
