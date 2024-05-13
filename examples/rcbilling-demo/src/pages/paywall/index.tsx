@@ -17,8 +17,8 @@ const priceLabels: Record<string, string> = {
   P1Y: "yr",
   P2M: "2mo",
   P1D: "day",
-  PT1H: "hour",
-  P1W: "week",
+  PT1H: "hr",
+  P1W: "wk",
 };
 
 export const PackageCard: React.FC<IPackageCardProps> = ({
