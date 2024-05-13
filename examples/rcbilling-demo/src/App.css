@@ -13,6 +13,18 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
   --color-green: #b4fab7;
+  --color-grey-ui-dark: #dfdfdf;
+  --color-purple: #9c4eff;
+  --color-shade-1: #d8b9ff;
+  --color-shade-2: #ffcdc2;
+  --color-shade-3: #ffc1cc;
+}
+
+h1,
+h2,
+p {
+  font-weight: 500;
+  margin: 0px;
 }
 
 /* #root {
@@ -29,7 +41,6 @@
 }
 
 a {
-  font-weight: 500;
   color: #646cff;
   text-decoration: inherit;
 }
@@ -39,24 +50,13 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
+  /* display: flex;
   place-items: center;
-  min-height: 100vh;
+  min-height: 100vh; */
 }
 
-h1 {
-  font-size: 2em;
-  line-height: 1.1;
-}
-h2 {
-  font-size: 1.5em;
-  line-height: 1.1;
-}
-p {
-  font-size: 1.8em;
-  line-height: 1.1;
-}
 button.button {
+  font-family: "PP Object Sans", system-ui, Avenir, Helvetica, Arial, sans-serif;
   display: inline-block;
   box-sizing: border-box;
   width: 240px;
@@ -116,6 +116,162 @@ button.button:focus-visible {
   width: 696px;
 }
 
+.login {
+  width: 778px;
+  margin: auto;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.login h1 {
+  font-size: 40px;
+  line-height: 52px;
+  margin-bottom: 16px;
+}
+
+.login h2 {
+  font-size: 24px;
+  line-height: 31px;
+  margin-bottom: 48px;
+}
+
+.login form {
+  display: flex;
+  gap: 16px;
+}
+
+.login form input {
+  display: block;
+  box-sizing: border-box;
+  border: 4px solid var(--color-grey-ui-dark);
+  font-size: 24px;
+  line-height: 24px;
+  height: 64px;
+  padding: 16px 20px;
+  flex: 1;
+  border-radius: 16px;
+}
+
+.notice {
+  color: var(--color-purple);
+  font-weight: 500;
+  margin-top: 48px;
+}
+
+/* .appUserIdForm {
+  background: black;
+  border-top: 1px solid grey;
+  border-right: 1px solid grey;
+  padding-top: 10px;
+  height: 200px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 300px;
+  font-size: 24px;
+}
+
+.read-the-docs {
+  color: #888;
+} */
+
+.paywall {
+  max-width: 972px;
+  padding: 32px;
+  margin: auto;
+}
+
+.paywall h1 {
+  margin-top: 120px;
+  margin-bottom: 72px;
+  font-size: 52px;
+  line-height: 118.2%;
+  text-align: center;
+}
+
+.paywall h1 em {
+  font-weight: 500;
+  font-variant: normal;
+  font-style: normal;
+  display: block;
+  color: var(--color-purple);
+}
+
+.packages {
+  display: flex;
+  flex-direction: row;
+  overflow-x: scroll;
+  gap: 16px;
+  width: 100%;
+  justify-content: center;
+}
+
+.packages .card:nth-child(3n) {
+  background-color: var(--color-shade-1);
+}
+
+.packages .card:nth-child(3n + 1) {
+  background-color: var(--color-shade-2);
+}
+
+.packages .card:nth-child(3n + 2) {
+  background-color: var(--color-shade-3);
+}
+
+.card {
+  width: 308px;
+  /* background-color: var(--color-green); */
+  padding-top: 56px;
+  padding-bottom: 32px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 24px;
+  text-align: center;
+  overflow: hidden;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 24px;
+}
+
+.previousPrice {
+  text-decoration: line-through;
+  height: 36px;
+}
+
+.currentPrice {
+  font-size: 40px;
+  line-height: 40px;
+  height: 80px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.packageCTA {
+  margin-top: 34px;
+}
+
+.paywall .notice {
+  text-align: center;
+}
+
+.card button.button {
+  max-width: calc(100% - 32px);
+}
+
+/* input {
+  height: 2.25em;
+}
+
+.main {
+  margin-top: 60px;
+} */
+
 @media (max-width: 1300px) {
   .landingMain {
     margin-top: 64px;
@@ -157,80 +313,62 @@ button.button:focus-visible {
     width: 100vw;
     max-width: 696px;
   }
-}
 
-.appUserIdForm {
-  background: black;
-  border-top: 1px solid grey;
-  border-right: 1px solid grey;
-  padding-top: 10px;
-  height: 200px;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 300px;
-  font-size: 24px;
-}
+  .login {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 842px;
+    padding-left: 32px;
+    padding-right: 32px;
+  }
 
-.read-the-docs {
-  color: #888;
-}
+  .login form {
+    flex-direction: column;
+    align-items: center;
+  }
 
-.card {
-  padding: 2em;
-  border: 2px solid white;
-  border-radius: 20px;
-  text-align: center;
-  margin-right: 20px;
-  overflow: hidden;
-}
+  .login form input {
+    width: 100%;
+  }
 
-.packages {
-  display: flex;
-  margin-top: 60px;
-  flex-direction: row;
-  overflow-x: scroll;
-  width: 100%;
-}
-
-.clickableCard {
-  cursor: pointer;
-}
-
-.clickableCard:hover {
-  background: white;
-  color: black;
-}
-
-input {
-  height: 2.25em;
-}
-
-.main {
-  margin-top: 60px;
+  .notice {
+    text-align: center;
+  }
 }
 
 @media (max-width: 600px) {
+  .paywall h1 {
+    margin-top: 32px;
+    margin-bottom: 32px;
+    font-size: 32px;
+    /* line-height: 118.2%;
+    text-align: center; */
+  }
+
+  .paywall h1 em {
+    display: inline;
+  }
+
+  .packages {
+    flex-direction: column;
+  }
+
   .card {
     box-sizing: border-box;
     width: 100%;
     margin-right: 0px;
     margin-bottom: 20px;
   }
-
+  /* 
   .appUserIdForm {
     position: fixed;
     width: 100%;
     border-right: 0px none;
     height: 180px;
     overflow-y: auto;
-  }
+  } */
 
-  .main {
+  /* .main {
     margin-bottom: 200px;
-  }
-
-  .packages {
-    flex-direction: column;
-  }
+  } */
 }

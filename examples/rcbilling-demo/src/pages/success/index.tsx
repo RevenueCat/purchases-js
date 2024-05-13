@@ -3,15 +3,15 @@ import { Purchases } from "@revenuecat/purchases-js";
 import React from "react";
 import success from "./success.png";
 
-interface ISuccessPageProps {
-  purchases: Purchases;
-  entitlementId: string;
-}
+// interface ISuccessPageProps {
+//   purchases: Purchases;
+//   entitlementId: string;
+// }
 
-export const SuccessPage: React.FC<ISuccessPageProps> = () => {
-  const onNextClicked = () => {
-    window.location.replace("/");
-  };
+export const SuccessPage: React.FC = () => {
+  // const onNextClicked = () => {
+  //   window.location.replace("/");
+  // };
 
   return (
     <section>
@@ -36,9 +36,9 @@ export const SuccessPage: React.FC<ISuccessPageProps> = () => {
           <img src={success} style={{ width: "300px" }} alt={"Success"} />
         </div>
         <h3>Thank you for subscribing.</h3>
-        <button className="button" onClick={() => onNextClicked()}>
+        {/* <button className="button" onClick={() => onNextClicked()}>
           Start enjoying your subscription
-        </button>
+        </button> */}
       </div>
     </section>
   );
