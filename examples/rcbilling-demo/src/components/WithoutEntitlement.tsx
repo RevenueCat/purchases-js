@@ -1,47 +1,29 @@
-import { Purchases } from "@revenuecat/purchases-js";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import IChildrenProps from "./IChildrenProps";
+import { usePurchasesLoaderData } from "../util/RouterLoader";
+import { useNavigate } from "react-router-dom";
 
-interface IWithEntitlementProps extends IChildrenProps {
-  purchases: Purchases;
+interface IWithoutEntitlementProps extends IChildrenProps {
   entitlementId: string;
-  onNotEntitled?: () => void;
-  onEntitled?: () => void;
-  maxAttempts?: number;
 }
 
-const WithoutEntitlement: React.FC<IWithEntitlementProps> = ({
-  purchases,
+const WithoutEntitlement: React.FC<IWithoutEntitlementProps> = ({
   entitlementId,
   children,
-  onNotEntitled,
-  onEntitled,
 }) => {
-  const [isEntitled, setIsEntitled] = useState<boolean | null>(null);
-
-  const doCheckEntitlement = useCallback((): Promise<boolean> => {
-    return purchases.isEntitledTo(entitlementId);
-  }, [purchases, entitlementId]);
+  const { customerInfo, purchases } = usePurchasesLoaderData();
+  const [isLoading, setLoading] = useState<boolean>(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    (async () => {
-      doCheckEntitlement().then((isEntitledTo) => {
-        setIsEntitled(isEntitledTo);
+    if (customerInfo.entitlements.active[entitlementId]) {
+      navigate(`/success/${purchases.getAppUserId()}`);
+    } else {
+      setLoading(false);
+    }
+  }, [customerInfo, purchases, entitlementId, navigate]);
 
-        if (isEntitledTo) {
-          if (onEntitled) onEntitled();
-        } else {
-          if (onNotEntitled) onNotEntitled();
-        }
-      });
-    })();
-  }, [entitlementId, doCheckEntitlement, onEntitled, onNotEntitled]);
-
-  if (isEntitled) {
-    return null;
-  }
-
-  return <>{children}</>;
+  return customerInfo && !isLoading ? <>{children}</> : null;
 };
 
 export default WithoutEntitlement;

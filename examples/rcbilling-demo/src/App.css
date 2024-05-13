@@ -264,6 +264,43 @@ button.button:focus-visible {
   max-width: calc(100% - 32px);
 }
 
+.success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 224px;
+  margin-left: 32px;
+  margin-bottom: 32px;
+}
+
+.success h1 {
+  margin-top: 48px;
+  margin-bottom: 32px;
+  font-size: 68px;
+  line-height: 74px;
+  text-align: center;
+}
+
+.success h2 {
+  font-size: 24px;
+  line-height: 31px;
+  margin-bottom: 56px;
+  text-align: center;
+}
+
+.storeButtons {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.storeButtons svg {
+  width: 270px;
+  height: 80px;
+}
+
 /* input {
   height: 2.25em;
 }
@@ -333,6 +370,28 @@ button.button:focus-visible {
 
   .notice {
     text-align: center;
+  }
+
+  .success {
+    margin: 32px;
+    margin-top: 96px;
+  }
+
+  .success h1 {
+    font-size: 40px;
+    line-height: 48px;
+    margin-top: 32px;
+  }
+
+  .success h2 {
+    font-size: 20px;
+    line-height: 24px;
+    margin-bottom: 32px;
+  }
+
+  .storeButtons svg {
+    width: 216px;
+    height: 64px;
   }
 }
 

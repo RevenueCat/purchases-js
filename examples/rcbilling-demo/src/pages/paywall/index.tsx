@@ -1,12 +1,6 @@
-import {
-  Offering,
-  Offerings,
-  Package,
-  Purchases,
-  PurchasesError,
-} from "@revenuecat/purchases-js";
-import React, { useEffect, useState } from "react";
-import { useLoaderData, useNavigate } from "react-router-dom";
+import { Offering, Package, PurchasesError } from "@revenuecat/purchases-js";
+import React from "react";
+import { useNavigate } from "react-router-dom";
 import { usePurchasesLoaderData } from "../../util/RouterLoader";
 import Button from "../../components/Button";
 
