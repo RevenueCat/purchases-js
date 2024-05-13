@@ -11,6 +11,8 @@ import NoDogServices from "./pages/noDogServices";
 import { SuccessPage } from "./pages/success";
 import DogServices from "./pages/dogServices";
 import WithoutEntitlement from "./components/WithoutEntitlement";
+import { useState } from "react";
+import LandingPage from "./pages/landingPage";
 
 const apiKey = import.meta.env.VITE_RC_API_KEY as string;
 const initialUserId =
@@ -42,76 +44,82 @@ const onAlreadyEntitled = () => {
 };
 
 function App() {
-  const appUserId = purchases.getAppUserId();
-  purchases.getCustomerInfo().then((customerInfo: CustomerInfo) => {
-    console.log(
-      `CustomerInfo for user ${appUserId}: ${JSON.stringify(
-        customerInfo,
-        null,
-        2,
-      )}`,
-    );
-  });
+  const [appUserId, setAppUserId] = useState<string | null>(null);
+  const purchases: Purchases | null =
+    appUserId !== null ? Purchases.configure(apiKey, appUserId) : null;
+
+  // const appUserId = purchases.getAppUserId();
+  // purchases.getCustomerInfo().then((customerInfo: CustomerInfo) => {
+  //   console.log(
+  //     `CustomerInfo for user ${appUserId}: ${JSON.stringify(
+  //       customerInfo,
+  //       null,
+  //       2,
+  //     )}`,
+  //   );
+  // });
 
   return (
     <>
-      <h1>Cats Entermeow Services</h1>
-      <div className="main">
-        <BrowserRouter>
-          <Routes>
-            <Route
-              path={"/paywall"}
-              element={
-                <WithoutEntitlement
-                  purchases={purchases}
-                  entitlementId={catServicesEntitlementId}
-                  onEntitled={onAlreadyEntitled}
-                >
-                  <PaywallPage purchases={purchases} />
-                </WithoutEntitlement>
-              }
-            />
-            <Route
-              path={"/success"}
-              element={
-                <SuccessPage
-                  purchases={purchases}
-                  entitlementId={catServicesEntitlementId}
-                />
-              }
-            />
-            <Route
-              path="/dogServices"
-              element={
-                <WithEntitlement
-                  purchases={purchases}
-                  entitlementId={dogServicesEntitlementId}
-                  onNotEntitled={onNotEntitledToDogServices}
-                >
-                  <DogServices />
-                </WithEntitlement>
-              }
-            />
-            <Route path="/noDogServicesHere" element={<NoDogServices />} />
-            <Route
-              path="/*"
-              element={
-                <WithEntitlement
-                  purchases={purchases}
-                  entitlementId={catServicesEntitlementId}
-                  onNotEntitled={onNotEntitledToCatServices}
-                >
-                  <CatServices />
-                </WithEntitlement>
-              }
-            />
-          </Routes>
-        </BrowserRouter>
-      </div>
-      <AppUserIdForm
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          {purchases && (
+            <>
+              <Route
+                path={"/paywall"}
+                element={
+                  <WithoutEntitlement
+                    purchases={purchases}
+                    entitlementId={catServicesEntitlementId}
+                    onEntitled={onAlreadyEntitled}
+                  >
+                    <PaywallPage purchases={purchases} />
+                  </WithoutEntitlement>
+                }
+              />
+              <Route
+                path={"/success"}
+                element={
+                  <SuccessPage
+                    purchases={purchases}
+                    entitlementId={catServicesEntitlementId}
+                  />
+                }
+              />
+              <Route
+                path="/dogServices"
+                element={
+                  <WithEntitlement
+                    purchases={purchases}
+                    entitlementId={dogServicesEntitlementId}
+                    onNotEntitled={onNotEntitledToDogServices}
+                  >
+                    <DogServices />
+                  </WithEntitlement>
+                }
+              />
+              <Route path="/noDogServicesHere" element={<NoDogServices />} />
+              <Route
+                path="/*"
+                element={
+                  <WithEntitlement
+                    purchases={purchases}
+                    entitlementId={catServicesEntitlementId}
+                    onNotEntitled={onNotEntitledToCatServices}
+                  >
+                    <CatServices />
+                  </WithEntitlement>
+                }
+              />
+            </>
+          )}
+        </Routes>
+      </BrowserRouter>
+      {/* <AppUserIdForm
         currentAppUserId={appUserId}
         onAppUserIdChange={onAppUserIdChange}
-      />
+      /> */}
     </>
   );
 }
