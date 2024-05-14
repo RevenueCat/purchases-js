@@ -1,45 +1,26 @@
-import { Purchases } from "@revenuecat/purchases-js";
-
 import React from "react";
-import success from "./success.png";
+import AppStoreButton from "../../components/AppStoreButton";
+import PlayStoreButton from "../../components/PlayStoreButton";
+import AppLogo from "../../components/AppLogo";
+import LogoutButton from "../../components/LogoutButton";
 
-interface ISuccessPageProps {
-  purchases: Purchases;
-  entitlementId: string;
-}
-
-export const SuccessPage: React.FC<ISuccessPageProps> = () => {
-  const onNextClicked = () => {
-    window.location.replace("/");
-  };
-
+const SuccessPage: React.FC = () => {
   return (
-    <section>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <h2>Success!</h2>
-        <div
-          className={"card"}
-          style={{
-            padding: "0px",
-            margin: "0px",
-            maxHeight: "300px",
-            maxWidth: "300px",
-          }}
-        >
-          <img src={success} style={{ width: "300px" }} alt={"Success"} />
+    <>
+      <LogoutButton />
+      <div className="success">
+        <AppLogo />
+        <h1>Enjoy your premium experience.</h1>
+        <h2>
+          Now log in to the app to start using your new premium subscription.
+        </h2>
+        <div className="storeButtons">
+          <AppStoreButton />
+          <PlayStoreButton />
         </div>
-        <h3>Thank you for subscribing.</h3>
-        <button className="button" onClick={() => onNextClicked()}>
-          Start enjoying your subscription
-        </button>
       </div>
-    </section>
+    </>
   );
 };
+
+export default SuccessPage;

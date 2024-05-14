@@ -1,119 +1,54 @@
+import {
+  RouterProvider,
+  createBrowserRouter,
+  redirect,
+} from "react-router-dom";
 import "./App.css";
-
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import PaywallPage from "./pages/paywall";
-
-import { CustomerInfo, LogLevel, Purchases } from "@revenuecat/purchases-js";
-import AppUserIdForm from "./components/AppUserIdForm";
 import WithEntitlement from "./components/WithEntitlement";
-import CatServices from "./pages/catServices";
-import NoDogServices from "./pages/noDogServices";
-import { SuccessPage } from "./pages/success";
-import DogServices from "./pages/dogServices";
 import WithoutEntitlement from "./components/WithoutEntitlement";
+import LoginPage from "./pages/login";
+import LandingPage from "./pages/landingPage";
+import PaywallPage from "./pages/paywall";
+import SuccessPage from "./pages/success";
+import { loadPurchases } from "./util/PurchasesLoader";
 
-const apiKey = import.meta.env.VITE_RC_API_KEY as string;
-const initialUserId =
-  localStorage.getItem("appUserId") || `demo_initial_user_id_${Date.now()}`;
-Purchases.setLogLevel(LogLevel.Verbose);
-const purchases = Purchases.configure(apiKey, initialUserId);
 export const catServicesEntitlementId = "catServices";
-export const dogServicesEntitlementId = "dogServices";
 
-const onNotEntitledToCatServices = () => {
-  console.log("The user is not entitled to catServices");
-  window.location.href = "/paywall";
-};
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <LandingPage />,
+  },
+  {
+    path: "/login",
+    element: <LoginPage />,
+  },
+  {
+    path: "/logout",
+    loader: () => {
+      throw redirect("/");
+    },
+  },
+  {
+    path: "/paywall/:app_user_id",
+    loader: loadPurchases,
+    element: (
+      <WithoutEntitlement entitlementId={catServicesEntitlementId}>
+        <PaywallPage />
+      </WithoutEntitlement>
+    ),
+  },
+  {
+    path: "/success/:app_user_id",
+    loader: loadPurchases,
+    element: (
+      <WithEntitlement entitlementId={catServicesEntitlementId}>
+        <SuccessPage />
+      </WithEntitlement>
+    ),
+  },
+]);
 
-const onNotEntitledToDogServices = () => {
-  console.log("The user is not entitled to dogServices");
-  window.location.href = "/noDogServicesHere";
-};
-
-const onAppUserIdChange = (newValue: string) => {
-  console.log(`Changing appUserId to ${newValue}`);
-  localStorage.setItem("appUserId", newValue);
-  window.location.href = "/";
-};
-
-const onAlreadyEntitled = () => {
-  console.log("The user is already entitled");
-  window.location.href = "/";
-};
-
-function App() {
-  const appUserId = purchases.getAppUserId();
-  purchases.getCustomerInfo().then((customerInfo: CustomerInfo) => {
-    console.log(
-      `CustomerInfo for user ${appUserId}: ${JSON.stringify(
-        customerInfo,
-        null,
-        2,
-      )}`,
-    );
-  });
-
-  return (
-    <>
-      <h1>Cats Entermeow Services</h1>
-      <div className="main">
-        <BrowserRouter>
-          <Routes>
-            <Route
-              path={"/paywall"}
-              element={
-                <WithoutEntitlement
-                  purchases={purchases}
-                  entitlementId={catServicesEntitlementId}
-                  onEntitled={onAlreadyEntitled}
-                >
-                  <PaywallPage purchases={purchases} />
-                </WithoutEntitlement>
-              }
-            />
-            <Route
-              path={"/success"}
-              element={
-                <SuccessPage
-                  purchases={purchases}
-                  entitlementId={catServicesEntitlementId}
-                />
-              }
-            />
-            <Route
-              path="/dogServices"
-              element={
-                <WithEntitlement
-                  purchases={purchases}
-                  entitlementId={dogServicesEntitlementId}
-                  onNotEntitled={onNotEntitledToDogServices}
-                >
-                  <DogServices />
-                </WithEntitlement>
-              }
-            />
-            <Route path="/noDogServicesHere" element={<NoDogServices />} />
-            <Route
-              path="/*"
-              element={
-                <WithEntitlement
-                  purchases={purchases}
-                  entitlementId={catServicesEntitlementId}
-                  onNotEntitled={onNotEntitledToCatServices}
-                >
-                  <CatServices />
-                </WithEntitlement>
-              }
-            />
-          </Routes>
-        </BrowserRouter>
-      </div>
-      <AppUserIdForm
-        currentAppUserId={appUserId}
-        onAppUserIdChange={onAppUserIdChange}
-      />
-    </>
-  );
-}
+const App = () => <RouterProvider router={router} />;
 
 export default App;

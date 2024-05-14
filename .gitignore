@@ -149,3 +149,5 @@ purchases-js-docs/
 yarn.lock
 
 .vscode
+
+.DS_Store

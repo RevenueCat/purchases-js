@@ -5,7 +5,8 @@ const _LOCAL_URL = "http://localhost:3001/";
 const _CARD_CLASS = ".card";
 
 test("Get offerings displays packages", async () => {
-  const { browser, page } = await setupTest();
+  const userId = `rc_billing_demo_test_${Date.now()}`;
+  const { browser, page } = await setupTest(userId);
   const packageCards = await getPackageCards(page);
   expect(packageCards.length).toEqual(3);
   await expectElementContainsText(packageCards[0], "$3.00");
@@ -17,13 +18,14 @@ test("Get offerings displays packages", async () => {
 test(
   "Can purchase a product",
   async () => {
-    const { browser, page } = await setupTest();
     const userId = `rc_billing_demo_test_${Date.now()}`;
-    await changeUserId(page, userId);
+    const { browser, page } = await setupTest(userId);
 
     // Perform purchase
     const weeklyPackageCard = (await getPackageCards(page))[1];
-    await weeklyPackageCard.click();
+    const button = await weeklyPackageCard.$("button");
+    expect(button).not.toBeNull();
+    await button?.click();
     await waitMilliseconds(2000);
     await enterEmailAndContinue(page, userId);
     await waitMilliseconds(8000);
@@ -37,26 +39,20 @@ test(
   { timeout: 40000, retry: 2 },
 );
 
-async function setupTest(): Promise<{ browser: Browser; page: Page }> {
+async function setupTest(
+  userId: string,
+): Promise<{ browser: Browser; page: Page }> {
   const browser = await puppeteer.launch({
     headless: "new",
   });
   const page = await browser.newPage();
-  await navigateToUrl(page);
+  await navigateToUrl(page, userId);
   await page.waitForSelector(_CARD_CLASS, { timeout: 5000 });
   return { browser, page };
 }
 
 async function getPackageCards(page: Page): Promise<ElementHandle[]> {
   return await page.$$(_CARD_CLASS);
-}
-
-async function changeUserId(page: Page, userId: string): Promise<void> {
-  await page.evaluate((userId) => {
-    localStorage.setItem("appUserId", userId);
-  }, userId);
-  await navigateToUrl(page);
-  await waitMilliseconds(3000);
 }
 
 async function enterEmailAndContinue(
@@ -116,11 +112,11 @@ async function expectElementContainsText(element: ElementHandle, text: string) {
   expect(await element.$(`::-p-text(${text})`)).not.toBeNull();
 }
 
-async function navigateToUrl(page: Page): Promise<void> {
-  const url =
+async function navigateToUrl(page: Page, userId: string): Promise<void> {
+  const baseUrl =
     (import.meta.env.VITE_RC_BILLING_DEMO_URL as string | undefined) ??
     _LOCAL_URL;
-  await page.goto(url);
+  await page.goto(`${baseUrl}paywall/${encodeURIComponent(userId)}`);
 }
 
 async function typeTextInPageSelector(
