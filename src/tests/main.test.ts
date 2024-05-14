@@ -56,13 +56,13 @@ describe("Purchases.configure()", () => {
     expect(purchases).toBeDefined();
   });
 
-  test("configure multiple times returns same instance", () => {
+  test("configure multiple times returns different instances", () => {
     const purchases = Purchases.configure(testApiKey, testUserId);
     const purchases2 = Purchases.configure(
       "rcb_another_api_key",
       "another_user_id",
     );
-    expect(purchases).toEqual(purchases2);
+    expect(purchases).not.toEqual(purchases2);
   });
 });
 

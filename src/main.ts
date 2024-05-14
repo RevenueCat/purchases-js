@@ -119,9 +119,9 @@ export class Purchases {
   static configure(apiKey: string, appUserId: string): Purchases {
     if (Purchases.instance !== undefined) {
       Logger.warnLog(
-        "Purchases is already initialized. Ignoring and returning existing instance.",
+        "Purchases is already initialized. You normally should only configure Purchases once. " +
+          "Creating and returning new instance.",
       );
-      return Purchases.getSharedInstance();
     }
     validateApiKey(apiKey);
     validateAppUserId(appUserId);
