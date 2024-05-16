@@ -19,10 +19,7 @@ export interface SubscriptionPurchaseOption extends PurchaseOption {
 }
 
 export interface ProductResponse {
-  current_price: {
-    amount: number;
-    currency: string;
-  };
+  current_price: Price;
   identifier: string;
   normal_period_duration: string;
   product_type: string;
