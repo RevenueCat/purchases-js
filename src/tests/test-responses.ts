@@ -9,6 +9,19 @@ const monthlyProductResponse = {
   normal_period_duration: "PT1H",
   product_type: "subscription",
   title: "Monthly test",
+  default_subscription_purchase_option_id: "base_option",
+  subscription_purchase_options: {
+    base_option: {
+      base_price: {
+        period_duration: null,
+        cycle_count: 1,
+        price: {
+          amount: 300,
+          currency: "USD",
+        },
+      },
+    },
+  },
 };
 
 const monthly2ProductResponse = {
@@ -20,6 +33,24 @@ const monthly2ProductResponse = {
   normal_period_duration: "PT1H",
   product_type: "subscription",
   title: "Monthly test 2",
+  default_subscription_purchase_option_id: "offer_12345",
+  subscription_purchase_options: {
+    offer_12345: {
+      base_price: {
+        period_duration: null,
+        cycle_count: 1,
+        price: {
+          amount: 500,
+          currency: "USD",
+        },
+      },
+      trial: {
+        period_duration: "P1W",
+        cycle_count: 1,
+        price: null,
+      },
+    },
+  },
 };
 
 export const productsResponse = {
