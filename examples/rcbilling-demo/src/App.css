@@ -35,6 +35,7 @@ a {
   color: #646cff;
   text-decoration: inherit;
 }
+
 a:hover {
   color: #535bf2;
 }
@@ -60,9 +61,11 @@ button.button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
+
 button.button:hover {
   border-color: #00000080;
 }
+
 button.button:focus,
 button.button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
@@ -220,6 +223,11 @@ button.button:focus-visible {
 
 .packageCTA {
   margin-top: 34px;
+}
+
+.freeTrial {
+  background: var(--color-purple);
+  color: white;
 }
 
 .paywall .notice {
