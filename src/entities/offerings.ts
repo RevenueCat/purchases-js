@@ -2,7 +2,11 @@ import {
   type OfferingResponse,
   type PackageResponse,
 } from "../networking/responses/offerings-response";
-import { type ProductResponse } from "../networking/responses/products-response";
+import {
+  type ProductResponse,
+  type SubscriptionPurchaseOption as SubscriptionPurchaseOptionResponse,
+  type PurchaseOptionPrice as PurchaseOptionPriceResponse,
+} from "../networking/responses/products-response";
 import { notEmpty } from "../helpers/type-helper";
 import { formatPrice } from "../helpers/price-labels";
 
@@ -71,6 +75,21 @@ export interface Price {
   readonly formattedPrice: string;
 }
 
+export interface PurchaseOptionPrice {
+  readonly periodDuration: string | null;
+  readonly price: Price | null;
+  readonly cycleCount: number;
+}
+
+export interface PurchaseOption {
+  readonly id: string;
+}
+
+export interface SubscriptionPurchaseOption extends PurchaseOption {
+  readonly basePrice: PurchaseOptionPrice;
+  readonly trial: PurchaseOptionPrice | null;
+}
+
 /**
  * Represents product's listing details.
  * @public
@@ -96,6 +115,12 @@ export interface Product {
    * The offering ID used to obtain this product.
    */
   readonly presentedOfferingIdentifier: string;
+
+  readonly defaultSubscriptionPurchaseOptionId: string | null;
+
+  readonly subscriptionPurchaseOptions: {
+    [optionId: string]: SubscriptionPurchaseOption;
+  };
 }
 
 /**
@@ -198,16 +223,46 @@ const toPrice = (priceData: { amount: number; currency: string }): Price => {
   };
 };
 
+const toPurchaseOptionPrice = (
+  optionPrice: PurchaseOptionPriceResponse,
+): PurchaseOptionPrice => {
+  return {
+    periodDuration: optionPrice.period_duration,
+    cycleCount: optionPrice.cycle_count,
+    price: optionPrice.price ? toPrice(optionPrice.price) : null,
+  } as PurchaseOptionPrice;
+};
+
+const toSubscriptionPurchaseOption = (
+  option: SubscriptionPurchaseOptionResponse,
+): SubscriptionPurchaseOption => {
+  return {
+    basePrice: toPurchaseOptionPrice(option.base_price),
+    trial: option.trial ? toPurchaseOptionPrice(option.trial) : null,
+  } as SubscriptionPurchaseOption;
+};
+
 const toProduct = (
   productDetailsData: ProductResponse,
   presentedOfferingIdentifier: string,
 ): Product => {
+  const options: { [optionId: string]: SubscriptionPurchaseOption } = {};
+
+  Object.entries(productDetailsData.subscription_purchase_options).forEach(
+    ([key, value]) => {
+      options[key] = toSubscriptionPurchaseOption(value);
+    },
+  );
+
   return {
     identifier: productDetailsData.identifier,
     displayName: productDetailsData.title,
     currentPrice: toPrice(productDetailsData.current_price),
     normalPeriodDuration: productDetailsData.normal_period_duration,
     presentedOfferingIdentifier: presentedOfferingIdentifier,
+    defaultSubscriptionPurchaseOptionId:
+      productDetailsData.default_subscription_purchase_option_id,
+    subscriptionPurchaseOptions: options,
   };
 };
 

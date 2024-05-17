@@ -135,8 +135,24 @@ describe("getOfferings", () => {
       identifier: "monthly",
       normalPeriodDuration: "PT1H",
       presentedOfferingIdentifier: "offering_1",
+      defaultSubscriptionPurchaseOptionId: "base_option",
+      subscriptionPurchaseOptions: {
+        base_option: {
+          basePrice: {
+            cycleCount: 1,
+            periodDuration: null,
+            price: {
+              amount: 300,
+              currency: "USD",
+              formattedPrice: "$3.00",
+            },
+          },
+          trial: null,
+        },
+      },
     },
-  };
+  } as Package;
+
   test("can get offerings", async () => {
     const purchases = configurePurchases();
     const offerings = await purchases.getOfferings();
@@ -171,6 +187,25 @@ describe("getOfferings", () => {
         identifier: "monthly_2",
         normalPeriodDuration: "PT1H",
         presentedOfferingIdentifier: "offering_2",
+        defaultSubscriptionPurchaseOptionId: "offer_12345",
+        subscriptionPurchaseOptions: {
+          offer_12345: {
+            basePrice: {
+              cycleCount: 1,
+              periodDuration: null,
+              price: {
+                amount: 500,
+                currency: "USD",
+                formattedPrice: "$5.00",
+              },
+            },
+            trial: {
+              cycleCount: 1,
+              periodDuration: "P1W",
+              price: null,
+            },
+          },
+        },
       },
     };
 
@@ -214,6 +249,25 @@ describe("getOfferings", () => {
         identifier: "monthly_2",
         normalPeriodDuration: "PT1H",
         presentedOfferingIdentifier: "offering_2",
+        defaultSubscriptionPurchaseOptionId: "offer_12345",
+        subscriptionPurchaseOptions: {
+          offer_12345: {
+            basePrice: {
+              cycleCount: 1,
+              periodDuration: null,
+              price: {
+                amount: 500,
+                currency: "USD",
+                formattedPrice: "$5.00",
+              },
+            },
+            trial: {
+              cycleCount: 1,
+              periodDuration: "P1W",
+              price: null,
+            },
+          },
+        },
       },
     };
     const expectedOfferings: Offerings = {

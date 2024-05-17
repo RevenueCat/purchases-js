@@ -29,6 +29,7 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
   const originalPriceByProduct: Record<string, string> | null =
     (offering.metadata?.original_price_by_product as Record<string, string>) ??
     null;
+
   return (
     <div className="card">
       {pkg.rcBillingProduct !== null && pkg.rcBillingProduct.currentPrice && (
