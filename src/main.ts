@@ -229,11 +229,13 @@ export class Purchases {
    * @param rcPackage - The package you want to purchase. Obtained from {@link Purchases.getOfferings}.
    * @param customerEmail - The email of the user. If null, RevenueCat will ask the customer for their email.
    * @param htmlTarget - The HTML element where the billing view should be added. If null, a new div will be created at the root of the page and appended to the body.
+   @param purchaseOptionId - The ID for a specific purchase option. Used to purchase trials and other offers. Obtained from {@link Purchases.getOfferings}.
    * @returns The customer info after the purchase is completed successfuly.
    * @throws {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.
    */
   public purchasePackage(
     rcPackage: Package,
+    purchaseOptionId: string, // WARNING: This is a breaking change
     customerEmail?: string,
     htmlTarget?: HTMLElement,
   ): Promise<{ customerInfo: CustomerInfo }> {
@@ -268,6 +270,7 @@ export class Purchases {
         props: {
           appUserId,
           rcPackage,
+          purchaseOptionId,
           customerEmail,
           onFinished: async () => {
             Logger.debugLog("Purchase finished");

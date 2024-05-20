@@ -55,6 +55,7 @@ export class Backend {
   async postSubscribe(
     appUserId: string,
     productId: string,
+    purchaseOptionId: string,
     email: string,
     offeringIdentifier: string,
   ): Promise<SubscribeResponse> {
@@ -63,7 +64,11 @@ export class Backend {
       product_id: string;
       email: string;
       presented_offering_identifier: string;
+      offer_id: string | undefined;
     };
+
+    const offer_id =
+      purchaseOptionId !== "base_offer" ? purchaseOptionId : undefined;
 
     return await performRequest<SubscribeRequestBody, SubscribeResponse>(
       new SubscribeEndpoint(),
@@ -73,6 +78,7 @@ export class Backend {
         product_id: productId,
         email: email,
         presented_offering_identifier: offeringIdentifier,
+        offer_id: offer_id,
       },
     );
   }

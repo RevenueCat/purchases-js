@@ -1,4 +1,4 @@
-import { parseISODuration, PeriodUnit } from "./duration-helper";
+import { parseISODuration, type Period, PeriodUnit } from "./duration-helper";
 
 export const priceLabels: Record<string, string> = {
   P3M: "quarterly",
@@ -20,12 +20,7 @@ export const formatPrice = (priceInCents: number, currency: string): string => {
   return formatter.format(price);
 };
 
-export const getRenewsLabel = (duration: string): string => {
-  const period = parseISODuration(duration);
-  if (!period) {
-    return "unknown";
-  }
-
+const getFrequencyLabel = (period: Period): string => {
   const numberPeriods = period.number;
   if (numberPeriods === 1) {
     switch (period.unit) {
@@ -41,4 +36,40 @@ export const getRenewsLabel = (duration: string): string => {
   } else {
     return `every ${numberPeriods} ${period.unit}s`;
   }
+};
+
+const getLengthLabel = (period: Period): string => {
+  const numberPeriods = period.number;
+  if (numberPeriods === 1) {
+    switch (period.unit) {
+      case PeriodUnit.Year:
+        return "1 year";
+      case PeriodUnit.Month:
+        return "1 month";
+      case PeriodUnit.Week:
+        return "1 week";
+      case PeriodUnit.Day:
+        return "1 day";
+    }
+  } else {
+    return `${numberPeriods} ${period.unit}s`;
+  }
+};
+
+export const getRenewsLabel = (duration: string): string => {
+  const period = parseISODuration(duration);
+  if (!period) {
+    return "unknown";
+  }
+
+  return getFrequencyLabel(period);
+};
+
+export const getTrialsLabel = (duration: string): string => {
+  const period = parseISODuration(duration);
+  if (!period) {
+    return "unknown";
+  }
+
+  return getLengthLabel(period);
 };

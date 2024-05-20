@@ -41,12 +41,14 @@ export class PurchaseOperationHelper {
   async startPurchase(
     appUserId: string,
     productId: string,
+    purchaseOptionId: string,
     email: string,
     offeringIdentifier: string,
   ): Promise<SubscribeResponse> {
     const subscribeResponse = await this.backend.postSubscribe(
       appUserId,
       productId,
+      purchaseOptionId,
       email,
       offeringIdentifier,
     );

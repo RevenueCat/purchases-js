@@ -116,7 +116,7 @@ const PaywallPage: React.FC = () => {
 
     // How do we complete the purchase?
     try {
-      const { customerInfo } = await purchases.purchasePackage(pkg);
+      const { customerInfo } = await purchases.purchasePackage(pkg, offerId);
 
       console.log(`CustomerInfo after purchase: ${customerInfo}`);
 
