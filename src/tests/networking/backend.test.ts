@@ -280,6 +280,7 @@ describe("subscribe request", () => {
       await backend.postSubscribe(
         "someAppUserId",
         "monthly",
+        undefined,
         "testemail@revenuecat.com",
         "offering_1",
       ),
@@ -294,6 +295,7 @@ describe("subscribe request", () => {
       backend.postSubscribe(
         "someAppUserId",
         "monthly",
+        undefined,
         "testemail@revenuecat.com",
         "offering_1",
       ),
@@ -318,6 +320,7 @@ describe("subscribe request", () => {
       backend.postSubscribe(
         "someAppUserId",
         "monthly",
+        undefined,
         "testemail@revenuecat.com",
         "offering_1",
       ),
@@ -335,6 +338,7 @@ describe("subscribe request", () => {
       backend.postSubscribe(
         "someAppUserId",
         "monthly",
+        undefined,
         "testemail@revenuecat.com",
         "offering_1",
       ),

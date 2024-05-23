@@ -41,7 +41,7 @@ export class PurchaseOperationHelper {
   async startPurchase(
     appUserId: string,
     productId: string,
-    purchaseOptionId: string,
+    purchaseOptionId: string | undefined,
     email: string,
     offeringIdentifier: string,
   ): Promise<SubscribeResponse> {

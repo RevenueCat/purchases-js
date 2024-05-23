@@ -138,6 +138,7 @@ describe("getOfferings", () => {
       defaultSubscriptionPurchaseOptionId: "base_option",
       subscriptionPurchaseOptions: {
         base_option: {
+          id: "base_option",
           basePrice: {
             cycleCount: 1,
             periodDuration: null,
@@ -190,6 +191,7 @@ describe("getOfferings", () => {
         defaultSubscriptionPurchaseOptionId: "offer_12345",
         subscriptionPurchaseOptions: {
           offer_12345: {
+            id: "offer_12345",
             basePrice: {
               cycleCount: 1,
               periodDuration: null,
@@ -252,6 +254,7 @@ describe("getOfferings", () => {
         defaultSubscriptionPurchaseOptionId: "offer_12345",
         subscriptionPurchaseOptions: {
           offer_12345: {
+            id: "offer_12345",
             basePrice: {
               cycleCount: 1,
               periodDuration: null,
@@ -306,7 +309,7 @@ describe("getOfferings", () => {
         },
       },
       current: null,
-    };
+    } as Offerings;
 
     expect(offerings).toEqual(expectedOfferings);
   });
