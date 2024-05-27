@@ -176,10 +176,32 @@ export interface Price {
 // @public
 export interface Product {
     readonly currentPrice: Price;
+    // (undocumented)
+    readonly defaultSubscriptionPurchaseOptionId: string | null;
     readonly displayName: string;
     readonly identifier: string;
     readonly normalPeriodDuration: string | null;
     readonly presentedOfferingIdentifier: string;
+    // (undocumented)
+    readonly subscriptionPurchaseOptions: {
+        [optionId: string]: SubscriptionPurchaseOption;
+    };
+}
+
+// @public (undocumented)
+interface PurchaseOption {
+    // (undocumented)
+    readonly id: string;
+}
+
+// @public (undocumented)
+interface PurchaseOptionPrice {
+    // (undocumented)
+    readonly cycleCount: number;
+    // (undocumented)
+    readonly periodDuration: string | null;
+    // (undocumented)
+    readonly price: Price | null;
 }
 
 // @public
@@ -195,7 +217,8 @@ export class Purchases {
     isEntitledTo(entitlementIdentifier: string): Promise<boolean>;
     // (undocumented)
     isSandbox(): boolean;
-    purchasePackage(rcPackage: Package, customerEmail?: string, htmlTarget?: HTMLElement): Promise<{
+    purchasePackage(rcPackage: Package, purchaseOptionId: string, // WARNING: This is a breaking change
+    customerEmail?: string, htmlTarget?: HTMLElement): Promise<{
         customerInfo: CustomerInfo;
     }>;
     static setLogLevel(logLevel: LogLevel): void;
@@ -216,10 +239,26 @@ export class PurchasesError extends Error {
 // @public
 export type Store = "app_store" | "mac_app_store" | "play_store" | "amazon" | "stripe" | "rc_billing" | "promotional" | "unknown";
 
+// Warning: (ae-forgotten-export) The symbol "PurchaseOption" needs to be exported by the entry point Purchases.es.d.ts
+//
+// @public (undocumented)
+interface SubscriptionPurchaseOption extends PurchaseOption {
+    // Warning: (ae-forgotten-export) The symbol "PurchaseOptionPrice" needs to be exported by the entry point Purchases.es.d.ts
+    //
+    // (undocumented)
+    readonly basePrice: PurchaseOptionPrice;
+    // (undocumented)
+    readonly trial: PurchaseOptionPrice | null;
+}
+
 // @public
 export class UninitializedPurchasesError extends Error {
     constructor();
 }
+
+// Warnings were encountered during analysis:
+//
+// dist/Purchases.es.d.ts:402:9 - (ae-forgotten-export) The symbol "SubscriptionPurchaseOption" needs to be exported by the entry point Purchases.es.d.ts
 
 // (No @packageDocumentation comment for this package)
 

@@ -75,18 +75,55 @@ export interface Price {
   readonly formattedPrice: string;
 }
 
+/**
+ * Represents the price and duration information for a phase of the purchase option.
+ * @public
+ */
 export interface PurchaseOptionPrice {
+  /**
+   * The duration of the purchase option price.
+   * For applicable options (trials, initial/promotional prices), otherwise null
+   */
   readonly periodDuration: string | null;
+  /**
+   * The price for the purchase option.
+   * Null in case of trials.
+   */
   readonly price: Price | null;
+  /**
+   * The number of cycles this option's price repeats.
+   * I.e. 2 subscription cycles, 0 if not applicable.
+   */
   readonly cycleCount: number;
 }
 
+/**
+ * Represents a possible option to purchase a product.
+ * @public
+ * @abstract
+ */
 export interface PurchaseOption {
+  /**
+   * The unique id for a purchase option
+   */
   readonly id: string;
 }
 
+/**
+ * Represents a possible option to purchase a subscription product.
+ * @public
+ */
 export interface SubscriptionPurchaseOption extends PurchaseOption {
+  /**
+   * The base price for a SubscriptionPurchaseOption, represents
+   * the price that the customer will be charged after all the discounts have
+   * been consumed.
+   */
   readonly basePrice: PurchaseOptionPrice;
+  /**
+   * The trial PurchaseOptionPrice.
+   * If not null, the SubscriptionPurchaseOption has a trial phase.
+   */
   readonly trial: PurchaseOptionPrice | null;
 }
 
@@ -293,7 +330,7 @@ export const toOffering = (
     )
     .filter(notEmpty);
   const packagesById: { [packageId: string]: Package } = {};
-  for (const p of packages) {
+  for (const p: Package | null of packages) {
     if (p != null) {
       packagesById[p.identifier] = p;
     }
