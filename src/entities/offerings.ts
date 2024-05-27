@@ -330,7 +330,7 @@ export const toOffering = (
     )
     .filter(notEmpty);
   const packagesById: { [packageId: string]: Package } = {};
-  for (const p: Package | null of packages) {
+  for (const p of packages) {
     if (p != null) {
       packagesById[p.identifier] = p;
     }
