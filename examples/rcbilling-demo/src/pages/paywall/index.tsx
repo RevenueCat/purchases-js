@@ -59,7 +59,9 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
     <div className="card">
       {trial && (
         <div className="freeTrial">
-          {trialLabels[trial.periodDuration] || trial.periodDuration} free trial
+          {trial.periodDuration &&
+            (trialLabels[trial.periodDuration] || trial.periodDuration)}{" "}
+          free trial
         </div>
       )}
       {price && (
@@ -116,7 +118,9 @@ const PaywallPage: React.FC = () => {
 
     // How do we complete the purchase?
     try {
-      const { customerInfo } = await purchases.purchasePackage(pkg, offerId);
+      const { customerInfo } = offerId
+        ? await purchases.purchasePackage(pkg, offerId)
+        : await purchases.purchasePackage(pkg);
 
       console.log(`CustomerInfo after purchase: ${customerInfo}`);
 
