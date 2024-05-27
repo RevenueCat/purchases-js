@@ -12,6 +12,7 @@ const monthlyProductResponse = {
   default_subscription_purchase_option_id: "base_option",
   subscription_purchase_options: {
     base_option: {
+      id: "base_option",
       base_price: {
         period_duration: null,
         cycle_count: 1,
@@ -20,6 +21,7 @@ const monthlyProductResponse = {
           currency: "USD",
         },
       },
+      trial: null,
     },
   },
 };
@@ -36,6 +38,7 @@ const monthly2ProductResponse = {
   default_subscription_purchase_option_id: "offer_12345",
   subscription_purchase_options: {
     offer_12345: {
+      id: "offer_12345",
       base_price: {
         period_duration: null,
         cycle_count: 1,

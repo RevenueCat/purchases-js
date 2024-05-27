@@ -237,6 +237,7 @@ const toSubscriptionPurchaseOption = (
   option: SubscriptionPurchaseOptionResponse,
 ): SubscriptionPurchaseOption => {
   return {
+    id: option.id,
     basePrice: toPurchaseOptionPrice(option.base_price),
     trial: option.trial ? toPurchaseOptionPrice(option.trial) : null,
   } as SubscriptionPurchaseOption;
