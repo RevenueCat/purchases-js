@@ -1,11 +1,9 @@
 <script lang="ts">
     import ModalSection from "../modal-section.svelte";
     import {formatPrice, getRenewsLabel} from "../../helpers/price-labels";
-    import {SubscriptionPurchaseOption} from "../../entities/offerings";
     import {getTrialsLabel} from "../../helpers/price-labels.js";
-
     export let productDetails: any;
-    export let purchaseOption: SubscriptionPurchaseOption;
+    export let purchaseOption: any;
 
 </script>
 

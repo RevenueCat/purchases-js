@@ -4,8 +4,8 @@ import {
 } from "../networking/responses/offerings-response";
 import {
   type ProductResponse,
-  type SubscriptionPurchaseOption as SubscriptionPurchaseOptionResponse,
-  type PurchaseOptionPrice as PurchaseOptionPriceResponse,
+  type SubscriptionPurchaseOptionResponse,
+  type PurchaseOptionPriceResponse,
 } from "../networking/responses/products-response";
 import { notEmpty } from "../helpers/type-helper";
 import { formatPrice } from "../helpers/price-labels";
@@ -100,7 +100,6 @@ export interface PurchaseOptionPrice {
 /**
  * Represents a possible option to purchase a product.
  * @public
- * @abstract
  */
 export interface PurchaseOption {
   /**
@@ -152,9 +151,19 @@ export interface Product {
    * The offering ID used to obtain this product.
    */
   readonly presentedOfferingIdentifier: string;
-
+  /**
+   * The default option id to be used to subscribe to this product.
+   * Null if no subscription options are available.
+   */
   readonly defaultSubscriptionPurchaseOptionId: string | null;
 
+  /**
+   * A dictionary with all the possible subscription options available for this
+   * product. Each key contains the key to be used when executing a purchase.
+   *
+   * If retrieved through getOfferings the offers are only the ones the customer is
+   * entitled to.
+   */
   readonly subscriptionPurchaseOptions: {
     [optionId: string]: SubscriptionPurchaseOption;
   };
@@ -332,7 +341,7 @@ export const toOffering = (
   const packagesById: { [packageId: string]: Package } = {};
   for (const p of packages) {
     if (p != null) {
-      packagesById[p.identifier] = p;
+      packagesById[p.identifier] = p as Package;
     }
   }
   if (packages.length == 0) return null;
@@ -341,7 +350,7 @@ export const toOffering = (
     serverDescription: offeringsData.description,
     metadata: offeringsData.metadata,
     packagesById: packagesById,
-    availablePackages: packages,
+    availablePackages: packages as Package[],
     lifetime: packagesById[PackageType.Lifetime] ?? null,
     annual: packagesById[PackageType.Annual] ?? null,
     sixMonth: packagesById[PackageType.SixMonth] ?? null,

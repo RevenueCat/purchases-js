@@ -2598,7 +2598,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!Product#defaultSubscriptionPurchaseOptionId:member",
-              "docComment": "",
+              "docComment": "/**\n * The default option id to be used to subscribe to this product. Null if no subscription options are available.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -2733,7 +2733,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!Product#subscriptionPurchaseOptions:member",
-              "docComment": "",
+              "docComment": "/**\n * A dictionary with all the possible subscription options available for this product. Each key contains the key to be used when executing a purchase.\n *\n * If retrieved through getOfferings the offers are only the ones the customer is entitled to.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -2746,7 +2746,7 @@
                 {
                   "kind": "Reference",
                   "text": "SubscriptionPurchaseOption",
-                  "canonicalReference": "@revenuecat/purchases-js!~SubscriptionPurchaseOption:interface"
+                  "canonicalReference": "@revenuecat/purchases-js!SubscriptionPurchaseOption:interface"
                 },
                 {
                   "kind": "Content",
@@ -2772,7 +2772,7 @@
         {
           "kind": "Interface",
           "canonicalReference": "@revenuecat/purchases-js!~PurchaseOption:interface",
-          "docComment": "",
+          "docComment": "/**\n * Represents a possible option to purchase a product.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -2787,7 +2787,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!~PurchaseOption#id:member",
-              "docComment": "",
+              "docComment": "/**\n * The unique id for a purchase option\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -2817,7 +2817,7 @@
         {
           "kind": "Interface",
           "canonicalReference": "@revenuecat/purchases-js!~PurchaseOptionPrice:interface",
-          "docComment": "",
+          "docComment": "/**\n * Represents the price and duration information for a phase of the purchase option.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -2832,7 +2832,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!~PurchaseOptionPrice#cycleCount:member",
-              "docComment": "",
+              "docComment": "/**\n * The number of cycles this option's price repeats. I.e. 2 subscription cycles, 0 if not applicable.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -2859,7 +2859,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!~PurchaseOptionPrice#periodDuration:member",
-              "docComment": "",
+              "docComment": "/**\n * The duration of the purchase option price. For applicable options (trials, initial/promotional prices), otherwise null\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -2886,7 +2886,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!~PurchaseOptionPrice#price:member",
-              "docComment": "",
+              "docComment": "/**\n * The price for the purchase option. Null in case of trials.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -3376,7 +3376,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", purchaseOptionId: "
+                  "text": ", purchaseOptionId?: "
                 },
                 {
                   "kind": "Content",
@@ -3384,7 +3384,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", // WARNING: This is a breaking change\n        customerEmail?: "
+                  "text": ", customerEmail?: "
                 },
                 {
                   "kind": "Content",
@@ -3449,7 +3449,7 @@
                     "startIndex": 3,
                     "endIndex": 4
                   },
-                  "isOptional": false
+                  "isOptional": true
                 },
                 {
                   "parameterName": "customerEmail",
@@ -3740,12 +3740,12 @@
         },
         {
           "kind": "Interface",
-          "canonicalReference": "@revenuecat/purchases-js!~SubscriptionPurchaseOption:interface",
-          "docComment": "",
+          "canonicalReference": "@revenuecat/purchases-js!SubscriptionPurchaseOption:interface",
+          "docComment": "/**\n * Represents a possible option to purchase a subscription product.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "declare interface SubscriptionPurchaseOption extends "
+              "text": "export declare interface SubscriptionPurchaseOption extends "
             },
             {
               "kind": "Reference",
@@ -3764,8 +3764,8 @@
           "members": [
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!~SubscriptionPurchaseOption#basePrice:member",
-              "docComment": "",
+              "canonicalReference": "@revenuecat/purchases-js!SubscriptionPurchaseOption#basePrice:member",
+              "docComment": "/**\n * The base price for a SubscriptionPurchaseOption, represents the price that the customer will be charged after all the discounts have been consumed.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -3792,8 +3792,8 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!~SubscriptionPurchaseOption#trial:member",
-              "docComment": "",
+              "canonicalReference": "@revenuecat/purchases-js!SubscriptionPurchaseOption#trial:member",
+              "docComment": "/**\n * The trial PurchaseOptionPrice. If not null, the SubscriptionPurchaseOption has a trial phase.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
