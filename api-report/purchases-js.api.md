@@ -176,10 +176,26 @@ export interface Price {
 // @public
 export interface Product {
     readonly currentPrice: Price;
+    readonly defaultSubscriptionPurchaseOptionId: string | null;
     readonly displayName: string;
     readonly identifier: string;
     readonly normalPeriodDuration: string | null;
     readonly presentedOfferingIdentifier: string;
+    readonly subscriptionPurchaseOptions: {
+        [optionId: string]: SubscriptionPurchaseOption;
+    };
+}
+
+// @public
+interface PurchaseOption {
+    readonly id: string;
+}
+
+// @public
+interface PurchaseOptionPrice {
+    readonly cycleCount: number;
+    readonly periodDuration: string | null;
+    readonly price: Price | null;
 }
 
 // @public
@@ -195,7 +211,7 @@ export class Purchases {
     isEntitledTo(entitlementIdentifier: string): Promise<boolean>;
     // (undocumented)
     isSandbox(): boolean;
-    purchasePackage(rcPackage: Package, customerEmail?: string, htmlTarget?: HTMLElement): Promise<{
+    purchasePackage(rcPackage: Package, purchaseOptionId?: string, customerEmail?: string, htmlTarget?: HTMLElement): Promise<{
         customerInfo: CustomerInfo;
     }>;
     static setLogLevel(logLevel: LogLevel): void;
@@ -215,6 +231,15 @@ export class PurchasesError extends Error {
 
 // @public
 export type Store = "app_store" | "mac_app_store" | "play_store" | "amazon" | "stripe" | "rc_billing" | "promotional" | "unknown";
+
+// Warning: (ae-forgotten-export) The symbol "PurchaseOption" needs to be exported by the entry point Purchases.es.d.ts
+//
+// @public
+export interface SubscriptionPurchaseOption extends PurchaseOption {
+    // Warning: (ae-forgotten-export) The symbol "PurchaseOptionPrice" needs to be exported by the entry point Purchases.es.d.ts
+    readonly basePrice: PurchaseOptionPrice;
+    readonly trial: PurchaseOptionPrice | null;
+}
 
 // @public
 export class UninitializedPurchasesError extends Error {
