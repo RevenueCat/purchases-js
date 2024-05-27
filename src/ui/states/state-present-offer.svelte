@@ -14,13 +14,14 @@
         <span>{productDetails.displayName}</span>
 
         <span class="rcb-product-price">
-            {purchaseOption.trial ? `${getTrialsLabel(purchaseOption.trial.periodDuration)} free trial` : `${purchaseOption.basePrice.price.currency} ${formatPrice(
+            {purchaseOption.trial?.periodDuration && `${getTrialsLabel(purchaseOption.trial.periodDuration)} free trial`}
+            {!purchaseOption.trial?.periodDuration && purchaseOption.basePrice.price && `${purchaseOption.basePrice.price?.currency || ''} ${formatPrice(
 				purchaseOption.basePrice.price.amount,
 				purchaseOption.basePrice.price.currency,
 			)}`}
         </span>
         <span class="rcb-product-price-after-trial">
-            {purchaseOption.trial && `${purchaseOption.basePrice.price.currency} ${formatPrice(
+            {purchaseOption.trial && purchaseOption.basePrice.price && `${purchaseOption.basePrice.price.currency} ${formatPrice(
 				purchaseOption.basePrice.price.amount,
 				purchaseOption.basePrice.price.currency,
 			)} after end of trial`}
