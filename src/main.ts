@@ -34,6 +34,7 @@ import {
   validateApiKey,
   validateAppUserId,
 } from "./helpers/configuration-validators";
+import { type PurchaseFlowParams } from "./entities/purchase-flow-params";
 
 export type {
   Offering,
@@ -57,6 +58,7 @@ export {
   UninitializedPurchasesError,
 } from "./entities/errors";
 export { LogLevel } from "./entities/log-level";
+export type { PurchaseFlowParams } from "./entities/purchase-flow-params";
 
 /**
  * Entry point for Purchases SDK. It should be instantiated as soon as your
@@ -227,19 +229,40 @@ export class Purchases {
    * package from {@link Purchases.getOfferings}. This method will present the purchase
    * form on your site, using the given HTML element as the mount point, if
    * provided, or as a modal if not.
+   * @deprecated - please use .purchase
    * @param rcPackage - The package you want to purchase. Obtained from {@link Purchases.getOfferings}.
    * @param customerEmail - The email of the user. If null, RevenueCat will ask the customer for their email.
    * @param htmlTarget - The HTML element where the billing view should be added. If null, a new div will be created at the root of the page and appended to the body.
-   * @param purchaseOptionId - The ID for a specific purchase option. Used to purchase trials and other offers. Obtained from {@link Purchases.getOfferings}.
-   * @returns The customer info after the purchase is completed successfuly.
+   * @returns a Promise for the customer info after the purchase is completed successfully.
    * @throws {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.
    */
   public purchasePackage(
     rcPackage: Package,
-    purchaseOptionId: string = "base_option",
     customerEmail?: string,
     htmlTarget?: HTMLElement,
   ): Promise<{ customerInfo: CustomerInfo }> {
+    return this.purchase(rcPackage, {
+      customerEmail,
+      htmlTarget,
+    });
+  }
+
+  /**
+   * Method to perform a purchase for a given package. You can obtain the
+   * package from {@link Purchases.getOfferings}. This method will present the purchase
+   * form on your site, using the given HTML element as the mount point, if
+   * provided, or as a modal if not.
+   * @param rcPackage - The package you want to purchase. Obtained from {@link Purchases.getOfferings}.
+   * @param flowParams - The parameters object to customise the purchase flow. Check {@link PurchaseFlowParams}
+   * @returns a Promise for the customer info after the purchase is completed successfully.
+   * @throws {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.
+   */
+  public purchase(
+    rcPackage: Package,
+    flowParams: PurchaseFlowParams,
+  ): Promise<{ customerInfo: CustomerInfo }> {
+    const { subscriptionPurchaseOptionId, htmlTarget, customerEmail } =
+      flowParams;
     let resolvedHTMLTarget =
       htmlTarget ?? document.getElementById("rcb-ui-root");
 
@@ -271,7 +294,7 @@ export class Purchases {
         props: {
           appUserId,
           rcPackage,
-          purchaseOptionId,
+          subscriptionPurchaseOptionId,
           customerEmail,
           onFinished: async () => {
             Logger.debugLog("Purchase finished");

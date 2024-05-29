@@ -187,6 +187,13 @@ export interface Product {
 }
 
 // @public
+export interface PurchaseFlowParams {
+    customerEmail?: string;
+    htmlTarget?: HTMLElement;
+    subscriptionPurchaseOptionId?: string;
+}
+
+// @public
 interface PurchaseOption {
     readonly id: string;
 }
@@ -211,7 +218,11 @@ export class Purchases {
     isEntitledTo(entitlementIdentifier: string): Promise<boolean>;
     // (undocumented)
     isSandbox(): boolean;
-    purchasePackage(rcPackage: Package, purchaseOptionId?: string, customerEmail?: string, htmlTarget?: HTMLElement): Promise<{
+    purchase(rcPackage: Package, flowParams: PurchaseFlowParams): Promise<{
+        customerInfo: CustomerInfo;
+    }>;
+    // @deprecated
+    purchasePackage(rcPackage: Package, customerEmail?: string, htmlTarget?: HTMLElement): Promise<{
         customerInfo: CustomerInfo;
     }>;
     static setLogLevel(logLevel: LogLevel): void;

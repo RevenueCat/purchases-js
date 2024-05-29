@@ -27,7 +27,7 @@
     export let customerEmail: string | undefined;
     export let appUserId: string;
     export let rcPackage: Package;
-    export let purchaseOptionId: string;
+    export let purchaseOptionId: string | undefined;
     export let onFinished: () => void;
     export let onError: (error: PurchaseFlowError) => void;
     export let onClose: () => void;
@@ -44,7 +44,9 @@
     let paymentInfoCollectionMetadata: SubscribeResponse | null = null;
     let lastError: PurchaseFlowError | null = null;
     const productId = rcPackage?.rcBillingProduct?.identifier ?? null;
-    const purchaseOption = rcPackage?.rcBillingProduct?.subscriptionPurchaseOptions[purchaseOptionId];
+    const defaultPurchaseOption = rcPackage?.rcBillingProduct?.defaultSubscriptionPurchaseOptionId;
+    const purchaseOption = purchaseOptionId ?
+        rcPackage?.rcBillingProduct?.subscriptionPurchaseOptions[purchaseOptionId] : rcPackage?.rcBillingProduct?.subscriptionPurchaseOptions[defaultPurchaseOption];
 
     let state:
         | "present-offer"

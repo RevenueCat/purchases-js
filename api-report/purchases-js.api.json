@@ -2771,6 +2771,106 @@
         },
         {
           "kind": "Interface",
+          "canonicalReference": "@revenuecat/purchases-js!PurchaseFlowParams:interface",
+          "docComment": "/**\n * Parameters used to customise the purchase flow when invoking the `.purchase` method.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare interface PurchaseFlowParams "
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "name": "PurchaseFlowParams",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PurchaseFlowParams#customerEmail:member",
+              "docComment": "/**\n * The email of the user. If null, RevenueCat will ask the customer for their email.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "customerEmail?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "customerEmail",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PurchaseFlowParams#htmlTarget:member",
+              "docComment": "/**\n * The HTML element where the billing view should be added. If null, a new div will be created at the root of the page and appended to the body.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "htmlTarget?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "HTMLElement",
+                  "canonicalReference": "!HTMLElement:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "htmlTarget",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PurchaseFlowParams#subscriptionPurchaseOptionId:member",
+              "docComment": "/**\n * The optionId to be used for this purchase. If not specified the default one will be used.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "subscriptionPurchaseOptionId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "subscriptionPurchaseOptionId",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
+          "kind": "Interface",
           "canonicalReference": "@revenuecat/purchases-js!~PurchaseOption:interface",
           "docComment": "/**\n * Represents a possible option to purchase a product.\n *\n * @public\n */\n",
           "excerptTokens": [
@@ -3362,8 +3462,88 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "@revenuecat/purchases-js!Purchases#purchase:member(1)",
+              "docComment": "/**\n * Method to perform a purchase for a given package. You can obtain the package from {@link Purchases.getOfferings}. This method will present the purchase form on your site, using the given HTML element as the mount point, if provided, or as a modal if not.\n *\n * @param rcPackage - The package you want to purchase. Obtained from {@link Purchases.getOfferings}.\n *\n * @param flowParams - The parameters object to customise the purchase flow. Check {@link PurchaseFlowParams}\n *\n * @returns a Promise for the customer info after the purchase is completed successfully.\n *\n * @throws\n *\n * {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "purchase(rcPackage: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Package",
+                  "canonicalReference": "@revenuecat/purchases-js!Package:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", flowParams: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "PurchaseFlowParams",
+                  "canonicalReference": "@revenuecat/purchases-js!PurchaseFlowParams:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<{\n             customerInfo: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "CustomerInfo",
+                  "canonicalReference": "@revenuecat/purchases-js!CustomerInfo:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n         }>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 5,
+                "endIndex": 9
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "rcPackage",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "flowParams",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "purchase"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "@revenuecat/purchases-js!Purchases#purchasePackage:member(1)",
-              "docComment": "/**\n * Method to perform a purchase for a given package. You can obtain the package from {@link Purchases.getOfferings}. This method will present the purchase form on your site, using the given HTML element as the mount point, if provided, or as a modal if not.\n *\n * @param rcPackage - The package you want to purchase. Obtained from {@link Purchases.getOfferings}.\n *\n * @param customerEmail - The email of the user. If null, RevenueCat will ask the customer for their email.\n *\n * @param htmlTarget - The HTML element where the billing view should be added. If null, a new div will be created at the root of the page and appended to the body.\n *\n * @param purchaseOptionId - The ID for a specific purchase option. Used to purchase trials and other offers. Obtained from {@link Purchases.getOfferings}.\n *\n * @returns The customer info after the purchase is completed successfuly.\n *\n * @throws\n *\n * {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.\n */\n",
+              "docComment": "/**\n * Method to perform a purchase for a given package. You can obtain the package from {@link Purchases.getOfferings}. This method will present the purchase form on your site, using the given HTML element as the mount point, if provided, or as a modal if not.\n *\n * @deprecated\n *\n * - please use .purchase\n *\n * @param rcPackage - The package you want to purchase. Obtained from {@link Purchases.getOfferings}.\n *\n * @param customerEmail - The email of the user. If null, RevenueCat will ask the customer for their email.\n *\n * @param htmlTarget - The HTML element where the billing view should be added. If null, a new div will be created at the root of the page and appended to the body.\n *\n * @returns a Promise for the customer info after the purchase is completed successfully.\n *\n * @throws\n *\n * {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -3373,14 +3553,6 @@
                   "kind": "Reference",
                   "text": "Package",
                   "canonicalReference": "@revenuecat/purchases-js!Package:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", purchaseOptionId?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
                 },
                 {
                   "kind": "Content",
@@ -3428,8 +3600,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 9,
-                "endIndex": 13
+                "startIndex": 7,
+                "endIndex": 11
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -3444,7 +3616,7 @@
                   "isOptional": false
                 },
                 {
-                  "parameterName": "purchaseOptionId",
+                  "parameterName": "customerEmail",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
@@ -3452,18 +3624,10 @@
                   "isOptional": true
                 },
                 {
-                  "parameterName": "customerEmail",
+                  "parameterName": "htmlTarget",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "htmlTarget",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 7,
-                    "endIndex": 8
                   },
                   "isOptional": true
                 }
@@ -3556,7 +3720,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "constructor(\n            errorCode: "
+                  "text": "constructor(\n             errorCode: "
                 },
                 {
                   "kind": "Reference",
@@ -3565,7 +3729,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", \n            message?: "
+                  "text": ", \n             message?: "
                 },
                 {
                   "kind": "Content",
@@ -3573,7 +3737,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", \n            underlyingErrorMessage?: "
+                  "text": ", \n             underlyingErrorMessage?: "
                 },
                 {
                   "kind": "Content",
