@@ -2,28 +2,39 @@
     import ModalSection from "../modal-section.svelte";
     import {formatPrice, getRenewsLabel} from "../../helpers/price-labels";
     import {getTrialsLabel} from "../../helpers/price-labels.js";
+
     export let productDetails: any;
     export let purchaseOption: any;
 
+    const trial = purchaseOption.trial;
+    const basePrice = purchaseOption.basePrice;
 </script>
 
 <ModalSection>
     <div class="rcb-pricing-info">
         <span>{productDetails.displayName}</span>
 
+
         <span class="rcb-product-price">
-            {purchaseOption.trial?.periodDuration && `${getTrialsLabel(purchaseOption.trial.periodDuration)} free trial`}
-            {!purchaseOption.trial?.periodDuration && purchaseOption.basePrice.price && `${purchaseOption.basePrice.price?.currency || ''} ${formatPrice(
-				purchaseOption.basePrice.price.amount,
-				purchaseOption.basePrice.price.currency,
-			)}`}
+            {#if trial?.periodDuration}
+                {getTrialsLabel(trial.periodDuration)} free trial
+            {/if}
+            {#if !trial?.periodDuration && basePrice.price }
+                {basePrice.price?.currency || ''} {formatPrice(
+                    basePrice.price.amount,
+                    basePrice.price.currency,
+                )}
+            {/if}
+
         </span>
-        <span class="rcb-product-price-after-trial">
-            {purchaseOption.trial && purchaseOption.basePrice.price && `${purchaseOption.basePrice.price.currency} ${formatPrice(
-				purchaseOption.basePrice.price.amount,
-				purchaseOption.basePrice.price.currency,
-			)} after end of trial`}
-        </span>
+        {#if (trial && basePrice.price)}
+			<span class="rcb-product-price-after-trial">
+                {trial && basePrice.price && `${basePrice.price.currency} ${formatPrice(
+					basePrice.price.amount,
+					basePrice.price.currency,
+				)} after end of trial`}
+            </span>
+        {/if}
         <ul class="rcb-product-details">
             <li>Billed {getRenewsLabel(productDetails.normalPeriodDuration)}</li>
             <li>Continues until canceled</li>
