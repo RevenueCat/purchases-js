@@ -64,24 +64,24 @@ export class Backend {
       product_id: string;
       email: string;
       presented_offering_identifier: string;
-      offer_id: string | undefined;
+      offer_id?: string | undefined;
     };
 
-    const offer_id =
-      purchaseOptionId === undefined || purchaseOptionId !== "base_offer"
-        ? purchaseOptionId
-        : undefined;
+    const requestBody: SubscribeRequestBody = {
+      app_user_id: appUserId,
+      product_id: productId,
+      email: email,
+      presented_offering_identifier: offeringIdentifier,
+    };
+
+    if (purchaseOptionId && purchaseOptionId !== "base_option") {
+      requestBody.offer_id = purchaseOptionId;
+    }
 
     return await performRequest<SubscribeRequestBody, SubscribeResponse>(
       new SubscribeEndpoint(),
       this.API_KEY,
-      {
-        app_user_id: appUserId,
-        product_id: productId,
-        email: email,
-        presented_offering_identifier: offeringIdentifier,
-        offer_id: offer_id,
-      },
+      requestBody,
     );
   }
 
