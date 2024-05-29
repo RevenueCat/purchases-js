@@ -119,7 +119,8 @@ const PaywallPage: React.FC = () => {
     // How do we complete the purchase?
     try {
       const { customerInfo } = offerId
-        ? await purchases.purchase(pkg, {
+        ? await purchases.purchase({
+            rcPackage: pkg,
             subscriptionPurchaseOptionId: offerId,
           })
         : await purchases.purchasePackage(pkg); // Testing backwards compatibility.

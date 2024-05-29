@@ -2841,6 +2841,34 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PurchaseFlowParams#rcPackage:member",
+              "docComment": "/**\n * The package you want to purchase. Obtained from {@link Purchases.getOfferings}.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "rcPackage: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Package",
+                  "canonicalReference": "@revenuecat/purchases-js!Package:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "rcPackage",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PurchaseFlowParams#subscriptionPurchaseOptionId:member",
               "docComment": "/**\n * The optionId to be used for this purchase. If not specified the default one will be used.\n */\n",
               "excerptTokens": [
@@ -3463,20 +3491,11 @@
             {
               "kind": "Method",
               "canonicalReference": "@revenuecat/purchases-js!Purchases#purchase:member(1)",
-              "docComment": "/**\n * Method to perform a purchase for a given package. You can obtain the package from {@link Purchases.getOfferings}. This method will present the purchase form on your site, using the given HTML element as the mount point, if provided, or as a modal if not.\n *\n * @param rcPackage - The package you want to purchase. Obtained from {@link Purchases.getOfferings}.\n *\n * @param flowParams - The parameters object to customise the purchase flow. Check {@link PurchaseFlowParams}\n *\n * @returns a Promise for the customer info after the purchase is completed successfully.\n *\n * @throws\n *\n * {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.\n */\n",
+              "docComment": "/**\n * Method to perform a purchase for a given package. You can obtain the package from {@link Purchases.getOfferings}. This method will present the purchase form on your site, using the given HTML element as the mount point, if provided, or as a modal if not.\n *\n * @param flowParams - The parameters object to customise the purchase flow. Check {@link PurchaseFlowParams}\n *\n * @returns a Promise for the customer info after the purchase is completed successfully.\n *\n * @throws\n *\n * {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "purchase(rcPackage: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Package",
-                  "canonicalReference": "@revenuecat/purchases-js!Package:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", flowParams: "
+                  "text": "purchase(flowParams: "
                 },
                 {
                   "kind": "Reference",
@@ -3512,26 +3531,18 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 9
+                "startIndex": 3,
+                "endIndex": 7
               },
               "releaseTag": "Public",
               "isProtected": false,
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "rcPackage",
+                  "parameterName": "flowParams",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  },
-                  "isOptional": false
-                },
-                {
-                  "parameterName": "flowParams",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
                   },
                   "isOptional": false
                 }

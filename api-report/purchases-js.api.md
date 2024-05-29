@@ -190,6 +190,7 @@ export interface Product {
 export interface PurchaseFlowParams {
     customerEmail?: string;
     htmlTarget?: HTMLElement;
+    rcPackage: Package;
     subscriptionPurchaseOptionId?: string;
 }
 
@@ -218,7 +219,7 @@ export class Purchases {
     isEntitledTo(entitlementIdentifier: string): Promise<boolean>;
     // (undocumented)
     isSandbox(): boolean;
-    purchase(rcPackage: Package, flowParams: PurchaseFlowParams): Promise<{
+    purchase(flowParams: PurchaseFlowParams): Promise<{
         customerInfo: CustomerInfo;
     }>;
     // @deprecated

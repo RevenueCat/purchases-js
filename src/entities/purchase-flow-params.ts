@@ -1,8 +1,14 @@
+import { type Package } from "./offerings";
+
 /**
  * Parameters used to customise the purchase flow when invoking the `.purchase` method.
  * @public
  */
 export interface PurchaseFlowParams {
+  /**
+   * The package you want to purchase. Obtained from {@link Purchases.getOfferings}.
+   */
+  rcPackage: Package;
   /**
    * The optionId to be used for this purchase. If not specified the default one will be used.
    */

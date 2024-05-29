@@ -241,7 +241,8 @@ export class Purchases {
     customerEmail?: string,
     htmlTarget?: HTMLElement,
   ): Promise<{ customerInfo: CustomerInfo }> {
-    return this.purchase(rcPackage, {
+    return this.purchase({
+      rcPackage,
       customerEmail,
       htmlTarget,
     });
@@ -252,17 +253,19 @@ export class Purchases {
    * package from {@link Purchases.getOfferings}. This method will present the purchase
    * form on your site, using the given HTML element as the mount point, if
    * provided, or as a modal if not.
-   * @param rcPackage - The package you want to purchase. Obtained from {@link Purchases.getOfferings}.
    * @param flowParams - The parameters object to customise the purchase flow. Check {@link PurchaseFlowParams}
    * @returns a Promise for the customer info after the purchase is completed successfully.
    * @throws {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.
    */
   public purchase(
-    rcPackage: Package,
     flowParams: PurchaseFlowParams,
   ): Promise<{ customerInfo: CustomerInfo }> {
-    const { subscriptionPurchaseOptionId, htmlTarget, customerEmail } =
-      flowParams;
+    const {
+      rcPackage,
+      subscriptionPurchaseOptionId,
+      htmlTarget,
+      customerEmail,
+    } = flowParams;
     let resolvedHTMLTarget =
       htmlTarget ?? document.getElementById("rcb-ui-root");
 
