@@ -151,6 +151,7 @@ export interface Product {
    * The offering ID used to obtain this product.
    */
   readonly presentedOfferingIdentifier: string;
+
   /**
    * The default option id to be used to subscribe to this product.
    * Null if no subscription options are available.
