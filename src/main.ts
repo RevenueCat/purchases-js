@@ -42,7 +42,9 @@ export type {
   Package,
   Product,
   Price,
+  PurchaseOption,
   SubscriptionPurchaseOption,
+  PurchaseOptionPhase,
 } from "./entities/offerings";
 export { PackageType } from "./entities/offerings";
 export type { CustomerInfo } from "./entities/customer-info";

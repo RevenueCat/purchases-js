@@ -139,7 +139,7 @@ describe("getOfferings", () => {
       subscriptionPurchaseOptions: {
         base_option: {
           id: "base_option",
-          basePrice: {
+          basePhase: {
             cycleCount: 1,
             periodDuration: null,
             price: {
@@ -148,7 +148,7 @@ describe("getOfferings", () => {
               formattedPrice: "$3.00",
             },
           },
-          trial: null,
+          trialPhase: null,
         },
       },
     },
@@ -192,7 +192,7 @@ describe("getOfferings", () => {
         subscriptionPurchaseOptions: {
           offer_12345: {
             id: "offer_12345",
-            basePrice: {
+            basePhase: {
               cycleCount: 1,
               periodDuration: null,
               price: {
@@ -201,7 +201,7 @@ describe("getOfferings", () => {
                 formattedPrice: "$5.00",
               },
             },
-            trial: {
+            trialPhase: {
               cycleCount: 1,
               periodDuration: "P1W",
               price: null,
@@ -255,7 +255,7 @@ describe("getOfferings", () => {
         subscriptionPurchaseOptions: {
           offer_12345: {
             id: "offer_12345",
-            basePrice: {
+            basePhase: {
               cycleCount: 1,
               periodDuration: null,
               price: {
@@ -264,7 +264,7 @@ describe("getOfferings", () => {
                 formattedPrice: "$5.00",
               },
             },
-            trial: {
+            trialPhase: {
               cycleCount: 1,
               periodDuration: "P1W",
               price: null,

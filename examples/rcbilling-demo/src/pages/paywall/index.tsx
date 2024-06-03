@@ -48,13 +48,13 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
     : null;
 
   const price = offer
-    ? offer.basePrice.price
+    ? offer.basePhase.price
     : pkg.rcBillingProduct.currentPrice;
   const originalPrice = originalPriceByProduct
     ? originalPriceByProduct[pkg.rcBillingProduct.identifier]
     : null;
 
-  const trial = offer?.trial;
+  const trial = offer?.trialPhase;
   return (
     <div className="card">
       {trial && (
@@ -84,7 +84,7 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
           <div className="productName">{pkg.rcBillingProduct.displayName}</div>
           <div className="packageCTA">
             <Button
-              caption={offer?.trial ? "Start Free Trial" : "Choose plan"}
+              caption={offer?.trialPhase ? "Start Free Trial" : "Choose plan"}
               onClick={onClick}
             />
           </div>
@@ -123,7 +123,7 @@ const PaywallPage: React.FC = () => {
             rcPackage: pkg,
             subscriptionPurchaseOptionId: offerId,
           })
-        : await purchases.purchasePackage(pkg); // Testing backwards compatibility.
+        : await purchases.purchase({ rcPackage: pkg });
 
       console.log(`CustomerInfo after purchase: ${customerInfo}`);
 

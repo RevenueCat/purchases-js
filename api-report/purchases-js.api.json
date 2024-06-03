@@ -2899,12 +2899,12 @@
         },
         {
           "kind": "Interface",
-          "canonicalReference": "@revenuecat/purchases-js!~PurchaseOption:interface",
+          "canonicalReference": "@revenuecat/purchases-js!PurchaseOption:interface",
           "docComment": "/**\n * Represents a possible option to purchase a product.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "declare interface PurchaseOption "
+              "text": "export declare interface PurchaseOption "
             }
           ],
           "fileUrlPath": "dist/Purchases.es.d.ts",
@@ -2914,7 +2914,7 @@
           "members": [
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!~PurchaseOption#id:member",
+              "canonicalReference": "@revenuecat/purchases-js!PurchaseOption#id:member",
               "docComment": "/**\n * The unique id for a purchase option\n */\n",
               "excerptTokens": [
                 {
@@ -2944,22 +2944,22 @@
         },
         {
           "kind": "Interface",
-          "canonicalReference": "@revenuecat/purchases-js!~PurchaseOptionPrice:interface",
+          "canonicalReference": "@revenuecat/purchases-js!PurchaseOptionPhase:interface",
           "docComment": "/**\n * Represents the price and duration information for a phase of the purchase option.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "declare interface PurchaseOptionPrice "
+              "text": "export declare interface PurchaseOptionPhase "
             }
           ],
           "fileUrlPath": "dist/Purchases.es.d.ts",
           "releaseTag": "Public",
-          "name": "PurchaseOptionPrice",
+          "name": "PurchaseOptionPhase",
           "preserveMemberOrder": false,
           "members": [
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!~PurchaseOptionPrice#cycleCount:member",
+              "canonicalReference": "@revenuecat/purchases-js!PurchaseOptionPhase#cycleCount:member",
               "docComment": "/**\n * The number of cycles this option's price repeats. I.e. 2 subscription cycles, 0 if not applicable.\n */\n",
               "excerptTokens": [
                 {
@@ -2986,7 +2986,7 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!~PurchaseOptionPrice#periodDuration:member",
+              "canonicalReference": "@revenuecat/purchases-js!PurchaseOptionPhase#periodDuration:member",
               "docComment": "/**\n * The duration of the purchase option price. For applicable options (trials, initial/promotional prices), otherwise null\n */\n",
               "excerptTokens": [
                 {
@@ -3013,7 +3013,7 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!~PurchaseOptionPrice#price:member",
+              "canonicalReference": "@revenuecat/purchases-js!PurchaseOptionPhase#price:member",
               "docComment": "/**\n * The price for the purchase option. Null in case of trials.\n */\n",
               "excerptTokens": [
                 {
@@ -3925,7 +3925,7 @@
             {
               "kind": "Reference",
               "text": "PurchaseOption",
-              "canonicalReference": "@revenuecat/purchases-js!~PurchaseOption:interface"
+              "canonicalReference": "@revenuecat/purchases-js!PurchaseOption:interface"
             },
             {
               "kind": "Content",
@@ -3939,17 +3939,17 @@
           "members": [
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!SubscriptionPurchaseOption#basePrice:member",
-              "docComment": "/**\n * The base price for a SubscriptionPurchaseOption, represents the price that the customer will be charged after all the discounts have been consumed.\n */\n",
+              "canonicalReference": "@revenuecat/purchases-js!SubscriptionPurchaseOption#basePhase:member",
+              "docComment": "/**\n * The base phase for a SubscriptionPurchaseOption, represents the price that the customer will be charged after all the discounts have been consumed and the period at which it will renew.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "readonly basePrice: "
+                  "text": "readonly basePhase: "
                 },
                 {
                   "kind": "Reference",
-                  "text": "PurchaseOptionPrice",
-                  "canonicalReference": "@revenuecat/purchases-js!~PurchaseOptionPrice:interface"
+                  "text": "PurchaseOptionPhase",
+                  "canonicalReference": "@revenuecat/purchases-js!PurchaseOptionPhase:interface"
                 },
                 {
                   "kind": "Content",
@@ -3959,7 +3959,7 @@
               "isReadonly": true,
               "isOptional": false,
               "releaseTag": "Public",
-              "name": "basePrice",
+              "name": "basePhase",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -3967,17 +3967,17 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!SubscriptionPurchaseOption#trial:member",
-              "docComment": "/**\n * The trial PurchaseOptionPrice. If not null, the SubscriptionPurchaseOption has a trial phase.\n */\n",
+              "canonicalReference": "@revenuecat/purchases-js!SubscriptionPurchaseOption#trialPhase:member",
+              "docComment": "/**\n * The trial PurchaseOptionPhase. If not null, the SubscriptionPurchaseOption has a trial phase.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "readonly trial: "
+                  "text": "readonly trialPhase: "
                 },
                 {
                   "kind": "Reference",
-                  "text": "PurchaseOptionPrice",
-                  "canonicalReference": "@revenuecat/purchases-js!~PurchaseOptionPrice:interface"
+                  "text": "PurchaseOptionPhase",
+                  "canonicalReference": "@revenuecat/purchases-js!PurchaseOptionPhase:interface"
                 },
                 {
                   "kind": "Content",
@@ -3991,7 +3991,7 @@
               "isReadonly": true,
               "isOptional": false,
               "releaseTag": "Public",
-              "name": "trial",
+              "name": "trialPhase",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 3

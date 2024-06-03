@@ -5,10 +5,11 @@ import {
 import {
   type ProductResponse,
   type SubscriptionPurchaseOptionResponse,
-  type PurchaseOptionPriceResponse,
+  type PurchaseOptionPhaseResponse,
 } from "../networking/responses/products-response";
 import { notEmpty } from "../helpers/type-helper";
 import { formatPrice } from "../helpers/price-labels";
+import { Logger } from "../helpers/logger";
 
 /**
  * Enumeration of all possible Package types.
@@ -79,7 +80,7 @@ export interface Price {
  * Represents the price and duration information for a phase of the purchase option.
  * @public
  */
-export interface PurchaseOptionPrice {
+export interface PurchaseOptionPhase {
   /**
    * The duration of the purchase option price.
    * For applicable options (trials, initial/promotional prices), otherwise null
@@ -114,16 +115,16 @@ export interface PurchaseOption {
  */
 export interface SubscriptionPurchaseOption extends PurchaseOption {
   /**
-   * The base price for a SubscriptionPurchaseOption, represents
+   * The base phase for a SubscriptionPurchaseOption, represents
    * the price that the customer will be charged after all the discounts have
-   * been consumed.
+   * been consumed and the period at which it will renew.
    */
-  readonly basePrice: PurchaseOptionPrice;
+  readonly basePhase: PurchaseOptionPhase;
   /**
-   * The trial PurchaseOptionPrice.
+   * The trial PurchaseOptionPhase.
    * If not null, the SubscriptionPurchaseOption has a trial phase.
    */
-  readonly trial: PurchaseOptionPrice | null;
+  readonly trialPhase: PurchaseOptionPhase | null;
 }
 
 /**
@@ -271,36 +272,53 @@ const toPrice = (priceData: { amount: number; currency: string }): Price => {
 };
 
 const toPurchaseOptionPrice = (
-  optionPrice: PurchaseOptionPriceResponse,
-): PurchaseOptionPrice => {
+  optionPrice: PurchaseOptionPhaseResponse,
+): PurchaseOptionPhase => {
   return {
     periodDuration: optionPrice.period_duration,
     cycleCount: optionPrice.cycle_count,
     price: optionPrice.price ? toPrice(optionPrice.price) : null,
-  } as PurchaseOptionPrice;
+  } as PurchaseOptionPhase;
 };
 
 const toSubscriptionPurchaseOption = (
   option: SubscriptionPurchaseOptionResponse,
-): SubscriptionPurchaseOption => {
+): SubscriptionPurchaseOption | null => {
+  const basePhase = option.base_phase ?? option.base_price;
+  if (basePhase == null) {
+    Logger.debugLog(
+      "Missing base phase for subscription purchase option. Ignoring.",
+    );
+    return null;
+  }
   return {
     id: option.id,
-    basePrice: toPurchaseOptionPrice(option.base_price),
-    trial: option.trial ? toPurchaseOptionPrice(option.trial) : null,
+    basePhase: toPurchaseOptionPrice(basePhase),
+    trialPhase: option.trial ? toPurchaseOptionPrice(option.trial) : null,
   } as SubscriptionPurchaseOption;
 };
 
 const toProduct = (
   productDetailsData: ProductResponse,
   presentedOfferingIdentifier: string,
-): Product => {
+): Product | null => {
   const options: { [optionId: string]: SubscriptionPurchaseOption } = {};
 
   Object.entries(productDetailsData.subscription_purchase_options).forEach(
     ([key, value]) => {
-      options[key] = toSubscriptionPurchaseOption(value);
+      const option = toSubscriptionPurchaseOption(value);
+      if (option != null) {
+        options[key] = option;
+      }
     },
   );
+
+  if (Object.keys(options).length === 0) {
+    Logger.debugLog(
+      `Product ${productDetailsData.identifier} has no subscription options. Ignoring.`,
+    );
+    return null;
+  }
 
   return {
     identifier: productDetailsData.identifier,
@@ -322,10 +340,12 @@ const toPackage = (
   const rcBillingProduct =
     productDetailsData[packageData.platform_product_identifier];
   if (rcBillingProduct === undefined) return null;
+  const product = toProduct(rcBillingProduct, presentedOfferingIdentifier);
+  if (product === null) return null;
 
   return {
     identifier: packageData.identifier,
-    rcBillingProduct: toProduct(rcBillingProduct, presentedOfferingIdentifier),
+    rcBillingProduct: product,
     packageType: getPackageType(packageData.identifier),
   };
 };

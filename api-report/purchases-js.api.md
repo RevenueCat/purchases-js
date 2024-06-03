@@ -195,12 +195,12 @@ export interface PurchaseFlowParams {
 }
 
 // @public
-interface PurchaseOption {
+export interface PurchaseOption {
     readonly id: string;
 }
 
 // @public
-interface PurchaseOptionPrice {
+export interface PurchaseOptionPhase {
     readonly cycleCount: number;
     readonly periodDuration: string | null;
     readonly price: Price | null;
@@ -244,13 +244,10 @@ export class PurchasesError extends Error {
 // @public
 export type Store = "app_store" | "mac_app_store" | "play_store" | "amazon" | "stripe" | "rc_billing" | "promotional" | "unknown";
 
-// Warning: (ae-forgotten-export) The symbol "PurchaseOption" needs to be exported by the entry point Purchases.es.d.ts
-//
 // @public
 export interface SubscriptionPurchaseOption extends PurchaseOption {
-    // Warning: (ae-forgotten-export) The symbol "PurchaseOptionPrice" needs to be exported by the entry point Purchases.es.d.ts
-    readonly basePrice: PurchaseOptionPrice;
-    readonly trial: PurchaseOptionPrice | null;
+    readonly basePhase: PurchaseOptionPhase;
+    readonly trialPhase: PurchaseOptionPhase | null;
 }
 
 // @public

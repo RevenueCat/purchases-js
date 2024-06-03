@@ -50,7 +50,7 @@ const packageWithDefaultOption: Package = {
     defaultSubscriptionPurchaseOptionId: "base_option",
     subscriptionPurchaseOptions: {
       base_option: {
-        basePrice: {
+        basePhase: {
           periodDuration: "P1M",
           price: {
             amount: 999,
