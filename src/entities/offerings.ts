@@ -82,7 +82,7 @@ export interface Price {
  */
 export interface PurchaseOptionPhase {
   /**
-   * The duration of the purchase option price.
+   * The duration of the purchase option price in ISO 8601 format.
    * For applicable options (trials, initial/promotional prices), otherwise null
    */
   readonly periodDuration: string | null;
@@ -121,8 +121,7 @@ export interface SubscriptionPurchaseOption extends PurchaseOption {
    */
   readonly basePhase: PurchaseOptionPhase;
   /**
-   * The trial PurchaseOptionPhase.
-   * If not null, the SubscriptionPurchaseOption has a trial phase.
+   * The trial information for this subscription option if available.
    */
   readonly trialPhase: PurchaseOptionPhase | null;
 }
@@ -155,7 +154,8 @@ export interface Product {
 
   /**
    * The default option id to be used to subscribe to this product.
-   * Null if no subscription options are available.
+   * Null if no subscription options are available like in the case of
+   * consumables and non-consumables.
    */
   readonly defaultSubscriptionPurchaseOptionId: string | null;
 
