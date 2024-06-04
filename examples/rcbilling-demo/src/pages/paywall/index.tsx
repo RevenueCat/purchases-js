@@ -26,8 +26,8 @@ const trialLabels: Record<string, string> = {
   P1W: "1 week",
   P2W: "2 weeks",
   P1M: "1 month",
-  P2M: "1 months",
-  P3M: "1 months",
+  P2M: "2 months",
+  P3M: "3 months",
   P6M: "6 months",
   P1Y: "1 year",
 };
