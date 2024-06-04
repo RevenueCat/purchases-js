@@ -5,7 +5,7 @@ import {
 import {
   type ProductResponse,
   type PricingPhaseResponse,
-  type SubscriptionPurchaseOptionResponse,
+  type SubscriptionOptionResponse,
 } from "../networking/responses/products-response";
 import { notEmpty } from "../helpers/type-helper";
 import { formatPrice } from "../helpers/price-labels";
@@ -113,9 +113,9 @@ export interface PurchaseOption {
  * Represents a possible option to purchase a subscription product.
  * @public
  */
-export interface SubscriptionPurchaseOption extends PurchaseOption {
+export interface SubscriptionOption extends PurchaseOption {
   /**
-   * The base phase for a SubscriptionPurchaseOption, represents
+   * The base phase for a SubscriptionOption, represents
    * the price that the customer will be charged after all the discounts have
    * been consumed and the period at which it will renew.
    */
@@ -157,7 +157,7 @@ export interface Product {
    * The default subscription option for this product. Null if no subscription
    * options are available like in the case of consumables and non-consumables.
    */
-  readonly defaultSubscriptionOption: SubscriptionPurchaseOption | null;
+  readonly defaultSubscriptionOption: SubscriptionOption | null;
   /**
    * A dictionary with all the possible subscription options available for this
    * product. Each key contains the key to be used when executing a purchase.
@@ -165,8 +165,8 @@ export interface Product {
    * If retrieved through getOfferings the offers are only the ones the customer is
    * entitled to.
    */
-  readonly subscriptionPurchaseOptions: {
-    [optionId: string]: SubscriptionPurchaseOption;
+  readonly subscriptionOptions: {
+    [optionId: string]: SubscriptionOption;
   };
 }
 
@@ -278,31 +278,29 @@ const toPricingPhase = (optionPhase: PricingPhaseResponse): PricingPhase => {
   } as PricingPhase;
 };
 
-const toSubscriptionPurchaseOption = (
-  option: SubscriptionPurchaseOptionResponse,
-): SubscriptionPurchaseOption | null => {
+const toSubscriptionOption = (
+  option: SubscriptionOptionResponse,
+): SubscriptionOption | null => {
   if (option.base_phase == null) {
-    Logger.debugLog(
-      "Missing base phase for subscription purchase option. Ignoring.",
-    );
+    Logger.debugLog("Missing base phase for subscription option. Ignoring.");
     return null;
   }
   return {
     id: option.id,
     basePhase: toPricingPhase(option.base_phase),
     trialPhase: option.trial_phase ? toPricingPhase(option.trial_phase) : null,
-  } as SubscriptionPurchaseOption;
+  } as SubscriptionOption;
 };
 
 const toProduct = (
   productDetailsData: ProductResponse,
   presentedOfferingIdentifier: string,
 ): Product | null => {
-  const options: { [optionId: string]: SubscriptionPurchaseOption } = {};
+  const options: { [optionId: string]: SubscriptionOption } = {};
 
   Object.entries(productDetailsData.subscription_purchase_options).forEach(
     ([key, value]) => {
-      const option = toSubscriptionPurchaseOption(value);
+      const option = toSubscriptionOption(value);
       if (option != null) {
         options[key] = option;
       }
@@ -344,7 +342,7 @@ const toProduct = (
     normalPeriodDuration: defaultOption.basePhase.periodDuration,
     presentedOfferingIdentifier: presentedOfferingIdentifier,
     defaultSubscriptionOption: defaultOption,
-    subscriptionPurchaseOptions: options,
+    subscriptionOptions: options,
   };
 };
 

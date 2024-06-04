@@ -183,13 +183,13 @@ export interface PricingPhase {
 // @public
 export interface Product {
     readonly currentPrice: Price;
-    readonly defaultSubscriptionOption: SubscriptionPurchaseOption | null;
+    readonly defaultSubscriptionOption: SubscriptionOption | null;
     readonly displayName: string;
     readonly identifier: string;
     readonly normalPeriodDuration: string | null;
     readonly presentedOfferingIdentifier: string;
-    readonly subscriptionPurchaseOptions: {
-        [optionId: string]: SubscriptionPurchaseOption;
+    readonly subscriptionOptions: {
+        [optionId: string]: SubscriptionOption;
     };
 }
 
@@ -245,7 +245,7 @@ export class PurchasesError extends Error {
 export type Store = "app_store" | "mac_app_store" | "play_store" | "amazon" | "stripe" | "rc_billing" | "promotional" | "unknown";
 
 // @public
-export interface SubscriptionPurchaseOption extends PurchaseOption {
+export interface SubscriptionOption extends PurchaseOption {
     readonly basePhase: PricingPhase;
     readonly trialPhase: PricingPhase | null;
 }

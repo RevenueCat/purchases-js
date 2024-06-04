@@ -148,7 +148,7 @@ describe("getOfferings", () => {
         },
         trialPhase: null,
       },
-      subscriptionPurchaseOptions: {
+      subscriptionOptions: {
         base_option: {
           id: "base_option",
           basePhase: {
@@ -219,7 +219,7 @@ describe("getOfferings", () => {
         normalPeriodDuration: "P1M",
         presentedOfferingIdentifier: "offering_2",
         defaultSubscriptionOption: subscriptionOption,
-        subscriptionPurchaseOptions: {
+        subscriptionOptions: {
           offer_12345: subscriptionOption,
         },
       },
@@ -282,7 +282,7 @@ describe("getOfferings", () => {
             price: null,
           },
         },
-        subscriptionPurchaseOptions: {
+        subscriptionOptions: {
           offer_12345: {
             id: "offer_12345",
             basePhase: {

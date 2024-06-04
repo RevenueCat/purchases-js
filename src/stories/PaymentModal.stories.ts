@@ -47,8 +47,18 @@ const packageWithDefaultOption: Package = {
     },
     normalPeriodDuration: "P1M",
     presentedOfferingIdentifier: "some_offering_identifier",
-    defaultSubscriptionPurchaseOptionId: "base_option",
-    subscriptionPurchaseOptions: {
+    defaultSubscriptionOption: {
+      basePhase: {
+        periodDuration: "P1M",
+        price: {
+          amount: 999,
+          currency: "USD",
+          formattedPrice: "9.99$",
+        },
+        cycleCount: 0,
+      },
+    },
+    subscriptionOptions: {
       base_option: {
         basePhase: {
           periodDuration: "P1M",

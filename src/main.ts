@@ -43,7 +43,7 @@ export type {
   Product,
   Price,
   PurchaseOption,
-  SubscriptionPurchaseOption,
+  SubscriptionOption,
   PricingPhase,
 } from "./entities/offerings";
 export { PackageType } from "./entities/offerings";

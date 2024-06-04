@@ -2,15 +2,15 @@
     import ModalSection from "../modal-section.svelte";
     import {formatPrice, getRenewsLabel} from "../../helpers/price-labels";
     import {getTrialsLabel} from "../../helpers/price-labels.js";
-    import { Product, PurchaseOption, SubscriptionPurchaseOption } from "../../entities/offerings";
+    import { Product, PurchaseOption, SubscriptionOption } from "../../entities/offerings";
 
     export let productDetails: Product;
     export let purchaseOption: PurchaseOption;
 
-    const subscriptionPurchaseOption: SubscriptionPurchaseOption | null | undefined =
-      purchaseOption as SubscriptionPurchaseOption;
-    const trial = subscriptionPurchaseOption?.trialPhase;
-    const basePrice = subscriptionPurchaseOption?.basePhase?.price;
+    const subscriptionOption: SubscriptionOption | null | undefined =
+      purchaseOption as SubscriptionOption;
+    const trial = subscriptionOption?.trialPhase;
+    const basePrice = subscriptionOption?.basePhase?.price;
 </script>
 
 <ModalSection>
