@@ -40,7 +40,7 @@
         {/if}
         <ul class="rcb-product-details">
             {#if productDetails.normalPeriodDuration}
-                <li>Renews every {getRenewsLabel(productDetails.normalPeriodDuration)}</li>
+                <li>Renews {getRenewsLabel(productDetails.normalPeriodDuration)}</li>
             {/if}
             <li>Continues until canceled</li>
             <li>Cancel anytime</li>
