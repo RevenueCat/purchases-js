@@ -174,6 +174,13 @@ export interface Price {
 }
 
 // @public
+export interface PricingPhase {
+    readonly cycleCount: number;
+    readonly periodDuration: string | null;
+    readonly price: Price | null;
+}
+
+// @public
 export interface Product {
     readonly currentPrice: Price;
     readonly defaultSubscriptionOption: SubscriptionPurchaseOption | null;
@@ -197,13 +204,6 @@ export interface PurchaseFlowParams {
 // @public
 export interface PurchaseOption {
     readonly id: string;
-}
-
-// @public
-export interface PurchaseOptionPhase {
-    readonly cycleCount: number;
-    readonly periodDuration: string | null;
-    readonly price: Price | null;
 }
 
 // @public
@@ -246,8 +246,8 @@ export type Store = "app_store" | "mac_app_store" | "play_store" | "amazon" | "s
 
 // @public
 export interface SubscriptionPurchaseOption extends PurchaseOption {
-    readonly basePhase: PurchaseOptionPhase;
-    readonly trialPhase: PurchaseOptionPhase | null;
+    readonly basePhase: PricingPhase;
+    readonly trialPhase: PricingPhase | null;
 }
 
 // @public

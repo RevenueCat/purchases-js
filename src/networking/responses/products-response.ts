@@ -3,7 +3,7 @@ export interface PriceResponse {
   currency: string;
 }
 
-export interface PurchaseOptionPhaseResponse {
+export interface PricingPhaseResponse {
   period_duration: string | null;
   price: PriceResponse | null;
   cycle_count: number;
@@ -15,8 +15,8 @@ export interface PurchaseOptionResponse {
 
 export interface SubscriptionPurchaseOptionResponse
   extends PurchaseOptionResponse {
-  base_phase: PurchaseOptionPhaseResponse | null;
-  trial_phase: PurchaseOptionPhaseResponse | null;
+  base_phase: PricingPhaseResponse | null;
+  trial_phase: PricingPhaseResponse | null;
 }
 
 export interface ProductResponse {

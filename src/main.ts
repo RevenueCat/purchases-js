@@ -44,7 +44,7 @@ export type {
   Price,
   PurchaseOption,
   SubscriptionPurchaseOption,
-  PurchaseOptionPhase,
+  PricingPhase,
 } from "./entities/offerings";
 export { PackageType } from "./entities/offerings";
 export type { CustomerInfo } from "./entities/customer-info";

@@ -4,7 +4,7 @@ import {
 } from "../networking/responses/offerings-response";
 import {
   type ProductResponse,
-  type PurchaseOptionPhaseResponse,
+  type PricingPhaseResponse,
   type SubscriptionPurchaseOptionResponse,
 } from "../networking/responses/products-response";
 import { notEmpty } from "../helpers/type-helper";
@@ -80,7 +80,7 @@ export interface Price {
  * Represents the price and duration information for a phase of the purchase option.
  * @public
  */
-export interface PurchaseOptionPhase {
+export interface PricingPhase {
   /**
    * The duration of the purchase option price in ISO 8601 format.
    * For applicable options (trials, initial/promotional prices), otherwise null
@@ -119,11 +119,11 @@ export interface SubscriptionPurchaseOption extends PurchaseOption {
    * the price that the customer will be charged after all the discounts have
    * been consumed and the period at which it will renew.
    */
-  readonly basePhase: PurchaseOptionPhase;
+  readonly basePhase: PricingPhase;
   /**
    * The trial information for this subscription option if available.
    */
-  readonly trialPhase: PurchaseOptionPhase | null;
+  readonly trialPhase: PricingPhase | null;
 }
 
 /**
@@ -270,14 +270,12 @@ const toPrice = (priceData: { amount: number; currency: string }): Price => {
   };
 };
 
-const toPurchaseOptionPhase = (
-  optionPhase: PurchaseOptionPhaseResponse,
-): PurchaseOptionPhase => {
+const toPricingPhase = (optionPhase: PricingPhaseResponse): PricingPhase => {
   return {
     periodDuration: optionPhase.period_duration,
     cycleCount: optionPhase.cycle_count,
     price: optionPhase.price ? toPrice(optionPhase.price) : null,
-  } as PurchaseOptionPhase;
+  } as PricingPhase;
 };
 
 const toSubscriptionPurchaseOption = (
@@ -291,10 +289,8 @@ const toSubscriptionPurchaseOption = (
   }
   return {
     id: option.id,
-    basePhase: toPurchaseOptionPhase(option.base_phase),
-    trialPhase: option.trial_phase
-      ? toPurchaseOptionPhase(option.trial_phase)
-      : null,
+    basePhase: toPricingPhase(option.base_phase),
+    trialPhase: option.trial_phase ? toPricingPhase(option.trial_phase) : null,
   } as SubscriptionPurchaseOption;
 };
 
