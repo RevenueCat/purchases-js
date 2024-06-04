@@ -233,8 +233,8 @@ export class Purchases {
    * provided, or as a modal if not.
    * @deprecated - please use .purchase
    * @param rcPackage - The package you want to purchase. Obtained from {@link Purchases.getOfferings}.
-   * @param customerEmail - The email of the user. If null, RevenueCat will ask the customer for their email.
-   * @param htmlTarget - The HTML element where the billing view should be added. If null, a new div will be created at the root of the page and appended to the body.
+   * @param customerEmail - The email of the user. If undefined, RevenueCat will ask the customer for their email.
+   * @param htmlTarget - The HTML element where the billing view should be added. If undefined, a new div will be created at the root of the page and appended to the body.
    * @returns a Promise for the customer info after the purchase is completed successfully.
    * @throws {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.
    */

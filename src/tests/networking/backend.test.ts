@@ -280,9 +280,9 @@ describe("subscribe request", () => {
       await backend.postSubscribe(
         "someAppUserId",
         "monthly",
-        undefined,
         "testemail@revenuecat.com",
         "offering_1",
+        undefined,
       ),
     ).toEqual(subscribeResponse);
   });
@@ -295,9 +295,9 @@ describe("subscribe request", () => {
       backend.postSubscribe(
         "someAppUserId",
         "monthly",
-        undefined,
         "testemail@revenuecat.com",
         "offering_1",
+        undefined,
       ),
       new PurchasesError(
         ErrorCode.UnknownBackendError,
@@ -320,9 +320,9 @@ describe("subscribe request", () => {
       backend.postSubscribe(
         "someAppUserId",
         "monthly",
-        undefined,
         "testemail@revenuecat.com",
         "offering_1",
+        undefined,
       ),
       new PurchasesError(
         ErrorCode.InvalidCredentialsError,
@@ -338,9 +338,9 @@ describe("subscribe request", () => {
       backend.postSubscribe(
         "someAppUserId",
         "monthly",
-        undefined,
         "testemail@revenuecat.com",
         "offering_1",
+        undefined,
       ),
       new PurchasesError(
         ErrorCode.NetworkError,

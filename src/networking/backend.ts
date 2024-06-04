@@ -55,16 +55,16 @@ export class Backend {
   async postSubscribe(
     appUserId: string,
     productId: string,
-    purchaseOptionId: string | undefined,
     email: string,
     offeringIdentifier: string,
+    purchaseOptionId?: string,
   ): Promise<SubscribeResponse> {
     type SubscribeRequestBody = {
       app_user_id: string;
       product_id: string;
       email: string;
       presented_offering_identifier: string;
-      offer_id?: string | undefined;
+      offer_id?: string;
     };
 
     const requestBody: SubscribeRequestBody = {

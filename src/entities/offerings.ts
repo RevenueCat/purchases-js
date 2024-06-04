@@ -153,13 +153,11 @@ export interface Product {
    * The offering ID used to obtain this product.
    */
   readonly presentedOfferingIdentifier: string;
-
   /**
    * The default subscription option for this product. Null if no subscription
    * options are available like in the case of consumables and non-consumables.
    */
   readonly defaultSubscriptionOption: SubscriptionPurchaseOption | null;
-
   /**
    * A dictionary with all the possible subscription options available for this
    * product. Each key contains the key to be used when executing a purchase.
@@ -272,13 +270,13 @@ const toPrice = (priceData: { amount: number; currency: string }): Price => {
   };
 };
 
-const toPurchaseOptionPrice = (
-  optionPrice: PurchaseOptionPhaseResponse,
+const toPurchaseOptionPhase = (
+  optionPhase: PurchaseOptionPhaseResponse,
 ): PurchaseOptionPhase => {
   return {
-    periodDuration: optionPrice.period_duration,
-    cycleCount: optionPrice.cycle_count,
-    price: optionPrice.price ? toPrice(optionPrice.price) : null,
+    periodDuration: optionPhase.period_duration,
+    cycleCount: optionPhase.cycle_count,
+    price: optionPhase.price ? toPrice(optionPhase.price) : null,
   } as PurchaseOptionPhase;
 };
 
@@ -293,9 +291,9 @@ const toSubscriptionPurchaseOption = (
   }
   return {
     id: option.id,
-    basePhase: toPurchaseOptionPrice(option.base_phase),
+    basePhase: toPurchaseOptionPhase(option.base_phase),
     trialPhase: option.trial_phase
-      ? toPurchaseOptionPrice(option.trial_phase)
+      ? toPurchaseOptionPhase(option.trial_phase)
       : null,
   } as SubscriptionPurchaseOption;
 };
@@ -343,12 +341,6 @@ const toProduct = (
     return null;
   }
 
-  console.log(
-    "NORMAL PERIOD DURATION FOR PRODUCT ID: ",
-    productDetailsData.identifier,
-    " IS: ",
-    defaultOption.basePhase.periodDuration,
-  );
   return {
     identifier: productDetailsData.identifier,
     displayName: productDetailsData.title,

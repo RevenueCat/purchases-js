@@ -49,9 +49,9 @@ export class PurchaseOperationHelper {
     const subscribeResponse = await this.backend.postSubscribe(
       appUserId,
       productId,
-      purchaseOption?.id,
       email,
       offeringIdentifier,
+      purchaseOption?.id,
     );
     this.operationSessionId = subscribeResponse.operation_session_id;
     return subscribeResponse;
