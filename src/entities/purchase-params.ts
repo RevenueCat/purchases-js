@@ -4,7 +4,7 @@ import { type Package, type PurchaseOption } from "./offerings";
  * Parameters used to customise the purchase flow when invoking the `.purchase` method.
  * @public
  */
-export interface PurchaseFlowParams {
+export interface PurchaseParams {
   /**
    * The package you want to purchase. Obtained from {@link Purchases.getOfferings}.
    */

@@ -34,7 +34,7 @@ import {
   validateApiKey,
   validateAppUserId,
 } from "./helpers/configuration-validators";
-import { type PurchaseFlowParams } from "./entities/purchase-flow-params";
+import { type PurchaseParams } from "./entities/purchase-params";
 
 export type {
   Offering,
@@ -60,7 +60,7 @@ export {
   UninitializedPurchasesError,
 } from "./entities/errors";
 export { LogLevel } from "./entities/log-level";
-export type { PurchaseFlowParams } from "./entities/purchase-flow-params";
+export type { PurchaseParams } from "./entities/purchase-params";
 
 /**
  * Entry point for Purchases SDK. It should be instantiated as soon as your
@@ -255,14 +255,14 @@ export class Purchases {
    * package from {@link Purchases.getOfferings}. This method will present the purchase
    * form on your site, using the given HTML element as the mount point, if
    * provided, or as a modal if not.
-   * @param flowParams - The parameters object to customise the purchase flow. Check {@link PurchaseFlowParams}
+   * @param params - The parameters object to customise the purchase flow. Check {@link PurchaseParams}
    * @returns a Promise for the customer info after the purchase is completed successfully.
    * @throws {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.
    */
   public purchase(
-    flowParams: PurchaseFlowParams,
+    params: PurchaseParams,
   ): Promise<{ customerInfo: CustomerInfo }> {
-    const { rcPackage, purchaseOption, htmlTarget, customerEmail } = flowParams;
+    const { rcPackage, purchaseOption, htmlTarget, customerEmail } = params;
     let resolvedHTMLTarget =
       htmlTarget ?? document.getElementById("rcb-ui-root");
 

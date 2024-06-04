@@ -194,16 +194,16 @@ export interface Product {
 }
 
 // @public
-export interface PurchaseFlowParams {
+export interface PurchaseOption {
+    readonly id: string;
+}
+
+// @public
+export interface PurchaseParams {
     customerEmail?: string;
     htmlTarget?: HTMLElement;
     purchaseOption?: PurchaseOption | null;
     rcPackage: Package;
-}
-
-// @public
-export interface PurchaseOption {
-    readonly id: string;
 }
 
 // @public
@@ -219,7 +219,7 @@ export class Purchases {
     isEntitledTo(entitlementIdentifier: string): Promise<boolean>;
     // (undocumented)
     isSandbox(): boolean;
-    purchase(flowParams: PurchaseFlowParams): Promise<{
+    purchase(params: PurchaseParams): Promise<{
         customerInfo: CustomerInfo;
     }>;
     // @deprecated
