@@ -20,9 +20,7 @@ export interface SubscriptionPurchaseOptionResponse
 }
 
 export interface ProductResponse {
-  current_price: PriceResponse;
   identifier: string;
-  normal_period_duration: string;
   product_type: string;
   title: string;
   default_subscription_purchase_option_id: string | null;
