@@ -15,8 +15,6 @@ export interface PurchaseOptionResponse {
 
 export interface SubscriptionPurchaseOptionResponse
   extends PurchaseOptionResponse {
-  base_price: PurchaseOptionPhaseResponse | null;
-  trial: PurchaseOptionPhaseResponse | null;
   base_phase: PurchaseOptionPhaseResponse | null;
   trial_phase: PurchaseOptionPhaseResponse | null;
 }

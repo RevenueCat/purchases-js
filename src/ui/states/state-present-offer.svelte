@@ -2,12 +2,15 @@
     import ModalSection from "../modal-section.svelte";
     import {formatPrice, getRenewsLabel} from "../../helpers/price-labels";
     import {getTrialsLabel} from "../../helpers/price-labels.js";
+    import { Product, PurchaseOption, SubscriptionPurchaseOption } from "../../entities/offerings";
 
-    export let productDetails: any;
-    export let purchaseOption: any;
+    export let productDetails: Product;
+    export let purchaseOption: PurchaseOption;
 
-    const trial = purchaseOption.trial;
-    const basePrice = purchaseOption.basePrice;
+    const subscriptionPurchaseOption: SubscriptionPurchaseOption | null | undefined =
+      purchaseOption as SubscriptionPurchaseOption;
+    const trial = subscriptionPurchaseOption?.trialPhase;
+    const basePrice = subscriptionPurchaseOption?.basePhase?.price;
 </script>
 
 <ModalSection>
@@ -19,24 +22,26 @@
             {#if trial?.periodDuration}
                 {getTrialsLabel(trial.periodDuration)} free trial
             {/if}
-            {#if !trial?.periodDuration && basePrice.price }
-                {basePrice.price?.currency || ''} {formatPrice(
-                    basePrice.price.amount,
-                    basePrice.price.currency,
+            {#if !trial?.periodDuration && basePrice }
+                {basePrice.currency || ''} {formatPrice(
+                    basePrice.amount,
+                    basePrice.currency,
                 )}
             {/if}
 
         </span>
-        {#if (trial && basePrice.price)}
+        {#if (trial && basePrice)}
 			<span class="rcb-product-price-after-trial">
-                {trial && basePrice.price && `${basePrice.price.currency} ${formatPrice(
-					basePrice.price.amount,
-					basePrice.price.currency,
+                {trial && basePrice && `${basePrice.currency} ${formatPrice(
+					basePrice.amount,
+					basePrice.currency,
 				)} after end of trial`}
             </span>
         {/if}
         <ul class="rcb-product-details">
-            <li>Billed {getRenewsLabel(productDetails.normalPeriodDuration)}</li>
+            {#if productDetails.normalPeriodDuration}
+                <li>Renews every {getRenewsLabel(productDetails.normalPeriodDuration)}</li>
+            {/if}
             <li>Continues until canceled</li>
             <li>Cancel anytime</li>
         </ul>

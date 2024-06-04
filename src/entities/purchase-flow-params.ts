@@ -1,4 +1,4 @@
-import { type Package } from "./offerings";
+import { type Package, type PurchaseOption } from "./offerings";
 
 /**
  * Parameters used to customise the purchase flow when invoking the `.purchase` method.
@@ -10,9 +10,9 @@ export interface PurchaseFlowParams {
    */
   rcPackage: Package;
   /**
-   * The optionId to be used for this purchase. If not specified the default one will be used.
+   * The option to be used for this purchase. If not specified the default one will be used.
    */
-  subscriptionPurchaseOptionId?: string;
+  purchaseOption?: PurchaseOption | null;
   /**
    * The HTML element where the billing view should be added. If null, a new div will be created at the root of the page and appended to the body.
    */

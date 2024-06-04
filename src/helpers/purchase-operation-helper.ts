@@ -7,6 +7,7 @@ import {
   CheckoutStatusErrorCodes,
   type CheckoutStatusResponse,
 } from "../networking/responses/checkout-status-response";
+import { type PurchaseOption } from "../entities/offerings";
 
 export enum PurchaseFlowErrorCode {
   ErrorSettingUpPurchase = 0,
@@ -41,14 +42,14 @@ export class PurchaseOperationHelper {
   async startPurchase(
     appUserId: string,
     productId: string,
-    purchaseOptionId: string | undefined,
+    purchaseOption: PurchaseOption | null | undefined,
     email: string,
     offeringIdentifier: string,
   ): Promise<SubscribeResponse> {
     const subscribeResponse = await this.backend.postSubscribe(
       appUserId,
       productId,
-      purchaseOptionId,
+      purchaseOption?.id,
       email,
       offeringIdentifier,
     );

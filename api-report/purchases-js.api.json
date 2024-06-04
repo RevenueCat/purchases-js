@@ -2570,7 +2570,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!Product#currentPrice:member",
-              "docComment": "/**\n * Price of the product.\n */\n",
+              "docComment": "/**\n * Price of the product. In the case of subscriptions, this will match the default option's base phase price.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -2597,16 +2597,21 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!Product#defaultSubscriptionPurchaseOptionId:member",
-              "docComment": "/**\n * The default option id to be used to subscribe to this product. Null if no subscription options are available.\n */\n",
+              "canonicalReference": "@revenuecat/purchases-js!Product#defaultSubscriptionOption:member",
+              "docComment": "/**\n * The default subscription option for this product. Null if no subscription options are available like in the case of consumables and non-consumables.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "readonly defaultSubscriptionPurchaseOptionId: "
+                  "text": "readonly defaultSubscriptionOption: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "SubscriptionPurchaseOption",
+                  "canonicalReference": "@revenuecat/purchases-js!SubscriptionPurchaseOption:interface"
                 },
                 {
                   "kind": "Content",
-                  "text": "string | null"
+                  "text": " | null"
                 },
                 {
                   "kind": "Content",
@@ -2616,10 +2621,10 @@
               "isReadonly": true,
               "isOptional": false,
               "releaseTag": "Public",
-              "name": "defaultSubscriptionPurchaseOptionId",
+              "name": "defaultSubscriptionOption",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
-                "endIndex": 2
+                "endIndex": 3
               }
             },
             {
@@ -2679,7 +2684,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!Product#normalPeriodDuration:member",
-              "docComment": "/**\n * The period duration for a subscription product.\n */\n",
+              "docComment": "/**\n * The period duration for a subscription product. This will match the default option's base phase period duration.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -2841,6 +2846,38 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PurchaseFlowParams#purchaseOption:member",
+              "docComment": "/**\n * The option to be used for this purchase. If not specified the default one will be used.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "purchaseOption?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "PurchaseOption",
+                  "canonicalReference": "@revenuecat/purchases-js!PurchaseOption:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "purchaseOption",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PurchaseFlowParams#rcPackage:member",
               "docComment": "/**\n * The package you want to purchase. Obtained from {@link Purchases.getOfferings}.\n */\n",
               "excerptTokens": [
@@ -2862,33 +2899,6 @@
               "isOptional": false,
               "releaseTag": "Public",
               "name": "rcPackage",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              }
-            },
-            {
-              "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!PurchaseFlowParams#subscriptionPurchaseOptionId:member",
-              "docComment": "/**\n * The optionId to be used for this purchase. If not specified the default one will be used.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "subscriptionPurchaseOptionId?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": true,
-              "releaseTag": "Public",
-              "name": "subscriptionPurchaseOptionId",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -2987,7 +2997,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PurchaseOptionPhase#periodDuration:member",
-              "docComment": "/**\n * The duration of the purchase option price. For applicable options (trials, initial/promotional prices), otherwise null\n */\n",
+              "docComment": "/**\n * The duration of the purchase option price in ISO 8601 format. For applicable options (trials, initial/promotional prices), otherwise null\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -3968,7 +3978,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!SubscriptionPurchaseOption#trialPhase:member",
-              "docComment": "/**\n * The trial PurchaseOptionPhase. If not null, the SubscriptionPurchaseOption has a trial phase.\n */\n",
+              "docComment": "/**\n * The trial information for this subscription option if available.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",

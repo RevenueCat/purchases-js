@@ -262,12 +262,7 @@ export class Purchases {
   public purchase(
     flowParams: PurchaseFlowParams,
   ): Promise<{ customerInfo: CustomerInfo }> {
-    const {
-      rcPackage,
-      subscriptionPurchaseOptionId,
-      htmlTarget,
-      customerEmail,
-    } = flowParams;
+    const { rcPackage, purchaseOption, htmlTarget, customerEmail } = flowParams;
     let resolvedHTMLTarget =
       htmlTarget ?? document.getElementById("rcb-ui-root");
 
@@ -299,7 +294,7 @@ export class Purchases {
         props: {
           appUserId,
           rcPackage,
-          subscriptionPurchaseOptionId,
+          purchaseOption,
           customerEmail,
           onFinished: async () => {
             Logger.debugLog("Purchase finished");

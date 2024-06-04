@@ -176,7 +176,7 @@ export interface Price {
 // @public
 export interface Product {
     readonly currentPrice: Price;
-    readonly defaultSubscriptionPurchaseOptionId: string | null;
+    readonly defaultSubscriptionOption: SubscriptionPurchaseOption | null;
     readonly displayName: string;
     readonly identifier: string;
     readonly normalPeriodDuration: string | null;
@@ -190,8 +190,8 @@ export interface Product {
 export interface PurchaseFlowParams {
     customerEmail?: string;
     htmlTarget?: HTMLElement;
+    purchaseOption?: PurchaseOption | null;
     rcPackage: Package;
-    subscriptionPurchaseOptionId?: string;
 }
 
 // @public

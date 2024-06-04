@@ -41,20 +41,16 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
     (offering.metadata?.original_price_by_product as Record<string, string>) ??
     null;
 
-  const defaultOfferId =
-    pkg.rcBillingProduct.defaultSubscriptionPurchaseOptionId;
-  const offer = defaultOfferId
-    ? pkg.rcBillingProduct.subscriptionPurchaseOptions[defaultOfferId]
-    : null;
+  const option = pkg.rcBillingProduct.defaultSubscriptionOption;
 
-  const price = offer
-    ? offer.basePhase.price
+  const price = option
+    ? option.basePhase.price
     : pkg.rcBillingProduct.currentPrice;
   const originalPrice = originalPriceByProduct
     ? originalPriceByProduct[pkg.rcBillingProduct.identifier]
     : null;
 
-  const trial = offer?.trialPhase;
+  const trial = option?.trialPhase;
   return (
     <div className="card">
       {trial && (
@@ -84,7 +80,7 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
           <div className="productName">{pkg.rcBillingProduct.displayName}</div>
           <div className="packageCTA">
             <Button
-              caption={offer?.trialPhase ? "Start Free Trial" : "Choose plan"}
+              caption={option?.trialPhase ? "Start Free Trial" : "Choose plan"}
               onClick={onClick}
             />
           </div>
@@ -113,17 +109,15 @@ const PaywallPage: React.FC = () => {
       return;
     }
 
-    const offerId = pkg.rcBillingProduct.defaultSubscriptionPurchaseOptionId;
-    console.log(`Purchasing with option ${offerId}`);
+    const option = pkg.rcBillingProduct.defaultSubscriptionOption;
+    console.log(`Purchasing with option ${option?.id}`);
 
     // How do we complete the purchase?
     try {
-      const { customerInfo } = offerId
-        ? await purchases.purchase({
-            rcPackage: pkg,
-            subscriptionPurchaseOptionId: offerId,
-          })
-        : await purchases.purchase({ rcPackage: pkg });
+      const { customerInfo } = await purchases.purchase({
+        rcPackage: pkg,
+        purchaseOption: option,
+      });
 
       console.log(`CustomerInfo after purchase: ${customerInfo}`);
 

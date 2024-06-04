@@ -4,8 +4,8 @@ import {
 } from "../networking/responses/offerings-response";
 import {
   type ProductResponse,
-  type SubscriptionPurchaseOptionResponse,
   type PurchaseOptionPhaseResponse,
+  type SubscriptionPurchaseOptionResponse,
 } from "../networking/responses/products-response";
 import { notEmpty } from "../helpers/type-helper";
 import { formatPrice } from "../helpers/price-labels";
@@ -140,11 +140,13 @@ export interface Product {
    */
   readonly displayName: string;
   /**
-   * Price of the product.
+   * Price of the product. In the case of subscriptions, this will match the
+   * default option's base phase price.
    */
   readonly currentPrice: Price;
   /**
-   * The period duration for a subscription product.
+   * The period duration for a subscription product. This will match the default
+   * option's base phase period duration.
    */
   readonly normalPeriodDuration: string | null;
   /**
@@ -153,11 +155,10 @@ export interface Product {
   readonly presentedOfferingIdentifier: string;
 
   /**
-   * The default option id to be used to subscribe to this product.
-   * Null if no subscription options are available like in the case of
-   * consumables and non-consumables.
+   * The default subscription option for this product. Null if no subscription
+   * options are available like in the case of consumables and non-consumables.
    */
-  readonly defaultSubscriptionPurchaseOptionId: string | null;
+  readonly defaultSubscriptionOption: SubscriptionPurchaseOption | null;
 
   /**
    * A dictionary with all the possible subscription options available for this
@@ -284,8 +285,7 @@ const toPurchaseOptionPrice = (
 const toSubscriptionPurchaseOption = (
   option: SubscriptionPurchaseOptionResponse,
 ): SubscriptionPurchaseOption | null => {
-  const basePhase = option.base_phase ?? option.base_price;
-  if (basePhase == null) {
+  if (option.base_phase == null) {
     Logger.debugLog(
       "Missing base phase for subscription purchase option. Ignoring.",
     );
@@ -293,8 +293,10 @@ const toSubscriptionPurchaseOption = (
   }
   return {
     id: option.id,
-    basePhase: toPurchaseOptionPrice(basePhase),
-    trialPhase: option.trial ? toPurchaseOptionPrice(option.trial) : null,
+    basePhase: toPurchaseOptionPrice(option.base_phase),
+    trialPhase: option.trial_phase
+      ? toPurchaseOptionPrice(option.trial_phase)
+      : null,
   } as SubscriptionPurchaseOption;
 };
 
@@ -320,14 +322,40 @@ const toProduct = (
     return null;
   }
 
+  const defaultOptionId =
+    productDetailsData.default_subscription_purchase_option_id;
+  const defaultOption =
+    defaultOptionId && defaultOptionId in options
+      ? options[defaultOptionId]
+      : null;
+  if (defaultOption == null) {
+    Logger.debugLog(
+      `Product ${productDetailsData.identifier} has no default subscription option. Ignoring.`,
+    );
+    return null;
+  }
+
+  const currentPrice = defaultOption.basePhase.price;
+  if (currentPrice == null) {
+    Logger.debugLog(
+      `Product ${productDetailsData.identifier} default option has no base price. Ignoring.`,
+    );
+    return null;
+  }
+
+  console.log(
+    "NORMAL PERIOD DURATION FOR PRODUCT ID: ",
+    productDetailsData.identifier,
+    " IS: ",
+    defaultOption.basePhase.periodDuration,
+  );
   return {
     identifier: productDetailsData.identifier,
     displayName: productDetailsData.title,
-    currentPrice: toPrice(productDetailsData.current_price),
-    normalPeriodDuration: productDetailsData.normal_period_duration,
+    currentPrice: currentPrice,
+    normalPeriodDuration: defaultOption.basePhase.periodDuration,
     presentedOfferingIdentifier: presentedOfferingIdentifier,
-    defaultSubscriptionPurchaseOptionId:
-      productDetailsData.default_subscription_purchase_option_id,
+    defaultSubscriptionOption: defaultOption,
     subscriptionPurchaseOptions: options,
   };
 };

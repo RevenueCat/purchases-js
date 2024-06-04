@@ -1,6 +1,6 @@
 <script lang="ts">
     import {onMount} from "svelte";
-    import {type Package, Purchases, PurchasesError} from "../main";
+    import { type Package, Product, PurchaseOption, Purchases, PurchasesError } from "../main";
     import StatePresentOffer from "./states/state-present-offer.svelte";
     import StateLoading from "./states/state-loading.svelte";
     import StateError from "./states/state-error.svelte";
@@ -27,7 +27,7 @@
     export let customerEmail: string | undefined;
     export let appUserId: string;
     export let rcPackage: Package;
-    export let subscriptionPurchaseOptionId: string | undefined;
+    export let purchaseOption: PurchaseOption | null | undefined;
     export let onFinished: () => void;
     export let onError: (error: PurchaseFlowError) => void;
     export let onClose: () => void;
@@ -39,15 +39,13 @@
         .map(([key, value]) => `--rc-color-${key}: ${value}`)
         .join("; ");
 
-    let productDetails: any = null;
+    let productDetails: Product | null = null;
     let brandingInfo: BrandingInfoResponse | null = null;
     let paymentInfoCollectionMetadata: SubscribeResponse | null = null;
     let lastError: PurchaseFlowError | null = null;
     const productId = rcPackage?.rcBillingProduct?.identifier ?? null;
-    const defaultPurchaseOptionId = rcPackage?.rcBillingProduct?.defaultSubscriptionPurchaseOptionId;
-    const optionId = subscriptionPurchaseOptionId ? subscriptionPurchaseOptionId : defaultPurchaseOptionId;
-    const purchaseOption = optionId ?
-        rcPackage?.rcBillingProduct?.subscriptionPurchaseOptions[optionId] : undefined;
+    const defaultPurchaseOption = rcPackage?.rcBillingProduct?.defaultSubscriptionOption;
+    const purchaseOptionToUse = purchaseOption ? purchaseOption : defaultPurchaseOption;
 
     let state:
         | "present-offer"
@@ -71,6 +69,8 @@
     onMount(async () => {
         productDetails = rcPackage.rcBillingProduct;
         brandingInfo = await backend.getBrandingInfo();
+
+        console.log("PRODUCT: ", productDetails);
 
         if (state === "present-offer") {
             if (customerEmail) {
@@ -111,7 +111,7 @@
             .startPurchase(
                 appUserId,
                 productId,
-                subscriptionPurchaseOptionId,
+                purchaseOptionToUse,
                 customerEmail,
                 rcPackage.rcBillingProduct.presentedOfferingIdentifier,
             )
@@ -199,7 +199,7 @@
                                 <IconCart/>
                             {/if}
                         </ModalHeader>
-                        {#if productDetails}
+                        {#if productDetails && purchaseOption}
                             <StatePresentOffer productDetails={productDetails} purchaseOption={purchaseOption}/>
                         {/if}
                     </Shell>
@@ -207,7 +207,7 @@
             {/if}
             <div class="rcb-ui-main">
                 <Shell>
-                    {#if state === "present-offer" && productDetails}
+                    {#if state === "present-offer" && productDetails && purchaseOption}
                         <StatePresentOffer productDetails={productDetails} purchaseOption={purchaseOption}/>
                     {/if}
                     {#if state === "present-offer" && !productDetails}
