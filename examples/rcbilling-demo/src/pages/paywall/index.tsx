@@ -43,9 +43,7 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
 
   const option = pkg.rcBillingProduct.defaultSubscriptionOption;
 
-  const price = option
-    ? option.base.price
-    : pkg.rcBillingProduct.currentPrice;
+  const price = option ? option.base.price : pkg.rcBillingProduct.currentPrice;
   const originalPrice = originalPriceByProduct
     ? originalPriceByProduct[pkg.rcBillingProduct.identifier]
     : null;
