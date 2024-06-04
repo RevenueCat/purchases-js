@@ -44,13 +44,13 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
   const option = pkg.rcBillingProduct.defaultSubscriptionOption;
 
   const price = option
-    ? option.basePhase.price
+    ? option.base.price
     : pkg.rcBillingProduct.currentPrice;
   const originalPrice = originalPriceByProduct
     ? originalPriceByProduct[pkg.rcBillingProduct.identifier]
     : null;
 
-  const trial = option?.trialPhase;
+  const trial = option?.trial;
   return (
     <div className="card">
       {trial && (
@@ -80,7 +80,7 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
           <div className="productName">{pkg.rcBillingProduct.displayName}</div>
           <div className="packageCTA">
             <Button
-              caption={option?.trialPhase ? "Start Free Trial" : "Choose plan"}
+              caption={option?.trial ? "Start Free Trial" : "Choose plan"}
               onClick={onClick}
             />
           </div>

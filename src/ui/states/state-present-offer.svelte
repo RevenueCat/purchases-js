@@ -9,8 +9,8 @@
 
     const subscriptionOption: SubscriptionOption | null | undefined =
       purchaseOption as SubscriptionOption;
-    const trial = subscriptionOption?.trialPhase;
-    const basePrice = subscriptionOption?.basePhase?.price;
+    const trial = subscriptionOption?.trial;
+    const basePrice = subscriptionOption?.base?.price;
 </script>
 
 <ModalSection>

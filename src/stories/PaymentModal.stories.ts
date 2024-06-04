@@ -48,7 +48,7 @@ const packageWithDefaultOption: Package = {
     normalPeriodDuration: "P1M",
     presentedOfferingIdentifier: "some_offering_identifier",
     defaultSubscriptionOption: {
-      basePhase: {
+      base: {
         periodDuration: "P1M",
         price: {
           amount: 999,
@@ -60,7 +60,7 @@ const packageWithDefaultOption: Package = {
     },
     subscriptionOptions: {
       base_option: {
-        basePhase: {
+        base: {
           periodDuration: "P1M",
           price: {
             amount: 999,

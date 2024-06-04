@@ -3949,12 +3949,12 @@
           "members": [
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!SubscriptionOption#basePhase:member",
+              "canonicalReference": "@revenuecat/purchases-js!SubscriptionOption#base:member",
               "docComment": "/**\n * The base phase for a SubscriptionOption, represents the price that the customer will be charged after all the discounts have been consumed and the period at which it will renew.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "readonly basePhase: "
+                  "text": "readonly base: "
                 },
                 {
                   "kind": "Reference",
@@ -3969,7 +3969,7 @@
               "isReadonly": true,
               "isOptional": false,
               "releaseTag": "Public",
-              "name": "basePhase",
+              "name": "base",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -3977,12 +3977,12 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!SubscriptionOption#trialPhase:member",
+              "canonicalReference": "@revenuecat/purchases-js!SubscriptionOption#trial:member",
               "docComment": "/**\n * The trial information for this subscription option if available.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "readonly trialPhase: "
+                  "text": "readonly trial: "
                 },
                 {
                   "kind": "Reference",
@@ -4001,7 +4001,7 @@
               "isReadonly": true,
               "isOptional": false,
               "releaseTag": "Public",
-              "name": "trialPhase",
+              "name": "trial",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 3

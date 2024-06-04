@@ -137,7 +137,7 @@ describe("getOfferings", () => {
       presentedOfferingIdentifier: "offering_1",
       defaultSubscriptionOption: {
         id: "base_option",
-        basePhase: {
+        base: {
           cycleCount: 1,
           periodDuration: "P1M",
           price: {
@@ -146,12 +146,12 @@ describe("getOfferings", () => {
             formattedPrice: "$3.00",
           },
         },
-        trialPhase: null,
+        trial: null,
       },
       subscriptionOptions: {
         base_option: {
           id: "base_option",
-          basePhase: {
+          base: {
             cycleCount: 1,
             periodDuration: "P1M",
             price: {
@@ -160,7 +160,7 @@ describe("getOfferings", () => {
               formattedPrice: "$3.00",
             },
           },
-          trialPhase: null,
+          trial: null,
         },
       },
     },
@@ -189,7 +189,7 @@ describe("getOfferings", () => {
 
     const subscriptionOption = {
       id: "offer_12345",
-      basePhase: {
+      base: {
         cycleCount: 1,
         periodDuration: "P1M",
         price: {
@@ -198,7 +198,7 @@ describe("getOfferings", () => {
           formattedPrice: "$5.00",
         },
       },
-      trialPhase: {
+      trial: {
         cycleCount: 1,
         periodDuration: "P1W",
         price: null,
@@ -267,7 +267,7 @@ describe("getOfferings", () => {
         presentedOfferingIdentifier: "offering_2",
         defaultSubscriptionOption: {
           id: "offer_12345",
-          basePhase: {
+          base: {
             cycleCount: 1,
             periodDuration: "P1M",
             price: {
@@ -276,7 +276,7 @@ describe("getOfferings", () => {
               formattedPrice: "$5.00",
             },
           },
-          trialPhase: {
+          trial: {
             cycleCount: 1,
             periodDuration: "P1W",
             price: null,
@@ -285,7 +285,7 @@ describe("getOfferings", () => {
         subscriptionOptions: {
           offer_12345: {
             id: "offer_12345",
-            basePhase: {
+            base: {
               cycleCount: 1,
               periodDuration: "P1M",
               price: {
@@ -294,7 +294,7 @@ describe("getOfferings", () => {
                 formattedPrice: "$5.00",
               },
             },
-            trialPhase: {
+            trial: {
               cycleCount: 1,
               periodDuration: "P1W",
               price: null,

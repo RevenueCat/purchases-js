@@ -119,11 +119,11 @@ export interface SubscriptionOption extends PurchaseOption {
    * the price that the customer will be charged after all the discounts have
    * been consumed and the period at which it will renew.
    */
-  readonly basePhase: PricingPhase;
+  readonly base: PricingPhase;
   /**
    * The trial information for this subscription option if available.
    */
-  readonly trialPhase: PricingPhase | null;
+  readonly trial: PricingPhase | null;
 }
 
 /**
@@ -287,8 +287,8 @@ const toSubscriptionOption = (
   }
   return {
     id: option.id,
-    basePhase: toPricingPhase(option.base_phase),
-    trialPhase: option.trial_phase ? toPricingPhase(option.trial_phase) : null,
+    base: toPricingPhase(option.base_phase),
+    trial: option.trial_phase ? toPricingPhase(option.trial_phase) : null,
   } as SubscriptionOption;
 };
 
@@ -327,7 +327,7 @@ const toProduct = (
     return null;
   }
 
-  const currentPrice = defaultOption.basePhase.price;
+  const currentPrice = defaultOption.base.price;
   if (currentPrice == null) {
     Logger.debugLog(
       `Product ${productDetailsData.identifier} default option has no base price. Ignoring.`,
@@ -339,7 +339,7 @@ const toProduct = (
     identifier: productDetailsData.identifier,
     displayName: productDetailsData.title,
     currentPrice: currentPrice,
-    normalPeriodDuration: defaultOption.basePhase.periodDuration,
+    normalPeriodDuration: defaultOption.base.periodDuration,
     presentedOfferingIdentifier: presentedOfferingIdentifier,
     defaultSubscriptionOption: defaultOption,
     subscriptionOptions: options,

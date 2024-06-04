@@ -246,8 +246,8 @@ export type Store = "app_store" | "mac_app_store" | "play_store" | "amazon" | "s
 
 // @public
 export interface SubscriptionOption extends PurchaseOption {
-    readonly basePhase: PricingPhase;
-    readonly trialPhase: PricingPhase | null;
+    readonly base: PricingPhase;
+    readonly trial: PricingPhase | null;
 }
 
 // @public
