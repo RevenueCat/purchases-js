@@ -22,6 +22,7 @@ export interface ProductResponse {
   identifier: string;
   product_type: string;
   title: string;
+  description: string | null;
   default_subscription_option_id: string | null;
   subscription_options: Map<string, SubscriptionOptionResponse>;
 }
