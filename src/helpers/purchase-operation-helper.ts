@@ -7,6 +7,7 @@ import {
   CheckoutStatusErrorCodes,
   type CheckoutStatusResponse,
 } from "../networking/responses/checkout-status-response";
+import { type PurchaseOption } from "../entities/offerings";
 
 export enum PurchaseFlowErrorCode {
   ErrorSettingUpPurchase = 0,
@@ -41,6 +42,7 @@ export class PurchaseOperationHelper {
   async startPurchase(
     appUserId: string,
     productId: string,
+    purchaseOption: PurchaseOption | null | undefined,
     email: string,
     offeringIdentifier: string,
   ): Promise<SubscribeResponse> {
@@ -49,6 +51,7 @@ export class PurchaseOperationHelper {
       productId,
       email,
       offeringIdentifier,
+      purchaseOption?.id,
     );
     this.operationSessionId = subscribeResponse.operation_session_id;
     return subscribeResponse;

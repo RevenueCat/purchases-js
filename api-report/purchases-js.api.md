@@ -174,12 +174,36 @@ export interface Price {
 }
 
 // @public
+export interface PricingPhase {
+    readonly cycleCount: number;
+    readonly periodDuration: string | null;
+    readonly price: Price | null;
+}
+
+// @public
 export interface Product {
     readonly currentPrice: Price;
+    readonly defaultSubscriptionOption: SubscriptionOption | null;
     readonly displayName: string;
     readonly identifier: string;
     readonly normalPeriodDuration: string | null;
     readonly presentedOfferingIdentifier: string;
+    readonly subscriptionOptions: {
+        [optionId: string]: SubscriptionOption;
+    };
+}
+
+// @public
+export interface PurchaseOption {
+    readonly id: string;
+}
+
+// @public
+export interface PurchaseParams {
+    customerEmail?: string;
+    htmlTarget?: HTMLElement;
+    purchaseOption?: PurchaseOption | null;
+    rcPackage: Package;
 }
 
 // @public
@@ -195,6 +219,10 @@ export class Purchases {
     isEntitledTo(entitlementIdentifier: string): Promise<boolean>;
     // (undocumented)
     isSandbox(): boolean;
+    purchase(params: PurchaseParams): Promise<{
+        customerInfo: CustomerInfo;
+    }>;
+    // @deprecated
     purchasePackage(rcPackage: Package, customerEmail?: string, htmlTarget?: HTMLElement): Promise<{
         customerInfo: CustomerInfo;
     }>;
@@ -215,6 +243,12 @@ export class PurchasesError extends Error {
 
 // @public
 export type Store = "app_store" | "mac_app_store" | "play_store" | "amazon" | "stripe" | "rc_billing" | "promotional" | "unknown";
+
+// @public
+export interface SubscriptionOption extends PurchaseOption {
+    readonly base: PricingPhase;
+    readonly trial: PricingPhase | null;
+}
 
 // @public
 export class UninitializedPurchasesError extends Error {

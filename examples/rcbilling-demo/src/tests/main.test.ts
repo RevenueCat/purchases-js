@@ -47,6 +47,7 @@ async function setupTest(
   });
   const page = await browser.newPage();
   await navigateToUrl(page, userId);
+  await page.setViewport({ width: 1366, height: 768 });
   await page.waitForSelector(_CARD_CLASS, { timeout: 5000 });
   return { browser, page };
 }

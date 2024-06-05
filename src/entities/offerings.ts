@@ -2,9 +2,14 @@ import {
   type OfferingResponse,
   type PackageResponse,
 } from "../networking/responses/offerings-response";
-import { type ProductResponse } from "../networking/responses/products-response";
+import {
+  type ProductResponse,
+  type PricingPhaseResponse,
+  type SubscriptionOptionResponse,
+} from "../networking/responses/products-response";
 import { notEmpty } from "../helpers/type-helper";
 import { formatPrice } from "../helpers/price-labels";
+import { Logger } from "../helpers/logger";
 
 /**
  * Enumeration of all possible Package types.
@@ -72,6 +77,56 @@ export interface Price {
 }
 
 /**
+ * Represents the price and duration information for a phase of the purchase option.
+ * @public
+ */
+export interface PricingPhase {
+  /**
+   * The duration of the purchase option price in ISO 8601 format.
+   * For applicable options (trials, initial/promotional prices), otherwise null
+   */
+  readonly periodDuration: string | null;
+  /**
+   * The price for the purchase option.
+   * Null in case of trials.
+   */
+  readonly price: Price | null;
+  /**
+   * The number of cycles this option's price repeats.
+   * I.e. 2 subscription cycles, 0 if not applicable.
+   */
+  readonly cycleCount: number;
+}
+
+/**
+ * Represents a possible option to purchase a product.
+ * @public
+ */
+export interface PurchaseOption {
+  /**
+   * The unique id for a purchase option
+   */
+  readonly id: string;
+}
+
+/**
+ * Represents a possible option to purchase a subscription product.
+ * @public
+ */
+export interface SubscriptionOption extends PurchaseOption {
+  /**
+   * The base phase for a SubscriptionOption, represents
+   * the price that the customer will be charged after all the discounts have
+   * been consumed and the period at which it will renew.
+   */
+  readonly base: PricingPhase;
+  /**
+   * The trial information for this subscription option if available.
+   */
+  readonly trial: PricingPhase | null;
+}
+
+/**
  * Represents product's listing details.
  * @public
  */
@@ -85,17 +140,34 @@ export interface Product {
    */
   readonly displayName: string;
   /**
-   * Price of the product.
+   * Price of the product. In the case of subscriptions, this will match the
+   * default option's base phase price.
    */
   readonly currentPrice: Price;
   /**
-   * The period duration for a subscription product.
+   * The period duration for a subscription product. This will match the default
+   * option's base phase period duration.
    */
   readonly normalPeriodDuration: string | null;
   /**
    * The offering ID used to obtain this product.
    */
   readonly presentedOfferingIdentifier: string;
+  /**
+   * The default subscription option for this product. Null if no subscription
+   * options are available like in the case of consumables and non-consumables.
+   */
+  readonly defaultSubscriptionOption: SubscriptionOption | null;
+  /**
+   * A dictionary with all the possible subscription options available for this
+   * product. Each key contains the key to be used when executing a purchase.
+   *
+   * If retrieved through getOfferings the offers are only the ones the customer is
+   * entitled to.
+   */
+  readonly subscriptionOptions: {
+    [optionId: string]: SubscriptionOption;
+  };
 }
 
 /**
@@ -198,16 +270,78 @@ const toPrice = (priceData: { amount: number; currency: string }): Price => {
   };
 };
 
+const toPricingPhase = (optionPhase: PricingPhaseResponse): PricingPhase => {
+  return {
+    periodDuration: optionPhase.period_duration,
+    cycleCount: optionPhase.cycle_count,
+    price: optionPhase.price ? toPrice(optionPhase.price) : null,
+  } as PricingPhase;
+};
+
+const toSubscriptionOption = (
+  option: SubscriptionOptionResponse,
+): SubscriptionOption | null => {
+  if (option.base == null) {
+    Logger.debugLog("Missing base phase for subscription option. Ignoring.");
+    return null;
+  }
+  return {
+    id: option.id,
+    base: toPricingPhase(option.base),
+    trial: option.trial ? toPricingPhase(option.trial) : null,
+  } as SubscriptionOption;
+};
+
 const toProduct = (
   productDetailsData: ProductResponse,
   presentedOfferingIdentifier: string,
-): Product => {
+): Product | null => {
+  const options: { [optionId: string]: SubscriptionOption } = {};
+
+  Object.entries(productDetailsData.subscription_options).forEach(
+    ([key, value]) => {
+      const option = toSubscriptionOption(value);
+      if (option != null) {
+        options[key] = option;
+      }
+    },
+  );
+
+  if (Object.keys(options).length === 0) {
+    Logger.debugLog(
+      `Product ${productDetailsData.identifier} has no subscription options. Ignoring.`,
+    );
+    return null;
+  }
+
+  const defaultOptionId = productDetailsData.default_subscription_option_id;
+  const defaultOption =
+    defaultOptionId && defaultOptionId in options
+      ? options[defaultOptionId]
+      : null;
+  if (defaultOption == null) {
+    Logger.debugLog(
+      `Product ${productDetailsData.identifier} has no default subscription option. Ignoring.`,
+    );
+    return null;
+  }
+
+  const currentPrice = defaultOption.base.price;
+  if (currentPrice == null) {
+    Logger.debugLog(
+      `Product ${productDetailsData.identifier} default option has no base price. Ignoring.`,
+    );
+    return null;
+  }
+
   return {
     identifier: productDetailsData.identifier,
     displayName: productDetailsData.title,
-    currentPrice: toPrice(productDetailsData.current_price),
-    normalPeriodDuration: productDetailsData.normal_period_duration,
+    currentPrice: currentPrice,
+    normalPeriodDuration: defaultOption.base.periodDuration,
     presentedOfferingIdentifier: presentedOfferingIdentifier,
+    defaultSubscriptionOption: defaultOption,
+    subscriptionOptions: options,
   };
 };
 
@@ -219,10 +353,12 @@ const toPackage = (
   const rcBillingProduct =
     productDetailsData[packageData.platform_product_identifier];
   if (rcBillingProduct === undefined) return null;
+  const product = toProduct(rcBillingProduct, presentedOfferingIdentifier);
+  if (product === null) return null;
 
   return {
     identifier: packageData.identifier,
-    rcBillingProduct: toProduct(rcBillingProduct, presentedOfferingIdentifier),
+    rcBillingProduct: product,
     packageType: getPackageType(packageData.identifier),
   };
 };
@@ -239,7 +375,7 @@ export const toOffering = (
   const packagesById: { [packageId: string]: Package } = {};
   for (const p of packages) {
     if (p != null) {
-      packagesById[p.identifier] = p;
+      packagesById[p.identifier] = p as Package;
     }
   }
   if (packages.length == 0) return null;
@@ -248,7 +384,7 @@ export const toOffering = (
     serverDescription: offeringsData.description,
     metadata: offeringsData.metadata,
     packagesById: packagesById,
-    availablePackages: packages,
+    availablePackages: packages as Package[],
     lifetime: packagesById[PackageType.Lifetime] ?? null,
     annual: packagesById[PackageType.Annual] ?? null,
     sixMonth: packagesById[PackageType.SixMonth] ?? null,

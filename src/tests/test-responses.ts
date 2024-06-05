@@ -6,20 +6,22 @@ const monthlyProductResponse = {
     currency: "USD",
   },
   identifier: "monthly",
-  normal_period_duration: "PT1H",
+  normal_period_duration: "P1M",
   product_type: "subscription",
   title: "Monthly test",
-  default_subscription_purchase_option_id: "base_option",
-  subscription_purchase_options: {
+  default_subscription_option_id: "base_option",
+  subscription_options: {
     base_option: {
-      base_price: {
-        period_duration: null,
+      id: "base_option",
+      base: {
+        period_duration: "P1M",
         cycle_count: 1,
         price: {
           amount: 300,
           currency: "USD",
         },
       },
+      trial: null,
     },
   },
 };
@@ -30,14 +32,15 @@ const monthly2ProductResponse = {
     currency: "USD",
   },
   identifier: "monthly_2",
-  normal_period_duration: "PT1H",
+  normal_period_duration: "P1M",
   product_type: "subscription",
   title: "Monthly test 2",
-  default_subscription_purchase_option_id: "offer_12345",
-  subscription_purchase_options: {
+  default_subscription_option_id: "offer_12345",
+  subscription_options: {
     offer_12345: {
-      base_price: {
-        period_duration: null,
+      id: "offer_12345",
+      base: {
+        period_duration: "P1M",
         cycle_count: 1,
         price: {
           amount: 500,

@@ -282,6 +282,7 @@ describe("subscribe request", () => {
         "monthly",
         "testemail@revenuecat.com",
         "offering_1",
+        undefined,
       ),
     ).toEqual(subscribeResponse);
   });
@@ -296,6 +297,7 @@ describe("subscribe request", () => {
         "monthly",
         "testemail@revenuecat.com",
         "offering_1",
+        undefined,
       ),
       new PurchasesError(
         ErrorCode.UnknownBackendError,
@@ -320,6 +322,7 @@ describe("subscribe request", () => {
         "monthly",
         "testemail@revenuecat.com",
         "offering_1",
+        undefined,
       ),
       new PurchasesError(
         ErrorCode.InvalidCredentialsError,
@@ -337,6 +340,7 @@ describe("subscribe request", () => {
         "monthly",
         "testemail@revenuecat.com",
         "offering_1",
+        undefined,
       ),
       new PurchasesError(
         ErrorCode.NetworkError,

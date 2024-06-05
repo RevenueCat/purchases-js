@@ -57,23 +57,31 @@ export class Backend {
     productId: string,
     email: string,
     offeringIdentifier: string,
+    purchaseOptionId?: string,
   ): Promise<SubscribeResponse> {
     type SubscribeRequestBody = {
       app_user_id: string;
       product_id: string;
       email: string;
       presented_offering_identifier: string;
+      offer_id?: string;
     };
+
+    const requestBody: SubscribeRequestBody = {
+      app_user_id: appUserId,
+      product_id: productId,
+      email: email,
+      presented_offering_identifier: offeringIdentifier,
+    };
+
+    if (purchaseOptionId && purchaseOptionId !== "base_option") {
+      requestBody.offer_id = purchaseOptionId;
+    }
 
     return await performRequest<SubscribeRequestBody, SubscribeResponse>(
       new SubscribeEndpoint(),
       this.API_KEY,
-      {
-        app_user_id: appUserId,
-        product_id: productId,
-        email: email,
-        presented_offering_identifier: offeringIdentifier,
-      },
+      requestBody,
     );
   }
 

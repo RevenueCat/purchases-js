@@ -34,6 +34,7 @@ import {
   validateApiKey,
   validateAppUserId,
 } from "./helpers/configuration-validators";
+import { type PurchaseParams } from "./entities/purchase-params";
 
 export type {
   Offering,
@@ -41,6 +42,9 @@ export type {
   Package,
   Product,
   Price,
+  PurchaseOption,
+  SubscriptionOption,
+  PricingPhase,
 } from "./entities/offerings";
 export { PackageType } from "./entities/offerings";
 export type { CustomerInfo } from "./entities/customer-info";
@@ -56,6 +60,7 @@ export {
   UninitializedPurchasesError,
 } from "./entities/errors";
 export { LogLevel } from "./entities/log-level";
+export type { PurchaseParams } from "./entities/purchase-params";
 
 /**
  * Entry point for Purchases SDK. It should be instantiated as soon as your
@@ -226,10 +231,11 @@ export class Purchases {
    * package from {@link Purchases.getOfferings}. This method will present the purchase
    * form on your site, using the given HTML element as the mount point, if
    * provided, or as a modal if not.
+   * @deprecated - please use .purchase
    * @param rcPackage - The package you want to purchase. Obtained from {@link Purchases.getOfferings}.
-   * @param customerEmail - The email of the user. If null, RevenueCat will ask the customer for their email.
-   * @param htmlTarget - The HTML element where the billing view should be added. If null, a new div will be created at the root of the page and appended to the body.
-   * @returns The customer info after the purchase is completed successfuly.
+   * @param customerEmail - The email of the user. If undefined, RevenueCat will ask the customer for their email.
+   * @param htmlTarget - The HTML element where the billing view should be added. If undefined, a new div will be created at the root of the page and appended to the body.
+   * @returns a Promise for the customer info after the purchase is completed successfully.
    * @throws {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.
    */
   public purchasePackage(
@@ -237,6 +243,26 @@ export class Purchases {
     customerEmail?: string,
     htmlTarget?: HTMLElement,
   ): Promise<{ customerInfo: CustomerInfo }> {
+    return this.purchase({
+      rcPackage,
+      customerEmail,
+      htmlTarget,
+    });
+  }
+
+  /**
+   * Method to perform a purchase for a given package. You can obtain the
+   * package from {@link Purchases.getOfferings}. This method will present the purchase
+   * form on your site, using the given HTML element as the mount point, if
+   * provided, or as a modal if not.
+   * @param params - The parameters object to customise the purchase flow. Check {@link PurchaseParams}
+   * @returns a Promise for the customer info after the purchase is completed successfully.
+   * @throws {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.
+   */
+  public purchase(
+    params: PurchaseParams,
+  ): Promise<{ customerInfo: CustomerInfo }> {
+    const { rcPackage, purchaseOption, htmlTarget, customerEmail } = params;
     let resolvedHTMLTarget =
       htmlTarget ?? document.getElementById("rcb-ui-root");
 
@@ -268,6 +294,7 @@ export class Purchases {
         props: {
           appUserId,
           rcPackage,
+          purchaseOption,
           customerEmail,
           onFinished: async () => {
             Logger.debugLog("Purchase finished");

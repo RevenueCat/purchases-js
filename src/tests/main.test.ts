@@ -133,10 +133,39 @@ describe("getOfferings", () => {
       },
       displayName: "Monthly test",
       identifier: "monthly",
-      normalPeriodDuration: "PT1H",
+      normalPeriodDuration: "P1M",
       presentedOfferingIdentifier: "offering_1",
+      defaultSubscriptionOption: {
+        id: "base_option",
+        base: {
+          cycleCount: 1,
+          periodDuration: "P1M",
+          price: {
+            amount: 300,
+            currency: "USD",
+            formattedPrice: "$3.00",
+          },
+        },
+        trial: null,
+      },
+      subscriptionOptions: {
+        base_option: {
+          id: "base_option",
+          base: {
+            cycleCount: 1,
+            periodDuration: "P1M",
+            price: {
+              amount: 300,
+              currency: "USD",
+              formattedPrice: "$3.00",
+            },
+          },
+          trial: null,
+        },
+      },
     },
-  };
+  } as Package;
+
   test("can get offerings", async () => {
     const purchases = configurePurchases();
     const offerings = await purchases.getOfferings();
@@ -158,9 +187,27 @@ describe("getOfferings", () => {
       weekly: null,
     };
 
-    const package2 = {
+    const subscriptionOption = {
+      id: "offer_12345",
+      base: {
+        cycleCount: 1,
+        periodDuration: "P1M",
+        price: {
+          amount: 500,
+          currency: "USD",
+          formattedPrice: "$5.00",
+        },
+      },
+      trial: {
+        cycleCount: 1,
+        periodDuration: "P1W",
+        price: null,
+      },
+    };
+
+    const package2: Package = {
       identifier: "package_2",
-      packageType: "custom",
+      packageType: PackageType.Custom,
       rcBillingProduct: {
         currentPrice: {
           currency: "USD",
@@ -169,8 +216,12 @@ describe("getOfferings", () => {
         },
         displayName: "Monthly test 2",
         identifier: "monthly_2",
-        normalPeriodDuration: "PT1H",
+        normalPeriodDuration: "P1M",
         presentedOfferingIdentifier: "offering_2",
+        defaultSubscriptionOption: subscriptionOption,
+        subscriptionOptions: {
+          offer_12345: subscriptionOption,
+        },
       },
     };
 
@@ -201,7 +252,7 @@ describe("getOfferings", () => {
   test("can get offerings without current offering id", async () => {
     const purchases = configurePurchases("appUserIdWithoutCurrentOfferingId");
     const offerings = await purchases.getOfferings();
-    const package2 = {
+    const package2: Package = {
       identifier: "package_2",
       packageType: PackageType.Custom,
       rcBillingProduct: {
@@ -212,8 +263,44 @@ describe("getOfferings", () => {
         },
         displayName: "Monthly test 2",
         identifier: "monthly_2",
-        normalPeriodDuration: "PT1H",
+        normalPeriodDuration: "P1M",
         presentedOfferingIdentifier: "offering_2",
+        defaultSubscriptionOption: {
+          id: "offer_12345",
+          base: {
+            cycleCount: 1,
+            periodDuration: "P1M",
+            price: {
+              amount: 500,
+              currency: "USD",
+              formattedPrice: "$5.00",
+            },
+          },
+          trial: {
+            cycleCount: 1,
+            periodDuration: "P1W",
+            price: null,
+          },
+        },
+        subscriptionOptions: {
+          offer_12345: {
+            id: "offer_12345",
+            base: {
+              cycleCount: 1,
+              periodDuration: "P1M",
+              price: {
+                amount: 500,
+                currency: "USD",
+                formattedPrice: "$5.00",
+              },
+            },
+            trial: {
+              cycleCount: 1,
+              periodDuration: "P1W",
+              price: null,
+            },
+          },
+        },
       },
     };
     const expectedOfferings: Offerings = {
@@ -252,7 +339,7 @@ describe("getOfferings", () => {
         },
       },
       current: null,
-    };
+    } as Offerings;
 
     expect(offerings).toEqual(expectedOfferings);
   });

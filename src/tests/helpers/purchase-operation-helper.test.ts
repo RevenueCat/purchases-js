@@ -69,6 +69,7 @@ describe("PurchaseOperationHelper", () => {
       purchaseOperationHelper.startPurchase(
         "test-app-user-id",
         "test-product-id",
+        undefined,
         "test-email",
         "test-offering-id",
       ),
@@ -102,6 +103,7 @@ describe("PurchaseOperationHelper", () => {
     await purchaseOperationHelper.startPurchase(
       "test-app-user-id",
       "test-product-id",
+      undefined,
       "test-email",
       "test-offering-id",
     );
@@ -134,6 +136,7 @@ describe("PurchaseOperationHelper", () => {
     await purchaseOperationHelper.startPurchase(
       "test-app-user-id",
       "test-product-id",
+      undefined,
       "test-email",
       "test-offering-id",
     );
@@ -195,6 +198,7 @@ describe("PurchaseOperationHelper", () => {
     await purchaseOperationHelper.startPurchase(
       "test-app-user-id",
       "test-product-id",
+      undefined,
       "test-email",
       "test-offering-id",
     );
