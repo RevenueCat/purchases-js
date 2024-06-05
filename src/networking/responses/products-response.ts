@@ -14,16 +14,16 @@ export interface PurchaseOptionResponse {
 }
 
 export interface SubscriptionOptionResponse extends PurchaseOptionResponse {
-  base_phase: PricingPhaseResponse | null;
-  trial_phase: PricingPhaseResponse | null;
+  base: PricingPhaseResponse | null;
+  trial: PricingPhaseResponse | null;
 }
 
 export interface ProductResponse {
   identifier: string;
   product_type: string;
   title: string;
-  default_subscription_purchase_option_id: string | null;
-  subscription_purchase_options: Map<string, SubscriptionOptionResponse>;
+  default_subscription_option_id: string | null;
+  subscription_options: Map<string, SubscriptionOptionResponse>;
 }
 
 export interface ProductsResponse {

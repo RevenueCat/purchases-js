@@ -281,14 +281,14 @@ const toPricingPhase = (optionPhase: PricingPhaseResponse): PricingPhase => {
 const toSubscriptionOption = (
   option: SubscriptionOptionResponse,
 ): SubscriptionOption | null => {
-  if (option.base_phase == null) {
+  if (option.base == null) {
     Logger.debugLog("Missing base phase for subscription option. Ignoring.");
     return null;
   }
   return {
     id: option.id,
-    base: toPricingPhase(option.base_phase),
-    trial: option.trial_phase ? toPricingPhase(option.trial_phase) : null,
+    base: toPricingPhase(option.base),
+    trial: option.trial ? toPricingPhase(option.trial) : null,
   } as SubscriptionOption;
 };
 
@@ -298,7 +298,7 @@ const toProduct = (
 ): Product | null => {
   const options: { [optionId: string]: SubscriptionOption } = {};
 
-  Object.entries(productDetailsData.subscription_purchase_options).forEach(
+  Object.entries(productDetailsData.subscription_options).forEach(
     ([key, value]) => {
       const option = toSubscriptionOption(value);
       if (option != null) {
@@ -314,8 +314,7 @@ const toProduct = (
     return null;
   }
 
-  const defaultOptionId =
-    productDetailsData.default_subscription_purchase_option_id;
+  const defaultOptionId = productDetailsData.default_subscription_option_id;
   const defaultOption =
     defaultOptionId && defaultOptionId in options
       ? options[defaultOptionId]

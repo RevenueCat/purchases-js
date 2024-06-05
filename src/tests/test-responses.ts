@@ -9,11 +9,11 @@ const monthlyProductResponse = {
   normal_period_duration: "P1M",
   product_type: "subscription",
   title: "Monthly test",
-  default_subscription_purchase_option_id: "base_option",
-  subscription_purchase_options: {
+  default_subscription_option_id: "base_option",
+  subscription_options: {
     base_option: {
       id: "base_option",
-      base_phase: {
+      base: {
         period_duration: "P1M",
         cycle_count: 1,
         price: {
@@ -21,7 +21,7 @@ const monthlyProductResponse = {
           currency: "USD",
         },
       },
-      trial_phase: null,
+      trial: null,
     },
   },
 };
@@ -35,11 +35,11 @@ const monthly2ProductResponse = {
   normal_period_duration: "P1M",
   product_type: "subscription",
   title: "Monthly test 2",
-  default_subscription_purchase_option_id: "offer_12345",
-  subscription_purchase_options: {
+  default_subscription_option_id: "offer_12345",
+  subscription_options: {
     offer_12345: {
       id: "offer_12345",
-      base_phase: {
+      base: {
         period_duration: "P1M",
         cycle_count: 1,
         price: {
@@ -47,7 +47,7 @@ const monthly2ProductResponse = {
           currency: "USD",
         },
       },
-      trial_phase: {
+      trial: {
         period_duration: "P1W",
         cycle_count: 1,
         price: null,
