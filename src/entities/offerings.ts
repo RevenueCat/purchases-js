@@ -137,8 +137,17 @@ export interface Product {
   readonly identifier: string;
   /**
    * Name of the product.
+   * @deprecated - Use {@link Product.title} instead.
    */
   readonly displayName: string;
+  /**
+   * The title of the product as configured in the RevenueCat dashboard.
+   */
+  readonly title: string;
+  /**
+   * The description of the product as configured in the RevenueCat dashboard.
+   */
+  readonly description: string | null;
   /**
    * Price of the product. In the case of subscriptions, this will match the
    * default option's base phase price.
@@ -337,6 +346,8 @@ const toProduct = (
   return {
     identifier: productDetailsData.identifier,
     displayName: productDetailsData.title,
+    title: productDetailsData.title,
+    description: productDetailsData.description,
     currentPrice: currentPrice,
     normalPeriodDuration: defaultOption.base.periodDuration,
     presentedOfferingIdentifier: presentedOfferingIdentifier,

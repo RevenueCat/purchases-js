@@ -9,6 +9,7 @@ const monthlyProductResponse = {
   normal_period_duration: "P1M",
   product_type: "subscription",
   title: "Monthly test",
+  description: null,
   default_subscription_option_id: "base_option",
   subscription_options: {
     base_option: {
@@ -35,6 +36,7 @@ const monthly2ProductResponse = {
   normal_period_duration: "P1M",
   product_type: "subscription",
   title: "Monthly test 2",
+  description: "monthly description",
   default_subscription_option_id: "offer_12345",
   subscription_options: {
     offer_12345: {

@@ -184,6 +184,8 @@ export interface PricingPhase {
 export interface Product {
     readonly currentPrice: Price;
     readonly defaultSubscriptionOption: SubscriptionOption | null;
+    readonly description: string | null;
+    // @deprecated
     readonly displayName: string;
     readonly identifier: string;
     readonly normalPeriodDuration: string | null;
@@ -191,6 +193,7 @@ export interface Product {
     readonly subscriptionOptions: {
         [optionId: string]: SubscriptionOption;
     };
+    readonly title: string;
 }
 
 // @public
