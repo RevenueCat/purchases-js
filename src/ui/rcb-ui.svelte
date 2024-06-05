@@ -70,8 +70,6 @@
         productDetails = rcPackage.rcBillingProduct;
         brandingInfo = await backend.getBrandingInfo();
 
-        console.log("PRODUCT: ", productDetails);
-
         if (state === "present-offer") {
             if (customerEmail) {
                 handleSubscribe();
