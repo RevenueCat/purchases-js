@@ -2428,6 +2428,79 @@
           ]
         },
         {
+          "kind": "Interface",
+          "canonicalReference": "@revenuecat/purchases-js!Period:interface",
+          "docComment": "/**\n * Represents a period of time.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare interface Period "
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "name": "Period",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!Period#number:member",
+              "docComment": "/**\n * The number of units in the period.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "number: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "number",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!Period#unit:member",
+              "docComment": "/**\n * The unit of time.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "unit: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "PeriodUnit",
+                  "canonicalReference": "@revenuecat/purchases-js!PeriodUnit:enum"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "unit",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
           "kind": "TypeAlias",
           "canonicalReference": "@revenuecat/purchases-js!PeriodType:type",
           "docComment": "/**\n * Supported period types for an entitlement. - \"normal\" If the entitlement is not under an introductory or trial period. - \"intro\" If the entitlement is under an introductory period. - \"trial\" If the entitlement is under a trial period.\n *\n * @public\n */\n",
@@ -2452,6 +2525,107 @@
             "startIndex": 1,
             "endIndex": 2
           }
+        },
+        {
+          "kind": "Enum",
+          "canonicalReference": "@revenuecat/purchases-js!PeriodUnit:enum",
+          "docComment": "/**\n * Represents a unit of time.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare enum PeriodUnit "
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "name": "PeriodUnit",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!PeriodUnit.Day:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Day = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"day\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "Day"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!PeriodUnit.Month:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Month = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"month\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "Month"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!PeriodUnit.Week:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Week = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"week\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "Week"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!PeriodUnit.Year:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Year = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"year\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "Year"
+            }
+          ]
         },
         {
           "kind": "Interface",
@@ -2596,8 +2770,40 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PricingPhase#period:member",
+              "docComment": "/**\n * The duration of the phase as a {@link Period}.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly period: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Period",
+                  "canonicalReference": "@revenuecat/purchases-js!Period:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "period",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PricingPhase#periodDuration:member",
-              "docComment": "/**\n * The duration of the purchase option price in ISO 8601 format. For applicable options (trials, initial/promotional prices), otherwise null\n */\n",
+              "docComment": "/**\n * The duration of the phase in ISO 8601 format.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
