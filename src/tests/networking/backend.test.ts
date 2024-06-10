@@ -332,6 +332,32 @@ describe("subscribe request", () => {
     );
   });
 
+  test("throws a PurchaseInvalidError if the backend returns with a offer not found error", async () => {
+    setSubscribeResponse(
+      HttpResponse.json(
+        {
+          code: BackendErrorCode.BackendOfferNotFound,
+          message: "Offer not available",
+        },
+        { status: StatusCodes.NOT_FOUND },
+      ),
+    );
+    await expectPromiseToError(
+      backend.postSubscribe(
+        "someAppUserId",
+        "monthly",
+        "testemail@revenuecat.com",
+        "offering_1",
+        undefined,
+      ),
+      new PurchasesError(
+        ErrorCode.PurchaseInvalidError,
+        "One or more of the arguments provided are invalid.",
+        "Offer not available",
+      ),
+    );
+  });
+
   test("throws network error if cannot reach server", async () => {
     setSubscribeResponse(HttpResponse.error());
     await expectPromiseToError(

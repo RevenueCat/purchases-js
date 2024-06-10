@@ -120,6 +120,7 @@ export class ErrorCodeUtils {
         return ErrorCode.InvalidCredentialsError;
       case BackendErrorCode.BackendInvalidPaymentModeOrIntroPriceNotProvided:
       case BackendErrorCode.BackendProductIdForGoogleReceiptNotProvided:
+      case BackendErrorCode.BackendOfferNotFound:
         return ErrorCode.PurchaseInvalidError;
       case BackendErrorCode.BackendEmptyAppUserId:
         return ErrorCode.InvalidAppUserIdError;
@@ -195,6 +196,7 @@ export enum BackendErrorCode {
   BackendInvalidSubscriberAttributes = 7263,
   BackendInvalidSubscriberAttributesBody = 7264,
   BackendProductIDsMalformed = 7662,
+  BackendOfferNotFound = 7814,
 }
 
 /**
