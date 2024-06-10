@@ -10,6 +10,7 @@ import {
 import { notEmpty } from "../helpers/type-helper";
 import { formatPrice } from "../helpers/price-labels";
 import { Logger } from "../helpers/logger";
+import { parseISODuration, type Period } from "../helpers/duration-helper";
 
 /**
  * Enumeration of all possible Package types.
@@ -82,10 +83,13 @@ export interface Price {
  */
 export interface PricingPhase {
   /**
-   * The duration of the purchase option price in ISO 8601 format.
-   * For applicable options (trials, initial/promotional prices), otherwise null
+   * The duration of the phase in ISO 8601 format.
    */
   readonly periodDuration: string | null;
+  /**
+   * The duration of the phase as a {@link Period}.
+   */
+  readonly period: Period | null;
   /**
    * The price for the purchase option.
    * Null in case of trials.
@@ -280,8 +284,10 @@ const toPrice = (priceData: { amount: number; currency: string }): Price => {
 };
 
 const toPricingPhase = (optionPhase: PricingPhaseResponse): PricingPhase => {
+  const periodDuration = optionPhase.period_duration;
   return {
-    periodDuration: optionPhase.period_duration,
+    periodDuration: periodDuration,
+    period: periodDuration ? parseISODuration(periodDuration) : null,
     cycleCount: optionPhase.cycle_count,
     price: optionPhase.price ? toPrice(optionPhase.price) : null,
   } as PricingPhase;

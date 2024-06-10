@@ -12,6 +12,7 @@ import {
 } from "../main";
 import { getRequestHandlers } from "./test-responses";
 import { UninitializedPurchasesError } from "../entities/errors";
+import { PeriodUnit } from "../helpers/duration-helper";
 
 const server = setupServer(...getRequestHandlers());
 
@@ -142,6 +143,10 @@ describe("getOfferings", () => {
         base: {
           cycleCount: 1,
           periodDuration: "P1M",
+          period: {
+            number: 1,
+            unit: PeriodUnit.Month,
+          },
           price: {
             amount: 300,
             currency: "USD",
@@ -156,6 +161,10 @@ describe("getOfferings", () => {
           base: {
             cycleCount: 1,
             periodDuration: "P1M",
+            period: {
+              number: 1,
+              unit: PeriodUnit.Month,
+            },
             price: {
               amount: 300,
               currency: "USD",
@@ -194,6 +203,10 @@ describe("getOfferings", () => {
       base: {
         cycleCount: 1,
         periodDuration: "P1M",
+        period: {
+          number: 1,
+          unit: PeriodUnit.Month,
+        },
         price: {
           amount: 500,
           currency: "USD",
@@ -203,6 +216,10 @@ describe("getOfferings", () => {
       trial: {
         cycleCount: 1,
         periodDuration: "P1W",
+        period: {
+          number: 1,
+          unit: PeriodUnit.Week,
+        },
         price: null,
       },
     };
@@ -276,6 +293,10 @@ describe("getOfferings", () => {
           base: {
             cycleCount: 1,
             periodDuration: "P1M",
+            period: {
+              number: 1,
+              unit: PeriodUnit.Month,
+            },
             price: {
               amount: 500,
               currency: "USD",
@@ -285,6 +306,10 @@ describe("getOfferings", () => {
           trial: {
             cycleCount: 1,
             periodDuration: "P1W",
+            period: {
+              number: 1,
+              unit: PeriodUnit.Week,
+            },
             price: null,
           },
         },
@@ -294,6 +319,10 @@ describe("getOfferings", () => {
             base: {
               cycleCount: 1,
               periodDuration: "P1M",
+              period: {
+                number: 1,
+                unit: PeriodUnit.Month,
+              },
               price: {
                 amount: 500,
                 currency: "USD",
@@ -303,6 +332,10 @@ describe("getOfferings", () => {
             trial: {
               cycleCount: 1,
               periodDuration: "P1W",
+              period: {
+                number: 1,
+                unit: PeriodUnit.Week,
+              },
               price: null,
             },
           },

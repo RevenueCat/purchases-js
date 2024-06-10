@@ -1,5 +1,9 @@
 import { Logger } from "./logger";
 
+/**
+ * Represents a unit of time.
+ * @public
+ */
 export enum PeriodUnit {
   Year = "year",
   Month = "month",
@@ -7,8 +11,18 @@ export enum PeriodUnit {
   Day = "day",
 }
 
+/**
+ * Represents a period of time.
+ * @public
+ */
 export interface Period {
+  /**
+   * The number of units in the period.
+   */
   number: number;
+  /**
+   * The unit of time.
+   */
   unit: PeriodUnit;
 }
 

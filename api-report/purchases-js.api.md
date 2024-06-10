@@ -164,7 +164,25 @@ export enum PackageType {
 }
 
 // @public
+export interface Period {
+    number: number;
+    unit: PeriodUnit;
+}
+
+// @public
 export type PeriodType = "normal" | "intro" | "trial";
+
+// @public
+export enum PeriodUnit {
+    // (undocumented)
+    Day = "day",
+    // (undocumented)
+    Month = "month",
+    // (undocumented)
+    Week = "week",
+    // (undocumented)
+    Year = "year"
+}
 
 // @public
 export interface Price {
@@ -176,6 +194,7 @@ export interface Price {
 // @public
 export interface PricingPhase {
     readonly cycleCount: number;
+    readonly period: Period | null;
     readonly periodDuration: string | null;
     readonly price: Price | null;
 }
