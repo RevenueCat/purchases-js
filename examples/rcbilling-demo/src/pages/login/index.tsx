@@ -7,7 +7,7 @@ const LoginPage: React.FC = () => {
   return (
     <div className="login">
       <h1>Hello! What’s your user ID?</h1>
-      <h2>Please enter your user ID to continue.</h2>
+      <h2>Please enter a unique user ID to continue.</h2>
       <form onSubmit={(event) => event.preventDefault()}>
         <input type="text" id="app-user-id" placeholder="Your app user ID" />
         <Button
