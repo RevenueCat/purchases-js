@@ -12,8 +12,6 @@ import PaywallPage from "./pages/paywall";
 import SuccessPage from "./pages/success";
 import { loadPurchases } from "./util/PurchasesLoader";
 
-export const catServicesEntitlementId = "catServices";
-
 const router = createBrowserRouter([
   {
     path: "/",
