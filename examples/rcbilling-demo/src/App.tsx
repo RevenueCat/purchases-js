@@ -12,8 +12,6 @@ import PaywallPage from "./pages/paywall";
 import SuccessPage from "./pages/success";
 import { loadPurchases } from "./util/PurchasesLoader";
 
-export const catServicesEntitlementId = "catServices";
-
 const router = createBrowserRouter([
   {
     path: "/",
@@ -33,7 +31,7 @@ const router = createBrowserRouter([
     path: "/paywall/:app_user_id",
     loader: loadPurchases,
     element: (
-      <WithoutEntitlement entitlementId={catServicesEntitlementId}>
+      <WithoutEntitlement>
         <PaywallPage />
       </WithoutEntitlement>
     ),
@@ -42,7 +40,7 @@ const router = createBrowserRouter([
     path: "/success/:app_user_id",
     loader: loadPurchases,
     element: (
-      <WithEntitlement entitlementId={catServicesEntitlementId}>
+      <WithEntitlement>
         <SuccessPage />
       </WithEntitlement>
     ),
