@@ -33,7 +33,7 @@ const router = createBrowserRouter([
     path: "/paywall/:app_user_id",
     loader: loadPurchases,
     element: (
-      <WithoutEntitlement entitlementId={catServicesEntitlementId}>
+      <WithoutEntitlement>
         <PaywallPage />
       </WithoutEntitlement>
     ),
@@ -42,7 +42,7 @@ const router = createBrowserRouter([
     path: "/success/:app_user_id",
     loader: loadPurchases,
     element: (
-      <WithEntitlement entitlementId={catServicesEntitlementId}>
+      <WithEntitlement>
         <SuccessPage />
       </WithEntitlement>
     ),
