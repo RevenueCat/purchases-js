@@ -43,7 +43,7 @@ async function setupTest(
   userId: string,
 ): Promise<{ browser: Browser; page: Page }> {
   const browser = await puppeteer.launch({
-    headless: "new",
+    headless: true,
   });
   const page = await browser.newPage();
   await navigateToUrl(page, userId);
