@@ -1,9 +1,9 @@
-### New Features
-* Add `title` and `description` to Product (#121) via Toni Rico (@tonidero)
-* Trial support (#117) via Nicola Sacco (@nicfix)
 ### Dependency Updates
-* Bump rexml from 3.2.6 to 3.2.8 (#114) via dependabot[bot] (@dependabot[bot])
+* Bump braces from 3.0.2 to 3.0.3 in /examples/rcbilling-demo (#127) via dependabot[bot] (@dependabot[bot])
+* Bump ws and puppeteer in /examples/rcbilling-demo (#128) via dependabot[bot] (@dependabot[bot])
 ### Other Changes
-* Added support for SubscriptionPurchaseOptions in ProductResponses (#113) via Nicola Sacco (@nicfix)
-* Allow multiple configure calls to create new purchases (#112) via Toni Rico (@tonidero)
-* Redesigned demo app (#111) via Jens-Fabian Goetzmann (@jefago)
+* Make demo app independent of entitlement ID (#126) via Jens-Fabian Goetzmann (@jefago)
+* Small demo app changes (#125) via Jens-Fabian Goetzmann (@jefago)
+* Add new `OfferNotFound` error parsing to backend request error processing (#124) via Toni Rico (@tonidero)
+* Add processed `period` to `PricingPhase` (#123) via Toni Rico (@tonidero)
+* Update vite dependency in RCBilling demo app (#120) via Toni Rico (@tonidero)
