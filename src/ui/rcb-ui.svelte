@@ -1,6 +1,6 @@
 <script lang="ts">
-    import {onMount} from "svelte";
-    import { type Package, Product, PurchaseOption, Purchases, PurchasesError } from "../main";
+    import { onMount } from "svelte";
+    import { type Package, Product, PurchaseOption, Purchases } from "../main";
     import StatePresentOffer from "./states/state-present-offer.svelte";
     import StateLoading from "./states/state-loading.svelte";
     import StateError from "./states/state-error.svelte";
@@ -9,19 +9,19 @@
     import StateNeedsAuthInfo from "./states/state-needs-auth-info.svelte";
     import ConditionalFullScreen from "./conditional-full-screen.svelte";
     import Shell from "./shell.svelte";
-    import {type SubscribeResponse} from "../networking/responses/subscribe-response";
-    import {type BrandingInfoResponse} from "../networking/responses/branding-response";
+    import { type SubscribeResponse } from "../networking/responses/subscribe-response";
+    import { type BrandingInfoResponse } from "../networking/responses/branding-response";
     import {
         PurchaseFlowError,
         PurchaseFlowErrorCode,
         PurchaseOperationHelper,
     } from "../helpers/purchase-operation-helper";
-    import {Backend} from "../networking/backend";
+    import { Backend } from "../networking/backend";
     import ModalHeader from "./modal-header.svelte";
     import IconCart from "./assets/icon-cart.svelte";
     import BrandingInfoUI from "./branding-info-ui.svelte";
     import SandboxBanner from "./sandbox-banner.svelte";
-    import {Colors} from "../assets/colors";
+    import { Colors } from "../assets/colors";
 
     export let asModal = true;
     export let customerEmail: string | undefined;
@@ -124,14 +124,8 @@
                     return;
                 }
             })
-            .catch((e: PurchasesError) => {
-                handleError(
-                    new PurchaseFlowError(
-                        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-                        e.message,
-                        e.underlyingErrorMessage,
-                    ),
-                );
+            .catch((e: PurchaseFlowError) => {
+                handleError(e);
             });
     };
 

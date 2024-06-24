@@ -1,4 +1,4 @@
-import { type PurchasesError } from "../entities/errors";
+import { ErrorCode, PurchasesError } from "../entities/errors";
 import { type Backend } from "../networking/backend";
 import { type SubscribeResponse } from "../networking/responses/subscribe-response";
 import {
@@ -8,6 +8,7 @@ import {
   type CheckoutStatusResponse,
 } from "../networking/responses/checkout-status-response";
 import { type PurchaseOption } from "../entities/offerings";
+import { Logger } from "./logger";
 
 export enum PurchaseFlowErrorCode {
   ErrorSettingUpPurchase = 0,
@@ -16,6 +17,7 @@ export enum PurchaseFlowErrorCode {
   NetworkError = 3,
   StripeError = 4,
   MissingEmailError = 5,
+  AlreadySubscribedError = 6,
 }
 
 export class PurchaseFlowError extends Error {
@@ -25,6 +27,24 @@ export class PurchaseFlowError extends Error {
     public readonly underlyingErrorMessage?: string | null,
   ) {
     super(message);
+  }
+
+  static fromPurchasesError(
+    e: PurchasesError,
+    defaultFlowErrorCode: PurchaseFlowErrorCode,
+  ): PurchaseFlowError {
+    let errorCode: PurchaseFlowErrorCode;
+    if (e.errorCode === ErrorCode.ProductAlreadyPurchasedError) {
+      errorCode = PurchaseFlowErrorCode.AlreadySubscribedError;
+    } else {
+      errorCode = defaultFlowErrorCode;
+    }
+
+    return new PurchaseFlowError(
+      errorCode,
+      e.message,
+      e.underlyingErrorMessage,
+    );
   }
 }
 
@@ -46,15 +66,32 @@ export class PurchaseOperationHelper {
     email: string,
     offeringIdentifier: string,
   ): Promise<SubscribeResponse> {
-    const subscribeResponse = await this.backend.postSubscribe(
-      appUserId,
-      productId,
-      email,
-      offeringIdentifier,
-      purchaseOption?.id,
-    );
-    this.operationSessionId = subscribeResponse.operation_session_id;
-    return subscribeResponse;
+    try {
+      const subscribeResponse = await this.backend.postSubscribe(
+        appUserId,
+        productId,
+        email,
+        offeringIdentifier,
+        purchaseOption?.id,
+      );
+      this.operationSessionId = subscribeResponse.operation_session_id;
+      return subscribeResponse;
+    } catch (error) {
+      if (error instanceof PurchasesError) {
+        throw PurchaseFlowError.fromPurchasesError(
+          error,
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        );
+      } else {
+        const errorMessage =
+          "Unknown error starting purchase: " + String(error);
+        Logger.errorLog(errorMessage);
+        throw new PurchaseFlowError(
+          PurchaseFlowErrorCode.UnknownError,
+          errorMessage,
+        );
+      }
+    }
   }
 
   async pollCurrentPurchaseForCompletion(): Promise<void> {
@@ -102,12 +139,11 @@ export class PurchaseOperationHelper {
             }
           })
           .catch((error: PurchasesError) => {
-            reject(
-              new PurchaseFlowError(
-                PurchaseFlowErrorCode.NetworkError,
-                error.message,
-              ),
+            const purchasesError = PurchaseFlowError.fromPurchasesError(
+              error,
+              PurchaseFlowErrorCode.NetworkError,
             );
+            reject(purchasesError);
           });
       };
 
