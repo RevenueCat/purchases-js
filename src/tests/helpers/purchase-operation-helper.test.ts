@@ -8,8 +8,7 @@ import { Backend } from "../../networking/backend";
 import { setupServer, type SetupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
 import { StatusCodes } from "http-status-codes";
-import { expectPromiseToError, failTest } from "../test-helpers";
-import { ErrorCode, PurchasesError } from "../../entities/errors";
+import { failTest } from "../test-helpers";
 import { type SubscribeResponse } from "../../networking/responses/subscribe-response";
 import {
   CheckoutSessionStatus,
@@ -65,7 +64,7 @@ describe("PurchaseOperationHelper", () => {
     setSubscribeResponse(
       HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
     );
-    await expectPromiseToError(
+    await expectPromiseToPurchaseFlowError(
       purchaseOperationHelper.startPurchase(
         "test-app-user-id",
         "test-product-id",
@@ -73,9 +72,36 @@ describe("PurchaseOperationHelper", () => {
         "test-email",
         "test-offering-id",
       ),
-      new PurchasesError(
-        ErrorCode.UnknownBackendError,
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
         "Unknown backend error. Request: subscribe. Status code: 500. Body: null.",
+      ),
+    );
+  });
+
+  test("startPurchase fails if user already subscribed to product", async () => {
+    setSubscribeResponse(
+      HttpResponse.json(
+        {
+          code: 7772,
+          message:
+            "This subscriber is already subscribed to the requested product.",
+        },
+        { status: StatusCodes.CONFLICT },
+      ),
+    );
+    await expectPromiseToPurchaseFlowError(
+      purchaseOperationHelper.startPurchase(
+        "test-app-user-id",
+        "test-product-id",
+        undefined,
+        "test-email",
+        "test-offering-id",
+      ),
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.AlreadySubscribedError,
+        "This product is already active for the user.",
+        "This subscriber is already subscribed to the requested product.",
       ),
     );
   });

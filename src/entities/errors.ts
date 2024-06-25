@@ -122,6 +122,8 @@ export class ErrorCodeUtils {
       case BackendErrorCode.BackendProductIdForGoogleReceiptNotProvided:
       case BackendErrorCode.BackendOfferNotFound:
         return ErrorCode.PurchaseInvalidError;
+      case BackendErrorCode.BackendAlreadySubscribedError:
+        return ErrorCode.ProductAlreadyPurchasedError;
       case BackendErrorCode.BackendEmptyAppUserId:
         return ErrorCode.InvalidAppUserIdError;
       case BackendErrorCode.BackendPlayStoreQuotaExceeded:
@@ -170,6 +172,8 @@ export class ErrorCodeUtils {
         return ErrorCode.StoreProblemError;
       case PurchaseFlowErrorCode.UnknownError:
         return ErrorCode.UnknownError;
+      case PurchaseFlowErrorCode.AlreadySubscribedError:
+        return ErrorCode.ProductAlreadyPurchasedError;
     }
   }
 }
@@ -196,6 +200,7 @@ export enum BackendErrorCode {
   BackendInvalidSubscriberAttributes = 7263,
   BackendInvalidSubscriberAttributesBody = 7264,
   BackendProductIDsMalformed = 7662,
+  BackendAlreadySubscribedError = 7772,
   BackendOfferNotFound = 7814,
 }
 

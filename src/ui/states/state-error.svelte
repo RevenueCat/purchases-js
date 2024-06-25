@@ -36,13 +36,24 @@
         return lastError.message;
       case PurchaseFlowErrorCode.MissingEmailError:
         return "Email is required to complete the purchase.";
+      case PurchaseFlowErrorCode.AlreadySubscribedError:
+        return "You are already subscribed to this product."
     }
     return lastError.message;
+  }
+
+  function getErrorTitle(): string {
+    switch (lastError.errorCode) {
+      case PurchaseFlowErrorCode.AlreadySubscribedError:
+        return "Already subscribed";
+      default:
+        return "Something went wrong";
+    }
   }
 </script>
 
 <MessageLayout
-  title="Something went wrong"
+  title={getErrorTitle()}
   {brandingInfo}
   {onContinue}
   type="error"
