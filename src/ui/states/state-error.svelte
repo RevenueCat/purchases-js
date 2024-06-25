@@ -41,10 +41,19 @@
     }
     return lastError.message;
   }
+
+  function getErrorTitle(): string {
+    switch (lastError.errorCode) {
+      case PurchaseFlowErrorCode.AlreadySubscribedError:
+        return "Already subscribed";
+      default:
+        return "Something went wrong";
+    }
+  }
 </script>
 
 <MessageLayout
-  title="Something went wrong"
+  title={getErrorTitle()}
   {brandingInfo}
   {onContinue}
   type="error"
