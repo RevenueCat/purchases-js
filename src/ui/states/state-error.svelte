@@ -37,7 +37,7 @@
       case PurchaseFlowErrorCode.MissingEmailError:
         return "Email is required to complete the purchase.";
       case PurchaseFlowErrorCode.AlreadySubscribedError:
-        return "This user is already subscribed to this product."
+        return "You are already subscribed to this product."
     }
     return lastError.message;
   }
