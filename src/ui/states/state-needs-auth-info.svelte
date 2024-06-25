@@ -5,6 +5,7 @@
   import RowLayout from "../layout/row-layout.svelte";
   import ModalHeader from "../modal-header.svelte";
   import ProcessingAnimation from "../processing-animation.svelte";
+  import { validateEmail } from "../../helpers/validators";
 
   export let onContinue: any;
   export let onClose: () => void;
@@ -15,8 +16,9 @@
   $: inputClass = error ? "error" : "";
 
   const handleContinue = async () => {
-    if (email.trim() === "") {
-      error = "You need to provide your email address to continue.";
+    const verificationErrors = validateEmail(email);
+    if (verificationErrors) {
+      error = verificationErrors;
     } else {
       onContinue({ email });
     }
