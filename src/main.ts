@@ -35,6 +35,7 @@ import {
   validateAppUserId,
 } from "./helpers/configuration-validators";
 import { type PurchaseParams } from "./entities/purchase-params";
+import { type HttpConfig } from "./entities/http-config";
 
 export type {
   Offering,
@@ -60,6 +61,7 @@ export {
   UninitializedPurchasesError,
 } from "./entities/errors";
 export type { Period, PeriodUnit } from "./helpers/duration-helper";
+export type { HttpConfig } from "./entities/http-config";
 export { LogLevel } from "./entities/log-level";
 export type { PurchaseParams } from "./entities/purchase-params";
 
@@ -75,6 +77,9 @@ export class Purchases {
 
   /** @internal */
   private _appUserId: string;
+
+  /** @internal */
+  private _httpConfig: HttpConfig;
 
   /** @internal */
   private readonly backend: Backend;
@@ -120,9 +125,14 @@ export class Purchases {
    * keep the returned instance around for use throughout your application.
    * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.
    * @param appUserId - Your unique id for identifying the user.
+   * @param httpConfig - Advanced http configuration to customise the SDK usage {@link HttpConfig}.
    * @throws {@link PurchasesError} if the API key or user id are invalid.
    */
-  static configure(apiKey: string, appUserId: string): Purchases {
+  static configure(
+    apiKey: string,
+    appUserId: string,
+    httpConfig?: HttpConfig,
+  ): Purchases {
     if (Purchases.instance !== undefined) {
       Logger.warnLog(
         "Purchases is already initialized. You normally should only configure Purchases once. " +
@@ -131,14 +141,19 @@ export class Purchases {
     }
     validateApiKey(apiKey);
     validateAppUserId(appUserId);
-    Purchases.instance = new Purchases(apiKey, appUserId);
+    Purchases.instance = new Purchases(apiKey, appUserId, httpConfig);
     return Purchases.getSharedInstance();
   }
 
   /** @internal */
-  private constructor(apiKey: string, appUserId: string) {
+  private constructor(
+    apiKey: string,
+    appUserId: string,
+    httpConfig?: HttpConfig,
+  ) {
     this._API_KEY = apiKey;
     this._appUserId = appUserId;
+    this._httpConfig = httpConfig ? httpConfig : { includeCredentials: false };
 
     if (RC_ENDPOINT === undefined) {
       Logger.errorLog(
@@ -148,7 +163,7 @@ export class Purchases {
     if (isSandboxApiKey(apiKey)) {
       Logger.debugLog("Initializing Purchases SDK with sandbox API Key");
     }
-    this.backend = new Backend(this._API_KEY);
+    this.backend = new Backend(this._API_KEY, this._httpConfig);
     this.purchaseOperationHelper = new PurchaseOperationHelper(this.backend);
   }
 

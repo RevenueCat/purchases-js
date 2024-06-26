@@ -9,15 +9,23 @@ import { VERSION } from "../helpers/constants";
 import { StatusCodes } from "http-status-codes";
 import { isSandboxApiKey } from "../helpers/api-key-helper";
 
+interface HttpRequestConfig<RequestBody> {
+  apiKey: string;
+  body?: RequestBody;
+  headers?: { [key: string]: string };
+  includeCredentials?: boolean;
+}
+
 export async function performRequest<RequestBody, ResponseType>(
   endpoint: SupportedEndpoint,
-  apiKey: string,
-  body?: RequestBody,
-  headers?: { [key: string]: string },
+  config: HttpRequestConfig<RequestBody>,
 ): Promise<ResponseType> {
+  const { apiKey, body, headers, includeCredentials } = config;
+
   try {
     const response = await fetch(endpoint.url(), {
       method: endpoint.method,
+      credentials: includeCredentials ? "include" : "omit",
       headers: getHeaders(apiKey, headers),
       body: getBody(body),
     });
