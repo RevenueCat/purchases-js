@@ -1,3 +1,7 @@
+## 0.3.3
+### Bugfixes
+* Fix side info not showing when not specifying purchase option (#138) via Toni Rico (@tonidero)
+
 ## 0.3.2
 ### Dependency Updates
 * Bump braces from 3.0.2 to 3.0.3 (#129) via dependabot[bot] (@dependabot[bot])
