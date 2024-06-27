@@ -191,16 +191,16 @@
                                 <IconCart/>
                             {/if}
                         </ModalHeader>
-                        {#if productDetails && purchaseOption}
-                            <StatePresentOffer productDetails={productDetails} purchaseOption={purchaseOption}/>
+                        {#if productDetails && purchaseOptionToUse}
+                            <StatePresentOffer productDetails={productDetails} purchaseOption={purchaseOptionToUse}/>
                         {/if}
                     </Shell>
                 </div>
             {/if}
             <div class="rcb-ui-main">
                 <Shell>
-                    {#if state === "present-offer" && productDetails && purchaseOption}
-                        <StatePresentOffer productDetails={productDetails} purchaseOption={purchaseOption}/>
+                    {#if state === "present-offer" && productDetails && purchaseOptionToUse}
+                        <StatePresentOffer productDetails={productDetails} purchaseOption={purchaseOptionToUse}/>
                     {/if}
                     {#if state === "present-offer" && !productDetails}
                         <StateLoading/>
