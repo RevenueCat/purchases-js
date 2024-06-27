@@ -108,6 +108,11 @@ export enum ErrorCode {
 }
 
 // @public
+export interface HttpConfig {
+    includeCredentials?: boolean;
+}
+
+// @public
 export enum LogLevel {
     Debug = 4,
     Error = 1,
@@ -234,7 +239,7 @@ export interface PurchaseParams {
 export class Purchases {
     changeUser(newAppUserId: string): Promise<CustomerInfo>;
     close(): void;
-    static configure(apiKey: string, appUserId: string): Purchases;
+    static configure(apiKey: string, appUserId: string, httpConfig?: HttpConfig): Purchases;
     getAppUserId(): string;
     getCustomerInfo(): Promise<CustomerInfo>;
     getOfferings(): Promise<Offerings>;
