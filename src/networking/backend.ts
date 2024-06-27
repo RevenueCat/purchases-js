@@ -13,13 +13,13 @@ import { type SubscribeResponse } from "./responses/subscribe-response";
 import { type ProductsResponse } from "./responses/products-response";
 import { type BrandingInfoResponse } from "./responses/branding-response";
 import { type CheckoutStatusResponse } from "./responses/checkout-status-response";
-import { type HttpConfig } from "../entities/http-config";
+import { defaultHttpConfig, type HttpConfig } from "../entities/http-config";
 
 export class Backend {
   private readonly API_KEY: string;
   private readonly httpConfig: HttpConfig;
 
-  constructor(API_KEY: string, httpConfig: HttpConfig) {
+  constructor(API_KEY: string, httpConfig: HttpConfig = defaultHttpConfig) {
     this.API_KEY = API_KEY;
     this.httpConfig = httpConfig;
   }
