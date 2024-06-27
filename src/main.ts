@@ -35,7 +35,7 @@ import {
   validateAppUserId,
 } from "./helpers/configuration-validators";
 import { type PurchaseParams } from "./entities/purchase-params";
-import { type HttpConfig } from "./entities/http-config";
+import { defaultHttpConfig, type HttpConfig } from "./entities/http-config";
 
 export type {
   Offering,
@@ -131,7 +131,7 @@ export class Purchases {
   static configure(
     apiKey: string,
     appUserId: string,
-    httpConfig?: HttpConfig,
+    httpConfig: HttpConfig = defaultHttpConfig,
   ): Purchases {
     if (Purchases.instance !== undefined) {
       Logger.warnLog(
@@ -149,11 +149,11 @@ export class Purchases {
   private constructor(
     apiKey: string,
     appUserId: string,
-    httpConfig?: HttpConfig,
+    httpConfig: HttpConfig = defaultHttpConfig,
   ) {
     this._API_KEY = apiKey;
     this._appUserId = appUserId;
-    this._httpConfig = httpConfig ? httpConfig : { includeCredentials: false };
+    this._httpConfig = httpConfig;
 
     if (RC_ENDPOINT === undefined) {
       Logger.errorLog(
