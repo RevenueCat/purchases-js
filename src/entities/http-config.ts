@@ -8,3 +8,5 @@ export interface HttpConfig {
    */
   includeCredentials?: boolean;
 }
+
+export const defaultHttpConfig = { includeCredentials: false };
