@@ -51,7 +51,7 @@ To avoid publishing the package you can set it up as a local dependency.
 In your testing project install the library as.
 
 ```bash
-npm i /path/to/rcbilling-js
+npm i /path/to/purchases-js
 ```
 
 ## Running tests
