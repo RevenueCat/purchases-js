@@ -6,10 +6,13 @@
   import ModalHeader from "../modal-header.svelte";
   import ProcessingAnimation from "../processing-animation.svelte";
   import { validateEmail } from "../../helpers/validators";
+  import { PurchaseFlowError } from "../../helpers/purchase-operation-helper";
+  import { beforeUpdate } from "svelte";
 
   export let onContinue: any;
   export let onClose: () => void;
   export let processing: boolean;
+  export let lastError: PurchaseFlowError | null;
 
   $: email = "";
   $: error = "";
@@ -23,6 +26,10 @@
       onContinue({ email });
     }
   };
+
+  beforeUpdate(async () => {
+    error = lastError?.message ?? "";
+  });
 </script>
 
 <form on:submit|preventDefault={handleContinue}>

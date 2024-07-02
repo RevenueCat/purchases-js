@@ -36,6 +36,8 @@ export class PurchaseFlowError extends Error {
     let errorCode: PurchaseFlowErrorCode;
     if (e.errorCode === ErrorCode.ProductAlreadyPurchasedError) {
       errorCode = PurchaseFlowErrorCode.AlreadySubscribedError;
+    } else if (e.errorCode === ErrorCode.InvalidEmailError) {
+      errorCode = PurchaseFlowErrorCode.MissingEmailError;
     } else {
       errorCode = defaultFlowErrorCode;
     }

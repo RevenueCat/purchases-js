@@ -1101,6 +1101,27 @@
             },
             {
               "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ErrorCode.InvalidEmailError:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "InvalidEmailError = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "38"
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "InvalidEmailError"
+            },
+            {
+              "kind": "EnumMember",
               "canonicalReference": "@revenuecat/purchases-js!ErrorCode.InvalidReceiptError:member",
               "docComment": "",
               "excerptTokens": [

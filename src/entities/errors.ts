@@ -35,6 +35,7 @@ export enum ErrorCode {
   EmptySubscriberAttributesError = 25,
   CustomerInfoError = 28,
   SignatureVerificationError = 36,
+  InvalidEmailError = 38,
 }
 
 export class ErrorCodeUtils {
@@ -101,6 +102,8 @@ export class ErrorCodeUtils {
         return "There was a problem related to the customer info.";
       case ErrorCode.SignatureVerificationError:
         return "Request failed signature verification. Please see https://rev.cat/trusted-entitlements for more info.";
+      case ErrorCode.InvalidEmailError:
+        return "Email is not valid. Please provide a valid email address.";
     }
   }
 
@@ -145,6 +148,9 @@ export class ErrorCodeUtils {
         return ErrorCode.UnexpectedBackendResponseError;
       case BackendErrorCode.BackendProductIDsMalformed:
         return ErrorCode.UnsupportedError;
+      case BackendErrorCode.BackendInvalidEmail:
+      case BackendErrorCode.BackendNoMXRecordsFound:
+        return ErrorCode.InvalidEmailError;
     }
   }
 
@@ -180,6 +186,7 @@ export class ErrorCodeUtils {
 
 export enum BackendErrorCode {
   BackendInvalidPlatform = 7000,
+  BackendInvalidEmail = 7012,
   BackendStoreProblem = 7101,
   BackendCannotTransferPurchase = 7102,
   BackendInvalidReceiptToken = 7103,
@@ -202,6 +209,7 @@ export enum BackendErrorCode {
   BackendProductIDsMalformed = 7662,
   BackendAlreadySubscribedError = 7772,
   BackendOfferNotFound = 7814,
+  BackendNoMXRecordsFound = 7834,
 }
 
 /**

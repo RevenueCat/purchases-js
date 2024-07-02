@@ -115,11 +115,13 @@
             )
             .then((result) => {
                 if (result.next_action === "collect_payment_info") {
+                    lastError = null;
                     state = "needs-payment-info";
                     paymentInfoCollectionMetadata = result;
                     return;
                 }
                 if (result.next_action === "completed") {
+                    lastError = null;
                     state = "success";
                     return;
                 }
@@ -162,6 +164,11 @@
     };
 
     const handleError = (e: PurchaseFlowError) => {
+        if (state === "processing-auth-info") {
+            lastError = e;
+            state = "needs-auth-info";
+            return;
+        }
         lastError = e;
         state = "error";
     };
@@ -210,6 +217,7 @@
                                 onContinue={handleContinue}
                                 onClose={handleClose}
                                 processing={state === "processing-auth-info"}
+                                lastError={lastError}
                         />
                     {/if}
                     {#if paymentInfoCollectionMetadata && (state === "needs-payment-info" || state === "polling-purchase-status")}
