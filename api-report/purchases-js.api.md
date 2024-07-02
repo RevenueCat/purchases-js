@@ -66,6 +66,8 @@ export enum ErrorCode {
     // (undocumented)
     InvalidCredentialsError = 11,
     // (undocumented)
+    InvalidEmailError = 38,
+    // (undocumented)
     InvalidReceiptError = 8,
     // (undocumented)
     InvalidSubscriberAttributesError = 21,
