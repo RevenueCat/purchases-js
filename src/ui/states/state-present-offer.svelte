@@ -2,7 +2,7 @@
     import ModalSection from "../modal-section.svelte";
     import {formatPrice, getRenewsLabel} from "../../helpers/price-labels";
     import {getTrialsLabel} from "../../helpers/price-labels.js";
-    import { Product, PurchaseOption, SubscriptionOption } from "../../entities/offerings";
+    import type { Product, PurchaseOption, SubscriptionOption } from "../../entities/offerings";
 
     export let productDetails: Product;
     export let purchaseOption: PurchaseOption;
