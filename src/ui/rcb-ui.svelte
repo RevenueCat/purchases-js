@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import { type Package, Product, PurchaseOption, Purchases } from "../main";
+    import type { Package, Product, PurchaseOption, Purchases } from "../main";
     import StatePresentOffer from "./states/state-present-offer.svelte";
     import StateLoading from "./states/state-loading.svelte";
     import StateError from "./states/state-error.svelte";
