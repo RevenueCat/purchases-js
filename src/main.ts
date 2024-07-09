@@ -79,9 +79,6 @@ export class Purchases {
   private _appUserId: string;
 
   /** @internal */
-  private _httpConfig: HttpConfig;
-
-  /** @internal */
   private readonly backend: Backend;
 
   /** @internal */
@@ -153,7 +150,6 @@ export class Purchases {
   ) {
     this._API_KEY = apiKey;
     this._appUserId = appUserId;
-    this._httpConfig = httpConfig;
 
     if (RC_ENDPOINT === undefined) {
       Logger.errorLog(
@@ -163,7 +159,7 @@ export class Purchases {
     if (isSandboxApiKey(apiKey)) {
       Logger.debugLog("Initializing Purchases SDK with sandbox API Key");
     }
-    this.backend = new Backend(this._API_KEY, this._httpConfig);
+    this.backend = new Backend(this._API_KEY, httpConfig);
     this.purchaseOperationHelper = new PurchaseOperationHelper(this.backend);
   }
 

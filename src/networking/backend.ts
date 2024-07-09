@@ -29,7 +29,7 @@ export class Backend {
       new GetOfferingsEndpoint(appUserId),
       {
         apiKey: this.API_KEY,
-        includeCredentials: this.httpConfig.includeCredentials,
+        httpConfig: this.httpConfig,
       },
     );
   }
@@ -39,7 +39,7 @@ export class Backend {
       new GetCustomerInfoEndpoint(appUserId),
       {
         apiKey: this.API_KEY,
-        includeCredentials: this.httpConfig.includeCredentials,
+        httpConfig: this.httpConfig,
       },
     );
   }
@@ -52,7 +52,7 @@ export class Backend {
       new GetProductsEndpoint(appUserId, productIds),
       {
         apiKey: this.API_KEY,
-        includeCredentials: this.httpConfig.includeCredentials,
+        httpConfig: this.httpConfig,
       },
     );
   }
@@ -62,7 +62,7 @@ export class Backend {
       new GetBrandingInfoEndpoint(),
       {
         apiKey: this.API_KEY,
-        includeCredentials: this.httpConfig.includeCredentials,
+        httpConfig: this.httpConfig,
       },
     );
   }
@@ -98,7 +98,7 @@ export class Backend {
       {
         apiKey: this.API_KEY,
         body: requestBody,
-        includeCredentials: this.httpConfig.includeCredentials,
+        httpConfig: this.httpConfig,
       },
     );
   }
@@ -110,7 +110,7 @@ export class Backend {
       new GetCheckoutStatusEndpoint(operationSessionId),
       {
         apiKey: this.API_KEY,
-        includeCredentials: this.httpConfig.includeCredentials,
+        httpConfig: this.httpConfig,
       },
     );
   }

@@ -15,7 +15,6 @@ import {
 } from "../../entities/errors";
 import { expectPromiseToError } from "../test-helpers";
 import { type SubscribeResponse } from "../../networking/responses/subscribe-response";
-
 let server: SetupServer;
 let backend: Backend;
 
@@ -27,6 +26,89 @@ beforeEach(() => {
 
 afterEach(() => {
   server.close();
+});
+
+describe("httpConfig is setup correctly", () => {
+  function setCustomerInfoResponse(httpResponse: HttpResponse) {
+    server.use(
+      http.get("http://localhost:8000/v1/subscribers/someAppUserId", () => {
+        return httpResponse;
+      }),
+    );
+  }
+
+  test("credentials is omit by default", async () => {
+    setCustomerInfoResponse(
+      HttpResponse.json(customerInfoResponse, { status: 200 }),
+    );
+
+    let requestPerformed: Request | undefined;
+    server.events.on("request:start", (req) => {
+      requestPerformed = req.request;
+    });
+    await backend.getCustomerInfo("someAppUserId");
+    expect(requestPerformed).not.toBeNull();
+    expect(requestPerformed?.credentials).toEqual("omit");
+  });
+
+  test("credentials is include if passing httpConfig parameter", async () => {
+    setCustomerInfoResponse(
+      HttpResponse.json(customerInfoResponse, { status: 200 }),
+    );
+
+    let requestPerformed: Request | undefined;
+    server.events.on("request:start", (req) => {
+      requestPerformed = req.request;
+    });
+    backend = new Backend("test_api_key", { includeCredentials: true });
+    await backend.getCustomerInfo("someAppUserId");
+    expect(requestPerformed).not.toBeNull();
+    expect(requestPerformed?.credentials).toEqual("include");
+  });
+
+  test("additionalHeaders are included correctly", async () => {
+    setCustomerInfoResponse(
+      HttpResponse.json(customerInfoResponse, { status: 200 }),
+    );
+
+    let requestPerformed: Request | undefined;
+    server.events.on("request:start", (req) => {
+      requestPerformed = req.request;
+    });
+    backend = new Backend("test_api_key", {
+      additionalHeaders: {
+        "X-Custom-Header": "customValue",
+        "X-Another-Header": "anotherValue",
+      },
+    });
+    await backend.getCustomerInfo("someAppUserId");
+    expect(requestPerformed).not.toBeNull();
+    expect(requestPerformed?.headers.get("X-Custom-Header")).toEqual(
+      "customValue",
+    );
+    expect(requestPerformed?.headers.get("X-Another-Header")).toEqual(
+      "anotherValue",
+    );
+  });
+
+  test("additionalHeaders don't override existing headers", async () => {
+    setCustomerInfoResponse(
+      HttpResponse.json(customerInfoResponse, { status: 200 }),
+    );
+
+    let requestPerformed: Request | undefined;
+    server.events.on("request:start", (req) => {
+      requestPerformed = req.request;
+    });
+    backend = new Backend("test_api_key", {
+      additionalHeaders: {
+        "X-Platform": "overridenValue",
+      },
+    });
+    await backend.getCustomerInfo("someAppUserId");
+    expect(requestPerformed).not.toBeNull();
+    expect(requestPerformed?.headers.get("X-Platform")).toEqual("web");
+  });
 });
 
 describe("getCustomerInfo request", () => {

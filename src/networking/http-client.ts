@@ -8,25 +8,26 @@ import {
 import { VERSION } from "../helpers/constants";
 import { StatusCodes } from "http-status-codes";
 import { isSandboxApiKey } from "../helpers/api-key-helper";
+import type { HttpConfig } from "../entities/http-config";
 
 interface HttpRequestConfig<RequestBody> {
   apiKey: string;
   body?: RequestBody;
   headers?: { [key: string]: string };
-  includeCredentials?: boolean;
+  httpConfig?: HttpConfig;
 }
 
 export async function performRequest<RequestBody, ResponseType>(
   endpoint: SupportedEndpoint,
   config: HttpRequestConfig<RequestBody>,
 ): Promise<ResponseType> {
-  const { apiKey, body, headers, includeCredentials } = config;
+  const { apiKey, body, headers, httpConfig } = config;
 
   try {
     const response = await fetch(endpoint.url(), {
       method: endpoint.method,
-      credentials: includeCredentials ? "include" : "omit",
-      headers: getHeaders(apiKey, headers),
+      credentials: httpConfig?.includeCredentials ? "include" : "omit",
+      headers: getHeaders(apiKey, headers, httpConfig?.additionalHeaders),
       body: getBody(body),
     });
 
@@ -94,6 +95,7 @@ function getBody<RequestBody>(body?: RequestBody): string | null {
 function getHeaders(
   apiKey: string,
   headers?: { [key: string]: string },
+  additionalHeaders?: { [key: string]: string },
 ): { [key: string]: string } {
   let all_headers = {
     Authorization: `Bearer ${apiKey}`,
@@ -103,8 +105,11 @@ function getHeaders(
     "X-Version": VERSION,
     "X-Is-Sandbox": `${isSandboxApiKey(apiKey)}`,
   };
-  if (headers != null) {
+  if (headers) {
     all_headers = { ...all_headers, ...headers };
+  }
+  if (additionalHeaders) {
+    all_headers = { ...additionalHeaders, ...all_headers };
   }
   return all_headers;
 }
