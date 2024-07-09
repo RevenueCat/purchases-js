@@ -33,3 +33,12 @@ export function validateAppUserId(appUserId: string) {
     );
   }
 }
+
+export function validateProxyUrl(proxyUrl?: string) {
+  if (proxyUrl?.endsWith("/")) {
+    throw new PurchasesError(
+      ErrorCode.ConfigurationError,
+      "Invalid proxy URL. The proxy URL should not end with a trailing slash.",
+    );
+  }
+}
