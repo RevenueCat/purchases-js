@@ -109,6 +109,8 @@ function getHeaders(
     all_headers = { ...all_headers, ...headers };
   }
   if (additionalHeaders) {
+    // The order here is intentional, so we don't allow overriding the SDK
+    // headers with additional headers.
     all_headers = { ...additionalHeaders, ...all_headers };
   }
   return all_headers;

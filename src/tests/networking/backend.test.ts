@@ -37,7 +37,7 @@ describe("httpConfig is setup correctly", () => {
     );
   }
 
-  test("credentials is omit by default", async () => {
+  test("credentials is `omit` by default", async () => {
     setCustomerInfoResponse(
       HttpResponse.json(customerInfoResponse, { status: 200 }),
     );
@@ -51,7 +51,7 @@ describe("httpConfig is setup correctly", () => {
     expect(requestPerformed?.credentials).toEqual("omit");
   });
 
-  test("credentials is include if passing httpConfig parameter", async () => {
+  test("credentials is `include` if passing httpConfig parameter", async () => {
     setCustomerInfoResponse(
       HttpResponse.json(customerInfoResponse, { status: 200 }),
     );
