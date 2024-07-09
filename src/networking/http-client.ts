@@ -26,7 +26,6 @@ export async function performRequest<RequestBody, ResponseType>(
   try {
     const response = await fetch(endpoint.url(), {
       method: endpoint.method,
-      credentials: httpConfig?.includeCredentials ? "include" : "omit",
       headers: getHeaders(apiKey, headers, httpConfig?.additionalHeaders),
       body: getBody(body),
     });

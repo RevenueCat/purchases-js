@@ -1567,33 +1567,6 @@
                 "startIndex": 1,
                 "endIndex": 3
               }
-            },
-            {
-              "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!HttpConfig#includeCredentials:member",
-              "docComment": "/**\n * If true uses credentials:'include' when executing XHR requests.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "includeCredentials?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": true,
-              "releaseTag": "Public",
-              "name": "includeCredentials",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              }
             }
           ],
           "extendsTokenRanges": []

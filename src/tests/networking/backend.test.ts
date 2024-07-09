@@ -37,35 +37,6 @@ describe("httpConfig is setup correctly", () => {
     );
   }
 
-  test("credentials is `omit` by default", async () => {
-    setCustomerInfoResponse(
-      HttpResponse.json(customerInfoResponse, { status: 200 }),
-    );
-
-    let requestPerformed: Request | undefined;
-    server.events.on("request:start", (req) => {
-      requestPerformed = req.request;
-    });
-    await backend.getCustomerInfo("someAppUserId");
-    expect(requestPerformed).not.toBeNull();
-    expect(requestPerformed?.credentials).toEqual("omit");
-  });
-
-  test("credentials is `include` if passing httpConfig parameter", async () => {
-    setCustomerInfoResponse(
-      HttpResponse.json(customerInfoResponse, { status: 200 }),
-    );
-
-    let requestPerformed: Request | undefined;
-    server.events.on("request:start", (req) => {
-      requestPerformed = req.request;
-    });
-    backend = new Backend("test_api_key", { includeCredentials: true });
-    await backend.getCustomerInfo("someAppUserId");
-    expect(requestPerformed).not.toBeNull();
-    expect(requestPerformed?.credentials).toEqual("include");
-  });
-
   test("additionalHeaders are included correctly", async () => {
     setCustomerInfoResponse(
       HttpResponse.json(customerInfoResponse, { status: 200 }),
