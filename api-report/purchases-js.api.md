@@ -109,6 +109,7 @@ export enum ErrorCode {
 
 // @public
 export interface HttpConfig {
+    additionalHeaders?: Record<string, string>;
     includeCredentials?: boolean;
 }
 
