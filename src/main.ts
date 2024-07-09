@@ -33,6 +33,7 @@ import { Logger } from "./helpers/logger";
 import {
   validateApiKey,
   validateAppUserId,
+  validateProxyUrl,
 } from "./helpers/configuration-validators";
 import { type PurchaseParams } from "./entities/purchase-params";
 import { defaultHttpConfig, type HttpConfig } from "./entities/http-config";
@@ -138,6 +139,7 @@ export class Purchases {
     }
     validateApiKey(apiKey);
     validateAppUserId(appUserId);
+    validateProxyUrl(httpConfig.proxyURL);
     Purchases.instance = new Purchases(apiKey, appUserId, httpConfig);
     return Purchases.getSharedInstance();
   }

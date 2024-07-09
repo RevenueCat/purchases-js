@@ -1567,6 +1567,33 @@
                 "startIndex": 1,
                 "endIndex": 3
               }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!HttpConfig#proxyURL:member",
+              "docComment": "/**\n * Set this property to your proxy URL *only* if you've received a proxy key value from your RevenueCat contact. This value should never end with a trailing slash.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "proxyURL?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "proxyURL",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
             }
           ],
           "extendsTokenRanges": []

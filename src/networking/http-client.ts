@@ -5,7 +5,7 @@ import {
   ErrorCodeUtils,
   PurchasesError,
 } from "../entities/errors";
-import { VERSION } from "../helpers/constants";
+import { RC_ENDPOINT, VERSION } from "../helpers/constants";
 import { StatusCodes } from "http-status-codes";
 import { isSandboxApiKey } from "../helpers/api-key-helper";
 import type { HttpConfig } from "../entities/http-config";
@@ -22,9 +22,11 @@ export async function performRequest<RequestBody, ResponseType>(
   config: HttpRequestConfig<RequestBody>,
 ): Promise<ResponseType> {
   const { apiKey, body, headers, httpConfig } = config;
+  const baseUrl = httpConfig?.proxyURL ?? RC_ENDPOINT;
+  const url = `${baseUrl}${endpoint.urlPath()}`;
 
   try {
-    const response = await fetch(endpoint.url(), {
+    const response = await fetch(url, {
       method: endpoint.method,
       headers: getHeaders(apiKey, headers, httpConfig?.additionalHeaders),
       body: getBody(body),

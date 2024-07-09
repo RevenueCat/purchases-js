@@ -1,5 +1,3 @@
-import { RC_ENDPOINT } from "../helpers/constants";
-
 type HttpMethodType = "GET" | "POST";
 
 const SUBSCRIBERS_PATH = "/v1/subscribers";
@@ -8,7 +6,7 @@ const RC_BILLING_PATH = "/rcbilling/v1";
 interface Endpoint {
   method: HttpMethodType;
   name: string;
-  url(): string;
+  urlPath(): string;
 }
 
 export class GetOfferingsEndpoint implements Endpoint {
@@ -21,9 +19,9 @@ export class GetOfferingsEndpoint implements Endpoint {
   method: HttpMethodType = "GET";
   name: string = "getOfferings";
 
-  url(): string {
+  urlPath(): string {
     const encodedAppUserId = encodeURIComponent(this.appUserId);
-    return `${RC_ENDPOINT}${SUBSCRIBERS_PATH}/${encodedAppUserId}/offerings`;
+    return `${SUBSCRIBERS_PATH}/${encodedAppUserId}/offerings`;
   }
 }
 
@@ -31,8 +29,8 @@ export class SubscribeEndpoint implements Endpoint {
   method: HttpMethodType = "POST";
   name: string = "subscribe";
 
-  url(): string {
-    return `${RC_ENDPOINT}${RC_BILLING_PATH}/subscribe`;
+  urlPath(): string {
+    return `${RC_BILLING_PATH}/subscribe`;
   }
 }
 
@@ -47,12 +45,12 @@ export class GetProductsEndpoint implements Endpoint {
     this.productIds = productIds;
   }
 
-  url(): string {
+  urlPath(): string {
     const encodedAppUserId = encodeURIComponent(this.appUserId);
     const encodedProductIds = this.productIds
       .map(encodeURIComponent)
       .join("&id=");
-    return `${RC_ENDPOINT}${RC_BILLING_PATH}/subscribers/${encodedAppUserId}/products?id=${encodedProductIds}`;
+    return `${RC_BILLING_PATH}/subscribers/${encodedAppUserId}/products?id=${encodedProductIds}`;
   }
 }
 
@@ -65,9 +63,9 @@ export class GetCustomerInfoEndpoint implements Endpoint {
     this.appUserId = appUserId;
   }
 
-  url(): string {
+  urlPath(): string {
     const encodedAppUserId = encodeURIComponent(this.appUserId);
-    return `${RC_ENDPOINT}${SUBSCRIBERS_PATH}/${encodedAppUserId}`;
+    return `${SUBSCRIBERS_PATH}/${encodedAppUserId}`;
   }
 }
 
@@ -75,8 +73,8 @@ export class GetBrandingInfoEndpoint implements Endpoint {
   method: HttpMethodType = "GET";
   name: string = "getBrandingInfo";
 
-  url(): string {
-    return `${RC_ENDPOINT}${RC_BILLING_PATH}/branding`;
+  urlPath(): string {
+    return `${RC_BILLING_PATH}/branding`;
   }
 }
 
@@ -89,8 +87,8 @@ export class GetCheckoutStatusEndpoint implements Endpoint {
     this.operationSessionId = operationSessionId;
   }
 
-  url(): string {
-    return `${RC_ENDPOINT}${RC_BILLING_PATH}/checkout/${this.operationSessionId}`;
+  urlPath(): string {
+    return `${RC_BILLING_PATH}/checkout/${this.operationSessionId}`;
   }
 }
 
