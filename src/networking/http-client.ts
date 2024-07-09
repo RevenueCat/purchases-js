@@ -8,17 +8,25 @@ import {
 import { VERSION } from "../helpers/constants";
 import { StatusCodes } from "http-status-codes";
 import { isSandboxApiKey } from "../helpers/api-key-helper";
+import type { HttpConfig } from "../entities/http-config";
+
+interface HttpRequestConfig<RequestBody> {
+  apiKey: string;
+  body?: RequestBody;
+  headers?: { [key: string]: string };
+  httpConfig?: HttpConfig;
+}
 
 export async function performRequest<RequestBody, ResponseType>(
   endpoint: SupportedEndpoint,
-  apiKey: string,
-  body?: RequestBody,
-  headers?: { [key: string]: string },
+  config: HttpRequestConfig<RequestBody>,
 ): Promise<ResponseType> {
+  const { apiKey, body, headers, httpConfig } = config;
+
   try {
     const response = await fetch(endpoint.url(), {
       method: endpoint.method,
-      headers: getHeaders(apiKey, headers),
+      headers: getHeaders(apiKey, headers, httpConfig?.additionalHeaders),
       body: getBody(body),
     });
 
@@ -86,6 +94,7 @@ function getBody<RequestBody>(body?: RequestBody): string | null {
 function getHeaders(
   apiKey: string,
   headers?: { [key: string]: string },
+  additionalHeaders?: { [key: string]: string },
 ): { [key: string]: string } {
   let all_headers = {
     Authorization: `Bearer ${apiKey}`,
@@ -95,8 +104,13 @@ function getHeaders(
     "X-Version": VERSION,
     "X-Is-Sandbox": `${isSandboxApiKey(apiKey)}`,
   };
-  if (headers != null) {
+  if (headers) {
     all_headers = { ...all_headers, ...headers };
+  }
+  if (additionalHeaders) {
+    // The order here is intentional, so we don't allow overriding the SDK
+    // headers with additional headers.
+    all_headers = { ...additionalHeaders, ...all_headers };
   }
   return all_headers;
 }

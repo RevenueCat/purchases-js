@@ -1522,6 +1522,56 @@
           ]
         },
         {
+          "kind": "Interface",
+          "canonicalReference": "@revenuecat/purchases-js!HttpConfig:interface",
+          "docComment": "/**\n * Parameters used to customise the http requests executed by purchases-js.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare interface HttpConfig "
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "name": "HttpConfig",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!HttpConfig#additionalHeaders:member",
+              "docComment": "/**\n * Additional headers to include in all HTTP requests.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "additionalHeaders?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, string>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "additionalHeaders",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
           "kind": "Enum",
           "canonicalReference": "@revenuecat/purchases-js!LogLevel:enum",
           "docComment": "/**\n * Possible levels to log in the console.\n *\n * @public\n */\n",
@@ -3449,7 +3499,7 @@
             {
               "kind": "Method",
               "canonicalReference": "@revenuecat/purchases-js!Purchases.configure:member(1)",
-              "docComment": "/**\n * Configures the Purchases SDK. This should be called as soon as your app has a unique user id for your user. You should only call this once, and keep the returned instance around for use throughout your application.\n *\n * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.\n *\n * @param appUserId - Your unique id for identifying the user.\n *\n * @throws\n *\n * {@link PurchasesError} if the API key or user id are invalid.\n */\n",
+              "docComment": "/**\n * Configures the Purchases SDK. This should be called as soon as your app has a unique user id for your user. You should only call this once, and keep the returned instance around for use throughout your application.\n *\n * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.\n *\n * @param appUserId - Your unique id for identifying the user.\n *\n * @param httpConfig - Advanced http configuration to customise the SDK usage {@link HttpConfig}.\n *\n * @throws\n *\n * {@link PurchasesError} if the API key or user id are invalid.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -3469,6 +3519,15 @@
                 },
                 {
                   "kind": "Content",
+                  "text": ", httpConfig?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "HttpConfig",
+                  "canonicalReference": "@revenuecat/purchases-js!HttpConfig:interface"
+                },
+                {
+                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -3483,8 +3542,8 @@
               ],
               "isStatic": true,
               "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
+                "startIndex": 7,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -3505,6 +3564,14 @@
                     "endIndex": 4
                   },
                   "isOptional": false
+                },
+                {
+                  "parameterName": "httpConfig",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  },
+                  "isOptional": true
                 }
               ],
               "isOptional": false,

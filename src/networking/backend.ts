@@ -13,25 +13,34 @@ import { type SubscribeResponse } from "./responses/subscribe-response";
 import { type ProductsResponse } from "./responses/products-response";
 import { type BrandingInfoResponse } from "./responses/branding-response";
 import { type CheckoutStatusResponse } from "./responses/checkout-status-response";
+import { defaultHttpConfig, type HttpConfig } from "../entities/http-config";
 
 export class Backend {
   private readonly API_KEY: string;
+  private readonly httpConfig: HttpConfig;
 
-  constructor(API_KEY: string) {
+  constructor(API_KEY: string, httpConfig: HttpConfig = defaultHttpConfig) {
     this.API_KEY = API_KEY;
+    this.httpConfig = httpConfig;
   }
 
   async getOfferings(appUserId: string): Promise<OfferingsResponse> {
     return await performRequest<null, OfferingsResponse>(
       new GetOfferingsEndpoint(appUserId),
-      this.API_KEY,
+      {
+        apiKey: this.API_KEY,
+        httpConfig: this.httpConfig,
+      },
     );
   }
 
   async getCustomerInfo(appUserId: string): Promise<SubscriberResponse> {
     return await performRequest<null, SubscriberResponse>(
       new GetCustomerInfoEndpoint(appUserId),
-      this.API_KEY,
+      {
+        apiKey: this.API_KEY,
+        httpConfig: this.httpConfig,
+      },
     );
   }
 
@@ -41,14 +50,20 @@ export class Backend {
   ): Promise<ProductsResponse> {
     return await performRequest<null, ProductsResponse>(
       new GetProductsEndpoint(appUserId, productIds),
-      this.API_KEY,
+      {
+        apiKey: this.API_KEY,
+        httpConfig: this.httpConfig,
+      },
     );
   }
 
   async getBrandingInfo(): Promise<BrandingInfoResponse> {
     return await performRequest<null, BrandingInfoResponse>(
       new GetBrandingInfoEndpoint(),
-      this.API_KEY,
+      {
+        apiKey: this.API_KEY,
+        httpConfig: this.httpConfig,
+      },
     );
   }
 
@@ -80,8 +95,11 @@ export class Backend {
 
     return await performRequest<SubscribeRequestBody, SubscribeResponse>(
       new SubscribeEndpoint(),
-      this.API_KEY,
-      requestBody,
+      {
+        apiKey: this.API_KEY,
+        body: requestBody,
+        httpConfig: this.httpConfig,
+      },
     );
   }
 
@@ -90,7 +108,10 @@ export class Backend {
   ): Promise<CheckoutStatusResponse> {
     return await performRequest<null, CheckoutStatusResponse>(
       new GetCheckoutStatusEndpoint(operationSessionId),
-      this.API_KEY,
+      {
+        apiKey: this.API_KEY,
+        httpConfig: this.httpConfig,
+      },
     );
   }
 }
