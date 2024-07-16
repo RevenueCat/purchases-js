@@ -31,6 +31,7 @@ import {
 import { type LogLevel } from "./entities/log-level";
 import { Logger } from "./helpers/logger";
 import {
+  validateAdditionalHeaders,
   validateApiKey,
   validateAppUserId,
   validateProxyUrl,
@@ -140,6 +141,7 @@ export class Purchases {
     validateApiKey(apiKey);
     validateAppUserId(appUserId);
     validateProxyUrl(httpConfig.proxyURL);
+    validateAdditionalHeaders(httpConfig.additionalHeaders);
     Purchases.instance = new Purchases(apiKey, appUserId, httpConfig);
     return Purchases.getSharedInstance();
   }
