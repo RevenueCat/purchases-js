@@ -1,4 +1,5 @@
 import { ErrorCode, PurchasesError } from "../entities/errors";
+import { SDK_HEADERS } from "../networking/http-client";
 
 export function validateApiKey(apiKey: string) {
   const api_key_regex = /^rcb_[a-zA-Z0-9_.-]+$/;
@@ -40,5 +41,20 @@ export function validateProxyUrl(proxyUrl?: string) {
       ErrorCode.ConfigurationError,
       "Invalid proxy URL. The proxy URL should not end with a trailing slash.",
     );
+  }
+}
+
+export function validateAdditionalHeaders(
+  additionalHeaders?: Record<string, string>,
+) {
+  if (additionalHeaders) {
+    for (const header in additionalHeaders) {
+      if (SDK_HEADERS.has(header)) {
+        throw new PurchasesError(
+          ErrorCode.ConfigurationError,
+          `Invalid additional headers. Some headers are reserved for internal use.`,
+        );
+      }
+    }
   }
 }

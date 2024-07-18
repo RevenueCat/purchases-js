@@ -52,6 +52,22 @@ describe("Purchases.configure()", () => {
     ).toThrowError(PurchasesError);
   });
 
+  test("throws error if given invalid proxy url", () => {
+    expect(() =>
+      Purchases.configure(testApiKey, testUserId, {
+        proxyURL: "https://test.revenuecat.com/",
+      }),
+    ).toThrowError(PurchasesError);
+  });
+
+  test("throws error if given reserved additional header", () => {
+    expect(() =>
+      Purchases.configure(testApiKey, testUserId, {
+        additionalHeaders: { "X-Version": "123" },
+      }),
+    ).toThrowError(PurchasesError);
+  });
+
   test("configures successfully", () => {
     const purchases = Purchases.configure(testApiKey, testUserId);
     expect(purchases).toBeDefined();

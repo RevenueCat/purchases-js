@@ -93,18 +93,34 @@ function getBody<RequestBody>(body?: RequestBody): string | null {
   }
 }
 
+const AUTHORIZATION_HEADER = "Authorization";
+const CONTENT_TYPE_HEADER = "Content-Type";
+const ACCEPT_HEADER = "Accept";
+const PLATFORM_HEADER = "X-Platform";
+const VERSION_HEADER = "X-Version";
+const IS_SANDBOX_HEADER = "X-Is-Sandbox";
+
+export const SDK_HEADERS = new Set([
+  AUTHORIZATION_HEADER,
+  CONTENT_TYPE_HEADER,
+  ACCEPT_HEADER,
+  PLATFORM_HEADER,
+  VERSION_HEADER,
+  IS_SANDBOX_HEADER,
+]);
+
 function getHeaders(
   apiKey: string,
   headers?: { [key: string]: string },
   additionalHeaders?: { [key: string]: string },
 ): { [key: string]: string } {
   let all_headers = {
-    Authorization: `Bearer ${apiKey}`,
-    "Content-Type": "application/json",
-    Accept: "application/json",
-    "X-Platform": "web",
-    "X-Version": VERSION,
-    "X-Is-Sandbox": `${isSandboxApiKey(apiKey)}`,
+    [AUTHORIZATION_HEADER]: `Bearer ${apiKey}`,
+    [CONTENT_TYPE_HEADER]: "application/json",
+    [ACCEPT_HEADER]: "application/json",
+    [PLATFORM_HEADER]: "web",
+    [VERSION_HEADER]: VERSION,
+    [IS_SANDBOX_HEADER]: `${isSandboxApiKey(apiKey)}`,
   };
   if (headers) {
     all_headers = { ...all_headers, ...headers };
