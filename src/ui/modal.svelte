@@ -15,7 +15,7 @@
 
   .rcb-modal-main {
     box-sizing: border-box;
-    border-radius: 8px;
+    border-radius: 16px;
     background-color: var(--rc-color-white);
     color: var(--rc-color-grey-text-dark);
     min-height: 460px;
