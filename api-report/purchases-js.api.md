@@ -193,6 +193,12 @@ export enum PeriodUnit {
 }
 
 // @public
+export interface PresentedOfferingContext {
+    readonly offeringIdentifier: string;
+    readonly targetingContext: TargetingContext | null;
+}
+
+// @public
 export interface Price {
     readonly amount: number;
     readonly currency: string;
@@ -216,6 +222,8 @@ export interface Product {
     readonly displayName: string;
     readonly identifier: string;
     readonly normalPeriodDuration: string | null;
+    readonly presentedOfferingContext: PresentedOfferingContext;
+    // @deprecated
     readonly presentedOfferingIdentifier: string;
     readonly subscriptionOptions: {
         [optionId: string]: SubscriptionOption;
@@ -278,6 +286,12 @@ export type Store = "app_store" | "mac_app_store" | "play_store" | "amazon" | "s
 export interface SubscriptionOption extends PurchaseOption {
     readonly base: PricingPhase;
     readonly trial: PricingPhase | null;
+}
+
+// @public
+export interface TargetingContext {
+    readonly revision: number;
+    readonly ruleId: string;
 }
 
 // @public

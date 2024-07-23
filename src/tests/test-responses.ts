@@ -1,4 +1,5 @@
 import { http, HttpResponse, type RequestHandler } from "msw";
+import type { OfferingsResponse } from "../networking/responses/offerings-response";
 
 const monthlyProductResponse = {
   current_price: {
@@ -163,10 +164,14 @@ export const newAppUserIdCustomerInfoResponse = {
   },
 };
 
-const offeringsResponsesPerUserId: { [userId: string]: object } = {
+const offeringsResponsesPerUserId: { [userId: string]: OfferingsResponse } = {
   someAppUserId: {
     current_offering_id: "offering_1",
     offerings: offeringsArray,
+    targeting: {
+      rule_id: "test_rule_id",
+      revision: 123,
+    },
   },
   appUserIdWithoutCurrentOfferingId: {
     current_offering_id: null,

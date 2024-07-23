@@ -13,6 +13,7 @@ import {
 import { getRequestHandlers } from "./test-responses";
 import { UninitializedPurchasesError } from "../entities/errors";
 import { PeriodUnit } from "../helpers/duration-helper";
+import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
 
 const server = setupServer(...getRequestHandlers());
 
@@ -139,59 +140,7 @@ describe("Purchases.getAppUserId()", () => {
 });
 
 describe("getOfferings", () => {
-  const expectedMonthlyPackage: Package = {
-    identifier: "$rc_monthly",
-    packageType: PackageType.Monthly,
-    rcBillingProduct: {
-      currentPrice: {
-        currency: "USD",
-        amount: 300,
-        formattedPrice: "$3.00",
-      },
-      displayName: "Monthly test",
-      title: "Monthly test",
-      description: null,
-      identifier: "monthly",
-      normalPeriodDuration: "P1M",
-      presentedOfferingIdentifier: "offering_1",
-      defaultSubscriptionOption: {
-        id: "base_option",
-        base: {
-          cycleCount: 1,
-          periodDuration: "P1M",
-          period: {
-            number: 1,
-            unit: PeriodUnit.Month,
-          },
-          price: {
-            amount: 300,
-            currency: "USD",
-            formattedPrice: "$3.00",
-          },
-        },
-        trial: null,
-      },
-      subscriptionOptions: {
-        base_option: {
-          id: "base_option",
-          base: {
-            cycleCount: 1,
-            periodDuration: "P1M",
-            period: {
-              number: 1,
-              unit: PeriodUnit.Month,
-            },
-            price: {
-              amount: 300,
-              currency: "USD",
-              formattedPrice: "$3.00",
-            },
-          },
-          trial: null,
-        },
-      },
-    },
-  } as Package;
+  const expectedMonthlyPackage = createMonthlyPackageMock();
 
   test("can get offerings", async () => {
     const purchases = configurePurchases();
@@ -255,6 +204,10 @@ describe("getOfferings", () => {
         identifier: "monthly_2",
         normalPeriodDuration: "P1M",
         presentedOfferingIdentifier: "offering_2",
+        presentedOfferingContext: {
+          offeringIdentifier: "offering_2",
+          targetingContext: null,
+        },
         defaultSubscriptionOption: subscriptionOption,
         subscriptionOptions: {
           offer_12345: subscriptionOption,
@@ -304,6 +257,10 @@ describe("getOfferings", () => {
         identifier: "monthly_2",
         normalPeriodDuration: "P1M",
         presentedOfferingIdentifier: "offering_2",
+        presentedOfferingContext: {
+          offeringIdentifier: "offering_2",
+          targetingContext: null,
+        },
         defaultSubscriptionOption: {
           id: "offer_12345",
           base: {
@@ -358,6 +315,7 @@ describe("getOfferings", () => {
         },
       },
     };
+    const packageWithoutTargeting = createMonthlyPackageMock(null);
     const expectedOfferings: Offerings = {
       all: {
         offering_1: {
@@ -365,15 +323,15 @@ describe("getOfferings", () => {
           identifier: "offering_1",
           metadata: null,
           packagesById: {
-            $rc_monthly: expectedMonthlyPackage,
+            $rc_monthly: packageWithoutTargeting,
           },
-          availablePackages: [expectedMonthlyPackage],
+          availablePackages: [packageWithoutTargeting],
           lifetime: null,
           annual: null,
           sixMonth: null,
           threeMonth: null,
           twoMonth: null,
-          monthly: expectedMonthlyPackage,
+          monthly: packageWithoutTargeting,
           weekly: null,
         },
         offering_2: {
@@ -403,20 +361,22 @@ describe("getOfferings", () => {
     const purchases = configurePurchases("appUserIdWithMissingProducts");
     const offerings = await purchases.getOfferings();
 
+    const packageWithoutTargeting = createMonthlyPackageMock(null);
+
     const offering_1: Offering = {
       serverDescription: "Offering 1",
       identifier: "offering_1",
       metadata: null,
       packagesById: {
-        $rc_monthly: expectedMonthlyPackage,
+        $rc_monthly: packageWithoutTargeting,
       },
-      availablePackages: [expectedMonthlyPackage],
+      availablePackages: [packageWithoutTargeting],
       lifetime: null,
       annual: null,
       sixMonth: null,
       threeMonth: null,
       twoMonth: null,
-      monthly: expectedMonthlyPackage,
+      monthly: packageWithoutTargeting,
       weekly: null,
     };
     expect(offerings).toEqual({
