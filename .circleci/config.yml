@@ -181,7 +181,7 @@ jobs:
           command: npm run extract-api
       - run:
           name: Check if API has changed
-          command: git diff --exit-code api-report/**
+          command: git diff --exit-code api-report/purchases-js.api.md
       - run:
           name: Pack
           command: npm pack
