@@ -151,6 +151,10 @@ jobs:
           working_directory: examples/rcbilling-demo
           command: npm ci
       - run:
+          name: Install Playwright dependencies for rcbilling-demo
+          working_directory: examples/rcbilling-demo
+          command: npm playwright install --with-deps
+      - run:
           name: Linting
           command: npm run lint
       - run:
@@ -192,7 +196,7 @@ jobs:
       - run:
           name: E2E tests rcbilling-demo
           working_directory: examples/rcbilling-demo
-          command: npm run test:ci
+          command: npm run test:e2e
 
 workflows:
   danger:
