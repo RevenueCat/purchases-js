@@ -9,9 +9,9 @@ test("Get offerings displays packages", async () => {
   const { browser, page } = await setupTest(userId);
   const packageCards = await getPackageCards(page);
   expect(packageCards.length).toEqual(3);
-  await expectElementContainsText(packageCards[0], "$3.00");
-  await expectElementContainsText(packageCards[1], "$9.99");
-  await expectElementContainsText(packageCards[2], "$19.99");
+  await expectElementContainsText(packageCards[0], "$30.00");
+  await expectElementContainsText(packageCards[1], "$19.99");
+  await expectElementContainsText(packageCards[2], "$15.00");
   await browser.close();
 });
 
