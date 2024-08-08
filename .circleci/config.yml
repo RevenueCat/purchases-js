@@ -151,7 +151,7 @@ jobs:
           working_directory: examples/rcbilling-demo
           command: npm ci
       - run:
-          name: Install Playwright dependencies for rcbilling-demo
+          name: Install Playwright browsers
           working_directory: examples/rcbilling-demo
           command: npm playwright install --with-deps
       - run:
