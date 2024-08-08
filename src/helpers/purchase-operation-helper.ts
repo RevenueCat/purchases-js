@@ -7,7 +7,10 @@ import {
   CheckoutStatusErrorCodes,
   type CheckoutStatusResponse,
 } from "../networking/responses/checkout-status-response";
-import { type PurchaseOption } from "../entities/offerings";
+import type {
+  PresentedOfferingContext,
+  PurchaseOption,
+} from "../entities/offerings";
 import { Logger } from "./logger";
 
 export enum PurchaseFlowErrorCode {
@@ -66,14 +69,14 @@ export class PurchaseOperationHelper {
     productId: string,
     purchaseOption: PurchaseOption | null | undefined,
     email: string,
-    offeringIdentifier: string,
+    presentedOfferingContext: PresentedOfferingContext,
   ): Promise<SubscribeResponse> {
     try {
       const subscribeResponse = await this.backend.postSubscribe(
         appUserId,
         productId,
         email,
-        offeringIdentifier,
+        presentedOfferingContext,
         purchaseOption?.id,
       );
       this.operationSessionId = subscribeResponse.operation_session_id;

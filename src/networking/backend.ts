@@ -14,6 +14,7 @@ import { type ProductsResponse } from "./responses/products-response";
 import { type BrandingInfoResponse } from "./responses/branding-response";
 import { type CheckoutStatusResponse } from "./responses/checkout-status-response";
 import { defaultHttpConfig, type HttpConfig } from "../entities/http-config";
+import { type PresentedOfferingContext } from "../entities/offerings";
 
 export class Backend {
   private readonly API_KEY: string;
@@ -71,7 +72,7 @@ export class Backend {
     appUserId: string,
     productId: string,
     email: string,
-    offeringIdentifier: string,
+    presentedOfferingContext: PresentedOfferingContext,
     purchaseOptionId?: string,
   ): Promise<SubscribeResponse> {
     type SubscribeRequestBody = {
@@ -80,17 +81,29 @@ export class Backend {
       email: string;
       presented_offering_identifier: string;
       offer_id?: string;
+      applied_targeting_rule?: {
+        rule_id: string;
+        revision: number;
+      };
     };
 
     const requestBody: SubscribeRequestBody = {
       app_user_id: appUserId,
       product_id: productId,
       email: email,
-      presented_offering_identifier: offeringIdentifier,
+      presented_offering_identifier:
+        presentedOfferingContext.offeringIdentifier,
     };
 
     if (purchaseOptionId && purchaseOptionId !== "base_option") {
       requestBody.offer_id = purchaseOptionId;
+    }
+
+    if (presentedOfferingContext.targetingContext) {
+      requestBody.applied_targeting_rule = {
+        rule_id: presentedOfferingContext.targetingContext.ruleId,
+        revision: presentedOfferingContext.targetingContext.revision,
+      };
     }
 
     return await performRequest<SubscribeRequestBody, SubscribeResponse>(

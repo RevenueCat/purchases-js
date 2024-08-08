@@ -44,9 +44,11 @@ export type {
   Offerings,
   Package,
   Product,
+  PresentedOfferingContext,
   Price,
   PurchaseOption,
   SubscriptionOption,
+  TargetingContext,
   PricingPhase,
 } from "./entities/offerings";
 export { PackageType } from "./entities/offerings";
@@ -172,29 +174,28 @@ export class Purchases {
     offeringsData: OfferingsResponse,
     productsData: ProductsResponse,
   ): Offerings => {
-    const currentOfferingResponse =
-      offeringsData.offerings.find(
-        (o: OfferingResponse) =>
-          o.identifier === offeringsData.current_offering_id,
-      ) ?? null;
-
     const productsMap: { [productId: string]: ProductResponse } = {};
     productsData.product_details.forEach((p: ProductResponse) => {
       productsMap[p.identifier] = p;
     });
 
-    const currentOffering: Offering | null =
-      currentOfferingResponse == null
-        ? null
-        : toOffering(currentOfferingResponse, productsMap);
-
     const allOfferings: { [offeringId: string]: Offering } = {};
     offeringsData.offerings.forEach((o: OfferingResponse) => {
-      const offering = toOffering(o, productsMap);
+      const isCurrent = o.identifier === offeringsData.current_offering_id;
+      const offering = toOffering(
+        isCurrent,
+        o,
+        productsMap,
+        offeringsData.targeting,
+      );
       if (offering != null) {
         allOfferings[o.identifier] = offering;
       }
     });
+
+    const currentOffering: Offering | null = offeringsData.current_offering_id
+      ? allOfferings[offeringsData.current_offering_id] ?? null
+      : null;
 
     if (Object.keys(allOfferings).length == 0) {
       Logger.debugLog(

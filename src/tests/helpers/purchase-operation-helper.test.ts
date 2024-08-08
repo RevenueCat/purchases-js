@@ -70,7 +70,7 @@ describe("PurchaseOperationHelper", () => {
         "test-product-id",
         undefined,
         "test-email",
-        "test-offering-id",
+        { offeringIdentifier: "test-offering-id", targetingContext: null },
       ),
       new PurchaseFlowError(
         PurchaseFlowErrorCode.ErrorSettingUpPurchase,
@@ -96,7 +96,7 @@ describe("PurchaseOperationHelper", () => {
         "test-product-id",
         undefined,
         "test-email",
-        "test-offering-id",
+        { offeringIdentifier: "test-offering-id", targetingContext: null },
       ),
       new PurchaseFlowError(
         PurchaseFlowErrorCode.AlreadySubscribedError,
@@ -131,7 +131,7 @@ describe("PurchaseOperationHelper", () => {
       "test-product-id",
       undefined,
       "test-email",
-      "test-offering-id",
+      { offeringIdentifier: "test-offering-id", targetingContext: null },
     );
     await expectPromiseToPurchaseFlowError(
       purchaseOperationHelper.pollCurrentPurchaseForCompletion(),
@@ -164,7 +164,7 @@ describe("PurchaseOperationHelper", () => {
       "test-product-id",
       undefined,
       "test-email",
-      "test-offering-id",
+      { offeringIdentifier: "test-offering-id", targetingContext: null },
     );
     await purchaseOperationHelper.pollCurrentPurchaseForCompletion();
   });
@@ -226,7 +226,7 @@ describe("PurchaseOperationHelper", () => {
       "test-product-id",
       undefined,
       "test-email",
-      "test-offering-id",
+      { offeringIdentifier: "test-offering-id", targetingContext: null },
     );
     await expectPromiseToPurchaseFlowError(
       purchaseOperationHelper.pollCurrentPurchaseForCompletion(),

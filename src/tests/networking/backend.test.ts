@@ -334,7 +334,7 @@ describe("subscribe request", () => {
         "someAppUserId",
         "monthly",
         "testemail@revenuecat.com",
-        "offering_1",
+        { offeringIdentifier: "offering_1", targetingContext: null },
         undefined,
       ),
     ).toEqual(subscribeResponse);
@@ -349,7 +349,7 @@ describe("subscribe request", () => {
         "someAppUserId",
         "monthly",
         "testemail@revenuecat.com",
-        "offering_1",
+        { offeringIdentifier: "offering_1", targetingContext: null },
         undefined,
       ),
       new PurchasesError(
@@ -374,7 +374,7 @@ describe("subscribe request", () => {
         "someAppUserId",
         "monthly",
         "testemail@revenuecat.com",
-        "offering_1",
+        { offeringIdentifier: "offering_1", targetingContext: null },
         undefined,
       ),
       new PurchasesError(
@@ -400,7 +400,7 @@ describe("subscribe request", () => {
         "someAppUserId",
         "monthly",
         "testemail@revenuecat.com",
-        "offering_1",
+        { offeringIdentifier: "offering_1", targetingContext: null },
         undefined,
       ),
       new PurchasesError(
@@ -418,7 +418,7 @@ describe("subscribe request", () => {
         "someAppUserId",
         "monthly",
         "testemail@revenuecat.com",
-        "offering_1",
+        { offeringIdentifier: "offering_1", targetingContext: null },
         undefined,
       ),
       new PurchasesError(

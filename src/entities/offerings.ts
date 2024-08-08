@@ -1,6 +1,7 @@
 import {
   type OfferingResponse,
   type PackageResponse,
+  type TargetingResponse,
 } from "../networking/responses/offerings-response";
 import {
   type ProductResponse,
@@ -131,6 +132,36 @@ export interface SubscriptionOption extends PurchaseOption {
 }
 
 /**
+ * Contains information about the targeting context used to obtain an object.
+ * @public
+ */
+export interface TargetingContext {
+  /**
+   * The rule id from the targeting used to obtain this object.
+   */
+  readonly ruleId: string;
+  /**
+   * The revision of the targeting used to obtain this object.
+   */
+  readonly revision: number;
+}
+
+/**
+ * Contains data about the context in which an offering was presented.
+ * @public
+ */
+export interface PresentedOfferingContext {
+  /**
+   * The identifier of the offering used to obtain this object.
+   */
+  readonly offeringIdentifier: string;
+  /**
+   * The targeting context used to obtain this object.
+   */
+  readonly targetingContext: TargetingContext | null;
+}
+
+/**
  * Represents product's listing details.
  * @public
  */
@@ -164,8 +195,13 @@ export interface Product {
   readonly normalPeriodDuration: string | null;
   /**
    * The offering ID used to obtain this product.
+   * @deprecated - Use {@link Product.presentedOfferingContext} instead.
    */
   readonly presentedOfferingIdentifier: string;
+  /**
+   * The context from which this product was obtained.
+   */
+  readonly presentedOfferingContext: PresentedOfferingContext;
   /**
    * The default subscription option for this product. Null if no subscription
    * options are available like in the case of consumables and non-consumables.
@@ -309,7 +345,7 @@ const toSubscriptionOption = (
 
 const toProduct = (
   productDetailsData: ProductResponse,
-  presentedOfferingIdentifier: string,
+  presentedOfferingContext: PresentedOfferingContext,
 ): Product | null => {
   const options: { [optionId: string]: SubscriptionOption } = {};
 
@@ -356,21 +392,22 @@ const toProduct = (
     description: productDetailsData.description,
     currentPrice: currentPrice,
     normalPeriodDuration: defaultOption.base.periodDuration,
-    presentedOfferingIdentifier: presentedOfferingIdentifier,
+    presentedOfferingIdentifier: presentedOfferingContext.offeringIdentifier,
+    presentedOfferingContext: presentedOfferingContext,
     defaultSubscriptionOption: defaultOption,
     subscriptionOptions: options,
   };
 };
 
 const toPackage = (
-  presentedOfferingIdentifier: string,
+  presentedOfferingContext: PresentedOfferingContext,
   packageData: PackageResponse,
   productDetailsData: { [productId: string]: ProductResponse },
 ): Package | null => {
   const rcBillingProduct =
     productDetailsData[packageData.platform_product_identifier];
   if (rcBillingProduct === undefined) return null;
-  const product = toProduct(rcBillingProduct, presentedOfferingIdentifier);
+  const product = toProduct(rcBillingProduct, presentedOfferingContext);
   if (product === null) return null;
 
   return {
@@ -381,12 +418,24 @@ const toPackage = (
 };
 
 export const toOffering = (
+  isCurrentOffering: boolean,
   offeringsData: OfferingResponse,
   productDetailsData: { [productId: string]: ProductResponse },
+  targetingResponse?: TargetingResponse,
 ): Offering | null => {
+  const presentedOfferingContext: PresentedOfferingContext = {
+    offeringIdentifier: offeringsData.identifier,
+    targetingContext:
+      isCurrentOffering && targetingResponse
+        ? {
+            ruleId: targetingResponse.rule_id,
+            revision: targetingResponse.revision,
+          }
+        : null,
+  };
   const packages = offeringsData.packages
     .map((p: PackageResponse) =>
-      toPackage(offeringsData.identifier, p, productDetailsData),
+      toPackage(presentedOfferingContext, p, productDetailsData),
     )
     .filter(notEmpty);
   const packagesById: { [packageId: string]: Package } = {};

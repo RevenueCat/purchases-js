@@ -111,7 +111,7 @@
                 productId,
                 purchaseOptionToUse,
                 customerEmail,
-                rcPackage.rcBillingProduct.presentedOfferingIdentifier,
+                rcPackage.rcBillingProduct.presentedOfferingContext,
             )
             .then((result) => {
                 if (result.next_action === "collect_payment_info") {
