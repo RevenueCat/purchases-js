@@ -132,9 +132,26 @@ jobs:
 
   test:
     docker:
-      - image: cimg/ruby:3.3.4-browsers
+      - image: mcr.microsoft.com/playwright:v1.40.0-jammy
     steps:
       - checkout
+      - run:
+          name: Install Ruby
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y ruby-full
+      - run:
+          name: Verify Ruby Installation
+          command: ruby -v
+      - run:
+          name: Install Bundler
+          command: gem install bundler
+      - run:
+          name: Install Project Dependencies
+          command: bundle install
+      - run:
+          name: Run Ruby Tests
+          command: bundle exec rake test
       - revenuecat/install-gem-unix-dependencies:
           cache-version: v1
       - revenuecat/setup-git-credentials
