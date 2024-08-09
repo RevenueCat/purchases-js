@@ -132,7 +132,7 @@ jobs:
 
   test:
     docker:
-      - image: cimg/ruby:3.4.0-browsers
+      - image: cimg/ruby:3.3.4-browsers
     steps:
       - checkout
       - revenuecat/install-gem-unix-dependencies:
@@ -150,29 +150,6 @@ jobs:
           name: Install dependencies rcbilling-demo
           working_directory: examples/rcbilling-demo
           command: npm ci
-
-      - run:
-          name: Install WebKit dependencies
-          command: |
-            sudo apt-get update
-            sudo apt-get install -y \
-              gstreamer1.0-plugins-base \
-              gstreamer1.0-plugins-good \
-              libsoup2.4-1 \
-              libwoff1 \
-              libopus0 \
-              libwebpdemux2 \
-              libgudev-1.0-0 \
-              libhyphen0 \
-              libepoxy0 \
-              libgail-common \
-              libgail18 \
-              libgtk-3-0 \
-              libnotify-dev \
-              libxslt1.1 \
-              libnss3 \
-              xvfb
-            sudo apt-get remove -y libsoup2.4-1
       - run:
           name: Install Playwright browsers
           working_directory: examples/rcbilling-demo
