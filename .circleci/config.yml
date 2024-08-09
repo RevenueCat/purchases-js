@@ -161,9 +161,7 @@ jobs:
               libsoup2.4-1 \
               libwoff1 \
               libopus0 \
-              libwebp6 \
               libwebpdemux2 \
-              libenchant1c2a \
               libgudev-1.0-0 \
               libhyphen0 \
               libepoxy0 \
