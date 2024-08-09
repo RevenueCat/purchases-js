@@ -196,7 +196,7 @@ jobs:
       - run:
           name: E2E tests rcbilling-demo
           working_directory: examples/rcbilling-demo
-          command: npm run test:e2e
+          command: npm run test:ci
 
 workflows:
   danger:
