@@ -132,7 +132,7 @@ jobs:
 
   test:
     docker:
-      - image: mcr.microsoft.com/playwright:v1.46.0-jammy
+      - image: cimg/ruby:3.3.0-browsers
     steps:
       - checkout
       - revenuecat/install-gem-unix-dependencies:
@@ -150,6 +150,14 @@ jobs:
           name: Install dependencies rcbilling-demo
           working_directory: examples/rcbilling-demo
           command: npm ci
+      - run:
+          name: Install WebKit dependencies
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y gstreamer1.0-plugins-base gstreamer1.0-plugins-good libsoup2.4-1 libwoff1 libopus0 libwebp6 libwebpdemux2 libenchant1c2a libgudev-1.0-0 libhyphen0 libepoxy0 libgail-common libgail18 libgtk-3-0 libnotify-dev libxslt1.1 libnss3 xvfb
+      - run:
+          name: Start Xvfb
+          command: Xvfb :99 -screen 0 1280x1024x16 &          
       - run:
           name: Install Playwright browsers
           working_directory: examples/rcbilling-demo
