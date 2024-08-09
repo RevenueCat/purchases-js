@@ -132,7 +132,7 @@ jobs:
 
   test:
     docker:
-      - image: cimg/ruby:3.3.0-browsers
+      - image: cimg/ruby:3.4.0-browsers
     steps:
       - checkout
       - revenuecat/install-gem-unix-dependencies:
@@ -172,7 +172,7 @@ jobs:
               libxslt1.1 \
               libnss3 \
               xvfb
-            run apt-get remove -y libsoup2.4-1
+            sudo apt-get remove -y libsoup2.4-1
       - run:
           name: Install Playwright browsers
           working_directory: examples/rcbilling-demo
