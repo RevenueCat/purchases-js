@@ -132,7 +132,7 @@ jobs:
 
   test:
     docker:
-      - image: cimg/ruby:3.3.0-browsers
+      - image: mcr.microsoft.com/playwright:v1.46.0-jammy
     steps:
       - checkout
       - revenuecat/install-gem-unix-dependencies:
@@ -150,9 +150,6 @@ jobs:
           name: Install dependencies rcbilling-demo
           working_directory: examples/rcbilling-demo
           command: npm ci
-      - run:
-        name: Install required dependencies
-        command: sudo apt-get install -y gstreamer1.0-plugins-base gstreamer1.0-plugins-good libsoup2.4-1
       - run:
           name: Install Playwright browsers
           working_directory: examples/rcbilling-demo
