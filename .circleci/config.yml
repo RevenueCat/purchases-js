@@ -151,6 +151,10 @@ jobs:
           working_directory: examples/rcbilling-demo
           command: npm ci
       - run:
+          name: Install Playwright browsers
+          working_directory: examples/rcbilling-demo
+          command: npx playwright install --with-deps
+      - run:
           name: Linting
           command: npm run lint
       - run:

@@ -129,9 +129,6 @@ const PaywallPage: React.FC = () => {
     }
   };
 
-  console.log(packages);
-  console.log(offerings);
-
   return (
     <>
       <LogoutButton />

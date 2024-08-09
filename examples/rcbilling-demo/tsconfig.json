@@ -21,6 +21,6 @@
     "noFallthroughCasesInSwitch": true,
     "allowSyntheticDefaultImports": true,
   },
-  "include": ["src"],
+  "include": ["src", "playwright.config.ts", "playwright-global-setup.ts", "e2e"],
   "references": [{ "path": "./tsconfig.node.json" }],
 }
