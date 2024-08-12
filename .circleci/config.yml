@@ -139,21 +139,12 @@ jobs:
           cache-version: v1
       - revenuecat/setup-git-credentials
       - run:
-          name: Update ENV for E2E test
-          command: |
-            echo 'export VITE_RC_API_KEY=${E2E_RC_API_KEY}' >> "$BASH_ENV"
-            source "$BASH_ENV"
-      - run:
           name: Install node dependencies
           command: npm ci
       - run:
           name: Install dependencies rcbilling-demo
           working_directory: examples/rcbilling-demo
           command: npm ci
-      - run:
-          name: Install Playwright browsers
-          working_directory: examples/rcbilling-demo
-          command: npx playwright install --with-deps
       - run:
           name: Linting
           command: npm run lint
@@ -189,14 +180,7 @@ jobs:
       - run:
           name: Pack
           command: npm pack
-      - run:
-          name: Build rcbilling-demo
-          working_directory: examples/rcbilling-demo
-          command: npm run build
-      - run:
-          name: E2E tests rcbilling-demo
-          working_directory: examples/rcbilling-demo
-          command: npm run test:ci
+
   test-e2e:
     docker:
       - image: mcr.microsoft.com/playwright:v1.46.0-jammy
