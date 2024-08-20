@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { getRenewsLabel } from "../../helpers/price-labels";
+import { formatPrice, getRenewsLabel } from "../../helpers/price-labels";
 
 describe("getRenewsLabel", () => {
   test("should return correct text for single period durations", () => {
@@ -14,5 +14,15 @@ describe("getRenewsLabel", () => {
     expect(getRenewsLabel("P3M")).toEqual("every 3 months");
     expect(getRenewsLabel("P2W")).toEqual("every 2 weeks");
     expect(getRenewsLabel("P14D")).toEqual("every 14 days");
+  });
+});
+
+describe("formatPrice", () => {
+  test("should return expected formatted price", () => {
+    expect(formatPrice(999, "USD")).toEqual("$9.99");
+    expect(formatPrice(1000, "USD")).toEqual("$10.00");
+    expect(formatPrice(999, "EUR")).toEqual("€9.99");
+    expect(formatPrice(999, "EUR", "en-US")).toEqual("€9.99");
+    expect(formatPrice(999, "USD", "es-ES")).toEqual("9,99 US$");
   });
 });
