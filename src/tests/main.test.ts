@@ -3,6 +3,7 @@ import { beforeAll, beforeEach, describe, expect, test } from "vitest";
 import {
   type CustomerInfo,
   type EntitlementInfo,
+  ErrorCode,
   type Offering,
   type Offerings,
   type Package,
@@ -14,6 +15,7 @@ import { getRequestHandlers } from "./test-responses";
 import { UninitializedPurchasesError } from "../entities/errors";
 import { PeriodUnit } from "../helpers/duration-helper";
 import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
+import { failTest } from "./test-helpers";
 
 const server = setupServer(...getRequestHandlers());
 
@@ -385,6 +387,27 @@ describe("getOfferings", () => {
       },
       current: null,
     });
+  });
+
+  test("gets offerings with valid currency", async () => {
+    const purchases = configurePurchases();
+    await purchases.getOfferings({ currency: "EUR" }).then(
+      (offerings) => {
+        expect(offerings.current).not.toBeNull();
+      },
+      () => failTest(),
+    );
+  });
+
+  test("fails to get offerings with invalid currency", async () => {
+    const purchases = configurePurchases();
+    await purchases.getOfferings({ currency: "invalid" }).then(
+      () => failTest(),
+      (e) => {
+        expect(e).toBeInstanceOf(PurchasesError);
+        expect(e.errorCode).toEqual(ErrorCode.ConfigurationError);
+      },
+    );
   });
 });
 
