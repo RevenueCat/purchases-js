@@ -11,6 +11,24 @@ export function createMonthlyPackageMock(
     revision: 123,
   },
 ): Package {
+  const subscriptionOption = {
+    id: "base_option",
+    priceId: "test_price_id",
+    base: {
+      cycleCount: 1,
+      periodDuration: "P1M",
+      period: {
+        number: 1,
+        unit: PeriodUnit.Month,
+      },
+      price: {
+        amount: 300,
+        currency: "USD",
+        formattedPrice: "$3.00",
+      },
+    },
+    trial: null,
+  };
   return {
     identifier: "$rc_monthly",
     packageType: PackageType.Monthly,
@@ -30,41 +48,10 @@ export function createMonthlyPackageMock(
         offeringIdentifier: "offering_1",
         targetingContext: targetingContext,
       },
-      defaultSubscriptionOption: {
-        id: "base_option",
-        base: {
-          cycleCount: 1,
-          periodDuration: "P1M",
-          period: {
-            number: 1,
-            unit: PeriodUnit.Month,
-          },
-          price: {
-            amount: 300,
-            currency: "USD",
-            formattedPrice: "$3.00",
-          },
-        },
-        trial: null,
-      },
+      defaultPurchaseOption: subscriptionOption,
+      defaultSubscriptionOption: subscriptionOption,
       subscriptionOptions: {
-        base_option: {
-          id: "base_option",
-          base: {
-            cycleCount: 1,
-            periodDuration: "P1M",
-            period: {
-              number: 1,
-              unit: PeriodUnit.Month,
-            },
-            price: {
-              amount: 300,
-              currency: "USD",
-              formattedPrice: "$3.00",
-            },
-          },
-          trial: null,
-        },
+        base_option: subscriptionOption,
       },
     },
   };

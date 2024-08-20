@@ -11,6 +11,7 @@ export interface PricingPhaseResponse {
 
 export interface PurchaseOptionResponse {
   id: string;
+  price_id: string;
 }
 
 export interface SubscriptionOptionResponse extends PurchaseOptionResponse {

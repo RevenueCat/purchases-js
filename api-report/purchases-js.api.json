@@ -3127,6 +3127,34 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!Product#defaultPurchaseOption:member",
+              "docComment": "/**\n * The default purchase option for this product.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly defaultPurchaseOption: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "PurchaseOption",
+                  "canonicalReference": "@revenuecat/purchases-js!PurchaseOption:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "defaultPurchaseOption",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!Product#defaultSubscriptionOption:member",
               "docComment": "/**\n * The default subscription option for this product. Null if no subscription options are available like in the case of consumables and non-consumables.\n */\n",
               "excerptTokens": [
@@ -3423,6 +3451,33 @@
               "isOptional": false,
               "releaseTag": "Public",
               "name": "id",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PurchaseOption#priceId:member",
+              "docComment": "/**\n * The public price id for this subscription option.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly priceId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "priceId",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2

@@ -221,6 +221,7 @@ export interface PricingPhase {
 // @public
 export interface Product {
     readonly currentPrice: Price;
+    readonly defaultPurchaseOption: PurchaseOption;
     readonly defaultSubscriptionOption: SubscriptionOption | null;
     readonly description: string | null;
     // @deprecated
@@ -239,6 +240,7 @@ export interface Product {
 // @public
 export interface PurchaseOption {
     readonly id: string;
+    readonly priceId: string;
 }
 
 // @public

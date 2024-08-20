@@ -360,7 +360,7 @@ describe("subscribe request", () => {
         "monthly",
         "testemail@revenuecat.com",
         { offeringIdentifier: "offering_1", targetingContext: null },
-        undefined,
+        { id: "base_option", priceId: "test_price_id" },
       ),
     ).toEqual(subscribeResponse);
   });
@@ -375,7 +375,7 @@ describe("subscribe request", () => {
         "monthly",
         "testemail@revenuecat.com",
         { offeringIdentifier: "offering_1", targetingContext: null },
-        undefined,
+        { id: "base_option", priceId: "test_price_id" },
       ),
       new PurchasesError(
         ErrorCode.UnknownBackendError,
@@ -400,7 +400,7 @@ describe("subscribe request", () => {
         "monthly",
         "testemail@revenuecat.com",
         { offeringIdentifier: "offering_1", targetingContext: null },
-        undefined,
+        { id: "base_option", priceId: "test_price_id" },
       ),
       new PurchasesError(
         ErrorCode.InvalidCredentialsError,
@@ -426,7 +426,7 @@ describe("subscribe request", () => {
         "monthly",
         "testemail@revenuecat.com",
         { offeringIdentifier: "offering_1", targetingContext: null },
-        undefined,
+        { id: "base_option", priceId: "test_price_id" },
       ),
       new PurchasesError(
         ErrorCode.PurchaseInvalidError,
@@ -444,7 +444,7 @@ describe("subscribe request", () => {
         "monthly",
         "testemail@revenuecat.com",
         { offeringIdentifier: "offering_1", targetingContext: null },
-        undefined,
+        { id: "base_option", priceId: "test_price_id" },
       ),
       new PurchasesError(
         ErrorCode.NetworkError,

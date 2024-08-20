@@ -67,7 +67,7 @@ export class PurchaseOperationHelper {
   async startPurchase(
     appUserId: string,
     productId: string,
-    purchaseOption: PurchaseOption | null | undefined,
+    purchaseOption: PurchaseOption,
     email: string,
     presentedOfferingContext: PresentedOfferingContext,
   ): Promise<SubscribeResponse> {
@@ -77,7 +77,7 @@ export class PurchaseOperationHelper {
         productId,
         email,
         presentedOfferingContext,
-        purchaseOption?.id,
+        purchaseOption,
       );
       this.operationSessionId = subscribeResponse.operation_session_id;
       return subscribeResponse;

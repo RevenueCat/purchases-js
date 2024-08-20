@@ -43,8 +43,8 @@
     let brandingInfo: BrandingInfoResponse | null = null;
     let paymentInfoCollectionMetadata: SubscribeResponse | null = null;
     let lastError: PurchaseFlowError | null = null;
-    const productId = rcPackage?.rcBillingProduct?.identifier ?? null;
-    const defaultPurchaseOption = rcPackage?.rcBillingProduct?.defaultSubscriptionOption;
+    const productId = rcPackage.rcBillingProduct.identifier ?? null;
+    const defaultPurchaseOption = rcPackage.rcBillingProduct.defaultPurchaseOption;
     const purchaseOptionToUse = purchaseOption ? purchaseOption : defaultPurchaseOption;
 
     let state:
