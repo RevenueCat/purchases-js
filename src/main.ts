@@ -38,6 +38,8 @@ import {
 } from "./helpers/configuration-validators";
 import { type PurchaseParams } from "./entities/purchase-params";
 import { defaultHttpConfig, type HttpConfig } from "./entities/http-config";
+import { type GetOfferingsParams } from "./entities/get-offerings-params";
+import { validateCurrency } from "./helpers/validators";
 
 export type {
   Offering,
@@ -67,6 +69,7 @@ export {
 export type { Period, PeriodUnit } from "./helpers/duration-helper";
 export type { HttpConfig } from "./entities/http-config";
 export { LogLevel } from "./entities/log-level";
+export type { GetOfferingsParams } from "./entities/get-offerings-params";
 export type { PurchaseParams } from "./entities/purchase-params";
 
 /**
@@ -214,7 +217,8 @@ export class Purchases {
    * Fetch the configured offerings for this user. You can configure these
    * in the RevenueCat dashboard.
    */
-  public async getOfferings(): Promise<Offerings> {
+  public async getOfferings(params?: GetOfferingsParams): Promise<Offerings> {
+    validateCurrency(params?.currency);
     const appUserId = this._appUserId;
     const offeringsResponse = await this.backend.getOfferings(appUserId);
     const productIds = offeringsResponse.offerings
@@ -224,6 +228,7 @@ export class Purchases {
     const productsResponse = await this.backend.getProducts(
       appUserId,
       productIds,
+      params?.currency,
     );
 
     this.logMissingProductIds(productIds, productsResponse.product_details);

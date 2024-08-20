@@ -39,10 +39,12 @@ export class GetProductsEndpoint implements Endpoint {
   name: string = "getProducts";
   private readonly appUserId: string;
   private readonly productIds: string[];
+  private readonly currency: string | undefined;
 
-  constructor(appUserId: string, productIds: string[]) {
+  constructor(appUserId: string, productIds: string[], currency?: string) {
     this.appUserId = appUserId;
     this.productIds = productIds;
+    this.currency = currency;
   }
 
   urlPath(): string {
@@ -50,7 +52,8 @@ export class GetProductsEndpoint implements Endpoint {
     const encodedProductIds = this.productIds
       .map(encodeURIComponent)
       .join("&id=");
-    return `${RC_BILLING_PATH}/subscribers/${encodedAppUserId}/products?id=${encodedProductIds}`;
+    const currencyParam = this.currency ? `&currency=${this.currency}` : "";
+    return `${RC_BILLING_PATH}/subscribers/${encodedAppUserId}/products?id=${encodedProductIds}${currencyParam}`;
   }
 }
 

@@ -108,6 +108,11 @@ export enum ErrorCode {
 }
 
 // @public
+export interface GetOfferingsParams {
+    readonly currency?: string;
+}
+
+// @public
 export interface HttpConfig {
     additionalHeaders?: Record<string, string>;
     proxyURL?: string;
@@ -251,7 +256,7 @@ export class Purchases {
     static configure(apiKey: string, appUserId: string, httpConfig?: HttpConfig): Purchases;
     getAppUserId(): string;
     getCustomerInfo(): Promise<CustomerInfo>;
-    getOfferings(): Promise<Offerings>;
+    getOfferings(params?: GetOfferingsParams): Promise<Offerings>;
     static getSharedInstance(): Purchases;
     static isConfigured(): boolean;
     isEntitledTo(entitlementIdentifier: string): Promise<boolean>;

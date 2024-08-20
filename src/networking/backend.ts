@@ -48,9 +48,10 @@ export class Backend {
   async getProducts(
     appUserId: string,
     productIds: string[],
+    currency?: string,
   ): Promise<ProductsResponse> {
     return await performRequest<null, ProductsResponse>(
-      new GetProductsEndpoint(appUserId, productIds),
+      new GetProductsEndpoint(appUserId, productIds, currency),
       {
         apiKey: this.API_KEY,
         httpConfig: this.httpConfig,
