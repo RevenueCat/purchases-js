@@ -10,9 +10,13 @@ export const priceLabels: Record<string, string> = {
   P1W: "weekly",
 };
 
-export const formatPrice = (priceInCents: number, currency: string): string => {
+export const formatPrice = (
+  priceInCents: number,
+  currency: string,
+  locale?: string,
+): string => {
   const price = priceInCents / 100;
-  const formatter = new Intl.NumberFormat("en-US", {
+  const formatter = new Intl.NumberFormat(locale, {
     style: "currency",
     currency,
   });
