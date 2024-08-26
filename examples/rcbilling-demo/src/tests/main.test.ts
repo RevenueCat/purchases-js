@@ -86,7 +86,7 @@ async function enterCreditCardDetailsAndContinue(page: Page): Promise<void> {
   await stripeFrame.getByPlaceholder("CVC").fill("123");
   await stripeFrame.getByLabel("Country").selectOption("US");
   await stripeFrame.getByPlaceholder("12345").fill("12345");
-  await page.getByRole("button", { name: "Pay" }).click();
+  await page.getByTestId("PayButton").click();
 }
 
 async function navigateToUrl(page: Page, userId: string): Promise<void> {

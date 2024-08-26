@@ -17,12 +17,15 @@
   import IconLock from "../assets/icon-lock.svelte";
   import { Colors } from "../../assets/colors";
   import ProcessingAnimation from "../processing-animation.svelte";
+  import { Product, PurchaseOption } from "../../entities/offerings";
 
   export let onClose: any;
   export let onContinue: any;
   export let onError: any;
   export let paymentInfoCollectionMetadata: SubscribeResponse;
   export let processing = false;
+  export let productDetails: Product;
+  export let purchaseOptionToUse: PurchaseOption;
 
   const clientSecret = paymentInfoCollectionMetadata.data.client_secret;
 
@@ -122,13 +125,15 @@
         </ModalSection>
         <ModalFooter>
           <RowLayout>
-            <Button disabled={processing}>
+            <Button disabled={processing} testId="PayButton">
               {#if processing}
                 <ProcessingAnimation />
+              {:else if productDetails.subscriptionOptions?.[purchaseOptionToUse.id]?.trial}
+                Start Trial
               {:else}
                 Pay
-              {/if}</Button
-            >
+              {/if}
+            </Button>
             <Button disabled={processing} intent="secondary" on:click={onClose}
               >Close</Button
             >
