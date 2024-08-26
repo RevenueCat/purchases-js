@@ -128,7 +128,7 @@
             <Button disabled={processing} id="Pay">
               {#if processing}
                 <ProcessingAnimation />
-              {:else if productDetails.subscriptionOptions[purchaseOptionToUse.id].trial !== null}
+              {:else if productDetails.subscriptionOptions[purchaseOptionToUse.id]?.trial}
                 Start Trial
               {:else}
                 Pay
