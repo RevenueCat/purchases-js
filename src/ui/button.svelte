@@ -1,10 +1,12 @@
 <script lang="ts">
   export let intent: "primary" | "secondary" = "primary";
   export let disabled = false;
-  export let id: string | undefined = undefined;
+  export let testId: string | undefined = undefined;
 </script>
 
-<button on:click class={`intent-${intent}`} {disabled} {id}><slot /></button>
+<button on:click class={`intent-${intent}`} {disabled} data-testid={testId}
+  ><slot /></button
+>
 
 <style>
   button {
