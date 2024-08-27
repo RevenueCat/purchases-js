@@ -167,6 +167,7 @@ describe("getOfferings", () => {
 
     const subscriptionOption = {
       id: "offer_12345",
+      priceId: "test_price_id",
       base: {
         cycleCount: 1,
         periodDuration: "P1M",
@@ -210,6 +211,7 @@ describe("getOfferings", () => {
           offeringIdentifier: "offering_2",
           targetingContext: null,
         },
+        defaultPurchaseOption: subscriptionOption,
         defaultSubscriptionOption: subscriptionOption,
         subscriptionOptions: {
           offer_12345: subscriptionOption,
@@ -244,6 +246,32 @@ describe("getOfferings", () => {
   test("can get offerings without current offering id", async () => {
     const purchases = configurePurchases("appUserIdWithoutCurrentOfferingId");
     const offerings = await purchases.getOfferings();
+    const subscriptionOption = {
+      id: "offer_12345",
+      priceId: "test_price_id",
+      base: {
+        cycleCount: 1,
+        periodDuration: "P1M",
+        period: {
+          number: 1,
+          unit: PeriodUnit.Month,
+        },
+        price: {
+          amount: 500,
+          currency: "USD",
+          formattedPrice: "$5.00",
+        },
+      },
+      trial: {
+        cycleCount: 1,
+        periodDuration: "P1W",
+        period: {
+          number: 1,
+          unit: PeriodUnit.Week,
+        },
+        price: null,
+      },
+    };
     const package2: Package = {
       identifier: "package_2",
       packageType: PackageType.Custom,
@@ -263,57 +291,10 @@ describe("getOfferings", () => {
           offeringIdentifier: "offering_2",
           targetingContext: null,
         },
-        defaultSubscriptionOption: {
-          id: "offer_12345",
-          base: {
-            cycleCount: 1,
-            periodDuration: "P1M",
-            period: {
-              number: 1,
-              unit: PeriodUnit.Month,
-            },
-            price: {
-              amount: 500,
-              currency: "USD",
-              formattedPrice: "$5.00",
-            },
-          },
-          trial: {
-            cycleCount: 1,
-            periodDuration: "P1W",
-            period: {
-              number: 1,
-              unit: PeriodUnit.Week,
-            },
-            price: null,
-          },
-        },
+        defaultPurchaseOption: subscriptionOption,
+        defaultSubscriptionOption: subscriptionOption,
         subscriptionOptions: {
-          offer_12345: {
-            id: "offer_12345",
-            base: {
-              cycleCount: 1,
-              periodDuration: "P1M",
-              period: {
-                number: 1,
-                unit: PeriodUnit.Month,
-              },
-              price: {
-                amount: 500,
-                currency: "USD",
-                formattedPrice: "$5.00",
-              },
-            },
-            trial: {
-              cycleCount: 1,
-              periodDuration: "P1W",
-              period: {
-                number: 1,
-                unit: PeriodUnit.Week,
-              },
-              price: null,
-            },
-          },
+          offer_12345: subscriptionOption,
         },
       },
     };

@@ -21,13 +21,13 @@
                 {getTrialsLabel(trial.periodDuration)} free trial
             {/if}
             {#if !trial?.periodDuration && basePrice }
-                {basePrice.currency || ''} {basePrice.formattedPrice}
+                {basePrice.formattedPrice}
             {/if}
 
         </span>
         {#if (trial && basePrice)}
             <span class="rcb-product-price-after-trial">
-                {trial && basePrice && `${basePrice.currency} ${
+                {trial && basePrice && `${
                     basePrice.formattedPrice} after end of trial`}
             </span>
         {/if}

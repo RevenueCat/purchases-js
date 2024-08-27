@@ -4,8 +4,8 @@ import {
   type TargetingResponse,
 } from "../networking/responses/offerings-response";
 import {
-  type ProductResponse,
   type PricingPhaseResponse,
+  type ProductResponse,
   type SubscriptionOptionResponse,
 } from "../networking/responses/products-response";
 import { notEmpty } from "../helpers/type-helper";
@@ -112,6 +112,10 @@ export interface PurchaseOption {
    * The unique id for a purchase option
    */
   readonly id: string;
+  /**
+   * The public price id for this subscription option.
+   */
+  readonly priceId: string;
 }
 
 /**
@@ -202,6 +206,10 @@ export interface Product {
    * The context from which this product was obtained.
    */
   readonly presentedOfferingContext: PresentedOfferingContext;
+  /**
+   * The default purchase option for this product.
+   */
+  readonly defaultPurchaseOption: PurchaseOption;
   /**
    * The default subscription option for this product. Null if no subscription
    * options are available like in the case of consumables and non-consumables.
@@ -338,6 +346,7 @@ const toSubscriptionOption = (
   }
   return {
     id: option.id,
+    priceId: option.price_id,
     base: toPricingPhase(option.base),
     trial: option.trial ? toPricingPhase(option.trial) : null,
   } as SubscriptionOption;
@@ -394,6 +403,7 @@ const toProduct = (
     normalPeriodDuration: defaultOption.base.periodDuration,
     presentedOfferingIdentifier: presentedOfferingContext.offeringIdentifier,
     presentedOfferingContext: presentedOfferingContext,
+    defaultPurchaseOption: defaultOption,
     defaultSubscriptionOption: defaultOption,
     subscriptionOptions: options,
   };
