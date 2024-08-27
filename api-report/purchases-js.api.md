@@ -108,6 +108,11 @@ export enum ErrorCode {
 }
 
 // @public
+export interface GetOfferingsParams {
+    readonly currency?: string;
+}
+
+// @public
 export interface HttpConfig {
     additionalHeaders?: Record<string, string>;
     proxyURL?: string;
@@ -216,6 +221,7 @@ export interface PricingPhase {
 // @public
 export interface Product {
     readonly currentPrice: Price;
+    readonly defaultPurchaseOption: PurchaseOption;
     readonly defaultSubscriptionOption: SubscriptionOption | null;
     readonly description: string | null;
     // @deprecated
@@ -234,6 +240,7 @@ export interface Product {
 // @public
 export interface PurchaseOption {
     readonly id: string;
+    readonly priceId: string;
 }
 
 // @public
@@ -251,7 +258,7 @@ export class Purchases {
     static configure(apiKey: string, appUserId: string, httpConfig?: HttpConfig): Purchases;
     getAppUserId(): string;
     getCustomerInfo(): Promise<CustomerInfo>;
-    getOfferings(): Promise<Offerings>;
+    getOfferings(params?: GetOfferingsParams): Promise<Offerings>;
     static getSharedInstance(): Purchases;
     static isConfigured(): boolean;
     isEntitledTo(entitlementIdentifier: string): Promise<boolean>;

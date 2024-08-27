@@ -15,6 +15,7 @@ const monthlyProductResponse = {
   subscription_options: {
     base_option: {
       id: "base_option",
+      price_id: "test_price_id",
       base: {
         period_duration: "P1M",
         cycle_count: 1,
@@ -42,6 +43,7 @@ const monthly2ProductResponse = {
   subscription_options: {
     offer_12345: {
       id: "offer_12345",
+      price_id: "test_price_id",
       base: {
         period_duration: "P1M",
         cycle_count: 1,

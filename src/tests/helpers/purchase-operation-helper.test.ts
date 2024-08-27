@@ -68,7 +68,7 @@ describe("PurchaseOperationHelper", () => {
       purchaseOperationHelper.startPurchase(
         "test-app-user-id",
         "test-product-id",
-        undefined,
+        { id: "test-option-id", priceId: "test-price-id" },
         "test-email",
         { offeringIdentifier: "test-offering-id", targetingContext: null },
       ),
@@ -94,7 +94,7 @@ describe("PurchaseOperationHelper", () => {
       purchaseOperationHelper.startPurchase(
         "test-app-user-id",
         "test-product-id",
-        undefined,
+        { id: "test-option-id", priceId: "test-price-id" },
         "test-email",
         { offeringIdentifier: "test-offering-id", targetingContext: null },
       ),
@@ -129,7 +129,7 @@ describe("PurchaseOperationHelper", () => {
     await purchaseOperationHelper.startPurchase(
       "test-app-user-id",
       "test-product-id",
-      undefined,
+      { id: "test-option-id", priceId: "test-price-id" },
       "test-email",
       { offeringIdentifier: "test-offering-id", targetingContext: null },
     );
@@ -162,7 +162,7 @@ describe("PurchaseOperationHelper", () => {
     await purchaseOperationHelper.startPurchase(
       "test-app-user-id",
       "test-product-id",
-      undefined,
+      { id: "test-option-id", priceId: "test-price-id" },
       "test-email",
       { offeringIdentifier: "test-offering-id", targetingContext: null },
     );
@@ -224,7 +224,7 @@ describe("PurchaseOperationHelper", () => {
     await purchaseOperationHelper.startPurchase(
       "test-app-user-id",
       "test-product-id",
-      undefined,
+      { id: "test-option-id", priceId: "test-price-id" },
       "test-email",
       { offeringIdentifier: "test-offering-id", targetingContext: null },
     );

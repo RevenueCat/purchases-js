@@ -15,6 +15,7 @@ import {
 } from "../../entities/errors";
 import { expectPromiseToError } from "../test-helpers";
 import { type SubscribeResponse } from "../../networking/responses/subscribe-response";
+
 let server: SetupServer;
 let backend: Backend;
 
@@ -247,14 +248,24 @@ describe("getOfferings request", () => {
 });
 
 describe("getProducts request", () => {
-  function setProductsResponse(httpResponse: HttpResponse) {
+  function setProductsResponse(httpResponse: HttpResponse, currency?: string) {
+    const baseUrl =
+      "http://localhost:8000/rcbilling/v1/subscribers/someAppUserId/products";
     server.use(
-      http.get(
-        "http://localhost:8000/rcbilling/v1/subscribers/someAppUserId/products?id=monthly&id=monthly_2",
-        () => {
+      http.get(baseUrl, ({ request }) => {
+        const url = new URL(request.url);
+        const productIds = url.searchParams.getAll("id");
+        const urlCurrency = url.searchParams.get("currency");
+        if (
+          productIds.includes("monthly") &&
+          productIds.includes("monthly_2") &&
+          productIds.length === 2 &&
+          (urlCurrency === null || urlCurrency === currency)
+        ) {
           return httpResponse;
-        },
-      ),
+        }
+        throw new Error("Invalid request");
+      }),
     );
   }
 
@@ -262,6 +273,20 @@ describe("getProducts request", () => {
     setProductsResponse(HttpResponse.json(productsResponse, { status: 200 }));
     expect(
       await backend.getProducts("someAppUserId", ["monthly", "monthly_2"]),
+    ).toEqual(productsResponse);
+  });
+
+  test("passes request with currency successfully", async () => {
+    setProductsResponse(
+      HttpResponse.json(productsResponse, { status: 200 }),
+      "USD",
+    );
+    expect(
+      await backend.getProducts(
+        "someAppUserId",
+        ["monthly", "monthly_2"],
+        "USD",
+      ),
     ).toEqual(productsResponse);
   });
 
@@ -335,7 +360,7 @@ describe("subscribe request", () => {
         "monthly",
         "testemail@revenuecat.com",
         { offeringIdentifier: "offering_1", targetingContext: null },
-        undefined,
+        { id: "base_option", priceId: "test_price_id" },
       ),
     ).toEqual(subscribeResponse);
   });
@@ -350,7 +375,7 @@ describe("subscribe request", () => {
         "monthly",
         "testemail@revenuecat.com",
         { offeringIdentifier: "offering_1", targetingContext: null },
-        undefined,
+        { id: "base_option", priceId: "test_price_id" },
       ),
       new PurchasesError(
         ErrorCode.UnknownBackendError,
@@ -375,7 +400,7 @@ describe("subscribe request", () => {
         "monthly",
         "testemail@revenuecat.com",
         { offeringIdentifier: "offering_1", targetingContext: null },
-        undefined,
+        { id: "base_option", priceId: "test_price_id" },
       ),
       new PurchasesError(
         ErrorCode.InvalidCredentialsError,
@@ -401,7 +426,7 @@ describe("subscribe request", () => {
         "monthly",
         "testemail@revenuecat.com",
         { offeringIdentifier: "offering_1", targetingContext: null },
-        undefined,
+        { id: "base_option", priceId: "test_price_id" },
       ),
       new PurchasesError(
         ErrorCode.PurchaseInvalidError,
@@ -419,7 +444,7 @@ describe("subscribe request", () => {
         "monthly",
         "testemail@revenuecat.com",
         { offeringIdentifier: "offering_1", targetingContext: null },
-        undefined,
+        { id: "base_option", priceId: "test_price_id" },
       ),
       new PurchasesError(
         ErrorCode.NetworkError,

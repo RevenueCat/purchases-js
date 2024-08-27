@@ -14,7 +14,10 @@ import { type ProductsResponse } from "./responses/products-response";
 import { type BrandingInfoResponse } from "./responses/branding-response";
 import { type CheckoutStatusResponse } from "./responses/checkout-status-response";
 import { defaultHttpConfig, type HttpConfig } from "../entities/http-config";
-import { type PresentedOfferingContext } from "../entities/offerings";
+import type {
+  PresentedOfferingContext,
+  PurchaseOption,
+} from "../entities/offerings";
 
 export class Backend {
   private readonly API_KEY: string;
@@ -48,9 +51,10 @@ export class Backend {
   async getProducts(
     appUserId: string,
     productIds: string[],
+    currency?: string,
   ): Promise<ProductsResponse> {
     return await performRequest<null, ProductsResponse>(
-      new GetProductsEndpoint(appUserId, productIds),
+      new GetProductsEndpoint(appUserId, productIds, currency),
       {
         apiKey: this.API_KEY,
         httpConfig: this.httpConfig,
@@ -73,7 +77,7 @@ export class Backend {
     productId: string,
     email: string,
     presentedOfferingContext: PresentedOfferingContext,
-    purchaseOptionId?: string,
+    purchaseOption: PurchaseOption,
   ): Promise<SubscribeResponse> {
     type SubscribeRequestBody = {
       app_user_id: string;
@@ -81,6 +85,7 @@ export class Backend {
       email: string;
       presented_offering_identifier: string;
       offer_id?: string;
+      price_id: string;
       applied_targeting_rule?: {
         rule_id: string;
         revision: number;
@@ -91,12 +96,13 @@ export class Backend {
       app_user_id: appUserId,
       product_id: productId,
       email: email,
+      price_id: purchaseOption.priceId,
       presented_offering_identifier:
         presentedOfferingContext.offeringIdentifier,
     };
 
-    if (purchaseOptionId && purchaseOptionId !== "base_option") {
-      requestBody.offer_id = purchaseOptionId;
+    if (purchaseOption.id !== "base_option") {
+      requestBody.offer_id = purchaseOption.id;
     }
 
     if (presentedOfferingContext.targetingContext) {
