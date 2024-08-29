@@ -36,7 +36,7 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
 
     const [customerInfo, offerings] = await Promise.all([
       purchases.getCustomerInfo(),
-      purchases.getOfferings({ currency: currency || "USD" }),
+      purchases.getOfferings({ currency: currency || undefined }),
     ]);
 
     return {
