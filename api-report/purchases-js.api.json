@@ -1524,7 +1524,7 @@
         {
           "kind": "Interface",
           "canonicalReference": "@revenuecat/purchases-js!GetOfferingsParams:interface",
-          "docComment": "/**\n * Parameters for the {@link Purchases.getOfferings}` method.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Parameters for the {@link Purchases.getOfferings} method.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",

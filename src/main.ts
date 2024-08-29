@@ -40,6 +40,7 @@ import { type PurchaseParams } from "./entities/purchase-params";
 import { defaultHttpConfig, type HttpConfig } from "./entities/http-config";
 import { type GetOfferingsParams } from "./entities/get-offerings-params";
 import { validateCurrency } from "./helpers/validators";
+import type { BrandingInfoResponse } from "./networking/responses/branding-response";
 
 export type {
   Offering,
@@ -310,13 +311,22 @@ export class Purchases {
       `Presenting purchase form for package ${rcPackage.identifier}`,
     );
 
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+      let brandingInfo: BrandingInfoResponse | null = null;
+      try {
+        brandingInfo = await this.backend.getBrandingInfo();
+      } catch (e) {
+        Logger.errorLog(
+          "Error fetching branding info. This is not fatal, but the purchase flow may not look as expected.",
+        );
+      }
       new RCPurchasesUI({
         target: certainHTMLTarget,
         props: {
           appUserId,
           rcPackage,
           purchaseOption,
+          brandingInfo,
           customerEmail,
           onFinished: async () => {
             Logger.debugLog("Purchase finished");
@@ -336,7 +346,6 @@ export class Purchases {
             reject(PurchasesError.getForPurchasesFlowError(e));
           },
           purchases: this,
-          backend: this.backend,
           purchaseOperationHelper: this.purchaseOperationHelper,
           asModal,
         },
