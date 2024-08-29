@@ -95,7 +95,7 @@ const PaywallPage: React.FC = () => {
   const currentOffering = offerings.current;
   if (!currentOffering) {
     console.error("No current offering found");
-    return;
+    return <>No offering found!</>;
   }
   const packages: Package[] = currentOffering?.availablePackages || [];
   if (packages.length == 0) {

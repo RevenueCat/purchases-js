@@ -16,8 +16,12 @@ type IPurchasesLoaderData = {
 
 const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
   params,
+  request,
 }) => {
   const appUserId = params["app_user_id"];
+  const searchParams = new URL(request.url).searchParams;
+  const currency = searchParams.get("currency");
+
   if (!appUserId) {
     throw redirect("/");
   }
@@ -32,7 +36,7 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
 
     const [customerInfo, offerings] = await Promise.all([
       purchases.getCustomerInfo(),
-      purchases.getOfferings(),
+      purchases.getOfferings({ currency: currency || "USD" }),
     ]);
 
     return {
