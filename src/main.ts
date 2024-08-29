@@ -87,6 +87,9 @@ export class Purchases {
   private _appUserId: string;
 
   /** @internal */
+  private _brandingInfo: BrandingInfoResponse | null = null;
+
+  /** @internal */
   private readonly backend: Backend;
 
   /** @internal */
@@ -171,6 +174,20 @@ export class Purchases {
     }
     this.backend = new Backend(this._API_KEY, httpConfig);
     this.purchaseOperationHelper = new PurchaseOperationHelper(this.backend);
+    this.initialize();
+  }
+
+  private initialize() {
+    this.backend
+      .getBrandingInfo()
+      .then((brandingInfo) => {
+        this._brandingInfo = brandingInfo;
+      })
+      .catch(() => {
+        Logger.errorLog(
+          "Error fetching branding info. This is not fatal, but the purchase flow may not look as expected.",
+        );
+      });
   }
 
   /** @internal */
@@ -312,14 +329,16 @@ export class Purchases {
     );
 
     return new Promise(async (resolve, reject) => {
-      let brandingInfo: BrandingInfoResponse | null = null;
-      try {
-        brandingInfo = await this.backend.getBrandingInfo();
-      } catch (e) {
-        Logger.errorLog(
-          "Error fetching branding info. This is not fatal, but the purchase flow may not look as expected.",
-        );
+      if (this._brandingInfo === null) {
+        try {
+          this._brandingInfo = await this.backend.getBrandingInfo();
+        } catch (e) {
+          Logger.errorLog(
+            "Error fetching branding info. This is not fatal, but the purchase flow may not look as expected.",
+          );
+        }
       }
+      const brandingInfo: BrandingInfoResponse | null = this._brandingInfo;
       new RCPurchasesUI({
         target: certainHTMLTarget,
         props: {
