@@ -39,6 +39,7 @@
     "watch": "vite build --watch",
     "build": "tsc && vite build",
     "build:dev": "tsc && vite build --mode development",
+    "build:dev-watch": "tsc && vite build --mode development --watch",
     "preview": "vite preview",
     "lint": "eslint . --ext .ts",
     "format": "eslint . --ext .ts --fix",
