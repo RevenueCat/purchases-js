@@ -462,3 +462,10 @@ describe("Purchases.close()", () => {
     expect(Purchases.isConfigured()).toBeFalsy();
   });
 });
+
+describe("Purchases.initialize()", () => {
+  test("can initialize without failing", async () => {
+    const purchases = configurePurchases();
+    await purchases.initialize();
+  });
+});

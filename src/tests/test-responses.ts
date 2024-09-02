@@ -196,6 +196,14 @@ const customerInfoResponsePerUserId: { [userId: string]: object } = {
   newAppUserId: newAppUserIdCustomerInfoResponse,
 };
 
+const brandingInfoResponse = {
+  app_icon: null,
+  app_icon_webp: null,
+  id: "test-app-id",
+  seller_company_name: "Test Company name",
+  seller_company_support_email: "test-rcbilling-support@revenuecat.com",
+};
+
 export function getRequestHandlers(): RequestHandler[] {
   const requestHandlers: RequestHandler[] = [];
   Object.keys(offeringsResponsesPerUserId).forEach((userId: string) => {
@@ -230,6 +238,12 @@ export function getRequestHandlers(): RequestHandler[] {
       }),
     );
   });
+
+  requestHandlers.push(
+    http.get("http://localhost:8000/v1/branding", () => {
+      return HttpResponse.json(brandingInfoResponse, { status: 200 });
+    }),
+  );
 
   return requestHandlers;
 }
