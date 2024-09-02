@@ -1,5 +1,5 @@
 /**
- * Parameters for the {@link Purchases.getOfferings}` method.
+ * Parameters for the {@link Purchases.getOfferings} method.
  * @public
  */
 export interface GetOfferingsParams {

@@ -262,6 +262,7 @@ export class Purchases {
     getCustomerInfo(): Promise<CustomerInfo>;
     getOfferings(params?: GetOfferingsParams): Promise<Offerings>;
     static getSharedInstance(): Purchases;
+    initialize(): Promise<void>;
     static isConfigured(): boolean;
     isEntitledTo(entitlementIdentifier: string): Promise<boolean>;
     // (undocumented)
