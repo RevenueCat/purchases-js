@@ -8,11 +8,22 @@
   import { validateEmail } from "../../helpers/validators";
   import { PurchaseFlowError } from "../../helpers/purchase-operation-helper";
   import { beforeUpdate } from "svelte";
+  import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
+  import { getStyleVariable } from "../../helpers/process-style-overrides";
 
   export let onContinue: any;
   export let onClose: () => void;
   export let processing: boolean;
   export let lastError: PurchaseFlowError | null;
+  export let appearanceConfiguration:
+    | BrandingInfoResponse["appearance"]
+    | Record<string, undefined> = {};
+
+  const accentColor = getStyleVariable({
+    property: appearanceConfiguration["color_accent"] as string,
+    variableName: "accent",
+    fallbackVariableName: "--rc-color-focus",
+  });
 
   $: email = "";
   $: error = "";
@@ -43,6 +54,7 @@
           placeholder="john@appleseed.com"
           autocapitalize="off"
           bind:value={email}
+          style={accentColor}
         />
       </div>
       {#if error}<div class="form-error">{error}</div>{/if}
@@ -110,9 +122,8 @@
     height: 48px;
     padding: 6px 14px;
   }
-
   input:focus {
     outline: none;
-    border: 2px solid var(--rc-color-focus);
+    border: 2px solid var(--accent);
   }
 </style>
