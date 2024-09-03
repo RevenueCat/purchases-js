@@ -2865,7 +2865,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!Price#amount:member",
-              "docComment": "/**\n * Price in full units of the currency.\n */\n",
+              "docComment": "/**\n * Price in cents of the currency.\n *\n * @deprecated\n *\n * - Use {@link Price.amountMicros} instead.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -2884,6 +2884,33 @@
               "isOptional": false,
               "releaseTag": "Public",
               "name": "amount",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!Price#amountMicros:member",
+              "docComment": "/**\n * Price in micro-units of the currency. For example, $9.99 is represented as 9990000.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly amountMicros: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "amountMicros",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
