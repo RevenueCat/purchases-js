@@ -38,7 +38,6 @@ import {
 } from "./helpers/configuration-validators";
 import { type PurchaseParams } from "./entities/purchase-params";
 import { defaultHttpConfig, type HttpConfig } from "./entities/http-config";
-import { type BrandingInfoResponse } from "src/networking/responses/branding-response";
 
 export type {
   Offering,
@@ -229,14 +228,6 @@ export class Purchases {
 
     this.logMissingProductIds(productIds, productsResponse.product_details);
     return this.toOfferings(offeringsResponse, productsResponse);
-  }
-
-  /**
-   * Fetch the configured branding information for the project.
-   * You can configure this through the RevenueCat dashboard.
-   */
-  public async getBrandingInfo(): Promise<BrandingInfoResponse> {
-    return await this.backend.getBrandingInfo();
   }
 
   /**

@@ -1,5 +1,4 @@
 import {
-  BrandingInfoResponse,
   CustomerInfo,
   LogLevel,
   Offerings,
@@ -13,7 +12,6 @@ type IPurchasesLoaderData = {
   purchases: Purchases;
   customerInfo: CustomerInfo;
   offerings: Offerings;
-  brandingInfo: BrandingInfoResponse;
 };
 
 const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
@@ -31,16 +29,14 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
       Purchases.getSharedInstance().changeUser(appUserId);
     }
     const purchases = Purchases.getSharedInstance();
-    const [customerInfo, offerings, brandingInfo] = await Promise.all([
+    const [customerInfo, offerings] = await Promise.all([
       purchases.getCustomerInfo(),
       purchases.getOfferings(),
-      purchases.getBrandingInfo(),
     ]);
     return {
       purchases,
       customerInfo,
       offerings,
-      brandingInfo,
     };
   } catch {
     throw redirect("/");

@@ -90,9 +90,7 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
 
 const PaywallPage: React.FC = () => {
   const navigate = useNavigate();
-  const { purchases, offerings, brandingInfo } = usePurchasesLoaderData();
-
-  console.log(brandingInfo.appearance);
+  const { purchases, offerings } = usePurchasesLoaderData();
 
   const currentOffering = offerings.current;
   if (!currentOffering) {
