@@ -14,7 +14,7 @@ test.describe("Main", () => {
     // Gets all elements that match the selector
     const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
 
-    const EXPECTED_VALUES = [/30\.00/, /19\.99/, /15\.00/];
+    const EXPECTED_VALUES = [/30[,.]00/, /19[,.]99/, /15[,.]00/];
 
     await Promise.all(
       packageCards.map(
@@ -86,7 +86,7 @@ async function enterCreditCardDetailsAndContinue(page: Page): Promise<void> {
   await stripeFrame.getByPlaceholder("CVC").fill("123");
   await stripeFrame.getByLabel("Country").selectOption("US");
   await stripeFrame.getByPlaceholder("12345").fill("12345");
-  await page.getByRole("button", { name: "Pay" }).click();
+  await page.getByTestId("PayButton").click();
 }
 
 async function navigateToUrl(page: Page, userId: string): Promise<void> {

@@ -43,11 +43,11 @@
   let brandingInfo: BrandingInfoResponse | null = null;
   let paymentInfoCollectionMetadata: SubscribeResponse | null = null;
   let lastError: PurchaseFlowError | null = null;
+  const productId = rcPackage.rcBillingProduct.identifier ?? null;
+  const defaultPurchaseOption =
+    rcPackage.rcBillingProduct.defaultPurchaseOption;
   let appearanceConfig: BrandingInfoResponse["appearance"] | undefined =
     undefined;
-  const productId = rcPackage?.rcBillingProduct?.identifier ?? null;
-  const defaultPurchaseOption =
-    rcPackage?.rcBillingProduct?.defaultSubscriptionOption;
   const purchaseOptionToUse = purchaseOption
     ? purchaseOption
     : defaultPurchaseOption;
@@ -74,6 +74,7 @@
   onMount(async () => {
     productDetails = rcPackage.rcBillingProduct;
     brandingInfo = await backend.getBrandingInfo();
+
     appearanceConfig = brandingInfo?.appearance || undefined;
     if (state === "present-offer") {
       if (customerEmail) {
@@ -232,14 +233,15 @@
               {lastError}
             />
           {/if}
-          {#if paymentInfoCollectionMetadata && (state === "needs-payment-info" || state === "polling-purchase-status")}
+          {#if paymentInfoCollectionMetadata && (state === "needs-payment-info" || state === "polling-purchase-status") && productDetails && purchaseOptionToUse}
             <StateNeedsPaymentInfo
               {paymentInfoCollectionMetadata}
-              appearanceConfiguration={appearanceConfig}
               onContinue={handleContinue}
               onClose={handleClose}
               onError={handleError}
               processing={state === "polling-purchase-status"}
+              {productDetails}
+              {purchaseOptionToUse}
             />
           {/if}
           {#if state === "loading"}

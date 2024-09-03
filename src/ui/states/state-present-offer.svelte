@@ -1,7 +1,6 @@
 <script lang="ts">
     import ModalSection from "../modal-section.svelte";
-    import {formatPrice, getRenewsLabel} from "../../helpers/price-labels";
-    import {getTrialsLabel} from "../../helpers/price-labels.js";
+    import { getRenewsLabel, getTrialsLabel } from "../../helpers/price-labels";
     import type { Product, PurchaseOption, SubscriptionOption } from "../../entities/offerings";
 
     export let productDetails: Product;
@@ -22,19 +21,14 @@
                 {getTrialsLabel(trial.periodDuration)} free trial
             {/if}
             {#if !trial?.periodDuration && basePrice }
-                {basePrice.currency || ''} {formatPrice(
-                    basePrice.amount,
-                    basePrice.currency,
-                )}
+                {basePrice.formattedPrice}
             {/if}
 
         </span>
         {#if (trial && basePrice)}
             <span class="rcb-product-price-after-trial">
-                {trial && basePrice && `${basePrice.currency} ${formatPrice(
-                  basePrice.amount,
-                  basePrice.currency,
-                )} after end of trial`}
+                {trial && basePrice && `${
+                    basePrice.formattedPrice} after end of trial`}
             </span>
         {/if}
         <ul class="rcb-product-details">
