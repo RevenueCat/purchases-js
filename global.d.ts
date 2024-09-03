@@ -1,3 +1,5 @@
-export {}; // eslint-disable-line
+declare module "*.svelte" {
+  export { SvelteComponentDev as default } from "svelte/internal";
+}
 
 declare global {}
