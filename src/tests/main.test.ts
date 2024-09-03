@@ -177,6 +177,7 @@ describe("getOfferings", () => {
         },
         price: {
           amount: 500,
+          amountMicros: 5000000,
           currency: "USD",
           formattedPrice: "$5.00",
         },
@@ -199,6 +200,7 @@ describe("getOfferings", () => {
         currentPrice: {
           currency: "USD",
           amount: 500,
+          amountMicros: 5000000,
           formattedPrice: "$5.00",
         },
         displayName: "Monthly test 2",
@@ -258,6 +260,7 @@ describe("getOfferings", () => {
         },
         price: {
           amount: 500,
+          amountMicros: 5000000,
           currency: "USD",
           formattedPrice: "$5.00",
         },
@@ -279,6 +282,7 @@ describe("getOfferings", () => {
         currentPrice: {
           currency: "USD",
           amount: 500,
+          amountMicros: 5000000,
           formattedPrice: "$5.00",
         },
         displayName: "Monthly test 2",

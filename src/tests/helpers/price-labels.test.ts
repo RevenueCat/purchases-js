@@ -19,12 +19,12 @@ describe("getRenewsLabel", () => {
 
 describe("formatPrice", () => {
   test("should return expected formatted price", () => {
-    expect(formatPrice(999, "USD", "en-US")).toEqual("$9.99");
-    expect(formatPrice(1000, "USD", "en-US")).toEqual("$10.00");
-    expect(formatPrice(99, "USD", "en-US")).toEqual("$0.99");
-    expect(formatPrice(999, "EUR", "en-US")).toEqual("€9.99");
-    expect(formatPrice(999, "USD", "es-ES")).toEqual("9,99 US$");
-    expect(formatPrice(999, "CNY", "en-US")).toEqual("CN¥9.99");
-    expect(formatPrice(999, "CNY", "zh-CN")).toEqual("¥9.99");
+    expect(formatPrice(9990000, "USD", "en-US")).toEqual("$9.99");
+    expect(formatPrice(10000000, "USD", "en-US")).toEqual("$10.00");
+    expect(formatPrice(990000, "USD", "en-US")).toEqual("$0.99");
+    expect(formatPrice(9990000, "EUR", "en-US")).toEqual("€9.99");
+    expect(formatPrice(9990000, "USD", "es-ES")).toEqual("9,99 US$");
+    expect(formatPrice(9990000, "CNY", "en-US")).toEqual("CN¥9.99");
+    expect(formatPrice(9990000, "CNY", "zh-CN")).toEqual("¥9.99");
   });
 });

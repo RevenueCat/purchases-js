@@ -11,11 +11,11 @@ export const priceLabels: Record<string, string> = {
 };
 
 export const formatPrice = (
-  priceInCents: number,
+  priceInMicros: number,
   currency: string,
   locale?: string,
 ): string => {
-  const price = priceInCents / 100;
+  const price = priceInMicros / 1000000;
   const formatter = new Intl.NumberFormat(locale, {
     style: "currency",
     currency,

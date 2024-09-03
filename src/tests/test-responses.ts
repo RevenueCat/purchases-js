@@ -3,7 +3,7 @@ import type { OfferingsResponse } from "../networking/responses/offerings-respon
 
 const monthlyProductResponse = {
   current_price: {
-    amount: 300,
+    amount_micros: 3000000,
     currency: "USD",
   },
   identifier: "monthly",
@@ -20,7 +20,7 @@ const monthlyProductResponse = {
         period_duration: "P1M",
         cycle_count: 1,
         price: {
-          amount: 300,
+          amount_micros: 3000000,
           currency: "USD",
         },
       },
@@ -31,7 +31,7 @@ const monthlyProductResponse = {
 
 const monthly2ProductResponse = {
   current_price: {
-    amount: 500,
+    amount_micros: 5000000,
     currency: "USD",
   },
   identifier: "monthly_2",
@@ -48,7 +48,7 @@ const monthly2ProductResponse = {
         period_duration: "P1M",
         cycle_count: 1,
         price: {
-          amount: 500,
+          amount_micros: 5000000,
           currency: "USD",
         },
       },

@@ -1,5 +1,5 @@
 export interface PriceResponse {
-  amount: number;
+  amount_micros: number;
   currency: string;
 }
 
