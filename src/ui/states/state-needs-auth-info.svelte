@@ -8,19 +8,16 @@
   import { validateEmail } from "../../helpers/validators";
   import { PurchaseFlowError } from "../../helpers/purchase-operation-helper";
   import { beforeUpdate } from "svelte";
-  import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
   import { getStyleVariable } from "../../helpers/process-style-overrides";
+  import { appearanceConfigStore } from "@/store/store";
 
   export let onContinue: any;
   export let onClose: () => void;
   export let processing: boolean;
   export let lastError: PurchaseFlowError | null;
-  export let appearanceConfiguration:
-    | BrandingInfoResponse["appearance"]
-    | Record<string, undefined> = {};
 
   const accentColor = getStyleVariable({
-    property: appearanceConfiguration["color_accent"] as string,
+    property: $appearanceConfigStore["color_accent"] as string,
     variableName: "accent",
     fallbackVariableName: "--rc-color-focus",
   });

@@ -22,6 +22,7 @@
   import BrandingInfoUI from "./branding-info-ui.svelte";
   import SandboxBanner from "./sandbox-banner.svelte";
   import { Colors } from "../assets/colors";
+  import { appearanceConfigStore } from "../store/store";
 
   export let asModal = true;
   export let customerEmail: string | undefined;
@@ -38,7 +39,6 @@
   const colorVariables = Object.entries(Colors)
     .map(([key, value]) => `--rc-color-${key}: ${value}`)
     .join("; ");
-
   let productDetails: Product | null = null;
   let brandingInfo: BrandingInfoResponse | null = null;
   let paymentInfoCollectionMetadata: SubscribeResponse | null = null;
@@ -46,8 +46,6 @@
   const productId = rcPackage.rcBillingProduct.identifier ?? null;
   const defaultPurchaseOption =
     rcPackage.rcBillingProduct.defaultPurchaseOption;
-  let appearanceConfig: BrandingInfoResponse["appearance"] | undefined =
-    undefined;
   const purchaseOptionToUse = purchaseOption
     ? purchaseOption
     : defaultPurchaseOption;
@@ -75,7 +73,10 @@
     productDetails = rcPackage.rcBillingProduct;
     brandingInfo = await backend.getBrandingInfo();
 
-    appearanceConfig = brandingInfo?.appearance || undefined;
+    if (brandingInfo?.appearance) {
+      appearanceConfigStore.set(brandingInfo.appearance);
+    }
+
     if (state === "present-offer") {
       if (customerEmail) {
         handleSubscribe();
@@ -226,7 +227,6 @@
           {/if}
           {#if state === "needs-auth-info" || state === "processing-auth-info"}
             <StateNeedsAuthInfo
-              appearanceConfiguration={appearanceConfig}
               onContinue={handleContinue}
               onClose={handleClose}
               processing={state === "processing-auth-info"}
