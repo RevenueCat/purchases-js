@@ -41,7 +41,7 @@ import { defaultHttpConfig, type HttpConfig } from "./entities/http-config";
 import { type GetOfferingsParams } from "./entities/get-offerings-params";
 import { validateCurrency } from "./helpers/validators";
 import { type BrandingInfoResponse } from "./networking/responses/branding-response";
-import { requiresInitialization } from "./helpers/decorators";
+import { requiresLoadedResources } from "./helpers/decorators";
 
 export type {
   Offering,
@@ -91,7 +91,7 @@ export class Purchases {
   private _brandingInfo: BrandingInfoResponse | null = null;
 
   /** @internal */
-  private _initializationPromise: Promise<void> | null = null;
+  private _loadingResourcesPromise: Promise<void> | null = null;
 
   /** @internal */
   private readonly backend: Backend;
@@ -160,22 +160,22 @@ export class Purchases {
   }
 
   /**
-   * Initializes the Purchases SDK by prefetching some optional data.
-   * Currently only prefetching branding information. You can call this method
+   * Loads and caches some optional data in the Purchases SDK.
+   * Currently only fetching branding information. You can call this method
    * after configuring the SDK to speed up the first call to
    * {@link Purchases.purchase}.
    */
-  public async initialize(): Promise<void> {
-    if (this.isInitialized()) {
-      Logger.verboseLog("Purchases is already initialized. Skipping.");
+  public async loadResources(): Promise<void> {
+    if (this.hasLoadedResources()) {
+      Logger.verboseLog("Purchases resources are loaded. Skipping.");
       return;
     }
-    if (this._initializationPromise !== null) {
-      Logger.verboseLog("Purchases is already initializing. Waiting.");
-      await this._initializationPromise;
+    if (this._loadingResourcesPromise !== null) {
+      Logger.verboseLog("Purchases resources are loading. Waiting.");
+      await this._loadingResourcesPromise;
       return;
     }
-    this._initializationPromise = this.backend
+    this._loadingResourcesPromise = this.backend
       .getBrandingInfo()
       .then((brandingInfo) => {
         this._brandingInfo = brandingInfo;
@@ -188,12 +188,12 @@ export class Purchases {
         Logger.errorLog(`Error fetching branding info: ${errorMessage}`);
       })
       .finally(() => {
-        this._initializationPromise = null;
+        this._loadingResourcesPromise = null;
       });
-    return this._initializationPromise;
+    return this._loadingResourcesPromise;
   }
 
-  private isInitialized(): boolean {
+  private hasLoadedResources(): boolean {
     return this._brandingInfo !== null;
   }
 
@@ -327,7 +327,7 @@ export class Purchases {
    * @returns a Promise for the customer info after the purchase is completed successfully.
    * @throws {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.
    */
-  @requiresInitialization
+  @requiresLoadedResources
   public purchase(
     params: PurchaseParams,
   ): Promise<{ customerInfo: CustomerInfo }> {

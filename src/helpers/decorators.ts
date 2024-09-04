@@ -1,6 +1,6 @@
 import { type Purchases } from "../main";
 
-export function requiresInitialization<
+export function requiresLoadedResources<
   This extends Purchases,
   Args extends never[],
   Result,
@@ -13,7 +13,7 @@ export function requiresInitialization<
   >,
 ) {
   async function wrapper(this: This, ...args: Args): Promise<Result> {
-    await this.initialize();
+    await this.loadResources();
     return await target.call(this, ...args);
   }
 

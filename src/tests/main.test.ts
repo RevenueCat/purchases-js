@@ -463,9 +463,9 @@ describe("Purchases.close()", () => {
   });
 });
 
-describe("Purchases.initialize()", () => {
+describe("Purchases.loadResources()", () => {
   test("can initialize without failing", async () => {
     const purchases = configurePurchases();
-    await purchases.initialize();
+    await purchases.loadResources();
   });
 });
