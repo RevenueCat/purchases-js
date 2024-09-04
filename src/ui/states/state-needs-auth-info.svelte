@@ -9,7 +9,7 @@
   import { PurchaseFlowError } from "../../helpers/purchase-operation-helper";
   import { beforeUpdate } from "svelte";
   import { getStyleVariable } from "../../helpers/process-style-overrides";
-  import { appearanceConfigStore } from "@/store/store";
+  import { appearanceConfigStore } from "../../store/store";
 
   export let onContinue: any;
   export let onClose: () => void;
