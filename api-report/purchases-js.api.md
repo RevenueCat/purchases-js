@@ -205,7 +205,9 @@ export interface PresentedOfferingContext {
 
 // @public
 export interface Price {
+    // @deprecated
     readonly amount: number;
+    readonly amountMicros: number;
     readonly currency: string;
     readonly formattedPrice: string;
 }
