@@ -463,9 +463,9 @@ describe("Purchases.close()", () => {
   });
 });
 
-describe("Purchases.loadResources()", () => {
+describe("Purchases.preload()", () => {
   test("can initialize without failing", async () => {
     const purchases = configurePurchases();
-    await purchases.loadResources();
+    await purchases.preload();
   });
 });

@@ -4125,12 +4125,12 @@
             },
             {
               "kind": "Method",
-              "canonicalReference": "@revenuecat/purchases-js!Purchases#loadResources:member(1)",
+              "canonicalReference": "@revenuecat/purchases-js!Purchases#preload:member(1)",
               "docComment": "/**\n * Loads and caches some optional data in the Purchases SDK. Currently only fetching branding information. You can call this method after configuring the SDK to speed up the first call to {@link Purchases.purchase}.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "loadResources(): "
+                  "text": "preload(): "
                 },
                 {
                   "kind": "Reference",
@@ -4157,7 +4157,7 @@
               "parameters": [],
               "isOptional": false,
               "isAbstract": false,
-              "name": "loadResources"
+              "name": "preload"
             },
             {
               "kind": "Method",

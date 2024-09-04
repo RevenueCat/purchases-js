@@ -13,7 +13,7 @@ export function requiresLoadedResources<
   >,
 ) {
   async function wrapper(this: This, ...args: Args): Promise<Result> {
-    await this.loadResources();
+    await this.preload();
     return await target.call(this, ...args);
   }
 

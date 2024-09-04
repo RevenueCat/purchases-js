@@ -165,7 +165,7 @@ export class Purchases {
    * after configuring the SDK to speed up the first call to
    * {@link Purchases.purchase}.
    */
-  public async loadResources(): Promise<void> {
+  public async preload(): Promise<void> {
     if (this.hasLoadedResources()) {
       Logger.verboseLog("Purchases resources are loaded. Skipping.");
       return;
