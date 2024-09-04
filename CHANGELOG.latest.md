@@ -1,8 +1,6 @@
 ### New Features
-* [Beta] Support different currencies (#161) via Toni Rico (@tonidero)
-* Make main CTA not say "Pay" if the customer is starting a trial (#164) via Jens-Fabian Goetzmann (@jefago)
+* Add `amountMicros` to `Price` interface (#170) via Toni Rico (@tonidero)
 ### Dependency Updates
-* Bump rexml from 3.3.3 to 3.3.6 (#163) via dependabot[bot] (@dependabot[bot])
+* Bump svelte from 4.2.12 to 4.2.19 (#168) via dependabot[bot] (@dependabot[bot])
 ### Other Changes
-* Improve formatted price calculation (#160) via Toni Rico (@tonidero)
-* Eco 1249 rcbilling hostedcheckout add test harness for routes (#159) via Guido Torres (@guido732)
+* ECO-1398: Added the possibility to pass a currency in the demo app query string params (#167) via Nicola Sacco (@nicfix)
