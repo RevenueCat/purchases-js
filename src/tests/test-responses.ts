@@ -1,5 +1,6 @@
 import { http, HttpResponse, type RequestHandler } from "msw";
 import type { OfferingsResponse } from "../networking/responses/offerings-response";
+import { vi } from "vitest";
 
 const monthlyProductResponse = {
   current_price: {
@@ -204,43 +205,51 @@ const brandingInfoResponse = {
   seller_company_support_email: "test-rcbilling-support@revenuecat.com",
 };
 
+export interface GetRequest {
+  url: string;
+}
+
+export const APIGetRequest = vi.fn<[GetRequest]>();
+
 export function getRequestHandlers(): RequestHandler[] {
   const requestHandlers: RequestHandler[] = [];
   Object.keys(offeringsResponsesPerUserId).forEach((userId: string) => {
     const body = offeringsResponsesPerUserId[userId]!;
+    const url = `http://localhost:8000/v1/subscribers/${userId}/offerings`;
     requestHandlers.push(
-      http.get(
-        `http://localhost:8000/v1/subscribers/${userId}/offerings`,
-        () => {
-          return HttpResponse.json(body, { status: 200 });
-        },
-      ),
-    );
-  });
-
-  Object.keys(productsResponsesPerUserId).forEach((userId: string) => {
-    const body = productsResponsesPerUserId[userId]!;
-    requestHandlers.push(
-      http.get(
-        `http://localhost:8000/rcbilling/v1/subscribers/${userId}/products?id=monthly&id=monthly_2`,
-        () => {
-          return HttpResponse.json(body, { status: 200 });
-        },
-      ),
-    );
-  });
-
-  Object.keys(customerInfoResponsePerUserId).forEach((userId: string) => {
-    const body = customerInfoResponsePerUserId[userId]!;
-    requestHandlers.push(
-      http.get(`http://localhost:8000/v1/subscribers/${userId}`, () => {
+      http.get(url, () => {
+        APIGetRequest({ url: url });
         return HttpResponse.json(body, { status: 200 });
       }),
     );
   });
 
+  Object.keys(productsResponsesPerUserId).forEach((userId: string) => {
+    const body = productsResponsesPerUserId[userId]!;
+    const url = `http://localhost:8000/rcbilling/v1/subscribers/${userId}/products?id=monthly&id=monthly_2`;
+    requestHandlers.push(
+      http.get(url, () => {
+        APIGetRequest({ url: url });
+        return HttpResponse.json(body, { status: 200 });
+      }),
+    );
+  });
+
+  Object.keys(customerInfoResponsePerUserId).forEach((userId: string) => {
+    const body = customerInfoResponsePerUserId[userId]!;
+    const url = `http://localhost:8000/v1/subscribers/${userId}`;
+    requestHandlers.push(
+      http.get(url, () => {
+        APIGetRequest({ url: url });
+        return HttpResponse.json(body, { status: 200 });
+      }),
+    );
+  });
+
+  const brandingUrl = "http://localhost:8000/rcbilling/v1/branding";
   requestHandlers.push(
-    http.get("http://localhost:8000/v1/branding", () => {
+    http.get(brandingUrl, () => {
+      APIGetRequest({ url: brandingUrl });
       return HttpResponse.json(brandingInfoResponse, { status: 200 });
     }),
   );
