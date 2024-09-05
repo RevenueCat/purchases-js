@@ -23,7 +23,7 @@
   import SandboxBanner from "./sandbox-banner.svelte";
   import { Colors } from "../assets/colors";
   import { appearanceConfigStore } from "../store/store";
-  import { WPL_BASE_URL } from "src/assets/constants";
+  import { WPL_BASE_URL } from "../assets/constants";
 
   export let asModal = true;
   export let customerEmail: string | undefined;
@@ -74,7 +74,6 @@
     productDetails = rcPackage.rcBillingProduct;
     brandingInfo = await backend.getBrandingInfo();
 
-    console.log(window.location);
     if (
       brandingInfo?.appearance &&
       !window.location.host.includes(WPL_BASE_URL)
