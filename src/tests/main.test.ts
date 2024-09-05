@@ -1,5 +1,4 @@
-import { setupServer } from "msw/node";
-import { beforeAll, beforeEach, describe, expect, test } from "vitest";
+import { describe, expect, test } from "vitest";
 import {
   type CustomerInfo,
   type EntitlementInfo,
@@ -11,30 +10,15 @@ import {
   Purchases,
   PurchasesError,
 } from "../main";
-import { getRequestHandlers } from "./test-responses";
 import { UninitializedPurchasesError } from "../entities/errors";
 import { PeriodUnit } from "../helpers/duration-helper";
 import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
 import { failTest } from "./test-helpers";
-
-const server = setupServer(...getRequestHandlers());
-
-const testApiKey = "rcb_test_api_key";
-const testUserId = "someAppUserId";
-
-function configurePurchases(appUserId: string = testUserId): Purchases {
-  return Purchases.configure(testApiKey, appUserId);
-}
-
-beforeAll(() => {
-  server.listen();
-});
-
-beforeEach(() => {
-  if (Purchases.isConfigured()) {
-    Purchases.getSharedInstance().close();
-  }
-});
+import {
+  configurePurchases,
+  testApiKey,
+  testUserId,
+} from "./base.purchases_test";
 
 describe("Purchases.configure()", () => {
   test("throws error if given invalid api key", () => {
@@ -460,5 +444,12 @@ describe("Purchases.close()", () => {
     expect(Purchases.isConfigured()).toBeTruthy();
     purchases.close();
     expect(Purchases.isConfigured()).toBeFalsy();
+  });
+});
+
+describe("Purchases.preload()", () => {
+  test("can initialize without failing", async () => {
+    const purchases = configurePurchases();
+    await purchases.preload();
   });
 });

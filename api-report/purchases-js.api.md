@@ -266,6 +266,7 @@ export class Purchases {
     isEntitledTo(entitlementIdentifier: string): Promise<boolean>;
     // (undocumented)
     isSandbox(): boolean;
+    preload(): Promise<void>;
     purchase(params: PurchaseParams): Promise<{
         customerInfo: CustomerInfo;
     }>;
