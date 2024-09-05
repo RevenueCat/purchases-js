@@ -3,6 +3,10 @@ import { svelte } from "@sveltejs/vite-plugin-svelte";
 
 export default defineConfig({
   plugins: [svelte()],
+
+  // This is needed to make test pass after adding decorators in Purchases.
+  esbuild: { target: "es2022" },
+
   // Use the test field to define test-specific configurations
   test: {
     // Set the environment to 'jsdom' to simulate a browser environment

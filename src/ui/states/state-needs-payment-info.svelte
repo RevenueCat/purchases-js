@@ -17,7 +17,7 @@
   import IconLock from "../assets/icon-lock.svelte";
   import { Colors } from "../../assets/colors";
   import ProcessingAnimation from "../processing-animation.svelte";
-  import { Product, PurchaseOption } from "../../entities/offerings";
+  import type { Product, PurchaseOption } from "../../entities/offerings";
 
   export let onClose: any;
   export let onContinue: any;

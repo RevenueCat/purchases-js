@@ -40,6 +40,8 @@ import { type PurchaseParams } from "./entities/purchase-params";
 import { defaultHttpConfig, type HttpConfig } from "./entities/http-config";
 import { type GetOfferingsParams } from "./entities/get-offerings-params";
 import { validateCurrency } from "./helpers/validators";
+import { type BrandingInfoResponse } from "./networking/responses/branding-response";
+import { requiresLoadedResources } from "./helpers/decorators";
 
 export type {
   Offering,
@@ -84,6 +86,12 @@ export class Purchases {
 
   /** @internal */
   private _appUserId: string;
+
+  /** @internal */
+  private _brandingInfo: BrandingInfoResponse | null = null;
+
+  /** @internal */
+  private _loadingResourcesPromise: Promise<void> | null = null;
 
   /** @internal */
   private readonly backend: Backend;
@@ -149,6 +157,44 @@ export class Purchases {
     validateAdditionalHeaders(httpConfig.additionalHeaders);
     Purchases.instance = new Purchases(apiKey, appUserId, httpConfig);
     return Purchases.getSharedInstance();
+  }
+
+  /**
+   * Loads and caches some optional data in the Purchases SDK.
+   * Currently only fetching branding information. You can call this method
+   * after configuring the SDK to speed up the first call to
+   * {@link Purchases.purchase}.
+   */
+  public async preload(): Promise<void> {
+    if (this.hasLoadedResources()) {
+      Logger.verboseLog("Purchases resources are loaded. Skipping.");
+      return;
+    }
+    if (this._loadingResourcesPromise !== null) {
+      Logger.verboseLog("Purchases resources are loading. Waiting.");
+      await this._loadingResourcesPromise;
+      return;
+    }
+    this._loadingResourcesPromise = this.backend
+      .getBrandingInfo()
+      .then((brandingInfo) => {
+        this._brandingInfo = brandingInfo;
+      })
+      .catch((e) => {
+        let errorMessage = `${e}`;
+        if (e instanceof PurchasesError) {
+          errorMessage = `${e.message}. ${e.underlyingErrorMessage ? `Underlying error: ${e.underlyingErrorMessage}` : ""}`;
+        }
+        Logger.errorLog(`Error fetching branding info: ${errorMessage}`);
+      })
+      .finally(() => {
+        this._loadingResourcesPromise = null;
+      });
+    return this._loadingResourcesPromise;
+  }
+
+  private hasLoadedResources(): boolean {
+    return this._brandingInfo !== null;
   }
 
   /** @internal */
@@ -281,6 +327,7 @@ export class Purchases {
    * @returns a Promise for the customer info after the purchase is completed successfully.
    * @throws {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.
    */
+  @requiresLoadedResources
   public purchase(
     params: PurchaseParams,
   ): Promise<{ customerInfo: CustomerInfo }> {
@@ -336,7 +383,7 @@ export class Purchases {
             reject(PurchasesError.getForPurchasesFlowError(e));
           },
           purchases: this,
-          backend: this.backend,
+          brandingInfo: this._brandingInfo,
           purchaseOperationHelper: this.purchaseOperationHelper,
           asModal,
         },

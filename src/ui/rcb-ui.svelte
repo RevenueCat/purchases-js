@@ -16,7 +16,6 @@
     PurchaseFlowErrorCode,
     PurchaseOperationHelper,
   } from "../helpers/purchase-operation-helper";
-  import { Backend } from "../networking/backend";
   import ModalHeader from "./modal-header.svelte";
   import IconCart from "./assets/icon-cart.svelte";
   import BrandingInfoUI from "./branding-info-ui.svelte";
@@ -30,18 +29,17 @@
   export let appUserId: string;
   export let rcPackage: Package;
   export let purchaseOption: PurchaseOption | null | undefined;
+  export let brandingInfo: BrandingInfoResponse | null;
   export let onFinished: () => void;
   export let onError: (error: PurchaseFlowError) => void;
   export let onClose: () => void;
   export let purchases: Purchases;
-  export let backend: Backend;
   export let purchaseOperationHelper: PurchaseOperationHelper;
 
   const colorVariables = Object.entries(Colors)
     .map(([key, value]) => `--rc-color-${key}: ${value}`)
     .join("; ");
   let productDetails: Product | null = null;
-  let brandingInfo: BrandingInfoResponse | null = null;
   let paymentInfoCollectionMetadata: SubscribeResponse | null = null;
   let lastError: PurchaseFlowError | null = null;
   const productId = rcPackage.rcBillingProduct.identifier ?? null;
@@ -72,7 +70,6 @@
 
   onMount(async () => {
     productDetails = rcPackage.rcBillingProduct;
-    brandingInfo = await backend.getBrandingInfo();
 
     if (
       brandingInfo?.appearance &&

@@ -1,6 +1,7 @@
 import {
   type Package,
   PackageType,
+  type SubscriptionOption,
   type TargetingContext,
 } from "../../entities/offerings";
 import { PeriodUnit } from "../../helpers/duration-helper";
@@ -11,7 +12,7 @@ export function createMonthlyPackageMock(
     revision: 123,
   },
 ): Package {
-  const subscriptionOption = {
+  const subscriptionOption: SubscriptionOption = {
     id: "base_option",
     priceId: "test_price_id",
     base: {
@@ -23,6 +24,7 @@ export function createMonthlyPackageMock(
       },
       price: {
         amount: 300,
+        amountMicros: 3000000,
         currency: "USD",
         formattedPrice: "$3.00",
       },
@@ -36,6 +38,7 @@ export function createMonthlyPackageMock(
       currentPrice: {
         currency: "USD",
         amount: 300,
+        amountMicros: 3000000,
         formattedPrice: "$3.00",
       },
       displayName: "Monthly test",

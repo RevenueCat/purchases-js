@@ -3,10 +3,11 @@ import {
   type PackageResponse,
   type TargetingResponse,
 } from "../networking/responses/offerings-response";
-import {
-  type PricingPhaseResponse,
-  type ProductResponse,
-  type SubscriptionOptionResponse,
+import type {
+  PriceResponse,
+  PricingPhaseResponse,
+  ProductResponse,
+  SubscriptionOptionResponse,
 } from "../networking/responses/products-response";
 import { notEmpty } from "../helpers/type-helper";
 import { formatPrice } from "../helpers/price-labels";
@@ -62,9 +63,14 @@ export enum PackageType {
  */
 export interface Price {
   /**
-   * Price in full units of the currency.
+   * Price in cents of the currency.
+   * @deprecated - Use {@link Price.amountMicros} instead.
    */
   readonly amount: number;
+  /**
+   * Price in micro-units of the currency. For example, $9.99 is represented as 9990000.
+   */
+  readonly amountMicros: number;
   /**
    * Returns ISO 4217 currency code for price.
    * For example, if price is specified in British pounds sterling,
@@ -319,11 +325,12 @@ export interface Offerings {
   readonly current: Offering | null;
 }
 
-const toPrice = (priceData: { amount: number; currency: string }): Price => {
+const toPrice = (priceData: PriceResponse): Price => {
   return {
-    amount: priceData.amount,
+    amount: priceData.amount_micros / 10000,
+    amountMicros: priceData.amount_micros,
     currency: priceData.currency,
-    formattedPrice: formatPrice(priceData.amount, priceData.currency),
+    formattedPrice: formatPrice(priceData.amount_micros, priceData.currency),
   };
 };
 

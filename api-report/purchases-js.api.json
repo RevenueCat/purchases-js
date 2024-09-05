@@ -1524,7 +1524,7 @@
         {
           "kind": "Interface",
           "canonicalReference": "@revenuecat/purchases-js!GetOfferingsParams:interface",
-          "docComment": "/**\n * Parameters for the {@link Purchases.getOfferings}` method.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Parameters for the {@link Purchases.getOfferings} method.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -2865,7 +2865,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!Price#amount:member",
-              "docComment": "/**\n * Price in full units of the currency.\n */\n",
+              "docComment": "/**\n * Price in cents of the currency.\n *\n * @deprecated\n *\n * - Use {@link Price.amountMicros} instead.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -2884,6 +2884,33 @@
               "isOptional": false,
               "releaseTag": "Public",
               "name": "amount",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!Price#amountMicros:member",
+              "docComment": "/**\n * Price in micro-units of the currency. For example, $9.99 is represented as 9990000.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly amountMicros: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "amountMicros",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -4095,6 +4122,42 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "isSandbox"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@revenuecat/purchases-js!Purchases#preload:member(1)",
+              "docComment": "/**\n * Loads and caches some optional data in the Purchases SDK. Currently only fetching branding information. You can call this method after configuring the SDK to speed up the first call to {@link Purchases.purchase}.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "preload(): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<void>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "preload"
             },
             {
               "kind": "Method",
