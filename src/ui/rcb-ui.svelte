@@ -20,10 +20,7 @@
   import IconCart from "./assets/icon-cart.svelte";
   import BrandingInfoUI from "./branding-info-ui.svelte";
   import SandboxBanner from "./sandbox-banner.svelte";
-  import { Colors } from "../assets/colors";
-  import { appearanceConfigStore } from "../store/store";
-  import { WPL_BASE_URL } from "../assets/constants";
-
+  import { mapStyleOverridesToStyleVariables } from "../helpers/process-style-overrides";
   export let asModal = true;
   export let customerEmail: string | undefined;
   export let appUserId: string;
@@ -36,9 +33,7 @@
   export let purchases: Purchases;
   export let purchaseOperationHelper: PurchaseOperationHelper;
 
-  const colorVariables = Object.entries(Colors)
-    .map(([key, value]) => `--rc-color-${key}: ${value}`)
-    .join("; ");
+  let colorVariables = "";
   let productDetails: Product | null = null;
   let paymentInfoCollectionMetadata: SubscribeResponse | null = null;
   let lastError: PurchaseFlowError | null = null;
@@ -71,12 +66,9 @@
   onMount(async () => {
     productDetails = rcPackage.rcBillingProduct;
 
-    if (
-      brandingInfo?.appearance &&
-      !window.location.host.includes(WPL_BASE_URL)
-    ) {
-      appearanceConfigStore.set(brandingInfo.appearance);
-    }
+    colorVariables = mapStyleOverridesToStyleVariables(
+      brandingInfo?.appearance,
+    );
 
     if (state === "present-offer") {
       if (customerEmail) {
