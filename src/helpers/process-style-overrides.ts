@@ -2,6 +2,9 @@ import { appearanceConfigStore } from "../store/store";
 import { Colors } from "../assets/colors";
 import { WPL_BASE_URL } from "../assets/constants";
 
+/**
+ * Get the CSS variable string for a given property
+ */
 export const getStyleVariable = ({
   property,
   variableName,
@@ -14,6 +17,7 @@ export const getStyleVariable = ({
   return `--${variableName}: ${property || `var(${fallbackVariableName})`}`;
 };
 
+// Known variable names that map 1<>1 into variables from the Colors object
 const variableNameMap: Record<string, string> = {
   color_error: "error",
   color_accent: "focus",
@@ -46,6 +50,7 @@ export const mapStyleOverridesToStyleVariables = (
   return mapObjectToColorVariableString(mappedVariablesDict);
 };
 
+// Map color object into a single CSS variable string
 const mapObjectToColorVariableString = (colorDict: Record<string, string>) =>
   Object.entries(colorDict)
     .map(([key, value]) => `--rc-color-${key}: ${value}`)
