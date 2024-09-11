@@ -171,7 +171,7 @@ describe("getCustomerInfo request", () => {
       backend.getCustomerInfo("someAppUserId"),
       new PurchasesError(
         ErrorCode.NetworkError,
-        "Error performing request.",
+        "Error performing request. Please check your network connection and try again.",
         "Failed to fetch",
       ),
     );
@@ -240,7 +240,7 @@ describe("getOfferings request", () => {
       backend.getOfferings("someAppUserId"),
       new PurchasesError(
         ErrorCode.NetworkError,
-        "Error performing request.",
+        "Error performing request. Please check your network connection and try again.",
         "Failed to fetch",
       ),
     );
@@ -329,7 +329,7 @@ describe("getProducts request", () => {
       backend.getProducts("someAppUserId", ["monthly", "monthly_2"]),
       new PurchasesError(
         ErrorCode.NetworkError,
-        "Error performing request.",
+        "Error performing request. Please check your network connection and try again.",
         "Failed to fetch",
       ),
     );
@@ -448,7 +448,7 @@ describe("subscribe request", () => {
       ),
       new PurchasesError(
         ErrorCode.NetworkError,
-        "Error performing request.",
+        "Error performing request. Please check your network connection and try again.",
         "Failed to fetch",
       ),
     );
