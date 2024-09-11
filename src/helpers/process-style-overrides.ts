@@ -55,3 +55,19 @@ const mapObjectToColorVariableString = (colorDict: Record<string, string>) =>
   Object.entries(colorDict)
     .map(([key, value]) => `--rc-color-${key}: ${value}`)
     .join("; ");
+
+/**
+ * Receives an SVG as a string along with a value for the fill attribute
+ * and if the value exists, replaces the icon's fill
+ * and returns a data URL for the new SVG to be used in an <img> tag
+ */
+export const getReplacedFillSvgAsImgUrl = (
+  fillVariableValue: string,
+  icon: string,
+) => {
+  const svgContent = fillVariableValue
+    ? icon.replace(/fill="#[0-9A-Fa-f]{6}"/, `fill="${fillVariableValue}"`)
+    : icon;
+
+  return `data:image/svg+xml,${encodeURIComponent(svgContent)}`;
+};
