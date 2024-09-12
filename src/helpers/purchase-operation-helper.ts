@@ -32,6 +32,20 @@ export class PurchaseFlowError extends Error {
     super(message);
   }
 
+  isRecoverable(): boolean {
+    switch (this.errorCode) {
+      case PurchaseFlowErrorCode.NetworkError:
+      case PurchaseFlowErrorCode.MissingEmailError:
+        return true;
+      case PurchaseFlowErrorCode.ErrorSettingUpPurchase:
+      case PurchaseFlowErrorCode.ErrorChargingPayment:
+      case PurchaseFlowErrorCode.AlreadySubscribedError:
+      case PurchaseFlowErrorCode.StripeError:
+      case PurchaseFlowErrorCode.UnknownError:
+        return false;
+    }
+  }
+
   static fromPurchasesError(
     e: PurchasesError,
     defaultFlowErrorCode: PurchaseFlowErrorCode,
@@ -41,6 +55,8 @@ export class PurchaseFlowError extends Error {
       errorCode = PurchaseFlowErrorCode.AlreadySubscribedError;
     } else if (e.errorCode === ErrorCode.InvalidEmailError) {
       errorCode = PurchaseFlowErrorCode.MissingEmailError;
+    } else if (e.errorCode === ErrorCode.NetworkError) {
+      errorCode = PurchaseFlowErrorCode.NetworkError;
     } else {
       errorCode = defaultFlowErrorCode;
     }

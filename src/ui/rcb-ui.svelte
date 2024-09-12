@@ -164,7 +164,7 @@
   };
 
   const handleError = (e: PurchaseFlowError) => {
-    if (state === "processing-auth-info") {
+    if (state === "processing-auth-info" && e.isRecoverable()) {
       lastError = e;
       state = "needs-auth-info";
       return;

@@ -62,7 +62,7 @@ export class ErrorCodeUtils {
       case ErrorCode.MissingReceiptFileError:
         return "The receipt is missing.";
       case ErrorCode.NetworkError:
-        return "Error performing request.";
+        return "Error performing request. Please check your network connection and try again.";
       case ErrorCode.InvalidCredentialsError:
         return "There was a credentials issue. Check the underlying error for more details.";
       case ErrorCode.UnexpectedBackendResponseError:
@@ -112,6 +112,7 @@ export class ErrorCodeUtils {
   ): ErrorCode {
     switch (backendErrorCode) {
       case BackendErrorCode.BackendStoreProblem:
+      case BackendErrorCode.BackendPaymentGatewayGenericError:
         return ErrorCode.StoreProblemError;
       case BackendErrorCode.BackendCannotTransferPurchase:
         return ErrorCode.ReceiptAlreadyInUseError;
@@ -208,6 +209,7 @@ export enum BackendErrorCode {
   BackendInvalidSubscriberAttributesBody = 7264,
   BackendProductIDsMalformed = 7662,
   BackendAlreadySubscribedError = 7772,
+  BackendPaymentGatewayGenericError = 7773,
   BackendOfferNotFound = 7814,
   BackendNoMXRecordsFound = 7834,
 }
