@@ -83,7 +83,7 @@
     "typedoc": "^0.25.8",
     "typescript": "^5.2.2",
     "vite": "^5.0.0",
-    "vite-plugin-dts": "^3.6.3",
+    "vite-plugin-dts": "^4.2.1",
     "vitest": "^0.34.6"
   },
   "overrides": {
