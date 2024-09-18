@@ -215,6 +215,20 @@ export enum BackendErrorCode {
 }
 
 /**
+ * Extra information that is available in certain types of errors.
+ */
+export interface PurchasesErrorExtra {
+  /**
+   * If this is a request error, the HTTP status code of the response.
+   */
+  readonly statusCode?: number;
+  /**
+   * If this is a RevenueCat backend error, the error code from the servers.
+   */
+  readonly backendErrorCode?: number;
+}
+
+/**
  * Error class for Purchases SDK. You should handle these errors and react
  * accordingly in your app.
  * @public
@@ -231,6 +245,7 @@ export class PurchasesError extends Error {
       errorCode,
       ErrorCodeUtils.getPublicMessage(errorCode),
       backendErrorMessage,
+      { backendErrorCode: backendErrorCode },
     );
   }
 
@@ -262,6 +277,10 @@ export class PurchasesError extends Error {
      * can be useful for debugging and logging.
      */
     public readonly underlyingErrorMessage?: string | null,
+    /**
+     * Contains extra information that is available in certain types of errors.
+     */
+    public readonly extra?: PurchasesErrorExtra,
   ) {
     super(message);
   }
