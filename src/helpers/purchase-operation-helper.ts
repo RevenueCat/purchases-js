@@ -58,9 +58,9 @@ export class PurchaseFlowError extends Error {
     switch (this.errorCode) {
       // TODO: Localize these messages
       case PurchaseFlowErrorCode.UnknownError:
-        return `An unknown error occurred. Error code: ${errorCode}`;
+        return `An unknown error occurred. Error code: ${errorCode}.`;
       case PurchaseFlowErrorCode.ErrorSettingUpPurchase:
-        return `Purchase not started due to an error. Error code: ${errorCode}`;
+        return `Purchase not started due to an error. Error code: ${errorCode}.`;
       case PurchaseFlowErrorCode.ErrorChargingPayment:
         return "Payment failed.";
       case PurchaseFlowErrorCode.NetworkError:

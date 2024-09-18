@@ -39,7 +39,7 @@
   <IconError slot="icon" />
   {lastError.getPublicErrorMessage()}
   {#if supportEmail}
-    If this error persists, please contact <a href="mailto:{supportEmail}"
+    <br>If this error persists, please contact <a href="mailto:{supportEmail}"
       >{supportEmail}</a
     >.
   {/if}
