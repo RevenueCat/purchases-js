@@ -59,10 +59,10 @@ test.describe("Main", () => {
     const cardButton = singleCard.getByRole("button");
     await cardButton.click();
 
-    await page.route('*/**/subscribe', async route => {
+    await page.route("*/**/subscribe", async (route) => {
       await route.fulfill({
-        body: "{ \"code\": 7110, \"message\": \"Test error message\"}",
-        status: 400
+        body: '{ "code": 7110, "message": "Test error message"}',
+        status: 400,
       });
     });
 
@@ -72,7 +72,9 @@ test.describe("Main", () => {
     const errorTitleText = page.getByText("Something went wrong");
     await expect(errorTitleText).toBeVisible();
 
-    const errorMessageText = page.getByText("Purchase not started due to an error. Error code: 7110");
+    const errorMessageText = page.getByText(
+      "Purchase not started due to an error. Error code: 7110",
+    );
     await expect(errorMessageText).toBeVisible();
   });
 });
