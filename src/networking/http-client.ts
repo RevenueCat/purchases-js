@@ -61,7 +61,12 @@ async function handleErrors(response: Response, endpoint: SupportedEndpoint) {
       const backendErrorCode: BackendErrorCode | null =
         ErrorCodeUtils.convertCodeToBackendErrorCode(backendErrorCodeNumber);
       if (backendErrorCode == null) {
-        throwUnknownError(endpoint, statusCode, errorBodyString);
+        throwUnknownError(
+          endpoint,
+          statusCode,
+          errorBodyString,
+          backendErrorCodeNumber,
+        );
       } else {
         throw PurchasesError.getForBackendError(
           backendErrorCode,
@@ -78,10 +83,13 @@ function throwUnknownError(
   endpoint: SupportedEndpoint,
   statusCode: number,
   errorBody: string | null,
+  backendErrorCode?: number,
 ) {
   throw new PurchasesError(
     ErrorCode.UnknownBackendError,
-    `Unknown backend error. Request: ${endpoint.name}. Status code: ${statusCode}. Body: ${errorBody}.`,
+    `Unknown backend error.`,
+    `Request: ${endpoint.name}. Status code: ${statusCode}. Body: ${errorBody}.`,
+    { backendErrorCode: backendErrorCode },
   );
 }
 

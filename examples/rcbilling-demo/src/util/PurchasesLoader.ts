@@ -30,7 +30,7 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
     if (!Purchases.isConfigured()) {
       Purchases.configure(apiKey, appUserId);
     } else {
-      Purchases.getSharedInstance().changeUser(appUserId);
+      await Purchases.getSharedInstance().changeUser(appUserId);
     }
     const purchases = Purchases.getSharedInstance();
 

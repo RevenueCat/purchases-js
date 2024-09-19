@@ -74,7 +74,8 @@ describe("PurchaseOperationHelper", () => {
       ),
       new PurchaseFlowError(
         PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-        "Unknown backend error. Request: subscribe. Status code: 500. Body: null.",
+        "Unknown backend error.",
+        "Request: subscribe. Status code: 500. Body: null.",
       ),
     );
   });
@@ -137,7 +138,8 @@ describe("PurchaseOperationHelper", () => {
       purchaseOperationHelper.pollCurrentPurchaseForCompletion(),
       new PurchaseFlowError(
         PurchaseFlowErrorCode.NetworkError,
-        "Unknown backend error. Request: getCheckoutStatus. Status code: 500. Body: null.",
+        "Unknown backend error.",
+        "Request: getCheckoutStatus. Status code: 500. Body: null.",
       ),
     );
   });

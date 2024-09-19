@@ -108,7 +108,8 @@ describe("getCustomerInfo request", () => {
       backend.getCustomerInfo("someAppUserId"),
       new PurchasesError(
         ErrorCode.UnknownBackendError,
-        "Unknown backend error. Request: getCustomerInfo. Status code: 500. Body: null.",
+        "Unknown backend error.",
+        "Request: getCustomerInfo. Status code: 500. Body: null.",
       ),
     );
   });
@@ -147,7 +148,8 @@ describe("getCustomerInfo request", () => {
       backend.getCustomerInfo("someAppUserId"),
       new PurchasesError(
         ErrorCode.UnknownBackendError,
-        'Unknown backend error. Request: getCustomerInfo. Status code: 400. Body: {"code":1234567890,"message":"Invalid error message"}.',
+        "Unknown backend error.",
+        'Request: getCustomerInfo. Status code: 400. Body: {"code":1234567890,"message":"Invalid error message"}.',
       ),
     );
   });
@@ -160,7 +162,8 @@ describe("getCustomerInfo request", () => {
       backend.getCustomerInfo("someAppUserId"),
       new PurchasesError(
         ErrorCode.UnknownBackendError,
-        "Unknown backend error. Request: getCustomerInfo. Status code: 400. Body: null.",
+        "Unknown backend error.",
+        "Request: getCustomerInfo. Status code: 400. Body: null.",
       ),
     );
   });
@@ -209,7 +212,8 @@ describe("getOfferings request", () => {
       backend.getOfferings("someAppUserId"),
       new PurchasesError(
         ErrorCode.UnknownBackendError,
-        "Unknown backend error. Request: getOfferings. Status code: 500. Body: null.",
+        "Unknown backend error.",
+        "Request: getOfferings. Status code: 500. Body: null.",
       ),
     );
   });
@@ -298,7 +302,8 @@ describe("getProducts request", () => {
       backend.getProducts("someAppUserId", ["monthly", "monthly_2"]),
       new PurchasesError(
         ErrorCode.UnknownBackendError,
-        "Unknown backend error. Request: getProducts. Status code: 500. Body: null.",
+        "Unknown backend error.",
+        "Request: getProducts. Status code: 500. Body: null.",
       ),
     );
   });
@@ -379,7 +384,8 @@ describe("subscribe request", () => {
       ),
       new PurchasesError(
         ErrorCode.UnknownBackendError,
-        "Unknown backend error. Request: subscribe. Status code: 500. Body: null.",
+        "Unknown backend error.",
+        "Request: subscribe. Status code: 500. Body: null.",
       ),
     );
   });

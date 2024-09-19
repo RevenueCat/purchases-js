@@ -43,6 +43,40 @@ test.describe("Main", () => {
     const successText = page.getByText("Purchase successful");
     await expect(successText).toBeVisible();
   });
+
+  test("Displays error when unknown backend error", async ({
+    browser,
+    browserName,
+  }) => {
+    const userId = `${getUserId(browserName)}_already_purchased`;
+    const page = await setupTest(browser, userId);
+
+    // Gets all elements that match the selector
+    const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
+    const singleCard = packageCards[1];
+
+    // Perform purchase
+    const cardButton = singleCard.getByRole("button");
+    await cardButton.click();
+
+    await page.route("*/**/subscribe", async (route) => {
+      await route.fulfill({
+        body: '{ "code": 7110, "message": "Test error message"}',
+        status: 400,
+      });
+    });
+
+    await enterEmailAndContinue(page, userId);
+
+    // Confirm error page has shown.
+    const errorTitleText = page.getByText("Something went wrong");
+    await expect(errorTitleText).toBeVisible();
+
+    const errorMessageText = page.getByText(
+      "Purchase not started due to an error. Error code: 7110",
+    );
+    await expect(errorMessageText).toBeVisible();
+  });
 });
 
 const getUserId = (browserName: string) =>
