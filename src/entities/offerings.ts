@@ -169,6 +169,11 @@ export interface PresentedOfferingContext {
    * The targeting context used to obtain this object.
    */
   readonly targetingContext: TargetingContext | null;
+  /**
+   * If obtained this information from a placement,
+   * the identifier of the placement.
+   */
+  readonly placementIdentifier: string | null;
 }
 
 /**
@@ -323,6 +328,12 @@ export interface Offerings {
    * Current offering configured in the RevenueCat dashboard.
    */
   readonly current: Offering | null;
+  /**
+   * Retrieves a specific offering by a placement identifier.
+   * For more info see https://www.revenuecat.com/docs/tools/targeting
+   * @param placementId - The placement identifier to retrieve the offering for.
+   */
+  getCurrentOfferingByPlacementId(placementId: string): Offering | null;
 }
 
 const toPrice = (priceData: PriceResponse): Price => {
@@ -449,6 +460,7 @@ export const toOffering = (
             revision: targetingResponse.revision,
           }
         : null,
+    placementIdentifier: null,
   };
   const packages = offeringsData.packages
     .map((p: PackageResponse) =>

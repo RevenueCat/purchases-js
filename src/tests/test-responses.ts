@@ -171,6 +171,13 @@ const offeringsResponsesPerUserId: { [userId: string]: OfferingsResponse } = {
   someAppUserId: {
     current_offering_id: "offering_1",
     offerings: offeringsArray,
+    placements: {
+      fallback_offering_id: "offering_1",
+      offering_ids_by_placement: {
+        test_placement_id: "offering_2",
+        test_null_placement_id: null,
+      },
+    },
     targeting: {
       rule_id: "test_rule_id",
       revision: 123,

@@ -154,6 +154,7 @@ export interface Offerings {
         [offeringId: string]: Offering;
     };
     readonly current: Offering | null;
+    getCurrentOfferingByPlacementId(placementId: string): Offering | null;
 }
 
 // @public
@@ -200,6 +201,7 @@ export enum PeriodUnit {
 // @public
 export interface PresentedOfferingContext {
     readonly offeringIdentifier: string;
+    readonly placementIdentifier: string | null;
     readonly targetingContext: TargetingContext | null;
 }
 

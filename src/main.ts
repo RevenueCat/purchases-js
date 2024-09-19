@@ -1,9 +1,4 @@
-import {
-  type Offering,
-  type Offerings,
-  type Package,
-  toOffering,
-} from "./entities/offerings";
+import { type Offerings, type Package } from "./entities/offerings";
 import RCPurchasesUI from "./ui/rcb-ui.svelte";
 
 import { type CustomerInfo, toCustomerInfo } from "./entities/customer-info";
@@ -14,13 +9,9 @@ import {
 } from "./entities/errors";
 import {
   type OfferingResponse,
-  type OfferingsResponse,
   type PackageResponse,
 } from "./networking/responses/offerings-response";
-import {
-  type ProductResponse,
-  type ProductsResponse,
-} from "./networking/responses/products-response";
+import { type ProductResponse } from "./networking/responses/products-response";
 import { RC_ENDPOINT } from "./helpers/constants";
 import { Backend } from "./networking/backend";
 import { isSandboxApiKey } from "./helpers/api-key-helper";
@@ -42,6 +33,7 @@ import { type GetOfferingsParams } from "./entities/get-offerings-params";
 import { validateCurrency } from "./helpers/validators";
 import { type BrandingInfoResponse } from "./networking/responses/branding-response";
 import { requiresLoadedResources } from "./helpers/decorators";
+import { toOfferings } from "./helpers/offerings-parser";
 
 export type {
   Offering,
@@ -219,47 +211,6 @@ export class Purchases {
     this.purchaseOperationHelper = new PurchaseOperationHelper(this.backend);
   }
 
-  /** @internal */
-  private toOfferings = (
-    offeringsData: OfferingsResponse,
-    productsData: ProductsResponse,
-  ): Offerings => {
-    const productsMap: { [productId: string]: ProductResponse } = {};
-    productsData.product_details.forEach((p: ProductResponse) => {
-      productsMap[p.identifier] = p;
-    });
-
-    const allOfferings: { [offeringId: string]: Offering } = {};
-    offeringsData.offerings.forEach((o: OfferingResponse) => {
-      const isCurrent = o.identifier === offeringsData.current_offering_id;
-      const offering = toOffering(
-        isCurrent,
-        o,
-        productsMap,
-        offeringsData.targeting,
-      );
-      if (offering != null) {
-        allOfferings[o.identifier] = offering;
-      }
-    });
-
-    const currentOffering: Offering | null = offeringsData.current_offering_id
-      ? allOfferings[offeringsData.current_offering_id] ?? null
-      : null;
-
-    if (Object.keys(allOfferings).length == 0) {
-      Logger.debugLog(
-        "Empty offerings. Please make sure you've configured offerings correctly in the " +
-          "RevenueCat dashboard and that the products are properly configured.",
-      );
-    }
-
-    return {
-      all: allOfferings,
-      current: currentOffering,
-    };
-  };
-
   /**
    * Fetch the configured offerings for this user. You can configure these
    * in the RevenueCat dashboard.
@@ -279,7 +230,7 @@ export class Purchases {
     );
 
     this.logMissingProductIds(productIds, productsResponse.product_details);
-    return this.toOfferings(offeringsResponse, productsResponse);
+    return toOfferings(offeringsResponse, productsResponse);
   }
 
   /**
