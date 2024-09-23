@@ -68,6 +68,7 @@ export {
   PurchasesError,
   UninitializedPurchasesError,
 } from "./entities/errors";
+export type { PurchasesErrorExtra } from "./entities/errors";
 export type { Period, PeriodUnit } from "./helpers/duration-helper";
 export type { HttpConfig } from "./entities/http-config";
 export { LogLevel } from "./entities/log-level";

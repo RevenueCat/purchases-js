@@ -4427,6 +4427,19 @@
                 },
                 {
                   "kind": "Content",
+                  "text": ", \n             extra?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "PurchasesErrorExtra",
+                  "canonicalReference": "@revenuecat/purchases-js!PurchasesErrorExtra:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | undefined"
+                },
+                {
+                  "kind": "Content",
                   "text": ");"
                 }
               ],
@@ -4455,6 +4468,14 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "extra",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 7,
+                    "endIndex": 9
                   },
                   "isOptional": true
                 }
@@ -4486,6 +4507,41 @@
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "@revenuecat/purchases-js!PurchasesError#extra:member",
+              "docComment": "/**\n * Contains extra information that is available in certain types of errors.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly extra?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "PurchasesErrorExtra",
+                  "canonicalReference": "@revenuecat/purchases-js!PurchasesErrorExtra:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | undefined"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "extra",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
               },
               "isStatic": false,
               "isProtected": false,
@@ -4557,6 +4613,78 @@
             "endIndex": 2
           },
           "implementsTokenRanges": []
+        },
+        {
+          "kind": "Interface",
+          "canonicalReference": "@revenuecat/purchases-js!PurchasesErrorExtra:interface",
+          "docComment": "/**\n * Extra information that is available in certain types of errors.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare interface PurchasesErrorExtra "
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "name": "PurchasesErrorExtra",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PurchasesErrorExtra#backendErrorCode:member",
+              "docComment": "/**\n * If this is a RevenueCat backend error, the error code from the servers.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly backendErrorCode?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "backendErrorCode",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PurchasesErrorExtra#statusCode:member",
+              "docComment": "/**\n * If this is a request error, the HTTP status code of the response.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly statusCode?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "statusCode",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": []
         },
         {
           "kind": "TypeAlias",
