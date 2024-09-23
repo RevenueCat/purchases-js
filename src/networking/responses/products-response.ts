@@ -19,13 +19,21 @@ export interface SubscriptionOptionResponse extends PurchaseOptionResponse {
   trial: PricingPhaseResponse | null;
 }
 
+export interface NonRenewableOptionResponse extends PurchaseOptionResponse {
+  base_price: PriceResponse;
+}
+
 export interface ProductResponse {
   identifier: string;
   product_type: string;
   title: string;
   description: string | null;
   default_subscription_option_id: string | null;
+  // TODO: Finalize specs
+  default_non_renewable_option_id: string | null;
   subscription_options: Map<string, SubscriptionOptionResponse>;
+  // TODO: Finalize specs
+  non_renewable_options: Map<string, NonRenewableOptionResponse>;
 }
 
 export interface ProductsResponse {

@@ -4,6 +4,7 @@ import {
   type TargetingResponse,
 } from "../networking/responses/offerings-response";
 import type {
+  NonRenewableOptionResponse,
   PriceResponse,
   PricingPhaseResponse,
   ProductResponse,
@@ -55,6 +56,25 @@ export enum PackageType {
    * A package configured with the predefined weekly identifier.
    */
   Weekly = "$rc_weekly",
+}
+
+/**
+ * Possible product types
+ * @public
+ */
+export enum ProductType {
+  /**
+   * A product that is a subscription.
+   */
+  Subscription = "SUBSCRIPTION",
+  /**
+   * A product that does not renew and can be consumed to be purchased again.
+   */
+  Consumable = "CONSUMABLE",
+  /**
+   * A product that does not renew and can only be purchased once.
+   */
+  NonConsumable = "NON_CONSUMABLE",
 }
 
 /**
@@ -142,6 +162,17 @@ export interface SubscriptionOption extends PurchaseOption {
 }
 
 /**
+ * Represents a possible option to purchase a non-renewable product.
+ * @public
+ */
+export interface NonRenewableOption extends PurchaseOption {
+  /**
+   * The price for the product.
+   */
+  readonly basePrice: Price;
+}
+
+/**
  * Contains information about the targeting context used to obtain an object.
  * @public
  */
@@ -204,6 +235,10 @@ export interface Product {
    */
   readonly currentPrice: Price;
   /**
+   * The type of product.
+   */
+  readonly productType: ProductType;
+  /**
    * The period duration for a subscription product. This will match the default
    * option's base phase period duration.
    */
@@ -236,6 +271,11 @@ export interface Product {
   readonly subscriptionOptions: {
     [optionId: string]: SubscriptionOption;
   };
+  /**
+   * The default non-renewable option for this product.
+   * Null in the case of subscriptions.
+   */
+  readonly defaultNonRenewableOption: NonRenewableOption | null;
 }
 
 /**
@@ -364,22 +404,111 @@ const toSubscriptionOption = (
   } as SubscriptionOption;
 };
 
+const toNonRenewableOption = (
+  option: NonRenewableOptionResponse,
+): NonRenewableOption | null => {
+  if (option.base_price == null) {
+    Logger.debugLog("Missing base price for non renewable option. Ignoring.");
+    return null;
+  }
+  return {
+    basePrice: toPrice(option.base_price),
+  } as NonRenewableOption;
+};
+
 const toProduct = (
   productDetailsData: ProductResponse,
   presentedOfferingContext: PresentedOfferingContext,
 ): Product | null => {
-  const options: { [optionId: string]: SubscriptionOption } = {};
+  const productType = productDetailsData.product_type as ProductType;
+  if (productType === ProductType.Subscription) {
+    return toSubscriptionProduct(
+      productDetailsData,
+      presentedOfferingContext,
+      productType,
+    );
+  } else {
+    return toNonRenewableProduct(
+      productDetailsData,
+      presentedOfferingContext,
+      productType,
+    );
+  }
+};
+
+const toNonRenewableProduct = (
+  productDetailsData: ProductResponse,
+  presentedOfferingContext: PresentedOfferingContext,
+  productType: ProductType,
+): Product | null => {
+  const nonRenewableOptions: {
+    [optionId: string]: NonRenewableOption;
+  } = {};
+
+  Object.entries(productDetailsData.non_renewable_options).forEach(
+    ([key, value]) => {
+      const option = toNonRenewableOption(value);
+      if (option != null) {
+        nonRenewableOptions[key] = option;
+      }
+    },
+  );
+
+  if (Object.keys(nonRenewableOptions).length === 0) {
+    Logger.debugLog(
+      `Product ${productDetailsData.identifier} has no purchase options. Ignoring.`,
+    );
+    return null;
+  }
+
+  const defaultOptionId = productDetailsData.default_non_renewable_option_id;
+  const defaultOption =
+    defaultOptionId &&
+    defaultOptionId in productDetailsData.non_renewable_options
+      ? nonRenewableOptions[defaultOptionId]
+      : null;
+
+  if (defaultOption == null) {
+    Logger.debugLog(
+      `Product ${productDetailsData.identifier} has no default purchase option. Ignoring.`,
+    );
+    return null;
+  }
+
+  return {
+    identifier: productDetailsData.identifier,
+    displayName: productDetailsData.title,
+    title: productDetailsData.title,
+    description: productDetailsData.description,
+    productType: productType,
+    currentPrice: defaultOption.basePrice,
+    normalPeriodDuration: null,
+    presentedOfferingIdentifier: presentedOfferingContext.offeringIdentifier,
+    presentedOfferingContext: presentedOfferingContext,
+    defaultPurchaseOption: defaultOption,
+    defaultSubscriptionOption: null,
+    subscriptionOptions: {},
+    defaultNonRenewableOption: defaultOption,
+  };
+};
+
+const toSubscriptionProduct = (
+  productDetailsData: ProductResponse,
+  presentedOfferingContext: PresentedOfferingContext,
+  productType: ProductType,
+): Product | null => {
+  const subscriptionOptions: { [optionId: string]: SubscriptionOption } = {};
 
   Object.entries(productDetailsData.subscription_options).forEach(
     ([key, value]) => {
       const option = toSubscriptionOption(value);
       if (option != null) {
-        options[key] = option;
+        subscriptionOptions[key] = option;
       }
     },
   );
 
-  if (Object.keys(options).length === 0) {
+  if (Object.keys(subscriptionOptions).length === 0) {
     Logger.debugLog(
       `Product ${productDetailsData.identifier} has no subscription options. Ignoring.`,
     );
@@ -388,8 +517,8 @@ const toProduct = (
 
   const defaultOptionId = productDetailsData.default_subscription_option_id;
   const defaultOption =
-    defaultOptionId && defaultOptionId in options
-      ? options[defaultOptionId]
+    defaultOptionId && defaultOptionId in subscriptionOptions
+      ? subscriptionOptions[defaultOptionId]
       : null;
   if (defaultOption == null) {
     Logger.debugLog(
@@ -405,19 +534,20 @@ const toProduct = (
     );
     return null;
   }
-
   return {
     identifier: productDetailsData.identifier,
     displayName: productDetailsData.title,
     title: productDetailsData.title,
     description: productDetailsData.description,
+    productType: productType,
     currentPrice: currentPrice,
     normalPeriodDuration: defaultOption.base.periodDuration,
     presentedOfferingIdentifier: presentedOfferingContext.offeringIdentifier,
     presentedOfferingContext: presentedOfferingContext,
     defaultPurchaseOption: defaultOption,
     defaultSubscriptionOption: defaultOption,
-    subscriptionOptions: options,
+    subscriptionOptions: subscriptionOptions,
+    defaultNonRenewableOption: null,
   };
 };
 

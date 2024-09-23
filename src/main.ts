@@ -44,10 +44,12 @@ import {
 } from "./helpers/offerings-parser";
 
 export type {
+  NonRenewableOption,
   Offering,
   Offerings,
   Package,
   Product,
+  ProductType,
   PresentedOfferingContext,
   Price,
   PurchaseOption,
