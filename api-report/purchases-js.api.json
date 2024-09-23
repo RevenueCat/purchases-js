@@ -1788,6 +1788,66 @@
         },
         {
           "kind": "Interface",
+          "canonicalReference": "@revenuecat/purchases-js!NonRenewableOption:interface",
+          "docComment": "/**\n * Represents a possible option to purchase a non-renewable product.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare interface NonRenewableOption extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "PurchaseOption",
+              "canonicalReference": "@revenuecat/purchases-js!PurchaseOption:interface"
+            },
+            {
+              "kind": "Content",
+              "text": " "
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "name": "NonRenewableOption",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!NonRenewableOption#basePrice:member",
+              "docComment": "/**\n * The price for the product.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly basePrice: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Price",
+                  "canonicalReference": "@revenuecat/purchases-js!Price:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "basePrice",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": [
+            {
+              "startIndex": 1,
+              "endIndex": 2
+            }
+          ]
+        },
+        {
+          "kind": "Interface",
           "canonicalReference": "@revenuecat/purchases-js!Offering:interface",
           "docComment": "/**\n * An offering is a collection of {@link Package} available for the user to purchase. For more info see https://docs.revenuecat.com/docs/entitlements\n *\n * @public\n */\n",
           "excerptTokens": [
@@ -3181,6 +3241,38 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!Product#defaultNonRenewableOption:member",
+              "docComment": "/**\n * The default non-renewable option for this product. Null in the case of subscriptions.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly defaultNonRenewableOption: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "NonRenewableOption",
+                  "canonicalReference": "@revenuecat/purchases-js!NonRenewableOption:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "defaultNonRenewableOption",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!Product#defaultPurchaseOption:member",
               "docComment": "/**\n * The default purchase option for this product.\n */\n",
               "excerptTokens": [
@@ -3404,6 +3496,34 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!Product#productType:member",
+              "docComment": "/**\n * The type of product.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly productType: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ProductType",
+                  "canonicalReference": "@revenuecat/purchases-js!ProductType:enum"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "productType",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!Product#subscriptionOptions:member",
               "docComment": "/**\n * A dictionary with all the possible subscription options available for this product. Each key contains the key to be used when executing a purchase.\n *\n * If retrieved through getOfferings the offers are only the ones the customer is entitled to.\n */\n",
               "excerptTokens": [
@@ -3467,6 +3587,86 @@
             }
           ],
           "extendsTokenRanges": []
+        },
+        {
+          "kind": "Enum",
+          "canonicalReference": "@revenuecat/purchases-js!ProductType:enum",
+          "docComment": "/**\n * Possible product types\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare enum ProductType "
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "name": "ProductType",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ProductType.Consumable:member",
+              "docComment": "/**\n * A product that does not renew and can be consumed to be purchased again.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Consumable = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"CONSUMABLE\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "Consumable"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ProductType.NonConsumable:member",
+              "docComment": "/**\n * A product that does not renew and can only be purchased once.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "NonConsumable = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"NON_CONSUMABLE\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "NonConsumable"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ProductType.Subscription:member",
+              "docComment": "/**\n * A product that is a subscription.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Subscription = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"SUBSCRIPTION\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "Subscription"
+            }
+          ]
         },
         {
           "kind": "Interface",

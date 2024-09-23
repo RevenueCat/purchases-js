@@ -129,6 +129,11 @@ export enum LogLevel {
 }
 
 // @public
+export interface NonRenewableOption extends PurchaseOption {
+    readonly basePrice: Price;
+}
+
+// @public
 export interface Offering {
     readonly annual: Package | null;
     readonly availablePackages: Package[];
@@ -224,6 +229,7 @@ export interface PricingPhase {
 // @public
 export interface Product {
     readonly currentPrice: Price;
+    readonly defaultNonRenewableOption: NonRenewableOption | null;
     readonly defaultPurchaseOption: PurchaseOption;
     readonly defaultSubscriptionOption: SubscriptionOption | null;
     readonly description: string | null;
@@ -234,10 +240,18 @@ export interface Product {
     readonly presentedOfferingContext: PresentedOfferingContext;
     // @deprecated
     readonly presentedOfferingIdentifier: string;
+    readonly productType: ProductType;
     readonly subscriptionOptions: {
         [optionId: string]: SubscriptionOption;
     };
     readonly title: string;
+}
+
+// @public
+export enum ProductType {
+    Consumable = "CONSUMABLE",
+    NonConsumable = "NON_CONSUMABLE",
+    Subscription = "SUBSCRIPTION"
 }
 
 // @public
