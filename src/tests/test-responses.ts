@@ -56,6 +56,24 @@ const monthly2ProductResponse: ProductResponse = {
   },
 };
 
+const consumableProductResponse: ProductResponse = {
+  identifier: "test-consumable-product",
+  product_type: "consumable",
+  title: "Consumable test",
+  description: "Consumable description",
+  default_purchase_option_id: "offer_12345",
+  purchase_options: {
+    offer_12345: {
+      id: "base_option",
+      price_id: "test_price_id",
+      base_price: {
+        amount_micros: 1000000,
+        currency: "USD",
+      },
+    },
+  },
+};
+
 export const productsResponse: ProductsResponse = {
   product_details: [monthlyProductResponse, monthly2ProductResponse],
 };
@@ -185,12 +203,31 @@ const offeringsResponsesPerUserId: { [userId: string]: OfferingsResponse } = {
     current_offering_id: "offering_2",
     offerings: offeringsArray,
   },
+  appUserIdWithNonSubscriptionProducts: {
+    current_offering_id: "offering_consumables",
+    offerings: [
+      {
+        identifier: "offering_consumables",
+        description: "Offering consumable",
+        metadata: null,
+        packages: [
+          {
+            identifier: "test-consumable-package",
+            platform_product_identifier: "test-consumable-product",
+          },
+        ],
+      },
+    ],
+  },
 };
 
 const productsResponsesPerUserId: { [userId: string]: object } = {
   someAppUserId: productsResponse,
   appUserIdWithoutCurrentOfferingId: productsResponse,
   appUserIdWithMissingProducts: { product_details: [monthlyProductResponse] },
+  appUserIdWithNonSubscriptionProducts: {
+    product_details: [consumableProductResponse],
+  },
 };
 
 const customerInfoResponsePerUserId: { [userId: string]: object } = {

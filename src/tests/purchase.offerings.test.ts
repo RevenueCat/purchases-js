@@ -1,5 +1,8 @@
 import { describe, expect, test } from "vitest";
-import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
+import {
+  createConsumablePackageMock,
+  createMonthlyPackageMock,
+} from "./mocks/offering-mock-provider";
 import { configurePurchases } from "./base.purchases_test";
 import {
   type Offering,
@@ -223,6 +226,39 @@ describe("getOfferings", () => {
         offering_1: offering_1,
       },
       current: null,
+    });
+  });
+
+  test("can get offering with consumable product", async () => {
+    const purchases = configurePurchases(
+      "appUserIdWithNonSubscriptionProducts",
+    );
+    const offerings = await purchases.getOfferings();
+    const expectedConsumablePackage = createConsumablePackageMock();
+    const expectedOffering: Offering = {
+      serverDescription: "Offering consumable",
+      identifier: "offering_consumables",
+      metadata: null,
+      packagesById: {
+        "test-consumable-package": expectedConsumablePackage,
+      },
+      availablePackages: [expectedConsumablePackage],
+      lifetime: null,
+      annual: null,
+      sixMonth: null,
+      threeMonth: null,
+      twoMonth: null,
+      monthly: null,
+      weekly: null,
+    };
+    assertExpectedOfferings(offerings, {
+      all: {
+        offering_consumables: expectedOffering,
+      },
+      current: expectedOffering,
+      getCurrentOfferingByPlacementId(): Offering | null {
+        return null;
+      },
     });
   });
 

@@ -1,4 +1,5 @@
 import {
+  type NonSubscriptionOption,
   type Package,
   PackageType,
   ProductType,
@@ -60,6 +61,55 @@ export function createMonthlyPackageMock(
       subscriptionOptions: {
         base_option: subscriptionOption,
       },
+    },
+  };
+}
+
+export function createConsumablePackageMock(): Package {
+  return {
+    identifier: "test-consumable-package",
+    packageType: PackageType.Custom,
+    rcBillingProduct: {
+      currentPrice: {
+        currency: "USD",
+        amount: 100,
+        amountMicros: 1000000,
+        formattedPrice: "$1.00",
+      },
+      displayName: "Consumable test",
+      title: "Consumable test",
+      description: "Consumable description",
+      identifier: "test-consumable-product",
+      productType: ProductType.Consumable,
+      normalPeriodDuration: null,
+      presentedOfferingIdentifier: "offering_consumables",
+      presentedOfferingContext: {
+        offeringIdentifier: "offering_consumables",
+        placementIdentifier: null,
+        targetingContext: null,
+      },
+      defaultPurchaseOption: {
+        id: "base_option",
+        priceId: "test_price_id",
+        basePrice: {
+          amount: 100,
+          amountMicros: 1000000,
+          currency: "USD",
+          formattedPrice: "$1.00",
+        },
+      } as NonSubscriptionOption,
+      defaultSubscriptionOption: null,
+      defaultNonSubscriptionOption: {
+        id: "base_option",
+        priceId: "test_price_id",
+        basePrice: {
+          amount: 100,
+          amountMicros: 1000000,
+          currency: "USD",
+          formattedPrice: "$1.00",
+        },
+      },
+      subscriptionOptions: {},
     },
   };
 }

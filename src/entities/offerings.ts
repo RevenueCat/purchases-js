@@ -415,6 +415,8 @@ const toNonSubscriptionOption = (
     return null;
   }
   return {
+    id: option.id,
+    priceId: option.price_id,
     basePrice: toPrice(option.base_price),
   } as NonSubscriptionOption;
 };
