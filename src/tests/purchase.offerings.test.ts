@@ -113,7 +113,7 @@ describe("getOfferings", () => {
         },
       },
       current: currentOffering,
-      getCurrentOfferingByPlacementId(): Offering | null {
+      getCurrentOfferingForPlacement(): Offering | null {
         return null;
       },
     };
@@ -189,7 +189,7 @@ describe("getOfferings", () => {
         },
       },
       current: null,
-      getCurrentOfferingByPlacementId(): Offering | null {
+      getCurrentOfferingForPlacement(): Offering | null {
         return null;
       },
     } as Offerings;
@@ -224,7 +224,7 @@ describe("getOfferings", () => {
         offering_1: offering_1,
       },
       current: null,
-      getCurrentOfferingByPlacementId(): Offering | null {
+      getCurrentOfferingForPlacement(): Offering | null {
         return null;
       },
     });
@@ -256,7 +256,7 @@ describe("getOfferings placements", () => {
   test("gets fallback offering if placement id is missing", async () => {
     const purchases = configurePurchases();
     const offerings = await purchases.getOfferings();
-    const offeringWithPlacement = offerings.getCurrentOfferingByPlacementId(
+    const offeringWithPlacement = offerings.getCurrentOfferingForPlacement(
       "missing_placement_id",
     );
     expect(offeringWithPlacement).not.toBeNull();
@@ -270,7 +270,7 @@ describe("getOfferings placements", () => {
   test("gets null offering if placement id has null offering id", async () => {
     const purchases = configurePurchases();
     const offerings = await purchases.getOfferings();
-    const offeringWithPlacement = offerings.getCurrentOfferingByPlacementId(
+    const offeringWithPlacement = offerings.getCurrentOfferingForPlacement(
       "test_null_placement_id",
     );
     expect(offeringWithPlacement).toBeNull();
@@ -280,7 +280,7 @@ describe("getOfferings placements", () => {
     const purchases = configurePurchases();
     const offerings = await purchases.getOfferings();
     const offeringWithPlacement =
-      offerings.getCurrentOfferingByPlacementId("test_placement_id");
+      offerings.getCurrentOfferingForPlacement("test_placement_id");
     expect(offeringWithPlacement).not.toBeNull();
     expect(offeringWithPlacement?.identifier).toEqual("offering_2");
     expect(

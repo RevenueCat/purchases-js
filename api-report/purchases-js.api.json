@@ -2262,12 +2262,12 @@
             },
             {
               "kind": "MethodSignature",
-              "canonicalReference": "@revenuecat/purchases-js!Offerings#getCurrentOfferingByPlacementId:member(1)",
+              "canonicalReference": "@revenuecat/purchases-js!Offerings#getCurrentOfferingForPlacement:member(1)",
               "docComment": "/**\n * Retrieves a specific offering by a placement identifier. For more info see https://www.revenuecat.com/docs/tools/targeting\n *\n * @param placementId - The placement identifier to retrieve the offering for.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "getCurrentOfferingByPlacementId(placementId: "
+                  "text": "getCurrentOfferingForPlacement(placementId: "
                 },
                 {
                   "kind": "Content",
@@ -2308,7 +2308,7 @@
                   "isOptional": false
                 }
               ],
-              "name": "getCurrentOfferingByPlacementId"
+              "name": "getCurrentOfferingForPlacement"
             }
           ],
           "extendsTokenRanges": []

@@ -333,7 +333,7 @@ export interface Offerings {
    * For more info see https://www.revenuecat.com/docs/tools/targeting
    * @param placementId - The placement identifier to retrieve the offering for.
    */
-  getCurrentOfferingByPlacementId(placementId: string): Offering | null;
+  getCurrentOfferingForPlacement(placementId: string): Offering | null;
 }
 
 const toPrice = (priceData: PriceResponse): Price => {

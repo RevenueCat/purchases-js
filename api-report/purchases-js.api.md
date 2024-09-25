@@ -154,7 +154,7 @@ export interface Offerings {
         [offeringId: string]: Offering;
     };
     readonly current: Offering | null;
-    getCurrentOfferingByPlacementId(placementId: string): Offering | null;
+    getCurrentOfferingForPlacement(placementId: string): Offering | null;
 }
 
 // @public

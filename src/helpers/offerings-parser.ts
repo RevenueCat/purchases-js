@@ -143,7 +143,7 @@ export function toOfferings(
   return {
     all: allOfferings,
     current: currentOffering,
-    getCurrentOfferingByPlacementId(placementId: string): Offering | null {
+    getCurrentOfferingForPlacement(placementId: string): Offering | null {
       const placementData = offeringsData.placements ?? null;
       if (placementData == null) {
         return null;
