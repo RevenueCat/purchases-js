@@ -1,4 +1,8 @@
-import { type Offerings, type Package } from "./entities/offerings";
+import {
+  type Offerings,
+  type Offering,
+  type Package,
+} from "./entities/offerings";
 import RCPurchasesUI from "./ui/rcb-ui.svelte";
 
 import { type CustomerInfo, toCustomerInfo } from "./entities/customer-info";
@@ -9,6 +13,7 @@ import {
 } from "./entities/errors";
 import {
   type OfferingResponse,
+  type OfferingsResponse,
   type PackageResponse,
 } from "./networking/responses/offerings-response";
 import { type ProductResponse } from "./networking/responses/products-response";
@@ -33,7 +38,10 @@ import { type GetOfferingsParams } from "./entities/get-offerings-params";
 import { validateCurrency } from "./helpers/validators";
 import { type BrandingInfoResponse } from "./networking/responses/branding-response";
 import { requiresLoadedResources } from "./helpers/decorators";
-import { toOfferings } from "./helpers/offerings-parser";
+import {
+  findOfferingByPlacementId,
+  toOfferings,
+} from "./helpers/offerings-parser";
 
 export type {
   Offering,
@@ -219,6 +227,47 @@ export class Purchases {
     validateCurrency(params?.currency);
     const appUserId = this._appUserId;
     const offeringsResponse = await this.backend.getOfferings(appUserId);
+    return await this.getOfferingsForOfferingResponse(
+      offeringsResponse,
+      appUserId,
+      params,
+    );
+  }
+
+  /**
+   * Retrieves a specific offering by a placement identifier.
+   * For more info see https://www.revenuecat.com/docs/tools/targeting
+   * @param placementIdentifier - The placement identifier to retrieve the offering for.
+   * @param params - The parameters object to customise the offerings fetch. Check {@link GetOfferingsParams}
+   */
+  public async getCurrentOfferingForPlacement(
+    placementIdentifier: string,
+    params?: GetOfferingsParams,
+  ): Promise<Offering | null> {
+    const appUserId = this._appUserId;
+    const offeringsResponse = await this.backend.getOfferings(appUserId);
+
+    const offerings = await this.getOfferingsForOfferingResponse(
+      offeringsResponse,
+      appUserId,
+      params,
+    );
+    const placementData = offeringsResponse.placements ?? null;
+    if (placementData == null) {
+      return null;
+    }
+    return findOfferingByPlacementId(
+      placementData,
+      offerings.all,
+      placementIdentifier,
+    );
+  }
+
+  private async getOfferingsForOfferingResponse(
+    offeringsResponse: OfferingsResponse,
+    appUserId: string,
+    params?: GetOfferingsParams,
+  ): Promise<Offerings> {
     const productIds = offeringsResponse.offerings
       .flatMap((o: OfferingResponse) => o.packages)
       .map((p: PackageResponse) => p.platform_product_identifier);

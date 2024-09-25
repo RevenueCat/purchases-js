@@ -154,7 +154,6 @@ export interface Offerings {
         [offeringId: string]: Offering;
     };
     readonly current: Offering | null;
-    getCurrentOfferingForPlacement(placementId: string): Offering | null;
 }
 
 // @public
@@ -261,6 +260,7 @@ export class Purchases {
     close(): void;
     static configure(apiKey: string, appUserId: string, httpConfig?: HttpConfig): Purchases;
     getAppUserId(): string;
+    getCurrentOfferingForPlacement(placementIdentifier: string, params?: GetOfferingsParams): Promise<Offering | null>;
     getCustomerInfo(): Promise<CustomerInfo>;
     getOfferings(params?: GetOfferingsParams): Promise<Offerings>;
     static getSharedInstance(): Purchases;

@@ -2259,56 +2259,6 @@
                 "startIndex": 1,
                 "endIndex": 3
               }
-            },
-            {
-              "kind": "MethodSignature",
-              "canonicalReference": "@revenuecat/purchases-js!Offerings#getCurrentOfferingForPlacement:member(1)",
-              "docComment": "/**\n * Retrieves a specific offering by a placement identifier. For more info see https://www.revenuecat.com/docs/tools/targeting\n *\n * @param placementId - The placement identifier to retrieve the offering for.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "getCurrentOfferingForPlacement(placementId: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Offering",
-                  "canonicalReference": "@revenuecat/purchases-js!Offering:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | null"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isOptional": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "placementId",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": false
-                }
-              ],
-              "name": "getCurrentOfferingForPlacement"
             }
           ],
           "extendsTokenRanges": []
@@ -3944,6 +3894,85 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "getAppUserId"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@revenuecat/purchases-js!Purchases#getCurrentOfferingForPlacement:member(1)",
+              "docComment": "/**\n * Retrieves a specific offering by a placement identifier. For more info see https://www.revenuecat.com/docs/tools/targeting\n *\n * @param placementIdentifier - The placement identifier to retrieve the offering for.\n *\n * @param params - The parameters object to customise the offerings fetch. Check {@link GetOfferingsParams}\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "getCurrentOfferingForPlacement(placementIdentifier: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", params?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "GetOfferingsParams",
+                  "canonicalReference": "@revenuecat/purchases-js!GetOfferingsParams:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Offering",
+                  "canonicalReference": "@revenuecat/purchases-js!Offering:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | null>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 5,
+                "endIndex": 9
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "placementIdentifier",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "getCurrentOfferingForPlacement"
             },
             {
               "kind": "Method",

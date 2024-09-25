@@ -41,7 +41,7 @@ const addPlacementContextToNullablePackage = (
   return addPlacementContextToPackage(rcPackage, placementId);
 };
 
-const findOfferingByPlacementId = (
+export const findOfferingByPlacementId = (
   placementsData: PlacementsResponse,
   allOfferings: { [offeringId: string]: Offering },
   placementId: string,
@@ -70,17 +70,17 @@ const findOfferingByPlacementId = (
     return null;
   }
 
+  const packagesById = Object.fromEntries(
+    Object.entries(offering.packagesById).map(([packageId, rcPackage]) => [
+      packageId,
+      addPlacementContextToPackage(rcPackage, placementId),
+    ]),
+  );
+
   return {
     ...offering,
-    packagesById: Object.fromEntries(
-      Object.entries(offering.packagesById).map(([packageId, rcPackage]) => [
-        packageId,
-        addPlacementContextToPackage(rcPackage, placementId),
-      ]),
-    ),
-    availablePackages: offering.availablePackages.map((rcPackage) =>
-      addPlacementContextToPackage(rcPackage, placementId),
-    ),
+    packagesById: packagesById,
+    availablePackages: Object.values(packagesById),
     weekly: addPlacementContextToNullablePackage(offering.weekly, placementId),
     monthly: addPlacementContextToNullablePackage(
       offering.monthly,
@@ -143,16 +143,5 @@ export function toOfferings(
   return {
     all: allOfferings,
     current: currentOffering,
-    getCurrentOfferingForPlacement(placementId: string): Offering | null {
-      const placementData = offeringsData.placements ?? null;
-      if (placementData == null) {
-        return null;
-      }
-      return findOfferingByPlacementId(
-        placementData,
-        allOfferings,
-        placementId,
-      );
-    },
   };
 }

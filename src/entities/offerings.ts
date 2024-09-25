@@ -328,12 +328,6 @@ export interface Offerings {
    * Current offering configured in the RevenueCat dashboard.
    */
   readonly current: Offering | null;
-  /**
-   * Retrieves a specific offering by a placement identifier.
-   * For more info see https://www.revenuecat.com/docs/tools/targeting
-   * @param placementId - The placement identifier to retrieve the offering for.
-   */
-  getCurrentOfferingForPlacement(placementId: string): Offering | null;
 }
 
 const toPrice = (priceData: PriceResponse): Price => {

@@ -8,7 +8,7 @@ import {
   PackageType,
 } from "../entities/offerings";
 import { PeriodUnit } from "../helpers/duration-helper";
-import { assertExpectedOfferings, failTest } from "./test-helpers";
+import { failTest } from "./test-helpers";
 import { ErrorCode, PurchasesError } from "../entities/errors";
 
 describe("getOfferings", () => {
@@ -113,12 +113,9 @@ describe("getOfferings", () => {
         },
       },
       current: currentOffering,
-      getCurrentOfferingForPlacement(): Offering | null {
-        return null;
-      },
     };
 
-    assertExpectedOfferings(offerings, expectedOfferings);
+    expect(offerings).toEqual(expectedOfferings);
   });
 
   test("can get offerings without current offering id", async () => {
@@ -189,12 +186,9 @@ describe("getOfferings", () => {
         },
       },
       current: null,
-      getCurrentOfferingForPlacement(): Offering | null {
-        return null;
-      },
     } as Offerings;
 
-    assertExpectedOfferings(offerings, expectedOfferings);
+    expect(offerings).toEqual(expectedOfferings);
   });
 
   test("can get offerings with missing products", async () => {
@@ -219,14 +213,11 @@ describe("getOfferings", () => {
       monthly: packageWithoutTargeting,
       weekly: null,
     };
-    assertExpectedOfferings(offerings, {
+    expect(offerings).toEqual({
       all: {
         offering_1: offering_1,
       },
       current: null,
-      getCurrentOfferingForPlacement(): Offering | null {
-        return null;
-      },
     });
   });
 
@@ -255,10 +246,8 @@ describe("getOfferings", () => {
 describe("getOfferings placements", () => {
   test("gets fallback offering if placement id is missing", async () => {
     const purchases = configurePurchases();
-    const offerings = await purchases.getOfferings();
-    const offeringWithPlacement = offerings.getCurrentOfferingForPlacement(
-      "missing_placement_id",
-    );
+    const offeringWithPlacement =
+      await purchases.getCurrentOfferingForPlacement("missing_placement_id");
     expect(offeringWithPlacement).not.toBeNull();
     expect(offeringWithPlacement?.identifier).toEqual("offering_1");
     expect(
@@ -269,18 +258,15 @@ describe("getOfferings placements", () => {
 
   test("gets null offering if placement id has null offering id", async () => {
     const purchases = configurePurchases();
-    const offerings = await purchases.getOfferings();
-    const offeringWithPlacement = offerings.getCurrentOfferingForPlacement(
-      "test_null_placement_id",
-    );
+    const offeringWithPlacement =
+      await purchases.getCurrentOfferingForPlacement("test_null_placement_id");
     expect(offeringWithPlacement).toBeNull();
   });
 
   test("gets correct offering if placement id is valid", async () => {
     const purchases = configurePurchases();
-    const offerings = await purchases.getOfferings();
     const offeringWithPlacement =
-      offerings.getCurrentOfferingForPlacement("test_placement_id");
+      await purchases.getCurrentOfferingForPlacement("test_placement_id");
     expect(offeringWithPlacement).not.toBeNull();
     expect(offeringWithPlacement?.identifier).toEqual("offering_2");
     expect(
