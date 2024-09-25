@@ -1788,12 +1788,12 @@
         },
         {
           "kind": "Interface",
-          "canonicalReference": "@revenuecat/purchases-js!NonRenewableOption:interface",
-          "docComment": "/**\n * Represents a possible option to purchase a non-renewable product.\n *\n * @public\n */\n",
+          "canonicalReference": "@revenuecat/purchases-js!NonSubscriptionOption:interface",
+          "docComment": "/**\n * Represents a possible option to purchase a non-subscription product.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare interface NonRenewableOption extends "
+              "text": "export declare interface NonSubscriptionOption extends "
             },
             {
               "kind": "Reference",
@@ -1807,17 +1807,17 @@
           ],
           "fileUrlPath": "dist/Purchases.es.d.ts",
           "releaseTag": "Public",
-          "name": "NonRenewableOption",
+          "name": "NonSubscriptionOption",
           "preserveMemberOrder": false,
           "members": [
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!NonRenewableOption#basePrice:member",
+              "canonicalReference": "@revenuecat/purchases-js!NonSubscriptionOption#price:member",
               "docComment": "/**\n * The price for the product.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "readonly basePrice: "
+                  "text": "readonly price: "
                 },
                 {
                   "kind": "Reference",
@@ -1832,7 +1832,7 @@
               "isReadonly": true,
               "isOptional": false,
               "releaseTag": "Public",
-              "name": "basePrice",
+              "name": "price",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -3214,7 +3214,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!Product#currentPrice:member",
-              "docComment": "/**\n * Price of the product. In the case of subscriptions, this will match the default option's base phase price.\n */\n",
+              "docComment": "/**\n * Price of the product. This will match the default option's base phase price in subscriptions or price in non subscriptions.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -3241,17 +3241,17 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!Product#defaultNonRenewableOption:member",
-              "docComment": "/**\n * The default non-renewable option for this product. Null in the case of subscriptions.\n */\n",
+              "canonicalReference": "@revenuecat/purchases-js!Product#defaultNonSubscriptionOption:member",
+              "docComment": "/**\n * The default non-subscription option for this product. Null in the case of subscriptions.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "readonly defaultNonRenewableOption: "
+                  "text": "readonly defaultNonSubscriptionOption: "
                 },
                 {
                   "kind": "Reference",
-                  "text": "NonRenewableOption",
-                  "canonicalReference": "@revenuecat/purchases-js!NonRenewableOption:interface"
+                  "text": "NonSubscriptionOption",
+                  "canonicalReference": "@revenuecat/purchases-js!NonSubscriptionOption:interface"
                 },
                 {
                   "kind": "Content",
@@ -3265,7 +3265,7 @@
               "isReadonly": true,
               "isOptional": false,
               "releaseTag": "Public",
-              "name": "defaultNonRenewableOption",
+              "name": "defaultNonSubscriptionOption",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 3
@@ -3302,7 +3302,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!Product#defaultSubscriptionOption:member",
-              "docComment": "/**\n * The default subscription option for this product. Null if no subscription options are available like in the case of consumables and non-consumables.\n */\n",
+              "docComment": "/**\n * The default subscription option for this product. Null in the case of no subscriptions.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -3415,7 +3415,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!Product#normalPeriodDuration:member",
-              "docComment": "/**\n * The period duration for a subscription product. This will match the default option's base phase period duration.\n */\n",
+              "docComment": "/**\n * The period duration for a subscription product. This will match the default option's base phase period duration. Null for non-subscriptions.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -3525,7 +3525,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!Product#subscriptionOptions:member",
-              "docComment": "/**\n * A dictionary with all the possible subscription options available for this product. Each key contains the key to be used when executing a purchase.\n *\n * If retrieved through getOfferings the offers are only the ones the customer is entitled to.\n */\n",
+              "docComment": "/**\n * A dictionary with all the possible subscription options available for this product. Each key contains the key to be used when executing a purchase. Will be empty for non-subscriptions\n *\n * If retrieved through getOfferings the offers are only the ones the customer is entitled to.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -3614,7 +3614,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "\"CONSUMABLE\""
+                  "text": "\"consumable\""
                 }
               ],
               "initializerTokenRange": {
@@ -3635,7 +3635,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "\"NON_CONSUMABLE\""
+                  "text": "\"non_consumable\""
                 }
               ],
               "initializerTokenRange": {
@@ -3656,7 +3656,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "\"SUBSCRIPTION\""
+                  "text": "\"subscription\""
                 }
               ],
               "initializerTokenRange": {
@@ -4923,7 +4923,7 @@
         {
           "kind": "Interface",
           "canonicalReference": "@revenuecat/purchases-js!PurchasesErrorExtra:interface",
-          "docComment": "/**\n * Extra information that is available in certain types of errors.\n */\n",
+          "docComment": "/**\n * Extra information that is available in certain types of errors.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",

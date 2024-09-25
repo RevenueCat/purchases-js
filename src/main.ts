@@ -44,7 +44,7 @@ import {
 } from "./helpers/offerings-parser";
 
 export type {
-  NonRenewableOption,
+  NonSubscriptionOption,
   Offering,
   Offerings,
   Package,

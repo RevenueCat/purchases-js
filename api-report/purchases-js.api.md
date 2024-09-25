@@ -129,8 +129,8 @@ export enum LogLevel {
 }
 
 // @public
-export interface NonRenewableOption extends PurchaseOption {
-    readonly basePrice: Price;
+export interface NonSubscriptionOption extends PurchaseOption {
+    readonly price: Price;
 }
 
 // @public
@@ -229,7 +229,7 @@ export interface PricingPhase {
 // @public
 export interface Product {
     readonly currentPrice: Price;
-    readonly defaultNonRenewableOption: NonRenewableOption | null;
+    readonly defaultNonSubscriptionOption: NonSubscriptionOption | null;
     readonly defaultPurchaseOption: PurchaseOption;
     readonly defaultSubscriptionOption: SubscriptionOption | null;
     readonly description: string | null;
@@ -249,9 +249,9 @@ export interface Product {
 
 // @public
 export enum ProductType {
-    Consumable = "CONSUMABLE",
-    NonConsumable = "NON_CONSUMABLE",
-    Subscription = "SUBSCRIPTION"
+    Consumable = "consumable",
+    NonConsumable = "non_consumable",
+    Subscription = "subscription"
 }
 
 // @public
