@@ -20,7 +20,7 @@ export interface SubscriptionOptionResponse extends PurchaseOptionResponse {
 }
 
 export interface NonSubscriptionOptionResponse extends PurchaseOptionResponse {
-  price: PriceResponse;
+  base_price: PriceResponse;
 }
 
 export interface ProductResponse {

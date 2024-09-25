@@ -167,9 +167,9 @@ export interface SubscriptionOption extends PurchaseOption {
  */
 export interface NonSubscriptionOption extends PurchaseOption {
   /**
-   * The price for the product.
+   * The base price for the product.
    */
-  readonly price: Price;
+  readonly basePrice: Price;
 }
 
 /**
@@ -408,14 +408,14 @@ const toSubscriptionOption = (
 const toNonSubscriptionOption = (
   option: NonSubscriptionOptionResponse,
 ): NonSubscriptionOption | null => {
-  if (option.price == null) {
+  if (option.base_price == null) {
     Logger.debugLog(
       "Missing base price for non-subscription option. Ignoring.",
     );
     return null;
   }
   return {
-    price: toPrice(option.price),
+    basePrice: toPrice(option.base_price),
   } as NonSubscriptionOption;
 };
 
@@ -485,7 +485,7 @@ const toNonSubscriptionProduct = (
     title: productDetailsData.title,
     description: productDetailsData.description,
     productType: productType,
-    currentPrice: defaultOption.price,
+    currentPrice: defaultOption.basePrice,
     normalPeriodDuration: null,
     presentedOfferingIdentifier: presentedOfferingContext.offeringIdentifier,
     presentedOfferingContext: presentedOfferingContext,

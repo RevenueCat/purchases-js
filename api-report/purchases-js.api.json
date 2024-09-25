@@ -1812,12 +1812,12 @@
           "members": [
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!NonSubscriptionOption#price:member",
-              "docComment": "/**\n * The price for the product.\n */\n",
+              "canonicalReference": "@revenuecat/purchases-js!NonSubscriptionOption#basePrice:member",
+              "docComment": "/**\n * The base price for the product.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "readonly price: "
+                  "text": "readonly basePrice: "
                 },
                 {
                   "kind": "Reference",
@@ -1832,7 +1832,7 @@
               "isReadonly": true,
               "isOptional": false,
               "releaseTag": "Public",
-              "name": "price",
+              "name": "basePrice",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2

@@ -130,7 +130,7 @@ export enum LogLevel {
 
 // @public
 export interface NonSubscriptionOption extends PurchaseOption {
-    readonly price: Price;
+    readonly basePrice: Price;
 }
 
 // @public
