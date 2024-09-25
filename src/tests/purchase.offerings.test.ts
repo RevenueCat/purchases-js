@@ -6,6 +6,7 @@ import {
   type Offerings,
   type Package,
   PackageType,
+  ProductType,
 } from "../entities/offerings";
 import { PeriodUnit } from "../helpers/duration-helper";
 import { failTest } from "./test-helpers";
@@ -77,6 +78,7 @@ describe("getOfferings", () => {
         title: "Monthly test 2",
         description: "monthly description",
         identifier: "monthly_2",
+        productType: ProductType.Subscription,
         normalPeriodDuration: "P1M",
         presentedOfferingIdentifier: "offering_2",
         presentedOfferingContext: {
@@ -86,6 +88,7 @@ describe("getOfferings", () => {
         },
         defaultPurchaseOption: subscriptionOption,
         defaultSubscriptionOption: subscriptionOption,
+        defaultNonSubscriptionOption: null,
         subscriptionOptions: {
           offer_12345: subscriptionOption,
         },
@@ -135,6 +138,7 @@ describe("getOfferings", () => {
         title: "Monthly test 2",
         description: "monthly description",
         identifier: "monthly_2",
+        productType: ProductType.Subscription,
         normalPeriodDuration: "P1M",
         presentedOfferingIdentifier: "offering_2",
         presentedOfferingContext: {
@@ -144,6 +148,7 @@ describe("getOfferings", () => {
         },
         defaultPurchaseOption: subscriptionOption,
         defaultSubscriptionOption: subscriptionOption,
+        defaultNonSubscriptionOption: null,
         subscriptionOptions: {
           offer_12345: subscriptionOption,
         },

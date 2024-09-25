@@ -29,10 +29,9 @@ export interface ProductResponse {
   title: string;
   description: string | null;
   default_purchase_option_id: string | null;
-  purchase_options: Map<
-    string,
-    NonSubscriptionOptionResponse | SubscriptionOptionResponse
-  >;
+  purchase_options: {
+    [key: string]: NonSubscriptionOptionResponse | SubscriptionOptionResponse;
+  };
 }
 
 export interface ProductsResponse {

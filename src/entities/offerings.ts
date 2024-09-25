@@ -450,7 +450,9 @@ const toNonSubscriptionProduct = (
 
   Object.entries(productDetailsData.purchase_options).forEach(
     ([key, value]) => {
-      const option = toNonSubscriptionOption(value);
+      const option = toNonSubscriptionOption(
+        value as NonSubscriptionOptionResponse,
+      );
       if (option != null) {
         nonSubscriptionOptions[key] = option;
       }
@@ -503,7 +505,7 @@ const toSubscriptionProduct = (
 
   Object.entries(productDetailsData.purchase_options).forEach(
     ([key, value]) => {
-      const option = toSubscriptionOption(value);
+      const option = toSubscriptionOption(value as SubscriptionOptionResponse);
       if (option != null) {
         subscriptionOptions[key] = option;
       }

@@ -1,19 +1,18 @@
 import { http, HttpResponse, type RequestHandler } from "msw";
 import type { OfferingsResponse } from "../networking/responses/offerings-response";
 import { vi } from "vitest";
+import type {
+  ProductResponse,
+  ProductsResponse,
+} from "../networking/responses/products-response";
 
-const monthlyProductResponse = {
-  current_price: {
-    amount_micros: 3000000,
-    currency: "USD",
-  },
+const monthlyProductResponse: ProductResponse = {
   identifier: "monthly",
-  normal_period_duration: "P1M",
   product_type: "subscription",
   title: "Monthly test",
   description: null,
-  default_subscription_option_id: "base_option",
-  subscription_options: {
+  default_purchase_option_id: "base_option",
+  purchase_options: {
     base_option: {
       id: "base_option",
       price_id: "test_price_id",
@@ -30,18 +29,13 @@ const monthlyProductResponse = {
   },
 };
 
-const monthly2ProductResponse = {
-  current_price: {
-    amount_micros: 5000000,
-    currency: "USD",
-  },
+const monthly2ProductResponse: ProductResponse = {
   identifier: "monthly_2",
-  normal_period_duration: "P1M",
   product_type: "subscription",
   title: "Monthly test 2",
   description: "monthly description",
-  default_subscription_option_id: "offer_12345",
-  subscription_options: {
+  default_purchase_option_id: "offer_12345",
+  purchase_options: {
     offer_12345: {
       id: "offer_12345",
       price_id: "test_price_id",
@@ -62,7 +56,7 @@ const monthly2ProductResponse = {
   },
 };
 
-export const productsResponse = {
+export const productsResponse: ProductsResponse = {
   product_details: [monthlyProductResponse, monthly2ProductResponse],
 };
 

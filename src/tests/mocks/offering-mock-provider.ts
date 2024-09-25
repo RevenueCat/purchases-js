@@ -1,6 +1,7 @@
 import {
   type Package,
   PackageType,
+  ProductType,
   type SubscriptionOption,
   type TargetingContext,
 } from "../../entities/offerings";
@@ -45,6 +46,7 @@ export function createMonthlyPackageMock(
       title: "Monthly test",
       description: null,
       identifier: "monthly",
+      productType: ProductType.Subscription,
       normalPeriodDuration: "P1M",
       presentedOfferingIdentifier: "offering_1",
       presentedOfferingContext: {
@@ -54,6 +56,7 @@ export function createMonthlyPackageMock(
       },
       defaultPurchaseOption: subscriptionOption,
       defaultSubscriptionOption: subscriptionOption,
+      defaultNonSubscriptionOption: null,
       subscriptionOptions: {
         base_option: subscriptionOption,
       },

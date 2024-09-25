@@ -43,13 +43,13 @@ import {
   toOfferings,
 } from "./helpers/offerings-parser";
 
+export { ProductType } from "./entities/offerings";
 export type {
   NonSubscriptionOption,
   Offering,
   Offerings,
   Package,
   Product,
-  ProductType,
   PresentedOfferingContext,
   Price,
   PurchaseOption,
