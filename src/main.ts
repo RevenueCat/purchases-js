@@ -227,11 +227,7 @@ export class Purchases {
     validateCurrency(params?.currency);
     const appUserId = this._appUserId;
     const offeringsResponse = await this.backend.getOfferings(appUserId);
-    return await this.getOfferingsForOfferingResponse(
-      offeringsResponse,
-      appUserId,
-      params,
-    );
+    return await this.getAllOfferings(offeringsResponse, appUserId, params);
   }
 
   /**
@@ -247,7 +243,7 @@ export class Purchases {
     const appUserId = this._appUserId;
     const offeringsResponse = await this.backend.getOfferings(appUserId);
 
-    const offerings = await this.getOfferingsForOfferingResponse(
+    const offerings = await this.getAllOfferings(
       offeringsResponse,
       appUserId,
       params,
@@ -263,7 +259,7 @@ export class Purchases {
     );
   }
 
-  private async getOfferingsForOfferingResponse(
+  private async getAllOfferings(
     offeringsResponse: OfferingsResponse,
     appUserId: string,
     params?: GetOfferingsParams,
