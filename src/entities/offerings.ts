@@ -169,6 +169,11 @@ export interface PresentedOfferingContext {
    * The targeting context used to obtain this object.
    */
   readonly targetingContext: TargetingContext | null;
+  /**
+   * If obtained this information from a placement,
+   * the identifier of the placement.
+   */
+  readonly placementIdentifier: string | null;
 }
 
 /**
@@ -449,6 +454,7 @@ export const toOffering = (
             revision: targetingResponse.revision,
           }
         : null,
+    placementIdentifier: null,
   };
   const packages = offeringsData.packages
     .map((p: PackageResponse) =>

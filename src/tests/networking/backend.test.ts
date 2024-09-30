@@ -364,7 +364,11 @@ describe("subscribe request", () => {
         "someAppUserId",
         "monthly",
         "testemail@revenuecat.com",
-        { offeringIdentifier: "offering_1", targetingContext: null },
+        {
+          offeringIdentifier: "offering_1",
+          targetingContext: null,
+          placementIdentifier: null,
+        },
         { id: "base_option", priceId: "test_price_id" },
       ),
     ).toEqual(subscribeResponse);
@@ -379,7 +383,11 @@ describe("subscribe request", () => {
         "someAppUserId",
         "monthly",
         "testemail@revenuecat.com",
-        { offeringIdentifier: "offering_1", targetingContext: null },
+        {
+          offeringIdentifier: "offering_1",
+          targetingContext: null,
+          placementIdentifier: null,
+        },
         { id: "base_option", priceId: "test_price_id" },
       ),
       new PurchasesError(
@@ -405,7 +413,11 @@ describe("subscribe request", () => {
         "someAppUserId",
         "monthly",
         "testemail@revenuecat.com",
-        { offeringIdentifier: "offering_1", targetingContext: null },
+        {
+          offeringIdentifier: "offering_1",
+          targetingContext: null,
+          placementIdentifier: null,
+        },
         { id: "base_option", priceId: "test_price_id" },
       ),
       new PurchasesError(
@@ -431,7 +443,11 @@ describe("subscribe request", () => {
         "someAppUserId",
         "monthly",
         "testemail@revenuecat.com",
-        { offeringIdentifier: "offering_1", targetingContext: null },
+        {
+          offeringIdentifier: "offering_1",
+          targetingContext: null,
+          placementIdentifier: null,
+        },
         { id: "base_option", priceId: "test_price_id" },
       ),
       new PurchasesError(
@@ -449,7 +465,11 @@ describe("subscribe request", () => {
         "someAppUserId",
         "monthly",
         "testemail@revenuecat.com",
-        { offeringIdentifier: "offering_1", targetingContext: null },
+        {
+          offeringIdentifier: "offering_1",
+          targetingContext: null,
+          placementIdentifier: null,
+        },
         { id: "base_option", priceId: "test_price_id" },
       ),
       new PurchasesError(

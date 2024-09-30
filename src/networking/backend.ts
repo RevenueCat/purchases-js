@@ -84,6 +84,7 @@ export class Backend {
       product_id: string;
       email: string;
       presented_offering_identifier: string;
+      presented_placement_identifier?: string;
       offer_id?: string;
       price_id: string;
       applied_targeting_rule?: {
@@ -110,6 +111,11 @@ export class Backend {
         rule_id: presentedOfferingContext.targetingContext.ruleId,
         revision: presentedOfferingContext.targetingContext.revision,
       };
+    }
+
+    if (presentedOfferingContext.placementIdentifier) {
+      requestBody.presented_placement_identifier =
+        presentedOfferingContext.placementIdentifier;
     }
 
     return await performRequest<SubscribeRequestBody, SubscribeResponse>(

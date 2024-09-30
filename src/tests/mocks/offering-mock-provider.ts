@@ -50,6 +50,7 @@ export function createMonthlyPackageMock(
       presentedOfferingContext: {
         offeringIdentifier: "offering_1",
         targetingContext: targetingContext,
+        placementIdentifier: null,
       },
       defaultPurchaseOption: subscriptionOption,
       defaultSubscriptionOption: subscriptionOption,

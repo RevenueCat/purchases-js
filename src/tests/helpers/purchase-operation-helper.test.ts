@@ -70,7 +70,11 @@ describe("PurchaseOperationHelper", () => {
         "test-product-id",
         { id: "test-option-id", priceId: "test-price-id" },
         "test-email",
-        { offeringIdentifier: "test-offering-id", targetingContext: null },
+        {
+          offeringIdentifier: "test-offering-id",
+          targetingContext: null,
+          placementIdentifier: null,
+        },
       ),
       new PurchaseFlowError(
         PurchaseFlowErrorCode.ErrorSettingUpPurchase,
@@ -97,7 +101,11 @@ describe("PurchaseOperationHelper", () => {
         "test-product-id",
         { id: "test-option-id", priceId: "test-price-id" },
         "test-email",
-        { offeringIdentifier: "test-offering-id", targetingContext: null },
+        {
+          offeringIdentifier: "test-offering-id",
+          targetingContext: null,
+          placementIdentifier: null,
+        },
       ),
       new PurchaseFlowError(
         PurchaseFlowErrorCode.AlreadySubscribedError,
@@ -132,7 +140,11 @@ describe("PurchaseOperationHelper", () => {
       "test-product-id",
       { id: "test-option-id", priceId: "test-price-id" },
       "test-email",
-      { offeringIdentifier: "test-offering-id", targetingContext: null },
+      {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
     );
     await expectPromiseToPurchaseFlowError(
       purchaseOperationHelper.pollCurrentPurchaseForCompletion(),
@@ -166,7 +178,11 @@ describe("PurchaseOperationHelper", () => {
       "test-product-id",
       { id: "test-option-id", priceId: "test-price-id" },
       "test-email",
-      { offeringIdentifier: "test-offering-id", targetingContext: null },
+      {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
     );
     await purchaseOperationHelper.pollCurrentPurchaseForCompletion();
   });
@@ -228,7 +244,11 @@ describe("PurchaseOperationHelper", () => {
       "test-product-id",
       { id: "test-option-id", priceId: "test-price-id" },
       "test-email",
-      { offeringIdentifier: "test-offering-id", targetingContext: null },
+      {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
     );
     await expectPromiseToPurchaseFlowError(
       purchaseOperationHelper.pollCurrentPurchaseForCompletion(),

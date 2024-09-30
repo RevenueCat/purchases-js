@@ -200,6 +200,7 @@ export enum PeriodUnit {
 // @public
 export interface PresentedOfferingContext {
     readonly offeringIdentifier: string;
+    readonly placementIdentifier: string | null;
     readonly targetingContext: TargetingContext | null;
 }
 
@@ -259,6 +260,7 @@ export class Purchases {
     close(): void;
     static configure(apiKey: string, appUserId: string, httpConfig?: HttpConfig): Purchases;
     getAppUserId(): string;
+    getCurrentOfferingForPlacement(placementIdentifier: string, params?: GetOfferingsParams): Promise<Offering | null>;
     getCustomerInfo(): Promise<CustomerInfo>;
     getOfferings(params?: GetOfferingsParams): Promise<Offerings>;
     static getSharedInstance(): Purchases;
