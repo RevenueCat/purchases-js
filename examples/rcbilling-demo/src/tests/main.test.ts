@@ -47,7 +47,11 @@ test.describe("Main", () => {
     const page = await setupTest(browser, userId);
 
     // Gets all elements that match the selector
-    const packageCards = await page.getByText("E2E Consumable").all();
+    const packageCards = await getAllElementsByLocator(
+      page,
+      CARD_SELECTOR,
+      "E2E Consumable",
+    );
     expect(packageCards.length).toEqual(1);
     const singleCard = packageCards[0];
 
@@ -62,7 +66,11 @@ test.describe("Main", () => {
     const page = await setupTest(browser, userId);
 
     // Gets all elements that match the selector
-    const packageCards = await page.getByText("E2E NonConsumable").all();
+    const packageCards = await getAllElementsByLocator(
+      page,
+      CARD_SELECTOR,
+      "E2E NonConsumable",
+    );
     expect(packageCards.length).toEqual(1);
     const singleCard = packageCards[0];
 
@@ -126,9 +134,16 @@ async function setupTest(browser: Browser, userId: string) {
   return page;
 }
 
-async function getAllElementsByLocator(page: Page, locator: string) {
+async function getAllElementsByLocator(
+  page: Page,
+  locator: string,
+  containsText?: string,
+) {
   await page.waitForSelector(locator);
-  const locatorResult = page.locator(locator);
+  let locatorResult = page.locator(locator);
+  if (containsText) {
+    locatorResult = locatorResult.filter({ hasText: containsText });
+  }
   return await locatorResult.all();
 }
 
