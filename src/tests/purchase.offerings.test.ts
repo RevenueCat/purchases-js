@@ -251,14 +251,11 @@ describe("getOfferings", () => {
       monthly: null,
       weekly: null,
     };
-    assertExpectedOfferings(offerings, {
+    expect(offerings).toEqual({
       all: {
         offering_consumables: expectedOffering,
       },
       current: expectedOffering,
-      getCurrentOfferingByPlacementId(): Offering | null {
-        return null;
-      },
     });
   });
 
