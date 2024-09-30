@@ -1,4 +1,5 @@
 import test, { Browser, expect, Page } from "@playwright/test";
+import { Locator } from "playwright";
 
 const _LOCAL_URL = "http://localhost:3001/";
 const CARD_SELECTOR = "div.card";
@@ -24,24 +25,48 @@ test.describe("Main", () => {
     );
   });
 
-  test("Can purchase a Product", async ({ browser, browserName }) => {
-    const userId = getUserId(browserName);
+  test("Can purchase a subscription Product", async ({
+    browser,
+    browserName,
+  }) => {
+    const userId = `${getUserId(browserName)}_subscription`;
     const page = await setupTest(browser, userId);
 
     // Gets all elements that match the selector
     const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
     const singleCard = packageCards[1];
 
-    // Perform purchase
-    const cardButton = singleCard.getByRole("button");
-    await cardButton.click();
+    await performPurchase(page, singleCard, userId);
+  });
 
-    await enterEmailAndContinue(page, userId);
-    await enterCreditCardDetailsAndContinue(page);
+  test("Can purchase a consumable Product", async ({
+    browser,
+    browserName,
+  }) => {
+    const userId = `${getUserId(browserName)}_consumable`;
+    const page = await setupTest(browser, userId);
 
-    // Confirm success page has shown.
-    const successText = page.getByText("Purchase successful");
-    await expect(successText).toBeVisible();
+    // Gets all elements that match the selector
+    const packageCards = await page.getByText("E2E Consumable").all();
+    expect(packageCards.length).toEqual(1);
+    const singleCard = packageCards[0];
+
+    await performPurchase(page, singleCard, userId);
+  });
+
+  test("Can purchase a non consumable Product", async ({
+    browser,
+    browserName,
+  }) => {
+    const userId = `${getUserId(browserName)}_non_consumable`;
+    const page = await setupTest(browser, userId);
+
+    // Gets all elements that match the selector
+    const packageCards = await page.getByText("E2E NonConsumable").all();
+    expect(packageCards.length).toEqual(1);
+    const singleCard = packageCards[0];
+
+    await performPurchase(page, singleCard, userId);
   });
 
   test("Displays error when unknown backend error", async ({
@@ -78,6 +103,19 @@ test.describe("Main", () => {
     await expect(errorMessageText).toBeVisible();
   });
 });
+
+async function performPurchase(page: Page, card: Locator, userId: string) {
+  // Perform purchase
+  const cardButton = card.getByRole("button");
+  await cardButton.click();
+
+  await enterEmailAndContinue(page, userId);
+  await enterCreditCardDetailsAndContinue(page);
+
+  // Confirm success page has shown.
+  const successText = page.getByText("Purchase successful");
+  await expect(successText).toBeVisible();
+}
 
 const getUserId = (browserName: string) =>
   `rc_billing_demo_test_${Date.now()}_${browserName}`;
