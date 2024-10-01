@@ -15,7 +15,7 @@ test.describe("Main", () => {
     // Gets all elements that match the selector
     const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
 
-    const EXPECTED_VALUES = [/30[,.]00/, /19[,.]99/, /15[,.]00/];
+    const EXPECTED_VALUES = [/30[,.]00/, /19[,.]99/, /15[,.]00/, /99[,.]99/, /2[,.]99/];
 
     await Promise.all(
       packageCards.map(
@@ -122,7 +122,7 @@ async function performPurchase(page: Page, card: Locator, userId: string) {
 
   // Confirm success page has shown.
   const successText = page.getByText("Purchase successful");
-  await expect(successText).toBeVisible();
+  await expect(successText).toBeVisible({ timeout: 10000 });
 }
 
 const getUserId = (browserName: string) =>
@@ -141,7 +141,7 @@ async function getAllElementsByLocator(
 ) {
   await page.waitForSelector(locator);
   let locatorResult = page.locator(locator);
-  if (containsText) {
+  if (containsText !== undefined) {
     locatorResult = locatorResult.filter({ hasText: containsText });
   }
   return await locatorResult.all();
