@@ -15,7 +15,13 @@ test.describe("Main", () => {
     // Gets all elements that match the selector
     const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
 
-    const EXPECTED_VALUES = [/30[,.]00/, /19[,.]99/, /15[,.]00/, /99[,.]99/, /2[,.]99/];
+    const EXPECTED_VALUES = [
+      /30[,.]00/,
+      /19[,.]99/,
+      /15[,.]00/,
+      /99[,.]99/,
+      /2[,.]99/,
+    ];
 
     await Promise.all(
       packageCards.map(
