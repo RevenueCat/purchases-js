@@ -25,12 +25,12 @@ export class GetOfferingsEndpoint implements Endpoint {
   }
 }
 
-export class SubscribeEndpoint implements Endpoint {
+export class PurchaseEndpoint implements Endpoint {
   method: HttpMethodType = "POST";
-  name: string = "subscribe";
+  name: string = "purchase";
 
   urlPath(): string {
-    return `${RC_BILLING_PATH}/subscribe`;
+    return `${RC_BILLING_PATH}/purchase`;
   }
 }
 
@@ -97,7 +97,7 @@ export class GetCheckoutStatusEndpoint implements Endpoint {
 
 export type SupportedEndpoint =
   | GetOfferingsEndpoint
-  | SubscribeEndpoint
+  | PurchaseEndpoint
   | GetProductsEndpoint
   | GetCustomerInfoEndpoint
   | GetBrandingInfoEndpoint

@@ -4,7 +4,7 @@ import {
   type PurchasesErrorExtra,
 } from "../entities/errors";
 import { type Backend } from "../networking/backend";
-import { type SubscribeResponse } from "../networking/responses/subscribe-response";
+import { type PurchaseResponse } from "../networking/responses/purchase-response";
 import {
   CheckoutSessionStatus,
   type CheckoutStatusError,
@@ -117,9 +117,9 @@ export class PurchaseOperationHelper {
     purchaseOption: PurchaseOption,
     email: string,
     presentedOfferingContext: PresentedOfferingContext,
-  ): Promise<SubscribeResponse> {
+  ): Promise<PurchaseResponse> {
     try {
-      const subscribeResponse = await this.backend.postSubscribe(
+      const subscribeResponse = await this.backend.postPurchase(
         appUserId,
         productId,
         email,
