@@ -1,6 +1,5 @@
 import { appearanceConfigStore } from "../store/store";
 import { Colors } from "../assets/colors";
-import { WPL_BASE_URL } from "../assets/constants";
 
 /**
  * Get the CSS variable string for a given property
@@ -28,7 +27,7 @@ export const mapStyleOverridesToStyleVariables = (
 ) => {
   // Return default colors if there's no appearance configuration object
   // or if the current host is coming from a WPL
-  if (!appearance || window.location.host.includes(WPL_BASE_URL))
+  if (!appearance)
     return mapObjectToColorVariableString(Colors);
 
   // Set configuration object to store for custom overrides
