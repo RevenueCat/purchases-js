@@ -1,7 +1,7 @@
 {
   "metadata": {
     "toolPackage": "@microsoft/api-extractor",
-    "toolVersion": "7.47.3",
+    "toolVersion": "7.47.7",
     "schemaVersion": 1011,
     "oldestForwardsCompatibleVersion": 1001,
     "tsdocConfig": {
@@ -3214,7 +3214,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!Product#currentPrice:member",
-              "docComment": "/**\n * Price of the product. This will match the default option's base phase price in subscriptions or price in non subscriptions.\n */\n",
+              "docComment": "/**\n * Price of the product. This will match the default option's base phase price in subscriptions or the price in non-subscriptions.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -3302,7 +3302,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!Product#defaultSubscriptionOption:member",
-              "docComment": "/**\n * The default subscription option for this product. Null in the case of no subscriptions.\n */\n",
+              "docComment": "/**\n * The default subscription option for this product. Null if no subscription options are available like in the case of consumables and non-consumables.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -3648,7 +3648,7 @@
             {
               "kind": "EnumMember",
               "canonicalReference": "@revenuecat/purchases-js!ProductType.Subscription:member",
-              "docComment": "/**\n * A product that is a subscription.\n */\n",
+              "docComment": "/**\n * A product that is an auto-renewing subscription.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",

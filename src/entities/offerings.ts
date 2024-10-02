@@ -64,7 +64,7 @@ export enum PackageType {
  */
 export enum ProductType {
   /**
-   * A product that is a subscription.
+   * A product that is an auto-renewing subscription.
    */
   Subscription = "subscription",
   /**
@@ -231,7 +231,7 @@ export interface Product {
   readonly description: string | null;
   /**
    * Price of the product. This will match the default option's base phase price
-   * in subscriptions or price in non subscriptions.
+   * in subscriptions or the price in non-subscriptions.
    */
   readonly currentPrice: Price;
   /**
@@ -258,7 +258,7 @@ export interface Product {
   readonly defaultPurchaseOption: PurchaseOption;
   /**
    * The default subscription option for this product.
-   * Null in the case of no subscriptions.
+   * Null if no subscription options are available like in the case of consumables and non-consumables.
    */
   readonly defaultSubscriptionOption: SubscriptionOption | null;
   /**
