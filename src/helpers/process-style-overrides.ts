@@ -27,8 +27,9 @@ export const mapStyleOverridesToStyleVariables = (
 ) => {
   // Return default colors if there's no appearance configuration object
   // or if the current host is coming from a WPL
-  if (!appearance)
+  if (!appearance) {
     return mapObjectToColorVariableString(Colors);
+  }
 
   // Set configuration object to store for custom overrides
   appearanceConfigStore.set(appearance);
