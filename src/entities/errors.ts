@@ -216,6 +216,7 @@ export enum BackendErrorCode {
 
 /**
  * Extra information that is available in certain types of errors.
+ * @public
  */
 export interface PurchasesErrorExtra {
   /**

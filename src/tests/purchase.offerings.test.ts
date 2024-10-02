@@ -1,11 +1,15 @@
 import { describe, expect, test } from "vitest";
-import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
+import {
+  createConsumablePackageMock,
+  createMonthlyPackageMock,
+} from "./mocks/offering-mock-provider";
 import { configurePurchases } from "./base.purchases_test";
 import {
   type Offering,
   type Offerings,
   type Package,
   PackageType,
+  ProductType,
 } from "../entities/offerings";
 import { PeriodUnit } from "../helpers/duration-helper";
 import { failTest } from "./test-helpers";
@@ -77,6 +81,7 @@ describe("getOfferings", () => {
         title: "Monthly test 2",
         description: "monthly description",
         identifier: "monthly_2",
+        productType: ProductType.Subscription,
         normalPeriodDuration: "P1M",
         presentedOfferingIdentifier: "offering_2",
         presentedOfferingContext: {
@@ -86,6 +91,7 @@ describe("getOfferings", () => {
         },
         defaultPurchaseOption: subscriptionOption,
         defaultSubscriptionOption: subscriptionOption,
+        defaultNonSubscriptionOption: null,
         subscriptionOptions: {
           offer_12345: subscriptionOption,
         },
@@ -135,6 +141,7 @@ describe("getOfferings", () => {
         title: "Monthly test 2",
         description: "monthly description",
         identifier: "monthly_2",
+        productType: ProductType.Subscription,
         normalPeriodDuration: "P1M",
         presentedOfferingIdentifier: "offering_2",
         presentedOfferingContext: {
@@ -144,6 +151,7 @@ describe("getOfferings", () => {
         },
         defaultPurchaseOption: subscriptionOption,
         defaultSubscriptionOption: subscriptionOption,
+        defaultNonSubscriptionOption: null,
         subscriptionOptions: {
           offer_12345: subscriptionOption,
         },
@@ -218,6 +226,36 @@ describe("getOfferings", () => {
         offering_1: offering_1,
       },
       current: null,
+    });
+  });
+
+  test("can get offering with consumable product", async () => {
+    const purchases = configurePurchases(
+      "appUserIdWithNonSubscriptionProducts",
+    );
+    const offerings = await purchases.getOfferings();
+    const expectedConsumablePackage = createConsumablePackageMock();
+    const expectedOffering: Offering = {
+      serverDescription: "Offering consumable",
+      identifier: "offering_consumables",
+      metadata: null,
+      packagesById: {
+        "test-consumable-package": expectedConsumablePackage,
+      },
+      availablePackages: [expectedConsumablePackage],
+      lifetime: null,
+      annual: null,
+      sixMonth: null,
+      threeMonth: null,
+      twoMonth: null,
+      monthly: null,
+      weekly: null,
+    };
+    expect(offerings).toEqual({
+      all: {
+        offering_consumables: expectedOffering,
+      },
+      current: expectedOffering,
     });
   });
 
