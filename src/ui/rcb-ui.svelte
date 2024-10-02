@@ -253,7 +253,7 @@
             />
           {/if}
           {#if state === "success"}
-            <StateSuccess {brandingInfo} onContinue={handleContinue} />
+            <StateSuccess {productDetails} {brandingInfo} onContinue={handleContinue} />
           {/if}
         </Shell>
       </div>
