@@ -6,10 +6,10 @@ import {
   GetCustomerInfoEndpoint,
   GetOfferingsEndpoint,
   GetProductsEndpoint,
-  SubscribeEndpoint,
+  PurchaseEndpoint,
 } from "./endpoints";
 import { type SubscriberResponse } from "./responses/subscriber-response";
-import { type SubscribeResponse } from "./responses/subscribe-response";
+import { type PurchaseResponse } from "./responses/purchase-response";
 import { type ProductsResponse } from "./responses/products-response";
 import { type BrandingInfoResponse } from "./responses/branding-response";
 import { type CheckoutStatusResponse } from "./responses/checkout-status-response";
@@ -72,14 +72,14 @@ export class Backend {
     );
   }
 
-  async postSubscribe(
+  async postPurchase(
     appUserId: string,
     productId: string,
     email: string,
     presentedOfferingContext: PresentedOfferingContext,
     purchaseOption: PurchaseOption,
-  ): Promise<SubscribeResponse> {
-    type SubscribeRequestBody = {
+  ): Promise<PurchaseResponse> {
+    type PurchaseRequestBody = {
       app_user_id: string;
       product_id: string;
       email: string;
@@ -93,7 +93,7 @@ export class Backend {
       };
     };
 
-    const requestBody: SubscribeRequestBody = {
+    const requestBody: PurchaseRequestBody = {
       app_user_id: appUserId,
       product_id: productId,
       email: email,
@@ -118,8 +118,8 @@ export class Backend {
         presentedOfferingContext.placementIdentifier;
     }
 
-    return await performRequest<SubscribeRequestBody, SubscribeResponse>(
-      new SubscribeEndpoint(),
+    return await performRequest<PurchaseRequestBody, PurchaseResponse>(
+      new PurchaseEndpoint(),
       {
         apiKey: this.API_KEY,
         body: requestBody,

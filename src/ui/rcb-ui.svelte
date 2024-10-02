@@ -9,7 +9,7 @@
   import StateNeedsAuthInfo from "./states/state-needs-auth-info.svelte";
   import ConditionalFullScreen from "./conditional-full-screen.svelte";
   import Shell from "./shell.svelte";
-  import { type SubscribeResponse } from "../networking/responses/subscribe-response";
+  import { type PurchaseResponse } from "../networking/responses/purchase-response";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import {
     PurchaseFlowError,
@@ -39,7 +39,7 @@
     .join("; ");
 
   let productDetails: Product | null = null;
-  let paymentInfoCollectionMetadata: SubscribeResponse | null = null;
+  let paymentInfoCollectionMetadata: PurchaseResponse | null = null;
   let lastError: PurchaseFlowError | null = null;
   const productId = rcPackage.rcBillingProduct.identifier ?? null;
   const defaultPurchaseOption =

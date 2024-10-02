@@ -14,7 +14,7 @@ import {
   PurchasesError,
 } from "../../entities/errors";
 import { expectPromiseToError } from "../test-helpers";
-import { type SubscribeResponse } from "../../networking/responses/subscribe-response";
+import { type PurchaseResponse } from "../../networking/responses/purchase-response";
 
 let server: SetupServer;
 let backend: Backend;
@@ -341,26 +341,26 @@ describe("getProducts request", () => {
   });
 });
 
-describe("subscribe request", () => {
-  function setSubscribeResponse(httpResponse: HttpResponse) {
+describe("purchase request", () => {
+  function setPurchaseResponse(httpResponse: HttpResponse) {
     server.use(
-      http.post("http://localhost:8000/rcbilling/v1/subscribe", () => {
+      http.post("http://localhost:8000/rcbilling/v1/purchase", () => {
         return httpResponse;
       }),
     );
   }
 
-  test("can post subscribe successfully", async () => {
-    const subscribeResponse: SubscribeResponse = {
+  test("can post purchase successfully", async () => {
+    const purchaseResponse: PurchaseResponse = {
       operation_session_id: "test-operation-session-id",
       next_action: "collect_payment_info",
       data: {
         client_secret: "seti_123",
       },
     };
-    setSubscribeResponse(HttpResponse.json(subscribeResponse, { status: 200 }));
+    setPurchaseResponse(HttpResponse.json(purchaseResponse, { status: 200 }));
     expect(
-      await backend.postSubscribe(
+      await backend.postPurchase(
         "someAppUserId",
         "monthly",
         "testemail@revenuecat.com",
@@ -371,15 +371,15 @@ describe("subscribe request", () => {
         },
         { id: "base_option", priceId: "test_price_id" },
       ),
-    ).toEqual(subscribeResponse);
+    ).toEqual(purchaseResponse);
   });
 
   test("throws an error if the backend returns a server error", async () => {
-    setSubscribeResponse(
+    setPurchaseResponse(
       HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
     );
     await expectPromiseToError(
-      backend.postSubscribe(
+      backend.postPurchase(
         "someAppUserId",
         "monthly",
         "testemail@revenuecat.com",
@@ -393,13 +393,13 @@ describe("subscribe request", () => {
       new PurchasesError(
         ErrorCode.UnknownBackendError,
         "Unknown backend error.",
-        "Request: subscribe. Status code: 500. Body: null.",
+        "Request: purchase. Status code: 500. Body: null.",
       ),
     );
   });
 
   test("throws a known error if the backend returns a request error with correct body", async () => {
-    setSubscribeResponse(
+    setPurchaseResponse(
       HttpResponse.json(
         {
           code: BackendErrorCode.BackendInvalidAPIKey,
@@ -409,7 +409,7 @@ describe("subscribe request", () => {
       ),
     );
     await expectPromiseToError(
-      backend.postSubscribe(
+      backend.postPurchase(
         "someAppUserId",
         "monthly",
         "testemail@revenuecat.com",
@@ -429,7 +429,7 @@ describe("subscribe request", () => {
   });
 
   test("throws a PurchaseInvalidError if the backend returns with a offer not found error", async () => {
-    setSubscribeResponse(
+    setPurchaseResponse(
       HttpResponse.json(
         {
           code: BackendErrorCode.BackendOfferNotFound,
@@ -439,7 +439,7 @@ describe("subscribe request", () => {
       ),
     );
     await expectPromiseToError(
-      backend.postSubscribe(
+      backend.postPurchase(
         "someAppUserId",
         "monthly",
         "testemail@revenuecat.com",
@@ -459,9 +459,9 @@ describe("subscribe request", () => {
   });
 
   test("throws network error if cannot reach server", async () => {
-    setSubscribeResponse(HttpResponse.error());
+    setPurchaseResponse(HttpResponse.error());
     await expectPromiseToError(
-      backend.postSubscribe(
+      backend.postPurchase(
         "someAppUserId",
         "monthly",
         "testemail@revenuecat.com",
