@@ -22,7 +22,7 @@ describe("PurchaseOperationHelper", () => {
   let purchaseOperationHelper: PurchaseOperationHelper;
 
   const operationSessionId = "test-operation-session-id";
-  const successSubscribeBody: PurchaseResponse = {
+  const successPurchaseBody: PurchaseResponse = {
     operation_session_id: operationSessionId,
     next_action: "collect_payment_info",
     data: {
@@ -127,7 +127,7 @@ describe("PurchaseOperationHelper", () => {
 
   test("pollCurrentPurchaseForCompletion fails if poll request fails", async () => {
     setPurchaseResponse(
-      HttpResponse.json(successSubscribeBody, {
+      HttpResponse.json(successPurchaseBody, {
         status: StatusCodes.OK,
       }),
     );
@@ -158,7 +158,7 @@ describe("PurchaseOperationHelper", () => {
 
   test("pollCurrentPurchaseForCompletion success if poll returns success", async () => {
     setPurchaseResponse(
-      HttpResponse.json(successSubscribeBody, {
+      HttpResponse.json(successPurchaseBody, {
         status: StatusCodes.OK,
       }),
     );
@@ -221,7 +221,7 @@ describe("PurchaseOperationHelper", () => {
 
   test("pollCurrentPurchaseForCompletion error if poll returns error", async () => {
     setPurchaseResponse(
-      HttpResponse.json(successSubscribeBody, {
+      HttpResponse.json(successPurchaseBody, {
         status: StatusCodes.OK,
       }),
     );
