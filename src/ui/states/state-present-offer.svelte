@@ -1,43 +1,58 @@
 <script lang="ts">
     import ModalSection from "../modal-section.svelte";
     import { getRenewsLabel, getTrialsLabel } from "../../helpers/price-labels";
-    import type { Product, PurchaseOption, SubscriptionOption } from "../../entities/offerings";
+    import {
+        type NonSubscriptionOption,
+        type Product,
+        ProductType,
+        type PurchaseOption,
+        type SubscriptionOption,
+    } from "../../entities/offerings";
 
     export let productDetails: Product;
     export let purchaseOption: PurchaseOption;
 
+    const isSubscription = productDetails.productType === ProductType.Subscription;
     const subscriptionOption: SubscriptionOption | null | undefined =
       purchaseOption as SubscriptionOption;
-    const trial = subscriptionOption?.trial;
-    const basePrice = subscriptionOption?.base?.price;
+    const nonSubscriptionOption: NonSubscriptionOption | null | undefined =
+      purchaseOption as NonSubscriptionOption;
+    const subscriptionTrial = subscriptionOption?.trial;
+
+    const subscriptionBasePrice = subscriptionOption?.base?.price;
+    const nonSubscriptionBasePrice = nonSubscriptionOption?.basePrice;
 </script>
 
 <ModalSection>
     <div class="rcb-pricing-info">
-        <span>{productDetails.displayName}</span>
+        <span>{productDetails.title}</span>
 
-        <span class="rcb-product-price">
-            {#if trial?.periodDuration}
-                {getTrialsLabel(trial.periodDuration)} free trial
-            {/if}
-            {#if !trial?.periodDuration && basePrice }
-                {basePrice.formattedPrice}
-            {/if}
-
-        </span>
-        {#if (trial && basePrice)}
-            <span class="rcb-product-price-after-trial">
-                {trial && basePrice && `${
-                    basePrice.formattedPrice} after end of trial`}
+        {#if isSubscription}
+            <span class="rcb-product-price">
+                {#if subscriptionTrial?.periodDuration}
+                    {getTrialsLabel(subscriptionTrial.periodDuration)} free trial
+                {/if}
+                {#if !subscriptionTrial?.periodDuration && subscriptionBasePrice }
+                    {subscriptionBasePrice.formattedPrice}
+                {/if}
             </span>
-        {/if}
-        <ul class="rcb-product-details">
-            {#if productDetails.normalPeriodDuration}
-                <li>Renews {getRenewsLabel(productDetails.normalPeriodDuration)}</li>
+            {#if (subscriptionTrial && subscriptionBasePrice)}
+                <span class="rcb-product-price-after-trial">
+                    {subscriptionTrial && subscriptionBasePrice && `${
+                      subscriptionBasePrice.formattedPrice} after end of trial`}
+                </span>
             {/if}
-            <li>Continues until canceled</li>
-            <li>Cancel anytime</li>
-        </ul>
+            <ul class="rcb-product-details">
+                {#if productDetails.normalPeriodDuration}
+                    <li>Renews {getRenewsLabel(productDetails.normalPeriodDuration)}</li>
+                {/if}
+                <li>Continues until canceled</li>
+                <li>Cancel anytime</li>
+            </ul>
+        {/if}
+        {#if !isSubscription}
+            <span class="rcb-product-price">{nonSubscriptionBasePrice?.formattedPrice}</span>
+        {/if}
     </div>
 </ModalSection>
 

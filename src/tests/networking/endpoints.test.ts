@@ -5,7 +5,7 @@ import {
   GetCustomerInfoEndpoint,
   GetOfferingsEndpoint,
   GetProductsEndpoint,
-  SubscribeEndpoint,
+  PurchaseEndpoint,
 } from "../../networking/endpoints";
 
 describe("getOfferings endpoint", () => {
@@ -28,15 +28,15 @@ describe("getOfferings endpoint", () => {
   });
 });
 
-describe("subscribe endpoint", () => {
-  const endpoint = new SubscribeEndpoint();
+describe("purchase endpoint", () => {
+  const endpoint = new PurchaseEndpoint();
 
   test("uses correct method", () => {
     expect(endpoint.method).toBe("POST");
   });
 
   test("has correct urlPath", () => {
-    expect(endpoint.urlPath()).toBe("/rcbilling/v1/subscribe");
+    expect(endpoint.urlPath()).toBe("/rcbilling/v1/purchase");
   });
 });
 

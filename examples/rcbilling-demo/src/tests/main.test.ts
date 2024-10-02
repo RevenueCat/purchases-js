@@ -1,4 +1,5 @@
 import test, { Browser, expect, Page } from "@playwright/test";
+import { Locator } from "playwright";
 
 const _LOCAL_URL = "http://localhost:3001/";
 const CARD_SELECTOR = "div.card";
@@ -14,7 +15,13 @@ test.describe("Main", () => {
     // Gets all elements that match the selector
     const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
 
-    const EXPECTED_VALUES = [/30[,.]00/, /19[,.]99/, /15[,.]00/];
+    const EXPECTED_VALUES = [
+      /30[,.]00/,
+      /19[,.]99/,
+      /15[,.]00/,
+      /99[,.]99/,
+      /2[,.]99/,
+    ];
 
     await Promise.all(
       packageCards.map(
@@ -24,8 +31,63 @@ test.describe("Main", () => {
     );
   });
 
-  test("Can purchase a Product", async ({ browser, browserName }) => {
-    const userId = getUserId(browserName);
+  test("Can purchase a subscription Product", async ({
+    browser,
+    browserName,
+  }) => {
+    const userId = `${getUserId(browserName)}_subscription`;
+    const page = await setupTest(browser, userId);
+
+    // Gets all elements that match the selector
+    const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
+    const singleCard = packageCards[1];
+
+    await performPurchase(page, singleCard, userId);
+  });
+
+  test("Can purchase a consumable Product", async ({
+    browser,
+    browserName,
+  }) => {
+    const userId = `${getUserId(browserName)}_consumable`;
+    const page = await setupTest(browser, userId);
+
+    // Gets all elements that match the selector
+    const packageCards = await getAllElementsByLocator(
+      page,
+      CARD_SELECTOR,
+      "E2E Consumable",
+    );
+    expect(packageCards.length).toEqual(1);
+    const singleCard = packageCards[0];
+
+    await performPurchase(page, singleCard, userId);
+  });
+
+  test("Can purchase a non consumable Product", async ({
+    browser,
+    browserName,
+  }) => {
+    const userId = `${getUserId(browserName)}_non_consumable`;
+    const page = await setupTest(browser, userId);
+
+    // Gets all elements that match the selector
+    const packageCards = await getAllElementsByLocator(
+      page,
+      CARD_SELECTOR,
+      "E2E NonConsumable",
+    );
+    expect(packageCards.length).toEqual(1);
+    const singleCard = packageCards[0];
+
+    await performPurchase(page, singleCard, userId);
+  });
+
+  test("Displays error when unknown backend error", async ({
+    browser,
+    browserName,
+  }) => {
+    const userId = `${getUserId(browserName)}_already_purchased`;
     const page = await setupTest(browser, userId);
 
     // Gets all elements that match the selector
@@ -36,14 +98,38 @@ test.describe("Main", () => {
     const cardButton = singleCard.getByRole("button");
     await cardButton.click();
 
-    await enterEmailAndContinue(page, userId);
-    await enterCreditCardDetailsAndContinue(page);
+    await page.route("*/**/purchase", async (route) => {
+      await route.fulfill({
+        body: '{ "code": 7110, "message": "Test error message"}',
+        status: 400,
+      });
+    });
 
-    // Confirm success page has shown.
-    const successText = page.getByText("Purchase successful");
-    await expect(successText).toBeVisible();
+    await enterEmailAndContinue(page, userId);
+
+    // Confirm error page has shown.
+    const errorTitleText = page.getByText("Something went wrong");
+    await expect(errorTitleText).toBeVisible();
+
+    const errorMessageText = page.getByText(
+      "Purchase not started due to an error. Error code: 7110",
+    );
+    await expect(errorMessageText).toBeVisible();
   });
 });
+
+async function performPurchase(page: Page, card: Locator, userId: string) {
+  // Perform purchase
+  const cardButton = card.getByRole("button");
+  await cardButton.click();
+
+  await enterEmailAndContinue(page, userId);
+  await enterCreditCardDetailsAndContinue(page);
+
+  // Confirm success page has shown.
+  const successText = page.getByText("Purchase successful");
+  await expect(successText).toBeVisible({ timeout: 10000 });
+}
 
 const getUserId = (browserName: string) =>
   `rc_billing_demo_test_${Date.now()}_${browserName}`;
@@ -54,9 +140,16 @@ async function setupTest(browser: Browser, userId: string) {
   return page;
 }
 
-async function getAllElementsByLocator(page: Page, locator: string) {
+async function getAllElementsByLocator(
+  page: Page,
+  locator: string,
+  containsText?: string,
+) {
   await page.waitForSelector(locator);
-  const locatorResult = page.locator(locator);
+  let locatorResult = page.locator(locator);
+  if (containsText !== undefined) {
+    locatorResult = locatorResult.filter({ hasText: containsText });
+  }
   return await locatorResult.all();
 }
 

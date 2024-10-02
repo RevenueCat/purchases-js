@@ -19,13 +19,19 @@ export interface SubscriptionOptionResponse extends PurchaseOptionResponse {
   trial: PricingPhaseResponse | null;
 }
 
+export interface NonSubscriptionOptionResponse extends PurchaseOptionResponse {
+  base_price: PriceResponse;
+}
+
 export interface ProductResponse {
   identifier: string;
   product_type: string;
   title: string;
   description: string | null;
-  default_subscription_option_id: string | null;
-  subscription_options: Map<string, SubscriptionOptionResponse>;
+  default_purchase_option_id: string | null;
+  purchase_options: {
+    [key: string]: NonSubscriptionOptionResponse | SubscriptionOptionResponse;
+  };
 }
 
 export interface ProductsResponse {

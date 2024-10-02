@@ -1,6 +1,10 @@
-import { ErrorCode, PurchasesError } from "../entities/errors";
+import {
+  ErrorCode,
+  PurchasesError,
+  type PurchasesErrorExtra,
+} from "../entities/errors";
 import { type Backend } from "../networking/backend";
-import { type SubscribeResponse } from "../networking/responses/subscribe-response";
+import { type PurchaseResponse } from "../networking/responses/purchase-response";
 import {
   CheckoutSessionStatus,
   type CheckoutStatusError,
@@ -28,8 +32,47 @@ export class PurchaseFlowError extends Error {
     public readonly errorCode: PurchaseFlowErrorCode,
     message?: string,
     public readonly underlyingErrorMessage?: string | null,
+    public readonly purchasesErrorCode?: ErrorCode,
+    public readonly extra?: PurchasesErrorExtra,
   ) {
     super(message);
+  }
+
+  isRecoverable(): boolean {
+    switch (this.errorCode) {
+      case PurchaseFlowErrorCode.NetworkError:
+      case PurchaseFlowErrorCode.MissingEmailError:
+        return true;
+      case PurchaseFlowErrorCode.ErrorSettingUpPurchase:
+      case PurchaseFlowErrorCode.ErrorChargingPayment:
+      case PurchaseFlowErrorCode.AlreadySubscribedError:
+      case PurchaseFlowErrorCode.StripeError:
+      case PurchaseFlowErrorCode.UnknownError:
+        return false;
+    }
+  }
+
+  getPublicErrorMessage(): string {
+    const errorCode =
+      this.extra?.backendErrorCode ?? this.purchasesErrorCode ?? this.errorCode;
+    switch (this.errorCode) {
+      // TODO: Localize these messages
+      case PurchaseFlowErrorCode.UnknownError:
+        return `An unknown error occurred. Error code: ${errorCode}.`;
+      case PurchaseFlowErrorCode.ErrorSettingUpPurchase:
+        return `Purchase not started due to an error. Error code: ${errorCode}.`;
+      case PurchaseFlowErrorCode.ErrorChargingPayment:
+        return "Payment failed.";
+      case PurchaseFlowErrorCode.NetworkError:
+        return "Network error. Please check your internet connection.";
+      case PurchaseFlowErrorCode.StripeError:
+        // For stripe errors, we can display the stripe-provided error message.
+        return this.message;
+      case PurchaseFlowErrorCode.MissingEmailError:
+        return "Email is required to complete the purchase.";
+      case PurchaseFlowErrorCode.AlreadySubscribedError:
+        return "You are already subscribed to this product.";
+    }
   }
 
   static fromPurchasesError(
@@ -41,6 +84,8 @@ export class PurchaseFlowError extends Error {
       errorCode = PurchaseFlowErrorCode.AlreadySubscribedError;
     } else if (e.errorCode === ErrorCode.InvalidEmailError) {
       errorCode = PurchaseFlowErrorCode.MissingEmailError;
+    } else if (e.errorCode === ErrorCode.NetworkError) {
+      errorCode = PurchaseFlowErrorCode.NetworkError;
     } else {
       errorCode = defaultFlowErrorCode;
     }
@@ -49,6 +94,8 @@ export class PurchaseFlowError extends Error {
       errorCode,
       e.message,
       e.underlyingErrorMessage,
+      e.errorCode,
+      e.extra,
     );
   }
 }
@@ -70,9 +117,9 @@ export class PurchaseOperationHelper {
     purchaseOption: PurchaseOption,
     email: string,
     presentedOfferingContext: PresentedOfferingContext,
-  ): Promise<SubscribeResponse> {
+  ): Promise<PurchaseResponse> {
     try {
-      const subscribeResponse = await this.backend.postSubscribe(
+      const subscribeResponse = await this.backend.postPurchase(
         appUserId,
         productId,
         email,

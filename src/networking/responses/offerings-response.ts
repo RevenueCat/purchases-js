@@ -15,8 +15,14 @@ export interface TargetingResponse {
   readonly revision: number;
 }
 
+export interface PlacementsResponse {
+  readonly fallback_offering_id: string;
+  readonly offering_ids_by_placement?: { [key: string]: string | null };
+}
+
 export interface OfferingsResponse {
   current_offering_id: string | null;
   offerings: OfferingResponse[];
   targeting?: TargetingResponse;
+  placements?: PlacementsResponse;
 }

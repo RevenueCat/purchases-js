@@ -1,4 +1,4 @@
-export interface SubscribeResponse {
+export interface PurchaseResponse {
   operation_session_id: string;
   next_action: string;
   data: {

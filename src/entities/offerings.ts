@@ -4,6 +4,7 @@ import {
   type TargetingResponse,
 } from "../networking/responses/offerings-response";
 import type {
+  NonSubscriptionOptionResponse,
   PriceResponse,
   PricingPhaseResponse,
   ProductResponse,
@@ -55,6 +56,25 @@ export enum PackageType {
    * A package configured with the predefined weekly identifier.
    */
   Weekly = "$rc_weekly",
+}
+
+/**
+ * Possible product types
+ * @public
+ */
+export enum ProductType {
+  /**
+   * A product that is an auto-renewing subscription.
+   */
+  Subscription = "subscription",
+  /**
+   * A product that does not renew and can be consumed to be purchased again.
+   */
+  Consumable = "consumable",
+  /**
+   * A product that does not renew and can only be purchased once.
+   */
+  NonConsumable = "non_consumable",
 }
 
 /**
@@ -142,6 +162,17 @@ export interface SubscriptionOption extends PurchaseOption {
 }
 
 /**
+ * Represents a possible option to purchase a non-subscription product.
+ * @public
+ */
+export interface NonSubscriptionOption extends PurchaseOption {
+  /**
+   * The base price for the product.
+   */
+  readonly basePrice: Price;
+}
+
+/**
  * Contains information about the targeting context used to obtain an object.
  * @public
  */
@@ -169,6 +200,11 @@ export interface PresentedOfferingContext {
    * The targeting context used to obtain this object.
    */
   readonly targetingContext: TargetingContext | null;
+  /**
+   * If obtained this information from a placement,
+   * the identifier of the placement.
+   */
+  readonly placementIdentifier: string | null;
 }
 
 /**
@@ -194,13 +230,17 @@ export interface Product {
    */
   readonly description: string | null;
   /**
-   * Price of the product. In the case of subscriptions, this will match the
-   * default option's base phase price.
+   * Price of the product. This will match the default option's base phase price
+   * in subscriptions or the price in non-subscriptions.
    */
   readonly currentPrice: Price;
   /**
+   * The type of product.
+   */
+  readonly productType: ProductType;
+  /**
    * The period duration for a subscription product. This will match the default
-   * option's base phase period duration.
+   * option's base phase period duration. Null for non-subscriptions.
    */
   readonly normalPeriodDuration: string | null;
   /**
@@ -217,13 +257,14 @@ export interface Product {
    */
   readonly defaultPurchaseOption: PurchaseOption;
   /**
-   * The default subscription option for this product. Null if no subscription
-   * options are available like in the case of consumables and non-consumables.
+   * The default subscription option for this product.
+   * Null if no subscription options are available like in the case of consumables and non-consumables.
    */
   readonly defaultSubscriptionOption: SubscriptionOption | null;
   /**
    * A dictionary with all the possible subscription options available for this
    * product. Each key contains the key to be used when executing a purchase.
+   * Will be empty for non-subscriptions
    *
    * If retrieved through getOfferings the offers are only the ones the customer is
    * entitled to.
@@ -231,6 +272,11 @@ export interface Product {
   readonly subscriptionOptions: {
     [optionId: string]: SubscriptionOption;
   };
+  /**
+   * The default non-subscription option for this product.
+   * Null in the case of subscriptions.
+   */
+  readonly defaultNonSubscriptionOption: NonSubscriptionOption | null;
 }
 
 /**
@@ -359,32 +405,126 @@ const toSubscriptionOption = (
   } as SubscriptionOption;
 };
 
+const toNonSubscriptionOption = (
+  option: NonSubscriptionOptionResponse,
+): NonSubscriptionOption | null => {
+  if (option.base_price == null) {
+    Logger.debugLog(
+      "Missing base price for non-subscription option. Ignoring.",
+    );
+    return null;
+  }
+  return {
+    id: option.id,
+    priceId: option.price_id,
+    basePrice: toPrice(option.base_price),
+  } as NonSubscriptionOption;
+};
+
 const toProduct = (
   productDetailsData: ProductResponse,
   presentedOfferingContext: PresentedOfferingContext,
 ): Product | null => {
-  const options: { [optionId: string]: SubscriptionOption } = {};
+  const productType = productDetailsData.product_type as ProductType;
+  if (productType === ProductType.Subscription) {
+    return toSubscriptionProduct(
+      productDetailsData,
+      presentedOfferingContext,
+      productType,
+    );
+  } else {
+    return toNonSubscriptionProduct(
+      productDetailsData,
+      presentedOfferingContext,
+      productType,
+    );
+  }
+};
 
-  Object.entries(productDetailsData.subscription_options).forEach(
+const toNonSubscriptionProduct = (
+  productDetailsData: ProductResponse,
+  presentedOfferingContext: PresentedOfferingContext,
+  productType: ProductType,
+): Product | null => {
+  const nonSubscriptionOptions: {
+    [optionId: string]: NonSubscriptionOption;
+  } = {};
+
+  Object.entries(productDetailsData.purchase_options).forEach(
     ([key, value]) => {
-      const option = toSubscriptionOption(value);
+      const option = toNonSubscriptionOption(
+        value as NonSubscriptionOptionResponse,
+      );
       if (option != null) {
-        options[key] = option;
+        nonSubscriptionOptions[key] = option;
       }
     },
   );
 
-  if (Object.keys(options).length === 0) {
+  if (Object.keys(nonSubscriptionOptions).length === 0) {
+    Logger.debugLog(
+      `Product ${productDetailsData.identifier} has no purchase options. Ignoring.`,
+    );
+    return null;
+  }
+
+  const defaultOptionId = productDetailsData.default_purchase_option_id;
+  const defaultOption =
+    defaultOptionId && defaultOptionId in productDetailsData.purchase_options
+      ? nonSubscriptionOptions[defaultOptionId]
+      : null;
+
+  if (defaultOption == null) {
+    Logger.debugLog(
+      `Product ${productDetailsData.identifier} has no default purchase option. Ignoring.`,
+    );
+    return null;
+  }
+
+  return {
+    identifier: productDetailsData.identifier,
+    displayName: productDetailsData.title,
+    title: productDetailsData.title,
+    description: productDetailsData.description,
+    productType: productType,
+    currentPrice: defaultOption.basePrice,
+    normalPeriodDuration: null,
+    presentedOfferingIdentifier: presentedOfferingContext.offeringIdentifier,
+    presentedOfferingContext: presentedOfferingContext,
+    defaultPurchaseOption: defaultOption,
+    defaultSubscriptionOption: null,
+    subscriptionOptions: {},
+    defaultNonSubscriptionOption: defaultOption,
+  };
+};
+
+const toSubscriptionProduct = (
+  productDetailsData: ProductResponse,
+  presentedOfferingContext: PresentedOfferingContext,
+  productType: ProductType,
+): Product | null => {
+  const subscriptionOptions: { [optionId: string]: SubscriptionOption } = {};
+
+  Object.entries(productDetailsData.purchase_options).forEach(
+    ([key, value]) => {
+      const option = toSubscriptionOption(value as SubscriptionOptionResponse);
+      if (option != null) {
+        subscriptionOptions[key] = option;
+      }
+    },
+  );
+
+  if (Object.keys(subscriptionOptions).length === 0) {
     Logger.debugLog(
       `Product ${productDetailsData.identifier} has no subscription options. Ignoring.`,
     );
     return null;
   }
 
-  const defaultOptionId = productDetailsData.default_subscription_option_id;
+  const defaultOptionId = productDetailsData.default_purchase_option_id;
   const defaultOption =
-    defaultOptionId && defaultOptionId in options
-      ? options[defaultOptionId]
+    defaultOptionId && defaultOptionId in subscriptionOptions
+      ? subscriptionOptions[defaultOptionId]
       : null;
   if (defaultOption == null) {
     Logger.debugLog(
@@ -400,19 +540,20 @@ const toProduct = (
     );
     return null;
   }
-
   return {
     identifier: productDetailsData.identifier,
     displayName: productDetailsData.title,
     title: productDetailsData.title,
     description: productDetailsData.description,
+    productType: productType,
     currentPrice: currentPrice,
     normalPeriodDuration: defaultOption.base.periodDuration,
     presentedOfferingIdentifier: presentedOfferingContext.offeringIdentifier,
     presentedOfferingContext: presentedOfferingContext,
     defaultPurchaseOption: defaultOption,
     defaultSubscriptionOption: defaultOption,
-    subscriptionOptions: options,
+    subscriptionOptions: subscriptionOptions,
+    defaultNonSubscriptionOption: null,
   };
 };
 
@@ -449,6 +590,7 @@ export const toOffering = (
             revision: targetingResponse.revision,
           }
         : null,
+    placementIdentifier: null,
   };
   const packages = offeringsData.packages
     .map((p: PackageResponse) =>

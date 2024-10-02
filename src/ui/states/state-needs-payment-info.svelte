@@ -8,7 +8,7 @@
   import ModalFooter from "../modal-footer.svelte";
   import StateLoading from "./state-loading.svelte";
   import RowLayout from "../layout/row-layout.svelte";
-  import { type SubscribeResponse } from "../../networking/responses/subscribe-response";
+  import { type PurchaseResponse } from "../../networking/responses/purchase-response";
   import {
     PurchaseFlowError,
     PurchaseFlowErrorCode,
@@ -22,7 +22,7 @@
   export let onClose: any;
   export let onContinue: any;
   export let onError: any;
-  export let paymentInfoCollectionMetadata: SubscribeResponse;
+  export let paymentInfoCollectionMetadata: PurchaseResponse;
   export let processing = false;
   export let productDetails: Product;
   export let purchaseOptionToUse: PurchaseOption;

@@ -129,6 +129,11 @@ export enum LogLevel {
 }
 
 // @public
+export interface NonSubscriptionOption extends PurchaseOption {
+    readonly basePrice: Price;
+}
+
+// @public
 export interface Offering {
     readonly annual: Package | null;
     readonly availablePackages: Package[];
@@ -200,6 +205,7 @@ export enum PeriodUnit {
 // @public
 export interface PresentedOfferingContext {
     readonly offeringIdentifier: string;
+    readonly placementIdentifier: string | null;
     readonly targetingContext: TargetingContext | null;
 }
 
@@ -223,6 +229,7 @@ export interface PricingPhase {
 // @public
 export interface Product {
     readonly currentPrice: Price;
+    readonly defaultNonSubscriptionOption: NonSubscriptionOption | null;
     readonly defaultPurchaseOption: PurchaseOption;
     readonly defaultSubscriptionOption: SubscriptionOption | null;
     readonly description: string | null;
@@ -233,10 +240,18 @@ export interface Product {
     readonly presentedOfferingContext: PresentedOfferingContext;
     // @deprecated
     readonly presentedOfferingIdentifier: string;
+    readonly productType: ProductType;
     readonly subscriptionOptions: {
         [optionId: string]: SubscriptionOption;
     };
     readonly title: string;
+}
+
+// @public
+export enum ProductType {
+    Consumable = "consumable",
+    NonConsumable = "non_consumable",
+    Subscription = "subscription"
 }
 
 // @public
@@ -259,6 +274,7 @@ export class Purchases {
     close(): void;
     static configure(apiKey: string, appUserId: string, httpConfig?: HttpConfig): Purchases;
     getAppUserId(): string;
+    getCurrentOfferingForPlacement(placementIdentifier: string, params?: GetOfferingsParams): Promise<Offering | null>;
     getCustomerInfo(): Promise<CustomerInfo>;
     getOfferings(params?: GetOfferingsParams): Promise<Offerings>;
     static getSharedInstance(): Purchases;
@@ -282,11 +298,19 @@ export class PurchasesError extends Error {
     constructor(
     errorCode: ErrorCode,
     message?: string,
-    underlyingErrorMessage?: string | null | undefined);
+    underlyingErrorMessage?: string | null | undefined,
+    extra?: PurchasesErrorExtra | undefined);
     readonly errorCode: ErrorCode;
+    readonly extra?: PurchasesErrorExtra | undefined;
     // (undocumented)
     toString: () => string;
     readonly underlyingErrorMessage?: string | null | undefined;
+}
+
+// @public
+export interface PurchasesErrorExtra {
+    readonly backendErrorCode?: number;
+    readonly statusCode?: number;
 }
 
 // @public

@@ -1,8 +1,7 @@
 import {
-  type Offering,
   type Offerings,
+  type Offering,
   type Package,
-  toOffering,
 } from "./entities/offerings";
 import RCPurchasesUI from "./ui/rcb-ui.svelte";
 
@@ -17,10 +16,7 @@ import {
   type OfferingsResponse,
   type PackageResponse,
 } from "./networking/responses/offerings-response";
-import {
-  type ProductResponse,
-  type ProductsResponse,
-} from "./networking/responses/products-response";
+import { type ProductResponse } from "./networking/responses/products-response";
 import { RC_ENDPOINT } from "./helpers/constants";
 import { Backend } from "./networking/backend";
 import { isSandboxApiKey } from "./helpers/api-key-helper";
@@ -42,8 +38,14 @@ import { type GetOfferingsParams } from "./entities/get-offerings-params";
 import { validateCurrency } from "./helpers/validators";
 import { type BrandingInfoResponse } from "./networking/responses/branding-response";
 import { requiresLoadedResources } from "./helpers/decorators";
+import {
+  findOfferingByPlacementId,
+  toOfferings,
+} from "./helpers/offerings-parser";
 
+export { ProductType } from "./entities/offerings";
 export type {
+  NonSubscriptionOption,
   Offering,
   Offerings,
   Package,
@@ -68,6 +70,7 @@ export {
   PurchasesError,
   UninitializedPurchasesError,
 } from "./entities/errors";
+export type { PurchasesErrorExtra } from "./entities/errors";
 export type { Period, PeriodUnit } from "./helpers/duration-helper";
 export type { HttpConfig } from "./entities/http-config";
 export { LogLevel } from "./entities/log-level";
@@ -218,47 +221,6 @@ export class Purchases {
     this.purchaseOperationHelper = new PurchaseOperationHelper(this.backend);
   }
 
-  /** @internal */
-  private toOfferings = (
-    offeringsData: OfferingsResponse,
-    productsData: ProductsResponse,
-  ): Offerings => {
-    const productsMap: { [productId: string]: ProductResponse } = {};
-    productsData.product_details.forEach((p: ProductResponse) => {
-      productsMap[p.identifier] = p;
-    });
-
-    const allOfferings: { [offeringId: string]: Offering } = {};
-    offeringsData.offerings.forEach((o: OfferingResponse) => {
-      const isCurrent = o.identifier === offeringsData.current_offering_id;
-      const offering = toOffering(
-        isCurrent,
-        o,
-        productsMap,
-        offeringsData.targeting,
-      );
-      if (offering != null) {
-        allOfferings[o.identifier] = offering;
-      }
-    });
-
-    const currentOffering: Offering | null = offeringsData.current_offering_id
-      ? allOfferings[offeringsData.current_offering_id] ?? null
-      : null;
-
-    if (Object.keys(allOfferings).length == 0) {
-      Logger.debugLog(
-        "Empty offerings. Please make sure you've configured offerings correctly in the " +
-          "RevenueCat dashboard and that the products are properly configured.",
-      );
-    }
-
-    return {
-      all: allOfferings,
-      current: currentOffering,
-    };
-  };
-
   /**
    * Fetch the configured offerings for this user. You can configure these
    * in the RevenueCat dashboard.
@@ -267,6 +229,43 @@ export class Purchases {
     validateCurrency(params?.currency);
     const appUserId = this._appUserId;
     const offeringsResponse = await this.backend.getOfferings(appUserId);
+    return await this.getAllOfferings(offeringsResponse, appUserId, params);
+  }
+
+  /**
+   * Retrieves a specific offering by a placement identifier.
+   * For more info see https://www.revenuecat.com/docs/tools/targeting
+   * @param placementIdentifier - The placement identifier to retrieve the offering for.
+   * @param params - The parameters object to customise the offerings fetch. Check {@link GetOfferingsParams}
+   */
+  public async getCurrentOfferingForPlacement(
+    placementIdentifier: string,
+    params?: GetOfferingsParams,
+  ): Promise<Offering | null> {
+    const appUserId = this._appUserId;
+    const offeringsResponse = await this.backend.getOfferings(appUserId);
+
+    const offerings = await this.getAllOfferings(
+      offeringsResponse,
+      appUserId,
+      params,
+    );
+    const placementData = offeringsResponse.placements ?? null;
+    if (placementData == null) {
+      return null;
+    }
+    return findOfferingByPlacementId(
+      placementData,
+      offerings.all,
+      placementIdentifier,
+    );
+  }
+
+  private async getAllOfferings(
+    offeringsResponse: OfferingsResponse,
+    appUserId: string,
+    params?: GetOfferingsParams,
+  ): Promise<Offerings> {
     const productIds = offeringsResponse.offerings
       .flatMap((o: OfferingResponse) => o.packages)
       .map((p: PackageResponse) => p.platform_product_identifier);
@@ -278,7 +277,7 @@ export class Purchases {
     );
 
     this.logMissingProductIds(productIds, productsResponse.product_details);
-    return this.toOfferings(offeringsResponse, productsResponse);
+    return toOfferings(offeringsResponse, productsResponse);
   }
 
   /**

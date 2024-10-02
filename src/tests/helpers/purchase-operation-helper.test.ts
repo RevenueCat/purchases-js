@@ -9,7 +9,7 @@ import { setupServer, type SetupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
 import { StatusCodes } from "http-status-codes";
 import { failTest } from "../test-helpers";
-import { type SubscribeResponse } from "../../networking/responses/subscribe-response";
+import { type PurchaseResponse } from "../../networking/responses/purchase-response";
 import {
   CheckoutSessionStatus,
   CheckoutStatusErrorCodes,
@@ -22,7 +22,7 @@ describe("PurchaseOperationHelper", () => {
   let purchaseOperationHelper: PurchaseOperationHelper;
 
   const operationSessionId = "test-operation-session-id";
-  const successSubscribeBody: SubscribeResponse = {
+  const successPurchaseBody: PurchaseResponse = {
     operation_session_id: operationSessionId,
     next_action: "collect_payment_info",
     data: {
@@ -41,9 +41,9 @@ describe("PurchaseOperationHelper", () => {
     server.close();
   });
 
-  function setSubscribeResponse(httpResponse: HttpResponse) {
+  function setPurchaseResponse(httpResponse: HttpResponse) {
     server.use(
-      http.post("http://localhost:8000/rcbilling/v1/subscribe", () => {
+      http.post("http://localhost:8000/rcbilling/v1/purchase", () => {
         return httpResponse;
       }),
     );
@@ -60,8 +60,8 @@ describe("PurchaseOperationHelper", () => {
     );
   }
 
-  test("startPurchase fails if /subscribe fails", async () => {
-    setSubscribeResponse(
+  test("startPurchase fails if /purchase fails", async () => {
+    setPurchaseResponse(
       HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
     );
     await expectPromiseToPurchaseFlowError(
@@ -70,17 +70,22 @@ describe("PurchaseOperationHelper", () => {
         "test-product-id",
         { id: "test-option-id", priceId: "test-price-id" },
         "test-email",
-        { offeringIdentifier: "test-offering-id", targetingContext: null },
+        {
+          offeringIdentifier: "test-offering-id",
+          targetingContext: null,
+          placementIdentifier: null,
+        },
       ),
       new PurchaseFlowError(
         PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-        "Unknown backend error. Request: subscribe. Status code: 500. Body: null.",
+        "Unknown backend error.",
+        "Request: purchase. Status code: 500. Body: null.",
       ),
     );
   });
 
   test("startPurchase fails if user already subscribed to product", async () => {
-    setSubscribeResponse(
+    setPurchaseResponse(
       HttpResponse.json(
         {
           code: 7772,
@@ -96,7 +101,11 @@ describe("PurchaseOperationHelper", () => {
         "test-product-id",
         { id: "test-option-id", priceId: "test-price-id" },
         "test-email",
-        { offeringIdentifier: "test-offering-id", targetingContext: null },
+        {
+          offeringIdentifier: "test-offering-id",
+          targetingContext: null,
+          placementIdentifier: null,
+        },
       ),
       new PurchaseFlowError(
         PurchaseFlowErrorCode.AlreadySubscribedError,
@@ -117,8 +126,8 @@ describe("PurchaseOperationHelper", () => {
   });
 
   test("pollCurrentPurchaseForCompletion fails if poll request fails", async () => {
-    setSubscribeResponse(
-      HttpResponse.json(successSubscribeBody, {
+    setPurchaseResponse(
+      HttpResponse.json(successPurchaseBody, {
         status: StatusCodes.OK,
       }),
     );
@@ -131,20 +140,25 @@ describe("PurchaseOperationHelper", () => {
       "test-product-id",
       { id: "test-option-id", priceId: "test-price-id" },
       "test-email",
-      { offeringIdentifier: "test-offering-id", targetingContext: null },
+      {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
     );
     await expectPromiseToPurchaseFlowError(
       purchaseOperationHelper.pollCurrentPurchaseForCompletion(),
       new PurchaseFlowError(
         PurchaseFlowErrorCode.NetworkError,
-        "Unknown backend error. Request: getCheckoutStatus. Status code: 500. Body: null.",
+        "Unknown backend error.",
+        "Request: getCheckoutStatus. Status code: 500. Body: null.",
       ),
     );
   });
 
   test("pollCurrentPurchaseForCompletion success if poll returns success", async () => {
-    setSubscribeResponse(
-      HttpResponse.json(successSubscribeBody, {
+    setPurchaseResponse(
+      HttpResponse.json(successPurchaseBody, {
         status: StatusCodes.OK,
       }),
     );
@@ -164,7 +178,11 @@ describe("PurchaseOperationHelper", () => {
       "test-product-id",
       { id: "test-option-id", priceId: "test-price-id" },
       "test-email",
-      { offeringIdentifier: "test-offering-id", targetingContext: null },
+      {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
     );
     await purchaseOperationHelper.pollCurrentPurchaseForCompletion();
   });
@@ -202,8 +220,8 @@ describe("PurchaseOperationHelper", () => {
   // });
 
   test("pollCurrentPurchaseForCompletion error if poll returns error", async () => {
-    setSubscribeResponse(
-      HttpResponse.json(successSubscribeBody, {
+    setPurchaseResponse(
+      HttpResponse.json(successPurchaseBody, {
         status: StatusCodes.OK,
       }),
     );
@@ -226,7 +244,11 @@ describe("PurchaseOperationHelper", () => {
       "test-product-id",
       { id: "test-option-id", priceId: "test-price-id" },
       "test-email",
-      { offeringIdentifier: "test-offering-id", targetingContext: null },
+      {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
     );
     await expectPromiseToPurchaseFlowError(
       purchaseOperationHelper.pollCurrentPurchaseForCompletion(),
