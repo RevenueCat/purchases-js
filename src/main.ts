@@ -444,7 +444,7 @@ export class Purchases {
 
   /** @internal */
   private clearAppearanceStore() {
-    appearanceConfigStore.set(undefined);
+    appearanceConfigStore.set({});
   }
 
   /**

@@ -10,7 +10,7 @@ export type BrandingAppearance =
       shapes: "default" | "rectangle" | "rounded" | "pill";
       show_product_description: boolean;
     }
-  | undefined;
+  | Record<string, unknown>;
 
 export type BrandingInfoResponse = {
   app_icon: string | null;
