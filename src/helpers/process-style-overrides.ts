@@ -1,5 +1,6 @@
 import { appearanceConfigStore } from "../store/store";
 import { Colors } from "../assets/colors";
+import type { BrandingAppearance } from "src/networking/responses/branding-response";
 
 /**
  * Get the CSS variable string for a given property
@@ -23,7 +24,7 @@ const variableNameMap: Record<string, string> = {
 };
 
 export const mapStyleOverridesToStyleVariables = (
-  appearance?: Record<string, string | boolean>,
+  appearance?: BrandingAppearance,
 ) => {
   // Return default colors if there's no appearance configuration object
   // or if the current host is coming from a WPL
@@ -37,9 +38,9 @@ export const mapStyleOverridesToStyleVariables = (
   // Map global variables to css variables from default color object
   const mappedVariablesDict = Object.entries(variableNameMap).reduce(
     (defaultColorDict, [appearanceColorDictKey, defaultColorDictKey]) => {
-      if (appearance[appearanceColorDictKey]) {
+      if (appearance[appearanceColorDictKey as keyof BrandingAppearance]) {
         defaultColorDict[defaultColorDictKey] = appearance[
-          appearanceColorDictKey
+          appearanceColorDictKey as keyof BrandingAppearance
         ] as string;
       }
       return defaultColorDict;
