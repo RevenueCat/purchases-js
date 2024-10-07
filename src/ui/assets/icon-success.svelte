@@ -6,7 +6,7 @@
   } from "../../helpers/process-style-overrides";
   import { appearanceConfigStore } from "../../store/store";
 
-  const accentColor = $appearanceConfigStore["color_accent"];
+  const accentColor = $appearanceConfigStore.color_accent;
   const svgUrl = getReplacedFillSvgAsImgUrl(accentColor, Icon);
 </script>
 

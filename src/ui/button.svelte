@@ -7,9 +7,7 @@
   export let testId: string | undefined = undefined;
   const btnColor = getStyleVariable({
     property:
-      intent === "primary"
-        ? ($appearanceConfigStore["color_buttons_primary"] as string)
-        : "",
+      intent === "primary" ? $appearanceConfigStore.color_buttons_primary : "",
     variableName: "btn-color",
     fallbackVariableName: "--rc-color-grey-text-dark",
   });

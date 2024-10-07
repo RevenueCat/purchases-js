@@ -42,7 +42,7 @@ import {
   findOfferingByPlacementId,
   toOfferings,
 } from "./helpers/offerings-parser";
-import { appearanceConfigStore } from "./store/store";
+import { appearanceConfigStore, DEFAULT_STORE_VALUES } from "./store/store";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -444,7 +444,7 @@ export class Purchases {
 
   /** @internal */
   private clearAppearanceStore() {
-    appearanceConfigStore.set({});
+    appearanceConfigStore.set(DEFAULT_STORE_VALUES);
   }
 
   /**
