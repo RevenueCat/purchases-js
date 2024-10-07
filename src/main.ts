@@ -42,6 +42,7 @@ import {
   findOfferingByPlacementId,
   toOfferings,
 } from "./helpers/offerings-parser";
+import { appearanceConfigStore, DEFAULT_STORE_VALUES } from "./store/store";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -441,6 +442,11 @@ export class Purchases {
     }
   }
 
+  /** @internal */
+  private clearAppearanceStore() {
+    appearanceConfigStore.set(DEFAULT_STORE_VALUES);
+  }
+
   /**
    * @returns Whether the SDK is using a sandbox API Key.
    */
@@ -454,6 +460,7 @@ export class Purchases {
   public close() {
     if (Purchases.instance === this) {
       Purchases.instance = undefined;
+      this.clearAppearanceStore();
     } else {
       Logger.warnLog(
         "Trying to close a Purchases instance that is not the current instance. Ignoring.",

@@ -1,11 +1,24 @@
 <script lang="ts">
+  import { getStyleVariable } from "../helpers/process-style-overrides";
+  import { appearanceConfigStore } from "../store/store";
+
   export let intent: "primary" | "secondary" = "primary";
   export let disabled = false;
   export let testId: string | undefined = undefined;
+  const btnColor = getStyleVariable({
+    property:
+      intent === "primary" ? $appearanceConfigStore.color_buttons_primary : "",
+    variableName: "btn-color",
+    fallbackVariableName: "--rc-color-grey-text-dark",
+  });
 </script>
 
-<button on:click class={`intent-${intent}`} {disabled} data-testid={testId}
-  ><slot /></button
+<button
+  on:click
+  class={`intent-${intent}`}
+  {disabled}
+  data-testid={testId}
+  style={btnColor}><slot /></button
 >
 
 <style>
@@ -23,7 +36,7 @@
   }
 
   button.intent-primary {
-    background-color: var(--rc-color-grey-text-dark);
+    background-color: var(--btn-color);
     color: var(--rc-color-white);
     font-size: 16px;
   }

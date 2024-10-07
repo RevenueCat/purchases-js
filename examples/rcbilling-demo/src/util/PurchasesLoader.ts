@@ -33,12 +33,10 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
       await Purchases.getSharedInstance().changeUser(appUserId);
     }
     const purchases = Purchases.getSharedInstance();
-
     const [customerInfo, offerings] = await Promise.all([
       purchases.getCustomerInfo(),
       purchases.getOfferings({ currency: currency || undefined }),
     ]);
-
     return {
       purchases,
       customerInfo,
