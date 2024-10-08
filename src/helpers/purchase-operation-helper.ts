@@ -11,9 +11,11 @@ import {
   CheckoutStatusErrorCodes,
   type CheckoutStatusResponse,
 } from "../networking/responses/checkout-status-response";
-import type {
-  PresentedOfferingContext,
-  PurchaseOption,
+import {
+  type PresentedOfferingContext,
+  type Product,
+  ProductType,
+  type PurchaseOption,
 } from "../entities/offerings";
 import { Logger } from "./logger";
 
@@ -24,7 +26,7 @@ export enum PurchaseFlowErrorCode {
   NetworkError = 3,
   StripeError = 4,
   MissingEmailError = 5,
-  AlreadySubscribedError = 6,
+  AlreadyPurchasedError = 6,
 }
 
 export class PurchaseFlowError extends Error {
@@ -45,14 +47,14 @@ export class PurchaseFlowError extends Error {
         return true;
       case PurchaseFlowErrorCode.ErrorSettingUpPurchase:
       case PurchaseFlowErrorCode.ErrorChargingPayment:
-      case PurchaseFlowErrorCode.AlreadySubscribedError:
+      case PurchaseFlowErrorCode.AlreadyPurchasedError:
       case PurchaseFlowErrorCode.StripeError:
       case PurchaseFlowErrorCode.UnknownError:
         return false;
     }
   }
 
-  getPublicErrorMessage(): string {
+  getPublicErrorMessage(productDetails: Product | null): string {
     const errorCode =
       this.extra?.backendErrorCode ?? this.purchasesErrorCode ?? this.errorCode;
     switch (this.errorCode) {
@@ -70,8 +72,12 @@ export class PurchaseFlowError extends Error {
         return this.message;
       case PurchaseFlowErrorCode.MissingEmailError:
         return "Email is required to complete the purchase.";
-      case PurchaseFlowErrorCode.AlreadySubscribedError:
-        return "You are already subscribed to this product.";
+      case PurchaseFlowErrorCode.AlreadyPurchasedError:
+        if (productDetails?.productType === ProductType.Subscription) {
+          return "You are already subscribed to this product.";
+        } else {
+          return "You have already purchased this product.";
+        }
     }
   }
 
@@ -81,7 +87,7 @@ export class PurchaseFlowError extends Error {
   ): PurchaseFlowError {
     let errorCode: PurchaseFlowErrorCode;
     if (e.errorCode === ErrorCode.ProductAlreadyPurchasedError) {
-      errorCode = PurchaseFlowErrorCode.AlreadySubscribedError;
+      errorCode = PurchaseFlowErrorCode.AlreadyPurchasedError;
     } else if (e.errorCode === ErrorCode.InvalidEmailError) {
       errorCode = PurchaseFlowErrorCode.MissingEmailError;
     } else if (e.errorCode === ErrorCode.NetworkError) {
