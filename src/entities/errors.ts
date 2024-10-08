@@ -179,7 +179,7 @@ export class ErrorCodeUtils {
         return ErrorCode.StoreProblemError;
       case PurchaseFlowErrorCode.UnknownError:
         return ErrorCode.UnknownError;
-      case PurchaseFlowErrorCode.AlreadySubscribedError:
+      case PurchaseFlowErrorCode.AlreadyPurchasedError:
         return ErrorCode.ProductAlreadyPurchasedError;
     }
   }

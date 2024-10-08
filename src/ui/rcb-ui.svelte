@@ -21,6 +21,7 @@
   import BrandingInfoUI from "./branding-info-ui.svelte";
   import SandboxBanner from "./sandbox-banner.svelte";
   import { mapStyleOverridesToStyleVariables } from "../helpers/process-style-overrides";
+
   export let asModal = true;
   export let customerEmail: string | undefined;
   export let appUserId: string;
@@ -249,6 +250,7 @@
                   "Unknown error without state set.",
                 )}
               supportEmail={brandingInfo?.seller_company_support_email}
+              productDetails={productDetails}
               onContinue={closeWithError}
             />
           {/if}

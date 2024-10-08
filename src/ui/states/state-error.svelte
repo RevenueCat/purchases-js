@@ -1,17 +1,16 @@
 <script lang="ts">
-  import {
-    PurchaseFlowError,
-    PurchaseFlowErrorCode,
-  } from "../../helpers/purchase-operation-helper";
+  import { PurchaseFlowError, PurchaseFlowErrorCode } from "../../helpers/purchase-operation-helper";
   import IconError from "../assets/icon-error.svelte";
   import { onMount } from "svelte";
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
   import { Logger } from "../../helpers/logger.js";
   import MessageLayout from "../layout/message-layout.svelte";
+  import { type Product, ProductType } from "../../entities/offerings";
 
   export let brandingInfo: BrandingInfoResponse | null = null;
   export let lastError: PurchaseFlowError;
   export let supportEmail: string | null = null;
+  export let productDetails: Product | null = null;
   export let onContinue: () => void;
 
   onMount(() => {
@@ -22,8 +21,12 @@
 
   function getErrorTitle(): string {
     switch (lastError.errorCode) {
-      case PurchaseFlowErrorCode.AlreadySubscribedError:
-        return "Already subscribed";
+      case PurchaseFlowErrorCode.AlreadyPurchasedError:
+        if (productDetails?.productType === ProductType.Subscription) {
+          return "Already subscribed";
+        } else {
+          return "Already purchased";
+        }
       default:
         return "Something went wrong";
     }
@@ -37,7 +40,7 @@
   type="error"
 >
   <IconError slot="icon" />
-  {lastError.getPublicErrorMessage()}
+  {lastError.getPublicErrorMessage(productDetails)}
   {#if supportEmail}
     <br>If this error persists, please contact <a href="mailto:{supportEmail}"
       >{supportEmail}</a

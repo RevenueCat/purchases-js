@@ -108,7 +108,7 @@ describe("PurchaseOperationHelper", () => {
         },
       ),
       new PurchaseFlowError(
-        PurchaseFlowErrorCode.AlreadySubscribedError,
+        PurchaseFlowErrorCode.AlreadyPurchasedError,
         "This product is already active for the user.",
         "This subscriber is already subscribed to the requested product.",
       ),
