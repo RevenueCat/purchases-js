@@ -14,6 +14,7 @@ import {
 import { PeriodUnit } from "../helpers/duration-helper";
 import { failTest } from "./test-helpers";
 import { ErrorCode, PurchasesError } from "../entities/errors";
+import { OfferingKeyword } from "../entities/get-offerings-params";
 
 describe("getOfferings", () => {
   const expectedMonthlyPackage = createMonthlyPackageMock();
@@ -279,6 +280,110 @@ describe("getOfferings", () => {
       },
     );
   });
+
+  test("can get offerings with a specific offering identifier", async () => {
+    const purchases = configurePurchases();
+    const offerings = await purchases.getOfferings({
+      offeringIdentifier: "offering_2",
+    });
+
+    const package2: Package = {
+      identifier: "package_2",
+      packageType: PackageType.Custom,
+      rcBillingProduct: {
+        currentPrice: {
+          currency: "USD",
+          amount: 500,
+          amountMicros: 5000000,
+          formattedPrice: "$5.00",
+        },
+        displayName: "Monthly test 2",
+        title: "Monthly test 2",
+        description: "monthly description",
+        identifier: "monthly_2",
+        productType: ProductType.Subscription,
+        normalPeriodDuration: "P1M",
+        presentedOfferingIdentifier: "offering_2",
+        presentedOfferingContext: {
+          offeringIdentifier: "offering_2",
+          targetingContext: null,
+          placementIdentifier: null,
+        },
+        defaultPurchaseOption: subscriptionOption,
+        defaultSubscriptionOption: subscriptionOption,
+        defaultNonSubscriptionOption: null,
+        subscriptionOptions: {
+          offer_12345: subscriptionOption,
+        },
+      },
+    };
+
+    const expectedOfferings: Offerings = {
+      all: {
+        offering_2: {
+          serverDescription: "Offering 2",
+          identifier: "offering_2",
+          metadata: null,
+          packagesById: {
+            package_2: package2,
+          },
+          availablePackages: [package2],
+          lifetime: null,
+          annual: null,
+          sixMonth: null,
+          threeMonth: null,
+          twoMonth: null,
+          monthly: null,
+          weekly: null,
+        },
+      },
+      current: null,
+    };
+
+    expect(offerings).toEqual(expectedOfferings);
+  });
+  test("can get just current offering", async () => {
+    const purchases = configurePurchases();
+    const offerings = await purchases.getOfferings({
+      offeringIdentifier: OfferingKeyword.Current,
+    });
+
+    const currentOffering: Offering = {
+      serverDescription: "Offering 1",
+      identifier: "offering_1",
+      metadata: null,
+      packagesById: {
+        $rc_monthly: expectedMonthlyPackage,
+      },
+      availablePackages: [expectedMonthlyPackage],
+      lifetime: null,
+      annual: null,
+      sixMonth: null,
+      threeMonth: null,
+      twoMonth: null,
+      monthly: expectedMonthlyPackage,
+      weekly: null,
+    };
+
+    const expectedOfferings: Offerings = {
+      all: {
+        offering_1: currentOffering,
+      },
+      current: currentOffering,
+    };
+
+    expect(offerings).toEqual(expectedOfferings);
+  });
+
+  test("returns no offerings when offering identifier is invalid", async () => {
+    const purchases = configurePurchases();
+    const offerings = await purchases.getOfferings({
+      offeringIdentifier: "invalid_offering",
+    });
+
+    expect(Object.keys(offerings.all).length).toBe(0);
+    expect(offerings.current).toBeNull();
+  });
 });
 
 describe("getOfferings placements", () => {
@@ -311,20 +416,5 @@ describe("getOfferings placements", () => {
       offeringWithPlacement!.availablePackages[0].rcBillingProduct
         .presentedOfferingContext.placementIdentifier,
     ).toEqual("test_placement_id");
-  });
-});
-
-describe("getOffering", () => {
-  test("gets null offering if offering id is missing", async () => {
-    const purchases = configurePurchases();
-    const offering = await purchases.getOffering("missing_offering_id");
-    expect(offering).toBeNull();
-  });
-
-  test("gets correct offering if identifier id is valid", async () => {
-    const purchases = configurePurchases();
-    const offering = await purchases.getOffering("offering_2");
-    expect(offering).not.toBeNull();
-    expect(offering?.identifier).toEqual("offering_2");
   });
 });

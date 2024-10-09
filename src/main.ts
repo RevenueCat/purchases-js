@@ -2,7 +2,6 @@ import {
   type Offerings,
   type Offering,
   type Package,
-  toOffering,
 } from "./entities/offerings";
 import RCPurchasesUI from "./ui/rcb-ui.svelte";
 
@@ -35,7 +34,10 @@ import {
 } from "./helpers/configuration-validators";
 import { type PurchaseParams } from "./entities/purchase-params";
 import { defaultHttpConfig, type HttpConfig } from "./entities/http-config";
-import { type GetOfferingsParams } from "./entities/get-offerings-params";
+import {
+  OfferingKeyword,
+  type GetOfferingsParams,
+} from "./entities/get-offerings-params";
 import { validateCurrency } from "./helpers/validators";
 import { type BrandingInfoResponse } from "./networking/responses/branding-response";
 import { requiresLoadedResources } from "./helpers/decorators";
@@ -231,6 +233,21 @@ export class Purchases {
     validateCurrency(params?.currency);
     const appUserId = this._appUserId;
     const offeringsResponse = await this.backend.getOfferings(appUserId);
+
+    if (params?.offeringIdentifier) {
+      const offeringIdToFilter =
+        params.offeringIdentifier === OfferingKeyword.Current
+          ? offeringsResponse.current_offering_id
+          : params.offeringIdentifier;
+
+      if (offeringIdToFilter) {
+        offeringsResponse.offerings = offeringsResponse.offerings.filter(
+          (offering: OfferingResponse) =>
+            offering.identifier === offeringIdToFilter,
+        );
+      }
+    }
+
     return await this.getAllOfferings(offeringsResponse, appUserId, params);
   }
 
@@ -263,26 +280,6 @@ export class Purchases {
     );
   }
 
-  /**
-   * Retrieves a specific offering by its identifier.
-   * @param offeringIdentifier - The identifier of the offering to retrieve.
-   * @param params - The parameters object to customise the offerings fetch. Check {@link GetOfferingsParams}
-   */
-  public async getOffering(
-    offeringIdentifier: string,
-    params?: GetOfferingsParams,
-  ): Promise<Offering | null> {
-    const appUserId = this._appUserId;
-    const offeringsResponse = await this.backend.getOfferings(appUserId);
-
-    return await this.getSingleOffering(
-      offeringsResponse,
-      appUserId,
-      offeringIdentifier,
-      params,
-    );
-  }
-
   private async getAllOfferings(
     offeringsResponse: OfferingsResponse,
     appUserId: string,
@@ -300,42 +297,6 @@ export class Purchases {
 
     this.logMissingProductIds(productIds, productsResponse.product_details);
     return toOfferings(offeringsResponse, productsResponse);
-  }
-
-  private async getSingleOffering(
-    offeringsResponse: OfferingsResponse,
-    appUserId: string,
-    offeringIdentifier: string,
-    params?: GetOfferingsParams,
-  ): Promise<Offering | null> {
-    const isCurrentOffering =
-      offeringsResponse.current_offering_id === offeringIdentifier;
-    const offeringResponse = offeringsResponse.offerings.find(
-      (o: OfferingResponse) => o.identifier === offeringIdentifier,
-    );
-
-    if (offeringResponse === undefined || offeringResponse === null) {
-      return null;
-    }
-
-    const productIds = offeringResponse.packages.map(
-      (p: PackageResponse) => p.platform_product_identifier,
-    );
-
-    const productsResponse = await this.backend.getProducts(
-      appUserId,
-      productIds,
-      params?.currency,
-    );
-
-    this.logMissingProductIds(productIds, productsResponse.product_details);
-
-    const productsMap: { [productId: string]: ProductResponse } = {};
-    productsResponse.product_details.forEach((p: ProductResponse) => {
-      productsMap[p.identifier] = p;
-    });
-
-    return toOffering(isCurrentOffering, offeringResponse, productsMap);
   }
 
   /**
