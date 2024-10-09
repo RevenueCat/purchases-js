@@ -1524,7 +1524,7 @@
         {
           "kind": "Interface",
           "canonicalReference": "@revenuecat/purchases-js!GetOfferingsParams:interface",
-          "docComment": "",
+          "docComment": "/**\n * Parameters for the {@link Purchases.getOfferings} method.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -2272,7 +2272,7 @@
         {
           "kind": "Enum",
           "canonicalReference": "@revenuecat/purchases-js!OfferingKeyword:enum",
-          "docComment": "/**\n * Parameters for the {@link Purchases.getOfferings} method.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Keywords for identifying specific offerings in the {@link Purchases.getOfferings} method.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",

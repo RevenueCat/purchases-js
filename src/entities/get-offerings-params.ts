@@ -1,6 +1,5 @@
 /**
- * Parameters for the {@link Purchases.getOfferings} method.
- * @public
+ * Keywords for identifying specific offerings in the {@link Purchases.getOfferings} method.
  */
 export enum OfferingKeyword {
   /**
@@ -9,6 +8,10 @@ export enum OfferingKeyword {
   Current = "current",
 }
 
+/**
+ * Parameters for the {@link Purchases.getOfferings} method.
+ * @public
+ */
 export interface GetOfferingsParams {
   /**
    * The currency code in ISO 4217 to fetch the offerings for.

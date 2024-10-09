@@ -107,7 +107,7 @@ export enum ErrorCode {
     UserCancelledError = 1
 }
 
-// @public (undocumented)
+// @public
 export interface GetOfferingsParams {
     readonly currency?: string;
     readonly offeringIdentifier?: string | OfferingKeyword;
