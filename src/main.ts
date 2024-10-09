@@ -262,6 +262,26 @@ export class Purchases {
     );
   }
 
+  /**
+   * Retrieves a specific offering by its identifier.
+   * @param offeringIdentifier - The identifier of the offering to retrieve.
+   * @param params - The parameters object to customise the offerings fetch. Check {@link GetOfferingsParams}
+   */
+  public async getOffering(
+    offeringIdentifier: string,
+    params?: GetOfferingsParams,
+  ): Promise<Offering | null> {
+    const appUserId = this._appUserId;
+    const offeringsResponse = await this.backend.getOfferings(appUserId);
+
+    const offerings = await this.getAllOfferings(
+      offeringsResponse,
+      appUserId,
+      params,
+    );
+    return offerings.all[offeringIdentifier] ?? null;
+  }
+
   private async getAllOfferings(
     offeringsResponse: OfferingsResponse,
     appUserId: string,
@@ -435,8 +455,8 @@ export class Purchases {
     });
     if (missingProductIds.length > 0) {
       Logger.debugLog(
-        `Could not find product data for product ids: 
-        ${missingProductIds.join()}. 
+        `Could not find product data for product ids:
+        ${missingProductIds.join()}.
         Please check that your product configuration is correct.`,
       );
     }
