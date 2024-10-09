@@ -93,7 +93,7 @@ const PaywallPage: React.FC = () => {
   const { purchases, offering } = usePurchasesLoaderData();
 
   if (!offering) {
-    console.error("No current offering found");
+    console.error("No offering found");
     return <>No offering found!</>;
   }
   const packages: Package[] = offering?.availablePackages || [];
