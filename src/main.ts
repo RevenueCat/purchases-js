@@ -2,6 +2,7 @@ import {
   type Offerings,
   type Offering,
   type Package,
+  toOffering,
 } from "./entities/offerings";
 import RCPurchasesUI from "./ui/rcb-ui.svelte";
 
@@ -274,12 +275,12 @@ export class Purchases {
     const appUserId = this._appUserId;
     const offeringsResponse = await this.backend.getOfferings(appUserId);
 
-    const offerings = await this.getAllOfferings(
+    return await this.getSingleOffering(
       offeringsResponse,
       appUserId,
+      offeringIdentifier,
       params,
     );
-    return offerings.all[offeringIdentifier] ?? null;
   }
 
   private async getAllOfferings(
@@ -299,6 +300,42 @@ export class Purchases {
 
     this.logMissingProductIds(productIds, productsResponse.product_details);
     return toOfferings(offeringsResponse, productsResponse);
+  }
+
+  private async getSingleOffering(
+    offeringsResponse: OfferingsResponse,
+    appUserId: string,
+    offeringIdentifier: string,
+    params?: GetOfferingsParams,
+  ): Promise<Offering | null> {
+    const isCurrentOffering =
+      offeringsResponse.current_offering_id === offeringIdentifier;
+    const offeringResponse = offeringsResponse.offerings.find(
+      (o: OfferingResponse) => o.identifier === offeringIdentifier,
+    );
+
+    if (offeringResponse === undefined || offeringResponse === null) {
+      return null;
+    }
+
+    const productIds = offeringResponse.packages.map(
+      (p: PackageResponse) => p.platform_product_identifier,
+    );
+
+    const productsResponse = await this.backend.getProducts(
+      appUserId,
+      productIds,
+      params?.currency,
+    );
+
+    this.logMissingProductIds(productIds, productsResponse.product_details);
+
+    const productsMap: { [productId: string]: ProductResponse } = {};
+    productsResponse.product_details.forEach((p: ProductResponse) => {
+      productsMap[p.identifier] = p;
+    });
+
+    return toOffering(isCurrentOffering, offeringResponse, productsMap);
   }
 
   /**
