@@ -237,18 +237,16 @@ export class Purchases {
     const appUserId = this._appUserId;
     const offeringsResponse = await this.backend.getOfferings(appUserId);
 
-    if (params?.offeringIdentifier) {
-      const offeringIdToFilter =
-        params.offeringIdentifier === OfferingKeyword.Current
-          ? offeringsResponse.current_offering_id
-          : params.offeringIdentifier;
+    const offeringIdFilter =
+      params?.offeringIdentifier === OfferingKeyword.Current
+        ? offeringsResponse.current_offering_id
+        : params?.offeringIdentifier;
 
-      if (offeringIdToFilter) {
-        offeringsResponse.offerings = offeringsResponse.offerings.filter(
-          (offering: OfferingResponse) =>
-            offering.identifier === offeringIdToFilter,
-        );
-      }
+    if (offeringIdFilter) {
+      offeringsResponse.offerings = offeringsResponse.offerings.filter(
+        (offering: OfferingResponse) =>
+          offering.identifier === offeringIdFilter,
+      );
     }
 
     return await this.getAllOfferings(offeringsResponse, appUserId, params);
