@@ -31,6 +31,27 @@ test.describe("Main", () => {
     );
   });
 
+  test("Displays specific offering when offering_id is provided", async ({
+    browser,
+    browserName,
+  }) => {
+    const userId = `${getUserId(browserName)}_specific_offering`;
+    const offeringId = "e2e_test_specific_offering";
+
+    const page = await setupTest(browser, userId, offeringId);
+
+    const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
+
+    const EXPECTED_VALUES = [/9[,.]99/];
+
+    await Promise.all(
+      packageCards.map(
+        async (card, index) =>
+          await expect(card).toHaveText(EXPECTED_VALUES[index]),
+      ),
+    );
+  });
+
   test("Can purchase a subscription Product", async ({
     browser,
     browserName,
@@ -134,9 +155,13 @@ async function performPurchase(page: Page, card: Locator, userId: string) {
 const getUserId = (browserName: string) =>
   `rc_billing_demo_test_${Date.now()}_${browserName}`;
 
-async function setupTest(browser: Browser, userId: string) {
+async function setupTest(
+  browser: Browser,
+  userId: string,
+  offeringId?: string,
+) {
   const page = await browser.newPage();
-  await navigateToUrl(page, userId);
+  await navigateToUrl(page, userId, offeringId);
   return page;
 }
 
@@ -182,11 +207,20 @@ async function enterCreditCardDetailsAndContinue(page: Page): Promise<void> {
   await page.getByTestId("PayButton").click();
 }
 
-async function navigateToUrl(page: Page, userId: string): Promise<void> {
+async function navigateToUrl(
+  page: Page,
+  userId: string,
+  offeringId?: string,
+): Promise<void> {
   const baseUrl =
     (import.meta.env?.VITE_RC_BILLING_DEMO_URL as string | undefined) ??
     _LOCAL_URL;
-  await page.goto(`${baseUrl}paywall/${encodeURIComponent(userId)}`);
+
+  const url = offeringId
+    ? `${baseUrl}paywall/${encodeURIComponent(userId)}?offering_id=${offeringId}`
+    : `${baseUrl}paywall/${encodeURIComponent(userId)}`;
+
+  await page.goto(url);
 }
 
 async function typeTextInPageSelector(page: Page, text: string): Promise<void> {
