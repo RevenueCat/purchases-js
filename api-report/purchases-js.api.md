@@ -156,7 +156,6 @@ export interface Offering {
 
 // @public
 export enum OfferingKeyword {
-    // (undocumented)
     Current = "current"
 }
 

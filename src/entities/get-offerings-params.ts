@@ -3,6 +3,9 @@
  * @public
  */
 export enum OfferingKeyword {
+  /**
+   * The current offering.
+   */
   Current = "current",
 }
 

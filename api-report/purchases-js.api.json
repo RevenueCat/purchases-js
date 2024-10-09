@@ -2287,7 +2287,7 @@
             {
               "kind": "EnumMember",
               "canonicalReference": "@revenuecat/purchases-js!OfferingKeyword.Current:member",
-              "docComment": "",
+              "docComment": "/**\n * The current offering.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
