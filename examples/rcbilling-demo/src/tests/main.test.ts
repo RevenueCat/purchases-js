@@ -30,26 +30,18 @@ test.describe("Main", () => {
       ),
     );
   });
-
-  test("Displays specific offering when offering_id is provided", async ({
+  test("Get offerings can filter by offering ID", async ({
     browser,
     browserName,
   }) => {
-    const userId = `${getUserId(browserName)}_specific_offering`;
-    const offeringId = "e2e_test_specific_offering";
-
+    const userId = getUserId(browserName);
+    const offeringId = "e2e_test_specific_offering"; // The offering ID you expect to filter by
     const page = await setupTest(browser, userId, offeringId);
 
     const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
 
-    const EXPECTED_VALUES = [/9[,.]99/];
-
-    await Promise.all(
-      packageCards.map(
-        async (card, index) =>
-          await expect(card).toHaveText(EXPECTED_VALUES[index]),
-      ),
-    );
+    expect(packageCards.length).toBe(1);
+    await expect(packageCards[0]).toHaveText(/9[,.]99/); // Example expected value for offering_1
   });
 
   test("Can purchase a subscription Product", async ({
@@ -162,6 +154,7 @@ async function setupTest(
 ) {
   const page = await browser.newPage();
   await navigateToUrl(page, userId, offeringId);
+
   return page;
 }
 
@@ -216,10 +209,9 @@ async function navigateToUrl(
     (import.meta.env?.VITE_RC_BILLING_DEMO_URL as string | undefined) ??
     _LOCAL_URL;
 
-  const url = offeringId
-    ? `${baseUrl}paywall/${encodeURIComponent(userId)}?offering_id=${offeringId}`
-    : `${baseUrl}paywall/${encodeURIComponent(userId)}`;
-
+  const url = `${baseUrl}paywall/${encodeURIComponent(userId)}${
+    offeringId ? `?offeringId=${offeringId}` : ""
+  }`;
   await page.goto(url);
 }
 
