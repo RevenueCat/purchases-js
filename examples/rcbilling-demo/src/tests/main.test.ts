@@ -35,13 +35,20 @@ test.describe("Main", () => {
     browserName,
   }) => {
     const userId = getUserId(browserName);
-    const offeringId = "e2e_test_specific_offering"; // The offering ID you expect to filter by
+    const offeringId = "default_download";
     const page = await setupTest(browser, userId, offeringId);
 
     const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
 
-    expect(packageCards.length).toBe(1);
-    await expect(packageCards[0]).toHaveText(/9[,.]99/); // Example expected value for offering_1
+    const EXPECTED_VALUES = [/30[,.]00/, /15[,.]00/, /19[,.]99/];
+
+    expect(packageCards.length).toBe(3);
+    await Promise.all(
+      packageCards.map(
+        async (card, index) =>
+          await expect(card).toHaveText(EXPECTED_VALUES[index]),
+      ),
+    );
   });
 
   test("Can purchase a subscription Product", async ({
