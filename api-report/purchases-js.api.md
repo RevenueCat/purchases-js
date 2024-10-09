@@ -276,6 +276,7 @@ export class Purchases {
     getAppUserId(): string;
     getCurrentOfferingForPlacement(placementIdentifier: string, params?: GetOfferingsParams): Promise<Offering | null>;
     getCustomerInfo(): Promise<CustomerInfo>;
+    getOffering(offeringIdentifier: string, params?: GetOfferingsParams): Promise<Offering | null>;
     getOfferings(params?: GetOfferingsParams): Promise<Offerings>;
     static getSharedInstance(): Purchases;
     static isConfigured(): boolean;
