@@ -107,9 +107,10 @@ export enum ErrorCode {
     UserCancelledError = 1
 }
 
-// @public
+// @public (undocumented)
 export interface GetOfferingsParams {
     readonly currency?: string;
+    readonly offeringIdentifier?: string | OfferingKeyword;
 }
 
 // @public
@@ -151,6 +152,12 @@ export interface Offering {
     readonly threeMonth: Package | null;
     readonly twoMonth: Package | null;
     readonly weekly: Package | null;
+}
+
+// @public
+export enum OfferingKeyword {
+    // (undocumented)
+    Current = "current"
 }
 
 // @public
@@ -276,7 +283,6 @@ export class Purchases {
     getAppUserId(): string;
     getCurrentOfferingForPlacement(placementIdentifier: string, params?: GetOfferingsParams): Promise<Offering | null>;
     getCustomerInfo(): Promise<CustomerInfo>;
-    getOffering(offeringIdentifier: string, params?: GetOfferingsParams): Promise<Offering | null>;
     getOfferings(params?: GetOfferingsParams): Promise<Offerings>;
     static getSharedInstance(): Purchases;
     static isConfigured(): boolean;
