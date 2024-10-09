@@ -313,3 +313,18 @@ describe("getOfferings placements", () => {
     ).toEqual("test_placement_id");
   });
 });
+
+describe("getOffering", () => {
+  test("gets null offering if offering id is missing", async () => {
+    const purchases = configurePurchases();
+    const offering = await purchases.getOffering("missing_offering_id");
+    expect(offering).toBeNull();
+  });
+
+  test("gets correct offering if identifier id is valid", async () => {
+    const purchases = configurePurchases();
+    const offering = await purchases.getOffering("offering_2");
+    expect(offering).not.toBeNull();
+    expect(offering?.identifier).toEqual("offering_2");
+  });
+});
