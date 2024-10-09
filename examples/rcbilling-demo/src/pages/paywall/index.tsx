@@ -1,6 +1,6 @@
 import { Offering, Package, PurchasesError } from "@revenuecat/purchases-js";
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { usePurchasesLoaderData } from "../../util/PurchasesLoader";
 import Button from "../../components/Button";
 import LogoutButton from "../../components/LogoutButton";
@@ -91,13 +91,19 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
 const PaywallPage: React.FC = () => {
   const navigate = useNavigate();
   const { purchases, offerings } = usePurchasesLoaderData();
+  const [searchParams] = useSearchParams();
 
-  const currentOffering = offerings.current;
-  if (!currentOffering) {
+  const offeringId = searchParams.get("offering_id");
+
+  const selectedOffering = offeringId
+    ? offerings.all[offeringId] || null
+    : offerings.current;
+
+  if (!selectedOffering) {
     console.error("No current offering found");
     return <>No offering found!</>;
   }
-  const packages: Package[] = currentOffering?.availablePackages || [];
+  const packages: Package[] = selectedOffering?.availablePackages || [];
   if (packages.length == 0) {
     console.error("No packages found in current offering.");
   }
@@ -142,7 +148,7 @@ const PaywallPage: React.FC = () => {
               <PackageCard
                 key={pkg.identifier}
                 pkg={pkg}
-                offering={currentOffering}
+                offering={selectedOffering}
                 onClick={() => onPackageCardClicked(pkg)}
               />
             ) : null,
