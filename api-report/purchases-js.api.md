@@ -110,6 +110,7 @@ export enum ErrorCode {
 // @public
 export interface GetOfferingsParams {
     readonly currency?: string;
+    readonly offeringIdentifier?: string | OfferingKeyword;
 }
 
 // @public
@@ -151,6 +152,11 @@ export interface Offering {
     readonly threeMonth: Package | null;
     readonly twoMonth: Package | null;
     readonly weekly: Package | null;
+}
+
+// @public
+export enum OfferingKeyword {
+    Current = "current"
 }
 
 // @public

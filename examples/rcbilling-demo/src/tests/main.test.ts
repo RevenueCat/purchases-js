@@ -30,6 +30,26 @@ test.describe("Main", () => {
       ),
     );
   });
+  test("Get offerings can filter by offering ID", async ({
+    browser,
+    browserName,
+  }) => {
+    const userId = getUserId(browserName);
+    const offeringId = "default_download";
+    const page = await setupTest(browser, userId, offeringId);
+
+    const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
+
+    const EXPECTED_VALUES = [/30[,.]00/, /15[,.]00/, /19[,.]99/];
+
+    expect(packageCards.length).toBe(3);
+    await Promise.all(
+      packageCards.map(
+        async (card, index) =>
+          await expect(card).toHaveText(EXPECTED_VALUES[index]),
+      ),
+    );
+  });
 
   test("Can purchase a subscription Product", async ({
     browser,
@@ -134,9 +154,14 @@ async function performPurchase(page: Page, card: Locator, userId: string) {
 const getUserId = (browserName: string) =>
   `rc_billing_demo_test_${Date.now()}_${browserName}`;
 
-async function setupTest(browser: Browser, userId: string) {
+async function setupTest(
+  browser: Browser,
+  userId: string,
+  offeringId?: string,
+) {
   const page = await browser.newPage();
-  await navigateToUrl(page, userId);
+  await navigateToUrl(page, userId, offeringId);
+
   return page;
 }
 
@@ -182,11 +207,19 @@ async function enterCreditCardDetailsAndContinue(page: Page): Promise<void> {
   await page.getByTestId("PayButton").click();
 }
 
-async function navigateToUrl(page: Page, userId: string): Promise<void> {
+async function navigateToUrl(
+  page: Page,
+  userId: string,
+  offeringId?: string,
+): Promise<void> {
   const baseUrl =
     (import.meta.env?.VITE_RC_BILLING_DEMO_URL as string | undefined) ??
     _LOCAL_URL;
-  await page.goto(`${baseUrl}paywall/${encodeURIComponent(userId)}`);
+
+  const url = `${baseUrl}paywall/${encodeURIComponent(userId)}${
+    offeringId ? `?offeringId=${offeringId}` : ""
+  }`;
+  await page.goto(url);
 }
 
 async function typeTextInPageSelector(page: Page, text: string): Promise<void> {

@@ -362,11 +362,13 @@ export interface Offering {
  */
 export interface Offerings {
   /**
-   * Dictionary of all {@link Offering} objects keyed by their identifier.
+   * Dictionary containing all {@link Offering} objects, keyed by their identifier.
    */
   readonly all: { [offeringId: string]: Offering };
   /**
    * Current offering configured in the RevenueCat dashboard.
+   * It can be `null` if no current offering is configured or if a specific offering
+   * was requested that is not the current one.
    */
   readonly current: Offering | null;
 }
