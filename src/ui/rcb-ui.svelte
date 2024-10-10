@@ -20,10 +20,10 @@
   import IconCart from "./assets/icon-cart.svelte";
   import BrandingInfoUI from "./branding-info-ui.svelte";
   import SandboxBanner from "./sandbox-banner.svelte";
-  import Layout from "./ui/layout/layout.svelte";
-  import Container from "./ui/layout/container.svelte";
-  import Aside from "./ui/layout/aside-block.svelte";
-  import Main from "./ui/layout/main-block.svelte";
+  import Layout from "./layout/layout.svelte";
+  import Container from "./layout/container.svelte";
+  import Aside from "./layout/aside-block.svelte";
+  import Main from "./layout/main-block.svelte";
 
   import { mapStyleOverridesToStyleVariables } from "../helpers/process-style-overrides";
 
