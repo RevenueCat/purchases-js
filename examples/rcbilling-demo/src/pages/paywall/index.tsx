@@ -90,14 +90,13 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
 
 const PaywallPage: React.FC = () => {
   const navigate = useNavigate();
-  const { purchases, offerings } = usePurchasesLoaderData();
+  const { purchases, offering } = usePurchasesLoaderData();
 
-  const currentOffering = offerings.current;
-  if (!currentOffering) {
-    console.error("No current offering found");
+  if (!offering) {
+    console.error("No offering found");
     return <>No offering found!</>;
   }
-  const packages: Package[] = currentOffering?.availablePackages || [];
+  const packages: Package[] = offering?.availablePackages || [];
   if (packages.length == 0) {
     console.error("No packages found in current offering.");
   }
@@ -142,7 +141,7 @@ const PaywallPage: React.FC = () => {
               <PackageCard
                 key={pkg.identifier}
                 pkg={pkg}
-                offering={currentOffering}
+                offering={offering}
                 onClick={() => onPackageCardClicked(pkg)}
               />
             ) : null,

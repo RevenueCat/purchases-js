@@ -34,7 +34,10 @@ import {
 } from "./helpers/configuration-validators";
 import { type PurchaseParams } from "./entities/purchase-params";
 import { defaultHttpConfig, type HttpConfig } from "./entities/http-config";
-import { type GetOfferingsParams } from "./entities/get-offerings-params";
+import {
+  OfferingKeyword,
+  type GetOfferingsParams,
+} from "./entities/get-offerings-params";
 import { validateCurrency } from "./helpers/validators";
 import { type BrandingInfoResponse } from "./networking/responses/branding-response";
 import { requiresLoadedResources } from "./helpers/decorators";
@@ -76,6 +79,7 @@ export type { Period, PeriodUnit } from "./helpers/duration-helper";
 export type { HttpConfig } from "./entities/http-config";
 export { LogLevel } from "./entities/log-level";
 export type { GetOfferingsParams } from "./entities/get-offerings-params";
+export { OfferingKeyword } from "./entities/get-offerings-params";
 export type { PurchaseParams } from "./entities/purchase-params";
 
 /**
@@ -225,11 +229,25 @@ export class Purchases {
   /**
    * Fetch the configured offerings for this user. You can configure these
    * in the RevenueCat dashboard.
+   * @param params - The parameters object to customise the offerings fetch. Check {@link GetOfferingsParams}
    */
   public async getOfferings(params?: GetOfferingsParams): Promise<Offerings> {
     validateCurrency(params?.currency);
     const appUserId = this._appUserId;
     const offeringsResponse = await this.backend.getOfferings(appUserId);
+
+    const offeringIdFilter =
+      params?.offeringIdentifier === OfferingKeyword.Current
+        ? offeringsResponse.current_offering_id
+        : params?.offeringIdentifier;
+
+    if (offeringIdFilter) {
+      offeringsResponse.offerings = offeringsResponse.offerings.filter(
+        (offering: OfferingResponse) =>
+          offering.identifier === offeringIdFilter,
+      );
+    }
+
     return await this.getAllOfferings(offeringsResponse, appUserId, params);
   }
 
@@ -435,8 +453,8 @@ export class Purchases {
     });
     if (missingProductIds.length > 0) {
       Logger.debugLog(
-        `Could not find product data for product ids: 
-        ${missingProductIds.join()}. 
+        `Could not find product data for product ids:
+        ${missingProductIds.join()}.
         Please check that your product configuration is correct.`,
       );
     }

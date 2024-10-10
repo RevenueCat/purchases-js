@@ -8,3 +8,4 @@ CHANGELOG.md
 CHANGELOG.latest.md
 vendor/
 .circleci
+RELEASING.md

@@ -1,7 +1,7 @@
 import {
   CustomerInfo,
   LogLevel,
-  Offerings,
+  Offering,
   Purchases,
 } from "@revenuecat/purchases-js";
 import { LoaderFunction, redirect, useLoaderData } from "react-router-dom";
@@ -11,7 +11,7 @@ const apiKey = import.meta.env.VITE_RC_API_KEY as string;
 type IPurchasesLoaderData = {
   purchases: Purchases;
   customerInfo: CustomerInfo;
-  offerings: Offerings;
+  offering: Offering;
 };
 
 const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
@@ -21,6 +21,7 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
   const appUserId = params["app_user_id"];
   const searchParams = new URL(request.url).searchParams;
   const currency = searchParams.get("currency");
+  const offeringId = searchParams.get("offeringId");
 
   if (!appUserId) {
     throw redirect("/");
@@ -35,12 +36,20 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
     const purchases = Purchases.getSharedInstance();
     const [customerInfo, offerings] = await Promise.all([
       purchases.getCustomerInfo(),
-      purchases.getOfferings({ currency: currency || undefined }),
+      purchases.getOfferings({
+        currency: currency || undefined,
+        offeringIdentifier: offeringId || undefined,
+      }),
     ]);
+
+    const offering = offeringId
+      ? offerings.all[offeringId] || null // Return the specified offering
+      : offerings.current || null; // Default to the current offering
+
     return {
       purchases,
       customerInfo,
-      offerings,
+      offering,
     };
   } catch {
     throw redirect("/");

@@ -1562,6 +1562,38 @@
                 "startIndex": 1,
                 "endIndex": 2
               }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!GetOfferingsParams#offeringIdentifier:member",
+              "docComment": "/**\n * The identifier of the offering to fetch. Can be a string identifier or one of the predefined keywords.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly offeringIdentifier?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "OfferingKeyword",
+                  "canonicalReference": "@revenuecat/purchases-js!OfferingKeyword:enum"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "offeringIdentifier",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              }
             }
           ],
           "extendsTokenRanges": []
@@ -2236,6 +2268,44 @@
             }
           ],
           "extendsTokenRanges": []
+        },
+        {
+          "kind": "Enum",
+          "canonicalReference": "@revenuecat/purchases-js!OfferingKeyword:enum",
+          "docComment": "/**\n * Keywords for identifying specific offerings in the {@link Purchases.getOfferings} method.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare enum OfferingKeyword "
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "name": "OfferingKeyword",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!OfferingKeyword.Current:member",
+              "docComment": "/**\n * The current offering.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Current = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"current\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "Current"
+            }
+          ]
         },
         {
           "kind": "Interface",
