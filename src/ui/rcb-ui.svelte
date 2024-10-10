@@ -20,6 +20,11 @@
   import IconCart from "./assets/icon-cart.svelte";
   import BrandingInfoUI from "./branding-info-ui.svelte";
   import SandboxBanner from "./sandbox-banner.svelte";
+  import Layout from "./ui/layout/layout.svelte";
+  import Container from "./ui/layout/container.svelte";
+  import Aside from "./ui/layout/aside-block.svelte";
+  import Main from "./ui/layout/main-block.svelte";
+
   import { mapStyleOverridesToStyleVariables } from "../helpers/process-style-overrides";
 
   export let asModal = true;
@@ -177,19 +182,19 @@
   const closeWithError = () => {
     onError(
       lastError ??
-        new PurchaseFlowError(
-          PurchaseFlowErrorCode.UnknownError,
-          "Unknown error without state set.",
-        ),
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.UnknownError,
+        "Unknown error without state set.",
+      ),
     );
   };
 </script>
 
-<div class="rcb-ui-container">
+<Container>
   <ConditionalFullScreen condition={asModal}>
-    <div class="rcb-ui-layout" style={colorVariables}>
+    <Layout style={colorVariables}>
       {#if statesWhereOfferDetailsAreShown.includes(state)}
-        <div class="rcb-ui-aside">
+        <Aside>
           <Shell dark>
             <ModalHeader slot="header">
               <BrandingInfoUI {brandingInfo} />
@@ -206,9 +211,9 @@
               />
             {/if}
           </Shell>
-        </div>
+        </Aside>
       {/if}
-      <div class="rcb-ui-main">
+      <Main>
         <Shell>
           {#if state === "present-offer" && productDetails && purchaseOptionToUse}
             <StatePresentOffer
@@ -258,76 +263,7 @@
             <StateSuccess {productDetails} {brandingInfo} onContinue={handleContinue} />
           {/if}
         </Shell>
-      </div>
-    </div>
+      </Main>
+    </Layout>
   </ConditionalFullScreen>
-</div>
-
-<style>
-  .rcb-ui-container {
-    color-scheme: none;
-    font-size: 16px;
-    line-height: 1.5em;
-    font-weight: 400;
-    font-family: -apple-system, "system-ui", "Segoe UI", Roboto, Oxygen, Ubuntu,
-      Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  }
-
-  .rcb-ui-layout {
-    width: 100vw;
-    width: 100 dvw;
-    margin-right: auto;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    position: relative;
-    padding: 0px 80px;
-    box-sizing: border-box;
-  }
-
-  .rcb-ui-aside {
-    margin-right: 16px;
-    flex: 320px 1 0;
-    max-width: 480px;
-  }
-
-  .rcb-ui-main {
-    flex: 480px 1 0;
-    max-width: 640px;
-  }
-
-  @media screen and (max-width: 960px) {
-    .rcb-ui-layout {
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      min-width: 100%;
-    }
-
-    .rcb-ui-aside {
-      margin-right: 0;
-      margin-bottom: 16px;
-      min-width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      flex: none;
-      max-width: none;
-    }
-
-    .rcb-ui-main {
-      flex: none;
-      max-width: none;
-      min-width: 100%;
-    }
-  }
-
-  @media screen and (max-width: 960px) and (max-height: 960px) {
-    .rcb-ui-layout {
-      overflow-y: scroll;
-      justify-content: flex-start;
-      padding: 16px 0px;
-    }
-  }
-</style>
+</Container>
