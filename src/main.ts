@@ -78,10 +78,8 @@ export type { PurchasesErrorExtra } from "./entities/errors";
 export type { Period, PeriodUnit } from "./helpers/duration-helper";
 export type { HttpConfig } from "./entities/http-config";
 export { LogLevel } from "./entities/log-level";
-export type {
-  GetOfferingsParams,
-  OfferingKeyword,
-} from "./entities/get-offerings-params";
+export type { GetOfferingsParams } from "./entities/get-offerings-params";
+export { OfferingKeyword } from "./entities/get-offerings-params";
 export type { PurchaseParams } from "./entities/purchase-params";
 
 /**
