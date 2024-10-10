@@ -229,6 +229,7 @@ export class Purchases {
   /**
    * Fetch the configured offerings for this user. You can configure these
    * in the RevenueCat dashboard.
+   * @param params - The parameters object to customise the offerings fetch. Check {@link GetOfferingsParams}
    */
   public async getOfferings(params?: GetOfferingsParams): Promise<Offerings> {
     validateCurrency(params?.currency);
