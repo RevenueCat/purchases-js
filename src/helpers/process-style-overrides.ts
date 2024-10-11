@@ -3,9 +3,9 @@ import { Colors } from "../ui/theme/colors";
 import type { BrandingAppearance } from "src/networking/responses/branding-response";
 import {
   DefaultShape,
-  RoundedShape,
-  RectangularShape,
   PillsShape,
+  RectangularShape,
+  RoundedShape,
 } from "../ui/theme/shapes";
 
 /**
@@ -71,7 +71,7 @@ export const mapStyleOverridesToStyleVariables = (
     default:
       shapeVariableString = mapObjectToShapeVariableString(DefaultShape);
   }
-  console.log(shapeVariableString);
+
   return [colorVariablesString, shapeVariableString].join("; ");
 };
 

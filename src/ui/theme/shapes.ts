@@ -1,3 +1,5 @@
+import { BrandingAppearance } from "../../networking/responses/branding-response";
+
 export const RoundedShape: Record<string, string> = {
   "input-border-radius": "12px",
   "input-button-border-radius": "12px",
@@ -17,3 +19,23 @@ export const PillsShape: Record<string, string> = {
 };
 
 export const DefaultShape = RoundedShape;
+
+export const toShape = (
+  brandingAppearance?: BrandingAppearance | undefined,
+) => {
+  if (!brandingAppearance) {
+    return DefaultShape;
+  }
+  switch (brandingAppearance.shapes) {
+    case "rounded":
+      return RoundedShape;
+
+    case "rectangle":
+      return RectangularShape;
+
+    case "pill":
+      return PillsShape;
+    default:
+      return DefaultShape;
+  }
+};

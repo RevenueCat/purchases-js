@@ -9,15 +9,14 @@
   import StateLoading from "./state-loading.svelte";
   import RowLayout from "../layout/row-layout.svelte";
   import { type PurchaseResponse } from "../../networking/responses/purchase-response";
-  import {
-    PurchaseFlowError,
-    PurchaseFlowErrorCode,
-  } from "../../helpers/purchase-operation-helper";
+  import { PurchaseFlowError, PurchaseFlowErrorCode } from "../../helpers/purchase-operation-helper";
   import ModalHeader from "../modal-header.svelte";
   import IconLock from "../icons/icon-lock.svelte";
   import { Colors } from "../theme/colors";
   import ProcessingAnimation from "../processing-animation.svelte";
   import type { Product, PurchaseOption } from "../../entities/offerings";
+  import { toShape } from "../theme/shapes";
+  import { appearanceConfigStore } from "../../store/store";
 
   export let onClose: any;
   export let onContinue: any;
@@ -75,6 +74,8 @@
       onContinue();
     }
   };
+  
+  let shapeCustomisation = toShape($appearanceConfigStore);
 </script>
 
 <div>
@@ -87,7 +88,7 @@
         bind:elements
         theme="stripe"
         variables={{
-          borderRadius: "12px",
+          borderRadius: shapeCustomisation["input-border-radius"],
           fontSizeBase: "16px",
           fontSizeSm: "16px",
           spacingGridRow: "16px",
@@ -135,21 +136,27 @@
               {/if}
             </Button>
             <Button disabled={processing} intent="secondary" on:click={onClose}
-              >Close</Button
+            >Close
+            </Button
             >
           </RowLayout>
         </ModalFooter>
       </Elements>
     </form>
   {:else}
-    <StateLoading />
+    <StateLoading style="height:320px" />
   {/if}
 </div>
 
 <style>
-  .rcb-stripe-elements-container {
-    width: 100%;
-    margin-top: 32px;
-    margin-bottom: 24px;
-  }
+    .rcb-stripe-elements-container {
+        width: 100%;
+
+        /* The standard height of the payment form from Stripe */
+        /* Added to avoid the card getting smaller while loading */
+        min-height: 320px;
+
+        margin-top: 32px;
+        margin-bottom: 24px;
+    }
 </style>
