@@ -14,8 +14,8 @@
     PurchaseFlowErrorCode,
   } from "../../helpers/purchase-operation-helper";
   import ModalHeader from "../modal-header.svelte";
-  import IconLock from "../assets/icon-lock.svelte";
-  import { Colors } from "../../assets/colors";
+  import IconLock from "../icons/icon-lock.svelte";
+  import { Colors } from "../theme/colors";
   import ProcessingAnimation from "../processing-animation.svelte";
   import type { Product, PurchaseOption } from "../../entities/offerings";
 

@@ -1,21 +1,18 @@
 <script>
   import { Meta, Story, Template } from "@storybook/addon-svelte-csf";
-  import StatePresentOffer from "../ui/states/state-present-offer.svelte";
+  import StateLoading from "../ui/states/state-loading.svelte";
   import Shell from "../ui/shell.svelte";
   import { mapStyleOverridesToStyleVariables } from "../helpers/process-style-overrides.ts";
   import Layout from "../ui/layout/layout.svelte";
   import Container from "../ui/layout/container.svelte";
   import Aside from "../ui/layout/aside-block.svelte";
   import ModalBackdrop from "../ui/modal-backdrop.svelte";
-  import { brandingInfo, product, subscriptionOption } from "./fixtures";
 
-  let defaultArgs = {
-    productDetails: product, purchaseOption: subscriptionOption, brandingInfo: brandingInfo,
-  };
+  import { product, subscriptionOption } from "./fixtures";
 </script>
 
 
-<Meta title="StatePresentsOffer" component={StatePresentOffer} />
+<Meta title="StateLoading" component={StateLoading} />
 
 
 <Template let:args>
@@ -23,8 +20,8 @@
     <ModalBackdrop>
       <Layout>
         <Aside>
-          <Shell dark>
-            <StatePresentOffer {...args} />
+          <Shell>
+            <StateLoading {...args} />
           </Shell>
         </Aside>
       </Layout>
@@ -33,17 +30,17 @@
 </Template>
 
 
-<Story name='Standard' args={{ ...defaultArgs, brandingAppearance:{
+<Story name='Standard' args={{ productDetails:product, purchaseOption:subscriptionOption, brandingAppearance:{
 } }} />
 
-<Story name='Rounded' args={{ ...defaultArgs, brandingAppearance:{
+<Story name='Rounded' args={{ productDetails:product, purchaseOption:subscriptionOption, brandingAppearance:{
   shapes:'rounded'
 } }} />
 
-<Story name='Pill' args={{ ...defaultArgs, brandingAppearance:{
+<Story name='Pill' args={{ productDetails:product, purchaseOption:subscriptionOption, brandingAppearance:{
   shapes:'pill'
 } }} />
 
-<Story name='Rectangle' args={{ ...defaultArgs, brandingAppearance:{
+<Story name='Rectangle' args={{ productDetails:product, purchaseOption:subscriptionOption, brandingAppearance:{
   shapes:'rectangle'
 } }} />

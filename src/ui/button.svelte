@@ -18,34 +18,36 @@
   class={`intent-${intent}`}
   {disabled}
   data-testid={testId}
-  style={btnColor}><slot /></button
+  style={btnColor}>
+  <slot />
+</button
 >
 
 <style>
-  button {
-    border: none;
-    border-radius: 56px;
-    font-size: 16px;
-    cursor: pointer;
-    height: 56px;
-    color: var(--rc-color-grey-text-dark);
-    background-color: var(--rc-color-grey-ui-dark);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+    button {
+        border: none;
+        border-radius: var(--rc-shape-input-button-border-radius);
+        font-size: 16px;
+        cursor: pointer;
+        height: 56px;
+        color: var(--rc-color-grey-text-dark);
+        background-color: var(--rc-color-grey-ui-dark);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
-  button.intent-primary {
-    background-color: var(--btn-color);
-    color: var(--rc-color-white);
-    font-size: 16px;
-  }
+    button.intent-primary {
+        background-color: var(--btn-color);
+        color: var(--rc-color-white);
+        font-size: 16px;
+    }
 
-  button:disabled {
-    color: var(--rc-color-grey-text-light);
-  }
+    button:disabled {
+        color: var(--rc-color-grey-text-light);
+    }
 
-  button.intent-primary:disabled {
-    color: var(--rc-color-grey-text-light);
-  }
+    button.intent-primary:disabled {
+        color: var(--rc-color-grey-text-light);
+    }
 </style>

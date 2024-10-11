@@ -1,6 +1,12 @@
 import { appearanceConfigStore } from "../store/store";
-import { Colors } from "../assets/colors";
+import { Colors } from "../ui/theme/colors";
 import type { BrandingAppearance } from "src/networking/responses/branding-response";
+import {
+  DefaultShape,
+  RoundedShape,
+  RectangularShape,
+  PillsShape,
+} from "../ui/theme/shapes";
 
 /**
  * Get the CSS variable string for a given property
@@ -27,7 +33,6 @@ export const mapStyleOverridesToStyleVariables = (
   appearance?: BrandingAppearance,
 ) => {
   // Return default colors if there's no appearance configuration object
-  // or if the current host is coming from a WPL
   if (!appearance) {
     return mapObjectToColorVariableString(Colors);
   }
@@ -48,13 +53,37 @@ export const mapStyleOverridesToStyleVariables = (
     Colors,
   );
 
-  return mapObjectToColorVariableString(mappedVariablesDict);
+  const colorVariablesString =
+    mapObjectToColorVariableString(mappedVariablesDict);
+
+  let shapeVariableString = "";
+
+  switch (appearance.shapes) {
+    case "rounded":
+      shapeVariableString = mapObjectToShapeVariableString(RoundedShape);
+      break;
+    case "rectangle":
+      shapeVariableString = mapObjectToShapeVariableString(RectangularShape);
+      break;
+    case "pill":
+      shapeVariableString = mapObjectToShapeVariableString(PillsShape);
+      break;
+    default:
+      shapeVariableString = mapObjectToShapeVariableString(DefaultShape);
+  }
+  console.log(shapeVariableString);
+  return [colorVariablesString, shapeVariableString].join("; ");
 };
 
 // Map color object into a single CSS variable string
 const mapObjectToColorVariableString = (colorDict: Record<string, string>) =>
   Object.entries(colorDict)
     .map(([key, value]) => `--rc-color-${key}: ${value}`)
+    .join("; ");
+
+const mapObjectToShapeVariableString = (colorDict: Record<string, string>) =>
+  Object.entries(colorDict)
+    .map(([key, value]) => `--rc-shape-${key}: ${value}`)
     .join("; ");
 
 /**

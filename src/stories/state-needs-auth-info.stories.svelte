@@ -1,12 +1,13 @@
 <script>
   import { Meta, Story, Template } from "@storybook/addon-svelte-csf";
-  import StatePresentOffer from "../ui/states/state-present-offer.svelte";
+  import StateNeedsAuthInfo from "../ui/states/state-needs-auth-info.svelte";
   import Shell from "../ui/shell.svelte";
   import { mapStyleOverridesToStyleVariables } from "../helpers/process-style-overrides.ts";
   import Layout from "../ui/layout/layout.svelte";
   import Container from "../ui/layout/container.svelte";
-  import Aside from "../ui/layout/aside-block.svelte";
+  import Main from "../ui/layout/main-block.svelte";
   import ModalBackdrop from "../ui/modal-backdrop.svelte";
+
   import { brandingInfo, product, subscriptionOption } from "./fixtures";
 
   let defaultArgs = {
@@ -15,35 +16,33 @@
 </script>
 
 
-<Meta title="StatePresentsOffer" component={StatePresentOffer} />
-
+<Meta title="StateNeedsAuthInfo" component={StateNeedsAuthInfo} />
 
 <Template let:args>
   <Container style={mapStyleOverridesToStyleVariables(args?.brandingAppearance)}>
     <ModalBackdrop>
       <Layout>
-        <Aside>
-          <Shell dark>
-            <StatePresentOffer {...args} />
+        <Main>
+          <Shell>
+            <StateNeedsAuthInfo {...args} />
           </Shell>
-        </Aside>
+        </Main>
       </Layout>
     </ModalBackdrop>
   </Container>
 </Template>
 
 
-<Story name='Standard' args={{ ...defaultArgs, brandingAppearance:{
-} }} />
+<Story name='Standard' args={{ ...defaultArgs, brandingAppearance:{} }} />
 
-<Story name='Rounded' args={{ ...defaultArgs, brandingAppearance:{
+<Story name='Rounded' args={{ productDetails:product, purchaseOption:subscriptionOption, brandingAppearance:{
   shapes:'rounded'
 } }} />
 
-<Story name='Pill' args={{ ...defaultArgs, brandingAppearance:{
+<Story name='Pill' args={{ productDetails:product, purchaseOption:subscriptionOption, brandingAppearance:{
   shapes:'pill'
 } }} />
 
-<Story name='Rectangle' args={{ ...defaultArgs, brandingAppearance:{
+<Story name='Rectangle' args={{ productDetails:product, purchaseOption:subscriptionOption, brandingAppearance:{
   shapes:'rectangle'
 } }} />

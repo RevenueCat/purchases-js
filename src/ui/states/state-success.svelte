@@ -1,5 +1,5 @@
 <script lang="ts">
-  import IconSuccess from "../assets/icon-success.svelte";
+  import IconSuccess from "../icons/icon-success.svelte";
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
   import MessageLayout from "../layout/message-layout.svelte";
   import { type Product, ProductType } from "../../entities/offerings";

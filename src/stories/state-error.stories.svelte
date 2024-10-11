@@ -1,21 +1,21 @@
 <script>
   import { Meta, Story, Template } from "@storybook/addon-svelte-csf";
-  import StatePresentOffer from "../ui/states/state-present-offer.svelte";
+  import StateError from "../ui/states/state-error.svelte";
   import Shell from "../ui/shell.svelte";
   import { mapStyleOverridesToStyleVariables } from "../helpers/process-style-overrides.ts";
   import Layout from "../ui/layout/layout.svelte";
   import Container from "../ui/layout/container.svelte";
   import Aside from "../ui/layout/aside-block.svelte";
   import ModalBackdrop from "../ui/modal-backdrop.svelte";
-  import { brandingInfo, product, subscriptionOption } from "./fixtures";
+  import { brandingInfo, purchaseFlowError } from "./fixtures";
 
   let defaultArgs = {
-    productDetails: product, purchaseOption: subscriptionOption, brandingInfo: brandingInfo,
+    brandingInfo: brandingInfo, lastError: purchaseFlowError,
   };
 </script>
 
 
-<Meta title="StatePresentsOffer" component={StatePresentOffer} />
+<Meta title="StateError" component={StateError} />
 
 
 <Template let:args>
@@ -23,8 +23,8 @@
     <ModalBackdrop>
       <Layout>
         <Aside>
-          <Shell dark>
-            <StatePresentOffer {...args} />
+          <Shell>
+            <StateError {...args} />
           </Shell>
         </Aside>
       </Layout>
@@ -36,7 +36,7 @@
 <Story name='Standard' args={{ ...defaultArgs, brandingAppearance:{
 } }} />
 
-<Story name='Rounded' args={{ ...defaultArgs, brandingAppearance:{
+<Story name='Rounded' args={{  ...defaultArgs, brandingAppearance:{
   shapes:'rounded'
 } }} />
 
@@ -44,6 +44,6 @@
   shapes:'pill'
 } }} />
 
-<Story name='Rectangle' args={{ ...defaultArgs, brandingAppearance:{
+<Story name='Rectangle' args={{...defaultArgs, brandingAppearance:{
   shapes:'rectangle'
 } }} />

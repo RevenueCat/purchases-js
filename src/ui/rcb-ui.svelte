@@ -17,7 +17,7 @@
     PurchaseOperationHelper,
   } from "../helpers/purchase-operation-helper";
   import ModalHeader from "./modal-header.svelte";
-  import IconCart from "./assets/icon-cart.svelte";
+  import IconCart from "./icons/icon-cart.svelte";
   import BrandingInfoUI from "./branding-info-ui.svelte";
   import SandboxBanner from "./sandbox-banner.svelte";
   import Layout from "./layout/layout.svelte";
