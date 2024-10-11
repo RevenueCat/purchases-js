@@ -12,7 +12,7 @@
   import { PurchaseFlowError, PurchaseFlowErrorCode } from "../../helpers/purchase-operation-helper";
   import ModalHeader from "../modal-header.svelte";
   import IconLock from "../icons/icon-lock.svelte";
-  import { Colors } from "../theme/colors";
+  import { toColors } from "../theme/colors";
   import ProcessingAnimation from "../processing-animation.svelte";
   import type { Product, PurchaseOption } from "../../entities/offerings";
   import { toShape } from "../theme/shapes";
@@ -74,8 +74,9 @@
       onContinue();
     }
   };
-  
+
   let shapeCustomisation = toShape($appearanceConfigStore);
+  let customColors = toColors($appearanceConfigStore);
 </script>
 
 <div>
@@ -92,17 +93,17 @@
           fontSizeBase: "16px",
           fontSizeSm: "16px",
           spacingGridRow: "16px",
-          colorText: Colors["grey-text-dark"],
+          colorText: customColors["grey-text-dark"],
           focusBoxShadow: "none",
-          colorDanger: Colors["error"],
+          colorDanger: customColors["error"],
         }}
         rules={{
           ".Input": {
             boxShadow: "none",
-            border: `2px solid ${Colors["grey-ui-dark"]}`,
+            border: `2px solid ${customColors["grey-ui-dark"]}`,
           },
           ".Input:focus": {
-            border: `2px solid ${Colors["focus"]}`,
+            border: `2px solid ${customColors["focus"]}`,
             outline: "none",
           },
           ".Label": {

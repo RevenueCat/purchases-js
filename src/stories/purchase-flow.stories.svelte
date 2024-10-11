@@ -8,7 +8,7 @@
   import StateLoading from "../ui/states/state-loading.svelte";
 
   import Shell from "../ui/shell.svelte";
-  import { mapStyleOverridesToStyleVariables } from "../helpers/process-style-overrides.ts";
+  import { toStyleVar } from "../helpers/process-style-overrides.ts";
   import Layout from "../ui/layout/layout.svelte";
   import Container from "../ui/layout/container.svelte";
   import Main from "../ui/layout/main-block.svelte";
@@ -39,7 +39,7 @@
 <Template let:args>
   <div style="background-color: rgba(40, 40, 40, 0.75); width: 100vw; min-height: 100vh; padding-top:100px">
 
-    <Container style={mapStyleOverridesToStyleVariables(args?.brandingAppearance)}>
+    <Container style={toStyleVar(args?.brandingAppearance)}>
       <Layout>
         <Aside>
           <Shell dark>
@@ -60,7 +60,7 @@
 
     <div style="height: 100px" />
 
-    <Container style={mapStyleOverridesToStyleVariables(args?.brandingAppearance)}>
+    <Container style={toStyleVar(args?.brandingAppearance)}>
       <Layout>
         <Aside>
           <Shell dark>
@@ -81,7 +81,7 @@
 
     <div style="height: 100px" />
 
-    <Container style={mapStyleOverridesToStyleVariables(args?.brandingAppearance)}>
+    <Container style={toStyleVar(args?.brandingAppearance)}>
       <Layout>
         <Aside>
           <Shell dark>
@@ -102,7 +102,7 @@
 
     <div style="height: 100px" />
 
-    <Container style={mapStyleOverridesToStyleVariables(args?.brandingAppearance)}>
+    <Container style={toStyleVar(args?.brandingAppearance)}>
       <Layout>
         <Aside>
           <Shell dark>
@@ -123,7 +123,7 @@
 
     <div style="height: 100px" />
 
-    <Container style={mapStyleOverridesToStyleVariables(args?.brandingAppearance)}>
+    <Container style={toStyleVar(args?.brandingAppearance)}>
       <Layout>
         <Aside>
           <Shell dark>

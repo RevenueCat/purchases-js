@@ -1,12 +1,7 @@
 import { appearanceConfigStore } from "../store/store";
-import { Colors } from "../ui/theme/colors";
+import { DEFAULT_COLORS, toColors, toColorsStyleVar } from "../ui/theme/colors";
 import type { BrandingAppearance } from "src/networking/responses/branding-response";
-import {
-  DefaultShape,
-  PillsShape,
-  RectangularShape,
-  RoundedShape,
-} from "../ui/theme/shapes";
+import { toShape, toShapeStyle } from "../ui/theme/shapes";
 
 /**
  * Get the CSS variable string for a given property
@@ -23,68 +18,26 @@ export const getStyleVariable = ({
   return `--${variableName}: ${property || `var(${fallbackVariableName})`}`;
 };
 
-// Known variable names that map 1<>1 into variables from the Colors object
-const variableNameMap: Record<string, string> = {
-  color_error: "error",
-  color_accent: "focus",
-};
-
-export const mapStyleOverridesToStyleVariables = (
-  appearance?: BrandingAppearance,
-) => {
+/**
+ * Assigns values to the css variables given the branding appearance customization.
+ * @param appearance BrandingAppearance
+ * @return a style parameter compatible string.
+ */
+export const toStyleVar = (appearance?: BrandingAppearance) => {
   // Return default colors if there's no appearance configuration object
   if (!appearance) {
-    return mapObjectToColorVariableString(Colors);
+    return toColorsStyleVar(DEFAULT_COLORS);
   }
 
   // Set configuration object to store for custom overrides
   appearanceConfigStore.set(appearance);
 
-  // Map global variables to css variables from default color object
-  const mappedVariablesDict = Object.entries(variableNameMap).reduce(
-    (defaultColorDict, [appearanceColorDictKey, defaultColorDictKey]) => {
-      if (appearance[appearanceColorDictKey as keyof BrandingAppearance]) {
-        defaultColorDict[defaultColorDictKey] = appearance[
-          appearanceColorDictKey as keyof BrandingAppearance
-        ] as string;
-      }
-      return defaultColorDict;
-    },
-    Colors,
-  );
+  const colorVariablesString = toColorsStyleVar(toColors(appearance));
 
-  const colorVariablesString =
-    mapObjectToColorVariableString(mappedVariablesDict);
-
-  let shapeVariableString = "";
-
-  switch (appearance.shapes) {
-    case "rounded":
-      shapeVariableString = mapObjectToShapeVariableString(RoundedShape);
-      break;
-    case "rectangle":
-      shapeVariableString = mapObjectToShapeVariableString(RectangularShape);
-      break;
-    case "pill":
-      shapeVariableString = mapObjectToShapeVariableString(PillsShape);
-      break;
-    default:
-      shapeVariableString = mapObjectToShapeVariableString(DefaultShape);
-  }
+  const shapeVariableString = toShapeStyle(toShape(appearance));
 
   return [colorVariablesString, shapeVariableString].join("; ");
 };
-
-// Map color object into a single CSS variable string
-const mapObjectToColorVariableString = (colorDict: Record<string, string>) =>
-  Object.entries(colorDict)
-    .map(([key, value]) => `--rc-color-${key}: ${value}`)
-    .join("; ");
-
-const mapObjectToShapeVariableString = (colorDict: Record<string, string>) =>
-  Object.entries(colorDict)
-    .map(([key, value]) => `--rc-shape-${key}: ${value}`)
-    .join("; ");
 
 /**
  * Receives an SVG as a string along with a value for the fill attribute

@@ -2,7 +2,7 @@
   import { Meta, Story, Template } from "@storybook/addon-svelte-csf";
   import StateLoading from "../ui/states/state-loading.svelte";
   import Shell from "../ui/shell.svelte";
-  import { mapStyleOverridesToStyleVariables } from "../helpers/process-style-overrides.ts";
+  import { toStyleVar } from "../helpers/process-style-overrides.ts";
   import Layout from "../ui/layout/layout.svelte";
   import Container from "../ui/layout/container.svelte";
   import Aside from "../ui/layout/aside-block.svelte";
@@ -16,7 +16,7 @@
 
 
 <Template let:args>
-  <Container style={mapStyleOverridesToStyleVariables(args?.brandingAppearance)}>
+  <Container style={toStyleVar(args?.brandingAppearance)}>
     <ModalBackdrop>
       <Layout>
         <Aside>

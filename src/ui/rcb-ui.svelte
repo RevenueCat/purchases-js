@@ -25,7 +25,7 @@
   import Aside from "./layout/aside-block.svelte";
   import Main from "./layout/main-block.svelte";
 
-  import { mapStyleOverridesToStyleVariables } from "../helpers/process-style-overrides";
+  import { toStyleVar } from "../helpers/process-style-overrides";
 
   export let asModal = true;
   export let customerEmail: string | undefined;
@@ -72,7 +72,7 @@
   onMount(async () => {
     productDetails = rcPackage.rcBillingProduct;
 
-    colorVariables = mapStyleOverridesToStyleVariables(
+    colorVariables = toStyleVar(
       brandingInfo?.appearance,
     );
 

@@ -29,13 +29,16 @@ export const toShape = (
   switch (brandingAppearance.shapes) {
     case "rounded":
       return RoundedShape;
-
     case "rectangle":
       return RectangularShape;
-
     case "pill":
       return PillsShape;
     default:
       return DefaultShape;
   }
 };
+
+export const toShapeStyle = (shape: Record<string, string>) =>
+  Object.entries(shape)
+    .map(([key, value]) => `--rc-shape-${key}: ${value}`)
+    .join("; ");
