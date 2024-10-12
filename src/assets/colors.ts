@@ -6,4 +6,6 @@ export const Colors: Record<string, string> = {
   "grey-text-light": "#767676",
   "grey-ui-dark": "#dfdfdf",
   white: "#ffffff",
+  "button-primary-bg": "#000000",
+  "button-primary-text": "#ffffff",
 };

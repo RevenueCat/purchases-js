@@ -5,20 +5,10 @@
   export let intent: "primary" | "secondary" = "primary";
   export let disabled = false;
   export let testId: string | undefined = undefined;
-  const btnColor = getStyleVariable({
-    property:
-      intent === "primary" ? $appearanceConfigStore.color_buttons_primary : "",
-    variableName: "btn-color",
-    fallbackVariableName: "--rc-color-grey-text-dark",
-  });
 </script>
 
-<button
-  on:click
-  class={`intent-${intent}`}
-  {disabled}
-  data-testid={testId}
-  style={btnColor}><slot /></button
+<button on:click class={`intent-${intent}`} {disabled} data-testid={testId}
+  ><slot /></button
 >
 
 <style>
@@ -36,8 +26,8 @@
   }
 
   button.intent-primary {
-    background-color: var(--btn-color);
-    color: var(--rc-color-white);
+    background-color: var(--rc-color-button-primary-bg);
+    color: var(--rc-color-button-primary-text);
     font-size: 16px;
   }
 

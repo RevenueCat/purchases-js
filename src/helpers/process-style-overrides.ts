@@ -21,6 +21,23 @@ export const getStyleVariable = ({
 const variableNameMap: Record<string, string> = {
   color_error: "error",
   color_accent: "focus",
+  color_buttons_primary: "button-primary-bg",
+};
+
+// Variable names for which a contrasting foreground color is needed
+const foregroundColorMap: Record<string, string> = {
+  color_buttons_primary: "button-primary-text",
+};
+
+const parseHexColor: (color: string) => { r: number; g: number; b: number } = (
+  color,
+) => {
+  const hex = color.replace("#", "");
+  return {
+    r: parseInt(hex.substring(0, 2), 16),
+    g: parseInt(hex.substring(2, 4), 16),
+    b: parseInt(hex.substring(4, 6), 16),
+  };
 };
 
 export const mapStyleOverridesToStyleVariables = (
@@ -47,6 +64,28 @@ export const mapStyleOverridesToStyleVariables = (
     },
     Colors,
   );
+
+  // Map foreground color variables
+  for (const [appearanceColorDictKey, defaultColorDictKey] of Object.entries(
+    foregroundColorMap,
+  )) {
+    if (appearance[appearanceColorDictKey as keyof BrandingAppearance]) {
+      // Get the RGB values of the background color
+      const { r, g, b } = parseHexColor(
+        appearance[
+          appearanceColorDictKey as keyof BrandingAppearance
+        ] as string,
+      );
+      if (r * 0.299 + g * 0.587 + b * 0.114 > 186) {
+        // This is a luminance calculation courtesy of GitHub copilot
+        // Light background, use dark text
+        mappedVariablesDict[defaultColorDictKey] = Colors["grey-text-dark"];
+      } else {
+        // Dark background, use light text
+        mappedVariablesDict[defaultColorDictKey] = Colors["white"];
+      }
+    }
+  }
 
   return mapObjectToColorVariableString(mappedVariablesDict);
 };
