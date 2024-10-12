@@ -2,21 +2,6 @@ import { appearanceConfigStore } from "../store/store";
 import { Colors } from "../assets/colors";
 import type { BrandingAppearance } from "src/networking/responses/branding-response";
 
-/**
- * Get the CSS variable string for a given property
- */
-export const getStyleVariable = ({
-  property,
-  variableName,
-  fallbackVariableName,
-}: {
-  property: string | undefined;
-  variableName: string;
-  fallbackVariableName: string;
-}) => {
-  return `--${variableName}: ${property || `var(${fallbackVariableName})`}`;
-};
-
 // Known variable names that map 1<>1 into variables from the Colors object
 const variableNameMap: Record<string, string> = {
   color_error: "error",

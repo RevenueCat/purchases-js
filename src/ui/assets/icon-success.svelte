@@ -1,9 +1,6 @@
 <script>
   import Icon from "../../assets/success.svg?raw"; // Load SVG as a raw string
-  import {
-    getStyleVariable,
-    getReplacedFillSvgAsImgUrl,
-  } from "../../helpers/process-style-overrides";
+  import { getReplacedFillSvgAsImgUrl } from "../../helpers/process-style-overrides";
   import { appearanceConfigStore } from "../../store/store";
 
   const accentColor = $appearanceConfigStore.color_accent;

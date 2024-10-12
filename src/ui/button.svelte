@@ -1,7 +1,4 @@
 <script lang="ts">
-  import { getStyleVariable } from "../helpers/process-style-overrides";
-  import { appearanceConfigStore } from "../store/store";
-
   export let intent: "primary" | "secondary" = "primary";
   export let disabled = false;
   export let testId: string | undefined = undefined;
