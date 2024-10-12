@@ -17,7 +17,14 @@
   import ModalHeader from "../ui/modal-header.svelte";
   import BrandingInfoUI from "../ui/branding-info-ui.svelte";
 
-  import { brandingInfo, product, purchaseFlowError, purchaseResponse, subscriptionOption } from "./fixtures";
+  import {
+    brandingInfo,
+    colorfulBrandingAppearance,
+    product,
+    purchaseFlowError,
+    purchaseResponse,
+    subscriptionOption,
+  } from "./fixtures";
 
 
   let defaultArgs = {
@@ -172,3 +179,5 @@
   color_error:'purple',
   show_product_description:true
 } }} />
+
+<Story name='ColorfulRectangle' args={{ ...defaultArgs, brandingAppearance:colorfulBrandingAppearance }} />

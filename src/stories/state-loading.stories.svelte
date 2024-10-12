@@ -8,7 +8,7 @@
   import Aside from "../ui/layout/aside-block.svelte";
   import ModalBackdrop from "../ui/modal-backdrop.svelte";
 
-  import { product, subscriptionOption } from "./fixtures";
+  import { colorfulBrandingAppearance, product, subscriptionOption } from "./fixtures";
 </script>
 
 
@@ -44,3 +44,6 @@
 <Story name='Rectangle' args={{ productDetails:product, purchaseOption:subscriptionOption, brandingAppearance:{
   shapes:'rectangle'
 } }} />
+
+<Story name='ColorfulRectangle'
+       args={{ productDetails:product, purchaseOption:subscriptionOption,  brandingAppearance:colorfulBrandingAppearance }} />

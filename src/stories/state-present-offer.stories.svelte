@@ -7,7 +7,10 @@
   import Container from "../ui/layout/container.svelte";
   import Aside from "../ui/layout/aside-block.svelte";
   import ModalBackdrop from "../ui/modal-backdrop.svelte";
-  import { brandingInfo, product, subscriptionOption } from "./fixtures";
+  import { brandingInfo, colorfulBrandingAppearance, product, subscriptionOption } from "./fixtures";
+  import IconCart from "../ui/icons/icon-cart.svelte";
+  import ModalHeader from "../ui/modal-header.svelte";
+  import BrandingInfoUI from "../ui/branding-info-ui.svelte";
 
   let defaultArgs = {
     productDetails: product, purchaseOption: subscriptionOption, brandingInfo: brandingInfo,
@@ -24,6 +27,10 @@
       <Layout>
         <Aside>
           <Shell dark>
+            <ModalHeader slot="header">
+              <BrandingInfoUI {...args} />
+              <IconCart />
+            </ModalHeader>
             <StatePresentOffer {...args} />
           </Shell>
         </Aside>
@@ -47,3 +54,6 @@
 <Story name='Rectangle' args={{ ...defaultArgs, brandingAppearance:{
   shapes:'rectangle'
 } }} />
+
+<Story name='ColorfulRectangle'
+       args={{ ...defaultArgs,  brandingAppearance:colorfulBrandingAppearance }} />

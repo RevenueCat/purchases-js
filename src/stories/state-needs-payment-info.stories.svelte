@@ -8,7 +8,7 @@
   import Main from "../ui/layout/main-block.svelte";
   import ModalBackdrop from "../ui/modal-backdrop.svelte";
 
-  import { product, purchaseResponse, subscriptionOption } from "./fixtures";
+  import { colorfulBrandingAppearance, product, purchaseResponse, subscriptionOption } from "./fixtures";
 
   let defaultArgs = {
     paymentInfoCollectionMetadata: purchaseResponse,
@@ -40,18 +40,21 @@
 
 <Story name='Standard' args={{...defaultArgs, brandingAppearance:{} }} />
 
-<Story name='Rounded' args={{...defaultArgs, purchaseOptionToUse:subscriptionOption, brandingAppearance:{
+<Story name='Rounded' args={{...defaultArgs,  brandingAppearance:{
   shapes:'rounded',
   color_error:'blue',
   color_accent:'yellow'
 } }} />
 
-<Story name='Pill' args={{ ...defaultArgs, purchaseOptionToUse:subscriptionOption, brandingAppearance:{
+<Story name='Pill' args={{ ...defaultArgs,  brandingAppearance:{
   shapes:'pill',
   color_error:'purple',
   color_accent:'green'
 } }} />
 
-<Story name='Rectangle' args={{ ...defaultArgs, purchaseOptionToUse:subscriptionOption, brandingAppearance:{
+<Story name='Rectangle' args={{ ...defaultArgs,  brandingAppearance:{
   shapes:'rectangle'
 } }} />
+
+<Story name='ColorfulRectangle'
+       args={{ ...defaultArgs,  brandingAppearance:colorfulBrandingAppearance }} />

@@ -113,6 +113,8 @@
         font-size: 16px;
         height: 48px;
         padding: 6px 14px;
+        background: var(--rc-color-input-background);
+        color: inherit;
     }
 
     input:focus {

@@ -16,8 +16,8 @@
     .rcb-modal-main {
         box-sizing: border-box;
         border-radius: var(--rc-shape-modal-border-radius);
-        background-color: var(--rc-color-white);
-        color: var(--rc-color-grey-text-dark);
+        background-color: var(--rc-color-background-light);
+        color: var(--rc-color-text-dark);
         min-height: 460px;
         padding: 40px;
         flex-direction: column;
@@ -25,8 +25,8 @@
     }
 
     .rcb-modal-dark {
-        background-color: var(--rc-color-grey-text-dark);
-        color: var(--rc-color-white);
+        background-color: var(--rc-color-background-dark);
+        color: var(--rc-color-text-light);
         min-height: 0px;
     }
 

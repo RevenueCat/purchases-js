@@ -93,26 +93,34 @@
           fontSizeBase: "16px",
           fontSizeSm: "16px",
           spacingGridRow: "16px",
-          colorText: customColors["grey-text-dark"],
+          colorText: customColors["text-dark"],
           focusBoxShadow: "none",
           colorDanger: customColors["error"],
+
         }}
         rules={{
           ".Input": {
             boxShadow: "none",
             border: `2px solid ${customColors["grey-ui-dark"]}`,
+            backgroundColor: "transparent",
           },
           ".Input:focus": {
             border: `2px solid ${customColors["focus"]}`,
             outline: "none",
+
           },
           ".Label": {
             marginBottom: "8px",
             fontWeight: "500",
             lineHeight: "22px",
+
           },
           ".Input--invalid": {
             boxShadow: "none",
+          },
+          ".Tab": {
+            boxShadow: "none",
+            backgroundColor: "transparent",
           },
         }}
       >

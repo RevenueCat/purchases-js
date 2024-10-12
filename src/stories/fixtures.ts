@@ -76,3 +76,13 @@ export const purchaseResponse = {
 };
 
 export const purchaseFlowError = new PurchaseFlowError(1);
+
+export const colorfulBrandingAppearance = {
+  shapes: "rounded",
+  color_form_bg: "#404040",
+  color_error: "#E79462",
+  color_product_info_bg: "#ffffff",
+  color_buttons_primary: "#AC7DE3",
+  color_accent: "#99BB37",
+  show_product_description: true,
+};

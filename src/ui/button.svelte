@@ -45,9 +45,11 @@
 
     button:disabled {
         color: var(--rc-color-grey-text-light);
+        background-color: var(--rc-color-grey-ui-dark);
     }
 
     button.intent-primary:disabled {
         color: var(--rc-color-grey-text-light);
+        background-color: var(--rc-color-grey-ui-dark);
     }
 </style>
