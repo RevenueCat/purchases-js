@@ -2,6 +2,7 @@
   import { Meta, Story, Template } from "@storybook/addon-svelte-csf";
   import StatePresentOffer from "../ui/states/state-present-offer.svelte";
   import Shell from "../ui/shell.svelte";
+  import SandboxBanner from "../ui/sandbox-banner.svelte";
   import { toStyleVar } from "../helpers/process-style-overrides.ts";
   import Layout from "../ui/layout/layout.svelte";
   import Container from "../ui/layout/container.svelte";
@@ -14,6 +15,7 @@
 
   let defaultArgs = {
     productDetails: product, purchaseOption: subscriptionOption, brandingInfo: brandingInfo,
+    sandbox: false,
   };
 </script>
 
@@ -29,7 +31,11 @@
           <Shell dark>
             <ModalHeader slot="header">
               <BrandingInfoUI {...args} />
-              <IconCart />
+              {#if args.sandbox}
+                <SandboxBanner />
+              {:else}
+                <IconCart />
+              {/if}
             </ModalHeader>
             <StatePresentOffer {...args} />
           </Shell>
@@ -54,6 +60,9 @@
 <Story name='Rectangle' args={{ ...defaultArgs, brandingAppearance:{
   shapes:'rectangle'
 } }} />
+
+<Story name='Sandbox'
+       args={{ ...defaultArgs,  sandbox: true, brandingAppearance:{} }} />
 
 <Story name='ColorfulRectangle'
        args={{ ...defaultArgs,  brandingAppearance:colorfulBrandingAppearance }} />
