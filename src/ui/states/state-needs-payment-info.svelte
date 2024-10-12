@@ -16,7 +16,8 @@
   import ProcessingAnimation from "../processing-animation.svelte";
   import type { Product, PurchaseOption } from "../../entities/offerings";
   import { toShape } from "../theme/shapes";
-  import {type BrandingInfoResponse } from "../../networking/responses/branding-response.ts";
+  import { type BrandingInfoResponse } from "../../networking/responses/branding-response.ts";
+  import CloseButton from "../close-button.svelte";
 
   export let onClose: any;
   export let onContinue: any;
@@ -126,8 +127,11 @@
         }}
       >
         <ModalHeader>
-          <div>Secure Checkout</div>
-          <IconLock />
+          <div style="display: flex; align-items: center; justify-content: baseline;">
+            <IconLock />
+            <div style="margin-left: 10px">Secure Checkout</div>
+          </div>
+          <CloseButton on:click={onClose} />
         </ModalHeader>
         <ModalSection>
           <div class="rcb-stripe-elements-container">
@@ -145,10 +149,6 @@
                 Pay
               {/if}
             </Button>
-            <Button disabled={processing} intent="secondary" on:click={onClose}
-            >Close
-            </Button
-            >
           </RowLayout>
         </ModalFooter>
       </Elements>

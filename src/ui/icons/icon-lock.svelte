@@ -5,3 +5,10 @@
 <div style="color:var(--rc-color-accent);" class="rcb-ui-asset-icon">
   {@html Icon}
 </div>
+
+<style>
+    div {
+        height: 24px;
+        width: 24px;
+    }
+</style>

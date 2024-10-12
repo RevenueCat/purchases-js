@@ -10,6 +10,7 @@
   export let onContinue: () => void;
   export let title: string;
   export let type: string;
+  export let closeButtonTitle: string = "Go back to app";
 </script>
 
 <RowLayout gutter="32px">
@@ -28,29 +29,29 @@
     </div>
   </ModalSection>
   <ModalFooter>
-    <Button on:click={onContinue}>Go back to app</Button>
+    <Button on:click={onContinue}>{closeButtonTitle}</Button>
   </ModalFooter>
 </RowLayout>
 
 <style>
-  .rcb-modal-message {
-    width: 100%;
-    min-height: 160px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    text-align: center;
-  }
+    .rcb-modal-message {
+        width: 100%;
+        min-height: 160px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        text-align: center;
+    }
 
-  .title {
-    font-size: 24px;
-    line-height: 1.25em;
-  }
+    .title {
+        font-size: 24px;
+        line-height: 1.25em;
+    }
 
-  .subtitle {
-    font-size: 16px;
-    line-height: 1.25em;
-    overflow-wrap: anywhere;
-  }
+    .subtitle {
+        font-size: 16px;
+        line-height: 1.25em;
+        overflow-wrap: anywhere;
+    }
 </style>

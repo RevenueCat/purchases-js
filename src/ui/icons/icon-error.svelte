@@ -1,13 +1,15 @@
 <script>
-  import Icon from "../../assets/error.svg";
+  import Icon from "../../assets/error.svg?raw"; // Load SVG as a raw string
 </script>
 
-<img src={Icon} alt="icon" class="rcb-ui-asset-icon" />
+<div style="color:var(--rc-color-error);" class="rcb-ui-asset-icon">
+  {@html Icon}
+</div>
 
 <style>
-  img {
-    width: 124px;
-    height: 124px;
-    margin: 0 auto;
-  }
+    .rcb-ui-asset-icon {
+        width: 96px;
+        height: 96px;
+        margin: 0 auto;
+    }
 </style>

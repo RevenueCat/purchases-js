@@ -16,6 +16,7 @@
   title="Purchase successful"
   {brandingInfo}
   {onContinue}
+  closeButtonTitle="Close"
 >
   <IconSuccess slot="icon" />
   {#if isSubscription}
