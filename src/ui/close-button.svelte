@@ -14,5 +14,6 @@
     cursor: pointer;
     background-color: transparent;
     padding: 0px;
+    height: 24px;
   }
 </style>
