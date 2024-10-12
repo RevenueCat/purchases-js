@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { toProductInfoStyleVar } from "../theme/utils.ts";
   import { type BrandingAppearance } from "../../networking/responses/branding-response";
   import Modal from "../modal.svelte";
+  import { Theme } from "../theme/theme";
 
   export let brandingAppearance: BrandingAppearance | undefined = undefined;
-  let style = toProductInfoStyleVar(brandingAppearance);
+  let style = new Theme(brandingAppearance).productInfoStyleVars;
 </script>
 
 <div class="rcb-ui-aside" style={style}>

@@ -23,4 +23,3 @@ export const PillsShape: Shape = {
 };
 
 export const DefaultShape = RoundedShape;
-

@@ -1,5 +1,11 @@
 import { BrandingAppearance } from "src/networking/responses/branding-response";
-import { Colors, DEFAULT_FORM_COLORS, DEFAULT_INFO_COLORS } from "./colors";
+import {
+  Colors,
+  DEFAULT_FORM_COLORS,
+  DEFAULT_INFO_COLORS,
+  FormColorsToBrandingAppearanceMapping,
+  InfoColorsToBrandingAppearanceMapping,
+} from "./colors";
 import {
   DefaultShape,
   PillsShape,
@@ -36,7 +42,7 @@ const rgbToTextColors = ([r, g, b]: [number, number, number]) => {
   };
 };
 
-const textColorForBackground = (
+const textColorsForBackground = (
   backgroundColors: string,
   defaultColors: Colors,
 ) => {
@@ -66,72 +72,62 @@ const fallback = (somethingNullable: any | null, defaultValue: any) => {
   return somethingNullable ? somethingNullable : defaultValue;
 };
 
+const mapColors = (
+  colorsMapping: any,
+  defaultColors: Colors,
+  brandingAppearance?: BrandingAppearance | undefined,
+): Colors => {
+  const mappedColors = Object.entries(colorsMapping).map(([target, source]) => [
+    target,
+    fallback(
+      brandingAppearance
+        ? brandingAppearance[source as keyof BrandingAppearance]
+        : null,
+      defaultColors[target as keyof Colors],
+    ),
+  ]);
+
+  return Object.fromEntries(mappedColors) as Colors;
+};
+
+export const toColors = (
+  colorsMapping: any,
+  defaultColors: Colors,
+  brandingAppearance?: BrandingAppearance | undefined,
+): Colors => {
+  const mappedColors = mapColors(
+    colorsMapping,
+    defaultColors,
+    brandingAppearance,
+  );
+
+  return brandingAppearance
+    ? {
+        ...defaultColors,
+        ...mappedColors,
+        ...textColorsForBackground(mappedColors.background, defaultColors),
+      }
+    : { ...defaultColors }; //copy, do not reference.
+};
+
 export const toProductInfoColors = (
   brandingAppearance?: BrandingAppearance | undefined,
 ): Colors => {
-  return brandingAppearance
-    ? {
-        ...DEFAULT_INFO_COLORS,
-        error: fallback(
-          brandingAppearance.color_error,
-          DEFAULT_INFO_COLORS["error"],
-        ),
-        focus: fallback(
-          brandingAppearance.color_accent,
-          DEFAULT_INFO_COLORS["focus"],
-        ),
-        accent: fallback(
-          brandingAppearance.color_accent,
-          DEFAULT_INFO_COLORS["accent"],
-        ),
-        primary: fallback(
-          brandingAppearance.color_buttons_primary,
-          DEFAULT_INFO_COLORS["primary"],
-        ),
-        background: fallback(
-          brandingAppearance.color_product_info_bg,
-          DEFAULT_INFO_COLORS["background"],
-        ),
-        ...textColorForBackground(
-          brandingAppearance.color_product_info_bg,
-          DEFAULT_INFO_COLORS,
-        ),
-      }
-    : { ...DEFAULT_INFO_COLORS }; //copy, do not reference.
+  return toColors(
+    InfoColorsToBrandingAppearanceMapping,
+    DEFAULT_INFO_COLORS,
+    brandingAppearance,
+  );
 };
 
 export const toFormColors = (
   brandingAppearance?: BrandingAppearance | undefined,
 ): Colors => {
-  return brandingAppearance
-    ? {
-        ...DEFAULT_FORM_COLORS,
-        error: fallback(
-          brandingAppearance.color_error,
-          DEFAULT_FORM_COLORS["error"],
-        ),
-        focus: fallback(
-          brandingAppearance.color_accent,
-          DEFAULT_FORM_COLORS["focus"],
-        ),
-        accent: fallback(
-          brandingAppearance.color_accent,
-          DEFAULT_FORM_COLORS["accent"],
-        ),
-        primary: fallback(
-          brandingAppearance.color_buttons_primary,
-          DEFAULT_FORM_COLORS["primary"],
-        ),
-        background: fallback(
-          brandingAppearance.color_form_bg,
-          DEFAULT_FORM_COLORS["background"],
-        ),
-        ...textColorForBackground(
-          brandingAppearance.color_form_bg,
-          DEFAULT_FORM_COLORS,
-        ),
-      }
-    : { ...DEFAULT_FORM_COLORS }; //copy, do not reference.
+  return toColors(
+    FormColorsToBrandingAppearanceMapping,
+    DEFAULT_FORM_COLORS,
+    brandingAppearance,
+  );
 };
 
 export const toShape = (

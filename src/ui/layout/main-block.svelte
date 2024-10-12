@@ -2,9 +2,10 @@
   import { toFormStyleVar } from "../theme/utils.ts";
   import { type BrandingAppearance } from "../../networking/responses/branding-response";
   import Modal from "../modal.svelte";
+  import { Theme } from "../theme/theme";
 
   export let brandingAppearance: BrandingAppearance | undefined = undefined;
-  let style = toFormStyleVar(brandingAppearance);
+  let style = new Theme(brandingAppearance).formStyleVars;
 </script>
 
 <div class="rcb-ui-main" style={style}>

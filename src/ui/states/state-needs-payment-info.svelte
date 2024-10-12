@@ -14,8 +14,9 @@
   import IconLock from "../icons/icon-lock.svelte";
   import ProcessingAnimation from "../processing-animation.svelte";
   import type { Product, PurchaseOption } from "../../entities/offerings";
-  import {type BrandingInfoResponse } from "../../networking/responses/branding-response.ts";
+  import { type BrandingInfoResponse } from "../../networking/responses/branding-response.ts";
   import { toFormColors, toShape } from "../theme/utils";
+  import { Theme } from "../theme/theme";
 
   export let onClose: any;
   export let onContinue: any;
@@ -75,8 +76,10 @@
     }
   };
 
-  let shapeCustomisation = toShape(brandingInfo?.appearance);
-  let customColors = toFormColors(brandingInfo?.appearance);
+  const theme = new Theme(brandingInfo?.appearance);
+
+  let shapeCustomisation = theme.shape;
+  let customColors = theme.formColors;
 </script>
 
 <div>
