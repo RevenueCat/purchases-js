@@ -6,8 +6,8 @@
 
 <style>
   img {
-    width: 124px;
-    height: 124px;
+    width: 96px;
+    height: 96px;
     margin: 0 auto;
   }
 </style>

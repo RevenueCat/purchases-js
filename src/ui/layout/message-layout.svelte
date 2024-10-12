@@ -16,7 +16,7 @@
   <BrandAndCloseHeader {brandingInfo} onClose={onContinue} />
   <ModalSection>
     <div class="rcb-modal-message" data-type={type}>
-      <RowLayout gutter="16px">
+      <RowLayout gutter="48px">
         <slot name="icon" />
         <RowLayout gutter="16px">
           <span class="title">{title}</span>
@@ -36,6 +36,8 @@
   .rcb-modal-message {
     width: 100%;
     min-height: 160px;
+    margin-top: 16px;
+    margin-bottom: 16px;
     display: flex;
     justify-content: center;
     align-items: center;
