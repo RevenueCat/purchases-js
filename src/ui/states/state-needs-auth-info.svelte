@@ -8,6 +8,7 @@
   import { validateEmail } from "../../helpers/validators";
   import { PurchaseFlowError } from "../../helpers/purchase-operation-helper";
   import { beforeUpdate } from "svelte";
+  import CloseButton from "../close-button.svelte";
 
   export let onContinue: any;
   export let onClose: () => void;
@@ -32,8 +33,16 @@
   });
 </script>
 
+<ModalHeader
+  ><div>Billing email address</div>
+  <CloseButton
+    on:click={() => {
+      console.log("Close clicked");
+      onClose();
+    }}
+  />
+</ModalHeader>
 <form on:submit|preventDefault={handleContinue}>
-  <ModalHeader>Billing email address</ModalHeader>
   <ModalSection>
     <div class="form-container">
       <div class="form-label"><label for="email">Email</label></div>
@@ -57,9 +66,6 @@
           Continue
         {/if}
       </Button>
-      <Button intent="secondary" on:click={onClose} disabled={processing}
-        >Close</Button
-      >
     </RowLayout>
   </ModalFooter>
 </form>

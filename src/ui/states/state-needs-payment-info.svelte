@@ -18,6 +18,7 @@
   import { Colors } from "../../assets/colors";
   import ProcessingAnimation from "../processing-animation.svelte";
   import type { Product, PurchaseOption } from "../../entities/offerings";
+  import CloseButton from "../close-button.svelte";
 
   export let onClose: any;
   export let onContinue: any;
@@ -115,8 +116,9 @@
         }}
       >
         <ModalHeader>
-          <div>Secure Checkout</div>
           <IconLock />
+          <div class="title">Secure Checkout</div>
+          <CloseButton on:click={onClose} />
         </ModalHeader>
         <ModalSection>
           <div class="rcb-stripe-elements-container">
@@ -134,9 +136,6 @@
                 Pay
               {/if}
             </Button>
-            <Button disabled={processing} intent="secondary" on:click={onClose}
-              >Close</Button
-            >
           </RowLayout>
         </ModalFooter>
       </Elements>
@@ -151,5 +150,10 @@
     width: 100%;
     margin-top: 32px;
     margin-bottom: 24px;
+  }
+
+  .title {
+    margin-left: 8px;
+    flex: 1;
   }
 </style>

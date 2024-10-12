@@ -18,7 +18,7 @@
     border-radius: 16px;
     background-color: var(--rc-color-white);
     color: var(--rc-color-grey-text-dark);
-    min-height: 460px;
+    min-height: 360px;
     padding: 40px;
     flex-direction: column;
     display: flex;
