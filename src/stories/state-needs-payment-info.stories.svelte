@@ -6,7 +6,7 @@
   import Main from "../ui/layout/main-block.svelte";
   import ModalBackdrop from "../ui/modal-backdrop.svelte";
 
-  import { colorfulBrandingAppearance, product, purchaseResponse, subscriptionOption } from "./fixtures";
+  import { brandingInfo, colorfulBrandingAppearance, product, purchaseResponse, subscriptionOption } from "./fixtures";
 
   let defaultArgs = {
     paymentInfoCollectionMetadata: purchaseResponse,
@@ -26,7 +26,7 @@
     <ModalBackdrop>
       <Layout>
         <Main brandingAppearance={args.brandingAppearance}>
-            <StateNeedsPaymentInfo {...args} />
+          <StateNeedsPaymentInfo {...args} />
         </Main>
       </Layout>
     </ModalBackdrop>
@@ -53,4 +53,4 @@
 } }} />
 
 <Story name='ColorfulRectangle'
-       args={{ ...defaultArgs,  brandingAppearance:colorfulBrandingAppearance }} />
+       args={{ ...defaultArgs, brandingInfo:{...brandingInfo,appearance:colorfulBrandingAppearance}, brandingAppearance:colorfulBrandingAppearance }} />
