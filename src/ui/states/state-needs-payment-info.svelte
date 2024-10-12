@@ -12,11 +12,10 @@
   import { PurchaseFlowError, PurchaseFlowErrorCode } from "../../helpers/purchase-operation-helper";
   import ModalHeader from "../modal-header.svelte";
   import IconLock from "../icons/icon-lock.svelte";
-  import { toFormColors } from "../theme/colors";
   import ProcessingAnimation from "../processing-animation.svelte";
   import type { Product, PurchaseOption } from "../../entities/offerings";
-  import { toShape } from "../theme/shapes";
   import {type BrandingInfoResponse } from "../../networking/responses/branding-response.ts";
+  import { toFormColors, toShape } from "../theme/utils";
 
   export let onClose: any;
   export let onContinue: any;
