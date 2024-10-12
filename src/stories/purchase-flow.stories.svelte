@@ -7,8 +7,6 @@
   import StateError from "../ui/states/state-error.svelte";
   import StateLoading from "../ui/states/state-loading.svelte";
 
-  import Shell from "../ui/shell.svelte";
-  import { toStyleVar } from "../helpers/process-style-overrides.ts";
   import Layout from "../ui/layout/layout.svelte";
   import Container from "../ui/layout/container.svelte";
   import Main from "../ui/layout/main-block.svelte";
@@ -45,106 +43,85 @@
 
 <Template let:args>
   <div style="background-color: rgba(40, 40, 40, 0.75); width: 100vw; min-height: 100vh; padding-top:100px">
-
-    <Container style={toStyleVar(args?.brandingAppearance)}>
+    <Container>
       <Layout>
-        <Aside>
-          <Shell dark>
-            <ModalHeader slot="header">
-              <BrandingInfoUI {...args} />
-              <IconCart />
-            </ModalHeader>
-            <StatePresentOffer {...args} />
-          </Shell>
+        <Aside brandingAppearance={args.brandingAppearance}>
+          <ModalHeader slot="header">
+            <BrandingInfoUI {...args} />
+            <IconCart />
+          </ModalHeader>
+          <StatePresentOffer {...args} />
         </Aside>
-        <Main>
-          <Shell>
-            <StateNeedsAuthInfo {...args} />
-          </Shell>
+        <Main brandingAppearance={args.brandingAppearance}>
+          <StateNeedsAuthInfo {...args} />
         </Main>
       </Layout>
     </Container>
 
     <div style="height: 100px" />
 
-    <Container style={toStyleVar(args?.brandingAppearance)}>
+    <Container>
       <Layout>
-        <Aside>
-          <Shell dark>
-            <ModalHeader slot="header">
-              <BrandingInfoUI {...args} />
-              <IconCart />
-            </ModalHeader>
-            <StatePresentOffer {...args} />
-          </Shell>
+        <Aside brandingAppearance={args.brandingAppearance}>
+          <ModalHeader slot="header">
+            <BrandingInfoUI {...args} />
+            <IconCart />
+          </ModalHeader>
+          <StatePresentOffer {...args} />
         </Aside>
-        <Main>
-          <Shell>
-            <StateNeedsPaymentInfo {...args} />
-          </Shell>
+        <Main brandingAppearance={args.brandingAppearance}>
+          <StateNeedsPaymentInfo {...args} />
         </Main>
       </Layout>
     </Container>
 
     <div style="height: 100px" />
 
-    <Container style={toStyleVar(args?.brandingAppearance)}>
+    <Container>
       <Layout>
-        <Aside>
-          <Shell dark>
-            <ModalHeader slot="header">
-              <BrandingInfoUI {...args} />
-              <IconCart />
-            </ModalHeader>
-            <StatePresentOffer {...args} />
-          </Shell>
+        <Aside brandingAppearance={args.brandingAppearance}>
+          <ModalHeader slot="header">
+            <BrandingInfoUI {...args} />
+            <IconCart />
+          </ModalHeader>
+          <StatePresentOffer {...args} />
         </Aside>
-        <Main>
-          <Shell>
-            <StateLoading {...args} />
-          </Shell>
+        <Main brandingAppearance={args.brandingAppearance}>
+          <StateLoading {...args} />
         </Main>
       </Layout>
     </Container>
 
     <div style="height: 100px" />
 
-    <Container style={toStyleVar(args?.brandingAppearance)}>
+    <Container>
       <Layout>
-        <Aside>
-          <Shell dark>
-            <ModalHeader slot="header">
-              <BrandingInfoUI {...args} />
-              <IconCart />
-            </ModalHeader>
-            <StatePresentOffer {...args} />
-          </Shell>
+        <Aside brandingAppearance={args.brandingAppearance}>
+          <ModalHeader slot="header">
+            <BrandingInfoUI {...args} />
+            <IconCart />
+          </ModalHeader>
+          <StatePresentOffer {...args} />
         </Aside>
-        <Main>
-          <Shell>
-            <StateSuccess {...args} />
-          </Shell>
+        <Main brandingAppearance={args.brandingAppearance}>
+          <StateSuccess {...args} />
         </Main>
       </Layout>
     </Container>
 
     <div style="height: 100px" />
 
-    <Container style={toStyleVar(args?.brandingAppearance)}>
+    <Container>
       <Layout>
-        <Aside>
-          <Shell dark>
-            <ModalHeader slot="header">
-              <BrandingInfoUI {...args} />
-              <IconCart />
-            </ModalHeader>
-            <StatePresentOffer {...args} />
-          </Shell>
+        <Aside brandingAppearance={args.brandingAppearance}>
+          <ModalHeader slot="header">
+            <BrandingInfoUI {...args} />
+            <IconCart />
+          </ModalHeader>
+          <StatePresentOffer {...args} />
         </Aside>
-        <Main>
-          <Shell>
-            <StateError {...args} />
-          </Shell>
+        <Main brandingAppearance={args.brandingAppearance}>
+          <StateError {...args} />
         </Main>
       </Layout>
     </Container>
@@ -180,4 +157,5 @@
   show_product_description:true
 } }} />
 
-<Story name='ColorfulRectangle' args={{ ...defaultArgs, brandingAppearance:colorfulBrandingAppearance }} />
+<Story name='ColorfulRectangle'
+       args={{ ...defaultArgs, brandingInfo:{...brandingInfo, appearance:colorfulBrandingAppearance}, brandingAppearance:colorfulBrandingAppearance }} />

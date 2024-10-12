@@ -1,9 +1,7 @@
 <script>
   import { Meta, Story, Template } from "@storybook/addon-svelte-csf";
   import StatePresentOffer from "../ui/states/state-present-offer.svelte";
-  import Shell from "../ui/shell.svelte";
   import SandboxBanner from "../ui/sandbox-banner.svelte";
-  import { toStyleVar } from "../helpers/process-style-overrides.ts";
   import Layout from "../ui/layout/layout.svelte";
   import Container from "../ui/layout/container.svelte";
   import Aside from "../ui/layout/aside-block.svelte";
@@ -24,21 +22,19 @@
 
 
 <Template let:args>
-  <Container style={toStyleVar(args?.brandingAppearance)}>
+  <Container>
     <ModalBackdrop>
       <Layout>
-        <Aside>
-          <Shell dark>
-            <ModalHeader slot="header">
-              <BrandingInfoUI {...args} />
-              {#if args.sandbox}
-                <SandboxBanner />
-              {:else}
-                <IconCart />
-              {/if}
-            </ModalHeader>
-            <StatePresentOffer {...args} />
-          </Shell>
+        <Aside brandingAppearance={args.brandingAppearance}>
+          <ModalHeader slot="header">
+            <BrandingInfoUI {...args} />
+            {#if args.sandbox}
+              <SandboxBanner />
+            {:else}
+              <IconCart />
+            {/if}
+          </ModalHeader>
+          <StatePresentOffer {...args} />
         </Aside>
       </Layout>
     </ModalBackdrop>

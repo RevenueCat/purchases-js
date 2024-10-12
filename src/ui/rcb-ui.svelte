@@ -8,7 +8,6 @@
   import StateNeedsPaymentInfo from "./states/state-needs-payment-info.svelte";
   import StateNeedsAuthInfo from "./states/state-needs-auth-info.svelte";
   import ConditionalFullScreen from "./conditional-full-screen.svelte";
-  import Shell from "./shell.svelte";
   import { type PurchaseResponse } from "../networking/responses/purchase-response";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import {
@@ -25,7 +24,7 @@
   import Aside from "./layout/aside-block.svelte";
   import Main from "./layout/main-block.svelte";
 
-  import { toStyleVar } from "../helpers/process-style-overrides";
+  import { toProductInfoStyleVar } from "./theme/utils";
 
   export let asModal = true;
   export let customerEmail: string | undefined;
@@ -72,7 +71,7 @@
   onMount(async () => {
     productDetails = rcPackage.rcBillingProduct;
 
-    colorVariables = toStyleVar(
+    colorVariables = toProductInfoStyleVar(
       brandingInfo?.appearance,
     );
 
@@ -194,75 +193,72 @@
   <ConditionalFullScreen condition={asModal}>
     <Layout style={colorVariables}>
       {#if statesWhereOfferDetailsAreShown.includes(state)}
-        <Aside>
-          <Shell dark>
-            <ModalHeader slot="header">
-              <BrandingInfoUI {brandingInfo} />
-              {#if purchases.isSandbox()}
-                <SandboxBanner />
-              {:else}
-                <IconCart />
-              {/if}
-            </ModalHeader>
-            {#if productDetails && purchaseOptionToUse}
-              <StatePresentOffer
-                {productDetails}
-                purchaseOption={purchaseOptionToUse}
-              />
+        <Aside brandingAppearance={brandingInfo?.appearance}>
+          <ModalHeader slot="header">
+            <BrandingInfoUI {brandingInfo} />
+            {#if purchases.isSandbox()}
+              <SandboxBanner />
+            {:else}
+              <IconCart />
             {/if}
-          </Shell>
-        </Aside>
-      {/if}
-      <Main>
-        <Shell>
-          {#if state === "present-offer" && productDetails && purchaseOptionToUse}
+          </ModalHeader>
+          {#if productDetails && purchaseOptionToUse}
             <StatePresentOffer
               {productDetails}
               purchaseOption={purchaseOptionToUse}
             />
           {/if}
-          {#if state === "present-offer" && !productDetails}
-            <StateLoading />
-          {/if}
-          {#if state === "needs-auth-info" || state === "processing-auth-info"}
-            <StateNeedsAuthInfo
-              onContinue={handleContinue}
-              onClose={handleClose}
-              processing={state === "processing-auth-info"}
-              {lastError}
-            />
-          {/if}
-          {#if paymentInfoCollectionMetadata && (state === "needs-payment-info" || state === "polling-purchase-status") && productDetails && purchaseOptionToUse}
-            <StateNeedsPaymentInfo
-              {paymentInfoCollectionMetadata}
-              onContinue={handleContinue}
-              onClose={handleClose}
-              onError={handleError}
-              processing={state === "polling-purchase-status"}
-              {productDetails}
-              {purchaseOptionToUse}
-            />
-          {/if}
-          {#if state === "loading"}
-            <StateLoading />
-          {/if}
-          {#if state === "error"}
-            <StateError
-              {brandingInfo}
-              lastError={lastError ??
+        </Aside>
+      {/if}
+      <Main brandingAppearance={brandingInfo?.appearance}>
+        {#if state === "present-offer" && productDetails && purchaseOptionToUse}
+          <StatePresentOffer
+            {productDetails}
+            purchaseOption={purchaseOptionToUse}
+          />
+        {/if}
+        {#if state === "present-offer" && !productDetails}
+          <StateLoading />
+        {/if}
+        {#if state === "needs-auth-info" || state === "processing-auth-info"}
+          <StateNeedsAuthInfo
+            onContinue={handleContinue}
+            onClose={handleClose}
+            processing={state === "processing-auth-info"}
+            {lastError}
+          />
+        {/if}
+        {#if paymentInfoCollectionMetadata && (state === "needs-payment-info" || state === "polling-purchase-status") && productDetails && purchaseOptionToUse}
+          <StateNeedsPaymentInfo
+            {paymentInfoCollectionMetadata}
+            onContinue={handleContinue}
+            onClose={handleClose}
+            onError={handleError}
+            processing={state === "polling-purchase-status"}
+            {productDetails}
+            {purchaseOptionToUse}
+            {brandingInfo}
+          />
+        {/if}
+        {#if state === "loading"}
+          <StateLoading />
+        {/if}
+        {#if state === "error"}
+          <StateError
+            {brandingInfo}
+            lastError={lastError ??
                 new PurchaseFlowError(
                   PurchaseFlowErrorCode.UnknownError,
                   "Unknown error without state set.",
                 )}
-              supportEmail={brandingInfo?.seller_company_support_email}
-              productDetails={productDetails}
-              onContinue={closeWithError}
-            />
-          {/if}
-          {#if state === "success"}
-            <StateSuccess {productDetails} {brandingInfo} onContinue={handleContinue} />
-          {/if}
-        </Shell>
+            supportEmail={brandingInfo?.seller_company_support_email}
+            productDetails={productDetails}
+            onContinue={closeWithError}
+          />
+        {/if}
+        {#if state === "success"}
+          <StateSuccess {productDetails} {brandingInfo} onContinue={handleContinue} />
+        {/if}
       </Main>
     </Layout>
   </ConditionalFullScreen>

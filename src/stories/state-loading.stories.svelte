@@ -1,11 +1,9 @@
 <script>
   import { Meta, Story, Template } from "@storybook/addon-svelte-csf";
   import StateLoading from "../ui/states/state-loading.svelte";
-  import Shell from "../ui/shell.svelte";
-  import { toStyleVar } from "../helpers/process-style-overrides.ts";
   import Layout from "../ui/layout/layout.svelte";
   import Container from "../ui/layout/container.svelte";
-  import Aside from "../ui/layout/aside-block.svelte";
+  import Main from "../ui/layout/main-block.svelte";
   import ModalBackdrop from "../ui/modal-backdrop.svelte";
 
   import { colorfulBrandingAppearance, product, subscriptionOption } from "./fixtures";
@@ -16,14 +14,12 @@
 
 
 <Template let:args>
-  <Container style={toStyleVar(args?.brandingAppearance)}>
+  <Container>
     <ModalBackdrop>
       <Layout>
-        <Aside>
-          <Shell>
-            <StateLoading {...args} />
-          </Shell>
-        </Aside>
+        <Main brandingAppearance={args.brandingAppearance}>
+          <StateLoading {...args} />
+        </Main>
       </Layout>
     </ModalBackdrop>
   </Container>

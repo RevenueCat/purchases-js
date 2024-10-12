@@ -1,21 +1,36 @@
 import { BrandingAppearance } from "../../networking/responses/branding-response";
 
-export const DEFAULT_COLORS: Record<string, string> = {
+export const DEFAULT_FORM_COLORS: Record<string, string> = {
   error: "#f2545b",
   warning: "#f4e971",
-  focus: "#000080",
-  "grey-text-dark": "#000000",
-  "grey-text-light": "#767676",
-  "grey-ui-dark": "#dfdfdf",
+  focus: "#576CDB",
+  accent: "#576CDB",
+  primary: "#000000",
   white: "#ffffff",
-  "background-dark": "#000000",
-  "background-light": "#ffffff",
-  "text-dark": "#000000",
-  "text-light": "#ffffff",
+  "grey-text-dark": "rgba(0,0,0,1)",
+  "grey-text-light": "rgba(0,0,0,0.5)",
+  "grey-ui-dark": "#dfdfdf",
+  "grey-ui-light": "rgba(0,0,0,0.125)",
   "input-background": "transparent",
+  background: "white",
 };
 
-const hexToRGB = (color: string) => {
+export const DEFAULT_INFO_COLORS: Record<string, string> = {
+  error: "#f2545b",
+  warning: "#f4e971",
+  focus: "#576CDB",
+  accent: "#576CDB",
+  primary: "#ffffff",
+  white: "#ffffff",
+  "grey-text-dark": "rgba(255,255,255,1)",
+  "grey-text-light": "rgba(255,255,255,0.5)",
+  "grey-ui-dark": "rgba(255,255,255,1)",
+  "grey-ui-light": "rgba(255,255,255,0.125)",
+  "input-background": "transparent",
+  background: "#000000",
+};
+
+const hexToRGB = (color: string): [number, number, number] | null => {
   if (color.length == 7)
     return [
       parseInt(color.slice(1, 3), 16),
@@ -31,23 +46,38 @@ const hexToRGB = (color: string) => {
   return null;
 };
 
-const textColorForBackground = (color: string) => {
+const rgbToColors = ([r, g, b]: [number, number, number]) => {
+  const sum = r + g + b;
+  const baseColor = sum <= 3 * 128 ? "255,255,255" : "0,0,0";
+
+  return {
+    "grey-text-dark": `rgba(${baseColor},0.8)`,
+    "grey-text-light": `rgba(${baseColor},0.50)`,
+    "grey-ui-dark": `rgba(${baseColor},0.125)`,
+    "grey-ui-light": `rgba(${baseColor},0.05)`,
+  };
+};
+
+const textColorForBackground = (color: string, defaultColors: any) => {
+  const fallback = {
+    "grey-text-dark": defaultColors["grey-text-dark"],
+    "grey-text-light": defaultColors["grey-text-light"],
+    "grey-ui-dark": defaultColors["grey-ui-dark"],
+    "grey-ui-light": defaultColors["grey-ui-light"],
+  };
+
   if (!color) {
-    return null;
+    return fallback;
   }
   if (color.startsWith("#")) {
     const rgb = hexToRGB(color);
     if (rgb == null) {
-      return null;
+      return fallback;
     }
-    const [r, g, b] = rgb;
-    const sum = r + g + b;
-    if (sum < 3 * 128) {
-      return "white";
-    }
-    return "black";
+    return rgbToColors(rgb);
   }
-  return null;
+
+  return fallback;
 };
 
 const fallback = (somethingNullable: any | null, defaultValue: any) => {
@@ -57,32 +87,72 @@ const fallback = (somethingNullable: any | null, defaultValue: any) => {
   return somethingNullable;
 };
 
-export const toColors = (
+export const toProductInfoColors = (
   brandingAppearance?: BrandingAppearance | undefined,
 ) => {
   return brandingAppearance
     ? {
-        ...DEFAULT_COLORS,
-        error: brandingAppearance.color_error,
-        focus: brandingAppearance.color_accent,
-        "background-dark": fallback(
+        ...DEFAULT_INFO_COLORS,
+        error: fallback(
+          brandingAppearance.color_error,
+          DEFAULT_INFO_COLORS["error"],
+        ),
+        focus: fallback(
+          brandingAppearance.color_accent,
+          DEFAULT_INFO_COLORS["focus"],
+        ),
+        accent: fallback(
+          brandingAppearance.color_accent,
+          DEFAULT_INFO_COLORS["accent"],
+        ),
+        primary: fallback(
+          brandingAppearance.color_buttons_primary,
+          DEFAULT_INFO_COLORS["primary"],
+        ),
+        background: fallback(
           brandingAppearance.color_product_info_bg,
-          DEFAULT_COLORS["background-dark"],
+          DEFAULT_INFO_COLORS["background"],
         ),
-        "background-light": fallback(
-          brandingAppearance.color_form_bg,
-          DEFAULT_COLORS["background-light"],
-        ),
-        "text-dark": fallback(
-          textColorForBackground(brandingAppearance.color_form_bg),
-          DEFAULT_COLORS["text-dark"],
-        ),
-        "text-light": fallback(
-          textColorForBackground(brandingAppearance.color_product_info_bg),
-          DEFAULT_COLORS["text-light"],
+        ...textColorForBackground(
+          brandingAppearance.color_product_info_bg,
+          DEFAULT_INFO_COLORS,
         ),
       }
-    : { ...DEFAULT_COLORS }; //copy, do not reference.
+    : { ...DEFAULT_INFO_COLORS }; //copy, do not reference.
+};
+
+export const toFormColors = (
+  brandingAppearance?: BrandingAppearance | undefined,
+) => {
+  return brandingAppearance
+    ? {
+        ...DEFAULT_FORM_COLORS,
+        error: fallback(
+          brandingAppearance.color_error,
+          DEFAULT_FORM_COLORS["error"],
+        ),
+        focus: fallback(
+          brandingAppearance.color_accent,
+          DEFAULT_FORM_COLORS["focus"],
+        ),
+        accent: fallback(
+          brandingAppearance.color_accent,
+          DEFAULT_FORM_COLORS["accent"],
+        ),
+        primary: fallback(
+          brandingAppearance.color_buttons_primary,
+          DEFAULT_FORM_COLORS["primary"],
+        ),
+        background: fallback(
+          brandingAppearance.color_form_bg,
+          DEFAULT_FORM_COLORS["background"],
+        ),
+        ...textColorForBackground(
+          brandingAppearance.color_form_bg,
+          DEFAULT_FORM_COLORS,
+        ),
+      }
+    : { ...DEFAULT_FORM_COLORS }; //copy, do not reference.
 };
 
 export const toColorsStyleVar = (colors: Record<string, string>) => {

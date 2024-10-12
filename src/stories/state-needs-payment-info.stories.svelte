@@ -1,8 +1,6 @@
 <script lang="ts">
   import { Meta, Story, Template } from "@storybook/addon-svelte-csf";
   import StateNeedsPaymentInfo from "../ui/states/state-needs-payment-info.svelte";
-  import Shell from "../ui/shell.svelte";
-  import { toStyleVar } from "../helpers/process-style-overrides.ts";
   import Layout from "../ui/layout/layout.svelte";
   import Container from "../ui/layout/container.svelte";
   import Main from "../ui/layout/main-block.svelte";
@@ -24,13 +22,11 @@
 
 
 <Template let:args>
-  <Container style={toStyleVar(args?.brandingAppearance)}>
+  <Container>
     <ModalBackdrop>
       <Layout>
-        <Main>
-          <Shell>
+        <Main brandingAppearance={args.brandingAppearance}>
             <StateNeedsPaymentInfo {...args} />
-          </Shell>
         </Main>
       </Layout>
     </ModalBackdrop>

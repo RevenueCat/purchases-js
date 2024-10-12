@@ -12,11 +12,11 @@
   import { PurchaseFlowError, PurchaseFlowErrorCode } from "../../helpers/purchase-operation-helper";
   import ModalHeader from "../modal-header.svelte";
   import IconLock from "../icons/icon-lock.svelte";
-  import { toColors } from "../theme/colors";
+  import { toFormColors } from "../theme/colors";
   import ProcessingAnimation from "../processing-animation.svelte";
   import type { Product, PurchaseOption } from "../../entities/offerings";
   import { toShape } from "../theme/shapes";
-  import { appearanceConfigStore } from "../../store/store";
+  import {type BrandingInfoResponse } from "../../networking/responses/branding-response.ts";
 
   export let onClose: any;
   export let onContinue: any;
@@ -25,6 +25,7 @@
   export let processing = false;
   export let productDetails: Product;
   export let purchaseOptionToUse: PurchaseOption;
+  export let brandingInfo: BrandingInfoResponse | null;
 
   const clientSecret = paymentInfoCollectionMetadata.data.client_secret;
 
@@ -75,8 +76,8 @@
     }
   };
 
-  let shapeCustomisation = toShape($appearanceConfigStore);
-  let customColors = toColors($appearanceConfigStore);
+  let shapeCustomisation = toShape(brandingInfo?.appearance);
+  let customColors = toFormColors(brandingInfo?.appearance);
 </script>
 
 <div>
@@ -93,16 +94,16 @@
           fontSizeBase: "16px",
           fontSizeSm: "16px",
           spacingGridRow: "16px",
-          colorText: customColors["text-dark"],
           focusBoxShadow: "none",
           colorDanger: customColors["error"],
-
+          colorTextPlaceholder: customColors["grey-text-light"],
         }}
         rules={{
           ".Input": {
             boxShadow: "none",
             border: `2px solid ${customColors["grey-ui-dark"]}`,
             backgroundColor: "transparent",
+            color: customColors["grey-text-dark"],
           },
           ".Input:focus": {
             border: `2px solid ${customColors["focus"]}`,
@@ -113,7 +114,7 @@
             marginBottom: "8px",
             fontWeight: "500",
             lineHeight: "22px",
-
+            color:customColors["grey-text-dark"],
           },
           ".Input--invalid": {
             boxShadow: "none",

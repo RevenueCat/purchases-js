@@ -1,9 +1,9 @@
 <script lang="ts">
-  export let dark = false;
+  export let style = "";
 </script>
 
 <div class="rcb-modal-container">
-  <main class={`rcb-modal-main ${dark ? "rcb-modal-dark" : ""}`}>
+  <main class="rcb-modal-main" style={style}>
     <slot />
   </main>
 </div>
@@ -16,18 +16,11 @@
     .rcb-modal-main {
         box-sizing: border-box;
         border-radius: var(--rc-shape-modal-border-radius);
-        background-color: var(--rc-color-background-light);
-        color: var(--rc-color-text-dark);
-        min-height: 460px;
+        background-color: var(--rc-color-background);
+        color: var(--rc-color-grey-text-dark);
         padding: 40px;
         flex-direction: column;
         display: flex;
-    }
-
-    .rcb-modal-dark {
-        background-color: var(--rc-color-background-dark);
-        color: var(--rc-color-text-light);
-        min-height: 0px;
     }
 
     @media screen and (max-width: 960px) {
@@ -38,8 +31,7 @@
             margin: auto;
         }
 
-        .rcb-modal-main,
-        .rcb-modal-dark {
+        .rcb-modal-main {
             min-width: 300px;
             max-width: 640px;
             padding: 32px;

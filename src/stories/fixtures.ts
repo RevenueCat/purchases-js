@@ -61,7 +61,7 @@ export const brandingInfo = {
   seller_company_name: "Some Fantastic Cat, Inc.",
   app_icon: "1005820_1715624566.png",
   app_icon_webp: "1005820_1715624566.webp",
-  appearance: undefined,
+  appearance: {},
 };
 
 export const purchaseResponse = {
@@ -79,7 +79,7 @@ export const purchaseFlowError = new PurchaseFlowError(1);
 
 export const colorfulBrandingAppearance = {
   shapes: "rounded",
-  color_form_bg: "#404040",
+  color_form_bg: "#313131",
   color_error: "#E79462",
   color_product_info_bg: "#ffffff",
   color_buttons_primary: "#AC7DE3",

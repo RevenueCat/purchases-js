@@ -1,8 +1,6 @@
 <script>
   import { Meta, Story, Template } from "@storybook/addon-svelte-csf";
   import StateNeedsAuthInfo from "../ui/states/state-needs-auth-info.svelte";
-  import Shell from "../ui/shell.svelte";
-  import { toStyleVar } from "../helpers/process-style-overrides.ts";
   import Layout from "../ui/layout/layout.svelte";
   import Container from "../ui/layout/container.svelte";
   import Main from "../ui/layout/main-block.svelte";
@@ -19,13 +17,11 @@
 <Meta title="StateNeedsAuthInfo" component={StateNeedsAuthInfo} />
 
 <Template let:args>
-  <Container style={toStyleVar(args?.brandingAppearance)}>
+  <Container>
     <ModalBackdrop>
       <Layout>
-        <Main>
-          <Shell>
-            <StateNeedsAuthInfo {...args} />
-          </Shell>
+        <Main brandingAppearance={args.brandingAppearance}>
+          <StateNeedsAuthInfo {...args} />
         </Main>
       </Layout>
     </ModalBackdrop>
