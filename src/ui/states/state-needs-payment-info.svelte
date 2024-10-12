@@ -12,12 +12,12 @@
   import { PurchaseFlowError, PurchaseFlowErrorCode } from "../../helpers/purchase-operation-helper";
   import ModalHeader from "../modal-header.svelte";
   import IconLock from "../icons/icon-lock.svelte";
-  import { toFormColors } from "../theme/colors";
   import ProcessingAnimation from "../processing-animation.svelte";
   import type { Product, PurchaseOption } from "../../entities/offerings";
-  import { toShape } from "../theme/shapes";
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response.ts";
   import CloseButton from "../close-button.svelte";
+  import { Theme } from "../theme/theme";
+
 
   export let onClose: any;
   export let onContinue: any;
@@ -77,8 +77,10 @@
     }
   };
 
-  let shapeCustomisation = toShape(brandingInfo?.appearance);
-  let customColors = toFormColors(brandingInfo?.appearance);
+  const theme = new Theme(brandingInfo?.appearance);
+
+  let shapeCustomisation = theme.shape;
+  let customColors = theme.formColors;
 </script>
 
 <div>
