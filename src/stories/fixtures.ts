@@ -78,7 +78,7 @@ export const purchaseResponse = {
 export const purchaseFlowError = new PurchaseFlowError(1);
 
 export const colorfulBrandingAppearance = {
-  shapes: "rounded",
+  shapes: "rectangle",
   color_form_bg: "#313131",
   color_error: "#E79462",
   color_product_info_bg: "#ffffff",
