@@ -142,7 +142,7 @@
         </ModalSection>
         <ModalFooter>
           <RowLayout>
-            <Button disabled={processing} testId="PayButton">
+            <Button disabled={processing} testId="PayButton" type="submit">
               {#if processing}
                 <ProcessingAnimation />
               {:else if productDetails.subscriptionOptions?.[purchaseOptionToUse.id]?.trial}

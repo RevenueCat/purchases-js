@@ -47,7 +47,6 @@
           placeholder="john@appleseed.com"
           autocapitalize="off"
           bind:value={email}
-
         />
       </div>
       {#if error}
@@ -57,7 +56,7 @@
   </ModalSection>
   <ModalFooter>
     <RowLayout>
-      <Button disabled={processing}>
+      <Button disabled={processing} type="submit">
         {#if processing}
           <ProcessingAnimation />
         {:else}

@@ -3,6 +3,7 @@
   export let intent: "primary" | "secondary" = "primary";
   export let disabled = false;
   export let testId: string | undefined = undefined;
+  export let type = "";
 </script>
 
 <button
@@ -11,6 +12,7 @@
   {disabled}
   data-testid={testId}>
   <slot />
+  {type}
 </button
 >
 
