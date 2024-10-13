@@ -17,7 +17,7 @@
   <BrandAndCloseHeader {brandingInfo} onClose={onContinue} />
   <ModalSection>
     <div class="rcb-modal-message" data-type={type}>
-      <RowLayout gutter="16px">
+      <RowLayout gutter="48px">
         <slot name="icon" />
         <RowLayout gutter="16px">
           <span class="title">{title}</span>
@@ -42,6 +42,8 @@
         align-items: center;
         flex-direction: column;
         text-align: center;
+        margin-bottom: 16px;
+        margin-top: 16px;
     }
 
     .title {
