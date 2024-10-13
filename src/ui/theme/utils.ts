@@ -1,6 +1,6 @@
-import { BrandingAppearance } from "src/networking/responses/branding-response";
+import { type BrandingAppearance } from "src/networking/responses/branding-response";
 import {
-  Colors,
+  type Colors,
   DEFAULT_FORM_COLORS,
   DEFAULT_INFO_COLORS,
   FormColorsToBrandingAppearanceMapping,
@@ -11,7 +11,7 @@ import {
   PillsShape,
   RectangularShape,
   RoundedShape,
-  Shape,
+  type Shape,
 } from "./shapes";
 
 const hexToRGB = (color: string): [number, number, number] | null => {
@@ -35,7 +35,7 @@ const rgbToTextColors = ([r, g, b]: [number, number, number]) => {
   const baseColor = sum <= 3 * 128 ? "255,255,255" : "0,0,0";
 
   return {
-    "grey-text-dark": `rgba(${baseColor},0.8)`,
+    "grey-text-dark": `rgba(${baseColor},1.0)`,
     "grey-text-light": `rgba(${baseColor},0.50)`,
     "grey-ui-dark": `rgba(${baseColor},0.125)`,
     "grey-ui-light": `rgba(${baseColor},0.05)`,
