@@ -30,9 +30,28 @@ const hexToRGB = (color: string): [number, number, number] | null => {
   return null;
 };
 
+const isLightColor = ({ r, g, b }: { r: number; g: number; b: number }) => {
+  console.log(r, g, b);
+  // Gamma correction
+  const gammaCorrect = (color: number) => {
+    color = color / 255;
+    return color <= 0.03928
+      ? color / 12.92
+      : Math.pow((color + 0.055) / 1.055, 2.4);
+  };
+
+  // Calculate relative luminance with gamma correction
+  const luminance =
+    0.2126 * gammaCorrect(r) +
+    0.7152 * gammaCorrect(g) +
+    0.0722 * gammaCorrect(b);
+
+  // Return whether the background is light
+  return luminance > 0.179;
+};
+
 const rgbToTextColors = ([r, g, b]: [number, number, number]) => {
-  const sum = r + g + b;
-  const baseColor = sum <= 3 * 128 ? "255,255,255" : "0,0,0";
+  const baseColor = isLightColor({ r, g, b }) ? "0,0,0" : "255,255,255";
 
   return {
     "grey-text-dark": `rgba(${baseColor},1.0)`,
