@@ -24,6 +24,11 @@
     -webkit-tap-highlight-color: transparent;
   }
 
+  button:active {
+    /* This should be a color that contrasts with the form background and the button, the current solution is not ideal*/
+    outline: 2px solid var(--rc-color-grey-text-dark);
+  }
+
   button.intent-primary {
     background-color: var(--rc-color-button-primary-bg);
     color: var(--rc-color-button-primary-text);
