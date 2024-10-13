@@ -26,6 +26,12 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    button:focus, button:active {
+        outline: 2px solid var(--rc-color-focus);
     }
 
     button.intent-primary {
