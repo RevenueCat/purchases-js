@@ -8,7 +8,7 @@
 </script>
 
 <div class="rcb-ui-main" style={style}>
-  <Modal style="min-height: 460px;">
+  <Modal style="min-height: 360px;">
     <slot name="header" />
     <slot />
   </Modal>
