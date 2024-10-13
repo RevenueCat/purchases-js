@@ -17,11 +17,14 @@ const foregroundColorMap: Record<string, string> = {
 const parseHexColor: (color: string) => { r: number; g: number; b: number } = (
   color,
 ) => {
-  const hex = color.replace("#", "");
+  if (!color.match(/^#[0-9A-Fa-f]{6}$/)) {
+    // If color can't be parsed, return white so that a dark text color is used
+    return { r: 255, g: 255, b: 255 };
+  }
   return {
-    r: parseInt(hex.substring(0, 2), 16),
-    g: parseInt(hex.substring(2, 4), 16),
-    b: parseInt(hex.substring(4, 6), 16),
+    r: parseInt(color.substring(1, 3), 16),
+    g: parseInt(color.substring(3, 5), 16),
+    b: parseInt(color.substring(5, 7), 16),
   };
 };
 
