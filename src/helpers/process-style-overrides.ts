@@ -28,6 +28,25 @@ const parseHexColor: (color: string) => { r: number; g: number; b: number } = (
   };
 };
 
+const isLightColor = ({ r, g, b }: { r: number; g: number; b: number }) => {
+  // Gamma correction
+  const gammaCorrect = (color: number) => {
+    color = color / 255;
+    return color <= 0.03928
+      ? color / 12.92
+      : Math.pow((color + 0.055) / 1.055, 2.4);
+  };
+
+  // Calculate relative luminance with gamma correction
+  const luminance =
+    0.2126 * gammaCorrect(r) +
+    0.7152 * gammaCorrect(g) +
+    0.0722 * gammaCorrect(b);
+
+  // Return whether the background is light
+  return luminance > 0.179;
+};
+
 export const mapStyleOverridesToStyleVariables = (
   appearance?: BrandingAppearance,
 ) => {
@@ -59,13 +78,12 @@ export const mapStyleOverridesToStyleVariables = (
   )) {
     if (appearance[appearanceColorDictKey as keyof BrandingAppearance]) {
       // Get the RGB values of the background color
-      const { r, g, b } = parseHexColor(
+      const color = parseHexColor(
         appearance[
           appearanceColorDictKey as keyof BrandingAppearance
         ] as string,
       );
-      if (r * 0.299 + g * 0.587 + b * 0.114 > 186) {
-        // This is a luminance calculation courtesy of GitHub copilot
+      if (isLightColor(color)) {
         // Light background, use dark text
         mappedVariablesDict[defaultColorDictKey] = Colors["grey-text-dark"];
       } else {
