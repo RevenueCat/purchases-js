@@ -1,4 +1,4 @@
-import { BrandingAppearance } from "../../networking/responses/branding-response";
+import { type BrandingAppearance } from "../../networking/responses/branding-response";
 
 /**
  * All those colors get translated in --rc-color-<property_name> css variables.
@@ -10,6 +10,7 @@ export interface Colors {
   focus: string;
   accent: string;
   primary: string;
+  "primary-text": string;
   white: string;
   "grey-text-dark": string;
   "grey-text-light": string;
@@ -25,6 +26,7 @@ export const DEFAULT_FORM_COLORS: Colors = {
   focus: "#576CDB",
   accent: "#576CDB",
   primary: "#000000",
+  "primary-text": "#ffffff",
   white: "#ffffff",
   "grey-text-dark": "rgba(0,0,0,1)",
   "grey-text-light": "rgba(0,0,0,0.5)",
@@ -40,6 +42,7 @@ export const DEFAULT_INFO_COLORS: Colors = {
   focus: "#576CDB",
   accent: "#576CDB",
   primary: "#ffffff",
+  "primary-text": "#000000",
   white: "#ffffff",
   "grey-text-dark": "rgba(255,255,255,1)",
   "grey-text-light": "rgba(255,255,255,0.5)",

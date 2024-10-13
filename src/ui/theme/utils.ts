@@ -14,24 +14,25 @@ import {
   type Shape,
 } from "./shapes";
 
-const hexToRGB = (color: string): [number, number, number] | null => {
+const hexToRGB = (
+  color: string,
+): { r: number; g: number; b: number } | null => {
   if (color.length == 7)
-    return [
-      parseInt(color.slice(1, 3), 16),
-      parseInt(color.slice(3, 5), 16),
-      parseInt(color.slice(5, 7), 16),
-    ];
+    return {
+      r: parseInt(color.slice(1, 3), 16),
+      g: parseInt(color.slice(3, 5), 16),
+      b: parseInt(color.slice(5, 7), 16),
+    };
   if (color.length == 4)
-    return [
-      parseInt(color[1], 16),
-      parseInt(color[2], 16),
-      parseInt(color[3], 16),
-    ];
+    return {
+      r: parseInt(color[1], 16),
+      g: parseInt(color[2], 16),
+      b: parseInt(color[3], 16),
+    };
   return null;
 };
 
 const isLightColor = ({ r, g, b }: { r: number; g: number; b: number }) => {
-  console.log(r, g, b);
   // Gamma correction
   const gammaCorrect = (color: number) => {
     color = color / 255;
@@ -50,8 +51,8 @@ const isLightColor = ({ r, g, b }: { r: number; g: number; b: number }) => {
   return luminance > 0.179;
 };
 
-const rgbToTextColors = ([r, g, b]: [number, number, number]) => {
-  const baseColor = isLightColor({ r, g, b }) ? "0,0,0" : "255,255,255";
+const rgbToTextColors = (rgb: { r: number; g: number; b: number }) => {
+  const baseColor = isLightColor(rgb) ? "0,0,0" : "255,255,255";
 
   return {
     "grey-text-dark": `rgba(${baseColor},1.0)`,
@@ -62,29 +63,35 @@ const rgbToTextColors = ([r, g, b]: [number, number, number]) => {
 };
 
 const textColorsForBackground = (
-  backgroundColors: string,
+  backgroundColor: string,
+  primaryColor: string,
   defaultColors: Colors,
 ) => {
-  const fallbackColors = {
+  const textColors = {
     "grey-text-dark": defaultColors["grey-text-dark"],
     "grey-text-light": defaultColors["grey-text-light"],
     "grey-ui-dark": defaultColors["grey-ui-dark"],
     "grey-ui-light": defaultColors["grey-ui-light"],
+    "primary-text": defaultColors["primary-text"],
   };
 
-  if (!backgroundColors) {
-    return fallbackColors;
-  }
-
-  if (backgroundColors.startsWith("#")) {
-    const rgb = hexToRGB(backgroundColors);
-    if (rgb == null) {
-      return fallbackColors;
+  // Find the text colors for the background
+  if (backgroundColor?.startsWith("#")) {
+    const rgb = hexToRGB(backgroundColor);
+    if (rgb !== null) {
+      Object.assign(textColors, rgbToTextColors(rgb));
     }
-    return rgbToTextColors(rgb);
   }
 
-  return fallbackColors;
+  // Find the text color for the primary color
+  if (primaryColor?.startsWith("#")) {
+    const rgb = hexToRGB(primaryColor);
+    if (rgb !== null) {
+      textColors["primary-text"] = isLightColor(rgb) ? "black" : "white";
+    }
+  }
+
+  return textColors;
 };
 
 const fallback = (somethingNullable: any | null, defaultValue: any) => {
@@ -124,7 +131,11 @@ export const toColors = (
     ? {
         ...defaultColors,
         ...mappedColors,
-        ...textColorsForBackground(mappedColors.background, defaultColors),
+        ...textColorsForBackground(
+          mappedColors.background,
+          mappedColors.primary,
+          defaultColors,
+        ),
       }
     : { ...defaultColors }; //copy, do not reference.
 };
