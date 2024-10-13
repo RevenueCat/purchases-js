@@ -25,7 +25,7 @@
   <Container>
     <ModalBackdrop>
       <Layout>
-        <Main brandingAppearance={args.brandingAppearance}>
+        <Main brandingAppearance={args.brandingInfo.brandingAppearance}>
           <StateNeedsPaymentInfo {...args} />
         </Main>
       </Layout>
@@ -34,23 +34,19 @@
 </Template>
 
 
-<Story name='Standard' args={{...defaultArgs, brandingAppearance:{} }} />
+<Story name='Standard' args={{...defaultArgs }} />
 
-<Story name='Rounded' args={{...defaultArgs,  brandingAppearance:{
-  shapes:'rounded',
-  color_error:'blue',
-  color_accent:'yellow'
-} }} />
+<Story name='Rounded' args={{...defaultArgs,  brandingInfo:{...brandingInfo,appearance:{
+  shapes:'rounded'
+}} }} />
 
-<Story name='Pill' args={{ ...defaultArgs,  brandingAppearance:{
-  shapes:'pill',
-  color_error:'purple',
-  color_accent:'green'
-} }} />
+<Story name='Pill' args={{ ...defaultArgs,  brandingInfo:{...brandingInfo,appearance:{
+  shapes:'pill'
+}} }} />
 
-<Story name='Rectangle' args={{ ...defaultArgs,  brandingAppearance:{
+<Story name='Rectangle' args={{ ...defaultArgs,   brandingInfo:{...brandingInfo,appearance:{
   shapes:'rectangle'
-} }} />
+}} }} />
 
 <Story name='ColorfulRectangle'
-       args={{ ...defaultArgs, brandingInfo:{...brandingInfo,appearance:colorfulBrandingAppearance}, brandingAppearance:colorfulBrandingAppearance }} />
+       args={{ ...defaultArgs, brandingInfo:{...brandingInfo,appearance:colorfulBrandingAppearance} }} />

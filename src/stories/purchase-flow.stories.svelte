@@ -45,14 +45,14 @@
   <div style="background-color: rgba(40, 40, 40, 0.75); width: 100vw; min-height: 100vh; padding-top:100px">
     <Container>
       <Layout>
-        <Aside brandingAppearance={args.brandingAppearance}>
+        <Aside brandingAppearance={args.brandingInfo.appearance}>
           <ModalHeader slot="header">
             <BrandingInfoUI {...args} />
             <IconCart />
           </ModalHeader>
           <StatePresentOffer {...args} />
         </Aside>
-        <Main brandingAppearance={args.brandingAppearance}>
+        <Main brandingAppearance={args.brandingInfo.appearance}>
           <StateNeedsAuthInfo {...args} />
         </Main>
       </Layout>
@@ -62,14 +62,14 @@
 
     <Container>
       <Layout>
-        <Aside brandingAppearance={args.brandingAppearance}>
+        <Aside brandingAppearance={args.brandingInfo.appearance}>
           <ModalHeader slot="header">
             <BrandingInfoUI {...args} />
             <IconCart />
           </ModalHeader>
           <StatePresentOffer {...args} />
         </Aside>
-        <Main brandingAppearance={args.brandingAppearance}>
+        <Main brandingAppearance={args.brandingInfo.appearance}>
           <StateNeedsPaymentInfo {...args} />
         </Main>
       </Layout>
@@ -79,14 +79,14 @@
 
     <Container>
       <Layout>
-        <Aside brandingAppearance={args.brandingAppearance}>
+        <Aside brandingAppearance={args.brandingInfo.appearance}>
           <ModalHeader slot="header">
             <BrandingInfoUI {...args} />
             <IconCart />
           </ModalHeader>
           <StatePresentOffer {...args} />
         </Aside>
-        <Main brandingAppearance={args.brandingAppearance}>
+        <Main brandingAppearance={args.brandingInfo.appearance}>
           <StateLoading {...args} />
         </Main>
       </Layout>
@@ -96,14 +96,14 @@
 
     <Container>
       <Layout>
-        <Aside brandingAppearance={args.brandingAppearance}>
+        <Aside brandingAppearance={args.brandingInfo.appearance}>
           <ModalHeader slot="header">
             <BrandingInfoUI {...args} />
             <IconCart />
           </ModalHeader>
           <StatePresentOffer {...args} />
         </Aside>
-        <Main brandingAppearance={args.brandingAppearance}>
+        <Main brandingAppearance={args.brandingInfo.appearance}>
           <StateSuccess {...args} />
         </Main>
       </Layout>
@@ -113,14 +113,14 @@
 
     <Container>
       <Layout>
-        <Aside brandingAppearance={args.brandingAppearance}>
+        <Aside brandingAppearance={args.brandingInfo.appearance}>
           <ModalHeader slot="header">
             <BrandingInfoUI {...args} />
             <IconCart />
           </ModalHeader>
           <StatePresentOffer {...args} />
         </Aside>
-        <Main brandingAppearance={args.brandingAppearance}>
+        <Main brandingAppearance={args.brandingInfo.appearance}>
           <StateError {...args} />
         </Main>
       </Layout>
@@ -132,30 +132,30 @@
 </Template>
 
 
-<Story name='Standard' args={{...defaultArgs, brandingAppearance:{} }} />
+<Story name='Standard' args={{...defaultArgs,  brandingInfo:brandingInfo}} />
 
-<Story name='Rounded' args={{...defaultArgs,  brandingAppearance:{
+<Story name='Rounded' args={{...defaultArgs,   brandingInfo:{...brandingInfo, appearance:{
   shapes:'rounded',
   color_error:'blue',
   color_accent:'yellow'
-} }} />
+} }}} />
 
-<Story name='Pill' args={{ ...defaultArgs,  brandingAppearance:{
+<Story name='Pill' args={{ ...defaultArgs,   brandingInfo:{...brandingInfo, appearance:{
   shapes:'pill',
   color_error:'purple',
   color_accent:'green'
-} }} />
+} }}} />
 
-<Story name='Rectangle' args={{ ...defaultArgs, brandingAppearance:{
+<Story name='Rectangle' args={{ ...defaultArgs, brandingInfo:{...brandingInfo, appearance:{
   shapes:'rectangle'
-} }} />
+} }} } />
 
-<Story name='CustomColorsElements' args={{ ...defaultArgs, brandingAppearance:{
+<Story name='CustomColorsElements' args={{ ...defaultArgs, brandingInfo:{...brandingInfo, appearance:{
   color_accent:'green',
   color_buttons_primary:'green',
   color_error:'purple',
   show_product_description:true
-} }} />
+}}}} />
 
 <Story name='ColorfulRectangle'
-       args={{ ...defaultArgs, brandingInfo:{...brandingInfo, appearance:colorfulBrandingAppearance}, brandingAppearance:colorfulBrandingAppearance }} />
+       args={{ ...defaultArgs, brandingInfo:{...brandingInfo, appearance:colorfulBrandingAppearance} }} />
