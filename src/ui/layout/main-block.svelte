@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { toFormStyleVar } from "../theme/utils.ts";
   import { type BrandingAppearance } from "../../networking/responses/branding-response";
   import Modal from "../modal.svelte";
   import { Theme } from "../theme/theme";

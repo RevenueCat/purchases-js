@@ -14,7 +14,7 @@
   import IconLock from "../icons/icon-lock.svelte";
   import ProcessingAnimation from "../processing-animation.svelte";
   import type { Product, PurchaseOption } from "../../entities/offerings";
-  import { type BrandingInfoResponse } from "../../networking/responses/branding-response.ts";
+  import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
   import CloseButton from "../close-button.svelte";
   import { Theme } from "../theme/theme";
 
@@ -156,7 +156,7 @@
       </Elements>
     </form>
   {:else}
-    <StateLoading style="height:320px" />
+    <StateLoading />
   {/if}
 </div>
 

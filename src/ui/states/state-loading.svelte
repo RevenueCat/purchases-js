@@ -1,7 +1,7 @@
 <script>
   import Spinner from "../spinner.svelte";
 
-  let style = {};
+  let style = "";
 </script>
 
 <div class="rcb-modal-loader">
