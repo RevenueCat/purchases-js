@@ -85,6 +85,13 @@
 
 <div>
   {#if stripe && clientSecret}
+    <ModalHeader>
+      <div style="display: flex; align-items: center; justify-content: baseline;">
+        <IconLock />
+        <div style="margin-left: 10px">Secure Checkout</div>
+      </div>
+      <CloseButton on:click={onClose} />
+    </ModalHeader>
     <form on:submit|preventDefault={handleContinue}>
       <Elements
         {stripe}
@@ -128,13 +135,6 @@
           },
         }}
       >
-        <ModalHeader>
-          <div style="display: flex; align-items: center; justify-content: baseline;">
-            <IconLock />
-            <div style="margin-left: 10px">Secure Checkout</div>
-          </div>
-          <CloseButton on:click={onClose} />
-        </ModalHeader>
         <ModalSection>
           <div class="rcb-stripe-elements-container">
             <PaymentElement />
@@ -142,7 +142,7 @@
         </ModalSection>
         <ModalFooter>
           <RowLayout>
-            <Button disabled={processing} testId="PayButton" type="submit">
+            <Button disabled={processing} testId="PayButton">
               {#if processing}
                 <ProcessingAnimation />
               {:else if productDetails.subscriptionOptions?.[purchaseOptionToUse.id]?.trial}

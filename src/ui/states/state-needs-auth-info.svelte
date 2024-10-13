@@ -33,41 +33,50 @@
   });
 </script>
 
-<form on:submit|preventDefault={handleContinue}>
+<div class="container">
   <ModalHeader>
     <span>Billing email address</span>
     <CloseButton on:click={onClose} />
   </ModalHeader>
-  <ModalSection>
-    <div class="form-container">
-      <div class="form-label"><label for="email">Email</label></div>
-      <div class="form-input {inputClass}">
-        <input
-          name="email"
-          placeholder="john@appleseed.com"
-          autocapitalize="off"
-          bind:value={email}
-        />
-      </div>
-      {#if error}
-        <div class="form-error">{error}</div>
-      {/if}
-    </div>
-  </ModalSection>
-  <ModalFooter>
-    <RowLayout>
-      <Button disabled={processing} type="submit">
-        {#if processing}
-          <ProcessingAnimation />
-        {:else}
-          Continue
+  <form on:submit|preventDefault={handleContinue}>
+    <ModalSection>
+      <div class="form-container">
+        <div class="form-label"><label for="email">Email</label></div>
+        <div class="form-input {inputClass}">
+          <input
+            name="email"
+            placeholder="john@appleseed.com"
+            autocapitalize="off"
+            bind:value={email}
+          />
+        </div>
+        {#if error}
+          <div class="form-error">{error}</div>
         {/if}
-      </Button>
-    </RowLayout>
-  </ModalFooter>
-</form>
+      </div>
+    </ModalSection>
+    <ModalFooter>
+      <RowLayout>
+        <Button disabled={processing} type="submit">
+          {#if processing}
+            <ProcessingAnimation />
+          {:else}
+            Continue
+          {/if}
+        </Button>
+      </RowLayout>
+    </ModalFooter>
+  </form>
+</div>
 
 <style>
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
     form {
         display: flex;
         flex-direction: column;

@@ -29,7 +29,7 @@
     </div>
   </ModalSection>
   <ModalFooter>
-    <Button on:click={onContinue}>{closeButtonTitle}</Button>
+    <Button on:click={onContinue} type="submit">{closeButtonTitle}</Button>
   </ModalFooter>
 </RowLayout>
 

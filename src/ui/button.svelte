@@ -10,11 +10,10 @@
   on:click
   class={`intent-${intent}`}
   {disabled}
-  data-testid={testId}>
+  data-testid={testId}
+  {type}>
   <slot />
-  {type}
-</button
->
+</button>
 
 <style>
     button {
