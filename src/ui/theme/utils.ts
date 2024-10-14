@@ -14,9 +14,13 @@ import {
   type Shape,
 } from "./shapes";
 
-const hexToRGB = (
-  color: string,
-): { r: number; g: number; b: number } | null => {
+type RGB = {
+  r: number;
+  g: number;
+  b: number;
+};
+
+const hexToRGB = (color: string): RGB | null => {
   if (color.length == 7)
     return {
       r: parseInt(color.slice(1, 3), 16),
@@ -32,7 +36,7 @@ const hexToRGB = (
   return null;
 };
 
-const isLightColor = ({ r, g, b }: { r: number; g: number; b: number }) => {
+const isLightColor = ({ r, g, b }: RGB) => {
   // Gamma correction
   const gammaCorrect = (color: number) => {
     color = color / 255;
@@ -51,7 +55,7 @@ const isLightColor = ({ r, g, b }: { r: number; g: number; b: number }) => {
   return luminance > 0.179;
 };
 
-const rgbToTextColors = (rgb: { r: number; g: number; b: number }) => {
+const rgbToTextColors = (rgb: RGB) => {
   const baseColor = isLightColor(rgb) ? "0,0,0" : "255,255,255";
 
   return {
