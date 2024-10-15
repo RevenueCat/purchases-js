@@ -1,6 +1,6 @@
 import {
-  type Offerings,
   type Offering,
+  type Offerings,
   type Package,
 } from "./entities/offerings";
 import RCPurchasesUI from "./ui/rcb-ui.svelte";
@@ -35,8 +35,8 @@ import {
 import { type PurchaseParams } from "./entities/purchase-params";
 import { defaultHttpConfig, type HttpConfig } from "./entities/http-config";
 import {
-  OfferingKeyword,
   type GetOfferingsParams,
+  OfferingKeyword,
 } from "./entities/get-offerings-params";
 import { validateCurrency } from "./helpers/validators";
 import { type BrandingInfoResponse } from "./networking/responses/branding-response";
@@ -45,7 +45,6 @@ import {
   findOfferingByPlacementId,
   toOfferings,
 } from "./helpers/offerings-parser";
-import { appearanceConfigStore, DEFAULT_STORE_VALUES } from "./store/store";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -460,11 +459,6 @@ export class Purchases {
     }
   }
 
-  /** @internal */
-  private clearAppearanceStore() {
-    appearanceConfigStore.set(DEFAULT_STORE_VALUES);
-  }
-
   /**
    * @returns Whether the SDK is using a sandbox API Key.
    */
@@ -478,7 +472,6 @@ export class Purchases {
   public close() {
     if (Purchases.instance === this) {
       Purchases.instance = undefined;
-      this.clearAppearanceStore();
     } else {
       Logger.warnLog(
         "Trying to close a Purchases instance that is not the current instance. Ignoring.",

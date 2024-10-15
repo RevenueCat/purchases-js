@@ -8,6 +8,7 @@
   import { validateEmail } from "../../helpers/validators";
   import { PurchaseFlowError } from "../../helpers/purchase-operation-helper";
   import { beforeUpdate } from "svelte";
+  import CloseButton from "../close-button.svelte";
 
   export let onContinue: any;
   export let onClose: () => void;
@@ -32,86 +33,100 @@
   });
 </script>
 
-<form on:submit|preventDefault={handleContinue}>
-  <ModalHeader>Billing email address</ModalHeader>
-  <ModalSection>
-    <div class="form-container">
-      <div class="form-label"><label for="email">Email</label></div>
-      <div class="form-input {inputClass}">
-        <input
-          name="email"
-          placeholder="john@appleseed.com"
-          autocapitalize="off"
-          bind:value={email}
-        />
-      </div>
-      {#if error}<div class="form-error">{error}</div>{/if}
-    </div>
-  </ModalSection>
-  <ModalFooter>
-    <RowLayout>
-      <Button disabled={processing}>
-        {#if processing}
-          <ProcessingAnimation />
-        {:else}
-          Continue
+<div class="container">
+  <ModalHeader>
+    <span>Billing email address</span>
+    <CloseButton on:click={onClose} />
+  </ModalHeader>
+  <form on:submit|preventDefault={handleContinue}>
+    <ModalSection>
+      <div class="form-container">
+        <div class="form-label"><label for="email">Email</label></div>
+        <div class="form-input {inputClass}">
+          <input
+            name="email"
+            placeholder="john@appleseed.com"
+            autocapitalize="off"
+            bind:value={email}
+          />
+        </div>
+        {#if error}
+          <div class="form-error">{error}</div>
         {/if}
-      </Button>
-      <Button intent="secondary" on:click={onClose} disabled={processing}
-        >Close</Button
-      >
-    </RowLayout>
-  </ModalFooter>
-</form>
+      </div>
+    </ModalSection>
+    <ModalFooter>
+      <RowLayout>
+        <Button disabled={processing} type="submit">
+          {#if processing}
+            <ProcessingAnimation />
+          {:else}
+            Continue
+          {/if}
+        </Button>
+      </RowLayout>
+    </ModalFooter>
+  </form>
+</div>
 
 <style>
-  form {
-    display: flex;
-    flex-direction: column;
-    min-height: 100%;
-    flex-grow: 1;
-  }
 
-  .form-container {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    margin-top: 32px;
-    margin-bottom: 16px;
-  }
+    .container {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
 
-  .form-label {
-    margin-top: 8px;
-    margin-bottom: 8px;
-    display: block;
-    font-weight: 500;
-    line-height: 22px;
-  }
+    form {
+        display: flex;
+        flex-direction: column;
+        min-height: 100%;
+        flex-grow: 1;
+    }
 
-  .form-input.error input {
-    border-color: var(--rc-color-error);
-  }
+    .form-container {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        margin-top: 32px;
+        margin-bottom: 16px;
+    }
 
-  .form-error {
-    margin-top: 4px;
-    font-size: 16px;
-    line-height: 20px;
-    min-height: 40px;
-    color: var(--rc-color-error);
-  }
+    .form-label {
+        margin-top: 8px;
+        margin-bottom: 8px;
+        display: block;
+        font-weight: 500;
+        line-height: 22px;
+    }
 
-  input {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 8px;
-    border: 2px solid var(--rc-color-grey-ui-dark);
-    border-radius: 12px;
-    font-size: 16px;
-    height: 48px;
-    padding: 6px 14px;
-  }
-  input:focus {
-    outline: none;
-    border: 2px solid var(--rc-color-focus);
-  }
+    .form-input.error input {
+        border-color: var(--rc-color-error);
+    }
+
+    .form-error {
+        margin-top: 4px;
+        font-size: 16px;
+        line-height: 20px;
+        min-height: 40px;
+        color: var(--rc-color-error);
+    }
+
+    input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 8px;
+        border: 2px solid var(--rc-color-grey-ui-dark);
+        border-radius: var(--rc-shape-input-border-radius);
+        font-size: 16px;
+        height: 48px;
+        padding: 6px 14px;
+        background: var(--rc-color-input-background);
+        color: inherit;
+    }
+
+    input:focus {
+        outline: none;
+        border: 2px solid var(--rc-color-focus);
+    }
 </style>

@@ -9,15 +9,15 @@
   import StateLoading from "./state-loading.svelte";
   import RowLayout from "../layout/row-layout.svelte";
   import { type PurchaseResponse } from "../../networking/responses/purchase-response";
-  import {
-    PurchaseFlowError,
-    PurchaseFlowErrorCode,
-  } from "../../helpers/purchase-operation-helper";
+  import { PurchaseFlowError, PurchaseFlowErrorCode } from "../../helpers/purchase-operation-helper";
   import ModalHeader from "../modal-header.svelte";
-  import IconLock from "../assets/icon-lock.svelte";
-  import { Colors } from "../../assets/colors";
+  import IconLock from "../icons/icon-lock.svelte";
   import ProcessingAnimation from "../processing-animation.svelte";
   import type { Product, PurchaseOption } from "../../entities/offerings";
+  import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
+  import CloseButton from "../close-button.svelte";
+  import { Theme } from "../theme/theme";
+
 
   export let onClose: any;
   export let onContinue: any;
@@ -26,6 +26,7 @@
   export let processing = false;
   export let productDetails: Product;
   export let purchaseOptionToUse: PurchaseOption;
+  export let brandingInfo: BrandingInfoResponse | null;
 
   const clientSecret = paymentInfoCollectionMetadata.data.client_secret;
 
@@ -77,10 +78,22 @@
       onContinue();
     }
   };
+
+  const theme = new Theme(brandingInfo?.appearance);
+
+  let shapeCustomisation = theme.shape;
+  let customColors = theme.formColors;
 </script>
 
 <div>
   {#if stripe && clientSecret}
+    <ModalHeader>
+      <div style="display: flex; align-items: center; justify-content: baseline;">
+        <IconLock />
+        <div style="margin-left: 10px">Secure Checkout</div>
+      </div>
+      <CloseButton on:click={onClose} />
+    </ModalHeader>
     <form on:submit|preventDefault={handleContinue}>
       <Elements
         {stripe}
@@ -90,37 +103,41 @@
         bind:elements
         theme="stripe"
         variables={{
-          borderRadius: "12px",
+          borderRadius: shapeCustomisation["input-border-radius"],
           fontSizeBase: "16px",
           fontSizeSm: "16px",
           spacingGridRow: "16px",
-          colorText: Colors["grey-text-dark"],
           focusBoxShadow: "none",
-          colorDanger: Colors["error"],
+          colorDanger: customColors["error"],
+          colorTextPlaceholder: customColors["grey-text-light"],
         }}
         rules={{
           ".Input": {
             boxShadow: "none",
-            border: `2px solid ${Colors["grey-ui-dark"]}`,
+            border: `2px solid ${customColors["grey-ui-dark"]}`,
+            backgroundColor: "transparent",
+            color: customColors["grey-text-dark"],
           },
           ".Input:focus": {
-            border: `2px solid ${Colors["focus"]}`,
+            border: `2px solid ${customColors["focus"]}`,
             outline: "none",
+
           },
           ".Label": {
             marginBottom: "8px",
             fontWeight: "500",
             lineHeight: "22px",
+            color:customColors["grey-text-dark"],
           },
           ".Input--invalid": {
             boxShadow: "none",
           },
+          ".Tab": {
+            boxShadow: "none",
+            backgroundColor: "transparent",
+          },
         }}
       >
-        <ModalHeader>
-          <div>Secure Checkout</div>
-          <IconLock />
-        </ModalHeader>
         <ModalSection>
           <div class="rcb-stripe-elements-container">
             <PaymentElement />
@@ -137,9 +154,6 @@
                 Pay
               {/if}
             </Button>
-            <Button disabled={processing} intent="secondary" on:click={onClose}
-              >Close</Button
-            >
           </RowLayout>
         </ModalFooter>
       </Elements>
@@ -150,9 +164,14 @@
 </div>
 
 <style>
-  .rcb-stripe-elements-container {
-    width: 100%;
-    margin-top: 32px;
-    margin-bottom: 24px;
-  }
+    .rcb-stripe-elements-container {
+        width: 100%;
+
+        /* The standard height of the payment form from Stripe */
+        /* Added to avoid the card getting smaller while loading */
+        min-height: 320px;
+
+        margin-top: 32px;
+        margin-bottom: 24px;
+    }
 </style>

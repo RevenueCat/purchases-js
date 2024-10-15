@@ -1,9 +1,17 @@
-<script>
-  export let style = "";
+<script lang="ts">
+  import { type BrandingAppearance } from "../../networking/responses/branding-response";
+  import Modal from "../modal.svelte";
+  import { Theme } from "../theme/theme";
+
+  export let brandingAppearance: BrandingAppearance | undefined = undefined;
+  let style = new Theme(brandingAppearance).productInfoStyleVars;
 </script>
 
 <div class="rcb-ui-aside" style={style}>
-  <slot />
+  <Modal>
+    <slot name="header" />
+    <slot />
+  </Modal>
 </div>
 
 <style>

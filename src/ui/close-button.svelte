@@ -14,5 +14,11 @@
     cursor: pointer;
     background-color: transparent;
     padding: 0px;
+    height: 24px;
+    border-radius: 50%;
+  }
+
+  .close-button:focus {
+    outline: 2px solid var(--rc-color-focus);
   }
 </style>
