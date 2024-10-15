@@ -205,6 +205,7 @@
           {#if productDetails && purchaseOptionToUse}
             <StatePresentOffer
               {productDetails}
+              brandingAppearance={brandingInfo?.appearance}
               purchaseOption={purchaseOptionToUse}
             />
           {/if}
