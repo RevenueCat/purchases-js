@@ -49,7 +49,9 @@
       throw new Error("Stripe publishable key or account ID not found");
     }
 
-    stripe = await loadStripe(stripePk, { stripeAccount: stripeAcctId });
+    stripe = await loadStripe(stripePk, {
+      stripeAccount: stripeAcctId,
+    });
   });
 
   const handleContinue = async () => {
@@ -97,6 +99,7 @@
         {stripe}
         {clientSecret}
         loader="always"
+        locale="en"
         bind:elements
         theme="stripe"
         variables={{
