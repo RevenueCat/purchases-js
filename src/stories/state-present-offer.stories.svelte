@@ -60,5 +60,15 @@
 <Story name='Sandbox'
        args={{ ...defaultArgs,  sandbox: true, brandingAppearance:{} }} />
 
+
+<Story name='WithProductDescription'
+       args={{ ...defaultArgs,  brandingAppearance:{show_product_description:true}  }} />
+
+<Story name='WithProductDescriptionInverted'
+       args={{ ...defaultArgs,  brandingAppearance:{color_product_info_bg: "#ffffff",show_product_description:true}  }} />
+
+<Story name='WithProductDescriptionNullDescription'
+       args={{ ...defaultArgs, productDetails:{...product, description:null},  brandingAppearance:{color_product_info_bg: "#ffffff",show_product_description:true}  }} />
+
 <Story name='ColorfulRectangle'
        args={{ ...defaultArgs,  brandingAppearance:colorfulBrandingAppearance }} />

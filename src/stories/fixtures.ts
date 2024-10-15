@@ -29,7 +29,9 @@ export const subscriptionOption: SubscriptionOption = {
 export const product: Product = {
   identifier: "some_product_123",
   displayName: "Some Product 123",
-  description: "a very nice product",
+  description:
+    "This is a long description of the product which is long. " +
+    "It is long indeed so that it spans multiple lines.",
 
   title: "Some Product 123",
   productType: ProductType.Subscription,
@@ -84,5 +86,4 @@ export const colorfulBrandingAppearance = {
   color_product_info_bg: "#ffffff",
   color_buttons_primary: "#AC7DE3",
   color_accent: "#99BB37",
-  show_product_description: true,
 };
