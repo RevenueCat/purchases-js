@@ -1,9 +1,19 @@
 import React from "react";
 import Button from "../../components/Button";
 import { useNavigate } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
+
+const generateRandomUserID = () => {
+  return `$RCAnonymousID:${uuidv4().replace(/-/g, "")}`;
+};
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
+  const navigateToAppUserIDPaywall = (appUserId?: string) => {
+    if (appUserId) {
+      navigate(`/paywall/${encodeURIComponent(appUserId)}`);
+    }
+  };
   return (
     <div className="login">
       <h1>Hello! What’s your user ID?</h1>
@@ -16,9 +26,13 @@ const LoginPage: React.FC = () => {
             const appUserId = (
               document.getElementById("app-user-id") as HTMLInputElement | null
             )?.value;
-            if (appUserId) {
-              navigate(`/paywall/${encodeURIComponent(appUserId)}`);
-            }
+            navigateToAppUserIDPaywall(appUserId);
+          }}
+        />
+        <Button
+          caption="Skip"
+          onClick={() => {
+            navigateToAppUserIDPaywall(generateRandomUserID());
           }}
         />
       </form>
