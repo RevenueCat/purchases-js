@@ -25,7 +25,7 @@
   <Container>
     <ModalBackdrop>
       <Layout>
-        <Main brandingAppearance={args.brandingInfo.brandingAppearance}>
+        <Main brandingAppearance={args.brandingInfo.appearance}>
           <StateNeedsPaymentInfo {...args} />
         </Main>
       </Layout>
