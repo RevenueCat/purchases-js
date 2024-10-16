@@ -6,7 +6,7 @@ import LogoutButton from "../../components/LogoutButton";
 import { Purchases } from "@revenuecat/purchases-js";
 
 const isAnonymousUser = () => {
-  const anonymousIDRegex = /^RCAnonymousID:([a-f0-9]{32})$/;
+  const anonymousIDRegex = /^\$RCAnonymousID:([a-f0-9]{32})$/;
   return anonymousIDRegex.test(Purchases.getSharedInstance().getAppUserId());
 };
 
