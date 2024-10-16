@@ -1,8 +1,14 @@
 ## RevenueCat SDK
 ### ✨ New Features
-* Add support for getting a single offering (#201) via Antonio Borrero Granell (@antoniobg)
-* Implement appearance configuration overrides (#171) via Guido Torres (@guido732)
+* Customisation: Toggle product description from the product info panel (#212) via Nicola Sacco (@nicfix)
+* Customization: Added shapes, background colors and generated text color. (#209) via Nicola Sacco (@nicfix)
 ### 🐞 Bugfixes
-* Fix error message purchasing already purchased non-consumables (#200) via Toni Rico (@tonidero)
+* Fix locale to 'en' (#210) via Jens-Fabian Goetzmann (@jefago)
 ### 📦 Dependency Updates
-* Bump fastlane from 2.223.1 to 2.224.0 (#199) via dependabot[bot] (@dependabot[bot])
+* Fix security vulnerabilities (#211) via Toni Rico (@tonidero)
+* ECO-1336: Revamping storybook to make it easier to implement UI changes in the sdk (#206) via Nicola Sacco (@nicfix)
+
+### 🔄 Other Changes
+* ECO-1336-layout components (#207) via Nicola Sacco (@nicfix)
+* Adds RELEASING.md (#205) via JayShortway (@JayShortway)
+* Adds fastlane/.env.SAMPLE (#204) via JayShortway (@JayShortway)
