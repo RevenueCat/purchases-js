@@ -23,8 +23,8 @@ export interface Colors {
 export const DEFAULT_FORM_COLORS: Colors = {
   error: "#f2545b",
   warning: "#f4e971",
-  focus: "#576CDB",
-  accent: "#576CDB",
+  focus: "#000080",
+  accent: "#7676767",
   primary: "#000000",
   "primary-text": "#ffffff",
   white: "#ffffff",
@@ -39,8 +39,8 @@ export const DEFAULT_FORM_COLORS: Colors = {
 export const DEFAULT_INFO_COLORS: Colors = {
   error: "#f2545b",
   warning: "#f4e971",
-  focus: "#576CDB",
-  accent: "#576CDB",
+  focus: "#000080",
+  accent: "#7676767",
   primary: "#ffffff",
   "primary-text": "#000000",
   white: "#ffffff",
