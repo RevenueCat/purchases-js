@@ -251,6 +251,30 @@ export class PurchaseOperationHelper {
           ),
         );
         return;
+      case CheckoutStatusErrorCodes.SetupIntentCompletionFailed:
+        reject(
+          new PurchaseFlowError(
+            PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+            "Setup intent completion failed",
+          ),
+        );
+        return;
+      case CheckoutStatusErrorCodes.AlreadyPurchased:
+        reject(
+          new PurchaseFlowError(
+            PurchaseFlowErrorCode.AlreadyPurchasedError,
+            "Purchased was already completed",
+          ),
+        );
+        return;
+      default:
+        reject(
+          new PurchaseFlowError(
+            PurchaseFlowErrorCode.UnknownError,
+            "Unknown error code received",
+          ),
+        );
+        return;
     }
   }
 }
