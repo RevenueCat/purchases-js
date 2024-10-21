@@ -258,6 +258,46 @@ describe("PurchaseOperationHelper", () => {
       ),
     );
   });
+
+  test("pollCurrentPurchaseForCompletion error if poll returns unknown error code", async () => {
+    setPurchaseResponse(
+      HttpResponse.json(successPurchaseBody, {
+        status: StatusCodes.OK,
+      }),
+    );
+    const getCheckoutStatusResponse: CheckoutStatusResponse = {
+      operation: {
+        status: CheckoutSessionStatus.Failed,
+        isExpired: false,
+        error: {
+          code: 12345,
+          message: "test-error-message",
+        },
+      },
+    };
+    setGetCheckoutStatusResponse(
+      HttpResponse.json(getCheckoutStatusResponse, { status: StatusCodes.OK }),
+    );
+
+    await purchaseOperationHelper.startPurchase(
+      "test-app-user-id",
+      "test-product-id",
+      { id: "test-option-id", priceId: "test-price-id" },
+      "test-email",
+      {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    );
+    await expectPromiseToPurchaseFlowError(
+      purchaseOperationHelper.pollCurrentPurchaseForCompletion(),
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.UnknownError,
+        "Unknown error code received",
+      ),
+    );
+  });
 });
 
 function verifyExpectedError(e: unknown, expectedError: PurchaseFlowError) {

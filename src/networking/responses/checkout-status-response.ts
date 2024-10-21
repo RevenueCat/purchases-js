@@ -9,10 +9,12 @@ export enum CheckoutStatusErrorCodes {
   SetupIntentCreationFailed = 1,
   PaymentMethodCreationFailed = 2,
   PaymentChargeFailed = 3,
+  SetupIntentCompletionFailed = 4,
+  AlreadyPurchased = 5,
 }
 
 export interface CheckoutStatusError {
-  readonly code: CheckoutStatusErrorCodes;
+  readonly code: CheckoutStatusErrorCodes | number;
   readonly message: string;
 }
 
