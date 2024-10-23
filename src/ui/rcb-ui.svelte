@@ -37,6 +37,7 @@
   export let onClose: () => void;
   export let purchases: Purchases;
   export let purchaseOperationHelper: PurchaseOperationHelper;
+  export let redeemUrl: string | undefined;
 
   let colorVariables = "";
   let productDetails: Product | null = null;
@@ -151,8 +152,11 @@
       state = "polling-purchase-status";
       purchaseOperationHelper
         .pollCurrentPurchaseForCompletion()
-        .then(() => {
+        .then((redemptionInfo) => {
           state = "success";
+          if (redemptionInfo && redemptionInfo.redeemUrl) {
+            redeemUrl = redemptionInfo.redeemUrl;
+          }
         })
         .catch((error: PurchaseFlowError) => {
           handleError(error);

@@ -18,6 +18,7 @@ import {
   type PurchaseOption,
 } from "../entities/offerings";
 import { Logger } from "./logger";
+import { RedemptionInfo, toRedemptionInfo } from "../entities/redemption-info";
 
 export enum PurchaseFlowErrorCode {
   ErrorSettingUpPurchase = 0,
@@ -152,7 +153,7 @@ export class PurchaseOperationHelper {
     }
   }
 
-  async pollCurrentPurchaseForCompletion(): Promise<void> {
+  async pollCurrentPurchaseForCompletion(): Promise<RedemptionInfo> {
     const operationSessionId = this.operationSessionId;
     if (!operationSessionId) {
       throw new PurchaseFlowError(
@@ -161,7 +162,7 @@ export class PurchaseOperationHelper {
       );
     }
 
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<RedemptionInfo>((resolve, reject) => {
       const checkForOperationStatus = (checkCount = 1) => {
         if (checkCount > this.maxNumberAttempts) {
           this.clearPurchaseInProgress();
@@ -186,7 +187,7 @@ export class PurchaseOperationHelper {
                 break;
               case CheckoutSessionStatus.Succeeded:
                 this.clearPurchaseInProgress();
-                resolve();
+                resolve(toRedemptionInfo(operationResponse));
                 return;
               case CheckoutSessionStatus.Failed:
                 this.clearPurchaseInProgress();

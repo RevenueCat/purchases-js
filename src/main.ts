@@ -45,6 +45,7 @@ import {
   findOfferingByPlacementId,
   toOfferings,
 } from "./helpers/offerings-parser";
+import { RedemptionInfo, toRedemptionInfo } from "./entities/redemption-info";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -327,7 +328,7 @@ export class Purchases {
     rcPackage: Package,
     customerEmail?: string,
     htmlTarget?: HTMLElement,
-  ): Promise<{ customerInfo: CustomerInfo }> {
+  ): Promise<{ customerInfo: CustomerInfo, redemptionInfo: RedemptionInfo | null }> {
     return this.purchase({
       rcPackage,
       customerEmail,
@@ -347,7 +348,7 @@ export class Purchases {
   @requiresLoadedResources
   public purchase(
     params: PurchaseParams,
-  ): Promise<{ customerInfo: CustomerInfo }> {
+  ): Promise<{ customerInfo: CustomerInfo, redemptionInfo: RedemptionInfo | null }> {
     const { rcPackage, purchaseOption, htmlTarget, customerEmail } = params;
     let resolvedHTMLTarget =
       htmlTarget ?? document.getElementById("rcb-ui-root");
@@ -387,6 +388,7 @@ export class Purchases {
             certainHTMLTarget.innerHTML = "";
             // TODO: Add info about transaction in result.
             resolve({
+              redemptionInfo: toRedemptionInfo(),
               customerInfo: await this._getCustomerInfoForUserId(appUserId),
             });
           },
@@ -487,4 +489,6 @@ export class Purchases {
 
     return toCustomerInfo(subscriberResponse);
   }
+
 }
+
