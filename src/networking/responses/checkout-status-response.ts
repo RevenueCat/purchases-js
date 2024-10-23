@@ -18,10 +18,15 @@ export interface CheckoutStatusError {
   readonly message: string;
 }
 
+export interface CheckoutStatusRedemptionInfo {
+  readonly redeemUrl: string;
+}
+
 export interface CheckoutStatusInnerResponse {
   readonly status: CheckoutSessionStatus;
   readonly isExpired: boolean;
   readonly error?: CheckoutStatusError | null;
+  readonly redemptionInfo?: CheckoutStatusRedemptionInfo | null;
 }
 
 export interface CheckoutStatusResponse {
