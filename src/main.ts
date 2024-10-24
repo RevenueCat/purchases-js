@@ -45,6 +45,7 @@ import {
   findOfferingByPlacementId,
   toOfferings,
 } from "./helpers/offerings-parser";
+import { RedemptionInfo } from "./entities/redemption-info";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -80,6 +81,7 @@ export { LogLevel } from "./entities/log-level";
 export type { GetOfferingsParams } from "./entities/get-offerings-params";
 export { OfferingKeyword } from "./entities/get-offerings-params";
 export type { PurchaseParams } from "./entities/purchase-params";
+export type { RedemptionInfo } from "./entities/redemption-info";
 
 /**
  * Entry point for Purchases SDK. It should be instantiated as soon as your
@@ -327,7 +329,10 @@ export class Purchases {
     rcPackage: Package,
     customerEmail?: string,
     htmlTarget?: HTMLElement,
-  ): Promise<{ customerInfo: CustomerInfo }> {
+  ): Promise<{
+    customerInfo: CustomerInfo;
+    redemptionInfo: RedemptionInfo | null;
+  }> {
     return this.purchase({
       rcPackage,
       customerEmail,
@@ -345,9 +350,10 @@ export class Purchases {
    * @throws {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.
    */
   @requiresLoadedResources
-  public purchase(
-    params: PurchaseParams,
-  ): Promise<{ customerInfo: CustomerInfo }> {
+  public purchase(params: PurchaseParams): Promise<{
+    customerInfo: CustomerInfo;
+    redemptionInfo: RedemptionInfo | null;
+  }> {
     const { rcPackage, purchaseOption, htmlTarget, customerEmail } = params;
     let resolvedHTMLTarget =
       htmlTarget ?? document.getElementById("rcb-ui-root");
@@ -382,11 +388,12 @@ export class Purchases {
           rcPackage,
           purchaseOption,
           customerEmail,
-          onFinished: async () => {
+          onFinished: async (redemptionInfo: RedemptionInfo | null) => {
             Logger.debugLog("Purchase finished");
             certainHTMLTarget.innerHTML = "";
             // TODO: Add info about transaction in result.
             resolve({
+              redemptionInfo: redemptionInfo,
               customerInfo: await this._getCustomerInfoForUserId(appUserId),
             });
           },

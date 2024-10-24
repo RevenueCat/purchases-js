@@ -291,10 +291,12 @@ export class Purchases {
     preload(): Promise<void>;
     purchase(params: PurchaseParams): Promise<{
         customerInfo: CustomerInfo;
+        redemptionInfo: RedemptionInfo | null;
     }>;
     // @deprecated
     purchasePackage(rcPackage: Package, customerEmail?: string, htmlTarget?: HTMLElement): Promise<{
         customerInfo: CustomerInfo;
+        redemptionInfo: RedemptionInfo | null;
     }>;
     static setLogLevel(logLevel: LogLevel): void;
 }
@@ -317,6 +319,11 @@ export class PurchasesError extends Error {
 export interface PurchasesErrorExtra {
     readonly backendErrorCode?: number;
     readonly statusCode?: number;
+}
+
+// @public
+export interface RedemptionInfo {
+    readonly redeemUrl: string | null;
 }
 
 // @public
