@@ -2272,7 +2272,7 @@
         {
           "kind": "Enum",
           "canonicalReference": "@revenuecat/purchases-js!OfferingKeyword:enum",
-          "docComment": "/**\n * Keywords for identifying specific offerings in the {@link Purchases.getOfferings} method.\n */\n",
+          "docComment": "/**\n * Keywords for identifying specific offerings in the {@link Purchases.getOfferings} method.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -2325,7 +2325,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!Offerings#all:member",
-              "docComment": "/**\n * Dictionary of all {@link Offering} objects keyed by their identifier.\n */\n",
+              "docComment": "/**\n * Dictionary containing all {@link Offering} objects, keyed by their identifier.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -2361,7 +2361,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!Offerings#current:member",
-              "docComment": "/**\n * Current offering configured in the RevenueCat dashboard.\n */\n",
+              "docComment": "/**\n * Current offering configured in the RevenueCat dashboard. It can be `null` if no current offering is configured or if a specific offering was requested that is not the current one.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4292,7 +4292,7 @@
             {
               "kind": "Method",
               "canonicalReference": "@revenuecat/purchases-js!Purchases#getOfferings:member(1)",
-              "docComment": "/**\n * Fetch the configured offerings for this user. You can configure these in the RevenueCat dashboard.\n */\n",
+              "docComment": "/**\n * Fetch the configured offerings for this user. You can configure these in the RevenueCat dashboard.\n *\n * @param params - The parameters object to customise the offerings fetch. Check {@link GetOfferingsParams}\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4569,7 +4569,16 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ";\n         }>"
+                  "text": ";\n             redemptionInfo: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "RedemptionInfo",
+                  "canonicalReference": "@revenuecat/purchases-js!RedemptionInfo:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | null;\n         }>"
                 },
                 {
                   "kind": "Content",
@@ -4579,7 +4588,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 3,
-                "endIndex": 7
+                "endIndex": 9
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -4649,7 +4658,16 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ";\n        }>"
+                  "text": ";\n            redemptionInfo: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "RedemptionInfo",
+                  "canonicalReference": "@revenuecat/purchases-js!RedemptionInfo:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | null;\n        }>"
                 },
                 {
                   "kind": "Content",
@@ -4659,7 +4677,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 7,
-                "endIndex": 11
+                "endIndex": 13
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -5054,6 +5072,51 @@
               "isOptional": true,
               "releaseTag": "Public",
               "name": "statusCode",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
+          "kind": "Interface",
+          "canonicalReference": "@revenuecat/purchases-js!RedemptionInfo:interface",
+          "docComment": "/**\n * This object gives you access to all purchase redemption data.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare interface RedemptionInfo "
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "name": "RedemptionInfo",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!RedemptionInfo#redeemUrl:member",
+              "docComment": "/**\n * The redeem url.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly redeemUrl: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "redeemUrl",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2

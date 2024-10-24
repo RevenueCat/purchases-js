@@ -25,7 +25,7 @@
   import Main from "./layout/main-block.svelte";
 
   import { toProductInfoStyleVar } from "./theme/utils";
-  import { RedemptionInfo } from "../entities/redemption-info";
+  import { type RedemptionInfo } from "../entities/redemption-info";
 
   export let asModal = true;
   export let customerEmail: string | undefined;
@@ -33,7 +33,7 @@
   export let rcPackage: Package;
   export let purchaseOption: PurchaseOption | null | undefined;
   export let brandingInfo: BrandingInfoResponse | null;
-  export let onFinished: (redemptionInfo: RedemptionInfo | null | undefined) => void;
+  export let onFinished: (redemptionInfo: RedemptionInfo | null) => void;
   export let onError: (error: PurchaseFlowError) => void;
   export let onClose: () => void;
   export let purchases: Purchases;
@@ -61,7 +61,7 @@
     | "success"
     | "error" = "present-offer";
 
-  let redemptionInfo: RedemptionInfo | null | undefined = null;
+  let redemptionInfo: RedemptionInfo | null = null;
 
   const statesWhereOfferDetailsAreShown = [
     "present-offer",
@@ -155,9 +155,9 @@
       state = "polling-purchase-status";
       purchaseOperationHelper
         .pollCurrentPurchaseForCompletion()
-        .then((redemptionInfo) => {
+        .then((pollResult) => {
           state = "success";
-          redemptionInfo = redemptionInfo;
+          redemptionInfo = pollResult.redemptionInfo;
         })
         .catch((error: PurchaseFlowError) => {
           handleError(error);

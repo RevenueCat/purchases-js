@@ -8,16 +8,16 @@ export interface RedemptionInfo {
   /**
    * The redeem url.
    */
-  readonly redeemUrl: string | undefined | null;
+  readonly redeemUrl: string | null;
 }
 
 export function toRedemptionInfo(
   operationResponse: CheckoutStatusResponse,
-): RedemptionInfo | null | undefined {
-  if (!operationResponse.operation.redemptionInfo) {
+): RedemptionInfo | null {
+  if (!operationResponse.operation.redemption_info) {
     return null;
   }
   return {
-    redeemUrl: operationResponse.operation.redemptionInfo?.redeemUrl,
+    redeemUrl: operationResponse.operation.redemption_info?.redeem_url ?? null,
   };
 }
