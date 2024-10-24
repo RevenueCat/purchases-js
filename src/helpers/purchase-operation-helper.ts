@@ -153,7 +153,9 @@ export class PurchaseOperationHelper {
     }
   }
 
-  async pollCurrentPurchaseForCompletion(): Promise<RedemptionInfo> {
+  async pollCurrentPurchaseForCompletion(): Promise<
+    RedemptionInfo | null | undefined
+  > {
     const operationSessionId = this.operationSessionId;
     if (!operationSessionId) {
       throw new PurchaseFlowError(
@@ -162,7 +164,7 @@ export class PurchaseOperationHelper {
       );
     }
 
-    return new Promise<RedemptionInfo>((resolve, reject) => {
+    return new Promise<RedemptionInfo | null | undefined>((resolve, reject) => {
       const checkForOperationStatus = (checkCount = 1) => {
         if (checkCount > this.maxNumberAttempts) {
           this.clearPurchaseInProgress();

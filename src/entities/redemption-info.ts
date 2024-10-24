@@ -11,10 +11,12 @@ export interface RedemptionInfo {
   readonly redeemUrl: string | undefined | null;
 }
 
-
 export function toRedemptionInfo(
   operationResponse: CheckoutStatusResponse,
-): RedemptionInfo {
+): RedemptionInfo | null | undefined {
+  if (!operationResponse.operation.redemptionInfo) {
+    return null;
+  }
   return {
     redeemUrl: operationResponse.operation.redemptionInfo?.redeemUrl,
   };

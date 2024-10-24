@@ -45,7 +45,7 @@ import {
   findOfferingByPlacementId,
   toOfferings,
 } from "./helpers/offerings-parser";
-import { RedemptionInfo, toRedemptionInfo } from "./entities/redemption-info";
+import { RedemptionInfo } from "./entities/redemption-info";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -328,7 +328,10 @@ export class Purchases {
     rcPackage: Package,
     customerEmail?: string,
     htmlTarget?: HTMLElement,
-  ): Promise<{ customerInfo: CustomerInfo, redemptionInfo: RedemptionInfo | null }> {
+  ): Promise<{
+    customerInfo: CustomerInfo;
+    redemptionInfo: RedemptionInfo | null;
+  }> {
     return this.purchase({
       rcPackage,
       customerEmail,
@@ -348,7 +351,10 @@ export class Purchases {
   @requiresLoadedResources
   public purchase(
     params: PurchaseParams,
-  ): Promise<{ customerInfo: CustomerInfo, redemptionInfo: RedemptionInfo | null }> {
+  ): Promise<{
+    customerInfo: CustomerInfo;
+    redemptionInfo: RedemptionInfo | null;
+  }> {
     const { rcPackage, purchaseOption, htmlTarget, customerEmail } = params;
     let resolvedHTMLTarget =
       htmlTarget ?? document.getElementById("rcb-ui-root");
@@ -383,12 +389,12 @@ export class Purchases {
           rcPackage,
           purchaseOption,
           customerEmail,
-          onFinished: async () => {
+          onFinished: async (redemptionInfo: RedemptionInfo) => {
             Logger.debugLog("Purchase finished");
             certainHTMLTarget.innerHTML = "";
             // TODO: Add info about transaction in result.
             resolve({
-              redemptionInfo: toRedemptionInfo(),
+              redemptionInfo: redemptionInfo,
               customerInfo: await this._getCustomerInfoForUserId(appUserId),
             });
           },
@@ -489,6 +495,4 @@ export class Purchases {
 
     return toCustomerInfo(subscriberResponse);
   }
-
 }
-

@@ -25,6 +25,7 @@
   import Main from "./layout/main-block.svelte";
 
   import { toProductInfoStyleVar } from "./theme/utils";
+  import { RedemptionInfo } from "../entities/redemption-info";
 
   export let asModal = true;
   export let customerEmail: string | undefined;
@@ -32,12 +33,12 @@
   export let rcPackage: Package;
   export let purchaseOption: PurchaseOption | null | undefined;
   export let brandingInfo: BrandingInfoResponse | null;
-  export let onFinished: () => void;
+  export let onFinished: (redemptionInfo: RedemptionInfo | null | undefined) => void;
   export let onError: (error: PurchaseFlowError) => void;
   export let onClose: () => void;
   export let purchases: Purchases;
   export let purchaseOperationHelper: PurchaseOperationHelper;
-  export let redeemUrl: string | undefined;
+
 
   let colorVariables = "";
   let productDetails: Product | null = null;
@@ -59,6 +60,8 @@
     | "loading"
     | "success"
     | "error" = "present-offer";
+
+  let redemptionInfo: RedemptionInfo | null = null;
 
   const statesWhereOfferDetailsAreShown = [
     "present-offer",
@@ -154,9 +157,7 @@
         .pollCurrentPurchaseForCompletion()
         .then((redemptionInfo) => {
           state = "success";
-          if (redemptionInfo && redemptionInfo.redeemUrl) {
-            redeemUrl = redemptionInfo.redeemUrl;
-          }
+          redemptionInfo = redemptionInfo;
         })
         .catch((error: PurchaseFlowError) => {
           handleError(error);
@@ -165,7 +166,7 @@
     }
 
     if (state === "success" || state === "error") {
-      onFinished();
+      onFinished(redemptionInfo);
       return;
     }
 
