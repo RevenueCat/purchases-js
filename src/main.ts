@@ -330,7 +330,7 @@ export class Purchases {
     htmlTarget?: HTMLElement,
   ): Promise<{
     customerInfo: CustomerInfo;
-    redemptionInfo: RedemptionInfo | null;
+    redemptionInfo: RedemptionInfo | null | undefined;
   }> {
     return this.purchase({
       rcPackage,
@@ -353,7 +353,7 @@ export class Purchases {
     params: PurchaseParams,
   ): Promise<{
     customerInfo: CustomerInfo;
-    redemptionInfo: RedemptionInfo | null;
+    redemptionInfo: RedemptionInfo | null | undefined;
   }> {
     const { rcPackage, purchaseOption, htmlTarget, customerEmail } = params;
     let resolvedHTMLTarget =
@@ -389,7 +389,7 @@ export class Purchases {
           rcPackage,
           purchaseOption,
           customerEmail,
-          onFinished: async (redemptionInfo: RedemptionInfo) => {
+          onFinished: async (redemptionInfo: RedemptionInfo | null | undefined) => {
             Logger.debugLog("Purchase finished");
             certainHTMLTarget.innerHTML = "";
             // TODO: Add info about transaction in result.

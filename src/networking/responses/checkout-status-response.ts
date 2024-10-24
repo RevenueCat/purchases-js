@@ -19,14 +19,14 @@ export interface CheckoutStatusError {
 }
 
 export interface CheckoutStatusRedemptionInfo {
-  readonly redeemUrl: string;
+  readonly redeemUrl?: string | null;
 }
 
 export interface CheckoutStatusInnerResponse {
   readonly status: CheckoutSessionStatus;
   readonly isExpired: boolean;
   readonly error?: CheckoutStatusError | null;
-  readonly redemptionInfo?: CheckoutStatusRedemptionInfo | null;
+  readonly redemptionInfo?: CheckoutStatusRedemptionInfo | null | undefined;
 }
 
 export interface CheckoutStatusResponse {

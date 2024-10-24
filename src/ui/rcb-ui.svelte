@@ -61,7 +61,7 @@
     | "success"
     | "error" = "present-offer";
 
-  let redemptionInfo: RedemptionInfo | null = null;
+  let redemptionInfo: RedemptionInfo | null | undefined = null;
 
   const statesWhereOfferDetailsAreShown = [
     "present-offer",
