@@ -165,7 +165,7 @@ describe("PurchaseOperationHelper", () => {
     const getCheckoutStatusResponse: CheckoutStatusResponse = {
       operation: {
         status: CheckoutSessionStatus.Succeeded,
-        isExpired: false,
+        is_expired: false,
         error: null,
       },
     };
@@ -196,10 +196,10 @@ describe("PurchaseOperationHelper", () => {
     const getCheckoutStatusResponse: CheckoutStatusResponse = {
       operation: {
         status: CheckoutSessionStatus.Succeeded,
-        isExpired: false,
+        is_expired: false,
         error: null,
-        redemptionInfo: {
-          redeemUrl: "test-url://redeem_my_rcb?token=1234",
+        redemption_info: {
+          redeem_url: "test-url://redeem_my_rcb?token=1234",
         },
       },
     };
@@ -235,7 +235,7 @@ describe("PurchaseOperationHelper", () => {
   //   const getCheckoutStatusResponse: OperationResponse = {
   //     operation: {
   //       status: OperationSessionStatus.InProgress,
-  //       isExpired: false,
+  //       is_expired: false,
   //       error: null,
   //     },
   //   };
@@ -266,7 +266,7 @@ describe("PurchaseOperationHelper", () => {
     const getCheckoutStatusResponse: CheckoutStatusResponse = {
       operation: {
         status: CheckoutSessionStatus.Failed,
-        isExpired: false,
+        is_expired: false,
         error: {
           code: CheckoutStatusErrorCodes.PaymentChargeFailed,
           message: "test-error-message",
@@ -306,7 +306,7 @@ describe("PurchaseOperationHelper", () => {
     const getCheckoutStatusResponse: CheckoutStatusResponse = {
       operation: {
         status: CheckoutSessionStatus.Failed,
-        isExpired: false,
+        is_expired: false,
         error: {
           code: 12345,
           message: "test-error-message",
