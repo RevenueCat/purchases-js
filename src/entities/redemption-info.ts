@@ -1,7 +1,7 @@
 import type { CheckoutStatusResponse } from "../networking/responses/checkout-status-response";
 
 /**
- * This object gives you access to all purchase redemption data.
+ * This object gives you access to the purchase redemption data.
  * @public
  */
 export interface RedemptionInfo {
