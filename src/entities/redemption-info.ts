@@ -1,7 +1,8 @@
 import type { CheckoutStatusResponse } from "../networking/responses/checkout-status-response";
 
 /**
- * This object gives you access to the purchase redemption data.
+ * This object gives you access to the purchase redemption data when
+ * the purchase can be redeemed to a mobile user, like in the case of anonymous users.
  * @public
  */
 export interface RedemptionInfo {

@@ -5083,7 +5083,7 @@
         {
           "kind": "Interface",
           "canonicalReference": "@revenuecat/purchases-js!RedemptionInfo:interface",
-          "docComment": "/**\n * This object gives you access to the purchase redemption data.\n *\n * @public\n */\n",
+          "docComment": "/**\n * This object gives you access to the purchase redemption data when the purchase can be redeemed to a mobile user, like in the case of anonymous users.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
