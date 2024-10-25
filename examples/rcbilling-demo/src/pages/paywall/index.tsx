@@ -111,14 +111,29 @@ const PaywallPage: React.FC = () => {
 
     // How do we complete the purchase?
     try {
-      const { customerInfo } = await purchases.purchase({
+      const { purchaseResult } = await purchases.purchase({
         rcPackage: pkg,
         purchaseOption: option,
       });
 
-      console.log(`CustomerInfo after purchase: ${customerInfo}`);
+      console.log(
+        `CustomerInfo after purchase: ${purchaseResult.customerInfo}`,
+      );
+      console.log(
+        `RedemptionInfo after purchase: ${JSON.stringify(purchaseResult.redemptionInfo)}`,
+      );
 
-      navigate(`/success/${purchases.getAppUserId()}`);
+      let queryParamRedemptionInfoUrl = "";
+      if (
+        purchaseResult.redemptionInfo &&
+        purchaseResult.redemptionInfo.redeemUrl
+      ) {
+        queryParamRedemptionInfoUrl = `?redeem_url=${purchaseResult.redemptionInfo.redeemUrl}`;
+      }
+
+      navigate(
+        `/success/${purchases.getAppUserId()}${queryParamRedemptionInfoUrl}`,
+      );
     } catch (e) {
       if (e instanceof PurchasesError) {
         console.log(`Error performing purchase: ${e}`);

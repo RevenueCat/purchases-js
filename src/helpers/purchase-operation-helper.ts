@@ -18,6 +18,7 @@ import {
   type PurchaseOption,
 } from "../entities/offerings";
 import { Logger } from "./logger";
+import { RedemptionInfo, toRedemptionInfo } from "../entities/redemption-info";
 
 export enum PurchaseFlowErrorCode {
   ErrorSettingUpPurchase = 0,
@@ -152,7 +153,9 @@ export class PurchaseOperationHelper {
     }
   }
 
-  async pollCurrentPurchaseForCompletion(): Promise<void> {
+  async pollCurrentPurchaseForCompletion(): Promise<{
+    redemptionInfo: RedemptionInfo | null;
+  }> {
     const operationSessionId = this.operationSessionId;
     if (!operationSessionId) {
       throw new PurchaseFlowError(
@@ -161,52 +164,56 @@ export class PurchaseOperationHelper {
       );
     }
 
-    return new Promise<void>((resolve, reject) => {
-      const checkForOperationStatus = (checkCount = 1) => {
-        if (checkCount > this.maxNumberAttempts) {
-          this.clearPurchaseInProgress();
-          reject(
-            new PurchaseFlowError(
-              PurchaseFlowErrorCode.UnknownError,
-              "Max attempts reached trying to get successful purchase status",
-            ),
-          );
-          return;
-        }
-        this.backend
-          .getCheckoutStatus(operationSessionId)
-          .then((operationResponse: CheckoutStatusResponse) => {
-            switch (operationResponse.operation.status) {
-              case CheckoutSessionStatus.Started:
-              case CheckoutSessionStatus.InProgress:
-                setTimeout(
-                  () => checkForOperationStatus(checkCount + 1),
-                  this.waitMSBetweenAttempts,
-                );
-                break;
-              case CheckoutSessionStatus.Succeeded:
-                this.clearPurchaseInProgress();
-                resolve();
-                return;
-              case CheckoutSessionStatus.Failed:
-                this.clearPurchaseInProgress();
-                this.handlePaymentError(
-                  operationResponse.operation.error,
-                  reject,
-                );
-            }
-          })
-          .catch((error: PurchasesError) => {
-            const purchasesError = PurchaseFlowError.fromPurchasesError(
-              error,
-              PurchaseFlowErrorCode.NetworkError,
+    return new Promise<{ redemptionInfo: RedemptionInfo | null }>(
+      (resolve, reject) => {
+        const checkForOperationStatus = (checkCount = 1) => {
+          if (checkCount > this.maxNumberAttempts) {
+            this.clearPurchaseInProgress();
+            reject(
+              new PurchaseFlowError(
+                PurchaseFlowErrorCode.UnknownError,
+                "Max attempts reached trying to get successful purchase status",
+              ),
             );
-            reject(purchasesError);
-          });
-      };
+            return;
+          }
+          this.backend
+            .getCheckoutStatus(operationSessionId)
+            .then((operationResponse: CheckoutStatusResponse) => {
+              switch (operationResponse.operation.status) {
+                case CheckoutSessionStatus.Started:
+                case CheckoutSessionStatus.InProgress:
+                  setTimeout(
+                    () => checkForOperationStatus(checkCount + 1),
+                    this.waitMSBetweenAttempts,
+                  );
+                  break;
+                case CheckoutSessionStatus.Succeeded:
+                  this.clearPurchaseInProgress();
+                  resolve({
+                    redemptionInfo: toRedemptionInfo(operationResponse),
+                  });
+                  return;
+                case CheckoutSessionStatus.Failed:
+                  this.clearPurchaseInProgress();
+                  this.handlePaymentError(
+                    operationResponse.operation.error,
+                    reject,
+                  );
+              }
+            })
+            .catch((error: PurchasesError) => {
+              const purchasesError = PurchaseFlowError.fromPurchasesError(
+                error,
+                PurchaseFlowErrorCode.NetworkError,
+              );
+              reject(purchasesError);
+            });
+        };
 
-      checkForOperationStatus();
-    });
+        checkForOperationStatus();
+      },
+    );
   }
 
   private clearPurchaseInProgress() {
