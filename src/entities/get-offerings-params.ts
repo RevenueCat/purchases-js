@@ -1,5 +1,6 @@
 /**
  * Keywords for identifying specific offerings in the {@link Purchases.getOfferings} method.
+ * @public
  */
 export enum OfferingKeyword {
   /**

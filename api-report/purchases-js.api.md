@@ -274,6 +274,14 @@ export interface PurchaseParams {
     rcPackage: Package;
 }
 
+// @public (undocumented)
+interface PurchaseResult {
+    // (undocumented)
+    readonly customerInfo: CustomerInfo;
+    // (undocumented)
+    readonly redemptionInfo: RedemptionInfo | null;
+}
+
 // @public
 export class Purchases {
     changeUser(newAppUserId: string): Promise<CustomerInfo>;
@@ -290,11 +298,11 @@ export class Purchases {
     isSandbox(): boolean;
     preload(): Promise<void>;
     purchase(params: PurchaseParams): Promise<{
-        customerInfo: CustomerInfo;
+        purchaseResult: PurchaseResult;
     }>;
     // @deprecated
     purchasePackage(rcPackage: Package, customerEmail?: string, htmlTarget?: HTMLElement): Promise<{
-        customerInfo: CustomerInfo;
+        purchaseResult: PurchaseResult;
     }>;
     static setLogLevel(logLevel: LogLevel): void;
 }
@@ -320,6 +328,11 @@ export interface PurchasesErrorExtra {
 }
 
 // @public
+export interface RedemptionInfo {
+    readonly redeemUrl: string | null;
+}
+
+// @public
 export type Store = "app_store" | "mac_app_store" | "play_store" | "amazon" | "stripe" | "rc_billing" | "promotional" | "unknown";
 
 // @public
@@ -338,6 +351,10 @@ export interface TargetingContext {
 export class UninitializedPurchasesError extends Error {
     constructor();
 }
+
+// Warnings were encountered during analysis:
+//
+// dist/Purchases.es.d.ts:722:13 - (ae-forgotten-export) The symbol "PurchaseResult" needs to be exported by the entry point Purchases.es.d.ts
 
 // (No @packageDocumentation comment for this package)
 

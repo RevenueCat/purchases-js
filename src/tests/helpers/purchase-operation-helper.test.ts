@@ -165,7 +165,7 @@ describe("PurchaseOperationHelper", () => {
     const getCheckoutStatusResponse: CheckoutStatusResponse = {
       operation: {
         status: CheckoutSessionStatus.Succeeded,
-        isExpired: false,
+        is_expired: false,
         error: null,
       },
     };
@@ -187,6 +187,44 @@ describe("PurchaseOperationHelper", () => {
     await purchaseOperationHelper.pollCurrentPurchaseForCompletion();
   });
 
+  test("pollCurrentPurchaseForCompletion success with redemption info if poll returns success", async () => {
+    setPurchaseResponse(
+      HttpResponse.json(successPurchaseBody, {
+        status: StatusCodes.OK,
+      }),
+    );
+    const getCheckoutStatusResponse: CheckoutStatusResponse = {
+      operation: {
+        status: CheckoutSessionStatus.Succeeded,
+        is_expired: false,
+        error: null,
+        redemption_info: {
+          redeem_url: "test-url://redeem_my_rcb?token=1234",
+        },
+      },
+    };
+    setGetCheckoutStatusResponse(
+      HttpResponse.json(getCheckoutStatusResponse, { status: StatusCodes.OK }),
+    );
+
+    await purchaseOperationHelper.startPurchase(
+      "test-app-user-id",
+      "test-product-id",
+      { id: "test-option-id", priceId: "test-price-id" },
+      "test-email",
+      {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    );
+    const pollResult =
+      await purchaseOperationHelper.pollCurrentPurchaseForCompletion();
+    expect(pollResult.redemptionInfo?.redeemUrl).toEqual(
+      "test-url://redeem_my_rcb?token=1234",
+    );
+  });
+
   // TODO: Fix test that fails due to using same response multiple times
   // test("pollCurrentPurchaseForCompletion fails if poll returns in progress more times than retries", async () => {
   //   setSubscribeResponse(
@@ -197,7 +235,7 @@ describe("PurchaseOperationHelper", () => {
   //   const getCheckoutStatusResponse: OperationResponse = {
   //     operation: {
   //       status: OperationSessionStatus.InProgress,
-  //       isExpired: false,
+  //       is_expired: false,
   //       error: null,
   //     },
   //   };
@@ -228,7 +266,7 @@ describe("PurchaseOperationHelper", () => {
     const getCheckoutStatusResponse: CheckoutStatusResponse = {
       operation: {
         status: CheckoutSessionStatus.Failed,
-        isExpired: false,
+        is_expired: false,
         error: {
           code: CheckoutStatusErrorCodes.PaymentChargeFailed,
           message: "test-error-message",
@@ -268,7 +306,7 @@ describe("PurchaseOperationHelper", () => {
     const getCheckoutStatusResponse: CheckoutStatusResponse = {
       operation: {
         status: CheckoutSessionStatus.Failed,
-        isExpired: false,
+        is_expired: false,
         error: {
           code: 12345,
           message: "test-error-message",
