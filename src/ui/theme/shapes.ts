@@ -22,4 +22,4 @@ export const PillsShape: Shape = {
   "modal-border-radius": "16px",
 };
 
-export const DefaultShape = RoundedShape;
+export const DefaultShape = PillsShape;
