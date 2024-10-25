@@ -116,13 +116,18 @@ const PaywallPage: React.FC = () => {
         purchaseOption: option,
       });
 
-      console.log(`CustomerInfo after purchase: ${purchaseResult.customerInfo}`);
+      console.log(
+        `CustomerInfo after purchase: ${purchaseResult.customerInfo}`,
+      );
       console.log(
         `RedemptionInfo after purchase: ${JSON.stringify(purchaseResult.redemptionInfo)}`,
       );
 
       let queryParamRedemptionInfoUrl = "";
-      if (purchaseResult.redemptionInfo && purchaseResult.redemptionInfo.redeemUrl) {
+      if (
+        purchaseResult.redemptionInfo &&
+        purchaseResult.redemptionInfo.redeemUrl
+      ) {
         queryParamRedemptionInfoUrl = `?redeem_url=${purchaseResult.redemptionInfo.redeemUrl}`;
       }
 
