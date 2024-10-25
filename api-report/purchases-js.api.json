@@ -3944,6 +3944,84 @@
           "extendsTokenRanges": []
         },
         {
+          "kind": "Interface",
+          "canonicalReference": "@revenuecat/purchases-js!~PurchaseResult:interface",
+          "docComment": "",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "declare interface PurchaseResult "
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "name": "PurchaseResult",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!~PurchaseResult#customerInfo:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly customerInfo: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "CustomerInfo",
+                  "canonicalReference": "@revenuecat/purchases-js!CustomerInfo:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "customerInfo",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!~PurchaseResult#redemptionInfo:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly redemptionInfo: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "RedemptionInfo",
+                  "canonicalReference": "@revenuecat/purchases-js!RedemptionInfo:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "redemptionInfo",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
           "kind": "Class",
           "canonicalReference": "@revenuecat/purchases-js!Purchases:class",
           "docComment": "/**\n * Entry point for Purchases SDK. It should be instantiated as soon as your app is started. Only one instance of Purchases should be instantiated at a time!\n *\n * @public\n */\n",
@@ -4538,7 +4616,7 @@
             {
               "kind": "Method",
               "canonicalReference": "@revenuecat/purchases-js!Purchases#purchase:member(1)",
-              "docComment": "/**\n * Method to perform a purchase for a given package. You can obtain the package from {@link Purchases.getOfferings}. This method will present the purchase form on your site, using the given HTML element as the mount point, if provided, or as a modal if not.\n *\n * @param params - The parameters object to customise the purchase flow. Check {@link PurchaseParams}\n *\n * @returns a Promise for the customer info after the purchase is completed successfully.\n *\n * @throws\n *\n * {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.\n */\n",
+              "docComment": "/**\n * Method to perform a purchase for a given package. You can obtain the package from {@link Purchases.getOfferings}. This method will present the purchase form on your site, using the given HTML element as the mount point, if provided, or as a modal if not.\n *\n * @param params - The parameters object to customise the purchase flow. Check {@link PurchaseParams}\n *\n * @returns a Promise for the customer and redemption info after the purchase is completed successfully.\n *\n * @throws\n *\n * {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4560,25 +4638,16 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "<{\n             customerInfo: "
+                  "text": "<{\n             purchaseResult: "
                 },
                 {
                   "kind": "Reference",
-                  "text": "CustomerInfo",
-                  "canonicalReference": "@revenuecat/purchases-js!CustomerInfo:interface"
+                  "text": "PurchaseResult",
+                  "canonicalReference": "@revenuecat/purchases-js!~PurchaseResult:interface"
                 },
                 {
                   "kind": "Content",
-                  "text": ";\n             redemptionInfo: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "RedemptionInfo",
-                  "canonicalReference": "@revenuecat/purchases-js!RedemptionInfo:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | null;\n         }>"
+                  "text": ";\n         }>"
                 },
                 {
                   "kind": "Content",
@@ -4588,7 +4657,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 3,
-                "endIndex": 9
+                "endIndex": 7
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -4649,25 +4718,16 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "<{\n            customerInfo: "
+                  "text": "<{\n            purchaseResult: "
                 },
                 {
                   "kind": "Reference",
-                  "text": "CustomerInfo",
-                  "canonicalReference": "@revenuecat/purchases-js!CustomerInfo:interface"
+                  "text": "PurchaseResult",
+                  "canonicalReference": "@revenuecat/purchases-js!~PurchaseResult:interface"
                 },
                 {
                   "kind": "Content",
-                  "text": ";\n            redemptionInfo: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "RedemptionInfo",
-                  "canonicalReference": "@revenuecat/purchases-js!RedemptionInfo:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | null;\n        }>"
+                  "text": ";\n        }>"
                 },
                 {
                   "kind": "Content",
@@ -4677,7 +4737,7 @@
               "isStatic": false,
               "returnTypeTokenRange": {
                 "startIndex": 7,
-                "endIndex": 13
+                "endIndex": 11
               },
               "releaseTag": "Public",
               "isProtected": false,

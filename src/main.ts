@@ -46,6 +46,7 @@ import {
   toOfferings,
 } from "./helpers/offerings-parser";
 import { RedemptionInfo } from "./entities/redemption-info";
+import { PurchaseResult } from "./entities/purchase-result";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -330,8 +331,7 @@ export class Purchases {
     customerEmail?: string,
     htmlTarget?: HTMLElement,
   ): Promise<{
-    customerInfo: CustomerInfo;
-    redemptionInfo: RedemptionInfo | null;
+    purchaseResult: PurchaseResult;
   }> {
     return this.purchase({
       rcPackage,
@@ -346,13 +346,12 @@ export class Purchases {
    * form on your site, using the given HTML element as the mount point, if
    * provided, or as a modal if not.
    * @param params - The parameters object to customise the purchase flow. Check {@link PurchaseParams}
-   * @returns a Promise for the customer info after the purchase is completed successfully.
+   * @returns a Promise for the customer and redemption info after the purchase is completed successfully.
    * @throws {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.
    */
   @requiresLoadedResources
   public purchase(params: PurchaseParams): Promise<{
-    customerInfo: CustomerInfo;
-    redemptionInfo: RedemptionInfo | null;
+    purchaseResult: PurchaseResult;
   }> {
     const { rcPackage, purchaseOption, htmlTarget, customerEmail } = params;
     let resolvedHTMLTarget =
@@ -392,10 +391,11 @@ export class Purchases {
             Logger.debugLog("Purchase finished");
             certainHTMLTarget.innerHTML = "";
             // TODO: Add info about transaction in result.
-            resolve({
-              redemptionInfo: redemptionInfo,
+            let purchaseResult: PurchaseResult = {
               customerInfo: await this._getCustomerInfoForUserId(appUserId),
-            });
+              redemptionInfo: redemptionInfo,
+            };
+            resolve({ purchaseResult: purchaseResult });
           },
           onClose: () => {
             certainHTMLTarget.innerHTML = "";
