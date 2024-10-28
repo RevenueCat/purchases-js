@@ -52,7 +52,7 @@ const isLightColor = ({ r, g, b }: RGB) => {
     0.0722 * gammaCorrect(b);
 
   // Return whether the background is light
-  return luminance > 0.179;
+  return luminance > 0.200;
 };
 
 const rgbToTextColors = (rgb: RGB) => {
