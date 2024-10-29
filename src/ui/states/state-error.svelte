@@ -41,6 +41,7 @@
   closeButtonTitle="Try Again"
 >
   <IconError slot="icon" />
+
   {lastError.getPublicErrorMessage(productDetails)}
   {#if supportEmail}
     <br>If this error persists, please contact <a href="mailto:{supportEmail}">{supportEmail}</a>.
