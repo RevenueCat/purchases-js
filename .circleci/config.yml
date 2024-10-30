@@ -31,8 +31,15 @@ parameters:
     default: ""
 
 commands:
+  copy-npm-rc:
+    steps:
+      - run:
+          name: Copy npmrc sample file to final location
+          command: cp .npmrc.SAMPLE .npmrc
+
   install-dependencies:
     steps:
+      - copy-npm-rc
       - restore_cache:
           keys:
             - yarn-v2-{{ checksum "yarn.lock" }}
@@ -44,11 +51,7 @@ commands:
           paths:
             - .yarn/cache
 
-  copy-npm-rc:
-    steps:
-      - run:
-          name: Copy npmrc sample file to final location
-          command: cp .npmrc.SAMPLE .npmrc
+
 
 jobs:
   docs-deploy:
