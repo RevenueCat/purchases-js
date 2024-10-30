@@ -130,7 +130,7 @@ export function toOfferings(
   });
 
   const currentOffering: Offering | null = offeringsData.current_offering_id
-    ? allOfferings[offeringsData.current_offering_id] ?? null
+    ? (allOfferings[offeringsData.current_offering_id] ?? null)
     : null;
 
   if (Object.keys(allOfferings).length == 0) {
