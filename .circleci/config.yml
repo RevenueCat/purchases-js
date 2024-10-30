@@ -137,9 +137,7 @@ jobs:
       - revenuecat/install-gem-unix-dependencies:
           cache-version: v1
       - revenuecat/setup-git-credentials
-      - run:
-          name: Install node dependencies
-          command: npm ci
+      - install-dependencies
       - run:
           name: Install dependencies rcbilling-demo
           working_directory: examples/rcbilling-demo
