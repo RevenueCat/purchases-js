@@ -247,7 +247,7 @@ export interface GetRequest {
   url: string;
 }
 
-export const APIGetRequest = vi.fn<[GetRequest]>();
+export const APIGetRequest = vi.fn();
 
 export function getRequestHandlers(): RequestHandler[] {
   const requestHandlers: RequestHandler[] = [];

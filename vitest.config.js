@@ -1,7 +1,7 @@
 import { configDefaults, defineConfig } from "vitest/config";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [svelte()],
 
   // This is needed to make test pass after adding decorators in Purchases.
@@ -39,6 +39,10 @@ export default defineConfig({
     exclude: [...configDefaults.exclude, "examples/**"],
   },
 
+  resolve: {
+    conditions: mode === "test" ? ["browser"] : [],
+  },
+
   // If you need to define other Vite configurations, they can go here
   // ...
-});
+}));
