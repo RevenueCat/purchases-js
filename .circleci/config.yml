@@ -73,9 +73,7 @@ jobs:
       - revenuecat/install-gem-unix-dependencies:
           cache-version: v1
       - revenuecat/trust-github-key
-      - run:
-          name: Install node dependencies
-          command: npm ci
+      - install-dependencies
       - run:
           name: Build
           command: npm run build
@@ -99,9 +97,7 @@ jobs:
           command: |
             echo 'export VITE_RC_API_KEY=${DEMO_RC_API_KEY}' >> "$BASH_ENV"
             source "$BASH_ENV"
-      - run:
-          name: Install node dependencies
-          command: npm ci
+      - install-dependencies
       - run:
           name: Install dependencies rcbilling-demo
           working_directory: examples/rcbilling-demo
@@ -191,9 +187,7 @@ jobs:
           command: |
             echo 'export VITE_RC_API_KEY=${E2E_RC_API_KEY}' >> "$BASH_ENV"
             source "$BASH_ENV"
-      - run:
-          name: Install node dependencies
-          command: npm ci
+      - install-dependencies
       - run:
           name: Install dependencies rcbilling-demo
           working_directory: examples/rcbilling-demo
