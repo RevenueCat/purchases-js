@@ -14,6 +14,7 @@ import { notEmpty } from "../helpers/type-helper";
 import { formatPrice } from "../helpers/price-labels";
 import { Logger } from "../helpers/logger";
 import { parseISODuration, type Period } from "../helpers/duration-helper";
+import { PaywallData } from "@revenuecat/purchases-ui-web";
 
 /**
  * Enumeration of all possible Package types.
@@ -353,6 +354,8 @@ export interface Offering {
    * Weekly package type configured in the RevenueCat dashboard, if available.
    */
   readonly weekly: Package | null;
+
+  readonly paywall_components: PaywallData | null;
 }
 
 /**
@@ -619,6 +622,9 @@ export const toOffering = (
     twoMonth: packagesById[PackageType.TwoMonth] ?? null,
     monthly: packagesById[PackageType.Monthly] ?? null,
     weekly: packagesById[PackageType.Weekly] ?? null,
+    paywall_components: offeringsData.paywall_components
+      ? (offeringsData.paywall_components as PaywallData)
+      : null,
   };
 };
 

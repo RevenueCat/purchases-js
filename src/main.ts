@@ -48,6 +48,8 @@ import {
 import { RedemptionInfo } from "./entities/redemption-info";
 import { PurchaseResult } from "./entities/purchase-result";
 import { mount } from "svelte";
+import { RenderPaywallParams } from "./entities/render-paywall-params";
+import { Paywall } from "@revenuecat/purchases-ui-web";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -227,6 +229,46 @@ export class Purchases {
     }
     this.backend = new Backend(this._API_KEY, httpConfig);
     this.purchaseOperationHelper = new PurchaseOperationHelper(this.backend);
+  }
+
+  public async renderPaywall(params: RenderPaywallParams) {
+    const htmlTarget = params.htmlTarget;
+
+    let resolvedHTMLTarget =
+      htmlTarget ?? document.getElementById("rcb-ui-root");
+
+    if (resolvedHTMLTarget === null) {
+      const element = document.createElement("div");
+      element.className = "rcb-ui-root";
+      document.body.appendChild(element);
+      resolvedHTMLTarget = element;
+    }
+
+    if (resolvedHTMLTarget === null) {
+      throw new Error(
+        "Could not generate a mount point for the billing widget",
+      );
+    }
+
+    const certainHTMLTarget = resolvedHTMLTarget as unknown as HTMLElement;
+
+    const offering = params.offering;
+
+    console.log(certainHTMLTarget);
+    console.log(offering.paywall_components);
+
+    return new Promise((resolve, reject) => {
+      if (offering.paywall_components) {
+        mount(Paywall, {
+          target: certainHTMLTarget,
+          props: { data: offering.paywall_components },
+        });
+        resolve(offering.identifier);
+        return;
+      }
+
+      reject();
+    });
   }
 
   /**

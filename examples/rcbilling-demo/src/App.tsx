@@ -11,6 +11,7 @@ import LandingPage from "./pages/landingPage";
 import PaywallPage from "./pages/paywall";
 import SuccessPage from "./pages/success";
 import { loadPurchases } from "./util/PurchasesLoader";
+import RCPaywallPage from "./pages/rc_paywall";
 
 const router = createBrowserRouter([
   {
@@ -33,6 +34,15 @@ const router = createBrowserRouter([
     element: (
       <WithoutEntitlement>
         <PaywallPage />
+      </WithoutEntitlement>
+    ),
+  },
+  {
+    path: "/rc_paywall/:app_user_id",
+    loader: loadPurchases,
+    element: (
+      <WithoutEntitlement>
+        <RCPaywallPage />
       </WithoutEntitlement>
     ),
   },

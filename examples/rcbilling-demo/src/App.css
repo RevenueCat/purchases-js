@@ -172,7 +172,8 @@ button.button:focus-visible {
 .packages {
   display: flex;
   flex-direction: row;
-  overflow-x: scroll;
+  overflow-x: auto;
+  padding-bottom: 24px;
   gap: 16px;
   width: 100%;
   justify-content: center;
