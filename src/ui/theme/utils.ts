@@ -36,7 +36,14 @@ const hexToRGB = (color: string): RGB | null => {
   return null;
 };
 
-const isLightColor = ({ r, g, b }: RGB) => {
+const isLightColor = ({
+  r,
+  g,
+  b,
+  luminanceThreshold,
+}: RGB & {
+  luminanceThreshold: number;
+}) => {
   // Gamma correction
   const gammaCorrect = (color: number) => {
     color = color / 255;
@@ -52,11 +59,18 @@ const isLightColor = ({ r, g, b }: RGB) => {
     0.0722 * gammaCorrect(b);
 
   // Return whether the background is light
-  return luminance > 0.2;
+  return luminance > luminanceThreshold;
 };
 
-const rgbToTextColors = (rgb: RGB) => {
-  const baseColor = isLightColor(rgb) ? "0,0,0" : "255,255,255";
+export const DEFAULT_LUMINANCE_THRESHOLD = 0.37;
+
+const rgbToTextColors = (
+  rgb: RGB,
+  luminanceThreshold: number = DEFAULT_LUMINANCE_THRESHOLD,
+) => {
+  const baseColor = isLightColor({ ...rgb, luminanceThreshold })
+    ? "0,0,0"
+    : "255,255,255";
 
   return {
     "grey-text-dark": `rgba(${baseColor},1.0)`,
@@ -70,6 +84,7 @@ const textColorsForBackground = (
   backgroundColor: string,
   primaryColor: string,
   defaultColors: Colors,
+  luminanceThreshold: number = DEFAULT_LUMINANCE_THRESHOLD,
 ) => {
   const textColors = {
     "grey-text-dark": defaultColors["grey-text-dark"],
@@ -91,7 +106,9 @@ const textColorsForBackground = (
   if (primaryColor?.startsWith("#")) {
     const rgb = hexToRGB(primaryColor);
     if (rgb !== null) {
-      textColors["primary-text"] = isLightColor(rgb) ? "black" : "white";
+      textColors["primary-text"] = isLightColor({ ...rgb, luminanceThreshold })
+        ? "black"
+        : "white";
     }
   }
 
