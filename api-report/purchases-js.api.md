@@ -274,11 +274,9 @@ export interface PurchaseParams {
     rcPackage: Package;
 }
 
-// @public (undocumented)
-interface PurchaseResult {
-    // (undocumented)
+// @public
+export interface PurchaseResult {
     readonly customerInfo: CustomerInfo;
-    // (undocumented)
     readonly redemptionInfo: RedemptionInfo | null;
 }
 
@@ -297,13 +295,9 @@ export class Purchases {
     // (undocumented)
     isSandbox(): boolean;
     preload(): Promise<void>;
-    purchase(params: PurchaseParams): Promise<{
-        purchaseResult: PurchaseResult;
-    }>;
+    purchase(params: PurchaseParams): Promise<PurchaseResult>;
     // @deprecated
-    purchasePackage(rcPackage: Package, customerEmail?: string, htmlTarget?: HTMLElement): Promise<{
-        purchaseResult: PurchaseResult;
-    }>;
+    purchasePackage(rcPackage: Package, customerEmail?: string, htmlTarget?: HTMLElement): Promise<PurchaseResult>;
     static setLogLevel(logLevel: LogLevel): void;
 }
 
@@ -351,10 +345,6 @@ export interface TargetingContext {
 export class UninitializedPurchasesError extends Error {
     constructor();
 }
-
-// Warnings were encountered during analysis:
-//
-// dist/Purchases.es.d.ts:722:13 - (ae-forgotten-export) The symbol "PurchaseResult" needs to be exported by the entry point Purchases.es.d.ts
 
 // (No @packageDocumentation comment for this package)
 
