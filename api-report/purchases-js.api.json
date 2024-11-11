@@ -3945,12 +3945,12 @@
         },
         {
           "kind": "Interface",
-          "canonicalReference": "@revenuecat/purchases-js!~PurchaseResult:interface",
-          "docComment": "",
+          "canonicalReference": "@revenuecat/purchases-js!PurchaseResult:interface",
+          "docComment": "/**\n * Represents the result of a purchase operation.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "declare interface PurchaseResult "
+              "text": "export declare interface PurchaseResult "
             }
           ],
           "fileUrlPath": "dist/Purchases.es.d.ts",
@@ -3960,8 +3960,8 @@
           "members": [
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!~PurchaseResult#customerInfo:member",
-              "docComment": "",
+              "canonicalReference": "@revenuecat/purchases-js!PurchaseResult#customerInfo:member",
+              "docComment": "/**\n * The customer information after the purchase.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -3988,8 +3988,8 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!~PurchaseResult#redemptionInfo:member",
-              "docComment": "",
+              "canonicalReference": "@revenuecat/purchases-js!PurchaseResult#redemptionInfo:member",
+              "docComment": "/**\n * The redemption information after the purchase if available.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4638,16 +4638,16 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "<{\n             purchaseResult: "
+                  "text": "<"
                 },
                 {
                   "kind": "Reference",
                   "text": "PurchaseResult",
-                  "canonicalReference": "@revenuecat/purchases-js!~PurchaseResult:interface"
+                  "canonicalReference": "@revenuecat/purchases-js!PurchaseResult:interface"
                 },
                 {
                   "kind": "Content",
-                  "text": ";\n         }>"
+                  "text": ">"
                 },
                 {
                   "kind": "Content",
@@ -4718,16 +4718,16 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "<{\n            purchaseResult: "
+                  "text": "<"
                 },
                 {
                   "kind": "Reference",
                   "text": "PurchaseResult",
-                  "canonicalReference": "@revenuecat/purchases-js!~PurchaseResult:interface"
+                  "canonicalReference": "@revenuecat/purchases-js!PurchaseResult:interface"
                 },
                 {
                   "kind": "Content",
-                  "text": ";\n        }>"
+                  "text": ">"
                 },
                 {
                   "kind": "Content",

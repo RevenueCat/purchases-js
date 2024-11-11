@@ -45,8 +45,8 @@ import {
   findOfferingByPlacementId,
   toOfferings,
 } from "./helpers/offerings-parser";
-import { RedemptionInfo } from "./entities/redemption-info";
-import { PurchaseResult } from "./entities/purchase-result";
+import { type RedemptionInfo } from "./entities/redemption-info";
+import { type PurchaseResult } from "./entities/purchase-result";
 import { mount } from "svelte";
 import { RenderPaywallParams } from "./entities/render-paywall-params";
 import { Paywall } from "@revenuecat/purchases-ui-web";
@@ -86,6 +86,7 @@ export type { GetOfferingsParams } from "./entities/get-offerings-params";
 export { OfferingKeyword } from "./entities/get-offerings-params";
 export type { PurchaseParams } from "./entities/purchase-params";
 export type { RedemptionInfo } from "./entities/redemption-info";
+export type { PurchaseResult } from "./entities/purchase-result";
 
 /**
  * Entry point for Purchases SDK. It should be instantiated as soon as your
@@ -373,9 +374,7 @@ export class Purchases {
     rcPackage: Package,
     customerEmail?: string,
     htmlTarget?: HTMLElement,
-  ): Promise<{
-    purchaseResult: PurchaseResult;
-  }> {
+  ): Promise<PurchaseResult> {
     return this.purchase({
       rcPackage,
       customerEmail,
@@ -393,9 +392,7 @@ export class Purchases {
    * @throws {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.
    */
   @requiresLoadedResources
-  public purchase(params: PurchaseParams): Promise<{
-    purchaseResult: PurchaseResult;
-  }> {
+  public purchase(params: PurchaseParams): Promise<PurchaseResult> {
     const { rcPackage, purchaseOption, htmlTarget, customerEmail } = params;
     let resolvedHTMLTarget =
       htmlTarget ?? document.getElementById("rcb-ui-root");
@@ -434,11 +431,11 @@ export class Purchases {
             Logger.debugLog("Purchase finished");
             certainHTMLTarget.innerHTML = "";
             // TODO: Add info about transaction in result.
-            let purchaseResult: PurchaseResult = {
+            const purchaseResult: PurchaseResult = {
               customerInfo: await this._getCustomerInfoForUserId(appUserId),
               redemptionInfo: redemptionInfo,
             };
-            resolve({ purchaseResult: purchaseResult });
+            resolve(purchaseResult);
           },
           onClose: () => {
             certainHTMLTarget.innerHTML = "";
