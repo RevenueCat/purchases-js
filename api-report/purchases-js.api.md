@@ -306,13 +306,13 @@ export class PurchasesError extends Error {
     constructor(
     errorCode: ErrorCode,
     message?: string,
-    underlyingErrorMessage?: (string | null) | undefined,
+    underlyingErrorMessage?: string | null | undefined,
     extra?: PurchasesErrorExtra | undefined);
     readonly errorCode: ErrorCode;
     readonly extra?: PurchasesErrorExtra | undefined;
     // (undocumented)
     toString: () => string;
-    readonly underlyingErrorMessage?: (string | null) | undefined;
+    readonly underlyingErrorMessage?: string | null | undefined;
 }
 
 // @public
