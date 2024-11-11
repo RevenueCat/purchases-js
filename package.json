@@ -57,14 +57,14 @@
     "@storybook/addon-essentials": "^8.3.6",
     "@storybook/addon-interactions": "^8.3.6",
     "@storybook/addon-links": "^8.3.6",
-    "@storybook/addon-svelte-csf": "^5.0.0-next.10",
+    "@storybook/addon-svelte-csf": "^5.0.0-next.11",
     "@storybook/blocks": "^8.3.6",
     "@storybook/svelte": "^8.3.6",
     "@storybook/sveltekit": "^8.3.6",
     "@storybook/test": "^8.3.6",
     "@sveltejs/vite-plugin-svelte": "^4.0.0",
     "svelte": "^5.0.0",
-    "svelte-check": "^4.0.0",
+    "svelte-check": "^4.0.6",
     "@tsconfig/svelte": "^5.0.4",
     "@typescript-eslint/eslint-plugin": "^6.10.0",
     "eslint": "^8.53.0",
@@ -89,9 +89,8 @@
     "vitest": "^2.1.4"
   },
   "dependencies": {
-    "@stripe/stripe-js": "^2.2.0",
+    "@stripe/stripe-js": "^4.9.0",
     "http-status-codes": "^2.3.0",
     "@revenuecat/purchases-ui-web": "^0.0.2"
-  },
-  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+  }
 }
