@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 import {
   type CustomerInfo,
   type EntitlementInfo,
+  IdentityMode,
   Purchases,
   PurchasesError,
 } from "../main";
@@ -59,6 +60,18 @@ describe("Purchases.configure()", () => {
       "another_user_id",
     );
     expect(purchases).not.toEqual(purchases2);
+  });
+
+  test("can configure with anonymous identity mode", () => {
+    const purchases = Purchases.configure(testApiKey, IdentityMode.Anonymous);
+    const userId = purchases.getAppUserId();
+    expect(userId).toMatch(/^\$RCAnonymousID:[a-f0-9]{32}$/);
+  });
+
+  test("anonymous ids are unique", () => {
+    const purchases1 = Purchases.configure(testApiKey, IdentityMode.Anonymous);
+    const purchases2 = Purchases.configure(testApiKey, IdentityMode.Anonymous);
+    expect(purchases1.getAppUserId()).not.toEqual(purchases2.getAppUserId());
   });
 });
 
