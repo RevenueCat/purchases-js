@@ -48,6 +48,8 @@ import {
 import { type RedemptionInfo } from "./entities/redemption-info";
 import { type PurchaseResult } from "./entities/purchase-result";
 import { mount } from "svelte";
+import { generateAnonymousAppUserId } from "./helpers/identity-helpers";
+import { IdentityMode } from "./entities/identity";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -85,6 +87,7 @@ export { OfferingKeyword } from "./entities/get-offerings-params";
 export type { PurchaseParams } from "./entities/purchase-params";
 export type { RedemptionInfo } from "./entities/redemption-info";
 export type { PurchaseResult } from "./entities/purchase-result";
+export { IdentityMode } from "./entities/identity";
 
 /**
  * Entry point for Purchases SDK. It should be instantiated as soon as your
@@ -154,7 +157,7 @@ export class Purchases {
    */
   static configure(
     apiKey: string,
-    appUserId: string,
+    appUserId: string | IdentityMode,
     httpConfig: HttpConfig = defaultHttpConfig,
   ): Purchases {
     if (Purchases.instance !== undefined) {
@@ -164,10 +167,17 @@ export class Purchases {
       );
     }
     validateApiKey(apiKey);
-    validateAppUserId(appUserId);
+
+    const resolvedAppUserId =
+      appUserId === IdentityMode.Anonymous
+        ? generateAnonymousAppUserId()
+        : appUserId;
+
+    validateAppUserId(resolvedAppUserId);
     validateProxyUrl(httpConfig.proxyURL);
     validateAdditionalHeaders(httpConfig.additionalHeaders);
-    Purchases.instance = new Purchases(apiKey, appUserId, httpConfig);
+
+    Purchases.instance = new Purchases(apiKey, resolvedAppUserId, httpConfig);
     return Purchases.getSharedInstance();
   }
 
