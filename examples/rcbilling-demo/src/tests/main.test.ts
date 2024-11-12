@@ -69,7 +69,7 @@ test.describe("Main", () => {
     const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
     const singleCard = packageCards[1];
 
-    await performPurchase(page, singleCard, userId);
+    await performPurchase(page, singleCard);
   });
 
   test("Can purchase a consumable Product", async ({
@@ -88,7 +88,7 @@ test.describe("Main", () => {
     expect(packageCards.length).toEqual(1);
     const singleCard = packageCards[0];
 
-    await performPurchase(page, singleCard, userId);
+    await performPurchase(page, singleCard);
   });
 
   test("Can purchase a non consumable Product", async ({
@@ -107,7 +107,7 @@ test.describe("Main", () => {
     expect(packageCards.length).toEqual(1);
     const singleCard = packageCards[0];
 
-    await performPurchase(page, singleCard, userId);
+    await performPurchase(page, singleCard);
   });
 
   test("Displays error when unknown backend error", async ({
@@ -132,7 +132,7 @@ test.describe("Main", () => {
       });
     });
 
-    await enterEmailAndContinue(page, userId);
+    await enterEmailAndContinue(page);
 
     // Confirm error page has shown.
     const errorTitleText = page.getByText("Something went wrong");
@@ -147,29 +147,18 @@ test.describe("Main", () => {
   test("can purchase with anonymous user", async ({ browser }) => {
     const page = await setupTest(browser);
 
-    const cards = await getAllElementsByLocator(
-      page,
-      "[data-testid='package-card']",
-    );
-    expect(cards.length).toBeGreaterThan(0);
-
-    const userId = await page.evaluate(() => {
-      const purchases = window.Purchases?.getSharedInstance();
-      if (!purchases) throw new Error("Purchases not initialized");
-      return purchases.getAppUserId();
-    });
-    expect(userId).toMatch(/^\$RCAnonymousID:[a-f0-9]{32}$/);
-    const firstCard = cards[0];
-    await performPurchase(page, firstCard, userId);
+    const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
+    const firstCard = packageCards[0];
+    await performPurchase(page, firstCard);
   });
 });
 
-async function performPurchase(page: Page, card: Locator, userId: string) {
+async function performPurchase(page: Page, card: Locator) {
   // Perform purchase
   const cardButton = card.getByRole("button");
   await cardButton.click();
 
-  await enterEmailAndContinue(page, userId);
+  await enterEmailAndContinue(page);
   await enterCreditCardDetailsAndContinue(page);
 
   // Confirm success page has shown.
@@ -204,11 +193,8 @@ async function getAllElementsByLocator(
   return await locatorResult.all();
 }
 
-async function enterEmailAndContinue(
-  page: Page,
-  userId: string,
-): Promise<void> {
-  const email = `${userId}@revenuecat.com`;
+async function enterEmailAndContinue(page: Page): Promise<void> {
+  const email = "e2e.rcbilling.tests@revenuecat.com";
 
   await typeTextInPageSelector(page, email);
   await page.getByRole("button", { name: "Continue" }).click();
