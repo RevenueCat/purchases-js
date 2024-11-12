@@ -6,7 +6,12 @@ const config: StorybookConfig = {
     "@storybook/addon-links",
     "@storybook/addon-essentials",
     "@storybook/addon-interactions",
-    "@storybook/addon-svelte-csf",
+    {
+      name: "@storybook/addon-svelte-csf",
+      options: {
+        legacyTemplate: true,
+      },
+    },
   ],
   framework: "@storybook/svelte-vite",
   docs: {

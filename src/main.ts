@@ -47,6 +47,7 @@ import {
 } from "./helpers/offerings-parser";
 import { type RedemptionInfo } from "./entities/redemption-info";
 import { type PurchaseResult } from "./entities/purchase-result";
+import { mount } from "svelte";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -377,7 +378,7 @@ export class Purchases {
     );
 
     return new Promise((resolve, reject) => {
-      new RCPurchasesUI({
+      mount(RCPurchasesUI, {
         target: certainHTMLTarget,
         props: {
           appUserId,

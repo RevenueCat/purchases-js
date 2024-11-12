@@ -24,31 +24,27 @@ aliases:
 parameters:
   action:
     type: enum
-    enum: [default, bump]
+    enum: [ default, bump ]
     default: default
   version:
     type: string
     default: ""
 
 commands:
-  install-dependencies:
-    steps:
-      - restore_cache:
-          keys:
-            - yarn-v2-{{ checksum "yarn.lock" }}
-      - run:
-          name: Yarn Install
-          command: yarn
-      - save_cache:
-          key: yarn-v2-{{ checksum "yarn.lock" }}
-          paths:
-            - .yarn/cache
-
   copy-npm-rc:
     steps:
       - run:
           name: Copy npmrc sample file to final location
           command: cp .npmrc.SAMPLE .npmrc
+
+  install-dependencies:
+    steps:
+      - copy-npm-rc
+      - run:
+          name: Npm Install
+          command: npm ci
+
+
 
 jobs:
   docs-deploy:
@@ -73,9 +69,7 @@ jobs:
       - revenuecat/install-gem-unix-dependencies:
           cache-version: v1
       - revenuecat/trust-github-key
-      - run:
-          name: Install node dependencies
-          command: npm ci
+      - install-dependencies
       - run:
           name: Build
           command: npm run build
@@ -99,9 +93,7 @@ jobs:
           command: |
             echo 'export VITE_RC_API_KEY=${DEMO_RC_API_KEY}' >> "$BASH_ENV"
             source "$BASH_ENV"
-      - run:
-          name: Install node dependencies
-          command: npm ci
+      - install-dependencies
       - run:
           name: Install dependencies rcbilling-demo
           working_directory: examples/rcbilling-demo
@@ -138,9 +130,7 @@ jobs:
       - revenuecat/install-gem-unix-dependencies:
           cache-version: v1
       - revenuecat/setup-git-credentials
-      - run:
-          name: Install node dependencies
-          command: npm ci
+      - install-dependencies
       - run:
           name: Install dependencies rcbilling-demo
           working_directory: examples/rcbilling-demo
@@ -191,9 +181,7 @@ jobs:
           command: |
             echo 'export VITE_RC_API_KEY=${E2E_RC_API_KEY}' >> "$BASH_ENV"
             source "$BASH_ENV"
-      - run:
-          name: Install node dependencies
-          command: npm ci
+      - install-dependencies
       - run:
           name: Install dependencies rcbilling-demo
           working_directory: examples/rcbilling-demo
@@ -221,21 +209,21 @@ workflows:
   danger:
     when:
       not:
-        equal: [scheduled_pipeline, << pipeline.trigger_source >>]
+        equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
     jobs:
       - revenuecat/danger
 
   weekly-run-workflow:
     when:
       and:
-        - equal: [scheduled_pipeline, << pipeline.trigger_source >>]
-        - equal: ["release-train", << pipeline.schedule.name >>]
+        - equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
+        - equal: [ "release-train", << pipeline.schedule.name >> ]
     jobs:
       - revenuecat/automatic-bump
 
   manual-trigger-bump:
     when:
-      equal: [bump, << pipeline.parameters.action >>]
+      equal: [ bump, << pipeline.parameters.action >> ]
     jobs:
       - revenuecat/automatic-bump
 
