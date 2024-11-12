@@ -1,12 +1,5 @@
 import test, { Browser, expect, Page } from "@playwright/test";
 import { Locator } from "playwright";
-import { Purchases } from "@revenuecat/purchases-js";
-
-declare global {
-  interface Window {
-    Purchases?: typeof Purchases;
-  }
-}
 
 const _LOCAL_URL = "http://localhost:3001/";
 const CARD_SELECTOR = "div.card";
