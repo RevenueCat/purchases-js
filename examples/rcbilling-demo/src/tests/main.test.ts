@@ -244,7 +244,7 @@ async function navigateToUrl(
 
   const paywallUrl = userId
     ? `${baseUrl}paywall/${encodeURIComponent(userId)}`
-    : "${baseUrl}paywall";
+    : `${baseUrl}paywall`;
 
   const url = offeringId
     ? `${paywallUrl}?offeringId=${encodeURIComponent(offeringId)}`
