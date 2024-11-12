@@ -120,6 +120,11 @@ export interface HttpConfig {
 }
 
 // @public
+export enum IdentityMode {
+    Anonymous = "anonymous"
+}
+
+// @public
 export enum LogLevel {
     Debug = 4,
     Error = 1,
@@ -284,7 +289,7 @@ export interface PurchaseResult {
 export class Purchases {
     changeUser(newAppUserId: string): Promise<CustomerInfo>;
     close(): void;
-    static configure(apiKey: string, appUserId: string, httpConfig?: HttpConfig): Purchases;
+    static configure(apiKey: string, appUserId: string | IdentityMode, httpConfig?: HttpConfig): Purchases;
     getAppUserId(): string;
     getCurrentOfferingForPlacement(placementIdentifier: string, params?: GetOfferingsParams): Promise<Offering | null>;
     getCustomerInfo(): Promise<CustomerInfo>;
