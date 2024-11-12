@@ -51,6 +51,7 @@ import { mount } from "svelte";
 import { RenderPaywallParams } from "./entities/render-paywall-params";
 import { Paywall } from "@revenuecat/purchases-ui-web";
 
+
 export { ProductType } from "./entities/offerings";
 export type {
   NonSubscriptionOption,
