@@ -4,7 +4,7 @@
  */
 export enum IdentityMode {
   /**
-   * Creates an anonymous user ID automatically.
+   * Autogenerates an anonymous App User ID.
    */
   Anonymous = "anonymous",
 }
