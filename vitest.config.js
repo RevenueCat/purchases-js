@@ -39,6 +39,10 @@ export default defineConfig(({ mode }) => ({
     exclude: [...configDefaults.exclude, "examples/**"],
   },
 
+  // The following configuration allows to avoid issues with Svelte's mount
+  // function when running tests
+  // Svelte error: lifecycle_function_unavailable
+  // `mount(...)` is not available on the server
   resolve: {
     conditions: mode === "test" ? ["browser"] : [],
   },
