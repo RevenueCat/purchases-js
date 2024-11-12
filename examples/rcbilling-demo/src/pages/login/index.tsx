@@ -1,17 +1,14 @@
 import React from "react";
 import Button from "../../components/Button";
 import { useNavigate } from "react-router-dom";
-import { v4 as uuidv4 } from "uuid";
-
-const generateRandomUserID = () => {
-  return `$RCAnonymousID:${uuidv4().replace(/-/g, "")}`;
-};
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const navigateToAppUserIDPaywall = (appUserId?: string) => {
     if (appUserId) {
       navigate(`/paywall/${encodeURIComponent(appUserId)}`);
+    } else {
+      navigate("/paywall");
     }
   };
   return (
@@ -32,7 +29,7 @@ const LoginPage: React.FC = () => {
         <Button
           caption="Skip"
           onClick={() => {
-            navigateToAppUserIDPaywall(generateRandomUserID());
+            navigateToAppUserIDPaywall();
           }}
         />
       </form>

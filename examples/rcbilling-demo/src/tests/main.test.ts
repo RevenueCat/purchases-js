@@ -1,5 +1,12 @@
 import test, { Browser, expect, Page } from "@playwright/test";
 import { Locator } from "playwright";
+import { Purchases } from "@revenuecat/purchases-js";
+
+declare global {
+  interface Window {
+    Purchases?: typeof Purchases;
+  }
+}
 
 const _LOCAL_URL = "http://localhost:3001/";
 const CARD_SELECTOR = "div.card";
@@ -136,6 +143,25 @@ test.describe("Main", () => {
     );
     await expect(errorMessageText).toBeVisible();
   });
+
+  test("can purchase with anonymous user", async ({ browser }) => {
+    const page = await setupTest(browser);
+
+    const cards = await getAllElementsByLocator(
+      page,
+      "[data-testid='package-card']",
+    );
+    expect(cards.length).toBeGreaterThan(0);
+
+    const userId = await page.evaluate(() => {
+      const purchases = window.Purchases?.getSharedInstance();
+      if (!purchases) throw new Error("Purchases not initialized");
+      return purchases.getAppUserId();
+    });
+    expect(userId).toMatch(/^\$RCAnonymousID:[a-f0-9]{32}$/);
+    const firstCard = cards[0];
+    await performPurchase(page, firstCard, userId);
+  });
 });
 
 async function performPurchase(page: Page, card: Locator, userId: string) {
@@ -156,7 +182,7 @@ const getUserId = (browserName: string) =>
 
 async function setupTest(
   browser: Browser,
-  userId: string,
+  userId?: string,
   offeringId?: string,
 ) {
   const page = await browser.newPage();
@@ -209,16 +235,21 @@ async function enterCreditCardDetailsAndContinue(page: Page): Promise<void> {
 
 async function navigateToUrl(
   page: Page,
-  userId: string,
+  userId?: string,
   offeringId?: string,
 ): Promise<void> {
   const baseUrl =
     (import.meta.env?.VITE_RC_BILLING_DEMO_URL as string | undefined) ??
     _LOCAL_URL;
 
-  const url = `${baseUrl}paywall/${encodeURIComponent(userId)}${
-    offeringId ? `?offeringId=${offeringId}` : ""
-  }`;
+  const paywallUrl = userId
+    ? `${baseUrl}paywall/${encodeURIComponent(userId)}`
+    : "${baseUrl}paywall";
+
+  const url = offeringId
+    ? `${paywallUrl}?offeringId=${encodeURIComponent(offeringId)}`
+    : paywallUrl;
+
   await page.goto(url);
 }
 

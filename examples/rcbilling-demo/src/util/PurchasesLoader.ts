@@ -1,5 +1,6 @@
 import {
   CustomerInfo,
+  IdentityMode,
   LogLevel,
   Offering,
   Purchases,
@@ -23,16 +24,22 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
   const currency = searchParams.get("currency");
   const offeringId = searchParams.get("offeringId");
 
-  if (!appUserId) {
-    throw redirect("/");
-  }
   Purchases.setLogLevel(LogLevel.Verbose);
   try {
     if (!Purchases.isConfigured()) {
-      Purchases.configure(apiKey, appUserId);
+      if (!appUserId) {
+        Purchases.configure(apiKey, IdentityMode.Anonymous);
+      } else {
+        Purchases.configure(apiKey, appUserId);
+      }
     } else {
-      await Purchases.getSharedInstance().changeUser(appUserId);
+      if (!appUserId) {
+        throw redirect("/");
+      } else {
+        await Purchases.getSharedInstance().changeUser(appUserId);
+      }
     }
+
     const purchases = Purchases.getSharedInstance();
     const [customerInfo, offerings] = await Promise.all([
       purchases.getCustomerInfo(),

@@ -37,6 +37,15 @@ const router = createBrowserRouter([
     ),
   },
   {
+    path: "/paywall",
+    loader: loadPurchases,
+    element: (
+      <WithoutEntitlement>
+        <PaywallPage />
+      </WithoutEntitlement>
+    ),
+  },
+  {
     path: "/success/:app_user_id",
     loader: loadPurchases,
     element: (
