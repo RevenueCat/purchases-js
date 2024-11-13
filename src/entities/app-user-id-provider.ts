@@ -13,3 +13,19 @@ export enum AppUserIDProvider {
    */
   MyApp = "myApp",
 }
+
+/**
+ * Parameters for the {@link Purchases.configure} method.
+ * @public
+ */
+export interface ConfigureAppUserIDParams {
+  /**
+   * The currency code in ISO 4217 to fetch the offerings for.
+   * If not specified, the default currency will be used.
+   */
+  readonly appUserIDsAreProvidedBy?: AppUserIDProvider;
+}
+
+export const defaultConfigureAppUserIDParams = {
+  appUserIDsAreProvidedBy: AppUserIDProvider.MyApp,
+};

@@ -1,3 +1,7 @@
+import {
+  AppUserIDProvider,
+  type ConfigureAppUserIDParams,
+} from "../entities/app-user-id-provider";
 import { ErrorCode, PurchasesError } from "../entities/errors";
 import { SDK_HEADERS } from "../networking/http-client";
 
@@ -7,6 +11,32 @@ export function validateApiKey(apiKey: string) {
     throw new PurchasesError(
       ErrorCode.InvalidCredentialsError,
       "Invalid API key. Use your RevenueCat Billing API key.",
+    );
+  }
+}
+
+export function validateAppUserIdConfigParams(
+  appUserIdConfigParams: ConfigureAppUserIDParams,
+  appUserId?: string,
+) {
+  if (
+    !appUserId &&
+    appUserIdConfigParams.appUserIDsAreProvidedBy !==
+      AppUserIDProvider.RevenueCat
+  ) {
+    throw new PurchasesError(
+      ErrorCode.ConfigurationError,
+      "App user id is required when using app-provided identifiers",
+    );
+  }
+
+  if (
+    appUserId &&
+    appUserIdConfigParams.appUserIDsAreProvidedBy !== AppUserIDProvider.MyApp
+  ) {
+    throw new PurchasesError(
+      ErrorCode.ConfigurationError,
+      "App user id is not allowed when using RevenueCat-provided identifiers",
     );
   }
 }

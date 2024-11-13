@@ -234,6 +234,52 @@
         },
         {
           "kind": "Interface",
+          "canonicalReference": "@revenuecat/purchases-js!~ConfigureAppUserIDParams:interface",
+          "docComment": "/**\n * Parameters for the {@link Purchases.configure} method.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "declare interface ConfigureAppUserIDParams "
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "name": "ConfigureAppUserIDParams",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!~ConfigureAppUserIDParams#appUserIDsAreProvidedBy:member",
+              "docComment": "/**\n * The currency code in ISO 4217 to fetch the offerings for. If not specified, the default currency will be used.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly appUserIDsAreProvidedBy?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "AppUserIDProvider",
+                  "canonicalReference": "@revenuecat/purchases-js!AppUserIDProvider:enum"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "appUserIDsAreProvidedBy",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
+          "kind": "Interface",
           "canonicalReference": "@revenuecat/purchases-js!CustomerInfo:interface",
           "docComment": "/**\n * Type containing all information regarding the customer.\n *\n * @public\n */\n",
           "excerptTokens": [
@@ -4192,7 +4238,7 @@
             {
               "kind": "Method",
               "canonicalReference": "@revenuecat/purchases-js!Purchases.configure:member(1)",
-              "docComment": "/**\n * Configures the Purchases SDK with app-provided user identifiers. This should be called as soon as your app has a unique user id for your user. You should only call this once, and keep the returned instance around for use throughout your application.\n *\n * @remarks\n *\n * For RevenueCat-managed identifiers, use configure with AppUserIDProvider.RevenueCat\n *\n * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.\n *\n * @param appUserId - Your unique id for identifying the user.\n *\n * @param httpConfig - Optional. Advanced http configuration to customise the SDK usage.\n *\n * @throws\n *\n * {@link PurchasesError} if the API key or user id are invalid.\n */\n",
+              "docComment": "/**\n * Configures the Purchases SDK with app-provided user identifiers. This should be called as soon as your app has a unique user id for your user. You should only call this once, and keep the returned instance around for use throughout your application.\n *\n * @remarks\n *\n * For RevenueCat-managed identifiers, use configure with AppUserIDProvider.RevenueCat\n *\n * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.\n *\n * @param appUserId - Optional when using RevenueCat-managed identifiers. Your unique id for identifying the user.\n *\n * @param appUserIdConfigParams - Optional. Parameters for configuring the app user id.\n *\n * @param httpConfig - Optional. Advanced http configuration to customise the SDK usage.\n *\n * @throws\n *\n * {@link PurchasesError} if the API key or user id are invalid.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4204,11 +4250,20 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", appUserId: "
+                  "text": ", appUserId?: "
                 },
                 {
                   "kind": "Content",
-                  "text": "string"
+                  "text": "string | undefined"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", appUserIdConfigParams?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ConfigureAppUserIDParams",
+                  "canonicalReference": "@revenuecat/purchases-js!~ConfigureAppUserIDParams:interface"
                 },
                 {
                   "kind": "Content",
@@ -4235,8 +4290,8 @@
               ],
               "isStatic": true,
               "returnTypeTokenRange": {
-                "startIndex": 7,
-                "endIndex": 8
+                "startIndex": 9,
+                "endIndex": 10
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -4256,96 +4311,21 @@
                     "startIndex": 3,
                     "endIndex": 4
                   },
-                  "isOptional": false
+                  "isOptional": true
                 },
                 {
-                  "parameterName": "httpConfig",
+                  "parameterName": "appUserIdConfigParams",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
                   },
                   "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "configure"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "@revenuecat/purchases-js!Purchases.configure:member(2)",
-              "docComment": "/**\n * Configures the Purchases SDK with RevenueCat-managed user identifiers. You should only call this once, and keep the returned instance around for use throughout your application.\n *\n * @remarks\n *\n * For app-provided identifiers, use configure with a custom appUserId\n *\n * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.\n *\n * @param appUserIDsAreProvidedBy - Must be AppUserIDProvider.RevenueCat.\n *\n * @param httpConfig - Optional. Advanced http configuration to customise the SDK usage.\n *\n * @throws\n *\n * {@link PurchasesError} if the API key is invalid.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "static configure(apiKey: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", appUserIDsAreProvidedBy: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "AppUserIDProvider.RevenueCat",
-                  "canonicalReference": "@revenuecat/purchases-js!AppUserIDProvider.RevenueCat:member"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", httpConfig?: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "HttpConfig",
-                  "canonicalReference": "@revenuecat/purchases-js!HttpConfig:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Purchases",
-                  "canonicalReference": "@revenuecat/purchases-js!Purchases:class"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": true,
-              "returnTypeTokenRange": {
-                "startIndex": 7,
-                "endIndex": 8
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 2,
-              "parameters": [
-                {
-                  "parameterName": "apiKey",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": false
-                },
-                {
-                  "parameterName": "appUserIDsAreProvidedBy",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": false
                 },
                 {
                   "parameterName": "httpConfig",
                   "parameterTypeTokenRange": {
-                    "startIndex": 5,
-                    "endIndex": 6
+                    "startIndex": 7,
+                    "endIndex": 8
                   },
                   "isOptional": true
                 }
@@ -4998,7 +4978,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "constructor(\n              errorCode: "
+                  "text": "constructor(\n             errorCode: "
                 },
                 {
                   "kind": "Reference",
@@ -5007,7 +4987,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", \n              message?: "
+                  "text": ", \n             message?: "
                 },
                 {
                   "kind": "Content",
@@ -5015,7 +4995,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", \n              underlyingErrorMessage?: "
+                  "text": ", \n             underlyingErrorMessage?: "
                 },
                 {
                   "kind": "Content",
@@ -5023,7 +5003,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", \n              extra?: "
+                  "text": ", \n             extra?: "
                 },
                 {
                   "kind": "Reference",

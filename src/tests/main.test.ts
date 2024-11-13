@@ -63,19 +63,17 @@ describe("Purchases.configure()", () => {
   });
 
   test("can configure with RevenueCat-managed ids", () => {
-    const purchases = Purchases.configure(
-      testApiKey,
-      AppUserIDProvider.RevenueCat,
-    );
+    const purchases = Purchases.configure(testApiKey, undefined, {
+      appUserIDsAreProvidedBy: AppUserIDProvider.RevenueCat,
+    });
     const userId = purchases.getAppUserId();
     expect(userId).toMatch(/^\$RCAnonymousID:[a-f0-9]{32}$/);
   });
 
   test("anonymous ids are unique", () => {
-    const purchases1 = Purchases.configure(
-      testApiKey,
-      AppUserIDProvider.RevenueCat,
-    );
+    const purchases1 = Purchases.configure(testApiKey, undefined, {
+      appUserIDsAreProvidedBy: AppUserIDProvider.RevenueCat,
+    });
     const purchases2 = Purchases.configure(
       testApiKey,
       AppUserIDProvider.RevenueCat,

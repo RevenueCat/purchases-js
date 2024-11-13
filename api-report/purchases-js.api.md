@@ -11,6 +11,11 @@ export enum AppUserIDProvider {
 }
 
 // @public
+interface ConfigureAppUserIDParams {
+    readonly appUserIDsAreProvidedBy?: AppUserIDProvider;
+}
+
+// @public
 export interface CustomerInfo {
     readonly activeSubscriptions: Set<string>;
     readonly allExpirationDatesByProduct: {
@@ -290,8 +295,8 @@ export interface PurchaseResult {
 export class Purchases {
     changeUser(newAppUserId: string): Promise<CustomerInfo>;
     close(): void;
-    static configure(apiKey: string, appUserId: string, httpConfig?: HttpConfig): Purchases;
-    static configure(apiKey: string, appUserIDsAreProvidedBy: AppUserIDProvider.RevenueCat, httpConfig?: HttpConfig): Purchases;
+    // Warning: (ae-forgotten-export) The symbol "ConfigureAppUserIDParams" needs to be exported by the entry point Purchases.es.d.ts
+    static configure(apiKey: string, appUserId?: string | undefined, appUserIdConfigParams?: ConfigureAppUserIDParams, httpConfig?: HttpConfig): Purchases;
     getAppUserId(): string;
     getCurrentOfferingForPlacement(placementIdentifier: string, params?: GetOfferingsParams): Promise<Offering | null>;
     getCustomerInfo(): Promise<CustomerInfo>;
