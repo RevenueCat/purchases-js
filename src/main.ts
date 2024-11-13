@@ -195,18 +195,18 @@ export class Purchases {
     validateApiKey(apiKey);
 
     let appUserIdConfigParams;
-    let resolvedAppUserId;
+    let providedAppUserId;
 
     if (typeof appUserIdOrConfigParams === "string") {
       appUserIdConfigParams = defaultConfigureAppUserIDParams;
-      resolvedAppUserId = appUserIdOrConfigParams;
+      providedAppUserId = appUserIdOrConfigParams;
+      validateAppUserId(providedAppUserId);
     } else {
       appUserIdConfigParams = appUserIdOrConfigParams;
-      resolvedAppUserId = generateAnonymousAppUserId();
     }
+    validateAppUserIdConfigParams(appUserIdConfigParams, providedAppUserId);
 
-    validateAppUserIdConfigParams(appUserIdConfigParams, resolvedAppUserId);
-    validateAppUserId(resolvedAppUserId);
+    const resolvedAppUserId = providedAppUserId ?? generateAnonymousAppUserId();
 
     if (httpConfig) {
       validateProxyUrl(httpConfig.proxyURL);

@@ -87,7 +87,7 @@ describe("Purchases.configure()", () => {
         appUserIDsAreProvidedBy: AppUserIDProvider.RevenueCat,
       },
       {
-        proxyURL: "https://test.revenuecat.com/",
+        proxyURL: "https://test.revenuecat.com",
         additionalHeaders: { "Custom-Header": "value" },
       },
     );
