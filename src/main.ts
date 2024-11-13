@@ -180,7 +180,6 @@ export class Purchases {
   static configure(
     apiKey: string,
     appUserIdOrProvider: string | AppUserIDProvider.RevenueCat,
-    appUserIDsAreProvidedByOrConfig?: AppUserIDProvider.MyApp | HttpConfig,
     httpConfig?: HttpConfig,
   ): Purchases {
     if (Purchases.instance !== undefined) {
@@ -192,29 +191,22 @@ export class Purchases {
     validateApiKey(apiKey);
 
     let resolvedAppUserId: string;
-    let resolvedHttpConfig: HttpConfig;
 
     if (appUserIdOrProvider === AppUserIDProvider.RevenueCat) {
       resolvedAppUserId = generateAnonymousAppUserId();
-      resolvedHttpConfig =
-        (appUserIDsAreProvidedByOrConfig as HttpConfig) ?? defaultHttpConfig;
     } else {
       resolvedAppUserId = appUserIdOrProvider;
-      resolvedHttpConfig = httpConfig ?? defaultHttpConfig;
     }
 
     validateAppUserId(resolvedAppUserId);
-    validateProxyUrl(resolvedHttpConfig.proxyURL);
-    validateAdditionalHeaders(resolvedHttpConfig.additionalHeaders);
+    if (httpConfig) {
+      validateProxyUrl(httpConfig.proxyURL);
+      validateAdditionalHeaders(httpConfig.additionalHeaders);
+    }
 
-    Purchases.instance = new Purchases(
-      apiKey,
-      resolvedAppUserId,
-      resolvedHttpConfig,
-    );
+    Purchases.instance = new Purchases(apiKey, resolvedAppUserId, httpConfig);
     return Purchases.getSharedInstance();
   }
-
   /**
    * Loads and caches some optional data in the Purchases SDK.
    * Currently only fetching branding information. You can call this method
