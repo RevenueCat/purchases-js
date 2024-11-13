@@ -19,7 +19,7 @@ const RCPaywallPage: React.FC = () => {
         htmlTarget: document.getElementById("paywall") || undefined,
       })
       .then((x) => console.log(x))
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(`Error: ${err}`));
   }, [offering]);
 
   if (!offering) {

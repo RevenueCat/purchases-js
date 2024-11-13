@@ -51,7 +51,6 @@ import { mount } from "svelte";
 import { RenderPaywallParams } from "./entities/render-paywall-params";
 import { Paywall } from "@revenuecat/purchases-ui-web";
 
-
 export { ProductType } from "./entities/offerings";
 export type {
   NonSubscriptionOption,
@@ -256,14 +255,30 @@ export class Purchases {
 
     const offering = params.offering;
 
-    console.log(certainHTMLTarget);
-    console.log(offering.paywall_components);
+    if (offering.paywall_components === undefined) {
+      throw new Error("No paywall found for the selected offering");
+    }
 
     return new Promise((resolve, reject) => {
       if (offering.paywall_components) {
         mount(Paywall, {
           target: certainHTMLTarget,
-          props: { data: offering.paywall_components },
+          props: {
+            data: offering.paywall_components,
+            onPurchaseClicked: (selectedPackageId: string) => {
+              const pkg = offering.availablePackages.filter(
+                (p) => p.identifier === selectedPackageId,
+              );
+
+              if (pkg.length === 0) {
+                Logger.debugLog(`No package found for ${selectedPackageId}`);
+              }
+
+              this.purchase({
+                rcPackage: pkg[0],
+              });
+            },
+          },
         });
         resolve(offering.identifier);
         return;
