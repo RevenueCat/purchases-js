@@ -1,6 +1,6 @@
 import {
   CustomerInfo,
-  IdentityMode,
+  AppUserIDProvider,
   LogLevel,
   Offering,
   Purchases,
@@ -28,7 +28,7 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
   try {
     if (!Purchases.isConfigured()) {
       if (!appUserId) {
-        Purchases.configure(apiKey, IdentityMode.Anonymous);
+        Purchases.configure(apiKey, AppUserIDProvider.RevenueCat);
       } else {
         Purchases.configure(apiKey, appUserId);
       }

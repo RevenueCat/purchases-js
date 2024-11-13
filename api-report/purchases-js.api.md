@@ -290,8 +290,8 @@ export interface PurchaseResult {
 export class Purchases {
     changeUser(newAppUserId: string): Promise<CustomerInfo>;
     close(): void;
-    static configure(apiKey: string, appUserId: string, appUserIDsAreProvidedBy?: AppUserIDProvider.MyApp, httpConfig?: HttpConfig): Purchases;
-    static configure(apiKey: string, provider: AppUserIDProvider.RevenueCat, httpConfig?: HttpConfig): Purchases;
+    static configure(apiKey: string, appUserId: string, httpConfig?: HttpConfig): Purchases;
+    static configure(apiKey: string, appUserIDsAreProvidedBy: AppUserIDProvider.RevenueCat, httpConfig?: HttpConfig): Purchases;
     getAppUserId(): string;
     getCurrentOfferingForPlacement(placementIdentifier: string, params?: GetOfferingsParams): Promise<Offering | null>;
     getCustomerInfo(): Promise<CustomerInfo>;

@@ -129,7 +129,7 @@ export class Purchases {
 
   /**
    * Get the singleton instance of Purchases. It's preferred to use the instance
-   * obtained from the {@link Purchases.configure} method when possible.
+   * obtained from one of the configure methods when possible.
    * @throws {@link UninitializedPurchasesError} if the instance has not been initialized yet.
    */
   static getSharedInstance(): Purchases {
@@ -147,32 +147,30 @@ export class Purchases {
   }
 
   /**
-   * Configures the Purchases SDK. This should be called as soon as your app
-   * has a unique user id for your user. You should only call this once, and
-   * keep the returned instance around for use throughout your application.
+   * Configures the Purchases SDK with app-provided user identifiers.
    * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.
    * @param appUserId - Your unique id for identifying the user.
-   * @param appUserIDsAreProvidedBy - Optional. Defaults to AppUserIDProvider.MyApp.
    * @param httpConfig - Optional. Advanced http configuration to customise the SDK usage.
    * @throws {@link PurchasesError} if the API key or user id are invalid.
+   * @remarks For RevenueCat-managed identifiers, use configure with AppUserIDProvider.RevenueCat
    */
   static configure(
     apiKey: string,
     appUserId: string,
-    appUserIDsAreProvidedBy?: AppUserIDProvider.MyApp,
     httpConfig?: HttpConfig,
   ): Purchases;
 
   /**
    * Configures the Purchases SDK with RevenueCat-managed user identifiers.
    * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.
-   * @param provider - Must be AppUserIDProvider.RevenueCat.
+   * @param appUserIDsAreProvidedBy - Must be AppUserIDProvider.RevenueCat.
    * @param httpConfig - Optional. Advanced http configuration to customise the SDK usage.
    * @throws {@link PurchasesError} if the API key is invalid.
+   * @remarks For app-provided identifiers, use configure with a custom appUserId
    */
   static configure(
     apiKey: string,
-    provider: AppUserIDProvider.RevenueCat,
+    appUserIDsAreProvidedBy: AppUserIDProvider.RevenueCat,
     httpConfig?: HttpConfig,
   ): Purchases;
 

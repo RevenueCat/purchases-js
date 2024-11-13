@@ -4192,7 +4192,7 @@
             {
               "kind": "Method",
               "canonicalReference": "@revenuecat/purchases-js!Purchases.configure:member(1)",
-              "docComment": "/**\n * Configures the Purchases SDK. This should be called as soon as your app has a unique user id for your user. You should only call this once, and keep the returned instance around for use throughout your application.\n *\n * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.\n *\n * @param appUserId - Your unique id for identifying the user.\n *\n * @param appUserIDsAreProvidedBy - Optional. Defaults to AppUserIDProvider.MyApp.\n *\n * @param httpConfig - Optional. Advanced http configuration to customise the SDK usage.\n *\n * @throws\n *\n * {@link PurchasesError} if the API key or user id are invalid.\n */\n",
+              "docComment": "/**\n * Configures the Purchases SDK with app-provided user identifiers.\n *\n * @remarks\n *\n * For RevenueCat-managed identifiers, use configure with AppUserIDProvider.RevenueCat\n *\n * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.\n *\n * @param appUserId - Your unique id for identifying the user.\n *\n * @param httpConfig - Optional. Advanced http configuration to customise the SDK usage.\n *\n * @throws\n *\n * {@link PurchasesError} if the API key or user id are invalid.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4209,15 +4209,6 @@
                 {
                   "kind": "Content",
                   "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", appUserIDsAreProvidedBy?: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "AppUserIDProvider.MyApp",
-                  "canonicalReference": "@revenuecat/purchases-js!AppUserIDProvider.MyApp:member"
                 },
                 {
                   "kind": "Content",
@@ -4244,8 +4235,8 @@
               ],
               "isStatic": true,
               "returnTypeTokenRange": {
-                "startIndex": 9,
-                "endIndex": 10
+                "startIndex": 7,
+                "endIndex": 8
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -4268,18 +4259,10 @@
                   "isOptional": false
                 },
                 {
-                  "parameterName": "appUserIDsAreProvidedBy",
+                  "parameterName": "httpConfig",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  },
-                  "isOptional": true
-                },
-                {
-                  "parameterName": "httpConfig",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 7,
-                    "endIndex": 8
                   },
                   "isOptional": true
                 }
@@ -4291,7 +4274,7 @@
             {
               "kind": "Method",
               "canonicalReference": "@revenuecat/purchases-js!Purchases.configure:member(2)",
-              "docComment": "/**\n * Configures the Purchases SDK with RevenueCat-managed user identifiers.\n *\n * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.\n *\n * @param provider - Must be AppUserIDProvider.RevenueCat.\n *\n * @param httpConfig - Optional. Advanced http configuration to customise the SDK usage.\n *\n * @throws\n *\n * {@link PurchasesError} if the API key is invalid.\n */\n",
+              "docComment": "/**\n * Configures the Purchases SDK with RevenueCat-managed user identifiers.\n *\n * @remarks\n *\n * For app-provided identifiers, use configure with a custom appUserId\n *\n * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.\n *\n * @param appUserIDsAreProvidedBy - Must be AppUserIDProvider.RevenueCat.\n *\n * @param httpConfig - Optional. Advanced http configuration to customise the SDK usage.\n *\n * @throws\n *\n * {@link PurchasesError} if the API key is invalid.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4303,7 +4286,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", provider: "
+                  "text": ", appUserIDsAreProvidedBy: "
                 },
                 {
                   "kind": "Reference",
@@ -4351,7 +4334,7 @@
                   "isOptional": false
                 },
                 {
-                  "parameterName": "provider",
+                  "parameterName": "appUserIDsAreProvidedBy",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
@@ -4592,7 +4575,7 @@
             {
               "kind": "Method",
               "canonicalReference": "@revenuecat/purchases-js!Purchases.getSharedInstance:member(1)",
-              "docComment": "/**\n * Get the singleton instance of Purchases. It's preferred to use the instance obtained from the {@link Purchases.configure} method when possible.\n *\n * @throws\n *\n * {@link UninitializedPurchasesError} if the instance has not been initialized yet.\n */\n",
+              "docComment": "/**\n * Get the singleton instance of Purchases. It's preferred to use the instance obtained from one of the configure methods when possible.\n *\n * @throws\n *\n * {@link UninitializedPurchasesError} if the instance has not been initialized yet.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",

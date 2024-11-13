@@ -1,4 +1,4 @@
-import { IdentityMode, Purchases } from "../main";
+import { AppUserIDProvider, Purchases } from "../main";
 import { setupServer } from "msw/node";
 import { APIGetRequest, getRequestHandlers } from "./test-responses";
 import { afterAll, beforeAll, beforeEach } from "vitest";
@@ -22,7 +22,7 @@ beforeEach(() => {
 afterAll(() => server.close());
 
 export function configurePurchases(
-  appUserId: string | IdentityMode = testUserId,
+  appUserId: string | AppUserIDProvider = testUserId,
 ): Purchases {
   return Purchases.configure(testApiKey, appUserId);
 }

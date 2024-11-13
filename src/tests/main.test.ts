@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 import {
   type CustomerInfo,
   type EntitlementInfo,
-  IdentityMode,
+  AppUserIDProvider,
   Purchases,
   PurchasesError,
 } from "../main";
@@ -62,15 +62,24 @@ describe("Purchases.configure()", () => {
     expect(purchases).not.toEqual(purchases2);
   });
 
-  test("can configure with anonymous identity mode", () => {
-    const purchases = Purchases.configure(testApiKey, IdentityMode.Anonymous);
+  test("can configure with RevenueCat-managed ids", () => {
+    const purchases = Purchases.configure(
+      testApiKey,
+      AppUserIDProvider.RevenueCat,
+    );
     const userId = purchases.getAppUserId();
     expect(userId).toMatch(/^\$RCAnonymousID:[a-f0-9]{32}$/);
   });
 
   test("anonymous ids are unique", () => {
-    const purchases1 = Purchases.configure(testApiKey, IdentityMode.Anonymous);
-    const purchases2 = Purchases.configure(testApiKey, IdentityMode.Anonymous);
+    const purchases1 = Purchases.configure(
+      testApiKey,
+      AppUserIDProvider.RevenueCat,
+    );
+    const purchases2 = Purchases.configure(
+      testApiKey,
+      AppUserIDProvider.RevenueCat,
+    );
     expect(purchases1.getAppUserId()).not.toEqual(purchases2.getAppUserId());
   });
 });
