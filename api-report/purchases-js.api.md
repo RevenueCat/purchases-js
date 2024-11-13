@@ -5,6 +5,12 @@
 ```ts
 
 // @public
+export enum AppUserIDProvider {
+    MyApp = "myApp",
+    RevenueCat = "revenueCat"
+}
+
+// @public
 export interface CustomerInfo {
     readonly activeSubscriptions: Set<string>;
     readonly allExpirationDatesByProduct: {
@@ -117,11 +123,6 @@ export interface GetOfferingsParams {
 export interface HttpConfig {
     additionalHeaders?: Record<string, string>;
     proxyURL?: string;
-}
-
-// @public
-export enum IdentityMode {
-    Anonymous = "anonymous"
 }
 
 // @public
@@ -289,7 +290,8 @@ export interface PurchaseResult {
 export class Purchases {
     changeUser(newAppUserId: string): Promise<CustomerInfo>;
     close(): void;
-    static configure(apiKey: string, appUserId: string | IdentityMode, httpConfig?: HttpConfig): Purchases;
+    static configure(apiKey: string, appUserId: string, appUserIDsAreProvidedBy?: AppUserIDProvider.MyApp, httpConfig?: HttpConfig): Purchases;
+    static configure(apiKey: string, provider: AppUserIDProvider.RevenueCat, httpConfig?: HttpConfig): Purchases;
     getAppUserId(): string;
     getCurrentOfferingForPlacement(placementIdentifier: string, params?: GetOfferingsParams): Promise<Offering | null>;
     getCustomerInfo(): Promise<CustomerInfo>;

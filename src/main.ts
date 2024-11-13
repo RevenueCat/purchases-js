@@ -49,7 +49,7 @@ import { type RedemptionInfo } from "./entities/redemption-info";
 import { type PurchaseResult } from "./entities/purchase-result";
 import { mount } from "svelte";
 import { generateAnonymousAppUserId } from "./helpers/identity-helpers";
-import { IdentityMode } from "./entities/identity";
+import { AppUserIDProvider } from "./entities/app-user-id-provider";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -87,7 +87,7 @@ export { OfferingKeyword } from "./entities/get-offerings-params";
 export type { PurchaseParams } from "./entities/purchase-params";
 export type { RedemptionInfo } from "./entities/redemption-info";
 export type { PurchaseResult } from "./entities/purchase-result";
-export { IdentityMode } from "./entities/identity";
+export { AppUserIDProvider } from "./entities/app-user-id-provider";
 
 /**
  * Entry point for Purchases SDK. It should be instantiated as soon as your
@@ -152,13 +152,35 @@ export class Purchases {
    * keep the returned instance around for use throughout your application.
    * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.
    * @param appUserId - Your unique id for identifying the user.
-   * @param httpConfig - Advanced http configuration to customise the SDK usage {@link HttpConfig}.
+   * @param appUserIDsAreProvidedBy - Optional. Defaults to AppUserIDProvider.MyApp.
+   * @param httpConfig - Optional. Advanced http configuration to customise the SDK usage.
    * @throws {@link PurchasesError} if the API key or user id are invalid.
    */
   static configure(
     apiKey: string,
-    appUserId: string | IdentityMode,
-    httpConfig: HttpConfig = defaultHttpConfig,
+    appUserId: string,
+    appUserIDsAreProvidedBy?: AppUserIDProvider.MyApp,
+    httpConfig?: HttpConfig,
+  ): Purchases;
+
+  /**
+   * Configures the Purchases SDK with RevenueCat-managed user identifiers.
+   * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.
+   * @param provider - Must be AppUserIDProvider.RevenueCat.
+   * @param httpConfig - Optional. Advanced http configuration to customise the SDK usage.
+   * @throws {@link PurchasesError} if the API key is invalid.
+   */
+  static configure(
+    apiKey: string,
+    provider: AppUserIDProvider.RevenueCat,
+    httpConfig?: HttpConfig,
+  ): Purchases;
+
+  static configure(
+    apiKey: string,
+    appUserIdOrProvider: string | AppUserIDProvider.RevenueCat,
+    appUserIDsAreProvidedByOrConfig?: AppUserIDProvider.MyApp | HttpConfig,
+    httpConfig?: HttpConfig,
   ): Purchases {
     if (Purchases.instance !== undefined) {
       Logger.warnLog(
@@ -168,16 +190,27 @@ export class Purchases {
     }
     validateApiKey(apiKey);
 
-    const resolvedAppUserId =
-      appUserId === IdentityMode.Anonymous
-        ? generateAnonymousAppUserId()
-        : appUserId;
+    let resolvedAppUserId: string;
+    let resolvedHttpConfig: HttpConfig;
+
+    if (appUserIdOrProvider === AppUserIDProvider.RevenueCat) {
+      resolvedAppUserId = generateAnonymousAppUserId();
+      resolvedHttpConfig =
+        (appUserIDsAreProvidedByOrConfig as HttpConfig) ?? defaultHttpConfig;
+    } else {
+      resolvedAppUserId = appUserIdOrProvider;
+      resolvedHttpConfig = httpConfig ?? defaultHttpConfig;
+    }
 
     validateAppUserId(resolvedAppUserId);
-    validateProxyUrl(httpConfig.proxyURL);
-    validateAdditionalHeaders(httpConfig.additionalHeaders);
+    validateProxyUrl(resolvedHttpConfig.proxyURL);
+    validateAdditionalHeaders(resolvedHttpConfig.additionalHeaders);
 
-    Purchases.instance = new Purchases(apiKey, resolvedAppUserId, httpConfig);
+    Purchases.instance = new Purchases(
+      apiKey,
+      resolvedAppUserId,
+      resolvedHttpConfig,
+    );
     return Purchases.getSharedInstance();
   }
 
