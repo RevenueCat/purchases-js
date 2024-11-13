@@ -147,7 +147,9 @@ export class Purchases {
   }
 
   /**
-   * Configures the Purchases SDK with app-provided user identifiers.
+   * Configures the Purchases SDK with app-provided user identifiers. This should be called as
+   * soon as your app has a unique user id for your user. You should only call this once, and
+   * keep the returned instance around for use throughout your application.
    * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.
    * @param appUserId - Your unique id for identifying the user.
    * @param httpConfig - Optional. Advanced http configuration to customise the SDK usage.
@@ -161,7 +163,8 @@ export class Purchases {
   ): Purchases;
 
   /**
-   * Configures the Purchases SDK with RevenueCat-managed user identifiers.
+   * Configures the Purchases SDK with RevenueCat-managed user identifiers. You should only
+   * call this once, and keep the returned instance around for use throughout your application.
    * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.
    * @param appUserIDsAreProvidedBy - Must be AppUserIDProvider.RevenueCat.
    * @param httpConfig - Optional. Advanced http configuration to customise the SDK usage.
