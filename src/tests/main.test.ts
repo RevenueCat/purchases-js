@@ -63,7 +63,7 @@ describe("Purchases.configure()", () => {
   });
 
   test("can configure with RevenueCat-managed ids", () => {
-    const purchases = Purchases.configure(testApiKey, undefined, {
+    const purchases = Purchases.configure(testApiKey, {
       appUserIDsAreProvidedBy: AppUserIDProvider.RevenueCat,
     });
     const userId = purchases.getAppUserId();
@@ -71,14 +71,28 @@ describe("Purchases.configure()", () => {
   });
 
   test("anonymous ids are unique", () => {
-    const purchases1 = Purchases.configure(testApiKey, undefined, {
+    const purchases1 = Purchases.configure(testApiKey, {
       appUserIDsAreProvidedBy: AppUserIDProvider.RevenueCat,
     });
-    const purchases2 = Purchases.configure(
-      testApiKey,
-      AppUserIDProvider.RevenueCat,
-    );
+    const purchases2 = Purchases.configure(testApiKey, {
+      appUserIDsAreProvidedBy: AppUserIDProvider.RevenueCat,
+    });
     expect(purchases1.getAppUserId()).not.toEqual(purchases2.getAppUserId());
+  });
+
+  test("can configure with RevenueCat-managed ids and custom HTTP config", () => {
+    const purchases = Purchases.configure(
+      testApiKey,
+      {
+        appUserIDsAreProvidedBy: AppUserIDProvider.RevenueCat,
+      },
+      {
+        proxyURL: "https://test.revenuecat.com/",
+        additionalHeaders: { "Custom-Header": "value" },
+      },
+    );
+    const userId = purchases.getAppUserId();
+    expect(userId).toMatch(/^\$RCAnonymousID:[a-f0-9]{32}$/);
   });
 });
 

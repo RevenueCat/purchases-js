@@ -15,7 +15,7 @@ export enum AppUserIDProvider {
 }
 
 /**
- * Parameters for the {@link Purchases.configure} method.
+ * Parameters for the `Purchases.configure` method.
  * @public
  */
 export interface ConfigureAppUserIDParams {

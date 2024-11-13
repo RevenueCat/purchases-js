@@ -155,16 +155,35 @@ export class Purchases {
    * soon as your app has a unique user id for your user. You should only call this once, and
    * keep the returned instance around for use throughout your application.
    * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.
-   * @param appUserId - Optional when using RevenueCat-managed identifiers. Your unique id for identifying the user.
-   * @param appUserIdConfigParams - Optional. Parameters for configuring the app user id.
-   * @param httpConfig - Optional. Advanced http configuration to customise the SDK usage.
+   * @param appUserId - Your unique id for identifying the user.
+   * @param httpConfig - Optional. Advanced HTTP configuration to customise the SDK usage.
    * @throws {@link PurchasesError} if the API key or user id are invalid.
-   * @remarks For RevenueCat-managed identifiers, use configure with AppUserIDProvider.RevenueCat
    */
   static configure(
     apiKey: string,
-    appUserId: string | undefined = undefined,
-    appUserIdConfigParams: ConfigureAppUserIDParams = defaultConfigureAppUserIDParams,
+    appUserId: string,
+    httpConfig?: HttpConfig,
+  ): Purchases;
+
+  /**
+   * Configures the Purchases SDK with RevenueCat-managed identifiers. This should be called as
+   * soon as your app starts. You should only call this once, and keep the returned instance
+   * around for use throughout your application.
+   * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.
+   * @param appUserIdConfigParams - Parameters for configuring the app user id.
+   * @param httpConfig - Optional.Advanced HTTP configuration to customise the SDK usage.
+   * @throws {@link PurchasesError} if the API key is invalid.
+   * @remarks For RevenueCat-managed identifiers, use with AppUserIDProvider.RevenueCat
+   */
+  static configure(
+    apiKey: string,
+    appUserIdConfigParams: ConfigureAppUserIDParams,
+    httpConfig?: HttpConfig,
+  ): Purchases;
+
+  static configure(
+    apiKey: string,
+    appUserIdOrConfigParams: string | ConfigureAppUserIDParams,
     httpConfig?: HttpConfig,
   ): Purchases {
     if (Purchases.instance !== undefined) {
@@ -174,16 +193,19 @@ export class Purchases {
       );
     }
     validateApiKey(apiKey);
-    validateAppUserIdConfigParams(appUserIdConfigParams, appUserId);
 
-    let resolvedAppUserId: string;
+    let appUserIdConfigParams;
+    let resolvedAppUserId;
 
-    if (appUserId) {
-      resolvedAppUserId = appUserId;
+    if (typeof appUserIdOrConfigParams === "string") {
+      appUserIdConfigParams = defaultConfigureAppUserIDParams;
+      resolvedAppUserId = appUserIdOrConfigParams;
     } else {
+      appUserIdConfigParams = appUserIdOrConfigParams;
       resolvedAppUserId = generateAnonymousAppUserId();
     }
 
+    validateAppUserIdConfigParams(appUserIdConfigParams, resolvedAppUserId);
     validateAppUserId(resolvedAppUserId);
 
     if (httpConfig) {
@@ -194,6 +216,7 @@ export class Purchases {
     Purchases.instance = new Purchases(apiKey, resolvedAppUserId, httpConfig);
     return Purchases.getSharedInstance();
   }
+
   /**
    * Loads and caches some optional data in the Purchases SDK.
    * Currently only fetching branding information. You can call this method
