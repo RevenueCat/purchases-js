@@ -91,6 +91,6 @@
   "dependencies": {
     "@stripe/stripe-js": "^4.9.0",
     "http-status-codes": "^2.3.0",
-    "@revenuecat/purchases-ui-web": "0.0.7"
+    "@revenuecat/purchases-ui-web": "^0.0.8"
   }
 }

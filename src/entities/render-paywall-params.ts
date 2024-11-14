@@ -12,4 +12,6 @@ export interface RenderPaywallParams {
   readonly offering: Offering;
 
   readonly htmlTarget?: HTMLElement;
+
+  readonly purchaseHtmlTarget?: HTMLElement;
 }

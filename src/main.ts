@@ -232,7 +232,15 @@ export class Purchases {
     this.purchaseOperationHelper = new PurchaseOperationHelper(this.backend);
   }
 
-  public async renderPaywall(params: RenderPaywallParams) {
+  /**
+   * Renders an RC Paywall and allows the user to purchase from it using RCBilling.
+   * @experimental
+   * @param params - The parameters object to customise the paywall render. Check {@link RenderPaywallParams}
+   * @returns Promise<PurchaseResult>
+   */
+  public async renderPaywall(
+    params: RenderPaywallParams,
+  ): Promise<PurchaseResult> {
     const htmlTarget = params.htmlTarget;
 
     let resolvedHTMLTarget =
@@ -254,37 +262,35 @@ export class Purchases {
     const certainHTMLTarget = resolvedHTMLTarget as unknown as HTMLElement;
 
     const offering = params.offering;
-
-    if (offering.paywall_components === undefined) {
+    if (!offering.paywall_components) {
       throw new Error("No paywall found for the selected offering");
     }
 
     return new Promise((resolve, reject) => {
-      if (offering.paywall_components) {
-        mount(Paywall, {
-          target: certainHTMLTarget,
-          props: {
-            data: offering.paywall_components,
-            onPurchaseClicked: (selectedPackageId: string) => {
-              const pkg = offering.availablePackages.filter(
-                (p) => p.identifier === selectedPackageId,
-              );
+      mount(Paywall, {
+        target: certainHTMLTarget,
+        props: {
+          data: offering.paywall_components!,
+          onPurchaseClicked: (selectedPackageId: string) => {
+            const pkg = offering.availablePackages.filter(
+              (p) => p.identifier === selectedPackageId,
+            );
 
-              if (pkg.length === 0) {
-                Logger.debugLog(`No package found for ${selectedPackageId}`);
-              }
+            if (pkg.length === 0) {
+              Logger.debugLog(`No package found for ${selectedPackageId}`);
+            }
 
-              this.purchase({
-                rcPackage: pkg[0],
-              });
-            },
+            this.purchase({
+              rcPackage: pkg[0],
+              htmlTarget: params.purchaseHtmlTarget,
+            })
+              .then((purchaseResult) => {
+                resolve(purchaseResult);
+              })
+              .catch((err) => reject(err));
           },
-        });
-        resolve(offering.identifier);
-        return;
-      }
-
-      reject();
+        },
+      });
     });
   }
 
