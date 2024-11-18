@@ -1,11 +1,7 @@
 import React from "react";
 import Button from "../../components/Button";
 import { useNavigate } from "react-router-dom";
-import { v4 as uuidv4 } from "uuid";
-
-const generateRandomUserID = () => {
-  return `$RCAnonymousID:${uuidv4().replace(/-/g, "")}`;
-};
+import { Purchases } from "@revenuecat/purchases-js";
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -32,7 +28,9 @@ const LoginPage: React.FC = () => {
         <Button
           caption="Skip"
           onClick={() => {
-            navigateToAppUserIDPaywall(generateRandomUserID());
+            navigateToAppUserIDPaywall(
+              Purchases.generateRevenueCatAnonymousId(),
+            );
           }}
         />
       </form>
