@@ -29,7 +29,7 @@ const LoginPage: React.FC = () => {
           caption="Skip"
           onClick={() => {
             navigateToAppUserIDPaywall(
-              Purchases.generateRevenueCatAnonymousId(),
+              Purchases.generateRevenueCatAnonymousAppUserId(),
             );
           }}
         />

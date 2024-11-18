@@ -4214,12 +4214,12 @@
             },
             {
               "kind": "Method",
-              "canonicalReference": "@revenuecat/purchases-js!Purchases.generateRevenueCatAnonymousId:member(1)",
+              "canonicalReference": "@revenuecat/purchases-js!Purchases.generateRevenueCatAnonymousAppUserId:member(1)",
               "docComment": "/**\n * Generates an anonymous app user ID that follows RevenueCat's format. This can be used when you don't have a user identifier system in place. The generated ID will be in the format: $RCAnonymousID:<UUID without dashes>\n *\n * @returns A new anonymous app user ID string\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "static generateRevenueCatAnonymousId(): "
+                  "text": "static generateRevenueCatAnonymousAppUserId(): "
                 },
                 {
                   "kind": "Content",
@@ -4241,7 +4241,7 @@
               "parameters": [],
               "isOptional": false,
               "isAbstract": false,
-              "name": "generateRevenueCatAnonymousId"
+              "name": "generateRevenueCatAnonymousAppUserId"
             },
             {
               "kind": "Method",
