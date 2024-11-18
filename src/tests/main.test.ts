@@ -190,3 +190,21 @@ describe("Purchases.preload()", () => {
     await purchases.preload();
   });
 });
+
+describe("Purchases.generateRevenueCatAnonymousId()", () => {
+  test("generates ID with correct format", () => {
+    const anonymousId = Purchases.generateRevenueCatAnonymousId();
+    expect(anonymousId).toMatch(/^\$RCAnonymousID:[0-9a-f]{32}$/);
+  });
+
+  test("generates unique IDs", () => {
+    const id1 = Purchases.generateRevenueCatAnonymousId();
+    const id2 = Purchases.generateRevenueCatAnonymousId();
+    expect(id1).not.toEqual(id2);
+  });
+
+  test("generated ID passes appUserId validation", () => {
+    const anonymousId = Purchases.generateRevenueCatAnonymousId();
+    expect(() => Purchases.configure(testApiKey, anonymousId)).not.toThrow();
+  });
+});
