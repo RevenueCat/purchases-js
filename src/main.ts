@@ -49,7 +49,7 @@ import { type RedemptionInfo } from "./entities/redemption-info";
 import { type PurchaseResult } from "./entities/purchase-result";
 import { mount } from "svelte";
 import { RenderPaywallParams } from "./entities/render-paywall-params";
-import { Paywall } from "@revenuecat/purchases-ui-web";
+import { Paywall } from "@revenuecat/purchases-ui-js";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -235,13 +235,13 @@ export class Purchases {
   /**
    * Renders an RC Paywall and allows the user to purchase from it using RCBilling.
    * @experimental
-   * @param params - The parameters object to customise the paywall render. Check {@link RenderPaywallParams}
+   * @param paywallParams - The parameters object to customise the paywall render. Check {@link RenderPaywallParams}
    * @returns Promise<PurchaseResult>
    */
   public async renderPaywall(
-    params: RenderPaywallParams,
+    paywallParams: RenderPaywallParams,
   ): Promise<PurchaseResult> {
-    const htmlTarget = params.htmlTarget;
+    const htmlTarget = paywallParams.htmlTarget;
 
     let resolvedHTMLTarget =
       htmlTarget ?? document.getElementById("rcb-ui-root");
@@ -261,29 +261,78 @@ export class Purchases {
 
     const certainHTMLTarget = resolvedHTMLTarget as unknown as HTMLElement;
 
-    const offering = params.offering;
+    const offering = paywallParams.offering;
     if (!offering.paywall_components) {
       throw new Error("No paywall found for the selected offering");
     }
+
+    const startPurchaseFlow = (
+      selectedPackageId: string,
+    ): Promise<PurchaseResult> => {
+      const pkg = offering.availablePackages.find(
+        (p) => p.identifier === selectedPackageId,
+      );
+
+      if (pkg === undefined) {
+        throw new Error(`No package found for ${selectedPackageId}`);
+      }
+
+      return this.purchase({
+        rcPackage: pkg,
+        htmlTarget: paywallParams.purchaseHtmlTarget,
+        customerEmail: paywallParams.customerEmail,
+      });
+    };
+
+    const navigateToUrl = (url: string) => {
+      if (paywallParams.onNavigateToUrl) {
+        paywallParams.onNavigateToUrl(url);
+        return;
+      }
+
+      // Opinionated approach:
+      // navigating to the URL in a new tab.
+      window.open(url, "_blank")?.focus();
+    };
+
+    const onRestorePurchasesClicked = () => {
+      // DO NOTHING
+    };
+
+    const onVisitCustomerCenterClicked = () => {
+      if (paywallParams.onVisitCustomerCenter) {
+        paywallParams.onVisitCustomerCenter();
+        return;
+      }
+
+      // DO NOTHING, RC's customer center is not supported in web
+    };
+
+    const selectedLocale = paywallParams.selectedLocale || navigator.language;
 
     return new Promise((resolve, reject) => {
       mount(Paywall, {
         target: certainHTMLTarget,
         props: {
-          data: offering.paywall_components!,
-          onPurchaseClicked: (selectedPackageId: string) => {
-            const pkg = offering.availablePackages.filter(
-              (p) => p.identifier === selectedPackageId,
-            );
-
-            if (pkg.length === 0) {
-              Logger.debugLog(`No package found for ${selectedPackageId}`);
+          paywallData: offering.paywall_components!,
+          selectedLocale: selectedLocale,
+          onNavigateToClicked: navigateToUrl,
+          onVisitCustomerCenterClicked: onVisitCustomerCenterClicked,
+          onBackClicked: () => {
+            if (paywallParams.onBack) {
+              paywallParams.onBack();
+              return;
             }
 
-            this.purchase({
-              rcPackage: pkg[0],
-              htmlTarget: params.purchaseHtmlTarget,
-            })
+            // Opinionated approach
+            // closing the current purchase and emptying the paywall.
+            certainHTMLTarget.innerHTML = "";
+            Logger.debugLog("Purchase cancelled by user");
+            reject(new PurchasesError(ErrorCode.UserCancelledError));
+          },
+          onRestorePurchasesClicked: onRestorePurchasesClicked,
+          onPurchaseClicked: (selectedPackageId: string) => {
+            startPurchaseFlow(selectedPackageId)
               .then((purchaseResult) => {
                 resolve(purchaseResult);
               })

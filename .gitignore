@@ -145,6 +145,9 @@ fastlane/.env
 # docs
 purchases-js-docs/
 
+# yarn lockfile (not using yarn)
+yarn.lock
+
 .vscode
 
 .DS_Store

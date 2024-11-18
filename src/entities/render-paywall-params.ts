@@ -14,4 +14,14 @@ export interface RenderPaywallParams {
   readonly htmlTarget?: HTMLElement;
 
   readonly purchaseHtmlTarget?: HTMLElement;
+
+  readonly customerEmail?: string;
+
+  readonly onNavigateToUrl?: (url: string) => void;
+
+  readonly onBack?: () => void;
+
+  readonly onVisitCustomerCenter?: () => void;
+
+  readonly selectedLocale?: string;
 }
