@@ -50,6 +50,7 @@ import { type PurchaseResult } from "./entities/purchase-result";
 import { mount } from "svelte";
 import { RenderPaywallParams } from "./entities/render-paywall-params";
 import { Paywall } from "@revenuecat/purchases-ui-js";
+import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -255,7 +256,7 @@ export class Purchases {
       element.id = "rcb-ui-pw-root";
       element.className = "rcb-ui-pw-root";
       // one point less than the purchase flow modal.
-      element.style.zIndex = "1000000";
+      element.style.zIndex = `${PaywallDefaultContainerZIndex}`;
       document.body.appendChild(element);
       resolvedHTMLTarget = element;
     }
