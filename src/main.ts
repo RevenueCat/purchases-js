@@ -609,4 +609,17 @@ export class Purchases {
 
     return toCustomerInfo(subscriberResponse);
   }
+
+  /**
+   * Generates an anonymous app user ID that follows RevenueCat's format.
+   * This can be used when you don't have a user identifier system in place.
+   * The generated ID will be in the format: $RCAnonymousID:<UUID without dashes>
+   * Example: $RCAnonymousID:123e4567e89b12d3a456426614174000
+   * @returns A new anonymous app user ID string
+   * @public
+   */
+  public static generateRevenueCatAnonymousAppUserId(): string {
+    const uuid = crypto.randomUUID();
+    return `$RCAnonymousID:${uuid.replace(/-/g, "")}`;
+  }
 }
