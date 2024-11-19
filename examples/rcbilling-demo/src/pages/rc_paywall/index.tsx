@@ -48,7 +48,6 @@ const RCPaywallPage: React.FC = () => {
 
   return (
     <>
-      <LogoutButton />
       <div id="paywall"></div>
     </>
   );
