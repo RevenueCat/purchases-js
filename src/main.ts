@@ -235,20 +235,24 @@ export class Purchases {
   /**
    * Renders an RC Paywall and allows the user to purchase from it using RCBilling.
    * @experimental
+   * @internal
    * @param paywallParams - The parameters object to customise the paywall render. Check {@link RenderPaywallParams}
    * @returns Promise<PurchaseResult>
    */
   public async renderPaywall(
     paywallParams: RenderPaywallParams,
   ): Promise<PurchaseResult> {
+    console.warn(
+      "This method is @experimental, Paywalls are not generally available but they will come soon!",
+    );
     const htmlTarget = paywallParams.htmlTarget;
 
     let resolvedHTMLTarget =
-      htmlTarget ?? document.getElementById("rcb-ui-root");
+      htmlTarget ?? document.getElementById("rcb-ui-pw-root");
 
     if (resolvedHTMLTarget === null) {
       const element = document.createElement("div");
-      element.className = "rcb-ui-root";
+      element.className = "rcb-ui-pw-root";
       document.body.appendChild(element);
       resolvedHTMLTarget = element;
     }
@@ -263,7 +267,7 @@ export class Purchases {
 
     const offering = paywallParams.offering;
     if (!offering.paywall_components) {
-      throw new Error("No paywall found for the selected offering");
+      throw new Error("You cannot use paywalls yet, they are coming soon!");
     }
 
     const startPurchaseFlow = (

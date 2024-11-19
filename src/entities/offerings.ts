@@ -14,7 +14,7 @@ import { notEmpty } from "../helpers/type-helper";
 import { formatPrice } from "../helpers/price-labels";
 import { Logger } from "../helpers/logger";
 import { parseISODuration, type Period } from "../helpers/duration-helper";
-import { PaywallData } from "@revenuecat/purchases-ui-web";
+import { PaywallData } from "@revenuecat/purchases-ui-js";
 
 /**
  * Enumeration of all possible Package types.
