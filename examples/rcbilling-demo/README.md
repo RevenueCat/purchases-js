@@ -3,11 +3,11 @@
 ### Development
 
 - Install and build dependencies in the root `purchases-js`
-    - `npm i`
-    - `npm run build`
+  - `npm i`
+  - `npm run build`
 - Install dependencies for the rcbilling-demo app
 
-    - `npm i`
+  - `npm i`
 
 - Set the following env variables. You can set them in a `.env` file in the root of this demo app.
 
@@ -24,6 +24,7 @@ npm run dev
 ### E2E Tests
 
 Install playwright
+
 ```bash
 npx playwright install --with-deps
 ```
