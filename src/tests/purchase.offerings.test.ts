@@ -52,6 +52,7 @@ describe("getOfferings", () => {
     const offerings = await purchases.getOfferings();
 
     const currentOffering: Offering = {
+      paywall_components: null,
       serverDescription: "Offering 1",
       identifier: "offering_1",
       metadata: null,
@@ -103,6 +104,7 @@ describe("getOfferings", () => {
       all: {
         offering_1: currentOffering,
         offering_2: {
+          paywall_components: null,
           serverDescription: "Offering 2",
           identifier: "offering_2",
           metadata: null,
@@ -162,6 +164,7 @@ describe("getOfferings", () => {
     const expectedOfferings: Offerings = {
       all: {
         offering_1: {
+          paywall_components: null,
           serverDescription: "Offering 1",
           identifier: "offering_1",
           metadata: null,
@@ -178,6 +181,7 @@ describe("getOfferings", () => {
           weekly: null,
         },
         offering_2: {
+          paywall_components: null,
           serverDescription: "Offering 2",
           identifier: "offering_2",
           metadata: null,
@@ -207,6 +211,7 @@ describe("getOfferings", () => {
     const packageWithoutTargeting = createMonthlyPackageMock(null);
 
     const offering_1: Offering = {
+      paywall_components: null,
       serverDescription: "Offering 1",
       identifier: "offering_1",
       metadata: null,
@@ -237,6 +242,7 @@ describe("getOfferings", () => {
     const offerings = await purchases.getOfferings();
     const expectedConsumablePackage = createConsumablePackageMock();
     const expectedOffering: Offering = {
+      paywall_components: null,
       serverDescription: "Offering consumable",
       identifier: "offering_consumables",
       metadata: null,
@@ -335,6 +341,7 @@ describe("getOfferings", () => {
           twoMonth: null,
           monthly: null,
           weekly: null,
+          paywall_components: null,
         },
       },
       current: null,
@@ -363,6 +370,7 @@ describe("getOfferings", () => {
       twoMonth: null,
       monthly: expectedMonthlyPackage,
       weekly: null,
+      paywall_components: null,
     };
 
     const expectedOfferings: Offerings = {
