@@ -252,7 +252,10 @@ export class Purchases {
 
     if (resolvedHTMLTarget === null) {
       const element = document.createElement("div");
+      element.id = "rcb-ui-pw-root";
       element.className = "rcb-ui-pw-root";
+      // one point less than the purchase flow modal.
+      element.style.zIndex = "1000000";
       document.body.appendChild(element);
       resolvedHTMLTarget = element;
     }
@@ -264,6 +267,8 @@ export class Purchases {
     }
 
     const certainHTMLTarget = resolvedHTMLTarget as unknown as HTMLElement;
+    // cleanup whatever is already there.
+    certainHTMLTarget.innerHTML = "";
 
     const offering = paywallParams.offering;
     if (!offering.paywall_components) {

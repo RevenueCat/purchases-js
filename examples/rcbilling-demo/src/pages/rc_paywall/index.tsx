@@ -15,7 +15,9 @@ const RCPaywallPage: React.FC = () => {
     }
 
     const purchases = Purchases.getSharedInstance();
+
     purchases
+      // @ts-expect-error This method is marked as internal for now but it's public.
       .renderPaywall({
         offering: offering,
         htmlTarget: document.getElementById("paywall") || undefined,
@@ -36,8 +38,8 @@ const RCPaywallPage: React.FC = () => {
           `/success/${purchases.getAppUserId()}${queryParamRedemptionInfoUrl}`,
         );
       })
-      .catch((err) => console.log(`Error: ${err}`));
-  }, [offering]);
+      .catch((err: Error) => console.log(`Error: ${err}`));
+  }, [offering, navigate]);
 
   if (!offering) {
     console.error("No offering found");
@@ -47,34 +49,7 @@ const RCPaywallPage: React.FC = () => {
   return (
     <>
       <LogoutButton />
-      <div
-        style={{
-          position: "fixed",
-          display: "flex",
-          alignContent: "center",
-          justifyContent: "center",
-          width: "100vw",
-          height: "100vh",
-          background: "rgba(0, 0, 0, 0.6)",
-        }}
-      >
-        <div>
-          <div
-            style={{
-              borderRadius: "48px",
-              border: "10px solid black",
-              overflow: "hidden",
-              marginTop: "20px",
-              boxShadow: "0 3px 10px rgb(0 0 0 / 1)",
-              height: "760px",
-              width: "320px",
-              background: "white",
-            }}
-          >
-            <div id="paywall"></div>
-          </div>
-        </div>
-      </div>
+      <div id="paywall"></div>
     </>
   );
 };
