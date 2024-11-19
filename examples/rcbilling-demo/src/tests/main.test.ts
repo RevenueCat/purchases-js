@@ -201,7 +201,7 @@ async function enterCreditCardDetailsAndContinue(page: Page): Promise<void> {
 
   const expirationYear = (new Date().getFullYear() % 100) + 3;
   await stripeFrame.getByPlaceholder("MM / YY").fill(`01 / ${expirationYear}`);
-  await stripeFrame.getByPlaceholder("CVC").fill("123");
+  await stripeFrame.getByLabel("Security Code").fill("123");
   await stripeFrame.getByLabel("Country").selectOption("US");
   await stripeFrame.getByPlaceholder("12345").fill("12345");
   await page.getByTestId("PayButton").click();

@@ -89,6 +89,7 @@ export const offeringsArray = [
         platform_product_identifier: "monthly",
       },
     ],
+    paywall_components: null,
   },
   {
     identifier: "offering_2",
@@ -100,6 +101,7 @@ export const offeringsArray = [
         platform_product_identifier: "monthly_2",
       },
     ],
+    paywall_components: null,
   },
 ];
 
@@ -216,6 +218,7 @@ const offeringsResponsesPerUserId: { [userId: string]: OfferingsResponse } = {
             platform_product_identifier: "test-consumable-product",
           },
         ],
+        paywall_components: null,
       },
     ],
   },

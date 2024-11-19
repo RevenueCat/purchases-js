@@ -8,6 +8,7 @@ export interface OfferingResponse {
   description: string;
   packages: PackageResponse[];
   metadata: { [key: string]: unknown } | null;
+  paywall_components: { [key: string]: unknown } | null;
 }
 
 export interface TargetingResponse {

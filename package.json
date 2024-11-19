@@ -90,6 +90,7 @@
   },
   "dependencies": {
     "@stripe/stripe-js": "^4.9.0",
-    "http-status-codes": "^2.3.0"
+    "http-status-codes": "^2.3.0",
+    "@revenuecat/purchases-ui-js": "0.0.11"
   }
 }
