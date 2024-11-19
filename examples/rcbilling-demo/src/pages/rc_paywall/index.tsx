@@ -1,7 +1,6 @@
 import { PurchaseResult, Purchases } from "@revenuecat/purchases-js";
 import React, { useEffect } from "react";
 import { usePurchasesLoaderData } from "../../util/PurchasesLoader";
-import LogoutButton from "../../components/LogoutButton";
 import { useNavigate } from "react-router-dom";
 
 const RCPaywallPage: React.FC = () => {
@@ -48,7 +47,6 @@ const RCPaywallPage: React.FC = () => {
 
   return (
     <>
-      <LogoutButton />
       <div id="paywall"></div>
     </>
   );
