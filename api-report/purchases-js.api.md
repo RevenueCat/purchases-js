@@ -285,6 +285,7 @@ export class Purchases {
     changeUser(newAppUserId: string): Promise<CustomerInfo>;
     close(): void;
     static configure(apiKey: string, appUserId: string, httpConfig?: HttpConfig): Purchases;
+    static generateRevenueCatAnonymousAppUserId(): string;
     getAppUserId(): string;
     getCurrentOfferingForPlacement(placementIdentifier: string, params?: GetOfferingsParams): Promise<Offering | null>;
     getCustomerInfo(): Promise<CustomerInfo>;
