@@ -1,4 +1,7 @@
 ## RevenueCat SDK
-### 📦 Dependency Updates
-* ECO-1595: Bumping to svelte 5 for the upcoming purchases-ui-web (#226) via Nicola Sacco (@nicfix)
-* Bump cookie and @bundled-es-modules/cookie (#231) via dependabot[bot] (@dependabot[bot])
+### ✨ New Features
+* ECO-1606: @internal @experimental renderPaywall method (#227) via Nicola Sacco (@nicfix)
+* Add convenience method to generate RC-like anonymous IDs (#235) via Antonio Borrero Granell (@antoniobg)
+### 🐞 Bugfixes
+* Removing the lateral padding based on screen width only (#237) via Nicola Sacco (@nicfix)
+* Remove logout button from the paywall page in the demo app (#236) via Nicola Sacco (@nicfix)
