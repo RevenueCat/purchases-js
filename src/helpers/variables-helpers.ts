@@ -139,7 +139,7 @@ function getTotalPriceAndPerMonth({
   return price.formattedPrice;
 }
 
-export function parseOfferingsIntoVariables(offering: Offering) {
+export function parseOfferingIntoVariables(offering: Offering) {
   const packages = offering.availablePackages;
   const highestPricePackage = packages.reduce((prev, current) => {
     return prev.rcBillingProduct.currentPrice.amountMicros >
@@ -148,113 +148,125 @@ export function parseOfferingsIntoVariables(offering: Offering) {
       : current;
   });
 
-  return packages.map((pkg) => {
-    const rcBillingProduct = pkg.rcBillingProduct;
-    const formattedPrice = rcBillingProduct.currentPrice.formattedPrice;
-    const product = getProductPerType(pkg);
-    const productType = rcBillingProduct.productType;
-
-    const baseObject: Record<string, string | undefined> = {
-      product_name: rcBillingProduct.title,
-      price: formattedPrice,
-      price_per_period: "",
-      price_per_period_full: "",
-      total_price_and_per_month: "",
-      total_price_and_per_month_full: "",
-      sub_price_per_month: "",
-      sub_price_per_week: "",
-      sub_duration: "",
-      sub_duration_in_months: "",
-      sub_period: "",
-      sub_period_length: "",
-      sub_period_abbreviated: "",
-      sub_offer_duration: undefined, // doesn't apply (yet)
-      sub_offer_duration_2: undefined, // only google play
-      sub_offer_price: undefined, // doesn't apply (yet)
-      sub_offer_price_2: undefined, // only google play
-      sub_relative_discount: "",
-    };
-    if (productType === ProductType.Subscription && product) {
-      const pricePerPeriod = getPricePerPeriod(
-        formattedPrice,
-        product as SubscriptionOption,
+  const reducedPackages = packages.reduce(
+    (packagesById, pkg) => {
+      packagesById[pkg.identifier] = parsePackageIntoVariables(
+        pkg,
+        highestPricePackage,
       );
-      baseObject.price_per_period = pricePerPeriod;
-      baseObject.price_per_period_full = getPricePerPeriod(
-        formattedPrice,
-        product as SubscriptionOption,
-        true,
-      );
+      return packagesById;
+    },
+    {} as Record<string, Record<string, string | undefined>>,
+  );
+  return reducedPackages;
+}
 
-      baseObject.total_price_and_per_month = getTotalPriceAndPerMonth({
-        price: rcBillingProduct.currentPrice,
-        period: (product as SubscriptionOption).base.period,
-      });
+function parsePackageIntoVariables(pkg: Package, highestPricePackage: Package) {
+  const rcBillingProduct = pkg.rcBillingProduct;
+  const formattedPrice = rcBillingProduct.currentPrice.formattedPrice;
+  const product = getProductPerType(pkg);
+  const productType = rcBillingProduct.productType;
 
-      baseObject.total_price_and_per_month_full = getTotalPriceAndPerMonth({
-        price: rcBillingProduct.currentPrice,
-        period: (product as SubscriptionOption).base.period,
-        full: true,
-      });
+  const baseObject: Record<string, string | undefined> = {
+    product_name: rcBillingProduct.title,
+    price: formattedPrice,
+    price_per_period: "",
+    price_per_period_full: "",
+    total_price_and_per_month: "",
+    total_price_and_per_month_full: "",
+    sub_price_per_month: "",
+    sub_price_per_week: "",
+    sub_duration: "",
+    sub_duration_in_months: "",
+    sub_period: "",
+    sub_period_length: "",
+    sub_period_abbreviated: "",
+    sub_offer_duration: undefined, // doesn't apply (yet)
+    sub_offer_duration_2: undefined, // doesn't apply - only google play
+    sub_offer_price: undefined, // doesn't apply (yet)
+    sub_offer_price_2: undefined, // doesn't apply - only google play
+    sub_relative_discount: "",
+  };
+  if (productType === ProductType.Subscription && product) {
+    const pricePerPeriod = getPricePerPeriod(
+      formattedPrice,
+      product as SubscriptionOption,
+    );
+    baseObject.price_per_period = pricePerPeriod;
+    baseObject.price_per_period_full = getPricePerPeriod(
+      formattedPrice,
+      product as SubscriptionOption,
+      true,
+    );
 
-      baseObject.sub_price_per_month = getPricePerMonth({
-        price: rcBillingProduct.currentPrice,
-        period: (product as SubscriptionOption).base.period,
-      });
+    baseObject.total_price_and_per_month = getTotalPriceAndPerMonth({
+      price: rcBillingProduct.currentPrice,
+      period: (product as SubscriptionOption).base.period,
+    });
 
-      baseObject.sub_price_per_week = getPricePerWeek({
-        price: rcBillingProduct.currentPrice,
-        period: (product as SubscriptionOption).base.period,
-      });
+    baseObject.total_price_and_per_month_full = getTotalPriceAndPerMonth({
+      price: rcBillingProduct.currentPrice,
+      period: (product as SubscriptionOption).base.period,
+      full: true,
+    });
 
-      baseObject.sub_duration = `${(product as SubscriptionOption).base.period?.number} ${(product as SubscriptionOption).base.period?.unit}`;
+    baseObject.sub_price_per_month = getPricePerMonth({
+      price: rcBillingProduct.currentPrice,
+      period: (product as SubscriptionOption).base.period,
+    });
 
-      baseObject.sub_duration_in_months = getDurationInMonths(
-        (product as SubscriptionOption).base.period as Period,
-      );
+    baseObject.sub_price_per_week = getPricePerWeek({
+      price: rcBillingProduct.currentPrice,
+      period: (product as SubscriptionOption).base.period,
+    });
 
-      baseObject.sub_period = `${(product as SubscriptionOption).base.period?.unit.toUpperCase()}ly`;
+    baseObject.sub_duration = `${(product as SubscriptionOption).base.period?.number} ${(product as SubscriptionOption).base.period?.unit}`;
 
-      baseObject.sub_period_length = `${(product as SubscriptionOption).base.period?.unit}`;
+    baseObject.sub_duration_in_months = getDurationInMonths(
+      (product as SubscriptionOption).base.period as Period,
+    );
 
-      baseObject.sub_period_abbreviated = `${AbbreviatedPeriod[((product as SubscriptionOption).base.period as Period).unit]}`;
+    baseObject.sub_period = `${(product as SubscriptionOption).base.period?.unit.toUpperCase()}ly`;
 
-      const discount =
-        ((highestPricePackage.rcBillingProduct.currentPrice.amountMicros -
-          rcBillingProduct.currentPrice.amountMicros) /
-          highestPricePackage.rcBillingProduct.currentPrice.amountMicros) *
-        100;
+    baseObject.sub_period_length = `${(product as SubscriptionOption).base.period?.unit}`;
 
-      baseObject.sub_relative_discount =
-        rcBillingProduct.currentPrice.amountMicros ===
-        highestPricePackage.rcBillingProduct.currentPrice.amountMicros
-          ? ""
-          : `${discount.toFixed(0)}% off`;
-    }
+    baseObject.sub_period_abbreviated = `${AbbreviatedPeriod[((product as SubscriptionOption).base.period as Period).unit]}`;
 
-    if (
-      (productType === ProductType.NonConsumable ||
-        productType === ProductType.Consumable) &&
-      product
-    ) {
-      baseObject.price = formattedPrice;
-      baseObject.price_per_period = formattedPrice;
-      baseObject.price_per_period_full = formattedPrice;
-      baseObject.total_price_and_per_month = formattedPrice;
-      baseObject.sub_price_per_month = formattedPrice;
-      baseObject.sub_duration = "Lifetime";
-      baseObject.sub_duration_in_months = "Lifetime";
-      baseObject.sub_period = "Lifetime";
-      baseObject.sub_price_per_week = undefined;
-      baseObject.sub_relative_discount = undefined;
-      baseObject.price_per_period_full = formattedPrice;
-      baseObject.total_price_and_per_month_full = formattedPrice;
-      baseObject.sub_period_length = undefined;
-      baseObject.sub_period_abbreviated = undefined;
-    }
+    const discount =
+      ((highestPricePackage.rcBillingProduct.currentPrice.amountMicros -
+        rcBillingProduct.currentPrice.amountMicros) /
+        highestPricePackage.rcBillingProduct.currentPrice.amountMicros) *
+      100;
 
-    return baseObject;
-  });
+    baseObject.sub_relative_discount =
+      rcBillingProduct.currentPrice.amountMicros ===
+      highestPricePackage.rcBillingProduct.currentPrice.amountMicros
+        ? ""
+        : `${discount.toFixed(0)}% off`;
+  }
+
+  if (
+    (productType === ProductType.NonConsumable ||
+      productType === ProductType.Consumable) &&
+    product
+  ) {
+    baseObject.price = formattedPrice;
+    baseObject.price_per_period = formattedPrice;
+    baseObject.price_per_period_full = formattedPrice;
+    baseObject.total_price_and_per_month = formattedPrice;
+    baseObject.sub_price_per_month = formattedPrice;
+    baseObject.sub_duration = "Lifetime";
+    baseObject.sub_duration_in_months = "Lifetime";
+    baseObject.sub_period = "Lifetime";
+    baseObject.sub_price_per_week = undefined;
+    baseObject.sub_relative_discount = undefined;
+    baseObject.price_per_period_full = formattedPrice;
+    baseObject.total_price_and_per_month_full = formattedPrice;
+    baseObject.sub_period_length = undefined;
+    baseObject.sub_period_abbreviated = undefined;
+  }
+
+  return baseObject;
 }
 
 /* 
