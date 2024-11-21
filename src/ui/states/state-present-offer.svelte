@@ -1,5 +1,6 @@
 <script lang="ts">
   import ModalSection from "../modal-section.svelte";
+  import Localized from "../localized.svelte";
   import { getRenewsLabel, getTrialsLabel } from "../../helpers/price-labels";
   import {
     type NonSubscriptionOption,
@@ -50,7 +51,9 @@
         {#if productDetails.normalPeriodDuration}
           <li>Renews {getRenewsLabel(productDetails.normalPeriodDuration)}</li>
         {/if}
-        <li>Continues until canceled</li>
+        <li>
+          <Localized>Continues until canceled</Localized>
+        </li>
         <li>Cancel anytime</li>
       </ul>
     {/if}
