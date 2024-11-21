@@ -48,7 +48,7 @@ import {
 import { type RedemptionInfo } from "./entities/redemption-info";
 import { type PurchaseResult } from "./entities/purchase-result";
 import { mount } from "svelte";
-import { RenderPaywallParams } from "./entities/render-paywall-params";
+import { type RenderPaywallParams } from "./entities/render-paywall-params";
 import { Paywall } from "@revenuecat/purchases-ui-js";
 import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
 
@@ -326,7 +326,7 @@ export class Purchases {
         props: {
           paywallData: offering.paywall_components!,
           selectedLocale: selectedLocale,
-          onNavigateToClicked: navigateToUrl,
+          onNavigateToUrlClicked: navigateToUrl,
           onVisitCustomerCenterClicked: onVisitCustomerCenterClicked,
           onBackClicked: () => {
             if (paywallParams.onBack) {
