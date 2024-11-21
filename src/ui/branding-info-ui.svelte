@@ -2,6 +2,7 @@
   import AppIcon from "./app-icon.svelte";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import { buildAssetURL } from "../networking/assets";
+  import Localized from "./localized.svelte";
 
   export let brandingInfo: BrandingInfoResponse | null = null;
 </script>
@@ -14,21 +15,21 @@
         srcWebp={buildAssetURL(brandingInfo.app_icon_webp)}
       />
     {/if}
-    <span class="app-title">{brandingInfo.seller_company_name}</span>
+    <span class="app-title"><Localized>{brandingInfo.seller_company_name}</Localized></span>
   {:else}
     <AppIcon />
   {/if}
 </div>
 
 <style>
-  .app-title {
-    font-weight: 500;
-    margin: 8px 0;
-    font-size: 16px;
-  }
+    .app-title {
+        font-weight: 500;
+        margin: 8px 0;
+        font-size: 16px;
+    }
 
-  .rcb-header-layout__business-info {
-    display: flex;
-    align-items: center;
-  }
+    .rcb-header-layout__business-info {
+        display: flex;
+        align-items: center;
+    }
 </style>

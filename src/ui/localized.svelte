@@ -1,12 +1,11 @@
 <script lang="ts">
-
-
-  interface Props {
-    labelId: string;
+  export interface LocalizedProps {
+    labelId?: string;
+    selectedLocale?: string;
     children?: any;
   }
 
-  const { labelId, children }: Props = $props();
+  const { labelId, selectedLocale, children }: LocalizedProps = $props();
   const translatedLabel = $derived(labelId);
 </script>
 

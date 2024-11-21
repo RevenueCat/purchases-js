@@ -31,36 +31,56 @@
 
     {#if isSubscription}
             <span class="rcb-product-price">
+
                 {#if subscriptionTrial?.periodDuration}
-                    {getTrialsLabel(subscriptionTrial.periodDuration)} free trial
+                  <Localized>{getTrialsLabel(subscriptionTrial.periodDuration)} free trial</Localized>
                 {/if}
               {#if !subscriptionTrial?.periodDuration && subscriptionBasePrice }
-                    {subscriptionBasePrice.formattedPrice}
+                  <Localized>{subscriptionBasePrice.formattedPrice}</Localized>
                 {/if}
+
             </span>
       {#if (subscriptionTrial && subscriptionBasePrice)}
                 <span class="rcb-product-price-after-trial">
+                  <Localized>
                     {subscriptionTrial && subscriptionBasePrice && `${
                       subscriptionBasePrice.formattedPrice} after end of trial`}
+                    </Localized>
                 </span>
       {/if}
       {#if brandingAppearance?.show_product_description && productDetails.description}
-        <span class="rcb-product-description">{productDetails.description}</span>
+        <span class="rcb-product-description">
+          <Localized>{productDetails.description}</Localized>
+        </span>
       {/if}
       <ul class="rcb-product-details">
         {#if productDetails.normalPeriodDuration}
-          <li>Renews {getRenewsLabel(productDetails.normalPeriodDuration)}</li>
+          <li>
+            <Localized>Renews {getRenewsLabel(productDetails.normalPeriodDuration)}</Localized>
+          </li>
         {/if}
         <li>
           <Localized>Continues until canceled</Localized>
         </li>
-        <li>Cancel anytime</li>
+        <li>
+          <Localized>Cancel anytime</Localized>
+        </li>
       </ul>
     {/if}
     {#if !isSubscription}
-      <span class="rcb-product-price">{nonSubscriptionBasePrice?.formattedPrice}</span>
+      <span class="rcb-product-price">
+        <Localized>
+          {nonSubscriptionBasePrice?.formattedPrice}
+        </Localized>
+      </span>
+
       {#if brandingAppearance?.show_product_description}
-        <span class="rcb-product-description">{productDetails.description}</span>
+        <span class="rcb-product-description">
+          <Localized>
+            <!-- We do not have localized descriptions -->
+            {productDetails.description}
+          </Localized>
+        </span>
       {/if}
     {/if}
 
