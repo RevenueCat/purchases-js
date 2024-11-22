@@ -27,6 +27,7 @@
             justify-content: center;
             height: 100%;
             min-width: 100%;
+            padding: 16px 0;
         }
     }
 
@@ -34,7 +35,6 @@
         .rcb-ui-layout {
             overflow-y: scroll;
             justify-content: flex-start;
-            padding: 16px 0;
         }
     }
 </style>

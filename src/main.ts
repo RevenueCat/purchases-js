@@ -48,6 +48,9 @@ import {
 import { type RedemptionInfo } from "./entities/redemption-info";
 import { type PurchaseResult } from "./entities/purchase-result";
 import { mount } from "svelte";
+import { RenderPaywallParams } from "./entities/render-paywall-params";
+import { Paywall } from "@revenuecat/purchases-ui-js";
+import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -228,6 +231,126 @@ export class Purchases {
     }
     this.backend = new Backend(this._API_KEY, httpConfig);
     this.purchaseOperationHelper = new PurchaseOperationHelper(this.backend);
+  }
+
+  /**
+   * Renders an RC Paywall and allows the user to purchase from it using RCBilling.
+   * @experimental
+   * @internal
+   * @param paywallParams - The parameters object to customise the paywall render. Check {@link RenderPaywallParams}
+   * @returns Promise<PurchaseResult>
+   */
+  public async renderPaywall(
+    paywallParams: RenderPaywallParams,
+  ): Promise<PurchaseResult> {
+    console.warn(
+      "This method is @experimental, Paywalls are not generally available but they will come soon!",
+    );
+    const htmlTarget = paywallParams.htmlTarget;
+
+    let resolvedHTMLTarget =
+      htmlTarget ?? document.getElementById("rcb-ui-pw-root");
+
+    if (resolvedHTMLTarget === null) {
+      const element = document.createElement("div");
+      element.id = "rcb-ui-pw-root";
+      element.className = "rcb-ui-pw-root";
+      // one point less than the purchase flow modal.
+      element.style.zIndex = `${PaywallDefaultContainerZIndex}`;
+      document.body.appendChild(element);
+      resolvedHTMLTarget = element;
+    }
+
+    if (resolvedHTMLTarget === null) {
+      throw new Error(
+        "Could not generate a mount point for the billing widget",
+      );
+    }
+
+    const certainHTMLTarget = resolvedHTMLTarget as unknown as HTMLElement;
+    // cleanup whatever is already there.
+    certainHTMLTarget.innerHTML = "";
+
+    const offering = paywallParams.offering;
+    if (!offering.paywall_components) {
+      throw new Error("You cannot use paywalls yet, they are coming soon!");
+    }
+
+    const startPurchaseFlow = (
+      selectedPackageId: string,
+    ): Promise<PurchaseResult> => {
+      const pkg = offering.availablePackages.find(
+        (p) => p.identifier === selectedPackageId,
+      );
+
+      if (pkg === undefined) {
+        throw new Error(`No package found for ${selectedPackageId}`);
+      }
+
+      return this.purchase({
+        rcPackage: pkg,
+        htmlTarget: paywallParams.purchaseHtmlTarget,
+        customerEmail: paywallParams.customerEmail,
+      });
+    };
+
+    const navigateToUrl = (url: string) => {
+      if (paywallParams.onNavigateToUrl) {
+        paywallParams.onNavigateToUrl(url);
+        return;
+      }
+
+      // Opinionated approach:
+      // navigating to the URL in a new tab.
+      window.open(url, "_blank")?.focus();
+    };
+
+    const onRestorePurchasesClicked = () => {
+      // DO NOTHING
+    };
+
+    const onVisitCustomerCenterClicked = () => {
+      if (paywallParams.onVisitCustomerCenter) {
+        paywallParams.onVisitCustomerCenter();
+        return;
+      }
+
+      // DO NOTHING, RC's customer center is not supported in web
+    };
+
+    const selectedLocale = paywallParams.selectedLocale || navigator.language;
+
+    return new Promise((resolve, reject) => {
+      mount(Paywall, {
+        target: certainHTMLTarget,
+        props: {
+          paywallData: offering.paywall_components!,
+          selectedLocale: selectedLocale,
+          onNavigateToClicked: navigateToUrl,
+          onVisitCustomerCenterClicked: onVisitCustomerCenterClicked,
+          onBackClicked: () => {
+            if (paywallParams.onBack) {
+              paywallParams.onBack();
+              return;
+            }
+
+            // Opinionated approach
+            // closing the current purchase and emptying the paywall.
+            certainHTMLTarget.innerHTML = "";
+            Logger.debugLog("Purchase cancelled by user");
+            reject(new PurchasesError(ErrorCode.UserCancelledError));
+          },
+          onRestorePurchasesClicked: onRestorePurchasesClicked,
+          onPurchaseClicked: (selectedPackageId: string) => {
+            startPurchaseFlow(selectedPackageId)
+              .then((purchaseResult) => {
+                resolve(purchaseResult);
+              })
+              .catch((err) => reject(err));
+          },
+        },
+      });
+    });
   }
 
   /**
@@ -491,5 +614,18 @@ export class Purchases {
     const subscriberResponse = await this.backend.getCustomerInfo(appUserId);
 
     return toCustomerInfo(subscriberResponse);
+  }
+
+  /**
+   * Generates an anonymous app user ID that follows RevenueCat's format.
+   * This can be used when you don't have a user identifier system in place.
+   * The generated ID will be in the format: $RCAnonymousID:<UUID without dashes>
+   * Example: $RCAnonymousID:123e4567e89b12d3a456426614174000
+   * @returns A new anonymous app user ID string
+   * @public
+   */
+  public static generateRevenueCatAnonymousAppUserId(): string {
+    const uuid = crypto.randomUUID();
+    return `$RCAnonymousID:${uuid.replace(/-/g, "")}`;
   }
 }

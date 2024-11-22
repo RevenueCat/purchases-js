@@ -71,14 +71,7 @@ npm run lint
 
 ## Running E2E tests
 
-```bash
-npm run build
-cd examples/rcbilling-demo
-npm run build
-# In a different terminal or background the process
-npm run dev
-npm run test
-```
+Please check the Demo app readme [here](./examples/rcbilling-demo/README.md#e2e-tests)
 
 ## Update API specs
 

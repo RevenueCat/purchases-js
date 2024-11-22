@@ -11,6 +11,7 @@
     "test": "vitest",
     "test:ci": "(vite &) && sleep 5 && playwright test",
     "test:e2e": "playwright test",
+    "test:e2e-ui": "playwright test --ui",
     "prettier": "prettier --write .",
     "format": "prettier --write .",
     "prettier:ci": "prettier --check ."

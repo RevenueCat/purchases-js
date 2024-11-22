@@ -4,6 +4,8 @@
 
 ```ts
 
+import { PaywallData } from '@revenuecat/purchases-ui-js';
+
 // @public
 export interface CustomerInfo {
     readonly activeSubscriptions: Set<string>;
@@ -147,6 +149,8 @@ export interface Offering {
     readonly packagesById: {
         [key: string]: Package;
     };
+    // (undocumented)
+    readonly paywall_components: PaywallData | null;
     readonly serverDescription: string;
     readonly sixMonth: Package | null;
     readonly threeMonth: Package | null;
@@ -285,6 +289,7 @@ export class Purchases {
     changeUser(newAppUserId: string): Promise<CustomerInfo>;
     close(): void;
     static configure(apiKey: string, appUserId: string, httpConfig?: HttpConfig): Purchases;
+    static generateRevenueCatAnonymousAppUserId(): string;
     getAppUserId(): string;
     getCurrentOfferingForPlacement(placementIdentifier: string, params?: GetOfferingsParams): Promise<Offering | null>;
     getCustomerInfo(): Promise<CustomerInfo>;

@@ -2,7 +2,7 @@
   "name": "@revenuecat/purchases-js",
   "description": "Web subscriptions made easy. Powered by RevenueCat",
   "private": false,
-  "version": "0.12.1",
+  "version": "0.13.0",
   "type": "module",
   "files": [
     "dist"
@@ -86,10 +86,10 @@
     "typescript": "^5.6.3",
     "vite": "^5.0.11",
     "vite-plugin-dts": "^4.3.0",
-    "vitest": "^2.1.4"
-  },
-  "dependencies": {
+    "vitest": "^2.1.4",
     "@stripe/stripe-js": "^4.9.0",
-    "http-status-codes": "^2.3.0"
-  }
+    "http-status-codes": "^2.3.0",
+    "@revenuecat/purchases-ui-js": "0.0.11"
+  },
+  "dependencies": {}
 }
