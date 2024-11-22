@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
-import { parseOfferingIntoVariables } from "../../helpers/variables-helpers";
-import { Offering, SubscriptionOption } from "../../entities/offerings";
+import { parseOfferingIntoVariables } from "../../helpers/paywall-variables-helpers";
+import type { Offering, SubscriptionOption } from "../../entities/offerings";
+import type { VariableDictionary } from "../../../../purchases-ui-js/dist/utils/variable-utils";
 
 const offering = {
   identifier: "MultiCurrencyTest",
@@ -744,7 +745,7 @@ const offering = {
   paywall_components: null,
 } as Offering;
 
-const expectedVariables: any = {
+const expectedVariables: Record<string, VariableDictionary> = {
   $rc_monthly: {
     price: "€9.00",
     price_per_period: "€9.00/1mo",
@@ -809,6 +810,8 @@ const expectedVariables: any = {
 
 describe("getPaywallVariables", () => {
   test("should return expected paywall variables", () => {
-    expect(parseOfferingIntoVariables(offering)).toEqual(expectedVariables);
+    expect(parseOfferingIntoVariables(offering, "en")).toEqual(
+      expectedVariables,
+    );
   });
 });
