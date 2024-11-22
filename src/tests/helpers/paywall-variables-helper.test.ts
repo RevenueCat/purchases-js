@@ -810,7 +810,6 @@ const expectedVariables: Record<string, VariableDictionary> = {
 
 describe("getPaywallVariables", () => {
   test("should return expected paywall variables", () => {
-    console.log(parseOfferingIntoVariables(offering, "en"));
     expect(parseOfferingIntoVariables(offering, "en")).toEqual(
       expectedVariables,
     );
