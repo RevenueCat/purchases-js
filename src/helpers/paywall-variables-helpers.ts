@@ -1,8 +1,4 @@
-import {
-  formatPrice,
-  getFrequencyLabel,
-  getLengthLabel,
-} from "src/helpers/price-labels";
+import { formatPrice, getFrequencyLabel, getLengthLabel } from "./price-labels";
 import {
   type NonSubscriptionOption,
   type Offering,
