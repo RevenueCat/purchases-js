@@ -349,7 +349,10 @@ export class Purchases {
               })
               .catch((err) => reject(err));
           },
-          variablesPerPackage: parseOfferingIntoVariables(offering),
+          variablesPerPackage: parseOfferingIntoVariables(
+            offering,
+            selectedLocale,
+          ),
         },
       });
     });

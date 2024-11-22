@@ -1,4 +1,9 @@
 import {
+  formatPrice,
+  getFrequencyLabel,
+  getLengthLabel,
+} from "src/helpers/price-labels";
+import {
   type NonSubscriptionOption,
   type Offering,
   type Package,
@@ -72,25 +77,48 @@ function getDurationInMonths(period: Period) {
 function getPricePerWeek({
   price,
   period,
+  selectedLocale,
 }: {
   price: Price;
   period: Period | null;
   full?: boolean;
+  selectedLocale: string;
 }) {
-  const fallback = (price.amountMicros / 1000000).toFixed(2);
+  const fallback = formatPrice(
+    price.amountMicros,
+    price.currency,
+    selectedLocale,
+  );
+
   if (!period) return fallback;
 
   if (period.unit === "year") {
-    return (price.amountMicros / 1000000 / 12 / 4).toFixed(2);
+    return formatPrice(
+      price.amountMicros / 12 / 4,
+      price.currency,
+      selectedLocale,
+    );
   }
   if (period.unit === "month") {
-    return (price.amountMicros / 1000000 / period.number).toFixed(2);
+    return formatPrice(
+      price.amountMicros / period.number,
+      price.currency,
+      selectedLocale,
+    );
   }
   if (period.unit === "week" && period.number > 1) {
-    return (price.amountMicros / 1000000 / period.number).toFixed(2);
+    return formatPrice(
+      price.amountMicros / period.number,
+      price.currency,
+      selectedLocale,
+    );
   }
   if (period.unit === "day") {
-    return (((price.amountMicros / 1000000) * 7) / period.number).toFixed(2);
+    return formatPrice(
+      (price.amountMicros * 7) / period.number,
+      price.currency,
+      selectedLocale,
+    );
   }
 
   return fallback;
@@ -99,25 +127,43 @@ function getPricePerWeek({
 function getPricePerMonth({
   price,
   period,
+  selectedLocale,
 }: {
   price: Price;
   period: Period | null;
   full?: boolean;
+  selectedLocale: string;
 }) {
-  const fallback = (price.amountMicros / 1000000).toFixed(2);
+  const fallback = formatPrice(
+    price.amountMicros,
+    price.currency,
+    selectedLocale,
+  );
   if (!period) return fallback;
 
   if (period.unit === "year") {
-    return (price.amountMicros / 1000000 / 12).toFixed(2);
+    return formatPrice(price.amountMicros / 12, price.currency, selectedLocale);
   }
   if (period.unit === "month" && period.number > 1) {
-    return (price.amountMicros / 1000000 / period.number).toFixed(2);
+    return formatPrice(
+      price.amountMicros / period.number,
+      price.currency,
+      selectedLocale,
+    );
   }
   if (period.unit === "week") {
-    return (((price.amountMicros / 1000000) * 4) / period.number).toFixed(2);
+    return formatPrice(
+      (price.amountMicros * 4) / period.number,
+      price.currency,
+      selectedLocale,
+    );
   }
   if (period.unit === "day") {
-    return (((price.amountMicros / 1000000) * 30) / period.number).toFixed(2);
+    return formatPrice(
+      (price.amountMicros * 30) / period.number,
+      price.currency,
+      selectedLocale,
+    );
   }
 
   return fallback;
@@ -127,35 +173,46 @@ function getTotalPriceAndPerMonth({
   price,
   period,
   full = false,
+  selectedLocale,
 }: {
   price: Price;
   period: Period | null;
   full?: boolean;
+  selectedLocale: string;
 }) {
-  // TODO: Format per locale/currency
   if (!period) return price.formattedPrice;
   let pricePerMonth = "";
   const periodString = full ? "month" : "mo";
   if (period.unit === "year") {
-    pricePerMonth = (price.amountMicros / 1000000 / 12).toFixed(2);
+    pricePerMonth = formatPrice(
+      price.amountMicros / 12,
+      price.currency,
+      selectedLocale,
+    );
     return `($${pricePerMonth}/${periodString})`;
   }
   if (period.unit === "month" && period.number > 1) {
-    pricePerMonth = (price.amountMicros / 1000000 / period.number).toFixed(2);
+    pricePerMonth = formatPrice(
+      price.amountMicros / period.number,
+      price.currency,
+      selectedLocale,
+    );
     return `($${pricePerMonth}/${periodString})`;
   }
   if (period.unit === "week") {
-    pricePerMonth = (
-      ((price.amountMicros / 1000000) * 4) /
-      period.number
-    ).toFixed(2);
+    pricePerMonth = formatPrice(
+      (price.amountMicros * 4) / period.number,
+      price.currency,
+      selectedLocale,
+    );
     return `($${pricePerMonth}/${periodString})`;
   }
   if (period.unit === "day") {
-    pricePerMonth = (
-      ((price.amountMicros / 1000000) * 30) /
-      period.number
-    ).toFixed(2);
+    pricePerMonth = formatPrice(
+      (price.amountMicros * 30) / period.number,
+      price.currency,
+      selectedLocale,
+    );
     return `($${pricePerMonth}/${periodString})`;
   }
 
@@ -164,8 +221,10 @@ function getTotalPriceAndPerMonth({
 
 export function parseOfferingIntoVariables(
   offering: Offering,
+  selectedLocale: string,
 ): Record<string, VariableDictionary> {
   const packages = offering.availablePackages;
+
   const highestPricePackage = packages.reduce((prev, current) => {
     return prev.rcBillingProduct.currentPrice.amountMicros >
       current.rcBillingProduct.currentPrice.amountMicros
@@ -178,6 +237,7 @@ export function parseOfferingIntoVariables(
       packagesById[pkg.identifier] = parsePackageIntoVariables(
         pkg,
         highestPricePackage,
+        selectedLocale,
       );
       return packagesById;
     },
@@ -186,7 +246,11 @@ export function parseOfferingIntoVariables(
   return reducedPackages;
 }
 
-function parsePackageIntoVariables(pkg: Package, highestPricePackage: Package) {
+function parsePackageIntoVariables(
+  pkg: Package,
+  highestPricePackage: Package,
+  selectedLocale: string,
+) {
   const rcBillingProduct = pkg.rcBillingProduct;
   const formattedPrice = rcBillingProduct.currentPrice.formattedPrice;
   const product = getProductPerType(pkg);
@@ -227,31 +291,39 @@ function parsePackageIntoVariables(pkg: Package, highestPricePackage: Package) {
     baseObject.total_price_and_per_month = getTotalPriceAndPerMonth({
       price: rcBillingProduct.currentPrice,
       period: (product as SubscriptionOption).base.period,
+      selectedLocale,
     });
 
     baseObject.total_price_and_per_month_full = getTotalPriceAndPerMonth({
       price: rcBillingProduct.currentPrice,
       period: (product as SubscriptionOption).base.period,
       full: true,
+      selectedLocale,
     });
 
     baseObject.sub_price_per_month = getPricePerMonth({
       price: rcBillingProduct.currentPrice,
       period: (product as SubscriptionOption).base.period,
+      selectedLocale,
     });
 
     baseObject.sub_price_per_week = getPricePerWeek({
       price: rcBillingProduct.currentPrice,
       period: (product as SubscriptionOption).base.period,
+      selectedLocale,
     });
 
-    baseObject.sub_duration = `${(product as SubscriptionOption).base.period?.number} ${(product as SubscriptionOption).base.period?.unit}`;
+    baseObject.sub_duration = getLengthLabel(
+      (product as SubscriptionOption).base.period as Period,
+    );
 
     baseObject.sub_duration_in_months = getDurationInMonths(
       (product as SubscriptionOption).base.period as Period,
     );
 
-    baseObject.sub_period = `${(product as SubscriptionOption).base.period?.unit.toUpperCase()}ly`;
+    baseObject.sub_period = getFrequencyLabel(
+      (product as SubscriptionOption).base.period as Period,
+    );
 
     baseObject.sub_period_length = `${(product as SubscriptionOption).base.period?.unit}`;
 
