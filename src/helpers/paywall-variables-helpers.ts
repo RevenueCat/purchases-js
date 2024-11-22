@@ -1,12 +1,12 @@
 import {
-  NonSubscriptionOption,
-  Offering,
-  Package,
-  Price,
+  type NonSubscriptionOption,
+  type Offering,
+  type Package,
+  type Price,
   ProductType,
-  SubscriptionOption,
+  type SubscriptionOption,
 } from "../entities/offerings";
-import { Period } from "./duration-helper";
+import type { Period } from "./duration-helper";
 
 function getProductPerType(
   pkg: Package,
@@ -19,6 +19,28 @@ function getProductPerType(
       return pkg.rcBillingProduct.defaultNonSubscriptionOption;
   }
 }
+
+type VariableDictionary = {
+  product_name: string | number | undefined;
+  price: string | number | undefined;
+  price_per_period: string | number | undefined;
+  price_per_period_full: string | number | undefined;
+  total_price_and_per_month: string | number | undefined;
+  total_price_and_per_month_full: string | number | undefined;
+  sub_price_per_month: string | number | undefined;
+  sub_price_per_week: string | number | undefined;
+  sub_duration: string | number | undefined;
+  sub_duration_in_months: string | number | undefined;
+  sub_period: string | number | undefined;
+  sub_period_length: string | number | undefined;
+  sub_period_abbreviated: string | number | undefined;
+  sub_offer_duration: undefined;
+  sub_offer_duration_2: undefined;
+  sub_offer_price: undefined;
+  sub_offer_price_2: undefined;
+  sub_relative_discount: string | number | undefined;
+  [key: string]: string | number | undefined;
+};
 
 enum AbbreviatedPeriod {
   month = "mo",
@@ -140,7 +162,9 @@ function getTotalPriceAndPerMonth({
   return price.formattedPrice;
 }
 
-export function parseOfferingIntoVariables(offering: Offering) {
+export function parseOfferingIntoVariables(
+  offering: Offering,
+): Record<string, VariableDictionary> {
   const packages = offering.availablePackages;
   const highestPricePackage = packages.reduce((prev, current) => {
     return prev.rcBillingProduct.currentPrice.amountMicros >
@@ -157,7 +181,7 @@ export function parseOfferingIntoVariables(offering: Offering) {
       );
       return packagesById;
     },
-    {} as Record<string, Record<string, string | undefined>>,
+    {} as Record<string, VariableDictionary>,
   );
   return reducedPackages;
 }
@@ -168,7 +192,7 @@ function parsePackageIntoVariables(pkg: Package, highestPricePackage: Package) {
   const product = getProductPerType(pkg);
   const productType = rcBillingProduct.productType;
 
-  const baseObject: Record<string, string | undefined> = {
+  const baseObject: VariableDictionary = {
     product_name: rcBillingProduct.title,
     price: formattedPrice,
     price_per_period: "",
@@ -182,9 +206,9 @@ function parsePackageIntoVariables(pkg: Package, highestPricePackage: Package) {
     sub_period: "",
     sub_period_length: "",
     sub_period_abbreviated: "",
-    sub_offer_duration: undefined, // doesn't apply (yet)
+    sub_offer_duration: undefined,
     sub_offer_duration_2: undefined, // doesn't apply - only google play
-    sub_offer_price: undefined, // doesn't apply (yet)
+    sub_offer_price: undefined,
     sub_offer_price_2: undefined, // doesn't apply - only google play
     sub_relative_discount: "",
   };
@@ -269,24 +293,3 @@ function parsePackageIntoVariables(pkg: Package, highestPricePackage: Package) {
 
   return baseObject;
 }
-
-/* 
-sub offer translates to trial period
-
-sub_relative_discount needs to be calculated by taking into account the highest pricing package
-in the array
-
-for multi-tier this needs to be calculated taking into account only the array of packages
-that each tier will have
-
-currency: "USD",
-amount: 9999
-locale: "as_AS"
-
-sub_price_per_month: 99,99$
-
-For currencies: we need to take the number, currency and current locale to format the prices
-
-Dictionary with abbreviation of periods for each language (ie: Month - mo / Year - yr)
-  Nicola working on passing a JSON with variables during the initialization of the SDK
-*/

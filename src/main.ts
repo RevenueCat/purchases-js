@@ -51,6 +51,7 @@ import { mount } from "svelte";
 import { type RenderPaywallParams } from "./entities/render-paywall-params";
 import { Paywall } from "@revenuecat/purchases-ui-js";
 import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
+import { parseOfferingIntoVariables } from "./helpers/paywall-variables-helpers";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -348,6 +349,7 @@ export class Purchases {
               })
               .catch((err) => reject(err));
           },
+          variablesPerPackage: parseOfferingIntoVariables(offering),
         },
       });
     });
