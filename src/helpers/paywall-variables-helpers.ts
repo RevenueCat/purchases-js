@@ -35,9 +35,9 @@ type VariableDictionary = {
   sub_period: string | number | undefined;
   sub_period_length: string | number | undefined;
   sub_period_abbreviated: string | number | undefined;
-  sub_offer_duration: undefined;
+  sub_offer_duration: string | number | undefined;
   sub_offer_duration_2: undefined;
-  sub_offer_price: undefined;
+  sub_offer_price: string | number | undefined;
   sub_offer_price_2: undefined;
   sub_relative_discount: string | number | undefined;
   [key: string]: string | number | undefined;
@@ -178,22 +178,27 @@ function getTotalPriceAndPerMonth({
 }) {
   if (!period) return price.formattedPrice;
   let pricePerMonth = "";
-  const periodString = full ? "month" : "mo";
+  const monthPeriodString = full ? "month" : "mo";
+  const periodString = full ? period.unit : AbbreviatedPeriod[period.unit];
   if (period.unit === "year") {
     pricePerMonth = formatPrice(
       price.amountMicros / 12,
       price.currency,
       selectedLocale,
     );
-    return `($${pricePerMonth}/${periodString})`;
+    return `${price.formattedPrice}/${period.number}${periodString}($${pricePerMonth}/(${monthPeriodString})`;
   }
-  if (period.unit === "month" && period.number > 1) {
+  if (period.unit === "month") {
     pricePerMonth = formatPrice(
       price.amountMicros / period.number,
       price.currency,
       selectedLocale,
     );
-    return `($${pricePerMonth}/${periodString})`;
+    if (period.number > 1) {
+      return `${price.formattedPrice}/${period.number}${periodString}(${pricePerMonth}/${monthPeriodString})`;
+    } else {
+      return `${price.formattedPrice}`;
+    }
   }
   if (period.unit === "week") {
     pricePerMonth = formatPrice(
@@ -201,7 +206,7 @@ function getTotalPriceAndPerMonth({
       price.currency,
       selectedLocale,
     );
-    return `($${pricePerMonth}/${periodString})`;
+    return `${price.formattedPrice}/${period.number}${periodString}(${pricePerMonth}/${monthPeriodString})`;
   }
   if (period.unit === "day") {
     pricePerMonth = formatPrice(
@@ -209,9 +214,8 @@ function getTotalPriceAndPerMonth({
       price.currency,
       selectedLocale,
     );
-    return `($${pricePerMonth}/${periodString})`;
+    return `${price.formattedPrice}/${period.number}${periodString}(${pricePerMonth}/${monthPeriodString})`;
   }
-
   return price.formattedPrice;
 }
 

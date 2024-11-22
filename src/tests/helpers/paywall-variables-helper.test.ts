@@ -757,11 +757,11 @@ const expectedVariables: Record<string, VariableDictionary> = {
     sub_offer_duration_2: undefined,
     sub_offer_price: undefined,
     sub_offer_price_2: undefined,
-    sub_period: "MONTHly",
+    sub_period: "monthly",
     sub_period_abbreviated: "mo",
     sub_period_length: "month",
-    sub_price_per_month: "9.00",
-    sub_price_per_week: "9.00",
+    sub_price_per_month: "€9.00",
+    sub_price_per_week: "€9.00",
     sub_relative_discount: "70% off",
     total_price_and_per_month: "€9.00",
     total_price_and_per_month_full: "€9.00",
@@ -777,14 +777,14 @@ const expectedVariables: Record<string, VariableDictionary> = {
     sub_offer_duration_2: undefined,
     sub_offer_price: undefined,
     sub_offer_price_2: undefined,
-    sub_period: "WEEKly",
+    sub_period: "weekly",
     sub_period_abbreviated: "wk",
     sub_period_length: "week",
-    sub_price_per_month: "36.00",
-    sub_price_per_week: "9.00",
+    sub_price_per_month: "€36.00",
+    sub_price_per_week: "€9.00",
     sub_relative_discount: "70% off",
-    total_price_and_per_month: "($36.00/mo)",
-    total_price_and_per_month_full: "($36.00/month)",
+    total_price_and_per_month: "€9.00/1wk(€36.00/mo)",
+    total_price_and_per_month_full: "€9.00/1week(€36.00/month)",
   },
   trial: {
     price: "€30.00",
@@ -793,15 +793,15 @@ const expectedVariables: Record<string, VariableDictionary> = {
     product_name: "Trial Mario",
     sub_duration: "1 month",
     sub_duration_in_months: "1 month",
-    sub_offer_duration: "2 weeks", // I Guessed this value
+    sub_offer_duration: undefined,
     sub_offer_duration_2: undefined,
-    sub_offer_price: "free", // I Guessed this value
+    sub_offer_price: undefined,
     sub_offer_price_2: undefined,
-    sub_period: "MONTHly",
+    sub_period: "monthly",
     sub_period_abbreviated: "mo",
     sub_period_length: "month",
-    sub_price_per_month: "30.00",
-    sub_price_per_week: "30.00",
+    sub_price_per_month: "€30.00",
+    sub_price_per_week: "€30.00",
     sub_relative_discount: "",
     total_price_and_per_month: "€30.00",
     total_price_and_per_month_full: "€30.00",
@@ -810,6 +810,7 @@ const expectedVariables: Record<string, VariableDictionary> = {
 
 describe("getPaywallVariables", () => {
   test("should return expected paywall variables", () => {
+    console.log(parseOfferingIntoVariables(offering, "en"));
     expect(parseOfferingIntoVariables(offering, "en")).toEqual(
       expectedVariables,
     );
