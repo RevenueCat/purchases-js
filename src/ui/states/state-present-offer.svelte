@@ -83,7 +83,7 @@
           <Localized labelId="state_present_offer.continues_until_cancelled" selectedLocale={selectedLocale} />
         </li>
         <li>
-          <Localized>Cancel anytime</Localized>
+          <Localized labelId="state_present_offer.cancel_anytime" selectedLocale={selectedLocale} />
         </li>
       </ul>
     {/if}
