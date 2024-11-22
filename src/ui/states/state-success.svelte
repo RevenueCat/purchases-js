@@ -20,6 +20,6 @@
 >
   <IconSuccess slot="icon" />
   {#if isSubscription}
-    Your plan is now active.
+    Your subscription is now active.
   {/if}
 </MessageLayout>
