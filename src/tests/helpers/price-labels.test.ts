@@ -1,19 +1,19 @@
 import { describe, expect, test } from "vitest";
-import { formatPrice, getRenewalFrequency } from "../../helpers/price-labels";
+import { formatPrice, getTranslatedPeriodFrequency } from "../../helpers/price-labels";
 
 describe("getRenewsLabel", () => {
   test("should return correct text for single period durations", () => {
-    expect(getRenewalFrequency("P1Y")).toEqual("yearly");
-    expect(getRenewalFrequency("P1M")).toEqual("monthly");
-    expect(getRenewalFrequency("P1W")).toEqual("weekly");
-    expect(getRenewalFrequency("P1D")).toEqual("daily");
+    expect(getTranslatedPeriodFrequency("P1Y")).toEqual("yearly");
+    expect(getTranslatedPeriodFrequency("P1M")).toEqual("monthly");
+    expect(getTranslatedPeriodFrequency("P1W")).toEqual("weekly");
+    expect(getTranslatedPeriodFrequency("P1D")).toEqual("daily");
   });
 
   test("should return correct text for multiple period durations", () => {
-    expect(getRenewalFrequency("P2Y")).toEqual("every 2 years");
-    expect(getRenewalFrequency("P3M")).toEqual("every 3 months");
-    expect(getRenewalFrequency("P2W")).toEqual("every 2 weeks");
-    expect(getRenewalFrequency("P14D")).toEqual("every 14 days");
+    expect(getTranslatedPeriodFrequency("P2Y")).toEqual("every 2 years");
+    expect(getTranslatedPeriodFrequency("P3M")).toEqual("every 3 months");
+    expect(getTranslatedPeriodFrequency("P2W")).toEqual("every 2 weeks");
+    expect(getTranslatedPeriodFrequency("P14D")).toEqual("every 14 days");
   });
 });
 

@@ -1,4 +1,4 @@
-import { parseISODuration, type Period, PeriodUnit } from "./duration-helper";
+import { parseISODuration, type Period } from "./duration-helper";
 import { Translator } from "../ui/localization/translator";
 
 export const priceLabels: Record<string, string> = {
@@ -25,24 +25,6 @@ export const formatPrice = (
   return formatter.format(price);
 };
 
-const getFrequencyLabel = (period: Period): string => {
-  const numberPeriods = period.number;
-  if (numberPeriods === 1) {
-    switch (period.unit) {
-      case PeriodUnit.Year:
-        return "yearly";
-      case PeriodUnit.Month:
-        return "monthly";
-      case PeriodUnit.Week:
-        return "weekly";
-      case PeriodUnit.Day:
-        return "daily";
-    }
-  } else {
-    return `every ${numberPeriods} ${period.unit}s`;
-  }
-};
-
 const getPeriodLengthLabel = (
   period: Period,
   selectedLocale: string = "en",
@@ -63,7 +45,7 @@ const getPeriodFrequencyLabel = (
   );
 };
 
-export const getRenewalFrequency = (
+export const getTranslatedPeriodFrequency = (
   duration: string,
   selectedLocale?: string,
 ): string => {
@@ -75,19 +57,7 @@ export const getRenewalFrequency = (
   return getPeriodFrequencyLabel(period, selectedLocale);
 };
 
-export const getTrialsLabel = (
-  duration: string,
-  selectedLocale?: string,
-): string => {
-  const period = parseISODuration(duration);
-  if (!period) {
-    return "unknown";
-  }
-
-  return getPeriodLengthLabel(period, selectedLocale);
-};
-
-export const getPeriodLabel = (
+export const getTranslatedPeriodLength = (
   isoPeriodString: string,
   selectedLocale?: string,
 ): string => {

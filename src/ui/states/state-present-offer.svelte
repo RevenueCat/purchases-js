@@ -1,7 +1,7 @@
 <script lang="ts">
   import ModalSection from "../modal-section.svelte";
   import Localized from "../localization/localized.svelte";
-  import { getPeriodLabel, getRenewalFrequency, getTrialsLabel } from "../../helpers/price-labels";
+  import { getTranslatedPeriodFrequency, getTranslatedPeriodLength } from "../../helpers/price-labels";
   import {
     type NonSubscriptionOption,
     type Product,
@@ -37,7 +37,7 @@
                   <Localized
                     labelId="state_present_offer.free_trial_duration"
                     variables={{
-                      trialDuration: getPeriodLabel(subscriptionTrial.periodDuration,selectedLocale),
+                      trialDuration: getTranslatedPeriodLength(subscriptionTrial.periodDuration,selectedLocale),
                     }}
                     selectedLocale={selectedLocale}
                   />
@@ -56,10 +56,7 @@
                       subscriptionBasePrice.formattedPrice,
                     }}
                     selectedLocale={selectedLocale}
-                  >
-                    {subscriptionTrial && subscriptionBasePrice && `${
-                      subscriptionBasePrice.formattedPrice} after end of trial`}
-                    </Localized>
+                  />
                 </span>
       {/if}
       {#if brandingAppearance?.show_product_description && productDetails.description}
@@ -73,7 +70,7 @@
             <Localized
               labelId="state_present_offer.renewal_frequency"
               variables={{
-                      frequency: getRenewalFrequency(productDetails.normalPeriodDuration, selectedLocale)
+                      frequency: getTranslatedPeriodFrequency(productDetails.normalPeriodDuration, selectedLocale)
                }}
               selectedLocale={selectedLocale}
             />
@@ -96,8 +93,11 @@
 
       {#if brandingAppearance?.show_product_description}
         <span class="rcb-product-description">
-          <Localized>
-            <!-- We do not have localized descriptions -->
+          <Localized
+            labelId={`state_present_offer.product_description.${productDetails.identifier}`}
+            selectedLocale={selectedLocale}
+          >
+            <!-- Fall back to the default description if the product-specific description is not available -->
             {productDetails.description}
           </Localized>
         </span>

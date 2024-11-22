@@ -1,6 +1,6 @@
 <script lang="ts">
 
-  import { getPeriodLabel } from "../../helpers/price-labels";
+  import { getTranslatedPeriodLength } from "../../helpers/price-labels";
 
   export interface Props {
     isoPeriod: string;
@@ -8,7 +8,7 @@
   }
 
   let { isoPeriod, selectedLocale }: Props = $props();
-  let translatedPeriod: string | undefined = $derived(getPeriodLabel(isoPeriod, selectedLocale));
+  let translatedPeriod: string | undefined = $derived(getTranslatedPeriodLength(isoPeriod, selectedLocale));
 </script>
 
 {translatedPeriod}
