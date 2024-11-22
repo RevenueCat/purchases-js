@@ -1,12 +1,12 @@
 import {
-  type NonSubscriptionOption,
-  type Offering,
-  type Package,
-  type Period,
-  type Price,
+  NonSubscriptionOption,
+  Offering,
+  Package,
+  Price,
   ProductType,
-  type SubscriptionOption,
-} from "src/main";
+  SubscriptionOption,
+} from "../entities/offerings";
+import { Period } from "./duration-helper";
 
 function getProductPerType(
   pkg: Package,
@@ -73,6 +73,7 @@ function getPricePerWeek({
 
   return fallback;
 }
+
 function getPricePerMonth({
   price,
   period,
