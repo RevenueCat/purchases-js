@@ -21,7 +21,7 @@ function getProductPerType(
   }
 }
 
-type VariableDictionary = {
+export type VariableDictionary = {
   product_name: string | number | undefined;
   price: string | number | undefined;
   price_per_period: string | number | undefined;
