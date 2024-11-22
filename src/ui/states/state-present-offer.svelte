@@ -1,7 +1,7 @@
 <script lang="ts">
   import ModalSection from "../modal-section.svelte";
-  import Localized from "../localized.svelte";
-  import { getRenewsLabel, getTrialsLabel } from "../../helpers/price-labels";
+  import Localized from "../localization/localized.svelte";
+  import { getPeriodLabel, getRenewalFrequency, getTrialsLabel } from "../../helpers/price-labels";
   import {
     type NonSubscriptionOption,
     type Product,
@@ -14,6 +14,7 @@
   export let productDetails: Product;
   export let purchaseOption: PurchaseOption;
   export let brandingAppearance: BrandingAppearance | undefined = undefined;
+  export let selectedLocale: string;
   const isSubscription = productDetails.productType === ProductType.Subscription;
   const subscriptionOption: SubscriptionOption | null | undefined =
     purchaseOption as SubscriptionOption;
@@ -33,16 +34,29 @@
             <span class="rcb-product-price">
 
                 {#if subscriptionTrial?.periodDuration}
-                  <Localized>{getTrialsLabel(subscriptionTrial.periodDuration)} free trial</Localized>
+                  <Localized
+                    labelId="state_present_offer.free_trial_duration"
+                    variables={{
+                      trialDuration: getPeriodLabel(subscriptionTrial.periodDuration,selectedLocale),
+                    }}
+                    selectedLocale={selectedLocale}
+                  />
                 {/if}
               {#if !subscriptionTrial?.periodDuration && subscriptionBasePrice }
                   <Localized>{subscriptionBasePrice.formattedPrice}</Localized>
-                {/if}
+              {/if}
 
             </span>
       {#if (subscriptionTrial && subscriptionBasePrice)}
                 <span class="rcb-product-price-after-trial">
-                  <Localized>
+                  <Localized
+                    labelId="state_present_offer.price_after_free_trial"
+                    variables={{
+                      formattedPrice: subscriptionTrial && subscriptionBasePrice &&
+                      subscriptionBasePrice.formattedPrice,
+                    }}
+                    selectedLocale={selectedLocale}
+                  >
                     {subscriptionTrial && subscriptionBasePrice && `${
                       subscriptionBasePrice.formattedPrice} after end of trial`}
                     </Localized>
@@ -56,11 +70,17 @@
       <ul class="rcb-product-details">
         {#if productDetails.normalPeriodDuration}
           <li>
-            <Localized>Renews {getRenewsLabel(productDetails.normalPeriodDuration)}</Localized>
+            <Localized
+              labelId="state_present_offer.renewal_frequency"
+              variables={{
+                      frequency: getRenewalFrequency(productDetails.normalPeriodDuration, selectedLocale)
+               }}
+              selectedLocale={selectedLocale}
+            />
           </li>
         {/if}
         <li>
-          <Localized>Continues until canceled</Localized>
+          <Localized labelId="state_present_offer.continues_until_cancelled" selectedLocale={selectedLocale} />
         </li>
         <li>
           <Localized>Cancel anytime</Localized>

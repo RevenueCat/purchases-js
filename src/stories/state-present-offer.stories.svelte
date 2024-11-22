@@ -6,7 +6,13 @@
   import Container from "../ui/layout/container.svelte";
   import Aside from "../ui/layout/aside-block.svelte";
   import ModalBackdrop from "../ui/modal-backdrop.svelte";
-  import { brandingInfo, colorfulBrandingAppearance, product, subscriptionOption } from "./fixtures";
+  import {
+    brandingInfo,
+    colorfulBrandingAppearance,
+    product,
+    subscriptionOption,
+    subscriptionOptionWithTrial,
+  } from "./fixtures";
   import IconCart from "../ui/icons/icon-cart.svelte";
   import ModalHeader from "../ui/modal-header.svelte";
   import BrandingInfoUI from "../ui/branding-info-ui.svelte";
@@ -67,8 +73,18 @@
 <Story name='WithProductDescriptionInverted'
        args={{ ...defaultArgs,  brandingAppearance:{color_product_info_bg: "#ffffff",show_product_description:true}  }} />
 
+<Story name='WithProductDescriptionTrials'
+       args={{ ...defaultArgs, purchaseOption:subscriptionOptionWithTrial, brandingAppearance:{show_product_description:true}  }} />
+
+<Story name='WithProductDescriptionTrialsItalian'
+       args={{ ...defaultArgs, purchaseOption:subscriptionOptionWithTrial, selectedLocale:'it', brandingAppearance:{show_product_description:true}  }} />
+
+<Story name='WithProductDescriptionTrialsSpanish'
+       args={{ ...defaultArgs, purchaseOption:subscriptionOptionWithTrial,  selectedLocale:'es', brandingAppearance:{show_product_description:true}  }} />
+
 <Story name='WithProductDescriptionNullDescription'
        args={{ ...defaultArgs, productDetails:{...product, description:null},  brandingAppearance:{color_product_info_bg: "#ffffff",show_product_description:true}  }} />
 
 <Story name='ColorfulRectangle'
        args={{ ...defaultArgs,  brandingAppearance:colorfulBrandingAppearance }} />
+

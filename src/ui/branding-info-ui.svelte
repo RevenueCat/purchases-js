@@ -2,7 +2,7 @@
   import AppIcon from "./app-icon.svelte";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import { buildAssetURL } from "../networking/assets";
-  import Localized from "./localized.svelte";
+  import Localized from "./localization/localized.svelte";
 
   export let brandingInfo: BrandingInfoResponse | null = null;
 </script>

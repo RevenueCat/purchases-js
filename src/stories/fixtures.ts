@@ -26,6 +26,34 @@ export const subscriptionOption: SubscriptionOption = {
   trial: null,
 };
 
+export const subscriptionOptionWithTrial: SubscriptionOption = {
+  id: "option_id_1",
+  priceId: "price_1",
+  base: {
+    periodDuration: "P1M",
+    period: {
+      unit: PeriodUnit.Month,
+      number: 1,
+    },
+    price: {
+      amount: 999,
+      amountMicros: 999,
+      currency: "USD",
+      formattedPrice: "9.99$",
+    },
+    cycleCount: 0,
+  },
+  trial: {
+    periodDuration: "P2W",
+    period: {
+      number: 2,
+      unit: PeriodUnit.Week,
+    },
+    cycleCount: 1,
+    price: null,
+  },
+};
+
 export const product: Product = {
   identifier: "some_product_123",
   displayName: "Some Product 123",

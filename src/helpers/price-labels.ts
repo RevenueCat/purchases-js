@@ -1,4 +1,5 @@
 import { parseISODuration, type Period, PeriodUnit } from "./duration-helper";
+import { Translator } from "../ui/localization/translator";
 
 export const priceLabels: Record<string, string> = {
   P3M: "quarterly",
@@ -42,38 +43,57 @@ const getFrequencyLabel = (period: Period): string => {
   }
 };
 
-const getLengthLabel = (period: Period): string => {
-  const numberPeriods = period.number;
-  if (numberPeriods === 1) {
-    switch (period.unit) {
-      case PeriodUnit.Year:
-        return "1 year";
-      case PeriodUnit.Month:
-        return "1 month";
-      case PeriodUnit.Week:
-        return "1 week";
-      case PeriodUnit.Day:
-        return "1 day";
-    }
-  } else {
-    return `${numberPeriods} ${period.unit}s`;
-  }
+const getPeriodLengthLabel = (
+  period: Period,
+  selectedLocale: string = "en",
+): string => {
+  return (
+    Translator.translatePeriod(selectedLocale, period.number, period.unit) ||
+    `${period.number} ${period.unit}s`
+  );
 };
 
-export const getRenewsLabel = (duration: string): string => {
+const getPeriodFrequencyLabel = (
+  period: Period,
+  selectedLocale: string = "en",
+): string => {
+  return (
+    Translator.translateFrequency(selectedLocale, period.number, period.unit) ||
+    `${period.number} ${period.unit}s`
+  );
+};
+
+export const getRenewalFrequency = (
+  duration: string,
+  selectedLocale?: string,
+): string => {
   const period = parseISODuration(duration);
   if (!period) {
     return "unknown";
   }
 
-  return getFrequencyLabel(period);
+  return getPeriodFrequencyLabel(period, selectedLocale);
 };
 
-export const getTrialsLabel = (duration: string): string => {
+export const getTrialsLabel = (
+  duration: string,
+  selectedLocale?: string,
+): string => {
   const period = parseISODuration(duration);
   if (!period) {
     return "unknown";
   }
 
-  return getLengthLabel(period);
+  return getPeriodLengthLabel(period, selectedLocale);
+};
+
+export const getPeriodLabel = (
+  isoPeriodString: string,
+  selectedLocale?: string,
+): string => {
+  const period = parseISODuration(isoPeriodString);
+  if (!period) {
+    return isoPeriodString;
+  }
+  return getPeriodLengthLabel(period, selectedLocale);
 };

@@ -1,0 +1,23 @@
+{
+  "periods.week": "{{amount}} semana",
+  "periods.month": "{{amount}} mes",
+  "periods.year": "{{amount}} año",
+  "periods.day": "{{amount}} día",
+  "periods.weekPlural": "{{amount}} semanas",
+  "periods.monthPlural": "{{amount}} meses",
+  "periods.yearPlural": "{{amount}} años",
+  "periods.dayPlural": "{{amount}} días",
+  "periods.weekFrequency": "cada semana",
+  "periods.monthFrequency": "cada mes",
+  "periods.yearFrequency": "cada año",
+  "periods.dayFrequency": "cada día",
+  "periods.weekFrequencyPlural": "cada {{amount}} semanas",
+  "periods.monthFrequencyPlural": "cada {{amount}} meses",
+  "periods.yearFrequencyPlural": "cada {{amount}} años",
+  "periods.dayFrequencyPlural": "cada {{amount}} días",
+  "state_present_offer.free_trial_duration": "Prueba gratuita por {{trialDuration}}",
+  "state_present_offer.price_after_free_trial": "{{formattedPrice}} después del final de la prueba",
+  "state_present_offer.renewal_frequency": "Se renueva {{frequency}}",
+  "state_present_offer.continues_until_cancelled": "Continúa hasta que se cancele",
+  "state_present_offer.cancel_anytime": "Cancela en cualquier momento"
+}
