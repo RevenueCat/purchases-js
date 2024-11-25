@@ -1,5 +1,8 @@
 import { describe, expect, test } from "vitest";
-import { formatPrice, getTranslatedPeriodFrequency } from "../../helpers/price-labels";
+import {
+  formatPrice,
+  getTranslatedPeriodFrequency,
+} from "../../helpers/price-labels";
 
 describe("getRenewsLabel", () => {
   test("should return correct text for single period durations", () => {
