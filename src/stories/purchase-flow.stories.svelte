@@ -159,3 +159,11 @@
 
 <Story name='ColorfulRectangle'
        args={{ ...defaultArgs, brandingInfo:{...brandingInfo, appearance:colorfulBrandingAppearance} }} />
+
+<Story name='Italian' args={{...defaultArgs, selectedLocale:'it', brandingInfo:brandingInfo}} />
+<Story name='it_IT' args={{...defaultArgs, selectedLocale:'it_IT', brandingInfo:brandingInfo}} />
+<Story name='itDashIT' args={{...defaultArgs, selectedLocale:'it-IT', brandingInfo:brandingInfo}} />
+
+<Story name='Spanish' args={{...defaultArgs, selectedLocale:'es', brandingInfo:brandingInfo}} />
+<Story name='es_ES' args={{...defaultArgs, selectedLocale:'es_ES', brandingInfo:brandingInfo}} />
+<Story name='esDashES' args={{...defaultArgs, selectedLocale:'es_ES', brandingInfo:brandingInfo}} />

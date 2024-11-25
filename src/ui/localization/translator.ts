@@ -23,10 +23,21 @@ export class Translator {
     };
   }
 
-  public override(translations: Record<string, Record<string, string>>) {
-    Object.entries(translations).forEach(([locale, labels]) => {
-      this.locales[locale] = new LocaleTranslations(labels);
+  public override(customTranslations: Record<string, Record<string, string>>) {
+    Object.entries(customTranslations).forEach(([locale, translations]) => {
+      this.locales[locale] = new LocaleTranslations({
+        ...(this.locales[locale].labels || {}),
+        ...translations,
+      });
     });
+  }
+
+  private getLocaleInstance(locale: string): LocaleTranslations | undefined {
+    const potentialLocaleCode = locale.split("_")[0].split("-")[0];
+    return (
+      Translator.getInstance().locales[locale] ||
+      Translator.getInstance().locales[potentialLocaleCode]
+    );
   }
 
   public static translate(
@@ -34,7 +45,7 @@ export class Translator {
     labelId: string,
     variables?: Record<string, string>,
   ): string | undefined {
-    const localeInstance = Translator.getInstance().locales[locale];
+    const localeInstance = Translator.getInstance().getLocaleInstance(locale);
     if (!localeInstance) return undefined;
 
     return localeInstance.translate(labelId, variables);
@@ -45,7 +56,7 @@ export class Translator {
     amount: number,
     period: PeriodUnit,
   ): string | undefined {
-    const localeInstance = Translator.getInstance().locales[locale];
+    const localeInstance = Translator.getInstance().getLocaleInstance(locale);
     if (!localeInstance) return undefined;
 
     return localeInstance.translatePeriod(amount, period);
@@ -56,7 +67,7 @@ export class Translator {
     amount: number,
     period: PeriodUnit,
   ): string | undefined {
-    const localeInstance = Translator.getInstance().locales[locale];
+    const localeInstance = Translator.getInstance().getLocaleInstance(locale);
     if (!localeInstance) return undefined;
 
     return localeInstance.translateFrequency(amount, period);
@@ -64,7 +75,7 @@ export class Translator {
 }
 
 export class LocaleTranslations {
-  public constructor(private readonly labels: Record<string, string> = {}) {}
+  public constructor(public readonly labels: Record<string, string> = {}) {}
 
   public translate(
     labelId: string,

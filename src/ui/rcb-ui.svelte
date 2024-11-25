@@ -26,6 +26,7 @@
 
   import { toProductInfoStyleVar } from "./theme/utils";
   import { type RedemptionInfo } from "../entities/redemption-info";
+  import { Translator } from "./localization/translator";
 
   export let asModal = true;
   export let customerEmail: string | undefined;
@@ -44,6 +45,8 @@
   let productDetails: Product | null = null;
   let paymentInfoCollectionMetadata: PurchaseResponse | null = null;
   let lastError: PurchaseFlowError | null = null;
+  let selectedLocale: string = "en";
+  let customTranslations: Record<string, Record<string, string>> = {};
   const productId = rcPackage.rcBillingProduct.identifier ?? null;
   const defaultPurchaseOption =
     rcPackage.rcBillingProduct.defaultPurchaseOption;
@@ -209,6 +212,7 @@
           </ModalHeader>
           {#if productDetails && purchaseOptionToUse}
             <StatePresentOffer
+              {selectedLocale}
               {productDetails}
               brandingAppearance={brandingInfo?.appearance}
               purchaseOption={purchaseOptionToUse}

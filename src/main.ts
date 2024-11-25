@@ -500,6 +500,8 @@ export class Purchases {
       `Presenting purchase form for package ${rcPackage.identifier}`,
     );
 
+    const selectedLocale = params.selectedLocale || navigator.language;
+    const customTranslations = params.customTranslations || {};
     return new Promise((resolve, reject) => {
       mount(RCPurchasesUI, {
         target: certainHTMLTarget,
@@ -531,6 +533,8 @@ export class Purchases {
           brandingInfo: this._brandingInfo,
           purchaseOperationHelper: this.purchaseOperationHelper,
           asModal,
+          selectedLocale,
+          customTranslations
         },
       });
     });
