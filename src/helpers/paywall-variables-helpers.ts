@@ -135,7 +135,7 @@ function getPricePerMonth({
     price.currency,
     selectedLocale,
   );
-  if (!period) return fallback;
+  if (!period || !period.number) return fallback;
 
   if (period.unit === "year") {
     return formatPrice(price.amountMicros / 12, price.currency, selectedLocale);
@@ -176,7 +176,7 @@ function getTotalPriceAndPerMonth({
   full?: boolean;
   selectedLocale: string;
 }) {
-  if (!period) return price.formattedPrice;
+  if (!period || !period.number) return price.formattedPrice;
   let pricePerMonth = "";
   const monthPeriodString = full ? "month" : "mo";
   const periodString = full ? period.unit : AbbreviatedPeriod[period.unit];
@@ -329,17 +329,16 @@ function parsePackageIntoVariables(
 
     baseObject.sub_period_abbreviated = `${AbbreviatedPeriod[((product as SubscriptionOption).base.period as Period).unit]}`;
 
-    const discount =
-      ((highestPricePackage.rcBillingProduct.currentPrice.amountMicros -
-        rcBillingProduct.currentPrice.amountMicros) /
-        highestPricePackage.rcBillingProduct.currentPrice.amountMicros) *
-      100;
+    const packagePrice = rcBillingProduct.currentPrice.amountMicros;
+    const highestPrice =
+      highestPricePackage.rcBillingProduct.currentPrice.amountMicros;
+    const discount = (
+      ((highestPrice - packagePrice) * 100) /
+      highestPrice
+    ).toFixed(0);
 
     baseObject.sub_relative_discount =
-      rcBillingProduct.currentPrice.amountMicros ===
-      highestPricePackage.rcBillingProduct.currentPrice.amountMicros
-        ? ""
-        : `${discount.toFixed(0)}% off`;
+      packagePrice === highestPrice ? "" : `${discount}% off`;
   }
 
   if (
