@@ -37,7 +37,7 @@ export const subscriptionOptionWithTrial: SubscriptionOption = {
     },
     price: {
       amount: 999,
-      amountMicros: 999,
+      amountMicros: 9990000,
       currency: "USD",
       formattedPrice: "9.99$",
     },
