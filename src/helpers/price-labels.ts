@@ -24,7 +24,7 @@ export const formatPrice = (
   return formatter.format(price);
 };
 
-const getFrequencyLabel = (period: Period): string => {
+export const getFrequencyLabel = (period: Period): string => {
   const numberPeriods = period.number;
   if (numberPeriods === 1) {
     switch (period.unit) {
@@ -42,7 +42,7 @@ const getFrequencyLabel = (period: Period): string => {
   }
 };
 
-const getLengthLabel = (period: Period): string => {
+export const getLengthLabel = (period: Period): string => {
   const numberPeriods = period.number;
   if (numberPeriods === 1) {
     switch (period.unit) {
