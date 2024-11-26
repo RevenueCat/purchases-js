@@ -218,7 +218,6 @@
           </ModalHeader>
           {#if productDetails && purchaseOptionToUse}
             <StatePresentOffer
-              {selectedLocale}
               {productDetails}
               brandingAppearance={brandingInfo?.appearance}
               purchaseOption={purchaseOptionToUse}

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { getContext, onMount } from "svelte";
   import Button from "../button.svelte";
   import { Elements, PaymentElement } from "svelte-stripe";
   import type { Stripe, StripeElements } from "@stripe/stripe-js";
@@ -17,6 +17,9 @@
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
   import CloseButton from "../close-button.svelte";
   import { Theme } from "../theme/theme";
+  import { translatorContextKey } from "../localization/constants";
+  import { Translator } from "../localization/translator";
+  import Localized from "../localization/localized.svelte";
 
 
   export let onClose: any;
@@ -83,6 +86,8 @@
 
   let shapeCustomisation = theme.shape;
   let customColors = theme.formColors;
+
+  const translator = getContext(translatorContextKey) || Translator.fallback();
 </script>
 
 <div>
@@ -90,7 +95,11 @@
     <ModalHeader>
       <div style="display: flex; align-items: center; justify-content: baseline;">
         <IconLock />
-        <div style="margin-left: 10px">Secure Checkout</div>
+        <div style="margin-left: 10px">
+          <Localized
+            labelId="state_needs_payment_info.payment_step_title"
+          />
+        </div>
       </div>
       <CloseButton on:click={onClose} />
     </ModalHeader>
@@ -99,7 +108,7 @@
         {stripe}
         {clientSecret}
         loader="always"
-        locale="en"
+        locale={translator.locale || translator.fallbackLocale}
         bind:elements
         theme="stripe"
         variables={{
@@ -149,9 +158,9 @@
               {#if processing}
                 <ProcessingAnimation />
               {:else if productDetails.subscriptionOptions?.[purchaseOptionToUse.id]?.trial}
-                Start Trial
+                <Localized labelId="state_needs_payment_info.button_start_trial" />
               {:else}
-                Pay
+                <Localized labelId="state_needs_payment_info.button_pay" />
               {/if}
             </Button>
           </RowLayout>

@@ -26,5 +26,6 @@
   "state_needs_auth_info.email_step_title": "Email per la fattura",
   "state_needs_auth_info.email_input_label": "Email",
   "state_needs_auth_info.email_input_placeholder": "john@appleseed.com",
-  "state_needs_auth_info.button_continue": "Continua"
+  "state_needs_auth_info.button_continue": "Continua",
+  "state_needs_payment_info.payment_step_title": "Pagamento sicuro"
 }

@@ -12,13 +12,13 @@ export class Translator {
 
   public constructor(
     customTranslations?: Record<string, Record<string, string>>,
-    private readonly selectedLocale: string = "en",
-    private readonly defaultLocale: string = "en",
+    public readonly selectedLocale: string = "en",
+    public readonly defaultLocale: string = "en",
   ) {
     this.locales = {
-      en: new LocaleTranslations(en),
-      es: new LocaleTranslations(es),
-      it: new LocaleTranslations(it),
+      en: new LocaleTranslations(en, "en"),
+      es: new LocaleTranslations(es, "es"),
+      it: new LocaleTranslations(it, "it"),
     };
     if (customTranslations) {
       this.override(customTranslations);
@@ -27,15 +27,36 @@ export class Translator {
 
   public override(customTranslations: Record<string, Record<string, string>>) {
     Object.entries(customTranslations).forEach(([locale, translations]) => {
-      this.locales[locale] = new LocaleTranslations({
-        ...(this.locales[locale].labels || {}),
-        ...translations,
-      });
+      this.locales[locale] = new LocaleTranslations(
+        {
+          ...(this.locales[locale].labels || {}),
+          ...translations,
+        },
+        this.simplifyLocaleString(locale),
+      );
     });
   }
 
+  get locale(): string {
+    return (
+      this.getLocaleInstance(this.selectedLocale)?.localeKey ||
+      this.simplifyLocaleString(this.selectedLocale)
+    );
+  }
+
+  get fallbackLocale(): string {
+    return (
+      this.getLocaleInstance(this.defaultLocale)?.localeKey ||
+      this.simplifyLocaleString(this.defaultLocale)
+    );
+  }
+
+  private simplifyLocaleString(locale: string): string {
+    return locale.split("_")[0].split("-")[0];
+  }
+
   private getLocaleInstance(locale: string): LocaleTranslations | undefined {
-    const potentialLocaleCode = locale.split("_")[0].split("-")[0];
+    const potentialLocaleCode = this.simplifyLocaleString(locale);
     return this.locales[locale] || this.locales[potentialLocaleCode];
   }
 
@@ -80,7 +101,10 @@ export class Translator {
 }
 
 export class LocaleTranslations {
-  public constructor(public readonly labels: Record<string, string> = {}) {}
+  public constructor(
+    public readonly labels: Record<string, string> = {},
+    public readonly localeKey: string,
+  ) {}
 
   public translate(
     labelId: string,
