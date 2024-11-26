@@ -33,7 +33,12 @@
 
 <ModalSection>
   <div class="rcb-pricing-info">
-    <span class="rc-product-title">{productDetails.title}</span>
+    <span class="rc-product-title">
+      <Localized
+        labelId="state_present_offer.product_title"
+        variables={{productTitle:productDetails.title}}
+      />
+     </span>
 
     {#if isSubscription}
             <span class="rcb-product-price">
@@ -70,7 +75,7 @@
       {#if brandingAppearance?.show_product_description && productDetails.description}
         <span class="rcb-product-description">
           <Localized
-            labelID="state_present_offer.product_description"
+            labelId="state_present_offer.product_description"
             variables={{
               productDescription:productDetails.description
             }}

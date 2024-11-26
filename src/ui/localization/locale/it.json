@@ -15,7 +15,7 @@
   "periods.monthFrequencyPlural": "ogni {{amount}} mesi",
   "periods.yearFrequencyPlural": "ogni {{amount}} anni",
   "periods.dayFrequencyPlural": "ogni {{amount}} giorni",
-  "state_present_offer.product_name": "{{productName}}",
+  "state_present_offer.product_title": "{{productTitle}}",
   "state_present_offer.product_description": "{{productDescription}}",
   "state_present_offer.product_price": "{{productPrice}}",
   "state_present_offer.free_trial_duration": "Prova gratis per {{trialDuration}}",
