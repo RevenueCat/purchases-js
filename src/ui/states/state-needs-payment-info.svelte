@@ -140,7 +140,9 @@
       >
         <ModalSection>
           <div class="rcb-stripe-elements-container">
-            <PaymentElement />
+            <PaymentElement options={{
+              business: brandingInfo?.seller_company_name ? { name: brandingInfo.seller_company_name } : undefined,
+            }} />
           </div>
         </ModalSection>
         <ModalFooter>
