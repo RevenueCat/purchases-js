@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, setContext } from "svelte";
   import type { Package, Product, PurchaseOption, Purchases } from "../main";
   import StatePresentOffer from "./states/state-present-offer.svelte";
   import StateLoading from "./states/state-loading.svelte";
@@ -27,6 +27,7 @@
   import { toProductInfoStyleVar } from "./theme/utils";
   import { type RedemptionInfo } from "../entities/redemption-info";
   import { Translator } from "./localization/translator";
+  import { translatorContextKey } from "./localization/constants";
 
   export let asModal = true;
   export let customerEmail: string | undefined;
@@ -39,14 +40,16 @@
   export let onClose: () => void;
   export let purchases: Purchases;
   export let purchaseOperationHelper: PurchaseOperationHelper;
-
+  export let selectedLocale: string = "en";
+  export let customTranslations: Record<string, Record<string, string>> = {};
+  export let defaultLocale: string = "en";
 
   let colorVariables = "";
   let productDetails: Product | null = null;
   let paymentInfoCollectionMetadata: PurchaseResponse | null = null;
   let lastError: PurchaseFlowError | null = null;
-  let selectedLocale: string = "en";
-  let customTranslations: Record<string, Record<string, string>> = {};
+
+
   const productId = rcPackage.rcBillingProduct.identifier ?? null;
   const defaultPurchaseOption =
     rcPackage.rcBillingProduct.defaultPurchaseOption;
@@ -74,6 +77,9 @@
     "polling-purchase-status",
     "loading",
   ];
+
+  // Setting the context for the Localized components
+  setContext(translatorContextKey, new Translator(customTranslations, selectedLocale, defaultLocale));
 
   onMount(async () => {
     productDetails = rcPackage.rcBillingProduct;

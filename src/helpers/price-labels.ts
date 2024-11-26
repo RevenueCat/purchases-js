@@ -27,43 +27,47 @@ export const formatPrice = (
 
 const getPeriodLengthLabel = (
   period: Period,
-  selectedLocale: string = "en",
+  translator?: Translator,
 ): string => {
   return (
-    Translator.translatePeriod(selectedLocale, period.number, period.unit) ||
-    `${period.number} ${period.unit}s`
+    (translator || Translator.getInstance()).translatePeriod(
+      period.number,
+      period.unit,
+    ) || `${period.number} ${period.unit}s`
   );
 };
 
 const getPeriodFrequencyLabel = (
   period: Period,
-  selectedLocale: string = "en",
+  translator?: Translator,
 ): string => {
   return (
-    Translator.translateFrequency(selectedLocale, period.number, period.unit) ||
-    `${period.number} ${period.unit}s`
+    (translator || Translator.getInstance()).translatePeriodFrequency(
+      period.number,
+      period.unit,
+    ) || `${period.number} ${period.unit}s`
   );
 };
 
 export const getTranslatedPeriodFrequency = (
   duration: string,
-  selectedLocale?: string,
+  translator?: Translator,
 ): string => {
   const period = parseISODuration(duration);
   if (!period) {
     return "unknown";
   }
 
-  return getPeriodFrequencyLabel(period, selectedLocale);
+  return getPeriodFrequencyLabel(period, translator);
 };
 
 export const getTranslatedPeriodLength = (
   isoPeriodString: string,
-  selectedLocale?: string,
+  translator?: Translator,
 ): string => {
   const period = parseISODuration(isoPeriodString);
   if (!period) {
     return isoPeriodString;
   }
-  return getPeriodLengthLabel(period, selectedLocale);
+  return getPeriodLengthLabel(period, translator);
 };

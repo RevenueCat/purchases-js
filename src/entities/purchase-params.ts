@@ -32,4 +32,15 @@ export interface PurchaseParams {
    * The locale to use for the purchase flow. If not specified, the device's locale will be used.
    */
   selectedLocale?: string;
+
+  /**
+   * Specifies if the locale should be picked automatically using the navigator.language property.
+   * Defaults to false.
+   */
+  useBrowserLocale?: boolean;
+
+  /**
+   * The default locale to use if the device's locale is not available.
+   */
+  defaultLocale?: string;
 }

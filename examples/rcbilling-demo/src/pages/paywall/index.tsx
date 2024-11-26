@@ -114,6 +114,11 @@ const PaywallPage: React.FC = () => {
       const { customerInfo, redemptionInfo } = await purchases.purchase({
         rcPackage: pkg,
         purchaseOption: option,
+        useBrowserLocale: true,
+        customTranslations: {
+          en: {},
+          it: {},
+        },
       });
 
       console.log(`CustomerInfo after purchase: ${customerInfo}`);

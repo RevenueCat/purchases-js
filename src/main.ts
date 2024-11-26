@@ -276,6 +276,8 @@ export class Purchases {
       throw new Error("You cannot use paywalls yet, they are coming soon!");
     }
 
+    const selectedLocale = paywallParams.selectedLocale || navigator.language;
+
     const startPurchaseFlow = (
       selectedPackageId: string,
     ): Promise<PurchaseResult> => {
@@ -291,6 +293,9 @@ export class Purchases {
         rcPackage: pkg,
         htmlTarget: paywallParams.purchaseHtmlTarget,
         customerEmail: paywallParams.customerEmail,
+        selectedLocale: selectedLocale,
+        useBrowserLocale: false,
+        defaultLocale: offering.paywall_components?.default_locale || "en",
       });
     };
 
@@ -317,8 +322,6 @@ export class Purchases {
 
       // DO NOTHING, RC's customer center is not supported in web
     };
-
-    const selectedLocale = paywallParams.selectedLocale || navigator.language;
 
     return new Promise((resolve, reject) => {
       mount(Paywall, {
@@ -474,7 +477,16 @@ export class Purchases {
    */
   @requiresLoadedResources
   public purchase(params: PurchaseParams): Promise<PurchaseResult> {
-    const { rcPackage, purchaseOption, htmlTarget, customerEmail } = params;
+    const {
+      rcPackage,
+      purchaseOption,
+      htmlTarget,
+      customerEmail,
+      selectedLocale = "en",
+      useBrowserLocale = false,
+      defaultLocale = "en",
+      customTranslations = {},
+    } = params;
     let resolvedHTMLTarget =
       htmlTarget ?? document.getElementById("rcb-ui-root");
 
@@ -500,8 +512,9 @@ export class Purchases {
       `Presenting purchase form for package ${rcPackage.identifier}`,
     );
 
-    const selectedLocale = params.selectedLocale || navigator.language;
-    const customTranslations = params.customTranslations || {};
+    const localeToBeUsed =
+      selectedLocale || (useBrowserLocale ? navigator.language : defaultLocale);
+
     return new Promise((resolve, reject) => {
       mount(RCPurchasesUI, {
         target: certainHTMLTarget,
@@ -533,8 +546,9 @@ export class Purchases {
           brandingInfo: this._brandingInfo,
           purchaseOperationHelper: this.purchaseOperationHelper,
           asModal,
-          selectedLocale,
-          customTranslations
+          selectedLocale: localeToBeUsed,
+          defaultLocale,
+          customTranslations,
         },
       });
     });

@@ -10,11 +10,14 @@
     type SubscriptionOption,
   } from "../../entities/offerings";
   import { type BrandingAppearance } from "../../networking/responses/branding-response";
+  import { getContext } from "svelte";
+  import { translatorContextKey } from "../localization/constants";
+  import { Translator } from "../localization/translator";
 
   export let productDetails: Product;
   export let purchaseOption: PurchaseOption;
   export let brandingAppearance: BrandingAppearance | undefined = undefined;
-  export let selectedLocale: string;
+
   const isSubscription = productDetails.productType === ProductType.Subscription;
   const subscriptionOption: SubscriptionOption | null | undefined =
     purchaseOption as SubscriptionOption;
@@ -24,6 +27,8 @@
 
   const subscriptionBasePrice = subscriptionOption?.base?.price;
   const nonSubscriptionBasePrice = nonSubscriptionOption?.basePrice;
+
+  const translator: Translator = getContext(translatorContextKey) || Translator.fallback();
 </script>
 
 <ModalSection>
@@ -37,9 +42,8 @@
                   <Localized
                     labelId="state_present_offer.free_trial_duration"
                     variables={{
-                      trialDuration: getTranslatedPeriodLength(subscriptionTrial.periodDuration,selectedLocale),
+                      trialDuration: getTranslatedPeriodLength(subscriptionTrial.periodDuration, translator),
                     }}
-                    selectedLocale={selectedLocale}
                   />
                 {/if}
               {#if !subscriptionTrial?.periodDuration && subscriptionBasePrice }
@@ -55,7 +59,6 @@
                       formattedPrice: subscriptionTrial && subscriptionBasePrice &&
                       subscriptionBasePrice.formattedPrice,
                     }}
-                    selectedLocale={selectedLocale}
                   />
                 </span>
       {/if}
@@ -70,17 +73,16 @@
             <Localized
               labelId="state_present_offer.renewal_frequency"
               variables={{
-                      frequency: getTranslatedPeriodFrequency(productDetails.normalPeriodDuration, selectedLocale)
+                      frequency: getTranslatedPeriodFrequency(productDetails.normalPeriodDuration, translator)
                }}
-              selectedLocale={selectedLocale}
             />
           </li>
         {/if}
         <li>
-          <Localized labelId="state_present_offer.continues_until_cancelled" selectedLocale={selectedLocale} />
+          <Localized labelId="state_present_offer.continues_until_cancelled" />
         </li>
         <li>
-          <Localized labelId="state_present_offer.cancel_anytime" selectedLocale={selectedLocale} />
+          <Localized labelId="state_present_offer.cancel_anytime" />
         </li>
       </ul>
     {/if}
@@ -95,7 +97,6 @@
         <span class="rcb-product-description">
           <Localized
             labelId={`state_present_offer.product_description.${productDetails.identifier}`}
-            selectedLocale={selectedLocale}
           >
             <!-- Fall back to the default description if the product-specific description is not available -->
             {productDetails.description}

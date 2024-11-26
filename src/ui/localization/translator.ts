@@ -15,12 +15,23 @@ export class Translator {
     return Translator.instance;
   }
 
-  private constructor() {
+  public static fallback() {
+    return new Translator();
+  }
+
+  public constructor(
+    customTranslations?: Record<string, Record<string, string>>,
+    private readonly selectedLocale: string = "en",
+    private readonly defaultLocale: string = "en",
+  ) {
     this.locales = {
       en: new LocaleTranslations(en),
       es: new LocaleTranslations(es),
       it: new LocaleTranslations(it),
     };
+    if (customTranslations) {
+      this.override(customTranslations);
+    }
   }
 
   public override(customTranslations: Record<string, Record<string, string>>) {
@@ -34,43 +45,46 @@ export class Translator {
 
   private getLocaleInstance(locale: string): LocaleTranslations | undefined {
     const potentialLocaleCode = locale.split("_")[0].split("-")[0];
-    return (
-      Translator.getInstance().locales[locale] ||
-      Translator.getInstance().locales[potentialLocaleCode]
-    );
+    return this.locales[locale] || this.locales[potentialLocaleCode];
   }
 
-  public static translate(
-    locale: string,
+  public translate(
     labelId: string,
     variables?: Record<string, string>,
   ): string | undefined {
-    const localeInstance = Translator.getInstance().getLocaleInstance(locale);
-    if (!localeInstance) return undefined;
+    const localeInstance = this.getLocaleInstance(this.selectedLocale);
+    const fallbackInstance = this.getLocaleInstance(this.defaultLocale);
 
-    return localeInstance.translate(labelId, variables);
+    return (
+      localeInstance?.translate(labelId, variables) ||
+      fallbackInstance?.translate(labelId, variables)
+    );
   }
 
-  public static translatePeriod(
-    locale: string,
+  public translatePeriod(
     amount: number,
     period: PeriodUnit,
   ): string | undefined {
-    const localeInstance = Translator.getInstance().getLocaleInstance(locale);
-    if (!localeInstance) return undefined;
+    const localeInstance = this.getLocaleInstance(this.selectedLocale);
+    const fallbackInstance = this.getLocaleInstance(this.defaultLocale);
 
-    return localeInstance.translatePeriod(amount, period);
+    return (
+      localeInstance?.translatePeriod(amount, period) ||
+      fallbackInstance?.translatePeriod(amount, period)
+    );
   }
 
-  public static translateFrequency(
-    locale: string,
+  public translatePeriodFrequency(
     amount: number,
     period: PeriodUnit,
   ): string | undefined {
-    const localeInstance = Translator.getInstance().getLocaleInstance(locale);
-    if (!localeInstance) return undefined;
+    const localeInstance = this.getLocaleInstance(this.selectedLocale);
+    const fallbackInstance = this.getLocaleInstance(this.defaultLocale);
 
-    return localeInstance.translateFrequency(amount, period);
+    return (
+      localeInstance?.translatePeriodFrequency(amount, period) ||
+      fallbackInstance?.translatePeriodFrequency(amount, period)
+    );
   }
 }
 
@@ -100,7 +114,7 @@ export class LocaleTranslations {
     return this.translate(key, { amount: amount.toString() });
   }
 
-  public translateFrequency(
+  public translatePeriodFrequency(
     amount: number,
     period: PeriodUnit,
   ): string | undefined {

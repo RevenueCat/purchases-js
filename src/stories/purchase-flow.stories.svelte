@@ -15,6 +15,8 @@
   import ModalHeader from "../ui/modal-header.svelte";
   import BrandingInfoUI from "../ui/branding-info-ui.svelte";
 
+  import WithContext from "./utils/with-context.svelte";
+
   import {
     brandingInfo,
     colorfulBrandingAppearance,
@@ -23,6 +25,8 @@
     purchaseResponse,
     subscriptionOption,
   } from "./fixtures";
+  import { Translator } from "../ui/localization/translator";
+  import { translatorContextKey } from "../ui/localization/constants";
 
 
   let defaultArgs = {
@@ -34,7 +38,26 @@
     lastError: purchaseFlowError,
     onContinue: () => {
     },
+    context: {},
   };
+
+  let customLabelsTranslator = new Translator({
+    "en": { "state_present_offer.renewal_frequency": "CUSTOM LABEL {{frequency}}" },
+  }, "en");
+
+  let italianTranslator = new Translator({}, "it", "en");
+  let it_ITTranslator = new Translator({}, "it_IT", "en");
+  let itDashITTranslator = new Translator({}, "it-IT", "en");
+  let italianCustomLabelsTranslator = new Translator({
+    "it": { "state_present_offer.renewal_frequency": "CUSTOM LABEL {{frequency}}" },
+  }, "it", "en");
+
+  let spanishTranslator = new Translator({}, "es", "en");
+  let es_ESTranslator = new Translator({}, "es_ES", "en");
+  let esDashESTranslator = new Translator({}, "es-ES", "en");
+  let spanishCustomLabelsTranslator = new Translator({
+    "es": { "state_present_offer.renewal_frequency": "CUSTOM LABEL {{frequency}}" },
+  }, "es", "en");
 </script>
 
 
@@ -42,93 +65,95 @@
 
 
 <Template let:args>
-  <div style="background-color: rgba(40, 40, 40, 0.75); width: 100vw; min-height: 100vh; padding-top:100px">
-    <Container>
-      <Layout>
-        <Aside brandingAppearance={args.brandingInfo.appearance}>
-          <ModalHeader slot="header">
-            <BrandingInfoUI {...args} />
-            <IconCart />
-          </ModalHeader>
-          <StatePresentOffer {...args} />
-        </Aside>
-        <Main brandingAppearance={args.brandingInfo.appearance}>
-          <StateNeedsAuthInfo {...args} />
-        </Main>
-      </Layout>
-    </Container>
+  <WithContext context={args.context}>
+    <div style="background-color: rgba(40, 40, 40, 0.75); width: 100vw; min-height: 100vh; padding-top:100px">
+      <Container>
+        <Layout>
+          <Aside brandingAppearance={args.brandingInfo.appearance}>
+            <ModalHeader slot="header">
+              <BrandingInfoUI {...args} />
+              <IconCart />
+            </ModalHeader>
+            <StatePresentOffer {...args} />
+          </Aside>
+          <Main brandingAppearance={args.brandingInfo.appearance}>
+            <StateNeedsAuthInfo {...args} />
+          </Main>
+        </Layout>
+      </Container>
 
-    <div style="height: 100px" />
+      <div style="height: 100px" />
 
-    <Container>
-      <Layout>
-        <Aside brandingAppearance={args.brandingInfo.appearance}>
-          <ModalHeader slot="header">
-            <BrandingInfoUI {...args} />
-            <IconCart />
-          </ModalHeader>
-          <StatePresentOffer {...args} />
-        </Aside>
-        <Main brandingAppearance={args.brandingInfo.appearance}>
-          <StateNeedsPaymentInfo {...args} />
-        </Main>
-      </Layout>
-    </Container>
+      <Container>
+        <Layout>
+          <Aside brandingAppearance={args.brandingInfo.appearance}>
+            <ModalHeader slot="header">
+              <BrandingInfoUI {...args} />
+              <IconCart />
+            </ModalHeader>
+            <StatePresentOffer {...args} />
+          </Aside>
+          <Main brandingAppearance={args.brandingInfo.appearance}>
+            <StateNeedsPaymentInfo {...args} />
+          </Main>
+        </Layout>
+      </Container>
 
-    <div style="height: 100px" />
+      <div style="height: 100px" />
 
-    <Container>
-      <Layout>
-        <Aside brandingAppearance={args.brandingInfo.appearance}>
-          <ModalHeader slot="header">
-            <BrandingInfoUI {...args} />
-            <IconCart />
-          </ModalHeader>
-          <StatePresentOffer {...args} />
-        </Aside>
-        <Main brandingAppearance={args.brandingInfo.appearance}>
-          <StateLoading {...args} />
-        </Main>
-      </Layout>
-    </Container>
+      <Container>
+        <Layout>
+          <Aside brandingAppearance={args.brandingInfo.appearance}>
+            <ModalHeader slot="header">
+              <BrandingInfoUI {...args} />
+              <IconCart />
+            </ModalHeader>
+            <StatePresentOffer {...args} />
+          </Aside>
+          <Main brandingAppearance={args.brandingInfo.appearance}>
+            <StateLoading {...args} />
+          </Main>
+        </Layout>
+      </Container>
 
-    <div style="height: 100px" />
+      <div style="height: 100px" />
 
-    <Container>
-      <Layout>
-        <Aside brandingAppearance={args.brandingInfo.appearance}>
-          <ModalHeader slot="header">
-            <BrandingInfoUI {...args} />
-            <IconCart />
-          </ModalHeader>
-          <StatePresentOffer {...args} />
-        </Aside>
-        <Main brandingAppearance={args.brandingInfo.appearance}>
-          <StateSuccess {...args} />
-        </Main>
-      </Layout>
-    </Container>
+      <Container>
+        <Layout>
+          <Aside brandingAppearance={args.brandingInfo.appearance}>
+            <ModalHeader slot="header">
+              <BrandingInfoUI {...args} />
+              <IconCart />
+            </ModalHeader>
+            <StatePresentOffer {...args} />
+          </Aside>
+          <Main brandingAppearance={args.brandingInfo.appearance}>
+            <StateSuccess {...args} />
+          </Main>
+        </Layout>
+      </Container>
 
-    <div style="height: 100px" />
+      <div style="height: 100px" />
 
-    <Container>
-      <Layout>
-        <Aside brandingAppearance={args.brandingInfo.appearance}>
-          <ModalHeader slot="header">
-            <BrandingInfoUI {...args} />
-            <IconCart />
-          </ModalHeader>
-          <StatePresentOffer {...args} />
-        </Aside>
-        <Main brandingAppearance={args.brandingInfo.appearance}>
-          <StateError {...args} />
-        </Main>
-      </Layout>
-    </Container>
+      <Container>
+        <Layout>
+          <Aside brandingAppearance={args.brandingInfo.appearance}>
+            <ModalHeader slot="header">
+              <BrandingInfoUI {...args} />
+              <IconCart />
+            </ModalHeader>
+            <StatePresentOffer {...args} />
+          </Aside>
+          <Main brandingAppearance={args.brandingInfo.appearance}>
+            <StateError {...args} />
+          </Main>
+        </Layout>
+      </Container>
 
-    <div style="height: 100px" />
+      <div style="height: 100px" />
 
-  </div>
+    </div>
+  </WithContext>
 </Template>
 
 
@@ -160,10 +185,26 @@
 <Story name='ColorfulRectangle'
        args={{ ...defaultArgs, brandingInfo:{...brandingInfo, appearance:colorfulBrandingAppearance} }} />
 
-<Story name='Italian' args={{...defaultArgs, selectedLocale:'it', brandingInfo:brandingInfo}} />
-<Story name='it_IT' args={{...defaultArgs, selectedLocale:'it_IT', brandingInfo:brandingInfo}} />
-<Story name='itDashIT' args={{...defaultArgs, selectedLocale:'it-IT', brandingInfo:brandingInfo}} />
+<Story name='Italian'
+       args={{...defaultArgs, context:{[translatorContextKey]:italianTranslator}, brandingInfo:brandingInfo}} />
+<Story name='it_IT'
+       args={{...defaultArgs, context:{[translatorContextKey]:it_ITTranslator}, brandingInfo:brandingInfo}} />
+<Story name='itDashIT'
+       args={{...defaultArgs,context:{[translatorContextKey]:itDashITTranslator}, brandingInfo:brandingInfo}} />
 
-<Story name='Spanish' args={{...defaultArgs, selectedLocale:'es', brandingInfo:brandingInfo}} />
-<Story name='es_ES' args={{...defaultArgs, selectedLocale:'es_ES', brandingInfo:brandingInfo}} />
-<Story name='esDashES' args={{...defaultArgs, selectedLocale:'es_ES', brandingInfo:brandingInfo}} />
+<Story name='Spanish'
+       args={{...defaultArgs, context:{[translatorContextKey]:spanishTranslator}, brandingInfo:brandingInfo}} />
+<Story name='es_ES'
+       args={{...defaultArgs, context:{[translatorContextKey]:es_ESTranslator}, brandingInfo:brandingInfo}} />
+<Story name='esDashES'
+       args={{...defaultArgs, context:{[translatorContextKey]:esDashESTranslator}, brandingInfo:brandingInfo}} />
+
+
+<Story name='CustomLabels'
+       args={{...defaultArgs, context:{[translatorContextKey]:customLabelsTranslator}, brandingInfo:brandingInfo}} />
+
+<Story name='CustomLabelsIT'
+       args={{...defaultArgs, context:{[translatorContextKey]:italianCustomLabelsTranslator}, brandingInfo:brandingInfo}} />
+
+<Story name='CustomLabelsES'
+       args={{...defaultArgs, context:{[translatorContextKey]:spanishCustomLabelsTranslator}, brandingInfo:brandingInfo}} />

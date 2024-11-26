@@ -16,11 +16,30 @@
   import IconCart from "../ui/icons/icon-cart.svelte";
   import ModalHeader from "../ui/modal-header.svelte";
   import BrandingInfoUI from "../ui/branding-info-ui.svelte";
+  import WithContext from "./utils/with-context.svelte";
+  import { Translator } from "../ui/localization/translator";
+  import { translatorContextKey } from "../ui/localization/constants";
 
   let defaultArgs = {
     productDetails: product, purchaseOption: subscriptionOption, brandingInfo: brandingInfo,
     sandbox: false,
+    context: {},
   };
+
+  let customLabelsTranslator = new Translator({
+    "en": { "state_present_offer.renewal_frequency": "CUSTOM LABEL" },
+  }, "en");
+
+  let italianTranslator = new Translator({}, "it", "en");
+  let italianCustomLabelsTranslator = new Translator({
+    "it": { "state_present_offer.renewal_frequency": "CUSTOM LABEL" },
+  }, "it", "en");
+
+  let spanishTranslator = new Translator({}, "es", "en");
+  let spanishCustomLabelsTranslator = new Translator({
+    "es": { "state_present_offer.renewal_frequency": "CUSTOM LABEL" },
+  }, "es", "en");
+
 </script>
 
 
@@ -28,23 +47,25 @@
 
 
 <Template let:args>
-  <Container>
-    <ModalBackdrop>
-      <Layout>
-        <Aside brandingAppearance={args.brandingAppearance}>
-          <ModalHeader slot="header">
-            <BrandingInfoUI {...args} />
-            {#if args.sandbox}
-              <SandboxBanner />
-            {:else}
-              <IconCart />
-            {/if}
-          </ModalHeader>
-          <StatePresentOffer {...args} />
-        </Aside>
-      </Layout>
-    </ModalBackdrop>
-  </Container>
+  <WithContext context={args.context}>
+    <Container>
+      <ModalBackdrop>
+        <Layout>
+          <Aside brandingAppearance={args.brandingAppearance}>
+            <ModalHeader slot="header">
+              <BrandingInfoUI {...args} />
+              {#if args.sandbox}
+                <SandboxBanner />
+              {:else}
+                <IconCart />
+              {/if}
+            </ModalHeader>
+            <StatePresentOffer {...args} />
+          </Aside>
+        </Layout>
+      </ModalBackdrop>
+    </Container>
+  </WithContext>
 </Template>
 
 
@@ -71,20 +92,53 @@
        args={{ ...defaultArgs,  brandingAppearance:{show_product_description:true}  }} />
 
 <Story name='WithProductDescriptionInverted'
-       args={{ ...defaultArgs,  brandingAppearance:{color_product_info_bg: "#ffffff",show_product_description:true}  }} />
+       args={{ ...defaultArgs,  brandingAppearance:{color_product_info_bg: "#ffffff",show_product_description:true}  }}
+/>
 
 <Story name='WithProductDescriptionTrials'
-       args={{ ...defaultArgs, purchaseOption:subscriptionOptionWithTrial, brandingAppearance:{show_product_description:true}  }} />
-
-<Story name='WithProductDescriptionTrialsItalian'
-       args={{ ...defaultArgs, purchaseOption:subscriptionOptionWithTrial, selectedLocale:'it', brandingAppearance:{show_product_description:true}  }} />
-
-<Story name='WithProductDescriptionTrialsSpanish'
-       args={{ ...defaultArgs, purchaseOption:subscriptionOptionWithTrial,  selectedLocale:'es', brandingAppearance:{show_product_description:true}  }} />
+       args={{ ...defaultArgs, purchaseOption:subscriptionOptionWithTrial }}
+/>
 
 <Story name='WithProductDescriptionNullDescription'
-       args={{ ...defaultArgs, productDetails:{...product, description:null},  brandingAppearance:{color_product_info_bg: "#ffffff",show_product_description:true}  }} />
+       args={{ ...defaultArgs, productDetails:{...product, description:null},  brandingAppearance:{show_product_description:true}  }}
+/>
+
+<Story name='Italian'
+       args={{ ...defaultArgs,
+       context:{[translatorContextKey]: italianTranslator},
+       purchaseOption:subscriptionOptionWithTrial }}
+/>
+
+<Story name='Spanish'
+       args={{
+         ...defaultArgs,
+         context:{[translatorContextKey]: spanishTranslator},
+      }}
+/>
+
+
+<Story name='CustomLabels'
+       args={{ ...defaultArgs,
+        context:{[translatorContextKey]: customLabelsTranslator},
+       productDetails:{...product, description:null},   }}
+/>
+
+
+<Story name='CustomLabelsIT'
+       args={{ ...defaultArgs,
+
+       context:{[translatorContextKey]: italianCustomLabelsTranslator},
+       productDetails:{...product, description:null},    }}
+/>
+
+<Story name='CustomLabelsES'
+       args={{ ...defaultArgs,
+
+       context:{[translatorContextKey]: spanishCustomLabelsTranslator},
+       productDetails:{...product, description:null},  }}
+/>
 
 <Story name='ColorfulRectangle'
-       args={{ ...defaultArgs,  brandingAppearance:colorfulBrandingAppearance }} />
+       args={{ ...defaultArgs,  brandingAppearance:colorfulBrandingAppearance }}
+/>
 
