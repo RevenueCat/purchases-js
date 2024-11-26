@@ -1,7 +1,7 @@
 import en from "./locale/en.json";
 import es from "./locale/es.json";
 import it from "./locale/it.json";
-import { PeriodUnit } from "../../helpers/duration-helper";
+import type { PeriodUnit } from "../../helpers/duration-helper";
 
 export class Translator {
   private readonly locales: Record<string, LocaleTranslations> = {};
