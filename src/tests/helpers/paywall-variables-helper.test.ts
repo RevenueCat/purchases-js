@@ -1,9 +1,7 @@
 import { describe, expect, test } from "vitest";
-import {
-  parseOfferingIntoVariables,
-  type VariableDictionary,
-} from "../../helpers/paywall-variables-helpers";
+import { parseOfferingIntoVariables } from "../../helpers/paywall-variables-helpers";
 import type { Offering, SubscriptionOption } from "../../entities/offerings";
+import { type VariableDictionary } from "@revenuecat/purchases-ui-js";
 
 const offering = {
   identifier: "MultiCurrencyTest",

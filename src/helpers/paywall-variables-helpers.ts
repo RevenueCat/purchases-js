@@ -8,6 +8,7 @@ import {
   type SubscriptionOption,
 } from "../entities/offerings";
 import type { Period } from "./duration-helper";
+import { type VariableDictionary } from "@revenuecat/purchases-ui-js";
 
 function getProductPerType(
   pkg: Package,
@@ -20,28 +21,6 @@ function getProductPerType(
       return pkg.rcBillingProduct.defaultNonSubscriptionOption;
   }
 }
-
-export type VariableDictionary = {
-  product_name: string | number | undefined;
-  price: string | number | undefined;
-  price_per_period: string | number | undefined;
-  price_per_period_full: string | number | undefined;
-  total_price_and_per_month: string | number | undefined;
-  total_price_and_per_month_full: string | number | undefined;
-  sub_price_per_month: string | number | undefined;
-  sub_price_per_week: string | number | undefined;
-  sub_duration: string | number | undefined;
-  sub_duration_in_months: string | number | undefined;
-  sub_period: string | number | undefined;
-  sub_period_length: string | number | undefined;
-  sub_period_abbreviated: string | number | undefined;
-  sub_offer_duration: string | number | undefined;
-  sub_offer_duration_2: undefined;
-  sub_offer_price: string | number | undefined;
-  sub_offer_price_2: undefined;
-  sub_relative_discount: string | number | undefined;
-  [key: string]: string | number | undefined;
-};
 
 enum AbbreviatedPeriod {
   month = "mo",
