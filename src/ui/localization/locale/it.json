@@ -15,8 +15,11 @@
   "periods.monthFrequencyPlural": "ogni {{amount}} mesi",
   "periods.yearFrequencyPlural": "ogni {{amount}} anni",
   "periods.dayFrequencyPlural": "ogni {{amount}} giorni",
+  "state_present_offer.product_name": "{{productName}}",
+  "state_present_offer.product_description": "{{productDescription}}",
+  "state_present_offer.product_price": "{{productPrice}}",
   "state_present_offer.free_trial_duration": "Prova gratis per {{trialDuration}}",
-  "state_present_offer.price_after_free_trial": "{{formattedPrice}} dopo la fine della prova",
+  "state_present_offer.price_after_free_trial": "{{productPrice}} dopo la fine della prova",
   "state_present_offer.renewal_frequency": "Si rinnova {{frequency}}",
   "state_present_offer.continues_until_cancelled": "Continua fino a quando non viene annullato",
   "state_present_offer.cancel_anytime": "Annulla in qualsiasi momento"

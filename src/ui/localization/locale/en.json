@@ -15,8 +15,11 @@
   "periods.monthFrequencyPlural": "every {{amount}} months",
   "periods.yearFrequencyPlural": "every {{amount}} years",
   "periods.dayFrequencyPlural": "every {{amount}} days",
+  "state_present_offer.product_name": "{{productName}}",
+  "state_present_offer.product_description": "{{productDescription}}",
+  "state_present_offer.product_price": "{{productPrice}}",
   "state_present_offer.free_trial_duration": "{{trialDuration}} free trial",
-  "state_present_offer.price_after_free_trial": "{{formattedPrice}} after end of trial",
+  "state_present_offer.price_after_free_trial": "{{productPrice}} after end of trial",
   "state_present_offer.renewal_frequency": "Renews {{frequency}}",
   "state_present_offer.continues_until_cancelled": "Continues until cancelled",
   "state_present_offer.cancel_anytime": "Cancel anytime"

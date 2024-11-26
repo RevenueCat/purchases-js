@@ -47,7 +47,12 @@
                   />
                 {/if}
               {#if !subscriptionTrial?.periodDuration && subscriptionBasePrice }
-                  <Localized>{subscriptionBasePrice.formattedPrice}</Localized>
+                  <Localized
+                    labelId="state_present_offer.price_after_free_trial"
+                    variables={{
+                      productPrice: subscriptionBasePrice.formattedPrice,
+                    }}
+                  />
               {/if}
 
             </span>
@@ -56,7 +61,7 @@
                   <Localized
                     labelId="state_present_offer.price_after_free_trial"
                     variables={{
-                      formattedPrice: subscriptionTrial && subscriptionBasePrice &&
+                      productPrice: subscriptionTrial && subscriptionBasePrice &&
                       subscriptionBasePrice.formattedPrice,
                     }}
                   />
@@ -64,7 +69,12 @@
       {/if}
       {#if brandingAppearance?.show_product_description && productDetails.description}
         <span class="rcb-product-description">
-          <Localized>{productDetails.description}</Localized>
+          <Localized
+            labelID="state_present_offer.product_description"
+            variables={{
+              productDescription:productDetails.description
+            }}
+          />
         </span>
       {/if}
       <ul class="rcb-product-details">
@@ -88,19 +98,17 @@
     {/if}
     {#if !isSubscription}
       <span class="rcb-product-price">
-        <Localized>
-          {nonSubscriptionBasePrice?.formattedPrice}
-        </Localized>
+        <Localized
+          labelId="state_present_offer.product_price"
+          variables={{productPrice:nonSubscriptionBasePrice?.formattedPrice}} />
       </span>
 
       {#if brandingAppearance?.show_product_description}
         <span class="rcb-product-description">
           <Localized
-            labelId={`state_present_offer.product_description.${productDetails.identifier}`}
-          >
-            <!-- Fall back to the default description if the product-specific description is not available -->
-            {productDetails.description}
-          </Localized>
+            labelId={`state_present_offer.product_description`}
+            variables={{productDescription:productDetails.description}}
+          />
         </span>
       {/if}
     {/if}
