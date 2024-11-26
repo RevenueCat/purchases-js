@@ -3,20 +3,31 @@ import {
   formatPrice,
   getTranslatedPeriodFrequency,
 } from "../../helpers/price-labels";
+import { Translator } from "../../ui/localization/translator";
 
 describe("getRenewsLabel", () => {
+  const translator = new Translator();
+
   test("should return correct text for single period durations", () => {
-    expect(getTranslatedPeriodFrequency("P1Y", "en-US")).toEqual("yearly");
-    expect(getTranslatedPeriodFrequency("P1M", "en-US")).toEqual("monthly");
-    expect(getTranslatedPeriodFrequency("P1W", "en-US")).toEqual("weekly");
-    expect(getTranslatedPeriodFrequency("P1D", "en-US")).toEqual("daily");
+    expect(getTranslatedPeriodFrequency("P1Y", translator)).toEqual("yearly");
+    expect(getTranslatedPeriodFrequency("P1M", translator)).toEqual("monthly");
+    expect(getTranslatedPeriodFrequency("P1W", translator)).toEqual("weekly");
+    expect(getTranslatedPeriodFrequency("P1D", translator)).toEqual("daily");
   });
 
   test("should return correct text for multiple period durations", () => {
-    expect(getTranslatedPeriodFrequency("P2Y", "en")).toEqual("every 2 years");
-    expect(getTranslatedPeriodFrequency("P3M", "en")).toEqual("every 3 months");
-    expect(getTranslatedPeriodFrequency("P2W", "en")).toEqual("every 2 weeks");
-    expect(getTranslatedPeriodFrequency("P14D", "en")).toEqual("every 14 days");
+    expect(getTranslatedPeriodFrequency("P2Y", translator)).toEqual(
+      "every 2 years",
+    );
+    expect(getTranslatedPeriodFrequency("P3M", translator)).toEqual(
+      "every 3 months",
+    );
+    expect(getTranslatedPeriodFrequency("P2W", translator)).toEqual(
+      "every 2 weeks",
+    );
+    expect(getTranslatedPeriodFrequency("P14D", translator)).toEqual(
+      "every 14 days",
+    );
   });
 });
 

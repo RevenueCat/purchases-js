@@ -1,4 +1,4 @@
-import { parseISODuration, type Period } from "./duration-helper";
+import { parseISODuration } from "./duration-helper";
 import { Translator } from "../ui/localization/translator";
 
 export const priceLabels: Record<string, string> = {
@@ -25,49 +25,31 @@ export const formatPrice = (
   return formatter.format(price);
 };
 
-const getPeriodLengthLabel = (
-  period: Period,
-  translator?: Translator,
-): string => {
-  return (
-    (translator || Translator.getInstance()).translatePeriod(
-      period.number,
-      period.unit,
-    ) || `${period.number} ${period.unit}s`
-  );
-};
-
-const getPeriodFrequencyLabel = (
-  period: Period,
-  translator?: Translator,
-): string => {
-  return (
-    (translator || Translator.getInstance()).translatePeriodFrequency(
-      period.number,
-      period.unit,
-    ) || `${period.number} ${period.unit}s`
-  );
-};
-
 export const getTranslatedPeriodFrequency = (
   duration: string,
-  translator?: Translator,
+  translator: Translator,
 ): string => {
   const period = parseISODuration(duration);
   if (!period) {
     return "unknown";
   }
 
-  return getPeriodFrequencyLabel(period, translator);
+  return (
+    translator.translatePeriodFrequency(period.number, period.unit) ||
+    `${period.number} ${period.unit}s`
+  );
 };
 
 export const getTranslatedPeriodLength = (
   isoPeriodString: string,
-  translator?: Translator,
+  translator: Translator,
 ): string => {
   const period = parseISODuration(isoPeriodString);
   if (!period) {
     return isoPeriodString;
   }
-  return getPeriodLengthLabel(period, translator);
+  return (
+    translator.translatePeriod(period.number, period.unit) ||
+    `${period.number} ${period.unit}s`
+  );
 };
