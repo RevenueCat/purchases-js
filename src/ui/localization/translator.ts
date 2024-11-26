@@ -6,15 +6,6 @@ import type { PeriodUnit } from "../../helpers/duration-helper";
 export class Translator {
   private readonly locales: Record<string, LocaleTranslations> = {};
 
-  private static instance: Translator;
-
-  public static getInstance(): Translator {
-    if (!Translator.instance) {
-      Translator.instance = new Translator();
-    }
-    return Translator.instance;
-  }
-
   public static fallback() {
     return new Translator();
   }

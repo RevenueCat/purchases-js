@@ -7,8 +7,11 @@
   import ProcessingAnimation from "../processing-animation.svelte";
   import { validateEmail } from "../../helpers/validators";
   import { PurchaseFlowError } from "../../helpers/purchase-operation-helper";
-  import { beforeUpdate } from "svelte";
+  import { beforeUpdate, getContext } from "svelte";
   import CloseButton from "../close-button.svelte";
+  import Localized from "../localization/localized.svelte";
+  import { translatorContextKey } from "../localization/constants";
+  import { Translator } from "../localization/translator";
 
   export let onContinue: any;
   export let onClose: () => void;
@@ -31,21 +34,31 @@
   beforeUpdate(async () => {
     error = lastError?.message ?? "";
   });
+
+  const translator = getContext(translatorContextKey) || Translator.fallback();
 </script>
 
 <div class="container">
   <ModalHeader>
-    <span>Billing email address</span>
+    <span>
+      <Localized
+        labelId="state_needs_auth_info.email_step_title"
+      />
+    </span>
     <CloseButton on:click={onClose} />
   </ModalHeader>
   <form on:submit|preventDefault={handleContinue}>
     <ModalSection>
       <div class="form-container">
-        <div class="form-label"><label for="email">Email</label></div>
+        <div class="form-label"><label for="email">
+          <Localized labelId="state_needs_auth_info.email_input_label" />
+        </label></div>
         <div class="form-input {inputClass}">
           <input
             name="email"
-            placeholder="john@appleseed.com"
+            placeholder={translator.translate(
+              "state_needs_auth_info.email_input_placeholder"
+            )}
             autocapitalize="off"
             bind:value={email}
           />
@@ -61,7 +74,7 @@
           {#if processing}
             <ProcessingAnimation />
           {:else}
-            Continue
+            <Localized labelId="state_needs_auth_info.button_continue" />
           {/if}
         </Button>
       </RowLayout>

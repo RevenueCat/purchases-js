@@ -22,5 +22,9 @@
   "state_present_offer.price_after_free_trial": "{{productPrice}} after end of trial",
   "state_present_offer.renewal_frequency": "Renews {{frequency}}",
   "state_present_offer.continues_until_cancelled": "Continues until cancelled",
-  "state_present_offer.cancel_anytime": "Cancel anytime"
+  "state_present_offer.cancel_anytime": "Cancel anytime",
+  "state_needs_auth_info.email_step_title": "Billing email address",
+  "state_needs_auth_info.email_input_label": "Email",
+  "state_needs_auth_info.email_input_placeholder": "john@appleseed.com",
+  "state_needs_auth_info.button_continue": "Continue"
 }
