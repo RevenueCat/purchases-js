@@ -81,7 +81,7 @@
 
   const theme = new Theme(brandingInfo?.appearance);
 
-  let shapeCustomisation = theme.shape;
+  let customShape = theme.shape;
   let customColors = theme.formColors;
 </script>
 
@@ -103,13 +103,15 @@
         bind:elements
         theme="stripe"
         variables={{
-          borderRadius: shapeCustomisation["input-border-radius"],
+          borderRadius: customShape["input-border-radius"],
           fontSizeBase: "16px",
           fontSizeSm: "16px",
           spacingGridRow: "16px",
           focusBoxShadow: "none",
           colorDanger: customColors["error"],
           colorTextPlaceholder: customColors["grey-text-light"],
+          colorText: customColors["grey-text-dark"],
+          colorTextSecondary: customColors["grey-text-light"],
         }}
         rules={{
           ".Input": {
@@ -135,12 +137,37 @@
           ".Tab": {
             boxShadow: "none",
             backgroundColor: "transparent",
+            color:customColors["grey-text-light"],
+            border: `2px solid ${customColors["grey-ui-dark"]}`,
+          },
+          ".Tab:hover, .Tab:focus, .Tab--selected, .Tab--selected:hover, .Tab--selected:focus": {
+            boxShadow: "none",
+            color: customColors["grey-text-dark"],
+          },
+          ".Tab:focus, .Tab--selected, .Tab--selected:hover, .Tab--selected:focus": {
+            border: `2px solid ${customColors["focus"]}`,
+          },
+          ".TabIcon": {
+            fill:customColors["grey-text-light"],
+          },
+          ".TabIcon--selected": {
+            fill:customColors["grey-text-dark"],
+          },
+          ".Block": {
+            boxShadow: "none",
+            backgroundColor: "transparent",
+            border: `2px solid ${customColors["grey-ui-dark"]}`,
           },
         }}
       >
         <ModalSection>
           <div class="rcb-stripe-elements-container">
-            <PaymentElement />
+            <PaymentElement options={{
+              business: brandingInfo?.seller_company_name ? { name: brandingInfo.seller_company_name } : undefined,
+              layout: {
+                type: "tabs",
+              },
+            }} />
           </div>
         </ModalSection>
         <ModalFooter>
