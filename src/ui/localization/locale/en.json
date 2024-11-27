@@ -29,5 +29,20 @@
   "state_needs_auth_info.button_continue": "Continue",
   "state_needs_payment_info.payment_step_title": "Secure checkout",
   "state_needs_payment_info.button_pay": "Pay",
-  "state_needs_payment_info.button_start_trial": "Start Trial"
+  "state_needs_payment_info.button_start_trial": "Start Trial",
+  "state_success.purchase_successful": "Purchase successful",
+  "state_success.subscription_now_active": "Your subscription is now active",
+  "state_success.button_close": "Close",
+  "state_error.if_error_persists": "If the error persists, please contact ",
+  "state_error.error_title_already_subscribed": "Already Subscribed",
+  "state_error.error_title_already_purchased": "Already Purchased",
+  "state_error.error_title_other_errors": "Something went wrong",
+  "state_error.error_message_already_subscribed": "You are already subscribed to this product.",
+  "state_error.error_message_already_purchased": "You have already purchased this product.",
+  "state_error.error_message_missing_email_error": "Email is required to complete the purchase.",
+  "state_error.error_message_network_error": "Network error. Please check your internet connection.",
+  "state_error.error_message_error_charging_payment": "Payment failed.",
+  "state_error.error_message_error_setting_up_purchase": "Purchase not started due to an error. Error code: {{errorCode}}",
+  "state_error.error_message_unknown_error": "An unknown error occurred. Error code: {{errorCode}}",
+  "state_error.button_try_again": "Try again"
 }

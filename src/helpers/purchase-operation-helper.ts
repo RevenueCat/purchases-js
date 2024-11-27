@@ -55,6 +55,12 @@ export class PurchaseFlowError extends Error {
     }
   }
 
+  getErrorCode(): number {
+    return (
+      this.extra?.backendErrorCode ?? this.purchasesErrorCode ?? this.errorCode
+    );
+  }
+
   getPublicErrorMessage(productDetails: Product | null): string {
     const errorCode =
       this.extra?.backendErrorCode ?? this.purchasesErrorCode ?? this.errorCode;

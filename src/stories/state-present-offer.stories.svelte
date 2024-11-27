@@ -84,6 +84,11 @@
   shapes:'rectangle'
 } }} />
 
+
+<Story name='ColorfulRectangle'
+       args={{ ...defaultArgs,  brandingAppearance:colorfulBrandingAppearance }}
+/>
+
 <Story name='Sandbox'
        args={{ ...defaultArgs,  sandbox: true, brandingAppearance:{} }} />
 
@@ -138,7 +143,5 @@
        productDetails:{...product, description:null},  }}
 />
 
-<Story name='ColorfulRectangle'
-       args={{ ...defaultArgs,  brandingAppearance:colorfulBrandingAppearance }}
-/>
+
 

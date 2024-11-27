@@ -187,15 +187,17 @@
 
 <Story name='Italian'
        args={{...defaultArgs, context:{[translatorContextKey]:italianTranslator}, brandingInfo:brandingInfo}} />
-<Story name='it_IT'
+<Story name='itUnderscoreIT'
        args={{...defaultArgs, context:{[translatorContextKey]:it_ITTranslator}, brandingInfo:brandingInfo}} />
 <Story name='itDashIT'
        args={{...defaultArgs,context:{[translatorContextKey]:itDashITTranslator}, brandingInfo:brandingInfo}} />
 
 <Story name='Spanish'
        args={{...defaultArgs, context:{[translatorContextKey]:spanishTranslator}, brandingInfo:brandingInfo}} />
-<Story name='es_ES'
+
+<Story name='esUnderscoreES'
        args={{...defaultArgs, context:{[translatorContextKey]:es_ESTranslator}, brandingInfo:brandingInfo}} />
+
 <Story name='esDashES'
        args={{...defaultArgs, context:{[translatorContextKey]:esDashESTranslator}, brandingInfo:brandingInfo}} />
 

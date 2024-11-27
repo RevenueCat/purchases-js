@@ -27,5 +27,22 @@
   "state_needs_auth_info.email_input_label": "Email",
   "state_needs_auth_info.email_input_placeholder": "john@appleseed.com",
   "state_needs_auth_info.button_continue": "Continuar",
-  "state_needs_payment_info.payment_step_title": "Pago seguro"
+  "state_needs_payment_info.payment_step_title": "Pago seguro",
+  "state_needs_payment_info.button_pay": "Pagar",
+  "state_needs_payment_info.button_start_trial": "Comenzar la prueba",
+  "state_success.purchase_successful": "Adquisición exitosa",
+  "state_success.subscription_now_active": "Tu suscripción está ahora activa",
+  "state_success.button_close": "Cerrar",
+  "state_error.if_error_persists": "Si el error persiste, por favor contacta a ",
+  "state_error.error_title_already_subscribed": "Ya suscrito",
+  "state_error.error_title_already_purchased": "Ya comprado",
+  "state_error.error_title_other_errors": "Algo salió mal",
+  "state_error.error_message_already_subscribed": "Ya estás suscrito a este producto.",
+  "state_error.error_message_already_purchased": "Ya has comprado este producto.",
+  "state_error.error_message_missing_email_error": "Se requiere un email para completar la compra.",
+  "state_error.error_message_network_error": "Error de red. Por favor, verifica tu conexión a internet.",
+  "state_error.error_message_error_charging_payment": "Pago fallido.",
+  "state_error.error_message_error_setting_up_purchase": "La compra no se inició debido a un error. Código de error: {{errorCode}}",
+  "state_error.error_message_unknown_error": "Ocurrió un error desconocido. Código de error: {{errorCode}}",
+  "state_error.button_try_again": "Intentar de nuevo"
 }

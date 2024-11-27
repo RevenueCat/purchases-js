@@ -3,6 +3,8 @@ import es from "./locale/es.json";
 import it from "./locale/it.json";
 import type { PeriodUnit } from "../../helpers/duration-helper";
 
+export type TranslationVariables = Record<string, string | number>;
+
 export class Translator {
   private readonly locales: Record<string, LocaleTranslations> = {};
 
@@ -62,7 +64,7 @@ export class Translator {
 
   public translate(
     labelId: string,
-    variables?: Record<string, string>,
+    variables?: TranslationVariables,
   ): string | undefined {
     const localeInstance = this.getLocaleInstance(this.selectedLocale);
     const fallbackInstance = this.getLocaleInstance(this.defaultLocale);
@@ -106,17 +108,24 @@ export class LocaleTranslations {
     public readonly localeKey: string,
   ) {}
 
+  private replaceVariables(
+    label: string,
+    variables: TranslationVariables,
+  ): string {
+    return Object.entries(variables).reduce(
+      (acc, [key, value]) => acc.replace(`{{${key}}}`, `${value}`),
+      label,
+    );
+  }
+
   public translate(
     labelId: string,
-    variables?: Record<string, string>,
+    variables?: TranslationVariables,
   ): string | undefined {
     const label = this.labels[labelId];
     if (!label) return undefined;
 
-    return Object.entries(variables || {}).reduce(
-      (acc, [key, value]) => acc.replace(`{{${key}}}`, value),
-      label,
-    );
+    return this.replaceVariables(label, variables || {});
   }
 
   public translatePeriod(

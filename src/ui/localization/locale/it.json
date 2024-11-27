@@ -27,5 +27,22 @@
   "state_needs_auth_info.email_input_label": "Email",
   "state_needs_auth_info.email_input_placeholder": "john@appleseed.com",
   "state_needs_auth_info.button_continue": "Continua",
-  "state_needs_payment_info.payment_step_title": "Pagamento sicuro"
+  "state_needs_payment_info.button_pay": "Paga",
+  "state_needs_payment_info.button_start_trial": "Inizia la prova",
+  "state_needs_payment_info.payment_step_title": "Pagamento sicuro",
+  "state_success.purchase_successful": "Acquisto riuscito",
+  "state_success.subscription_now_active": "La tua iscrizione è attiva da ora",
+  "state_success.button_close": "Chiudi",
+  "state_error.if_error_persists": "Se l'errore persiste, contatta ",
+  "state_error.error_title_already_subscribed": "Già iscritto",
+  "state_error.error_title_already_purchased": "Già acquistato",
+  "state_error.error_title_other_errors": "Qualcosa è andato storto",
+  "state_error.error_message_already_subscribed": "Sei già iscritto a questo prodotto.",
+  "state_error.error_message_already_purchased": "Hai già acquistato questo prodotto.",
+  "state_error.error_message_missing_email_error": "L'email è richiesta per completare l'acquisto.",
+  "state_error.error_message_network_error": "Errore di rete. Controlla la tua connessione a internet.",
+  "state_error.error_message_error_charging_payment": "Pagamento fallito.",
+  "state_error.error_message_error_setting_up_purchase": "L'acquisto non è stato avviato a causa di un errore. Codice errore: {{errorCode}}",
+  "state_error.error_message_unknown_error": "Si è verificato un errore sconosciuto. Codice errore: {{errorCode}}",
+  "state_error.button_try_again": "Riprova"
 }
