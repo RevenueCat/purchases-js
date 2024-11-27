@@ -81,7 +81,7 @@
 
   const theme = new Theme(brandingInfo?.appearance);
 
-  let shapeCustomisation = theme.shape;
+  let customShape = theme.shape;
   let customColors = theme.formColors;
 </script>
 
@@ -103,13 +103,15 @@
         bind:elements
         theme="stripe"
         variables={{
-          borderRadius: shapeCustomisation["input-border-radius"],
+          borderRadius: customShape["input-border-radius"],
           fontSizeBase: "16px",
           fontSizeSm: "16px",
           spacingGridRow: "16px",
           focusBoxShadow: "none",
           colorDanger: customColors["error"],
           colorTextPlaceholder: customColors["grey-text-light"],
+          colorText: customColors["grey-text-dark"],
+          colorTextSecondary: customColors["grey-text-light"],
         }}
         rules={{
           ".Input": {
