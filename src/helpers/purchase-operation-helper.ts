@@ -18,7 +18,10 @@ import {
   type PurchaseOption,
 } from "../entities/offerings";
 import { Logger } from "./logger";
-import { RedemptionInfo, toRedemptionInfo } from "../entities/redemption-info";
+import {
+  type RedemptionInfo,
+  toRedemptionInfo,
+} from "../entities/redemption-info";
 
 export enum PurchaseFlowErrorCode {
   ErrorSettingUpPurchase = 0,
@@ -172,6 +175,13 @@ export class PurchaseOperationHelper {
 
     return new Promise<{ redemptionInfo: RedemptionInfo | null }>(
       (resolve, reject) => {
+        const scheduleNextAttempt = (checkCount: number) => {
+          setTimeout(
+            () => checkForOperationStatus(checkCount + 1),
+            this.waitMSBetweenAttempts,
+          );
+        };
+
         const checkForOperationStatus = (checkCount = 1) => {
           if (checkCount > this.maxNumberAttempts) {
             this.clearPurchaseInProgress();
@@ -189,10 +199,7 @@ export class PurchaseOperationHelper {
               switch (operationResponse.operation.status) {
                 case CheckoutSessionStatus.Started:
                 case CheckoutSessionStatus.InProgress:
-                  setTimeout(
-                    () => checkForOperationStatus(checkCount + 1),
-                    this.waitMSBetweenAttempts,
-                  );
+                  scheduleNextAttempt(checkCount);
                   break;
                 case CheckoutSessionStatus.Succeeded:
                   this.clearPurchaseInProgress();
@@ -201,6 +208,15 @@ export class PurchaseOperationHelper {
                   });
                   return;
                 case CheckoutSessionStatus.Failed:
+                  const errorCode = operationResponse.operation.error?.code;
+                  if (
+                    errorCode ===
+                    CheckoutStatusErrorCodes.SetupIntentCompletionFailed
+                  ) {
+                    scheduleNextAttempt(checkCount);
+                    break;
+                  }
+
                   this.clearPurchaseInProgress();
                   this.handlePaymentError(
                     operationResponse.operation.error,

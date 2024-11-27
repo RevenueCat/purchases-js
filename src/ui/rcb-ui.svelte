@@ -253,7 +253,6 @@
             {paymentInfoCollectionMetadata}
             onContinue={handleContinue}
             onClose={handleClose}
-            onError={handleError}
             processing={state === "polling-purchase-status"}
             {productDetails}
             {purchaseOptionToUse}
