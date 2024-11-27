@@ -33,6 +33,7 @@
   let stripe: Stripe | null = null;
   let elements: StripeElements;
   let safeElements: StripeElements;
+  let isPaymentInfoComplete = false;
 
   $: {
     // @ts-ignore
@@ -162,17 +163,22 @@
       >
         <ModalSection>
           <div class="rcb-stripe-elements-container">
-            <PaymentElement options={{
-              business: brandingInfo?.seller_company_name ? { name: brandingInfo.seller_company_name } : undefined,
-              layout: {
+            <PaymentElement
+              options={{
+                business: brandingInfo?.seller_company_name ? { name: brandingInfo.seller_company_name } : undefined,
+                layout: {
                 type: "tabs",
-              },
-            }} />
+                },
+              }}
+              on:change={(event: any) => {
+                isPaymentInfoComplete = event.detail.complete;
+              }}
+            />
           </div>
         </ModalSection>
         <ModalFooter>
           <RowLayout>
-            <Button disabled={processing} testId="PayButton">
+            <Button disabled={processing || !isPaymentInfoComplete} testId="PayButton">
               {#if processing}
                 <ProcessingAnimation />
               {:else if productDetails.subscriptionOptions?.[purchaseOptionToUse.id]?.trial}
