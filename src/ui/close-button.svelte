@@ -18,10 +18,13 @@
     padding: 0px;
     height: 24px;
     border-radius: 50%;
-    color: var(--rc-color-gray-text-dark);
+    color: var(--rc-color-grey-text-light);
   }
 
   .close-button:focus {
     outline: 2px solid var(--rc-color-focus);
+  }
+  .close-button:hover {
+    color: var(--rc-color-grey-text-dark);
   }
 </style>
