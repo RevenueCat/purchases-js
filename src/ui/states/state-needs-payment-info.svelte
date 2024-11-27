@@ -137,6 +137,26 @@
           ".Tab": {
             boxShadow: "none",
             backgroundColor: "transparent",
+            color:customColors["grey-text-light"],
+            border: `2px solid ${customColors["grey-ui-dark"]}`,
+          },
+          ".Tab:hover, .Tab:focus, .Tab--selected, .Tab--selected:hover, .Tab--selected:focus": {
+            boxShadow: "none",
+            color: customColors["grey-text-dark"],
+          },
+          ".Tab:focus, .Tab--selected, .Tab--selected:hover, .Tab--selected:focus": {
+            border: `2px solid ${customColors["focus"]}`,
+          },
+          ".TabIcon": {
+            fill:customColors["grey-text-light"],
+          },
+          ".TabIcon--selected": {
+            fill:customColors["grey-text-dark"],
+          },
+          ".Block": {
+            boxShadow: "none",
+            backgroundColor: "transparent",
+            border: `2px solid ${customColors["grey-ui-dark"]}`,
           },
         }}
       >
@@ -144,6 +164,9 @@
           <div class="rcb-stripe-elements-container">
             <PaymentElement options={{
               business: brandingInfo?.seller_company_name ? { name: brandingInfo.seller_company_name } : undefined,
+              layout: {
+                type: "tabs",
+              },
             }} />
           </div>
         </ModalSection>
