@@ -67,8 +67,13 @@
     });
 
     if (result.error) {
-      // payment failed, notify user
       processing = false;
+
+      if (!result.error.setup_intent?.last_setup_error) {
+        return;
+      }
+
+      // payment failed, notify user
       onError(
         new PurchaseFlowError(
           PurchaseFlowErrorCode.StripeError,
