@@ -3,7 +3,17 @@ import es from "./locale/es.json";
 import it from "./locale/it.json";
 import type { PeriodUnit } from "../../helpers/duration-helper";
 
-export type TranslationVariables = Record<string, string | number>;
+export type TranslationVariables = Record<string, string | number | undefined>;
+
+export interface TranslatePeriodOptions {
+  noWhitespace?: boolean;
+  short?: boolean;
+}
+
+const defaultTranslatePeriodOptions: TranslatePeriodOptions = {
+  noWhitespace: false,
+  short: false,
+};
 
 export class Translator {
   private readonly locales: Record<string, LocaleTranslations> = {};
@@ -37,6 +47,16 @@ export class Translator {
         this.simplifyLocaleString(locale),
       );
     });
+  }
+
+  public formatPrice(priceInMicros: number, currency: string): string {
+    const price = priceInMicros / 1000000;
+    const formatter = new Intl.NumberFormat(this.locale, {
+      style: "currency",
+      currency,
+    });
+
+    return formatter.format(price);
   }
 
   get locale(): string {
@@ -78,13 +98,27 @@ export class Translator {
   public translatePeriod(
     amount: number,
     period: PeriodUnit,
+    options: TranslatePeriodOptions = defaultTranslatePeriodOptions,
   ): string | undefined {
     const localeInstance = this.getLocaleInstance(this.selectedLocale);
     const fallbackInstance = this.getLocaleInstance(this.defaultLocale);
 
     return (
-      localeInstance?.translatePeriod(amount, period) ||
-      fallbackInstance?.translatePeriod(amount, period)
+      localeInstance?.translatePeriod(amount, period, options) ||
+      fallbackInstance?.translatePeriod(amount, period, options)
+    );
+  }
+
+  public translatePeriodUnit(
+    period: PeriodUnit,
+    options: TranslatePeriodOptions = defaultTranslatePeriodOptions,
+  ): string | undefined {
+    const localeInstance = this.getLocaleInstance(this.selectedLocale);
+    const fallbackInstance = this.getLocaleInstance(this.defaultLocale);
+
+    return (
+      localeInstance?.translatePeriodUnit(period, options) ||
+      fallbackInstance?.translatePeriodUnit(period, options)
     );
   }
 
@@ -113,7 +147,8 @@ export class LocaleTranslations {
     variables: TranslationVariables,
   ): string {
     return Object.entries(variables).reduce(
-      (acc, [key, value]) => acc.replace(`{{${key}}}`, `${value}`),
+      (acc, [key, value]) =>
+        acc.replace(`{{${key}}}`, `${value === undefined ? "" : value}`),
       label,
     );
   }
@@ -131,11 +166,39 @@ export class LocaleTranslations {
   public translatePeriod(
     amount: number,
     period: PeriodUnit,
+    options: TranslatePeriodOptions = defaultTranslatePeriodOptions,
   ): string | undefined {
-    const key =
-      Math.abs(amount) === 1 ? `periods.${period}` : `periods.${period}Plural`;
+    const { noWhitespace, short } = {
+      ...defaultTranslatePeriodOptions,
+      ...options,
+    };
 
-    return this.translate(key, { amount: amount.toString() });
+    const key = short
+      ? `periods.${period}Short`
+      : Math.abs(amount) === 1
+        ? `periods.${period}`
+        : `periods.${period}Plural`;
+
+    return this.translate(key, { amount: amount.toString() })?.replace(
+      " ",
+      noWhitespace ? "" : " ",
+    );
+  }
+
+  public translatePeriodUnit(
+    period: PeriodUnit,
+    options: TranslatePeriodOptions = defaultTranslatePeriodOptions,
+  ): string | undefined {
+    const { noWhitespace, short } = {
+      ...defaultTranslatePeriodOptions,
+      ...options,
+    };
+    const key = `periods.${period}${short ? "Short" : ""}`;
+
+    return this.translate(key, { amount: "" })?.replace(
+      " ",
+      noWhitespace ? "" : " ",
+    );
   }
 
   public translatePeriodFrequency(

@@ -1,4 +1,5 @@
 {
+  "periods.lifetime": "a vita",
   "periods.week": "{{amount}} settimana",
   "periods.month": "{{amount}} mese",
   "periods.year": "{{amount}} anno",
@@ -7,6 +8,10 @@
   "periods.monthPlural": "{{amount}} mesi",
   "periods.yearPlural": "{{amount}} anni",
   "periods.dayPlural": "{{amount}} giorni",
+  "periods.weekShort": "sett.",
+  "periods.monthShort": "mese",
+  "periods.yearShort": "anno",
+  "periods.dayShort": "giorno",
   "periods.weekFrequency": "ogni settimana",
   "periods.monthFrequency": "ogni mese",
   "periods.yearFrequency": "ogni anno",
@@ -44,5 +49,6 @@
   "state_error.error_message_error_charging_payment": "Pagamento fallito.",
   "state_error.error_message_error_setting_up_purchase": "L'acquisto non è stato avviato a causa di un errore. Codice errore: {{errorCode}}",
   "state_error.error_message_unknown_error": "Si è verificato un errore sconosciuto. Codice errore: {{errorCode}}",
-  "state_error.button_try_again": "Riprova"
+  "state_error.button_try_again": "Riprova",
+  "paywall.sub_relative_discount": "{{discount}}% di sconto"
 }

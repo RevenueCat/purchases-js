@@ -3,6 +3,7 @@
   "periods.month": "{{amount}} month",
   "periods.year": "{{amount}} year",
   "periods.day": "{{amount}} day",
+  "periods.lifetime": "lifetime",
   "periods.weekPlural": "{{amount}} weeks",
   "periods.monthPlural": "{{amount}} months",
   "periods.yearPlural": "{{amount}} years",
@@ -11,6 +12,10 @@
   "periods.monthFrequency": "monthly",
   "periods.yearFrequency": "yearly",
   "periods.dayFrequency": "daily",
+  "periods.weekShort": "{{amount}}wk",
+  "periods.monthShort": "{{amount}}mo",
+  "periods.yearShort": "{{amount}}yr",
+  "periods.dayShort": "{{amount}}d",
   "periods.weekFrequencyPlural": "every {{amount}} weeks",
   "periods.monthFrequencyPlural": "every {{amount}} months",
   "periods.yearFrequencyPlural": "every {{amount}} years",
@@ -44,5 +49,8 @@
   "state_error.error_message_error_charging_payment": "Payment failed.",
   "state_error.error_message_error_setting_up_purchase": "Purchase not started due to an error. Error code: {{errorCode}}",
   "state_error.error_message_unknown_error": "An unknown error occurred. Error code: {{errorCode}}",
-  "state_error.button_try_again": "Try again"
+  "state_error.button_try_again": "Try again",
+  "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
+  "paywall_variables.sub_relative_discount": "{{discount}}% off",
+  "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})"
 }

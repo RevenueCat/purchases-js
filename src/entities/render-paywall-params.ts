@@ -1,4 +1,4 @@
-import { Offering } from "./offerings";
+import type { Offering } from "./offerings";
 
 /**
  * Parameters for the {@link Purchases.renderPaywall} method.
