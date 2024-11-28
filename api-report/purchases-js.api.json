@@ -3886,6 +3886,74 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PurchaseParams#customTranslations:member",
+              "docComment": "/**\n * Optional customization for the translations used in the purchase flow. The keys are the locale codes and the values are objects with the same keys as the default translations.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "customTranslations?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, string>>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "customTranslations",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 5
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PurchaseParams#defaultLocale:member",
+              "docComment": "/**\n * The default locale to use if the device's locale is not available.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "defaultLocale?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "defaultLocale",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PurchaseParams#htmlTarget:member",
               "docComment": "/**\n * The HTML element where the billing view should be added. If undefined, a new div will be created at the root of the page and appended to the body.\n */\n",
               "excerptTokens": [
@@ -3967,6 +4035,60 @@
               "isOptional": false,
               "releaseTag": "Public",
               "name": "rcPackage",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PurchaseParams#selectedLocale:member",
+              "docComment": "/**\n * The locale to use for the purchase flow. If not specified, the device's locale will be used.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "selectedLocale?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "selectedLocale",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PurchaseParams#useBrowserLocale:member",
+              "docComment": "/**\n * Specifies if the locale should be picked automatically using the navigator.language property. Defaults to false.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "useBrowserLocale?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "useBrowserLocale",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -4247,7 +4369,7 @@
             {
               "kind": "Method",
               "canonicalReference": "@revenuecat/purchases-js!Purchases.generateRevenueCatAnonymousAppUserId:member(1)",
-              "docComment": "/**\n * Generates an anonymous app user ID that follows RevenueCat's format. This can be used when you don't have a user identifier system in place. The generated ID will be in the format: $RCAnonymousID:<UUID without dashes>\n *\n * @returns A new anonymous app user ID string\n *\n * @public\n */\n",
+              "docComment": "/**\n * Generates an anonymous app user ID that follows RevenueCat's format. This can be used when you don't have a user identifier system in place. The generated ID will be in the format: $RCAnonymousID:<UUID without dashes> Example: $RCAnonymousID:123e4567e89b12d3a456426614174000\n *\n * @returns A new anonymous app user ID string\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
