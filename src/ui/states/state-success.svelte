@@ -13,7 +13,7 @@
   export let onContinue: () => void;
 
   const isSubscription = productDetails?.productType === ProductType.Subscription;
-  const translator = getContext(translatorContextKey) || Translator.fallback();
+  const translator: Translator = getContext(translatorContextKey) || Translator.fallback();
   // TODO: Continue from here
 </script>
 

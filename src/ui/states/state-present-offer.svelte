@@ -33,7 +33,7 @@
 
 <ModalSection>
   <div class="rcb-pricing-info">
-    <span class="rc-product-title">
+    <span class="rcb-product-title">
       <Localized
         labelId="state_present_offer.product_title"
         variables={{productTitle:productDetails.title}}

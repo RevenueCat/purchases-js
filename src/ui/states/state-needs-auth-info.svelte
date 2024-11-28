@@ -35,7 +35,7 @@
     error = lastError?.message ?? "";
   });
 
-  const translator = getContext(translatorContextKey) || Translator.fallback();
+  const translator: Translator = getContext(translatorContextKey) || Translator.fallback();
 </script>
 
 <div class="container">

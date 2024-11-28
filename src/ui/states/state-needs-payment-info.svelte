@@ -2,7 +2,7 @@
   import { getContext, onMount } from "svelte";
   import Button from "../button.svelte";
   import { Elements, PaymentElement } from "svelte-stripe";
-  import type { Stripe, StripeElements } from "@stripe/stripe-js";
+  import type { Stripe, StripeElementLocale, StripeElements } from "@stripe/stripe-js";
   import { loadStripe } from "@stripe/stripe-js";
   import ModalSection from "../modal-section.svelte";
   import ModalFooter from "../modal-footer.svelte";
@@ -87,7 +87,8 @@
   let shapeCustomisation = theme.shape;
   let customColors = theme.formColors;
 
-  const translator = getContext(translatorContextKey) || Translator.fallback();
+  const translator: Translator = getContext(translatorContextKey) || Translator.fallback();
+  const stripeElementLocale = (translator.locale || translator.fallbackLocale) as StripeElementLocale;
 </script>
 
 <div>
@@ -108,7 +109,7 @@
         {stripe}
         {clientSecret}
         loader="always"
-        locale={translator.locale || translator.fallbackLocale}
+        locale={stripeElementLocale}
         bind:elements
         theme="stripe"
         variables={{

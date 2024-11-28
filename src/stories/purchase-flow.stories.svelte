@@ -82,7 +82,7 @@
         </Layout>
       </Container>
 
-      <div style="height: 100px" />
+      <div style="height: 100px"></div>
 
       <Container>
         <Layout>
@@ -99,7 +99,7 @@
         </Layout>
       </Container>
 
-      <div style="height: 100px" />
+      <div style="height: 100px"></div>
 
       <Container>
         <Layout>
@@ -116,7 +116,7 @@
         </Layout>
       </Container>
 
-      <div style="height: 100px" />
+      <div style="height: 100px"></div>
 
       <Container>
         <Layout>
@@ -133,7 +133,7 @@
         </Layout>
       </Container>
 
-      <div style="height: 100px" />
+      <div style="height: 100px"></div>
 
       <Container>
         <Layout>
@@ -150,7 +150,7 @@
         </Layout>
       </Container>
 
-      <div style="height: 100px" />
+      <div style="height: 100px"></div>
 
     </div>
   </WithContext>

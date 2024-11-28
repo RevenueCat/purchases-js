@@ -6,7 +6,7 @@ import {
 import { Translator } from "../../ui/localization/translator";
 
 describe("getRenewsLabel", () => {
-  const translator = new Translator();
+  const translator: Translator = new Translator();
 
   test("should return correct text for single period durations", () => {
     expect(getTranslatedPeriodFrequency("P1Y", translator)).toEqual("yearly");

@@ -185,7 +185,11 @@ export function parseOfferingIntoVariables(
   defaultLocale?: string,
 ): Record<string, VariableDictionary> {
   const packages = offering.availablePackages;
-  const translator = new Translator({}, selectedLocale, defaultLocale);
+  const translator: Translator = new Translator(
+    {},
+    selectedLocale,
+    defaultLocale,
+  );
   const highestPricePackage = packages.reduce((prev, current) => {
     return prev.rcBillingProduct.currentPrice.amountMicros >
       current.rcBillingProduct.currentPrice.amountMicros

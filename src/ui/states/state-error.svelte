@@ -16,7 +16,7 @@
   export let productDetails: Product | null = null;
   export let onContinue: () => void;
 
-  const translator = getContext(translatorContextKey) || Translator.fallback();
+  const translator: Translator = getContext(translatorContextKey) || Translator.fallback();
 
   onMount(() => {
     Logger.errorLog(
@@ -24,7 +24,7 @@
     );
   });
 
-  function getTranslatedErrorTitle(): string | undefined {
+  function getTranslatedErrorTitle(): string {
     switch (lastError.errorCode) {
       case PurchaseFlowErrorCode.AlreadyPurchasedError:
         if (productDetails?.productType === ProductType.Subscription) {
@@ -50,7 +50,7 @@
         return translator.translate("state_error.error_message_network_error", { errorCode: publicErrorCode });
       case PurchaseFlowErrorCode.StripeError:
         // For stripe errors, we can display the stripe-provided error message.
-        return this.message;
+        return lastError.message;
       case PurchaseFlowErrorCode.MissingEmailError:
         return translator.translate("state_error.error_message_missing_email_error", { errorCode: publicErrorCode });
       case PurchaseFlowErrorCode.AlreadyPurchasedError:

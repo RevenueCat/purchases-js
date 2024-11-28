@@ -3,7 +3,10 @@ import es from "./locale/es.json";
 import it from "./locale/it.json";
 import type { PeriodUnit } from "../../helpers/duration-helper";
 
-export type TranslationVariables = Record<string, string | number | undefined>;
+export type TranslationVariables = Record<
+  string,
+  string | number | undefined | null
+>;
 
 export interface TranslatePeriodOptions {
   noWhitespace?: boolean;
@@ -82,16 +85,14 @@ export class Translator {
     return this.locales[locale] || this.locales[potentialLocaleCode];
   }
 
-  public translate(
-    labelId: string,
-    variables?: TranslationVariables,
-  ): string | undefined {
+  public translate(labelId: string, variables?: TranslationVariables): string {
     const localeInstance = this.getLocaleInstance(this.selectedLocale);
     const fallbackInstance = this.getLocaleInstance(this.defaultLocale);
 
     return (
       localeInstance?.translate(labelId, variables) ||
-      fallbackInstance?.translate(labelId, variables)
+      fallbackInstance?.translate(labelId, variables) ||
+      ""
     );
   }
 
@@ -148,7 +149,10 @@ export class LocaleTranslations {
   ): string {
     return Object.entries(variables).reduce(
       (acc, [key, value]) =>
-        acc.replace(`{{${key}}}`, `${value === undefined ? "" : value}`),
+        acc.replace(
+          `{{${key}}}`,
+          `${value === undefined || value === null ? "" : value}`,
+        ),
       label,
     );
   }
