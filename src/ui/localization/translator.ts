@@ -19,7 +19,7 @@ const defaultTranslatePeriodOptions: TranslatePeriodOptions = {
 };
 
 export class Translator {
-  private readonly locales: Record<string, LocaleTranslations> = {};
+  public readonly locales: Record<string, LocaleTranslations> = {};
 
   public static fallback() {
     return new Translator();
