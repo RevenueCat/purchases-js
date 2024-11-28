@@ -28,8 +28,8 @@ export enum PurchaseFlowErrorCode {
   ErrorChargingPayment = 1,
   UnknownError = 2,
   NetworkError = 3,
-  MissingEmailError = 5,
-  AlreadyPurchasedError = 6,
+  MissingEmailError = 4,
+  AlreadyPurchasedError = 5,
 }
 
 export class PurchaseFlowError extends Error {
