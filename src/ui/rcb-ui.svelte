@@ -49,7 +49,6 @@
   let paymentInfoCollectionMetadata: PurchaseResponse | null = null;
   let lastError: PurchaseFlowError | null = null;
 
-
   const productId = rcPackage.rcBillingProduct.identifier ?? null;
   const defaultPurchaseOption =
     rcPackage.rcBillingProduct.defaultPurchaseOption;

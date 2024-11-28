@@ -181,15 +181,9 @@ function getTotalPriceAndPerMonth({
 
 export function parseOfferingIntoVariables(
   offering: Offering,
-  selectedLocale: string,
-  defaultLocale?: string,
+  translator: Translator,
 ): Record<string, VariableDictionary> {
   const packages = offering.availablePackages;
-  const translator: Translator = new Translator(
-    {},
-    selectedLocale,
-    defaultLocale,
-  );
   const highestPricePackage = packages.reduce((prev, current) => {
     return prev.rcBillingProduct.currentPrice.amountMicros >
       current.rcBillingProduct.currentPrice.amountMicros

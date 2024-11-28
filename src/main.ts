@@ -52,6 +52,7 @@ import { type RenderPaywallParams } from "./entities/render-paywall-params";
 import { Paywall } from "@revenuecat/purchases-ui-js";
 import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
 import { parseOfferingIntoVariables } from "./helpers/paywall-variables-helpers";
+import { Translator } from "./ui/localization/translator";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -279,6 +280,12 @@ export class Purchases {
 
     const selectedLocale = paywallParams.selectedLocale || navigator.language;
 
+    const translator = new Translator(
+      {},
+      selectedLocale,
+      offering.paywall_components.default_locale,
+    );
+
     const startPurchaseFlow = (
       selectedPackageId: string,
     ): Promise<PurchaseResult> => {
@@ -324,6 +331,11 @@ export class Purchases {
       // DO NOTHING, RC's customer center is not supported in web
     };
 
+    const variablesPerPackage = parseOfferingIntoVariables(
+      offering,
+      translator,
+    );
+
     return new Promise((resolve, reject) => {
       mount(Paywall, {
         target: certainHTMLTarget,
@@ -352,10 +364,7 @@ export class Purchases {
               })
               .catch((err) => reject(err));
           },
-          variablesPerPackage: parseOfferingIntoVariables(
-            offering,
-            selectedLocale,
-          ),
+          variablesPerPackage,
         },
       });
     });
