@@ -45,6 +45,7 @@
   button:disabled {
     color: var(--rc-color-grey-text-light);
     background-color: var(--rc-color-grey-ui-dark);
+    outline: none;
   }
 
   button.intent-primary:disabled {
