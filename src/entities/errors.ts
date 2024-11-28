@@ -175,8 +175,6 @@ export class ErrorCodeUtils {
         return ErrorCode.NetworkError;
       case PurchaseFlowErrorCode.MissingEmailError:
         return ErrorCode.PurchaseInvalidError;
-      case PurchaseFlowErrorCode.StripeError:
-        return ErrorCode.StoreProblemError;
       case PurchaseFlowErrorCode.UnknownError:
         return ErrorCode.UnknownError;
       case PurchaseFlowErrorCode.AlreadyPurchasedError:

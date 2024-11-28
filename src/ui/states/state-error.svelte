@@ -72,9 +72,6 @@
           LocalizationKeys.StateErrorErrorMessageNetworkError,
           { errorCode: publicErrorCode },
         );
-      case PurchaseFlowErrorCode.StripeError:
-        // For stripe errors, we can display the stripe-provided error message.
-        return lastError.message;
       case PurchaseFlowErrorCode.MissingEmailError:
         return translator.translate(
           LocalizationKeys.StateErrorErrorMessageMissingEmailError,
