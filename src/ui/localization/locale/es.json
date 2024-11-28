@@ -1,9 +1,13 @@
 {
-  "periods.lifetime": "de por vida",
   "periods.week": "{{amount}} semana",
   "periods.month": "{{amount}} mes",
   "periods.year": "{{amount}} año",
   "periods.day": "{{amount}} día",
+  "periods.weekShort": "{{amount}}wk",
+  "periods.monthShort": "{{amount}}mo",
+  "periods.yearShort": "{{amount}}yr",
+  "periods.dayShort": "{{amount}}d",
+  "periods.lifetime": "de por vida",
   "periods.weekPlural": "{{amount}} semanas",
   "periods.monthPlural": "{{amount}} meses",
   "periods.yearPlural": "{{amount}} años",
@@ -46,5 +50,7 @@
   "state_error.error_message_error_setting_up_purchase": "La compra no se inició debido a un error. Código de error: {{errorCode}}",
   "state_error.error_message_unknown_error": "Ocurrió un error desconocido. Código de error: {{errorCode}}",
   "state_error.button_try_again": "Intentar de nuevo",
-  "paywall.sub_relative_discount": "{{discount}}% de descuento"
+  "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
+  "paywall_variables.sub_relative_discount": "{{discount}}% de descuento",
+  "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})"
 }
