@@ -59,8 +59,8 @@ export const product: Product = {
 };
 
 export const brandingInfo = {
-  seller_company_support_email: "support@somefantasticcat.com",
-  seller_company_name: "Some Fantastic Cat, Inc.",
+  rcb_support_email: "support@somefantasticcat.com",
+  rcb_app_name: "Some Fantastic Cat, Inc.",
   app_icon: "1005820_1715624566.png",
   app_icon_webp: "1005820_1715624566.webp",
   appearance: {},
