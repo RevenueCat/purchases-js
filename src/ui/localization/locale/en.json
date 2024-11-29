@@ -16,6 +16,7 @@
   "periods.monthFrequency": "monthly",
   "periods.yearFrequency": "yearly",
   "periods.dayFrequency": "daily",
+  "periods.unknownFrequency": "unknown",
   "periods.weekFrequencyPlural": "every {{amount}} weeks",
   "periods.monthFrequencyPlural": "every {{amount}} months",
   "periods.yearFrequencyPlural": "every {{amount}} years",

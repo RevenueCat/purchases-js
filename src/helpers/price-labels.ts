@@ -1,16 +1,6 @@
 import { parseISODuration } from "./duration-helper";
 import { Translator } from "../ui/localization/translator";
 
-export const priceLabels: Record<string, string> = {
-  P3M: "quarterly",
-  P1M: "monthly",
-  P1Y: "yearly",
-  P2W: "2 weeks",
-  P1D: "daily",
-  PT1H: "hourly",
-  P1W: "weekly",
-};
-
 export const formatPrice = (
   priceInMicros: number,
   currency: string,
@@ -31,7 +21,7 @@ export const getTranslatedPeriodFrequency = (
 ): string => {
   const period = parseISODuration(duration);
   if (!period) {
-    return "unknown";
+    return translator.translate("periods.unknownFrequency");
   }
 
   return (

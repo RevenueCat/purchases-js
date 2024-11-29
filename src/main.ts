@@ -306,7 +306,6 @@ export class Purchases {
         htmlTarget: paywallParams.purchaseHtmlTarget,
         customerEmail: paywallParams.customerEmail,
         selectedLocale: selectedLocale,
-        useBrowserLocale: false,
         defaultLocale: offering.paywall_components?.default_locale || "en",
       });
     };
@@ -501,7 +500,6 @@ export class Purchases {
       htmlTarget,
       customerEmail,
       selectedLocale = "en",
-      useBrowserLocale = false,
       defaultLocale = "en",
       customTranslations = {},
     } = params;
@@ -530,8 +528,7 @@ export class Purchases {
       `Presenting purchase form for package ${rcPackage.identifier}`,
     );
 
-    const localeToBeUsed =
-      selectedLocale || (useBrowserLocale ? navigator.language : defaultLocale);
+    const localeToBeUsed = selectedLocale || defaultLocale;
 
     return new Promise((resolve, reject) => {
       mount(RCPurchasesUI, {

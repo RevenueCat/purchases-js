@@ -74,7 +74,7 @@ export class Translator {
           ...(this.locales[locale].labels || {}),
           ...translations,
         },
-        this.simplifyLocaleString(locale),
+        this.getLanguageCodeString(locale),
       );
     });
   }
@@ -92,23 +92,23 @@ export class Translator {
   get locale(): string {
     return (
       this.getLocaleInstance(this.selectedLocale)?.localeKey ||
-      this.simplifyLocaleString(this.selectedLocale)
+      this.getLanguageCodeString(this.selectedLocale)
     );
   }
 
   get fallbackLocale(): string {
     return (
       this.getLocaleInstance(this.defaultLocale)?.localeKey ||
-      this.simplifyLocaleString(this.defaultLocale)
+      this.getLanguageCodeString(this.defaultLocale)
     );
   }
 
-  private simplifyLocaleString(locale: string): string {
+  private getLanguageCodeString(locale: string): string {
     return locale.split("_")[0].split("-")[0];
   }
 
   private getLocaleInstance(locale: string): LocaleTranslations | undefined {
-    const potentialLocaleCode = this.simplifyLocaleString(locale);
+    const potentialLocaleCode = this.getLanguageCodeString(locale);
     return this.locales[locale] || this.locales[potentialLocaleCode];
   }
 
