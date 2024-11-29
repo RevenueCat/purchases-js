@@ -282,7 +282,6 @@ export interface PurchaseParams {
     purchaseOption?: PurchaseOption | null;
     rcPackage: Package;
     selectedLocale?: string;
-    useBrowserLocale?: boolean;
 }
 
 // @public

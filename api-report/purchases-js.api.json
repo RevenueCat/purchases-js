@@ -3955,7 +3955,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PurchaseParams#defaultLocale:member",
-              "docComment": "/**\n * The default locale to use if the device's locale is not available.\n */\n",
+              "docComment": "/**\n * The default locale to use if the selectedLocale is not available. Defaults to english.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4089,33 +4089,6 @@
               "isOptional": true,
               "releaseTag": "Public",
               "name": "selectedLocale",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              }
-            },
-            {
-              "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!PurchaseParams#useBrowserLocale:member",
-              "docComment": "/**\n * Specifies if the locale should be picked automatically using the navigator.language property. Defaults to false.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "useBrowserLocale?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": true,
-              "releaseTag": "Public",
-              "name": "useBrowserLocale",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
