@@ -1,4 +1,5 @@
 import { type Package, type PurchaseOption } from "./offerings";
+import { CustomTranslations } from "../ui/localization/translator";
 
 /**
  * Parameters used to customise the purchase flow when invoking the `.purchase` method.
@@ -26,7 +27,7 @@ export interface PurchaseParams {
    * Optional customization for the translations used in the purchase flow.
    * The keys are the locale codes and the values are objects with the same keys as the default translations.
    */
-  customTranslations?: Record<string, Record<string, string>>;
+  customTranslations?: CustomTranslations;
 
   /**
    * The locale to use for the purchase flow. If not specified, the device's locale will be used.

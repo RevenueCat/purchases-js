@@ -1,7 +1,7 @@
 import {
-  Product,
+  type Product,
   ProductType,
-  SubscriptionOption,
+  type SubscriptionOption,
 } from "../entities/offerings";
 import { PeriodUnit } from "../helpers/duration-helper";
 import { PurchaseFlowError } from "../helpers/purchase-operation-helper";

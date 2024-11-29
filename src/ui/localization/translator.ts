@@ -3,6 +3,23 @@ import es from "./locale/es.json";
 import it from "./locale/it.json";
 import type { PeriodUnit } from "../../helpers/duration-helper";
 
+/**
+ * Custom translations to be used in the purchase flow.
+ * This class allows you to override the default translations used in the purchase flow.
+ * The main level keys are the locale codes and the values are objects with the same keys as the default translations.
+ * @public
+ * @example
+ * This example will override the default translation for the email step title in the English locale.
+ * ```typescript
+ * const customTranslations = {
+ *  en: {
+ *    "state_needs_auth_info.email_step_title": "Billing email",
+ *   }
+ * }
+ * ```
+ */
+export type CustomTranslations = Record<string, Record<string, string>>;
+
 export type TranslationVariables = Record<
   string,
   string | number | undefined | null
@@ -26,7 +43,7 @@ export class Translator {
   }
 
   public constructor(
-    customTranslations?: Record<string, Record<string, string>>,
+    customTranslations: CustomTranslations = {},
     public readonly selectedLocale: string = "en",
     public readonly defaultLocale: string = "en",
   ) {
@@ -40,7 +57,7 @@ export class Translator {
     }
   }
 
-  public override(customTranslations: Record<string, Record<string, string>>) {
+  public override(customTranslations: CustomTranslations) {
     Object.entries(customTranslations).forEach(([locale, translations]) => {
       this.locales[locale] = new LocaleTranslations(
         {
