@@ -1,5 +1,5 @@
 import { parseISODuration } from "./duration-helper";
-import { Translator } from "../ui/localization/translator";
+import { LocalizationKeys, Translator } from "../ui/localization/translator";
 
 export const formatPrice = (
   priceInMicros: number,
@@ -21,7 +21,7 @@ export const getTranslatedPeriodFrequency = (
 ): string => {
   const period = parseISODuration(duration);
   if (!period) {
-    return translator.translate("periods.unknownFrequency");
+    return translator.translate(LocalizationKeys.PeriodsUnknownFrequency);
   }
 
   return (

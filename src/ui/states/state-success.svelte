@@ -5,7 +5,7 @@
   import { type Product, ProductType } from "../../entities/offerings";
   import { getContext } from "svelte";
   import { translatorContextKey } from "../localization/constants";
-  import { Translator } from "../localization/translator";
+  import { LocalizationKeys, Translator } from "../localization/translator";
   import Localized from "../localization/localized.svelte";
 
   export let productDetails: Product | null = null;
@@ -19,15 +19,15 @@
 
 <MessageLayout
   type="success"
-  title={translator.translate("state_success.purchase_successful")}
+  title={translator.translate(LocalizationKeys.StateSuccessPurchaseSuccessful)}
   {brandingInfo}
   {onContinue}
-  closeButtonTitle={translator.translate("state_success.button_close")}
+  closeButtonTitle={translator.translate(LocalizationKeys.StateSuccessButtonClose)}
 >
   <IconSuccess slot="icon" />
   {#if isSubscription}
     <Localized
-      labelId="state_success.subscription_now_active"
+      labelId={LocalizationKeys.StateSuccessSubscriptionNowActive}
     />
   {/if}
 </MessageLayout>

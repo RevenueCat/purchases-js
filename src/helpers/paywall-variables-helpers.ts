@@ -8,7 +8,7 @@ import {
 } from "../entities/offerings";
 import { Period, PeriodUnit } from "./duration-helper";
 import { type VariableDictionary } from "@revenuecat/purchases-ui-js";
-import { Translator } from "../ui/localization/translator";
+import { LocalizationKeys, Translator } from "../ui/localization/translator";
 
 function getProductPerType(pkg: Package): PurchaseOption | undefined | null {
   return pkg.rcBillingProduct.defaultPurchaseOption;
@@ -20,7 +20,7 @@ function getPricePerPeriod(
   translator: Translator,
   full: boolean = false,
 ) {
-  return translator.translate(`paywall_variables.price_per_period`, {
+  return translator.translate(LocalizationKeys.PaywallVariablesPricePerPeriod, {
     formattedPrice,
     period: product.base.period
       ? translator.translatePeriod(
@@ -165,18 +165,21 @@ function getTotalPriceAndPerMonth({
     );
   }
 
-  return translator.translate("paywall_variables.total_price_and_per_month", {
-    formattedPrice: price.formattedPrice,
-    period: translator.translatePeriod(period.number, period.unit, {
-      noWhitespace: true,
-      short: !full,
-    }),
-    formattedPricePerMonth: pricePerMonth,
-    monthPeriod: translator.translatePeriodUnit(PeriodUnit.Month, {
-      noWhitespace: true,
-      short: !full,
-    }),
-  });
+  return translator.translate(
+    LocalizationKeys.PaywallVariablesTotalPriceAndPerMonth,
+    {
+      formattedPrice: price.formattedPrice,
+      period: translator.translatePeriod(period.number, period.unit, {
+        noWhitespace: true,
+        short: !full,
+      }),
+      formattedPricePerMonth: pricePerMonth,
+      monthPeriod: translator.translatePeriodUnit(PeriodUnit.Month, {
+        noWhitespace: true,
+        short: !full,
+      }),
+    },
+  );
 }
 
 export function parseOfferingIntoVariables(
@@ -313,9 +316,12 @@ function parsePackageIntoVariables(
     baseObject.sub_relative_discount =
       packagePrice === highestPrice
         ? ""
-        : translator.translate("paywall_variables.sub_relative_discount", {
-            discount: discount,
-          });
+        : translator.translate(
+            LocalizationKeys.PaywallVariablesSubRelativeDiscount,
+            {
+              discount: discount,
+            },
+          );
   }
 
   if (
@@ -328,10 +334,15 @@ function parsePackageIntoVariables(
     baseObject.price_per_period_full = formattedPrice;
     baseObject.total_price_and_per_month = formattedPrice;
     baseObject.sub_price_per_month = formattedPrice;
-    baseObject.sub_duration = translator.translate("periods.lifetime");
-    baseObject.sub_duration_in_months =
-      translator.translate("periods.lifetime");
-    baseObject.sub_period = translator.translate("periods.lifetime");
+    baseObject.sub_duration = translator.translate(
+      LocalizationKeys.PeriodsLifetime,
+    );
+    baseObject.sub_duration_in_months = translator.translate(
+      LocalizationKeys.PeriodsLifetime,
+    );
+    baseObject.sub_period = translator.translate(
+      LocalizationKeys.PeriodsLifetime,
+    );
     baseObject.sub_price_per_week = undefined;
     baseObject.sub_relative_discount = undefined;
     baseObject.price_per_period_full = formattedPrice;

@@ -18,7 +18,7 @@
   import CloseButton from "../close-button.svelte";
   import { Theme } from "../theme/theme";
   import { translatorContextKey } from "../localization/constants";
-  import { Translator } from "../localization/translator";
+  import { LocalizationKeys, Translator } from "../localization/translator";
   import Localized from "../localization/localized.svelte";
 
 
@@ -99,7 +99,7 @@
         <IconLock />
         <div style="margin-left: 10px">
           <Localized
-            labelId="state_needs_payment_info.payment_step_title"
+            labelId={LocalizationKeys.StateNeedsPaymentInfoPaymentStepTitle}
           />
         </div>
       </div>
@@ -192,9 +192,9 @@
               {#if processing}
                 <ProcessingAnimation />
               {:else if productDetails.subscriptionOptions?.[purchaseOptionToUse.id]?.trial}
-                <Localized labelId="state_needs_payment_info.button_start_trial" />
+                <Localized labelId={LocalizationKeys.StateNeedsPaymentInfoButtonStartTrial} />
               {:else}
-                <Localized labelId="state_needs_payment_info.button_pay" />
+                <Localized labelId={LocalizationKeys.StateNeedsPaymentInfoButtonPay} />
               {/if}
             </Button>
           </RowLayout>

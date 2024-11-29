@@ -6,7 +6,7 @@
   import { Logger } from "../../helpers/logger.js";
   import MessageLayout from "../layout/message-layout.svelte";
   import { type Product, ProductType } from "../../entities/offerings";
-  import { Translator } from "../localization/translator";
+  import { LocalizationKeys, Translator } from "../localization/translator";
   import { translatorContextKey } from "../localization/constants";
   import Localized from "../localization/localized.svelte";
 
@@ -28,12 +28,13 @@
     switch (lastError.errorCode) {
       case PurchaseFlowErrorCode.AlreadyPurchasedError:
         if (productDetails?.productType === ProductType.Subscription) {
-          return translator.translate("state_error.error_title_already_subscribed");
+          return translator.translate(LocalizationKeys.StateErrorErrorMessageAlreadySubscribed);
         } else {
-          return translator.translate("state_error.error_title_already_purchased");
+          return translator.translate(LocalizationKeys.StateErrorErrorMessageAlreadyPurchased);
         }
       default:
-        return translator.translate("state_error.error_title_other_errors");
+        return translator.translate(LocalizationKeys.StateErrorErrorTitleOtherErrors,
+        );
     }
   }
 
@@ -41,23 +42,23 @@
     const publicErrorCode = lastError.getErrorCode();
     switch (lastError.errorCode) {
       case PurchaseFlowErrorCode.UnknownError:
-        return translator.translate("state_error.error_message_unknown_error", { errorCode: publicErrorCode });
+        return translator.translate(LocalizationKeys.StateErrorErrorMessageUnknownError, { errorCode: publicErrorCode });
       case PurchaseFlowErrorCode.ErrorSettingUpPurchase:
-        return translator.translate("state_error.error_message_error_setting_up_purchase", { errorCode: publicErrorCode });
+        return translator.translate(LocalizationKeys.StateErrorErrorMessageErrorSettingUpPurchase, { errorCode: publicErrorCode });
       case PurchaseFlowErrorCode.ErrorChargingPayment:
-        return translator.translate("state_error.error_message_error_charging_payment", { errorCode: publicErrorCode });
+        return translator.translate(LocalizationKeys.StateErrorErrorMessageErrorChargingPayment, { errorCode: publicErrorCode });
       case PurchaseFlowErrorCode.NetworkError:
-        return translator.translate("state_error.error_message_network_error", { errorCode: publicErrorCode });
+        return translator.translate(LocalizationKeys.StateErrorErrorMessageNetworkError, { errorCode: publicErrorCode });
       case PurchaseFlowErrorCode.StripeError:
         // For stripe errors, we can display the stripe-provided error message.
         return lastError.message;
       case PurchaseFlowErrorCode.MissingEmailError:
-        return translator.translate("state_error.error_message_missing_email_error", { errorCode: publicErrorCode });
+        return translator.translate(LocalizationKeys.StateErrorErrorMessageMissingEmailError, { errorCode: publicErrorCode });
       case PurchaseFlowErrorCode.AlreadyPurchasedError:
         if (productDetails?.productType === ProductType.Subscription) {
-          return translator.translate("state_error.error_message_already_purchased", { errorCode: publicErrorCode });
+          return translator.translate(LocalizationKeys.StateErrorErrorMessageAlreadySubscribed, { errorCode: publicErrorCode });
         } else {
-          return translator.translate("state_error.error_message_already_subscribed", { errorCode: publicErrorCode });
+          return translator.translate(LocalizationKeys.StateErrorErrorMessageAlreadyPurchased, { errorCode: publicErrorCode });
         }
     }
   }
@@ -68,14 +69,14 @@
   {brandingInfo}
   {onContinue}
   type="error"
-  closeButtonTitle={translator.translate("state_error.button_try_again")}
+  closeButtonTitle={translator.translate(LocalizationKeys.StateErrorButtonTryAgain)}
 >
   <IconError slot="icon" />
 
   {getTranslatedErrorMessage()}
   {#if supportEmail}
     <br>
-    <Localized labelId="state_error.if_error_persists">
+    <Localized labelId={LocalizationKeys.StateErrorIfErrorPersists}>
       If this error persists, please contact
     </Localized>
     <a href="mailto:{supportEmail}">{supportEmail}</a>.

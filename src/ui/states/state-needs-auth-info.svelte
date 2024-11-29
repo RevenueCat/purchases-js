@@ -11,7 +11,7 @@
   import CloseButton from "../close-button.svelte";
   import Localized from "../localization/localized.svelte";
   import { translatorContextKey } from "../localization/constants";
-  import { Translator } from "../localization/translator";
+  import { LocalizationKeys, Translator } from "../localization/translator";
 
   export let onContinue: any;
   export let onClose: () => void;
@@ -42,7 +42,7 @@
   <ModalHeader>
     <span>
       <Localized
-        labelId="state_needs_auth_info.email_step_title"
+        labelId={LocalizationKeys.StateNeedsAuthInfoEmailStepTitle}
       />
     </span>
     <CloseButton on:click={onClose} />
@@ -51,13 +51,13 @@
     <ModalSection>
       <div class="form-container">
         <div class="form-label"><label for="email">
-          <Localized labelId="state_needs_auth_info.email_input_label" />
+          <Localized labelId={LocalizationKeys.StateNeedsAuthInfoEmailInputLabel} />
         </label></div>
         <div class="form-input {inputClass}">
           <input
             name="email"
             placeholder={translator.translate(
-              "state_needs_auth_info.email_input_placeholder"
+              LocalizationKeys.StateNeedsAuthInfoEmailInputPlaceholder
             )}
             autocapitalize="off"
             bind:value={email}
@@ -74,7 +74,7 @@
           {#if processing}
             <ProcessingAnimation />
           {:else}
-            <Localized labelId="state_needs_auth_info.button_continue" />
+            <Localized labelId={LocalizationKeys.StateNeedsAuthInfoButtonContinue} />
           {/if}
         </Button>
       </RowLayout>
