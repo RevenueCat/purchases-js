@@ -90,6 +90,10 @@ export { OfferingKeyword } from "./entities/get-offerings-params";
 export type { PurchaseParams } from "./entities/purchase-params";
 export type { RedemptionInfo } from "./entities/redemption-info";
 export type { PurchaseResult } from "./entities/purchase-result";
+export type {
+  TranslationVariables,
+  CustomTranslations,
+} from "./ui/localization/translator";
 
 /**
  * Entry point for Purchases SDK. It should be instantiated as soon as your
@@ -651,7 +655,7 @@ export class Purchases {
   /**
    * Generates an anonymous app user ID that follows RevenueCat's format.
    * This can be used when you don't have a user identifier system in place.
-   * The generated ID will be in the format: $RCAnonymousID:<UUID without dashes>
+   * The generated ID will be in the format: $RCAnonymousID:\<UUID without dashes\>
    * Example: $RCAnonymousID:123e4567e89b12d3a456426614174000
    * @returns A new anonymous app user ID string
    * @public

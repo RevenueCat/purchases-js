@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { TranslationVariables, Translator } from "./translator";
+  import { type TranslationVariables, Translator } from "./translator";
   import { getContext } from "svelte";
   import { translatorContextKey } from "./constants";
 

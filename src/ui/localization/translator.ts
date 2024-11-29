@@ -20,6 +20,16 @@ import type { PeriodUnit } from "../../helpers/duration-helper";
  */
 export type CustomTranslations = Record<string, Record<string, string>>;
 
+/**
+ * Translation variables to be used in the translation.
+ * This class allows you to pass variables to the translate method.
+ * @public
+ * @example Given a label with id `periods.monthPlural` and value `{{amount}} months`. This example will replace the variable `{{amount}}` with the value `10`.
+ * ```typescript
+ * translator.translate('periods.monthPlural', { amount: 10 });
+ * // Output: 10 months
+ * ```
+ */
 export type TranslationVariables = Record<
   string,
   string | number | undefined | null

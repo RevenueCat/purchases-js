@@ -24,6 +24,9 @@ export interface CustomerInfo {
 }
 
 // @public
+export type CustomTranslations = Record<string, Record<string, string>>;
+
+// @public
 export interface EntitlementInfo {
     readonly billingIssueDetectedAt: Date | null;
     readonly expirationDate: Date | null;
@@ -273,7 +276,7 @@ export interface PurchaseOption {
 // @public
 export interface PurchaseParams {
     customerEmail?: string;
-    customTranslations?: Record<string, Record<string, string>>;
+    customTranslations?: CustomTranslations;
     defaultLocale?: string;
     htmlTarget?: HTMLElement;
     purchaseOption?: PurchaseOption | null;
@@ -349,6 +352,9 @@ export interface TargetingContext {
     readonly revision: number;
     readonly ruleId: string;
 }
+
+// @public
+export type TranslationVariables = Record<string, string | number | undefined | null>;
 
 // @public
 export class UninitializedPurchasesError extends Error {

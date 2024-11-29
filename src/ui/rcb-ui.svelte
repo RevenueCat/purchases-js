@@ -26,7 +26,7 @@
 
   import { toProductInfoStyleVar } from "./theme/utils";
   import { type RedemptionInfo } from "../entities/redemption-info";
-  import { CustomTranslations, Translator } from "./localization/translator";
+  import { type CustomTranslations, Translator } from "./localization/translator";
   import { translatorContextKey } from "./localization/constants";
 
   export let asModal = true;
