@@ -170,13 +170,6 @@ export class PurchaseOperationHelper {
 
     return new Promise<{ redemptionInfo: RedemptionInfo | null }>(
       (resolve, reject) => {
-        const scheduleNextAttempt = (checkCount: number) => {
-          setTimeout(
-            () => checkForOperationStatus(checkCount + 1),
-            this.waitMSBetweenAttempts,
-          );
-        };
-
         const checkForOperationStatus = (checkCount = 1) => {
           if (checkCount > this.maxNumberAttempts) {
             this.clearPurchaseInProgress();
@@ -194,7 +187,10 @@ export class PurchaseOperationHelper {
               switch (operationResponse.operation.status) {
                 case CheckoutSessionStatus.Started:
                 case CheckoutSessionStatus.InProgress:
-                  scheduleNextAttempt(checkCount);
+                  setTimeout(
+                    () => checkForOperationStatus(checkCount + 1),
+                    this.waitMSBetweenAttempts,
+                  );
                   break;
                 case CheckoutSessionStatus.Succeeded:
                   this.clearPurchaseInProgress();
@@ -203,15 +199,6 @@ export class PurchaseOperationHelper {
                   });
                   return;
                 case CheckoutSessionStatus.Failed:
-                  const errorCode = operationResponse.operation.error?.code;
-                  if (
-                    errorCode ===
-                    CheckoutStatusErrorCodes.SetupIntentCompletionFailed
-                  ) {
-                    scheduleNextAttempt(checkCount);
-                    break;
-                  }
-
                   this.clearPurchaseInProgress();
                   this.handlePaymentError(
                     operationResponse.operation.error,
