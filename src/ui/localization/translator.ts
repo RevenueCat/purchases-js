@@ -1,6 +1,37 @@
 import en from "./locale/en.json";
 import es from "./locale/es.json";
 import it from "./locale/it.json";
+import ar from "./locale/ar.json";
+import ca from "./locale/ca.json";
+import zh_Hans from "./locale/zh_Hans.json";
+import zh_Hant from "./locale/zh_Hant.json";
+import hr from "./locale/hr.json";
+import cs from "./locale/cs.json";
+import da from "./locale/da.json";
+import nl from "./locale/nl.json";
+import fi from "./locale/fi.json";
+import fr from "./locale/fr.json";
+import de from "./locale/de.json";
+import el from "./locale/el.json";
+import he from "./locale/he.json";
+import hi from "./locale/hi.json";
+import hu from "./locale/hu.json";
+import id from "./locale/id.json";
+import ja from "./locale/ja.json";
+import ko from "./locale/ko.json";
+import ms from "./locale/ms.json";
+import no from "./locale/no.json";
+import pl from "./locale/pl.json";
+import pt from "./locale/pt.json";
+import ro from "./locale/ro.json";
+import ru from "./locale/ru.json";
+import sk from "./locale/sk.json";
+import sv from "./locale/sv.json";
+import th from "./locale/th.json";
+import tr from "./locale/tr.json";
+import uk from "./locale/uk.json";
+import vi from "./locale/vi.json";
+
 import type { PeriodUnit } from "../../helpers/duration-helper";
 
 export type emptyString = "";
@@ -121,6 +152,36 @@ export class Translator {
       en: new LocaleTranslations(en, "en"),
       es: new LocaleTranslations(es, "es"),
       it: new LocaleTranslations(it, "it"),
+      ar: new LocaleTranslations(ar, "ar"),
+      ca: new LocaleTranslations(ca, "ca"),
+      zh_Hans: new LocaleTranslations(zh_Hans, "zh_Hans"),
+      zh_Hant: new LocaleTranslations(zh_Hant, "zh_Hant"),
+      hr: new LocaleTranslations(hr, "hr"),
+      cs: new LocaleTranslations(cs, "cs"),
+      da: new LocaleTranslations(da, "da"),
+      nl: new LocaleTranslations(nl, "nl"),
+      fi: new LocaleTranslations(fi, "fi"),
+      fr: new LocaleTranslations(fr, "fr"),
+      de: new LocaleTranslations(de, "de"),
+      el: new LocaleTranslations(el, "el"),
+      he: new LocaleTranslations(he, "he"),
+      hi: new LocaleTranslations(hi, "hi"),
+      hu: new LocaleTranslations(hu, "hu"),
+      id: new LocaleTranslations(id, "id"),
+      ja: new LocaleTranslations(ja, "ja"),
+      ko: new LocaleTranslations(ko, "ko"),
+      ms: new LocaleTranslations(ms, "ms"),
+      no: new LocaleTranslations(no, "no"),
+      pl: new LocaleTranslations(pl, "pl"),
+      pt: new LocaleTranslations(pt, "pt"),
+      ro: new LocaleTranslations(ro, "ro"),
+      ru: new LocaleTranslations(ru, "ru"),
+      sk: new LocaleTranslations(sk, "sk"),
+      sv: new LocaleTranslations(sv, "sv"),
+      th: new LocaleTranslations(th, "th"),
+      tr: new LocaleTranslations(tr, "tr"),
+      uk: new LocaleTranslations(uk, "uk"),
+      vi: new LocaleTranslations(vi, "vi"),
     };
     if (customTranslations) {
       this.override(customTranslations);
