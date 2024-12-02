@@ -353,9 +353,6 @@ export interface TargetingContext {
 }
 
 // @public
-export type TranslationVariables = Record<string, string | number | undefined | null>;
-
-// @public
 export class UninitializedPurchasesError extends Error {
     constructor();
 }
