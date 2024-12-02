@@ -3,11 +3,11 @@
 
   interface Props {
     children?: Snippet;
-    context: Record<string, any>;
+    context?: Record<string, any>;
   }
 
-  let { children, context = {} }: Props = $props();
-  Object.entries(context).forEach(([key, value]) => {
+  let { children, context }: Props = $props();
+  Object.entries(context || {}).forEach(([key, value]) => {
     setContext(key, value);
   });
 </script>

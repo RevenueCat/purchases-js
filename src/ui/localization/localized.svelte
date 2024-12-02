@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { type TranslationVariables, Translator } from "./translator";
+  import { type emptyString, LocalizationKeys, type TranslationVariables, Translator } from "./translator";
   import { getContext } from "svelte";
   import { translatorContextKey } from "./constants";
 
@@ -33,7 +33,7 @@
     : contextTranslator || Translator.fallback();
 
   const translatedLabel = $derived(
-    translator.translate(labelId || "", variables),
+    translator.translate(labelId as LocalizationKeys || "" as emptyString, variables),
   );
 </script>
 

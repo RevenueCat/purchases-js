@@ -90,10 +90,7 @@ export { OfferingKeyword } from "./entities/get-offerings-params";
 export type { PurchaseParams } from "./entities/purchase-params";
 export type { RedemptionInfo } from "./entities/redemption-info";
 export type { PurchaseResult } from "./entities/purchase-result";
-export type {
-  TranslationVariables,
-  CustomTranslations,
-} from "./ui/localization/translator";
+export type { CustomTranslations } from "./ui/localization/translator";
 
 /**
  * Entry point for Purchases SDK. It should be instantiated as soon as your
