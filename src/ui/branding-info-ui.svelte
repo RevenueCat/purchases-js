@@ -14,7 +14,7 @@
         srcWebp={buildAssetURL(brandingInfo.app_icon_webp)}
       />
     {/if}
-    <span class="app-title">{brandingInfo.rcb_app_name}</span>
+    <span class="app-title">{brandingInfo.app_name}</span>
   {:else}
     <AppIcon />
   {/if}

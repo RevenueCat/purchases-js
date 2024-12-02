@@ -15,6 +15,6 @@ export type BrandingInfoResponse = {
   app_icon_webp: string | null;
   appearance: BrandingAppearance;
   id: string;
-  rcb_app_name: string | null;
-  rcb_support_email?: string | null;
+  app_name: string | null;
+  support_email?: string | null;
 };

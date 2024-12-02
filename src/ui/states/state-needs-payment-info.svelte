@@ -165,7 +165,7 @@
           <div class="rcb-stripe-elements-container">
             <PaymentElement
               options={{
-                business: brandingInfo?.rcb_app_name ? { name: brandingInfo.rcb_app_name } : undefined,
+                business: brandingInfo?.app_name ? { name: brandingInfo.app_name } : undefined,
                 layout: {
                 type: "tabs",
                 },
