@@ -14,7 +14,6 @@
 
   const isSubscription = productDetails?.productType === ProductType.Subscription;
   const translator: Translator = getContext(translatorContextKey) || Translator.fallback();
-  // TODO: Continue from here
 </script>
 
 <MessageLayout

@@ -3,6 +3,8 @@ import es from "./locale/es.json";
 import it from "./locale/it.json";
 import type { PeriodUnit } from "../../helpers/duration-helper";
 
+export type emptyString = "";
+
 export enum LocalizationKeys {
   PeriodsWeek = "periods.week",
   PeriodsMonth = "periods.month",
@@ -170,13 +172,16 @@ export class Translator {
     return this.locales[locale] || this.locales[potentialLocaleCode];
   }
 
-  public translate(labelId: string, variables?: TranslationVariables): string {
+  public translate(
+    key: LocalizationKeys | emptyString,
+    variables?: TranslationVariables,
+  ): string {
     const localeInstance = this.getLocaleInstance(this.selectedLocale);
     const fallbackInstance = this.getLocaleInstance(this.defaultLocale);
 
     return (
-      localeInstance?.translate(labelId, variables) ||
-      fallbackInstance?.translate(labelId, variables) ||
+      localeInstance?.translate(key, variables) ||
+      fallbackInstance?.translate(key, variables) ||
       ""
     );
   }
@@ -243,7 +248,7 @@ export class LocaleTranslations {
   }
 
   public translate(
-    labelId: string,
+    labelId: LocalizationKeys | emptyString,
     variables?: TranslationVariables,
   ): string | undefined {
     const label = this.labels[labelId];
@@ -268,10 +273,9 @@ export class LocaleTranslations {
         ? `periods.${period}`
         : `periods.${period}Plural`;
 
-    return this.translate(key, { amount: amount.toString() })?.replace(
-      " ",
-      noWhitespace ? "" : " ",
-    );
+    return this.translate(key as LocalizationKeys, {
+      amount: amount.toString(),
+    })?.replace(" ", noWhitespace ? "" : " ");
   }
 
   public translatePeriodUnit(
@@ -284,7 +288,7 @@ export class LocaleTranslations {
     };
     const key = `periods.${period}${short ? "Short" : ""}`;
 
-    return this.translate(key, { amount: "" })?.replace(
+    return this.translate(key as LocalizationKeys, { amount: "" })?.replace(
       " ",
       noWhitespace ? "" : " ",
     );
@@ -299,6 +303,8 @@ export class LocaleTranslations {
         ? `periods.${period}Frequency`
         : `periods.${period}FrequencyPlural`;
 
-    return this.translate(key, { amount: amount.toString() });
+    return this.translate(key as LocalizationKeys, {
+      amount: amount.toString(),
+    });
   }
 }
