@@ -2,14 +2,21 @@
   import { getContext, onMount } from "svelte";
   import Button from "../button.svelte";
   import { Elements, PaymentElement } from "svelte-stripe";
-  import type { Stripe, StripeElementLocale, StripeElements } from "@stripe/stripe-js";
+  import type {
+    Stripe,
+    StripeElementLocale,
+    StripeElements,
+  } from "@stripe/stripe-js";
   import { loadStripe } from "@stripe/stripe-js";
   import ModalSection from "../modal-section.svelte";
   import ModalFooter from "../modal-footer.svelte";
   import StateLoading from "./state-loading.svelte";
   import RowLayout from "../layout/row-layout.svelte";
   import { type PurchaseResponse } from "../../networking/responses/purchase-response";
-  import { PurchaseFlowError, PurchaseFlowErrorCode } from "../../helpers/purchase-operation-helper";
+  import {
+    PurchaseFlowError,
+    PurchaseFlowErrorCode,
+  } from "../../helpers/purchase-operation-helper";
   import ModalHeader from "../modal-header.svelte";
   import IconLock from "../icons/icon-lock.svelte";
   import ProcessingAnimation from "../processing-animation.svelte";
@@ -20,7 +27,6 @@
   import { translatorContextKey } from "../localization/constants";
   import { LocalizationKeys, Translator } from "../localization/translator";
   import Localized from "../localization/localized.svelte";
-
 
   export let onClose: any;
   export let onContinue: any;
@@ -88,14 +94,18 @@
   let customShape = theme.shape;
   let customColors = theme.formColors;
 
-  const translator: Translator = getContext(translatorContextKey) || Translator.fallback();
-  const stripeElementLocale = (translator.locale || translator.fallbackLocale) as StripeElementLocale;
+  const translator: Translator =
+    getContext(translatorContextKey) || Translator.fallback();
+  const stripeElementLocale = (translator.locale ||
+    translator.fallbackLocale) as StripeElementLocale;
 </script>
 
 <div>
   {#if stripe && clientSecret}
     <ModalHeader>
-      <div style="display: flex; align-items: center; justify-content: baseline;">
+      <div
+        style="display: flex; align-items: center; justify-content: baseline;"
+      >
         <IconLock />
         <div style="margin-left: 10px">
           <Localized
@@ -134,13 +144,12 @@
           ".Input:focus": {
             border: `2px solid ${customColors["focus"]}`,
             outline: "none",
-
           },
           ".Label": {
             marginBottom: "8px",
             fontWeight: "500",
             lineHeight: "22px",
-            color:customColors["grey-text-dark"],
+            color: customColors["grey-text-dark"],
           },
           ".Input--invalid": {
             boxShadow: "none",
@@ -148,21 +157,23 @@
           ".Tab": {
             boxShadow: "none",
             backgroundColor: "transparent",
-            color:customColors["grey-text-light"],
+            color: customColors["grey-text-light"],
             border: `2px solid ${customColors["grey-ui-dark"]}`,
           },
-          ".Tab:hover, .Tab:focus, .Tab--selected, .Tab--selected:hover, .Tab--selected:focus": {
-            boxShadow: "none",
-            color: customColors["grey-text-dark"],
-          },
-          ".Tab:focus, .Tab--selected, .Tab--selected:hover, .Tab--selected:focus": {
-            border: `2px solid ${customColors["focus"]}`,
-          },
+          ".Tab:hover, .Tab:focus, .Tab--selected, .Tab--selected:hover, .Tab--selected:focus":
+            {
+              boxShadow: "none",
+              color: customColors["grey-text-dark"],
+            },
+          ".Tab:focus, .Tab--selected, .Tab--selected:hover, .Tab--selected:focus":
+            {
+              border: `2px solid ${customColors["focus"]}`,
+            },
           ".TabIcon": {
-            fill:customColors["grey-text-light"],
+            fill: customColors["grey-text-light"],
           },
           ".TabIcon--selected": {
-            fill:customColors["grey-text-dark"],
+            fill: customColors["grey-text-dark"],
           },
           ".Block": {
             boxShadow: "none",
@@ -175,9 +186,11 @@
           <div class="rcb-stripe-elements-container">
             <PaymentElement
               options={{
-                business: brandingInfo?.seller_company_name ? { name: brandingInfo.seller_company_name } : undefined,
+                business: brandingInfo?.seller_company_name
+                  ? { name: brandingInfo.seller_company_name }
+                  : undefined,
                 layout: {
-                type: "tabs",
+                  type: "tabs",
                 },
               }}
               on:change={(event: any) => {
@@ -188,13 +201,20 @@
         </ModalSection>
         <ModalFooter>
           <RowLayout>
-            <Button disabled={processing || !isPaymentInfoComplete} testId="PayButton">
+            <Button
+              disabled={processing || !isPaymentInfoComplete}
+              testId="PayButton"
+            >
               {#if processing}
                 <ProcessingAnimation />
               {:else if productDetails.subscriptionOptions?.[purchaseOptionToUse.id]?.trial}
-                <Localized labelId={LocalizationKeys.StateNeedsPaymentInfoButtonStartTrial} />
+                <Localized
+                  labelId={LocalizationKeys.StateNeedsPaymentInfoButtonStartTrial}
+                />
               {:else}
-                <Localized labelId={LocalizationKeys.StateNeedsPaymentInfoButtonPay} />
+                <Localized
+                  labelId={LocalizationKeys.StateNeedsPaymentInfoButtonPay}
+                />
               {/if}
             </Button>
           </RowLayout>
@@ -207,14 +227,14 @@
 </div>
 
 <style>
-    .rcb-stripe-elements-container {
-        width: 100%;
+  .rcb-stripe-elements-container {
+    width: 100%;
 
-        /* The standard height of the payment form from Stripe */
-        /* Added to avoid the card getting smaller while loading */
-        min-height: 320px;
+    /* The standard height of the payment form from Stripe */
+    /* Added to avoid the card getting smaller while loading */
+    min-height: 320px;
 
-        margin-top: 32px;
-        margin-bottom: 24px;
-    }
+    margin-top: 32px;
+    margin-bottom: 24px;
+  }
 </style>

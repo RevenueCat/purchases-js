@@ -12,8 +12,10 @@
   export let brandingInfo: BrandingInfoResponse | null = null;
   export let onContinue: () => void;
 
-  const isSubscription = productDetails?.productType === ProductType.Subscription;
-  const translator: Translator = getContext(translatorContextKey) || Translator.fallback();
+  const isSubscription =
+    productDetails?.productType === ProductType.Subscription;
+  const translator: Translator =
+    getContext(translatorContextKey) || Translator.fallback();
   // TODO: Continue from here
 </script>
 
@@ -22,12 +24,12 @@
   title={translator.translate(LocalizationKeys.StateSuccessPurchaseSuccessful)}
   {brandingInfo}
   {onContinue}
-  closeButtonTitle={translator.translate(LocalizationKeys.StateSuccessButtonClose)}
+  closeButtonTitle={translator.translate(
+    LocalizationKeys.StateSuccessButtonClose,
+  )}
 >
   <IconSuccess slot="icon" />
   {#if isSubscription}
-    <Localized
-      labelId={LocalizationKeys.StateSuccessSubscriptionNowActive}
-    />
+    <Localized labelId={LocalizationKeys.StateSuccessSubscriptionNowActive} />
   {/if}
 </MessageLayout>

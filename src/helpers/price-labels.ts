@@ -1,5 +1,8 @@
 import { parseISODuration } from "./duration-helper";
-import { LocalizationKeys, Translator } from "../ui/localization/translator";
+import {
+  LocalizationKeys,
+  type Translator,
+} from "../ui/localization/translator";
 
 export const formatPrice = (
   priceInMicros: number,

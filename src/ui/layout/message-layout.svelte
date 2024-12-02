@@ -34,26 +34,26 @@
 </RowLayout>
 
 <style>
-    .rcb-modal-message {
-        width: 100%;
-        min-height: 160px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        text-align: center;
-        margin-bottom: 16px;
-        margin-top: 16px;
-    }
+  .rcb-modal-message {
+    width: 100%;
+    min-height: 160px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+    margin-bottom: 16px;
+    margin-top: 16px;
+  }
 
-    .title {
-        font-size: 24px;
-        line-height: 1.25em;
-    }
+  .title {
+    font-size: 24px;
+    line-height: 1.25em;
+  }
 
-    .subtitle {
-        font-size: 16px;
-        line-height: 1.25em;
-        overflow-wrap: anywhere;
-    }
+  .subtitle {
+    font-size: 16px;
+    line-height: 1.25em;
+    overflow-wrap: anywhere;
+  }
 </style>

@@ -26,7 +26,10 @@
 
   import { toProductInfoStyleVar } from "./theme/utils";
   import { type RedemptionInfo } from "../entities/redemption-info";
-  import { type CustomTranslations, Translator } from "./localization/translator";
+  import {
+    type CustomTranslations,
+    Translator,
+  } from "./localization/translator";
   import { translatorContextKey } from "./localization/constants";
 
   export let asModal = true;
@@ -78,14 +81,15 @@
   ];
 
   // Setting the context for the Localized components
-  setContext(translatorContextKey, new Translator(customTranslations, selectedLocale, defaultLocale));
+  setContext(
+    translatorContextKey,
+    new Translator(customTranslations, selectedLocale, defaultLocale),
+  );
 
   onMount(async () => {
     productDetails = rcPackage.rcBillingProduct;
 
-    colorVariables = toProductInfoStyleVar(
-      brandingInfo?.appearance,
-    );
+    colorVariables = toProductInfoStyleVar(brandingInfo?.appearance);
 
     if (state === "present-offer") {
       if (customerEmail) {
@@ -194,10 +198,10 @@
   const closeWithError = () => {
     onError(
       lastError ??
-      new PurchaseFlowError(
-        PurchaseFlowErrorCode.UnknownError,
-        "Unknown error without state set.",
-      ),
+        new PurchaseFlowError(
+          PurchaseFlowErrorCode.UnknownError,
+          "Unknown error without state set.",
+        ),
     );
   };
 </script>
@@ -261,17 +265,21 @@
           <StateError
             {brandingInfo}
             lastError={lastError ??
-                new PurchaseFlowError(
-                  PurchaseFlowErrorCode.UnknownError,
-                  "Unknown error without state set.",
-                )}
+              new PurchaseFlowError(
+                PurchaseFlowErrorCode.UnknownError,
+                "Unknown error without state set.",
+              )}
             supportEmail={brandingInfo?.seller_company_support_email}
-            productDetails={productDetails}
+            {productDetails}
             onContinue={closeWithError}
           />
         {/if}
         {#if state === "success"}
-          <StateSuccess {productDetails} {brandingInfo} onContinue={handleContinue} />
+          <StateSuccess
+            {productDetails}
+            {brandingInfo}
+            onContinue={handleContinue}
+          />
         {/if}
       </Main>
     </Layout>

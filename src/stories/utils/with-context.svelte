@@ -1,5 +1,4 @@
 <script lang="ts">
-
   import { setContext, type Snippet } from "svelte";
 
   interface Props {
@@ -12,6 +11,5 @@
     setContext(key, value);
   });
 </script>
-
 
 {@render children?.()}

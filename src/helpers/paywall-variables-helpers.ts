@@ -131,38 +131,41 @@ function getTotalPriceAndPerMonth({
   translator: Translator;
 }) {
   if (!period || !period.number) return price.formattedPrice;
+
+  if (period.unit === PeriodUnit.Month && period.number == 1) {
+    return price.formattedPrice;
+  }
+
   let pricePerMonth: string | undefined = "";
 
-  if (period.unit === "year") {
-    pricePerMonth = translator.formatPrice(
-      price.amountMicros / 12,
-      price.currency,
-    );
-  }
+  switch (period.unit) {
+    case PeriodUnit.Year:
+      pricePerMonth = translator.formatPrice(
+        price.amountMicros / 12,
+        price.currency,
+      );
+      break;
 
-  if (period.unit === "month") {
-    pricePerMonth = translator.formatPrice(
-      price.amountMicros / period.number,
-      price.currency,
-    );
+    case PeriodUnit.Month:
+      pricePerMonth = translator.formatPrice(
+        price.amountMicros / period.number,
+        price.currency,
+      );
+      break;
 
-    if (period.number === 1) {
-      return price.formattedPrice;
-    }
-  }
+    case PeriodUnit.Week:
+      pricePerMonth = translator.formatPrice(
+        (price.amountMicros * 4) / period.number,
+        price.currency,
+      );
+      break;
 
-  if (period.unit === "week") {
-    pricePerMonth = translator.formatPrice(
-      (price.amountMicros * 4) / period.number,
-      price.currency,
-    );
-  }
-
-  if (period.unit === "day") {
-    pricePerMonth = translator.formatPrice(
-      (price.amountMicros * 30) / period.number,
-      price.currency,
-    );
+    case PeriodUnit.Day:
+      pricePerMonth = translator.formatPrice(
+        (price.amountMicros * 30) / period.number,
+        price.currency,
+      );
+      break;
   }
 
   return translator.translate(
