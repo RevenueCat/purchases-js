@@ -6,12 +6,14 @@
   import Main from "../ui/layout/main-block.svelte";
   import ModalBackdrop from "../ui/modal-backdrop.svelte";
 
-  import { colorfulBrandingAppearance, product, subscriptionOption } from "./fixtures";
+  import {
+    colorfulBrandingAppearance,
+    product,
+    subscriptionOption,
+  } from "./fixtures";
 </script>
 
-
 <Meta title="StateLoading" component={StateLoading} />
-
 
 <Template let:args>
   <Container>
@@ -25,21 +27,53 @@
   </Container>
 </Template>
 
+<Story
+  name="Standard"
+  args={{
+    productDetails: product,
+    purchaseOption: subscriptionOption,
+    brandingAppearance: {},
+  }}
+/>
 
-<Story name='Standard' args={{ productDetails:product, purchaseOption:subscriptionOption, brandingAppearance:{
-} }} />
+<Story
+  name="Rounded"
+  args={{
+    productDetails: product,
+    purchaseOption: subscriptionOption,
+    brandingAppearance: {
+      shapes: "rounded",
+    },
+  }}
+/>
 
-<Story name='Rounded' args={{ productDetails:product, purchaseOption:subscriptionOption, brandingAppearance:{
-  shapes:'rounded'
-} }} />
+<Story
+  name="Pill"
+  args={{
+    productDetails: product,
+    purchaseOption: subscriptionOption,
+    brandingAppearance: {
+      shapes: "pill",
+    },
+  }}
+/>
 
-<Story name='Pill' args={{ productDetails:product, purchaseOption:subscriptionOption, brandingAppearance:{
-  shapes:'pill'
-} }} />
+<Story
+  name="Rectangle"
+  args={{
+    productDetails: product,
+    purchaseOption: subscriptionOption,
+    brandingAppearance: {
+      shapes: "rectangle",
+    },
+  }}
+/>
 
-<Story name='Rectangle' args={{ productDetails:product, purchaseOption:subscriptionOption, brandingAppearance:{
-  shapes:'rectangle'
-} }} />
-
-<Story name='ColorfulRectangle'
-       args={{ productDetails:product, purchaseOption:subscriptionOption,  brandingAppearance:colorfulBrandingAppearance }} />
+<Story
+  name="ColorfulRectangle"
+  args={{
+    productDetails: product,
+    purchaseOption: subscriptionOption,
+    brandingAppearance: colorfulBrandingAppearance,
+  }}
+/>

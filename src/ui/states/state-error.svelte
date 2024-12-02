@@ -1,5 +1,8 @@
 <script lang="ts">
-  import { PurchaseFlowError, PurchaseFlowErrorCode } from "../../helpers/purchase-operation-helper";
+  import {
+    PurchaseFlowError,
+    PurchaseFlowErrorCode,
+  } from "../../helpers/purchase-operation-helper";
   import IconError from "../icons/icon-error.svelte";
   import { getContext, onMount } from "svelte";
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
@@ -16,7 +19,8 @@
   export let productDetails: Product | null = null;
   export let onContinue: () => void;
 
-  const translator: Translator = getContext(translatorContextKey) || Translator.fallback();
+  const translator: Translator =
+    getContext(translatorContextKey) || Translator.fallback();
 
   onMount(() => {
     Logger.errorLog(
@@ -28,12 +32,17 @@
     switch (lastError.errorCode) {
       case PurchaseFlowErrorCode.AlreadyPurchasedError:
         if (productDetails?.productType === ProductType.Subscription) {
-          return translator.translate(LocalizationKeys.StateErrorErrorMessageAlreadySubscribed);
+          return translator.translate(
+            LocalizationKeys.StateErrorErrorMessageAlreadySubscribed,
+          );
         } else {
-          return translator.translate(LocalizationKeys.StateErrorErrorMessageAlreadyPurchased);
+          return translator.translate(
+            LocalizationKeys.StateErrorErrorMessageAlreadyPurchased,
+          );
         }
       default:
-        return translator.translate(LocalizationKeys.StateErrorErrorTitleOtherErrors,
+        return translator.translate(
+          LocalizationKeys.StateErrorErrorTitleOtherErrors,
         );
     }
   }
@@ -42,23 +51,44 @@
     const publicErrorCode = lastError.getErrorCode();
     switch (lastError.errorCode) {
       case PurchaseFlowErrorCode.UnknownError:
-        return translator.translate(LocalizationKeys.StateErrorErrorMessageUnknownError, { errorCode: publicErrorCode });
+        return translator.translate(
+          LocalizationKeys.StateErrorErrorMessageUnknownError,
+          { errorCode: publicErrorCode },
+        );
       case PurchaseFlowErrorCode.ErrorSettingUpPurchase:
-        return translator.translate(LocalizationKeys.StateErrorErrorMessageErrorSettingUpPurchase, { errorCode: publicErrorCode });
+        return translator.translate(
+          LocalizationKeys.StateErrorErrorMessageErrorSettingUpPurchase,
+          { errorCode: publicErrorCode },
+        );
       case PurchaseFlowErrorCode.ErrorChargingPayment:
-        return translator.translate(LocalizationKeys.StateErrorErrorMessageErrorChargingPayment, { errorCode: publicErrorCode });
+        return translator.translate(
+          LocalizationKeys.StateErrorErrorMessageErrorChargingPayment,
+          { errorCode: publicErrorCode },
+        );
       case PurchaseFlowErrorCode.NetworkError:
-        return translator.translate(LocalizationKeys.StateErrorErrorMessageNetworkError, { errorCode: publicErrorCode });
+        return translator.translate(
+          LocalizationKeys.StateErrorErrorMessageNetworkError,
+          { errorCode: publicErrorCode },
+        );
       case PurchaseFlowErrorCode.StripeError:
         // For stripe errors, we can display the stripe-provided error message.
         return lastError.message;
       case PurchaseFlowErrorCode.MissingEmailError:
-        return translator.translate(LocalizationKeys.StateErrorErrorMessageMissingEmailError, { errorCode: publicErrorCode });
+        return translator.translate(
+          LocalizationKeys.StateErrorErrorMessageMissingEmailError,
+          { errorCode: publicErrorCode },
+        );
       case PurchaseFlowErrorCode.AlreadyPurchasedError:
         if (productDetails?.productType === ProductType.Subscription) {
-          return translator.translate(LocalizationKeys.StateErrorErrorMessageAlreadySubscribed, { errorCode: publicErrorCode });
+          return translator.translate(
+            LocalizationKeys.StateErrorErrorMessageAlreadySubscribed,
+            { errorCode: publicErrorCode },
+          );
         } else {
-          return translator.translate(LocalizationKeys.StateErrorErrorMessageAlreadyPurchased, { errorCode: publicErrorCode });
+          return translator.translate(
+            LocalizationKeys.StateErrorErrorMessageAlreadyPurchased,
+            { errorCode: publicErrorCode },
+          );
         }
     }
   }
@@ -69,13 +99,15 @@
   {brandingInfo}
   {onContinue}
   type="error"
-  closeButtonTitle={translator.translate(LocalizationKeys.StateErrorButtonTryAgain)}
+  closeButtonTitle={translator.translate(
+    LocalizationKeys.StateErrorButtonTryAgain,
+  )}
 >
   <IconError slot="icon" />
 
   {getTranslatedErrorMessage()}
   {#if supportEmail}
-    <br>
+    <br />
     <Localized labelId={LocalizationKeys.StateErrorIfErrorPersists}>
       If this error persists, please contact
     </Localized>
