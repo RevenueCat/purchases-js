@@ -1,4 +1,5 @@
-import { Offering, Package, PurchasesError } from "@revenuecat/purchases-js";
+import type { Offering, Package } from "@revenuecat/purchases-js";
+import { PurchasesError } from "@revenuecat/purchases-js";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { usePurchasesLoaderData } from "../../util/PurchasesLoader";

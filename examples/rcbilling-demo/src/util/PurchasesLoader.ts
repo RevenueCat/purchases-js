@@ -1,10 +1,7 @@
-import {
-  CustomerInfo,
-  LogLevel,
-  Offering,
-  Purchases,
-} from "@revenuecat/purchases-js";
-import { LoaderFunction, redirect, useLoaderData } from "react-router-dom";
+import type { CustomerInfo, Offering } from "@revenuecat/purchases-js";
+import { LogLevel, Purchases } from "@revenuecat/purchases-js";
+import type { LoaderFunction } from "react-router-dom";
+import { redirect, useLoaderData } from "react-router-dom";
 
 const apiKey = import.meta.env.VITE_RC_API_KEY as string;
 
