@@ -242,8 +242,8 @@ const brandingInfoResponse = {
   app_icon: null,
   app_icon_webp: null,
   id: "test-app-id",
-  seller_company_name: "Test Company name",
-  seller_company_support_email: "test-rcbilling-support@revenuecat.com",
+  app_name: "Test Company name",
+  support_email: "test-rcbilling-support@revenuecat.com",
 };
 
 export interface GetRequest {
