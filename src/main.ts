@@ -1,8 +1,4 @@
-import {
-  type Offering,
-  type Offerings,
-  type Package,
-} from "./entities/offerings";
+import type { Offering, Offerings, Package } from "./entities/offerings";
 import RCPurchasesUI from "./ui/rcb-ui.svelte";
 
 import { type CustomerInfo, toCustomerInfo } from "./entities/customer-info";
@@ -517,7 +513,7 @@ export class Purchases {
 
     const certainHTMLTarget = resolvedHTMLTarget as unknown as HTMLElement;
 
-    const asModal = !Boolean(htmlTarget);
+    const asModal = !htmlTarget;
     const appUserId = this._appUserId;
 
     Logger.debugLog(
