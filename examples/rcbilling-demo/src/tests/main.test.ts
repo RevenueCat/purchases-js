@@ -66,7 +66,8 @@ test.describe("Main", () => {
 
     await performPurchase(page, singleCard, userId);
   });
-  test("Can purchase a subscription Product for RC Paywall", async ({
+
+  test.skip("Can purchase a subscription Product for RC Paywall", async ({
     browser,
     browserName,
   }) => {

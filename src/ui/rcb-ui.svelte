@@ -257,7 +257,7 @@
                   PurchaseFlowErrorCode.UnknownError,
                   "Unknown error without state set.",
                 )}
-            supportEmail={brandingInfo?.seller_company_support_email}
+            supportEmail={brandingInfo?.support_email}
             productDetails={productDetails}
             onContinue={closeWithError}
           />
