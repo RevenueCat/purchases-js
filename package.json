@@ -99,7 +99,7 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,svelte}": [
-      "prettier --write --ignore-unknown"
+      "prettier --write"
     ]
   }
 }
