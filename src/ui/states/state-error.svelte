@@ -108,7 +108,7 @@
   {getTranslatedErrorMessage()}
   {#if supportEmail}
     <br />
-    <Localized labelId={LocalizationKeys.StateErrorIfErrorPersists} />
+    <Localized key={LocalizationKeys.StateErrorIfErrorPersists} />
     <a href="mailto:{supportEmail}">{supportEmail}</a>.
   {/if}
 </MessageLayout>

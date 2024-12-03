@@ -42,7 +42,7 @@
 <div class="container">
   <ModalHeader>
     <span>
-      <Localized labelId={LocalizationKeys.StateNeedsAuthInfoEmailStepTitle} />
+      <Localized key={LocalizationKeys.StateNeedsAuthInfoEmailStepTitle} />
     </span>
     <CloseButton on:click={onClose} />
   </ModalHeader>
@@ -52,7 +52,7 @@
         <div class="form-label">
           <label for="email">
             <Localized
-              labelId={LocalizationKeys.StateNeedsAuthInfoEmailInputLabel}
+              key={LocalizationKeys.StateNeedsAuthInfoEmailInputLabel}
             />
           </label>
         </div>
@@ -78,7 +78,7 @@
             <ProcessingAnimation />
           {:else}
             <Localized
-              labelId={LocalizationKeys.StateNeedsAuthInfoButtonContinue}
+              key={LocalizationKeys.StateNeedsAuthInfoButtonContinue}
             />
           {/if}
         </Button>

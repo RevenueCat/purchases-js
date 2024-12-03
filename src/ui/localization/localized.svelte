@@ -9,7 +9,7 @@
   import { translatorContextKey } from "./constants";
 
   interface LocalizedProps {
-    labelId?: string;
+    key?: LocalizationKeys | emptyString | undefined;
     variables?: TranslationVariables;
     children?: any;
     selectedLocale?: string;
@@ -17,7 +17,7 @@
   }
 
   const {
-    labelId = "",
+    key = "",
     selectedLocale,
     defaultLocale = "en",
     variables,
@@ -38,10 +38,12 @@
     : contextTranslator || Translator.fallback();
 
   const translatedLabel = $derived(
-    translator.translate(
-      (labelId as LocalizationKeys) || ("" as emptyString),
-      variables,
-    ),
+    key
+      ? translator.translate(
+          (key as LocalizationKeys) || ("" as emptyString),
+          variables,
+        )
+      : undefined,
   );
 </script>
 

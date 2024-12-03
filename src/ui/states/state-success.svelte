@@ -29,6 +29,6 @@
 >
   <IconSuccess slot="icon" />
   {#if isSubscription}
-    <Localized labelId={LocalizationKeys.StateSuccessSubscriptionNowActive} />
+    <Localized key={LocalizationKeys.StateSuccessSubscriptionNowActive} />
   {/if}
 </MessageLayout>

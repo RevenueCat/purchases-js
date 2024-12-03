@@ -109,7 +109,7 @@
         <IconLock />
         <div style="margin-left: 10px">
           <Localized
-            labelId={LocalizationKeys.StateNeedsPaymentInfoPaymentStepTitle}
+            key={LocalizationKeys.StateNeedsPaymentInfoPaymentStepTitle}
           />
         </div>
       </div>
@@ -209,11 +209,11 @@
                 <ProcessingAnimation />
               {:else if productDetails.subscriptionOptions?.[purchaseOptionToUse.id]?.trial}
                 <Localized
-                  labelId={LocalizationKeys.StateNeedsPaymentInfoButtonStartTrial}
+                  key={LocalizationKeys.StateNeedsPaymentInfoButtonStartTrial}
                 />
               {:else}
                 <Localized
-                  labelId={LocalizationKeys.StateNeedsPaymentInfoButtonPay}
+                  key={LocalizationKeys.StateNeedsPaymentInfoButtonPay}
                 />
               {/if}
             </Button>

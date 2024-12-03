@@ -40,7 +40,7 @@
   <div class="rcb-pricing-info">
     <span class="rcb-product-title">
       <Localized
-        labelId={LocalizationKeys.StatePresentOfferProductTitle}
+        key={LocalizationKeys.StatePresentOfferProductTitle}
         variables={{ productTitle: productDetails.title }}
       />
     </span>
@@ -49,7 +49,7 @@
       <span class="rcb-product-price">
         {#if subscriptionTrial?.periodDuration}
           <Localized
-            labelId={LocalizationKeys.StatePresentOfferFreeTrialDuration}
+            key={LocalizationKeys.StatePresentOfferFreeTrialDuration}
             variables={{
               trialDuration: getTranslatedPeriodLength(
                 subscriptionTrial.periodDuration,
@@ -60,7 +60,7 @@
         {/if}
         {#if !subscriptionTrial?.periodDuration && subscriptionBasePrice}
           <Localized
-            labelId={LocalizationKeys.StatePresentOfferProductPrice}
+            key={LocalizationKeys.StatePresentOfferProductPrice}
             variables={{
               productPrice: subscriptionBasePrice.formattedPrice,
             }}
@@ -70,7 +70,7 @@
       {#if subscriptionTrial && subscriptionBasePrice}
         <span class="rcb-product-price-after-trial">
           <Localized
-            labelId={LocalizationKeys.StatePresentOfferPriceAfterFreeTrial}
+            key={LocalizationKeys.StatePresentOfferPriceAfterFreeTrial}
             variables={{
               productPrice:
                 subscriptionTrial &&
@@ -83,7 +83,7 @@
       {#if brandingAppearance?.show_product_description && productDetails.description}
         <span class="rcb-product-description">
           <Localized
-            labelId={LocalizationKeys.StatePresentOfferProductDescription}
+            key={LocalizationKeys.StatePresentOfferProductDescription}
             variables={{
               productDescription: productDetails.description,
             }}
@@ -94,7 +94,7 @@
         {#if productDetails.normalPeriodDuration}
           <li>
             <Localized
-              labelId={LocalizationKeys.StatePresentOfferRenewalFrequency}
+              key={LocalizationKeys.StatePresentOfferRenewalFrequency}
               variables={{
                 frequency: getTranslatedPeriodFrequency(
                   productDetails.normalPeriodDuration,
@@ -106,20 +106,18 @@
         {/if}
         <li>
           <Localized
-            labelId={LocalizationKeys.StatePresentOfferContinuesUntilCancelled}
+            key={LocalizationKeys.StatePresentOfferContinuesUntilCancelled}
           />
         </li>
         <li>
-          <Localized
-            labelId={LocalizationKeys.StatePresentOfferCancelAnytime}
-          />
+          <Localized key={LocalizationKeys.StatePresentOfferCancelAnytime} />
         </li>
       </ul>
     {/if}
     {#if !isSubscription}
       <span class="rcb-product-price">
         <Localized
-          labelId={LocalizationKeys.StatePresentOfferProductPrice}
+          key={LocalizationKeys.StatePresentOfferProductPrice}
           variables={{ productPrice: nonSubscriptionBasePrice?.formattedPrice }}
         />
       </span>
@@ -127,7 +125,7 @@
       {#if brandingAppearance?.show_product_description}
         <span class="rcb-product-description">
           <Localized
-            labelId={LocalizationKeys.StatePresentOfferProductDescription}
+            key={LocalizationKeys.StatePresentOfferProductDescription}
             variables={{ productDescription: productDetails.description }}
           />
         </span>
