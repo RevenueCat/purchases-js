@@ -3,6 +3,8 @@ import { Locator } from "playwright";
 
 const _LOCAL_URL = "http://localhost:3001/";
 const CARD_SELECTOR = "div.card";
+const PACKAGE_SELECTOR = "button.package";
+const RC_PAYWALL_TEST_OFFERING_ID = "e2e_tests_web_paywalls";
 
 test.describe("Main", () => {
   test.afterEach(({ browser }) => {
@@ -63,6 +65,36 @@ test.describe("Main", () => {
     const singleCard = packageCards[1];
 
     await performPurchase(page, singleCard, userId);
+  });
+  test("Can purchase a subscription Product for RC Paywall", async ({
+    browser,
+    browserName,
+  }) => {
+    const userId = `${getUserId(browserName)}_subscription`;
+    const page = await setupTest(
+      browser,
+      userId,
+      RC_PAYWALL_TEST_OFFERING_ID,
+      true,
+    );
+    const title = page.getByText("Pasta-a-porter");
+    await expect(title).toBeVisible();
+
+    // Gets all packages
+    const packageCards = await getAllElementsByLocator(page, PACKAGE_SELECTOR);
+    const singleCard = packageCards[0];
+    // Pick the first package
+    await singleCard.click();
+
+    // Get the purchase button as a Locator
+    const purchaseButton = (
+      await getAllElementsByLocator(page, "button.purchase-button")
+    )[0];
+
+    await expect(purchaseButton).toBeVisible();
+
+    // Target the parent element of the purchase button since the function targets the button itself
+    await performPurchase(page, purchaseButton.locator(".."), userId);
   });
 
   test("Can purchase a consumable Product", async ({
@@ -158,9 +190,10 @@ async function setupTest(
   browser: Browser,
   userId: string,
   offeringId?: string,
+  useRcPaywall?: boolean,
 ) {
   const page = await browser.newPage();
-  await navigateToUrl(page, userId, offeringId);
+  await navigateToUrl(page, userId, offeringId, useRcPaywall);
 
   return page;
 }
@@ -211,12 +244,13 @@ async function navigateToUrl(
   page: Page,
   userId: string,
   offeringId?: string,
+  useRcPaywall?: boolean,
 ): Promise<void> {
   const baseUrl =
     (import.meta.env?.VITE_RC_BILLING_DEMO_URL as string | undefined) ??
     _LOCAL_URL;
 
-  const url = `${baseUrl}paywall/${encodeURIComponent(userId)}${
+  const url = `${baseUrl}${useRcPaywall ? "rc_paywall" : "paywall"}/${encodeURIComponent(userId)}${
     offeringId ? `?offeringId=${offeringId}` : ""
   }`;
   await page.goto(url);
@@ -225,6 +259,7 @@ async function navigateToUrl(
 async function typeTextInPageSelector(page: Page, text: string): Promise<void> {
   // Fill email
   const emailTitle = page.getByText("Billing email address");
+  console.log({ emailTitle });
   await expect(emailTitle).toBeVisible();
   await page.getByPlaceholder("john@appleseed.com").click();
   await page.getByPlaceholder("john@appleseed.com").fill(text);
