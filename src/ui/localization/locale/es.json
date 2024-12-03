@@ -29,7 +29,7 @@
   "state_present_offer.renewal_frequency": "Se renueva {{frequency}}",
   "state_present_offer.continues_until_cancelled": "Continúa hasta que se cancele",
   "state_present_offer.cancel_anytime": "Cancela en cualquier momento",
-  "state_needs_auth_info.email_step_title": "Contraseña email de facturación",
+  "state_needs_auth_info.email_step_title": "Email de facturación",
   "state_needs_auth_info.email_input_label": "Email",
   "state_needs_auth_info.email_input_placeholder": "john@appleseed.com",
   "state_needs_auth_info.button_continue": "Continuar",
