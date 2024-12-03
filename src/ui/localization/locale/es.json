@@ -47,7 +47,7 @@
   "state_error.error_message_already_purchased": "Ya has comprado este producto.",
   "state_error.error_message_missing_email_error": "Se requiere un email para completar la compra.",
   "state_error.error_message_network_error": "Error de red. Por favor, verifica tu conexión a internet.",
-  "state_error.error_message_error_charging_payment": "Pago fallido.",
+  "state_error.error_message_error_charging_payment": "El pago no se completó.",
   "state_error.error_message_error_setting_up_purchase": "La compra no se inició debido a un error. Código de error: {{errorCode}}",
   "state_error.error_message_unknown_error": "Ocurrió un error desconocido. Código de error: {{errorCode}}",
   "state_error.button_try_again": "Intentar de nuevo",
