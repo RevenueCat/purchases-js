@@ -253,6 +253,7 @@ async function navigateToUrl(
   const url = `${baseUrl}${useRcPaywall ? "rc_paywall" : "paywall"}/${encodeURIComponent(userId)}${
     offeringId ? `?offeringId=${offeringId}` : ""
   }`;
+  console.log("🔥🔥🔥🔥", url);
   await page.goto(url);
 }
 
