@@ -6,9 +6,12 @@ import {
   type PurchaseOption,
   type SubscriptionOption,
 } from "../entities/offerings";
-import { Period, PeriodUnit } from "./duration-helper";
+import { type Period, PeriodUnit } from "./duration-helper";
 import { type VariableDictionary } from "@revenuecat/purchases-ui-js";
-import { LocalizationKeys, Translator } from "../ui/localization/translator";
+import {
+  LocalizationKeys,
+  type Translator,
+} from "../ui/localization/translator";
 
 function getProductPerType(pkg: Package): PurchaseOption | undefined | null {
   return pkg.rcBillingProduct.defaultPurchaseOption;
