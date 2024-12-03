@@ -1,5 +1,5 @@
 import { type Package, type PurchaseOption } from "./offerings";
-import { CustomTranslations } from "../ui/localization/translator";
+import { type CustomTranslations } from "../ui/localization/translator";
 
 /**
  * Parameters used to customise the purchase flow when invoking the `.purchase` method.
