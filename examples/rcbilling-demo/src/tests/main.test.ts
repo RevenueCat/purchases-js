@@ -4,7 +4,7 @@ import { Locator } from "playwright";
 const _LOCAL_URL = "http://localhost:3001/";
 const CARD_SELECTOR = "div.card";
 const PACKAGE_SELECTOR = "button.package";
-const RC_PAYWALL_TEST_OFFERING_ID = "e2e_tests_web_paywalls";
+const RC_PAYWALL_TEST_OFFERING_ID = "rc_paywalls_e2e_test";
 
 test.describe("Main", () => {
   test.afterEach(({ browser }) => {
@@ -66,6 +66,17 @@ test.describe("Main", () => {
 
     await performPurchase(page, singleCard, userId);
   });
+  test("Can render an RC Paywall", async ({ browser, browserName }) => {
+    const userId = `${getUserId(browserName)}_subscription`;
+    const page = await setupTest(
+      browser,
+      userId,
+      RC_PAYWALL_TEST_OFFERING_ID,
+      true,
+    );
+    const title = page.getByText("E2E Tests for Purchases JS");
+    await expect(title).toBeVisible();
+  });
   test("Can purchase a subscription Product for RC Paywall", async ({
     browser,
     browserName,
@@ -77,7 +88,7 @@ test.describe("Main", () => {
       RC_PAYWALL_TEST_OFFERING_ID,
       true,
     );
-    const title = page.getByText("Pasta-a-porter");
+    const title = page.getByText("E2E Tests for Purchases JS");
     await expect(title).toBeVisible();
 
     // Gets all packages
@@ -253,14 +264,12 @@ async function navigateToUrl(
   const url = `${baseUrl}${useRcPaywall ? "rc_paywall" : "paywall"}/${encodeURIComponent(userId)}${
     offeringId ? `?offeringId=${offeringId}` : ""
   }`;
-  console.log("🔥🔥🔥🔥", url);
   await page.goto(url);
 }
 
 async function typeTextInPageSelector(page: Page, text: string): Promise<void> {
   // Fill email
   const emailTitle = page.getByText("Billing email address");
-  console.log({ emailTitle });
   await expect(emailTitle).toBeVisible();
   await page.getByPlaceholder("john@appleseed.com").click();
   await page.getByPlaceholder("john@appleseed.com").fill(text);
