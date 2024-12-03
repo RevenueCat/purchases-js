@@ -4,8 +4,6 @@
 
 ```ts
 
-import { PaywallData } from '@revenuecat/purchases-ui-js';
-
 // @public
 export interface CustomerInfo {
     readonly activeSubscriptions: Set<string>;
@@ -149,8 +147,6 @@ export interface Offering {
     readonly packagesById: {
         [key: string]: Package;
     };
-    // (undocumented)
-    readonly paywall_components: PaywallData | null;
     readonly serverDescription: string;
     readonly sixMonth: Package | null;
     readonly threeMonth: Package | null;
@@ -278,9 +274,11 @@ export interface PurchaseParams {
     rcPackage: Package;
 }
 
-// @public
-export interface PurchaseResult {
+// @public (undocumented)
+interface PurchaseResult {
+    // (undocumented)
     readonly customerInfo: CustomerInfo;
+    // (undocumented)
     readonly redemptionInfo: RedemptionInfo | null;
 }
 
@@ -289,7 +287,6 @@ export class Purchases {
     changeUser(newAppUserId: string): Promise<CustomerInfo>;
     close(): void;
     static configure(apiKey: string, appUserId: string, httpConfig?: HttpConfig): Purchases;
-    static generateRevenueCatAnonymousAppUserId(): string;
     getAppUserId(): string;
     getCurrentOfferingForPlacement(placementIdentifier: string, params?: GetOfferingsParams): Promise<Offering | null>;
     getCustomerInfo(): Promise<CustomerInfo>;
@@ -300,9 +297,13 @@ export class Purchases {
     // (undocumented)
     isSandbox(): boolean;
     preload(): Promise<void>;
-    purchase(params: PurchaseParams): Promise<PurchaseResult>;
+    purchase(params: PurchaseParams): Promise<{
+        purchaseResult: PurchaseResult;
+    }>;
     // @deprecated
-    purchasePackage(rcPackage: Package, customerEmail?: string, htmlTarget?: HTMLElement): Promise<PurchaseResult>;
+    purchasePackage(rcPackage: Package, customerEmail?: string, htmlTarget?: HTMLElement): Promise<{
+        purchaseResult: PurchaseResult;
+    }>;
     static setLogLevel(logLevel: LogLevel): void;
 }
 
@@ -311,13 +312,13 @@ export class PurchasesError extends Error {
     constructor(
     errorCode: ErrorCode,
     message?: string,
-    underlyingErrorMessage?: (string | null) | undefined,
+    underlyingErrorMessage?: string | null | undefined,
     extra?: PurchasesErrorExtra | undefined);
     readonly errorCode: ErrorCode;
     readonly extra?: PurchasesErrorExtra | undefined;
     // (undocumented)
     toString: () => string;
-    readonly underlyingErrorMessage?: (string | null) | undefined;
+    readonly underlyingErrorMessage?: string | null | undefined;
 }
 
 // @public
@@ -350,6 +351,10 @@ export interface TargetingContext {
 export class UninitializedPurchasesError extends Error {
     constructor();
 }
+
+// Warnings were encountered during analysis:
+//
+// dist/Purchases.es.d.ts:722:13 - (ae-forgotten-export) The symbol "PurchaseResult" needs to be exported by the entry point Purchases.es.d.ts
 
 // (No @packageDocumentation comment for this package)
 
