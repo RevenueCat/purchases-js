@@ -1,5 +1,5 @@
 {
-  "periods.unknownFrequency": "",
+  "periods.unknownFrequency": "bilinmeyen",
   "periods.week": "{{amount}} hafta",
   "periods.month": "{{amount}} ay",
   "periods.year": "{{amount}} yıl",

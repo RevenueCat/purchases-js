@@ -1,5 +1,5 @@
 {
-  "periods.unknownFrequency": "",
+  "periods.unknownFrequency": "không xác định",
   "periods.week": "{{amount}} tuần",
   "periods.month": "{{amount}} tháng",
   "periods.year": "{{amount}} năm",

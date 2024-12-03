@@ -1,5 +1,5 @@
 {
-  "periods.unknownFrequency": "",
+  "periods.unknownFrequency": "nieznany",
   "periods.week": "{{amount}} tydzień",
   "periods.month": "{{amount}} miesiąc",
   "periods.year": "{{amount}} rok",

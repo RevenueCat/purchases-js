@@ -1,5 +1,5 @@
 {
-  "periods.unknownFrequency": "",
+  "periods.unknownFrequency": "неизвестно",
   "periods.week": "{{amount}} неделя",
   "periods.month": "{{amount}} месяц",
   "periods.year": "{{amount}} год",

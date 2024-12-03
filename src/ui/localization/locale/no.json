@@ -1,5 +1,5 @@
 {
-  "periods.unknownFrequency": "",
+  "periods.unknownFrequency": "ukjent",
   "periods.week": "{{amount}} uke",
   "periods.month": "{{amount}} måned",
   "periods.year": "{{amount}} år",

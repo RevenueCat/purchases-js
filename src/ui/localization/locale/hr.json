@@ -1,5 +1,5 @@
 {
-  "periods.unknownFrequency": "",
+  "periods.unknownFrequency": "nepoznato",
   "periods.week": "{{amount}} tjedan",
   "periods.month": "{{amount}} mjesec",
   "periods.year": "{{amount}} godina",

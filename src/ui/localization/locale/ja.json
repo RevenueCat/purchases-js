@@ -1,5 +1,5 @@
 {
-  "periods.unknownFrequency": "",
+  "periods.unknownFrequency": "不明",
   "periods.week": "{{amount}} 週",
   "periods.month": "{{amount}} 月",
   "periods.year": "{{amount}} 年",

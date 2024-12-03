@@ -1,5 +1,5 @@
 {
-  "periods.unknownFrequency": "",
+  "periods.unknownFrequency": "άγνωστος",
   "periods.week": "{{amount}} εβδομάδα",
   "periods.month": "{{amount}} μήνας",
   "periods.year": "{{amount}} έτος",

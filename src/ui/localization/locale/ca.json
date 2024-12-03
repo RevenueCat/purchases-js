@@ -1,5 +1,5 @@
 {
-  "periods.unknownFrequency": "",
+  "periods.unknownFrequency": "desconegut",
   "periods.week": "{{amount}} setmana",
   "periods.month": "{{amount}} mes",
   "periods.year": "{{amount}} any",

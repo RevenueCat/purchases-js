@@ -1,5 +1,5 @@
 {
-  "periods.unknownFrequency": "",
+  "periods.unknownFrequency": "neznámy",
   "periods.week": "{{amount}} týždeň",
   "periods.month": "{{amount}} mesiac",
   "periods.year": "{{amount}} rok",
