@@ -39,7 +39,7 @@
   "state_success.purchase_successful": "Compra completada",
   "state_success.subscription_now_active": "Tu suscripción ya está activa",
   "state_success.button_close": "Cerrar",
-  "state_error.if_error_persists": "Si el error persiste, por favor contacta a ",
+  "state_error.if_error_persists": "Si el problema persiste, por favor contáctanos en ",
   "state_error.error_title_already_subscribed": "Ya suscrito",
   "state_error.error_title_already_purchased": "Ya comprado",
   "state_error.error_title_other_errors": "Algo salió mal",
