@@ -4,193 +4,197 @@
 
 ```ts
 
+import { PaywallData } from '@revenuecat/purchases-ui-js';
+
 // @public
 export interface CustomerInfo {
-    readonly activeSubscriptions: Set<string>;
-    readonly allExpirationDatesByProduct: {
-        [productIdentifier: string]: Date | null;
-    };
-    readonly allPurchaseDatesByProduct: {
-        [productIdentifier: string]: Date | null;
-    };
-    readonly entitlements: EntitlementInfos;
-    readonly firstSeenDate: Date;
-    readonly managementURL: string | null;
-    readonly originalAppUserId: string;
-    readonly originalPurchaseDate: Date | null;
-    readonly requestDate: Date;
+  readonly activeSubscriptions: Set<string>;
+  readonly allExpirationDatesByProduct: {
+    [productIdentifier: string]: Date | null;
+  };
+  readonly allPurchaseDatesByProduct: {
+    [productIdentifier: string]: Date | null;
+  };
+  readonly entitlements: EntitlementInfos;
+  readonly firstSeenDate: Date;
+  readonly managementURL: string | null;
+  readonly originalAppUserId: string;
+  readonly originalPurchaseDate: Date | null;
+  readonly requestDate: Date;
 }
 
 // @public
 export interface EntitlementInfo {
-    readonly billingIssueDetectedAt: Date | null;
-    readonly expirationDate: Date | null;
-    readonly identifier: string;
-    readonly isActive: boolean;
-    readonly isSandbox: boolean;
-    readonly latestPurchaseDate: Date;
-    readonly originalPurchaseDate: Date;
-    readonly periodType: PeriodType;
-    readonly productIdentifier: string;
-    readonly store: Store;
-    readonly unsubscribeDetectedAt: Date | null;
-    readonly willRenew: boolean;
+  readonly billingIssueDetectedAt: Date | null;
+  readonly expirationDate: Date | null;
+  readonly identifier: string;
+  readonly isActive: boolean;
+  readonly isSandbox: boolean;
+  readonly latestPurchaseDate: Date;
+  readonly originalPurchaseDate: Date;
+  readonly periodType: PeriodType;
+  readonly productIdentifier: string;
+  readonly store: Store;
+  readonly unsubscribeDetectedAt: Date | null;
+  readonly willRenew: boolean;
 }
 
 // @public
 export interface EntitlementInfos {
-    readonly active: {
-        [entitlementId: string]: EntitlementInfo;
-    };
-    readonly all: {
-        [entitlementId: string]: EntitlementInfo;
-    };
+  readonly active: {
+    [entitlementId: string]: EntitlementInfo;
+  };
+  readonly all: {
+    [entitlementId: string]: EntitlementInfo;
+  };
 }
 
 // @public
 export enum ErrorCode {
-    // (undocumented)
-    ConfigurationError = 23,
-    // (undocumented)
-    CustomerInfoError = 28,
-    // (undocumented)
-    EmptySubscriberAttributesError = 25,
-    // (undocumented)
-    IneligibleError = 18,
-    // (undocumented)
-    InsufficientPermissionsError = 19,
-    // (undocumented)
-    InvalidAppleSubscriptionKeyError = 17,
-    // (undocumented)
-    InvalidAppUserIdError = 14,
-    // (undocumented)
-    InvalidCredentialsError = 11,
-    // (undocumented)
-    InvalidEmailError = 38,
-    // (undocumented)
-    InvalidReceiptError = 8,
-    // (undocumented)
-    InvalidSubscriberAttributesError = 21,
-    // (undocumented)
-    LogOutWithAnonymousUserError = 22,
-    // (undocumented)
-    MissingReceiptFileError = 9,
-    // (undocumented)
-    NetworkError = 10,
-    // (undocumented)
-    OperationAlreadyInProgressError = 15,
-    // (undocumented)
-    PaymentPendingError = 20,
-    // (undocumented)
-    ProductAlreadyPurchasedError = 6,
-    // (undocumented)
-    ProductNotAvailableForPurchaseError = 5,
-    // (undocumented)
-    PurchaseInvalidError = 4,
-    // (undocumented)
-    PurchaseNotAllowedError = 3,
-    // (undocumented)
-    ReceiptAlreadyInUseError = 7,
-    // (undocumented)
-    SignatureVerificationError = 36,
-    // (undocumented)
-    StoreProblemError = 2,
-    // (undocumented)
-    UnexpectedBackendResponseError = 12,
-    // (undocumented)
-    UnknownBackendError = 16,
-    // (undocumented)
-    UnknownError = 0,
-    // (undocumented)
-    UnsupportedError = 24,
-    // (undocumented)
-    UserCancelledError = 1
+  // (undocumented)
+  ConfigurationError = 23,
+  // (undocumented)
+  CustomerInfoError = 28,
+  // (undocumented)
+  EmptySubscriberAttributesError = 25,
+  // (undocumented)
+  IneligibleError = 18,
+  // (undocumented)
+  InsufficientPermissionsError = 19,
+  // (undocumented)
+  InvalidAppleSubscriptionKeyError = 17,
+  // (undocumented)
+  InvalidAppUserIdError = 14,
+  // (undocumented)
+  InvalidCredentialsError = 11,
+  // (undocumented)
+  InvalidEmailError = 38,
+  // (undocumented)
+  InvalidReceiptError = 8,
+  // (undocumented)
+  InvalidSubscriberAttributesError = 21,
+  // (undocumented)
+  LogOutWithAnonymousUserError = 22,
+  // (undocumented)
+  MissingReceiptFileError = 9,
+  // (undocumented)
+  NetworkError = 10,
+  // (undocumented)
+  OperationAlreadyInProgressError = 15,
+  // (undocumented)
+  PaymentPendingError = 20,
+  // (undocumented)
+  ProductAlreadyPurchasedError = 6,
+  // (undocumented)
+  ProductNotAvailableForPurchaseError = 5,
+  // (undocumented)
+  PurchaseInvalidError = 4,
+  // (undocumented)
+  PurchaseNotAllowedError = 3,
+  // (undocumented)
+  ReceiptAlreadyInUseError = 7,
+  // (undocumented)
+  SignatureVerificationError = 36,
+  // (undocumented)
+  StoreProblemError = 2,
+  // (undocumented)
+  UnexpectedBackendResponseError = 12,
+  // (undocumented)
+  UnknownBackendError = 16,
+  // (undocumented)
+  UnknownError = 0,
+  // (undocumented)
+  UnsupportedError = 24,
+  // (undocumented)
+  UserCancelledError = 1
 }
 
 // @public
 export interface GetOfferingsParams {
-    readonly currency?: string;
-    readonly offeringIdentifier?: string | OfferingKeyword;
+  readonly currency?: string;
+  readonly offeringIdentifier?: string | OfferingKeyword;
 }
 
 // @public
 export interface HttpConfig {
-    additionalHeaders?: Record<string, string>;
-    proxyURL?: string;
+  additionalHeaders?: Record<string, string>;
+  proxyURL?: string;
 }
 
 // @public
 export enum LogLevel {
-    Debug = 4,
-    Error = 1,
-    Info = 3,
-    Silent = 0,
-    Verbose = 5,
-    Warn = 2
+  Debug = 4,
+  Error = 1,
+  Info = 3,
+  Silent = 0,
+  Verbose = 5,
+  Warn = 2
 }
 
 // @public
 export interface NonSubscriptionOption extends PurchaseOption {
-    readonly basePrice: Price;
+  readonly basePrice: Price;
 }
 
 // @public
 export interface Offering {
-    readonly annual: Package | null;
-    readonly availablePackages: Package[];
-    readonly identifier: string;
-    readonly lifetime: Package | null;
-    readonly metadata: {
-        [key: string]: unknown;
-    } | null;
-    readonly monthly: Package | null;
-    readonly packagesById: {
-        [key: string]: Package;
-    };
-    readonly serverDescription: string;
-    readonly sixMonth: Package | null;
-    readonly threeMonth: Package | null;
-    readonly twoMonth: Package | null;
-    readonly weekly: Package | null;
+  readonly annual: Package | null;
+  readonly availablePackages: Package[];
+  readonly identifier: string;
+  readonly lifetime: Package | null;
+  readonly metadata: {
+    [key: string]: unknown;
+  } | null;
+  readonly monthly: Package | null;
+  readonly packagesById: {
+    [key: string]: Package;
+  };
+  // (undocumented)
+  readonly paywall_components: PaywallData | null;
+  readonly serverDescription: string;
+  readonly sixMonth: Package | null;
+  readonly threeMonth: Package | null;
+  readonly twoMonth: Package | null;
+  readonly weekly: Package | null;
 }
 
 // @public
 export enum OfferingKeyword {
-    Current = "current"
+  Current = "current"
 }
 
 // @public
 export interface Offerings {
-    readonly all: {
-        [offeringId: string]: Offering;
-    };
-    readonly current: Offering | null;
+  readonly all: {
+    [offeringId: string]: Offering;
+  };
+  readonly current: Offering | null;
 }
 
 // @public
 export interface Package {
-    readonly identifier: string;
-    readonly packageType: PackageType;
-    readonly rcBillingProduct: Product;
+  readonly identifier: string;
+  readonly packageType: PackageType;
+  readonly rcBillingProduct: Product;
 }
 
 // @public
 export enum PackageType {
-    Annual = "$rc_annual",
-    Custom = "custom",
-    Lifetime = "$rc_lifetime",
-    Monthly = "$rc_monthly",
-    SixMonth = "$rc_six_month",
-    ThreeMonth = "$rc_three_month",
-    TwoMonth = "$rc_two_month",
-    Unknown = "unknown",
-    Weekly = "$rc_weekly"
+  Annual = "$rc_annual",
+  Custom = "custom",
+  Lifetime = "$rc_lifetime",
+  Monthly = "$rc_monthly",
+  SixMonth = "$rc_six_month",
+  ThreeMonth = "$rc_three_month",
+  TwoMonth = "$rc_two_month",
+  Unknown = "unknown",
+  Weekly = "$rc_weekly"
 }
 
 // @public
 export interface Period {
-    number: number;
-    unit: PeriodUnit;
+  number: number;
+  unit: PeriodUnit;
 }
 
 // @public
@@ -198,138 +202,133 @@ export type PeriodType = "normal" | "intro" | "trial";
 
 // @public
 export enum PeriodUnit {
-    // (undocumented)
-    Day = "day",
-    // (undocumented)
-    Month = "month",
-    // (undocumented)
-    Week = "week",
-    // (undocumented)
-    Year = "year"
+  // (undocumented)
+  Day = "day",
+  // (undocumented)
+  Month = "month",
+  // (undocumented)
+  Week = "week",
+  // (undocumented)
+  Year = "year"
 }
 
 // @public
 export interface PresentedOfferingContext {
-    readonly offeringIdentifier: string;
-    readonly placementIdentifier: string | null;
-    readonly targetingContext: TargetingContext | null;
+  readonly offeringIdentifier: string;
+  readonly placementIdentifier: string | null;
+  readonly targetingContext: TargetingContext | null;
 }
 
 // @public
 export interface Price {
-    // @deprecated
-    readonly amount: number;
-    readonly amountMicros: number;
-    readonly currency: string;
-    readonly formattedPrice: string;
+  // @deprecated
+  readonly amount: number;
+  readonly amountMicros: number;
+  readonly currency: string;
+  readonly formattedPrice: string;
 }
 
 // @public
 export interface PricingPhase {
-    readonly cycleCount: number;
-    readonly period: Period | null;
-    readonly periodDuration: string | null;
-    readonly price: Price | null;
+  readonly cycleCount: number;
+  readonly period: Period | null;
+  readonly periodDuration: string | null;
+  readonly price: Price | null;
 }
 
 // @public
 export interface Product {
-    readonly currentPrice: Price;
-    readonly defaultNonSubscriptionOption: NonSubscriptionOption | null;
-    readonly defaultPurchaseOption: PurchaseOption;
-    readonly defaultSubscriptionOption: SubscriptionOption | null;
-    readonly description: string | null;
-    // @deprecated
-    readonly displayName: string;
-    readonly identifier: string;
-    readonly normalPeriodDuration: string | null;
-    readonly presentedOfferingContext: PresentedOfferingContext;
-    // @deprecated
-    readonly presentedOfferingIdentifier: string;
-    readonly productType: ProductType;
-    readonly subscriptionOptions: {
-        [optionId: string]: SubscriptionOption;
-    };
-    readonly title: string;
+  readonly currentPrice: Price;
+  readonly defaultNonSubscriptionOption: NonSubscriptionOption | null;
+  readonly defaultPurchaseOption: PurchaseOption;
+  readonly defaultSubscriptionOption: SubscriptionOption | null;
+  readonly description: string | null;
+  // @deprecated
+  readonly displayName: string;
+  readonly identifier: string;
+  readonly normalPeriodDuration: string | null;
+  readonly presentedOfferingContext: PresentedOfferingContext;
+  // @deprecated
+  readonly presentedOfferingIdentifier: string;
+  readonly productType: ProductType;
+  readonly subscriptionOptions: {
+    [optionId: string]: SubscriptionOption;
+  };
+  readonly title: string;
 }
 
 // @public
 export enum ProductType {
-    Consumable = "consumable",
-    NonConsumable = "non_consumable",
-    Subscription = "subscription"
+  Consumable = "consumable",
+  NonConsumable = "non_consumable",
+  Subscription = "subscription"
 }
 
 // @public
 export interface PurchaseOption {
-    readonly id: string;
-    readonly priceId: string;
+  readonly id: string;
+  readonly priceId: string;
 }
 
 // @public
 export interface PurchaseParams {
-    customerEmail?: string;
-    htmlTarget?: HTMLElement;
-    purchaseOption?: PurchaseOption | null;
-    rcPackage: Package;
+  customerEmail?: string;
+  htmlTarget?: HTMLElement;
+  purchaseOption?: PurchaseOption | null;
+  rcPackage: Package;
 }
 
-// @public (undocumented)
-interface PurchaseResult {
-    // (undocumented)
-    readonly customerInfo: CustomerInfo;
-    // (undocumented)
-    readonly redemptionInfo: RedemptionInfo | null;
+// @public
+export interface PurchaseResult {
+  readonly customerInfo: CustomerInfo;
+  readonly redemptionInfo: RedemptionInfo | null;
 }
 
 // @public
 export class Purchases {
-    changeUser(newAppUserId: string): Promise<CustomerInfo>;
-    close(): void;
-    static configure(apiKey: string, appUserId: string, httpConfig?: HttpConfig): Purchases;
-    getAppUserId(): string;
-    getCurrentOfferingForPlacement(placementIdentifier: string, params?: GetOfferingsParams): Promise<Offering | null>;
-    getCustomerInfo(): Promise<CustomerInfo>;
-    getOfferings(params?: GetOfferingsParams): Promise<Offerings>;
-    static getSharedInstance(): Purchases;
-    static isConfigured(): boolean;
-    isEntitledTo(entitlementIdentifier: string): Promise<boolean>;
-    // (undocumented)
-    isSandbox(): boolean;
-    preload(): Promise<void>;
-    purchase(params: PurchaseParams): Promise<{
-        purchaseResult: PurchaseResult;
-    }>;
-    // @deprecated
-    purchasePackage(rcPackage: Package, customerEmail?: string, htmlTarget?: HTMLElement): Promise<{
-        purchaseResult: PurchaseResult;
-    }>;
-    static setLogLevel(logLevel: LogLevel): void;
+  changeUser(newAppUserId: string): Promise<CustomerInfo>;
+  close(): void;
+  static configure(apiKey: string, appUserId: string, httpConfig?: HttpConfig): Purchases;
+  static generateRevenueCatAnonymousAppUserId(): string;
+  getAppUserId(): string;
+  getCurrentOfferingForPlacement(placementIdentifier: string, params?: GetOfferingsParams): Promise<Offering | null>;
+  getCustomerInfo(): Promise<CustomerInfo>;
+  getOfferings(params?: GetOfferingsParams): Promise<Offerings>;
+  static getSharedInstance(): Purchases;
+  static isConfigured(): boolean;
+  isEntitledTo(entitlementIdentifier: string): Promise<boolean>;
+  // (undocumented)
+  isSandbox(): boolean;
+  preload(): Promise<void>;
+  purchase(params: PurchaseParams): Promise<PurchaseResult>;
+  // @deprecated
+  purchasePackage(rcPackage: Package, customerEmail?: string, htmlTarget?: HTMLElement): Promise<PurchaseResult>;
+  static setLogLevel(logLevel: LogLevel): void;
 }
 
 // @public
 export class PurchasesError extends Error {
-    constructor(
+  constructor(
     errorCode: ErrorCode,
     message?: string,
-    underlyingErrorMessage?: string | null | undefined,
+    underlyingErrorMessage?: (string | null) | undefined,
     extra?: PurchasesErrorExtra | undefined);
-    readonly errorCode: ErrorCode;
-    readonly extra?: PurchasesErrorExtra | undefined;
-    // (undocumented)
-    toString: () => string;
-    readonly underlyingErrorMessage?: string | null | undefined;
+  readonly errorCode: ErrorCode;
+  readonly extra?: PurchasesErrorExtra | undefined;
+  // (undocumented)
+  toString: () => string;
+  readonly underlyingErrorMessage?: (string | null) | undefined;
 }
 
 // @public
 export interface PurchasesErrorExtra {
-    readonly backendErrorCode?: number;
-    readonly statusCode?: number;
+  readonly backendErrorCode?: number;
+  readonly statusCode?: number;
 }
 
 // @public
 export interface RedemptionInfo {
-    readonly redeemUrl: string | null;
+  readonly redeemUrl: string | null;
 }
 
 // @public
@@ -337,24 +336,20 @@ export type Store = "app_store" | "mac_app_store" | "play_store" | "amazon" | "s
 
 // @public
 export interface SubscriptionOption extends PurchaseOption {
-    readonly base: PricingPhase;
-    readonly trial: PricingPhase | null;
+  readonly base: PricingPhase;
+  readonly trial: PricingPhase | null;
 }
 
 // @public
 export interface TargetingContext {
-    readonly revision: number;
-    readonly ruleId: string;
+  readonly revision: number;
+  readonly ruleId: string;
 }
 
 // @public
 export class UninitializedPurchasesError extends Error {
-    constructor();
+  constructor();
 }
-
-// Warnings were encountered during analysis:
-//
-// dist/Purchases.es.d.ts:722:13 - (ae-forgotten-export) The symbol "PurchaseResult" needs to be exported by the entry point Purchases.es.d.ts
 
 // (No @packageDocumentation comment for this package)
 
