@@ -276,7 +276,6 @@ export interface PurchaseOption {
 // @public
 export interface PurchaseParams {
     customerEmail?: string;
-    customTranslations?: CustomTranslations;
     defaultLocale?: string;
     htmlTarget?: HTMLElement;
     purchaseOption?: PurchaseOption | null;

@@ -3926,34 +3926,6 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!PurchaseParams#customTranslations:member",
-              "docComment": "/**\n * Optional customization for the translations used in the purchase flow. The keys are the locale codes and the values are objects with the same keys as the default translations.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "customTranslations?: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "CustomTranslations",
-                  "canonicalReference": "@revenuecat/purchases-js!CustomTranslations:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": true,
-              "releaseTag": "Public",
-              "name": "customTranslations",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              }
-            },
-            {
-              "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PurchaseParams#defaultLocale:member",
               "docComment": "/**\n * The default locale to use if the selectedLocale is not available. Defaults to english.\n */\n",
               "excerptTokens": [
