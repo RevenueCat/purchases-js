@@ -37,7 +37,7 @@
   "state_needs_payment_info.button_pay": "Pagar",
   "state_needs_payment_info.button_start_trial": "Comenzar la prueba",
   "state_success.purchase_successful": "Compra completada",
-  "state_success.subscription_now_active": "Tu suscripción está ahora activa",
+  "state_success.subscription_now_active": "Tu suscripción ya está activa",
   "state_success.button_close": "Cerrar",
   "state_error.if_error_persists": "Si el error persiste, por favor contacta a ",
   "state_error.error_title_already_subscribed": "Ya suscrito",
