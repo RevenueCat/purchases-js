@@ -259,6 +259,7 @@ async function navigateToUrl(
 async function typeTextInPageSelector(page: Page, text: string): Promise<void> {
   // Fill email
   const emailTitle = page.getByText("Billing email address");
+  console.log({ emailTitle });
   await expect(emailTitle).toBeVisible();
   await page.getByPlaceholder("john@appleseed.com").click();
   await page.getByPlaceholder("john@appleseed.com").fill(text);
