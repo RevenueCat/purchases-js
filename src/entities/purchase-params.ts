@@ -1,5 +1,4 @@
 import { type Package, type PurchaseOption } from "./offerings";
-import { type CustomTranslations } from "../ui/localization/translator";
 
 /**
  * Parameters used to customise the purchase flow when invoking the `.purchase` method.
@@ -22,12 +21,6 @@ export interface PurchaseParams {
    * The email of the user. If undefined, RevenueCat will ask the customer for their email.
    */
   customerEmail?: string;
-
-  /**
-   * Optional customization for the translations used in the purchase flow.
-   * The keys are the locale codes and the values are objects with the same keys as the default translations.
-   */
-  customTranslations?: CustomTranslations;
 
   /**
    * The locale to use for the purchase flow. If not specified, the device's locale will be used.

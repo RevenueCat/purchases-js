@@ -51,7 +51,6 @@
   let productDetails: Product | null = null;
   let paymentInfoCollectionMetadata: PurchaseResponse | null = null;
   let lastError: PurchaseFlowError | null = null;
-
   const productId = rcPackage.rcBillingProduct.identifier ?? null;
   const defaultPurchaseOption =
     rcPackage.rcBillingProduct.defaultPurchaseOption;
@@ -269,7 +268,7 @@
                 PurchaseFlowErrorCode.UnknownError,
                 "Unknown error without state set.",
               )}
-            supportEmail={brandingInfo?.seller_company_support_email}
+            supportEmail={brandingInfo?.support_email}
             {productDetails}
             onContinue={closeWithError}
           />

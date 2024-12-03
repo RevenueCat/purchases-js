@@ -498,7 +498,6 @@ export class Purchases {
       customerEmail,
       selectedLocale = "en",
       defaultLocale = "en",
-      customTranslations = {},
     } = params;
     let resolvedHTMLTarget =
       htmlTarget ?? document.getElementById("rcb-ui-root");
@@ -560,7 +559,6 @@ export class Purchases {
           asModal,
           selectedLocale: localeToBeUsed,
           defaultLocale,
-          customTranslations,
         },
       });
     });
