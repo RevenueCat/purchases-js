@@ -1,4 +1,5 @@
 {
+  "periods.unknownFrequency": "",
   "periods.week": "{{amount}} viikko",
   "periods.month": "{{amount}} kuukausi",
   "periods.year": "{{amount}} vuosi",

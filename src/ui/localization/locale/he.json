@@ -1,4 +1,5 @@
 {
+  "periods.unknownFrequency": "",
   "periods.week": "{{amount}} שבוע",
   "periods.month": "{{amount}} חודש",
   "periods.year": "{{amount}} שנה",

@@ -1,4 +1,5 @@
 {
+  "periods.unknownFrequency": "",
   "periods.week": "{{amount}} тиждень",
   "periods.month": "{{amount}} місяць",
   "periods.year": "{{amount}} рік",

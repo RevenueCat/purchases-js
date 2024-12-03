@@ -1,4 +1,5 @@
 {
+  "periods.unknownFrequency": "",
   "periods.week": "{{amount}} hafta",
   "periods.month": "{{amount}} ay",
   "periods.year": "{{amount}} yıl",

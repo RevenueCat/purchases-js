@@ -1,4 +1,5 @@
 {
+  "periods.unknownFrequency": "",
   "periods.week": "{{amount}} hét",
   "periods.month": "{{amount}} hónap",
   "periods.year": "{{amount}} év",

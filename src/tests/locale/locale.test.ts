@@ -7,15 +7,15 @@ const eqSet = (xs: Set<any>, ys: Set<any>) =>
 describe("The Translator class", () => {
   test("should have the expected keys in all languages", () => {
     const translator = new Translator();
-    const expectedKeys = Object.values(LocalizationKeys);
     const expectedKeysSet = new Set(Object.values(LocalizationKeys));
 
-    Object.entries(translator.locales).forEach(([_, translations]) => {
+    Object.entries(translator.locales).forEach(([lang, translations]) => {
       const otherLabelKeys = new Set(Object.keys(translations.labels));
 
-      expect(Object.keys(translations.labels).length).toBe(expectedKeys.length);
-
-      expect(eqSet(expectedKeysSet, otherLabelKeys)).toBe(true);
+      expect(
+        eqSet(expectedKeysSet, otherLabelKeys),
+        `Language ${lang} doesn't have all the expected keys`,
+      ).toBe(true);
     });
   });
 });

@@ -1,4 +1,5 @@
 {
+  "periods.unknownFrequency": "",
   "periods.week": "{{amount}} 주",
   "periods.month": "{{amount}} 월",
   "periods.year": "{{amount}} 년",

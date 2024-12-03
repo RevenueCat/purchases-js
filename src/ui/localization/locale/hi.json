@@ -1,4 +1,5 @@
 {
+  "periods.unknownFrequency": "",
   "periods.week": "{{amount}} सप्ताह",
   "periods.month": "{{amount}} महीना",
   "periods.year": "{{amount}} वर्ष",
