@@ -1,5 +1,6 @@
-import test, { Browser, expect, Page } from "@playwright/test";
-import { Locator } from "playwright";
+import type { Browser, Page } from "@playwright/test";
+import test, { expect } from "@playwright/test";
+import type { Locator } from "playwright";
 
 const _LOCAL_URL = "http://localhost:3001/";
 const CARD_SELECTOR = "div.card";

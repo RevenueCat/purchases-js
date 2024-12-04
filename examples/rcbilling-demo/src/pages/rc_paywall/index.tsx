@@ -1,4 +1,5 @@
-import { PurchaseResult, Purchases } from "@revenuecat/purchases-js";
+import type { PurchaseResult } from "@revenuecat/purchases-js";
+import { Purchases } from "@revenuecat/purchases-js";
 import React, { useEffect } from "react";
 import { usePurchasesLoaderData } from "../../util/PurchasesLoader";
 import { useNavigate, useSearchParams } from "react-router-dom";

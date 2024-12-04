@@ -6,7 +6,7 @@ import {
 } from "../../ui/localization/supportedLanguages";
 import * as fs from "node:fs";
 
-const eqSet = (xs: Set<any>, ys: Set<any>) =>
+const eqSet = (xs: Set<unknown>, ys: Set<unknown>) =>
   xs.size === ys.size && [...xs].every((x) => ys.has(x));
 
 describe("The Translator class", () => {
