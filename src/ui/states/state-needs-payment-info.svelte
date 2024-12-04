@@ -103,11 +103,9 @@
 <div>
   {#if stripe && clientSecret}
     <ModalHeader>
-      <div
-        style="display: flex; align-items: center; justify-content: baseline;"
-      >
+      <div class="rcb-header-wrapper">
         <IconLock />
-        <div style="margin-left: 10px">
+        <div class="rcb-step-title">
           <Localized
             key={LocalizationKeys.StateNeedsPaymentInfoPaymentStepTitle}
           />
@@ -193,7 +191,7 @@
                   type: "tabs",
                 },
               }}
-              on:change={(event: any) => {
+              on:change={(event: Event) => {
                 isPaymentInfoComplete = event.detail.complete;
               }}
             />
@@ -227,6 +225,15 @@
 </div>
 
 <style>
+  .rcb-header-wrapper {
+    display: flex;
+    align-items: center;
+  }
+
+  .rcb-step-title {
+    margin-left: 10px;
+  }
+
   .rcb-stripe-elements-container {
     width: 100%;
 
