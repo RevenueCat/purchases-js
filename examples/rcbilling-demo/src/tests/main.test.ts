@@ -5,7 +5,7 @@ import type { Locator } from "playwright";
 const _LOCAL_URL = "http://localhost:3001/";
 const CARD_SELECTOR = "div.card";
 const PACKAGE_SELECTOR = "button.package";
-const RC_PAYWALL_TEST_OFFERING_ID = "e2e_tests_web_paywalls";
+const RC_PAYWALL_TEST_OFFERING_ID = "rc_paywalls_e2e_test";
 
 test.describe("Main", () => {
   test.afterEach(({ browser }) => {
@@ -39,7 +39,7 @@ test.describe("Main", () => {
   }) => {
     const userId = getUserId(browserName);
     const offeringId = "default_download";
-    const page = await setupTest(browser, userId, offeringId);
+    const page = await setupTest(browser, userId, { offeringId });
 
     const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
 
@@ -67,19 +67,25 @@ test.describe("Main", () => {
 
     await performPurchase(page, singleCard, userId);
   });
-
-  test.skip("Can purchase a subscription Product for RC Paywall", async ({
+  test("Can render an RC Paywall", async ({ browser, browserName }) => {
+    const userId = `${getUserId(browserName)}_subscription`;
+    const page = await setupTest(browser, userId, {
+      offeringId: RC_PAYWALL_TEST_OFFERING_ID,
+      useRcPaywall: true,
+    });
+    const title = page.getByText("E2E Tests for Purchases JS");
+    await expect(title).toBeVisible();
+  });
+  test("Can purchase a subscription Product for RC Paywall", async ({
     browser,
     browserName,
   }) => {
     const userId = `${getUserId(browserName)}_subscription`;
-    const page = await setupTest(
-      browser,
-      userId,
-      RC_PAYWALL_TEST_OFFERING_ID,
-      true,
-    );
-    const title = page.getByText("Pasta-a-porter");
+    const page = await setupTest(browser, userId, {
+      offeringId: RC_PAYWALL_TEST_OFFERING_ID,
+      useRcPaywall: true,
+    });
+    const title = page.getByText("E2E Tests for Purchases JS");
     await expect(title).toBeVisible();
 
     // Gets all packages
@@ -170,12 +176,40 @@ test.describe("Main", () => {
     );
     await expect(errorMessageText).toBeVisible();
   });
+
+  [
+    ["es", "Email de facturación"],
+    ["it", "Indirizzo email per la fatturazione"],
+    ["en", "Billing email address"],
+    ["fr", "Adresse e-mail de facturation"],
+    ["de", "E-Mail-Adresse für Rechnungsstellung"],
+  ].forEach(([lang, title]) => {
+    test(`Shows the purchase flow in ${lang}`, async ({
+      browser,
+      browserName,
+    }) => {
+      const userId = `${getUserId(browserName)}_${lang}_language`;
+      const page = await setupTest(browser, userId, { lang });
+
+      // Gets all elements that match the selector
+      const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
+      const singleCard = packageCards[1];
+
+      await startPurchaseFlow(singleCard);
+
+      await expect(page.getByText(title)).toBeVisible();
+    });
+  });
 });
 
-async function performPurchase(page: Page, card: Locator, userId: string) {
+async function startPurchaseFlow(card: Locator) {
   // Perform purchase
   const cardButton = card.getByRole("button");
   await cardButton.click();
+}
+
+async function performPurchase(page: Page, card: Locator, userId: string) {
+  await startPurchaseFlow(card);
 
   await enterEmailAndContinue(page, userId);
   await enterCreditCardDetailsAndContinue(page);
@@ -191,11 +225,14 @@ const getUserId = (browserName: string) =>
 async function setupTest(
   browser: Browser,
   userId: string,
-  offeringId?: string,
-  useRcPaywall?: boolean,
+  queryString?: {
+    offeringId?: string;
+    useRcPaywall?: boolean;
+    lang?: string;
+  },
 ) {
   const page = await browser.newPage();
-  await navigateToUrl(page, userId, offeringId, useRcPaywall);
+  await navigateToUrl(page, userId, queryString);
 
   return page;
 }
@@ -245,23 +282,33 @@ async function enterCreditCardDetailsAndContinue(page: Page): Promise<void> {
 async function navigateToUrl(
   page: Page,
   userId: string,
-  offeringId?: string,
-  useRcPaywall?: boolean,
+  queryString?: {
+    offeringId?: string;
+    useRcPaywall?: boolean;
+    lang?: string;
+  },
 ): Promise<void> {
   const baseUrl =
     (import.meta.env?.VITE_RC_BILLING_DEMO_URL as string | undefined) ??
     _LOCAL_URL;
 
-  const url = `${baseUrl}${useRcPaywall ? "rc_paywall" : "paywall"}/${encodeURIComponent(userId)}${
-    offeringId ? `?offeringId=${offeringId}` : ""
-  }`;
+  const { offeringId, useRcPaywall, lang } = queryString ?? {};
+
+  const params = new URLSearchParams();
+  if (offeringId) {
+    params.append("offeringId", offeringId);
+  }
+  if (lang) {
+    params.append("lang", lang);
+  }
+
+  const url = `${baseUrl}${useRcPaywall ? "rc_paywall" : "paywall"}/${encodeURIComponent(userId)}?${params.toString()}`;
   await page.goto(url);
 }
 
 async function typeTextInPageSelector(page: Page, text: string): Promise<void> {
   // Fill email
   const emailTitle = page.getByText("Billing email address");
-  console.log({ emailTitle });
   await expect(emailTitle).toBeVisible();
   await page.getByPlaceholder("john@appleseed.com").click();
   await page.getByPlaceholder("john@appleseed.com").fill(text);

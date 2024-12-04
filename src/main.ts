@@ -49,6 +49,7 @@ import { Paywall } from "@revenuecat/purchases-ui-js";
 import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
 import { parseOfferingIntoVariables } from "./helpers/paywall-variables-helpers";
 import { Translator } from "./ui/localization/translator";
+import { englishLocale } from "./ui/localization/constants";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -86,7 +87,6 @@ export { OfferingKeyword } from "./entities/get-offerings-params";
 export type { PurchaseParams } from "./entities/purchase-params";
 export type { RedemptionInfo } from "./entities/redemption-info";
 export type { PurchaseResult } from "./entities/purchase-result";
-export type { CustomTranslations } from "./ui/localization/translator";
 
 /**
  * Entry point for Purchases SDK. It should be instantiated as soon as your
@@ -299,7 +299,8 @@ export class Purchases {
         htmlTarget: paywallParams.purchaseHtmlTarget,
         customerEmail: paywallParams.customerEmail,
         selectedLocale: selectedLocale,
-        defaultLocale: offering.paywall_components?.default_locale || "en",
+        defaultLocale:
+          offering.paywall_components?.default_locale || englishLocale,
       });
     };
 
@@ -492,8 +493,8 @@ export class Purchases {
       purchaseOption,
       htmlTarget,
       customerEmail,
-      selectedLocale = "en",
-      defaultLocale = "en",
+      selectedLocale = englishLocale,
+      defaultLocale = englishLocale,
     } = params;
     let resolvedHTMLTarget =
       htmlTarget ?? document.getElementById("rcb-ui-root");

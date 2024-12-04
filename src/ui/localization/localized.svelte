@@ -1,15 +1,16 @@
 <script lang="ts">
   import {
-    type emptyString,
-    LocalizationKeys,
+    type EmptyString,
     type TranslationVariables,
     Translator,
   } from "./translator";
   import { getContext } from "svelte";
-  import { translatorContextKey } from "./constants";
+  import { englishLocale, translatorContextKey } from "./constants";
+
+  import { LocalizationKeys } from "./supportedLanguages";
 
   interface LocalizedProps {
-    key?: LocalizationKeys | emptyString | undefined;
+    key?: LocalizationKeys | EmptyString | undefined;
     variables?: TranslationVariables;
     children?: any;
     selectedLocale?: string;
@@ -19,7 +20,7 @@
   const {
     key = "",
     selectedLocale,
-    defaultLocale = "en",
+    defaultLocale = englishLocale,
     variables,
     children,
   }: LocalizedProps = $props();
@@ -40,7 +41,7 @@
   const translatedLabel = $derived(
     key
       ? translator.translate(
-          (key as LocalizationKeys) || ("" as emptyString),
+          (key as LocalizationKeys) || ("" as EmptyString),
           variables,
         )
       : undefined,

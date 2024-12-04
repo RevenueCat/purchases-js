@@ -15,7 +15,9 @@
   import { type BrandingAppearance } from "../../networking/responses/branding-response";
   import { getContext } from "svelte";
   import { translatorContextKey } from "../localization/constants";
-  import { LocalizationKeys, Translator } from "../localization/translator";
+  import { Translator } from "../localization/translator";
+
+  import { LocalizationKeys } from "../localization/supportedLanguages";
 
   export let productDetails: Product;
   export let purchaseOption: PurchaseOption;

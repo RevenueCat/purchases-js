@@ -25,8 +25,10 @@
   import CloseButton from "../close-button.svelte";
   import { Theme } from "../theme/theme";
   import { translatorContextKey } from "../localization/constants";
-  import { LocalizationKeys, Translator } from "../localization/translator";
+  import { Translator } from "../localization/translator";
   import Localized from "../localization/localized.svelte";
+
+  import { LocalizationKeys } from "../localization/supportedLanguages";
 
   export let onClose: any;
   export let onContinue: any;
@@ -98,16 +100,16 @@
     getContext(translatorContextKey) || Translator.fallback();
   const stripeElementLocale = (translator.locale ||
     translator.fallbackLocale) as StripeElementLocale;
+
+  type OnChangeEvent = CustomEvent<{ complete: boolean }>;
 </script>
 
 <div>
   {#if stripe && clientSecret}
     <ModalHeader>
-      <div
-        style="display: flex; align-items: center; justify-content: baseline;"
-      >
+      <div class="rcb-header-wrapper">
         <IconLock />
-        <div style="margin-left: 10px">
+        <div class="rcb-step-title">
           <Localized
             key={LocalizationKeys.StateNeedsPaymentInfoPaymentStepTitle}
           />
@@ -193,7 +195,7 @@
                   type: "tabs",
                 },
               }}
-              on:change={(event: any) => {
+              on:change={(event: OnChangeEvent) => {
                 isPaymentInfoComplete = event.detail.complete;
               }}
             />
@@ -227,6 +229,15 @@
 </div>
 
 <style>
+  .rcb-header-wrapper {
+    display: flex;
+    align-items: center;
+  }
+
+  .rcb-step-title {
+    margin-left: 10px;
+  }
+
   .rcb-stripe-elements-container {
     width: 100%;
 

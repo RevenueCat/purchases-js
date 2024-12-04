@@ -5,8 +5,10 @@
   import { type Product, ProductType } from "../../entities/offerings";
   import { getContext } from "svelte";
   import { translatorContextKey } from "../localization/constants";
-  import { LocalizationKeys, Translator } from "../localization/translator";
+  import { Translator } from "../localization/translator";
   import Localized from "../localization/localized.svelte";
+
+  import { LocalizationKeys } from "../localization/supportedLanguages";
 
   export let productDetails: Product | null = null;
   export let brandingInfo: BrandingInfoResponse | null = null;

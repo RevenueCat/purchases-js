@@ -12,7 +12,10 @@
   } from "./fixtures";
   import { Translator } from "../ui/localization/translator";
   import WithContext from "./utils/with-context.svelte";
-  import { translatorContextKey } from "../ui/localization/constants";
+  import {
+    englishLocale,
+    translatorContextKey,
+  } from "../ui/localization/constants";
 
   let defaultArgs = {
     brandingInfo: brandingInfo,
@@ -23,25 +26,25 @@
     {
       en: { "state_error.error_title_other_errors": "CUSTOM LABEL" },
     },
-    "en",
+    englishLocale,
   );
 
-  let italianTranslator = new Translator({}, "it", "en");
+  let italianTranslator = new Translator({}, "it", englishLocale);
   let italianCustomLabelsTranslator = new Translator(
     {
       it: { "state_error.error_title_other_errors": "CUSTOM LABEL" },
     },
     "it",
-    "en",
+    englishLocale,
   );
 
-  let spanishTranslator = new Translator({}, "es", "en");
+  let spanishTranslator = new Translator({}, "es", englishLocale);
   let spanishCustomLabelsTranslator = new Translator(
     {
       es: { "state_error.error_title_other_errors": "CUSTOM LABEL" },
     },
     "es",
-    "en",
+    englishLocale,
   );
 </script>
 
