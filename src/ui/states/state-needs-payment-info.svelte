@@ -98,6 +98,8 @@
     getContext(translatorContextKey) || Translator.fallback();
   const stripeElementLocale = (translator.locale ||
     translator.fallbackLocale) as StripeElementLocale;
+
+  type OnChangeEvent = CustomEvent<{ complete: boolean }>;
 </script>
 
 <div>
@@ -191,7 +193,7 @@
                   type: "tabs",
                 },
               }}
-              on:change={(event: Event) => {
+              on:change={(event: OnChangeEvent) => {
                 isPaymentInfoComplete = event.detail.complete;
               }}
             />

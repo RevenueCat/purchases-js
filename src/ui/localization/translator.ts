@@ -234,7 +234,7 @@ export class Translator {
   }
 
   public translate(
-    key: LocalizationKeys | emptyString,
+    key: LocalizationKeys | EmptyString,
     variables?: TranslationVariables,
   ): string {
     const localeInstance = this.getLocaleInstance(this.selectedLocale);
@@ -309,7 +309,7 @@ export class LocaleTranslations {
   }
 
   public translate(
-    labelId: LocalizationKeys | emptyString,
+    labelId: LocalizationKeys | EmptyString,
     variables?: TranslationVariables,
   ): string | undefined {
     const label = this.labels[labelId];

@@ -1,6 +1,6 @@
 <script lang="ts">
   import {
-    type emptyString,
+    type EmptyString,
     LocalizationKeys,
     type TranslationVariables,
     Translator,
@@ -9,7 +9,7 @@
   import { translatorContextKey } from "./constants";
 
   interface LocalizedProps {
-    key?: LocalizationKeys | emptyString | undefined;
+    key?: LocalizationKeys | EmptyString | undefined;
     variables?: TranslationVariables;
     children?: any;
     selectedLocale?: string;
@@ -40,7 +40,7 @@
   const translatedLabel = $derived(
     key
       ? translator.translate(
-          (key as LocalizationKeys) || ("" as emptyString),
+          (key as LocalizationKeys) || ("" as EmptyString),
           variables,
         )
       : undefined,
