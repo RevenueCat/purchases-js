@@ -34,7 +34,7 @@ import vi from "./locale/vi.json";
 
 import type { PeriodUnit } from "../../helpers/duration-helper";
 
-export type emptyString = "";
+export type EmptyString = "";
 
 export enum LocalizationKeys {
   PeriodsWeek = "periods.week",
