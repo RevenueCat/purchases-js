@@ -30,7 +30,10 @@
     type CustomTranslations,
     Translator,
   } from "./localization/translator";
-  import { translatorContextKey } from "./localization/constants";
+  import {
+    englishLocale,
+    translatorContextKey,
+  } from "./localization/constants";
 
   export let asModal = true;
   export let customerEmail: string | undefined;
@@ -43,9 +46,9 @@
   export let onClose: () => void;
   export let purchases: Purchases;
   export let purchaseOperationHelper: PurchaseOperationHelper;
-  export let selectedLocale: string = "en";
+  export let selectedLocale: string = englishLocale;
+  export let defaultLocale: string = englishLocale;
   export let customTranslations: CustomTranslations = {};
-  export let defaultLocale: string = "en";
 
   let colorVariables = "";
   let productDetails: Product | null = null;

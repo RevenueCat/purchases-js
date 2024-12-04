@@ -3,6 +3,7 @@ import { parseOfferingIntoVariables } from "../../helpers/paywall-variables-help
 import type { Offering, SubscriptionOption } from "../../entities/offerings";
 import { type VariableDictionary } from "@revenuecat/purchases-ui-js";
 import { Translator } from "../../ui/localization/translator";
+import { englishLocale } from "../../ui/localization/constants";
 
 const offering = {
   identifier: "MultiCurrencyTest",
@@ -2293,7 +2294,7 @@ const expectedVariables: Record<string, VariableDictionary> = {
   },
 };
 
-const enTranslator = new Translator({}, "en");
+const enTranslator = new Translator({}, englishLocale);
 
 describe("getPaywallVariables", () => {
   test("should return expected paywall variables", () => {

@@ -6,7 +6,7 @@
     Translator,
   } from "./translator";
   import { getContext } from "svelte";
-  import { translatorContextKey } from "./constants";
+  import { englishLocale, translatorContextKey } from "./constants";
 
   interface LocalizedProps {
     key?: LocalizationKeys | EmptyString | undefined;
@@ -19,7 +19,7 @@
   const {
     key = "",
     selectedLocale,
-    defaultLocale = "en",
+    defaultLocale = englishLocale,
     variables,
     children,
   }: LocalizedProps = $props();

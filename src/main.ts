@@ -53,6 +53,7 @@ import { Paywall } from "@revenuecat/purchases-ui-js";
 import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
 import { parseOfferingIntoVariables } from "./helpers/paywall-variables-helpers";
 import { Translator } from "./ui/localization/translator";
+import { englishLocale } from "./ui/localization/constants";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -302,7 +303,8 @@ export class Purchases {
         htmlTarget: paywallParams.purchaseHtmlTarget,
         customerEmail: paywallParams.customerEmail,
         selectedLocale: selectedLocale,
-        defaultLocale: offering.paywall_components?.default_locale || "en",
+        defaultLocale:
+          offering.paywall_components?.default_locale || englishLocale,
       });
     };
 
@@ -495,8 +497,8 @@ export class Purchases {
       purchaseOption,
       htmlTarget,
       customerEmail,
-      selectedLocale = "en",
-      defaultLocale = "en",
+      selectedLocale = englishLocale,
+      defaultLocale = englishLocale,
     } = params;
     let resolvedHTMLTarget =
       htmlTarget ?? document.getElementById("rcb-ui-root");

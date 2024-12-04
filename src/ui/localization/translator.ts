@@ -33,6 +33,7 @@ import uk from "./locale/uk.json";
 import vi from "./locale/vi.json";
 
 import type { PeriodUnit } from "../../helpers/duration-helper";
+import { englishLocale } from "./constants";
 
 export type EmptyString = "";
 
@@ -145,11 +146,11 @@ export class Translator {
 
   public constructor(
     customTranslations: CustomTranslations = {},
-    public readonly selectedLocale: string = "en",
-    public readonly defaultLocale: string = "en",
+    public readonly selectedLocale: string = englishLocale,
+    public readonly defaultLocale: string = englishLocale,
   ) {
     this.locales = {
-      en: new LocaleTranslations(en, "en"),
+      en: new LocaleTranslations(en, englishLocale),
       es: new LocaleTranslations(es, "es"),
       it: new LocaleTranslations(it, "it"),
       ar: new LocaleTranslations(ar, "ar"),
