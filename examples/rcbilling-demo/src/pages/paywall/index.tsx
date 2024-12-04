@@ -1,6 +1,6 @@
 import { Offering, Package, PurchasesError } from "@revenuecat/purchases-js";
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { usePurchasesLoaderData } from "../../util/PurchasesLoader";
 import Button from "../../components/Button";
 import LogoutButton from "../../components/LogoutButton";
@@ -91,7 +91,8 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
 const PaywallPage: React.FC = () => {
   const navigate = useNavigate();
   const { purchases, offering } = usePurchasesLoaderData();
-
+  const [searchParams] = useSearchParams();
+  const lang = searchParams.get("lang");
   if (!offering) {
     console.error("No offering found");
     return <>No offering found!</>;
@@ -114,7 +115,7 @@ const PaywallPage: React.FC = () => {
       const { customerInfo, redemptionInfo } = await purchases.purchase({
         rcPackage: pkg,
         purchaseOption: option,
-        selectedLocale: navigator.language,
+        selectedLocale: lang || navigator.language,
       });
 
       console.log(`CustomerInfo after purchase: ${customerInfo}`);
