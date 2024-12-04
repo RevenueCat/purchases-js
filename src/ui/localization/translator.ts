@@ -20,7 +20,9 @@ export type EmptyString = "";
  * }
  * ```
  */
-export type CustomTranslations = Record<string, Record<string, string>>;
+export type CustomTranslations = {
+  [langKey: string]: { [translationKey in LocalizationKeys]?: string };
+};
 
 /**
  * Translation variables to be used in the translation.

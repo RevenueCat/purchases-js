@@ -19,6 +19,7 @@
   } from "../ui/localization/constants";
   import { Translator } from "../ui/localization/translator";
   import WithContext from "./utils/with-context.svelte";
+  import { LocalizationKeys } from "../ui/localization/supportedLanguages";
 
   let defaultArgs = {
     paymentInfoCollectionMetadata: purchaseResponse,
@@ -29,7 +30,9 @@
 
   let customLabelsTranslator = new Translator(
     {
-      en: { "state_needs_payment_info.button_pay": "CUSTOM LABEL" },
+      en: {
+        [LocalizationKeys.StateNeedsPaymentInfoButtonPay]: "CUSTOM LABEL",
+      },
     },
     englishLocale,
   );
