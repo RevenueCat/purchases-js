@@ -9,9 +9,11 @@
   import { Logger } from "../../helpers/logger.js";
   import MessageLayout from "../layout/message-layout.svelte";
   import { type Product, ProductType } from "../../entities/offerings";
-  import { LocalizationKeys, Translator } from "../localization/translator";
+  import { Translator } from "../localization/translator";
   import { translatorContextKey } from "../localization/constants";
   import Localized from "../localization/localized.svelte";
+
+  import { LocalizationKeys } from "../localization/supportedLanguages";
 
   export let brandingInfo: BrandingInfoResponse | null = null;
   export let lastError: PurchaseFlowError;

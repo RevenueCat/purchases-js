@@ -8,10 +8,9 @@ import {
 } from "../entities/offerings";
 import { type Period, PeriodUnit } from "./duration-helper";
 import { type VariableDictionary } from "@revenuecat/purchases-ui-js";
-import {
-  LocalizationKeys,
-  type Translator,
-} from "../ui/localization/translator";
+import { type Translator } from "../ui/localization/translator";
+
+import { LocalizationKeys } from "../ui/localization/supportedLanguages";
 
 function getProductPerType(pkg: Package): PurchaseOption | undefined | null {
   return pkg.rcBillingProduct.defaultPurchaseOption;

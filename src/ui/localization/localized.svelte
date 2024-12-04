@@ -1,12 +1,13 @@
 <script lang="ts">
   import {
     type EmptyString,
-    LocalizationKeys,
     type TranslationVariables,
     Translator,
   } from "./translator";
   import { getContext } from "svelte";
   import { englishLocale, translatorContextKey } from "./constants";
+
+  import { LocalizationKeys } from "./supportedLanguages";
 
   interface LocalizedProps {
     key?: LocalizationKeys | EmptyString | undefined;

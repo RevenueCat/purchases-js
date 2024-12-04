@@ -11,7 +11,9 @@
   import CloseButton from "../close-button.svelte";
   import Localized from "../localization/localized.svelte";
   import { translatorContextKey } from "../localization/constants";
-  import { LocalizationKeys, Translator } from "../localization/translator";
+  import { Translator } from "../localization/translator";
+
+  import { LocalizationKeys } from "../localization/supportedLanguages";
 
   export let onContinue: any;
   export let onClose: () => void;
