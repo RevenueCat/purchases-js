@@ -24,9 +24,6 @@ export interface CustomerInfo {
 }
 
 // @public
-export type CustomTranslations = Record<string, Record<string, string>>;
-
-// @public
 export interface EntitlementInfo {
     readonly billingIssueDetectedAt: Date | null;
     readonly expirationDate: Date | null;
