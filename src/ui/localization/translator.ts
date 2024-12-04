@@ -1,7 +1,7 @@
 import type { PeriodUnit } from "../../helpers/duration-helper";
 import { englishLocale } from "./constants";
 
-import type { LocalizationKeys} from "./supportedLanguages";
+import type { LocalizationKeys } from "./supportedLanguages";
 import { supportedLanguages } from "./supportedLanguages";
 
 export type EmptyString = "";
