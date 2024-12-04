@@ -33,11 +33,11 @@
       case PurchaseFlowErrorCode.AlreadyPurchasedError:
         if (productDetails?.productType === ProductType.Subscription) {
           return translator.translate(
-            LocalizationKeys.StateErrorErrorMessageAlreadySubscribed,
+            LocalizationKeys.StateErrorErrorTitleAlreadySubscribed,
           );
         } else {
           return translator.translate(
-            LocalizationKeys.StateErrorErrorMessageAlreadyPurchased,
+            LocalizationKeys.StateErrorErrorTitleAlreadyPurchased,
           );
         }
       default:
