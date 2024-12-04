@@ -199,6 +199,45 @@ test.describe("Main", () => {
       await expect(page.getByText(title)).toBeVisible();
     });
   });
+
+  [
+    ["es", "Email de facturación"],
+    ["it", "Indirizzo email per la fatturazione"],
+    ["en", "Billing email address"],
+    ["fr", "Adresse e-mail de facturation"],
+    ["de", "E-Mail-Adresse für Rechnungsstellung"],
+  ].forEach(([lang, title]) => {
+    test(`Shows the purchase flow in ${lang} when purchasing from paywalls`, async ({
+      browser,
+      browserName,
+    }) => {
+      const userId = `${getUserId(browserName)}_${lang}_language`;
+      const page = await setupTest(browser, userId, {
+        lang,
+        offeringId: RC_PAYWALL_TEST_OFFERING_ID,
+        useRcPaywall: true,
+      });
+
+      // Gets all packages
+      const packageCards = await getAllElementsByLocator(
+        page,
+        PACKAGE_SELECTOR,
+      );
+      const singleCard = packageCards[0];
+      // Pick the first package
+      await singleCard.click();
+
+      // Get the purchase button as a Locator
+      const purchaseButton = (
+        await getAllElementsByLocator(page, "button.purchase-button")
+      )[0];
+
+      await expect(purchaseButton).toBeVisible();
+      await purchaseButton.click();
+
+      await expect(page.getByText(title)).toBeVisible();
+    });
+  });
 });
 
 async function startPurchaseFlow(card: Locator) {
