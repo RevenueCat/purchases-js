@@ -41,7 +41,7 @@ const RCPaywallPage: React.FC = () => {
         );
       })
       .catch((err: Error) => console.log(`Error: ${err}`));
-  }, [offering, navigate]);
+  }, [offering, navigate, lang]);
 
   if (!offering) {
     console.error("No offering found");
