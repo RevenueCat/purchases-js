@@ -83,12 +83,10 @@ test.describe("Main", () => {
     browserName,
   }) => {
     const userId = `${getUserId(browserName)}_subscription`;
-    const page = await setupTest(
-      browser,
-      userId,
-      RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES,
-      true,
-    );
+    const page = await setupTest(browser, userId, {
+      offeringId: RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES,
+      useRcPaywall: true,
+    });
 
     // Gets all packages
     const packageCards = await getAllElementsByLocator(page, PACKAGE_SELECTOR);
