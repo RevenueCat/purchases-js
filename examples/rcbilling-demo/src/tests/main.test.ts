@@ -6,6 +6,8 @@ const _LOCAL_URL = "http://localhost:3001/";
 const CARD_SELECTOR = "div.card";
 const PACKAGE_SELECTOR = "button.package";
 const RC_PAYWALL_TEST_OFFERING_ID = "rc_paywalls_e2e_test";
+const RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES =
+  "rc_paywalls_e2e_test_variables";
 
 test.describe("Main", () => {
   test.afterEach(({ browser }) => {
@@ -75,6 +77,36 @@ test.describe("Main", () => {
     });
     const title = page.getByText("E2E Tests for Purchases JS");
     await expect(title).toBeVisible();
+  });
+  test("Can render an RC Paywall using variables", async ({
+    browser,
+    browserName,
+  }) => {
+    const userId = `${getUserId(browserName)}_subscription`;
+    const page = await setupTest(browser, userId, {
+      offeringId: RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES,
+      useRcPaywall: true,
+    });
+
+    // Gets all packages
+    const packageCards = await getAllElementsByLocator(page, PACKAGE_SELECTOR);
+
+    // Get the purchase button as a Locator
+    const purchaseButton = (
+      await getAllElementsByLocator(page, "button.purchase-button")
+    )[0];
+
+    await expect(purchaseButton).toContainText(
+      "PURCHASE FOR $1.25/1wk($5.00/mo)",
+    );
+
+    await packageCards[1].click();
+    await expect(purchaseButton).toContainText("PURCHASE FOR $30.00");
+
+    await packageCards[2].click();
+    await expect(purchaseButton).toContainText(
+      "PURCHASE FOR $19.99/1yr($1.67/mo)",
+    );
   });
   test("Can purchase a subscription Product for RC Paywall", async ({
     browser,
