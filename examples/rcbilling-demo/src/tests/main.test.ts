@@ -79,7 +79,7 @@ test.describe("Main", () => {
     const title = page.getByText("E2E Tests for Purchases JS");
     await expect(title).toBeVisible();
   });
-  test.only("Can render an RC Paywall using variables", async ({
+  test("Can render an RC Paywall using variables", async ({
     browser,
     browserName,
   }) => {
