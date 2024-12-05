@@ -1,6 +1,6 @@
 <script>
   import { Meta, Story, Template } from "@storybook/addon-svelte-csf";
-  import StateNeedsPaymentInfo from "../ui/states/state-needs-payment-info.svelte";
+  import StateNeedsPaymentInfo from "./utils/state-needs-payment-info-stripe-elements.svelte";
   import StateNeedsAuthInfo from "../ui/states/state-needs-auth-info.svelte";
   import StatePresentOffer from "../ui/states/state-present-offer.svelte";
   import StateSuccess from "../ui/states/state-success.svelte";
@@ -111,9 +111,7 @@
             </ModalHeader>
             <StatePresentOffer {...args} />
           </Aside>
-          <Main brandingAppearance={args.brandingInfo.appearance}>
-            <StateNeedsPaymentInfo {...args} />
-          </Main>
+          <StateNeedsPaymentInfo {...args} />
         </Layout>
       </Container>
 

@@ -1,18 +1,11 @@
 <script lang="ts">
   import { Meta, Story, Template } from "@storybook/addon-svelte-csf";
-  import StateNeedsPaymentInfo from "../ui/states/state-needs-payment-info.svelte";
+  import StateNeedsPaymentInfo from "./utils/state-needs-payment-info-stripe-elements.svelte";
   import Layout from "../ui/layout/layout.svelte";
   import Container from "../ui/layout/container.svelte";
-  import Main from "../ui/layout/main-block.svelte";
   import ModalBackdrop from "../ui/modal-backdrop.svelte";
 
-  import {
-    brandingInfo,
-    colorfulBrandingAppearance,
-    product,
-    purchaseResponse,
-    subscriptionOption,
-  } from "./fixtures";
+  import { brandingInfo, colorfulBrandingAppearance } from "./fixtures";
   import {
     englishLocale,
     translatorContextKey,
@@ -20,13 +13,6 @@
   import { Translator } from "../ui/localization/translator";
   import WithContext from "./utils/with-context.svelte";
   import { LocalizationKeys } from "../ui/localization/supportedLanguages";
-
-  let defaultArgs = {
-    paymentInfoCollectionMetadata: purchaseResponse,
-    productDetails: product,
-    purchaseOptionToUse: subscriptionOption,
-    onContinue: () => {},
-  };
 
   let customLabelsTranslator = new Translator(
     {
@@ -63,21 +49,18 @@
     <Container>
       <ModalBackdrop>
         <Layout>
-          <Main brandingAppearance={args.brandingInfo?.appearance}>
-            <StateNeedsPaymentInfo {...args} />
-          </Main>
+          <StateNeedsPaymentInfo {...args} />
         </Layout>
       </ModalBackdrop>
     </Container>
   </WithContext>
 </Template>
 
-<Story name="Standard" args={{ ...defaultArgs }} />
+<Story name="Standard" />
 
 <Story
   name="Rounded"
   args={{
-    ...defaultArgs,
     brandingInfo: {
       ...brandingInfo,
       appearance: {
@@ -90,7 +73,6 @@
 <Story
   name="Pill"
   args={{
-    ...defaultArgs,
     brandingInfo: {
       ...brandingInfo,
       appearance: {
@@ -103,7 +85,6 @@
 <Story
   name="Rectangle"
   args={{
-    ...defaultArgs,
     brandingInfo: {
       ...brandingInfo,
       appearance: {
@@ -116,7 +97,6 @@
 <Story
   name="ColorfulRectangle"
   args={{
-    ...defaultArgs,
     brandingInfo: { ...brandingInfo, appearance: colorfulBrandingAppearance },
   }}
 />
@@ -124,7 +104,6 @@
 <Story
   name="Italian"
   args={{
-    ...defaultArgs,
     context: { [translatorContextKey]: italianTranslator },
   }}
 />
@@ -132,7 +111,6 @@
 <Story
   name="Spanish"
   args={{
-    ...defaultArgs,
     context: { [translatorContextKey]: spanishTranslator },
   }}
 />
@@ -140,7 +118,6 @@
 <Story
   name="CustomLabels"
   args={{
-    ...defaultArgs,
     context: { [translatorContextKey]: customLabelsTranslator },
   }}
 />
@@ -148,8 +125,6 @@
 <Story
   name="CustomLabelsIT"
   args={{
-    ...defaultArgs,
-
     context: { [translatorContextKey]: italianCustomLabelsTranslator },
   }}
 />
@@ -157,8 +132,6 @@
 <Story
   name="CustomLabelsES"
   args={{
-    ...defaultArgs,
-
     context: { [translatorContextKey]: spanishCustomLabelsTranslator },
   }}
 />
