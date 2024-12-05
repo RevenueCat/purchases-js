@@ -273,9 +273,11 @@ export interface PurchaseOption {
 // @public
 export interface PurchaseParams {
     customerEmail?: string;
+    defaultLocale?: string;
     htmlTarget?: HTMLElement;
     purchaseOption?: PurchaseOption | null;
     rcPackage: Package;
+    selectedLocale?: string;
 }
 
 // @public

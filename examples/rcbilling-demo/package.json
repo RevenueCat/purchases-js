@@ -6,10 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint": "eslint \"**/*.{ts,tsx}\" --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "test": "vitest",
     "test:ci": "(vite &) && sleep 5 && playwright test",
+    "test:ui": "(vite &) && sleep 5 && playwright test --ui",
     "test:e2e": "playwright test",
     "test:e2e-ui": "playwright test --ui",
     "prettier": "prettier --write .",
@@ -27,19 +28,29 @@
     "vitest": "^0.34.6"
   },
   "devDependencies": {
+    "@eslint/js": "^9.16.0",
     "@playwright/test": "^1.47.1",
     "@types/node": "^22.1.0",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.10.0",
+    "@typescript-eslint/parser": "^6.10.0",
     "@vitejs/plugin-react": "^4.0.3",
-    "eslint": "^8.53.0",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-config-standard-with-typescript": "^43.0.1",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-n": "^16.2.0",
     "eslint-plugin-prettier": "^5.0.1",
+    "eslint-plugin-promise": "^6.1.1",
+    "eslint-plugin-storybook": "^0.9.0",
+    "eslint-plugin-svelte": "^2.46.1",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.3",
     "prettier": "^3.1.0",
     "typescript": "^5.0.2",
-    "vite": "^5.4.7"
+    "vite": "^5.4.7",
+    "typescript-eslint": "^8.17.0",
+    "globals": "^15.13.0"
   }
 }

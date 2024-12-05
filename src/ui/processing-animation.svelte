@@ -1,4 +1,4 @@
-<div class="processing" />
+<div class="processing"></div>
 
 <style>
   .processing {
@@ -7,6 +7,7 @@
     border-radius: 50%;
     animation: l5 1.5s infinite linear;
   }
+
   @keyframes l5 {
     0% {
       box-shadow:

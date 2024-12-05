@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, setContext } from "svelte";
   import type { Package, Product, PurchaseOption, Purchases } from "../main";
   import StatePresentOffer from "./states/state-present-offer.svelte";
   import StateLoading from "./states/state-loading.svelte";
@@ -26,6 +26,14 @@
 
   import { toProductInfoStyleVar } from "./theme/utils";
   import { type RedemptionInfo } from "../entities/redemption-info";
+  import {
+    type CustomTranslations,
+    Translator,
+  } from "./localization/translator";
+  import {
+    englishLocale,
+    translatorContextKey,
+  } from "./localization/constants";
 
   export let asModal = true;
   export let customerEmail: string | undefined;
@@ -38,7 +46,9 @@
   export let onClose: () => void;
   export let purchases: Purchases;
   export let purchaseOperationHelper: PurchaseOperationHelper;
-
+  export let selectedLocale: string = englishLocale;
+  export let defaultLocale: string = englishLocale;
+  export let customTranslations: CustomTranslations = {};
 
   let colorVariables = "";
   let productDetails: Product | null = null;
@@ -72,12 +82,16 @@
     "loading",
   ];
 
+  // Setting the context for the Localized components
+  setContext(
+    translatorContextKey,
+    new Translator(customTranslations, selectedLocale, defaultLocale),
+  );
+
   onMount(async () => {
     productDetails = rcPackage.rcBillingProduct;
 
-    colorVariables = toProductInfoStyleVar(
-      brandingInfo?.appearance,
-    );
+    colorVariables = toProductInfoStyleVar(brandingInfo?.appearance);
 
     if (state === "present-offer") {
       if (customerEmail) {
@@ -186,10 +200,10 @@
   const closeWithError = () => {
     onError(
       lastError ??
-      new PurchaseFlowError(
-        PurchaseFlowErrorCode.UnknownError,
-        "Unknown error without state set.",
-      ),
+        new PurchaseFlowError(
+          PurchaseFlowErrorCode.UnknownError,
+          "Unknown error without state set.",
+        ),
     );
   };
 </script>
@@ -239,7 +253,6 @@
             {paymentInfoCollectionMetadata}
             onContinue={handleContinue}
             onClose={handleClose}
-            onError={handleError}
             processing={state === "polling-purchase-status"}
             {productDetails}
             {purchaseOptionToUse}
@@ -253,17 +266,21 @@
           <StateError
             {brandingInfo}
             lastError={lastError ??
-                new PurchaseFlowError(
-                  PurchaseFlowErrorCode.UnknownError,
-                  "Unknown error without state set.",
-                )}
+              new PurchaseFlowError(
+                PurchaseFlowErrorCode.UnknownError,
+                "Unknown error without state set.",
+              )}
             supportEmail={brandingInfo?.support_email}
-            productDetails={productDetails}
+            {productDetails}
             onContinue={closeWithError}
           />
         {/if}
         {#if state === "success"}
-          <StateSuccess {productDetails} {brandingInfo} onContinue={handleContinue} />
+          <StateSuccess
+            {productDetails}
+            {brandingInfo}
+            onContinue={handleContinue}
+          />
         {/if}
       </Main>
     </Layout>

@@ -1,11 +1,14 @@
-import { PurchaseResult, Purchases } from "@revenuecat/purchases-js";
+import type { PurchaseResult } from "@revenuecat/purchases-js";
+import { Purchases } from "@revenuecat/purchases-js";
 import React, { useEffect } from "react";
 import { usePurchasesLoaderData } from "../../util/PurchasesLoader";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const RCPaywallPage: React.FC = () => {
   const { offering } = usePurchasesLoaderData();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const lang = searchParams.get("lang");
 
   useEffect(() => {
     const target = document.getElementById("paywall");
@@ -20,6 +23,7 @@ const RCPaywallPage: React.FC = () => {
       .renderPaywall({
         offering: offering,
         htmlTarget: document.getElementById("paywall") || undefined,
+        selectedLocale: lang || undefined,
       })
       .then((purchaseResult: PurchaseResult) => {
         const { customerInfo, redemptionInfo } = purchaseResult;
@@ -38,7 +42,7 @@ const RCPaywallPage: React.FC = () => {
         );
       })
       .catch((err: Error) => console.log(`Error: ${err}`));
-  }, [offering, navigate]);
+  }, [offering, navigate, lang]);
 
   if (!offering) {
     console.error("No offering found");

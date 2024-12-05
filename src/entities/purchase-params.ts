@@ -21,4 +21,15 @@ export interface PurchaseParams {
    * The email of the user. If undefined, RevenueCat will ask the customer for their email.
    */
   customerEmail?: string;
+
+  /**
+   * The locale to use for the purchase flow. If not specified, the device's locale will be used.
+   */
+  selectedLocale?: string;
+
+  /**
+   * The default locale to use if the selectedLocale is not available.
+   * Defaults to english.
+   */
+  defaultLocale?: string;
 }

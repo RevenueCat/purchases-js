@@ -1,8 +1,4 @@
-import {
-  type Offering,
-  type Offerings,
-  type Package,
-} from "./entities/offerings";
+import type { Offering, Offerings, Package } from "./entities/offerings";
 import RCPurchasesUI from "./ui/rcb-ui.svelte";
 
 import { type CustomerInfo, toCustomerInfo } from "./entities/customer-info";
@@ -52,6 +48,8 @@ import { type RenderPaywallParams } from "./entities/render-paywall-params";
 import { Paywall } from "@revenuecat/purchases-ui-js";
 import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
 import { parseOfferingIntoVariables } from "./helpers/paywall-variables-helpers";
+import { Translator } from "./ui/localization/translator";
+import { englishLocale } from "./ui/localization/constants";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -277,6 +275,14 @@ export class Purchases {
       throw new Error("You cannot use paywalls yet, they are coming soon!");
     }
 
+    const selectedLocale = paywallParams.selectedLocale || navigator.language;
+
+    const translator = new Translator(
+      {},
+      selectedLocale,
+      offering.paywall_components.default_locale,
+    );
+
     const startPurchaseFlow = (
       selectedPackageId: string,
     ): Promise<PurchaseResult> => {
@@ -292,6 +298,9 @@ export class Purchases {
         rcPackage: pkg,
         htmlTarget: paywallParams.purchaseHtmlTarget,
         customerEmail: paywallParams.customerEmail,
+        selectedLocale: selectedLocale,
+        defaultLocale:
+          offering.paywall_components?.default_locale || englishLocale,
       });
     };
 
@@ -319,7 +328,10 @@ export class Purchases {
       // DO NOTHING, RC's customer center is not supported in web
     };
 
-    const selectedLocale = paywallParams.selectedLocale || navigator.language;
+    const variablesPerPackage = parseOfferingIntoVariables(
+      offering,
+      translator,
+    );
 
     return new Promise((resolve, reject) => {
       mount(Paywall, {
@@ -349,10 +361,7 @@ export class Purchases {
               })
               .catch((err) => reject(err));
           },
-          variablesPerPackage: parseOfferingIntoVariables(
-            offering,
-            selectedLocale,
-          ),
+          variablesPerPackage,
         },
       });
     });
@@ -479,7 +488,14 @@ export class Purchases {
    */
   @requiresLoadedResources
   public purchase(params: PurchaseParams): Promise<PurchaseResult> {
-    const { rcPackage, purchaseOption, htmlTarget, customerEmail } = params;
+    const {
+      rcPackage,
+      purchaseOption,
+      htmlTarget,
+      customerEmail,
+      selectedLocale = englishLocale,
+      defaultLocale = englishLocale,
+    } = params;
     let resolvedHTMLTarget =
       htmlTarget ?? document.getElementById("rcb-ui-root");
 
@@ -498,12 +514,14 @@ export class Purchases {
 
     const certainHTMLTarget = resolvedHTMLTarget as unknown as HTMLElement;
 
-    const asModal = !Boolean(htmlTarget);
+    const asModal = !htmlTarget;
     const appUserId = this._appUserId;
 
     Logger.debugLog(
       `Presenting purchase form for package ${rcPackage.identifier}`,
     );
+
+    const localeToBeUsed = selectedLocale || defaultLocale;
 
     return new Promise((resolve, reject) => {
       mount(RCPurchasesUI, {
@@ -536,6 +554,8 @@ export class Purchases {
           brandingInfo: this._brandingInfo,
           purchaseOperationHelper: this.purchaseOperationHelper,
           asModal,
+          selectedLocale: localeToBeUsed,
+          defaultLocale,
         },
       });
     });
@@ -624,7 +644,7 @@ export class Purchases {
   /**
    * Generates an anonymous app user ID that follows RevenueCat's format.
    * This can be used when you don't have a user identifier system in place.
-   * The generated ID will be in the format: $RCAnonymousID:<UUID without dashes>
+   * The generated ID will be in the format: $RCAnonymousID:\<UUID without dashes\>
    * Example: $RCAnonymousID:123e4567e89b12d3a456426614174000
    * @returns A new anonymous app user ID string
    * @public

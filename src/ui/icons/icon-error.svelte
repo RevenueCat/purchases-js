@@ -7,9 +7,9 @@
 </div>
 
 <style>
-    .rcb-ui-asset-icon {
-        width: 96px;
-        height: 96px;
-        margin: 0 auto;
-    }
+  .rcb-ui-asset-icon {
+    width: 96px;
+    height: 96px;
+    margin: 0 auto;
+  }
 </style>

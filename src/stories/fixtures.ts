@@ -1,7 +1,7 @@
 import {
-  Product,
+  type Product,
   ProductType,
-  SubscriptionOption,
+  type SubscriptionOption,
 } from "../entities/offerings";
 import { PeriodUnit } from "../helpers/duration-helper";
 import { PurchaseFlowError } from "../helpers/purchase-operation-helper";
@@ -24,6 +24,34 @@ export const subscriptionOption: SubscriptionOption = {
     cycleCount: 0,
   },
   trial: null,
+};
+
+export const subscriptionOptionWithTrial: SubscriptionOption = {
+  id: "option_id_1",
+  priceId: "price_1",
+  base: {
+    periodDuration: "P1M",
+    period: {
+      unit: PeriodUnit.Month,
+      number: 1,
+    },
+    price: {
+      amount: 999,
+      amountMicros: 9990000,
+      currency: "USD",
+      formattedPrice: "9.99$",
+    },
+    cycleCount: 0,
+  },
+  trial: {
+    periodDuration: "P2W",
+    period: {
+      number: 2,
+      unit: PeriodUnit.Week,
+    },
+    cycleCount: 1,
+    price: null,
+  },
 };
 
 export const product: Product = {
