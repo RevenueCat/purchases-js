@@ -127,6 +127,7 @@ jobs:
       - image: cimg/ruby:3.3.0-browsers
     steps:
       - checkout
+      - run: git fetch # Chromatic needs full history
       - revenuecat/install-gem-unix-dependencies:
           cache-version: v1
       - revenuecat/setup-git-credentials
@@ -170,6 +171,24 @@ jobs:
       - run:
           name: Pack
           command: npm pack
+      - run:
+          name: Publishing Storybook to Chromatic
+          command: |
+            if [[ "${CIRCLE_BRANCH}" != "main" ]]; then
+              # For PRs - use current SHA and branch name
+              export CHROMATIC_SHA=$(git rev-parse HEAD)
+              export CHROMATIC_BRANCH=${CIRCLE_BRANCH}
+              NODE_OPTIONS=--max-old-space-size=4096 npx chromatic \
+                --ci \
+                --exit-once-uploaded \
+                --branch-name ${CIRCLE_BRANCH} \
+                --patch-build=${CIRCLE_BRANCH}...main
+            else
+              NODE_OPTIONS=--max-old-space-size=4096 npx chromatic \
+                --auto-accept-changes \
+                --ci \
+                --exit-once-uploaded
+            fi
 
   test-e2e:
     docker:
