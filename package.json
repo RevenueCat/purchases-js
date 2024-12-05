@@ -70,6 +70,7 @@
     "@sveltejs/vite-plugin-svelte": "^4.0.0",
     "@tsconfig/svelte": "^5.0.4",
     "@typescript-eslint/eslint-plugin": "^6.10.0",
+    "chromatic": "^11.20.0",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^9.0.0",
     "eslint-config-standard-with-typescript": "^43.0.1",
