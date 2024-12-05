@@ -102,6 +102,35 @@
     translator.fallbackLocale) as StripeElementLocale;
 
   type OnChangeEvent = CustomEvent<{ complete: boolean }>;
+
+  /**
+   * This function converts some particular locales to the ones that stripe supports.
+   * Finally falls back to 'auto' if the initialLocale is not supported by stripe.
+   * @param initialLocale
+   */
+  const getLocaleToUse = (initialLocale: string) => {
+    // These locale that we support are not supported by stripe.
+    // if any of these is passed we fallback to 'auto' so that
+    // stripe will pick up the locale from the browser.
+    const stripeUnsupportedLocale = ["ca", "hi", "uk"];
+
+    if (stripeUnsupportedLocale.includes(initialLocale)) {
+      return "auto" as StripeElementLocale;
+    }
+
+    const mappedLocale: Record<string, string> = {
+      zh_Hans: "zh",
+      zh_Hant: "zh",
+    };
+
+    if (Object.keys(mappedLocale).includes(initialLocale)) {
+      return mappedLocale[initialLocale] as StripeElementLocale;
+    }
+
+    return initialLocale as StripeElementLocale;
+  };
+
+  const localeToUse = getLocaleToUse(stripeElementLocale);
 </script>
 
 <div>
@@ -122,7 +151,7 @@
         {stripe}
         {clientSecret}
         loader="always"
-        locale={stripeElementLocale}
+        locale={localeToUse}
         bind:elements
         theme="stripe"
         variables={{
