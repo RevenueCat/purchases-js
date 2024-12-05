@@ -2,6 +2,8 @@ import { describe, expect, test } from "vitest";
 import { parseOfferingIntoVariables } from "../../helpers/paywall-variables-helpers";
 import type { Offering, SubscriptionOption } from "../../entities/offerings";
 import { type VariableDictionary } from "@revenuecat/purchases-ui-js";
+import { Translator } from "../../ui/localization/translator";
+import { englishLocale } from "../../ui/localization/constants";
 
 const offering = {
   identifier: "MultiCurrencyTest",
@@ -2292,21 +2294,29 @@ const expectedVariables: Record<string, VariableDictionary> = {
   },
 };
 
+const enTranslator = new Translator({}, englishLocale);
+
 describe("getPaywallVariables", () => {
   test("should return expected paywall variables", () => {
-    expect(parseOfferingIntoVariables(offering, "en")).toEqual(
+    expect(parseOfferingIntoVariables(offering, enTranslator)).toEqual(
       expectedVariables,
     );
   });
   test("sub_relative_discount is calculated correctly for same-priced packages", () => {
-    const variables = parseOfferingIntoVariables(samePricePackages, "en");
+    const variables = parseOfferingIntoVariables(
+      samePricePackages,
+      enTranslator,
+    );
     Object.values(variables).forEach((variable) =>
       expect(variable.sub_relative_discount).toBe(""),
     );
   });
   test("sub_relative_discount is calculated correctly for two packages with the same price", () => {
     const expectedValues = ["67% off", "33% off", ""];
-    const variables = parseOfferingIntoVariables(differentPricedPackages, "en");
+    const variables = parseOfferingIntoVariables(
+      differentPricedPackages,
+      enTranslator,
+    );
     console.log(variables);
 
     Object.values(variables).forEach((variable, idx) =>

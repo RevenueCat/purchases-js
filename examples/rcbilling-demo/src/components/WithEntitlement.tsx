@@ -1,4 +1,5 @@
-import React, { PropsWithChildren, useEffect, useState } from "react";
+import type { PropsWithChildren } from "react";
+import React, { useEffect, useState } from "react";
 import { usePurchasesLoaderData } from "../util/PurchasesLoader";
 import { useNavigate } from "react-router-dom";
 

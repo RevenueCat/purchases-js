@@ -9,7 +9,7 @@
     <img class="rcb-app-icon" {src} alt="App icon" />
   </picture>
 {:else}
-  <div class="rcb-app-icon loading" />
+  <div class="rcb-app-icon loading"></div>
 {/if}
 
 <style>

@@ -7,8 +7,8 @@
 </div>
 
 <style>
-    div {
-        height: 24px;
-        width: 24px;
-    }
+  div {
+    height: 24px;
+    width: 24px;
+  }
 </style>

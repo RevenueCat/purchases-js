@@ -1,14 +1,7 @@
-import { parseISODuration, type Period, PeriodUnit } from "./duration-helper";
+import { parseISODuration } from "./duration-helper";
+import { type Translator } from "../ui/localization/translator";
 
-export const priceLabels: Record<string, string> = {
-  P3M: "quarterly",
-  P1M: "monthly",
-  P1Y: "yearly",
-  P2W: "2 weeks",
-  P1D: "daily",
-  PT1H: "hourly",
-  P1W: "weekly",
-};
+import { LocalizationKeys } from "../ui/localization/supportedLanguages";
 
 export const formatPrice = (
   priceInMicros: number,
@@ -24,56 +17,31 @@ export const formatPrice = (
   return formatter.format(price);
 };
 
-export const getFrequencyLabel = (period: Period): string => {
-  const numberPeriods = period.number;
-  if (numberPeriods === 1) {
-    switch (period.unit) {
-      case PeriodUnit.Year:
-        return "yearly";
-      case PeriodUnit.Month:
-        return "monthly";
-      case PeriodUnit.Week:
-        return "weekly";
-      case PeriodUnit.Day:
-        return "daily";
-    }
-  } else {
-    return `every ${numberPeriods} ${period.unit}s`;
-  }
-};
-
-export const getLengthLabel = (period: Period): string => {
-  const numberPeriods = period.number;
-  if (numberPeriods === 1) {
-    switch (period.unit) {
-      case PeriodUnit.Year:
-        return "1 year";
-      case PeriodUnit.Month:
-        return "1 month";
-      case PeriodUnit.Week:
-        return "1 week";
-      case PeriodUnit.Day:
-        return "1 day";
-    }
-  } else {
-    return `${numberPeriods} ${period.unit}s`;
-  }
-};
-
-export const getRenewsLabel = (duration: string): string => {
+export const getTranslatedPeriodFrequency = (
+  duration: string,
+  translator: Translator,
+): string => {
   const period = parseISODuration(duration);
   if (!period) {
-    return "unknown";
+    return translator.translate(LocalizationKeys.PeriodsUnknownFrequency);
   }
 
-  return getFrequencyLabel(period);
+  return (
+    translator.translatePeriodFrequency(period.number, period.unit) ||
+    `${period.number} ${period.unit}s`
+  );
 };
 
-export const getTrialsLabel = (duration: string): string => {
-  const period = parseISODuration(duration);
+export const getTranslatedPeriodLength = (
+  isoPeriodString: string,
+  translator: Translator,
+): string => {
+  const period = parseISODuration(isoPeriodString);
   if (!period) {
-    return "unknown";
+    return isoPeriodString;
   }
-
-  return getLengthLabel(period);
+  return (
+    translator.translatePeriod(period.number, period.unit) ||
+    `${period.number} ${period.unit}s`
+  );
 };

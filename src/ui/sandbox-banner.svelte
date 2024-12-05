@@ -3,7 +3,7 @@
 <style>
   div {
     background-color: var(--rc-color-warning);
-    color: rgba(0,0,0,1);
+    color: rgba(0, 0, 0, 1);
     font-size: 10px;
     font-weight: bold;
     text-transform: uppercase;
