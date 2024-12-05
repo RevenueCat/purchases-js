@@ -8,19 +8,23 @@
 
   export let brandingInfo: BrandingInfoResponse | null = null;
   export let onContinue: () => void;
-  export let title: string;
+  export let title: string | null = null;
   export let type: string;
   export let closeButtonTitle: string = "Go back to app";
 </script>
 
 <RowLayout gutter="32px">
-  <BrandAndCloseHeader {brandingInfo} onClose={onContinue} />
+  {#if title}
+    <BrandAndCloseHeader {brandingInfo} onClose={onContinue} />
+  {/if}
   <ModalSection>
-    <div class="rcb-modal-message" data-type={type}>
+    <div class="rcb-modal-message" data-type={type} data-has-title={!!title}>
       <RowLayout gutter="48px">
         <slot name="icon" />
         <RowLayout gutter="16px">
-          <span class="title">{title}</span>
+          {#if title}
+            <span class="title">{title}</span>
+          {/if}
           <span class="subtitle">
             <slot />
           </span>
@@ -44,6 +48,10 @@
     text-align: center;
     margin-bottom: 16px;
     margin-top: 16px;
+  }
+
+  .rcb-modal-message[data-has-title="false"] {
+    margin-top: 80px;
   }
 
   .title {

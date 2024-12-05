@@ -6,6 +6,7 @@
     Stripe,
     StripeElementLocale,
     StripeElements,
+    StripeError,
   } from "@stripe/stripe-js";
   import { loadStripe } from "@stripe/stripe-js";
   import ModalSection from "../modal-section.svelte";
@@ -13,10 +14,6 @@
   import StateLoading from "./state-loading.svelte";
   import RowLayout from "../layout/row-layout.svelte";
   import { type PurchaseResponse } from "../../networking/responses/purchase-response";
-  import {
-    PurchaseFlowError,
-    PurchaseFlowErrorCode,
-  } from "../../helpers/purchase-operation-helper";
   import ModalHeader from "../modal-header.svelte";
   import IconLock from "../icons/icon-lock.svelte";
   import ProcessingAnimation from "../processing-animation.svelte";
@@ -24,6 +21,9 @@
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
   import CloseButton from "../close-button.svelte";
   import { Theme } from "../theme/theme";
+  import IconError from "../icons/icon-error.svelte";
+  import MessageLayout from "../layout/message-layout.svelte";
+
   import { translatorContextKey } from "../localization/constants";
   import { Translator } from "../localization/translator";
   import Localized from "../localization/localized.svelte";
@@ -32,7 +32,6 @@
 
   export let onClose: any;
   export let onContinue: any;
-  export let onError: any;
   export let paymentInfoCollectionMetadata: PurchaseResponse;
   export let processing = false;
   export let productDetails: Product;
@@ -44,6 +43,7 @@
   let stripe: Stripe | null = null;
   let elements: StripeElements;
   let safeElements: StripeElements;
+  let modalErrorMessage: string | undefined = undefined;
   let isPaymentInfoComplete = false;
 
   $: {
@@ -78,17 +78,35 @@
     });
 
     if (result.error) {
-      // payment failed, notify user
       processing = false;
-      onError(
-        new PurchaseFlowError(
-          PurchaseFlowErrorCode.StripeError,
-          result.error.message,
-        ),
-      );
+      if (shouldShowErrorModal(result.error)) {
+        modalErrorMessage = result.error.message;
+      }
     } else {
       onContinue();
     }
+  };
+
+  function shouldShowErrorModal(error: StripeError) {
+    const FORM_VALIDATED_CARD_ERROR_CODES = [
+      "card_declined",
+      "expired_card",
+      "incorrect_cvc",
+      "incorrect_number",
+    ];
+    if (
+      error.type === "card_error" &&
+      error.code &&
+      FORM_VALIDATED_CARD_ERROR_CODES.includes(error.code)
+    ) {
+      return false;
+    }
+
+    return true;
+  }
+
+  const handleErrorTryAgain = () => {
+    modalErrorMessage = undefined;
   };
 
   const theme = new Theme(brandingInfo?.appearance);
@@ -214,7 +232,10 @@
         }}
       >
         <ModalSection>
-          <div class="rcb-stripe-elements-container">
+          <div
+            class="rcb-stripe-elements-container"
+            hidden={!!modalErrorMessage}
+          >
             <PaymentElement
               options={{
                 business: brandingInfo?.app_name
@@ -229,26 +250,42 @@
               }}
             />
           </div>
+          {#if modalErrorMessage}
+            <MessageLayout
+              title={null}
+              type="error"
+              closeButtonTitle={translator.translate(
+                LocalizationKeys.StateErrorButtonTryAgain,
+              )}
+              onContinue={handleErrorTryAgain}
+              brandingInfo={null}
+            >
+              <IconError slot="icon" />
+              {modalErrorMessage}
+            </MessageLayout>
+          {/if}
         </ModalSection>
         <ModalFooter>
-          <RowLayout>
-            <Button
-              disabled={processing || !isPaymentInfoComplete}
-              testId="PayButton"
-            >
-              {#if processing}
-                <ProcessingAnimation />
-              {:else if productDetails.subscriptionOptions?.[purchaseOptionToUse.id]?.trial}
-                <Localized
-                  key={LocalizationKeys.StateNeedsPaymentInfoButtonStartTrial}
-                />
-              {:else}
-                <Localized
-                  key={LocalizationKeys.StateNeedsPaymentInfoButtonPay}
-                />
-              {/if}
-            </Button>
-          </RowLayout>
+          {#if !modalErrorMessage}
+            <RowLayout>
+              <Button
+                disabled={processing || !isPaymentInfoComplete}
+                testId="PayButton"
+              >
+                {#if processing}
+                  <ProcessingAnimation />
+                {:else if productDetails.subscriptionOptions?.[purchaseOptionToUse.id]?.trial}
+                  <Localized
+                    key={LocalizationKeys.StateNeedsPaymentInfoButtonStartTrial}
+                  />
+                {:else}
+                  <Localized
+                    key={LocalizationKeys.StateNeedsPaymentInfoButtonPay}
+                  />
+                {/if}
+              </Button>
+            </RowLayout>
+          {/if}
         </ModalFooter>
       </Elements>
     </form>

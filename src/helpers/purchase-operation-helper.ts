@@ -18,16 +18,18 @@ import {
   type PurchaseOption,
 } from "../entities/offerings";
 import { Logger } from "./logger";
-import { RedemptionInfo, toRedemptionInfo } from "../entities/redemption-info";
+import {
+  type RedemptionInfo,
+  toRedemptionInfo,
+} from "../entities/redemption-info";
 
 export enum PurchaseFlowErrorCode {
   ErrorSettingUpPurchase = 0,
   ErrorChargingPayment = 1,
   UnknownError = 2,
   NetworkError = 3,
-  StripeError = 4,
-  MissingEmailError = 5,
-  AlreadyPurchasedError = 6,
+  MissingEmailError = 4,
+  AlreadyPurchasedError = 5,
 }
 
 export class PurchaseFlowError extends Error {
@@ -49,7 +51,6 @@ export class PurchaseFlowError extends Error {
       case PurchaseFlowErrorCode.ErrorSettingUpPurchase:
       case PurchaseFlowErrorCode.ErrorChargingPayment:
       case PurchaseFlowErrorCode.AlreadyPurchasedError:
-      case PurchaseFlowErrorCode.StripeError:
       case PurchaseFlowErrorCode.UnknownError:
         return false;
     }
@@ -74,9 +75,6 @@ export class PurchaseFlowError extends Error {
         return "Payment failed.";
       case PurchaseFlowErrorCode.NetworkError:
         return "Network error. Please check your internet connection.";
-      case PurchaseFlowErrorCode.StripeError:
-        // For stripe errors, we can display the stripe-provided error message.
-        return this.message;
       case PurchaseFlowErrorCode.MissingEmailError:
         return "Email is required to complete the purchase.";
       case PurchaseFlowErrorCode.AlreadyPurchasedError:
