@@ -105,7 +105,7 @@ test.describe("Main", () => {
 
     await packageCards[2].click();
     await expect(purchaseButton).toContainText(
-      "PURCHASE FOR $19.99/1yr($1.67/(mo)",
+      "PURCHASE FOR $19.99/1yr($1.67/mo)",
     );
   });
   test("Can purchase a subscription Product for RC Paywall", async ({
