@@ -55,6 +55,34 @@
     "es",
     englishLocale,
   );
+
+  const priceJPY = {
+    currency: "JPY",
+    amount: 1000,
+    amountMicros: 1000000000,
+    formattedPrice: "¥1,000",
+  };
+
+  const priceEUR = {
+    currency: "EUR",
+    amount: 10,
+    amountMicros: 10000000,
+    formattedPrice: "€10.00",
+  };
+
+  const priceGBP = {
+    currency: "GBP",
+    amount: 10,
+    amountMicros: 10000000,
+    formattedPrice: "£10.00",
+  };
+
+  const priceCAD = {
+    currency: "CAD",
+    amount: 10,
+    amountMicros: 10000000,
+    formattedPrice: "CA$10.00",
+  };
 </script>
 
 <Meta title="StatePresentsOffer" component={StatePresentOffer} />
@@ -199,5 +227,73 @@
 
     context: { [translatorContextKey]: spanishCustomLabelsTranslator },
     productDetails: { ...product, description: null },
+  }}
+/>
+
+<Story
+  name="Price JPY"
+  args={{
+    ...defaultArgs,
+    purchaseOption: {
+      ...subscriptionOption,
+      base: { ...subscriptionOption.base, price: priceJPY },
+    },
+  }}
+/>
+
+<Story
+  name="Price JPY Spanish"
+  args={{
+    ...defaultArgs,
+    purchaseOption: {
+      ...subscriptionOption,
+      base: { ...subscriptionOption.base, price: priceJPY },
+    },
+    context: { [translatorContextKey]: spanishTranslator },
+  }}
+/>
+
+<Story
+  name="Price EUR"
+  args={{
+    ...defaultArgs,
+    purchaseOption: {
+      ...subscriptionOption,
+      base: { ...subscriptionOption.base, price: priceEUR },
+    },
+  }}
+/>
+
+<Story
+  name="Price EUR Spanish"
+  args={{
+    ...defaultArgs,
+    purchaseOption: {
+      ...subscriptionOption,
+      base: { ...subscriptionOption.base, price: priceEUR },
+    },
+    context: { [translatorContextKey]: spanishTranslator },
+  }}
+/>
+
+<Story
+  name="Price CAD"
+  args={{
+    ...defaultArgs,
+    purchaseOption: {
+      ...subscriptionOption,
+      base: { ...subscriptionOption.base, price: priceCAD },
+    },
+  }}
+/>
+
+<Story
+  name="Price GBP"
+  args={{
+    ...defaultArgs,
+    purchaseOption: {
+      ...subscriptionOption,
+      base: { ...subscriptionOption.base, price: priceGBP },
+    },
   }}
 />

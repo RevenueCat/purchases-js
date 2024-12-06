@@ -86,12 +86,33 @@ export class Translator {
 
   public formatPrice(priceInMicros: number, currency: string): string {
     const price = priceInMicros / 1000000;
-    const formatter = new Intl.NumberFormat(this.locale, {
+
+    try {
+      return new Intl.NumberFormat(this.locale, {
+        style: "currency",
+        currency,
+      }).format(price);
+    } catch {
+      console.debug(
+        `Failed to create a price formatter for locale: ${this.locale}`,
+      );
+    }
+
+    try {
+      return new Intl.NumberFormat(this.fallbackLocale, {
+        style: "currency",
+        currency,
+      }).format(price);
+    } catch {
+      console.debug(
+        `Failed to create a price formatter for locale: ${this.fallbackLocale}`,
+      );
+    }
+
+    return new Intl.NumberFormat(englishLocale, {
       style: "currency",
       currency,
-    });
-
-    return formatter.format(price);
+    }).format(price);
   }
 
   get locale(): string {

@@ -132,10 +132,11 @@ function getTotalPriceAndPerMonth({
   full?: boolean;
   translator: Translator;
 }) {
-  if (!period || !period.number) return price.formattedPrice;
+  if (!period || !period.number)
+    return translator.formatPrice(price.amountMicros, price.currency);
 
   if (period.unit === PeriodUnit.Month && period.number == 1) {
-    return price.formattedPrice;
+    return translator.formatPrice(price.amountMicros, price.currency);
   }
 
   let pricePerMonth: string | undefined = "";
@@ -173,7 +174,10 @@ function getTotalPriceAndPerMonth({
   return translator.translate(
     LocalizationKeys.PaywallVariablesTotalPriceAndPerMonth,
     {
-      formattedPrice: price.formattedPrice,
+      formattedPrice: translator.formatPrice(
+        price.amountMicros,
+        price.currency,
+      ),
       period: translator.translatePeriod(period.number, period.unit, {
         noWhitespace: true,
         short: !full,
@@ -218,7 +222,10 @@ function parsePackageIntoVariables(
   translator: Translator,
 ) {
   const rcBillingProduct = pkg.rcBillingProduct;
-  const formattedPrice = rcBillingProduct.currentPrice.formattedPrice;
+  const formattedPrice = translator.formatPrice(
+    rcBillingProduct.currentPrice.amountMicros,
+    rcBillingProduct.currentPrice.currency,
+  );
   const product = getProductPerType(pkg);
   const productType = rcBillingProduct.productType;
 
