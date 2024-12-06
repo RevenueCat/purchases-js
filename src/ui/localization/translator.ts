@@ -105,7 +105,7 @@ export class Translator {
       }).format(price);
     } catch {
       console.debug(
-        `Failed to create a price formatter for locale: ${this.locale}`,
+        `Failed to create a price formatter for locale: ${this.fallbackLocale}`,
       );
     }
 
