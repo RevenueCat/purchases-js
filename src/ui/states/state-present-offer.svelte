@@ -36,6 +36,15 @@
 
   const translator: Translator =
     getContext(translatorContextKey) || Translator.fallback();
+
+  const formattedBasePrice =
+    subscriptionBasePrice &&
+    translator.formatPrice(
+      subscriptionBasePrice.amountMicros,
+      subscriptionBasePrice.currency,
+    );
+
+  const formattedPriceAfterTrial = subscriptionTrial && formattedBasePrice;
 </script>
 
 <ModalSection>
@@ -64,7 +73,7 @@
           <Localized
             key={LocalizationKeys.StatePresentOfferProductPrice}
             variables={{
-              productPrice: subscriptionBasePrice.formattedPrice,
+              productPrice: formattedBasePrice,
             }}
           />
         {/if}
@@ -74,10 +83,7 @@
           <Localized
             key={LocalizationKeys.StatePresentOfferPriceAfterFreeTrial}
             variables={{
-              productPrice:
-                subscriptionTrial &&
-                subscriptionBasePrice &&
-                subscriptionBasePrice.formattedPrice,
+              productPrice: formattedPriceAfterTrial,
             }}
           />
         </span>
