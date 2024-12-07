@@ -1,6 +1,6 @@
 <script>
   import { Meta, Story, Template } from "@storybook/addon-svelte-csf";
-  import StateNeedsPaymentInfo from "./utils/state-needs-payment-info-stripe-elements.svelte";
+  import StateNeedsPaymentInfoWithPurchaseResponse from "./utils/state-needs-payment-info-with-purchase-response.svelte";
   import StateNeedsAuthInfo from "../ui/states/state-needs-auth-info.svelte";
   import StatePresentOffer from "../ui/states/state-present-offer.svelte";
   import StateSuccess from "../ui/states/state-success.svelte";
@@ -22,7 +22,6 @@
     colorfulBrandingAppearance,
     product,
     purchaseFlowError,
-    purchaseResponse,
     subscriptionOption,
   } from "./fixtures";
   import { Translator } from "../ui/localization/translator";
@@ -77,7 +76,7 @@
   );
 </script>
 
-<Meta title="PurchaseFlow" component={StateNeedsPaymentInfo} />
+<Meta title="PurchaseFlow" />
 
 <Template let:args>
   <WithContext context={args.context}>
@@ -110,7 +109,9 @@
             </ModalHeader>
             <StatePresentOffer {...args} />
           </Aside>
-          <StateNeedsPaymentInfo {...args} />
+          <Main brandingAppearance={args.brandingInfo.appearance}>
+            <StateNeedsPaymentInfoWithPurchaseResponse {args} />
+          </Main>
         </Layout>
       </Container>
 
