@@ -1,7 +1,17 @@
-import { PurchaseResponse } from "src/networking/responses/purchase-response";
-import { purchaseResponse } from "../fixtures";
+import type { PurchaseResponse } from "src/networking/responses/purchase-response";
 
 const secret = import.meta.env.VITE_STORYBOOK_RESTRICTED_SECRET;
+
+const defaultPurchaseResponse = {
+  data: {
+    client_secret: import.meta.env.VITE_STORYBOOK_SETUP_INTENT as string,
+    publishable_api_key: import.meta.env
+      .VITE_STORYBOOK_PUBLISHABLE_API_KEY as string,
+    stripe_account_id: import.meta.env.VITE_STORYBOOK_ACCOUNT_ID as string,
+  },
+  next_action: "collect_payment_info",
+  operation_session_id: "rcbopsess_test_test_test",
+};
 
 const checkSetupIntent = async (storedIntent?: string) => {
   if (storedIntent) {
@@ -48,7 +58,7 @@ const createSetupIntent = async () => {
 };
 
 export const buildPurchaseResponse = async (): Promise<PurchaseResponse> => {
-  let result = purchaseResponse;
+  const result = defaultPurchaseResponse;
   if (!secret) {
     return result;
   }
