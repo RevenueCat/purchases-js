@@ -32,7 +32,6 @@
   } from "../ui/localization/constants";
 
   let defaultArgs = {
-    paymentInfoCollectionMetadata: purchaseResponse,
     productDetails: product,
     purchaseOptionToUse: subscriptionOption,
     purchaseOption: subscriptionOption,

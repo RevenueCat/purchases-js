@@ -5,7 +5,12 @@
   import Container from "../ui/layout/container.svelte";
   import ModalBackdrop from "../ui/modal-backdrop.svelte";
 
-  import { brandingInfo, colorfulBrandingAppearance } from "./fixtures";
+  import {
+    brandingInfo,
+    colorfulBrandingAppearance,
+    product,
+    subscriptionOption,
+  } from "./fixtures";
   import {
     englishLocale,
     translatorContextKey,
@@ -40,6 +45,11 @@
     "es",
     englishLocale,
   );
+  let defaultArgs = {
+    productDetails: product,
+    purchaseOptionToUse: subscriptionOption,
+    onClose: () => {},
+  };
 </script>
 
 <Meta title="StateNeedsPaymentInfo" component={StateNeedsPaymentInfo} />
@@ -56,11 +66,12 @@
   </WithContext>
 </Template>
 
-<Story name="Standard" />
+<Story name="Standard" args={{ ...defaultArgs }} />
 
 <Story
   name="Rounded"
   args={{
+    ...defaultArgs,
     brandingInfo: {
       ...brandingInfo,
       appearance: {
@@ -73,6 +84,7 @@
 <Story
   name="Pill"
   args={{
+    ...defaultArgs,
     brandingInfo: {
       ...brandingInfo,
       appearance: {
@@ -85,6 +97,7 @@
 <Story
   name="Rectangle"
   args={{
+    ...defaultArgs,
     brandingInfo: {
       ...brandingInfo,
       appearance: {
@@ -97,6 +110,7 @@
 <Story
   name="ColorfulRectangle"
   args={{
+    ...defaultArgs,
     brandingInfo: { ...brandingInfo, appearance: colorfulBrandingAppearance },
   }}
 />
@@ -104,6 +118,7 @@
 <Story
   name="Italian"
   args={{
+    ...defaultArgs,
     context: { [translatorContextKey]: italianTranslator },
   }}
 />
@@ -111,6 +126,7 @@
 <Story
   name="Spanish"
   args={{
+    ...defaultArgs,
     context: { [translatorContextKey]: spanishTranslator },
   }}
 />
@@ -118,6 +134,7 @@
 <Story
   name="CustomLabels"
   args={{
+    ...defaultArgs,
     context: { [translatorContextKey]: customLabelsTranslator },
   }}
 />
@@ -125,6 +142,8 @@
 <Story
   name="CustomLabelsIT"
   args={{
+    ...defaultArgs,
+
     context: { [translatorContextKey]: italianCustomLabelsTranslator },
   }}
 />
@@ -132,6 +151,8 @@
 <Story
   name="CustomLabelsES"
   args={{
+    ...defaultArgs,
+
     context: { [translatorContextKey]: spanishCustomLabelsTranslator },
   }}
 />
