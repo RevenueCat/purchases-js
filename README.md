@@ -54,6 +54,46 @@ In your testing project install the library as.
 npm i /path/to/purchases-js
 ```
 
+## Running Storybook
+
+```bash
+npm run storybook
+```
+
+### Environment Setup for Payment Info Stories
+
+> **Note:** This setup is only required if you need to test Storybook stories involving the `state-needs-payment-info` component.
+
+To run these specific stories, you'll need to set up some environment variables. There are two options:
+
+### Option 1: Internal Teams
+
+Internal team members can find the required environment variables in 1Password.
+
+### Option 2: Manual Setup
+
+1. Inspect a purchase through RCBilling and get the following values from the `/purchase` response:
+
+```json
+{
+  "data": {
+    "client_secret": "client_secret",
+    "publishable_api_key": "api_key",
+    "stripe_account_id": "account_id"
+  },
+  "next_action": "collect_payment_info",
+  "operation_session_id": "rcbopsess_test_test_test"
+}
+```
+
+2. Create a `.env.development.local` file and set the following variables:
+
+```bash
+VITE_STORYBOOK_SETUP_INTENT="client_secret"
+VITE_STORYBOOK_PUBLISHABLE_API_KEY="api_key"
+VITE_STORYBOOK_ACCOUNT_ID="account_id"
+```
+
 ## Running tests
 
 ```bash

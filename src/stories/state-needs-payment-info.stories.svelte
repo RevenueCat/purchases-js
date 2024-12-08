@@ -1,16 +1,16 @@
 <script lang="ts">
   import { Meta, Story, Template } from "@storybook/addon-svelte-csf";
   import StateNeedsPaymentInfo from "../ui/states/state-needs-payment-info.svelte";
+  import StateNeedsPaymentInfoWithPurchaseResponse from "./utils/state-needs-payment-info-with-purchase-response.svelte";
   import Layout from "../ui/layout/layout.svelte";
   import Container from "../ui/layout/container.svelte";
-  import Main from "../ui/layout/main-block.svelte";
   import ModalBackdrop from "../ui/modal-backdrop.svelte";
+  import Main from "../ui/layout/main-block.svelte";
 
   import {
     brandingInfo,
     colorfulBrandingAppearance,
     product,
-    purchaseResponse,
     subscriptionOption,
   } from "./fixtures";
   import {
@@ -22,10 +22,8 @@
   import { LocalizationKeys } from "../ui/localization/supportedLanguages";
 
   let defaultArgs = {
-    paymentInfoCollectionMetadata: purchaseResponse,
     productDetails: product,
     purchaseOptionToUse: subscriptionOption,
-    onContinue: () => {},
   };
 
   let customLabelsTranslator = new Translator(
@@ -64,7 +62,7 @@
       <ModalBackdrop>
         <Layout>
           <Main brandingAppearance={args.brandingInfo?.appearance}>
-            <StateNeedsPaymentInfo {...args} />
+            <StateNeedsPaymentInfoWithPurchaseResponse {args} />
           </Main>
         </Layout>
       </ModalBackdrop>
