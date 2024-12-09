@@ -36,6 +36,23 @@
 
   const translator: Translator =
     getContext(translatorContextKey) || Translator.fallback();
+
+  const formattedSubscriptionBasePrice =
+    subscriptionBasePrice &&
+    translator.formatPrice(
+      subscriptionBasePrice.amountMicros,
+      subscriptionBasePrice.currency,
+    );
+
+  const formattedSubscriptionPriceAfterTrial =
+    subscriptionTrial && formattedSubscriptionBasePrice;
+
+  const formattedNonSubscriptionBasePrice =
+    nonSubscriptionBasePrice &&
+    translator.formatPrice(
+      nonSubscriptionBasePrice.amountMicros,
+      nonSubscriptionBasePrice.currency,
+    );
 </script>
 
 <ModalSection>
@@ -64,7 +81,7 @@
           <Localized
             key={LocalizationKeys.StatePresentOfferProductPrice}
             variables={{
-              productPrice: subscriptionBasePrice.formattedPrice,
+              productPrice: formattedSubscriptionBasePrice,
             }}
           />
         {/if}
@@ -74,10 +91,7 @@
           <Localized
             key={LocalizationKeys.StatePresentOfferPriceAfterFreeTrial}
             variables={{
-              productPrice:
-                subscriptionTrial &&
-                subscriptionBasePrice &&
-                subscriptionBasePrice.formattedPrice,
+              productPrice: formattedSubscriptionPriceAfterTrial,
             }}
           />
         </span>
@@ -120,7 +134,7 @@
       <span class="rcb-product-price">
         <Localized
           key={LocalizationKeys.StatePresentOfferProductPrice}
-          variables={{ productPrice: nonSubscriptionBasePrice?.formattedPrice }}
+          variables={{ productPrice: formattedNonSubscriptionBasePrice }}
         />
       </span>
 
