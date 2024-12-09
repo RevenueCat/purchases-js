@@ -2317,7 +2317,6 @@ describe("getPaywallVariables", () => {
       differentPricedPackages,
       enTranslator,
     );
-    console.log(variables);
 
     Object.values(variables).forEach((variable, idx) =>
       expect(variable.sub_relative_discount).toBe(expectedValues[idx]),
