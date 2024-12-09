@@ -4002,7 +4002,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PurchaseParams#selectedLocale:member",
-              "docComment": "/**\n * The locale to use for the purchase flow. If not specified, the device's locale will be used.\n */\n",
+              "docComment": "/**\n * The locale to use for the purchase flow. If not specified, English will be used\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
