@@ -23,7 +23,7 @@ export interface PurchaseParams {
   customerEmail?: string;
 
   /**
-   * The locale to use for the purchase flow. If not specified, the device's locale will be used.
+   * The locale to use for the purchase flow. If not specified, English will be used
    */
   selectedLocale?: string;
 
