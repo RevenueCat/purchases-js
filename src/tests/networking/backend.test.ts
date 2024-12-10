@@ -1,5 +1,5 @@
 import { type SetupServer, setupServer } from "msw/node";
-import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { http, HttpResponse } from "msw";
 import {
   customerInfoResponse,
@@ -342,13 +342,19 @@ describe("getProducts request", () => {
 });
 
 describe("purchase request", () => {
+  const purchaseMethodAPIMock = vi.fn();
   function setPurchaseResponse(httpResponse: HttpResponse) {
     server.use(
-      http.post("http://localhost:8000/rcbilling/v1/purchase", () => {
+      http.post("http://localhost:8000/rcbilling/v1/purchase", (req) => {
+        purchaseMethodAPIMock(req);
         return httpResponse;
       }),
     );
   }
+
+  afterEach(() => {
+    purchaseMethodAPIMock.mockReset();
+  });
 
   test("can post purchase successfully", async () => {
     const purchaseResponse: PurchaseResponse = {
@@ -359,19 +365,35 @@ describe("purchase request", () => {
       },
     };
     setPurchaseResponse(HttpResponse.json(purchaseResponse, { status: 200 }));
-    expect(
-      await backend.postPurchase(
-        "someAppUserId",
-        "monthly",
-        "testemail@revenuecat.com",
-        {
-          offeringIdentifier: "offering_1",
-          targetingContext: null,
-          placementIdentifier: null,
-        },
-        { id: "base_option", priceId: "test_price_id" },
-      ),
-    ).toEqual(purchaseResponse);
+
+    const result = await backend.postPurchase(
+      "someAppUserId",
+      "monthly",
+      "testemail@revenuecat.com",
+      {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      { id: "base_option", priceId: "test_price_id" },
+    );
+
+    expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    expect(request.headers.get("Content-Type")).toBe("application/json");
+    expect(request.headers.get("Authorization")).toBe("Bearer test_api_key");
+
+    const requestBody = await request.json();
+    expect(requestBody).toEqual({
+      app_user_id: "someAppUserId",
+      product_id: "monthly",
+      email: "testemail@revenuecat.com",
+      price_id: "test_price_id",
+      presented_offering_identifier: "offering_1",
+      supports_direct_payment: true,
+    });
+
+    expect(result).toEqual(purchaseResponse);
   });
 
   test("throws an error if the backend returns a server error", async () => {

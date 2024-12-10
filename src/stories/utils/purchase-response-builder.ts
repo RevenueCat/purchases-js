@@ -48,15 +48,75 @@ const createSetupIntent = async () => {
   return data;
 };
 
-export const buildPurchaseResponse = async (): Promise<PurchaseResponse> => {
+const checkPaymentIntent = async (storedIntent?: string) => {
+  if (storedIntent) {
+    const paymentIntent = JSON.parse(storedIntent);
+    const response = await fetch(
+      `https://api.stripe.com/v1/payment_intents/${paymentIntent["id"]}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${restrictedSecretKey}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      },
+    );
+    const data = await response.json();
+    if (data["status"] !== "succeeded" && data["last_payment_error"] === null) {
+      return true;
+    }
+  }
+  return false;
+};
+
+const createPaymentIntent = async () => {
+  const storedIntent = localStorage.getItem("storybook_payment_intent");
+  if (storedIntent && (await checkPaymentIntent(storedIntent))) {
+    return JSON.parse(storedIntent);
+  }
+
+  const response = await fetch("https://api.stripe.com/v1/payment_intents", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${restrictedSecretKey}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: [
+      "amount=1000",
+      "currency=usd",
+      "setup_future_usage=off_session",
+      "payment_method_types[]=card",
+      "metadata[environment]=storybook",
+      "metadata[rc_billing_generated]=true",
+    ].join("&"),
+  });
+  const data = await response.json();
+  localStorage.setItem("storybook_payment_intent", JSON.stringify(data));
+  return data;
+};
+
+export enum SetupMode {
+  TrialSubscription,
+  PaidProduct,
+}
+
+export const buildPurchaseResponse = async (
+  setupMode: SetupMode = SetupMode.TrialSubscription,
+): Promise<PurchaseResponse> => {
   if (!restrictedSecretKey || !publishableApiKey || !accountId) {
     throw new Error(
       "Missing storybook setup environment variables. Check README.md for more information.",
     );
   }
 
-  const setupIntent = await createSetupIntent();
-  const clientSecret = setupIntent["client_secret"];
+  let clientSecret = "";
+  if (setupMode === SetupMode.TrialSubscription) {
+    const setupIntent = await createSetupIntent();
+    clientSecret = setupIntent["client_secret"];
+  } else {
+    const paymentIntent = await createPaymentIntent();
+    clientSecret = paymentIntent["client_secret"];
+  }
 
   const purchaseResponse: PurchaseResponse = {
     next_action: "collect_payment_info",
