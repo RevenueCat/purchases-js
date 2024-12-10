@@ -361,6 +361,7 @@ export class Purchases {
               })
               .catch((err) => reject(err));
           },
+          onError: (err: unknown) => reject(err),
           variablesPerPackage,
         },
       });
