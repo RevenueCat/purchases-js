@@ -24,4 +24,6 @@ export interface RenderPaywallParams {
   readonly onVisitCustomerCenter?: () => void;
 
   readonly selectedLocale?: string;
+
+  readonly onError?: (error: unknown) => void;
 }

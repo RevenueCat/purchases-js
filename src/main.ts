@@ -334,36 +334,48 @@ export class Purchases {
     );
 
     return new Promise((resolve, reject) => {
-      mount(Paywall, {
-        target: certainHTMLTarget,
-        props: {
-          paywallData: offering.paywall_components!,
-          selectedLocale: selectedLocale,
-          onNavigateToUrlClicked: navigateToUrl,
-          onVisitCustomerCenterClicked: onVisitCustomerCenterClicked,
-          onBackClicked: () => {
-            if (paywallParams.onBack) {
-              paywallParams.onBack();
-              return;
-            }
+      try {
+        mount(Paywall, {
+          target: certainHTMLTarget,
+          props: {
+            paywallData: offering.paywall_components!,
+            selectedLocale: selectedLocale,
+            onNavigateToUrlClicked: navigateToUrl,
+            onVisitCustomerCenterClicked: onVisitCustomerCenterClicked,
+            onBackClicked: () => {
+              if (paywallParams.onBack) {
+                paywallParams.onBack();
+                return;
+              }
 
-            // Opinionated approach
-            // closing the current purchase and emptying the paywall.
-            certainHTMLTarget.innerHTML = "";
-            Logger.debugLog("Purchase cancelled by user");
-            reject(new PurchasesError(ErrorCode.UserCancelledError));
+              // Opinionated approach
+              // closing the current purchase and emptying the paywall.
+              certainHTMLTarget.innerHTML = "";
+              Logger.debugLog("Purchase cancelled by user");
+              reject(new PurchasesError(ErrorCode.UserCancelledError));
+            },
+            onRestorePurchasesClicked: onRestorePurchasesClicked,
+            onPurchaseClicked: (selectedPackageId: string) => {
+              startPurchaseFlow(selectedPackageId)
+                .then((purchaseResult) => {
+                  resolve(purchaseResult);
+                })
+                .catch((err) => {
+                  if (paywallParams.onError) {
+                    paywallParams.onError(err);
+                  }
+                  reject(err);
+                });
+            },
+            variablesPerPackage,
           },
-          onRestorePurchasesClicked: onRestorePurchasesClicked,
-          onPurchaseClicked: (selectedPackageId: string) => {
-            startPurchaseFlow(selectedPackageId)
-              .then((purchaseResult) => {
-                resolve(purchaseResult);
-              })
-              .catch((err) => reject(err));
-          },
-          variablesPerPackage,
-        },
-      });
+        });
+      } catch (err) {
+        if (paywallParams.onError) {
+          paywallParams.onError(err);
+        }
+        reject(err);
+      }
     });
   }
 
