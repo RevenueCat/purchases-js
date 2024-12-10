@@ -54,6 +54,36 @@ In your testing project install the library as.
 npm i /path/to/purchases-js
 ```
 
+## Running Storybook
+
+```bash
+npm run storybook
+```
+
+### Environment Setup for Needs Payment Info Stories
+
+> **Note:** This setup is only required if you need to test Storybook stories involving the `state-needs-payment-info` component.
+
+To run these specific stories, you'll need to set up some environment variables. There are two options:
+
+### Option 1: Internal Teams
+
+Internal team members can find the required environment variables in 1Password.
+
+### Option 2: Setup Manually
+
+1. Create a test account in Stripe
+2. Go to settings, API keys, and create a restricted key with the following permissions:
+   - Setup intent (read/write)
+   - Payment methods (read/write)
+3. Create a `.env.development.local` file and set the following variables:
+
+```bash
+VITE_STORYBOOK_RESTRICTED_SECRET="sk_test_1234567890"
+VITE_STORYBOOK_PUBLISHABLE_API_KEY="pk_test_1234567890"
+VITE_STORYBOOK_ACCOUNT_ID="acct_1234567890"
+```
+
 ## Running tests
 
 ```bash

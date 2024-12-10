@@ -94,17 +94,6 @@ export const brandingInfo = {
   appearance: {},
 };
 
-export const purchaseResponse = {
-  data: {
-    client_secret: import.meta.env.VITE_STORYBOOK_SETUP_INTENT as string,
-    publishable_api_key: import.meta.env
-      .VITE_STORYBOOK_PUBLISHABLE_API_KEY as string,
-    stripe_account_id: import.meta.env.VITE_STORYBOOK_ACCOUNT_ID as string,
-  },
-  next_action: "collect_payment_info",
-  operation_session_id: "rcbopsess_test_test_test",
-};
-
 export const purchaseFlowError = new PurchaseFlowError(1);
 
 export const colorfulBrandingAppearance = {
