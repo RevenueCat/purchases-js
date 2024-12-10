@@ -8,7 +8,7 @@
   export let args: ComponentProps<StateNeedsPaymentInfo>;
 
   let paymentMetadata: PurchaseResponse | null = null;
-  let overriddenArgs = {
+  const overriddenArgs = {
     onClose: () => {},
     onContinue: async () => {
       alert("Payment info submitted successfully!\n The form will be reset");
@@ -17,10 +17,24 @@
     },
   };
 
+  let error: string | null = null;
   onMount(async () => {
-    paymentMetadata = await buildPurchaseResponse();
+    try {
+      paymentMetadata = await buildPurchaseResponse();
+    } catch (err) {
+      error = (err as Error).message;
+    }
   });
 </script>
+
+{#if error}
+  <div
+    style="color: red; background-color: #f0f0f0; padding: 10px; border-radius: 5px;"
+  >
+    ❌ <span style="font-weight: bold;">Setup error:</span>
+    {error}
+  </div>
+{/if}
 
 {#if paymentMetadata}
   <StateNeedsPaymentInfo

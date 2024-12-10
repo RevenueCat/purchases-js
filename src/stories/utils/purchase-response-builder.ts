@@ -1,17 +1,8 @@
 import type { PurchaseResponse } from "src/networking/responses/purchase-response";
 
-const secret = import.meta.env.VITE_STORYBOOK_RESTRICTED_SECRET;
-
-const defaultPurchaseResponse = {
-  data: {
-    client_secret: import.meta.env.VITE_STORYBOOK_SETUP_INTENT as string,
-    publishable_api_key: import.meta.env
-      .VITE_STORYBOOK_PUBLISHABLE_API_KEY as string,
-    stripe_account_id: import.meta.env.VITE_STORYBOOK_ACCOUNT_ID as string,
-  },
-  next_action: "collect_payment_info",
-  operation_session_id: "rcbopsess_test_test_test",
-};
+const restrictedSecretKey = import.meta.env.VITE_STORYBOOK_RESTRICTED_SECRET;
+const publishableApiKey = import.meta.env.VITE_STORYBOOK_PUBLISHABLE_API_KEY;
+const accountId = import.meta.env.VITE_STORYBOOK_ACCOUNT_ID;
 
 const checkSetupIntent = async (storedIntent?: string) => {
   if (storedIntent) {
@@ -21,7 +12,7 @@ const checkSetupIntent = async (storedIntent?: string) => {
       {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${secret}`,
+          Authorization: `Bearer ${restrictedSecretKey}`,
           "Content-Type": "application/x-www-form-urlencoded",
         },
       },
@@ -43,7 +34,7 @@ const createSetupIntent = async () => {
   const response = await fetch("https://api.stripe.com/v1/setup_intents", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${secret}`,
+      Authorization: `Bearer ${restrictedSecretKey}`,
       "Content-Type": "application/x-www-form-urlencoded",
     },
     body: [
@@ -58,17 +49,24 @@ const createSetupIntent = async () => {
 };
 
 export const buildPurchaseResponse = async (): Promise<PurchaseResponse> => {
-  const result = defaultPurchaseResponse;
-  if (!secret) {
-    return result;
+  if (!restrictedSecretKey || !publishableApiKey || !accountId) {
+    throw new Error(
+      "Missing storybook setup environment variables. Check README.md for more information.",
+    );
   }
 
   const setupIntent = await createSetupIntent();
-  return {
-    ...result,
+  const clientSecret = setupIntent["client_secret"];
+
+  const purchaseResponse: PurchaseResponse = {
+    next_action: "collect_payment_info",
+    operation_session_id: "rcbopsess_test_test_test",
     data: {
-      ...result.data,
-      client_secret: setupIntent["client_secret"],
+      client_secret: clientSecret,
+      publishable_api_key: publishableApiKey,
+      stripe_account_id: accountId,
     },
   };
+
+  return purchaseResponse;
 };
