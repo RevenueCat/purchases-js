@@ -3,7 +3,6 @@
   import { type PurchaseResponse } from "../../networking/responses/purchase-response";
   import { buildPurchaseResponse } from "./purchase-response-builder";
   import StateNeedsPaymentInfo from "../../ui/states/state-needs-payment-info.svelte";
-  import StateLoading from "../../ui/states/state-loading.svelte";
 
   export let args: ComponentProps<StateNeedsPaymentInfo>;
 
@@ -42,6 +41,4 @@
     {...overriddenArgs}
     paymentInfoCollectionMetadata={paymentMetadata}
   />
-{:else}
-  <StateLoading />
 {/if}
