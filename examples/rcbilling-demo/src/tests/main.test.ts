@@ -35,6 +35,7 @@ test.describe("Main", () => {
       ),
     );
   });
+
   test("Get offerings can filter by offering ID", async ({
     browser,
     browserName,
