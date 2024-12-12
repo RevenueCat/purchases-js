@@ -1,11 +1,14 @@
 ## RevenueCat SDK
-
-### 📦 Dependency Updates
-* Bump rexml from 3.3.8 to 3.3.9 (#225) via dependabot[bot] (@dependabot[bot])
-* Migrated all dependencies into devDependencies since we build a UMD package (#239) via Nicola Sacco (@nicfix)
-
+### ✨ New Features
+* ECO-1704: SDK Localization (#241) via Nicola Sacco (@nicfix)
+### 🐞 Bugfixes
+* Update purchase-params.ts (#257) via Nicola Sacco (@nicfix)
+* ECO-1813: PR to fix price conversions in different languages. (#256) via Nicola Sacco (@nicfix)
+* fix: Improve payment method validation by displaying Stripe errors in the form when possible (#248) via Víctor Ferrer García (@vicfergar)
 ### 🔄 Other Changes
-* [ECO-1743] Make payment method "selected" color match accent color (#243) via Víctor Ferrer García (@vicfergar)
-* fix: disable the submit button until the payment details are set (#245) via Víctor Ferrer García (@vicfergar)
-* [ECO-1701] Pass the variables from the SDK to the paywall (#240) via Guido Torres (@guido732)
-* Change "plan" to "subscription" on success page copy (#234) via Ed Shelley (@MrEdwardo)
+* chore: Publish storybook in Chromatic (#255) via Víctor Ferrer García (@vicfergar)
+* adds e2e for variable replacement (#254) via Guido Torres (@guido732)
+* adds test for puchase flow using rc_paywalls (#252) via Guido Torres (@guido732)
+* [ECO-1783] Rename RCBillingAppConfig properties (#250) via Roger Solé (@rogersole)
+* adds test for puchase flow using rc_paywalls via Guido Torres
+* adds husky pre-commit hook to auto fix linting and formatting (#249) via Guido Torres (@guido732)
