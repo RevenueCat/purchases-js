@@ -47,12 +47,21 @@ npm install
 npm run build:dev
 ```
 
-To avoid publishing the package you can set it up as a local dependency.
-In your testing project install the library as.
+To avoid publishing the package you can use Yarn's link feature:
+
+1. In the purchases-js directory, register the package:
 
 ```bash
-npm i /path/to/purchases-js
+yarn link
 ```
+
+2. In your testing project, link to the registered package:
+
+```bash
+yarn link "@revenuecat/purchases-js"
+```
+
+> **Note:** Any changes you make to the library will be automatically reflected in your testing project after running `npm run build:dev` or `npm run build`.
 
 ## Running Storybook
 
