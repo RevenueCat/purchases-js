@@ -2,7 +2,18 @@ import { configDefaults, defineConfig } from "vitest/config";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 
 export default defineConfig(({ mode }) => ({
-  plugins: [svelte()],
+  plugins: [
+    svelte({
+      compilerOptions: {
+        css: "injected",
+      },
+      preprocess: {
+        style: ({ content }) => {
+          return { code: content };
+        },
+      },
+    }),
+  ],
 
   // This is needed to make test pass after adding decorators in Purchases.
   esbuild: { target: "es2022" },
@@ -46,7 +57,9 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     conditions: mode === "test" ? ["browser"] : [],
   },
-
+  define: {
+    "process.env.VITEST": JSON.stringify(true),
+  },
   // If you need to define other Vite configurations, they can go here
   // ...
 }));
