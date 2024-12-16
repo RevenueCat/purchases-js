@@ -20,6 +20,7 @@
   import { Translator } from "../ui/localization/translator";
   import WithContext from "./utils/with-context.svelte";
   import { LocalizationKeys } from "../ui/localization/supportedLanguages";
+  import { SetupMode } from "./utils/purchase-response-builder";
 
   let defaultArgs = {
     productDetails: product,
@@ -62,7 +63,10 @@
       <ModalBackdrop>
         <Layout>
           <Main brandingAppearance={args.brandingInfo?.appearance}>
-            <StateNeedsPaymentInfoWithPurchaseResponse {args} />
+            <StateNeedsPaymentInfoWithPurchaseResponse
+              {args}
+              setupMode={SetupMode.PaidProduct}
+            />
           </Main>
         </Layout>
       </ModalBackdrop>

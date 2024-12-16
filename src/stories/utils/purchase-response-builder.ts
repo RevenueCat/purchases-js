@@ -101,7 +101,7 @@ export enum SetupMode {
 }
 
 export const buildPurchaseResponse = async (
-  setupMode: SetupMode = SetupMode.TrialSubscription,
+  setupMode: SetupMode,
 ): Promise<PurchaseResponse> => {
   if (!restrictedSecretKey || !publishableApiKey || !accountId) {
     throw new Error(
