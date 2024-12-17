@@ -67,20 +67,32 @@
   });
 
   const handleContinue = async () => {
-    if (processing || !stripe || !safeElements) return;
+    if (processing || !stripe || !safeElements || !clientSecret) return;
 
     processing = true;
 
-    // confirm payment with stripe
-    const result = await stripe.confirmSetup({
-      elements: safeElements,
-      redirect: "if_required",
-    });
+    const isSetupIntent = clientSecret.startsWith("seti_");
 
-    if (result.error) {
+    // confirm payment with stripe
+    let error: StripeError | undefined = undefined;
+    if (isSetupIntent) {
+      const result = await stripe.confirmSetup({
+        elements: safeElements,
+        redirect: "if_required",
+      });
+      error = result.error;
+    } else {
+      const result = await stripe.confirmPayment({
+        elements: safeElements,
+        redirect: "if_required",
+      });
+      error = result.error;
+    }
+
+    if (error) {
       processing = false;
-      if (shouldShowErrorModal(result.error)) {
-        modalErrorMessage = result.error.message;
+      if (shouldShowErrorModal(error)) {
+        modalErrorMessage = error.message;
       }
     } else {
       onContinue();

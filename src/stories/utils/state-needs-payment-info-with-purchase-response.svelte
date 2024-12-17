@@ -1,10 +1,15 @@
 <script lang="ts">
   import { type ComponentProps, onMount } from "svelte";
   import { type PurchaseResponse } from "../../networking/responses/purchase-response";
-  import { buildPurchaseResponse } from "./purchase-response-builder";
+  import {
+    buildPurchaseResponse,
+    SetupMode,
+  } from "./purchase-response-builder";
   import StateNeedsPaymentInfo from "../../ui/states/state-needs-payment-info.svelte";
 
   export let args: ComponentProps<StateNeedsPaymentInfo>;
+
+  export let setupMode: SetupMode = SetupMode.TrialSubscription;
 
   let paymentMetadata: PurchaseResponse | null = null;
   const overriddenArgs = {
@@ -12,14 +17,14 @@
     onContinue: async () => {
       alert("Payment info submitted successfully!\n The form will be reset");
       paymentMetadata = null;
-      paymentMetadata = await buildPurchaseResponse();
+      paymentMetadata = await buildPurchaseResponse(setupMode);
     },
   };
 
   let error: string | null = null;
   onMount(async () => {
     try {
-      paymentMetadata = await buildPurchaseResponse();
+      paymentMetadata = await buildPurchaseResponse(setupMode);
     } catch (err) {
       error = (err as Error).message;
     }

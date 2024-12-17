@@ -91,6 +91,7 @@ export class Backend {
         rule_id: string;
         revision: number;
       };
+      supports_direct_payment: boolean;
     };
 
     const requestBody: PurchaseRequestBody = {
@@ -100,6 +101,7 @@ export class Backend {
       price_id: purchaseOption.priceId,
       presented_offering_identifier:
         presentedOfferingContext.offeringIdentifier,
+      supports_direct_payment: true,
     };
 
     if (purchaseOption.id !== "base_option") {
