@@ -82,7 +82,7 @@ const createPaymentIntent = async () => {
       "Content-Type": "application/x-www-form-urlencoded",
     },
     body: [
-      "amount=1000",
+      "amount=199",
       "currency=usd",
       "setup_future_usage=off_session",
       "payment_method_types[]=card",
@@ -106,6 +106,12 @@ export const buildPurchaseResponse = async (
   if (!restrictedSecretKey || !publishableApiKey || !accountId) {
     throw new Error(
       "Missing storybook setup environment variables. Check README.md for more information.",
+    );
+  }
+
+  if (!restrictedSecretKey.includes("test")) {
+    throw new Error(
+      "The secret key should be a test key. Check README.md for more information.",
     );
   }
 
