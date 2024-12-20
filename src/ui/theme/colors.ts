@@ -32,7 +32,7 @@ export const DEFAULT_FORM_COLORS: Colors = {
   "grey-text-light": "rgba(0,0,0,0.5)",
   "grey-ui-dark": "rgba(0,0,0,0.125)",
   "grey-ui-light": "rgba(0,0,0,0.005)",
-  "input-background": "transparent",
+  "input-background": "white",
   background: "white",
 };
 
@@ -48,7 +48,7 @@ export const DEFAULT_INFO_COLORS: Colors = {
   "grey-text-light": "rgba(255,255,255,0.5)",
   "grey-ui-dark": "rgba(255,255,255,0.125)",
   "grey-ui-light": "rgba(255,255,255,0.005)",
-  "input-background": "transparent",
+  "input-background": "#000000",
   background: "#000000",
 };
 
@@ -68,10 +68,12 @@ export const ColorsToBrandingAppearanceMapping: Record<
 
 export const FormColorsToBrandingAppearanceMapping = {
   ...ColorsToBrandingAppearanceMapping,
+  "input-background": "color_form_bg",
   background: "color_form_bg",
 };
 
 export const InfoColorsToBrandingAppearanceMapping = {
   ...ColorsToBrandingAppearanceMapping,
+  "input-background": "color_product_info_bg",
   background: "color_product_info_bg",
 };
