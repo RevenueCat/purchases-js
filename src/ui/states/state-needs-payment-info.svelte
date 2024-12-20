@@ -199,7 +199,7 @@
           ".Input": {
             boxShadow: "none",
             border: `2px solid ${customColors["grey-ui-dark"]}`,
-            backgroundColor: "transparent",
+            backgroundColor: customColors["background"],
             color: customColors["grey-text-dark"],
           },
           ".Input:focus": {

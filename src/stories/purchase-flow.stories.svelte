@@ -74,6 +74,30 @@
     "es",
     englishLocale,
   );
+
+  const labyrinthosBranding = {
+    color_accent: "#B89662",
+    color_buttons_primary: "#B89662",
+    color_error: "#f04141",
+    color_form_bg: "#FFFFFF",
+    color_page_bg: "#0A2722",
+    color_product_info_bg: "#465551",
+    font: "default",
+    shapes: "pill",
+    show_product_description: true,
+  };
+
+  const iptvWebBranding = {
+    color_accent: "#FF3B30",
+    color_buttons_primary: "#ff3b30",
+    color_error: "#F2545B",
+    color_form_bg: "#1f1f1f",
+    color_page_bg: "#141414",
+    color_product_info_bg: "#1f1f1f",
+    font: "default",
+    shapes: "pill",
+    show_product_description: false,
+  };
 </script>
 
 <Meta title="PurchaseFlow" />
@@ -212,6 +236,28 @@
       appearance: {
         shapes: "rectangle",
       },
+    },
+  }}
+/>
+
+<Story
+  name="Labyrinthos"
+  args={{
+    ...defaultArgs,
+    brandingInfo: {
+      ...brandingInfo,
+      appearance: labyrinthosBranding,
+    },
+  }}
+/>
+
+<Story
+  name="IPTV Web"
+  args={{
+    ...defaultArgs,
+    brandingInfo: {
+      ...brandingInfo,
+      appearance: iptvWebBranding,
     },
   }}
 />
