@@ -1,3 +1,8 @@
+## 0.15.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Fix for the select options background color on windows (#267) via Nicola Sacco (@nicfix)
+
 ## 0.15.0
 ## RevenueCat SDK
 ### ✨ New Features
