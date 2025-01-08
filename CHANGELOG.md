@@ -1,3 +1,8 @@
+## 0.15.2
+## RevenueCatUI SDK
+### 🐞 Bugfixes
+* Fix broken e2e tests + upgrade purchases-ui-js version (#270) via Guido Torres (@guido732)
+
 ## 0.15.1
 ## RevenueCat SDK
 ### 🐞 Bugfixes
