@@ -4,10 +4,10 @@ import type { Locator } from "playwright";
 
 const _LOCAL_URL = "http://localhost:3001/";
 const CARD_SELECTOR = "div.card";
-const PACKAGE_SELECTOR = "button.package";
-const RC_PAYWALL_TEST_OFFERING_ID = "rc_paywalls_e2e_test";
+const PACKAGE_SELECTOR = "button.rc-pw-package";
+const RC_PAYWALL_TEST_OFFERING_ID = "rc_paywalls_e2e_test_2";
 const RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES =
-  "rc_paywalls_e2e_test_variables";
+  "rc_paywalls_e2e_test_variables_2";
 
 test.describe("Main", () => {
   test.afterEach(({ browser }) => {
@@ -88,13 +88,12 @@ test.describe("Main", () => {
       offeringId: RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES,
       useRcPaywall: true,
     });
-
     // Gets all packages
     const packageCards = await getAllElementsByLocator(page, PACKAGE_SELECTOR);
 
     // Get the purchase button as a Locator
     const purchaseButton = (
-      await getAllElementsByLocator(page, "button.purchase-button")
+      await getAllElementsByLocator(page, "button.rc-pw-purchase-button")
     )[0];
 
     await expect(purchaseButton).toContainText(
@@ -115,7 +114,7 @@ test.describe("Main", () => {
   }) => {
     const userId = `${getUserId(browserName)}_subscription`;
     const page = await setupTest(browser, userId, {
-      offeringId: RC_PAYWALL_TEST_OFFERING_ID,
+      offeringId: RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES,
       useRcPaywall: true,
     });
     const title = page.getByText("E2E Tests for Purchases JS");
@@ -129,7 +128,7 @@ test.describe("Main", () => {
 
     // Get the purchase button as a Locator
     const purchaseButton = (
-      await getAllElementsByLocator(page, "button.purchase-button")
+      await getAllElementsByLocator(page, "button.rc-pw-purchase-button")
     )[0];
 
     await expect(purchaseButton).toBeVisible();
@@ -263,7 +262,7 @@ test.describe("Main", () => {
 
       // Get the purchase button as a Locator
       const purchaseButton = (
-        await getAllElementsByLocator(page, "button.purchase-button")
+        await getAllElementsByLocator(page, "button.rc-pw-purchase-button")
       )[0];
 
       await expect(purchaseButton).toBeVisible();
