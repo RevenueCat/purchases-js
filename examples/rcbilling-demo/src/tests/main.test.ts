@@ -6,7 +6,7 @@ const _LOCAL_URL = "http://localhost:3001/";
 const CARD_SELECTOR = "div.card";
 const PACKAGE_SELECTOR = "button.rc-pw-package";
 const RC_PAYWALL_TEST_OFFERING_ID = "rc_paywalls_e2e_test_2";
-const RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES_2 =
+const RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES =
   "rc_paywalls_e2e_test_variables_2";
 
 test.describe("Main", () => {
@@ -85,7 +85,7 @@ test.describe("Main", () => {
   }) => {
     const userId = `${getUserId(browserName)}_subscription`;
     const page = await setupTest(browser, userId, {
-      offeringId: RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES_2,
+      offeringId: RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES,
       useRcPaywall: true,
     });
     // Gets all packages
@@ -114,7 +114,7 @@ test.describe("Main", () => {
   }) => {
     const userId = `${getUserId(browserName)}_subscription`;
     const page = await setupTest(browser, userId, {
-      offeringId: RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES_2,
+      offeringId: RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES,
       useRcPaywall: true,
     });
     const title = page.getByText("E2E Tests for Purchases JS");
