@@ -50,6 +50,8 @@ import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
 import { parseOfferingIntoVariables } from "./helpers/paywall-variables-helpers";
 import { Translator } from "./ui/localization/translator";
 import { englishLocale } from "./ui/localization/constants";
+import EventsTracker from "./behavioural-events/events-tracker";
+import type { BaseEvent } from "./behavioural-events/event-types";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -112,6 +114,9 @@ export class Purchases {
 
   /** @internal */
   private readonly purchaseOperationHelper: PurchaseOperationHelper;
+
+  /** @internal */
+  private readonly eventsTracker: EventsTracker = new EventsTracker();
 
   /** @internal */
   private static instance: Purchases | undefined = undefined;
@@ -653,5 +658,13 @@ export class Purchases {
   public static generateRevenueCatAnonymousAppUserId(): string {
     const uuid = crypto.randomUUID();
     return `$RCAnonymousID:${uuid.replace(/-/g, "")}`;
+  }
+
+  /**
+   * Tracks an event in the purchase flow.
+   * @param event BaseEvent - One of the events defined in the {@link BaseEvent} type.
+   */
+  public trackEvent(event: BaseEvent) {
+    return this.eventsTracker.trackEvent(event);
   }
 }
