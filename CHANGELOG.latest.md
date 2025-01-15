@@ -1,3 +1,3 @@
-## RevenueCat SDK
+## RevenueCatUI SDK
 ### 🐞 Bugfixes
-* Fix for the select options background color on windows (#267) via Nicola Sacco (@nicfix)
+* Fix broken e2e tests + upgrade purchases-ui-js version (#270) via Guido Torres (@guido732)
