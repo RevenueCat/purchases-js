@@ -5,12 +5,15 @@
 
   export let brandingAppearance: BrandingAppearance | undefined = undefined;
   let style = new Theme(brandingAppearance).productInfoStyleVars;
+
+  export let headerContent;
+  export let bodyContent;
 </script>
 
 <div class="rcb-ui-aside" {style}>
   <Modal>
-    <slot name="header" />
-    <slot />
+    {@render headerContent?.()}
+    {@render bodyContent?.()}
   </Modal>
 </div>
 

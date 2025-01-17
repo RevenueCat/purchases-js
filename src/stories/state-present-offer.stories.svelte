@@ -93,15 +93,20 @@
       <ModalBackdrop>
         <Layout>
           <Aside brandingAppearance={args.brandingAppearance}>
-            <ModalHeader slot="header">
-              <BrandingInfoUI {...args} />
-              {#if args.sandbox}
-                <SandboxBanner />
-              {:else}
-                <IconCart />
-              {/if}
-            </ModalHeader>
-            <StatePresentOffer {...args} />
+            {#snippet headerContent()}
+              <ModalHeader>
+                <BrandingInfoUI {...args} />
+                {#if args.sandbox}
+                  <SandboxBanner />
+                {:else}
+                  <IconCart />
+                {/if}
+              </ModalHeader>
+            {/snippet}
+
+            {#snippet bodyContent()}
+              <StatePresentOffer {...args} />
+            {/snippet}
           </Aside>
         </Layout>
       </ModalBackdrop>

@@ -1,9 +1,11 @@
-<script>
+<script lang="ts">
+  import { type Snippet } from "svelte";
   export let gutter = "8px";
+  export let children: Snippet;
 </script>
 
 <div class="column" style={`--gap:${gutter};`}>
-  <slot />
+  {@render children?.()}
 </div>
 
 <style>
