@@ -51,7 +51,7 @@ import { parseOfferingIntoVariables } from "./helpers/paywall-variables-helpers"
 import { Translator } from "./ui/localization/translator";
 import { englishLocale } from "./ui/localization/constants";
 import EventsTracker from "./behavioural-events/events-tracker";
-import type { BaseEvent } from "./behavioural-events/event-types";
+import type { TrackedEvent } from "./behavioural-events/event-types";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -116,7 +116,7 @@ export class Purchases {
   private readonly purchaseOperationHelper: PurchaseOperationHelper;
 
   /** @internal */
-  private readonly eventsTracker: EventsTracker = new EventsTracker();
+  private readonly eventsTracker: EventsTracker;
 
   /** @internal */
   private static instance: Purchases | undefined = undefined;
@@ -233,8 +233,10 @@ export class Purchases {
     if (isSandboxApiKey(apiKey)) {
       Logger.debugLog("Initializing Purchases SDK with sandbox API Key");
     }
+    this.eventsTracker = new EventsTracker(this._API_KEY, httpConfig);
     this.backend = new Backend(this._API_KEY, httpConfig);
     this.purchaseOperationHelper = new PurchaseOperationHelper(this.backend);
+    this.eventsTracker.trackSDKInitialized();
   }
 
   /**
@@ -664,7 +666,7 @@ export class Purchases {
    * Tracks an event in the purchase flow.
    * @param event BaseEvent - One of the events defined in the {@link BaseEvent} type.
    */
-  public trackEvent(event: BaseEvent) {
+  public trackEvent(event: TrackedEvent) {
     return this.eventsTracker.trackEvent(event);
   }
 }

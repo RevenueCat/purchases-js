@@ -1,18 +1,19 @@
-export type EventType = "sdk_initialized";
+export type EventName = "SDK_INITIALIZED";
 
 export interface BaseEvent {
-  type: EventType;
+  type: "rc_billing_event";
 }
 
-export interface SDKInitializedEvent extends BaseEvent {
-  type: "sdk_initialized";
-  sdkVersion: string;
+export interface TrackedEvent extends BaseEvent {
+  event_name: EventName;
+  //traceId: string;
+  //localTimeStamp: number;
+  //localTimeStampISO: string;
+  //eventOrderInTrace: number;
+  //baseEvent: BaseEvent;
 }
 
-export interface TrackedEvent {
-  traceId: string;
-  localTimeStamp: number;
-  localTimeStampISO: string;
-  eventOrderInTrace: number;
-  baseEvent: BaseEvent;
+export interface SDKInitializedEvent extends TrackedEvent {
+  event_name: "SDK_INITIALIZED";
+  sdk_version: string;
 }
