@@ -11,6 +11,8 @@
   export let title: string | null = null;
   export let type: string;
   export let closeButtonTitle: string = "Go back to app";
+  export let icon: (() => any) | null = null;
+  export let message;
 </script>
 
 <RowLayout gutter="32px">
@@ -20,14 +22,18 @@
   <ModalSection>
     <div class="rcb-modal-message" data-type={type} data-has-title={!!title}>
       <RowLayout gutter="48px">
-        <slot name="icon" />
+        {#if icon}
+          {@render icon()}
+        {/if}
         <RowLayout gutter="16px">
           {#if title}
             <span class="title">{title}</span>
           {/if}
-          <span class="subtitle">
-            <slot />
-          </span>
+          {#if message}
+            <span class="subtitle">
+              {@render message()}
+            </span>
+          {/if}
         </RowLayout>
       </RowLayout>
     </div>

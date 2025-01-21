@@ -213,75 +213,82 @@
     <Layout style={colorVariables}>
       {#if statesWhereOfferDetailsAreShown.includes(state)}
         <Aside brandingAppearance={brandingInfo?.appearance}>
-          <ModalHeader slot="header">
-            <BrandingInfoUI {brandingInfo} />
-            {#if purchases.isSandbox()}
-              <SandboxBanner />
-            {:else}
-              <IconCart />
+          {#snippet headerContent()}
+            <ModalHeader>
+              <BrandingInfoUI {brandingInfo} />
+              {#if purchases.isSandbox()}
+                <SandboxBanner />
+              {:else}
+                <IconCart />
+              {/if}
+            </ModalHeader>
+          {/snippet}
+
+          {#snippet bodyContent()}
+            {#if productDetails && purchaseOptionToUse}
+              <StatePresentOffer
+                {productDetails}
+                brandingAppearance={brandingInfo?.appearance}
+                purchaseOption={purchaseOptionToUse}
+              />
             {/if}
-          </ModalHeader>
-          {#if productDetails && purchaseOptionToUse}
-            <StatePresentOffer
-              {productDetails}
-              brandingAppearance={brandingInfo?.appearance}
-              purchaseOption={purchaseOptionToUse}
-            />
-          {/if}
+          {/snippet}
         </Aside>
       {/if}
       <Main brandingAppearance={brandingInfo?.appearance}>
-        {#if state === "present-offer" && productDetails && purchaseOptionToUse}
-          <StatePresentOffer
-            {productDetails}
-            purchaseOption={purchaseOptionToUse}
-          />
-        {/if}
-        {#if state === "present-offer" && !productDetails}
-          <StateLoading />
-        {/if}
-        {#if state === "needs-auth-info" || state === "processing-auth-info"}
-          <StateNeedsAuthInfo
-            onContinue={handleContinue}
-            onClose={handleClose}
-            processing={state === "processing-auth-info"}
-            {lastError}
-          />
-        {/if}
-        {#if paymentInfoCollectionMetadata && (state === "needs-payment-info" || state === "polling-purchase-status") && productDetails && purchaseOptionToUse}
-          <StateNeedsPaymentInfo
-            {paymentInfoCollectionMetadata}
-            onContinue={handleContinue}
-            onClose={handleClose}
-            processing={state === "polling-purchase-status"}
-            {productDetails}
-            {purchaseOptionToUse}
-            {brandingInfo}
-          />
-        {/if}
-        {#if state === "loading"}
-          <StateLoading />
-        {/if}
-        {#if state === "error"}
-          <StateError
-            {brandingInfo}
-            lastError={lastError ??
-              new PurchaseFlowError(
-                PurchaseFlowErrorCode.UnknownError,
-                "Unknown error without state set.",
-              )}
-            supportEmail={brandingInfo?.support_email}
-            {productDetails}
-            onContinue={closeWithError}
-          />
-        {/if}
-        {#if state === "success"}
-          <StateSuccess
-            {productDetails}
-            {brandingInfo}
-            onContinue={handleContinue}
-          />
-        {/if}
+        {#snippet body()}
+          {#if state === "present-offer" && productDetails && purchaseOptionToUse}
+            <StatePresentOffer
+              {productDetails}
+              purchaseOption={purchaseOptionToUse}
+            />
+          {/if}
+          {#if state === "present-offer" && !productDetails}
+            <StateLoading />
+          {/if}
+          {#if state === "needs-auth-info" || state === "processing-auth-info"}
+            <StateNeedsAuthInfo
+              onContinue={handleContinue}
+              onClose={handleClose}
+              processing={state === "processing-auth-info"}
+              {lastError}
+            />
+          {/if}
+          {#if paymentInfoCollectionMetadata && (state === "needs-payment-info" || state === "polling-purchase-status") && productDetails && purchaseOptionToUse}
+            <StateNeedsPaymentInfo
+              {paymentInfoCollectionMetadata}
+              onContinue={handleContinue}
+              onClose={handleClose}
+              processing={state === "polling-purchase-status"}
+              {productDetails}
+              {purchaseOptionToUse}
+              {brandingInfo}
+            />
+          {/if}
+          {#if state === "loading"}
+            <StateLoading />
+          {/if}
+          {#if state === "error"}
+            <StateError
+              {brandingInfo}
+              lastError={lastError ??
+                new PurchaseFlowError(
+                  PurchaseFlowErrorCode.UnknownError,
+                  "Unknown error without state set.",
+                )}
+              supportEmail={brandingInfo?.support_email}
+              {productDetails}
+              onContinue={closeWithError}
+            />
+          {/if}
+          {#if state === "success"}
+            <StateSuccess
+              {productDetails}
+              {brandingInfo}
+              onContinue={handleContinue}
+            />
+          {/if}
+        {/snippet}
       </Main>
     </Layout>
   </ConditionalFullScreen>

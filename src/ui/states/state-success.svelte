@@ -29,8 +29,12 @@
     LocalizationKeys.StateSuccessButtonClose,
   )}
 >
-  <IconSuccess slot="icon" />
-  {#if isSubscription}
-    <Localized key={LocalizationKeys.StateSuccessSubscriptionNowActive} />
-  {/if}
+  {#snippet icon()}
+    <IconSuccess />
+  {/snippet}
+  {#snippet message()}
+    {#if isSubscription}
+      <Localized key={LocalizationKeys.StateSuccessSubscriptionNowActive} />
+    {/if}
+  {/snippet}
 </MessageLayout>

@@ -1,15 +1,13 @@
-<script>
-  import ModalHeader from "./modal-header.svelte";
+<script lang="ts">
+  import { type Snippet } from "svelte";
   import ModalBackdrop from "./modal-backdrop.svelte";
-  import Modal from "./modal.svelte";
 
   export let condition = false;
+  export let children: Snippet;
 </script>
 
 {#if condition}
-  <ModalBackdrop>
-    <slot />
-  </ModalBackdrop>
+  <ModalBackdrop {children} />
 {:else}
-  <slot />
+  {@render children?.()}
 {/if}

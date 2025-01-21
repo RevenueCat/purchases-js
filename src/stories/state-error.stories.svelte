@@ -56,7 +56,9 @@
       <ModalBackdrop>
         <Layout>
           <Main brandingAppearance={args.brandingAppearance}>
-            <StateError {...args} />
+            {#snippet body()}
+              <StateError {...args} />
+            {/snippet}
           </Main>
         </Layout>
       </ModalBackdrop>

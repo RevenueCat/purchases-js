@@ -1,10 +1,13 @@
 <script lang="ts">
+  import { type Snippet } from "svelte";
   import ModalSection from "./modal-section.svelte";
+
+  export let children: Snippet;
 </script>
 
 <ModalSection as="header">
   <div class="rcb-header-layout">
-    <slot />
+    {@render children?.()}
   </div>
 </ModalSection>
 

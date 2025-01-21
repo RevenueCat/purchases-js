@@ -1,9 +1,12 @@
-<script>
+<script lang="ts">
+  import { type Snippet } from "svelte";
+
   export let style = "";
+  export let children: Snippet;
 </script>
 
 <div class="rcb-ui-layout" {style}>
-  <slot />
+  {@render children?.()}
 </div>
 
 <style>
