@@ -59,7 +59,7 @@ export default class EventsTracker {
     this.flushingMutex = true;
     console.debug("Acquired flushing mutex");
     if (this.eventsQueue.length > 0) {
-      this.postQueuedEvents(this.eventsQueue)
+      this.postEvents(this.eventsQueue)
         .then((response) => {
           if (response.status === 200 || response.status === 201) {
             console.debug(`Events flushed successfully`);
@@ -76,15 +76,13 @@ export default class EventsTracker {
     }
   }
 
-  public async postQueuedEvents(
-    queuedEvents: Array<TrackedEvent>,
-  ): Promise<Response> {
+  public async postEvents(events: Array<TrackedEvent>): Promise<Response> {
     const URL = `${this.httpConfig.proxyURL || this.baseUrl}/v1/events`;
-    console.debug(`Posting ${queuedEvents.length} events to ${URL}`);
+    console.debug(`Posting ${events.length} events to ${URL}`);
     return await fetch(URL, {
       method: HttpMethods.POST,
       headers: getHeaders(this.apiKey),
-      body: JSON.stringify({ events: queuedEvents }),
+      body: JSON.stringify({ events: events }),
     });
   }
 
