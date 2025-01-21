@@ -632,6 +632,9 @@ export class Purchases {
    */
   public close() {
     if (Purchases.instance === this) {
+      if (this.eventsTracker) {
+        this.eventsTracker.dispose();
+      }
       Purchases.instance = undefined;
     } else {
       Logger.warnLog(
