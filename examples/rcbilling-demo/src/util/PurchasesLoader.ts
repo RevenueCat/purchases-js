@@ -48,7 +48,8 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
       customerInfo,
       offering,
     };
-  } catch {
+  } catch (error) {
+    console.error(error);
     throw redirect("/");
   }
 };
