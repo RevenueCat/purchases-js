@@ -14,7 +14,9 @@ const config: StorybookConfig = {
     },
   ],
   framework: "@storybook/svelte-vite",
-  docs: {},
+  docs: {
+    autodocs: "tag",
+  },
   env: (config) => ({
     ...config,
     VITE_STORYBOOK_PUBLISHABLE_API_KEY:
