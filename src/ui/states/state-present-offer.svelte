@@ -108,31 +108,29 @@
           />
         </span>
       {/if}
-      {#if expanded}
-        <ul class="rcb-product-details">
-          {#if productDetails.normalPeriodDuration}
-            <li>
-              <Localized
-                key={LocalizationKeys.StatePresentOfferRenewalFrequency}
-                variables={{
-                  frequency: getTranslatedPeriodFrequency(
-                    productDetails.normalPeriodDuration,
-                    translator,
-                  ),
-                }}
-              />
-            </li>
-          {/if}
+      <ul class="rcb-product-details {expanded ? 'expanded' : 'collapsed'}">
+        {#if productDetails.normalPeriodDuration}
           <li>
             <Localized
-              key={LocalizationKeys.StatePresentOfferContinuesUntilCancelled}
+              key={LocalizationKeys.StatePresentOfferRenewalFrequency}
+              variables={{
+                frequency: getTranslatedPeriodFrequency(
+                  productDetails.normalPeriodDuration,
+                  translator,
+                ),
+              }}
             />
           </li>
-          <li>
-            <Localized key={LocalizationKeys.StatePresentOfferCancelAnytime} />
-          </li>
-        </ul>
-      {/if}
+        {/if}
+        <li>
+          <Localized
+            key={LocalizationKeys.StatePresentOfferContinuesUntilCancelled}
+          />
+        </li>
+        <li>
+          <Localized key={LocalizationKeys.StatePresentOfferCancelAnytime} />
+        </li>
+      </ul>
     {/if}
     {#if !isSubscription}
       <span class="rcb-product-price">
@@ -188,8 +186,26 @@
     list-style-position: inside;
     margin: 0px;
     padding: 0px;
+
+    overflow: hidden;
+    max-height: 0;
+    transition:
+      max-height 0.1s ease-in-out,
+      padding-top 0.1s ease-in-out,
+      padding-bottom 0.1s ease-in-out;
   }
 
+  .rcb-product-details.expanded {
+    max-height: 500px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  .rcb-product-details.collapsed {
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
   @media screen and (max-width: 960px) {
     .rcb-pricing-info {
       margin-top: 24px;
