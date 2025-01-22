@@ -15,6 +15,7 @@
 <style>
   .rcb-modal-container {
     width: 100%;
+    height: 100%;
   }
 
   .rcb-modal-main {
@@ -22,8 +23,9 @@
     background-color: var(--rc-color-background);
     color: var(--rc-color-grey-text-dark);
     padding: 40px;
-    flex-direction: column; */
+    flex-direction: column;
     display: flex;
+    height: 100%;
   }
 
   @media screen and (max-width: 960px) {

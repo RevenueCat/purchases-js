@@ -30,6 +30,7 @@
       flex: none;
       max-width: none;
       min-width: 100%;
+      flex: 1;
     }
   }
 </style>

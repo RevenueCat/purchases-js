@@ -101,7 +101,6 @@
   form {
     display: flex;
     flex-direction: column;
-    min-height: 100%;
     flex-grow: 1;
   }
 
