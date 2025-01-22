@@ -10,10 +10,6 @@ const RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES =
   "rc_paywalls_e2e_test_variables_2";
 
 test.describe("Main", () => {
-  test.afterEach(({ browser }) => {
-    browser.close();
-  });
-
   test("Get offerings displays packages", async ({ browser, browserName }) => {
     const userId = getUserId(browserName);
     const page = await setupTest(browser, userId);
