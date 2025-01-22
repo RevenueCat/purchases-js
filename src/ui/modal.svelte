@@ -2,13 +2,14 @@
   import { type Snippet } from "svelte";
 
   export let style = "";
+  export let as: string = "div";
   export let children: Snippet;
 </script>
 
 <div class="rcb-modal-container">
-  <main class="rcb-modal-main" {style}>
+  <svelte:element this={as} class="rcb-modal-main" {style}>
     {@render children?.()}
-  </main>
+  </svelte:element>
 </div>
 
 <style>
@@ -21,7 +22,7 @@
     background-color: var(--rc-color-background);
     color: var(--rc-color-grey-text-dark);
     padding: 40px;
-    flex-direction: column;
+    flex-direction: column; */
     display: flex;
   }
 

@@ -10,7 +10,7 @@
 </script>
 
 <div class="rcb-ui-main" {style}>
-  <Modal style="min-height: 360px;">
+  <Modal>
     {#if header}
       {@render header()}
     {/if}
@@ -22,6 +22,7 @@
   .rcb-ui-main {
     flex: 480px 1 0;
     max-width: 640px;
+    flex: 1;
   }
 
   @media screen and (max-width: 960px) {

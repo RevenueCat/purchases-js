@@ -11,6 +11,10 @@
 
 <style>
   .rcb-ui-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+
     color-scheme: none;
     font-size: 16px;
     line-height: 1.5em;

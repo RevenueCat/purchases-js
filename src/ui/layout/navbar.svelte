@@ -17,7 +17,7 @@
 </script>
 
 <div class="rcb-ui-navbar" {style}>
-  <Modal>
+  <Modal as="div">
     <NavBarHeader {expanded} toggle={toggleExpanded}>
       {@render headerContent?.()}
     </NavBarHeader>
