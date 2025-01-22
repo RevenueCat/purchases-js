@@ -12,16 +12,16 @@
 <style>
   .rcb-ui-layout {
     width: 100vw;
-    margin-right: auto;
+    /* margin-right: auto;
     display: flex;
     justify-content: center;
     align-items: flex-start;
     position: relative;
-    padding: 0px 80px;
+    padding: 0px 80px; */
     box-sizing: border-box;
   }
 
-  @media screen and (max-width: 960px) {
+  /* @media screen and (max-width: 960px) {
     .rcb-ui-layout {
       flex-direction: column;
       align-items: center;
@@ -37,5 +37,5 @@
       overflow-y: scroll;
       justify-content: flex-start;
     }
-  }
+  } */
 </style>

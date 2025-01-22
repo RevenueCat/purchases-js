@@ -21,7 +21,7 @@
   import SandboxBanner from "./sandbox-banner.svelte";
   import Layout from "./layout/layout.svelte";
   import Container from "./layout/container.svelte";
-  import Aside from "./layout/aside-block.svelte";
+  import NavBar from "./layout/navbar.svelte";
   import Main from "./layout/main-block.svelte";
 
   import { toProductInfoStyleVar } from "./theme/utils";
@@ -212,7 +212,7 @@
   <ConditionalFullScreen condition={asModal}>
     <Layout style={colorVariables}>
       {#if statesWhereOfferDetailsAreShown.includes(state)}
-        <Aside brandingAppearance={brandingInfo?.appearance}>
+        <NavBar brandingAppearance={brandingInfo?.appearance}>
           {#snippet headerContent()}
             <ModalHeader>
               <BrandingInfoUI {brandingInfo} />
@@ -233,7 +233,7 @@
               />
             {/if}
           {/snippet}
-        </Aside>
+        </NavBar>
       {/if}
       <Main brandingAppearance={brandingInfo?.appearance}>
         {#snippet body()}

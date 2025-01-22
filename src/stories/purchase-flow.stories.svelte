@@ -11,7 +11,7 @@
   import Layout from "../ui/layout/layout.svelte";
   import Container from "../ui/layout/container.svelte";
   import Main from "../ui/layout/main-block.svelte";
-  import Aside from "../ui/layout/aside-block.svelte";
+  import NavBar from "../ui/layout/navbar.svelte";
   import IconCart from "../ui/icons/icon-cart.svelte";
   import ModalHeader from "../ui/modal-header.svelte";
   import BrandingInfoUI from "../ui/branding-info-ui.svelte";
@@ -110,7 +110,7 @@
     >
       <Container>
         <Layout>
-          <Aside brandingAppearance={args.brandingInfo.appearance}>
+          <NavBar brandingAppearance={args.brandingInfo.appearance}>
             {#snippet headerContent()}
               <ModalHeader>
                 <BrandingInfoUI {...args} />
@@ -121,7 +121,7 @@
             {#snippet bodyContent()}
               <StatePresentOffer {...args} />
             {/snippet}
-          </Aside>
+          </NavBar>
           <Main brandingAppearance={args.brandingInfo.appearance}>
             {#snippet body()}
               <StateNeedsAuthInfo {...args} />
@@ -134,7 +134,7 @@
 
       <Container>
         <Layout>
-          <Aside brandingAppearance={args.brandingInfo.appearance}>
+          <NavBar brandingAppearance={args.brandingInfo.appearance}>
             {#snippet headerContent()}
               <ModalHeader>
                 <BrandingInfoUI {...args} />
@@ -145,7 +145,7 @@
             {#snippet bodyContent()}
               <StatePresentOffer {...args} />
             {/snippet}
-          </Aside>
+          </NavBar>
           <Main brandingAppearance={args.brandingInfo.appearance}>
             {#snippet body()}
               <StateNeedsPaymentInfoWithPurchaseResponse {args} />
@@ -158,7 +158,7 @@
 
       <Container>
         <Layout>
-          <Aside brandingAppearance={args.brandingInfo.appearance}>
+          <NavBar brandingAppearance={args.brandingInfo.appearance}>
             {#snippet headerContent()}
               <ModalHeader>
                 <BrandingInfoUI {...args} />
@@ -169,7 +169,7 @@
             {#snippet bodyContent()}
               <StatePresentOffer {...args} />
             {/snippet}
-          </Aside>
+          </NavBar>
           <Main brandingAppearance={args.brandingInfo.appearance}>
             {#snippet body()}
               <StateLoading {...args} />
@@ -182,7 +182,7 @@
 
       <Container>
         <Layout>
-          <Aside brandingAppearance={args.brandingInfo.appearance}>
+          <NavBar brandingAppearance={args.brandingInfo.appearance}>
             {#snippet headerContent()}
               <ModalHeader>
                 <BrandingInfoUI {...args} />
@@ -193,7 +193,7 @@
             {#snippet bodyContent()}
               <StatePresentOffer {...args} />
             {/snippet}
-          </Aside>
+          </NavBar>
           <Main brandingAppearance={args.brandingInfo.appearance}>
             {#snippet body()}
               <StateSuccess {...args} />
@@ -206,7 +206,7 @@
 
       <Container>
         <Layout>
-          <Aside brandingAppearance={args.brandingInfo.appearance}>
+          <NavBar brandingAppearance={args.brandingInfo.appearance}>
             {#snippet headerContent()}
               <ModalHeader>
                 <BrandingInfoUI {...args} />
@@ -216,7 +216,7 @@
             {#snippet bodyContent()}
               <StatePresentOffer {...args} />
             {/snippet}
-          </Aside>
+          </NavBar>
           <Main brandingAppearance={args.brandingInfo.appearance}>
             {#snippet body()}
               <StateError {...args} />

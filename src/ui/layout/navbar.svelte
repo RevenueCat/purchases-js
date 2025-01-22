@@ -10,7 +10,7 @@
   export let bodyContent;
 </script>
 
-<div class="rcb-ui-aside" {style}>
+<div class="rcb-ui-navbar" {style}>
   <Modal>
     {@render headerContent?.()}
     {@render bodyContent?.()}
@@ -18,16 +18,10 @@
 </div>
 
 <style>
-  .rcb-ui-aside {
-    margin-right: 16px;
-    flex: 320px 1 0;
-    max-width: 480px;
-  }
-
   @media screen and (max-width: 960px) {
-    .rcb-ui-aside {
+    .rcb-ui-navbar {
       margin-right: 0;
-      margin-bottom: 16px;
+      margin-bottom: 0;
       min-width: 100%;
       display: flex;
       flex-direction: column;

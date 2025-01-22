@@ -4,7 +4,7 @@
   import SandboxBanner from "../ui/sandbox-banner.svelte";
   import Layout from "../ui/layout/layout.svelte";
   import Container from "../ui/layout/container.svelte";
-  import Aside from "../ui/layout/aside-block.svelte";
+  import NavBar from "../ui/layout/navbar.svelte";
   import ModalBackdrop from "../ui/modal-backdrop.svelte";
   import {
     brandingInfo,
@@ -92,7 +92,7 @@
     <Container>
       <ModalBackdrop>
         <Layout>
-          <Aside brandingAppearance={args.brandingAppearance}>
+          <NavBar brandingAppearance={args.brandingAppearance}>
             {#snippet headerContent()}
               <ModalHeader>
                 <BrandingInfoUI {...args} />
@@ -107,7 +107,7 @@
             {#snippet bodyContent()}
               <StatePresentOffer {...args} />
             {/snippet}
-          </Aside>
+          </NavBar>
         </Layout>
       </ModalBackdrop>
     </Container>
