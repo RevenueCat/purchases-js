@@ -1,4 +1,4 @@
-import type { Browser, Page } from "@playwright/test";
+import type { Browser, Page, Response } from "@playwright/test";
 import test, { expect } from "@playwright/test";
 import type { Locator } from "playwright";
 
@@ -70,6 +70,7 @@ test.describe("Main", () => {
 
     await performPurchase(page, singleCard, userId);
   });
+
   test("Can render an RC Paywall", async ({ browser, browserName }) => {
     const userId = `${getUserId(browserName)}_subscription`;
     const page = await setupTest(browser, userId, {
@@ -79,6 +80,7 @@ test.describe("Main", () => {
     const title = page.getByText("E2E Tests for Purchases JS");
     await expect(title).toBeVisible();
   });
+
   test("Can render an RC Paywall using variables", async ({
     browser,
     browserName,
@@ -108,6 +110,7 @@ test.describe("Main", () => {
       "PURCHASE FOR $19.99/1yr($1.67/mo)",
     );
   });
+
   test("Can purchase a subscription Product for RC Paywall", async ({
     browser,
     browserName,
@@ -271,7 +274,42 @@ test.describe("Main", () => {
       await expect(page.getByText(title)).toBeVisible();
     });
   });
+
+  test("Tracks event SDK Initialized", async ({ browser, browserName }) => {
+    const userId = `${getUserId(browserName)}_subscription`;
+    const page = await browser.newPage();
+
+    const waitForTrackEventPromise = page.waitForResponse(
+      successfulEventTrackingResponseMatcher((event) => {
+        return (
+          event.event_name === "SDK_INITIALIZED" &&
+          event.type === "rc_billing_event" &&
+          event.sdk_version !== undefined
+        );
+      }),
+      { timeout: 3_000 },
+    );
+    await navigateToUrl(page, userId);
+    await waitForTrackEventPromise;
+  });
 });
+
+function successfulEventTrackingResponseMatcher(
+  eventMatcher: (event: Record<string, unknown>) => boolean,
+) {
+  return async (response: Response) => {
+    if (
+      response.url() !== "https://api.revenuecat.com/v1/events" ||
+      response.status() !== 200
+    ) {
+      return false;
+    }
+
+    const json = response.request().postDataJSON();
+    const sdk_initialized_events = (json?.events || []).filter(eventMatcher);
+    return sdk_initialized_events.length === 1;
+  };
+}
 
 async function startPurchaseFlow(card: Locator) {
   // Perform purchase
