@@ -22,8 +22,8 @@
       aria-expanded={expanded}
       aria-controls="rcb-header-details-content"
     >
-      <IconArrow className={expanded ? "expanded" : "collapsed"} />
       Details
+      <IconArrow className={expanded ? "expanded" : "collapsed"} />
     </button>
   </div>
 </ModalSection>
@@ -36,6 +36,7 @@
     cursor: pointer;
     gap: 4px;
     font-size: 12px;
+    line-height: 16px;
     font-weight: 500;
     padding: 8px;
   }
