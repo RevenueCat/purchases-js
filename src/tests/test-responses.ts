@@ -298,8 +298,9 @@ export function getRequestHandlers(): RequestHandler[] {
 
   const eventsURL = "http://localhost:8000/v1/events";
   requestHandlers.push(
-    http.post(eventsURL, () => {
-      APIPostRequest({ url: eventsURL });
+    http.post(eventsURL, async ({ request }) => {
+      const json = await request.json();
+      APIPostRequest({ url: eventsURL, json });
       return HttpResponse.json({}, { status: 201 });
     }),
   );

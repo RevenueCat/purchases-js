@@ -13,6 +13,17 @@ describe("Purchases.configure()", () => {
   test("tracks the SDKInitialized event", async () => {
     configurePurchases();
     await waitSomeTime(2000);
-    expect(APIPostRequest).toHaveBeenCalled();
+    expect(APIPostRequest).toHaveBeenCalledWith({
+      url: "http://localhost:8000/v1/events",
+      json: {
+        events: [
+          {
+            type: "rc_billing_event",
+            event_name: "SDK_INITIALIZED",
+            sdk_version: "0.15.1",
+          },
+        ],
+      },
+    });
   }, 10000);
 });
