@@ -51,7 +51,6 @@ import { parseOfferingIntoVariables } from "./helpers/paywall-variables-helpers"
 import { Translator } from "./ui/localization/translator";
 import { englishLocale } from "./ui/localization/constants";
 import EventsTracker from "./behavioural-events/events-tracker";
-import type { TrackedEvent } from "./behavioural-events/event-types";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -663,13 +662,5 @@ export class Purchases {
   public static generateRevenueCatAnonymousAppUserId(): string {
     const uuid = crypto.randomUUID();
     return `$RCAnonymousID:${uuid.replace(/-/g, "")}`;
-  }
-
-  /**
-   * Tracks an event in the purchase flow.
-   * @param event BaseEvent - One of the events defined in the {@link BaseEvent} type.
-   */
-  public trackEvent(event: TrackedEvent) {
-    return this.eventsTracker.trackEvent(event);
   }
 }
