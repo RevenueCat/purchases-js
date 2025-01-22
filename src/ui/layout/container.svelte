@@ -1,7 +1,13 @@
 <script lang="ts">
   import { type Snippet } from "svelte";
+  import { Theme } from "../theme/theme";
+  import { type BrandingAppearance } from "../../networking/responses/branding-response";
 
-  export let style = "";
+  export let brandingAppearance: BrandingAppearance | undefined = undefined;
+  let textStyle = new Theme(brandingAppearance).textStyleVars;
+  let spacingStyle = new Theme(brandingAppearance).spacingStyleVars;
+  let style = [textStyle, spacingStyle].join("; ");
+
   export let children: Snippet;
 </script>
 

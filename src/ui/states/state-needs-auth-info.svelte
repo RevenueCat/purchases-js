@@ -3,12 +3,10 @@
   import ModalFooter from "../modal-footer.svelte";
   import ModalSection from "../modal-section.svelte";
   import RowLayout from "../layout/row-layout.svelte";
-  import NavBarHeader from "../navbar-header.svelte";
   import ProcessingAnimation from "../processing-animation.svelte";
   import { validateEmail } from "../../helpers/validators";
   import { PurchaseFlowError } from "../../helpers/purchase-operation-helper";
   import { beforeUpdate, getContext } from "svelte";
-  import CloseButton from "../close-button.svelte";
   import Localized from "../localization/localized.svelte";
   import { translatorContextKey } from "../localization/constants";
   import { Translator } from "../localization/translator";
@@ -48,13 +46,6 @@
   <form on:submit|preventDefault={handleContinue}>
     <ModalSection>
       <div class="form-container">
-        <div class="form-label">
-          <label for="email">
-            <Localized
-              key={LocalizationKeys.StateNeedsAuthInfoEmailInputLabel}
-            />
-          </label>
-        </div>
         <div class="form-input {inputClass}">
           <input
             name="email"
@@ -81,6 +72,7 @@
             />
           {/if}
         </Button>
+        <p class="footer-caption">Secure checkout by RevenueCat</p>
       </RowLayout>
     </ModalFooter>
   </form>
@@ -88,8 +80,15 @@
 
 <style>
   .auth-info-title {
-    font-size: 24px;
-    font-weight: 500;
+    font: var(--rc-text-title3);
+  }
+
+  .footer-caption {
+    font: var(--rc-text-caption);
+    color: var(--rc-color-text-secondary);
+    margin: var(--rc-spacing-gapSmall-desktop);
+    text-align: center;
+    font-weight: 400;
   }
 
   .container {
@@ -108,16 +107,22 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    margin-top: 32px;
-    margin-bottom: 16px;
+    margin-top: var(--rc-spacing-gapMedium-desktop);
+    margin-bottom: var(--rc-spacing-gapMedium-desktop);
+  }
+
+  @media screen and (max-width: 768px) {
+    .form-container {
+      margin-top: var(--rc-spacing-gapMedium-mobile);
+      margin-bottom: var(--rc-spacing-gapMedium-mobile);
+    }
   }
 
   .form-label {
-    margin-top: 8px;
-    margin-bottom: 8px;
+    margin-top: var(--rc-spacing-gapSmall-desktop);
+    margin-bottom: var(--rc-spacing-gapSmall-desktop);
+    font: var(--rc-text-body1);
     display: block;
-    font-weight: 500;
-    line-height: 22px;
   }
 
   .form-input.error input {
@@ -125,24 +130,28 @@
   }
 
   .form-error {
-    margin-top: 4px;
-    font-size: 16px;
-    line-height: 20px;
-    min-height: 40px;
+    margin-top: var(--rc-spacing-gapSmall-desktop);
+    font: var(--rc-text-body1);
     color: var(--rc-color-error);
   }
 
   input {
     width: 100%;
     box-sizing: border-box;
-    padding: 8px;
+    padding: var(--rc-spacing-innerPadding-desktop);
     border: 2px solid var(--rc-color-grey-ui-dark);
     border-radius: var(--rc-shape-input-border-radius);
-    font-size: 16px;
-    height: 48px;
-    padding: 6px 14px;
+    font: var(--rc-text-body1);
+    height: var(--rc-spacing-inputHeight-desktop);
     background: var(--rc-color-input-background);
     color: inherit;
+  }
+
+  @media screen and (max-width: 768px) {
+    input {
+      padding: var(--rc-spacing-innerPadding-mobile);
+      height: var(--rc-spacing-inputHeight-mobile);
+    }
   }
 
   input:focus {

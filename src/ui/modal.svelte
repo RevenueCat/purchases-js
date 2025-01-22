@@ -6,8 +6,8 @@
   export let children: Snippet;
 </script>
 
-<div class="rcb-modal-container">
-  <svelte:element this={as} class="rcb-modal-main" {style}>
+<div class="rcb-modal-container" {style}>
+  <svelte:element this={as} class="rcb-modal-main">
     {@render children?.()}
   </svelte:element>
 </div>
@@ -22,24 +22,21 @@
     box-sizing: border-box;
     background-color: var(--rc-color-background);
     color: var(--rc-color-grey-text-dark);
-    padding: 40px;
+    padding: var(--rc-spacing-outerPadding-desktop);
     flex-direction: column;
     display: flex;
     height: 100%;
   }
 
-  @media screen and (max-width: 960px) {
+  @media screen and (max-width: 768px) {
     .rcb-modal-container {
       width: 100%;
       min-width: 300px;
-      max-width: 640px;
       margin: auto;
     }
 
     .rcb-modal-main {
-      min-width: 300px;
-      max-width: 640px;
-      padding: 21px;
+      padding: var(--rc-spacing-outerPadding-mobile);
     }
   }
 </style>

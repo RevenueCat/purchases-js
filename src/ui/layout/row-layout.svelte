@@ -13,6 +13,7 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
+    /* TODO: Use spacing system */
     gap: var(--gap, "8px");
     flex-grow: 1;
   }

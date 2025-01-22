@@ -13,6 +13,8 @@ import {
   RoundedShape,
   type Shape,
 } from "./shapes";
+import { DEFAULT_FONT_FAMILY, type TextStyles } from "./text";
+import type { Spacing } from "./spacing";
 
 type RGB = {
   r: number;
@@ -115,12 +117,12 @@ const textColorsForBackground = (
   return textColors;
 };
 
-const fallback = (somethingNullable: any | null, defaultValue: any) => {
+const fallback = <T>(somethingNullable: T | null, defaultValue: T): T => {
   return somethingNullable ? somethingNullable : defaultValue;
 };
 
 const mapColors = (
-  colorsMapping: any,
+  colorsMapping: Record<string, string>,
   defaultColors: Colors,
   brandingAppearance?: BrandingAppearance | undefined,
 ): Colors => {
@@ -138,7 +140,7 @@ const mapColors = (
 };
 
 export const toColors = (
-  colorsMapping: any,
+  colorsMapping: Record<string, string>,
   defaultColors: Colors,
   brandingAppearance?: BrandingAppearance | undefined,
 ): Colors => {
@@ -239,3 +241,25 @@ export const toFormStyleVar = (appearance?: BrandingAppearance) => {
 
   return [colorVariablesString, shapeVariableString].join("; ");
 };
+
+/**
+ * Convert text styles into CSS variables
+ */
+export const toTextStyleVar = (prefix: string = "", textStyles: TextStyles) =>
+  Object.entries(textStyles)
+    .map(
+      ([key, { fontSize, lineHeight, fontWeight = "normal" }]) =>
+        `--rc-${prefix}-${key}: normal normal ${fontWeight} ${fontSize}/${lineHeight} ${DEFAULT_FONT_FAMILY}`,
+    )
+    .join("; ");
+
+/**
+ * Generates CSS variables for the spacing system.
+ */
+export const toSpacingVars = (prefix: string = "", spacing: Spacing) =>
+  Object.entries(spacing)
+    .map(
+      ([key, { mobile, desktop }]) =>
+        `--rc-${prefix}-${key}-mobile: ${mobile}; --rc-${prefix}-${key}-desktop: ${desktop};`,
+    )
+    .join(" ");

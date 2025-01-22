@@ -5,6 +5,7 @@
 
   export let brandingAppearance: BrandingAppearance | undefined = undefined;
   let style = new Theme(brandingAppearance).formStyleVars;
+
   export let body;
   export let header: (() => any) | null = null;
 </script>
@@ -21,7 +22,6 @@
 <style>
   .rcb-ui-main {
     flex: 480px 1 0;
-    max-width: 640px;
     flex: 1;
   }
 

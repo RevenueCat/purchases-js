@@ -1,12 +1,16 @@
-import { BrandingAppearance } from "../../networking/responses/branding-response";
+import type { BrandingAppearance } from "../../networking/responses/branding-response";
 import {
   toFormColors,
   toFormStyleVar,
   toProductInfoStyleVar,
   toShape,
+  toSpacingVars,
+  toTextStyleVar,
 } from "./utils";
-import { Shape } from "./shapes";
-import { Colors } from "./colors";
+import type { Shape } from "./shapes";
+import type { Colors } from "./colors";
+import { DEFAULT_TEXT_STYLES } from "./text";
+import { DEFAULT_SPACING } from "./spacing";
 
 export class Theme {
   constructor(
@@ -27,5 +31,13 @@ export class Theme {
 
   get productInfoStyleVars() {
     return toProductInfoStyleVar(this.brandingAppearance);
+  }
+
+  get textStyleVars() {
+    return toTextStyleVar("text", DEFAULT_TEXT_STYLES);
+  }
+
+  get spacingStyleVars() {
+    return toSpacingVars("spacing", DEFAULT_SPACING);
   }
 }

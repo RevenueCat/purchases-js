@@ -35,14 +35,15 @@
     align-items: center;
     cursor: pointer;
     gap: 4px;
-    font-size: 12px;
-    line-height: 16px;
-    font-weight: 500;
+    font: var(--rc-text-caption);
+    color: var(--rc-color-grey-text-light);
+    font-weight: 350;
     padding: 8px;
   }
 
   .rcb-header-details {
-    font-size: 12px;
+    font: var(--rc-text-caption);
+    font-weight: normal;
     display: flex;
     align-items: center;
     gap: 4px;
