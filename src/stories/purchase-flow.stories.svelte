@@ -13,7 +13,7 @@
   import Main from "../ui/layout/main-block.svelte";
   import NavBar from "../ui/layout/navbar.svelte";
   import IconCart from "../ui/icons/icon-cart.svelte";
-  import ModalHeader from "../ui/modal-header.svelte";
+  import NavBarHeader from "../ui/navbar-header.svelte";
   import BrandingInfoUI from "../ui/branding-info-ui.svelte";
 
   import WithContext from "./utils/with-context.svelte";
@@ -112,14 +112,12 @@
         <Layout>
           <NavBar brandingAppearance={args.brandingInfo.appearance}>
             {#snippet headerContent()}
-              <ModalHeader>
-                <BrandingInfoUI {...args} />
-                <IconCart />
-              </ModalHeader>
+              <BrandingInfoUI {...args} />
+              <IconCart />
             {/snippet}
 
-            {#snippet bodyContent()}
-              <StatePresentOffer {...args} />
+            {#snippet bodyContent(expanded)}
+              <StatePresentOffer {...args} {expanded} />
             {/snippet}
           </NavBar>
           <Main brandingAppearance={args.brandingInfo.appearance}>
@@ -136,14 +134,12 @@
         <Layout>
           <NavBar brandingAppearance={args.brandingInfo.appearance}>
             {#snippet headerContent()}
-              <ModalHeader>
-                <BrandingInfoUI {...args} />
-                <IconCart />
-              </ModalHeader>
+              <BrandingInfoUI {...args} />
+              <IconCart />
             {/snippet}
 
-            {#snippet bodyContent()}
-              <StatePresentOffer {...args} />
+            {#snippet bodyContent(expanded)}
+              <StatePresentOffer {...args} {expanded} />
             {/snippet}
           </NavBar>
           <Main brandingAppearance={args.brandingInfo.appearance}>
@@ -160,14 +156,12 @@
         <Layout>
           <NavBar brandingAppearance={args.brandingInfo.appearance}>
             {#snippet headerContent()}
-              <ModalHeader>
-                <BrandingInfoUI {...args} />
-                <IconCart />
-              </ModalHeader>
+              <BrandingInfoUI {...args} />
+              <IconCart />
             {/snippet}
 
-            {#snippet bodyContent()}
-              <StatePresentOffer {...args} />
+            {#snippet bodyContent(expanded)}
+              <StatePresentOffer {...args} {expanded} />
             {/snippet}
           </NavBar>
           <Main brandingAppearance={args.brandingInfo.appearance}>
@@ -184,14 +178,12 @@
         <Layout>
           <NavBar brandingAppearance={args.brandingInfo.appearance}>
             {#snippet headerContent()}
-              <ModalHeader>
-                <BrandingInfoUI {...args} />
-                <IconCart />
-              </ModalHeader>
+              <BrandingInfoUI {...args} />
+              <IconCart />
             {/snippet}
 
-            {#snippet bodyContent()}
-              <StatePresentOffer {...args} />
+            {#snippet bodyContent(expanded)}
+              <StatePresentOffer {...args} {expanded} />
             {/snippet}
           </NavBar>
           <Main brandingAppearance={args.brandingInfo.appearance}>
@@ -208,13 +200,11 @@
         <Layout>
           <NavBar brandingAppearance={args.brandingInfo.appearance}>
             {#snippet headerContent()}
-              <ModalHeader>
-                <BrandingInfoUI {...args} />
-                <IconCart />
-              </ModalHeader>
+              <BrandingInfoUI {...args} />
+              <IconCart />
             {/snippet}
-            {#snippet bodyContent()}
-              <StatePresentOffer {...args} />
+            {#snippet bodyContent(expanded)}
+              <StatePresentOffer {...args} {expanded} />
             {/snippet}
           </NavBar>
           <Main brandingAppearance={args.brandingInfo.appearance}>

@@ -15,7 +15,7 @@
     PurchaseFlowErrorCode,
     PurchaseOperationHelper,
   } from "../helpers/purchase-operation-helper";
-  import ModalHeader from "./modal-header.svelte";
+  import NavBarHeader from "./navbar-header.svelte";
   import IconCart from "./icons/icon-cart.svelte";
   import BrandingInfoUI from "./branding-info-ui.svelte";
   import SandboxBanner from "./sandbox-banner.svelte";
@@ -214,22 +214,21 @@
       {#if statesWhereOfferDetailsAreShown.includes(state)}
         <NavBar brandingAppearance={brandingInfo?.appearance}>
           {#snippet headerContent()}
-            <ModalHeader>
-              <BrandingInfoUI {brandingInfo} />
-              {#if purchases.isSandbox()}
-                <SandboxBanner />
-              {:else}
-                <IconCart />
-              {/if}
-            </ModalHeader>
+            <BrandingInfoUI {brandingInfo} />
+            {#if purchases.isSandbox()}
+              <SandboxBanner />
+            {:else}
+              <IconCart />
+            {/if}
           {/snippet}
 
-          {#snippet bodyContent()}
+          {#snippet bodyContent(expanded)}
             {#if productDetails && purchaseOptionToUse}
               <StatePresentOffer
                 {productDetails}
                 brandingAppearance={brandingInfo?.appearance}
                 purchaseOption={purchaseOptionToUse}
+                {expanded}
               />
             {/if}
           {/snippet}
@@ -241,6 +240,7 @@
             <StatePresentOffer
               {productDetails}
               purchaseOption={purchaseOptionToUse}
+              expanded={true}
             />
           {/if}
           {#if state === "present-offer" && !productDetails}

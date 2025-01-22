@@ -36,7 +36,7 @@
     .rcb-modal-main {
       min-width: 300px;
       max-width: 640px;
-      padding: 32px;
+      padding: 21px;
     }
   }
 </style>

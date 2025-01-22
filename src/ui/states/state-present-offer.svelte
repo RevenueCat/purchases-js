@@ -53,6 +53,8 @@
       nonSubscriptionBasePrice.amountMicros,
       nonSubscriptionBasePrice.currency,
     );
+
+  export let expanded: boolean;
 </script>
 
 <ModalSection>
@@ -106,29 +108,31 @@
           />
         </span>
       {/if}
-      <ul class="rcb-product-details">
-        {#if productDetails.normalPeriodDuration}
+      {#if expanded}
+        <ul class="rcb-product-details">
+          {#if productDetails.normalPeriodDuration}
+            <li>
+              <Localized
+                key={LocalizationKeys.StatePresentOfferRenewalFrequency}
+                variables={{
+                  frequency: getTranslatedPeriodFrequency(
+                    productDetails.normalPeriodDuration,
+                    translator,
+                  ),
+                }}
+              />
+            </li>
+          {/if}
           <li>
             <Localized
-              key={LocalizationKeys.StatePresentOfferRenewalFrequency}
-              variables={{
-                frequency: getTranslatedPeriodFrequency(
-                  productDetails.normalPeriodDuration,
-                  translator,
-                ),
-              }}
+              key={LocalizationKeys.StatePresentOfferContinuesUntilCancelled}
             />
           </li>
-        {/if}
-        <li>
-          <Localized
-            key={LocalizationKeys.StatePresentOfferContinuesUntilCancelled}
-          />
-        </li>
-        <li>
-          <Localized key={LocalizationKeys.StatePresentOfferCancelAnytime} />
-        </li>
-      </ul>
+          <li>
+            <Localized key={LocalizationKeys.StatePresentOfferCancelAnytime} />
+          </li>
+        </ul>
+      {/if}
     {/if}
     {#if !isSubscription}
       <span class="rcb-product-price">
@@ -154,12 +158,13 @@
   .rcb-pricing-info {
     display: flex;
     flex-direction: column;
-    margin-top: 102px;
+    /* margin-top: 102px; */
     font-weight: 500;
   }
 
   .rcb-product-title {
     color: var(--rc-color-grey-text-dark);
+    font-size: 24px;
   }
 
   .rcb-product-price {
@@ -187,7 +192,7 @@
 
   @media screen and (max-width: 960px) {
     .rcb-pricing-info {
-      margin-top: 48px;
+      margin-top: 24px;
     }
   }
 </style>

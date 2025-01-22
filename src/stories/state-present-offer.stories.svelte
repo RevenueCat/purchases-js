@@ -14,7 +14,7 @@
     subscriptionOptionWithTrial,
   } from "./fixtures";
   import IconCart from "../ui/icons/icon-cart.svelte";
-  import ModalHeader from "../ui/modal-header.svelte";
+  import NavBarHeader from "../ui/navbar-header.svelte";
   import BrandingInfoUI from "../ui/branding-info-ui.svelte";
   import WithContext from "./utils/with-context.svelte";
   import { Translator } from "../ui/localization/translator";
@@ -94,18 +94,16 @@
         <Layout>
           <NavBar brandingAppearance={args.brandingAppearance}>
             {#snippet headerContent()}
-              <ModalHeader>
-                <BrandingInfoUI {...args} />
-                {#if args.sandbox}
-                  <SandboxBanner />
-                {:else}
-                  <IconCart />
-                {/if}
-              </ModalHeader>
+              <BrandingInfoUI {...args} />
+              {#if args.sandbox}
+                <SandboxBanner />
+              {:else}
+                <IconCart />
+              {/if}
             {/snippet}
 
-            {#snippet bodyContent()}
-              <StatePresentOffer {...args} />
+            {#snippet bodyContent(expanded)}
+              <StatePresentOffer {...args} {expanded} />
             {/snippet}
           </NavBar>
         </Layout>

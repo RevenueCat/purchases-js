@@ -3,7 +3,7 @@
   import ModalFooter from "../modal-footer.svelte";
   import ModalSection from "../modal-section.svelte";
   import RowLayout from "../layout/row-layout.svelte";
-  import ModalHeader from "../modal-header.svelte";
+  import NavBarHeader from "../navbar-header.svelte";
   import ProcessingAnimation from "../processing-animation.svelte";
   import { validateEmail } from "../../helpers/validators";
   import { PurchaseFlowError } from "../../helpers/purchase-operation-helper";
@@ -42,12 +42,9 @@
 </script>
 
 <div class="container">
-  <ModalHeader>
-    <span>
-      <Localized key={LocalizationKeys.StateNeedsAuthInfoEmailStepTitle} />
-    </span>
-    <CloseButton on:click={onClose} />
-  </ModalHeader>
+  <span class="auth-info-title">
+    <Localized key={LocalizationKeys.StateNeedsAuthInfoEmailStepTitle} />
+  </span>
   <form on:submit|preventDefault={handleContinue}>
     <ModalSection>
       <div class="form-container">
@@ -90,6 +87,11 @@
 </div>
 
 <style>
+  .auth-info-title {
+    font-size: 24px;
+    font-weight: 500;
+  }
+
   .container {
     display: flex;
     flex-direction: column;

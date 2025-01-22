@@ -14,7 +14,7 @@
   import StateLoading from "./state-loading.svelte";
   import RowLayout from "../layout/row-layout.svelte";
   import { type PurchaseResponse } from "../../networking/responses/purchase-response";
-  import ModalHeader from "../modal-header.svelte";
+  import NavBarHeader from "../navbar-header.svelte";
   import IconLock from "../icons/icon-lock.svelte";
   import ProcessingAnimation from "../processing-animation.svelte";
   import type { Product, PurchaseOption } from "../../entities/offerings";
@@ -165,17 +165,15 @@
 
 <div>
   {#if stripe && clientSecret}
-    <ModalHeader>
-      <div class="rcb-header-wrapper">
-        <IconLock />
-        <div class="rcb-step-title">
-          <Localized
-            key={LocalizationKeys.StateNeedsPaymentInfoPaymentStepTitle}
-          />
-        </div>
+    <div class="rcb-header-wrapper">
+      <IconLock />
+      <div class="rcb-step-title">
+        <Localized
+          key={LocalizationKeys.StateNeedsPaymentInfoPaymentStepTitle}
+        />
       </div>
-      <CloseButton on:click={onClose} />
-    </ModalHeader>
+    </div>
+    <CloseButton on:click={onClose} />
     <form on:submit|preventDefault={handleContinue}>
       <Elements
         {stripe}

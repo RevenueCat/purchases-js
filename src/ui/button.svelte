@@ -25,7 +25,7 @@
     border-radius: var(--rc-shape-input-button-border-radius);
     font-size: 16px;
     cursor: pointer;
-    height: 56px;
+    height: 48px;
     color: var(--rc-color-grey-text-dark);
     background-color: var(--rc-color-grey-ui-dark);
     display: flex;
