@@ -1,4 +1,8 @@
-import { type Package, type PurchaseOption } from "./offerings";
+import {
+  type Package,
+  type PurchaseMetadata,
+  type PurchaseOption,
+} from "./offerings";
 
 /**
  * Parameters used to customise the purchase flow when invoking the `.purchase` method.
@@ -32,4 +36,11 @@ export interface PurchaseParams {
    * Defaults to english.
    */
   defaultLocale?: string;
+
+  /**
+   * The purchase metadata to be passed to the backend.
+   * Any information provided here will be propagated to the payment gateway and
+   * to the RC transaction as metadata.
+   */
+  purchaseMetadata?: PurchaseMetadata;
 }

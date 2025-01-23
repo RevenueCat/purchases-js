@@ -34,12 +34,14 @@
     englishLocale,
     translatorContextKey,
   } from "./localization/constants";
+  import type { PurchaseMetadata } from "../entities/offerings";
 
   export let asModal = true;
   export let customerEmail: string | undefined;
   export let appUserId: string;
   export let rcPackage: Package;
   export let purchaseOption: PurchaseOption | null | undefined;
+  export let purchaseMetadata: PurchaseMetadata | null | undefined;
   export let brandingInfo: BrandingInfoResponse | null;
   export let onFinished: (redemptionInfo: RedemptionInfo | null) => void;
   export let onError: (error: PurchaseFlowError) => void;
