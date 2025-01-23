@@ -253,6 +253,8 @@ export interface GetRequest {
 export const APIGetRequest = vi.fn();
 export const APIPostRequest = vi.fn();
 
+export const eventsURL = "http://localhost:8000/v1/events";
+
 export function getRequestHandlers(): RequestHandler[] {
   const requestHandlers: RequestHandler[] = [];
   Object.keys(offeringsResponsesPerUserId).forEach((userId: string) => {
@@ -296,7 +298,6 @@ export function getRequestHandlers(): RequestHandler[] {
     }),
   );
 
-  const eventsURL = "http://localhost:8000/v1/events";
   requestHandlers.push(
     http.post(eventsURL, async ({ request }) => {
       const json = await request.json();

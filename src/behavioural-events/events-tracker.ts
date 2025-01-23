@@ -62,8 +62,10 @@ export default class EventsTracker {
       this.postEvents(this.eventsQueue)
         .then((response) => {
           if (response.status === 200 || response.status === 201) {
-            console.debug(`Events flushed successfully`);
+            console.debug("Events flushed successfully");
             this.eventsQueue.splice(0, this.eventsQueue.length);
+          } else {
+            console.debug("Events failed to flush due to server error");
           }
         })
         .catch((error) => {
