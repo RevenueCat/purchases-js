@@ -52,7 +52,7 @@
     <ModalSection>
       <div class="form-container">
         <div class="form-label">
-          <label for="email">
+          <label for="email" id="email-label">
             <Localized
               key={LocalizationKeys.StateNeedsAuthInfoEmailInputLabel}
             />
@@ -60,22 +60,29 @@
         </div>
         <div class="form-input {inputClass}">
           <input
+            id="email"
             name="email"
+            autocomplete="email"
+            spellcheck="false"
+            inputmode="email"
             placeholder={translator.translate(
               LocalizationKeys.StateNeedsAuthInfoEmailInputPlaceholder,
             )}
             autocapitalize="off"
+            aria-invalid={!!error}
+            aria-describedby={error ? "email-error" : undefined}
+            aria-labelledby="email-label"
             bind:value={email}
           />
         </div>
         {#if error}
-          <div class="form-error">{error}</div>
+          <div class="form-error" id="email-error" role="alert">{error}</div>
         {/if}
       </div>
     </ModalSection>
     <ModalFooter>
       <RowLayout>
-        <Button disabled={processing} type="submit">
+        <Button disabled={processing} type="submit" ariaBusy={processing}>
           {#if processing}
             <ProcessingAnimation />
           {:else}

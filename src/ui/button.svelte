@@ -3,14 +3,17 @@
   export let disabled = false;
   export let testId: string | undefined = undefined;
   export let type: "reset" | "submit" | "button" | null | undefined = undefined;
+  export let ariaBusy = false;
 </script>
 
 <button
+  tabindex={0}
   on:click
   class={`intent-${intent}`}
   {disabled}
   data-testid={testId}
   {type}
+  aria-busy={ariaBusy}
 >
   <slot />
 </button>
