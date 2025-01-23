@@ -9,7 +9,7 @@ export default class EventsTracker {
   private readonly eventsQueue: Array<TrackedEvent> = [];
   private flushingMutex: boolean = false;
   private readonly traceId: string = uuid();
-  private readonly intervalHandle: number = -1;
+  private readonly intervalHandle: ReturnType<typeof setTimeout>;
   private readonly baseUrl: string = RC_ENDPOINT;
 
   constructor(
