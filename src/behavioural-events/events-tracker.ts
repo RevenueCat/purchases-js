@@ -4,13 +4,17 @@ import { RC_ENDPOINT, VERSION } from "../helpers/constants";
 import { HttpMethods } from "msw";
 import { getHeaders } from "../networking/http-client";
 import { defaultHttpConfig, type HttpConfig } from "../entities/http-config";
+import { ExponentialInterval } from "../helpers/exponential-interval";
+
+const MIN_INTERVAL_RETRY = 2_000;
+const MAX_INTERVAL_RETRY = 60_000;
 
 export default class EventsTracker {
   private readonly eventsQueue: Array<TrackedEvent> = [];
   private flushingMutex: boolean = false;
   private readonly traceId: string = uuid();
-  private readonly intervalHandle: ReturnType<typeof setTimeout>;
   private readonly baseUrl: string = RC_ENDPOINT;
+  private readonly intervalManager: ExponentialInterval;
 
   constructor(
     private readonly apiKey: string,
@@ -18,14 +22,13 @@ export default class EventsTracker {
   ) {
     console.debug(`Events tracker created for traceId ${this.traceId}`);
 
-    // This interval will flush the events every 5 seconds
-    // since we don't await the flush when calling trackEvent
-    // this interval will retry in case of failure
-    // using the mutex and posting only if there are events in the queue.
-    this.intervalHandle = setInterval(() => {
-      console.debug("Interval flush");
-      this.flushEvents();
-    }, 5000);
+    this.intervalManager = new ExponentialInterval(
+      MIN_INTERVAL_RETRY,
+      MAX_INTERVAL_RETRY,
+      () => {
+        this.flushEvents();
+      },
+    );
   }
 
   /**
@@ -64,12 +67,15 @@ export default class EventsTracker {
           if (response.status === 200 || response.status === 201) {
             console.debug("Events flushed successfully");
             this.eventsQueue.splice(0, this.eventsQueue.length);
+            this.intervalManager.resetInterval(5000);
           } else {
             console.debug("Events failed to flush due to server error");
+            this.intervalManager.increaseInterval();
           }
         })
         .catch((error) => {
           console.debug("Error while flushing events", error);
+          this.intervalManager.increaseInterval();
         })
         .finally(() => {
           console.debug("Releasing flushing mutex");
@@ -99,6 +105,6 @@ export default class EventsTracker {
   }
 
   public dispose() {
-    clearInterval(this.intervalHandle);
+    this.intervalManager.dispose();
   }
 }
