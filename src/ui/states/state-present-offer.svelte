@@ -120,39 +120,41 @@
           />
         </span>
       {/if}
-      {#if brandingAppearance?.show_product_description && productDetails.description}
-        <span class="rcb-product-description">
-          <Localized
-            key={LocalizationKeys.StatePresentOfferProductDescription}
-            variables={{
-              productDescription: productDetails.description,
-            }}
-          />
-        </span>
-      {/if}
-      <ul class="rcb-product-details {expanded ? 'expanded' : 'collapsed'}">
-        {#if productDetails.normalPeriodDuration}
-          <li>
+      <div class="rcb-product-details {expanded ? 'expanded' : 'collapsed'}">
+        {#if brandingAppearance?.show_product_description && productDetails.description}
+          <span class="rcb-product-description">
             <Localized
-              key={LocalizationKeys.StatePresentOfferRenewalFrequency}
+              key={LocalizationKeys.StatePresentOfferProductDescription}
               variables={{
-                frequency: getTranslatedPeriodFrequency(
-                  productDetails.normalPeriodDuration,
-                  translator,
-                ),
+                productDescription: productDetails.description,
               }}
             />
-          </li>
+          </span>
         {/if}
-        <li>
-          <Localized
-            key={LocalizationKeys.StatePresentOfferContinuesUntilCancelled}
-          />
-        </li>
-        <li>
-          <Localized key={LocalizationKeys.StatePresentOfferCancelAnytime} />
-        </li>
-      </ul>
+        <ul>
+          {#if productDetails.normalPeriodDuration}
+            <li>
+              <Localized
+                key={LocalizationKeys.StatePresentOfferRenewalFrequency}
+                variables={{
+                  frequency: getTranslatedPeriodFrequency(
+                    productDetails.normalPeriodDuration,
+                    translator,
+                  ),
+                }}
+              />
+            </li>
+          {/if}
+          <li>
+            <Localized
+              key={LocalizationKeys.StatePresentOfferContinuesUntilCancelled}
+            />
+          </li>
+          <li>
+            <Localized key={LocalizationKeys.StatePresentOfferCancelAnytime} />
+          </li>
+        </ul>
+      </div>
     {/if}
     {#if !isSubscription}
       <span class="rcb-product-price">
@@ -179,6 +181,8 @@
     display: flex;
     flex-direction: column;
     font: var(--rc-text-body1);
+    margin-top: var(--rc-spacing-gapLarge-desktop);
+    gap: var(--rc-spacing-gapMedium-desktop);
   }
 
   .rcb-product-title {
@@ -203,6 +207,7 @@
   }
 
   .rcb-product-description {
+    font: var(--rc-text-body2);
     color: var(--rc-color-grey-text-dark);
     margin: 0 0 12px 0;
   }
@@ -213,11 +218,9 @@
 
   .rcb-product-details {
     color: var(--rc-color-grey-text-light);
-    list-style-type: disc;
-    list-style-position: inside;
 
     margin: 0px;
-    padding: 0px;
+    padding: var(--rc-spacing-gapMedium-desktop) 0px;
 
     overflow: hidden;
     max-height: 0;
@@ -227,10 +230,17 @@
       padding-bottom 0.1s ease-in-out;
   }
 
+  .rcb-product-details ul {
+    list-style-type: disc;
+    list-style-position: inside;
+    padding: 0px;
+  }
+
   .rcb-product-details.expanded {
     max-height: 500px;
-    padding-top: 8px;
-    padding-bottom: 8px;
+    padding-top: var(--rc-spacing-gapSmall-desktop);
+    padding-bottom: var(--rc-spacing-gapSmall-desktop);
+    margin-top: var(--rc-spacing-gapMedium-desktop);
   }
 
   .rcb-product-details.collapsed {
@@ -238,9 +248,20 @@
     padding-top: 0;
     padding-bottom: 0;
   }
-  @media screen and (max-width: 960px) {
+  @media screen and (max-width: 768px) {
     .rcb-pricing-info {
-      margin-top: 24px;
+      margin-top: var(--rc-spacing-gapLarge-mobile);
+      gap: var(--rc-spacing-gapMedium-mobile);
+    }
+
+    .rcb-product-details {
+      padding: var(--rc-spacing-gapMedium-mobile) 0px;
+    }
+
+    .rcb-product-details.expanded {
+      padding-top: var(--rc-spacing-gapSmall-mobile);
+      padding-bottom: var(--rc-spacing-gapSmall-mobile);
+      margin-top: var(--rc-spacing-gapMedium-mobile);
     }
   }
 </style>
