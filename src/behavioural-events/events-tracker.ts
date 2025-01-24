@@ -6,6 +6,7 @@ import { getHeaders } from "../networking/http-client";
 import { defaultHttpConfig, type HttpConfig } from "../entities/http-config";
 import { RetryWithBackoff } from "../helpers/retry-with-backoff";
 import { Trace } from "./trace";
+import { Logger } from "../helpers/logger";
 
 const MIN_INTERVAL_RETRY = 2_000;
 const MAX_INTERVAL_RETRY = 60_000;
@@ -22,7 +23,7 @@ export default class EventsTracker {
     private readonly apiKey: string,
     private readonly httpConfig: HttpConfig = defaultHttpConfig,
   ) {
-    console.debug(`Events tracker created for traceId ${this.traceId}`);
+    Logger.debugLog(`Events tracker created for traceId ${this.traceId}`);
 
     this.trace = new Trace();
     this.retry = new RetryWithBackoff(
@@ -43,7 +44,7 @@ export default class EventsTracker {
    * It will create a promise internally that will be resolved with no one listening.
    */
   public trackEvent(event: BaseEvent): void {
-    console.debug(
+    Logger.debugLog(
       `Queueing event ${event.type} with properties ${JSON.stringify(event)}`,
     );
     this.eventsQueue.push(event);
@@ -51,42 +52,42 @@ export default class EventsTracker {
   }
 
   public flushEvents() {
-    console.debug("Flushing events");
+    Logger.debugLog("Flushing events");
     if (this.eventsQueue.length === 0) {
-      console.debug(`Nothing to flush`);
+      Logger.debugLog(`Nothing to flush`);
       return;
     }
     if (this.flushingMutex) {
-      console.debug("Already flushing");
+      Logger.debugLog("Already flushing");
       return;
     }
 
     this.flushingMutex = true;
-    console.debug("Acquired flushing mutex");
+    Logger.debugLog("Acquired flushing mutex");
     this.postEvents(this.eventsQueue)
       .then((response) => {
         if (response.status === 200 || response.status === 201) {
-          console.debug("Events flushed successfully");
+          Logger.debugLog("Events flushed successfully");
           this.eventsQueue.splice(0, this.eventsQueue.length);
           this.retry.reset();
         } else {
-          console.debug("Events failed to flush due to server error");
+          Logger.debugLog("Events failed to flush due to server error");
           this.retry.backoff();
         }
       })
       .catch((error) => {
-        console.debug("Error while flushing events", error);
+        Logger.debugLog(`Error while flushing events: ${error}`);
         this.retry.backoff();
       })
       .finally(() => {
-        console.debug("Releasing flushing mutex");
+        Logger.debugLog("Releasing flushing mutex");
         this.flushingMutex = false;
       });
   }
 
   public async postEvents(events: Array<BaseEvent>): Promise<Response> {
     const URL = `${this.httpConfig.proxyURL || this.baseUrl}/v1/events`;
-    console.debug(`Posting ${events.length} events to ${URL}`);
+    Logger.debugLog(`Posting ${events.length} events to ${URL}`);
     return await fetch(URL, {
       method: HttpMethods.POST,
       headers: getHeaders(this.apiKey),
@@ -95,7 +96,7 @@ export default class EventsTracker {
   }
 
   public trackSDKInitialized() {
-    console.debug("Tracking SDK Initialization");
+    Logger.debugLog("Tracking SDK Initialization");
     const event = new SDKInitializedEvent(this.trace, VERSION);
     this.trackEvent(event);
   }

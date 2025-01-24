@@ -1,3 +1,5 @@
+import { Logger } from "./logger";
+
 export class RetryWithBackoff {
   private readonly initialDelay: number;
   private timeoutHandle: ReturnType<typeof setTimeout> | undefined;
@@ -16,11 +18,11 @@ export class RetryWithBackoff {
 
   private schedule() {
     this.timeoutHandle = setTimeout(() => {
-      console.debug(`Executing callback after ${this.currentDelay}ms delay`);
+      Logger.debugLog(`Executing callback after ${this.currentDelay}ms delay`);
       try {
         this.callback();
       } catch (error) {
-        console.error("Error in RetryWithBackoff callback:", error);
+        Logger.errorLog(`Error in RetryWithBackoff callback: ${error}`);
       }
       this.schedule();
     }, this.currentDelay);
@@ -29,7 +31,7 @@ export class RetryWithBackoff {
   public backoff() {
     clearTimeout(this.timeoutHandle);
     this.currentDelay = Math.min(this.currentDelay * 2, this.maxDelay);
-    console.debug(`Backing off to ${this.currentDelay}ms delay`);
+    Logger.debugLog(`Backing off to ${this.currentDelay}ms delay`);
     this.schedule();
   }
 
@@ -37,7 +39,7 @@ export class RetryWithBackoff {
     if (this.currentDelay !== this.initialDelay) {
       clearTimeout(this.timeoutHandle);
       this.currentDelay = this.initialDelay;
-      console.debug(`Resetting to initial ${this.currentDelay}ms delay`);
+      Logger.debugLog(`Resetting to initial ${this.currentDelay}ms delay`);
       this.schedule();
     }
   }

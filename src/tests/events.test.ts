@@ -3,14 +3,15 @@ import { server, configurePurchases } from "./base.purchases_test";
 import { APIPostRequest, eventsURL } from "./test-responses";
 import { http, HttpResponse } from "msw";
 import "./utils/to-have-been-called-exactly-once-with";
+import { Logger } from "../helpers/logger";
 
 describe("Purchases.configure()", () => {
   const date = new Date(1988, 10, 18, 13, 37, 0);
   vi.mock("uuid", () => ({
     v4: () => "c1365463-ce59-4b83-b61b-ef0d883e9047",
   }));
-  const consoleMock = vi
-    .spyOn(console, "debug")
+  const loggerMock = vi
+    .spyOn(Logger, "debugLog")
     .mockImplementation(() => undefined);
 
   beforeEach(() => {
@@ -19,7 +20,7 @@ describe("Purchases.configure()", () => {
   });
 
   afterEach(() => {
-    consoleMock.mockReset();
+    loggerMock.mockReset();
     vi.useRealTimers();
   });
 
@@ -27,7 +28,7 @@ describe("Purchases.configure()", () => {
     configurePurchases();
 
     await vi.waitFor(() => {
-      expect(consoleMock).toHaveBeenCalledExactlyOnceWith(
+      expect(loggerMock).toHaveBeenCalledExactlyOnceWith(
         "Events flushed successfully",
       );
       expect(APIPostRequest).toHaveBeenCalledWith({
@@ -76,43 +77,43 @@ describe("Purchases.configure()", () => {
 
     // Attempt 1: First direct attempt to flush without timeout
     await vi.advanceTimersByTimeAsync(100);
-    expect(consoleMock).toHaveBeenCalledExactlyOnceWith(
+    expect(loggerMock).toHaveBeenCalledExactlyOnceWith(
       "Events failed to flush due to server error",
     );
-    consoleMock.mockClear();
+    loggerMock.mockClear();
 
     // Attempt 2: Wait for next flush 4_000
     await vi.advanceTimersByTimeAsync(4_000);
-    expect(consoleMock).not.toHaveBeenCalledWith(
+    expect(loggerMock).not.toHaveBeenCalledWith(
       "Events failed to flush due to server error",
     );
-    consoleMock.mockClear();
+    loggerMock.mockClear();
 
     // Attempt 2: Wait for request to complete 1_000
     await vi.advanceTimersByTimeAsync(1_000);
-    expect(consoleMock).toHaveBeenCalledExactlyOnceWith(
+    expect(loggerMock).toHaveBeenCalledExactlyOnceWith(
       "Events failed to flush due to server error",
     );
-    consoleMock.mockClear();
+    loggerMock.mockClear();
 
     // Attempt 3: Wait for next flush 8_000
     await vi.advanceTimersByTimeAsync(8_000);
-    expect(consoleMock).not.toHaveBeenCalledWith(
+    expect(loggerMock).not.toHaveBeenCalledWith(
       "Events failed to flush due to server error",
     );
-    consoleMock.mockClear();
+    loggerMock.mockClear();
 
     // Attempt 3: Wait for request to complete 20_000
     await vi.advanceTimersByTimeAsync(20_000);
-    expect(consoleMock).toHaveBeenCalledExactlyOnceWith(
+    expect(loggerMock).toHaveBeenCalledExactlyOnceWith(
       "Events failed to flush due to server error",
     );
-    consoleMock.mockClear();
+    loggerMock.mockClear();
 
     // Attempt 4: Wait for next flush 16_000
     await vi.advanceTimersByTimeAsync(16_000);
     await vi.waitFor(() => {
-      expect(consoleMock).toHaveBeenCalledWith("Events flushed successfully");
+      expect(loggerMock).toHaveBeenCalledWith("Events flushed successfully");
     });
   });
 });
