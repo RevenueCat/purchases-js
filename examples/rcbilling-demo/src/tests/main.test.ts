@@ -271,15 +271,22 @@ test.describe("Main", () => {
     });
   });
 
-  test("Tracks event SDK Initialized", async ({ browser, browserName }) => {
+  test.only("Tracks event SDK Initialized", async ({
+    browser,
+    browserName,
+  }) => {
     const userId = `${getUserId(browserName)}_subscription`;
     const page = await browser.newPage();
 
     const waitForTrackEventPromise = page.waitForResponse(
       successfulEventTrackingResponseMatcher((event) => {
+        console.log(event);
         return (
-          event.event_name === "SDK_INITIALIZED" &&
-          event.type === "rc_billing_event" &&
+          event.id !== undefined &&
+          event.timestamp !== undefined &&
+          event.trace_id !== undefined &&
+          event.trace_index === 0 &&
+          event.type === "web_billing_sdk_initialized" &&
           event.sdk_version !== undefined
         );
       }),

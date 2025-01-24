@@ -37,7 +37,7 @@ describe("Purchases.configure()", () => {
           events: [
             {
               id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
-              type: "rcb_sdk_initialized",
+              type: "web_billing_sdk_initialized",
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               trace_index: 0,
               timestamp: date.getTime(),

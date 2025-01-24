@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { type Trace } from "./trace";
 
-type EventType = "rcb_sdk_initialized";
+type EventType = "web_billing_sdk_initialized";
 
 export abstract class BaseEvent {
   public readonly id: string;
@@ -40,7 +40,7 @@ export class SDKInitializedEvent extends BaseEvent {
   public readonly sdkVersion: string;
 
   constructor(trace: Trace, sdkVersion: string, appUserId: string | null) {
-    super("rcb_sdk_initialized", trace, appUserId);
+    super("web_billing_sdk_initialized", trace, appUserId);
     this.sdkVersion = sdkVersion;
   }
 
