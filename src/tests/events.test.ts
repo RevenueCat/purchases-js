@@ -5,12 +5,17 @@ import { http, HttpResponse } from "msw";
 import "./utils/to-have-been-called-exactly-once-with";
 
 describe("Purchases.configure()", () => {
+  const date = new Date(1988, 10, 18, 13, 37, 0);
+  vi.mock("uuid", () => ({
+    v4: () => "c1365463-ce59-4b83-b61b-ef0d883e9047",
+  }));
   const consoleMock = vi
     .spyOn(console, "debug")
     .mockImplementation(() => undefined);
 
   beforeEach(() => {
     vi.useFakeTimers();
+    vi.setSystemTime(date);
   });
 
   afterEach(() => {
@@ -30,8 +35,11 @@ describe("Purchases.configure()", () => {
         json: {
           events: [
             {
-              type: "rc_billing_event",
-              event_name: "SDK_INITIALIZED",
+              id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+              type: "rcb_sdk_initialized",
+              trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+              trace_index: 0,
+              timestamp: date.getTime(),
               sdk_version: "0.15.1",
             },
           ],

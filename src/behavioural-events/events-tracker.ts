@@ -1,16 +1,18 @@
-import type { SDKInitializedEvent, TrackedEvent } from "./event-types";
+import { type BaseEvent, SDKInitializedEvent } from "./events";
 import { v4 as uuid } from "uuid";
 import { RC_ENDPOINT, VERSION } from "../helpers/constants";
 import { HttpMethods } from "msw";
 import { getHeaders } from "../networking/http-client";
 import { defaultHttpConfig, type HttpConfig } from "../entities/http-config";
 import { ExponentialInterval } from "../helpers/exponential-interval";
+import { Trace } from "./trace";
 
 const MIN_INTERVAL_RETRY = 2_000;
 const MAX_INTERVAL_RETRY = 60_000;
 
 export default class EventsTracker {
-  private readonly eventsQueue: Array<TrackedEvent> = [];
+  private readonly trace: Trace;
+  private readonly eventsQueue: Array<BaseEvent> = [];
   private flushingMutex: boolean = false;
   private readonly traceId: string = uuid();
   private readonly baseUrl: string = RC_ENDPOINT;
@@ -22,6 +24,7 @@ export default class EventsTracker {
   ) {
     console.debug(`Events tracker created for traceId ${this.traceId}`);
 
+    this.trace = new Trace();
     this.intervalManager = new ExponentialInterval(
       MIN_INTERVAL_RETRY,
       MAX_INTERVAL_RETRY,
@@ -39,12 +42,11 @@ export default class EventsTracker {
    *
    * It will create a promise internally that will be resolved with no one listening.
    */
-  public trackEvent(event: TrackedEvent): void {
+  public trackEvent(event: BaseEvent): void {
     console.debug(
       `Queueing event ${event.type} with properties ${JSON.stringify(event)}`,
     );
     this.eventsQueue.push(event);
-
     this.flushEvents();
   }
 
@@ -84,7 +86,7 @@ export default class EventsTracker {
     }
   }
 
-  public async postEvents(events: Array<TrackedEvent>): Promise<Response> {
+  public async postEvents(events: Array<BaseEvent>): Promise<Response> {
     const URL = `${this.httpConfig.proxyURL || this.baseUrl}/v1/events`;
     console.debug(`Posting ${events.length} events to ${URL}`);
     return await fetch(URL, {
@@ -96,11 +98,7 @@ export default class EventsTracker {
 
   public trackSDKInitialized() {
     console.debug("Tracking SDK Initialization");
-    const event: SDKInitializedEvent = {
-      type: "rc_billing_event",
-      event_name: "SDK_INITIALIZED",
-      sdk_version: VERSION,
-    };
+    const event = new SDKInitializedEvent(this.trace, VERSION);
     this.trackEvent(event);
   }
 
