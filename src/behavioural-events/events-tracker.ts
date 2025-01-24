@@ -63,27 +63,25 @@ export default class EventsTracker {
 
     this.flushingMutex = true;
     console.debug("Acquired flushing mutex");
-    if (this.eventsQueue.length > 0) {
-      this.postEvents(this.eventsQueue)
-        .then((response) => {
-          if (response.status === 200 || response.status === 201) {
-            console.debug("Events flushed successfully");
-            this.eventsQueue.splice(0, this.eventsQueue.length);
-            this.intervalManager.resetInterval(5000);
-          } else {
-            console.debug("Events failed to flush due to server error");
-            this.intervalManager.increaseInterval();
-          }
-        })
-        .catch((error) => {
-          console.debug("Error while flushing events", error);
+    this.postEvents(this.eventsQueue)
+      .then((response) => {
+        if (response.status === 200 || response.status === 201) {
+          console.debug("Events flushed successfully");
+          this.eventsQueue.splice(0, this.eventsQueue.length);
+          this.intervalManager.resetInterval(5000);
+        } else {
+          console.debug("Events failed to flush due to server error");
           this.intervalManager.increaseInterval();
-        })
-        .finally(() => {
-          console.debug("Releasing flushing mutex");
-          this.flushingMutex = false;
-        });
-    }
+        }
+      })
+      .catch((error) => {
+        console.debug("Error while flushing events", error);
+        this.intervalManager.increaseInterval();
+      })
+      .finally(() => {
+        console.debug("Releasing flushing mutex");
+        this.flushingMutex = false;
+      });
   }
 
   public async postEvents(events: Array<BaseEvent>): Promise<Response> {
