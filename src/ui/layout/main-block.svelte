@@ -21,16 +21,14 @@
 
 <style>
   .rcb-ui-main {
-    flex: 480px 1 0;
     flex: 1;
+    width: 100%;
   }
 
-  @media screen and (max-width: 960px) {
+  @media screen and (min-width: 768px) {
     .rcb-ui-main {
-      flex: none;
-      max-width: none;
-      min-width: 100%;
-      flex: 1;
+      width: auto;
+      flex-grow: 1;
     }
   }
 </style>

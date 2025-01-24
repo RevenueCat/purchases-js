@@ -24,12 +24,6 @@
 </div>
 
 <style>
-  /* .app-title {
-    font-weight: 500;
-    margin: 8px 0;
-    font-size: 16px;
-  } */
-
   .rcb-header-layout__business-info {
     display: flex;
     align-items: center;

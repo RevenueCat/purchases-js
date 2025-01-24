@@ -95,6 +95,7 @@
     display: flex;
     flex-direction: column;
     flex-grow: 1;
+    padding: var(--rc-spacing-innerPadding-mobile);
   }
 
   form {
@@ -151,6 +152,13 @@
     input {
       padding: var(--rc-spacing-innerPadding-mobile);
       height: var(--rc-spacing-inputHeight-mobile);
+    }
+  }
+
+  @media screen and (min-width: 768px) {
+    .needs-auth-info-container {
+      max-width: 50vw;
+      padding: var(--rc-spacing-innerPadding-desktop);
     }
   }
 

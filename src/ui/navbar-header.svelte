@@ -9,9 +9,6 @@
 </script>
 
 <ModalSection as="header">
-  {#if expanded !== undefined}
-    {console.log("Value of expanded:", expanded)}
-  {/if}
   <div class="rcb-header-layout">
     {@render children?.()}
     <button
@@ -47,6 +44,12 @@
     display: flex;
     align-items: center;
     gap: 4px;
+  }
+
+  @media screen and (min-width: 768px) {
+    button.rcb-header-details {
+      display: none;
+    }
   }
 
   .rcb-header-layout {

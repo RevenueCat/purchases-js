@@ -26,16 +26,16 @@
 </div>
 
 <style>
-  @media screen and (max-width: 960px) {
+  .rcb-ui-navbar {
+    width: 100%;
+    max-width: none;
+    flex-shrink: 0;
+  }
+
+  @media screen and (min-width: 768px) {
     .rcb-ui-navbar {
-      margin-right: 0;
-      margin-bottom: 0;
-      min-width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      flex: none;
-      max-width: none;
+      width: 50vw;
+      max-width: 50vw;
     }
   }
 </style>

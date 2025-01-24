@@ -43,15 +43,6 @@
     parseISODuration(productDetails.normalPeriodDuration)?.unit ==
       PeriodUnit.Month;
 
-  const subscriptionMonthlyPrice =
-    subscriptionBasePrice &&
-    translator.formatPrice(
-      subscriptionBasePrice.amountMicros,
-      subscriptionBasePrice.currency,
-    );
-
-  console.log(subscriptionMonthlyPrice);
-
   const formattedSubscriptionBasePrice =
     subscriptionBasePrice &&
     translator.formatPrice(
@@ -262,6 +253,22 @@
       padding-top: var(--rc-spacing-gapSmall-mobile);
       padding-bottom: var(--rc-spacing-gapSmall-mobile);
       margin-top: var(--rc-spacing-gapMedium-mobile);
+    }
+  }
+
+  @media screen and (min-width: 768px) {
+    .rcb-product-details {
+      max-height: 500px;
+      padding-top: var(--rc-spacing-gapSmall-desktop);
+      padding-bottom: var(--rc-spacing-gapSmall-desktop);
+      margin-top: var(--rc-spacing-gapMedium-desktop);
+    }
+
+    .rcb-product-details.collapsed {
+      max-height: 500px;
+      padding-top: var(--rc-spacing-gapSmall-desktop);
+      padding-bottom: var(--rc-spacing-gapSmall-desktop);
+      margin-top: var(--rc-spacing-gapMedium-desktop);
     }
   }
 </style>

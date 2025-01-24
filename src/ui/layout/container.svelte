@@ -28,4 +28,10 @@
     font-family: -apple-system, "system-ui", "Segoe UI", Roboto, Oxygen, Ubuntu,
       Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   }
+
+  @media screen and (min-width: 768px) {
+    .rcb-ui-container {
+      flex-direction: row;
+    }
+  }
 </style>
