@@ -1,4 +1,4 @@
-export class ExponentialInterval {
+export class RetryWithBackoff {
   private readonly initialInterval: number;
   private intervalHandle: ReturnType<typeof setTimeout> | undefined;
   private interval: number;

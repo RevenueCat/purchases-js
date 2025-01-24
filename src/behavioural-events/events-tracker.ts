@@ -4,7 +4,7 @@ import { RC_ENDPOINT, VERSION } from "../helpers/constants";
 import { HttpMethods } from "msw";
 import { getHeaders } from "../networking/http-client";
 import { defaultHttpConfig, type HttpConfig } from "../entities/http-config";
-import { ExponentialInterval } from "../helpers/exponential-interval";
+import { RetryWithBackoff } from "../helpers/retry-with-backoff";
 import { Trace } from "./trace";
 
 const MIN_INTERVAL_RETRY = 2_000;
@@ -16,7 +16,7 @@ export default class EventsTracker {
   private flushingMutex: boolean = false;
   private readonly traceId: string = uuid();
   private readonly baseUrl: string = RC_ENDPOINT;
-  private readonly intervalManager: ExponentialInterval;
+  private readonly retry: RetryWithBackoff;
 
   constructor(
     private readonly apiKey: string,
@@ -25,7 +25,7 @@ export default class EventsTracker {
     console.debug(`Events tracker created for traceId ${this.traceId}`);
 
     this.trace = new Trace();
-    this.intervalManager = new ExponentialInterval(
+    this.retry = new RetryWithBackoff(
       MIN_INTERVAL_RETRY,
       MAX_INTERVAL_RETRY,
       () => {
@@ -68,15 +68,15 @@ export default class EventsTracker {
         if (response.status === 200 || response.status === 201) {
           console.debug("Events flushed successfully");
           this.eventsQueue.splice(0, this.eventsQueue.length);
-          this.intervalManager.resetInterval();
+          this.retry.resetInterval();
         } else {
           console.debug("Events failed to flush due to server error");
-          this.intervalManager.increaseInterval();
+          this.retry.increaseInterval();
         }
       })
       .catch((error) => {
         console.debug("Error while flushing events", error);
-        this.intervalManager.increaseInterval();
+        this.retry.increaseInterval();
       })
       .finally(() => {
         console.debug("Releasing flushing mutex");
@@ -101,6 +101,6 @@ export default class EventsTracker {
   }
 
   public dispose() {
-    this.intervalManager.dispose();
+    this.retry.dispose();
   }
 }
