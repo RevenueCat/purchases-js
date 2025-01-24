@@ -21,47 +21,47 @@ describe("RetryWithBackoff", () => {
     expect(callbackSpy).toHaveBeenCalledTimes(1);
   });
 
-  it("should increase delay exponentially when next is called", () => {
+  it("should increase delay exponentially when backoff is called", () => {
     vi.advanceTimersByTime(1_000);
     expect(callbackSpy).toHaveBeenCalledTimes(1);
     callbackSpy.mockClear();
 
-    retry.increaseInterval();
+    retry.backoff();
     vi.advanceTimersByTime(2_000);
     expect(callbackSpy).toHaveBeenCalledTimes(1);
     callbackSpy.mockClear();
 
-    retry.increaseInterval();
+    retry.backoff();
     vi.advanceTimersByTime(4_000);
     expect(callbackSpy).toHaveBeenCalledTimes(1);
     callbackSpy.mockClear();
 
-    retry.increaseInterval();
+    retry.backoff();
     vi.advanceTimersByTime(8_000);
     expect(callbackSpy).toHaveBeenCalledTimes(1);
   });
 
-  it("should respect maxDelay when increasing retry", () => {
-    retry.increaseInterval(); // 2_000
-    retry.increaseInterval(); // 4_000
-    retry.increaseInterval(); // 8_000
-    retry.increaseInterval(); // 10_000
-    retry.increaseInterval(); // 10_000
-    retry.increaseInterval(); // 10_000
+  it("should respect maxDelay when backoff is called", () => {
+    retry.backoff(); // 2_000
+    retry.backoff(); // 4_000
+    retry.backoff(); // 8_000
+    retry.backoff(); // 10_000
+    retry.backoff(); // 10_000
+    retry.backoff(); // 10_000
 
     vi.advanceTimersByTime(60_000);
     expect(callbackSpy).toHaveBeenCalledTimes(6);
   });
 
   it("should reset to initial delay when reset is called", () => {
-    retry.increaseInterval();
-    retry.increaseInterval();
-    retry.increaseInterval();
+    retry.backoff();
+    retry.backoff();
+    retry.backoff();
     vi.advanceTimersByTime(2_000);
     expect(callbackSpy).toHaveBeenCalledTimes(0);
     callbackSpy.mockClear();
 
-    retry.resetInterval();
+    retry.reset();
     vi.advanceTimersByTime(1_000);
     expect(callbackSpy).toHaveBeenCalledTimes(1);
   });

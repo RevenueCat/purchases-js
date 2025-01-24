@@ -68,15 +68,15 @@ export default class EventsTracker {
         if (response.status === 200 || response.status === 201) {
           console.debug("Events flushed successfully");
           this.eventsQueue.splice(0, this.eventsQueue.length);
-          this.retry.resetInterval();
+          this.retry.reset();
         } else {
           console.debug("Events failed to flush due to server error");
-          this.retry.increaseInterval();
+          this.retry.backoff();
         }
       })
       .catch((error) => {
         console.debug("Error while flushing events", error);
-        this.retry.increaseInterval();
+        this.retry.backoff();
       })
       .finally(() => {
         console.debug("Releasing flushing mutex");
@@ -101,6 +101,6 @@ export default class EventsTracker {
   }
 
   public dispose() {
-    this.retry.dispose();
+    this.retry.stop();
   }
 }

@@ -1,47 +1,48 @@
 export class RetryWithBackoff {
-  private readonly initialInterval: number;
-  private intervalHandle: ReturnType<typeof setTimeout> | undefined;
-  private interval: number;
-  private readonly maxInterval: number;
+  private readonly initialDelay: number;
+  private timeoutHandle: ReturnType<typeof setTimeout> | undefined;
+  private currentDelay: number;
+  private readonly maxDelay: number;
   private readonly callback: () => void;
 
-  constructor(
-    initialInterval: number,
-    maxInterval: number,
-    callback: () => void,
-  ) {
-    this.intervalHandle = undefined;
-    this.initialInterval = initialInterval;
-    this.interval = initialInterval;
-    this.maxInterval = maxInterval;
+  constructor(initialDelay: number, maxDelay: number, callback: () => void) {
+    this.timeoutHandle = undefined;
+    this.initialDelay = initialDelay;
+    this.currentDelay = initialDelay;
+    this.maxDelay = maxDelay;
     this.callback = callback;
-    this.startInterval();
+    this.schedule();
   }
 
-  private startInterval() {
-    this.intervalHandle = setInterval(() => {
-      console.debug(`Interval flush after ${this.interval} ms`);
-      this.callback();
-    }, this.interval);
+  private schedule() {
+    this.timeoutHandle = setTimeout(() => {
+      console.debug(`Executing callback after ${this.currentDelay}ms delay`);
+      try {
+        this.callback();
+      } catch (error) {
+        console.error("Error in RetryWithBackoff callback:", error);
+      }
+      this.schedule();
+    }, this.currentDelay);
   }
 
-  public increaseInterval() {
-    clearInterval(this.intervalHandle);
-    this.interval = Math.min(this.interval * 2, this.maxInterval);
-    console.debug(`Increasing interval to ${this.interval} ms`);
-    this.startInterval();
+  public backoff() {
+    clearTimeout(this.timeoutHandle);
+    this.currentDelay = Math.min(this.currentDelay * 2, this.maxDelay);
+    console.debug(`Backing off to ${this.currentDelay}ms delay`);
+    this.schedule();
   }
 
-  public resetInterval() {
-    if (this.interval !== this.initialInterval) {
-      clearInterval(this.intervalHandle);
-      this.interval = this.initialInterval;
-      console.debug(`Resetting interval to ${this.interval} ms`);
-      this.startInterval();
+  public reset() {
+    if (this.currentDelay !== this.initialDelay) {
+      clearTimeout(this.timeoutHandle);
+      this.currentDelay = this.initialDelay;
+      console.debug(`Resetting to initial ${this.currentDelay}ms delay`);
+      this.schedule();
     }
   }
 
-  public dispose() {
-    clearInterval(this.intervalHandle);
+  public stop() {
+    clearTimeout(this.timeoutHandle);
   }
 }
