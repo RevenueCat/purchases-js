@@ -95,9 +95,9 @@ export default class EventsTracker {
     });
   }
 
-  public trackSDKInitialized() {
+  public trackSDKInitialized(appUserId: string | null) {
     Logger.debugLog("Tracking SDK Initialization");
-    const event = new SDKInitializedEvent(this.trace, VERSION);
+    const event = new SDKInitializedEvent(this.trace, VERSION, appUserId);
     this.trackEvent(event);
   }
 

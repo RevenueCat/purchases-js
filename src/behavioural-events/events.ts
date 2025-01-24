@@ -9,13 +9,19 @@ export abstract class BaseEvent {
   public readonly type: string;
   public readonly traceId: string;
   public readonly traceIndex: number;
+  public readonly appUserId: string | null;
 
-  protected constructor(type: EventType, trace: Trace) {
+  protected constructor(
+    type: EventType,
+    trace: Trace,
+    appUserId: string | null,
+  ) {
     this.id = uuidv4();
     this.timestamp = Date.now();
     this.type = type;
     this.traceId = trace.trace_id;
     this.traceIndex = trace.nextTraceIndex();
+    this.appUserId = appUserId;
   }
 
   public toJSON(): Record<string, unknown> {
@@ -25,6 +31,7 @@ export abstract class BaseEvent {
       type: this.type,
       trace_id: this.traceId,
       trace_index: this.traceIndex,
+      app_user_id: this.appUserId,
     };
   }
 }
@@ -32,8 +39,8 @@ export abstract class BaseEvent {
 export class SDKInitializedEvent extends BaseEvent {
   public readonly sdkVersion: string;
 
-  constructor(trace: Trace, sdkVersion: string) {
-    super("rcb_sdk_initialized", trace);
+  constructor(trace: Trace, sdkVersion: string, appUserId: string | null) {
+    super("rcb_sdk_initialized", trace, appUserId);
     this.sdkVersion = sdkVersion;
   }
 

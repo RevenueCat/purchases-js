@@ -42,6 +42,7 @@ describe("Purchases.configure()", () => {
               trace_index: 0,
               timestamp: date.getTime(),
               sdk_version: "0.15.1",
+              app_user_id: "someAppUserId",
             },
           ],
         },
