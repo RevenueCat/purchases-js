@@ -39,7 +39,7 @@
     getContext(translatorContextKey) || Translator.fallback();
 </script>
 
-<div class="container">
+<div class="needs-auth-info-container">
   <span class="auth-info-title">
     <Localized key={LocalizationKeys.StateNeedsAuthInfoEmailStepTitle} />
   </span>
@@ -91,7 +91,7 @@
     font-weight: 400;
   }
 
-  .container {
+  .needs-auth-info-container {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
