@@ -68,7 +68,7 @@ export default class EventsTracker {
         if (response.status === 200 || response.status === 201) {
           console.debug("Events flushed successfully");
           this.eventsQueue.splice(0, this.eventsQueue.length);
-          this.intervalManager.resetInterval(5000);
+          this.intervalManager.resetInterval();
         } else {
           console.debug("Events failed to flush due to server error");
           this.intervalManager.increaseInterval();

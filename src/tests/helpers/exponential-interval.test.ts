@@ -55,11 +55,13 @@ describe("ExponentialInterval", () => {
 
   it("should reset to initial delay when reset is called", () => {
     interval.increaseInterval();
+    interval.increaseInterval();
+    interval.increaseInterval();
     vi.advanceTimersByTime(2_000);
-    expect(callbackSpy).toHaveBeenCalledTimes(1);
+    expect(callbackSpy).toHaveBeenCalledTimes(0);
     callbackSpy.mockClear();
 
-    interval.resetInterval(1_000);
+    interval.resetInterval();
     vi.advanceTimersByTime(1_000);
     expect(callbackSpy).toHaveBeenCalledTimes(1);
   });

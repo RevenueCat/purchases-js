@@ -1,4 +1,5 @@
 export class ExponentialInterval {
+  private readonly initialInterval: number;
   private intervalHandle: ReturnType<typeof setTimeout> | undefined;
   private interval: number;
   private readonly maxInterval: number;
@@ -10,6 +11,7 @@ export class ExponentialInterval {
     callback: () => void,
   ) {
     this.intervalHandle = undefined;
+    this.initialInterval = initialInterval;
     this.interval = initialInterval;
     this.maxInterval = maxInterval;
     this.callback = callback;
@@ -30,10 +32,10 @@ export class ExponentialInterval {
     this.startInterval();
   }
 
-  public resetInterval(initialInterval: number) {
-    if (this.interval !== initialInterval) {
+  public resetInterval() {
+    if (this.interval !== this.initialInterval) {
       clearInterval(this.intervalHandle);
-      this.interval = initialInterval;
+      this.interval = this.initialInterval;
       console.debug(`Resetting interval to ${this.interval} ms`);
       this.startInterval();
     }
