@@ -25,7 +25,7 @@
     border-radius: var(--rc-shape-input-button-border-radius);
     font-size: 16px;
     cursor: pointer;
-    height: 48px;
+    height: var(--rc-spacing-inputHeight-mobile);
     color: var(--rc-color-grey-text-dark);
     background-color: var(--rc-color-grey-ui-dark);
     display: flex;
@@ -33,6 +33,12 @@
     justify-content: center;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
     -webkit-tap-highlight-color: transparent;
+  }
+
+  @media screen and (min-width: 768px) {
+    button {
+      height: var(--rc-spacing-inputHeight-desktop);
+    }
   }
 
   button:focus,

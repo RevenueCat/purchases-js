@@ -171,34 +171,34 @@
   .rcb-pricing-info {
     display: flex;
     flex-direction: column;
-    font: var(--rc-text-body1);
+    font: var(--rc-text-body1-mobile);
     margin-top: var(--rc-spacing-gapLarge-desktop);
     gap: var(--rc-spacing-gapMedium-desktop);
   }
 
   .rcb-product-title {
     color: var(--rc-color-grey-text-dark);
-    font: var(--rc-text-title3);
+    font: var(--rc-text-title3-mobile);
   }
 
   .rcb-product-price {
     color: var(--rc-color-grey-text-dark);
-    font: var(--rc-text-title2);
+    font: var(--rc-text-title2-mobile);
     margin: 12px 0px;
   }
 
   .rcb-product-price-frequency {
     color: var(--rc-color-grey-text-dark);
-    font: var(--rc-text-caption);
+    font: var(--rc-text-caption-mobile);
   }
 
   .rcb-product-price-monthly {
     color: var(--rc-color-grey-text-light);
-    font: var(--rc-text-caption);
+    font: var(--rc-text-caption-mobile);
   }
 
   .rcb-product-description {
-    font: var(--rc-text-body2);
+    font: var(--rc-text-body2-mobile);
     color: var(--rc-color-grey-text-dark);
     margin: 0 0 12px 0;
   }
@@ -257,6 +257,26 @@
   }
 
   @media screen and (min-width: 768px) {
+    .rcb-product-title {
+      font: var(--rc-text-title2-desktop);
+    }
+
+    .rcb-product-price {
+      font: var(--rc-text-title2-desktop);
+    }
+
+    .rcb-product-price-frequency {
+      font: var(--rc-text-caption-desktop);
+    }
+
+    .rcb-product-price-monthly {
+      font: var(--rc-text-caption-desktop);
+    }
+
+    .rcb-product-description {
+      font: var(--rc-text-body2-desktop);
+    }
+
     .rcb-product-details {
       max-height: 500px;
       padding-top: var(--rc-spacing-gapSmall-desktop);

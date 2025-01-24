@@ -32,14 +32,14 @@
     align-items: center;
     cursor: pointer;
     gap: 4px;
-    font: var(--rc-text-caption);
+    font: var(--rc-text-caption-mobile);
     color: var(--rc-color-grey-text-light);
     font-weight: 350;
     padding: 8px;
   }
 
   .rcb-header-details {
-    font: var(--rc-text-caption);
+    font: var(--rc-text-caption-mobile);
     font-weight: normal;
     display: flex;
     align-items: center;

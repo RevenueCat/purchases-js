@@ -243,14 +243,14 @@ export const toFormStyleVar = (appearance?: BrandingAppearance) => {
 };
 
 /**
- * Convert text styles into CSS variables
+ * Convert text styles into CSS variables for both desktop and mobile.
  */
 export const toTextStyleVar = (prefix: string = "", textStyles: TextStyles) =>
   Object.entries(textStyles)
-    .map(
-      ([key, { fontSize, lineHeight, fontWeight = "normal" }]) =>
-        `--rc-${prefix}-${key}: normal normal ${fontWeight} ${fontSize}/${lineHeight} ${DEFAULT_FONT_FAMILY}`,
-    )
+    .flatMap(([key, { desktop, mobile }]) => [
+      `--rc-${prefix}-${key}-desktop: normal normal ${desktop.fontWeight} ${desktop.fontSize}/${desktop.lineHeight} ${DEFAULT_FONT_FAMILY}`,
+      `--rc-${prefix}-${key}-mobile: normal normal ${mobile.fontWeight} ${mobile.fontSize}/${mobile.lineHeight} ${DEFAULT_FONT_FAMILY}`,
+    ])
     .join("; ");
 
 /**

@@ -80,15 +80,24 @@
 
 <style>
   .auth-info-title {
-    font: var(--rc-text-title3);
+    font: var(--rc-text-title3-mobile);
   }
 
   .footer-caption {
-    font: var(--rc-text-caption);
+    font: var(--rc-text-caption-mobile);
     color: var(--rc-color-text-secondary);
     margin: var(--rc-spacing-gapSmall-desktop);
     text-align: center;
     font-weight: 400;
+  }
+
+  @media screen and (min-width: 768px) {
+    .footer-caption {
+      font: var(--rc-text-caption-desktop);
+    }
+    .auth-info-title {
+      font: var(--rc-text-title3-desktop);
+    }
   }
 
   .needs-auth-info-container {
@@ -122,8 +131,14 @@
   .form-label {
     margin-top: var(--rc-spacing-gapSmall-desktop);
     margin-bottom: var(--rc-spacing-gapSmall-desktop);
-    font: var(--rc-text-body1);
+    font: var(--rc-text-body1-mobile);
     display: block;
+  }
+
+  @media screen and (min-width: 768px) {
+    .form-label {
+      font: var(--rc-text-body1-desktop);
+    }
   }
 
   .form-input.error input {
@@ -132,8 +147,14 @@
 
   .form-error {
     margin-top: var(--rc-spacing-gapSmall-desktop);
-    font: var(--rc-text-body1);
+    font: var(--rc-text-body1-mobile);
     color: var(--rc-color-error);
+  }
+
+  @media screen and (min-width: 768px) {
+    .form-error {
+      font: var(--rc-text-body1-desktop);
+    }
   }
 
   input {
@@ -142,7 +163,7 @@
     padding: var(--rc-spacing-innerPadding-desktop);
     border: 2px solid var(--rc-color-grey-ui-dark);
     border-radius: var(--rc-shape-input-border-radius);
-    font: var(--rc-text-body1);
+    font: var(--rc-text-body1-mobile);
     height: var(--rc-spacing-inputHeight-desktop);
     background: var(--rc-color-input-background);
     color: inherit;
@@ -156,6 +177,10 @@
   }
 
   @media screen and (min-width: 768px) {
+    input {
+      font: var(--rc-text-body1-desktop);
+    }
+
     .needs-auth-info-container {
       max-width: 50vw;
       padding: var(--rc-spacing-innerPadding-desktop);
