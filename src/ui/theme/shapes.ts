@@ -5,8 +5,8 @@ export interface Shape {
 }
 
 export const RoundedShape: Shape = {
-  "input-border-radius": "12px",
-  "input-button-border-radius": "12px",
+  "input-border-radius": "4px",
+  "input-button-border-radius": "4px",
   "modal-border-radius": "16px",
 };
 

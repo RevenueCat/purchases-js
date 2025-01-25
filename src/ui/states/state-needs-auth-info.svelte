@@ -12,6 +12,7 @@
   import { Translator } from "../localization/translator";
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
+  import SecureCheckoutRc from "../secure-checkout-rc.svelte";
 
   export let onContinue: any;
   export let onClose: () => void;
@@ -72,7 +73,7 @@
             />
           {/if}
         </Button>
-        <p class="footer-caption">Secure checkout by RevenueCat</p>
+        <SecureCheckoutRc />
       </RowLayout>
     </ModalFooter>
   </form>
@@ -83,18 +84,7 @@
     font: var(--rc-text-title3-mobile);
   }
 
-  .footer-caption {
-    font: var(--rc-text-caption-mobile);
-    color: var(--rc-color-text-secondary);
-    margin: var(--rc-spacing-gapSmall-desktop);
-    text-align: center;
-    font-weight: 400;
-  }
-
   @media screen and (min-width: 768px) {
-    .footer-caption {
-      font: var(--rc-text-caption-desktop);
-    }
     .auth-info-title {
       font: var(--rc-text-title3-desktop);
     }

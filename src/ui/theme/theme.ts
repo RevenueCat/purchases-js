@@ -33,11 +33,19 @@ export class Theme {
     return toProductInfoStyleVar(this.brandingAppearance);
   }
 
+  get spacing() {
+    return DEFAULT_SPACING;
+  }
+
+  get textStyles() {
+    return DEFAULT_TEXT_STYLES;
+  }
+
   get textStyleVars() {
-    return toTextStyleVar("text", DEFAULT_TEXT_STYLES);
+    return toTextStyleVar("text", this.textStyles);
   }
 
   get spacingStyleVars() {
-    return toSpacingVars("spacing", DEFAULT_SPACING);
+    return toSpacingVars("spacing", this.spacing);
   }
 }
