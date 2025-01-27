@@ -27,7 +27,7 @@ export class FlushManager {
 
     Logger.log(`Flushing immediately`);
     this.clearTimeout();
-    this.executeCallbackRecursively();
+    this.executeCallbackWithRetries();
   }
 
   public stop() {
@@ -44,7 +44,7 @@ export class FlushManager {
     this.timeoutId = setTimeout(() => {
       this.timeoutId = undefined;
       Logger.log(`Executing callback after ${this.currentDelay}ms delay`);
-      this.executeCallbackRecursively();
+      this.executeCallbackWithRetries();
     }, delay || this.currentDelay);
   }
 
@@ -65,7 +65,7 @@ export class FlushManager {
     }
   }
 
-  private async executeCallbackRecursively() {
+  private async executeCallbackWithRetries() {
     if (this.executingCallback) {
       Logger.debugLog("Callback already running, rescheduling");
       this.schedule();
