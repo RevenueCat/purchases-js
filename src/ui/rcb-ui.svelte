@@ -79,6 +79,8 @@
     "needs-payment-info",
     "polling-purchase-status",
     "loading",
+    "success",
+    "error",
   ];
 
   // Setting the context for the Localized components

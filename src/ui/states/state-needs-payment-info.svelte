@@ -2,7 +2,7 @@
   import { getContext, onMount } from "svelte";
 
   import Button from "../button.svelte";
-  import { Elements, ExpressCheckout, PaymentElement } from "svelte-stripe";
+  import { Elements, PaymentElement } from "svelte-stripe";
   import type {
     Stripe,
     StripeElementLocale,
@@ -88,8 +88,6 @@
     if (elements && elements._elements.length > 0) {
       safeElements = elements;
     }
-
-    console.log(elements);
   }
 
   onMount(async () => {
@@ -339,7 +337,6 @@
               LocalizationKeys.StateErrorButtonTryAgain,
             )}
             onContinue={handleErrorTryAgain}
-            brandingInfo={null}
           >
             {#snippet icon()}
               <IconError />
