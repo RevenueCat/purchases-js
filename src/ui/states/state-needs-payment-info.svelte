@@ -201,17 +201,6 @@
 </script>
 
 <div class="checkout-container">
-  <!-- <TextSeparator text="Pay by card" />
-  <ExpressCheckout
-    on:continue={handleContinue}
-    on:click={handleContinue}
-    buttonHeight={48}
-    buttonTheme={{
-      googlePay: "white",
-    }}
-    buttonType={{ googlePay: "buy", applePay: "buy" }}
-    paymentMethodOrder={["applePay", "googlePay", "amazonPay"]}
-  /> -->
   <TextSeparator text="Pay by card" />
   {#if stripe && clientSecret}
     <form on:submit|preventDefault={handleContinue}>

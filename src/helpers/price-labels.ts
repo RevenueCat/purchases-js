@@ -1,4 +1,4 @@
-import { parseISODuration, PeriodUnit } from "./duration-helper";
+import { parseISODuration } from "./duration-helper";
 import { type Translator } from "../ui/localization/translator";
 
 import { LocalizationKeys } from "../ui/localization/supportedLanguages";
@@ -49,17 +49,4 @@ export const getTranslatedPeriodLength = (
     translator.translatePeriod(period.number, period.unit) ||
     `${period.number} ${period.unit}s`
   );
-};
-
-export const calculatePricePerMonth = (
-  priceInMicros: number,
-  isoPeriodString: string,
-): number | null => {
-  const period = parseISODuration(isoPeriodString);
-  if (!period || period.unit !== PeriodUnit.Month) {
-    return null;
-  }
-
-  const price = microsToDollars(priceInMicros);
-  return parseFloat((price / period.number).toFixed(2));
 };

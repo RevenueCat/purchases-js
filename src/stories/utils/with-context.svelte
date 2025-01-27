@@ -7,7 +7,6 @@
   }
 
   let { children, context }: Props = $props();
-
   Object.entries(context || {}).forEach(([key, value]) => {
     setContext(key, value);
   });

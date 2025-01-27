@@ -31,10 +31,6 @@
   });
 </script>
 
-{#if args}
-  {("ARGS", console.log("args", args))}
-{/if}
-
 {#if error}
   <div
     style="color: red; background-color: #f0f0f0; padding: 10px; border-radius: 5px;"
