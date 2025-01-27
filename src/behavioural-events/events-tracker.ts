@@ -48,9 +48,15 @@ export default class EventsTracker {
     this.flushManager.tryFlush();
   }
 
-  public trackSDKInitialized(appUserId: string | null) {
+  public async trackSDKInitialized(appUserId: string | null) {
     Logger.debugLog("Tracking SDK Initialization");
-    const event = new SDKInitializedEvent(this.trace, VERSION, appUserId);
+    const traceIndex = await this.trace.nextTraceIndex();
+    const event = new SDKInitializedEvent(
+      this.traceId,
+      traceIndex,
+      appUserId,
+      VERSION,
+    );
     this.trackEvent(event);
   }
 

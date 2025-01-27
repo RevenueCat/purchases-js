@@ -1,5 +1,4 @@
 import { v4 as uuidv4 } from "uuid";
-import { type Trace } from "./trace";
 
 type EventType = "web_billing_sdk_initialized";
 
@@ -13,14 +12,15 @@ export abstract class BaseEvent {
 
   protected constructor(
     type: EventType,
-    trace: Trace,
+    traceId: string,
+    traceIndex: number,
     appUserId: string | null,
   ) {
     this.id = uuidv4();
     this.timestamp = Date.now();
     this.type = type;
-    this.traceId = trace.trace_id;
-    this.traceIndex = trace.nextTraceIndex();
+    this.traceId = traceId;
+    this.traceIndex = traceIndex;
     this.appUserId = appUserId;
   }
 
@@ -39,8 +39,13 @@ export abstract class BaseEvent {
 export class SDKInitializedEvent extends BaseEvent {
   public readonly sdkVersion: string;
 
-  constructor(trace: Trace, sdkVersion: string, appUserId: string | null) {
-    super("web_billing_sdk_initialized", trace, appUserId);
+  constructor(
+    traceId: string,
+    traceIndex: number,
+    appUserId: string | null,
+    sdkVersion: string,
+  ) {
+    super("web_billing_sdk_initialized", traceId, traceIndex, appUserId);
     this.sdkVersion = sdkVersion;
   }
 

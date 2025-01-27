@@ -27,6 +27,8 @@ describe("Purchases.configure()", () => {
   test("tracks the SDKInitialized event", async () => {
     configurePurchases();
 
+    await vi.advanceTimersToNextTimerAsync();
+
     await vi.waitFor(() => {
       expect(loggerMock).toHaveBeenCalledExactlyOnceWith(
         "Events flushed successfully",

@@ -1,17 +1,21 @@
 import { v4 as uuidv4 } from "uuid";
+import { Mutex } from "../helpers/mutex";
 
 export class Trace {
   public readonly trace_id: string;
-  private trace_index: number;
+  private traceIndex: number = 0;
+  private mutex: Mutex = new Mutex();
 
   constructor() {
     this.trace_id = uuidv4();
-    this.trace_index = 0;
   }
 
-  public nextTraceIndex(): number {
-    const current_index = this.trace_index;
-    this.trace_index++;
-    return current_index;
+  public async nextTraceIndex(): Promise<number> {
+    await this.mutex.lock();
+    try {
+      return this.traceIndex++;
+    } finally {
+      this.mutex.unlock();
+    }
   }
 }
