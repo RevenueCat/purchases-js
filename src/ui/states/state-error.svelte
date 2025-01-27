@@ -95,7 +95,6 @@
 
 <MessageLayout
   title={getTranslatedErrorTitle()}
-  {brandingInfo}
   {onContinue}
   type="error"
   closeButtonTitle={translator.translate(

@@ -23,7 +23,6 @@
 <MessageLayout
   type="success"
   title={translator.translate(LocalizationKeys.StateSuccessPurchaseSuccessful)}
-  {brandingInfo}
   {onContinue}
   closeButtonTitle={translator.translate(
     LocalizationKeys.StateSuccessButtonClose,

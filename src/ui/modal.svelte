@@ -18,14 +18,6 @@
     height: 100%;
   }
 
-  @media screen and (min-width: 768px) {
-    .rcb-modal-container {
-      width: 50vw;
-      max-width: 50vw;
-      height: 100vh;
-    }
-  }
-
   .rcb-modal-main {
     box-sizing: border-box;
     background-color: var(--rc-color-background);
@@ -34,6 +26,14 @@
     flex-direction: column;
     display: flex;
     height: 100%;
+  }
+
+  @media screen and (min-width: 768px) {
+    .rcb-modal-container {
+      width: 50vw;
+      max-width: 50vw;
+      height: 100vh;
+    }
   }
 
   @media screen and (max-width: 768px) {

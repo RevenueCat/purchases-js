@@ -3,10 +3,7 @@
   import ModalFooter from "../modal-footer.svelte";
   import ModalSection from "../modal-section.svelte";
   import RowLayout from "../layout/row-layout.svelte";
-  import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
-  import BrandAndCloseHeader from "../brand-and-close-header.svelte";
 
-  export let brandingInfo: BrandingInfoResponse | null = null;
   export let onContinue: () => void;
   export let title: string | null = null;
   export let type: string;
@@ -15,35 +12,66 @@
   export let message;
 </script>
 
-<RowLayout gutter="32px">
-  {#if title}
-    <BrandAndCloseHeader {brandingInfo} onClose={onContinue} />
-  {/if}
-  <ModalSection>
-    <div class="rcb-modal-message" data-type={type} data-has-title={!!title}>
-      <RowLayout gutter="48px">
-        {#if icon}
-          {@render icon()}
-        {/if}
-        <RowLayout gutter="16px">
-          {#if title}
-            <span class="title">{title}</span>
-          {/if}
-          {#if message}
-            <span class="subtitle">
-              {@render message()}
-            </span>
-          {/if}
-        </RowLayout>
-      </RowLayout>
-    </div>
-  </ModalSection>
-  <ModalFooter>
-    <Button on:click={onContinue} type="submit">{closeButtonTitle}</Button>
-  </ModalFooter>
-</RowLayout>
+<div class="message-layout">
+  <div class="message-layout-content">
+    <RowLayout gap="large">
+      <ModalSection>
+        <div
+          class="rcb-modal-message"
+          data-type={type}
+          data-has-title={!!title}
+        >
+          <RowLayout gap="large" align="center">
+            <RowLayout gap="large" align="center">
+              {#if icon}
+                {@render icon()}
+              {/if}
+              {#if title}
+                <span class="title">{title}</span>
+              {/if}
+              {#if message}
+                <span class="subtitle">
+                  {@render message()}
+                </span>
+              {/if}
+            </RowLayout>
+          </RowLayout>
+        </div>
+      </ModalSection>
+    </RowLayout>
+  </div>
+  <div class="message-layout-footer">
+    <ModalFooter>
+      <Button on:click={onContinue} type="submit">{closeButtonTitle}</Button>
+    </ModalFooter>
+  </div>
+</div>
 
 <style>
+  .message-layout {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .message-layout-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  @media (min-width: 768px) {
+    .message-layout-content {
+      justify-content: flex-start;
+      flex-grow: 0;
+    }
+
+    .message-layout-footer {
+      margin-top: var(--rc-spacing-gapLarge-desktop);
+    }
+  }
+
   .rcb-modal-message {
     width: 100%;
     min-height: 160px;
@@ -52,22 +80,31 @@
     align-items: center;
     flex-direction: column;
     text-align: center;
-    margin-bottom: 16px;
-    margin-top: 16px;
   }
 
   .rcb-modal-message[data-has-title="false"] {
-    margin-top: 80px;
+    margin-top: var(--rc-spacing-gapLarge-mobile);
   }
 
   .title {
-    font-size: 24px;
-    line-height: 1.25em;
+    font: var(--rc-text-title3-mobile);
   }
 
   .subtitle {
-    font-size: 16px;
-    line-height: 1.25em;
-    overflow-wrap: anywhere;
+    font: var(--rc-text-body1-mobile);
+  }
+
+  @media (min-width: 768px) {
+    .rcb-modal-message[data-has-title="false"] {
+      margin-top: var(--rc-spacing-gapLarge-desktop);
+    }
+
+    .title {
+      font: var(--rc-text-title3-desktop);
+    }
+
+    .subtitle {
+      font: var(--rc-text-body1-desktop);
+    }
   }
 </style>
