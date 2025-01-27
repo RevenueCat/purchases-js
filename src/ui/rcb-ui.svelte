@@ -243,6 +243,26 @@
               {purchaseOption}
             />
           {/if}
+          {#snippet headerContent()}
+            <ModalHeader>
+              <BrandingInfoUI {brandingInfo} />
+              {#if purchases.isSandbox()}
+                <SandboxBanner />
+              {:else}
+                <IconCart />
+              {/if}
+            </ModalHeader>
+          {/snippet}
+
+          {#snippet bodyContent()}
+            {#if productDetails && purchaseOption}
+              <StatePresentOffer
+                {productDetails}
+                brandingAppearance={brandingInfo?.appearance}
+                purchaseOption={purchaseOption}
+              />
+            {/if}
+          {/snippet}
         </Aside>
       {/if}
       <Main brandingAppearance={brandingInfo?.appearance}>
@@ -294,6 +314,59 @@
             onContinue={handleContinue}
           />
         {/if}
+        {#snippet body()}
+          {#if state === "present-offer" && productDetails && purchaseOption}
+            <StatePresentOffer
+              {productDetails}
+              purchaseOption={purchaseOption}
+            />
+          {/if}
+          {#if state === "present-offer" && !productDetails}
+            <StateLoading />
+          {/if}
+          {#if state === "needs-auth-info" || state === "processing-auth-info"}
+            <StateNeedsAuthInfo
+              onContinue={handleContinue}
+              onClose={handleClose}
+              processing={state === "processing-auth-info"}
+              {lastError}
+            />
+          {/if}
+          {#if paymentInfoCollectionMetadata && (state === "needs-payment-info" || state === "polling-purchase-status") && productDetails && purchaseOption}
+            <StateNeedsPaymentInfo
+              {paymentInfoCollectionMetadata}
+              onContinue={handleContinue}
+              onClose={handleClose}
+              processing={state === "polling-purchase-status"}
+              {productDetails}
+              {purchaseOption}
+              {brandingInfo}
+            />
+          {/if}
+          {#if state === "loading"}
+            <StateLoading />
+          {/if}
+          {#if state === "error"}
+            <StateError
+              {brandingInfo}
+              lastError={lastError ??
+                new PurchaseFlowError(
+                  PurchaseFlowErrorCode.UnknownError,
+                  "Unknown error without state set.",
+                )}
+              supportEmail={brandingInfo?.support_email}
+              {productDetails}
+              onContinue={closeWithError}
+            />
+          {/if}
+          {#if state === "success"}
+            <StateSuccess
+              {productDetails}
+              {brandingInfo}
+              onContinue={handleContinue}
+            />
+          {/if}
+        {/snippet}
       </Main>
     </Layout>
   </ConditionalFullScreen>

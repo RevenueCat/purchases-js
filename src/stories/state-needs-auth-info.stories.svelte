@@ -61,7 +61,9 @@
       <ModalBackdrop>
         <Layout>
           <Main brandingAppearance={args.brandingAppearance}>
-            <StateNeedsAuthInfo {...args} />
+            {#snippet body()}
+              <StateNeedsAuthInfo {...args} />
+            {/snippet}
           </Main>
         </Layout>
       </ModalBackdrop>

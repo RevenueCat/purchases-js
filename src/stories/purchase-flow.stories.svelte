@@ -1,5 +1,6 @@
 <script>
   import { Meta, Story, Template } from "@storybook/addon-svelte-csf";
+
   import StateNeedsPaymentInfoWithPurchaseResponse from "./utils/state-needs-payment-info-with-purchase-response.svelte";
   import StateNeedsAuthInfo from "../ui/states/state-needs-auth-info.svelte";
   import StatePresentOffer from "../ui/states/state-present-offer.svelte";
@@ -110,14 +111,21 @@
       <Container>
         <Layout>
           <Aside brandingAppearance={args.brandingInfo.appearance}>
-            <ModalHeader slot="header">
-              <BrandingInfoUI {...args} />
-              <IconCart />
-            </ModalHeader>
-            <StatePresentOffer {...args} />
+            {#snippet headerContent()}
+              <ModalHeader>
+                <BrandingInfoUI {...args} />
+                <IconCart />
+              </ModalHeader>
+            {/snippet}
+
+            {#snippet bodyContent()}
+              <StatePresentOffer {...args} />
+            {/snippet}
           </Aside>
           <Main brandingAppearance={args.brandingInfo.appearance}>
-            <StateNeedsAuthInfo {...args} />
+            {#snippet body()}
+              <StateNeedsAuthInfo {...args} />
+            {/snippet}
           </Main>
         </Layout>
       </Container>
@@ -127,14 +135,21 @@
       <Container>
         <Layout>
           <Aside brandingAppearance={args.brandingInfo.appearance}>
-            <ModalHeader slot="header">
-              <BrandingInfoUI {...args} />
-              <IconCart />
-            </ModalHeader>
-            <StatePresentOffer {...args} />
+            {#snippet headerContent()}
+              <ModalHeader>
+                <BrandingInfoUI {...args} />
+                <IconCart />
+              </ModalHeader>
+            {/snippet}
+
+            {#snippet bodyContent()}
+              <StatePresentOffer {...args} />
+            {/snippet}
           </Aside>
           <Main brandingAppearance={args.brandingInfo.appearance}>
-            <StateNeedsPaymentInfoWithPurchaseResponse {args} />
+            {#snippet body()}
+              <StateNeedsPaymentInfoWithPurchaseResponse {args} />
+            {/snippet}
           </Main>
         </Layout>
       </Container>
@@ -144,14 +159,21 @@
       <Container>
         <Layout>
           <Aside brandingAppearance={args.brandingInfo.appearance}>
-            <ModalHeader slot="header">
-              <BrandingInfoUI {...args} />
-              <IconCart />
-            </ModalHeader>
-            <StatePresentOffer {...args} />
+            {#snippet headerContent()}
+              <ModalHeader>
+                <BrandingInfoUI {...args} />
+                <IconCart />
+              </ModalHeader>
+            {/snippet}
+
+            {#snippet bodyContent()}
+              <StatePresentOffer {...args} />
+            {/snippet}
           </Aside>
           <Main brandingAppearance={args.brandingInfo.appearance}>
-            <StateLoading {...args} />
+            {#snippet body()}
+              <StateLoading {...args} />
+            {/snippet}
           </Main>
         </Layout>
       </Container>
@@ -161,14 +183,21 @@
       <Container>
         <Layout>
           <Aside brandingAppearance={args.brandingInfo.appearance}>
-            <ModalHeader slot="header">
-              <BrandingInfoUI {...args} />
-              <IconCart />
-            </ModalHeader>
-            <StatePresentOffer {...args} />
+            {#snippet headerContent()}
+              <ModalHeader>
+                <BrandingInfoUI {...args} />
+                <IconCart />
+              </ModalHeader>
+            {/snippet}
+
+            {#snippet bodyContent()}
+              <StatePresentOffer {...args} />
+            {/snippet}
           </Aside>
           <Main brandingAppearance={args.brandingInfo.appearance}>
-            <StateSuccess {...args} />
+            {#snippet body()}
+              <StateSuccess {...args} />
+            {/snippet}
           </Main>
         </Layout>
       </Container>
@@ -178,14 +207,20 @@
       <Container>
         <Layout>
           <Aside brandingAppearance={args.brandingInfo.appearance}>
-            <ModalHeader slot="header">
-              <BrandingInfoUI {...args} />
-              <IconCart />
-            </ModalHeader>
-            <StatePresentOffer {...args} />
+            {#snippet headerContent()}
+              <ModalHeader>
+                <BrandingInfoUI {...args} />
+                <IconCart />
+              </ModalHeader>
+            {/snippet}
+            {#snippet bodyContent()}
+              <StatePresentOffer {...args} />
+            {/snippet}
           </Aside>
           <Main brandingAppearance={args.brandingInfo.appearance}>
-            <StateError {...args} />
+            {#snippet body()}
+              <StateError {...args} />
+            {/snippet}
           </Main>
         </Layout>
       </Container>
@@ -375,5 +410,4 @@
 />
 
 <!-- TODO: Add stories for non subscription products -->
-
 <!-- TODO: Add stories for non subscriptions with trials -->
