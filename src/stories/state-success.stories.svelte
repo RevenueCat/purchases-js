@@ -60,7 +60,9 @@
       <ModalBackdrop>
         <Layout>
           <Main brandingAppearance={args.brandingAppearance}>
-            <StateSuccess {...args} />
+            {#snippet body()}
+              <StateSuccess {...args} />
+            {/snippet}
           </Main>
         </Layout>
       </ModalBackdrop>

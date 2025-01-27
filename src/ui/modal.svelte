@@ -1,10 +1,13 @@
 <script lang="ts">
+  import { type Snippet } from "svelte";
+
   export let style = "";
+  export let children: Snippet;
 </script>
 
 <div class="rcb-modal-container">
   <main class="rcb-modal-main" {style}>
-    <slot />
+    {@render children?.()}
   </main>
 </div>
 

@@ -1,5 +1,11 @@
+<script lang="ts">
+  import { type Snippet } from "svelte";
+
+  export let children: Snippet;
+</script>
+
 <div class="rcb-modal-backdrop">
-  <slot />
+  {@render children?.()}
 </div>
 
 <style>

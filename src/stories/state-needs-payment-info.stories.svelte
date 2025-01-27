@@ -65,10 +65,12 @@
       <ModalBackdrop>
         <Layout>
           <Main brandingAppearance={args.brandingInfo?.appearance}>
-            <StateNeedsPaymentInfoWithPurchaseResponse
-              {args}
-              setupMode={SetupMode.PaidProduct}
-            />
+            {#snippet body()}
+              <StateNeedsPaymentInfoWithPurchaseResponse
+                {args}
+                setupMode={SetupMode.PaidProduct}
+              />
+            {/snippet}
           </Main>
         </Layout>
       </ModalBackdrop>
