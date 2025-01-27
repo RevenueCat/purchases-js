@@ -5,7 +5,6 @@
 
   export let brandingAppearance: BrandingAppearance | undefined = undefined;
   let style = new Theme(brandingAppearance).formStyleVars;
-
   export let body;
   export let header: (() => any) | null = null;
 </script>
