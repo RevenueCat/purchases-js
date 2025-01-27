@@ -50,11 +50,11 @@ describe("Purchases.configure()", () => {
     });
   });
 
-  test("retries tracking events the request to the server is unsuccessful", async () => {
+  test("retries tracking events exponentially", async () => {
     let attempts = 0;
 
     server.use(
-      http.post(eventsURL, async () => {
+      http.post(eventsURL, async ({ request }) => {
         ++attempts;
 
         switch (attempts) {
@@ -67,7 +67,7 @@ describe("Purchases.configure()", () => {
             await new Promise((resolve) => setTimeout(resolve, 20_000));
             throw new Error("Unexpected error");
           case 4:
-            return HttpResponse.json({}, { status: 201 });
+            return HttpResponse.json(await request.json(), { status: 201 });
           default:
             throw new Error("Unexpected call");
         }
@@ -78,43 +78,61 @@ describe("Purchases.configure()", () => {
 
     // Attempt 1: First direct attempt to flush without timeout
     await vi.advanceTimersByTimeAsync(100);
-    expect(loggerMock).toHaveBeenCalledExactlyOnceWith(
-      "Events failed to flush due to server error",
-    );
+    expect(loggerMock).not.toHaveBeenCalledWith("Events flushed successfully");
     loggerMock.mockClear();
 
-    // Attempt 2: Wait for next flush 4_000
-    await vi.advanceTimersByTimeAsync(4_000);
-    expect(loggerMock).not.toHaveBeenCalledWith(
-      "Events failed to flush due to server error",
-    );
+    // Attempt 2: Wait for next flush
+    await vi.advanceTimersByTimeAsync(2_000);
+    expect(loggerMock).not.toHaveBeenCalledWith("Events flushed successfully");
     loggerMock.mockClear();
 
-    // Attempt 2: Wait for request to complete 1_000
+    // Attempt 2: Wait for request to complete
     await vi.advanceTimersByTimeAsync(1_000);
-    expect(loggerMock).toHaveBeenCalledExactlyOnceWith(
-      "Events failed to flush due to server error",
-    );
+    expect(loggerMock).not.toHaveBeenCalledWith("Events flushed successfully");
     loggerMock.mockClear();
 
-    // Attempt 3: Wait for next flush 8_000
-    await vi.advanceTimersByTimeAsync(8_000);
-    expect(loggerMock).not.toHaveBeenCalledWith(
-      "Events failed to flush due to server error",
-    );
+    // Attempt 3: Wait for next flush
+    await vi.advanceTimersByTimeAsync(4_000);
+    expect(loggerMock).not.toHaveBeenCalledWith("Events flushed successfully");
     loggerMock.mockClear();
 
-    // Attempt 3: Wait for request to complete 20_000
+    // Attempt 3: Wait for request to complete
     await vi.advanceTimersByTimeAsync(20_000);
-    expect(loggerMock).toHaveBeenCalledExactlyOnceWith(
-      "Events failed to flush due to server error",
-    );
+    expect(loggerMock).not.toHaveBeenCalledWith("Events flushed successfully");
     loggerMock.mockClear();
 
-    // Attempt 4: Wait for next flush 16_000
-    await vi.advanceTimersByTimeAsync(16_000);
-    await vi.waitFor(() => {
-      expect(loggerMock).toHaveBeenCalledWith("Events flushed successfully");
-    });
+    // Attempt 4: Wait for next flush
+    await vi.advanceTimersByTimeAsync(8_000);
+    expect(loggerMock).toHaveBeenCalledWith("Events flushed successfully");
+  });
+
+  test("retries tracking events accumulating them if there are errors", async () => {
+    let attempts = 0;
+
+    server.use(
+      http.post(eventsURL, async ({ request }) => {
+        ++attempts;
+
+        if (attempts < 4) {
+          return new HttpResponse(null, { status: 500 });
+        }
+
+        const json = (await request.json()) as Record<string, Array<unknown>>;
+        if (json.events?.length === 4) {
+          return HttpResponse.json(json, { status: 201 });
+        }
+
+        return new HttpResponse(null, { status: 500 });
+      }),
+    );
+
+    const purchases = configurePurchases();
+    for (let i = 0; i < 3; i++) {
+      // @ts-expect-error "no way to fire an extra event for testing"
+      purchases.eventsTracker.trackSDKInitialized("someAppUserId");
+    }
+
+    await vi.advanceTimersByTimeAsync(1000 + 2000 + 4000 + 8000);
+    expect(loggerMock).toHaveBeenCalledWith("Events flushed successfully");
   });
 });

@@ -302,7 +302,7 @@ export function getRequestHandlers(): RequestHandler[] {
     http.post(eventsURL, async ({ request }) => {
       const json = await request.json();
       APIPostRequest({ url: eventsURL, json });
-      return HttpResponse.json({}, { status: 201 });
+      return HttpResponse.json({}, { status: 200 });
     }),
   );
 

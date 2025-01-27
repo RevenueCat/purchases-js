@@ -271,16 +271,12 @@ test.describe("Main", () => {
     });
   });
 
-  test.only("Tracks event SDK Initialized", async ({
-    browser,
-    browserName,
-  }) => {
+  test("Tracks event SDK Initialized", async ({ browser, browserName }) => {
     const userId = `${getUserId(browserName)}_subscription`;
     const page = await browser.newPage();
 
     const waitForTrackEventPromise = page.waitForResponse(
       successfulEventTrackingResponseMatcher((event) => {
-        console.log(event);
         return (
           event.id !== undefined &&
           event.timestamp !== undefined &&

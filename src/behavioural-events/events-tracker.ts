@@ -4,7 +4,7 @@ import { RC_ENDPOINT, VERSION } from "../helpers/constants";
 import { HttpMethods } from "msw";
 import { getHeaders } from "../networking/http-client";
 import { defaultHttpConfig, type HttpConfig } from "../entities/http-config";
-import { RetryWithBackoff } from "../helpers/retry-with-backoff";
+import { FlushManager } from "./flush-manager";
 import { Trace } from "./trace";
 import { Logger } from "../helpers/logger";
 
@@ -14,10 +14,9 @@ const MAX_INTERVAL_RETRY = 60_000;
 export default class EventsTracker {
   private readonly trace: Trace;
   private readonly eventsQueue: Array<BaseEvent> = [];
-  private flushingMutex: boolean = false;
   private readonly traceId: string = uuid();
   private readonly baseUrl: string = RC_ENDPOINT;
-  private readonly retry: RetryWithBackoff;
+  private readonly flushManager: FlushManager;
 
   constructor(
     private readonly apiKey: string,
@@ -26,12 +25,10 @@ export default class EventsTracker {
     Logger.debugLog(`Events tracker created for traceId ${this.traceId}`);
 
     this.trace = new Trace();
-    this.retry = new RetryWithBackoff(
+    this.flushManager = new FlushManager(
       MIN_INTERVAL_RETRY,
       MAX_INTERVAL_RETRY,
-      () => {
-        this.flushEvents();
-      },
+      this.flushEvents.bind(this),
     );
   }
 
@@ -48,51 +45,7 @@ export default class EventsTracker {
       `Queueing event ${event.type} with properties ${JSON.stringify(event)}`,
     );
     this.eventsQueue.push(event);
-    this.flushEvents();
-  }
-
-  public flushEvents() {
-    Logger.debugLog("Flushing events");
-    if (this.eventsQueue.length === 0) {
-      Logger.debugLog(`Nothing to flush`);
-      return;
-    }
-    if (this.flushingMutex) {
-      Logger.debugLog("Already flushing");
-      return;
-    }
-
-    this.flushingMutex = true;
-    Logger.debugLog("Acquired flushing mutex");
-    this.postEvents(this.eventsQueue)
-      .then((response) => {
-        if (response.status === 200 || response.status === 201) {
-          Logger.debugLog("Events flushed successfully");
-          this.eventsQueue.splice(0, this.eventsQueue.length);
-          this.retry.reset();
-        } else {
-          Logger.debugLog("Events failed to flush due to server error");
-          this.retry.backoff();
-        }
-      })
-      .catch((error) => {
-        Logger.debugLog(`Error while flushing events: ${error}`);
-        this.retry.backoff();
-      })
-      .finally(() => {
-        Logger.debugLog("Releasing flushing mutex");
-        this.flushingMutex = false;
-      });
-  }
-
-  public async postEvents(events: Array<BaseEvent>): Promise<Response> {
-    const URL = `${this.httpConfig.proxyURL || this.baseUrl}/v1/events`;
-    Logger.debugLog(`Posting ${events.length} events to ${URL}`);
-    return await fetch(URL, {
-      method: HttpMethods.POST,
-      headers: getHeaders(this.apiKey),
-      body: JSON.stringify({ events: events }),
-    });
+    this.flushManager.tryFlush();
   }
 
   public trackSDKInitialized(appUserId: string | null) {
@@ -102,6 +55,41 @@ export default class EventsTracker {
   }
 
   public dispose() {
-    this.retry.stop();
+    this.flushManager.stop();
+  }
+
+  private async flushEvents(): Promise<void> {
+    Logger.debugLog("Flushing events");
+
+    if (this.eventsQueue.length === 0) {
+      Logger.debugLog(`Nothing to flush`);
+      return;
+    }
+
+    await this.postEvents(this.eventsQueue)
+      .then((response) => {
+        if (response.status === 200 || response.status === 201) {
+          Logger.debugLog("Events flushed successfully");
+          this.eventsQueue.splice(0, this.eventsQueue.length);
+          return true;
+        } else {
+          Logger.debugLog("Events failed to flush due to server error");
+          throw new Error("Events failed to flush due to server error");
+        }
+      })
+      .catch((error) => {
+        Logger.debugLog("Error while flushing events");
+        throw error;
+      });
+  }
+
+  private postEvents(events: Array<BaseEvent>): Promise<Response> {
+    const URL = `${this.httpConfig.proxyURL || this.baseUrl}/v1/events`;
+    Logger.debugLog(`Posting ${events.length} events to ${URL}`);
+    return fetch(URL, {
+      method: HttpMethods.POST,
+      headers: getHeaders(this.apiKey),
+      body: JSON.stringify({ events: events }),
+    });
   }
 }
