@@ -102,12 +102,16 @@
     LocalizationKeys.StateErrorButtonTryAgain,
   )}
 >
-  <IconError slot="icon" />
+  {#snippet icon()}
+    <IconError />
+  {/snippet}
 
-  {getTranslatedErrorMessage()}
-  {#if supportEmail}
-    <br />
-    <Localized key={LocalizationKeys.StateErrorIfErrorPersists} />
-    <a href="mailto:{supportEmail}">{supportEmail}</a>.
-  {/if}
+  {#snippet message()}
+    {getTranslatedErrorMessage()}
+    {#if supportEmail}
+      <br />
+      <Localized key={LocalizationKeys.StateErrorIfErrorPersists} />
+      <a href="mailto:{supportEmail}">{supportEmail}</a>.
+    {/if}
+  {/snippet}
 </MessageLayout>

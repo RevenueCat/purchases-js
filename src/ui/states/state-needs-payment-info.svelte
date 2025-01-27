@@ -272,8 +272,12 @@
               onContinue={handleErrorTryAgain}
               brandingInfo={null}
             >
-              <IconError slot="icon" />
-              {modalErrorMessage}
+              {#snippet icon()}
+                <IconError />
+              {/snippet}
+              {#snippet message()}
+                {modalErrorMessage}
+              {/snippet}
             </MessageLayout>
           {/if}
         </ModalSection>

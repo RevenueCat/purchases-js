@@ -20,7 +20,9 @@
     <ModalBackdrop>
       <Layout>
         <Main brandingAppearance={args.brandingAppearance}>
-          <StateLoading {...args} />
+          {#snippet body()}
+            <StateLoading {...args} />
+          {/snippet}
         </Main>
       </Layout>
     </ModalBackdrop>
