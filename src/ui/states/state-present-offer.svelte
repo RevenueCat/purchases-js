@@ -172,13 +172,13 @@
     display: flex;
     flex-direction: column;
     font: var(--rc-text-body1-mobile);
-    margin-top: var(--rc-spacing-gapLarge-desktop);
-    gap: var(--rc-spacing-gapMedium-desktop);
+    gap: var(--rc-spacing-gapLarge-desktop);
   }
 
   .rcb-product-title {
     color: var(--rc-color-grey-text-dark);
     font: var(--rc-text-title3-mobile);
+    margin-top: var(--rc-spacing-gapLarge-mobile);
   }
 
   .rcb-product-price {
@@ -211,7 +211,6 @@
     color: var(--rc-color-grey-text-light);
 
     margin: 0px;
-    padding: var(--rc-spacing-gapMedium-desktop) 0px;
 
     overflow: hidden;
     max-height: 0;
@@ -229,9 +228,6 @@
 
   .rcb-product-details.expanded {
     max-height: 500px;
-    padding-top: var(--rc-spacing-gapSmall-desktop);
-    padding-bottom: var(--rc-spacing-gapSmall-desktop);
-    margin-top: var(--rc-spacing-gapMedium-desktop);
   }
 
   .rcb-product-details.collapsed {
@@ -241,22 +237,16 @@
   }
   @media screen and (max-width: 768px) {
     .rcb-pricing-info {
-      margin-top: var(--rc-spacing-gapLarge-mobile);
-      gap: var(--rc-spacing-gapMedium-mobile);
-    }
-
-    .rcb-product-details {
-      padding: var(--rc-spacing-gapMedium-mobile) 0px;
-    }
-
-    .rcb-product-details.expanded {
-      padding-top: var(--rc-spacing-gapSmall-mobile);
-      padding-bottom: var(--rc-spacing-gapSmall-mobile);
-      margin-top: var(--rc-spacing-gapMedium-mobile);
+      gap: var(--rc-spacing-gapLarge-mobile);
     }
   }
 
   @media screen and (min-width: 768px) {
+    .rcb-pricing-info {
+      margin-top: 120px;
+      margin-bottom: 120px;
+    }
+
     .rcb-product-title {
       font: var(--rc-text-title2-desktop);
     }
@@ -279,16 +269,10 @@
 
     .rcb-product-details {
       max-height: 500px;
-      padding-top: var(--rc-spacing-gapSmall-desktop);
-      padding-bottom: var(--rc-spacing-gapSmall-desktop);
-      margin-top: var(--rc-spacing-gapMedium-desktop);
     }
 
     .rcb-product-details.collapsed {
       max-height: 500px;
-      padding-top: var(--rc-spacing-gapSmall-desktop);
-      padding-bottom: var(--rc-spacing-gapSmall-desktop);
-      margin-top: var(--rc-spacing-gapMedium-desktop);
     }
   }
 </style>

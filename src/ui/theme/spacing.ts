@@ -23,8 +23,8 @@ export const DEFAULT_SPACING: Spacing = {
     desktop: "clamp(12px, 3.2vw, 24px)",
   },
   gapLarge: {
-    mobile: "clamp(16px, 4.2vw, 24px)",
-    desktop: "clamp(24px, 4.2vw, 32px)",
+    mobile: "16px",
+    desktop: "32px",
   },
   inputHeight: {
     mobile: "clamp(40px, 10.7vw, 48px)",

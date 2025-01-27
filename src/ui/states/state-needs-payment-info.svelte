@@ -2,7 +2,7 @@
   import { getContext, onMount } from "svelte";
 
   import Button from "../button.svelte";
-  import { Elements, PaymentElement } from "svelte-stripe";
+  import { Elements, ExpressCheckout, PaymentElement } from "svelte-stripe";
   import type {
     Stripe,
     StripeElementLocale,
@@ -88,6 +88,8 @@
     if (elements && elements._elements.length > 0) {
       safeElements = elements;
     }
+
+    console.log(elements);
   }
 
   onMount(async () => {
@@ -201,7 +203,18 @@
 </script>
 
 <div class="checkout-container">
-  <TextSeparator text="Express Checkout" />
+  <TextSeparator text="Pay by card" />
+  <ExpressCheckout
+    on:continue={handleContinue}
+    on:click={handleContinue}
+    buttonHeight={48}
+    buttonTheme={{
+      googlePay: "white",
+    }}
+    buttonType={{ googlePay: "buy", applePay: "buy" }}
+    paymentMethodOrder={["applePay", "googlePay", "amazonPay"]}
+  />
+  <TextSeparator text="Pay by card" />
   {#if stripe && clientSecret}
     <form on:submit|preventDefault={handleContinue}>
       <Elements
@@ -346,6 +359,8 @@
 <style>
   .terms {
     font: var(--rc-text-caption-mobile);
+    margin-top: var(--rc-spacing-gapLarge-mobile);
+    margin-bottom: var(--rc-spacing-gapLarge-mobile);
   }
 
   @media (min-width: 768px) {
@@ -361,16 +376,25 @@
     gap: var(--rc-spacing-gapLarge-mobile);
   }
 
+  .checkout-pay-container {
+    display: flex;
+    flex-direction: column;
+    margin-top: var(--rc-spacing-gapLarge-mobile);
+  }
+
   @media (min-width: 768px) {
     .checkout-container {
       gap: var(--rc-spacing-gapLarge-desktop);
     }
-  }
 
-  .checkout-pay-container {
-    display: flex;
-    flex-direction: column;
-    margin-top: var(--rc-spacing-gapMedium-mobile);
+    .checkout-pay-container {
+      margin-top: var(--rc-spacing-gapLarge-desktop);
+    }
+
+    .terms {
+      margin-top: var(--rc-spacing-gapLarge-desktop);
+      margin-bottom: var(--rc-spacing-gapLarge-desktop);
+    }
   }
 
   .checkout-form-container {

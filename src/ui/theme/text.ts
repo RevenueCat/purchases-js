@@ -35,7 +35,7 @@ export const DEFAULT_TEXT_STYLES: TextStyles = {
     mobile: { fontSize: "28px", lineHeight: "34px", fontWeight: "500" },
   },
   title2: {
-    desktop: { fontSize: "40px", lineHeight: "54px", fontWeight: "500" },
+    desktop: { fontSize: "24px", lineHeight: "28px", fontWeight: "500" },
     mobile: { fontSize: "24px", lineHeight: "28px", fontWeight: "500" },
   },
   title3: {
