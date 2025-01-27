@@ -107,14 +107,14 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    margin-top: var(--rc-spacing-gapMedium-desktop);
-    margin-bottom: var(--rc-spacing-gapMedium-desktop);
+    margin-top: var(--rc-spacing-gapLarge-desktop);
+    margin-bottom: var(--rc-spacing-gapLarge-desktop);
   }
 
   @media screen and (max-width: 768px) {
     .form-container {
-      margin-top: var(--rc-spacing-gapMedium-mobile);
-      margin-bottom: var(--rc-spacing-gapMedium-mobile);
+      margin-top: var(--rc-spacing-gapLarge-mobile);
+      margin-bottom: var(--rc-spacing-gapLarge-mobile);
     }
   }
 
@@ -174,6 +174,7 @@
     .needs-auth-info-container {
       max-width: 50vw;
       padding: var(--rc-spacing-innerPadding-desktop);
+      flex-grow: 0;
     }
   }
 
