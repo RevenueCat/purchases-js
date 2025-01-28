@@ -258,8 +258,8 @@ export function getRequestHandlers(): RequestHandler[] {
     const body = offeringsResponsesPerUserId[userId]!;
     const url = `http://localhost:8000/v1/subscribers/${userId}/offerings`;
     requestHandlers.push(
-      http.get(url, () => {
-        APIGetRequest({ url: url });
+      http.get(url, ({ request }) => {
+        APIGetRequest({ url: request.url });
         return HttpResponse.json(body, { status: 200 });
       }),
     );
@@ -267,10 +267,10 @@ export function getRequestHandlers(): RequestHandler[] {
 
   Object.keys(productsResponsesPerUserId).forEach((userId: string) => {
     const body = productsResponsesPerUserId[userId]!;
-    const url = `http://localhost:8000/rcbilling/v1/subscribers/${userId}/products?id=monthly&id=monthly_2`;
+    const url = `http://localhost:8000/rcbilling/v1/subscribers/${userId}/products`;
     requestHandlers.push(
-      http.get(url, () => {
-        APIGetRequest({ url: url });
+      http.get(url, ({ request }) => {
+        APIGetRequest({ url: request.url });
         return HttpResponse.json(body, { status: 200 });
       }),
     );
@@ -280,8 +280,8 @@ export function getRequestHandlers(): RequestHandler[] {
     const body = customerInfoResponsePerUserId[userId]!;
     const url = `http://localhost:8000/v1/subscribers/${userId}`;
     requestHandlers.push(
-      http.get(url, () => {
-        APIGetRequest({ url: url });
+      http.get(url, ({ request }) => {
+        APIGetRequest({ url: request.url });
         return HttpResponse.json(body, { status: 200 });
       }),
     );
@@ -289,8 +289,8 @@ export function getRequestHandlers(): RequestHandler[] {
 
   const brandingUrl = "http://localhost:8000/rcbilling/v1/branding";
   requestHandlers.push(
-    http.get(brandingUrl, () => {
-      APIGetRequest({ url: brandingUrl });
+    http.get(brandingUrl, ({ request }) => {
+      APIGetRequest({ url: request.url });
       return HttpResponse.json(brandingInfoResponse, { status: 200 });
     }),
   );
