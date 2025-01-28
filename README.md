@@ -12,11 +12,11 @@ Login @ [app.revenuecat.com](https://app.revenuecat.com)
 
 - Connect your Stripe account if you haven't already (More payment gateways are coming soon)
 - Create a Project (if you haven't already)
-- Add a new RCBilling app
+- Add a new Web Billing app
 - Get the sandbox API key or production API key (depending on the environment)
-- Create some products for the RCBilling App
-- Create an offering and add packages with RCBilling products
-- Create the entitlements you need in your app and link them to the RCBilling products
+- Create some products for the Web Billing App
+- Create an offering and add packages with Web Billing products
+- Create the entitlements you need in your app and link them to the Web Billing products
 
 # Installation
 

@@ -1,4 +1,4 @@
-# React RC Billing Demo
+# React Web Billing Demo
 
 ### Development
 

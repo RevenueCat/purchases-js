@@ -1,7 +1,7 @@
 {
   "metadata": {
     "toolPackage": "@microsoft/api-extractor",
-    "toolVersion": "7.48.0",
+    "toolVersion": "7.49.0",
     "schemaVersion": 1011,
     "oldestForwardsCompatibleVersion": 1001,
     "tsdocConfig": {
@@ -351,7 +351,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!CustomerInfo#managementURL:member",
-              "docComment": "/**\n * URL to manage the active subscription of the user. If this user has an active RC Billing subscription, a link to the management page. If this user has an active iOS subscription, this will point to the App Store. If the user has an active Play Store subscription it will point there. If there are no active subscriptions it will be null.\n */\n",
+              "docComment": "/**\n * URL to manage the active subscription of the user. If this user has an active Web Billing subscription, a link to the management page. If this user has an active iOS subscription, this will point to the App Store. If the user has an active Play Store subscription it will point there. If there are no active subscriptions it will be null.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",

@@ -137,7 +137,7 @@ export interface CustomerInfo {
   readonly activeSubscriptions: Set<string>;
   /**
    * URL to manage the active subscription of the user.
-   * If this user has an active RC Billing subscription, a link to the management page.
+   * If this user has an active Web Billing subscription, a link to the management page.
    * If this user has an active iOS subscription, this will point to the App Store.
    * If the user has an active Play Store subscription it will point there.
    * If there are no active subscriptions it will be null.
