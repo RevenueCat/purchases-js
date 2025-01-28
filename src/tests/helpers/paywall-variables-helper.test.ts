@@ -5,7 +5,7 @@ import { type VariableDictionary } from "@revenuecat/purchases-ui-js";
 import { Translator } from "../../ui/localization/translator";
 import { englishLocale } from "../../ui/localization/constants";
 
-const monthlyWebBillingProduct = {
+const monthlyProduct = {
   identifier: "test_multicurrency_all_currencies",
   displayName: "Mario",
   title: "Mario",
@@ -43,7 +43,7 @@ const monthlyWebBillingProduct = {
       },
     },
     trial: null,
-  } as SubscriptionOption,
+  },
   defaultSubscriptionOption: {
     id: "base_option",
     priceId: "prcb358d16d7b7744bb8ab0",
@@ -62,7 +62,7 @@ const monthlyWebBillingProduct = {
       },
     },
     trial: null,
-  } as SubscriptionOption,
+  },
   subscriptionOptions: {
     base_option: {
       id: "base_option",
@@ -87,7 +87,7 @@ const monthlyWebBillingProduct = {
   defaultNonSubscriptionOption: null,
 };
 
-const weeklyWebBillingProduct = {
+const weeklyProduct = {
   identifier: "luigis_weekly",
   displayName: "Luigi Special",
   title: "Luigi Special",
@@ -124,7 +124,7 @@ const weeklyWebBillingProduct = {
       },
     },
     trial: null,
-  } as SubscriptionOption,
+  },
   defaultSubscriptionOption: {
     id: "base_option",
     priceId: "prca9ad8d30922442b58e05",
@@ -143,7 +143,7 @@ const weeklyWebBillingProduct = {
       },
     },
     trial: null,
-  } as SubscriptionOption,
+  },
   subscriptionOptions: {
     base_option: {
       id: "base_option",
@@ -168,7 +168,7 @@ const weeklyWebBillingProduct = {
   defaultNonSubscriptionOption: null,
 };
 
-const trialWebBillingProduct = {
+const trialProduct = {
   identifier: "mario_with_trial",
   displayName: "Trial Mario",
   title: "Trial Mario",
@@ -273,6 +273,273 @@ const trialWebBillingProduct = {
   defaultNonSubscriptionOption: null,
 };
 
+const trialProduct900 = {
+  identifier: "mario_with_trial",
+  displayName: "Trial Mario",
+  title: "Trial Mario",
+  description: "Mario with a trial",
+  productType: "subscription",
+  currentPrice: {
+    amount: 900,
+    amountMicros: 9000000,
+    currency: "EUR",
+    formattedPrice: "€9.00",
+  },
+  normalPeriodDuration: "P1M",
+  presentedOfferingIdentifier: "MultiCurrencyTest",
+  presentedOfferingContext: {
+    offeringIdentifier: "MultiCurrencyTest",
+    targetingContext: null,
+    placementIdentifier: null,
+  },
+  defaultPurchaseOption: {
+    id: "offerbd69715c768244238f6b6acc84c85c4c",
+    priceId: "prc028090d2f0cd45b08559",
+    base: {
+      periodDuration: "P1M",
+      period: {
+        number: 1,
+        unit: "month",
+      },
+      cycleCount: 1,
+      price: {
+        amount: 3000,
+        amountMicros: 30000000,
+        currency: "EUR",
+        formattedPrice: "€30.00",
+      },
+    },
+    trial: {
+      periodDuration: "P2W",
+      period: {
+        number: 2,
+        unit: "week",
+      },
+      cycleCount: 1,
+      price: null,
+    },
+  } as SubscriptionOption,
+  defaultSubscriptionOption: {
+    id: "offerbd69715c768244238f6b6acc84c85c4c",
+    priceId: "prc028090d2f0cd45b08559",
+    base: {
+      periodDuration: "P1M",
+      period: {
+        number: 1,
+        unit: "month",
+      },
+      cycleCount: 1,
+      price: {
+        amount: 3000,
+        amountMicros: 30000000,
+        currency: "EUR",
+        formattedPrice: "€30.00",
+      },
+    },
+    trial: {
+      periodDuration: "P2W",
+      period: {
+        number: 2,
+        unit: "week",
+      },
+      cycleCount: 1,
+      price: null,
+    },
+  } as SubscriptionOption,
+  subscriptionOptions: {
+    offerbd69715c768244238f6b6acc84c85c4c: {
+      id: "offerbd69715c768244238f6b6acc84c85c4c",
+      priceId: "prc028090d2f0cd45b08559",
+      base: {
+        periodDuration: "P1M",
+        period: {
+          number: 1,
+          unit: "month",
+        },
+        cycleCount: 1,
+        price: {
+          amount: 3000,
+          amountMicros: 30000000,
+          currency: "EUR",
+          formattedPrice: "€30.00",
+        },
+      },
+      trial: {
+        periodDuration: "P2W",
+        period: {
+          number: 2,
+          unit: "week",
+        },
+        cycleCount: 1,
+        price: null,
+      },
+    },
+  },
+  defaultNonSubscriptionOption: null,
+};
+
+const monthlyProduct300 = {
+  identifier: "test_multicurrency_all_currencies",
+  displayName: "Mario",
+  title: "Mario",
+  description:
+    "Just the best for Italian supercalifragilisticexpialidocious plumbers, groom them on a monthly basis",
+  productType: "subscription",
+  currentPrice: {
+    amount: 300,
+    amountMicros: 3000000,
+    currency: "EUR",
+    formattedPrice: "€3.00",
+  },
+  normalPeriodDuration: "P1M",
+  presentedOfferingIdentifier: "MultiCurrencyTest",
+  presentedOfferingContext: {
+    offeringIdentifier: "MultiCurrencyTest",
+    targetingContext: null,
+    placementIdentifier: null,
+  },
+  defaultPurchaseOption: {
+    id: "base_option",
+    priceId: "prcb358d16d7b7744bb8ab0",
+    base: {
+      periodDuration: "P1M",
+      period: {
+        number: 1,
+        unit: "month",
+      },
+      cycleCount: 1,
+      price: {
+        amount: 900,
+        amountMicros: 9000000,
+        currency: "EUR",
+        formattedPrice: "€9.00",
+      },
+    },
+    trial: null,
+  },
+  defaultSubscriptionOption: {
+    id: "base_option",
+    priceId: "prcb358d16d7b7744bb8ab0",
+    base: {
+      periodDuration: "P1M",
+      period: {
+        number: 1,
+        unit: "month",
+      },
+      cycleCount: 1,
+      price: {
+        amount: 900,
+        amountMicros: 9000000,
+        currency: "EUR",
+        formattedPrice: "€9.00",
+      },
+    },
+    trial: null,
+  },
+  subscriptionOptions: {
+    base_option: {
+      id: "base_option",
+      priceId: "prcb358d16d7b7744bb8ab0",
+      base: {
+        periodDuration: "P1M",
+        period: {
+          number: 1,
+          unit: "month",
+        },
+        cycleCount: 1,
+        price: {
+          amount: 900,
+          amountMicros: 9000000,
+          currency: "EUR",
+          formattedPrice: "€9.00",
+        },
+      },
+      trial: null,
+    },
+  },
+  defaultNonSubscriptionOption: null,
+};
+
+const weeklyProduct600 = {
+  identifier: "luigis_weekly",
+  displayName: "Luigi Special",
+  title: "Luigi Special",
+  description: "A fresh alternative to the Mario's, clean them up every week",
+  productType: "subscription",
+  currentPrice: {
+    amount: 600,
+    amountMicros: 6000000,
+    currency: "EUR",
+    formattedPrice: "€6.00",
+  },
+  normalPeriodDuration: "P1W",
+  presentedOfferingIdentifier: "MultiCurrencyTest",
+  presentedOfferingContext: {
+    offeringIdentifier: "MultiCurrencyTest",
+    targetingContext: null,
+    placementIdentifier: null,
+  },
+  defaultPurchaseOption: {
+    id: "base_option",
+    priceId: "prca9ad8d30922442b58e05",
+    base: {
+      periodDuration: "P1W",
+      period: {
+        number: 1,
+        unit: "week",
+      },
+      cycleCount: 1,
+      price: {
+        amount: 900,
+        amountMicros: 9000000,
+        currency: "EUR",
+        formattedPrice: "€9.00",
+      },
+    },
+    trial: null,
+  },
+  defaultSubscriptionOption: {
+    id: "base_option",
+    priceId: "prca9ad8d30922442b58e05",
+    base: {
+      periodDuration: "P1W",
+      period: {
+        number: 1,
+        unit: "week",
+      },
+      cycleCount: 1,
+      price: {
+        amount: 900,
+        amountMicros: 9000000,
+        currency: "EUR",
+        formattedPrice: "€9.00",
+      },
+    },
+    trial: null,
+  },
+  subscriptionOptions: {
+    base_option: {
+      id: "base_option",
+      priceId: "prca9ad8d30922442b58e05",
+      base: {
+        periodDuration: "P1W",
+        period: {
+          number: 1,
+          unit: "week",
+        },
+        cycleCount: 1,
+        price: {
+          amount: 900,
+          amountMicros: 9000000,
+          currency: "EUR",
+          formattedPrice: "€9.00",
+        },
+      },
+      trial: null,
+    },
+  },
+  defaultNonSubscriptionOption: null,
+};
 const offering = {
   identifier: "MultiCurrencyTest",
   serverDescription: "Multi currency test Nicola",
@@ -280,40 +547,40 @@ const offering = {
   packagesById: {
     $rc_monthly: {
       identifier: "$rc_monthly",
-      rcBillingProduct: monthlyWebBillingProduct,
-      webBillingProduct: monthlyWebBillingProduct,
+      rcBillingProduct: monthlyProduct,
+      webBillingProduct: monthlyProduct,
       packageType: "$rc_monthly",
     },
     $rc_weekly: {
       identifier: "$rc_weekly",
-      rcBillingProduct: weeklyWebBillingProduct,
-      webBillingProduct: weeklyWebBillingProduct,
+      rcBillingProduct: weeklyProduct,
+      webBillingProduct: weeklyProduct,
       packageType: "$rc_weekly",
     },
     trial: {
       identifier: "trial",
-      rcBillingProduct: trialWebBillingProduct,
-      webBillingProduct: trialWebBillingProduct,
+      rcBillingProduct: trialProduct,
+      webBillingProduct: trialProduct,
       packageType: "custom",
     },
   },
   availablePackages: [
     {
       identifier: "$rc_monthly",
-      rcBillingProduct: monthlyWebBillingProduct,
-      webBillingProduct: monthlyWebBillingProduct,
+      rcBillingProduct: monthlyProduct,
+      webBillingProduct: monthlyProduct,
       packageType: "$rc_monthly",
     },
     {
       identifier: "$rc_weekly",
-      rcBillingProduct: weeklyWebBillingProduct,
-      webBillingProduct: weeklyWebBillingProduct,
+      rcBillingProduct: weeklyProduct,
+      webBillingProduct: weeklyProduct,
       packageType: "$rc_weekly",
     },
     {
       identifier: "trial",
-      rcBillingProduct: trialWebBillingProduct,
-      webBillingProduct: trialWebBillingProduct,
+      rcBillingProduct: trialProduct,
+      webBillingProduct: trialProduct,
       packageType: "custom",
     },
   ],
@@ -324,14 +591,14 @@ const offering = {
   twoMonth: null,
   monthly: {
     identifier: "$rc_monthly",
-    rcBillingProduct: monthlyWebBillingProduct,
-    webBillingProduct: monthlyWebBillingProduct,
+    rcBillingProduct: monthlyProduct,
+    webBillingProduct: monthlyProduct,
     packageType: "$rc_monthly",
   },
   weekly: {
     identifier: "$rc_weekly",
-    rcBillingProduct: weeklyWebBillingProduct,
-    webBillingProduct: weeklyWebBillingProduct,
+    rcBillingProduct: weeklyProduct,
+    webBillingProduct: weeklyProduct,
     packageType: "$rc_weekly",
   },
   paywall_components: null,
@@ -344,40 +611,40 @@ const samePricePackages = {
   packagesById: {
     $rc_monthly: {
       identifier: "$rc_monthly",
-      rcBillingProduct: monthlyWebBillingProduct,
-      webBillingProduct: monthlyWebBillingProduct,
+      rcBillingProduct: monthlyProduct,
+      webBillingProduct: monthlyProduct,
       packageType: "$rc_monthly",
     },
     $rc_weekly: {
       identifier: "$rc_weekly",
-      rcBillingProduct: weeklyWebBillingProduct,
-      webBillingProduct: weeklyWebBillingProduct,
+      rcBillingProduct: weeklyProduct,
+      webBillingProduct: weeklyProduct,
       packageType: "$rc_weekly",
     },
     trial: {
       identifier: "trial",
-      rcBillingProduct: trialWebBillingProduct,
-      webBillingProduct: trialWebBillingProduct,
+      rcBillingProduct: trialProduct,
+      webBillingProduct: trialProduct,
       packageType: "custom",
     },
   },
   availablePackages: [
     {
       identifier: "$rc_monthly",
-      rcBillingProduct: monthlyWebBillingProduct,
-      webBillingProduct: monthlyWebBillingProduct,
+      rcBillingProduct: monthlyProduct,
+      webBillingProduct: monthlyProduct,
       packageType: "$rc_monthly",
     },
     {
       identifier: "$rc_weekly",
-      rcBillingProduct: weeklyWebBillingProduct,
-      webBillingProduct: weeklyWebBillingProduct,
+      rcBillingProduct: weeklyProduct,
+      webBillingProduct: weeklyProduct,
       packageType: "$rc_weekly",
     },
     {
       identifier: "trial",
-      rcBillingProduct: trialWebBillingProduct,
-      webBillingProduct: trialWebBillingProduct,
+      rcBillingProduct: trialProduct900,
+      webBillingProduct: trialProduct900,
       packageType: "custom",
     },
   ],
@@ -388,14 +655,14 @@ const samePricePackages = {
   twoMonth: null,
   monthly: {
     identifier: "$rc_monthly",
-    rcBillingProduct: monthlyWebBillingProduct,
-    webBillingProduct: monthlyWebBillingProduct,
+    rcBillingProduct: monthlyProduct,
+    webBillingProduct: monthlyProduct,
     packageType: "$rc_monthly",
   },
   weekly: {
     identifier: "$rc_weekly",
-    rcBillingProduct: weeklyWebBillingProduct,
-    webBillingProduct: weeklyWebBillingProduct,
+    rcBillingProduct: weeklyProduct,
+    webBillingProduct: weeklyProduct,
     packageType: "$rc_weekly",
   },
   paywall_components: null,
@@ -408,40 +675,40 @@ const differentPricedPackages = {
   packagesById: {
     $rc_monthly: {
       identifier: "$rc_monthly",
-      rcBillingProduct: monthlyWebBillingProduct,
-      webBillingProduct: monthlyWebBillingProduct,
+      rcBillingProduct: monthlyProduct,
+      webBillingProduct: monthlyProduct,
       packageType: "$rc_monthly",
     },
     $rc_weekly: {
       identifier: "$rc_weekly",
-      rcBillingProduct: weeklyWebBillingProduct,
-      webBillingProduct: weeklyWebBillingProduct,
+      rcBillingProduct: weeklyProduct,
+      webBillingProduct: weeklyProduct,
       packageType: "$rc_weekly",
     },
     trial: {
       identifier: "trial",
-      rcBillingProduct: trialWebBillingProduct,
-      webBillingProduct: trialWebBillingProduct,
+      rcBillingProduct: trialProduct,
+      webBillingProduct: trialProduct,
       packageType: "custom",
     },
   },
   availablePackages: [
     {
       identifier: "$rc_monthly",
-      rcBillingProduct: monthlyWebBillingProduct,
-      webBillingProduct: monthlyWebBillingProduct,
+      rcBillingProduct: monthlyProduct300,
+      webBillingProduct: monthlyProduct300,
       packageType: "$rc_monthly",
     },
     {
       identifier: "$rc_weekly",
-      rcBillingProduct: weeklyWebBillingProduct,
-      webBillingProduct: weeklyWebBillingProduct,
+      rcBillingProduct: weeklyProduct600,
+      webBillingProduct: weeklyProduct600,
       packageType: "$rc_weekly",
     },
     {
       identifier: "trial",
-      rcBillingProduct: trialWebBillingProduct,
-      webBillingProduct: trialWebBillingProduct,
+      rcBillingProduct: trialProduct900,
+      webBillingProduct: trialProduct900,
       packageType: "custom",
     },
   ],
@@ -452,14 +719,14 @@ const differentPricedPackages = {
   twoMonth: null,
   monthly: {
     identifier: "$rc_monthly",
-    rcBillingProduct: monthlyWebBillingProduct,
-    webBillingProduct: monthlyWebBillingProduct,
+    rcBillingProduct: monthlyProduct,
+    webBillingProduct: monthlyProduct,
     packageType: "$rc_monthly",
   },
   weekly: {
     identifier: "$rc_weekly",
-    rcBillingProduct: weeklyWebBillingProduct,
-    webBillingProduct: weeklyWebBillingProduct,
+    rcBillingProduct: weeklyProduct,
+    webBillingProduct: weeklyProduct,
     packageType: "$rc_weekly",
   },
   paywall_components: null,
