@@ -243,8 +243,8 @@
 
   @media screen and (min-width: 768px) {
     .rcb-pricing-info {
-      margin-top: 120px;
-      margin-bottom: 120px;
+      margin-top: calc(var(--rc-spacing-gapXXLarge-desktop) * 2);
+      margin-bottom: calc(var(--rc-spacing-gapXXLarge-desktop) * 2);
     }
 
     .rcb-product-title {
