@@ -48,7 +48,11 @@ export default class EventsTracker {
 
   public async trackSDKInitialized(appUserId: string | null) {
     Logger.debugLog("Tracking SDK Initialization");
-    const event = new SDKInitializedEvent(this.traceId, appUserId, VERSION);
+    const event = new SDKInitializedEvent({
+      traceId: this.traceId,
+      appUserId,
+      sdkVersion: VERSION,
+    });
     this.trackEvent(event);
   }
 
