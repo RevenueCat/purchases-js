@@ -15,7 +15,7 @@ export default class EventsTracker {
   private readonly trace: Trace;
   private readonly eventsQueue: Array<BaseEvent> = [];
   private readonly traceId: string = uuid();
-  private readonly baseUrl: string = RC_ENDPOINT;
+  private readonly eventsUrl: string;
   private readonly flushManager: FlushManager;
 
   constructor(
@@ -24,6 +24,7 @@ export default class EventsTracker {
   ) {
     Logger.debugLog(`Events tracker created for traceId ${this.traceId}`);
 
+    this.eventsUrl = `${this.httpConfig.proxyURL || RC_ENDPOINT}/v1/events`;
     this.trace = new Trace();
     this.flushManager = new FlushManager(
       MIN_INTERVAL_RETRY,
@@ -90,9 +91,8 @@ export default class EventsTracker {
   }
 
   private postEvents(events: Array<BaseEvent>): Promise<Response> {
-    const URL = `${this.httpConfig.proxyURL || this.baseUrl}/v1/events`;
-    Logger.debugLog(`Posting ${events.length} events to ${URL}`);
-    return fetch(URL, {
+    Logger.debugLog(`Posting ${events.length} events to ${this.eventsUrl}`);
+    return fetch(this.eventsUrl, {
       method: HttpMethods.POST,
       headers: getHeaders(this.apiKey),
       body: JSON.stringify({ events: events }),
