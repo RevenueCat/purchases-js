@@ -2498,7 +2498,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!Package#rcBillingProduct:member",
-              "docComment": "/**\n * The {@link Product} assigned to this package.\n */\n",
+              "docComment": "/**\n * The {@link Product} assigned to this package.\n *\n * @deprecated\n *\n * - Use {@link Package.webBillingProduct} instead.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -2518,6 +2518,34 @@
               "isOptional": false,
               "releaseTag": "Public",
               "name": "rcBillingProduct",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!Package#webBillingProduct:member",
+              "docComment": "/**\n * The {@link Product} assigned to this package.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly webBillingProduct: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Product",
+                  "canonicalReference": "@revenuecat/purchases-js!Product:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "webBillingProduct",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2

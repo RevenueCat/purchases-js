@@ -177,6 +177,7 @@ export interface Package {
     readonly packageType: PackageType;
     // @deprecated
     readonly rcBillingProduct: Product;
+    readonly webBillingProduct: Product;
 }
 
 // @public
