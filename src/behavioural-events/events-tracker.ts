@@ -73,15 +73,17 @@ export default class EventsTracker {
       return Promise.resolve();
     }
 
+    const eventsToFlush = [...this.eventsQueue];
+
     return fetch(this.eventsUrl, {
       method: HttpMethods.POST,
       headers: getHeaders(this.apiKey),
-      body: JSON.stringify({ events: this.eventsQueue }),
+      body: JSON.stringify({ events: eventsToFlush }),
     })
       .then((response) => {
         if (response.status === 200 || response.status === 201) {
           Logger.debugLog("Events flushed successfully");
-          this.eventsQueue.splice(0, this.eventsQueue.length);
+          this.eventsQueue.splice(0, eventsToFlush.length);
           return;
         } else {
           Logger.debugLog("Events failed to flush due to server error");
