@@ -13,7 +13,7 @@ describe("Purchases.configure()", () => {
   }));
   const loggerMock = vi
     .spyOn(Logger, "debugLog")
-    .mockImplementation((params) => console.log(params));
+    .mockImplementation(() => undefined);
 
   beforeEach(() => {
     vi.useFakeTimers();

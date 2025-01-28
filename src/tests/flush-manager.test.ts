@@ -1,15 +1,12 @@
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { describe, type MockedFunction } from "vitest";
 import { FlushManager } from "../behavioural-events/flush-manager";
-import { LogLevel } from "../entities/log-level";
-import { Logger } from "../helpers/logger";
 
 describe("RepeatWithBackoff", () => {
   let callbackSpy: MockedFunction<() => Promise<void>>;
   let flushManager: FlushManager;
 
   beforeEach(() => {
-    Logger.setLogLevel(LogLevel.Verbose);
     vi.useFakeTimers();
     callbackSpy = vi.fn().mockReturnValue(Promise.resolve());
     flushManager = new FlushManager(1_000, 10_000, callbackSpy);
