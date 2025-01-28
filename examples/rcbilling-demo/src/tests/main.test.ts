@@ -279,7 +279,7 @@ test.describe("Main", () => {
       successfulEventTrackingResponseMatcher((event) => {
         return (
           event.id !== undefined &&
-          event.timestamp !== undefined &&
+          event.timestamp_ms !== undefined &&
           event.trace_id !== undefined &&
           event.trace_index === 0 &&
           event.type === "web_billing_sdk_initialized" &&

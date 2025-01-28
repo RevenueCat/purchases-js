@@ -4,7 +4,7 @@ type EventType = "web_billing_sdk_initialized";
 
 export abstract class BaseEvent {
   public readonly id: string;
-  public readonly timestamp: number;
+  public readonly timestampMs: number;
   public readonly type: string;
   public readonly traceId: string;
   public readonly traceIndex: number;
@@ -17,7 +17,7 @@ export abstract class BaseEvent {
     appUserId: string | null,
   ) {
     this.id = uuidv4();
-    this.timestamp = Date.now();
+    this.timestampMs = Date.now();
     this.type = type;
     this.traceId = traceId;
     this.traceIndex = traceIndex;
@@ -27,7 +27,7 @@ export abstract class BaseEvent {
   public toJSON(): Record<string, unknown> {
     return {
       id: this.id,
-      timestamp: this.timestamp,
+      timestamp_ms: this.timestampMs,
       type: this.type,
       trace_id: this.traceId,
       trace_index: this.traceIndex,
