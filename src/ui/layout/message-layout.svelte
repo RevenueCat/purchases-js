@@ -87,7 +87,7 @@
   }
 
   .title {
-    font: var(--rc-text-title3-mobile);
+    font: var(--rc-text-titleLarge-mobile);
   }
 
   .subtitle {
@@ -100,7 +100,7 @@
     }
 
     .title {
-      font: var(--rc-text-title3-desktop);
+      font: var(--rc-text-titleLarge-desktop);
     }
 
     .subtitle {

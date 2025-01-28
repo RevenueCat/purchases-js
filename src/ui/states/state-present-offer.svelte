@@ -177,13 +177,13 @@
 
   .rcb-product-title {
     color: var(--rc-color-grey-text-dark);
-    font: var(--rc-text-title3-mobile);
+    font: var(--rc-text-titleLarge-mobile);
     margin-top: var(--rc-spacing-gapXXLarge-mobile);
   }
 
   .rcb-product-price {
     color: var(--rc-color-grey-text-dark);
-    font: var(--rc-text-title2-mobile);
+    font: var(--rc-text-titleXLarge-mobile);
     margin: 12px 0px;
   }
 
@@ -248,11 +248,11 @@
     }
 
     .rcb-product-title {
-      font: var(--rc-text-title2-desktop);
+      font: var(--rc-text-titleXLarge-desktop);
     }
 
     .rcb-product-price {
-      font: var(--rc-text-title2-desktop);
+      font: var(--rc-text-titleXLarge-desktop);
     }
 
     .rcb-product-price-frequency {

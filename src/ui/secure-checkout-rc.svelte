@@ -10,10 +10,10 @@
 <style>
   .footer-caption {
     font: var(--rc-text-caption-mobile);
-    color: var(--rc-color-text-secondary);
+    color: var(--rc-color-grey-text-light);
     margin: var(--rc-spacing-gapSmall-desktop);
     text-align: center;
-    font-weight: 400;
+    font-weight: 500;
   }
 
   @media screen and (min-width: 768px) {

@@ -81,12 +81,12 @@
 
 <style>
   .auth-info-title {
-    font: var(--rc-text-title3-mobile);
+    font: var(--rc-text-titleLarge-mobile);
   }
 
   @media screen and (min-width: 768px) {
     .auth-info-title {
-      font: var(--rc-text-title3-desktop);
+      font: var(--rc-text-titleLarge-desktop);
     }
   }
 
