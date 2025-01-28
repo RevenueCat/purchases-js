@@ -5,14 +5,12 @@ import { HttpMethods } from "msw";
 import { getHeaders } from "../networking/http-client";
 import { defaultHttpConfig, type HttpConfig } from "../entities/http-config";
 import { FlushManager } from "./flush-manager";
-import { Trace } from "./trace";
 import { Logger } from "../helpers/logger";
 
 const MIN_INTERVAL_RETRY = 2_000;
 const MAX_INTERVAL_RETRY = 60_000;
 
 export default class EventsTracker {
-  private readonly trace: Trace;
   private readonly eventsQueue: Array<BaseEvent> = [];
   private readonly traceId: string = uuid();
   private readonly eventsUrl: string;
@@ -25,7 +23,6 @@ export default class EventsTracker {
     Logger.debugLog(`Events tracker created for traceId ${this.traceId}`);
 
     this.eventsUrl = `${this.httpConfig.proxyURL || RC_ENDPOINT}/v1/events`;
-    this.trace = new Trace();
     this.flushManager = new FlushManager(
       MIN_INTERVAL_RETRY,
       MAX_INTERVAL_RETRY,
@@ -51,13 +48,7 @@ export default class EventsTracker {
 
   public async trackSDKInitialized(appUserId: string | null) {
     Logger.debugLog("Tracking SDK Initialization");
-    const traceIndex = await this.trace.nextTraceIndex();
-    const event = new SDKInitializedEvent(
-      this.traceId,
-      traceIndex,
-      appUserId,
-      VERSION,
-    );
+    const event = new SDKInitializedEvent(this.traceId, appUserId, VERSION);
     this.trackEvent(event);
   }
 

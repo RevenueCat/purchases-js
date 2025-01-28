@@ -7,20 +7,17 @@ export abstract class BaseEvent {
   public readonly timestampMs: number;
   public readonly type: string;
   public readonly traceId: string;
-  public readonly traceIndex: number;
   public readonly appUserId: string | null;
 
   protected constructor(
     type: EventType,
     traceId: string,
-    traceIndex: number,
     appUserId: string | null,
   ) {
     this.id = uuidv4();
     this.timestampMs = Date.now();
     this.type = type;
     this.traceId = traceId;
-    this.traceIndex = traceIndex;
     this.appUserId = appUserId;
   }
 
@@ -30,7 +27,6 @@ export abstract class BaseEvent {
       timestamp_ms: this.timestampMs,
       type: this.type,
       trace_id: this.traceId,
-      trace_index: this.traceIndex,
       app_user_id: this.appUserId,
     };
   }
@@ -39,13 +35,8 @@ export abstract class BaseEvent {
 export class SDKInitializedEvent extends BaseEvent {
   public readonly sdkVersion: string;
 
-  constructor(
-    traceId: string,
-    traceIndex: number,
-    appUserId: string | null,
-    sdkVersion: string,
-  ) {
-    super("web_billing_sdk_initialized", traceId, traceIndex, appUserId);
+  constructor(traceId: string, appUserId: string | null, sdkVersion: string) {
+    super("web_billing_sdk_initialized", traceId, appUserId);
     this.sdkVersion = sdkVersion;
   }
 
