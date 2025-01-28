@@ -65,20 +65,24 @@ export default class EventsTracker {
     this.flushManager.stop();
   }
 
-  private async flushEvents(): Promise<void> {
+  private flushEvents(): Promise<void> {
     Logger.debugLog("Flushing events");
 
     if (this.eventsQueue.length === 0) {
       Logger.debugLog(`Nothing to flush`);
-      return;
+      return Promise.resolve();
     }
 
-    await this.postEvents(this.eventsQueue)
+    return fetch(this.eventsUrl, {
+      method: HttpMethods.POST,
+      headers: getHeaders(this.apiKey),
+      body: JSON.stringify({ events: this.eventsQueue }),
+    })
       .then((response) => {
         if (response.status === 200 || response.status === 201) {
           Logger.debugLog("Events flushed successfully");
           this.eventsQueue.splice(0, this.eventsQueue.length);
-          return true;
+          return;
         } else {
           Logger.debugLog("Events failed to flush due to server error");
           throw new Error("Events failed to flush due to server error");
@@ -88,14 +92,5 @@ export default class EventsTracker {
         Logger.debugLog("Error while flushing events");
         throw error;
       });
-  }
-
-  private postEvents(events: Array<BaseEvent>): Promise<Response> {
-    Logger.debugLog(`Posting ${events.length} events to ${this.eventsUrl}`);
-    return fetch(this.eventsUrl, {
-      method: HttpMethods.POST,
-      headers: getHeaders(this.apiKey),
-      body: JSON.stringify({ events: events }),
-    });
   }
 }
