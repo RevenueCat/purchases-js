@@ -54,9 +54,9 @@
   let productDetails: Product | null = null;
   let paymentInfoCollectionMetadata: PurchaseResponse | null = null;
   let lastError: PurchaseFlowError | null = null;
-  const productId = rcPackage.rcBillingProduct.identifier ?? null;
+  const productId = rcPackage.webBillingProduct.identifier ?? null;
   const defaultPurchaseOption =
-    rcPackage.rcBillingProduct.defaultPurchaseOption;
+    rcPackage.webBillingProduct.defaultPurchaseOption;
   const purchaseOptionToUse = purchaseOption
     ? purchaseOption
     : defaultPurchaseOption;
@@ -89,7 +89,7 @@
   );
 
   onMount(async () => {
-    productDetails = rcPackage.rcBillingProduct;
+    productDetails = rcPackage.webBillingProduct;
 
     colorVariables = toProductInfoStyleVar(brandingInfo?.appearance);
 
@@ -134,7 +134,7 @@
         productId,
         purchaseOptionToUse,
         customerEmail,
-        rcPackage.rcBillingProduct.presentedOfferingContext,
+        rcPackage.webBillingProduct.presentedOfferingContext,
       )
       .then((result) => {
         if (result.next_action === "collect_payment_info") {
