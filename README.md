@@ -32,7 +32,7 @@ Login @ [app.revenuecat.com](https://app.revenuecat.com)
 
 # Usage
 
-See the [RevenueCat docs](https://www.revenuecat.com/docs/web/revenuecat-billing) and the [SDK Reference](https://revenuecat.github.io/purchases-js-docs).
+See the [RevenueCat docs](https://www.revenuecat.com/docs/web/web-billing) and the [SDK Reference](https://revenuecat.github.io/purchases-js-docs).
 
 # Development
 
