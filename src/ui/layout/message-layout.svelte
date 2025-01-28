@@ -68,7 +68,7 @@
     }
 
     .message-layout-footer {
-      margin-top: var(--rc-spacing-gapLarge-desktop);
+      margin-top: var(--rc-spacing-gapXXLarge-desktop);
     }
   }
 
@@ -83,7 +83,7 @@
   }
 
   .rcb-modal-message[data-has-title="false"] {
-    margin-top: var(--rc-spacing-gapLarge-mobile);
+    margin-top: var(--rc-spacing-gapXXLarge-mobile);
   }
 
   .title {
@@ -96,7 +96,7 @@
 
   @media (min-width: 768px) {
     .rcb-modal-message[data-has-title="false"] {
-      margin-top: var(--rc-spacing-gapLarge-desktop);
+      margin-top: var(--rc-spacing-gapXXLarge-desktop);
     }
 
     .title {

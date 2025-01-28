@@ -345,8 +345,8 @@
 <style>
   .terms {
     font: var(--rc-text-caption-mobile);
-    margin-top: var(--rc-spacing-gapLarge-mobile);
-    margin-bottom: var(--rc-spacing-gapLarge-mobile);
+    margin-top: var(--rc-spacing-gapXXLarge-mobile);
+    margin-bottom: var(--rc-spacing-gapXXLarge-mobile);
   }
 
   @media (min-width: 768px) {
@@ -359,27 +359,27 @@
   .checkout-container {
     display: flex;
     flex-direction: column;
-    gap: var(--rc-spacing-gapLarge-mobile);
+    gap: var(--rc-spacing-gapXXLarge-mobile);
   }
 
   .checkout-pay-container {
     display: flex;
     flex-direction: column;
-    margin-top: var(--rc-spacing-gapLarge-mobile);
+    margin-top: var(--rc-spacing-gapXXLarge-mobile);
   }
 
   @media (min-width: 768px) {
     .checkout-container {
-      gap: var(--rc-spacing-gapLarge-desktop);
+      gap: var(--rc-spacing-gapXXLarge-desktop);
     }
 
     .checkout-pay-container {
-      margin-top: var(--rc-spacing-gapLarge-desktop);
+      margin-top: var(--rc-spacing-gapXXLarge-desktop);
     }
 
     .terms {
-      margin-top: var(--rc-spacing-gapLarge-desktop);
-      margin-bottom: var(--rc-spacing-gapLarge-desktop);
+      margin-top: var(--rc-spacing-gapXXLarge-desktop);
+      margin-bottom: var(--rc-spacing-gapXXLarge-desktop);
     }
   }
 

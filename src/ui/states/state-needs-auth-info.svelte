@@ -94,7 +94,6 @@
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    padding: var(--rc-spacing-innerPadding-mobile);
   }
 
   form {
@@ -107,14 +106,14 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    margin-top: var(--rc-spacing-gapLarge-desktop);
-    margin-bottom: var(--rc-spacing-gapLarge-desktop);
+    margin-top: var(--rc-spacing-gapXXLarge-desktop);
+    margin-bottom: var(--rc-spacing-gapXXLarge-desktop);
   }
 
   @media screen and (max-width: 768px) {
     .form-container {
-      margin-top: var(--rc-spacing-gapLarge-mobile);
-      margin-bottom: var(--rc-spacing-gapLarge-mobile);
+      margin-top: var(--rc-spacing-gapXXLarge-mobile);
+      margin-bottom: var(--rc-spacing-gapXXLarge-mobile);
     }
   }
 
@@ -150,7 +149,7 @@
   input {
     width: 100%;
     box-sizing: border-box;
-    padding: var(--rc-spacing-innerPadding-desktop);
+    padding: var(--rc-spacing-gapXXLarge-desktop);
     border: 2px solid var(--rc-color-grey-ui-dark);
     border-radius: var(--rc-shape-input-border-radius);
     font: var(--rc-text-body1-mobile);
@@ -161,7 +160,7 @@
 
   @media screen and (max-width: 768px) {
     input {
-      padding: var(--rc-spacing-innerPadding-mobile);
+      padding: var(--rc-spacing-gapXXLarge-mobile);
       height: var(--rc-spacing-inputHeight-mobile);
     }
   }
@@ -173,7 +172,6 @@
 
     .needs-auth-info-container {
       max-width: 50vw;
-      padding: var(--rc-spacing-innerPadding-desktop);
       flex-grow: 0;
     }
   }

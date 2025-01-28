@@ -10,24 +10,32 @@ export const DEFAULT_SPACING: Spacing = {
     mobile: "clamp(21px, 5.6vw, 24px)",
     desktop: "clamp(24px, 9.44vw, 80px)",
   },
-  innerPadding: {
+  outerPaddingSmall: {
     mobile: "clamp(12px, 4.2vw, 16px)",
-    desktop: "clamp(12px, 4.2vw, 16px)",
+    desktop: "clamp(24px, 9.44vw, 80px)",
   },
   gapSmall: {
-    mobile: "clamp(4px, 2.1vw, 8px)",
-    desktop: "clamp(6px, 2.1vw, 12px)",
+    mobile: "4px",
+    desktop: "6px",
   },
   gapMedium: {
-    mobile: "clamp(8px, 3.2vw, 16px)",
-    desktop: "clamp(12px, 3.2vw, 24px)",
+    mobile: "8px",
+    desktop: "12px",
   },
   gapLarge: {
+    mobile: "12px",
+    desktop: "12px",
+  },
+  gapXLarge: {
     mobile: "16px",
     desktop: "32px",
   },
+  gapXXLarge: {
+    mobile: "20px",
+    desktop: "36px",
+  },
   inputHeight: {
-    mobile: "clamp(40px, 10.7vw, 48px)",
-    desktop: "clamp(48px, 10.7vw, 48px)",
+    mobile: "48px",
+    desktop: "48px",
   },
 };

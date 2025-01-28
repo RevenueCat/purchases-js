@@ -172,13 +172,13 @@
     display: flex;
     flex-direction: column;
     font: var(--rc-text-body1-mobile);
-    gap: var(--rc-spacing-gapLarge-desktop);
+    gap: var(--rc-spacing-gapXXLarge-desktop);
   }
 
   .rcb-product-title {
     color: var(--rc-color-grey-text-dark);
     font: var(--rc-text-title3-mobile);
-    margin-top: var(--rc-spacing-gapLarge-mobile);
+    margin-top: var(--rc-spacing-gapXXLarge-mobile);
   }
 
   .rcb-product-price {
@@ -237,7 +237,7 @@
   }
   @media screen and (max-width: 768px) {
     .rcb-pricing-info {
-      gap: var(--rc-spacing-gapLarge-mobile);
+      gap: var(--rc-spacing-gapXXLarge-mobile);
     }
   }
 

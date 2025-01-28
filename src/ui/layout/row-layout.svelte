@@ -35,7 +35,7 @@
   }
 
   .column.gap-large {
-    gap: var(--rc-spacing-gapLarge-mobile);
+    gap: var(--rc-spacing-gapXXLarge-mobile);
   }
 
   @media (min-width: 768px) {
@@ -48,7 +48,7 @@
     }
 
     .column.gap-large {
-      gap: var(--rc-spacing-gapLarge-desktop);
+      gap: var(--rc-spacing-gapXXLarge-desktop);
     }
   }
 </style>
