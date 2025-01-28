@@ -110,7 +110,7 @@ npm run lint
 
 ## Running E2E tests
 
-Please check the Demo app readme [here](./examples/rcbilling-demo/README.md#e2e-tests)
+Please check the Demo app readme [here](./examples/webbilling-demo/README.md#e2e-tests)
 
 ## Update API specs
 
