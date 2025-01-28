@@ -21,11 +21,11 @@ export class FlushManager {
 
   public tryFlush() {
     if (this.backingOff()) {
-      Logger.log(`Backing off, not flushing`);
+      Logger.debugLog(`Backing off, not flushing`);
       return;
     }
 
-    Logger.log(`Flushing immediately`);
+    Logger.debugLog(`Flushing immediately`);
     this.clearTimeout();
     this.executeCallbackWithRetries();
   }
@@ -36,14 +36,14 @@ export class FlushManager {
 
   public schedule(delay?: number) {
     if (this.timeoutId !== undefined) {
-      Logger.log(`Already scheduled`);
+      Logger.debugLog(`Already scheduled`);
       return;
     }
 
-    Logger.log(`Scheduling callback after ${this.currentDelay}ms delay`);
+    Logger.debugLog(`Scheduling callback after ${this.currentDelay}ms delay`);
     this.timeoutId = setTimeout(() => {
       this.timeoutId = undefined;
-      Logger.log(`Executing callback after ${this.currentDelay}ms delay`);
+      Logger.debugLog(`Executing callback after ${this.currentDelay}ms delay`);
       this.executeCallbackWithRetries();
     }, delay || this.currentDelay);
   }
@@ -51,7 +51,7 @@ export class FlushManager {
   private backoff() {
     const delay = this.currentDelay;
     const newDelay = Math.min(this.currentDelay * 2, this.maxDelay);
-    Logger.log(`Backing next off to ${delay}ms delay`);
+    Logger.debugLog(`Backing next off to ${delay}ms delay`);
     this.clearTimeout();
     this.currentDelay = newDelay;
     this.schedule(delay);
@@ -59,7 +59,7 @@ export class FlushManager {
 
   private reset() {
     if (this.currentDelay !== this.initialDelay) {
-      Logger.log(`Resetting to initial ${this.initialDelay}ms delay`);
+      Logger.debugLog(`Resetting to initial ${this.initialDelay}ms delay`);
       this.clearTimeout();
       this.currentDelay = this.initialDelay;
     }
