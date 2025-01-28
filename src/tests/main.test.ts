@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import {
   type CustomerInfo,
   type EntitlementInfo,
@@ -181,6 +181,17 @@ describe("Purchases.close()", () => {
     expect(Purchases.isConfigured()).toBeTruthy();
     purchases.close();
     expect(Purchases.isConfigured()).toBeFalsy();
+  });
+
+  test("disposes of events tracker and calls through", () => {
+    const purchases = configurePurchases();
+
+    // Create spy that calls through to the original implementation
+    const disposeSpy = vi.spyOn(purchases["eventsTracker"], "dispose");
+
+    purchases.close();
+
+    expect(disposeSpy).toHaveBeenCalled();
   });
 });
 

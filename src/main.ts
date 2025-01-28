@@ -50,6 +50,7 @@ import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
 import { parseOfferingIntoVariables } from "./helpers/paywall-variables-helpers";
 import { Translator } from "./ui/localization/translator";
 import { englishLocale } from "./ui/localization/constants";
+import EventsTracker from "./behavioural-events/events-tracker";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -112,6 +113,9 @@ export class Purchases {
 
   /** @internal */
   private readonly purchaseOperationHelper: PurchaseOperationHelper;
+
+  /** @internal */
+  private readonly eventsTracker: EventsTracker;
 
   /** @internal */
   private static instance: Purchases | undefined = undefined;
@@ -228,8 +232,10 @@ export class Purchases {
     if (isSandboxApiKey(apiKey)) {
       Logger.debugLog("Initializing Purchases SDK with sandbox API Key");
     }
+    this.eventsTracker = new EventsTracker(this._API_KEY, httpConfig);
     this.backend = new Backend(this._API_KEY, httpConfig);
     this.purchaseOperationHelper = new PurchaseOperationHelper(this.backend);
+    this.eventsTracker.trackSDKInitialized(this._appUserId);
   }
 
   /**
@@ -625,6 +631,9 @@ export class Purchases {
    */
   public close() {
     if (Purchases.instance === this) {
+      if (this.eventsTracker) {
+        this.eventsTracker.dispose();
+      }
       Purchases.instance = undefined;
     } else {
       Logger.warnLog(
