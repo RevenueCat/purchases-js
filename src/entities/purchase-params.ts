@@ -42,5 +42,5 @@ export interface PurchaseParams {
    * Any information provided here will be propagated to the payment gateway and
    * to the RC transaction as metadata.
    */
-  purchaseMetadata?: PurchaseMetadata;
+  metadata?: PurchaseMetadata;
 }

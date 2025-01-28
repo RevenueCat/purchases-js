@@ -376,7 +376,7 @@ export interface Offerings {
   readonly current: Offering | null;
 }
 
-export type PurchaseMetadata = Record<string, string | number | boolean | null>;
+export type PurchaseMetadata = Record<string, string | null>;
 
 const toPrice = (priceData: PriceResponse): Price => {
   return {

@@ -556,6 +556,7 @@ export class Purchases {
           purchaseOperationHelper: this.purchaseOperationHelper,
           asModal,
           selectedLocale: localeToBeUsed,
+          metadata: params.metadata,
           defaultLocale,
         },
       });

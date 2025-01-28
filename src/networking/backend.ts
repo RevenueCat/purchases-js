@@ -79,7 +79,7 @@ export class Backend {
     email: string,
     presentedOfferingContext: PresentedOfferingContext,
     purchaseOption: PurchaseOption,
-    purchaseMetadata: PurchaseMetadata | undefined = undefined,
+    metadata: PurchaseMetadata | undefined = undefined,
   ): Promise<PurchaseResponse> {
     type PurchaseRequestBody = {
       app_user_id: string;
@@ -94,7 +94,7 @@ export class Backend {
         revision: number;
       };
       supports_direct_payment: boolean;
-      purchase_metadata?: PurchaseMetadata;
+      metadata?: PurchaseMetadata;
     };
 
     const requestBody: PurchaseRequestBody = {
@@ -107,8 +107,8 @@ export class Backend {
       supports_direct_payment: true,
     };
 
-    if (purchaseMetadata) {
-      requestBody.purchase_metadata = purchaseMetadata;
+    if (metadata) {
+      requestBody.metadata = metadata;
     }
 
     if (purchaseOption.id !== "base_option") {
