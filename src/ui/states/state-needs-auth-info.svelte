@@ -149,7 +149,6 @@
   input {
     width: 100%;
     box-sizing: border-box;
-    padding: var(--rc-spacing-gapXXLarge-desktop);
     border: 2px solid var(--rc-color-grey-ui-dark);
     border-radius: var(--rc-shape-input-border-radius);
     font: var(--rc-text-body1-mobile);
@@ -160,7 +159,7 @@
 
   @media screen and (max-width: 768px) {
     input {
-      padding: var(--rc-spacing-gapXXLarge-mobile);
+      padding-left: var(--rc-spacing-gapLarge-mobile);
       height: var(--rc-spacing-inputHeight-mobile);
     }
   }
@@ -168,6 +167,7 @@
   @media screen and (min-width: 768px) {
     input {
       font: var(--rc-text-body1-desktop);
+      padding-left: var(--rc-spacing-gapLarge-desktop);
     }
 
     .needs-auth-info-container {
