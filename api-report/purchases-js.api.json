@@ -1,7 +1,7 @@
 {
   "metadata": {
     "toolPackage": "@microsoft/api-extractor",
-    "toolVersion": "7.48.0",
+    "toolVersion": "7.49.0",
     "schemaVersion": 1011,
     "oldestForwardsCompatibleVersion": 1001,
     "tsdocConfig": {
@@ -3771,6 +3771,37 @@
           ]
         },
         {
+          "kind": "TypeAlias",
+          "canonicalReference": "@revenuecat/purchases-js!~PurchaseMetadata:type",
+          "docComment": "/**\n * Metadata that can be passed to the backend when making a purchase. They will propagate to the payment gateway (i.e. Stripe) and to the RevenueCat.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "declare type PurchaseMetadata = "
+            },
+            {
+              "kind": "Reference",
+              "text": "Record",
+              "canonicalReference": "!Record:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<string, string | null>"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "name": "PurchaseMetadata",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 3
+          }
+        },
+        {
           "kind": "Interface",
           "canonicalReference": "@revenuecat/purchases-js!PurchaseOption:interface",
           "docComment": "/**\n * Represents a possible option to purchase a product.\n *\n * @public\n */\n",
@@ -3934,6 +3965,34 @@
               "isOptional": true,
               "releaseTag": "Public",
               "name": "htmlTarget",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PurchaseParams#metadata:member",
+              "docComment": "/**\n * The purchase metadata to be passed to the backend. Any information provided here will be propagated to the payment gateway and to the RC transaction as metadata.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "metadata?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "PurchaseMetadata",
+                  "canonicalReference": "@revenuecat/purchases-js!~PurchaseMetadata:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "metadata",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2

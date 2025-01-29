@@ -234,6 +234,7 @@ export class Purchases {
 
   /**
    * Renders an RC Paywall and allows the user to purchase from it using RCBilling.
+   * This method is @experimental and it is not generally available yet.
    * @experimental
    * @internal
    * @param paywallParams - The parameters object to customise the paywall render. Check {@link RenderPaywallParams}
