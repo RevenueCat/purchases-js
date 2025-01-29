@@ -271,7 +271,6 @@
           {/if}
           {#if state === "error"}
             <StateError
-              {brandingInfo}
               lastError={lastError ??
                 new PurchaseFlowError(
                   PurchaseFlowErrorCode.UnknownError,

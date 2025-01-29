@@ -26,6 +26,10 @@
     width: 100%;
   }
 
+  .inner-container {
+    height: 100%;
+  }
+
   @media screen and (min-width: 768px) {
     .rcb-ui-main {
       width: auto;
@@ -35,7 +39,6 @@
     }
 
     .inner-container {
-      max-width: 600px;
       flex-basis: 600px;
     }
   }

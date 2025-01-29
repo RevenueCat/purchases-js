@@ -35,6 +35,10 @@
     background-color: var(--rc-color-background);
   }
 
+  .inner-container {
+    height: 100%;
+  }
+
   @media screen and (min-width: 768px) {
     .rcb-ui-navbar {
       width: 50vw;
