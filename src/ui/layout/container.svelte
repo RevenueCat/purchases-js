@@ -18,7 +18,11 @@
 <style>
   .rcb-ui-container {
     display: flex;
+    z-index: 1000001;
     flex-direction: column;
+    position: fixed;
+    inset: 0;
+    width: 100vw;
     height: 100vh;
     color-scheme: none;
     font-size: 16px;

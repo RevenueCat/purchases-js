@@ -1,13 +1,18 @@
 <script lang="ts">
   import { type Snippet } from "svelte";
-
+  import { fade } from "svelte/transition";
   export let style = "";
   export let as: string = "div";
   export let children: Snippet;
+  export let delayFade = 130;
 </script>
 
 <div class="rcb-modal-container" {style}>
-  <svelte:element this={as} class="rcb-modal-main">
+  <svelte:element
+    this={as}
+    class="rcb-modal-main"
+    transition:fade={{ duration: 500, delay: delayFade }}
+  >
     {@render children?.()}
   </svelte:element>
 </div>
