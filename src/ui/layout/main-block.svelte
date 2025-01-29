@@ -24,6 +24,7 @@
   .rcb-ui-main {
     flex: 1;
     width: 100%;
+    background-color: var(--rc-color-background);
   }
 
   .inner-container {
