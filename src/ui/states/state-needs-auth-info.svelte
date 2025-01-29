@@ -42,13 +42,16 @@
 
 <div class="needs-auth-info-container">
   <span class="auth-info-title">
-    <Localized key={LocalizationKeys.StateNeedsAuthInfoEmailStepTitle} />
-  </span>
+    <label for="email">
+      <Localized key={LocalizationKeys.StateNeedsAuthInfoEmailStepTitle} />
+    </label></span
+  >
   <form on:submit|preventDefault={handleContinue}>
     <ModalSection>
       <div class="form-container">
         <div class="form-input {inputClass}">
           <input
+            id="email"
             name="email"
             placeholder={translator.translate(
               LocalizationKeys.StateNeedsAuthInfoEmailInputPlaceholder,

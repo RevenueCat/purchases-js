@@ -524,6 +524,16 @@ export class Purchases {
     const localeToBeUsed = selectedLocale || defaultLocale;
 
     return new Promise((resolve, reject) => {
+      window.history.pushState({ checkoutOpen: true }, "");
+      const onClose = () => {
+        window.removeEventListener("popstate", onClose);
+        certainHTMLTarget.innerHTML = "";
+        Logger.debugLog("Purchase cancelled by user");
+        reject(new PurchasesError(ErrorCode.UserCancelledError));
+      };
+
+      window.addEventListener("popstate", onClose);
+
       mount(RCPurchasesUI, {
         target: certainHTMLTarget,
         props: {
@@ -541,11 +551,7 @@ export class Purchases {
             };
             resolve(purchaseResult);
           },
-          onClose: () => {
-            certainHTMLTarget.innerHTML = "";
-            Logger.debugLog("Purchase cancelled by user");
-            reject(new PurchasesError(ErrorCode.UserCancelledError));
-          },
+          onClose,
           onError: (e: PurchaseFlowError) => {
             certainHTMLTarget.innerHTML = "";
             reject(PurchasesError.getForPurchasesFlowError(e));
