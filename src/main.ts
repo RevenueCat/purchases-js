@@ -515,7 +515,6 @@ export class Purchases {
 
     const certainHTMLTarget = resolvedHTMLTarget as unknown as HTMLElement;
 
-    const asModal = !htmlTarget;
     const appUserId = this._appUserId;
 
     Logger.debugLog(
@@ -554,7 +553,6 @@ export class Purchases {
           purchases: this,
           brandingInfo: this._brandingInfo,
           purchaseOperationHelper: this.purchaseOperationHelper,
-          asModal,
           selectedLocale: localeToBeUsed,
           defaultLocale,
         },
