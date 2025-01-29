@@ -11,9 +11,9 @@
   .footer-caption {
     font: var(--rc-text-caption-mobile);
     color: var(--rc-color-grey-text-light);
-    margin: var(--rc-spacing-gapSmall-desktop);
     text-align: center;
     font-weight: 500;
+    margin: 0;
   }
 
   @media screen and (min-width: 768px) {

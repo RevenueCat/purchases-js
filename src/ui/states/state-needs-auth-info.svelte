@@ -73,8 +73,10 @@
             />
           {/if}
         </Button>
-        <SecureCheckoutRc />
       </RowLayout>
+      <div class="secure-checkout-container">
+        <SecureCheckoutRc />
+      </div>
     </ModalFooter>
   </form>
 </div>
@@ -84,9 +86,17 @@
     font: var(--rc-text-titleLarge-mobile);
   }
 
+  .secure-checkout-container {
+    margin-top: var(--rc-spacing-gapXXLarge-mobile);
+  }
+
   @media screen and (min-width: 768px) {
     .auth-info-title {
       font: var(--rc-text-titleLarge-desktop);
+    }
+
+    .secure-checkout-container {
+      margin-top: var(--rc-spacing-gapXXLarge-desktop);
     }
   }
 
@@ -106,14 +116,14 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    margin-top: var(--rc-spacing-gapXXLarge-desktop);
-    margin-bottom: var(--rc-spacing-gapXXLarge-desktop);
+    margin-top: var(--rc-spacing-gapXLarge-desktop);
+    margin-bottom: var(--rc-spacing-gapXLarge-desktop);
   }
 
   @media screen and (max-width: 768px) {
     .form-container {
-      margin-top: var(--rc-spacing-gapXXLarge-mobile);
-      margin-bottom: var(--rc-spacing-gapXXLarge-mobile);
+      margin-top: var(--rc-spacing-gapXLarge-mobile);
+      margin-bottom: var(--rc-spacing-gapXLarge-mobile);
     }
   }
 

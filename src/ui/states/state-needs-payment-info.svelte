@@ -61,7 +61,7 @@
 
     stripeVariables = {
       fontSizeBase: "14px",
-      spacingGridRow: spacing.gapLarge[viewport],
+      spacingGridRow: spacing.gapXLarge[viewport],
     };
   }
 
@@ -214,7 +214,6 @@
         labels="floating"
         variables={{
           borderRadius: customShape["input-border-radius"],
-          spacingGridRow: "0px",
           fontLineHeight: "10px",
           focusBoxShadow: "none",
           colorDanger: customColors["error"],
@@ -349,41 +348,38 @@
   .terms {
     font: var(--rc-text-caption-mobile);
     margin-top: var(--rc-spacing-gapXXLarge-mobile);
-    margin-bottom: var(--rc-spacing-gapXXLarge-mobile);
+    margin-bottom: var(--rc-spacing-gapXLarge-mobile);
   }
 
   @media (min-width: 768px) {
     .terms {
       font: var(--rc-text-caption-desktop);
       color: var(--rc-color-grey-text-light);
+      margin-top: var(--rc-spacing-gapXXLarge-desktop);
+      margin-bottom: var(--rc-spacing-gapXLarge-desktop);
     }
   }
 
   .checkout-container {
     display: flex;
     flex-direction: column;
-    gap: var(--rc-spacing-gapXXLarge-mobile);
+    gap: var(--rc-spacing-gapXLarge-mobile);
   }
 
   .checkout-pay-container {
     display: flex;
     flex-direction: column;
-    margin-top: var(--rc-spacing-gapXXLarge-mobile);
+    margin-top: var(--rc-spacing-gapXLarge-mobile);
   }
 
   @media (min-width: 768px) {
     .checkout-container {
-      gap: var(--rc-spacing-gapXXLarge-desktop);
-      margin-top: var(--rc-spacing-gapXXLarge-desktop);
+      gap: var(--rc-spacing-gapXLarge-desktop);
+      margin-top: var(--rc-spacing-gapXLarge-desktop);
     }
 
     .checkout-pay-container {
-      margin-top: var(--rc-spacing-gapXXLarge-desktop);
-    }
-
-    .terms {
-      margin-top: var(--rc-spacing-gapXXLarge-desktop);
-      margin-bottom: var(--rc-spacing-gapXXLarge-desktop);
+      margin-top: var(--rc-spacing-gapXLarge-desktop);
     }
   }
 
