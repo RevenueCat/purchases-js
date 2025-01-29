@@ -12,6 +12,9 @@
   import Main from "../ui/layout/main-block.svelte";
   import Container from "../ui/layout/container.svelte";
   import WithContext from "./utils/with-context.svelte";
+  import Layout from "../ui/layout/layout.svelte";
+  import { toProductInfoStyleVar } from "../ui/theme/utils";
+  import SandboxBanner from "../ui/sandbox-banner.svelte";
 
   import {
     brandingInfo,
@@ -20,6 +23,7 @@
     purchaseFlowError,
     subscriptionOption,
   } from "./fixtures";
+  import { onMount } from "svelte";
 
   const defaultArgs = {
     context: {},
@@ -37,6 +41,8 @@
     args: defaultArgs,
     parameters: {},
   });
+
+  let colorVariables = toProductInfoStyleVar(brandingInfo?.appearance);
 </script>
 
 <script>
@@ -46,31 +52,45 @@
 {#snippet template(args)}
   <WithContext context={args.context}>
     <Container>
-      <NavBar brandingAppearance={args.brandingInfo.appearance}>
-        {#snippet headerContent()}
-          <BrandingInfoUI {...args} />
-        {/snippet}
+      {#if args.context.isSandbox}
+        <SandboxBanner style={colorVariables} />
+      {/if}
+      <Layout style={colorVariables}>
+        <NavBar brandingAppearance={args.brandingInfo.appearance}>
+          {#snippet headerContent()}
+            <BrandingInfoUI {...args} />
+          {/snippet}
 
-        {#snippet bodyContent(expanded)}
-          <StatePresentOffer {...args} {expanded} />
-        {/snippet}
-      </NavBar>
+          {#snippet bodyContent(expanded)}
+            <StatePresentOffer {...args} {expanded} />
+          {/snippet}
+        </NavBar>
 
-      <Main brandingAppearance={args.brandingInfo.appearance}>
-        {#snippet header()}
-          {#if args.renderHeader}
-            <svelte:component this={args.renderHeader} {...args} />
-          {/if}
-        {/snippet}
-        {#snippet body()}
-          <svelte:component this={args.renderBody} {...args} />
-        {/snippet}
-      </Main>
+        <Main brandingAppearance={args.brandingInfo.appearance}>
+          {#snippet header()}
+            {#if args.renderHeader}
+              <svelte:component this={args.renderHeader} {...args} />
+            {/if}
+          {/snippet}
+          {#snippet body()}
+            <svelte:component this={args.renderBody} {...args} />
+          {/snippet}
+        </Main>
+      </Layout>
     </Container>
   </WithContext>
 {/snippet}
 
 <Story name="Email Input" args={{ renderBody: StateNeedsAuthInfo }} />
+<Story
+  name="Email Input (with Sandbox Banner)"
+  args={{
+    renderBody: StateNeedsAuthInfo,
+    context: {
+      isSandbox: true,
+    },
+  }}
+/>
 <Story
   name="Checkout"
   args={{

@@ -39,10 +39,4 @@
       arial,
       sans-serif;
   }
-
-  @media screen and (min-width: 768px) {
-    .rcb-ui-container {
-      flex-direction: row;
-    }
-  }
 </style>

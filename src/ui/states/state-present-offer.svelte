@@ -178,7 +178,6 @@
   .rcb-product-title {
     color: var(--rc-color-grey-text-dark);
     font: var(--rc-text-titleLarge-mobile);
-    margin-top: var(--rc-spacing-gapXXLarge-mobile);
   }
 
   .rcb-product-price {

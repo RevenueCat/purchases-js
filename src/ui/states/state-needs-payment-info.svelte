@@ -24,7 +24,7 @@
   import Localized from "../localization/localized.svelte";
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
-  import TextSeparator from "../text-separator.svelte";
+  // import TextSeparator from "../text-separator.svelte";
   import SecureCheckoutRc from "../secure-checkout-rc.svelte";
 
   export let onClose: any;
@@ -60,7 +60,7 @@
     }
 
     stripeVariables = {
-      fontSizeBase: textStyles.body1[viewport].fontSize,
+      fontSizeBase: "14px",
       spacingGridRow: spacing.gapLarge[viewport],
     };
   }
@@ -240,6 +240,9 @@
             fontWeight: textStyles.body1.desktop.fontWeight,
             lineHeight: "22px",
             color: customColors["grey-text-dark"],
+          },
+          ".Label--floating": {
+            fontSize: "10px !important",
           },
           ".Input--invalid": {
             boxShadow: "none",
