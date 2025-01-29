@@ -2,16 +2,18 @@ import { camelToUnderscore } from "../helpers/camel-to-underscore";
 import { v4 as uuidv4 } from "uuid";
 
 enum EventType {
-  WEB_BILLING_SDK_INITIALIZED = "web_billing_sdk_initialized",
+  SDK_INITIALIZED = "web_billing_sdk_initialized",
+  CHECKOUT_SESSION_START = "web_billing_checkout_session_start",
 }
 
 interface EventData extends Record<string, unknown> {
   traceId: string;
   appUserId: string | null;
+  userIsAnonymous: boolean;
 }
 
-interface SDKInitializedEventData extends EventData {
-  sdkVersion: string;
+interface CheckoutSessionEventData extends EventData {
+  checkoutSessionId: string;
 }
 
 export abstract class BaseEvent {
@@ -35,11 +37,40 @@ export abstract class BaseEvent {
   }
 }
 
+interface SDKInitializedEventData extends EventData {
+  sdkVersion: string;
+}
+
 export class SDKInitializedEvent extends BaseEvent {
   public readonly data: SDKInitializedEventData;
 
   constructor(props: SDKInitializedEventData) {
-    super(EventType.WEB_BILLING_SDK_INITIALIZED);
+    super(EventType.SDK_INITIALIZED);
+    this.data = props;
+  }
+
+  public toJSON(): Record<string, unknown> {
+    return {
+      ...super.toJSON(this.data),
+    };
+  }
+}
+
+interface CheckoutSessionStartEventData extends CheckoutSessionEventData {
+  customizationOptions: Record<string, string | boolean> | null;
+  productInterval: string | null;
+  productPrice: number;
+  productCurrency: string;
+  selectedProduct: string;
+  selectedPackage: string;
+  selectedPurchaseOption: string;
+}
+
+export class CheckoutSessionStartEvent extends BaseEvent {
+  public readonly data: CheckoutSessionStartEventData;
+
+  constructor(props: CheckoutSessionStartEventData) {
+    super(EventType.CHECKOUT_SESSION_START);
     this.data = props;
   }
 

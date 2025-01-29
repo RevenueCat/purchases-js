@@ -50,7 +50,9 @@ import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
 import { parseOfferingIntoVariables } from "./helpers/paywall-variables-helpers";
 import { Translator } from "./ui/localization/translator";
 import { englishLocale } from "./ui/localization/constants";
-import EventsTracker from "./behavioural-events/events-tracker";
+import EventsTracker, {
+  type IEventsTracker,
+} from "./behavioural-events/events-tracker";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -88,6 +90,9 @@ export { OfferingKeyword } from "./entities/get-offerings-params";
 export type { PurchaseParams } from "./entities/purchase-params";
 export type { RedemptionInfo } from "./entities/redemption-info";
 export type { PurchaseResult } from "./entities/purchase-result";
+export type { IEventsTracker } from "./behavioural-events/events-tracker";
+
+const ANONYMOUS_PREFIX = "$RCAnonymousID:";
 
 /**
  * Entry point for Purchases SDK. It should be instantiated as soon as your
@@ -115,7 +120,7 @@ export class Purchases {
   private readonly purchaseOperationHelper: PurchaseOperationHelper;
 
   /** @internal */
-  private readonly eventsTracker: EventsTracker;
+  private readonly eventsTracker: IEventsTracker;
 
   /** @internal */
   private static instance: Purchases | undefined = undefined;
@@ -235,7 +240,10 @@ export class Purchases {
     this.eventsTracker = new EventsTracker(this._API_KEY, httpConfig);
     this.backend = new Backend(this._API_KEY, httpConfig);
     this.purchaseOperationHelper = new PurchaseOperationHelper(this.backend);
-    this.eventsTracker.trackSDKInitialized(this._appUserId);
+    this.eventsTracker.trackSDKInitialized(
+      this._appUserId,
+      this.userIsAnonymous(this._appUserId),
+    );
   }
 
   /**
@@ -661,6 +669,10 @@ export class Purchases {
    */
   public static generateRevenueCatAnonymousAppUserId(): string {
     const uuid = crypto.randomUUID();
-    return `$RCAnonymousID:${uuid.replace(/-/g, "")}`;
+    return `${ANONYMOUS_PREFIX}${uuid.replace(/-/g, "")}`;
+  }
+
+  private userIsAnonymous(appUserId: string): boolean {
+    return appUserId.startsWith(ANONYMOUS_PREFIX);
   }
 }

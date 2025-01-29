@@ -1,4 +1,8 @@
-import { type BaseEvent, SDKInitializedEvent } from "./events";
+import {
+  type BaseEvent,
+  CheckoutSessionStartEvent,
+  SDKInitializedEvent,
+} from "./events";
 import { v4 as uuid } from "uuid";
 import { RC_ENDPOINT, VERSION } from "../helpers/constants";
 import { HttpMethods } from "msw";
@@ -10,7 +14,28 @@ import { Logger } from "../helpers/logger";
 const MIN_INTERVAL_RETRY = 2_000;
 const MAX_INTERVAL_RETRY = 60_000;
 
-export default class EventsTracker {
+export interface IEventsTracker {
+  trackSDKInitialized(
+    appUserId: string | null,
+    isUserAnonymous: boolean,
+  ): Promise<void>;
+  trackCheckoutSessionStart(params: CheckoutSessionStartParams): Promise<void>;
+  dispose(): void;
+}
+
+export interface CheckoutSessionStartParams {
+  appUserId: string;
+  userIsAnonymous: boolean;
+  customizationOptions: Record<string, string | boolean> | null;
+  productInterval: string | null;
+  productPrice: number;
+  productCurrency: string;
+  selectedProduct: string;
+  selectedPackage: string;
+  selectedPurchaseOption: string;
+}
+
+export default class EventsTracker implements IEventsTracker {
   private readonly eventsQueue: Array<BaseEvent> = [];
   private readonly traceId: string = uuid();
   private readonly eventsUrl: string;
@@ -30,34 +55,41 @@ export default class EventsTracker {
     );
   }
 
-  /**
-   * @public
-   * Enqueues the event to be tracked.
-   * This method does not wait for the event to be tracked in order to avoid blocking
-   * the function is called into.
-   *
-   * It will create a promise internally that will be resolved with no one listening.
-   */
-  public trackEvent(event: BaseEvent): void {
-    Logger.debugLog(
-      `Queueing event ${event.type} with properties ${JSON.stringify(event)}`,
-    );
-    this.eventsQueue.push(event);
-    this.flushManager.tryFlush();
-  }
-
-  public async trackSDKInitialized(appUserId: string | null) {
+  public async trackSDKInitialized(
+    appUserId: string | null,
+    userIsAnonymous: boolean,
+  ) {
     Logger.debugLog("Tracking SDK Initialization");
     const event = new SDKInitializedEvent({
       traceId: this.traceId,
       appUserId,
+      userIsAnonymous,
       sdkVersion: VERSION,
+    });
+    this.trackEvent(event);
+  }
+
+  public async trackCheckoutSessionStart(params: CheckoutSessionStartParams) {
+    const checkoutSessionId = uuid();
+
+    const event = new CheckoutSessionStartEvent({
+      traceId: this.traceId,
+      checkoutSessionId: checkoutSessionId,
+      ...params,
     });
     this.trackEvent(event);
   }
 
   public dispose() {
     this.flushManager.stop();
+  }
+
+  private trackEvent(event: BaseEvent): void {
+    Logger.debugLog(
+      `Queueing event ${event.type} with properties ${JSON.stringify(event)}`,
+    );
+    this.eventsQueue.push(event);
+    this.flushManager.tryFlush();
   }
 
   private flushEvents(): Promise<void> {

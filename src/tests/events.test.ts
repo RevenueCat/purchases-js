@@ -45,6 +45,7 @@ describe("Purchases.configure()", () => {
               timestamp_ms: date.getTime(),
               sdk_version: "0.15.1",
               app_user_id: "someAppUserId",
+              user_is_anonymous: false,
             },
           ],
         },
@@ -131,7 +132,7 @@ describe("Purchases.configure()", () => {
     const purchases = configurePurchases();
     for (let i = 0; i < 3; i++) {
       // @ts-expect-error "no way to fire an extra event for testing"
-      purchases.eventsTracker.trackSDKInitialized("someAppUserId");
+      purchases.eventsTracker.trackSDKInitialized("someAppUserId", false);
     }
 
     await vi.advanceTimersByTimeAsync(1000 + 2000 + 4000 + 8000);
@@ -208,8 +209,12 @@ describe("Purchases.configure()", () => {
 
         if (attempts === 1) {
           setTimeout(
-            // @ts-expect-error "no way to fire an extra event for testing"
-            () => purchases.eventsTracker.trackSDKInitialized("someAppUserId"),
+            () =>
+              // @ts-expect-error "no way to fire an extra event for testing"
+              purchases.eventsTracker.trackSDKInitialized(
+                "someAppUserId",
+                false,
+              ),
             1_000,
           );
           await new Promise((resolve) => setTimeout(resolve, 10_000));
@@ -233,6 +238,7 @@ describe("Purchases.configure()", () => {
           timestamp_ms: date.getTime(),
           sdk_version: "0.15.1",
           app_user_id: "someAppUserId",
+          user_is_anonymous: false,
         },
       ],
     });
@@ -246,6 +252,7 @@ describe("Purchases.configure()", () => {
           timestamp_ms: date.getTime() + 1_000,
           sdk_version: "0.15.1",
           app_user_id: "someAppUserId",
+          user_is_anonymous: false,
         },
       ],
     });

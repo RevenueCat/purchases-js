@@ -281,6 +281,8 @@ test.describe("Main", () => {
           event.id !== undefined &&
           event.timestamp_ms !== undefined &&
           event.trace_id !== undefined &&
+          event.app_user_id === userId &&
+          event.user_is_anonymous !== false &&
           event.type === "web_billing_sdk_initialized" &&
           event.sdk_version !== undefined
         );
