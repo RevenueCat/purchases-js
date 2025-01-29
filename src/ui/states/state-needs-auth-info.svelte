@@ -57,6 +57,7 @@
               LocalizationKeys.StateNeedsAuthInfoEmailInputPlaceholder,
             )}
             autocapitalize="off"
+            autocomplete="email"
             bind:value={email}
           />
         </div>
