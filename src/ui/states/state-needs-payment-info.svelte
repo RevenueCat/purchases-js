@@ -201,7 +201,7 @@
 </script>
 
 <div class="checkout-container">
-  <TextSeparator text="Pay by card" />
+  <!-- <TextSeparator text="Pay by card" /> -->
   {#if stripe && clientSecret}
     <form on:submit|preventDefault={handleContinue}>
       <Elements
@@ -371,6 +371,7 @@
   @media (min-width: 768px) {
     .checkout-container {
       gap: var(--rc-spacing-gapXXLarge-desktop);
+      margin-top: var(--rc-spacing-gapXXLarge-desktop);
     }
 
     .checkout-pay-container {
