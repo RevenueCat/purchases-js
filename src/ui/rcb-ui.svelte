@@ -206,7 +206,7 @@
   };
 </script>
 
-<Container>
+<Container brandingAppearance={brandingInfo?.appearance}>
   {#if purchases.isSandbox()}
     <SandboxBanner style={colorVariables} />
   {/if}

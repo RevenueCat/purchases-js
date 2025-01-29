@@ -51,7 +51,7 @@
 
 {#snippet template(args)}
   <WithContext context={args.context}>
-    <Container>
+    <Container brandingAppearance={args.brandingInfo.appearance}>
       {#if args.context.isSandbox}
         <SandboxBanner style={colorVariables} />
       {/if}
