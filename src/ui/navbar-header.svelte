@@ -31,11 +31,10 @@
     display: flex;
     align-items: center;
     cursor: pointer;
-    gap: 4px;
+    gap: var(--rc-spacing-gapSmall-mobile);
     font: var(--rc-text-caption-mobile);
     color: var(--rc-color-grey-text-light);
-    font-weight: 350;
-    padding: 8px;
+    padding: var(--rc-spacing-gapMedium-mobile);
   }
 
   .rcb-header-details {
@@ -43,7 +42,7 @@
     font-weight: normal;
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: var(--rc-spacing-gapSmall-mobile);
   }
 
   .rcb-header-layout {
@@ -51,9 +50,8 @@
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    font-size: 24px;
+    font: var(--rc-text-titleXLarge-mobile);
     margin: 0;
-    font-weight: 500;
   }
 
   @media screen and (min-width: 768px) {
