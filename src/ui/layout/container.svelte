@@ -20,13 +20,24 @@
     display: flex;
     flex-direction: column;
     height: 100vh;
-
     color-scheme: none;
     font-size: 16px;
     line-height: 1.5em;
     font-weight: 400;
-    font-family: -apple-system, "system-ui", "Segoe UI", Roboto, Oxygen, Ubuntu,
-      Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    font-family:
+      -apple-system,
+      BlinkMacSystemFont,
+      avenir next,
+      avenir,
+      segoe ui,
+      helvetica neue,
+      helvetica,
+      Cantarell,
+      Ubuntu,
+      roboto,
+      noto,
+      arial,
+      sans-serif;
   }
 
   @media screen and (min-width: 768px) {

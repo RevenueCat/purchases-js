@@ -10,12 +10,14 @@
 </script>
 
 <div class="rcb-ui-main" {style}>
-  <Modal>
-    {#if header}
-      {@render header()}
-    {/if}
-    {@render body()}
-  </Modal>
+  <div class="inner-container">
+    <Modal>
+      {#if header}
+        {@render header()}
+      {/if}
+      {@render body()}
+    </Modal>
+  </div>
 </div>
 
 <style>
@@ -28,6 +30,13 @@
     .rcb-ui-main {
       width: auto;
       flex-grow: 1;
+      display: flex;
+      justify-content: flex-start;
+    }
+
+    .inner-container {
+      max-width: 600px;
+      flex-basis: 600px;
     }
   }
 </style>

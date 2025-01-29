@@ -17,12 +17,14 @@
 </script>
 
 <div class="rcb-ui-navbar" {style}>
-  <Modal as="div">
-    <NavBarHeader {expanded} toggle={toggleExpanded}>
-      {@render headerContent?.()}
-    </NavBarHeader>
-    {@render bodyContent?.(expanded)}
-  </Modal>
+  <div class="inner-container">
+    <Modal as="div">
+      <NavBarHeader {expanded} toggle={toggleExpanded}>
+        {@render headerContent?.()}
+      </NavBarHeader>
+      {@render bodyContent?.(expanded)}
+    </Modal>
+  </div>
 </div>
 
 <style>
@@ -30,12 +32,18 @@
     width: 100%;
     max-width: none;
     flex-shrink: 0;
+    background-color: var(--rc-color-background);
   }
 
   @media screen and (min-width: 768px) {
     .rcb-ui-navbar {
       width: 50vw;
-      max-width: 50vw;
+      display: flex;
+      justify-content: flex-end;
     }
+  }
+
+  .inner-container {
+    flex-basis: 600px;
   }
 </style>

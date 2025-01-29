@@ -30,8 +30,6 @@
 
   @media screen and (min-width: 768px) {
     .rcb-modal-container {
-      width: 50vw;
-      max-width: 50vw;
       height: 100vh;
     }
   }

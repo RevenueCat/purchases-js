@@ -46,12 +46,6 @@
     gap: 4px;
   }
 
-  @media screen and (min-width: 768px) {
-    button.rcb-header-details {
-      display: none;
-    }
-  }
-
   .rcb-header-layout {
     display: flex;
     justify-content: space-between;
@@ -60,5 +54,15 @@
     font-size: 24px;
     margin: 0;
     font-weight: 500;
+  }
+
+  @media screen and (min-width: 768px) {
+    button.rcb-header-details {
+      display: none;
+    }
+
+    .rcb-header-layout {
+      width: auto;
+    }
   }
 </style>
