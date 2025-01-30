@@ -15,17 +15,19 @@ const MIN_INTERVAL_RETRY = 2_000;
 const MAX_INTERVAL_RETRY = 60_000;
 
 export interface IEventsTracker {
-  trackSDKInitialized(
-    appUserId: string | null,
-    isUserAnonymous: boolean,
+  trackSDKInitialized(props: UserEventProps): Promise<void>;
+  trackCheckoutSessionStart(
+    props: CheckoutSessionStartEventProps,
   ): Promise<void>;
-  trackCheckoutSessionStart(params: CheckoutSessionStartParams): Promise<void>;
   dispose(): void;
 }
 
-export interface CheckoutSessionStartParams {
+export interface UserEventProps {
   appUserId: string;
   userIsAnonymous: boolean;
+}
+
+export interface CheckoutSessionStartEventProps extends UserEventProps {
   customizationOptions: {
     colorButtonsPrimary: string;
     colorAccent: string;
@@ -66,27 +68,25 @@ export default class EventsTracker implements IEventsTracker {
     );
   }
 
-  public async trackSDKInitialized(
-    appUserId: string | null,
-    userIsAnonymous: boolean,
-  ) {
+  public async trackSDKInitialized(props: UserEventProps) {
     Logger.debugLog("Tracking SDK Initialization");
     const event = new SDKInitializedEvent({
       traceId: this.traceId,
-      appUserId,
-      userIsAnonymous,
+      ...props,
       sdkVersion: VERSION,
     });
     this.trackEvent(event);
   }
 
-  public async trackCheckoutSessionStart(params: CheckoutSessionStartParams) {
+  public async trackCheckoutSessionStart(
+    props: CheckoutSessionStartEventProps,
+  ) {
     this.checkoutSessionId = uuid();
 
     const event = new CheckoutSessionStartEvent({
       traceId: this.traceId,
       checkoutSessionId: this.checkoutSessionId,
-      ...params,
+      ...props,
     });
     this.trackEvent(event);
   }

@@ -34,7 +34,10 @@ describe("EventsTracker", (test) => {
   test<EventsTrackerFixtures>("tracks the SDKInitialized event", async ({
     eventsTracker,
   }) => {
-    eventsTracker.trackSDKInitialized("someAppUserId", false);
+    eventsTracker.trackSDKInitialized({
+      appUserId: "someAppUserId",
+      userIsAnonymous: false,
+    });
 
     await vi.advanceTimersToNextTimerAsync();
 
@@ -146,7 +149,10 @@ describe("EventsTracker", (test) => {
       }),
     );
 
-    eventsTracker.trackSDKInitialized("someAppUserId", false);
+    eventsTracker.trackSDKInitialized({
+      appUserId: "someAppUserId",
+      userIsAnonymous: false,
+    });
 
     // Attempt 1: First direct attempt to flush without timeout
     await vi.advanceTimersByTimeAsync(100);
@@ -201,7 +207,10 @@ describe("EventsTracker", (test) => {
     );
 
     for (let i = 0; i < 4; i++) {
-      eventsTracker.trackSDKInitialized("someAppUserId", false);
+      eventsTracker.trackSDKInitialized({
+        appUserId: "someAppUserId",
+        userIsAnonymous: false,
+      });
     }
 
     await vi.advanceTimersByTimeAsync(1000 + 2000 + 4000 + 8000);
@@ -234,7 +243,10 @@ describe("EventsTracker", (test) => {
       }),
     );
 
-    eventsTracker.trackSDKInitialized("someAppUserId", false);
+    eventsTracker.trackSDKInitialized({
+      appUserId: "someAppUserId",
+      userIsAnonymous: false,
+    });
 
     // Attempt 1: First direct attempt to flush without timeout
     await vi.advanceTimersByTimeAsync(100);
@@ -281,7 +293,11 @@ describe("EventsTracker", (test) => {
 
         if (attempts === 1) {
           setTimeout(
-            () => eventsTracker.trackSDKInitialized("someAppUserId", false),
+            () =>
+              eventsTracker.trackSDKInitialized({
+                appUserId: "someAppUserId",
+                userIsAnonymous: false,
+              }),
             1_000,
           );
           await new Promise((resolve) => setTimeout(resolve, 10_000));
@@ -292,7 +308,10 @@ describe("EventsTracker", (test) => {
       }),
     );
 
-    eventsTracker.trackSDKInitialized("someAppUserId", false);
+    eventsTracker.trackSDKInitialized({
+      appUserId: "someAppUserId",
+      userIsAnonymous: false,
+    });
 
     await vi.runAllTimersAsync();
 

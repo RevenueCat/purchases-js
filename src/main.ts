@@ -244,10 +244,10 @@ export class Purchases {
     this.eventsTracker = new EventsTracker(this._API_KEY, httpConfig);
     this.backend = new Backend(this._API_KEY, httpConfig);
     this.purchaseOperationHelper = new PurchaseOperationHelper(this.backend);
-    this.eventsTracker.trackSDKInitialized(
-      this._appUserId,
-      this.userIsAnonymous(this._appUserId),
-    );
+    this.eventsTracker.trackSDKInitialized({
+      appUserId: this._appUserId,
+      userIsAnonymous: this.userIsAnonymous(this._appUserId),
+    });
   }
 
   /**
