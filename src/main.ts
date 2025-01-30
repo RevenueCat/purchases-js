@@ -184,9 +184,9 @@ export class Purchases {
 
   /**
    * Loads and caches some optional data in the Purchases SDK.
-   * Currently only fetching branding information. You can call this method
-   * after configuring the SDK to speed up the first call to
-   * {@link Purchases.purchase}.
+   * Currently fetching branding information and customer info.
+   * You can call this method after configuring the SDK to speed
+   * up the first call to {@link Purchases.purchase}.
    */
   public async preload(): Promise<void> {
     if (this.hasLoadedResources()) {
@@ -198,11 +198,7 @@ export class Purchases {
       await this._loadingResourcesPromise;
       return;
     }
-    this._loadingResourcesPromise = this.backend
-      .getBrandingInfo()
-      .then((brandingInfo) => {
-        this._brandingInfo = brandingInfo;
-      })
+    this._loadingResourcesPromise = this.fetchAndCacheBrandingInfo()
       .catch((e) => {
         let errorMessage = `${e}`;
         if (e instanceof PurchasesError) {
@@ -216,6 +212,14 @@ export class Purchases {
     return this._loadingResourcesPromise;
   }
 
+  /** @internal */
+  private fetchAndCacheBrandingInfo(): Promise<void> {
+    return this.backend.getBrandingInfo().then((brandingInfo) => {
+      this._brandingInfo = brandingInfo;
+    });
+  }
+
+  /** @internal */
   private hasLoadedResources(): boolean {
     return this._brandingInfo !== null;
   }
