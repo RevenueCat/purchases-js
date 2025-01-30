@@ -28,7 +28,7 @@
 <div class="rcb-ui-navbar" {style}>
   <div class="inner-container">
     {#if showModal}
-      <Modal delayFade={70}>
+      <Modal delayFade={50}>
         <NavBarHeader {expanded} toggle={toggleExpanded}>
           {@render headerContent?.()}
         </NavBarHeader>

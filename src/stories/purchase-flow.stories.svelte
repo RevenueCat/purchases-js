@@ -81,38 +81,84 @@
   </WithContext>
 {/snippet}
 
-<Story name="Email Input" args={{ renderBody: StateNeedsAuthInfo }} />
 <Story
-  name="Email Input (with Sandbox Banner)"
+  name="Email Input (Mobile)"
+  args={{ renderBody: StateNeedsAuthInfo }}
+  parameters={{ viewport: { defaultViewport: "mobile" } }}
+/>
+<Story
+  name="Email Input (Desktop)"
+  args={{ renderBody: StateNeedsAuthInfo }}
+  parameters={{ viewport: { defaultViewport: "desktop" } }}
+/>
+<Story
+  name="Email Input (with Sandbox Banner) (Mobile)"
   args={{
     renderBody: StateNeedsAuthInfo,
     context: {
       isSandbox: true,
     },
   }}
+  parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
 <Story
-  name="Checkout"
+  name="Email Input (with Sandbox Banner) (Desktop)"
+  args={{
+    renderBody: StateNeedsAuthInfo,
+    context: {
+      isSandbox: true,
+    },
+  }}
+  parameters={{ viewport: { defaultViewport: "desktop" } }}
+/>
+<Story
+  name="Checkout (Mobile)"
   args={{
     args: defaultArgs,
     renderBody: StateNeedsPaymentInfoWithPurchaseResponse,
   }}
+  parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
 <Story
-  name="Loading"
+  name="Checkout (Desktop)"
+  args={{
+    args: defaultArgs,
+    renderBody: StateNeedsPaymentInfoWithPurchaseResponse,
+  }}
+  parameters={{ viewport: { defaultViewport: "desktop" } }}
+/>
+<Story
+  name="Loading (Mobile)"
   args={{
     renderBody: StateLoading,
   }}
+  parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
 <Story
-  name="Payment complete"
+  name="Loading (Desktop)"
+  args={{
+    renderBody: StateLoading,
+  }}
+  parameters={{ viewport: { defaultViewport: "desktop" } }}
+/>
+<Story
+  name="Payment complete (Mobile)"
   args={{
     renderBody: StateSuccess,
   }}
+  parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
 <Story
-  name="Payment failed"
+  name="Payment failed (Mobile)"
   args={{
     renderBody: StateError,
   }}
+  parameters={{ viewport: { defaultViewport: "mobile" } }}
+/>
+<Story
+  name="Payment failed (Desktop)"
+  args={{
+    renderBody: StateError,
+  }}
+  parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
