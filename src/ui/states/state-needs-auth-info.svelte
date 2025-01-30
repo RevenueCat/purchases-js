@@ -12,22 +12,39 @@
   import Localized from "../localization/localized.svelte";
   import { translatorContextKey } from "../localization/constants";
   import { Translator } from "../localization/translator";
+  import {
+    appUserIdContextKey,
+    eventsTrackerContextKey,
+    userIsAnonymousContextKey,
+  } from "../constants";
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
+  import { IEventsTracker } from "../../behavioural-events/events-tracker";
 
   export let onContinue: any;
   export let onClose: () => void;
   export let processing: boolean;
   export let lastError: PurchaseFlowError | null;
 
+  const eventsTracker: IEventsTracker = getContext(eventsTrackerContextKey);
+  const appUserId: string = getContext(appUserIdContextKey);
+  const userIsAnonymous: boolean = getContext(userIsAnonymousContextKey);
+
   $: email = "";
   $: error = "";
   $: inputClass = error ? "error" : "";
 
   const handleContinue = async () => {
-    const verificationErrors = validateEmail(email);
-    if (verificationErrors) {
-      error = verificationErrors;
+    const emailError = validateEmail(email);
+    if (emailError) {
+      eventsTracker.trackBillingEmailEntryError({
+        appUserId: appUserId,
+        userIsAnonymous,
+        errorCode: null,
+        errorMessage: emailError,
+      });
+
+      error = emailError;
     } else {
       onContinue({ email });
     }
@@ -65,6 +82,7 @@
               LocalizationKeys.StateNeedsAuthInfoEmailInputPlaceholder,
             )}
             autocapitalize="off"
+            data-testid="email"
             bind:value={email}
           />
         </div>

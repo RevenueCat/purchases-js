@@ -34,6 +34,11 @@
     englishLocale,
     translatorContextKey,
   } from "./localization/constants";
+  import {
+    appUserIdContextKey,
+    eventsTrackerContextKey,
+    userIsAnonymousContextKey,
+  } from "./constants";
   import type { IEventsTracker } from "../behavioural-events/events-tracker";
 
   export let asModal = true;
@@ -91,6 +96,10 @@
     new Translator(customTranslations, selectedLocale, defaultLocale),
   );
 
+  setContext(eventsTrackerContextKey, eventsTracker);
+  setContext(appUserIdContextKey, appUserId);
+  setContext(userIsAnonymousContextKey, userIsAnonymous);
+
   onMount(async () => {
     const appearance = brandingInfo?.appearance;
 
@@ -127,6 +136,11 @@
         handleSubscribe();
       } else {
         state = "needs-auth-info";
+
+        eventsTracker.trackBillingEmailEntryImpression({
+          appUserId,
+          userIsAnonymous,
+        });
       }
 
       return;
@@ -134,6 +148,12 @@
   });
 
   const handleClose = () => {
+    if (state === "needs-auth-info") {
+      eventsTracker.trackBillingEmailEntryDismiss({
+        appUserId,
+        userIsAnonymous,
+      });
+    }
     onClose();
   };
 
@@ -188,6 +208,10 @@
       if (authInfo) {
         customerEmail = authInfo.email;
         state = "processing-auth-info";
+        eventsTracker.trackBillingEmailEntrySubmit({
+          appUserId,
+          userIsAnonymous,
+        });
       }
 
       handleSubscribe();
@@ -217,6 +241,13 @@
   };
 
   const handleError = (e: PurchaseFlowError) => {
+    eventsTracker.trackBillingEmailEntryError({
+      appUserId,
+      userIsAnonymous,
+      errorCode: e.getErrorCode(),
+      errorMessage: e.message,
+    });
+
     if (state === "processing-auth-info" && e.isRecoverable()) {
       lastError = e;
       state = "needs-auth-info";

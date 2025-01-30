@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { describe, type MockedFunction } from "vitest";
 import { FlushManager } from "../../behavioural-events/flush-manager";
 
@@ -17,7 +17,7 @@ describe("RepeatWithBackoff", () => {
     vi.useRealTimers();
   });
 
-  it("expedites the callback when not backing off", async () => {
+  test("expedites the callback when not backing off", async () => {
     flushManager.tryFlush();
     await vi.advanceTimersToNextTimerAsync();
     flushManager.tryFlush();
@@ -28,7 +28,7 @@ describe("RepeatWithBackoff", () => {
     expect(callbackSpy).toHaveBeenCalledTimes(3);
   });
 
-  it("does not expedite the callback when it is backing off", async () => {
+  test("does not expedite the callback when it is backing off", async () => {
     callbackSpy.mockReturnValue(Promise.reject(new Error("Mocked error")));
     flushManager.tryFlush();
     expect(callbackSpy).toHaveBeenCalledTimes(1);
@@ -39,7 +39,7 @@ describe("RepeatWithBackoff", () => {
     expect(callbackSpy).not.toHaveBeenCalled();
   });
 
-  it("reschedules the callback when it is already running", async () => {
+  test("reschedules the callback when it is already running", async () => {
     callbackSpy.mockReturnValueOnce(
       new Promise((resolve) => setTimeout(() => resolve(), 10_000)),
     );
@@ -60,7 +60,7 @@ describe("RepeatWithBackoff", () => {
     expect(callbackSpy).toHaveBeenCalledTimes(1);
   });
 
-  it("should increase delay exponentially when erroring repeatedly", async () => {
+  test("should increase delay exponentially when erroring repeatedly", async () => {
     callbackSpy.mockImplementation(() => {
       throw new Error("Mocked error");
     });
@@ -69,7 +69,7 @@ describe("RepeatWithBackoff", () => {
     expect(callbackSpy).toHaveBeenCalledTimes(6);
   });
 
-  it("should respect maxDelay when backoff is called", async () => {
+  test("should respect maxDelay when backoff is called", async () => {
     callbackSpy.mockImplementation(() => {
       throw new Error("Mocked error");
     });
@@ -83,7 +83,7 @@ describe("RepeatWithBackoff", () => {
     expect(callbackSpy).toHaveBeenCalledTimes(9);
   });
 
-  it("should reset to initial delay when callback succeeds", async () => {
+  test("should reset to initial delay when callback succeeds", async () => {
     callbackSpy.mockImplementationOnce(() => {
       throw new Error("Mocked error");
     });

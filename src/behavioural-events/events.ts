@@ -16,10 +16,6 @@ interface EventData extends Record<string, unknown> {
   userIsAnonymous: boolean;
 }
 
-interface CheckoutSessionEventData extends EventData {
-  checkoutSessionId: string;
-}
-
 export abstract class BaseEvent {
   public readonly id: string;
   public readonly timestampMs: number;
@@ -51,6 +47,10 @@ export class SDKInitializedEvent extends BaseEvent {
   constructor(props: SDKInitializedEventData) {
     super(EventType.SdkInitialized, props);
   }
+}
+
+interface CheckoutSessionEventData extends EventData {
+  checkoutSessionId: string;
 }
 
 interface CustomizationOptionsEventData {
@@ -101,7 +101,7 @@ export class BillingEmailEntryDismissEvent extends BaseEvent {
 }
 
 interface BillingEmailEntryErrorEventProps extends CheckoutSessionEventData {
-  errorCode: number;
+  errorCode: number | null;
   errorMessage: string;
 }
 

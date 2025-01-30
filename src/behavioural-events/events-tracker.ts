@@ -57,12 +57,8 @@ export interface CheckoutSessionStartEventProps extends UserEventProps {
   selectedPurchaseOption: string;
 }
 
-/**
- * Do not use.
- * @public
- */
 export interface BillingEmailEntryErrorEventProps extends UserEventProps {
-  errorCode: number;
+  errorCode: number | null;
   errorMessage: string;
 }
 
