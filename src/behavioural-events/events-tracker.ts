@@ -1,5 +1,9 @@
 import {
   type BaseEvent,
+  BillingEmailEntryDismissEvent,
+  BillingEmailEntryErrorEvent,
+  BillingEmailEntryImpressionEvent,
+  BillingEmailEntrySubmitEvent,
   CheckoutSessionStartEvent,
   SDKInitializedEvent,
 } from "./events";
@@ -18,6 +22,12 @@ export interface IEventsTracker {
   trackSDKInitialized(props: UserEventProps): Promise<void>;
   trackCheckoutSessionStart(
     props: CheckoutSessionStartEventProps,
+  ): Promise<void>;
+  trackBillingEmailEntryImpression(props: UserEventProps): Promise<void>;
+  trackBillingEmailEntrySubmit(props: UserEventProps): Promise<void>;
+  trackBillingEmailEntryDismiss(props: UserEventProps): Promise<void>;
+  trackBillingEmailEntryError(
+    props: BillingEmailEntryErrorEventProps,
   ): Promise<void>;
   dispose(): void;
 }
@@ -45,6 +55,15 @@ export interface CheckoutSessionStartEventProps extends UserEventProps {
   selectedProduct: string;
   selectedPackage: string;
   selectedPurchaseOption: string;
+}
+
+/**
+ * Do not use.
+ * @public
+ */
+export interface BillingEmailEntryErrorEventProps extends UserEventProps {
+  errorCode: number;
+  errorMessage: string;
 }
 
 export default class EventsTracker implements IEventsTracker {
@@ -86,6 +105,44 @@ export default class EventsTracker implements IEventsTracker {
     const event = new CheckoutSessionStartEvent({
       traceId: this.traceId,
       checkoutSessionId: this.checkoutSessionId,
+      ...props,
+    });
+    this.trackEvent(event);
+  }
+
+  public async trackBillingEmailEntryImpression(props: UserEventProps) {
+    const event = new BillingEmailEntryImpressionEvent({
+      checkoutSessionId: this.checkoutSessionId!,
+      traceId: this.traceId,
+      ...props,
+    });
+    this.trackEvent(event);
+  }
+
+  public async trackBillingEmailEntrySubmit(props: UserEventProps) {
+    const event = new BillingEmailEntrySubmitEvent({
+      checkoutSessionId: this.checkoutSessionId!,
+      traceId: this.traceId,
+      ...props,
+    });
+    this.trackEvent(event);
+  }
+
+  public async trackBillingEmailEntryDismiss(props: UserEventProps) {
+    const event = new BillingEmailEntryDismissEvent({
+      checkoutSessionId: this.checkoutSessionId!,
+      traceId: this.traceId,
+      ...props,
+    });
+    this.trackEvent(event);
+  }
+
+  public async trackBillingEmailEntryError(
+    props: BillingEmailEntryErrorEventProps,
+  ) {
+    const event = new BillingEmailEntryErrorEvent({
+      checkoutSessionId: this.checkoutSessionId!,
+      traceId: this.traceId,
       ...props,
     });
     this.trackEvent(event);

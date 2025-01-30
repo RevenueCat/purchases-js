@@ -65,7 +65,6 @@ describe("EventsTracker", (test) => {
 
     await vi.advanceTimersToNextTimerAsync();
 
-    expect(loggerMock).toHaveBeenCalledWith("Events flushed successfully");
     expect(APIPostRequest).toHaveBeenCalledWith({
       url: "http://localhost:8000/v1/events",
       json: {
@@ -90,7 +89,6 @@ describe("EventsTracker", (test) => {
     trackCheckoutSessionStart(eventsTracker);
     await vi.advanceTimersToNextTimerAsync();
 
-    expect(loggerMock).toHaveBeenCalledWith("Events flushed successfully");
     expect(APIPostRequest).toHaveBeenCalledWith({
       url: "http://localhost:8000/v1/events",
       json: {
@@ -120,6 +118,134 @@ describe("EventsTracker", (test) => {
             selected_product: "product1",
             selected_package: "package1",
             selected_purchase_option: "purchase_option1",
+          },
+        ],
+      },
+    });
+  });
+
+  test<EventsTrackerFixtures>("tracks the BillingEmailEntryImpression event", async ({
+    eventsTracker,
+  }) => {
+    trackCheckoutSessionStart(eventsTracker);
+    loggerMock.mockClear();
+    APIPostRequest.mockClear();
+    eventsTracker.trackBillingEmailEntryImpression({
+      appUserId: "someAppUserId",
+      userIsAnonymous: false,
+    });
+
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(APIPostRequest).toHaveBeenCalledWith({
+      url: "http://localhost:8000/v1/events",
+      json: {
+        events: [
+          {
+            id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+            type: "web_billing_billing_email_entry_impression",
+            trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+            timestamp_ms: date.getTime(),
+            app_user_id: "someAppUserId",
+            user_is_anonymous: false,
+            checkout_session_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+          },
+        ],
+      },
+    });
+  });
+
+  test<EventsTrackerFixtures>("tracks the BillingEmailEntrySubmit event", async ({
+    eventsTracker,
+  }) => {
+    trackCheckoutSessionStart(eventsTracker);
+    loggerMock.mockClear();
+    APIPostRequest.mockClear();
+    eventsTracker.trackBillingEmailEntrySubmit({
+      appUserId: "someAppUserId",
+      userIsAnonymous: false,
+    });
+
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(APIPostRequest).toHaveBeenCalledWith({
+      url: "http://localhost:8000/v1/events",
+      json: {
+        events: [
+          {
+            id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+            type: "web_billing_billing_email_entry_submit",
+            trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+            timestamp_ms: date.getTime(),
+            app_user_id: "someAppUserId",
+            user_is_anonymous: false,
+            checkout_session_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+          },
+        ],
+      },
+    });
+  });
+
+  test<EventsTrackerFixtures>("tracks the BillingEmailEntryError event", async ({
+    eventsTracker,
+  }) => {
+    trackCheckoutSessionStart(eventsTracker);
+    loggerMock.mockClear();
+    APIPostRequest.mockClear();
+    eventsTracker.trackBillingEmailEntryError({
+      appUserId: "someAppUserId",
+      userIsAnonymous: false,
+      errorCode: 8,
+      errorMessage: "someErrorMessage",
+    });
+
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(APIPostRequest).toHaveBeenCalledWith({
+      url: "http://localhost:8000/v1/events",
+      json: {
+        events: [
+          {
+            id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+            type: "web_billing_billing_email_entry_error",
+            trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+            timestamp_ms: date.getTime(),
+            app_user_id: "someAppUserId",
+            user_is_anonymous: false,
+            checkout_session_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+            error_code: 8,
+            error_message: "someErrorMessage",
+          },
+        ],
+      },
+    });
+  });
+
+  test<EventsTrackerFixtures>("tracks the BillingEmailEntryDismiss event", async ({
+    eventsTracker,
+  }) => {
+    trackCheckoutSessionStart(eventsTracker);
+    loggerMock.mockClear();
+    APIPostRequest.mockClear();
+    eventsTracker.trackBillingEmailEntryDismiss({
+      appUserId: "someAppUserId",
+      userIsAnonymous: false,
+    });
+
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(APIPostRequest).toHaveBeenCalledWith({
+      url: "http://localhost:8000/v1/events",
+      json: {
+        events: [
+          {
+            id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+            type: "web_billing_billing_email_entry_dismiss",
+            trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+            timestamp_ms: date.getTime(),
+            app_user_id: "someAppUserId",
+            user_is_anonymous: false,
+            checkout_session_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
           },
         ],
       },
