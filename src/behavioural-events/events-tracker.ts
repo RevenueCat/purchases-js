@@ -26,7 +26,17 @@ export interface IEventsTracker {
 export interface CheckoutSessionStartParams {
   appUserId: string;
   userIsAnonymous: boolean;
-  customizationOptions: Record<string, string | boolean> | null;
+  customizationOptions: {
+    colorButtonsPrimary: string;
+    colorAccent: string;
+    colorError: string;
+    colorProductInfoBg: string;
+    colorFormBg: string;
+    colorPageBg: string;
+    font: string;
+    shapes: string;
+    showProductDescription: boolean;
+  } | null;
   productInterval: string | null;
   productPrice: number;
   productCurrency: string;
@@ -40,6 +50,7 @@ export default class EventsTracker implements IEventsTracker {
   private readonly traceId: string = uuid();
   private readonly eventsUrl: string;
   private readonly flushManager: FlushManager;
+  private checkoutSessionId: string | null = null;
 
   constructor(
     private readonly apiKey: string,
@@ -70,11 +81,11 @@ export default class EventsTracker implements IEventsTracker {
   }
 
   public async trackCheckoutSessionStart(params: CheckoutSessionStartParams) {
-    const checkoutSessionId = uuid();
+    this.checkoutSessionId = uuid();
 
     const event = new CheckoutSessionStartEvent({
       traceId: this.traceId,
-      checkoutSessionId: checkoutSessionId,
+      checkoutSessionId: this.checkoutSessionId,
       ...params,
     });
     this.trackEvent(event);

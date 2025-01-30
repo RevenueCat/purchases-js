@@ -1,6 +1,12 @@
 <script lang="ts">
   import { onMount, setContext } from "svelte";
-  import type { Package, Product, PurchaseOption, Purchases } from "../main";
+  import type {
+    IEventsTracker,
+    Package,
+    Product,
+    PurchaseOption,
+    Purchases,
+  } from "../main";
   import StatePresentOffer from "./states/state-present-offer.svelte";
   import StateLoading from "./states/state-loading.svelte";
   import StateError from "./states/state-error.svelte";
@@ -38,6 +44,7 @@
   export let asModal = true;
   export let customerEmail: string | undefined;
   export let appUserId: string;
+  export let userIsAnonymous: boolean;
   export let rcPackage: Package;
   export let purchaseOption: PurchaseOption | null | undefined;
   export let brandingInfo: BrandingInfoResponse | null;
@@ -45,6 +52,7 @@
   export let onError: (error: PurchaseFlowError) => void;
   export let onClose: () => void;
   export let purchases: Purchases;
+  export let eventsTracker: IEventsTracker;
   export let purchaseOperationHelper: PurchaseOperationHelper;
   export let selectedLocale: string = englishLocale;
   export let defaultLocale: string = englishLocale;
@@ -89,6 +97,32 @@
   );
 
   onMount(async () => {
+    const appearance = brandingInfo?.appearance;
+
+    eventsTracker.trackCheckoutSessionStart({
+      appUserId,
+      userIsAnonymous,
+      customizationOptions: appearance
+        ? {
+            colorButtonsPrimary: appearance.color_buttons_primary,
+            colorAccent: appearance.color_accent,
+            colorError: appearance.color_error,
+            colorProductInfoBg: appearance.color_product_info_bg,
+            colorFormBg: appearance.color_form_bg,
+            colorPageBg: appearance.color_page_bg,
+            font: appearance.font,
+            shapes: appearance.shapes,
+            showProductDescription: appearance.show_product_description,
+          }
+        : null,
+      productInterval: rcPackage.rcBillingProduct.normalPeriodDuration,
+      productPrice: rcPackage.rcBillingProduct.currentPrice.amountMicros,
+      productCurrency: rcPackage.rcBillingProduct.currentPrice.currency,
+      selectedProduct: rcPackage.rcBillingProduct.identifier,
+      selectedPackage: rcPackage.identifier,
+      selectedPurchaseOption: purchaseOptionToUse.id,
+    });
+
     productDetails = rcPackage.rcBillingProduct;
 
     colorVariables = toProductInfoStyleVar(brandingInfo?.appearance);

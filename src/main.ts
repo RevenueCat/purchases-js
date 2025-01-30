@@ -535,6 +535,7 @@ export class Purchases {
 
     const asModal = !htmlTarget;
     const appUserId = this._appUserId;
+    const userIsAnonymous = this.userIsAnonymous(this._appUserId);
 
     Logger.debugLog(
       `Presenting purchase form for package ${rcPackage.identifier}`,
@@ -547,6 +548,7 @@ export class Purchases {
         target: certainHTMLTarget,
         props: {
           appUserId,
+          userIsAnonymous,
           rcPackage,
           purchaseOption,
           customerEmail,
@@ -570,6 +572,7 @@ export class Purchases {
             reject(PurchasesError.getForPurchasesFlowError(e));
           },
           purchases: this,
+          eventsTracker: this.eventsTracker,
           brandingInfo: this._brandingInfo,
           purchaseOperationHelper: this.purchaseOperationHelper,
           asModal,

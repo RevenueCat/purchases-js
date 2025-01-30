@@ -56,8 +56,21 @@ export class SDKInitializedEvent extends BaseEvent {
   }
 }
 
-interface CheckoutSessionStartEventData extends CheckoutSessionEventData {
-  customizationOptions: Record<string, string | boolean> | null;
+interface CustomizationOptionsEventData {
+  colorButtonsPrimary: string;
+  colorAccent: string;
+  colorError: string;
+  colorProductInfoBg: string;
+  colorFormBg: string;
+  colorPageBg: string;
+  font: string;
+  shapes: string;
+  showProductDescription: boolean;
+}
+
+export interface CheckoutSessionStartEventData
+  extends CheckoutSessionEventData {
+  customizationOptions: CustomizationOptionsEventData | null;
   productInterval: string | null;
   productPrice: number;
   productCurrency: string;
