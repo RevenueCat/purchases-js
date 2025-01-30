@@ -20,19 +20,21 @@ export abstract class BaseEvent {
   public readonly id: string;
   public readonly timestampMs: number;
   public readonly type: string;
+  public readonly data: EventData;
 
-  protected constructor(type: EventType) {
+  protected constructor(type: EventType, data: EventData) {
     this.id = uuidv4();
     this.timestampMs = Date.now();
     this.type = type;
+    this.data = data;
   }
 
-  public toJSON(data: Record<string, unknown>): Record<string, unknown> {
+  public toJSON(): Record<string, unknown> {
     return {
       id: this.id,
       timestamp_ms: this.timestampMs,
       type: this.type,
-      ...camelToUnderscore(data),
+      ...camelToUnderscore(this.data),
     };
   }
 }
@@ -42,17 +44,8 @@ interface SDKInitializedEventData extends EventData {
 }
 
 export class SDKInitializedEvent extends BaseEvent {
-  public readonly data: SDKInitializedEventData;
-
   constructor(props: SDKInitializedEventData) {
-    super(EventType.SDK_INITIALIZED);
-    this.data = props;
-  }
-
-  public toJSON(): Record<string, unknown> {
-    return {
-      ...super.toJSON(this.data),
-    };
+    super(EventType.SDK_INITIALIZED, props);
   }
 }
 
@@ -80,16 +73,7 @@ export interface CheckoutSessionStartEventData
 }
 
 export class CheckoutSessionStartEvent extends BaseEvent {
-  public readonly data: CheckoutSessionStartEventData;
-
   constructor(props: CheckoutSessionStartEventData) {
-    super(EventType.CHECKOUT_SESSION_START);
-    this.data = props;
-  }
-
-  public toJSON(): Record<string, unknown> {
-    return {
-      ...super.toJSON(this.data),
-    };
+    super(EventType.CHECKOUT_SESSION_START, props);
   }
 }

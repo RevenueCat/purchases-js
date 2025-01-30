@@ -31,6 +31,30 @@ describe("EventsTracker", (test) => {
     context.eventsTracker.dispose();
   });
 
+  function trackCheckoutSessionStart(eventsTracker: EventsTracker) {
+    eventsTracker.trackCheckoutSessionStart({
+      appUserId: "someAppUserId",
+      userIsAnonymous: false,
+      customizationOptions: {
+        colorButtonsPrimary: "#000000",
+        colorAccent: "#000000",
+        colorError: "#000000",
+        colorProductInfoBg: "#000000",
+        colorFormBg: "#000000",
+        colorPageBg: "#000000",
+        font: "Arial",
+        shapes: "rounded",
+        showProductDescription: true,
+      },
+      productInterval: "monthly",
+      productPrice: 10,
+      productCurrency: "USD",
+      selectedProduct: "product1",
+      selectedPackage: "package1",
+      selectedPurchaseOption: "purchase_option1",
+    });
+  }
+
   test<EventsTrackerFixtures>("tracks the SDKInitialized event", async ({
     eventsTracker,
   }) => {
@@ -63,28 +87,7 @@ describe("EventsTracker", (test) => {
   test<EventsTrackerFixtures>("tracks the CheckoutSessionStart event", async ({
     eventsTracker,
   }) => {
-    eventsTracker.trackCheckoutSessionStart({
-      appUserId: "someAppUserId",
-      userIsAnonymous: false,
-      customizationOptions: {
-        colorButtonsPrimary: "#000000",
-        colorAccent: "#000000",
-        colorError: "#000000",
-        colorProductInfoBg: "#000000",
-        colorFormBg: "#000000",
-        colorPageBg: "#000000",
-        font: "Arial",
-        shapes: "rounded",
-        showProductDescription: true,
-      },
-      productInterval: "monthly",
-      productPrice: 10,
-      productCurrency: "USD",
-      selectedProduct: "product1",
-      selectedPackage: "package1",
-      selectedPurchaseOption: "purchase_option1",
-    });
-
+    trackCheckoutSessionStart(eventsTracker);
     await vi.advanceTimersToNextTimerAsync();
 
     expect(loggerMock).toHaveBeenCalledWith("Events flushed successfully");
