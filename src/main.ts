@@ -90,7 +90,11 @@ export { OfferingKeyword } from "./entities/get-offerings-params";
 export type { PurchaseParams } from "./entities/purchase-params";
 export type { RedemptionInfo } from "./entities/redemption-info";
 export type { PurchaseResult } from "./entities/purchase-result";
-export type { IEventsTracker } from "./behavioural-events/events-tracker";
+export type {
+  IEventsTracker,
+  UserEventProps,
+  CheckoutSessionStartEventProps,
+} from "./behavioural-events/events-tracker";
 
 const ANONYMOUS_PREFIX = "$RCAnonymousID:";
 

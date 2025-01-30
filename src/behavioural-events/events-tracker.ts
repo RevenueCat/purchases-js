@@ -14,6 +14,10 @@ import { Logger } from "../helpers/logger";
 const MIN_INTERVAL_RETRY = 2_000;
 const MAX_INTERVAL_RETRY = 60_000;
 
+/**
+ * Do not use.
+ * @public
+ */
 export interface IEventsTracker {
   trackSDKInitialized(props: UserEventProps): Promise<void>;
   trackCheckoutSessionStart(
@@ -22,11 +26,19 @@ export interface IEventsTracker {
   dispose(): void;
 }
 
+/**
+ * Do not use.
+ * @public
+ */
 export interface UserEventProps {
   appUserId: string;
   userIsAnonymous: boolean;
 }
 
+/**
+ * Do not use.
+ * @public
+ */
 export interface CheckoutSessionStartEventProps extends UserEventProps {
   customizationOptions: {
     colorButtonsPrimary: string;
