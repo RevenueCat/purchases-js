@@ -7,6 +7,34 @@
 import { PaywallData } from '@revenuecat/purchases-ui-js';
 
 // @public
+export interface CheckoutSessionStartEventProps extends UserEventProps {
+    // (undocumented)
+    customizationOptions: {
+        colorButtonsPrimary: string;
+        colorAccent: string;
+        colorError: string;
+        colorProductInfoBg: string;
+        colorFormBg: string;
+        colorPageBg: string;
+        font: string;
+        shapes: string;
+        showProductDescription: boolean;
+    } | null;
+    // (undocumented)
+    productCurrency: string;
+    // (undocumented)
+    productInterval: string | null;
+    // (undocumented)
+    productPrice: number;
+    // (undocumented)
+    selectedPackage: string;
+    // (undocumented)
+    selectedProduct: string;
+    // (undocumented)
+    selectedPurchaseOption: string;
+}
+
+// @public
 export interface CustomerInfo {
     readonly activeSubscriptions: Set<string>;
     readonly allExpirationDatesByProduct: {
@@ -119,6 +147,16 @@ export interface GetOfferingsParams {
 export interface HttpConfig {
     additionalHeaders?: Record<string, string>;
     proxyURL?: string;
+}
+
+// @public
+export interface IEventsTracker {
+    // (undocumented)
+    dispose(): void;
+    // (undocumented)
+    trackCheckoutSessionStart(props: CheckoutSessionStartEventProps): Promise<void>;
+    // (undocumented)
+    trackSDKInitialized(props: UserEventProps): Promise<void>;
 }
 
 // @public
@@ -351,6 +389,14 @@ export interface TargetingContext {
 // @public
 export class UninitializedPurchasesError extends Error {
     constructor();
+}
+
+// @public
+export interface UserEventProps {
+    // (undocumented)
+    appUserId: string;
+    // (undocumented)
+    userIsAnonymous: boolean;
 }
 
 // (No @packageDocumentation comment for this package)
