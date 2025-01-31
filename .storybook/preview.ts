@@ -9,7 +9,7 @@ const preview: Preview = {
         date: /Date$/i,
       },
     },
-    chromatic: { delay: 1_000 }, // Time for Stripe to render
+    chromatic: { delay: 5_000 }, // Time for Stripe to render
   },
 };
 
