@@ -2,8 +2,8 @@ import { camelToUnderscore } from "../helpers/camel-to-underscore";
 import { v4 as uuidv4 } from "uuid";
 
 enum EventType {
-  SDK_INITIALIZED = "web_billing_sdk_initialized",
-  CHECKOUT_SESSION_START = "web_billing_checkout_session_start",
+  SdkInitialized = "web_billing_sdk_initialized",
+  CheckoutSessionStart = "web_billing_checkout_session_start",
 }
 
 interface EventData extends Record<string, unknown> {
@@ -45,7 +45,7 @@ interface SDKInitializedEventData extends EventData {
 
 export class SDKInitializedEvent extends BaseEvent {
   constructor(props: SDKInitializedEventData) {
-    super(EventType.SDK_INITIALIZED, props);
+    super(EventType.SdkInitialized, props);
   }
 }
 
@@ -74,6 +74,6 @@ export interface CheckoutSessionStartEventData
 
 export class CheckoutSessionStartEvent extends BaseEvent {
   constructor(props: CheckoutSessionStartEventData) {
-    super(EventType.CHECKOUT_SESSION_START, props);
+    super(EventType.CheckoutSessionStart, props);
   }
 }
