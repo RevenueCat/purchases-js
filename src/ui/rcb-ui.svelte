@@ -1,12 +1,6 @@
 <script lang="ts">
   import { onMount, setContext } from "svelte";
-  import type {
-    IEventsTracker,
-    Package,
-    Product,
-    PurchaseOption,
-    Purchases,
-  } from "../main";
+  import type { Package, Product, PurchaseOption, Purchases } from "../main";
   import StatePresentOffer from "./states/state-present-offer.svelte";
   import StateLoading from "./states/state-loading.svelte";
   import StateError from "./states/state-error.svelte";
@@ -40,6 +34,7 @@
     englishLocale,
     translatorContextKey,
   } from "./localization/constants";
+  import type { IEventsTracker } from "../behavioural-events/events-tracker";
 
   export let asModal = true;
   export let customerEmail: string | undefined;

@@ -90,11 +90,6 @@ export { OfferingKeyword } from "./entities/get-offerings-params";
 export type { PurchaseParams } from "./entities/purchase-params";
 export type { RedemptionInfo } from "./entities/redemption-info";
 export type { PurchaseResult } from "./entities/purchase-result";
-export type {
-  IEventsTracker,
-  UserEventProps,
-  CheckoutSessionStartEventProps,
-} from "./behavioural-events/events-tracker";
 
 const ANONYMOUS_PREFIX = "$RCAnonymousID:";
 
@@ -188,7 +183,7 @@ export class Purchases {
 
   /**
    * Loads and caches some optional data in the Purchases SDK.
-   * Currently fetching branding information and customer info.
+   * Currently only fetching branding information.
    * You can call this method after configuring the SDK to speed
    * up the first call to {@link Purchases.purchase}.
    */
