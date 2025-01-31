@@ -4,7 +4,13 @@
   export let disabled = false;
 </script>
 
-<button on:click class="close-button" {disabled}>
+<button
+  tabindex={0}
+  on:click
+  class="close-button"
+  aria-label="Close"
+  {disabled}
+>
   <div>
     {@html Icon}
   </div>
