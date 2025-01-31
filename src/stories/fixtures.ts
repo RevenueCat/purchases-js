@@ -56,12 +56,12 @@ export const subscriptionOptionWithTrial: SubscriptionOption = {
 
 export const product: Product = {
   identifier: "some_product_123",
-  displayName: "Igify Pro",
+  displayName: "Fantastic Cat",
   description:
     "This is a long description of the product which is long. " +
     "It is long indeed so that it spans multiple lines.",
 
-  title: "Igify Pro",
+  title: "Fantastic Cat Pro",
   productType: ProductType.Subscription,
   currentPrice: {
     amount: 999,

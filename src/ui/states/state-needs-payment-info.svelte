@@ -312,8 +312,12 @@
               </Button>
             {/if}
             <p class="terms">
-              By providing your card information you allow Igify to charge your
-              card for future payments in accordance with their terms.
+              <Localized
+                key={LocalizationKeys.StateNeedsPaymentInfoTermsInfo}
+                variables={{
+                  appName: brandingInfo?.app_name,
+                }}
+              />
             </p>
 
             <SecureCheckoutRc />
