@@ -23,7 +23,7 @@
     position: fixed;
     inset: 0;
     width: 100vw;
-    height: 100vh;
+    min-height: 100vh;
     color-scheme: none;
     font-size: 16px;
     line-height: 1.5em;
@@ -42,5 +42,6 @@
       noto,
       arial,
       sans-serif;
+    overflow: auto;
   }
 </style>

@@ -51,7 +51,7 @@
 
   // Maybe extract this to a
   function updateStripeVariables() {
-    const isMobile = window.matchMedia("(max-width: 768px)").matches;
+    const isMobile = window.matchMedia("(max-width: 767px)").matches;
 
     if (isMobile) {
       viewport = "mobile";

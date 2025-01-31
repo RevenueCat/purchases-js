@@ -124,7 +124,7 @@
     margin-bottom: var(--rc-spacing-gapXLarge-desktop);
   }
 
-  @media screen and (max-width: 768px) {
+  @media screen and (max-width: 767px) {
     .form-container {
       margin-top: var(--rc-spacing-gapXLarge-mobile);
       margin-bottom: var(--rc-spacing-gapXLarge-mobile);
@@ -171,7 +171,7 @@
     color: inherit;
   }
 
-  @media screen and (max-width: 768px) {
+  @media screen and (max-width: 767px) {
     input {
       padding-left: var(--rc-spacing-gapLarge-mobile);
       height: var(--rc-spacing-inputHeight-mobile);

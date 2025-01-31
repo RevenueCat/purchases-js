@@ -33,19 +33,21 @@
 <style>
   .rcb-ui-main {
     flex: 1;
-    width: 100%;
+    display: flex;
     background-color: var(--rc-color-background);
   }
 
-  .inner-container {
-    height: 100%;
+  @media screen and (max-width: 767px) {
+    .inner-container {
+      flex-grow: 1;
+      display: flex;
+    }
   }
 
   @media screen and (min-width: 768px) {
     .rcb-ui-main {
       width: auto;
       flex-grow: 1;
-      display: flex;
       justify-content: flex-start;
     }
 

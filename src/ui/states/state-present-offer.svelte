@@ -234,7 +234,7 @@
     padding-top: 0;
     padding-bottom: 0;
   }
-  @media screen and (max-width: 768px) {
+  @media screen and (max-width: 767px) {
     .rcb-pricing-info {
       gap: var(--rc-spacing-gapXXLarge-mobile);
     }
