@@ -152,7 +152,7 @@ jobs:
           command: npm run prettier:ci
       - run:
           name: Type checker including tests
-          command: npm run test:typeCheck
+          command: npm run test:typecheck
       - run:
           name: Svelte check
           command: npm run svelte-check

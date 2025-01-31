@@ -44,7 +44,7 @@
     "lint": "prettier --check .",
     "format": "prettier --write .",
     "test": "vitest",
-    "test:typeCheck": "tsc --project tsconfig.test.json",
+    "test:typecheck": "tsc --project tsconfig.test.json",
     "typecheck": "tsc --noEmit",
     "prettier": "prettier --write .",
     "prettier:ci": "prettier --check .",
