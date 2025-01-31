@@ -1,12 +1,6 @@
 <script lang="ts">
   import { onMount, setContext, onDestroy } from "svelte";
   import type { Package, Product, PurchaseOption, Purchases } from "../main";
-  import StatePresentOffer from "./states/state-present-offer.svelte";
-  import StateLoading from "./states/state-loading.svelte";
-  import StateError from "./states/state-error.svelte";
-  import StateSuccess from "./states/state-success.svelte";
-  import StateNeedsPaymentInfo from "./states/state-needs-payment-info.svelte";
-  import StateNeedsAuthInfo from "./states/state-needs-auth-info.svelte";
   import { type PurchaseResponse } from "../networking/responses/purchase-response";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import {
@@ -14,12 +8,6 @@
     PurchaseFlowErrorCode,
     PurchaseOperationHelper,
   } from "../helpers/purchase-operation-helper";
-  import BrandingInfoUI from "./branding-info-ui.svelte";
-  import SandboxBanner from "./sandbox-banner.svelte";
-  import Layout from "./layout/layout.svelte";
-  import Container from "./layout/container.svelte";
-  import NavBar from "./layout/navbar.svelte";
-  import Main from "./layout/main-block.svelte";
 
   import { toProductInfoStyleVar } from "./theme/utils";
   import { type RedemptionInfo } from "../entities/redemption-info";
@@ -31,6 +19,8 @@
     englishLocale,
     translatorContextKey,
   } from "./localization/constants";
+  import { type CurrentView } from "./ui-types";
+  import RcbUIInner from "./rcb-ui-inner.svelte";
 
   export let customerEmail: string | undefined;
   export let appUserId: string;
@@ -57,28 +47,8 @@
     ? purchaseOption
     : defaultPurchaseOption;
 
-  let state:
-    | "present-offer"
-    | "needs-auth-info"
-    | "processing-auth-info"
-    | "needs-payment-info"
-    | "polling-purchase-status"
-    | "loading"
-    | "success"
-    | "error" = "present-offer";
-
+  let currentView: CurrentView = "present-offer";
   let redemptionInfo: RedemptionInfo | null = null;
-
-  const statesWhereOfferDetailsAreShown = [
-    "present-offer",
-    "needs-auth-info",
-    "processing-auth-info",
-    "needs-payment-info",
-    "polling-purchase-status",
-    "loading",
-    "success",
-    "error",
-  ];
 
   // Setting the context for the Localized components
   setContext(
@@ -99,11 +69,11 @@
 
     colorVariables = toProductInfoStyleVar(brandingInfo?.appearance);
 
-    if (state === "present-offer") {
+    if (currentView === "present-offer") {
       if (customerEmail) {
         handleSubscribe();
       } else {
-        state = "needs-auth-info";
+        currentView = "needs-auth-info";
       }
 
       return;
@@ -123,8 +93,8 @@
         ),
       );
       return;
-    } else if (state === "present-offer") {
-      state = "loading";
+    } else if (currentView === "present-offer") {
+      currentView = "loading";
     }
 
     if (!customerEmail) {
@@ -145,13 +115,13 @@
       .then((result) => {
         if (result.next_action === "collect_payment_info") {
           lastError = null;
-          state = "needs-payment-info";
+          currentView = "needs-payment-info";
           paymentInfoCollectionMetadata = result;
           return;
         }
         if (result.next_action === "completed") {
           lastError = null;
-          state = "success";
+          currentView = "success";
           return;
         }
       })
@@ -161,22 +131,22 @@
   };
 
   const handleContinue = (authInfo?: { email: string }) => {
-    if (state === "needs-auth-info") {
+    if (currentView === "needs-auth-info") {
       if (authInfo) {
         customerEmail = authInfo.email;
-        state = "processing-auth-info";
+        currentView = "processing-auth-info";
       }
 
       handleSubscribe();
       return;
     }
 
-    if (state === "needs-payment-info") {
-      state = "polling-purchase-status";
+    if (currentView === "needs-payment-info") {
+      currentView = "polling-purchase-status";
       purchaseOperationHelper
         .pollCurrentPurchaseForCompletion()
         .then((pollResult) => {
-          state = "success";
+          currentView = "success";
           redemptionInfo = pollResult.redemptionInfo;
         })
         .catch((error: PurchaseFlowError) => {
@@ -185,22 +155,22 @@
       return;
     }
 
-    if (state === "success" || state === "error") {
+    if (currentView === "success" || currentView === "error") {
       onFinished(redemptionInfo);
       return;
     }
 
-    state = "success";
+    currentView = "success";
   };
 
   const handleError = (e: PurchaseFlowError) => {
-    if (state === "processing-auth-info" && e.isRecoverable()) {
+    if (currentView === "processing-auth-info" && e.isRecoverable()) {
       lastError = e;
-      state = "needs-auth-info";
+      currentView = "needs-auth-info";
       return;
     }
     lastError = e;
-    state = "error";
+    currentView = "error";
   };
 
   const closeWithError = () => {
@@ -214,83 +184,15 @@
   };
 </script>
 
-<Container brandingAppearance={brandingInfo?.appearance}>
-  {#if purchases.isSandbox()}
-    <SandboxBanner style={colorVariables} />
-  {/if}
-  <Layout style={colorVariables}>
-    {#if statesWhereOfferDetailsAreShown.includes(state)}
-      <NavBar brandingAppearance={brandingInfo?.appearance}>
-        {#snippet headerContent()}
-          <BrandingInfoUI {brandingInfo} />
-        {/snippet}
-
-        {#snippet bodyContent(expanded)}
-          {#if productDetails && purchaseOptionToUse}
-            <StatePresentOffer
-              {productDetails}
-              brandingAppearance={brandingInfo?.appearance}
-              purchaseOption={purchaseOptionToUse}
-              {expanded}
-            />
-          {/if}
-        {/snippet}
-      </NavBar>
-    {/if}
-    <Main brandingAppearance={brandingInfo?.appearance}>
-      {#snippet body()}
-        {#if state === "present-offer" && productDetails && purchaseOptionToUse}
-          <StatePresentOffer
-            {productDetails}
-            purchaseOption={purchaseOptionToUse}
-            expanded={true}
-          />
-        {/if}
-        {#if state === "present-offer" && !productDetails}
-          <StateLoading />
-        {/if}
-        {#if state === "needs-auth-info" || state === "processing-auth-info"}
-          <StateNeedsAuthInfo
-            onContinue={handleContinue}
-            onClose={handleClose}
-            processing={state === "processing-auth-info"}
-            {lastError}
-          />
-        {/if}
-        {#if paymentInfoCollectionMetadata && (state === "needs-payment-info" || state === "polling-purchase-status") && productDetails && purchaseOptionToUse}
-          <StateNeedsPaymentInfo
-            {paymentInfoCollectionMetadata}
-            onContinue={handleContinue}
-            onClose={handleClose}
-            processing={state === "polling-purchase-status"}
-            {productDetails}
-            {purchaseOptionToUse}
-            {brandingInfo}
-          />
-        {/if}
-        {#if state === "loading"}
-          <StateLoading />
-        {/if}
-        {#if state === "error"}
-          <StateError
-            lastError={lastError ??
-              new PurchaseFlowError(
-                PurchaseFlowErrorCode.UnknownError,
-                "Unknown error without state set.",
-              )}
-            supportEmail={brandingInfo?.support_email}
-            {productDetails}
-            onContinue={closeWithError}
-          />
-        {/if}
-        {#if state === "success"}
-          <StateSuccess
-            {productDetails}
-            {brandingInfo}
-            onContinue={handleContinue}
-          />
-        {/if}
-      {/snippet}
-    </Main>
-  </Layout>
-</Container>
+<RcbUIInner
+  isSandbox={purchases.isSandbox()}
+  {currentView}
+  {brandingInfo}
+  {productDetails}
+  {purchaseOptionToUse}
+  {handleContinue}
+  {handleClose}
+  {lastError}
+  {paymentInfoCollectionMetadata}
+  {closeWithError}
+/>

@@ -15,6 +15,7 @@
   import Layout from "../ui/layout/layout.svelte";
   import { toProductInfoStyleVar } from "../ui/theme/utils";
   import SandboxBanner from "../ui/sandbox-banner.svelte";
+  import RcbUiInner from "../ui/rcb-ui-inner.svelte";
 
   import {
     brandingInfo,
@@ -51,53 +52,26 @@
 
 {#snippet template(args)}
   <WithContext context={args.context}>
-    <Container brandingAppearance={args.brandingInfo.appearance}>
-      {#if args.context.isSandbox}
-        <SandboxBanner style={colorVariables} />
-      {/if}
-      <Layout style={colorVariables}>
-        <NavBar brandingAppearance={args.brandingInfo.appearance}>
-          {#snippet headerContent()}
-            <BrandingInfoUI {...args} />
-          {/snippet}
-
-          {#snippet bodyContent(expanded)}
-            <StatePresentOffer {...args} {expanded} />
-          {/snippet}
-        </NavBar>
-
-        <Main brandingAppearance={args.brandingInfo.appearance}>
-          {#snippet header()}
-            {#if args.renderHeader}
-              <svelte:component this={args.renderHeader} {...args} />
-            {/if}
-          {/snippet}
-          {#snippet body()}
-            <svelte:component this={args.renderBody} {...args} />
-          {/snippet}
-        </Main>
-      </Layout>
-    </Container>
+    <RcbUiInner {...args} {colorVariables} />
   </WithContext>
 {/snippet}
 
 <Story
   name="Email Input (Mobile)"
-  args={{ renderBody: StateNeedsAuthInfo }}
+  args={{ renderBody: StateNeedsAuthInfo, currentView: "needs-auth-info" }}
   parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
 <Story
   name="Email Input (Desktop)"
-  args={{ renderBody: StateNeedsAuthInfo }}
+  args={{ renderBody: StateNeedsAuthInfo, currentView: "needs-auth-info" }}
   parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
 <Story
   name="Email Input (with Sandbox Banner) (Mobile)"
   args={{
     renderBody: StateNeedsAuthInfo,
-    context: {
-      isSandbox: true,
-    },
+    currentView: "needs-auth-info",
+    isSandbox: true,
   }}
   parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
@@ -105,9 +79,8 @@
   name="Email Input (with Sandbox Banner) (Desktop)"
   args={{
     renderBody: StateNeedsAuthInfo,
-    context: {
-      isSandbox: true,
-    },
+    currentView: "needs-auth-info",
+    isSandbox: true,
   }}
   parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
@@ -116,6 +89,7 @@
   args={{
     args: defaultArgs,
     renderBody: StateNeedsPaymentInfoWithPurchaseResponse,
+    currentView: "needs-payment-info",
   }}
   parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
@@ -124,6 +98,7 @@
   args={{
     args: defaultArgs,
     renderBody: StateNeedsPaymentInfoWithPurchaseResponse,
+    currentView: "needs-payment-info",
   }}
   parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
@@ -131,6 +106,7 @@
   name="Loading (Mobile)"
   args={{
     renderBody: StateLoading,
+    currentView: "loading",
   }}
   parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
@@ -138,6 +114,7 @@
   name="Loading (Desktop)"
   args={{
     renderBody: StateLoading,
+    currentView: "loading",
   }}
   parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
@@ -145,6 +122,7 @@
   name="Payment complete (Mobile)"
   args={{
     renderBody: StateSuccess,
+    currentView: "success",
   }}
   parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
@@ -152,6 +130,7 @@
   name="Payment failed (Mobile)"
   args={{
     renderBody: StateError,
+    currentView: "error",
   }}
   parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
@@ -159,6 +138,7 @@
   name="Payment failed (Desktop)"
   args={{
     renderBody: StateError,
+    currentView: "error",
   }}
   parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
