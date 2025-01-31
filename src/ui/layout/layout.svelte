@@ -12,30 +12,20 @@
 <style>
   .rcb-ui-layout {
     width: 100vw;
-    margin-right: auto;
     display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    position: relative;
-    padding: 0px 80px;
     box-sizing: border-box;
+    flex-direction: column;
   }
 
-  @media screen and (max-width: 960px) {
+  @media screen and (max-width: 767px) {
     .rcb-ui-layout {
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      min-width: 100%;
-      padding: 16px 0;
+      flex-grow: 1;
     }
   }
 
-  @media screen and (max-width: 960px) and (max-height: 960px) {
+  @media screen and (min-width: 768px) {
     .rcb-ui-layout {
-      overflow-y: scroll;
-      justify-content: flex-start;
+      flex-direction: row;
     }
   }
 </style>

@@ -9,7 +9,7 @@ const config: StorybookConfig = {
     {
       name: "@storybook/addon-svelte-csf",
       options: {
-        legacyTemplate: true,
+        legacyTemplate: false,
       },
     },
   ],

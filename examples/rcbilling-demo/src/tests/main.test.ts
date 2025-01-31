@@ -212,7 +212,7 @@ test.describe("Main", () => {
   [
     ["es", "Email de facturación"],
     ["it", "Indirizzo email per la fatturazione"],
-    ["en", "Billing email address"],
+    ["en", "What's your email?"],
     ["fr", "Adresse e-mail de facturation"],
     ["de", "E-Mail-Adresse für Rechnungsstellung"],
   ].forEach(([lang, title]) => {
@@ -236,7 +236,7 @@ test.describe("Main", () => {
   [
     ["es", "Email de facturación"],
     ["it", "Indirizzo email per la fatturazione"],
-    ["en", "Billing email address"],
+    ["en", "What's your email?"],
     ["fr", "Adresse e-mail de facturation"],
     ["de", "E-Mail-Adresse für Rechnungsstellung"],
   ].forEach(([lang, title]) => {
@@ -284,9 +284,8 @@ async function performPurchase(page: Page, card: Locator, userId: string) {
 
   await enterEmailAndContinue(page, userId);
   await enterCreditCardDetailsAndContinue(page);
-
   // Confirm success page has shown.
-  const successText = page.getByText("Purchase successful");
+  const successText = page.getByText("Payment complete");
   await expect(successText).toBeVisible({ timeout: 10000 });
 }
 
@@ -379,7 +378,7 @@ async function navigateToUrl(
 
 async function typeTextInPageSelector(page: Page, text: string): Promise<void> {
   // Fill email
-  const emailTitle = page.getByText("Billing email address");
+  const emailTitle = page.getByText("What's your email?");
   await expect(emailTitle).toBeVisible();
   await page.getByPlaceholder("john@appleseed.com").click();
   await page.getByPlaceholder("john@appleseed.com").fill(text);

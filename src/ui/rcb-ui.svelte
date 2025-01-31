@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, setContext } from "svelte";
+  import { onMount, setContext, onDestroy } from "svelte";
   import type { Package, Product, PurchaseOption, Purchases } from "../main";
   import StatePresentOffer from "./states/state-present-offer.svelte";
   import StateLoading from "./states/state-loading.svelte";
@@ -7,7 +7,6 @@
   import StateSuccess from "./states/state-success.svelte";
   import StateNeedsPaymentInfo from "./states/state-needs-payment-info.svelte";
   import StateNeedsAuthInfo from "./states/state-needs-auth-info.svelte";
-  import ConditionalFullScreen from "./conditional-full-screen.svelte";
   import { type PurchaseResponse } from "../networking/responses/purchase-response";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import {
@@ -15,13 +14,11 @@
     PurchaseFlowErrorCode,
     PurchaseOperationHelper,
   } from "../helpers/purchase-operation-helper";
-  import ModalHeader from "./modal-header.svelte";
-  import IconCart from "./icons/icon-cart.svelte";
   import BrandingInfoUI from "./branding-info-ui.svelte";
   import SandboxBanner from "./sandbox-banner.svelte";
   import Layout from "./layout/layout.svelte";
   import Container from "./layout/container.svelte";
-  import Aside from "./layout/aside-block.svelte";
+  import NavBar from "./layout/navbar.svelte";
   import Main from "./layout/main-block.svelte";
 
   import { toProductInfoStyleVar } from "./theme/utils";
@@ -35,7 +32,6 @@
     translatorContextKey,
   } from "./localization/constants";
 
-  export let asModal = true;
   export let customerEmail: string | undefined;
   export let appUserId: string;
   export let rcPackage: Package;
@@ -80,6 +76,8 @@
     "needs-payment-info",
     "polling-purchase-status",
     "loading",
+    "success",
+    "error",
   ];
 
   // Setting the context for the Localized components
@@ -88,9 +86,16 @@
     new Translator(customTranslations, selectedLocale, defaultLocale),
   );
 
+  onMount(() => {
+    document.body.style.overflow = "hidden"; // Prevents background scrolling
+  });
+
+  onDestroy(() => {
+    document.body.style.overflow = ""; // Restores default scrolling when unmounting
+  });
+
   onMount(async () => {
     productDetails = rcPackage.rcBillingProduct;
-
     colorVariables = toProductInfoStyleVar(brandingInfo?.appearance);
 
     if (state === "present-offer") {
@@ -208,88 +213,83 @@
   };
 </script>
 
-<Container>
-  <ConditionalFullScreen condition={asModal}>
-    <Layout style={colorVariables}>
-      {#if statesWhereOfferDetailsAreShown.includes(state)}
-        <Aside brandingAppearance={brandingInfo?.appearance}>
-          {#snippet headerContent()}
-            <ModalHeader>
-              <BrandingInfoUI {brandingInfo} />
-              {#if purchases.isSandbox()}
-                <SandboxBanner />
-              {:else}
-                <IconCart />
-              {/if}
-            </ModalHeader>
-          {/snippet}
+<Container brandingAppearance={brandingInfo?.appearance}>
+  {#if purchases.isSandbox()}
+    <SandboxBanner style={colorVariables} />
+  {/if}
+  <Layout style={colorVariables}>
+    {#if statesWhereOfferDetailsAreShown.includes(state)}
+      <NavBar brandingAppearance={brandingInfo?.appearance}>
+        {#snippet headerContent()}
+          <BrandingInfoUI {brandingInfo} />
+        {/snippet}
 
-          {#snippet bodyContent()}
-            {#if productDetails && purchaseOptionToUse}
-              <StatePresentOffer
-                {productDetails}
-                brandingAppearance={brandingInfo?.appearance}
-                purchaseOption={purchaseOptionToUse}
-              />
-            {/if}
-          {/snippet}
-        </Aside>
-      {/if}
-      <Main brandingAppearance={brandingInfo?.appearance}>
-        {#snippet body()}
-          {#if state === "present-offer" && productDetails && purchaseOptionToUse}
+        {#snippet bodyContent(expanded)}
+          {#if productDetails && purchaseOptionToUse}
             <StatePresentOffer
               {productDetails}
+              brandingAppearance={brandingInfo?.appearance}
               purchaseOption={purchaseOptionToUse}
-            />
-          {/if}
-          {#if state === "present-offer" && !productDetails}
-            <StateLoading />
-          {/if}
-          {#if state === "needs-auth-info" || state === "processing-auth-info"}
-            <StateNeedsAuthInfo
-              onContinue={handleContinue}
-              onClose={handleClose}
-              processing={state === "processing-auth-info"}
-              {lastError}
-            />
-          {/if}
-          {#if paymentInfoCollectionMetadata && (state === "needs-payment-info" || state === "polling-purchase-status") && productDetails && purchaseOptionToUse}
-            <StateNeedsPaymentInfo
-              {paymentInfoCollectionMetadata}
-              onContinue={handleContinue}
-              onClose={handleClose}
-              processing={state === "polling-purchase-status"}
-              {productDetails}
-              {purchaseOptionToUse}
-              {brandingInfo}
-            />
-          {/if}
-          {#if state === "loading"}
-            <StateLoading />
-          {/if}
-          {#if state === "error"}
-            <StateError
-              {brandingInfo}
-              lastError={lastError ??
-                new PurchaseFlowError(
-                  PurchaseFlowErrorCode.UnknownError,
-                  "Unknown error without state set.",
-                )}
-              supportEmail={brandingInfo?.support_email}
-              {productDetails}
-              onContinue={closeWithError}
-            />
-          {/if}
-          {#if state === "success"}
-            <StateSuccess
-              {productDetails}
-              {brandingInfo}
-              onContinue={handleContinue}
+              {expanded}
             />
           {/if}
         {/snippet}
-      </Main>
-    </Layout>
-  </ConditionalFullScreen>
+      </NavBar>
+    {/if}
+    <Main brandingAppearance={brandingInfo?.appearance}>
+      {#snippet body()}
+        {#if state === "present-offer" && productDetails && purchaseOptionToUse}
+          <StatePresentOffer
+            {productDetails}
+            purchaseOption={purchaseOptionToUse}
+            expanded={true}
+          />
+        {/if}
+        {#if state === "present-offer" && !productDetails}
+          <StateLoading />
+        {/if}
+        {#if state === "needs-auth-info" || state === "processing-auth-info"}
+          <StateNeedsAuthInfo
+            onContinue={handleContinue}
+            onClose={handleClose}
+            processing={state === "processing-auth-info"}
+            {lastError}
+          />
+        {/if}
+        {#if paymentInfoCollectionMetadata && (state === "needs-payment-info" || state === "polling-purchase-status") && productDetails && purchaseOptionToUse}
+          <StateNeedsPaymentInfo
+            {paymentInfoCollectionMetadata}
+            onContinue={handleContinue}
+            onClose={handleClose}
+            processing={state === "polling-purchase-status"}
+            {productDetails}
+            {purchaseOptionToUse}
+            {brandingInfo}
+          />
+        {/if}
+        {#if state === "loading"}
+          <StateLoading />
+        {/if}
+        {#if state === "error"}
+          <StateError
+            lastError={lastError ??
+              new PurchaseFlowError(
+                PurchaseFlowErrorCode.UnknownError,
+                "Unknown error without state set.",
+              )}
+            supportEmail={brandingInfo?.support_email}
+            {productDetails}
+            onContinue={closeWithError}
+          />
+        {/if}
+        {#if state === "success"}
+          <StateSuccess
+            {productDetails}
+            {brandingInfo}
+            onContinue={handleContinue}
+          />
+        {/if}
+      {/snippet}
+    </Main>
+  </Layout>
 </Container>

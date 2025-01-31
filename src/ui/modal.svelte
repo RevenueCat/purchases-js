@@ -1,14 +1,20 @@
 <script lang="ts">
   import { type Snippet } from "svelte";
-
+  import { fade } from "svelte/transition";
   export let style = "";
+  export let as: string = "div";
   export let children: Snippet;
+  export let delayFade = 130;
 </script>
 
-<div class="rcb-modal-container">
-  <main class="rcb-modal-main" {style}>
+<div class="rcb-modal-container" {style}>
+  <svelte:element
+    this={as}
+    class="rcb-modal-main"
+    transition:fade={{ duration: 500, delay: delayFade }}
+  >
     {@render children?.()}
-  </main>
+  </svelte:element>
 </div>
 
 <style>
@@ -18,26 +24,28 @@
 
   .rcb-modal-main {
     box-sizing: border-box;
-    border-radius: var(--rc-shape-modal-border-radius);
     background-color: var(--rc-color-background);
     color: var(--rc-color-grey-text-dark);
-    padding: 40px;
+    padding: var(--rc-spacing-outerPadding-desktop);
     flex-direction: column;
     display: flex;
   }
 
-  @media screen and (max-width: 960px) {
+  @media screen and (min-width: 768px) {
     .rcb-modal-container {
-      width: calc(100% - 32px);
+      min-height: 100vh;
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    .rcb-modal-container {
+      width: 100%;
       min-width: 300px;
-      max-width: 640px;
-      margin: auto;
     }
 
     .rcb-modal-main {
-      min-width: 300px;
-      max-width: 640px;
-      padding: 32px;
+      padding: var(--rc-spacing-outerPadding-mobile);
+      height: 100%;
     }
   }
 </style>

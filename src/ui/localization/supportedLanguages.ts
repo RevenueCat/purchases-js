@@ -68,6 +68,7 @@ export enum LocalizationKeys {
   StateNeedsAuthInfoEmailInputPlaceholder = "state_needs_auth_info.email_input_placeholder",
   StateNeedsAuthInfoButtonContinue = "state_needs_auth_info.button_continue",
   StateNeedsPaymentInfoPaymentStepTitle = "state_needs_payment_info.payment_step_title",
+  StateNeedsPaymentInfoTermsInfo = "state_needs_payment_info.terms_info",
   StateNeedsPaymentInfoButtonPay = "state_needs_payment_info.button_pay",
   StateNeedsPaymentInfoButtonStartTrial = "state_needs_payment_info.button_start_trial",
   StateSuccessPurchaseSuccessful = "state_success.purchase_successful",
