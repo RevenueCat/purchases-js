@@ -20,7 +20,11 @@ describe("EventsTracker", (test) => {
     .mockImplementation(() => undefined);
 
   beforeEach<EventsTrackerFixtures>((context) => {
-    context.eventsTracker = new EventsTracker(testApiKey);
+    context.eventsTracker = new EventsTracker({
+      apiKey: testApiKey,
+      appUserId: "someAppUserId",
+      userIsAnonymous: false,
+    });
     vi.useFakeTimers();
     vi.setSystemTime(date);
   });
@@ -33,8 +37,6 @@ describe("EventsTracker", (test) => {
 
   function trackCheckoutSessionStart(eventsTracker: EventsTracker) {
     eventsTracker.trackCheckoutSessionStart({
-      appUserId: "someAppUserId",
-      userIsAnonymous: false,
       customizationOptions: {
         colorButtonsPrimary: "#000000",
         colorAccent: "#000000",
@@ -55,13 +57,40 @@ describe("EventsTracker", (test) => {
     });
   }
 
+  test<EventsTrackerFixtures>("updates the user props", async ({
+    eventsTracker,
+  }) => {
+    eventsTracker.updateUser({
+      appUserId: "newAppUserId",
+      userIsAnonymous: true,
+    });
+
+    eventsTracker.trackSDKInitialized();
+
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(APIPostRequest).toHaveBeenCalledWith({
+      url: "http://localhost:8000/v1/events",
+      json: {
+        events: [
+          {
+            id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+            type: "web_billing_sdk_initialized",
+            trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+            timestamp_ms: date.getTime(),
+            app_user_id: "newAppUserId",
+            user_is_anonymous: true,
+            sdk_version: "0.15.1",
+          },
+        ],
+      },
+    });
+  });
+
   test<EventsTrackerFixtures>("tracks the SDKInitialized event", async ({
     eventsTracker,
   }) => {
-    eventsTracker.trackSDKInitialized({
-      appUserId: "someAppUserId",
-      userIsAnonymous: false,
-    });
+    eventsTracker.trackSDKInitialized();
 
     await vi.advanceTimersToNextTimerAsync();
 
@@ -130,10 +159,7 @@ describe("EventsTracker", (test) => {
     trackCheckoutSessionStart(eventsTracker);
     loggerMock.mockClear();
     APIPostRequest.mockClear();
-    eventsTracker.trackBillingEmailEntryImpression({
-      appUserId: "someAppUserId",
-      userIsAnonymous: false,
-    });
+    eventsTracker.trackBillingEmailEntryImpression();
 
     await vi.advanceTimersToNextTimerAsync();
 
@@ -161,10 +187,7 @@ describe("EventsTracker", (test) => {
     trackCheckoutSessionStart(eventsTracker);
     loggerMock.mockClear();
     APIPostRequest.mockClear();
-    eventsTracker.trackBillingEmailEntrySubmit({
-      appUserId: "someAppUserId",
-      userIsAnonymous: false,
-    });
+    eventsTracker.trackBillingEmailEntrySubmit();
 
     await vi.advanceTimersToNextTimerAsync();
 
@@ -193,8 +216,6 @@ describe("EventsTracker", (test) => {
     loggerMock.mockClear();
     APIPostRequest.mockClear();
     eventsTracker.trackBillingEmailEntryError({
-      appUserId: "someAppUserId",
-      userIsAnonymous: false,
       errorCode: 8,
       errorMessage: "someErrorMessage",
     });
@@ -227,10 +248,7 @@ describe("EventsTracker", (test) => {
     trackCheckoutSessionStart(eventsTracker);
     loggerMock.mockClear();
     APIPostRequest.mockClear();
-    eventsTracker.trackBillingEmailEntryDismiss({
-      appUserId: "someAppUserId",
-      userIsAnonymous: false,
-    });
+    eventsTracker.trackBillingEmailEntryDismiss();
 
     await vi.advanceTimersToNextTimerAsync();
 
@@ -278,10 +296,7 @@ describe("EventsTracker", (test) => {
       }),
     );
 
-    eventsTracker.trackSDKInitialized({
-      appUserId: "someAppUserId",
-      userIsAnonymous: false,
-    });
+    eventsTracker.trackSDKInitialized();
 
     // Attempt 1: First direct attempt to flush without timeout
     await vi.advanceTimersByTimeAsync(100);
@@ -336,10 +351,7 @@ describe("EventsTracker", (test) => {
     );
 
     for (let i = 0; i < 4; i++) {
-      eventsTracker.trackSDKInitialized({
-        appUserId: "someAppUserId",
-        userIsAnonymous: false,
-      });
+      eventsTracker.trackSDKInitialized();
     }
 
     await vi.advanceTimersByTimeAsync(1000 + 2000 + 4000 + 8000);
@@ -372,10 +384,7 @@ describe("EventsTracker", (test) => {
       }),
     );
 
-    eventsTracker.trackSDKInitialized({
-      appUserId: "someAppUserId",
-      userIsAnonymous: false,
-    });
+    eventsTracker.trackSDKInitialized();
 
     // Attempt 1: First direct attempt to flush without timeout
     await vi.advanceTimersByTimeAsync(100);
@@ -421,14 +430,7 @@ describe("EventsTracker", (test) => {
         eventPayloadSpy(json);
 
         if (attempts === 1) {
-          setTimeout(
-            () =>
-              eventsTracker.trackSDKInitialized({
-                appUserId: "someAppUserId",
-                userIsAnonymous: false,
-              }),
-            1_000,
-          );
+          setTimeout(() => eventsTracker.trackSDKInitialized(), 1_000);
           await new Promise((resolve) => setTimeout(resolve, 10_000));
           return new HttpResponse(null, { status: 201 });
         }
@@ -437,10 +439,7 @@ describe("EventsTracker", (test) => {
       }),
     );
 
-    eventsTracker.trackSDKInitialized({
-      appUserId: "someAppUserId",
-      userIsAnonymous: false,
-    });
+    eventsTracker.trackSDKInitialized();
 
     await vi.runAllTimersAsync();
 

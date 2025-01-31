@@ -39,8 +39,6 @@ const basicProps = {
   purchases: purchasesMock,
   eventsTracker: eventsTrackerMock,
   purchaseOperationHelper: purchaseOperationHelperMock,
-  appUserId: "testUser",
-  userIsAnonymous: false,
   rcPackage: rcPackage,
   purchaseOption: null,
   brandingInfo: null,
@@ -59,8 +57,6 @@ describe("PurchasesUI", () => {
     render(PurchasesUI, { props: basicProps });
 
     expect(eventsTrackerMock.trackCheckoutSessionStart).toHaveBeenCalledWith({
-      appUserId: "testUser",
-      userIsAnonymous: false,
       customizationOptions: null,
       productInterval: product.normalPeriodDuration,
       productPrice: product.currentPrice.amountMicros,
@@ -76,10 +72,7 @@ describe("PurchasesUI", () => {
 
     expect(
       eventsTrackerMock.trackBillingEmailEntryImpression,
-    ).toHaveBeenCalledWith({
-      appUserId: "testUser",
-      userIsAnonymous: false,
-    });
+    ).toHaveBeenCalledWith();
   });
 
   test("NOTs track the BillingEmailEntryImpression event when email has been provided", async () => {
@@ -100,12 +93,9 @@ describe("PurchasesUI", () => {
     const continueButton = screen.getByText("Continue");
     await fireEvent.click(continueButton);
 
-    expect(eventsTrackerMock.trackBillingEmailEntrySubmit).toHaveBeenCalledWith(
-      {
-        appUserId: "testUser",
-        userIsAnonymous: false,
-      },
-    );
+    expect(
+      eventsTrackerMock.trackBillingEmailEntrySubmit,
+    ).toHaveBeenCalledWith();
   });
 
   test("tracks the BillingEmailEntryDismiss event when the billing email entry is closed", async () => {
@@ -118,10 +108,7 @@ describe("PurchasesUI", () => {
 
     expect(
       eventsTrackerMock.trackBillingEmailEntryDismiss,
-    ).toHaveBeenCalledWith({
-      appUserId: "testUser",
-      userIsAnonymous: false,
-    });
+    ).toHaveBeenCalledWith();
     expect(basicProps.onClose).toHaveBeenCalled();
   });
 
@@ -136,8 +123,6 @@ describe("PurchasesUI", () => {
     await fireEvent.click(continueButton);
 
     expect(eventsTrackerMock.trackBillingEmailEntryError).toHaveBeenCalledWith({
-      appUserId: "testUser",
-      userIsAnonymous: false,
       errorCode: null,
       errorMessage: "Email is not valid. Please provide a valid email address.",
     });
@@ -163,8 +148,6 @@ describe("PurchasesUI", () => {
     await fireEvent.click(continueButton);
 
     expect(eventsTrackerMock.trackBillingEmailEntryError).toHaveBeenCalledWith({
-      appUserId: "testUser",
-      userIsAnonymous: false,
       errorCode: 4,
       errorMessage:
         "Email domain is not valid. Please check the email address or try a different one.",

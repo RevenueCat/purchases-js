@@ -14,19 +14,15 @@
   import { Translator } from "../localization/translator";
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
-  import {
-    EventsTrackerContext,
-    eventsTrackerContextKey,
-  } from "../events-tracker/context";
+  import { eventsTrackerContextKey } from "../constants";
+  import { IEventsTracker } from "../../behavioural-events/events-tracker";
 
   export let onContinue: any;
   export let onClose: () => void;
   export let processing: boolean;
   export let lastError: PurchaseFlowError | null;
 
-  const { eventsTracker, appUserId, userIsAnonymous } = getContext(
-    eventsTrackerContextKey,
-  ) as EventsTrackerContext;
+  const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
 
   $: email = "";
   $: error = "";
@@ -36,8 +32,6 @@
     const emailError = validateEmail(email);
     if (emailError) {
       eventsTracker.trackBillingEmailEntryError({
-        appUserId: appUserId,
-        userIsAnonymous,
         errorCode: null,
         errorMessage: emailError,
       });
