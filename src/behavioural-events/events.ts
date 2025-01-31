@@ -1,59 +1,25 @@
-import { camelToUnderscore } from "../helpers/camel-to-underscore";
-import { v4 as uuidv4 } from "uuid";
+import type { Package } from "../entities/offerings";
+import type { PurchaseOption } from "../entities/offerings";
+import type { BrandingAppearance } from "../networking/responses/branding-response";
+import { VERSION } from "../helpers/constants";
 
-enum EventType {
-  SdkInitialized = "web_billing_sdk_initialized",
-  CheckoutSessionStart = "web_billing_checkout_session_start",
-  BillingEmailEntryImpression = "web_billing_billing_email_entry_impression",
-  BillingEmailEntrySubmit = "web_billing_billing_email_entry_submit",
-  BillingEmailEntryDismiss = "web_billing_billing_email_entry_dismiss",
-  BillingEmailEntryError = "web_billing_billing_email_entry_error",
+type SDKInitializedEvent = {
+  eventName: "sdk_initialized";
+  properties: {
+    sdkVersion: string;
+  };
+};
+
+export function createSDKInitializedEvent(): SDKInitializedEvent {
+  return {
+    eventName: "sdk_initialized",
+    properties: {
+      sdkVersion: VERSION,
+    },
+  };
 }
 
-interface EventData extends Record<string, unknown> {
-  traceId: string;
-  appUserId: string | null;
-  userIsAnonymous: boolean;
-}
-
-export abstract class BaseEvent {
-  public readonly id: string;
-  public readonly timestampMs: number;
-  public readonly type: string;
-  public readonly data: EventData;
-
-  protected constructor(type: EventType, data: EventData) {
-    this.id = uuidv4();
-    this.timestampMs = Date.now();
-    this.type = type;
-    this.data = data;
-  }
-
-  public toJSON(): Record<string, unknown> {
-    return {
-      id: this.id,
-      timestamp_ms: this.timestampMs,
-      type: this.type,
-      ...camelToUnderscore(this.data),
-    };
-  }
-}
-
-interface SDKInitializedEventData extends EventData {
-  sdkVersion: string;
-}
-
-export class SDKInitializedEvent extends BaseEvent {
-  constructor(props: SDKInitializedEventData) {
-    super(EventType.SdkInitialized, props);
-  }
-}
-
-interface CheckoutSessionEventData extends EventData {
-  checkoutSessionId: string;
-}
-
-interface CustomizationOptionsEventData {
+type CustomizationOptionsEvent = {
   colorButtonsPrimary: string;
   colorAccent: string;
   colorError: string;
@@ -63,50 +29,109 @@ interface CustomizationOptionsEventData {
   font: string;
   shapes: string;
   showProductDescription: boolean;
+};
+
+export type CheckoutSessionStartEvent = {
+  eventName: "checkout_session_start";
+  properties: {
+    customizationOptions: CustomizationOptionsEvent | null;
+    productInterval: string | null;
+    productPrice: number;
+    productCurrency: string;
+    selectedProduct: string;
+    selectedPackage: string;
+    selectedPurchaseOption: string;
+  };
+};
+
+export function createCheckoutSessionStartEvent(
+  appearance: BrandingAppearance | undefined,
+  rcPackage: Package,
+  purchaseOptionToUse: PurchaseOption,
+): CheckoutSessionStartEvent {
+  return {
+    eventName: "checkout_session_start",
+    properties: {
+      customizationOptions: appearance
+        ? {
+            colorButtonsPrimary: appearance.color_buttons_primary,
+            colorAccent: appearance.color_accent,
+            colorError: appearance.color_error,
+            colorProductInfoBg: appearance.color_product_info_bg,
+            colorFormBg: appearance.color_form_bg,
+            colorPageBg: appearance.color_page_bg,
+            font: appearance.font,
+            shapes: appearance.shapes,
+            showProductDescription: appearance.show_product_description,
+          }
+        : null,
+      productInterval: rcPackage.rcBillingProduct.normalPeriodDuration,
+      productPrice: rcPackage.rcBillingProduct.currentPrice.amountMicros,
+      productCurrency: rcPackage.rcBillingProduct.currentPrice.currency,
+      selectedProduct: rcPackage.rcBillingProduct.identifier,
+      selectedPackage: rcPackage.identifier,
+      selectedPurchaseOption: purchaseOptionToUse.id,
+    },
+  };
 }
 
-export interface CheckoutSessionStartEventData
-  extends CheckoutSessionEventData {
-  customizationOptions: CustomizationOptionsEventData | null;
-  productInterval: string | null;
-  productPrice: number;
-  productCurrency: string;
-  selectedProduct: string;
-  selectedPackage: string;
-  selectedPurchaseOption: string;
+type BillingEmailEntryImpressionEvent = {
+  eventName: "billing_email_entry_impression";
+};
+
+export function createBillingEmailEntryImpressionEvent(): BillingEmailEntryImpressionEvent {
+  return {
+    eventName: "billing_email_entry_impression",
+  };
 }
 
-export class CheckoutSessionStartEvent extends BaseEvent {
-  constructor(props: CheckoutSessionStartEventData) {
-    super(EventType.CheckoutSessionStart, props);
-  }
+type BillingEmailEntryDismissEvent = {
+  eventName: "billing_email_entry_dismiss";
+};
+
+export function createBillingEmailEntryDismissEvent(): BillingEmailEntryDismissEvent {
+  return {
+    eventName: "billing_email_entry_dismiss",
+  };
 }
 
-export class BillingEmailEntryImpressionEvent extends BaseEvent {
-  constructor(props: CheckoutSessionEventData) {
-    super(EventType.BillingEmailEntryImpression, props);
-  }
+type BillingEmailEntrySubmitEvent = {
+  eventName: "billing_email_entry_submit";
+};
+
+export function createBillingEmailEntrySubmitEvent(): BillingEmailEntrySubmitEvent {
+  return {
+    eventName: "billing_email_entry_submit",
+  };
 }
 
-export class BillingEmailEntrySubmitEvent extends BaseEvent {
-  constructor(props: CheckoutSessionEventData) {
-    super(EventType.BillingEmailEntrySubmit, props);
-  }
+type BillingEmailEntrySuccessEvent = {
+  eventName: "billing_email_entry_success";
+};
+
+export function createBillingEmailEntrySuccessEvent(): BillingEmailEntrySuccessEvent {
+  return {
+    eventName: "billing_email_entry_success",
+  };
 }
 
-export class BillingEmailEntryDismissEvent extends BaseEvent {
-  constructor(props: CheckoutSessionEventData) {
-    super(EventType.BillingEmailEntryDismiss, props);
-  }
-}
+type BillingEmailEntryErrorEvent = {
+  eventName: "billing_email_entry_error";
+  properties: {
+    errorCode: number | null;
+    errorMessage: string;
+  };
+};
 
-interface BillingEmailEntryErrorEventProps extends CheckoutSessionEventData {
-  errorCode: number | null;
-  errorMessage: string;
-}
-
-export class BillingEmailEntryErrorEvent extends BaseEvent {
-  constructor(props: BillingEmailEntryErrorEventProps) {
-    super(EventType.BillingEmailEntryError, props);
-  }
+export function createBillingEmailEntryErrorEvent(
+  errorCode: number | null,
+  errorMessage: string,
+): BillingEmailEntryErrorEvent {
+  return {
+    eventName: "billing_email_entry_error",
+    properties: {
+      errorCode: errorCode,
+      errorMessage: errorMessage,
+    },
+  };
 }
