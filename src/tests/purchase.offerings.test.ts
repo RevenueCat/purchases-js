@@ -69,35 +69,38 @@ describe("getOfferings", () => {
       weekly: null,
     };
 
+    const webBillingProduct = {
+      currentPrice: {
+        currency: "USD",
+        amount: 500,
+        amountMicros: 5000000,
+        formattedPrice: "$5.00",
+      },
+      displayName: "Monthly test 2",
+      title: "Monthly test 2",
+      description: "monthly description",
+      identifier: "monthly_2",
+      productType: ProductType.Subscription,
+      normalPeriodDuration: "P1M",
+      presentedOfferingIdentifier: "offering_2",
+      presentedOfferingContext: {
+        offeringIdentifier: "offering_2",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      defaultPurchaseOption: subscriptionOption,
+      defaultSubscriptionOption: subscriptionOption,
+      defaultNonSubscriptionOption: null,
+      subscriptionOptions: {
+        offer_12345: subscriptionOption,
+      },
+    };
+
     const package2: Package = {
       identifier: "package_2",
       packageType: PackageType.Custom,
-      rcBillingProduct: {
-        currentPrice: {
-          currency: "USD",
-          amount: 500,
-          amountMicros: 5000000,
-          formattedPrice: "$5.00",
-        },
-        displayName: "Monthly test 2",
-        title: "Monthly test 2",
-        description: "monthly description",
-        identifier: "monthly_2",
-        productType: ProductType.Subscription,
-        normalPeriodDuration: "P1M",
-        presentedOfferingIdentifier: "offering_2",
-        presentedOfferingContext: {
-          offeringIdentifier: "offering_2",
-          targetingContext: null,
-          placementIdentifier: null,
-        },
-        defaultPurchaseOption: subscriptionOption,
-        defaultSubscriptionOption: subscriptionOption,
-        defaultNonSubscriptionOption: null,
-        subscriptionOptions: {
-          offer_12345: subscriptionOption,
-        },
-      },
+      rcBillingProduct: webBillingProduct,
+      webBillingProduct: webBillingProduct,
     };
 
     const expectedOfferings: Offerings = {
@@ -130,35 +133,38 @@ describe("getOfferings", () => {
   test("can get offerings without current offering id", async () => {
     const purchases = configurePurchases("appUserIdWithoutCurrentOfferingId");
     const offerings = await purchases.getOfferings();
+
+    const webBillingProduct = {
+      currentPrice: {
+        currency: "USD",
+        amount: 500,
+        amountMicros: 5000000,
+        formattedPrice: "$5.00",
+      },
+      displayName: "Monthly test 2",
+      title: "Monthly test 2",
+      description: "monthly description",
+      identifier: "monthly_2",
+      productType: ProductType.Subscription,
+      normalPeriodDuration: "P1M",
+      presentedOfferingIdentifier: "offering_2",
+      presentedOfferingContext: {
+        offeringIdentifier: "offering_2",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      defaultPurchaseOption: subscriptionOption,
+      defaultSubscriptionOption: subscriptionOption,
+      defaultNonSubscriptionOption: null,
+      subscriptionOptions: {
+        offer_12345: subscriptionOption,
+      },
+    };
     const package2: Package = {
       identifier: "package_2",
       packageType: PackageType.Custom,
-      rcBillingProduct: {
-        currentPrice: {
-          currency: "USD",
-          amount: 500,
-          amountMicros: 5000000,
-          formattedPrice: "$5.00",
-        },
-        displayName: "Monthly test 2",
-        title: "Monthly test 2",
-        description: "monthly description",
-        identifier: "monthly_2",
-        productType: ProductType.Subscription,
-        normalPeriodDuration: "P1M",
-        presentedOfferingIdentifier: "offering_2",
-        presentedOfferingContext: {
-          offeringIdentifier: "offering_2",
-          targetingContext: null,
-          placementIdentifier: null,
-        },
-        defaultPurchaseOption: subscriptionOption,
-        defaultSubscriptionOption: subscriptionOption,
-        defaultNonSubscriptionOption: null,
-        subscriptionOptions: {
-          offer_12345: subscriptionOption,
-        },
-      },
+      rcBillingProduct: webBillingProduct,
+      webBillingProduct: webBillingProduct,
     };
     const packageWithoutTargeting = createMonthlyPackageMock(null);
     const expectedOfferings: Offerings = {
@@ -293,35 +299,38 @@ describe("getOfferings", () => {
       offeringIdentifier: "offering_2",
     });
 
+    const webBillingProduct = {
+      currentPrice: {
+        currency: "USD",
+        amount: 500,
+        amountMicros: 5000000,
+        formattedPrice: "$5.00",
+      },
+      displayName: "Monthly test 2",
+      title: "Monthly test 2",
+      description: "monthly description",
+      identifier: "monthly_2",
+      productType: ProductType.Subscription,
+      normalPeriodDuration: "P1M",
+      presentedOfferingIdentifier: "offering_2",
+      presentedOfferingContext: {
+        offeringIdentifier: "offering_2",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      defaultPurchaseOption: subscriptionOption,
+      defaultSubscriptionOption: subscriptionOption,
+      defaultNonSubscriptionOption: null,
+      subscriptionOptions: {
+        offer_12345: subscriptionOption,
+      },
+    };
+
     const package2: Package = {
       identifier: "package_2",
       packageType: PackageType.Custom,
-      rcBillingProduct: {
-        currentPrice: {
-          currency: "USD",
-          amount: 500,
-          amountMicros: 5000000,
-          formattedPrice: "$5.00",
-        },
-        displayName: "Monthly test 2",
-        title: "Monthly test 2",
-        description: "monthly description",
-        identifier: "monthly_2",
-        productType: ProductType.Subscription,
-        normalPeriodDuration: "P1M",
-        presentedOfferingIdentifier: "offering_2",
-        presentedOfferingContext: {
-          offeringIdentifier: "offering_2",
-          targetingContext: null,
-          placementIdentifier: null,
-        },
-        defaultPurchaseOption: subscriptionOption,
-        defaultSubscriptionOption: subscriptionOption,
-        defaultNonSubscriptionOption: null,
-        subscriptionOptions: {
-          offer_12345: subscriptionOption,
-        },
-      },
+      rcBillingProduct: webBillingProduct,
+      webBillingProduct: webBillingProduct,
     };
 
     const expectedOfferings: Offerings = {
@@ -402,7 +411,7 @@ describe("getOfferings placements", () => {
     expect(offeringWithPlacement).not.toBeNull();
     expect(offeringWithPlacement?.identifier).toEqual("offering_1");
     expect(
-      offeringWithPlacement!.availablePackages[0].rcBillingProduct
+      offeringWithPlacement!.availablePackages[0].webBillingProduct
         .presentedOfferingContext.placementIdentifier,
     ).toEqual("missing_placement_id");
   });
@@ -421,7 +430,7 @@ describe("getOfferings placements", () => {
     expect(offeringWithPlacement).not.toBeNull();
     expect(offeringWithPlacement?.identifier).toEqual("offering_2");
     expect(
-      offeringWithPlacement!.availablePackages[0].rcBillingProduct
+      offeringWithPlacement!.availablePackages[0].webBillingProduct
         .presentedOfferingContext.placementIdentifier,
     ).toEqual("test_placement_id");
   });

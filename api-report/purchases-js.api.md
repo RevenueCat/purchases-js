@@ -175,7 +175,9 @@ export interface Offerings {
 export interface Package {
     readonly identifier: string;
     readonly packageType: PackageType;
+    // @deprecated
     readonly rcBillingProduct: Product;
+    readonly webBillingProduct: Product;
 }
 
 // @public
