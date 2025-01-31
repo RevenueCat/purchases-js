@@ -1,11 +1,11 @@
-# React RC Billing Demo
+# React Web Billing Demo
 
 ### Development
 
 - Install and build dependencies in the root `purchases-js`
   - `npm i`
   - `npm run build`
-- Install dependencies for the rcbilling-demo app
+- Install dependencies for the webbilling-demo app
 
   - `npm i`
 

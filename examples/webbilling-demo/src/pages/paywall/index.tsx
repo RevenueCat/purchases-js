@@ -42,11 +42,11 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
     (offering.metadata?.original_price_by_product as Record<string, string>) ??
     null;
 
-  const option = pkg.rcBillingProduct.defaultSubscriptionOption;
+  const option = pkg.webBillingProduct.defaultSubscriptionOption;
 
-  const price = option ? option.base.price : pkg.rcBillingProduct.currentPrice;
+  const price = option ? option.base.price : pkg.webBillingProduct.currentPrice;
   const originalPrice = originalPriceByProduct
-    ? originalPriceByProduct[pkg.rcBillingProduct.identifier]
+    ? originalPriceByProduct[pkg.webBillingProduct.identifier]
     : null;
 
   const trial = option?.trial;
@@ -67,16 +67,16 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
           <div className="currentPrice">
             <div>{`${price.formattedPrice}`}</div>
 
-            {pkg.rcBillingProduct.normalPeriodDuration && (
+            {pkg.webBillingProduct.normalPeriodDuration && (
               <div>
                 /
-                {priceLabels[pkg.rcBillingProduct.normalPeriodDuration] ||
-                  pkg.rcBillingProduct.normalPeriodDuration}
+                {priceLabels[pkg.webBillingProduct.normalPeriodDuration] ||
+                  pkg.webBillingProduct.normalPeriodDuration}
               </div>
             )}
           </div>
 
-          <div className="productName">{pkg.rcBillingProduct.displayName}</div>
+          <div className="productName">{pkg.webBillingProduct.displayName}</div>
           <div className="packageCTA">
             <Button
               caption={option?.trial ? "Start Free Trial" : "Choose plan"}
@@ -104,11 +104,11 @@ const PaywallPage: React.FC = () => {
   }
 
   const onPackageCardClicked = async (pkg: Package) => {
-    if (!pkg.rcBillingProduct) {
+    if (!pkg.webBillingProduct) {
       return;
     }
 
-    const option = pkg.rcBillingProduct.defaultSubscriptionOption;
+    const option = pkg.webBillingProduct.defaultSubscriptionOption;
     console.log(`Purchasing with option ${option?.id}`);
 
     // How do we complete the purchase?
@@ -150,7 +150,7 @@ const PaywallPage: React.FC = () => {
         </h1>
         <div className="packages">
           {packages.map((pkg) =>
-            pkg.rcBillingProduct !== null ? (
+            pkg.webBillingProduct !== null ? (
               <PackageCard
                 key={pkg.identifier}
                 pkg={pkg}

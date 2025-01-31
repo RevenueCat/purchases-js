@@ -1,3 +1,4 @@
+import { Logger } from "../../helpers/logger";
 import type { PeriodUnit } from "../../helpers/duration-helper";
 import { englishLocale } from "./constants";
 
@@ -93,7 +94,7 @@ export class Translator {
         currency,
       }).format(price);
     } catch {
-      console.debug(
+      Logger.errorLog(
         `Failed to create a price formatter for locale: ${this.locale}`,
       );
     }
@@ -104,7 +105,7 @@ export class Translator {
         currency,
       }).format(price);
     } catch {
-      console.debug(
+      Logger.errorLog(
         `Failed to create a price formatter for locale: ${this.fallbackLocale}`,
       );
     }
