@@ -53,6 +53,7 @@ import { englishLocale } from "./ui/localization/constants";
 import EventsTracker, {
   type IEventsTracker,
 } from "./behavioural-events/events-tracker";
+import { createSDKInitializedEvent } from "./behavioural-events/events";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -248,7 +249,8 @@ export class Purchases {
     });
     this.backend = new Backend(this._API_KEY, httpConfig);
     this.purchaseOperationHelper = new PurchaseOperationHelper(this.backend);
-    this.eventsTracker.trackSDKInitialized();
+    const sdkInitializedEvent = createSDKInitializedEvent();
+    this.eventsTracker.trackEvent(sdkInitializedEvent);
   }
 
   /**

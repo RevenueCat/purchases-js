@@ -18,12 +18,10 @@ import {
 import type { PurchaseResponse } from "../../networking/responses/purchase-response";
 
 const eventsTrackerMock: IEventsTracker = {
-  trackCheckoutSessionStart: vi.fn(),
-  trackSDKInitialized: vi.fn(),
-  trackBillingEmailEntryImpression: vi.fn(),
-  trackBillingEmailEntrySubmit: vi.fn(),
-  trackBillingEmailEntryDismiss: vi.fn(),
-  trackBillingEmailEntryError: vi.fn(),
+  updateUser: vi.fn(),
+  generateCheckoutSessionId: vi.fn(),
+  trackEvent: vi.fn(),
+  dispose: vi.fn(),
 } as unknown as IEventsTracker;
 
 const purchaseOperationHelperMock: PurchaseOperationHelper = {
@@ -57,23 +55,26 @@ describe("PurchasesUI", () => {
   test("tracks the CheckoutSessionStarted event", async () => {
     render(PurchasesUI, { props: basicProps });
 
-    expect(eventsTrackerMock.trackCheckoutSessionStart).toHaveBeenCalledWith({
-      customizationOptions: null,
-      productInterval: product.normalPeriodDuration,
-      productPrice: product.currentPrice.amountMicros,
-      productCurrency: product.currentPrice.currency,
-      selectedProduct: product.identifier,
-      selectedPackage: rcPackage.identifier,
-      selectedPurchaseOption: product.defaultPurchaseOption.id,
+    expect(eventsTrackerMock.trackEvent).toHaveBeenCalledWith({
+      eventName: "checkout_session_start",
+      properties: {
+        customizationOptions: null,
+        productInterval: product.normalPeriodDuration,
+        productPrice: product.currentPrice.amountMicros,
+        productCurrency: product.currentPrice.currency,
+        selectedProduct: product.identifier,
+        selectedPackage: rcPackage.identifier,
+        selectedPurchaseOption: product.defaultPurchaseOption.id,
+      },
     });
   });
 
   test("tracks the BillingEmailEntryImpression event when email has not been provided", async () => {
     render(PurchasesUI, { props: { ...basicProps, customerEmail: null } });
 
-    expect(
-      eventsTrackerMock.trackBillingEmailEntryImpression,
-    ).toHaveBeenCalledWith();
+    expect(eventsTrackerMock.trackEvent).toHaveBeenCalledWith({
+      eventName: "billing_email_entry_impression",
+    });
   });
 
   test("NOTs track the BillingEmailEntryImpression event when email has been provided", async () => {
@@ -81,9 +82,9 @@ describe("PurchasesUI", () => {
       props: { ...basicProps, customerEmail: "test@test.com" },
     });
 
-    expect(
-      eventsTrackerMock.trackBillingEmailEntryImpression,
-    ).not.toHaveBeenCalled();
+    expect(eventsTrackerMock.trackEvent).not.toHaveBeenCalledWith({
+      eventName: "billing_email_entry_impression",
+    });
   });
 
   test("tracks the BillingEmailEntrySubmit event email is submitted", async () => {
@@ -94,9 +95,9 @@ describe("PurchasesUI", () => {
     const continueButton = screen.getByText("Continue");
     await fireEvent.click(continueButton);
 
-    expect(
-      eventsTrackerMock.trackBillingEmailEntrySubmit,
-    ).toHaveBeenCalledWith();
+    expect(eventsTrackerMock.trackEvent).toHaveBeenCalledWith({
+      eventName: "billing_email_entry_submit",
+    });
   });
 
   test("tracks the BillingEmailEntryDismiss event when the billing email entry is closed", async () => {
@@ -107,9 +108,9 @@ describe("PurchasesUI", () => {
     const closeButton = screen.getByTestId("close-button");
     await fireEvent.click(closeButton);
 
-    expect(
-      eventsTrackerMock.trackBillingEmailEntryDismiss,
-    ).toHaveBeenCalledWith();
+    expect(eventsTrackerMock.trackEvent).toHaveBeenCalledWith({
+      eventName: "billing_email_entry_dismiss",
+    });
     expect(basicProps.onClose).toHaveBeenCalled();
   });
 
@@ -123,9 +124,13 @@ describe("PurchasesUI", () => {
     const continueButton = screen.getByText("Continue");
     await fireEvent.click(continueButton);
 
-    expect(eventsTrackerMock.trackBillingEmailEntryError).toHaveBeenCalledWith({
-      errorCode: null,
-      errorMessage: "Email is not valid. Please provide a valid email address.",
+    expect(eventsTrackerMock.trackEvent).toHaveBeenCalledWith({
+      eventName: "billing_email_entry_error",
+      properties: {
+        errorCode: null,
+        errorMessage:
+          "Email is not valid. Please provide a valid email address.",
+      },
     });
   });
 
@@ -148,10 +153,13 @@ describe("PurchasesUI", () => {
     const continueButton = screen.getByText("Continue");
     await fireEvent.click(continueButton);
 
-    expect(eventsTrackerMock.trackBillingEmailEntryError).toHaveBeenCalledWith({
-      errorCode: 4,
-      errorMessage:
-        "Email domain is not valid. Please check the email address or try a different one.",
+    expect(eventsTrackerMock.trackEvent).toHaveBeenCalledWith({
+      eventName: "billing_email_entry_error",
+      properties: {
+        errorCode: 4,
+        errorMessage:
+          "Email domain is not valid. Please check the email address or try a different one.",
+      },
     });
   });
 
