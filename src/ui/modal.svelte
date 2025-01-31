@@ -20,7 +20,6 @@
 <style>
   .rcb-modal-container {
     width: 100%;
-    height: 100%;
   }
 
   .rcb-modal-main {
@@ -30,24 +29,23 @@
     padding: var(--rc-spacing-outerPadding-desktop);
     flex-direction: column;
     display: flex;
-    height: 100%;
   }
 
   @media screen and (min-width: 768px) {
     .rcb-modal-container {
-      height: 100vh;
+      min-height: 100vh;
     }
   }
 
-  @media screen and (max-width: 768px) {
+  @media screen and (max-width: 767px) {
     .rcb-modal-container {
       width: 100%;
       min-width: 300px;
-      margin: auto;
     }
 
     .rcb-modal-main {
       padding: var(--rc-spacing-outerPadding-mobile);
+      height: 100%;
     }
   }
 </style>

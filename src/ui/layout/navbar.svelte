@@ -47,7 +47,7 @@
   }
 
   .inner-container {
-    height: 100%;
+    min-height: 100%;
   }
 
   @media screen and (min-width: 768px) {

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, setContext } from "svelte";
+  import { onMount, setContext, onDestroy } from "svelte";
   import type { Package, Product, PurchaseOption, Purchases } from "../main";
   import StatePresentOffer from "./states/state-present-offer.svelte";
   import StateLoading from "./states/state-loading.svelte";
@@ -86,9 +86,16 @@
     new Translator(customTranslations, selectedLocale, defaultLocale),
   );
 
+  onMount(() => {
+    document.body.style.overflow = "hidden"; // Prevents background scrolling
+  });
+
+  onDestroy(() => {
+    document.body.style.overflow = ""; // Restores default scrolling when unmounting
+  });
+
   onMount(async () => {
     productDetails = rcPackage.rcBillingProduct;
-
     colorVariables = toProductInfoStyleVar(brandingInfo?.appearance);
 
     if (state === "present-offer") {

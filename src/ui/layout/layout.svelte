@@ -12,10 +12,15 @@
 <style>
   .rcb-ui-layout {
     width: 100vw;
-    height: 100vh;
     display: flex;
     box-sizing: border-box;
     flex-direction: column;
+  }
+
+  @media screen and (max-width: 767px) {
+    .rcb-ui-layout {
+      flex-grow: 1;
+    }
   }
 
   @media screen and (min-width: 768px) {
