@@ -1,3 +1,4 @@
+import "@testing-library/jest-dom";
 import { fireEvent, render, screen } from "@testing-library/svelte";
 import { describe, test, expect, afterEach, vi } from "vitest";
 import PurchasesUI from "../../ui/rcb-ui.svelte";
@@ -152,5 +153,40 @@ describe("PurchasesUI", () => {
       errorMessage:
         "Email domain is not valid. Please check the email address or try a different one.",
     });
+  });
+
+  test("displays error when an invalid email format is submitted", async () => {
+    render(PurchasesUI, {
+      props: { ...basicProps, customerEmail: undefined },
+    });
+
+    const emailInput = screen.getByTestId("email");
+    await fireEvent.input(emailInput, { target: { value: "testest.com" } });
+    const continueButton = screen.getByText("Continue");
+    await fireEvent.click(continueButton);
+
+    expect(screen.getByText(/Email is not valid/)).toBeInTheDocument();
+  });
+
+  test("displays error when an unreachable email is submitted", async () => {
+    vi.spyOn(purchaseOperationHelperMock, "startPurchase").mockRejectedValue(
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.MissingEmailError,
+        "Email domain is not valid. Please check the email address or try a different one.",
+      ),
+    );
+
+    render(PurchasesUI, {
+      props: { ...basicProps, customerEmail: undefined },
+    });
+
+    const emailInput = screen.getByTestId("email");
+    await fireEvent.input(emailInput, {
+      target: { value: "test@invalid.com" },
+    });
+    const continueButton = screen.getByText("Continue");
+    await fireEvent.click(continueButton);
+
+    expect(screen.getByText(/Email domain is not valid/)).toBeInTheDocument();
   });
 });
