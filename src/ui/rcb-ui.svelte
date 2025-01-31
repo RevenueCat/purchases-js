@@ -34,12 +34,8 @@
     englishLocale,
     translatorContextKey,
   } from "./localization/constants";
-  import {
-    appUserIdContextKey,
-    eventsTrackerContextKey,
-    userIsAnonymousContextKey,
-  } from "./constants";
-  import type { IEventsTracker } from "../behavioural-events/events-tracker";
+  import { IEventsTracker } from "../behavioural-events/events-tracker";
+  import { eventsTrackerContextKey } from "./events-tracker/context";
 
   export let asModal = true;
   export let customerEmail: string | undefined;
@@ -96,9 +92,11 @@
     new Translator(customTranslations, selectedLocale, defaultLocale),
   );
 
-  setContext(eventsTrackerContextKey, eventsTracker);
-  setContext(appUserIdContextKey, appUserId);
-  setContext(userIsAnonymousContextKey, userIsAnonymous);
+  setContext(eventsTrackerContextKey, {
+    eventsTracker,
+    appUserId,
+    userIsAnonymous,
+  });
 
   onMount(async () => {
     const appearance = brandingInfo?.appearance;
