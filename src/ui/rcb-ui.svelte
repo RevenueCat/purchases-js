@@ -36,6 +36,13 @@
   } from "./localization/constants";
   import { IEventsTracker } from "../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "./constants";
+  import {
+    createCheckoutSessionStartEvent,
+    createBillingEmailEntryImpressionEvent,
+    createBillingEmailEntryDismissEvent,
+    createBillingEmailEntryErrorEvent,
+    createBillingEmailEntrySubmitEvent,
+  } from "../behavioural-events/events";
 
   export let asModal = true;
   export let customerEmail: string | undefined;
@@ -96,27 +103,12 @@
   onMount(async () => {
     const appearance = brandingInfo?.appearance;
 
-    eventsTracker.trackCheckoutSessionStart({
-      customizationOptions: appearance
-        ? {
-            colorButtonsPrimary: appearance.color_buttons_primary,
-            colorAccent: appearance.color_accent,
-            colorError: appearance.color_error,
-            colorProductInfoBg: appearance.color_product_info_bg,
-            colorFormBg: appearance.color_form_bg,
-            colorPageBg: appearance.color_page_bg,
-            font: appearance.font,
-            shapes: appearance.shapes,
-            showProductDescription: appearance.show_product_description,
-          }
-        : null,
-      productInterval: rcPackage.rcBillingProduct.normalPeriodDuration,
-      productPrice: rcPackage.rcBillingProduct.currentPrice.amountMicros,
-      productCurrency: rcPackage.rcBillingProduct.currentPrice.currency,
-      selectedProduct: rcPackage.rcBillingProduct.identifier,
-      selectedPackage: rcPackage.identifier,
-      selectedPurchaseOption: purchaseOptionToUse.id,
-    });
+    const event = createCheckoutSessionStartEvent(
+      appearance,
+      rcPackage,
+      purchaseOptionToUse,
+    );
+    eventsTracker.trackEvent(event);
 
     productDetails = rcPackage.rcBillingProduct;
 
@@ -128,7 +120,8 @@
       } else {
         state = "needs-auth-info";
 
-        eventsTracker.trackBillingEmailEntryImpression();
+        const event = createBillingEmailEntryImpressionEvent();
+        eventsTracker.trackEvent(event);
       }
 
       return;
@@ -137,7 +130,8 @@
 
   const handleClose = () => {
     if (state === "needs-auth-info") {
-      eventsTracker.trackBillingEmailEntryDismiss();
+      const event = createBillingEmailEntryDismissEvent();
+      eventsTracker.trackEvent(event);
     }
     onClose();
   };
@@ -193,7 +187,8 @@
       if (authInfo) {
         customerEmail = authInfo.email;
         state = "processing-auth-info";
-        eventsTracker.trackBillingEmailEntrySubmit();
+        const event = createBillingEmailEntrySubmitEvent();
+        eventsTracker.trackEvent(event);
       }
 
       handleSubscribe();
@@ -223,10 +218,11 @@
   };
 
   const handleError = (e: PurchaseFlowError) => {
-    eventsTracker.trackBillingEmailEntryError({
-      errorCode: e.getErrorCode(),
-      errorMessage: e.message,
-    });
+    const event = createBillingEmailEntryErrorEvent(
+      e.getErrorCode(),
+      e.message,
+    );
+    eventsTracker.trackEvent(event);
 
     if (state === "processing-auth-info" && e.isRecoverable()) {
       lastError = e;
