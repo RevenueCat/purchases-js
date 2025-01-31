@@ -1,6 +1,10 @@
 import { Purchases } from "../main";
 import { setupServer } from "msw/node";
-import { APIGetRequest, getRequestHandlers } from "./test-responses";
+import {
+  APIGetRequest,
+  APIPostRequest,
+  getRequestHandlers,
+} from "./test-responses";
 import { afterAll, beforeAll, beforeEach } from "vitest";
 
 export const testApiKey = "rcb_test_api_key";
@@ -14,6 +18,7 @@ beforeAll(() => {
 
 beforeEach(() => {
   APIGetRequest.mockReset();
+  APIPostRequest.mockReset();
   if (Purchases.isConfigured()) {
     Purchases.getSharedInstance().close();
   }

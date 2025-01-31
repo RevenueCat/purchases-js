@@ -50,7 +50,9 @@ import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
 import { parseOfferingIntoVariables } from "./helpers/paywall-variables-helpers";
 import { Translator } from "./ui/localization/translator";
 import { englishLocale } from "./ui/localization/constants";
-import EventsTracker from "./behavioural-events/events-tracker";
+import EventsTracker, {
+  type IEventsTracker,
+} from "./behavioural-events/events-tracker";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -89,6 +91,8 @@ export type { PurchaseParams } from "./entities/purchase-params";
 export type { RedemptionInfo } from "./entities/redemption-info";
 export type { PurchaseResult } from "./entities/purchase-result";
 
+const ANONYMOUS_PREFIX = "$RCAnonymousID:";
+
 /**
  * Entry point for Purchases SDK. It should be instantiated as soon as your
  * app is started. Only one instance of Purchases should be instantiated
@@ -115,7 +119,7 @@ export class Purchases {
   private readonly purchaseOperationHelper: PurchaseOperationHelper;
 
   /** @internal */
-  private readonly eventsTracker: EventsTracker;
+  private readonly eventsTracker: IEventsTracker;
 
   /** @internal */
   private static instance: Purchases | undefined = undefined;
@@ -179,9 +183,9 @@ export class Purchases {
 
   /**
    * Loads and caches some optional data in the Purchases SDK.
-   * Currently only fetching branding information. You can call this method
-   * after configuring the SDK to speed up the first call to
-   * {@link Purchases.purchase}.
+   * Currently only fetching branding information.
+   * You can call this method after configuring the SDK to speed
+   * up the first call to {@link Purchases.purchase}.
    */
   public async preload(): Promise<void> {
     if (this.hasLoadedResources()) {
@@ -193,11 +197,7 @@ export class Purchases {
       await this._loadingResourcesPromise;
       return;
     }
-    this._loadingResourcesPromise = this.backend
-      .getBrandingInfo()
-      .then((brandingInfo) => {
-        this._brandingInfo = brandingInfo;
-      })
+    this._loadingResourcesPromise = this.fetchAndCacheBrandingInfo()
       .catch((e) => {
         let errorMessage = `${e}`;
         if (e instanceof PurchasesError) {
@@ -211,6 +211,14 @@ export class Purchases {
     return this._loadingResourcesPromise;
   }
 
+  /** @internal */
+  private fetchAndCacheBrandingInfo(): Promise<void> {
+    return this.backend.getBrandingInfo().then((brandingInfo) => {
+      this._brandingInfo = brandingInfo;
+    });
+  }
+
+  /** @internal */
   private hasLoadedResources(): boolean {
     return this._brandingInfo !== null;
   }
@@ -235,7 +243,10 @@ export class Purchases {
     this.eventsTracker = new EventsTracker(this._API_KEY, httpConfig);
     this.backend = new Backend(this._API_KEY, httpConfig);
     this.purchaseOperationHelper = new PurchaseOperationHelper(this.backend);
-    this.eventsTracker.trackSDKInitialized(this._appUserId);
+    this.eventsTracker.trackSDKInitialized({
+      appUserId: this._appUserId,
+      userIsAnonymous: this.userIsAnonymous(this._appUserId),
+    });
   }
 
   /**
@@ -523,6 +534,7 @@ export class Purchases {
 
     const asModal = !htmlTarget;
     const appUserId = this._appUserId;
+    const userIsAnonymous = this.userIsAnonymous(this._appUserId);
 
     Logger.debugLog(
       `Presenting purchase form for package ${rcPackage.identifier}`,
@@ -535,6 +547,7 @@ export class Purchases {
         target: certainHTMLTarget,
         props: {
           appUserId,
+          userIsAnonymous,
           rcPackage,
           purchaseOption,
           customerEmail,
@@ -558,6 +571,7 @@ export class Purchases {
             reject(PurchasesError.getForPurchasesFlowError(e));
           },
           purchases: this,
+          eventsTracker: this.eventsTracker,
           brandingInfo: this._brandingInfo,
           purchaseOperationHelper: this.purchaseOperationHelper,
           asModal,
@@ -661,6 +675,10 @@ export class Purchases {
    */
   public static generateRevenueCatAnonymousAppUserId(): string {
     const uuid = crypto.randomUUID();
-    return `$RCAnonymousID:${uuid.replace(/-/g, "")}`;
+    return `${ANONYMOUS_PREFIX}${uuid.replace(/-/g, "")}`;
+  }
+
+  private userIsAnonymous(appUserId: string): boolean {
+    return appUserId.startsWith(ANONYMOUS_PREFIX);
   }
 }

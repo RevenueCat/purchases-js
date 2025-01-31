@@ -1,24 +1,32 @@
+import { camelToUnderscore } from "../helpers/camel-to-underscore";
 import { v4 as uuidv4 } from "uuid";
 
-type EventType = "web_billing_sdk_initialized";
+enum EventType {
+  SdkInitialized = "web_billing_sdk_initialized",
+  CheckoutSessionStart = "web_billing_checkout_session_start",
+}
+
+interface EventData extends Record<string, unknown> {
+  traceId: string;
+  appUserId: string | null;
+  userIsAnonymous: boolean;
+}
+
+interface CheckoutSessionEventData extends EventData {
+  checkoutSessionId: string;
+}
 
 export abstract class BaseEvent {
   public readonly id: string;
   public readonly timestampMs: number;
   public readonly type: string;
-  public readonly traceId: string;
-  public readonly appUserId: string | null;
+  public readonly data: EventData;
 
-  protected constructor(
-    type: EventType,
-    traceId: string,
-    appUserId: string | null,
-  ) {
+  protected constructor(type: EventType, data: EventData) {
     this.id = uuidv4();
     this.timestampMs = Date.now();
     this.type = type;
-    this.traceId = traceId;
-    this.appUserId = appUserId;
+    this.data = data;
   }
 
   public toJSON(): Record<string, unknown> {
@@ -26,24 +34,46 @@ export abstract class BaseEvent {
       id: this.id,
       timestamp_ms: this.timestampMs,
       type: this.type,
-      trace_id: this.traceId,
-      app_user_id: this.appUserId,
+      ...camelToUnderscore(this.data),
     };
   }
 }
 
+interface SDKInitializedEventData extends EventData {
+  sdkVersion: string;
+}
+
 export class SDKInitializedEvent extends BaseEvent {
-  public readonly sdkVersion: string;
-
-  constructor(traceId: string, appUserId: string | null, sdkVersion: string) {
-    super("web_billing_sdk_initialized", traceId, appUserId);
-    this.sdkVersion = sdkVersion;
+  constructor(props: SDKInitializedEventData) {
+    super(EventType.SdkInitialized, props);
   }
+}
 
-  public toJSON(): Record<string, unknown> {
-    return {
-      ...super.toJSON(),
-      sdk_version: this.sdkVersion,
-    };
+interface CustomizationOptionsEventData {
+  colorButtonsPrimary: string;
+  colorAccent: string;
+  colorError: string;
+  colorProductInfoBg: string;
+  colorFormBg: string;
+  colorPageBg: string;
+  font: string;
+  shapes: string;
+  showProductDescription: boolean;
+}
+
+export interface CheckoutSessionStartEventData
+  extends CheckoutSessionEventData {
+  customizationOptions: CustomizationOptionsEventData | null;
+  productInterval: string | null;
+  productPrice: number;
+  productCurrency: string;
+  selectedProduct: string;
+  selectedPackage: string;
+  selectedPurchaseOption: string;
+}
+
+export class CheckoutSessionStartEvent extends BaseEvent {
+  constructor(props: CheckoutSessionStartEventData) {
+    super(EventType.CheckoutSessionStart, props);
   }
 }

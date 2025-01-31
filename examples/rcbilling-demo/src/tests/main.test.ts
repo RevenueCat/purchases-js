@@ -271,7 +271,7 @@ test.describe("Main", () => {
     });
   });
 
-  test("Tracks event SDK Initialized", async ({ browser, browserName }) => {
+  test("Tracks events", async ({ browser, browserName }) => {
     const userId = `${getUserId(browserName)}_subscription`;
     const page = await browser.newPage();
 
@@ -281,6 +281,8 @@ test.describe("Main", () => {
           event.id !== undefined &&
           event.timestamp_ms !== undefined &&
           event.trace_id !== undefined &&
+          event.app_user_id === userId &&
+          event.user_is_anonymous === false &&
           event.type === "web_billing_sdk_initialized" &&
           event.sdk_version !== undefined
         );
