@@ -1,5 +1,9 @@
 import {
   type BaseEvent,
+  BillingEmailEntryDismissEvent,
+  BillingEmailEntryErrorEvent,
+  BillingEmailEntryImpressionEvent,
+  BillingEmailEntrySubmitEvent,
   CheckoutSessionStartEvent,
   SDKInitializedEvent,
 } from "./events";
@@ -14,10 +18,24 @@ import { Logger } from "../helpers/logger";
 const MIN_INTERVAL_RETRY = 2_000;
 const MAX_INTERVAL_RETRY = 60_000;
 
+export interface EventsTrackerProps {
+  apiKey: string;
+  appUserId: string;
+  userIsAnonymous: boolean;
+  httpConfig?: HttpConfig;
+}
+
 export interface IEventsTracker {
-  trackSDKInitialized(props: UserEventProps): Promise<void>;
+  updateUser(props: UserEventProps): Promise<void>;
+  trackSDKInitialized(): Promise<void>;
   trackCheckoutSessionStart(
     props: CheckoutSessionStartEventProps,
+  ): Promise<void>;
+  trackBillingEmailEntryImpression(): Promise<void>;
+  trackBillingEmailEntrySubmit(): Promise<void>;
+  trackBillingEmailEntryDismiss(): Promise<void>;
+  trackBillingEmailEntryError(
+    props: BillingEmailEntryErrorEventProps,
   ): Promise<void>;
   dispose(): void;
 }
@@ -27,7 +45,7 @@ export interface UserEventProps {
   userIsAnonymous: boolean;
 }
 
-export interface CheckoutSessionStartEventProps extends UserEventProps {
+export interface CheckoutSessionStartEventProps {
   customizationOptions: {
     colorButtonsPrimary: string;
     colorAccent: string;
@@ -47,20 +65,31 @@ export interface CheckoutSessionStartEventProps extends UserEventProps {
   selectedPurchaseOption: string;
 }
 
+export interface BillingEmailEntryErrorEventProps {
+  errorCode: number | null;
+  errorMessage: string;
+}
+
 export default class EventsTracker implements IEventsTracker {
+  private readonly apiKey: string;
   private readonly eventsQueue: Array<BaseEvent> = [];
-  private readonly traceId: string = uuid();
   private readonly eventsUrl: string;
   private readonly flushManager: FlushManager;
+  private readonly traceId: string = uuid();
+  private userProps: UserEventProps;
   private checkoutSessionId: string | null = null;
 
-  constructor(
-    private readonly apiKey: string,
-    private readonly httpConfig: HttpConfig = defaultHttpConfig,
-  ) {
+  constructor(props: EventsTrackerProps) {
     Logger.debugLog(`Events tracker created for traceId ${this.traceId}`);
 
-    this.eventsUrl = `${this.httpConfig.proxyURL || RC_ENDPOINT}/v1/events`;
+    const httpConfig = props.httpConfig || defaultHttpConfig;
+
+    this.apiKey = props.apiKey;
+    this.eventsUrl = `${httpConfig.proxyURL || RC_ENDPOINT}/v1/events`;
+    this.userProps = {
+      appUserId: props.appUserId,
+      userIsAnonymous: props.userIsAnonymous,
+    };
     this.flushManager = new FlushManager(
       MIN_INTERVAL_RETRY,
       MAX_INTERVAL_RETRY,
@@ -68,11 +97,15 @@ export default class EventsTracker implements IEventsTracker {
     );
   }
 
-  public async trackSDKInitialized(props: UserEventProps) {
+  public async updateUser(props: UserEventProps) {
+    this.userProps = props;
+  }
+
+  public async trackSDKInitialized() {
     Logger.debugLog("Tracking SDK Initialization");
     const event = new SDKInitializedEvent({
       traceId: this.traceId,
-      ...props,
+      ...this.userProps,
       sdkVersion: VERSION,
     });
     this.trackEvent(event);
@@ -86,6 +119,46 @@ export default class EventsTracker implements IEventsTracker {
     const event = new CheckoutSessionStartEvent({
       traceId: this.traceId,
       checkoutSessionId: this.checkoutSessionId,
+      ...this.userProps,
+      ...props,
+    });
+    this.trackEvent(event);
+  }
+
+  public async trackBillingEmailEntryImpression() {
+    const event = new BillingEmailEntryImpressionEvent({
+      checkoutSessionId: this.checkoutSessionId!,
+      traceId: this.traceId,
+      ...this.userProps,
+    });
+    this.trackEvent(event);
+  }
+
+  public async trackBillingEmailEntrySubmit() {
+    const event = new BillingEmailEntrySubmitEvent({
+      checkoutSessionId: this.checkoutSessionId!,
+      traceId: this.traceId,
+      ...this.userProps,
+    });
+    this.trackEvent(event);
+  }
+
+  public async trackBillingEmailEntryDismiss() {
+    const event = new BillingEmailEntryDismissEvent({
+      checkoutSessionId: this.checkoutSessionId!,
+      traceId: this.traceId,
+      ...this.userProps,
+    });
+    this.trackEvent(event);
+  }
+
+  public async trackBillingEmailEntryError(
+    props: BillingEmailEntryErrorEventProps,
+  ) {
+    const event = new BillingEmailEntryErrorEvent({
+      checkoutSessionId: this.checkoutSessionId!,
+      traceId: this.traceId,
+      ...this.userProps,
       ...props,
     });
     this.trackEvent(event);

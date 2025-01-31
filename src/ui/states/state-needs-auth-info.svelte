@@ -14,20 +14,29 @@
   import { Translator } from "../localization/translator";
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
+  import { eventsTrackerContextKey } from "../constants";
+  import { IEventsTracker } from "../../behavioural-events/events-tracker";
 
   export let onContinue: any;
   export let onClose: () => void;
   export let processing: boolean;
   export let lastError: PurchaseFlowError | null;
 
+  const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
+
   $: email = "";
   $: error = "";
   $: inputClass = error ? "error" : "";
 
   const handleContinue = async () => {
-    const verificationErrors = validateEmail(email);
-    if (verificationErrors) {
-      error = verificationErrors;
+    const emailError = validateEmail(email);
+    if (emailError) {
+      eventsTracker.trackBillingEmailEntryError({
+        errorCode: null,
+        errorMessage: emailError,
+      });
+
+      error = emailError;
     } else {
       onContinue({ email });
     }
@@ -65,6 +74,7 @@
               LocalizationKeys.StateNeedsAuthInfoEmailInputPlaceholder,
             )}
             autocapitalize="off"
+            data-testid="email"
             bind:value={email}
           />
         </div>

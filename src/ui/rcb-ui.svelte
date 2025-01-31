@@ -34,12 +34,12 @@
     englishLocale,
     translatorContextKey,
   } from "./localization/constants";
-  import type { IEventsTracker } from "../behavioural-events/events-tracker";
+  import { IEventsTracker } from "../behavioural-events/events-tracker";
+  import { eventsTrackerContextKey } from "./constants";
 
   export let asModal = true;
   export let customerEmail: string | undefined;
   export let appUserId: string;
-  export let userIsAnonymous: boolean;
   export let rcPackage: Package;
   export let purchaseOption: PurchaseOption | null | undefined;
   export let brandingInfo: BrandingInfoResponse | null;
@@ -91,12 +91,12 @@
     new Translator(customTranslations, selectedLocale, defaultLocale),
   );
 
+  setContext(eventsTrackerContextKey, eventsTracker);
+
   onMount(async () => {
     const appearance = brandingInfo?.appearance;
 
     eventsTracker.trackCheckoutSessionStart({
-      appUserId,
-      userIsAnonymous,
       customizationOptions: appearance
         ? {
             colorButtonsPrimary: appearance.color_buttons_primary,
@@ -127,6 +127,8 @@
         handleSubscribe();
       } else {
         state = "needs-auth-info";
+
+        eventsTracker.trackBillingEmailEntryImpression();
       }
 
       return;
@@ -134,6 +136,9 @@
   });
 
   const handleClose = () => {
+    if (state === "needs-auth-info") {
+      eventsTracker.trackBillingEmailEntryDismiss();
+    }
     onClose();
   };
 
@@ -188,6 +193,7 @@
       if (authInfo) {
         customerEmail = authInfo.email;
         state = "processing-auth-info";
+        eventsTracker.trackBillingEmailEntrySubmit();
       }
 
       handleSubscribe();
@@ -217,6 +223,11 @@
   };
 
   const handleError = (e: PurchaseFlowError) => {
+    eventsTracker.trackBillingEmailEntryError({
+      errorCode: e.getErrorCode(),
+      errorMessage: e.message,
+    });
+
     if (state === "processing-auth-info" && e.isRecoverable()) {
       lastError = e;
       state = "needs-auth-info";

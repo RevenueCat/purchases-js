@@ -4,16 +4,16 @@ import { v4 as uuidv4 } from "uuid";
 enum EventType {
   SdkInitialized = "web_billing_sdk_initialized",
   CheckoutSessionStart = "web_billing_checkout_session_start",
+  BillingEmailEntryImpression = "web_billing_billing_email_entry_impression",
+  BillingEmailEntrySubmit = "web_billing_billing_email_entry_submit",
+  BillingEmailEntryDismiss = "web_billing_billing_email_entry_dismiss",
+  BillingEmailEntryError = "web_billing_billing_email_entry_error",
 }
 
 interface EventData extends Record<string, unknown> {
   traceId: string;
   appUserId: string | null;
   userIsAnonymous: boolean;
-}
-
-interface CheckoutSessionEventData extends EventData {
-  checkoutSessionId: string;
 }
 
 export abstract class BaseEvent {
@@ -49,6 +49,10 @@ export class SDKInitializedEvent extends BaseEvent {
   }
 }
 
+interface CheckoutSessionEventData extends EventData {
+  checkoutSessionId: string;
+}
+
 interface CustomizationOptionsEventData {
   colorButtonsPrimary: string;
   colorAccent: string;
@@ -75,5 +79,34 @@ export interface CheckoutSessionStartEventData
 export class CheckoutSessionStartEvent extends BaseEvent {
   constructor(props: CheckoutSessionStartEventData) {
     super(EventType.CheckoutSessionStart, props);
+  }
+}
+
+export class BillingEmailEntryImpressionEvent extends BaseEvent {
+  constructor(props: CheckoutSessionEventData) {
+    super(EventType.BillingEmailEntryImpression, props);
+  }
+}
+
+export class BillingEmailEntrySubmitEvent extends BaseEvent {
+  constructor(props: CheckoutSessionEventData) {
+    super(EventType.BillingEmailEntrySubmit, props);
+  }
+}
+
+export class BillingEmailEntryDismissEvent extends BaseEvent {
+  constructor(props: CheckoutSessionEventData) {
+    super(EventType.BillingEmailEntryDismiss, props);
+  }
+}
+
+interface BillingEmailEntryErrorEventProps extends CheckoutSessionEventData {
+  errorCode: number | null;
+  errorMessage: string;
+}
+
+export class BillingEmailEntryErrorEvent extends BaseEvent {
+  constructor(props: BillingEmailEntryErrorEventProps) {
+    super(EventType.BillingEmailEntryError, props);
   }
 }
