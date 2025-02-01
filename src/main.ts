@@ -53,7 +53,7 @@ import { englishLocale } from "./ui/localization/constants";
 import EventsTracker, {
   type IEventsTracker,
 } from "./behavioural-events/events-tracker";
-import { createSDKInitializedEvent } from "./behavioural-events/events";
+import { createSDKInitializedEvent } from "./behavioural-events/event-helpers";
 
 export { ProductType } from "./entities/offerings";
 export type {

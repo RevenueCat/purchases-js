@@ -16,7 +16,7 @@
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import { eventsTrackerContextKey } from "../constants";
   import { IEventsTracker } from "../../behavioural-events/events-tracker";
-  import { createBillingEmailEntryErrorEvent } from "../../behavioural-events/events";
+  import { createBillingEmailEntryErrorEvent } from "../../behavioural-events/event-helpers";
 
   export let onContinue: any;
   export let onClose: () => void;

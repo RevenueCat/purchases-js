@@ -278,13 +278,15 @@ test.describe("Main", () => {
     const waitForTrackEventPromise = page.waitForResponse(
       successfulEventTrackingResponseMatcher((event) => {
         return (
-          event.id !== undefined &&
-          event.timestamp_ms !== undefined &&
-          event.trace_id !== undefined &&
-          event.app_user_id === userId &&
-          event.user_is_anonymous === false &&
-          event.type === "web_billing_sdk_initialized" &&
-          event.sdk_version !== undefined
+          event?.id !== undefined &&
+          event?.timestamp_ms !== undefined &&
+          event?.trace_id !== undefined &&
+          event?.app_user_id === userId &&
+          event?.user_is_anonymous === false &&
+          event?.checkout_session_id === null &&
+          event?.type === "web_billing" &&
+          event?.event_name === "sdk_initialized" &&
+          event.properties?.sdk_version !== undefined
         );
       }),
       { timeout: 3_000 },
@@ -295,7 +297,8 @@ test.describe("Main", () => {
 });
 
 function successfulEventTrackingResponseMatcher(
-  eventMatcher: (event: Record<string, unknown>) => boolean,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  eventMatcher: (event: any) => boolean,
 ) {
   return async (response: Response) => {
     if (

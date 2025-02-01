@@ -1,6 +1,15 @@
 import { camelToUnderscore } from "../helpers/camel-to-underscore";
 import { v4 as uuidv4 } from "uuid";
 
+export type EventData = {
+  eventName: string;
+  traceId: string;
+  checkoutSessionId: string | null;
+  appUserId: string;
+  userIsAnonymous: boolean;
+  properties: EventProperties;
+};
+
 type EventPropertyValue =
   | string
   | number
@@ -14,15 +23,6 @@ export interface EventProperties {
 }
 
 type EventPropertyArray = Array<EventPropertyValue>;
-
-export type EventData = {
-  eventName: string;
-  traceId: string;
-  checkoutSessionId: string | null;
-  appUserId: string;
-  userIsAnonymous: boolean;
-  properties: EventProperties;
-};
 
 export class Event {
   EVENT_TYPE = "web_billing";

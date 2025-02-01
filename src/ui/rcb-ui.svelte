@@ -38,11 +38,9 @@
   import { eventsTrackerContextKey } from "./constants";
   import {
     createCheckoutSessionStartEvent,
-    createBillingEmailEntryImpressionEvent,
-    createBillingEmailEntryDismissEvent,
     createBillingEmailEntryErrorEvent,
-    createBillingEmailEntrySubmitEvent,
-  } from "../behavioural-events/events";
+  } from "../behavioural-events/event-helpers";
+  import { TrackedEventName } from "../behavioural-events/tracked-events";
 
   export let asModal = true;
   export let customerEmail: string | undefined;
@@ -120,8 +118,9 @@
       } else {
         state = "needs-auth-info";
 
-        const event = createBillingEmailEntryImpressionEvent();
-        eventsTracker.trackEvent(event);
+        eventsTracker.trackEvent({
+          eventName: TrackedEventName.BillingEmailEntryImpression,
+        });
       }
 
       return;
@@ -130,8 +129,9 @@
 
   const handleClose = () => {
     if (state === "needs-auth-info") {
-      const event = createBillingEmailEntryDismissEvent();
-      eventsTracker.trackEvent(event);
+      eventsTracker.trackEvent({
+        eventName: TrackedEventName.BillingEmailEntryDismiss,
+      });
     }
     onClose();
   };
@@ -187,8 +187,9 @@
       if (authInfo) {
         customerEmail = authInfo.email;
         state = "processing-auth-info";
-        const event = createBillingEmailEntrySubmitEvent();
-        eventsTracker.trackEvent(event);
+        eventsTracker.trackEvent({
+          eventName: TrackedEventName.BillingEmailEntrySubmit,
+        });
       }
 
       handleSubscribe();
