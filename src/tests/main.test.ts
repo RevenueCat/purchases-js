@@ -218,4 +218,21 @@ describe("Purchases.generateRevenueCatAnonymousAppUserId()", () => {
     const anonymousId = Purchases.generateRevenueCatAnonymousAppUserId();
     expect(() => Purchases.configure(testApiKey, anonymousId)).not.toThrow();
   });
+
+  test("allows tracking events", () => {
+    const purchases = configurePurchases();
+    const trackEventSpy = vi.spyOn(purchases["eventsTracker"], "trackEvent");
+    purchases._trackEvent({
+      eventName: "test_event",
+      properties: {
+        test_property: "test_value",
+      },
+    });
+    expect(trackEventSpy).toHaveBeenCalledWith({
+      eventName: "test_event",
+      properties: {
+        test_property: "test_value",
+      },
+    });
+  });
 });
