@@ -51,14 +51,16 @@ describe("EventsTracker", (test) => {
           {
             id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
             type: "web_billing",
-            trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
-            checkout_session_id: null,
             timestamp_ms: date.getTime(),
             event_name: "sdk_initialized",
-            app_user_id: "someAppUserId",
-            user_is_anonymous: false,
+            user: {
+              app_user_id: "someAppUserId",
+              user_is_anonymous: false,
+            },
             properties: {
               a: "b",
+              trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+              checkout_session_id: null,
             },
           },
         ],
@@ -84,8 +86,10 @@ describe("EventsTracker", (test) => {
         json: expect.objectContaining({
           events: expect.arrayContaining([
             expect.objectContaining({
-              app_user_id: "newAppUserId",
-              user_is_anonymous: true,
+              user: {
+                app_user_id: "newAppUserId",
+                user_is_anonymous: true,
+              },
             }),
           ]),
         }),
@@ -108,7 +112,9 @@ describe("EventsTracker", (test) => {
         json: expect.objectContaining({
           events: expect.arrayContaining([
             expect.objectContaining({
-              checkout_session_id: expect.any(String),
+              properties: expect.objectContaining({
+                checkout_session_id: expect.any(String),
+              }),
             }),
           ]),
         }),

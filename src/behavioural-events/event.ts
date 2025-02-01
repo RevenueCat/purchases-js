@@ -46,11 +46,15 @@ export class Event {
       timestamp_ms: this.timestampMs,
       type: this.EVENT_TYPE,
       event_name: this.data.eventName,
-      trace_id: this.data.traceId,
-      checkout_session_id: this.data.checkoutSessionId,
-      app_user_id: this.data.appUserId,
-      user_is_anonymous: this.data.userIsAnonymous,
-      properties: camelToUnderscore(this.data.properties) as EventProperties,
+      user: {
+        app_user_id: this.data.appUserId,
+        user_is_anonymous: this.data.userIsAnonymous,
+      },
+      properties: {
+        ...(camelToUnderscore(this.data.properties) as EventProperties),
+        trace_id: this.data.traceId,
+        checkout_session_id: this.data.checkoutSessionId,
+      },
     };
   }
 }
