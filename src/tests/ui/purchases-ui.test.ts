@@ -6,7 +6,6 @@ import type { IEventsTracker } from "../../behavioural-events/events-tracker";
 import {
   brandingInfo,
   rcPackage,
-  product,
   purchaseResponse,
 } from "../../stories/fixtures";
 import type { Purchases } from "../../main";
@@ -50,24 +49,6 @@ const basicProps = {
 describe("PurchasesUI", () => {
   afterEach(() => {
     vi.resetAllMocks();
-  });
-
-  test("tracks the CheckoutSessionStarted event", async () => {
-    render(PurchasesUI, { props: basicProps });
-
-    expect(eventsTrackerMock.trackEvent).toHaveBeenCalledWith({
-      eventName: "checkout_session_start",
-      properties: {
-        customerEmailProvidedByDeveloper: true,
-        customizationOptions: null,
-        productInterval: product.normalPeriodDuration,
-        productPrice: product.currentPrice.amountMicros,
-        productCurrency: product.currentPrice.currency,
-        selectedProduct: product.identifier,
-        selectedPackage: rcPackage.identifier,
-        selectedPurchaseOption: product.defaultPurchaseOption.id,
-      },
-    });
   });
 
   test("tracks the BillingEmailEntryImpression event when email has not been provided", async () => {

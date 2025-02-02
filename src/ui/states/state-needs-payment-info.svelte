@@ -35,7 +35,7 @@
   export let paymentInfoCollectionMetadata: PurchaseResponse;
   export let processing = false;
   export let productDetails: Product;
-  export let purchaseOptionToUse: PurchaseOption;
+  export let purchaseOption: PurchaseOption;
   export let brandingInfo: BrandingInfoResponse | null;
 
   const clientSecret = paymentInfoCollectionMetadata.data.client_secret;
@@ -286,7 +286,7 @@
               >
                 {#if processing}
                   <ProcessingAnimation />
-                {:else if productDetails.subscriptionOptions?.[purchaseOptionToUse.id]?.trial}
+                {:else if productDetails.subscriptionOptions?.[purchaseOption.id]?.trial}
                   <Localized
                     key={LocalizationKeys.StateNeedsPaymentInfoButtonStartTrial}
                   />

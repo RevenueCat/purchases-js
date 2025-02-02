@@ -54,7 +54,10 @@ import type { TrackEventProps } from "./behavioural-events/events-tracker";
 import EventsTracker, {
   type IEventsTracker,
 } from "./behavioural-events/events-tracker";
-import { createSDKInitializedEvent } from "./behavioural-events/event-helpers";
+import {
+  createSDKInitializedEvent,
+  createCheckoutSessionStartEvent,
+} from "./behavioural-events/event-helpers";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -545,13 +548,26 @@ export class Purchases {
 
     const localeToBeUsed = selectedLocale || defaultLocale;
 
+    const purchaseOptionToUse =
+      purchaseOption ?? rcPackage.rcBillingProduct.defaultPurchaseOption;
+
+    this.eventsTracker.generateCheckoutSessionId();
+
+    const event = createCheckoutSessionStartEvent(
+      this._brandingInfo?.appearance,
+      rcPackage,
+      purchaseOptionToUse,
+      customerEmail,
+    );
+    this.eventsTracker.trackEvent(event);
+
     return new Promise((resolve, reject) => {
       mount(RCPurchasesUI, {
         target: certainHTMLTarget,
         props: {
           appUserId,
           rcPackage,
-          purchaseOption,
+          purchaseOption: purchaseOptionToUse,
           customerEmail,
           onFinished: async (redemptionInfo: RedemptionInfo | null) => {
             Logger.debugLog("Purchase finished");

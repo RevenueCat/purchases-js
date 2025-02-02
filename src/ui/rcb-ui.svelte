@@ -36,17 +36,14 @@
   } from "./localization/constants";
   import { IEventsTracker } from "../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "./constants";
-  import {
-    createCheckoutSessionStartEvent,
-    createBillingEmailEntryErrorEvent,
-  } from "../behavioural-events/event-helpers";
+  import { createBillingEmailEntryErrorEvent } from "../behavioural-events/event-helpers";
   import { TrackedEventName } from "../behavioural-events/tracked-events";
 
   export let asModal = true;
   export let customerEmail: string | undefined;
   export let appUserId: string;
   export let rcPackage: Package;
-  export let purchaseOption: PurchaseOption | null | undefined;
+  export let purchaseOption: PurchaseOption;
   export let brandingInfo: BrandingInfoResponse | null;
   export let onFinished: (redemptionInfo: RedemptionInfo | null) => void;
   export let onError: (error: PurchaseFlowError) => void;
@@ -63,11 +60,6 @@
   let paymentInfoCollectionMetadata: PurchaseResponse | null = null;
   let lastError: PurchaseFlowError | null = null;
   const productId = rcPackage.rcBillingProduct.identifier ?? null;
-  const defaultPurchaseOption =
-    rcPackage.rcBillingProduct.defaultPurchaseOption;
-  const purchaseOptionToUse = purchaseOption
-    ? purchaseOption
-    : defaultPurchaseOption;
 
   let state:
     | "present-offer"
@@ -99,18 +91,7 @@
   setContext(eventsTrackerContextKey, eventsTracker);
 
   onMount(async () => {
-    const appearance = brandingInfo?.appearance;
-
-    const event = createCheckoutSessionStartEvent(
-      appearance,
-      rcPackage,
-      purchaseOptionToUse,
-      customerEmail,
-    );
-    eventsTracker.trackEvent(event);
-
     productDetails = rcPackage.rcBillingProduct;
-
     colorVariables = toProductInfoStyleVar(brandingInfo?.appearance);
 
     if (state === "present-offer") {
@@ -161,7 +142,7 @@
       .startPurchase(
         appUserId,
         productId,
-        purchaseOptionToUse,
+        purchaseOption,
         customerEmail,
         rcPackage.rcBillingProduct.presentedOfferingContext,
       )
@@ -259,21 +240,18 @@
               <IconCart />
             {/if}
           </ModalHeader>
-          {#if productDetails && purchaseOptionToUse}
+          {#if productDetails && purchaseOption}
             <StatePresentOffer
               {productDetails}
               brandingAppearance={brandingInfo?.appearance}
-              purchaseOption={purchaseOptionToUse}
+              {purchaseOption}
             />
           {/if}
         </Aside>
       {/if}
       <Main brandingAppearance={brandingInfo?.appearance}>
-        {#if state === "present-offer" && productDetails && purchaseOptionToUse}
-          <StatePresentOffer
-            {productDetails}
-            purchaseOption={purchaseOptionToUse}
-          />
+        {#if state === "present-offer" && productDetails && purchaseOption}
+          <StatePresentOffer {productDetails} {purchaseOption} />
         {/if}
         {#if state === "present-offer" && !productDetails}
           <StateLoading />
@@ -286,14 +264,14 @@
             {lastError}
           />
         {/if}
-        {#if paymentInfoCollectionMetadata && (state === "needs-payment-info" || state === "polling-purchase-status") && productDetails && purchaseOptionToUse}
+        {#if paymentInfoCollectionMetadata && (state === "needs-payment-info" || state === "polling-purchase-status") && productDetails && purchaseOption}
           <StateNeedsPaymentInfo
             {paymentInfoCollectionMetadata}
             onContinue={handleContinue}
             onClose={handleClose}
             processing={state === "polling-purchase-status"}
             {productDetails}
-            {purchaseOptionToUse}
+            {purchaseOption}
             {brandingInfo}
           />
         {/if}
