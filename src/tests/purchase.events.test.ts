@@ -32,11 +32,15 @@ describe("Purchases.configure()", () => {
         events: [
           {
             id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
-            type: "web_billing_sdk_initialized",
-            trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+            type: "web_billing",
+            event_name: "sdk_initialized",
             timestamp_ms: date.getTime(),
-            sdk_version: "0.15.1",
             app_user_id: "someAppUserId",
+            properties: {
+              checkout_session_id: null,
+              sdk_version: "0.15.1",
+              trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+            },
           },
         ],
       },
