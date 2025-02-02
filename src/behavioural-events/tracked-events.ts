@@ -52,6 +52,7 @@ export interface CheckoutSessionStartEvent extends IEvent {
     selectedProduct: string;
     selectedPackage: string;
     selectedPurchaseOption: string;
+    customerEmailProvidedByDeveloper: boolean;
   };
 }
 

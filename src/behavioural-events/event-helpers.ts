@@ -35,6 +35,7 @@ export function createCheckoutSessionStartEvent(
   appearance: BrandingAppearance | undefined,
   rcPackage: Package,
   purchaseOptionToUse: PurchaseOption,
+  customerEmail: string | undefined,
 ): CheckoutSessionStartEvent {
   return {
     eventName: TrackedEventName.CheckoutSessionStart,
@@ -58,6 +59,7 @@ export function createCheckoutSessionStartEvent(
       selectedProduct: rcPackage.rcBillingProduct.identifier,
       selectedPackage: rcPackage.identifier,
       selectedPurchaseOption: purchaseOptionToUse.id,
+      customerEmailProvidedByDeveloper: Boolean(customerEmail),
     },
   };
 }
