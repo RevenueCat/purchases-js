@@ -233,7 +233,7 @@ export class Purchases {
   }
 
   /**
-   * Renders an RC Paywall and allows the user to purchase from it using RCBilling.
+   * Renders an RC Paywall and allows the user to purchase from it using Web Billing.
    * @experimental
    * @internal
    * @param paywallParams - The parameters object to customise the paywall render. Check {@link RenderPaywallParams}

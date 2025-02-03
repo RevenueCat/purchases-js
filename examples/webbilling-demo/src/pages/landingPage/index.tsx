@@ -12,7 +12,7 @@ const LandingPage: React.FC = () => {
           <AppLogo />
         </div>
         <h1>Get Smarter with Health Check</h1>
-        <h2>Try our RevenueCat Billing Demo Subscription Flow Today.</h2>
+        <h2>Try our Web Billing Demo Subscription Flow Today.</h2>
         <Button caption="Subscribe now" onClick={() => navigate("/login")} />
       </div>
       <div className="screenshot">
