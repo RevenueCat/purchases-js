@@ -189,11 +189,13 @@
   };
 
   const handleError = (e: PurchaseFlowError) => {
-    const event = createBillingEmailEntryErrorEvent(
-      e.getErrorCode(),
-      e.message,
-    );
-    eventsTracker.trackEvent(event);
+    if (e.getErrorCode() === PurchaseFlowErrorCode.MissingEmailError) {
+      const event = createBillingEmailEntryErrorEvent(
+        e.getErrorCode(),
+        e.message,
+      );
+      eventsTracker.trackEvent(event);
+    }
 
     if (state === "processing-auth-info" && e.isRecoverable()) {
       lastError = e;

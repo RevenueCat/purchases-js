@@ -116,8 +116,11 @@ describe("PurchasesUI", () => {
     });
   });
 
-  test("tracks the BillingEmailEntryError event when the billing email entry has an email format error", async () => {
-    vi.spyOn(purchaseOperationHelperMock, "startPurchase").mockRejectedValue(
+  test("tracks the BillingEmailEntryError event when the billing email entry has a missing email error", async () => {
+    vi.spyOn(
+      purchaseOperationHelperMock,
+      "startPurchase",
+    ).mockRejectedValueOnce(
       new PurchaseFlowError(
         PurchaseFlowErrorCode.MissingEmailError,
         "Email domain is not valid. Please check the email address or try a different one.",
@@ -172,11 +175,64 @@ describe("PurchasesUI", () => {
 
     const emailInput = screen.getByTestId("email");
     await fireEvent.input(emailInput, {
-      target: { value: "test@invalid.com" },
+      target: { value: "test@unrechable.com" },
     });
     const continueButton = screen.getByText("Continue");
     await fireEvent.click(continueButton);
 
     expect(screen.getByText(/Email domain is not valid/)).toBeInTheDocument();
+  });
+
+  test("tracks the BillingEmailEntryError event when an unreachable email is submitted", async () => {
+    vi.spyOn(purchaseOperationHelperMock, "startPurchase").mockRejectedValue(
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.MissingEmailError,
+        "Email domain is not valid. Please check the email address or try a different one.",
+      ),
+    );
+
+    render(PurchasesUI, {
+      props: { ...basicProps, customerEmail: undefined },
+    });
+
+    const emailInput = screen.getByTestId("email");
+    await fireEvent.input(emailInput, {
+      target: { value: "test@unrechable.com" },
+    });
+    const continueButton = screen.getByText("Continue");
+    await fireEvent.click(continueButton);
+
+    expect(eventsTrackerMock.trackEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventName: "billing_email_entry_error",
+      }),
+    );
+  });
+
+  test("does NOT track the BillingEmailEntryError event when a different error occurs", async () => {
+    vi.spyOn(
+      purchaseOperationHelperMock,
+      "startPurchase",
+    ).mockRejectedValueOnce(
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.UnknownError,
+        "Unknown error without state set.",
+      ),
+    );
+
+    render(PurchasesUI, {
+      props: { ...basicProps, customerEmail: undefined },
+    });
+
+    const emailInput = screen.getByTestId("email");
+    await fireEvent.input(emailInput, { target: { value: "test@test.com" } });
+    const continueButton = screen.getByText("Continue");
+    await fireEvent.click(continueButton);
+
+    expect(eventsTrackerMock.trackEvent).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventName: "billing_email_entry_error",
+      }),
+    );
   });
 });
