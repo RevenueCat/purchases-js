@@ -236,7 +236,8 @@
   }
   @media screen and (max-width: 767px) {
     .rcb-pricing-info {
-      gap: var(--rc-spacing-gapXXLarge-mobile);
+      gap: var(--rc-spacing-gapXLarge-mobile);
+      margin-top: var(--rc-spacing-gapXLarge-mobile);
     }
   }
 
