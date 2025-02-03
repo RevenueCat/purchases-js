@@ -16,6 +16,7 @@
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import { eventsTrackerContextKey } from "../constants";
   import { IEventsTracker } from "../../behavioural-events/events-tracker";
+  import { createBillingEmailEntryErrorEvent } from "../../behavioural-events/event-helpers";
 
   export let onContinue: any;
   export let onClose: () => void;
@@ -31,10 +32,8 @@
   const handleContinue = async () => {
     errorMessage ||= validateEmail(email) || "";
     if (errorMessage !== "") {
-      eventsTracker.trackBillingEmailEntryError({
-        errorCode: null,
-        errorMessage: errorMessage,
-      });
+      const event = createBillingEmailEntryErrorEvent(null, errorMessage);
+      eventsTracker.trackEvent(event);
     } else {
       onContinue({ email });
     }

@@ -2,7 +2,7 @@ import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { describe, type MockedFunction } from "vitest";
 import { FlushManager } from "../../behavioural-events/flush-manager";
 
-describe("RepeatWithBackoff", () => {
+describe("FlushManager", () => {
   let callbackSpy: MockedFunction<() => Promise<void>>;
   let flushManager: FlushManager;
 

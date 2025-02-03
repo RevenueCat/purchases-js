@@ -1,82 +1,40 @@
-import {
-  type BaseEvent,
-  BillingEmailEntryDismissEvent,
-  BillingEmailEntryErrorEvent,
-  BillingEmailEntryImpressionEvent,
-  BillingEmailEntrySubmitEvent,
-  CheckoutSessionStartEvent,
-  SDKInitializedEvent,
-} from "./events";
 import { v4 as uuid } from "uuid";
-import { RC_ENDPOINT, VERSION } from "../helpers/constants";
+import { RC_ENDPOINT } from "../helpers/constants";
 import { HttpMethods } from "msw";
 import { getHeaders } from "../networking/http-client";
 import { defaultHttpConfig, type HttpConfig } from "../entities/http-config";
 import { FlushManager } from "./flush-manager";
 import { Logger } from "../helpers/logger";
+import { type EventProperties, Event } from "./event";
 
 const MIN_INTERVAL_RETRY = 2_000;
 const MAX_INTERVAL_RETRY = 60_000;
 
+export interface TrackEventProps {
+  eventName: string;
+  properties?: EventProperties;
+}
+
 export interface EventsTrackerProps {
   apiKey: string;
   appUserId: string;
-  userIsAnonymous: boolean;
   httpConfig?: HttpConfig;
 }
 
 export interface IEventsTracker {
-  updateUser(props: UserEventProps): Promise<void>;
-  trackSDKInitialized(): Promise<void>;
-  trackCheckoutSessionStart(
-    props: CheckoutSessionStartEventProps,
-  ): Promise<void>;
-  trackBillingEmailEntryImpression(): Promise<void>;
-  trackBillingEmailEntrySubmit(): Promise<void>;
-  trackBillingEmailEntryDismiss(): Promise<void>;
-  trackBillingEmailEntryError(
-    props: BillingEmailEntryErrorEventProps,
-  ): Promise<void>;
+  updateUser(appUserId: string): Promise<void>;
+  generateCheckoutSessionId(): Promise<void>;
+  trackEvent(props: TrackEventProps): void;
   dispose(): void;
-}
-
-export interface UserEventProps {
-  appUserId: string;
-  userIsAnonymous: boolean;
-}
-
-export interface CheckoutSessionStartEventProps {
-  customizationOptions: {
-    colorButtonsPrimary: string;
-    colorAccent: string;
-    colorError: string;
-    colorProductInfoBg: string;
-    colorFormBg: string;
-    colorPageBg: string;
-    font: string;
-    shapes: string;
-    showProductDescription: boolean;
-  } | null;
-  productInterval: string | null;
-  productPrice: number;
-  productCurrency: string;
-  selectedProduct: string;
-  selectedPackage: string;
-  selectedPurchaseOption: string;
-}
-
-export interface BillingEmailEntryErrorEventProps {
-  errorCode: number | null;
-  errorMessage: string;
 }
 
 export default class EventsTracker implements IEventsTracker {
   private readonly apiKey: string;
-  private readonly eventsQueue: Array<BaseEvent> = [];
+  private readonly eventsQueue: Array<Event> = [];
   private readonly eventsUrl: string;
   private readonly flushManager: FlushManager;
   private readonly traceId: string = uuid();
-  private userProps: UserEventProps;
+  private appUserId: string;
   private checkoutSessionId: string | null = null;
 
   constructor(props: EventsTrackerProps) {
@@ -86,10 +44,7 @@ export default class EventsTracker implements IEventsTracker {
 
     this.apiKey = props.apiKey;
     this.eventsUrl = `${httpConfig.proxyURL || RC_ENDPOINT}/v1/events`;
-    this.userProps = {
-      appUserId: props.appUserId,
-      userIsAnonymous: props.userIsAnonymous,
-    };
+    this.appUserId = props.appUserId;
     this.flushManager = new FlushManager(
       MIN_INTERVAL_RETRY,
       MAX_INTERVAL_RETRY,
@@ -97,83 +52,35 @@ export default class EventsTracker implements IEventsTracker {
     );
   }
 
-  public async updateUser(props: UserEventProps) {
-    this.userProps = props;
+  public async updateUser(appUserId: string) {
+    this.appUserId = appUserId;
   }
 
-  public async trackSDKInitialized() {
-    Logger.debugLog("Tracking SDK Initialization");
-    const event = new SDKInitializedEvent({
-      traceId: this.traceId,
-      ...this.userProps,
-      sdkVersion: VERSION,
-    });
-    this.trackEvent(event);
-  }
-
-  public async trackCheckoutSessionStart(
-    props: CheckoutSessionStartEventProps,
-  ) {
+  public async generateCheckoutSessionId() {
     this.checkoutSessionId = uuid();
-
-    const event = new CheckoutSessionStartEvent({
-      traceId: this.traceId,
-      checkoutSessionId: this.checkoutSessionId,
-      ...this.userProps,
-      ...props,
-    });
-    this.trackEvent(event);
   }
 
-  public async trackBillingEmailEntryImpression() {
-    const event = new BillingEmailEntryImpressionEvent({
-      checkoutSessionId: this.checkoutSessionId!,
-      traceId: this.traceId,
-      ...this.userProps,
-    });
-    this.trackEvent(event);
-  }
-
-  public async trackBillingEmailEntrySubmit() {
-    const event = new BillingEmailEntrySubmitEvent({
-      checkoutSessionId: this.checkoutSessionId!,
-      traceId: this.traceId,
-      ...this.userProps,
-    });
-    this.trackEvent(event);
-  }
-
-  public async trackBillingEmailEntryDismiss() {
-    const event = new BillingEmailEntryDismissEvent({
-      checkoutSessionId: this.checkoutSessionId!,
-      traceId: this.traceId,
-      ...this.userProps,
-    });
-    this.trackEvent(event);
-  }
-
-  public async trackBillingEmailEntryError(
-    props: BillingEmailEntryErrorEventProps,
-  ) {
-    const event = new BillingEmailEntryErrorEvent({
-      checkoutSessionId: this.checkoutSessionId!,
-      traceId: this.traceId,
-      ...this.userProps,
-      ...props,
-    });
-    this.trackEvent(event);
+  public trackEvent(props: TrackEventProps): void {
+    try {
+      Logger.debugLog(
+        `Queueing event ${props.eventName} with properties ${JSON.stringify(props)}`,
+      );
+      const event = new Event({
+        eventName: props.eventName,
+        traceId: this.traceId,
+        checkoutSessionId: this.checkoutSessionId,
+        appUserId: this.appUserId,
+        properties: props.properties || {},
+      });
+      this.eventsQueue.push(event);
+      this.flushManager.tryFlush();
+    } catch {
+      Logger.errorLog(`Error while tracking event ${props.eventName}`);
+    }
   }
 
   public dispose() {
     this.flushManager.stop();
-  }
-
-  private trackEvent(event: BaseEvent): void {
-    Logger.debugLog(
-      `Queueing event ${event.type} with properties ${JSON.stringify(event)}`,
-    );
-    this.eventsQueue.push(event);
-    this.flushManager.tryFlush();
   }
 
   private flushEvents(): Promise<void> {

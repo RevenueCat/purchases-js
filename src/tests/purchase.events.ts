@@ -37,7 +37,6 @@ describe("Purchases.configure()", () => {
             timestamp_ms: date.getTime(),
             sdk_version: "0.15.1",
             app_user_id: "someAppUserId",
-            user_is_anonymous: false,
           },
         ],
       },

@@ -23,7 +23,6 @@ describe("EventsTracker", (test) => {
     context.eventsTracker = new EventsTracker({
       apiKey: testApiKey,
       appUserId: "someAppUserId",
-      userIsAnonymous: false,
     });
     vi.useFakeTimers();
     vi.setSystemTime(date);
@@ -35,239 +34,82 @@ describe("EventsTracker", (test) => {
     context.eventsTracker.dispose();
   });
 
-  function trackCheckoutSessionStart(eventsTracker: EventsTracker) {
-    eventsTracker.trackCheckoutSessionStart({
-      customizationOptions: {
-        colorButtonsPrimary: "#000000",
-        colorAccent: "#000000",
-        colorError: "#000000",
-        colorProductInfoBg: "#000000",
-        colorFormBg: "#000000",
-        colorPageBg: "#000000",
-        font: "Arial",
-        shapes: "rounded",
-        showProductDescription: true,
-      },
-      productInterval: "monthly",
-      productPrice: 10,
-      productCurrency: "USD",
-      selectedProduct: "product1",
-      selectedPackage: "package1",
-      selectedPurchaseOption: "purchase_option1",
-    });
-  }
-
-  test<EventsTrackerFixtures>("updates the user props", async ({
+  test<EventsTrackerFixtures>("sends the serialized event", async ({
     eventsTracker,
   }) => {
-    eventsTracker.updateUser({
-      appUserId: "newAppUserId",
-      userIsAnonymous: true,
+    eventsTracker.trackEvent({
+      eventName: "sdk_initialized",
+      properties: { a: "b" },
     });
-
-    eventsTracker.trackSDKInitialized();
-
     await vi.advanceTimersToNextTimerAsync();
 
     expect(APIPostRequest).toHaveBeenCalledWith({
-      url: "http://localhost:8000/v1/events",
+      url: eventsURL,
       json: {
         events: [
           {
             id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
-            type: "web_billing_sdk_initialized",
-            trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+            type: "web_billing",
             timestamp_ms: date.getTime(),
-            app_user_id: "newAppUserId",
-            user_is_anonymous: true,
-            sdk_version: "0.15.1",
-          },
-        ],
-      },
-    });
-  });
-
-  test<EventsTrackerFixtures>("tracks the SDKInitialized event", async ({
-    eventsTracker,
-  }) => {
-    eventsTracker.trackSDKInitialized();
-
-    await vi.advanceTimersToNextTimerAsync();
-
-    expect(APIPostRequest).toHaveBeenCalledWith({
-      url: "http://localhost:8000/v1/events",
-      json: {
-        events: [
-          {
-            id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
-            type: "web_billing_sdk_initialized",
-            trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
-            timestamp_ms: date.getTime(),
-            sdk_version: "0.15.1",
+            event_name: "sdk_initialized",
             app_user_id: "someAppUserId",
-            user_is_anonymous: false,
-          },
-        ],
-      },
-    });
-  });
-
-  test<EventsTrackerFixtures>("tracks the CheckoutSessionStart event", async ({
-    eventsTracker,
-  }) => {
-    trackCheckoutSessionStart(eventsTracker);
-    await vi.advanceTimersToNextTimerAsync();
-
-    expect(APIPostRequest).toHaveBeenCalledWith({
-      url: "http://localhost:8000/v1/events",
-      json: {
-        events: [
-          {
-            id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
-            checkout_session_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
-            type: "web_billing_checkout_session_start",
-            trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
-            timestamp_ms: date.getTime(),
-            app_user_id: "someAppUserId",
-            user_is_anonymous: false,
-            customization_options: {
-              color_buttons_primary: "#000000",
-              color_accent: "#000000",
-              color_error: "#000000",
-              color_product_info_bg: "#000000",
-              color_form_bg: "#000000",
-              color_page_bg: "#000000",
-              font: "Arial",
-              shapes: "rounded",
-              show_product_description: true,
+            properties: {
+              a: "b",
+              trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+              checkout_session_id: null,
             },
-            product_interval: "monthly",
-            product_price: 10,
-            product_currency: "USD",
-            selected_product: "product1",
-            selected_package: "package1",
-            selected_purchase_option: "purchase_option1",
           },
         ],
       },
     });
   });
 
-  test<EventsTrackerFixtures>("tracks the BillingEmailEntryImpression event", async ({
+  test<EventsTrackerFixtures>("passes the user props to the event", async ({
     eventsTracker,
   }) => {
-    trackCheckoutSessionStart(eventsTracker);
-    loggerMock.mockClear();
-    APIPostRequest.mockClear();
-    eventsTracker.trackBillingEmailEntryImpression();
-
+    eventsTracker.updateUser("newAppUserId");
+    eventsTracker.trackEvent({
+      eventName: "sdk_initialized",
+      properties: { a: "b" },
+    });
     await vi.advanceTimersToNextTimerAsync();
 
-    expect(APIPostRequest).toHaveBeenCalledWith({
-      url: "http://localhost:8000/v1/events",
-      json: {
-        events: [
-          {
-            id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
-            type: "web_billing_billing_email_entry_impression",
-            trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
-            timestamp_ms: date.getTime(),
-            app_user_id: "someAppUserId",
-            user_is_anonymous: false,
-            checkout_session_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
-          },
-        ],
-      },
-    });
+    expect(APIPostRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        json: expect.objectContaining({
+          events: expect.arrayContaining([
+            expect.objectContaining({
+              app_user_id: "newAppUserId",
+            }),
+          ]),
+        }),
+      }),
+    );
   });
 
-  test<EventsTrackerFixtures>("tracks the BillingEmailEntrySubmit event", async ({
+  test<EventsTrackerFixtures>("passes the checkout session id to the event", async ({
     eventsTracker,
   }) => {
-    trackCheckoutSessionStart(eventsTracker);
-    loggerMock.mockClear();
-    APIPostRequest.mockClear();
-    eventsTracker.trackBillingEmailEntrySubmit();
-
+    eventsTracker.generateCheckoutSessionId();
+    eventsTracker.trackEvent({
+      eventName: "sdk_initialized",
+      properties: { a: "b" },
+    });
     await vi.advanceTimersToNextTimerAsync();
 
-    expect(APIPostRequest).toHaveBeenCalledWith({
-      url: "http://localhost:8000/v1/events",
-      json: {
-        events: [
-          {
-            id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
-            type: "web_billing_billing_email_entry_submit",
-            trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
-            timestamp_ms: date.getTime(),
-            app_user_id: "someAppUserId",
-            user_is_anonymous: false,
-            checkout_session_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
-          },
-        ],
-      },
-    });
-  });
-
-  test<EventsTrackerFixtures>("tracks the BillingEmailEntryError event", async ({
-    eventsTracker,
-  }) => {
-    trackCheckoutSessionStart(eventsTracker);
-    loggerMock.mockClear();
-    APIPostRequest.mockClear();
-    eventsTracker.trackBillingEmailEntryError({
-      errorCode: 8,
-      errorMessage: "someErrorMessage",
-    });
-
-    await vi.advanceTimersToNextTimerAsync();
-
-    expect(APIPostRequest).toHaveBeenCalledWith({
-      url: "http://localhost:8000/v1/events",
-      json: {
-        events: [
-          {
-            id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
-            type: "web_billing_billing_email_entry_error",
-            trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
-            timestamp_ms: date.getTime(),
-            app_user_id: "someAppUserId",
-            user_is_anonymous: false,
-            checkout_session_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
-            error_code: 8,
-            error_message: "someErrorMessage",
-          },
-        ],
-      },
-    });
-  });
-
-  test<EventsTrackerFixtures>("tracks the BillingEmailEntryDismiss event", async ({
-    eventsTracker,
-  }) => {
-    trackCheckoutSessionStart(eventsTracker);
-    loggerMock.mockClear();
-    APIPostRequest.mockClear();
-    eventsTracker.trackBillingEmailEntryDismiss();
-
-    await vi.advanceTimersToNextTimerAsync();
-
-    expect(APIPostRequest).toHaveBeenCalledWith({
-      url: "http://localhost:8000/v1/events",
-      json: {
-        events: [
-          {
-            id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
-            type: "web_billing_billing_email_entry_dismiss",
-            trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
-            timestamp_ms: date.getTime(),
-            app_user_id: "someAppUserId",
-            user_is_anonymous: false,
-            checkout_session_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
-          },
-        ],
-      },
-    });
+    expect(APIPostRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        json: expect.objectContaining({
+          events: expect.arrayContaining([
+            expect.objectContaining({
+              properties: expect.objectContaining({
+                checkout_session_id: expect.any(String),
+              }),
+            }),
+          ]),
+        }),
+      }),
+    );
   });
 
   test<EventsTrackerFixtures>("retries tracking events exponentially", async ({
@@ -296,7 +138,10 @@ describe("EventsTracker", (test) => {
       }),
     );
 
-    eventsTracker.trackSDKInitialized();
+    eventsTracker.trackEvent({
+      eventName: "sdk_initialized",
+      properties: { a: "b" },
+    });
 
     // Attempt 1: First direct attempt to flush without timeout
     await vi.advanceTimersByTimeAsync(100);
@@ -351,7 +196,10 @@ describe("EventsTracker", (test) => {
     );
 
     for (let i = 0; i < 4; i++) {
-      eventsTracker.trackSDKInitialized();
+      eventsTracker.trackEvent({
+        eventName: "sdk_initialized",
+        properties: { a: "b" },
+      });
     }
 
     await vi.advanceTimersByTimeAsync(1000 + 2000 + 4000 + 8000);
@@ -384,7 +232,10 @@ describe("EventsTracker", (test) => {
       }),
     );
 
-    eventsTracker.trackSDKInitialized();
+    eventsTracker.trackEvent({
+      eventName: "sdk_initialized",
+      properties: { a: "b" },
+    });
 
     // Attempt 1: First direct attempt to flush without timeout
     await vi.advanceTimersByTimeAsync(100);
@@ -430,7 +281,14 @@ describe("EventsTracker", (test) => {
         eventPayloadSpy(json);
 
         if (attempts === 1) {
-          setTimeout(() => eventsTracker.trackSDKInitialized(), 1_000);
+          setTimeout(
+            () =>
+              eventsTracker.trackEvent({
+                eventName: "checkout_session_start",
+                properties: { a: "b" },
+              }),
+            1_000,
+          );
           await new Promise((resolve) => setTimeout(resolve, 10_000));
           return new HttpResponse(null, { status: 201 });
         }
@@ -439,36 +297,29 @@ describe("EventsTracker", (test) => {
       }),
     );
 
-    eventsTracker.trackSDKInitialized();
+    eventsTracker.trackEvent({
+      eventName: "sdk_initialized",
+      properties: { a: "b" },
+    });
 
     await vi.runAllTimersAsync();
 
     expect(eventPayloadSpy).toHaveBeenNthCalledWith(1, {
-      events: [
-        {
-          id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
-          type: "web_billing_sdk_initialized",
-          trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+      events: expect.arrayContaining([
+        expect.objectContaining({
+          event_name: "sdk_initialized",
           timestamp_ms: date.getTime(),
-          sdk_version: "0.15.1",
-          app_user_id: "someAppUserId",
-          user_is_anonymous: false,
-        },
-      ],
+        }),
+      ]),
     });
 
     expect(eventPayloadSpy).toHaveBeenNthCalledWith(2, {
-      events: [
-        {
-          id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
-          type: "web_billing_sdk_initialized",
-          trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+      events: expect.arrayContaining([
+        expect.objectContaining({
+          event_name: "checkout_session_start",
           timestamp_ms: date.getTime() + 1_000,
-          sdk_version: "0.15.1",
-          app_user_id: "someAppUserId",
-          user_is_anonymous: false,
-        },
-      ],
+        }),
+      ]),
     });
   });
 });
