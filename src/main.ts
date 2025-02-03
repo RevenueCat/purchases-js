@@ -50,6 +50,7 @@ import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
 import { parseOfferingIntoVariables } from "./helpers/paywall-variables-helpers";
 import { Translator } from "./ui/localization/translator";
 import { englishLocale } from "./ui/localization/constants";
+import type { TrackEventProps } from "./behavioural-events/events-tracker";
 import EventsTracker, {
   type IEventsTracker,
 } from "./behavioural-events/events-tracker";
@@ -679,5 +680,14 @@ export class Purchases {
   public static generateRevenueCatAnonymousAppUserId(): string {
     const uuid = crypto.randomUUID();
     return `${ANONYMOUS_PREFIX}${uuid.replace(/-/g, "")}`;
+  }
+
+  /**
+   * Track an event.
+   * @param props - The properties of the event.
+   * @internal
+   */
+  public _trackEvent(props: TrackEventProps): void {
+    this.eventsTracker.trackEvent(props);
   }
 }
