@@ -6,7 +6,6 @@ export type EventData = {
   traceId: string;
   checkoutSessionId: string | null;
   appUserId: string;
-  userIsAnonymous: boolean;
   properties: EventProperties;
 };
 
@@ -46,10 +45,7 @@ export class Event {
       timestamp_ms: this.timestampMs,
       type: this.EVENT_TYPE,
       event_name: this.data.eventName,
-      user: {
-        app_user_id: this.data.appUserId,
-        user_is_anonymous: this.data.userIsAnonymous,
-      },
+      app_user_id: this.data.appUserId,
       properties: {
         ...(camelToUnderscore(this.data.properties) as EventProperties),
         trace_id: this.data.traceId,

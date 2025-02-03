@@ -282,8 +282,7 @@ test.describe("Main", () => {
           event?.timestamp_ms !== undefined &&
           event?.type === "web_billing" &&
           event?.event_name === "sdk_initialized" &&
-          event?.user?.app_user_id === userId &&
-          event?.user?.user_is_anonymous === false &&
+          event?.app_user_id === userId &&
           event?.properties?.checkout_session_id === null &&
           event?.properties?.trace_id !== undefined &&
           event?.properties?.sdk_version !== undefined

@@ -18,20 +18,14 @@ export interface TrackEventProps {
 export interface EventsTrackerProps {
   apiKey: string;
   appUserId: string;
-  userIsAnonymous: boolean;
   httpConfig?: HttpConfig;
 }
 
 export interface IEventsTracker {
-  updateUser(props: UserEventProps): Promise<void>;
+  updateUser(appUserId: string): Promise<void>;
   generateCheckoutSessionId(): Promise<void>;
   trackEvent(props: TrackEventProps): void;
   dispose(): void;
-}
-
-export interface UserEventProps {
-  appUserId: string;
-  userIsAnonymous: boolean;
 }
 
 export default class EventsTracker implements IEventsTracker {
@@ -40,7 +34,7 @@ export default class EventsTracker implements IEventsTracker {
   private readonly eventsUrl: string;
   private readonly flushManager: FlushManager;
   private readonly traceId: string = uuid();
-  private userProps: UserEventProps;
+  private appUserId: string;
   private checkoutSessionId: string | null = null;
 
   constructor(props: EventsTrackerProps) {
@@ -50,10 +44,7 @@ export default class EventsTracker implements IEventsTracker {
 
     this.apiKey = props.apiKey;
     this.eventsUrl = `${httpConfig.proxyURL || RC_ENDPOINT}/v1/events`;
-    this.userProps = {
-      appUserId: props.appUserId,
-      userIsAnonymous: props.userIsAnonymous,
-    };
+    this.appUserId = props.appUserId;
     this.flushManager = new FlushManager(
       MIN_INTERVAL_RETRY,
       MAX_INTERVAL_RETRY,
@@ -61,8 +52,8 @@ export default class EventsTracker implements IEventsTracker {
     );
   }
 
-  public async updateUser(props: UserEventProps) {
-    this.userProps = props;
+  public async updateUser(appUserId: string) {
+    this.appUserId = appUserId;
   }
 
   public async generateCheckoutSessionId() {
@@ -78,8 +69,7 @@ export default class EventsTracker implements IEventsTracker {
         eventName: props.eventName,
         traceId: this.traceId,
         checkoutSessionId: this.checkoutSessionId,
-        appUserId: this.userProps.appUserId,
-        userIsAnonymous: this.userProps.userIsAnonymous,
+        appUserId: this.appUserId,
         properties: props.properties || {},
       });
       this.eventsQueue.push(event);

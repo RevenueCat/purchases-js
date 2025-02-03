@@ -23,7 +23,6 @@ describe("EventsTracker", (test) => {
     context.eventsTracker = new EventsTracker({
       apiKey: testApiKey,
       appUserId: "someAppUserId",
-      userIsAnonymous: false,
     });
     vi.useFakeTimers();
     vi.setSystemTime(date);
@@ -53,10 +52,7 @@ describe("EventsTracker", (test) => {
             type: "web_billing",
             timestamp_ms: date.getTime(),
             event_name: "sdk_initialized",
-            user: {
-              app_user_id: "someAppUserId",
-              user_is_anonymous: false,
-            },
+            app_user_id: "someAppUserId",
             properties: {
               a: "b",
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
@@ -71,10 +67,7 @@ describe("EventsTracker", (test) => {
   test<EventsTrackerFixtures>("passes the user props to the event", async ({
     eventsTracker,
   }) => {
-    eventsTracker.updateUser({
-      appUserId: "newAppUserId",
-      userIsAnonymous: true,
-    });
+    eventsTracker.updateUser("newAppUserId");
     eventsTracker.trackEvent({
       eventName: "sdk_initialized",
       properties: { a: "b" },
@@ -86,10 +79,7 @@ describe("EventsTracker", (test) => {
         json: expect.objectContaining({
           events: expect.arrayContaining([
             expect.objectContaining({
-              user: {
-                app_user_id: "newAppUserId",
-                user_is_anonymous: true,
-              },
+              app_user_id: "newAppUserId",
             }),
           ]),
         }),

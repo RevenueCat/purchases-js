@@ -245,7 +245,6 @@ export class Purchases {
       apiKey: this._API_KEY,
       httpConfig: httpConfig,
       appUserId: this._appUserId,
-      userIsAnonymous: this.userIsAnonymous(this._appUserId),
     });
     this.backend = new Backend(this._API_KEY, httpConfig);
     this.purchaseOperationHelper = new PurchaseOperationHelper(this.backend);
@@ -607,12 +606,8 @@ export class Purchases {
    */
   public async changeUser(newAppUserId: string): Promise<CustomerInfo> {
     this._appUserId = newAppUserId;
-    this.eventsTracker.updateUser({
-      appUserId: newAppUserId,
-      userIsAnonymous: this.userIsAnonymous(newAppUserId),
-    });
+    this.eventsTracker.updateUser(newAppUserId);
     // TODO: Cancel all pending requests if any.
-    // TODO: Update EventsTracker with new appUserId and userIsAnonymous
     // TODO: What happens with a possibly initialized purchase?
     return await this.getCustomerInfo();
   }
@@ -684,9 +679,5 @@ export class Purchases {
   public static generateRevenueCatAnonymousAppUserId(): string {
     const uuid = crypto.randomUUID();
     return `${ANONYMOUS_PREFIX}${uuid.replace(/-/g, "")}`;
-  }
-
-  private userIsAnonymous(appUserId: string): boolean {
-    return appUserId.startsWith(ANONYMOUS_PREFIX);
   }
 }
