@@ -1,5 +1,18 @@
 :root {
-  font-family: "PP Object Sans", system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    avenir next,
+    avenir,
+    segoe ui,
+    helvetica neue,
+    helvetica,
+    Cantarell,
+    Ubuntu,
+    roboto,
+    noto,
+    arial,
+    sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -45,7 +58,20 @@ body {
 }
 
 button.button {
-  font-family: "PP Object Sans", system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    avenir next,
+    avenir,
+    segoe ui,
+    helvetica neue,
+    helvetica,
+    Cantarell,
+    Ubuntu,
+    roboto,
+    noto,
+    arial,
+    sans-serif;
   display: inline-block;
   box-sizing: border-box;
   width: 240px;
@@ -284,7 +310,20 @@ button.button:focus-visible {
   background-color: var(--color-grey-ui-dark);
   border: none;
   outline: none;
-  font-family: "PP Object Sans", system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    avenir next,
+    avenir,
+    segoe ui,
+    helvetica neue,
+    helvetica,
+    Cantarell,
+    Ubuntu,
+    roboto,
+    noto,
+    arial,
+    sans-serif;
   font-weight: 500;
   font-size: 12px;
   line-height: 12px;

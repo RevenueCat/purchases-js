@@ -5,7 +5,6 @@
   } from "../../helpers/purchase-operation-helper";
   import IconError from "../icons/icon-error.svelte";
   import { getContext, onMount } from "svelte";
-  import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
   import { Logger } from "../../helpers/logger.js";
   import MessageLayout from "../layout/message-layout.svelte";
   import { type Product, ProductType } from "../../entities/offerings";
@@ -15,7 +14,6 @@
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
 
-  export let brandingInfo: BrandingInfoResponse | null = null;
   export let lastError: PurchaseFlowError;
   export let supportEmail: string | null = null;
   export let productDetails: Product | null = null;
@@ -95,7 +93,6 @@
 
 <MessageLayout
   title={getTranslatedErrorTitle()}
-  {brandingInfo}
   {onContinue}
   onClose={onContinue}
   type="error"

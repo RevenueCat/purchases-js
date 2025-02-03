@@ -275,11 +275,11 @@ test.describe("Main", () => {
   });
 
   [
-    ["es", "Email de facturación"],
-    ["it", "Indirizzo email per la fatturazione"],
-    ["en", "Billing email address"],
-    ["fr", "Adresse e-mail de facturation"],
-    ["de", "E-Mail-Adresse für Rechnungsstellung"],
+    ["es", "¿Cuál es tu correo electrónico?"],
+    ["it", "Qual è la tua email?"],
+    ["en", "What's your email?"],
+    ["fr", "Quelle est votre adresse e-mail?"],
+    ["de", "Wie lautet Ihre E-Mail-Adresse?"],
   ].forEach(([lang, title]) => {
     test(`Shows the purchase flow in ${lang}`, async ({
       browser,
@@ -299,11 +299,11 @@ test.describe("Main", () => {
   });
 
   [
-    ["es", "Email de facturación"],
-    ["it", "Indirizzo email per la fatturazione"],
-    ["en", "Billing email address"],
-    ["fr", "Adresse e-mail de facturation"],
-    ["de", "E-Mail-Adresse für Rechnungsstellung"],
+    ["es", "¿Cuál es tu correo electrónico?"],
+    ["it", "Qual è la tua email?"],
+    ["en", "What's your email?"],
+    ["fr", "Quelle est votre adresse e-mail?"],
+    ["de", "Wie lautet Ihre E-Mail-Adresse?"],
   ].forEach(([lang, title]) => {
     test(`Shows the purchase flow in ${lang} when purchasing from paywalls`, async ({
       browser,
@@ -415,9 +415,8 @@ async function performPurchase(page: Page, card: Locator, userId: string) {
 
   await enterEmailAndContinue(page, userId);
   await enterCreditCardDetailsAndContinue(page);
-
   // Confirm success page has shown.
-  const successText = page.getByText("Purchase successful");
+  const successText = page.getByText("Payment complete");
   await expect(successText).toBeVisible({ timeout: 10000 });
 }
 
@@ -550,7 +549,7 @@ async function navigateToUrl(
 
 async function typeTextInPageSelector(page: Page, text: string): Promise<void> {
   // Fill email
-  const emailTitle = page.getByText("Billing email address");
+  const emailTitle = page.getByText("What's your email?");
   await expect(emailTitle).toBeVisible();
   await page.getByPlaceholder("john@appleseed.com").click();
   await page.getByPlaceholder("john@appleseed.com").fill(text);
