@@ -3,7 +3,9 @@ import type { EventProperties } from "./event";
 export type TrackedEvent =
   | SDKInitializedEvent
   | CheckoutSessionStartEvent
-  | CheckoutSessionEndEvent
+  | CheckoutSessionFinishedEvent
+  | CheckoutSessionClosedEvent
+  | CheckoutSessionErroredEvent
   | BillingEmailEntryImpressionEvent
   | BillingEmailEntryDismissEvent
   | BillingEmailEntrySubmitEvent
@@ -58,13 +60,27 @@ export interface CheckoutSessionStartEvent extends IEvent {
   };
 }
 
-export interface CheckoutSessionEndEvent extends IEvent {
+export interface CheckoutSessionFinishedEvent extends IEvent {
   eventName: TrackedEventName.CheckoutSessionEnd;
   properties: {
-    outcome: "finished" | "closed" | "errored";
-    errorCode?: number | null;
-    errorMessage?: string;
-    withRedemptionInfo?: boolean;
+    outcome: "finished";
+    withRedemptionInfo: boolean;
+  };
+}
+
+export interface CheckoutSessionClosedEvent extends IEvent {
+  eventName: TrackedEventName.CheckoutSessionEnd;
+  properties: {
+    outcome: "closed";
+  };
+}
+
+export interface CheckoutSessionErroredEvent extends IEvent {
+  eventName: TrackedEventName.CheckoutSessionEnd;
+  properties: {
+    outcome: "errored";
+    errorCode: number | null;
+    errorMessage: string;
   };
 }
 

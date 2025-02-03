@@ -1,5 +1,9 @@
+import type {
+  CheckoutSessionFinishedEvent,
+  CheckoutSessionClosedEvent,
+  CheckoutSessionErroredEvent,
+} from "./tracked-events";
 import {
-  CheckoutSessionEndEvent,
   TrackedEventName,
   type BillingEmailEntryErrorEvent,
   type CheckoutSessionStartEvent,
@@ -9,7 +13,7 @@ import { VERSION } from "../helpers/constants";
 import type { BrandingAppearance } from "../networking/responses/branding-response";
 import type { Package } from "../entities/offerings";
 import type { PurchaseOption } from "../entities/offerings";
-import { RedemptionInfo } from "src/entities/redemption-info";
+import type { RedemptionInfo } from "../entities/redemption-info";
 
 export function createSDKInitializedEvent(): SDKInitializedEvent {
   return {
@@ -68,7 +72,7 @@ export function createCheckoutSessionStartEvent(
 
 export function createCheckoutSessionEndFinishedEvent(
   redemptionInfo: RedemptionInfo | null,
-): CheckoutSessionEndEvent {
+): CheckoutSessionFinishedEvent {
   return {
     eventName: TrackedEventName.CheckoutSessionEnd,
     properties: {
@@ -78,7 +82,7 @@ export function createCheckoutSessionEndFinishedEvent(
   };
 }
 
-export function createCheckoutSessionEndClosedEvent(): CheckoutSessionEndEvent {
+export function createCheckoutSessionEndClosedEvent(): CheckoutSessionClosedEvent {
   return {
     eventName: TrackedEventName.CheckoutSessionEnd,
     properties: {
@@ -90,7 +94,7 @@ export function createCheckoutSessionEndClosedEvent(): CheckoutSessionEndEvent {
 export function createCheckoutSessionEndErroredEvent(
   errorCode: number | null,
   errorMessage: string,
-): CheckoutSessionEndEvent {
+): CheckoutSessionErroredEvent {
   return {
     eventName: TrackedEventName.CheckoutSessionEnd,
     properties: {
