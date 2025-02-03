@@ -17,11 +17,19 @@
   import { eventsTrackerContextKey } from "../constants";
   import { IEventsTracker } from "../../behavioural-events/events-tracker";
   import { createBillingEmailEntryErrorEvent } from "../../behavioural-events/event-helpers";
+  import { TrackedEventName } from "../../behavioural-events/tracked-events";
 
   export let onContinue: any;
   export let onClose: () => void;
   export let processing: boolean;
   export let lastError: PurchaseFlowError | null;
+
+  function onCloseHandle() {
+    eventsTracker.trackEvent({
+      eventName: TrackedEventName.BillingEmailEntryDismiss,
+    });
+    onClose();
+  }
 
   const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
 
@@ -48,7 +56,7 @@
     <span>
       <Localized key={LocalizationKeys.StateNeedsAuthInfoEmailStepTitle} />
     </span>
-    <CloseButton on:click={onClose} />
+    <CloseButton on:click={onCloseHandle} />
   </ModalHeader>
   <form on:submit|preventDefault={handleContinue}>
     <ModalSection>

@@ -110,11 +110,6 @@
   });
 
   const handleClose = () => {
-    if (state === "needs-auth-info") {
-      eventsTracker.trackEvent({
-        eventName: TrackedEventName.BillingEmailEntryDismiss,
-      });
-    }
     onClose();
   };
 
