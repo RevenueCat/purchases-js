@@ -15,7 +15,6 @@
   import SecureCheckoutRc from "../secure-checkout-rc.svelte";
 
   export let onContinue: any;
-  export let onClose: () => void;
   export let processing: boolean;
   export let lastError: PurchaseFlowError | null;
 

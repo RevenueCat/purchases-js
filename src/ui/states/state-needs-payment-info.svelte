@@ -27,7 +27,6 @@
   // import TextSeparator from "../text-separator.svelte";
   import SecureCheckoutRc from "../secure-checkout-rc.svelte";
 
-  export let onClose: any;
   export let onContinue: any;
   export let paymentInfoCollectionMetadata: PurchaseResponse;
   export let processing = false;

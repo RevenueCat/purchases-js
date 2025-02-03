@@ -80,10 +80,6 @@
     }
   });
 
-  const handleClose = () => {
-    onClose();
-  };
-
   const handleSubscribe = () => {
     if (productId === null) {
       handleError(
@@ -191,7 +187,6 @@
   {productDetails}
   {purchaseOptionToUse}
   {handleContinue}
-  {handleClose}
   {lastError}
   {paymentInfoCollectionMetadata}
   {closeWithError}

@@ -28,7 +28,6 @@
   export let isSandbox: boolean = false;
 
   export let handleContinue: (authInfo?: { email: string }) => void;
-  export let handleClose: () => void;
   export let closeWithError: () => void;
   export let lastError: PurchaseFlowError | null;
   export let paymentInfoCollectionMetadata: PurchaseResponse | null;
@@ -83,7 +82,6 @@
         {#if currentView === "needs-auth-info" || currentView === "processing-auth-info"}
           <StateNeedsAuthInfo
             onContinue={handleContinue}
-            onClose={handleClose}
             processing={currentView === "processing-auth-info"}
             {lastError}
           />
@@ -92,7 +90,6 @@
           <StateNeedsPaymentInfo
             {paymentInfoCollectionMetadata}
             onContinue={handleContinue}
-            onClose={handleClose}
             processing={currentView === "polling-purchase-status"}
             {productDetails}
             {purchaseOptionToUse}
@@ -115,11 +112,7 @@
           />
         {/if}
         {#if currentView === "success"}
-          <StateSuccess
-            {productDetails}
-            {brandingInfo}
-            onContinue={handleContinue}
-          />
+          <StateSuccess {productDetails} onContinue={handleContinue} />
         {/if}
       {/snippet}
     </Main>

@@ -1,6 +1,5 @@
 <script lang="ts">
   import IconSuccess from "../icons/icon-success.svelte";
-  import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
   import MessageLayout from "../layout/message-layout.svelte";
   import { type Product, ProductType } from "../../entities/offerings";
   import { getContext } from "svelte";
@@ -11,7 +10,6 @@
   import { LocalizationKeys } from "../localization/supportedLanguages";
 
   export let productDetails: Product | null = null;
-  export let brandingInfo: BrandingInfoResponse | null = null;
   export let onContinue: () => void;
 
   const isSubscription =
