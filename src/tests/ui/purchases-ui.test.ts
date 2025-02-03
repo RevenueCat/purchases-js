@@ -58,6 +58,7 @@ describe("PurchasesUI", () => {
     expect(eventsTrackerMock.trackEvent).toHaveBeenCalledWith({
       eventName: "checkout_session_start",
       properties: {
+        customerEmailProvidedByDeveloper: true,
         customizationOptions: null,
         productInterval: product.normalPeriodDuration,
         productPrice: product.currentPrice.amountMicros,

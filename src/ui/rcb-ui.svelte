@@ -105,6 +105,7 @@
       appearance,
       rcPackage,
       purchaseOptionToUse,
+      customerEmail,
     );
     eventsTracker.trackEvent(event);
 
