@@ -99,10 +99,6 @@
         handleSubscribe();
       } else {
         state = "needs-auth-info";
-
-        eventsTracker.trackEvent({
-          eventName: TrackedEventName.BillingEmailEntryImpression,
-        });
       }
 
       return;

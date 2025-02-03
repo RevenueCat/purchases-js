@@ -7,7 +7,7 @@
   import ProcessingAnimation from "../processing-animation.svelte";
   import { validateEmail } from "../../helpers/validators";
   import { PurchaseFlowError } from "../../helpers/purchase-operation-helper";
-  import { getContext } from "svelte";
+  import { getContext, onMount } from "svelte";
   import CloseButton from "../close-button.svelte";
   import Localized from "../localization/localized.svelte";
   import { translatorContextKey } from "../localization/constants";
@@ -49,6 +49,12 @@
       onContinue({ email });
     }
   };
+
+  onMount(() => {
+    eventsTracker.trackEvent({
+      eventName: TrackedEventName.BillingEmailEntryImpression,
+    });
+  });
 
   const translator: Translator =
     getContext(translatorContextKey) || Translator.fallback();
