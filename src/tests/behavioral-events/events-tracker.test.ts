@@ -37,9 +37,15 @@ describe("EventsTracker", (test) => {
   test<EventsTrackerFixtures>("sends the serialized event", async ({
     eventsTracker,
   }) => {
-    eventsTracker.trackEvent({
-      eventName: "sdk_initialized",
-      properties: { a: "b" },
+    eventsTracker.trackExternalEvent({
+      eventName: "external",
+      properties: {
+        a: "b",
+        b: 1,
+        c: false,
+        d: null,
+        e: { nestedProperty: "" },
+      },
     });
     await vi.advanceTimersToNextTimerAsync();
 
@@ -51,12 +57,18 @@ describe("EventsTracker", (test) => {
             id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
             type: "web_billing",
             timestamp_ms: date.getTime(),
-            event_name: "sdk_initialized",
+            event_name: "external",
             app_user_id: "someAppUserId",
             properties: {
-              a: "b",
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               checkout_session_id: null,
+              a: "b",
+              b: 1,
+              c: false,
+              d: null,
+              e: {
+                nested_property: "",
+              },
             },
           },
         ],
@@ -68,8 +80,8 @@ describe("EventsTracker", (test) => {
     eventsTracker,
   }) => {
     eventsTracker.updateUser("newAppUserId");
-    eventsTracker.trackEvent({
-      eventName: "sdk_initialized",
+    eventsTracker.trackExternalEvent({
+      eventName: "external",
       properties: { a: "b" },
     });
     await vi.advanceTimersToNextTimerAsync();
@@ -91,10 +103,7 @@ describe("EventsTracker", (test) => {
     eventsTracker,
   }) => {
     eventsTracker.generateCheckoutSessionId();
-    eventsTracker.trackEvent({
-      eventName: "my_event",
-      properties: { a: "b" },
-    });
+    eventsTracker.trackExternalEvent({ eventName: "external" });
     await vi.advanceTimersToNextTimerAsync();
 
     expect(APIPostRequest).toHaveBeenCalledWith(
@@ -138,10 +147,7 @@ describe("EventsTracker", (test) => {
       }),
     );
 
-    eventsTracker.trackEvent({
-      eventName: "sdk_initialized",
-      properties: { a: "b" },
-    });
+    eventsTracker.trackExternalEvent({ eventName: "external" });
 
     // Attempt 1: First direct attempt to flush without timeout
     await vi.advanceTimersByTimeAsync(100);
@@ -196,10 +202,7 @@ describe("EventsTracker", (test) => {
     );
 
     for (let i = 0; i < 4; i++) {
-      eventsTracker.trackEvent({
-        eventName: "sdk_initialized",
-        properties: { a: "b" },
-      });
+      eventsTracker.trackExternalEvent({ eventName: "external" });
     }
 
     await vi.advanceTimersByTimeAsync(1000 + 2000 + 4000 + 8000);
@@ -232,10 +235,7 @@ describe("EventsTracker", (test) => {
       }),
     );
 
-    eventsTracker.trackEvent({
-      eventName: "sdk_initialized",
-      properties: { a: "b" },
-    });
+    eventsTracker.trackExternalEvent({ eventName: "external" });
 
     // Attempt 1: First direct attempt to flush without timeout
     await vi.advanceTimersByTimeAsync(100);
@@ -283,8 +283,8 @@ describe("EventsTracker", (test) => {
         if (attempts === 1) {
           setTimeout(
             () =>
-              eventsTracker.trackEvent({
-                eventName: "checkout_session_start",
+              eventsTracker.trackExternalEvent({
+                eventName: "external2",
                 properties: { a: "b" },
               }),
             1_000,
@@ -297,17 +297,14 @@ describe("EventsTracker", (test) => {
       }),
     );
 
-    eventsTracker.trackEvent({
-      eventName: "sdk_initialized",
-      properties: { a: "b" },
-    });
+    eventsTracker.trackExternalEvent({ eventName: "external1" });
 
     await vi.runAllTimersAsync();
 
     expect(eventPayloadSpy).toHaveBeenNthCalledWith(1, {
       events: expect.arrayContaining([
         expect.objectContaining({
-          event_name: "sdk_initialized",
+          event_name: "external1",
           timestamp_ms: date.getTime(),
         }),
       ]),
@@ -316,7 +313,7 @@ describe("EventsTracker", (test) => {
     expect(eventPayloadSpy).toHaveBeenNthCalledWith(2, {
       events: expect.arrayContaining([
         expect.objectContaining({
-          event_name: "checkout_session_start",
+          event_name: "external2",
           timestamp_ms: date.getTime() + 1_000,
         }),
       ]),

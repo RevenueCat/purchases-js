@@ -1,6 +1,6 @@
 import type { EventProperties } from "./event";
 
-export type TrackedEvent =
+export type SDKEvent =
   | SDKInitializedEvent
   | CheckoutSessionStartEvent
   | CheckoutSessionFinishedEvent
@@ -10,7 +10,9 @@ export type TrackedEvent =
   | BillingEmailEntryDismissEvent
   | BillingEmailEntrySubmitEvent
   | BillingEmailEntrySuccessEvent
-  | BillingEmailEntryErrorEvent;
+  | BillingEmailEntryErrorEvent
+  | PurchaseSuccessfulImpressionEvent
+  | PurchaseSuccessfulDismissEvent;
 
 export enum TrackedEventName {
   SDKInitialized = "sdk_initialized",

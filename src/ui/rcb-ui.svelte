@@ -37,7 +37,6 @@
   import { IEventsTracker } from "../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "./constants";
   import { createBillingEmailEntryErrorEvent } from "../behavioural-events/event-helpers";
-  import { TrackedEventName } from "../behavioural-events/tracked-events";
 
   export let asModal = true;
   export let customerEmail: string | undefined;
@@ -194,7 +193,7 @@
         e.getErrorCode(),
         e.message,
       );
-      eventsTracker.trackEvent(event);
+      eventsTracker.trackSDKEvent(event);
     }
 
     if (state === "processing-auth-info" && e.isRecoverable()) {

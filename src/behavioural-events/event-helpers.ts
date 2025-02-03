@@ -3,13 +3,13 @@ import type {
   CheckoutSessionClosedEvent,
   CheckoutSessionErroredEvent,
   PurchaseSuccessfulDismissEvent,
-} from "./tracked-events";
+} from "./sdk-events";
 import {
   TrackedEventName,
   type BillingEmailEntryErrorEvent,
   type CheckoutSessionStartEvent,
   type SDKInitializedEvent,
-} from "./tracked-events";
+} from "./sdk-events";
 import { VERSION } from "../helpers/constants";
 import type { BrandingAppearance } from "../networking/responses/branding-response";
 import type { Package } from "../entities/offerings";
