@@ -1,6 +1,5 @@
 <script lang="ts">
   import IconSuccess from "../icons/icon-success.svelte";
-  import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
   import MessageLayout from "../layout/message-layout.svelte";
   import { type Product, ProductType } from "../../entities/offerings";
   import { getContext, onMount } from "svelte";
@@ -14,13 +13,13 @@
   import { eventsTrackerContextKey } from "../constants";
 
   export let productDetails: Product | null = null;
-  export let brandingInfo: BrandingInfoResponse | null = null;
   export let onContinue: () => void;
 
   const isSubscription =
     productDetails?.productType === ProductType.Subscription;
   const translator: Translator =
     getContext(translatorContextKey) || Translator.fallback();
+
   const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
 
   function handleContinue() {
@@ -33,15 +32,6 @@
     onContinue();
   }
 
-  function handleClose() {
-    eventsTracker.trackSDKEvent({
-      eventName: SDKEventName.CheckoutPurchaseSuccessfulDismiss,
-      properties: {
-        ui_element: "close",
-      },
-    });
-    onContinue();
-  }
 
   onMount(() => {
     eventsTracker.trackSDKEvent({
@@ -53,9 +43,7 @@
 <MessageLayout
   type="success"
   title={translator.translate(LocalizationKeys.StateSuccessPurchaseSuccessful)}
-  {brandingInfo}
   onContinue={handleContinue}
-  onClose={handleClose}
   closeButtonTitle={translator.translate(
     LocalizationKeys.StateSuccessButtonClose,
   )}

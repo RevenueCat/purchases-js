@@ -10,17 +10,11 @@
     StripePaymentElementChangeEvent,
   } from "@stripe/stripe-js";
   import { loadStripe } from "@stripe/stripe-js";
-  import ModalSection from "../modal-section.svelte";
-  import ModalFooter from "../modal-footer.svelte";
   import StateLoading from "./state-loading.svelte";
-  import RowLayout from "../layout/row-layout.svelte";
   import { type PurchaseResponse } from "../../networking/responses/purchase-response";
-  import ModalHeader from "../modal-header.svelte";
-  import IconLock from "../icons/icon-lock.svelte";
   import ProcessingAnimation from "../processing-animation.svelte";
   import type { Product, PurchaseOption } from "../../entities/offerings";
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
-  import CloseButton from "../close-button.svelte";
   import { Theme } from "../theme/theme";
   import IconError from "../icons/icon-error.svelte";
   import MessageLayout from "../layout/message-layout.svelte";
@@ -30,6 +24,8 @@
   import Localized from "../localization/localized.svelte";
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
+  // import TextSeparator from "../text-separator.svelte";
+  import SecureCheckoutRc from "../secure-checkout-rc.svelte";
   import { type IEventsTracker } from "../../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "../constants";
   import {
@@ -38,7 +34,6 @@
   } from "../../behavioural-events/sdk-event-helpers";
   import { SDKEventName } from "../../behavioural-events/sdk-events";
 
-  export let onClose: any;
   export let onContinue: any;
   export let paymentInfoCollectionMetadata: PurchaseResponse;
   export let processing = false;
@@ -56,6 +51,46 @@
   let selectedPaymentMethod: string | undefined = undefined;
 
   const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
+
+  let textStyles = new Theme().textStyles;
+  let spacing = new Theme().spacing;
+
+  let stripeVariables: undefined | Elements["variables"];
+  let viewport: "mobile" | "desktop" = "mobile";
+
+  // Maybe extract this to a
+  function updateStripeVariables() {
+    const isMobile = window.matchMedia("(max-width: 767px)").matches;
+
+    if (isMobile) {
+      viewport = "mobile";
+    } else {
+      viewport = "desktop";
+    }
+
+    stripeVariables = {
+      fontSizeBase: "14px",
+      spacingGridRow: spacing.gapXLarge[viewport],
+    };
+  }
+
+  let resizeTimeout: number | undefined;
+  function onResize() {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      updateStripeVariables();
+    }, 150);
+  }
+
+  onMount(() => {
+    updateStripeVariables();
+
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      window.removeEventListener("resize", onResize);
+    };
+  });
 
   $: {
     // @ts-ignore
@@ -80,13 +115,6 @@
       stripeAccount: stripeAcctId,
     });
   });
-
-  const handleClose = () => {
-    eventsTracker.trackSDKEvent({
-      eventName: SDKEventName.CheckoutPaymentFormDismiss,
-    });
-    onClose();
-  };
 
   const handleContinue = async () => {
     if (processing || !stripe || !safeElements || !clientSecret) return;
@@ -195,20 +223,10 @@
   const localeToUse = getLocaleToUse(stripeElementLocale);
 </script>
 
-<div>
+<div class="checkout-container">
+  <!-- <TextSeparator text="Pay by card" /> -->
   {#if stripe && clientSecret}
-    <ModalHeader>
-      <div class="rcb-header-wrapper">
-        <IconLock />
-        <div class="rcb-step-title">
-          <Localized
-            key={LocalizationKeys.StateNeedsPaymentInfoPaymentStepTitle}
-          />
-        </div>
-      </div>
-      <CloseButton on:click={handleClose} />
-    </ModalHeader>
-    <form data-testid="payment-form" on:submit|preventDefault={handleContinue}>
+    <form on:submit|preventDefault={handleContinue} data-testid="payment-form">
       <Elements
         {stripe}
         {clientSecret}
@@ -216,42 +234,50 @@
         locale={localeToUse}
         bind:elements
         theme="stripe"
+        labels="floating"
         variables={{
           borderRadius: customShape["input-border-radius"],
-          fontSizeBase: "16px",
-          fontSizeSm: "16px",
-          spacingGridRow: "16px",
+          fontLineHeight: "10px",
           focusBoxShadow: "none",
           colorDanger: customColors["error"],
           colorTextPlaceholder: customColors["grey-text-light"],
           colorText: customColors["grey-text-dark"],
           colorTextSecondary: customColors["grey-text-light"],
+          ...stripeVariables,
         }}
         rules={{
           ".Input": {
             boxShadow: "none",
-            border: `2px solid ${customColors["grey-ui-dark"]}`,
+            paddingTop: "6px",
+            paddingBottom: "6px",
+            border: `1px solid ${customColors["grey-ui-dark"]}`,
             backgroundColor: customColors["input-background"],
             color: customColors["grey-text-dark"],
           },
           ".Input:focus": {
-            border: `2px solid ${customColors["focus"]}`,
+            border: `1px solid ${customColors["focus"]}`,
             outline: "none",
           },
           ".Label": {
-            marginBottom: "8px",
-            fontWeight: "500",
+            fontWeight: textStyles.body1[viewport].fontWeight,
             lineHeight: "22px",
             color: customColors["grey-text-dark"],
           },
+          ".Label--floating": {
+            fontSize: "10px !important",
+          },
           ".Input--invalid": {
             boxShadow: "none",
+          },
+          ".TermsText": {
+            fontSize: textStyles.caption[viewport].fontSize,
+            lineHeight: textStyles.caption[viewport].lineHeight,
           },
           ".Tab": {
             boxShadow: "none",
             backgroundColor: "transparent",
             color: customColors["grey-text-light"],
-            border: `2px solid ${customColors["grey-ui-dark"]}`,
+            border: `1px solid ${customColors["grey-ui-dark"]}`,
           },
           ".Tab:hover, .Tab:focus, .Tab--selected, .Tab--selected:hover, .Tab--selected:focus":
             {
@@ -260,7 +286,7 @@
             },
           ".Tab:focus, .Tab--selected, .Tab--selected:hover, .Tab--selected:focus":
             {
-              border: `2px solid ${customColors["focus"]}`,
+              border: `1px solid ${customColors["focus"]}`,
             },
           ".TabIcon": {
             fill: customColors["grey-text-light"],
@@ -271,55 +297,27 @@
           ".Block": {
             boxShadow: "none",
             backgroundColor: "transparent",
-            border: `2px solid ${customColors["grey-ui-dark"]}`,
+            border: `1px solid ${customColors["grey-ui-dark"]}`,
           },
         }}
       >
-        <ModalSection>
-          <div
-            class="rcb-stripe-elements-container"
-            hidden={!!modalErrorMessage}
-          >
-            <PaymentElement
-              options={{
-                business: brandingInfo?.app_name
-                  ? { name: brandingInfo.app_name }
-                  : undefined,
-                layout: {
-                  type: "tabs",
-                },
-              }}
-              on:change={(event: OnChangeEvent) => {
-                isPaymentInfoComplete = event.detail.complete;
-                if (isPaymentInfoComplete) {
-                  selectedPaymentMethod = event.detail.value.type;
-                }
-              }}
-            />
-          </div>
-          {#if modalErrorMessage}
-            <MessageLayout
-              title={null}
-              type="error"
-              closeButtonTitle={translator.translate(
-                LocalizationKeys.StateErrorButtonTryAgain,
-              )}
-              onContinue={handleErrorTryAgain}
-              onClose={handleErrorTryAgain}
-              brandingInfo={null}
-            >
-              {#snippet icon()}
-                <IconError />
-              {/snippet}
-              {#snippet message()}
-                {modalErrorMessage}
-              {/snippet}
-            </MessageLayout>
-          {/if}
-        </ModalSection>
-        <ModalFooter>
-          {#if !modalErrorMessage}
-            <RowLayout>
+        <div class="checkout-form-container" hidden={!!modalErrorMessage}>
+          <PaymentElement
+            options={{
+              business: brandingInfo?.app_name
+                ? { name: brandingInfo.app_name }
+                : undefined,
+              layout: {
+                type: "tabs",
+              },
+            }}
+            on:change={(event: OnChangeEvent) => {
+              isPaymentInfoComplete = event.detail.complete;
+            }}
+          />
+
+          <div class="checkout-pay-container">
+            {#if !modalErrorMessage}
               <Button
                 disabled={processing || !isPaymentInfoComplete}
                 testId="PayButton"
@@ -336,9 +334,31 @@
                   />
                 {/if}
               </Button>
-            </RowLayout>
-          {/if}
-        </ModalFooter>
+            {/if}
+
+            <div class="checkout-secure-container">
+              <SecureCheckoutRc />
+            </div>
+          </div>
+        </div>
+
+        {#if modalErrorMessage}
+          <MessageLayout
+            title={null}
+            type="error"
+            closeButtonTitle={translator.translate(
+              LocalizationKeys.StateErrorButtonTryAgain,
+            )}
+            onContinue={handleErrorTryAgain}
+          >
+            {#snippet icon()}
+              <IconError />
+            {/snippet}
+            {#snippet message()}
+              {modalErrorMessage}
+            {/snippet}
+          </MessageLayout>
+        {/if}
       </Elements>
     </form>
   {:else}
@@ -347,23 +367,41 @@
 </div>
 
 <style>
-  .rcb-header-wrapper {
+  .checkout-secure-container {
+    margin-top: var(--rc-spacing-gapXLarge-mobile);
+  }
+
+  .checkout-container {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    gap: var(--rc-spacing-gapXLarge-mobile);
   }
 
-  .rcb-step-title {
-    margin-left: 10px;
+  .checkout-pay-container {
+    display: flex;
+    flex-direction: column;
+    margin-top: var(--rc-spacing-gapXLarge-mobile);
   }
 
-  .rcb-stripe-elements-container {
+  @media (min-width: 768px) {
+    .checkout-secure-container {
+      margin-top: var(--rc-spacing-gapXLarge-desktop);
+    }
+
+    .checkout-container {
+      gap: var(--rc-spacing-gapXLarge-desktop);
+      margin-top: var(--rc-spacing-gapXLarge-desktop);
+    }
+
+    .checkout-pay-container {
+      margin-top: var(--rc-spacing-gapXLarge-desktop);
+    }
+  }
+
+  .checkout-form-container {
     width: 100%;
-
     /* The standard height of the payment form from Stripe */
     /* Added to avoid the card getting smaller while loading */
     min-height: 320px;
-
-    margin-top: 32px;
-    margin-bottom: 24px;
   }
 </style>

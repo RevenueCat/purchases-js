@@ -555,7 +555,6 @@ export class Purchases {
 
     const certainHTMLTarget = resolvedHTMLTarget as unknown as HTMLElement;
 
-    const asModal = !htmlTarget;
     const appUserId = this._appUserId;
 
     Logger.debugLog(
@@ -581,6 +580,18 @@ export class Purchases {
     const metadata = { ...utmParamsMetadata, ...(params.metadata || {}) };
 
     return new Promise((resolve, reject) => {
+      window.history.pushState({ checkoutOpen: true }, "");
+      const onClose = () => {
+        const event = createCheckoutSessionEndClosedEvent();
+        this.eventsTracker.trackSDKEvent(event);
+        window.removeEventListener("popstate", onClose);
+        certainHTMLTarget.innerHTML = "";
+        Logger.debugLog("Purchase cancelled by user");
+        reject(new PurchasesError(ErrorCode.UserCancelledError));
+      };
+
+      window.addEventListener("popstate", onClose);
+
       mount(RCPurchasesUI, {
         target: certainHTMLTarget,
         props: {
@@ -606,13 +617,7 @@ export class Purchases {
             };
             resolve(purchaseResult);
           },
-          onClose: () => {
-            const event = createCheckoutSessionEndClosedEvent();
-            this.eventsTracker.trackSDKEvent(event);
-            certainHTMLTarget.innerHTML = "";
-            Logger.debugLog("Purchase cancelled by user");
-            reject(new PurchasesError(ErrorCode.UserCancelledError));
-          },
+          onClose,
           onError: (e: PurchaseFlowError) => {
             const event = createCheckoutSessionEndErroredEvent({
               errorCode: e.errorCode?.toString(),
@@ -626,7 +631,6 @@ export class Purchases {
           eventsTracker: this.eventsTracker,
           brandingInfo: this._brandingInfo,
           purchaseOperationHelper: this.purchaseOperationHelper,
-          asModal,
           selectedLocale: localeToBeUsed,
           metadata: metadata,
           defaultLocale,
