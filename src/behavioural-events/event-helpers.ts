@@ -1,4 +1,5 @@
 import {
+  CheckoutSessionEndEvent,
   TrackedEventName,
   type BillingEmailEntryErrorEvent,
   type CheckoutSessionStartEvent,
@@ -8,6 +9,7 @@ import { VERSION } from "../helpers/constants";
 import type { BrandingAppearance } from "../networking/responses/branding-response";
 import type { Package } from "../entities/offerings";
 import type { PurchaseOption } from "../entities/offerings";
+import { RedemptionInfo } from "src/entities/redemption-info";
 
 export function createSDKInitializedEvent(): SDKInitializedEvent {
   return {
@@ -60,6 +62,41 @@ export function createCheckoutSessionStartEvent(
       selectedPackage: rcPackage.identifier,
       selectedPurchaseOption: purchaseOptionToUse.id,
       customerEmailProvidedByDeveloper: Boolean(customerEmail),
+    },
+  };
+}
+
+export function createCheckoutSessionEndFinishedEvent(
+  redemptionInfo: RedemptionInfo | null,
+): CheckoutSessionEndEvent {
+  return {
+    eventName: TrackedEventName.CheckoutSessionEnd,
+    properties: {
+      outcome: "finished",
+      withRedemptionInfo: Boolean(redemptionInfo),
+    },
+  };
+}
+
+export function createCheckoutSessionEndClosedEvent(): CheckoutSessionEndEvent {
+  return {
+    eventName: TrackedEventName.CheckoutSessionEnd,
+    properties: {
+      outcome: "closed",
+    },
+  };
+}
+
+export function createCheckoutSessionEndErroredEvent(
+  errorCode: number | null,
+  errorMessage: string,
+): CheckoutSessionEndEvent {
+  return {
+    eventName: TrackedEventName.CheckoutSessionEnd,
+    properties: {
+      outcome: "errored",
+      errorCode: errorCode,
+      errorMessage: errorMessage,
     },
   };
 }

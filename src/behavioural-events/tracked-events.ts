@@ -3,6 +3,7 @@ import type { EventProperties } from "./event";
 export type TrackedEvent =
   | SDKInitializedEvent
   | CheckoutSessionStartEvent
+  | CheckoutSessionEndEvent
   | BillingEmailEntryImpressionEvent
   | BillingEmailEntryDismissEvent
   | BillingEmailEntrySubmitEvent
@@ -12,6 +13,7 @@ export type TrackedEvent =
 export enum TrackedEventName {
   SDKInitialized = "sdk_initialized",
   CheckoutSessionStart = "checkout_session_start",
+  CheckoutSessionEnd = "checkout_session_end",
   BillingEmailEntryImpression = "billing_email_entry_impression",
   BillingEmailEntryDismiss = "billing_email_entry_dismiss",
   BillingEmailEntrySubmit = "billing_email_entry_submit",
@@ -53,6 +55,16 @@ export interface CheckoutSessionStartEvent extends IEvent {
     selectedPackage: string;
     selectedPurchaseOption: string;
     customerEmailProvidedByDeveloper: boolean;
+  };
+}
+
+export interface CheckoutSessionEndEvent extends IEvent {
+  eventName: TrackedEventName.CheckoutSessionEnd;
+  properties: {
+    outcome: "finished" | "closed" | "errored";
+    errorCode?: number | null;
+    errorMessage?: string;
+    withRedemptionInfo?: boolean;
   };
 }
 

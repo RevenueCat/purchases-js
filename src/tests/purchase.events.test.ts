@@ -3,18 +3,22 @@ import { configurePurchases } from "./base.purchases_test";
 import { APIPostRequest } from "./test-responses";
 import "./utils/to-have-been-called-exactly-once-with";
 import { Logger } from "../helpers/logger";
-import { Purchases } from "../main";
+import { Purchases, PurchasesError } from "../main";
+import { mount } from "svelte";
+
+vi.mock("svelte", () => ({
+  mount: vi.fn(),
+}));
+
+vi.mock("uuid", () => ({
+  v4: () => "c1365463-ce59-4b83-b61b-ef0d883e9047",
+}));
 
 describe("Purchases.configure()", () => {
   const date = new Date(1988, 10, 18, 13, 37, 0);
-  vi.mock("uuid", () => ({
-    v4: () => "c1365463-ce59-4b83-b61b-ef0d883e9047",
-  }));
-  const loggerMock = vi
-    .spyOn(Logger, "debugLog")
-    .mockImplementation(() => undefined);
 
   beforeEach(async () => {
+    vi.spyOn(Logger, "debugLog").mockImplementation(() => undefined);
     vi.useFakeTimers();
     vi.setSystemTime(date);
     configurePurchases();
@@ -22,7 +26,8 @@ describe("Purchases.configure()", () => {
   });
 
   afterEach(() => {
-    loggerMock.mockReset();
+    vi.clearAllMocks();
+    vi.resetAllMocks();
     vi.useRealTimers();
   });
 
@@ -53,8 +58,6 @@ describe("Purchases.configure()", () => {
     const offerings = await purchases.getOfferings();
     const packageToBuy = offerings.current?.availablePackages[0];
 
-    // Currently we hold on the purchase UI, so we add a timeout to not hold the test forever.
-    // We're just checking that the request happened as expected.
     purchases.purchase({
       rcPackage: packageToBuy!,
     });
@@ -70,14 +73,11 @@ describe("Purchases.configure()", () => {
             type: "web_billing",
             event_name: "checkout_session_start",
             timestamp_ms: date.getTime(),
-            user: {
-              app_user_id: "someAppUserId",
-              user_is_anonymous: false,
-            },
+            app_user_id: "someAppUserId",
             properties: {
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               checkout_session_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
-              customer_email_provided: false,
+              customer_email_provided_by_developer: false,
               customization_options: null,
               product_currency: "USD",
               product_interval: "P1M",
@@ -85,6 +85,49 @@ describe("Purchases.configure()", () => {
               selected_package: "$rc_monthly",
               selected_product: "monthly",
               selected_purchase_option: "base_option",
+            },
+          },
+        ],
+      },
+    });
+  });
+
+  test("tracks the CheckoutSessionEnded event upon closing a purchase", async () => {
+    vi.mocked(mount).mockImplementation((_component, options) => {
+      options.props?.onClose();
+      return vi.fn();
+    });
+
+    const purchases = Purchases.getSharedInstance();
+    const offerings = await purchases.getOfferings();
+    const packageToBuy = offerings.current?.availablePackages[0];
+
+    try {
+      await purchases.purchase({
+        rcPackage: packageToBuy!,
+      });
+    } catch (error) {
+      if (!(error instanceof PurchasesError)) {
+        throw error;
+      }
+    }
+
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(APIPostRequest).toHaveBeenLastCalledWith({
+      url: "http://localhost:8000/v1/events",
+      json: {
+        events: [
+          {
+            id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+            type: "web_billing",
+            event_name: "checkout_session_end",
+            timestamp_ms: date.getTime(),
+            app_user_id: "someAppUserId",
+            properties: {
+              trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+              checkout_session_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+              outcome: "closed",
             },
           },
         ],
