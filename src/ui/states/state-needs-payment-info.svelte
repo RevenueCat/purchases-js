@@ -235,7 +235,7 @@
             outline: "none",
           },
           ".Label": {
-            fontWeight: textStyles.body1.desktop.fontWeight,
+            fontWeight: textStyles.body1[viewport].fontWeight,
             lineHeight: "22px",
             color: customColors["grey-text-dark"],
           },
@@ -244,6 +244,10 @@
           },
           ".Input--invalid": {
             boxShadow: "none",
+          },
+          ".TermsText": {
+            fontSize: textStyles.caption[viewport].fontSize,
+            lineHeight: textStyles.caption[viewport].lineHeight,
           },
           ".Tab": {
             boxShadow: "none",
@@ -276,9 +280,6 @@
         <div class="checkout-form-container" hidden={!!modalErrorMessage}>
           <PaymentElement
             options={{
-              terms: {
-                card: "never",
-              },
               business: brandingInfo?.app_name
                 ? { name: brandingInfo.app_name }
                 : undefined,
@@ -310,16 +311,10 @@
                 {/if}
               </Button>
             {/if}
-            <p class="terms">
-              <Localized
-                key={LocalizationKeys.StateNeedsPaymentInfoTermsInfo}
-                variables={{
-                  appName: brandingInfo?.app_name,
-                }}
-              />
-            </p>
 
-            <SecureCheckoutRc />
+            <div class="checkout-secure-container">
+              <SecureCheckoutRc />
+            </div>
           </div>
         </div>
 
@@ -348,19 +343,8 @@
 </div>
 
 <style>
-  .terms {
-    font: var(--rc-text-caption-mobile);
-    margin-top: var(--rc-spacing-gapXXLarge-mobile);
-    margin-bottom: var(--rc-spacing-gapXLarge-mobile);
-  }
-
-  @media (min-width: 768px) {
-    .terms {
-      font: var(--rc-text-caption-desktop);
-      color: var(--rc-color-grey-text-light);
-      margin-top: var(--rc-spacing-gapXXLarge-desktop);
-      margin-bottom: var(--rc-spacing-gapXLarge-desktop);
-    }
+  .checkout-secure-container {
+    margin-top: var(--rc-spacing-gapXLarge-mobile);
   }
 
   .checkout-container {
@@ -376,6 +360,10 @@
   }
 
   @media (min-width: 768px) {
+    .checkout-secure-container {
+      margin-top: var(--rc-spacing-gapXLarge-desktop);
+    }
+
     .checkout-container {
       gap: var(--rc-spacing-gapXLarge-desktop);
       margin-top: var(--rc-spacing-gapXLarge-desktop);
