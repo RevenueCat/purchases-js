@@ -32,7 +32,6 @@
 
   let defaultArgs = {
     productDetails: product,
-    purchaseOptionToUse: subscriptionOption,
     purchaseOption: subscriptionOption,
     brandingInfo: brandingInfo,
     lastError: purchaseFlowError,

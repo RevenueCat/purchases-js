@@ -24,7 +24,7 @@
 
   let defaultArgs = {
     productDetails: product,
-    purchaseOptionToUse: subscriptionOption,
+    purchaseOption: subscriptionOption,
   };
 
   let customLabelsTranslator = new Translator(

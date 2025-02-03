@@ -1,7 +1,8 @@
 import { configDefaults, defineConfig } from "vitest/config";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
+import { svelteTesting } from "@testing-library/svelte/vite";
 
-export default defineConfig(({ mode }) => ({
+export default defineConfig(() => ({
   plugins: [
     svelte({
       compilerOptions: {
@@ -13,6 +14,7 @@ export default defineConfig(({ mode }) => ({
         },
       },
     }),
+    svelteTesting(),
   ],
 
   // This is needed to make test pass after adding decorators in Purchases.
@@ -48,14 +50,6 @@ export default defineConfig(({ mode }) => ({
     // Other configurations like shims for APIs or polyfills can also be included
     // ...
     exclude: [...configDefaults.exclude, "examples/**"],
-  },
-
-  // The following configuration allows to avoid issues with Svelte's mount
-  // function when running tests
-  // Svelte error: lifecycle_function_unavailable
-  // `mount(...)` is not available on the server
-  resolve: {
-    conditions: mode === "test" ? ["browser"] : [],
   },
   define: {
     "process.env.VITEST": JSON.stringify(true),

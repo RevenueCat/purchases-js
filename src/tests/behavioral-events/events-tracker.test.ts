@@ -92,7 +92,7 @@ describe("EventsTracker", (test) => {
   }) => {
     eventsTracker.generateCheckoutSessionId();
     eventsTracker.trackEvent({
-      eventName: "sdk_initialized",
+      eventName: "my_event",
       properties: { a: "b" },
     });
     await vi.advanceTimersToNextTimerAsync();

@@ -54,7 +54,13 @@ import type { TrackEventProps } from "./behavioural-events/events-tracker";
 import EventsTracker, {
   type IEventsTracker,
 } from "./behavioural-events/events-tracker";
-import { createSDKInitializedEvent } from "./behavioural-events/event-helpers";
+import {
+  createSDKInitializedEvent,
+  createCheckoutSessionStartEvent,
+  createCheckoutSessionEndFinishedEvent,
+  createCheckoutSessionEndClosedEvent,
+  createCheckoutSessionEndErroredEvent,
+} from "./behavioural-events/event-helpers";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -545,15 +551,30 @@ export class Purchases {
 
     const localeToBeUsed = selectedLocale || defaultLocale;
 
+    const purchaseOptionToUse =
+      purchaseOption ?? rcPackage.rcBillingProduct.defaultPurchaseOption;
+
+    this.eventsTracker.generateCheckoutSessionId();
+
+    const event = createCheckoutSessionStartEvent(
+      this._brandingInfo?.appearance,
+      rcPackage,
+      purchaseOptionToUse,
+      customerEmail,
+    );
+    this.eventsTracker.trackEvent(event);
+
     return new Promise((resolve, reject) => {
       mount(RCPurchasesUI, {
         target: certainHTMLTarget,
         props: {
           appUserId,
           rcPackage,
-          purchaseOption,
+          purchaseOption: purchaseOptionToUse,
           customerEmail,
           onFinished: async (redemptionInfo: RedemptionInfo | null) => {
+            const event = createCheckoutSessionEndFinishedEvent(redemptionInfo);
+            this.eventsTracker.trackEvent(event);
             Logger.debugLog("Purchase finished");
             certainHTMLTarget.innerHTML = "";
             // TODO: Add info about transaction in result.
@@ -564,11 +585,18 @@ export class Purchases {
             resolve(purchaseResult);
           },
           onClose: () => {
+            const event = createCheckoutSessionEndClosedEvent();
+            this.eventsTracker.trackEvent(event);
             certainHTMLTarget.innerHTML = "";
             Logger.debugLog("Purchase cancelled by user");
             reject(new PurchasesError(ErrorCode.UserCancelledError));
           },
           onError: (e: PurchaseFlowError) => {
+            const event = createCheckoutSessionEndErroredEvent(
+              e.errorCode,
+              e.message,
+            );
+            this.eventsTracker.trackEvent(event);
             certainHTMLTarget.innerHTML = "";
             reject(PurchasesError.getForPurchasesFlowError(e));
           },
