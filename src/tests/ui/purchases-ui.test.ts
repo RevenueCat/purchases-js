@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom";
 import { fireEvent, render, screen } from "@testing-library/svelte";
-import { describe, test, expect, afterEach, vi } from "vitest";
+import { describe, test, expect, afterEach, vi, beforeEach } from "vitest";
 import PurchasesUI from "../../ui/rcb-ui.svelte";
 import type { IEventsTracker } from "../../behavioural-events/events-tracker";
 import {
@@ -47,8 +47,13 @@ const basicProps = {
 };
 
 describe("PurchasesUI", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
   afterEach(() => {
     vi.resetAllMocks();
+    vi.useRealTimers();
   });
 
   test("tracks the BillingEmailEntryImpression event when email has not been provided", async () => {
@@ -234,5 +239,84 @@ describe("PurchasesUI", () => {
         eventName: "billing_email_entry_error",
       }),
     );
+  });
+
+  test("tracks the PurchaseSuccessfulImpression event when the purchase is successful", async () => {
+    vi.spyOn(
+      purchaseOperationHelperMock,
+      "startPurchase",
+    ).mockResolvedValueOnce({
+      operation_session_id: "123",
+      next_action: "completed",
+      data: {
+        client_secret: "123",
+        stripe_account_id: "123",
+        publishable_api_key: "123",
+      },
+    });
+
+    render(PurchasesUI, {
+      props: { ...basicProps, customerEmail: "test@test.com" },
+    });
+
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(eventsTrackerMock.trackEvent).toHaveBeenCalledWith({
+      eventName: "purchase_successful_impression",
+    });
+  });
+
+  test("tracks the PurchaseSuccessfulDismiss event when the purchase successful dialog is closed", async () => {
+    vi.spyOn(
+      purchaseOperationHelperMock,
+      "startPurchase",
+    ).mockResolvedValueOnce({
+      operation_session_id: "123",
+      next_action: "completed",
+      data: {
+        client_secret: "123",
+        stripe_account_id: "123",
+        publishable_api_key: "123",
+      },
+    });
+
+    render(PurchasesUI, { props: { ...basicProps, onFinished: vi.fn() } });
+    await vi.advanceTimersToNextTimerAsync();
+    const continueButton = screen.getByTestId("close-button");
+    await fireEvent.click(continueButton);
+
+    expect(eventsTrackerMock.trackEvent).toHaveBeenCalledWith({
+      eventName: "purchase_successful_dismiss",
+      properties: {
+        buttonPressed: "close",
+      },
+    });
+  });
+
+  test("tracks the PurchaseSuccessfulDismiss event when the purchase successful dialog button is pressed", async () => {
+    vi.spyOn(
+      purchaseOperationHelperMock,
+      "startPurchase",
+    ).mockResolvedValueOnce({
+      operation_session_id: "123",
+      next_action: "completed",
+      data: {
+        client_secret: "123",
+        stripe_account_id: "123",
+        publishable_api_key: "123",
+      },
+    });
+
+    render(PurchasesUI, { props: { ...basicProps, onFinished: vi.fn() } });
+    await vi.advanceTimersToNextTimerAsync();
+    const continueButton = screen.getByText("Close");
+    await fireEvent.click(continueButton);
+
+    expect(eventsTrackerMock.trackEvent).toHaveBeenCalledWith({
+      eventName: "purchase_successful_dismiss",
+      properties: {
+        buttonPressed: "go_back_to_app",
+      },
+    });
   });
 });

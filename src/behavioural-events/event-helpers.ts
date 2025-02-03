@@ -2,6 +2,7 @@ import type {
   CheckoutSessionFinishedEvent,
   CheckoutSessionClosedEvent,
   CheckoutSessionErroredEvent,
+  PurchaseSuccessfulDismissEvent,
 } from "./tracked-events";
 import {
   TrackedEventName,
@@ -101,6 +102,17 @@ export function createCheckoutSessionEndErroredEvent(
       outcome: "errored",
       errorCode: errorCode,
       errorMessage: errorMessage,
+    },
+  };
+}
+
+export function createPurchaseSuccessfulDismissEvent(
+  buttonPressed: "go_back_to_app" | "close",
+): PurchaseSuccessfulDismissEvent {
+  return {
+    eventName: TrackedEventName.PurchaseSuccessfulDismiss,
+    properties: {
+      buttonPressed: buttonPressed,
     },
   };
 }

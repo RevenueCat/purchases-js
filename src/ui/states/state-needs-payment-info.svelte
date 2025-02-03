@@ -270,6 +270,7 @@
                 LocalizationKeys.StateErrorButtonTryAgain,
               )}
               onContinue={handleErrorTryAgain}
+              onClose={handleErrorTryAgain}
               brandingInfo={null}
             >
               <IconError slot="icon" />

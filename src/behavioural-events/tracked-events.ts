@@ -21,6 +21,8 @@ export enum TrackedEventName {
   BillingEmailEntrySubmit = "billing_email_entry_submit",
   BillingEmailEntrySuccess = "billing_email_entry_success",
   BillingEmailEntryError = "billing_email_entry_error",
+  PurchaseSuccessfulImpression = "purchase_successful_impression",
+  PurchaseSuccessfulDismiss = "purchase_successful_dismiss",
 }
 
 interface IEvent {
@@ -105,5 +107,16 @@ export interface BillingEmailEntryErrorEvent extends IEvent {
   properties: {
     errorCode: number | null;
     errorMessage: string;
+  };
+}
+
+export interface PurchaseSuccessfulImpressionEvent extends IEvent {
+  eventName: TrackedEventName.PurchaseSuccessfulImpression;
+}
+
+export interface PurchaseSuccessfulDismissEvent extends IEvent {
+  eventName: TrackedEventName.PurchaseSuccessfulDismiss;
+  properties: {
+    buttonPressed: "go_back_to_app" | "close";
   };
 }

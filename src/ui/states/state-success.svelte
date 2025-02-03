@@ -3,12 +3,15 @@
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
   import MessageLayout from "../layout/message-layout.svelte";
   import { type Product, ProductType } from "../../entities/offerings";
-  import { getContext } from "svelte";
+  import { getContext, onMount } from "svelte";
   import { translatorContextKey } from "../localization/constants";
   import { Translator } from "../localization/translator";
   import Localized from "../localization/localized.svelte";
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
+  import { TrackedEventName } from "../../behavioural-events/tracked-events";
+  import { IEventsTracker } from "../../behavioural-events/events-tracker";
+  import { eventsTrackerContextKey } from "../constants";
 
   export let productDetails: Product | null = null;
   export let brandingInfo: BrandingInfoResponse | null = null;
@@ -18,13 +21,41 @@
     productDetails?.productType === ProductType.Subscription;
   const translator: Translator =
     getContext(translatorContextKey) || Translator.fallback();
+  const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
+
+  function handleContinue() {
+    eventsTracker.trackEvent({
+      eventName: TrackedEventName.PurchaseSuccessfulDismiss,
+      properties: {
+        buttonPressed: "go_back_to_app",
+      },
+    });
+    onContinue();
+  }
+
+  function handleClose() {
+    eventsTracker.trackEvent({
+      eventName: TrackedEventName.PurchaseSuccessfulDismiss,
+      properties: {
+        buttonPressed: "close",
+      },
+    });
+    onContinue();
+  }
+
+  onMount(() => {
+    eventsTracker.trackEvent({
+      eventName: TrackedEventName.PurchaseSuccessfulImpression,
+    });
+  });
 </script>
 
 <MessageLayout
   type="success"
   title={translator.translate(LocalizationKeys.StateSuccessPurchaseSuccessful)}
   {brandingInfo}
-  {onContinue}
+  onContinue={handleContinue}
+  onClose={handleClose}
   closeButtonTitle={translator.translate(
     LocalizationKeys.StateSuccessButtonClose,
   )}
