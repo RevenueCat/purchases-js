@@ -164,9 +164,6 @@
       if (authInfo) {
         customerEmail = authInfo.email;
         state = "processing-auth-info";
-        eventsTracker.trackEvent({
-          eventName: TrackedEventName.BillingEmailEntrySubmit,
-        });
       }
 
       handleSubscribe();

@@ -43,6 +43,9 @@
       const event = createBillingEmailEntryErrorEvent(null, errorMessage);
       eventsTracker.trackEvent(event);
     } else {
+      eventsTracker.trackEvent({
+        eventName: TrackedEventName.BillingEmailEntrySubmit,
+      });
       onContinue({ email });
     }
   };
