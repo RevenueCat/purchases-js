@@ -225,8 +225,8 @@
         rules={{
           ".Input": {
             boxShadow: "none",
-            paddingTop: "0px",
-            paddingBottom: "0px",
+            paddingTop: "6px",
+            paddingBottom: "6px",
             border: `1px solid ${customColors["grey-ui-dark"]}`,
             backgroundColor: customColors["input-background"],
             color: customColors["grey-text-dark"],
