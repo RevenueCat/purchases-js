@@ -56,7 +56,7 @@
           <BrandingInfoUI {brandingInfo} />
         {/snippet}
 
-        {#snippet bodyContent(expanded)}
+        {#snippet bodyContent(expanded: boolean)}
           {#if productDetails && purchaseOptionToUse}
             <StatePresentOffer
               {productDetails}

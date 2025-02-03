@@ -1,33 +1,20 @@
 <script module>
   import { defineMeta, setTemplate } from "@storybook/addon-svelte-csf";
-  import StateNeedsAuthInfo from "../ui/states/state-needs-auth-info.svelte";
-  import StateNeedsPaymentInfo from "../ui/states/state-needs-payment-info.svelte";
-  import StatePresentOffer from "../ui/states/state-present-offer.svelte";
-  import StateSuccess from "../ui/states/state-success.svelte";
-  import StateLoading from "../ui/states/state-loading.svelte";
-  import StateError from "../ui/states/state-error.svelte";
-  import BrandingInfoUI from "../ui/branding-info-ui.svelte";
-  import NavBar from "../ui/layout/navbar.svelte";
-  import Main from "../ui/layout/main-block.svelte";
-  import Container from "../ui/layout/container.svelte";
   import WithContext from "./utils/with-context.svelte";
-  import Layout from "../ui/layout/layout.svelte";
   import { toProductInfoStyleVar } from "../ui/theme/utils";
-  import SandboxBanner from "../ui/sandbox-banner.svelte";
   import RcbUiInner from "../ui/rcb-ui-inner.svelte";
 
   import {
     brandingInfo,
-    colorfulBrandingAppearance,
     product,
     purchaseFlowError,
     subscriptionOption,
   } from "./fixtures";
-  import { onMount } from "svelte";
   import {
     buildPurchaseResponse,
     SetupMode,
   } from "./utils/purchase-response-builder";
+  import { type PurchaseResponse } from "../networking/responses/purchase-response";
 
   const defaultArgs = {
     context: {},
@@ -37,25 +24,39 @@
     brandingInfo: brandingInfo,
     lastError: purchaseFlowError,
     onContinue: () => {},
-    context: {},
   };
+
+  let paymentMetadata: any;
 
   let { Story } = defineMeta({
     title: "Purchase flow",
     args: defaultArgs,
     parameters: {},
+    loaders: [
+      async () => {
+        const paymentInfoCollectionMetadata: PurchaseResponse =
+          await buildPurchaseResponse(SetupMode.TrialSubscription);
+        paymentMetadata = { ...paymentInfoCollectionMetadata };
+        return { paymentInfoCollectionMetadata };
+      },
+    ],
   });
 
+  // @ts-ignore
   let colorVariables = toProductInfoStyleVar(brandingInfo?.appearance);
 </script>
 
-<script>
+<script lang="ts">
   setTemplate(template);
 </script>
 
-{#snippet template(args)}
+{#snippet template(args: any)}
   <WithContext context={args.context}>
-    <RcbUiInner {...args} {colorVariables} />
+    <RcbUiInner
+      {...args}
+      {colorVariables}
+      paymentInfoCollectionMetadata={paymentMetadata}
+    />
   </WithContext>
 {/snippet}
 
@@ -88,15 +89,16 @@
 <Story
   name="Checkout (Mobile)"
   args={{
-    args: defaultArgs,
+    ...defaultArgs,
     currentView: "needs-payment-info",
   }}
   parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
 <Story
   name="Checkout (Desktop)"
-  args={(args) => {
-    console.log(args);
+  args={{
+    ...defaultArgs,
+    currentView: "needs-payment-info",
   }}
   parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
