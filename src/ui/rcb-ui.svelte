@@ -29,7 +29,8 @@
   export let brandingInfo: BrandingInfoResponse | null;
   export let onFinished: (redemptionInfo: RedemptionInfo | null) => void;
   export let onError: (error: PurchaseFlowError) => void;
-  export let onClose: () => void;
+  // We don't have a close button in the UI, but we might add one soon
+  export const onClose: (() => void) | undefined = undefined;
   export let purchases: Purchases;
   export let purchaseOperationHelper: PurchaseOperationHelper;
   export let selectedLocale: string = englishLocale;
@@ -190,4 +191,5 @@
   {lastError}
   {paymentInfoCollectionMetadata}
   {closeWithError}
+  {colorVariables}
 />
