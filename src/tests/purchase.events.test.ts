@@ -3,7 +3,7 @@ import { configurePurchases } from "./base.purchases_test";
 import { APIPostRequest } from "./test-responses";
 import "./utils/to-have-been-called-exactly-once-with";
 import { Logger } from "../helpers/logger";
-import { Purchases, PurchasesError } from "../main";
+import { ErrorCode, Purchases, PurchasesError } from "../main";
 import { mount } from "svelte";
 
 vi.mock("svelte", () => ({
@@ -92,6 +92,44 @@ describe("Purchases.configure()", () => {
     });
   });
 
+  test("tracks the CheckoutSessionEnded event upon finishing a purchase", async () => {
+    vi.mocked(mount).mockImplementation((_component, options) => {
+      options.props?.onFinished(null);
+      return vi.fn();
+    });
+
+    const purchases = Purchases.getSharedInstance();
+    const offerings = await purchases.getOfferings();
+    const packageToBuy = offerings.current?.availablePackages[0];
+
+    await purchases.purchase({
+      rcPackage: packageToBuy!,
+    });
+
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(APIPostRequest).toHaveBeenLastCalledWith({
+      url: "http://localhost:8000/v1/events",
+      json: {
+        events: [
+          {
+            id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+            type: "web_billing",
+            event_name: "checkout_session_end",
+            timestamp_ms: date.getTime(),
+            app_user_id: "someAppUserId",
+            properties: {
+              trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+              checkout_session_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+              outcome: "finished",
+              with_redemption_info: false,
+            },
+          },
+        ],
+      },
+    });
+  });
+
   test("tracks the CheckoutSessionEnded event upon closing a purchase", async () => {
     vi.mocked(mount).mockImplementation((_component, options) => {
       options.props?.onClose();
@@ -128,6 +166,53 @@ describe("Purchases.configure()", () => {
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               checkout_session_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               outcome: "closed",
+            },
+          },
+        ],
+      },
+    });
+  });
+
+  test("tracks the CheckoutSessionEnded event upon erroring a purchase", async () => {
+    vi.mocked(mount).mockImplementation((_component, options) => {
+      options.props?.onError(
+        new PurchasesError(ErrorCode.UnknownError, "Unexpected error"),
+      );
+      return vi.fn();
+    });
+
+    const purchases = Purchases.getSharedInstance();
+    const offerings = await purchases.getOfferings();
+    const packageToBuy = offerings.current?.availablePackages[0];
+
+    try {
+      await purchases.purchase({
+        rcPackage: packageToBuy!,
+      });
+    } catch (error) {
+      if (!(error instanceof PurchasesError)) {
+        throw error;
+      }
+    }
+
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(APIPostRequest).toHaveBeenLastCalledWith({
+      url: "http://localhost:8000/v1/events",
+      json: {
+        events: [
+          {
+            id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+            type: "web_billing",
+            event_name: "checkout_session_end",
+            timestamp_ms: date.getTime(),
+            app_user_id: "someAppUserId",
+            properties: {
+              trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+              checkout_session_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+              outcome: "errored",
+              error_code: 0,
+              error_message: "Unexpected error",
             },
           },
         ],
