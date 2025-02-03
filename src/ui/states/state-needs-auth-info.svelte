@@ -7,7 +7,7 @@
   import ProcessingAnimation from "../processing-animation.svelte";
   import { validateEmail } from "../../helpers/validators";
   import { PurchaseFlowError } from "../../helpers/purchase-operation-helper";
-  import { beforeUpdate, getContext } from "svelte";
+  import { getContext } from "svelte";
   import CloseButton from "../close-button.svelte";
   import Localized from "../localization/localized.svelte";
   import { translatorContextKey } from "../localization/constants";
@@ -25,26 +25,20 @@
   const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
 
   $: email = "";
-  $: error = "";
-  $: inputClass = error ? "error" : "";
+  $: errorMessage = lastError?.message || "";
+  $: inputClass = lastError?.message || errorMessage ? "error" : "";
 
   const handleContinue = async () => {
-    const emailError = validateEmail(email);
-    if (emailError) {
+    errorMessage ||= validateEmail(email) || "";
+    if (errorMessage !== "") {
       eventsTracker.trackBillingEmailEntryError({
         errorCode: null,
-        errorMessage: emailError,
+        errorMessage: errorMessage,
       });
-
-      error = emailError;
     } else {
       onContinue({ email });
     }
   };
-
-  beforeUpdate(async () => {
-    error = lastError?.message ?? "";
-  });
 
   const translator: Translator =
     getContext(translatorContextKey) || Translator.fallback();
@@ -78,8 +72,8 @@
             bind:value={email}
           />
         </div>
-        {#if error}
-          <div class="form-error">{error}</div>
+        {#if errorMessage !== ""}
+          <div class="form-error">{errorMessage}</div>
         {/if}
       </div>
     </ModalSection>
