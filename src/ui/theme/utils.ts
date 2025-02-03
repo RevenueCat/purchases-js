@@ -250,6 +250,8 @@ export const toTextStyleVar = (prefix: string = "", textStyles: TextStyles) =>
     .flatMap(([key, { desktop, mobile }]) => [
       `--rc-${prefix}-${key}-desktop: normal normal ${desktop.fontWeight} ${desktop.fontSize}/${desktop.lineHeight} ${DEFAULT_FONT_FAMILY}`,
       `--rc-${prefix}-${key}-mobile: normal normal ${mobile.fontWeight} ${mobile.fontSize}/${mobile.lineHeight} ${DEFAULT_FONT_FAMILY}`,
+      `--rc-${prefix}-${key}-desktop-font-size: ${desktop.fontSize}`,
+      `--rc-${prefix}-${key}-mobile-font-size: ${mobile.fontSize}`,
     ])
     .join("; ");
 
