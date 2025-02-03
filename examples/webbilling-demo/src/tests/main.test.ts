@@ -10,10 +10,6 @@ const RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES =
   "rc_paywalls_e2e_test_variables_2";
 
 test.describe("Main", () => {
-  test.afterEach(({ browser }) => {
-    browser.close();
-  });
-
   test("Get offerings displays packages", async ({ browser, browserName }) => {
     const userId = getUserId(browserName);
     const page = await setupTest(browser, userId);
@@ -210,11 +206,11 @@ test.describe("Main", () => {
   });
 
   [
-    ["es", "Email de facturación"],
-    ["it", "Indirizzo email per la fatturazione"],
+    ["es", "¿Cuál es tu correo electrónico?"],
+    ["it", "Qual è la tua email?"],
     ["en", "What's your email?"],
-    ["fr", "Adresse e-mail de facturation"],
-    ["de", "E-Mail-Adresse für Rechnungsstellung"],
+    ["fr", "Quelle est votre adresse e-mail?"],
+    ["de", "Wie lautet Ihre E-Mail-Adresse?"],
   ].forEach(([lang, title]) => {
     test(`Shows the purchase flow in ${lang}`, async ({
       browser,
@@ -234,11 +230,11 @@ test.describe("Main", () => {
   });
 
   [
-    ["es", "Email de facturación"],
-    ["it", "Indirizzo email per la fatturazione"],
+    ["es", "¿Cuál es tu correo electrónico?"],
+    ["it", "Qual è la tua email?"],
     ["en", "What's your email?"],
-    ["fr", "Adresse e-mail de facturation"],
-    ["de", "E-Mail-Adresse für Rechnungsstellung"],
+    ["fr", "Quelle est votre adresse e-mail?"],
+    ["de", "Wie lautet Ihre E-Mail-Adresse?"],
   ].forEach(([lang, title]) => {
     test(`Shows the purchase flow in ${lang} when purchasing from paywalls`, async ({
       browser,

@@ -22,7 +22,7 @@ def translate_text(text, target_language):
         "messages": [
             {
                 "role": "system",
-                "content": f"Translate the following JSON into {target_language}. "
+                "content": f"Translate the following JSON into the language with the ISO 639-1 code {target_language.upper()}. "
                 'Return a valid JSON object using double quotes (`"`) for keys and string values. '
                 "Do *not* wrap the JSON in any formatting markers like ```json or ```. "
                 "Maintain the context of a subscription app payment flow. "

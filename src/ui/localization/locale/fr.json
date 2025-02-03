@@ -29,7 +29,7 @@
   "state_present_offer.renewal_frequency": "Renouvellement {{frequency}}",
   "state_present_offer.continues_until_cancelled": "Continue jusqu'à annulation",
   "state_present_offer.cancel_anytime": "Annulez à tout moment",
-  "state_needs_auth_info.email_step_title": "Quelle est votre adresse e-mail ?",
+  "state_needs_auth_info.email_step_title": "Quelle est votre adresse e-mail?",
   "state_needs_auth_info.email_input_label": "E-mail",
   "state_needs_auth_info.email_input_placeholder": "john@appleseed.com",
   "state_needs_auth_info.button_continue": "Continuer",
