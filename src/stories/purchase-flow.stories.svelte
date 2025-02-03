@@ -1,404 +1,139 @@
-<script>
-  import { Meta, Story, Template } from "@storybook/addon-svelte-csf";
-
-  import StateNeedsPaymentInfoWithPurchaseResponse from "./utils/state-needs-payment-info-with-purchase-response.svelte";
-  import StateNeedsAuthInfo from "../ui/states/state-needs-auth-info.svelte";
-  import StatePresentOffer from "../ui/states/state-present-offer.svelte";
-  import StateSuccess from "../ui/states/state-success.svelte";
-  import StateError from "../ui/states/state-error.svelte";
-  import StateLoading from "../ui/states/state-loading.svelte";
-
-  import Layout from "../ui/layout/layout.svelte";
-  import Container from "../ui/layout/container.svelte";
-  import Main from "../ui/layout/main-block.svelte";
-  import Aside from "../ui/layout/aside-block.svelte";
-  import IconCart from "../ui/icons/icon-cart.svelte";
-  import ModalHeader from "../ui/modal-header.svelte";
-  import BrandingInfoUI from "../ui/branding-info-ui.svelte";
-
+<script module>
+  import { defineMeta, setTemplate } from "@storybook/addon-svelte-csf";
   import WithContext from "./utils/with-context.svelte";
+  import { toProductInfoStyleVar } from "../ui/theme/utils";
+  import RcbUiInner from "../ui/rcb-ui-inner.svelte";
 
   import {
     brandingInfo,
-    colorfulBrandingAppearance,
     product,
     purchaseFlowError,
     subscriptionOption,
   } from "./fixtures";
-  import { Translator } from "../ui/localization/translator";
   import {
-    englishLocale,
-    translatorContextKey,
-  } from "../ui/localization/constants";
+    buildPurchaseResponse,
+    SetupMode,
+  } from "./utils/purchase-response-builder";
+  import { type PurchaseResponse } from "../networking/responses/purchase-response";
 
-  let defaultArgs = {
+  const defaultArgs = {
+    context: {},
     productDetails: product,
     purchaseOptionToUse: subscriptionOption,
     purchaseOption: subscriptionOption,
     brandingInfo: brandingInfo,
     lastError: purchaseFlowError,
     onContinue: () => {},
-    context: {},
   };
 
-  let customLabelsTranslator = new Translator(
-    {
-      en: {
-        "state_present_offer.renewal_frequency": "CUSTOM LABEL {{frequency}}",
+  let paymentMetadata: any;
+
+  let { Story } = defineMeta({
+    title: "Purchase flow",
+    args: defaultArgs,
+    parameters: {},
+    loaders: [
+      async () => {
+        const paymentInfoCollectionMetadata: PurchaseResponse =
+          await buildPurchaseResponse(SetupMode.TrialSubscription);
+        paymentMetadata = { ...paymentInfoCollectionMetadata };
+        return { paymentInfoCollectionMetadata };
       },
-    },
-    englishLocale,
-  );
+    ],
+  });
 
-  let italianTranslator = new Translator({}, "it", englishLocale);
-  let it_ITTranslator = new Translator({}, "it_IT", englishLocale);
-  let itDashITTranslator = new Translator({}, "it-IT", englishLocale);
-  let italianCustomLabelsTranslator = new Translator(
-    {
-      it: {
-        "state_present_offer.renewal_frequency": "CUSTOM LABEL {{frequency}}",
-      },
-    },
-    "it",
-    englishLocale,
-  );
-
-  let spanishTranslator = new Translator({}, "es", englishLocale);
-  let es_ESTranslator = new Translator({}, "es_ES", englishLocale);
-  let esDashESTranslator = new Translator({}, "es-ES", englishLocale);
-  let spanishCustomLabelsTranslator = new Translator(
-    {
-      es: {
-        "state_present_offer.renewal_frequency": "CUSTOM LABEL {{frequency}}",
-      },
-    },
-    "es",
-    englishLocale,
-  );
-
-  const labyrinthosBranding = {
-    color_accent: "#B89662",
-    color_buttons_primary: "#B89662",
-    color_error: "#f04141",
-    color_form_bg: "#FFFFFF",
-    color_page_bg: "#0A2722",
-    color_product_info_bg: "#465551",
-    font: "default",
-    shapes: "pill",
-    show_product_description: true,
-  };
-
-  const iptvWebBranding = {
-    color_accent: "#FF3B30",
-    color_buttons_primary: "#ff3b30",
-    color_error: "#F2545B",
-    color_form_bg: "#1f1f1f",
-    color_page_bg: "#141414",
-    color_product_info_bg: "#1f1f1f",
-    font: "default",
-    shapes: "pill",
-    show_product_description: false,
-  };
+  // @ts-ignore
+  let colorVariables = toProductInfoStyleVar(brandingInfo?.appearance);
 </script>
 
-<Meta title="PurchaseFlow" />
+<script lang="ts">
+  setTemplate(template);
+</script>
 
-<Template let:args>
+{#snippet template(args: any)}
   <WithContext context={args.context}>
-    <div
-      style="background-color: rgba(40, 40, 40, 0.75); width: 100vw; min-height: 100vh; padding-top:100px"
-    >
-      <Container>
-        <Layout>
-          <Aside brandingAppearance={args.brandingInfo.appearance}>
-            {#snippet headerContent()}
-              <ModalHeader>
-                <BrandingInfoUI {...args} />
-                <IconCart />
-              </ModalHeader>
-            {/snippet}
-
-            {#snippet bodyContent()}
-              <StatePresentOffer {...args} />
-            {/snippet}
-          </Aside>
-          <Main brandingAppearance={args.brandingInfo.appearance}>
-            {#snippet body()}
-              <StateNeedsAuthInfo {...args} />
-            {/snippet}
-          </Main>
-        </Layout>
-      </Container>
-
-      <div style="height: 100px"></div>
-
-      <Container>
-        <Layout>
-          <Aside brandingAppearance={args.brandingInfo.appearance}>
-            {#snippet headerContent()}
-              <ModalHeader>
-                <BrandingInfoUI {...args} />
-                <IconCart />
-              </ModalHeader>
-            {/snippet}
-
-            {#snippet bodyContent()}
-              <StatePresentOffer {...args} />
-            {/snippet}
-          </Aside>
-          <Main brandingAppearance={args.brandingInfo.appearance}>
-            {#snippet body()}
-              <StateNeedsPaymentInfoWithPurchaseResponse {args} />
-            {/snippet}
-          </Main>
-        </Layout>
-      </Container>
-
-      <div style="height: 100px"></div>
-
-      <Container>
-        <Layout>
-          <Aside brandingAppearance={args.brandingInfo.appearance}>
-            {#snippet headerContent()}
-              <ModalHeader>
-                <BrandingInfoUI {...args} />
-                <IconCart />
-              </ModalHeader>
-            {/snippet}
-
-            {#snippet bodyContent()}
-              <StatePresentOffer {...args} />
-            {/snippet}
-          </Aside>
-          <Main brandingAppearance={args.brandingInfo.appearance}>
-            {#snippet body()}
-              <StateLoading {...args} />
-            {/snippet}
-          </Main>
-        </Layout>
-      </Container>
-
-      <div style="height: 100px"></div>
-
-      <Container>
-        <Layout>
-          <Aside brandingAppearance={args.brandingInfo.appearance}>
-            {#snippet headerContent()}
-              <ModalHeader>
-                <BrandingInfoUI {...args} />
-                <IconCart />
-              </ModalHeader>
-            {/snippet}
-
-            {#snippet bodyContent()}
-              <StatePresentOffer {...args} />
-            {/snippet}
-          </Aside>
-          <Main brandingAppearance={args.brandingInfo.appearance}>
-            {#snippet body()}
-              <StateSuccess {...args} />
-            {/snippet}
-          </Main>
-        </Layout>
-      </Container>
-
-      <div style="height: 100px"></div>
-
-      <Container>
-        <Layout>
-          <Aside brandingAppearance={args.brandingInfo.appearance}>
-            {#snippet headerContent()}
-              <ModalHeader>
-                <BrandingInfoUI {...args} />
-                <IconCart />
-              </ModalHeader>
-            {/snippet}
-            {#snippet bodyContent()}
-              <StatePresentOffer {...args} />
-            {/snippet}
-          </Aside>
-          <Main brandingAppearance={args.brandingInfo.appearance}>
-            {#snippet body()}
-              <StateError {...args} />
-            {/snippet}
-          </Main>
-        </Layout>
-      </Container>
-
-      <div style="height: 100px"></div>
-    </div>
+    <RcbUiInner
+      {...args}
+      {colorVariables}
+      paymentInfoCollectionMetadata={paymentMetadata}
+    />
   </WithContext>
-</Template>
-
-<Story name="Standard" args={{ ...defaultArgs, brandingInfo: brandingInfo }} />
+{/snippet}
 
 <Story
-  name="Rounded"
-  args={{
-    ...defaultArgs,
-    brandingInfo: {
-      ...brandingInfo,
-      appearance: {
-        shapes: "rounded",
-        color_error: "blue",
-        color_accent: "yellow",
-      },
-    },
-  }}
-/>
-
-<Story
-  name="Pill"
-  args={{
-    ...defaultArgs,
-    brandingInfo: {
-      ...brandingInfo,
-      appearance: {
-        shapes: "pill",
-        color_error: "purple",
-        color_accent: "green",
-      },
-    },
-  }}
-/>
-
-<Story
-  name="Rectangle"
-  args={{
-    ...defaultArgs,
-    brandingInfo: {
-      ...brandingInfo,
-      appearance: {
-        shapes: "rectangle",
-      },
-    },
-  }}
-/>
-
-<Story
-  name="Labyrinthos"
-  args={{
-    ...defaultArgs,
-    brandingInfo: {
-      ...brandingInfo,
-      appearance: labyrinthosBranding,
-    },
-  }}
-/>
-
-<Story
-  name="IPTV Web"
-  args={{
-    ...defaultArgs,
-    brandingInfo: {
-      ...brandingInfo,
-      appearance: iptvWebBranding,
-    },
-  }}
-/>
-
-<Story
-  name="CustomColorsElements"
-  args={{
-    ...defaultArgs,
-    brandingInfo: {
-      ...brandingInfo,
-      appearance: {
-        color_accent: "green",
-        color_buttons_primary: "green",
-        color_error: "purple",
-        show_product_description: true,
-      },
-    },
-  }}
-/>
-
-<Story
-  name="ColorfulRectangle"
-  args={{
-    ...defaultArgs,
-    brandingInfo: { ...brandingInfo, appearance: colorfulBrandingAppearance },
-  }}
-/>
-
-<Story
-  name="Italian"
-  args={{
-    ...defaultArgs,
-    context: { [translatorContextKey]: italianTranslator },
-    brandingInfo: brandingInfo,
-  }}
+  name="Email Input (Mobile)"
+  args={{ currentView: "needs-auth-info" }}
+  parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
 <Story
-  name="itUnderscoreIT"
-  args={{
-    ...defaultArgs,
-    context: { [translatorContextKey]: it_ITTranslator },
-    brandingInfo: brandingInfo,
-  }}
+  name="Email Input (Desktop)"
+  args={{ currentView: "needs-auth-info" }}
+  parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
 <Story
-  name="itDashIT"
+  name="Email Input (with Sandbox Banner) (Mobile)"
   args={{
-    ...defaultArgs,
-    context: { [translatorContextKey]: itDashITTranslator },
-    brandingInfo: brandingInfo,
+    currentView: "needs-auth-info",
+    isSandbox: true,
   }}
+  parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
-
 <Story
-  name="Spanish"
+  name="Email Input (with Sandbox Banner) (Desktop)"
   args={{
-    ...defaultArgs,
-    context: { [translatorContextKey]: spanishTranslator },
-    brandingInfo: brandingInfo,
+    currentView: "needs-auth-info",
+    isSandbox: true,
   }}
+  parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
-
 <Story
-  name="esUnderscoreES"
+  name="Checkout (Mobile)"
   args={{
     ...defaultArgs,
-    context: { [translatorContextKey]: es_ESTranslator },
-    brandingInfo: brandingInfo,
+    currentView: "needs-payment-info",
   }}
+  parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
-
 <Story
-  name="esDashES"
+  name="Checkout (Desktop)"
   args={{
     ...defaultArgs,
-    context: { [translatorContextKey]: esDashESTranslator },
-    brandingInfo: brandingInfo,
+    currentView: "needs-payment-info",
   }}
+  parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
-
 <Story
-  name="CustomLabels"
+  name="Loading (Mobile)"
   args={{
-    ...defaultArgs,
-    context: { [translatorContextKey]: customLabelsTranslator },
-    brandingInfo: brandingInfo,
+    currentView: "loading",
   }}
+  parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
-
 <Story
-  name="CustomLabelsIT"
+  name="Loading (Desktop)"
   args={{
-    ...defaultArgs,
-    context: { [translatorContextKey]: italianCustomLabelsTranslator },
-    brandingInfo: brandingInfo,
+    currentView: "loading",
   }}
+  parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
-
 <Story
-  name="CustomLabelsES"
+  name="Payment complete (Mobile)"
   args={{
-    ...defaultArgs,
-    context: { [translatorContextKey]: spanishCustomLabelsTranslator },
-    brandingInfo: brandingInfo,
+    currentView: "success",
   }}
+  parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
-
-<!-- TODO: Add stories for non subscription products -->
-<!-- TODO: Add stories for non subscriptions with trials -->
+<Story
+  name="Payment failed (Mobile)"
+  args={{
+    currentView: "error",
+  }}
+  parameters={{ viewport: { defaultViewport: "mobile" } }}
+/>
+<Story
+  name="Payment failed (Desktop)"
+  args={{
+    currentView: "error",
+  }}
+  parameters={{ viewport: { defaultViewport: "desktop" } }}
+/>
