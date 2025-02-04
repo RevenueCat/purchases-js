@@ -3,7 +3,8 @@ import type {
   CheckoutSessionClosedEvent,
   CheckoutSessionErroredEvent,
   PurchaseSuccessfulDismissEvent,
-  PaymentEntryImpressionEvent,
+  PaymentEntryErrorEvent,
+  PaymentEntrySubmitEvent,
 } from "./sdk-events";
 import {
   SDKEventName,
@@ -107,9 +108,27 @@ export function createCheckoutSessionEndErroredEvent(
   };
 }
 
-export function createPaymentEntryImpressionEvent(): PaymentEntryImpressionEvent {
+export function createPaymentEntrySubmitEvent(
+  selectedPaymentMethod: string | undefined,
+): PaymentEntrySubmitEvent {
   return {
-    eventName: SDKEventName.PaymentEntryImpression,
+    eventName: SDKEventName.PaymentEntrySubmit,
+    properties: {
+      selectedPaymentMethod: selectedPaymentMethod ?? null,
+    },
+  };
+}
+
+export function createPaymentEntryErrorEvent(
+  stripeErrorCode: string | null,
+  stripeErrorMessage: string | null,
+): PaymentEntryErrorEvent {
+  return {
+    eventName: SDKEventName.PaymentEntryError,
+    properties: {
+      stripeErrorCode: stripeErrorCode,
+      stripeErrorMessage: stripeErrorMessage,
+    },
   };
 }
 

@@ -12,6 +12,9 @@ export type SDKEvent =
   | BillingEmailEntrySuccessEvent
   | BillingEmailEntryErrorEvent
   | PaymentEntryImpressionEvent
+  | PaymentEntrySubmitEvent
+  | PaymentEntryDismissEvent
+  | PaymentEntryErrorEvent
   | PurchaseSuccessfulImpressionEvent
   | PurchaseSuccessfulDismissEvent;
 
@@ -25,6 +28,9 @@ export enum SDKEventName {
   BillingEmailEntrySuccess = "billing_email_entry_success",
   BillingEmailEntryError = "billing_email_entry_error",
   PaymentEntryImpression = "payment_entry_impression",
+  PaymentEntryDismiss = "payment_entry_dismiss",
+  PaymentEntrySubmit = "payment_entry_submit",
+  PaymentEntryError = "payment_entry_error",
   PurchaseSuccessfulImpression = "purchase_successful_impression",
   PurchaseSuccessfulDismiss = "purchase_successful_dismiss",
 }
@@ -116,6 +122,25 @@ export interface BillingEmailEntryErrorEvent extends ISDKEvent {
 
 export interface PaymentEntryImpressionEvent extends ISDKEvent {
   eventName: SDKEventName.PaymentEntryImpression;
+}
+
+export interface PaymentEntryDismissEvent extends ISDKEvent {
+  eventName: SDKEventName.PaymentEntryDismiss;
+}
+
+export interface PaymentEntryErrorEvent extends ISDKEvent {
+  eventName: SDKEventName.PaymentEntryError;
+  properties: {
+    stripeErrorCode: string | null;
+    stripeErrorMessage: string | null;
+  };
+}
+
+export interface PaymentEntrySubmitEvent extends ISDKEvent {
+  eventName: SDKEventName.PaymentEntrySubmit;
+  properties: {
+    selectedPaymentMethod: string | null;
+  };
 }
 
 export interface PurchaseSuccessfulImpressionEvent extends ISDKEvent {

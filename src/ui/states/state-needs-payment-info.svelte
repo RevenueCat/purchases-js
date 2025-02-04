@@ -7,6 +7,7 @@
     StripeElementLocale,
     StripeElements,
     StripeError,
+    StripePaymentElementChangeEvent,
   } from "@stripe/stripe-js";
   import { loadStripe } from "@stripe/stripe-js";
   import ModalSection from "../modal-section.svelte";
@@ -31,7 +32,11 @@
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import { type IEventsTracker } from "../../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "../constants";
-  import { createPaymentEntryImpressionEvent } from "../../behavioural-events/event-helpers";
+  import {
+    createPaymentEntryErrorEvent,
+    createPaymentEntrySubmitEvent,
+  } from "../../behavioural-events/event-helpers";
+  import { SDKEventName } from "../../behavioural-events/sdk-events";
 
   export let onClose: any;
   export let onContinue: any;
@@ -48,6 +53,7 @@
   let safeElements: StripeElements;
   let modalErrorMessage: string | undefined = undefined;
   let isPaymentInfoComplete = false;
+  let selectedPaymentMethod: string | undefined = undefined;
 
   const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
 
@@ -59,8 +65,9 @@
   }
 
   onMount(async () => {
-    const event = createPaymentEntryImpressionEvent();
-    eventsTracker.trackSDKEvent(event);
+    eventsTracker.trackSDKEvent({
+      eventName: SDKEventName.PaymentEntryImpression,
+    });
 
     const stripePk = paymentInfoCollectionMetadata.data.publishable_api_key;
     const stripeAcctId = paymentInfoCollectionMetadata.data.stripe_account_id;
@@ -74,8 +81,18 @@
     });
   });
 
+  const handleClose = () => {
+    eventsTracker.trackSDKEvent({
+      eventName: SDKEventName.PaymentEntryDismiss,
+    });
+    onClose();
+  };
+
   const handleContinue = async () => {
     if (processing || !stripe || !safeElements || !clientSecret) return;
+
+    const event = createPaymentEntrySubmitEvent(selectedPaymentMethod);
+    eventsTracker.trackSDKEvent(event);
 
     processing = true;
 
@@ -98,6 +115,11 @@
     }
 
     if (error) {
+      const event = createPaymentEntryErrorEvent(
+        error.code ?? null,
+        error.message ?? null,
+      );
+      eventsTracker.trackSDKEvent(event);
       processing = false;
       if (shouldShowErrorModal(error)) {
         modalErrorMessage = error.message;
@@ -139,7 +161,7 @@
   const stripeElementLocale = (translator.locale ||
     translator.fallbackLocale) as StripeElementLocale;
 
-  type OnChangeEvent = CustomEvent<{ complete: boolean }>;
+  type OnChangeEvent = CustomEvent<StripePaymentElementChangeEvent>;
 
   /**
    * This function converts some particular locales to the ones that stripe supports.
@@ -182,9 +204,9 @@
           />
         </div>
       </div>
-      <CloseButton on:click={onClose} />
+      <CloseButton on:click={handleClose} />
     </ModalHeader>
-    <form on:submit|preventDefault={handleContinue}>
+    <form data-testid="payment-form" on:submit|preventDefault={handleContinue}>
       <Elements
         {stripe}
         {clientSecret}
@@ -266,6 +288,7 @@
                 },
               }}
               on:change={(event: OnChangeEvent) => {
+                selectedPaymentMethod = event.detail.value.type;
                 isPaymentInfoComplete = event.detail.complete;
               }}
             />
