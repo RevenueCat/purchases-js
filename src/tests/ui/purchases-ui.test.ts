@@ -54,8 +54,71 @@ describe("PurchasesUI", () => {
   });
 
   afterEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
     vi.useRealTimers();
+  });
+
+  test("displays error when an invalid email format is submitted", async () => {
+    render(PurchasesUI, {
+      props: { ...basicProps, customerEmail: undefined },
+    });
+
+    const emailInput = screen.getByTestId("email");
+    await fireEvent.input(emailInput, { target: { value: "testest.com" } });
+    const continueButton = screen.getByText("Continue");
+    await fireEvent.click(continueButton);
+
+    expect(screen.getByText(/Email is not valid/)).toBeInTheDocument();
+  });
+
+  test("displays error when an unreachable email is submitted", async () => {
+    vi.spyOn(purchaseOperationHelperMock, "startPurchase").mockRejectedValue(
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.MissingEmailError,
+        "Email domain is not valid. Please check the email address or try a different one.",
+      ),
+    );
+
+    render(PurchasesUI, {
+      props: { ...basicProps, customerEmail: undefined },
+    });
+
+    const emailInput = screen.getByTestId("email");
+    await fireEvent.input(emailInput, {
+      target: { value: "test@unrechable.com" },
+    });
+    const continueButton = screen.getByText("Continue");
+    await fireEvent.click(continueButton);
+
+    expect(screen.getByText(/Email domain is not valid/)).toBeInTheDocument();
+  });
+
+  test("clears email errors after they are fixed", async () => {
+    vi.spyOn(purchaseOperationHelperMock, "startPurchase").mockRejectedValue(
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.MissingEmailError,
+        "Email domain is not valid. Please check the email address or try a different one.",
+      ),
+    );
+
+    render(PurchasesUI, {
+      props: { ...basicProps, customerEmail: undefined },
+    });
+
+    const emailInput = screen.getByTestId("email");
+    await fireEvent.input(emailInput, {
+      target: { value: "testest.com" },
+    });
+    const continueButton = screen.getByText("Continue");
+    await fireEvent.click(continueButton);
+    expect(screen.getByText(/Email is not valid/)).toBeInTheDocument();
+
+    await fireEvent.input(emailInput, {
+      target: { value: "test@test.com" },
+    });
+    await fireEvent.click(continueButton);
+
+    expect(screen.queryByText(/Email is not valid/)).not.toBeInTheDocument();
   });
 
   test("tracks the BillingEmailEntryImpression event when email has not been provided", async () => {
@@ -153,64 +216,6 @@ describe("PurchasesUI", () => {
           "Email domain is not valid. Please check the email address or try a different one.",
       },
     });
-  });
-
-  test("displays error when an invalid email format is submitted", async () => {
-    render(PurchasesUI, {
-      props: { ...basicProps, customerEmail: undefined },
-    });
-
-    const emailInput = screen.getByTestId("email");
-    await fireEvent.input(emailInput, { target: { value: "testest.com" } });
-    const continueButton = screen.getByText("Continue");
-    await fireEvent.click(continueButton);
-
-    expect(screen.getByText(/Email is not valid/)).toBeInTheDocument();
-  });
-
-  test("displays error when an unreachable email is submitted", async () => {
-    vi.spyOn(
-      purchaseOperationHelperMock,
-      "startPurchase",
-    ).mockRejectedValueOnce(
-      new PurchaseFlowError(
-        PurchaseFlowErrorCode.MissingEmailError,
-        "Email domain is not valid. Please check the email address or try a different one.",
-      ),
-    );
-
-    render(PurchasesUI, {
-      props: { ...basicProps, customerEmail: undefined },
-    });
-
-    const emailInput = screen.getByTestId("email");
-    await fireEvent.input(emailInput, {
-      target: { value: "test@unrechable.com" },
-    });
-    const continueButton = screen.getByText("Continue");
-    await fireEvent.click(continueButton);
-
-    expect(screen.getByText(/Email domain is not valid/)).toBeInTheDocument();
-  });
-
-  test.only("clears email errors after they are fixed", async () => {
-    render(PurchasesUI, {
-      props: { ...basicProps, customerEmail: undefined },
-    });
-
-    const emailInput = screen.getByTestId("email");
-    await fireEvent.input(emailInput, {
-      target: { value: "testest.com" },
-    });
-    const continueButton = screen.getByText("Continue");
-    await fireEvent.click(continueButton);
-    expect(screen.getByText(/Email is not valid/)).toBeInTheDocument();
-
-    await fireEvent.input(emailInput, {
-      target: { value: "test@test.com" },
-    });
-    await fireEvent.click(continueButton);
-    expect(screen.queryByText(/Email is not valid/)).not.toBeInTheDocument();
   });
 
   test("tracks the BillingEmailEntryError event when an unreachable email is submitted", async () => {
