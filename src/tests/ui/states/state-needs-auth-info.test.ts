@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom";
 import { fireEvent, render, screen } from "@testing-library/svelte";
-import { describe, test, expect, afterEach, vi, beforeEach } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 import StateNeedsAuthInfo from "../../../ui/states/state-needs-auth-info.svelte";
 import { SDKEventName } from "../../../behavioural-events/sdk-events";
 import { createEventsTrackerMock } from "../../mocks/events-tracker-mock-provider";
@@ -20,15 +20,6 @@ const basicProps = {
 };
 
 describe("PurchasesUI", () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-
-  afterEach(() => {
-    vi.clearAllMocks();
-    vi.useRealTimers();
-  });
-
   test("displays error when an invalid email format is submitted", async () => {
     render(StateNeedsAuthInfo, {
       props: { ...basicProps, customerEmail: undefined },

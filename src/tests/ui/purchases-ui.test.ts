@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom";
 import { fireEvent, render, screen } from "@testing-library/svelte";
-import { describe, test, expect, afterEach, vi, beforeEach } from "vitest";
+import { describe, test, expect, afterEach, vi } from "vitest";
 import PurchasesUI from "../../ui/rcb-ui.svelte";
 import {
   brandingInfo,
@@ -43,13 +43,8 @@ const basicProps = {
 };
 
 describe("PurchasesUI", () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-
   afterEach(() => {
     vi.clearAllMocks();
-    vi.useRealTimers();
   });
 
   test("displays error when an unreachable email is submitted", async () => {

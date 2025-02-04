@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom";
 import { render } from "@testing-library/svelte";
-import { describe, test, expect, afterEach, vi, beforeEach } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 import StateNeedsPaymentInfo from "../../../ui/states/state-needs-payment-info.svelte";
 import {
   brandingInfo,

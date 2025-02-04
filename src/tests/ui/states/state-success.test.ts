@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom";
 import { fireEvent, render, screen } from "@testing-library/svelte";
-import { describe, test, expect, afterEach, vi, beforeEach } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 import StateSuccess from "../../../ui/states/state-success.svelte";
 import { brandingInfo, rcPackage } from "../../../stories/fixtures";
 import { SDKEventName } from "../../../behavioural-events/sdk-events";
@@ -20,15 +20,6 @@ const defaultContext = new Map(
 );
 
 describe("PurchasesUI", () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-
-  afterEach(() => {
-    vi.clearAllMocks();
-    vi.useRealTimers();
-  });
-
   function renderComponent() {
     render(StateSuccess, {
       props: basicProps,
