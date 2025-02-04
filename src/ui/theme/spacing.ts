@@ -7,35 +7,35 @@ export interface Spacing {
 
 export const DEFAULT_SPACING: Spacing = {
   outerPadding: {
-    mobile: "clamp(21px, 5.6vw, 24px)",
-    desktop: "clamp(24px, 9.44vw, 80px)",
+    mobile: "clamp(1.3125rem, 5.6vw, 1.5rem)",
+    desktop: "clamp(1.5rem, 9.44vw, 5rem)",
   },
   outerPaddingSmall: {
-    mobile: "clamp(12px, 4.2vw, 16px)",
-    desktop: "clamp(24px, 9.44vw, 80px)",
+    mobile: "clamp(0.75rem, 4.2vw, 1rem)",
+    desktop: "clamp(1.5rem, 9.44vw, 5rem)",
   },
   gapSmall: {
-    mobile: "4px",
-    desktop: "6px",
+    mobile: "0.25rem",
+    desktop: "0.375rem",
   },
   gapMedium: {
-    mobile: "8px",
-    desktop: "12px",
+    mobile: "0.5rem",
+    desktop: "0.75rem",
   },
   gapLarge: {
-    mobile: "12px",
-    desktop: "12px",
+    mobile: "0.75rem",
+    desktop: "0.75rem",
   },
   gapXLarge: {
-    mobile: "16px",
-    desktop: "32px",
+    mobile: "1rem",
+    desktop: "2rem",
   },
   gapXXLarge: {
-    mobile: "20px",
-    desktop: "36px",
+    mobile: "1.25rem",
+    desktop: "2.25rem",
   },
   inputHeight: {
-    mobile: "48px",
-    desktop: "48px",
+    mobile: "3rem",
+    desktop: "3rem",
   },
 };
