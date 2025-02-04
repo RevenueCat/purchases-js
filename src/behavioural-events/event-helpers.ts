@@ -5,7 +5,7 @@ import type {
   PurchaseSuccessfulDismissEvent,
 } from "./sdk-events";
 import {
-  TrackedEventName,
+  SDKEventName,
   type BillingEmailEntryErrorEvent,
   type CheckoutSessionStartEvent,
   type SDKInitializedEvent,
@@ -18,7 +18,7 @@ import type { RedemptionInfo } from "../entities/redemption-info";
 
 export function createSDKInitializedEvent(): SDKInitializedEvent {
   return {
-    eventName: TrackedEventName.SDKInitialized,
+    eventName: SDKEventName.SDKInitialized,
     properties: {
       sdkVersion: VERSION,
     },
@@ -30,7 +30,7 @@ export function createBillingEmailEntryErrorEvent(
   errorMessage: string,
 ): BillingEmailEntryErrorEvent {
   return {
-    eventName: TrackedEventName.BillingEmailEntryError,
+    eventName: SDKEventName.BillingEmailEntryError,
     properties: {
       errorCode: errorCode,
       errorMessage: errorMessage,
@@ -45,7 +45,7 @@ export function createCheckoutSessionStartEvent(
   customerEmail: string | undefined,
 ): CheckoutSessionStartEvent {
   return {
-    eventName: TrackedEventName.CheckoutSessionStart,
+    eventName: SDKEventName.CheckoutSessionStart,
     properties: {
       customizationOptions: appearance
         ? {
@@ -75,7 +75,7 @@ export function createCheckoutSessionEndFinishedEvent(
   redemptionInfo: RedemptionInfo | null,
 ): CheckoutSessionFinishedEvent {
   return {
-    eventName: TrackedEventName.CheckoutSessionEnd,
+    eventName: SDKEventName.CheckoutSessionEnd,
     properties: {
       outcome: "finished",
       withRedemptionInfo: Boolean(redemptionInfo),
@@ -85,7 +85,7 @@ export function createCheckoutSessionEndFinishedEvent(
 
 export function createCheckoutSessionEndClosedEvent(): CheckoutSessionClosedEvent {
   return {
-    eventName: TrackedEventName.CheckoutSessionEnd,
+    eventName: SDKEventName.CheckoutSessionEnd,
     properties: {
       outcome: "closed",
     },
@@ -97,7 +97,7 @@ export function createCheckoutSessionEndErroredEvent(
   errorMessage: string,
 ): CheckoutSessionErroredEvent {
   return {
-    eventName: TrackedEventName.CheckoutSessionEnd,
+    eventName: SDKEventName.CheckoutSessionEnd,
     properties: {
       outcome: "errored",
       errorCode: errorCode,
@@ -110,7 +110,7 @@ export function createPurchaseSuccessfulDismissEvent(
   buttonPressed: "go_back_to_app" | "close",
 ): PurchaseSuccessfulDismissEvent {
   return {
-    eventName: TrackedEventName.PurchaseSuccessfulDismiss,
+    eventName: SDKEventName.PurchaseSuccessfulDismiss,
     properties: {
       buttonPressed: buttonPressed,
     },

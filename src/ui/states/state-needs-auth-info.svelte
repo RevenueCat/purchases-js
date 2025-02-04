@@ -17,7 +17,7 @@
   import { eventsTrackerContextKey } from "../constants";
   import { type IEventsTracker } from "../../behavioural-events/events-tracker";
   import { createBillingEmailEntryErrorEvent } from "../../behavioural-events/event-helpers";
-  import { TrackedEventName } from "../../behavioural-events/sdk-events";
+  import { SDKEventName } from "../../behavioural-events/sdk-events";
 
   export let onContinue: any;
   export let onClose: () => void;
@@ -26,7 +26,7 @@
 
   function onCloseHandle() {
     eventsTracker.trackSDKEvent({
-      eventName: TrackedEventName.BillingEmailEntryDismiss,
+      eventName: SDKEventName.BillingEmailEntryDismiss,
     });
     onClose();
   }
@@ -44,7 +44,7 @@
       eventsTracker.trackSDKEvent(event);
     } else {
       eventsTracker.trackSDKEvent({
-        eventName: TrackedEventName.BillingEmailEntrySubmit,
+        eventName: SDKEventName.BillingEmailEntrySubmit,
       });
       onContinue({ email });
     }
@@ -52,7 +52,7 @@
 
   onMount(() => {
     eventsTracker.trackSDKEvent({
-      eventName: TrackedEventName.BillingEmailEntryImpression,
+      eventName: SDKEventName.BillingEmailEntryImpression,
     });
   });
 

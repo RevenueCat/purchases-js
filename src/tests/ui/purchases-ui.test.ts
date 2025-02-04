@@ -15,7 +15,7 @@ import {
   type PurchaseOperationHelper,
 } from "../../helpers/purchase-operation-helper";
 import type { PurchaseResponse } from "../../networking/responses/purchase-response";
-import { TrackedEventName } from "../../behavioural-events/sdk-events";
+import { SDKEventName } from "../../behavioural-events/sdk-events";
 
 const eventsTrackerMock: IEventsTracker = {
   updateUser: vi.fn(),
@@ -62,7 +62,7 @@ describe("PurchasesUI", () => {
     render(PurchasesUI, { props: { ...basicProps, customerEmail: null } });
 
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: TrackedEventName.BillingEmailEntryImpression,
+      eventName: SDKEventName.BillingEmailEntryImpression,
     });
   });
 
@@ -72,7 +72,7 @@ describe("PurchasesUI", () => {
     });
 
     expect(eventsTrackerMock.trackSDKEvent).not.toHaveBeenCalledWith({
-      eventName: TrackedEventName.BillingEmailEntryImpression,
+      eventName: SDKEventName.BillingEmailEntryImpression,
     });
   });
 
@@ -85,7 +85,7 @@ describe("PurchasesUI", () => {
     await fireEvent.click(continueButton);
 
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: TrackedEventName.BillingEmailEntrySubmit,
+      eventName: SDKEventName.BillingEmailEntrySubmit,
     });
   });
 
@@ -98,7 +98,7 @@ describe("PurchasesUI", () => {
     await fireEvent.click(closeButton);
 
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: TrackedEventName.BillingEmailEntryDismiss,
+      eventName: SDKEventName.BillingEmailEntryDismiss,
     });
     expect(basicProps.onClose).toHaveBeenCalled();
   });
@@ -114,7 +114,7 @@ describe("PurchasesUI", () => {
     await fireEvent.click(continueButton);
 
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: TrackedEventName.BillingEmailEntryError,
+      eventName: SDKEventName.BillingEmailEntryError,
       properties: {
         errorCode: null,
         errorMessage:
@@ -146,7 +146,7 @@ describe("PurchasesUI", () => {
     await fireEvent.click(continueButton);
 
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: TrackedEventName.BillingEmailEntryError,
+      eventName: SDKEventName.BillingEmailEntryError,
       properties: {
         errorCode: 4,
         errorMessage:
@@ -211,7 +211,7 @@ describe("PurchasesUI", () => {
 
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith(
       expect.objectContaining({
-        eventName: TrackedEventName.BillingEmailEntryError,
+        eventName: SDKEventName.BillingEmailEntryError,
       }),
     );
   });
@@ -238,7 +238,7 @@ describe("PurchasesUI", () => {
 
     expect(eventsTrackerMock.trackSDKEvent).not.toHaveBeenCalledWith(
       expect.objectContaining({
-        eventName: TrackedEventName.BillingEmailEntryError,
+        eventName: SDKEventName.BillingEmailEntryError,
       }),
     );
   });
@@ -264,7 +264,7 @@ describe("PurchasesUI", () => {
     await vi.advanceTimersToNextTimerAsync();
 
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: TrackedEventName.PurchaseSuccessfulImpression,
+      eventName: SDKEventName.PurchaseSuccessfulImpression,
     });
   });
 
@@ -288,7 +288,7 @@ describe("PurchasesUI", () => {
     await fireEvent.click(continueButton);
 
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: TrackedEventName.PurchaseSuccessfulDismiss,
+      eventName: SDKEventName.PurchaseSuccessfulDismiss,
       properties: {
         buttonPressed: "close",
       },
@@ -315,7 +315,7 @@ describe("PurchasesUI", () => {
     await fireEvent.click(continueButton);
 
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: TrackedEventName.PurchaseSuccessfulDismiss,
+      eventName: SDKEventName.PurchaseSuccessfulDismiss,
       properties: {
         buttonPressed: "go_back_to_app",
       },
