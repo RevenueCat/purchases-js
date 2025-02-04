@@ -10,7 +10,7 @@
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import { TrackedEventName } from "../../behavioural-events/sdk-events";
-  import { IEventsTracker } from "../../behavioural-events/events-tracker";
+  import { type IEventsTracker } from "../../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "../constants";
 
   export let productDetails: Product | null = null;

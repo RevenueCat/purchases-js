@@ -34,7 +34,7 @@
     englishLocale,
     translatorContextKey,
   } from "./localization/constants";
-  import { IEventsTracker } from "../behavioural-events/events-tracker";
+  import { type IEventsTracker } from "../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "./constants";
   import { createBillingEmailEntryErrorEvent } from "../behavioural-events/event-helpers";
 

@@ -15,7 +15,7 @@
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import { eventsTrackerContextKey } from "../constants";
-  import { IEventsTracker } from "../../behavioural-events/events-tracker";
+  import { type IEventsTracker } from "../../behavioural-events/events-tracker";
   import { createBillingEmailEntryErrorEvent } from "../../behavioural-events/event-helpers";
   import { TrackedEventName } from "../../behavioural-events/sdk-events";
 
