@@ -1,8 +1,7 @@
 import { v4 as uuid } from "uuid";
-import { RC_ENDPOINT } from "../helpers/constants";
+import { RC_ANALYTICS_ENDPOINT } from "../helpers/constants";
 import { HttpMethods } from "msw";
 import { getHeaders } from "../networking/http-client";
-import { defaultHttpConfig, type HttpConfig } from "../entities/http-config";
 import { FlushManager } from "./flush-manager";
 import { Logger } from "../helpers/logger";
 import { type EventProperties, Event } from "./event";
@@ -19,7 +18,6 @@ export interface TrackEventProps {
 export interface EventsTrackerProps {
   apiKey: string;
   appUserId: string;
-  httpConfig?: HttpConfig;
 }
 
 export interface IEventsTracker {
@@ -42,10 +40,8 @@ export default class EventsTracker implements IEventsTracker {
   constructor(props: EventsTrackerProps) {
     Logger.debugLog(`Events tracker created for traceId ${this.traceId}`);
 
-    const httpConfig = props.httpConfig || defaultHttpConfig;
-
     this.apiKey = props.apiKey;
-    this.eventsUrl = `${httpConfig.proxyURL || RC_ENDPOINT}/v1/events`;
+    this.eventsUrl = `${RC_ANALYTICS_ENDPOINT}/v1/events`;
     this.appUserId = props.appUserId;
     this.flushManager = new FlushManager(
       MIN_INTERVAL_RETRY,
