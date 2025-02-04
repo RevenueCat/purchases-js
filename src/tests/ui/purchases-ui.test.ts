@@ -2,7 +2,6 @@ import "@testing-library/jest-dom";
 import { fireEvent, render, screen } from "@testing-library/svelte";
 import { describe, test, expect, afterEach, vi, beforeEach } from "vitest";
 import PurchasesUI from "../../ui/rcb-ui.svelte";
-import type { IEventsTracker } from "../../behavioural-events/events-tracker";
 import {
   brandingInfo,
   rcPackage,
@@ -16,14 +15,9 @@ import {
 } from "../../helpers/purchase-operation-helper";
 import type { PurchaseResponse } from "../../networking/responses/purchase-response";
 import { SDKEventName } from "../../behavioural-events/sdk-events";
+import { createEventsTrackerMock } from "../mocks/events-tracker-mock-provider";
 
-const eventsTrackerMock: IEventsTracker = {
-  updateUser: vi.fn(),
-  generateCheckoutSessionId: vi.fn(),
-  trackSDKEvent: vi.fn(),
-  trackExternalEvent: vi.fn(),
-  dispose: vi.fn(),
-} as unknown as IEventsTracker;
+const eventsTrackerMock = createEventsTrackerMock();
 
 const purchaseOperationHelperMock: PurchaseOperationHelper = {
   startPurchase: async () =>
