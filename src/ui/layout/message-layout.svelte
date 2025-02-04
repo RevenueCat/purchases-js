@@ -60,17 +60,6 @@
     justify-content: center;
   }
 
-  @media (min-width: 768px) {
-    .message-layout-content {
-      justify-content: flex-start;
-      flex-grow: 0;
-    }
-
-    .message-layout-footer {
-      margin-top: var(--rc-spacing-gapXXLarge-desktop);
-    }
-  }
-
   .rcb-modal-message {
     width: 100%;
     min-height: 160px;
@@ -93,7 +82,21 @@
     font: var(--rc-text-body1-mobile);
   }
 
+  @media (max-width: 767px) {
+    .message-layout {
+      flex-grow: 1;
+    }
+  }
+
   @media (min-width: 768px) {
+    .message-layout-content {
+      justify-content: flex-start;
+      flex-grow: 0;
+    }
+
+    .message-layout-footer {
+      margin-top: var(--rc-spacing-gapXXLarge-desktop);
+    }
     .rcb-modal-message[data-has-title="false"] {
       margin-top: var(--rc-spacing-gapXXLarge-desktop);
     }

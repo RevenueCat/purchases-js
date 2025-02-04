@@ -29,7 +29,7 @@
   let paymentMetadata: any;
 
   let { Story } = defineMeta({
-    title: "Purchase flow",
+    title: "Purchase flow (Mobile)",
     args: defaultArgs,
     parameters: {},
     loaders: [
@@ -61,17 +61,12 @@
 {/snippet}
 
 <Story
-  name="Email Input (Mobile)"
+  name="Email Input"
   args={{ currentView: "needs-auth-info" }}
   parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
 <Story
-  name="Email Input (Desktop)"
-  args={{ currentView: "needs-auth-info" }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
-/>
-<Story
-  name="Email Input (with Sandbox Banner) (Mobile)"
+  name="Email Input (with Sandbox Banner)"
   args={{
     currentView: "needs-auth-info",
     isSandbox: true,
@@ -79,15 +74,7 @@
   parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
 <Story
-  name="Email Input (with Sandbox Banner) (Desktop)"
-  args={{
-    currentView: "needs-auth-info",
-    isSandbox: true,
-  }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
-/>
-<Story
-  name="Checkout (Mobile)"
+  name="Checkout"
   args={{
     ...defaultArgs,
     currentView: "needs-payment-info",
@@ -95,45 +82,23 @@
   parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
 <Story
-  name="Checkout (Desktop)"
-  args={{
-    ...defaultArgs,
-    currentView: "needs-payment-info",
-  }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
-/>
-<Story
-  name="Loading (Mobile)"
+  name="Loading"
   args={{
     currentView: "loading",
   }}
   parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
 <Story
-  name="Loading (Desktop)"
-  args={{
-    currentView: "loading",
-  }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
-/>
-<Story
-  name="Payment complete (Mobile)"
+  name="Payment complete"
   args={{
     currentView: "success",
   }}
   parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
 <Story
-  name="Payment failed (Mobile)"
+  name="Payment failed"
   args={{
     currentView: "error",
   }}
   parameters={{ viewport: { defaultViewport: "mobile" } }}
-/>
-<Story
-  name="Payment failed (Desktop)"
-  args={{
-    currentView: "error",
-  }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
