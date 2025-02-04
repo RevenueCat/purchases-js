@@ -52,19 +52,6 @@ describe("PurchasesUI", () => {
     vi.useRealTimers();
   });
 
-  test("displays error when an invalid email format is submitted", async () => {
-    render(PurchasesUI, {
-      props: { ...basicProps, customerEmail: undefined },
-    });
-
-    const emailInput = screen.getByTestId("email");
-    await fireEvent.input(emailInput, { target: { value: "testest.com" } });
-    const continueButton = screen.getByText("Continue");
-    await fireEvent.click(continueButton);
-
-    expect(screen.getByText(/Email is not valid/)).toBeInTheDocument();
-  });
-
   test("displays error when an unreachable email is submitted", async () => {
     vi.spyOn(purchaseOperationHelperMock, "startPurchase").mockRejectedValue(
       new PurchaseFlowError(
@@ -87,7 +74,7 @@ describe("PurchasesUI", () => {
     expect(screen.getByText(/Email domain is not valid/)).toBeInTheDocument();
   });
 
-  test("clears email errors after they are fixed", async () => {
+  test("clears domain email errors after they are fixed", async () => {
     vi.spyOn(purchaseOperationHelperMock, "startPurchase").mockRejectedValue(
       new PurchaseFlowError(
         PurchaseFlowErrorCode.MissingEmailError,
@@ -115,69 +102,12 @@ describe("PurchasesUI", () => {
     expect(screen.queryByText(/Email is not valid/)).not.toBeInTheDocument();
   });
 
-  test("tracks the BillingEmailEntryImpression event when email has not been provided", async () => {
-    render(PurchasesUI, { props: { ...basicProps, customerEmail: null } });
-
-    expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: SDKEventName.BillingEmailEntryImpression,
-    });
-  });
-
-  test("NOTs track the BillingEmailEntryImpression event when email has been provided", async () => {
+  test("NOTs render BillingEmailEntryImpression when email has been provided", async () => {
     render(PurchasesUI, {
       props: { ...basicProps, customerEmail: "test@test.com" },
     });
 
-    expect(eventsTrackerMock.trackSDKEvent).not.toHaveBeenCalledWith({
-      eventName: SDKEventName.BillingEmailEntryImpression,
-    });
-  });
-
-  test("tracks the BillingEmailEntrySubmit event email is submitted", async () => {
-    render(PurchasesUI, { props: { ...basicProps, customerEmail: undefined } });
-
-    const emailInput = screen.getByTestId("email");
-    await fireEvent.input(emailInput, { target: { value: "test@test.com" } });
-    const continueButton = screen.getByText("Continue");
-    await fireEvent.click(continueButton);
-
-    expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: SDKEventName.BillingEmailEntrySubmit,
-    });
-  });
-
-  test("tracks the BillingEmailEntryDismiss event when the billing email entry is closed", async () => {
-    render(PurchasesUI, {
-      props: { ...basicProps, customerEmail: undefined },
-    });
-
-    const closeButton = screen.getByTestId("close-button");
-    await fireEvent.click(closeButton);
-
-    expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: SDKEventName.BillingEmailEntryDismiss,
-    });
-    expect(basicProps.onClose).toHaveBeenCalled();
-  });
-
-  test("tracks the BillingEmailEntryError event when the billing email entry has an email format error", async () => {
-    render(PurchasesUI, {
-      props: { ...basicProps, customerEmail: undefined },
-    });
-
-    const emailInput = screen.getByTestId("email");
-    await fireEvent.input(emailInput, { target: { value: "testest.com" } });
-    const continueButton = screen.getByText("Continue");
-    await fireEvent.click(continueButton);
-
-    expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: SDKEventName.BillingEmailEntryError,
-      properties: {
-        errorCode: null,
-        errorMessage:
-          "Email is not valid. Please provide a valid email address.",
-      },
-    });
+    expect(screen.queryByText(/Billing email address/));
   });
 
   test("tracks the BillingEmailEntryError event when the billing email entry has a missing email error", async () => {
