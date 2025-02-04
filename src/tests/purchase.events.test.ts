@@ -19,6 +19,9 @@ describe("Purchases.configure()", () => {
 
   beforeEach(async () => {
     vi.spyOn(Logger, "debugLog").mockImplementation(() => undefined);
+    vi.mock("../behavioural-events/event-context", () => ({
+      buildEventContext: vi.fn().mockReturnValue({}),
+    }));
     vi.useFakeTimers();
     vi.setSystemTime(date);
     configurePurchases();
@@ -42,6 +45,7 @@ describe("Purchases.configure()", () => {
             event_name: "sdk_initialized",
             timestamp_ms: date.getTime(),
             app_user_id: "someAppUserId",
+            context: {},
             properties: {
               checkout_session_id: null,
               sdk_version: "0.15.1",

@@ -1,5 +1,6 @@
 import { camelToUnderscore } from "../helpers/camel-to-underscore";
 import { v4 as uuidv4 } from "uuid";
+import { buildEventContext } from "./event-context";
 
 export type EventData = {
   eventName: string;
@@ -46,6 +47,7 @@ export class Event {
       type: this.EVENT_TYPE,
       event_name: this.data.eventName,
       app_user_id: this.data.appUserId,
+      context: buildEventContext(),
       properties: {
         ...(camelToUnderscore(this.data.properties) as EventProperties),
         trace_id: this.data.traceId,
