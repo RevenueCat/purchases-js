@@ -35,10 +35,10 @@
 
   $: email = "";
   $: errorMessage = lastError?.message || "";
-  $: inputClass = lastError?.message || errorMessage ? "error" : "";
+  $: inputClass = (lastError?.message ?? errorMessage) !== "" ? "error" : "";
 
   const handleContinue = async () => {
-    errorMessage ||= validateEmail(email) || "";
+    errorMessage = validateEmail(email) ?? "";
     if (errorMessage !== "") {
       const event = createBillingEmailEntryErrorEvent(null, errorMessage);
       eventsTracker.trackSDKEvent(event);
