@@ -14,7 +14,7 @@
     buildPurchaseResponse,
     SetupMode,
   } from "./utils/purchase-response-builder";
-  import { type PurchaseResponse } from "../networking/responses/purchase-response";
+  import type { PurchaseResponse } from "../networking/responses/purchase-response";
 
   const defaultArgs = {
     context: {},
