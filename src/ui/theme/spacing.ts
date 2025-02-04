@@ -28,7 +28,7 @@ export const DEFAULT_SPACING: Spacing = {
   },
   gapXLarge: {
     mobile: "1rem",
-    desktop: "2rem",
+    desktop: "1.5rem",
   },
   gapXXLarge: {
     mobile: "1.25rem",
