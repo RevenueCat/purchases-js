@@ -29,6 +29,9 @@
   import Localized from "../localization/localized.svelte";
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
+  import { type IEventsTracker } from "../../behavioural-events/events-tracker";
+  import { eventsTrackerContextKey } from "../constants";
+  import { createPaymentEntryImpressionEvent } from "../../behavioural-events/event-helpers";
 
   export let onClose: any;
   export let onContinue: any;
@@ -46,6 +49,8 @@
   let modalErrorMessage: string | undefined = undefined;
   let isPaymentInfoComplete = false;
 
+  const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
+
   $: {
     // @ts-ignore
     if (elements && elements._elements.length > 0) {
@@ -54,6 +59,9 @@
   }
 
   onMount(async () => {
+    const event = createPaymentEntryImpressionEvent();
+    eventsTracker.trackSDKEvent(event);
+
     const stripePk = paymentInfoCollectionMetadata.data.publishable_api_key;
     const stripeAcctId = paymentInfoCollectionMetadata.data.stripe_account_id;
 

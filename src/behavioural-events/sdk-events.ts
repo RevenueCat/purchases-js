@@ -11,6 +11,7 @@ export type SDKEvent =
   | BillingEmailEntrySubmitEvent
   | BillingEmailEntrySuccessEvent
   | BillingEmailEntryErrorEvent
+  | PaymentEntryImpressionEvent
   | PurchaseSuccessfulImpressionEvent
   | PurchaseSuccessfulDismissEvent;
 
@@ -23,6 +24,7 @@ export enum SDKEventName {
   BillingEmailEntrySubmit = "billing_email_entry_submit",
   BillingEmailEntrySuccess = "billing_email_entry_success",
   BillingEmailEntryError = "billing_email_entry_error",
+  PaymentEntryImpression = "payment_entry_impression",
   PurchaseSuccessfulImpression = "purchase_successful_impression",
   PurchaseSuccessfulDismiss = "purchase_successful_dismiss",
 }
@@ -110,6 +112,10 @@ export interface BillingEmailEntryErrorEvent extends ISDKEvent {
     errorCode: number | null;
     errorMessage: string;
   };
+}
+
+export interface PaymentEntryImpressionEvent extends ISDKEvent {
+  eventName: SDKEventName.PaymentEntryImpression;
 }
 
 export interface PurchaseSuccessfulImpressionEvent extends ISDKEvent {

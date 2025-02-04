@@ -3,6 +3,7 @@ import type {
   CheckoutSessionClosedEvent,
   CheckoutSessionErroredEvent,
   PurchaseSuccessfulDismissEvent,
+  PaymentEntryImpressionEvent,
 } from "./sdk-events";
 import {
   SDKEventName,
@@ -103,6 +104,12 @@ export function createCheckoutSessionEndErroredEvent(
       errorCode: errorCode,
       errorMessage: errorMessage,
     },
+  };
+}
+
+export function createPaymentEntryImpressionEvent(): PaymentEntryImpressionEvent {
+  return {
+    eventName: SDKEventName.PaymentEntryImpression,
   };
 }
 
