@@ -1,3 +1,4 @@
+import { eventsTrackerContextKey } from "../ui/constants";
 import {
   type Product,
   ProductType,
@@ -116,5 +117,15 @@ export const purchaseResponse = {
     client_secret: "test_client_secret",
     publishable_api_key: "test_publishable_api_key",
     stripe_account_id: "test_stripe_account_id",
+  },
+};
+
+export const defaultContext = {
+  [eventsTrackerContextKey]: {
+    trackExternalEvent: () => {},
+    trackSDKEvent: () => {},
+    updateUser: () => Promise.resolve(),
+    generateCheckoutSessionId: () => {},
+    dispose: () => {},
   },
 };

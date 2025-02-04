@@ -221,7 +221,10 @@ describe("Purchases.generateRevenueCatAnonymousAppUserId()", () => {
 
   test("allows tracking events", () => {
     const purchases = configurePurchases();
-    const trackEventSpy = vi.spyOn(purchases["eventsTracker"], "trackEvent");
+    const trackEventSpy = vi.spyOn(
+      purchases["eventsTracker"],
+      "trackExternalEvent",
+    );
     purchases._trackEvent({
       eventName: "test_event",
       properties: {

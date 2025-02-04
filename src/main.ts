@@ -256,7 +256,7 @@ export class Purchases {
     this.backend = new Backend(this._API_KEY, httpConfig);
     this.purchaseOperationHelper = new PurchaseOperationHelper(this.backend);
     const sdkInitializedEvent = createSDKInitializedEvent();
-    this.eventsTracker.trackEvent(sdkInitializedEvent);
+    this.eventsTracker.trackSDKEvent(sdkInitializedEvent);
   }
 
   /**
@@ -562,7 +562,7 @@ export class Purchases {
       purchaseOptionToUse,
       customerEmail,
     );
-    this.eventsTracker.trackEvent(event);
+    this.eventsTracker.trackSDKEvent(event);
 
     return new Promise((resolve, reject) => {
       mount(RCPurchasesUI, {
@@ -574,7 +574,7 @@ export class Purchases {
           customerEmail,
           onFinished: async (redemptionInfo: RedemptionInfo | null) => {
             const event = createCheckoutSessionEndFinishedEvent(redemptionInfo);
-            this.eventsTracker.trackEvent(event);
+            this.eventsTracker.trackSDKEvent(event);
             Logger.debugLog("Purchase finished");
             certainHTMLTarget.innerHTML = "";
             // TODO: Add info about transaction in result.
@@ -586,7 +586,7 @@ export class Purchases {
           },
           onClose: () => {
             const event = createCheckoutSessionEndClosedEvent();
-            this.eventsTracker.trackEvent(event);
+            this.eventsTracker.trackSDKEvent(event);
             certainHTMLTarget.innerHTML = "";
             Logger.debugLog("Purchase cancelled by user");
             reject(new PurchasesError(ErrorCode.UserCancelledError));
@@ -596,7 +596,7 @@ export class Purchases {
               e.errorCode,
               e.message,
             );
-            this.eventsTracker.trackEvent(event);
+            this.eventsTracker.trackSDKEvent(event);
             certainHTMLTarget.innerHTML = "";
             reject(PurchasesError.getForPurchasesFlowError(e));
           },
@@ -716,6 +716,6 @@ export class Purchases {
    * @internal
    */
   public _trackEvent(props: TrackEventProps): void {
-    this.eventsTracker.trackEvent(props);
+    this.eventsTracker.trackExternalEvent(props);
   }
 }

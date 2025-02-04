@@ -7,7 +7,7 @@
   import ProcessingAnimation from "../processing-animation.svelte";
   import { validateEmail } from "../../helpers/validators";
   import { PurchaseFlowError } from "../../helpers/purchase-operation-helper";
-  import { getContext } from "svelte";
+  import { getContext, onMount } from "svelte";
   import CloseButton from "../close-button.svelte";
   import Localized from "../localization/localized.svelte";
   import { translatorContextKey } from "../localization/constants";
@@ -15,13 +15,21 @@
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import { eventsTrackerContextKey } from "../constants";
-  import { IEventsTracker } from "../../behavioural-events/events-tracker";
+  import { type IEventsTracker } from "../../behavioural-events/events-tracker";
   import { createBillingEmailEntryErrorEvent } from "../../behavioural-events/event-helpers";
+  import { TrackedEventName } from "../../behavioural-events/sdk-events";
 
   export let onContinue: any;
   export let onClose: () => void;
   export let processing: boolean;
   export let lastError: PurchaseFlowError | null;
+
+  function onCloseHandle() {
+    eventsTracker.trackSDKEvent({
+      eventName: TrackedEventName.BillingEmailEntryDismiss,
+    });
+    onClose();
+  }
 
   const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
 
@@ -33,11 +41,20 @@
     errorMessage ||= validateEmail(email) || "";
     if (errorMessage !== "") {
       const event = createBillingEmailEntryErrorEvent(null, errorMessage);
-      eventsTracker.trackEvent(event);
+      eventsTracker.trackSDKEvent(event);
     } else {
+      eventsTracker.trackSDKEvent({
+        eventName: TrackedEventName.BillingEmailEntrySubmit,
+      });
       onContinue({ email });
     }
   };
+
+  onMount(() => {
+    eventsTracker.trackSDKEvent({
+      eventName: TrackedEventName.BillingEmailEntryImpression,
+    });
+  });
 
   const translator: Translator =
     getContext(translatorContextKey) || Translator.fallback();
@@ -48,7 +65,7 @@
     <span>
       <Localized key={LocalizationKeys.StateNeedsAuthInfoEmailStepTitle} />
     </span>
-    <CloseButton on:click={onClose} />
+    <CloseButton on:click={onCloseHandle} />
   </ModalHeader>
   <form on:submit|preventDefault={handleContinue}>
     <ModalSection>

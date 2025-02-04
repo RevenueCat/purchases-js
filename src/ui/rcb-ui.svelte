@@ -34,10 +34,9 @@
     englishLocale,
     translatorContextKey,
   } from "./localization/constants";
-  import { IEventsTracker } from "../behavioural-events/events-tracker";
+  import { type IEventsTracker } from "../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "./constants";
   import { createBillingEmailEntryErrorEvent } from "../behavioural-events/event-helpers";
-  import { TrackedEventName } from "../behavioural-events/tracked-events";
 
   export let asModal = true;
   export let customerEmail: string | undefined;
@@ -99,10 +98,6 @@
         handleSubscribe();
       } else {
         state = "needs-auth-info";
-
-        eventsTracker.trackEvent({
-          eventName: TrackedEventName.BillingEmailEntryImpression,
-        });
       }
 
       return;
@@ -110,11 +105,6 @@
   });
 
   const handleClose = () => {
-    if (state === "needs-auth-info") {
-      eventsTracker.trackEvent({
-        eventName: TrackedEventName.BillingEmailEntryDismiss,
-      });
-    }
     onClose();
   };
 
@@ -169,9 +159,6 @@
       if (authInfo) {
         customerEmail = authInfo.email;
         state = "processing-auth-info";
-        eventsTracker.trackEvent({
-          eventName: TrackedEventName.BillingEmailEntrySubmit,
-        });
       }
 
       handleSubscribe();
@@ -201,11 +188,13 @@
   };
 
   const handleError = (e: PurchaseFlowError) => {
-    const event = createBillingEmailEntryErrorEvent(
-      e.getErrorCode(),
-      e.message,
-    );
-    eventsTracker.trackEvent(event);
+    if (e.getErrorCode() === PurchaseFlowErrorCode.MissingEmailError) {
+      const event = createBillingEmailEntryErrorEvent(
+        e.getErrorCode(),
+        e.message,
+      );
+      eventsTracker.trackSDKEvent(event);
+    }
 
     if (state === "processing-auth-info" && e.isRecoverable()) {
       lastError = e;

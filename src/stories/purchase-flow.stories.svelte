@@ -23,6 +23,7 @@
     product,
     purchaseFlowError,
     subscriptionOption,
+    defaultContext,
   } from "./fixtures";
   import { Translator } from "../ui/localization/translator";
   import {
@@ -36,7 +37,7 @@
     brandingInfo: brandingInfo,
     lastError: purchaseFlowError,
     onContinue: () => {},
-    context: {},
+    context: defaultContext,
   };
 
   let customLabelsTranslator = new Translator(
@@ -289,7 +290,7 @@
   name="Italian"
   args={{
     ...defaultArgs,
-    context: { [translatorContextKey]: italianTranslator },
+    context: { ...defaultContext, [translatorContextKey]: italianTranslator },
     brandingInfo: brandingInfo,
   }}
 />
@@ -297,7 +298,7 @@
   name="itUnderscoreIT"
   args={{
     ...defaultArgs,
-    context: { [translatorContextKey]: it_ITTranslator },
+    context: { ...defaultContext, [translatorContextKey]: it_ITTranslator },
     brandingInfo: brandingInfo,
   }}
 />
@@ -305,7 +306,7 @@
   name="itDashIT"
   args={{
     ...defaultArgs,
-    context: { [translatorContextKey]: itDashITTranslator },
+    context: { ...defaultContext, [translatorContextKey]: itDashITTranslator },
     brandingInfo: brandingInfo,
   }}
 />
@@ -314,7 +315,7 @@
   name="Spanish"
   args={{
     ...defaultArgs,
-    context: { [translatorContextKey]: spanishTranslator },
+    context: { ...defaultContext, [translatorContextKey]: spanishTranslator },
     brandingInfo: brandingInfo,
   }}
 />
@@ -323,7 +324,7 @@
   name="esUnderscoreES"
   args={{
     ...defaultArgs,
-    context: { [translatorContextKey]: es_ESTranslator },
+    context: { ...defaultContext, [translatorContextKey]: es_ESTranslator },
     brandingInfo: brandingInfo,
   }}
 />
@@ -332,7 +333,7 @@
   name="esDashES"
   args={{
     ...defaultArgs,
-    context: { [translatorContextKey]: esDashESTranslator },
+    context: { ...defaultContext, [translatorContextKey]: esDashESTranslator },
     brandingInfo: brandingInfo,
   }}
 />
@@ -341,7 +342,10 @@
   name="CustomLabels"
   args={{
     ...defaultArgs,
-    context: { [translatorContextKey]: customLabelsTranslator },
+    context: {
+      ...defaultContext,
+      [translatorContextKey]: customLabelsTranslator,
+    },
     brandingInfo: brandingInfo,
   }}
 />
@@ -350,7 +354,10 @@
   name="CustomLabelsIT"
   args={{
     ...defaultArgs,
-    context: { [translatorContextKey]: italianCustomLabelsTranslator },
+    context: {
+      ...defaultContext,
+      [translatorContextKey]: italianCustomLabelsTranslator,
+    },
     brandingInfo: brandingInfo,
   }}
 />
@@ -359,7 +366,10 @@
   name="CustomLabelsES"
   args={{
     ...defaultArgs,
-    context: { [translatorContextKey]: spanishCustomLabelsTranslator },
+    context: {
+      ...defaultContext,
+      [translatorContextKey]: spanishCustomLabelsTranslator,
+    },
     brandingInfo: brandingInfo,
   }}
 />

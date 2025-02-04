@@ -6,6 +6,7 @@ import { defaultHttpConfig, type HttpConfig } from "../entities/http-config";
 import { FlushManager } from "./flush-manager";
 import { Logger } from "../helpers/logger";
 import { type EventProperties, Event } from "./event";
+import type { SDKEvent } from "./sdk-events";
 
 const MIN_INTERVAL_RETRY = 2_000;
 const MAX_INTERVAL_RETRY = 60_000;
@@ -23,8 +24,9 @@ export interface EventsTrackerProps {
 
 export interface IEventsTracker {
   updateUser(appUserId: string): Promise<void>;
-  generateCheckoutSessionId(): Promise<void>;
-  trackEvent(props: TrackEventProps): void;
+  generateCheckoutSessionId(): void;
+  trackSDKEvent(props: SDKEvent): void;
+  trackExternalEvent(props: TrackEventProps): void;
   dispose(): void;
 }
 
@@ -56,11 +58,19 @@ export default class EventsTracker implements IEventsTracker {
     this.appUserId = appUserId;
   }
 
-  public async generateCheckoutSessionId() {
+  public generateCheckoutSessionId() {
     this.checkoutSessionId = uuid();
   }
 
-  public trackEvent(props: TrackEventProps): void {
+  public trackSDKEvent(props: SDKEvent): void {
+    this.trackEvent(props);
+  }
+
+  public trackExternalEvent(props: TrackEventProps): void {
+    this.trackEvent(props);
+  }
+
+  private trackEvent(props: TrackEventProps) {
     try {
       Logger.debugLog(
         `Queueing event ${props.eventName} with properties ${JSON.stringify(props)}`,
