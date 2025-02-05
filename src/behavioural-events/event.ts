@@ -47,7 +47,7 @@ export class Event {
       type: this.EVENT_TYPE,
       event_name: this.data.eventName,
       app_user_id: this.data.appUserId,
-      context: buildEventContext(),
+      context: buildEventContext() as unknown as EventProperties,
       properties: {
         ...(camelToUnderscore(this.data.properties) as EventProperties),
         trace_id: this.data.traceId,
