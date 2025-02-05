@@ -50,6 +50,7 @@ import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
 import { parseOfferingIntoVariables } from "./helpers/paywall-variables-helpers";
 import { Translator } from "./ui/localization/translator";
 import { englishLocale } from "./ui/localization/constants";
+import { autoParseUTMParams } from "./helpers/utm-params";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -524,6 +525,9 @@ export class Purchases {
 
     const localeToBeUsed = selectedLocale || defaultLocale;
 
+    const utmParamsMetadata = autoParseUTMParams();
+    const metadata = { ...utmParamsMetadata, ...(params.metadata || {}) };
+
     return new Promise((resolve, reject) => {
       mount(RCPurchasesUI, {
         target: certainHTMLTarget,
@@ -556,7 +560,7 @@ export class Purchases {
           purchaseOperationHelper: this.purchaseOperationHelper,
           asModal,
           selectedLocale: localeToBeUsed,
-          metadata: params.metadata,
+          metadata: metadata,
           defaultLocale,
         },
       });
