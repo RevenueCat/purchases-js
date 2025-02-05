@@ -10,6 +10,15 @@ interface EventsTrackerFixtures {
   eventsTracker: EventsTracker;
 }
 
+vi.mock("../../behavioural-events/event-context", () => ({
+  buildEventContext: vi.fn().mockReturnValue({
+    library: {
+      name: "purchases-js",
+      version: "1.0.0",
+    },
+  }),
+}));
+
 describe("EventsTracker", (test) => {
   const date = new Date(1988, 10, 18, 13, 37, 0);
   vi.mock("uuid", () => ({
@@ -59,6 +68,12 @@ describe("EventsTracker", (test) => {
             timestamp_ms: date.getTime(),
             event_name: "external",
             app_user_id: "someAppUserId",
+            context: {
+              library: {
+                name: "purchases-js",
+                version: "1.0.0",
+              },
+            },
             properties: {
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               checkout_session_id: null,
