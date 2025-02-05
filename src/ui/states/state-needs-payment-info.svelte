@@ -289,8 +289,8 @@
               }}
               on:change={(event: OnChangeEvent) => {
                 isPaymentInfoComplete = event.detail.complete;
-                if (isPaymentInfoComplete){
-                    selectedPaymentMethod = event.detail.value.type;
+                if (isPaymentInfoComplete) {
+                  selectedPaymentMethod = event.detail.value.type;
                 }
               }}
             />
