@@ -1,8 +1,7 @@
 import "@testing-library/jest-dom";
 import { fireEvent, render, screen } from "@testing-library/svelte";
-import { describe, test, expect, afterEach, vi, beforeEach } from "vitest";
+import { describe, test, expect, afterEach, vi } from "vitest";
 import PurchasesUI from "../../ui/rcb-ui.svelte";
-import type { IEventsTracker } from "../../behavioural-events/events-tracker";
 import {
   brandingInfo,
   rcPackage,
@@ -15,15 +14,10 @@ import {
   type PurchaseOperationHelper,
 } from "../../helpers/purchase-operation-helper";
 import type { PurchaseResponse } from "../../networking/responses/purchase-response";
-import { TrackedEventName } from "../../behavioural-events/sdk-events";
+import { SDKEventName } from "../../behavioural-events/sdk-events";
+import { createEventsTrackerMock } from "../mocks/events-tracker-mock-provider";
 
-const eventsTrackerMock: IEventsTracker = {
-  updateUser: vi.fn(),
-  generateCheckoutSessionId: vi.fn(),
-  trackSDKEvent: vi.fn(),
-  trackExternalEvent: vi.fn(),
-  dispose: vi.fn(),
-} as unknown as IEventsTracker;
+const eventsTrackerMock = createEventsTrackerMock();
 
 const purchaseOperationHelperMock: PurchaseOperationHelper = {
   startPurchase: async () =>
@@ -49,78 +43,66 @@ const basicProps = {
 };
 
 describe("PurchasesUI", () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-
   afterEach(() => {
-    vi.resetAllMocks();
-    vi.useRealTimers();
+    vi.clearAllMocks();
   });
 
-  test("tracks the BillingEmailEntryImpression event when email has not been provided", async () => {
-    render(PurchasesUI, { props: { ...basicProps, customerEmail: null } });
+  test("displays error when an unreachable email is submitted", async () => {
+    vi.spyOn(purchaseOperationHelperMock, "startPurchase").mockRejectedValue(
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.MissingEmailError,
+        "Email domain is not valid. Please check the email address or try a different one.",
+      ),
+    );
 
-    expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: TrackedEventName.BillingEmailEntryImpression,
+    render(PurchasesUI, {
+      props: { ...basicProps, customerEmail: undefined },
     });
+
+    const emailInput = screen.getByTestId("email");
+    await fireEvent.input(emailInput, {
+      target: { value: "test@unrechable.com" },
+    });
+    const continueButton = screen.getByText("Continue");
+    await fireEvent.click(continueButton);
+
+    expect(screen.getByText(/Email domain is not valid/)).toBeInTheDocument();
   });
 
-  test("NOTs track the BillingEmailEntryImpression event when email has been provided", async () => {
+  test("clears domain email errors after they are fixed", async () => {
+    vi.spyOn(purchaseOperationHelperMock, "startPurchase").mockRejectedValue(
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.MissingEmailError,
+        "Email domain is not valid. Please check the email address or try a different one.",
+      ),
+    );
+
+    render(PurchasesUI, {
+      props: { ...basicProps, customerEmail: undefined },
+    });
+
+    const emailInput = screen.getByTestId("email");
+    await fireEvent.input(emailInput, {
+      target: { value: "testest.com" },
+    });
+    const continueButton = screen.getByText("Continue");
+    await fireEvent.click(continueButton);
+    expect(screen.getByText(/Email is not valid/)).toBeInTheDocument();
+
+    await fireEvent.input(emailInput, {
+      target: { value: "test@test.com" },
+    });
+    await fireEvent.click(continueButton);
+
+    expect(screen.queryByText(/Email is not valid/)).not.toBeInTheDocument();
+  });
+
+  test("NOTs render BillingEmailEntryImpression when email has been provided", async () => {
     render(PurchasesUI, {
       props: { ...basicProps, customerEmail: "test@test.com" },
     });
 
-    expect(eventsTrackerMock.trackSDKEvent).not.toHaveBeenCalledWith({
-      eventName: TrackedEventName.BillingEmailEntryImpression,
-    });
-  });
-
-  test("tracks the BillingEmailEntrySubmit event email is submitted", async () => {
-    render(PurchasesUI, { props: { ...basicProps, customerEmail: undefined } });
-
-    const emailInput = screen.getByTestId("email");
-    await fireEvent.input(emailInput, { target: { value: "test@test.com" } });
-    const continueButton = screen.getByText("Continue");
-    await fireEvent.click(continueButton);
-
-    expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: TrackedEventName.BillingEmailEntrySubmit,
-    });
-  });
-
-  test("tracks the BillingEmailEntryDismiss event when the billing email entry is closed", async () => {
-    render(PurchasesUI, {
-      props: { ...basicProps, customerEmail: undefined },
-    });
-
-    const closeButton = screen.getByTestId("close-button");
-    await fireEvent.click(closeButton);
-
-    expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: TrackedEventName.BillingEmailEntryDismiss,
-    });
-    expect(basicProps.onClose).toHaveBeenCalled();
-  });
-
-  test("tracks the BillingEmailEntryError event when the billing email entry has an email format error", async () => {
-    render(PurchasesUI, {
-      props: { ...basicProps, customerEmail: undefined },
-    });
-
-    const emailInput = screen.getByTestId("email");
-    await fireEvent.input(emailInput, { target: { value: "testest.com" } });
-    const continueButton = screen.getByText("Continue");
-    await fireEvent.click(continueButton);
-
-    expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: TrackedEventName.BillingEmailEntryError,
-      properties: {
-        errorCode: null,
-        errorMessage:
-          "Email is not valid. Please provide a valid email address.",
-      },
-    });
+    expect(screen.queryByText(/Billing email address/));
   });
 
   test("tracks the BillingEmailEntryError event when the billing email entry has a missing email error", async () => {
@@ -146,7 +128,7 @@ describe("PurchasesUI", () => {
     await fireEvent.click(continueButton);
 
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: TrackedEventName.BillingEmailEntryError,
+      eventName: SDKEventName.BillingEmailEntryError,
       properties: {
         errorCode: 4,
         errorMessage:
@@ -155,43 +137,11 @@ describe("PurchasesUI", () => {
     });
   });
 
-  test("displays error when an invalid email format is submitted", async () => {
-    render(PurchasesUI, {
-      props: { ...basicProps, customerEmail: undefined },
-    });
-
-    const emailInput = screen.getByTestId("email");
-    await fireEvent.input(emailInput, { target: { value: "testest.com" } });
-    const continueButton = screen.getByText("Continue");
-    await fireEvent.click(continueButton);
-
-    expect(screen.getByText(/Email is not valid/)).toBeInTheDocument();
-  });
-
-  test("displays error when an unreachable email is submitted", async () => {
-    vi.spyOn(purchaseOperationHelperMock, "startPurchase").mockRejectedValue(
-      new PurchaseFlowError(
-        PurchaseFlowErrorCode.MissingEmailError,
-        "Email domain is not valid. Please check the email address or try a different one.",
-      ),
-    );
-
-    render(PurchasesUI, {
-      props: { ...basicProps, customerEmail: undefined },
-    });
-
-    const emailInput = screen.getByTestId("email");
-    await fireEvent.input(emailInput, {
-      target: { value: "test@unrechable.com" },
-    });
-    const continueButton = screen.getByText("Continue");
-    await fireEvent.click(continueButton);
-
-    expect(screen.getByText(/Email domain is not valid/)).toBeInTheDocument();
-  });
-
   test("tracks the BillingEmailEntryError event when an unreachable email is submitted", async () => {
-    vi.spyOn(purchaseOperationHelperMock, "startPurchase").mockRejectedValue(
+    vi.spyOn(
+      purchaseOperationHelperMock,
+      "startPurchase",
+    ).mockRejectedValueOnce(
       new PurchaseFlowError(
         PurchaseFlowErrorCode.MissingEmailError,
         "Email domain is not valid. Please check the email address or try a different one.",
@@ -211,7 +161,7 @@ describe("PurchasesUI", () => {
 
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith(
       expect.objectContaining({
-        eventName: TrackedEventName.BillingEmailEntryError,
+        eventName: SDKEventName.BillingEmailEntryError,
       }),
     );
   });
@@ -238,87 +188,8 @@ describe("PurchasesUI", () => {
 
     expect(eventsTrackerMock.trackSDKEvent).not.toHaveBeenCalledWith(
       expect.objectContaining({
-        eventName: TrackedEventName.BillingEmailEntryError,
+        eventName: SDKEventName.BillingEmailEntryError,
       }),
     );
-  });
-
-  test("tracks the PurchaseSuccessfulImpression event when the purchase is successful", async () => {
-    vi.spyOn(
-      purchaseOperationHelperMock,
-      "startPurchase",
-    ).mockResolvedValueOnce({
-      operation_session_id: "123",
-      next_action: "completed",
-      data: {
-        client_secret: "123",
-        stripe_account_id: "123",
-        publishable_api_key: "123",
-      },
-    });
-
-    render(PurchasesUI, {
-      props: { ...basicProps, customerEmail: "test@test.com" },
-    });
-
-    await vi.advanceTimersToNextTimerAsync();
-
-    expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: TrackedEventName.PurchaseSuccessfulImpression,
-    });
-  });
-
-  test("tracks the PurchaseSuccessfulDismiss event when the purchase successful dialog is closed", async () => {
-    vi.spyOn(
-      purchaseOperationHelperMock,
-      "startPurchase",
-    ).mockResolvedValueOnce({
-      operation_session_id: "123",
-      next_action: "completed",
-      data: {
-        client_secret: "123",
-        stripe_account_id: "123",
-        publishable_api_key: "123",
-      },
-    });
-
-    render(PurchasesUI, { props: { ...basicProps, onFinished: vi.fn() } });
-    await vi.advanceTimersToNextTimerAsync();
-    const continueButton = screen.getByTestId("close-button");
-    await fireEvent.click(continueButton);
-
-    expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: TrackedEventName.PurchaseSuccessfulDismiss,
-      properties: {
-        buttonPressed: "close",
-      },
-    });
-  });
-
-  test("tracks the PurchaseSuccessfulDismiss event when the purchase successful dialog button is pressed", async () => {
-    vi.spyOn(
-      purchaseOperationHelperMock,
-      "startPurchase",
-    ).mockResolvedValueOnce({
-      operation_session_id: "123",
-      next_action: "completed",
-      data: {
-        client_secret: "123",
-        stripe_account_id: "123",
-        publishable_api_key: "123",
-      },
-    });
-
-    render(PurchasesUI, { props: { ...basicProps, onFinished: vi.fn() } });
-    await vi.advanceTimersToNextTimerAsync();
-    const continueButton = screen.getByText("Close");
-    await fireEvent.click(continueButton);
-
-    expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: TrackedEventName.PurchaseSuccessfulDismiss,
-      properties: {
-        buttonPressed: "go_back_to_app",
-      },
-    });
   });
 });

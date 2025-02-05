@@ -11,10 +11,14 @@ export type SDKEvent =
   | BillingEmailEntrySubmitEvent
   | BillingEmailEntrySuccessEvent
   | BillingEmailEntryErrorEvent
+  | PaymentEntryImpressionEvent
+  | PaymentEntrySubmitEvent
+  | PaymentEntryDismissEvent
+  | PaymentEntryErrorEvent
   | PurchaseSuccessfulImpressionEvent
   | PurchaseSuccessfulDismissEvent;
 
-export enum TrackedEventName {
+export enum SDKEventName {
   SDKInitialized = "sdk_initialized",
   CheckoutSessionStart = "checkout_session_start",
   CheckoutSessionEnd = "checkout_session_end",
@@ -23,16 +27,20 @@ export enum TrackedEventName {
   BillingEmailEntrySubmit = "billing_email_entry_submit",
   BillingEmailEntrySuccess = "billing_email_entry_success",
   BillingEmailEntryError = "billing_email_entry_error",
+  PaymentEntryImpression = "payment_entry_impression",
+  PaymentEntryDismiss = "payment_entry_dismiss",
+  PaymentEntrySubmit = "payment_entry_submit",
+  PaymentEntryError = "payment_entry_error",
   PurchaseSuccessfulImpression = "purchase_successful_impression",
   PurchaseSuccessfulDismiss = "purchase_successful_dismiss",
 }
 
-interface IEvent {
-  eventName: TrackedEventName;
+interface ISDKEvent {
+  eventName: SDKEventName;
 }
 
-export interface SDKInitializedEvent extends IEvent {
-  eventName: TrackedEventName.SDKInitialized;
+export interface SDKInitializedEvent extends ISDKEvent {
+  eventName: SDKEventName.SDKInitialized;
   properties: {
     sdkVersion: string;
   };
@@ -50,8 +58,8 @@ export interface CustomizationOptions extends EventProperties {
   showProductDescription: boolean;
 }
 
-export interface CheckoutSessionStartEvent extends IEvent {
-  eventName: TrackedEventName.CheckoutSessionStart;
+export interface CheckoutSessionStartEvent extends ISDKEvent {
+  eventName: SDKEventName.CheckoutSessionStart;
   properties: {
     customizationOptions: CustomizationOptions | null;
     productInterval: string | null;
@@ -64,23 +72,23 @@ export interface CheckoutSessionStartEvent extends IEvent {
   };
 }
 
-export interface CheckoutSessionFinishedEvent extends IEvent {
-  eventName: TrackedEventName.CheckoutSessionEnd;
+export interface CheckoutSessionFinishedEvent extends ISDKEvent {
+  eventName: SDKEventName.CheckoutSessionEnd;
   properties: {
     outcome: "finished";
     withRedemptionInfo: boolean;
   };
 }
 
-export interface CheckoutSessionClosedEvent extends IEvent {
-  eventName: TrackedEventName.CheckoutSessionEnd;
+export interface CheckoutSessionClosedEvent extends ISDKEvent {
+  eventName: SDKEventName.CheckoutSessionEnd;
   properties: {
     outcome: "closed";
   };
 }
 
-export interface CheckoutSessionErroredEvent extends IEvent {
-  eventName: TrackedEventName.CheckoutSessionEnd;
+export interface CheckoutSessionErroredEvent extends ISDKEvent {
+  eventName: SDKEventName.CheckoutSessionEnd;
   properties: {
     outcome: "errored";
     errorCode: number | null;
@@ -88,36 +96,59 @@ export interface CheckoutSessionErroredEvent extends IEvent {
   };
 }
 
-export interface BillingEmailEntryImpressionEvent extends IEvent {
-  eventName: TrackedEventName.BillingEmailEntryImpression;
+export interface BillingEmailEntryImpressionEvent extends ISDKEvent {
+  eventName: SDKEventName.BillingEmailEntryImpression;
 }
 
-export interface BillingEmailEntryDismissEvent extends IEvent {
-  eventName: TrackedEventName.BillingEmailEntryDismiss;
+export interface BillingEmailEntryDismissEvent extends ISDKEvent {
+  eventName: SDKEventName.BillingEmailEntryDismiss;
 }
 
-export interface BillingEmailEntrySubmitEvent extends IEvent {
-  eventName: TrackedEventName.BillingEmailEntrySubmit;
+export interface BillingEmailEntrySubmitEvent extends ISDKEvent {
+  eventName: SDKEventName.BillingEmailEntrySubmit;
 }
 
-export interface BillingEmailEntrySuccessEvent extends IEvent {
-  eventName: TrackedEventName.BillingEmailEntrySuccess;
+export interface BillingEmailEntrySuccessEvent extends ISDKEvent {
+  eventName: SDKEventName.BillingEmailEntrySuccess;
 }
 
-export interface BillingEmailEntryErrorEvent extends IEvent {
-  eventName: TrackedEventName.BillingEmailEntryError;
+export interface BillingEmailEntryErrorEvent extends ISDKEvent {
+  eventName: SDKEventName.BillingEmailEntryError;
   properties: {
     errorCode: number | null;
     errorMessage: string;
   };
 }
 
-export interface PurchaseSuccessfulImpressionEvent extends IEvent {
-  eventName: TrackedEventName.PurchaseSuccessfulImpression;
+export interface PaymentEntryImpressionEvent extends ISDKEvent {
+  eventName: SDKEventName.PaymentEntryImpression;
 }
 
-export interface PurchaseSuccessfulDismissEvent extends IEvent {
-  eventName: TrackedEventName.PurchaseSuccessfulDismiss;
+export interface PaymentEntryDismissEvent extends ISDKEvent {
+  eventName: SDKEventName.PaymentEntryDismiss;
+}
+
+export interface PaymentEntryErrorEvent extends ISDKEvent {
+  eventName: SDKEventName.PaymentEntryError;
+  properties: {
+    gatewayErrorCode: string | null;
+    gatewayErrorMessage: string | null;
+  };
+}
+
+export interface PaymentEntrySubmitEvent extends ISDKEvent {
+  eventName: SDKEventName.PaymentEntrySubmit;
+  properties: {
+    selectedPaymentMethod: string | null;
+  };
+}
+
+export interface PurchaseSuccessfulImpressionEvent extends ISDKEvent {
+  eventName: SDKEventName.PurchaseSuccessfulImpression;
+}
+
+export interface PurchaseSuccessfulDismissEvent extends ISDKEvent {
+  eventName: SDKEventName.PurchaseSuccessfulDismiss;
   properties: {
     buttonPressed: "go_back_to_app" | "close";
   };

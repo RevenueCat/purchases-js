@@ -9,7 +9,7 @@
   import Localized from "../localization/localized.svelte";
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
-  import { TrackedEventName } from "../../behavioural-events/sdk-events";
+  import { SDKEventName } from "../../behavioural-events/sdk-events";
   import { type IEventsTracker } from "../../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "../constants";
 
@@ -25,7 +25,7 @@
 
   function handleContinue() {
     eventsTracker.trackSDKEvent({
-      eventName: TrackedEventName.PurchaseSuccessfulDismiss,
+      eventName: SDKEventName.PurchaseSuccessfulDismiss,
       properties: {
         buttonPressed: "go_back_to_app",
       },
@@ -35,7 +35,7 @@
 
   function handleClose() {
     eventsTracker.trackSDKEvent({
-      eventName: TrackedEventName.PurchaseSuccessfulDismiss,
+      eventName: SDKEventName.PurchaseSuccessfulDismiss,
       properties: {
         buttonPressed: "close",
       },
@@ -45,7 +45,7 @@
 
   onMount(() => {
     eventsTracker.trackSDKEvent({
-      eventName: TrackedEventName.PurchaseSuccessfulImpression,
+      eventName: SDKEventName.PurchaseSuccessfulImpression,
     });
   });
 </script>

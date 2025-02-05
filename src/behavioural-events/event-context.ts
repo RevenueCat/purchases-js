@@ -1,6 +1,35 @@
 import { VERSION } from "../helpers/constants";
+import { type EventProperties } from "./event";
 
-export function buildEventContext() {
+interface EventContext {
+  library: {
+    name: string;
+    version: string;
+  };
+  locale: string;
+  user_agent: string;
+  time_zone: string;
+  screen_size: {
+    width: number;
+    height: number;
+  };
+  utm: {
+    source: string | null;
+    medium: string | null;
+    campaign: string | null;
+    content: string | null;
+    term: string | null;
+  };
+  page: {
+    path: string;
+    referrer: string;
+    search: string;
+    url: string;
+    title: string;
+  };
+}
+
+export function buildEventContext(): EventContext & EventProperties {
   const urlParams = new URLSearchParams(window.location.search);
 
   return {
