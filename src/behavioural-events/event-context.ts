@@ -1,4 +1,5 @@
 import { VERSION } from "../helpers/constants";
+import { type EventProperties } from "./event";
 
 interface EventContext {
   library: {
@@ -28,7 +29,7 @@ interface EventContext {
   };
 }
 
-export function buildEventContext(): EventContext {
+export function buildEventContext(): EventContext & EventProperties {
   const urlParams = new URLSearchParams(window.location.search);
 
   return {
