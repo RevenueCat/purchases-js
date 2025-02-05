@@ -4,7 +4,7 @@ import {
   type PurchasesErrorExtra,
 } from "../entities/errors";
 import { type Backend } from "../networking/backend";
-import { type PurchaseResponse } from "../networking/responses/purchase-response";
+import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
 import {
   CheckoutSessionStatus,
   type CheckoutStatusError,
@@ -22,6 +22,7 @@ import {
   type RedemptionInfo,
   toRedemptionInfo,
 } from "../entities/redemption-info";
+import type { CheckoutCompleteResponse } from "src/networking/responses/checkout-complete-response";
 
 export enum PurchaseFlowErrorCode {
   ErrorSettingUpPurchase = 0,
@@ -122,23 +123,56 @@ export class PurchaseOperationHelper {
     this.maxNumberAttempts = maxNumberAttempts;
   }
 
-  async startPurchase(
+  async checkoutStart(
     appUserId: string,
     productId: string,
     purchaseOption: PurchaseOption,
-    email: string,
     presentedOfferingContext: PresentedOfferingContext,
-  ): Promise<PurchaseResponse> {
+    email?: string,
+  ): Promise<CheckoutStartResponse> {
     try {
-      const subscribeResponse = await this.backend.postPurchase(
+      const checkoutStartResponse = await this.backend.postCheckoutStart(
         appUserId,
         productId,
-        email,
         presentedOfferingContext,
         purchaseOption,
+        email,
       );
-      this.operationSessionId = subscribeResponse.operation_session_id;
-      return subscribeResponse;
+      this.operationSessionId = checkoutStartResponse.operation_session_id;
+      return checkoutStartResponse;
+    } catch (error) {
+      if (error instanceof PurchasesError) {
+        throw PurchaseFlowError.fromPurchasesError(
+          error,
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        );
+      } else {
+        const errorMessage =
+          "Unknown error starting purchase: " + String(error);
+        Logger.errorLog(errorMessage);
+        throw new PurchaseFlowError(
+          PurchaseFlowErrorCode.UnknownError,
+          errorMessage,
+        );
+      }
+    }
+  }
+
+  async checkoutComplete(email?: string): Promise<CheckoutCompleteResponse> {
+    const operationSessionId = this.operationSessionId;
+    if (!operationSessionId) {
+      throw new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "No purchase started",
+      );
+    }
+
+    try {
+      const checkoutCompleteResponse = await this.backend.postCheckoutComplete(
+        operationSessionId,
+        email,
+      );
+      return checkoutCompleteResponse;
     } catch (error) {
       if (error instanceof PurchasesError) {
         throw PurchaseFlowError.fromPurchasesError(

@@ -10,7 +10,6 @@
     StripeError,
   } from "@stripe/stripe-js";
   import { loadStripe } from "@stripe/stripe-js";
-  import { type PurchaseResponse } from "../../networking/responses/purchase-response";
   import ProcessingAnimation from "../processing-animation.svelte";
   import type { Product, PurchaseOption } from "../../entities/offerings";
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
@@ -25,21 +24,24 @@
   import { LocalizationKeys } from "../localization/supportedLanguages";
   // import TextSeparator from "../text-separator.svelte";
   import SecureCheckoutRc from "../secure-checkout-rc.svelte";
+  import { type CheckoutStartResponse } from "../../networking/responses/checkout-start-response";
+  import { PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
 
   export let onContinue: any;
-  export let paymentInfoCollectionMetadata: PurchaseResponse;
+  export let customerEmail: string;
+  export let paymentInfoCollectionMetadata: CheckoutStartResponse;
   export let processing = false;
   export let productDetails: Product;
   export let purchaseOptionToUse: PurchaseOption;
   export let brandingInfo: BrandingInfoResponse | null;
-
-  const clientSecret = paymentInfoCollectionMetadata.data.client_secret;
+  export let purchaseOperationHelper: PurchaseOperationHelper;
 
   let stripe: Stripe | null = null;
   let elements: StripeElements;
   let safeElements: StripeElements;
   let modalErrorMessage: string | undefined = undefined;
   let isPaymentInfoComplete = false;
+  let clientSecret: string | undefined = undefined;
 
   let textStyles = new Theme().textStyles;
   let spacing = new Theme().spacing;
@@ -70,7 +72,6 @@
       updateStripeVariables();
     }, 150);
   }
-
 
   const theme = new Theme(brandingInfo?.appearance);
 
@@ -144,88 +145,86 @@
       throw new Error("Stripe client not found");
     }
 
-    elements = stripe.elements(
-      {
-        loader: "always",
-        locale: localeToUse,
-        mode: "payment",
-        paymentMethodTypes: ["card"],
-        setup_future_usage: "off_session",
-        amount: productDetails.currentPrice.amountMicros / 10000,
-        currency: productDetails.currentPrice.currency.toLowerCase(),
-        appearance: {
-          theme: "stripe",
-          labels: "floating",
-          variables: {
-            borderRadius: customShape["input-border-radius"],
-            fontLineHeight: "10px",
-            focusBoxShadow: "none",
-            colorDanger: customColors["error"],
-            colorTextPlaceholder: customColors["grey-text-light"],
-            colorText: customColors["grey-text-dark"],
-            colorTextSecondary: customColors["grey-text-light"],
-            ...stripeVariables,
+    elements = stripe.elements({
+      loader: "always",
+      locale: localeToUse,
+      mode: "payment",
+      paymentMethodTypes: ["card"],
+      setup_future_usage: "off_session",
+      amount: productDetails.currentPrice.amountMicros / 10000,
+      currency: productDetails.currentPrice.currency.toLowerCase(),
+      appearance: {
+        theme: "stripe",
+        labels: "floating",
+        variables: {
+          borderRadius: customShape["input-border-radius"],
+          fontLineHeight: "10px",
+          focusBoxShadow: "none",
+          colorDanger: customColors["error"],
+          colorTextPlaceholder: customColors["grey-text-light"],
+          colorText: customColors["grey-text-dark"],
+          colorTextSecondary: customColors["grey-text-light"],
+          ...stripeVariables,
+        },
+        rules: {
+          ".Input": {
+            boxShadow: "none",
+            paddingTop: "6px",
+            paddingBottom: "6px",
+            border: `1px solid ${customColors["grey-ui-dark"]}`,
+            backgroundColor: customColors["input-background"],
+            color: customColors["grey-text-dark"],
           },
-          rules: {
-            ".Input": {
+          ".Input:focus": {
+            border: `1px solid ${customColors["focus"]}`,
+            outline: "none",
+          },
+          ".Label": {
+            fontWeight: textStyles.body1[viewport].fontWeight,
+            lineHeight: "22px",
+            color: customColors["grey-text-dark"],
+          },
+          ".Label--floating": {
+            fontSize: "10px !important",
+          },
+          ".Input--invalid": {
+            boxShadow: "none",
+          },
+          ".TermsText": {
+            fontSize: textStyles.caption[viewport].fontSize,
+            lineHeight: textStyles.caption[viewport].lineHeight,
+          },
+          ".Tab": {
+            boxShadow: "none",
+            backgroundColor: "transparent",
+            color: customColors["grey-text-light"],
+            border: `1px solid ${customColors["grey-ui-dark"]}`,
+          },
+          ".Tab:hover, .Tab:focus, .Tab--selected, .Tab--selected:hover, .Tab--selected:focus":
+            {
               boxShadow: "none",
-              paddingTop: "6px",
-              paddingBottom: "6px",
-              border: `1px solid ${customColors["grey-ui-dark"]}`,
-              backgroundColor: customColors["input-background"],
               color: customColors["grey-text-dark"],
             },
-            ".Input:focus": {
+          ".Tab:focus, .Tab--selected, .Tab--selected:hover, .Tab--selected:focus":
+            {
               border: `1px solid ${customColors["focus"]}`,
-              outline: "none",
             },
-            ".Label": {
-              fontWeight: textStyles.body1[viewport].fontWeight,
-              lineHeight: "22px",
-              color: customColors["grey-text-dark"],
-            },
-            ".Label--floating": {
-              fontSize: "10px !important",
-            },
-            ".Input--invalid": {
-              boxShadow: "none",
-            },
-            ".TermsText": {
-              fontSize: textStyles.caption[viewport].fontSize,
-              lineHeight: textStyles.caption[viewport].lineHeight,
-            },
-            ".Tab": {
-              boxShadow: "none",
-              backgroundColor: "transparent",
-              color: customColors["grey-text-light"],
-              border: `1px solid ${customColors["grey-ui-dark"]}`,
-            },
-            ".Tab:hover, .Tab:focus, .Tab--selected, .Tab--selected:hover, .Tab--selected:focus":
-              {
-                boxShadow: "none",
-                color: customColors["grey-text-dark"],
-              },
-            ".Tab:focus, .Tab--selected, .Tab--selected:hover, .Tab--selected:focus":
-              {
-                border: `1px solid ${customColors["focus"]}`,
-              },
-            ".TabIcon": {
-              fill: customColors["grey-text-light"],
-            },
-            ".TabIcon--selected": {
-              fill: customColors["grey-text-dark"],
-            },
-            ".Block": {
-              boxShadow: "none",
-              backgroundColor: "transparent",
-              border: `1px solid ${customColors["grey-ui-dark"]}`,
-            },
+          ".TabIcon": {
+            fill: customColors["grey-text-light"],
+          },
+          ".TabIcon--selected": {
+            fill: customColors["grey-text-dark"],
+          },
+          ".Block": {
+            boxShadow: "none",
+            backgroundColor: "transparent",
+            border: `1px solid ${customColors["grey-ui-dark"]}`,
           },
         },
-      }
-    );
+      },
+    });
 
-    const paymentElement = elements.create('payment', {
+    const paymentElement = elements.create("payment", {
       business: brandingInfo?.app_name
         ? { name: brandingInfo.app_name }
         : undefined,
@@ -233,17 +232,46 @@
         type: "tabs",
       },
     });
-    paymentElement.mount('#payment-element');
+    paymentElement.mount("#payment-element");
 
-    paymentElement.on('change', (event) => {
+    paymentElement.on("change", (event) => {
       isPaymentInfoComplete = event.complete;
     });
   });
 
   const handleContinue = async () => {
-    if (processing || !stripe || !safeElements || !clientSecret) return;
+    if (processing || !stripe || !safeElements) return;
 
     processing = true;
+
+    let error: StripeError | undefined = undefined;
+    const { error: submitError } = await safeElements.submit();
+    if (submitError) {
+      error = submitError;
+    } else {
+      error = await completeCheckout(stripe, customerEmail);
+
+      if (error) {
+        processing = false;
+        if (shouldShowErrorModal(error)) {
+          modalErrorMessage = error.message;
+        }
+      } else {
+        onContinue();
+      }
+    }
+  };
+
+  const completeCheckout = async (stripe: Stripe, customerEmail: string) => {
+    if (!clientSecret) {
+      const checkoutCompleteResponse =
+        await purchaseOperationHelper.checkoutComplete(customerEmail);
+
+      clientSecret = checkoutCompleteResponse.data.client_secret;
+      if (!clientSecret) {
+        throw new Error("Failed to complete checkout");
+      }
+    }
 
     const isSetupIntent = clientSecret.startsWith("seti_");
 
@@ -252,25 +280,20 @@
     if (isSetupIntent) {
       const result = await stripe.confirmSetup({
         elements: safeElements,
+        clientSecret: clientSecret,
         redirect: "if_required",
       });
       error = result.error;
     } else {
       const result = await stripe.confirmPayment({
         elements: safeElements,
+        clientSecret: clientSecret,
         redirect: "if_required",
       });
       error = result.error;
     }
 
-    if (error) {
-      processing = false;
-      if (shouldShowErrorModal(error)) {
-        modalErrorMessage = error.message;
-      }
-    } else {
-      onContinue();
-    }
+    return error;
   };
 
   function shouldShowErrorModal(error: StripeError) {

@@ -1,15 +1,16 @@
 import { type OfferingsResponse } from "./responses/offerings-response";
 import { performRequest } from "./http-client";
 import {
+  CheckoutCompleteEndpoint,
+  CheckoutStartEndpoint,
   GetBrandingInfoEndpoint,
   GetCheckoutStatusEndpoint,
   GetCustomerInfoEndpoint,
   GetOfferingsEndpoint,
   GetProductsEndpoint,
-  PurchaseEndpoint,
 } from "./endpoints";
 import { type SubscriberResponse } from "./responses/subscriber-response";
-import { type PurchaseResponse } from "./responses/purchase-response";
+import type { CheckoutStartResponse } from "./responses/checkout-start-response";
 import { type ProductsResponse } from "./responses/products-response";
 import { type BrandingInfoResponse } from "./responses/branding-response";
 import { type CheckoutStatusResponse } from "./responses/checkout-status-response";
@@ -18,6 +19,7 @@ import type {
   PresentedOfferingContext,
   PurchaseOption,
 } from "../entities/offerings";
+import type { CheckoutCompleteResponse } from "./responses/checkout-complete-response";
 
 export class Backend {
   private readonly API_KEY: string;
@@ -72,17 +74,17 @@ export class Backend {
     );
   }
 
-  async postPurchase(
+  async postCheckoutStart(
     appUserId: string,
     productId: string,
-    email: string,
     presentedOfferingContext: PresentedOfferingContext,
     purchaseOption: PurchaseOption,
-  ): Promise<PurchaseResponse> {
-    type PurchaseRequestBody = {
+    email?: string,
+  ): Promise<CheckoutStartResponse> {
+    type CheckoutStartRequestBody = {
       app_user_id: string;
       product_id: string;
-      email: string;
+      email?: string;
       presented_offering_identifier: string;
       presented_placement_identifier?: string;
       offer_id?: string;
@@ -91,17 +93,15 @@ export class Backend {
         rule_id: string;
         revision: number;
       };
-      supports_direct_payment: boolean;
     };
 
-    const requestBody: PurchaseRequestBody = {
+    const requestBody: CheckoutStartRequestBody = {
       app_user_id: appUserId,
       product_id: productId,
       email: email,
       price_id: purchaseOption.priceId,
       presented_offering_identifier:
         presentedOfferingContext.offeringIdentifier,
-      supports_direct_payment: true,
     };
 
     if (purchaseOption.id !== "base_option") {
@@ -120,14 +120,36 @@ export class Backend {
         presentedOfferingContext.placementIdentifier;
     }
 
-    return await performRequest<PurchaseRequestBody, PurchaseResponse>(
-      new PurchaseEndpoint(),
-      {
-        apiKey: this.API_KEY,
-        body: requestBody,
-        httpConfig: this.httpConfig,
-      },
-    );
+    return await performRequest<
+      CheckoutStartRequestBody,
+      CheckoutStartResponse
+    >(new CheckoutStartEndpoint(), {
+      apiKey: this.API_KEY,
+      body: requestBody,
+      httpConfig: this.httpConfig,
+    });
+  }
+
+  async postCheckoutComplete(
+    operationSessionId: string,
+    email?: string,
+  ): Promise<CheckoutCompleteResponse> {
+    type CheckoutCompleteRequestBody = {
+      email?: string;
+    };
+
+    const requestBody: CheckoutCompleteRequestBody = {
+      email: email,
+    };
+
+    return await performRequest<
+      CheckoutCompleteRequestBody,
+      CheckoutCompleteResponse
+    >(new CheckoutCompleteEndpoint(operationSessionId), {
+      apiKey: this.API_KEY,
+      body: requestBody,
+      httpConfig: this.httpConfig,
+    });
   }
 
   async getCheckoutStatus(

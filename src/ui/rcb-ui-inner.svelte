@@ -17,8 +17,9 @@
   import {
     PurchaseFlowError,
     PurchaseFlowErrorCode,
+    PurchaseOperationHelper,
   } from "../helpers/purchase-operation-helper";
-  import { type PurchaseResponse } from "../networking/responses/purchase-response";
+  import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
 
   export let currentView: CurrentView;
   export let brandingInfo: BrandingInfoResponse | null;
@@ -30,7 +31,9 @@
   export let handleContinue: (authInfo?: { email: string }) => void;
   export let closeWithError: () => void;
   export let lastError: PurchaseFlowError | null;
-  export let paymentInfoCollectionMetadata: PurchaseResponse | null;
+  export let paymentInfoCollectionMetadata: CheckoutStartResponse | null;
+  export let purchaseOperationHelper: PurchaseOperationHelper;
+  export let customerEmail: string | undefined;
 
   const viewsWhereOfferDetailsAreShown: CurrentView[] = [
     "present-offer",
@@ -86,14 +89,16 @@
             {lastError}
           />
         {/if}
-        {#if paymentInfoCollectionMetadata && (currentView === "needs-payment-info" || currentView === "polling-purchase-status") && productDetails && purchaseOptionToUse}
+        {#if paymentInfoCollectionMetadata && (currentView === "needs-payment-info" || currentView === "polling-purchase-status") && productDetails && purchaseOptionToUse && customerEmail}
           <StateNeedsPaymentInfo
+            {customerEmail}
             {paymentInfoCollectionMetadata}
             onContinue={handleContinue}
             processing={currentView === "polling-purchase-status"}
             {productDetails}
             {purchaseOptionToUse}
             {brandingInfo}
+            {purchaseOperationHelper}
           />
         {/if}
         {#if currentView === "loading"}
