@@ -5,6 +5,8 @@ import type {
   ProductResponse,
   ProductsResponse,
 } from "../networking/responses/products-response";
+import type { CheckoutStartResponse } from "../networking/responses/checkout-start-response";
+import type { CheckoutCompleteResponse } from "../networking/responses/checkout-complete-response";
 
 const monthlyProductResponse: ProductResponse = {
   identifier: "monthly",
@@ -244,6 +246,23 @@ const brandingInfoResponse = {
   id: "test-app-id",
   app_name: "Test Company name",
   support_email: "test-rcbilling-support@revenuecat.com",
+};
+
+export const checkoutStartResponse: CheckoutStartResponse = {
+  operation_session_id: "test-operation-session-id",
+  data: {
+    stripe_account_id: "test-stripe-account-id",
+    publishable_api_key: "test-publishable-api-key",
+  },
+};
+
+export const checkoutCompleteResponse: CheckoutCompleteResponse = {
+  operation_session_id: "test-operation-session-id",
+  data: {
+    stripe_account_id: "test-stripe-account-id",
+    publishable_api_key: "test-publishable-api-key",
+    client_secret: "test-client-secret",
+  },
 };
 
 export interface GetRequest {
