@@ -131,8 +131,8 @@ export interface PaymentEntryDismissEvent extends ISDKEvent {
 export interface PaymentEntryErrorEvent extends ISDKEvent {
   eventName: SDKEventName.PaymentEntryError;
   properties: {
-    stripeErrorCode: string | null;
-    stripeErrorMessage: string | null;
+    gatewayErrorCode: string | null;
+    gatewayErrorMessage: string | null;
   };
 }
 

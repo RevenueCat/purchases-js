@@ -120,14 +120,14 @@ export function createPaymentEntrySubmitEvent(
 }
 
 export function createPaymentEntryErrorEvent(
-  stripeErrorCode: string | null,
-  stripeErrorMessage: string | null,
+  gatewayErrorCode: string | null,
+  gatewayErrorMessage: string | null,
 ): PaymentEntryErrorEvent {
   return {
     eventName: SDKEventName.PaymentEntryError,
     properties: {
-      stripeErrorCode: stripeErrorCode,
-      stripeErrorMessage: stripeErrorMessage,
+      gatewayErrorCode: gatewayErrorCode,
+      gatewayErrorMessage: gatewayErrorMessage,
     },
   };
 }
