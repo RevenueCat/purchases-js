@@ -51,10 +51,7 @@ import { parseOfferingIntoVariables } from "./helpers/paywall-variables-helpers"
 import { Translator } from "./ui/localization/translator";
 import { englishLocale } from "./ui/localization/constants";
 import { autoParseUTMParams } from "./helpers/utm-params";
-import {
-  defaultFlagsConfig,
-  type FlagsConfig,
-} from "./entities/functionality-config";
+import { defaultFlagsConfig, type FlagsConfig } from "./entities/flags-config";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -86,6 +83,7 @@ export {
 export type { PurchasesErrorExtra } from "./entities/errors";
 export type { Period, PeriodUnit } from "./helpers/duration-helper";
 export type { HttpConfig } from "./entities/http-config";
+export type { FlagsConfig } from "./entities/flags-config";
 export { LogLevel } from "./entities/log-level";
 export type { GetOfferingsParams } from "./entities/get-offerings-params";
 export { OfferingKeyword } from "./entities/get-offerings-params";

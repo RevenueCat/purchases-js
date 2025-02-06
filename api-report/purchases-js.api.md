@@ -110,6 +110,11 @@ export enum ErrorCode {
 }
 
 // @public
+export interface FlagsConfig {
+    collectAutomaticallyUTMParamsAsMetadata?: boolean;
+}
+
+// @public
 export interface GetOfferingsParams {
     readonly currency?: string;
     readonly offeringIdentifier?: string | OfferingKeyword;
@@ -297,7 +302,7 @@ export interface PurchaseResult {
 export class Purchases {
     changeUser(newAppUserId: string): Promise<CustomerInfo>;
     close(): void;
-    static configure(apiKey: string, appUserId: string, httpConfig?: HttpConfig): Purchases;
+    static configure(apiKey: string, appUserId: string, httpConfig?: HttpConfig, flags?: FlagsConfig): Purchases;
     static generateRevenueCatAnonymousAppUserId(): string;
     getAppUserId(): string;
     getCurrentOfferingForPlacement(placementIdentifier: string, params?: GetOfferingsParams): Promise<Offering | null>;
