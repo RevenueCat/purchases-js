@@ -1,3 +1,4 @@
+import type { BrandingAppearance } from "src/networking/responses/branding-response";
 import {
   type Product,
   ProductType,
@@ -96,11 +97,14 @@ export const brandingInfo = {
 
 export const purchaseFlowError = new PurchaseFlowError(1);
 
-export const colorfulBrandingAppearance = {
+export const colorfulBrandingAppearance: BrandingAppearance = {
   shapes: "rectangle",
   color_form_bg: "#313131",
   color_error: "#E79462",
   color_product_info_bg: "#ffffff",
   color_buttons_primary: "#AC7DE3",
   color_accent: "#99BB37",
+  color_page_bg: "#ffffff",
+  font: "sans-serif",
+  show_product_description: true,
 };
