@@ -250,15 +250,15 @@
       error = submitError;
     } else {
       error = await completeCheckout(stripe, customerEmail);
+    }
 
-      if (error) {
-        processing = false;
-        if (shouldShowErrorModal(error)) {
-          modalErrorMessage = error.message;
-        }
-      } else {
-        onContinue();
+    if (error) {
+      processing = false;
+      if (shouldShowErrorModal(error)) {
+        modalErrorMessage = error.message;
       }
+    } else {
+      onContinue();
     }
   };
 
