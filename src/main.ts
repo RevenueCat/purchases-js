@@ -51,6 +51,10 @@ import { parseOfferingIntoVariables } from "./helpers/paywall-variables-helpers"
 import { Translator } from "./ui/localization/translator";
 import { englishLocale } from "./ui/localization/constants";
 import { autoParseUTMParams } from "./helpers/utm-params";
+import {
+  defaultFlagsConfig,
+  type FlagsConfig,
+} from "./entities/functionality-config";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -109,6 +113,9 @@ export class Purchases {
   private _loadingResourcesPromise: Promise<void> | null = null;
 
   /** @internal */
+  private readonly _flags: FlagsConfig;
+
+  /** @internal */
   private readonly backend: Backend;
 
   /** @internal */
@@ -153,12 +160,14 @@ export class Purchases {
    * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.
    * @param appUserId - Your unique id for identifying the user.
    * @param httpConfig - Advanced http configuration to customise the SDK usage {@link HttpConfig}.
+   * @param flags - Advanced functionality configuration {@link FlagsConfig}.
    * @throws {@link PurchasesError} if the API key or user id are invalid.
    */
   static configure(
     apiKey: string,
     appUserId: string,
     httpConfig: HttpConfig = defaultHttpConfig,
+    flags: FlagsConfig = defaultFlagsConfig,
   ): Purchases {
     if (Purchases.instance !== undefined) {
       Logger.warnLog(
@@ -170,7 +179,7 @@ export class Purchases {
     validateAppUserId(appUserId);
     validateProxyUrl(httpConfig.proxyURL);
     validateAdditionalHeaders(httpConfig.additionalHeaders);
-    Purchases.instance = new Purchases(apiKey, appUserId, httpConfig);
+    Purchases.instance = new Purchases(apiKey, appUserId, httpConfig, flags);
     return Purchases.getSharedInstance();
   }
 
@@ -217,10 +226,11 @@ export class Purchases {
     apiKey: string,
     appUserId: string,
     httpConfig: HttpConfig = defaultHttpConfig,
+    flags: FlagsConfig = defaultFlagsConfig,
   ) {
     this._API_KEY = apiKey;
     this._appUserId = appUserId;
-
+    this._flags = { ...defaultFlagsConfig, ...flags };
     if (RC_ENDPOINT === undefined) {
       Logger.errorLog(
         "Project was build without some of the environment variables set",
@@ -525,7 +535,10 @@ export class Purchases {
 
     const localeToBeUsed = selectedLocale || defaultLocale;
 
-    const utmParamsMetadata = autoParseUTMParams();
+    const utmParamsMetadata = this._flags
+      .collectAutomaticallyUTMParamsAsMetadata
+      ? autoParseUTMParams()
+      : {};
     const metadata = { ...utmParamsMetadata, ...(params.metadata || {}) };
 
     return new Promise((resolve, reject) => {
