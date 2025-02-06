@@ -84,15 +84,15 @@ export class Backend {
     type CheckoutStartRequestBody = {
       app_user_id: string;
       product_id: string;
-      email?: string;
       presented_offering_identifier: string;
+      price_id: string;
       presented_placement_identifier?: string;
       offer_id?: string;
-      price_id: string;
       applied_targeting_rule?: {
         rule_id: string;
         revision: number;
       };
+      email?: string;
     };
 
     const requestBody: CheckoutStartRequestBody = {

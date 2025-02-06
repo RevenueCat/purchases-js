@@ -130,11 +130,12 @@
   }
 
   onMount(async () => {
-    const stripePk = paymentInfoCollectionMetadata.data.publishable_api_key;
-    const stripeAcctId = paymentInfoCollectionMetadata.data.stripe_account_id;
-
-    if (!stripePk || !stripeAcctId) {
-      throw new Error("Stripe publishable key or account ID not found");
+    const configurationData = paymentInfoCollectionMetadata.data;
+    const stripePk = configurationData.publishable_api_key;
+    const stripeAcctId = configurationData.stripe_account_id;
+    const elementsConfiguration = configurationData.elements_configuration;
+    if (!stripePk || !stripeAcctId || !elementsConfiguration) {
+      throw new Error("Stripe configuration is missing");
     }
 
     stripe = await loadStripe(stripePk, {
@@ -148,11 +149,11 @@
     elements = stripe.elements({
       loader: "always",
       locale: localeToUse,
-      mode: "payment",
-      paymentMethodTypes: ["card"],
-      setup_future_usage: "off_session",
-      amount: productDetails.currentPrice.amountMicros / 10000,
-      currency: productDetails.currentPrice.currency.toLowerCase(),
+      mode: elementsConfiguration.mode,
+      paymentMethodTypes: elementsConfiguration.payment_method_types,
+      setupFutureUsage: elementsConfiguration.setup_future_usage,
+      amount: elementsConfiguration.amount,
+      currency: elementsConfiguration.currency,
       appearance: {
         theme: "stripe",
         labels: "floating",
