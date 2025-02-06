@@ -55,12 +55,12 @@ import EventsTracker, {
   type IEventsTracker,
 } from "./behavioural-events/events-tracker";
 import {
-  createSDKInitializedEvent,
   createCheckoutSessionStartEvent,
   createCheckoutSessionEndFinishedEvent,
   createCheckoutSessionEndClosedEvent,
   createCheckoutSessionEndErroredEvent,
 } from "./behavioural-events/event-helpers";
+import { SDKEventName } from "./behavioural-events/sdk-events";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -255,8 +255,9 @@ export class Purchases {
     });
     this.backend = new Backend(this._API_KEY, httpConfig);
     this.purchaseOperationHelper = new PurchaseOperationHelper(this.backend);
-    const sdkInitializedEvent = createSDKInitializedEvent();
-    this.eventsTracker.trackSDKEvent(sdkInitializedEvent);
+    this.eventsTracker.trackSDKEvent({
+      eventName: SDKEventName.SDKInitialized,
+    });
   }
 
   /**
@@ -556,12 +557,12 @@ export class Purchases {
 
     this.eventsTracker.generateCheckoutSessionId();
 
-    const event = createCheckoutSessionStartEvent(
-      this._brandingInfo?.appearance,
+    const event = createCheckoutSessionStartEvent({
+      appearance: this._brandingInfo?.appearance,
       rcPackage,
       purchaseOptionToUse,
       customerEmail,
-    );
+    });
     this.eventsTracker.trackSDKEvent(event);
 
     return new Promise((resolve, reject) => {
@@ -573,7 +574,9 @@ export class Purchases {
           purchaseOption: purchaseOptionToUse,
           customerEmail,
           onFinished: async (redemptionInfo: RedemptionInfo | null) => {
-            const event = createCheckoutSessionEndFinishedEvent(redemptionInfo);
+            const event = createCheckoutSessionEndFinishedEvent({
+              redemptionInfo,
+            });
             this.eventsTracker.trackSDKEvent(event);
             Logger.debugLog("Purchase finished");
             certainHTMLTarget.innerHTML = "";
@@ -592,10 +595,10 @@ export class Purchases {
             reject(new PurchasesError(ErrorCode.UserCancelledError));
           },
           onError: (e: PurchaseFlowError) => {
-            const event = createCheckoutSessionEndErroredEvent(
-              e.errorCode,
-              e.message,
-            );
+            const event = createCheckoutSessionEndErroredEvent({
+              errorCode: e.errorCode?.toString(),
+              errorMessage: e.message,
+            });
             this.eventsTracker.trackSDKEvent(event);
             certainHTMLTarget.innerHTML = "";
             reject(PurchasesError.getForPurchasesFlowError(e));

@@ -97,7 +97,7 @@ describe("PurchasesUI", () => {
     expect(screen.queryByText(/Email is not valid/)).not.toBeInTheDocument();
   });
 
-  test("NOTs render BillingEmailEntryImpression when email has been provided", async () => {
+  test("NOTs render CheckoutBillingFormImpression when email has been provided", async () => {
     render(PurchasesUI, {
       props: { ...basicProps, customerEmail: "test@test.com" },
     });
@@ -105,39 +105,7 @@ describe("PurchasesUI", () => {
     expect(screen.queryByText(/Billing email address/));
   });
 
-  test("tracks the BillingEmailEntryError event when the billing email entry has a missing email error", async () => {
-    vi.spyOn(
-      purchaseOperationHelperMock,
-      "startPurchase",
-    ).mockRejectedValueOnce(
-      new PurchaseFlowError(
-        PurchaseFlowErrorCode.MissingEmailError,
-        "Email domain is not valid. Please check the email address or try a different one.",
-      ),
-    );
-
-    render(PurchasesUI, {
-      props: { ...basicProps, customerEmail: undefined },
-    });
-
-    const emailInput = screen.getByTestId("email");
-    await fireEvent.input(emailInput, {
-      target: { value: "test@unrechable.com" },
-    });
-    const continueButton = screen.getByText("Continue");
-    await fireEvent.click(continueButton);
-
-    expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: SDKEventName.BillingEmailEntryError,
-      properties: {
-        errorCode: 4,
-        errorMessage:
-          "Email domain is not valid. Please check the email address or try a different one.",
-      },
-    });
-  });
-
-  test("tracks the BillingEmailEntryError event when an unreachable email is submitted", async () => {
+  test("tracks the CheckoutFlowError event when an email is handled at the root component", async () => {
     vi.spyOn(
       purchaseOperationHelperMock,
       "startPurchase",
@@ -161,12 +129,12 @@ describe("PurchasesUI", () => {
 
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith(
       expect.objectContaining({
-        eventName: SDKEventName.BillingEmailEntryError,
+        eventName: SDKEventName.CheckoutFlowError,
       }),
     );
   });
 
-  test("does NOT track the BillingEmailEntryError event when a different error occurs", async () => {
+  test("does NOT track the CheckoutBillingFormError event when a different error occurs", async () => {
     vi.spyOn(
       purchaseOperationHelperMock,
       "startPurchase",
@@ -188,7 +156,7 @@ describe("PurchasesUI", () => {
 
     expect(eventsTrackerMock.trackSDKEvent).not.toHaveBeenCalledWith(
       expect.objectContaining({
-        eventName: SDKEventName.BillingEmailEntryError,
+        eventName: SDKEventName.CheckoutBillingFormError,
       }),
     );
   });

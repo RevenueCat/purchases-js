@@ -30,7 +30,7 @@ describe("PurchasesUI", () => {
   test("tracks the PurchaseSuccessfulImpression event when the purchase is successful", async () => {
     renderComponent();
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: SDKEventName.PurchaseSuccessfulImpression,
+      eventName: SDKEventName.CheckoutPurchaseSuccessfulImpression,
     });
   });
 
@@ -41,9 +41,9 @@ describe("PurchasesUI", () => {
     await fireEvent.click(continueButton);
 
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: SDKEventName.PurchaseSuccessfulDismiss,
+      eventName: SDKEventName.CheckoutPurchaseSuccessfulDismiss,
       properties: {
-        buttonPressed: "close",
+        ui_element: "close",
       },
     });
   });
@@ -54,9 +54,9 @@ describe("PurchasesUI", () => {
     await fireEvent.click(continueButton);
 
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: SDKEventName.PurchaseSuccessfulDismiss,
+      eventName: SDKEventName.CheckoutPurchaseSuccessfulDismiss,
       properties: {
-        buttonPressed: "go_back_to_app",
+        ui_element: "go_back_to_app",
       },
     });
   });

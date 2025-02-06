@@ -36,7 +36,7 @@
   } from "./localization/constants";
   import { type IEventsTracker } from "../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "./constants";
-  import { createBillingEmailEntryErrorEvent } from "../behavioural-events/event-helpers";
+  import { createCheckoutFlowErrorEvent } from "../behavioural-events/event-helpers";
 
   export let asModal = true;
   export let customerEmail: string | undefined;
@@ -188,13 +188,11 @@
   };
 
   const handleError = (e: PurchaseFlowError) => {
-    if (e.getErrorCode() === PurchaseFlowErrorCode.MissingEmailError) {
-      const event = createBillingEmailEntryErrorEvent(
-        e.getErrorCode(),
-        e.message,
-      );
-      eventsTracker.trackSDKEvent(event);
-    }
+    const event = createCheckoutFlowErrorEvent({
+      errorCode: e.getErrorCode().toString(),
+      errorMessage: e.message,
+    });
+    eventsTracker.trackSDKEvent(event);
 
     if (state === "processing-auth-info" && e.isRecoverable()) {
       lastError = e;

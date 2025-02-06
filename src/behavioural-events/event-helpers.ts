@@ -1,38 +1,47 @@
 import type {
+  CheckoutFlowErrorEvent,
   CheckoutSessionFinishedEvent,
   CheckoutSessionClosedEvent,
   CheckoutSessionErroredEvent,
-  PurchaseSuccessfulDismissEvent,
-  PaymentEntryErrorEvent,
-  PaymentEntrySubmitEvent,
+  CheckoutPurchaseSuccessfulDismissEvent,
+  CheckoutPaymentFormGatewayErrorEvent,
+  CheckoutPaymentFormSubmitEvent,
 } from "./sdk-events";
 import {
   SDKEventName,
-  type BillingEmailEntryErrorEvent,
+  type CheckoutBillingFormErrorEvent,
   type CheckoutSessionStartEvent,
-  type SDKInitializedEvent,
 } from "./sdk-events";
-import { VERSION } from "../helpers/constants";
 import type { BrandingAppearance } from "../networking/responses/branding-response";
 import type { Package } from "../entities/offerings";
 import type { PurchaseOption } from "../entities/offerings";
 import type { RedemptionInfo } from "../entities/redemption-info";
 
-export function createSDKInitializedEvent(): SDKInitializedEvent {
+export function createCheckoutFlowErrorEvent({
+  errorCode,
+  errorMessage,
+}: {
+  errorCode: string | null;
+  errorMessage: string;
+}): CheckoutFlowErrorEvent {
   return {
-    eventName: SDKEventName.SDKInitialized,
+    eventName: SDKEventName.CheckoutFlowError,
     properties: {
-      sdkVersion: VERSION,
+      errorCode,
+      errorMessage,
     },
   };
 }
 
-export function createBillingEmailEntryErrorEvent(
-  errorCode: number | null,
-  errorMessage: string,
-): BillingEmailEntryErrorEvent {
+export function createCheckoutBillingFormErrorEvent({
+  errorCode,
+  errorMessage,
+}: {
+  errorCode: string | null;
+  errorMessage: string;
+}): CheckoutBillingFormErrorEvent {
   return {
-    eventName: SDKEventName.BillingEmailEntryError,
+    eventName: SDKEventName.CheckoutBillingFormError,
     properties: {
       errorCode: errorCode,
       errorMessage: errorMessage,
@@ -40,12 +49,17 @@ export function createBillingEmailEntryErrorEvent(
   };
 }
 
-export function createCheckoutSessionStartEvent(
-  appearance: BrandingAppearance | undefined,
-  rcPackage: Package,
-  purchaseOptionToUse: PurchaseOption,
-  customerEmail: string | undefined,
-): CheckoutSessionStartEvent {
+export function createCheckoutSessionStartEvent({
+  appearance,
+  rcPackage,
+  purchaseOptionToUse,
+  customerEmail,
+}: {
+  appearance: BrandingAppearance | undefined;
+  rcPackage: Package;
+  purchaseOptionToUse: PurchaseOption;
+  customerEmail: string | undefined;
+}): CheckoutSessionStartEvent {
   return {
     eventName: SDKEventName.CheckoutSessionStart,
     properties: {
@@ -65,17 +79,19 @@ export function createCheckoutSessionStartEvent(
       productInterval: rcPackage.rcBillingProduct.normalPeriodDuration,
       productPrice: rcPackage.rcBillingProduct.currentPrice.amountMicros,
       productCurrency: rcPackage.rcBillingProduct.currentPrice.currency,
-      selectedProduct: rcPackage.rcBillingProduct.identifier,
-      selectedPackage: rcPackage.identifier,
+      selectedProductId: rcPackage.rcBillingProduct.identifier,
+      selectedPackageId: rcPackage.identifier,
       selectedPurchaseOption: purchaseOptionToUse.id,
       customerEmailProvidedByDeveloper: Boolean(customerEmail),
     },
   };
 }
 
-export function createCheckoutSessionEndFinishedEvent(
-  redemptionInfo: RedemptionInfo | null,
-): CheckoutSessionFinishedEvent {
+export function createCheckoutSessionEndFinishedEvent({
+  redemptionInfo,
+}: {
+  redemptionInfo: RedemptionInfo | null;
+}): CheckoutSessionFinishedEvent {
   return {
     eventName: SDKEventName.CheckoutSessionEnd,
     properties: {
@@ -94,10 +110,13 @@ export function createCheckoutSessionEndClosedEvent(): CheckoutSessionClosedEven
   };
 }
 
-export function createCheckoutSessionEndErroredEvent(
-  errorCode: number | null,
-  errorMessage: string,
-): CheckoutSessionErroredEvent {
+export function createCheckoutSessionEndErroredEvent({
+  errorCode,
+  errorMessage,
+}: {
+  errorCode: string | null;
+  errorMessage: string;
+}): CheckoutSessionErroredEvent {
   return {
     eventName: SDKEventName.CheckoutSessionEnd,
     properties: {
@@ -108,37 +127,42 @@ export function createCheckoutSessionEndErroredEvent(
   };
 }
 
-export function createPaymentEntrySubmitEvent(
-  selectedPaymentMethod: string | undefined,
-): PaymentEntrySubmitEvent {
+export function createCheckoutPaymentFormSubmitEvent({
+  selectedPaymentMethod,
+}: {
+  selectedPaymentMethod: string | null;
+}): CheckoutPaymentFormSubmitEvent {
   return {
-    eventName: SDKEventName.PaymentEntrySubmit,
+    eventName: SDKEventName.CheckoutPaymentFormSubmit,
     properties: {
       selectedPaymentMethod: selectedPaymentMethod ?? null,
     },
   };
 }
 
-export function createPaymentEntryErrorEvent(
-  gatewayErrorCode: string | null,
-  gatewayErrorMessage: string | null,
-): PaymentEntryErrorEvent {
+export function createCheckoutPaymentGatewayErrorEvent({
+  errorCode,
+  errorMessage,
+}: {
+  errorCode: string | null;
+  errorMessage: string;
+}): CheckoutPaymentFormGatewayErrorEvent {
   return {
-    eventName: SDKEventName.PaymentEntryError,
+    eventName: SDKEventName.CheckoutPaymentFormGatewayError,
     properties: {
-      gatewayErrorCode: gatewayErrorCode,
-      gatewayErrorMessage: gatewayErrorMessage,
+      errorCode: errorCode,
+      errorMessage: errorMessage,
     },
   };
 }
 
-export function createPurchaseSuccessfulDismissEvent(
-  buttonPressed: "go_back_to_app" | "close",
-): PurchaseSuccessfulDismissEvent {
+export function createCheckoutPurchaseSuccessfulDismissEvent(
+  uiElement: "go_back_to_app" | "close",
+): CheckoutPurchaseSuccessfulDismissEvent {
   return {
-    eventName: SDKEventName.PurchaseSuccessfulDismiss,
+    eventName: SDKEventName.CheckoutPurchaseSuccessfulDismiss,
     properties: {
-      buttonPressed: buttonPressed,
+      ui_element: uiElement,
     },
   };
 }
