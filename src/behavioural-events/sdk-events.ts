@@ -5,34 +5,36 @@ export type SDKEvent =
   | CheckoutSessionStartEvent
   | CheckoutSessionFinishedEvent
   | CheckoutSessionClosedEvent
+  | CheckoutFlowErrorEvent
   | CheckoutSessionErroredEvent
-  | BillingEmailEntryImpressionEvent
-  | BillingEmailEntryDismissEvent
-  | BillingEmailEntrySubmitEvent
-  | BillingEmailEntrySuccessEvent
-  | BillingEmailEntryErrorEvent
-  | PaymentEntryImpressionEvent
-  | PaymentEntrySubmitEvent
-  | PaymentEntryDismissEvent
-  | PaymentEntryErrorEvent
-  | PurchaseSuccessfulImpressionEvent
-  | PurchaseSuccessfulDismissEvent;
+  | CheckoutBillingFormImpressionEvent
+  | CheckoutBillingFormDismissEvent
+  | CheckoutBillingFormSubmitEvent
+  | CheckoutBillingFormSuccessEvent
+  | CheckoutBillingFormErrorEvent
+  | CheckoutPaymentFormImpressionEvent
+  | CheckoutPaymentFormDismissEvent
+  | CheckoutPaymentFormSubmitEvent
+  | CheckoutPaymentFormGatewayErrorEvent
+  | CheckoutPurchaseSuccessfulImpressionEvent
+  | CheckoutPurchaseSuccessfulDismissEvent;
 
 export enum SDKEventName {
   SDKInitialized = "sdk_initialized",
   CheckoutSessionStart = "checkout_session_start",
   CheckoutSessionEnd = "checkout_session_end",
-  BillingEmailEntryImpression = "billing_email_entry_impression",
-  BillingEmailEntryDismiss = "billing_email_entry_dismiss",
-  BillingEmailEntrySubmit = "billing_email_entry_submit",
-  BillingEmailEntrySuccess = "billing_email_entry_success",
-  BillingEmailEntryError = "billing_email_entry_error",
-  PaymentEntryImpression = "payment_entry_impression",
-  PaymentEntryDismiss = "payment_entry_dismiss",
-  PaymentEntrySubmit = "payment_entry_submit",
-  PaymentEntryError = "payment_entry_error",
-  PurchaseSuccessfulImpression = "purchase_successful_impression",
-  PurchaseSuccessfulDismiss = "purchase_successful_dismiss",
+  CheckoutFlowError = "checkout_flow_error",
+  CheckoutBillingFormImpression = "checkout_billing_form_impression",
+  CheckoutBillingFormDismiss = "checkout_billing_form_dismiss",
+  CheckoutBillingFormSubmit = "checkout_billing_form_submit",
+  CheckoutBillingFormSuccess = "checkout_billing_form_success",
+  CheckoutBillingFormError = "checkout_billing_form_error",
+  CheckoutPaymentFormImpression = "checkout_payment_form_impression",
+  CheckoutPaymentFormDismiss = "checkout_payment_form_dismiss",
+  CheckoutPaymentFormSubmit = "checkout_payment_form_submit",
+  CheckoutPaymentFormGatewayError = "checkout_payment_form_gateway_error",
+  CheckoutPurchaseSuccessfulImpression = "checkout_purchase_successful_impression",
+  CheckoutPurchaseSuccessfulDismiss = "checkout_purchase_successful_dismiss",
 }
 
 interface ISDKEvent {
@@ -41,9 +43,6 @@ interface ISDKEvent {
 
 export interface SDKInitializedEvent extends ISDKEvent {
   eventName: SDKEventName.SDKInitialized;
-  properties: {
-    sdkVersion: string;
-  };
 }
 
 export interface CustomizationOptions extends EventProperties {
@@ -65,8 +64,8 @@ export interface CheckoutSessionStartEvent extends ISDKEvent {
     productInterval: string | null;
     productPrice: number;
     productCurrency: string;
-    selectedProduct: string;
-    selectedPackage: string;
+    selectedProductId: string;
+    selectedPackageId: string;
     selectedPurchaseOption: string;
     customerEmailProvidedByDeveloper: boolean;
   };
@@ -91,65 +90,73 @@ export interface CheckoutSessionErroredEvent extends ISDKEvent {
   eventName: SDKEventName.CheckoutSessionEnd;
   properties: {
     outcome: "errored";
-    errorCode: number | null;
+    errorCode: string | null;
     errorMessage: string;
   };
 }
 
-export interface BillingEmailEntryImpressionEvent extends ISDKEvent {
-  eventName: SDKEventName.BillingEmailEntryImpression;
-}
-
-export interface BillingEmailEntryDismissEvent extends ISDKEvent {
-  eventName: SDKEventName.BillingEmailEntryDismiss;
-}
-
-export interface BillingEmailEntrySubmitEvent extends ISDKEvent {
-  eventName: SDKEventName.BillingEmailEntrySubmit;
-}
-
-export interface BillingEmailEntrySuccessEvent extends ISDKEvent {
-  eventName: SDKEventName.BillingEmailEntrySuccess;
-}
-
-export interface BillingEmailEntryErrorEvent extends ISDKEvent {
-  eventName: SDKEventName.BillingEmailEntryError;
+export interface CheckoutFlowErrorEvent extends ISDKEvent {
+  eventName: SDKEventName.CheckoutFlowError;
   properties: {
-    errorCode: number | null;
+    errorCode: string | null;
     errorMessage: string;
   };
 }
 
-export interface PaymentEntryImpressionEvent extends ISDKEvent {
-  eventName: SDKEventName.PaymentEntryImpression;
+export interface CheckoutBillingFormImpressionEvent extends ISDKEvent {
+  eventName: SDKEventName.CheckoutBillingFormImpression;
 }
 
-export interface PaymentEntryDismissEvent extends ISDKEvent {
-  eventName: SDKEventName.PaymentEntryDismiss;
+export interface CheckoutBillingFormDismissEvent extends ISDKEvent {
+  eventName: SDKEventName.CheckoutBillingFormDismiss;
 }
 
-export interface PaymentEntryErrorEvent extends ISDKEvent {
-  eventName: SDKEventName.PaymentEntryError;
+export interface CheckoutBillingFormSubmitEvent extends ISDKEvent {
+  eventName: SDKEventName.CheckoutBillingFormSubmit;
+}
+
+export interface CheckoutBillingFormSuccessEvent extends ISDKEvent {
+  eventName: SDKEventName.CheckoutBillingFormSuccess;
+}
+
+export interface CheckoutBillingFormErrorEvent extends ISDKEvent {
+  eventName: SDKEventName.CheckoutBillingFormError;
   properties: {
-    gatewayErrorCode: string | null;
-    gatewayErrorMessage: string | null;
+    errorCode: string | null;
+    errorMessage: string;
   };
 }
 
-export interface PaymentEntrySubmitEvent extends ISDKEvent {
-  eventName: SDKEventName.PaymentEntrySubmit;
+export interface CheckoutPaymentFormImpressionEvent extends ISDKEvent {
+  eventName: SDKEventName.CheckoutPaymentFormImpression;
+}
+
+export interface CheckoutPaymentFormDismissEvent extends ISDKEvent {
+  eventName: SDKEventName.CheckoutPaymentFormDismiss;
+}
+
+export interface CheckoutPaymentFormGatewayErrorEvent extends ISDKEvent {
+  eventName: SDKEventName.CheckoutPaymentFormGatewayError;
+  properties: {
+    errorCode: string | null;
+    errorMessage: string;
+  };
+}
+
+export interface CheckoutPaymentFormSubmitEvent extends ISDKEvent {
+  eventName: SDKEventName.CheckoutPaymentFormSubmit;
   properties: {
     selectedPaymentMethod: string | null;
   };
 }
 
-export interface PurchaseSuccessfulImpressionEvent extends ISDKEvent {
-  eventName: SDKEventName.PurchaseSuccessfulImpression;
+export interface CheckoutPurchaseSuccessfulImpressionEvent extends ISDKEvent {
+  eventName: SDKEventName.CheckoutPurchaseSuccessfulImpression;
 }
 
-export interface PurchaseSuccessfulDismissEvent extends ISDKEvent {
-  eventName: SDKEventName.PurchaseSuccessfulDismiss;
+export interface CheckoutPurchaseSuccessfulDismissEvent extends ISDKEvent {
+  eventName: SDKEventName.CheckoutPurchaseSuccessfulDismiss;
   properties: {
-    buttonPressed: "go_back_to_app" | "close";
+    ui_element: "go_back_to_app" | "close";
   };
 }

@@ -25,9 +25,9 @@
 
   function handleContinue() {
     eventsTracker.trackSDKEvent({
-      eventName: SDKEventName.PurchaseSuccessfulDismiss,
+      eventName: SDKEventName.CheckoutPurchaseSuccessfulDismiss,
       properties: {
-        buttonPressed: "go_back_to_app",
+        ui_element: "go_back_to_app",
       },
     });
     onContinue();
@@ -35,9 +35,9 @@
 
   function handleClose() {
     eventsTracker.trackSDKEvent({
-      eventName: SDKEventName.PurchaseSuccessfulDismiss,
+      eventName: SDKEventName.CheckoutPurchaseSuccessfulDismiss,
       properties: {
-        buttonPressed: "close",
+        ui_element: "close",
       },
     });
     onContinue();
@@ -45,7 +45,7 @@
 
   onMount(() => {
     eventsTracker.trackSDKEvent({
-      eventName: SDKEventName.PurchaseSuccessfulImpression,
+      eventName: SDKEventName.CheckoutPurchaseSuccessfulImpression,
     });
   });
 </script>

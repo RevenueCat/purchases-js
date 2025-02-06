@@ -285,7 +285,6 @@ test.describe("Main", () => {
           event?.app_user_id === userId &&
           event?.properties?.checkout_session_id === null &&
           event?.properties?.trace_id !== undefined &&
-          event?.properties?.sdk_version !== undefined &&
           event?.context?.library?.name === "purchases-js" &&
           event?.context?.library?.version === "0.15.1" &&
           event?.context?.locale !== undefined &&

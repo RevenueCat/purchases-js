@@ -16,7 +16,7 @@
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import { eventsTrackerContextKey } from "../constants";
   import { type IEventsTracker } from "../../behavioural-events/events-tracker";
-  import { createBillingEmailEntryErrorEvent } from "../../behavioural-events/event-helpers";
+  import { createCheckoutBillingFormErrorEvent } from "../../behavioural-events/event-helpers";
   import { SDKEventName } from "../../behavioural-events/sdk-events";
 
   export let onContinue: any;
@@ -26,7 +26,7 @@
 
   function onCloseHandle() {
     eventsTracker.trackSDKEvent({
-      eventName: SDKEventName.BillingEmailEntryDismiss,
+      eventName: SDKEventName.CheckoutBillingFormDismiss,
     });
     onClose();
   }
@@ -40,11 +40,14 @@
   const handleContinue = async () => {
     errorMessage = validateEmail(email) ?? "";
     if (errorMessage !== "") {
-      const event = createBillingEmailEntryErrorEvent(null, errorMessage);
+      const event = createCheckoutBillingFormErrorEvent({
+        errorCode: null,
+        errorMessage,
+      });
       eventsTracker.trackSDKEvent(event);
     } else {
       eventsTracker.trackSDKEvent({
-        eventName: SDKEventName.BillingEmailEntrySubmit,
+        eventName: SDKEventName.CheckoutBillingFormSubmit,
       });
       onContinue({ email });
     }
@@ -52,7 +55,7 @@
 
   onMount(() => {
     eventsTracker.trackSDKEvent({
-      eventName: SDKEventName.BillingEmailEntryImpression,
+      eventName: SDKEventName.CheckoutBillingFormImpression,
     });
   });
 

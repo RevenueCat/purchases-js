@@ -59,7 +59,7 @@ describe("PurchasesUI", () => {
     });
 
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: SDKEventName.PaymentEntryImpression,
+      eventName: SDKEventName.CheckoutPaymentFormImpression,
     });
   });
 
@@ -72,9 +72,9 @@ describe("PurchasesUI", () => {
   //   const closeButton = screen.getByRole("button", { name: "Close" });
   //   await fireEvent.click(closeButton);
 
-  //   expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-  //     eventName: SDKEventName.PaymentEntryDismiss,
-  //   });
+  // expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
+  //   eventName: SDKEventName.CheckoutBillingFormDismiss,
+  // });
   // });
 
   // test.only("tracks the PaymentEntrySubmit event when the payment entry is submitted", async () => {
@@ -90,7 +90,7 @@ describe("PurchasesUI", () => {
   //   await vi.advanceTimersToNextTimerAsync();
 
   //   expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-  //     eventName: SDKEventName.PaymentEntrySubmit,
+  //     eventName: SDKEventName.CheckoutBillingFormSubmit,
   //   });
   // });
 
@@ -107,7 +107,7 @@ describe("PurchasesUI", () => {
   //   await vi.advanceTimersToNextTimerAsync();
 
   //   expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-  //     eventName: SDKEventName.PaymentEntryError,
+  //     eventName: SDKEventName.CheckoutBillingFormError,
   //   });
   // });
 });

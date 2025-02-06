@@ -56,18 +56,18 @@ describe("PurchasesUI", () => {
     expect(screen.queryByText(/Email is not valid/)).not.toBeInTheDocument();
   });
 
-  test("tracks the BillingEmailEntryImpression on mount", async () => {
+  test("tracks the CheckoutBillingFormImpression on mount", async () => {
     render(StateNeedsAuthInfo, {
       props: { ...basicProps, customerEmail: undefined },
       context: defaultContext,
     });
 
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: SDKEventName.BillingEmailEntryImpression,
+      eventName: SDKEventName.CheckoutBillingFormImpression,
     });
   });
 
-  test("tracks the BillingEmailEntrySubmit event email is submitted", async () => {
+  test("tracks the CheckoutBillingFormSubmit event email is submitted", async () => {
     render(StateNeedsAuthInfo, {
       props: { ...basicProps, customerEmail: undefined },
       context: defaultContext,
@@ -79,11 +79,11 @@ describe("PurchasesUI", () => {
     await fireEvent.click(continueButton);
 
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: SDKEventName.BillingEmailEntrySubmit,
+      eventName: SDKEventName.CheckoutBillingFormSubmit,
     });
   });
 
-  test("tracks the BillingEmailEntryDismiss event when closed", async () => {
+  test("tracks the CheckoutBillingFormDismiss event when closed", async () => {
     render(StateNeedsAuthInfo, {
       props: { ...basicProps, customerEmail: undefined },
       context: defaultContext,
@@ -93,12 +93,12 @@ describe("PurchasesUI", () => {
     await fireEvent.click(closeButton);
 
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: SDKEventName.BillingEmailEntryDismiss,
+      eventName: SDKEventName.CheckoutBillingFormDismiss,
     });
     expect(basicProps.onClose).toHaveBeenCalled();
   });
 
-  test("tracks the BillingEmailEntryError event when input has an email format error", async () => {
+  test("tracks the CheckoutBillingFormError event when input has an email format error", async () => {
     render(StateNeedsAuthInfo, {
       props: { ...basicProps, customerEmail: undefined },
       context: defaultContext,
@@ -110,7 +110,7 @@ describe("PurchasesUI", () => {
     await fireEvent.click(continueButton);
 
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: SDKEventName.BillingEmailEntryError,
+      eventName: SDKEventName.CheckoutBillingFormError,
       properties: {
         errorCode: null,
         errorMessage:

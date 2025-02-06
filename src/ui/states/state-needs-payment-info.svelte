@@ -33,8 +33,8 @@
   import { type IEventsTracker } from "../../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "../constants";
   import {
-    createPaymentEntryErrorEvent,
-    createPaymentEntrySubmitEvent,
+    createCheckoutPaymentGatewayErrorEvent,
+    createCheckoutPaymentFormSubmitEvent,
   } from "../../behavioural-events/event-helpers";
   import { SDKEventName } from "../../behavioural-events/sdk-events";
 
@@ -66,7 +66,7 @@
 
   onMount(async () => {
     eventsTracker.trackSDKEvent({
-      eventName: SDKEventName.PaymentEntryImpression,
+      eventName: SDKEventName.CheckoutPaymentFormImpression,
     });
 
     const stripePk = paymentInfoCollectionMetadata.data.publishable_api_key;
@@ -83,7 +83,7 @@
 
   const handleClose = () => {
     eventsTracker.trackSDKEvent({
-      eventName: SDKEventName.PaymentEntryDismiss,
+      eventName: SDKEventName.CheckoutPaymentFormDismiss,
     });
     onClose();
   };
@@ -91,7 +91,9 @@
   const handleContinue = async () => {
     if (processing || !stripe || !safeElements || !clientSecret) return;
 
-    const event = createPaymentEntrySubmitEvent(selectedPaymentMethod);
+    const event = createCheckoutPaymentFormSubmitEvent({
+      selectedPaymentMethod: selectedPaymentMethod ?? null,
+    });
     eventsTracker.trackSDKEvent(event);
 
     processing = true;
@@ -115,10 +117,10 @@
     }
 
     if (error) {
-      const event = createPaymentEntryErrorEvent(
-        error.code ?? null,
-        error.message ?? null,
-      );
+      const event = createCheckoutPaymentGatewayErrorEvent({
+        errorCode: error.code ?? null,
+        errorMessage: error.message ?? "",
+      });
       eventsTracker.trackSDKEvent(event);
       processing = false;
       if (shouldShowErrorModal(error)) {
