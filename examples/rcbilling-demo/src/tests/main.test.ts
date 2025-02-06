@@ -318,7 +318,7 @@ function successfulEventTrackingResponseMatcher(
 ) {
   return async (response: Response) => {
     if (
-      response.url() !== "https://api.revenuecat.com/v1/events" ||
+      response.url() !== "https://e.revenue.cat/v1/events" ||
       response.status() !== 200
     ) {
       return false;

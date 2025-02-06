@@ -250,7 +250,6 @@ export class Purchases {
     }
     this.eventsTracker = new EventsTracker({
       apiKey: this._API_KEY,
-      httpConfig: httpConfig,
       appUserId: this._appUserId,
     });
     this.backend = new Backend(this._API_KEY, httpConfig);
