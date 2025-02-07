@@ -79,27 +79,6 @@
   parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
 
-<Story
-  name="Button (Secondary)"
-  args={{
-    component: ButtonComponent,
-    children: "Click me",
-    intent: "secondary",
-  }}
-  parameters={{ viewport: { defaultViewport: "mobile" } }}
-/>
-
-<Story
-  name="Button (Secondary disabled)"
-  args={{
-    component: ButtonComponent,
-    children: "Click me",
-    intent: "secondary",
-    disabled: true,
-  }}
-  parameters={{ viewport: { defaultViewport: "mobile" } }}
-/>
-
 <style>
   .story-container {
     margin: 0 5vw;

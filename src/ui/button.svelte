@@ -1,7 +1,7 @@
 <script lang="ts">
   import { type Snippet } from "svelte";
 
-  export let intent: "primary" | "secondary" = "primary";
+  export let intent: "primary" = "primary";
   export let disabled = false;
   export let testId: string | undefined = undefined;
   export let type: "reset" | "submit" | "button" | null | undefined = undefined;
@@ -59,7 +59,7 @@
     outline: none;
   }
 
-  button:hover {
+  button.intent-primary:not(:disabled):hover {
     background-color: var(--rc-color-primary-hover);
   }
 
