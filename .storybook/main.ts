@@ -9,14 +9,12 @@ const config: StorybookConfig = {
     {
       name: "@storybook/addon-svelte-csf",
       options: {
-        legacyTemplate: true,
+        legacyTemplate: false,
       },
     },
   ],
   framework: "@storybook/svelte-vite",
-  docs: {
-    autodocs: "tag",
-  },
+  docs: {},
   env: (config) => ({
     ...config,
     VITE_STORYBOOK_PUBLISHABLE_API_KEY:

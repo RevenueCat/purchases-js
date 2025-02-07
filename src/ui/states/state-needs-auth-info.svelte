@@ -3,20 +3,18 @@
   import ModalFooter from "../modal-footer.svelte";
   import ModalSection from "../modal-section.svelte";
   import RowLayout from "../layout/row-layout.svelte";
-  import ModalHeader from "../modal-header.svelte";
   import ProcessingAnimation from "../processing-animation.svelte";
   import { validateEmail } from "../../helpers/validators";
   import { PurchaseFlowError } from "../../helpers/purchase-operation-helper";
   import { beforeUpdate, getContext } from "svelte";
-  import CloseButton from "../close-button.svelte";
   import Localized from "../localization/localized.svelte";
   import { translatorContextKey } from "../localization/constants";
   import { Translator } from "../localization/translator";
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
+  import SecureCheckoutRc from "../secure-checkout-rc.svelte";
 
   export let onContinue: any;
-  export let onClose: () => void;
   export let processing: boolean;
   export let lastError: PurchaseFlowError | null;
 
@@ -41,30 +39,24 @@
     getContext(translatorContextKey) || Translator.fallback();
 </script>
 
-<div class="container">
-  <ModalHeader>
-    <span>
+<div class="needs-auth-info-container">
+  <span class="auth-info-title">
+    <label for="email">
       <Localized key={LocalizationKeys.StateNeedsAuthInfoEmailStepTitle} />
-    </span>
-    <CloseButton on:click={onClose} />
-  </ModalHeader>
+    </label></span
+  >
   <form on:submit|preventDefault={handleContinue}>
     <ModalSection>
       <div class="form-container">
-        <div class="form-label">
-          <label for="email">
-            <Localized
-              key={LocalizationKeys.StateNeedsAuthInfoEmailInputLabel}
-            />
-          </label>
-        </div>
         <div class="form-input {inputClass}">
           <input
+            id="email"
             name="email"
             placeholder={translator.translate(
               LocalizationKeys.StateNeedsAuthInfoEmailInputPlaceholder,
             )}
             autocapitalize="off"
+            autocomplete="email"
             bind:value={email}
           />
         </div>
@@ -85,12 +77,33 @@
           {/if}
         </Button>
       </RowLayout>
+      <div class="secure-checkout-container">
+        <SecureCheckoutRc />
+      </div>
     </ModalFooter>
   </form>
 </div>
 
 <style>
-  .container {
+  .auth-info-title {
+    font: var(--rc-text-titleLarge-mobile);
+  }
+
+  .secure-checkout-container {
+    margin-top: var(--rc-spacing-gapXXLarge-mobile);
+  }
+
+  @media screen and (min-width: 768px) {
+    .auth-info-title {
+      font: var(--rc-text-titleLarge-desktop);
+    }
+
+    .secure-checkout-container {
+      margin-top: var(--rc-spacing-gapXXLarge-desktop);
+    }
+  }
+
+  .needs-auth-info-container {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
@@ -99,7 +112,6 @@
   form {
     display: flex;
     flex-direction: column;
-    min-height: 100%;
     flex-grow: 1;
   }
 
@@ -107,16 +119,28 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    margin-top: 32px;
-    margin-bottom: 16px;
+    margin-top: var(--rc-spacing-gapXLarge-desktop);
+    margin-bottom: var(--rc-spacing-gapXLarge-desktop);
+  }
+
+  @media screen and (max-width: 767px) {
+    .form-container {
+      margin-top: var(--rc-spacing-gapXLarge-mobile);
+      margin-bottom: var(--rc-spacing-gapXLarge-mobile);
+    }
   }
 
   .form-label {
-    margin-top: 8px;
-    margin-bottom: 8px;
+    margin-top: var(--rc-spacing-gapSmall-desktop);
+    margin-bottom: var(--rc-spacing-gapSmall-desktop);
+    font: var(--rc-text-body1-mobile);
     display: block;
-    font-weight: 500;
-    line-height: 22px;
+  }
+
+  @media screen and (min-width: 768px) {
+    .form-label {
+      font: var(--rc-text-body1-desktop);
+    }
   }
 
   .form-input.error input {
@@ -124,24 +148,45 @@
   }
 
   .form-error {
-    margin-top: 4px;
-    font-size: 16px;
-    line-height: 20px;
-    min-height: 40px;
+    margin-top: var(--rc-spacing-gapSmall-desktop);
+    font: var(--rc-text-body1-mobile);
     color: var(--rc-color-error);
+  }
+
+  @media screen and (min-width: 768px) {
+    .form-error {
+      font: var(--rc-text-body1-desktop);
+    }
   }
 
   input {
     width: 100%;
     box-sizing: border-box;
-    padding: 8px;
     border: 2px solid var(--rc-color-grey-ui-dark);
     border-radius: var(--rc-shape-input-border-radius);
-    font-size: 16px;
-    height: 48px;
-    padding: 6px 14px;
+    font: var(--rc-text-body1-mobile);
+    height: var(--rc-spacing-inputHeight-desktop);
     background: var(--rc-color-input-background);
     color: inherit;
+  }
+
+  @media screen and (max-width: 767px) {
+    input {
+      padding-left: var(--rc-spacing-gapLarge-mobile);
+      height: var(--rc-spacing-inputHeight-mobile);
+    }
+  }
+
+  @media screen and (min-width: 768px) {
+    input {
+      font: var(--rc-text-body1-desktop);
+      padding-left: var(--rc-spacing-gapLarge-desktop);
+    }
+
+    .needs-auth-info-container {
+      max-width: 50vw;
+      flex-grow: 0;
+    }
   }
 
   input:focus {

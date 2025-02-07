@@ -1,30 +1,29 @@
 <script lang="ts">
   import { type BrandingAppearance } from "../../networking/responses/branding-response";
-  import Modal from "../modal.svelte";
   import { Theme } from "../theme/theme";
+  import { onMount } from "svelte";
+  import SectionLayout from "./section-layout.svelte";
 
   export let brandingAppearance: BrandingAppearance | undefined = undefined;
   let style = new Theme(brandingAppearance).formStyleVars;
+
+  export let body;
+  export let header: (() => any) | null = null;
+
+  let showContent = false;
+  onMount(() => {
+    setTimeout(() => (showContent = true), 10);
+  });
 </script>
 
 <div class="rcb-ui-main" {style}>
-  <Modal style="min-height: 360px;">
-    <slot name="header" />
-    <slot />
-  </Modal>
+  <SectionLayout show={showContent} layoutStyle="" {header} {body} />
 </div>
 
 <style>
   .rcb-ui-main {
-    flex: 480px 1 0;
-    max-width: 640px;
-  }
-
-  @media screen and (max-width: 960px) {
-    .rcb-ui-main {
-      flex: none;
-      max-width: none;
-      min-width: 100%;
-    }
+    flex: 1;
+    display: flex;
+    background-color: var(--rc-color-background);
   }
 </style>

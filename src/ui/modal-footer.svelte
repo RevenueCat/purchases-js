@@ -1,5 +1,11 @@
+<script lang="ts">
+  import { type Snippet } from "svelte";
+
+  export let children: Snippet;
+</script>
+
 <footer class="rcb-modal-footer">
-  <slot />
+  {@render children?.()}
 </footer>
 
 <style>
