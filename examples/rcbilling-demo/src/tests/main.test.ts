@@ -297,9 +297,7 @@ test.describe("Main", () => {
           event?.context?.utm?.campaign === null &&
           event?.context?.utm?.content === null &&
           event?.context?.utm?.term === null &&
-          event?.context?.page?.path !== undefined &&
           event?.context?.page?.referrer === "" &&
-          event?.context?.page?.search === "" &&
           event?.context?.page?.url !== undefined &&
           event?.context?.page?.title ===
             "Health Check – RevenueCat Billing Demo"

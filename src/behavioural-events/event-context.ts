@@ -21,9 +21,7 @@ interface EventContext {
     term: string | null;
   };
   page: {
-    path: string;
     referrer: string;
-    search: string;
     url: string;
     title: string;
   };
@@ -52,9 +50,7 @@ export function buildEventContext(): EventContext & EventProperties {
       term: urlParams.get("utm_term") ?? null,
     },
     page: {
-      path: window.location.pathname,
       referrer: document.referrer,
-      search: window.location.search,
       url: window.location.href,
       title: document.title,
     },
