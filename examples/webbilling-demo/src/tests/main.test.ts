@@ -106,6 +106,38 @@ test.describe("Main", () => {
     await performPurchase(page, singleCard, userId);
   });
 
+  test("Does not propagate UTM params to metadata when purchasing if the developer opts out", async ({
+    browser,
+    browserName,
+  }) => {
+    const userId = `${getUserId(browserName)}_subscription`;
+    const utm_params = {
+      utm_source: "utm-source",
+      utm_medium: "utm-medium",
+      utm_campaign: "utm-campaign",
+      utm_term: "utm-term",
+      utm_content: "utm-content",
+    };
+    const page = await setupTest(browser, userId, {
+      ...utm_params,
+      optOutOfAutoUTM: true,
+    });
+
+    page.on("request", (request) => {
+      if (request.url().includes("purchase")) {
+        expect(request.postDataJSON()).toHaveProperty("metadata");
+        const metadata = request.postDataJSON().metadata;
+        expect(metadata).toStrictEqual({});
+      }
+    });
+
+    // Gets all elements that match the selector
+    const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
+    const singleCard = packageCards[1];
+
+    await performPurchase(page, singleCard, userId);
+  });
+
   test("Can render an RC Paywall", async ({ browser, browserName }) => {
     const userId = `${getUserId(browserName)}_subscription`;
     const page = await setupTest(browser, userId, {
@@ -342,6 +374,7 @@ async function setupTest(
     utm_campaign?: string;
     utm_term?: string;
     utm_content?: string;
+    optOutOfAutoUTM?: boolean;
   },
 ) {
   const page = await browser.newPage();
@@ -404,6 +437,7 @@ async function navigateToUrl(
     utm_campaign?: string;
     utm_term?: string;
     utm_content?: string;
+    optOutOfAutoUTM?: boolean;
   },
 ): Promise<void> {
   const baseUrl =
@@ -419,6 +453,7 @@ async function navigateToUrl(
     utm_term,
     utm_content,
     utm_medium,
+    optOutOfAutoUTM,
   } = queryString ?? {};
 
   const params = new URLSearchParams();
@@ -442,6 +477,9 @@ async function navigateToUrl(
   }
   if (utm_campaign) {
     params.append("utm_campaign", utm_campaign);
+  }
+  if (optOutOfAutoUTM) {
+    params.append("optOutOfAutoUTM", optOutOfAutoUTM.toString());
   }
 
   const url = `${baseUrl}${useRcPaywall ? "rc_paywall" : "paywall"}/${encodeURIComponent(userId)}?${params.toString()}`;

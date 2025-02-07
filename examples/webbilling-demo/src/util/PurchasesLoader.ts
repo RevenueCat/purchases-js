@@ -19,6 +19,8 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
   const searchParams = new URL(request.url).searchParams;
   const currency = searchParams.get("currency");
   const offeringId = searchParams.get("offeringId");
+  const optOutOfAutoUTM =
+    searchParams.get("optOutOfAutoUTM") === "true" || false;
 
   if (!appUserId) {
     throw redirect("/");
@@ -26,7 +28,12 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
   Purchases.setLogLevel(LogLevel.Verbose);
   try {
     if (!Purchases.isConfigured()) {
-      Purchases.configure(apiKey, appUserId);
+      Purchases.configure(
+        apiKey,
+        appUserId,
+        {},
+        { autoCollectUTMAsMetadata: !optOutOfAutoUTM },
+      );
     } else {
       await Purchases.getSharedInstance().changeUser(appUserId);
     }

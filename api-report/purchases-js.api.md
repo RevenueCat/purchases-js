@@ -111,7 +111,7 @@ export enum ErrorCode {
 
 // @public
 export interface FlagsConfig {
-    collectAutomaticallyUTMParamsAsMetadata?: boolean;
+    autoCollectUTMAsMetadata?: boolean;
 }
 
 // @public
