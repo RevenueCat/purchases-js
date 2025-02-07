@@ -182,7 +182,6 @@
   {handleContinue}
   {lastError}
   {paymentInfoCollectionMetadata}
-  {customerEmail}
   {purchaseOperationHelper}
   {closeWithError}
   {colorVariables}
