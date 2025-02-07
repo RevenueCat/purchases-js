@@ -33,10 +33,10 @@
   export let productDetails: Product;
   export let purchaseOptionToUse: PurchaseOption;
   export let brandingInfo: BrandingInfoResponse | null;
+  export let stripe: Stripe | null;
 
   const clientSecret = paymentInfoCollectionMetadata.data.client_secret;
 
-  let stripe: Stripe | null = null;
   let elements: StripeElements;
   let safeElements: StripeElements;
   let modalErrorMessage: string | undefined = undefined;
@@ -88,19 +88,6 @@
       safeElements = elements;
     }
   }
-
-  onMount(async () => {
-    const stripePk = paymentInfoCollectionMetadata.data.publishable_api_key;
-    const stripeAcctId = paymentInfoCollectionMetadata.data.stripe_account_id;
-
-    if (!stripePk || !stripeAcctId) {
-      throw new Error("Stripe publishable key or account ID not found");
-    }
-
-    stripe = await loadStripe(stripePk, {
-      stripeAccount: stripeAcctId,
-    });
-  });
 
   const handleContinue = async () => {
     if (processing || !stripe || !safeElements || !clientSecret) return;

@@ -19,6 +19,8 @@
     PurchaseFlowErrorCode,
   } from "../helpers/purchase-operation-helper";
   import { type PurchaseResponse } from "../networking/responses/purchase-response";
+  import { onMount } from "svelte";
+  import { loadStripe, Stripe } from "@stripe/stripe-js";
 
   export let currentView: CurrentView;
   export let brandingInfo: BrandingInfoResponse | null;
@@ -32,6 +34,8 @@
   export let lastError: PurchaseFlowError | null;
   export let paymentInfoCollectionMetadata: PurchaseResponse | null;
 
+  let stripe: Stripe | null = null;
+
   const viewsWhereOfferDetailsAreShown: CurrentView[] = [
     "present-offer",
     "needs-auth-info",
@@ -42,9 +46,27 @@
     "success",
     "error",
   ];
+
+  $: if (paymentInfoCollectionMetadata && !stripe) {
+    const stripePk = paymentInfoCollectionMetadata.data.publishable_api_key;
+    const stripeAcctId = paymentInfoCollectionMetadata.data.stripe_account_id;
+
+    if (!stripePk || !stripeAcctId) {
+      throw new Error("Stripe publishable key or account ID not found");
+    }
+
+    loadStripe(stripePk, {
+      stripeAccount: stripeAcctId,
+    }).then((s) => {
+      stripe = s;
+    });
+
+    console.log("stripe", stripe);
+  }
 </script>
 
 <Container brandingAppearance={brandingInfo?.appearance}>
+  {paymentInfoCollectionMetadata}
   {#if isSandbox}
     <SandboxBanner style={colorVariables} />
   {/if}
@@ -89,6 +111,7 @@
         {#if paymentInfoCollectionMetadata && (currentView === "needs-payment-info" || currentView === "polling-purchase-status") && productDetails && purchaseOptionToUse}
           <StateNeedsPaymentInfo
             {paymentInfoCollectionMetadata}
+            {stripe}
             onContinue={handleContinue}
             processing={currentView === "polling-purchase-status"}
             {productDetails}
