@@ -441,7 +441,7 @@ describe("postCheckoutStart request", () => {
       new PurchasesError(
         ErrorCode.UnknownBackendError,
         "Unknown backend error.",
-        "Request: checkoutStart. Status code: 500. Body: null.",
+        "Request: postCheckoutStart. Status code: 500. Body: null.",
       ),
     );
   });
@@ -594,7 +594,7 @@ describe("postCheckoutComplete request", () => {
       new PurchasesError(
         ErrorCode.UnknownBackendError,
         "Unknown backend error.",
-        "Request: checkoutComplete. Status code: 500. Body: null.",
+        "Request: postCheckoutComplete. Status code: 500. Body: null.",
       ),
     );
   });

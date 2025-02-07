@@ -95,7 +95,7 @@ describe("PurchaseOperationHelper", () => {
       new PurchaseFlowError(
         PurchaseFlowErrorCode.ErrorSettingUpPurchase,
         "Unknown backend error.",
-        "Request: checkoutStart. Status code: 500. Body: null.",
+        "Request: postCheckoutStart. Status code: 500. Body: null.",
       ),
     );
   });
@@ -166,7 +166,7 @@ describe("PurchaseOperationHelper", () => {
       new PurchaseFlowError(
         PurchaseFlowErrorCode.ErrorSettingUpPurchase,
         "Unknown backend error.",
-        "Request: checkoutComplete. Status code: 500. Body: null.",
+        "Request: postCheckoutComplete. Status code: 500. Body: null.",
       ),
     );
   });

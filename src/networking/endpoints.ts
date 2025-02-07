@@ -83,7 +83,7 @@ export class GetBrandingInfoEndpoint implements Endpoint {
 
 export class CheckoutStartEndpoint implements Endpoint {
   method: HttpMethodType = "POST";
-  name: string = "checkoutStart";
+  name: string = "postCheckoutStart";
   urlPath(): string {
     return `${RC_BILLING_PATH}/checkout/start`;
   }
@@ -91,7 +91,7 @@ export class CheckoutStartEndpoint implements Endpoint {
 
 export class CheckoutCompleteEndpoint implements Endpoint {
   method: HttpMethodType = "POST";
-  name: string = "checkoutComplete";
+  name: string = "postCheckoutComplete";
   private readonly operationSessionId: string;
 
   constructor(operationSessionId: string) {
