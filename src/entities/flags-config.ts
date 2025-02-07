@@ -7,9 +7,9 @@ export interface FlagsConfig {
    * If set to true, the SDK will automatically collect UTM parameters and store them as at the time of purchase.
    * @defaultValue true
    */
-  collectAutomaticallyUTMParamsAsMetadata?: boolean;
+  autoCollectUTMAsMetadata?: boolean;
 }
 
-export const defaultFlagsConfig = {
-  collectAutomaticallyUTMParamsAsMetadata: true,
+export const defaultFlagsConfig: FlagsConfig = {
+  autoCollectUTMAsMetadata: true,
 };

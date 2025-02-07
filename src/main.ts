@@ -533,8 +533,7 @@ export class Purchases {
 
     const localeToBeUsed = selectedLocale || defaultLocale;
 
-    const utmParamsMetadata = this._flags
-      .collectAutomaticallyUTMParamsAsMetadata
+    const utmParamsMetadata = this._flags.autoCollectUTMAsMetadata
       ? autoParseUTMParams()
       : {};
     const metadata = { ...utmParamsMetadata, ...(params.metadata || {}) };
