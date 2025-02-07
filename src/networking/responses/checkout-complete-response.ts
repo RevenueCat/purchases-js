@@ -1,6 +1,6 @@
 export interface CheckoutCompleteResponse {
   operation_session_id: string;
-  data: {
+  gateway_params: {
     client_secret?: string;
   };
 }

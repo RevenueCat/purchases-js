@@ -11,7 +11,7 @@
     subscriptionOption,
   } from "./fixtures";
   import { buildCheckoutStartResponse } from "./utils/purchase-response-builder";
-  import type { CheckoutStartResponse } from "../networking/responses/checkout-start-response";
+  import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
 
   const defaultArgs = {
     context: {},

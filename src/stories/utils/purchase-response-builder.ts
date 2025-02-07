@@ -22,7 +22,7 @@ export const buildCheckoutStartResponse = (): CheckoutStartResponse => {
 
   const checkoutStartResponse: CheckoutStartResponse = {
     operation_session_id: "rcbopsess_test_test_test",
-    data: {
+    gateway_params: {
       publishable_api_key: publishableApiKey,
       stripe_account_id: accountId,
       elements_configuration: {

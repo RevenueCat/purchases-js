@@ -18,7 +18,7 @@ interface StripeElementsConfiguration {
 
 export interface CheckoutStartResponse {
   operation_session_id: string;
-  data: {
+  gateway_params: {
     stripe_account_id?: string;
     publishable_api_key?: string;
     elements_configuration?: StripeElementsConfiguration;

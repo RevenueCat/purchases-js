@@ -72,7 +72,7 @@
 
     if (currentView === "present-offer") {
       if (customerEmail) {
-        handleSubscribe();
+        handlePurchase();
       } else {
         currentView = "needs-auth-info";
       }
@@ -81,7 +81,7 @@
     }
   });
 
-  const handleSubscribe = () => {
+  const handlePurchase = () => {
     if (productId === null) {
       handleError(
         new PurchaseFlowError(
@@ -126,7 +126,7 @@
         currentView = "processing-auth-info";
       }
 
-      handleSubscribe();
+      handlePurchase();
       return;
     }
 

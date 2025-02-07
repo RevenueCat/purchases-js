@@ -129,10 +129,10 @@
   }
 
   onMount(async () => {
-    const configurationData = paymentInfoCollectionMetadata.data;
-    const stripePk = configurationData.publishable_api_key;
-    const stripeAcctId = configurationData.stripe_account_id;
-    const elementsConfiguration = configurationData.elements_configuration;
+    const gatewayParams = paymentInfoCollectionMetadata.gateway_params;
+    const stripePk = gatewayParams.publishable_api_key;
+    const stripeAcctId = gatewayParams.stripe_account_id;
+    const elementsConfiguration = gatewayParams.elements_configuration;
     if (!stripePk || !stripeAcctId || !elementsConfiguration) {
       throw new Error("Stripe configuration is missing");
     }
@@ -267,7 +267,7 @@
       const checkoutCompleteResponse =
         await purchaseOperationHelper.checkoutComplete();
 
-      clientSecret = checkoutCompleteResponse.data.client_secret;
+      clientSecret = checkoutCompleteResponse.gateway_params.client_secret;
       if (!clientSecret) {
         throw new Error("Failed to complete checkout");
       }

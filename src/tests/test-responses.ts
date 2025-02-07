@@ -250,7 +250,7 @@ const brandingInfoResponse = {
 
 export const checkoutStartResponse: CheckoutStartResponse = {
   operation_session_id: "test-operation-session-id",
-  data: {
+  gateway_params: {
     stripe_account_id: "test-stripe-account-id",
     publishable_api_key: "test-publishable-api-key",
   },
@@ -258,7 +258,7 @@ export const checkoutStartResponse: CheckoutStartResponse = {
 
 export const checkoutCompleteResponse: CheckoutCompleteResponse = {
   operation_session_id: "test-operation-session-id",
-  data: {
+  gateway_params: {
     stripe_account_id: "test-stripe-account-id",
     publishable_api_key: "test-publishable-api-key",
     client_secret: "test-client-secret",
