@@ -20,7 +20,6 @@
     purchaseOption: subscriptionOption,
     brandingInfo: brandingInfo,
     lastError: purchaseFlowError,
-    customerEmail: "test@test.com",
     onContinue: () => {},
   };
 

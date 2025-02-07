@@ -28,7 +28,6 @@
   import { PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
 
   export let onContinue: any;
-  export let customerEmail: string;
   export let paymentInfoCollectionMetadata: CheckoutStartResponse;
   export let processing = false;
   export let productDetails: Product;
@@ -250,7 +249,7 @@
     if (submitError) {
       error = submitError;
     } else {
-      error = await completeCheckout(stripe, customerEmail);
+      error = await completeCheckout(stripe);
     }
 
     if (error) {
@@ -263,10 +262,10 @@
     }
   };
 
-  const completeCheckout = async (stripe: Stripe, customerEmail: string) => {
+  const completeCheckout = async (stripe: Stripe) => {
     if (!clientSecret) {
       const checkoutCompleteResponse =
-        await purchaseOperationHelper.checkoutComplete(customerEmail);
+        await purchaseOperationHelper.checkoutComplete();
 
       clientSecret = checkoutCompleteResponse.data.client_secret;
       if (!clientSecret) {

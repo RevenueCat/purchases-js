@@ -107,6 +107,7 @@
         productId,
         purchaseOptionToUse,
         rcPackage.webBillingProduct.presentedOfferingContext,
+        customerEmail,
       )
       .then((result) => {
         lastError = null;

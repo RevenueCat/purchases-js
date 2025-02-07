@@ -33,7 +33,6 @@
   export let lastError: PurchaseFlowError | null;
   export let paymentInfoCollectionMetadata: CheckoutStartResponse | null;
   export let purchaseOperationHelper: PurchaseOperationHelper;
-  export let customerEmail: string | undefined;
 
   const viewsWhereOfferDetailsAreShown: CurrentView[] = [
     "present-offer",
@@ -89,9 +88,8 @@
             {lastError}
           />
         {/if}
-        {#if paymentInfoCollectionMetadata && (currentView === "needs-payment-info" || currentView === "polling-purchase-status") && productDetails && purchaseOptionToUse && customerEmail}
+        {#if paymentInfoCollectionMetadata && (currentView === "needs-payment-info" || currentView === "polling-purchase-status") && productDetails && purchaseOptionToUse}
           <StateNeedsPaymentInfo
-            {customerEmail}
             {paymentInfoCollectionMetadata}
             onContinue={handleContinue}
             processing={currentView === "polling-purchase-status"}
