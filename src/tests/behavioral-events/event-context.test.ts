@@ -73,9 +73,7 @@ describe("buildEventContext", () => {
         term: null,
       },
       page: {
-        path: "/home",
         referrer: "https://referrer.com",
-        search: "?utm_source=google&utm_medium=cpc&utm_campaign=spring_sale",
         url: "https://example.com/home?utm_source=google&utm_medium=cpc&utm_campaign=spring_sale",
         title: "Example Page",
       },
