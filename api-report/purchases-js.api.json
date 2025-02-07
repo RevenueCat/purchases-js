@@ -1523,6 +1523,51 @@
         },
         {
           "kind": "Interface",
+          "canonicalReference": "@revenuecat/purchases-js!FlagsConfig:interface",
+          "docComment": "/**\n * Flags used to enable or disable certain features in the sdk.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare interface FlagsConfig "
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "name": "FlagsConfig",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!FlagsConfig#autoCollectUTMAsMetadata:member",
+              "docComment": "/**\n * If set to true, the SDK will automatically collect UTM parameters and store them as at the time of purchase.\n *\n * @defaultValue\n *\n * true\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "autoCollectUTMAsMetadata?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "autoCollectUTMAsMetadata",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
+          "kind": "Interface",
           "canonicalReference": "@revenuecat/purchases-js!GetOfferingsParams:interface",
           "docComment": "/**\n * Parameters for the {@link Purchases.getOfferings} method.\n *\n * @public\n */\n",
           "excerptTokens": [
@@ -4306,7 +4351,7 @@
             {
               "kind": "Method",
               "canonicalReference": "@revenuecat/purchases-js!Purchases.configure:member(1)",
-              "docComment": "/**\n * Configures the Purchases SDK. This should be called as soon as your app has a unique user id for your user. You should only call this once, and keep the returned instance around for use throughout your application.\n *\n * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.\n *\n * @param appUserId - Your unique id for identifying the user.\n *\n * @param httpConfig - Advanced http configuration to customise the SDK usage {@link HttpConfig}.\n *\n * @throws\n *\n * {@link PurchasesError} if the API key or user id are invalid.\n */\n",
+              "docComment": "/**\n * Configures the Purchases SDK. This should be called as soon as your app has a unique user id for your user. You should only call this once, and keep the returned instance around for use throughout your application.\n *\n * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.\n *\n * @param appUserId - Your unique id for identifying the user.\n *\n * @param httpConfig - Advanced http configuration to customise the SDK usage {@link HttpConfig}.\n *\n * @param flags - Advanced functionality configuration {@link FlagsConfig}.\n *\n * @throws\n *\n * {@link PurchasesError} if the API key or user id are invalid.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4335,6 +4380,15 @@
                 },
                 {
                   "kind": "Content",
+                  "text": ", flags?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "FlagsConfig",
+                  "canonicalReference": "@revenuecat/purchases-js!FlagsConfig:interface"
+                },
+                {
+                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -4349,8 +4403,8 @@
               ],
               "isStatic": true,
               "returnTypeTokenRange": {
-                "startIndex": 7,
-                "endIndex": 8
+                "startIndex": 9,
+                "endIndex": 10
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -4377,6 +4431,14 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "flags",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 7,
+                    "endIndex": 8
                   },
                   "isOptional": true
                 }
