@@ -33,6 +33,7 @@
     justify-content: center;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
     -webkit-tap-highlight-color: transparent;
+    transition: background-color 0.15s ease-in-out;
   }
 
   @media screen and (min-width: 768px) {
@@ -56,6 +57,14 @@
     color: var(--rc-color-grey-text-light);
     background-color: var(--rc-color-grey-ui-dark);
     outline: none;
+  }
+
+  button:hover {
+    background-color: var(--rc-color-primary-hover);
+  }
+
+  button:active {
+    background-color: var(--rc-color-primary-pressed);
   }
 
   button.intent-primary:disabled {

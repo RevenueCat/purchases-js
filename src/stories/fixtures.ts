@@ -99,12 +99,12 @@ export const purchaseFlowError = new PurchaseFlowError(1);
 
 export const colorfulBrandingAppearance: BrandingAppearance = {
   shapes: "rectangle",
-  color_form_bg: "#313131",
-  color_error: "#E79462",
-  color_product_info_bg: "#ffffff",
-  color_buttons_primary: "#AC7DE3",
-  color_accent: "#99BB37",
-  color_page_bg: "#ffffff",
+  color_form_bg: "#313131", // dark grey
+  color_error: "#E79462", // orange
+  color_product_info_bg: "#ffffff", // white
+  color_buttons_primary: "#AC7DE3", // purple
+  color_accent: "#99BB37", // green
+  color_page_bg: "#ffffff", // white
   font: "sans-serif",
   show_product_description: true,
 };

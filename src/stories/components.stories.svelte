@@ -6,10 +6,15 @@
   import { Theme } from "../ui/theme/theme";
   const defaultArgs = {};
 
-  let textStyle = new Theme(colorfulBrandingAppearance).textStyleVars;
-  let spacingStyle = new Theme(colorfulBrandingAppearance).spacingStyleVars;
-  let storyStyle = toProductInfoStyleVar(colorfulBrandingAppearance);
-  let style = [textStyle, spacingStyle, storyStyle].join("; ");
+  let generateStyle = (appearance: any) => {
+    let textStyle = new Theme(appearance).textStyleVars;
+    let spacingStyle = new Theme(appearance).spacingStyleVars;
+    let storyStyle = toProductInfoStyleVar(appearance);
+
+    return [textStyle, spacingStyle, storyStyle].join("; ");
+  };
+
+  let defaultStyle = generateStyle(colorfulBrandingAppearance);
 
   let { Story } = defineMeta({
     title: "Components",
@@ -22,7 +27,7 @@
   setTemplate(template);
 </script>
 
-{#snippet template({ component, children, ...args }: any)}
+{#snippet template({ component, children, style = defaultStyle, ...args }: any)}
   <div {style} class="story-container">
     <svelte:component this={component} {...args}>
       {#if children}
@@ -33,11 +38,32 @@
 {/snippet}
 
 <Story
-  name="Button (Primary)"
+  name="Button (Dark, White text, Primary)"
   args={{
     component: ButtonComponent,
     children: "Click me",
     intent: "primary",
+  }}
+  parameters={{ viewport: { defaultViewport: "mobile" } }}
+/>
+
+<Story
+  name="Button (Light, Black text, Pill, Primary)"
+  args={{
+    component: ButtonComponent,
+    children: "Click me",
+    intent: "primary",
+    style: generateStyle({
+      shapes: "pill",
+      color_form_bg: "#313131", // dark grey
+      color_error: "#E79462", // orange
+      color_product_info_bg: "#ffffff", // white
+      color_buttons_primary: "#EBE3F9", // light purple
+      color_accent: "#99BB37", // green
+      color_page_bg: "#ffffff", // white
+      font: "sans-serif",
+      show_product_description: true,
+    }),
   }}
   parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
