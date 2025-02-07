@@ -60,8 +60,6 @@
     }).then((s) => {
       stripe = s;
     });
-
-    console.log("stripe", stripe);
   }
 </script>
 
