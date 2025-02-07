@@ -43,6 +43,7 @@
     "preview": "vite preview",
     "lint": "prettier --check .",
     "format": "prettier --write .",
+    "pack-build": "npm run build && npm pack",
     "test": "vitest",
     "test:typecheck": "tsc --project tsconfig.test.json",
     "typecheck": "tsc --noEmit",

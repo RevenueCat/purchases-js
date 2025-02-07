@@ -82,6 +82,49 @@ const rgbToTextColors = (
   };
 };
 
+function overlayColor(
+  baseColor: string,
+  overlay: string,
+  alpha: number,
+): string {
+  const base = hexToRGB(baseColor) || { r: 0, g: 0, b: 0 };
+  const over = hexToRGB(overlay) || { r: 255, g: 255, b: 255 };
+  const r = Math.round(over.r * alpha + base.r * (1 - alpha));
+  const g = Math.round(over.g * alpha + base.g * (1 - alpha));
+  const b = Math.round(over.b * alpha + base.b * (1 - alpha));
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+
+/**
+ * Applies an alpha value to a color.
+ * If the base color is light, the overlay color is black.
+ * If the base color is dark, the overlay color is white.
+ */
+export function applyAlpha(baseColor: string, alpha: number): string {
+  const defaultRgb = { r: 255, g: 255, b: 255 };
+  const normalizedAlpha = Math.max(0, Math.min(1, alpha));
+
+  let appliedBaseColor = baseColor;
+
+  let baseRgb = hexToRGB(baseColor) || defaultRgb;
+
+  if (isNaN(baseRgb.r) || isNaN(baseRgb.g) || isNaN(baseRgb.b)) {
+    baseRgb = defaultRgb;
+    appliedBaseColor = "#FFFFFF";
+  }
+
+  const baseIsLight = isLightColor({
+    ...baseRgb,
+    luminanceThreshold: DEFAULT_LUMINANCE_THRESHOLD,
+  });
+  const overlay = baseIsLight ? "#000000" : "#FFFFFF";
+  return overlayColor(appliedBaseColor, overlay, normalizedAlpha);
+}
+
+function toHex(val: number) {
+  return val.toString(16).padStart(2, "0").toUpperCase();
+}
+
 const textColorsForBackground = (
   backgroundColor: string,
   primaryColor: string,
@@ -115,6 +158,13 @@ const textColorsForBackground = (
   }
 
   return textColors;
+};
+
+const colorsForButtonStates = (primaryColor: string) => {
+  return {
+    "primary-hover": applyAlpha(primaryColor, 0.1),
+    "primary-pressed": applyAlpha(primaryColor, 0.15),
+  };
 };
 
 const fallback = <T>(somethingNullable: T | null, defaultValue: T): T => {
@@ -159,6 +209,7 @@ export const toColors = (
           mappedColors.primary,
           defaultColors,
         ),
+        ...colorsForButtonStates(mappedColors.primary),
       }
     : { ...defaultColors }; //copy, do not reference.
 };
