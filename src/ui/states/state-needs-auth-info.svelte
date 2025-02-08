@@ -16,7 +16,7 @@
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import { eventsTrackerContextKey } from "../constants";
   import { type IEventsTracker } from "../../behavioural-events/events-tracker";
-  import { createCheckoutBillingFormErrorEvent } from "../../behavioural-events/event-helpers";
+  import { createCheckoutBillingFormErrorEvent } from "../../behavioural-events/sdk-event-helpers";
   import { SDKEventName } from "../../behavioural-events/sdk-events";
 
   export let onContinue: any;

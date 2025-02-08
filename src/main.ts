@@ -59,7 +59,7 @@ import {
   createCheckoutSessionEndFinishedEvent,
   createCheckoutSessionEndClosedEvent,
   createCheckoutSessionEndErroredEvent,
-} from "./behavioural-events/event-helpers";
+} from "./behavioural-events/sdk-event-helpers";
 import { SDKEventName } from "./behavioural-events/sdk-events";
 
 export { ProductType } from "./entities/offerings";

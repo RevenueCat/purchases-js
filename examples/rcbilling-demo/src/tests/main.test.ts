@@ -285,21 +285,21 @@ test.describe("Main", () => {
           event?.app_user_id === userId &&
           event?.properties?.checkout_session_id === null &&
           event?.properties?.trace_id !== undefined &&
-          event?.context?.library?.name === "purchases-js" &&
-          event?.context?.library?.version === "0.15.1" &&
+          event?.context?.library_name === "purchases-js" &&
+          event?.context?.library_version === "0.15.1" &&
           event?.context?.locale !== undefined &&
           event?.context?.user_agent !== undefined &&
           event?.context?.time_zone !== undefined &&
-          event?.context?.screen_size?.width !== undefined &&
-          event?.context?.screen_size?.height !== undefined &&
-          event?.context?.utm?.source === null &&
-          event?.context?.utm?.medium === null &&
-          event?.context?.utm?.campaign === null &&
-          event?.context?.utm?.content === null &&
-          event?.context?.utm?.term === null &&
-          event?.context?.page?.referrer === "" &&
-          event?.context?.page?.url !== undefined &&
-          event?.context?.page?.title ===
+          event?.context?.screen_width !== undefined &&
+          event?.context?.screen_height !== undefined &&
+          event?.context?.utm_source === null &&
+          event?.context?.utm_medium === null &&
+          event?.context?.utm_campaign === null &&
+          event?.context?.utm_content === null &&
+          event?.context?.utm_term === null &&
+          event?.context?.page_referrer === "" &&
+          event?.context?.page_url !== undefined &&
+          event?.context?.page_title ===
             "Health Check – RevenueCat Billing Demo"
         );
       }),

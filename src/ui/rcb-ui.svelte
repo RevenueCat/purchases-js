@@ -36,7 +36,7 @@
   } from "./localization/constants";
   import { type IEventsTracker } from "../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "./constants";
-  import { createCheckoutFlowErrorEvent } from "../behavioural-events/event-helpers";
+  import { createCheckoutFlowErrorEvent } from "../behavioural-events/sdk-event-helpers";
 
   export let asModal = true;
   export let customerEmail: string | undefined;

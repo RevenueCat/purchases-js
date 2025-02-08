@@ -35,7 +35,7 @@
   import {
     createCheckoutPaymentGatewayErrorEvent,
     createCheckoutPaymentFormSubmitEvent,
-  } from "../../behavioural-events/event-helpers";
+  } from "../../behavioural-events/sdk-event-helpers";
   import { SDKEventName } from "../../behavioural-events/sdk-events";
 
   export let onClose: any;

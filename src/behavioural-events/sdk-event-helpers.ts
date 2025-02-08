@@ -63,19 +63,18 @@ export function createCheckoutSessionStartEvent({
   return {
     eventName: SDKEventName.CheckoutSessionStart,
     properties: {
-      customizationOptions: appearance
-        ? {
-            colorButtonsPrimary: appearance.color_buttons_primary,
-            colorAccent: appearance.color_accent,
-            colorError: appearance.color_error,
-            colorProductInfoBg: appearance.color_product_info_bg,
-            colorFormBg: appearance.color_form_bg,
-            colorPageBg: appearance.color_page_bg,
-            font: appearance.font,
-            shapes: appearance.shapes,
-            showProductDescription: appearance.show_product_description,
-          }
-        : null,
+      customizationColorButtonsPrimary:
+        appearance?.color_buttons_primary ?? null,
+      customizationColorAccent: appearance?.color_accent ?? null,
+      customizationColorError: appearance?.color_error ?? null,
+      customizationColorProductInfoBg:
+        appearance?.color_product_info_bg ?? null,
+      customizationColorFormBg: appearance?.color_form_bg ?? null,
+      customizationColorPageBg: appearance?.color_page_bg ?? null,
+      customizationFont: appearance?.font ?? null,
+      customizationShapes: appearance?.shapes ?? null,
+      customizationShowProductDescription:
+        appearance?.show_product_description ?? null,
       productInterval: rcPackage.rcBillingProduct.normalPeriodDuration,
       productPrice: rcPackage.rcBillingProduct.currentPrice.amountMicros,
       productCurrency: rcPackage.rcBillingProduct.currentPrice.currency,

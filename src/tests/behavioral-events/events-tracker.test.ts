@@ -10,12 +10,10 @@ interface EventsTrackerFixtures {
   eventsTracker: EventsTracker;
 }
 
-vi.mock("../../behavioural-events/event-context", () => ({
+vi.mock("../../behavioural-events/sdk-event-context", () => ({
   buildEventContext: vi.fn().mockReturnValue({
-    library: {
-      name: "purchases-js",
-      version: "1.0.0",
-    },
+    library_name: "purchases-js",
+    library_version: "1.0.0",
   }),
 }));
 
@@ -53,7 +51,6 @@ describe("EventsTracker", (test) => {
         b: 1,
         c: false,
         d: null,
-        e: { nestedProperty: "" },
       },
     });
     await vi.advanceTimersToNextTimerAsync();
@@ -69,10 +66,8 @@ describe("EventsTracker", (test) => {
             event_name: "external",
             app_user_id: "someAppUserId",
             context: {
-              library: {
-                name: "purchases-js",
-                version: "1.0.0",
-              },
+              library_name: "purchases-js",
+              library_version: "1.0.0",
             },
             properties: {
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
@@ -81,9 +76,6 @@ describe("EventsTracker", (test) => {
               b: 1,
               c: false,
               d: null,
-              e: {
-                nested_property: "",
-              },
             },
           },
         ],

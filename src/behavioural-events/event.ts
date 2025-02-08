@@ -1,6 +1,6 @@
 import { camelToUnderscore } from "../helpers/camel-to-underscore";
 import { v4 as uuidv4 } from "uuid";
-import { buildEventContext } from "./event-context";
+import { buildEventContext } from "./sdk-event-context";
 
 export type EventData = {
   eventName: string;
@@ -10,19 +10,37 @@ export type EventData = {
   properties: EventProperties;
 };
 
+type EventPropertySingleValue = string | number | boolean;
+
 type EventPropertyValue =
-  | string
-  | number
-  | boolean
   | null
-  | EventPropertyArray
-  | EventProperties;
+  | EventPropertySingleValue
+  | Array<EventPropertyValue>;
 
 export interface EventProperties {
   [key: string]: EventPropertyValue;
 }
 
-type EventPropertyArray = Array<EventPropertyValue>;
+type EventContextSingleValue = string | number | boolean;
+
+type EventContextValue =
+  | null
+  | EventContextSingleValue
+  | Array<EventContextValue>;
+
+export type EventContext = {
+  [key: string]: EventContextValue;
+};
+
+type EventPayload = {
+  id: string;
+  timestamp_ms: number;
+  type: string;
+  event_name: string;
+  app_user_id: string;
+  context: EventContext;
+  properties: EventProperties;
+};
 
 export class Event {
   EVENT_TYPE = "web_billing";
@@ -37,17 +55,16 @@ export class Event {
     this.data = data;
   }
 
-  public toJSON(): Record<
-    string,
-    string | number | boolean | null | EventProperties
-  > {
+  public toJSON(): EventPayload {
     return {
       id: this.id,
       timestamp_ms: this.timestampMs,
       type: this.EVENT_TYPE,
       event_name: this.data.eventName,
       app_user_id: this.data.appUserId,
-      context: buildEventContext(),
+      context: {
+        ...(camelToUnderscore(buildEventContext()) as EventContext),
+      },
       properties: {
         ...(camelToUnderscore(this.data.properties) as EventProperties),
         trace_id: this.data.traceId,
