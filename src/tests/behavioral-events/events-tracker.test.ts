@@ -46,6 +46,7 @@ describe("EventsTracker", (test) => {
   }) => {
     eventsTracker.trackExternalEvent({
       eventName: "external",
+      source: "sdk",
       properties: {
         a: "b",
         b: 1,
@@ -89,6 +90,7 @@ describe("EventsTracker", (test) => {
     eventsTracker.updateUser("newAppUserId");
     eventsTracker.trackExternalEvent({
       eventName: "external",
+      source: "sdk",
       properties: { a: "b" },
     });
     await vi.advanceTimersToNextTimerAsync();
@@ -110,7 +112,10 @@ describe("EventsTracker", (test) => {
     eventsTracker,
   }) => {
     eventsTracker.generateCheckoutSessionId();
-    eventsTracker.trackExternalEvent({ eventName: "external" });
+    eventsTracker.trackExternalEvent({
+      eventName: "external",
+      source: "sdk",
+    });
     await vi.advanceTimersToNextTimerAsync();
 
     expect(APIPostRequest).toHaveBeenCalledWith(
@@ -154,7 +159,10 @@ describe("EventsTracker", (test) => {
       }),
     );
 
-    eventsTracker.trackExternalEvent({ eventName: "external" });
+    eventsTracker.trackExternalEvent({
+      eventName: "external",
+      source: "sdk",
+    });
 
     // Attempt 1: First direct attempt to flush without timeout
     await vi.advanceTimersByTimeAsync(100);
@@ -209,7 +217,10 @@ describe("EventsTracker", (test) => {
     );
 
     for (let i = 0; i < 4; i++) {
-      eventsTracker.trackExternalEvent({ eventName: "external" });
+      eventsTracker.trackExternalEvent({
+        eventName: "external",
+        source: "wpl",
+      });
     }
 
     await vi.advanceTimersByTimeAsync(1000 + 2000 + 4000 + 8000);
@@ -242,7 +253,10 @@ describe("EventsTracker", (test) => {
       }),
     );
 
-    eventsTracker.trackExternalEvent({ eventName: "external" });
+    eventsTracker.trackExternalEvent({
+      eventName: "external",
+      source: "wpl",
+    });
 
     // Attempt 1: First direct attempt to flush without timeout
     await vi.advanceTimersByTimeAsync(100);
@@ -293,6 +307,7 @@ describe("EventsTracker", (test) => {
               eventsTracker.trackExternalEvent({
                 eventName: "external2",
                 properties: { a: "b" },
+                source: "other",
               }),
             1_000,
           );
@@ -304,7 +319,10 @@ describe("EventsTracker", (test) => {
       }),
     );
 
-    eventsTracker.trackExternalEvent({ eventName: "external1" });
+    eventsTracker.trackExternalEvent({
+      eventName: "external1",
+      source: "wpl",
+    });
 
     await vi.runAllTimersAsync();
 

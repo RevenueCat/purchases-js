@@ -1,6 +1,5 @@
 import { camelToUnderscore } from "../helpers/camel-to-underscore";
 import { v4 as uuidv4 } from "uuid";
-import { buildEventContext } from "./sdk-event-context";
 
 export type EventData = {
   eventName: string;
@@ -8,6 +7,18 @@ export type EventData = {
   checkoutSessionId: string | null;
   appUserId: string;
   properties: EventProperties;
+  context: EventContext;
+};
+
+type EventContextSingleValue = string | number | boolean;
+
+type EventContextValue =
+  | null
+  | EventContextSingleValue
+  | Array<EventContextValue>;
+
+export type EventContext = {
+  [key: string]: EventContextValue;
 };
 
 type EventPropertySingleValue = string | number | boolean;
@@ -20,17 +31,6 @@ type EventPropertyValue =
 export interface EventProperties {
   [key: string]: EventPropertyValue;
 }
-
-type EventContextSingleValue = string | number | boolean;
-
-type EventContextValue =
-  | null
-  | EventContextSingleValue
-  | Array<EventContextValue>;
-
-export type EventContext = {
-  [key: string]: EventContextValue;
-};
 
 type EventPayload = {
   id: string;
@@ -63,7 +63,7 @@ export class Event {
       event_name: this.data.eventName,
       app_user_id: this.data.appUserId,
       context: {
-        ...(camelToUnderscore(buildEventContext()) as EventContext),
+        ...(camelToUnderscore(this.data.context) as EventContext),
       },
       properties: {
         ...(camelToUnderscore(this.data.properties) as EventProperties),

@@ -300,7 +300,8 @@ test.describe("Main", () => {
           event?.context?.page_referrer === "" &&
           event?.context?.page_url !== undefined &&
           event?.context?.page_title ===
-            "Health Check – RevenueCat Billing Demo"
+            "Health Check – RevenueCat Billing Demo" &&
+          event?.context?.source === "sdk"
         );
       }),
       { timeout: 3_000 },

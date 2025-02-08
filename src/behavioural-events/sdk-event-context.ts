@@ -1,6 +1,8 @@
 import { VERSION } from "../helpers/constants";
 import { type EventContext } from "./event";
 
+export type SDKEventContextSource = "sdk" | "wpl" | string;
+
 export interface SDKEventContext {
   libraryName: string;
   libraryVersion: string;
@@ -17,9 +19,12 @@ export interface SDKEventContext {
   pageReferrer: string;
   pageUrl: string;
   pageTitle: string;
+  source: SDKEventContextSource;
 }
 
-export function buildEventContext(): SDKEventContext & EventContext {
+export function buildEventContext(
+  source: SDKEventContextSource,
+): SDKEventContext & EventContext {
   const urlParams = new URLSearchParams(window.location.search);
 
   return {
@@ -38,5 +43,6 @@ export function buildEventContext(): SDKEventContext & EventContext {
     pageReferrer: document.referrer,
     pageUrl: window.location.href,
     pageTitle: document.title,
+    source: source,
   };
 }

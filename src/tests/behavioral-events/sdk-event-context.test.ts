@@ -51,7 +51,7 @@ describe("buildEventContext", () => {
   });
 
   it("should build the correct event context", () => {
-    const context = buildEventContext();
+    const context = buildEventContext("sdk");
 
     expect(context).toEqual({
       libraryName: "purchases-js",
@@ -70,6 +70,7 @@ describe("buildEventContext", () => {
       pageUrl:
         "https://example.com/home?utm_source=google&utm_medium=cpc&utm_campaign=spring_sale",
       pageTitle: "Example Page",
+      source: "sdk",
     });
   });
 });
