@@ -13,7 +13,7 @@ import {
 
 const MIN_INTERVAL_RETRY = 2_000;
 const MAX_INTERVAL_RETRY = 5 * 60_000;
-
+const JITTER_PERCENT = 0.1;
 export interface TrackEventProps {
   eventName: string;
   source: SDKEventContextSource;
@@ -51,6 +51,7 @@ export default class EventsTracker implements IEventsTracker {
     this.flushManager = new FlushManager(
       MIN_INTERVAL_RETRY,
       MAX_INTERVAL_RETRY,
+      JITTER_PERCENT,
       this.flushEvents.bind(this),
     );
   }
