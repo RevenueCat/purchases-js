@@ -12,7 +12,7 @@ import {
 } from "./sdk-event-context";
 
 const MIN_INTERVAL_RETRY = 2_000;
-const MAX_INTERVAL_RETRY = 60_000;
+const MAX_INTERVAL_RETRY = 5 * 60_000;
 
 export interface TrackEventProps {
   eventName: string;
