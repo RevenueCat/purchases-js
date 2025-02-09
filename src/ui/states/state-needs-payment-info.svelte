@@ -25,7 +25,8 @@
   // import TextSeparator from "../text-separator.svelte";
   import SecureCheckoutRc from "../secure-checkout-rc.svelte";
   import { type CheckoutStartResponse } from "../../networking/responses/checkout-start-response";
-  import { PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
+  import { PurchaseFlowError, PurchaseFlowErrorCode, PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
+  import { DEFAULT_FONT_FAMILY } from "../theme/text";
 
   export let onContinue: any;
   export let paymentInfoCollectionMetadata: CheckoutStartResponse;
@@ -60,6 +61,7 @@
 
     stripeVariables = {
       fontSizeBase: "14px",
+      fontFamily: DEFAULT_FONT_FAMILY,
       spacingGridRow: spacing.gapXLarge[viewport],
     };
   }
