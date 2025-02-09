@@ -25,7 +25,10 @@
   // import TextSeparator from "../text-separator.svelte";
   import SecureCheckoutRc from "../secure-checkout-rc.svelte";
   import { type CheckoutStartResponse } from "../../networking/responses/checkout-start-response";
-  import { PurchaseFlowError, PurchaseFlowErrorCode, PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
+  import {
+    PurchaseFlowError,
+    PurchaseOperationHelper,
+  } from "../../helpers/purchase-operation-helper";
   import { DEFAULT_FONT_FAMILY } from "../theme/text";
 
   export let onContinue: any;
@@ -246,56 +249,55 @@
 
     processing = true;
 
-    let error: StripeError | undefined = undefined;
     const { error: submitError } = await safeElements.submit();
     if (submitError) {
-      error = submitError;
+      handlePaymentError(submitError);
     } else {
-      error = await completeCheckout(stripe);
-    }
+      const checkoutError = await completeCheckout(stripe);
 
-    if (error) {
-      processing = false;
-      if (shouldShowErrorModal(error)) {
-        modalErrorMessage = error.message;
+      if (checkoutError) {
+        handlePaymentError(checkoutError);
+      } else {
+        onContinue();
       }
-    } else {
-      onContinue();
     }
   };
 
-  const completeCheckout = async (stripe: Stripe) => {
-    if (!clientSecret) {
-      const checkoutCompleteResponse =
-        await purchaseOperationHelper.checkoutComplete();
+  function handlePaymentError(error: StripeError | PurchaseFlowError) {
+    processing = false;
 
-      clientSecret = checkoutCompleteResponse.gateway_params.client_secret;
-      if (!clientSecret) {
-        throw new Error("Failed to complete checkout");
+    if (error instanceof PurchaseFlowError) {
+      modalErrorMessage = error.getPublicErrorMessage(productDetails);
+    } else if (shouldShowErrorModal(error)) {
+      modalErrorMessage = error.message;
+    }
+  }
+
+  const completeCheckout = async (stripe: Stripe) => {
+    // Get client secret if not already present
+    if (!clientSecret) {
+      try {
+        const response = await purchaseOperationHelper.checkoutComplete();
+        clientSecret = response?.gateway_params?.client_secret;
+        if (!clientSecret) {
+          throw new Error("Failed to complete checkout");
+        }
+      } catch (error) {
+        return error as PurchaseFlowError;
       }
     }
 
+    // Confirm payment or setup intent with Stripe
     const isSetupIntent = clientSecret.startsWith("seti_");
+    const result = await stripe[
+      isSetupIntent ? "confirmSetup" : "confirmPayment"
+    ]({
+      elements: safeElements,
+      clientSecret,
+      redirect: "if_required",
+    });
 
-    // confirm payment with stripe
-    let error: StripeError | undefined = undefined;
-    if (isSetupIntent) {
-      const result = await stripe.confirmSetup({
-        elements: safeElements,
-        clientSecret: clientSecret,
-        redirect: "if_required",
-      });
-      error = result.error;
-    } else {
-      const result = await stripe.confirmPayment({
-        elements: safeElements,
-        clientSecret: clientSecret,
-        redirect: "if_required",
-      });
-      error = result.error;
-    }
-
-    return error;
+    return result.error;
   };
 
   function shouldShowErrorModal(error: StripeError) {
