@@ -9,7 +9,6 @@
     StripeElements,
     StripeError,
   } from "@stripe/stripe-js";
-  import { loadStripe } from "@stripe/stripe-js";
   import ProcessingAnimation from "../processing-animation.svelte";
   import type { Product, PurchaseOption } from "../../entities/offerings";
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
@@ -30,6 +29,7 @@
     PurchaseOperationHelper,
   } from "../../helpers/purchase-operation-helper";
   import { DEFAULT_FONT_FAMILY } from "../theme/text";
+  import { StripeService } from "../../stripe/stripe-service";
 
   export let onContinue: any;
   export let paymentInfoCollectionMetadata: CheckoutStartResponse;
@@ -46,7 +46,6 @@
   let isPaymentInfoComplete = false;
   let clientSecret: string | undefined = undefined;
 
-  let textStyles = new Theme().textStyles;
   let spacing = new Theme().spacing;
 
   let stripeVariables: undefined | Appearance["variables"];
@@ -76,11 +75,6 @@
       updateStripeVariables();
     }, 150);
   }
-
-  const theme = new Theme(brandingInfo?.appearance);
-
-  let customShape = theme.shape;
-  let customColors = theme.formColors;
 
   const translator: Translator =
     getContext(translatorContextKey) || Translator.fallback();
@@ -134,114 +128,32 @@
   }
 
   onMount(async () => {
-    const gatewayParams = paymentInfoCollectionMetadata.gateway_params;
-    const stripePk = gatewayParams.publishable_api_key;
-    const stripeAcctId = gatewayParams.stripe_account_id;
-    const elementsConfiguration = gatewayParams.elements_configuration;
-    if (!stripePk || !stripeAcctId || !elementsConfiguration) {
-      throw new Error("Stripe configuration is missing");
+    try {
+      const { stripe: stripeInstance, elements: elementsInstance } =
+        await StripeService.initializeStripe(
+          paymentInfoCollectionMetadata,
+          brandingInfo,
+          localeToUse,
+          stripeVariables,
+          viewport,
+        );
+
+      stripe = stripeInstance;
+      elements = elementsInstance;
+
+      const paymentElement = StripeService.createPaymentElement(
+        elements,
+        brandingInfo?.app_name,
+      );
+
+      paymentElement.mount("#payment-element");
+      paymentElement.on("change", (event) => {
+        isPaymentInfoComplete = event.complete;
+      });
+    } catch (error) {
+      console.error("Failed to initialize Stripe:", error);
+      modalErrorMessage = "Failed to initialize payment system";
     }
-
-    stripe = await loadStripe(stripePk, {
-      stripeAccount: stripeAcctId,
-    });
-
-    if (!stripe) {
-      throw new Error("Stripe client not found");
-    }
-
-    elements = stripe.elements({
-      loader: "always",
-      locale: localeToUse,
-      mode: elementsConfiguration.mode,
-      paymentMethodTypes: elementsConfiguration.payment_method_types,
-      setupFutureUsage: elementsConfiguration.setup_future_usage,
-      amount: elementsConfiguration.amount,
-      currency: elementsConfiguration.currency,
-      appearance: {
-        theme: "stripe",
-        labels: "floating",
-        variables: {
-          borderRadius: customShape["input-border-radius"],
-          fontLineHeight: "10px",
-          focusBoxShadow: "none",
-          colorDanger: customColors["error"],
-          colorTextPlaceholder: customColors["grey-text-light"],
-          colorText: customColors["grey-text-dark"],
-          colorTextSecondary: customColors["grey-text-light"],
-          ...stripeVariables,
-        },
-        rules: {
-          ".Input": {
-            boxShadow: "none",
-            paddingTop: "6px",
-            paddingBottom: "6px",
-            border: `1px solid ${customColors["grey-ui-dark"]}`,
-            backgroundColor: customColors["input-background"],
-            color: customColors["grey-text-dark"],
-          },
-          ".Input:focus": {
-            border: `1px solid ${customColors["focus"]}`,
-            outline: "none",
-          },
-          ".Label": {
-            fontWeight: textStyles.body1[viewport].fontWeight,
-            lineHeight: "22px",
-            color: customColors["grey-text-dark"],
-          },
-          ".Label--floating": {
-            fontSize: "10px !important",
-          },
-          ".Input--invalid": {
-            boxShadow: "none",
-          },
-          ".TermsText": {
-            fontSize: textStyles.caption[viewport].fontSize,
-            lineHeight: textStyles.caption[viewport].lineHeight,
-          },
-          ".Tab": {
-            boxShadow: "none",
-            backgroundColor: "transparent",
-            color: customColors["grey-text-light"],
-            border: `1px solid ${customColors["grey-ui-dark"]}`,
-          },
-          ".Tab:hover, .Tab:focus, .Tab--selected, .Tab--selected:hover, .Tab--selected:focus":
-            {
-              boxShadow: "none",
-              color: customColors["grey-text-dark"],
-            },
-          ".Tab:focus, .Tab--selected, .Tab--selected:hover, .Tab--selected:focus":
-            {
-              border: `1px solid ${customColors["focus"]}`,
-            },
-          ".TabIcon": {
-            fill: customColors["grey-text-light"],
-          },
-          ".TabIcon--selected": {
-            fill: customColors["grey-text-dark"],
-          },
-          ".Block": {
-            boxShadow: "none",
-            backgroundColor: "transparent",
-            border: `1px solid ${customColors["grey-ui-dark"]}`,
-          },
-        },
-      },
-    });
-
-    const paymentElement = elements.create("payment", {
-      business: brandingInfo?.app_name
-        ? { name: brandingInfo.app_name }
-        : undefined,
-      layout: {
-        type: "tabs",
-      },
-    });
-    paymentElement.mount("#payment-element");
-
-    paymentElement.on("change", (event) => {
-      isPaymentInfoComplete = event.complete;
-    });
   });
 
   const handleContinue = async () => {
@@ -268,7 +180,7 @@
 
     if (error instanceof PurchaseFlowError) {
       modalErrorMessage = error.getPublicErrorMessage(productDetails);
-    } else if (shouldShowErrorModal(error)) {
+    } else if (!StripeService.isStripeHandledCardError(error)) {
       modalErrorMessage = error.message;
     }
   }
@@ -299,24 +211,6 @@
 
     return result.error;
   };
-
-  function shouldShowErrorModal(error: StripeError) {
-    const FORM_VALIDATED_CARD_ERROR_CODES = [
-      "card_declined",
-      "expired_card",
-      "incorrect_cvc",
-      "incorrect_number",
-    ];
-    if (
-      error.type === "card_error" &&
-      error.code &&
-      FORM_VALIDATED_CARD_ERROR_CODES.includes(error.code)
-    ) {
-      return false;
-    }
-
-    return true;
-  }
 
   const handleErrorTryAgain = () => {
     modalErrorMessage = undefined;
