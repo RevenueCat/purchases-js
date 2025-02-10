@@ -56,20 +56,20 @@ export class Event {
   }
 
   public toJSON(): EventPayload {
-    return {
+    return camelToUnderscore({
       id: this.id,
-      timestamp_ms: this.timestampMs,
+      timestampMs: this.timestampMs,
       type: this.EVENT_TYPE,
-      event_name: this.data.eventName,
-      app_user_id: this.data.appUserId,
+      eventName: this.data.eventName,
+      appUserId: this.data.appUserId,
       context: {
-        ...(camelToUnderscore(this.data.context) as EventContext),
+        ...this.data.context,
       },
       properties: {
-        ...(camelToUnderscore(this.data.properties) as EventProperties),
-        trace_id: this.data.traceId,
-        checkout_session_id: this.data.checkoutSessionId,
+        ...this.data.properties,
+        traceId: this.data.traceId,
+        checkoutSessionId: this.data.checkoutSessionId,
       },
-    };
+    }) as EventPayload;
   }
 }
