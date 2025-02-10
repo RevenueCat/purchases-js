@@ -272,7 +272,7 @@ export enum ProductType {
 }
 
 // @public
-type PurchaseMetadata = Record<string, string | null>;
+export type PurchaseMetadata = Record<string, string | null>;
 
 // @public
 export interface PurchaseOption {
@@ -285,7 +285,6 @@ export interface PurchaseParams {
     customerEmail?: string;
     defaultLocale?: string;
     htmlTarget?: HTMLElement;
-    // Warning: (ae-forgotten-export) The symbol "PurchaseMetadata" needs to be exported by the entry point Purchases.es.d.ts
     metadata?: PurchaseMetadata;
     purchaseOption?: PurchaseOption | null;
     rcPackage: Package;

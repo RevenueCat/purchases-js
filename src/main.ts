@@ -63,6 +63,7 @@ export type {
   PresentedOfferingContext,
   Price,
   PurchaseOption,
+  PurchaseMetadata,
   SubscriptionOption,
   TargetingContext,
   PricingPhase,
