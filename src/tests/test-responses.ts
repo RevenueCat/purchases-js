@@ -5,7 +5,11 @@ import type {
   ProductResponse,
   ProductsResponse,
 } from "../networking/responses/products-response";
-import type { CheckoutStartResponse } from "../networking/responses/checkout-start-response";
+import {
+  StripeElementsMode,
+  StripeElementsSetupFutureUsage,
+  type CheckoutStartResponse,
+} from "../networking/responses/checkout-start-response";
 import type { CheckoutCompleteResponse } from "../networking/responses/checkout-complete-response";
 
 const monthlyProductResponse: ProductResponse = {
@@ -253,14 +257,17 @@ export const checkoutStartResponse: CheckoutStartResponse = {
   gateway_params: {
     stripe_account_id: "test-stripe-account-id",
     publishable_api_key: "test-publishable-api-key",
+    elements_configuration: {
+      mode: StripeElementsMode.Setup,
+      payment_method_types: ["card"],
+      setup_future_usage: StripeElementsSetupFutureUsage.OffSession,
+    },
   },
 };
 
 export const checkoutCompleteResponse: CheckoutCompleteResponse = {
   operation_session_id: "test-operation-session-id",
   gateway_params: {
-    stripe_account_id: "test-stripe-account-id",
-    publishable_api_key: "test-publishable-api-key",
     client_secret: "test-client-secret",
   },
 };
