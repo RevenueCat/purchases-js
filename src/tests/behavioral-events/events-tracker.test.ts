@@ -225,7 +225,12 @@ describe("EventsTracker", (test) => {
       });
     }
 
-    await vi.advanceTimersByTimeAsync(1000 + 2000 + 4000 + 8000);
+    await vi.advanceTimersByTimeAsync(
+      1000 * MAX_JITTER_MULTIPLIER +
+        2000 * MAX_JITTER_MULTIPLIER +
+        4000 * MAX_JITTER_MULTIPLIER +
+        8000 * MAX_JITTER_MULTIPLIER,
+    );
     expect(loggerMock).toHaveBeenCalledWith("Events flushed successfully");
   });
 
