@@ -86,26 +86,28 @@
    * Finally falls back to 'auto' if the initialLocale is not supported by stripe.
    * @param initialLocale
    */
-  const getLocaleToUse = (initialLocale: string) => {
+  const getLocaleToUse = (
+    initialLocale: StripeElementLocale,
+  ): StripeElementLocale => {
     // These locale that we support are not supported by stripe.
     // if any of these is passed we fallback to 'auto' so that
     // stripe will pick up the locale from the browser.
     const stripeUnsupportedLocale = ["ca", "hi", "uk"];
 
     if (stripeUnsupportedLocale.includes(initialLocale)) {
-      return "auto" as StripeElementLocale;
+      return "auto";
     }
 
-    const mappedLocale: Record<string, string> = {
+    const mappedLocale: Record<string, StripeElementLocale> = {
       zh_Hans: "zh",
       zh_Hant: "zh",
     };
 
     if (Object.keys(mappedLocale).includes(initialLocale)) {
-      return mappedLocale[initialLocale] as StripeElementLocale;
+      return mappedLocale[initialLocale];
     }
 
-    return initialLocale as StripeElementLocale;
+    return initialLocale;
   };
 
   const localeToUse = getLocaleToUse(stripeElementLocale);
