@@ -6,12 +6,17 @@ import { FlushManager } from "./flush-manager";
 import { Logger } from "../helpers/logger";
 import { type EventProperties, Event } from "./event";
 import type { SDKEvent } from "./sdk-events";
+import {
+  buildEventContext,
+  type SDKEventContextSource,
+} from "./sdk-event-context";
 
 const MIN_INTERVAL_RETRY = 2_000;
-const MAX_INTERVAL_RETRY = 60_000;
-
+const MAX_INTERVAL_RETRY = 5 * 60_000;
+const JITTER_PERCENT = 0.1;
 export interface TrackEventProps {
   eventName: string;
+  source: SDKEventContextSource;
   properties?: EventProperties;
 }
 
@@ -46,6 +51,7 @@ export default class EventsTracker implements IEventsTracker {
     this.flushManager = new FlushManager(
       MIN_INTERVAL_RETRY,
       MAX_INTERVAL_RETRY,
+      JITTER_PERCENT,
       this.flushEvents.bind(this),
     );
   }
@@ -59,11 +65,11 @@ export default class EventsTracker implements IEventsTracker {
   }
 
   public trackSDKEvent(props: SDKEvent): void {
-    this.trackEvent(props);
+    this.trackEvent({ ...props, source: "sdk" });
   }
 
   public trackExternalEvent(props: TrackEventProps): void {
-    this.trackEvent(props);
+    this.trackEvent({ ...props });
   }
 
   private trackEvent(props: TrackEventProps) {
@@ -76,6 +82,7 @@ export default class EventsTracker implements IEventsTracker {
         traceId: this.traceId,
         checkoutSessionId: this.checkoutSessionId,
         appUserId: this.appUserId,
+        context: buildEventContext(props.source),
         properties: props.properties || {},
       });
       this.eventsQueue.push(event);

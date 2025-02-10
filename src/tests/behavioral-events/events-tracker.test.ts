@@ -10,14 +10,14 @@ interface EventsTrackerFixtures {
   eventsTracker: EventsTracker;
 }
 
-vi.mock("../../behavioural-events/event-context", () => ({
+vi.mock("../../behavioural-events/sdk-event-context", () => ({
   buildEventContext: vi.fn().mockReturnValue({
-    library: {
-      name: "purchases-js",
-      version: "1.0.0",
-    },
+    library_name: "purchases-js",
+    library_version: "1.0.0",
   }),
 }));
+
+const MAX_JITTER_MULTIPLIER = 1 + 0.1;
 
 describe("EventsTracker", (test) => {
   const date = new Date(1988, 10, 18, 13, 37, 0);
@@ -48,12 +48,12 @@ describe("EventsTracker", (test) => {
   }) => {
     eventsTracker.trackExternalEvent({
       eventName: "external",
+      source: "sdk",
       properties: {
         a: "b",
         b: 1,
         c: false,
         d: null,
-        e: { nestedProperty: "" },
       },
     });
     await vi.advanceTimersToNextTimerAsync();
@@ -69,10 +69,8 @@ describe("EventsTracker", (test) => {
             event_name: "external",
             app_user_id: "someAppUserId",
             context: {
-              library: {
-                name: "purchases-js",
-                version: "1.0.0",
-              },
+              library_name: "purchases-js",
+              library_version: "1.0.0",
             },
             properties: {
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
@@ -81,9 +79,6 @@ describe("EventsTracker", (test) => {
               b: 1,
               c: false,
               d: null,
-              e: {
-                nested_property: "",
-              },
             },
           },
         ],
@@ -97,6 +92,7 @@ describe("EventsTracker", (test) => {
     eventsTracker.updateUser("newAppUserId");
     eventsTracker.trackExternalEvent({
       eventName: "external",
+      source: "sdk",
       properties: { a: "b" },
     });
     await vi.advanceTimersToNextTimerAsync();
@@ -118,7 +114,10 @@ describe("EventsTracker", (test) => {
     eventsTracker,
   }) => {
     eventsTracker.generateCheckoutSessionId();
-    eventsTracker.trackExternalEvent({ eventName: "external" });
+    eventsTracker.trackExternalEvent({
+      eventName: "external",
+      source: "sdk",
+    });
     await vi.advanceTimersToNextTimerAsync();
 
     expect(APIPostRequest).toHaveBeenCalledWith(
@@ -162,7 +161,10 @@ describe("EventsTracker", (test) => {
       }),
     );
 
-    eventsTracker.trackExternalEvent({ eventName: "external" });
+    eventsTracker.trackExternalEvent({
+      eventName: "external",
+      source: "sdk",
+    });
 
     // Attempt 1: First direct attempt to flush without timeout
     await vi.advanceTimersByTimeAsync(100);
@@ -170,27 +172,27 @@ describe("EventsTracker", (test) => {
     loggerMock.mockClear();
 
     // Attempt 2: Wait for next flush
-    await vi.advanceTimersByTimeAsync(2_000);
+    await vi.advanceTimersByTimeAsync(2_000 * MAX_JITTER_MULTIPLIER);
     expect(loggerMock).not.toHaveBeenCalledWith("Events flushed successfully");
     loggerMock.mockClear();
 
     // Attempt 2: Wait for request to complete
-    await vi.advanceTimersByTimeAsync(1_000);
+    await vi.advanceTimersByTimeAsync(1_000 * MAX_JITTER_MULTIPLIER);
     expect(loggerMock).not.toHaveBeenCalledWith("Events flushed successfully");
     loggerMock.mockClear();
 
     // Attempt 3: Wait for next flush
-    await vi.advanceTimersByTimeAsync(4_000);
+    await vi.advanceTimersByTimeAsync(4_000 * MAX_JITTER_MULTIPLIER);
     expect(loggerMock).not.toHaveBeenCalledWith("Events flushed successfully");
     loggerMock.mockClear();
 
     // Attempt 3: Wait for request to complete
-    await vi.advanceTimersByTimeAsync(20_000);
+    await vi.advanceTimersByTimeAsync(20_000 * MAX_JITTER_MULTIPLIER);
     expect(loggerMock).not.toHaveBeenCalledWith("Events flushed successfully");
     loggerMock.mockClear();
 
     // Attempt 4: Wait for next flush
-    await vi.advanceTimersByTimeAsync(8_000);
+    await vi.advanceTimersByTimeAsync(8_000 * MAX_JITTER_MULTIPLIER);
     expect(loggerMock).toHaveBeenCalledWith("Events flushed successfully");
   });
 
@@ -217,10 +219,18 @@ describe("EventsTracker", (test) => {
     );
 
     for (let i = 0; i < 4; i++) {
-      eventsTracker.trackExternalEvent({ eventName: "external" });
+      eventsTracker.trackExternalEvent({
+        eventName: "external",
+        source: "wpl",
+      });
     }
 
-    await vi.advanceTimersByTimeAsync(1000 + 2000 + 4000 + 8000);
+    await vi.advanceTimersByTimeAsync(
+      1000 * MAX_JITTER_MULTIPLIER +
+        2000 * MAX_JITTER_MULTIPLIER +
+        4000 * MAX_JITTER_MULTIPLIER +
+        8000 * MAX_JITTER_MULTIPLIER,
+    );
     expect(loggerMock).toHaveBeenCalledWith("Events flushed successfully");
   });
 
@@ -250,35 +260,38 @@ describe("EventsTracker", (test) => {
       }),
     );
 
-    eventsTracker.trackExternalEvent({ eventName: "external" });
+    eventsTracker.trackExternalEvent({
+      eventName: "external",
+      source: "wpl",
+    });
 
     // Attempt 1: First direct attempt to flush without timeout
-    await vi.advanceTimersByTimeAsync(100);
+    await vi.advanceTimersByTimeAsync(100 * MAX_JITTER_MULTIPLIER);
     expect(loggerMock).not.toHaveBeenCalledWith("Events flushed successfully");
     loggerMock.mockClear();
 
     // Attempt 2: Wait for next flush
-    await vi.advanceTimersByTimeAsync(2_000);
+    await vi.advanceTimersByTimeAsync(2_000 * MAX_JITTER_MULTIPLIER);
     expect(loggerMock).not.toHaveBeenCalledWith("Events flushed successfully");
     loggerMock.mockClear();
 
     // Attempt 2: Wait for request to complete
-    await vi.advanceTimersByTimeAsync(1_000);
+    await vi.advanceTimersByTimeAsync(1_000 * MAX_JITTER_MULTIPLIER);
     expect(loggerMock).not.toHaveBeenCalledWith("Events flushed successfully");
     loggerMock.mockClear();
 
     // Attempt 3: Wait for next flush
-    await vi.advanceTimersByTimeAsync(4_000);
+    await vi.advanceTimersByTimeAsync(4_000 * MAX_JITTER_MULTIPLIER);
     expect(loggerMock).not.toHaveBeenCalledWith("Events flushed successfully");
     loggerMock.mockClear();
 
     // Attempt 3: Wait for request to complete
-    await vi.advanceTimersByTimeAsync(20_000);
+    await vi.advanceTimersByTimeAsync(20_000 * MAX_JITTER_MULTIPLIER);
     expect(loggerMock).not.toHaveBeenCalledWith("Events flushed successfully");
     loggerMock.mockClear();
 
     // Attempt 4: Wait for next flush
-    await vi.advanceTimersByTimeAsync(8_000);
+    await vi.advanceTimersByTimeAsync(8_000 * MAX_JITTER_MULTIPLIER);
     expect(loggerMock).toHaveBeenCalledWith("Events flushed successfully");
   });
 
@@ -301,6 +314,7 @@ describe("EventsTracker", (test) => {
               eventsTracker.trackExternalEvent({
                 eventName: "external2",
                 properties: { a: "b" },
+                source: "other",
               }),
             1_000,
           );
@@ -312,7 +326,10 @@ describe("EventsTracker", (test) => {
       }),
     );
 
-    eventsTracker.trackExternalEvent({ eventName: "external1" });
+    eventsTracker.trackExternalEvent({
+      eventName: "external1",
+      source: "wpl",
+    });
 
     await vi.runAllTimersAsync();
 

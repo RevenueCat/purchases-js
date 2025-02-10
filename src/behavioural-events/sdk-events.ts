@@ -1,4 +1,4 @@
-import type { EventProperties } from "./event";
+import { type EventProperties } from "./event";
 
 export type SDKEvent =
   | SDKInitializedEvent
@@ -39,28 +39,25 @@ export enum SDKEventName {
 
 interface ISDKEvent {
   eventName: SDKEventName;
+  properties?: EventProperties;
 }
 
 export interface SDKInitializedEvent extends ISDKEvent {
   eventName: SDKEventName.SDKInitialized;
 }
 
-export interface CustomizationOptions extends EventProperties {
-  colorButtonsPrimary: string;
-  colorAccent: string;
-  colorError: string;
-  colorProductInfoBg: string;
-  colorFormBg: string;
-  colorPageBg: string;
-  font: string;
-  shapes: string;
-  showProductDescription: boolean;
-}
-
 export interface CheckoutSessionStartEvent extends ISDKEvent {
   eventName: SDKEventName.CheckoutSessionStart;
   properties: {
-    customizationOptions: CustomizationOptions | null;
+    customizationColorButtonsPrimary: string | null;
+    customizationColorAccent: string | null;
+    customizationColorError: string | null;
+    customizationColorProductInfoBg: string | null;
+    customizationColorFormBg: string | null;
+    customizationColorPageBg: string | null;
+    customizationFont: string | null;
+    customizationShapes: string | null;
+    customizationShowProductDescription: boolean | null;
     productInterval: string | null;
     productPrice: number;
     productCurrency: string;

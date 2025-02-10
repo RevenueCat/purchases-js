@@ -19,7 +19,7 @@ describe("Purchases.configure()", () => {
 
   beforeEach(async () => {
     vi.spyOn(Logger, "debugLog").mockImplementation(() => undefined);
-    vi.mock("../behavioural-events/event-context", () => ({
+    vi.mock("../behavioural-events/sdk-event-context", () => ({
       buildEventContext: vi.fn().mockReturnValue({}),
     }));
     vi.useFakeTimers();
@@ -77,11 +77,20 @@ describe("Purchases.configure()", () => {
             event_name: "checkout_session_start",
             timestamp_ms: date.getTime(),
             app_user_id: "someAppUserId",
+            context: {},
             properties: {
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               checkout_session_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               customer_email_provided_by_developer: false,
-              customization_options: null,
+              customization_color_buttons_primary: null,
+              customization_color_accent: null,
+              customization_color_error: null,
+              customization_color_product_info_bg: null,
+              customization_color_form_bg: null,
+              customization_color_page_bg: null,
+              customization_font: null,
+              customization_shapes: null,
+              customization_show_product_description: null,
               product_currency: "USD",
               product_interval: "P1M",
               product_price: 3000000,
@@ -121,6 +130,7 @@ describe("Purchases.configure()", () => {
             event_name: "checkout_session_end",
             timestamp_ms: date.getTime(),
             app_user_id: "someAppUserId",
+            context: {},
             properties: {
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               checkout_session_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
@@ -165,6 +175,7 @@ describe("Purchases.configure()", () => {
             event_name: "checkout_session_end",
             timestamp_ms: date.getTime(),
             app_user_id: "someAppUserId",
+            context: {},
             properties: {
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               checkout_session_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
@@ -210,6 +221,7 @@ describe("Purchases.configure()", () => {
             event_name: "checkout_session_end",
             timestamp_ms: date.getTime(),
             app_user_id: "someAppUserId",
+            context: {},
             properties: {
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               checkout_session_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",

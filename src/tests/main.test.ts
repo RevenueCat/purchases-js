@@ -218,7 +218,9 @@ describe("Purchases.generateRevenueCatAnonymousAppUserId()", () => {
     const anonymousId = Purchases.generateRevenueCatAnonymousAppUserId();
     expect(() => Purchases.configure(testApiKey, anonymousId)).not.toThrow();
   });
+});
 
+describe("Purchases._trackEvent", () => {
   test("allows tracking events", () => {
     const purchases = configurePurchases();
     const trackEventSpy = vi.spyOn(
@@ -226,6 +228,7 @@ describe("Purchases.generateRevenueCatAnonymousAppUserId()", () => {
       "trackExternalEvent",
     );
     purchases._trackEvent({
+      source: "wpl",
       eventName: "test_event",
       properties: {
         test_property: "test_value",
@@ -233,6 +236,7 @@ describe("Purchases.generateRevenueCatAnonymousAppUserId()", () => {
     });
     expect(trackEventSpy).toHaveBeenCalledWith({
       eventName: "test_event",
+      source: "wpl",
       properties: {
         test_property: "test_value",
       },

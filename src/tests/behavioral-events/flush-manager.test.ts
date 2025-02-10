@@ -9,7 +9,7 @@ describe("FlushManager", () => {
   beforeEach(() => {
     vi.useFakeTimers();
     callbackSpy = vi.fn().mockReturnValue(Promise.resolve());
-    flushManager = new FlushManager(1_000, 10_000, callbackSpy);
+    flushManager = new FlushManager(1_000, 10_000, 0, callbackSpy);
   });
 
   afterEach(() => {
@@ -39,7 +39,7 @@ describe("FlushManager", () => {
     expect(callbackSpy).not.toHaveBeenCalled();
   });
 
-  test("reschedules the callback when it is already running", async () => {
+  test("reschedules the callback when it is already running adding jitter", async () => {
     callbackSpy.mockReturnValueOnce(
       new Promise((resolve) => setTimeout(() => resolve(), 10_000)),
     );
@@ -47,7 +47,6 @@ describe("FlushManager", () => {
 
     // Immediate flush
     flushManager.tryFlush();
-    await vi.advanceTimersByTimeAsync(1_000);
     expect(callbackSpy).toHaveBeenCalledTimes(1);
     callbackSpy.mockClear();
 
@@ -56,7 +55,7 @@ describe("FlushManager", () => {
     await vi.advanceTimersByTimeAsync(1_000);
     expect(callbackSpy).not.toHaveBeenCalled();
     callbackSpy.mockClear();
-    await vi.advanceTimersByTimeAsync(8_000);
+    await vi.advanceTimersByTimeAsync(9_000);
     expect(callbackSpy).toHaveBeenCalledTimes(1);
   });
 
@@ -98,5 +97,28 @@ describe("FlushManager", () => {
 
     await vi.advanceTimersByTimeAsync(1000 + 2_000 + 4_000);
     expect(callbackSpy).toHaveBeenCalledTimes(4);
+  });
+
+  test("adds jitter to the delay", async () => {
+    const mathRandomSpy = vi.spyOn(Math, "random").mockReturnValue(1);
+
+    flushManager = new FlushManager(1_000, 10_000, 0.1, callbackSpy);
+
+    // Immediate flush
+    flushManager.tryFlush();
+    expect(callbackSpy).toHaveBeenCalledTimes(1);
+    callbackSpy.mockClear();
+
+    // Scheduled flush
+    flushManager.tryFlush();
+    await vi.advanceTimersByTimeAsync(1_000);
+    expect(callbackSpy).not.toHaveBeenCalled();
+
+    // Scheduled flush adding jitter
+    flushManager.tryFlush();
+    await vi.advanceTimersByTimeAsync(101);
+    expect(callbackSpy).toHaveBeenCalledTimes(1);
+
+    mathRandomSpy.mockRestore();
   });
 });
