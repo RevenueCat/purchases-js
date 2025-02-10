@@ -1,7 +1,7 @@
 export const autoParseUTMParams = () => {
   const params = new URLSearchParams(window.location.search);
 
-  const possible_params = [
+  const possibleParams = [
     "utm_source",
     "utm_medium",
     "utm_campaign",
@@ -10,7 +10,7 @@ export const autoParseUTMParams = () => {
   ];
   const utmParams: { [key: string]: string } = {};
 
-  possible_params.forEach((param) => {
+  possibleParams.forEach((param) => {
     const paramValue = params.get(param);
     if (paramValue !== null) {
       utmParams[param] = paramValue;

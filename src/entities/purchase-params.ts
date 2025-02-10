@@ -1,8 +1,4 @@
-import {
-  type Package,
-  type PurchaseMetadata,
-  type PurchaseOption,
-} from "./offerings";
+import type { Package, PurchaseMetadata, PurchaseOption } from "./offerings";
 
 /**
  * Parameters used to customise the purchase flow when invoking the `.purchase` method.
