@@ -5,6 +5,7 @@
     getTranslatedPeriodFrequency,
     getTranslatedPeriodLength,
   } from "../../helpers/price-labels";
+  import { getPricePerMonth } from "../../helpers/paywall-variables-helpers";
   import {
     type NonSubscriptionOption,
     type Product,
@@ -19,6 +20,7 @@
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import { parseISODuration, PeriodUnit } from "../../helpers/duration-helper";
+  import Badge from "../badge.svelte";
 
   export let productDetails: Product;
   export let purchaseOption: PurchaseOption;
@@ -30,6 +32,7 @@
     purchaseOption as SubscriptionOption;
   const nonSubscriptionOption: NonSubscriptionOption | null | undefined =
     purchaseOption as NonSubscriptionOption;
+
   const subscriptionTrial = subscriptionOption?.trial;
 
   const subscriptionBasePrice = subscriptionOption?.base?.price;
@@ -42,6 +45,16 @@
     productDetails.normalPeriodDuration &&
     parseISODuration(productDetails.normalPeriodDuration)?.unit ==
       PeriodUnit.Month;
+
+  const periodUnit =
+    productDetails.normalPeriodDuration &&
+    parseISODuration(productDetails.normalPeriodDuration)?.unit;
+
+  const formattedPeriod =
+    (productDetails.normalPeriodDuration &&
+      periodUnit &&
+      translator.translatePeriodUnit(periodUnit)) ??
+    null;
 
   const formattedSubscriptionBasePrice =
     subscriptionBasePrice &&
@@ -73,44 +86,53 @@
     </span>
 
     {#if isSubscription}
-      <div>
-        <span class="rcb-product-price">
-          {#if subscriptionTrial?.periodDuration}
-            <Localized
-              key={LocalizationKeys.StatePresentOfferFreeTrialDuration}
-              variables={{
-                trialDuration: getTranslatedPeriodLength(
-                  subscriptionTrial.periodDuration,
-                  translator,
-                ),
-              }}
-            />
+      <div class="rcb-product-price-container">
+        <div>
+          <span class="rcb-product-price">
+            {#if subscriptionBasePrice}
+              <Localized
+                key={LocalizationKeys.StatePresentOfferProductPrice}
+                variables={{
+                  productPrice: formattedSubscriptionBasePrice,
+                }}
+              />
+            {/if}
+          </span>
+          {#if productDetails.normalPeriodDuration}
+            <span class="rcb-product-price-frequency"
+              >per {formattedPeriod}
+              {#if !isMonthlyProduct && subscriptionBasePrice}
+                <span class="rcb-product-price-monthly"
+                  >({getPricePerMonth({
+                    price: subscriptionBasePrice,
+                    period: parseISODuration(
+                      productDetails.normalPeriodDuration,
+                    ),
+                    translator,
+                  })} per month)</span
+                >
+              {/if}
+            </span>
           {/if}
-          {#if !subscriptionTrial?.periodDuration && subscriptionBasePrice}
-            <Localized
-              key={LocalizationKeys.StatePresentOfferProductPrice}
-              variables={{
-                productPrice: formattedSubscriptionBasePrice,
-              }}
-            />
-          {/if}
-        </span>
-        <span class="rcb-product-price-frequency"
-          >per month {#if !isMonthlyProduct}
-            <span class="rcb-product-price-monthly">($2.91 per month)</span>
-          {/if}
-        </span>
+        </div>
+        {#if subscriptionTrial?.periodDuration}
+          <div class="rcb-product-price-badge">
+            <Badge>
+              {#snippet text()}
+                <Localized
+                  key={LocalizationKeys.StatePresentOfferFreeTrialDuration}
+                  variables={{
+                    trialDuration: getTranslatedPeriodLength(
+                      subscriptionTrial.periodDuration!,
+                      translator,
+                    ),
+                  }}
+                />
+              {/snippet}
+            </Badge>
+          </div>
+        {/if}
       </div>
-      {#if subscriptionTrial && subscriptionBasePrice}
-        <span class="rcb-product-price-after-trial">
-          <Localized
-            key={LocalizationKeys.StatePresentOfferPriceAfterFreeTrial}
-            variables={{
-              productPrice: formattedSubscriptionPriceAfterTrial,
-            }}
-          />
-        </span>
-      {/if}
       <div class="rcb-product-details {expanded ? 'expanded' : 'collapsed'}">
         {#if brandingAppearance?.show_product_description && productDetails.description}
           <span class="rcb-product-description">
@@ -234,6 +256,19 @@
     padding-top: 0;
     padding-bottom: 0;
   }
+
+  .rcb-product-price-container {
+    display: flex;
+    flex-direction: row;
+    gap: var(--rc-spacing-gapXLarge-mobile);
+  }
+
+  .rcb-product-price-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   @media screen and (max-width: 767px) {
     .rcb-pricing-info {
       gap: var(--rc-spacing-gapXLarge-mobile);
@@ -245,6 +280,10 @@
     .rcb-pricing-info {
       margin-top: calc(var(--rc-spacing-gapXXLarge-desktop) * 2);
       margin-bottom: calc(var(--rc-spacing-gapXXLarge-desktop) * 2);
+    }
+
+    .rcb-product-price-container {
+      gap: var(--rc-spacing-gapXLarge-desktop);
     }
 
     .rcb-product-title {

@@ -9,6 +9,7 @@
     product,
     purchaseFlowError,
     subscriptionOption,
+    subscriptionOptionWithTrial,
   } from "./fixtures";
   import {
     buildPurchaseResponse,
@@ -70,6 +71,15 @@
   args={{
     currentView: "needs-auth-info",
     isSandbox: true,
+  }}
+  parameters={{ viewport: { defaultViewport: "desktop" } }}
+/>
+<Story
+  name="Email Input (with Trial Product)"
+  args={{
+    currentView: "needs-auth-info",
+    isSandbox: true,
+    purchaseOptionToUse: subscriptionOptionWithTrial,
   }}
   parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
