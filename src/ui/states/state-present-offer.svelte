@@ -226,7 +226,7 @@
   }
 
   .rcb-product-description {
-    font: var(--rc-text-body2-mobile);
+    font: var(--rc-text-bodySmall-mobile);
     color: var(--rc-color-grey-text-dark);
     margin: 0 0 12px 0;
   }
@@ -310,7 +310,7 @@
     }
 
     .rcb-product-description {
-      font: var(--rc-text-body2-desktop);
+      font: var(--rc-text-bodySmall-desktop);
     }
 
     .rcb-product-details {

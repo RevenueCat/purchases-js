@@ -5,7 +5,6 @@
   let showBanner = true;
 
   function closeBanner() {
-    console.log("closeBanner");
     showBanner = false;
   }
 </script>

@@ -6,6 +6,7 @@
 
   import {
     brandingInfo,
+    colorfulBrandingAppearance,
     product,
     purchaseFlowError,
     subscriptionOption,
@@ -22,7 +23,7 @@
     productDetails: product,
     purchaseOptionToUse: subscriptionOption,
     purchaseOption: subscriptionOption,
-    brandingInfo: brandingInfo,
+    brandingInfo: { ...brandingInfo, appearance: colorfulBrandingAppearance },
     lastError: purchaseFlowError,
     onContinue: () => {},
   };
