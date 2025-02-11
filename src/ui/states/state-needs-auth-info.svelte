@@ -189,6 +189,15 @@
     }
   }
 
+  input::-webkit-input-placeholder,
+  input::-ms-input-placeholder,
+  input::placeholder {
+    color: var(--rc-color-grey-text-light);
+  }
+
+  input::-moz-placeholder {
+    color: var(--rc-color-grey-text-light);
+  }
   input:focus {
     outline: none;
     border: 1px solid var(--rc-color-focus);
