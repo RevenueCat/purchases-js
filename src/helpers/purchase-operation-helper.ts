@@ -15,6 +15,7 @@ import {
   type PresentedOfferingContext,
   type Product,
   ProductType,
+  type PurchaseMetadata,
   type PurchaseOption,
 } from "../entities/offerings";
 import { Logger } from "./logger";
@@ -128,6 +129,7 @@ export class PurchaseOperationHelper {
     purchaseOption: PurchaseOption,
     email: string,
     presentedOfferingContext: PresentedOfferingContext,
+    metadata?: PurchaseMetadata,
   ): Promise<PurchaseResponse> {
     try {
       const subscribeResponse = await this.backend.postPurchase(
@@ -136,6 +138,7 @@ export class PurchaseOperationHelper {
         email,
         presentedOfferingContext,
         purchaseOption,
+        metadata,
       );
       this.operationSessionId = subscribeResponse.operation_session_id;
       return subscribeResponse;

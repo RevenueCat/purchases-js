@@ -34,12 +34,14 @@
     englishLocale,
     translatorContextKey,
   } from "./localization/constants";
+  import type { PurchaseMetadata } from "../entities/offerings";
 
   export let asModal = true;
   export let customerEmail: string | undefined;
   export let appUserId: string;
   export let rcPackage: Package;
   export let purchaseOption: PurchaseOption | null | undefined;
+  export let metadata: PurchaseMetadata | undefined;
   export let brandingInfo: BrandingInfoResponse | null;
   export let onFinished: (redemptionInfo: RedemptionInfo | null) => void;
   export let onError: (error: PurchaseFlowError) => void;
@@ -135,6 +137,7 @@
         purchaseOptionToUse,
         customerEmail,
         rcPackage.webBillingProduct.presentedOfferingContext,
+        metadata,
       )
       .then((result) => {
         if (result.next_action === "collect_payment_info") {
