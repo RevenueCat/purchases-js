@@ -100,7 +100,9 @@
           </span>
           {#if productDetails.normalPeriodDuration}
             <span class="rcb-product-price-frequency"
-              >per {formattedPeriod}
+              ><span class="rcb-product-price-frequency-text"
+                >per {formattedPeriod}</span
+              >
               {#if !isMonthlyProduct && subscriptionBasePrice}
                 <span class="rcb-product-price-monthly"
                   >({getPricePerMonth({
@@ -213,9 +215,14 @@
     font: var(--rc-text-caption-mobile);
   }
 
+  .rcb-product-price-frequency-text {
+    white-space: nowrap;
+  }
+
   .rcb-product-price-monthly {
     color: var(--rc-color-grey-text-light);
     font: var(--rc-text-caption-mobile);
+    white-space: nowrap;
   }
 
   .rcb-product-description {
