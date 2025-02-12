@@ -173,7 +173,44 @@ describe("PurchaseOperationHelper", () => {
     );
   });
 
-  test("checkoutComplete fails if email is missing", async () => {
+  test("checkoutComplete fails if operation session is invalid", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    setCheckoutCompleteResponse(
+      HttpResponse.json(
+        {
+          code: 7877,
+          message: "The operation session is invalid.",
+        },
+        { status: StatusCodes.BAD_REQUEST },
+      ),
+    );
+
+    await purchaseOperationHelper.checkoutStart(
+      "test-app-user-id",
+      "test-product-id",
+      { id: "test-option-id", priceId: "test-price-id" },
+      {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    );
+
+    await expectPromiseToPurchaseFlowError(
+      purchaseOperationHelper.checkoutComplete(),
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "One or more of the arguments provided are invalid.",
+        "The operation session is invalid.",
+      ),
+    );
+  });
+
+  test("checkoutComplete fails if purchase could not be completed", async () => {
     setCheckoutStartResponse(
       HttpResponse.json(checkoutStartResponse, {
         status: StatusCodes.OK,
@@ -183,6 +220,43 @@ describe("PurchaseOperationHelper", () => {
       HttpResponse.json(
         {
           code: 7878,
+          message: "The purchase could not be completed.",
+        },
+        { status: StatusCodes.UNPROCESSABLE_ENTITY },
+      ),
+    );
+
+    await purchaseOperationHelper.checkoutStart(
+      "test-app-user-id",
+      "test-product-id",
+      { id: "test-option-id", priceId: "test-price-id" },
+      {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    );
+
+    await expectPromiseToPurchaseFlowError(
+      purchaseOperationHelper.checkoutComplete(),
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "One or more of the arguments provided are invalid.",
+        "The purchase could not be completed.",
+      ),
+    );
+  });
+
+  test("checkoutComplete fails if email is required", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    setCheckoutCompleteResponse(
+      HttpResponse.json(
+        {
+          code: 7879,
           message: "Email is required to complete the purchase.",
         },
         { status: StatusCodes.BAD_REQUEST },

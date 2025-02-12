@@ -213,9 +213,9 @@ export enum BackendErrorCode {
   BackendPaymentGatewayGenericError = 7773,
   BackendOfferNotFound = 7814,
   BackendNoMXRecordsFound = 7834,
-  BackendInvalidOperationSession = 7876,
-  BackendPurchaseCannotBeCompleted = 7877,
-  BackendEmailIsRequired = 7878,
+  BackendInvalidOperationSession = 7877,
+  BackendPurchaseCannotBeCompleted = 7878,
+  BackendEmailIsRequired = 7879,
 }
 
 /**
