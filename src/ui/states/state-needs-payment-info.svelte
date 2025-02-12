@@ -8,6 +8,8 @@
     StripeElementLocale,
     StripeElements,
     StripeError,
+    StripePaymentElement,
+    StripePaymentElementChangeEvent,
   } from "@stripe/stripe-js";
   import ProcessingAnimation from "../processing-animation.svelte";
   import type { Product, PurchaseOption } from "../../entities/offerings";
@@ -42,6 +44,7 @@
   let stripe: Stripe | null = null;
   let elements: StripeElements;
   let safeElements: StripeElements;
+  let paymentElement: StripePaymentElement | null = null;
   let modalErrorMessage: string | undefined = undefined;
   let isPaymentInfoComplete = false;
   let clientSecret: string | undefined = undefined;
@@ -112,6 +115,13 @@
 
   const localeToUse = getLocaleToUse(stripeElementLocale);
 
+  $: {
+    // @ts-ignore
+    if (elements && elements._elements.length > 0) {
+      safeElements = elements;
+    }
+  }
+
   onMount(() => {
     updateStripeVariables();
 
@@ -122,40 +132,47 @@
     };
   });
 
-  $: {
-    // @ts-ignore
-    if (elements && elements._elements.length > 0) {
-      safeElements = elements;
-    }
-  }
+  onMount(() => {
+    let isMounted = true;
 
-  onMount(async () => {
-    try {
-      const { stripe: stripeInstance, elements: elementsInstance } =
-        await StripeService.initializeStripe(
-          paymentInfoCollectionMetadata,
-          brandingInfo,
-          localeToUse,
-          stripeVariables,
-          viewport,
+    (async () => {
+      try {
+        const { stripe: stripeInstance, elements: elementsInstance } =
+          await StripeService.initializeStripe(
+            paymentInfoCollectionMetadata,
+            brandingInfo,
+            localeToUse,
+            stripeVariables,
+            viewport,
+          );
+
+        if (!isMounted) return;
+
+        stripe = stripeInstance;
+        elements = elementsInstance;
+
+        paymentElement = StripeService.createPaymentElement(
+          elements,
+          brandingInfo?.app_name,
         );
 
-      stripe = stripeInstance;
-      elements = elementsInstance;
+        paymentElement.mount("#payment-element");
+        paymentElement.on(
+          "change",
+          (event: StripePaymentElementChangeEvent) => {
+            isPaymentInfoComplete = event.complete;
+          },
+        );
+      } catch (error) {
+        console.error("Failed to initialize Stripe:", error);
+        modalErrorMessage = "Failed to initialize payment system";
+      }
+    })();
 
-      const paymentElement = StripeService.createPaymentElement(
-        elements,
-        brandingInfo?.app_name,
-      );
-
-      paymentElement.mount("#payment-element");
-      paymentElement.on("change", (event) => {
-        isPaymentInfoComplete = event.complete;
-      });
-    } catch (error) {
-      console.error("Failed to initialize Stripe:", error);
-      modalErrorMessage = "Failed to initialize payment system";
-    }
+    return () => {
+      isMounted = false;
+      paymentElement?.destroy();
+    };
   });
 
   const handleContinue = async () => {
