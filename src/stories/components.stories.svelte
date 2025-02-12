@@ -2,13 +2,8 @@
   import { default as ButtonComponent } from "../ui/button.svelte";
   import { defineMeta, setTemplate } from "@storybook/addon-svelte-csf";
   import { toProductInfoStyleVar } from "../ui/theme/utils";
-  import {
-    colorfulBrandingAppearance,
-    product,
-    subscriptionOption,
-  } from "./fixtures";
+  import { colorfulBrandingAppearance } from "./fixtures";
   import { Theme } from "../ui/theme/theme";
-  import StatePresentOffer from "../ui/states/state-present-offer.svelte";
   const defaultArgs = {};
 
   let generateStyle = (appearance: any) => {
@@ -80,17 +75,6 @@
     children: "Click me",
     intent: "primary",
     disabled: true,
-  }}
-  parameters={{ viewport: { defaultViewport: "mobile" } }}
-/>
-
-<Story
-  name="Mobile Header"
-  args={{
-    component: StatePresentOffer,
-    productDetails: product,
-    purchaseOptionToUse: subscriptionOption,
-    brandingAppearance: colorfulBrandingAppearance,
   }}
   parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
