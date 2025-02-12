@@ -26,6 +26,8 @@ export interface EventsTrackerProps {
 }
 
 export interface IEventsTracker {
+  getTraceId(): string;
+  getCheckoutSessionId(): string | null;
   updateUser(appUserId: string): Promise<void>;
   generateCheckoutSessionId(): void;
   trackSDKEvent(props: SDKEvent): void;
@@ -62,6 +64,14 @@ export default class EventsTracker implements IEventsTracker {
 
   public generateCheckoutSessionId() {
     this.checkoutSessionId = uuid();
+  }
+
+  public getTraceId() {
+    return this.traceId;
+  }
+
+  public getCheckoutSessionId() {
+    return this.checkoutSessionId;
   }
 
   public trackSDKEvent(props: SDKEvent): void {
