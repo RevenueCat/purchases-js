@@ -253,7 +253,10 @@ export class Purchases {
       appUserId: this._appUserId,
     });
     this.backend = new Backend(this._API_KEY, httpConfig);
-    this.purchaseOperationHelper = new PurchaseOperationHelper(this.backend);
+    this.purchaseOperationHelper = new PurchaseOperationHelper(
+      this.backend,
+      this.eventsTracker,
+    );
     this.eventsTracker.trackSDKEvent({
       eventName: SDKEventName.SDKInitialized,
     });
