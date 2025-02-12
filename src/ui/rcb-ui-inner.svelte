@@ -20,6 +20,7 @@
     PurchaseOperationHelper,
   } from "../helpers/purchase-operation-helper";
   import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
+  import { type ContinueHandlerParams } from "./ui-types";
 
   export let currentView: CurrentView;
   export let brandingInfo: BrandingInfoResponse | null;
@@ -28,7 +29,7 @@
   export let colorVariables: string = "";
   export let isSandbox: boolean = false;
 
-  export let handleContinue: (authInfo?: { email: string }) => void;
+  export let handleContinue: (params?: ContinueHandlerParams) => void;
   export let closeWithError: () => void;
   export let lastError: PurchaseFlowError | null;
   export let paymentInfoCollectionMetadata: CheckoutStartResponse | null;

@@ -21,6 +21,7 @@
   import { type CurrentView } from "./ui-types";
   import RcbUIInner from "./rcb-ui-inner.svelte";
   import { CheckoutStartResponse } from "../networking/responses/checkout-start-response";
+  import { type ContinueHandlerParams } from "./ui-types";
 
   export let customerEmail: string | undefined;
   export let appUserId: string;
@@ -72,7 +73,7 @@
 
     if (currentView === "present-offer") {
       if (customerEmail) {
-        handlePurchase();
+        handleCheckoutStart();
       } else {
         currentView = "needs-auth-info";
       }
@@ -81,7 +82,7 @@
     }
   });
 
-  const handlePurchase = () => {
+  const handleCheckoutStart = () => {
     if (productId === null) {
       handleError(
         new PurchaseFlowError(
@@ -119,14 +120,19 @@
       });
   };
 
-  const handleContinue = (authInfo?: { email: string }) => {
+  const handleContinue = (params: ContinueHandlerParams = {}) => {
+    if (params.error) {
+      handleError(params.error);
+      return;
+    }
+
     if (currentView === "needs-auth-info") {
-      if (authInfo) {
-        customerEmail = authInfo.email;
+      if (params.authInfo) {
+        customerEmail = params.authInfo.email;
         currentView = "processing-auth-info";
       }
 
-      handlePurchase();
+      handleCheckoutStart();
       return;
     }
 

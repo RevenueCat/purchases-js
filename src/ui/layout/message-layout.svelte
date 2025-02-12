@@ -3,8 +3,9 @@
   import ModalFooter from "../modal-footer.svelte";
   import ModalSection from "../modal-section.svelte";
   import RowLayout from "../layout/row-layout.svelte";
+  import { type ContinueHandlerParams } from "../ui-types";
 
-  export let onContinue: () => void;
+  export let onContinue: (params: ContinueHandlerParams) => void;
   export let title: string | null = null;
   export let type: string;
   export let closeButtonTitle: string = "Go back to app";

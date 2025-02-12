@@ -28,12 +28,14 @@
   import { type CheckoutStartResponse } from "../../networking/responses/checkout-start-response";
   import {
     PurchaseFlowError,
+    PurchaseFlowErrorCode,
     PurchaseOperationHelper,
   } from "../../helpers/purchase-operation-helper";
   import { DEFAULT_FONT_FAMILY } from "../theme/text";
   import { StripeService } from "../../stripe/stripe-service";
+  import { type ContinueHandlerParams } from "../ui-types";
 
-  export let onContinue: any;
+  export let onContinue: (params?: ContinueHandlerParams) => void;
   export let paymentInfoCollectionMetadata: CheckoutStartResponse;
   export let processing = false;
   export let productDetails: Product;
@@ -163,15 +165,32 @@
             isPaymentInfoComplete = event.complete;
           },
         );
+        paymentElement.on("loaderror", (event) => {
+          isMounted = false;
+          const purchaseError = new PurchaseFlowError(
+            PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+            "Failed to load payment form",
+            event.error instanceof Error
+              ? event.error.message
+              : String(event.error),
+          );
+          handlePaymentError(purchaseError);
+        });
       } catch (error) {
-        console.error("Failed to initialize Stripe:", error);
-        modalErrorMessage = "Failed to initialize payment system";
+        const purchaseError = new PurchaseFlowError(
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+          "Failed to initialize payment form",
+          error instanceof Error ? error.message : String(error),
+        );
+        handlePaymentError(purchaseError);
       }
     })();
 
     return () => {
-      isMounted = false;
-      paymentElement?.destroy();
+      if (isMounted) {
+        isMounted = false;
+        paymentElement?.destroy();
+      }
     };
   });
 
@@ -198,7 +217,11 @@
     processing = false;
 
     if (error instanceof PurchaseFlowError) {
-      modalErrorMessage = error.getPublicErrorMessage(productDetails);
+      if (error.isRecoverable()) {
+        modalErrorMessage = error.getPublicErrorMessage(productDetails);
+      } else {
+        onContinue({ error: error });
+      }
     } else if (!StripeService.isStripeHandledCardError(error)) {
       modalErrorMessage = error.message;
     }
