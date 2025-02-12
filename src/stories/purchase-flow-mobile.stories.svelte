@@ -80,6 +80,10 @@
   args={{
     currentView: "needs-auth-info",
     isSandbox: true,
+    productDetails: {
+      ...product,
+      normalPeriodDuration: "P1Y",
+    },
     purchaseOptionToUse: subscriptionOptionWithTrial,
   }}
   parameters={{ viewport: { defaultViewport: "mobile" } }}

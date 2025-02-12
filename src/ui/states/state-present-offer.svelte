@@ -63,8 +63,8 @@
       subscriptionBasePrice.currency,
     );
 
-  const formattedSubscriptionPriceAfterTrial =
-    subscriptionTrial && formattedSubscriptionBasePrice;
+  // const formattedSubscriptionPriceAfterTrial =
+  //   subscriptionTrial && formattedSubscriptionBasePrice;
 
   const formattedNonSubscriptionBasePrice =
     nonSubscriptionBasePrice &&
