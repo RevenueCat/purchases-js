@@ -576,6 +576,14 @@ export class Purchases {
             const event = createCheckoutSessionEndFinishedEvent({
               redemptionInfo,
             });
+            const redeemUrl = redemptionInfo?.redeemUrl;
+            if (redeemUrl) {
+              redemptionInfo = {
+                ...redemptionInfo,
+                redeemUrl:
+                  this.eventsTracker.addTrackingQueryParameters(redeemUrl),
+              };
+            }
             this.eventsTracker.trackSDKEvent(event);
             Logger.debugLog("Purchase finished");
             certainHTMLTarget.innerHTML = "";
