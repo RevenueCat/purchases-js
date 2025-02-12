@@ -26,7 +26,6 @@ export interface EventsTrackerProps {
 }
 
 export interface IEventsTracker {
-  addTrackingQueryParameters(stringUrl: string): string;
   updateUser(appUserId: string): Promise<void>;
   generateCheckoutSessionId(): void;
   trackSDKEvent(props: SDKEvent): void;
@@ -63,18 +62,6 @@ export default class EventsTracker implements IEventsTracker {
 
   public generateCheckoutSessionId() {
     this.checkoutSessionId = uuid();
-  }
-
-  public addTrackingQueryParameters(stringUrl: string) {
-    const url = new URL(stringUrl);
-
-    if (url.protocol === "http:" || url.protocol === "https:") {
-      url.searchParams.set("trace_id", this.traceId);
-      if (this.checkoutSessionId) {
-        url.searchParams.set("checkout_session_id", this.checkoutSessionId);
-      }
-    }
-    return url.toString();
   }
 
   public trackSDKEvent(props: SDKEvent): void {
