@@ -13,8 +13,9 @@
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import SecureCheckoutRc from "../secure-checkout-rc.svelte";
+  import { type ContinueHandlerParams } from "../ui-types";
 
-  export let onContinue: any;
+  export let onContinue: (params: ContinueHandlerParams) => void;
   export let processing: boolean;
   export let lastError: PurchaseFlowError | null;
 
@@ -27,7 +28,7 @@
     if (verificationErrors) {
       error = verificationErrors;
     } else {
-      onContinue({ email });
+      onContinue({ authInfo: { email } });
     }
   };
 

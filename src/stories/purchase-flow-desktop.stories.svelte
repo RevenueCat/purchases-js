@@ -12,11 +12,8 @@
     subscriptionOption,
     subscriptionOptionWithTrial,
   } from "./fixtures";
-  import {
-    buildPurchaseResponse,
-    SetupMode,
-  } from "./utils/purchase-response-builder";
-  import type { PurchaseResponse } from "../networking/responses/purchase-response";
+  import { buildCheckoutStartResponse } from "./utils/purchase-response-builder";
+  import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
 
   const defaultArgs = {
     context: {},
@@ -36,8 +33,8 @@
     parameters: {},
     loaders: [
       async () => {
-        const paymentInfoCollectionMetadata: PurchaseResponse =
-          await buildPurchaseResponse(SetupMode.TrialSubscription);
+        const paymentInfoCollectionMetadata: CheckoutStartResponse =
+          await buildCheckoutStartResponse();
         paymentMetadata = { ...paymentInfoCollectionMetadata };
         return { paymentInfoCollectionMetadata };
       },

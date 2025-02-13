@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount, setContext, onDestroy } from "svelte";
   import type { Package, Product, PurchaseOption, Purchases } from "../main";
-  import { type PurchaseResponse } from "../networking/responses/purchase-response";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import {
     PurchaseFlowError,
@@ -21,6 +20,8 @@
   } from "./localization/constants";
   import { type CurrentView } from "./ui-types";
   import RcbUIInner from "./rcb-ui-inner.svelte";
+  import { CheckoutStartResponse } from "../networking/responses/checkout-start-response";
+  import { type ContinueHandlerParams } from "./ui-types";
 
   export let customerEmail: string | undefined;
   export let appUserId: string;
@@ -39,7 +40,7 @@
 
   let colorVariables = "";
   let productDetails: Product | null = null;
-  let paymentInfoCollectionMetadata: PurchaseResponse | null = null;
+  let paymentInfoCollectionMetadata: CheckoutStartResponse | null = null;
   let lastError: PurchaseFlowError | null = null;
   const productId = rcPackage.webBillingProduct.identifier ?? null;
   const defaultPurchaseOption =
@@ -72,7 +73,7 @@
 
     if (currentView === "present-offer") {
       if (customerEmail) {
-        handleSubscribe();
+        handleCheckoutStart();
       } else {
         currentView = "needs-auth-info";
       }
@@ -81,7 +82,7 @@
     }
   });
 
-  const handleSubscribe = () => {
+  const handleCheckoutStart = () => {
     if (productId === null) {
       handleError(
         new PurchaseFlowError(
@@ -102,39 +103,36 @@
     }
 
     purchaseOperationHelper
-      .startPurchase(
+      .checkoutStart(
         appUserId,
         productId,
         purchaseOptionToUse,
-        customerEmail,
         rcPackage.webBillingProduct.presentedOfferingContext,
+        customerEmail,
       )
       .then((result) => {
-        if (result.next_action === "collect_payment_info") {
-          lastError = null;
-          currentView = "needs-payment-info";
-          paymentInfoCollectionMetadata = result;
-          return;
-        }
-        if (result.next_action === "completed") {
-          lastError = null;
-          currentView = "success";
-          return;
-        }
+        lastError = null;
+        currentView = "needs-payment-info";
+        paymentInfoCollectionMetadata = result;
       })
       .catch((e: PurchaseFlowError) => {
         handleError(e);
       });
   };
 
-  const handleContinue = (authInfo?: { email: string }) => {
+  const handleContinue = (params: ContinueHandlerParams = {}) => {
+    if (params.error) {
+      handleError(params.error);
+      return;
+    }
+
     if (currentView === "needs-auth-info") {
-      if (authInfo) {
-        customerEmail = authInfo.email;
+      if (params.authInfo) {
+        customerEmail = params.authInfo.email;
         currentView = "processing-auth-info";
       }
 
-      handleSubscribe();
+      handleCheckoutStart();
       return;
     }
 
@@ -190,6 +188,7 @@
   {handleContinue}
   {lastError}
   {paymentInfoCollectionMetadata}
+  {purchaseOperationHelper}
   {closeWithError}
   {colorVariables}
 />

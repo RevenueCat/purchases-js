@@ -1,3 +1,5 @@
+import type { PurchaseFlowError } from "src/helpers/purchase-operation-helper";
+
 export type CurrentView =
   | "present-offer"
   | "needs-auth-info"
@@ -7,3 +9,8 @@ export type CurrentView =
   | "loading"
   | "success"
   | "error";
+
+export type ContinueHandlerParams = {
+  authInfo?: { email: string };
+  error?: PurchaseFlowError;
+};

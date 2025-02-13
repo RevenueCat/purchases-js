@@ -1,4 +1,12 @@
-import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import {
+  afterEach,
+  assert,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from "vitest";
 import {
   PurchaseFlowError,
   PurchaseFlowErrorCode,
@@ -8,27 +16,19 @@ import { Backend } from "../../networking/backend";
 import { setupServer, type SetupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
 import { StatusCodes } from "http-status-codes";
-import { failTest } from "../test-helpers";
-import { type PurchaseResponse } from "../../networking/responses/purchase-response";
 import {
   CheckoutSessionStatus,
   CheckoutStatusErrorCodes,
   type CheckoutStatusResponse,
 } from "../../networking/responses/checkout-status-response";
+import { checkoutStartResponse } from "../test-responses";
 
 describe("PurchaseOperationHelper", () => {
   let server: SetupServer;
   let backend: Backend;
   let purchaseOperationHelper: PurchaseOperationHelper;
 
-  const operationSessionId = "test-operation-session-id";
-  const successPurchaseBody: PurchaseResponse = {
-    operation_session_id: operationSessionId,
-    next_action: "collect_payment_info",
-    data: {
-      client_secret: "seti_123",
-    },
-  };
+  const operationSessionId = checkoutStartResponse.operation_session_id;
 
   beforeEach(() => {
     server = setupServer();
@@ -41,18 +41,18 @@ describe("PurchaseOperationHelper", () => {
     server.close();
   });
 
-  function setPurchaseResponse(httpResponse: HttpResponse) {
+  function setCheckoutStartResponse(httpResponse: HttpResponse) {
     server.use(
-      http.post("http://localhost:8000/rcbilling/v1/purchase", () => {
+      http.post("http://localhost:8000/rcbilling/v1/checkout/start", () => {
         return httpResponse;
       }),
     );
   }
 
-  function setGetCheckoutStatusResponse(httpResponse: HttpResponse) {
+  function setCheckoutCompleteResponse(httpResponse: HttpResponse) {
     server.use(
-      http.get(
-        `http://localhost:8000/rcbilling/v1/checkout/${operationSessionId}`,
+      http.post(
+        `http://localhost:8000/rcbilling/v1/checkout/${operationSessionId}/complete`,
         () => {
           return httpResponse;
         },
@@ -60,16 +60,32 @@ describe("PurchaseOperationHelper", () => {
     );
   }
 
-  test("startPurchase fails if /purchase fails", async () => {
-    setPurchaseResponse(
+  function setGetCheckoutStatusResponse(httpResponse: HttpResponse) {
+    setGetCheckoutStatusResponseResolver(() => {
+      return httpResponse;
+    });
+  }
+
+  function setGetCheckoutStatusResponseResolver(
+    httpResponseResolver: () => HttpResponse,
+  ) {
+    server.use(
+      http.get(
+        `http://localhost:8000/rcbilling/v1/checkout/${operationSessionId}`,
+        httpResponseResolver,
+      ),
+    );
+  }
+
+  test("checkoutStart fails if /checkout/start fails", async () => {
+    setCheckoutStartResponse(
       HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
     );
     await expectPromiseToPurchaseFlowError(
-      purchaseOperationHelper.startPurchase(
+      purchaseOperationHelper.checkoutStart(
         "test-app-user-id",
         "test-product-id",
         { id: "test-option-id", priceId: "test-price-id" },
-        "test-email",
         {
           offeringIdentifier: "test-offering-id",
           targetingContext: null,
@@ -79,13 +95,13 @@ describe("PurchaseOperationHelper", () => {
       new PurchaseFlowError(
         PurchaseFlowErrorCode.ErrorSettingUpPurchase,
         "Unknown backend error.",
-        "Request: purchase. Status code: 500. Body: null.",
+        "Request: postCheckoutStart. Status code: 500. Body: null.",
       ),
     );
   });
 
-  test("startPurchase fails if user already subscribed to product", async () => {
-    setPurchaseResponse(
+  test("checkoutStart fails if user already subscribed to product", async () => {
+    setCheckoutStartResponse(
       HttpResponse.json(
         {
           code: 7772,
@@ -96,16 +112,16 @@ describe("PurchaseOperationHelper", () => {
       ),
     );
     await expectPromiseToPurchaseFlowError(
-      purchaseOperationHelper.startPurchase(
+      purchaseOperationHelper.checkoutStart(
         "test-app-user-id",
         "test-product-id",
         { id: "test-option-id", priceId: "test-price-id" },
-        "test-email",
         {
           offeringIdentifier: "test-offering-id",
           targetingContext: null,
           placementIdentifier: null,
         },
+        "test-email@test.com",
       ),
       new PurchaseFlowError(
         PurchaseFlowErrorCode.AlreadyPurchasedError,
@@ -115,7 +131,160 @@ describe("PurchaseOperationHelper", () => {
     );
   });
 
-  test("pollCurrentPurchaseForCompletion fails if startPurchase not called before", async () => {
+  test("checkoutComplete fails if checkoutStart not called before", async () => {
+    await expectPromiseToPurchaseFlowError(
+      purchaseOperationHelper.checkoutComplete(),
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "No purchase started",
+      ),
+    );
+  });
+
+  test("checkoutComplete fails if /checkout/{operation_session_id}/complete fails", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    setCheckoutCompleteResponse(
+      HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
+    );
+
+    await purchaseOperationHelper.checkoutStart(
+      "test-app-user-id",
+      "test-product-id",
+      { id: "test-option-id", priceId: "test-price-id" },
+      {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      "test-email@test.com",
+    );
+
+    await expectPromiseToPurchaseFlowError(
+      purchaseOperationHelper.checkoutComplete(),
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "Unknown backend error.",
+        "Request: postCheckoutComplete. Status code: 500. Body: null.",
+      ),
+    );
+  });
+
+  test("checkoutComplete fails if operation session is invalid", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    setCheckoutCompleteResponse(
+      HttpResponse.json(
+        {
+          code: 7877,
+          message: "The operation session is invalid.",
+        },
+        { status: StatusCodes.BAD_REQUEST },
+      ),
+    );
+
+    await purchaseOperationHelper.checkoutStart(
+      "test-app-user-id",
+      "test-product-id",
+      { id: "test-option-id", priceId: "test-price-id" },
+      {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    );
+
+    await expectPromiseToPurchaseFlowError(
+      purchaseOperationHelper.checkoutComplete(),
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "One or more of the arguments provided are invalid.",
+        "The operation session is invalid.",
+      ),
+    );
+  });
+
+  test("checkoutComplete fails if purchase could not be completed", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    setCheckoutCompleteResponse(
+      HttpResponse.json(
+        {
+          code: 7878,
+          message: "The purchase could not be completed.",
+        },
+        { status: StatusCodes.UNPROCESSABLE_ENTITY },
+      ),
+    );
+
+    await purchaseOperationHelper.checkoutStart(
+      "test-app-user-id",
+      "test-product-id",
+      { id: "test-option-id", priceId: "test-price-id" },
+      {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    );
+
+    await expectPromiseToPurchaseFlowError(
+      purchaseOperationHelper.checkoutComplete(),
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "One or more of the arguments provided are invalid.",
+        "The purchase could not be completed.",
+      ),
+    );
+  });
+
+  test("checkoutComplete fails if email is required", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    setCheckoutCompleteResponse(
+      HttpResponse.json(
+        {
+          code: 7879,
+          message: "Email is required to complete the purchase.",
+        },
+        { status: StatusCodes.BAD_REQUEST },
+      ),
+    );
+
+    await purchaseOperationHelper.checkoutStart(
+      "test-app-user-id",
+      "test-product-id",
+      { id: "test-option-id", priceId: "test-price-id" },
+      {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    );
+
+    await expectPromiseToPurchaseFlowError(
+      purchaseOperationHelper.checkoutComplete(),
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.MissingEmailError,
+        "Email is not valid. Please provide a valid email address.",
+        "Email is required to complete the purchase.",
+      ),
+    );
+  });
+
+  test("pollCurrentPurchaseForCompletion fails if checkoutStart not called before", async () => {
     await expectPromiseToPurchaseFlowError(
       purchaseOperationHelper.pollCurrentPurchaseForCompletion(),
       new PurchaseFlowError(
@@ -126,8 +295,8 @@ describe("PurchaseOperationHelper", () => {
   });
 
   test("pollCurrentPurchaseForCompletion fails if poll request fails", async () => {
-    setPurchaseResponse(
-      HttpResponse.json(successPurchaseBody, {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
         status: StatusCodes.OK,
       }),
     );
@@ -135,11 +304,10 @@ describe("PurchaseOperationHelper", () => {
       HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
     );
 
-    await purchaseOperationHelper.startPurchase(
+    await purchaseOperationHelper.checkoutStart(
       "test-app-user-id",
       "test-product-id",
       { id: "test-option-id", priceId: "test-price-id" },
-      "test-email",
       {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
@@ -157,8 +325,8 @@ describe("PurchaseOperationHelper", () => {
   });
 
   test("pollCurrentPurchaseForCompletion success if poll returns success", async () => {
-    setPurchaseResponse(
-      HttpResponse.json(successPurchaseBody, {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
         status: StatusCodes.OK,
       }),
     );
@@ -173,11 +341,10 @@ describe("PurchaseOperationHelper", () => {
       HttpResponse.json(getCheckoutStatusResponse, { status: StatusCodes.OK }),
     );
 
-    await purchaseOperationHelper.startPurchase(
+    await purchaseOperationHelper.checkoutStart(
       "test-app-user-id",
       "test-product-id",
       { id: "test-option-id", priceId: "test-price-id" },
-      "test-email",
       {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
@@ -188,8 +355,8 @@ describe("PurchaseOperationHelper", () => {
   });
 
   test("pollCurrentPurchaseForCompletion success with redemption info if poll returns success", async () => {
-    setPurchaseResponse(
-      HttpResponse.json(successPurchaseBody, {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
         status: StatusCodes.OK,
       }),
     );
@@ -207,11 +374,10 @@ describe("PurchaseOperationHelper", () => {
       HttpResponse.json(getCheckoutStatusResponse, { status: StatusCodes.OK }),
     );
 
-    await purchaseOperationHelper.startPurchase(
+    await purchaseOperationHelper.checkoutStart(
       "test-app-user-id",
       "test-product-id",
       { id: "test-option-id", priceId: "test-price-id" },
-      "test-email",
       {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
@@ -225,41 +391,67 @@ describe("PurchaseOperationHelper", () => {
     );
   });
 
-  // TODO: Fix test that fails due to using same response multiple times
-  // test("pollCurrentPurchaseForCompletion fails if poll returns in progress more times than retries", async () => {
-  //   setSubscribeResponse(
-  //     HttpResponse.json(successSubscribeBody, {
-  //       status: StatusCodes.OK,
-  //     }),
-  //   );
-  //   const getCheckoutStatusResponse: OperationResponse = {
-  //     operation: {
-  //       status: OperationSessionStatus.InProgress,
-  //       is_expired: false,
-  //       error: null,
-  //     },
-  //   };
-  //   setGetCheckoutStatusResponse(
-  //     HttpResponse.json(getCheckoutStatusResponse, { status: StatusCodes.OK }),
-  //   );
-  //
-  //   await purchaseOperationHelper.startPurchase(
-  //     "test-app-user-id",
-  //     "test-product-id",
-  //     "test-email",
-  //   );
-  //   await expectPromiseToError(
-  //     purchaseOperationHelper.pollCurrentPurchaseForCompletion(),
-  //     new PurchasesError(
-  //       ErrorCode.UnknownError,
-  //       "Purchase status was not finished in given timeframe",
-  //     ),
-  //   );
-  // });
+  test("pollCurrentPurchaseForCompletion fails if poll returns in progress more times than retries", async () => {
+    vi.useFakeTimers();
+
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    const getCheckoutStatusResponse: CheckoutStatusResponse = {
+      operation: {
+        status: CheckoutSessionStatus.InProgress,
+        is_expired: false,
+        error: null,
+      },
+    };
+
+    let callCount = 0;
+    let lastCallTime = 0;
+    setGetCheckoutStatusResponseResolver(() => {
+      callCount++;
+      const currentTime = Date.now();
+      if (lastCallTime > 0) {
+        expect(currentTime - lastCallTime).toBeGreaterThanOrEqual(1000);
+      }
+      lastCallTime = currentTime;
+      return HttpResponse.json(getCheckoutStatusResponse, {
+        status: StatusCodes.OK,
+      });
+    });
+
+    await purchaseOperationHelper.checkoutStart(
+      "test-app-user-id",
+      "test-product-id",
+      { id: "test-option-id", priceId: "test-price-id" },
+      {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    );
+
+    const pollPromise = expectPromiseToPurchaseFlowError(
+      purchaseOperationHelper.pollCurrentPurchaseForCompletion(),
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.UnknownError,
+        "Max attempts reached trying to get successful purchase status",
+      ),
+    );
+
+    await vi.runAllTimersAsync();
+
+    expect(callCount).toEqual(10);
+
+    await pollPromise;
+
+    vi.useRealTimers();
+  });
 
   test("pollCurrentPurchaseForCompletion error if poll returns error", async () => {
-    setPurchaseResponse(
-      HttpResponse.json(successPurchaseBody, {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
         status: StatusCodes.OK,
       }),
     );
@@ -277,11 +469,10 @@ describe("PurchaseOperationHelper", () => {
       HttpResponse.json(getCheckoutStatusResponse, { status: StatusCodes.OK }),
     );
 
-    await purchaseOperationHelper.startPurchase(
+    await purchaseOperationHelper.checkoutStart(
       "test-app-user-id",
       "test-product-id",
       { id: "test-option-id", priceId: "test-price-id" },
-      "test-email",
       {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
@@ -298,8 +489,8 @@ describe("PurchaseOperationHelper", () => {
   });
 
   test("pollCurrentPurchaseForCompletion error if poll returns unknown error code", async () => {
-    setPurchaseResponse(
-      HttpResponse.json(successPurchaseBody, {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
         status: StatusCodes.OK,
       }),
     );
@@ -317,11 +508,10 @@ describe("PurchaseOperationHelper", () => {
       HttpResponse.json(getCheckoutStatusResponse, { status: StatusCodes.OK }),
     );
 
-    await purchaseOperationHelper.startPurchase(
+    await purchaseOperationHelper.checkoutStart(
       "test-app-user-id",
       "test-product-id",
       { id: "test-option-id", priceId: "test-price-id" },
-      "test-email",
       {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
@@ -353,7 +543,7 @@ function expectPromiseToPurchaseFlowError(
   expectedError: PurchaseFlowError,
 ) {
   return f.then(
-    () => failTest(),
+    () => assert.fail("Promise was expected to raise an error"),
     (e) => verifyExpectedError(e, expectedError),
   );
 }
