@@ -37,12 +37,14 @@
   import { type IEventsTracker } from "../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "./constants";
   import { createCheckoutFlowErrorEvent } from "../behavioural-events/sdk-event-helpers";
+  import type { PurchaseMetadata } from "../entities/offerings";
 
   export let asModal = true;
   export let customerEmail: string | undefined;
   export let appUserId: string;
   export let rcPackage: Package;
   export let purchaseOption: PurchaseOption;
+  export let metadata: PurchaseMetadata | undefined;
   export let brandingInfo: BrandingInfoResponse | null;
   export let onFinished: (redemptionInfo: RedemptionInfo | null) => void;
   export let onError: (error: PurchaseFlowError) => void;
@@ -58,7 +60,7 @@
   let productDetails: Product | null = null;
   let paymentInfoCollectionMetadata: PurchaseResponse | null = null;
   let lastError: PurchaseFlowError | null = null;
-  const productId = rcPackage.rcBillingProduct.identifier ?? null;
+  const productId = rcPackage.webBillingProduct.identifier ?? null;
 
   let state:
     | "present-offer"
@@ -90,7 +92,8 @@
   setContext(eventsTrackerContextKey, eventsTracker);
 
   onMount(async () => {
-    productDetails = rcPackage.rcBillingProduct;
+    productDetails = rcPackage.webBillingProduct;
+
     colorVariables = toProductInfoStyleVar(brandingInfo?.appearance);
 
     if (state === "present-offer") {
@@ -134,7 +137,8 @@
         productId,
         purchaseOption,
         customerEmail,
-        rcPackage.rcBillingProduct.presentedOfferingContext,
+        rcPackage.webBillingProduct.presentedOfferingContext,
+        metadata,
       )
       .then((result) => {
         if (result.next_action === "collect_payment_info") {

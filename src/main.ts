@@ -61,6 +61,8 @@ import {
   createCheckoutSessionEndErroredEvent,
 } from "./behavioural-events/sdk-event-helpers";
 import { SDKEventName } from "./behavioural-events/sdk-events";
+import { autoParseUTMParams } from "./helpers/utm-params";
+import { defaultFlagsConfig, type FlagsConfig } from "./entities/flags-config";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -72,6 +74,7 @@ export type {
   PresentedOfferingContext,
   Price,
   PurchaseOption,
+  PurchaseMetadata,
   SubscriptionOption,
   TargetingContext,
   PricingPhase,
@@ -92,6 +95,7 @@ export {
 export type { PurchasesErrorExtra } from "./entities/errors";
 export type { Period, PeriodUnit } from "./helpers/duration-helper";
 export type { HttpConfig } from "./entities/http-config";
+export type { FlagsConfig } from "./entities/flags-config";
 export { LogLevel } from "./entities/log-level";
 export type { GetOfferingsParams } from "./entities/get-offerings-params";
 export { OfferingKeyword } from "./entities/get-offerings-params";
@@ -119,6 +123,9 @@ export class Purchases {
 
   /** @internal */
   private _loadingResourcesPromise: Promise<void> | null = null;
+
+  /** @internal */
+  private readonly _flags: FlagsConfig;
 
   /** @internal */
   private readonly backend: Backend;
@@ -168,12 +175,14 @@ export class Purchases {
    * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.
    * @param appUserId - Your unique id for identifying the user.
    * @param httpConfig - Advanced http configuration to customise the SDK usage {@link HttpConfig}.
+   * @param flags - Advanced functionality configuration {@link FlagsConfig}.
    * @throws {@link PurchasesError} if the API key or user id are invalid.
    */
   static configure(
     apiKey: string,
     appUserId: string,
     httpConfig: HttpConfig = defaultHttpConfig,
+    flags: FlagsConfig = defaultFlagsConfig,
   ): Purchases {
     if (Purchases.instance !== undefined) {
       Logger.warnLog(
@@ -185,7 +194,7 @@ export class Purchases {
     validateAppUserId(appUserId);
     validateProxyUrl(httpConfig.proxyURL);
     validateAdditionalHeaders(httpConfig.additionalHeaders);
-    Purchases.instance = new Purchases(apiKey, appUserId, httpConfig);
+    Purchases.instance = new Purchases(apiKey, appUserId, httpConfig, flags);
     return Purchases.getSharedInstance();
   }
 
@@ -236,10 +245,11 @@ export class Purchases {
     apiKey: string,
     appUserId: string,
     httpConfig: HttpConfig = defaultHttpConfig,
+    flags: FlagsConfig = defaultFlagsConfig,
   ) {
     this._API_KEY = apiKey;
     this._appUserId = appUserId;
-
+    this._flags = { ...defaultFlagsConfig, ...flags };
     if (RC_ENDPOINT === undefined) {
       Logger.errorLog(
         "Project was build without some of the environment variables set",
@@ -263,7 +273,7 @@ export class Purchases {
   }
 
   /**
-   * Renders an RC Paywall and allows the user to purchase from it using RCBilling.
+   * Renders an RC Paywall and allows the user to purchase from it using Web Billing.
    * @experimental
    * @internal
    * @param paywallParams - The parameters object to customise the paywall render. Check {@link RenderPaywallParams}
@@ -555,7 +565,7 @@ export class Purchases {
     const localeToBeUsed = selectedLocale || defaultLocale;
 
     const purchaseOptionToUse =
-      purchaseOption ?? rcPackage.rcBillingProduct.defaultPurchaseOption;
+      purchaseOption ?? rcPackage.webBillingProduct.defaultPurchaseOption;
 
     this.eventsTracker.generateCheckoutSessionId();
 
@@ -566,6 +576,11 @@ export class Purchases {
       customerEmail,
     });
     this.eventsTracker.trackSDKEvent(event);
+
+    const utmParamsMetadata = this._flags.autoCollectUTMAsMetadata
+      ? autoParseUTMParams()
+      : {};
+    const metadata = { ...utmParamsMetadata, ...(params.metadata || {}) };
 
     return new Promise((resolve, reject) => {
       mount(RCPurchasesUI, {
@@ -611,6 +626,7 @@ export class Purchases {
           purchaseOperationHelper: this.purchaseOperationHelper,
           asModal,
           selectedLocale: localeToBeUsed,
+          metadata: metadata,
           defaultLocale,
         },
       });

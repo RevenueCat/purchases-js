@@ -12,11 +12,11 @@ Login @ [app.revenuecat.com](https://app.revenuecat.com)
 
 - Connect your Stripe account if you haven't already (More payment gateways are coming soon)
 - Create a Project (if you haven't already)
-- Add a new RCBilling app
+- Add a new Web Billing app
 - Get the sandbox API key or production API key (depending on the environment)
-- Create some products for the RCBilling App
-- Create an offering and add packages with RCBilling products
-- Create the entitlements you need in your app and link them to the RCBilling products
+- Create some products for the Web Billing App
+- Create an offering and add packages with Web Billing products
+- Create the entitlements you need in your app and link them to the Web Billing products
 
 # Installation
 
@@ -32,7 +32,7 @@ Login @ [app.revenuecat.com](https://app.revenuecat.com)
 
 # Usage
 
-See the [RevenueCat docs](https://www.revenuecat.com/docs/web/revenuecat-billing) and the [SDK Reference](https://revenuecat.github.io/purchases-js-docs).
+See the [RevenueCat docs](https://www.revenuecat.com/docs/web/web-billing) and the [SDK Reference](https://revenuecat.github.io/purchases-js-docs).
 
 # Development
 
@@ -110,7 +110,7 @@ npm run lint
 
 ## Running E2E tests
 
-Please check the Demo app readme [here](./examples/rcbilling-demo/README.md#e2e-tests)
+Please check the Demo app readme [here](./examples/webbilling-demo/README.md#e2e-tests)
 
 ## Update API specs
 

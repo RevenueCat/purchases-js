@@ -6,7 +6,7 @@ export function validateApiKey(apiKey: string) {
   if (!api_key_regex.test(apiKey)) {
     throw new PurchasesError(
       ErrorCode.InvalidCredentialsError,
-      "Invalid API key. Use your RevenueCat Billing API key.",
+      "Invalid API key. Use your Web Billing API key.",
     );
   }
 }

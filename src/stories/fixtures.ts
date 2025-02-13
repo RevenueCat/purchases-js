@@ -90,6 +90,7 @@ export const product: Product = {
 export const rcPackage = {
   identifier: "testPackage",
   rcBillingProduct: product,
+  webBillingProduct: product,
 };
 
 export const brandingInfo = {

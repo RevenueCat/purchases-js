@@ -1,3 +1,3 @@
 ## RevenueCat SDK
-### 🐞 Bugfixes
-* Fix for the select options background color on windows (#267) via Nicola Sacco (@nicfix)
+### ✨ New Features
+* WEB-1998: Allow metadata to be sent at purchase (#281) via Nicola Sacco (@nicfix)

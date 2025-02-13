@@ -1,3 +1,26 @@
+## 0.17.0
+## RevenueCat SDK
+### ✨ New Features
+* WEB-1998: Allow metadata to be sent at purchase (#281) via Nicola Sacco (@nicfix)
+
+## 0.16.0
+## RevenueCat SDK
+### 📦 Dependency Updates
+* Bump fastlane from 2.225.0 to 2.226.0 (#261) via dependabot[bot] (@dependabot[bot])
+
+### 🔄 Other Changes
+* [WEB-2016] Rename Web Billing (#283) via Antonio Borrero Granell (@antoniobg)
+
+## 0.15.2
+## RevenueCatUI SDK
+### 🐞 Bugfixes
+* Fix broken e2e tests + upgrade purchases-ui-js version (#270) via Guido Torres (@guido732)
+
+### 🔄 Other Changes
+* Quieter test logs (#284) via Pol Miro (@polmiro)
+* chore: upgrade storybook to latest (#276) via Alfonso Embid-Desmet (@alfondotnet)
+* chore: add console.error in example app when API is not set (#275) via Alfonso Embid-Desmet (@alfondotnet)
+
 ## 0.15.1
 ## RevenueCat SDK
 ### 🐞 Bugfixes

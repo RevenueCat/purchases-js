@@ -16,6 +16,7 @@ import { type CheckoutStatusResponse } from "./responses/checkout-status-respons
 import { defaultHttpConfig, type HttpConfig } from "../entities/http-config";
 import type {
   PresentedOfferingContext,
+  PurchaseMetadata,
   PurchaseOption,
 } from "../entities/offerings";
 
@@ -78,6 +79,7 @@ export class Backend {
     email: string,
     presentedOfferingContext: PresentedOfferingContext,
     purchaseOption: PurchaseOption,
+    metadata: PurchaseMetadata | undefined = undefined,
     traceId: string,
     checkoutSessionId: string,
   ): Promise<PurchaseResponse> {
@@ -94,6 +96,7 @@ export class Backend {
         revision: number;
       };
       supports_direct_payment: boolean;
+      metadata?: PurchaseMetadata;
       trace_id: string;
       checkout_session_id: string;
     };
@@ -109,6 +112,10 @@ export class Backend {
       trace_id: traceId,
       checkout_session_id: checkoutSessionId,
     };
+
+    if (metadata) {
+      requestBody.metadata = metadata;
+    }
 
     if (purchaseOption.id !== "base_option") {
       requestBody.offer_id = purchaseOption.id;

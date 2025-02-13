@@ -95,15 +95,15 @@ jobs:
             source "$BASH_ENV"
       - install-dependencies
       - run:
-          name: Install dependencies rcbilling-demo
-          working_directory: examples/rcbilling-demo
+          name: Install dependencies webbilling-demo
+          working_directory: examples/webbilling-demo
           command: npm ci
       - run:
           name: Build
           command: npm run build
       - run:
-          name: Build rcbilling-demo
-          working_directory: examples/rcbilling-demo
+          name: Build webbilling-demo
+          working_directory: examples/webbilling-demo
           command: npm run build
       - aws-cli/setup:
           aws_access_key_id: AWS_ACCESS_KEY_ID
@@ -111,15 +111,15 @@ jobs:
           region: AWS_REGION
       - run:
           name: Sync files to S3 bucket
-          working_directory: examples/rcbilling-demo
+          working_directory: examples/webbilling-demo
           command: aws s3 sync dist s3://app-rcbillingdemo.revenuecat.com --delete
       - run:
           name: Fix cache control on index.html
-          working_directory: examples/rcbilling-demo
+          working_directory: examples/webbilling-demo
           command: aws s3 cp --cache-control 'no-cache' --content-type 'text/html' s3://app-rcbillingdemo.revenuecat.com/index.html s3://app-rcbillingdemo.revenuecat.com/index.html --metadata-directive REPLACE
       - run:
           name: Invalidate Cloudfront Distribution
-          working_directory: examples/rcbilling-demo
+          working_directory: examples/webbilling-demo
           command: aws cloudfront create-invalidation --distribution-id E31EVZCWLXEOFB --paths "/*"
 
   test:
@@ -133,22 +133,22 @@ jobs:
       - revenuecat/setup-git-credentials
       - install-dependencies
       - run:
-          name: Install dependencies rcbilling-demo
-          working_directory: examples/rcbilling-demo
+          name: Install dependencies webbilling-demo
+          working_directory: examples/webbilling-demo
           command: npm ci
       - run:
           name: Linting
           command: npm run lint
       - run:
-          name: Linting rcbilling-demo
-          working_directory: examples/rcbilling-demo
+          name: Linting webbilling-demo
+          working_directory: examples/webbilling-demo
           command: npm run lint
       - run:
           name: Prettier
           command: npm run prettier:ci
       - run:
-          name: Prettier rcbilling-demo
-          working_directory: examples/rcbilling-demo
+          name: Prettier webbilling-demo
+          working_directory: examples/webbilling-demo
           command: npm run prettier:ci
       - run:
           name: Type checker including tests
@@ -202,12 +202,12 @@ jobs:
             source "$BASH_ENV"
       - install-dependencies
       - run:
-          name: Install dependencies rcbilling-demo
-          working_directory: examples/rcbilling-demo
+          name: Install dependencies webbilling-demo
+          working_directory: examples/webbilling-demo
           command: npm ci
       - run:
           name: Install Playwright browsers
-          working_directory: examples/rcbilling-demo
+          working_directory: examples/webbilling-demo
           command: npx playwright install --with-deps
       - run:
           name: Build
@@ -216,12 +216,12 @@ jobs:
           name: Pack
           command: npm pack
       - run:
-          name: Build rcbilling-demo
-          working_directory: examples/rcbilling-demo
+          name: Build webbilling-demo
+          working_directory: examples/webbilling-demo
           command: npm run build
       - run:
-          name: E2E tests rcbilling-demo
-          working_directory: examples/rcbilling-demo
+          name: E2E tests webbilling-demo
+          working_directory: examples/webbilling-demo
           command: npm run test:ci
 
 workflows:

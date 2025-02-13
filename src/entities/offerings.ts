@@ -292,8 +292,13 @@ export interface Package {
   readonly identifier: string;
   /**
    * The {@link Product} assigned to this package.
+   * @deprecated - Use {@link Package.webBillingProduct} instead.
    */
   readonly rcBillingProduct: Product;
+  /**
+   * The {@link Product} assigned to this package.
+   */
+  readonly webBillingProduct: Product;
   /**
    * The type of package.
    */
@@ -375,6 +380,13 @@ export interface Offerings {
    */
   readonly current: Offering | null;
 }
+
+/**
+ * Metadata that can be passed to the backend when making a purchase.
+ * They will propagate to the payment gateway (i.e. Stripe) and to RevenueCat.
+ * @public
+ */
+export type PurchaseMetadata = Record<string, string | null>;
 
 const toPrice = (priceData: PriceResponse): Price => {
   return {
@@ -567,15 +579,16 @@ const toPackage = (
   packageData: PackageResponse,
   productDetailsData: { [productId: string]: ProductResponse },
 ): Package | null => {
-  const rcBillingProduct =
+  const webBillingProduct =
     productDetailsData[packageData.platform_product_identifier];
-  if (rcBillingProduct === undefined) return null;
-  const product = toProduct(rcBillingProduct, presentedOfferingContext);
+  if (webBillingProduct === undefined) return null;
+  const product = toProduct(webBillingProduct, presentedOfferingContext);
   if (product === null) return null;
 
   return {
     identifier: packageData.identifier,
     rcBillingProduct: product,
+    webBillingProduct: product,
     packageType: getPackageType(packageData.identifier),
   };
 };
