@@ -5,12 +5,16 @@
   import RowLayout from "../layout/row-layout.svelte";
   import { type ContinueHandlerParams } from "../ui-types";
 
-  export let onContinue: (params: ContinueHandlerParams) => void;
+  export let onContinue: (params?: ContinueHandlerParams) => void;
   export let title: string | null = null;
   export let type: string;
   export let closeButtonTitle: string = "Go back to app";
   export let icon: (() => any) | null = null;
   export let message;
+
+  function handleContinue() {
+    onContinue();
+  }
 </script>
 
 <div class="message-layout">
@@ -43,7 +47,8 @@
   </div>
   <div class="message-layout-footer">
     <ModalFooter>
-      <Button on:click={onContinue} type="submit">{closeButtonTitle}</Button>
+      <Button on:click={handleContinue} type="submit">{closeButtonTitle}</Button
+      >
     </ModalFooter>
   </div>
 </div>

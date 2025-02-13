@@ -11,7 +11,7 @@
   import { ContinueHandlerParams } from "../ui-types";
 
   export let productDetails: Product | null = null;
-  export let onContinue: (params: ContinueHandlerParams) => void;
+  export let onContinue: (params?: ContinueHandlerParams) => void;
 
   const isSubscription =
     productDetails?.productType === ProductType.Subscription;
