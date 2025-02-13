@@ -45,8 +45,6 @@ export default class EventsTracker implements IEventsTracker {
   private checkoutSessionId: string | null = null;
 
   constructor(props: EventsTrackerProps) {
-    Logger.debugLog(`Events tracker created for traceId ${this.traceId}`);
-
     this.apiKey = props.apiKey;
     this.eventsUrl = `${RC_ANALYTICS_ENDPOINT}/v1/events`;
     this.appUserId = props.appUserId;
@@ -84,9 +82,6 @@ export default class EventsTracker implements IEventsTracker {
 
   private trackEvent(props: TrackEventProps) {
     try {
-      Logger.debugLog(
-        `Queueing event ${props.eventName} with properties ${JSON.stringify(props)}`,
-      );
       const event = new Event({
         eventName: props.eventName,
         traceId: this.traceId,
@@ -107,10 +102,7 @@ export default class EventsTracker implements IEventsTracker {
   }
 
   private flushEvents(): Promise<void> {
-    Logger.debugLog("Flushing events");
-
     if (this.eventsQueue.length === 0) {
-      Logger.debugLog(`Nothing to flush`);
       return Promise.resolve();
     }
 
@@ -123,7 +115,6 @@ export default class EventsTracker implements IEventsTracker {
     })
       .then((response) => {
         if (response.status === 200 || response.status === 201) {
-          Logger.debugLog("Events flushed successfully");
           this.eventsQueue.splice(0, eventsToFlush.length);
           return;
         } else {

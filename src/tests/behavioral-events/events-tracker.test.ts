@@ -139,6 +139,7 @@ describe("EventsTracker", (test) => {
     eventsTracker,
   }) => {
     let attempts = 0;
+    const successFlushMock = vi.fn();
 
     server.use(
       http.post(eventsURL, async ({ request }) => {
@@ -154,6 +155,7 @@ describe("EventsTracker", (test) => {
             await new Promise((resolve) => setTimeout(resolve, 20_000));
             throw new Error("Unexpected error");
           case 4:
+            successFlushMock();
             return HttpResponse.json(await request.json(), { status: 201 });
           default:
             throw new Error("Unexpected call");
@@ -168,38 +170,39 @@ describe("EventsTracker", (test) => {
 
     // Attempt 1: First direct attempt to flush without timeout
     await vi.advanceTimersByTimeAsync(100);
-    expect(loggerMock).not.toHaveBeenCalledWith("Events flushed successfully");
+    expect(successFlushMock).not.toHaveBeenCalled();
     loggerMock.mockClear();
 
     // Attempt 2: Wait for next flush
     await vi.advanceTimersByTimeAsync(2_000 * MAX_JITTER_MULTIPLIER);
-    expect(loggerMock).not.toHaveBeenCalledWith("Events flushed successfully");
+    expect(successFlushMock).not.toHaveBeenCalled();
     loggerMock.mockClear();
 
     // Attempt 2: Wait for request to complete
     await vi.advanceTimersByTimeAsync(1_000 * MAX_JITTER_MULTIPLIER);
-    expect(loggerMock).not.toHaveBeenCalledWith("Events flushed successfully");
+    expect(successFlushMock).not.toHaveBeenCalled();
     loggerMock.mockClear();
 
     // Attempt 3: Wait for next flush
     await vi.advanceTimersByTimeAsync(4_000 * MAX_JITTER_MULTIPLIER);
-    expect(loggerMock).not.toHaveBeenCalledWith("Events flushed successfully");
+    expect(successFlushMock).not.toHaveBeenCalled();
     loggerMock.mockClear();
 
     // Attempt 3: Wait for request to complete
     await vi.advanceTimersByTimeAsync(20_000 * MAX_JITTER_MULTIPLIER);
-    expect(loggerMock).not.toHaveBeenCalledWith("Events flushed successfully");
+    expect(successFlushMock).not.toHaveBeenCalled();
     loggerMock.mockClear();
 
     // Attempt 4: Wait for next flush
     await vi.advanceTimersByTimeAsync(8_000 * MAX_JITTER_MULTIPLIER);
-    expect(loggerMock).toHaveBeenCalledWith("Events flushed successfully");
+    expect(successFlushMock).toHaveBeenCalled();
   });
 
   test<EventsTrackerFixtures>("retries tracking events accumulating them if there are errors", async ({
     eventsTracker,
   }) => {
     let attempts = 0;
+    const successFlushMock = vi.fn();
 
     server.use(
       http.post(eventsURL, async ({ request }) => {
@@ -211,6 +214,7 @@ describe("EventsTracker", (test) => {
 
         const json = (await request.json()) as Record<string, Array<unknown>>;
         if (json.events?.length === 4) {
+          successFlushMock();
           return HttpResponse.json(json, { status: 201 });
         }
 
@@ -231,13 +235,14 @@ describe("EventsTracker", (test) => {
         4000 * MAX_JITTER_MULTIPLIER +
         8000 * MAX_JITTER_MULTIPLIER,
     );
-    expect(loggerMock).toHaveBeenCalledWith("Events flushed successfully");
+    expect(successFlushMock).toHaveBeenCalled();
   });
 
   test<EventsTrackerFixtures>("retries tracking events exponentially", async ({
     eventsTracker,
   }) => {
     let attempts = 0;
+    const successFlushMock = vi.fn();
 
     server.use(
       http.post(eventsURL, async ({ request }) => {
@@ -253,6 +258,7 @@ describe("EventsTracker", (test) => {
             await new Promise((resolve) => setTimeout(resolve, 20_000));
             throw new Error("Unexpected error");
           case 4:
+            successFlushMock();
             return HttpResponse.json(await request.json(), { status: 201 });
           default:
             throw new Error("Unexpected call");
@@ -267,32 +273,32 @@ describe("EventsTracker", (test) => {
 
     // Attempt 1: First direct attempt to flush without timeout
     await vi.advanceTimersByTimeAsync(100 * MAX_JITTER_MULTIPLIER);
-    expect(loggerMock).not.toHaveBeenCalledWith("Events flushed successfully");
+    expect(successFlushMock).not.toHaveBeenCalled();
     loggerMock.mockClear();
 
     // Attempt 2: Wait for next flush
     await vi.advanceTimersByTimeAsync(2_000 * MAX_JITTER_MULTIPLIER);
-    expect(loggerMock).not.toHaveBeenCalledWith("Events flushed successfully");
+    expect(successFlushMock).not.toHaveBeenCalled();
     loggerMock.mockClear();
 
     // Attempt 2: Wait for request to complete
     await vi.advanceTimersByTimeAsync(1_000 * MAX_JITTER_MULTIPLIER);
-    expect(loggerMock).not.toHaveBeenCalledWith("Events flushed successfully");
+    expect(successFlushMock).not.toHaveBeenCalled();
     loggerMock.mockClear();
 
     // Attempt 3: Wait for next flush
     await vi.advanceTimersByTimeAsync(4_000 * MAX_JITTER_MULTIPLIER);
-    expect(loggerMock).not.toHaveBeenCalledWith("Events flushed successfully");
+    expect(successFlushMock).not.toHaveBeenCalled();
     loggerMock.mockClear();
 
     // Attempt 3: Wait for request to complete
     await vi.advanceTimersByTimeAsync(20_000 * MAX_JITTER_MULTIPLIER);
-    expect(loggerMock).not.toHaveBeenCalledWith("Events flushed successfully");
+    expect(successFlushMock).not.toHaveBeenCalled();
     loggerMock.mockClear();
 
     // Attempt 4: Wait for next flush
     await vi.advanceTimersByTimeAsync(8_000 * MAX_JITTER_MULTIPLIER);
-    expect(loggerMock).toHaveBeenCalledWith("Events flushed successfully");
+    expect(successFlushMock).toHaveBeenCalled();
   });
 
   test<EventsTrackerFixtures>("does not lose events due to race conditions on the request", async ({

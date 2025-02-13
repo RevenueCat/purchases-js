@@ -28,7 +28,6 @@ export class FlushManager {
       return;
     }
 
-    Logger.debugLog(`Flushing immediately`);
     this.clearTimeout();
     this.executeCallbackWithRetries();
   }
@@ -39,15 +38,12 @@ export class FlushManager {
 
   public schedule(delay?: number) {
     if (this.timeoutId !== undefined) {
-      Logger.debugLog(`Already scheduled`);
       return;
     }
 
-    Logger.debugLog(`Scheduling callback after ${this.currentDelay}ms delay`);
     const delayWithJitter = this.addJitter(delay || this.currentDelay);
     this.timeoutId = setTimeout(() => {
       this.timeoutId = undefined;
-      Logger.debugLog(`Executing callback after ${this.currentDelay}ms delay`);
       this.executeCallbackWithRetries();
     }, delayWithJitter);
   }
@@ -63,7 +59,6 @@ export class FlushManager {
 
   private reset() {
     if (this.currentDelay !== this.initialDelay) {
-      Logger.debugLog(`Resetting to initial ${this.initialDelay}ms delay`);
       this.clearTimeout();
       this.currentDelay = this.initialDelay;
     }
