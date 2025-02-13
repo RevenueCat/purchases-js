@@ -196,7 +196,11 @@
     display: flex;
     flex-direction: column;
     font: var(--rc-text-body1-mobile);
-    gap: var(--rc-spacing-gapXXLarge-desktop);
+    gap: 0;
+  }
+
+  .rcb-pricing-info:has(.rcb-product-details.expanded) {
+    gap: var(--rc-spacing-gapXXLarge-mobile);
   }
 
   .rcb-product-title {
@@ -228,17 +232,15 @@
   .rcb-product-description {
     font: var(--rc-text-bodySmall-mobile);
     color: var(--rc-color-grey-text-dark);
-    margin: 0 0 12px 0;
-  }
-
-  .rcb-product-price-after-trial {
-    margin-bottom: 12px;
   }
 
   .rcb-product-details {
     color: var(--rc-color-grey-text-light);
 
     margin: 0px;
+    gap: var(--rc-spacing-gapXLarge-mobile);
+    display: flex;
+    flex-direction: column;
 
     overflow: hidden;
     max-height: 0;
@@ -252,6 +254,7 @@
     list-style-type: disc;
     list-style-position: inside;
     padding: 0px;
+    margin: 0px;
   }
 
   .rcb-product-details.expanded {
@@ -277,8 +280,16 @@
   }
 
   @media screen and (max-width: 767px) {
-    .rcb-pricing-info {
+    .rcb-pricing-info:not(:has(.rcb-product-details.expanded))
+      > *:not(:last-child):not(.rcb-product-price-container) {
+      margin-bottom: var(--rc-spacing-gapXLarge-mobile);
+    }
+
+    .rcb-pricing-info:has(.rcb-product-details.expanded) {
       gap: var(--rc-spacing-gapXLarge-mobile);
+    }
+
+    .rcb-pricing-info {
       margin-top: var(--rc-spacing-gapXLarge-mobile);
     }
   }
@@ -286,7 +297,12 @@
   @media screen and (min-width: 768px) {
     .rcb-pricing-info {
       margin-top: calc(var(--rc-spacing-gapXXLarge-desktop) * 2);
-      margin-bottom: calc(var(--rc-spacing-gapXXLarge-desktop) * 2);
+      /* margin-bottom: calc(var(--rc-spacing-gapXXLarge-desktop) * 2); */
+      gap: var(--rc-spacing-gapXLarge-desktop);
+    }
+
+    .rcb-pricing-info:has(.rcb-product-details.expanded) {
+      gap: var(--rc-spacing-gapXXLarge-desktop);
     }
 
     .rcb-product-price-container {
@@ -315,6 +331,7 @@
 
     .rcb-product-details {
       max-height: 500px;
+      gap: var(--rc-spacing-gapXLarge-desktop);
     }
 
     .rcb-product-details.collapsed {
