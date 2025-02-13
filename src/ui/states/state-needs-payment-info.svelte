@@ -2,16 +2,15 @@
   import { getContext, onMount } from "svelte";
 
   import Button from "../button.svelte";
-  import { Elements, PaymentElement } from "svelte-stripe";
   import type {
+    Appearance,
     Stripe,
     StripeElementLocale,
     StripeElements,
     StripeError,
+    StripePaymentElement,
+    StripePaymentElementChangeEvent,
   } from "@stripe/stripe-js";
-  import { loadStripe } from "@stripe/stripe-js";
-  import StateLoading from "./state-loading.svelte";
-  import { type PurchaseResponse } from "../../networking/responses/purchase-response";
   import ProcessingAnimation from "../processing-animation.svelte";
   import type { Product, PurchaseOption } from "../../entities/offerings";
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
@@ -26,26 +25,35 @@
   import { LocalizationKeys } from "../localization/supportedLanguages";
   // import TextSeparator from "../text-separator.svelte";
   import SecureCheckoutRc from "../secure-checkout-rc.svelte";
+  import { type CheckoutStartResponse } from "../../networking/responses/checkout-start-response";
+  import {
+    PurchaseFlowError,
+    PurchaseFlowErrorCode,
+    PurchaseOperationHelper,
+  } from "../../helpers/purchase-operation-helper";
+  import { DEFAULT_FONT_FAMILY } from "../theme/text";
+  import { StripeService } from "../../stripe/stripe-service";
+  import { type ContinueHandlerParams } from "../ui-types";
 
-  export let onContinue: any;
-  export let paymentInfoCollectionMetadata: PurchaseResponse;
+  export let onContinue: (params?: ContinueHandlerParams) => void;
+  export let paymentInfoCollectionMetadata: CheckoutStartResponse;
   export let processing = false;
   export let productDetails: Product;
   export let purchaseOptionToUse: PurchaseOption;
   export let brandingInfo: BrandingInfoResponse | null;
-
-  const clientSecret = paymentInfoCollectionMetadata.data.client_secret;
+  export let purchaseOperationHelper: PurchaseOperationHelper;
 
   let stripe: Stripe | null = null;
   let elements: StripeElements;
   let safeElements: StripeElements;
+  let paymentElement: StripePaymentElement | null = null;
   let modalErrorMessage: string | undefined = undefined;
   let isPaymentInfoComplete = false;
+  let clientSecret: string | undefined = undefined;
 
-  let textStyles = new Theme().textStyles;
   let spacing = new Theme().spacing;
 
-  let stripeVariables: undefined | Elements["variables"];
+  let stripeVariables: undefined | Appearance["variables"];
   let viewport: "mobile" | "desktop" = "mobile";
 
   // Maybe extract this to a
@@ -60,6 +68,7 @@
 
     stripeVariables = {
       fontSizeBase: "14px",
+      fontFamily: DEFAULT_FONT_FAMILY,
       spacingGridRow: spacing.gapXLarge[viewport],
     };
   }
@@ -72,6 +81,49 @@
     }, 150);
   }
 
+  const translator: Translator =
+    getContext(translatorContextKey) || Translator.fallback();
+  const stripeElementLocale = (translator.locale ||
+    translator.fallbackLocale) as StripeElementLocale;
+
+  /**
+   * This function converts some particular locales to the ones that stripe supports.
+   * Finally falls back to 'auto' if the initialLocale is not supported by stripe.
+   * @param initialLocale
+   */
+  const getLocaleToUse = (
+    initialLocale: StripeElementLocale,
+  ): StripeElementLocale => {
+    // These locale that we support are not supported by stripe.
+    // if any of these is passed we fallback to 'auto' so that
+    // stripe will pick up the locale from the browser.
+    const stripeUnsupportedLocale = ["ca", "hi", "uk"];
+
+    if (stripeUnsupportedLocale.includes(initialLocale)) {
+      return "auto";
+    }
+
+    const mappedLocale: Record<string, StripeElementLocale> = {
+      zh_Hans: "zh",
+      zh_Hant: "zh",
+    };
+
+    if (Object.keys(mappedLocale).includes(initialLocale)) {
+      return mappedLocale[initialLocale];
+    }
+
+    return initialLocale;
+  };
+
+  const localeToUse = getLocaleToUse(stripeElementLocale);
+
+  $: {
+    // @ts-ignore
+    if (elements && elements._elements.length > 0) {
+      safeElements = elements;
+    }
+  }
+
   onMount(() => {
     updateStripeVariables();
 
@@ -82,264 +134,181 @@
     };
   });
 
-  $: {
-    // @ts-ignore
-    if (elements && elements._elements.length > 0) {
-      safeElements = elements;
-    }
-  }
+  onMount(() => {
+    let isMounted = true;
 
-  onMount(async () => {
-    const stripePk = paymentInfoCollectionMetadata.data.publishable_api_key;
-    const stripeAcctId = paymentInfoCollectionMetadata.data.stripe_account_id;
+    (async () => {
+      try {
+        const { stripe: stripeInstance, elements: elementsInstance } =
+          await StripeService.initializeStripe(
+            paymentInfoCollectionMetadata,
+            brandingInfo,
+            localeToUse,
+            stripeVariables,
+            viewport,
+          );
 
-    if (!stripePk || !stripeAcctId) {
-      throw new Error("Stripe publishable key or account ID not found");
-    }
+        if (!isMounted) return;
 
-    stripe = await loadStripe(stripePk, {
-      stripeAccount: stripeAcctId,
-    });
+        stripe = stripeInstance;
+        elements = elementsInstance;
+
+        paymentElement = StripeService.createPaymentElement(
+          elements,
+          brandingInfo?.app_name,
+        );
+
+        paymentElement.mount("#payment-element");
+        paymentElement.on(
+          "change",
+          (event: StripePaymentElementChangeEvent) => {
+            isPaymentInfoComplete = event.complete;
+          },
+        );
+        paymentElement.on("loaderror", (event) => {
+          isMounted = false;
+          const purchaseError = new PurchaseFlowError(
+            PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+            "Failed to load payment form",
+            event.error instanceof Error
+              ? event.error.message
+              : String(event.error),
+          );
+          handlePaymentError(purchaseError);
+        });
+      } catch (error) {
+        const purchaseError = new PurchaseFlowError(
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+          "Failed to initialize payment form",
+          error instanceof Error ? error.message : String(error),
+        );
+        handlePaymentError(purchaseError);
+      }
+    })();
+
+    return () => {
+      if (isMounted) {
+        isMounted = false;
+        paymentElement?.destroy();
+      }
+    };
   });
 
   const handleContinue = async () => {
-    if (processing || !stripe || !safeElements || !clientSecret) return;
+    if (processing || !stripe || !safeElements) return;
 
     processing = true;
 
-    const isSetupIntent = clientSecret.startsWith("seti_");
-
-    // confirm payment with stripe
-    let error: StripeError | undefined = undefined;
-    if (isSetupIntent) {
-      const result = await stripe.confirmSetup({
-        elements: safeElements,
-        redirect: "if_required",
-      });
-      error = result.error;
+    const { error: submitError } = await safeElements.submit();
+    if (submitError) {
+      handlePaymentError(submitError);
     } else {
-      const result = await stripe.confirmPayment({
-        elements: safeElements,
-        redirect: "if_required",
-      });
-      error = result.error;
-    }
+      const checkoutError = await completeCheckout(stripe);
 
-    if (error) {
-      processing = false;
-      if (shouldShowErrorModal(error)) {
-        modalErrorMessage = error.message;
+      if (checkoutError) {
+        handlePaymentError(checkoutError);
+      } else {
+        onContinue();
       }
-    } else {
-      onContinue();
     }
   };
 
-  function shouldShowErrorModal(error: StripeError) {
-    const FORM_VALIDATED_CARD_ERROR_CODES = [
-      "card_declined",
-      "expired_card",
-      "incorrect_cvc",
-      "incorrect_number",
-    ];
-    if (
-      error.type === "card_error" &&
-      error.code &&
-      FORM_VALIDATED_CARD_ERROR_CODES.includes(error.code)
-    ) {
-      return false;
+  function handlePaymentError(error: StripeError | PurchaseFlowError) {
+    processing = false;
+
+    if (error instanceof PurchaseFlowError) {
+      if (error.isRecoverable()) {
+        modalErrorMessage = error.getPublicErrorMessage(productDetails);
+      } else {
+        onContinue({ error: error });
+      }
+    } else if (!StripeService.isStripeHandledCardError(error)) {
+      modalErrorMessage = error.message;
+    }
+  }
+
+  const completeCheckout = async (stripe: Stripe) => {
+    // Get client secret if not already present
+    if (!clientSecret) {
+      try {
+        const response = await purchaseOperationHelper.checkoutComplete();
+        clientSecret = response?.gateway_params?.client_secret;
+        if (!clientSecret) {
+          throw new Error("Failed to complete checkout");
+        }
+      } catch (error) {
+        return error as PurchaseFlowError;
+      }
     }
 
-    return true;
-  }
+    // Confirm payment or setup intent with Stripe
+    const isSetupIntent = clientSecret.startsWith("seti_");
+    const result = await stripe[
+      isSetupIntent ? "confirmSetup" : "confirmPayment"
+    ]({
+      elements: safeElements,
+      clientSecret,
+      redirect: "if_required",
+    });
+
+    return result.error;
+  };
 
   const handleErrorTryAgain = () => {
     modalErrorMessage = undefined;
   };
-
-  const theme = new Theme(brandingInfo?.appearance);
-
-  let customShape = theme.shape;
-  let customColors = theme.formColors;
-
-  const translator: Translator =
-    getContext(translatorContextKey) || Translator.fallback();
-  const stripeElementLocale = (translator.locale ||
-    translator.fallbackLocale) as StripeElementLocale;
-
-  type OnChangeEvent = CustomEvent<{ complete: boolean }>;
-
-  /**
-   * This function converts some particular locales to the ones that stripe supports.
-   * Finally falls back to 'auto' if the initialLocale is not supported by stripe.
-   * @param initialLocale
-   */
-  const getLocaleToUse = (initialLocale: string) => {
-    // These locale that we support are not supported by stripe.
-    // if any of these is passed we fallback to 'auto' so that
-    // stripe will pick up the locale from the browser.
-    const stripeUnsupportedLocale = ["ca", "hi", "uk"];
-
-    if (stripeUnsupportedLocale.includes(initialLocale)) {
-      return "auto" as StripeElementLocale;
-    }
-
-    const mappedLocale: Record<string, string> = {
-      zh_Hans: "zh",
-      zh_Hant: "zh",
-    };
-
-    if (Object.keys(mappedLocale).includes(initialLocale)) {
-      return mappedLocale[initialLocale] as StripeElementLocale;
-    }
-
-    return initialLocale as StripeElementLocale;
-  };
-
-  const localeToUse = getLocaleToUse(stripeElementLocale);
 </script>
 
 <div class="checkout-container">
   <!-- <TextSeparator text="Pay by card" /> -->
-  {#if stripe && clientSecret}
-    <form on:submit|preventDefault={handleContinue}>
-      <Elements
-        {stripe}
-        {clientSecret}
-        loader="always"
-        locale={localeToUse}
-        bind:elements
-        theme="stripe"
-        labels="floating"
-        variables={{
-          borderRadius: customShape["input-border-radius"],
-          fontLineHeight: "10px",
-          focusBoxShadow: "none",
-          colorDanger: customColors["error"],
-          colorTextPlaceholder: customColors["grey-text-light"],
-          colorText: customColors["grey-text-dark"],
-          colorTextSecondary: customColors["grey-text-light"],
-          ...stripeVariables,
-        }}
-        rules={{
-          ".Input": {
-            boxShadow: "none",
-            paddingTop: "6px",
-            paddingBottom: "6px",
-            border: `1px solid ${customColors["grey-ui-dark"]}`,
-            backgroundColor: customColors["input-background"],
-            color: customColors["grey-text-dark"],
-          },
-          ".Input:focus": {
-            border: `1px solid ${customColors["focus"]}`,
-            outline: "none",
-          },
-          ".Label": {
-            fontWeight: textStyles.body1[viewport].fontWeight,
-            lineHeight: "22px",
-            color: customColors["grey-text-dark"],
-          },
-          ".Label--floating": {
-            fontSize: "10px !important",
-          },
-          ".Input--invalid": {
-            boxShadow: "none",
-          },
-          ".TermsText": {
-            fontSize: textStyles.caption[viewport].fontSize,
-            lineHeight: textStyles.caption[viewport].lineHeight,
-          },
-          ".Tab": {
-            boxShadow: "none",
-            backgroundColor: "transparent",
-            color: customColors["grey-text-light"],
-            border: `1px solid ${customColors["grey-ui-dark"]}`,
-          },
-          ".Tab:hover, .Tab:focus, .Tab--selected, .Tab--selected:hover, .Tab--selected:focus":
-            {
-              boxShadow: "none",
-              color: customColors["grey-text-dark"],
-            },
-          ".Tab:focus, .Tab--selected, .Tab--selected:hover, .Tab--selected:focus":
-            {
-              border: `1px solid ${customColors["focus"]}`,
-            },
-          ".TabIcon": {
-            fill: customColors["grey-text-light"],
-          },
-          ".TabIcon--selected": {
-            fill: customColors["grey-text-dark"],
-          },
-          ".Block": {
-            boxShadow: "none",
-            backgroundColor: "transparent",
-            border: `1px solid ${customColors["grey-ui-dark"]}`,
-          },
-        }}
-      >
-        <div class="checkout-form-container" hidden={!!modalErrorMessage}>
-          <PaymentElement
-            options={{
-              business: brandingInfo?.app_name
-                ? { name: brandingInfo.app_name }
-                : undefined,
-              layout: {
-                type: "tabs",
-              },
-            }}
-            on:change={(event: OnChangeEvent) => {
-              isPaymentInfoComplete = event.detail.complete;
-            }}
-          />
+  <form on:submit|preventDefault={handleContinue}>
+    <div class="checkout-form-container" hidden={!!modalErrorMessage}>
+      <div id="payment-element"></div>
 
-          <div class="checkout-pay-container">
-            {#if !modalErrorMessage}
-              <Button
-                disabled={processing || !isPaymentInfoComplete}
-                testId="PayButton"
-              >
-                {#if processing}
-                  <ProcessingAnimation />
-                {:else if productDetails.subscriptionOptions?.[purchaseOptionToUse.id]?.trial}
-                  <Localized
-                    key={LocalizationKeys.StateNeedsPaymentInfoButtonStartTrial}
-                  />
-                {:else}
-                  <Localized
-                    key={LocalizationKeys.StateNeedsPaymentInfoButtonPay}
-                  />
-                {/if}
-              </Button>
-            {/if}
-
-            <div class="checkout-secure-container">
-              <SecureCheckoutRc />
-            </div>
-          </div>
-        </div>
-
-        {#if modalErrorMessage}
-          <MessageLayout
-            title={null}
-            type="error"
-            closeButtonTitle={translator.translate(
-              LocalizationKeys.StateErrorButtonTryAgain,
-            )}
-            onContinue={handleErrorTryAgain}
+      <div class="checkout-pay-container">
+        {#if !modalErrorMessage}
+          <Button
+            disabled={processing || !isPaymentInfoComplete}
+            testId="PayButton"
           >
-            {#snippet icon()}
-              <IconError />
-            {/snippet}
-            {#snippet message()}
-              {modalErrorMessage}
-            {/snippet}
-          </MessageLayout>
+            {#if processing}
+              <ProcessingAnimation />
+            {:else if productDetails.subscriptionOptions?.[purchaseOptionToUse.id]?.trial}
+              <Localized
+                key={LocalizationKeys.StateNeedsPaymentInfoButtonStartTrial}
+              />
+            {:else}
+              <Localized
+                key={LocalizationKeys.StateNeedsPaymentInfoButtonPay}
+              />
+            {/if}
+          </Button>
         {/if}
-      </Elements>
-    </form>
-  {:else}
-    <StateLoading />
-  {/if}
+
+        <div class="checkout-secure-container">
+          <SecureCheckoutRc />
+        </div>
+      </div>
+    </div>
+
+    {#if modalErrorMessage}
+      <MessageLayout
+        title={null}
+        type="error"
+        closeButtonTitle={translator.translate(
+          LocalizationKeys.StateErrorButtonTryAgain,
+        )}
+        onContinue={handleErrorTryAgain}
+      >
+        {#snippet icon()}
+          <IconError />
+        {/snippet}
+        {#snippet message()}
+          {modalErrorMessage}
+        {/snippet}
+      </MessageLayout>
+    {/if}
+  </form>
 </div>
 
 <style>
