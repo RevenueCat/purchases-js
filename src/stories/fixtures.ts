@@ -29,9 +29,9 @@ export const subscriptionOptionWithTrial: SubscriptionOption = {
   id: "option_id_1",
   priceId: "price_1",
   base: {
-    periodDuration: "P1M",
+    periodDuration: "P1Y",
     period: {
-      unit: PeriodUnit.Month,
+      unit: PeriodUnit.Year,
       number: 1,
     },
     price: {
@@ -43,10 +43,10 @@ export const subscriptionOptionWithTrial: SubscriptionOption = {
     cycleCount: 0,
   },
   trial: {
-    periodDuration: "P2W",
+    periodDuration: "P1M",
     period: {
-      number: 2,
-      unit: PeriodUnit.Week,
+      number: 1,
+      unit: PeriodUnit.Month,
     },
     cycleCount: 1,
     price: null,

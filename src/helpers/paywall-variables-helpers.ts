@@ -83,7 +83,7 @@ function getPricePerWeek({
   return fallback;
 }
 
-function getPricePerMonth({
+export function getPricePerMonth({
   price,
   period,
   translator,

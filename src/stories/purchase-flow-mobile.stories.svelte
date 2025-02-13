@@ -6,9 +6,11 @@
 
   import {
     brandingInfo,
+    colorfulBrandingAppearance,
     product,
     purchaseFlowError,
     subscriptionOption,
+    subscriptionOptionWithTrial,
   } from "./fixtures";
   import { buildCheckoutStartResponse } from "./utils/purchase-response-builder";
   import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
@@ -18,7 +20,7 @@
     productDetails: product,
     purchaseOptionToUse: subscriptionOption,
     purchaseOption: subscriptionOption,
-    brandingInfo: brandingInfo,
+    brandingInfo: { ...brandingInfo, appearance: colorfulBrandingAppearance },
     lastError: purchaseFlowError,
     onContinue: () => {},
   };
@@ -67,6 +69,19 @@
   args={{
     currentView: "needs-auth-info",
     isSandbox: true,
+  }}
+  parameters={{ viewport: { defaultViewport: "mobile" } }}
+/>
+<Story
+  name="Email Input (with Trial Product)"
+  args={{
+    currentView: "needs-auth-info",
+    isSandbox: true,
+    productDetails: {
+      ...product,
+      normalPeriodDuration: "P1Y",
+    },
+    purchaseOptionToUse: subscriptionOptionWithTrial,
   }}
   parameters={{ viewport: { defaultViewport: "mobile" } }}
 />

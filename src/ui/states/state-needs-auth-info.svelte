@@ -102,112 +102,112 @@
 </div>
 
 <style>
+  .auth-info-title {
+    font: var(--rc-text-titleLarge-mobile);
+  }
+
+  .secure-checkout-container {
+    margin-top: var(--rc-spacing-gapXXLarge-mobile);
+  }
+
+  @media screen and (min-width: 768px) {
     .auth-info-title {
-        font: var(--rc-text-titleLarge-mobile);
+      font: var(--rc-text-titleLarge-desktop);
     }
 
     .secure-checkout-container {
-        margin-top: var(--rc-spacing-gapXXLarge-mobile);
+      margin-top: var(--rc-spacing-gapXXLarge-desktop);
     }
+  }
 
-    @media screen and (min-width: 768px) {
-        .auth-info-title {
-            font: var(--rc-text-titleLarge-desktop);
-        }
+  .needs-auth-info-container {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
 
-        .secure-checkout-container {
-            margin-top: var(--rc-spacing-gapXXLarge-desktop);
-        }
+  form {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+
+  .form-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-top: var(--rc-spacing-gapXLarge-desktop);
+    margin-bottom: var(--rc-spacing-gapXLarge-desktop);
+  }
+
+  @media screen and (max-width: 767px) {
+    .form-container {
+      margin-top: var(--rc-spacing-gapXLarge-mobile);
+      margin-bottom: var(--rc-spacing-gapXLarge-mobile);
+    }
+  }
+
+  .form-label {
+    margin-top: var(--rc-spacing-gapSmall-desktop);
+    margin-bottom: var(--rc-spacing-gapSmall-desktop);
+    font: var(--rc-text-body1-mobile);
+    display: block;
+  }
+
+  @media screen and (min-width: 768px) {
+    .form-label {
+      font: var(--rc-text-body1-desktop);
+    }
+  }
+
+  .form-input.error input {
+    border-color: var(--rc-color-error);
+  }
+
+  .form-error {
+    margin-top: var(--rc-spacing-gapSmall-desktop);
+    font: var(--rc-text-body1-mobile);
+    color: var(--rc-color-error);
+  }
+
+  @media screen and (min-width: 768px) {
+    .form-error {
+      font: var(--rc-text-body1-desktop);
+    }
+  }
+
+  input {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid var(--rc-color-grey-ui-dark);
+    border-radius: var(--rc-shape-input-border-radius);
+    font: var(--rc-text-body1-mobile);
+    height: var(--rc-spacing-inputHeight-desktop);
+    background: var(--rc-color-input-background);
+    color: inherit;
+  }
+
+  @media screen and (max-width: 767px) {
+    input {
+      padding-left: var(--rc-spacing-gapLarge-mobile);
+      height: var(--rc-spacing-inputHeight-mobile);
+    }
+  }
+
+  @media screen and (min-width: 768px) {
+    input {
+      font: var(--rc-text-body1-desktop);
+      padding-left: var(--rc-spacing-gapLarge-desktop);
     }
 
     .needs-auth-info-container {
-        display: flex;
-        flex-direction: column;
-        flex-grow: 1;
+      max-width: 50vw;
+      flex-grow: 0;
     }
+  }
 
-    form {
-        display: flex;
-        flex-direction: column;
-        flex-grow: 1;
-    }
-
-    .form-container {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        margin-top: var(--rc-spacing-gapXLarge-desktop);
-        margin-bottom: var(--rc-spacing-gapXLarge-desktop);
-    }
-
-    @media screen and (max-width: 767px) {
-        .form-container {
-            margin-top: var(--rc-spacing-gapXLarge-mobile);
-            margin-bottom: var(--rc-spacing-gapXLarge-mobile);
-        }
-    }
-
-    .form-label {
-        margin-top: var(--rc-spacing-gapSmall-desktop);
-        margin-bottom: var(--rc-spacing-gapSmall-desktop);
-        font: var(--rc-text-body1-mobile);
-        display: block;
-    }
-
-    @media screen and (min-width: 768px) {
-        .form-label {
-            font: var(--rc-text-body1-desktop);
-        }
-    }
-
-    .form-input.error input {
-        border-color: var(--rc-color-error);
-    }
-
-    .form-error {
-        margin-top: var(--rc-spacing-gapSmall-desktop);
-        font: var(--rc-text-body1-mobile);
-        color: var(--rc-color-error);
-    }
-
-    @media screen and (min-width: 768px) {
-        .form-error {
-            font: var(--rc-text-body1-desktop);
-        }
-    }
-
-    input {
-        width: 100%;
-        box-sizing: border-box;
-        border: 2px solid var(--rc-color-grey-ui-dark);
-        border-radius: var(--rc-shape-input-border-radius);
-        font: var(--rc-text-body1-mobile);
-        height: var(--rc-spacing-inputHeight-desktop);
-        background: var(--rc-color-input-background);
-        color: inherit;
-    }
-
-    @media screen and (max-width: 767px) {
-        input {
-            padding-left: var(--rc-spacing-gapLarge-mobile);
-            height: var(--rc-spacing-inputHeight-mobile);
-        }
-    }
-
-    @media screen and (min-width: 768px) {
-        input {
-            font: var(--rc-text-body1-desktop);
-            padding-left: var(--rc-spacing-gapLarge-desktop);
-        }
-
-        .needs-auth-info-container {
-            max-width: 50vw;
-            flex-grow: 0;
-        }
-    }
-
-    input:focus {
-        outline: none;
-        border: 2px solid var(--rc-color-focus);
-    }
+  input:focus {
+    outline: none;
+    border: 1px solid var(--rc-color-focus);
+  }
 </style>
