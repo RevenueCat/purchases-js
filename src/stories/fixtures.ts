@@ -92,6 +92,7 @@ export const rcPackage: Package = {
   packageType: PackageType.Monthly,
 };
 
+
 export const colorfulBrandingAppearance: BrandingAppearance = {
   shapes: "rectangle",
   color_form_bg: "#313131", // dark grey

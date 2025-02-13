@@ -8,10 +8,10 @@
   import Localized from "../localization/localized.svelte";
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
-  import { ContinueHandlerParams } from "../ui-types";
   import { SDKEventName } from "../../behavioural-events/sdk-events";
   import { type IEventsTracker } from "../../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "../constants";
+  import { type ContinueHandlerParams } from "../ui-types";
 
   export let productDetails: Product | null = null;
   export let onContinue: (params?: ContinueHandlerParams) => void;
@@ -42,7 +42,7 @@
 <MessageLayout
   type="success"
   title={translator.translate(LocalizationKeys.StateSuccessPurchaseSuccessful)}
-  onContinue={handleContinue()}
+  onContinue={handleContinue}
   closeButtonTitle={translator.translate(
     LocalizationKeys.StateSuccessButtonClose,
   )}
