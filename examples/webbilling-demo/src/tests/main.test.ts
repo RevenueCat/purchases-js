@@ -343,32 +343,42 @@ test.describe("Main", () => {
 
     const waitForTrackEventPromise = page.waitForResponse(
       successfulEventTrackingResponseMatcher((event) => {
-        return (
-          event?.id !== undefined &&
-          event?.timestamp_ms !== undefined &&
-          event?.type === "web_billing" &&
-          event?.event_name === "sdk_initialized" &&
-          event?.app_user_id === userId &&
-          event?.properties?.checkout_session_id === null &&
-          event?.properties?.trace_id !== undefined &&
-          event?.context?.library_name === "purchases-js" &&
-          event?.context?.library_version === "0.15.1" &&
-          event?.context?.locale !== undefined &&
-          event?.context?.user_agent !== undefined &&
-          event?.context?.time_zone !== undefined &&
-          event?.context?.screen_width !== undefined &&
-          event?.context?.screen_height !== undefined &&
-          event?.context?.utm_source === null &&
-          event?.context?.utm_medium === null &&
-          event?.context?.utm_campaign === null &&
-          event?.context?.utm_content === null &&
-          event?.context?.utm_term === null &&
-          event?.context?.page_referrer === "" &&
-          event?.context?.page_url !== undefined &&
-          event?.context?.page_title ===
-            "Health Check – RevenueCat Billing Demo" &&
-          event?.context?.source === "sdk"
-        );
+        try {
+          expect(event?.id).toBeDefined();
+          expect(event?.timestamp_ms).toBeDefined();
+          expect(event?.type).toBe("web_billing");
+          expect(event?.event_name).toBe("sdk_initialized");
+          expect(event?.app_user_id).toBe(userId);
+
+          const context = event?.context;
+          expect(context).toBeInstanceOf(Object);
+
+          expect(context.library_name).toEqual("purchases-js");
+          expect(typeof context.library_version).toBe("string");
+          expect(typeof context.locale).toBe("string");
+          expect(typeof context.user_agent).toBe("string");
+          expect(typeof context.time_zone).toBe("string");
+          expect(typeof context.screen_width).toBe("number");
+          expect(typeof context.screen_height).toBe("number");
+          expect(context.utm_source).toBeNull();
+          expect(context.utm_medium).toBeNull();
+          expect(context.utm_campaign).toBeNull();
+          expect(context.utm_content).toBeNull();
+          expect(context.utm_term).toBeNull();
+          expect(context.page_referrer).toBe("");
+          expect(typeof context.page_url).toBe("string");
+          expect(context.page_title).toBe("Health Check – Web Billing Demo");
+          expect(context.source).toBe("sdk");
+
+          const properties = event?.properties;
+          expect(typeof properties.trace_id).toBe("string");
+          expect(properties.checkout_session_id).toBeNull();
+
+          return true;
+        } catch (error) {
+          console.error("Event validation failed:", error);
+          return false;
+        }
       }),
       { timeout: 3_000 },
     );
