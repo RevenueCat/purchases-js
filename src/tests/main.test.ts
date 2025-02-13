@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import {
   type CustomerInfo,
   type EntitlementInfo,
@@ -182,6 +182,17 @@ describe("Purchases.close()", () => {
     purchases.close();
     expect(Purchases.isConfigured()).toBeFalsy();
   });
+
+  test("disposes of events tracker and calls through", () => {
+    const purchases = configurePurchases();
+
+    // Create spy that calls through to the original implementation
+    const disposeSpy = vi.spyOn(purchases["eventsTracker"], "dispose");
+
+    purchases.close();
+
+    expect(disposeSpy).toHaveBeenCalled();
+  });
 });
 
 describe("Purchases.preload()", () => {
@@ -206,5 +217,29 @@ describe("Purchases.generateRevenueCatAnonymousAppUserId()", () => {
   test("generated ID passes appUserId validation", () => {
     const anonymousId = Purchases.generateRevenueCatAnonymousAppUserId();
     expect(() => Purchases.configure(testApiKey, anonymousId)).not.toThrow();
+  });
+});
+
+describe("Purchases._trackEvent", () => {
+  test("allows tracking events", () => {
+    const purchases = configurePurchases();
+    const trackEventSpy = vi.spyOn(
+      purchases["eventsTracker"],
+      "trackExternalEvent",
+    );
+    purchases._trackEvent({
+      source: "wpl",
+      eventName: "test_event",
+      properties: {
+        test_property: "test_value",
+      },
+    });
+    expect(trackEventSpy).toHaveBeenCalledWith({
+      eventName: "test_event",
+      source: "wpl",
+      properties: {
+        test_property: "test_value",
+      },
+    });
   });
 });

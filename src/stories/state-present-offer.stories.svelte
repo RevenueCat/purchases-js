@@ -12,6 +12,7 @@
     product,
     subscriptionOption,
     subscriptionOptionWithTrial,
+    defaultContext,
   } from "./fixtures";
   import IconCart from "../ui/icons/icon-cart.svelte";
   import ModalHeader from "../ui/modal-header.svelte";
@@ -28,7 +29,7 @@
     purchaseOption: subscriptionOption,
     brandingInfo: brandingInfo,
     sandbox: false,
-    context: {},
+    context: defaultContext,
   };
 
   let customLabelsTranslator = new Translator(
@@ -188,7 +189,7 @@
   name="Italian"
   args={{
     ...defaultArgs,
-    context: { [translatorContextKey]: italianTranslator },
+    context: { ...defaultContext, [translatorContextKey]: italianTranslator },
     purchaseOption: subscriptionOptionWithTrial,
   }}
 />
@@ -197,7 +198,7 @@
   name="Spanish"
   args={{
     ...defaultArgs,
-    context: { [translatorContextKey]: spanishTranslator },
+    context: { ...defaultContext, [translatorContextKey]: spanishTranslator },
   }}
 />
 
@@ -205,7 +206,10 @@
   name="CustomLabels"
   args={{
     ...defaultArgs,
-    context: { [translatorContextKey]: customLabelsTranslator },
+    context: {
+      ...defaultContext,
+      [translatorContextKey]: customLabelsTranslator,
+    },
     productDetails: { ...product, description: null },
   }}
 />
@@ -214,8 +218,10 @@
   name="CustomLabelsIT"
   args={{
     ...defaultArgs,
-
-    context: { [translatorContextKey]: italianCustomLabelsTranslator },
+    context: {
+      ...defaultContext,
+      [translatorContextKey]: italianCustomLabelsTranslator,
+    },
     productDetails: { ...product, description: null },
   }}
 />
@@ -224,8 +230,10 @@
   name="CustomLabelsES"
   args={{
     ...defaultArgs,
-
-    context: { [translatorContextKey]: spanishCustomLabelsTranslator },
+    context: {
+      ...defaultContext,
+      [translatorContextKey]: spanishCustomLabelsTranslator,
+    },
     productDetails: { ...product, description: null },
   }}
 />
@@ -249,7 +257,7 @@
       ...subscriptionOption,
       base: { ...subscriptionOption.base, price: priceJPY },
     },
-    context: { [translatorContextKey]: spanishTranslator },
+    context: { ...defaultContext, [translatorContextKey]: spanishTranslator },
   }}
 />
 
@@ -272,7 +280,7 @@
       ...subscriptionOption,
       base: { ...subscriptionOption.base, price: priceEUR },
     },
-    context: { [translatorContextKey]: spanishTranslator },
+    context: { ...defaultContext, [translatorContextKey]: spanishTranslator },
   }}
 />
 

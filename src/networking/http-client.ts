@@ -117,7 +117,7 @@ export const SDK_HEADERS = new Set([
   IS_SANDBOX_HEADER,
 ]);
 
-function getHeaders(
+export function getHeaders(
   apiKey: string,
   headers?: { [key: string]: string },
   additionalHeaders?: { [key: string]: string },

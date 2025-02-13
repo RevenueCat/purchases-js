@@ -23,6 +23,7 @@ import {
   type RedemptionInfo,
   toRedemptionInfo,
 } from "../entities/redemption-info";
+import { type IEventsTracker } from "../behavioural-events/events-tracker";
 
 export enum PurchaseFlowErrorCode {
   ErrorSettingUpPurchase = 0,
@@ -115,11 +116,17 @@ export class PurchaseFlowError extends Error {
 export class PurchaseOperationHelper {
   private operationSessionId: string | null = null;
   private readonly backend: Backend;
+  private readonly eventsTracker: IEventsTracker;
   private readonly maxNumberAttempts: number;
   private readonly waitMSBetweenAttempts = 1000;
 
-  constructor(backend: Backend, maxNumberAttempts: number = 10) {
+  constructor(
+    backend: Backend,
+    eventsTracker: IEventsTracker,
+    maxNumberAttempts: number = 10,
+  ) {
     this.backend = backend;
+    this.eventsTracker = eventsTracker;
     this.maxNumberAttempts = maxNumberAttempts;
   }
 
@@ -132,6 +139,9 @@ export class PurchaseOperationHelper {
     metadata?: PurchaseMetadata,
   ): Promise<PurchaseResponse> {
     try {
+      const traceId = this.eventsTracker.getTraceId();
+      const checkoutSessionId = this.eventsTracker.getCheckoutSessionId();
+
       const subscribeResponse = await this.backend.postPurchase(
         appUserId,
         productId,
@@ -139,6 +149,8 @@ export class PurchaseOperationHelper {
         presentedOfferingContext,
         purchaseOption,
         metadata,
+        traceId,
+        checkoutSessionId ?? "",
       );
       this.operationSessionId = subscribeResponse.operation_session_id;
       return subscribeResponse;

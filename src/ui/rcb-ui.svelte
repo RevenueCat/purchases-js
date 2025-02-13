@@ -34,19 +34,23 @@
     englishLocale,
     translatorContextKey,
   } from "./localization/constants";
+  import { type IEventsTracker } from "../behavioural-events/events-tracker";
+  import { eventsTrackerContextKey } from "./constants";
+  import { createCheckoutFlowErrorEvent } from "../behavioural-events/sdk-event-helpers";
   import type { PurchaseMetadata } from "../entities/offerings";
 
   export let asModal = true;
   export let customerEmail: string | undefined;
   export let appUserId: string;
   export let rcPackage: Package;
-  export let purchaseOption: PurchaseOption | null | undefined;
+  export let purchaseOption: PurchaseOption;
   export let metadata: PurchaseMetadata | undefined;
   export let brandingInfo: BrandingInfoResponse | null;
   export let onFinished: (redemptionInfo: RedemptionInfo | null) => void;
   export let onError: (error: PurchaseFlowError) => void;
   export let onClose: () => void;
   export let purchases: Purchases;
+  export let eventsTracker: IEventsTracker;
   export let purchaseOperationHelper: PurchaseOperationHelper;
   export let selectedLocale: string = englishLocale;
   export let defaultLocale: string = englishLocale;
@@ -57,11 +61,6 @@
   let paymentInfoCollectionMetadata: PurchaseResponse | null = null;
   let lastError: PurchaseFlowError | null = null;
   const productId = rcPackage.webBillingProduct.identifier ?? null;
-  const defaultPurchaseOption =
-    rcPackage.webBillingProduct.defaultPurchaseOption;
-  const purchaseOptionToUse = purchaseOption
-    ? purchaseOption
-    : defaultPurchaseOption;
 
   let state:
     | "present-offer"
@@ -89,6 +88,8 @@
     translatorContextKey,
     new Translator(customTranslations, selectedLocale, defaultLocale),
   );
+
+  setContext(eventsTrackerContextKey, eventsTracker);
 
   onMount(async () => {
     productDetails = rcPackage.webBillingProduct;
@@ -134,7 +135,7 @@
       .startPurchase(
         appUserId,
         productId,
-        purchaseOptionToUse,
+        purchaseOption,
         customerEmail,
         rcPackage.webBillingProduct.presentedOfferingContext,
         metadata,
@@ -191,6 +192,12 @@
   };
 
   const handleError = (e: PurchaseFlowError) => {
+    const event = createCheckoutFlowErrorEvent({
+      errorCode: e.getErrorCode().toString(),
+      errorMessage: e.message,
+    });
+    eventsTracker.trackSDKEvent(event);
+
     if (state === "processing-auth-info" && e.isRecoverable()) {
       lastError = e;
       state = "needs-auth-info";
@@ -224,21 +231,18 @@
               <IconCart />
             {/if}
           </ModalHeader>
-          {#if productDetails && purchaseOptionToUse}
+          {#if productDetails && purchaseOption}
             <StatePresentOffer
               {productDetails}
               brandingAppearance={brandingInfo?.appearance}
-              purchaseOption={purchaseOptionToUse}
+              {purchaseOption}
             />
           {/if}
         </Aside>
       {/if}
       <Main brandingAppearance={brandingInfo?.appearance}>
-        {#if state === "present-offer" && productDetails && purchaseOptionToUse}
-          <StatePresentOffer
-            {productDetails}
-            purchaseOption={purchaseOptionToUse}
-          />
+        {#if state === "present-offer" && productDetails && purchaseOption}
+          <StatePresentOffer {productDetails} {purchaseOption} />
         {/if}
         {#if state === "present-offer" && !productDetails}
           <StateLoading />
@@ -251,14 +255,14 @@
             {lastError}
           />
         {/if}
-        {#if paymentInfoCollectionMetadata && (state === "needs-payment-info" || state === "polling-purchase-status") && productDetails && purchaseOptionToUse}
+        {#if paymentInfoCollectionMetadata && (state === "needs-payment-info" || state === "polling-purchase-status") && productDetails && purchaseOption}
           <StateNeedsPaymentInfo
             {paymentInfoCollectionMetadata}
             onContinue={handleContinue}
             onClose={handleClose}
             processing={state === "polling-purchase-status"}
             {productDetails}
-            {purchaseOptionToUse}
+            {purchaseOption}
             {brandingInfo}
           />
         {/if}

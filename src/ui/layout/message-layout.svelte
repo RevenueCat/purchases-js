@@ -8,6 +8,7 @@
 
   export let brandingInfo: BrandingInfoResponse | null = null;
   export let onContinue: () => void;
+  export let onClose: () => void;
   export let title: string | null = null;
   export let type: string;
   export let closeButtonTitle: string = "Go back to app";
@@ -15,7 +16,7 @@
 
 <RowLayout gutter="32px">
   {#if title}
-    <BrandAndCloseHeader {brandingInfo} onClose={onContinue} />
+    <BrandAndCloseHeader {brandingInfo} {onClose} />
   {/if}
   <ModalSection>
     <div class="rcb-modal-message" data-type={type} data-has-title={!!title}>

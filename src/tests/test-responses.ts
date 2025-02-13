@@ -251,6 +251,9 @@ export interface GetRequest {
 }
 
 export const APIGetRequest = vi.fn();
+export const APIPostRequest = vi.fn();
+
+export const eventsURL = "http://localhost:8000/v1/events";
 
 export function getRequestHandlers(): RequestHandler[] {
   const requestHandlers: RequestHandler[] = [];
@@ -292,6 +295,14 @@ export function getRequestHandlers(): RequestHandler[] {
     http.get(brandingUrl, ({ request }) => {
       APIGetRequest({ url: request.url });
       return HttpResponse.json(brandingInfoResponse, { status: 200 });
+    }),
+  );
+
+  requestHandlers.push(
+    http.post(eventsURL, async ({ request }) => {
+      const json = await request.json();
+      APIPostRequest({ url: eventsURL, json });
+      return HttpResponse.json({}, { status: 200 });
     }),
   );
 

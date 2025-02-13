@@ -4,7 +4,7 @@
   export let disabled = false;
 </script>
 
-<button on:click class="close-button" {disabled}>
+<button on:click class="close-button" {disabled} data-testid="close-button">
   <div>
     {@html Icon}
   </div>

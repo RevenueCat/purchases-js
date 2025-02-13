@@ -9,6 +9,7 @@
   import {
     brandingInfo,
     colorfulBrandingAppearance,
+    defaultContext,
     product,
     subscriptionOption,
   } from "./fixtures";
@@ -23,6 +24,7 @@
     productDetails: product,
     purchaseOption: subscriptionOption,
     brandingInfo: brandingInfo,
+    context: defaultContext,
   };
 
   let customLabelsTranslator = new Translator(
@@ -111,7 +113,7 @@
   name="Italian"
   args={{
     ...defaultArgs,
-    context: { [translatorContextKey]: italianTranslator },
+    context: { ...defaultContext, [translatorContextKey]: italianTranslator },
   }}
 />
 
@@ -119,7 +121,7 @@
   name="Spanish"
   args={{
     ...defaultArgs,
-    context: { [translatorContextKey]: spanishTranslator },
+    context: { ...defaultContext, [translatorContextKey]: spanishTranslator },
   }}
 />
 
@@ -127,7 +129,10 @@
   name="CustomLabels"
   args={{
     ...defaultArgs,
-    context: { [translatorContextKey]: customLabelsTranslator },
+    context: {
+      ...defaultContext,
+      [translatorContextKey]: customLabelsTranslator,
+    },
   }}
 />
 
@@ -135,8 +140,10 @@
   name="CustomLabelsIT"
   args={{
     ...defaultArgs,
-
-    context: { [translatorContextKey]: italianCustomLabelsTranslator },
+    context: {
+      ...defaultContext,
+      [translatorContextKey]: italianCustomLabelsTranslator,
+    },
   }}
 />
 
@@ -144,6 +151,9 @@
   name="CustomLabelsES"
   args={{
     ...defaultArgs,
-    context: { [translatorContextKey]: spanishCustomLabelsTranslator },
+    context: {
+      ...defaultContext,
+      [translatorContextKey]: spanishCustomLabelsTranslator,
+    },
   }}
 />

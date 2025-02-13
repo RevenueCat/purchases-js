@@ -15,4 +15,4 @@ export interface HttpConfig {
   proxyURL?: string;
 }
 
-export const defaultHttpConfig = {};
+export const defaultHttpConfig = {} as HttpConfig;

@@ -203,6 +203,7 @@ GEM
     mime-types-data (3.2024.1203)
     mini_magick (4.13.2)
     mini_mime (1.1.5)
+    mini_portile2 (2.8.8)
     multi_json (1.15.0)
     multipart-post (2.4.1)
     nanaimo (0.4.0)
@@ -210,6 +211,9 @@ GEM
     naturally (2.2.1)
     netrc (0.11.0)
     nkf (0.2.0)
+    nokogiri (1.17.1)
+      mini_portile2 (~> 2.8.2)
+      racc (~> 1.4)
     nokogiri (1.17.1-arm64-darwin)
       racc (~> 1.4)
     nokogiri (1.17.1-x86_64-linux)
@@ -278,6 +282,7 @@ GEM
 
 PLATFORMS
   arm64-darwin-22
+  arm64-darwin-24
   x86_64-linux
 
 DEPENDENCIES
@@ -286,4 +291,4 @@ DEPENDENCIES
   fastlane-plugin-revenuecat_internal!
 
 BUNDLED WITH
-   2.2.3
+   2.6.3
