@@ -1,4 +1,4 @@
-import type { PurchaseFlowError } from "src/helpers/purchase-operation-helper";
+import type { PurchaseFlowError } from "../helpers/purchase-operation-helper";
 
 export type CurrentView =
   | "present-offer"
