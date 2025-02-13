@@ -6,9 +6,11 @@
 
   import {
     brandingInfo,
+    colorfulBrandingAppearance,
     product,
     purchaseFlowError,
     subscriptionOption,
+    subscriptionOptionWithTrial,
   } from "./fixtures";
   import {
     buildPurchaseResponse,
@@ -21,7 +23,7 @@
     productDetails: product,
     purchaseOptionToUse: subscriptionOption,
     purchaseOption: subscriptionOption,
-    brandingInfo: brandingInfo,
+    brandingInfo: { ...brandingInfo, appearance: colorfulBrandingAppearance },
     lastError: purchaseFlowError,
     onContinue: () => {},
   };
@@ -70,6 +72,19 @@
   args={{
     currentView: "needs-auth-info",
     isSandbox: true,
+  }}
+  parameters={{ viewport: { defaultViewport: "desktop" } }}
+/>
+<Story
+  name="Email Input (with Trial Product)"
+  args={{
+    currentView: "needs-auth-info",
+    isSandbox: true,
+    productDetails: {
+      ...product,
+      normalPeriodDuration: "P1Y",
+    },
+    purchaseOptionToUse: subscriptionOptionWithTrial,
   }}
   parameters={{ viewport: { defaultViewport: "desktop" } }}
 />

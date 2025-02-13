@@ -12,7 +12,7 @@
 >
   <path
     d="M4.94 5.72656L8 8.7799L11.06 5.72656L12 6.66656L8 10.6666L4 6.66656L4.94 5.72656Z"
-    fill="white"
+    class="arrow-fill"
     fill-opacity="0.7"
   />
 </svg>
@@ -20,6 +20,10 @@
 <style>
   .arrow {
     transition: transform 0.3s ease;
+  }
+
+  .arrow-fill {
+    fill: var(--rc-color-grey-text-light);
   }
 
   .arrow.expanded {

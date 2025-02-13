@@ -162,7 +162,7 @@
   input {
     width: 100%;
     box-sizing: border-box;
-    border: 2px solid var(--rc-color-grey-ui-dark);
+    border: 1px solid var(--rc-color-grey-ui-dark);
     border-radius: var(--rc-shape-input-border-radius);
     font: var(--rc-text-body1-mobile);
     height: var(--rc-spacing-inputHeight-desktop);
@@ -191,6 +191,6 @@
 
   input:focus {
     outline: none;
-    border: 2px solid var(--rc-color-focus);
+    border: 1px solid var(--rc-color-focus);
   }
 </style>
