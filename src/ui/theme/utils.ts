@@ -1,4 +1,4 @@
-import { type BrandingAppearance } from "src/networking/responses/branding-response";
+import { type BrandingAppearance } from "../../networking/responses/branding-response";
 import {
   type Colors,
   DEFAULT_FORM_COLORS,

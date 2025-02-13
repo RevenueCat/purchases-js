@@ -11,7 +11,7 @@
   import { SDKEventName } from "../../behavioural-events/sdk-events";
   import { type IEventsTracker } from "../../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "../constants";
-  import { ContinueHandlerParams } from "../ui-types";
+  import { type ContinueHandlerParams } from "../ui-types";
 
   export let productDetails: Product | null = null;
   export let onContinue: (params?: ContinueHandlerParams) => void;
