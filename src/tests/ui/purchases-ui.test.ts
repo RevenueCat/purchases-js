@@ -1,27 +1,23 @@
 import "@testing-library/jest-dom";
 import { fireEvent, render, screen } from "@testing-library/svelte";
-import { describe, test, expect, afterEach, vi } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import PurchasesUI from "../../ui/rcb-ui.svelte";
-import {
-  brandingInfo,
-  rcPackage,
-  purchaseResponse,
-} from "../../stories/fixtures";
+import { brandingInfo, checkoutStartResponse, rcPackage, subscriptionOption } from "../../stories/fixtures";
 import type { Purchases } from "../../main";
 import {
   PurchaseFlowError,
   PurchaseFlowErrorCode,
   type PurchaseOperationHelper,
 } from "../../helpers/purchase-operation-helper";
-import type { PurchaseResponse } from "../../networking/responses/purchase-response";
 import { SDKEventName } from "../../behavioural-events/sdk-events";
 import { createEventsTrackerMock } from "../mocks/events-tracker-mock-provider";
+import type { CheckoutStartResponse } from "../../networking/responses/checkout-start-response";
 
 const eventsTrackerMock = createEventsTrackerMock();
 
 const purchaseOperationHelperMock: PurchaseOperationHelper = {
-  startPurchase: async () =>
-    Promise.resolve(purchaseResponse as PurchaseResponse),
+  checkoutStart: async () =>
+    Promise.resolve(checkoutStartResponse as CheckoutStartResponse),
 } as unknown as PurchaseOperationHelper;
 
 const purchasesMock: Purchases = {
@@ -34,12 +30,14 @@ const basicProps = {
   eventsTracker: eventsTrackerMock,
   purchaseOperationHelper: purchaseOperationHelperMock,
   rcPackage: rcPackage,
-  purchaseOption: null,
+  purchaseOption: subscriptionOption,
   brandingInfo: null,
   isSandbox: true,
   branding: brandingInfo,
   customerEmail: "test@test.com",
   onClose: vi.fn(),
+  onFinished: vi.fn(),
+  onError: vi.fn(),
 };
 
 describe("PurchasesUI", () => {
@@ -48,7 +46,7 @@ describe("PurchasesUI", () => {
   });
 
   test("displays error when an unreachable email is submitted", async () => {
-    vi.spyOn(purchaseOperationHelperMock, "startPurchase").mockRejectedValue(
+    vi.spyOn(purchaseOperationHelperMock, "checkoutStart").mockRejectedValue(
       new PurchaseFlowError(
         PurchaseFlowErrorCode.MissingEmailError,
         "Email domain is not valid. Please check the email address or try a different one.",
@@ -56,7 +54,11 @@ describe("PurchasesUI", () => {
     );
 
     render(PurchasesUI, {
-      props: { ...basicProps, customerEmail: undefined },
+      props: {
+        ...basicProps, customerEmail: undefined,
+        appUserId: "",
+        metadata: undefined,
+      },
     });
 
     const emailInput = screen.getByTestId("email");
@@ -70,7 +72,7 @@ describe("PurchasesUI", () => {
   });
 
   test("clears domain email errors after they are fixed", async () => {
-    vi.spyOn(purchaseOperationHelperMock, "startPurchase").mockRejectedValue(
+    vi.spyOn(purchaseOperationHelperMock, "checkoutStart").mockRejectedValue(
       new PurchaseFlowError(
         PurchaseFlowErrorCode.MissingEmailError,
         "Email domain is not valid. Please check the email address or try a different one.",
@@ -78,7 +80,11 @@ describe("PurchasesUI", () => {
     );
 
     render(PurchasesUI, {
-      props: { ...basicProps, customerEmail: undefined },
+      props: {
+        ...basicProps, customerEmail: undefined,
+        appUserId: "",
+        metadata: undefined,
+      },
     });
 
     const emailInput = screen.getByTestId("email");
@@ -99,7 +105,11 @@ describe("PurchasesUI", () => {
 
   test("NOTs render CheckoutBillingFormImpression when email has been provided", async () => {
     render(PurchasesUI, {
-      props: { ...basicProps, customerEmail: "test@test.com" },
+      props: {
+        ...basicProps, customerEmail: "test@test.com",
+        appUserId: "",
+        metadata: undefined,
+      },
     });
 
     expect(screen.queryByText(/Billing email address/));
@@ -108,7 +118,7 @@ describe("PurchasesUI", () => {
   test("tracks the CheckoutFlowError event when an email is handled at the root component", async () => {
     vi.spyOn(
       purchaseOperationHelperMock,
-      "startPurchase",
+      "checkoutStart",
     ).mockRejectedValueOnce(
       new PurchaseFlowError(
         PurchaseFlowErrorCode.MissingEmailError,
@@ -117,7 +127,11 @@ describe("PurchasesUI", () => {
     );
 
     render(PurchasesUI, {
-      props: { ...basicProps, customerEmail: undefined },
+      props: {
+        ...basicProps, customerEmail: undefined,
+        appUserId: "",
+        metadata: undefined,
+      },
     });
 
     const emailInput = screen.getByTestId("email");
@@ -137,7 +151,7 @@ describe("PurchasesUI", () => {
   test("does NOT track the CheckoutBillingFormError event when a different error occurs", async () => {
     vi.spyOn(
       purchaseOperationHelperMock,
-      "startPurchase",
+      "checkoutStart",
     ).mockRejectedValueOnce(
       new PurchaseFlowError(
         PurchaseFlowErrorCode.UnknownError,
@@ -146,7 +160,12 @@ describe("PurchasesUI", () => {
     );
 
     render(PurchasesUI, {
-      props: { ...basicProps, customerEmail: undefined },
+      props: {
+        ...basicProps,
+        customerEmail: undefined,
+        appUserId: "",
+        metadata: undefined,
+      },
     });
 
     const emailInput = screen.getByTestId("email");

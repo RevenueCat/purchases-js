@@ -17,20 +17,23 @@
   import {
     PurchaseFlowError,
     PurchaseFlowErrorCode,
+    PurchaseOperationHelper,
   } from "../helpers/purchase-operation-helper";
-  import { type PurchaseResponse } from "../networking/responses/purchase-response";
+  import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
+  import { type ContinueHandlerParams } from "./ui-types";
 
   export let currentView: CurrentView;
   export let brandingInfo: BrandingInfoResponse | null;
   export let productDetails: Product | null;
-  export let purchaseOptionToUse: PurchaseOption;
+  export let purchaseOption: PurchaseOption;
   export let colorVariables: string = "";
   export let isSandbox: boolean = false;
 
-  export let handleContinue: (authInfo?: { email: string }) => void;
+  export let handleContinue: (params?: ContinueHandlerParams) => void;
   export let closeWithError: () => void;
   export let lastError: PurchaseFlowError | null;
-  export let paymentInfoCollectionMetadata: PurchaseResponse | null;
+  export let paymentInfoCollectionMetadata: CheckoutStartResponse | null;
+  export let purchaseOperationHelper: PurchaseOperationHelper;
 
   const viewsWhereOfferDetailsAreShown: CurrentView[] = [
     "present-offer",
@@ -55,12 +58,12 @@
           <BrandingInfoUI {brandingInfo} />
         {/snippet}
 
-        {#snippet bodyContent(expanded: boolean)}
-          {#if productDetails && purchaseOptionToUse}
+        {#snippet bodyContent(expanded)}
+          {#if productDetails && purchaseOption}
             <StatePresentOffer
               {productDetails}
               brandingAppearance={brandingInfo?.appearance}
-              purchaseOption={purchaseOptionToUse}
+              purchaseOption={purchaseOption}
               {expanded}
             />
           {/if}
@@ -69,10 +72,10 @@
     {/if}
     <Main brandingAppearance={brandingInfo?.appearance}>
       {#snippet body()}
-        {#if currentView === "present-offer" && productDetails && purchaseOptionToUse}
+        {#if currentView === "present-offer" && productDetails && purchaseOption}
           <StatePresentOffer
             {productDetails}
-            purchaseOption={purchaseOptionToUse}
+            purchaseOption={purchaseOption}
             expanded={true}
           />
         {/if}
@@ -86,14 +89,15 @@
             {lastError}
           />
         {/if}
-        {#if paymentInfoCollectionMetadata && (currentView === "needs-payment-info" || currentView === "polling-purchase-status") && productDetails && purchaseOptionToUse}
+        {#if paymentInfoCollectionMetadata && (currentView === "needs-payment-info" || currentView === "polling-purchase-status") && productDetails && purchaseOption}
           <StateNeedsPaymentInfo
             {paymentInfoCollectionMetadata}
             onContinue={handleContinue}
             processing={currentView === "polling-purchase-status"}
             {productDetails}
-            {purchaseOptionToUse}
+            purchaseOption={purchaseOption}
             {brandingInfo}
+            {purchaseOperationHelper}
           />
         {/if}
         {#if currentView === "loading"}

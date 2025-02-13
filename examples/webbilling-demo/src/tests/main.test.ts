@@ -255,7 +255,7 @@ test.describe("Main", () => {
     const cardButton = singleCard.getByRole("button");
     await cardButton.click();
 
-    await page.route("*/**/purchase", async (route) => {
+    await page.route("*/**/checkout/start", async (route) => {
       await route.fulfill({
         body: '{ "code": 7110, "message": "Test error message"}',
         status: 400,

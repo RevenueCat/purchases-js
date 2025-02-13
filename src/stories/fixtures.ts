@@ -1,12 +1,9 @@
-import type { BrandingAppearance } from "src/networking/responses/branding-response";
+import type { BrandingAppearance, BrandingInfoResponse } from "src/networking/responses/branding-response";
 import { eventsTrackerContextKey } from "../ui/constants";
-import {
-  type Product,
-  ProductType,
-  type SubscriptionOption,
-} from "../entities/offerings";
+import { type Package, PackageType, type Product, ProductType, type SubscriptionOption } from "../entities/offerings";
 import { PeriodUnit } from "../helpers/duration-helper";
 import { PurchaseFlowError } from "../helpers/purchase-operation-helper";
+import type { CheckoutStartResponse } from "../networking/responses/checkout-start-response";
 
 export const subscriptionOption: SubscriptionOption = {
   id: "option_id_1",
@@ -88,21 +85,12 @@ export const product: Product = {
   },
 };
 
-export const rcPackage = {
+export const rcPackage: Package = {
   identifier: "testPackage",
   rcBillingProduct: product,
   webBillingProduct: product,
+  packageType: PackageType.Monthly,
 };
-
-export const brandingInfo = {
-  support_email: "support@somefantasticcat.com",
-  app_name: "Some Fantastic Cat, Inc.",
-  app_icon: "1005820_1715624566.png",
-  app_icon_webp: "1005820_1715624566.webp",
-  appearance: {},
-};
-
-export const purchaseFlowError = new PurchaseFlowError(1);
 
 export const colorfulBrandingAppearance: BrandingAppearance = {
   shapes: "rectangle",
@@ -116,6 +104,18 @@ export const colorfulBrandingAppearance: BrandingAppearance = {
   show_product_description: true,
 };
 
+export const brandingInfo: BrandingInfoResponse = {
+  id: "branding_id",
+  support_email: "support@somefantasticcat.com",
+  app_name: "Some Fantastic Cat, Inc.",
+  app_icon: "1005820_1715624566.png",
+  app_icon_webp: "1005820_1715624566.webp",
+  appearance: colorfulBrandingAppearance,
+};
+
+export const purchaseFlowError = new PurchaseFlowError(1);
+
+/** DEPRECATED */
 export const purchaseResponse = {
   next_action: "collect_payment_info",
   data: {
@@ -125,11 +125,21 @@ export const purchaseResponse = {
   },
 };
 
+export const checkoutStartResponse: CheckoutStartResponse = {
+  operation_session_id: "operation_session_id",
+  gateway_params: {
+    stripe_account_id: "test_stripe_account_id",
+  },
+};
+
 export const defaultContext = {
   [eventsTrackerContextKey]: {
-    trackExternalEvent: () => {},
-    trackSDKEvent: () => {},
+    trackExternalEvent: () => {
+    },
+    trackSDKEvent: () => {
+    },
     updateUser: () => Promise.resolve(),
-    dispose: () => {},
+    dispose: () => {
+    },
   },
 };

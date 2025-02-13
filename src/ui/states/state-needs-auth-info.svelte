@@ -6,20 +6,20 @@
   import ProcessingAnimation from "../processing-animation.svelte";
   import { validateEmail } from "../../helpers/validators";
   import { PurchaseFlowError } from "../../helpers/purchase-operation-helper";
-  import { getContext,onMount } from "svelte";
-  import CloseButton from "../close-button.svelte";
+  import { getContext, onMount } from "svelte";
   import Localized from "../localization/localized.svelte";
   import { translatorContextKey } from "../localization/constants";
   import { Translator } from "../localization/translator";
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import SecureCheckoutRc from "../secure-checkout-rc.svelte";
+  import { type ContinueHandlerParams } from "../ui-types";
   import { eventsTrackerContextKey } from "../constants";
   import { type IEventsTracker } from "../../behavioural-events/events-tracker";
   import { createCheckoutBillingFormErrorEvent } from "../../behavioural-events/sdk-event-helpers";
   import { SDKEventName } from "../../behavioural-events/sdk-events";
 
-  export let onContinue: any;
+  export let onContinue: (params: ContinueHandlerParams) => void;
   export let processing: boolean;
   export let lastError: PurchaseFlowError | null;
 
@@ -41,7 +41,7 @@
       eventsTracker.trackSDKEvent({
         eventName: SDKEventName.CheckoutBillingFormSubmit,
       });
-      onContinue({ email });
+      onContinue({ authInfo: { email } });
     }
   };
 
@@ -102,112 +102,112 @@
 </div>
 
 <style>
-  .auth-info-title {
-    font: var(--rc-text-titleLarge-mobile);
-  }
-
-  .secure-checkout-container {
-    margin-top: var(--rc-spacing-gapXXLarge-mobile);
-  }
-
-  @media screen and (min-width: 768px) {
     .auth-info-title {
-      font: var(--rc-text-titleLarge-desktop);
+        font: var(--rc-text-titleLarge-mobile);
     }
 
     .secure-checkout-container {
-      margin-top: var(--rc-spacing-gapXXLarge-desktop);
+        margin-top: var(--rc-spacing-gapXXLarge-mobile);
     }
-  }
 
-  .needs-auth-info-container {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-  }
+    @media screen and (min-width: 768px) {
+        .auth-info-title {
+            font: var(--rc-text-titleLarge-desktop);
+        }
 
-  form {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-  }
-
-  .form-container {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    margin-top: var(--rc-spacing-gapXLarge-desktop);
-    margin-bottom: var(--rc-spacing-gapXLarge-desktop);
-  }
-
-  @media screen and (max-width: 767px) {
-    .form-container {
-      margin-top: var(--rc-spacing-gapXLarge-mobile);
-      margin-bottom: var(--rc-spacing-gapXLarge-mobile);
-    }
-  }
-
-  .form-label {
-    margin-top: var(--rc-spacing-gapSmall-desktop);
-    margin-bottom: var(--rc-spacing-gapSmall-desktop);
-    font: var(--rc-text-body1-mobile);
-    display: block;
-  }
-
-  @media screen and (min-width: 768px) {
-    .form-label {
-      font: var(--rc-text-body1-desktop);
-    }
-  }
-
-  .form-input.error input {
-    border-color: var(--rc-color-error);
-  }
-
-  .form-error {
-    margin-top: var(--rc-spacing-gapSmall-desktop);
-    font: var(--rc-text-body1-mobile);
-    color: var(--rc-color-error);
-  }
-
-  @media screen and (min-width: 768px) {
-    .form-error {
-      font: var(--rc-text-body1-desktop);
-    }
-  }
-
-  input {
-    width: 100%;
-    box-sizing: border-box;
-    border: 2px solid var(--rc-color-grey-ui-dark);
-    border-radius: var(--rc-shape-input-border-radius);
-    font: var(--rc-text-body1-mobile);
-    height: var(--rc-spacing-inputHeight-desktop);
-    background: var(--rc-color-input-background);
-    color: inherit;
-  }
-
-  @media screen and (max-width: 767px) {
-    input {
-      padding-left: var(--rc-spacing-gapLarge-mobile);
-      height: var(--rc-spacing-inputHeight-mobile);
-    }
-  }
-
-  @media screen and (min-width: 768px) {
-    input {
-      font: var(--rc-text-body1-desktop);
-      padding-left: var(--rc-spacing-gapLarge-desktop);
+        .secure-checkout-container {
+            margin-top: var(--rc-spacing-gapXXLarge-desktop);
+        }
     }
 
     .needs-auth-info-container {
-      max-width: 50vw;
-      flex-grow: 0;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
     }
-  }
 
-  input:focus {
-    outline: none;
-    border: 2px solid var(--rc-color-focus);
-  }
+    form {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    .form-container {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        margin-top: var(--rc-spacing-gapXLarge-desktop);
+        margin-bottom: var(--rc-spacing-gapXLarge-desktop);
+    }
+
+    @media screen and (max-width: 767px) {
+        .form-container {
+            margin-top: var(--rc-spacing-gapXLarge-mobile);
+            margin-bottom: var(--rc-spacing-gapXLarge-mobile);
+        }
+    }
+
+    .form-label {
+        margin-top: var(--rc-spacing-gapSmall-desktop);
+        margin-bottom: var(--rc-spacing-gapSmall-desktop);
+        font: var(--rc-text-body1-mobile);
+        display: block;
+    }
+
+    @media screen and (min-width: 768px) {
+        .form-label {
+            font: var(--rc-text-body1-desktop);
+        }
+    }
+
+    .form-input.error input {
+        border-color: var(--rc-color-error);
+    }
+
+    .form-error {
+        margin-top: var(--rc-spacing-gapSmall-desktop);
+        font: var(--rc-text-body1-mobile);
+        color: var(--rc-color-error);
+    }
+
+    @media screen and (min-width: 768px) {
+        .form-error {
+            font: var(--rc-text-body1-desktop);
+        }
+    }
+
+    input {
+        width: 100%;
+        box-sizing: border-box;
+        border: 2px solid var(--rc-color-grey-ui-dark);
+        border-radius: var(--rc-shape-input-border-radius);
+        font: var(--rc-text-body1-mobile);
+        height: var(--rc-spacing-inputHeight-desktop);
+        background: var(--rc-color-input-background);
+        color: inherit;
+    }
+
+    @media screen and (max-width: 767px) {
+        input {
+            padding-left: var(--rc-spacing-gapLarge-mobile);
+            height: var(--rc-spacing-inputHeight-mobile);
+        }
+    }
+
+    @media screen and (min-width: 768px) {
+        input {
+            font: var(--rc-text-body1-desktop);
+            padding-left: var(--rc-spacing-gapLarge-desktop);
+        }
+
+        .needs-auth-info-container {
+            max-width: 50vw;
+            flex-grow: 0;
+        }
+    }
+
+    input:focus {
+        outline: none;
+        border: 2px solid var(--rc-color-focus);
+    }
 </style>

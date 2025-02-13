@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom";
-import { fireEvent, render, screen } from "@testing-library/svelte";
-import { describe, test, expect, vi } from "vitest";
+import { render } from "@testing-library/svelte";
+import { describe, expect, test, vi } from "vitest";
 import StateSuccess from "../../../ui/states/state-success.svelte";
 import { brandingInfo, rcPackage } from "../../../stories/fixtures";
 import { SDKEventName } from "../../../behavioural-events/sdk-events";
@@ -34,30 +34,33 @@ describe("PurchasesUI", () => {
     });
   });
 
-  test("tracks the PurchaseSuccessfulDismiss event when the purchase successful dialog is closed", async () => {
-    renderComponent();
+  // No on close anymore
+  /**
+   test("tracks the PurchaseSuccessfulDismiss event when the purchase successful dialog is closed", async () => {
+   renderComponent();
 
-    const continueButton = screen.getByTestId("close-button");
-    await fireEvent.click(continueButton);
+   const continueButton = screen.getByTestId("close-button");
+   await fireEvent.click(continueButton);
 
-    expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: SDKEventName.CheckoutPurchaseSuccessfulDismiss,
-      properties: {
-        ui_element: "close",
-      },
-    });
-  });
+   expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
+   eventName: SDKEventName.CheckoutPurchaseSuccessfulDismiss,
+   properties: {
+   ui_element: "close",
+   },
+   });
+   });
 
-  test("tracks the PurchaseSuccessfulDismiss event when the purchase successful dialog button is pressed", async () => {
-    renderComponent();
-    const continueButton = screen.getByText("Close");
-    await fireEvent.click(continueButton);
+   test("tracks the PurchaseSuccessfulDismiss event when the purchase successful dialog button is pressed", async () => {
+   renderComponent();
+   const continueButton = screen.getByText("Close");
+   await fireEvent.click(continueButton);
 
-    expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: SDKEventName.CheckoutPurchaseSuccessfulDismiss,
-      properties: {
-        ui_element: "go_back_to_app",
-      },
-    });
-  });
+   expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
+   eventName: SDKEventName.CheckoutPurchaseSuccessfulDismiss,
+   properties: {
+   ui_element: "go_back_to_app",
+   },
+   });
+   });
+   **/
 });

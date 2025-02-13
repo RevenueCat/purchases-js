@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount, setContext, onDestroy } from "svelte";
   import type { Package, Product, PurchaseOption, Purchases } from "../main";
-  import { type PurchaseResponse } from "../networking/responses/purchase-response";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import {
     PurchaseFlowError,
@@ -25,6 +24,8 @@
   import type { PurchaseMetadata } from "../entities/offerings";
   import { type CurrentView } from "./ui-types";
   import RcbUIInner from "./rcb-ui-inner.svelte";
+  import { CheckoutStartResponse } from "../networking/responses/checkout-start-response";
+  import { type ContinueHandlerParams } from "./ui-types";
 
   export let customerEmail: string | undefined;
   export let appUserId: string;
@@ -48,7 +49,7 @@
 
   let colorVariables = "";
   let productDetails: Product | null = null;
-  let paymentInfoCollectionMetadata: PurchaseResponse | null = null;
+  let paymentInfoCollectionMetadata: CheckoutStartResponse | null = null;
   let lastError: PurchaseFlowError | null = null;
   const productId = rcPackage.webBillingProduct.identifier ?? null;
 
@@ -79,16 +80,15 @@
 
     if (currentView === "present-offer") {
       if (customerEmail) {
-        handleSubscribe();
+        handleCheckoutStart();
       } else {
         currentView = "needs-auth-info";
       }
-
       return;
     }
   });
 
-  const handleSubscribe = () => {
+  const handleCheckoutStart = () => {
     if (productId === null) {
       handleError(
         new PurchaseFlowError(
@@ -109,40 +109,37 @@
     }
 
     purchaseOperationHelper
-      .startPurchase(
+      .checkoutStart(
         appUserId,
         productId,
         purchaseOption,
-        customerEmail,
         rcPackage.webBillingProduct.presentedOfferingContext,
+        customerEmail,
         metadata,
       )
       .then((result) => {
-        if (result.next_action === "collect_payment_info") {
-          lastError = null;
-          currentView = "needs-payment-info";
-          paymentInfoCollectionMetadata = result;
-          return;
-        }
-        if (result.next_action === "completed") {
-          lastError = null;
-          currentView = "success";
-          return;
-        }
+        lastError = null;
+        currentView = "needs-payment-info";
+        paymentInfoCollectionMetadata = result;
       })
       .catch((e: PurchaseFlowError) => {
         handleError(e);
       });
   };
 
-  const handleContinue = (authInfo?: { email: string }) => {
+  const handleContinue = (params: ContinueHandlerParams = {}) => {
+    if (params.error) {
+      handleError(params.error);
+      return;
+    }
+
     if (currentView === "needs-auth-info") {
-      if (authInfo) {
-        customerEmail = authInfo.email;
+      if (params.authInfo) {
+        customerEmail = params.authInfo.email;
         currentView = "processing-auth-info";
       }
 
-      handleSubscribe();
+      handleCheckoutStart();
       return;
     }
 
@@ -188,10 +185,10 @@
   const closeWithError = () => {
     onError(
       lastError ??
-        new PurchaseFlowError(
-          PurchaseFlowErrorCode.UnknownError,
-          "Unknown error without state set.",
-        ),
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.UnknownError,
+        "Unknown error without state set.",
+      ),
     );
   };
 </script>
@@ -205,6 +202,7 @@
   {handleContinue}
   {lastError}
   {paymentInfoCollectionMetadata}
+  {purchaseOperationHelper}
   {closeWithError}
   {colorVariables}
 />

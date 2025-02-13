@@ -1,15 +1,16 @@
 import { type OfferingsResponse } from "./responses/offerings-response";
 import { performRequest } from "./http-client";
 import {
+  CheckoutCompleteEndpoint,
+  CheckoutStartEndpoint,
   GetBrandingInfoEndpoint,
   GetCheckoutStatusEndpoint,
   GetCustomerInfoEndpoint,
   GetOfferingsEndpoint,
   GetProductsEndpoint,
-  PurchaseEndpoint,
 } from "./endpoints";
 import { type SubscriberResponse } from "./responses/subscriber-response";
-import { type PurchaseResponse } from "./responses/purchase-response";
+import type { CheckoutStartResponse } from "./responses/checkout-start-response";
 import { type ProductsResponse } from "./responses/products-response";
 import { type BrandingInfoResponse } from "./responses/branding-response";
 import { type CheckoutStatusResponse } from "./responses/checkout-status-response";
@@ -19,6 +20,7 @@ import type {
   PurchaseMetadata,
   PurchaseOption,
 } from "../entities/offerings";
+import type { CheckoutCompleteResponse } from "./responses/checkout-complete-response";
 
 export class Backend {
   private readonly API_KEY: string;
@@ -73,23 +75,23 @@ export class Backend {
     );
   }
 
-  async postPurchase(
+  async postCheckoutStart(
     appUserId: string,
     productId: string,
-    email: string,
-    presentedOfferingContext: PresentedOfferingContext,
     purchaseOption: PurchaseOption,
-    metadata: PurchaseMetadata | undefined = undefined,
+    presentedOfferingContext: PresentedOfferingContext,
     traceId: string,
-  ): Promise<PurchaseResponse> {
-    type PurchaseRequestBody = {
+    email?: string,
+    metadata?: PurchaseMetadata,
+  ): Promise<CheckoutStartResponse> {
+    // TODO: Move this type outside of this async function
+    type CheckoutStartRequestBody = {
       app_user_id: string;
       product_id: string;
-      email: string;
       presented_offering_identifier: string;
+      price_id: string;
       presented_placement_identifier?: string;
       offer_id?: string;
-      price_id: string;
       applied_targeting_rule?: {
         rule_id: string;
         revision: number;
@@ -97,9 +99,10 @@ export class Backend {
       supports_direct_payment: boolean;
       metadata?: PurchaseMetadata;
       trace_id: string;
+      email?: string;
     };
 
-    const requestBody: PurchaseRequestBody = {
+    const requestBody: CheckoutStartRequestBody = {
       app_user_id: appUserId,
       product_id: productId,
       email: email,
@@ -130,14 +133,36 @@ export class Backend {
         presentedOfferingContext.placementIdentifier;
     }
 
-    return await performRequest<PurchaseRequestBody, PurchaseResponse>(
-      new PurchaseEndpoint(),
-      {
-        apiKey: this.API_KEY,
-        body: requestBody,
-        httpConfig: this.httpConfig,
-      },
-    );
+    return await performRequest<
+      CheckoutStartRequestBody,
+      CheckoutStartResponse
+    >(new CheckoutStartEndpoint(), {
+      apiKey: this.API_KEY,
+      body: requestBody,
+      httpConfig: this.httpConfig,
+    });
+  }
+
+  async postCheckoutComplete(
+    operationSessionId: string,
+    email?: string,
+  ): Promise<CheckoutCompleteResponse> {
+    type CheckoutCompleteRequestBody = {
+      email?: string;
+    };
+
+    const requestBody: CheckoutCompleteRequestBody = {
+      email: email,
+    };
+
+    return await performRequest<
+      CheckoutCompleteRequestBody,
+      CheckoutCompleteResponse
+    >(new CheckoutCompleteEndpoint(operationSessionId), {
+      apiKey: this.API_KEY,
+      body: requestBody,
+      httpConfig: this.httpConfig,
+    });
   }
 
   async getCheckoutStatus(

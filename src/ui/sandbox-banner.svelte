@@ -1,11 +1,12 @@
 <script lang="ts">
   import { fly } from "svelte/transition";
   import CloseButton from "./close-button.svelte";
+  import { Logger } from "../helpers/logger";
   export let style = "";
   let showBanner = true;
 
   function closeBanner() {
-    console.log("closeBanner");
+    Logger.debugLog("closeBanner");
     showBanner = false;
   }
 </script>
