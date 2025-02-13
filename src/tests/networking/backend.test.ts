@@ -2,19 +2,16 @@ import { type SetupServer, setupServer } from "msw/node";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { http, HttpResponse } from "msw";
 import {
+  checkoutStartResponse,
+  checkoutCompleteResponse,
   customerInfoResponse,
   offeringsArray,
   productsResponse,
 } from "../test-responses";
 import { Backend } from "../../networking/backend";
 import { StatusCodes } from "http-status-codes";
-import {
-  BackendErrorCode,
-  ErrorCode,
-  PurchasesError,
-} from "../../entities/errors";
+import { BackendErrorCode, ErrorCode, PurchasesError } from "../../entities/errors";
 import { expectPromiseToError } from "../test-helpers";
-import { type PurchaseResponse } from "../../networking/responses/purchase-response";
 
 let server: SetupServer;
 let backend: Backend;
@@ -149,7 +146,7 @@ describe("getCustomerInfo request", () => {
       new PurchasesError(
         ErrorCode.UnknownBackendError,
         "Unknown backend error.",
-        'Request: getCustomerInfo. Status code: 400. Body: {"code":1234567890,"message":"Invalid error message"}.',
+        "Request: getCustomerInfo. Status code: 400. Body: {\"code\":1234567890,\"message\":\"Invalid error message\"}.",
       ),
     );
   });
@@ -341,11 +338,12 @@ describe("getProducts request", () => {
   });
 });
 
-describe("purchase request", () => {
+describe("postCheckoutStart request", () => {
   const purchaseMethodAPIMock = vi.fn();
-  function setPurchaseResponse(httpResponse: HttpResponse) {
+
+  function setCheckoutStartResponse(httpResponse: HttpResponse) {
     server.use(
-      http.post("http://localhost:8000/rcbilling/v1/purchase", (req) => {
+      http.post("http://localhost:8000/rcbilling/v1/checkout/start", (req) => {
         purchaseMethodAPIMock(req);
         return httpResponse;
       }),
@@ -356,27 +354,20 @@ describe("purchase request", () => {
     purchaseMethodAPIMock.mockReset();
   });
 
-  test("can post purchase successfully", async () => {
-    const purchaseResponse: PurchaseResponse = {
-      operation_session_id: "test-operation-session-id",
-      next_action: "collect_payment_info",
-      data: {
-        client_secret: "seti_123",
-      },
-    };
-    setPurchaseResponse(HttpResponse.json(purchaseResponse, { status: 200 }));
+  test("can post checkout start successfully", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, { status: 200 }),
+    );
 
-    const result = await backend.postPurchase(
+    const result = await backend.postCheckoutStart(
       "someAppUserId",
       "monthly",
-      "testemail@revenuecat.com",
       {
         offeringIdentifier: "offering_1",
         targetingContext: null,
         placementIdentifier: null,
       },
       { id: "base_option", priceId: "test_price_id" },
-      { utm_campaign: "test-campaign" },
       "test-trace-id",
     );
 
@@ -389,45 +380,78 @@ describe("purchase request", () => {
     expect(requestBody).toEqual({
       app_user_id: "someAppUserId",
       product_id: "monthly",
-      email: "testemail@revenuecat.com",
       price_id: "test_price_id",
       presented_offering_identifier: "offering_1",
-      supports_direct_payment: true,
+    });
+
+    expect(result).toEqual(checkoutStartResponse);
+  });
+
+  test("accepts an email if provided", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, { status: 200 }),
+    );
+
+    const result = await backend.postCheckoutStart(
+      "someAppUserId",
+      "monthly",
+      {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      { id: "base_option", priceId: "test_price_id" },
+      "test-trace-id",
+      "testemail@revenuecat.com",
+      { utm_campaign: "test-campaign" },
+    );
+
+    expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    expect(request.headers.get("Content-Type")).toBe("application/json");
+    expect(request.headers.get("Authorization")).toBe("Bearer test_api_key");
+
+    const requestBody = await request.json();
+    expect(requestBody).toEqual({
+      app_user_id: "someAppUserId",
+      product_id: "monthly",
+      price_id: "test_price_id",
+      presented_offering_identifier: "offering_1",
       metadata: { utm_campaign: "test-campaign" },
       trace_id: "test-trace-id",
     });
 
-    expect(result).toEqual(purchaseResponse);
+    expect(result).toEqual(checkoutStartResponse);
   });
 
   test("throws an error if the backend returns a server error", async () => {
-    setPurchaseResponse(
+    setCheckoutStartResponse(
       HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
     );
     await expectPromiseToError(
-      backend.postPurchase(
+      backend.postCheckoutStart(
         "someAppUserId",
         "monthly",
-        "testemail@revenuecat.com",
         {
           offeringIdentifier: "offering_1",
           targetingContext: null,
           placementIdentifier: null,
         },
         { id: "base_option", priceId: "test_price_id" },
-        { utm_campaign: "test-campaign" },
         "test-trace-id",
+        undefined,
+        { utm_campaign: "test-campaign" },
       ),
       new PurchasesError(
         ErrorCode.UnknownBackendError,
         "Unknown backend error.",
-        "Request: purchase. Status code: 500. Body: null.",
+        "Request: postCheckoutStart. Status code: 500. Body: null.",
       ),
     );
   });
 
   test("throws a known error if the backend returns a request error with correct body", async () => {
-    setPurchaseResponse(
+    setCheckoutStartResponse(
       HttpResponse.json(
         {
           code: BackendErrorCode.BackendInvalidAPIKey,
@@ -437,18 +461,18 @@ describe("purchase request", () => {
       ),
     );
     await expectPromiseToError(
-      backend.postPurchase(
+      backend.postCheckoutStart(
         "someAppUserId",
         "monthly",
-        "testemail@revenuecat.com",
         {
           offeringIdentifier: "offering_1",
           targetingContext: null,
           placementIdentifier: null,
         },
         { id: "base_option", priceId: "test_price_id" },
-        { utm_campaign: "test-campaign" },
         "test-trace-id",
+        "testemail@revenuecat.com",
+        { utm_campaign: "test-campaign" },
       ),
       new PurchasesError(
         ErrorCode.InvalidCredentialsError,
@@ -459,7 +483,7 @@ describe("purchase request", () => {
   });
 
   test("throws a PurchaseInvalidError if the backend returns with a offer not found error", async () => {
-    setPurchaseResponse(
+    setCheckoutStartResponse(
       HttpResponse.json(
         {
           code: BackendErrorCode.BackendOfferNotFound,
@@ -469,18 +493,18 @@ describe("purchase request", () => {
       ),
     );
     await expectPromiseToError(
-      backend.postPurchase(
+      backend.postCheckoutStart(
         "someAppUserId",
         "monthly",
-        "testemail@revenuecat.com",
         {
           offeringIdentifier: "offering_1",
           targetingContext: null,
           placementIdentifier: null,
         },
         { id: "base_option", priceId: "test_price_id" },
-        { utm_campaign: "test-campaign" },
         "test-trace-id",
+        "testemail@revenuecat.com",
+        { utm_campaign: "test-campaign" },
       ),
       new PurchasesError(
         ErrorCode.PurchaseInvalidError,
@@ -491,21 +515,188 @@ describe("purchase request", () => {
   });
 
   test("throws network error if cannot reach server", async () => {
-    setPurchaseResponse(HttpResponse.error());
+    setCheckoutStartResponse(HttpResponse.error());
     await expectPromiseToError(
-      backend.postPurchase(
+      backend.postCheckoutStart(
         "someAppUserId",
         "monthly",
-        "testemail@revenuecat.com",
         {
           offeringIdentifier: "offering_1",
           targetingContext: null,
           placementIdentifier: null,
         },
         { id: "base_option", priceId: "test_price_id" },
-        { utm_campaign: "test-campaign" },
         "test-trace-id",
+        undefined,
+        { utm_campaign: "test-campaign" },
       ),
+      new PurchasesError(
+        ErrorCode.NetworkError,
+        "Error performing request. Please check your network connection and try again.",
+        "Failed to fetch",
+      ),
+    );
+  });
+});
+
+describe("postCheckoutComplete request", () => {
+  const purchaseMethodAPIMock = vi.fn();
+
+  function setCheckoutCompleteResponse(httpResponse: HttpResponse) {
+    server.use(
+      http.post(
+        "http://localhost:8000/rcbilling/v1/checkout/someOperationSessionId/complete",
+        (req) => {
+          purchaseMethodAPIMock(req);
+          return httpResponse;
+        },
+      ),
+    );
+  }
+
+  afterEach(() => {
+    purchaseMethodAPIMock.mockReset();
+  });
+
+  test("can post checkout complete successfully", async () => {
+    setCheckoutCompleteResponse(
+      HttpResponse.json(checkoutCompleteResponse, { status: 200 }),
+    );
+
+    const result = await backend.postCheckoutComplete("someOperationSessionId");
+
+    expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    expect(request.headers.get("Content-Type")).toBe("application/json");
+    expect(request.headers.get("Authorization")).toBe("Bearer test_api_key");
+
+    const requestBody = await request.json();
+    expect(requestBody).toEqual({});
+
+    expect(result).toEqual(checkoutCompleteResponse);
+  });
+
+  test("accepts an email if provided", async () => {
+    setCheckoutCompleteResponse(
+      HttpResponse.json(checkoutCompleteResponse, { status: 200 }),
+    );
+
+    const result = await backend.postCheckoutComplete(
+      "someOperationSessionId",
+      "testemail@revenuecat.com",
+    );
+
+    expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    expect(request.headers.get("Content-Type")).toBe("application/json");
+    expect(request.headers.get("Authorization")).toBe("Bearer test_api_key");
+
+    const requestBody = await request.json();
+    expect(requestBody).toEqual({
+      email: "testemail@revenuecat.com",
+    });
+
+    expect(result).toEqual(checkoutCompleteResponse);
+  });
+
+  test("throws an error if the backend returns a server error", async () => {
+    setCheckoutCompleteResponse(
+      HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
+    );
+    await expectPromiseToError(
+      backend.postCheckoutComplete("someOperationSessionId"),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        "Request: postCheckoutComplete. Status code: 500. Body: null.",
+      ),
+    );
+  });
+
+  test("throws a known error if the backend returns a request error with correct body", async () => {
+    setCheckoutCompleteResponse(
+      HttpResponse.json(
+        {
+          code: BackendErrorCode.BackendInvalidAPIKey,
+          message: "API key was wrong",
+        },
+        { status: StatusCodes.BAD_REQUEST },
+      ),
+    );
+    await expectPromiseToError(
+      backend.postCheckoutComplete("someOperationSessionId"),
+      new PurchasesError(
+        ErrorCode.InvalidCredentialsError,
+        "There was a credentials issue. Check the underlying error for more details.",
+        "API key was wrong",
+      ),
+    );
+  });
+
+  test("throws a PurchaseInvalidError if the backend returns with a invalid operation session error", async () => {
+    setCheckoutCompleteResponse(
+      HttpResponse.json(
+        {
+          code: BackendErrorCode.BackendInvalidOperationSession,
+          message: "The operation session is invalid.",
+        },
+        { status: StatusCodes.BAD_REQUEST },
+      ),
+    );
+    await expectPromiseToError(
+      backend.postCheckoutComplete("someOperationSessionId"),
+      new PurchasesError(
+        ErrorCode.PurchaseInvalidError,
+        "One or more of the arguments provided are invalid.",
+        "The operation session is invalid.",
+      ),
+    );
+  });
+
+  test("throws a PurchaseInvalidError if the backend returns with a purchase cannot be completed error", async () => {
+    setCheckoutCompleteResponse(
+      HttpResponse.json(
+        {
+          code: BackendErrorCode.BackendPurchaseCannotBeCompleted,
+          message: "The purchase cannot be completed.",
+        },
+        { status: StatusCodes.BAD_REQUEST },
+      ),
+    );
+    await expectPromiseToError(
+      backend.postCheckoutComplete("someOperationSessionId"),
+      new PurchasesError(
+        ErrorCode.PurchaseInvalidError,
+        "One or more of the arguments provided are invalid.",
+        "The purchase cannot be completed.",
+      ),
+    );
+  });
+
+  test("throws a InvalidEmailError if the backend returns with a email is required error", async () => {
+    setCheckoutCompleteResponse(
+      HttpResponse.json(
+        {
+          code: BackendErrorCode.BackendEmailIsRequired,
+          message: "Email is required to complete the purchase.",
+        },
+        { status: StatusCodes.BAD_REQUEST },
+      ),
+    );
+    await expectPromiseToError(
+      backend.postCheckoutComplete("someOperationSessionId"),
+      new PurchasesError(
+        ErrorCode.InvalidEmailError,
+        "Email is not valid. Please provide a valid email address.",
+        "Email is required to complete the purchase.",
+      ),
+    );
+  });
+
+  test("throws network error if cannot reach server", async () => {
+    setCheckoutCompleteResponse(HttpResponse.error());
+    await expectPromiseToError(
+      backend.postCheckoutComplete("someOperationSessionId"),
       new PurchasesError(
         ErrorCode.NetworkError,
         "Error performing request. Please check your network connection and try again.",

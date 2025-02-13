@@ -13,12 +13,13 @@
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import SecureCheckoutRc from "../secure-checkout-rc.svelte";
+  import { type ContinueHandlerParams } from "../ui-types";
   import { eventsTrackerContextKey } from "../constants";
   import { type IEventsTracker } from "../../behavioural-events/events-tracker";
   import { createCheckoutBillingFormErrorEvent } from "../../behavioural-events/sdk-event-helpers";
   import { SDKEventName } from "../../behavioural-events/sdk-events";
 
-  export let onContinue: any;
+  export let onContinue: (params: ContinueHandlerParams) => void;
   export let processing: boolean;
   export let lastError: PurchaseFlowError | null;
 
@@ -40,7 +41,7 @@
       eventsTracker.trackSDKEvent({
         eventName: SDKEventName.CheckoutBillingFormSubmit,
       });
-      onContinue({ email });
+      onContinue({ authInfo: { email } });
     }
   };
 
