@@ -60,6 +60,7 @@ export class StripeService {
         variables: {
           borderRadius: customShape["input-border-radius"],
           fontLineHeight: "10px",
+          fontSizeSm: textStyles.caption[viewport].fontSize,
           focusBoxShadow: "none",
           colorDanger: customColors["error"],
           colorTextPlaceholder: customColors["grey-text-light"],
@@ -69,6 +70,7 @@ export class StripeService {
         },
         rules: {
           ".Input": {
+            fontSize: textStyles.body1[viewport].fontSize,
             boxShadow: "none",
             paddingTop: "6px",
             paddingBottom: "6px",
@@ -81,12 +83,16 @@ export class StripeService {
             outline: "none",
           },
           ".Label": {
+            fontSize: textStyles.body1[viewport].fontSize,
             fontWeight: textStyles.body1[viewport].fontWeight,
             lineHeight: "22px",
             color: customColors["grey-text-dark"],
           },
           ".Label--floating": {
-            fontSize: "10px !important",
+            fontSize: textStyles.body1[viewport].fontSize,
+          },
+          ".Label--resting": {
+            fontSize: textStyles.body1[viewport].fontSize,
           },
           ".Input--invalid": {
             boxShadow: "none",
@@ -150,5 +156,21 @@ export class StripeService {
         type: "tabs",
       },
     });
+  }
+
+  static createEmailElement(
+    elements: StripeElements,
+    email: string | undefined,
+  ) {
+    return elements.create(
+      "linkAuthentication",
+      email
+        ? {
+            defaultValues: {
+              email,
+            },
+          }
+        : {},
+    );
   }
 }

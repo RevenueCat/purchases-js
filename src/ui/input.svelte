@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { fade } from "svelte/transition";
+  import { slide } from "svelte/transition";
 
   export let label: string;
   export let placeholder: string;
@@ -39,7 +39,7 @@
     />
   </div>
   {#if error}
-    <p class="error-message" transition:fade={{ duration: 300 }}>
+    <p class="error-message" transition:slide={{ duration: 300 }}>
       {error}
     </p>
   {/if}

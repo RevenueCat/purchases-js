@@ -34,8 +34,6 @@
   import { DEFAULT_FONT_FAMILY } from "../theme/text";
   import { StripeService } from "../../stripe/stripe-service";
   import { type ContinueHandlerParams } from "../ui-types";
-  import Input from "../input.svelte";
-  import { validateEmail } from "../../helpers/validators";
 
   export let onContinue: (params?: ContinueHandlerParams) => void;
   export let paymentInfoCollectionMetadata: CheckoutStartResponse;
@@ -44,6 +42,7 @@
   export let purchaseOptionToUse: PurchaseOption;
   export let brandingInfo: BrandingInfoResponse | null;
   export let purchaseOperationHelper: PurchaseOperationHelper;
+  export let customerEmail: string | undefined;
 
   let stripe: Stripe | null = null;
   let elements: StripeElements;
@@ -51,16 +50,15 @@
   let paymentElement: StripePaymentElement | null = null;
   let modalErrorMessage: string | undefined = undefined;
   let isPaymentInfoComplete = false;
+  let isEmailInfoComplete = false;
   let clientSecret: string | undefined = undefined;
 
   let spacing = new Theme().spacing;
-  let textStyles = new Theme().textStyles;
 
   let stripeVariables: undefined | Appearance["variables"];
   let viewport: "mobile" | "desktop" = "mobile";
 
   $: email = "";
-  $: error = "";
 
   // Maybe extract this to a
   function updateStripeVariables() {
@@ -73,7 +71,6 @@
     }
 
     stripeVariables = {
-      fontSizeBase: textStyles.body1[viewport].fontSize,
       fontFamily: DEFAULT_FONT_FAMILY,
       spacingGridRow: spacing.gapXLarge[viewport],
     };
@@ -164,7 +161,33 @@
           brandingInfo?.app_name,
         );
 
+        const linkAuthenticationElement = StripeService.createEmailElement(
+          elements,
+          customerEmail,
+        );
+
+        const triggerError = (error: StripeError) => {
+          isMounted = false;
+          const purchaseError = new PurchaseFlowError(
+            PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+            "Failed to load payment form",
+            error instanceof Error ? error.message : String(error),
+          );
+          handlePaymentError(purchaseError);
+        };
+
         paymentElement.mount("#payment-element");
+        linkAuthenticationElement.mount("#link-authentication-element");
+
+        linkAuthenticationElement.on("change", (event) => {
+          email = event.value.email;
+          isEmailInfoComplete = event.complete;
+        });
+
+        linkAuthenticationElement.on("loaderror", (event) => {
+          triggerError(event.error);
+        });
+
         paymentElement.on(
           "change",
           (event: StripePaymentElementChangeEvent) => {
@@ -172,15 +195,7 @@
           },
         );
         paymentElement.on("loaderror", (event) => {
-          isMounted = false;
-          const purchaseError = new PurchaseFlowError(
-            PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-            "Failed to load payment form",
-            event.error instanceof Error
-              ? event.error.message
-              : String(event.error),
-          );
-          handlePaymentError(purchaseError);
+          triggerError(event.error);
         });
       } catch (error) {
         const purchaseError = new PurchaseFlowError(
@@ -199,22 +214,6 @@
       }
     };
   });
-
-  const handleEmailBlur = () => {
-    if (!email) {
-      error = "";
-      return;
-    }
-
-    if (!validateEmail(email)) {
-      error = translator.translate(
-        LocalizationKeys.StateErrorErrorMessageMissingEmailError,
-      );
-      return;
-    } else {
-      error = "";
-    }
-  };
 
   const handleContinue = async () => {
     if (processing || !stripe || !safeElements) return;
@@ -253,7 +252,7 @@
     // Get client secret if not already present
     if (!clientSecret) {
       try {
-        const response = await purchaseOperationHelper.checkoutComplete();
+        const response = await purchaseOperationHelper.checkoutComplete(email);
         clientSecret = response?.gateway_params?.client_secret;
         if (!clientSecret) {
           throw new Error("Failed to complete checkout");
@@ -282,30 +281,18 @@
 </script>
 
 <div class="checkout-container">
-  <!-- <TextSeparator text="Pay by card" /> -->
   <form on:submit|preventDefault={handleContinue}>
-    <div class="checkout-form-container" hidden={!!modalErrorMessage}>
-      <Input
-        {error}
-        label={translator.translate(
-          LocalizationKeys.StateNeedsAuthInfoEmailInputLabel,
-        )}
-        placeholder={translator.translate(
-          LocalizationKeys.StateNeedsAuthInfoEmailInputPlaceholder,
-        )}
-        onBlur={handleEmailBlur}
-        bind:value={email}
-        name="email"
-        id="email"
-        autocapitalize="off"
-        autocomplete="email"
-      />
-      <div id="payment-element"></div>
+    <div class={`checkout-form-container ${modalErrorMessage ? "hidden" : ""}`}>
+      <div id="link-authentication-element"></div>
+
+      <div id="payment-element" class="payment-element"></div>
 
       <div class="checkout-pay-container">
         {#if !modalErrorMessage}
           <Button
-            disabled={processing || !isPaymentInfoComplete}
+            disabled={processing ||
+              !isPaymentInfoComplete ||
+              !isEmailInfoComplete}
             testId="PayButton"
           >
             {#if processing}
@@ -349,6 +336,10 @@
 </div>
 
 <style>
+  .hidden {
+    display: none !important;
+  }
+
   .checkout-secure-container {
     margin-top: var(--rc-spacing-gapXLarge-mobile);
   }
@@ -384,6 +375,13 @@
     .checkout-pay-container {
       margin-top: var(--rc-spacing-gapXLarge-desktop);
     }
+  }
+
+  .payment-element {
+    min-height: calc(
+      5 * var(--rc-spacing-inputHeight-mobile) + 4 *
+        var(--rc-spacing-gapXLarge-mobile) + 42px
+    );
   }
 
   .checkout-form-container {

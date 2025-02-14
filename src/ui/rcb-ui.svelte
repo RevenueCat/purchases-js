@@ -97,7 +97,6 @@
         productId,
         purchaseOptionToUse,
         rcPackage.webBillingProduct.presentedOfferingContext,
-        customerEmail,
       )
       .then((result) => {
         lastError = null;
@@ -153,8 +152,6 @@
   };
 </script>
 
-{console.log(currentView)}
-
 <RcbUIInner
   isSandbox={purchases.isSandbox()}
   {currentView}
@@ -167,4 +164,5 @@
   {purchaseOperationHelper}
   {closeWithError}
   {colorVariables}
+  {customerEmail}
 />

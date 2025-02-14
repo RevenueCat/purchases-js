@@ -27,6 +27,7 @@
   export let purchaseOptionToUse: PurchaseOption;
   export let colorVariables: string = "";
   export let isSandbox: boolean = false;
+  export let customerEmail: string | undefined;
 
   export let handleContinue: (params?: ContinueHandlerParams) => void;
   export let closeWithError: () => void;
@@ -88,6 +89,7 @@
             {purchaseOptionToUse}
             {brandingInfo}
             {purchaseOperationHelper}
+            {customerEmail}
           />
         {/if}
         {#if currentView === "loading"}
