@@ -9,11 +9,14 @@ const RC_PAYWALL_TEST_OFFERING_ID = "rc_paywalls_e2e_test_2";
 const RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES =
   "rc_paywalls_e2e_test_variables_2";
 
-test.describe("Main", () => {
-  test.afterEach(({ browser }) => {
-    browser.close();
-  });
+const waitForCheckoutStartRequest = (page: Page) => {
+  return page.waitForRequest(
+    (request) =>
+      request.url().includes("checkout/start") && request.method() === "POST",
+  );
+};
 
+test.describe("Main", () => {
   test("Get offerings displays packages", async ({ browser, browserName }) => {
     const userId = getUserId(browserName);
     const page = await setupTest(browser, userId);
@@ -64,12 +67,6 @@ test.describe("Main", () => {
     const userId = `${getUserId(browserName)}_subscription`;
     const page = await setupTest(browser, userId);
 
-    page.on("request", (request) => {
-      if (request.url().includes("purchase")) {
-        expect(request.postDataJSON()).toHaveProperty("metadata");
-      }
-    });
-
     // Gets all elements that match the selector
     const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
     const singleCard = packageCards[1];
@@ -91,19 +88,18 @@ test.describe("Main", () => {
     };
     const page = await setupTest(browser, userId, { ...utm_params });
 
-    page.on("request", (request) => {
-      if (request.url().includes("purchase")) {
-        expect(request.postDataJSON()).toHaveProperty("metadata");
-        const metadata = request.postDataJSON().metadata;
-        expect(metadata).toStrictEqual(utm_params);
-      }
-    });
-
     // Gets all elements that match the selector
     const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
     const singleCard = packageCards[1];
 
+    const requestPromise = waitForCheckoutStartRequest(page);
+
     await performPurchase(page, singleCard, userId);
+
+    const request = await requestPromise;
+    expect(request.postDataJSON()).toHaveProperty("metadata");
+    const metadata = request.postDataJSON().metadata;
+    expect(metadata).toStrictEqual(utm_params);
   });
 
   test("Does not propagate UTM params to metadata when purchasing if the developer opts out", async ({
@@ -123,19 +119,18 @@ test.describe("Main", () => {
       optOutOfAutoUTM: true,
     });
 
-    page.on("request", (request) => {
-      if (request.url().includes("purchase")) {
-        expect(request.postDataJSON()).toHaveProperty("metadata");
-        const metadata = request.postDataJSON().metadata;
-        expect(metadata).toStrictEqual({});
-      }
-    });
-
     // Gets all elements that match the selector
     const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
     const singleCard = packageCards[1];
 
+    const requestPromise = waitForCheckoutStartRequest(page);
+
     await performPurchase(page, singleCard, userId);
+
+    const request = await requestPromise;
+    expect(request.postDataJSON()).toHaveProperty("metadata");
+    const metadata = request.postDataJSON().metadata;
+    expect(metadata).toStrictEqual({});
   });
 
   test("Can render an RC Paywall", async ({ browser, browserName }) => {
@@ -259,7 +254,7 @@ test.describe("Main", () => {
     const cardButton = singleCard.getByRole("button");
     await cardButton.click();
 
-    await page.route("*/**/purchase", async (route) => {
+    await page.route("*/**/checkout/start", async (route) => {
       await route.fulfill({
         body: '{ "code": 7110, "message": "Test error message"}',
         status: 400,
@@ -279,11 +274,11 @@ test.describe("Main", () => {
   });
 
   [
-    ["es", "Email de facturación"],
-    ["it", "Indirizzo email per la fatturazione"],
-    ["en", "Billing email address"],
-    ["fr", "Adresse e-mail de facturation"],
-    ["de", "E-Mail-Adresse für Rechnungsstellung"],
+    ["es", "¿Cuál es tu correo electrónico?"],
+    ["it", "Qual è la tua email?"],
+    ["en", "What's your email?"],
+    ["fr", "Quelle est votre adresse e-mail?"],
+    ["de", "Wie lautet Ihre E-Mail-Adresse?"],
   ].forEach(([lang, title]) => {
     test(`Shows the purchase flow in ${lang}`, async ({
       browser,
@@ -303,11 +298,11 @@ test.describe("Main", () => {
   });
 
   [
-    ["es", "Email de facturación"],
-    ["it", "Indirizzo email per la fatturazione"],
-    ["en", "Billing email address"],
-    ["fr", "Adresse e-mail de facturation"],
-    ["de", "E-Mail-Adresse für Rechnungsstellung"],
+    ["es", "¿Cuál es tu correo electrónico?"],
+    ["it", "Qual è la tua email?"],
+    ["en", "What's your email?"],
+    ["fr", "Quelle est votre adresse e-mail?"],
+    ["de", "Wie lautet Ihre E-Mail-Adresse?"],
   ].forEach(([lang, title]) => {
     test(`Shows the purchase flow in ${lang} when purchasing from paywalls`, async ({
       browser,
@@ -353,9 +348,8 @@ async function performPurchase(page: Page, card: Locator, userId: string) {
 
   await enterEmailAndContinue(page, userId);
   await enterCreditCardDetailsAndContinue(page);
-
   // Confirm success page has shown.
-  const successText = page.getByText("Purchase successful");
+  const successText = page.getByText("Payment complete");
   await expect(successText).toBeVisible({ timeout: 10000 });
 }
 
@@ -488,7 +482,7 @@ async function navigateToUrl(
 
 async function typeTextInPageSelector(page: Page, text: string): Promise<void> {
   // Fill email
-  const emailTitle = page.getByText("Billing email address");
+  const emailTitle = page.getByText("What's your email?");
   await expect(emailTitle).toBeVisible();
   await page.getByPlaceholder("john@appleseed.com").click();
   await page.getByPlaceholder("john@appleseed.com").fill(text);

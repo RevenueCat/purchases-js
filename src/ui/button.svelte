@@ -1,8 +1,12 @@
 <script lang="ts">
-  export let intent: "primary" | "secondary" = "primary";
+  import { type Snippet } from "svelte";
+
+  export let intent: "primary" = "primary";
   export let disabled = false;
   export let testId: string | undefined = undefined;
   export let type: "reset" | "submit" | "button" | null | undefined = undefined;
+
+  export let children: Snippet | undefined;
 </script>
 
 <button
@@ -12,7 +16,7 @@
   data-testid={testId}
   {type}
 >
-  <slot />
+  {@render children?.()}
 </button>
 
 <style>
@@ -21,7 +25,7 @@
     border-radius: var(--rc-shape-input-button-border-radius);
     font-size: 16px;
     cursor: pointer;
-    height: 56px;
+    height: var(--rc-spacing-inputHeight-mobile);
     color: var(--rc-color-grey-text-dark);
     background-color: var(--rc-color-grey-ui-dark);
     display: flex;
@@ -29,6 +33,13 @@
     justify-content: center;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
     -webkit-tap-highlight-color: transparent;
+    transition: background-color 0.15s ease-in-out;
+  }
+
+  @media screen and (min-width: 768px) {
+    button {
+      height: var(--rc-spacing-inputHeight-desktop);
+    }
   }
 
   button:focus,
@@ -46,6 +57,14 @@
     color: var(--rc-color-grey-text-light);
     background-color: var(--rc-color-grey-ui-dark);
     outline: none;
+  }
+
+  button.intent-primary:not(:disabled):hover {
+    background-color: var(--rc-color-primary-hover);
+  }
+
+  button:active {
+    background-color: var(--rc-color-primary-pressed);
   }
 
   button.intent-primary:disabled {

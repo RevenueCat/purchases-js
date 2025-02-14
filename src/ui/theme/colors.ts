@@ -10,6 +10,8 @@ export interface Colors {
   focus: string;
   accent: string;
   primary: string;
+  "primary-hover": string;
+  "primary-pressed": string;
   "primary-text": string;
   white: string;
   "grey-text-dark": string;
@@ -26,6 +28,8 @@ export const DEFAULT_FORM_COLORS: Colors = {
   focus: "#000080",
   accent: "#767676",
   primary: "#000000",
+  "primary-hover": "#1A1A1A",
+  "primary-pressed": "#262626",
   "primary-text": "#ffffff",
   white: "#ffffff",
   "grey-text-dark": "rgba(0,0,0,1)",
@@ -42,6 +46,8 @@ export const DEFAULT_INFO_COLORS: Colors = {
   focus: "#000080",
   accent: "#767676",
   primary: "#ffffff",
+  "primary-hover": "#E6E6E6",
+  "primary-pressed": "#D9D9D9",
   "primary-text": "#000000",
   white: "#ffffff",
   "grey-text-dark": "rgba(255,255,255,1)",

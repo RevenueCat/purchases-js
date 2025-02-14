@@ -1,3 +1,4 @@
+import type { BrandingAppearance } from "../networking/responses/branding-response";
 import {
   type Product,
   ProductType,
@@ -30,9 +31,9 @@ export const subscriptionOptionWithTrial: SubscriptionOption = {
   id: "option_id_1",
   priceId: "price_1",
   base: {
-    periodDuration: "P1M",
+    periodDuration: "P1Y",
     period: {
-      unit: PeriodUnit.Month,
+      unit: PeriodUnit.Year,
       number: 1,
     },
     price: {
@@ -44,10 +45,10 @@ export const subscriptionOptionWithTrial: SubscriptionOption = {
     cycleCount: 0,
   },
   trial: {
-    periodDuration: "P2W",
+    periodDuration: "P1M",
     period: {
-      number: 2,
-      unit: PeriodUnit.Week,
+      number: 1,
+      unit: PeriodUnit.Month,
     },
     cycleCount: 1,
     price: null,
@@ -56,12 +57,12 @@ export const subscriptionOptionWithTrial: SubscriptionOption = {
 
 export const product: Product = {
   identifier: "some_product_123",
-  displayName: "Some Product 123",
+  displayName: "Fantastic Cat",
   description:
     "This is a long description of the product which is long. " +
     "It is long indeed so that it spans multiple lines.",
 
-  title: "Some Product 123",
+  title: "Fantastic Cat Pro",
   productType: ProductType.Subscription,
   currentPrice: {
     amount: 999,
@@ -96,11 +97,14 @@ export const brandingInfo = {
 
 export const purchaseFlowError = new PurchaseFlowError(1);
 
-export const colorfulBrandingAppearance = {
+export const colorfulBrandingAppearance: BrandingAppearance = {
   shapes: "rectangle",
-  color_form_bg: "#313131",
-  color_error: "#E79462",
-  color_product_info_bg: "#ffffff",
-  color_buttons_primary: "#AC7DE3",
-  color_accent: "#99BB37",
+  color_form_bg: "#313131", // dark grey
+  color_error: "#E79462", // orange
+  color_product_info_bg: "#ffffff", // white
+  color_buttons_primary: "#AC7DE3", // purple
+  color_accent: "#99BB37", // green
+  color_page_bg: "#ffffff", // white
+  font: "sans-serif",
+  show_product_description: true,
 };
