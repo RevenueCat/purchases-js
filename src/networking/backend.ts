@@ -80,6 +80,7 @@ export class Backend {
     presentedOfferingContext: PresentedOfferingContext,
     purchaseOption: PurchaseOption,
     metadata: PurchaseMetadata | undefined = undefined,
+    traceId: string,
   ): Promise<PurchaseResponse> {
     type PurchaseRequestBody = {
       app_user_id: string;
@@ -95,6 +96,7 @@ export class Backend {
       };
       supports_direct_payment: boolean;
       metadata?: PurchaseMetadata;
+      trace_id: string;
     };
 
     const requestBody: PurchaseRequestBody = {
@@ -105,6 +107,7 @@ export class Backend {
       presented_offering_identifier:
         presentedOfferingContext.offeringIdentifier,
       supports_direct_payment: true,
+      trace_id: traceId,
     };
 
     if (metadata) {

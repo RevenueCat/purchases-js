@@ -15,6 +15,7 @@ import {
   CheckoutStatusErrorCodes,
   type CheckoutStatusResponse,
 } from "../../networking/responses/checkout-status-response";
+import { type IEventsTracker } from "../../behavioural-events/events-tracker";
 
 describe("PurchaseOperationHelper", () => {
   let server: SetupServer;
@@ -34,7 +35,17 @@ describe("PurchaseOperationHelper", () => {
     server = setupServer();
     server.listen();
     backend = new Backend("test_api_key");
-    purchaseOperationHelper = new PurchaseOperationHelper(backend);
+    const eventsTrackerMock: IEventsTracker = {
+      getTraceId: () => "test-trace-id",
+      updateUser: () => Promise.resolve(),
+      trackSDKEvent: () => {},
+      trackExternalEvent: () => {},
+      dispose: () => {},
+    };
+    purchaseOperationHelper = new PurchaseOperationHelper(
+      backend,
+      eventsTrackerMock,
+    );
   });
 
   afterEach(() => {
@@ -59,6 +70,32 @@ describe("PurchaseOperationHelper", () => {
       ),
     );
   }
+
+  test("startPurchase forwards the trace_id to the backend", async () => {
+    server.use(
+      http.post("http://localhost:8000/rcbilling/v1/purchase", async (req) => {
+        const json = (await req.request.json()) as Record<string, unknown>;
+
+        if (json && json["trace_id"] === "test-trace-id") {
+          return HttpResponse.json(successPurchaseBody, { status: 200 });
+        }
+
+        return HttpResponse.json({ error: "Invalid request" }, { status: 500 });
+      }),
+    );
+    const result = await purchaseOperationHelper.startPurchase(
+      "test-app-user-id",
+      "test-product-id",
+      { id: "test-option-id", priceId: "test-price-id" },
+      "test-email",
+      {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    );
+    expect(result).toEqual(successPurchaseBody);
+  });
 
   test("startPurchase fails if /purchase fails", async () => {
     setPurchaseResponse(
@@ -187,7 +224,7 @@ describe("PurchaseOperationHelper", () => {
     await purchaseOperationHelper.pollCurrentPurchaseForCompletion();
   });
 
-  test("pollCurrentPurchaseForCompletion success with redemption info if poll returns success", async () => {
+  test("pollCurrentPurchaseForCompletion success with redemption info and operation session id if poll returns success", async () => {
     setPurchaseResponse(
       HttpResponse.json(successPurchaseBody, {
         status: StatusCodes.OK,
@@ -223,6 +260,7 @@ describe("PurchaseOperationHelper", () => {
     expect(pollResult.redemptionInfo?.redeemUrl).toEqual(
       "test-url://redeem_my_rcb?token=1234",
     );
+    expect(pollResult.operationSessionId).toEqual(operationSessionId);
   });
 
   // TODO: Fix test that fails due to using same response multiple times

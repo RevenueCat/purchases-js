@@ -97,6 +97,7 @@
   title={getTranslatedErrorTitle()}
   {brandingInfo}
   {onContinue}
+  onClose={onContinue}
   type="error"
   closeButtonTitle={translator.translate(
     LocalizationKeys.StateErrorButtonTryAgain,

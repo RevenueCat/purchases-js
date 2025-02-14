@@ -1,3 +1,4 @@
+import { eventsTrackerContextKey } from "../ui/constants";
 import {
   type Product,
   ProductType,
@@ -86,6 +87,12 @@ export const product: Product = {
   },
 };
 
+export const rcPackage = {
+  identifier: "testPackage",
+  rcBillingProduct: product,
+  webBillingProduct: product,
+};
+
 export const brandingInfo = {
   support_email: "support@somefantasticcat.com",
   app_name: "Some Fantastic Cat, Inc.",
@@ -103,4 +110,22 @@ export const colorfulBrandingAppearance = {
   color_product_info_bg: "#ffffff",
   color_buttons_primary: "#AC7DE3",
   color_accent: "#99BB37",
+};
+
+export const purchaseResponse = {
+  next_action: "collect_payment_info",
+  data: {
+    client_secret: "test_client_secret",
+    publishable_api_key: "test_publishable_api_key",
+    stripe_account_id: "test_stripe_account_id",
+  },
+};
+
+export const defaultContext = {
+  [eventsTrackerContextKey]: {
+    trackExternalEvent: () => {},
+    trackSDKEvent: () => {},
+    updateUser: () => Promise.resolve(),
+    dispose: () => {},
+  },
 };

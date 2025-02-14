@@ -102,7 +102,7 @@ npm run test
 ## Running linters
 
 ```bash
-npm run test:typeCheck
+npm run test:typecheck
 npm run svelte-check
 npm run prettier
 npm run lint

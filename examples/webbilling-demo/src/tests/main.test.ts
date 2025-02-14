@@ -1,6 +1,5 @@
-import type { Browser, Page } from "@playwright/test";
+import type { Browser, Page, Response, Locator } from "@playwright/test";
 import test, { expect } from "@playwright/test";
-import type { Locator } from "playwright";
 
 const _LOCAL_URL = "http://localhost:3001/";
 const CARD_SELECTOR = "div.card";
@@ -10,10 +9,6 @@ const RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES =
   "rc_paywalls_e2e_test_variables_2";
 
 test.describe("Main", () => {
-  test.afterEach(({ browser }) => {
-    browser.close();
-  });
-
   test("Get offerings displays packages", async ({ browser, browserName }) => {
     const userId = getUserId(browserName);
     const page = await setupTest(browser, userId);
@@ -177,6 +172,7 @@ test.describe("Main", () => {
       "PURCHASE FOR $19.99/1yr($1.67/mo)",
     );
   });
+
   test("Can purchase a subscription Product for RC Paywall", async ({
     browser,
     browserName,
@@ -340,7 +336,73 @@ test.describe("Main", () => {
       await expect(page.getByText(title)).toBeVisible();
     });
   });
+
+  test("Tracks events", async ({ browser, browserName }) => {
+    const userId = `${getUserId(browserName)}_subscription`;
+    const page = await browser.newPage();
+
+    const waitForTrackEventPromise = page.waitForResponse(
+      successfulEventTrackingResponseMatcher((event) => {
+        try {
+          expect(event?.id).toBeDefined();
+          expect(event?.timestamp_ms).toBeDefined();
+          expect(event?.type).toBe("web_billing");
+          expect(event?.event_name).toBe("sdk_initialized");
+          expect(event?.app_user_id).toBe(userId);
+
+          const context = event?.context;
+          expect(context).toBeInstanceOf(Object);
+
+          expect(context.library_name).toEqual("purchases-js");
+          expect(typeof context.library_version).toBe("string");
+          expect(typeof context.locale).toBe("string");
+          expect(typeof context.user_agent).toBe("string");
+          expect(typeof context.time_zone).toBe("string");
+          expect(typeof context.screen_width).toBe("number");
+          expect(typeof context.screen_height).toBe("number");
+          expect(context.utm_source).toBeNull();
+          expect(context.utm_medium).toBeNull();
+          expect(context.utm_campaign).toBeNull();
+          expect(context.utm_content).toBeNull();
+          expect(context.utm_term).toBeNull();
+          expect(context.page_referrer).toBe("");
+          expect(typeof context.page_url).toBe("string");
+          expect(context.page_title).toBe("Health Check – Web Billing Demo");
+          expect(context.source).toBe("sdk");
+
+          const properties = event?.properties;
+          expect(typeof properties.trace_id).toBe("string");
+
+          return true;
+        } catch (error) {
+          console.error("Event validation failed:", error);
+          return false;
+        }
+      }),
+      { timeout: 3_000 },
+    );
+    await navigateToUrl(page, userId);
+    await waitForTrackEventPromise;
+  });
 });
+
+function successfulEventTrackingResponseMatcher(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  eventMatcher: (event: any) => boolean,
+) {
+  return async (response: Response) => {
+    if (
+      response.url() !== "https://e.revenue.cat/v1/events" ||
+      response.status() !== 200
+    ) {
+      return false;
+    }
+
+    const json = response.request().postDataJSON();
+    const sdk_initialized_events = (json?.events || []).filter(eventMatcher);
+    return sdk_initialized_events.length === 1;
+  };
+}
 
 async function startPurchaseFlow(card: Locator) {
   // Perform purchase

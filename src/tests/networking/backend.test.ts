@@ -376,6 +376,8 @@ describe("purchase request", () => {
         placementIdentifier: null,
       },
       { id: "base_option", priceId: "test_price_id" },
+      { utm_campaign: "test-campaign" },
+      "test-trace-id",
     );
 
     expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
@@ -391,6 +393,8 @@ describe("purchase request", () => {
       price_id: "test_price_id",
       presented_offering_identifier: "offering_1",
       supports_direct_payment: true,
+      metadata: { utm_campaign: "test-campaign" },
+      trace_id: "test-trace-id",
     });
 
     expect(result).toEqual(purchaseResponse);
@@ -411,6 +415,8 @@ describe("purchase request", () => {
           placementIdentifier: null,
         },
         { id: "base_option", priceId: "test_price_id" },
+        { utm_campaign: "test-campaign" },
+        "test-trace-id",
       ),
       new PurchasesError(
         ErrorCode.UnknownBackendError,
@@ -441,6 +447,8 @@ describe("purchase request", () => {
           placementIdentifier: null,
         },
         { id: "base_option", priceId: "test_price_id" },
+        { utm_campaign: "test-campaign" },
+        "test-trace-id",
       ),
       new PurchasesError(
         ErrorCode.InvalidCredentialsError,
@@ -471,6 +479,8 @@ describe("purchase request", () => {
           placementIdentifier: null,
         },
         { id: "base_option", priceId: "test_price_id" },
+        { utm_campaign: "test-campaign" },
+        "test-trace-id",
       ),
       new PurchasesError(
         ErrorCode.PurchaseInvalidError,
@@ -493,6 +503,8 @@ describe("purchase request", () => {
           placementIdentifier: null,
         },
         { id: "base_option", priceId: "test_price_id" },
+        { utm_campaign: "test-campaign" },
+        "test-trace-id",
       ),
       new PurchasesError(
         ErrorCode.NetworkError,

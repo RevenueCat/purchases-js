@@ -7,34 +7,56 @@
   import ProcessingAnimation from "../processing-animation.svelte";
   import { validateEmail } from "../../helpers/validators";
   import { PurchaseFlowError } from "../../helpers/purchase-operation-helper";
-  import { beforeUpdate, getContext } from "svelte";
+  import { getContext, onMount } from "svelte";
   import CloseButton from "../close-button.svelte";
   import Localized from "../localization/localized.svelte";
   import { translatorContextKey } from "../localization/constants";
   import { Translator } from "../localization/translator";
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
+  import { eventsTrackerContextKey } from "../constants";
+  import { type IEventsTracker } from "../../behavioural-events/events-tracker";
+  import { createCheckoutBillingFormErrorEvent } from "../../behavioural-events/sdk-event-helpers";
+  import { SDKEventName } from "../../behavioural-events/sdk-events";
 
   export let onContinue: any;
   export let onClose: () => void;
   export let processing: boolean;
   export let lastError: PurchaseFlowError | null;
 
+  function onCloseHandle() {
+    eventsTracker.trackSDKEvent({
+      eventName: SDKEventName.CheckoutBillingFormDismiss,
+    });
+    onClose();
+  }
+
+  const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
+
   $: email = "";
-  $: error = "";
-  $: inputClass = error ? "error" : "";
+  $: errorMessage = lastError?.message || "";
+  $: inputClass = (lastError?.message ?? errorMessage) !== "" ? "error" : "";
 
   const handleContinue = async () => {
-    const verificationErrors = validateEmail(email);
-    if (verificationErrors) {
-      error = verificationErrors;
+    errorMessage = validateEmail(email) ?? "";
+    if (errorMessage !== "") {
+      const event = createCheckoutBillingFormErrorEvent({
+        errorCode: null,
+        errorMessage,
+      });
+      eventsTracker.trackSDKEvent(event);
     } else {
+      eventsTracker.trackSDKEvent({
+        eventName: SDKEventName.CheckoutBillingFormSubmit,
+      });
       onContinue({ email });
     }
   };
 
-  beforeUpdate(async () => {
-    error = lastError?.message ?? "";
+  onMount(() => {
+    eventsTracker.trackSDKEvent({
+      eventName: SDKEventName.CheckoutBillingFormImpression,
+    });
   });
 
   const translator: Translator =
@@ -46,7 +68,7 @@
     <span>
       <Localized key={LocalizationKeys.StateNeedsAuthInfoEmailStepTitle} />
     </span>
-    <CloseButton on:click={onClose} />
+    <CloseButton on:click={onCloseHandle} />
   </ModalHeader>
   <form on:submit|preventDefault={handleContinue}>
     <ModalSection>
@@ -65,11 +87,12 @@
               LocalizationKeys.StateNeedsAuthInfoEmailInputPlaceholder,
             )}
             autocapitalize="off"
+            data-testid="email"
             bind:value={email}
           />
         </div>
-        {#if error}
-          <div class="form-error">{error}</div>
+        {#if errorMessage !== ""}
+          <div class="form-error">{errorMessage}</div>
         {/if}
       </div>
     </ModalSection>
