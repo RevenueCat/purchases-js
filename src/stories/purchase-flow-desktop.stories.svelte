@@ -3,7 +3,8 @@
   import WithContext from "./utils/with-context.svelte";
   import { toProductInfoStyleVar } from "../ui/theme/utils";
   import RcbUiInner from "../ui/rcb-ui-inner.svelte";
-
+  import { translatorContextKey } from "../ui/localization/constants";
+  import { Translator } from "../ui/localization/translator";
   import {
     brandingInfo,
     colorfulBrandingAppearance,
@@ -50,7 +51,14 @@
 </script>
 
 {#snippet template(args: any)}
-  <WithContext context={args.context}>
+  <WithContext
+    context={{
+      ...args.context,
+      [translatorContextKey]: args.locale
+        ? new Translator({}, args.locale, args.locale)
+        : undefined,
+    }}
+  >
     <RcbUiInner
       {...args}
       {colorVariables}
@@ -111,6 +119,67 @@
   name="Payment failed"
   args={{
     currentView: "error",
+  }}
+  parameters={{ viewport: { defaultViewport: "desktop" } }}
+/>
+<Story
+  name="Email Input (Arabic)"
+  args={{ currentView: "needs-auth-info", locale: "ar" }}
+  parameters={{ viewport: { defaultViewport: "desktop" } }}
+/>
+<Story
+  name="Email Input (with Sandbox Banner) (Arabic)"
+  args={{
+    currentView: "needs-auth-info",
+    isSandbox: true,
+    locale: "ar",
+  }}
+  parameters={{ viewport: { defaultViewport: "desktop" } }}
+/>
+<Story
+  name="Email Input (with Trial Product) (Arabic)"
+  args={{
+    currentView: "needs-auth-info",
+    isSandbox: true,
+    locale: "ar",
+    productDetails: {
+      ...product,
+      normalPeriodDuration: "P1Y",
+    },
+    purchaseOptionToUse: subscriptionOptionWithTrial,
+  }}
+  parameters={{ viewport: { defaultViewport: "desktop" } }}
+/>
+<Story
+  name="Checkout (Arabic)"
+  args={{
+    ...defaultArgs,
+    currentView: "needs-payment-info",
+    locale: "ar",
+  }}
+  parameters={{ viewport: { defaultViewport: "desktop" } }}
+/>
+<Story
+  name="Loading (Arabic)"
+  args={{
+    currentView: "loading",
+    locale: "ar",
+  }}
+  parameters={{ viewport: { defaultViewport: "desktop" } }}
+/>
+<Story
+  name="Payment complete (Arabic)"
+  args={{
+    currentView: "success",
+    locale: "ar",
+  }}
+  parameters={{ viewport: { defaultViewport: "desktop" } }}
+/>
+<Story
+  name="Payment failed (Arabic)"
+  args={{
+    currentView: "error",
+    locale: "ar",
   }}
   parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
