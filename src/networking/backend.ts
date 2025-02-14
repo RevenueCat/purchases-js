@@ -17,6 +17,7 @@ import { type CheckoutStatusResponse } from "./responses/checkout-status-respons
 import { defaultHttpConfig, type HttpConfig } from "../entities/http-config";
 import type {
   PresentedOfferingContext,
+  PurchaseMetadata,
   PurchaseOption,
 } from "../entities/offerings";
 import type { CheckoutCompleteResponse } from "./responses/checkout-complete-response";
@@ -79,7 +80,7 @@ export class Backend {
     productId: string,
     presentedOfferingContext: PresentedOfferingContext,
     purchaseOption: PurchaseOption,
-    email?: string,
+    metadata: PurchaseMetadata | undefined = undefined,
   ): Promise<CheckoutStartResponse> {
     type CheckoutStartRequestBody = {
       app_user_id: string;
@@ -93,16 +94,20 @@ export class Backend {
         revision: number;
       };
       email?: string;
+      metadata?: PurchaseMetadata;
     };
 
     const requestBody: CheckoutStartRequestBody = {
       app_user_id: appUserId,
       product_id: productId,
-      email: email,
       price_id: purchaseOption.priceId,
       presented_offering_identifier:
         presentedOfferingContext.offeringIdentifier,
     };
+
+    if (metadata) {
+      requestBody.metadata = metadata;
+    }
 
     if (purchaseOption.id !== "base_option") {
       requestBody.offer_id = purchaseOption.id;

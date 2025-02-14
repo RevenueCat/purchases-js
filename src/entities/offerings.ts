@@ -381,6 +381,13 @@ export interface Offerings {
   readonly current: Offering | null;
 }
 
+/**
+ * Metadata that can be passed to the backend when making a purchase.
+ * They will propagate to the payment gateway (i.e. Stripe) and to RevenueCat.
+ * @public
+ */
+export type PurchaseMetadata = Record<string, string | null>;
+
 const toPrice = (priceData: PriceResponse): Price => {
   return {
     amount: priceData.amount_micros / 10000,
