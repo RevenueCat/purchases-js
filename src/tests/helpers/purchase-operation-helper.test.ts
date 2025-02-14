@@ -230,7 +230,7 @@ describe("PurchaseOperationHelper", () => {
     await purchaseOperationHelper.pollCurrentPurchaseForCompletion();
   });
 
-  test("pollCurrentPurchaseForCompletion success with redemption info if poll returns success", async () => {
+  test("pollCurrentPurchaseForCompletion success with redemption info and operation session id if poll returns success", async () => {
     setPurchaseResponse(
       HttpResponse.json(successPurchaseBody, {
         status: StatusCodes.OK,
@@ -266,6 +266,7 @@ describe("PurchaseOperationHelper", () => {
     expect(pollResult.redemptionInfo?.redeemUrl).toEqual(
       "test-url://redeem_my_rcb?token=1234",
     );
+    expect(pollResult.operationSessionId).toEqual(operationSessionId);
   });
 
   // TODO: Fix test that fails due to using same response multiple times

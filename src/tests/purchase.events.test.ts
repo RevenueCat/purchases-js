@@ -106,7 +106,7 @@ describe("Purchases.configure()", () => {
 
   test("tracks the CheckoutSessionEnded event upon finishing a purchase", async () => {
     vi.mocked(mount).mockImplementation((_component, options) => {
-      options.props?.onFinished(null);
+      options.props?.onFinished("test-operation-session-id", null);
       return vi.fn();
     });
 

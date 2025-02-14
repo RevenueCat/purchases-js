@@ -174,6 +174,7 @@ export class PurchaseOperationHelper {
 
   async pollCurrentPurchaseForCompletion(): Promise<{
     redemptionInfo: RedemptionInfo | null;
+    operationSessionId: string;
   }> {
     const operationSessionId = this.operationSessionId;
     if (!operationSessionId) {
@@ -183,56 +184,58 @@ export class PurchaseOperationHelper {
       );
     }
 
-    return new Promise<{ redemptionInfo: RedemptionInfo | null }>(
-      (resolve, reject) => {
-        const checkForOperationStatus = (checkCount = 1) => {
-          if (checkCount > this.maxNumberAttempts) {
-            this.clearPurchaseInProgress();
-            reject(
-              new PurchaseFlowError(
-                PurchaseFlowErrorCode.UnknownError,
-                "Max attempts reached trying to get successful purchase status",
-              ),
+    return new Promise<{
+      redemptionInfo: RedemptionInfo | null;
+      operationSessionId: string;
+    }>((resolve, reject) => {
+      const checkForOperationStatus = (checkCount = 1) => {
+        if (checkCount > this.maxNumberAttempts) {
+          this.clearPurchaseInProgress();
+          reject(
+            new PurchaseFlowError(
+              PurchaseFlowErrorCode.UnknownError,
+              "Max attempts reached trying to get successful purchase status",
+            ),
+          );
+          return;
+        }
+        this.backend
+          .getCheckoutStatus(operationSessionId)
+          .then((operationResponse: CheckoutStatusResponse) => {
+            switch (operationResponse.operation.status) {
+              case CheckoutSessionStatus.Started:
+              case CheckoutSessionStatus.InProgress:
+                setTimeout(
+                  () => checkForOperationStatus(checkCount + 1),
+                  this.waitMSBetweenAttempts,
+                );
+                break;
+              case CheckoutSessionStatus.Succeeded:
+                this.clearPurchaseInProgress();
+                resolve({
+                  redemptionInfo: toRedemptionInfo(operationResponse),
+                  operationSessionId: operationSessionId,
+                });
+                return;
+              case CheckoutSessionStatus.Failed:
+                this.clearPurchaseInProgress();
+                this.handlePaymentError(
+                  operationResponse.operation.error,
+                  reject,
+                );
+            }
+          })
+          .catch((error: PurchasesError) => {
+            const purchasesError = PurchaseFlowError.fromPurchasesError(
+              error,
+              PurchaseFlowErrorCode.NetworkError,
             );
-            return;
-          }
-          this.backend
-            .getCheckoutStatus(operationSessionId)
-            .then((operationResponse: CheckoutStatusResponse) => {
-              switch (operationResponse.operation.status) {
-                case CheckoutSessionStatus.Started:
-                case CheckoutSessionStatus.InProgress:
-                  setTimeout(
-                    () => checkForOperationStatus(checkCount + 1),
-                    this.waitMSBetweenAttempts,
-                  );
-                  break;
-                case CheckoutSessionStatus.Succeeded:
-                  this.clearPurchaseInProgress();
-                  resolve({
-                    redemptionInfo: toRedemptionInfo(operationResponse),
-                  });
-                  return;
-                case CheckoutSessionStatus.Failed:
-                  this.clearPurchaseInProgress();
-                  this.handlePaymentError(
-                    operationResponse.operation.error,
-                    reject,
-                  );
-              }
-            })
-            .catch((error: PurchasesError) => {
-              const purchasesError = PurchaseFlowError.fromPurchasesError(
-                error,
-                PurchaseFlowErrorCode.NetworkError,
-              );
-              reject(purchasesError);
-            });
-        };
+            reject(purchasesError);
+          });
+      };
 
-        checkForOperationStatus();
-      },
-    );
+      checkForOperationStatus();
+    });
   }
 
   private clearPurchaseInProgress() {

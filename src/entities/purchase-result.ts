@@ -14,4 +14,9 @@ export interface PurchaseResult {
    * The redemption information after the purchase if available.
    */
   readonly redemptionInfo: RedemptionInfo | null;
+
+  /**
+   * The operation session id of the purchase.
+   */
+  readonly operationSessionId: string;
 }
