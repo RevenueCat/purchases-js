@@ -1,13 +1,14 @@
 import { Logger } from "./logger";
 import { ErrorCode, PurchasesError } from "../entities/errors";
 
-export function validateEmail(email: string): string | null {
+export function validateEmail(email: string): boolean {
   if (email.trim() === "") {
-    return "You need to provide your email address to continue.";
+    return false;
   } else if (!email.match(/^[^@]+@[^@]+\.[^@]+$/)) {
-    return "Email is not valid. Please provide a valid email address.";
+    return false;
   }
-  return null;
+
+  return true;
 }
 
 export function validateCurrency(currency?: string) {

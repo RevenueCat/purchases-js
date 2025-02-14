@@ -5,7 +5,6 @@
   import SandboxBanner from "./sandbox-banner.svelte";
   import Main from "./layout/main-block.svelte";
   import StateNeedsPaymentInfo from "./states/state-needs-payment-info.svelte";
-  import StateNeedsAuthInfo from "./states/state-needs-auth-info.svelte";
   import StateLoading from "./states/state-loading.svelte";
   import StateError from "./states/state-error.svelte";
   import StateSuccess from "./states/state-success.svelte";
@@ -37,8 +36,6 @@
 
   const viewsWhereOfferDetailsAreShown: CurrentView[] = [
     "present-offer",
-    "needs-auth-info",
-    "processing-auth-info",
     "needs-payment-info",
     "polling-purchase-status",
     "loading",
@@ -81,13 +78,6 @@
         {/if}
         {#if currentView === "present-offer" && !productDetails}
           <StateLoading />
-        {/if}
-        {#if currentView === "needs-auth-info" || currentView === "processing-auth-info"}
-          <StateNeedsAuthInfo
-            onContinue={handleContinue}
-            processing={currentView === "processing-auth-info"}
-            {lastError}
-          />
         {/if}
         {#if paymentInfoCollectionMetadata && (currentView === "needs-payment-info" || currentView === "polling-purchase-status") && productDetails && purchaseOptionToUse}
           <StateNeedsPaymentInfo

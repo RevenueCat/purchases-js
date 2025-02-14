@@ -60,36 +60,24 @@
 {/snippet}
 
 <Story
-  name="Email Input"
-  args={{ currentView: "needs-auth-info" }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
-/>
-<Story
-  name="Email Input (with Sandbox Banner)"
+  name="Checkout"
   args={{
-    currentView: "needs-auth-info",
-    isSandbox: true,
+    ...defaultArgs,
+    currentView: "needs-payment-info",
   }}
   parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
 <Story
-  name="Email Input (with Trial Product)"
+  name="Checkout (with Sandbox Banner and Trial Product)"
   args={{
-    currentView: "needs-auth-info",
+    ...defaultArgs,
+    currentView: "needs-payment-info",
     isSandbox: true,
     productDetails: {
       ...product,
       normalPeriodDuration: "P1Y",
     },
     purchaseOptionToUse: subscriptionOptionWithTrial,
-  }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
-/>
-<Story
-  name="Checkout"
-  args={{
-    ...defaultArgs,
-    currentView: "needs-payment-info",
   }}
   parameters={{ viewport: { defaultViewport: "desktop" } }}
 />

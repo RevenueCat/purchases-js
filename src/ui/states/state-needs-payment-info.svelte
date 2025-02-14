@@ -35,6 +35,7 @@
   import { StripeService } from "../../stripe/stripe-service";
   import { type ContinueHandlerParams } from "../ui-types";
   import Input from "../input.svelte";
+  import { validateEmail } from "../../helpers/validators";
 
   export let onContinue: (params?: ContinueHandlerParams) => void;
   export let paymentInfoCollectionMetadata: CheckoutStartResponse;
@@ -59,6 +60,7 @@
   let viewport: "mobile" | "desktop" = "mobile";
 
   $: email = "";
+  $: error = "";
 
   // Maybe extract this to a
   function updateStripeVariables() {
@@ -198,6 +200,22 @@
     };
   });
 
+  const handleEmailBlur = () => {
+    if (!email) {
+      error = "";
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      error = translator.translate(
+        LocalizationKeys.StateErrorErrorMessageMissingEmailError,
+      );
+      return;
+    } else {
+      error = "";
+    }
+  };
+
   const handleContinue = async () => {
     if (processing || !stripe || !safeElements) return;
 
@@ -268,13 +286,15 @@
   <form on:submit|preventDefault={handleContinue}>
     <div class="checkout-form-container" hidden={!!modalErrorMessage}>
       <Input
+        {error}
         label={translator.translate(
           LocalizationKeys.StateNeedsAuthInfoEmailInputLabel,
         )}
         placeholder={translator.translate(
           LocalizationKeys.StateNeedsAuthInfoEmailInputPlaceholder,
         )}
-        value={email}
+        onBlur={handleEmailBlur}
+        bind:value={email}
         name="email"
         id="email"
         autocapitalize="off"

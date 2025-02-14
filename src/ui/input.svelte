@@ -1,10 +1,15 @@
 <script lang="ts">
+  import { fade } from "svelte/transition";
+
   export let label: string;
   export let placeholder: string;
   export let value: string;
+  export let error: string;
   export let name: string;
+  export let onBlur: () => void;
   export let id: string;
-  export let labelClass: string;
+
+  let labelClass: string;
   let isFocused = false;
 
   function handleFocus() {
@@ -12,25 +17,32 @@
   }
 
   function handleBlur() {
-    if (!value) {
-      isFocused = false;
-    }
+    isFocused = false;
+    onBlur();
   }
 
   $: labelClass = value || isFocused ? "label label--floating" : "label";
 </script>
 
-<div class="input-container">
-  <label class={labelClass} for={id}>{label}</label>
-  <input
-    {id}
-    {name}
-    {placeholder}
-    bind:value
-    onfocus={handleFocus}
-    onblur={handleBlur}
-    {...$$restProps}
-  />
+<div>
+  <div class="input-container">
+    <label class={`${labelClass}`} for={id}>{label}</label>
+    <input
+      {id}
+      {name}
+      {placeholder}
+      class={error ? "error" : ""}
+      bind:value
+      onfocus={handleFocus}
+      onblur={handleBlur}
+      {...$$restProps}
+    />
+  </div>
+  {#if error}
+    <p class="error-message" transition:fade={{ duration: 300 }}>
+      {error}
+    </p>
+  {/if}
 </div>
 
 <style>
@@ -98,5 +110,16 @@
 
   input:focus::placeholder {
     color: var(--rc-color-grey-text-light);
+  }
+
+  .error {
+    color: var(--rc-color-error);
+    border-color: var(--rc-color-error);
+  }
+
+  .error-message {
+    font: var(--rc-text-caption-mobile);
+    color: var(--rc-color-error);
+    margin-top: 0.25rem;
   }
 </style>

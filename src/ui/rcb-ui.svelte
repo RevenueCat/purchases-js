@@ -138,11 +138,6 @@
   };
 
   const handleError = (e: PurchaseFlowError) => {
-    if (currentView === "processing-auth-info" && e.isRecoverable()) {
-      lastError = e;
-      currentView = "needs-payment-info";
-      return;
-    }
     lastError = e;
     currentView = "error";
   };
