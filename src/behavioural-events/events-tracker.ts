@@ -27,9 +27,7 @@ export interface EventsTrackerProps {
 
 export interface IEventsTracker {
   getTraceId(): string;
-  getCheckoutSessionId(): string | null;
   updateUser(appUserId: string): Promise<void>;
-  generateCheckoutSessionId(): void;
   trackSDKEvent(props: SDKEvent): void;
   trackExternalEvent(props: TrackEventProps): void;
   dispose(): void;
@@ -42,7 +40,6 @@ export default class EventsTracker implements IEventsTracker {
   private readonly flushManager: FlushManager;
   private readonly traceId: string = uuid();
   private appUserId: string;
-  private checkoutSessionId: string | null = null;
 
   constructor(props: EventsTrackerProps) {
     this.apiKey = props.apiKey;
@@ -60,16 +57,8 @@ export default class EventsTracker implements IEventsTracker {
     this.appUserId = appUserId;
   }
 
-  public generateCheckoutSessionId() {
-    this.checkoutSessionId = uuid();
-  }
-
   public getTraceId() {
     return this.traceId;
-  }
-
-  public getCheckoutSessionId() {
-    return this.checkoutSessionId;
   }
 
   public trackSDKEvent(props: SDKEvent): void {
@@ -85,7 +74,6 @@ export default class EventsTracker implements IEventsTracker {
       const event = new Event({
         eventName: props.eventName,
         traceId: this.traceId,
-        checkoutSessionId: this.checkoutSessionId,
         appUserId: this.appUserId,
         context: buildEventContext(props.source),
         properties: props.properties || {},

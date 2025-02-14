@@ -372,7 +372,6 @@ test.describe("Main", () => {
 
           const properties = event?.properties;
           expect(typeof properties.trace_id).toBe("string");
-          expect(properties.checkout_session_id).toBeNull();
 
           return true;
         } catch (error) {

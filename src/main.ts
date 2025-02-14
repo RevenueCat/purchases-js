@@ -567,8 +567,6 @@ export class Purchases {
     const purchaseOptionToUse =
       purchaseOption ?? rcPackage.webBillingProduct.defaultPurchaseOption;
 
-    this.eventsTracker.generateCheckoutSessionId();
-
     const event = createCheckoutSessionStartEvent({
       appearance: this._brandingInfo?.appearance,
       rcPackage,

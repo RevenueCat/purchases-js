@@ -140,7 +140,6 @@ export class PurchaseOperationHelper {
   ): Promise<PurchaseResponse> {
     try {
       const traceId = this.eventsTracker.getTraceId();
-      const checkoutSessionId = this.eventsTracker.getCheckoutSessionId();
 
       const subscribeResponse = await this.backend.postPurchase(
         appUserId,
@@ -150,7 +149,6 @@ export class PurchaseOperationHelper {
         purchaseOption,
         metadata,
         traceId,
-        checkoutSessionId ?? "",
       );
       this.operationSessionId = subscribeResponse.operation_session_id;
       return subscribeResponse;

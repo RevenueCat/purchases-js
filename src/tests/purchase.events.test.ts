@@ -47,7 +47,6 @@ describe("Purchases.configure()", () => {
             app_user_id: "someAppUserId",
             context: {},
             properties: {
-              checkout_session_id: null,
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
             },
           },
@@ -80,7 +79,6 @@ describe("Purchases.configure()", () => {
             context: {},
             properties: {
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
-              checkout_session_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               customer_email_provided_by_developer: false,
               customization_color_buttons_primary: null,
               customization_color_accent: null,
@@ -133,7 +131,6 @@ describe("Purchases.configure()", () => {
             context: {},
             properties: {
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
-              checkout_session_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               outcome: "finished",
               with_redemption_info: false,
             },
@@ -178,7 +175,6 @@ describe("Purchases.configure()", () => {
             context: {},
             properties: {
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
-              checkout_session_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               outcome: "closed",
             },
           },
@@ -224,7 +220,6 @@ describe("Purchases.configure()", () => {
             context: {},
             properties: {
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
-              checkout_session_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               outcome: "errored",
               error_code: "0",
               error_message: "Unexpected error",
