@@ -403,7 +403,7 @@ describe("postCheckoutStart request", () => {
         placementIdentifier: null,
       },
       { id: "base_option", priceId: "test_price_id" },
-      "testemail@revenuecat.com",
+      { email: "testemail@revenuecat.com" },
     );
 
     expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
@@ -417,7 +417,9 @@ describe("postCheckoutStart request", () => {
       product_id: "monthly",
       price_id: "test_price_id",
       presented_offering_identifier: "offering_1",
-      email: "testemail@revenuecat.com",
+      metadata: {
+        email: "testemail@revenuecat.com",
+      },
     });
 
     expect(result).toEqual(checkoutStartResponse);
