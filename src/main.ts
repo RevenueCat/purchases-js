@@ -590,7 +590,10 @@ export class Purchases {
           rcPackage,
           purchaseOption: purchaseOptionToUse,
           customerEmail,
-          onFinished: async (redemptionInfo: RedemptionInfo | null) => {
+          onFinished: async (
+            operationSessionId: string,
+            redemptionInfo: RedemptionInfo | null,
+          ) => {
             const event = createCheckoutSessionEndFinishedEvent({
               redemptionInfo,
             });
@@ -601,6 +604,7 @@ export class Purchases {
             const purchaseResult: PurchaseResult = {
               customerInfo: await this._getCustomerInfoForUserId(appUserId),
               redemptionInfo: redemptionInfo,
+              operationSessionId: operationSessionId,
             };
             resolve(purchaseResult);
           },

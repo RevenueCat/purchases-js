@@ -46,7 +46,10 @@
   export let purchaseOption: PurchaseOption;
   export let metadata: PurchaseMetadata | undefined;
   export let brandingInfo: BrandingInfoResponse | null;
-  export let onFinished: (redemptionInfo: RedemptionInfo | null) => void;
+  export let onFinished: (
+    operationSessionId: string,
+    redemptionInfo: RedemptionInfo | null,
+  ) => void;
   export let onError: (error: PurchaseFlowError) => void;
   export let onClose: () => void;
   export let purchases: Purchases;
@@ -73,6 +76,7 @@
     | "error" = "present-offer";
 
   let redemptionInfo: RedemptionInfo | null = null;
+  let operationSessionId: string | null = null;
 
   const statesWhereOfferDetailsAreShown = [
     "present-offer",
@@ -176,6 +180,7 @@
         .then((pollResult) => {
           state = "success";
           redemptionInfo = pollResult.redemptionInfo;
+          operationSessionId = pollResult.operationSessionId;
         })
         .catch((error: PurchaseFlowError) => {
           handleError(error);
@@ -184,7 +189,7 @@
     }
 
     if (state === "success" || state === "error") {
-      onFinished(redemptionInfo);
+      onFinished(operationSessionId!, redemptionInfo);
       return;
     }
 
