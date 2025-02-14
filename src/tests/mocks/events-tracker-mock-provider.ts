@@ -4,7 +4,6 @@ import { vi } from "vitest";
 export function createEventsTrackerMock() {
   return {
     updateUser: vi.fn(),
-    generateCheckoutSessionId: vi.fn(),
     trackSDKEvent: vi.fn(),
     trackExternalEvent: vi.fn(),
     dispose: vi.fn(),

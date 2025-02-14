@@ -4,7 +4,6 @@ import { v4 as uuidv4 } from "uuid";
 export type EventData = {
   eventName: string;
   traceId: string;
-  checkoutSessionId: string | null;
   appUserId: string;
   properties: EventProperties;
   context: EventContext;
@@ -68,7 +67,6 @@ export class Event {
       properties: {
         ...this.data.properties,
         traceId: this.data.traceId,
-        checkoutSessionId: this.data.checkoutSessionId,
       },
     }) as EventPayload;
   }

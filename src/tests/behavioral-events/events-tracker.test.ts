@@ -74,7 +74,6 @@ describe("EventsTracker", (test) => {
             },
             properties: {
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
-              checkout_session_id: null,
               a: "b",
               b: 1,
               c: false,
@@ -110,10 +109,9 @@ describe("EventsTracker", (test) => {
     );
   });
 
-  test<EventsTrackerFixtures>("passes the checkout session id to the event", async ({
+  test<EventsTrackerFixtures>("passes the checkout trace id to the event", async ({
     eventsTracker,
   }) => {
-    eventsTracker.generateCheckoutSessionId();
     eventsTracker.trackExternalEvent({
       eventName: "external",
       source: "sdk",
@@ -126,7 +124,7 @@ describe("EventsTracker", (test) => {
           events: expect.arrayContaining([
             expect.objectContaining({
               properties: expect.objectContaining({
-                checkout_session_id: expect.any(String),
+                trace_id: expect.any(String),
               }),
             }),
           ]),

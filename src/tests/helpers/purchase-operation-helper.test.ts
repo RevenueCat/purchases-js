@@ -37,9 +37,7 @@ describe("PurchaseOperationHelper", () => {
     backend = new Backend("test_api_key");
     const eventsTrackerMock: IEventsTracker = {
       getTraceId: () => "test-trace-id",
-      getCheckoutSessionId: () => "test-checkout-session-id",
       updateUser: () => Promise.resolve(),
-      generateCheckoutSessionId: () => {},
       trackSDKEvent: () => {},
       trackExternalEvent: () => {},
       dispose: () => {},
@@ -73,16 +71,12 @@ describe("PurchaseOperationHelper", () => {
     );
   }
 
-  test("startPurchase forwards the trace_id and checkout_session_id to the backend", async () => {
+  test("startPurchase forwards the trace_id to the backend", async () => {
     server.use(
       http.post("http://localhost:8000/rcbilling/v1/purchase", async (req) => {
         const json = (await req.request.json()) as Record<string, unknown>;
 
-        if (
-          json &&
-          json["trace_id"] === "test-trace-id" &&
-          json["checkout_session_id"] === "test-checkout-session-id"
-        ) {
+        if (json && json["trace_id"] === "test-trace-id") {
           return HttpResponse.json(successPurchaseBody, { status: 200 });
         }
 

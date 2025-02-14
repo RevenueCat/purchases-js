@@ -126,7 +126,6 @@ export const defaultContext = {
     trackExternalEvent: () => {},
     trackSDKEvent: () => {},
     updateUser: () => Promise.resolve(),
-    generateCheckoutSessionId: () => {},
     dispose: () => {},
   },
 };
