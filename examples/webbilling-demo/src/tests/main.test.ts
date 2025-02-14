@@ -8,6 +8,13 @@ const RC_PAYWALL_TEST_OFFERING_ID = "rc_paywalls_e2e_test_2";
 const RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES =
   "rc_paywalls_e2e_test_variables_2";
 
+const waitForCheckoutStartRequest = (page: Page) => {
+  return page.waitForRequest(
+    (request) =>
+      request.url().includes("checkout/start") && request.method() === "POST",
+  );
+};
+
 test.describe("Main", () => {
   test("Get offerings displays packages", async ({ browser, browserName }) => {
     const userId = getUserId(browserName);
@@ -59,12 +66,6 @@ test.describe("Main", () => {
     const userId = `${getUserId(browserName)}_subscription`;
     const page = await setupTest(browser, userId);
 
-    page.on("request", (request) => {
-      if (request.url().includes("purchase")) {
-        expect(request.postDataJSON()).toHaveProperty("metadata");
-      }
-    });
-
     // Gets all elements that match the selector
     const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
     const singleCard = packageCards[1];
@@ -86,19 +87,18 @@ test.describe("Main", () => {
     };
     const page = await setupTest(browser, userId, { ...utm_params });
 
-    page.on("request", (request) => {
-      if (request.url().includes("purchase")) {
-        expect(request.postDataJSON()).toHaveProperty("metadata");
-        const metadata = request.postDataJSON().metadata;
-        expect(metadata).toStrictEqual(utm_params);
-      }
-    });
-
     // Gets all elements that match the selector
     const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
     const singleCard = packageCards[1];
 
+    const requestPromise = waitForCheckoutStartRequest(page);
+
     await performPurchase(page, singleCard, userId);
+
+    const request = await requestPromise;
+    expect(request.postDataJSON()).toHaveProperty("metadata");
+    const metadata = request.postDataJSON().metadata;
+    expect(metadata).toStrictEqual(utm_params);
   });
 
   test("Does not propagate UTM params to metadata when purchasing if the developer opts out", async ({
@@ -118,19 +118,18 @@ test.describe("Main", () => {
       optOutOfAutoUTM: true,
     });
 
-    page.on("request", (request) => {
-      if (request.url().includes("purchase")) {
-        expect(request.postDataJSON()).toHaveProperty("metadata");
-        const metadata = request.postDataJSON().metadata;
-        expect(metadata).toStrictEqual({});
-      }
-    });
-
     // Gets all elements that match the selector
     const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
     const singleCard = packageCards[1];
 
+    const requestPromise = waitForCheckoutStartRequest(page);
+
     await performPurchase(page, singleCard, userId);
+
+    const request = await requestPromise;
+    expect(request.postDataJSON()).toHaveProperty("metadata");
+    const metadata = request.postDataJSON().metadata;
+    expect(metadata).toStrictEqual({});
   });
 
   test("Can render an RC Paywall", async ({ browser, browserName }) => {
