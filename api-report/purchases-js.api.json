@@ -3846,7 +3846,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "@revenuecat/purchases-js!PurchaseMetadata:type",
-          "docComment": "/**\n * Metadata that can be passed to the backend when making a purchase. They will propagate to the payment gateway (i.e. Stripe) and to the RevenueCat.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Metadata that can be passed to the backend when making a purchase. They will propagate to the payment gateway (i.e. Stripe) and to RevenueCat.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -4199,6 +4199,33 @@
               "isOptional": false,
               "releaseTag": "Public",
               "name": "customerInfo",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PurchaseResult#operationSessionId:member",
+              "docComment": "/**\n * The operation session id of the purchase.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly operationSessionId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "operationSessionId",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
