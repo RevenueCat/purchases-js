@@ -60,12 +60,80 @@ test.describe("Main", () => {
     const userId = `${getUserId(browserName)}_subscription`;
     const page = await setupTest(browser, userId);
 
+    page.on("request", (request) => {
+      if (request.url().includes("purchase")) {
+        expect(request.postDataJSON()).toHaveProperty("metadata");
+      }
+    });
+
     // Gets all elements that match the selector
     const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
     const singleCard = packageCards[1];
 
     await performPurchase(page, singleCard, userId);
   });
+
+  test("Propagates UTM params to metadata when purchasing", async ({
+    browser,
+    browserName,
+  }) => {
+    const userId = `${getUserId(browserName)}_subscription`;
+    const utm_params = {
+      utm_source: "utm-source",
+      utm_medium: "utm-medium",
+      utm_campaign: "utm-campaign",
+      utm_term: "utm-term",
+      utm_content: "utm-content",
+    };
+    const page = await setupTest(browser, userId, { ...utm_params });
+
+    page.on("request", (request) => {
+      if (request.url().includes("purchase")) {
+        expect(request.postDataJSON()).toHaveProperty("metadata");
+        const metadata = request.postDataJSON().metadata;
+        expect(metadata).toStrictEqual(utm_params);
+      }
+    });
+
+    // Gets all elements that match the selector
+    const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
+    const singleCard = packageCards[1];
+
+    await performPurchase(page, singleCard, userId);
+  });
+
+  test("Does not propagate UTM params to metadata when purchasing if the developer opts out", async ({
+    browser,
+    browserName,
+  }) => {
+    const userId = `${getUserId(browserName)}_subscription`;
+    const utm_params = {
+      utm_source: "utm-source",
+      utm_medium: "utm-medium",
+      utm_campaign: "utm-campaign",
+      utm_term: "utm-term",
+      utm_content: "utm-content",
+    };
+    const page = await setupTest(browser, userId, {
+      ...utm_params,
+      optOutOfAutoUTM: true,
+    });
+
+    page.on("request", (request) => {
+      if (request.url().includes("purchase")) {
+        expect(request.postDataJSON()).toHaveProperty("metadata");
+        const metadata = request.postDataJSON().metadata;
+        expect(metadata).toStrictEqual({});
+      }
+    });
+
+    // Gets all elements that match the selector
+    const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
+    const singleCard = packageCards[1];
+
+    await performPurchase(page, singleCard, userId);
+  });
+
   test("Can render an RC Paywall", async ({ browser, browserName }) => {
     const userId = `${getUserId(browserName)}_subscription`;
     const page = await setupTest(browser, userId, {
@@ -75,6 +143,7 @@ test.describe("Main", () => {
     const title = page.getByText("E2E Tests for Purchases JS");
     await expect(title).toBeVisible();
   });
+
   test("Can render an RC Paywall using variables", async ({
     browser,
     browserName,
@@ -295,6 +364,12 @@ async function setupTest(
     offeringId?: string;
     useRcPaywall?: boolean;
     lang?: string;
+    utm_source?: string;
+    utm_medium?: string;
+    utm_campaign?: string;
+    utm_term?: string;
+    utm_content?: string;
+    optOutOfAutoUTM?: boolean;
   },
 ) {
   const page = await browser.newPage();
@@ -352,13 +427,29 @@ async function navigateToUrl(
     offeringId?: string;
     useRcPaywall?: boolean;
     lang?: string;
+    utm_source?: string;
+    utm_medium?: string;
+    utm_campaign?: string;
+    utm_term?: string;
+    utm_content?: string;
+    optOutOfAutoUTM?: boolean;
   },
 ): Promise<void> {
   const baseUrl =
     (import.meta.env?.VITE_RC_BILLING_DEMO_URL as string | undefined) ??
     _LOCAL_URL;
 
-  const { offeringId, useRcPaywall, lang } = queryString ?? {};
+  const {
+    offeringId,
+    useRcPaywall,
+    lang,
+    utm_source,
+    utm_campaign,
+    utm_term,
+    utm_content,
+    utm_medium,
+    optOutOfAutoUTM,
+  } = queryString ?? {};
 
   const params = new URLSearchParams();
   if (offeringId) {
@@ -366,6 +457,24 @@ async function navigateToUrl(
   }
   if (lang) {
     params.append("lang", lang);
+  }
+  if (utm_source) {
+    params.append("utm_source", utm_source);
+  }
+  if (utm_content) {
+    params.append("utm_content", utm_content);
+  }
+  if (utm_term) {
+    params.append("utm_term", utm_term);
+  }
+  if (utm_medium) {
+    params.append("utm_medium", utm_medium);
+  }
+  if (utm_campaign) {
+    params.append("utm_campaign", utm_campaign);
+  }
+  if (optOutOfAutoUTM) {
+    params.append("optOutOfAutoUTM", optOutOfAutoUTM.toString());
   }
 
   const url = `${baseUrl}${useRcPaywall ? "rc_paywall" : "paywall"}/${encodeURIComponent(userId)}?${params.toString()}`;

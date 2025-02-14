@@ -22,11 +22,13 @@
   import RcbUIInner from "./rcb-ui-inner.svelte";
   import { CheckoutStartResponse } from "../networking/responses/checkout-start-response";
   import { type ContinueHandlerParams } from "./ui-types";
+  import type { PurchaseMetadata } from "../entities/offerings";
 
   export let customerEmail: string | undefined;
   export let appUserId: string;
   export let rcPackage: Package;
   export let purchaseOption: PurchaseOption | null | undefined;
+  export let metadata: PurchaseMetadata | undefined;
   export let brandingInfo: BrandingInfoResponse | null;
   export let onFinished: (redemptionInfo: RedemptionInfo | null) => void;
   export let onError: (error: PurchaseFlowError) => void;
@@ -109,6 +111,7 @@
         purchaseOptionToUse,
         rcPackage.webBillingProduct.presentedOfferingContext,
         customerEmail,
+        metadata,
       )
       .then((result) => {
         lastError = null;
