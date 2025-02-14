@@ -34,6 +34,7 @@
   import { DEFAULT_FONT_FAMILY } from "../theme/text";
   import { StripeService } from "../../stripe/stripe-service";
   import { type ContinueHandlerParams } from "../ui-types";
+  import Input from "../input.svelte";
 
   export let onContinue: (params?: ContinueHandlerParams) => void;
   export let paymentInfoCollectionMetadata: CheckoutStartResponse;
@@ -52,9 +53,12 @@
   let clientSecret: string | undefined = undefined;
 
   let spacing = new Theme().spacing;
+  let textStyles = new Theme().textStyles;
 
   let stripeVariables: undefined | Appearance["variables"];
   let viewport: "mobile" | "desktop" = "mobile";
+
+  $: email = "";
 
   // Maybe extract this to a
   function updateStripeVariables() {
@@ -67,7 +71,7 @@
     }
 
     stripeVariables = {
-      fontSizeBase: "14px",
+      fontSizeBase: textStyles.body1[viewport].fontSize,
       fontFamily: DEFAULT_FONT_FAMILY,
       spacingGridRow: spacing.gapXLarge[viewport],
     };
@@ -263,6 +267,19 @@
   <!-- <TextSeparator text="Pay by card" /> -->
   <form on:submit|preventDefault={handleContinue}>
     <div class="checkout-form-container" hidden={!!modalErrorMessage}>
+      <Input
+        label={translator.translate(
+          LocalizationKeys.StateNeedsAuthInfoEmailInputLabel,
+        )}
+        placeholder={translator.translate(
+          LocalizationKeys.StateNeedsAuthInfoEmailInputPlaceholder,
+        )}
+        value={email}
+        name="email"
+        id="email"
+        autocapitalize="off"
+        autocomplete="email"
+      />
       <div id="payment-element"></div>
 
       <div class="checkout-pay-container">
@@ -328,6 +345,12 @@
     margin-top: var(--rc-spacing-gapXLarge-mobile);
   }
 
+  .checkout-form-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--rc-spacing-gapXLarge-mobile);
+  }
+
   @media (min-width: 768px) {
     .checkout-secure-container {
       margin-top: var(--rc-spacing-gapXLarge-desktop);
@@ -348,5 +371,6 @@
     /* The standard height of the payment form from Stripe */
     /* Added to avoid the card getting smaller while loading */
     min-height: 320px;
+    gap: var(--rc-spacing-gapXLarge-desktop);
   }
 </style>

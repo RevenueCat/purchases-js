@@ -72,12 +72,8 @@
     colorVariables = toProductInfoStyleVar(brandingInfo?.appearance);
 
     if (currentView === "present-offer") {
-      if (customerEmail) {
-        handleCheckoutStart();
-      } else {
-        currentView = "needs-auth-info";
-      }
-
+      handleCheckoutStart();
+      currentView = "needs-payment-info";
       return;
     }
   });
@@ -93,13 +89,6 @@
       return;
     } else if (currentView === "present-offer") {
       currentView = "loading";
-    }
-
-    if (!customerEmail) {
-      handleError(
-        new PurchaseFlowError(PurchaseFlowErrorCode.MissingEmailError),
-      );
-      return;
     }
 
     purchaseOperationHelper
@@ -123,16 +112,6 @@
   const handleContinue = (params: ContinueHandlerParams = {}) => {
     if (params.error) {
       handleError(params.error);
-      return;
-    }
-
-    if (currentView === "needs-auth-info") {
-      if (params.authInfo) {
-        customerEmail = params.authInfo.email;
-        currentView = "processing-auth-info";
-      }
-
-      handleCheckoutStart();
       return;
     }
 
@@ -161,7 +140,7 @@
   const handleError = (e: PurchaseFlowError) => {
     if (currentView === "processing-auth-info" && e.isRecoverable()) {
       lastError = e;
-      currentView = "needs-auth-info";
+      currentView = "needs-payment-info";
       return;
     }
     lastError = e;
@@ -178,6 +157,8 @@
     );
   };
 </script>
+
+{console.log(currentView)}
 
 <RcbUIInner
   isSandbox={purchases.isSandbox()}
