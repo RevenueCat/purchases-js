@@ -103,6 +103,10 @@
     .message-layout-footer {
       margin-top: var(--rc-spacing-gapXXLarge-desktop);
     }
+
+    .rcb-modal-message {
+      min-height: 478px;
+    }
     .rcb-modal-message[data-has-title="false"] {
       margin-top: var(--rc-spacing-gapXXLarge-desktop);
     }
