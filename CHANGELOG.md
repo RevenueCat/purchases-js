@@ -1,3 +1,7 @@
+## 0.18.0
+### 🔄 Other Changes
+* User events (#302) via Pol Miro (@polmiro)
+
 ## 0.17.0
 ## RevenueCat SDK
 ### ✨ New Features
