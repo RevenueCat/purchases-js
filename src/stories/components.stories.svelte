@@ -1,4 +1,4 @@
-<script module>
+<script module lang="ts">
   import { default as ButtonComponent } from "../ui/button.svelte";
   import { defineMeta, setTemplate } from "@storybook/addon-svelte-csf";
   import { toProductInfoStyleVar } from "../ui/theme/utils";

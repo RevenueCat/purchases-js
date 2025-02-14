@@ -1,4 +1,4 @@
-<script module>
+<script module lang="ts">
   import { defineMeta, setTemplate } from "@storybook/addon-svelte-csf";
   import WithContext from "./utils/with-context.svelte";
   import { toProductInfoStyleVar } from "../ui/theme/utils";
