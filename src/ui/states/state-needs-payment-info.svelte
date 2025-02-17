@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getContext, onMount } from "svelte";
   import Button from "../button.svelte";
-  import {
+  import type {
     Appearance,
     Stripe,
     StripeElementLocale,
