@@ -94,6 +94,7 @@ const PaywallPage: React.FC = () => {
   const { purchases, offering } = usePurchasesLoaderData();
   const [searchParams] = useSearchParams();
   const lang = searchParams.get("lang");
+  const email = searchParams.get("email");
   if (!offering) {
     console.error("No offering found");
     return <>No offering found!</>;
@@ -117,6 +118,7 @@ const PaywallPage: React.FC = () => {
         rcPackage: pkg,
         purchaseOption: option,
         selectedLocale: lang || navigator.language,
+        customerEmail: email || undefined,
       });
 
       console.log(`CustomerInfo after purchase: ${customerInfo}`);
