@@ -10,7 +10,11 @@ import {
 } from "../test-responses";
 import { Backend } from "../../networking/backend";
 import { StatusCodes } from "http-status-codes";
-import { BackendErrorCode, ErrorCode, PurchasesError } from "../../entities/errors";
+import {
+  BackendErrorCode,
+  ErrorCode,
+  PurchasesError,
+} from "../../entities/errors";
 import { expectPromiseToError } from "../test-helpers";
 
 let server: SetupServer;
@@ -146,7 +150,7 @@ describe("getCustomerInfo request", () => {
       new PurchasesError(
         ErrorCode.UnknownBackendError,
         "Unknown backend error.",
-        "Request: getCustomerInfo. Status code: 400. Body: {\"code\":1234567890,\"message\":\"Invalid error message\"}.",
+        'Request: getCustomerInfo. Status code: 400. Body: {"code":1234567890,"message":"Invalid error message"}.',
       ),
     );
   });
@@ -382,6 +386,7 @@ describe("postCheckoutStart request", () => {
       product_id: "monthly",
       price_id: "test_price_id",
       presented_offering_identifier: "offering_1",
+      trace_id: "test-trace-id",
     });
 
     expect(result).toEqual(checkoutStartResponse);
@@ -415,6 +420,7 @@ describe("postCheckoutStart request", () => {
     expect(requestBody).toEqual({
       app_user_id: "someAppUserId",
       product_id: "monthly",
+      email: "testemail@revenuecat.com",
       price_id: "test_price_id",
       presented_offering_identifier: "offering_1",
       metadata: { utm_campaign: "test-campaign" },

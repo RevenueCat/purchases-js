@@ -39,6 +39,7 @@
     createCheckoutPaymentFormSubmitEvent,
     createCheckoutPaymentGatewayErrorEvent,
   } from "../../behavioural-events/sdk-event-helpers";
+  import { SDKEventName } from "../../behavioural-events/sdk-events";
 
   export let onContinue: (params?: ContinueHandlerParams) => void;
   export let paymentInfoCollectionMetadata: CheckoutStartResponse;
@@ -66,7 +67,8 @@
 
   // Maybe extract this to a
   function updateStripeVariables() {
-    const isMobile = window.matchMedia("(max-width: 767px)").matches;
+    const isMobile =
+      window.matchMedia && window.matchMedia("(max-width: 767px)").matches;
 
     if (isMobile) {
       viewport = "mobile";
@@ -94,8 +96,6 @@
     getContext(translatorContextKey) || Translator.fallback();
   const stripeElementLocale = (translator.locale ||
     translator.fallbackLocale) as StripeElementLocale;
-
-  type OnChangeEvent = CustomEvent<StripePaymentElementChangeEvent>;
 
   /**
    * This function converts some particular locales to the ones that stripe supports.
@@ -147,6 +147,10 @@
 
   onMount(() => {
     let isMounted = true;
+
+    eventsTracker.trackSDKEvent({
+      eventName: SDKEventName.CheckoutPaymentFormImpression,
+    });
 
     (async () => {
       try {
@@ -233,7 +237,7 @@
     processing = false;
 
     const event = createCheckoutPaymentGatewayErrorEvent({
-      errorCode: error.code ?? null,
+      errorCode: error.errorCode ?? null,
       errorMessage: error.message ?? "",
     });
     eventsTracker.trackSDKEvent(event);
@@ -267,7 +271,7 @@
     const isSetupIntent = clientSecret.startsWith("seti_");
     const result = await stripe[
       isSetupIntent ? "confirmSetup" : "confirmPayment"
-      ]({
+    ]({
       elements: safeElements,
       clientSecret,
       redirect: "if_required",
@@ -334,41 +338,41 @@
 </div>
 
 <style>
+  .checkout-secure-container {
+    margin-top: var(--rc-spacing-gapXLarge-mobile);
+  }
+
+  .checkout-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--rc-spacing-gapXLarge-mobile);
+  }
+
+  .checkout-pay-container {
+    display: flex;
+    flex-direction: column;
+    margin-top: var(--rc-spacing-gapXLarge-mobile);
+  }
+
+  @media (min-width: 768px) {
     .checkout-secure-container {
-        margin-top: var(--rc-spacing-gapXLarge-mobile);
+      margin-top: var(--rc-spacing-gapXLarge-desktop);
     }
 
     .checkout-container {
-        display: flex;
-        flex-direction: column;
-        gap: var(--rc-spacing-gapXLarge-mobile);
+      gap: var(--rc-spacing-gapXLarge-desktop);
+      margin-top: var(--rc-spacing-gapXLarge-desktop);
     }
 
     .checkout-pay-container {
-        display: flex;
-        flex-direction: column;
-        margin-top: var(--rc-spacing-gapXLarge-mobile);
+      margin-top: var(--rc-spacing-gapXLarge-desktop);
     }
+  }
 
-    @media (min-width: 768px) {
-        .checkout-secure-container {
-            margin-top: var(--rc-spacing-gapXLarge-desktop);
-        }
-
-        .checkout-container {
-            gap: var(--rc-spacing-gapXLarge-desktop);
-            margin-top: var(--rc-spacing-gapXLarge-desktop);
-        }
-
-        .checkout-pay-container {
-            margin-top: var(--rc-spacing-gapXLarge-desktop);
-        }
-    }
-
-    .checkout-form-container {
-        width: 100%;
-        /* The standard height of the payment form from Stripe */
-        /* Added to avoid the card getting smaller while loading */
-        min-height: 320px;
-    }
+  .checkout-form-container {
+    width: 100%;
+    /* The standard height of the payment form from Stripe */
+    /* Added to avoid the card getting smaller while loading */
+    min-height: 320px;
+  }
 </style>

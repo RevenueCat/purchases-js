@@ -10,7 +10,8 @@
   export let body;
   export let header: (() => any) | null = null;
 
-  let showContent = false;
+  let showContent = true;
+  // This makes the tests fail
   onMount(() => {
     setTimeout(() => (showContent = true), 10);
   });

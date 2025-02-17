@@ -6,20 +6,27 @@ import StateNeedsPaymentInfo from "../../../ui/states/state-needs-payment-info.s
 import {
   brandingInfo,
   rcPackage,
-  purchaseResponse,
+  checkoutStartResponse,
 } from "../../../stories/fixtures";
 import { SDKEventName } from "../../../behavioural-events/sdk-events";
 import { createEventsTrackerMock } from "../../mocks/events-tracker-mock-provider";
 import { eventsTrackerContextKey } from "../../../ui/constants";
+import type { PurchaseOperationHelper } from "../../../helpers/purchase-operation-helper";
+import type { CheckoutStartResponse } from "../../../networking/responses/checkout-start-response";
 
 const eventsTrackerMock = createEventsTrackerMock();
+const purchaseOperationHelperMock: PurchaseOperationHelper = {
+  checkoutStart: async () =>
+    Promise.resolve(checkoutStartResponse as CheckoutStartResponse),
+} as unknown as PurchaseOperationHelper;
 
 const basicProps = {
   brandingInfo: brandingInfo,
   purchaseOption: rcPackage.rcBillingProduct.defaultPurchaseOption,
   productDetails: rcPackage.rcBillingProduct,
   processing: false,
-  paymentInfoCollectionMetadata: purchaseResponse,
+  paymentInfoCollectionMetadata: checkoutStartResponse,
+  purchaseOperationHelper: purchaseOperationHelperMock,
   onClose: vi.fn(),
   onContinue: vi.fn(),
 };
@@ -28,25 +35,6 @@ const defaultContext = new Map(
   Object.entries({ [eventsTrackerContextKey]: eventsTrackerMock }),
 );
 
-// vi.mock("@stripe/stripe-js", () => ({
-//   loadStripe: vi.fn().mockResolvedValue({
-//     elements: vi.fn().mockReturnValue({
-//       _elements: [1],
-//       create: vi.fn(),
-//       update: vi.fn(),
-//       mount: vi.fn(),
-//     }),
-//     registerAppInfo: vi.fn(),
-//     confirmPayment: vi.fn().mockResolvedValue({
-//       error: null,
-//     }),
-//     confirmSetup: vi.fn().mockResolvedValue({
-//       error: null,
-//     }),
-//   }),
-//   StripeElements: vi.fn(),
-// }));
-
 describe("PurchasesUI", () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -54,7 +42,9 @@ describe("PurchasesUI", () => {
 
   test("tracks the PaymentEntryImpression event when the payment entry is displayed", async () => {
     render(StateNeedsPaymentInfo, {
-      props: { ...basicProps },
+      props: {
+        ...basicProps,
+      },
       context: defaultContext,
     });
 

@@ -22,10 +22,11 @@
   export let onContinue: (params: ContinueHandlerParams) => void;
   export let processing: boolean;
   export let lastError: PurchaseFlowError | null;
+  export let customerEmail: string = "";
 
   const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
 
-  $: email = "";
+  $: email = customerEmail;
   $: errorMessage = lastError?.message || "";
   $: inputClass = (lastError?.message ?? errorMessage) !== "" ? "error" : "";
 
