@@ -33,7 +33,6 @@
     onContinue();
   }
 
-
   onMount(() => {
     eventsTracker.trackSDKEvent({
       eventName: SDKEventName.CheckoutPurchaseSuccessfulImpression,

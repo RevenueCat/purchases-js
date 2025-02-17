@@ -185,10 +185,10 @@
   const closeWithError = () => {
     onError(
       lastError ??
-      new PurchaseFlowError(
-        PurchaseFlowErrorCode.UnknownError,
-        "Unknown error without state set.",
-      ),
+        new PurchaseFlowError(
+          PurchaseFlowErrorCode.UnknownError,
+          "Unknown error without state set.",
+        ),
     );
   };
 </script>

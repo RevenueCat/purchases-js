@@ -107,7 +107,7 @@ export class Backend {
       price_id: purchaseOption.priceId,
       presented_offering_identifier:
         presentedOfferingContext.offeringIdentifier,
-      trace_id:traceId
+      trace_id: traceId,
     };
 
     if (metadata) {

@@ -1,4 +1,12 @@
-import { afterEach, assert, beforeEach, describe, expect, test, vi } from "vitest";
+import {
+  afterEach,
+  assert,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from "vitest";
 import {
   PurchaseFlowError,
   PurchaseFlowErrorCode,
@@ -32,12 +40,9 @@ describe("PurchaseOperationHelper", () => {
     const eventsTrackerMock: IEventsTracker = {
       getTraceId: () => testTraceId,
       updateUser: () => Promise.resolve(),
-      trackSDKEvent: () => {
-      },
-      trackExternalEvent: () => {
-      },
-      dispose: () => {
-      },
+      trackSDKEvent: () => {},
+      trackExternalEvent: () => {},
+      dispose: () => {},
     };
     purchaseOperationHelper = new PurchaseOperationHelper(
       backend,
@@ -49,15 +54,21 @@ describe("PurchaseOperationHelper", () => {
     server.close();
   });
 
-  function setCheckoutStartResponse(httpResponse: HttpResponse, traceId?: string | undefined) {
+  function setCheckoutStartResponse(
+    httpResponse: HttpResponse,
+    traceId?: string | undefined,
+  ) {
     server.use(
-      http.post("http://localhost:8000/rcbilling/v1/checkout/start", async (req) => {
-        const json = (await req.request.json()) as Record<string, unknown>;
-        if (traceId) {
-          expect(json["trace_id"]).toBe(traceId);
-        }
-        return httpResponse;
-      }),
+      http.post(
+        "http://localhost:8000/rcbilling/v1/checkout/start",
+        async (req) => {
+          const json = (await req.request.json()) as Record<string, unknown>;
+          if (traceId) {
+            expect(json["trace_id"]).toBe(traceId);
+          }
+          return httpResponse;
+        },
+      ),
     );
   }
 
