@@ -121,7 +121,6 @@ describe("PurchaseOperationHelper", () => {
           targetingContext: null,
           placementIdentifier: null,
         },
-        "test-email@test.com",
       ),
       new PurchaseFlowError(
         PurchaseFlowErrorCode.AlreadyPurchasedError,
@@ -160,7 +159,6 @@ describe("PurchaseOperationHelper", () => {
         targetingContext: null,
         placementIdentifier: null,
       },
-      "test-email@test.com",
     );
 
     await expectPromiseToPurchaseFlowError(
