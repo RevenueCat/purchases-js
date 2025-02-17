@@ -94,7 +94,6 @@
 <MessageLayout
   title={getTranslatedErrorTitle()}
   {onContinue}
-  onClose={onContinue}
   type="error"
   closeButtonTitle={translator.translate(
     LocalizationKeys.StateErrorButtonTryAgain,

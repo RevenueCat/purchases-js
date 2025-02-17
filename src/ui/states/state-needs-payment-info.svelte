@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getContext, onMount } from "svelte";
   import Button from "../button.svelte";
-  import type {
+  import {
     Appearance,
     Stripe,
     StripeElementLocale,
@@ -22,7 +22,6 @@
   import Localized from "../localization/localized.svelte";
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
-  // import TextSeparator from "../text-separator.svelte";
   import SecureCheckoutRc from "../secure-checkout-rc.svelte";
   import { type CheckoutStartResponse } from "../../networking/responses/checkout-start-response";
   import {
@@ -237,7 +236,10 @@
     processing = false;
 
     const event = createCheckoutPaymentGatewayErrorEvent({
-      errorCode: error.errorCode ?? null,
+      errorCode:
+        error instanceof PurchaseFlowError
+          ? error.errorCode?.toString()
+          : (error.code ?? null),
       errorMessage: error.message ?? "",
     });
     eventsTracker.trackSDKEvent(event);
