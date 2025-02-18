@@ -194,7 +194,7 @@
     }
   }
 
-  @container layout-query-container (width < 768px) {
+  @container layout-query-container (width >= 768px) {
     input {
       font: var(--rc-text-body1-desktop);
       padding-left: var(--rc-spacing-gapLarge-desktop);
