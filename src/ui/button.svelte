@@ -36,7 +36,7 @@
     transition: background-color 0.15s ease-in-out;
   }
 
-  @media screen and (min-width: 768px) {
+  @container layout-query-container (width > 768px) {
     button {
       height: var(--rc-spacing-inputHeight-desktop);
     }

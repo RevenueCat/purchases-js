@@ -6,7 +6,7 @@
   import ProcessingAnimation from "../processing-animation.svelte";
   import { validateEmail } from "../../helpers/validators";
   import { PurchaseFlowError } from "../../helpers/purchase-operation-helper";
-  import { onMount, getContext } from "svelte";
+  import { getContext, onMount } from "svelte";
   import Localized from "../localization/localized.svelte";
   import { translatorContextKey } from "../localization/constants";
   import { Translator } from "../localization/translator";
@@ -110,7 +110,7 @@
     margin-top: var(--rc-spacing-gapXXLarge-mobile);
   }
 
-  @media screen and (min-width: 768px) {
+  @container layout-query-container (width > 768px) {
     .auth-info-title {
       font: var(--rc-text-titleLarge-desktop);
     }
@@ -154,7 +154,7 @@
     display: block;
   }
 
-  @media screen and (min-width: 768px) {
+  @container layout-query-container (width > 768px) {
     .form-label {
       font: var(--rc-text-body1-desktop);
     }
@@ -170,7 +170,7 @@
     color: var(--rc-color-error);
   }
 
-  @media screen and (min-width: 768px) {
+  @container layout-query-container (width > 768px) {
     .form-error {
       font: var(--rc-text-body1-desktop);
     }
@@ -187,14 +187,14 @@
     color: inherit;
   }
 
-  @media screen and (max-width: 767px) {
+  @container layout-query-container (width <= 768px) {
     input {
       padding-left: var(--rc-spacing-gapLarge-mobile);
       height: var(--rc-spacing-inputHeight-mobile);
     }
   }
 
-  @media screen and (min-width: 768px) {
+  @container layout-query-container (width <= 768px) {
     input {
       font: var(--rc-text-body1-desktop);
       padding-left: var(--rc-spacing-gapLarge-desktop);

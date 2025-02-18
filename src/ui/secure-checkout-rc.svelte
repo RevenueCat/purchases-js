@@ -16,7 +16,7 @@
     margin: 0;
   }
 
-  @media screen and (min-width: 768px) {
+  @container layout-query-container (width > 768px) {
     .footer-caption {
       font: var(--rc-text-caption-desktop);
     }

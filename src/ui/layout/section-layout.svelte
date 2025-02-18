@@ -46,14 +46,14 @@
     padding: var(--rc-spacing-outerPadding-desktop);
   }
 
-  @media screen and (min-width: 768px) {
+  @container layout-query-container (width > 768px) {
     .layout-wrapper {
       min-height: 100vh;
       flex-basis: 600px;
     }
   }
 
-  @media screen and (max-width: 767px) {
+  @container layout-query-container (width <= 768px) {
     .layout-wrapper {
       width: 100%;
       min-width: 300px;

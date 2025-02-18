@@ -43,7 +43,7 @@
     background-color: var(--rc-color-background);
   }
 
-  @media screen and (min-width: 768px) {
+  @container layout-query-container (width > 768px) {
     .rcb-ui-navbar {
       width: 50vw;
       display: flex;

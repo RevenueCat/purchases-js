@@ -595,6 +595,7 @@ export class Purchases {
       mount(RCPurchasesUI, {
         target: certainHTMLTarget,
         props: {
+          isInElement: htmlTarget !== undefined,
           appUserId,
           rcPackage,
           purchaseOption: purchaseOptionToUse,
