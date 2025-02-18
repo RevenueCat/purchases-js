@@ -54,7 +54,7 @@
     margin: 0;
   }
 
-  @container layout-query-container (width > 768px) {
+  @container layout-query-container (width >= 768px) {
     button.rcb-header-details {
       display: none;
     }

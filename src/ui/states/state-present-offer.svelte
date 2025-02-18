@@ -279,7 +279,7 @@
     justify-content: center;
   }
 
-  @container layout-query-container (width <= 768px) {
+  @container layout-query-container (width < 768px) {
     .rcb-pricing-info:not(:has(.rcb-product-details.expanded))
       > *:not(:last-child):not(.rcb-product-price-container) {
       margin-bottom: var(--rc-spacing-gapXLarge-mobile);
@@ -294,7 +294,7 @@
     }
   }
 
-  @container layout-query-container (width > 768px) {
+  @container layout-query-container (width >= 768px) {
     .rcb-pricing-info {
       margin-top: calc(var(--rc-spacing-gapXXLarge-desktop) * 2);
       /* margin-bottom: calc(var(--rc-spacing-gapXXLarge-desktop) * 2); */

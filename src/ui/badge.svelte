@@ -27,7 +27,7 @@
     text-transform: uppercase;
   }
 
-  @container layout-query-container (width > 768px) {
+  @container layout-query-container (width >= 768px) {
     .badge {
       padding: var(--rc-spacing-gapSmall-desktop) 16px;
       font: var(--rc-text-caption-desktop);

@@ -28,13 +28,13 @@
   }
 
   /* Levaraging container queries */
-  @container layout-query-container (width < 767px) {
+  @container layout-query-container (width < 768px) {
     .rcb-ui-layout {
       flex-grow: 1;
     }
   }
 
-  @container layout-query-container (width >  768px) {
+  @container layout-query-container (width >= 768px) {
     .rcb-ui-layout {
       flex-direction: row;
     }

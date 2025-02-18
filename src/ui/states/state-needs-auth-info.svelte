@@ -110,7 +110,7 @@
     margin-top: var(--rc-spacing-gapXXLarge-mobile);
   }
 
-  @container layout-query-container (width > 768px) {
+  @container layout-query-container (width >= 768px) {
     .auth-info-title {
       font: var(--rc-text-titleLarge-desktop);
     }
@@ -154,7 +154,7 @@
     display: block;
   }
 
-  @container layout-query-container (width > 768px) {
+  @container layout-query-container (width >= 768px) {
     .form-label {
       font: var(--rc-text-body1-desktop);
     }
@@ -170,7 +170,7 @@
     color: var(--rc-color-error);
   }
 
-  @container layout-query-container (width > 768px) {
+  @container layout-query-container (width >= 768px) {
     .form-error {
       font: var(--rc-text-body1-desktop);
     }
@@ -187,14 +187,14 @@
     color: inherit;
   }
 
-  @container layout-query-container (width <= 768px) {
+  @container layout-query-container (width < 768px) {
     input {
       padding-left: var(--rc-spacing-gapLarge-mobile);
       height: var(--rc-spacing-inputHeight-mobile);
     }
   }
 
-  @container layout-query-container (width <= 768px) {
+  @container layout-query-container (width < 768px) {
     input {
       font: var(--rc-text-body1-desktop);
       padding-left: var(--rc-spacing-gapLarge-desktop);
