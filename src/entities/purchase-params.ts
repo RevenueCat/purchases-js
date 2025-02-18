@@ -1,4 +1,5 @@
 import type { Package, PurchaseMetadata, PurchaseOption } from "./offerings";
+import type { BrandingAppearance } from "../networking/responses/branding-response";
 
 /**
  * Parameters used to customise the purchase flow when invoking the `.purchase` method.
@@ -39,4 +40,15 @@ export interface PurchaseParams {
    * to the RC transaction as metadata.
    */
   metadata?: PurchaseMetadata;
+
+  /**
+   * Defines an optional override for the default branding appearance.
+   *
+   * This property can be used to customize the visual presentation or styling
+   * associated with the branding, replacing the default settings. When set, it
+   * supersedes the pre-configured appearance defined elsewhere in the system.
+   *
+   * @type {BrandingAppearance | undefined}
+   */
+  brandingAppearanceOverride?: BrandingAppearance;
 }

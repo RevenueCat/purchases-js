@@ -35,7 +35,10 @@ import {
   OfferingKeyword,
 } from "./entities/get-offerings-params";
 import { validateCurrency } from "./helpers/validators";
-import { type BrandingInfoResponse } from "./networking/responses/branding-response";
+import {
+  type BrandingInfoResponse,
+  defaultBrandingInfoResponse,
+} from "./networking/responses/branding-response";
 import { requiresLoadedResources } from "./helpers/decorators";
 import {
   findOfferingByPlacementId,
@@ -578,6 +581,13 @@ export class Purchases {
       ? autoParseUTMParams()
       : {};
     const metadata = { ...utmParamsMetadata, ...(params.metadata || {}) };
+
+    const finalBrandingInfo: BrandingInfoResponse =
+      this._brandingInfo || defaultBrandingInfoResponse;
+
+    if (params.brandingAppearanceOverride) {
+      finalBrandingInfo.appearance = params.brandingAppearanceOverride;
+    }
 
     return new Promise((resolve, reject) => {
       window.history.pushState({ checkoutOpen: true }, "");

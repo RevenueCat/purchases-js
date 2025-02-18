@@ -13,8 +13,17 @@ export type BrandingAppearance = {
 export type BrandingInfoResponse = {
   app_icon: string | null;
   app_icon_webp: string | null;
-  appearance: BrandingAppearance;
+  appearance: BrandingAppearance | undefined;
   id: string;
   app_name: string | null;
   support_email?: string | null;
+};
+
+export const defaultBrandingInfoResponse: BrandingInfoResponse = {
+  app_icon: null,
+  app_icon_webp: null,
+  appearance: undefined,
+  id: "",
+  app_name: null,
+  support_email: null,
 };
