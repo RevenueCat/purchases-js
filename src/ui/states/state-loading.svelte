@@ -17,7 +17,7 @@
     align-items: center;
   }
 
-  @media (min-width: 768px) {
+  @container layout-query-container (width >= 768px) {
     .rcb-modal-loader {
       align-items: flex-start;
       margin-top: calc(var(--rc-spacing-gapXXLarge-desktop) * 6);

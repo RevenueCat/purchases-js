@@ -46,6 +46,7 @@
   export let selectedLocale: string = englishLocale;
   export let defaultLocale: string = englishLocale;
   export let customTranslations: CustomTranslations = {};
+  export let isInElement: boolean = false;
 
   let colorVariables = "";
   let productDetails: Product | null = null;
@@ -64,11 +65,15 @@
   );
 
   onMount(() => {
-    document.body.style.overflow = "hidden"; // Prevents background scrolling
+    if (!isInElement) {
+      document.body.style.overflow = "hidden"; // Prevents background scrolling
+    }
   });
 
   onDestroy(() => {
-    document.body.style.overflow = ""; // Restores default scrolling when unmounting
+    if (!isInElement) {
+      document.body.style.overflow = ""; // Restores default scrolling when unmounting
+    }
   });
 
   setContext(eventsTrackerContextKey, eventsTracker);

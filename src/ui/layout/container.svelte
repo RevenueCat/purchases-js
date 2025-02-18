@@ -20,10 +20,12 @@
     display: flex;
     z-index: 1000001;
     flex-direction: column;
-    position: fixed;
+    position: absolute;
+    top: 0;
+    left: 0;
     inset: 0;
-    width: 100vw;
-    min-height: 100vh;
+    width: 100%;
+    min-height: 100%;
     color-scheme: none;
     font-size: 16px;
     line-height: 1.5em;

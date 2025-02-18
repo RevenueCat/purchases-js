@@ -88,13 +88,13 @@
     font: var(--rc-text-body1-mobile);
   }
 
-  @media (max-width: 767px) {
+  @container layout-query-container (width < 768px) {
     .message-layout {
       flex-grow: 1;
     }
   }
 
-  @media (min-width: 768px) {
+  @container layout-query-container (width >= 768px) {
     .message-layout-content {
       justify-content: flex-start;
       flex-grow: 0;

@@ -356,7 +356,7 @@
     margin-top: var(--rc-spacing-gapXLarge-mobile);
   }
 
-  @media (min-width: 768px) {
+  @container layout-query-container (width >= 768px) {
     .checkout-secure-container {
       margin-top: var(--rc-spacing-gapXLarge-desktop);
     }

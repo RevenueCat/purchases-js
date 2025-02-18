@@ -50,7 +50,7 @@
     height: var(--rc-text-caption-mobile-font-size);
   }
 
-  @media screen and (min-width: 768px) {
+  @container layout-query-container (width >= 768px) {
     :global(.close-button-icon) {
       height: var(--rc-text-caption-desktop-font-size);
     }

@@ -38,7 +38,7 @@
     gap: var(--rc-spacing-gapXXLarge-mobile);
   }
 
-  @media (min-width: 768px) {
+  @container layout-query-container (width >= 768px) {
     .column.gap-small {
       gap: var(--rc-spacing-gapSmall-desktop);
     }

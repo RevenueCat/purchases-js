@@ -16,7 +16,7 @@
     gap: var(--rc-spacing-gapSmall-mobile);
   }
 
-  @media (min-width: 768px) {
+  @container layout-query-container (width >= 768px) {
     .text-separator {
       gap: var(--rc-spacing-gapSmall-desktop);
     }
@@ -36,7 +36,7 @@
     white-space: nowrap;
   }
 
-  @media (min-width: 768px) {
+  @container layout-query-container (width >= 768px) {
     .text {
       font: var(--rc-text-caption-desktop);
     }
