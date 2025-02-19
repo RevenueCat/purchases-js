@@ -586,8 +586,13 @@ export class Purchases {
       finalBrandingInfo.appearance = params.brandingAppearanceOverride;
     }
 
+    const isInElement = htmlTarget !== undefined;
+
     return new Promise((resolve, reject) => {
-      window.history.pushState({ checkoutOpen: true }, "");
+      if (!isInElement) {
+        window.history.pushState({ checkoutOpen: true }, "");
+      }
+
       const onClose = () => {
         const event = createCheckoutSessionEndClosedEvent();
         this.eventsTracker.trackSDKEvent(event);
@@ -602,7 +607,7 @@ export class Purchases {
       mount(RCPurchasesUI, {
         target: certainHTMLTarget,
         props: {
-          isInElement: htmlTarget !== undefined,
+          isInElement: isInElement,
           appUserId,
           rcPackage,
           purchaseOption: purchaseOptionToUse,

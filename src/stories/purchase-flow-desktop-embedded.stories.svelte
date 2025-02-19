@@ -23,6 +23,7 @@
     purchaseOption: subscriptionOption,
     brandingInfo: { ...brandingInfo, appearance: colorfulBrandingAppearance },
     lastError: purchaseFlowError,
+    isInElement: false,
     onContinue: () => {},
   };
 
@@ -77,7 +78,7 @@
 
 <Story
   name="Email Input"
-  args={{ currentView: "needs-auth-info" }}
+  args={{ currentView: "needs-auth-info", isInElement: true }}
   parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
 <Story
@@ -85,6 +86,7 @@
   args={{
     currentView: "needs-auth-info",
     isSandbox: true,
+    isInElement: true,
   }}
   parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
@@ -98,6 +100,7 @@
       normalPeriodDuration: "P1Y",
     },
     purchaseOptionToUse: subscriptionOptionWithTrial,
+    isInElement: true,
   }}
   parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
@@ -106,6 +109,7 @@
   args={{
     ...defaultArgs,
     currentView: "needs-payment-info",
+    isInElement: true,
   }}
   parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
@@ -113,6 +117,7 @@
   name="Loading"
   args={{
     currentView: "loading",
+    isInElement: true,
   }}
   parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
@@ -120,6 +125,7 @@
   name="Payment complete"
   args={{
     currentView: "success",
+    isInElement: true,
   }}
   parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
@@ -127,67 +133,7 @@
   name="Payment failed"
   args={{
     currentView: "error",
-  }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
-/>
-<Story
-  name="Email Input (Arabic)"
-  args={{ currentView: "needs-auth-info", locale: "ar" }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
-/>
-<Story
-  name="Email Input (with Sandbox Banner) (Arabic)"
-  args={{
-    currentView: "needs-auth-info",
-    isSandbox: true,
-    locale: "ar",
-  }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
-/>
-<Story
-  name="Email Input (with Trial Product) (Arabic)"
-  args={{
-    currentView: "needs-auth-info",
-    isSandbox: true,
-    locale: "ar",
-    productDetails: {
-      ...product,
-      normalPeriodDuration: "P1Y",
-    },
-    purchaseOptionToUse: subscriptionOptionWithTrial,
-  }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
-/>
-<Story
-  name="Checkout (Arabic)"
-  args={{
-    ...defaultArgs,
-    currentView: "needs-payment-info",
-    locale: "ar",
-  }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
-/>
-<Story
-  name="Loading (Arabic)"
-  args={{
-    currentView: "loading",
-    locale: "ar",
-  }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
-/>
-<Story
-  name="Payment complete (Arabic)"
-  args={{
-    currentView: "success",
-    locale: "ar",
-  }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
-/>
-<Story
-  name="Payment failed (Arabic)"
-  args={{
-    currentView: "error",
-    locale: "ar",
+    isInElement: true,
   }}
   parameters={{ viewport: { defaultViewport: "desktop" } }}
 />

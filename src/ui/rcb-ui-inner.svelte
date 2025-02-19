@@ -34,6 +34,7 @@
   export let lastError: PurchaseFlowError | null;
   export let paymentInfoCollectionMetadata: CheckoutStartResponse | null;
   export let purchaseOperationHelper: PurchaseOperationHelper;
+  export let isInElement: boolean = false;
 
   const viewsWhereOfferDetailsAreShown: CurrentView[] = [
     "present-offer",
@@ -47,7 +48,7 @@
   ];
 </script>
 
-<Container brandingAppearance={brandingInfo?.appearance}>
+<Container brandingAppearance={brandingInfo?.appearance} {isInElement}>
   {#if isSandbox}
     <SandboxBanner style={colorVariables} />
   {/if}

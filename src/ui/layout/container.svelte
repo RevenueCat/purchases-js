@@ -5,23 +5,39 @@
   import type { BrandingAppearance } from "../../entities/branding";
 
   export let brandingAppearance: BrandingAppearance | undefined = undefined;
+  export let isInElement: boolean = false;
+
   let textStyle = new Theme(brandingAppearance).textStyleVars;
   let spacingStyle = new Theme(brandingAppearance).spacingStyleVars;
   let style = [textStyle, spacingStyle].join("; ");
 
+  const sizeClass = isInElement
+    ? "rcb-ui-container-in-element"
+    : "rcb-ui-container-full-screen";
+  const classes = `${sizeClass} rcb-ui-container `;
+
   export let children: Snippet;
 </script>
 
-<div class="rcb-ui-container" {style}>
+<div class={classes} {style}>
   {@render children?.()}
 </div>
 
 <style>
+  .rcb-ui-container-in-element {
+    position: relative;
+    z-index: unset;
+    height: 100%;
+  }
+
+  .rcb-ui-container-full-screen {
+    position: absolute;
+    z-index: 1000001;
+  }
+
   .rcb-ui-container {
     display: flex;
-    z-index: 1000001;
     flex-direction: column;
-    position: absolute;
     top: 0;
     left: 0;
     inset: 0;
