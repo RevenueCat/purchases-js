@@ -82,13 +82,9 @@ Internal team members can find the required environment variables in 1Password.
 ### Option 2: Setup Manually
 
 1. Create a test account in Stripe
-2. Go to settings, API keys, and create a restricted key with the following permissions:
-   - Setup intent (read/write)
-   - Payment methods (read/write)
-3. Create a `.env.development.local` file and set the following variables:
+2. Create a `.env.development.local` file and set the following variables:
 
 ```bash
-VITE_STORYBOOK_RESTRICTED_SECRET="sk_test_1234567890"
 VITE_STORYBOOK_PUBLISHABLE_API_KEY="pk_test_1234567890"
 VITE_STORYBOOK_ACCOUNT_ID="acct_1234567890"
 ```
@@ -119,7 +115,7 @@ npm run extract-api
 ```
 
 This will update the files in `api-report` with the latest public API.
-If it has uncommited changes, CI tests will fail. Run this command and commit the changes if
+If it has uncommitted changes, CI tests will fail. Run this command and commit the changes if
 they are expected.
 
 # Publishing a new version

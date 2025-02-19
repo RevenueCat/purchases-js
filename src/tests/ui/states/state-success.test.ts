@@ -34,23 +34,9 @@ describe("PurchasesUI", () => {
     });
   });
 
-  test("tracks the PurchaseSuccessfulDismiss event when the purchase successful dialog is closed", async () => {
-    renderComponent();
-
-    const continueButton = screen.getByTestId("close-button");
-    await fireEvent.click(continueButton);
-
-    expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: SDKEventName.CheckoutPurchaseSuccessfulDismiss,
-      properties: {
-        ui_element: "close",
-      },
-    });
-  });
-
   test("tracks the PurchaseSuccessfulDismiss event when the purchase successful dialog button is pressed", async () => {
     renderComponent();
-    const continueButton = screen.getByText("Close");
+    const continueButton = screen.getByText("Continue");
     await fireEvent.click(continueButton);
 
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({

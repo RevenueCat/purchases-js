@@ -1,5 +1,7 @@
 import type { Package, PurchaseMetadata, PurchaseOption } from "./offerings";
 
+import type { BrandingAppearance } from "./branding";
+
 /**
  * Parameters used to customise the purchase flow when invoking the `.purchase` method.
  * @public
@@ -39,4 +41,16 @@ export interface PurchaseParams {
    * to the RC transaction as metadata.
    */
   metadata?: PurchaseMetadata;
+
+  /**
+   * Defines an optional override for the default branding appearance.
+   *
+   * This property is used internally at RevenueCat to handle dynamic themes such
+   * as the ones coming from the Web Paywall Links. We suggest to use the Dashboard
+   * configuration to set up the appearance since a configuration passed as parameter
+   * using this method might break in future releases of `purchases-js`.
+   *
+   * @internal
+   */
+  brandingAppearanceOverride?: BrandingAppearance;
 }

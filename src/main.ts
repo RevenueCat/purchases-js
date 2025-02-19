@@ -43,7 +43,7 @@ import {
 } from "./helpers/offerings-parser";
 import { type RedemptionInfo } from "./entities/redemption-info";
 import { type PurchaseResult } from "./entities/purchase-result";
-import { mount } from "svelte";
+import { mount, unmount } from "svelte";
 import { type RenderPaywallParams } from "./entities/render-paywall-params";
 import { Paywall } from "@revenuecat/purchases-ui-js";
 import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
@@ -55,10 +55,10 @@ import EventsTracker, {
   type IEventsTracker,
 } from "./behavioural-events/events-tracker";
 import {
-  createCheckoutSessionStartEvent,
-  createCheckoutSessionEndFinishedEvent,
   createCheckoutSessionEndClosedEvent,
   createCheckoutSessionEndErroredEvent,
+  createCheckoutSessionEndFinishedEvent,
+  createCheckoutSessionStartEvent,
 } from "./behavioural-events/sdk-event-helpers";
 import { SDKEventName } from "./behavioural-events/sdk-events";
 import { autoParseUTMParams } from "./helpers/utm-params";
@@ -102,6 +102,7 @@ export { OfferingKeyword } from "./entities/get-offerings-params";
 export type { PurchaseParams } from "./entities/purchase-params";
 export type { RedemptionInfo } from "./entities/redemption-info";
 export type { PurchaseResult } from "./entities/purchase-result";
+export type { BrandingAppearance } from "./entities/branding";
 
 const ANONYMOUS_PREFIX = "$RCAnonymousID:";
 
@@ -555,7 +556,6 @@ export class Purchases {
 
     const certainHTMLTarget = resolvedHTMLTarget as unknown as HTMLElement;
 
-    const asModal = !htmlTarget;
     const appUserId = this._appUserId;
 
     Logger.debugLog(
@@ -580,10 +580,44 @@ export class Purchases {
       : {};
     const metadata = { ...utmParamsMetadata, ...(params.metadata || {}) };
 
+    let component: ReturnType<typeof mount> | null = null;
+
+    const finalBrandingInfo: BrandingInfoResponse | null = this._brandingInfo;
+
+    if (finalBrandingInfo && params.brandingAppearanceOverride) {
+      finalBrandingInfo.appearance = params.brandingAppearanceOverride;
+    }
+
+    const isInElement = htmlTarget !== undefined;
+
     return new Promise((resolve, reject) => {
-      mount(RCPurchasesUI, {
+      if (!isInElement) {
+        window.history.pushState({ checkoutOpen: true }, "");
+      }
+
+      const onClose = () => {
+        const event = createCheckoutSessionEndClosedEvent();
+        this.eventsTracker.trackSDKEvent(event);
+        window.removeEventListener("popstate", onClose);
+
+        if (component) {
+          unmount(component);
+        }
+
+        certainHTMLTarget.innerHTML = "";
+
+        Logger.debugLog("Purchase cancelled by user");
+        reject(new PurchasesError(ErrorCode.UserCancelledError));
+      };
+
+      if (!isInElement) {
+        window.addEventListener("popstate", onClose);
+      }
+
+      component = mount(RCPurchasesUI, {
         target: certainHTMLTarget,
         props: {
+          isInElement: isInElement,
           appUserId,
           rcPackage,
           purchaseOption: purchaseOptionToUse,
@@ -606,13 +640,7 @@ export class Purchases {
             };
             resolve(purchaseResult);
           },
-          onClose: () => {
-            const event = createCheckoutSessionEndClosedEvent();
-            this.eventsTracker.trackSDKEvent(event);
-            certainHTMLTarget.innerHTML = "";
-            Logger.debugLog("Purchase cancelled by user");
-            reject(new PurchasesError(ErrorCode.UserCancelledError));
-          },
+          onClose,
           onError: (e: PurchaseFlowError) => {
             const event = createCheckoutSessionEndErroredEvent({
               errorCode: e.errorCode?.toString(),
@@ -626,7 +654,6 @@ export class Purchases {
           eventsTracker: this.eventsTracker,
           brandingInfo: this._brandingInfo,
           purchaseOperationHelper: this.purchaseOperationHelper,
-          asModal,
           selectedLocale: localeToBeUsed,
           metadata: metadata,
           defaultLocale,

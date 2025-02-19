@@ -3,12 +3,16 @@ import { type Translator } from "../ui/localization/translator";
 
 import { LocalizationKeys } from "../ui/localization/supportedLanguages";
 
+const microsToDollars = (micros: number): number => {
+  return micros / 1000000;
+};
+
 export const formatPrice = (
   priceInMicros: number,
   currency: string,
   locale?: string,
 ): string => {
-  const price = priceInMicros / 1000000;
+  const price = microsToDollars(priceInMicros);
   const formatter = new Intl.NumberFormat(locale, {
     style: "currency",
     currency,
@@ -40,6 +44,7 @@ export const getTranslatedPeriodLength = (
   if (!period) {
     return isoPeriodString;
   }
+
   return (
     translator.translatePeriod(period.number, period.unit) ||
     `${period.number} ${period.unit}s`

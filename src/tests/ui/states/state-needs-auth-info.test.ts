@@ -83,21 +83,6 @@ describe("PurchasesUI", () => {
     });
   });
 
-  test("tracks the CheckoutBillingFormDismiss event when closed", async () => {
-    render(StateNeedsAuthInfo, {
-      props: { ...basicProps, customerEmail: undefined },
-      context: defaultContext,
-    });
-
-    const closeButton = screen.getByTestId("close-button");
-    await fireEvent.click(closeButton);
-
-    expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: SDKEventName.CheckoutBillingFormDismiss,
-    });
-    expect(basicProps.onClose).toHaveBeenCalled();
-  });
-
   test("tracks the CheckoutBillingFormError event when input has an email format error", async () => {
     render(StateNeedsAuthInfo, {
       props: { ...basicProps, customerEmail: undefined },

@@ -12,10 +12,10 @@ import {
   type CheckoutBillingFormErrorEvent,
   type CheckoutSessionStartEvent,
 } from "./sdk-events";
-import type { BrandingAppearance } from "../networking/responses/branding-response";
 import type { Package } from "../entities/offerings";
 import type { PurchaseOption } from "../entities/offerings";
 import type { RedemptionInfo } from "../entities/redemption-info";
+import type { BrandingAppearance } from "../entities/branding";
 
 export function createCheckoutFlowErrorEvent({
   errorCode,

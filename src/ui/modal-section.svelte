@@ -1,9 +1,12 @@
 <script lang="ts">
+  import { type Snippet } from "svelte";
+
   export let as = "section";
+  export let children: Snippet;
 </script>
 
 <svelte:element this={as} class={`rcb-modal-section`}>
-  <slot />
+  {@render children?.()}
 </svelte:element>
 
 <style>
