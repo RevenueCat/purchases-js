@@ -35,10 +35,7 @@ import {
   OfferingKeyword,
 } from "./entities/get-offerings-params";
 import { validateCurrency } from "./helpers/validators";
-import {
-  type BrandingInfoResponse,
-  defaultBrandingInfoResponse,
-} from "./networking/responses/branding-response";
+import { type BrandingInfoResponse } from "./networking/responses/branding-response";
 import { requiresLoadedResources } from "./helpers/decorators";
 import {
   findOfferingByPlacementId,
@@ -58,10 +55,10 @@ import EventsTracker, {
   type IEventsTracker,
 } from "./behavioural-events/events-tracker";
 import {
-  createCheckoutSessionStartEvent,
-  createCheckoutSessionEndFinishedEvent,
   createCheckoutSessionEndClosedEvent,
   createCheckoutSessionEndErroredEvent,
+  createCheckoutSessionEndFinishedEvent,
+  createCheckoutSessionStartEvent,
 } from "./behavioural-events/sdk-event-helpers";
 import { SDKEventName } from "./behavioural-events/sdk-events";
 import { autoParseUTMParams } from "./helpers/utm-params";
@@ -582,10 +579,9 @@ export class Purchases {
       : {};
     const metadata = { ...utmParamsMetadata, ...(params.metadata || {}) };
 
-    const finalBrandingInfo: BrandingInfoResponse =
-      this._brandingInfo || defaultBrandingInfoResponse;
+    const finalBrandingInfo: BrandingInfoResponse | null = this._brandingInfo;
 
-    if (params.brandingAppearanceOverride) {
+    if (finalBrandingInfo && params.brandingAppearanceOverride) {
       finalBrandingInfo.appearance = params.brandingAppearanceOverride;
     }
 
