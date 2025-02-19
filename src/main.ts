@@ -55,10 +55,10 @@ import EventsTracker, {
   type IEventsTracker,
 } from "./behavioural-events/events-tracker";
 import {
-  createCheckoutSessionStartEvent,
-  createCheckoutSessionEndFinishedEvent,
   createCheckoutSessionEndClosedEvent,
   createCheckoutSessionEndErroredEvent,
+  createCheckoutSessionEndFinishedEvent,
+  createCheckoutSessionStartEvent,
 } from "./behavioural-events/sdk-event-helpers";
 import { SDKEventName } from "./behavioural-events/sdk-events";
 import { autoParseUTMParams } from "./helpers/utm-params";
@@ -102,6 +102,7 @@ export { OfferingKeyword } from "./entities/get-offerings-params";
 export type { PurchaseParams } from "./entities/purchase-params";
 export type { RedemptionInfo } from "./entities/redemption-info";
 export type { PurchaseResult } from "./entities/purchase-result";
+export type { BrandingAppearance } from "./entities/branding";
 
 const ANONYMOUS_PREFIX = "$RCAnonymousID:";
 
@@ -580,6 +581,12 @@ export class Purchases {
     const metadata = { ...utmParamsMetadata, ...(params.metadata || {}) };
 
     let component: ReturnType<typeof mount> | null = null;
+
+    const finalBrandingInfo: BrandingInfoResponse | null = this._brandingInfo;
+
+    if (finalBrandingInfo && params.brandingAppearanceOverride) {
+      finalBrandingInfo.appearance = params.brandingAppearanceOverride;
+    }
 
     return new Promise((resolve, reject) => {
       window.history.pushState({ checkoutOpen: true }, "");

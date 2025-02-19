@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { type BrandingAppearance } from "../../networking/responses/branding-response";
   import { Theme } from "../theme/theme";
   import { onMount } from "svelte";
   import SectionLayout from "./section-layout.svelte";
+  import type { BrandingAppearance } from "../../entities/branding";
 
   export let brandingAppearance: BrandingAppearance | undefined = undefined;
   let style = new Theme(brandingAppearance).formStyleVars;

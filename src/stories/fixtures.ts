@@ -1,7 +1,4 @@
-import type {
-  BrandingAppearance,
-  BrandingInfoResponse,
-} from "../networking/responses/branding-response";
+import type { BrandingInfoResponse } from "../networking/responses/branding-response";
 import { eventsTrackerContextKey } from "../ui/constants";
 import {
   type Package,
@@ -17,6 +14,7 @@ import {
   StripeElementsMode,
   StripeElementsSetupFutureUsage,
 } from "../networking/responses/checkout-start-response";
+import type { BrandingAppearance } from "../entities/branding";
 
 export const subscriptionOption: SubscriptionOption = {
   id: "option_id_1",

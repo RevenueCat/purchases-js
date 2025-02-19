@@ -1,7 +1,8 @@
 <script lang="ts">
   import { type Snippet } from "svelte";
   import { Theme } from "../theme/theme";
-  import { type BrandingAppearance } from "../../networking/responses/branding-response";
+
+  import type { BrandingAppearance } from "../../entities/branding";
 
   export let brandingAppearance: BrandingAppearance | undefined = undefined;
   let textStyle = new Theme(brandingAppearance).textStyleVars;
