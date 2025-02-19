@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { slide } from "svelte/transition";
+  import { slide, fade } from "svelte/transition";
+  import { cubicOut } from "svelte/easing";
   import ModalSection from "../modal-section.svelte";
   import Localized from "../localization/localized.svelte";
   import {
@@ -17,7 +18,6 @@
   import { getContext } from "svelte";
   import { translatorContextKey } from "../localization/constants";
   import { Translator } from "../localization/translator";
-
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import { parseISODuration, PeriodUnit } from "../../helpers/duration-helper";
   import Badge from "../badge.svelte";
@@ -134,42 +134,49 @@
       </div>
 
       {#if expanded}
-        <div class="rcb-product-details" transition:slide>
-          {#if brandingAppearance?.show_product_description && productDetails.description}
-            <span class="rcb-product-description">
-              <Localized
-                key={LocalizationKeys.StatePresentOfferProductDescription}
-                variables={{
-                  productDescription: productDetails.description,
-                }}
-              />
-            </span>
-          {/if}
-          <ul>
-            {#if productDetails.normalPeriodDuration}
-              <li>
+        <!-- Outer container slides over 400ms -->
+        <div
+          class="rcb-product-details"
+          transition:slide={{ duration: 400, easing: cubicOut }}
+        >
+          <!-- Inner container fades out faster (over 300ms) so the text is gone before the final pixels collapse -->
+          <div transition:fade={{ duration: 300, easing: cubicOut }}>
+            {#if brandingAppearance?.show_product_description && productDetails.description}
+              <span class="rcb-product-description">
                 <Localized
-                  key={LocalizationKeys.StatePresentOfferRenewalFrequency}
+                  key={LocalizationKeys.StatePresentOfferProductDescription}
                   variables={{
-                    frequency: getTranslatedPeriodFrequency(
-                      productDetails.normalPeriodDuration,
-                      translator,
-                    ),
+                    productDescription: productDetails.description,
                   }}
                 />
-              </li>
+              </span>
             {/if}
-            <li>
-              <Localized
-                key={LocalizationKeys.StatePresentOfferContinuesUntilCancelled}
-              />
-            </li>
-            <li>
-              <Localized
-                key={LocalizationKeys.StatePresentOfferCancelAnytime}
-              />
-            </li>
-          </ul>
+            <ul>
+              {#if productDetails.normalPeriodDuration}
+                <li>
+                  <Localized
+                    key={LocalizationKeys.StatePresentOfferRenewalFrequency}
+                    variables={{
+                      frequency: getTranslatedPeriodFrequency(
+                        productDetails.normalPeriodDuration,
+                        translator,
+                      ),
+                    }}
+                  />
+                </li>
+              {/if}
+              <li>
+                <Localized
+                  key={LocalizationKeys.StatePresentOfferContinuesUntilCancelled}
+                />
+              </li>
+              <li>
+                <Localized
+                  key={LocalizationKeys.StatePresentOfferCancelAnytime}
+                />
+              </li>
+            </ul>
+          </div>
         </div>
       {/if}
     {/if}
@@ -202,7 +209,7 @@
     gap: 0;
   }
 
-  /* Adjust spacing when the details section is present */
+  /* Adjust spacing when details are present */
   .rcb-pricing-info:has(.rcb-product-details) {
     gap: var(--rc-spacing-gapXXLarge-mobile);
   }
@@ -238,7 +245,7 @@
     color: var(--rc-color-grey-text-dark);
   }
 
-  /* Removed old transition styles for .rcb-product-details */
+  /* Remove previous max-height and transition rules */
   .rcb-product-details {
     color: var(--rc-color-grey-text-light);
     margin: 0;
