@@ -44,10 +44,12 @@ export interface PurchaseParams {
   /**
    * Defines an optional override for the default branding appearance.
    *
-   * This property can be used to customize the visual presentation or styling
-   * associated with the branding, replacing the default settings. When set, it
-   * supersedes the pre-configured appearance defined elsewhere in the system.
+   * This property is used internally at RevenueCat to handle dynamic themes such
+   * as the ones coming from the Web Paywall Links. We suggest to use the Dashboard
+   * configuration to set up the appearance since a configuration passed as parameter
+   * using this method might break in future releases of `purchases-js`.
    *
+   * @internal
    * @type {BrandingAppearance | undefined}
    */
   brandingAppearanceOverride?: BrandingAppearance;
