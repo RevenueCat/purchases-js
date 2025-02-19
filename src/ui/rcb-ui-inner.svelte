@@ -28,13 +28,13 @@
   export let purchaseOptionToUse: PurchaseOption;
   export let colorVariables: string = "";
   export let isSandbox: boolean = false;
-  export let isInElement: boolean = false;
 
   export let handleContinue: (params?: ContinueHandlerParams) => void;
   export let closeWithError: () => void;
   export let lastError: PurchaseFlowError | null;
   export let paymentInfoCollectionMetadata: CheckoutStartResponse | null;
   export let purchaseOperationHelper: PurchaseOperationHelper;
+  export let isInElement: boolean = false;
 
   const viewsWhereOfferDetailsAreShown: CurrentView[] = [
     "present-offer",

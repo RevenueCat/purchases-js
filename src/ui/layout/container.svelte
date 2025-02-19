@@ -5,11 +5,11 @@
   import type { BrandingAppearance } from "../../entities/branding";
 
   export let brandingAppearance: BrandingAppearance | undefined = undefined;
+  export let isInElement: boolean = false;
+
   let textStyle = new Theme(brandingAppearance).textStyleVars;
   let spacingStyle = new Theme(brandingAppearance).spacingStyleVars;
   let style = [textStyle, spacingStyle].join("; ");
-
-  export let isInElement: boolean = false;
 
   export let children: Snippet;
 </script>
@@ -26,7 +26,6 @@
 <style>
   .rcb-ui-container {
     display: flex;
-    z-index: 1000001;
     flex-direction: column;
     inset: 0;
     color-scheme: none;
@@ -54,12 +53,14 @@
     position: fixed;
     width: 100vw;
     min-height: 100vh;
+    z-index: 1000001;
   }
 
   .rcb-ui-container.inside {
-    position: absolute;
+    position: relative;
     width: 100%;
-    min-height: 100%;
+    z-index: unset;
+    height: 100%;
     top: 0;
     left: 0;
   }

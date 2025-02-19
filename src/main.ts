@@ -588,8 +588,13 @@ export class Purchases {
       finalBrandingInfo.appearance = params.brandingAppearanceOverride;
     }
 
+    const isInElement = htmlTarget !== undefined;
+
     return new Promise((resolve, reject) => {
-      window.history.pushState({ checkoutOpen: true }, "");
+      if (!isInElement) {
+        window.history.pushState({ checkoutOpen: true }, "");
+      }
+
       const onClose = () => {
         const event = createCheckoutSessionEndClosedEvent();
         this.eventsTracker.trackSDKEvent(event);
@@ -605,12 +610,14 @@ export class Purchases {
         reject(new PurchasesError(ErrorCode.UserCancelledError));
       };
 
-      window.addEventListener("popstate", onClose);
+      if (!isInElement) {
+        window.addEventListener("popstate", onClose);
+      }
 
       component = mount(RCPurchasesUI, {
         target: certainHTMLTarget,
         props: {
-          isInElement: htmlTarget !== undefined,
+          isInElement: isInElement,
           appUserId,
           rcPackage,
           purchaseOption: purchaseOptionToUse,
