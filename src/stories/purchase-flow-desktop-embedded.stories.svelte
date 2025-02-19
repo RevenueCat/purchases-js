@@ -69,6 +69,7 @@
       <RcbUiInner
         {...args}
         {colorVariables}
+        isInElement={true}
         paymentInfoCollectionMetadata={paymentMetadata}
       />
     </WithContext>

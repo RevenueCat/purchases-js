@@ -28,6 +28,7 @@
   export let purchaseOptionToUse: PurchaseOption;
   export let colorVariables: string = "";
   export let isSandbox: boolean = false;
+  export let isInElement: boolean = false;
 
   export let handleContinue: (params?: ContinueHandlerParams) => void;
   export let closeWithError: () => void;
@@ -47,7 +48,7 @@
   ];
 </script>
 
-<Container brandingAppearance={brandingInfo?.appearance}>
+<Container brandingAppearance={brandingInfo?.appearance} {isInElement}>
   {#if isSandbox}
     <SandboxBanner style={colorVariables} />
   {/if}

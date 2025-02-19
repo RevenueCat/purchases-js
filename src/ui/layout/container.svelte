@@ -9,10 +9,17 @@
   let spacingStyle = new Theme(brandingAppearance).spacingStyleVars;
   let style = [textStyle, spacingStyle].join("; ");
 
+  export let isInElement: boolean = false;
+
   export let children: Snippet;
 </script>
 
-<div class="rcb-ui-container" {style}>
+<div
+  class="rcb-ui-container"
+  class:fullscreen={!isInElement}
+  class:inside={isInElement}
+  {style}
+>
   {@render children?.()}
 </div>
 
@@ -21,12 +28,7 @@
     display: flex;
     z-index: 1000001;
     flex-direction: column;
-    position: absolute;
-    top: 0;
-    left: 0;
     inset: 0;
-    width: 100%;
-    min-height: 100%;
     color-scheme: none;
     font-size: 16px;
     line-height: 1.5em;
@@ -46,5 +48,19 @@
       arial,
       sans-serif;
     overflow: auto;
+  }
+
+  .rcb-ui-container.fullscreen {
+    position: fixed;
+    width: 100vw;
+    min-height: 100vh;
+  }
+
+  .rcb-ui-container.inside {
+    position: absolute;
+    width: 100%;
+    min-height: 100%;
+    top: 0;
+    left: 0;
   }
 </style>

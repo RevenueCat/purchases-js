@@ -210,4 +210,5 @@
   {purchaseOperationHelper}
   {closeWithError}
   {colorVariables}
+  {isInElement}
 />
