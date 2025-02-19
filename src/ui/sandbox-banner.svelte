@@ -26,7 +26,10 @@
 
 <style>
   .rcb-ui-sandbox-banner {
-    position: relative;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
     background-color: var(--rc-color-warning);
     color: rgba(0, 0, 0, 1);
     font: var(--rc-text-caption-mobile);
