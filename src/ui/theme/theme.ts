@@ -1,4 +1,3 @@
-import type { BrandingAppearance } from "../../networking/responses/branding-response";
 import {
   toFormColors,
   toFormStyleVar,
@@ -11,6 +10,7 @@ import type { Shape } from "./shapes";
 import type { Colors } from "./colors";
 import { DEFAULT_TEXT_STYLES } from "./text";
 import { DEFAULT_SPACING } from "./spacing";
+import type { BrandingAppearance } from "../../entities/branding";
 
 export class Theme {
   constructor(

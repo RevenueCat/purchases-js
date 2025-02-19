@@ -1,14 +1,4 @@
-export type BrandingAppearance = {
-  color_buttons_primary: string;
-  color_accent: string;
-  color_error: string;
-  color_product_info_bg: string;
-  color_form_bg: string;
-  color_page_bg: string;
-  font: string;
-  shapes: "default" | "rectangle" | "rounded" | "pill";
-  show_product_description: boolean;
-};
+import type { BrandingAppearance } from "../../entities/branding";
 
 export type BrandingInfoResponse = {
   app_icon: string | null;

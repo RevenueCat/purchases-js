@@ -1,4 +1,3 @@
-import { type BrandingAppearance } from "../../networking/responses/branding-response";
 import {
   type Colors,
   DEFAULT_FORM_COLORS,
@@ -15,6 +14,7 @@ import {
 } from "./shapes";
 import { DEFAULT_FONT_FAMILY, type TextStyles } from "./text";
 import type { Spacing } from "./spacing";
+import type { BrandingAppearance } from "../../entities/branding";
 
 type RGB = {
   r: number;

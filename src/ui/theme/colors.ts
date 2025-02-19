@@ -1,4 +1,4 @@
-import { type BrandingAppearance } from "../../networking/responses/branding-response";
+import type { BrandingAppearance } from "../../entities/branding";
 
 /**
  * All those colors get translated in --rc-color-<property_name> css variables.
