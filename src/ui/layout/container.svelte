@@ -11,38 +11,23 @@
   let spacingStyle = new Theme(brandingAppearance).spacingStyleVars;
   let style = [textStyle, spacingStyle].join("; ");
 
-  const sizeClass = isInElement
-    ? "rcb-ui-container-in-element"
-    : "rcb-ui-container-full-screen";
-  const classes = `${sizeClass} rcb-ui-container `;
-
   export let children: Snippet;
 </script>
 
-<div class={classes} {style}>
+<div
+  class="rcb-ui-container"
+  class:fullscreen={!isInElement}
+  class:inside={isInElement}
+  {style}
+>
   {@render children?.()}
 </div>
 
 <style>
-  .rcb-ui-container-in-element {
-    position: relative;
-    z-index: unset;
-    height: 100%;
-  }
-
-  .rcb-ui-container-full-screen {
-    position: absolute;
-    z-index: 1000001;
-  }
-
   .rcb-ui-container {
     display: flex;
     flex-direction: column;
-    top: 0;
-    left: 0;
     inset: 0;
-    width: 100%;
-    min-height: 100%;
     color-scheme: none;
     font-size: 16px;
     line-height: 1.5em;
@@ -62,5 +47,21 @@
       arial,
       sans-serif;
     overflow: auto;
+  }
+
+  .rcb-ui-container.fullscreen {
+    position: fixed;
+    width: 100vw;
+    min-height: 100vh;
+    z-index: 1000001;
+  }
+
+  .rcb-ui-container.inside {
+    position: relative;
+    width: 100%;
+    z-index: unset;
+    height: 100%;
+    top: 0;
+    left: 0;
   }
 </style>

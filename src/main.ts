@@ -43,7 +43,7 @@ import {
 } from "./helpers/offerings-parser";
 import { type RedemptionInfo } from "./entities/redemption-info";
 import { type PurchaseResult } from "./entities/purchase-result";
-import { mount } from "svelte";
+import { mount, unmount } from "svelte";
 import { type RenderPaywallParams } from "./entities/render-paywall-params";
 import { Paywall } from "@revenuecat/purchases-ui-js";
 import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
@@ -580,6 +580,8 @@ export class Purchases {
       : {};
     const metadata = { ...utmParamsMetadata, ...(params.metadata || {}) };
 
+    let component: ReturnType<typeof mount> | null = null;
+
     const finalBrandingInfo: BrandingInfoResponse | null = this._brandingInfo;
 
     if (finalBrandingInfo && params.brandingAppearanceOverride) {
@@ -597,14 +599,20 @@ export class Purchases {
         const event = createCheckoutSessionEndClosedEvent();
         this.eventsTracker.trackSDKEvent(event);
         window.removeEventListener("popstate", onClose);
+
+        if (component) {
+          unmount(component);
+        }
+
         certainHTMLTarget.innerHTML = "";
+
         Logger.debugLog("Purchase cancelled by user");
         reject(new PurchasesError(ErrorCode.UserCancelledError));
       };
 
       window.addEventListener("popstate", onClose);
 
-      mount(RCPurchasesUI, {
+      component = mount(RCPurchasesUI, {
         target: certainHTMLTarget,
         props: {
           isInElement: isInElement,

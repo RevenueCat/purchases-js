@@ -199,7 +199,6 @@
 </script>
 
 <RcbUIInner
-  {isInElement}
   isSandbox={purchases.isSandbox()}
   {currentView}
   {brandingInfo}
@@ -211,4 +210,5 @@
   {purchaseOperationHelper}
   {closeWithError}
   {colorVariables}
+  {isInElement}
 />
