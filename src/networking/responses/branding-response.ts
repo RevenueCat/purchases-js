@@ -1,3 +1,8 @@
+/**
+ * `BrandingAppearance` defines the appearance settings
+ *  of an app's branding configuration.
+ * @internal
+ */
 export type BrandingAppearance = {
   color_buttons_primary: string;
   color_accent: string;
