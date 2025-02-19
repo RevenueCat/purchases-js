@@ -54,26 +54,37 @@
 </script>
 
 {#snippet template(args: any)}
-  <div
-    id="embedding-container"
-    style="width: 500px; height: 600px; position: relative; overflow: hidden; background-color: lightgray;"
-  >
-    <WithContext
-      context={{
-        ...args.context,
-        [translatorContextKey]: args.locale
-          ? new Translator({}, args.locale, args.locale)
-          : undefined,
-        [eventsTrackerContextKey]: { trackSDKEvent: () => {} },
-      }}
-    >
-      <RcbUiInner
-        {...args}
-        {colorVariables}
-        isInElement={true}
-        paymentInfoCollectionMetadata={paymentMetadata}
-      />
-    </WithContext>
+  <div style="width: 100vw; height:100vh; background-color: red;">
+    <div style="display: flex">
+      <div
+        id="embedding-container"
+        style="width: 500px; height: 600px; position: relative; overflow: hidden; background-color: lightgray;"
+      >
+        <WithContext
+          context={{
+            ...args.context,
+            [translatorContextKey]: args.locale
+              ? new Translator({}, args.locale, args.locale)
+              : undefined,
+            [eventsTrackerContextKey]: { trackSDKEvent: () => {} },
+          }}
+        >
+          <RcbUiInner
+            {...args}
+            {colorVariables}
+            isInElement={true}
+            paymentInfoCollectionMetadata={paymentMetadata}
+          />
+        </WithContext>
+      </div>
+      <div style="padding: 20px;">
+        <h1>Homer's Web page</h1>
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam,
+          quos.
+        </p>
+      </div>
+    </div>
   </div>
 {/snippet}
 
