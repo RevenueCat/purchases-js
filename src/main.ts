@@ -610,7 +610,9 @@ export class Purchases {
         reject(new PurchasesError(ErrorCode.UserCancelledError));
       };
 
-      window.addEventListener("popstate", onClose);
+      if (!isInElement) {
+        window.addEventListener("popstate", onClose);
+      }
 
       component = mount(RCPurchasesUI, {
         target: certainHTMLTarget,
