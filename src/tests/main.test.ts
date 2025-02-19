@@ -1,16 +1,20 @@
 import { describe, expect, test, vi } from "vitest";
+import * as svelte from "svelte"; // import the module as a namespace
+
 import {
   type CustomerInfo,
   type EntitlementInfo,
   Purchases,
   PurchasesError,
 } from "../main";
-import { UninitializedPurchasesError } from "../entities/errors";
+import { ErrorCode, UninitializedPurchasesError } from "../entities/errors";
 import {
   configurePurchases,
   testApiKey,
   testUserId,
 } from "./base.purchases_test";
+import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
+import { waitFor } from "@testing-library/svelte";
 
 describe("Purchases.configure()", () => {
   test("throws error if given invalid api key", () => {
@@ -241,5 +245,38 @@ describe("Purchases._trackEvent", () => {
         test_property: "test_value",
       },
     });
+  });
+});
+
+describe("Purchases.purchase()", () => {
+  test("pressing back button onmounts the component", async () => {
+    const unmountSpy = vi.spyOn(svelte, "unmount").mockImplementation(() => {
+      return Promise.resolve();
+    });
+
+    const purchases = configurePurchases();
+    const purchasePromise = purchases.purchase({
+      rcPackage: createMonthlyPackageMock(),
+    });
+
+    await waitFor(() => {
+      const container = document.querySelector(".rcb-ui-root");
+      expect(container).not.toBeNull();
+      if (container) {
+        expect(container.innerHTML).not.toBe("");
+      }
+    });
+
+    window.dispatchEvent(new PopStateEvent("popstate"));
+    await waitFor(() => {
+      expect(unmountSpy).toHaveBeenCalled();
+    });
+
+    await expect(purchasePromise).rejects.toHaveProperty(
+      "errorCode",
+      ErrorCode.UserCancelledError,
+    );
+
+    unmountSpy.mockRestore();
   });
 });
