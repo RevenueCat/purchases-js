@@ -50,7 +50,6 @@ export interface PurchaseParams {
    * using this method might break in future releases of `purchases-js`.
    *
    * @internal
-   * @type {BrandingAppearance | undefined}
    */
   brandingAppearanceOverride?: BrandingAppearance;
 }
