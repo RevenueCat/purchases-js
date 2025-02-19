@@ -1,5 +1,6 @@
 import type { Package, PurchaseMetadata, PurchaseOption } from "./offerings";
-import type { BrandingAppearance } from "../networking/responses/branding-response";
+
+import type { BrandingAppearance } from "./branding";
 
 /**
  * Parameters used to customise the purchase flow when invoking the `.purchase` method.

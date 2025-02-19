@@ -13,7 +13,6 @@
     type PurchaseOption,
     type SubscriptionOption,
   } from "../../entities/offerings";
-  import { type BrandingAppearance } from "../../networking/responses/branding-response";
   import { getContext } from "svelte";
   import { translatorContextKey } from "../localization/constants";
   import { Translator } from "../localization/translator";
@@ -21,6 +20,7 @@
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import { parseISODuration, PeriodUnit } from "../../helpers/duration-helper";
   import Badge from "../badge.svelte";
+  import type { BrandingAppearance } from "../../entities/branding";
 
   export let productDetails: Product;
   export let purchaseOption: PurchaseOption;

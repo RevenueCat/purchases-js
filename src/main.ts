@@ -102,6 +102,7 @@ export { OfferingKeyword } from "./entities/get-offerings-params";
 export type { PurchaseParams } from "./entities/purchase-params";
 export type { RedemptionInfo } from "./entities/redemption-info";
 export type { PurchaseResult } from "./entities/purchase-result";
+export type { BrandingAppearance } from "./entities/branding";
 
 const ANONYMOUS_PREFIX = "$RCAnonymousID:";
 
