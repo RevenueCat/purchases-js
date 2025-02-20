@@ -63,7 +63,7 @@
     getContext(translatorContextKey) || Translator.fallback();
 </script>
 
-<div class="rcb-form-container">
+<div class="rcb-state-container">
   <ModalHeader>
     <span>
       <Localized key={LocalizationKeys.StateNeedsAuthInfoEmailStepTitle} />
@@ -72,15 +72,15 @@
   </ModalHeader>
   <form on:submit|preventDefault={handleContinue}>
     <ModalSection>
-      <div class="form-container">
-        <div class="form-label">
+      <div class="rcb-form-container">
+        <div class="rcb-form-label">
           <label for="email">
             <Localized
               key={LocalizationKeys.StateNeedsAuthInfoEmailInputLabel}
             />
           </label>
         </div>
-        <div class="form-input {inputClass}">
+        <div class="rcb-form-input {inputClass}">
           <input
             name="email"
             placeholder={translator.translate(
@@ -92,7 +92,7 @@
           />
         </div>
         {#if errorMessage !== ""}
-          <div class="form-error">{errorMessage}</div>
+          <div class="rcb-form-error">{errorMessage}</div>
         {/if}
       </div>
     </ModalSection>
@@ -113,7 +113,7 @@
 </div>
 
 <style>
-  .rcb-form-container {
+  .rcb-state-container {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
@@ -126,7 +126,7 @@
     flex-grow: 1;
   }
 
-  .form-container {
+  .rcb-form-container {
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -134,7 +134,7 @@
     margin-bottom: 16px;
   }
 
-  .form-label {
+  .rcb-form-label {
     margin-top: 8px;
     margin-bottom: 8px;
     display: block;
@@ -142,11 +142,11 @@
     line-height: 22px;
   }
 
-  .form-input.error input {
+  .rcb-form-input.error input {
     border-color: var(--rc-color-error);
   }
 
-  .form-error {
+  .rcb-form-error {
     margin-top: 4px;
     font-size: 16px;
     line-height: 20px;
