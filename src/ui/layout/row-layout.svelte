@@ -2,12 +2,12 @@
   export let gutter = "8px";
 </script>
 
-<div class="column" style={`--gap:${gutter};`}>
+<div class="rcb-column" style={`--gap:${gutter};`}>
   <slot />
 </div>
 
 <style>
-  .column {
+  .rcb-column {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;

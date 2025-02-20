@@ -4,14 +4,14 @@
   export let disabled = false;
 </script>
 
-<button on:click class="close-button" {disabled} data-testid="close-button">
+<button on:click class="rcb-close-button" {disabled} data-testid="close-button">
   <div>
     {@html Icon}
   </div>
 </button>
 
 <style>
-  .close-button {
+  .rcb-close-button {
     border: none;
     cursor: pointer;
     background-color: transparent;
@@ -21,10 +21,10 @@
     color: var(--rc-color-grey-text-light);
   }
 
-  .close-button:focus {
+  .rcb-close-button:focus {
     outline: 2px solid var(--rc-color-focus);
   }
-  .close-button:hover {
+  .rcb-close-button:hover {
     color: var(--rc-color-grey-text-dark);
   }
 </style>
