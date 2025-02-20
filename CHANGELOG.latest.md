@@ -1,2 +1,3 @@
-### 🔄 Other Changes
-* User events (#302) via Pol Miro (@polmiro)
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Added prefix to unprefixed class (#334) via Nicola Sacco (@nicfix)
