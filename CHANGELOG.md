@@ -1,3 +1,8 @@
+## 0.18.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Added prefix to unprefixed class (#334) via Nicola Sacco (@nicfix)
+
 ## 0.18.0
 ### 🔄 Other Changes
 * User events (#302) via Pol Miro (@polmiro)
