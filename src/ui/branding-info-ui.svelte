@@ -15,7 +15,7 @@
         srcWebp={buildAssetURL(brandingInfo.app_icon_webp)}
       />
     {/if}
-    <span class="app-title">
+    <span class="rcb-app-title">
       <Localized>{brandingInfo.app_name}</Localized>
     </span>
   {:else}
@@ -24,7 +24,7 @@
 </div>
 
 <style>
-  .app-title {
+  .rcb-app-title {
     font-weight: 500;
     margin: 8px 0;
     font-size: 16px;
