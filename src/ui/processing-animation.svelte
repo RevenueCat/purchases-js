@@ -1,7 +1,7 @@
-<div class="processing"></div>
+<div class="rcb-processing"></div>
 
 <style>
-  .processing {
+  .rcb-processing {
     width: 12px;
     aspect-ratio: 1;
     border-radius: 50%;
