@@ -63,7 +63,7 @@
     getContext(translatorContextKey) || Translator.fallback();
 </script>
 
-<div class="container">
+<div class="rcb-form-container">
   <ModalHeader>
     <span>
       <Localized key={LocalizationKeys.StateNeedsAuthInfoEmailStepTitle} />
@@ -113,7 +113,7 @@
 </div>
 
 <style>
-  .container {
+  .rcb-form-container {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
