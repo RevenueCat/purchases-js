@@ -95,9 +95,12 @@
   }
 
   @container layout-query-container (width >= 768px) {
+    .message-layout {
+      min-height: 440px;
+    }
     .message-layout-content {
       justify-content: flex-start;
-      flex-grow: 0;
+      flex-grow: 1;
     }
 
     .message-layout-footer {

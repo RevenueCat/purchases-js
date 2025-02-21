@@ -364,6 +364,7 @@
     .checkout-container {
       gap: var(--rc-spacing-gapXLarge-desktop);
       margin-top: var(--rc-spacing-gapXLarge-desktop);
+      min-height: 482px;
     }
 
     .checkout-pay-container {
