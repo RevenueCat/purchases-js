@@ -112,3 +112,9 @@
     {/if}
   {/snippet}
 </MessageLayout>
+
+<style>
+  a {
+    color: var(--rc-color-primary);
+  }
+</style>
