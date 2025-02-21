@@ -1,5 +1,9 @@
 <script lang="ts">
   import { onMount, setContext, onDestroy } from "svelte";
+  import {
+    disableBodyScroll,
+    enableBodyScroll,
+  } from "body-scroll-lock-upgrade";
   import type { Package, Product, PurchaseOption, Purchases } from "../main";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import {
@@ -66,13 +70,19 @@
 
   onMount(() => {
     if (!isInElement) {
-      document.body.style.overflow = "hidden"; // Prevents background scrolling
+      const root = document.querySelector("#rcb-ui-root") as HTMLElement;
+      if (root) {
+        disableBodyScroll(root);
+      }
     }
   });
 
   onDestroy(() => {
     if (!isInElement) {
-      document.body.style.overflow = ""; // Restores default scrolling when unmounting
+      const root = document.querySelector("#rcb-ui-root") as HTMLElement;
+      if (root) {
+        enableBodyScroll(root);
+      }
     }
   });
 
