@@ -12,6 +12,12 @@
   export let bodyContent: (expanded: boolean) => any;
 
   let expanded = false;
+  let showContent = true;
+  onMount(() => {
+    // This is causing the weird effect on the sandbox bar.
+    // Why do we have it?
+    //setTimeout(() => (showContent = true), 10);
+  });
 
   function toggleExpanded() {
     expanded = !expanded;
