@@ -88,10 +88,16 @@ export class Translator {
   public formatPrice(priceInMicros: number, currency: string): string {
     const price = priceInMicros / 1000000;
 
+    const additionalFormattingOptions: { maximumFractionDigits?: number } = {};
+    if (price === 0) {
+      additionalFormattingOptions.maximumFractionDigits = 0;
+    }
+
     try {
       return new Intl.NumberFormat(this.locale, {
         style: "currency",
         currency,
+        ...additionalFormattingOptions,
       }).format(price);
     } catch {
       Logger.errorLog(
@@ -103,6 +109,7 @@ export class Translator {
       return new Intl.NumberFormat(this.fallbackLocale, {
         style: "currency",
         currency,
+        ...additionalFormattingOptions,
       }).format(price);
     } catch {
       Logger.errorLog(
@@ -113,6 +120,7 @@ export class Translator {
     return new Intl.NumberFormat(englishLocale, {
       style: "currency",
       currency,
+      ...additionalFormattingOptions,
     }).format(price);
   }
 

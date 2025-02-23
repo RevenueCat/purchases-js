@@ -25,15 +25,19 @@ export const DEFAULT_TEXT_STYLES: TextStyles = {
     mobile: { fontSize: "28px", lineHeight: "140%", fontWeight: "500" },
   },
   titleXLarge: {
-    desktop: { fontSize: "28px", lineHeight: "140%", fontWeight: "500" },
+    desktop: { fontSize: "36px", lineHeight: "140%", fontWeight: "500" },
     mobile: { fontSize: "24px", lineHeight: "140%", fontWeight: "500" },
   },
   titleLarge: {
-    desktop: { fontSize: "24px", lineHeight: "140%", fontWeight: "500" },
+    desktop: { fontSize: "28px", lineHeight: "140%", fontWeight: "500" },
     mobile: { fontSize: "20px", lineHeight: "140%", fontWeight: "500" },
   },
+  titleMedium: {
+    desktop: { fontSize: "24px", lineHeight: "140%", fontWeight: "500" },
+    mobile: { fontSize: "17px", lineHeight: "140%", fontWeight: "500" },
+  },
   bodySmall: {
-    desktop: { fontSize: "15px", lineHeight: "140%", fontWeight: "400" },
+    desktop: { fontSize: "17px", lineHeight: "140%", fontWeight: "400" },
     mobile: { fontSize: "15px", lineHeight: "140%", fontWeight: "400" },
   },
   body1: {

@@ -34,6 +34,10 @@ export const DEFAULT_SPACING: Spacing = {
     mobile: "1.25rem",
     desktop: "2.25rem",
   },
+  gapXXXLarge: {
+    mobile: "2.25rem",
+    desktop: "4.5rem",
+  },
   inputHeight: {
     mobile: "3rem",
     desktop: "3rem",
