@@ -1,5 +1,4 @@
 <script lang="ts">
-  import ModalSection from "../modal-section.svelte";
   import Localized from "../localization/localized.svelte";
   import {
     type NonSubscriptionOption,
@@ -57,14 +56,24 @@
   export let expanded: boolean;
 </script>
 
-<ModalSection>
+<section>
   <div class="rcb-pricing-info">
-    <span class="rcb-product-title">
-      <Localized
-        key={LocalizationKeys.StatePresentOfferProductTitle}
-        variables={{ productTitle: productDetails.title }}
-      />
-    </span>
+    <div>
+      {#if isSubscription}
+        <div class="rcb-subscribe-to">
+          <Localized
+            key={LocalizationKeys.StatePresentOfferSubscribeTo}
+            variables={{ productTitle: productDetails.title }}
+          />
+        </div>
+      {/if}
+      <div class="rcb-product-title">
+        <Localized
+          key={LocalizationKeys.StatePresentOfferProductTitle}
+          variables={{ productTitle: productDetails.title }}
+        />
+      </div>
+    </div>
 
     {#if isSubscription}
       <div class="rcb-product-price-container">
@@ -121,7 +130,7 @@
           {#if subscriptionTrial?.periodDuration}
             <div>
               <div class="rcb-product-trial-explanation">
-                <div>
+                <div class="rcb-after-trial-ends">
                   <Localized
                     key={LocalizationKeys.StatePresentOfferPriceAfterFreeTrial}
                   />
@@ -131,12 +140,12 @@
                 </div>
               </div>
               <div class="rcb-product-trial-explanation">
-                <div class="rcb-text-dark total-due-today">
+                <div class="rcb-text-dark rcb-total-due-today">
                   <Localized
                     key={LocalizationKeys.StatePresentOfferPriceTotalDueToday}
                   />
                 </div>
-                <div class="rcb-text-dark total-due-today">
+                <div class="rcb-text-dark rcb-total-due-today">
                   {formattedZeroPrice}
                 </div>
               </div>
@@ -163,7 +172,7 @@
       {/if}
     {/if}
   </div>
-</ModalSection>
+</section>
 
 <style>
   .rcb-pricing-info {
@@ -236,9 +245,17 @@
     font-weight: 500;
   }
 
+  .rcb-subscribe-to {
+    font: var(--rc-text-bodySmall-desktop);
+  }
+
   @container layout-query-container (width < 768px) {
     .rcb-pricing-info {
       margin-top: var(--rc-spacing-gapXLarge-mobile);
+    }
+
+    .rcb-subscribe-to {
+      display: none;
     }
   }
 
@@ -246,11 +263,11 @@
     .rcb-pricing-info {
       margin-top: calc(var(--rc-spacing-gapXXLarge-desktop) * 2);
       /* margin-bottom: calc(var(--rc-spacing-gapXXLarge-desktop) * 2); */
-      gap: var(--rc-spacing-gapXLarge-desktop);
+      gap: var(--rc-spacing-gapXXXLarge-desktop);
     }
 
     .rcb-pricing-info:has(.rcb-product-details.expanded) {
-      gap: var(--rc-spacing-gapXXLarge-desktop);
+      gap: var(--rc-spacing-gapXXXLarge-desktop);
     }
 
     .rcb-product-title {
@@ -278,8 +295,16 @@
       max-height: 500px;
     }
 
-    .total-due-today {
-      font: var(--rc-text-titleLarge-desktop);
+    .rcb-total-due-today {
+      font: var(--rc-text-titleMedium-desktop);
+    }
+
+    .rcb-after-trial-ends {
+      font: var(--rc-text-bodySmall-desktop);
+    }
+
+    .rcb-subscribe-to {
+      font: var(--rc-text-bodySmall-desktop);
     }
   }
 </style>

@@ -90,7 +90,6 @@
 <Story
   name="Email Input"
   args={{ currentView: "needs-auth-info", isInElement: true }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
 <Story
   name="Email Input (with Sandbox Banner)"
@@ -99,7 +98,6 @@
     isSandbox: true,
     isInElement: true,
   }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
 <Story
   name="Email Input (with Trial Product)"
@@ -113,7 +111,6 @@
     purchaseOptionToUse: subscriptionOptionWithTrial,
     isInElement: true,
   }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
 <Story
   name="Checkout"
@@ -122,7 +119,6 @@
     currentView: "needs-payment-info",
     isInElement: true,
   }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
 <Story
   name="Loading"
@@ -130,7 +126,6 @@
     currentView: "loading",
     isInElement: true,
   }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
 <Story
   name="Payment complete"
@@ -138,7 +133,6 @@
     currentView: "success",
     isInElement: true,
   }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
 <Story
   name="Payment failed"
@@ -146,5 +140,4 @@
     currentView: "error",
     isInElement: true,
   }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
 />

@@ -70,18 +70,13 @@
   </WithContext>
 {/snippet}
 
-<Story
-  name="Email Input"
-  args={{ currentView: "needs-auth-info" }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
-/>
+<Story name="Email Input" args={{ currentView: "needs-auth-info" }} />
 <Story
   name="Email Input (with Sandbox Banner)"
   args={{
     currentView: "needs-auth-info",
     isSandbox: true,
   }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
 <Story
   name="Email Input (with Trial Product)"
@@ -94,7 +89,6 @@
     },
     purchaseOptionToUse: subscriptionOptionWithTrial,
   }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
 <Story
   name="Checkout"
@@ -102,26 +96,22 @@
     ...defaultArgs,
     currentView: "needs-payment-info",
   }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
 <Story
   name="Loading"
   args={{
     currentView: "loading",
   }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
 <Story
   name="Payment complete"
   args={{
     currentView: "success",
   }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
 <Story
   name="Payment failed"
   args={{
     currentView: "error",
   }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
 />

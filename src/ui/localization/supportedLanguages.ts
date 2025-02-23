@@ -61,6 +61,7 @@ export enum LocalizationKeys {
   StatePresentOfferFreeTrialDuration = "state_present_offer.free_trial_duration",
   StatePresentOfferPriceAfterFreeTrial = "state_present_offer.price_after_free_trial",
   StatePresentOfferPriceTotalDueToday = "state_present_offer.total_due_today",
+  StatePresentOfferSubscribeTo = "state_present_offer.subscribe_to",
   StatePresentOfferRenewalFrequency = "state_present_offer.renewal_frequency",
   StatePresentOfferContinuesUntilCancelled = "state_present_offer.continues_until_cancelled",
   StatePresentOfferCancelAnytime = "state_present_offer.cancel_anytime",
