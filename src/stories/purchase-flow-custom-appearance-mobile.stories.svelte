@@ -22,7 +22,7 @@
     productDetails: product,
     purchaseOptionToUse: subscriptionOption,
     purchaseOption: subscriptionOption,
-    brandingInfo: { ...brandingInfo },
+    brandingInfo: { ...brandingInfo, appearance: colorfulBrandingAppearance },
     lastError: purchaseFlowError,
     onContinue: () => {},
   };
@@ -30,7 +30,7 @@
   let paymentMetadata: any;
 
   let { Story } = defineMeta({
-    title: "Purchase flow (Mobile)",
+    title: "Purchase flow Custom Appearance (Mobile)",
     args: defaultArgs,
     parameters: {},
     loaders: [

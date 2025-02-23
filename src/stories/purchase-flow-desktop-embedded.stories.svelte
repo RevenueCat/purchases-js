@@ -21,7 +21,7 @@
     productDetails: product,
     purchaseOptionToUse: subscriptionOption,
     purchaseOption: subscriptionOption,
-    brandingInfo: { ...brandingInfo, appearance: colorfulBrandingAppearance },
+    brandingInfo: { ...brandingInfo },
     lastError: purchaseFlowError,
     isInElement: false,
     onContinue: () => {},

@@ -38,11 +38,11 @@ export const DEFAULT_TEXT_STYLES: TextStyles = {
   },
   body1: {
     desktop: { fontSize: "14px", lineHeight: "140%", fontWeight: "400" },
-    mobile: { fontSize: "14px", lineHeight: "140%", fontWeight: "315" },
+    mobile: { fontSize: "14px", lineHeight: "140%", fontWeight: "400" },
   },
   body2: {
     desktop: { fontSize: "12px", lineHeight: "140%", fontWeight: "400" },
-    mobile: { fontSize: "12px", lineHeight: "140%", fontWeight: "315" },
+    mobile: { fontSize: "12px", lineHeight: "140%", fontWeight: "400" },
   },
   caption: {
     desktop: { fontSize: "12px", lineHeight: "140%", fontWeight: "400" },

@@ -55,7 +55,7 @@ export function createCheckoutSessionStartEvent({
   purchaseOptionToUse,
   customerEmail,
 }: {
-  appearance: BrandingAppearance | undefined;
+  appearance: BrandingAppearance | null | undefined;
   rcPackage: Package;
   purchaseOptionToUse: PurchaseOption;
   customerEmail: string | undefined;

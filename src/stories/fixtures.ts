@@ -103,6 +103,8 @@ export const rcPackage: Package = {
   webBillingProduct: product,
 };
 
+export const defaultBrandingAppearance: BrandingAppearance | null = null;
+
 export const colorfulBrandingAppearance: BrandingAppearance = {
   shapes: "rectangle",
   color_form_bg: "#313131", // dark grey
@@ -121,7 +123,7 @@ export const brandingInfo: BrandingInfoResponse = {
   app_name: "Some Fantastic Cat, Inc.",
   app_icon: "1005820_1715624566.png",
   app_icon_webp: "1005820_1715624566.webp",
-  appearance: colorfulBrandingAppearance,
+  appearance: null,
 };
 
 export const purchaseFlowError = new PurchaseFlowError(1);

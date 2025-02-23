@@ -4,7 +4,8 @@
   import SectionLayout from "./section-layout.svelte";
   import type { BrandingAppearance } from "../../entities/branding";
 
-  export let brandingAppearance: BrandingAppearance | undefined = undefined;
+  export let brandingAppearance: BrandingAppearance | null | undefined =
+    undefined;
   let style = new Theme(brandingAppearance).formStyleVars;
 
   export let body;

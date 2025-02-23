@@ -24,7 +24,8 @@
 
   export let productDetails: Product;
   export let purchaseOption: PurchaseOption;
-  export let brandingAppearance: BrandingAppearance | undefined = undefined;
+  export let brandingAppearance: BrandingAppearance | null | undefined =
+    undefined;
 
   const isSubscription =
     productDetails.productType === ProductType.Subscription;

@@ -5,16 +5,19 @@
   import SectionLayout from "./section-layout.svelte";
   import type { BrandingAppearance } from "../../entities/branding";
 
-  export let brandingAppearance: BrandingAppearance | undefined = undefined;
+  export let brandingAppearance: BrandingAppearance | null | undefined =
+    undefined;
   let style = new Theme(brandingAppearance).productInfoStyleVars;
 
   export let headerContent;
   export let bodyContent: (expanded: boolean) => any;
 
   let expanded = false;
-  let showContent = false;
+  let showContent = true;
   onMount(() => {
-    setTimeout(() => (showContent = true), 10);
+    // This is causing the weird effect on the sandbox bar.
+    // Why do we have it?
+    //setTimeout(() => (showContent = true), 10);
   });
 
   function toggleExpanded() {

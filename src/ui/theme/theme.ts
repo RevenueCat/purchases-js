@@ -13,9 +13,15 @@ import { DEFAULT_SPACING } from "./spacing";
 import type { BrandingAppearance } from "../../entities/branding";
 
 export class Theme {
-  constructor(
-    private readonly brandingAppearance?: BrandingAppearance | undefined,
-  ) {}
+  private readonly brandingAppearance: BrandingAppearance | undefined;
+
+  constructor(brandingAppearance?: BrandingAppearance | null | undefined) {
+    if (brandingAppearance) {
+      this.brandingAppearance = brandingAppearance;
+    } else {
+      this.brandingAppearance = undefined;
+    }
+  }
 
   get shape(): Shape {
     return toShape(this.brandingAppearance);
