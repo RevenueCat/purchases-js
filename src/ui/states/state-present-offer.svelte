@@ -302,9 +302,5 @@
     .rcb-after-trial-ends {
       font: var(--rc-text-bodySmall-desktop);
     }
-
-    .rcb-subscribe-to {
-      font: var(--rc-text-bodySmall-desktop);
-    }
   }
 </style>
