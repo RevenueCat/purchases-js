@@ -197,12 +197,6 @@
     white-space: nowrap;
   }
 
-  .rcb-product-price-monthly {
-    color: var(--rc-color-grey-text-light);
-    font: var(--rc-text-caption-mobile);
-    white-space: nowrap;
-  }
-
   .rcb-product-description {
     font: var(--rc-text-bodySmall-mobile);
     color: var(--rc-color-grey-text-dark);
@@ -268,10 +262,6 @@
     }
 
     .rcb-product-price-frequency {
-      font: var(--rc-text-caption-desktop);
-    }
-
-    .rcb-product-price-monthly {
       font: var(--rc-text-caption-desktop);
     }
 
