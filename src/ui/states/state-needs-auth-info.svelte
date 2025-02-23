@@ -75,6 +75,7 @@
             autocomplete="email"
             data-testid="email"
             bind:value={email}
+            autofocus
           />
         </div>
         {#if errorMessage !== ""}
