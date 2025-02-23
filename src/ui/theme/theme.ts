@@ -13,7 +13,7 @@ import { DEFAULT_SPACING } from "./spacing";
 import type { BrandingAppearance } from "../../entities/branding";
 
 export class Theme {
-  private readonly brandingAppearance: BrandingAppearance | undefined;
+  private readonly brandingAppearance: BrandingAppearance | null | undefined;
 
   constructor(brandingAppearance?: BrandingAppearance | null | undefined) {
     if (brandingAppearance) {

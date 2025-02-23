@@ -7,15 +7,14 @@
 
   import {
     brandingInfo,
-    colorfulBrandingAppearance,
     product,
     purchaseFlowError,
     subscriptionOption,
     subscriptionOptionWithTrial,
   } from "./fixtures";
   import { buildCheckoutStartResponse } from "./utils/purchase-response-builder";
-  import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
   import { translatorContextKey } from "../ui/localization/constants";
+  import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
 
   const defaultArgs = {
     context: {},

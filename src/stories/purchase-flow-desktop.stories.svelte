@@ -7,7 +7,6 @@
   import { Translator } from "../ui/localization/translator";
   import {
     brandingInfo,
-    colorfulBrandingAppearance,
     product,
     purchaseFlowError,
     subscriptionOption,
