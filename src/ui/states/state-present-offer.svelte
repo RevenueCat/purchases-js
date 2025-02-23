@@ -2,11 +2,6 @@
   import ModalSection from "../modal-section.svelte";
   import Localized from "../localization/localized.svelte";
   import {
-    getTranslatedPeriodFrequency,
-    getTranslatedPeriodLength,
-  } from "../../helpers/price-labels";
-  import { getPricePerMonth } from "../../helpers/paywall-variables-helpers";
-  import {
     type NonSubscriptionOption,
     type Product,
     ProductType,
@@ -18,9 +13,8 @@
   import { Translator } from "../localization/translator";
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
-  import { parseISODuration, PeriodUnit } from "../../helpers/duration-helper";
-  import Badge from "../badge.svelte";
   import type { BrandingAppearance } from "../../entities/branding";
+  import { getTranslatedPeriodLength } from "../../helpers/price-labels";
 
   export let productDetails: Product;
   export let purchaseOption: PurchaseOption;
@@ -42,21 +36,6 @@
   const translator: Translator =
     getContext(translatorContextKey) || Translator.fallback();
 
-  const isMonthlyProduct =
-    productDetails.normalPeriodDuration &&
-    parseISODuration(productDetails.normalPeriodDuration)?.unit ==
-      PeriodUnit.Month;
-
-  const periodUnit =
-    productDetails.normalPeriodDuration &&
-    parseISODuration(productDetails.normalPeriodDuration)?.unit;
-
-  const formattedPeriod =
-    (productDetails.normalPeriodDuration &&
-      periodUnit &&
-      translator.translatePeriodUnit(periodUnit)) ??
-    null;
-
   const formattedSubscriptionBasePrice =
     subscriptionBasePrice &&
     translator.formatPrice(
@@ -64,8 +43,9 @@
       subscriptionBasePrice.currency,
     );
 
-  // const formattedSubscriptionPriceAfterTrial =
-  //   subscriptionTrial && formattedSubscriptionBasePrice;
+  const formattedZeroPrice =
+    subscriptionBasePrice &&
+    translator.formatPrice(0, subscriptionBasePrice.currency);
 
   const formattedNonSubscriptionBasePrice =
     nonSubscriptionBasePrice &&
@@ -88,88 +68,81 @@
 
     {#if isSubscription}
       <div class="rcb-product-price-container">
+        {#if subscriptionTrial?.periodDuration}
+          <div class="rcb-product-trial">
+            <Localized
+              key={LocalizationKeys.StatePresentOfferFreeTrialDuration}
+              variables={{
+                trialDuration: getTranslatedPeriodLength(
+                  subscriptionTrial.periodDuration || "",
+                  translator,
+                ),
+              }}
+            />
+          </div>
+        {/if}
         <div>
-          <span class="rcb-product-price">
-            {#if subscriptionBasePrice}
+          {#if subscriptionBasePrice}
+            <span class="rcb-product-price">
               <Localized
                 key={LocalizationKeys.StatePresentOfferProductPrice}
                 variables={{
                   productPrice: formattedSubscriptionBasePrice,
                 }}
               />
-            {/if}
-          </span>
-          {#if productDetails.normalPeriodDuration}
-            <span class="rcb-product-price-frequency"
-              ><span class="rcb-product-price-frequency-text"
-                >per {formattedPeriod}</span
+            </span>
+          {/if}
+
+          {#if subscriptionOption?.base?.period}
+            <span class="rcb-product-price-frequency">
+              <span class="rcb-product-price-frequency-text">
+                {translator.translatePeriodFrequency(
+                  subscriptionOption.base.period.number,
+                  subscriptionOption.base.period.unit,
+                )}</span
               >
-              {#if !isMonthlyProduct && subscriptionBasePrice}
-                <span class="rcb-product-price-monthly"
-                  >({getPricePerMonth({
-                    price: subscriptionBasePrice,
-                    period: parseISODuration(
-                      productDetails.normalPeriodDuration,
-                    ),
-                    translator,
-                  })} per month)</span
-                >
-              {/if}
             </span>
           {/if}
         </div>
-        {#if subscriptionTrial?.periodDuration}
-          <div class="rcb-product-price-badge">
-            <Badge>
-              {#snippet text()}
-                <Localized
-                  key={LocalizationKeys.StatePresentOfferFreeTrialDuration}
-                  variables={{
-                    trialDuration: getTranslatedPeriodLength(
-                      subscriptionTrial.periodDuration!,
-                      translator,
-                    ),
-                  }}
-                />
-              {/snippet}
-            </Badge>
-          </div>
-        {/if}
       </div>
+
       <div class="rcb-product-details {expanded ? 'expanded' : 'collapsed'}">
-        {#if brandingAppearance?.show_product_description && productDetails.description}
-          <span class="rcb-product-description">
-            <Localized
-              key={LocalizationKeys.StatePresentOfferProductDescription}
-              variables={{
-                productDescription: productDetails.description,
-              }}
-            />
-          </span>
-        {/if}
-        <ul>
-          {#if productDetails.normalPeriodDuration}
-            <li>
+        <div class="rcb-product-details-padding">
+          {#if brandingAppearance?.show_product_description && productDetails.description}
+            <span class="rcb-product-description">
               <Localized
-                key={LocalizationKeys.StatePresentOfferRenewalFrequency}
+                key={LocalizationKeys.StatePresentOfferProductDescription}
                 variables={{
-                  frequency: getTranslatedPeriodFrequency(
-                    productDetails.normalPeriodDuration,
-                    translator,
-                  ),
+                  productDescription: productDetails.description,
                 }}
               />
-            </li>
+            </span>
           {/if}
-          <li>
-            <Localized
-              key={LocalizationKeys.StatePresentOfferContinuesUntilCancelled}
-            />
-          </li>
-          <li>
-            <Localized key={LocalizationKeys.StatePresentOfferCancelAnytime} />
-          </li>
-        </ul>
+          {#if subscriptionTrial?.periodDuration}
+            <div>
+              <div class="rcb-product-trial-explanation">
+                <div>
+                  <Localized
+                    key={LocalizationKeys.StatePresentOfferPriceAfterFreeTrial}
+                  />
+                </div>
+                <div class="rcb-text-dark">
+                  {formattedSubscriptionBasePrice}
+                </div>
+              </div>
+              <div class="rcb-product-trial-explanation">
+                <div class="rcb-text-dark total-due-today">
+                  <Localized
+                    key={LocalizationKeys.StatePresentOfferPriceTotalDueToday}
+                  />
+                </div>
+                <div class="rcb-text-dark total-due-today">
+                  {formattedZeroPrice}
+                </div>
+              </div>
+            </div>
+          {/if}
+        </div>
       </div>
     {/if}
     {#if !isSubscription}
@@ -197,22 +170,22 @@
     display: flex;
     flex-direction: column;
     font: var(--rc-text-body1-mobile);
-    gap: 0;
-  }
-
-  .rcb-pricing-info:has(.rcb-product-details.expanded) {
-    gap: var(--rc-spacing-gapXXLarge-mobile);
+    gap: var(--rc-spacing-gapLarge-mobile);
   }
 
   .rcb-product-title {
     color: var(--rc-color-grey-text-dark);
-    font: var(--rc-text-titleLarge-mobile);
+    font: var(--rc-text-titleXLarge-mobile);
   }
 
   .rcb-product-price {
     color: var(--rc-color-grey-text-dark);
     font: var(--rc-text-titleXLarge-mobile);
-    margin: 12px 0px;
+  }
+
+  .rcb-product-trial {
+    color: var(--rc-color-grey-text-dark);
+    font: var(--rc-text-titleXLarge-mobile);
   }
 
   .rcb-product-price-frequency {
@@ -237,25 +210,16 @@
 
   .rcb-product-details {
     color: var(--rc-color-grey-text-light);
-
     margin: 0px;
-    gap: var(--rc-spacing-gapXLarge-mobile);
-    display: flex;
-    flex-direction: column;
-
     overflow: hidden;
     max-height: 0;
-    transition:
-      max-height 0.1s ease-in-out,
-      padding-top 0.1s ease-in-out,
-      padding-bottom 0.1s ease-in-out;
+    transition: max-height 0.2s ease-in-out;
   }
 
-  .rcb-product-details ul {
-    list-style-type: disc;
-    list-style-position: inside;
-    padding: 0px;
-    margin: 0px;
+  .rcb-product-details-padding {
+    display: flex;
+    flex-direction: column;
+    gap: var(--rc-spacing-gapXLarge-mobile);
   }
 
   .rcb-product-details.expanded {
@@ -264,32 +228,21 @@
 
   .rcb-product-details.collapsed {
     max-height: 0;
-    padding-top: 0;
-    padding-bottom: 0;
   }
 
-  .rcb-product-price-container {
+  .rcb-product-trial-explanation {
     display: flex;
     flex-direction: row;
-    gap: var(--rc-spacing-gapXLarge-mobile);
+    align-items: center;
+    justify-content: space-between;
   }
 
-  .rcb-product-price-badge {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .rcb-text-dark {
+    color: var(--rc-color-grey-text-dark);
+    font-weight: 500;
   }
 
   @container layout-query-container (width < 768px) {
-    .rcb-pricing-info:not(:has(.rcb-product-details.expanded))
-      > *:not(:last-child):not(.rcb-product-price-container) {
-      margin-bottom: var(--rc-spacing-gapXLarge-mobile);
-    }
-
-    .rcb-pricing-info:has(.rcb-product-details.expanded) {
-      gap: var(--rc-spacing-gapXLarge-mobile);
-    }
-
     .rcb-pricing-info {
       margin-top: var(--rc-spacing-gapXLarge-mobile);
     }
@@ -304,10 +257,6 @@
 
     .rcb-pricing-info:has(.rcb-product-details.expanded) {
       gap: var(--rc-spacing-gapXXLarge-desktop);
-    }
-
-    .rcb-product-price-container {
-      gap: var(--rc-spacing-gapXLarge-desktop);
     }
 
     .rcb-product-title {
@@ -337,6 +286,10 @@
 
     .rcb-product-details.collapsed {
       max-height: 500px;
+    }
+
+    .total-due-today {
+      font: var(--rc-text-titleLarge-desktop);
     }
   }
 </style>
