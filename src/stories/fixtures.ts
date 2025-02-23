@@ -70,7 +70,6 @@ export const product: Product = {
   description:
     "This is a long description of the product which is long. " +
     "It is long indeed so that it spans multiple lines.",
-
   title: "Fantastic Cat Pro",
   productType: ProductType.Subscription,
   currentPrice: {
