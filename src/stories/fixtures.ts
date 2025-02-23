@@ -102,8 +102,6 @@ export const rcPackage: Package = {
   webBillingProduct: product,
 };
 
-export const defaultBrandingAppearance: BrandingAppearance | null = null;
-
 export const colorfulBrandingAppearance: BrandingAppearance = {
   shapes: "rectangle",
   color_form_bg: "#313131", // dark grey
