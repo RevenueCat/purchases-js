@@ -9,10 +9,12 @@ describe("getRenewsLabel", () => {
   const translator: Translator = new Translator();
 
   test("should return correct text for single period durations", () => {
-    expect(getTranslatedPeriodFrequency("P1Y", translator)).toEqual("yearly");
-    expect(getTranslatedPeriodFrequency("P1M", translator)).toEqual("monthly");
-    expect(getTranslatedPeriodFrequency("P1W", translator)).toEqual("weekly");
-    expect(getTranslatedPeriodFrequency("P1D", translator)).toEqual("daily");
+    expect(getTranslatedPeriodFrequency("P1Y", translator)).toEqual("per year");
+    expect(getTranslatedPeriodFrequency("P1M", translator)).toEqual(
+      "per month",
+    );
+    expect(getTranslatedPeriodFrequency("P1W", translator)).toEqual("per week");
+    expect(getTranslatedPeriodFrequency("P1D", translator)).toEqual("per day");
   });
 
   test("should return correct text for multiple period durations", () => {
