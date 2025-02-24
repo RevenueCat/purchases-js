@@ -59,14 +59,32 @@ export function getNextRenewalDate(
   if (!willRenew) {
     return null;
   }
-  const result = new Date(startDate);
+  let result = new Date(startDate);
 
   switch (period.unit) {
     case PeriodUnit.Year:
-      result.setFullYear(result.getFullYear() + period.number);
+      if (result.getDate() === 29 && result.getMonth() === 1) {
+        result.setFullYear(
+          result.getFullYear() + period.number,
+          result.getMonth(),
+          28,
+        );
+      } else {
+        result.setFullYear(
+          result.getFullYear() + period.number,
+          result.getMonth(),
+          result.getDate(),
+        );
+      }
+
       break;
     case PeriodUnit.Month:
-      result.setMonth(result.getMonth() + period.number);
+      result.setMonth(result.getMonth() + period.number, result.getDate());
+      /** If exceeded the last day of the next month, just move over and take the previous day */
+      if (result.getDate() !== startDate.getDate()) {
+        result = new Date(startDate);
+        result.setMonth(result.getMonth() + period.number + 1, 0);
+      }
       break;
     case PeriodUnit.Week:
       result.setDate(result.getDate() + period.number * 7);
