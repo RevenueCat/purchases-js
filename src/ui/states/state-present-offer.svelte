@@ -146,7 +146,11 @@
                   <Localized
                     key={LocalizationKeys.StatePresentOfferPriceAfterFreeTrial}
                     variables={{
-                      renewalDate: renewalDate?.toLocaleDateString(),
+                      renewalDate:
+                        renewalDate &&
+                        translator.translateDate(renewalDate, {
+                          dateStyle: "medium",
+                        }),
                     }}
                   />
                 </div>
