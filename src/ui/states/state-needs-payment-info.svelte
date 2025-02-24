@@ -348,6 +348,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--rc-spacing-gapXLarge-mobile);
+    user-select: none;
   }
 
   .checkout-pay-container {

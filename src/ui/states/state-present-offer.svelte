@@ -199,6 +199,7 @@
     flex-direction: column;
     font: var(--rc-text-body1-mobile);
     gap: var(--rc-spacing-gapLarge-mobile);
+    user-select: none;
   }
 
   .rcb-product-title {

@@ -34,6 +34,7 @@
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
     -webkit-tap-highlight-color: transparent;
     transition: background-color 0.15s ease-in-out;
+    user-select: none;
   }
 
   @container layout-query-container (width >= 768px) {

@@ -38,7 +38,7 @@
   "state_needs_payment_info.payment_step_title": "Secure checkout by RevenueCat",
   "state_needs_payment_info.terms_info": "By providing your card information you allow {{appName}} to charge your card for future payments in accordance with their terms.",
   "state_needs_payment_info.button_pay": "Pay now",
-  "state_needs_payment_info.button_start_trial": "Start Trial",
+  "state_needs_payment_info.button_start_trial": "Start trial",
   "state_success.purchase_successful": "Payment complete",
   "state_success.subscription_now_active": "Your subscription is now active",
   "state_success.button_close": "Continue",
