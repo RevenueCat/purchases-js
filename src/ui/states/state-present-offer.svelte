@@ -15,7 +15,6 @@
   import type { BrandingAppearance } from "../../entities/branding";
   import { getTranslatedPeriodLength } from "../../helpers/price-labels";
   import { getNextRenewalDate } from "../../helpers/duration-helper";
-  import ModalSection from "../modal-section.svelte";
 
   export let productDetails: Product;
   export let purchaseOption: PurchaseOption;
