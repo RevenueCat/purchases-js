@@ -54,5 +54,7 @@
   "state_error.button_try_again": "다시 시도",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
   "paywall_variables.sub_relative_discount": "{{discount}}% 할인",
-  "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})"
+  "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
+  "state_present_offer.total_due_today": "Total due today",
+  "state_present_offer.subscribe_to": "Subscribe to"
 }

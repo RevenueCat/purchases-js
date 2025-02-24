@@ -88,10 +88,16 @@ export class Translator {
   public formatPrice(priceInMicros: number, currency: string): string {
     const price = priceInMicros / 1000000;
 
+    const additionalFormattingOptions: { maximumFractionDigits?: number } = {};
+    if (price === 0) {
+      additionalFormattingOptions.maximumFractionDigits = 0;
+    }
+
     try {
       return new Intl.NumberFormat(this.locale, {
         style: "currency",
         currency,
+        ...additionalFormattingOptions,
       }).format(price);
     } catch {
       Logger.errorLog(
@@ -103,6 +109,7 @@ export class Translator {
       return new Intl.NumberFormat(this.fallbackLocale, {
         style: "currency",
         currency,
+        ...additionalFormattingOptions,
       }).format(price);
     } catch {
       Logger.errorLog(
@@ -113,6 +120,7 @@ export class Translator {
     return new Intl.NumberFormat(englishLocale, {
       style: "currency",
       currency,
+      ...additionalFormattingOptions,
     }).format(price);
   }
 
@@ -190,6 +198,19 @@ export class Translator {
     return (
       localeInstance?.translatePeriodFrequency(amount, period) ||
       fallbackInstance?.translatePeriodFrequency(amount, period)
+    );
+  }
+
+  public translateDate(
+    date: Date,
+    options: Intl.DateTimeFormatOptions = {},
+  ): string | undefined {
+    const localeInstance = this.getLocaleInstance(this.selectedLocale);
+    const fallbackInstance = this.getLocaleInstance(this.defaultLocale);
+
+    return (
+      localeInstance?.translateDate(date, options) ||
+      fallbackInstance?.translateDate(date, options)
     );
   }
 }
@@ -273,5 +294,12 @@ export class LocaleTranslations {
     return this.translate(key as LocalizationKeys, {
       amount: amount.toString(),
     });
+  }
+
+  public translateDate(
+    date: Date,
+    options: Intl.DateTimeFormatOptions = {},
+  ): string | undefined {
+    return date.toLocaleDateString(this.localeKey, options);
   }
 }

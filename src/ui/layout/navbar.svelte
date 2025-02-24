@@ -12,7 +12,6 @@
   export let bodyContent: (expanded: boolean) => any;
 
   let expanded = false;
-
   function toggleExpanded() {
     expanded = !expanded;
   }

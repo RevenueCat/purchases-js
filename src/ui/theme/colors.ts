@@ -23,7 +23,7 @@ export interface Colors {
 }
 
 export const DEFAULT_FORM_COLORS: Colors = {
-  error: "#f2545b",
+  error: "#B0171F",
   warning: "#f4e971",
   focus: "#1148B8",
   accent: "#767676",
@@ -34,14 +34,14 @@ export const DEFAULT_FORM_COLORS: Colors = {
   white: "#ffffff",
   "grey-text-dark": "rgba(0,0,0,1)",
   "grey-text-light": "rgba(0,0,0,0.5)",
-  "grey-ui-dark": "rgba(0,0,0,0.125)",
+  "grey-ui-dark": "rgba(0,0,0,0.3)",
   "grey-ui-light": "rgba(0,0,0,0.005)",
   "input-background": "white",
   background: "white",
 };
 
 export const DEFAULT_INFO_COLORS: Colors = {
-  error: "#f2545b",
+  error: "#B0171F",
   warning: "#f4e971",
   focus: "#1148B8",
   accent: "#767676",
@@ -52,7 +52,7 @@ export const DEFAULT_INFO_COLORS: Colors = {
   white: "#ffffff",
   "grey-text-dark": "rgba(0,0,0,1)",
   "grey-text-light": "rgba(0,0,0,0.5)",
-  "grey-ui-dark": "rgba(0,0,0,0.125)",
+  "grey-ui-dark": "rgba(0,0,0,0.25)",
   "grey-ui-light": "rgba(0,0,0,0.005)",
   "input-background": "white",
   background: "#EFF3FA",

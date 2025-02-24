@@ -5,7 +5,7 @@ export interface Shape {
 
 export const RoundedShape: Shape = {
   "input-border-radius": "4px",
-  "input-button-border-radius": "4px",
+  "input-button-border-radius": "8px",
 };
 
 export const RectangularShape: Shape = {
@@ -14,8 +14,8 @@ export const RectangularShape: Shape = {
 };
 
 export const PillsShape: Shape = {
-  "input-border-radius": "24px",
-  "input-button-border-radius": "56px",
+  "input-border-radius": "12px",
+  "input-button-border-radius": "9999px",
 };
 
 export const DefaultShape = RoundedShape;

@@ -124,6 +124,7 @@
     display: flex;
     flex-direction: column;
     flex-grow: 1;
+    user-select: none;
   }
 
   form {
@@ -212,12 +213,6 @@
   }
 
   input::placeholder {
-    color: inherit;
-    opacity: 0.125;
-  }
-
-  input:focus::placeholder {
-    color: inherit;
-    opacity: 0.3;
+    color: var(--rc-color-grey-ui-dark);
   }
 </style>

@@ -89,9 +89,7 @@ export class StripeService {
             opacity: "1",
             paddingBottom: "0px",
           },
-          ".Label--focused": {
-            color: customColors["focus"],
-          },
+          ".Label--focused": {},
           ".Input--invalid": {
             boxShadow: "none",
           },

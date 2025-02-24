@@ -70,7 +70,6 @@ export const product: Product = {
   description:
     "This is a long description of the product which is long. " +
     "It is long indeed so that it spans multiple lines.",
-
   title: "Fantastic Cat Pro",
   productType: ProductType.Subscription,
   currentPrice: {
@@ -104,7 +103,7 @@ export const rcPackage: Package = {
 };
 
 export const colorfulBrandingAppearance: BrandingAppearance = {
-  shapes: "rectangle",
+  shapes: "rounded",
   color_form_bg: "#313131", // dark grey
   color_error: "#E79462", // orange
   color_product_info_bg: "#ffffff", // white

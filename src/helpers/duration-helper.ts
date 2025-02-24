@@ -50,3 +50,53 @@ export function parseISODuration(duration: string): Period | null {
       return null;
   }
 }
+
+export function getNextRenewalDate(
+  startDate: Date,
+  period: Period,
+  willRenew: boolean,
+): Date | null {
+  if (!willRenew) {
+    return null;
+  }
+  let result = new Date(startDate);
+
+  switch (period.unit) {
+    case PeriodUnit.Year:
+      if (
+        result.getDate() === 29 &&
+        result.getMonth() === 1 &&
+        period.number !== 4
+      ) {
+        result.setFullYear(
+          result.getFullYear() + period.number,
+          result.getMonth(),
+          28,
+        );
+      } else {
+        result.setFullYear(
+          result.getFullYear() + period.number,
+          result.getMonth(),
+          result.getDate(),
+        );
+      }
+
+      break;
+    case PeriodUnit.Month:
+      result.setMonth(result.getMonth() + period.number, result.getDate());
+      /** If exceeded the last day of the next month, just move over and take the previous day */
+      if (result.getDate() !== startDate.getDate()) {
+        result = new Date(startDate);
+        result.setMonth(result.getMonth() + period.number + 1, 0);
+      }
+      break;
+    case PeriodUnit.Week:
+      result.setDate(result.getDate() + period.number * 7);
+      break;
+    case PeriodUnit.Day:
+      result.setDate(result.getDate() + period.number);
+      break;
+  }
+
+  return result;
+}
