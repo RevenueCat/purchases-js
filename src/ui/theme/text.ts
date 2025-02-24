@@ -41,8 +41,8 @@ export const DEFAULT_TEXT_STYLES: TextStyles = {
     mobile: { fontSize: "15px", lineHeight: "140%", fontWeight: "400" },
   },
   body1: {
-    desktop: { fontSize: "14px", lineHeight: "140%", fontWeight: "400" },
-    mobile: { fontSize: "14px", lineHeight: "140%", fontWeight: "400" },
+    desktop: { fontSize: "16px", lineHeight: "140%", fontWeight: "400" },
+    mobile: { fontSize: "16px", lineHeight: "140%", fontWeight: "400" },
   },
   body2: {
     desktop: { fontSize: "12px", lineHeight: "140%", fontWeight: "400" },
