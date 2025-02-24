@@ -63,7 +63,11 @@ export function getNextRenewalDate(
 
   switch (period.unit) {
     case PeriodUnit.Year:
-      if (result.getDate() === 29 && result.getMonth() === 1) {
+      if (
+        result.getDate() === 29 &&
+        result.getMonth() === 1 &&
+        period.number !== 4
+      ) {
         result.setFullYear(
           result.getFullYear() + period.number,
           result.getMonth(),

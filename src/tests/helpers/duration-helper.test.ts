@@ -97,6 +97,14 @@ describe("getNextRenewalDate", () => {
     );
   });
 
+  test("should handle repeated leap years correctly", () => {
+    const startDate = new Date("2024-02-29"); // Leap year date
+    const period: Period = { unit: PeriodUnit.Year, number: 4 };
+    expect(getNextRenewalDate(startDate, period, true)).toEqual(
+      new Date("2028-02-29"),
+    );
+  });
+
   test("should handle edge cases for month increments", () => {
     const startDate = new Date("2025-01-31");
     const period: Period = { unit: PeriodUnit.Month, number: 1 };
