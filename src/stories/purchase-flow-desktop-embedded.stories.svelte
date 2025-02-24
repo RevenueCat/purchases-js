@@ -7,7 +7,6 @@
   import { Translator } from "../ui/localization/translator";
   import {
     brandingInfo,
-    colorfulBrandingAppearance,
     product,
     purchaseFlowError,
     subscriptionOption,
@@ -21,7 +20,7 @@
     productDetails: product,
     purchaseOptionToUse: subscriptionOption,
     purchaseOption: subscriptionOption,
-    brandingInfo: { ...brandingInfo, appearance: colorfulBrandingAppearance },
+    brandingInfo: { ...brandingInfo },
     lastError: purchaseFlowError,
     isInElement: false,
     onContinue: () => {},

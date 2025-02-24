@@ -3,8 +3,8 @@
   import WithContext from "./utils/with-context.svelte";
   import { toProductInfoStyleVar } from "../ui/theme/utils";
   import RcbUiInner from "../ui/rcb-ui-inner.svelte";
-  import { translatorContextKey } from "../ui/localization/constants";
   import { Translator } from "../ui/localization/translator";
+
   import {
     brandingInfo,
     product,
@@ -13,6 +13,7 @@
     subscriptionOptionWithTrial,
   } from "./fixtures";
   import { buildCheckoutStartResponse } from "./utils/purchase-response-builder";
+  import { translatorContextKey } from "../ui/localization/constants";
   import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
 
   const defaultArgs = {
@@ -28,7 +29,7 @@
   let paymentMetadata: any;
 
   let { Story } = defineMeta({
-    title: "Purchase flow (Desktop)",
+    title: "Purchase flow Right To Left (Mobile)",
     args: defaultArgs,
     parameters: {},
     loaders: [
@@ -70,57 +71,63 @@
 {/snippet}
 
 <Story
-  name="Email Input"
-  args={{ currentView: "needs-auth-info" }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
+  name="Email Input (Arabic)"
+  args={{ currentView: "needs-auth-info", locale: "ar" }}
+  parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
 <Story
-  name="Email Input (with Sandbox Banner)"
+  name="Email Input (with Sandbox Banner) (Arabic)"
   args={{
     currentView: "needs-auth-info",
     isSandbox: true,
+    locale: "ar",
   }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
+  parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
 <Story
-  name="Email Input (with Trial Product)"
+  name="Email Input (with Trial Product) (Arabic)"
   args={{
     currentView: "needs-auth-info",
     isSandbox: true,
+    locale: "ar",
     productDetails: {
       ...product,
       normalPeriodDuration: "P1Y",
     },
     purchaseOptionToUse: subscriptionOptionWithTrial,
   }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
+  parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
 <Story
-  name="Checkout"
+  name="Checkout (Arabic)"
   args={{
     ...defaultArgs,
     currentView: "needs-payment-info",
+    locale: "ar",
   }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
+  parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
 <Story
-  name="Loading"
+  name="Loading (Arabic)"
   args={{
     currentView: "loading",
+    locale: "ar",
   }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
+  parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
 <Story
-  name="Payment complete"
+  name="Payment complete (Arabic)"
   args={{
     currentView: "success",
+    locale: "ar",
   }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
+  parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
 <Story
-  name="Payment failed"
+  name="Payment failed (Arabic)"
   args={{
     currentView: "error",
+    locale: "ar",
   }}
-  parameters={{ viewport: { defaultViewport: "desktop" } }}
+  parameters={{ viewport: { defaultViewport: "mobile" } }}
 />

@@ -20,7 +20,7 @@
   } from "./localization/constants";
   import { type CurrentView } from "./ui-types";
   import RcbUIInner from "./rcb-ui-inner.svelte";
-  import { CheckoutStartResponse } from "../networking/responses/checkout-start-response";
+  import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
   import { type ContinueHandlerParams } from "./ui-types";
   import { type IEventsTracker } from "../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "./constants";

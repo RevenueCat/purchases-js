@@ -7,6 +7,7 @@
   import { Translator } from "../ui/localization/translator";
   import {
     brandingInfo,
+    colorfulBrandingAppearance,
     product,
     purchaseFlowError,
     subscriptionOption,
@@ -20,7 +21,7 @@
     productDetails: product,
     purchaseOptionToUse: subscriptionOption,
     purchaseOption: subscriptionOption,
-    brandingInfo: { ...brandingInfo },
+    brandingInfo: { ...brandingInfo, appearance: colorfulBrandingAppearance },
     lastError: purchaseFlowError,
     onContinue: () => {},
   };
@@ -28,7 +29,7 @@
   let paymentMetadata: any;
 
   let { Story } = defineMeta({
-    title: "Purchase flow (Desktop)",
+    title: "Purchase flow Custom Appearance (Desktop)",
     args: defaultArgs,
     parameters: {},
     loaders: [

@@ -1,21 +1,17 @@
 <script lang="ts">
   import { Theme } from "../theme/theme";
   import NavBarHeader from "../navbar-header.svelte";
-  import { onMount } from "svelte";
   import SectionLayout from "./section-layout.svelte";
   import type { BrandingAppearance } from "../../entities/branding";
 
-  export let brandingAppearance: BrandingAppearance | undefined = undefined;
+  export let brandingAppearance: BrandingAppearance | null | undefined =
+    undefined;
   let style = new Theme(brandingAppearance).productInfoStyleVars;
 
   export let headerContent;
   export let bodyContent: (expanded: boolean) => any;
 
   let expanded = false;
-  let showContent = false;
-  onMount(() => {
-    setTimeout(() => (showContent = true), 10);
-  });
 
   function toggleExpanded() {
     expanded = !expanded;
@@ -23,7 +19,7 @@
 </script>
 
 <div class="rcb-ui-navbar" {style}>
-  <SectionLayout show={showContent} layoutStyle="justify-content: flex-end;">
+  <SectionLayout layoutStyle="justify-content: flex-end;">
     {#snippet header()}
       <NavBarHeader {expanded} toggle={toggleExpanded}>
         {@render headerContent?.()}

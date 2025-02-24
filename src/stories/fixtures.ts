@@ -121,7 +121,7 @@ export const brandingInfo: BrandingInfoResponse = {
   app_name: "Some Fantastic Cat, Inc.",
   app_icon: "1005820_1715624566.png",
   app_icon_webp: "1005820_1715624566.webp",
-  appearance: colorfulBrandingAppearance,
+  appearance: null,
 };
 
 export const purchaseFlowError = new PurchaseFlowError(1);

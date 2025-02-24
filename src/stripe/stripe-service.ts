@@ -1,8 +1,8 @@
 import type {
+  Appearance,
+  StripeElementLocale,
   StripeElements,
   StripeError,
-  StripeElementLocale,
-  Appearance,
 } from "@stripe/stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import type { BrandingInfoResponse } from "../networking/responses/branding-response";
@@ -86,7 +86,11 @@ export class StripeService {
             color: customColors["grey-text-dark"],
           },
           ".Label--floating": {
-            fontSize: "10px !important",
+            opacity: "1",
+            paddingBottom: "0px",
+          },
+          ".Label--focused": {
+            color: customColors["focus"],
           },
           ".Input--invalid": {
             boxShadow: "none",

@@ -4,7 +4,8 @@
 
   import type { BrandingAppearance } from "../../entities/branding";
 
-  export let brandingAppearance: BrandingAppearance | undefined = undefined;
+  export let brandingAppearance: BrandingAppearance | null | undefined =
+    undefined;
   export let isInElement: boolean = false;
 
   let textStyle = new Theme(brandingAppearance).textStyleVars;

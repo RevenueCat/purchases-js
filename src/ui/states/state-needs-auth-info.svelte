@@ -208,6 +208,16 @@
 
   input:focus {
     outline: none;
-    border: 1px solid var(--rc-color-focus);
+    border: 2px solid var(--rc-color-focus);
+  }
+
+  input::placeholder {
+    color: inherit;
+    opacity: 0.125;
+  }
+
+  input:focus::placeholder {
+    color: inherit;
+    opacity: 0.3;
   }
 </style>

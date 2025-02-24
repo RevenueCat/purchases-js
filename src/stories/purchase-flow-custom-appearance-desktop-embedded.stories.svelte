@@ -7,6 +7,7 @@
   import { Translator } from "../ui/localization/translator";
   import {
     brandingInfo,
+    colorfulBrandingAppearance,
     product,
     purchaseFlowError,
     subscriptionOption,
@@ -20,15 +21,16 @@
     productDetails: product,
     purchaseOptionToUse: subscriptionOption,
     purchaseOption: subscriptionOption,
-    brandingInfo: { ...brandingInfo },
+    brandingInfo: { ...brandingInfo, appearance: colorfulBrandingAppearance },
     lastError: purchaseFlowError,
+    isInElement: false,
     onContinue: () => {},
   };
 
   let paymentMetadata: any;
 
   let { Story } = defineMeta({
-    title: "Purchase flow (Desktop)",
+    title: "Purchase flow Custom Appearance (Desktop Embedded)",
     args: defaultArgs,
     parameters: {},
     loaders: [
@@ -52,26 +54,43 @@
 </script>
 
 {#snippet template(args: any)}
-  <WithContext
-    context={{
-      ...args.context,
-      [translatorContextKey]: args.locale
-        ? new Translator({}, args.locale, args.locale)
-        : undefined,
-      [eventsTrackerContextKey]: { trackSDKEvent: () => {} },
-    }}
-  >
-    <RcbUiInner
-      {...args}
-      {colorVariables}
-      paymentInfoCollectionMetadata={paymentMetadata}
-    />
-  </WithContext>
+  <div style="width: 100vw; height:100vh; background-color: red;">
+    <div style="display: flex">
+      <div
+        id="embedding-container"
+        style="width: 500px; height: 600px; position: relative; overflow: hidden; background-color: lightgray;"
+      >
+        <WithContext
+          context={{
+            ...args.context,
+            [translatorContextKey]: args.locale
+              ? new Translator({}, args.locale, args.locale)
+              : undefined,
+            [eventsTrackerContextKey]: { trackSDKEvent: () => {} },
+          }}
+        >
+          <RcbUiInner
+            {...args}
+            {colorVariables}
+            isInElement={true}
+            paymentInfoCollectionMetadata={paymentMetadata}
+          />
+        </WithContext>
+      </div>
+      <div style="padding: 20px;">
+        <h1>Homer's Web page</h1>
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam,
+          quos.
+        </p>
+      </div>
+    </div>
+  </div>
 {/snippet}
 
 <Story
   name="Email Input"
-  args={{ currentView: "needs-auth-info" }}
+  args={{ currentView: "needs-auth-info", isInElement: true }}
   parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
 <Story
@@ -79,6 +98,7 @@
   args={{
     currentView: "needs-auth-info",
     isSandbox: true,
+    isInElement: true,
   }}
   parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
@@ -92,6 +112,7 @@
       normalPeriodDuration: "P1Y",
     },
     purchaseOptionToUse: subscriptionOptionWithTrial,
+    isInElement: true,
   }}
   parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
@@ -100,6 +121,7 @@
   args={{
     ...defaultArgs,
     currentView: "needs-payment-info",
+    isInElement: true,
   }}
   parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
@@ -107,6 +129,7 @@
   name="Loading"
   args={{
     currentView: "loading",
+    isInElement: true,
   }}
   parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
@@ -114,6 +137,7 @@
   name="Payment complete"
   args={{
     currentView: "success",
+    isInElement: true,
   }}
   parameters={{ viewport: { defaultViewport: "desktop" } }}
 />
@@ -121,6 +145,7 @@
   name="Payment failed"
   args={{
     currentView: "error",
+    isInElement: true,
   }}
   parameters={{ viewport: { defaultViewport: "desktop" } }}
 />

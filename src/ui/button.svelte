@@ -42,8 +42,8 @@
     }
   }
 
-  button:focus,
-  button:active {
+  /* focus-visible is triggered only when focused with keyboard/reader */
+  button:focus-visible {
     outline: 2px solid var(--rc-color-focus);
   }
 
@@ -63,8 +63,10 @@
     background-color: var(--rc-color-primary-hover);
   }
 
+  button.intent-primary:not(:disabled):active,
   button:active {
     background-color: var(--rc-color-primary-pressed);
+    outline: none;
   }
 
   button.intent-primary:disabled {
