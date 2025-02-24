@@ -23,7 +23,7 @@ export interface Colors {
 }
 
 export const DEFAULT_FORM_COLORS: Colors = {
-  error: "#f2545b",
+  error: "#B0171F",
   warning: "#f4e971",
   focus: "#1148B8",
   accent: "#767676",
@@ -41,7 +41,7 @@ export const DEFAULT_FORM_COLORS: Colors = {
 };
 
 export const DEFAULT_INFO_COLORS: Colors = {
-  error: "#f2545b",
+  error: "#B0171F",
   warning: "#f4e971",
   focus: "#1148B8",
   accent: "#767676",
