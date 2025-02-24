@@ -50,3 +50,31 @@ export function parseISODuration(duration: string): Period | null {
       return null;
   }
 }
+
+export function getNextRenewalDate(
+  startDate: Date,
+  period: Period,
+  willRenew: boolean,
+): Date | null {
+  if (!willRenew) {
+    return null;
+  }
+  const result = new Date(startDate);
+
+  switch (period.unit) {
+    case PeriodUnit.Year:
+      result.setFullYear(result.getFullYear() + period.number);
+      break;
+    case PeriodUnit.Month:
+      result.setMonth(result.getMonth() + period.number);
+      break;
+    case PeriodUnit.Week:
+      result.setDate(result.getDate() + period.number * 7);
+      break;
+    case PeriodUnit.Day:
+      result.setDate(result.getDate() + period.number);
+      break;
+  }
+
+  return result;
+}

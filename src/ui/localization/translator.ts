@@ -200,6 +200,19 @@ export class Translator {
       fallbackInstance?.translatePeriodFrequency(amount, period)
     );
   }
+
+  public translateDate(
+    date: Date,
+    options: Intl.DateTimeFormatOptions = {},
+  ): string | undefined {
+    const localeInstance = this.getLocaleInstance(this.selectedLocale);
+    const fallbackInstance = this.getLocaleInstance(this.defaultLocale);
+
+    return (
+      localeInstance?.translateDate(date, options) ||
+      fallbackInstance?.translateDate(date, options)
+    );
+  }
 }
 
 export class LocaleTranslations {
@@ -281,5 +294,12 @@ export class LocaleTranslations {
     return this.translate(key as LocalizationKeys, {
       amount: amount.toString(),
     });
+  }
+
+  public translateDate(
+    date: Date,
+    options: Intl.DateTimeFormatOptions = {},
+  ): string | undefined {
+    return date.toLocaleDateString(this.localeKey, options);
   }
 }

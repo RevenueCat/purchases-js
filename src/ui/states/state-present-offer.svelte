@@ -14,6 +14,7 @@
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import type { BrandingAppearance } from "../../entities/branding";
   import { getTranslatedPeriodLength } from "../../helpers/price-labels";
+  import { getNextRenewalDate } from "../../helpers/duration-helper";
 
   export let productDetails: Product;
   export let purchaseOption: PurchaseOption;
@@ -52,6 +53,17 @@
       nonSubscriptionBasePrice.amountMicros,
       nonSubscriptionBasePrice.currency,
     );
+
+  let renewalDate = null;
+  const expectedPeriod =
+    subscriptionOption.trial?.period || subscriptionOption.base?.period;
+  if (expectedPeriod) {
+    renewalDate = getNextRenewalDate(
+      new Date(),
+      expectedPeriod,
+      isSubscription,
+    );
+  }
 
   export let expanded: boolean;
 </script>
@@ -133,6 +145,9 @@
                 <div class="rcb-after-trial-ends">
                   <Localized
                     key={LocalizationKeys.StatePresentOfferPriceAfterFreeTrial}
+                    variables={{
+                      renewalDate: renewalDate?.toLocaleDateString(),
+                    }}
                   />
                 </div>
                 <div class="rcb-text-dark">
