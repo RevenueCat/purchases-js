@@ -36,20 +36,13 @@ export const DEFAULT_TEXT_STYLES: TextStyles = {
     desktop: { fontSize: "24px", lineHeight: "140%", fontWeight: "500" },
     mobile: { fontSize: "17px", lineHeight: "140%", fontWeight: "500" },
   },
-  bodySmall: {
-    desktop: { fontSize: "17px", lineHeight: "140%", fontWeight: "400" },
-    mobile: { fontSize: "15px", lineHeight: "140%", fontWeight: "400" },
-  },
+  // sm font on figma
   body1: {
-    desktop: { fontSize: "14px", lineHeight: "140%", fontWeight: "400" },
-    mobile: { fontSize: "14px", lineHeight: "140%", fontWeight: "400" },
-  },
-  body2: {
-    desktop: { fontSize: "12px", lineHeight: "140%", fontWeight: "400" },
-    mobile: { fontSize: "12px", lineHeight: "140%", fontWeight: "400" },
+    desktop: { fontSize: "16px", lineHeight: "140%", fontWeight: "400" },
+    mobile: { fontSize: "16px", lineHeight: "140%", fontWeight: "400" },
   },
   caption: {
-    desktop: { fontSize: "12px", lineHeight: "140%", fontWeight: "400" },
+    desktop: { fontSize: "14px", lineHeight: "140%", fontWeight: "400" },
     mobile: { fontSize: "12px", lineHeight: "140%", fontWeight: "400" },
   },
 };

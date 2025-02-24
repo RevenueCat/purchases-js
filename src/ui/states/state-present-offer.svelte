@@ -15,6 +15,7 @@
   import type { BrandingAppearance } from "../../entities/branding";
   import { getTranslatedPeriodLength } from "../../helpers/price-labels";
   import { getNextRenewalDate } from "../../helpers/duration-helper";
+  import ModalSection from "../modal-section.svelte";
 
   export let productDetails: Product;
   export let purchaseOption: PurchaseOption;
@@ -142,7 +143,7 @@
           {#if subscriptionTrial?.periodDuration}
             <div>
               <div class="rcb-product-trial-explanation">
-                <div class="rcb-after-trial-ends">
+                <div class="rcb-after-trial-ends rcb-text-dark">
                   <Localized
                     key={LocalizationKeys.StatePresentOfferPriceAfterFreeTrial}
                     variables={{
@@ -154,7 +155,7 @@
                     }}
                   />
                 </div>
-                <div class="rcb-text-dark">
+                <div class="rcb-after-trial-ends rcb-text-dark">
                   {formattedSubscriptionBasePrice}
                 </div>
               </div>
@@ -209,17 +210,17 @@
 
   .rcb-product-price {
     color: var(--rc-color-grey-text-dark);
-    font: var(--rc-text-titleXLarge-mobile);
+    font: var(--rc-text-titleMedium-mobile);
   }
 
   .rcb-product-trial {
     color: var(--rc-color-grey-text-dark);
-    font: var(--rc-text-titleXLarge-mobile);
+    font: var(--rc-text-titleLarge-mobile);
   }
 
   .rcb-product-price-frequency {
     color: var(--rc-color-grey-text-dark);
-    font: var(--rc-text-caption-mobile);
+    font: var(--rc-text-body1-mobile);
   }
 
   .rcb-product-price-frequency-text {
@@ -227,7 +228,7 @@
   }
 
   .rcb-product-description {
-    font: var(--rc-text-bodySmall-mobile);
+    font: var(--rc-text-body1-mobile);
     color: var(--rc-color-grey-text-dark);
   }
 
@@ -266,7 +267,7 @@
   }
 
   .rcb-subscribe-to {
-    font: var(--rc-text-bodySmall-desktop);
+    font: var(--rc-text-body1-desktop);
   }
 
   @container layout-query-container (width < 768px) {
@@ -295,15 +296,15 @@
     }
 
     .rcb-product-price {
-      font: var(--rc-text-titleXLarge-desktop);
+      font: var(--rc-text-titleMedium-desktop);
     }
 
     .rcb-product-price-frequency {
-      font: var(--rc-text-caption-desktop);
+      font: var(--rc-text-body1-desktop);
     }
 
     .rcb-product-description {
-      font: var(--rc-text-bodySmall-desktop);
+      font: var(--rc-text-body1-desktop);
     }
 
     .rcb-product-details {
@@ -320,7 +321,11 @@
     }
 
     .rcb-after-trial-ends {
-      font: var(--rc-text-bodySmall-desktop);
+      font: var(--rc-text-body1-desktop);
+    }
+
+    .rcb-product-trial {
+      font: var(--rc-text-titleLarge-desktop);
     }
   }
 </style>
