@@ -289,7 +289,11 @@
 
 <div class="rc-checkout-container">
   <!-- <TextSeparator text="Pay by card" /> -->
-  <form on:submit|preventDefault={handleContinue} data-testid="payment-form">
+  <form
+    on:submit|preventDefault={handleContinue}
+    data-testid="payment-form"
+    class="rc-checkout-form"
+  >
     <div class="rc-checkout-form-container" hidden={!!modalErrorMessage}>
       <div class="rc-payment-element-container">
         <div id="payment-element"></div>
@@ -367,6 +371,26 @@
     /* The standard height of the payment form from Stripe */
     /* Added to avoid the card getting smaller while loading */
     min-height: 320px;
+  }
+
+  @container layout-query-container (width <= 767px) {
+    .rc-checkout-pay-container {
+      flex-grow: 1;
+      justify-content: flex-end;
+    }
+    .rc-checkout-form {
+      flex-grow: 1;
+    }
+
+    .rc-checkout-form-container {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .rc-checkout-container {
+      flex-grow: 1;
+    }
   }
 
   @container layout-query-container (width >= 768px) {
