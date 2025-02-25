@@ -379,12 +379,6 @@
       margin-top: var(--rc-spacing-gapXLarge-desktop);
     }
 
-    .rc-payment-element-container {
-      /* The standard height of the payment form from Stripe */
-      /* Added to avoid the card getting smaller while loading */
-      min-height: 482px;
-    }
-
     .rc-checkout-pay-container {
       margin-top: var(--rc-spacing-gapXLarge-desktop);
     }
