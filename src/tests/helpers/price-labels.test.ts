@@ -38,8 +38,11 @@ describe("formatPrice", () => {
     expect(formatPrice(9990000, "USD", "en-US")).toEqual("$9.99");
     expect(formatPrice(10000000, "USD", "en-US")).toEqual("$10.00");
     expect(formatPrice(990000, "USD", "en-US")).toEqual("$0.99");
+    expect(formatPrice(9900000, "USD", "es-MX")).toEqual("USD 9.90");
+    expect(formatPrice(9900000, "MXN", "es-MX")).toEqual("$9.90");
     expect(formatPrice(9990000, "EUR", "en-US")).toEqual("€9.99");
-    expect(formatPrice(9990000, "USD", "es-ES")).toEqual("9,99 US$");
+    expect(formatPrice(9990000, "USD", "es-ES")).toEqual("9,99 $");
+    expect(formatPrice(9990000, "USD", "en-GB")).toEqual("$9.99");
     expect(formatPrice(9990000, "CNY", "en-US")).toEqual("CN¥9.99");
     expect(formatPrice(9990000, "CNY", "zh-CN")).toEqual("¥9.99");
   });
