@@ -287,13 +287,15 @@
   };
 </script>
 
-<div class="checkout-container">
+<div class="rc-checkout-container">
   <!-- <TextSeparator text="Pay by card" /> -->
   <form on:submit|preventDefault={handleContinue} data-testid="payment-form">
-    <div class="checkout-form-container" hidden={!!modalErrorMessage}>
-      <div id="payment-element"></div>
+    <div class="rc-checkout-form-container" hidden={!!modalErrorMessage}>
+      <div class="rc-payment-element-container">
+        <div id="payment-element"></div>
+      </div>
 
-      <div class="checkout-pay-container">
+      <div class="rc-checkout-pay-container">
         {#if !modalErrorMessage}
           <Button
             disabled={processing || !isPaymentInfoComplete}
@@ -313,7 +315,7 @@
           </Button>
         {/if}
 
-        <div class="checkout-secure-container">
+        <div class="rc-checkout-secure-container">
           <SecureCheckoutRc />
         </div>
       </div>
@@ -340,43 +342,51 @@
 </div>
 
 <style>
-  .checkout-secure-container {
+  .rc-checkout-secure-container {
     margin-top: var(--rc-spacing-gapXLarge-mobile);
   }
 
-  .checkout-container {
+  .rc-checkout-container {
     display: flex;
     flex-direction: column;
     gap: var(--rc-spacing-gapXLarge-mobile);
     user-select: none;
   }
 
-  .checkout-pay-container {
+  .rc-checkout-pay-container {
     display: flex;
     flex-direction: column;
     margin-top: var(--rc-spacing-gapXLarge-mobile);
   }
 
-  @container layout-query-container (width >= 768px) {
-    .checkout-secure-container {
-      margin-top: var(--rc-spacing-gapXLarge-desktop);
-    }
-
-    .checkout-container {
-      gap: var(--rc-spacing-gapXLarge-desktop);
-      margin-top: var(--rc-spacing-gapXLarge-desktop);
-      min-height: 482px;
-    }
-
-    .checkout-pay-container {
-      margin-top: var(--rc-spacing-gapXLarge-desktop);
-    }
+  .rc-checkout-form-container {
+    width: 100%;
   }
 
-  .checkout-form-container {
-    width: 100%;
+  .rc-payment-element-container {
     /* The standard height of the payment form from Stripe */
     /* Added to avoid the card getting smaller while loading */
     min-height: 320px;
+  }
+
+  @container layout-query-container (width >= 768px) {
+    .rc-checkout-secure-container {
+      margin-top: var(--rc-spacing-gapXLarge-desktop);
+    }
+
+    .rc-checkout-container {
+      gap: var(--rc-spacing-gapXLarge-desktop);
+      margin-top: var(--rc-spacing-gapXLarge-desktop);
+    }
+
+    .rc-payment-element-container {
+      /* The standard height of the payment form from Stripe */
+      /* Added to avoid the card getting smaller while loading */
+      min-height: 482px;
+    }
+
+    .rc-checkout-pay-container {
+      margin-top: var(--rc-spacing-gapXLarge-desktop);
+    }
   }
 </style>

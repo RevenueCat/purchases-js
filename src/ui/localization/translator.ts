@@ -4,6 +4,7 @@ import { englishLocale } from "./constants";
 
 import type { LocalizationKeys } from "./supportedLanguages";
 import { supportedLanguages } from "./supportedLanguages";
+import { toUpperFirst } from "../../helpers/string-helpers";
 
 export type EmptyString = "";
 
@@ -46,9 +47,17 @@ export interface TranslatePeriodOptions {
   short?: boolean;
 }
 
+export interface TranslateFrequencyOptions {
+  useMultipleWords?: boolean;
+}
+
 const defaultTranslatePeriodOptions: TranslatePeriodOptions = {
   noWhitespace: false,
   short: false,
+};
+
+const defaultTranslateFrequencyOptions: TranslateFrequencyOptions = {
+  useMultipleWords: false,
 };
 
 export class Translator {
@@ -191,13 +200,14 @@ export class Translator {
   public translatePeriodFrequency(
     amount: number,
     period: PeriodUnit,
+    options: TranslateFrequencyOptions = defaultTranslateFrequencyOptions,
   ): string | undefined {
     const localeInstance = this.getLocaleInstance(this.selectedLocale);
     const fallbackInstance = this.getLocaleInstance(this.defaultLocale);
 
     return (
-      localeInstance?.translatePeriodFrequency(amount, period) ||
-      fallbackInstance?.translatePeriodFrequency(amount, period)
+      localeInstance?.translatePeriodFrequency(amount, period, options) ||
+      fallbackInstance?.translatePeriodFrequency(amount, period, options)
     );
   }
 
@@ -285,10 +295,13 @@ export class LocaleTranslations {
   public translatePeriodFrequency(
     amount: number,
     period: PeriodUnit,
+    options: TranslateFrequencyOptions = defaultTranslateFrequencyOptions,
   ): string | undefined {
+    const useMultipleWords = options?.useMultipleWords;
+
     const key =
       Math.abs(amount) === 1
-        ? `periods.${period}Frequency`
+        ? `periods.${useMultipleWords === true ? "per" : ""}${useMultipleWords ? toUpperFirst(period.toString()) : period}Frequency`
         : `periods.${period}FrequencyPlural`;
 
     return this.translate(key as LocalizationKeys, {

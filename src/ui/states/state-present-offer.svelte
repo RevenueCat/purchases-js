@@ -120,6 +120,7 @@
                 {translator.translatePeriodFrequency(
                   subscriptionOption.base.period.number,
                   subscriptionOption.base.period.unit,
+                  { useMultipleWords: true },
                 )}</span
               >
             </span>
