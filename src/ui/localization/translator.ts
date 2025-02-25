@@ -5,6 +5,7 @@ import { englishLocale } from "./constants";
 import type { LocalizationKeys } from "./supportedLanguages";
 import { supportedLanguages } from "./supportedLanguages";
 import { toUpperFirst } from "../../helpers/string-helpers";
+import { formatPrice } from "../../helpers/price-labels";
 
 export type EmptyString = "";
 
@@ -95,19 +96,21 @@ export class Translator {
   }
 
   public formatPrice(priceInMicros: number, currency: string): string {
-    const price = priceInMicros / 1000000;
-
-    const additionalFormattingOptions: { maximumFractionDigits?: number } = {};
-    if (price === 0) {
+    const additionalFormattingOptions: {
+      maximumFractionDigits?: number;
+      currencyDisplay?: "narrowSymbol";
+    } = { currencyDisplay: "narrowSymbol" };
+    if (priceInMicros === 0) {
       additionalFormattingOptions.maximumFractionDigits = 0;
     }
 
     try {
-      return new Intl.NumberFormat(this.locale, {
-        style: "currency",
+      return formatPrice(
+        priceInMicros,
         currency,
-        ...additionalFormattingOptions,
-      }).format(price);
+        this.locale,
+        additionalFormattingOptions,
+      );
     } catch {
       Logger.errorLog(
         `Failed to create a price formatter for locale: ${this.locale}`,
@@ -115,22 +118,24 @@ export class Translator {
     }
 
     try {
-      return new Intl.NumberFormat(this.fallbackLocale, {
-        style: "currency",
+      return formatPrice(
+        priceInMicros,
         currency,
-        ...additionalFormattingOptions,
-      }).format(price);
+        this.fallbackLocale,
+        additionalFormattingOptions,
+      );
     } catch {
       Logger.errorLog(
         `Failed to create a price formatter for locale: ${this.fallbackLocale}`,
       );
     }
 
-    return new Intl.NumberFormat(englishLocale, {
-      style: "currency",
+    return formatPrice(
+      priceInMicros,
       currency,
-      ...additionalFormattingOptions,
-    }).format(price);
+      englishLocale,
+      additionalFormattingOptions,
+    );
   }
 
   get locale(): string {
