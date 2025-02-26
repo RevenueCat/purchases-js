@@ -209,7 +209,7 @@
 
   input:focus {
     outline: none;
-    border: 2px solid var(--rc-color-focus);
+    border: 1px solid var(--rc-color-focus);
   }
 
   input::placeholder {
