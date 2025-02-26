@@ -9,12 +9,10 @@ describe("getRenewsLabel", () => {
   const translator: Translator = new Translator();
 
   test("should return correct text for single period durations", () => {
-    expect(getTranslatedPeriodFrequency("P1Y", translator)).toEqual("per year");
-    expect(getTranslatedPeriodFrequency("P1M", translator)).toEqual(
-      "per month",
-    );
-    expect(getTranslatedPeriodFrequency("P1W", translator)).toEqual("per week");
-    expect(getTranslatedPeriodFrequency("P1D", translator)).toEqual("per day");
+    expect(getTranslatedPeriodFrequency("P1Y", translator)).toEqual("yearly");
+    expect(getTranslatedPeriodFrequency("P1M", translator)).toEqual("monthly");
+    expect(getTranslatedPeriodFrequency("P1W", translator)).toEqual("weekly");
+    expect(getTranslatedPeriodFrequency("P1D", translator)).toEqual("daily");
   });
 
   test("should return correct text for multiple period durations", () => {
@@ -38,8 +36,11 @@ describe("formatPrice", () => {
     expect(formatPrice(9990000, "USD", "en-US")).toEqual("$9.99");
     expect(formatPrice(10000000, "USD", "en-US")).toEqual("$10.00");
     expect(formatPrice(990000, "USD", "en-US")).toEqual("$0.99");
+    expect(formatPrice(9900000, "USD", "es-MX")).toEqual("USD 9.90");
+    expect(formatPrice(9900000, "MXN", "es-MX")).toEqual("$9.90");
     expect(formatPrice(9990000, "EUR", "en-US")).toEqual("€9.99");
-    expect(formatPrice(9990000, "USD", "es-ES")).toEqual("9,99 US$");
+    expect(formatPrice(9990000, "USD", "es-ES")).toEqual("9,99 $");
+    expect(formatPrice(9990000, "USD", "en-GB")).toEqual("$9.99");
     expect(formatPrice(9990000, "CNY", "en-US")).toEqual("CN¥9.99");
     expect(formatPrice(9990000, "CNY", "zh-CN")).toEqual("¥9.99");
   });

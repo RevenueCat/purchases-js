@@ -11,14 +11,22 @@ export const formatPrice = (
   priceInMicros: number,
   currency: string,
   locale?: string,
+  additionalFormattingOptions: {
+    maximumFractionDigits?: number;
+  } = {},
 ): string => {
   const price = microsToDollars(priceInMicros);
+
   const formatter = new Intl.NumberFormat(locale, {
     style: "currency",
     currency,
+    currencyDisplay: "symbol",
+    ...additionalFormattingOptions,
   });
 
-  return formatter.format(price);
+  const formattedPrice = formatter.format(price);
+
+  return formattedPrice.replace("US$", "$");
 };
 
 export const getTranslatedPeriodFrequency = (
