@@ -4,8 +4,9 @@ import { englishLocale } from "./constants";
 
 import type { LocalizationKeys } from "./supportedLanguages";
 import { supportedLanguages } from "./supportedLanguages";
-import { capitalize } from "../../helpers/string-helpers";
+
 import { formatPrice } from "../../helpers/price-labels";
+import { capitalize } from "../../helpers/string-helpers";
 
 export type EmptyString = "";
 
