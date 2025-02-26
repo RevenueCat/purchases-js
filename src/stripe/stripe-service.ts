@@ -8,6 +8,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import type { BrandingInfoResponse } from "../networking/responses/branding-response";
 import type { CheckoutStartResponse } from "../networking/responses/checkout-start-response";
 import { Theme } from "../ui/theme/theme";
+import { DEFAULT_TEXT_STYLES } from "../ui/theme/text";
 
 export class StripeService {
   private static FORM_VALIDATED_CARD_ERROR_CODES = [
@@ -46,6 +47,10 @@ export class StripeService {
     const customColors = theme.formColors;
     const textStyles = theme.textStyles;
 
+    const baseFontSize =
+      DEFAULT_TEXT_STYLES.body1[viewport].fontSize ||
+      DEFAULT_TEXT_STYLES.body1["mobile"].fontSize;
+
     const elements = stripe.elements({
       loader: "always",
       locale: localeToUse,
@@ -65,6 +70,7 @@ export class StripeService {
           colorTextPlaceholder: customColors["grey-text-light"],
           colorText: customColors["grey-text-dark"],
           colorTextSecondary: customColors["grey-text-light"],
+          fontSizeBase: baseFontSize,
           ...stripeVariables,
         },
         rules: {
@@ -72,6 +78,7 @@ export class StripeService {
             boxShadow: "none",
             paddingTop: "6px",
             paddingBottom: "6px",
+            fontSize: baseFontSize,
             border: `1px solid ${customColors["grey-ui-dark"]}`,
             backgroundColor: customColors["input-background"],
             color: customColors["grey-text-dark"],
@@ -87,9 +94,7 @@ export class StripeService {
           },
           ".Label--floating": {
             opacity: "1",
-            paddingBottom: "0px",
           },
-          ".Label--focused": {},
           ".Input--invalid": {
             boxShadow: "none",
           },
