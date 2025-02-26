@@ -70,7 +70,7 @@
 
 <section>
   <div class="rcb-pricing-info">
-    <div>
+    <div class="rcb-pricing-info-header">
       {#if isSubscription}
         <div class="rcb-subscribe-to">
           <Localized
@@ -85,6 +85,16 @@
           variables={{ productTitle: productDetails.title }}
         />
       </div>
+      {#if brandingAppearance?.show_product_description && productDetails.description}
+        <span class="rcb-product-description">
+          <Localized
+            key={LocalizationKeys.StatePresentOfferProductDescription}
+            variables={{
+              productDescription: productDetails.description,
+            }}
+          />
+        </span>
+      {/if}
     </div>
 
     {#if isSubscription}
@@ -130,44 +140,32 @@
 
       <div class="rcb-product-details {expanded ? 'expanded' : 'collapsed'}">
         <div class="rcb-product-details-padding">
-          {#if brandingAppearance?.show_product_description && productDetails.description}
-            <span class="rcb-product-description">
-              <Localized
-                key={LocalizationKeys.StatePresentOfferProductDescription}
-                variables={{
-                  productDescription: productDetails.description,
-                }}
-              />
-            </span>
-          {/if}
           {#if subscriptionTrial?.periodDuration}
-            <div>
-              <div class="rcb-product-trial-explanation">
-                <div class="rcb-after-trial-ends rcb-text-dark">
-                  <Localized
-                    key={LocalizationKeys.StatePresentOfferPriceAfterFreeTrial}
-                    variables={{
-                      renewalDate:
-                        renewalDate &&
-                        translator.translateDate(renewalDate, {
-                          dateStyle: "medium",
-                        }),
-                    }}
-                  />
-                </div>
-                <div class="rcb-after-trial-ends rcb-text-dark">
-                  {formattedSubscriptionBasePrice}
-                </div>
+            <div class="rcb-product-trial-explanation">
+              <div class="rcb-after-trial-ends rcb-text-dark">
+                <Localized
+                  key={LocalizationKeys.StatePresentOfferPriceAfterFreeTrial}
+                  variables={{
+                    renewalDate:
+                      renewalDate &&
+                      translator.translateDate(renewalDate, {
+                        dateStyle: "medium",
+                      }),
+                  }}
+                />
               </div>
-              <div class="rcb-product-trial-explanation">
-                <div class="rcb-text-dark rcb-total-due-today">
-                  <Localized
-                    key={LocalizationKeys.StatePresentOfferPriceTotalDueToday}
-                  />
-                </div>
-                <div class="rcb-text-dark rcb-total-due-today">
-                  {formattedZeroPrice}
-                </div>
+              <div class="rcb-after-trial-ends rcb-text-dark">
+                {formattedSubscriptionBasePrice}
+              </div>
+            </div>
+            <div class="rcb-product-trial-explanation">
+              <div class="rcb-text-dark rcb-total-due-today">
+                <Localized
+                  key={LocalizationKeys.StatePresentOfferPriceTotalDueToday}
+                />
+              </div>
+              <div class="rcb-text-dark rcb-total-due-today">
+                {formattedZeroPrice}
               </div>
             </div>
           {/if}
@@ -281,9 +279,14 @@
   }
 
   @container layout-query-container (width >= 768px) {
+    .rcb-pricing-info-header {
+      display: flex;
+      flex-direction: column;
+      gap: var(--rc-spacing-gapXLarge-desktop);
+    }
+
     .rcb-pricing-info {
       margin-top: calc(var(--rc-spacing-gapXXLarge-desktop) * 2);
-      /* margin-bottom: calc(var(--rc-spacing-gapXXLarge-desktop) * 2); */
       gap: var(--rc-spacing-gapXXXLarge-desktop);
     }
 

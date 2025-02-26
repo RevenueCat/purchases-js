@@ -87,6 +87,13 @@
       normalPeriodDuration: "P1Y",
     },
     purchaseOptionToUse: subscriptionOptionWithTrial,
+    brandingInfo: {
+      ...brandingInfo,
+      appearance: {
+        ...(brandingInfo.appearance || {}),
+        show_product_description: true,
+      },
+    },
   }}
 />
 <Story
