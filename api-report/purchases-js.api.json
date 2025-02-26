@@ -1,7 +1,7 @@
 {
   "metadata": {
     "toolPackage": "@microsoft/api-extractor",
-    "toolVersion": "7.49.0",
+    "toolVersion": "7.50.1",
     "schemaVersion": 1011,
     "oldestForwardsCompatibleVersion": 1001,
     "tsdocConfig": {
@@ -2881,7 +2881,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "@revenuecat/purchases-js!PeriodType:type",
-          "docComment": "/**\n * Supported period types for an entitlement. - \"normal\" If the entitlement is not under an introductory or trial period. - \"intro\" If the entitlement is under an introductory period. - \"trial\" If the entitlement is under a trial period.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Supported period types for an entitlement. - \"normal\" If the entitlement is not under an introductory or trial period. - \"intro\" If the entitlement is under an introductory period. - \"trial\" If the entitlement is under a trial period. - \"prepaid\" If the entitlement is a prepaid entitlement. Only for Google Play subscriptions.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -2889,7 +2889,7 @@
             },
             {
               "kind": "Content",
-              "text": "\"normal\" | \"intro\" | \"trial\""
+              "text": "\"normal\" | \"intro\" | \"trial\" | \"prepaid\""
             },
             {
               "kind": "Content",
