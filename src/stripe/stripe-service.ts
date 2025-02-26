@@ -66,6 +66,9 @@ export class StripeService {
           colorTextPlaceholder: customColors["grey-text-light"],
           colorText: customColors["grey-text-dark"],
           colorTextSecondary: customColors["grey-text-light"],
+          fontSizeBase:
+            DEFAULT_TEXT_STYLES.body1[viewport].fontSize ||
+            DEFAULT_TEXT_STYLES.body1["mobile"].fontSize,
           ...stripeVariables,
         },
         rules: {
@@ -73,7 +76,9 @@ export class StripeService {
             boxShadow: "none",
             paddingTop: "6px",
             paddingBottom: "6px",
-            fontSize: `${DEFAULT_TEXT_STYLES.body1[viewport] || DEFAULT_TEXT_STYLES.body1["mobile"]}`,
+            fontSize:
+              DEFAULT_TEXT_STYLES.body1[viewport].fontSize ||
+              DEFAULT_TEXT_STYLES.body1["mobile"].fontSize,
             border: `1px solid ${customColors["grey-ui-dark"]}`,
             backgroundColor: customColors["input-background"],
             color: customColors["grey-text-dark"],
@@ -89,9 +94,7 @@ export class StripeService {
           },
           ".Label--floating": {
             opacity: "1",
-            paddingBottom: "0px",
           },
-          ".Label--focused": {},
           ".Input--invalid": {
             boxShadow: "none",
           },
