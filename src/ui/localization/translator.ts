@@ -4,7 +4,7 @@ import { englishLocale } from "./constants";
 
 import type { LocalizationKeys } from "./supportedLanguages";
 import { supportedLanguages } from "./supportedLanguages";
-import { toUpperFirst } from "../../helpers/string-helpers";
+import { capitalize } from "../../helpers/string-helpers";
 import { formatPrice } from "../../helpers/price-labels";
 
 export type EmptyString = "";
@@ -306,7 +306,7 @@ export class LocaleTranslations {
 
     const key =
       Math.abs(amount) === 1
-        ? `periods.${useMultipleWords === true ? "per" : ""}${useMultipleWords ? toUpperFirst(period.toString()) : period}Frequency`
+        ? `periods.${useMultipleWords === true ? "per" : ""}${useMultipleWords ? capitalize(period.toString()) : period}Frequency`
         : `periods.${period}FrequencyPlural`;
 
     return this.translate(key as LocalizationKeys, {
