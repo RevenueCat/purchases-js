@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { applyAlpha } from "../../ui/theme/utils";
+import { applyAlpha, colorStringToRGB } from "../../ui/theme/utils";
 describe("overlayColor", () => {
   test("applies black overlay for a light color", () => {
     expect(applyAlpha("#FFFFFF", 0.1)).toBe("#E6E6E6"); // 10% black overlay on white
@@ -27,5 +27,37 @@ describe("overlayColor", () => {
 
   test("handles incorrect alpha input gracefully", () => {
     expect(applyAlpha("#FFFFFF", -4)).toBe("#FFFFFF");
+  });
+});
+
+describe("colorStringToRGB", () => {
+  test("returns null for invalid color strings", () => {
+    expect(colorStringToRGB("invalid")).toBeNull();
+  });
+
+  test("returns color in RGB format when Hex value", () => {
+    expect(colorStringToRGB("#001122")).toEqual({ r: 0, g: 17, b: 34 });
+  });
+
+  test("returns color in RGB format when RGB value", () => {
+    expect(colorStringToRGB("rgb(0, 17, 34)")).toEqual({ r: 0, g: 17, b: 34 });
+  });
+
+  test("returns color in RGB format when RGBA value", () => {
+    expect(colorStringToRGB("rgba(0, 17, 34, 0.5)")).toEqual({
+      r: 0,
+      g: 17,
+      b: 34,
+      a: 0.5,
+    });
+  });
+
+  test("returns color in RGB format when RGBA value", () => {
+    expect(colorStringToRGB("rgba(0, 17, 34, 0)")).toEqual({
+      r: 0,
+      g: 17,
+      b: 34,
+      a: 0,
+    });
   });
 });

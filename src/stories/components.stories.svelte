@@ -1,9 +1,11 @@
 <script module>
   import { default as ButtonComponent } from "../ui/button.svelte";
+  import { default as LoadingAnimation } from "../ui/processing-animation.svelte";
   import { defineMeta, setTemplate } from "@storybook/addon-svelte-csf";
   import { toProductInfoStyleVar } from "../ui/theme/utils";
   import { colorfulBrandingAppearance } from "./fixtures";
   import { Theme } from "../ui/theme/theme";
+
   const defaultArgs = {};
 
   let generateStyle = (appearance: any) => {
@@ -77,6 +79,16 @@
     disabled: true,
   }}
   parameters={{ viewport: { defaultViewport: "mobile" } }}
+/>
+
+<Story
+  name="Processing Animation"
+  args={{
+    component: LoadingAnimation,
+    style: {
+      "background-color": "black",
+    },
+  }}
 />
 
 <style>

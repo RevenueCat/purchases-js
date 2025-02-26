@@ -20,6 +20,7 @@ type RGB = {
   r: number;
   g: number;
   b: number;
+  a?: number;
 };
 
 const hexToRGB = (color: string): RGB | null => {
@@ -35,6 +36,41 @@ const hexToRGB = (color: string): RGB | null => {
       g: parseInt(color[2], 16),
       b: parseInt(color[3], 16),
     };
+  return null;
+};
+
+const rgbToRGB = (color: string): RGB | null => {
+  if (color.startsWith("rgb(") || color.startsWith("rgba(")) {
+    const rgb = color.match(
+      /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([0-9.]+))?\)/,
+    );
+
+    if (!rgb) {
+      return null;
+    }
+
+    return {
+      r: parseInt(rgb[1]),
+      g: parseInt(rgb[2]),
+      b: parseInt(rgb[3]),
+      a: rgb[4] !== undefined ? parseFloat(rgb[4]) : undefined,
+    };
+  }
+  return null;
+};
+
+/**
+ * Converts a color string to an RGB object.
+ * @param color The color string to convert.
+ * @returns The RGB object or null if the color is invalid.
+ */
+export const colorStringToRGB = (color: string): RGB | null => {
+  if (color.startsWith("#")) {
+    return hexToRGB(color);
+  }
+  if (color.startsWith("rgb(") || color.startsWith("rgba(")) {
+    return rgbToRGB(color);
+  }
   return null;
 };
 
@@ -321,3 +357,19 @@ export const toSpacingVars = (prefix: string = "", spacing: Spacing) =>
         `--rc-${prefix}-${key}-mobile: ${mobile}; --rc-${prefix}-${key}-desktop: ${desktop};`,
     )
     .join(" ");
+
+/**
+ * Determines the appropriate foreground color (black or white) based on background color brightness
+ * @param backgroundColor The background color to evaluate
+ * @param luminanceThreshold Optional threshold to determine light vs dark (defaults to DEFAULT_LUMINANCE_THRESHOLD)
+ * @returns "black" for light backgrounds or "white" for dark backgrounds
+ */
+export const getForegroundColor = (
+  backgroundColor: string,
+  luminanceThreshold: number = DEFAULT_LUMINANCE_THRESHOLD,
+): "black" | "white" => {
+  const rgb = colorStringToRGB(backgroundColor);
+  if (!rgb) return "black"; // Default to black if color parsing fails
+
+  return isLightColor({ ...rgb, luminanceThreshold }) ? "black" : "white";
+};

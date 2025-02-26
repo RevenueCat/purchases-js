@@ -36,8 +36,8 @@ export const DEFAULT_FORM_COLORS: Colors = {
   "grey-text-light": "rgba(0,0,0,0.5)",
   "grey-ui-dark": "rgba(0,0,0,0.3)",
   "grey-ui-light": "rgba(0,0,0,0.005)",
-  "input-background": "white",
-  background: "white",
+  "input-background": "#ffffff",
+  background: "#ffffff",
 };
 
 export const DEFAULT_INFO_COLORS: Colors = {
