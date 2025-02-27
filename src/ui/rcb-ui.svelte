@@ -132,6 +132,12 @@
         customerEmail,
         metadata,
       )
+      .then(async (result) => {
+        if (brandingInfo?.gateway_tax_collection_enabled) {
+          await purchaseOperationHelper.checkoutCalculateTaxes();
+        }
+        return result;
+      })
       .then((result) => {
         lastError = null;
         currentView = "needs-payment-info";
