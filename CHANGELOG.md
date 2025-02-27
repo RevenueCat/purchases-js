@@ -1,3 +1,8 @@
+## 0.18.2
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Add `prepaid` entitlement period support (#343) via Toni Rico (@tonidero)
+
 ## 0.18.1
 ## RevenueCat SDK
 ### 🐞 Bugfixes
