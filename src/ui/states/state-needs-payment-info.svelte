@@ -10,7 +10,6 @@
     StripePaymentElement,
     StripePaymentElementChangeEvent,
   } from "@stripe/stripe-js";
-  import ProcessingAnimation from "../processing-animation.svelte";
   import type { Product, PurchaseOption } from "../../entities/offerings";
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
   import { Theme } from "../theme/theme";
@@ -39,6 +38,7 @@
     createCheckoutPaymentGatewayErrorEvent,
   } from "../../behavioural-events/sdk-event-helpers";
   import { SDKEventName } from "../../behavioural-events/sdk-events";
+  import StateLoading from "./state-loading.svelte";
 
   export let onContinue: (params?: ContinueHandlerParams) => void;
   export let paymentInfoCollectionMetadata: CheckoutStartResponse;
@@ -56,6 +56,7 @@
   let isPaymentInfoComplete = false;
   let clientSecret: string | undefined = undefined;
   let selectedPaymentMethod: string | undefined = undefined;
+  let isStripeLoading = true;
 
   const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
 
@@ -173,6 +174,11 @@
         );
 
         paymentElement.mount("#payment-element");
+
+        paymentElement.on("ready", () => {
+          isStripeLoading = false;
+        });
+
         paymentElement.on(
           "change",
           (event: StripePaymentElementChangeEvent) => {
@@ -191,6 +197,9 @@
           handlePaymentError(purchaseError);
         });
       } catch (error) {
+        if (!isMounted) return;
+        isStripeLoading = false;
+
         const purchaseError = new PurchaseFlowError(
           PurchaseFlowErrorCode.ErrorSettingUpPurchase,
           "Failed to initialize payment form",
@@ -288,26 +297,28 @@
 </script>
 
 <div class="rc-checkout-container">
+  {#if isStripeLoading || processing}
+    <StateLoading />
+  {/if}
   <!-- <TextSeparator text="Pay by card" /> -->
   <form
     on:submit|preventDefault={handleContinue}
     data-testid="payment-form"
     class="rc-checkout-form"
+    class:hidden={isStripeLoading || processing}
   >
     <div class="rc-checkout-form-container" hidden={!!modalErrorMessage}>
       <div class="rc-payment-element-container">
-        <div id="payment-element"></div>
+        <div id="payment-element" class:hidden={isStripeLoading}></div>
       </div>
 
       <div class="rc-checkout-pay-container">
         {#if !modalErrorMessage}
           <Button
-            disabled={processing || !isPaymentInfoComplete}
+            disabled={processing || !isPaymentInfoComplete || isStripeLoading}
             testId="PayButton"
           >
-            {#if processing}
-              <ProcessingAnimation />
-            {:else if productDetails.subscriptionOptions?.[purchaseOption.id]?.trial}
+            {#if productDetails.subscriptionOptions?.[purchaseOption.id]?.trial}
               <Localized
                 key={LocalizationKeys.StateNeedsPaymentInfoButtonStartTrial}
               />
@@ -371,6 +382,10 @@
     /* The standard height of the payment form from Stripe */
     /* Added to avoid the card getting smaller while loading */
     min-height: 320px;
+  }
+
+  .hidden {
+    visibility: hidden;
   }
 
   @container layout-query-container (width <= 767px) {
