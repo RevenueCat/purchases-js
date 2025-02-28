@@ -57,8 +57,8 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "state_present_offer.total_due_today": "Totale dovuto oggi",
   "state_present_offer.subscribe_to": "Abbonati a",
-  "periods.perWeekFrequency": "per week",
-  "periods.perMonthFrequency": "per month",
-  "periods.perYearFrequency": "per year",
-  "periods.perDayFrequency": "per day"
+  "periods.perWeekFrequency": "a settimana",
+  "periods.perMonthFrequency": "al mese",
+  "periods.perYearFrequency": "all'anno",
+  "periods.perDayFrequency": "al giorno"
 }

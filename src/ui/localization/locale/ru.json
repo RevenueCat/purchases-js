@@ -55,10 +55,10 @@
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
   "paywall_variables.sub_relative_discount": "{{discount}}% скидки",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
-  "state_present_offer.total_due_today": "Total due today",
-  "state_present_offer.subscribe_to": "Subscribe to",
-  "periods.perWeekFrequency": "per week",
-  "periods.perMonthFrequency": "per month",
-  "periods.perYearFrequency": "per year",
-  "periods.perDayFrequency": "per day"
+  "state_present_offer.total_due_today": "Итого к оплате сегодня",
+  "state_present_offer.subscribe_to": "Подписаться на",
+  "periods.perWeekFrequency": "в неделю",
+  "periods.perMonthFrequency": "в месяц",
+  "periods.perYearFrequency": "в год",
+  "periods.perDayFrequency": "в день"
 }

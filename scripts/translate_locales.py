@@ -18,7 +18,7 @@ def translate_text(text, target_language):
     }
 
     data = {
-        "model": "gemini-1.5-flash-latest",
+        "model": "gemini-2.0-flash",
         "messages": [
             {
                 "role": "system",
@@ -50,6 +50,9 @@ def translate_text(text, target_language):
             result.get("choices", [{}])[0].get("message", {}).get("content", "")
         )
 
+        # Remove the ```json and ``` from the beginning and end of the translated text if they still exist
+        translated_text = translated_text.strip("```json").strip("```")
+
         if not translated_text:
             raise ValueError(
                 f"Unexpected response format: {json.dumps(result, indent=2)}"
@@ -65,7 +68,7 @@ def translate_text(text, target_language):
         return None
 
 
-def process_json_files(directory, target_language):
+def process_json_files(directory, target_language, keys_to_update=None):
     en_data = None
     for filename in os.listdir(directory):
         if filename == "en.json":
@@ -78,32 +81,94 @@ def process_json_files(directory, target_language):
         print("en.json not found in the directory.")
         return
 
+    # If keys_to_update is provided, filter the English data to only include those keys
+    if keys_to_update:
+        filtered_en_data = {k: v for k, v in en_data.items() if k in keys_to_update}
+        if not filtered_en_data:
+            print("None of the specified keys found in en.json.")
+            return
+        en_data_to_translate = filtered_en_data
+    else:
+        en_data_to_translate = en_data
+
     if target_language is not None:
         process_json_file(
-            en_data, directory, f"{target_language}.json", target_language
+            en_data_to_translate,
+            directory,
+            f"{target_language}.json",
+            target_language,
+            keys_to_update,
         )
         return
 
     for filename in os.listdir(directory):
         if filename.endswith(".json") and filename != "en.json":
             target_language = filename[:-5]
-            process_json_file(en_data, directory, filename, target_language)
+            process_json_file(
+                en_data_to_translate,
+                directory,
+                filename,
+                target_language,
+                keys_to_update,
+            )
 
 
-def process_json_file(en_data, directory, filename, target_language):
+def process_json_file(
+    en_data_to_translate, directory, filename, target_language, keys_to_update=None
+):
     filepath = os.path.join(directory, filename)
+    existing_data = {}
+
+    # Load existing translation file if it exists
+    if os.path.exists(filepath):
+        try:
+            with open(filepath, "r", encoding="utf-8") as f:
+                existing_data = json.load(f)
+        except json.JSONDecodeError:
+            print(f"Warning: {filename} contains invalid JSON. Creating a new file.")
 
     print(f"Translating JSON file {filename}...")
 
-    translated_values = translate_text(str(en_data), target_language)
+    translated_values = translate_text(str(en_data_to_translate), target_language)
     translated_data = json.loads(translated_values)
 
+    # If we're only updating specific keys, merge with existing data
+    if keys_to_update:
+        # Update only the specified keys in the existing data
+        for key in keys_to_update:
+            if key in translated_data:
+                existing_data[key] = translated_data[key]
+        output_data = existing_data
+    else:
+        output_data = translated_data
+
     with open(filepath, "w", encoding="utf-8") as f:
-        json.dump(translated_data, f, indent=2, ensure_ascii=False)
+        json.dump(output_data, f, indent=2, ensure_ascii=False)
     print(f"Updated {filename}")
 
 
 if __name__ == "__main__":
     directory_path = sys.argv[1] if len(sys.argv) > 1 else "."
     target_language = sys.argv[2] if len(sys.argv) > 2 else None
-    process_json_files(directory_path, target_language)
+
+    if target_language == "all":
+        target_language = None
+
+    # Parse keys to update if provided
+    keys_to_update = None
+    if len(sys.argv) > 3:
+        keys_to_update = set(sys.argv[3].split(","))
+        print(f"Only updating keys: {', '.join(keys_to_update)}")
+    # Allow specifying keys_to_update as the third argument when no target language is specified
+    elif len(sys.argv) == 3 and (
+        target_language == "all"
+        or
+        # Check if the argument doesn't look like a language code (typically 2-3 chars)
+        len(target_language) > 3
+        or "," in target_language
+    ):
+        keys_to_update = set(target_language.split(","))
+        target_language = None
+        print(f"Only updating keys: {', '.join(keys_to_update)}")
+
+    process_json_files(directory_path, target_language, keys_to_update)
