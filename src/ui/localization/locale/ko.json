@@ -56,7 +56,7 @@
   "paywall_variables.sub_relative_discount": "{{discount}}% 할인",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "state_present_offer.total_due_today": "오늘 총 지불액",
-  "state_present_offer.subscribe_to": "{{{{state_present_offer.subscribe_to}}}} 구독",
+  "state_present_offer.subscribe_to": "구독하기",
   "periods.perWeekFrequency": "주당",
   "periods.perMonthFrequency": "월간",
   "periods.perYearFrequency": "연간",
