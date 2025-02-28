@@ -156,6 +156,19 @@ export class StripeService {
       layout: {
         type: "tabs",
       },
+      terms: {
+        applePay: "never",
+        auBecsDebit: "never",
+        bancontact: "never",
+        card: "never",
+        cashapp: "never",
+        googlePay: "never",
+        ideal: "never",
+        paypal: "never",
+        sepaDebit: "never",
+        sofort: "never",
+        usBankAccount: "never",
+      },
     });
   }
 }

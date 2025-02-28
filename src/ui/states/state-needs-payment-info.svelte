@@ -331,7 +331,14 @@
         {/if}
 
         <div class="rc-checkout-secure-container">
-          <SecureCheckoutRc />
+          <SecureCheckoutRc
+            termsInfo={translator.translate(
+              LocalizationKeys.StateNeedsPaymentInfoTermsInfo,
+              {
+                appName: brandingInfo?.app_name,
+              },
+            )}
+          />
         </div>
       </div>
     </div>
@@ -381,7 +388,7 @@
   .rc-payment-element-container {
     /* The standard height of the payment form from Stripe */
     /* Added to avoid the card getting smaller while loading */
-    min-height: 320px;
+    min-height: 210px;
   }
 
   .hidden {
