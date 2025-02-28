@@ -56,7 +56,7 @@
   "paywall_variables.sub_relative_discount": "{{discount}}% de desconto",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "state_present_offer.total_due_today": "Total a pagar hoje",
-  "state_present_offer.subscribe_to": "Assinar",
+  "state_present_offer.subscribe_to": "Subscrever",
   "periods.perWeekFrequency": "por semana",
   "periods.perMonthFrequency": "por mês",
   "periods.perYearFrequency": "por ano",

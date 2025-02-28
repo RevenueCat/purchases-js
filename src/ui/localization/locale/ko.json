@@ -55,10 +55,10 @@
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
   "paywall_variables.sub_relative_discount": "{{discount}}% 할인",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
-  "state_present_offer.total_due_today": "오늘 총 지불액",
+  "state_present_offer.total_due_today": "오늘 총 결제 금액",
   "state_present_offer.subscribe_to": "구독하기",
   "periods.perWeekFrequency": "주당",
-  "periods.perMonthFrequency": "월간",
+  "periods.perMonthFrequency": "월별",
   "periods.perYearFrequency": "연간",
   "periods.perDayFrequency": "매일"
 }

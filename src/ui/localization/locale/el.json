@@ -25,7 +25,7 @@
   "periods.monthFrequencyPlural": "κάθε {{amount}} μήνες",
   "periods.yearFrequencyPlural": "κάθε {{amount}} χρόνια",
   "periods.dayFrequencyPlural": "κάθε {{amount}} ημέρες",
-  "state_present_offer.subscribe_to": "Εγγραφή",
+  "state_present_offer.subscribe_to": "Εγγραφείτε στο",
   "state_present_offer.product_title": "{{productTitle}}",
   "state_present_offer.product_description": "{{productDescription}}",
   "state_present_offer.product_price": "{{productPrice}}",

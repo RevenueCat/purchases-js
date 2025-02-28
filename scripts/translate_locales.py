@@ -11,24 +11,61 @@ def get_api_key():
     return api_key
 
 
-def translate_text(text, target_language):
+def load_keys_context(directory):
+    """Load the keys context file if it exists."""
+    context_file_path = os.path.join(directory, "keys_context.json")
+    if not os.path.exists(context_file_path):
+        # Try looking in the localization directory
+        context_file_path = os.path.join(directory, "..", "keys_context.json")
+        if not os.path.exists(context_file_path):
+            return {}
+
+    try:
+        with open(context_file_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except json.JSONDecodeError:
+        print(
+            f"Warning: keys_context.json contains invalid JSON. Proceeding without context."
+        )
+        return {}
+
+
+def translate_text(text, target_language, keys_context=None):
     headers = {
         "Authorization": f"Bearer {get_api_key()}",
         "Content-Type": "application/json",
     }
+
+    # Create a system prompt that includes context for each key if available
+    system_prompt = f"Translate the following JSON into the language with the ISO 639-1 code {target_language.upper()}. "
+    system_prompt += 'Return a valid JSON object using double quotes (`"`) for keys and string values. '
+    system_prompt += (
+        "Do *not* wrap the JSON in any formatting markers like ```json or ```. "
+    )
+    system_prompt += "Maintain the context of a subscription app payment flow. "
+    system_prompt += (
+        "Keep the JSON keys and variables between braces {{{{ and }}}} unchanged. "
+    )
+    system_prompt += (
+        "Do *not* prepend or append any explanatory text to the JSON output. "
+    )
+    system_prompt += "The response should be **valid JSON** that can be parsed using `json.loads()`. "
+
+    # Add context information if available
+    if keys_context:
+        system_prompt += "\n\nHere is additional context for some of the keys to help with translation:\n"
+        for key, context in keys_context.items():
+            if (
+                key in text
+            ):  # Only include context for keys that are in the text to translate
+                system_prompt += f"- {key}: {context}\n"
 
     data = {
         "model": "gemini-2.0-flash",
         "messages": [
             {
                 "role": "system",
-                "content": f"Translate the following JSON into the language with the ISO 639-1 code {target_language.upper()}. "
-                'Return a valid JSON object using double quotes (`"`) for keys and string values. '
-                "Do *not* wrap the JSON in any formatting markers like ```json or ```. "
-                "Maintain the context of a subscription app payment flow. "
-                "Keep the JSON keys and variables between braces {{{{ and }}}} unchanged. "
-                "Do *not* prepend or append any explanatory text to the JSON output. "
-                "The response should be **valid JSON** that can be parsed using `json.loads()`. ",
+                "content": system_prompt,
             },
             {"role": "user", "content": text},
         ],
@@ -81,6 +118,13 @@ def process_json_files(directory, target_language, keys_to_update=None):
         print("en.json not found in the directory.")
         return
 
+    # Load keys context
+    keys_context = load_keys_context(directory)
+    if keys_context:
+        print(f"Loaded context for {len(keys_context)} keys")
+    else:
+        print("No keys context found or loaded")
+
     # If keys_to_update is provided, filter the English data to only include those keys
     if keys_to_update:
         filtered_en_data = {k: v for k, v in en_data.items() if k in keys_to_update}
@@ -98,11 +142,16 @@ def process_json_files(directory, target_language, keys_to_update=None):
             f"{target_language}.json",
             target_language,
             keys_to_update,
+            keys_context,
         )
         return
 
     for filename in os.listdir(directory):
-        if filename.endswith(".json") and filename != "en.json":
+        if (
+            filename.endswith(".json")
+            and filename != "en.json"
+            and filename != "keys_context.json"
+        ):
             target_language = filename[:-5]
             process_json_file(
                 en_data_to_translate,
@@ -110,11 +159,17 @@ def process_json_files(directory, target_language, keys_to_update=None):
                 filename,
                 target_language,
                 keys_to_update,
+                keys_context,
             )
 
 
 def process_json_file(
-    en_data_to_translate, directory, filename, target_language, keys_to_update=None
+    en_data_to_translate,
+    directory,
+    filename,
+    target_language,
+    keys_to_update=None,
+    keys_context=None,
 ):
     filepath = os.path.join(directory, filename)
     existing_data = {}
@@ -129,8 +184,22 @@ def process_json_file(
 
     print(f"Translating JSON file {filename}...")
 
-    translated_values = translate_text(str(en_data_to_translate), target_language)
-    translated_data = json.loads(translated_values)
+    translated_values = translate_text(
+        json.dumps(en_data_to_translate, ensure_ascii=False),
+        target_language,
+        keys_context,
+    )
+
+    if not translated_values:
+        print(f"Translation failed for {filename}. Skipping.")
+        return
+
+    try:
+        translated_data = json.loads(translated_values)
+    except json.JSONDecodeError as e:
+        print(f"Error: Could not parse translated JSON for {filename}: {e}")
+        print(f"Raw translated text: {translated_values[:200]}...")
+        return
 
     # If we're only updating specific keys, merge with existing data
     if keys_to_update:

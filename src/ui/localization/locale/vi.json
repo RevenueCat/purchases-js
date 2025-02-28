@@ -55,7 +55,7 @@
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
   "paywall_variables.sub_relative_discount": "{{discount}}% giảm",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
-  "state_present_offer.total_due_today": "Tổng cộng phải trả hôm nay",
+  "state_present_offer.total_due_today": "Tổng số tiền phải trả hôm nay",
   "state_present_offer.subscribe_to": "Đăng ký",
   "periods.perWeekFrequency": "mỗi tuần",
   "periods.perMonthFrequency": "mỗi tháng",
