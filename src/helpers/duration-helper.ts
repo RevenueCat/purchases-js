@@ -59,6 +59,7 @@ export function getNextRenewalDate(
   if (!willRenew) {
     return null;
   }
+
   let result = new Date(startDate);
 
   switch (period.unit) {

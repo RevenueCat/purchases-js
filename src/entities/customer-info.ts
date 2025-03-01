@@ -5,6 +5,7 @@ import {
   type SubscriberSubscriptionResponse,
 } from "../networking/responses/subscriber-response";
 import { ErrorCode, PurchasesError } from "./errors";
+import type { Package } from "./offerings";
 
 /**
  * The store where the user originally subscribed.

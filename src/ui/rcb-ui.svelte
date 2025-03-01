@@ -35,7 +35,11 @@
   export let brandingInfo: BrandingInfoResponse | null;
   export let onFinished: (
     operationSessionId: string,
-    redemptionInfo: RedemptionInfo | null,
+    purchaseOperationMetadata: {
+      redemptionInfo: RedemptionInfo | null;
+      customerEmail: string | null;
+      rcPackage: Package;
+    },
   ) => void;
   export let onError: (error: PurchaseFlowError) => void;
   // We don't have a close button in the UI, but we might add one soon
@@ -165,7 +169,11 @@
     }
 
     if (currentView === "success" || currentView === "error") {
-      onFinished(operationSessionId!, redemptionInfo);
+      onFinished(operationSessionId!, {
+        redemptionInfo,
+        customerEmail: customerEmail ?? null,
+        rcPackage,
+      });
       return;
     }
 
