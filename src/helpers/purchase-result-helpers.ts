@@ -1,24 +1,25 @@
 import type { CustomerInfo } from "../entities/customer-info";
 import type { Package } from "../entities/offerings";
 
-export function getRenewalDateFromPackage(customerInfo: CustomerInfo, rcPackage: Package): Date | null {
+export function getRenewalDateFromPackage(
+  customerInfo: CustomerInfo,
+  rcPackage: Package,
+): Date | null {
   const productIdentifier = rcPackage.webBillingProduct.identifier;
 
-  const isActiveSubscription = customerInfo.activeSubscriptions.has(productIdentifier);
+  const isActiveSubscription =
+    customerInfo.activeSubscriptions.has(productIdentifier);
 
   if (!isActiveSubscription) {
     return null;
   }
 
-  for (const entitlementId in customerInfo.entitlements.active) {
-    const entitlement = customerInfo.entitlements.active[entitlementId];
-    if (entitlement.productIdentifier === productIdentifier) {
+  const expirationDate =
+    customerInfo.allExpirationDatesByProduct[productIdentifier];
 
-      if (entitlement.willRenew) {
-        return entitlement.expirationDate;
-      }
-    }
+  if (!expirationDate) {
+    return null;
   }
 
-  return null;
+  return expirationDate;
 }
