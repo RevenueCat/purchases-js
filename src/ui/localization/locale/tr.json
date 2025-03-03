@@ -60,5 +60,6 @@
   "periods.perWeekFrequency": "haftada",
   "periods.perMonthFrequency": "ayda",
   "periods.perYearFrequency": "yılda",
-  "periods.perDayFrequency": "günde"
+  "periods.perDayFrequency": "günde",
+  "state_needs_payment_info.trial_info": "Deneme süreniz sona erdikten sonra, {{renewalDate}} tarihinden itibaren {{price}} {{perFrequency}} ücretlendirileceksiniz. O zamana kadar istediğiniz zaman iptal edebilirsiniz."
 }

@@ -60,5 +60,6 @@
   "periods.perWeekFrequency": "viikossa",
   "periods.perMonthFrequency": "kuukaudessa",
   "periods.perYearFrequency": "vuodessa",
-  "periods.perDayFrequency": "päivässä"
+  "periods.perDayFrequency": "päivässä",
+  "state_needs_payment_info.trial_info": "Kokeilujaksosi päätyttyä sinulta veloitetaan {{price}} {{perFrequency}} alkaen {{renewalDate}}. Voit peruuttaa tilauksen milloin tahansa ennen sitä."
 }

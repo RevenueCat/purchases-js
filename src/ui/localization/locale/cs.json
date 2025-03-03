@@ -60,5 +60,6 @@
   "periods.perWeekFrequency": "týdně",
   "periods.perMonthFrequency": "měsíčně",
   "periods.perYearFrequency": "ročně",
-  "periods.perDayFrequency": "denně"
+  "periods.perDayFrequency": "denně",
+  "state_needs_payment_info.trial_info": "Po skončení zkušební verze vám bude účtováno {{price}} {{perFrequency}} počínaje {{renewalDate}}. Předtím můžete kdykoli zrušit."
 }

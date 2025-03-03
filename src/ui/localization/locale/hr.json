@@ -60,5 +60,6 @@
   "periods.perWeekFrequency": "tjedno",
   "periods.perMonthFrequency": "mjesečno",
   "periods.perYearFrequency": "godišnje",
-  "periods.perDayFrequency": "dnevno"
+  "periods.perDayFrequency": "dnevno",
+  "state_needs_payment_info.trial_info": "Nakon završetka probnog razdoblja, bit će vam naplaćeno {{price}} {{perFrequency}} počevši od {{renewalDate}}. Uvijek možete otkazati prije toga."
 }
