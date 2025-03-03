@@ -55,10 +55,10 @@
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
   "paywall_variables.sub_relative_discount": "{{discount}}% de descompte",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
-  "state_present_offer.total_due_today": "Total due today",
-  "state_present_offer.subscribe_to": "Subscribe to",
-  "periods.perWeekFrequency": "per week",
-  "periods.perMonthFrequency": "per month",
-  "periods.perYearFrequency": "per year",
-  "periods.perDayFrequency": "per day"
+  "state_present_offer.total_due_today": "Total a pagar avui",
+  "state_present_offer.subscribe_to": "Subscriu-te a",
+  "periods.perWeekFrequency": "per setmana",
+  "periods.perMonthFrequency": "per mes",
+  "periods.perYearFrequency": "per any",
+  "periods.perDayFrequency": "per dia"
 }

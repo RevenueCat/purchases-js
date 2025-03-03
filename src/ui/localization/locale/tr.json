@@ -55,10 +55,10 @@
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
   "paywall_variables.sub_relative_discount": "{{discount}}% indirim",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
-  "state_present_offer.total_due_today": "Total due today",
-  "state_present_offer.subscribe_to": "Subscribe to",
-  "periods.perWeekFrequency": "per week",
-  "periods.perMonthFrequency": "per month",
-  "periods.perYearFrequency": "per year",
-  "periods.perDayFrequency": "per day"
+  "state_present_offer.total_due_today": "Bugün ödenecek topla",
+  "state_present_offer.subscribe_to": "Abone Ol",
+  "periods.perWeekFrequency": "haftada",
+  "periods.perMonthFrequency": "ayda",
+  "periods.perYearFrequency": "yılda",
+  "periods.perDayFrequency": "günde"
 }
