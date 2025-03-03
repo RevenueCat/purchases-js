@@ -85,11 +85,7 @@
     <ModalFooter>
       <RowLayout>
         <Button disabled={processing} type="submit" loading={processing}>
-          {#if !processing}
-            <Localized
-              key={LocalizationKeys.StateNeedsAuthInfoButtonContinue}
-            />
-          {/if}
+          <Localized key={LocalizationKeys.StateNeedsAuthInfoButtonContinue} />
         </Button>
       </RowLayout>
       <div class="secure-checkout-container">
