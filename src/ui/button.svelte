@@ -1,10 +1,12 @@
 <script lang="ts">
   import { type Snippet } from "svelte";
+  import ProcessingAnimation from "./processing-animation.svelte";
 
   export let intent: "primary" = "primary";
   export let disabled = false;
   export let testId: string | undefined = undefined;
   export let type: "reset" | "submit" | "button" | null | undefined = undefined;
+  export let loading: boolean = false;
 
   export let children: Snippet | undefined;
 </script>
@@ -16,7 +18,11 @@
   data-testid={testId}
   {type}
 >
-  {@render children?.()}
+  {#if loading}
+    <ProcessingAnimation size="small" />
+  {:else}
+    {@render children?.()}
+  {/if}
 </button>
 
 <style>

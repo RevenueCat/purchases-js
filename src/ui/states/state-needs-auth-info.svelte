@@ -84,10 +84,8 @@
     </ModalSection>
     <ModalFooter>
       <RowLayout>
-        <Button disabled={processing} type="submit">
-          {#if processing}
-            <ProcessingAnimation />
-          {:else}
+        <Button disabled={processing} type="submit" loading={processing}>
+          {#if !processing}
             <Localized
               key={LocalizationKeys.StateNeedsAuthInfoButtonContinue}
             />
