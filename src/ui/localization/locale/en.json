@@ -41,6 +41,7 @@
   "state_needs_auth_info.button_continue": "Continue",
   "state_needs_payment_info.payment_step_title": "Secure checkout by RevenueCat",
   "state_needs_payment_info.terms_info": "By providing your card information you allow {{appName}} to charge your card for future payments in accordance with their terms.",
+  "state_needs_payment_info.trial_info": "After your trial ends, you will be charged {{price}} {{perFrequency}} starting {{renewalDate}}. You can always cancel before then.",
   "state_needs_payment_info.button_pay": "Pay now",
   "state_needs_payment_info.button_start_trial": "Start trial",
   "state_success.purchase_successful": "Payment complete",
