@@ -57,6 +57,9 @@
     right: 0;
     bottom: 0;
     z-index: 1000001;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
   }
 
   .rcb-ui-container.inside {
