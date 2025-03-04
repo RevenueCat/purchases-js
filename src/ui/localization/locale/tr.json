@@ -55,7 +55,7 @@
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
   "paywall_variables.sub_relative_discount": "{{discount}}% indirim",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
-  "state_present_offer.total_due_today": "Bugün ödenecek topla",
+  "state_present_offer.total_due_today": "Bugün ödenecek toplam tutar",
   "state_present_offer.subscribe_to": "Abone Ol",
   "periods.perWeekFrequency": "haftada",
   "periods.perMonthFrequency": "ayda",
