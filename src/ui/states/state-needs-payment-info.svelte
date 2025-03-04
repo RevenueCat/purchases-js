@@ -39,7 +39,8 @@
   } from "../../behavioural-events/sdk-event-helpers";
   import { SDKEventName } from "../../behavioural-events/sdk-events";
   import StateLoading from "./state-loading.svelte";
-  import { getNextRenewalDate } from "src/helpers/duration-helper";
+  import { getNextRenewalDate } from "../../helpers/duration-helper";
+  import { formatPrice } from "../../helpers/price-labels";
 
   export let onContinue: (params?: ContinueHandlerParams) => void;
   export let paymentInfoCollectionMetadata: CheckoutStartResponse;
@@ -342,14 +343,18 @@
                 appName: brandingInfo?.app_name,
               },
             )}
-          />
-          {#if subscriptionOption?.trial}
-            <div class="rc-checkout-trial-info">
-              {#if subscriptionOption?.trial?.price && subscriptionOption?.trial?.period && subscriptionOption?.base?.period && subscriptionOption?.base?.period?.unit}
-                <Localized
-                  key={LocalizationKeys.StateNeedsPaymentInfoTrialInfo}
-                  variables={{
-                    price: productDetails.currentPrice.formattedPrice,
+            trialInfo={subscriptionOption?.base?.price &&
+            subscriptionOption?.trial?.period &&
+            subscriptionOption?.base?.period &&
+            subscriptionOption?.base?.period?.unit
+              ? translator.translate(
+                  LocalizationKeys.StateNeedsPaymentInfoTrialInfo,
+                  {
+                    price: formatPrice(
+                      subscriptionOption?.base?.price.amountMicros,
+                      subscriptionOption?.base?.price.currency,
+                      localeToUse,
+                    ),
                     perFrequency: translator.translatePeriodFrequency(
                       subscriptionOption?.base?.period?.number || 1,
                       subscriptionOption?.base?.period?.unit,
@@ -364,11 +369,10 @@
                       ) as Date,
                       { year: "numeric", month: "long", day: "numeric" },
                     ),
-                  }}
-                />
-              {/if}
-            </div>
-          {/if}
+                  },
+                )
+              : null}
+          />
         </div>
       </div>
     </div>

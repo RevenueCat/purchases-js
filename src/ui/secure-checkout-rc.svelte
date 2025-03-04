@@ -3,12 +3,18 @@
   import { LocalizationKeys } from "./localization/supportedLanguages";
 
   export let termsInfo: string | null = null;
+  export let trialInfo: string | null = null;
 </script>
 
 <div class="footer-caption-container">
   {#if termsInfo}
     <p class="footer-caption">
       {termsInfo}
+    </p>
+  {/if}
+  {#if trialInfo}
+    <p class="footer-caption">
+      {trialInfo}
     </p>
   {/if}
   <p class="footer-caption">
