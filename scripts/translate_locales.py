@@ -220,7 +220,13 @@ if __name__ == "__main__":
     directory_path = sys.argv[1] if len(sys.argv) > 1 else "."
     target_language = sys.argv[2] if len(sys.argv) > 2 else None
 
+    # Parse target languages
+    target_languages = None
     if target_language == "all":
+        target_language = None
+    elif target_language and "," in target_language:
+        target_languages = target_language.split(",")
+        print(f"Translating to languages: {', '.join(target_languages)}")
         target_language = None
 
     # Parse keys to update if provided
@@ -233,11 +239,15 @@ if __name__ == "__main__":
         target_language == "all"
         or
         # Check if the argument doesn't look like a language code (typically 2-3 chars)
-        len(target_language) > 3
-        or "," in target_language
+        (target_language and (len(target_language) > 3 or "," in target_language))
     ):
         keys_to_update = set(target_language.split(","))
         target_language = None
         print(f"Only updating keys: {', '.join(keys_to_update)}")
 
-    process_json_files(directory_path, target_language, keys_to_update)
+    if target_languages:
+        for lang in target_languages:
+            print(f"\nProcessing language: {lang}")
+            process_json_files(directory_path, lang, keys_to_update)
+    else:
+        process_json_files(directory_path, target_language, keys_to_update)

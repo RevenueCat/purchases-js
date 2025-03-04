@@ -61,5 +61,5 @@
   "periods.perMonthFrequency": "par mois",
   "periods.perYearFrequency": "par an",
   "periods.perDayFrequency": "par jour",
-  "state_needs_payment_info.trial_info": "Une fois votre essai terminé, vous serez facturé {{price}} {{perFrequency}} à partir du {{renewalDate}}. Vous pouvez annuler à tout moment avant cette date."
+  "state_needs_payment_info.trial_info": "Après la fin de votre essai, vous serez facturé {{price}} {{perFrequency}} à partir du {{renewalDate}}. Vous pouvez annuler à tout moment avant cette date."
 }
