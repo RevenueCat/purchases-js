@@ -63,6 +63,7 @@ import {
 import { SDKEventName } from "./behavioural-events/sdk-events";
 import { autoParseUTMParams } from "./helpers/utm-params";
 import { defaultFlagsConfig, type FlagsConfig } from "./entities/flags-config";
+import { getRenewalDateFromPackage } from "./helpers/purchase-result-helpers";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -624,19 +625,28 @@ export class Purchases {
           customerEmail,
           onFinished: async (
             operationSessionId: string,
-            redemptionInfo: RedemptionInfo | null,
+            purchaseOperationMetadata: {
+              redemptionInfo: RedemptionInfo | null;
+              customerEmail: string | null;
+              rcPackage: Package;
+            } | null,
           ) => {
             const event = createCheckoutSessionEndFinishedEvent({
-              redemptionInfo,
+              redemptionInfo: purchaseOperationMetadata?.redemptionInfo ?? null,
             });
             this.eventsTracker.trackSDKEvent(event);
             Logger.debugLog("Purchase finished");
             certainHTMLTarget.innerHTML = "";
             // TODO: Add info about transaction in result.
+            const customerInfo = await this._getCustomerInfoForUserId(appUserId);
+            const renewalDate = getRenewalDateFromPackage(customerInfo, rcPackage);
+
             const purchaseResult: PurchaseResult = {
-              customerInfo: await this._getCustomerInfoForUserId(appUserId),
-              redemptionInfo: redemptionInfo,
+              customerInfo,
+              redemptionInfo: purchaseOperationMetadata?.redemptionInfo ?? null,
               operationSessionId: operationSessionId,
+              customerEmail: purchaseOperationMetadata?.customerEmail ?? null,
+              renewalDate,
             };
             resolve(purchaseResult);
           },
