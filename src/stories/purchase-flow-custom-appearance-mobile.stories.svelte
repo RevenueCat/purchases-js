@@ -6,8 +6,7 @@
   import { Translator } from "../ui/localization/translator";
 
   import {
-    brandingInfo,
-    colorfulBrandingAppearance,
+    brandingInfos,
     product,
     purchaseFlowError,
     subscriptionOption,
@@ -18,11 +17,11 @@
   import { translatorContextKey } from "../ui/localization/constants";
 
   const defaultArgs = {
+    brandingInfo: brandingInfos["Fantastic"],
     context: {},
     productDetails: product,
     purchaseOptionToUse: subscriptionOption,
     purchaseOption: subscriptionOption,
-    brandingInfo: { ...brandingInfo, appearance: colorfulBrandingAppearance },
     lastError: purchaseFlowError,
     onContinue: () => {},
   };
@@ -31,6 +30,15 @@
 
   let { Story } = defineMeta({
     title: "Purchase flow Custom Appearance (Mobile)",
+    argTypes: {
+      brandingInfo: {
+        name: "Branding",
+        description: "Pick an example branding",
+        control: "select",
+        options: Object.keys(brandingInfos),
+        mapping: brandingInfos,
+      },
+    },
     args: defaultArgs,
     parameters: {},
     loaders: [
@@ -42,9 +50,6 @@
       },
     ],
   });
-
-  // @ts-ignore
-  let colorVariables = toProductInfoStyleVar(brandingInfo?.appearance);
 </script>
 
 <script lang="ts">
@@ -54,6 +59,8 @@
 </script>
 
 {#snippet template(args: any)}
+  {@const colorVariables = toProductInfoStyleVar(args.brandingInfo?.appearance)}
+
   <WithContext
     context={{
       ...args.context,
