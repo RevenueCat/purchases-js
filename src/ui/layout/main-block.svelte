@@ -6,7 +6,8 @@
 
   export let brandingAppearance: BrandingAppearance | null | undefined =
     undefined;
-  let style = new Theme(brandingAppearance).formStyleVars;
+  // Make style reactive to changes in brandingAppearance
+  $: style = new Theme(brandingAppearance).formStyleVars;
 
   export let body;
   export let header: (() => any) | null = null;
