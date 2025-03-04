@@ -152,6 +152,8 @@ describe("The supportedLanguages", () => {
       }
     });
 
+    console.log(files);
+
     expect(
       eqSet(new Set(Object.keys(supportedLanguages)), new Set(files)),
       "Not all files in /locales are imported as supportedLanguages",
