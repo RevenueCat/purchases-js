@@ -15,6 +15,7 @@ import {
   StripeElementsSetupFutureUsage,
 } from "../networking/responses/checkout-start-response";
 import type { BrandingAppearance } from "../entities/branding";
+import type { CheckoutCalculateTaxesResponse } from "src/networking/responses/checkout-calculate-taxes-response";
 
 export const subscriptionOption: SubscriptionOption = {
   id: "option_id_1",
@@ -121,6 +122,7 @@ export const brandingInfo: BrandingInfoResponse = {
   app_icon: "1005820_1715624566.png",
   app_icon_webp: "1005820_1715624566.webp",
   appearance: null,
+  gateway_tax_collection_enabled: true,
 };
 
 export const purchaseFlowError = new PurchaseFlowError(1);
@@ -149,6 +151,10 @@ export const checkoutStartResponse: CheckoutStartResponse = {
     publishable_api_key: "test_publishable_api_key",
     elements_configuration: stripeElementsConfiguration,
   },
+};
+
+export const checkoutCalculateTaxesResponse: CheckoutCalculateTaxesResponse = {
+  operation_session_id: "operation-session-id",
 };
 
 export const defaultContext = {
