@@ -60,5 +60,6 @@
   "periods.perWeekFrequency": "per uke",
   "periods.perMonthFrequency": "per måned",
   "periods.perYearFrequency": "per år",
-  "periods.perDayFrequency": "per dag"
+  "periods.perDayFrequency": "per dag",
+  "state_needs_payment_info.trial_info": "Etter at prøveperioden din er over, blir du belastet {{price}} {{perFrequency}} fra og med {{renewalDate}}. Du kan når som helst kansellere før det."
 }

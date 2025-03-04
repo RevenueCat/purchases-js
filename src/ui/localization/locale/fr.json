@@ -60,5 +60,6 @@
   "periods.perWeekFrequency": "par semaine",
   "periods.perMonthFrequency": "par mois",
   "periods.perYearFrequency": "par an",
-  "periods.perDayFrequency": "par jour"
+  "periods.perDayFrequency": "par jour",
+  "state_needs_payment_info.trial_info": "Après la fin de votre essai, vous serez facturé {{price}} {{perFrequency}} à partir du {{renewalDate}}. Vous pouvez annuler à tout moment avant cette date."
 }

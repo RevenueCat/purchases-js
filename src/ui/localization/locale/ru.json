@@ -60,5 +60,6 @@
   "periods.perWeekFrequency": "в неделю",
   "periods.perMonthFrequency": "в месяц",
   "periods.perYearFrequency": "в год",
-  "periods.perDayFrequency": "в день"
+  "periods.perDayFrequency": "в день",
+  "state_needs_payment_info.trial_info": "После окончания пробного периода с вас будет взиматься {{price}} {{perFrequency}} начиная с {{renewalDate}}. Вы всегда можете отменить подписку до этого времени."
 }

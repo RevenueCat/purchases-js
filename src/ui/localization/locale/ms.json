@@ -60,5 +60,6 @@
   "periods.perWeekFrequency": "setiap minggu",
   "periods.perMonthFrequency": "setiap bulan",
   "periods.perYearFrequency": "setiap tahun",
-  "periods.perDayFrequency": "setiap hari"
+  "periods.perDayFrequency": "setiap hari",
+  "state_needs_payment_info.trial_info": "Selepas tempoh percubaan anda tamat, anda akan dikenakan bayaran sebanyak {{price}} {{perFrequency}} bermula {{renewalDate}}. Anda sentiasa boleh membatalkan sebelum itu."
 }

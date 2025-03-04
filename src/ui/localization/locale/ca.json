@@ -60,5 +60,6 @@
   "periods.perWeekFrequency": "per setmana",
   "periods.perMonthFrequency": "per mes",
   "periods.perYearFrequency": "per any",
-  "periods.perDayFrequency": "per dia"
+  "periods.perDayFrequency": "per dia",
+  "state_needs_payment_info.trial_info": "Un cop finalitzi el període de prova, se us cobrarà {{price}} {{perFrequency}} a partir del {{renewalDate}}. Sempre podeu cancel·lar abans d'aquesta data."
 }

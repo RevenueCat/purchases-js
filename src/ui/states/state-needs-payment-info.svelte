@@ -39,6 +39,8 @@
   } from "../../behavioural-events/sdk-event-helpers";
   import { SDKEventName } from "../../behavioural-events/sdk-events";
   import StateLoading from "./state-loading.svelte";
+  import { getNextRenewalDate } from "../../helpers/duration-helper";
+  import { formatPrice } from "../../helpers/price-labels";
 
   export let onContinue: (params?: ContinueHandlerParams) => void;
   export let paymentInfoCollectionMetadata: CheckoutStartResponse;
@@ -57,6 +59,9 @@
   let clientSecret: string | undefined = undefined;
   let selectedPaymentMethod: string | undefined = undefined;
   let isStripeLoading = true;
+
+  const subscriptionOption =
+    productDetails.subscriptionOptions?.[purchaseOption.id];
 
   const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
 
@@ -318,7 +323,7 @@
             disabled={processing || !isPaymentInfoComplete || isStripeLoading}
             testId="PayButton"
           >
-            {#if productDetails.subscriptionOptions?.[purchaseOption.id]?.trial}
+            {#if subscriptionOption?.trial}
               <Localized
                 key={LocalizationKeys.StateNeedsPaymentInfoButtonStartTrial}
               />
@@ -331,7 +336,43 @@
         {/if}
 
         <div class="rc-checkout-secure-container">
-          <SecureCheckoutRc />
+          <SecureCheckoutRc
+            termsInfo={translator.translate(
+              LocalizationKeys.StateNeedsPaymentInfoTermsInfo,
+              {
+                appName: brandingInfo?.app_name,
+              },
+            )}
+            trialInfo={subscriptionOption?.base?.price &&
+            subscriptionOption?.trial?.period &&
+            subscriptionOption?.base?.period &&
+            subscriptionOption?.base?.period?.unit
+              ? translator.translate(
+                  LocalizationKeys.StateNeedsPaymentInfoTrialInfo,
+                  {
+                    price: formatPrice(
+                      subscriptionOption?.base?.price.amountMicros,
+                      subscriptionOption?.base?.price.currency,
+                      localeToUse,
+                    ),
+                    perFrequency: translator.translatePeriodFrequency(
+                      subscriptionOption?.base?.period?.number || 1,
+                      subscriptionOption?.base?.period?.unit,
+                      { useMultipleWords: true },
+                    ),
+                    renewalDate: translator.translateDate(
+                      getNextRenewalDate(
+                        new Date(),
+                        subscriptionOption.trial.period ||
+                          subscriptionOption.base.period,
+                        true,
+                      ) as Date,
+                      { year: "numeric", month: "long", day: "numeric" },
+                    ),
+                  },
+                )
+              : null}
+          />
         </div>
       </div>
     </div>
@@ -381,7 +422,7 @@
   .rc-payment-element-container {
     /* The standard height of the payment form from Stripe */
     /* Added to avoid the card getting smaller while loading */
-    min-height: 320px;
+    min-height: 210px;
   }
 
   .hidden {
