@@ -55,10 +55,11 @@
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
   "paywall_variables.sub_relative_discount": "{{discount}}% de descuento",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
-  "state_present_offer.total_due_today": "Total due today",
-  "state_present_offer.subscribe_to": "Subscribe to",
-  "periods.perWeekFrequency": "per week",
-  "periods.perMonthFrequency": "per month",
-  "periods.perYearFrequency": "per year",
-  "periods.perDayFrequency": "per day"
+  "state_present_offer.total_due_today": "Total a pagar hoy",
+  "state_present_offer.subscribe_to": "Suscribirse a",
+  "periods.perWeekFrequency": "por semana",
+  "periods.perMonthFrequency": "por mes",
+  "periods.perYearFrequency": "por año",
+  "periods.perDayFrequency": "por día",
+  "state_needs_payment_info.trial_info": "Una vez finalizado el período de prueba, se le cobrará {{price}} {{perFrequency}} a partir del {{renewalDate}}. Puede cancelar en cualquier momento antes de esa fecha."
 }

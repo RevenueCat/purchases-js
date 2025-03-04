@@ -55,10 +55,11 @@
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
   "paywall_variables.sub_relative_discount": "{{discount}}% rabatt",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}} ({{formattedPricePerMonth}}/{{monthPeriod}})",
-  "state_present_offer.total_due_today": "Total due today",
-  "state_present_offer.subscribe_to": "Subscribe to",
-  "periods.perWeekFrequency": "per week",
-  "periods.perMonthFrequency": "per month",
-  "periods.perYearFrequency": "per year",
-  "periods.perDayFrequency": "per day"
+  "state_present_offer.total_due_today": "Totalt att betala idag",
+  "state_present_offer.subscribe_to": "Prenumerera på",
+  "periods.perWeekFrequency": "per vecka",
+  "periods.perMonthFrequency": "per månad",
+  "periods.perYearFrequency": "per år",
+  "periods.perDayFrequency": "per dag",
+  "state_needs_payment_info.trial_info": "Efter din provperiod avslutas debiteras du {{price}} {{perFrequency}} från och med {{renewalDate}}. Du kan alltid avbryta innan dess."
 }

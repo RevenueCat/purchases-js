@@ -97,10 +97,19 @@
   parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
 <Story
-  name="Checkout"
+  name="Checkout (with Trial Product)"
   args={{
     ...defaultArgs,
     currentView: "needs-payment-info",
+    productDetails: {
+      ...product,
+      subscriptionOptions: {
+        ...product.subscriptionOptions,
+        [subscriptionOptionWithTrial.id]: subscriptionOptionWithTrial,
+      },
+    },
+    purchaseOptionToUse: subscriptionOptionWithTrial,
+    defaultPurchaseOption: subscriptionOptionWithTrial,
   }}
   parameters={{ viewport: { defaultViewport: "mobile" } }}
 />

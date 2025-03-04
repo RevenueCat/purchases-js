@@ -55,10 +55,11 @@
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
   "paywall_variables.sub_relative_discount": "{{discount}}% korting",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
-  "state_present_offer.total_due_today": "Total due today",
-  "state_present_offer.subscribe_to": "Subscribe to",
+  "state_present_offer.total_due_today": "Totaal te betalen vandaag",
+  "state_present_offer.subscribe_to": "Abonneren op",
   "periods.perWeekFrequency": "per week",
-  "periods.perMonthFrequency": "per month",
-  "periods.perYearFrequency": "per year",
-  "periods.perDayFrequency": "per day"
+  "periods.perMonthFrequency": "per maand",
+  "periods.perYearFrequency": "per jaar",
+  "periods.perDayFrequency": "per dag",
+  "state_needs_payment_info.trial_info": "Na afloop van je proefperiode wordt {{price}} {{perFrequency}} in rekening gebracht vanaf {{renewalDate}}. Je kunt altijd eerder annuleren."
 }

@@ -55,10 +55,11 @@
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
   "paywall_variables.sub_relative_discount": "{{discount}}% popusta",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
-  "state_present_offer.total_due_today": "Total due today",
-  "state_present_offer.subscribe_to": "Subscribe to",
-  "periods.perWeekFrequency": "per week",
-  "periods.perMonthFrequency": "per month",
-  "periods.perYearFrequency": "per year",
-  "periods.perDayFrequency": "per day"
+  "state_present_offer.total_due_today": "Ukupno dospijeće danas",
+  "state_present_offer.subscribe_to": "Pretplatite se",
+  "periods.perWeekFrequency": "tjedno",
+  "periods.perMonthFrequency": "mjesečno",
+  "periods.perYearFrequency": "godišnje",
+  "periods.perDayFrequency": "dnevno",
+  "state_needs_payment_info.trial_info": "Nakon završetka probnog razdoblja, bit će vam naplaćeno {{price}} {{perFrequency}} počevši od {{renewalDate}}. Uvijek možete otkazati prije toga."
 }

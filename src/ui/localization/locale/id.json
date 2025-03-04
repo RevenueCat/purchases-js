@@ -55,10 +55,11 @@
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
   "paywall_variables.sub_relative_discount": "{{discount}}% diskon",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
-  "state_present_offer.total_due_today": "Total due today",
-  "state_present_offer.subscribe_to": "Subscribe to",
-  "periods.perWeekFrequency": "per week",
-  "periods.perMonthFrequency": "per month",
-  "periods.perYearFrequency": "per year",
-  "periods.perDayFrequency": "per day"
+  "state_present_offer.total_due_today": "Total yang harus dibayar hari ini",
+  "state_present_offer.subscribe_to": "Berlangganan ke",
+  "periods.perWeekFrequency": "per minggu",
+  "periods.perMonthFrequency": "per bulan",
+  "periods.perYearFrequency": "per tahun",
+  "periods.perDayFrequency": "per hari",
+  "state_needs_payment_info.trial_info": "Setelah masa percobaan Anda berakhir, Anda akan dikenakan biaya {{price}} {{perFrequency}} mulai {{renewalDate}}. Anda selalu dapat membatalkan sebelum itu."
 }
