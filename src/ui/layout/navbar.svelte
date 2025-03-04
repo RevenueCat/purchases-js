@@ -6,7 +6,7 @@
 
   export let brandingAppearance: BrandingAppearance | null | undefined =
     undefined;
-  let style = new Theme(brandingAppearance).productInfoStyleVars;
+  $: style = new Theme(brandingAppearance).productInfoStyleVars;
 
   export let headerContent;
   export let bodyContent: (expanded: boolean) => any;
