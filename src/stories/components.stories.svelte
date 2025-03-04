@@ -79,6 +79,18 @@
   parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
 
+<Story
+  name="Button (Primary loading)"
+  args={{
+    component: ButtonComponent,
+    children: "Click me",
+    intent: "primary",
+    loading: true,
+    size: "small",
+  }}
+  parameters={{ viewport: { defaultViewport: "mobile" } }}
+/>
+
 <style>
   .story-container {
     margin: 0 5vw;
