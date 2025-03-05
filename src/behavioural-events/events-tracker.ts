@@ -78,6 +78,10 @@ export default class EventsTracker implements IEventsTracker {
   }
 
   private trackEvent(props: TrackEventProps) {
+    if (this.isSilent) {
+      Logger.verboseLog("Skipping event tracking, the EventsTracker is silent");
+      return;
+    }
     try {
       const event = new Event({
         eventName: props.eventName,
@@ -103,12 +107,6 @@ export default class EventsTracker implements IEventsTracker {
     }
 
     const eventsToFlush = [...this.eventsQueue];
-
-    if (this.isSilent) {
-      Logger.debugLog("Skipping events tracking, the EventsTracker is silent");
-      this.eventsQueue.splice(0, eventsToFlush.length);
-      return Promise.resolve();
-    }
 
     return fetch(this.eventsUrl, {
       method: HttpMethods.POST,
