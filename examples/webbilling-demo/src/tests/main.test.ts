@@ -378,7 +378,7 @@ test.describe("Main", () => {
           return false;
         }
       }),
-      { timeout: 5_000 },
+      { timeout: 3_000 },
     );
     await navigateToUrl(page, userId);
     await waitForTrackEventPromise;
