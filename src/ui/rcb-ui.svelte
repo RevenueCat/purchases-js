@@ -2,6 +2,7 @@
   import { onMount, setContext, onDestroy } from "svelte";
   import type { Package, Product, PurchaseOption, Purchases } from "../main";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
+
   import {
     PurchaseFlowError,
     PurchaseFlowErrorCode,
@@ -66,13 +67,17 @@
 
   onMount(() => {
     if (!isInElement) {
-      document.body.style.overflow = "hidden"; // Prevents background scrolling
+      document.documentElement.style.height = "100%";
+      document.body.style.height = "100%";
+      document.documentElement.style.overflow = "hidden";
     }
   });
 
   onDestroy(() => {
     if (!isInElement) {
-      document.body.style.overflow = ""; // Restores default scrolling when unmounting
+      document.documentElement.style.height = "auto";
+      document.body.style.height = "auto";
+      document.documentElement.style.overflow = "auto";
     }
   });
 

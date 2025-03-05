@@ -17,6 +17,8 @@
     height: 100%;
     container-type: size;
     container-name: layout-query-container;
+    overflow-y: auto;
+    overscroll-behavior: none;
   }
 
   .rcb-ui-layout {
@@ -25,9 +27,10 @@
     display: flex;
     box-sizing: border-box;
     flex-direction: column;
+    overflow-y: auto;
+    overscroll-behavior: none;
   }
 
-  /* Levaraging container queries */
   @container layout-query-container (width < 768px) {
     .rcb-ui-layout {
       flex-grow: 1;

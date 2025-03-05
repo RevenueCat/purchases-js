@@ -615,6 +615,45 @@ export class Purchases {
         window.addEventListener("popstate", onClose);
       }
 
+      const onFinished = async (
+        operationSessionId: string,
+        redemptionInfo: RedemptionInfo | null,
+      ) => {
+        const event = createCheckoutSessionEndFinishedEvent({
+          redemptionInfo,
+        });
+        this.eventsTracker.trackSDKEvent(event);
+        Logger.debugLog("Purchase finished");
+
+        if (component) {
+          unmount(component);
+        }
+
+        certainHTMLTarget.innerHTML = "";
+        // TODO: Add info about transaction in result.
+        const purchaseResult: PurchaseResult = {
+          customerInfo: await this._getCustomerInfoForUserId(appUserId),
+          redemptionInfo: redemptionInfo,
+          operationSessionId: operationSessionId,
+        };
+        resolve(purchaseResult);
+      };
+
+      const onError = (e: PurchaseFlowError) => {
+        const event = createCheckoutSessionEndErroredEvent({
+          errorCode: e.errorCode?.toString(),
+          errorMessage: e.message,
+        });
+        this.eventsTracker.trackSDKEvent(event);
+
+        if (component) {
+          unmount(component);
+        }
+
+        certainHTMLTarget.innerHTML = "";
+        reject(PurchasesError.getForPurchasesFlowError(e));
+      };
+
       component = mount(RCPurchasesUI, {
         target: certainHTMLTarget,
         props: {
@@ -623,34 +662,9 @@ export class Purchases {
           rcPackage,
           purchaseOption: purchaseOptionToUse,
           customerEmail,
-          onFinished: async (
-            operationSessionId: string,
-            redemptionInfo: RedemptionInfo | null,
-          ) => {
-            const event = createCheckoutSessionEndFinishedEvent({
-              redemptionInfo,
-            });
-            this.eventsTracker.trackSDKEvent(event);
-            Logger.debugLog("Purchase finished");
-            certainHTMLTarget.innerHTML = "";
-            // TODO: Add info about transaction in result.
-            const purchaseResult: PurchaseResult = {
-              customerInfo: await this._getCustomerInfoForUserId(appUserId),
-              redemptionInfo: redemptionInfo,
-              operationSessionId: operationSessionId,
-            };
-            resolve(purchaseResult);
-          },
+          onFinished,
           onClose,
-          onError: (e: PurchaseFlowError) => {
-            const event = createCheckoutSessionEndErroredEvent({
-              errorCode: e.errorCode?.toString(),
-              errorMessage: e.message,
-            });
-            this.eventsTracker.trackSDKEvent(event);
-            certainHTMLTarget.innerHTML = "";
-            reject(PurchasesError.getForPurchasesFlowError(e));
-          },
+          onError,
           purchases: this,
           eventsTracker: this.eventsTracker,
           brandingInfo: this._brandingInfo,
