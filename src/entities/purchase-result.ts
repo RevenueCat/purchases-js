@@ -19,4 +19,15 @@ export interface PurchaseResult {
    * The operation session id of the purchase.
    */
   readonly operationSessionId: string;
+
+  /**
+   * The email of the customer who made the purchase.
+   */
+  readonly customerEmail: string | null;
+
+  /**
+   * The date when the subscription will renew.
+   * This will be null for non-subscription purchases or lifetime subscriptions.
+   */
+  readonly renewalDate: Date | null;
 }
