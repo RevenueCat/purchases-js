@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, onDestroy, type Snippet } from "svelte";
+  import { type Snippet } from "svelte";
   import { Theme } from "../theme/theme";
 
   import type { BrandingAppearance } from "../../entities/branding";
