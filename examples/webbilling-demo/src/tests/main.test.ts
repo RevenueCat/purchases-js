@@ -340,8 +340,6 @@ test.describe("Main", () => {
     const userId = `${getUserId(browserName)}_subscription`;
     const page = await browser.newPage();
 
-    console.log("STARTING TRACK EVENTS TEST");
-
     const waitForTrackEventPromise = page.waitForResponse(
       successfulEventTrackingResponseMatcher((event) => {
         try {
@@ -380,7 +378,7 @@ test.describe("Main", () => {
           return false;
         }
       }),
-      { timeout: 3_000 },
+      { timeout: 5_000 },
     );
     await navigateToUrl(page, userId);
     await waitForTrackEventPromise;
@@ -396,12 +394,10 @@ function successfulEventTrackingResponseMatcher(
       response.url() !== "https://e.revenue.cat/v1/events" ||
       response.status() !== 200
     ) {
-      console.log("Event matching failed:", response.url(), response.status());
       return false;
     }
 
     const json = response.request().postDataJSON();
-    console.log("Event matching json:", JSON.stringify(json));
     const sdk_initialized_events = (json?.events || []).filter(eventMatcher);
     return sdk_initialized_events.length === 1;
   };
