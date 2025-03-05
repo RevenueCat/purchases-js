@@ -15,9 +15,8 @@
   #layout-query-container {
     width: 100%;
     height: 100%;
-    position: relative;
-    container-name: layout-query-container;
     container-type: size;
+    container-name: layout-query-container;
     overflow-y: auto;
     overscroll-behavior: none;
   }
