@@ -59,7 +59,6 @@
     overflow-x: hidden;
     overflow-y: auto;
     height: 100vh;
-    -webkit-overflow-scrolling: touch;
     overscroll-behavior: none;
     z-index: 1000001;
   }
