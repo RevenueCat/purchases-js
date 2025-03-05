@@ -3,10 +3,9 @@
 
   export let style = "";
   export let children: Snippet;
-  export let isInElement: boolean = false;
 </script>
 
-<div id="layout-query-container" class:isEmbedded={isInElement}>
+<div id="layout-query-container">
   <div class="rcb-ui-layout" {style}>
     {@render children?.()}
   </div>
@@ -18,10 +17,9 @@
     height: 100%;
     position: relative;
     container-name: layout-query-container;
-  }
-
-  #layout-query-container.isEmbedded {
     container-type: size;
+    overflow-y: auto;
+    overscroll-behavior: none;
   }
 
   .rcb-ui-layout {
@@ -30,9 +28,10 @@
     display: flex;
     box-sizing: border-box;
     flex-direction: column;
+    overflow-y: auto;
+    overscroll-behavior: none;
   }
 
-  /* Leverage container queries */
   @container layout-query-container (width < 768px) {
     .rcb-ui-layout {
       flex-grow: 1;

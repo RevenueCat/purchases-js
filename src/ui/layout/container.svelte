@@ -48,6 +48,8 @@
       noto,
       arial,
       sans-serif;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 
   .rcb-ui-container.fullscreen {
@@ -56,8 +58,6 @@
     left: 0;
     right: 0;
     bottom: 0;
-    overflow-x: hidden;
-    overflow-y: auto;
     height: 100vh;
     overscroll-behavior: none;
     z-index: 1000001;

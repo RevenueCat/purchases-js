@@ -109,8 +109,5 @@
       "prettier --write --ignore-unknown",
       "eslint --fix --no-warn-ignored"
     ]
-  },
-  "dependencies": {
-    "tua-body-scroll-lock": "^1.5.3"
   }
 }

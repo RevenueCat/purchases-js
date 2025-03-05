@@ -2,7 +2,6 @@
   import { onMount, setContext, onDestroy } from "svelte";
   import type { Package, Product, PurchaseOption, Purchases } from "../main";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
-  import { lock, unlock } from "tua-body-scroll-lock";
 
   import {
     PurchaseFlowError,
@@ -68,17 +67,14 @@
 
   onMount(() => {
     if (!isInElement) {
-      // make html and body have height 100%
       document.documentElement.style.height = "100%";
       document.body.style.height = "100%";
       document.documentElement.style.overflow = "hidden";
-      lock(document.getElementById("rcb-ui-container"));
     }
   });
 
   onDestroy(() => {
     if (!isInElement) {
-      unlock(document.getElementById("rcb-ui-container"));
       document.documentElement.style.height = "auto";
       document.body.style.height = "auto";
       document.documentElement.style.overflow = "auto";

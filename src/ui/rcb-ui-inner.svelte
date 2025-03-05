@@ -52,7 +52,7 @@
   {#if isSandbox}
     <SandboxBanner style={colorVariables} />
   {/if}
-  <Layout style={colorVariables} {isInElement}>
+  <Layout style={colorVariables}>
     {#if viewsWhereOfferDetailsAreShown.includes(currentView)}
       <NavBar brandingAppearance={brandingInfo?.appearance}>
         {#snippet headerContent()}
