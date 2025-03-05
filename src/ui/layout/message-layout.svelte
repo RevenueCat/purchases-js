@@ -24,9 +24,9 @@
         <slot name="icon" />
         <RowLayout gutter="16px">
           {#if title}
-            <span class="title">{title}</span>
+            <span class="rcb-title">{title}</span>
           {/if}
-          <span class="subtitle">
+          <span class="rcb-subtitle">
             <slot />
           </span>
         </RowLayout>
@@ -55,12 +55,12 @@
     margin-top: 80px;
   }
 
-  .title {
+  .rcb-title {
     font-size: 24px;
     line-height: 1.25em;
   }
 
-  .subtitle {
+  .rcb-subtitle {
     font-size: 16px;
     line-height: 1.25em;
     overflow-wrap: anywhere;

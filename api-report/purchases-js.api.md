@@ -205,7 +205,7 @@ export interface Period {
 }
 
 // @public
-export type PeriodType = "normal" | "intro" | "trial";
+export type PeriodType = "normal" | "intro" | "trial" | "prepaid";
 
 // @public
 export enum PeriodUnit {

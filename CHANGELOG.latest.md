@@ -1,2 +1,3 @@
-### 🔄 Other Changes
-* User events (#302) via Pol Miro (@polmiro)
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Add `prepaid` entitlement period support (#343) via Toni Rico (@tonidero)
