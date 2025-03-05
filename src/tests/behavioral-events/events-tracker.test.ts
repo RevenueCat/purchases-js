@@ -43,7 +43,7 @@ describe("EventsTracker", (test) => {
     context.eventsTracker.dispose();
   });
 
-  test("does not track even if silent", async () => {
+  test("does not track event if silent", async () => {
     const eventsTracker = new EventsTracker({
       apiKey: testApiKey,
       appUserId: "someAppUserId",
