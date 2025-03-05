@@ -2,6 +2,8 @@
   import { onMount, setContext, onDestroy } from "svelte";
   import type { Package, Product, PurchaseOption, Purchases } from "../main";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
+  import { lock, unlock } from "tua-body-scroll-lock";
+
   import {
     PurchaseFlowError,
     PurchaseFlowErrorCode,
@@ -65,14 +67,17 @@
   );
 
   onMount(() => {
+    console.log("isInElement", isInElement);
     if (!isInElement) {
-      document.body.style.overflow = "hidden"; // Prevents background scrolling
+      document.body.style.overflow = "hidden";
+      lock(document.body);
     }
   });
 
   onDestroy(() => {
     if (!isInElement) {
-      document.body.style.overflow = ""; // Restores default scrolling when unmounting
+      document.body.style.overflow = "";
+      unlock(document.body);
     }
   });
 
