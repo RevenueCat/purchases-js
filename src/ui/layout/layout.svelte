@@ -15,13 +15,13 @@
 <style>
   #layout-query-container {
     width: 100%;
-    height: 1000px;
+    height: 100%;
     position: relative;
+    container-name: layout-query-container;
   }
 
   #layout-query-container.isEmbedded {
     container-type: size;
-    container-name: layout-query-container;
   }
 
   .rcb-ui-layout {

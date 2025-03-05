@@ -20,6 +20,28 @@
   <p class="footer-caption">
     <Localized key={LocalizationKeys.StateNeedsPaymentInfoPaymentStepTitle} />
   </p>
+  <p>Hello</p>
+  <p>Hello</p>
+  <p>Hello</p>
+  <p>Hello</p>
+  <p>Hello</p>
+  <p>Hello</p>
+  <p>Hello</p>
+  <p>Hello</p>
+  <p>Hello</p>
+  <p>Hello</p>
+  <p>Hello</p>
+  <p>Hello</p>
+  <p>Hello</p>
+  <p>Hello</p>
+  <p>Hello</p>
+  <p>Hello</p>
+  <p>Hello</p>
+  <p>Hello</p>
+  <p>Hello</p>
+  <p>Hello</p>
+  <p>Hello</p>
+  <p>Hello</p>
 </div>
 
 <style>
