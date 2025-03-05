@@ -16,7 +16,6 @@
 </script>
 
 <div
-  id="rcb-ui-container"
   class="rcb-ui-container"
   class:fullscreen={!isInElement}
   class:inside={isInElement}
@@ -58,7 +57,6 @@
     left: 0;
     right: 0;
     bottom: 0;
-    height: 100vh;
     overscroll-behavior: none;
     z-index: 1000001;
   }
