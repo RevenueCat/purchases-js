@@ -1,3 +1,8 @@
+## 0.18.3
+## RevenueCat SDK
+### 📦 Dependency Updates
+* Bump nokogiri from 1.17.1 to 1.18.3 (#327) via dependabot[bot] (@dependabot[bot])
+
 ## 0.18.2
 ## RevenueCat SDK
 ### 🐞 Bugfixes
