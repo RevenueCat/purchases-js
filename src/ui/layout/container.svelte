@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { type Snippet } from "svelte";
+  import { onMount, onDestroy, type Snippet } from "svelte";
   import { Theme } from "../theme/theme";
 
   import type { BrandingAppearance } from "../../entities/branding";
@@ -16,6 +16,7 @@
 </script>
 
 <div
+  id="rcb-ui-container"
   class="rcb-ui-container"
   class:fullscreen={!isInElement}
   class:inside={isInElement}
@@ -47,7 +48,6 @@
       noto,
       arial,
       sans-serif;
-    overflow: auto;
   }
 
   .rcb-ui-container.fullscreen {
@@ -56,10 +56,12 @@
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 1000001;
+    overflow-x: hidden;
     overflow-y: auto;
+    height: 100vh;
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
+    overscroll-behavior: none;
+    z-index: 1000001;
   }
 
   .rcb-ui-container.inside {

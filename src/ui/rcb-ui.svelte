@@ -67,17 +67,14 @@
   );
 
   onMount(() => {
-    console.log("isInElement", isInElement);
     if (!isInElement) {
-      document.body.style.overflow = "hidden";
-      lock(document.body);
+      lock(document.getElementById("rcb-ui-container"));
     }
   });
 
   onDestroy(() => {
     if (!isInElement) {
-      document.body.style.overflow = "";
-      unlock(document.body);
+      unlock(document.getElementById("rcb-ui-container"));
     }
   });
 

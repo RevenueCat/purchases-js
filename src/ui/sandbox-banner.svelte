@@ -26,7 +26,7 @@
 
 <style>
   .rcb-ui-sandbox-banner {
-    position: absolute;
+    position: sticky;
     top: 0;
     z-index: 1000002;
     left: 0;
