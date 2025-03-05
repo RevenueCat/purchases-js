@@ -133,6 +133,7 @@ export enum ErrorCode {
 
 // @public
 export interface FlagsConfig {
+    autoCollectAnalyticsEvents?: boolean;
     autoCollectUTMAsMetadata?: boolean;
 }
 

@@ -262,6 +262,7 @@ export class Purchases {
     this.eventsTracker = new EventsTracker({
       apiKey: this._API_KEY,
       appUserId: this._appUserId,
+      silent: !flags.autoCollectAnalyticsEvents,
     });
     this.backend = new Backend(this._API_KEY, httpConfig);
     this.purchaseOperationHelper = new PurchaseOperationHelper(

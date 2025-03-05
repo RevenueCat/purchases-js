@@ -14,6 +14,7 @@ import {
 const MIN_INTERVAL_RETRY = 2_000;
 const MAX_INTERVAL_RETRY = 5 * 60_000;
 const JITTER_PERCENT = 0.1;
+
 export interface TrackEventProps {
   eventName: string;
   source: SDKEventContextSource;
@@ -23,13 +24,18 @@ export interface TrackEventProps {
 export interface EventsTrackerProps {
   apiKey: string;
   appUserId: string;
+  silent?: boolean;
 }
 
 export interface IEventsTracker {
   getTraceId(): string;
+
   updateUser(appUserId: string): Promise<void>;
+
   trackSDKEvent(props: SDKEvent): void;
+
   trackExternalEvent(props: TrackEventProps): void;
+
   dispose(): void;
 }
 
@@ -40,11 +46,13 @@ export default class EventsTracker implements IEventsTracker {
   private readonly flushManager: FlushManager;
   private readonly traceId: string = uuid();
   private appUserId: string;
+  private readonly isSilent: boolean;
 
   constructor(props: EventsTrackerProps) {
     this.apiKey = props.apiKey;
     this.eventsUrl = `${RC_ANALYTICS_ENDPOINT}/v1/events`;
     this.appUserId = props.appUserId;
+    this.isSilent = props.silent || false;
     this.flushManager = new FlushManager(
       MIN_INTERVAL_RETRY,
       MAX_INTERVAL_RETRY,
@@ -95,6 +103,12 @@ export default class EventsTracker implements IEventsTracker {
     }
 
     const eventsToFlush = [...this.eventsQueue];
+
+    if (this.isSilent) {
+      Logger.debugLog("Skipping events tracking, the EventsTracker is silent");
+      this.eventsQueue.splice(0, eventsToFlush.length);
+      return Promise.resolve();
+    }
 
     return fetch(this.eventsUrl, {
       method: HttpMethods.POST,

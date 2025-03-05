@@ -1799,6 +1799,33 @@
           "members": [
             {
               "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!FlagsConfig#autoCollectAnalyticsEvents:member",
+              "docComment": "/**\n * If set to true, the SDK will automatically collect analytics events.\n *\n * @defaultValue\n *\n * true\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "autoCollectAnalyticsEvents?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "autoCollectAnalyticsEvents",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!FlagsConfig#autoCollectUTMAsMetadata:member",
               "docComment": "/**\n * If set to true, the SDK will automatically collect UTM parameters and store them as at the time of purchase.\n *\n * @defaultValue\n *\n * true\n */\n",
               "excerptTokens": [
