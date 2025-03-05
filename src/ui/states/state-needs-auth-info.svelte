@@ -3,7 +3,6 @@
   import ModalFooter from "../modal-footer.svelte";
   import ModalSection from "../modal-section.svelte";
   import RowLayout from "../layout/row-layout.svelte";
-  import ProcessingAnimation from "../processing-animation.svelte";
   import { validateEmail } from "../../helpers/validators";
   import { PurchaseFlowError } from "../../helpers/purchase-operation-helper";
   import { getContext, onMount } from "svelte";

@@ -134,6 +134,7 @@ export enum ErrorCode {
 // @public
 export interface FlagsConfig {
     autoCollectUTMAsMetadata?: boolean;
+    collectAnalyticsEvents?: boolean;
 }
 
 // @public
