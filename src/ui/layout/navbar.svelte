@@ -3,7 +3,6 @@
   import NavBarHeader from "../navbar-header.svelte";
   import SectionLayout from "./section-layout.svelte";
   import type { BrandingAppearance } from "../../entities/branding";
-  import NavbarHeader from "../navbar-header.svelte";
 
   export let brandingAppearance: BrandingAppearance | null | undefined =
     undefined;
