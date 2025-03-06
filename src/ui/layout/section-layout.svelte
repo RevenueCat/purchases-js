@@ -43,13 +43,19 @@
     color: var(--rc-color-grey-text-dark);
     display: flex;
     flex-direction: column;
-    padding: var(--rc-spacing-outerPadding-desktop);
+    padding: var(--rc-spacing-outerPadding-mobile);
   }
 
   @container layout-query-container (width >= 768px) {
     .layout-wrapper {
       min-height: 100vh;
       flex-basis: 600px;
+    }
+  }
+
+  @container layout-query-container (width >= 1024px) {
+    .layout-content {
+      padding: var(--rc-spacing-outerPadding-desktop);
     }
   }
 
@@ -62,7 +68,6 @@
     }
 
     .layout-content {
-      padding: var(--rc-spacing-outerPadding-mobile);
       flex-grow: 1;
       height: 100%;
     }
