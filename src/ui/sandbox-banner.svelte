@@ -3,6 +3,8 @@
   import CloseButton from "./close-button.svelte";
   import { Logger } from "../helpers/logger";
   export let style = "";
+  export let isInElement = false;
+
   let showBanner = true;
 
   function closeBanner() {
@@ -16,9 +18,10 @@
     class="rcb-ui-sandbox-banner"
     {style}
     out:fly={{ y: -100, duration: 300 }}
+    class:isInElement
   >
-    <span class="banner-text">Sandbox</span>
-    <div class="close-button-wrapper">
+    <span class="rcb-sandbox-banner-text">Sandbox</span>
+    <div class="rcb-sandbox-banner-close-button-wrapper">
       <CloseButton on:click={closeBanner} />
     </div>
   </div>
@@ -26,7 +29,7 @@
 
 <style>
   .rcb-ui-sandbox-banner {
-    position: sticky;
+    position: fixed;
     top: 0;
     z-index: 1000002;
     left: 0;
@@ -42,20 +45,24 @@
     align-items: center;
   }
 
-  .close-button-wrapper {
+  .rcb-ui-sandbox-banner.isInElement {
     position: absolute;
-    right: var(--rc-spacing-gapSmall-mobile);
+  }
+
+  .rcb-sandbox-banner-close-button-wrapper {
+    position: absolute;
+    right: var(--rc-spacing-gapMedium-mobile);
     top: 50%;
     transform: translateY(-50%);
   }
 
-  :global(.close-button-icon) {
+  :global(.rcb-sandbox-banner-close-button-icon) {
     color: black;
     height: var(--rc-text-caption-mobile-font-size);
   }
 
   @container layout-query-container (width >= 768px) {
-    :global(.close-button-icon) {
+    :global(.rcb-sandbox-banner-close-button-icon) {
       height: var(--rc-text-caption-desktop-font-size);
     }
     .rcb-ui-sandbox-banner {
@@ -63,7 +70,7 @@
       font: var(--rc-text-caption-desktop);
       font-weight: bold;
     }
-    .close-button-wrapper {
+    .rcb-sandbox-banner-close-button-wrapper {
       right: var(--rc-spacing-gapMedium-desktop);
     }
   }
