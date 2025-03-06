@@ -51,7 +51,7 @@
 
   .rcb-sandbox-banner-close-button-wrapper {
     position: absolute;
-    right: var(--rc-spacing-gapSmall-mobile);
+    right: var(--rc-spacing-gapMedium-mobile);
     top: 50%;
     transform: translateY(-50%);
   }
