@@ -17,8 +17,8 @@
     {style}
     out:fly={{ y: -100, duration: 300 }}
   >
-    <span class="banner-text">Sandbox</span>
-    <div class="close-button-wrapper">
+    <span class="rcb-sandbox-banner-text">Sandbox</span>
+    <div class="rcb-sandbox-banner-close-button-wrapper">
       <CloseButton on:click={closeBanner} />
     </div>
   </div>
@@ -42,20 +42,20 @@
     align-items: center;
   }
 
-  .close-button-wrapper {
+  .rcb-sandbox-banner-close-button-wrapper {
     position: absolute;
     right: var(--rc-spacing-gapSmall-mobile);
     top: 50%;
     transform: translateY(-50%);
   }
 
-  :global(.close-button-icon) {
+  :global(.rcb-sandbox-banner-close-button-icon) {
     color: black;
     height: var(--rc-text-caption-mobile-font-size);
   }
 
   @container layout-query-container (width >= 768px) {
-    :global(.close-button-icon) {
+    :global(.rcb-sandbox-banner-close-button-icon) {
       height: var(--rc-text-caption-desktop-font-size);
     }
     .rcb-ui-sandbox-banner {
@@ -63,7 +63,7 @@
       font: var(--rc-text-caption-desktop);
       font-weight: bold;
     }
-    .close-button-wrapper {
+    .rcb-sandbox-banner-close-button-wrapper {
       right: var(--rc-spacing-gapMedium-desktop);
     }
   }
