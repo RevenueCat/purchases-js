@@ -33,18 +33,14 @@
     display: flex;
     align-items: center;
     cursor: pointer;
-    font-size: 14px;
-    line-height: 140%;
-    font-weight: 400;
+    font: var(--rc-text-largeCaption-mobile);
     gap: var(--rc-spacing-gapSmall-mobile);
     color: var(--rc-color-grey-text-light);
     padding: var(--rc-spacing-gapMedium-mobile);
   }
 
   .rcb-header-details {
-    font-size: 14px;
-    line-height: 140%;
-    font-weight: 400;
+    font: var(--rc-text-largeCaption-mobile);
     display: flex;
     align-items: center;
     gap: var(--rc-spacing-gapSmall-mobile);
