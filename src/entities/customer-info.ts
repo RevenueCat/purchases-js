@@ -25,9 +25,10 @@ export type Store =
  * - "normal" If the entitlement is not under an introductory or trial period.
  * - "intro" If the entitlement is under an introductory period.
  * - "trial" If the entitlement is under a trial period.
+ * - "prepaid" If the entitlement is a prepaid entitlement. Only for Google Play subscriptions.
  * @public
  */
-export type PeriodType = "normal" | "intro" | "trial";
+export type PeriodType = "normal" | "intro" | "trial" | "prepaid";
 
 /**
  * This object gives you access to all the information about the status

@@ -9,13 +9,13 @@
 </script>
 
 <div
-  class="processing"
+  class="rcb-processing"
   style="--shadow-offset: {sizeMap[size].offset}; --width: {sizeMap[size]
     .width};"
 ></div>
 
 <style>
-  .processing {
+  .rcb-processing {
     width: var(--width, 12px);
     aspect-ratio: 1;
     border-radius: 50%;

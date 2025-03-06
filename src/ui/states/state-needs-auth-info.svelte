@@ -54,16 +54,16 @@
     getContext(translatorContextKey) || Translator.fallback();
 </script>
 
-<div class="needs-auth-info-container">
-  <span class="auth-info-title">
+<div class="rcb-state-container">
+  <span class="rcb-auth-info-title">
     <label for="email">
       <Localized key={LocalizationKeys.StateNeedsAuthInfoEmailStepTitle} />
     </label></span
   >
   <form on:submit|preventDefault={handleContinue}>
     <ModalSection>
-      <div class="form-container">
-        <div class="form-input {inputClass}">
+      <div class="rcb-form-container">
+        <div class="rcb-form-input {inputClass}">
           <input
             id="email"
             name="email"
@@ -77,7 +77,7 @@
           />
         </div>
         {#if errorMessage !== ""}
-          <div class="form-error">{errorMessage}</div>
+          <div class="rcb-form-error">{errorMessage}</div>
         {/if}
       </div>
     </ModalSection>
@@ -95,7 +95,7 @@
 </div>
 
 <style>
-  .auth-info-title {
+  .rcb-auth-info-title {
     font: var(--rc-text-titleLarge-mobile);
   }
 
@@ -104,7 +104,7 @@
   }
 
   @container layout-query-container (width >= 768px) {
-    .auth-info-title {
+    .rcb-auth-info-title {
       font: var(--rc-text-titleLarge-desktop);
     }
 
@@ -113,7 +113,7 @@
     }
   }
 
-  .needs-auth-info-container {
+  .rcb-state-container {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
@@ -126,7 +126,7 @@
     flex-grow: 1;
   }
 
-  .form-container {
+  .rcb-form-container {
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -135,13 +135,13 @@
   }
 
   @media screen and (max-width: 767px) {
-    .form-container {
+    .rcb-form-container {
       margin-top: var(--rc-spacing-gapXLarge-mobile);
       margin-bottom: var(--rc-spacing-gapXLarge-mobile);
     }
   }
 
-  .form-label {
+  .rcb-form-label {
     margin-top: var(--rc-spacing-gapSmall-desktop);
     margin-bottom: var(--rc-spacing-gapSmall-desktop);
     font: var(--rc-text-body1-mobile);
@@ -149,23 +149,23 @@
   }
 
   @container layout-query-container (width >= 768px) {
-    .form-label {
+    .rcb-form-label {
       font: var(--rc-text-body1-desktop);
     }
   }
 
-  .form-input.error input {
+  .rcb-form-input.error input {
     border-color: var(--rc-color-error);
   }
 
-  .form-error {
+  .rcb-form-error {
     margin-top: var(--rc-spacing-gapSmall-desktop);
     font: var(--rc-text-body1-mobile);
     color: var(--rc-color-error);
   }
 
   @container layout-query-container (width >= 768px) {
-    .form-error {
+    .rcb-form-error {
       font: var(--rc-text-body1-desktop);
     }
   }
@@ -194,7 +194,7 @@
       padding-left: var(--rc-spacing-gapLarge-desktop);
     }
 
-    .needs-auth-info-container {
+    .rcb-state-container {
       max-width: 50vw;
       flex-grow: 0;
     }

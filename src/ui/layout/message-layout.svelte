@@ -32,10 +32,10 @@
                 {@render icon()}
               {/if}
               {#if title}
-                <span class="title">{title}</span>
+                <span class="rcb-title">{title}</span>
               {/if}
               {#if message}
-                <span class="subtitle">
+                <span class="rcb-subtitle">
                   {@render message()}
                 </span>
               {/if}
@@ -80,11 +80,11 @@
     margin-top: var(--rc-spacing-gapXXLarge-mobile);
   }
 
-  .title {
+  .rcb-title {
     font: var(--rc-text-titleLarge-mobile);
   }
 
-  .subtitle {
+  .rcb-subtitle {
     font: var(--rc-text-body1-mobile);
   }
 
@@ -110,11 +110,11 @@
       margin-top: var(--rc-spacing-gapXXLarge-desktop);
     }
 
-    .title {
+    .rcb-title {
       font: var(--rc-text-titleLarge-desktop);
     }
 
-    .subtitle {
+    .rcb-subtitle {
       font: var(--rc-text-body1-desktop);
     }
   }
