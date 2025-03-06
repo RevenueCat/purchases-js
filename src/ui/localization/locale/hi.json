@@ -61,5 +61,6 @@
   "periods.perMonthFrequency": "प्रति माह",
   "periods.perYearFrequency": "प्रति वर्ष",
   "periods.perDayFrequency": "प्रति दिन",
-  "state_needs_payment_info.trial_info": "आपकी परीक्षण अवधि समाप्त होने के बाद, आपसे {{renewalDate}} से शुरू होकर {{price}} {{perFrequency}} शुल्क लिया जाएगा. आप तब से पहले हमेशा रद्द कर सकते हैं."
+  "state_needs_payment_info.trial_info": "आपकी परीक्षण अवधि समाप्त होने के बाद, आपसे {{renewalDate}} से शुरू होकर {{price}} {{perFrequency}} शुल्क लिया जाएगा. आप तब से पहले हमेशा रद्द कर सकते हैं.",
+  "navbar_header.details": "विवरण"
 }

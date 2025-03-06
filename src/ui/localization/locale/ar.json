@@ -61,5 +61,6 @@
   "periods.perMonthFrequency": "في الشهر",
   "periods.perYearFrequency": "في السنة",
   "periods.perDayFrequency": "في اليوم",
-  "state_needs_payment_info.trial_info": "بعد انتهاء الفترة التجريبية، سيتم محاسبتك بمبلغ {{price}} {{perFrequency}} بدءًا من {{renewalDate}}. يمكنك الإلغاء دائمًا قبل ذلك."
+  "state_needs_payment_info.trial_info": "بعد انتهاء الفترة التجريبية، سيتم محاسبتك بمبلغ {{price}} {{perFrequency}} بدءًا من {{renewalDate}}. يمكنك الإلغاء دائمًا قبل ذلك.",
+  "navbar_header.details": "تفاصيل"
 }

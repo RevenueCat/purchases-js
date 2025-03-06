@@ -61,5 +61,6 @@
   "periods.perMonthFrequency": "mỗi tháng",
   "periods.perYearFrequency": "mỗi năm",
   "periods.perDayFrequency": "mỗi ngày",
-  "state_needs_payment_info.trial_info": "Sau khi thời gian dùng thử của bạn kết thúc, bạn sẽ bị tính phí {{price}} {{perFrequency}} bắt đầu từ {{renewalDate}}. Bạn luôn có thể hủy trước thời điểm đó."
+  "state_needs_payment_info.trial_info": "Sau khi thời gian dùng thử của bạn kết thúc, bạn sẽ bị tính phí {{price}} {{perFrequency}} bắt đầu từ {{renewalDate}}. Bạn luôn có thể hủy trước thời điểm đó.",
+  "navbar_header.details": "Chi tiết"
 }

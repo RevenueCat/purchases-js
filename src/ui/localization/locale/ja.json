@@ -61,5 +61,6 @@
   "periods.perMonthFrequency": "月ごと",
   "periods.perYearFrequency": "年ごと",
   "periods.perDayFrequency": "日ごと",
-  "state_needs_payment_info.trial_info": "{{renewalDate}}から{{price}} {{perFrequency}}で開始され、トライアル終了後に請求されます。いつでもキャンセルできます。"
+  "state_needs_payment_info.trial_info": "{{renewalDate}}から{{price}} {{perFrequency}}で開始され、トライアル終了後に請求されます。いつでもキャンセルできます。",
+  "navbar_header.details": "詳細"
 }

@@ -2,6 +2,8 @@
   import { type Snippet } from "svelte";
   import ModalSection from "./modal-section.svelte";
   import IconArrow from "./icons/icon-arrow.svelte";
+  import { LocalizationKeys } from "./localization/supportedLanguages";
+  import Localized from "./localization/localized.svelte";
 
   export let children: Snippet;
   export let expanded = false;
@@ -19,7 +21,7 @@
       aria-expanded={expanded}
       aria-controls="rcb-header-details-content"
     >
-      Details
+      <Localized key={LocalizationKeys.NavbarHeaderDetails} />
       <IconArrow className={expanded ? "expanded" : "collapsed"} />
     </button>
   </div>
@@ -31,15 +33,18 @@
     display: flex;
     align-items: center;
     cursor: pointer;
+    font-size: 14px;
+    line-height: 140%;
+    font-weight: 400;
     gap: var(--rc-spacing-gapSmall-mobile);
-    font: var(--rc-text-caption-mobile);
     color: var(--rc-color-grey-text-light);
     padding: var(--rc-spacing-gapMedium-mobile);
   }
 
   .rcb-header-details {
-    font: var(--rc-text-caption-mobile);
-    font-weight: normal;
+    font-size: 14px;
+    line-height: 140%;
+    font-weight: 400;
     display: flex;
     align-items: center;
     gap: var(--rc-spacing-gapSmall-mobile);
