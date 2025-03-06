@@ -61,7 +61,7 @@
 
 <Container brandingAppearance={brandingInfo?.appearance} {isInElement}>
   {#if isSandbox}
-    <SandboxBanner style={colorVariables} />
+    <SandboxBanner style={colorVariables} {isInElement} />
   {/if}
   <Layout style={colorVariables}>
     {#if viewsWhereOfferDetailsAreShown.includes(currentView)}

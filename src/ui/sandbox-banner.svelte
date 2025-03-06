@@ -3,6 +3,8 @@
   import CloseButton from "./close-button.svelte";
   import { Logger } from "../helpers/logger";
   export let style = "";
+  export let isInElement = false;
+
   let showBanner = true;
 
   function closeBanner() {
@@ -16,6 +18,7 @@
     class="rcb-ui-sandbox-banner"
     {style}
     out:fly={{ y: -100, duration: 300 }}
+    class:isInElement
   >
     <span class="rcb-sandbox-banner-text">Sandbox</span>
     <div class="rcb-sandbox-banner-close-button-wrapper">
@@ -26,7 +29,7 @@
 
 <style>
   .rcb-ui-sandbox-banner {
-    position: sticky;
+    position: fixed;
     top: 0;
     z-index: 1000002;
     left: 0;
@@ -40,6 +43,10 @@
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+
+  .rcb-ui-sandbox-banner.isInElement {
+    position: absolute;
   }
 
   .rcb-sandbox-banner-close-button-wrapper {
