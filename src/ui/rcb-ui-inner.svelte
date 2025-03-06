@@ -36,13 +36,11 @@
   export let purchaseOperationHelper: PurchaseOperationHelper;
   export let isInElement: boolean = false;
 
+  // once taxes are implemented, extract each component of this logic into a context or different props
   const shouldShowDetailsButton =
     (Boolean(brandingInfo?.appearance) &&
       Boolean(productDetails?.description)) ||
-    Boolean(
-      (purchaseOptionToUse as SubscriptionOption)?.trial?.periodDuration,
-    ) ||
-    false;
+    Boolean((purchaseOptionToUse as SubscriptionOption)?.trial?.periodDuration);
 
   const viewsWhereOfferDetailsAreShown: CurrentView[] = [
     "present-offer",
