@@ -61,5 +61,6 @@
   "periods.perMonthFrequency": "每月",
   "periods.perYearFrequency": "每年",
   "periods.perDayFrequency": "每天",
-  "state_needs_payment_info.trial_info": "在您的試用期結束後，您將從 {{renewalDate}} 開始被收取 {{price}} {{perFrequency}} 的費用。您隨時可以在此之前取消。"
+  "state_needs_payment_info.trial_info": "在您的試用期結束後，您將從 {{renewalDate}} 開始被收取 {{price}} {{perFrequency}} 的費用。您隨時可以在此之前取消。",
+  "navbar_header.details": "詳細資訊"
 }

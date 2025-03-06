@@ -61,5 +61,6 @@
   "periods.perMonthFrequency": "per månad",
   "periods.perYearFrequency": "per år",
   "periods.perDayFrequency": "per dag",
-  "state_needs_payment_info.trial_info": "Efter din provperiod avslutas debiteras du {{price}} {{perFrequency}} från och med {{renewalDate}}. Du kan alltid avbryta innan dess."
+  "state_needs_payment_info.trial_info": "Efter din provperiod avslutas debiteras du {{price}} {{perFrequency}} från och med {{renewalDate}}. Du kan alltid avbryta innan dess.",
+  "navbar_header.details": "Detaljer"
 }

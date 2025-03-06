@@ -96,6 +96,7 @@ export enum LocalizationKeys {
   PaywallVariablesPricePerPeriod = "paywall_variables.price_per_period",
   PaywallVariablesSubRelativeDiscount = "paywall_variables.sub_relative_discount",
   PaywallVariablesTotalPriceAndPerMonth = "paywall_variables.total_price_and_per_month",
+  NavbarHeaderDetails = "navbar_header.details",
 }
 
 export const supportedLanguages: Record<

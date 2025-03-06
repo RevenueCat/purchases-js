@@ -61,5 +61,6 @@
   "periods.perMonthFrequency": "pro Monat",
   "periods.perYearFrequency": "pro Jahr",
   "periods.perDayFrequency": "pro Tag",
-  "state_needs_payment_info.trial_info": "Nach Ablauf Ihres Testzeitraums werden Ihnen {{price}} {{perFrequency}} ab dem {{renewalDate}} berechnet. Sie können jederzeit vorher kündigen."
+  "state_needs_payment_info.trial_info": "Nach Ablauf Ihres Testzeitraums werden Ihnen {{price}} {{perFrequency}} ab dem {{renewalDate}} berechnet. Sie können jederzeit vorher kündigen.",
+  "navbar_header.details": "Details"
 }

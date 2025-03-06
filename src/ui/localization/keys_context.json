@@ -60,5 +60,6 @@
   "state_error.button_try_again": "Button text prompting the user to retry the action.",
   "paywall_variables.price_per_period": "Displays the price per subscription period. {{formattedPrice}} is replaced by the price, {{period}} is replaced by the time unit.",
   "paywall_variables.sub_relative_discount": "Shows the discount percentage for a subscription. {{discount}} is replaced by the discount percentage.",
-  "paywall_variables.total_price_and_per_month": "Combines total price information with an equivalent monthly price. {{formattedPrice}} is replaced by the total price, {{formattedPricePerMonth}} is the monthly breakdown, and {{monthPeriod}} is the time unit for the monthly breakdown."
+  "paywall_variables.total_price_and_per_month": "Combines total price information with an equivalent monthly price. {{formattedPrice}} is replaced by the total price, {{formattedPricePerMonth}} is the monthly breakdown, and {{monthPeriod}} is the time unit for the monthly breakdown.",
+  "navbar_header.details": "Text for a button that displays more information about the product."
 }

@@ -61,5 +61,6 @@
   "periods.perMonthFrequency": "לחודש",
   "periods.perYearFrequency": "לשנה",
   "periods.perDayFrequency": "ליום",
-  "state_needs_payment_info.trial_info": "לאחר סיום תקופת הניסיון שלך, תחויב בסך {{price}} {{perFrequency}} החל מ-{{renewalDate}}. תמיד תוכל לבטל לפני כן."
+  "state_needs_payment_info.trial_info": "לאחר סיום תקופת הניסיון שלך, תחויב בסך {{price}} {{perFrequency}} החל מ-{{renewalDate}}. תמיד תוכל לבטל לפני כן.",
+  "navbar_header.details": "פרטים"
 }

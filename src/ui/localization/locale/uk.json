@@ -61,5 +61,6 @@
   "periods.perMonthFrequency": "на місяць",
   "periods.perYearFrequency": "на рік",
   "periods.perDayFrequency": "на день",
-  "state_needs_payment_info.trial_info": "Після закінчення вашого пробного періоду з вас буде стягнуто {{price}} {{perFrequency}}, починаючи з {{renewalDate}}. Ви завжди можете скасувати підписку до цього часу."
+  "state_needs_payment_info.trial_info": "Після закінчення вашого пробного періоду з вас буде стягнуто {{price}} {{perFrequency}}, починаючи з {{renewalDate}}. Ви завжди можете скасувати підписку до цього часу.",
+  "navbar_header.details": "Деталі"
 }

@@ -61,5 +61,6 @@
   "periods.perMonthFrequency": "per bulan",
   "periods.perYearFrequency": "per tahun",
   "periods.perDayFrequency": "per hari",
-  "state_needs_payment_info.trial_info": "Setelah masa percobaan Anda berakhir, Anda akan dikenakan biaya {{price}} {{perFrequency}} mulai {{renewalDate}}. Anda selalu dapat membatalkan sebelum itu."
+  "state_needs_payment_info.trial_info": "Setelah masa percobaan Anda berakhir, Anda akan dikenakan biaya {{price}} {{perFrequency}} mulai {{renewalDate}}. Anda selalu dapat membatalkan sebelum itu.",
+  "navbar_header.details": "Detail"
 }
