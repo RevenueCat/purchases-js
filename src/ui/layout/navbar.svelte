@@ -11,6 +11,7 @@
 
   export let headerContent;
   export let bodyContent: (expanded: boolean) => any;
+  export let shouldShowDetailsButton = false;
 
   let expanded = false;
   function toggleExpanded() {
@@ -21,7 +22,11 @@
 <div class="rcb-ui-navbar" {style}>
   <SectionLayout layoutStyle="justify-content: flex-end;">
     {#snippet header()}
-      <NavBarHeader {expanded} toggle={toggleExpanded}>
+      <NavBarHeader
+        {expanded}
+        toggle={toggleExpanded}
+        {shouldShowDetailsButton}
+      >
         {@render headerContent?.()}
       </NavBarHeader>
     {/snippet}

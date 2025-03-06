@@ -6,6 +6,7 @@
   import Localized from "./localization/localized.svelte";
 
   export let children: Snippet;
+  export let shouldShowDetailsButton = false;
   export let expanded = false;
   export let toggle;
 </script>
@@ -13,17 +14,19 @@
 <ModalSection as="header">
   <div class="rcb-header-layout">
     {@render children?.()}
-    <button
-      type="button"
-      class="rcb-header-details"
-      on:click={toggle}
-      on:keydown={(e) => (e.key === "Enter" || e.key === " ") && toggle()}
-      aria-expanded={expanded}
-      aria-controls="rcb-header-details-content"
-    >
-      <Localized key={LocalizationKeys.NavbarHeaderDetails} />
-      <IconArrow className={expanded ? "expanded" : "collapsed"} />
-    </button>
+    {#if shouldShowDetailsButton}
+      <button
+        type="button"
+        class="rcb-header-details"
+        on:click={toggle}
+        on:keydown={(e) => (e.key === "Enter" || e.key === " ") && toggle()}
+        aria-expanded={expanded}
+        aria-controls="rcb-header-details-content"
+      >
+        <Localized key={LocalizationKeys.NavbarHeaderDetails} />
+        <IconArrow className={expanded ? "expanded" : "collapsed"} />
+      </button>
+    {/if}
   </div>
 </ModalSection>
 
