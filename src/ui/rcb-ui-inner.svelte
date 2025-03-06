@@ -38,7 +38,7 @@
 
   // once taxes are implemented, extract each component of this logic into a context or different props
   const shouldShowDetailsButton =
-    (Boolean(brandingInfo?.appearance) &&
+    (Boolean(brandingInfo?.appearance?.show_product_description) &&
       Boolean(productDetails?.description)) ||
     Boolean((purchaseOptionToUse as SubscriptionOption)?.trial?.periodDuration);
 
