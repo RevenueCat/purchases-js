@@ -53,6 +53,12 @@
     }
   }
 
+  @container layout-query-container (width >= 768px) and (width < 1024px) {
+    .layout-content {
+      padding: var(--rc-spacing-outerPadding-tablet);
+    }
+  }
+
   @container layout-query-container (width >= 1024px) {
     .layout-content {
       padding: var(--rc-spacing-outerPadding-desktop);
