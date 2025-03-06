@@ -11,7 +11,7 @@
   import StateSuccess from "./states/state-success.svelte";
   import { type CurrentView } from "./ui-types";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
-  import type { Product, PurchaseOption } from "../main";
+  import type { Product, PurchaseOption, SubscriptionOption } from "../main";
   import StatePresentOffer from "./states/state-present-offer.svelte";
   import BrandingInfoUI from "./branding-info-ui.svelte";
   import {
@@ -36,6 +36,17 @@
   export let purchaseOperationHelper: PurchaseOperationHelper;
   export let isInElement: boolean = false;
 
+  // once taxes are implemented, extract each component of this logic into a context or different props
+  const showProductDescription = Boolean(
+    brandingInfo?.appearance?.show_product_description,
+  );
+  const showSubscriptionTrial = Boolean(
+    (purchaseOptionToUse as SubscriptionOption)?.trial?.periodDuration,
+  );
+
+  const shouldShowDetailsButton =
+    showProductDescription || showSubscriptionTrial;
+
   const viewsWhereOfferDetailsAreShown: CurrentView[] = [
     "present-offer",
     "needs-auth-info",
@@ -54,7 +65,10 @@
   {/if}
   <Layout style={colorVariables}>
     {#if viewsWhereOfferDetailsAreShown.includes(currentView)}
-      <NavBar brandingAppearance={brandingInfo?.appearance}>
+      <NavBar
+        brandingAppearance={brandingInfo?.appearance}
+        {shouldShowDetailsButton}
+      >
         {#snippet headerContent()}
           <BrandingInfoUI {brandingInfo} />
         {/snippet}

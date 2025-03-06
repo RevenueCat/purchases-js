@@ -61,5 +61,6 @@
   "periods.perMonthFrequency": "por mês",
   "periods.perYearFrequency": "por ano",
   "periods.perDayFrequency": "por dia",
-  "state_needs_payment_info.trial_info": "Após o término do seu período de avaliação, será cobrado o valor de {{price}} {{perFrequency}} a partir de {{renewalDate}}. Você pode cancelar a qualquer momento antes disso."
+  "state_needs_payment_info.trial_info": "Após o término do seu período de avaliação, será cobrado o valor de {{price}} {{perFrequency}} a partir de {{renewalDate}}. Você pode cancelar a qualquer momento antes disso.",
+  "navbar_header.details": "Detalhes"
 }

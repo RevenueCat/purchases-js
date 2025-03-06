@@ -86,7 +86,7 @@
         />
       </div>
       {#if brandingAppearance?.show_product_description && productDetails.description}
-        <span class="rcb-product-description">
+        <span class="rcb-product-description only-desktop">
           <Localized
             key={LocalizationKeys.StatePresentOfferProductDescription}
             variables={{
@@ -140,6 +140,16 @@
 
       <div class="rcb-product-details {expanded ? 'expanded' : 'collapsed'}">
         <div class="rcb-product-details-padding">
+          {#if brandingAppearance?.show_product_description && productDetails.description}
+            <span class="rcb-product-description only-mobile">
+              <Localized
+                key={LocalizationKeys.StatePresentOfferProductDescription}
+                variables={{
+                  productDescription: productDetails.description,
+                }}
+              />
+            </span>
+          {/if}
           {#if subscriptionTrial?.periodDuration}
             <div class="rcb-product-trial-explanation">
               <div class="rcb-after-trial-ends rcb-text-dark">
@@ -268,6 +278,10 @@
     font: var(--rc-text-body1-desktop);
   }
 
+  .only-desktop {
+    display: none;
+  }
+
   @container layout-query-container (width < 768px) {
     .rcb-pricing-info {
       margin-top: var(--rc-spacing-gapXLarge-mobile);
@@ -279,6 +293,14 @@
   }
 
   @container layout-query-container (width >= 768px) {
+    .only-mobile {
+      display: none;
+    }
+
+    .only-desktop {
+      display: block;
+    }
+
     .rcb-pricing-info-header {
       display: flex;
       flex-direction: column;

@@ -45,4 +45,8 @@ export const DEFAULT_TEXT_STYLES: TextStyles = {
     desktop: { fontSize: "14px", lineHeight: "140%", fontWeight: "400" },
     mobile: { fontSize: "12px", lineHeight: "140%", fontWeight: "400" },
   },
+  largeCaption: {
+    desktop: { fontSize: "14px", lineHeight: "140%", fontWeight: "400" },
+    mobile: { fontSize: "14px", lineHeight: "140%", fontWeight: "400" },
+  },
 };

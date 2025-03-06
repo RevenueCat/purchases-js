@@ -61,5 +61,6 @@
   "periods.perMonthFrequency": "월별",
   "periods.perYearFrequency": "연간",
   "periods.perDayFrequency": "매일",
-  "state_needs_payment_info.trial_info": "체험 기간이 종료되면 {{renewalDate}}부터 {{price}} {{perFrequency}}가 청구됩니다. 그 전에 언제든지 취소할 수 있습니다."
+  "state_needs_payment_info.trial_info": "체험 기간이 종료되면 {{renewalDate}}부터 {{price}} {{perFrequency}}가 청구됩니다. 그 전에 언제든지 취소할 수 있습니다.",
+  "navbar_header.details": "세부 정보"
 }

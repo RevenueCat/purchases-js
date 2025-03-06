@@ -61,5 +61,6 @@
   "periods.perMonthFrequency": "al mese",
   "periods.perYearFrequency": "all'anno",
   "periods.perDayFrequency": "al giorno",
-  "state_needs_payment_info.trial_info": "Al termine del periodo di prova, ti verranno addebitati {{price}} {{perFrequency}} a partire dal {{renewalDate}}. Puoi annullare in qualsiasi momento prima di allora."
+  "state_needs_payment_info.trial_info": "Al termine del periodo di prova, ti verranno addebitati {{price}} {{perFrequency}} a partire dal {{renewalDate}}. Puoi annullare in qualsiasi momento prima di allora.",
+  "navbar_header.details": "Dettagli"
 }
