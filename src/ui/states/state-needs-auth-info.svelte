@@ -67,6 +67,7 @@
           <input
             id="email"
             name="email"
+            inputmode="email"
             placeholder={translator.translate(
               LocalizationKeys.StateNeedsAuthInfoEmailInputPlaceholder,
             )}
