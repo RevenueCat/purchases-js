@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { assert, describe, expect, test } from "vitest";
 import {
   createConsumablePackageMock,
   createMonthlyPackageMock,
@@ -12,7 +12,6 @@ import {
   ProductType,
 } from "../entities/offerings";
 import { PeriodUnit } from "../helpers/duration-helper";
-import { failTest } from "./test-helpers";
 import { ErrorCode, PurchasesError } from "../entities/errors";
 import { OfferingKeyword } from "../entities/get-offerings-params";
 
@@ -278,14 +277,14 @@ describe("getOfferings", () => {
       (offerings) => {
         expect(offerings.current).not.toBeNull();
       },
-      () => failTest(),
+      () => assert.fail("Getting offerings with valid currency failed"),
     );
   });
 
   test("fails to get offerings with invalid currency", async () => {
     const purchases = configurePurchases();
     await purchases.getOfferings({ currency: "invalid" }).then(
-      () => failTest(),
+      () => assert.fail("Promise was expected to raise an error"),
       (e) => {
         expect(e).toBeInstanceOf(PurchasesError);
         expect(e.errorCode).toEqual(ErrorCode.ConfigurationError);

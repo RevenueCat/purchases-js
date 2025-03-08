@@ -50,6 +50,10 @@ export enum LocalizationKeys {
   PeriodsMonthFrequency = "periods.monthFrequency",
   PeriodsYearFrequency = "periods.yearFrequency",
   PeriodsDayFrequency = "periods.dayFrequency",
+  PeriodsPerWeekFrequency = "periods.perWeekFrequency",
+  PeriodsPerMonthFrequency = "periods.perMonthFrequency",
+  PeriodsPerYearFrequency = "periods.perYearFrequency",
+  PeriodsPerDayFrequency = "periods.perDayFrequency",
   PeriodsUnknownFrequency = "periods.unknownFrequency",
   PeriodsWeekFrequencyPlural = "periods.weekFrequencyPlural",
   PeriodsMonthFrequencyPlural = "periods.monthFrequencyPlural",
@@ -60,6 +64,8 @@ export enum LocalizationKeys {
   StatePresentOfferProductPrice = "state_present_offer.product_price",
   StatePresentOfferFreeTrialDuration = "state_present_offer.free_trial_duration",
   StatePresentOfferPriceAfterFreeTrial = "state_present_offer.price_after_free_trial",
+  StatePresentOfferPriceTotalDueToday = "state_present_offer.total_due_today",
+  StatePresentOfferSubscribeTo = "state_present_offer.subscribe_to",
   StatePresentOfferRenewalFrequency = "state_present_offer.renewal_frequency",
   StatePresentOfferContinuesUntilCancelled = "state_present_offer.continues_until_cancelled",
   StatePresentOfferCancelAnytime = "state_present_offer.cancel_anytime",
@@ -68,6 +74,8 @@ export enum LocalizationKeys {
   StateNeedsAuthInfoEmailInputPlaceholder = "state_needs_auth_info.email_input_placeholder",
   StateNeedsAuthInfoButtonContinue = "state_needs_auth_info.button_continue",
   StateNeedsPaymentInfoPaymentStepTitle = "state_needs_payment_info.payment_step_title",
+  StateNeedsPaymentInfoTermsInfo = "state_needs_payment_info.terms_info",
+  StateNeedsPaymentInfoTrialInfo = "state_needs_payment_info.trial_info",
   StateNeedsPaymentInfoButtonPay = "state_needs_payment_info.button_pay",
   StateNeedsPaymentInfoButtonStartTrial = "state_needs_payment_info.button_start_trial",
   StateSuccessPurchaseSuccessful = "state_success.purchase_successful",
@@ -88,6 +96,7 @@ export enum LocalizationKeys {
   PaywallVariablesPricePerPeriod = "paywall_variables.price_per_period",
   PaywallVariablesSubRelativeDiscount = "paywall_variables.sub_relative_discount",
   PaywallVariablesTotalPriceAndPerMonth = "paywall_variables.total_price_and_per_month",
+  NavbarHeaderDetails = "navbar_header.details",
 }
 
 export const supportedLanguages: Record<

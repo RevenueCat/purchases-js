@@ -1,4 +1,3 @@
-import { type BrandingAppearance } from "src/networking/responses/branding-response";
 import {
   type Colors,
   DEFAULT_FORM_COLORS,
@@ -13,6 +12,9 @@ import {
   RoundedShape,
   type Shape,
 } from "./shapes";
+import { DEFAULT_FONT_FAMILY, type TextStyles } from "./text";
+import type { Spacing } from "./spacing";
+import type { BrandingAppearance } from "../../entities/branding";
 
 type RGB = {
   r: number;
@@ -75,10 +77,53 @@ const rgbToTextColors = (
   return {
     "grey-text-dark": `rgb(${baseColor})`,
     "grey-text-light": `rgba(${baseColor},0.50)`,
-    "grey-ui-dark": `rgba(${baseColor},0.125)`,
+    "grey-ui-dark": `rgba(${baseColor},0.3)`,
     "grey-ui-light": `rgba(${baseColor},0.05)`,
   };
 };
+
+function overlayColor(
+  baseColor: string,
+  overlay: string,
+  alpha: number,
+): string {
+  const base = hexToRGB(baseColor) || { r: 0, g: 0, b: 0 };
+  const over = hexToRGB(overlay) || { r: 255, g: 255, b: 255 };
+  const r = Math.round(over.r * alpha + base.r * (1 - alpha));
+  const g = Math.round(over.g * alpha + base.g * (1 - alpha));
+  const b = Math.round(over.b * alpha + base.b * (1 - alpha));
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+
+/**
+ * Applies an alpha value to a color.
+ * If the base color is light, the overlay color is black.
+ * If the base color is dark, the overlay color is white.
+ */
+export function applyAlpha(baseColor: string, alpha: number): string {
+  const defaultRgb = { r: 255, g: 255, b: 255 };
+  const normalizedAlpha = Math.max(0, Math.min(1, alpha));
+
+  let appliedBaseColor = baseColor;
+
+  let baseRgb = hexToRGB(baseColor) || defaultRgb;
+
+  if (isNaN(baseRgb.r) || isNaN(baseRgb.g) || isNaN(baseRgb.b)) {
+    baseRgb = defaultRgb;
+    appliedBaseColor = "#FFFFFF";
+  }
+
+  const baseIsLight = isLightColor({
+    ...baseRgb,
+    luminanceThreshold: DEFAULT_LUMINANCE_THRESHOLD,
+  });
+  const overlay = baseIsLight ? "#000000" : "#FFFFFF";
+  return overlayColor(appliedBaseColor, overlay, normalizedAlpha);
+}
+
+function toHex(val: number) {
+  return val.toString(16).padStart(2, "0").toUpperCase();
+}
 
 const textColorsForBackground = (
   backgroundColor: string,
@@ -115,14 +160,24 @@ const textColorsForBackground = (
   return textColors;
 };
 
-const fallback = (somethingNullable: any | null, defaultValue: any) => {
+const colorsForButtonStates = (primaryColor: string) => {
+  return {
+    "primary-hover": applyAlpha(primaryColor, 0.1),
+    "primary-pressed": applyAlpha(primaryColor, 0.15),
+  };
+};
+
+const fallback = <T>(
+  somethingNullable: T | null | undefined,
+  defaultValue: T,
+): T => {
   return somethingNullable ? somethingNullable : defaultValue;
 };
 
 const mapColors = (
-  colorsMapping: any,
+  colorsMapping: Record<string, string>,
   defaultColors: Colors,
-  brandingAppearance?: BrandingAppearance | undefined,
+  brandingAppearance?: BrandingAppearance | null | undefined,
 ): Colors => {
   const mappedColors = Object.entries(colorsMapping).map(([target, source]) => [
     target,
@@ -138,9 +193,9 @@ const mapColors = (
 };
 
 export const toColors = (
-  colorsMapping: any,
+  colorsMapping: Record<string, string>,
   defaultColors: Colors,
-  brandingAppearance?: BrandingAppearance | undefined,
+  brandingAppearance?: BrandingAppearance | null | undefined,
 ): Colors => {
   const mappedColors = mapColors(
     colorsMapping,
@@ -157,12 +212,13 @@ export const toColors = (
           mappedColors.primary,
           defaultColors,
         ),
+        ...colorsForButtonStates(mappedColors.primary),
       }
     : { ...defaultColors }; //copy, do not reference.
 };
 
 export const toProductInfoColors = (
-  brandingAppearance?: BrandingAppearance | undefined,
+  brandingAppearance?: BrandingAppearance | null | undefined,
 ): Colors => {
   return toColors(
     InfoColorsToBrandingAppearanceMapping,
@@ -172,7 +228,7 @@ export const toProductInfoColors = (
 };
 
 export const toFormColors = (
-  brandingAppearance?: BrandingAppearance | undefined,
+  brandingAppearance?: BrandingAppearance | null | undefined,
 ): Colors => {
   return toColors(
     FormColorsToBrandingAppearanceMapping,
@@ -182,7 +238,7 @@ export const toFormColors = (
 };
 
 export const toShape = (
-  brandingAppearance?: BrandingAppearance | undefined,
+  brandingAppearance?: BrandingAppearance | null | undefined,
 ): Shape => {
   if (!brandingAppearance) {
     return DefaultShape;
@@ -207,7 +263,9 @@ export const toStyleVar = (prefix: string = "", entries: [string, string][]) =>
  * @param appearance BrandingAppearance
  * @return a style parameter compatible string.
  */
-export const toProductInfoStyleVar = (appearance?: BrandingAppearance) => {
+export const toProductInfoStyleVar = (
+  appearance?: BrandingAppearance | null,
+) => {
   const colorVariablesString = toStyleVar(
     "color",
     Object.entries(toProductInfoColors(appearance)),
@@ -226,7 +284,7 @@ export const toProductInfoStyleVar = (appearance?: BrandingAppearance) => {
  * @param appearance BrandingAppearance
  * @return a style parameter compatible string.
  */
-export const toFormStyleVar = (appearance?: BrandingAppearance) => {
+export const toFormStyleVar = (appearance?: BrandingAppearance | null) => {
   const colorVariablesString = toStyleVar(
     "color",
     Object.entries(toFormColors(appearance)),
@@ -239,3 +297,27 @@ export const toFormStyleVar = (appearance?: BrandingAppearance) => {
 
   return [colorVariablesString, shapeVariableString].join("; ");
 };
+
+/**
+ * Convert text styles into CSS variables for both desktop and mobile.
+ */
+export const toTextStyleVar = (prefix: string = "", textStyles: TextStyles) =>
+  Object.entries(textStyles)
+    .flatMap(([key, { desktop, mobile }]) => [
+      `--rc-${prefix}-${key}-desktop: normal normal ${desktop.fontWeight} ${desktop.fontSize}/${desktop.lineHeight} ${DEFAULT_FONT_FAMILY}`,
+      `--rc-${prefix}-${key}-mobile: normal normal ${mobile.fontWeight} ${mobile.fontSize}/${mobile.lineHeight} ${DEFAULT_FONT_FAMILY}`,
+      `--rc-${prefix}-${key}-desktop-font-size: ${desktop.fontSize}`,
+      `--rc-${prefix}-${key}-mobile-font-size: ${mobile.fontSize}`,
+    ])
+    .join("; ");
+
+/**
+ * Generates CSS variables for the spacing system.
+ */
+export const toSpacingVars = (prefix: string = "", spacing: Spacing) =>
+  Object.entries(spacing)
+    .map(
+      ([key, { mobile, tablet, desktop }]) =>
+        `--rc-${prefix}-${key}-mobile: ${mobile};  --rc-${prefix}-${key}-tablet: ${tablet};  --rc-${prefix}-${key}-desktop: ${desktop};`,
+    )
+    .join(" ");

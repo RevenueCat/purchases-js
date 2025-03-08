@@ -43,7 +43,7 @@ import {
 } from "./helpers/offerings-parser";
 import { type RedemptionInfo } from "./entities/redemption-info";
 import { type PurchaseResult } from "./entities/purchase-result";
-import { mount } from "svelte";
+import { mount, unmount } from "svelte";
 import { type RenderPaywallParams } from "./entities/render-paywall-params";
 import { Paywall } from "@revenuecat/purchases-ui-js";
 import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
@@ -55,10 +55,10 @@ import EventsTracker, {
   type IEventsTracker,
 } from "./behavioural-events/events-tracker";
 import {
-  createCheckoutSessionStartEvent,
-  createCheckoutSessionEndFinishedEvent,
   createCheckoutSessionEndClosedEvent,
   createCheckoutSessionEndErroredEvent,
+  createCheckoutSessionEndFinishedEvent,
+  createCheckoutSessionStartEvent,
 } from "./behavioural-events/sdk-event-helpers";
 import { SDKEventName } from "./behavioural-events/sdk-events";
 import { autoParseUTMParams } from "./helpers/utm-params";
@@ -102,6 +102,7 @@ export { OfferingKeyword } from "./entities/get-offerings-params";
 export type { PurchaseParams } from "./entities/purchase-params";
 export type { RedemptionInfo } from "./entities/redemption-info";
 export type { PurchaseResult } from "./entities/purchase-result";
+export type { BrandingAppearance } from "./entities/branding";
 
 const ANONYMOUS_PREFIX = "$RCAnonymousID:";
 
@@ -261,6 +262,7 @@ export class Purchases {
     this.eventsTracker = new EventsTracker({
       apiKey: this._API_KEY,
       appUserId: this._appUserId,
+      silent: !this._flags.collectAnalyticsEvents,
     });
     this.backend = new Backend(this._API_KEY, httpConfig);
     this.purchaseOperationHelper = new PurchaseOperationHelper(
@@ -555,7 +557,6 @@ export class Purchases {
 
     const certainHTMLTarget = resolvedHTMLTarget as unknown as HTMLElement;
 
-    const asModal = !htmlTarget;
     const appUserId = this._appUserId;
 
     Logger.debugLog(
@@ -580,53 +581,94 @@ export class Purchases {
       : {};
     const metadata = { ...utmParamsMetadata, ...(params.metadata || {}) };
 
+    let component: ReturnType<typeof mount> | null = null;
+
+    const finalBrandingInfo: BrandingInfoResponse | null = this._brandingInfo;
+
+    if (finalBrandingInfo && params.brandingAppearanceOverride) {
+      finalBrandingInfo.appearance = params.brandingAppearanceOverride;
+    }
+
+    const isInElement = htmlTarget !== undefined;
+
     return new Promise((resolve, reject) => {
-      mount(RCPurchasesUI, {
+      if (!isInElement) {
+        window.history.pushState({ checkoutOpen: true }, "");
+      }
+
+      const onClose = () => {
+        const event = createCheckoutSessionEndClosedEvent();
+        this.eventsTracker.trackSDKEvent(event);
+        window.removeEventListener("popstate", onClose);
+
+        if (component) {
+          unmount(component);
+        }
+
+        certainHTMLTarget.innerHTML = "";
+
+        Logger.debugLog("Purchase cancelled by user");
+        reject(new PurchasesError(ErrorCode.UserCancelledError));
+      };
+
+      if (!isInElement) {
+        window.addEventListener("popstate", onClose);
+      }
+
+      const onFinished = async (
+        operationSessionId: string,
+        redemptionInfo: RedemptionInfo | null,
+      ) => {
+        const event = createCheckoutSessionEndFinishedEvent({
+          redemptionInfo,
+        });
+        this.eventsTracker.trackSDKEvent(event);
+        Logger.debugLog("Purchase finished");
+
+        if (component) {
+          unmount(component);
+        }
+
+        certainHTMLTarget.innerHTML = "";
+        // TODO: Add info about transaction in result.
+        const purchaseResult: PurchaseResult = {
+          customerInfo: await this._getCustomerInfoForUserId(appUserId),
+          redemptionInfo: redemptionInfo,
+          operationSessionId: operationSessionId,
+        };
+        resolve(purchaseResult);
+      };
+
+      const onError = (e: PurchaseFlowError) => {
+        const event = createCheckoutSessionEndErroredEvent({
+          errorCode: e.errorCode?.toString(),
+          errorMessage: e.message,
+        });
+        this.eventsTracker.trackSDKEvent(event);
+
+        if (component) {
+          unmount(component);
+        }
+
+        certainHTMLTarget.innerHTML = "";
+        reject(PurchasesError.getForPurchasesFlowError(e));
+      };
+
+      component = mount(RCPurchasesUI, {
         target: certainHTMLTarget,
         props: {
+          isInElement: isInElement,
           appUserId,
           rcPackage,
           purchaseOption: purchaseOptionToUse,
           customerEmail,
-          onFinished: async (
-            operationSessionId: string,
-            redemptionInfo: RedemptionInfo | null,
-          ) => {
-            const event = createCheckoutSessionEndFinishedEvent({
-              redemptionInfo,
-            });
-            this.eventsTracker.trackSDKEvent(event);
-            Logger.debugLog("Purchase finished");
-            certainHTMLTarget.innerHTML = "";
-            // TODO: Add info about transaction in result.
-            const purchaseResult: PurchaseResult = {
-              customerInfo: await this._getCustomerInfoForUserId(appUserId),
-              redemptionInfo: redemptionInfo,
-              operationSessionId: operationSessionId,
-            };
-            resolve(purchaseResult);
-          },
-          onClose: () => {
-            const event = createCheckoutSessionEndClosedEvent();
-            this.eventsTracker.trackSDKEvent(event);
-            certainHTMLTarget.innerHTML = "";
-            Logger.debugLog("Purchase cancelled by user");
-            reject(new PurchasesError(ErrorCode.UserCancelledError));
-          },
-          onError: (e: PurchaseFlowError) => {
-            const event = createCheckoutSessionEndErroredEvent({
-              errorCode: e.errorCode?.toString(),
-              errorMessage: e.message,
-            });
-            this.eventsTracker.trackSDKEvent(event);
-            certainHTMLTarget.innerHTML = "";
-            reject(PurchasesError.getForPurchasesFlowError(e));
-          },
+          onFinished,
+          onClose,
+          onError,
           purchases: this,
           eventsTracker: this.eventsTracker,
           brandingInfo: this._brandingInfo,
           purchaseOperationHelper: this.purchaseOperationHelper,
-          asModal,
           selectedLocale: localeToBeUsed,
           metadata: metadata,
           defaultLocale,

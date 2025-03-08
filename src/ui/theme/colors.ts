@@ -1,4 +1,4 @@
-import { type BrandingAppearance } from "../../networking/responses/branding-response";
+import type { BrandingAppearance } from "../../entities/branding";
 
 /**
  * All those colors get translated in --rc-color-<property_name> css variables.
@@ -10,6 +10,8 @@ export interface Colors {
   focus: string;
   accent: string;
   primary: string;
+  "primary-hover": string;
+  "primary-pressed": string;
   "primary-text": string;
   white: string;
   "grey-text-dark": string;
@@ -21,35 +23,39 @@ export interface Colors {
 }
 
 export const DEFAULT_FORM_COLORS: Colors = {
-  error: "#f2545b",
+  error: "#B0171F",
   warning: "#f4e971",
-  focus: "#000080",
+  focus: "#1148B8",
   accent: "#767676",
-  primary: "#000000",
+  primary: "#576CDB",
+  "primary-hover": "rgba(87, 108, 219, .8)",
+  "primary-pressed": "rgba(87, 108, 219, .9)",
   "primary-text": "#ffffff",
   white: "#ffffff",
   "grey-text-dark": "rgba(0,0,0,1)",
   "grey-text-light": "rgba(0,0,0,0.5)",
-  "grey-ui-dark": "rgba(0,0,0,0.125)",
+  "grey-ui-dark": "rgba(0,0,0,0.3)",
   "grey-ui-light": "rgba(0,0,0,0.005)",
   "input-background": "white",
   background: "white",
 };
 
 export const DEFAULT_INFO_COLORS: Colors = {
-  error: "#f2545b",
+  error: "#B0171F",
   warning: "#f4e971",
-  focus: "#000080",
+  focus: "#1148B8",
   accent: "#767676",
-  primary: "#ffffff",
-  "primary-text": "#000000",
+  primary: "#576CDB",
+  "primary-hover": "rgba(87, 108, 219, .8)",
+  "primary-pressed": "rgba(87, 108, 219, .9)",
+  "primary-text": "#ffffff",
   white: "#ffffff",
-  "grey-text-dark": "rgba(255,255,255,1)",
-  "grey-text-light": "rgba(255,255,255,0.5)",
-  "grey-ui-dark": "rgba(255,255,255,0.125)",
-  "grey-ui-light": "rgba(255,255,255,0.005)",
-  "input-background": "#000000",
-  background: "#000000",
+  "grey-text-dark": "rgba(0,0,0,1)",
+  "grey-text-light": "rgba(0,0,0,0.5)",
+  "grey-ui-dark": "rgba(0,0,0,0.25)",
+  "grey-ui-light": "rgba(0,0,0,0.005)",
+  "input-background": "white",
+  background: "#EFF3FA",
 };
 
 /**

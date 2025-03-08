@@ -8,8 +8,15 @@ export interface FlagsConfig {
    * @defaultValue true
    */
   autoCollectUTMAsMetadata?: boolean;
+
+  /**
+   * If set to true, the SDK will automatically collect analytics events.
+   * @defaultValue true
+   */
+  collectAnalyticsEvents?: boolean;
 }
 
 export const defaultFlagsConfig: FlagsConfig = {
   autoCollectUTMAsMetadata: true,
+  collectAnalyticsEvents: true,
 };

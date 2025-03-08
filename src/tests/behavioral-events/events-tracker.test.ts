@@ -43,6 +43,27 @@ describe("EventsTracker", (test) => {
     context.eventsTracker.dispose();
   });
 
+  test("does not track event if silent", async () => {
+    const eventsTracker = new EventsTracker({
+      apiKey: testApiKey,
+      appUserId: "someAppUserId",
+      silent: true,
+    });
+    eventsTracker.trackExternalEvent({
+      eventName: "external",
+      source: "sdk",
+      properties: {
+        a: "b",
+        b: 1,
+        c: false,
+        d: null,
+      },
+    });
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(APIPostRequest).not.toBeCalled();
+  });
+
   test<EventsTrackerFixtures>("sends the serialized event", async ({
     eventsTracker,
   }) => {

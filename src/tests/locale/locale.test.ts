@@ -96,6 +96,51 @@ describe("The Translator class", () => {
       `Translating failed for language`,
     ).not.toThrow();
   });
+
+  test("should correctly translate 'per {labels}' for day", () => {
+    const translator = new Translator({}, "en", "en");
+    expect(
+      translator.translatePeriodFrequency(1, PeriodUnit.Day, {
+        useMultipleWords: true,
+      }),
+    ).toBe("per day");
+    expect(
+      translator.translatePeriodFrequency(1, PeriodUnit.Week, {
+        useMultipleWords: true,
+      }),
+    ).toBe("per week");
+    expect(
+      translator.translatePeriodFrequency(1, PeriodUnit.Month, {
+        useMultipleWords: true,
+      }),
+    ).toBe("per month");
+    expect(
+      translator.translatePeriodFrequency(1, PeriodUnit.Year, {
+        useMultipleWords: true,
+      }),
+    ).toBe("per year");
+
+    expect(
+      translator.translatePeriodFrequency(2, PeriodUnit.Day, {
+        useMultipleWords: true,
+      }),
+    ).toBe("every 2 days");
+    expect(
+      translator.translatePeriodFrequency(2, PeriodUnit.Week, {
+        useMultipleWords: true,
+      }),
+    ).toBe("every 2 weeks");
+    expect(
+      translator.translatePeriodFrequency(2, PeriodUnit.Month, {
+        useMultipleWords: true,
+      }),
+    ).toBe("every 2 months");
+    expect(
+      translator.translatePeriodFrequency(2, PeriodUnit.Year, {
+        useMultipleWords: true,
+      }),
+    ).toBe("every 2 years");
+  });
 });
 
 describe("The supportedLanguages", () => {

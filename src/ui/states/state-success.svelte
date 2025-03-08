@@ -1,6 +1,5 @@
 <script lang="ts">
   import IconSuccess from "../icons/icon-success.svelte";
-  import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
   import MessageLayout from "../layout/message-layout.svelte";
   import { type Product, ProductType } from "../../entities/offerings";
   import { getContext, onMount } from "svelte";
@@ -12,15 +11,16 @@
   import { SDKEventName } from "../../behavioural-events/sdk-events";
   import { type IEventsTracker } from "../../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "../constants";
+  import { type ContinueHandlerParams } from "../ui-types";
 
   export let productDetails: Product | null = null;
-  export let brandingInfo: BrandingInfoResponse | null = null;
-  export let onContinue: () => void;
+  export let onContinue: (params?: ContinueHandlerParams) => void;
 
   const isSubscription =
     productDetails?.productType === ProductType.Subscription;
   const translator: Translator =
     getContext(translatorContextKey) || Translator.fallback();
+
   const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
 
   function handleContinue() {
@@ -28,16 +28,6 @@
       eventName: SDKEventName.CheckoutPurchaseSuccessfulDismiss,
       properties: {
         ui_element: "go_back_to_app",
-      },
-    });
-    onContinue();
-  }
-
-  function handleClose() {
-    eventsTracker.trackSDKEvent({
-      eventName: SDKEventName.CheckoutPurchaseSuccessfulDismiss,
-      properties: {
-        ui_element: "close",
       },
     });
     onContinue();
@@ -53,15 +43,17 @@
 <MessageLayout
   type="success"
   title={translator.translate(LocalizationKeys.StateSuccessPurchaseSuccessful)}
-  {brandingInfo}
   onContinue={handleContinue}
-  onClose={handleClose}
   closeButtonTitle={translator.translate(
     LocalizationKeys.StateSuccessButtonClose,
   )}
 >
-  <IconSuccess slot="icon" />
-  {#if isSubscription}
-    <Localized key={LocalizationKeys.StateSuccessSubscriptionNowActive} />
-  {/if}
+  {#snippet icon()}
+    <IconSuccess />
+  {/snippet}
+  {#snippet message()}
+    {#if isSubscription}
+      <Localized key={LocalizationKeys.StateSuccessSubscriptionNowActive} />
+    {/if}
+  {/snippet}
 </MessageLayout>

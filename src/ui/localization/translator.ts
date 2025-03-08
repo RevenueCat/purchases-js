@@ -5,6 +5,9 @@ import { englishLocale } from "./constants";
 import type { LocalizationKeys } from "./supportedLanguages";
 import { supportedLanguages } from "./supportedLanguages";
 
+import { formatPrice } from "../../helpers/price-labels";
+import { capitalize } from "../../helpers/string-helpers";
+
 export type EmptyString = "";
 
 /**
@@ -46,9 +49,17 @@ export interface TranslatePeriodOptions {
   short?: boolean;
 }
 
+export interface TranslateFrequencyOptions {
+  useMultipleWords?: boolean;
+}
+
 const defaultTranslatePeriodOptions: TranslatePeriodOptions = {
   noWhitespace: false,
   short: false,
+};
+
+const defaultTranslateFrequencyOptions: TranslateFrequencyOptions = {
+  useMultipleWords: false,
 };
 
 export class Translator {
@@ -86,13 +97,21 @@ export class Translator {
   }
 
   public formatPrice(priceInMicros: number, currency: string): string {
-    const price = priceInMicros / 1000000;
+    const additionalFormattingOptions: {
+      maximumFractionDigits?: number;
+      currencyDisplay?: "narrowSymbol";
+    } = { currencyDisplay: "narrowSymbol" };
+    if (priceInMicros === 0) {
+      additionalFormattingOptions.maximumFractionDigits = 0;
+    }
 
     try {
-      return new Intl.NumberFormat(this.locale, {
-        style: "currency",
+      return formatPrice(
+        priceInMicros,
         currency,
-      }).format(price);
+        this.locale,
+        additionalFormattingOptions,
+      );
     } catch {
       Logger.errorLog(
         `Failed to create a price formatter for locale: ${this.locale}`,
@@ -100,20 +119,24 @@ export class Translator {
     }
 
     try {
-      return new Intl.NumberFormat(this.fallbackLocale, {
-        style: "currency",
+      return formatPrice(
+        priceInMicros,
         currency,
-      }).format(price);
+        this.fallbackLocale,
+        additionalFormattingOptions,
+      );
     } catch {
       Logger.errorLog(
         `Failed to create a price formatter for locale: ${this.fallbackLocale}`,
       );
     }
 
-    return new Intl.NumberFormat(englishLocale, {
-      style: "currency",
+    return formatPrice(
+      priceInMicros,
       currency,
-    }).format(price);
+      englishLocale,
+      additionalFormattingOptions,
+    );
   }
 
   get locale(): string {
@@ -183,13 +206,27 @@ export class Translator {
   public translatePeriodFrequency(
     amount: number,
     period: PeriodUnit,
+    options: TranslateFrequencyOptions = defaultTranslateFrequencyOptions,
   ): string | undefined {
     const localeInstance = this.getLocaleInstance(this.selectedLocale);
     const fallbackInstance = this.getLocaleInstance(this.defaultLocale);
 
     return (
-      localeInstance?.translatePeriodFrequency(amount, period) ||
-      fallbackInstance?.translatePeriodFrequency(amount, period)
+      localeInstance?.translatePeriodFrequency(amount, period, options) ||
+      fallbackInstance?.translatePeriodFrequency(amount, period, options)
+    );
+  }
+
+  public translateDate(
+    date: Date,
+    options: Intl.DateTimeFormatOptions = {},
+  ): string | undefined {
+    const localeInstance = this.getLocaleInstance(this.selectedLocale);
+    const fallbackInstance = this.getLocaleInstance(this.defaultLocale);
+
+    return (
+      localeInstance?.translateDate(date, options) ||
+      fallbackInstance?.translateDate(date, options)
     );
   }
 }
@@ -264,14 +301,24 @@ export class LocaleTranslations {
   public translatePeriodFrequency(
     amount: number,
     period: PeriodUnit,
+    options: TranslateFrequencyOptions = defaultTranslateFrequencyOptions,
   ): string | undefined {
+    const useMultipleWords = options?.useMultipleWords;
+
     const key =
       Math.abs(amount) === 1
-        ? `periods.${period}Frequency`
+        ? `periods.${useMultipleWords === true ? "per" : ""}${useMultipleWords ? capitalize(period.toString()) : period}Frequency`
         : `periods.${period}FrequencyPlural`;
 
     return this.translate(key as LocalizationKeys, {
       amount: amount.toString(),
     });
+  }
+
+  public translateDate(
+    date: Date,
+    options: Intl.DateTimeFormatOptions = {},
+  ): string | undefined {
+    return date.toLocaleDateString(this.localeKey, options);
   }
 }

@@ -125,6 +125,8 @@ export class ErrorCodeUtils {
       case BackendErrorCode.BackendInvalidPaymentModeOrIntroPriceNotProvided:
       case BackendErrorCode.BackendProductIdForGoogleReceiptNotProvided:
       case BackendErrorCode.BackendOfferNotFound:
+      case BackendErrorCode.BackendInvalidOperationSession:
+      case BackendErrorCode.BackendPurchaseCannotBeCompleted:
         return ErrorCode.PurchaseInvalidError;
       case BackendErrorCode.BackendAlreadySubscribedError:
         return ErrorCode.ProductAlreadyPurchasedError;
@@ -151,6 +153,7 @@ export class ErrorCodeUtils {
         return ErrorCode.UnsupportedError;
       case BackendErrorCode.BackendInvalidEmail:
       case BackendErrorCode.BackendNoMXRecordsFound:
+      case BackendErrorCode.BackendEmailIsRequired:
         return ErrorCode.InvalidEmailError;
     }
   }
@@ -210,6 +213,9 @@ export enum BackendErrorCode {
   BackendPaymentGatewayGenericError = 7773,
   BackendOfferNotFound = 7814,
   BackendNoMXRecordsFound = 7834,
+  BackendInvalidOperationSession = 7877,
+  BackendPurchaseCannotBeCompleted = 7878,
+  BackendEmailIsRequired = 7879,
 }
 
 /**
