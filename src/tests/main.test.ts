@@ -105,11 +105,16 @@ describe("Purchases.isEntitledTo", () => {
 });
 
 describe("Purchases.changeUser", () => {
-  test("can change user", () => {
+  test("throws error if given invalid user id", async () => {
+    const purchases = configurePurchases();
+    await expect(purchases.changeUser("")).rejects.toThrow(PurchasesError);
+  });
+
+  test("can change user", async () => {
     const newAppUserId = "newAppUserId";
     const purchases = configurePurchases();
     expect(purchases.getAppUserId()).toEqual(testUserId);
-    purchases.changeUser(newAppUserId);
+    await purchases.changeUser(newAppUserId);
     expect(purchases.getAppUserId()).toEqual(newAppUserId);
   });
 });
