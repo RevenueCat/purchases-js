@@ -4,7 +4,7 @@ import {
   type PurchasesErrorExtra,
 } from "../entities/errors";
 import { type Backend } from "../networking/backend";
-import { type PurchaseResponse } from "../networking/responses/purchase-response";
+import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
 import {
   CheckoutSessionStatus,
   type CheckoutStatusError,
@@ -24,6 +24,8 @@ import {
   toRedemptionInfo,
 } from "../entities/redemption-info";
 import { type IEventsTracker } from "../behavioural-events/events-tracker";
+import type { CheckoutCompleteResponse } from "src/networking/responses/checkout-complete-response";
+import type { CheckoutCalculateTaxesResponse } from "src/networking/responses/checkout-calculate-taxes-response";
 
 export enum PurchaseFlowErrorCode {
   ErrorSettingUpPurchase = 0,
@@ -130,28 +132,99 @@ export class PurchaseOperationHelper {
     this.maxNumberAttempts = maxNumberAttempts;
   }
 
-  async startPurchase(
+  async checkoutStart(
     appUserId: string,
     productId: string,
     purchaseOption: PurchaseOption,
-    email: string,
     presentedOfferingContext: PresentedOfferingContext,
+    email?: string,
     metadata?: PurchaseMetadata,
-  ): Promise<PurchaseResponse> {
+  ): Promise<CheckoutStartResponse> {
     try {
       const traceId = this.eventsTracker.getTraceId();
 
-      const subscribeResponse = await this.backend.postPurchase(
+      const checkoutStartResponse = await this.backend.postCheckoutStart(
         appUserId,
         productId,
-        email,
         presentedOfferingContext,
         purchaseOption,
-        metadata,
         traceId,
+        email,
+        metadata,
       );
-      this.operationSessionId = subscribeResponse.operation_session_id;
-      return subscribeResponse;
+      this.operationSessionId = checkoutStartResponse.operation_session_id;
+      return checkoutStartResponse;
+    } catch (error) {
+      if (error instanceof PurchasesError) {
+        throw PurchaseFlowError.fromPurchasesError(
+          error,
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        );
+      } else {
+        const errorMessage =
+          "Unknown error starting purchase: " + String(error);
+        Logger.errorLog(errorMessage);
+        throw new PurchaseFlowError(
+          PurchaseFlowErrorCode.UnknownError,
+          errorMessage,
+        );
+      }
+    }
+  }
+
+  async checkoutCalculateTaxes(
+    countryCode?: string,
+    postalCode?: string,
+  ): Promise<CheckoutCalculateTaxesResponse> {
+    const operationSessionId = this.operationSessionId;
+    if (!operationSessionId) {
+      throw new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "No purchase started",
+      );
+    }
+
+    try {
+      const checkoutCalculateTaxesResponse =
+        await this.backend.postCheckoutCalculateTaxes(
+          operationSessionId,
+          countryCode,
+          postalCode,
+        );
+      return checkoutCalculateTaxesResponse;
+    } catch (error) {
+      if (error instanceof PurchasesError) {
+        throw PurchaseFlowError.fromPurchasesError(
+          error,
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        );
+      } else {
+        const errorMessage =
+          "Unknown error calculating taxes: " + String(error);
+        Logger.errorLog(errorMessage);
+        throw new PurchaseFlowError(
+          PurchaseFlowErrorCode.UnknownError,
+          errorMessage,
+        );
+      }
+    }
+  }
+
+  async checkoutComplete(email?: string): Promise<CheckoutCompleteResponse> {
+    const operationSessionId = this.operationSessionId;
+    if (!operationSessionId) {
+      throw new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "No purchase started",
+      );
+    }
+
+    try {
+      const checkoutCompleteResponse = await this.backend.postCheckoutComplete(
+        operationSessionId,
+        email,
+      );
+      return checkoutCompleteResponse;
     } catch (error) {
       if (error instanceof PurchasesError) {
         throw PurchaseFlowError.fromPurchasesError(

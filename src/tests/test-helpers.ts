@@ -1,9 +1,5 @@
-import { expect } from "vitest";
+import { expect, assert } from "vitest";
 import { PurchasesError } from "../entities/errors";
-
-export function failTest() {
-  expect(true).toBeFalsy();
-}
 
 export function verifyExpectedError(e: unknown, expectedError: PurchasesError) {
   expect(e).toBeInstanceOf(PurchasesError);
@@ -20,7 +16,7 @@ export function expectPromiseToError(
   expectedError: PurchasesError,
 ) {
   return f.then(
-    () => failTest(),
+    () => assert.fail("Promise was expected to raise an error"),
     (e) => verifyExpectedError(e, expectedError),
   );
 }

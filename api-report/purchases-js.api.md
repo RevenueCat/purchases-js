@@ -7,6 +7,28 @@
 import { PaywallData } from '@revenuecat/purchases-ui-js';
 
 // @public
+export interface BrandingAppearance {
+    // (undocumented)
+    color_accent: string;
+    // (undocumented)
+    color_buttons_primary: string;
+    // (undocumented)
+    color_error: string;
+    // (undocumented)
+    color_form_bg: string;
+    // (undocumented)
+    color_page_bg: string;
+    // (undocumented)
+    color_product_info_bg: string;
+    // (undocumented)
+    font: string;
+    // (undocumented)
+    shapes: "default" | "rectangle" | "rounded" | "pill";
+    // (undocumented)
+    show_product_description: boolean;
+}
+
+// @public
 export interface CustomerInfo {
     readonly activeSubscriptions: Set<string>;
     readonly allExpirationDatesByProduct: {
@@ -112,6 +134,7 @@ export enum ErrorCode {
 // @public
 export interface FlagsConfig {
     autoCollectUTMAsMetadata?: boolean;
+    collectAnalyticsEvents?: boolean;
 }
 
 // @public
