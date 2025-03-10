@@ -7,5 +7,4 @@ export type BrandingInfoResponse = {
   id: string;
   app_name: string | null;
   support_email?: string | null;
-  gateway_tax_collection_enabled: boolean;
 };
