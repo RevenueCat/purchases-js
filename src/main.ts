@@ -700,6 +700,7 @@ export class Purchases {
    * @param newAppUserId - The user id to change to.
    */
   public async changeUser(newAppUserId: string): Promise<CustomerInfo> {
+    validateAppUserId(newAppUserId);
     this._appUserId = newAppUserId;
     this.eventsTracker.updateUser(newAppUserId);
     // TODO: Cancel all pending requests if any.
