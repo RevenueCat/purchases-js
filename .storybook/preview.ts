@@ -1,5 +1,6 @@
 import type { Preview } from "@storybook/svelte";
 import GlobalDecorator from "../src/stories/utils/global-decorator.svelte";
+import { brandingInfos } from "../src/stories/fixtures";
 
 const preview: Preview = {
   parameters: {
@@ -92,6 +93,18 @@ const preview: Preview = {
             title: "Arabic",
           },
         ],
+      },
+    },
+    brandingName: {
+      description: "Pick an example branding",
+      toolbar: {
+        title: "Branding",
+        icon: "paintbrush",
+        dynamicTitle: true,
+        items: Object.keys(brandingInfos).map((key) => ({
+          value: key,
+          title: key,
+        })),
       },
     },
   },
