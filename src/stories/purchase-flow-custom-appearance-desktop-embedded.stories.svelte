@@ -48,8 +48,6 @@
 </script>
 
 <script lang="ts">
-  import { eventsTrackerContextKey } from "../ui/constants";
-
   setTemplate(template);
 </script>
 
@@ -66,7 +64,6 @@
             [translatorContextKey]: args.locale
               ? new Translator({}, args.locale, args.locale)
               : undefined,
-            [eventsTrackerContextKey]: { trackSDKEvent: () => {} },
           }}
         >
           <RcbUiInner

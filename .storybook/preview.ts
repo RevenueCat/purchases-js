@@ -1,4 +1,5 @@
 import type { Preview } from "@storybook/svelte";
+import GlobalDecorator from "../src/stories/utils/global-decorator.svelte";
 
 const preview: Preview = {
   parameters: {
@@ -36,6 +37,20 @@ const preview: Preview = {
       },
     },
   },
+  decorators: [
+    (Story, context) => {
+      return {
+        Component: GlobalDecorator,
+        props: {
+          globals: context.globals,
+          children: () => ({
+            Component: Story,
+            props: context.args,
+          }),
+        },
+      };
+    },
+  ],
 };
 
 export default preview;
