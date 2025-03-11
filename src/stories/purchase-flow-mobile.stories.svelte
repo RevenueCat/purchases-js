@@ -28,7 +28,7 @@
   let { Story } = defineMeta({
     title: "Purchase flow (Mobile)",
     args: defaultArgs,
-    parameters: {},
+    parameters: { viewport: { defaultViewport: "mobile" } },
     loaders: [
       async () => {
         const paymentInfoCollectionMetadata: CheckoutStartResponse =
@@ -55,18 +55,10 @@
   />
 {/snippet}
 
-<Story
-  name="Email Input"
-  args={{ currentView: "needs-auth-info" }}
-  parameters={{ viewport: { defaultViewport: "mobile" } }}
-/>
+<Story name="Email Input" args={{ currentView: "needs-auth-info" }} />
 <Story
   name="Email Input (with Sandbox Banner)"
-  args={{
-    currentView: "needs-auth-info",
-    isSandbox: true,
-  }}
-  parameters={{ viewport: { defaultViewport: "mobile" } }}
+  args={{ currentView: "needs-auth-info", isSandbox: true }}
 />
 <Story
   name="Email Input (with Trial Product)"
@@ -79,7 +71,6 @@
     },
     purchaseOptionToUse: subscriptionOptionWithTrial,
   }}
-  parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
 <Story
   name="Checkout (with Trial Product)"
@@ -96,26 +87,7 @@
     purchaseOptionToUse: subscriptionOptionWithTrial,
     defaultPurchaseOption: subscriptionOptionWithTrial,
   }}
-  parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
-<Story
-  name="Loading"
-  args={{
-    currentView: "loading",
-  }}
-  parameters={{ viewport: { defaultViewport: "mobile" } }}
-/>
-<Story
-  name="Payment complete"
-  args={{
-    currentView: "success",
-  }}
-  parameters={{ viewport: { defaultViewport: "mobile" } }}
-/>
-<Story
-  name="Payment failed"
-  args={{
-    currentView: "error",
-  }}
-  parameters={{ viewport: { defaultViewport: "mobile" } }}
-/>
+<Story name="Loading" args={{ currentView: "loading" }} />
+<Story name="Payment complete" args={{ currentView: "success" }} />
+<Story name="Payment failed" args={{ currentView: "error" }} />
