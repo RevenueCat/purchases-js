@@ -1,9 +1,7 @@
 <script module>
   import { defineMeta, setTemplate } from "@storybook/addon-svelte-csf";
-  import WithContext from "./utils/with-context.svelte";
   import { toProductInfoStyleVar } from "../ui/theme/utils";
   import RcbUiInner from "../ui/rcb-ui-inner.svelte";
-  import { Translator } from "../ui/localization/translator";
 
   import {
     brandingInfo,
@@ -15,7 +13,6 @@
   } from "./fixtures";
   import { buildCheckoutStartResponse } from "./utils/purchase-response-builder";
   import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
-  import { translatorContextKey } from "../ui/localization/constants";
 
   const defaultArgs = {
     context: {},
@@ -52,20 +49,11 @@
 </script>
 
 {#snippet template(args: any)}
-  <WithContext
-    context={{
-      ...args.context,
-      [translatorContextKey]: args.locale
-        ? new Translator({}, args.locale, args.locale)
-        : undefined,
-    }}
-  >
-    <RcbUiInner
-      {...args}
-      {colorVariables}
-      paymentInfoCollectionMetadata={paymentMetadata}
-    />
-  </WithContext>
+  <RcbUiInner
+    {...args}
+    {colorVariables}
+    paymentInfoCollectionMetadata={paymentMetadata}
+  />
 {/snippet}
 
 <Story
