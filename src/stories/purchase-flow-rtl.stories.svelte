@@ -27,7 +27,8 @@
   let { Story } = defineMeta({
     title: "Purchase flow Right To Left (Mobile)",
     args: defaultArgs,
-    parameters: {},
+    parameters: { viewport: { defaultViewport: "mobile" } },
+    globals: { locale: "ar" },
     loaders: [
       async () => {
         const paymentInfoCollectionMetadata: CheckoutStartResponse =
@@ -54,20 +55,10 @@
   />
 {/snippet}
 
-<Story
-  name="Email Input (Arabic)"
-  args={{ currentView: "needs-auth-info" }}
-  globals={{ locale: "ar" }}
-  parameters={{ viewport: { defaultViewport: "mobile" } }}
-/>
+<Story name="Email Input (Arabic)" args={{ currentView: "needs-auth-info" }} />
 <Story
   name="Email Input (with Sandbox Banner) (Arabic)"
-  args={{
-    currentView: "needs-auth-info",
-    isSandbox: true,
-  }}
-  globals={{ locale: "ar" }}
-  parameters={{ viewport: { defaultViewport: "mobile" } }}
+  args={{ currentView: "needs-auth-info", isSandbox: true }}
 />
 <Story
   name="Email Input (with Trial Product) (Arabic)"
@@ -80,39 +71,8 @@
     },
     purchaseOptionToUse: subscriptionOptionWithTrial,
   }}
-  globals={{ locale: "ar" }}
-  parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
-<Story
-  name="Checkout (Arabic)"
-  args={{
-    ...defaultArgs,
-    currentView: "needs-payment-info",
-  }}
-  globals={{ locale: "ar" }}
-  parameters={{ viewport: { defaultViewport: "mobile" } }}
-/>
-<Story
-  name="Loading (Arabic)"
-  args={{
-    currentView: "loading",
-  }}
-  globals={{ locale: "ar" }}
-  parameters={{ viewport: { defaultViewport: "mobile" } }}
-/>
-<Story
-  name="Payment complete (Arabic)"
-  args={{
-    currentView: "success",
-  }}
-  globals={{ locale: "ar" }}
-  parameters={{ viewport: { defaultViewport: "mobile" } }}
-/>
-<Story
-  name="Payment failed (Arabic)"
-  args={{
-    currentView: "error",
-  }}
-  globals={{ locale: "ar" }}
-  parameters={{ viewport: { defaultViewport: "mobile" } }}
-/>
+<Story name="Checkout (Arabic)" args={{ currentView: "needs-payment-info" }} />
+<Story name="Loading (Arabic)" args={{ currentView: "loading" }} />
+<Story name="Payment complete (Arabic)" args={{ currentView: "success" }} />
+<Story name="Payment failed (Arabic)" args={{ currentView: "error" }} />
