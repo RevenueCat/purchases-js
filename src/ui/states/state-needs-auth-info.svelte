@@ -51,16 +51,7 @@
     });
   });
 
-  const contextTranslator: Writable<Translator> =
-    getContext(translatorContextKey);
-
-  let translator: Translator = Translator.fallback();
-
-  $: {
-    if ($contextTranslator) {
-      translator = $contextTranslator;
-    }
-  }
+  const translator: Writable<Translator> = getContext(translatorContextKey);
 </script>
 
 <div class="rcb-state-container">
@@ -77,7 +68,7 @@
             id="email"
             name="email"
             inputmode="email"
-            placeholder={translator.translate(
+            placeholder={$translator.translate(
               LocalizationKeys.StateNeedsAuthInfoEmailInputPlaceholder,
             )}
             autocapitalize="off"

@@ -98,18 +98,10 @@
     }, 150);
   }
 
-  const contextTranslator =
-    getContext<Writable<Translator>>(translatorContextKey);
+  const translator = getContext<Writable<Translator>>(translatorContextKey);
 
-  let translator: Translator = Translator.fallback();
-
-  $: {
-    if ($contextTranslator) {
-      translator = $contextTranslator;
-    }
-  }
-  $: stripeElementLocale = (translator.locale ||
-    translator.fallbackLocale) as StripeElementLocale;
+  $: stripeElementLocale = ($translator.locale ||
+    $translator.fallbackLocale) as StripeElementLocale;
 
   /**
    * This function converts some particular locales to the ones that stripe supports.
@@ -346,7 +338,7 @@
 
         <div class="rc-checkout-secure-container">
           <SecureCheckoutRc
-            termsInfo={translator.translate(
+            termsInfo={$translator.translate(
               LocalizationKeys.StateNeedsPaymentInfoTermsInfo,
               {
                 appName: brandingInfo?.app_name,
@@ -356,7 +348,7 @@
             subscriptionOption?.trial?.period &&
             subscriptionOption?.base?.period &&
             subscriptionOption?.base?.period?.unit
-              ? translator.translate(
+              ? $translator.translate(
                   LocalizationKeys.StateNeedsPaymentInfoTrialInfo,
                   {
                     price: formatPrice(
@@ -364,12 +356,12 @@
                       subscriptionOption?.base?.price.currency,
                       localeToUse,
                     ),
-                    perFrequency: translator.translatePeriodFrequency(
+                    perFrequency: $translator.translatePeriodFrequency(
                       subscriptionOption?.base?.period?.number || 1,
                       subscriptionOption?.base?.period?.unit,
                       { useMultipleWords: true },
                     ),
-                    renewalDate: translator.translateDate(
+                    renewalDate: $translator.translateDate(
                       getNextRenewalDate(
                         new Date(),
                         subscriptionOption.trial.period ||
@@ -390,7 +382,7 @@
       <MessageLayout
         title={null}
         type="error"
-        closeButtonTitle={translator.translate(
+        closeButtonTitle={$translator.translate(
           LocalizationKeys.StateErrorButtonTryAgain,
         )}
         onContinue={handleErrorTryAgain}

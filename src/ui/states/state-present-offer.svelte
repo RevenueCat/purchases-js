@@ -34,31 +34,22 @@
   const subscriptionBasePrice = subscriptionOption?.base?.price;
   const nonSubscriptionBasePrice = nonSubscriptionOption?.basePrice;
 
-  const contextTranslator: Writable<Translator> =
-    getContext(translatorContextKey);
-
-  let translator: Translator = Translator.fallback();
-
-  $: {
-    if ($contextTranslator) {
-      translator = $contextTranslator;
-    }
-  }
+  const translator: Writable<Translator> = getContext(translatorContextKey);
 
   const formattedSubscriptionBasePrice =
     subscriptionBasePrice &&
-    translator.formatPrice(
+    $translator.formatPrice(
       subscriptionBasePrice.amountMicros,
       subscriptionBasePrice.currency,
     );
 
   const formattedZeroPrice =
     subscriptionBasePrice &&
-    translator.formatPrice(0, subscriptionBasePrice.currency);
+    $translator.formatPrice(0, subscriptionBasePrice.currency);
 
   const formattedNonSubscriptionBasePrice =
     nonSubscriptionBasePrice &&
-    translator.formatPrice(
+    $translator.formatPrice(
       nonSubscriptionBasePrice.amountMicros,
       nonSubscriptionBasePrice.currency,
     );
@@ -115,7 +106,7 @@
               variables={{
                 trialDuration: getTranslatedPeriodLength(
                   subscriptionTrial.periodDuration || "",
-                  translator,
+                  $translator,
                 ),
               }}
             />
@@ -136,7 +127,7 @@
           {#if subscriptionOption?.base?.period}
             <span class="rcb-product-price-frequency">
               <span class="rcb-product-price-frequency-text">
-                {translator.translatePeriodFrequency(
+                {$translator.translatePeriodFrequency(
                   subscriptionOption.base.period.number,
                   subscriptionOption.base.period.unit,
                   { useMultipleWords: true },
@@ -167,7 +158,7 @@
                   variables={{
                     renewalDate:
                       renewalDate &&
-                      translator.translateDate(renewalDate, {
+                      $translator.translateDate(renewalDate, {
                         dateStyle: "medium",
                       }),
                   }}

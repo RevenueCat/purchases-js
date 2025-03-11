@@ -20,16 +20,7 @@
   export let productDetails: Product | null = null;
   export let onContinue: () => void;
 
-  const contextTranslator: Writable<Translator> =
-    getContext(translatorContextKey);
-
-  let translator: Translator = Translator.fallback();
-
-  $: {
-    if ($contextTranslator) {
-      translator = $contextTranslator;
-    }
-  }
+  const translator: Writable<Translator> = getContext(translatorContextKey);
 
   onMount(() => {
     Logger.errorLog(
@@ -41,16 +32,16 @@
     switch (lastError.errorCode) {
       case PurchaseFlowErrorCode.AlreadyPurchasedError:
         if (productDetails?.productType === ProductType.Subscription) {
-          return translator.translate(
+          return $translator.translate(
             LocalizationKeys.StateErrorErrorTitleAlreadySubscribed,
           );
         } else {
-          return translator.translate(
+          return $translator.translate(
             LocalizationKeys.StateErrorErrorTitleAlreadyPurchased,
           );
         }
       default:
-        return translator.translate(
+        return $translator.translate(
           LocalizationKeys.StateErrorErrorTitleOtherErrors,
         );
     }
@@ -60,38 +51,38 @@
     const publicErrorCode = lastError.getErrorCode();
     switch (lastError.errorCode) {
       case PurchaseFlowErrorCode.UnknownError:
-        return translator.translate(
+        return $translator.translate(
           LocalizationKeys.StateErrorErrorMessageUnknownError,
           { errorCode: publicErrorCode },
         );
       case PurchaseFlowErrorCode.ErrorSettingUpPurchase:
-        return translator.translate(
+        return $translator.translate(
           LocalizationKeys.StateErrorErrorMessageErrorSettingUpPurchase,
           { errorCode: publicErrorCode },
         );
       case PurchaseFlowErrorCode.ErrorChargingPayment:
-        return translator.translate(
+        return $translator.translate(
           LocalizationKeys.StateErrorErrorMessageErrorChargingPayment,
           { errorCode: publicErrorCode },
         );
       case PurchaseFlowErrorCode.NetworkError:
-        return translator.translate(
+        return $translator.translate(
           LocalizationKeys.StateErrorErrorMessageNetworkError,
           { errorCode: publicErrorCode },
         );
       case PurchaseFlowErrorCode.MissingEmailError:
-        return translator.translate(
+        return $translator.translate(
           LocalizationKeys.StateErrorErrorMessageMissingEmailError,
           { errorCode: publicErrorCode },
         );
       case PurchaseFlowErrorCode.AlreadyPurchasedError:
         if (productDetails?.productType === ProductType.Subscription) {
-          return translator.translate(
+          return $translator.translate(
             LocalizationKeys.StateErrorErrorMessageAlreadySubscribed,
             { errorCode: publicErrorCode },
           );
         } else {
-          return translator.translate(
+          return $translator.translate(
             LocalizationKeys.StateErrorErrorMessageAlreadyPurchased,
             { errorCode: publicErrorCode },
           );
@@ -104,7 +95,7 @@
   title={getTranslatedErrorTitle()}
   {onContinue}
   type="error"
-  closeButtonTitle={translator.translate(
+  closeButtonTitle={$translator.translate(
     LocalizationKeys.StateErrorButtonTryAgain,
   )}
 >
