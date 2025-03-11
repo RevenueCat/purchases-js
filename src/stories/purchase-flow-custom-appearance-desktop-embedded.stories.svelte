@@ -1,10 +1,7 @@
 <script module>
   import { defineMeta, setTemplate } from "@storybook/addon-svelte-csf";
-  import WithContext from "./utils/with-context.svelte";
   import { toProductInfoStyleVar } from "../ui/theme/utils";
   import RcbUiInner from "../ui/rcb-ui-inner.svelte";
-  import { translatorContextKey } from "../ui/localization/constants";
-  import { Translator } from "../ui/localization/translator";
   import {
     brandingInfo,
     colorfulBrandingAppearance,
@@ -58,21 +55,12 @@
         id="embedding-container"
         style="width: 500px; height: 600px; position: relative; overflow: hidden; background-color: lightgray;"
       >
-        <WithContext
-          context={{
-            ...args.context,
-            [translatorContextKey]: args.locale
-              ? new Translator({}, args.locale, args.locale)
-              : undefined,
-          }}
-        >
-          <RcbUiInner
-            {...args}
-            {colorVariables}
-            isInElement={true}
-            paymentInfoCollectionMetadata={paymentMetadata}
-          />
-        </WithContext>
+        <RcbUiInner
+          {...args}
+          {colorVariables}
+          isInElement={true}
+          paymentInfoCollectionMetadata={paymentMetadata}
+        />
       </div>
       <div style="padding: 20px;">
         <h1>Homer's Web page</h1>
