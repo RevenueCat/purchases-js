@@ -56,7 +56,7 @@ def translate_text(text, target_language, keys_context=None):
         system_prompt += "\n\nHere is additional context for some of the keys to help with translation:\n"
         for key, context in keys_context.items():
             if (
-                key in text
+                    key in text
             ):  # Only include context for keys that are in the text to translate
                 system_prompt += f"- {key}: {context}\n"
 
@@ -118,7 +118,7 @@ def process_json_files(directory, target_language, keys_to_update=None):
         print("en.json not found in the directory.")
         return
 
-    keys_context = load_keys_context(os.path.dirname(os.path.dirname(directory)))
+    keys_context = load_keys_context(os.path.dirname(directory))
     if keys_context:
         print(f"Loaded context for {len(keys_context)} keys")
     else:
@@ -147,9 +147,9 @@ def process_json_files(directory, target_language, keys_to_update=None):
 
     for filename in os.listdir(directory):
         if (
-            filename.endswith(".json")
-            and filename != "en.json"
-            and filename != "keys_context.json"
+                filename.endswith(".json")
+                and filename != "en.json"
+                and filename != "keys_context.json"
         ):
             target_language = filename[:-5]
             process_json_file(
@@ -163,12 +163,12 @@ def process_json_files(directory, target_language, keys_to_update=None):
 
 
 def process_json_file(
-    en_data_to_translate,
-    directory,
-    filename,
-    target_language,
-    keys_to_update=None,
-    keys_context=None,
+        en_data_to_translate,
+        directory,
+        filename,
+        target_language,
+        keys_to_update=None,
+        keys_context=None,
 ):
     filepath = os.path.join(directory, filename)
     existing_data = {}
@@ -235,10 +235,10 @@ if __name__ == "__main__":
         print(f"Only updating keys: {', '.join(keys_to_update)}")
     # Allow specifying keys_to_update as the third argument when no target language is specified
     elif len(sys.argv) == 3 and (
-        target_language == "all"
-        or
-        # Check if the argument doesn't look like a language code (typically 2-3 chars)
-        (target_language and (len(target_language) > 3 or "," in target_language))
+            target_language == "all"
+            or
+            # Check if the argument doesn't look like a language code (typically 2-3 chars)
+            (target_language and (len(target_language) > 3 or "," in target_language))
     ):
         keys_to_update = set(target_language.split(","))
         target_language = None
