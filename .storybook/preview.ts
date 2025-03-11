@@ -110,6 +110,7 @@ const preview: Preview = {
   },
   initialGlobals: {
     locale: "en",
+    brandingName: "Igify",
   },
 };
 

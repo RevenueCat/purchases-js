@@ -1,10 +1,14 @@
 <script module>
-  import { defineMeta, setTemplate } from "@storybook/addon-svelte-csf";
-  import { toProductInfoStyleVar } from "../ui/theme/utils";
+  import {
+    defineMeta,
+    setTemplate,
+    type StoryContext,
+    type Args,
+  } from "@storybook/addon-svelte-csf";
   import RcbUiInner from "../ui/rcb-ui-inner.svelte";
 
   import {
-    brandingInfo,
+    brandingInfos,
     product,
     purchaseFlowError,
     subscriptionOption,
@@ -12,47 +16,54 @@
   } from "./fixtures";
   import { buildCheckoutStartResponse } from "./utils/purchase-response-builder";
   import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
+  import { toProductInfoStyleVar } from "../ui/theme/utils";
 
   const defaultArgs = {
-    context: {},
     productDetails: product,
     purchaseOptionToUse: subscriptionOption,
     purchaseOption: subscriptionOption,
-    brandingInfo: { ...brandingInfo },
     lastError: purchaseFlowError,
     onContinue: () => {},
   };
 
-  let paymentMetadata: any;
+  let paymentInfoCollectionMetadata: any;
 
   let { Story } = defineMeta({
     title: "Purchase flow (Mobile)",
     args: defaultArgs,
-    parameters: { viewport: { defaultViewport: "mobile" } },
+    parameters: {
+      viewport: {
+        defaultViewport: "mobile",
+      },
+    },
     loaders: [
       async () => {
-        const paymentInfoCollectionMetadata: CheckoutStartResponse =
+        const checkoutStartResponse: CheckoutStartResponse =
           await buildCheckoutStartResponse();
-        paymentMetadata = { ...paymentInfoCollectionMetadata };
+        paymentInfoCollectionMetadata = { ...checkoutStartResponse };
         return { paymentInfoCollectionMetadata };
       },
     ],
   });
-
-  // @ts-ignore
-  let colorVariables = toProductInfoStyleVar(brandingInfo?.appearance);
 </script>
 
 <script lang="ts">
   setTemplate(template);
 </script>
 
-{#snippet template(args: any)}
-  <RcbUiInner
-    {...args}
-    {colorVariables}
-    paymentInfoCollectionMetadata={paymentMetadata}
-  />
+{#snippet template(
+  args: Args<typeof Story>,
+  context: StoryContext<typeof Story>,
+)}
+  {@const brandingInfo = brandingInfos[context.globals.brandingName]}
+  {@const colorVariables = toProductInfoStyleVar(brandingInfo.appearance)}
+  {@const reactiveArgs = {
+    ...args,
+    brandingInfo,
+    colorVariables,
+    paymentInfoCollectionMetadata,
+  }}
+  <RcbUiInner {...reactiveArgs} />
 {/snippet}
 
 <Story name="Email Input" args={{ currentView: "needs-auth-info" }} />
@@ -60,6 +71,7 @@
   name="Email Input (with Sandbox Banner)"
   args={{ currentView: "needs-auth-info", isSandbox: true }}
 />
+
 <Story
   name="Email Input (with Trial Product)"
   args={{
@@ -72,6 +84,7 @@
     purchaseOptionToUse: subscriptionOptionWithTrial,
   }}
 />
+
 <Story
   name="Checkout (with Trial Product)"
   args={{

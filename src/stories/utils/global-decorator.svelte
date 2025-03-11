@@ -9,13 +9,12 @@
 <script lang="ts">
   interface Props {
     children?: Snippet;
-    globals?: {
-      locale?: string;
-      [key: string]: any;
+    globals: {
+      locale: string;
     };
   }
 
-  let { children, globals = {} }: Props = $props();
+  let { children, globals }: Props = $props();
 
   const initiaLocale = globals.locale || "en";
   const translator = new Translator({}, initiaLocale, initiaLocale);

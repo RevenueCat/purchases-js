@@ -165,8 +165,8 @@ export const defaultContext = {
   },
 };
 
-export const brandingInfos: Record<string, BrandingInfoResponse | null> = {
-  None: null,
+export const brandingInfos: Record<string, BrandingInfoResponse> = {
+  None: brandingInfo,
   Fantastic: {
     id: "branding_info_id",
     support_email: "support@somefantasticcat.com",
