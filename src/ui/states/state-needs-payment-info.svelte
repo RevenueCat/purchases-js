@@ -41,6 +41,7 @@
   import StateLoading from "./state-loading.svelte";
   import { getNextRenewalDate } from "../../helpers/duration-helper";
   import { formatPrice } from "../../helpers/price-labels";
+  import { type Writable } from "svelte/store";
 
   export let onContinue: (params?: ContinueHandlerParams) => void;
   export let paymentInfoCollectionMetadata: CheckoutStartResponse;
@@ -97,9 +98,17 @@
     }, 150);
   }
 
-  const translator: Translator =
-    getContext(translatorContextKey) || Translator.fallback();
-  const stripeElementLocale = (translator.locale ||
+  const contextTranslator =
+    getContext<Writable<Translator>>(translatorContextKey);
+
+  let translator: Translator = Translator.fallback();
+
+  $: {
+    if ($contextTranslator) {
+      translator = $contextTranslator;
+    }
+  }
+  $: stripeElementLocale = (translator.locale ||
     translator.fallbackLocale) as StripeElementLocale;
 
   /**
@@ -131,7 +140,7 @@
     return initialLocale;
   };
 
-  const localeToUse = getLocaleToUse(stripeElementLocale);
+  $: localeToUse = getLocaleToUse(stripeElementLocale);
 
   $: {
     // @ts-ignore

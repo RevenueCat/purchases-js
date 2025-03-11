@@ -27,6 +27,7 @@
   import { eventsTrackerContextKey } from "./constants";
   import { createCheckoutFlowErrorEvent } from "../behavioural-events/sdk-event-helpers";
   import type { PurchaseMetadata } from "../entities/offerings";
+  import { writable } from "svelte/store";
 
   export let customerEmail: string | undefined;
   export let appUserId: string;
@@ -60,10 +61,13 @@
   let operationSessionId: string | null = null;
 
   // Setting the context for the Localized components
-  setContext(
-    translatorContextKey,
-    new Translator(customTranslations, selectedLocale, defaultLocale),
+  let translator: Translator = new Translator(
+    customTranslations,
+    selectedLocale,
+    defaultLocale,
   );
+  var translatorStore = writable(translator);
+  setContext(translatorContextKey, translatorStore);
 
   onMount(() => {
     if (!isInElement) {

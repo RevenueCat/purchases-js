@@ -12,14 +12,22 @@
   import { type IEventsTracker } from "../../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "../constants";
   import { type ContinueHandlerParams } from "../ui-types";
-
+  import { type Writable } from "svelte/store";
   export let productDetails: Product | null = null;
   export let onContinue: (params?: ContinueHandlerParams) => void;
 
   const isSubscription =
     productDetails?.productType === ProductType.Subscription;
-  const translator: Translator =
-    getContext(translatorContextKey) || Translator.fallback();
+  const contextTranslator: Writable<Translator> =
+    getContext(translatorContextKey);
+
+  let translator: Translator = Translator.fallback();
+
+  $: {
+    if ($contextTranslator) {
+      translator = $contextTranslator;
+    }
+  }
 
   const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
 

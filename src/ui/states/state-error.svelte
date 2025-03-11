@@ -13,14 +13,23 @@
   import Localized from "../localization/localized.svelte";
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
+  import { type Writable } from "svelte/store";
 
   export let lastError: PurchaseFlowError;
   export let supportEmail: string | null = null;
   export let productDetails: Product | null = null;
   export let onContinue: () => void;
 
-  const translator: Translator =
-    getContext(translatorContextKey) || Translator.fallback();
+  const contextTranslator: Writable<Translator> =
+    getContext(translatorContextKey);
+
+  let translator: Translator = Translator.fallback();
+
+  $: {
+    if ($contextTranslator) {
+      translator = $contextTranslator;
+    }
+  }
 
   onMount(() => {
     Logger.errorLog(
