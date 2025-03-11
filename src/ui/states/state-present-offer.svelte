@@ -15,6 +15,7 @@
   import type { BrandingAppearance } from "../../entities/branding";
   import { getTranslatedPeriodLength } from "../../helpers/price-labels";
   import { getNextRenewalDate } from "../../helpers/duration-helper";
+  import { type Writable } from "svelte/store";
 
   export let productDetails: Product;
   export let purchaseOption: PurchaseOption;
@@ -33,8 +34,16 @@
   const subscriptionBasePrice = subscriptionOption?.base?.price;
   const nonSubscriptionBasePrice = nonSubscriptionOption?.basePrice;
 
-  const translator: Translator =
-    getContext(translatorContextKey) || Translator.fallback();
+  const contextTranslator: Writable<Translator> =
+    getContext(translatorContextKey);
+
+  let translator: Translator = Translator.fallback();
+
+  $: {
+    if ($contextTranslator) {
+      translator = $contextTranslator;
+    }
+  }
 
   const formattedSubscriptionBasePrice =
     subscriptionBasePrice &&

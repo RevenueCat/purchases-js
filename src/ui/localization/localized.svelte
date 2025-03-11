@@ -8,6 +8,7 @@
   import { englishLocale, translatorContextKey } from "./constants";
 
   import { LocalizationKeys } from "./supportedLanguages";
+  import { type Writable } from "svelte/store";
 
   interface LocalizedProps {
     key?: LocalizationKeys | EmptyString | undefined;
@@ -31,12 +32,15 @@
     defaultLocale,
   );
   // Use the contextual translator if it exists
-  const contextTranslator: Translator = getContext(translatorContextKey);
+  const contextTranslator =
+    getContext<Writable<Translator>>(translatorContextKey);
   // Use the userDefinedTranslator if the selectedLocale is defined, otherwise use the contextTranslator, if neither of them is defined
   // use the fallback translator.
-  const translator: Translator = selectedLocale
-    ? userDefinedTranslator
-    : contextTranslator || Translator.fallback();
+  const translator: Translator = $derived(
+    selectedLocale
+      ? userDefinedTranslator
+      : $contextTranslator || Translator.fallback(),
+  );
 
   const translatedLabel = $derived(
     key

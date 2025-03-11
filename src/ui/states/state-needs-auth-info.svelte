@@ -17,6 +17,7 @@
   import { type IEventsTracker } from "../../behavioural-events/events-tracker";
   import { createCheckoutBillingFormErrorEvent } from "../../behavioural-events/sdk-event-helpers";
   import { SDKEventName } from "../../behavioural-events/sdk-events";
+  import { type Writable } from "svelte/store";
 
   export let onContinue: (params: ContinueHandlerParams) => void;
   export let processing: boolean;
@@ -50,8 +51,16 @@
     });
   });
 
-  const translator: Translator =
-    getContext(translatorContextKey) || Translator.fallback();
+  const contextTranslator: Writable<Translator> =
+    getContext(translatorContextKey);
+
+  let translator: Translator = Translator.fallback();
+
+  $: {
+    if ($contextTranslator) {
+      translator = $contextTranslator;
+    }
+  }
 </script>
 
 <div class="rcb-state-container">
