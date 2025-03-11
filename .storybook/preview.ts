@@ -51,6 +51,53 @@ const preview: Preview = {
       };
     },
   ],
+  globalTypes: {
+    locale: {
+      description: "Pick an example locale",
+      toolbar: {
+        title: "Locale",
+        icon: "globe",
+        dynamicTitle: true,
+        items: [
+          {
+            value: "en",
+            title: "English",
+          },
+          {
+            value: "fr",
+            title: "French",
+          },
+          {
+            value: "de",
+            title: "German",
+          },
+          {
+            value: "es",
+            title: "Spanish",
+          },
+          {
+            value: "it",
+            title: "Italian",
+          },
+          {
+            value: "ja",
+            title: "Japanese",
+          },
+          {
+            value: "ca",
+            title: "Catalan",
+          },
+          {
+            value: "ar",
+            title: "Arabic",
+          },
+        ],
+      },
+    },
+  },
+  initialGlobals: {
+    locale: "en",
+  },
 };
 
 export default preview;
