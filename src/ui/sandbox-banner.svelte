@@ -55,7 +55,7 @@
     right: var(--rc-spacing-gapMedium-mobile);
     top: 50%;
     transform: translateY(-50%);
-    color: inherit;
+    color: black;
   }
 
   :global(.rcb-sandbox-banner-close-button-icon) {

@@ -67,13 +67,12 @@
           <BrandingInfoUI {brandingInfo} />
         {/snippet}
 
-        {#snippet bodyContent(expanded)}
+        {#snippet bodyContent()}
           {#if productDetails && purchaseOptionToUse}
             <StatePresentOffer
               {productDetails}
               brandingAppearance={brandingInfo?.appearance}
               purchaseOption={purchaseOptionToUse}
-              {expanded}
             />
           {/if}
         {/snippet}
@@ -85,7 +84,6 @@
           <StatePresentOffer
             {productDetails}
             purchaseOption={purchaseOptionToUse}
-            expanded={true}
           />
         {/if}
         {#if currentView === "present-offer" && !productDetails}

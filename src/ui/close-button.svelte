@@ -18,7 +18,7 @@
     width: 24px;
     padding: 4px;
     border-radius: 50%;
-    color: var(--rc-color-grey-text-light);
+    color: inherit;
     display: flex;
     align-items: center;
     justify-content: center;
