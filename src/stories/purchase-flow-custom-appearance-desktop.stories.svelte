@@ -15,6 +15,7 @@
   } from "./fixtures";
   import { buildCheckoutStartResponse } from "./utils/purchase-response-builder";
   import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
+  import { fn } from "@storybook/test";
 
   const defaultArgs = {
     context: {},
@@ -23,7 +24,8 @@
     purchaseOption: subscriptionOption,
     brandingInfo: { ...brandingInfo, appearance: colorfulBrandingAppearance },
     lastError: purchaseFlowError,
-    onContinue: () => {},
+    onContinue: fn(),
+    onClose: fn(),
   };
 
   let paymentMetadata: any;

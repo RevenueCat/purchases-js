@@ -17,11 +17,24 @@
   {:else}
     <AppIcon />
   {/if}
+  <div class="rcb-app-name">
+    {brandingInfo?.app_name}
+  </div>
 </div>
 
 <style>
   .rcb-header-layout__business-info {
     display: flex;
     align-items: center;
+  }
+
+  .rcb-app-name {
+    font: var(--rc-text-titleMedium-mobile);
+  }
+
+  @container layout-query-container (width >= 768px) {
+    .rcb-app-name {
+      font: var(--rc-text-titleLarge-desktop);
+    }
   }
 </style>

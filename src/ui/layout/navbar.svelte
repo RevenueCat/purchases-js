@@ -12,7 +12,11 @@
   export let bodyContent: (expanded: boolean) => any;
   export let shouldShowDetailsButton = false;
 
+  export let showCloseButton: boolean;
+  export let onClose: (() => void) | undefined = undefined;
+
   let expanded = false;
+
   function toggleExpanded() {
     expanded = !expanded;
   }
@@ -24,6 +28,8 @@
       <NavBarHeader
         {expanded}
         toggle={toggleExpanded}
+        {showCloseButton}
+        {onClose}
         {shouldShowDetailsButton}
       >
         {@render headerContent?.()}

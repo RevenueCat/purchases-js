@@ -2,6 +2,7 @@
   import { fly } from "svelte/transition";
   import CloseButton from "./close-button.svelte";
   import { Logger } from "../helpers/logger";
+
   export let style = "";
   export let isInElement = false;
 
@@ -54,6 +55,7 @@
     right: var(--rc-spacing-gapMedium-mobile);
     top: 50%;
     transform: translateY(-50%);
+    color: inherit;
   }
 
   :global(.rcb-sandbox-banner-close-button-icon) {
@@ -65,11 +67,13 @@
     :global(.rcb-sandbox-banner-close-button-icon) {
       height: var(--rc-text-caption-desktop-font-size);
     }
+
     .rcb-ui-sandbox-banner {
       padding: var(--rc-spacing-gapMedium-desktop);
       font: var(--rc-text-caption-desktop);
       font-weight: bold;
     }
+
     .rcb-sandbox-banner-close-button-wrapper {
       right: var(--rc-spacing-gapMedium-desktop);
     }

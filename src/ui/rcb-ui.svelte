@@ -40,7 +40,7 @@
   ) => void;
   export let onError: (error: PurchaseFlowError) => void;
   // We don't have a close button in the UI, but we might add one soon
-  export const onClose: (() => void) | undefined = undefined;
+  export let onClose: (() => void) | undefined = undefined;
   export let purchases: Purchases;
   export let eventsTracker: IEventsTracker;
   export let purchaseOperationHelper: PurchaseOperationHelper;
@@ -216,4 +216,5 @@
   {closeWithError}
   {colorVariables}
   {isInElement}
+  {onClose}
 />

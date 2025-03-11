@@ -107,7 +107,7 @@ export const colorfulBrandingAppearance: BrandingAppearance = {
   shapes: "rounded",
   color_form_bg: "#313131", // dark grey
   color_error: "#E79462", // orange
-  color_product_info_bg: "#ffffff", // white
+  color_product_info_bg: "#000000", // white
   color_buttons_primary: "#AC7DE3", // purple
   color_accent: "#99BB37", // green
   color_page_bg: "#ffffff", // white

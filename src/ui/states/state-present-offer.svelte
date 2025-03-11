@@ -138,7 +138,7 @@
         </div>
       </div>
 
-      <div class="rcb-product-details {expanded ? 'expanded' : 'collapsed'}">
+      <div class="rcb-product-details expanded">
         <div class="rcb-product-details-padding">
           {#if brandingAppearance?.show_product_description && productDetails.description}
             <span class="rcb-product-description only-mobile">
