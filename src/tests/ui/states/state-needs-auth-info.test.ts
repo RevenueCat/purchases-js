@@ -5,11 +5,17 @@ import StateNeedsAuthInfo from "../../../ui/states/state-needs-auth-info.svelte"
 import { SDKEventName } from "../../../behavioural-events/sdk-events";
 import { createEventsTrackerMock } from "../../mocks/events-tracker-mock-provider";
 import { eventsTrackerContextKey } from "../../../ui/constants";
+import { writable } from "svelte/store";
+import { Translator } from "../../../ui/localization/translator";
+import { translatorContextKey } from "../../../ui/localization/constants";
 
 const eventsTrackerMock = createEventsTrackerMock();
 
 const defaultContext = new Map(
-  Object.entries({ [eventsTrackerContextKey]: eventsTrackerMock }),
+  Object.entries({
+    [eventsTrackerContextKey]: eventsTrackerMock,
+    [translatorContextKey]: writable(new Translator()),
+  }),
 );
 
 const basicProps = {

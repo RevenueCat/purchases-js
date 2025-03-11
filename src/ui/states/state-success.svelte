@@ -18,17 +18,7 @@
 
   const isSubscription =
     productDetails?.productType === ProductType.Subscription;
-  const contextTranslator: Writable<Translator> =
-    getContext(translatorContextKey);
-
-  let translator: Translator = Translator.fallback();
-
-  $: {
-    if ($contextTranslator) {
-      translator = $contextTranslator;
-    }
-  }
-
+  const translator: Writable<Translator> = getContext(translatorContextKey);
   const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
 
   function handleContinue() {
@@ -50,9 +40,9 @@
 
 <MessageLayout
   type="success"
-  title={translator.translate(LocalizationKeys.StateSuccessPurchaseSuccessful)}
+  title={$translator.translate(LocalizationKeys.StateSuccessPurchaseSuccessful)}
   onContinue={handleContinue}
-  closeButtonTitle={translator.translate(
+  closeButtonTitle={$translator.translate(
     LocalizationKeys.StateSuccessButtonClose,
   )}
 >
