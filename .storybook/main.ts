@@ -23,8 +23,5 @@ const config: StorybookConfig = {
       process.env.VITE_STORYBOOK_PUBLISHABLE_API_KEY || "",
     VITE_STORYBOOK_ACCOUNT_ID: process.env.VITE_STORYBOOK_ACCOUNT_ID || "",
   }),
-  features: {
-    viewportStoryGlobals: true,
-  },
 };
 export default config;

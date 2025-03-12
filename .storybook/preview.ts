@@ -14,7 +14,7 @@ const preview: Preview = {
       },
     },
     viewport: {
-      options: {
+      viewports: {
         mobile: {
           name: "Mobile",
           styles: {
@@ -125,7 +125,6 @@ const preview: Preview = {
   initialGlobals: {
     locale: "en",
     brandingName: "Igify",
-    viewport: { value: "mobile", isRotated: false },
   },
 };
 

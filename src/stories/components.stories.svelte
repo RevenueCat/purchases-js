@@ -44,6 +44,7 @@
     children: "Click me",
     intent: "primary",
   }}
+  parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
 
 <Story
@@ -64,6 +65,7 @@
       show_product_description: true,
     }),
   }}
+  parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
 
 <Story
@@ -74,6 +76,7 @@
     intent: "primary",
     disabled: true,
   }}
+  parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
 
 <Story
@@ -85,6 +88,7 @@
     loading: true,
     size: "small",
   }}
+  parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
 
 <style>
