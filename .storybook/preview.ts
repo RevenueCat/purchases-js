@@ -1,6 +1,7 @@
 import type { Preview } from "@storybook/svelte";
 import GlobalDecorator from "../src/stories/utils/global-decorator.svelte";
 import { brandingInfos } from "../src/stories/fixtures";
+import { allModes } from "./modes";
 
 const preview: Preview = {
   parameters: {
@@ -43,6 +44,11 @@ const preview: Preview = {
           },
         },
       },
+    },
+    chromatic: {
+      modes: Object.keys(allModes).map((key) => ({
+        [key]: allModes[key],
+      })),
     },
   },
   decorators: [
