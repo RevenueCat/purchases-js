@@ -1,62 +1,74 @@
 export const allModes = {
-  "mobile default": {
+  "mobile-en-default": {
+    name: "Mobile / English / Default",
     viewport: "mobile",
     brandingName: "None",
     locale: "en",
   },
-  "tablet default": {
+  "tablet-en-default": {
+    name: "Tablet / English / Default",
     viewport: "tablet",
     brandingName: "None",
     locale: "en",
   },
-  "desktop default": {
+  "desktop-en-default": {
+    name: "Desktop / English / Default",
     viewport: "desktop",
     brandingName: "None",
     locale: "en",
   },
-  "embedded default": {
+  "embedded-en-default": {
+    name: "Embedded / English / Default",
     viewport: "embedded",
     brandingName: "None",
     locale: "en",
   },
-  "mobile with branding": {
+  "mobile-fr-with-branding": {
+    name: "Mobile / French / Igify",
     viewport: "mobile",
     brandingName: "Igify",
-    locale: "en",
+    locale: "fr",
   },
-  "tablet with branding": {
+  "tablet-fr-with-branding": {
+    name: "Tablet / French / Igify",
     viewport: "tablet",
     brandingName: "Igify",
-    locale: "en",
+    locale: "fr",
   },
-  "desktop with branding": {
+  "desktop-fr-with-branding": {
+    name: "Desktop / French / Igify",
     viewport: "desktop",
     brandingName: "Igify",
-    locale: "en",
+    locale: "fr",
   },
-  "embedded with branding": {
+  "embedded-fr-with-branding": {
+    name: "Embedded / French / Igify",
     viewport: "embedded",
     brandingName: "Igify",
-    locale: "en",
+    locale: "fr",
   },
-  "mobile in arabic": {
+  "mobile-ar-with-branding": {
+    name: "Mobile / Arabic / Dipsea",
     viewport: "mobile",
-    brandingName: "None",
+    brandingName: "Dipsea",
     locale: "ar",
   },
-  "tablet in arabic": {
+  "tablet-ar-with-branding": {
+    name: "Tablet / Arabic / Dipsea",
     viewport: "tablet",
-    brandingName: "None",
+    brandingName: "Dipsea",
     locale: "ar",
   },
-  "desktop in arabic": {
+  "desktop-ar-with-branding": {
+    name: "Desktop / Arabic / Dipsea",
     viewport: "desktop",
-    brandingName: "None",
+    brandingName: "Dipsea",
     locale: "ar",
   },
-  "embedded in arabic": {
+  "embedded-ar-with-branding": {
+    name: "Embedded / Arabic / Dipsea",
     viewport: "embedded",
-    brandingName: "None",
+    brandingName: "Dipsea",
     locale: "ar",
   },
 };
