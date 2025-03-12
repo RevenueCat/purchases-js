@@ -32,11 +32,6 @@
   let { Story } = defineMeta({
     title: "Purchase flow",
     args: defaultArgs,
-    parameters: {
-      viewport: {
-        defaultViewport: "mobile",
-      },
-    },
     loaders: [
       async () => {
         const checkoutStartResponse: CheckoutStartResponse =
