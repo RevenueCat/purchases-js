@@ -115,9 +115,6 @@
     }
 
     .rcb-header-multiline-layout {
-      all: unset;
-      display: flex;
-      flex-direction: column;
       gap: var(--rc-spacing-gapXLarge-desktop);
     }
   }
