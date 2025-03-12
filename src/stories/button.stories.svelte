@@ -7,7 +7,7 @@
   } from "@storybook/addon-svelte-csf";
   import withLayoutDecorator from "./utils/with-layout-decorator";
 
-  let { Story } = defineMeta({
+  let { Story } = defineMeta<typeof Button>({
     component: Button,
     title: "Components/Button",
     // @ts-expect-error ignore typing of decorator
@@ -16,9 +16,6 @@
       intent: {
         control: "radio",
         options: ["primary", undefined],
-      },
-      children: {
-        control: "text",
       },
     },
   });
