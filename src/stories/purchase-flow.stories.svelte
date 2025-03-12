@@ -30,7 +30,7 @@
   let paymentInfoCollectionMetadata: any;
 
   let { Story } = defineMeta({
-    title: "Purchase flow",
+    title: "Flows/Purchase",
     args: defaultArgs,
     parameters: {
       viewport: {
