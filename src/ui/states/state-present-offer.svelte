@@ -230,7 +230,7 @@
 
   .rcb-product-details {
     color: var(--rc-color-grey-text-light);
-    margin: 0px;
+    margin: 0;
     overflow: hidden;
     transition: max-height 0.2s ease-in-out;
   }
@@ -280,6 +280,10 @@
   @container layout-query-container (width >= 768px) {
     .only-mobile {
       display: none;
+    }
+
+    .rcb-product-details-padding {
+      gap: var(--rc-spacing-gapMedium-desktop);
     }
 
     .only-desktop {
