@@ -17,12 +17,16 @@ export const formatPrice = (
 ): string => {
   const price = microsToDollars(priceInMicros);
 
-  const formatter = new Intl.NumberFormat(locale, {
+  const formatterOptions: Intl.NumberFormatOptions = {
     style: "currency",
     currency,
     currencyDisplay: "symbol",
     ...additionalFormattingOptions,
-  });
+    // Some browsers require minimumFractionDigits to be set if maximumFractionDigits is set.
+    minimumFractionDigits: additionalFormattingOptions.maximumFractionDigits,
+  };
+
+  const formatter = new Intl.NumberFormat(locale, formatterOptions);
 
   const formattedPrice = formatter.format(price);
 
