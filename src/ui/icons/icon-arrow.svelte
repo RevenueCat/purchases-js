@@ -23,7 +23,7 @@
   }
 
   .arrow-fill {
-    fill: var(--rc-color-grey-text-light);
+    fill: var(--rc-color-grey-text-dark);
   }
 
   .arrow.expanded {
@@ -32,5 +32,9 @@
 
   .arrow.collapsed {
     transform: rotate(0deg);
+  }
+
+  .arrow.back {
+    transform: rotate(90deg);
   }
 </style>

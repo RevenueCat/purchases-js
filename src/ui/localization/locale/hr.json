@@ -62,5 +62,6 @@
   "periods.perYearFrequency": "godišnje",
   "periods.perDayFrequency": "dnevno",
   "state_needs_payment_info.trial_info": "Nakon završetka probnog razdoblja, bit će vam naplaćeno {{price}} {{perFrequency}} počevši od {{renewalDate}}. Uvijek možete otkazati prije toga.",
-  "navbar_header.details": "Detalji"
+  "navbar_header.details": "Detalji",
+  "navbar_header.back_button": "Natrag"
 }

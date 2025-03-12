@@ -9,9 +9,9 @@
   import StateLoading from "./states/state-loading.svelte";
   import StateError from "./states/state-error.svelte";
   import StateSuccess from "./states/state-success.svelte";
-  import { type CurrentView } from "./ui-types";
+  import { type ContinueHandlerParams, type CurrentView } from "./ui-types";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
-  import type { Product, PurchaseOption, SubscriptionOption } from "../main";
+  import type { Product, PurchaseOption } from "../main";
   import StatePresentOffer from "./states/state-present-offer.svelte";
   import BrandingInfoUI from "./branding-info-ui.svelte";
   import {
@@ -20,7 +20,6 @@
     PurchaseOperationHelper,
   } from "../helpers/purchase-operation-helper";
   import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
-  import { type ContinueHandlerParams } from "./ui-types";
 
   export let currentView: CurrentView;
   export let brandingInfo: BrandingInfoResponse | null;
@@ -28,24 +27,17 @@
   export let purchaseOptionToUse: PurchaseOption;
   export let colorVariables: string = "";
   export let isSandbox: boolean = false;
-
   export let handleContinue: (params?: ContinueHandlerParams) => void;
   export let closeWithError: () => void;
+  export let onClose: (() => void) | undefined = undefined;
   export let lastError: PurchaseFlowError | null;
   export let paymentInfoCollectionMetadata: CheckoutStartResponse | null;
   export let purchaseOperationHelper: PurchaseOperationHelper;
   export let isInElement: boolean = false;
 
-  // once taxes are implemented, extract each component of this logic into a context or different props
-  const showProductDescription = Boolean(
-    brandingInfo?.appearance?.show_product_description,
-  );
-  const showSubscriptionTrial = Boolean(
-    (purchaseOptionToUse as SubscriptionOption)?.trial?.periodDuration,
-  );
-
-  const shouldShowDetailsButton =
-    showProductDescription || showSubscriptionTrial;
+  // For now there's no need to show the details button, we will keep it expanded at all times.
+  // We might need it again in the future though.
+  const shouldShowDetailsButton = false;
 
   const viewsWhereOfferDetailsAreShown: CurrentView[] = [
     "present-offer",
@@ -67,19 +59,20 @@
     {#if viewsWhereOfferDetailsAreShown.includes(currentView)}
       <NavBar
         brandingAppearance={brandingInfo?.appearance}
+        {onClose}
+        showCloseButton={!isInElement}
         {shouldShowDetailsButton}
       >
         {#snippet headerContent()}
           <BrandingInfoUI {brandingInfo} />
         {/snippet}
 
-        {#snippet bodyContent(expanded)}
+        {#snippet bodyContent()}
           {#if productDetails && purchaseOptionToUse}
             <StatePresentOffer
               {productDetails}
               brandingAppearance={brandingInfo?.appearance}
               purchaseOption={purchaseOptionToUse}
-              {expanded}
             />
           {/if}
         {/snippet}
@@ -91,7 +84,6 @@
           <StatePresentOffer
             {productDetails}
             purchaseOption={purchaseOptionToUse}
-            expanded={true}
           />
         {/if}
         {#if currentView === "present-offer" && !productDetails}

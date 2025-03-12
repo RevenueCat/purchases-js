@@ -62,5 +62,6 @@
   "periods.perYearFrequency": "per jaar",
   "periods.perDayFrequency": "per dag",
   "state_needs_payment_info.trial_info": "Na afloop van je proefperiode wordt {{price}} {{perFrequency}} in rekening gebracht vanaf {{renewalDate}}. Je kunt altijd eerder annuleren.",
-  "navbar_header.details": "Details"
+  "navbar_header.details": "Details",
+  "navbar_header.back_button": "Terug"
 }

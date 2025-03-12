@@ -62,5 +62,6 @@
   "periods.perYearFrequency": "na rok",
   "periods.perDayFrequency": "na dzień",
   "state_needs_payment_info.trial_info": "Po zakończeniu okresu próbnego zostanie pobrana opłata w wysokości {{price}} {{perFrequency}} począwszy od {{renewalDate}}. Zawsze możesz anulować wcześniej.",
-  "navbar_header.details": "Szczegóły"
+  "navbar_header.details": "Szczegóły",
+  "navbar_header.back_button": "Wstecz"
 }

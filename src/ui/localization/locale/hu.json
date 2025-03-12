@@ -62,5 +62,6 @@
   "periods.perYearFrequency": "évente",
   "periods.perDayFrequency": "naponta",
   "state_needs_payment_info.trial_info": "A próbaidőszak lejárta után {{price}} {{perFrequency}} összeget számítunk fel {{renewalDate}} napjától kezdődően. Bármikor lemondhatja addig.",
-  "navbar_header.details": "Részletek"
+  "navbar_header.details": "Részletek",
+  "navbar_header.back_button": "Vissza"
 }

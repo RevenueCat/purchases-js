@@ -62,5 +62,6 @@
   "periods.perYearFrequency": "ต่อปี",
   "periods.perDayFrequency": "ต่อวัน",
   "state_needs_payment_info.trial_info": "หลังจากช่วงทดลองใช้ของคุณสิ้นสุดลง คุณจะถูกเรียกเก็บเงิน {{price}} {{perFrequency}} โดยเริ่มในวันที่ {{renewalDate}} คุณสามารถยกเลิกได้ตลอดเวลาก่อนหน้านั้น",
-  "navbar_header.details": "รายละเอียด"
+  "navbar_header.details": "รายละเอียด",
+  "navbar_header.back_button": "ย้อนกลับ"
 }

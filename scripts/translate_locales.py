@@ -118,7 +118,7 @@ def process_json_files(directory, target_language, keys_to_update=None):
         print("en.json not found in the directory.")
         return
 
-    keys_context = load_keys_context(os.path.dirname(os.path.dirname(directory)))
+    keys_context = load_keys_context(os.path.dirname(directory))
     if keys_context:
         print(f"Loaded context for {len(keys_context)} keys")
     else:

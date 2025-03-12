@@ -64,8 +64,6 @@
       isSubscription,
     );
   }
-
-  export let expanded: boolean;
 </script>
 
 <section>
@@ -138,7 +136,7 @@
         </div>
       </div>
 
-      <div class="rcb-product-details {expanded ? 'expanded' : 'collapsed'}">
+      <div class="rcb-product-details expanded">
         <div class="rcb-product-details-padding">
           {#if brandingAppearance?.show_product_description && productDetails.description}
             <span class="rcb-product-description only-mobile">
@@ -244,7 +242,6 @@
     color: var(--rc-color-grey-text-light);
     margin: 0px;
     overflow: hidden;
-    max-height: 0;
     transition: max-height 0.2s ease-in-out;
   }
 
@@ -252,14 +249,6 @@
     display: flex;
     flex-direction: column;
     gap: var(--rc-spacing-gapXLarge-mobile);
-  }
-
-  .rcb-product-details.expanded {
-    max-height: 500px;
-  }
-
-  .rcb-product-details.collapsed {
-    max-height: 0;
   }
 
   .rcb-product-trial-explanation {
@@ -335,10 +324,6 @@
     .rcb-product-details {
       max-height: 500px;
       gap: var(--rc-spacing-gapXLarge-desktop);
-    }
-
-    .rcb-product-details.collapsed {
-      max-height: 500px;
     }
 
     .rcb-total-due-today {
