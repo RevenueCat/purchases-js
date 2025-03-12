@@ -35,6 +35,13 @@ const preview: Preview = {
             height: "900px",
           },
         },
+        embedded: {
+          name: "Embedded",
+          styles: {
+            width: "100vw",
+            height: "100vh",
+          },
+        },
       },
     },
   },
