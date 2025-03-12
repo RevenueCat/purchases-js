@@ -70,7 +70,7 @@
   <div class="rcb-pricing-info">
     <div class="rcb-pricing-info-header">
       {#if isSubscription}
-        <div class="rcb-subscribe-to">
+        <div class="rcb-subscribe-to only-desktop">
           <Localized
             key={LocalizationKeys.StatePresentOfferSubscribeTo}
             variables={{ productTitle: productDetails.title }}
@@ -84,7 +84,7 @@
         />
       </div>
       {#if brandingAppearance?.show_product_description && productDetails.description}
-        <span class="rcb-product-description only-desktop">
+        <span class="rcb-product-description">
           <Localized
             key={LocalizationKeys.StatePresentOfferProductDescription}
             variables={{
@@ -138,16 +138,6 @@
 
       <div class="rcb-product-details expanded">
         <div class="rcb-product-details-padding">
-          {#if brandingAppearance?.show_product_description && productDetails.description}
-            <span class="rcb-product-description only-mobile">
-              <Localized
-                key={LocalizationKeys.StatePresentOfferProductDescription}
-                variables={{
-                  productDescription: productDetails.description,
-                }}
-              />
-            </span>
-          {/if}
           {#if subscriptionTrial?.periodDuration}
             <div class="rcb-product-trial-explanation">
               <div class="rcb-after-trial-ends rcb-text-dark">
@@ -240,7 +230,7 @@
 
   .rcb-product-details {
     color: var(--rc-color-grey-text-light);
-    margin: 0px;
+    margin: 0;
     overflow: hidden;
     transition: max-height 0.2s ease-in-out;
   }
@@ -248,7 +238,7 @@
   .rcb-product-details-padding {
     display: flex;
     flex-direction: column;
-    gap: var(--rc-spacing-gapXLarge-mobile);
+    gap: var(--rc-spacing-gapSmall-mobile);
   }
 
   .rcb-product-trial-explanation {
@@ -271,19 +261,29 @@
     display: none;
   }
 
+  .rcb-pricing-info-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--rc-spacing-gapSmall-desktop);
+  }
+
+  .rcb-pricing-info {
+    gap: var(--rc-spacing-gapXXLarge-mobile);
+  }
+
   @container layout-query-container (width < 768px) {
     .rcb-pricing-info {
       margin-top: var(--rc-spacing-gapXLarge-mobile);
-    }
-
-    .rcb-subscribe-to {
-      display: none;
     }
   }
 
   @container layout-query-container (width >= 768px) {
     .only-mobile {
       display: none;
+    }
+
+    .rcb-product-details-padding {
+      gap: var(--rc-spacing-gapMedium-desktop);
     }
 
     .only-desktop {

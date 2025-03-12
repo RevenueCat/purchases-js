@@ -98,6 +98,19 @@
   parameters={{ viewport: { defaultViewport: "mobile" } }}
 />
 <Story
+  name="Checkout (with Trial Product)"
+  args={{
+    currentView: "needs-payment-info",
+    isSandbox: true,
+    productDetails: {
+      ...product,
+      normalPeriodDuration: "P1Y",
+    },
+    purchaseOptionToUse: subscriptionOptionWithTrial,
+  }}
+  parameters={{ viewport: { defaultViewport: "mobile" } }}
+/>
+<Story
   name="Checkout"
   args={{
     ...defaultArgs,
