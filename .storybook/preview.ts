@@ -46,9 +46,10 @@ const preview: Preview = {
       },
     },
     chromatic: {
-      modes: Object.keys(allModes).map((key) => ({
-        [key]: allModes[key],
-      })),
+      modes: {
+        "mobile default": allModes["mobile default"],
+        "desktop with branding": allModes["desktop with branding"],
+      },
     },
   },
   decorators: [
