@@ -25,7 +25,7 @@
   "state_present_offer.product_description": "{{productDescription}}",
   "state_present_offer.product_price": "{{productPrice}}",
   "state_present_offer.free_trial_duration": "{{trialDuration}} gratis proefperiode",
-  "state_present_offer.price_after_free_trial": "{{productPrice}} na afloop van de proefperiode",
+  "state_present_offer.price_after_free_trial": "Na afloop van de proefperiode, op {{renewalDate}}",
   "state_present_offer.renewal_frequency": "Wordt verlengd {{frequency}}",
   "state_present_offer.continues_until_cancelled": "Wordt voortgezet tot annulering",
   "state_present_offer.cancel_anytime": "Annuleer op elk gewenst moment",
