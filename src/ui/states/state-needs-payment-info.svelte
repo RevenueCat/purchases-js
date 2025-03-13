@@ -41,6 +41,7 @@
   import StateLoading from "./state-loading.svelte";
   import { getNextRenewalDate } from "../../helpers/duration-helper";
   import { formatPrice } from "../../helpers/price-labels";
+  import { type Writable } from "svelte/store";
 
   export let onContinue: (params?: ContinueHandlerParams) => void;
   export let paymentInfoCollectionMetadata: CheckoutStartResponse;
@@ -97,10 +98,10 @@
     }, 150);
   }
 
-  const translator: Translator =
-    getContext(translatorContextKey) || Translator.fallback();
-  const stripeElementLocale = (translator.locale ||
-    translator.fallbackLocale) as StripeElementLocale;
+  const translator = getContext<Writable<Translator>>(translatorContextKey);
+
+  $: stripeElementLocale = ($translator.locale ||
+    $translator.fallbackLocale) as StripeElementLocale;
 
   /**
    * This function converts some particular locales to the ones that stripe supports.
@@ -131,7 +132,7 @@
     return initialLocale;
   };
 
-  const localeToUse = getLocaleToUse(stripeElementLocale);
+  $: localeToUse = getLocaleToUse(stripeElementLocale);
 
   $: {
     // @ts-ignore
@@ -337,7 +338,7 @@
 
         <div class="rc-checkout-secure-container">
           <SecureCheckoutRc
-            termsInfo={translator.translate(
+            termsInfo={$translator.translate(
               LocalizationKeys.StateNeedsPaymentInfoTermsInfo,
               {
                 appName: brandingInfo?.app_name,
@@ -347,7 +348,7 @@
             subscriptionOption?.trial?.period &&
             subscriptionOption?.base?.period &&
             subscriptionOption?.base?.period?.unit
-              ? translator.translate(
+              ? $translator.translate(
                   LocalizationKeys.StateNeedsPaymentInfoTrialInfo,
                   {
                     price: formatPrice(
@@ -355,12 +356,12 @@
                       subscriptionOption?.base?.price.currency,
                       localeToUse,
                     ),
-                    perFrequency: translator.translatePeriodFrequency(
+                    perFrequency: $translator.translatePeriodFrequency(
                       subscriptionOption?.base?.period?.number || 1,
                       subscriptionOption?.base?.period?.unit,
                       { useMultipleWords: true },
                     ),
-                    renewalDate: translator.translateDate(
+                    renewalDate: $translator.translateDate(
                       getNextRenewalDate(
                         new Date(),
                         subscriptionOption.trial.period ||
@@ -381,7 +382,7 @@
       <MessageLayout
         title={null}
         type="error"
-        closeButtonTitle={translator.translate(
+        closeButtonTitle={$translator.translate(
           LocalizationKeys.StateErrorButtonTryAgain,
         )}
         onContinue={handleErrorTryAgain}

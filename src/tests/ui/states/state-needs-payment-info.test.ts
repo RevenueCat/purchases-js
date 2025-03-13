@@ -13,6 +13,9 @@ import { createEventsTrackerMock } from "../../mocks/events-tracker-mock-provide
 import { eventsTrackerContextKey } from "../../../ui/constants";
 import type { PurchaseOperationHelper } from "../../../helpers/purchase-operation-helper";
 import type { CheckoutStartResponse } from "../../../networking/responses/checkout-start-response";
+import { writable } from "svelte/store";
+import { Translator } from "../../../ui/localization/translator";
+import { translatorContextKey } from "../../../ui/localization/constants";
 
 const eventsTrackerMock = createEventsTrackerMock();
 const purchaseOperationHelperMock: PurchaseOperationHelper = {
@@ -32,7 +35,10 @@ const basicProps = {
 };
 
 const defaultContext = new Map(
-  Object.entries({ [eventsTrackerContextKey]: eventsTrackerMock }),
+  Object.entries({
+    [eventsTrackerContextKey]: eventsTrackerMock,
+    [translatorContextKey]: writable(new Translator()),
+  }),
 );
 
 describe("PurchasesUI", () => {

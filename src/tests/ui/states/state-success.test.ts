@@ -6,6 +6,9 @@ import { brandingInfo, rcPackage } from "../../../stories/fixtures";
 import { SDKEventName } from "../../../behavioural-events/sdk-events";
 import { createEventsTrackerMock } from "../../mocks/events-tracker-mock-provider";
 import { eventsTrackerContextKey } from "../../../ui/constants";
+import { Translator } from "../../../ui/localization/translator";
+import { writable } from "svelte/store";
+import { translatorContextKey } from "../../../ui/localization/constants";
 
 const eventsTrackerMock = createEventsTrackerMock();
 
@@ -16,7 +19,10 @@ const basicProps = {
 };
 
 const defaultContext = new Map(
-  Object.entries({ [eventsTrackerContextKey]: eventsTrackerMock }),
+  Object.entries({
+    [eventsTrackerContextKey]: eventsTrackerMock,
+    [translatorContextKey]: writable(new Translator()),
+  }),
 );
 
 describe("PurchasesUI", () => {

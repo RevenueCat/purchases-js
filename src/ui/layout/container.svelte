@@ -8,9 +8,10 @@
     undefined;
   export let isInElement: boolean = false;
 
-  let textStyle = new Theme(brandingAppearance).textStyleVars;
-  let spacingStyle = new Theme(brandingAppearance).spacingStyleVars;
-  let style = [textStyle, spacingStyle].join("; ");
+  // Make styles reactive to changes in brandingAppearance
+  $: textStyle = new Theme(brandingAppearance).textStyleVars;
+  $: spacingStyle = new Theme(brandingAppearance).spacingStyleVars;
+  $: style = [textStyle, spacingStyle].join("; ");
 
   export let children: Snippet;
 </script>

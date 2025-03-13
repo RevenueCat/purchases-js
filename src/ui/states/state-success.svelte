@@ -12,15 +12,13 @@
   import { type IEventsTracker } from "../../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "../constants";
   import { type ContinueHandlerParams } from "../ui-types";
-
+  import { type Writable } from "svelte/store";
   export let productDetails: Product | null = null;
   export let onContinue: (params?: ContinueHandlerParams) => void;
 
   const isSubscription =
     productDetails?.productType === ProductType.Subscription;
-  const translator: Translator =
-    getContext(translatorContextKey) || Translator.fallback();
-
+  const translator: Writable<Translator> = getContext(translatorContextKey);
   const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
 
   function handleContinue() {
@@ -42,9 +40,9 @@
 
 <MessageLayout
   type="success"
-  title={translator.translate(LocalizationKeys.StateSuccessPurchaseSuccessful)}
+  title={$translator.translate(LocalizationKeys.StateSuccessPurchaseSuccessful)}
   onContinue={handleContinue}
-  closeButtonTitle={translator.translate(
+  closeButtonTitle={$translator.translate(
     LocalizationKeys.StateSuccessButtonClose,
   )}
 >

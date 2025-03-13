@@ -17,6 +17,7 @@
   import { type IEventsTracker } from "../../behavioural-events/events-tracker";
   import { createCheckoutBillingFormErrorEvent } from "../../behavioural-events/sdk-event-helpers";
   import { SDKEventName } from "../../behavioural-events/sdk-events";
+  import { type Writable } from "svelte/store";
 
   export let onContinue: (params: ContinueHandlerParams) => void;
   export let processing: boolean;
@@ -50,8 +51,7 @@
     });
   });
 
-  const translator: Translator =
-    getContext(translatorContextKey) || Translator.fallback();
+  const translator: Writable<Translator> = getContext(translatorContextKey);
 </script>
 
 <div class="rcb-state-container">
@@ -68,7 +68,7 @@
             id="email"
             name="email"
             inputmode="email"
-            placeholder={translator.translate(
+            placeholder={$translator.translate(
               LocalizationKeys.StateNeedsAuthInfoEmailInputPlaceholder,
             )}
             autocapitalize="off"
