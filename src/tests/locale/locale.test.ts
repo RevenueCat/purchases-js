@@ -157,4 +157,44 @@ describe("The supportedLanguages", () => {
       "Not all files in /locales are imported as supportedLanguages",
     ).toBe(true);
   });
+
+  test("should have the same variables in all translations as in English", () => {
+    // Function to extract variables from a string (e.g., "{{amount}} week" -> ["amount"])
+    const extractVariables = (str: string): string[] => {
+      const matches = str.match(/\{\{([^}]+)\}\}/g) || [];
+      return matches.map((match) => match.slice(2, -2)); // Remove {{ and }}
+    };
+
+    // English is our reference language
+    const englishTranslations = supportedLanguages["en"];
+
+    // For each key in the English translations
+    Object.entries(englishTranslations).forEach(([key, englishValue]) => {
+      // Get variables in the English version
+      const englishVariables = new Set(extractVariables(englishValue));
+
+      // Check each other language
+      Object.entries(supportedLanguages).forEach(([lang, translations]) => {
+        // Skip English as it's our reference
+        if (lang === "en") return;
+
+        const translation = translations[key as LocalizationKeys];
+        if (!translation) {
+          throw new Error(
+            `Missing translation for key ${key} in language ${lang}`,
+          );
+        }
+
+        // Get variables in this language's translation
+        const translationVariables = new Set(extractVariables(translation));
+
+        // Check if the variables match
+        expect(
+          eqSet(englishVariables, translationVariables),
+          `Variables don't match for key "${key}" in language "${lang}". ` +
+            `English has ${[...englishVariables].join(", ")} but ${lang} has ${[...translationVariables].join(", ")}`,
+        ).toBe(true);
+      });
+    });
+  });
 });
