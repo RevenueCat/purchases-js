@@ -6,7 +6,7 @@
     defineMeta,
     setTemplate,
   } from "@storybook/addon-svelte-csf";
-  import withLayoutDecorator from "./utils/with-layout-decorator";
+  import { withLayoutDecorator } from "./utils/decorators";
 
   const { Story } = defineMeta({
     component: Icon,

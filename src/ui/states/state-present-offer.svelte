@@ -16,6 +16,7 @@
   import { getTranslatedPeriodLength } from "../../helpers/price-labels";
   import { getNextRenewalDate } from "../../helpers/duration-helper";
   import { type Writable } from "svelte/store";
+  import ProductInfoHeader from "../components/product-info-header.svelte";
 
   export let productDetails: Product;
   export let purchaseOption: PurchaseOption;
@@ -68,32 +69,10 @@
 
 <section>
   <div class="rcb-pricing-info">
-    <div class="rcb-pricing-info-header">
-      {#if isSubscription}
-        <div class="rcb-subscribe-to only-desktop">
-          <Localized
-            key={LocalizationKeys.StatePresentOfferSubscribeTo}
-            variables={{ productTitle: productDetails.title }}
-          />
-        </div>
-      {/if}
-      <div class="rcb-product-title">
-        <Localized
-          key={LocalizationKeys.StatePresentOfferProductTitle}
-          variables={{ productTitle: productDetails.title }}
-        />
-      </div>
-      {#if brandingAppearance?.show_product_description && productDetails.description}
-        <span class="rcb-product-description">
-          <Localized
-            key={LocalizationKeys.StatePresentOfferProductDescription}
-            variables={{
-              productDescription: productDetails.description,
-            }}
-          />
-        </span>
-      {/if}
-    </div>
+    <ProductInfoHeader
+      {productDetails}
+      showProductDescription={brandingAppearance?.show_product_description}
+    />
 
     {#if isSubscription}
       <div class="rcb-product-price-container">
@@ -199,11 +178,6 @@
     user-select: none;
   }
 
-  .rcb-product-title {
-    color: var(--rc-color-grey-text-dark);
-    font: var(--rc-text-titleXLarge-mobile);
-  }
-
   .rcb-product-price {
     color: var(--rc-color-grey-text-dark);
     font: var(--rc-text-titleMedium-mobile);
@@ -221,11 +195,6 @@
 
   .rcb-product-price-frequency-text {
     white-space: nowrap;
-  }
-
-  .rcb-product-description {
-    font: var(--rc-text-body1-mobile);
-    color: var(--rc-color-grey-text-dark);
   }
 
   .rcb-product-details {
@@ -253,18 +222,8 @@
     font-weight: 500;
   }
 
-  .rcb-subscribe-to {
-    font: var(--rc-text-body1-desktop);
-  }
-
   .only-desktop {
     display: none;
-  }
-
-  .rcb-pricing-info-header {
-    display: flex;
-    flex-direction: column;
-    gap: var(--rc-spacing-gapSmall-desktop);
   }
 
   .rcb-pricing-info {
@@ -290,12 +249,6 @@
       display: block;
     }
 
-    .rcb-pricing-info-header {
-      display: flex;
-      flex-direction: column;
-      gap: var(--rc-spacing-gapXLarge-desktop);
-    }
-
     .rcb-pricing-info {
       margin-top: calc(var(--rc-spacing-gapXXLarge-desktop) * 2);
       gap: var(--rc-spacing-gapXXXLarge-desktop);
@@ -305,19 +258,11 @@
       gap: var(--rc-spacing-gapXXXLarge-desktop);
     }
 
-    .rcb-product-title {
-      font: var(--rc-text-titleXLarge-desktop);
-    }
-
     .rcb-product-price {
       font: var(--rc-text-titleMedium-desktop);
     }
 
     .rcb-product-price-frequency {
-      font: var(--rc-text-body1-desktop);
-    }
-
-    .rcb-product-description {
       font: var(--rc-text-body1-desktop);
     }
 
