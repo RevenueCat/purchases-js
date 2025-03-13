@@ -1,3 +1,8 @@
+## 1.0.4
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Fix tracking selected_payment_method (#386) via Pol Miro (@polmiro)
+
 ## 1.0.3
 ## RevenueCat SDK
 ### 🐞 Bugfixes
