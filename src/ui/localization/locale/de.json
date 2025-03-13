@@ -25,7 +25,7 @@
   "state_present_offer.product_description": "{{productDescription}}",
   "state_present_offer.product_price": "{{productPrice}}",
   "state_present_offer.free_trial_duration": "{{trialDuration}} kostenlose Testversion",
-  "state_present_offer.price_after_free_trial": "{{productPrice}} nach Ablauf der Testversion",
+  "state_present_offer.price_after_free_trial": "Nach Ablauf der Testversion, am {{renewalDate}}",
   "state_present_offer.renewal_frequency": "Verlängert sich {{frequency}}",
   "state_present_offer.continues_until_cancelled": "Läuft bis zur Kündigung",
   "state_present_offer.cancel_anytime": "Jederzeit kündbar",

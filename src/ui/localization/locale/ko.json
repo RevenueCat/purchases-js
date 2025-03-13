@@ -25,7 +25,7 @@
   "state_present_offer.product_description": "{{productDescription}}",
   "state_present_offer.product_price": "{{productPrice}}",
   "state_present_offer.free_trial_duration": "{{trialDuration}}일 무료 체험",
-  "state_present_offer.price_after_free_trial": "체험 종료 후 {{productPrice}}",
+  "state_present_offer.price_after_free_trial": "체험 종료 후, {{renewalDate}}에",
   "state_present_offer.renewal_frequency": "{{frequency}}마다 갱신",
   "state_present_offer.continues_until_cancelled": "취소될 때까지 계속됩니다.",
   "state_present_offer.cancel_anytime": "언제든지 취소 가능",

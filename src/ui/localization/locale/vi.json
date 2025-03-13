@@ -25,7 +25,7 @@
   "state_present_offer.product_description": "{{productDescription}}",
   "state_present_offer.product_price": "{{productPrice}}",
   "state_present_offer.free_trial_duration": "{{trialDuration}} dùng thử miễn phí",
-  "state_present_offer.price_after_free_trial": "{{productPrice}} sau khi dùng thử kết thúc",
+  "state_present_offer.price_after_free_trial": "Sau khi dùng thử kết thúc, vào {{renewalDate}}",
   "state_present_offer.renewal_frequency": "Gia hạn {{frequency}}",
   "state_present_offer.continues_until_cancelled": "Tiếp tục cho đến khi hủy",
   "state_present_offer.cancel_anytime": "Hủy bất cứ lúc nào",
