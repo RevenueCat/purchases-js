@@ -6,6 +6,7 @@
     type Args,
   } from "@storybook/addon-svelte-csf";
   import RcbUiInner from "../ui/rcb-ui-inner.svelte";
+  import { brandingLanguageViewportModes } from "../../.storybook/modes";
 
   import {
     brandingInfos,
@@ -35,6 +36,9 @@
     parameters: {
       viewport: {
         defaultViewport: "mobile",
+      },
+      chromatic: {
+        modes: brandingLanguageViewportModes,
       },
     },
     loaders: [

@@ -6,6 +6,7 @@
     setTemplate,
   } from "@storybook/addon-svelte-csf";
   import withLayoutDecorator from "./utils/with-layout-decorator";
+  import { brandingModes } from "../../.storybook/modes";
 
   let { Story } = defineMeta<typeof Button>({
     component: Button,
@@ -16,6 +17,11 @@
       intent: {
         control: "radio",
         options: ["primary", undefined],
+      },
+    },
+    parameters: {
+      chromatic: {
+        modes: brandingModes,
       },
     },
   });

@@ -1,7 +1,6 @@
 import type { Preview } from "@storybook/svelte";
 import GlobalDecorator from "../src/stories/utils/global-decorator.svelte";
 import { brandingInfos } from "../src/stories/fixtures";
-import { allModes } from "./modes";
 
 const preview: Preview = {
   parameters: {
@@ -43,22 +42,6 @@ const preview: Preview = {
             height: "100vh",
           },
         },
-      },
-    },
-    chromatic: {
-      modes: {
-        "mobile-en-default": allModes["mobile-en-default"],
-        "tablet-en-default": allModes["tablet-en-default"],
-        "desktop-en-default": allModes["desktop-en-default"],
-        "embedded-en-default": allModes["embedded-en-default"],
-        "mobile-fr-with-branding": allModes["mobile-fr-with-branding"],
-        "tablet-fr-with-branding": allModes["tablet-fr-with-branding"],
-        "desktop-fr-with-branding": allModes["desktop-fr-with-branding"],
-        "embedded-fr-with-branding": allModes["embedded-fr-with-branding"],
-        "mobile-ar-with-branding": allModes["mobile-ar-with-branding"],
-        "tablet-ar-with-branding": allModes["tablet-ar-with-branding"],
-        "desktop-ar-with-branding": allModes["desktop-ar-with-branding"],
-        "embedded-ar-with-branding": allModes["embedded-ar-with-branding"],
       },
     },
   },

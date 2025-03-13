@@ -1,6 +1,6 @@
 <script module>
   import { default as Icon } from "../ui/icon.svelte";
-
+  import { brandingModes } from "../../.storybook/modes";
   import {
     type Args,
     defineMeta,
@@ -13,6 +13,11 @@
     title: "Components/Icons",
     // @ts-expect-error ignore typing of decorator
     decorators: [withLayoutDecorator],
+    parameters: {
+      chromatic: {
+        modes: brandingModes,
+      },
+    },
   });
 </script>
 

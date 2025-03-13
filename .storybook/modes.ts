@@ -1,4 +1,4 @@
-export const allModes = {
+export const brandingLanguageViewportModes = {
   "mobile-en-default": {
     name: "Mobile / English / Default",
     viewport: "mobile",
@@ -71,4 +71,27 @@ export const allModes = {
     brandingName: "Dipsea",
     locale: "ar",
   },
+};
+
+export const brandingModes = {
+  none: {
+    name: "None",
+    brandingName: "None",
+    viewport: "mobile",
+  },
+  igify: {
+    name: "Igify",
+    brandingName: "Igify",
+    viewport: "mobile",
+  },
+  dipsea: {
+    name: "Dipsea",
+    brandingName: "Dipsea",
+    viewport: "mobile",
+  },
+};
+
+export const allModes = {
+  ...brandingModes,
+  ...brandingLanguageViewportModes,
 };
