@@ -23,49 +23,49 @@ export const brandingLanguageViewportModes = {
     brandingName: "None",
     locale: "en",
   },
-  "mobile-fr-with-branding": {
+  "mobile-fr-igify": {
     name: "Mobile / French / Igify",
     viewport: "mobile",
     brandingName: "Igify",
     locale: "fr",
   },
-  "tablet-fr-with-branding": {
+  "tablet-fr-igify": {
     name: "Tablet / French / Igify",
     viewport: "tablet",
     brandingName: "Igify",
     locale: "fr",
   },
-  "desktop-fr-with-branding": {
+  "desktop-fr-igify": {
     name: "Desktop / French / Igify",
     viewport: "desktop",
     brandingName: "Igify",
     locale: "fr",
   },
-  "embedded-fr-with-branding": {
+  "embedded-fr-igify": {
     name: "Embedded / French / Igify",
     viewport: "embedded",
     brandingName: "Igify",
     locale: "fr",
   },
-  "mobile-ar-with-branding": {
+  "mobile-ar-dipsea": {
     name: "Mobile / Arabic / Dipsea",
     viewport: "mobile",
     brandingName: "Dipsea",
     locale: "ar",
   },
-  "tablet-ar-with-branding": {
+  "tablet-ar-dipsea": {
     name: "Tablet / Arabic / Dipsea",
     viewport: "tablet",
     brandingName: "Dipsea",
     locale: "ar",
   },
-  "desktop-ar-with-branding": {
+  "desktop-ar-dipsea": {
     name: "Desktop / Arabic / Dipsea",
     viewport: "desktop",
     brandingName: "Dipsea",
     locale: "ar",
   },
-  "embedded-ar-with-branding": {
+  "embedded-ar-dipsea": {
     name: "Embedded / Arabic / Dipsea",
     viewport: "embedded",
     brandingName: "Dipsea",
@@ -74,24 +74,11 @@ export const brandingLanguageViewportModes = {
 };
 
 export const brandingModes = {
-  none: {
-    name: "None",
-    brandingName: "None",
-    viewport: "mobile",
-  },
-  igify: {
-    name: "Igify",
-    brandingName: "Igify",
-    viewport: "mobile",
-  },
-  dipsea: {
-    name: "Dipsea",
-    brandingName: "Dipsea",
-    viewport: "mobile",
-  },
+  "mobile-en-default": brandingLanguageViewportModes["mobile-en-default"],
+  "mobile-fr-igify": brandingLanguageViewportModes["mobile-fr-igify"],
+  "mobile-ar-dipsea": brandingLanguageViewportModes["mobile-ar-dipsea"],
 };
 
 export const allModes = {
-  ...brandingModes,
   ...brandingLanguageViewportModes,
 };

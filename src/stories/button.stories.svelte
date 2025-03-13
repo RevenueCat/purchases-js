@@ -5,7 +5,7 @@
     defineMeta,
     setTemplate,
   } from "@storybook/addon-svelte-csf";
-  import withLayoutDecorator from "./utils/with-layout-decorator";
+  import { withLayoutDecorator } from "./utils/decorators";
   import { brandingModes } from "../../.storybook/modes";
 
   let { Story } = defineMeta<typeof Button>({
