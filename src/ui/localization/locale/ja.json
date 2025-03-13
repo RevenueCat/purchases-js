@@ -40,7 +40,7 @@
   "state_success.purchase_successful": "支払いが完了しました",
   "state_success.subscription_now_active": "購読が有効になりました",
   "state_success.button_close": "続行",
-  "state_error.if_error_persists": "エラーが続く場合は、{{contactInfo}}までご連絡ください。",
+  "state_error.if_error_persists": "エラーが続く場合は、ご連絡ください。",
   "state_error.error_title_already_subscribed": "既に購読済みです",
   "state_error.error_title_already_purchased": "既に購入済みです",
   "state_error.error_title_other_errors": "エラーが発生しました",
