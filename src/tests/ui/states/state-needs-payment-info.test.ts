@@ -1,6 +1,4 @@
-import {} from "svelte";
-import "@testing-library/jest-dom";
-import { render } from "@testing-library/svelte";
+import { fireEvent, render, screen } from "@testing-library/svelte";
 import { describe, test, expect, vi, beforeEach } from "vitest";
 import StateNeedsPaymentInfo from "../../../ui/states/state-needs-payment-info.svelte";
 import {
@@ -16,11 +14,14 @@ import type { CheckoutStartResponse } from "../../../networking/responses/checko
 import { writable } from "svelte/store";
 import { Translator } from "../../../ui/localization/translator";
 import { translatorContextKey } from "../../../ui/localization/constants";
+import { StripeService } from "../../../stripe/stripe-service";
+import type { StripePaymentElementChangeEvent } from "@stripe/stripe-js";
 
 const eventsTrackerMock = createEventsTrackerMock();
 const purchaseOperationHelperMock: PurchaseOperationHelper = {
   checkoutStart: async () =>
     Promise.resolve(checkoutStartResponse as CheckoutStartResponse),
+  checkoutComplete: async () => Promise.resolve(null),
 } as unknown as PurchaseOperationHelper;
 
 const basicProps = {
@@ -41,6 +42,20 @@ const defaultContext = new Map(
   }),
 );
 
+vi.mock("../../../stripe/stripe-service", () => ({
+  StripeService: {
+    initializeStripe: vi.fn().mockResolvedValue({
+      stripe: { exists: true },
+      elements: {
+        _elements: [1],
+        submit: vi.fn().mockResolvedValue({ error: null }),
+      },
+    }),
+    createPaymentElement: vi.fn(),
+    isStripeHandledCardError: vi.fn().mockReturnValue(false),
+  },
+}));
+
 describe("PurchasesUI", () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -59,51 +74,68 @@ describe("PurchasesUI", () => {
     });
   });
 
-  // test("tracks the PaymentEntryDismiss event when closed", async () => {
-  //   render(StateNeedsPaymentInfo, {
-  //     props: { ...basicProps },
-  //     context: defaultContext,
-  //   });
+  test("tracks the PaymentEntrySubmit event when the payment entry is submitted", async () => {
+    const paymentElementMock = {
+      on: (
+        event: string,
+        callback: (event: StripePaymentElementChangeEvent) => void,
+      ) => {
+        if (event === "change") {
+          callback({
+            complete: true,
+            value: {
+              type: "card",
+            },
+            elementType: "payment",
+            empty: false,
+            collapsed: false,
+          });
+        }
+      },
+      mount: vi.fn(),
+      destroy: vi.fn(),
+    };
 
-  //   const closeButton = screen.getByRole("button", { name: "Close" });
-  //   await fireEvent.click(closeButton);
+    vi.mocked(StripeService.createPaymentElement).mockReturnValue(
+      // @ts-expect-error - this is a mock
+      paymentElementMock,
+    );
 
-  // expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-  //   eventName: SDKEventName.CheckoutBillingFormDismiss,
-  // });
-  // });
+    render(StateNeedsPaymentInfo, {
+      props: { ...basicProps },
+      context: defaultContext,
+    });
 
-  // test.only("tracks the PaymentEntrySubmit event when the payment entry is submitted", async () => {
-  //   render(StateNeedsPaymentInfo, {
-  //     props: { ...basicProps },
-  //     context: defaultContext,
-  //   });
+    await vi.advanceTimersToNextTimerAsync();
 
-  //   await vi.advanceTimersToNextTimerAsync();
+    const paymentForm = screen.getByTestId("payment-form");
+    await fireEvent.submit(paymentForm);
 
-  //   const paymentForm = screen.getByTestId("payment-form");
-  //   await fireEvent.submit(paymentForm);
-  //   await vi.advanceTimersToNextTimerAsync();
+    expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
+      eventName: SDKEventName.CheckoutPaymentFormSubmit,
+      properties: {
+        selectedPaymentMethod: "card",
+      },
+    });
+  });
 
-  //   expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-  //     eventName: SDKEventName.CheckoutBillingFormSubmit,
-  //   });
-  // });
+  test("tracks the PaymentEntryGatewayError event when the payment entry is submitted and failed", async () => {
+    render(StateNeedsPaymentInfo, {
+      props: { ...basicProps },
+      context: defaultContext,
+    });
 
-  // test.only("tracks the PaymentEntryError event when the payment entry is submitted and failed", async () => {
-  //   render(StateNeedsPaymentInfo, {
-  //     props: { ...basicProps },
-  //     context: defaultContext,
-  //   });
+    await vi.advanceTimersToNextTimerAsync();
 
-  //   await vi.advanceTimersToNextTimerAsync();
+    const paymentForm = screen.getByTestId("payment-form");
+    await fireEvent.submit(paymentForm);
 
-  //   const paymentForm = screen.getByTestId("payment-form");
-  //   await fireEvent.submit(paymentForm);
-  //   await vi.advanceTimersToNextTimerAsync();
-
-  //   expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-  //     eventName: SDKEventName.CheckoutBillingFormError,
-  //   });
-  // });
+    expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
+      eventName: SDKEventName.CheckoutPaymentFormGatewayError,
+      properties: {
+        errorCode: "0",
+        errorMessage: "Failed to initialize payment form",
+      },
+    });
+  });
 });
