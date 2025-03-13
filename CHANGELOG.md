@@ -1,3 +1,11 @@
+## 1.0.3
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Fix translations for `price_after_free_trial` (#381) via Pol Miro (@polmiro)
+
+### 🔄 Other Changes
+* Storybook with globals (#374) via Pol Miro (@polmiro)
+
 ## 1.0.2
 ## RevenueCat SDK
 ### 🐞 Bugfixes

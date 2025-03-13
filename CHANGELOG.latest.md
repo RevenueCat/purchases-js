@@ -1,4 +1,6 @@
 ## RevenueCat SDK
 ### 🐞 Bugfixes
-* WEB-2336: Adjusted the gaps and moved the product description below the title (#377) via Nicola Sacco (@nicfix)
-* fix: prevent RangeError in formatPrice across browsers (#376) via Víctor Ferrer García (@vicfergar)
+* Fix translations for `price_after_free_trial` (#381) via Pol Miro (@polmiro)
+
+### 🔄 Other Changes
+* Storybook with globals (#374) via Pol Miro (@polmiro)
