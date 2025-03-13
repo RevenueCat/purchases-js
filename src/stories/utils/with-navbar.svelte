@@ -5,7 +5,6 @@
   import Layout from "../../ui/layout/layout.svelte";
   import Main from "../../ui/layout/main-block.svelte";
   import NavBar from "../../ui/layout/navbar.svelte";
-  import BrandingInfoUI from "../../ui/branding-info-ui.svelte";
   import { type Snippet } from "svelte";
 </script>
 
