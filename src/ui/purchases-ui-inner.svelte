@@ -73,7 +73,7 @@
               {productDetails}
               purchaseOption={purchaseOptionToUse}
               showProductDescription={brandingInfo?.appearance
-                ?.show_product_description}
+                ?.show_product_description ?? false}
             />
           {/if}
         {/snippet}
@@ -86,7 +86,7 @@
             {productDetails}
             purchaseOption={purchaseOptionToUse}
             showProductDescription={brandingInfo?.appearance
-              ?.show_product_description}
+              ?.show_product_description ?? false}
           />
         {/if}
         {#if currentView === "present-offer" && !productDetails}

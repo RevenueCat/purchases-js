@@ -24,18 +24,10 @@
   });
 </script>
 
-<Story name="Subscription With Description">
+<Story name="Default">
   <ProductInfo
     productDetails={product}
     purchaseOption={subscriptionOption}
-    showProductDescription={true}
-  />
-</Story>
-
-<Story name="Non Subscription With Description">
-  <ProductInfo
-    productDetails={consumableProduct}
-    purchaseOption={nonSubscriptionOption}
     showProductDescription={true}
   />
 </Story>

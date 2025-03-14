@@ -44,11 +44,3 @@
     purchaseOption={nonSubscriptionOption}
   />
 </Story>
-
-<Story name="Non Subscription With Description">
-  <ProductInfoPricing
-    productDetails={consumableProduct}
-    purchaseOption={nonSubscriptionOption}
-    showProductDescription={true}
-  />
-</Story>

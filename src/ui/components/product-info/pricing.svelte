@@ -11,7 +11,6 @@
 
   export let productDetails: Product;
   export let purchaseOption: PurchaseOption;
-  export let showProductDescription: boolean = false;
 
   const isSubscription =
     productDetails.productType === ProductType.Subscription;
@@ -21,8 +20,6 @@
   <SubscriptionPricing purchaseOption={purchaseOption as SubscriptionOption} />
 {:else}
   <NonSubscriptionPricing
-    {productDetails}
-    {showProductDescription}
     purchaseOption={purchaseOption as NonSubscriptionOption}
   />
 {/if}

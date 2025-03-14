@@ -9,7 +9,7 @@
 
   export let productDetails: Product;
   export let purchaseOption: PurchaseOption;
-  export let showProductDescription: boolean = false;
+  export let showProductDescription: boolean;
 
   const isSubscription =
     productDetails.productType === ProductType.Subscription;
@@ -18,12 +18,7 @@
 <section>
   <div class="rcb-pricing-info" class:has-expanded-details={isSubscription}>
     <ProductInfoHeader {productDetails} {showProductDescription} />
-
-    <ProductInfoPricing
-      {productDetails}
-      {purchaseOption}
-      {showProductDescription}
-    />
+    <ProductInfoPricing {productDetails} {purchaseOption} />
   </div>
 </section>
 

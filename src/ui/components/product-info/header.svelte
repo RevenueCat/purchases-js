@@ -4,7 +4,7 @@
   import { ProductType, type Product } from "../../../entities/offerings";
 
   export let productDetails: Product;
-  export let showProductDescription: boolean = false;
+  export let showProductDescription: boolean;
 
   const isSubscription =
     productDetails.productType === ProductType.Subscription;
