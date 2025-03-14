@@ -33,12 +33,12 @@
 </script>
 
 {#if isEmbeddedViewport}
-  {@render embedded()}
+  {@render embedded(children)}
 {:else}
   {@render children?.()}
 {/if}
 
-{#snippet embedded()}
+{#snippet embedded(children?: Snippet)}
   <div style="width: 100vw; height:100vh; background-color: red;">
     <div style="display: flex">
       <div
