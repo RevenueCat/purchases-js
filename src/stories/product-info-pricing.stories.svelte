@@ -9,8 +9,6 @@
     subscriptionOptionWithTrial,
     nonSubscriptionOption,
     consumableProduct,
-    nonConsumableProduct,
-    colorfulBrandingAppearance,
   } from "./fixtures";
 
   const { Story } = defineMeta({
@@ -33,38 +31,23 @@
   />
 </Story>
 
-<Story name="Subscription With Trial">
+<Story name="Trial">
   <ProductInfoPricing
     productDetails={product}
     purchaseOption={subscriptionOptionWithTrial}
   />
 </Story>
 
-<Story name="Consumable">
+<Story name="Non Subscription">
   <ProductInfoPricing
     productDetails={consumableProduct}
     purchaseOption={nonSubscriptionOption}
   />
 </Story>
 
-<Story name="Consumable With Description">
+<Story name="Non Subscription With Description">
   <ProductInfoPricing
     productDetails={consumableProduct}
-    purchaseOption={nonSubscriptionOption}
-    showProductDescription={true}
-  />
-</Story>
-
-<Story name="Non Consumable">
-  <ProductInfoPricing
-    productDetails={nonConsumableProduct}
-    purchaseOption={nonSubscriptionOption}
-  />
-</Story>
-
-<Story name="Non Consumable With Description">
-  <ProductInfoPricing
-    productDetails={nonConsumableProduct}
     purchaseOption={nonSubscriptionOption}
     showProductDescription={true}
   />
