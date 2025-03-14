@@ -1,11 +1,11 @@
 <script lang="ts">
   import { type Snippet } from "svelte";
   import ModalSection from "./modal-section.svelte";
-  import CloseButton from "./close-button.svelte";
-  import BackButton from "./back-button.svelte";
-  import IconArrow from "./icons/icon-arrow.svelte";
-  import { LocalizationKeys } from "./localization/supportedLanguages";
-  import Localized from "./localization/localized.svelte";
+  import CloseButton from "../components/close-button.svelte";
+  import BackButton from "../components/back-button.svelte";
+  import IconArrow from "../components/icons/icon-arrow.svelte";
+  import { LocalizationKeys } from "../localization/supportedLanguages";
+  import Localized from "../localization/localized.svelte";
 
   export let children: Snippet;
   export let shouldShowDetailsButton = false;

@@ -1,5 +1,5 @@
 <script module>
-  import { default as Icon } from "../ui/icon.svelte";
+  import { default as Icon } from "../ui/components/icon.svelte";
   import { brandingModes } from "../../.storybook/modes";
   import {
     type Args,
@@ -10,7 +10,7 @@
 
   const { Story } = defineMeta({
     component: Icon,
-    title: "Components/Icons",
+    title: "Components/Icon",
     // @ts-expect-error ignore typing of decorator
     decorators: [withLayoutDecorator],
     parameters: {

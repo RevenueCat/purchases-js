@@ -1,5 +1,5 @@
 <script>
-  import Icon from "../assets/spinner.svg?raw";
+  import Icon from "../../assets/spinner.svg?raw";
 </script>
 
 <div style="color:var(--rc-color-accent);" class="rcb-ui-asset-icon">

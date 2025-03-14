@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Localized from "./localization/localized.svelte";
-  import { LocalizationKeys } from "./localization/supportedLanguages";
+  import Localized from "../localization/localized.svelte";
+  import { LocalizationKeys } from "../localization/supportedLanguages";
 
   export let termsInfo: string | null = null;
   export let trialInfo: string | null = null;

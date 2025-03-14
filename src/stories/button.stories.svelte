@@ -1,5 +1,5 @@
 <script module>
-  import { default as Button } from "../ui/button.svelte";
+  import { default as Button } from "../ui/components/button.svelte";
   import {
     type Args,
     defineMeta,

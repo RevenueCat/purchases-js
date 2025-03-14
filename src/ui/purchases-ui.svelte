@@ -20,7 +20,7 @@
     translatorContextKey,
   } from "./localization/constants";
   import { type CurrentView } from "./ui-types";
-  import RcbUIInner from "./rcb-ui-inner.svelte";
+  import PurchasesUiInner from "./purchases-ui-inner.svelte";
   import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
   import { type ContinueHandlerParams } from "./ui-types";
   import { type IEventsTracker } from "../behavioural-events/events-tracker";
@@ -207,7 +207,7 @@
   };
 </script>
 
-<RcbUIInner
+<PurchasesUiInner
   isSandbox={purchases.isSandbox()}
   {currentView}
   {brandingInfo}

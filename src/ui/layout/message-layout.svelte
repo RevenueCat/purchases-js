@@ -1,8 +1,8 @@
 <script lang="ts">
-  import Button from "../button.svelte";
-  import ModalFooter from "../modal-footer.svelte";
-  import ModalSection from "../modal-section.svelte";
-  import RowLayout from "../layout/row-layout.svelte";
+  import Button from "../components/button.svelte";
+  import ModalFooter from "./modal-footer.svelte";
+  import ModalSection from "./modal-section.svelte";
+  import RowLayout from "./row-layout.svelte";
   import { type ContinueHandlerParams } from "../ui-types";
 
   export let onContinue: (params?: ContinueHandlerParams) => void;
