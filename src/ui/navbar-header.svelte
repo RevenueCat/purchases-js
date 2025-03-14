@@ -3,7 +3,7 @@
   import ModalSection from "./modal-section.svelte";
   import CloseButton from "./close-button.svelte";
   import BackButton from "./back-button.svelte";
-  import IconArrow from "./icons/icon-arrow.svelte";
+  import IconArrow from "./components/icons/icon-arrow.svelte";
   import { LocalizationKeys } from "./localization/supportedLanguages";
   import Localized from "./localization/localized.svelte";
 

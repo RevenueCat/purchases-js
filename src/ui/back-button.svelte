@@ -1,5 +1,5 @@
 <script lang="ts">
-  import IconArrow from "./icons/icon-arrow.svelte";
+  import IconArrow from "./components/icons/icon-arrow.svelte";
   import Localized from "./localization/localized.svelte";
   import { LocalizationKeys } from "./localization/supportedLanguages";
 
