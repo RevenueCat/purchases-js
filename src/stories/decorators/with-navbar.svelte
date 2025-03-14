@@ -13,6 +13,7 @@
     children?: Snippet<[]>;
     globals: {
       brandingName: string;
+      viewport: string;
     };
   }
 
@@ -21,9 +22,10 @@
   const colorVariables = $derived(
     toProductInfoStyleVar(brandingInfo.appearance),
   );
+  const isInElement = $derived(globals.viewport === "embedded");
 </script>
 
-<Container brandingAppearance={brandingInfo.appearance}>
+<Container brandingAppearance={brandingInfo.appearance} {isInElement}>
   <Layout style={colorVariables}>
     <NavBar
       brandingAppearance={brandingInfo.appearance}
