@@ -17,6 +17,9 @@ const config: StorybookConfig = {
       },
     },
   ],
+  features: {
+    viewportStoryGlobals: true,
+  },
   framework: "@storybook/svelte-vite",
   docs: {},
   env: (config) => ({

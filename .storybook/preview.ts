@@ -1,6 +1,7 @@
 import type { Preview } from "@storybook/svelte";
 import GlobalDecorator from "../src/stories/utils/global-decorator.svelte";
 import { brandingInfos } from "../src/stories/fixtures";
+import type { ViewportMap } from "@storybook/addon-viewport";
 
 const preview: Preview = {
   parameters: {
@@ -14,9 +15,10 @@ const preview: Preview = {
       },
     },
     viewport: {
-      viewports: {
+      options: {
         mobile: {
           name: "Mobile",
+          type: "mobile",
           styles: {
             width: "375px",
             height: "667px",
@@ -24,6 +26,7 @@ const preview: Preview = {
         },
         tablet: {
           name: "Tablet",
+          type: "tablet",
           styles: {
             width: "1024px",
             height: "768px",
@@ -31,6 +34,7 @@ const preview: Preview = {
         },
         desktop: {
           name: "Desktop",
+          type: "desktop",
           styles: {
             width: "1440px",
             height: "900px",
@@ -38,12 +42,13 @@ const preview: Preview = {
         },
         embedded: {
           name: "Embedded",
+          type: "other",
           styles: {
             width: "100vw",
             height: "100vh",
           },
         },
-      },
+      } satisfies ViewportMap,
     },
   },
   decorators: [
@@ -119,6 +124,7 @@ const preview: Preview = {
   initialGlobals: {
     locale: "en",
     brandingName: "Igify",
+    viewport: { value: "desktop", isRotated: false },
   },
 };
 

@@ -34,13 +34,13 @@
     title: "Flows/Purchase",
     args: defaultArgs,
     parameters: {
-      viewport: {
-        defaultViewport: "mobile",
-      },
       chromatic: {
         modes: brandingLanguageViewportModes,
         delay: 500,
       },
+    },
+    globals: {
+      viewport: { value: "mobile", isRotated: false },
     },
     loaders: [
       async () => {
