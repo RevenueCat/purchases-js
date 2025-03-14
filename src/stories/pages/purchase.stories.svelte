@@ -58,17 +58,6 @@
   args: Args<typeof Story>,
   context: StoryContext<typeof Story>,
 )}
-  {#if context.globals.viewport === "embedded"}
-    {@render embedded(args, context)}
-  {:else}
-    {@render Purchases(args, context)}
-  {/if}
-{/snippet}
-
-{#snippet Purchases(
-  args: Args<typeof Story>,
-  context: StoryContext<typeof Story>,
-)}
   {@const brandingInfo = brandingInfos[context.globals.brandingName]}
   {@const colorVariables = toProductInfoStyleVar(brandingInfo.appearance)}
   <PurchasesInner
@@ -83,31 +72,8 @@
     lastError={null}
     {paymentInfoCollectionMetadata}
     purchaseOperationHelper={null as unknown as PurchaseOperationHelper}
-    isInElement={args.isInElement}
+    isInElement={context.globals.viewport === "embedded"}
   />
-{/snippet}
-
-{#snippet embedded(
-  args: Args<typeof Story>,
-  context: StoryContext<typeof Story>,
-)}
-  <div style="width: 100vw; height:100vh; background-color: red;">
-    <div style="display: flex">
-      <div
-        id="embedding-container"
-        style="width: 500px; height: 600px; position: relative; overflow: hidden; background-color: lightgray;"
-      >
-        {@render Purchases({ ...args, isInElement: true }, context)}
-      </div>
-      <div style="padding: 20px;">
-        <h1>Homer's Web page</h1>
-        <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam,
-          quos.
-        </p>
-      </div>
-    </div>
-  </div>
 {/snippet}
 
 <Story name="Email Input" args={{ currentView: "needs-auth-info" }} />
