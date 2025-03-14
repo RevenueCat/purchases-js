@@ -14,9 +14,8 @@
     purchaseFlowError,
     subscriptionOption,
     subscriptionOptionWithTrial,
+    checkoutStartResponse,
   } from "./fixtures";
-  import { buildCheckoutStartResponse } from "./utils/purchase-response-builder";
-  import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
   import { toProductInfoStyleVar } from "../ui/theme/utils";
   import { PurchaseOperationHelper } from "../helpers/purchase-operation-helper";
 
@@ -44,8 +43,6 @@
     },
     loaders: [
       async () => {
-        const checkoutStartResponse: CheckoutStartResponse =
-          await buildCheckoutStartResponse();
         paymentInfoCollectionMetadata = { ...checkoutStartResponse };
         return { paymentInfoCollectionMetadata };
       },
