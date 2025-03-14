@@ -63,6 +63,7 @@ import {
 import { SDKEventName } from "./behavioural-events/sdk-events";
 import { autoParseUTMParams } from "./helpers/utm-params";
 import { defaultFlagsConfig, type FlagsConfig } from "./entities/flags-config";
+import { generateUUID } from "./helpers/uuid-helper";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -771,8 +772,7 @@ export class Purchases {
    * @public
    */
   public static generateRevenueCatAnonymousAppUserId(): string {
-    const uuid = crypto.randomUUID();
-    return `${ANONYMOUS_PREFIX}${uuid.replace(/-/g, "")}`;
+    return `${ANONYMOUS_PREFIX}${generateUUID().replace(/-/g, "")}`;
   }
 
   /**
