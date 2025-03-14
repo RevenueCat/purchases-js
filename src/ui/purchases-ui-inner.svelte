@@ -71,8 +71,9 @@
           {#if productDetails && purchaseOptionToUse}
             <ProductInfo
               {productDetails}
-              brandingAppearance={brandingInfo?.appearance}
               purchaseOption={purchaseOptionToUse}
+              showProductDescription={brandingInfo?.appearance
+                ?.show_product_description}
             />
           {/if}
         {/snippet}
@@ -83,8 +84,9 @@
         {#if currentView === "present-offer" && productDetails && purchaseOptionToUse}
           <ProductInfo
             {productDetails}
-            brandingAppearance={brandingInfo?.appearance}
             purchaseOption={purchaseOptionToUse}
+            showProductDescription={brandingInfo?.appearance
+              ?.show_product_description}
           />
         {/if}
         {#if currentView === "present-offer" && !productDetails}
