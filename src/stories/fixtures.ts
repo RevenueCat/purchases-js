@@ -1,6 +1,7 @@
 import type { BrandingInfoResponse } from "../networking/responses/branding-response";
 import { eventsTrackerContextKey } from "../ui/constants";
 import {
+  type NonSubscriptionOption,
   type Package,
   PackageType,
   type Product,
@@ -65,6 +66,17 @@ export const subscriptionOptionWithTrial: SubscriptionOption = {
   },
 };
 
+export const nonSubscriptionOption: NonSubscriptionOption = {
+  id: "option_id_1",
+  priceId: "price_1",
+  basePrice: {
+    amount: 999,
+    amountMicros: 999,
+    currency: "USD",
+    formattedPrice: "9.99$",
+  },
+};
+
 export const product: Product = {
   identifier: "some_product_123",
   displayName: "Fantastic Cat",
@@ -94,6 +106,18 @@ export const product: Product = {
   subscriptionOptions: {
     option_id_1: subscriptionOption,
   },
+};
+
+export const consumableProduct: Product = {
+  ...structuredClone(product),
+  productType: ProductType.Consumable,
+  defaultPurchaseOption: nonSubscriptionOption,
+};
+
+export const nonConsumableProduct: Product = {
+  ...structuredClone(product),
+  productType: ProductType.NonConsumable,
+  defaultPurchaseOption: nonSubscriptionOption,
 };
 
 export const rcPackage: Package = {

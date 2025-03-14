@@ -189,6 +189,9 @@
           "change",
           (event: StripePaymentElementChangeEvent) => {
             isPaymentInfoComplete = event.complete;
+            if (isPaymentInfoComplete) {
+              selectedPaymentMethod = event.value.type;
+            }
           },
         );
         paymentElement.on("loaderror", (event) => {
