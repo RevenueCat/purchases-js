@@ -6,13 +6,13 @@
     defineMeta,
     setTemplate,
   } from "@storybook/addon-svelte-csf";
-  import { withLayoutDecorator } from "./utils/decorators";
+  import { withLayout } from "./decorators/with-layout";
 
   const { Story } = defineMeta({
     component: Icon,
     title: "Components/Icon",
     // @ts-expect-error ignore typing of decorator
-    decorators: [withLayoutDecorator],
+    decorators: [withLayout],
     parameters: {
       chromatic: {
         modes: brandingModes,
