@@ -1,19 +1,19 @@
 <script lang="ts">
-  import Localized from "../localization/localized.svelte";
-  import { LocalizationKeys } from "../localization/supportedLanguages";
+  import Localized from "../../localization/localized.svelte";
+  import { LocalizationKeys } from "../../localization/supportedLanguages";
   import {
     type SubscriptionOption,
     type NonSubscriptionOption,
     type Product,
     type PurchaseOption,
     ProductType,
-  } from "../../entities/offerings";
-  import { getTranslatedPeriodLength } from "../../helpers/price-labels";
-  import type { Translator } from "../localization/translator";
-  import { translatorContextKey } from "../localization/constants";
+  } from "../../../entities/offerings";
+  import { getTranslatedPeriodLength } from "../../../helpers/price-labels";
+  import type { Translator } from "../../localization/translator";
+  import { translatorContextKey } from "../../localization/constants";
   import { type Writable } from "svelte/store";
   import { getContext } from "svelte";
-  import { getNextRenewalDate } from "../../helpers/duration-helper";
+  import { getNextRenewalDate } from "../../../helpers/duration-helper";
 
   export let productDetails: Product;
   export let purchaseOption: PurchaseOption;

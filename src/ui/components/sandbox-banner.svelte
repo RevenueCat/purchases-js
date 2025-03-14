@@ -1,7 +1,7 @@
 <script lang="ts">
   import { fly } from "svelte/transition";
   import CloseButton from "./close-button.svelte";
-  import { Logger } from "../helpers/logger";
+  import { Logger } from "../../helpers/logger";
 
   export let style = "";
   export let isInElement = false;

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getContext, onMount } from "svelte";
-  import Button from "../button.svelte";
+  import Button from "../components/button.svelte";
   import type {
     Appearance,
     Stripe,
@@ -21,7 +21,7 @@
   import Localized from "../localization/localized.svelte";
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
-  import SecureCheckoutRc from "../secure-checkout-rc.svelte";
+  import SecureCheckoutRc from "../components/secure-checkout-rc.svelte";
   import { type CheckoutStartResponse } from "../../networking/responses/checkout-start-response";
   import {
     PurchaseFlowError,
