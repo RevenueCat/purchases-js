@@ -10,7 +10,7 @@
 
   const { Story } = defineMeta({
     component: Icon,
-    title: "Components/Icons",
+    title: "Components/Icon",
     // @ts-expect-error ignore typing of decorator
     decorators: [withLayoutDecorator],
     parameters: {
