@@ -5,8 +5,8 @@
     type StoryContext,
     type Args,
   } from "@storybook/addon-svelte-csf";
-  import PurchasesInner from "../ui/purchases-ui-inner.svelte";
-  import { brandingLanguageViewportModes } from "../../.storybook/modes";
+  import PurchasesInner from "../../ui/purchases-ui-inner.svelte";
+  import { brandingLanguageViewportModes } from "../../../.storybook/modes";
 
   import {
     brandingInfos,
@@ -15,9 +15,9 @@
     subscriptionOption,
     subscriptionOptionWithTrial,
     checkoutStartResponse,
-  } from "./fixtures";
-  import { toProductInfoStyleVar } from "../ui/theme/utils";
-  import { PurchaseOperationHelper } from "../helpers/purchase-operation-helper";
+  } from "../fixtures";
+  import { toProductInfoStyleVar } from "../../ui/theme/utils";
+  import { PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
 
   const defaultArgs = {
     productDetails: product,
@@ -30,7 +30,7 @@
   let paymentInfoCollectionMetadata: any;
 
   let { Story } = defineMeta({
-    title: "Flows/Purchase",
+    title: "Pages/Purchase",
     args: defaultArgs,
     parameters: {
       viewport: {
