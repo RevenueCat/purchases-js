@@ -14,21 +14,21 @@
   {#if isSubscription}
     <div class="rcb-subscribe-to only-desktop">
       <Localized
-        key={LocalizationKeys.StatePresentOfferSubscribeTo}
+        key={LocalizationKeys.ProductInfoSubscribeTo}
         variables={{ productTitle: productDetails.title }}
       />
     </div>
   {/if}
   <div class="rcb-product-title">
     <Localized
-      key={LocalizationKeys.StatePresentOfferProductTitle}
+      key={LocalizationKeys.ProductInfoProductTitle}
       variables={{ productTitle: productDetails.title }}
     />
   </div>
   {#if showProductDescription && productDetails.description}
     <span class="rcb-product-description">
       <Localized
-        key={LocalizationKeys.StatePresentOfferProductDescription}
+        key={LocalizationKeys.ProductInfoProductDescription}
         variables={{
           productDescription: productDetails.description,
         }}

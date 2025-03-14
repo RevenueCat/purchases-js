@@ -12,7 +12,7 @@
   import { type ContinueHandlerParams, type CurrentView } from "./ui-types";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import type { Product, PurchaseOption } from "../main";
-  import StatePresentOffer from "./components/state-present-offer.svelte";
+  import ProductInfo from "./components/product-info.svelte";
   import BrandingInfoUI from "./branding-info-ui.svelte";
   import {
     PurchaseFlowError,
@@ -69,7 +69,7 @@
 
         {#snippet bodyContent()}
           {#if productDetails && purchaseOptionToUse}
-            <StatePresentOffer
+            <ProductInfo
               {productDetails}
               brandingAppearance={brandingInfo?.appearance}
               purchaseOption={purchaseOptionToUse}
@@ -81,8 +81,9 @@
     <Main brandingAppearance={brandingInfo?.appearance}>
       {#snippet body()}
         {#if currentView === "present-offer" && productDetails && purchaseOptionToUse}
-          <StatePresentOffer
+          <ProductInfo
             {productDetails}
+            brandingAppearance={brandingInfo?.appearance}
             purchaseOption={purchaseOptionToUse}
           />
         {/if}
