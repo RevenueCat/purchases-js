@@ -5,8 +5,8 @@
     ProductType,
   } from "../../entities/offerings";
   import type { BrandingAppearance } from "../../entities/branding";
-  import ProductInfoHeader from "../components/product-info/header.svelte";
-  import ProductInfoPricing from "../components/product-info/pricing.svelte";
+  import ProductInfoHeader from "./product-info/header.svelte";
+  import ProductInfoPricing from "./product-info/pricing.svelte";
 
   export let productDetails: Product;
   export let purchaseOption: PurchaseOption;

@@ -12,7 +12,7 @@
   import { type ContinueHandlerParams, type CurrentView } from "./ui-types";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import type { Product, PurchaseOption } from "../main";
-  import StatePresentOffer from "./states/state-present-offer.svelte";
+  import StatePresentOffer from "./components/state-present-offer.svelte";
   import BrandingInfoUI from "./branding-info-ui.svelte";
   import {
     PurchaseFlowError,
