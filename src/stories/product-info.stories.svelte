@@ -2,7 +2,7 @@
   import { brandingModes } from "../../.storybook/modes";
   import { defineMeta, setTemplate } from "@storybook/addon-svelte-csf";
   import { withNavbarDecorator } from "./utils/decorators";
-  import ProductInfoPricing from "../ui/components/product-info/pricing.svelte";
+  import ProductInfo from "../ui/components/product-info.svelte";
   import {
     product,
     subscriptionOption,
@@ -12,8 +12,8 @@
   } from "./fixtures";
 
   const { Story } = defineMeta({
-    component: ProductInfoPricing,
-    title: "Components/ProductInfoPricing",
+    component: ProductInfo,
+    title: "Components/ProductInfo",
     // @ts-expect-error ignore typing of decorator
     decorators: [withNavbarDecorator],
     parameters: {
@@ -24,23 +24,10 @@
   });
 </script>
 
-<Story name="Subscription">
-  <ProductInfoPricing
+<Story name="Default">
+  <ProductInfo
     productDetails={product}
     purchaseOption={subscriptionOption}
-  />
-</Story>
-
-<Story name="Trial">
-  <ProductInfoPricing
-    productDetails={product}
-    purchaseOption={subscriptionOptionWithTrial}
-  />
-</Story>
-
-<Story name="Non Subscription">
-  <ProductInfoPricing
-    productDetails={consumableProduct}
-    purchaseOption={nonSubscriptionOption}
+    showProductDescription={true}
   />
 </Story>

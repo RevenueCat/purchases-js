@@ -4,14 +4,12 @@
     type PurchaseOption,
     ProductType,
   } from "../../entities/offerings";
-  import type { BrandingAppearance } from "../../entities/branding";
   import ProductInfoHeader from "./product-info/header.svelte";
   import ProductInfoPricing from "./product-info/pricing.svelte";
 
   export let productDetails: Product;
   export let purchaseOption: PurchaseOption;
-  export let brandingAppearance: BrandingAppearance | null | undefined =
-    undefined;
+  export let showProductDescription: boolean;
 
   const isSubscription =
     productDetails.productType === ProductType.Subscription;
@@ -19,16 +17,8 @@
 
 <section>
   <div class="rcb-pricing-info" class:has-expanded-details={isSubscription}>
-    <ProductInfoHeader
-      {productDetails}
-      showProductDescription={brandingAppearance?.show_product_description}
-    />
-
-    <ProductInfoPricing
-      {productDetails}
-      {purchaseOption}
-      showProductDescription={brandingAppearance?.show_product_description}
-    />
+    <ProductInfoHeader {productDetails} {showProductDescription} />
+    <ProductInfoPricing {productDetails} {purchaseOption} />
   </div>
 </section>
 
