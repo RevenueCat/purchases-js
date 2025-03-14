@@ -9,6 +9,7 @@ const config: StorybookConfig = {
     "@storybook/addon-controls",
     "@storybook/sveltekit",
     "storybook-addon-pseudo-states",
+    "storybook-addon-mock-date",
     {
       name: "@storybook/addon-svelte-csf",
       options: {
