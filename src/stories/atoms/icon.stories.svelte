@@ -1,16 +1,16 @@
 <script module>
-  import { default as Icon } from "../ui/components/icon.svelte";
-  import { brandingModes } from "../../.storybook/modes";
+  import { default as Icon } from "../../ui/components/icon.svelte";
+  import { brandingModes } from "../../../.storybook/modes";
   import {
     type Args,
     defineMeta,
     setTemplate,
   } from "@storybook/addon-svelte-csf";
-  import { withLayout } from "./decorators/with-layout";
+  import { withLayout } from "../decorators/with-layout";
 
   const { Story } = defineMeta({
     component: Icon,
-    title: "Components/Icon",
+    title: "Atoms/Icon",
     // @ts-expect-error ignore typing of decorator
     decorators: [withLayout],
     parameters: {

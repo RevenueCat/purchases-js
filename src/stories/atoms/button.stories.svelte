@@ -1,16 +1,16 @@
 <script module>
-  import { default as Button } from "../ui/components/button.svelte";
+  import { default as Button } from "../../ui/components/button.svelte";
   import {
     type Args,
     defineMeta,
     setTemplate,
   } from "@storybook/addon-svelte-csf";
-  import { withLayout } from "./decorators/with-layout";
-  import { brandingModes } from "../../.storybook/modes";
+  import { withLayout } from "../decorators/with-layout";
+  import { brandingModes } from "../../../.storybook/modes";
 
   let { Story } = defineMeta<typeof Button>({
     component: Button,
-    title: "Components/Button",
+    title: "Atoms/Button",
     // @ts-expect-error ignore typing of decorator
     decorators: [withLayout],
     argTypes: {
