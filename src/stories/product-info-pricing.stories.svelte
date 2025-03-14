@@ -1,5 +1,5 @@
 <script module>
-  import { brandingLanguageViewportModes } from "../../.storybook/modes";
+  import { brandingModes } from "../../.storybook/modes";
   import { defineMeta, setTemplate } from "@storybook/addon-svelte-csf";
   import { withNavbarDecorator } from "./utils/decorators";
   import ProductInfoPricing from "../ui/components/product-info/pricing.svelte";
@@ -18,7 +18,7 @@
     decorators: [withNavbarDecorator],
     parameters: {
       chromatic: {
-        modes: brandingLanguageViewportModes,
+        modes: brandingModes,
       },
     },
   });
