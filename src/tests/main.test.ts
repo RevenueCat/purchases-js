@@ -222,6 +222,36 @@ describe("Purchases.generateRevenueCatAnonymousAppUserId()", () => {
     const anonymousId = Purchases.generateRevenueCatAnonymousAppUserId();
     expect(() => Purchases.configure(testApiKey, anonymousId)).not.toThrow();
   });
+
+  test("works with crypto.randomUUID", () => {
+    const randomUUIDSpy = vi.spyOn(crypto, "randomUUID");
+
+    const anonymousId = Purchases.generateRevenueCatAnonymousAppUserId();
+    expect(anonymousId).toMatch(/^\$RCAnonymousID:[0-9a-f]{32}$/);
+    expect(randomUUIDSpy).toHaveBeenCalled();
+  });
+
+  test("falls back to crypto.getRandomValues when randomUUID is not available", () => {
+    crypto.randomUUID = undefined as unknown as typeof crypto.randomUUID;
+
+    const getRandomValuesSpy = vi.spyOn(crypto, "getRandomValues");
+
+    const anonymousId = Purchases.generateRevenueCatAnonymousAppUserId();
+    expect(anonymousId).toMatch(/^\$RCAnonymousID:[0-9a-f]{32}$/);
+    expect(getRandomValuesSpy).toHaveBeenCalled();
+  });
+
+  test("falls back to Math.random when crypto methods are not available", () => {
+    crypto.randomUUID = undefined as unknown as typeof crypto.randomUUID;
+    crypto.getRandomValues =
+      undefined as unknown as typeof crypto.getRandomValues;
+
+    const mathRandomSpy = vi.spyOn(Math, "random");
+
+    const anonymousId = Purchases.generateRevenueCatAnonymousAppUserId();
+    expect(anonymousId).toMatch(/^\$RCAnonymousID:[0-9a-f]{32}$/);
+    expect(mathRandomSpy).toHaveBeenCalled();
+  });
 });
 
 describe("Purchases._trackEvent", () => {
