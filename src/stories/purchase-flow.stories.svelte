@@ -39,6 +39,7 @@
       },
       chromatic: {
         modes: brandingLanguageViewportModes,
+        delay: 500,
       },
     },
     loaders: [
