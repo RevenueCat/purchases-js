@@ -1,19 +1,19 @@
 <script module>
-  import { brandingModes } from "../../.storybook/modes";
+  import { brandingModes } from "../../../.storybook/modes";
   import { defineMeta, setTemplate } from "@storybook/addon-svelte-csf";
-  import { withNavbar } from "./decorators/with-navbar";
-  import ProductInfoPricing from "../ui/components/product-info/pricing.svelte";
+  import { withNavbar } from "../decorators/with-navbar";
+  import ProductInfoPricing from "../../ui/components/product-info/pricing.svelte";
   import {
     product,
     subscriptionOption,
     subscriptionOptionWithTrial,
     nonSubscriptionOption,
     consumableProduct,
-  } from "./fixtures";
+  } from "../fixtures";
 
   const { Story } = defineMeta({
     component: ProductInfoPricing,
-    title: "Components/ProductInfoPricing",
+    title: "Molecules/ProductPricing",
     // @ts-expect-error ignore typing of decorator
     decorators: [withNavbar],
     parameters: {
