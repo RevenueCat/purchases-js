@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import * as svelte from "svelte"; // import the module as a namespace
 
 import {
@@ -206,51 +206,62 @@ describe("Purchases.preload()", () => {
   });
 });
 
-describe("Purchases.generateRevenueCatAnonymousAppUserId()", () => {
-  test("generates ID with correct format", () => {
-    const anonymousId = Purchases.generateRevenueCatAnonymousAppUserId();
-    expect(anonymousId).toMatch(/^\$RCAnonymousID:[0-9a-f]{32}$/);
-  });
+const uuidImplementations = [
+  {
+    name: "crypto.randomUUID",
+    setup: () => {
+      return vi.spyOn(crypto, "randomUUID");
+    },
+  },
+  {
+    name: "crypto.getRandomValues fallback",
+    setup: () => {
+      crypto.randomUUID = undefined as unknown as typeof crypto.randomUUID;
+      return vi.spyOn(crypto, "getRandomValues");
+    },
+  },
+  {
+    name: "Math.random fallback",
+    setup: () => {
+      crypto.randomUUID = undefined as unknown as typeof crypto.randomUUID;
+      crypto.getRandomValues =
+        undefined as unknown as typeof crypto.getRandomValues;
+      return vi.spyOn(Math, "random");
+    },
+  },
+];
+uuidImplementations.forEach((implementation) => {
+  describe(`Purchases.generateRevenueCatAnonymousAppUserId() with ${implementation.name}`, () => {
+    let setupResult: ReturnType<typeof implementation.setup>;
+    beforeEach(() => {
+      setupResult = implementation.setup();
+    });
 
-  test("generates unique IDs", () => {
-    const id1 = Purchases.generateRevenueCatAnonymousAppUserId();
-    const id2 = Purchases.generateRevenueCatAnonymousAppUserId();
-    expect(id1).not.toEqual(id2);
-  });
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
 
-  test("generated ID passes appUserId validation", () => {
-    const anonymousId = Purchases.generateRevenueCatAnonymousAppUserId();
-    expect(() => Purchases.configure(testApiKey, anonymousId)).not.toThrow();
-  });
+    test("generates ID with correct format", () => {
+      const anonymousId = Purchases.generateRevenueCatAnonymousAppUserId();
+      expect(anonymousId).toMatch(/^\$RCAnonymousID:[0-9a-f]{32}$/);
+    });
 
-  test("works with crypto.randomUUID", () => {
-    const randomUUIDSpy = vi.spyOn(crypto, "randomUUID");
+    test("generates unique IDs", () => {
+      const id1 = Purchases.generateRevenueCatAnonymousAppUserId();
+      const id2 = Purchases.generateRevenueCatAnonymousAppUserId();
+      expect(id1).not.toEqual(id2);
+    });
 
-    const anonymousId = Purchases.generateRevenueCatAnonymousAppUserId();
-    expect(anonymousId).toMatch(/^\$RCAnonymousID:[0-9a-f]{32}$/);
-    expect(randomUUIDSpy).toHaveBeenCalled();
-  });
+    test("generated ID passes appUserId validation", () => {
+      const anonymousId = Purchases.generateRevenueCatAnonymousAppUserId();
+      expect(() => Purchases.configure(testApiKey, anonymousId)).not.toThrow();
+    });
 
-  test("falls back to crypto.getRandomValues when randomUUID is not available", () => {
-    crypto.randomUUID = undefined as unknown as typeof crypto.randomUUID;
-
-    const getRandomValuesSpy = vi.spyOn(crypto, "getRandomValues");
-
-    const anonymousId = Purchases.generateRevenueCatAnonymousAppUserId();
-    expect(anonymousId).toMatch(/^\$RCAnonymousID:[0-9a-f]{32}$/);
-    expect(getRandomValuesSpy).toHaveBeenCalled();
-  });
-
-  test("falls back to Math.random when crypto methods are not available", () => {
-    crypto.randomUUID = undefined as unknown as typeof crypto.randomUUID;
-    crypto.getRandomValues =
-      undefined as unknown as typeof crypto.getRandomValues;
-
-    const mathRandomSpy = vi.spyOn(Math, "random");
-
-    const anonymousId = Purchases.generateRevenueCatAnonymousAppUserId();
-    expect(anonymousId).toMatch(/^\$RCAnonymousID:[0-9a-f]{32}$/);
-    expect(mathRandomSpy).toHaveBeenCalled();
+    test("calls the expected uuid implementation", () => {
+      const anonymousId = Purchases.generateRevenueCatAnonymousAppUserId();
+      expect(anonymousId).toMatch(/^\$RCAnonymousID:[0-9a-f]{32}$/);
+      expect(setupResult).toHaveBeenCalled();
+    });
   });
 });
 
