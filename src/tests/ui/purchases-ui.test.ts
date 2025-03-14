@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom";
 import { fireEvent, render, screen } from "@testing-library/svelte";
 import { afterEach, describe, expect, test, vi } from "vitest";
-import PurchasesUI from "../../ui/rcb-ui.svelte";
+import PurchasesUI from "../../ui/purchases-ui.svelte";
 import {
   brandingInfo,
   checkoutStartResponse,

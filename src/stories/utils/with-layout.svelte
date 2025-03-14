@@ -4,7 +4,7 @@
   import Container from "../../ui/layout/container.svelte";
   import Layout from "../../ui/layout/layout.svelte";
   import Main from "../../ui/layout/main-block.svelte";
-  import { type Snippet } from "svelte";
+  import type { Snippet } from "svelte";
 </script>
 
 <script lang="ts">

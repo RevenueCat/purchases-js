@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Icon from "../assets/close.svg?raw";
+  import Icon from "../../assets/close.svg?raw";
 
   export let disabled = false;
 </script>

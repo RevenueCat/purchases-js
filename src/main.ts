@@ -1,5 +1,5 @@
 import type { Offering, Offerings, Package } from "./entities/offerings";
-import RCPurchasesUI from "./ui/rcb-ui.svelte";
+import PurchasesUi from "./ui/purchases-ui.svelte";
 
 import { type CustomerInfo, toCustomerInfo } from "./entities/customer-info";
 import {
@@ -655,7 +655,7 @@ export class Purchases {
         reject(PurchasesError.getForPurchasesFlowError(e));
       };
 
-      component = mount(RCPurchasesUI, {
+      component = mount(PurchasesUi, {
         target: certainHTMLTarget,
         props: {
           isInElement: isInElement,

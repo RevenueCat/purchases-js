@@ -1,7 +1,7 @@
 <script lang="ts">
-  import Localized from "../localization/localized.svelte";
-  import { LocalizationKeys } from "../localization/supportedLanguages";
-  import { ProductType, type Product } from "../../entities/offerings";
+  import Localized from "../../localization/localized.svelte";
+  import { LocalizationKeys } from "../../localization/supportedLanguages";
+  import { ProductType, type Product } from "../../../entities/offerings";
 
   export let productDetails: Product;
   export let showProductDescription: boolean = false;
@@ -14,21 +14,21 @@
   {#if isSubscription}
     <div class="rcb-subscribe-to only-desktop">
       <Localized
-        key={LocalizationKeys.StatePresentOfferSubscribeTo}
+        key={LocalizationKeys.ProductInfoSubscribeTo}
         variables={{ productTitle: productDetails.title }}
       />
     </div>
   {/if}
   <div class="rcb-product-title">
     <Localized
-      key={LocalizationKeys.StatePresentOfferProductTitle}
+      key={LocalizationKeys.ProductInfoProductTitle}
       variables={{ productTitle: productDetails.title }}
     />
   </div>
   {#if showProductDescription && productDetails.description}
     <span class="rcb-product-description">
       <Localized
-        key={LocalizationKeys.StatePresentOfferProductDescription}
+        key={LocalizationKeys.ProductInfoProductDescription}
         variables={{
           productDescription: productDetails.description,
         }}

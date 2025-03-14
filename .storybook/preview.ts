@@ -4,6 +4,7 @@ import { brandingInfos } from "../src/stories/fixtures";
 
 const preview: Preview = {
   parameters: {
+    mockingDate: new Date("2024-10-18T13:24:21Z"),
     layout: "fullscreen",
     actions: { argTypesRegex: "^on[A-Z].*" },
     controls: {

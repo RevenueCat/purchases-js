@@ -5,7 +5,7 @@
     type StoryContext,
     type Args,
   } from "@storybook/addon-svelte-csf";
-  import RcbUiInner from "../ui/rcb-ui-inner.svelte";
+  import PurchasesInner from "../ui/purchases-ui-inner.svelte";
   import { brandingLanguageViewportModes } from "../../.storybook/modes";
 
   import {
@@ -39,6 +39,7 @@
       },
       chromatic: {
         modes: brandingLanguageViewportModes,
+        delay: 500,
       },
     },
     loaders: [
@@ -63,14 +64,17 @@
   {#if context.globals.viewport === "embedded"}
     {@render embedded(args, context)}
   {:else}
-    {@render rcbUI(args, context)}
+    {@render Purchases(args, context)}
   {/if}
 {/snippet}
 
-{#snippet rcbUI(args: Args<typeof Story>, context: StoryContext<typeof Story>)}
+{#snippet Purchases(
+  args: Args<typeof Story>,
+  context: StoryContext<typeof Story>,
+)}
   {@const brandingInfo = brandingInfos[context.globals.brandingName]}
   {@const colorVariables = toProductInfoStyleVar(brandingInfo.appearance)}
-  <RcbUiInner
+  <PurchasesInner
     isSandbox={args.isSandbox}
     currentView={args.currentView}
     productDetails={args.productDetails}
@@ -96,7 +100,7 @@
         id="embedding-container"
         style="width: 500px; height: 600px; position: relative; overflow: hidden; background-color: lightgray;"
       >
-        {@render rcbUI({ ...args, isInElement: true }, context)}
+        {@render Purchases({ ...args, isInElement: true }, context)}
       </div>
       <div style="padding: 20px;">
         <h1>Homer's Web page</h1>

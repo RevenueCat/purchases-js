@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Theme } from "../theme/theme";
-  import NavBarHeader from "../navbar-header.svelte";
+  import NavBarHeader from "./navbar-header.svelte";
   import SectionLayout from "./section-layout.svelte";
   import type { BrandingAppearance } from "../../entities/branding";
 

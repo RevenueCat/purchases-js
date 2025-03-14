@@ -1,19 +1,19 @@
 <script lang="ts">
-  import Localized from "../localization/localized.svelte";
-  import { LocalizationKeys } from "../localization/supportedLanguages";
+  import Localized from "../../localization/localized.svelte";
+  import { LocalizationKeys } from "../../localization/supportedLanguages";
   import {
     type SubscriptionOption,
     type NonSubscriptionOption,
     type Product,
     type PurchaseOption,
     ProductType,
-  } from "../../entities/offerings";
-  import { getTranslatedPeriodLength } from "../../helpers/price-labels";
-  import type { Translator } from "../localization/translator";
-  import { translatorContextKey } from "../localization/constants";
+  } from "../../../entities/offerings";
+  import { getTranslatedPeriodLength } from "../../../helpers/price-labels";
+  import type { Translator } from "../../localization/translator";
+  import { translatorContextKey } from "../../localization/constants";
   import { type Writable } from "svelte/store";
   import { getContext } from "svelte";
-  import { getNextRenewalDate } from "../../helpers/duration-helper";
+  import { getNextRenewalDate } from "../../../helpers/duration-helper";
 
   export let productDetails: Product;
   export let purchaseOption: PurchaseOption;
@@ -68,7 +68,7 @@
     {#if subscriptionTrial?.periodDuration}
       <div class="rcb-product-trial">
         <Localized
-          key={LocalizationKeys.StatePresentOfferFreeTrialDuration}
+          key={LocalizationKeys.ProductInfoFreeTrialDuration}
           variables={{
             trialDuration: getTranslatedPeriodLength(
               subscriptionTrial.periodDuration || "",
@@ -82,7 +82,7 @@
       {#if subscriptionBasePrice}
         <span class="rcb-product-price">
           <Localized
-            key={LocalizationKeys.StatePresentOfferProductPrice}
+            key={LocalizationKeys.ProductInfoProductPrice}
             variables={{
               productPrice: formattedSubscriptionBasePrice,
             }}
@@ -110,7 +110,7 @@
         <div class="rcb-product-trial-explanation">
           <div class="rcb-after-trial-ends rcb-text-dark">
             <Localized
-              key={LocalizationKeys.StatePresentOfferPriceAfterFreeTrial}
+              key={LocalizationKeys.ProductInfoPriceAfterFreeTrial}
               variables={{
                 renewalDate:
                   renewalDate &&
@@ -126,9 +126,7 @@
         </div>
         <div class="rcb-product-trial-explanation">
           <div class="rcb-text-dark rcb-total-due-today">
-            <Localized
-              key={LocalizationKeys.StatePresentOfferPriceTotalDueToday}
-            />
+            <Localized key={LocalizationKeys.ProductInfoPriceTotalDueToday} />
           </div>
           <div class="rcb-text-dark rcb-total-due-today">
             {formattedZeroPrice}
@@ -140,7 +138,7 @@
 {:else}
   <span class="rcb-product-price">
     <Localized
-      key={LocalizationKeys.StatePresentOfferProductPrice}
+      key={LocalizationKeys.ProductInfoProductPrice}
       variables={{ productPrice: formattedNonSubscriptionBasePrice }}
     />
   </span>
@@ -148,7 +146,7 @@
   {#if showProductDescription}
     <span class="rcb-product-description">
       <Localized
-        key={LocalizationKeys.StatePresentOfferProductDescription}
+        key={LocalizationKeys.ProductInfoProductDescription}
         variables={{ productDescription: productDetails.description }}
       />
     </span>

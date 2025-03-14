@@ -2,7 +2,7 @@
   import Container from "./layout/container.svelte";
   import Layout from "./layout/layout.svelte";
   import NavBar from "./layout/navbar.svelte";
-  import SandboxBanner from "./sandbox-banner.svelte";
+  import SandboxBanner from "./components/sandbox-banner.svelte";
   import Main from "./layout/main-block.svelte";
   import StateNeedsPaymentInfo from "./states/state-needs-payment-info.svelte";
   import StateNeedsAuthInfo from "./states/state-needs-auth-info.svelte";
@@ -12,8 +12,8 @@
   import { type ContinueHandlerParams, type CurrentView } from "./ui-types";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import type { Product, PurchaseOption } from "../main";
-  import StatePresentOffer from "./states/state-present-offer.svelte";
-  import BrandingInfoUI from "./branding-info-ui.svelte";
+  import ProductInfo from "./components/product-info.svelte";
+  import BrandingInfoUI from "./components/branding-info.svelte";
   import {
     PurchaseFlowError,
     PurchaseFlowErrorCode,
@@ -69,7 +69,7 @@
 
         {#snippet bodyContent()}
           {#if productDetails && purchaseOptionToUse}
-            <StatePresentOffer
+            <ProductInfo
               {productDetails}
               brandingAppearance={brandingInfo?.appearance}
               purchaseOption={purchaseOptionToUse}
@@ -81,8 +81,9 @@
     <Main brandingAppearance={brandingInfo?.appearance}>
       {#snippet body()}
         {#if currentView === "present-offer" && productDetails && purchaseOptionToUse}
-          <StatePresentOffer
+          <ProductInfo
             {productDetails}
+            brandingAppearance={brandingInfo?.appearance}
             purchaseOption={purchaseOptionToUse}
           />
         {/if}
