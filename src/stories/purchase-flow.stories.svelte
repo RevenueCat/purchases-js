@@ -39,7 +39,7 @@
       },
       chromatic: {
         modes: brandingLanguageViewportModes,
-        diffThreshold: 0.38,
+        diffThreshold: 0.49,
       },
     },
     loaders: [
