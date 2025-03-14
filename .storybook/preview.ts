@@ -1,5 +1,5 @@
 import type { Preview } from "@storybook/svelte";
-import GlobalDecorator from "../src/stories/utils/global-decorator.svelte";
+import GlobalDecorator from "../src/stories/decorators/global-decorator.svelte";
 import { brandingInfos } from "../src/stories/fixtures";
 
 const preview: Preview = {
