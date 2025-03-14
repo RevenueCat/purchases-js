@@ -1,5 +1,5 @@
 <script lang="ts">
-  import AppIcon from "./app-icon.svelte";
+  import AppLogo from "./app-logo.svelte";
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
   import { buildAssetURL } from "../../networking/assets";
 
@@ -19,7 +19,7 @@
 
 <div class="rcb-header-layout__business-info">
   {#if appIcon !== null && webpIcon !== null}
-    <AppIcon src={buildAssetURL(appIcon)} srcWebp={buildAssetURL(webpIcon)} />
+    <AppLogo src={buildAssetURL(appIcon)} srcWebp={buildAssetURL(webpIcon)} />
   {/if}
 
   <div class="rcb-app-name">
