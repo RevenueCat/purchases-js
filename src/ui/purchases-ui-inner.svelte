@@ -35,10 +35,6 @@
   export let purchaseOperationHelper: PurchaseOperationHelper;
   export let isInElement: boolean = false;
 
-  // For now there's no need to show the details button, we will keep it expanded at all times.
-  // We might need it again in the future though.
-  const shouldShowDetailsButton = false;
-
   const viewsWhereOfferDetailsAreShown: CurrentView[] = [
     "present-offer",
     "needs-auth-info",
@@ -61,7 +57,6 @@
         brandingAppearance={brandingInfo?.appearance}
         {onClose}
         showCloseButton={!isInElement}
-        {shouldShowDetailsButton}
       >
         {#snippet headerContent()}
           <BrandingInfoUI {brandingInfo} />
