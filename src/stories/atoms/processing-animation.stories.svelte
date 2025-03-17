@@ -1,5 +1,5 @@
 <script module>
-  import { default as Button } from "../../ui/atoms/button.svelte";
+  import { default as ProcessingAnimation } from "../../ui/atoms/processing-animation.svelte";
   import {
     type Args,
     defineMeta,
@@ -8,15 +8,15 @@
   import { withLayout } from "../decorators/with-layout";
   import { brandingModes } from "../../../.storybook/modes";
 
-  let { Story } = defineMeta<typeof Button>({
-    component: Button,
-    title: "Atoms/Button",
+  let { Story } = defineMeta({
+    component: ProcessingAnimation,
+    title: "Atoms/ProcessingAnimation",
     // @ts-expect-error ignore typing of decorator
     decorators: [withLayout],
     argTypes: {
-      intent: {
+      size: {
         control: "radio",
-        options: ["primary", undefined],
+        options: ["small", "medium", "large"],
       },
     },
     parameters: {
@@ -27,9 +27,7 @@
   });
 
   const args = {
-    intent: "primary" as const,
-    disabled: false,
-    loading: false,
+    size: "medium" as const,
   };
 </script>
 
@@ -38,13 +36,9 @@
 </script>
 
 {#snippet template({ ...args }: Args<typeof Story>)}
-  <Button {...args}>
-    {#snippet children()}
-      Click Me
-    {/snippet}
-  </Button>
+  <ProcessingAnimation {...args} />
 {/snippet}
 
-<Story name="Default" {args} />
-<Story name="Disabled" args={{ ...args, disabled: true }} />
-<Story name="Loading" args={{ ...args, loading: true }} />
+<Story name="Small" args={{ ...args, size: "small" }} />
+<Story name="Medium" args={{ ...args, size: "medium" }} />
+<Story name="Large" args={{ ...args, size: "large" }} />

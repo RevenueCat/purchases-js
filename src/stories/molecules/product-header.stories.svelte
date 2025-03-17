@@ -2,7 +2,7 @@
   import { brandingModes } from "../../../.storybook/modes";
   import { defineMeta, setTemplate } from "@storybook/addon-svelte-csf";
   import { withNavbar } from "../decorators/with-navbar";
-  import ProductInfoHeader from "../../ui/components/product-info/header.svelte";
+  import ProductInfoHeader from "../../ui/molecules/product-header.svelte";
   import { product, colorfulBrandingAppearance } from "../fixtures";
 
   const { Story } = defineMeta({

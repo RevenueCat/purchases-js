@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Button from "../components/button.svelte";
+  import Button from "../atoms/button.svelte";
   import ModalFooter from "../layout/modal-footer.svelte";
   import ModalSection from "../layout/modal-section.svelte";
   import RowLayout from "../layout/row-layout.svelte";
@@ -11,7 +11,7 @@
   import { Translator } from "../localization/translator";
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
-  import SecureCheckoutRc from "../components/secure-checkout-rc.svelte";
+  import SecureCheckoutRc from "../molecules/secure-checkout-rc.svelte";
   import { type ContinueHandlerParams } from "../ui-types";
   import { eventsTrackerContextKey } from "../constants";
   import { type IEventsTracker } from "../../behavioural-events/events-tracker";

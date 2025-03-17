@@ -1,12 +1,10 @@
 <script lang="ts">
-  import IconArrow from "./icons/icon-arrow.svelte";
+  import IconArrow from "../atoms/icons/icon-arrow.svelte";
   import Localized from "../localization/localized.svelte";
   import { LocalizationKeys } from "../localization/supportedLanguages";
-
-  export let disabled = false;
 </script>
 
-<button on:click class="rcb-back-button" {disabled} data-testid="close-button">
+<button on:click class="rcb-back-button" data-testid="close-button">
   <IconArrow className="back" />
   <Localized key={LocalizationKeys.NavbarBackButton} />
 </button>

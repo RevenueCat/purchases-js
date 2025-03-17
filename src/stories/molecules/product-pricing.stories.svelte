@@ -2,7 +2,7 @@
   import { brandingModes } from "../../../.storybook/modes";
   import { defineMeta, setTemplate } from "@storybook/addon-svelte-csf";
   import { withNavbar } from "../decorators/with-navbar";
-  import ProductInfoPricing from "../../ui/components/product-info/pricing.svelte";
+  import ProductInfoPricing from "../../ui/molecules/product-pricing.svelte";
   import {
     product,
     subscriptionOption,

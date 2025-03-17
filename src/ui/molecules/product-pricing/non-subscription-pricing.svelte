@@ -1,9 +1,9 @@
 <script lang="ts">
-  import Localized from "../../../localization/localized.svelte";
-  import { LocalizationKeys } from "../../../localization/supportedLanguages";
-  import { type NonSubscriptionOption } from "../../../../entities/offerings";
-  import type { Translator } from "../../../localization/translator";
-  import { translatorContextKey } from "../../../localization/constants";
+  import Localized from "../../localization/localized.svelte";
+  import { LocalizationKeys } from "../../localization/supportedLanguages";
+  import { type NonSubscriptionOption } from "../../../entities/offerings";
+  import type { Translator } from "../../localization/translator";
+  import { translatorContextKey } from "../../localization/constants";
   import { type Writable } from "svelte/store";
   import { getContext } from "svelte";
 

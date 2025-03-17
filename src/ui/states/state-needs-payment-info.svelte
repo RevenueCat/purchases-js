@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getContext, onMount } from "svelte";
-  import Button from "../components/button.svelte";
+  import Button from "../atoms/button.svelte";
   import type {
     Appearance,
     Stripe,
@@ -13,7 +13,7 @@
   import type { Product, PurchaseOption } from "../../entities/offerings";
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
   import { Theme } from "../theme/theme";
-  import IconError from "../components/icons/icon-error.svelte";
+  import IconError from "../atoms/icons/icon-error.svelte";
   import MessageLayout from "../layout/message-layout.svelte";
 
   import { translatorContextKey } from "../localization/constants";
@@ -21,7 +21,7 @@
   import Localized from "../localization/localized.svelte";
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
-  import SecureCheckoutRc from "../components/secure-checkout-rc.svelte";
+  import SecureCheckoutRc from "../molecules/secure-checkout-rc.svelte";
   import { type CheckoutStartResponse } from "../../networking/responses/checkout-start-response";
   import {
     PurchaseFlowError,

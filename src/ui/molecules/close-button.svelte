@@ -1,10 +1,8 @@
 <script lang="ts">
   import Icon from "../../assets/close.svg?raw";
-
-  export let disabled = false;
 </script>
 
-<button on:click class="rcb-close-button" {disabled} data-testid="close-button">
+<button on:click class="rcb-close-button" data-testid="close-button">
   {@html Icon}
 </button>
 

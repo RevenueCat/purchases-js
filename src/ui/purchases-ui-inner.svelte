@@ -2,7 +2,7 @@
   import Container from "./layout/container.svelte";
   import Layout from "./layout/layout.svelte";
   import NavBar from "./layout/navbar.svelte";
-  import SandboxBanner from "./components/sandbox-banner.svelte";
+  import SandboxBanner from "./molecules/sandbox-banner.svelte";
   import Main from "./layout/main-block.svelte";
   import StateNeedsPaymentInfo from "./states/state-needs-payment-info.svelte";
   import StateNeedsAuthInfo from "./states/state-needs-auth-info.svelte";
@@ -12,8 +12,8 @@
   import { type ContinueHandlerParams, type CurrentView } from "./ui-types";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import type { Product, PurchaseOption } from "../main";
-  import ProductInfo from "./components/product-info.svelte";
-  import BrandingInfoUI from "./components/branding-info.svelte";
+  import ProductInfo from "./organisms/product-info.svelte";
+  import BrandingInfoUI from "./molecules/branding-info.svelte";
   import {
     PurchaseFlowError,
     PurchaseFlowErrorCode,
