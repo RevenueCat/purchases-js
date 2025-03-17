@@ -11,7 +11,7 @@
   import { Translator } from "../localization/translator";
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
-  import SecureCheckoutRc from "../components/secure-checkout-rc.svelte";
+  import SecureCheckoutRc from "../molecules/secure-checkout-rc.svelte";
   import { type ContinueHandlerParams } from "../ui-types";
   import { eventsTrackerContextKey } from "../constants";
   import { type IEventsTracker } from "../../behavioural-events/events-tracker";

@@ -21,7 +21,7 @@
   import Localized from "../localization/localized.svelte";
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
-  import SecureCheckoutRc from "../components/secure-checkout-rc.svelte";
+  import SecureCheckoutRc from "../molecules/secure-checkout-rc.svelte";
   import { type CheckoutStartResponse } from "../../networking/responses/checkout-start-response";
   import {
     PurchaseFlowError,
