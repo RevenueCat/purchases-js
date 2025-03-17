@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getContext, onMount } from "svelte";
-  import Button from "../components/button.svelte";
+  import Button from "../atoms/button.svelte";
   import type {
     Appearance,
     Stripe,
