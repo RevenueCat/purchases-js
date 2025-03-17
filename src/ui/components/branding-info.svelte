@@ -1,5 +1,5 @@
 <script lang="ts">
-  import AppLogo from "./app-logo.svelte";
+  import AppLogo from "../atoms/app-logo.svelte";
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
   import { buildAssetURL } from "../../networking/assets";
 
