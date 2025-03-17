@@ -1,11 +1,11 @@
 <script lang="ts">
-  import IconArrow from "../atoms/icons/icon-arrow.svelte";
+  import Icon from "../atoms/icon.svelte";
   import Localized from "../localization/localized.svelte";
   import { LocalizationKeys } from "../localization/supportedLanguages";
 </script>
 
 <button on:click class="rcb-back-button" data-testid="close-button">
-  <IconArrow className="back" />
+  <Icon name="chevron-left" />
   <Localized key={LocalizationKeys.NavbarBackButton} />
 </button>
 

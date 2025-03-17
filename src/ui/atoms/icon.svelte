@@ -1,25 +1,46 @@
 <script module>
   import { type Component } from "svelte";
-  import { default as IconArrow } from "../atoms/icons/icon-arrow.svelte";
+  import {
+    type Direction,
+    default as IconChevron,
+  } from "./icons/icon-chevron.svelte";
   import { default as IconCart } from "../atoms/icons/icon-cart.svelte";
   import { default as IconError } from "../atoms/icons/icon-error.svelte";
   import { default as IconLock } from "../atoms/icons/icon-lock.svelte";
   import { default as IconSuccess } from "../atoms/icons/icon-success.svelte";
 
-  export type IconName = "arrow" | "cart" | "error" | "lock" | "success";
+  export type IconName =
+    | "cart"
+    | "error"
+    | "lock"
+    | "success"
+    | "chevron-left"
+    | "chevron-right"
+    | "chevron-up"
+    | "chevron-down";
 
-  const iconMap: Record<IconName, Component> = {
-    arrow: IconArrow,
+  const iconMap: Record<IconName, Component<{ direction?: Direction }>> = {
     cart: IconCart,
     error: IconError,
     lock: IconLock,
     success: IconSuccess,
+    "chevron-left": IconChevron as Component<{ direction?: Direction }>,
+    "chevron-right": IconChevron as Component<{ direction?: Direction }>,
+    "chevron-up": IconChevron as Component<{ direction?: Direction }>,
+    "chevron-down": IconChevron as Component<{ direction?: Direction }>,
   };
 </script>
 
 <script lang="ts">
   const { name }: { name: IconName } = $props();
   const MappedIcon = iconMap[name];
+
+  let args = $state({});
+
+  if (name.startsWith("chevron")) {
+    const direction = name.split("-")[1];
+    args = { direction: direction };
+  }
 </script>
 
-<MappedIcon />
+<MappedIcon {...args} />
