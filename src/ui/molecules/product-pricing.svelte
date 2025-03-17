@@ -5,9 +5,9 @@
     type NonSubscriptionOption,
     type SubscriptionOption,
     ProductType,
-  } from "../../../entities/offerings";
-  import NonSubscriptionPricing from "./pricing/non-subscription-pricing.svelte";
-  import SubscriptionPricing from "./pricing/subscription-pricing.svelte";
+  } from "../../entities/offerings";
+  import NonSubscriptionPricing from "../molecules/product-pricing/non-subscription-pricing.svelte";
+  import SubscriptionPricing from "../molecules/product-pricing/subscription-pricing.svelte";
 
   export let productDetails: Product;
   export let purchaseOption: PurchaseOption;

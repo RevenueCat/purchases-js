@@ -1,7 +1,7 @@
 <script lang="ts">
-  import Localized from "../../localization/localized.svelte";
-  import { LocalizationKeys } from "../../localization/supportedLanguages";
-  import { ProductType, type Product } from "../../../entities/offerings";
+  import Localized from "../localization/localized.svelte";
+  import { LocalizationKeys } from "../localization/supportedLanguages";
+  import { ProductType, type Product } from "../../entities/offerings";
 
   export let productDetails: Product;
   export let showProductDescription: boolean;

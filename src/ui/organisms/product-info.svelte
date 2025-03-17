@@ -4,8 +4,8 @@
     type PurchaseOption,
     ProductType,
   } from "../../entities/offerings";
-  import ProductInfoHeader from "./product-info/header.svelte";
-  import ProductInfoPricing from "./product-info/pricing.svelte";
+  import ProductInfoHeader from "../molecules/product-header.svelte";
+  import ProductInfoPricing from "../molecules/product-pricing.svelte";
 
   export let productDetails: Product;
   export let purchaseOption: PurchaseOption;

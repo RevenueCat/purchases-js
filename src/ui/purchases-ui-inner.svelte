@@ -12,8 +12,8 @@
   import { type ContinueHandlerParams, type CurrentView } from "./ui-types";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import type { Product, PurchaseOption } from "../main";
-  import ProductInfo from "./components/product-info.svelte";
-  import BrandingInfoUI from "./components/branding-info.svelte";
+  import ProductInfo from "./organisms/product-info.svelte";
+  import BrandingInfoUI from "./molecules/branding-info.svelte";
   import {
     PurchaseFlowError,
     PurchaseFlowErrorCode,
