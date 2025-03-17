@@ -3,7 +3,7 @@
     PurchaseFlowError,
     PurchaseFlowErrorCode,
   } from "../../helpers/purchase-operation-helper";
-  import IconError from "../components/icons/icon-error.svelte";
+  import IconError from "../atoms/icons/icon-error.svelte";
   import { getContext, onMount } from "svelte";
   import { Logger } from "../../helpers/logger.js";
   import MessageLayout from "../layout/message-layout.svelte";

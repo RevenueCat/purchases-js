@@ -1,5 +1,5 @@
 <script lang="ts">
-  import IconSuccess from "../components/icons/icon-success.svelte";
+  import IconSuccess from "../atoms/icons/icon-success.svelte";
   import MessageLayout from "../layout/message-layout.svelte";
   import { type Product, ProductType } from "../../entities/offerings";
   import { getContext, onMount } from "svelte";

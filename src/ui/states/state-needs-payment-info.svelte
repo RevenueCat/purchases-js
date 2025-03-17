@@ -13,7 +13,7 @@
   import type { Product, PurchaseOption } from "../../entities/offerings";
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
   import { Theme } from "../theme/theme";
-  import IconError from "../components/icons/icon-error.svelte";
+  import IconError from "../atoms/icons/icon-error.svelte";
   import MessageLayout from "../layout/message-layout.svelte";
 
   import { translatorContextKey } from "../localization/constants";
