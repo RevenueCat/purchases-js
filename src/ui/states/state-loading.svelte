@@ -1,5 +1,5 @@
 <script>
-  import Spinner from "../components/spinner.svelte";
+  import Spinner from "../atoms/spinner.svelte";
 
   let style = "";
 </script>
