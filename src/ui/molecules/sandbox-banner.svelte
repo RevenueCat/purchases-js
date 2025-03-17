@@ -1,6 +1,6 @@
 <script lang="ts">
   import { fly } from "svelte/transition";
-  import CloseButton from "../molecules/close-button.svelte";
+  import CloseButton from "./close-button.svelte";
   import { Logger } from "../../helpers/logger";
 
   export let style = "";

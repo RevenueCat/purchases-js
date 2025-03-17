@@ -2,7 +2,7 @@
   import Container from "./layout/container.svelte";
   import Layout from "./layout/layout.svelte";
   import NavBar from "./layout/navbar.svelte";
-  import SandboxBanner from "./components/sandbox-banner.svelte";
+  import SandboxBanner from "./molecules/sandbox-banner.svelte";
   import Main from "./layout/main-block.svelte";
   import StateNeedsPaymentInfo from "./states/state-needs-payment-info.svelte";
   import StateNeedsAuthInfo from "./states/state-needs-auth-info.svelte";
