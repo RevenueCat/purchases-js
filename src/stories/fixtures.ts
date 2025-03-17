@@ -175,13 +175,7 @@ export const checkoutStartResponse: CheckoutStartResponse = {
   gateway_params: {
     publishable_api_key: publishableApiKey,
     stripe_account_id: accountId,
-    elements_configuration: {
-      mode: StripeElementsMode.Payment,
-      payment_method_types: ["card"],
-      setup_future_usage: StripeElementsSetupFutureUsage.OffSession,
-      amount: 1000,
-      currency: "usd",
-    },
+    elements_configuration: stripeElementsConfiguration,
   },
 };
 
