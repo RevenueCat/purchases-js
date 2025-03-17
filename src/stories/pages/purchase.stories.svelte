@@ -5,8 +5,8 @@
     type StoryContext,
     type Args,
   } from "@storybook/addon-svelte-csf";
-  import PurchasesInner from "../ui/purchases-ui-inner.svelte";
-  import { brandingLanguageViewportModes } from "../../.storybook/modes";
+  import PurchasesInner from "../../ui/purchases-ui-inner.svelte";
+  import { brandingLanguageViewportModes } from "../../../.storybook/modes";
 
   import {
     brandingInfos,
@@ -14,11 +14,10 @@
     purchaseFlowError,
     subscriptionOption,
     subscriptionOptionWithTrial,
-  } from "./fixtures";
-  import { buildCheckoutStartResponse } from "./utils/purchase-response-builder";
-  import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
-  import { toProductInfoStyleVar } from "../ui/theme/utils";
-  import { PurchaseOperationHelper } from "../helpers/purchase-operation-helper";
+    checkoutStartResponse,
+  } from "../fixtures";
+  import { toProductInfoStyleVar } from "../../ui/theme/utils";
+  import { PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
 
   const defaultArgs = {
     productDetails: product,
@@ -31,7 +30,7 @@
   let paymentInfoCollectionMetadata: any;
 
   let { Story } = defineMeta({
-    title: "Flows/Purchase",
+    title: "Pages/Purchase",
     args: defaultArgs,
     parameters: {
       viewport: {
@@ -44,8 +43,6 @@
     },
     loaders: [
       async () => {
-        const checkoutStartResponse: CheckoutStartResponse =
-          await buildCheckoutStartResponse();
         paymentInfoCollectionMetadata = { ...checkoutStartResponse };
         return { paymentInfoCollectionMetadata };
       },
@@ -58,17 +55,6 @@
 </script>
 
 {#snippet template(
-  args: Args<typeof Story>,
-  context: StoryContext<typeof Story>,
-)}
-  {#if context.globals.viewport === "embedded"}
-    {@render embedded(args, context)}
-  {:else}
-    {@render Purchases(args, context)}
-  {/if}
-{/snippet}
-
-{#snippet Purchases(
   args: Args<typeof Story>,
   context: StoryContext<typeof Story>,
 )}
@@ -86,31 +72,8 @@
     lastError={null}
     {paymentInfoCollectionMetadata}
     purchaseOperationHelper={null as unknown as PurchaseOperationHelper}
-    isInElement={args.isInElement}
+    isInElement={context.globals.viewport === "embedded"}
   />
-{/snippet}
-
-{#snippet embedded(
-  args: Args<typeof Story>,
-  context: StoryContext<typeof Story>,
-)}
-  <div style="width: 100vw; height:100vh; background-color: red;">
-    <div style="display: flex">
-      <div
-        id="embedding-container"
-        style="width: 500px; height: 600px; position: relative; overflow: hidden; background-color: lightgray;"
-      >
-        {@render Purchases({ ...args, isInElement: true }, context)}
-      </div>
-      <div style="padding: 20px;">
-        <h1>Homer's Web page</h1>
-        <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam,
-          quos.
-        </p>
-      </div>
-    </div>
-  </div>
 {/snippet}
 
 <Story name="Email Input" args={{ currentView: "needs-auth-info" }} />

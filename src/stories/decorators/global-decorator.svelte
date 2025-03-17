@@ -11,11 +11,13 @@
     children?: Snippet;
     globals: {
       locale: string;
+      viewport: string;
     };
   }
 
   let { children, globals }: Props = $props();
 
+  const isEmbeddedViewport = globals.viewport === "embedded";
   const initiaLocale = globals.locale || "en";
   const translator = new Translator({}, initiaLocale, initiaLocale);
   const translatorStore: Writable<Translator> = writable(translator);
@@ -30,4 +32,28 @@
   });
 </script>
 
-{@render children?.()}
+{#if isEmbeddedViewport}
+  {@render embedded(children)}
+{:else}
+  {@render children?.()}
+{/if}
+
+{#snippet embedded(children?: Snippet)}
+  <div style="width: 100vw; height:100vh; background-color: red;">
+    <div style="display: flex">
+      <div
+        id="embedding-container"
+        style="width: 500px; height: 600px; position: relative; overflow: hidden; background-color: lightgray;"
+      >
+        {@render children?.()}
+      </div>
+      <div style="padding: 20px;">
+        <h1>Homer's Web page</h1>
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam,
+          quos.
+        </p>
+      </div>
+    </div>
+  </div>
+{/snippet}

@@ -167,11 +167,14 @@ export const stripeElementsConfiguration = {
   currency: "EUR",
 };
 
+const publishableApiKey = import.meta.env.VITE_STORYBOOK_PUBLISHABLE_API_KEY;
+const accountId = import.meta.env.VITE_STORYBOOK_ACCOUNT_ID;
+
 export const checkoutStartResponse: CheckoutStartResponse = {
-  operation_session_id: "operation-session-id",
+  operation_session_id: "rcbopsess_test_test_test",
   gateway_params: {
-    stripe_account_id: "test_stripe_account_id",
-    publishable_api_key: "test_publishable_api_key",
+    publishable_api_key: publishableApiKey,
+    stripe_account_id: accountId,
     elements_configuration: stripeElementsConfiguration,
   },
 };
