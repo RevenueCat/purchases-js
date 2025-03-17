@@ -62,6 +62,8 @@
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
   "paywall_variables.sub_relative_discount": "{{discount}}% off",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
+  "pricing_dropdown.show_details": "Show details",
+  "pricing_dropdown.hide_details": "Hide details",
   "navbar_header.details": "Details",
   "navbar_header.back_button": "Back"
 }
