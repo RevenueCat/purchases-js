@@ -63,5 +63,7 @@
   "periods.perDayFrequency": "por día",
   "state_needs_payment_info.trial_info": "Una vez finalizado el período de prueba, se le cobrará {{price}} {{perFrequency}} a partir del {{renewalDate}}. Puede cancelar en cualquier momento antes de esa fecha.",
   "navbar_header.details": "Detalles",
-  "navbar_header.back_button": "Atrás"
+  "navbar_header.back_button": "Atrás",
+  "pricing_dropdown.show_details": "Mostrar detalles",
+  "pricing_dropdown.hide_details": "Ocultar detalles"
 }

@@ -63,5 +63,7 @@
   "periods.perDayFrequency": "pro Tag",
   "state_needs_payment_info.trial_info": "Nach Ablauf Ihres Testzeitraums werden Ihnen {{price}} {{perFrequency}} ab dem {{renewalDate}} berechnet. Sie können jederzeit vorher kündigen.",
   "navbar_header.details": "Details",
-  "navbar_header.back_button": "Zurück"
+  "navbar_header.back_button": "Zurück",
+  "pricing_dropdown.show_details": "Details anzeigen",
+  "pricing_dropdown.hide_details": "Details ausblenden"
 }

@@ -63,5 +63,7 @@
   "periods.perDayFrequency": "päivässä",
   "state_needs_payment_info.trial_info": "Kokeilujakson päätyttyä sinulta veloitetaan {{price}} {{perFrequency}} alkaen {{renewalDate}}. Voit peruuttaa tilauksen milloin tahansa ennen sitä.",
   "navbar_header.details": "Yksityiskohdat",
-  "navbar_header.back_button": "Takaisin"
+  "navbar_header.back_button": "Takaisin",
+  "pricing_dropdown.show_details": "Näytä tiedot",
+  "pricing_dropdown.hide_details": "Piilota tiedot"
 }

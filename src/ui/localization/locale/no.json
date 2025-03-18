@@ -63,5 +63,7 @@
   "periods.perDayFrequency": "per dag",
   "state_needs_payment_info.trial_info": "Etter at prøveperioden din er over, blir du belastet {{price}} {{perFrequency}} fra og med {{renewalDate}}. Du kan når som helst kansellere før det.",
   "navbar_header.details": "Detaljer",
-  "navbar_header.back_button": "Tilbake"
+  "navbar_header.back_button": "Tilbake",
+  "pricing_dropdown.show_details": "Vis detaljer",
+  "pricing_dropdown.hide_details": "Skjul detaljer"
 }

@@ -63,5 +63,7 @@
   "periods.perDayFrequency": "al giorno",
   "state_needs_payment_info.trial_info": "Al termine del periodo di prova, ti verranno addebitati {{price}} {{perFrequency}} a partire dal {{renewalDate}}. Puoi annullare in qualsiasi momento prima di allora.",
   "navbar_header.details": "Dettagli",
-  "navbar_header.back_button": "Indietro"
+  "navbar_header.back_button": "Indietro",
+  "pricing_dropdown.show_details": "Mostra dettagli",
+  "pricing_dropdown.hide_details": "Nascondi dettagli"
 }

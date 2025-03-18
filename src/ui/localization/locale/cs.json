@@ -63,5 +63,7 @@
   "periods.perDayFrequency": "denně",
   "state_needs_payment_info.trial_info": "Po skončení zkušební verze vám bude účtováno {{price}} {{perFrequency}} počínaje {{renewalDate}}. Předtím můžete kdykoli zrušit.",
   "navbar_header.details": "Podrobnosti",
-  "navbar_header.back_button": "Zpět"
+  "navbar_header.back_button": "Zpět",
+  "pricing_dropdown.show_details": "Zobrazit podrobnosti",
+  "pricing_dropdown.hide_details": "Skrýt podrobnosti"
 }

@@ -63,5 +63,7 @@
   "periods.perDayFrequency": "pe zi",
   "state_needs_payment_info.trial_info": "După ce perioada de probă se termină, veți fi taxat cu {{price}} {{perFrequency}} începând cu {{renewalDate}}. Puteți anula oricând înainte de această dată.",
   "navbar_header.details": "Detalii",
-  "navbar_header.back_button": "Înapoi"
+  "navbar_header.back_button": "Înapoi",
+  "pricing_dropdown.show_details": "Arată detalii",
+  "pricing_dropdown.hide_details": "Ascunde detalii"
 }

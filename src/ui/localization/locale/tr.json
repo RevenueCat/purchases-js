@@ -63,5 +63,7 @@
   "periods.perDayFrequency": "günde",
   "state_needs_payment_info.trial_info": "Deneme süreniz sona erdikten sonra, {{renewalDate}} tarihinden itibaren {{price}} {{perFrequency}} ücretlendirileceksiniz. O zamana kadar istediğiniz zaman iptal edebilirsiniz.",
   "navbar_header.details": "Detaylar",
-  "navbar_header.back_button": "Geri"
+  "navbar_header.back_button": "Geri",
+  "pricing_dropdown.show_details": "Detayları göster",
+  "pricing_dropdown.hide_details": "Detayları gizle"
 }
