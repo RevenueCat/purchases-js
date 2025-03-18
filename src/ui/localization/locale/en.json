@@ -64,6 +64,14 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "pricing_dropdown.show_details": "Show details",
   "pricing_dropdown.hide_details": "Hide details",
+  "pricing_table.total_excluding_tax": "Total excluding tax",
+  "pricing_table.trial_ends": "After trial ends, on {{formattedTrialEndDate}}",
+  "pricing_table.total_due_today": "Total due today",
+  "pricing_table.tax": "Tax",
+  "pricing_table.tax_with_percentage_points": "Tax ({{taxPercentagePoints}}%)",
+  "pricing_table.enter_billing_address_to_calculate": "Enter billing address to calculate",
+  "pricing_table.enter_postal_code_to_calculate": "Enter zip code to calculate",
+  "pricing_table.enter_state_or_postal_code_to_calculate": "Enter state or postal code to calculate",
   "navbar_header.details": "Details",
   "navbar_header.back_button": "Back"
 }
