@@ -65,5 +65,12 @@
   "navbar_header.details": "รายละเอียด",
   "navbar_header.back_button": "ย้อนกลับ",
   "pricing_dropdown.show_details": "แสดงรายละเอียด",
-  "pricing_dropdown.hide_details": "ซ่อนรายละเอียด"
+  "pricing_dropdown.hide_details": "ซ่อนรายละเอียด",
+  "pricing_table.tax": "ภาษี",
+  "pricing_table.trial_ends": "หลังจากช่วงทดลองใช้สิ้นสุด ในวันที่ {{formattedTrialEndDate}}",
+  "pricing_table.total_due_today": "ยอดรวมที่ต้องชำระวันนี้",
+  "pricing_table.total_excluding_tax": "ราคารวมก่อนภาษี",
+  "pricing_table.enter_billing_address_to_calculate": "กรุณากรอกที่อยู่สำหรับเรียกเก็บเงินเพื่อคำนวณ",
+  "pricing_table.enter_state_or_postal_code_to_calculate": "ใส่รัฐหรือรหัสไปรษณีย์เพื่อคำนวณ",
+  "pricing_table.enter_postal_code_to_calculate": "ใส่รหัสไปรษณีย์เพื่อคำนวณ"
 }

@@ -65,5 +65,12 @@
   "navbar_header.details": "详情",
   "navbar_header.back_button": "返回",
   "pricing_dropdown.show_details": "显示详情",
-  "pricing_dropdown.hide_details": "隐藏详情"
+  "pricing_dropdown.hide_details": "隐藏详情",
+  "pricing_table.tax": "税",
+  "pricing_table.trial_ends": "试用期结束后，于{{formattedTrialEndDate}}",
+  "pricing_table.total_due_today": "今日应付总额",
+  "pricing_table.total_excluding_tax": "总计（不含税）",
+  "pricing_table.enter_billing_address_to_calculate": "输入账单地址以计算",
+  "pricing_table.enter_state_or_postal_code_to_calculate": "输入州或邮政编码以计算",
+  "pricing_table.enter_postal_code_to_calculate": "输入邮政编码以计算"
 }

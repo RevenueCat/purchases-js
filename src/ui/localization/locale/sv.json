@@ -65,5 +65,12 @@
   "navbar_header.details": "Detaljer",
   "navbar_header.back_button": "Tillbaka",
   "pricing_dropdown.show_details": "Visa detaljer",
-  "pricing_dropdown.hide_details": "Dölj detaljer"
+  "pricing_dropdown.hide_details": "Dölj detaljer",
+  "pricing_table.tax": "Moms",
+  "pricing_table.trial_ends": "Efter provperiodens slut, den {{formattedTrialEndDate}}",
+  "pricing_table.total_due_today": "Total summa att betala idag",
+  "pricing_table.total_excluding_tax": "Totalt exklusive moms",
+  "pricing_table.enter_billing_address_to_calculate": "Ange faktureringsadress för att beräkna",
+  "pricing_table.enter_state_or_postal_code_to_calculate": "Ange delstat eller postnummer för att beräkna",
+  "pricing_table.enter_postal_code_to_calculate": "Ange postnummer för att beräkna"
 }

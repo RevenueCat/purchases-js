@@ -65,5 +65,12 @@
   "navbar_header.details": "Szczegóły",
   "navbar_header.back_button": "Wstecz",
   "pricing_dropdown.show_details": "Pokaż szczegóły",
-  "pricing_dropdown.hide_details": "Ukryj szczegóły"
+  "pricing_dropdown.hide_details": "Ukryj szczegóły",
+  "pricing_table.tax": "Podatek",
+  "pricing_table.trial_ends": "Po zakończeniu okresu próbnego, {{formattedTrialEndDate}}",
+  "pricing_table.total_due_today": "Suma należna dzisiaj",
+  "pricing_table.total_excluding_tax": "Suma bez podatku",
+  "pricing_table.enter_billing_address_to_calculate": "Wprowadź adres rozliczeniowy, aby obliczyć",
+  "pricing_table.enter_state_or_postal_code_to_calculate": "Wprowadź stan lub kod pocztowy, aby obliczyć",
+  "pricing_table.enter_postal_code_to_calculate": "Wprowadź kod pocztowy, aby obliczyć"
 }

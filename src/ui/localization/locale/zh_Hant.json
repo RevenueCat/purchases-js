@@ -65,5 +65,12 @@
   "navbar_header.details": "詳細資訊",
   "navbar_header.back_button": "返回",
   "pricing_dropdown.show_details": "顯示詳細資訊",
-  "pricing_dropdown.hide_details": "隱藏詳細資訊"
+  "pricing_dropdown.hide_details": "隱藏詳細資訊",
+  "pricing_table.tax": "稅金",
+  "pricing_table.trial_ends": "試用期結束後，於 {{formattedTrialEndDate}}",
+  "pricing_table.total_due_today": "今日應付總額",
+  "pricing_table.total_excluding_tax": "總計（不含稅）",
+  "pricing_table.enter_billing_address_to_calculate": "輸入帳單地址以計算",
+  "pricing_table.enter_state_or_postal_code_to_calculate": "輸入州或郵政編碼以計算",
+  "pricing_table.enter_postal_code_to_calculate": "輸入郵政編碼以計算"
 }

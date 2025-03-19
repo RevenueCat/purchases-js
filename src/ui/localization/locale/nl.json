@@ -65,5 +65,12 @@
   "navbar_header.details": "Details",
   "navbar_header.back_button": "Terug",
   "pricing_dropdown.show_details": "Toon details",
-  "pricing_dropdown.hide_details": "Verberg details"
+  "pricing_dropdown.hide_details": "Verberg details",
+  "pricing_table.tax": "Btw",
+  "pricing_table.trial_ends": "Na afloop van de proefperiode, op {{formattedTrialEndDate}}",
+  "pricing_table.total_due_today": "Totaal vandaag te betalen",
+  "pricing_table.total_excluding_tax": "Totaal exclusief btw",
+  "pricing_table.enter_billing_address_to_calculate": "Voer het factuuradres in om te berekenen",
+  "pricing_table.enter_state_or_postal_code_to_calculate": "Voer provincie of postcode in om te berekenen",
+  "pricing_table.enter_postal_code_to_calculate": "Voer postcode in om te berekenen"
 }

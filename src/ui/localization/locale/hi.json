@@ -65,5 +65,12 @@
   "navbar_header.details": "विवरण",
   "navbar_header.back_button": "वापस",
   "pricing_dropdown.show_details": "विवरण दिखाएँ",
-  "pricing_dropdown.hide_details": "विवरण छिपाएँ"
+  "pricing_dropdown.hide_details": "विवरण छिपाएँ",
+  "pricing_table.tax": "कर",
+  "pricing_table.trial_ends": "{{formattedTrialEndDate}} पर परीक्षण समाप्त होने के बाद",
+  "pricing_table.total_due_today": "आज देय कुल",
+  "pricing_table.total_excluding_tax": "कर को छोड़कर कुल",
+  "pricing_table.enter_billing_address_to_calculate": "गणना करने के लिए बिलिंग पता दर्ज करें",
+  "pricing_table.enter_state_or_postal_code_to_calculate": "गणना करने के लिए राज्य या ज़िप कोड दर्ज करें",
+  "pricing_table.enter_postal_code_to_calculate": "गणना करने के लिए ज़िप कोड दर्ज करें"
 }

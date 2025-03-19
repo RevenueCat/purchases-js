@@ -65,5 +65,12 @@
   "navbar_header.details": "Detail",
   "navbar_header.back_button": "Kembali",
   "pricing_dropdown.show_details": "Tampilkan detail",
-  "pricing_dropdown.hide_details": "Sembunyikan detail"
+  "pricing_dropdown.hide_details": "Sembunyikan detail",
+  "pricing_table.tax": "Pajak",
+  "pricing_table.trial_ends": "Setelah masa percobaan berakhir, pada {{formattedTrialEndDate}}",
+  "pricing_table.total_due_today": "Total yang harus dibayar hari ini",
+  "pricing_table.total_excluding_tax": "Total belum termasuk pajak",
+  "pricing_table.enter_billing_address_to_calculate": "Masukkan alamat penagihan untuk menghitung",
+  "pricing_table.enter_state_or_postal_code_to_calculate": "Masukkan negara bagian atau kode pos untuk menghitung",
+  "pricing_table.enter_postal_code_to_calculate": "Masukkan kode pos untuk menghitung"
 }

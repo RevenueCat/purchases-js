@@ -65,5 +65,12 @@
   "navbar_header.details": "Részletek",
   "navbar_header.back_button": "Vissza",
   "pricing_dropdown.show_details": "Részletek mutatása",
-  "pricing_dropdown.hide_details": "Részletek elrejtése"
+  "pricing_dropdown.hide_details": "Részletek elrejtése",
+  "pricing_table.tax": "Adó",
+  "pricing_table.trial_ends": "A próbaidőszak vége: {{formattedTrialEndDate}}",
+  "pricing_table.total_due_today": "Ma fizetendő összeg",
+  "pricing_table.total_excluding_tax": "Összesen adó nélkül",
+  "pricing_table.enter_billing_address_to_calculate": "Adja meg a számlázási címet a számításhoz",
+  "pricing_table.enter_state_or_postal_code_to_calculate": "Adja meg az államot vagy az irányítószámot a számításhoz",
+  "pricing_table.enter_postal_code_to_calculate": "Adja meg az irányítószámot a számításhoz"
 }

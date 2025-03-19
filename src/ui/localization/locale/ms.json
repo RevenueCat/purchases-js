@@ -65,5 +65,12 @@
   "navbar_header.details": "Butiran",
   "navbar_header.back_button": "Kembali",
   "pricing_dropdown.show_details": "Tunjukkan butiran",
-  "pricing_dropdown.hide_details": "Sembunyikan butiran"
+  "pricing_dropdown.hide_details": "Sembunyikan butiran",
+  "pricing_table.tax": "Cukai",
+  "pricing_table.trial_ends": "Selepas tempoh percubaan tamat, pada {{formattedTrialEndDate}}",
+  "pricing_table.total_due_today": "Jumlah yang perlu dibayar hari ini",
+  "pricing_table.total_excluding_tax": "Jumlah tidak termasuk cukai",
+  "pricing_table.enter_billing_address_to_calculate": "Masukkan alamat pengebilan untuk mengira",
+  "pricing_table.enter_state_or_postal_code_to_calculate": "Masukkan negeri atau poskod untuk mengira",
+  "pricing_table.enter_postal_code_to_calculate": "Masukkan poskod untuk mengira"
 }

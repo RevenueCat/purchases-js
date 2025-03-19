@@ -65,5 +65,12 @@
   "navbar_header.details": "تفاصيل",
   "navbar_header.back_button": "عودة",
   "pricing_dropdown.show_details": "إظهار التفاصيل",
-  "pricing_dropdown.hide_details": "إخفاء التفاصيل"
+  "pricing_dropdown.hide_details": "إخفاء التفاصيل",
+  "pricing_table.tax": "الضريبة",
+  "pricing_table.trial_ends": "بعد انتهاء الفترة التجريبية، في {{formattedTrialEndDate}}",
+  "pricing_table.total_due_today": "الإجمالي المستحق اليوم",
+  "pricing_table.total_excluding_tax": "الإجمالي باستثناء الضريبة",
+  "pricing_table.enter_billing_address_to_calculate": "أدخل عنوان إرسال الفواتير لحسابها",
+  "pricing_table.enter_state_or_postal_code_to_calculate": "أدخل الولاية أو الرمز البريدي للحساب",
+  "pricing_table.enter_postal_code_to_calculate": "أدخل الرمز البريدي للحساب"
 }

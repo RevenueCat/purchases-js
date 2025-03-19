@@ -65,5 +65,12 @@
   "navbar_header.details": "Detaljer",
   "navbar_header.back_button": "Tilbage",
   "pricing_dropdown.show_details": "Vis detaljer",
-  "pricing_dropdown.hide_details": "Skjul detaljer"
+  "pricing_dropdown.hide_details": "Skjul detaljer",
+  "pricing_table.tax": "Moms",
+  "pricing_table.trial_ends": "Efter prøveperioden slutter, den {{formattedTrialEndDate}}",
+  "pricing_table.total_due_today": "Samlet beløb forfalden i dag",
+  "pricing_table.total_excluding_tax": "Samlet beløb eksklusive moms",
+  "pricing_table.enter_billing_address_to_calculate": "Indtast faktureringsadresse for at beregne",
+  "pricing_table.enter_state_or_postal_code_to_calculate": "Indtast stat eller postnummer for at beregne",
+  "pricing_table.enter_postal_code_to_calculate": "Indtast postnummer for at beregne"
 }

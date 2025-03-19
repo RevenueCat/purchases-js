@@ -65,5 +65,12 @@
   "navbar_header.details": "Детали",
   "navbar_header.back_button": "Назад",
   "pricing_dropdown.show_details": "Показать детали",
-  "pricing_dropdown.hide_details": "Скрыть детали"
+  "pricing_dropdown.hide_details": "Скрыть детали",
+  "pricing_table.tax": "Налог",
+  "pricing_table.trial_ends": "После окончания пробного периода, {{formattedTrialEndDate}}",
+  "pricing_table.total_due_today": "Итого к оплате сегодня",
+  "pricing_table.total_excluding_tax": "Итого без учета налога",
+  "pricing_table.enter_billing_address_to_calculate": "Введите платежный адрес для расчета",
+  "pricing_table.enter_state_or_postal_code_to_calculate": "Введите штат или почтовый индекс для расчета",
+  "pricing_table.enter_postal_code_to_calculate": "Введите почтовый индекс для расчета"
 }

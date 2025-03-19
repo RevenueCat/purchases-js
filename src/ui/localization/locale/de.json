@@ -65,5 +65,12 @@
   "navbar_header.details": "Details",
   "navbar_header.back_button": "Zurück",
   "pricing_dropdown.show_details": "Details anzeigen",
-  "pricing_dropdown.hide_details": "Details ausblenden"
+  "pricing_dropdown.hide_details": "Details ausblenden",
+  "pricing_table.tax": "Steuer",
+  "pricing_table.trial_ends": "Nach Ablauf der Testphase, am {{formattedTrialEndDate}}",
+  "pricing_table.total_due_today": "Heute fälliger Gesamtbetrag",
+  "pricing_table.total_excluding_tax": "Gesamtbetrag ohne Steuer",
+  "pricing_table.enter_billing_address_to_calculate": "Rechnungsadresse eingeben, um zu berechnen",
+  "pricing_table.enter_state_or_postal_code_to_calculate": "Bundesland oder Postleitzahl zur Berechnung eingeben",
+  "pricing_table.enter_postal_code_to_calculate": "Postleitzahl zur Berechnung eingeben"
 }
