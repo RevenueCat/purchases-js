@@ -1,7 +1,7 @@
 import { type OfferingsResponse } from "./responses/offerings-response";
 import { performRequest } from "./http-client";
 import {
-  CheckoutCalculateTaxesEndpoint,
+  CheckoutCalculateTaxEndpoint,
   CheckoutCompleteEndpoint,
   CheckoutStartEndpoint,
   GetBrandingInfoEndpoint,
@@ -22,7 +22,7 @@ import type {
   PurchaseOption,
 } from "../entities/offerings";
 import type { CheckoutCompleteResponse } from "./responses/checkout-complete-response";
-import type { CheckoutCalculateTaxesResponse } from "./responses/checkout-calculate-taxes-response";
+import type { CheckoutCalculateTaxResponse } from "./responses/checkout-calculate-tax-response";
 
 export class Backend {
   private readonly API_KEY: string;
@@ -142,25 +142,25 @@ export class Backend {
     });
   }
 
-  async postCheckoutCalculateTaxes(
+  async postCheckoutCalculateTax(
     operationSessionId: string,
     countryCode?: string,
     postalCode?: string,
-  ): Promise<CheckoutCalculateTaxesResponse> {
-    type CheckoutCalculateTaxesRequestBody = {
+  ): Promise<CheckoutCalculateTaxResponse> {
+    type CheckoutCalculateTaxRequestBody = {
       country_code?: string;
       postal_code?: string;
     };
 
-    const requestBody: CheckoutCalculateTaxesRequestBody = {
+    const requestBody: CheckoutCalculateTaxRequestBody = {
       country_code: countryCode,
       postal_code: postalCode,
     };
 
     return await performRequest<
-      CheckoutCalculateTaxesRequestBody,
-      CheckoutCalculateTaxesResponse
-    >(new CheckoutCalculateTaxesEndpoint(operationSessionId), {
+      CheckoutCalculateTaxRequestBody,
+      CheckoutCalculateTaxResponse
+    >(new CheckoutCalculateTaxEndpoint(operationSessionId), {
       apiKey: this.API_KEY,
       body: requestBody,
       httpConfig: this.httpConfig,

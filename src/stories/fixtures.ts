@@ -16,7 +16,7 @@ import {
   StripeElementsSetupFutureUsage,
 } from "../networking/responses/checkout-start-response";
 import type { BrandingAppearance } from "../entities/branding";
-import type { CheckoutCalculateTaxesResponse } from "src/networking/responses/checkout-calculate-taxes-response";
+import type { CheckoutCalculateTaxResponse } from "src/networking/responses/checkout-calculate-tax-response";
 
 export const subscriptionOption: SubscriptionOption = {
   id: "option_id_1",
@@ -179,7 +179,7 @@ export const checkoutStartResponse: CheckoutStartResponse = {
   },
 };
 
-export const checkoutCalculateTaxesResponse: CheckoutCalculateTaxesResponse = {
+export const checkoutCalculateTaxResponse: CheckoutCalculateTaxResponse = {
   operation_session_id: "operation-session-id",
 };
 
