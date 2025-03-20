@@ -78,7 +78,7 @@
     totalExcludingTax: 34.99,
     total: 34.99,
     taxItems: null,
-    loadingTaxes: true,
+    loadingTax: true,
   }}
 />
 <Story

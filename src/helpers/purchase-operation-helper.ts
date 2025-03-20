@@ -24,8 +24,8 @@ import {
   toRedemptionInfo,
 } from "../entities/redemption-info";
 import { type IEventsTracker } from "../behavioural-events/events-tracker";
-import type { CheckoutCompleteResponse } from "src/networking/responses/checkout-complete-response";
-import type { CheckoutCalculateTaxesResponse } from "src/networking/responses/checkout-calculate-taxes-response";
+import type { CheckoutCompleteResponse } from "../networking/responses/checkout-complete-response";
+import type { CheckoutCalculateTaxResponse } from "../networking/responses/checkout-calculate-tax-response";
 
 export enum PurchaseFlowErrorCode {
   ErrorSettingUpPurchase = 0,
@@ -172,10 +172,10 @@ export class PurchaseOperationHelper {
     }
   }
 
-  async checkoutCalculateTaxes(
+  async checkoutCalculateTax(
     countryCode?: string,
     postalCode?: string,
-  ): Promise<CheckoutCalculateTaxesResponse> {
+  ): Promise<CheckoutCalculateTaxResponse> {
     const operationSessionId = this.operationSessionId;
     if (!operationSessionId) {
       throw new PurchaseFlowError(
@@ -185,13 +185,13 @@ export class PurchaseOperationHelper {
     }
 
     try {
-      const checkoutCalculateTaxesResponse =
-        await this.backend.postCheckoutCalculateTaxes(
+      const checkoutCalculateTaxResponse =
+        await this.backend.postCheckoutCalculateTax(
           operationSessionId,
           countryCode,
           postalCode,
         );
-      return checkoutCalculateTaxesResponse;
+      return checkoutCalculateTaxResponse;
     } catch (error) {
       if (error instanceof PurchasesError) {
         throw PurchaseFlowError.fromPurchasesError(
@@ -199,8 +199,7 @@ export class PurchaseOperationHelper {
           PurchaseFlowErrorCode.ErrorSettingUpPurchase,
         );
       } else {
-        const errorMessage =
-          "Unknown error calculating taxes: " + String(error);
+        const errorMessage = "Unknown error calculating tax: " + String(error);
         Logger.errorLog(errorMessage);
         throw new PurchaseFlowError(
           PurchaseFlowErrorCode.UnknownError,

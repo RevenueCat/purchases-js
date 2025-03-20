@@ -20,7 +20,7 @@
   export let trialEndDate: Date | null | undefined = undefined;
   export let renewalTotal: number | null | undefined = undefined;
   export let total: number;
-  export let loadingTaxes: boolean = false;
+  export let loadingTax: boolean = false;
   export let calculationError:
     | "needs_postal_code"
     | "needs_state_or_postal_code"
@@ -57,7 +57,7 @@
           {$translator.translate(LocalizationKeys.PricingTableTax)}
         </div>
         <div class="rcb-pricing-table-value">
-          {#if loadingTaxes}
+          {#if loadingTax}
             <div class="rcb-pricing-table-value-loading">Loading</div>
           {:else if calculationError === "needs_postal_code"}
             {$translator.translate(
