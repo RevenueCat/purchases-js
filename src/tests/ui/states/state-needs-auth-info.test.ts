@@ -8,6 +8,7 @@ import { eventsTrackerContextKey } from "../../../ui/constants";
 import { writable } from "svelte/store";
 import { Translator } from "../../../ui/localization/translator";
 import { translatorContextKey } from "../../../ui/localization/constants";
+import { brandingInfo } from "../../../stories/fixtures";
 
 const eventsTrackerMock = createEventsTrackerMock();
 
@@ -23,6 +24,7 @@ const basicProps = {
   processing: false,
   onClose: vi.fn(),
   onContinue: vi.fn(),
+  brandingInfo,
 };
 
 describe("PurchasesUI", () => {
