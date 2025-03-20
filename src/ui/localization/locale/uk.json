@@ -65,5 +65,12 @@
   "navbar_header.details": "Деталі",
   "navbar_header.back_button": "Назад",
   "pricing_dropdown.show_details": "Показати деталі",
-  "pricing_dropdown.hide_details": "Приховати деталі"
+  "pricing_dropdown.hide_details": "Приховати деталі",
+  "pricing_table.tax": "Податок",
+  "pricing_table.trial_ends": "Після закінчення пробного періоду, {{formattedTrialEndDate}}",
+  "pricing_table.total_due_today": "Загальна сума до сплати сьогодні",
+  "pricing_table.total_excluding_tax": "Загальна сума без урахування податку",
+  "pricing_table.enter_billing_address_to_calculate": "Введіть адресу виставлення рахунку для розрахунку",
+  "pricing_table.enter_state_or_postal_code_to_calculate": "Введіть штат або поштовий індекс для розрахунку",
+  "pricing_table.enter_postal_code_to_calculate": "Введіть поштовий індекс для розрахунку"
 }

@@ -65,5 +65,12 @@
   "navbar_header.details": "세부 정보",
   "navbar_header.back_button": "뒤로",
   "pricing_dropdown.show_details": "세부 정보 표시",
-  "pricing_dropdown.hide_details": "세부 정보 숨기기"
+  "pricing_dropdown.hide_details": "세부 정보 숨기기",
+  "pricing_table.tax": "세금",
+  "pricing_table.trial_ends": "체험판 종료 후, {{formattedTrialEndDate}}",
+  "pricing_table.total_due_today": "오늘 지불해야 할 총액",
+  "pricing_table.total_excluding_tax": "세금 제외 총액",
+  "pricing_table.enter_billing_address_to_calculate": "계산을 위해 청구지 주소를 입력하세요",
+  "pricing_table.enter_state_or_postal_code_to_calculate": "주 또는 우편 번호를 입력하여 계산",
+  "pricing_table.enter_postal_code_to_calculate": "우편 번호를 입력하여 계산"
 }

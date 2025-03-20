@@ -65,5 +65,12 @@
   "navbar_header.details": "Chi tiết",
   "navbar_header.back_button": "Quay lại",
   "pricing_dropdown.show_details": "Xem chi tiết",
-  "pricing_dropdown.hide_details": "Ẩn chi tiết"
+  "pricing_dropdown.hide_details": "Ẩn chi tiết",
+  "pricing_table.tax": "Thuế",
+  "pricing_table.trial_ends": "Sau khi thời gian dùng thử kết thúc, vào {{formattedTrialEndDate}}",
+  "pricing_table.total_due_today": "Tổng số tiền phải trả hôm nay",
+  "pricing_table.total_excluding_tax": "Tổng cộng chưa bao gồm thuế",
+  "pricing_table.enter_billing_address_to_calculate": "Nhập địa chỉ thanh toán để tính toán",
+  "pricing_table.enter_state_or_postal_code_to_calculate": "Nhập tiểu bang hoặc mã bưu điện để tính toán",
+  "pricing_table.enter_postal_code_to_calculate": "Nhập mã bưu điện để tính toán"
 }

@@ -98,6 +98,13 @@ export enum LocalizationKeys {
   PaywallVariablesTotalPriceAndPerMonth = "paywall_variables.total_price_and_per_month",
   PricingDropdownShowDetails = "pricing_dropdown.show_details",
   PricingDropdownHideDetails = "pricing_dropdown.hide_details",
+  PricingTotalExcludingTax = "pricing_table.total_excluding_tax",
+  PricingTableTrialEnds = "pricing_table.trial_ends",
+  PricingTableTotalDueToday = "pricing_table.total_due_today",
+  PricingTableTax = "pricing_table.tax",
+  PricingTableEnterBillingAddressToCalculate = "pricing_table.enter_billing_address_to_calculate",
+  PricingTableEnterStateOrPostalCodeToCalculate = "pricing_table.enter_state_or_postal_code_to_calculate",
+  PricingTableEnterPostalCodeToCalculate = "pricing_table.enter_postal_code_to_calculate",
   NavbarHeaderDetails = "navbar_header.details",
   NavbarBackButton = "navbar_header.back_button",
 }

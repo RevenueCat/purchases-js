@@ -65,5 +65,12 @@
   "navbar_header.details": "Podrobnosti",
   "navbar_header.back_button": "Späť",
   "pricing_dropdown.show_details": "Zobraziť podrobnosti",
-  "pricing_dropdown.hide_details": "Skryť podrobnosti"
+  "pricing_dropdown.hide_details": "Skryť podrobnosti",
+  "pricing_table.tax": "Daň",
+  "pricing_table.trial_ends": "Po skončení skúšobnej verzie, dňa {{formattedTrialEndDate}}",
+  "pricing_table.total_due_today": "Celková suma splatná dnes",
+  "pricing_table.total_excluding_tax": "Celkom bez dane",
+  "pricing_table.enter_billing_address_to_calculate": "Zadajte fakturačnú adresu pre výpočet",
+  "pricing_table.enter_state_or_postal_code_to_calculate": "Zadajte štát alebo PSČ pre výpočet",
+  "pricing_table.enter_postal_code_to_calculate": "Zadajte PSČ pre výpočet"
 }

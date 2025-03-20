@@ -65,5 +65,12 @@
   "navbar_header.details": "詳細",
   "navbar_header.back_button": "戻る",
   "pricing_dropdown.show_details": "詳細を表示",
-  "pricing_dropdown.hide_details": "詳細を隠す"
+  "pricing_dropdown.hide_details": "詳細を隠す",
+  "pricing_table.tax": "税金",
+  "pricing_table.trial_ends": "トライアル終了後、{{formattedTrialEndDate}}",
+  "pricing_table.total_due_today": "本日お支払いいただく合計金額",
+  "pricing_table.total_excluding_tax": "税抜き合計",
+  "pricing_table.enter_billing_address_to_calculate": "請求先住所を入力して計算",
+  "pricing_table.enter_state_or_postal_code_to_calculate": "計算するには州または郵便番号を入力してください",
+  "pricing_table.enter_postal_code_to_calculate": "計算するには郵便番号を入力してください"
 }

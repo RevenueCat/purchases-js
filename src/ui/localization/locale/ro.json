@@ -65,5 +65,12 @@
   "navbar_header.details": "Detalii",
   "navbar_header.back_button": "Înapoi",
   "pricing_dropdown.show_details": "Arată detalii",
-  "pricing_dropdown.hide_details": "Ascunde detalii"
+  "pricing_dropdown.hide_details": "Ascunde detalii",
+  "pricing_table.tax": "Taxă",
+  "pricing_table.trial_ends": "După ce perioada de probă se termină, pe {{formattedTrialEndDate}}",
+  "pricing_table.total_due_today": "Total de plătit astăzi",
+  "pricing_table.total_excluding_tax": "Total fără taxe",
+  "pricing_table.enter_billing_address_to_calculate": "Introduceți adresa de facturare pentru a calcula",
+  "pricing_table.enter_state_or_postal_code_to_calculate": "Introduceți statul sau codul poștal pentru a calcula",
+  "pricing_table.enter_postal_code_to_calculate": "Introduceți codul poștal pentru a calcula"
 }

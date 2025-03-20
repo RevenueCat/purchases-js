@@ -65,5 +65,12 @@
   "navbar_header.details": "Detaljer",
   "navbar_header.back_button": "Tilbake",
   "pricing_dropdown.show_details": "Vis detaljer",
-  "pricing_dropdown.hide_details": "Skjul detaljer"
+  "pricing_dropdown.hide_details": "Skjul detaljer",
+  "pricing_table.tax": "Skatt",
+  "pricing_table.trial_ends": "Etter prøveperioden slutter, den {{formattedTrialEndDate}}",
+  "pricing_table.total_due_today": "Totalt forfaller i dag",
+  "pricing_table.total_excluding_tax": "Total eksklusive skatt",
+  "pricing_table.enter_billing_address_to_calculate": "Oppgi faktureringsadresse for å beregne",
+  "pricing_table.enter_state_or_postal_code_to_calculate": "Skriv inn stat eller postnummer for å beregne",
+  "pricing_table.enter_postal_code_to_calculate": "Skriv inn postnummer for å beregne"
 }

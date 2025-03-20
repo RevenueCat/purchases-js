@@ -65,5 +65,12 @@
   "navbar_header.details": "Λεπτομέρειες",
   "navbar_header.back_button": "Πίσω",
   "pricing_dropdown.show_details": "Εμφάνιση λεπτομερειών",
-  "pricing_dropdown.hide_details": "Απόκρυψη λεπτομερειών"
+  "pricing_dropdown.hide_details": "Απόκρυψη λεπτομερειών",
+  "pricing_table.tax": "Φόρος",
+  "pricing_table.trial_ends": "Μετά τη λήξη της δοκιμαστικής περιόδου, στις {{formattedTrialEndDate}}",
+  "pricing_table.total_due_today": "Σύνολο πληρωτέο σήμερα",
+  "pricing_table.total_excluding_tax": "Σύνολο χωρίς φόρο",
+  "pricing_table.enter_billing_address_to_calculate": "Εισαγάγετε τη διεύθυνση χρέωσης για να υπολογιστεί",
+  "pricing_table.enter_state_or_postal_code_to_calculate": "Εισαγάγετε την πολιτεία ή τον ταχυδρομικό κώδικα για να υπολογιστεί",
+  "pricing_table.enter_postal_code_to_calculate": "Εισαγάγετε τον ταχυδρομικό κώδικα για να υπολογιστεί"
 }
