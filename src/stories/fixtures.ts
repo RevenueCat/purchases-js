@@ -10,13 +10,11 @@ import {
 } from "../entities/offerings";
 import { PeriodUnit } from "../helpers/duration-helper";
 import { PurchaseFlowError } from "../helpers/purchase-operation-helper";
-import {
-  type CheckoutStartResponse,
-  StripeElementsMode,
-  StripeElementsSetupFutureUsage,
-} from "../networking/responses/checkout-start-response";
+import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
 import type { BrandingAppearance } from "../entities/branding";
-import type { CheckoutCalculateTaxResponse } from "src/networking/responses/checkout-calculate-tax-response";
+import type { CheckoutCalculateTaxResponse } from "../networking/responses/checkout-calculate-tax-response";
+import { StripeElementsSetupFutureUsage } from "../networking/responses/stripe-elements";
+import { StripeElementsMode } from "../networking/responses/stripe-elements";
 
 export const subscriptionOption: SubscriptionOption = {
   id: "option_id_1",
@@ -164,7 +162,7 @@ export const stripeElementsConfiguration = {
   payment_method_types: ["card"],
   setup_future_usage: StripeElementsSetupFutureUsage.OffSession,
   amount: 999,
-  currency: "eur",
+  currency: "usd",
 };
 
 const publishableApiKey = import.meta.env.VITE_STORYBOOK_PUBLISHABLE_API_KEY;
@@ -181,6 +179,16 @@ export const checkoutStartResponse: CheckoutStartResponse = {
 
 export const checkoutCalculateTaxResponse: CheckoutCalculateTaxResponse = {
   operation_session_id: "operation-session-id",
+  currency: "USD",
+  tax_inclusive: false,
+  pricing_phases: {
+    base: {
+      tax_breakdown: [],
+    },
+  },
+  gateway_params: {
+    elements_configuration: stripeElementsConfiguration,
+  },
 };
 
 export const defaultContext = {
