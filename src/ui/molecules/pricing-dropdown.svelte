@@ -79,13 +79,18 @@
   .rcb-pricing-dropdown-content {
     display: flex;
     flex-direction: column;
-    max-height: 1000px; /* Set a large max-height for animation */
     overflow: hidden;
-    transition: max-height 0.2s ease-in-out;
   }
 
-  .rcb-pricing-dropdown-content.collapsed {
-    max-height: 0;
+  @container layout-query-container (width < 768px) {
+    .rcb-pricing-dropdown-content {
+      max-height: 1000px; /* Set a large max-height for animation */
+      transition: max-height 0.2s ease-in-out;
+    }
+
+    .rcb-pricing-dropdown-content.collapsed {
+      max-height: 0;
+    }
   }
 
   @container layout-query-container (width >= 768px) {
