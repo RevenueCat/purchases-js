@@ -70,11 +70,13 @@
     if (StripeService.isStripeHandledCardError(error)) {
       onError({
         code: PaymentElementErrorCode.HandledFormSubmissionError,
+        gatewayErrorCode: error.code,
         message: error.message,
       });
     } else {
       onError({
         code: PaymentElementErrorCode.UnhandledFormSubmissionError,
+        gatewayErrorCode: error.code,
         message: error.message,
       });
     }
@@ -210,6 +212,7 @@
           isMounted = false;
           onError({
             code: PaymentElementErrorCode.ErrorLoadingStripe,
+            gatewayErrorCode: event.error.code,
             message: event.error.message,
           });
           onLoadingComplete();
@@ -219,6 +222,7 @@
 
         onError({
           code: PaymentElementErrorCode.ErrorLoadingStripe,
+          gatewayErrorCode: undefined,
           message: error instanceof Error ? error.message : String(error),
         });
         onLoadingComplete();

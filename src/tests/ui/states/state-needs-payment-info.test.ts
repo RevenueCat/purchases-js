@@ -15,7 +15,10 @@ import { writable } from "svelte/store";
 import { Translator } from "../../../ui/localization/translator";
 import { translatorContextKey } from "../../../ui/localization/constants";
 import { StripeService } from "../../../stripe/stripe-service";
-import type { StripePaymentElementChangeEvent } from "@stripe/stripe-js";
+import type {
+  StripeError,
+  StripePaymentElementChangeEvent,
+} from "@stripe/stripe-js";
 
 const eventsTrackerMock = createEventsTrackerMock();
 const purchaseOperationHelperMock: PurchaseOperationHelper = {
@@ -44,22 +47,26 @@ const defaultContext = new Map(
 
 vi.mock("../../../stripe/stripe-service", () => ({
   StripeService: {
-    initializeStripe: vi.fn().mockResolvedValue({
-      stripe: { exists: true },
-      elements: {
-        _elements: [1],
-        submit: vi.fn().mockResolvedValue({ error: null }),
-      },
-    }),
+    initializeStripe: vi.fn(),
     createPaymentElement: vi.fn(),
-    isStripeHandledCardError: vi.fn().mockReturnValue(false),
+    isStripeHandledCardError: vi.fn(),
   },
 }));
 
 describe("PurchasesUI", () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    vi.clearAllMocks();
+
+    vi.mocked(StripeService.initializeStripe).mockResolvedValue({
+      // @ts-expect-error - This is a mock
+      stripe: { exists: true },
+      elements: {
+        // @ts-expect-error - This is a mock
+        _elements: [1],
+        submit: vi.fn().mockResolvedValue({ error: null }),
+      },
+    });
+    vi.mocked(StripeService.isStripeHandledCardError).mockReturnValue(false);
   });
 
   test("tracks the PaymentEntryImpression event when the payment entry is displayed", async () => {
@@ -78,13 +85,13 @@ describe("PurchasesUI", () => {
   test("tracks the PaymentEntrySubmit event when the payment entry is submitted", async () => {
     const paymentElement = {
       on: (
-        event: string,
+        eventType: string,
         callback: (event?: StripePaymentElementChangeEvent) => void,
       ) => {
-        if (event === "ready") {
+        if (eventType === "ready") {
           setTimeout(() => callback(), 0);
         }
-        if (event === "change") {
+        if (eventType === "change") {
           setTimeout(() => {
             callback({
               complete: true,
@@ -140,7 +147,7 @@ describe("PurchasesUI", () => {
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
       eventName: SDKEventName.CheckoutPaymentFormGatewayError,
       properties: {
-        errorCode: "0",
+        errorCode: "",
         errorMessage: "Failed to initialize payment form",
       },
     });
@@ -149,13 +156,22 @@ describe("PurchasesUI", () => {
   test("tracks the CheckoutPaymentFormGatewayError event when stripe onload error occurs", async () => {
     const paymentElement = {
       on: (
-        event: string,
-        callback: (event?: StripePaymentElementChangeEvent) => void,
+        eventType: string,
+        callback: (event?: {
+          elementType: "payment";
+          error: StripeError;
+        }) => void,
       ) => {
-        if (event === "onerror") {
+        if (eventType === "loaderror") {
           setTimeout(
             () =>
-              callback(new Error("Failed to initialize payment form") as any),
+              callback({
+                elementType: "payment",
+                error: {
+                  code: "0",
+                  message: "Failed to initialize payment form",
+                } as StripeError,
+              }),
             0,
           );
         }

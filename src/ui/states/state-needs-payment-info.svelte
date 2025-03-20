@@ -108,7 +108,7 @@
           throw new Error("Failed to complete checkout");
         }
       } catch (error) {
-        handleStripeElementError(error as PurchaseFlowError);
+        handleStripeElementError(error as PaymentElementError);
         return;
       }
     }
@@ -120,7 +120,7 @@
     processing = false;
 
     const event = createCheckoutPaymentGatewayErrorEvent({
-      errorCode: error.code?.toString(),
+      errorCode: error.gatewayErrorCode ?? "",
       errorMessage: error.message ?? "",
     });
     eventsTracker.trackSDKEvent(event);

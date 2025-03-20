@@ -6,5 +6,6 @@ export enum PaymentElementErrorCode {
 
 export type PaymentElementError = {
   code: PaymentElementErrorCode;
+  gatewayErrorCode: string | undefined;
   message: string | undefined;
 };
