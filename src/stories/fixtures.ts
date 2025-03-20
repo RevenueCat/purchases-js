@@ -144,6 +144,7 @@ export const brandingInfo: BrandingInfoResponse = {
   app_icon: "1005820_1715624566.png",
   app_icon_webp: "1005820_1715624566.webp",
   appearance: null,
+  gateway_tax_collection_enabled: false,
 };
 
 export const purchaseFlowError = new PurchaseFlowError(1);
@@ -219,6 +220,7 @@ export const brandingInfos: Record<string, BrandingInfoResponse> = {
       font: "sans-serif",
       show_product_description: true,
     },
+    gateway_tax_collection_enabled: false,
   },
   Igify: {
     id: "app7e12a2a4b3",
@@ -237,6 +239,7 @@ export const brandingInfos: Record<string, BrandingInfoResponse> = {
       shapes: "default",
       show_product_description: true,
     },
+    gateway_tax_collection_enabled: false,
   },
   Dipsea: {
     id: "appd458f1e3a2",
@@ -255,5 +258,6 @@ export const brandingInfos: Record<string, BrandingInfoResponse> = {
       shapes: "pill",
       show_product_description: false,
     },
+    gateway_tax_collection_enabled: false,
   },
 };
