@@ -2,6 +2,7 @@
   import { getContext, onMount } from "svelte";
   import type {
     Appearance,
+    ConfirmationToken,
     Stripe,
     StripeElementLocale,
     StripeElements,
@@ -26,6 +27,7 @@
 
   export let gatewayParams: GatewayParams;
   export let brandingInfo: BrandingInfoResponse | null;
+  export let collectBillingAddress: boolean = false;
   export let onLoadingComplete: () => void;
   export let onError: (error: PaymentElementError) => void;
   export let onPaymentInfoChange: (params: {
@@ -34,6 +36,10 @@
   }) => void;
   export let onSubmissionSuccess: () => void;
   export let onConfirmationSuccess: () => void;
+  export let onBillingAddressUpdated: (params: {
+    countryCode: string | undefined;
+    postalCode: string | undefined;
+  }) => void;
   export let stripeLocale: StripeElementLocale | undefined = undefined;
 
   export async function submit() {
@@ -51,13 +57,24 @@
     if (!stripe || !elements) return;
 
     const isSetupIntent = clientSecret.startsWith("seti_");
-    const result = await stripe[
-      isSetupIntent ? "confirmSetup" : "confirmPayment"
-    ]({
-      elements: elements,
+    const baseOptions = {
       clientSecret,
-      redirect: "if_required",
-    });
+      redirect: "if_required" as const,
+    };
+
+    const confirmOptions = lastConfirmationTokenId
+      ? {
+          ...baseOptions,
+          confirmParams: { confirmation_token: lastConfirmationTokenId },
+        }
+      : {
+          ...baseOptions,
+          elements: elements,
+        };
+    const result =
+      await stripe[isSetupIntent ? "confirmSetup" : "confirmPayment"](
+        confirmOptions,
+      );
 
     if (result.error) {
       handleFormSubmissionError(result.error);
@@ -85,6 +102,11 @@
   let stripe: Stripe | null = null;
   let unsafeElements: StripeElements | null = null;
   let elements: StripeElements | null = null;
+
+  let lastConfirmationTokenId: string | undefined = undefined;
+  let lastTaxCalculationBillingDetails:
+    | { countryCode?: string; postalCode?: string }
+    | undefined = undefined;
 
   let spacing = new Theme().spacing;
   let stripeVariables: undefined | Appearance["variables"];
@@ -158,6 +180,55 @@
     return initialLocale as StripeElementLocale;
   };
 
+  async function triggerBillingAddressUpdate() {
+    if (!collectBillingAddress || !elements || !stripe) return;
+
+    const { error: submitError } = await elements.submit();
+    if (submitError) {
+      handleFormSubmissionError(submitError);
+      return;
+    }
+
+    const { error: confirmationError, confirmationToken } =
+      await stripe.createConfirmationToken({
+        elements: elements,
+      });
+
+    if (confirmationError) {
+      handleFormSubmissionError(confirmationError);
+      return;
+    }
+
+    lastConfirmationTokenId = confirmationToken.id;
+
+    const { countryCode, postalCode } =
+      getCountryAndPostalCodeFromConfirmationToken(confirmationToken);
+
+    if (
+      countryCode === lastTaxCalculationBillingDetails?.countryCode &&
+      postalCode === lastTaxCalculationBillingDetails?.postalCode
+    ) {
+      return;
+    }
+
+    lastTaxCalculationBillingDetails = { countryCode, postalCode };
+
+    onBillingAddressUpdated({
+      countryCode,
+      postalCode,
+    });
+  }
+
+  function getCountryAndPostalCodeFromConfirmationToken(
+    confirmationToken: ConfirmationToken,
+  ): { countryCode?: string; postalCode?: string } {
+    const billingAddress =
+      confirmationToken.payment_method_preview?.billing_details?.address;
+    const countryCode = billingAddress?.country ?? undefined;
+    const postalCode = billingAddress?.postal_code ?? undefined;
+    return { countryCode, postalCode };
+  }
+
   onMount(() => {
     updateStripeVariables();
 
@@ -201,7 +272,17 @@
 
         paymentElement.on(
           "change",
-          (event: StripePaymentElementChangeEvent) => {
+          async (event: StripePaymentElementChangeEvent) => {
+            lastConfirmationTokenId = undefined;
+
+            if (
+              collectBillingAddress &&
+              event.complete &&
+              event.value.type === "card"
+            ) {
+              await triggerBillingAddressUpdate();
+            }
+
             onPaymentInfoChange({
               complete: event.complete,
               paymentMethod: event.complete ? event.value.type : undefined,

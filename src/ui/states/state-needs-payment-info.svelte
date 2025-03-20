@@ -59,6 +59,7 @@
   let stripeConfirm: (clientSecret: string) => Promise<void>;
 
   let isPaymentInfoComplete = false;
+  let isCalculatingTaxes = false;
   let selectedPaymentMethod: string | undefined = undefined;
   let modalErrorMessage: string | undefined = undefined;
   let clientSecret: string | undefined = undefined;
@@ -88,6 +89,27 @@
   }) {
     selectedPaymentMethod = paymentMethod;
     isPaymentInfoComplete = complete;
+  }
+
+  async function handleBillingAddressUpdated({
+    countryCode,
+    postalCode,
+  }: {
+    countryCode: string | undefined;
+    postalCode: string | undefined;
+  }): Promise<void> {
+    isCalculatingTaxes = true;
+    taxCalculation = await purchaseOperationHelper.checkoutCalculateTax(
+      countryCode,
+      postalCode,
+    );
+    console.debug(
+      "Tax calculation updated",
+      countryCode,
+      postalCode,
+      taxCalculation,
+    );
+    isCalculatingTaxes = false;
   }
 
   async function handleSubmit(): Promise<void> {
@@ -171,18 +193,22 @@
           bind:stripeLocale
           {gatewayParams}
           {brandingInfo}
+          collectBillingAddress={brandingInfo?.gateway_tax_collection_enabled}
           onLoadingComplete={handleStripeLoadingComplete}
           onError={handleStripeElementError}
           onPaymentInfoChange={handlePaymentInfoChange}
           onSubmissionSuccess={handlePaymentSubmissionSuccess}
           onConfirmationSuccess={onContinue}
+          onBillingAddressUpdated={handleBillingAddressUpdated}
         />
       </div>
 
       <div class="rc-checkout-pay-container">
         {#if !modalErrorMessage}
           <Button
-            disabled={processing || !isPaymentInfoComplete}
+            disabled={processing ||
+              !isPaymentInfoComplete ||
+              isCalculatingTaxes}
             testId="PayButton"
           >
             {#if subscriptionOption?.trial}
