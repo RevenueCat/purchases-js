@@ -97,6 +97,7 @@
             onContinue={handleContinue}
             processing={currentView === "processing-auth-info"}
             {lastError}
+            {brandingInfo}
           />
         {/if}
         {#if paymentInfoCollectionMetadata && (currentView === "needs-payment-info" || currentView === "polling-purchase-status") && productDetails && purchaseOptionToUse}

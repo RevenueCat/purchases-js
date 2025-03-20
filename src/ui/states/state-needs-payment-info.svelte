@@ -1,6 +1,5 @@
 <script lang="ts">
   import { getContext, onMount } from "svelte";
-  import Button from "../atoms/button.svelte";
   import type {
     Appearance,
     Stripe,
@@ -18,7 +17,6 @@
 
   import { translatorContextKey } from "../localization/constants";
   import { Translator } from "../localization/translator";
-  import Localized from "../localization/localized.svelte";
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import SecureCheckoutRc from "../molecules/secure-checkout-rc.svelte";
@@ -39,8 +37,6 @@
   } from "../../behavioural-events/sdk-event-helpers";
   import { SDKEventName } from "../../behavioural-events/sdk-events";
   import StateLoading from "./state-loading.svelte";
-  import { getNextRenewalDate } from "../../helpers/duration-helper";
-  import { formatPrice } from "../../helpers/price-labels";
   import { type Writable } from "svelte/store";
   import PaymentButton from "../molecules/payment-button.svelte";
 
@@ -331,43 +327,7 @@
         {/if}
 
         <div class="rc-checkout-secure-container">
-          <SecureCheckoutRc
-            termsInfo={$translator.translate(
-              LocalizationKeys.StateNeedsPaymentInfoTermsInfo,
-              {
-                appName: brandingInfo?.app_name,
-              },
-            )}
-            trialInfo={subscriptionOption?.base?.price &&
-            subscriptionOption?.trial?.period &&
-            subscriptionOption?.base?.period &&
-            subscriptionOption?.base?.period?.unit
-              ? $translator.translate(
-                  LocalizationKeys.StateNeedsPaymentInfoTrialInfo,
-                  {
-                    price: formatPrice(
-                      subscriptionOption?.base?.price.amountMicros,
-                      subscriptionOption?.base?.price.currency,
-                      localeToUse,
-                    ),
-                    perFrequency: $translator.translatePeriodFrequency(
-                      subscriptionOption?.base?.period?.number || 1,
-                      subscriptionOption?.base?.period?.unit,
-                      { useMultipleWords: true },
-                    ),
-                    renewalDate: $translator.translateDate(
-                      getNextRenewalDate(
-                        new Date(),
-                        subscriptionOption.trial.period ||
-                          subscriptionOption.base.period,
-                        true,
-                      ) as Date,
-                      { year: "numeric", month: "long", day: "numeric" },
-                    ),
-                  },
-                )
-              : null}
-          />
+          <SecureCheckoutRc {brandingInfo} {subscriptionOption} />
         </div>
       </div>
     </div>

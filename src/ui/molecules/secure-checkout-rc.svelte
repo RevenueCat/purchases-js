@@ -1,9 +1,52 @@
 <script lang="ts">
   import Localized from "../localization/localized.svelte";
   import { LocalizationKeys } from "../localization/supportedLanguages";
+  import { getContext } from "svelte";
+  import { translatorContextKey } from "../localization/constants";
+  import { Translator } from "../localization/translator";
+  import { formatPrice } from "../../helpers/price-labels";
+  import { getNextRenewalDate } from "../../helpers/duration-helper";
+  import type { BrandingInfoResponse } from "../../networking/responses/branding-response";
+  import type { SubscriptionOption } from "../../entities/offerings";
+  import { type Writable } from "svelte/store";
 
-  export let termsInfo: string | null = null;
-  export let trialInfo: string | null = null;
+  export let brandingInfo: BrandingInfoResponse | null = null;
+  export let subscriptionOption: SubscriptionOption | null = null;
+
+  const translator = getContext<Writable<Translator>>(translatorContextKey);
+
+  $: termsInfo = brandingInfo
+    ? $translator.translate(LocalizationKeys.StateNeedsPaymentInfoTermsInfo, {
+        appName: brandingInfo?.app_name,
+      })
+    : null;
+
+  $: trialInfo =
+    subscriptionOption?.base?.price &&
+    subscriptionOption?.trial?.period &&
+    subscriptionOption?.base?.period &&
+    subscriptionOption?.base?.period?.unit
+      ? $translator.translate(LocalizationKeys.StateNeedsPaymentInfoTrialInfo, {
+          price: formatPrice(
+            subscriptionOption?.base?.price.amountMicros,
+            subscriptionOption?.base?.price.currency,
+            $translator.locale || $translator.fallbackLocale,
+          ),
+          perFrequency: $translator.translatePeriodFrequency(
+            subscriptionOption?.base?.period?.number || 1,
+            subscriptionOption?.base?.period?.unit,
+            { useMultipleWords: true },
+          ),
+          renewalDate: $translator.translateDate(
+            getNextRenewalDate(
+              new Date(),
+              subscriptionOption.trial.period || subscriptionOption.base.period,
+              true,
+            ) as Date,
+            { year: "numeric", month: "long", day: "numeric" },
+          ),
+        })
+      : null;
 </script>
 
 <div class="footer-caption-container">

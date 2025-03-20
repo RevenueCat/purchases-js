@@ -18,10 +18,12 @@
   import { createCheckoutBillingFormErrorEvent } from "../../behavioural-events/sdk-event-helpers";
   import { SDKEventName } from "../../behavioural-events/sdk-events";
   import { type Writable } from "svelte/store";
+  import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
 
   export let onContinue: (params: ContinueHandlerParams) => void;
   export let processing: boolean;
   export let lastError: PurchaseFlowError | null;
+  export let brandingInfo: BrandingInfoResponse | null = null;
 
   const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
 
