@@ -5,6 +5,7 @@
     Stripe,
     StripeElementLocale,
     StripeElements,
+    StripeError,
     StripePaymentElement,
     StripePaymentElementChangeEvent,
   } from "@stripe/stripe-js";
@@ -25,25 +26,75 @@
 
   export let gatewayParams: GatewayParams;
   export let brandingInfo: BrandingInfoResponse | null;
-  export let onStripeReady: () => void;
-  export let onStripeLoadingError: (error: PurchaseFlowError) => void;
+  export let onLoadingComplete: () => void;
+  export let onError: (error: PurchaseFlowError) => void;
   export let onPaymentInfoChange: (params: {
     complete: boolean;
     paymentMethod: string | undefined;
   }) => void;
-
-  // Add export keyword to bind these variables to parent component
-  export let stripe: Stripe | null = null;
-  export let elements: StripeElements | undefined = undefined;
+  export let onSubmissionSuccess: () => void;
+  export let onConfirmationSuccess: () => void;
   export let stripeLocale: StripeElementLocale | undefined = undefined;
 
-  let unsafeElements: StripeElements;
+  export async function submit() {
+    if (!elements) return;
+
+    const { error: submitError } = await elements.submit();
+    if (submitError) {
+      handleStripeError(submitError);
+    } else {
+      onSubmissionSuccess();
+    }
+  }
+
+  export async function confirm(clientSecret: string) {
+    if (!stripe || !elements) return;
+
+    const isSetupIntent = clientSecret.startsWith("seti_");
+    const result = await stripe[
+      isSetupIntent ? "confirmSetup" : "confirmPayment"
+    ]({
+      elements: elements,
+      clientSecret,
+      redirect: "if_required",
+    });
+
+    if (result.error) {
+      handleStripeError(result.error);
+    } else {
+      onConfirmationSuccess();
+    }
+  }
+
+  function handleStripeError(error: StripeError) {
+    if (StripeService.isStripeHandledCardError(error)) {
+      onError(
+        new PurchaseFlowError(
+          PurchaseFlowErrorCode.CardValidationError,
+          "Stripe Card Validation Error",
+          error.message,
+        ),
+      );
+    } else {
+      onError(
+        new PurchaseFlowError(
+          PurchaseFlowErrorCode.ErrorChargingPayment,
+          "Stripe payment error",
+          error.message,
+        ),
+      );
+    }
+  }
+
+  let stripe: Stripe | null = null;
+  let unsafeElements: StripeElements | null = null;
+  let elements: StripeElements | null = null;
 
   let spacing = new Theme().spacing;
   let stripeVariables: undefined | Appearance["variables"];
   let viewport: "mobile" | "desktop" = "mobile";
 
-  // Maybe extract this to a
+  // Maybe extract this to a hook
   function updateStripeVariables() {
     const isMobile =
       window.matchMedia && window.matchMedia("(max-width: 767px)").matches;
@@ -149,7 +200,7 @@
         paymentElement.mount("#payment-element");
 
         paymentElement.on("ready", () => {
-          onStripeReady();
+          onLoadingComplete();
         });
 
         paymentElement.on(
@@ -170,7 +221,8 @@
               ? event.error.message
               : String(event.error),
           );
-          onStripeLoadingError(purchaseError);
+          onError(purchaseError);
+          onLoadingComplete();
         });
       } catch (error) {
         if (!isMounted) return;
@@ -181,7 +233,8 @@
           error instanceof Error ? error.message : String(error),
         );
 
-        onStripeLoadingError(purchaseError);
+        onError(purchaseError);
+        onLoadingComplete();
       }
     })();
 

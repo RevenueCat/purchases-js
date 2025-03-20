@@ -34,6 +34,7 @@ export enum PurchaseFlowErrorCode {
   NetworkError = 3,
   MissingEmailError = 4,
   AlreadyPurchasedError = 5,
+  CardValidationError = 6,
 }
 
 export class PurchaseFlowError extends Error {
@@ -51,6 +52,7 @@ export class PurchaseFlowError extends Error {
     switch (this.errorCode) {
       case PurchaseFlowErrorCode.NetworkError:
       case PurchaseFlowErrorCode.MissingEmailError:
+      case PurchaseFlowErrorCode.CardValidationError:
         return true;
       case PurchaseFlowErrorCode.ErrorSettingUpPurchase:
       case PurchaseFlowErrorCode.ErrorChargingPayment:
@@ -87,6 +89,8 @@ export class PurchaseFlowError extends Error {
         } else {
           return "You have already purchased this product.";
         }
+      case PurchaseFlowErrorCode.CardValidationError:
+        return this.underlyingErrorMessage ?? "Card validation error";
     }
   }
 

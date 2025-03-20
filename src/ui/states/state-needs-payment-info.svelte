@@ -1,12 +1,7 @@
 <script lang="ts">
   import { getContext, onMount } from "svelte";
   import Button from "../atoms/button.svelte";
-  import type {
-    Stripe,
-    StripeElementLocale,
-    StripeElements,
-    StripeError,
-  } from "@stripe/stripe-js";
+  import type { StripeElementLocale } from "@stripe/stripe-js";
   import type { Product, PurchaseOption } from "../../entities/offerings";
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
   import IconError from "../atoms/icons/icon-error.svelte";
@@ -23,7 +18,6 @@
     PurchaseFlowError,
     PurchaseOperationHelper,
   } from "../../helpers/purchase-operation-helper";
-  import { StripeService } from "../../stripe/stripe-service";
   import { type ContinueHandlerParams } from "../ui-types";
   import { type IEventsTracker } from "../../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "../constants";
@@ -49,9 +43,11 @@
   const gatewayParams = paymentInfoCollectionMetadata.gateway_params;
 
   let isStripeLoading = true;
-  let stripe: Stripe | null = null;
-  let elements: StripeElements | undefined;
   let stripeLocale: StripeElementLocale | undefined;
+
+  let stripeSubmit: () => Promise<void>;
+  let stripeConfirm: (clientSecret: string) => Promise<void>;
+
   let isPaymentInfoComplete = false;
   let selectedPaymentMethod: string | undefined = undefined;
   let modalErrorMessage: string | undefined = undefined;
@@ -69,13 +65,8 @@
     });
   });
 
-  function handleStripeReady() {
+  function handleStripeLoadingComplete() {
     isStripeLoading = false;
-  }
-
-  function handleStripeLoadingError(error: PurchaseFlowError) {
-    isStripeLoading = false;
-    handlePaymentError(error);
   }
 
   function handlePaymentInfoChange({
@@ -89,8 +80,8 @@
     isPaymentInfoComplete = complete;
   }
 
-  const handleContinue = async () => {
-    if (processing || !stripe || !elements) return;
+  async function handleSubmit(): Promise<void> {
+    if (processing) return;
 
     const event = createCheckoutPaymentFormSubmitEvent({
       selectedPaymentMethod: selectedPaymentMethod ?? null,
@@ -99,44 +90,10 @@
 
     processing = true;
 
-    const { error: submitError } = await elements.submit();
-    if (submitError) {
-      handlePaymentError(submitError);
-    } else {
-      const checkoutError = await completeCheckout(stripe);
-
-      if (checkoutError) {
-        handlePaymentError(checkoutError);
-      } else {
-        onContinue();
-      }
-    }
-  };
-
-  function handlePaymentError(error: StripeError | PurchaseFlowError) {
-    processing = false;
-
-    const event = createCheckoutPaymentGatewayErrorEvent({
-      errorCode:
-        error instanceof PurchaseFlowError
-          ? error.errorCode?.toString()
-          : (error.code ?? null),
-      errorMessage: error.message ?? "",
-    });
-    eventsTracker.trackSDKEvent(event);
-
-    if (error instanceof PurchaseFlowError) {
-      if (error.isRecoverable()) {
-        modalErrorMessage = error.getPublicErrorMessage(productDetails);
-      } else {
-        onContinue({ error: error });
-      }
-    } else if (!StripeService.isStripeHandledCardError(error)) {
-      modalErrorMessage = error.message;
-    }
+    await stripeSubmit();
   }
 
-  const completeCheckout = async (stripe: Stripe) => {
+  async function handlePaymentSubmissionSuccess(): Promise<void> {
     // Get client secret if not already present
     if (!clientSecret) {
       try {
@@ -146,22 +103,30 @@
           throw new Error("Failed to complete checkout");
         }
       } catch (error) {
-        return error as PurchaseFlowError;
+        handleStripeElementError(error as PurchaseFlowError);
+        return;
       }
     }
 
-    // Confirm payment or setup intent with Stripe
-    const isSetupIntent = clientSecret.startsWith("seti_");
-    const result = await stripe[
-      isSetupIntent ? "confirmSetup" : "confirmPayment"
-    ]({
-      elements: elements,
-      clientSecret,
-      redirect: "if_required",
-    });
+    await stripeConfirm(clientSecret);
+  }
 
-    return result.error;
-  };
+  function handleStripeElementError(error: PurchaseFlowError) {
+    processing = false;
+
+    const event = createCheckoutPaymentGatewayErrorEvent({
+      errorCode: error.errorCode?.toString(),
+      errorMessage: error.message ?? "",
+    });
+    eventsTracker.trackSDKEvent(event);
+
+    debugger;
+    if (error.isRecoverable()) {
+      modalErrorMessage = error.getPublicErrorMessage(productDetails);
+    } else {
+      onContinue({ error: error });
+    }
+  }
 
   const handleErrorTryAgain = () => {
     modalErrorMessage = undefined;
@@ -174,7 +139,7 @@
   {/if}
   <!-- <TextSeparator text="Pay by card" /> -->
   <form
-    on:submit|preventDefault={handleContinue}
+    on:submit|preventDefault={handleSubmit}
     data-testid="payment-form"
     class="rc-checkout-form"
     class:hidden={isStripeLoading || processing}
@@ -182,14 +147,16 @@
     <div class="rc-checkout-form-container" hidden={!!modalErrorMessage}>
       <div class="rc-payment-element-container">
         <StripePaymentElements
+          bind:submit={stripeSubmit}
+          bind:confirm={stripeConfirm}
+          bind:stripeLocale
           {gatewayParams}
           {brandingInfo}
-          onStripeReady={handleStripeReady}
-          onStripeLoadingError={handleStripeLoadingError}
+          onLoadingComplete={handleStripeLoadingComplete}
+          onError={handleStripeElementError}
           onPaymentInfoChange={handlePaymentInfoChange}
-          bind:stripe
-          bind:elements
-          bind:stripeLocale
+          onSubmissionSuccess={handlePaymentSubmissionSuccess}
+          onConfirmationSuccess={onContinue}
         />
       </div>
 
