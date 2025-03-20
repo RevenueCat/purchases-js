@@ -48,6 +48,12 @@
   export async function submit() {
     if (!elements) return;
 
+    if (lastConfirmationTokenId) {
+      // No need to submit again, we already have a confirmation token
+      onSubmissionSuccess();
+      return;
+    }
+
     const { error: submitError } = await elements.submit();
     if (submitError) {
       handleFormSubmissionError(submitError);
