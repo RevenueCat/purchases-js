@@ -6,7 +6,7 @@
     setTemplate,
   } from "@storybook/addon-svelte-csf";
   import { withNavbar } from "../decorators/with-navbar";
-  import { brandingLanguageViewportModes } from "../../../.storybook/modes";
+  import { mobileAndDesktopBrandingModes } from "../../../.storybook/modes";
 
   let { Story } = defineMeta({
     component: Dropdown,
@@ -15,7 +15,7 @@
     decorators: [withNavbar],
     parameters: {
       chromatic: {
-        modes: brandingLanguageViewportModes,
+        modes: mobileAndDesktopBrandingModes,
       },
     },
   });
