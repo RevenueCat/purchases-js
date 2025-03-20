@@ -163,8 +163,8 @@ export const stripeElementsConfiguration = {
   mode: StripeElementsMode.Payment,
   payment_method_types: ["card"],
   setup_future_usage: StripeElementsSetupFutureUsage.OffSession,
-  amount: 9.99,
-  currency: "EUR",
+  amount: 999,
+  currency: "eur",
 };
 
 const publishableApiKey = import.meta.env.VITE_STORYBOOK_PUBLISHABLE_API_KEY;
