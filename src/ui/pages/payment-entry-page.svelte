@@ -33,6 +33,8 @@
   import PaymentButton from "../molecules/payment-button.svelte";
   import StripePaymentElements from "../molecules/stripe-payment-elements.svelte";
   import { type GatewayParams } from "../../networking/responses/stripe-elements";
+  import { type CheckoutCalculateTaxResponse } from "../../networking/responses/checkout-calculate-tax-response";
+  import { type StripeElementsConfiguration } from "../../networking/responses/stripe-elements";
 
   export let onContinue: (params?: ContinueHandlerParams) => void;
   export let gatewayParams: GatewayParams = {};
@@ -47,6 +49,9 @@
 
   let stripeSubmit: () => Promise<void>;
   let stripeConfirm: (clientSecret: string) => Promise<void>;
+  let updateStripeGatewayParams: (
+    elementsConfiguration: StripeElementsConfiguration,
+  ) => Promise<void>;
 
   let isPaymentInfoComplete = false;
   let isCalculatingTaxes = false;
@@ -99,6 +104,12 @@
       postalCode,
       taxCalculation,
     );
+
+    if (taxCalculation) {
+      updateStripeGatewayParams(
+        taxCalculation.gateway_params.elements_configuration,
+      );
+    }
     isCalculatingTaxes = false;
   }
 
@@ -180,6 +191,7 @@
         <StripePaymentElements
           bind:submit={stripeSubmit}
           bind:confirm={stripeConfirm}
+          bind:updateGatewayParams={updateStripeGatewayParams}
           bind:stripeLocale
           {gatewayParams}
           {brandingInfo}

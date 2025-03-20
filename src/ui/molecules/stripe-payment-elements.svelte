@@ -16,7 +16,10 @@
   import { translatorContextKey } from "../localization/constants";
   import { Translator } from "../localization/translator";
 
-  import { type GatewayParams } from "../../networking/responses/stripe-elements";
+  import {
+    type GatewayParams,
+    type StripeElementsConfiguration,
+  } from "../../networking/responses/stripe-elements";
   import { DEFAULT_FONT_FAMILY } from "../theme/text";
   import { StripeService } from "../../stripe/stripe-service";
   import { type Writable } from "svelte/store";
@@ -81,6 +84,17 @@
     } else {
       onConfirmationSuccess();
     }
+  }
+
+  export async function updateGatewayParams(
+    elementsConfiguration: StripeElementsConfiguration,
+  ) {
+    if (!stripe || !elements) return;
+
+    await StripeService.updateElementsConfiguration(
+      elements,
+      elementsConfiguration,
+    );
   }
 
   function handleFormSubmissionError(error: StripeError) {
