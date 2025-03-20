@@ -16,11 +16,13 @@ interface StripeElementsConfiguration {
   currency?: string;
 }
 
+export interface GatewayParams {
+  stripe_account_id?: string;
+  publishable_api_key?: string;
+  elements_configuration?: StripeElementsConfiguration;
+}
+
 export interface CheckoutStartResponse {
   operation_session_id: string;
-  gateway_params: {
-    stripe_account_id?: string;
-    publishable_api_key?: string;
-    elements_configuration?: StripeElementsConfiguration;
-  };
+  gateway_params: GatewayParams;
 }

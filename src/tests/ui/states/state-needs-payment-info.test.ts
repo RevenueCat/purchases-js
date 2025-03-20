@@ -59,6 +59,7 @@ vi.mock("../../../stripe/stripe-service", () => ({
 describe("PurchasesUI", () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    vi.clearAllMocks();
   });
 
   test("tracks the PaymentEntryImpression event when the payment entry is displayed", async () => {
@@ -75,30 +76,34 @@ describe("PurchasesUI", () => {
   });
 
   test("tracks the PaymentEntrySubmit event when the payment entry is submitted", async () => {
-    const paymentElementMock = {
+    const paymentElement = {
       on: (
         event: string,
-        callback: (event: StripePaymentElementChangeEvent) => void,
+        callback: (event?: StripePaymentElementChangeEvent) => void,
       ) => {
+        if (event === "ready") {
+          setTimeout(() => callback(), 0);
+        }
         if (event === "change") {
-          callback({
-            complete: true,
-            value: {
-              type: "card",
-            },
-            elementType: "payment",
-            empty: false,
-            collapsed: false,
-          });
+          setTimeout(() => {
+            callback({
+              complete: true,
+              value: {
+                type: "card",
+              },
+              elementType: "payment",
+              empty: false,
+              collapsed: false,
+            });
+          }, 100);
         }
       },
       mount: vi.fn(),
       destroy: vi.fn(),
     };
-
     vi.mocked(StripeService.createPaymentElement).mockReturnValue(
-      // @ts-expect-error - this is a mock
-      paymentElementMock,
+      // @ts-expect-error - This is a mock
+      paymentElement,
     );
 
     render(StateNeedsPaymentInfo, {
@@ -106,6 +111,7 @@ describe("PurchasesUI", () => {
       context: defaultContext,
     });
 
+    await vi.advanceTimersToNextTimerAsync();
     await vi.advanceTimersToNextTimerAsync();
 
     const paymentForm = screen.getByTestId("payment-form");
@@ -119,12 +125,89 @@ describe("PurchasesUI", () => {
     });
   });
 
-  test("tracks the PaymentEntryGatewayError event when the payment entry is submitted and failed", async () => {
+  test("tracks the CheckoutPaymentFormGatewayError event when the payment form fails to initialize", async () => {
+    vi.mocked(StripeService.initializeStripe).mockRejectedValue(
+      new Error("Failed to initialize payment form"),
+    );
+
     render(StateNeedsPaymentInfo, {
       props: { ...basicProps },
       context: defaultContext,
     });
 
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
+      eventName: SDKEventName.CheckoutPaymentFormGatewayError,
+      properties: {
+        errorCode: "0",
+        errorMessage: "Failed to initialize payment form",
+      },
+    });
+  });
+
+  test("tracks the CheckoutPaymentFormGatewayError event when stripe onload error occurs", async () => {
+    const paymentElement = {
+      on: (
+        event: string,
+        callback: (event?: StripePaymentElementChangeEvent) => void,
+      ) => {
+        if (event === "onerror") {
+          setTimeout(
+            () =>
+              callback(new Error("Failed to initialize payment form") as any),
+            0,
+          );
+        }
+      },
+      mount: vi.fn(),
+      destroy: vi.fn(),
+    };
+    vi.mocked(StripeService.createPaymentElement).mockReturnValue(
+      // @ts-expect-error - This is a mock
+      paymentElement,
+    );
+    render(StateNeedsPaymentInfo, {
+      props: { ...basicProps },
+      context: defaultContext,
+    });
+
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
+      eventName: SDKEventName.CheckoutPaymentFormGatewayError,
+      properties: {
+        errorCode: "0",
+        errorMessage: "Failed to initialize payment form",
+      },
+    });
+  });
+
+  test("tracks the CheckoutPaymentFormGatewayError event when stripe ", async () => {
+    const stripeInitializationMock = {
+      stripe: { exists: true },
+      elements: {
+        _elements: [1],
+        submit: vi.fn().mockResolvedValue({
+          error: {
+            type: "api_error",
+            code: "0",
+            message: "Submission error",
+          },
+        }),
+      },
+    };
+    vi.mocked(StripeService.initializeStripe).mockReturnValue(
+      // @ts-expect-error - This is a mock
+      stripeInitializationMock,
+    );
+
+    render(StateNeedsPaymentInfo, {
+      props: { ...basicProps },
+      context: defaultContext,
+    });
+
+    await vi.advanceTimersToNextTimerAsync();
     await vi.advanceTimersToNextTimerAsync();
 
     const paymentForm = screen.getByTestId("payment-form");
@@ -134,7 +217,7 @@ describe("PurchasesUI", () => {
       eventName: SDKEventName.CheckoutPaymentFormGatewayError,
       properties: {
         errorCode: "0",
-        errorMessage: "Failed to initialize payment form",
+        errorMessage: "Submission error",
       },
     });
   });

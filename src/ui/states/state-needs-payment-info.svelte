@@ -2,17 +2,13 @@
   import { getContext, onMount } from "svelte";
   import Button from "../atoms/button.svelte";
   import type {
-    Appearance,
     Stripe,
     StripeElementLocale,
     StripeElements,
     StripeError,
-    StripePaymentElement,
-    StripePaymentElementChangeEvent,
   } from "@stripe/stripe-js";
   import type { Product, PurchaseOption } from "../../entities/offerings";
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
-  import { Theme } from "../theme/theme";
   import IconError from "../atoms/icons/icon-error.svelte";
   import MessageLayout from "../layout/message-layout.svelte";
 
@@ -25,10 +21,8 @@
   import { type CheckoutStartResponse } from "../../networking/responses/checkout-start-response";
   import {
     PurchaseFlowError,
-    PurchaseFlowErrorCode,
     PurchaseOperationHelper,
   } from "../../helpers/purchase-operation-helper";
-  import { DEFAULT_FONT_FAMILY } from "../theme/text";
   import { StripeService } from "../../stripe/stripe-service";
   import { type ContinueHandlerParams } from "../ui-types";
   import { type IEventsTracker } from "../../behavioural-events/events-tracker";
@@ -42,6 +36,7 @@
   import { getNextRenewalDate } from "../../helpers/duration-helper";
   import { formatPrice } from "../../helpers/price-labels";
   import { type Writable } from "svelte/store";
+  import StripePaymentElements from "../molecules/stripe-payment-elements.svelte";
 
   export let onContinue: (params?: ContinueHandlerParams) => void;
   export let paymentInfoCollectionMetadata: CheckoutStartResponse;
@@ -51,183 +46,51 @@
   export let brandingInfo: BrandingInfoResponse | null;
   export let purchaseOperationHelper: PurchaseOperationHelper;
 
-  let stripe: Stripe | null = null;
-  let elements: StripeElements;
-  let safeElements: StripeElements;
-  let paymentElement: StripePaymentElement | null = null;
-  let modalErrorMessage: string | undefined = undefined;
-  let isPaymentInfoComplete = false;
-  let clientSecret: string | undefined = undefined;
-  let selectedPaymentMethod: string | undefined = undefined;
+  const gatewayParams = paymentInfoCollectionMetadata.gateway_params;
+
   let isStripeLoading = true;
+  let stripe: Stripe | null = null;
+  let elements: StripeElements | undefined;
+  let stripeLocale: StripeElementLocale | undefined;
+  let isPaymentInfoComplete = false;
+  let selectedPaymentMethod: string | undefined = undefined;
+  let modalErrorMessage: string | undefined = undefined;
+  let clientSecret: string | undefined = undefined;
 
   const subscriptionOption =
     productDetails.subscriptionOptions?.[purchaseOption.id];
 
   const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
-
-  let spacing = new Theme().spacing;
-
-  let stripeVariables: undefined | Appearance["variables"];
-  let viewport: "mobile" | "desktop" = "mobile";
-
-  // Maybe extract this to a
-  function updateStripeVariables() {
-    const isMobile =
-      window.matchMedia && window.matchMedia("(max-width: 767px)").matches;
-
-    if (isMobile) {
-      viewport = "mobile";
-    } else {
-      viewport = "desktop";
-    }
-
-    stripeVariables = {
-      fontSizeBase: "14px",
-      fontFamily: DEFAULT_FONT_FAMILY,
-      spacingGridRow: spacing.gapXLarge[viewport],
-    };
-  }
-
-  let resizeTimeout: number | undefined;
-
-  function onResize() {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(() => {
-      updateStripeVariables();
-    }, 150);
-  }
-
   const translator = getContext<Writable<Translator>>(translatorContextKey);
 
-  $: stripeElementLocale = ($translator.locale ||
-    $translator.fallbackLocale) as StripeElementLocale;
-
-  /**
-   * This function converts some particular locales to the ones that stripe supports.
-   * Finally falls back to 'auto' if the initialLocale is not supported by stripe.
-   * @param initialLocale
-   */
-  const getLocaleToUse = (
-    initialLocale: StripeElementLocale,
-  ): StripeElementLocale => {
-    // These locale that we support are not supported by stripe.
-    // if any of these is passed we fallback to 'auto' so that
-    // stripe will pick up the locale from the browser.
-    const stripeUnsupportedLocale = ["ca", "hi", "uk"];
-
-    if (stripeUnsupportedLocale.includes(initialLocale)) {
-      return "auto";
-    }
-
-    const mappedLocale: Record<string, StripeElementLocale> = {
-      zh_Hans: "zh",
-      zh_Hant: "zh",
-    };
-
-    if (Object.keys(mappedLocale).includes(initialLocale)) {
-      return mappedLocale[initialLocale];
-    }
-
-    return initialLocale;
-  };
-
-  $: localeToUse = getLocaleToUse(stripeElementLocale);
-
-  $: {
-    // @ts-ignore
-    if (elements && elements._elements.length > 0) {
-      safeElements = elements;
-    }
-  }
-
   onMount(() => {
-    updateStripeVariables();
-
-    window.addEventListener("resize", onResize);
-
-    return () => {
-      window.removeEventListener("resize", onResize);
-    };
-  });
-
-  onMount(() => {
-    let isMounted = true;
-
     eventsTracker.trackSDKEvent({
       eventName: SDKEventName.CheckoutPaymentFormImpression,
     });
-
-    (async () => {
-      try {
-        const { stripe: stripeInstance, elements: elementsInstance } =
-          await StripeService.initializeStripe(
-            paymentInfoCollectionMetadata,
-            brandingInfo,
-            localeToUse,
-            stripeVariables,
-            viewport,
-          );
-
-        if (!isMounted) return;
-
-        stripe = stripeInstance;
-        elements = elementsInstance;
-
-        paymentElement = StripeService.createPaymentElement(
-          elements,
-          brandingInfo?.app_name,
-        );
-
-        paymentElement.mount("#payment-element");
-
-        paymentElement.on("ready", () => {
-          isStripeLoading = false;
-        });
-
-        paymentElement.on(
-          "change",
-          (event: StripePaymentElementChangeEvent) => {
-            isPaymentInfoComplete = event.complete;
-            if (isPaymentInfoComplete) {
-              selectedPaymentMethod = event.value.type;
-            }
-          },
-        );
-        paymentElement.on("loaderror", (event) => {
-          isMounted = false;
-          const purchaseError = new PurchaseFlowError(
-            PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-            "Failed to load payment form",
-            event.error instanceof Error
-              ? event.error.message
-              : String(event.error),
-          );
-          handlePaymentError(purchaseError);
-        });
-      } catch (error) {
-        if (!isMounted) return;
-        isStripeLoading = false;
-
-        const purchaseError = new PurchaseFlowError(
-          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-          "Failed to initialize payment form",
-          error instanceof Error ? error.message : String(error),
-        );
-        handlePaymentError(purchaseError);
-      }
-    })();
-
-    return () => {
-      if (isMounted) {
-        isMounted = false;
-        paymentElement?.destroy();
-      }
-    };
   });
 
+  function handleStripeReady() {
+    isStripeLoading = false;
+  }
+
+  function handleStripeLoadingError(error: PurchaseFlowError) {
+    isStripeLoading = false;
+    handlePaymentError(error);
+  }
+
+  function handlePaymentInfoChange({
+    complete,
+    paymentMethod,
+  }: {
+    complete: boolean;
+    paymentMethod: string | undefined;
+  }) {
+    selectedPaymentMethod = paymentMethod;
+    isPaymentInfoComplete = complete;
+  }
+
   const handleContinue = async () => {
-    if (processing || !stripe || !safeElements) return;
+    if (processing || !stripe || !elements) return;
 
     const event = createCheckoutPaymentFormSubmitEvent({
       selectedPaymentMethod: selectedPaymentMethod ?? null,
@@ -236,7 +99,7 @@
 
     processing = true;
 
-    const { error: submitError } = await safeElements.submit();
+    const { error: submitError } = await elements.submit();
     if (submitError) {
       handlePaymentError(submitError);
     } else {
@@ -292,7 +155,7 @@
     const result = await stripe[
       isSetupIntent ? "confirmSetup" : "confirmPayment"
     ]({
-      elements: safeElements,
+      elements: elements,
       clientSecret,
       redirect: "if_required",
     });
@@ -318,13 +181,22 @@
   >
     <div class="rc-checkout-form-container" hidden={!!modalErrorMessage}>
       <div class="rc-payment-element-container">
-        <div id="payment-element" class:hidden={isStripeLoading}></div>
+        <StripePaymentElements
+          {gatewayParams}
+          {brandingInfo}
+          onStripeReady={handleStripeReady}
+          onStripeLoadingError={handleStripeLoadingError}
+          onPaymentInfoChange={handlePaymentInfoChange}
+          bind:stripe
+          bind:elements
+          bind:stripeLocale
+        />
       </div>
 
       <div class="rc-checkout-pay-container">
         {#if !modalErrorMessage}
           <Button
-            disabled={processing || !isPaymentInfoComplete || isStripeLoading}
+            disabled={processing || !isPaymentInfoComplete}
             testId="PayButton"
           >
             {#if subscriptionOption?.trial}
@@ -357,7 +229,7 @@
                     price: formatPrice(
                       subscriptionOption?.base?.price.amountMicros,
                       subscriptionOption?.base?.price.currency,
-                      localeToUse,
+                      stripeLocale,
                     ),
                     perFrequency: $translator.translatePeriodFrequency(
                       subscriptionOption?.base?.period?.number || 1,
