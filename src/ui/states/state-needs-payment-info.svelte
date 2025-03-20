@@ -42,6 +42,7 @@
   import { getNextRenewalDate } from "../../helpers/duration-helper";
   import { formatPrice } from "../../helpers/price-labels";
   import { type Writable } from "svelte/store";
+  import PaymentButton from "../molecules/payment-button.svelte";
 
   export let onContinue: (params?: ContinueHandlerParams) => void;
   export let paymentInfoCollectionMetadata: CheckoutStartResponse;
@@ -323,20 +324,10 @@
 
       <div class="rc-checkout-pay-container">
         {#if !modalErrorMessage}
-          <Button
+          <PaymentButton
             disabled={processing || !isPaymentInfoComplete || isStripeLoading}
-            testId="PayButton"
-          >
-            {#if subscriptionOption?.trial}
-              <Localized
-                key={LocalizationKeys.StateNeedsPaymentInfoButtonStartTrial}
-              />
-            {:else}
-              <Localized
-                key={LocalizationKeys.StateNeedsPaymentInfoButtonPay}
-              />
-            {/if}
-          </Button>
+            {subscriptionOption}
+          />
         {/if}
 
         <div class="rc-checkout-secure-container">
