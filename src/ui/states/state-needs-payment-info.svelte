@@ -36,16 +36,21 @@
     type PaymentElementError,
     PaymentElementErrorCode,
   } from "../types/payment-element-error";
+  import { type CheckoutCalculateTaxResponse } from "../../networking/responses/checkout-calculate-tax-response";
 
   export let onContinue: (params?: ContinueHandlerParams) => void;
-  export let paymentInfoCollectionMetadata: CheckoutStartResponse;
+  export let checkoutStartResponse: CheckoutStartResponse;
+  export let taxCalculation: CheckoutCalculateTaxResponse | null;
   export let processing = false;
   export let productDetails: Product;
   export let purchaseOption: PurchaseOption;
   export let brandingInfo: BrandingInfoResponse | null;
   export let purchaseOperationHelper: PurchaseOperationHelper;
 
-  const gatewayParams = paymentInfoCollectionMetadata.gateway_params;
+  const gatewayParams = {
+    ...checkoutStartResponse.gateway_params,
+    ...(taxCalculation?.gateway_params ?? {}),
+  };
 
   let isStripeLoading = true;
   let stripeLocale: StripeElementLocale | undefined;

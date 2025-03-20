@@ -27,6 +27,7 @@
   import { createCheckoutFlowErrorEvent } from "../behavioural-events/sdk-event-helpers";
   import type { PurchaseMetadata } from "../entities/offerings";
   import { writable } from "svelte/store";
+  import { CheckoutCalculateTaxResponse } from "../networking/responses/checkout-calculate-tax-response";
 
   export let customerEmail: string | undefined;
   export let appUserId: string;
@@ -50,7 +51,8 @@
   export let isInElement: boolean = false;
 
   let productDetails: Product = rcPackage.webBillingProduct;
-  let paymentInfoCollectionMetadata: CheckoutStartResponse | null = null;
+  let checkoutStartResponse: CheckoutStartResponse | null = null;
+  let initialTaxCalculation: CheckoutCalculateTaxResponse | null = null;
   let lastError: PurchaseFlowError | null = null;
   const productId = rcPackage.webBillingProduct.identifier ?? null;
 
@@ -121,10 +123,17 @@
         customerEmail,
         metadata,
       )
+      .then(async (result) => {
+        if (brandingInfo?.gateway_tax_collection_enabled) {
+          initialTaxCalculation =
+            await purchaseOperationHelper.checkoutCalculateTax();
+        }
+        return result;
+      })
       .then((result) => {
         lastError = null;
         currentView = "needs-payment-info";
-        paymentInfoCollectionMetadata = result;
+        checkoutStartResponse = result;
       })
       .catch((e: PurchaseFlowError) => {
         handleError(e);
@@ -204,7 +213,8 @@
   purchaseOptionToUse={purchaseOption}
   {handleContinue}
   {lastError}
-  {paymentInfoCollectionMetadata}
+  {checkoutStartResponse}
+  {initialTaxCalculation}
   {purchaseOperationHelper}
   {closeWithError}
   {isInElement}
