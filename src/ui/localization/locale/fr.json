@@ -63,5 +63,7 @@
   "periods.perDayFrequency": "par jour",
   "state_needs_payment_info.trial_info": "Après la fin de votre essai, vous serez facturé {{price}} {{perFrequency}} à partir du {{renewalDate}}. Vous pouvez annuler à tout moment avant cette date.",
   "navbar_header.details": "Détails",
-  "navbar_header.back_button": "Retour"
+  "navbar_header.back_button": "Retour",
+  "pricing_dropdown.show_details": "Afficher les détails",
+  "pricing_dropdown.hide_details": "Masquer les détails"
 }

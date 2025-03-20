@@ -63,5 +63,7 @@
   "periods.perDayFrequency": "pr. dag",
   "state_needs_payment_info.trial_info": "Efter din prøveperiode slutter, vil du blive opkrævet {{price}} {{perFrequency}} fra {{renewalDate}}. Du kan altid opsige før da.",
   "navbar_header.details": "Detaljer",
-  "navbar_header.back_button": "Tilbage"
+  "navbar_header.back_button": "Tilbage",
+  "pricing_dropdown.show_details": "Vis detaljer",
+  "pricing_dropdown.hide_details": "Skjul detaljer"
 }

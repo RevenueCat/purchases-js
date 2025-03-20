@@ -22,13 +22,6 @@ const preview: Preview = {
             height: "667px",
           },
         },
-        tablet: {
-          name: "Tablet",
-          styles: {
-            width: "1024px",
-            height: "768px",
-          },
-        },
         desktop: {
           name: "Desktop",
           styles: {

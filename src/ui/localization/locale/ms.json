@@ -63,5 +63,7 @@
   "periods.perDayFrequency": "setiap hari",
   "state_needs_payment_info.trial_info": "Selepas tempoh percubaan anda tamat, anda akan dikenakan bayaran sebanyak {{price}} {{perFrequency}} bermula {{renewalDate}}. Anda sentiasa boleh membatalkan sebelum itu.",
   "navbar_header.details": "Butiran",
-  "navbar_header.back_button": "Kembali"
+  "navbar_header.back_button": "Kembali",
+  "pricing_dropdown.show_details": "Tunjukkan butiran",
+  "pricing_dropdown.hide_details": "Sembunyikan butiran"
 }

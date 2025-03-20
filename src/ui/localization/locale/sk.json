@@ -63,5 +63,7 @@
   "periods.perDayFrequency": "denne",
   "state_needs_payment_info.trial_info": "Po skončení skúšobného obdobia vám bude účtovaná suma {{price}} {{perFrequency}} počnúc dňom {{renewalDate}}. Predtým môžete kedykoľvek zrušiť.",
   "navbar_header.details": "Podrobnosti",
-  "navbar_header.back_button": "Späť"
+  "navbar_header.back_button": "Späť",
+  "pricing_dropdown.show_details": "Zobraziť podrobnosti",
+  "pricing_dropdown.hide_details": "Skryť podrobnosti"
 }

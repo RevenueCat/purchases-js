@@ -1,5 +1,9 @@
-<script>
-  export let className = "";
+<script module>
+  export type Direction = "up" | "down" | "left" | "right";
+</script>
+
+<script lang="ts">
+  export let direction: Direction;
 </script>
 
 <svg
@@ -8,7 +12,7 @@
   viewBox="0 0 16 16"
   fill="none"
   xmlns="http://www.w3.org/2000/svg"
-  class="arrow {className}"
+  class="arrow {direction}"
 >
   <path
     d="M4.94 5.72656L8 8.7799L11.06 5.72656L12 6.66656L8 10.6666L4 6.66656L4.94 5.72656Z"
@@ -26,15 +30,19 @@
     fill: var(--rc-color-grey-text-dark);
   }
 
-  .arrow.expanded {
-    transform: rotate(-180deg);
-  }
-
-  .arrow.collapsed {
-    transform: rotate(0deg);
-  }
-
-  .arrow.back {
+  .arrow.left {
     transform: rotate(90deg);
+  }
+
+  .arrow.up {
+    transform: rotate(180deg);
+  }
+
+  .arrow.right {
+    transform: rotate(-90deg);
+  }
+
+  .arrow.down {
+    transform: rotate(0deg);
   }
 </style>

@@ -26,11 +26,14 @@
 </script>
 
 {#snippet template({ name }: Args<typeof Story>)}
-  <Icon name={name ?? "arrow"} />
+  <Icon name={name ?? "cart"} />
 {/snippet}
 
-<Story name="Arrow" args={{ name: "arrow" }} />
 <Story name="Cart" args={{ name: "cart" }} />
 <Story name="Error" args={{ name: "error" }} />
 <Story name="Lock" args={{ name: "lock" }} />
 <Story name="Success" args={{ name: "success" }} />
+<Story name="Chevron Up" args={{ name: "chevron-up" }} />
+<Story name="Chevron Down" args={{ name: "chevron-down" }} />
+<Story name="Chevron Left" args={{ name: "chevron-left" }} />
+<Story name="Chevron Right" args={{ name: "chevron-right" }} />

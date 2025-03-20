@@ -63,5 +63,7 @@
   "periods.perDayFrequency": "ליום",
   "state_needs_payment_info.trial_info": "לאחר סיום תקופת הניסיון שלך, תחויב בסך {{price}} {{perFrequency}} החל מ-{{renewalDate}}. תמיד תוכל לבטל לפני כן.",
   "navbar_header.details": "פרטים",
-  "navbar_header.back_button": "חזרה"
+  "navbar_header.back_button": "חזרה",
+  "pricing_dropdown.show_details": "הצג פרטים",
+  "pricing_dropdown.hide_details": "הסתר פרטים"
 }

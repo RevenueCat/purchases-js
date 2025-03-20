@@ -63,5 +63,7 @@
   "periods.perDayFrequency": "por dia",
   "state_needs_payment_info.trial_info": "Após o término do seu período de avaliação, será cobrado o valor de {{price}} {{perFrequency}} a partir de {{renewalDate}}. Você pode cancelar a qualquer momento antes disso.",
   "navbar_header.details": "Detalhes",
-  "navbar_header.back_button": "Voltar"
+  "navbar_header.back_button": "Voltar",
+  "pricing_dropdown.show_details": "Mostrar detalhes",
+  "pricing_dropdown.hide_details": "Ocultar detalhes"
 }

@@ -63,5 +63,7 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "state_needs_payment_info.trial_info": "Μετά τη λήξη της δοκιμαστικής περιόδου, θα χρεωθείτε {{price}} {{perFrequency}} ξεκινώντας από {{renewalDate}}. Μπορείτε να ακυρώσετε ανά πάσα στιγμή πριν από αυτό.",
   "navbar_header.details": "Λεπτομέρειες",
-  "navbar_header.back_button": "Πίσω"
+  "navbar_header.back_button": "Πίσω",
+  "pricing_dropdown.show_details": "Εμφάνιση λεπτομερειών",
+  "pricing_dropdown.hide_details": "Απόκρυψη λεπτομερειών"
 }

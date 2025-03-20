@@ -63,5 +63,7 @@
   "periods.perDayFrequency": "per hari",
   "state_needs_payment_info.trial_info": "Setelah masa percobaan Anda berakhir, Anda akan dikenakan biaya {{price}} {{perFrequency}} mulai {{renewalDate}}. Anda selalu dapat membatalkan sebelum itu.",
   "navbar_header.details": "Detail",
-  "navbar_header.back_button": "Kembali"
+  "navbar_header.back_button": "Kembali",
+  "pricing_dropdown.show_details": "Tampilkan detail",
+  "pricing_dropdown.hide_details": "Sembunyikan detail"
 }

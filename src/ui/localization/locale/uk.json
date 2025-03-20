@@ -63,5 +63,7 @@
   "periods.perDayFrequency": "на день",
   "state_needs_payment_info.trial_info": "Після закінчення вашого пробного періоду з вас буде стягнуто {{price}} {{perFrequency}}, починаючи з {{renewalDate}}. Ви завжди можете скасувати підписку до цього часу.",
   "navbar_header.details": "Деталі",
-  "navbar_header.back_button": "Назад"
+  "navbar_header.back_button": "Назад",
+  "pricing_dropdown.show_details": "Показати деталі",
+  "pricing_dropdown.hide_details": "Приховати деталі"
 }

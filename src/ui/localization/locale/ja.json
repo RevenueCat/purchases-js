@@ -63,5 +63,7 @@
   "periods.perDayFrequency": "日ごと",
   "state_needs_payment_info.trial_info": "{{renewalDate}}から{{price}} {{perFrequency}}で開始され、トライアル終了後に請求されます。いつでもキャンセルできます。",
   "navbar_header.details": "詳細",
-  "navbar_header.back_button": "戻る"
+  "navbar_header.back_button": "戻る",
+  "pricing_dropdown.show_details": "詳細を表示",
+  "pricing_dropdown.hide_details": "詳細を隠す"
 }
