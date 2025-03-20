@@ -15,7 +15,7 @@
   import { translatorContextKey } from "../localization/constants";
   import { Translator } from "../localization/translator";
 
-  import { type GatewayParams } from "../../networking/responses/checkout-start-response";
+  import { type GatewayParams } from "../../networking/responses/stripe-elements";
   import { DEFAULT_FONT_FAMILY } from "../theme/text";
   import { StripeService } from "../../stripe/stripe-service";
   import { type Writable } from "svelte/store";
