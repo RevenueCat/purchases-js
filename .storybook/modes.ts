@@ -5,12 +5,6 @@ export const brandingLanguageViewportModes = {
     brandingName: "None",
     locale: "en",
   },
-  "tablet-en-default": {
-    name: "Tablet / English / Default",
-    viewport: "tablet",
-    brandingName: "None",
-    locale: "en",
-  },
   "desktop-en-default": {
     name: "Desktop / English / Default",
     viewport: "desktop",
@@ -29,12 +23,6 @@ export const brandingLanguageViewportModes = {
     brandingName: "Igify",
     locale: "fr",
   },
-  "tablet-fr-igify": {
-    name: "Tablet / French / Igify",
-    viewport: "tablet",
-    brandingName: "Igify",
-    locale: "fr",
-  },
   "desktop-fr-igify": {
     name: "Desktop / French / Igify",
     viewport: "desktop",
@@ -50,12 +38,6 @@ export const brandingLanguageViewportModes = {
   "mobile-ar-dipsea": {
     name: "Mobile / Arabic / Dipsea",
     viewport: "mobile",
-    brandingName: "Dipsea",
-    locale: "ar",
-  },
-  "tablet-ar-dipsea": {
-    name: "Tablet / Arabic / Dipsea",
-    viewport: "tablet",
     brandingName: "Dipsea",
     locale: "ar",
   },
