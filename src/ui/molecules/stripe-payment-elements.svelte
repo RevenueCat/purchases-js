@@ -16,18 +16,18 @@
   import { Translator } from "../localization/translator";
 
   import { type GatewayParams } from "../../networking/responses/checkout-start-response";
-  import {
-    PurchaseFlowError,
-    PurchaseFlowErrorCode,
-  } from "../../helpers/purchase-operation-helper";
   import { DEFAULT_FONT_FAMILY } from "../theme/text";
   import { StripeService } from "../../stripe/stripe-service";
   import { type Writable } from "svelte/store";
+  import {
+    PaymentElementError,
+    PaymentElementErrorCode,
+  } from "../types/payment-element-error";
 
   export let gatewayParams: GatewayParams;
   export let brandingInfo: BrandingInfoResponse | null;
   export let onLoadingComplete: () => void;
-  export let onError: (error: PurchaseFlowError) => void;
+  export let onError: (error: PaymentElementError) => void;
   export let onPaymentInfoChange: (params: {
     complete: boolean;
     paymentMethod: string | undefined;
@@ -41,7 +41,7 @@
 
     const { error: submitError } = await elements.submit();
     if (submitError) {
-      handleStripeError(submitError);
+      handleFormSubmissionError(submitError);
     } else {
       onSubmissionSuccess();
     }
@@ -60,29 +60,23 @@
     });
 
     if (result.error) {
-      handleStripeError(result.error);
+      handleFormSubmissionError(result.error);
     } else {
       onConfirmationSuccess();
     }
   }
 
-  function handleStripeError(error: StripeError) {
+  function handleFormSubmissionError(error: StripeError) {
     if (StripeService.isStripeHandledCardError(error)) {
-      onError(
-        new PurchaseFlowError(
-          PurchaseFlowErrorCode.CardValidationError,
-          "Stripe Card Validation Error",
-          error.message,
-        ),
-      );
+      onError({
+        code: PaymentElementErrorCode.HandledFormSubmissionError,
+        message: error.message,
+      });
     } else {
-      onError(
-        new PurchaseFlowError(
-          PurchaseFlowErrorCode.ErrorChargingPayment,
-          "Stripe payment error",
-          error.message,
-        ),
-      );
+      onError({
+        code: PaymentElementErrorCode.UnhandledFormSubmissionError,
+        message: error.message,
+      });
     }
   }
 
@@ -214,26 +208,19 @@
         );
         paymentElement.on("loaderror", (event) => {
           isMounted = false;
-          const purchaseError = new PurchaseFlowError(
-            PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-            "Failed to load payment form",
-            event.error instanceof Error
-              ? event.error.message
-              : String(event.error),
-          );
-          onError(purchaseError);
+          onError({
+            code: PaymentElementErrorCode.ErrorLoadingStripe,
+            message: event.error.message,
+          });
           onLoadingComplete();
         });
       } catch (error) {
         if (!isMounted) return;
 
-        const purchaseError = new PurchaseFlowError(
-          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-          "Failed to initialize payment form",
-          error instanceof Error ? error.message : String(error),
-        );
-
-        onError(purchaseError);
+        onError({
+          code: PaymentElementErrorCode.ErrorLoadingStripe,
+          message: error instanceof Error ? error.message : String(error),
+        });
         onLoadingComplete();
       }
     })();

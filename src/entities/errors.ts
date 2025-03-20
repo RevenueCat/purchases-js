@@ -36,7 +36,6 @@ export enum ErrorCode {
   CustomerInfoError = 28,
   SignatureVerificationError = 36,
   InvalidEmailError = 38,
-  CardValidationError = 39,
 }
 
 export class ErrorCodeUtils {
@@ -105,8 +104,6 @@ export class ErrorCodeUtils {
         return "Request failed signature verification. Please see https://rev.cat/trusted-entitlements for more info.";
       case ErrorCode.InvalidEmailError:
         return "Email is not valid. Please provide a valid email address.";
-      case ErrorCode.CardValidationError:
-        return "Card is not valid. Please provide a valid card.";
     }
   }
 
@@ -185,8 +182,6 @@ export class ErrorCodeUtils {
         return ErrorCode.UnknownError;
       case PurchaseFlowErrorCode.AlreadyPurchasedError:
         return ErrorCode.ProductAlreadyPurchasedError;
-      case PurchaseFlowErrorCode.CardValidationError:
-        return ErrorCode.CardValidationError;
     }
   }
 }

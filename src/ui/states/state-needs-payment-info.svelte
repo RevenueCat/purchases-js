@@ -16,6 +16,7 @@
   import { type CheckoutStartResponse } from "../../networking/responses/checkout-start-response";
   import {
     PurchaseFlowError,
+    PurchaseFlowErrorCode,
     PurchaseOperationHelper,
   } from "../../helpers/purchase-operation-helper";
   import { type ContinueHandlerParams } from "../ui-types";
@@ -31,6 +32,10 @@
   import { formatPrice } from "../../helpers/price-labels";
   import { type Writable } from "svelte/store";
   import StripePaymentElements from "../molecules/stripe-payment-elements.svelte";
+  import {
+    PaymentElementError,
+    PaymentElementErrorCode,
+  } from "../types/payment-element-error";
 
   export let onContinue: (params?: ContinueHandlerParams) => void;
   export let paymentInfoCollectionMetadata: CheckoutStartResponse;
@@ -111,20 +116,29 @@
     await stripeConfirm(clientSecret);
   }
 
-  function handleStripeElementError(error: PurchaseFlowError) {
+  function handleStripeElementError(error: PaymentElementError) {
     processing = false;
 
     const event = createCheckoutPaymentGatewayErrorEvent({
-      errorCode: error.errorCode?.toString(),
+      errorCode: error.code?.toString(),
       errorMessage: error.message ?? "",
     });
     eventsTracker.trackSDKEvent(event);
 
-    debugger;
-    if (error.isRecoverable()) {
-      modalErrorMessage = error.getPublicErrorMessage(productDetails);
+    if (error.code === PaymentElementErrorCode.HandledFormSubmissionError) {
+      return;
+    }
+
+    if (error.code === PaymentElementErrorCode.UnhandledFormSubmissionError) {
+      modalErrorMessage = error.message;
     } else {
-      onContinue({ error: error });
+      onContinue({
+        error: new PurchaseFlowError(
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+          "Failed to initialize payment form",
+          error.message,
+        ),
+      });
     }
   }
 
