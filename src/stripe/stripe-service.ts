@@ -6,10 +6,9 @@ import type {
 } from "@stripe/stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import type { BrandingInfoResponse } from "../networking/responses/branding-response";
-import type { CheckoutStartResponse } from "../networking/responses/checkout-start-response";
 import { Theme } from "../ui/theme/theme";
 import { DEFAULT_TEXT_STYLES } from "../ui/theme/text";
-
+import type { GatewayParams } from "../networking/responses/checkout-start-response";
 export class StripeService {
   private static FORM_VALIDATED_CARD_ERROR_CODES = [
     "card_declined",
@@ -19,13 +18,12 @@ export class StripeService {
   ];
 
   static async initializeStripe(
-    paymentInfoCollectionMetadata: CheckoutStartResponse,
+    gatewayParams: GatewayParams,
     brandingInfo: BrandingInfoResponse | null,
     localeToUse: StripeElementLocale,
     stripeVariables: Appearance["variables"],
     viewport: "mobile" | "desktop",
   ) {
-    const gatewayParams = paymentInfoCollectionMetadata.gateway_params;
     const stripePk = gatewayParams.publishable_api_key;
     const stripeAcctId = gatewayParams.stripe_account_id;
     const elementsConfiguration = gatewayParams.elements_configuration;
