@@ -20,6 +20,7 @@
     PurchaseOperationHelper,
   } from "../helpers/purchase-operation-helper";
   import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
+  import { CheckoutCalculateTaxResponse } from "../networking/responses/checkout-calculate-tax-response";
 
   export let currentView: CurrentView;
   export let brandingInfo: BrandingInfoResponse | null;
@@ -31,7 +32,8 @@
   export let closeWithError: () => void;
   export let onClose: (() => void) | undefined = undefined;
   export let lastError: PurchaseFlowError | null;
-  export let paymentInfoCollectionMetadata: CheckoutStartResponse | null;
+  export let checkoutStartResponse: CheckoutStartResponse | null;
+  export let initialTaxCalculation: CheckoutCalculateTaxResponse | null;
   export let purchaseOperationHelper: PurchaseOperationHelper;
   export let isInElement: boolean = false;
 
@@ -94,9 +96,10 @@
             {lastError}
           />
         {/if}
-        {#if paymentInfoCollectionMetadata && (currentView === "needs-payment-info" || currentView === "polling-purchase-status") && productDetails && purchaseOptionToUse}
+        {#if checkoutStartResponse && (currentView === "needs-payment-info" || currentView === "polling-purchase-status") && productDetails && purchaseOptionToUse}
           <StateNeedsPaymentInfo
-            {paymentInfoCollectionMetadata}
+            {checkoutStartResponse}
+            taxCalculation={initialTaxCalculation}
             onContinue={handleContinue}
             processing={currentView === "polling-purchase-status"}
             {productDetails}
