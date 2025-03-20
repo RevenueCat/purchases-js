@@ -37,6 +37,7 @@
     PaymentElementErrorCode,
   } from "../types/payment-element-error";
   import { type CheckoutCalculateTaxResponse } from "../../networking/responses/checkout-calculate-tax-response";
+  import { type StripeElementsConfiguration } from "../../networking/responses/stripe-elements";
 
   export let onContinue: (params?: ContinueHandlerParams) => void;
   export let checkoutStartResponse: CheckoutStartResponse;
@@ -57,6 +58,9 @@
 
   let stripeSubmit: () => Promise<void>;
   let stripeConfirm: (clientSecret: string) => Promise<void>;
+  let updateStripeGatewayParams: (
+    elementsConfiguration: StripeElementsConfiguration,
+  ) => Promise<void>;
 
   let isPaymentInfoComplete = false;
   let isCalculatingTaxes = false;
@@ -109,6 +113,12 @@
       postalCode,
       taxCalculation,
     );
+
+    if (taxCalculation) {
+      updateStripeGatewayParams(
+        taxCalculation.gateway_params.elements_configuration,
+      );
+    }
     isCalculatingTaxes = false;
   }
 
@@ -190,6 +200,7 @@
         <StripePaymentElements
           bind:submit={stripeSubmit}
           bind:confirm={stripeConfirm}
+          bind:updateGatewayParams={updateStripeGatewayParams}
           bind:stripeLocale
           {gatewayParams}
           {brandingInfo}

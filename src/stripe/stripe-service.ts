@@ -8,7 +8,10 @@ import { loadStripe } from "@stripe/stripe-js";
 import type { BrandingInfoResponse } from "../networking/responses/branding-response";
 import { Theme } from "../ui/theme/theme";
 import { DEFAULT_TEXT_STYLES } from "../ui/theme/text";
-import type { GatewayParams } from "../networking/responses/stripe-elements";
+import type {
+  GatewayParams,
+  StripeElementsConfiguration,
+} from "../networking/responses/stripe-elements";
 export class StripeService {
   private static FORM_VALIDATED_CARD_ERROR_CODES = [
     "card_declined",
@@ -131,6 +134,19 @@ export class StripeService {
     });
 
     return { stripe, elements };
+  }
+
+  static async updateElementsConfiguration(
+    elements: StripeElements,
+    elementsConfiguration: StripeElementsConfiguration,
+  ) {
+    await elements.update({
+      mode: elementsConfiguration.mode,
+      paymentMethodTypes: elementsConfiguration.payment_method_types,
+      setupFutureUsage: elementsConfiguration.setup_future_usage,
+      amount: elementsConfiguration.amount,
+      currency: elementsConfiguration.currency,
+    });
   }
 
   static isStripeHandledCardError(error: StripeError) {
