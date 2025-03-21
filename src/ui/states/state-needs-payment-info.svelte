@@ -33,7 +33,7 @@
   import { type Writable } from "svelte/store";
   import StripePaymentElements from "../molecules/stripe-payment-elements.svelte";
   import {
-    PaymentElementError,
+    type PaymentElementError,
     PaymentElementErrorCode,
   } from "../types/payment-element-error";
 
