@@ -181,13 +181,9 @@
             testId="PayButton"
           >
             {#if subscriptionOption?.trial}
-              <Localized
-                key={LocalizationKeys.StateNeedsPaymentInfoButtonStartTrial}
-              />
+              <Localized key={LocalizationKeys.PaymentEntryButtonStartTrial} />
             {:else}
-              <Localized
-                key={LocalizationKeys.StateNeedsPaymentInfoButtonPay}
-              />
+              <Localized key={LocalizationKeys.PaymentEntryButtonPay} />
             {/if}
           </Button>
         {/if}
@@ -195,7 +191,7 @@
         <div class="rc-checkout-secure-container">
           <SecureCheckoutRc
             termsInfo={$translator.translate(
-              LocalizationKeys.StateNeedsPaymentInfoTermsInfo,
+              LocalizationKeys.PaymentEntryTermsInfo,
               {
                 appName: brandingInfo?.app_name,
               },
@@ -204,30 +200,27 @@
             subscriptionOption?.trial?.period &&
             subscriptionOption?.base?.period &&
             subscriptionOption?.base?.period?.unit
-              ? $translator.translate(
-                  LocalizationKeys.StateNeedsPaymentInfoTrialInfo,
-                  {
-                    price: formatPrice(
-                      subscriptionOption?.base?.price.amountMicros,
-                      subscriptionOption?.base?.price.currency,
-                      stripeLocale,
-                    ),
-                    perFrequency: $translator.translatePeriodFrequency(
-                      subscriptionOption?.base?.period?.number || 1,
-                      subscriptionOption?.base?.period?.unit,
-                      { useMultipleWords: true },
-                    ),
-                    renewalDate: $translator.translateDate(
-                      getNextRenewalDate(
-                        new Date(),
-                        subscriptionOption.trial.period ||
-                          subscriptionOption.base.period,
-                        true,
-                      ) as Date,
-                      { year: "numeric", month: "long", day: "numeric" },
-                    ),
-                  },
-                )
+              ? $translator.translate(LocalizationKeys.PaymentEntryTrialInfo, {
+                  price: formatPrice(
+                    subscriptionOption?.base?.price.amountMicros,
+                    subscriptionOption?.base?.price.currency,
+                    stripeLocale,
+                  ),
+                  perFrequency: $translator.translatePeriodFrequency(
+                    subscriptionOption?.base?.period?.number || 1,
+                    subscriptionOption?.base?.period?.unit,
+                    { useMultipleWords: true },
+                  ),
+                  renewalDate: $translator.translateDate(
+                    getNextRenewalDate(
+                      new Date(),
+                      subscriptionOption.trial.period ||
+                        subscriptionOption.base.period,
+                      true,
+                    ) as Date,
+                    { year: "numeric", month: "long", day: "numeric" },
+                  ),
+                })
               : null}
           />
         </div>
@@ -239,7 +232,7 @@
         title={null}
         type="error"
         closeButtonTitle={$translator.translate(
-          LocalizationKeys.StateErrorButtonTryAgain,
+          LocalizationKeys.ErrorButtonTryAgain,
         )}
         onContinue={handleErrorTryAgain}
       >

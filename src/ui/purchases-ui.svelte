@@ -18,7 +18,7 @@
     englishLocale,
     translatorContextKey,
   } from "./localization/constants";
-  import { type CurrentView } from "./ui-types";
+  import { type CurrentPage } from "./ui-types";
   import PurchasesUiInner from "./purchases-ui-inner.svelte";
   import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
   import { type ContinueHandlerParams } from "./ui-types";
@@ -54,7 +54,7 @@
   let lastError: PurchaseFlowError | null = null;
   const productId = rcPackage.webBillingProduct.identifier ?? null;
 
-  let currentView: CurrentView | "initializing" = "initializing";
+  let currentPage: CurrentPage | "initializing" = "initializing";
   let redemptionInfo: RedemptionInfo | null = null;
   let operationSessionId: string | null = null;
 
@@ -86,11 +86,11 @@
   setContext(eventsTrackerContextKey, eventsTracker);
 
   onMount(async () => {
-    if (currentView === "initializing") {
+    if (currentPage === "initializing") {
       if (customerEmail) {
         handleCheckoutStart();
       } else {
-        currentView = "needs-auth-info";
+        currentPage = "email-entry";
       }
 
       return;
@@ -106,8 +106,8 @@
         ),
       );
       return;
-    } else if (currentView === "initializing") {
-      currentView = "loading-payment-page";
+    } else if (currentPage === "initializing") {
+      currentPage = "payment-processing";
     }
 
     if (!customerEmail) {
@@ -128,7 +128,7 @@
       )
       .then((result) => {
         lastError = null;
-        currentView = "needs-payment-info";
+        currentPage = "payment-entry";
         paymentInfoCollectionMetadata = result;
       })
       .catch((e: PurchaseFlowError) => {
@@ -142,22 +142,22 @@
       return;
     }
 
-    if (currentView === "needs-auth-info") {
+    if (currentPage === "email-entry") {
       if (params.authInfo) {
         customerEmail = params.authInfo.email;
-        currentView = "processing-auth-info";
+        currentPage = "email-entry-processing";
       }
 
       handleCheckoutStart();
       return;
     }
 
-    if (currentView === "needs-payment-info") {
-      currentView = "polling-purchase-status";
+    if (currentPage === "payment-entry") {
+      currentPage = "payment-polling";
       purchaseOperationHelper
         .pollCurrentPurchaseForCompletion()
         .then((pollResult) => {
-          currentView = "success";
+          currentPage = "success";
           redemptionInfo = pollResult.redemptionInfo;
           operationSessionId = pollResult.operationSessionId;
         })
@@ -167,12 +167,12 @@
       return;
     }
 
-    if (currentView === "success" || currentView === "error") {
+    if (currentPage === "success" || currentPage === "error") {
       onFinished(operationSessionId!, redemptionInfo);
       return;
     }
 
-    currentView = "success";
+    currentPage = "success";
   };
 
   const handleError = (e: PurchaseFlowError) => {
@@ -181,13 +181,13 @@
       errorMessage: e.message,
     });
     eventsTracker.trackSDKEvent(event);
-    if (currentView === "processing-auth-info" && e.isRecoverable()) {
+    if (currentPage === "email-entry-processing" && e.isRecoverable()) {
       lastError = e;
-      currentView = "needs-auth-info";
+      currentPage = "email-entry";
       return;
     }
     lastError = e;
-    currentView = "error";
+    currentPage = "error";
   };
 
   const closeWithError = () => {
@@ -203,7 +203,7 @@
 
 <PurchasesUiInner
   isSandbox={purchases.isSandbox()}
-  currentView={currentView as CurrentView}
+  currentPage={currentPage as CurrentPage}
   {brandingInfo}
   {productDetails}
   purchaseOptionToUse={purchaseOption}

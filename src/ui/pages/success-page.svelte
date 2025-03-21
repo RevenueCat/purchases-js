@@ -40,18 +40,16 @@
 
 <MessageLayout
   type="success"
-  title={$translator.translate(LocalizationKeys.StateSuccessPurchaseSuccessful)}
+  title={$translator.translate(LocalizationKeys.SuccessPurchaseSuccessful)}
   onContinue={handleContinue}
-  closeButtonTitle={$translator.translate(
-    LocalizationKeys.StateSuccessButtonClose,
-  )}
+  closeButtonTitle={$translator.translate(LocalizationKeys.SuccessButtonClose)}
 >
   {#snippet icon()}
     <IconSuccess />
   {/snippet}
   {#snippet message()}
     {#if isSubscription}
-      <Localized key={LocalizationKeys.StateSuccessSubscriptionNowActive} />
+      <Localized key={LocalizationKeys.SuccessSubscriptionNowActive} />
     {/if}
   {/snippet}
 </MessageLayout>
