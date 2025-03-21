@@ -34,16 +34,6 @@
   export let paymentInfoCollectionMetadata: CheckoutStartResponse | null;
   export let purchaseOperationHelper: PurchaseOperationHelper;
   export let isInElement: boolean = false;
-
-  const viewsWhereOfferDetailsAreShown: CurrentView[] = [
-    "needs-auth-info",
-    "processing-auth-info",
-    "needs-payment-info",
-    "polling-purchase-status",
-    "loading-payment-page",
-    "success",
-    "error",
-  ];
 </script>
 
 <Container brandingAppearance={brandingInfo?.appearance} {isInElement}>
@@ -51,28 +41,26 @@
     <SandboxBanner style={colorVariables} {isInElement} />
   {/if}
   <Layout style={colorVariables}>
-    {#if viewsWhereOfferDetailsAreShown.includes(currentView)}
-      <NavBar
-        brandingAppearance={brandingInfo?.appearance}
-        {onClose}
-        showCloseButton={!isInElement}
-      >
-        {#snippet headerContent()}
-          <BrandingInfoUI {brandingInfo} />
-        {/snippet}
+    <NavBar
+      brandingAppearance={brandingInfo?.appearance}
+      {onClose}
+      showCloseButton={!isInElement}
+    >
+      {#snippet headerContent()}
+        <BrandingInfoUI {brandingInfo} />
+      {/snippet}
 
-        {#snippet bodyContent()}
-          {#if productDetails && purchaseOptionToUse}
-            <ProductInfo
-              {productDetails}
-              purchaseOption={purchaseOptionToUse}
-              showProductDescription={brandingInfo?.appearance
-                ?.show_product_description ?? false}
-            />
-          {/if}
-        {/snippet}
-      </NavBar>
-    {/if}
+      {#snippet bodyContent()}
+        {#if productDetails && purchaseOptionToUse}
+          <ProductInfo
+            {productDetails}
+            purchaseOption={purchaseOptionToUse}
+            showProductDescription={brandingInfo?.appearance
+              ?.show_product_description ?? false}
+          />
+        {/if}
+      {/snippet}
+    </NavBar>
     <Main brandingAppearance={brandingInfo?.appearance}>
       {#snippet body()}
         {#if currentView === "needs-auth-info" || currentView === "processing-auth-info"}
