@@ -69,9 +69,9 @@ yarn link "@revenuecat/purchases-js"
 npm run storybook
 ```
 
-### Environment Setup for Needs Payment Info Stories
+### Environment Setup for Purchase Stories
 
-> **Note:** This setup is only required if you need to test Storybook stories involving the `state-needs-payment-info` component.
+> **Note:** This setup is only required if you need to test Storybook stories involving the `payment-entry` page.
 
 To run these specific stories, you'll need to set up some environment variables. There are two options:
 

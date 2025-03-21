@@ -16,7 +16,7 @@
   const translator = getContext<Writable<Translator>>(translatorContextKey);
 
   $: termsInfo = brandingInfo
-    ? $translator.translate(LocalizationKeys.StateNeedsPaymentInfoTermsInfo, {
+    ? $translator.translate(LocalizationKeys.PaymentEntryPageTermsInfo, {
         appName: brandingInfo?.app_name,
       })
     : null;
@@ -26,7 +26,7 @@
     subscriptionOption?.trial?.period &&
     subscriptionOption?.base?.period &&
     subscriptionOption?.base?.period?.unit
-      ? $translator.translate(LocalizationKeys.StateNeedsPaymentInfoTrialInfo, {
+      ? $translator.translate(LocalizationKeys.PaymentEntryPageTrialInfo, {
           price: formatPrice(
             subscriptionOption?.base?.price.amountMicros,
             subscriptionOption?.base?.price.currency,
@@ -61,7 +61,7 @@
     </p>
   {/if}
   <p class="footer-caption">
-    <Localized key={LocalizationKeys.StateNeedsPaymentInfoPaymentStepTitle} />
+    <Localized key={LocalizationKeys.PaymentEntryPagePaymentStepTitle} />
   </p>
 </div>
 

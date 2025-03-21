@@ -195,7 +195,7 @@
         title={null}
         type="error"
         closeButtonTitle={$translator.translate(
-          LocalizationKeys.StateErrorButtonTryAgain,
+          LocalizationKeys.ErrorButtonTryAgain,
         )}
         onContinue={handleErrorTryAgain}
       >

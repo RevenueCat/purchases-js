@@ -50,9 +50,7 @@ describe("The Translator class", () => {
         const translator = new Translator({}, lang, fallbackLang);
         expect(
           () =>
-            translator.translate(
-              LocalizationKeys.StateNeedsAuthInfoEmailStepTitle,
-            ),
+            translator.translate(LocalizationKeys.EmailEntryPageEmailStepTitle),
           `Translating failed for language ${lang}/${fallbackLang}`,
         ).not.toThrow();
       });
@@ -62,8 +60,7 @@ describe("The Translator class", () => {
   test("should not fail for wrong languages when translating labels", () => {
     const translator = new Translator({}, "clearly_not_a_locale", "me_neither");
     expect(
-      () =>
-        translator.translate(LocalizationKeys.StateNeedsAuthInfoEmailStepTitle),
+      () => translator.translate(LocalizationKeys.EmailEntryPageEmailStepTitle),
       `Translating failed for language`,
     ).not.toThrow();
   });

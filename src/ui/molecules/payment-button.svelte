@@ -10,8 +10,8 @@
 
 <Button {disabled} testId="PayButton">
   {#if subscriptionOption?.trial}
-    <Localized key={LocalizationKeys.StateNeedsPaymentInfoButtonStartTrial} />
+    <Localized key={LocalizationKeys.PaymentEntryPageButtonStartTrial} />
   {:else}
-    <Localized key={LocalizationKeys.StateNeedsPaymentInfoButtonPay} />
+    <Localized key={LocalizationKeys.PaymentEntryPageButtonPay} />
   {/if}
 </Button>
