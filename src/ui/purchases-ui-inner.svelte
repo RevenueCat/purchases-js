@@ -1,9 +1,9 @@
 <script lang="ts">
-  import StateNeedsPaymentInfo from "./states/state-needs-payment-info.svelte";
-  import StateNeedsAuthInfo from "./states/state-needs-auth-info.svelte";
   import StateLoading from "./states/state-loading.svelte";
-  import StateError from "./states/state-error.svelte";
-  import StateSuccess from "./states/state-success.svelte";
+  import StateNeedsPaymentInfo from "./pages/state-needs-payment-info.svelte";
+  import StateNeedsAuthInfo from "./pages/state-needs-auth-info.svelte";
+  import StateError from "./pages/state-error.svelte";
+  import StateSuccess from "./pages/state-success.svelte";
   import { type ContinueHandlerParams, type CurrentView } from "./ui-types";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import type { Product, PurchaseOption } from "../main";

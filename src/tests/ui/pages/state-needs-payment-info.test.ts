@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/svelte";
 import { describe, test, expect, vi, beforeEach } from "vitest";
-import StateNeedsPaymentInfo from "../../../ui/states/state-needs-payment-info.svelte";
+import StateNeedsPaymentInfo from "../../../ui/pages/state-needs-payment-info.svelte";
 import {
   brandingInfo,
   rcPackage,
