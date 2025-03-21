@@ -36,7 +36,6 @@
   export let isInElement: boolean = false;
 
   const viewsWhereOfferDetailsAreShown: CurrentView[] = [
-    "present-offer",
     "needs-auth-info",
     "processing-auth-info",
     "needs-payment-info",
@@ -76,17 +75,6 @@
     {/if}
     <Main brandingAppearance={brandingInfo?.appearance}>
       {#snippet body()}
-        {#if currentView === "present-offer" && productDetails && purchaseOptionToUse}
-          <ProductInfo
-            {productDetails}
-            purchaseOption={purchaseOptionToUse}
-            showProductDescription={brandingInfo?.appearance
-              ?.show_product_description ?? false}
-          />
-        {/if}
-        {#if currentView === "present-offer" && !productDetails}
-          <StateLoading />
-        {/if}
         {#if currentView === "needs-auth-info" || currentView === "processing-auth-info"}
           <StateNeedsAuthInfo
             onContinue={handleContinue}

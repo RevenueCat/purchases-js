@@ -1,7 +1,6 @@
 import type { PurchaseFlowError } from "../helpers/purchase-operation-helper";
 
 export type CurrentView =
-  | "present-offer"
   | "needs-auth-info"
   | "processing-auth-info"
   | "needs-payment-info"

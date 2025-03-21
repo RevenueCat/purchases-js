@@ -56,7 +56,7 @@
   let lastError: PurchaseFlowError | null = null;
   const productId = rcPackage.webBillingProduct.identifier ?? null;
 
-  let currentView: CurrentView = "present-offer";
+  let currentView: CurrentView | "initializing" = "initializing";
   let redemptionInfo: RedemptionInfo | null = null;
   let operationSessionId: string | null = null;
 
@@ -92,7 +92,7 @@
 
     colorVariables = toProductInfoStyleVar(brandingInfo?.appearance);
 
-    if (currentView === "present-offer") {
+    if (currentView === "initializing") {
       if (customerEmail) {
         handleCheckoutStart();
       } else {
@@ -112,7 +112,7 @@
         ),
       );
       return;
-    } else if (currentView === "present-offer") {
+    } else if (currentView === "initializing") {
       currentView = "loading-payment-page";
     }
 
@@ -209,7 +209,7 @@
 
 <PurchasesUiInner
   isSandbox={purchases.isSandbox()}
-  {currentView}
+  currentView={currentView as CurrentView}
   {brandingInfo}
   {productDetails}
   purchaseOptionToUse={purchaseOption}
