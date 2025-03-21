@@ -9,7 +9,6 @@
     PurchaseOperationHelper,
   } from "../helpers/purchase-operation-helper";
 
-  import { toProductInfoStyleVar } from "./theme/utils";
   import { type RedemptionInfo } from "../entities/redemption-info";
   import {
     type CustomTranslations,
@@ -50,13 +49,12 @@
   export let customTranslations: CustomTranslations = {};
   export let isInElement: boolean = false;
 
-  let colorVariables = "";
-  let productDetails: Product | null = null;
+  let productDetails: Product = rcPackage.webBillingProduct;
   let paymentInfoCollectionMetadata: CheckoutStartResponse | null = null;
   let lastError: PurchaseFlowError | null = null;
   const productId = rcPackage.webBillingProduct.identifier ?? null;
 
-  let currentView: CurrentView = "present-offer";
+  let currentView: CurrentView | "initializing" = "initializing";
   let redemptionInfo: RedemptionInfo | null = null;
   let operationSessionId: string | null = null;
 
@@ -88,11 +86,7 @@
   setContext(eventsTrackerContextKey, eventsTracker);
 
   onMount(async () => {
-    productDetails = rcPackage.webBillingProduct;
-
-    colorVariables = toProductInfoStyleVar(brandingInfo?.appearance);
-
-    if (currentView === "present-offer") {
+    if (currentView === "initializing") {
       if (customerEmail) {
         handleCheckoutStart();
       } else {
@@ -112,8 +106,8 @@
         ),
       );
       return;
-    } else if (currentView === "present-offer") {
-      currentView = "loading";
+    } else if (currentView === "initializing") {
+      currentView = "loading-payment-page";
     }
 
     if (!customerEmail) {
@@ -209,7 +203,7 @@
 
 <PurchasesUiInner
   isSandbox={purchases.isSandbox()}
-  {currentView}
+  currentView={currentView as CurrentView}
   {brandingInfo}
   {productDetails}
   purchaseOptionToUse={purchaseOption}
@@ -218,7 +212,6 @@
   {paymentInfoCollectionMetadata}
   {purchaseOperationHelper}
   {closeWithError}
-  {colorVariables}
   {isInElement}
   {onClose}
 />

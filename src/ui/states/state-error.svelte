@@ -15,23 +15,36 @@
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import { type Writable } from "svelte/store";
 
-  export let lastError: PurchaseFlowError;
-  export let supportEmail: string | null = null;
-  export let productDetails: Product | null = null;
-  export let onContinue: () => void;
+  interface Props {
+    lastError: PurchaseFlowError | null;
+    supportEmail: string | null;
+    productDetails: Product;
+    onContinue: () => void;
+  }
+
+  const { lastError, supportEmail, productDetails, onContinue }: Props =
+    $props();
+
+  const error: PurchaseFlowError = $derived(
+    lastError ??
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.UnknownError,
+        "Unknown error without state set.",
+      ),
+  );
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
 
   onMount(() => {
     Logger.errorLog(
-      `Displayed error: ${PurchaseFlowErrorCode[lastError.errorCode]}. Message: ${lastError.message ?? "None"}. Underlying error: ${lastError.underlyingErrorMessage ?? "None"}`,
+      `Displayed error: ${PurchaseFlowErrorCode[error.errorCode]}. Message: ${error.message ?? "None"}. Underlying error: ${error.underlyingErrorMessage ?? "None"}`,
     );
   });
 
   function getTranslatedErrorTitle(): string {
-    switch (lastError.errorCode) {
+    switch (error.errorCode) {
       case PurchaseFlowErrorCode.AlreadyPurchasedError:
-        if (productDetails?.productType === ProductType.Subscription) {
+        if (productDetails.productType === ProductType.Subscription) {
           return $translator.translate(
             LocalizationKeys.StateErrorErrorTitleAlreadySubscribed,
           );
@@ -48,8 +61,8 @@
   }
 
   function getTranslatedErrorMessage(): string | undefined {
-    const publicErrorCode = lastError.getErrorCode();
-    switch (lastError.errorCode) {
+    const publicErrorCode = error.getErrorCode();
+    switch (error.errorCode) {
       case PurchaseFlowErrorCode.UnknownError:
         return $translator.translate(
           LocalizationKeys.StateErrorErrorMessageUnknownError,
@@ -76,7 +89,7 @@
           { errorCode: publicErrorCode },
         );
       case PurchaseFlowErrorCode.AlreadyPurchasedError:
-        if (productDetails?.productType === ProductType.Subscription) {
+        if (productDetails.productType === ProductType.Subscription) {
           return $translator.translate(
             LocalizationKeys.StateErrorErrorMessageAlreadySubscribed,
             { errorCode: publicErrorCode },

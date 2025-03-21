@@ -16,7 +16,6 @@
     subscriptionOptionWithTrial,
     checkoutStartResponse,
   } from "../fixtures";
-  import { toProductInfoStyleVar } from "../../ui/theme/utils";
   import { PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
 
   const defaultArgs = {
@@ -59,14 +58,12 @@
   context: StoryContext<typeof Story>,
 )}
   {@const brandingInfo = brandingInfos[context.globals.brandingName]}
-  {@const colorVariables = toProductInfoStyleVar(brandingInfo.appearance)}
   <PurchasesInner
     isSandbox={args.isSandbox}
     currentView={args.currentView}
     productDetails={args.productDetails}
     purchaseOptionToUse={args.purchaseOptionToUse}
     {brandingInfo}
-    {colorVariables}
     handleContinue={() => {}}
     closeWithError={() => {}}
     lastError={null}
@@ -111,6 +108,6 @@
     defaultPurchaseOption: subscriptionOptionWithTrial,
   }}
 />
-<Story name="Loading" args={{ currentView: "loading" }} />
+<Story name="Loading" args={{ currentView: "loading-payment-page" }} />
 <Story name="Payment complete" args={{ currentView: "success" }} />
 <Story name="Payment failed" args={{ currentView: "error" }} />
