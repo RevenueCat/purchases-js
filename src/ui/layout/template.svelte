@@ -7,11 +7,11 @@
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
   import BrandingInfoUI from "../molecules/branding-info.svelte";
   import { type Snippet } from "svelte";
+  import { toProductInfoStyleVar } from "../theme/utils";
 
   export interface Props {
     brandingInfo: BrandingInfoResponse | null;
     isInElement: boolean;
-    colorVariables: string;
     isSandbox: boolean;
     onClose: (() => void) | undefined;
     navbarContent: Snippet<[]>;
@@ -21,12 +21,15 @@
   const {
     brandingInfo,
     isInElement,
-    colorVariables,
     isSandbox,
     onClose,
     navbarContent,
     mainContent,
   }: Props = $props();
+
+  const colorVariables = $derived(
+    toProductInfoStyleVar(brandingInfo?.appearance) ?? "",
+  );
 </script>
 
 <Container brandingAppearance={brandingInfo?.appearance} {isInElement}>

@@ -20,7 +20,6 @@
   export let brandingInfo: BrandingInfoResponse | null;
   export let productDetails: Product;
   export let purchaseOptionToUse: PurchaseOption;
-  export let colorVariables: string = "";
   export let isSandbox: boolean = false;
   export let handleContinue: (params?: ContinueHandlerParams) => void;
   export let closeWithError: () => void;
@@ -31,7 +30,7 @@
   export let isInElement: boolean = false;
 </script>
 
-<Template {brandingInfo} {isInElement} {colorVariables} {isSandbox} {onClose}>
+<Template {brandingInfo} {isInElement} {isSandbox} {onClose}>
   {#snippet navbarContent()}
     <ProductInfo
       {productDetails}

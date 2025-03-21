@@ -9,7 +9,6 @@
     PurchaseOperationHelper,
   } from "../helpers/purchase-operation-helper";
 
-  import { toProductInfoStyleVar } from "./theme/utils";
   import { type RedemptionInfo } from "../entities/redemption-info";
   import {
     type CustomTranslations,
@@ -50,7 +49,6 @@
   export let customTranslations: CustomTranslations = {};
   export let isInElement: boolean = false;
 
-  let colorVariables = "";
   let productDetails: Product = rcPackage.webBillingProduct;
   let paymentInfoCollectionMetadata: CheckoutStartResponse | null = null;
   let lastError: PurchaseFlowError | null = null;
@@ -88,8 +86,6 @@
   setContext(eventsTrackerContextKey, eventsTracker);
 
   onMount(async () => {
-    colorVariables = toProductInfoStyleVar(brandingInfo?.appearance);
-
     if (currentView === "initializing") {
       if (customerEmail) {
         handleCheckoutStart();
@@ -216,7 +212,6 @@
   {paymentInfoCollectionMetadata}
   {purchaseOperationHelper}
   {closeWithError}
-  {colorVariables}
   {isInElement}
   {onClose}
 />
