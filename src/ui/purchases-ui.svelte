@@ -51,7 +51,7 @@
   export let isInElement: boolean = false;
 
   let colorVariables = "";
-  let productDetails: Product | null = null;
+  let productDetails: Product = rcPackage.webBillingProduct;
   let paymentInfoCollectionMetadata: CheckoutStartResponse | null = null;
   let lastError: PurchaseFlowError | null = null;
   const productId = rcPackage.webBillingProduct.identifier ?? null;
@@ -88,8 +88,6 @@
   setContext(eventsTrackerContextKey, eventsTracker);
 
   onMount(async () => {
-    productDetails = rcPackage.webBillingProduct;
-
     colorVariables = toProductInfoStyleVar(brandingInfo?.appearance);
 
     if (currentView === "initializing") {

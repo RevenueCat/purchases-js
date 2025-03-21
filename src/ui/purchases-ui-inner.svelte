@@ -23,7 +23,7 @@
 
   export let currentView: CurrentView;
   export let brandingInfo: BrandingInfoResponse | null;
-  export let productDetails: Product | null;
+  export let productDetails: Product;
   export let purchaseOptionToUse: PurchaseOption;
   export let colorVariables: string = "";
   export let isSandbox: boolean = false;
@@ -51,14 +51,12 @@
       {/snippet}
 
       {#snippet bodyContent()}
-        {#if productDetails && purchaseOptionToUse}
-          <ProductInfo
-            {productDetails}
-            purchaseOption={purchaseOptionToUse}
-            showProductDescription={brandingInfo?.appearance
-              ?.show_product_description ?? false}
-          />
-        {/if}
+        <ProductInfo
+          {productDetails}
+          purchaseOption={purchaseOptionToUse}
+          showProductDescription={brandingInfo?.appearance
+            ?.show_product_description ?? false}
+        />
       {/snippet}
     </NavBar>
     <Main brandingAppearance={brandingInfo?.appearance}>
@@ -70,7 +68,7 @@
             {lastError}
           />
         {/if}
-        {#if paymentInfoCollectionMetadata && (currentView === "needs-payment-info" || currentView === "polling-purchase-status") && productDetails && purchaseOptionToUse}
+        {#if paymentInfoCollectionMetadata && (currentView === "needs-payment-info" || currentView === "polling-purchase-status")}
           <StateNeedsPaymentInfo
             {paymentInfoCollectionMetadata}
             onContinue={handleContinue}

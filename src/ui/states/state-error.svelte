@@ -17,7 +17,7 @@
 
   export let lastError: PurchaseFlowError;
   export let supportEmail: string | null = null;
-  export let productDetails: Product | null = null;
+  export let productDetails: Product;
   export let onContinue: () => void;
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
@@ -31,7 +31,7 @@
   function getTranslatedErrorTitle(): string {
     switch (lastError.errorCode) {
       case PurchaseFlowErrorCode.AlreadyPurchasedError:
-        if (productDetails?.productType === ProductType.Subscription) {
+        if (productDetails.productType === ProductType.Subscription) {
           return $translator.translate(
             LocalizationKeys.StateErrorErrorTitleAlreadySubscribed,
           );
@@ -76,7 +76,7 @@
           { errorCode: publicErrorCode },
         );
       case PurchaseFlowErrorCode.AlreadyPurchasedError:
-        if (productDetails?.productType === ProductType.Subscription) {
+        if (productDetails.productType === ProductType.Subscription) {
           return $translator.translate(
             LocalizationKeys.StateErrorErrorMessageAlreadySubscribed,
             { errorCode: publicErrorCode },
