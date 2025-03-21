@@ -1,9 +1,4 @@
 <script lang="ts">
-  import Container from "./layout/container.svelte";
-  import Layout from "./layout/layout.svelte";
-  import NavBar from "./layout/navbar.svelte";
-  import SandboxBanner from "./molecules/sandbox-banner.svelte";
-  import Main from "./layout/main-block.svelte";
   import StateNeedsPaymentInfo from "./states/state-needs-payment-info.svelte";
   import StateNeedsAuthInfo from "./states/state-needs-auth-info.svelte";
   import StateLoading from "./states/state-loading.svelte";
@@ -13,13 +8,13 @@
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import type { Product, PurchaseOption } from "../main";
   import ProductInfo from "./organisms/product-info.svelte";
-  import BrandingInfoUI from "./molecules/branding-info.svelte";
   import {
     PurchaseFlowError,
     PurchaseFlowErrorCode,
     PurchaseOperationHelper,
   } from "../helpers/purchase-operation-helper";
   import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
+  import Template from "./layout/template.svelte";
 
   export let currentView: CurrentView;
   export let brandingInfo: BrandingInfoResponse | null;
@@ -36,68 +31,51 @@
   export let isInElement: boolean = false;
 </script>
 
-<Container brandingAppearance={brandingInfo?.appearance} {isInElement}>
-  {#if isSandbox}
-    <SandboxBanner style={colorVariables} {isInElement} />
-  {/if}
-  <Layout style={colorVariables}>
-    <NavBar
-      brandingAppearance={brandingInfo?.appearance}
-      {onClose}
-      showCloseButton={!isInElement}
-    >
-      {#snippet headerContent()}
-        <BrandingInfoUI {brandingInfo} />
-      {/snippet}
-
-      {#snippet bodyContent()}
-        <ProductInfo
-          {productDetails}
-          purchaseOption={purchaseOptionToUse}
-          showProductDescription={brandingInfo?.appearance
-            ?.show_product_description ?? false}
-        />
-      {/snippet}
-    </NavBar>
-    <Main brandingAppearance={brandingInfo?.appearance}>
-      {#snippet body()}
-        {#if currentView === "needs-auth-info" || currentView === "processing-auth-info"}
-          <StateNeedsAuthInfo
-            onContinue={handleContinue}
-            processing={currentView === "processing-auth-info"}
-            {lastError}
-          />
-        {/if}
-        {#if paymentInfoCollectionMetadata && (currentView === "needs-payment-info" || currentView === "polling-purchase-status")}
-          <StateNeedsPaymentInfo
-            {paymentInfoCollectionMetadata}
-            onContinue={handleContinue}
-            processing={currentView === "polling-purchase-status"}
-            {productDetails}
-            purchaseOption={purchaseOptionToUse}
-            {brandingInfo}
-            {purchaseOperationHelper}
-          />
-        {/if}
-        {#if currentView === "loading-payment-page"}
-          <StateLoading />
-        {/if}
-        {#if currentView === "error"}
-          <StateError
-            lastError={lastError ??
-              new PurchaseFlowError(
-                PurchaseFlowErrorCode.UnknownError,
-                "Unknown error without state set.",
-              )}
-            supportEmail={brandingInfo?.support_email}
-            {productDetails}
-            onContinue={closeWithError}
-          />
-        {/if}
-        {#if currentView === "success"}
-          <StateSuccess {productDetails} onContinue={handleContinue} />
-        {/if}
-      {/snippet}
-    </Main>
-  </Layout>
-</Container>
+<Template {brandingInfo} {isInElement} {colorVariables} {isSandbox} {onClose}>
+  {#snippet navbarContent()}
+    <ProductInfo
+      {productDetails}
+      purchaseOption={purchaseOptionToUse}
+      showProductDescription={brandingInfo?.appearance
+        ?.show_product_description ?? false}
+    />
+  {/snippet}
+  {#snippet mainContent()}
+    {#if currentView === "needs-auth-info" || currentView === "processing-auth-info"}
+      <StateNeedsAuthInfo
+        onContinue={handleContinue}
+        processing={currentView === "processing-auth-info"}
+        {lastError}
+      />
+    {/if}
+    {#if paymentInfoCollectionMetadata && (currentView === "needs-payment-info" || currentView === "polling-purchase-status")}
+      <StateNeedsPaymentInfo
+        {paymentInfoCollectionMetadata}
+        onContinue={handleContinue}
+        processing={currentView === "polling-purchase-status"}
+        {productDetails}
+        purchaseOption={purchaseOptionToUse}
+        {brandingInfo}
+        {purchaseOperationHelper}
+      />
+    {/if}
+    {#if currentView === "loading-payment-page"}
+      <StateLoading />
+    {/if}
+    {#if currentView === "error"}
+      <StateError
+        lastError={lastError ??
+          new PurchaseFlowError(
+            PurchaseFlowErrorCode.UnknownError,
+            "Unknown error without state set.",
+          )}
+        supportEmail={brandingInfo?.support_email}
+        {productDetails}
+        onContinue={closeWithError}
+      />
+    {/if}
+    {#if currentView === "success"}
+      <StateSuccess {productDetails} onContinue={handleContinue} />
+    {/if}
+  {/snippet}
+</Template>
