@@ -6,7 +6,7 @@ export type CurrentView =
   | "processing-auth-info"
   | "needs-payment-info"
   | "polling-purchase-status"
-  | "loading"
+  | "loading-payment-page"
   | "success"
   | "error";
 

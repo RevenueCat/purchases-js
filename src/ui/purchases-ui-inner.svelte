@@ -41,7 +41,7 @@
     "processing-auth-info",
     "needs-payment-info",
     "polling-purchase-status",
-    "loading",
+    "loading-payment-page",
     "success",
     "error",
   ];
@@ -105,7 +105,7 @@
             {purchaseOperationHelper}
           />
         {/if}
-        {#if currentView === "loading"}
+        {#if currentView === "loading-payment-page"}
           <StateLoading />
         {/if}
         {#if currentView === "error"}
