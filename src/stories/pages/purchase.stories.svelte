@@ -108,6 +108,6 @@
     defaultPurchaseOption: subscriptionOptionWithTrial,
   }}
 />
-<Story name="Loading" args={{ currentView: "loading" }} />
+<Story name="Loading" args={{ currentView: "loading-payment-page" }} />
 <Story name="Payment complete" args={{ currentView: "success" }} />
 <Story name="Payment failed" args={{ currentView: "error" }} />
