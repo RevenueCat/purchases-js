@@ -27,7 +27,7 @@
     createCheckoutPaymentGatewayErrorEvent,
   } from "../../behavioural-events/sdk-event-helpers";
   import { SDKEventName } from "../../behavioural-events/sdk-events";
-  import StateLoading from "./state-loading.svelte";
+  import Loading from "../molecules/loading.svelte";
   import { getNextRenewalDate } from "../../helpers/duration-helper";
   import { formatPrice } from "../../helpers/price-labels";
   import { type Writable } from "svelte/store";
@@ -149,7 +149,7 @@
 
 <div class="rc-checkout-container">
   {#if isStripeLoading || processing}
-    <StateLoading />
+    <Loading />
   {/if}
   <!-- <TextSeparator text="Pay by card" /> -->
   <form
