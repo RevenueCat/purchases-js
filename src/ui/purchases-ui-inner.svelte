@@ -10,7 +10,6 @@
   import ProductInfo from "./organisms/product-info.svelte";
   import {
     PurchaseFlowError,
-    PurchaseFlowErrorCode,
     PurchaseOperationHelper,
   } from "../helpers/purchase-operation-helper";
   import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
@@ -63,13 +62,9 @@
     {/if}
     {#if currentView === "error"}
       <StateError
-        lastError={lastError ??
-          new PurchaseFlowError(
-            PurchaseFlowErrorCode.UnknownError,
-            "Unknown error without state set.",
-          )}
-        supportEmail={brandingInfo?.support_email}
+        {lastError}
         {productDetails}
+        supportEmail={brandingInfo?.support_email ?? null}
         onContinue={closeWithError}
       />
     {/if}
