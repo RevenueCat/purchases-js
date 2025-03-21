@@ -18,7 +18,7 @@
     </p>
   {/if}
   <p class="footer-caption">
-    <Localized key={LocalizationKeys.StateNeedsPaymentInfoPaymentStepTitle} />
+    <Localized key={LocalizationKeys.PaymentEntryPaymentStepTitle} />
   </p>
 </div>
 

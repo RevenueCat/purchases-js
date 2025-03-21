@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom";
 import { fireEvent, render, screen } from "@testing-library/svelte";
 import { describe, test, expect, vi } from "vitest";
-import StateNeedsAuthInfo from "../../../ui/states/state-needs-auth-info.svelte";
+import EmailEntryPage from "../../../ui/pages/email-entry-page.svelte";
 import { SDKEventName } from "../../../behavioural-events/sdk-events";
 import { createEventsTrackerMock } from "../../mocks/events-tracker-mock-provider";
 import { eventsTrackerContextKey } from "../../../ui/constants";
@@ -27,7 +27,7 @@ const basicProps = {
 
 describe("PurchasesUI", () => {
   test("displays error when an invalid email format is submitted", async () => {
-    render(StateNeedsAuthInfo, {
+    render(EmailEntryPage, {
       props: { ...basicProps, customerEmail: undefined },
       context: defaultContext,
     });
@@ -41,7 +41,7 @@ describe("PurchasesUI", () => {
   });
 
   test("clears email format error after it is fixed", async () => {
-    render(StateNeedsAuthInfo, {
+    render(EmailEntryPage, {
       props: { ...basicProps, customerEmail: undefined },
       context: defaultContext,
     });
@@ -63,7 +63,7 @@ describe("PurchasesUI", () => {
   });
 
   test("tracks the CheckoutBillingFormImpression on mount", async () => {
-    render(StateNeedsAuthInfo, {
+    render(EmailEntryPage, {
       props: { ...basicProps, customerEmail: undefined },
       context: defaultContext,
     });
@@ -74,7 +74,7 @@ describe("PurchasesUI", () => {
   });
 
   test("tracks the CheckoutBillingFormSubmit event email is submitted", async () => {
-    render(StateNeedsAuthInfo, {
+    render(EmailEntryPage, {
       props: { ...basicProps, customerEmail: undefined },
       context: defaultContext,
     });
@@ -90,7 +90,7 @@ describe("PurchasesUI", () => {
   });
 
   test("tracks the CheckoutBillingFormError event when input has an email format error", async () => {
-    render(StateNeedsAuthInfo, {
+    render(EmailEntryPage, {
       props: { ...basicProps, customerEmail: undefined },
       context: defaultContext,
     });

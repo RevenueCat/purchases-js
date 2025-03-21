@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom";
 import { fireEvent, render, screen } from "@testing-library/svelte";
 import { describe, test, expect, vi } from "vitest";
-import StateSuccess from "../../../ui/states/state-success.svelte";
+import SuccessPage from "../../../ui/pages/success-page.svelte";
 import { brandingInfo, rcPackage } from "../../../stories/fixtures";
 import { SDKEventName } from "../../../behavioural-events/sdk-events";
 import { createEventsTrackerMock } from "../../mocks/events-tracker-mock-provider";
@@ -27,7 +27,7 @@ const defaultContext = new Map(
 
 describe("PurchasesUI", () => {
   function renderComponent() {
-    render(StateSuccess, {
+    render(SuccessPage, {
       props: basicProps,
       context: defaultContext,
     });
