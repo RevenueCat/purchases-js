@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom";
 import { fireEvent, render, screen } from "@testing-library/svelte";
 import { describe, test, expect, vi } from "vitest";
-import StateSuccess from "../../../ui/states/state-success.svelte";
+import StateSuccess from "../../../ui/pages/state-success.svelte";
 import { brandingInfo, rcPackage } from "../../../stories/fixtures";
 import { SDKEventName } from "../../../behavioural-events/sdk-events";
 import { createEventsTrackerMock } from "../../mocks/events-tracker-mock-provider";
