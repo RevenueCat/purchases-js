@@ -20,7 +20,7 @@
   import { StripeService } from "../../stripe/stripe-service";
   import { type Writable } from "svelte/store";
   import {
-    PaymentElementError,
+    type PaymentElementError,
     PaymentElementErrorCode,
   } from "../types/payment-element-error";
 
