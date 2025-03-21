@@ -113,7 +113,7 @@
       );
       return;
     } else if (currentView === "present-offer") {
-      currentView = "loading";
+      currentView = "loading-payment-page";
     }
 
     if (!customerEmail) {
