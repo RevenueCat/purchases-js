@@ -172,8 +172,8 @@ export const checkoutCalculateTaxResponse: CheckoutCalculateTaxResponse = {
   operation_session_id: "operation-session-id",
   currency: "USD",
   tax_inclusive: false,
-  total_amount_in_micros: 34990000 + 2450000,
-  total_excluding_tax_in_micros: 34990000,
+  total_amount_in_micros: 9900000 + 2450000,
+  total_excluding_tax_in_micros: 9900000,
   tax_amount_in_micros: 2450000,
   pricing_phases: {
     base: {
@@ -257,8 +257,8 @@ export const brandingInfos: Record<string, BrandingInfoResponse> = {
 
 export const priceBreakdownTaxDisabled: PriceBreakdown = {
   currency: "USD",
-  totalAmountInMicros: 34990000,
-  totalExcludingTaxInMicros: 34990000,
+  totalAmountInMicros: 9900000,
+  totalExcludingTaxInMicros: 9900000,
   taxCollectionEnabled: false,
   status: "calculated",
   taxAmountInMicros: 0,
@@ -268,79 +268,81 @@ export const priceBreakdownTaxDisabled: PriceBreakdown = {
 
 export const priceBreakdownTaxInclusive: PriceBreakdown = {
   ...priceBreakdownTaxDisabled,
-  totalAmountInMicros: 6060000 + 28930000,
-  totalExcludingTaxInMicros: 28930000,
-  taxAmountInMicros: 6060000,
+  totalAmountInMicros: 1718000 + 8180000,
+  totalExcludingTaxInMicros: 8180000,
+  taxAmountInMicros: 1718000,
   taxCollectionEnabled: true,
   status: "calculated",
   taxBreakdown: [
     {
       tax_type: "VAT",
-      tax_amount_in_micros: 2450000,
+      tax_amount_in_micros: 1718000,
+      tax_rate_in_micros: 210000,
+      country: "ES",
+      state: null,
+      taxable_amount_in_micros: 8180000,
+      display_name: null,
+    },
+  ],
+};
+
+export const priceBreakdownTaxExclusive: PriceBreakdown = {
+  ...priceBreakdownTaxDisabled,
+  totalAmountInMicros: 693000 + 9900000,
+  totalExcludingTaxInMicros: 9900000,
+  taxAmountInMicros: 693000,
+  taxCollectionEnabled: true,
+  status: "calculated",
+  taxBreakdown: [
+    {
+      tax_type: "VAT",
+      tax_amount_in_micros: 693000,
       tax_rate_in_micros: 70000,
       country: "USA",
       state: "NY",
-      taxable_amount_in_micros: 34990000,
+      taxable_amount_in_micros: 9900000,
       display_name: null,
     },
   ],
 };
 
 export const priceBreakdownTaxLoading: PriceBreakdown = {
-  ...priceBreakdownTaxInclusive,
+  ...priceBreakdownTaxExclusive,
+  totalAmountInMicros: 9900000,
   status: "loading",
 };
 
 export const priceBreakdownTaxPending: PriceBreakdown = {
-  ...priceBreakdownTaxInclusive,
+  ...priceBreakdownTaxExclusive,
+  totalAmountInMicros: 9900000,
   status: "pending",
   pendingReason: null,
 };
 
-export const priceBreakdownTaxExclusive: PriceBreakdown = {
-  ...priceBreakdownTaxDisabled,
-  totalAmountInMicros: 34990000 + 2450000,
-  totalExcludingTaxInMicros: 34990000,
-  taxAmountInMicros: 2450000,
-  taxCollectionEnabled: true,
-  status: "calculated",
-  taxBreakdown: [
-    {
-      tax_type: "VAT",
-      tax_amount_in_micros: 2450000,
-      tax_rate_in_micros: 70000,
-      country: "USA",
-      state: "NY",
-      taxable_amount_in_micros: 34990000,
-      display_name: null,
-    },
-  ],
-};
-
 export const priceBreakdownTaxExclusiveWithMultipleTaxItems: PriceBreakdown = {
   ...priceBreakdownTaxDisabled,
-  totalAmountInMicros: 34990000 + 1749500 + 3490250,
-  totalExcludingTaxInMicros: 34990000,
-  taxAmountInMicros: 1749500 + 3490250,
+  totalAmountInMicros: 9900000 + 495000 + 987525,
+  totalExcludingTaxInMicros: 9900000,
+  taxAmountInMicros: 495000 + 987525,
   taxCollectionEnabled: true,
   status: "calculated",
   taxBreakdown: [
     {
       tax_type: "GST",
-      tax_amount_in_micros: 1749500,
+      tax_amount_in_micros: 495000,
       tax_rate_in_micros: 50000,
       country: "CA",
       state: null,
-      taxable_amount_in_micros: 34990000,
+      taxable_amount_in_micros: 9900000,
       display_name: null,
     },
     {
       tax_type: "QST",
-      tax_amount_in_micros: 3490250,
+      tax_amount_in_micros: 987525,
       tax_rate_in_micros: 99750,
       country: "CA",
       state: "ON",
-      taxable_amount_in_micros: 34990000,
+      taxable_amount_in_micros: 9900000,
       display_name: null,
     },
   ],
