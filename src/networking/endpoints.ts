@@ -99,7 +99,7 @@ export class CheckoutCalculateTaxEndpoint implements Endpoint {
   }
 
   urlPath(): string {
-    return `${RC_BILLING_PATH}/checkout/${this.operationSessionId}/calculate_taxes`;
+    return `${RC_BILLING_PATH}/checkout/${this.operationSessionId}/calculate_tax`;
   }
 }
 
