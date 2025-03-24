@@ -24,10 +24,29 @@
   });
 </script>
 
-<Story name="Default">
-  <ProductInfo
-    productDetails={product}
-    purchaseOption={subscriptionOption}
-    showProductDescription={true}
-  />
-</Story>
+<Story
+  name="Default"
+  args={{
+    productDetails: product,
+    purchaseOption: subscriptionOption,
+    showProductDescription: true,
+  }}
+/>
+
+<Story
+  name="Trial"
+  args={{
+    productDetails: product,
+    purchaseOption: subscriptionOptionWithTrial,
+    showProductDescription: true,
+  }}
+/>
+
+<Story
+  name="Non-subscription"
+  args={{
+    productDetails: consumableProduct,
+    purchaseOption: nonSubscriptionOption,
+    showProductDescription: true,
+  }}
+/>

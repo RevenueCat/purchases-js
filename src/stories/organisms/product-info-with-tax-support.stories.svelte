@@ -41,3 +41,12 @@
     showProductDescription: true,
   }}
 />
+
+<Story
+  name="Non-subscription"
+  args={{
+    productDetails: consumableProduct,
+    purchaseOption: nonSubscriptionOption,
+    showProductDescription: true,
+  }}
+/>
