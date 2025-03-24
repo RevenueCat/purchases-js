@@ -54,7 +54,7 @@
   let lastError: PurchaseFlowError | null = null;
   const productId = rcPackage.webBillingProduct.identifier ?? null;
 
-  let currentView: CurrentView | "initializing" = "initializing";
+  let currentView: CurrentView | null = null;
   let redemptionInfo: RedemptionInfo | null = null;
   let operationSessionId: string | null = null;
 
@@ -86,18 +86,6 @@
   setContext(eventsTrackerContextKey, eventsTracker);
 
   onMount(async () => {
-    if (currentView === "initializing") {
-      if (customerEmail) {
-        handleCheckoutStart();
-      } else {
-        currentView = "needs-auth-info";
-      }
-
-      return;
-    }
-  });
-
-  const handleCheckoutStart = () => {
     if (productId === null) {
       handleError(
         new PurchaseFlowError(
@@ -106,10 +94,17 @@
         ),
       );
       return;
-    } else if (currentView === "initializing") {
-      currentView = "loading-payment-page";
     }
 
+    if (!customerEmail) {
+      currentView = "needs-auth-info";
+    } else {
+      currentView = "loading-payment-page";
+      handleCheckoutStart();
+    }
+  });
+
+  const handleCheckoutStart = () => {
     if (!customerEmail) {
       handleError(
         new PurchaseFlowError(PurchaseFlowErrorCode.MissingEmailError),
