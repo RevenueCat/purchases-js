@@ -9,7 +9,6 @@
   import PricingTable from "../molecules/pricing-table.svelte";
   import ProductInfoHeader from "../molecules/product-header.svelte";
   import PricingSummary from "../molecules/pricing-summary.svelte";
-  import { getNextRenewalDate } from "../../helpers/duration-helper";
   import { type PriceBreakdown } from "../ui-types";
 
   export let productDetails: Product;
@@ -22,19 +21,16 @@
 
   const subscriptionOption = purchaseOption as SubscriptionOption;
 
-  let trialEndDate = null;
-  const expectedPeriod = subscriptionOption?.trial?.period;
-  if (expectedPeriod) {
-    trialEndDate = getNextRenewalDate(new Date(), expectedPeriod, true);
-  }
+  const basePhase = subscriptionOption?.base;
+  const trialPhase = subscriptionOption?.trial;
 </script>
 
 <section>
   <div class="rcb-pricing-info" class:has-expanded-details={isSubscription}>
     <ProductInfoHeader {productDetails} {showProductDescription} />
-    <PricingSummary {productDetails} {purchaseOption} />
+    <PricingSummary {priceBreakdown} {basePhase} {trialPhase} />
     <PricingDropdown>
-      <PricingTable {priceBreakdown} {trialEndDate} />
+      <PricingTable {priceBreakdown} {trialPhase} />
     </PricingDropdown>
   </div>
 </section>
