@@ -5,65 +5,52 @@
   import { translatorContextKey } from "../localization/constants";
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import TaxTitle from "../atoms/tax-title.svelte";
+  import { type PriceBreakdown } from "../ui-types";
 
-  type TaxItem = {
-    taxType: string | null;
-    taxPercentageInMicros: number | null;
-    taxAmountInMicros: number;
-    country: string | null;
-    state: string | null;
-  };
+  interface Props {
+    priceBreakdown: PriceBreakdown;
+    trialEndDate: Date | null | undefined;
+  }
 
-  export let currency: string;
-  export let totalExcludingTax: number;
-  export let taxItems: TaxItem[] | null | undefined = undefined;
-  export let trialEndDate: Date | null | undefined = undefined;
-  export let renewalTotal: number | null | undefined = undefined;
-  export let total: number;
-  export let loadingTax: boolean = false;
-  export let calculationError:
-    | "needs_postal_code"
-    | "needs_state_or_postal_code"
-    | null
-    | undefined = undefined;
+  let { priceBreakdown, trialEndDate }: Props = $props();
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
-
-  const totalExcludingTaxMicros = totalExcludingTax * 1000000;
-  const totalMicros = total * 1000000;
-  const renewalTotalMicros = renewalTotal ? renewalTotal * 1000000 : null;
-  const formattedtotalExcludingTax = $translator.formatPrice(
-    totalExcludingTaxMicros,
-    currency,
-  );
-  const formattedRenewalTotal = renewalTotalMicros
-    ? $translator.formatPrice(renewalTotalMicros, currency)
-    : null;
-  const formattedTotal = $translator.formatPrice(totalMicros, currency);
 </script>
 
 <div class="pricing-table">
-  <div class="rcb-pricing-table-row">
-    <div class="rcb-pricing-table-header">
-      {$translator.translate(LocalizationKeys.PricingTotalExcludingTax)}
+  {#if priceBreakdown.taxCollectionEnabled}
+    <div class="rcb-pricing-table-row">
+      <div class="rcb-pricing-table-header">
+        {$translator.translate(LocalizationKeys.PricingTotalExcludingTax)}
+      </div>
+      <div class="rcb-pricing-table-value">
+        {$translator.formatPrice(
+          priceBreakdown.totalExcludingTaxInMicros,
+          priceBreakdown.currency,
+        )}
+      </div>
     </div>
-    <div class="rcb-pricing-table-value">{formattedtotalExcludingTax}</div>
-  </div>
 
-  {#if taxItems !== undefined}
-    {#if taxItems == null}
+    {#if priceBreakdown.status === "loading"}
       <div class="rcb-pricing-table-row">
         <div class="rcb-pricing-table-header">
           {$translator.translate(LocalizationKeys.PricingTableTax)}
         </div>
         <div class="rcb-pricing-table-value">
-          {#if loadingTax}
-            <div class="rcb-pricing-table-value-loading">Loading</div>
-          {:else if calculationError === "needs_postal_code"}
+          <div class="rcb-pricing-table-value-loading">Loading</div>
+        </div>
+      </div>
+    {:else if priceBreakdown.status === "pending"}
+      <div class="rcb-pricing-table-row">
+        <div class="rcb-pricing-table-header">
+          {$translator.translate(LocalizationKeys.PricingTableTax)}
+        </div>
+        <div class="rcb-pricing-table-value">
+          {#if priceBreakdown.pendingReason === "needs_postal_code"}
             {$translator.translate(
               LocalizationKeys.PricingTableEnterPostalCodeToCalculate,
             )}
-          {:else if calculationError === "needs_state_or_postal_code"}
+          {:else if priceBreakdown.pendingReason === "needs_state_or_postal_code"}
             {$translator.translate(
               LocalizationKeys.PricingTableEnterStateOrPostalCodeToCalculate,
             )}
@@ -74,29 +61,35 @@
           {/if}
         </div>
       </div>
-    {/if}
-    {#if taxItems !== null}
-      {#each taxItems as taxItem}
+    {:else if priceBreakdown.taxBreakdown !== null}
+      {#each priceBreakdown.taxBreakdown as taxItem}
         <div class="rcb-pricing-table-row">
           <div class="rcb-pricing-table-header">
-            <TaxTitle
-              taxType={taxItem.taxType}
-              country={taxItem.country}
-              state={taxItem.state}
-              taxPercentageInMicros={taxItem.taxPercentageInMicros}
-            />
+            {#if taxItem.display_name}
+              {taxItem.display_name}
+            {:else}
+              <TaxTitle
+                taxType={taxItem.tax_type}
+                country={taxItem.country}
+                state={taxItem.state}
+                taxPercentageInMicros={taxItem.tax_rate_in_micros}
+              />
+            {/if}
           </div>
           <div class="rcb-pricing-table-value">
-            {$translator.formatPrice(taxItem.taxAmountInMicros, currency)}
+            {$translator.formatPrice(
+              taxItem.tax_amount_in_micros,
+              priceBreakdown.currency,
+            )}
           </div>
         </div>
       {/each}
     {/if}
+
+    <div class="rcb-pricing-table-separator"></div>
   {/if}
 
-  <div class="rcb-pricing-table-separator"></div>
-
-  {#if trialEndDate && renewalTotal}
+  {#if trialEndDate}
     <div class="rcb-pricing-table-row">
       <div class="rcb-pricing-table-header">
         {$translator.translate(LocalizationKeys.PricingTableTrialEnds, {
@@ -104,7 +97,10 @@
         })}
       </div>
       <div class="rcb-pricing-table-value">
-        {formattedRenewalTotal}
+        {$translator.formatPrice(
+          priceBreakdown.totalAmountInMicros,
+          priceBreakdown.currency,
+        )}
       </div>
     </div>
   {/if}
@@ -113,7 +109,16 @@
     <div class="rcb-pricing-table-header total">
       {$translator.translate(LocalizationKeys.PricingTableTotalDueToday)}
     </div>
-    <div class="rcb-pricing-table-value">{formattedTotal}</div>
+    <div class="rcb-pricing-table-value">
+      {#if trialEndDate}
+        {$translator.formatPrice(0, priceBreakdown.currency)}
+      {:else}
+        {$translator.formatPrice(
+          priceBreakdown.totalAmountInMicros,
+          priceBreakdown.currency,
+        )}
+      {/if}
+    </div>
   </div>
 </div>
 

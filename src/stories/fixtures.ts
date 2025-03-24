@@ -15,6 +15,7 @@ import type { BrandingAppearance } from "../entities/branding";
 import type { CheckoutCalculateTaxResponse } from "../networking/responses/checkout-calculate-tax-response";
 import { StripeElementsSetupFutureUsage } from "../networking/responses/stripe-elements";
 import { StripeElementsMode } from "../networking/responses/stripe-elements";
+import type { PriceBreakdown } from "src/ui/ui-types";
 
 const subscriptionOptionBasePrice = {
   periodDuration: "P1M",
@@ -171,6 +172,9 @@ export const checkoutCalculateTaxResponse: CheckoutCalculateTaxResponse = {
   operation_session_id: "operation-session-id",
   currency: "USD",
   tax_inclusive: false,
+  total_amount_in_micros: 34990000 + 2450000,
+  total_excluding_tax_in_micros: 34990000,
+  tax_amount_in_micros: 2450000,
   pricing_phases: {
     base: {
       tax_breakdown: [],
@@ -249,4 +253,95 @@ export const brandingInfos: Record<string, BrandingInfoResponse> = {
     },
     gateway_tax_collection_enabled: false,
   },
+};
+
+export const priceBreakdownTaxDisabled: PriceBreakdown = {
+  currency: "USD",
+  totalAmountInMicros: 34990000,
+  totalExcludingTaxInMicros: 34990000,
+  taxCollectionEnabled: false,
+  status: "calculated",
+  taxAmountInMicros: 0,
+  pendingReason: null,
+  taxBreakdown: null,
+};
+
+export const priceBreakdownTaxInclusive: PriceBreakdown = {
+  ...priceBreakdownTaxDisabled,
+  totalAmountInMicros: 6060000 + 28930000,
+  totalExcludingTaxInMicros: 28930000,
+  taxAmountInMicros: 6060000,
+  taxCollectionEnabled: true,
+  status: "calculated",
+  taxBreakdown: [
+    {
+      tax_type: "VAT",
+      tax_amount_in_micros: 2450000,
+      tax_rate_in_micros: 70000,
+      country: "USA",
+      state: "NY",
+      taxable_amount_in_micros: 34990000,
+      display_name: null,
+    },
+  ],
+};
+
+export const priceBreakdownTaxLoading: PriceBreakdown = {
+  ...priceBreakdownTaxInclusive,
+  status: "loading",
+};
+
+export const priceBreakdownTaxPending: PriceBreakdown = {
+  ...priceBreakdownTaxInclusive,
+  status: "pending",
+  pendingReason: null,
+};
+
+export const priceBreakdownTaxExclusive: PriceBreakdown = {
+  ...priceBreakdownTaxDisabled,
+  totalAmountInMicros: 34990000 + 2450000,
+  totalExcludingTaxInMicros: 34990000,
+  taxAmountInMicros: 2450000,
+  taxCollectionEnabled: true,
+  status: "calculated",
+  taxBreakdown: [
+    {
+      tax_type: "VAT",
+      tax_amount_in_micros: 2450000,
+      tax_rate_in_micros: 70000,
+      country: "USA",
+      state: "NY",
+      taxable_amount_in_micros: 34990000,
+      display_name: null,
+    },
+  ],
+};
+
+export const priceBreakdownTaxExclusiveWithMultipleTaxItems: PriceBreakdown = {
+  ...priceBreakdownTaxDisabled,
+  totalAmountInMicros: 34990000 + 1749500 + 3490250,
+  totalExcludingTaxInMicros: 34990000,
+  taxAmountInMicros: 1749500 + 3490250,
+  taxCollectionEnabled: true,
+  status: "calculated",
+  taxBreakdown: [
+    {
+      tax_type: "GST",
+      tax_amount_in_micros: 1749500,
+      tax_rate_in_micros: 50000,
+      country: "CA",
+      state: null,
+      taxable_amount_in_micros: 34990000,
+      display_name: null,
+    },
+    {
+      tax_type: "QST",
+      tax_amount_in_micros: 3490250,
+      tax_rate_in_micros: 99750,
+      country: "CA",
+      state: "ON",
+      taxable_amount_in_micros: 34990000,
+      display_name: null,
+    },
+  ],
 };
