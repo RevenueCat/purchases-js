@@ -3,18 +3,30 @@
     type Product,
     type PurchaseOption,
     ProductType,
+    type SubscriptionOption,
   } from "../../entities/offerings";
   import PricingDropdown from "../molecules/pricing-dropdown.svelte";
   import PricingTable from "../molecules/pricing-table.svelte";
   import ProductInfoHeader from "../molecules/product-header.svelte";
   import PricingSummary from "../molecules/pricing-summary.svelte";
+  import { getNextRenewalDate } from "../../helpers/duration-helper";
+  import { type PriceBreakdown } from "../ui-types";
 
   export let productDetails: Product;
   export let purchaseOption: PurchaseOption;
   export let showProductDescription: boolean;
+  export let priceBreakdown: PriceBreakdown;
 
   const isSubscription =
     productDetails.productType === ProductType.Subscription;
+
+  const subscriptionOption = purchaseOption as SubscriptionOption;
+
+  let trialEndDate = null;
+  const expectedPeriod = subscriptionOption?.trial?.period;
+  if (expectedPeriod) {
+    trialEndDate = getNextRenewalDate(new Date(), expectedPeriod, true);
+  }
 </script>
 
 <section>
@@ -22,22 +34,7 @@
     <ProductInfoHeader {productDetails} {showProductDescription} />
     <PricingSummary {productDetails} {purchaseOption} />
     <PricingDropdown>
-      <PricingTable
-        currency="EUR"
-        totalExcludingTax={28.93}
-        taxItems={[
-          {
-            taxType: "vat",
-            taxAmountInMicros: 6060000,
-            taxPercentageInMicros: 210000,
-            country: "ES",
-            state: null,
-          },
-        ]}
-        trialEndDate={new Date("2025-03-20")}
-        renewalTotal={34.99}
-        total={0}
-      />
+      <PricingTable {priceBreakdown} {trialEndDate} />
     </PricingDropdown>
   </div>
 </section>

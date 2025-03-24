@@ -4,7 +4,11 @@
   import ErrorPage from "./pages/error-page.svelte";
   import SuccessPage from "./pages/success-page.svelte";
   import LoadingPage from "./pages/payment-entry-loading-page.svelte";
-  import { type ContinueHandlerParams, type CurrentPage } from "./ui-types";
+  import {
+    type PriceBreakdown,
+    type ContinueHandlerParams,
+    type CurrentPage,
+  } from "./ui-types";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import type { Product, PurchaseOption } from "../main";
   import ProductInfo from "./organisms/product-info.svelte";
@@ -15,6 +19,7 @@
   import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
   import Template from "./layout/template.svelte";
   import { type CheckoutCalculateTaxResponse } from "../networking/responses/checkout-calculate-tax-response";
+  import ProductInfoWithTaxSupport from "./organisms/product-info-with-tax-support.svelte";
 
   export let currentPage: CurrentPage;
   export let brandingInfo: BrandingInfoResponse | null;
@@ -29,16 +34,42 @@
   export let initialTaxCalculation: CheckoutCalculateTaxResponse | null;
   export let purchaseOperationHelper: PurchaseOperationHelper;
   export let isInElement: boolean = false;
+
+  $: priceBreakdown = {
+    currency:
+      initialTaxCalculation?.currency ?? productDetails.currentPrice.currency,
+    totalAmountInMicros:
+      initialTaxCalculation?.total_amount_in_micros ??
+      productDetails.currentPrice.amountMicros,
+    totalExcludingTaxInMicros:
+      initialTaxCalculation?.total_excluding_tax_in_micros ?? 0,
+    taxCollectionEnabled: brandingInfo?.gateway_tax_collection_enabled ?? false,
+    status: initialTaxCalculation ? "calculated" : "pending",
+    taxAmountInMicros: initialTaxCalculation?.tax_amount_in_micros ?? 0,
+    pendingReason: null,
+    taxBreakdown:
+      initialTaxCalculation?.pricing_phases.base.tax_breakdown ?? [],
+  } as PriceBreakdown;
 </script>
 
 <Template {brandingInfo} {isInElement} {isSandbox} {onClose}>
   {#snippet navbarContent()}
-    <ProductInfo
-      {productDetails}
-      purchaseOption={purchaseOptionToUse}
-      showProductDescription={brandingInfo?.appearance
-        ?.show_product_description ?? false}
-    />
+    {#if brandingInfo?.gateway_tax_collection_enabled}
+      <ProductInfoWithTaxSupport
+        {productDetails}
+        purchaseOption={purchaseOptionToUse}
+        showProductDescription={brandingInfo?.appearance
+          ?.show_product_description ?? false}
+        {priceBreakdown}
+      />
+    {:else}
+      <ProductInfo
+        {productDetails}
+        purchaseOption={purchaseOptionToUse}
+        showProductDescription={brandingInfo?.appearance
+          ?.show_product_description ?? false}
+      />
+    {/if}
   {/snippet}
   {#snippet mainContent()}
     {#if currentPage === "email-entry" || currentPage === "email-entry-processing"}
