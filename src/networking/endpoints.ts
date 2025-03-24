@@ -89,9 +89,9 @@ export class CheckoutStartEndpoint implements Endpoint {
   }
 }
 
-export class CheckoutCalculateTaxesEndpoint implements Endpoint {
+export class CheckoutCalculateTaxEndpoint implements Endpoint {
   method: HttpMethodType = "POST";
-  name: string = "postCheckoutCalculateTaxes";
+  name: string = "postCheckoutCalculateTax";
   private readonly operationSessionId: string;
 
   constructor(operationSessionId: string) {
@@ -99,7 +99,7 @@ export class CheckoutCalculateTaxesEndpoint implements Endpoint {
   }
 
   urlPath(): string {
-    return `${RC_BILLING_PATH}/checkout/${this.operationSessionId}/calculate_taxes`;
+    return `${RC_BILLING_PATH}/checkout/${this.operationSessionId}/calculate_tax`;
   }
 }
 

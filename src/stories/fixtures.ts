@@ -10,13 +10,11 @@ import {
 } from "../entities/offerings";
 import { PeriodUnit } from "../helpers/duration-helper";
 import { PurchaseFlowError } from "../helpers/purchase-operation-helper";
-import {
-  type CheckoutStartResponse,
-  StripeElementsMode,
-  StripeElementsSetupFutureUsage,
-} from "../networking/responses/checkout-start-response";
+import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
 import type { BrandingAppearance } from "../entities/branding";
-import type { CheckoutCalculateTaxesResponse } from "src/networking/responses/checkout-calculate-taxes-response";
+import type { CheckoutCalculateTaxResponse } from "../networking/responses/checkout-calculate-tax-response";
+import { StripeElementsSetupFutureUsage } from "../networking/responses/stripe-elements";
+import { StripeElementsMode } from "../networking/responses/stripe-elements";
 
 export const subscriptionOption: SubscriptionOption = {
   id: "option_id_1",
@@ -146,6 +144,7 @@ export const brandingInfo: BrandingInfoResponse = {
   app_icon: "1005820_1715624566.png",
   app_icon_webp: "1005820_1715624566.webp",
   appearance: null,
+  gateway_tax_collection_enabled: false,
 };
 
 export const purchaseFlowError = new PurchaseFlowError(1);
@@ -164,7 +163,7 @@ export const stripeElementsConfiguration = {
   payment_method_types: ["card"],
   setup_future_usage: StripeElementsSetupFutureUsage.OffSession,
   amount: 999,
-  currency: "eur",
+  currency: "usd",
 };
 
 const publishableApiKey = import.meta.env.VITE_STORYBOOK_PUBLISHABLE_API_KEY;
@@ -179,8 +178,18 @@ export const checkoutStartResponse: CheckoutStartResponse = {
   },
 };
 
-export const checkoutCalculateTaxesResponse: CheckoutCalculateTaxesResponse = {
+export const checkoutCalculateTaxResponse: CheckoutCalculateTaxResponse = {
   operation_session_id: "operation-session-id",
+  currency: "USD",
+  tax_inclusive: false,
+  pricing_phases: {
+    base: {
+      tax_breakdown: [],
+    },
+  },
+  gateway_params: {
+    elements_configuration: stripeElementsConfiguration,
+  },
 };
 
 export const defaultContext = {
@@ -211,6 +220,7 @@ export const brandingInfos: Record<string, BrandingInfoResponse> = {
       font: "sans-serif",
       show_product_description: true,
     },
+    gateway_tax_collection_enabled: false,
   },
   Igify: {
     id: "app7e12a2a4b3",
@@ -229,6 +239,7 @@ export const brandingInfos: Record<string, BrandingInfoResponse> = {
       shapes: "default",
       show_product_description: true,
     },
+    gateway_tax_collection_enabled: false,
   },
   Dipsea: {
     id: "appd458f1e3a2",
@@ -247,5 +258,6 @@ export const brandingInfos: Record<string, BrandingInfoResponse> = {
       shapes: "pill",
       show_product_description: false,
     },
+    gateway_tax_collection_enabled: false,
   },
 };

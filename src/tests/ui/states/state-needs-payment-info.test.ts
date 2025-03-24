@@ -19,6 +19,7 @@ import type {
   StripeError,
   StripePaymentElementChangeEvent,
 } from "@stripe/stripe-js";
+import type { ComponentProps } from "svelte";
 
 const eventsTrackerMock = createEventsTrackerMock();
 const purchaseOperationHelperMock: PurchaseOperationHelper = {
@@ -27,13 +28,14 @@ const purchaseOperationHelperMock: PurchaseOperationHelper = {
   checkoutComplete: async () => Promise.resolve(null),
 } as unknown as PurchaseOperationHelper;
 
-const basicProps = {
+const basicProps: ComponentProps<StateNeedsPaymentInfo> = {
   brandingInfo: brandingInfo,
-  purchaseOption: rcPackage.rcBillingProduct.defaultPurchaseOption,
-  productDetails: rcPackage.rcBillingProduct,
+  purchaseOption: rcPackage.webBillingProduct.defaultPurchaseOption,
+  productDetails: rcPackage.webBillingProduct,
   processing: false,
-  paymentInfoCollectionMetadata: checkoutStartResponse,
   purchaseOperationHelper: purchaseOperationHelperMock,
+  checkoutStartResponse: checkoutStartResponse,
+  initialTaxCalculation: null,
   onClose: vi.fn(),
   onContinue: vi.fn(),
 };

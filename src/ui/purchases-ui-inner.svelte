@@ -14,6 +14,7 @@
   } from "../helpers/purchase-operation-helper";
   import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
   import Template from "./layout/template.svelte";
+  import { type CheckoutCalculateTaxResponse } from "../networking/responses/checkout-calculate-tax-response";
 
   export let currentView: CurrentView;
   export let brandingInfo: BrandingInfoResponse | null;
@@ -24,7 +25,8 @@
   export let closeWithError: () => void;
   export let onClose: (() => void) | undefined = undefined;
   export let lastError: PurchaseFlowError | null;
-  export let paymentInfoCollectionMetadata: CheckoutStartResponse | null;
+  export let checkoutStartResponse: CheckoutStartResponse | null;
+  export let initialTaxCalculation: CheckoutCalculateTaxResponse | null;
   export let purchaseOperationHelper: PurchaseOperationHelper;
   export let isInElement: boolean = false;
 </script>
@@ -46,15 +48,16 @@
         {lastError}
       />
     {/if}
-    {#if paymentInfoCollectionMetadata && (currentView === "needs-payment-info" || currentView === "polling-purchase-status")}
+    {#if checkoutStartResponse && (currentView === "needs-payment-info" || currentView === "polling-purchase-status")}
       <StateNeedsPaymentInfo
-        {paymentInfoCollectionMetadata}
+        {checkoutStartResponse}
         onContinue={handleContinue}
         processing={currentView === "polling-purchase-status"}
         {productDetails}
         purchaseOption={purchaseOptionToUse}
         {brandingInfo}
         {purchaseOperationHelper}
+        taxCalculation={initialTaxCalculation}
       />
     {/if}
     {#if currentView === "loading-payment-page"}

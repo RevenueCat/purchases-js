@@ -5,12 +5,10 @@ import type {
   ProductResponse,
   ProductsResponse,
 } from "../networking/responses/products-response";
-import {
-  StripeElementsMode,
-  StripeElementsSetupFutureUsage,
-  type CheckoutStartResponse,
-} from "../networking/responses/checkout-start-response";
+import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
 import type { CheckoutCompleteResponse } from "../networking/responses/checkout-complete-response";
+import { StripeElementsSetupFutureUsage } from "../networking/responses/stripe-elements";
+import { StripeElementsMode } from "../networking/responses/stripe-elements";
 
 const monthlyProductResponse: ProductResponse = {
   identifier: "monthly",

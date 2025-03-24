@@ -26,8 +26,6 @@
     onContinue: () => {},
   };
 
-  let paymentInfoCollectionMetadata: any;
-
   let { Story } = defineMeta({
     title: "Pages/Purchase",
     args: defaultArgs,
@@ -40,12 +38,6 @@
         diffThreshold: 0.49,
       },
     },
-    loaders: [
-      async () => {
-        paymentInfoCollectionMetadata = { ...checkoutStartResponse };
-        return { paymentInfoCollectionMetadata };
-      },
-    ],
   });
 </script>
 
@@ -67,7 +59,8 @@
     handleContinue={() => {}}
     closeWithError={() => {}}
     lastError={null}
-    {paymentInfoCollectionMetadata}
+    {checkoutStartResponse}
+    initialTaxCalculation={null}
     purchaseOperationHelper={null as unknown as PurchaseOperationHelper}
     isInElement={context.globals.viewport === "embedded"}
   />
