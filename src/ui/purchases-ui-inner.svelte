@@ -19,7 +19,6 @@
   import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
   import Template from "./layout/template.svelte";
   import { type CheckoutCalculateTaxResponse } from "../networking/responses/checkout-calculate-tax-response";
-  import ProductInfoWithTaxSupport from "./organisms/product-info-with-tax-support.svelte";
 
   export let currentPage: CurrentPage;
   export let brandingInfo: BrandingInfoResponse | null;
@@ -54,22 +53,13 @@
 
 <Template {brandingInfo} {isInElement} {isSandbox} {onClose}>
   {#snippet navbarContent()}
-    {#if brandingInfo?.gateway_tax_collection_enabled}
-      <ProductInfoWithTaxSupport
-        {productDetails}
-        purchaseOption={purchaseOptionToUse}
-        showProductDescription={brandingInfo?.appearance
-          ?.show_product_description ?? false}
-        {priceBreakdown}
-      />
-    {:else}
-      <ProductInfo
-        {productDetails}
-        purchaseOption={purchaseOptionToUse}
-        showProductDescription={brandingInfo?.appearance
-          ?.show_product_description ?? false}
-      />
-    {/if}
+    <ProductInfo
+      {productDetails}
+      purchaseOption={purchaseOptionToUse}
+      showProductDescription={brandingInfo?.appearance
+        ?.show_product_description ?? false}
+      {priceBreakdown}
+    />
   {/snippet}
   {#snippet mainContent()}
     {#if currentPage === "email-entry" || currentPage === "email-entry-processing"}
