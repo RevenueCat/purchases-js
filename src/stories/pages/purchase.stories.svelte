@@ -52,7 +52,7 @@
   {@const brandingInfo = brandingInfos[context.globals.brandingName]}
   <PurchasesInner
     isSandbox={args.isSandbox}
-    currentView={args.currentView}
+    currentPage={args.currentPage}
     productDetails={args.productDetails}
     purchaseOptionToUse={args.purchaseOptionToUse}
     {brandingInfo}
@@ -66,16 +66,16 @@
   />
 {/snippet}
 
-<Story name="Email Input" args={{ currentView: "needs-auth-info" }} />
+<Story name="Email Input" args={{ currentPage: "email-entry" }} />
 <Story
   name="Email Input (with Sandbox Banner)"
-  args={{ currentView: "needs-auth-info", isSandbox: true }}
+  args={{ currentPage: "email-entry", isSandbox: true }}
 />
 
 <Story
   name="Email Input (with Trial Product)"
   args={{
-    currentView: "needs-auth-info",
+    currentPage: "email-entry",
     isSandbox: true,
     productDetails: {
       ...product,
@@ -84,12 +84,12 @@
     purchaseOptionToUse: subscriptionOptionWithTrial,
   }}
 />
-<Story name="Checkout" args={{ currentView: "needs-payment-info" }} />
+<Story name="Checkout" args={{ currentPage: "payment-entry" }} />
 <Story
   name="Checkout (with Trial Product)"
   args={{
     ...defaultArgs,
-    currentView: "needs-payment-info",
+    currentPage: "payment-entry",
     productDetails: {
       ...product,
       subscriptionOptions: {
@@ -101,6 +101,6 @@
     defaultPurchaseOption: subscriptionOptionWithTrial,
   }}
 />
-<Story name="Loading" args={{ currentView: "loading-payment-page" }} />
-<Story name="Payment complete" args={{ currentView: "success" }} />
-<Story name="Payment failed" args={{ currentView: "error" }} />
+<Story name="Loading" args={{ currentPage: "payment-entry-loading" }} />
+<Story name="Payment complete" args={{ currentPage: "success" }} />
+<Story name="Payment failed" args={{ currentPage: "error" }} />

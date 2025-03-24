@@ -46,16 +46,16 @@
       case PurchaseFlowErrorCode.AlreadyPurchasedError:
         if (productDetails.productType === ProductType.Subscription) {
           return $translator.translate(
-            LocalizationKeys.StateErrorErrorTitleAlreadySubscribed,
+            LocalizationKeys.ErrorPageErrorTitleAlreadySubscribed,
           );
         } else {
           return $translator.translate(
-            LocalizationKeys.StateErrorErrorTitleAlreadyPurchased,
+            LocalizationKeys.ErrorPageErrorTitleAlreadyPurchased,
           );
         }
       default:
         return $translator.translate(
-          LocalizationKeys.StateErrorErrorTitleOtherErrors,
+          LocalizationKeys.ErrorPageErrorTitleOtherErrors,
         );
     }
   }
@@ -65,38 +65,38 @@
     switch (error.errorCode) {
       case PurchaseFlowErrorCode.UnknownError:
         return $translator.translate(
-          LocalizationKeys.StateErrorErrorMessageUnknownError,
+          LocalizationKeys.ErrorPageErrorMessageUnknownError,
           { errorCode: publicErrorCode },
         );
       case PurchaseFlowErrorCode.ErrorSettingUpPurchase:
         return $translator.translate(
-          LocalizationKeys.StateErrorErrorMessageErrorSettingUpPurchase,
+          LocalizationKeys.ErrorPageErrorMessageErrorSettingUpPurchase,
           { errorCode: publicErrorCode },
         );
       case PurchaseFlowErrorCode.ErrorChargingPayment:
         return $translator.translate(
-          LocalizationKeys.StateErrorErrorMessageErrorChargingPayment,
+          LocalizationKeys.ErrorPageErrorMessageErrorChargingPayment,
           { errorCode: publicErrorCode },
         );
       case PurchaseFlowErrorCode.NetworkError:
         return $translator.translate(
-          LocalizationKeys.StateErrorErrorMessageNetworkError,
+          LocalizationKeys.ErrorPageErrorMessageNetworkError,
           { errorCode: publicErrorCode },
         );
       case PurchaseFlowErrorCode.MissingEmailError:
         return $translator.translate(
-          LocalizationKeys.StateErrorErrorMessageMissingEmailError,
+          LocalizationKeys.ErrorPageErrorMessageMissingEmailError,
           { errorCode: publicErrorCode },
         );
       case PurchaseFlowErrorCode.AlreadyPurchasedError:
         if (productDetails.productType === ProductType.Subscription) {
           return $translator.translate(
-            LocalizationKeys.StateErrorErrorMessageAlreadySubscribed,
+            LocalizationKeys.ErrorPageErrorMessageAlreadySubscribed,
             { errorCode: publicErrorCode },
           );
         } else {
           return $translator.translate(
-            LocalizationKeys.StateErrorErrorMessageAlreadyPurchased,
+            LocalizationKeys.ErrorPageErrorMessageAlreadyPurchased,
             { errorCode: publicErrorCode },
           );
         }
@@ -108,9 +108,7 @@
   title={getTranslatedErrorTitle()}
   {onContinue}
   type="error"
-  closeButtonTitle={$translator.translate(
-    LocalizationKeys.StateErrorButtonTryAgain,
-  )}
+  closeButtonTitle={$translator.translate(LocalizationKeys.ErrorButtonTryAgain)}
 >
   {#snippet icon()}
     <IconError />
@@ -120,7 +118,7 @@
     {getTranslatedErrorMessage()}
     {#if supportEmail}
       <br />
-      <Localized key={LocalizationKeys.StateErrorIfErrorPersists} />
+      <Localized key={LocalizationKeys.ErrorPageIfErrorPersists} />
       <a href="mailto:{supportEmail}">{supportEmail}</a>.
     {/if}
   {/snippet}

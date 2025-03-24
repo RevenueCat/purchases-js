@@ -1,11 +1,11 @@
 import type { PurchaseFlowError } from "../helpers/purchase-operation-helper";
 
-export type CurrentView =
-  | "needs-auth-info"
-  | "processing-auth-info"
-  | "needs-payment-info"
-  | "polling-purchase-status"
-  | "loading-payment-page"
+export type CurrentPage =
+  | "email-entry"
+  | "email-entry-processing"
+  | "payment-entry-loading"
+  | "payment-entry"
+  | "payment-entry-processing"
   | "success"
   | "error";
 

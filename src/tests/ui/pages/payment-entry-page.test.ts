@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/svelte";
 import { describe, test, expect, vi, beforeEach } from "vitest";
-import StateNeedsPaymentInfo from "../../../ui/states/state-needs-payment-info.svelte";
+import PaymentEntryPage from "../../../ui/pages/payment-entry-page.svelte";
 import {
   brandingInfo,
   rcPackage,
@@ -28,7 +28,7 @@ const purchaseOperationHelperMock: PurchaseOperationHelper = {
   checkoutComplete: async () => Promise.resolve(null),
 } as unknown as PurchaseOperationHelper;
 
-const basicProps: ComponentProps<StateNeedsPaymentInfo> = {
+const basicProps: ComponentProps<PaymentEntryPage> = {
   brandingInfo: brandingInfo,
   purchaseOption: rcPackage.webBillingProduct.defaultPurchaseOption,
   productDetails: rcPackage.webBillingProduct,
@@ -72,7 +72,7 @@ describe("PurchasesUI", () => {
   });
 
   test("tracks the PaymentEntryImpression event when the payment entry is displayed", async () => {
-    render(StateNeedsPaymentInfo, {
+    render(PaymentEntryPage, {
       props: {
         ...basicProps,
       },
@@ -115,7 +115,7 @@ describe("PurchasesUI", () => {
       paymentElement,
     );
 
-    render(StateNeedsPaymentInfo, {
+    render(PaymentEntryPage, {
       props: { ...basicProps },
       context: defaultContext,
     });
@@ -139,7 +139,7 @@ describe("PurchasesUI", () => {
       new Error("Failed to initialize payment form"),
     );
 
-    render(StateNeedsPaymentInfo, {
+    render(PaymentEntryPage, {
       props: { ...basicProps },
       context: defaultContext,
     });
@@ -185,7 +185,7 @@ describe("PurchasesUI", () => {
       // @ts-expect-error - This is a mock
       paymentElement,
     );
-    render(StateNeedsPaymentInfo, {
+    render(PaymentEntryPage, {
       props: { ...basicProps },
       context: defaultContext,
     });
@@ -220,7 +220,7 @@ describe("PurchasesUI", () => {
       stripeInitializationMock,
     );
 
-    render(StateNeedsPaymentInfo, {
+    render(PaymentEntryPage, {
       props: { ...basicProps },
       context: defaultContext,
     });

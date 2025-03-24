@@ -1,10 +1,10 @@
 <script lang="ts">
-  import StateNeedsPaymentInfo from "./states/state-needs-payment-info.svelte";
-  import StateNeedsAuthInfo from "./states/state-needs-auth-info.svelte";
-  import StateLoading from "./states/state-loading.svelte";
-  import StateError from "./states/state-error.svelte";
-  import StateSuccess from "./states/state-success.svelte";
-  import { type ContinueHandlerParams, type CurrentView } from "./ui-types";
+  import PaymentEntryPage from "./pages/payment-entry-page.svelte";
+  import EmailEntryPage from "./pages/email-entry-page.svelte";
+  import ErrorPage from "./pages/error-page.svelte";
+  import SuccessPage from "./pages/success-page.svelte";
+  import LoadingPage from "./pages/payment-entry-loading-page.svelte";
+  import { type ContinueHandlerParams, type CurrentPage } from "./ui-types";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import type { Product, PurchaseOption } from "../main";
   import ProductInfo from "./organisms/product-info.svelte";
@@ -16,7 +16,7 @@
   import Template from "./layout/template.svelte";
   import { type CheckoutCalculateTaxResponse } from "../networking/responses/checkout-calculate-tax-response";
 
-  export let currentView: CurrentView;
+  export let currentPage: CurrentPage;
   export let brandingInfo: BrandingInfoResponse | null;
   export let productDetails: Product;
   export let purchaseOptionToUse: PurchaseOption;
@@ -41,18 +41,21 @@
     />
   {/snippet}
   {#snippet mainContent()}
-    {#if currentView === "needs-auth-info" || currentView === "processing-auth-info"}
-      <StateNeedsAuthInfo
+    {#if currentPage === "email-entry" || currentPage === "email-entry-processing"}
+      <EmailEntryPage
         onContinue={handleContinue}
-        processing={currentView === "processing-auth-info"}
+        processing={currentPage === "email-entry-processing"}
         {lastError}
       />
     {/if}
-    {#if checkoutStartResponse && (currentView === "needs-payment-info" || currentView === "polling-purchase-status")}
-      <StateNeedsPaymentInfo
+    {#if currentPage === "payment-entry-loading"}
+      <LoadingPage />
+    {/if}
+    {#if checkoutStartResponse && (currentPage === "payment-entry" || currentPage === "payment-entry-processing")}
+      <PaymentEntryPage
         {checkoutStartResponse}
         onContinue={handleContinue}
-        processing={currentView === "polling-purchase-status"}
+        processing={currentPage === "payment-entry-processing"}
         {productDetails}
         purchaseOption={purchaseOptionToUse}
         {brandingInfo}
@@ -60,19 +63,17 @@
         taxCalculation={initialTaxCalculation}
       />
     {/if}
-    {#if currentView === "loading-payment-page"}
-      <StateLoading />
-    {/if}
-    {#if currentView === "error"}
-      <StateError
+
+    {#if currentPage === "error"}
+      <ErrorPage
         {lastError}
         {productDetails}
         supportEmail={brandingInfo?.support_email ?? null}
         onContinue={closeWithError}
       />
     {/if}
-    {#if currentView === "success"}
-      <StateSuccess {productDetails} onContinue={handleContinue} />
+    {#if currentPage === "success"}
+      <SuccessPage {productDetails} onContinue={handleContinue} />
     {/if}
   {/snippet}
 </Template>
