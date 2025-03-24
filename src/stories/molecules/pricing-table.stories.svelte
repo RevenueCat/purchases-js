@@ -14,6 +14,7 @@
     priceBreakdownTaxInclusive,
     priceBreakdownTaxLoading,
     priceBreakdownTaxPending,
+    subscriptionOptionWithTrial,
   } from "../fixtures";
 
   let { Story } = defineMeta({
@@ -36,7 +37,7 @@
 {#snippet template(args: Args<typeof Story>)}
   <PricingTable
     priceBreakdown={args.priceBreakdown ?? priceBreakdownTaxDisabled}
-    trialEndDate={args.trialEndDate}
+    trialPhase={args.trialPhase ?? null}
   />
 {/snippet}
 
@@ -44,7 +45,7 @@
 <Story
   name="Disabled Tax Trial"
   args={{
-    trialEndDate: new Date("2025-03-20"),
+    trialPhase: subscriptionOptionWithTrial.trial,
   }}
 />
 <Story
@@ -87,7 +88,7 @@
   name="Tax Inclusive Trial"
   args={{
     priceBreakdown: priceBreakdownTaxInclusive,
-    trialEndDate: new Date("2025-03-20"),
+    trialPhase: subscriptionOptionWithTrial.trial,
   }}
 />
 <Story
@@ -100,7 +101,7 @@
   name="Tax Exclusive Trial"
   args={{
     priceBreakdown: priceBreakdownTaxExclusive,
-    trialEndDate: new Date("2025-03-20"),
+    trialPhase: subscriptionOptionWithTrial.trial,
   }}
 />
 <Story
@@ -113,6 +114,6 @@
   name="Multiple Tax Items Trial (Exclusive)"
   args={{
     priceBreakdown: priceBreakdownTaxExclusiveWithMultipleTaxItems,
-    trialEndDate: new Date("2025-03-20"),
+    trialPhase: subscriptionOptionWithTrial.trial,
   }}
 />

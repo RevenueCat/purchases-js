@@ -6,13 +6,20 @@
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import TaxTitle from "../atoms/tax-title.svelte";
   import { type PriceBreakdown } from "../ui-types";
+  import { getNextRenewalDate } from "../../helpers/duration-helper";
+  import { type PricingPhase } from "../../entities/offerings";
 
   interface Props {
     priceBreakdown: PriceBreakdown;
-    trialEndDate: Date | null | undefined;
+    trialPhase: PricingPhase | null;
   }
 
-  let { priceBreakdown, trialEndDate }: Props = $props();
+  let { priceBreakdown, trialPhase }: Props = $props();
+
+  let trialEndDate = $state<Date | null>(null);
+  if (trialPhase?.period) {
+    trialEndDate = getNextRenewalDate(new Date(), trialPhase.period, true);
+  }
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
 </script>
