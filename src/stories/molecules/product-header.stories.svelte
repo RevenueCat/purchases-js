@@ -18,10 +18,10 @@
   });
 </script>
 
-<Story name="With description">
+<Story name="Without description">
   <ProductInfoHeader productDetails={product} showProductDescription={false} />
 </Story>
 
-<Story name="Without description">
+<Story name="With description">
   <ProductInfoHeader productDetails={product} showProductDescription={true} />
 </Story>
