@@ -3,11 +3,11 @@ import type { StripeElementsConfiguration } from "./stripe-elements";
 export interface TaxBreakdown {
   taxable_amount_in_micros: number;
   tax_amount_in_micros: number;
+  display_name: string;
   tax_rate_in_micros: number | null;
   country: string | null;
   state: string | null;
   tax_type: string | null;
-  display_name: string | null;
 }
 
 export interface CheckoutCalculateTaxResponse {

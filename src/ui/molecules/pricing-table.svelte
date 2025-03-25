@@ -4,7 +4,6 @@
   import { getContext } from "svelte";
   import { translatorContextKey } from "../localization/constants";
   import { LocalizationKeys } from "../localization/supportedLanguages";
-  import TaxTitle from "../atoms/tax-title.svelte";
   import { type PriceBreakdown } from "../ui-types";
   import { getNextRenewalDate } from "../../helpers/duration-helper";
   import { type PricingPhase } from "../../entities/offerings";
@@ -74,16 +73,7 @@
         {#each priceBreakdown.taxBreakdown as taxItem}
           <div class="rcb-pricing-table-row">
             <div class="rcb-pricing-table-header">
-              {#if taxItem.display_name}
-                {taxItem.display_name}
-              {:else}
-                <TaxTitle
-                  taxType={taxItem.tax_type}
-                  country={taxItem.country}
-                  state={taxItem.state}
-                  taxPercentageInMicros={taxItem.tax_rate_in_micros}
-                />
-              {/if}
+              {taxItem.display_name}
             </div>
             <div class="rcb-pricing-table-value">
               {$translator.formatPrice(

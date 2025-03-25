@@ -281,7 +281,7 @@ export const priceBreakdownTaxInclusive: PriceBreakdown = {
       country: "ES",
       state: null,
       taxable_amount_in_micros: 8180000,
-      display_name: null,
+      display_name: "VAT - Spain (21%)",
     },
   ],
 };
@@ -295,13 +295,13 @@ export const priceBreakdownTaxExclusive: PriceBreakdown = {
   status: "calculated",
   taxBreakdown: [
     {
-      tax_type: "VAT",
+      tax_type: "tax_rate",
       tax_amount_in_micros: 693000,
       tax_rate_in_micros: 70000,
       country: "USA",
       state: "NY",
       taxable_amount_in_micros: 9900000,
-      display_name: null,
+      display_name: "Tax Rate - NY (7%)",
     },
   ],
 };
@@ -334,7 +334,7 @@ export const priceBreakdownTaxExclusiveWithMultipleTaxItems: PriceBreakdown = {
       country: "CA",
       state: null,
       taxable_amount_in_micros: 9900000,
-      display_name: null,
+      display_name: "GST - Canada (5%)",
     },
     {
       tax_type: "QST",
@@ -343,7 +343,7 @@ export const priceBreakdownTaxExclusiveWithMultipleTaxItems: PriceBreakdown = {
       country: "CA",
       state: "ON",
       taxable_amount_in_micros: 9900000,
-      display_name: null,
+      display_name: "QST - Ontario (9.975%)",
     },
   ],
 };
