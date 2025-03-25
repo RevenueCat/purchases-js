@@ -102,7 +102,9 @@
       <div class="rcb-pricing-table-row">
         <div class="rcb-pricing-table-header">
           {$translator.translate(LocalizationKeys.PricingTableTrialEnds, {
-            formattedTrialEndDate: $translator.translateDate(trialEndDate),
+            formattedTrialEndDate: $translator.translateDate(trialEndDate, {
+              dateStyle: "medium",
+            }),
           })}
         </div>
         <div class="rcb-pricing-table-value">
