@@ -9,11 +9,11 @@
   import { brandingModes } from "../../../.storybook/modes";
   import {
     priceBreakdownTaxDisabled,
-    // priceBreakdownTaxExclusive,
-    // priceBreakdownTaxExclusiveWithMultipleTaxItems,
-    // priceBreakdownTaxInclusive,
-    // priceBreakdownTaxLoading,
-    // priceBreakdownTaxPending,
+    priceBreakdownTaxExclusive,
+    priceBreakdownTaxExclusiveWithMultipleTaxItems,
+    priceBreakdownTaxInclusive,
+    priceBreakdownTaxLoading,
+    priceBreakdownTaxPending,
     subscriptionOptionWithTrial,
   } from "../fixtures";
 
@@ -48,7 +48,7 @@
     trialPhase: subscriptionOptionWithTrial.trial,
   }}
 />
-<!-- <Story
+<Story
   name="Pending Tax Generic"
   args={{
     priceBreakdown: priceBreakdownTaxPending,
@@ -116,4 +116,4 @@
     priceBreakdown: priceBreakdownTaxExclusiveWithMultipleTaxItems,
     trialPhase: subscriptionOptionWithTrial.trial,
   }}
-/> -->
+/>
