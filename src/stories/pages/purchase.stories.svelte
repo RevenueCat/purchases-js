@@ -15,6 +15,7 @@
     subscriptionOption,
     subscriptionOptionWithTrial,
     checkoutStartResponse,
+    priceBreakdownTaxDisabled,
   } from "../fixtures";
   import { PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
 
@@ -59,8 +60,8 @@
     handleContinue={() => {}}
     closeWithError={() => {}}
     lastError={null}
-    {checkoutStartResponse}
-    initialTaxCalculation={null}
+    gatewayParams={checkoutStartResponse.gateway_params}
+    priceBreakdown={priceBreakdownTaxDisabled}
     purchaseOperationHelper={null as unknown as PurchaseOperationHelper}
     isInElement={context.globals.viewport === "embedded"}
   />

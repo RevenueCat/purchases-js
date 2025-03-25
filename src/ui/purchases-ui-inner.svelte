@@ -16,9 +16,8 @@
     PurchaseFlowError,
     PurchaseOperationHelper,
   } from "../helpers/purchase-operation-helper";
-  import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
   import Template from "./layout/template.svelte";
-  import { type CheckoutCalculateTaxResponse } from "../networking/responses/checkout-calculate-tax-response";
+  import { type GatewayParams } from "../networking/responses/stripe-elements";
 
   export let currentPage: CurrentPage;
   export let brandingInfo: BrandingInfoResponse | null;
@@ -29,26 +28,10 @@
   export let closeWithError: () => void;
   export let onClose: (() => void) | undefined = undefined;
   export let lastError: PurchaseFlowError | null;
-  export let checkoutStartResponse: CheckoutStartResponse | null;
-  export let initialTaxCalculation: CheckoutCalculateTaxResponse | null;
+  export let priceBreakdown: PriceBreakdown;
   export let purchaseOperationHelper: PurchaseOperationHelper;
   export let isInElement: boolean = false;
-
-  $: priceBreakdown = {
-    currency:
-      initialTaxCalculation?.currency ?? productDetails.currentPrice.currency,
-    totalAmountInMicros:
-      initialTaxCalculation?.total_amount_in_micros ??
-      productDetails.currentPrice.amountMicros,
-    totalExcludingTaxInMicros:
-      initialTaxCalculation?.total_excluding_tax_in_micros ?? 0,
-    taxCollectionEnabled: brandingInfo?.gateway_tax_collection_enabled ?? false,
-    status: initialTaxCalculation ? "calculated" : "pending",
-    taxAmountInMicros: initialTaxCalculation?.tax_amount_in_micros ?? 0,
-    pendingReason: null,
-    taxBreakdown:
-      initialTaxCalculation?.pricing_phases.base.tax_breakdown ?? [],
-  } as PriceBreakdown;
+  export let gatewayParams: GatewayParams;
 </script>
 
 <Template {brandingInfo} {isInElement} {isSandbox} {onClose}>
@@ -72,16 +55,15 @@
     {#if currentPage === "payment-entry-loading"}
       <LoadingPage />
     {/if}
-    {#if checkoutStartResponse && (currentPage === "payment-entry" || currentPage === "payment-entry-processing")}
+    {#if currentPage === "payment-entry" || currentPage === "payment-entry-processing"}
       <PaymentEntryPage
-        {checkoutStartResponse}
         onContinue={handleContinue}
         processing={currentPage === "payment-entry-processing"}
         {productDetails}
         purchaseOption={purchaseOptionToUse}
         {brandingInfo}
         {purchaseOperationHelper}
-        taxCalculation={initialTaxCalculation}
+        {gatewayParams}
       />
     {/if}
 

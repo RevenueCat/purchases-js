@@ -1,4 +1,4 @@
-import type { TaxBreakdown } from "src/networking/responses/checkout-calculate-tax-response";
+import type { TaxBreakdown } from "../networking/responses/checkout-calculate-tax-response";
 import type { PurchaseFlowError } from "../helpers/purchase-operation-helper";
 
 export type CurrentPage =
