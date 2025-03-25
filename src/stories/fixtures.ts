@@ -16,48 +16,37 @@ import type { CheckoutCalculateTaxResponse } from "../networking/responses/check
 import { StripeElementsSetupFutureUsage } from "../networking/responses/stripe-elements";
 import { StripeElementsMode } from "../networking/responses/stripe-elements";
 
+const subscriptionOptionBasePrice = {
+  periodDuration: "P1M",
+  period: {
+    unit: PeriodUnit.Month,
+    number: 1,
+  },
+  price: {
+    amount: 990,
+    amountMicros: 9900000,
+    currency: "USD",
+    formattedPrice: "9.90$",
+  },
+  cycleCount: 0,
+};
+
 export const subscriptionOption: SubscriptionOption = {
   id: "option_id_1",
   priceId: "price_1",
-  base: {
-    periodDuration: "P1M",
-    period: {
-      unit: PeriodUnit.Month,
-      number: 1,
-    },
-    price: {
-      amount: 990,
-      amountMicros: 9900000,
-      currency: "USD",
-      formattedPrice: "9.90$",
-    },
-    cycleCount: 0,
-  },
+  base: subscriptionOptionBasePrice,
   trial: null,
 };
 
 export const subscriptionOptionWithTrial: SubscriptionOption = {
   id: "option_id_1",
   priceId: "price_1",
-  base: {
-    periodDuration: "P1Y",
-    period: {
-      unit: PeriodUnit.Year,
-      number: 1,
-    },
-    price: {
-      amount: 9990,
-      amountMicros: 99900000,
-      currency: "USD",
-      formattedPrice: "99.90$",
-    },
-    cycleCount: 0,
-  },
+  base: subscriptionOption.base,
   trial: {
-    periodDuration: "P1M",
+    periodDuration: "P1W",
     period: {
       number: 1,
-      unit: PeriodUnit.Month,
+      unit: PeriodUnit.Week,
     },
     cycleCount: 1,
     price: null,
@@ -68,10 +57,10 @@ export const nonSubscriptionOption: NonSubscriptionOption = {
   id: "option_id_1",
   priceId: "price_1",
   basePrice: {
-    amount: 990,
-    amountMicros: 9900000,
+    amount: 1995,
+    amountMicros: 19950000,
     currency: "USD",
-    formattedPrice: "9.90$",
+    formattedPrice: "19.95$",
   },
 };
 
