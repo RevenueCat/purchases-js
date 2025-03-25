@@ -11,7 +11,6 @@
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import SecureCheckoutRc from "../molecules/secure-checkout-rc.svelte";
-  import { type CheckoutStartResponse } from "../../networking/responses/checkout-start-response";
   import {
     PurchaseFlowError,
     PurchaseFlowErrorCode,
@@ -31,23 +30,17 @@
     type PaymentElementError,
     PaymentElementErrorCode,
   } from "../types/payment-element-error";
-  import { type CheckoutCalculateTaxResponse } from "../../networking/responses/checkout-calculate-tax-response";
   import PaymentButton from "../molecules/payment-button.svelte";
   import StripePaymentElements from "../molecules/stripe-payment-elements.svelte";
+  import { type GatewayParams } from "../../networking/responses/stripe-elements";
 
   export let onContinue: (params?: ContinueHandlerParams) => void;
-  export let checkoutStartResponse: CheckoutStartResponse;
-  export let taxCalculation: CheckoutCalculateTaxResponse | null;
+  export let gatewayParams: GatewayParams = {};
   export let processing = false;
   export let productDetails: Product;
   export let purchaseOption: PurchaseOption;
   export let brandingInfo: BrandingInfoResponse | null;
   export let purchaseOperationHelper: PurchaseOperationHelper;
-
-  const gatewayParams = {
-    ...checkoutStartResponse.gateway_params,
-    ...(taxCalculation?.gateway_params ?? {}),
-  };
 
   let isStripeLoading = true;
   let stripeLocale: StripeElementLocale | undefined;
