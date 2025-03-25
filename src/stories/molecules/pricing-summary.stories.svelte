@@ -9,6 +9,7 @@
     subscriptionOptionWithTrial,
     nonSubscriptionOption,
     consumableProduct,
+    priceBreakdownTaxDisabled,
   } from "../fixtures";
 
   const { Story } = defineMeta({
@@ -27,37 +28,23 @@
 <Story
   name="Subscription"
   args={{
-    productDetails: product,
-    purchaseOption: subscriptionOption,
+    priceBreakdown: priceBreakdownTaxDisabled,
+    basePhase: subscriptionOption.base,
   }}
 />
 
 <Story
   name="Trial"
   args={{
-    productDetails: product,
-    purchaseOption: subscriptionOptionWithTrial,
+    priceBreakdown: priceBreakdownTaxDisabled,
+    basePhase: subscriptionOption.base,
+    trialPhase: subscriptionOptionWithTrial.trial,
   }}
 />
 
 <Story
   name="Non Subscription"
   args={{
-    productDetails: consumableProduct,
-    purchaseOption: nonSubscriptionOption,
-  }}
-/>
-
-<Story
-  name="With Price To Pay"
-  args={{
-    productDetails: product,
-    purchaseOption: subscriptionOption,
-    priceToPay: {
-      amountMicros:
-        subscriptionOption.base?.price.amountMicros +
-        subscriptionOption.base?.price.amountMicros * 0.08,
-      currency: subscriptionOption.base?.price.currency,
-    },
+    priceBreakdown: priceBreakdownTaxDisabled,
   }}
 />
