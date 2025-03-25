@@ -18,7 +18,11 @@
     englishLocale,
     translatorContextKey,
   } from "./localization/constants";
-  import { PriceBreakdown, type CurrentPage } from "./ui-types";
+  import {
+    type PriceBreakdown,
+    type TaxCustomerDetails,
+    type CurrentPage,
+  } from "./ui-types";
   import PurchasesUiInner from "./purchases-ui-inner.svelte";
   import { type ContinueHandlerParams } from "./ui-types";
   import { type IEventsTracker } from "../behavioural-events/events-tracker";
@@ -152,30 +156,7 @@
       })
       .then(async (result) => {
         if (priceBreakdown.taxCollectionEnabled) {
-          // TODO: Handle tax calculation errors including:
-          // - missing state
-          // - missing postal code
-          // - generic
-          // - unexpected error
-
-          const initialTaxCalculation =
-            await purchaseOperationHelper.checkoutCalculateTax();
-
-          priceBreakdown.status = "calculated";
-          priceBreakdown.totalAmountInMicros =
-            initialTaxCalculation.total_amount_in_micros;
-          priceBreakdown.taxAmountInMicros =
-            initialTaxCalculation.tax_amount_in_micros;
-          priceBreakdown.totalExcludingTaxInMicros =
-            initialTaxCalculation.total_excluding_tax_in_micros;
-          priceBreakdown.taxBreakdown =
-            initialTaxCalculation.pricing_phases.base.tax_breakdown;
-          priceBreakdown.pendingReason = null;
-
-          gatewayParams = {
-            ...gatewayParams,
-            ...initialTaxCalculation?.gateway_params,
-          };
+          await refreshTaxCalculation();
         }
         return result;
       })
@@ -223,6 +204,37 @@
     currentPage = "success";
   };
 
+  async function refreshTaxCalculation(
+    taxCustomerDetails: TaxCustomerDetails | undefined = undefined,
+  ) {
+    // TODO: Handle tax calculation errors including:
+    // - missing state
+    // - missing postal code
+    // - generic
+    // - unexpected error
+
+    priceBreakdown.taxCalculationStatus = "loading";
+
+    const taxCalculation = await purchaseOperationHelper.checkoutCalculateTax(
+      taxCustomerDetails?.countryCode,
+      taxCustomerDetails?.postalCode,
+    );
+
+    priceBreakdown.taxCalculationStatus = "calculated";
+    priceBreakdown.totalAmountInMicros = taxCalculation.total_amount_in_micros;
+    priceBreakdown.taxAmountInMicros = taxCalculation.tax_amount_in_micros;
+    priceBreakdown.totalExcludingTaxInMicros =
+      taxCalculation.total_excluding_tax_in_micros;
+    priceBreakdown.taxBreakdown =
+      taxCalculation.pricing_phases.base.tax_breakdown;
+    priceBreakdown.pendingReason = null;
+
+    gatewayParams.elements_configuration =
+      taxCalculation.gateway_params.elements_configuration;
+
+    console.debug("Tax calculation updated", taxCalculation);
+  }
+
   const handleError = (e: PurchaseFlowError) => {
     const event = createCheckoutFlowErrorEvent({
       errorCode: e.getErrorCode().toString(),
@@ -263,4 +275,5 @@
   {isInElement}
   {onClose}
   {priceBreakdown}
+  onTaxCustomerDetailsUpdated={refreshTaxCalculation}
 />

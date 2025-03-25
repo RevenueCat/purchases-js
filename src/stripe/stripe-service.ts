@@ -55,11 +55,6 @@ export class StripeService {
     const elements = stripe.elements({
       loader: "always",
       locale: localeToUse,
-      mode: elementsConfiguration.mode,
-      paymentMethodTypes: elementsConfiguration.payment_method_types,
-      setupFutureUsage: elementsConfiguration.setup_future_usage,
-      amount: elementsConfiguration.amount,
-      currency: elementsConfiguration.currency,
       appearance: {
         theme: "stripe",
         labels: "floating",
@@ -132,6 +127,8 @@ export class StripeService {
         },
       },
     });
+
+    await this.updateElementsConfiguration(elements, elementsConfiguration);
 
     return { stripe, elements };
   }

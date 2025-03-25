@@ -31,3 +31,8 @@ export type PriceBreakdown = {
   taxAmountInMicros: number | null;
   taxBreakdown: TaxBreakdown[] | null;
 };
+
+export type TaxCustomerDetails = {
+  countryCode: string | undefined;
+  postalCode: string | undefined;
+};

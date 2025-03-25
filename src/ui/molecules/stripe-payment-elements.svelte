@@ -16,10 +16,7 @@
   import { translatorContextKey } from "../localization/constants";
   import { Translator } from "../localization/translator";
 
-  import {
-    type GatewayParams,
-    type StripeElementsConfiguration,
-  } from "../../networking/responses/stripe-elements";
+  import { type GatewayParams } from "../../networking/responses/stripe-elements";
   import { DEFAULT_FONT_FAMILY } from "../theme/text";
   import { StripeService } from "../../stripe/stripe-service";
   import { type Writable } from "svelte/store";
@@ -27,10 +24,11 @@
     type PaymentElementError,
     PaymentElementErrorCode,
   } from "../types/payment-element-error";
+  import { type TaxCustomerDetails } from "../ui-types";
 
   export let gatewayParams: GatewayParams;
   export let brandingInfo: BrandingInfoResponse | null;
-  export let collectBillingAddress: boolean = false;
+  export let taxCollectionEnabled: boolean;
   export let onLoadingComplete: () => void;
   export let onError: (error: PaymentElementError) => void;
   export let onPaymentInfoChange: (params: {
@@ -39,10 +37,9 @@
   }) => void;
   export let onSubmissionSuccess: () => void;
   export let onConfirmationSuccess: () => void;
-  export let onBillingAddressUpdated: (params: {
-    countryCode: string | undefined;
-    postalCode: string | undefined;
-  }) => void;
+  export let onTaxCustomerDetailsUpdated: (
+    customerDetails: TaxCustomerDetails,
+  ) => void;
   export let stripeLocale: StripeElementLocale | undefined = undefined;
 
   export async function submit() {
@@ -86,15 +83,17 @@
     }
   }
 
-  export async function updateGatewayParams(
-    elementsConfiguration: StripeElementsConfiguration,
-  ) {
-    if (!stripe || !elements) return;
+  $: if (elements) {
+    (async () => {
+      const elementsConfiguration = gatewayParams.elements_configuration;
+      console.debug("Updating gateway params", elementsConfiguration);
+      if (!elementsConfiguration) return;
 
-    await StripeService.updateElementsConfiguration(
-      elements,
-      elementsConfiguration,
-    );
+      await StripeService.updateElementsConfiguration(
+        elements,
+        elementsConfiguration,
+      );
+    })();
   }
 
   function handleFormSubmissionError(error: StripeError) {
@@ -118,9 +117,7 @@
   let elements: StripeElements | null = null;
 
   let lastConfirmationTokenId: string | undefined = undefined;
-  let lastTaxCalculationBillingDetails:
-    | { countryCode?: string; postalCode?: string }
-    | undefined = undefined;
+  let lastTaxCustomerDetails: TaxCustomerDetails | undefined = undefined;
 
   let spacing = new Theme().spacing;
   let stripeVariables: undefined | Appearance["variables"];
@@ -194,8 +191,8 @@
     return initialLocale as StripeElementLocale;
   };
 
-  async function triggerBillingAddressUpdate() {
-    if (!collectBillingAddress || !elements || !stripe) return;
+  async function triggerTaxDetailsUpdated() {
+    if (!elements || !stripe) return;
 
     const { error: submitError } = await elements.submit();
     if (submitError) {
@@ -219,15 +216,15 @@
       getCountryAndPostalCodeFromConfirmationToken(confirmationToken);
 
     if (
-      countryCode === lastTaxCalculationBillingDetails?.countryCode &&
-      postalCode === lastTaxCalculationBillingDetails?.postalCode
+      countryCode === lastTaxCustomerDetails?.countryCode &&
+      postalCode === lastTaxCustomerDetails?.postalCode
     ) {
       return;
     }
 
-    lastTaxCalculationBillingDetails = { countryCode, postalCode };
+    lastTaxCustomerDetails = { countryCode, postalCode };
 
-    onBillingAddressUpdated({
+    onTaxCustomerDetailsUpdated({
       countryCode,
       postalCode,
     });
@@ -290,11 +287,11 @@
             lastConfirmationTokenId = undefined;
 
             if (
-              collectBillingAddress &&
+              taxCollectionEnabled &&
               event.complete &&
               event.value.type === "card"
             ) {
-              await triggerBillingAddressUpdate();
+              await triggerTaxDetailsUpdated();
             }
 
             onPaymentInfoChange({

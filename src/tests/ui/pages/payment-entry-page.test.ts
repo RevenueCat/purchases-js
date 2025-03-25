@@ -5,6 +5,7 @@ import {
   brandingInfo,
   rcPackage,
   checkoutStartResponse,
+  priceBreakdownTaxDisabled,
 } from "../../../stories/fixtures";
 import { SDKEventName } from "../../../behavioural-events/sdk-events";
 import { createEventsTrackerMock } from "../../mocks/events-tracker-mock-provider";
@@ -30,6 +31,7 @@ const purchaseOperationHelperMock: PurchaseOperationHelper = {
 
 const basicProps: ComponentProps<PaymentEntryPage> = {
   brandingInfo: brandingInfo,
+  priceBreakdown: priceBreakdownTaxDisabled,
   purchaseOption: rcPackage.webBillingProduct.defaultPurchaseOption,
   productDetails: rcPackage.webBillingProduct,
   processing: false,

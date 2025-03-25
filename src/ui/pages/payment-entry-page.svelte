@@ -16,7 +16,11 @@
     PurchaseFlowErrorCode,
     PurchaseOperationHelper,
   } from "../../helpers/purchase-operation-helper";
-  import { type ContinueHandlerParams } from "../ui-types";
+  import {
+    type TaxCustomerDetails,
+    type ContinueHandlerParams,
+    type PriceBreakdown,
+  } from "../ui-types";
   import { type IEventsTracker } from "../../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "../constants";
   import {
@@ -33,28 +37,26 @@
   import PaymentButton from "../molecules/payment-button.svelte";
   import StripePaymentElements from "../molecules/stripe-payment-elements.svelte";
   import { type GatewayParams } from "../../networking/responses/stripe-elements";
-  import { type CheckoutCalculateTaxResponse } from "../../networking/responses/checkout-calculate-tax-response";
-  import { type StripeElementsConfiguration } from "../../networking/responses/stripe-elements";
 
   export let onContinue: (params?: ContinueHandlerParams) => void;
   export let gatewayParams: GatewayParams = {};
+  export let priceBreakdown: PriceBreakdown;
   export let processing = false;
   export let productDetails: Product;
   export let purchaseOption: PurchaseOption;
   export let brandingInfo: BrandingInfoResponse | null;
   export let purchaseOperationHelper: PurchaseOperationHelper;
+  export let onTaxCustomerDetailsUpdated: (
+    customerDetails: TaxCustomerDetails,
+  ) => void;
 
   let isStripeLoading = true;
   let stripeLocale: StripeElementLocale | undefined;
 
   let stripeSubmit: () => Promise<void>;
   let stripeConfirm: (clientSecret: string) => Promise<void>;
-  let updateStripeGatewayParams: (
-    elementsConfiguration: StripeElementsConfiguration,
-  ) => Promise<void>;
 
   let isPaymentInfoComplete = false;
-  let isCalculatingTaxes = false;
   let selectedPaymentMethod: string | undefined = undefined;
   let modalErrorMessage: string | undefined = undefined;
   let clientSecret: string | undefined = undefined;
@@ -84,33 +86,6 @@
   }) {
     selectedPaymentMethod = paymentMethod;
     isPaymentInfoComplete = complete;
-  }
-
-  async function handleBillingAddressUpdated({
-    countryCode,
-    postalCode,
-  }: {
-    countryCode: string | undefined;
-    postalCode: string | undefined;
-  }): Promise<void> {
-    isCalculatingTaxes = true;
-    taxCalculation = await purchaseOperationHelper.checkoutCalculateTax(
-      countryCode,
-      postalCode,
-    );
-    console.debug(
-      "Tax calculation updated",
-      countryCode,
-      postalCode,
-      taxCalculation,
-    );
-
-    if (taxCalculation) {
-      updateStripeGatewayParams(
-        taxCalculation.gateway_params.elements_configuration,
-      );
-    }
-    isCalculatingTaxes = false;
   }
 
   async function handleSubmit(): Promise<void> {
@@ -191,24 +166,25 @@
         <StripePaymentElements
           bind:submit={stripeSubmit}
           bind:confirm={stripeConfirm}
-          bind:updateGatewayParams={updateStripeGatewayParams}
           bind:stripeLocale
           {gatewayParams}
           {brandingInfo}
-          collectBillingAddress={brandingInfo?.gateway_tax_collection_enabled}
           onLoadingComplete={handleStripeLoadingComplete}
           onError={handleStripeElementError}
           onPaymentInfoChange={handlePaymentInfoChange}
           onSubmissionSuccess={handlePaymentSubmissionSuccess}
           onConfirmationSuccess={onContinue}
-          onBillingAddressUpdated={handleBillingAddressUpdated}
+          taxCollectionEnabled={priceBreakdown.taxCollectionEnabled}
+          {onTaxCustomerDetailsUpdated}
         />
       </div>
 
       <div class="rc-checkout-pay-container">
         {#if !modalErrorMessage}
           <PaymentButton
-            disabled={processing || !isPaymentInfoComplete || isCalculatingTaxes}
+            disabled={processing ||
+              !isPaymentInfoComplete ||
+              priceBreakdown.taxCalculationStatus === "loading"}
             {subscriptionOption}
           />
         {/if}

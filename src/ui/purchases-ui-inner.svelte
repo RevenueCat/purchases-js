@@ -8,6 +8,7 @@
     type PriceBreakdown,
     type ContinueHandlerParams,
     type CurrentPage,
+    type TaxCustomerDetails,
   } from "./ui-types";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import type { Product, PurchaseOption } from "../main";
@@ -32,6 +33,9 @@
   export let purchaseOperationHelper: PurchaseOperationHelper;
   export let isInElement: boolean = false;
   export let gatewayParams: GatewayParams;
+  export let onTaxCustomerDetailsUpdated: (
+    customerDetails: TaxCustomerDetails,
+  ) => void;
 </script>
 
 <Template {brandingInfo} {isInElement} {isSandbox} {onClose}>
@@ -64,6 +68,8 @@
         {brandingInfo}
         {purchaseOperationHelper}
         {gatewayParams}
+        {priceBreakdown}
+        {onTaxCustomerDetailsUpdated}
       />
     {/if}
 
