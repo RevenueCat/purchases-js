@@ -57,7 +57,7 @@
   }}
 />
 
-<Story
+<!-- <Story
   name="Tax Inclusive"
   args={{
     productDetails: product,
@@ -85,4 +85,4 @@
     showProductDescription: true,
     priceBreakdown: priceBreakdownTaxExclusive,
   }}
-/>
+/> -->
