@@ -5,7 +5,6 @@
     ProductType,
     type SubscriptionOption,
   } from "../../entities/offerings";
-  import PricingDropdown from "../molecules/pricing-dropdown.svelte";
   import PricingTable from "../molecules/pricing-table.svelte";
   import ProductInfoHeader from "../molecules/product-header.svelte";
   import PricingSummary from "../molecules/pricing-summary.svelte";
@@ -29,9 +28,7 @@
   <div class="rcb-pricing-info" class:has-expanded-details={isSubscription}>
     <ProductInfoHeader {productDetails} {showProductDescription} />
     <PricingSummary {priceBreakdown} {basePhase} {trialPhase} />
-    <PricingDropdown>
-      <PricingTable {priceBreakdown} {trialPhase} />
-    </PricingDropdown>
+    <PricingTable {priceBreakdown} {trialPhase} />
   </div>
 </section>
 

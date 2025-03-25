@@ -8,6 +8,7 @@
   import { type PriceBreakdown } from "../ui-types";
   import { getNextRenewalDate } from "../../helpers/duration-helper";
   import { type PricingPhase } from "../../entities/offerings";
+  import PricingDropdown from "./pricing-dropdown.svelte";
 
   interface Props {
     priceBreakdown: PriceBreakdown;
@@ -24,110 +25,120 @@
   const translator: Writable<Translator> = getContext(translatorContextKey);
 </script>
 
-<div class="pricing-table">
-  {#if priceBreakdown.taxCollectionEnabled}
-    <div class="rcb-pricing-table-row">
-      <div class="rcb-pricing-table-header">
-        {$translator.translate(LocalizationKeys.PricingTotalExcludingTax)}
+{#snippet pricingTable()}
+  <div class="pricing-table">
+    {#if priceBreakdown.taxCollectionEnabled}
+      <div class="rcb-pricing-table-row">
+        <div class="rcb-pricing-table-header">
+          {$translator.translate(LocalizationKeys.PricingTotalExcludingTax)}
+        </div>
+        <div class="rcb-pricing-table-value">
+          {$translator.formatPrice(
+            priceBreakdown.totalExcludingTaxInMicros,
+            priceBreakdown.currency,
+          )}
+        </div>
       </div>
-      <div class="rcb-pricing-table-value">
-        {$translator.formatPrice(
-          priceBreakdown.totalExcludingTaxInMicros,
-          priceBreakdown.currency,
-        )}
-      </div>
-    </div>
 
-    {#if priceBreakdown.status === "loading"}
-      <div class="rcb-pricing-table-row">
-        <div class="rcb-pricing-table-header">
-          {$translator.translate(LocalizationKeys.PricingTableTax)}
-        </div>
-        <div class="rcb-pricing-table-value">
-          <div class="rcb-pricing-table-value-loading">Loading</div>
-        </div>
-      </div>
-    {:else if priceBreakdown.status === "pending"}
-      <div class="rcb-pricing-table-row">
-        <div class="rcb-pricing-table-header">
-          {$translator.translate(LocalizationKeys.PricingTableTax)}
-        </div>
-        <div class="rcb-pricing-table-value">
-          {#if priceBreakdown.pendingReason === "needs_postal_code"}
-            {$translator.translate(
-              LocalizationKeys.PricingTableEnterPostalCodeToCalculate,
-            )}
-          {:else if priceBreakdown.pendingReason === "needs_state_or_postal_code"}
-            {$translator.translate(
-              LocalizationKeys.PricingTableEnterStateOrPostalCodeToCalculate,
-            )}
-          {:else}
-            {$translator.translate(
-              LocalizationKeys.PricingTableEnterBillingAddressToCalculate,
-            )}
-          {/if}
-        </div>
-      </div>
-    {:else if priceBreakdown.taxBreakdown !== null}
-      {#each priceBreakdown.taxBreakdown as taxItem}
+      {#if priceBreakdown.status === "loading"}
         <div class="rcb-pricing-table-row">
           <div class="rcb-pricing-table-header">
-            {#if taxItem.display_name}
-              {taxItem.display_name}
-            {:else}
-              <TaxTitle
-                taxType={taxItem.tax_type}
-                country={taxItem.country}
-                state={taxItem.state}
-                taxPercentageInMicros={taxItem.tax_rate_in_micros}
-              />
-            {/if}
+            {$translator.translate(LocalizationKeys.PricingTableTax)}
           </div>
           <div class="rcb-pricing-table-value">
-            {$translator.formatPrice(
-              taxItem.tax_amount_in_micros,
-              priceBreakdown.currency,
-            )}
+            <div class="rcb-pricing-table-value-loading">Loading</div>
           </div>
         </div>
-      {/each}
+      {:else if priceBreakdown.status === "pending"}
+        <div class="rcb-pricing-table-row">
+          <div class="rcb-pricing-table-header">
+            {$translator.translate(LocalizationKeys.PricingTableTax)}
+          </div>
+          <div class="rcb-pricing-table-value">
+            {#if priceBreakdown.pendingReason === "needs_postal_code"}
+              {$translator.translate(
+                LocalizationKeys.PricingTableEnterPostalCodeToCalculate,
+              )}
+            {:else if priceBreakdown.pendingReason === "needs_state_or_postal_code"}
+              {$translator.translate(
+                LocalizationKeys.PricingTableEnterStateOrPostalCodeToCalculate,
+              )}
+            {:else}
+              {$translator.translate(
+                LocalizationKeys.PricingTableEnterBillingAddressToCalculate,
+              )}
+            {/if}
+          </div>
+        </div>
+      {:else if priceBreakdown.taxBreakdown !== null}
+        {#each priceBreakdown.taxBreakdown as taxItem}
+          <div class="rcb-pricing-table-row">
+            <div class="rcb-pricing-table-header">
+              {#if taxItem.display_name}
+                {taxItem.display_name}
+              {:else}
+                <TaxTitle
+                  taxType={taxItem.tax_type}
+                  country={taxItem.country}
+                  state={taxItem.state}
+                  taxPercentageInMicros={taxItem.tax_rate_in_micros}
+                />
+              {/if}
+            </div>
+            <div class="rcb-pricing-table-value">
+              {$translator.formatPrice(
+                taxItem.tax_amount_in_micros,
+                priceBreakdown.currency,
+              )}
+            </div>
+          </div>
+        {/each}
+      {/if}
+
+      <div class="rcb-pricing-table-separator"></div>
     {/if}
 
-    <div class="rcb-pricing-table-separator"></div>
-  {/if}
+    {#if trialEndDate}
+      <div class="rcb-pricing-table-row">
+        <div class="rcb-pricing-table-header">
+          {$translator.translate(LocalizationKeys.PricingTableTrialEnds, {
+            formattedTrialEndDate: $translator.translateDate(trialEndDate),
+          })}
+        </div>
+        <div class="rcb-pricing-table-value">
+          {$translator.formatPrice(
+            priceBreakdown.totalAmountInMicros,
+            priceBreakdown.currency,
+          )}
+        </div>
+      </div>
+    {/if}
 
-  {#if trialEndDate}
-    <div class="rcb-pricing-table-row">
-      <div class="rcb-pricing-table-header">
-        {$translator.translate(LocalizationKeys.PricingTableTrialEnds, {
-          formattedTrialEndDate: $translator.translateDate(trialEndDate),
-        })}
+    <div class="rcb-pricing-table-row header">
+      <div class="rcb-pricing-table-header total">
+        {$translator.translate(LocalizationKeys.PricingTableTotalDueToday)}
       </div>
       <div class="rcb-pricing-table-value">
-        {$translator.formatPrice(
-          priceBreakdown.totalAmountInMicros,
-          priceBreakdown.currency,
-        )}
+        {#if trialEndDate}
+          {$translator.formatPrice(0, priceBreakdown.currency)}
+        {:else}
+          {$translator.formatPrice(
+            priceBreakdown.totalAmountInMicros,
+            priceBreakdown.currency,
+          )}
+        {/if}
       </div>
     </div>
-  {/if}
-
-  <div class="rcb-pricing-table-row header">
-    <div class="rcb-pricing-table-header total">
-      {$translator.translate(LocalizationKeys.PricingTableTotalDueToday)}
-    </div>
-    <div class="rcb-pricing-table-value">
-      {#if trialEndDate}
-        {$translator.formatPrice(0, priceBreakdown.currency)}
-      {:else}
-        {$translator.formatPrice(
-          priceBreakdown.totalAmountInMicros,
-          priceBreakdown.currency,
-        )}
-      {/if}
-    </div>
   </div>
-</div>
+{/snippet}
+
+{#if priceBreakdown.taxCollectionEnabled}
+  <PricingDropdown>
+    {@render pricingTable()}
+  </PricingDropdown>
+{:else}
+  {@render pricingTable()}
+{/if}
 
 <style>
   .pricing-table {
