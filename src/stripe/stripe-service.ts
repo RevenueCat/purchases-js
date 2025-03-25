@@ -1,5 +1,8 @@
 import type {
   Appearance,
+  PaymentIntentResult,
+  SetupIntentResult,
+  Stripe,
   StripeElementLocale,
   StripeElements,
   StripeError,
@@ -181,5 +184,37 @@ export class StripeService {
         usBankAccount: "never",
       },
     });
+  }
+
+  static async confirmIntent(
+    stripe: Stripe,
+    elements: StripeElements,
+    clientSecret: string,
+    confirmationTokenId?: string,
+  ): Promise<StripeError | undefined> {
+    const baseOptions = {
+      clientSecret,
+      redirect: "if_required" as const,
+    };
+
+    const confirmOptions = confirmationTokenId
+      ? {
+          ...baseOptions,
+          confirmParams: { confirmation_token: confirmationTokenId },
+        }
+      : {
+          ...baseOptions,
+          elements: elements,
+        };
+
+    const isSetupIntent = clientSecret.startsWith("seti_");
+    let result: SetupIntentResult | PaymentIntentResult | undefined;
+    if (isSetupIntent) {
+      result = await stripe.confirmSetup(confirmOptions);
+    } else {
+      result = await stripe.confirmPayment(confirmOptions);
+    }
+
+    return result?.error;
   }
 }

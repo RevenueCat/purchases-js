@@ -56,28 +56,15 @@
   export async function confirm(clientSecret: string) {
     if (!stripe || !elements) return;
 
-    const isSetupIntent = clientSecret.startsWith("seti_");
-    const baseOptions = {
+    const confirmError = await StripeService.confirmIntent(
+      stripe,
+      elements,
       clientSecret,
-      redirect: "if_required" as const,
-    };
+      lastConfirmationTokenId,
+    );
 
-    const confirmOptions = lastConfirmationTokenId
-      ? {
-          ...baseOptions,
-          confirmParams: { confirmation_token: lastConfirmationTokenId },
-        }
-      : {
-          ...baseOptions,
-          elements: elements,
-        };
-    const result =
-      await stripe[isSetupIntent ? "confirmSetup" : "confirmPayment"](
-        confirmOptions,
-      );
-
-    if (result.error) {
-      handleFormSubmissionError(result.error);
+    if (confirmError) {
+      handleFormSubmissionError(confirmError);
     } else {
       onConfirmationSuccess();
     }
