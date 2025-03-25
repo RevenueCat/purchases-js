@@ -64,7 +64,7 @@
     totalAmountInMicros: productDetails.currentPrice.amountMicros,
     totalExcludingTaxInMicros: productDetails.currentPrice.amountMicros,
     taxCollectionEnabled: false,
-    status: null,
+    taxCalculationStatus: null,
     pendingReason: null,
     taxAmountInMicros: null,
     taxBreakdown: null,
@@ -75,7 +75,7 @@
     brandingInfo?.gateway_tax_collection_enabled
   ) {
     priceBreakdown.taxCollectionEnabled = true;
-    priceBreakdown.status = "pending";
+    priceBreakdown.taxCalculationStatus = "pending";
   }
 
   // Setting the context for the Localized components
@@ -133,7 +133,7 @@
     }
 
     if (priceBreakdown.taxCollectionEnabled) {
-      priceBreakdown.status = "loading";
+      priceBreakdown.taxCalculationStatus = "loading";
     }
 
     purchaseOperationHelper

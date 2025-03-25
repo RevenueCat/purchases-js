@@ -39,7 +39,7 @@
         </div>
       </div>
 
-      {#if priceBreakdown.status === "loading"}
+      {#if priceBreakdown.taxCalculationStatus === "loading"}
         <div class="rcb-pricing-table-row">
           <div class="rcb-pricing-table-header">
             {$translator.translate(LocalizationKeys.PricingTableTax)}
@@ -48,7 +48,7 @@
             <div class="rcb-pricing-table-value-loading">Loading</div>
           </div>
         </div>
-      {:else if priceBreakdown.status === "pending"}
+      {:else if priceBreakdown.taxCalculationStatus === "pending"}
         <div class="rcb-pricing-table-row">
           <div class="rcb-pricing-table-header">
             {$translator.translate(LocalizationKeys.PricingTableTax)}

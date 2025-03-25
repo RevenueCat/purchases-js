@@ -260,7 +260,7 @@ export const priceBreakdownTaxDisabled: PriceBreakdown = {
   totalAmountInMicros: 9900000,
   totalExcludingTaxInMicros: 9900000,
   taxCollectionEnabled: false,
-  status: "calculated",
+  taxCalculationStatus: "calculated",
   taxAmountInMicros: 0,
   pendingReason: null,
   taxBreakdown: null,
@@ -272,7 +272,7 @@ export const priceBreakdownTaxInclusive: PriceBreakdown = {
   totalExcludingTaxInMicros: 8180000,
   taxAmountInMicros: 1718000,
   taxCollectionEnabled: true,
-  status: "calculated",
+  taxCalculationStatus: "calculated",
   taxBreakdown: [
     {
       tax_type: "VAT",
@@ -292,7 +292,7 @@ export const priceBreakdownTaxExclusive: PriceBreakdown = {
   totalExcludingTaxInMicros: 9900000,
   taxAmountInMicros: 693000,
   taxCollectionEnabled: true,
-  status: "calculated",
+  taxCalculationStatus: "calculated",
   taxBreakdown: [
     {
       tax_type: "tax_rate",
@@ -309,13 +309,13 @@ export const priceBreakdownTaxExclusive: PriceBreakdown = {
 export const priceBreakdownTaxLoading: PriceBreakdown = {
   ...priceBreakdownTaxExclusive,
   totalAmountInMicros: 9900000,
-  status: "loading",
+  taxCalculationStatus: "loading",
 };
 
 export const priceBreakdownTaxPending: PriceBreakdown = {
   ...priceBreakdownTaxExclusive,
   totalAmountInMicros: 9900000,
-  status: "pending",
+  taxCalculationStatus: "pending",
   pendingReason: null,
 };
 
@@ -325,7 +325,7 @@ export const priceBreakdownTaxExclusiveWithMultipleTaxItems: PriceBreakdown = {
   totalExcludingTaxInMicros: 9900000,
   taxAmountInMicros: 495000 + 987525,
   taxCollectionEnabled: true,
-  status: "calculated",
+  taxCalculationStatus: "calculated",
   taxBreakdown: [
     {
       tax_type: "GST",

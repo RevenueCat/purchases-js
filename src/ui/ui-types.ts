@@ -26,7 +26,7 @@ export type PriceBreakdown = {
   totalAmountInMicros: number;
   taxCollectionEnabled: boolean;
   totalExcludingTaxInMicros: number;
-  status: TaxCalculationStatus | null;
+  taxCalculationStatus: TaxCalculationStatus | null;
   pendingReason: TaxCalculationPendingReason | null;
   taxAmountInMicros: number | null;
   taxBreakdown: TaxBreakdown[] | null;
