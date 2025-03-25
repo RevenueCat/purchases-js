@@ -152,6 +152,12 @@
       })
       .then(async (result) => {
         if (priceBreakdown.taxCollectionEnabled) {
+          // TODO: Handle tax calculation errors including:
+          // - missing state
+          // - missing postal code
+          // - generic
+          // - unexpected error
+
           const initialTaxCalculation =
             await purchaseOperationHelper.checkoutCalculateTax();
 
