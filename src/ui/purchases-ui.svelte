@@ -28,6 +28,7 @@
   import type { PurchaseMetadata } from "../entities/offerings";
   import { writable } from "svelte/store";
   import { CheckoutCalculateTaxResponse } from "../networking/responses/checkout-calculate-tax-response";
+  import { ALLOW_TAX_CALCULATION_FF } from "../helpers/constants";
 
   export let customerEmail: string | undefined;
   export let appUserId: string;
@@ -124,7 +125,10 @@
         metadata,
       )
       .then(async (result) => {
-        if (brandingInfo?.gateway_tax_collection_enabled) {
+        if (
+          ALLOW_TAX_CALCULATION_FF &&
+          brandingInfo?.gateway_tax_collection_enabled
+        ) {
           initialTaxCalculation =
             await purchaseOperationHelper.checkoutCalculateTax();
         }
