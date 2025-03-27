@@ -4,7 +4,11 @@
   import ErrorPage from "./pages/error-page.svelte";
   import SuccessPage from "./pages/success-page.svelte";
   import LoadingPage from "./pages/payment-entry-loading-page.svelte";
-  import { type ContinueHandlerParams, type CurrentPage } from "./ui-types";
+  import {
+    type PriceBreakdown,
+    type ContinueHandlerParams,
+    type CurrentPage,
+  } from "./ui-types";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import type { Product, PurchaseOption } from "../main";
   import ProductInfo from "./organisms/product-info.svelte";
@@ -12,9 +16,8 @@
     PurchaseFlowError,
     PurchaseOperationHelper,
   } from "../helpers/purchase-operation-helper";
-  import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
   import Template from "./layout/template.svelte";
-  import { type CheckoutCalculateTaxResponse } from "../networking/responses/checkout-calculate-tax-response";
+  import { type GatewayParams } from "../networking/responses/stripe-elements";
 
   export let currentPage: CurrentPage;
   export let brandingInfo: BrandingInfoResponse | null;
@@ -25,10 +28,10 @@
   export let closeWithError: () => void;
   export let onClose: (() => void) | undefined = undefined;
   export let lastError: PurchaseFlowError | null;
-  export let checkoutStartResponse: CheckoutStartResponse | null;
-  export let initialTaxCalculation: CheckoutCalculateTaxResponse | null;
+  export let priceBreakdown: PriceBreakdown;
   export let purchaseOperationHelper: PurchaseOperationHelper;
   export let isInElement: boolean = false;
+  export let gatewayParams: GatewayParams;
 </script>
 
 <Template {brandingInfo} {isInElement} {isSandbox} {onClose}>
@@ -38,6 +41,7 @@
       purchaseOption={purchaseOptionToUse}
       showProductDescription={brandingInfo?.appearance
         ?.show_product_description ?? false}
+      {priceBreakdown}
     />
   {/snippet}
   {#snippet mainContent()}
@@ -51,16 +55,15 @@
     {#if currentPage === "payment-entry-loading"}
       <LoadingPage />
     {/if}
-    {#if checkoutStartResponse && (currentPage === "payment-entry" || currentPage === "payment-entry-processing")}
+    {#if currentPage === "payment-entry" || currentPage === "payment-entry-processing"}
       <PaymentEntryPage
-        {checkoutStartResponse}
         onContinue={handleContinue}
         processing={currentPage === "payment-entry-processing"}
         {productDetails}
         purchaseOption={purchaseOptionToUse}
         {brandingInfo}
         {purchaseOperationHelper}
-        taxCalculation={initialTaxCalculation}
+        {gatewayParams}
       />
     {/if}
 

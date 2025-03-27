@@ -18,16 +18,15 @@
     englishLocale,
     translatorContextKey,
   } from "./localization/constants";
-  import { type CurrentPage } from "./ui-types";
+  import { PriceBreakdown, type CurrentPage } from "./ui-types";
   import PurchasesUiInner from "./purchases-ui-inner.svelte";
-  import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
   import { type ContinueHandlerParams } from "./ui-types";
   import { type IEventsTracker } from "../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "./constants";
   import { createCheckoutFlowErrorEvent } from "../behavioural-events/sdk-event-helpers";
   import type { PurchaseMetadata } from "../entities/offerings";
   import { writable } from "svelte/store";
-  import { CheckoutCalculateTaxResponse } from "../networking/responses/checkout-calculate-tax-response";
+  import { GatewayParams } from "../networking/responses/stripe-elements";
   import { ALLOW_TAX_CALCULATION_FF } from "../helpers/constants";
 
   export let customerEmail: string | undefined;
@@ -52,14 +51,32 @@
   export let isInElement: boolean = false;
 
   let productDetails: Product = rcPackage.webBillingProduct;
-  let checkoutStartResponse: CheckoutStartResponse | null = null;
-  let initialTaxCalculation: CheckoutCalculateTaxResponse | null = null;
   let lastError: PurchaseFlowError | null = null;
   const productId = rcPackage.webBillingProduct.identifier ?? null;
 
   let currentPage: CurrentPage | null = null;
   let redemptionInfo: RedemptionInfo | null = null;
   let operationSessionId: string | null = null;
+  let gatewayParams: GatewayParams = {};
+
+  let priceBreakdown: PriceBreakdown = {
+    currency: productDetails.currentPrice.currency,
+    totalAmountInMicros: productDetails.currentPrice.amountMicros,
+    totalExcludingTaxInMicros: productDetails.currentPrice.amountMicros,
+    taxCollectionEnabled: false,
+    status: null,
+    pendingReason: null,
+    taxAmountInMicros: null,
+    taxBreakdown: null,
+  };
+
+  if (
+    ALLOW_TAX_CALCULATION_FF &&
+    brandingInfo?.gateway_tax_collection_enabled
+  ) {
+    priceBreakdown.taxCollectionEnabled = true;
+    priceBreakdown.status = "pending";
+  }
 
   // Setting the context for the Localized components
   let translator: Translator = new Translator(
@@ -115,6 +132,10 @@
       return;
     }
 
+    if (priceBreakdown.taxCollectionEnabled) {
+      priceBreakdown.status = "loading";
+    }
+
     purchaseOperationHelper
       .checkoutStart(
         appUserId,
@@ -124,20 +145,39 @@
         customerEmail,
         metadata,
       )
-      .then(async (result) => {
-        if (
-          ALLOW_TAX_CALCULATION_FF &&
-          brandingInfo?.gateway_tax_collection_enabled
-        ) {
-          initialTaxCalculation =
-            await purchaseOperationHelper.checkoutCalculateTax();
-        }
-        return result;
-      })
       .then((result) => {
         lastError = null;
         currentPage = "payment-entry";
-        checkoutStartResponse = result;
+        gatewayParams = result.gateway_params;
+      })
+      .then(async (result) => {
+        if (priceBreakdown.taxCollectionEnabled) {
+          // TODO: Handle tax calculation errors including:
+          // - missing state
+          // - missing postal code
+          // - generic
+          // - unexpected error
+
+          const initialTaxCalculation =
+            await purchaseOperationHelper.checkoutCalculateTax();
+
+          priceBreakdown.status = "calculated";
+          priceBreakdown.totalAmountInMicros =
+            initialTaxCalculation.total_amount_in_micros;
+          priceBreakdown.taxAmountInMicros =
+            initialTaxCalculation.tax_amount_in_micros;
+          priceBreakdown.totalExcludingTaxInMicros =
+            initialTaxCalculation.total_excluding_tax_in_micros;
+          priceBreakdown.taxBreakdown =
+            initialTaxCalculation.pricing_phases.base.tax_breakdown;
+          priceBreakdown.pendingReason = null;
+
+          gatewayParams = {
+            ...gatewayParams,
+            ...initialTaxCalculation?.gateway_params,
+          };
+        }
+        return result;
       })
       .catch((e: PurchaseFlowError) => {
         handleError(e);
@@ -217,10 +257,10 @@
   purchaseOptionToUse={purchaseOption}
   {handleContinue}
   {lastError}
-  {checkoutStartResponse}
-  {initialTaxCalculation}
+  {gatewayParams}
   {purchaseOperationHelper}
   {closeWithError}
   {isInElement}
   {onClose}
+  {priceBreakdown}
 />
