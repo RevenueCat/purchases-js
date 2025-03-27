@@ -2,6 +2,7 @@
   import { getContext, onMount } from "svelte";
   import type {
     Appearance,
+    ConfirmationToken,
     Stripe,
     StripeElementLocale,
     StripeElements,
@@ -23,9 +24,11 @@
     type PaymentElementError,
     PaymentElementErrorCode,
   } from "../types/payment-element-error";
+  import { type TaxCustomerDetails } from "../ui-types";
 
   export let gatewayParams: GatewayParams;
   export let brandingInfo: BrandingInfoResponse | null;
+  export let taxCollectionEnabled: boolean;
   export let onLoadingComplete: () => void;
   export let onError: (error: PaymentElementError) => void;
   export let onPaymentInfoChange: (params: {
@@ -34,6 +37,9 @@
   }) => void;
   export let onSubmissionSuccess: () => void;
   export let onConfirmationSuccess: () => void;
+  export let onTaxCustomerDetailsUpdated: (
+    customerDetails: TaxCustomerDetails,
+  ) => void;
   export let stripeLocale: StripeElementLocale | undefined = undefined;
 
   export async function submit() {
@@ -50,20 +56,30 @@
   export async function confirm(clientSecret: string) {
     if (!stripe || !elements) return;
 
-    const isSetupIntent = clientSecret.startsWith("seti_");
-    const result = await stripe[
-      isSetupIntent ? "confirmSetup" : "confirmPayment"
-    ]({
-      elements: elements,
+    const confirmError = await StripeService.confirmIntent(
+      stripe,
+      elements,
       clientSecret,
-      redirect: "if_required",
-    });
+      lastConfirmationTokenId,
+    );
 
-    if (result.error) {
-      handleFormSubmissionError(result.error);
+    if (confirmError) {
+      handleFormSubmissionError(confirmError);
     } else {
       onConfirmationSuccess();
     }
+  }
+
+  $: if (elements) {
+    (async () => {
+      const elementsConfiguration = gatewayParams.elements_configuration;
+      if (!elementsConfiguration) return;
+
+      await StripeService.updateElementsConfiguration(
+        elements,
+        elementsConfiguration,
+      );
+    })();
   }
 
   function handleFormSubmissionError(error: StripeError) {
@@ -85,6 +101,9 @@
   let stripe: Stripe | null = null;
   let unsafeElements: StripeElements | null = null;
   let elements: StripeElements | null = null;
+
+  let lastConfirmationTokenId: string | undefined = undefined;
+  let lastTaxCustomerDetails: TaxCustomerDetails | undefined = undefined;
 
   let spacing = new Theme().spacing;
   let stripeVariables: undefined | Appearance["variables"];
@@ -158,6 +177,55 @@
     return initialLocale as StripeElementLocale;
   };
 
+  async function triggerTaxDetailsUpdated() {
+    if (!elements || !stripe) return;
+
+    const { error: submitError } = await elements.submit();
+    if (submitError) {
+      handleFormSubmissionError(submitError);
+      return;
+    }
+
+    const { error: confirmationError, confirmationToken } =
+      await stripe.createConfirmationToken({
+        elements: elements,
+      });
+
+    if (confirmationError) {
+      handleFormSubmissionError(confirmationError);
+      return;
+    }
+
+    lastConfirmationTokenId = confirmationToken.id;
+
+    const { countryCode, postalCode } =
+      getCountryAndPostalCodeFromConfirmationToken(confirmationToken);
+
+    if (
+      countryCode === lastTaxCustomerDetails?.countryCode &&
+      postalCode === lastTaxCustomerDetails?.postalCode
+    ) {
+      return;
+    }
+
+    lastTaxCustomerDetails = { countryCode, postalCode };
+
+    onTaxCustomerDetailsUpdated({
+      countryCode,
+      postalCode,
+    });
+  }
+
+  function getCountryAndPostalCodeFromConfirmationToken(
+    confirmationToken: ConfirmationToken,
+  ): { countryCode?: string; postalCode?: string } {
+    const billingAddress =
+      confirmationToken.payment_method_preview?.billing_details?.address;
+    const countryCode = billingAddress?.country ?? undefined;
+    const postalCode = billingAddress?.postal_code ?? undefined;
+    return { countryCode, postalCode };
+  }
+
   onMount(() => {
     updateStripeVariables();
 
@@ -201,7 +269,17 @@
 
         paymentElement.on(
           "change",
-          (event: StripePaymentElementChangeEvent) => {
+          async (event: StripePaymentElementChangeEvent) => {
+            lastConfirmationTokenId = undefined;
+
+            if (
+              taxCollectionEnabled &&
+              event.complete &&
+              event.value.type === "card"
+            ) {
+              await triggerTaxDetailsUpdated();
+            }
+
             onPaymentInfoChange({
               complete: event.complete,
               paymentMethod: event.complete ? event.value.type : undefined,

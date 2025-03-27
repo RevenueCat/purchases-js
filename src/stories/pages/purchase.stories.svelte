@@ -64,6 +64,7 @@
     priceBreakdown={priceBreakdownTaxDisabled}
     purchaseOperationHelper={null as unknown as PurchaseOperationHelper}
     isInElement={context.globals.viewport === "embedded"}
+    onTaxCustomerDetailsUpdated={() => {}}
   />
 {/snippet}
 

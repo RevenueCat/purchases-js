@@ -26,8 +26,13 @@ export type PriceBreakdown = {
   totalAmountInMicros: number;
   taxCollectionEnabled: boolean;
   totalExcludingTaxInMicros: number;
-  status: TaxCalculationStatus | null;
+  taxCalculationStatus: TaxCalculationStatus | null;
   pendingReason: TaxCalculationPendingReason | null;
   taxAmountInMicros: number | null;
   taxBreakdown: TaxBreakdown[] | null;
+};
+
+export type TaxCustomerDetails = {
+  countryCode: string | undefined;
+  postalCode: string | undefined;
 };

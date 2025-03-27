@@ -16,7 +16,11 @@
     PurchaseFlowErrorCode,
     PurchaseOperationHelper,
   } from "../../helpers/purchase-operation-helper";
-  import { type ContinueHandlerParams } from "../ui-types";
+  import {
+    type TaxCustomerDetails,
+    type ContinueHandlerParams,
+    type PriceBreakdown,
+  } from "../ui-types";
   import { type IEventsTracker } from "../../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "../constants";
   import {
@@ -36,11 +40,15 @@
 
   export let onContinue: (params?: ContinueHandlerParams) => void;
   export let gatewayParams: GatewayParams = {};
+  export let priceBreakdown: PriceBreakdown;
   export let processing = false;
   export let productDetails: Product;
   export let purchaseOption: PurchaseOption;
   export let brandingInfo: BrandingInfoResponse | null;
   export let purchaseOperationHelper: PurchaseOperationHelper;
+  export let onTaxCustomerDetailsUpdated: (
+    customerDetails: TaxCustomerDetails,
+  ) => void;
 
   let isStripeLoading = true;
   let stripeLocale: StripeElementLocale | undefined;
@@ -166,13 +174,17 @@
           onPaymentInfoChange={handlePaymentInfoChange}
           onSubmissionSuccess={handlePaymentSubmissionSuccess}
           onConfirmationSuccess={onContinue}
+          taxCollectionEnabled={priceBreakdown.taxCollectionEnabled}
+          {onTaxCustomerDetailsUpdated}
         />
       </div>
 
       <div class="rc-checkout-pay-container">
         {#if !modalErrorMessage}
           <PaymentButton
-            disabled={processing || !isPaymentInfoComplete}
+            disabled={processing ||
+              !isPaymentInfoComplete ||
+              priceBreakdown.taxCalculationStatus === "loading"}
             {subscriptionOption}
           />
         {/if}
