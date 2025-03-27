@@ -73,7 +73,6 @@
   $: if (elements) {
     (async () => {
       const elementsConfiguration = gatewayParams.elements_configuration;
-      console.debug("Updating gateway params", elementsConfiguration);
       if (!elementsConfiguration) return;
 
       await StripeService.updateElementsConfiguration(

@@ -231,8 +231,6 @@
 
     gatewayParams.elements_configuration =
       taxCalculation.gateway_params.elements_configuration;
-
-    console.debug("Tax calculation updated", taxCalculation);
   }
 
   const handleError = (e: PurchaseFlowError) => {
