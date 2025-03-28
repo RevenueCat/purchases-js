@@ -60,7 +60,6 @@
       stripe,
       elements,
       clientSecret,
-      lastConfirmationTokenId,
     );
 
     if (confirmError) {
@@ -102,7 +101,6 @@
   let unsafeElements: StripeElements | null = null;
   let elements: StripeElements | null = null;
 
-  let lastConfirmationTokenId: string | undefined = undefined;
   let lastTaxCustomerDetails: TaxCustomerDetails | undefined = undefined;
 
   let spacing = new Theme().spacing;
@@ -196,8 +194,6 @@
       return;
     }
 
-    lastConfirmationTokenId = confirmationToken.id;
-
     const { countryCode, postalCode } =
       getCountryAndPostalCodeFromConfirmationToken(confirmationToken);
 
@@ -270,8 +266,6 @@
         paymentElement.on(
           "change",
           async (event: StripePaymentElementChangeEvent) => {
-            lastConfirmationTokenId = undefined;
-
             if (
               taxCollectionEnabled &&
               event.complete &&
