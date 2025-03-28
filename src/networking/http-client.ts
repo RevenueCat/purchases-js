@@ -1,10 +1,6 @@
 import { type SupportedEndpoint } from "./endpoints";
-import {
-  BackendErrorCode,
-  ErrorCode,
-  ErrorCodeUtils,
-  PurchasesError,
-} from "../entities/errors";
+import type { BackendErrorCode } from "../entities/errors";
+import { ErrorCode, ErrorCodeUtils, PurchasesError } from "../entities/errors";
 import { RC_ENDPOINT, VERSION } from "../helpers/constants";
 import { StatusCodes } from "http-status-codes";
 import { isSandboxApiKey } from "../helpers/api-key-helper";
@@ -76,12 +72,6 @@ async function handleErrors(response: Response, endpoint: SupportedEndpoint) {
           backendErrorMessage,
         );
       }
-    } else if (statusCode === StatusCodes.NOT_FOUND) {
-      // Handle 404 errors specifically
-      throw PurchasesError.getForBackendError(
-        BackendErrorCode.BackendSubscriberNotFound,
-        backendErrorMessage || "The subscriber was not found.",
-      );
     } else {
       throwUnknownError(endpoint, statusCode, errorBodyString);
     }
