@@ -415,7 +415,7 @@ describe("setAttributes", () => {
       http.post(
         "http://localhost:8000/v1/subscribers/someAppUserId/attributes",
         () => {
-          return HttpResponse.json(null, { status: StatusCodes.OK });
+          return HttpResponse.json({}, { status: StatusCodes.OK });
         },
       ),
     );

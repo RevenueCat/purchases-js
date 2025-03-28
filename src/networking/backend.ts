@@ -218,12 +218,27 @@ export class Backend {
     appUserId: string,
     attributes: { [key: string]: string },
   ): Promise<void> {
-    type SetAttributesRequestBody = {
-      attributes: { [key: string]: string };
+    type AttributeValue = {
+      value: string;
+      updated_at_ms: number;
     };
 
+    type SetAttributesRequestBody = {
+      attributes: { [key: string]: AttributeValue };
+    };
+
+    const now = Date.now();
+    const formattedAttributes: { [key: string]: AttributeValue } = {};
+
+    for (const [key, value] of Object.entries(attributes)) {
+      formattedAttributes[key] = {
+        value,
+        updated_at_ms: now,
+      };
+    }
+
     const requestBody: SetAttributesRequestBody = {
-      attributes,
+      attributes: formattedAttributes,
     };
 
     return await performRequest<SetAttributesRequestBody, void>(
