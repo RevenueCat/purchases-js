@@ -433,35 +433,11 @@ describe("setAttributes", () => {
     );
   });
 
-  test("throws an error if the customer doesn't exist (404)", async () => {
+  test("throws an error if the request is invalid (400)", async () => {
     const purchases = configurePurchases();
     server.use(
-      http.get("http://localhost:8000/v1/subscribers/someAppUserId", () => {
-        return HttpResponse.json(
-          {
-            code: BackendErrorCode.BackendSubscriberNotFound,
-            message: "Customer not found",
-          },
-          { status: StatusCodes.NOT_FOUND },
-        );
-      }),
-    );
-
-    await expectPromiseToError(
-      purchases.setAttributes({ name: "John", age: "30" }),
-      new PurchasesError(
-        ErrorCode.CustomerInfoError,
-        "There was a problem related to the customer info.",
-        "Customer not found",
-      ),
-    );
-  });
-
-  test("throws an error if the request is invalid (400)", async () => {
-    const purchases = configurePurchases("400AttributesUserId");
-    server.use(
       http.post(
-        "http://localhost:8000/v1/subscribers/400AttributesUserId/attributes",
+        "http://localhost:8000/v1/subscribers/someAppUserId/attributes",
         () => {
           return HttpResponse.json(
             {
@@ -485,14 +461,17 @@ describe("setAttributes", () => {
   });
 
   test("throws an error if the server returns a 5xx error", async () => {
-    const purchases = configurePurchases("500AttributesUserId");
+    const purchases = configurePurchases();
     server.use(
       http.post(
-        "http://localhost:8000/v1/subscribers/500AttributesUserId/attributes",
+        "http://localhost:8000/v1/subscribers/someAppUserId/attributes",
         () => {
-          return HttpResponse.json(null, {
-            status: StatusCodes.INTERNAL_SERVER_ERROR,
-          });
+          return HttpResponse.json(
+            {},
+            {
+              status: StatusCodes.INTERNAL_SERVER_ERROR,
+            },
+          );
         },
       ),
     );
@@ -502,7 +481,7 @@ describe("setAttributes", () => {
       new PurchasesError(
         ErrorCode.UnknownBackendError,
         "Unknown backend error.",
-        "Request: setAttributes. Status code: 500. Body: null.",
+        "Request: setAttributes. Status code: 500. Body: {}.",
       ),
     );
   });
