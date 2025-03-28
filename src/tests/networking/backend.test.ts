@@ -757,3 +757,70 @@ describe("postCheckoutComplete request", () => {
     );
   });
 });
+
+describe("setAttributes request", () => {
+  function setAttributesResponse(httpResponse: HttpResponse) {
+    server.use(
+      http.post(
+        "http://localhost:8000/v1/subscribers/someAppUserId/attributes",
+        () => {
+          return httpResponse;
+        },
+      ),
+    );
+  }
+
+  test("can set attributes successfully", async () => {
+    setAttributesResponse(HttpResponse.json(null, { status: 200 }));
+    await backend.setAttributes("someAppUserId", {
+      age: "24",
+      custom_group_id: "abc123",
+    });
+  });
+
+  test("throws an error if the backend returns a server error", async () => {
+    setAttributesResponse(
+      HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
+    );
+    await expectPromiseToError(
+      backend.setAttributes("someAppUserId", { age: "24" }),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        "Request: setAttributes. Status code: 500. Body: null.",
+      ),
+    );
+  });
+
+  test("throws a known error if the backend returns a request error with correct body", async () => {
+    setAttributesResponse(
+      HttpResponse.json(
+        {
+          code: BackendErrorCode.BackendInvalidAPIKey,
+          message: "API key was wrong",
+        },
+        { status: StatusCodes.BAD_REQUEST },
+      ),
+    );
+    await expectPromiseToError(
+      backend.setAttributes("someAppUserId", { age: "24" }),
+      new PurchasesError(
+        ErrorCode.InvalidCredentialsError,
+        "There was a credentials issue. Check the underlying error for more details.",
+        "API key was wrong",
+      ),
+    );
+  });
+
+  test("throws network error if cannot reach server", async () => {
+    setAttributesResponse(HttpResponse.error());
+    await expectPromiseToError(
+      backend.setAttributes("someAppUserId", { age: "24" }),
+      new PurchasesError(
+        ErrorCode.NetworkError,
+        "Error performing request. Please check your network connection and try again.",
+        "Failed to fetch",
+      ),
+    );
+  });
+});

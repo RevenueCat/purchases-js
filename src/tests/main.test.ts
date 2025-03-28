@@ -15,6 +15,12 @@ import {
 } from "./base.purchases_test";
 import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
 import { waitFor } from "@testing-library/svelte";
+import { server } from "./base.purchases_test";
+import { HttpResponse } from "msw";
+import { BackendErrorCode } from "../entities/errors";
+import { expectPromiseToError } from "./test-helpers";
+import { http } from "msw";
+import { StatusCodes } from "http-status-codes";
 
 describe("Purchases.configure()", () => {
   test("throws error if given invalid api key", () => {
@@ -399,5 +405,118 @@ describe("Purchases.purchase()", () => {
   test("throws error if app user id is not provided", () => {
     // @ts-expect-error - we want to test the error case
     expect(() => Purchases.configure(testApiKey)).toThrowError(PurchasesError);
+  });
+});
+
+describe("setAttributes", () => {
+  test("can set attributes successfully", async () => {
+    const purchases = configurePurchases();
+    server.use(
+      http.post(
+        "http://localhost:8000/v1/subscribers/someAppUserId/attributes",
+        () => {
+          return HttpResponse.json(null, { status: StatusCodes.OK });
+        },
+      ),
+    );
+
+    await purchases.setAttributes({ name: "John", age: "30" });
+  });
+
+  test("throws an error if getCustomerInfo fails", async () => {
+    const purchases = configurePurchases();
+    server.use(
+      http.get("http://localhost:8000/v1/subscribers/someAppUserId", () => {
+        return HttpResponse.json(null, {
+          status: StatusCodes.INTERNAL_SERVER_ERROR,
+        });
+      }),
+    );
+
+    await expectPromiseToError(
+      purchases.setAttributes({ name: "John", age: "30" }),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        "Request: getCustomerInfo. Status code: 500. Body: null.",
+      ),
+    );
+  });
+
+  test("throws an error if the customer doesn't exist (404)", async () => {
+    const purchases = configurePurchases();
+    server.use(
+      http.post(
+        "http://localhost:8000/v1/subscribers/someAppUserId/attributes",
+        () => {
+          return HttpResponse.json(
+            {
+              code: BackendErrorCode.BackendEmptyAppUserId,
+              message: "Customer not found",
+            },
+            { status: StatusCodes.NOT_FOUND },
+          );
+        },
+      ),
+    );
+
+    await expectPromiseToError(
+      purchases.setAttributes({ name: "John", age: "30" }),
+      new PurchasesError(
+        ErrorCode.InvalidAppUserIdError,
+        "The app user id is invalid.",
+        "Customer not found",
+      ),
+    );
+  });
+
+  test("throws an error if the request is invalid (400)", async () => {
+    const purchases = configurePurchases();
+    server.use(
+      http.post(
+        "http://localhost:8000/v1/subscribers/someAppUserId/attributes",
+        () => {
+          return HttpResponse.json(
+            {
+              code: BackendErrorCode.BackendInvalidSubscriberAttributes,
+              message: "Invalid attributes format",
+            },
+            { status: StatusCodes.BAD_REQUEST },
+          );
+        },
+      ),
+    );
+
+    await expectPromiseToError(
+      purchases.setAttributes({ name: "John", age: "30" }),
+      new PurchasesError(
+        ErrorCode.InvalidSubscriberAttributesError,
+        "The subscriber attributes are invalid.",
+        "Invalid attributes format",
+      ),
+    );
+  });
+
+  test("throws an error if the server returns a 5xx error", async () => {
+    const purchases = configurePurchases();
+    server.use(
+      http.post(
+        "http://localhost:8000/v1/subscribers/someAppUserId/attributes",
+        () => {
+          return HttpResponse.json(null, {
+            status: StatusCodes.INTERNAL_SERVER_ERROR,
+          });
+        },
+      ),
+    );
+
+    await expectPromiseToError(
+      purchases.setAttributes({ name: "John", age: "30" }),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        "Request: setAttributes. Status code: 500. Body: null.",
+      ),
+    );
   });
 });
