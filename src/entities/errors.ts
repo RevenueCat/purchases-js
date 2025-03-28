@@ -132,6 +132,8 @@ export class ErrorCodeUtils {
         return ErrorCode.ProductAlreadyPurchasedError;
       case BackendErrorCode.BackendEmptyAppUserId:
         return ErrorCode.InvalidAppUserIdError;
+      case BackendErrorCode.BackendSubscriberNotFound:
+        return ErrorCode.CustomerInfoError;
       case BackendErrorCode.BackendPlayStoreQuotaExceeded:
         return ErrorCode.StoreProblemError;
       case BackendErrorCode.BackendPlayStoreInvalidPackageName:
@@ -216,6 +218,7 @@ export enum BackendErrorCode {
   BackendInvalidOperationSession = 7877,
   BackendPurchaseCannotBeCompleted = 7878,
   BackendEmailIsRequired = 7879,
+  BackendSubscriberNotFound = 7259,
 }
 
 /**

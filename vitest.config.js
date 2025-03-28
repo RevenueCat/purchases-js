@@ -50,6 +50,12 @@ export default defineConfig(() => ({
     // Other configurations like shims for APIs or polyfills can also be included
     // ...
     exclude: [...configDefaults.exclude, "examples/**"],
+
+    // Set environment variables for tests
+    env: {
+      LC_ALL: "en_US.UTF-8",
+      LANG: "en_US.UTF-8",
+    },
   },
   define: {
     "process.env.VITEST": JSON.stringify(true),
