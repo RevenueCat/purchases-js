@@ -96,6 +96,40 @@ test.describe("Main", () => {
     await expect(errorText).toBeVisible({ timeout: 10000 });
   });
 
+  test("Displays unhandled form submission errors", async ({
+    browser,
+    browserName,
+  }) => {
+    const userId = `${getUserId(browserName)}_subscription`;
+    const page = await setupTest(browser, userId);
+
+    // Gets all elements that match the selector
+    const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
+    const singleCard = packageCards[1];
+
+    await startPurchaseFlow(singleCard);
+    await enterEmailAndContinue(page, userId);
+
+    // Try with an invalid card declined server side
+    await enterCreditCardDetailsAndContinue(page, "4000003800000446");
+
+    const stripe3DSFrame = page.frameLocator(
+      "iframe[src*='https://js.stripe.com/v3/three-ds-2-challenge']",
+    );
+
+    const cancelButton = stripe3DSFrame.getByText("Cancel");
+    await expect(cancelButton).toBeVisible({
+      timeout: 10000,
+    });
+
+    await cancelButton.click();
+
+    const errorText = page.getByText(
+      "We are unable to authenticate your payment method. Please choose a different payment method and try again.",
+    );
+    await expect(errorText).toBeVisible({ timeout: 10000 });
+  });
+
   test("Propagates UTM params to metadata when purchasing", async ({
     browser,
     browserName,
