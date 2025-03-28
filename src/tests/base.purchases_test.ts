@@ -19,6 +19,7 @@ beforeAll(() => {
 beforeEach(() => {
   APIGetRequest.mockReset();
   APIPostRequest.mockReset();
+  server.resetHandlers();
   if (Purchases.isConfigured()) {
     Purchases.getSharedInstance().close();
   }
