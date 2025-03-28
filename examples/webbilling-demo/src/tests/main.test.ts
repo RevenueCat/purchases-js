@@ -59,7 +59,7 @@ test.describe("Main", () => {
     );
   });
 
-  test("Can purchase a subscription Product", async ({
+  test("Can purchase a subscription product", async ({
     browser,
     browserName,
   }) => {
@@ -71,6 +71,29 @@ test.describe("Main", () => {
     const singleCard = packageCards[1];
 
     await performPurchase(page, singleCard, userId);
+  });
+
+  test("Displays handled form submission errors", async ({
+    browser,
+    browserName,
+  }) => {
+    const userId = `${getUserId(browserName)}_subscription`;
+    const page = await setupTest(browser, userId);
+
+    // Gets all elements that match the selector
+    const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
+    const singleCard = packageCards[1];
+
+    await startPurchaseFlow(singleCard);
+    await enterEmailAndContinue(page, userId);
+
+    // Try with an invalid card declined server side
+    await enterCreditCardDetailsAndContinue(page, "4000 0000 0000 0002");
+    const stripeFrame = page.frameLocator(
+      "iframe[title='Secure payment input frame']",
+    );
+    const errorText = stripeFrame.getByText("Your card was declined.");
+    await expect(errorText).toBeVisible({ timeout: 10000 });
   });
 
   test("Propagates UTM params to metadata when purchasing", async ({
@@ -172,7 +195,7 @@ test.describe("Main", () => {
     );
   });
 
-  test("Can purchase a subscription Product for RC Paywall", async ({
+  test("Can purchase a subscription product for RC Paywall", async ({
     browser,
     browserName,
   }) => {
@@ -201,7 +224,7 @@ test.describe("Main", () => {
     await performPurchase(page, purchaseButton.locator(".."), userId);
   });
 
-  test("Can purchase a consumable Product", async ({
+  test("Can purchase a consumable product", async ({
     browser,
     browserName,
   }) => {
@@ -220,7 +243,7 @@ test.describe("Main", () => {
     await performPurchase(page, singleCard, userId);
   });
 
-  test("Can purchase a non consumable Product", async ({
+  test("Can purchase a non consumable product", async ({
     browser,
     browserName,
   }) => {
@@ -411,9 +434,8 @@ async function startPurchaseFlow(card: Locator) {
 
 async function performPurchase(page: Page, card: Locator, userId: string) {
   await startPurchaseFlow(card);
-
   await enterEmailAndContinue(page, userId);
-  await enterCreditCardDetailsAndContinue(page);
+  await enterCreditCardDetailsAndContinue(page, "4242 4242 4242 4242");
   // Confirm success page has shown.
   const successText = page.getByText("Payment complete");
   await expect(successText).toBeVisible({ timeout: 10000 });
@@ -466,7 +488,10 @@ async function enterEmailAndContinue(
   await page.getByRole("button", { name: "Continue" }).click();
 }
 
-async function enterCreditCardDetailsAndContinue(page: Page): Promise<void> {
+async function enterCreditCardDetailsAndContinue(
+  page: Page,
+  cardNumber: string,
+): Promise<void> {
   // Checmout modal
   const checkoutTitle = page.getByText("Secure Checkout");
   await expect(checkoutTitle).toBeVisible();
@@ -475,7 +500,7 @@ async function enterCreditCardDetailsAndContinue(page: Page): Promise<void> {
   );
 
   const numberInput = stripeFrame.getByPlaceholder("1234 1234 1234");
-  await numberInput.fill("4242 4242 4242 4242");
+  await numberInput.fill(cardNumber);
 
   const expirationYear = (new Date().getFullYear() % 100) + 3;
   await stripeFrame.getByPlaceholder("MM / YY").fill(`01 / ${expirationYear}`);
