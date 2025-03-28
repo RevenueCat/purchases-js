@@ -1,7 +1,7 @@
 {
   "metadata": {
     "toolPackage": "@microsoft/api-extractor",
-    "toolVersion": "7.50.1",
+    "toolVersion": "7.49.0",
     "schemaVersion": 1011,
     "oldestForwardsCompatibleVersion": 1001,
     "tsdocConfig": {
@@ -5355,6 +5355,59 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "@revenuecat/purchases-js!Purchases#setAttributes:member(1)",
+              "docComment": "/**\n * Sets attributes for the current user. Attributes are useful for storing additional, structured information on a customer that can be used elsewhere in the system. For example, you could store your customer's email address or additional system identifiers through the applicable reserved attributes, or store arbitrary facts like onboarding survey responses, feature usage, or other dimensions as custom attributes.\n *\n * @param attributes - A dictionary of attributes to set for the current user.\n *\n * @throws\n *\n * {@link PurchasesError} if there is an error while setting the attributes or if the customer doesn't exist.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setAttributes(attributes: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n               [key: string]: string;\n           }"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<void>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "attributes",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setAttributes"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "@revenuecat/purchases-js!Purchases.setLogLevel:member(1)",
               "docComment": "/**\n * Set the log level. Logs of the given level and below will be printed in the console. Default is `LogLevel.Silent` so no logs will be printed in the console.\n *\n * @param logLevel - LogLevel to set.\n */\n",
               "excerptTokens": [
@@ -5437,7 +5490,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "constructor(\n             errorCode: "
+                  "text": "constructor(\n              errorCode: "
                 },
                 {
                   "kind": "Reference",
@@ -5446,7 +5499,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", \n             message?: "
+                  "text": ", \n              message?: "
                 },
                 {
                   "kind": "Content",
@@ -5454,7 +5507,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", \n             underlyingErrorMessage?: "
+                  "text": ", \n              underlyingErrorMessage?: "
                 },
                 {
                   "kind": "Content",
@@ -5462,7 +5515,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", \n             extra?: "
+                  "text": ", \n              extra?: "
                 },
                 {
                   "kind": "Reference",
