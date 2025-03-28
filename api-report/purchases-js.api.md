@@ -369,6 +369,9 @@ export class Purchases {
     purchase(params: PurchaseParams): Promise<PurchaseResult>;
     // @deprecated
     purchasePackage(rcPackage: Package, customerEmail?: string, htmlTarget?: HTMLElement): Promise<PurchaseResult>;
+    setAttributes(attributes: {
+        [key: string]: string;
+    }): Promise<void>;
     static setLogLevel(logLevel: LogLevel): void;
     static setPlatformInfo(platformInfo: PlatformInfo): void;
 }
