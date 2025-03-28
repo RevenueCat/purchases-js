@@ -730,7 +730,7 @@ export class Purchases {
   public async setAttributes(attributes: {
     [key: string]: string;
   }): Promise<void> {
-    // First check if the customer exists by calling getCustomerInfo
+    // Ensure the customer exists by calling getCustomerInfo
     await this.getCustomerInfo();
     return await this.backend.setAttributes(this._appUserId, attributes);
   }

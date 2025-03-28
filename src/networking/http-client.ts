@@ -1,6 +1,6 @@
 import { type SupportedEndpoint } from "./endpoints";
 import {
-  type BackendErrorCode,
+  BackendErrorCode,
   ErrorCode,
   ErrorCodeUtils,
   PurchasesError,
@@ -76,6 +76,12 @@ async function handleErrors(response: Response, endpoint: SupportedEndpoint) {
           backendErrorMessage,
         );
       }
+    } else if (statusCode === StatusCodes.NOT_FOUND) {
+      // Handle 404 errors specifically
+      throw PurchasesError.getForBackendError(
+        BackendErrorCode.BackendSubscriberNotFound,
+        backendErrorMessage || "The subscriber was not found.",
+      );
     } else {
       throwUnknownError(endpoint, statusCode, errorBodyString);
     }

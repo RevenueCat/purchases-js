@@ -771,7 +771,7 @@ describe("setAttributes request", () => {
   }
 
   test("can set attributes successfully", async () => {
-    setAttributesResponse(HttpResponse.json(null, { status: 200 }));
+    setAttributesResponse(HttpResponse.json({}, { status: 200 }));
     await backend.setAttributes("someAppUserId", {
       age: "24",
       custom_group_id: "abc123",
@@ -780,14 +780,14 @@ describe("setAttributes request", () => {
 
   test("throws an error if the backend returns a server error", async () => {
     setAttributesResponse(
-      HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
+      HttpResponse.json({}, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
     );
     await expectPromiseToError(
       backend.setAttributes("someAppUserId", { age: "24" }),
       new PurchasesError(
         ErrorCode.UnknownBackendError,
         "Unknown backend error.",
-        "Request: setAttributes. Status code: 500. Body: null.",
+        "Request: setAttributes. Status code: 500. Body: {}.",
       ),
     );
   });
@@ -808,6 +808,28 @@ describe("setAttributes request", () => {
         ErrorCode.InvalidCredentialsError,
         "There was a credentials issue. Check the underlying error for more details.",
         "API key was wrong",
+      ),
+    );
+  });
+
+  test("throws a known error if the attributes are invalid", async () => {
+    setAttributesResponse(
+      HttpResponse.json(
+        {
+          code: BackendErrorCode.BackendInvalidSubscriberAttributes,
+          message: "Some subscriber attributes keys were unable to be saved.",
+          attribute_errors: [{ key_name: "age", message: "Invalid attribute" }],
+        },
+        { status: StatusCodes.BAD_REQUEST },
+      ),
+    );
+
+    await expectPromiseToError(
+      backend.setAttributes("someAppUserId", { age: "24" }),
+      new PurchasesError(
+        ErrorCode.InvalidSubscriberAttributesError,
+        "One or more of the attributes sent could not be saved.",
+        "Some subscriber attributes keys were unable to be saved.",
       ),
     );
   });

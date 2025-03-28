@@ -446,35 +446,32 @@ describe("setAttributes", () => {
   test("throws an error if the customer doesn't exist (404)", async () => {
     const purchases = configurePurchases();
     server.use(
-      http.post(
-        "http://localhost:8000/v1/subscribers/someAppUserId/attributes",
-        () => {
-          return HttpResponse.json(
-            {
-              code: BackendErrorCode.BackendEmptyAppUserId,
-              message: "Customer not found",
-            },
-            { status: StatusCodes.NOT_FOUND },
-          );
-        },
-      ),
+      http.get("http://localhost:8000/v1/subscribers/someAppUserId", () => {
+        return HttpResponse.json(
+          {
+            code: BackendErrorCode.BackendSubscriberNotFound,
+            message: "Customer not found",
+          },
+          { status: StatusCodes.NOT_FOUND },
+        );
+      }),
     );
 
     await expectPromiseToError(
       purchases.setAttributes({ name: "John", age: "30" }),
       new PurchasesError(
-        ErrorCode.InvalidAppUserIdError,
-        "The app user id is invalid.",
+        ErrorCode.CustomerInfoError,
+        "There was a problem related to the customer info.",
         "Customer not found",
       ),
     );
   });
 
   test("throws an error if the request is invalid (400)", async () => {
-    const purchases = configurePurchases();
+    const purchases = configurePurchases("400AttributesUserId");
     server.use(
       http.post(
-        "http://localhost:8000/v1/subscribers/someAppUserId/attributes",
+        "http://localhost:8000/v1/subscribers/400AttributesUserId/attributes",
         () => {
           return HttpResponse.json(
             {
@@ -491,17 +488,17 @@ describe("setAttributes", () => {
       purchases.setAttributes({ name: "John", age: "30" }),
       new PurchasesError(
         ErrorCode.InvalidSubscriberAttributesError,
-        "The subscriber attributes are invalid.",
+        "One or more of the attributes sent could not be saved.",
         "Invalid attributes format",
       ),
     );
   });
 
   test("throws an error if the server returns a 5xx error", async () => {
-    const purchases = configurePurchases();
+    const purchases = configurePurchases("500AttributesUserId");
     server.use(
       http.post(
-        "http://localhost:8000/v1/subscribers/someAppUserId/attributes",
+        "http://localhost:8000/v1/subscribers/500AttributesUserId/attributes",
         () => {
           return HttpResponse.json(null, {
             status: StatusCodes.INTERNAL_SERVER_ERROR,
