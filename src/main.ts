@@ -722,6 +722,20 @@ export class Purchases {
   }
 
   /**
+   * Sets attributes for the current user. Attributes are useful for storing additional, structured information on a customer that can be used elsewhere in the system.
+   * For example, you could store your customer's email address or additional system identifiers through the applicable reserved attributes, or store arbitrary facts like onboarding survey responses, feature usage, or other dimensions as custom attributes.
+   * @param attributes - A dictionary of attributes to set for the current user.
+   * @throws {@link PurchasesError} if there is an error while setting the attributes or if the customer doesn't exist.
+   */
+  public async setAttributes(attributes: {
+    [key: string]: string;
+  }): Promise<void> {
+    // First check if the customer exists by calling getCustomerInfo
+    await this.getCustomerInfo();
+    return await this.backend.setAttributes(this._appUserId, attributes);
+  }
+
+  /**
    * Change the current app user id. Returns the customer info for the new
    * user id.
    * @param newAppUserId - The user id to change to.
