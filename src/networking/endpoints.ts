@@ -131,10 +131,26 @@ export class GetCheckoutStatusEndpoint implements Endpoint {
   }
 }
 
+export class SetAttributesEndpoint implements Endpoint {
+  method: HttpMethodType = "POST";
+  name: string = "setAttributes";
+  private readonly appUserId: string;
+
+  constructor(appUserId: string) {
+    this.appUserId = appUserId;
+  }
+
+  urlPath(): string {
+    const encodedAppUserId = encodeURIComponent(this.appUserId);
+    return `${SUBSCRIBERS_PATH}/${encodedAppUserId}/attributes`;
+  }
+}
+
 export type SupportedEndpoint =
   | GetOfferingsEndpoint
   | PurchaseEndpoint
   | GetProductsEndpoint
   | GetCustomerInfoEndpoint
   | GetBrandingInfoEndpoint
-  | GetCheckoutStatusEndpoint;
+  | GetCheckoutStatusEndpoint
+  | SetAttributesEndpoint;
