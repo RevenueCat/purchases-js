@@ -45,7 +45,9 @@
             {$translator.translate(LocalizationKeys.PricingTableTax)}
           </div>
           <div class="rcb-pricing-table-value">
-            <div class="rcb-pricing-table-value-loading">Loading</div>
+            <div class="rcb-pricing-table-value-loading">
+              {$translator.formatPrice(12340000, priceBreakdown.currency)}
+            </div>
           </div>
         </div>
       {:else if priceBreakdown.taxCalculationStatus === "pending"}
@@ -171,7 +173,6 @@
     cursor: progress;
     background-color: var(--rc-color-grey-text-dark);
     user-select: none;
-    padding: 0 4px;
     border-radius: var(--rc-shape-input-button-border-radius);
   }
 
