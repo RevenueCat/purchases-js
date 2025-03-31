@@ -440,6 +440,29 @@ test.describe("Main", () => {
     await navigateToUrl(page, userId);
     await waitForTrackEventPromise;
   });
+
+  test("Can set user attributes", async ({ browser, browserName }) => {
+    const userId = `${getUserId(browserName)}_attributes`;
+    const attributes = {
+      $displayName: "Test User",
+      nickname: "testy",
+    };
+    const page = await setupTest(browser, userId, attributes);
+
+    // Verify the attributes were set by checking the network requests
+    const requestPromise = page.waitForRequest(
+      (request) =>
+        request.url().includes("/v1/subscribers/") &&
+        request.url().includes("/attributes") &&
+        request.method() === "POST",
+    );
+
+    const request = await requestPromise;
+    const requestBody = request.postDataJSON();
+
+    expect(requestBody).toHaveProperty("$displayName", "Test User");
+    expect(requestBody).toHaveProperty("nickname", "testy");
+  });
 });
 
 function successfulEventTrackingResponseMatcher(
@@ -491,6 +514,8 @@ async function setupTest(
     utm_term?: string;
     utm_content?: string;
     optOutOfAutoUTM?: boolean;
+    $displayName?: string;
+    nickname?: string;
   },
 ) {
   const page = await browser.newPage();
@@ -557,6 +582,8 @@ async function navigateToUrl(
     utm_term?: string;
     utm_content?: string;
     optOutOfAutoUTM?: boolean;
+    $displayName?: string;
+    nickname?: string;
   },
 ): Promise<void> {
   const baseUrl =
@@ -573,6 +600,8 @@ async function navigateToUrl(
     utm_content,
     utm_medium,
     optOutOfAutoUTM,
+    $displayName,
+    nickname,
   } = queryString ?? {};
 
   const params = new URLSearchParams();
@@ -599,6 +628,12 @@ async function navigateToUrl(
   }
   if (optOutOfAutoUTM) {
     params.append("optOutOfAutoUTM", optOutOfAutoUTM.toString());
+  }
+  if ($displayName) {
+    params.append("$displayName", $displayName);
+  }
+  if (nickname) {
+    params.append("nickname", nickname);
   }
 
   const url = `${baseUrl}${useRcPaywall ? "rc_paywall" : "paywall"}/${encodeURIComponent(userId)}?${params.toString()}`;
