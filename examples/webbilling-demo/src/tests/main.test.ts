@@ -460,8 +460,21 @@ test.describe("Main", () => {
     const request = await requestPromise;
     const requestBody = request.postDataJSON();
 
-    expect(requestBody).toHaveProperty("$displayName", "Test User");
-    expect(requestBody).toHaveProperty("nickname", "testy");
+    // Verify the attributes are set correctly in the response
+    expect(requestBody).toHaveProperty("attributes");
+    expect(requestBody.attributes).toHaveProperty("$displayName");
+    expect(requestBody.attributes).toHaveProperty("nickname");
+
+    // Verify the values and structure
+    expect(requestBody.attributes["$displayName"]).toHaveProperty(
+      "value",
+      "Test User",
+    );
+    expect(requestBody.attributes["$displayName"]).toHaveProperty(
+      "updated_at_ms",
+    );
+    expect(requestBody.attributes["nickname"]).toHaveProperty("value", "testy");
+    expect(requestBody.attributes["nickname"]).toHaveProperty("updated_at_ms");
   });
 });
 
