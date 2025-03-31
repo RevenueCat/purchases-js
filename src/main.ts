@@ -730,7 +730,12 @@ export class Purchases {
   public async setAttributes(attributes: {
     [key: string]: string | null;
   }): Promise<void> {
-    // Ensure the customer exists by calling getCustomerInfo
+    /*
+     * Ensure the customer exists by calling getCustomerInfo as setAttributes will throw an error
+     * if the customer doesn't exist.
+     *
+     * Note: We may want to optimize this in the future by prefetching customer info during SDK initialization.
+     */
     await this.getCustomerInfo();
     return await this.backend.setAttributes(this._appUserId, attributes);
   }
