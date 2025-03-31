@@ -36,7 +36,7 @@
       {#if isExpanded}
         <Icon name="chevron-up" />
       {:else}
-        <Icon name="chevron-right" />
+        <Icon name="chevron-down" />
       {/if}
     </span>
   </div>
