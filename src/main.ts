@@ -728,7 +728,7 @@ export class Purchases {
    * @throws {@link PurchasesError} if there is an error while setting the attributes or if the customer doesn't exist.
    */
   public async setAttributes(attributes: {
-    [key: string]: string;
+    [key: string]: string | null;
   }): Promise<void> {
     // Ensure the customer exists by calling getCustomerInfo
     await this.getCustomerInfo();

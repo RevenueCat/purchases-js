@@ -370,7 +370,7 @@ export class Purchases {
     // @deprecated
     purchasePackage(rcPackage: Package, customerEmail?: string, htmlTarget?: HTMLElement): Promise<PurchaseResult>;
     setAttributes(attributes: {
-        [key: string]: string;
+        [key: string]: string | null;
     }): Promise<void>;
     static setLogLevel(logLevel: LogLevel): void;
     static setPlatformInfo(platformInfo: PlatformInfo): void;
