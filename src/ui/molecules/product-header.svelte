@@ -52,6 +52,7 @@
   .rcb-product-description {
     font: var(--rc-text-body1-mobile);
     color: var(--rc-color-grey-text-dark);
+    opacity: 0.7;
   }
 
   .rcb-subscribe-to {
