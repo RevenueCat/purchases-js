@@ -174,4 +174,10 @@
       opacity: 0.4;
     }
   }
+
+  @container layout-query-container (width >= 768px) {
+    .rcb-pricing-table-separator {
+      display: none;
+    }
+  }
 </style>
