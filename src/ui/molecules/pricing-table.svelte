@@ -137,6 +137,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--rc-spacing-gapSmall-mobile);
+    font: var(--rc-text-caption-mobile);
   }
 
   .rcb-pricing-table-row {
@@ -144,7 +145,6 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    font: var(--rc-text-caption-mobile);
   }
 
   .rcb-pricing-table-separator {
@@ -152,11 +152,15 @@
     background-color: var(--rc-color-grey-ui-dark);
   }
 
-  .rcb-pricing-table-row:not(.rcb-total) > .rcb-pricing-table-header {
+  .rcb-pricing-table-row > .rcb-pricing-table-header {
     opacity: 0.7;
   }
 
-  .rcb-pricing-table-row.rcb-total > .rcb-pricing-table-header {
+  .rcb-pricing-table-row > .rcb-pricing-table-value {
+    opacity: 1;
+  }
+  .rcb-pricing-table-row.rcb-total > .rcb-pricing-table-header,
+  .rcb-pricing-table-row.rcb-total > .rcb-pricing-table-value {
     opacity: 1;
   }
 
@@ -165,17 +169,19 @@
     animation: rcb-pricing-table-value-loading 1.5s ease-in-out 0s infinite
       normal none running;
     cursor: progress;
-    background-color: var(--rc-color-grey-ui-dark);
+    background-color: var(--rc-color-grey-text-dark);
     user-select: none;
+    padding: 0 4px;
+    border-radius: var(--rc-shape-input-button-border-radius);
   }
 
   @keyframes rcb-pricing-table-value-loading {
     0%,
     100% {
-      opacity: 1;
+      opacity: 0.5;
     }
     50% {
-      opacity: 0.4;
+      opacity: 0.3;
     }
   }
 
@@ -186,14 +192,14 @@
     .rcb-pricing-table {
       gap: var(--rc-spacing-gapSmall-desktop);
     }
-    .rcb-pricing-table-row {
+    .rcb-pricing-table-row > .rcb-pricing-table-header,
+    .rcb-pricing-table-row > .rcb-pricing-table-value {
       font: var(--rc-text-caption-desktop);
       opacity: 0.7;
     }
     .rcb-pricing-table-row.rcb-total {
       padding-top: var(--rc-spacing-gapSmall-desktop);
       font: var(--rc-text-body1-desktop);
-      opacity: 1;
     }
   }
 </style>
