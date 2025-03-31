@@ -204,10 +204,10 @@ export class Backend {
 
   async setAttributes(
     appUserId: string,
-    attributes: { [key: string]: string },
+    attributes: { [key: string]: string | null },
   ): Promise<void> {
     type AttributeValue = {
-      value: string;
+      value: string | null;
       updated_at_ms: number;
     };
 
