@@ -25,7 +25,7 @@
 </script>
 
 {#snippet pricingTable()}
-  <div class="pricing-table">
+  <div class="rcb-pricing-table">
     {#if priceBreakdown.taxCollectionEnabled}
       <div class="rcb-pricing-table-row">
         <div class="rcb-pricing-table-header">
@@ -133,7 +133,7 @@
 {/if}
 
 <style>
-  .pricing-table {
+  .rcb-pricing-table {
     font-size: 12px;
     display: flex;
     flex-direction: column;
