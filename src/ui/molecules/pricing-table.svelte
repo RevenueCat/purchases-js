@@ -138,7 +138,7 @@
   .rcb-pricing-table {
     display: flex;
     flex-direction: column;
-    gap: var(--rc-spacing-gapSmall-mobile);
+    gap: var(--rc-spacing-gapMedium-mobile);
     font: var(--rc-text-caption-mobile);
   }
 
