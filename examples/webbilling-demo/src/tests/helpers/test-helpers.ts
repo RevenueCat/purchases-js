@@ -42,6 +42,8 @@ export async function navigateToLandingUrl(
     utm_content?: string;
     optOutOfAutoUTM?: boolean;
     email?: string;
+    $displayName?: string;
+    nickname?: string;
   },
   apiKey?: string,
 ) {
@@ -61,6 +63,8 @@ export async function navigateToLandingUrl(
     utm_medium,
     optOutOfAutoUTM,
     email,
+    $displayName,
+    nickname,
   } = queryString ?? {};
 
   const params = new URLSearchParams();
@@ -90,6 +94,12 @@ export async function navigateToLandingUrl(
   }
   if (email) {
     params.append("email", email);
+  }
+  if ($displayName) {
+    params.append("$displayName", $displayName);
+  }
+  if (nickname) {
+    params.append("nickname", nickname);
   }
 
   const url = `${BASE_URL}${useRcPaywall ? "rc_paywall" : "paywall"}/${encodeURIComponent(userId)}?${params.toString()}`;
