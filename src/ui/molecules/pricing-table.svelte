@@ -108,7 +108,7 @@
       </div>
     {/if}
 
-    <div class="rcb-pricing-table-row rcb-header rcb-total">
+    <div class="rcb-pricing-table-row rcb-header">
       <div class="rcb-pricing-table-header">
         {$translator.translate(LocalizationKeys.PricingTableTotalDueToday)}
       </div>
@@ -161,8 +161,8 @@
   .rcb-pricing-table-row > .rcb-pricing-table-value {
     opacity: 1;
   }
-  .rcb-pricing-table-row.rcb-total > .rcb-pricing-table-header,
-  .rcb-pricing-table-row.rcb-total > .rcb-pricing-table-value {
+  .rcb-pricing-table-row:last-child > .rcb-pricing-table-header,
+  .rcb-pricing-table-row:last-child > .rcb-pricing-table-value {
     opacity: 1;
   }
 
@@ -198,8 +198,12 @@
       font: var(--rc-text-caption-desktop);
       opacity: 0.7;
     }
-    .rcb-pricing-table-row.rcb-total {
+    .rcb-pricing-table-row:last-child {
       padding-top: var(--rc-spacing-gapSmall-desktop);
+    }
+
+    .rcb-pricing-table-row:last-child > .rcb-pricing-table-header,
+    .rcb-pricing-table-row:last-child > .rcb-pricing-table-value {
       font: var(--rc-text-body1-desktop);
     }
   }
