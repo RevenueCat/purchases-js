@@ -106,8 +106,8 @@
       </div>
     {/if}
 
-    <div class="rcb-pricing-table-row header">
-      <div class="rcb-pricing-table-header total">
+    <div class="rcb-pricing-table-row rcb-header rcb-total">
+      <div class="rcb-pricing-table-header">
         {$translator.translate(LocalizationKeys.PricingTableTotalDueToday)}
       </div>
       <div class="rcb-pricing-table-value">
@@ -134,7 +134,6 @@
 
 <style>
   .rcb-pricing-table {
-    font-size: 12px;
     display: flex;
     flex-direction: column;
     gap: var(--rc-spacing-gapSmall-mobile);
@@ -145,6 +144,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+    font: var(--rc-text-caption-mobile);
   }
 
   .rcb-pricing-table-separator {
@@ -152,8 +152,12 @@
     background-color: var(--rc-color-grey-ui-dark);
   }
 
-  .rcb-pricing-table-row > .rcb-pricing-table-header:not(.total) {
+  .rcb-pricing-table-row:not(.rcb-total) > .rcb-pricing-table-header {
     opacity: 0.7;
+  }
+
+  .rcb-pricing-table-row.rcb-total > .rcb-pricing-table-header {
+    opacity: 1;
   }
 
   .rcb-pricing-table-value-loading {
@@ -178,6 +182,18 @@
   @container layout-query-container (width >= 768px) {
     .rcb-pricing-table-separator {
       display: none;
+    }
+    .rcb-pricing-table {
+      gap: var(--rc-spacing-gapSmall-desktop);
+    }
+    .rcb-pricing-table-row {
+      font: var(--rc-text-caption-desktop);
+      opacity: 0.7;
+    }
+    .rcb-pricing-table-row.rcb-total {
+      padding-top: var(--rc-spacing-gapSmall-desktop);
+      font: var(--rc-text-body1-desktop);
+      opacity: 1;
     }
   }
 </style>
