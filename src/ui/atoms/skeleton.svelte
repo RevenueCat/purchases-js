@@ -16,7 +16,7 @@
     cursor: progress;
     background-color: var(--rc-color-grey-text-dark);
     user-select: none;
-    border-radius: var(--rc-shape-input-button-border-radius);
+    border-radius: 4px;
   }
 
   @keyframes rcb-pricing-table-value-loading {
