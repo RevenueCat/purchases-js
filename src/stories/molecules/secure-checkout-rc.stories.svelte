@@ -3,6 +3,8 @@
   import { defineMeta, setTemplate } from "@storybook/addon-svelte-csf";
   import { withNavbar } from "../decorators/with-navbar";
   import SecureCheckoutRC from "../../ui/molecules/secure-checkout-rc.svelte";
+  import { brandingInfo } from "../fixtures";
+  import { subscriptionOptionWithTrial } from "../fixtures";
 
   const { Story } = defineMeta({
     component: SecureCheckoutRC,
@@ -17,27 +19,17 @@
   });
 </script>
 
+<Story name="Without Extra Info">
+  <SecureCheckoutRC brandingInfo={null} subscriptionOption={null} />
+</Story>
+
 <Story name="With Terms Info">
-  <SecureCheckoutRC
-    termsInfo="By continuing, you agree to our Terms of Service and Privacy Policy."
-    trialInfo={null}
-  />
+  <SecureCheckoutRC {brandingInfo} />
 </Story>
 
-<Story name="With Trial Info">
+<Story name="With Terms and Trial Info">
   <SecureCheckoutRC
-    termsInfo={null}
-    trialInfo="Your free trial will begin today and you won't be charged until the trial ends on May 15, 2023."
+    {brandingInfo}
+    subscriptionOption={subscriptionOptionWithTrial}
   />
-</Story>
-
-<Story name="With Both Info">
-  <SecureCheckoutRC
-    termsInfo="By continuing, you agree to our Terms of Service and Privacy Policy."
-    trialInfo="Your free trial will begin today and you won't be charged until the trial ends on May 15, 2023."
-  />
-</Story>
-
-<Story name="Without Any Info">
-  <SecureCheckoutRC termsInfo={null} trialInfo={null} />
 </Story>

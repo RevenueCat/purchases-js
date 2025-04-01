@@ -1,16 +1,38 @@
+import type { TaxBreakdown } from "../networking/responses/checkout-calculate-tax-response";
 import type { PurchaseFlowError } from "../helpers/purchase-operation-helper";
 
-export type CurrentView =
-  | "present-offer"
-  | "needs-auth-info"
-  | "processing-auth-info"
-  | "needs-payment-info"
-  | "polling-purchase-status"
-  | "loading"
+export type CurrentPage =
+  | "email-entry"
+  | "email-entry-processing"
+  | "payment-entry-loading"
+  | "payment-entry"
+  | "payment-entry-processing"
   | "success"
   | "error";
 
 export type ContinueHandlerParams = {
   authInfo?: { email: string };
   error?: PurchaseFlowError;
+};
+
+export type TaxCalculationStatus = "pending" | "loading" | "calculated";
+
+export type TaxCalculationPendingReason =
+  | "needs_postal_code"
+  | "needs_state_or_postal_code";
+
+export type PriceBreakdown = {
+  currency: string;
+  totalAmountInMicros: number;
+  taxCollectionEnabled: boolean;
+  totalExcludingTaxInMicros: number;
+  taxCalculationStatus: TaxCalculationStatus | null;
+  pendingReason: TaxCalculationPendingReason | null;
+  taxAmountInMicros: number | null;
+  taxBreakdown: TaxBreakdown[] | null;
+};
+
+export type TaxCustomerDetails = {
+  countryCode: string | undefined;
+  postalCode: string | undefined;
 };

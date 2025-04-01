@@ -9,7 +9,6 @@
     PurchaseOperationHelper,
   } from "../helpers/purchase-operation-helper";
 
-  import { toProductInfoStyleVar } from "./theme/utils";
   import { type RedemptionInfo } from "../entities/redemption-info";
   import {
     type CustomTranslations,
@@ -19,15 +18,20 @@
     englishLocale,
     translatorContextKey,
   } from "./localization/constants";
-  import { type CurrentView } from "./ui-types";
+  import {
+    type PriceBreakdown,
+    type TaxCustomerDetails,
+    type CurrentPage,
+  } from "./ui-types";
   import PurchasesUiInner from "./purchases-ui-inner.svelte";
-  import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
   import { type ContinueHandlerParams } from "./ui-types";
   import { type IEventsTracker } from "../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "./constants";
   import { createCheckoutFlowErrorEvent } from "../behavioural-events/sdk-event-helpers";
   import type { PurchaseMetadata } from "../entities/offerings";
   import { writable } from "svelte/store";
+  import { GatewayParams } from "../networking/responses/stripe-elements";
+  import { ALLOW_TAX_CALCULATION_FF } from "../helpers/constants";
 
   export let customerEmail: string | undefined;
   export let appUserId: string;
@@ -50,15 +54,33 @@
   export let customTranslations: CustomTranslations = {};
   export let isInElement: boolean = false;
 
-  let colorVariables = "";
-  let productDetails: Product | null = null;
-  let paymentInfoCollectionMetadata: CheckoutStartResponse | null = null;
+  let productDetails: Product = rcPackage.webBillingProduct;
   let lastError: PurchaseFlowError | null = null;
   const productId = rcPackage.webBillingProduct.identifier ?? null;
 
-  let currentView: CurrentView = "present-offer";
+  let currentPage: CurrentPage | null = null;
   let redemptionInfo: RedemptionInfo | null = null;
   let operationSessionId: string | null = null;
+  let gatewayParams: GatewayParams = {};
+
+  let priceBreakdown: PriceBreakdown = {
+    currency: productDetails.currentPrice.currency,
+    totalAmountInMicros: productDetails.currentPrice.amountMicros,
+    totalExcludingTaxInMicros: productDetails.currentPrice.amountMicros,
+    taxCollectionEnabled: false,
+    taxCalculationStatus: null,
+    pendingReason: null,
+    taxAmountInMicros: null,
+    taxBreakdown: null,
+  };
+
+  if (
+    ALLOW_TAX_CALCULATION_FF &&
+    brandingInfo?.gateway_tax_collection_enabled
+  ) {
+    priceBreakdown.taxCollectionEnabled = true;
+    priceBreakdown.taxCalculationStatus = "pending";
+  }
 
   // Setting the context for the Localized components
   let translator: Translator = new Translator(
@@ -88,22 +110,6 @@
   setContext(eventsTrackerContextKey, eventsTracker);
 
   onMount(async () => {
-    productDetails = rcPackage.webBillingProduct;
-
-    colorVariables = toProductInfoStyleVar(brandingInfo?.appearance);
-
-    if (currentView === "present-offer") {
-      if (customerEmail) {
-        handleCheckoutStart();
-      } else {
-        currentView = "needs-auth-info";
-      }
-
-      return;
-    }
-  });
-
-  const handleCheckoutStart = () => {
     if (productId === null) {
       handleError(
         new PurchaseFlowError(
@@ -112,15 +118,26 @@
         ),
       );
       return;
-    } else if (currentView === "present-offer") {
-      currentView = "loading";
     }
 
+    if (!customerEmail) {
+      currentPage = "email-entry";
+    } else {
+      currentPage = "payment-entry-loading";
+      handleCheckoutStart();
+    }
+  });
+
+  const handleCheckoutStart = () => {
     if (!customerEmail) {
       handleError(
         new PurchaseFlowError(PurchaseFlowErrorCode.MissingEmailError),
       );
       return;
+    }
+
+    if (priceBreakdown.taxCollectionEnabled) {
+      priceBreakdown.taxCalculationStatus = "loading";
     }
 
     purchaseOperationHelper
@@ -134,8 +151,14 @@
       )
       .then((result) => {
         lastError = null;
-        currentView = "needs-payment-info";
-        paymentInfoCollectionMetadata = result;
+        currentPage = "payment-entry";
+        gatewayParams = result.gateway_params;
+      })
+      .then(async (result) => {
+        if (priceBreakdown.taxCollectionEnabled) {
+          await refreshTaxCalculation();
+        }
+        return result;
       })
       .catch((e: PurchaseFlowError) => {
         handleError(e);
@@ -148,22 +171,22 @@
       return;
     }
 
-    if (currentView === "needs-auth-info") {
+    if (currentPage === "email-entry") {
       if (params.authInfo) {
         customerEmail = params.authInfo.email;
-        currentView = "processing-auth-info";
+        currentPage = "email-entry-processing";
       }
 
       handleCheckoutStart();
       return;
     }
 
-    if (currentView === "needs-payment-info") {
-      currentView = "polling-purchase-status";
+    if (currentPage === "payment-entry") {
+      currentPage = "payment-entry-processing";
       purchaseOperationHelper
         .pollCurrentPurchaseForCompletion()
         .then((pollResult) => {
-          currentView = "success";
+          currentPage = "success";
           redemptionInfo = pollResult.redemptionInfo;
           operationSessionId = pollResult.operationSessionId;
         })
@@ -173,13 +196,42 @@
       return;
     }
 
-    if (currentView === "success" || currentView === "error") {
+    if (currentPage === "success" || currentPage === "error") {
       onFinished(operationSessionId!, redemptionInfo);
       return;
     }
 
-    currentView = "success";
+    currentPage = "success";
   };
+
+  async function refreshTaxCalculation(
+    taxCustomerDetails: TaxCustomerDetails | undefined = undefined,
+  ) {
+    // TODO: Handle tax calculation errors including:
+    // - missing state
+    // - missing postal code
+    // - generic
+    // - unexpected error
+
+    priceBreakdown.taxCalculationStatus = "loading";
+
+    const taxCalculation = await purchaseOperationHelper.checkoutCalculateTax(
+      taxCustomerDetails?.countryCode,
+      taxCustomerDetails?.postalCode,
+    );
+
+    priceBreakdown.taxCalculationStatus = "calculated";
+    priceBreakdown.totalAmountInMicros = taxCalculation.total_amount_in_micros;
+    priceBreakdown.taxAmountInMicros = taxCalculation.tax_amount_in_micros;
+    priceBreakdown.totalExcludingTaxInMicros =
+      taxCalculation.total_excluding_tax_in_micros;
+    priceBreakdown.taxBreakdown =
+      taxCalculation.pricing_phases.base.tax_breakdown;
+    priceBreakdown.pendingReason = null;
+
+    gatewayParams.elements_configuration =
+      taxCalculation.gateway_params.elements_configuration;
+  }
 
   const handleError = (e: PurchaseFlowError) => {
     const event = createCheckoutFlowErrorEvent({
@@ -187,13 +239,13 @@
       errorMessage: e.message,
     });
     eventsTracker.trackSDKEvent(event);
-    if (currentView === "processing-auth-info" && e.isRecoverable()) {
+    if (currentPage === "email-entry-processing" && e.isRecoverable()) {
       lastError = e;
-      currentView = "needs-auth-info";
+      currentPage = "email-entry";
       return;
     }
     lastError = e;
-    currentView = "error";
+    currentPage = "error";
   };
 
   const closeWithError = () => {
@@ -209,16 +261,17 @@
 
 <PurchasesUiInner
   isSandbox={purchases.isSandbox()}
-  {currentView}
+  currentPage={currentPage as CurrentPage}
   {brandingInfo}
   {productDetails}
   purchaseOptionToUse={purchaseOption}
   {handleContinue}
   {lastError}
-  {paymentInfoCollectionMetadata}
+  {gatewayParams}
   {purchaseOperationHelper}
   {closeWithError}
-  {colorVariables}
   {isInElement}
   {onClose}
+  {priceBreakdown}
+  onTaxCustomerDetailsUpdated={refreshTaxCalculation}
 />

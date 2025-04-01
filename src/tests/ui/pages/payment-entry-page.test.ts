@@ -1,10 +1,11 @@
 import { fireEvent, render, screen } from "@testing-library/svelte";
 import { describe, test, expect, vi, beforeEach } from "vitest";
-import StateNeedsPaymentInfo from "../../../ui/states/state-needs-payment-info.svelte";
+import PaymentEntryPage from "../../../ui/pages/payment-entry-page.svelte";
 import {
   brandingInfo,
   rcPackage,
   checkoutStartResponse,
+  priceBreakdownTaxDisabled,
 } from "../../../stories/fixtures";
 import { SDKEventName } from "../../../behavioural-events/sdk-events";
 import { createEventsTrackerMock } from "../../mocks/events-tracker-mock-provider";
@@ -19,6 +20,7 @@ import type {
   StripeError,
   StripePaymentElementChangeEvent,
 } from "@stripe/stripe-js";
+import type { ComponentProps } from "svelte";
 
 const eventsTrackerMock = createEventsTrackerMock();
 const purchaseOperationHelperMock: PurchaseOperationHelper = {
@@ -27,13 +29,15 @@ const purchaseOperationHelperMock: PurchaseOperationHelper = {
   checkoutComplete: async () => Promise.resolve(null),
 } as unknown as PurchaseOperationHelper;
 
-const basicProps = {
+const basicProps: ComponentProps<PaymentEntryPage> = {
   brandingInfo: brandingInfo,
-  purchaseOption: rcPackage.rcBillingProduct.defaultPurchaseOption,
-  productDetails: rcPackage.rcBillingProduct,
+  priceBreakdown: priceBreakdownTaxDisabled,
+  purchaseOption: rcPackage.webBillingProduct.defaultPurchaseOption,
+  productDetails: rcPackage.webBillingProduct,
   processing: false,
-  paymentInfoCollectionMetadata: checkoutStartResponse,
   purchaseOperationHelper: purchaseOperationHelperMock,
+  checkoutStartResponse: checkoutStartResponse,
+  initialTaxCalculation: null,
   onClose: vi.fn(),
   onContinue: vi.fn(),
 };
@@ -70,7 +74,7 @@ describe("PurchasesUI", () => {
   });
 
   test("tracks the PaymentEntryImpression event when the payment entry is displayed", async () => {
-    render(StateNeedsPaymentInfo, {
+    render(PaymentEntryPage, {
       props: {
         ...basicProps,
       },
@@ -113,7 +117,7 @@ describe("PurchasesUI", () => {
       paymentElement,
     );
 
-    render(StateNeedsPaymentInfo, {
+    render(PaymentEntryPage, {
       props: { ...basicProps },
       context: defaultContext,
     });
@@ -137,7 +141,7 @@ describe("PurchasesUI", () => {
       new Error("Failed to initialize payment form"),
     );
 
-    render(StateNeedsPaymentInfo, {
+    render(PaymentEntryPage, {
       props: { ...basicProps },
       context: defaultContext,
     });
@@ -183,7 +187,7 @@ describe("PurchasesUI", () => {
       // @ts-expect-error - This is a mock
       paymentElement,
     );
-    render(StateNeedsPaymentInfo, {
+    render(PaymentEntryPage, {
       props: { ...basicProps },
       context: defaultContext,
     });
@@ -218,7 +222,7 @@ describe("PurchasesUI", () => {
       stripeInitializationMock,
     );
 
-    render(StateNeedsPaymentInfo, {
+    render(PaymentEntryPage, {
       props: { ...basicProps },
       context: defaultContext,
     });

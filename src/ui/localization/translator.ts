@@ -20,7 +20,7 @@ export type EmptyString = "";
  * ```typescript
  * const customTranslations = {
  *  en: {
- *    "state_needs_auth_info.email_step_title": "Billing email",
+ *    "email_entry_page.email_step_title": "Billing email",
  *   }
  * }
  * ```

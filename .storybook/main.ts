@@ -24,6 +24,8 @@ const config: StorybookConfig = {
     VITE_STORYBOOK_PUBLISHABLE_API_KEY:
       process.env.VITE_STORYBOOK_PUBLISHABLE_API_KEY || "",
     VITE_STORYBOOK_ACCOUNT_ID: process.env.VITE_STORYBOOK_ACCOUNT_ID || "",
+    VITE_ALLOW_TAX_CALCULATION_FF:
+      process.env.VITE_ALLOW_TAX_CALCULATION_FF || "false",
   }),
 };
 export default config;

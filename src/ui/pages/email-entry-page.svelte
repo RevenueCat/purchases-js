@@ -57,7 +57,7 @@
 <div class="rcb-state-container">
   <span class="rcb-auth-info-title">
     <label for="email">
-      <Localized key={LocalizationKeys.StateNeedsAuthInfoEmailStepTitle} />
+      <Localized key={LocalizationKeys.EmailEntryPageEmailStepTitle} />
     </label></span
   >
   <form on:submit|preventDefault={handleContinue}>
@@ -69,7 +69,7 @@
             name="email"
             inputmode="email"
             placeholder={$translator.translate(
-              LocalizationKeys.StateNeedsAuthInfoEmailInputPlaceholder,
+              LocalizationKeys.EmailEntryPageEmailInputPlaceholder,
             )}
             autocapitalize="off"
             autocomplete="email"
@@ -85,7 +85,7 @@
     <ModalFooter>
       <RowLayout>
         <Button disabled={processing} type="submit" loading={processing}>
-          <Localized key={LocalizationKeys.StateNeedsAuthInfoButtonContinue} />
+          <Localized key={LocalizationKeys.EmailEntryPageButtonContinue} />
         </Button>
       </RowLayout>
       <div class="secure-checkout-container">

@@ -4,6 +4,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import PurchasesUI from "../../ui/purchases-ui.svelte";
 import {
   brandingInfo,
+  checkoutCalculateTaxResponse,
   checkoutStartResponse,
   rcPackage,
   subscriptionOption,
@@ -18,12 +19,18 @@ import {
 import { SDKEventName } from "../../behavioural-events/sdk-events";
 import { createEventsTrackerMock } from "../mocks/events-tracker-mock-provider";
 import type { CheckoutStartResponse } from "../../networking/responses/checkout-start-response";
+import type { CheckoutCalculateTaxResponse } from "../../networking/responses/checkout-calculate-tax-response";
+import * as constants from "../../helpers/constants";
 
 const eventsTrackerMock = createEventsTrackerMock();
 
 const purchaseOperationHelperMock: PurchaseOperationHelper = {
   checkoutStart: async () =>
     Promise.resolve(checkoutStartResponse as CheckoutStartResponse),
+  checkoutCalculateTax: async () =>
+    Promise.resolve(
+      checkoutCalculateTaxResponse as CheckoutCalculateTaxResponse,
+    ),
 } as unknown as PurchaseOperationHelper;
 
 const purchasesMock: Purchases = {
@@ -61,6 +68,11 @@ describe("PurchasesUI", () => {
       ),
     );
 
+    vi.spyOn(
+      purchaseOperationHelperMock,
+      "checkoutCalculateTax",
+    ).mockResolvedValue(checkoutCalculateTaxResponse);
+
     render(PurchasesUI, {
       props: { ...basicProps, customerEmail: undefined },
     });
@@ -71,6 +83,8 @@ describe("PurchasesUI", () => {
     });
     const continueButton = screen.getByText("Continue");
     await fireEvent.click(continueButton);
+
+    await new Promise(process.nextTick);
 
     expect(screen.getByText(/Email domain is not valid/)).toBeInTheDocument();
   });
@@ -101,6 +115,86 @@ describe("PurchasesUI", () => {
     await fireEvent.click(continueButton);
 
     expect(screen.queryByText(/Email is not valid/)).not.toBeInTheDocument();
+  });
+
+  test("performs tax calculation when gateway_tax_collection_enabled is true and VITE_ALLOW_TAX_CALCULATION_FF is enabled", async () => {
+    vi.spyOn(constants, "ALLOW_TAX_CALCULATION_FF", "get").mockReturnValue(
+      true,
+    );
+
+    vi.spyOn(purchaseOperationHelperMock, "checkoutStart").mockResolvedValue(
+      checkoutStartResponse,
+    );
+
+    const calculateTaxSpy = vi
+      .spyOn(purchaseOperationHelperMock, "checkoutCalculateTax")
+      .mockResolvedValue(checkoutCalculateTaxResponse);
+
+    render(PurchasesUI, {
+      props: {
+        ...basicProps,
+        brandingInfo: {
+          ...brandingInfo,
+          gateway_tax_collection_enabled: true,
+        },
+      },
+    });
+
+    await new Promise(process.nextTick);
+
+    expect(calculateTaxSpy).toHaveBeenCalled();
+  });
+
+  test("does not perform tax calculation when VITE_ALLOW_TAX_CALCULATION_FF is disabled, even if gateway_tax_collection_enabled is true", async () => {
+    vi.spyOn(constants, "ALLOW_TAX_CALCULATION_FF", "get").mockReturnValue(
+      false,
+    );
+
+    vi.spyOn(purchaseOperationHelperMock, "checkoutStart").mockResolvedValue(
+      checkoutStartResponse,
+    );
+
+    const calculateTaxSpy = vi
+      .spyOn(purchaseOperationHelperMock, "checkoutCalculateTax")
+      .mockResolvedValue(checkoutCalculateTaxResponse);
+
+    render(PurchasesUI, {
+      props: {
+        ...basicProps,
+        brandingInfo: {
+          ...brandingInfo,
+          gateway_tax_collection_enabled: true,
+        },
+      },
+    });
+
+    await new Promise(process.nextTick);
+
+    expect(calculateTaxSpy).not.toHaveBeenCalled();
+  });
+
+  test("does not perform tax calculation when gateway_tax_collection_enabled is false", async () => {
+    vi.spyOn(purchaseOperationHelperMock, "checkoutStart").mockResolvedValue(
+      checkoutStartResponse,
+    );
+
+    const calculateTaxSpy = vi
+      .spyOn(purchaseOperationHelperMock, "checkoutCalculateTax")
+      .mockResolvedValue(checkoutCalculateTaxResponse);
+
+    render(PurchasesUI, {
+      props: {
+        ...basicProps,
+        brandingInfo: {
+          ...brandingInfo,
+          gateway_tax_collection_enabled: false,
+        },
+      },
+    });
+
+    await new Promise(process.nextTick);
+
+    expect(calculateTaxSpy).not.toHaveBeenCalled();
   });
 
   test("NOTs render CheckoutBillingFormImpression when email has been provided", async () => {

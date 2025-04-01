@@ -9,7 +9,7 @@ describe("buildEventContext", () => {
       value: {
         search: "?utm_source=google&utm_medium=cpc&utm_campaign=spring_sale",
         pathname: "/home",
-        href: "https://example.com/home?utm_source=google&utm_medium=cpc&utm_campaign=spring_sale",
+        origin: "https://example.com",
       },
       writable: true,
     });
@@ -67,8 +67,7 @@ describe("buildEventContext", () => {
       utmContent: null,
       utmTerm: null,
       pageReferrer: "https://referrer.com",
-      pageUrl:
-        "https://example.com/home?utm_source=google&utm_medium=cpc&utm_campaign=spring_sale",
+      pageUrl: "https://example.com/home",
       pageTitle: "Example Page",
       source: "sdk",
     });

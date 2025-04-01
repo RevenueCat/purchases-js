@@ -13,11 +13,11 @@
   import { eventsTrackerContextKey } from "../constants";
   import { type ContinueHandlerParams } from "../ui-types";
   import { type Writable } from "svelte/store";
-  export let productDetails: Product | null = null;
+  export let productDetails: Product;
   export let onContinue: (params?: ContinueHandlerParams) => void;
 
   const isSubscription =
-    productDetails?.productType === ProductType.Subscription;
+    productDetails.productType === ProductType.Subscription;
   const translator: Writable<Translator> = getContext(translatorContextKey);
   const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
 
@@ -40,10 +40,10 @@
 
 <MessageLayout
   type="success"
-  title={$translator.translate(LocalizationKeys.StateSuccessPurchaseSuccessful)}
+  title={$translator.translate(LocalizationKeys.SuccessPagePurchaseSuccessful)}
   onContinue={handleContinue}
   closeButtonTitle={$translator.translate(
-    LocalizationKeys.StateSuccessButtonClose,
+    LocalizationKeys.SuccessPageButtonClose,
   )}
 >
   {#snippet icon()}
@@ -51,7 +51,7 @@
   {/snippet}
   {#snippet message()}
     {#if isSubscription}
-      <Localized key={LocalizationKeys.StateSuccessSubscriptionNowActive} />
+      <Localized key={LocalizationKeys.SuccessPageSubscriptionNowActive} />
     {/if}
   {/snippet}
 </MessageLayout>

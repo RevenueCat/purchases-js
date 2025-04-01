@@ -1,6 +1,5 @@
 <script lang="ts">
   import { getContext, onMount } from "svelte";
-  import Button from "../atoms/button.svelte";
   import type { StripeElementLocale } from "@stripe/stripe-js";
   import type { Product, PurchaseOption } from "../../entities/offerings";
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
@@ -9,17 +8,19 @@
 
   import { translatorContextKey } from "../localization/constants";
   import { Translator } from "../localization/translator";
-  import Localized from "../localization/localized.svelte";
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import SecureCheckoutRc from "../molecules/secure-checkout-rc.svelte";
-  import { type CheckoutStartResponse } from "../../networking/responses/checkout-start-response";
   import {
     PurchaseFlowError,
     PurchaseFlowErrorCode,
     PurchaseOperationHelper,
   } from "../../helpers/purchase-operation-helper";
-  import { type ContinueHandlerParams } from "../ui-types";
+  import {
+    type TaxCustomerDetails,
+    type ContinueHandlerParams,
+    type PriceBreakdown,
+  } from "../ui-types";
   import { type IEventsTracker } from "../../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "../constants";
   import {
@@ -27,25 +28,27 @@
     createCheckoutPaymentGatewayErrorEvent,
   } from "../../behavioural-events/sdk-event-helpers";
   import { SDKEventName } from "../../behavioural-events/sdk-events";
-  import StateLoading from "./state-loading.svelte";
-  import { getNextRenewalDate } from "../../helpers/duration-helper";
-  import { formatPrice } from "../../helpers/price-labels";
+  import Loading from "../molecules/loading.svelte";
   import { type Writable } from "svelte/store";
-  import StripePaymentElements from "../molecules/stripe-payment-elements.svelte";
   import {
-    PaymentElementError,
+    type PaymentElementError,
     PaymentElementErrorCode,
   } from "../types/payment-element-error";
+  import PaymentButton from "../molecules/payment-button.svelte";
+  import StripePaymentElements from "../molecules/stripe-payment-elements.svelte";
+  import { type GatewayParams } from "../../networking/responses/stripe-elements";
 
   export let onContinue: (params?: ContinueHandlerParams) => void;
-  export let paymentInfoCollectionMetadata: CheckoutStartResponse;
+  export let gatewayParams: GatewayParams = {};
+  export let priceBreakdown: PriceBreakdown;
   export let processing = false;
   export let productDetails: Product;
   export let purchaseOption: PurchaseOption;
   export let brandingInfo: BrandingInfoResponse | null;
   export let purchaseOperationHelper: PurchaseOperationHelper;
-
-  const gatewayParams = paymentInfoCollectionMetadata.gateway_params;
+  export let onTaxCustomerDetailsUpdated: (
+    customerDetails: TaxCustomerDetails,
+  ) => void;
 
   let isStripeLoading = true;
   let stripeLocale: StripeElementLocale | undefined;
@@ -149,7 +152,7 @@
 
 <div class="rc-checkout-container">
   {#if isStripeLoading || processing}
-    <StateLoading />
+    <Loading />
   {/if}
   <!-- <TextSeparator text="Pay by card" /> -->
   <form
@@ -171,65 +174,23 @@
           onPaymentInfoChange={handlePaymentInfoChange}
           onSubmissionSuccess={handlePaymentSubmissionSuccess}
           onConfirmationSuccess={onContinue}
+          taxCollectionEnabled={priceBreakdown.taxCollectionEnabled}
+          {onTaxCustomerDetailsUpdated}
         />
       </div>
 
       <div class="rc-checkout-pay-container">
         {#if !modalErrorMessage}
-          <Button
-            disabled={processing || !isPaymentInfoComplete}
-            testId="PayButton"
-          >
-            {#if subscriptionOption?.trial}
-              <Localized
-                key={LocalizationKeys.StateNeedsPaymentInfoButtonStartTrial}
-              />
-            {:else}
-              <Localized
-                key={LocalizationKeys.StateNeedsPaymentInfoButtonPay}
-              />
-            {/if}
-          </Button>
+          <PaymentButton
+            disabled={processing ||
+              !isPaymentInfoComplete ||
+              priceBreakdown.taxCalculationStatus === "loading"}
+            {subscriptionOption}
+          />
         {/if}
 
         <div class="rc-checkout-secure-container">
-          <SecureCheckoutRc
-            termsInfo={$translator.translate(
-              LocalizationKeys.StateNeedsPaymentInfoTermsInfo,
-              {
-                appName: brandingInfo?.app_name,
-              },
-            )}
-            trialInfo={subscriptionOption?.base?.price &&
-            subscriptionOption?.trial?.period &&
-            subscriptionOption?.base?.period &&
-            subscriptionOption?.base?.period?.unit
-              ? $translator.translate(
-                  LocalizationKeys.StateNeedsPaymentInfoTrialInfo,
-                  {
-                    price: formatPrice(
-                      subscriptionOption?.base?.price.amountMicros,
-                      subscriptionOption?.base?.price.currency,
-                      stripeLocale,
-                    ),
-                    perFrequency: $translator.translatePeriodFrequency(
-                      subscriptionOption?.base?.period?.number || 1,
-                      subscriptionOption?.base?.period?.unit,
-                      { useMultipleWords: true },
-                    ),
-                    renewalDate: $translator.translateDate(
-                      getNextRenewalDate(
-                        new Date(),
-                        subscriptionOption.trial.period ||
-                          subscriptionOption.base.period,
-                        true,
-                      ) as Date,
-                      { year: "numeric", month: "long", day: "numeric" },
-                    ),
-                  },
-                )
-              : null}
-          />
+          <SecureCheckoutRc {brandingInfo} {subscriptionOption} />
         </div>
       </div>
     </div>
@@ -239,7 +200,7 @@
         title={null}
         type="error"
         closeButtonTitle={$translator.translate(
-          LocalizationKeys.StateErrorButtonTryAgain,
+          LocalizationKeys.ErrorButtonTryAgain,
         )}
         onContinue={handleErrorTryAgain}
       >

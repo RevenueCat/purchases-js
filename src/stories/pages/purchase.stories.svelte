@@ -15,8 +15,8 @@
     subscriptionOption,
     subscriptionOptionWithTrial,
     checkoutStartResponse,
+    priceBreakdownTaxDisabled,
   } from "../fixtures";
-  import { toProductInfoStyleVar } from "../../ui/theme/utils";
   import { PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
 
   const defaultArgs = {
@@ -26,8 +26,6 @@
     lastError: purchaseFlowError,
     onContinue: () => {},
   };
-
-  let paymentInfoCollectionMetadata: any;
 
   let { Story } = defineMeta({
     title: "Pages/Purchase",
@@ -41,12 +39,6 @@
         diffThreshold: 0.49,
       },
     },
-    loaders: [
-      async () => {
-        paymentInfoCollectionMetadata = { ...checkoutStartResponse };
-        return { paymentInfoCollectionMetadata };
-      },
-    ],
   });
 </script>
 
@@ -59,33 +51,33 @@
   context: StoryContext<typeof Story>,
 )}
   {@const brandingInfo = brandingInfos[context.globals.brandingName]}
-  {@const colorVariables = toProductInfoStyleVar(brandingInfo.appearance)}
   <PurchasesInner
     isSandbox={args.isSandbox}
-    currentView={args.currentView}
+    currentPage={args.currentPage}
     productDetails={args.productDetails}
     purchaseOptionToUse={args.purchaseOptionToUse}
     {brandingInfo}
-    {colorVariables}
     handleContinue={() => {}}
     closeWithError={() => {}}
     lastError={null}
-    {paymentInfoCollectionMetadata}
+    gatewayParams={checkoutStartResponse.gateway_params}
+    priceBreakdown={priceBreakdownTaxDisabled}
     purchaseOperationHelper={null as unknown as PurchaseOperationHelper}
     isInElement={context.globals.viewport === "embedded"}
+    onTaxCustomerDetailsUpdated={() => {}}
   />
 {/snippet}
 
-<Story name="Email Input" args={{ currentView: "needs-auth-info" }} />
+<Story name="Email Input" args={{ currentPage: "email-entry" }} />
 <Story
   name="Email Input (with Sandbox Banner)"
-  args={{ currentView: "needs-auth-info", isSandbox: true }}
+  args={{ currentPage: "email-entry", isSandbox: true }}
 />
 
 <Story
   name="Email Input (with Trial Product)"
   args={{
-    currentView: "needs-auth-info",
+    currentPage: "email-entry",
     isSandbox: true,
     productDetails: {
       ...product,
@@ -94,12 +86,12 @@
     purchaseOptionToUse: subscriptionOptionWithTrial,
   }}
 />
-<Story name="Checkout" args={{ currentView: "needs-payment-info" }} />
+<Story name="Checkout" args={{ currentPage: "payment-entry" }} />
 <Story
   name="Checkout (with Trial Product)"
   args={{
     ...defaultArgs,
-    currentView: "needs-payment-info",
+    currentPage: "payment-entry",
     productDetails: {
       ...product,
       subscriptionOptions: {
@@ -111,6 +103,6 @@
     defaultPurchaseOption: subscriptionOptionWithTrial,
   }}
 />
-<Story name="Loading" args={{ currentView: "loading" }} />
-<Story name="Payment complete" args={{ currentView: "success" }} />
-<Story name="Payment failed" args={{ currentView: "error" }} />
+<Story name="Loading" args={{ currentPage: "payment-entry-loading" }} />
+<Story name="Payment complete" args={{ currentPage: "success" }} />
+<Story name="Payment failed" args={{ currentPage: "error" }} />
