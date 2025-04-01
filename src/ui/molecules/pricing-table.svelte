@@ -8,6 +8,7 @@
   import { getNextRenewalDate } from "../../helpers/duration-helper";
   import { type PricingPhase } from "../../entities/offerings";
   import PricingDropdown from "./pricing-dropdown.svelte";
+  import Skeleton from "../atoms/skeleton.svelte";
 
   interface Props {
     priceBreakdown: PriceBreakdown;
@@ -45,9 +46,9 @@
             {$translator.translate(LocalizationKeys.PricingTableTax)}
           </div>
           <div class="rcb-pricing-table-value">
-            <div class="rcb-pricing-table-value-loading">
+            <Skeleton>
               {$translator.formatPrice(12340000, priceBreakdown.currency)}
-            </div>
+            </Skeleton>
           </div>
         </div>
       {:else if priceBreakdown.taxCalculationStatus === "pending"}
@@ -164,26 +165,6 @@
   .rcb-pricing-table-row:last-child > .rcb-pricing-table-header,
   .rcb-pricing-table-row:last-child > .rcb-pricing-table-value {
     opacity: 1;
-  }
-
-  .rcb-pricing-table-value-loading {
-    color: transparent;
-    animation: rcb-pricing-table-value-loading 1.5s ease-in-out 0s infinite
-      normal none running;
-    cursor: progress;
-    background-color: var(--rc-color-grey-text-dark);
-    user-select: none;
-    border-radius: var(--rc-shape-input-button-border-radius);
-  }
-
-  @keyframes rcb-pricing-table-value-loading {
-    0%,
-    100% {
-      opacity: 0.5;
-    }
-    50% {
-      opacity: 0.3;
-    }
   }
 
   @container layout-query-container (width >= 768px) {
