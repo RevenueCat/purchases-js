@@ -167,6 +167,7 @@
           bind:submit={stripeSubmit}
           bind:confirm={stripeConfirm}
           bind:stripeLocale
+          bind:priceBreakdown
           {gatewayParams}
           {brandingInfo}
           onLoadingComplete={handleStripeLoadingComplete}
@@ -252,6 +253,7 @@
       flex-grow: 1;
       justify-content: flex-end;
     }
+
     .rc-checkout-form {
       flex-grow: 1;
     }

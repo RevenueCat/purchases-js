@@ -10,14 +10,13 @@
 
   import {
     brandingInfos,
+    checkoutStartResponse,
+    priceBreakdownTaxDisabled,
     product,
     purchaseFlowError,
     subscriptionOption,
     subscriptionOptionWithTrial,
-    checkoutStartResponse,
-    priceBreakdownTaxDisabled,
   } from "../fixtures";
-  import { PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
 
   const defaultArgs = {
     productDetails: product,
@@ -43,6 +42,8 @@
 </script>
 
 <script lang="ts">
+  import { priceBreakdownTaxPendingNeedsCompleteBillingAddress } from "../fixtures";
+
   setTemplate(template);
 </script>
 
@@ -61,7 +62,7 @@
     closeWithError={() => {}}
     lastError={null}
     gatewayParams={checkoutStartResponse.gateway_params}
-    priceBreakdown={priceBreakdownTaxDisabled}
+    priceBreakdown={args.priceBreakdown || priceBreakdownTaxDisabled}
     purchaseOperationHelper={null as unknown as PurchaseOperationHelper}
     isInElement={context.globals.viewport === "embedded"}
     onTaxCustomerDetailsUpdated={() => {}}
@@ -101,6 +102,23 @@
     },
     purchaseOptionToUse: subscriptionOptionWithTrial,
     defaultPurchaseOption: subscriptionOptionWithTrial,
+  }}
+/>
+<Story
+  name="Checkout (Need Full Address)"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    productDetails: {
+      ...product,
+      subscriptionOptions: {
+        ...product.subscriptionOptions,
+        [subscriptionOptionWithTrial.id]: subscriptionOptionWithTrial,
+      },
+    },
+    purchaseOptionToUse: subscriptionOptionWithTrial,
+    defaultPurchaseOption: subscriptionOptionWithTrial,
+    priceBreakdown: priceBreakdownTaxPendingNeedsCompleteBillingAddress,
   }}
 />
 <Story name="Loading" args={{ currentPage: "payment-entry-loading" }} />

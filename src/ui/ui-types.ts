@@ -19,12 +19,14 @@ export type TaxCalculationStatus = "pending" | "loading" | "calculated";
 
 export type TaxCalculationPendingReason =
   | "needs_postal_code"
-  | "needs_state_or_postal_code";
+  | "needs_state_or_postal_code"
+  | "needs_complete_billing_address";
 
 export type PriceBreakdown = {
   currency: string;
   totalAmountInMicros: number;
   taxCollectionEnabled: boolean;
+  taxCalculationBasedOnFullAddress: boolean;
   totalExcludingTaxInMicros: number;
   taxCalculationStatus: TaxCalculationStatus | null;
   pendingReason: TaxCalculationPendingReason | null;

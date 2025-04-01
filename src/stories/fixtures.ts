@@ -264,6 +264,7 @@ export const priceBreakdownTaxDisabled: PriceBreakdown = {
   taxAmountInMicros: 0,
   pendingReason: null,
   taxBreakdown: null,
+  taxCalculationBasedOnFullAddress: false,
 };
 
 export const priceBreakdownTaxInclusive: PriceBreakdown = {
@@ -318,6 +319,15 @@ export const priceBreakdownTaxPending: PriceBreakdown = {
   taxCalculationStatus: "pending",
   pendingReason: null,
 };
+
+export const priceBreakdownTaxPendingNeedsCompleteBillingAddress: PriceBreakdown =
+  {
+    ...priceBreakdownTaxExclusive,
+    totalAmountInMicros: 9900000,
+    taxCalculationStatus: "pending",
+    pendingReason: "needs_complete_billing_address",
+    taxCalculationBasedOnFullAddress: true,
+  };
 
 export const priceBreakdownTaxExclusiveWithMultipleTaxItems: PriceBreakdown = {
   ...priceBreakdownTaxDisabled,

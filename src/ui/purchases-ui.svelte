@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, setContext, onDestroy } from "svelte";
+  import { onDestroy, onMount, setContext } from "svelte";
   import type { Package, Product, PurchaseOption, Purchases } from "../main";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
 
@@ -19,12 +19,12 @@
     translatorContextKey,
   } from "./localization/constants";
   import {
+    type ContinueHandlerParams,
+    type CurrentPage,
     type PriceBreakdown,
     type TaxCustomerDetails,
-    type CurrentPage,
   } from "./ui-types";
   import PurchasesUiInner from "./purchases-ui-inner.svelte";
-  import { type ContinueHandlerParams } from "./ui-types";
   import { type IEventsTracker } from "../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "./constants";
   import { createCheckoutFlowErrorEvent } from "../behavioural-events/sdk-event-helpers";
@@ -72,6 +72,7 @@
     pendingReason: null,
     taxAmountInMicros: null,
     taxBreakdown: null,
+    taxCalculationBasedOnFullAddress: false,
   };
 
   if (
@@ -215,22 +216,27 @@
 
     priceBreakdown.taxCalculationStatus = "loading";
 
-    const taxCalculation = await purchaseOperationHelper.checkoutCalculateTax(
-      taxCustomerDetails?.countryCode,
-      taxCustomerDetails?.postalCode,
-    );
-
-    priceBreakdown.taxCalculationStatus = "calculated";
-    priceBreakdown.totalAmountInMicros = taxCalculation.total_amount_in_micros;
-    priceBreakdown.taxAmountInMicros = taxCalculation.tax_amount_in_micros;
-    priceBreakdown.totalExcludingTaxInMicros =
-      taxCalculation.total_excluding_tax_in_micros;
-    priceBreakdown.taxBreakdown =
-      taxCalculation.pricing_phases.base.tax_breakdown;
-    priceBreakdown.pendingReason = null;
-
-    gatewayParams.elements_configuration =
-      taxCalculation.gateway_params.elements_configuration;
+    try {
+      const taxCalculation = await purchaseOperationHelper.checkoutCalculateTax(
+        taxCustomerDetails?.countryCode,
+        taxCustomerDetails?.postalCode,
+      );
+      priceBreakdown.taxCalculationStatus = "calculated";
+      priceBreakdown.totalAmountInMicros =
+        taxCalculation.total_amount_in_micros;
+      priceBreakdown.taxAmountInMicros = taxCalculation.tax_amount_in_micros;
+      priceBreakdown.totalExcludingTaxInMicros =
+        taxCalculation.total_excluding_tax_in_micros;
+      priceBreakdown.taxBreakdown =
+        taxCalculation.pricing_phases.base.tax_breakdown;
+      priceBreakdown.pendingReason = null;
+      gatewayParams.elements_configuration =
+        taxCalculation.gateway_params.elements_configuration;
+    } catch (e) {
+      priceBreakdown.taxCalculationStatus = "pending";
+      priceBreakdown.pendingReason = "needs_complete_billing_address";
+      priceBreakdown.taxCalculationBasedOnFullAddress = true;
+    }
   }
 
   const handleError = (e: PurchaseFlowError) => {

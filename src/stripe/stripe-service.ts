@@ -15,6 +15,7 @@ import type {
   GatewayParams,
   StripeElementsConfiguration,
 } from "../networking/responses/stripe-elements";
+
 export class StripeService {
   private static FORM_VALIDATED_CARD_ERROR_CODES = [
     "card_declined",
@@ -170,6 +171,11 @@ export class StripeService {
       layout: {
         type: "tabs",
       },
+      fields: {
+        billingDetails: {
+          address: "auto",
+        },
+      },
       terms: {
         applePay: "never",
         auBecsDebit: "never",
@@ -184,6 +190,10 @@ export class StripeService {
         usBankAccount: "never",
       },
     });
+  }
+
+  static createAddressElement(elements: StripeElements) {
+    return elements.create("address", { mode: "billing" });
   }
 
   static async confirmIntent(

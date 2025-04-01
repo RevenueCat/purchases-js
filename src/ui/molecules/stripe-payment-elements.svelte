@@ -4,6 +4,7 @@
     Appearance,
     ConfirmationToken,
     Stripe,
+    StripeAddressElement,
     StripeElementLocale,
     StripeElements,
     StripeError,
@@ -24,7 +25,8 @@
     type PaymentElementError,
     PaymentElementErrorCode,
   } from "../types/payment-element-error";
-  import { type TaxCustomerDetails } from "../ui-types";
+  import { type PriceBreakdown, type TaxCustomerDetails } from "../ui-types";
+  import type { StripeAddressElementChangeEvent } from "@stripe/stripe-js/dist/stripe-js/elements/address";
 
   export let gatewayParams: GatewayParams;
   export let brandingInfo: BrandingInfoResponse | null;
@@ -41,6 +43,7 @@
     customerDetails: TaxCustomerDetails,
   ) => void;
   export let stripeLocale: StripeElementLocale | undefined = undefined;
+  export let priceBreakdown: PriceBreakdown;
 
   export async function submit() {
     if (!elements) return;
@@ -232,82 +235,117 @@
     };
   });
 
-  onMount(() => {
-    let paymentElement: StripePaymentElement | null = null;
-    let isMounted = true;
+  let paymentElement: StripePaymentElement | null = null;
+  let addressElement: StripeAddressElement | null = null;
+  let isMounted = false;
 
-    (async () => {
-      try {
-        const { stripe: stripeInstance, elements: elementsInstance } =
-          await StripeService.initializeStripe(
-            gatewayParams,
-            brandingInfo,
-            stripeLocale,
-            stripeVariables,
-            viewport,
-          );
-
-        if (!isMounted) return;
-
-        stripe = stripeInstance;
-        unsafeElements = elementsInstance;
-
-        paymentElement = StripeService.createPaymentElement(
-          unsafeElements,
-          brandingInfo?.app_name,
+  const mountStripeElements = async () => {
+    try {
+      const { stripe: stripeInstance, elements: elementsInstance } =
+        await StripeService.initializeStripe(
+          gatewayParams,
+          brandingInfo,
+          stripeLocale,
+          stripeVariables,
+          viewport,
         );
 
-        paymentElement.mount("#payment-element");
+      if (!isMounted) return;
 
-        paymentElement.on("ready", () => {
-          onLoadingComplete();
-        });
+      stripe = stripeInstance;
+      unsafeElements = elementsInstance;
 
-        paymentElement.on(
-          "change",
-          async (event: StripePaymentElementChangeEvent) => {
-            if (
-              taxCollectionEnabled &&
-              event.complete &&
-              event.value.type === "card"
-            ) {
-              await triggerTaxDetailsUpdated();
-            }
+      paymentElement = StripeService.createPaymentElement(
+        unsafeElements,
+        brandingInfo?.app_name,
+      );
 
-            onPaymentInfoChange({
-              complete: event.complete,
-              paymentMethod: event.complete ? event.value.type : undefined,
-            });
-          },
-        );
-        paymentElement.on("loaderror", (event) => {
-          isMounted = false;
-          onError({
-            code: PaymentElementErrorCode.ErrorLoadingStripe,
-            gatewayErrorCode: event.error.code,
-            message: event.error.message,
+      paymentElement.mount("#payment-element");
+
+      paymentElement.on("ready", () => {
+        onLoadingComplete();
+      });
+
+      paymentElement.on(
+        "change",
+        async (event: StripePaymentElementChangeEvent) => {
+          if (
+            taxCollectionEnabled &&
+            event.complete &&
+            event.value.type === "card"
+          ) {
+            await triggerTaxDetailsUpdated();
+          }
+
+          onPaymentInfoChange({
+            complete: event.complete,
+            paymentMethod: event.complete ? event.value.type : undefined,
           });
-          onLoadingComplete();
-        });
-      } catch (error) {
-        if (!isMounted) return;
-
+        },
+      );
+      paymentElement.on("loaderror", (event) => {
+        isMounted = false;
         onError({
           code: PaymentElementErrorCode.ErrorLoadingStripe,
-          gatewayErrorCode: undefined,
-          message: error instanceof Error ? error.message : String(error),
+          gatewayErrorCode: event.error.code,
+          message: event.error.message,
         });
         onLoadingComplete();
-      }
-    })();
+      });
+    } catch (error) {
+      if (!isMounted) return;
 
+      onError({
+        code: PaymentElementErrorCode.ErrorLoadingStripe,
+        gatewayErrorCode: undefined,
+        message: error instanceof Error ? error.message : String(error),
+      });
+      onLoadingComplete();
+    }
+  };
+
+  onMount(() => {
+    isMounted = true;
+    mountStripeElements();
     return () => {
       if (isMounted) {
         isMounted = false;
         paymentElement?.destroy();
+        addressElement?.destroy();
+        addressElement = null;
       }
     };
   });
+
+  $: (() => {
+    if (!isMounted || !elements || !paymentElement) {
+      return;
+    }
+
+    if (priceBreakdown.taxCalculationBasedOnFullAddress) {
+      if (addressElement !== null) {
+        return;
+      }
+      addressElement = StripeService.createAddressElement(elements);
+      addressElement.mount("#address-element");
+      addressElement.on(
+        "change",
+        async (event: StripeAddressElementChangeEvent) => {
+          if (taxCollectionEnabled && event.complete && event.isNewAddress) {
+            await triggerTaxDetailsUpdated();
+          }
+        },
+      );
+    } else {
+      addressElement?.destroy();
+      addressElement = null;
+    }
+  })();
 </script>
 
-<div id="payment-element"></div>
+<div
+  style="display: flex; flex-direction: column; align-items: stretch; gap: 21px;"
+>
+  <div id="payment-element"></div>
+  <div id="address-element"></div>
+</div>
