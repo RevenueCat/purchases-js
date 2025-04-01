@@ -63,8 +63,7 @@
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    opacity: 0.7;
-    background-color: rgba(192, 192, 192, 0.1);
+    background-color: var(--rc-color-grey-ui-light);
     width: fit-content;
     user-select: none;
   }
