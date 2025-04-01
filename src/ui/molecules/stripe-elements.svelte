@@ -7,6 +7,7 @@
     StripeElementLocale,
     StripeElements,
     StripeError,
+    StripeLinkAuthenticationElement,
     StripePaymentElement,
     StripePaymentElementChangeEvent,
   } from "@stripe/stripe-js";
@@ -29,8 +30,10 @@
   export let gatewayParams: GatewayParams;
   export let brandingInfo: BrandingInfoResponse | null;
   export let taxCollectionEnabled: boolean;
+  export let email: string;
   export let onLoadingComplete: () => void;
   export let onError: (error: PaymentElementError) => void;
+  export let onEmailChange: (complete: boolean, email: string) => void;
   export let onPaymentInfoChange: (params: {
     complete: boolean;
     paymentMethod: string | undefined;
@@ -234,6 +237,8 @@
 
   onMount(() => {
     let paymentElement: StripePaymentElement | null = null;
+    let linkAuthenticationElement: StripeLinkAuthenticationElement | null =
+      null;
     let isMounted = true;
 
     (async () => {
@@ -251,6 +256,15 @@
 
         stripe = stripeInstance;
         unsafeElements = elementsInstance;
+
+        linkAuthenticationElement =
+          StripeService.createLinkAuthenticationElement(unsafeElements, email);
+
+        linkAuthenticationElement.mount("#link-authentication-element");
+
+        linkAuthenticationElement.on("change", (event) => {
+          onEmailChange(event.complete, event.value.email);
+        });
 
         paymentElement = StripeService.createPaymentElement(
           unsafeElements,
@@ -310,4 +324,11 @@
   });
 </script>
 
+<div id="link-authentication-element"></div>
 <div id="payment-element"></div>
+
+<style>
+  #payment-element {
+    margin-top: var(--rc-spacing-gapXLarge-mobile);
+  }
+</style>

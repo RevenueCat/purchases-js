@@ -24,6 +24,7 @@
   import { type IEventsTracker } from "../../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "../constants";
   import {
+    createCheckoutPaymentFormErrorEvent,
     createCheckoutPaymentFormSubmitEvent,
     createCheckoutPaymentGatewayErrorEvent,
   } from "../../behavioural-events/sdk-event-helpers";
@@ -35,37 +36,63 @@
     PaymentElementErrorCode,
   } from "../types/payment-element-error";
   import PaymentButton from "../molecules/payment-button.svelte";
-  import StripePaymentElements from "../molecules/stripe-payment-elements.svelte";
+  import StripeElements from "../molecules/stripe-elements.svelte";
   import { type GatewayParams } from "../../networking/responses/stripe-elements";
+  import ErrorPage from "./error-page.svelte";
 
-  export let onContinue: (params?: ContinueHandlerParams) => void;
-  export let gatewayParams: GatewayParams = {};
-  export let priceBreakdown: PriceBreakdown;
-  export let processing = false;
-  export let productDetails: Product;
-  export let purchaseOption: PurchaseOption;
-  export let brandingInfo: BrandingInfoResponse | null;
-  export let purchaseOperationHelper: PurchaseOperationHelper;
-  export let onTaxCustomerDetailsUpdated: (
-    customerDetails: TaxCustomerDetails,
-  ) => void;
+  interface Props {
+    onContinue: (params?: ContinueHandlerParams) => void;
+    gatewayParams: GatewayParams;
+    priceBreakdown: PriceBreakdown;
+    processing: boolean;
+    productDetails: Product;
+    purchaseOption: PurchaseOption;
+    brandingInfo: BrandingInfoResponse | null;
+    purchaseOperationHelper: PurchaseOperationHelper;
+    customerEmail: string | null;
+    onTaxCustomerDetailsUpdated: (customerDetails: TaxCustomerDetails) => void;
+  }
 
-  let isStripeLoading = true;
-  let stripeLocale: StripeElementLocale | undefined;
-
-  let stripeSubmit: () => Promise<void>;
-  let stripeConfirm: (clientSecret: string) => Promise<void>;
-
-  let isPaymentInfoComplete = false;
-  let selectedPaymentMethod: string | undefined = undefined;
-  let modalErrorMessage: string | undefined = undefined;
-  let clientSecret: string | undefined = undefined;
+  const {
+    onContinue,
+    gatewayParams,
+    priceBreakdown,
+    productDetails,
+    purchaseOption,
+    brandingInfo,
+    purchaseOperationHelper,
+    customerEmail,
+    onTaxCustomerDetailsUpdated,
+  }: Props = $props();
 
   const subscriptionOption =
     productDetails.subscriptionOptions?.[purchaseOption.id];
 
   const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
   const translator = getContext<Writable<Translator>>(translatorContextKey);
+
+  let stripeSubmit: () => Promise<void> = $state(() => Promise.resolve());
+  let stripeConfirm: (clientSecret: string) => Promise<void> = $state(() =>
+    Promise.resolve(),
+  );
+
+  let email: string = $state(customerEmail ?? "");
+  let isEmailComplete = $state(false);
+  let isStripeLoading = $state(true);
+  let stripeLocale: StripeElementLocale | undefined = $state(undefined);
+  let isPaymentInfoComplete = $state(false);
+  let selectedPaymentMethod: string | undefined = $state(undefined);
+  let modalErrorMessage: string | undefined = $state(undefined);
+  let clientSecret: string | undefined = $state(undefined);
+  let processing = $state(false);
+  let emailError: PurchaseFlowError | undefined = $state(undefined);
+
+  let isFormReady = $derived(
+    !processing &&
+      priceBreakdown.taxCalculationStatus !== "loading" &&
+      isPaymentInfoComplete &&
+      isEmailComplete,
+  );
 
   onMount(() => {
     eventsTracker.trackSDKEvent({
@@ -75,6 +102,11 @@
 
   function handleStripeLoadingComplete() {
     isStripeLoading = false;
+  }
+
+  function handleEmailChange(complete: boolean, emailValue: string) {
+    email = emailValue;
+    isEmailComplete = complete;
   }
 
   function handlePaymentInfoChange({
@@ -88,7 +120,9 @@
     isPaymentInfoComplete = complete;
   }
 
-  async function handleSubmit(): Promise<void> {
+  async function handleSubmit(e: Event): Promise<void> {
+    e.preventDefault();
+
     if (processing) return;
 
     const event = createCheckoutPaymentFormSubmitEvent({
@@ -101,17 +135,34 @@
     await stripeSubmit();
   }
 
+  function handlePurchaseFlowError() {
+    emailError = undefined;
+  }
+
   async function handlePaymentSubmissionSuccess(): Promise<void> {
     // Get client secret if not already present
     if (!clientSecret) {
       try {
-        const response = await purchaseOperationHelper.checkoutComplete();
+        const response = await purchaseOperationHelper.checkoutComplete(email);
         clientSecret = response?.gateway_params?.client_secret;
         if (!clientSecret) {
           throw new Error("Failed to complete checkout");
         }
       } catch (error) {
-        handleStripeElementError(error as PaymentElementError);
+        if (error instanceof PurchaseFlowError) {
+          if (error.errorCode === PurchaseFlowErrorCode.MissingEmailError) {
+            const event = createCheckoutPaymentFormErrorEvent({
+              errorCode: error.errorCode.toString(),
+              errorMessage: error.message,
+            });
+            eventsTracker.trackSDKEvent(event);
+
+            processing = false;
+            emailError = error;
+          }
+        } else {
+          handleStripeElementError(error as PaymentElementError);
+        }
         return;
       }
     }
@@ -150,27 +201,38 @@
   };
 </script>
 
+{#if emailError}
+  <ErrorPage
+    lastError={emailError}
+    {productDetails}
+    supportEmail={brandingInfo?.support_email ?? null}
+    onContinue={handlePurchaseFlowError}
+  />
+{/if}
+
 <div class="rc-checkout-container">
   {#if isStripeLoading || processing}
     <Loading />
   {/if}
   <!-- <TextSeparator text="Pay by card" /> -->
   <form
-    on:submit|preventDefault={handleSubmit}
+    onsubmit={handleSubmit}
     data-testid="payment-form"
     class="rc-checkout-form"
-    class:hidden={isStripeLoading || processing}
+    class:hidden={isStripeLoading || processing || emailError}
   >
     <div class="rc-checkout-form-container" hidden={!!modalErrorMessage}>
-      <div class="rc-payment-element-container">
-        <StripePaymentElements
+      <div class="rc-elements-container">
+        <StripeElements
           bind:submit={stripeSubmit}
           bind:confirm={stripeConfirm}
           bind:stripeLocale
           {gatewayParams}
           {brandingInfo}
+          email={customerEmail ?? ""}
           onLoadingComplete={handleStripeLoadingComplete}
           onError={handleStripeElementError}
+          onEmailChange={handleEmailChange}
           onPaymentInfoChange={handlePaymentInfoChange}
           onSubmissionSuccess={handlePaymentSubmissionSuccess}
           onConfirmationSuccess={onContinue}
@@ -181,12 +243,7 @@
 
       <div class="rc-checkout-pay-container">
         {#if !modalErrorMessage}
-          <PaymentButton
-            disabled={processing ||
-              !isPaymentInfoComplete ||
-              priceBreakdown.taxCalculationStatus === "loading"}
-            {subscriptionOption}
-          />
+          <PaymentButton disabled={!isFormReady} {subscriptionOption} />
         {/if}
 
         <div class="rc-checkout-secure-container">
@@ -237,7 +294,7 @@
     width: 100%;
   }
 
-  .rc-payment-element-container {
+  .rc-elements-container {
     /* The standard height of the payment form from Stripe */
     /* Added to avoid the card getting smaller while loading */
     min-height: 210px;
@@ -279,5 +336,11 @@
     .rc-checkout-pay-container {
       margin-top: var(--rc-spacing-gapXLarge-desktop);
     }
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
   }
 </style>

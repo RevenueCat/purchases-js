@@ -73,7 +73,51 @@ test.describe("Main", () => {
     await performPurchase(page, singleCard, userId);
   });
 
-  test("Displays handled form submission errors", async ({
+  test("Can purchase skipping the email", async ({ browser, browserName }) => {
+    const userId = `${getUserId(browserName)}_email_skip`;
+    const page = await setupTest(browser, userId, {
+      email: `${userId}@revenuecat.com`,
+    });
+
+    // Gets all elements that match the selector
+    const packageCards = await getAllElementsByLocator(
+      page,
+      CARD_SELECTOR,
+      "E2E NonConsumable",
+    );
+    expect(packageCards.length).toEqual(1);
+    const singleCard = packageCards[0];
+
+    await startPurchaseFlow(singleCard);
+    await enterCreditCardDetailsAndContinue(page, "4242 4242 4242 4242");
+    // Confirm success page has shown.
+    const successText = page.getByText("Payment complete");
+    await expect(successText).toBeVisible({ timeout: 10000 });
+  });
+
+  test("Displays email format errors", async ({ browser, browserName }) => {
+    const userId = `${getUserId(browserName)}_subscription`;
+    const page = await setupTest(browser, userId);
+
+    // Gets all elements that match the selector
+    const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
+    const singleCard = packageCards[1];
+
+    await startPurchaseFlow(singleCard);
+    await enterEmail(page, userId);
+
+    await page.waitForSelector("input[placeholder='john@appleseed.com']", {
+      timeout: 10000,
+    });
+    const emailInput = page.getByPlaceholder("john@appleseed.com");
+    await emailInput.fill("invalid-email");
+    await emailInput.blur();
+
+    const errorText = page.getByText("Email is not valid");
+    await expect(errorText).toBeVisible({ timeout: 10000 });
+  });
+
+  test("Displays email deliverability errors", async ({
     browser,
     browserName,
   }) => {
@@ -85,7 +129,35 @@ test.describe("Main", () => {
     const singleCard = packageCards[1];
 
     await startPurchaseFlow(singleCard);
-    await enterEmailAndContinue(page, userId);
+    await page.waitForSelector("input[placeholder='john@appleseed.com']", {
+      timeout: 10000,
+    });
+    await page.getByPlaceholder("john@appleseed.com").click();
+    await page
+      .getByPlaceholder("john@appleseed.com")
+      .fill(`${userId}@revenueci.comm`);
+
+    await enterCreditCardDetailsAndContinue(page, "4242 4242 4242 4242");
+
+    const errorText = page.getByText(
+      "Email domain is not valid. Please check the email address or try a different one.",
+    );
+    await expect(errorText).toBeVisible({ timeout: 10000 });
+  });
+
+  test("Displays handled card form submission errors", async ({
+    browser,
+    browserName,
+  }) => {
+    const userId = `${getUserId(browserName)}_subscription`;
+    const page = await setupTest(browser, userId);
+
+    // Gets all elements that match the selector
+    const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
+    const singleCard = packageCards[1];
+
+    await startPurchaseFlow(singleCard);
+    await enterEmail(page, userId);
 
     // Try with an invalid card declined server side
     await enterCreditCardDetailsAndContinue(page, "4000 0000 0000 0002");
@@ -96,7 +168,7 @@ test.describe("Main", () => {
     await expect(errorText).toBeVisible({ timeout: 10000 });
   });
 
-  test("Displays unhandled form submission errors", async ({
+  test("Displays unhandled card form submission errors", async ({
     browser,
     browserName,
   }) => {
@@ -108,7 +180,7 @@ test.describe("Main", () => {
     const singleCard = packageCards[1];
 
     await startPurchaseFlow(singleCard);
-    await enterEmailAndContinue(page, userId);
+    await enterEmail(page, userId);
 
     // Try with an invalid card declined server side
     await enterCreditCardDetailsAndContinue(page, "4000003800000446");
@@ -307,10 +379,7 @@ test.describe("Main", () => {
     const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
     const singleCard = packageCards[1];
 
-    // Perform purchase
-    const cardButton = singleCard.getByRole("button");
-    await cardButton.click();
-
+    // Prepare error
     await page.route("*/**/checkout/start", async (route) => {
       await route.fulfill({
         body: '{ "code": 7110, "message": "Test error message"}',
@@ -318,7 +387,9 @@ test.describe("Main", () => {
       });
     });
 
-    await enterEmailAndContinue(page, userId);
+    // Start purchase flow
+    const cardButton = singleCard.getByRole("button");
+    await cardButton.click();
 
     // Confirm error page has shown.
     const errorTitleText = page.getByText("Something went wrong");
@@ -331,11 +402,11 @@ test.describe("Main", () => {
   });
 
   [
-    ["es", "¿Cuál es tu correo electrónico?"],
-    ["it", "Qual è la tua email?"],
-    ["en", "What's your email?"],
-    ["fr", "Quelle est votre adresse e-mail?"],
-    ["de", "Wie lautet Ihre E-Mail-Adresse?"],
+    ["es", "Pago seguro mediante RevenueCat"],
+    ["it", "Pagamento sicuro tramite RevenueCat"],
+    ["en", "Secure checkout by RevenueCat"],
+    ["fr", "Paiement sécurisé par RevenueCat"],
+    ["de", "Sicherer Checkout über RevenueCat"],
   ].forEach(([lang, title]) => {
     test(`Shows the purchase flow in ${lang}`, async ({
       browser,
@@ -350,16 +421,16 @@ test.describe("Main", () => {
 
       await startPurchaseFlow(singleCard);
 
-      await expect(page.getByText(title)).toBeVisible();
+      await expect(page.getByText(title)).toBeVisible({ timeout: 10000 });
     });
   });
 
   [
-    ["es", "¿Cuál es tu correo electrónico?"],
-    ["it", "Qual è la tua email?"],
-    ["en", "What's your email?"],
-    ["fr", "Quelle est votre adresse e-mail?"],
-    ["de", "Wie lautet Ihre E-Mail-Adresse?"],
+    ["es", "Pago seguro mediante RevenueCat"],
+    ["it", "Pagamento sicuro tramite RevenueCat"],
+    ["en", "Secure checkout by RevenueCat"],
+    ["fr", "Paiement sécurisé par RevenueCat"],
+    ["de", "Sicherer Checkout über RevenueCat"],
   ].forEach(([lang, title]) => {
     test(`Shows the purchase flow in ${lang} when purchasing from paywalls`, async ({
       browser,
@@ -389,7 +460,7 @@ test.describe("Main", () => {
       await expect(purchaseButton).toBeVisible();
       await purchaseButton.click();
 
-      await expect(page.getByText(title)).toBeVisible();
+      await expect(page.getByText(title)).toBeVisible({ timeout: 10000 });
     });
   });
 
@@ -468,7 +539,7 @@ async function startPurchaseFlow(card: Locator) {
 
 async function performPurchase(page: Page, card: Locator, userId: string) {
   await startPurchaseFlow(card);
-  await enterEmailAndContinue(page, userId);
+  await enterEmail(page, userId);
   await enterCreditCardDetailsAndContinue(page, "4242 4242 4242 4242");
   // Confirm success page has shown.
   const successText = page.getByText("Payment complete");
@@ -491,6 +562,7 @@ async function setupTest(
     utm_term?: string;
     utm_content?: string;
     optOutOfAutoUTM?: boolean;
+    email?: string;
   },
 ) {
   const page = await browser.newPage();
@@ -512,14 +584,13 @@ async function getAllElementsByLocator(
   return await locatorResult.all();
 }
 
-async function enterEmailAndContinue(
-  page: Page,
-  userId: string,
-): Promise<void> {
+async function enterEmail(page: Page, userId: string): Promise<void> {
+  await page.waitForSelector("input[placeholder='john@appleseed.com']", {
+    timeout: 10000,
+  });
   const email = `${userId}@revenuecat.com`;
-
-  await typeTextInPageSelector(page, email);
-  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByPlaceholder("john@appleseed.com").click();
+  await page.getByPlaceholder("john@appleseed.com").fill(email);
 }
 
 async function enterCreditCardDetailsAndContinue(
@@ -557,6 +628,7 @@ async function navigateToUrl(
     utm_term?: string;
     utm_content?: string;
     optOutOfAutoUTM?: boolean;
+    email?: string;
   },
 ): Promise<void> {
   const baseUrl =
@@ -573,6 +645,7 @@ async function navigateToUrl(
     utm_content,
     utm_medium,
     optOutOfAutoUTM,
+    email,
   } = queryString ?? {};
 
   const params = new URLSearchParams();
@@ -600,15 +673,10 @@ async function navigateToUrl(
   if (optOutOfAutoUTM) {
     params.append("optOutOfAutoUTM", optOutOfAutoUTM.toString());
   }
+  if (email) {
+    params.append("email", email);
+  }
 
   const url = `${baseUrl}${useRcPaywall ? "rc_paywall" : "paywall"}/${encodeURIComponent(userId)}?${params.toString()}`;
   await page.goto(url);
-}
-
-async function typeTextInPageSelector(page: Page, text: string): Promise<void> {
-  // Fill email
-  const emailTitle = page.getByText("What's your email?");
-  await expect(emailTitle).toBeVisible();
-  await page.getByPlaceholder("john@appleseed.com").click();
-  await page.getByPlaceholder("john@appleseed.com").fill(text);
 }

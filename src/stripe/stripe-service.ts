@@ -186,6 +186,17 @@ export class StripeService {
     });
   }
 
+  static createLinkAuthenticationElement(
+    elements: StripeElements,
+    email: string,
+  ) {
+    return elements.create("linkAuthentication", {
+      defaultValues: {
+        email: email,
+      },
+    });
+  }
+
   static async confirmIntent(
     stripe: Stripe,
     elements: StripeElements,
