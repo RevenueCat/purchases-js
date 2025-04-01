@@ -61,6 +61,7 @@
     padding-left: var(--rc-spacing-gapLarge-mobile);
     padding-right: var(--rc-spacing-gapMedium-mobile);
     font: var(--rc-text-largeCaption-mobile);
+    color: var(--rc-color-grey-text-light);
     border-radius: var(--rc-shape-input-button-border-radius);
     cursor: pointer;
     display: inline-flex;

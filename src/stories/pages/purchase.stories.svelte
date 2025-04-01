@@ -16,6 +16,7 @@
     subscriptionOptionWithTrial,
     checkoutStartResponse,
     priceBreakdownTaxDisabled,
+    priceBreakdownTaxInclusive,
   } from "../fixtures";
   import { PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
 
@@ -30,6 +31,11 @@
   let { Story } = defineMeta({
     title: "Pages/Purchase",
     args: defaultArgs,
+    argTypes: {
+      withTaxes: {
+        control: "boolean",
+      },
+    },
     parameters: {
       viewport: {
         defaultViewport: "mobile",
@@ -61,7 +67,9 @@
     closeWithError={() => {}}
     lastError={null}
     gatewayParams={checkoutStartResponse.gateway_params}
-    priceBreakdown={priceBreakdownTaxDisabled}
+    priceBreakdown={args.withTaxes
+      ? priceBreakdownTaxInclusive
+      : priceBreakdownTaxDisabled}
     purchaseOperationHelper={null as unknown as PurchaseOperationHelper}
     isInElement={context.globals.viewport === "embedded"}
     onTaxCustomerDetailsUpdated={() => {}}
@@ -86,7 +94,18 @@
     purchaseOptionToUse: subscriptionOptionWithTrial,
   }}
 />
-<Story name="Checkout" args={{ currentPage: "payment-entry" }} />
+<Story
+  name="Checkout"
+  args={{ ...defaultArgs, currentPage: "payment-entry" }}
+/>
+<Story
+  name="Checkout (with Tax)"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    withTaxes: true,
+  }}
+/>
 <Story
   name="Checkout (with Trial Product)"
   args={{
