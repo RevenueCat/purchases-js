@@ -156,15 +156,16 @@
   }
 
   .rcb-pricing-table-row > .rcb-pricing-table-header {
-    opacity: 0.7;
+    color: var(--rc-color-grey-text-light);
   }
 
   .rcb-pricing-table-row > .rcb-pricing-table-value {
-    opacity: 1;
+    color: var(--rc-color-grey-text-dark);
   }
+
   .rcb-pricing-table-row:last-child > .rcb-pricing-table-header,
   .rcb-pricing-table-row:last-child > .rcb-pricing-table-value {
-    opacity: 1;
+    color: var(--rc-color-grey-text-dark);
   }
 
   @container layout-query-container (width >= 768px) {
@@ -177,7 +178,7 @@
     .rcb-pricing-table-row > .rcb-pricing-table-header,
     .rcb-pricing-table-row > .rcb-pricing-table-value {
       font: var(--rc-text-caption-desktop);
-      opacity: 0.7;
+      color: var(--rc-color-grey-text-light);
     }
     .rcb-pricing-table-row:last-child {
       padding-top: var(--rc-spacing-gapSmall-desktop);

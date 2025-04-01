@@ -76,7 +76,7 @@ const rgbToTextColors = (
 
   return {
     "grey-text-dark": `rgb(${baseColor})`,
-    "grey-text-light": `rgba(${baseColor},0.50)`,
+    "grey-text-light": `rgba(${baseColor},0.70)`,
     "grey-ui-dark": `rgba(${baseColor},0.3)`,
     "grey-ui-light": `rgba(${baseColor},0.1)`,
   };

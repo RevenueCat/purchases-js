@@ -147,7 +147,6 @@
 
   .rcb-text-dark {
     color: var(--rc-color-grey-text-dark);
-    font-weight: 500;
   }
 
   @container layout-query-container (width >= 768px) {

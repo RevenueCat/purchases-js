@@ -56,9 +56,11 @@
   }
 
   .rcb-pricing-dropdown-header {
-    padding: 2px 8px 2px 12px;
-    font-size: 14px;
-    font-weight: 500;
+    padding-top: var(--rc-spacing-gapSmall-mobile);
+    padding-bottom: var(--rc-spacing-gapSmall-mobile);
+    padding-left: var(--rc-spacing-gapLarge-mobile);
+    padding-right: var(--rc-spacing-gapMedium-mobile);
+    font: var(--rc-text-largeCaption-mobile);
     border-radius: var(--rc-shape-input-button-border-radius);
     cursor: pointer;
     display: inline-flex;
@@ -71,8 +73,8 @@
   .rcb-pricing-dropdown-toggle {
     display: flex;
     align-items: center;
-    margin-left: 4px;
-    font-size: 12px;
+    margin-left: var(--rc-spacing-gapSmall-mobile);
+    font: var(--rc-text-caption-mobile);
   }
 
   .rcb-pricing-dropdown-content {
