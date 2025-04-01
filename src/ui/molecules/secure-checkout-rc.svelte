@@ -76,7 +76,6 @@
     font: var(--rc-text-caption-mobile);
     color: var(--rc-color-grey-text-light);
     text-align: center;
-    font-weight: 500;
     margin: 0;
   }
 

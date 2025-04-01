@@ -8,6 +8,7 @@
   import { getNextRenewalDate } from "../../helpers/duration-helper";
   import { type PricingPhase } from "../../entities/offerings";
   import PricingDropdown from "./pricing-dropdown.svelte";
+  import Skeleton from "../atoms/skeleton.svelte";
 
   interface Props {
     priceBreakdown: PriceBreakdown;
@@ -25,7 +26,7 @@
 </script>
 
 {#snippet pricingTable()}
-  <div class="pricing-table">
+  <div class="rcb-pricing-table">
     {#if priceBreakdown.taxCollectionEnabled}
       <div class="rcb-pricing-table-row">
         <div class="rcb-pricing-table-header">
@@ -45,7 +46,9 @@
             {$translator.translate(LocalizationKeys.PricingTableTax)}
           </div>
           <div class="rcb-pricing-table-value">
-            <div class="rcb-pricing-table-value-loading">Loading</div>
+            <Skeleton>
+              {$translator.formatPrice(12340000, priceBreakdown.currency)}
+            </Skeleton>
           </div>
         </div>
       {:else if priceBreakdown.taxCalculationStatus === "pending"}
@@ -106,8 +109,8 @@
       </div>
     {/if}
 
-    <div class="rcb-pricing-table-row header">
-      <div class="rcb-pricing-table-header total">
+    <div class="rcb-pricing-table-row rcb-header">
+      <div class="rcb-pricing-table-header">
         {$translator.translate(LocalizationKeys.PricingTableTotalDueToday)}
       </div>
       <div class="rcb-pricing-table-value">
@@ -133,11 +136,11 @@
 {/if}
 
 <style>
-  .pricing-table {
-    font-size: 12px;
+  .rcb-pricing-table {
     display: flex;
     flex-direction: column;
-    gap: var(--rc-spacing-gapSmall-mobile);
+    gap: var(--rc-spacing-gapMedium-mobile);
+    font: var(--rc-text-caption-mobile);
   }
 
   .rcb-pricing-table-row {
@@ -152,26 +155,38 @@
     background-color: var(--rc-color-grey-ui-dark);
   }
 
-  .rcb-pricing-table-row > .rcb-pricing-table-header:not(.total) {
-    opacity: 0.7;
+  .rcb-pricing-table-row > .rcb-pricing-table-header {
+    color: var(--rc-color-grey-text-light);
   }
 
-  .rcb-pricing-table-value-loading {
-    color: transparent;
-    animation: rcb-pricing-table-value-loading 1.5s ease-in-out 0s infinite
-      normal none running;
-    cursor: progress;
-    background-color: var(--rc-color-grey-ui-dark);
-    user-select: none;
+  .rcb-pricing-table-row > .rcb-pricing-table-value {
+    color: var(--rc-color-grey-text-dark);
   }
 
-  @keyframes rcb-pricing-table-value-loading {
-    0%,
-    100% {
-      opacity: 1;
+  .rcb-pricing-table-row:last-child > .rcb-pricing-table-header,
+  .rcb-pricing-table-row:last-child > .rcb-pricing-table-value {
+    color: var(--rc-color-grey-text-dark);
+  }
+
+  @container layout-query-container (width >= 768px) {
+    .rcb-pricing-table-separator {
+      display: none;
     }
-    50% {
-      opacity: 0.4;
+    .rcb-pricing-table {
+      gap: var(--rc-spacing-gapSmall-desktop);
+    }
+    .rcb-pricing-table-row > .rcb-pricing-table-header,
+    .rcb-pricing-table-row > .rcb-pricing-table-value {
+      font: var(--rc-text-caption-desktop);
+      color: var(--rc-color-grey-text-light);
+    }
+    .rcb-pricing-table-row:last-child {
+      padding-top: var(--rc-spacing-gapSmall-desktop);
+    }
+
+    .rcb-pricing-table-row:last-child > .rcb-pricing-table-header,
+    .rcb-pricing-table-row:last-child > .rcb-pricing-table-value {
+      font: var(--rc-text-body1-desktop);
     }
   }
 </style>
