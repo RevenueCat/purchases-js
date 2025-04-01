@@ -203,7 +203,7 @@ export const brandingInfos: Record<string, BrandingInfoResponse> = {
     app_icon: "1005820_1715624566.png",
     app_icon_webp: "1005820_1715624566.webp",
     appearance: {
-      shapes: "rounded",
+      shapes: "rectangle",
       color_form_bg: "#313131",
       color_error: "#E79462",
       color_product_info_bg: "#ffffff",
