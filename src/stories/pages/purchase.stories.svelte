@@ -63,8 +63,9 @@
     productDetails={args.productDetails}
     purchaseOptionToUse={args.purchaseOptionToUse}
     {brandingInfo}
-    handleContinue={() => {}}
+    onContinue={() => {}}
     closeWithError={() => {}}
+    customerEmail={args.customerEmail}
     lastError={null}
     gatewayParams={checkoutStartResponse.gateway_params}
     priceBreakdown={args.withTaxes
@@ -76,24 +77,11 @@
   />
 {/snippet}
 
-<Story name="Email Input" args={{ currentPage: "email-entry" }} />
 <Story
-  name="Email Input (with Sandbox Banner)"
-  args={{ currentPage: "email-entry", isSandbox: true }}
+  name="Checkout (with Sandbox Banner)"
+  args={{ ...defaultArgs, currentPage: "payment-entry", isSandbox: true }}
 />
 
-<Story
-  name="Email Input (with Trial Product)"
-  args={{
-    currentPage: "email-entry",
-    isSandbox: true,
-    productDetails: {
-      ...product,
-      normalPeriodDuration: "P1Y",
-    },
-    purchaseOptionToUse: subscriptionOptionWithTrial,
-  }}
-/>
 <Story
   name="Checkout"
   args={{ ...defaultArgs, currentPage: "payment-entry" }}
