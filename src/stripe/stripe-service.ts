@@ -162,6 +162,10 @@ export class StripeService {
     return false;
   }
 
+  static isStripeHandledValidationError(error: StripeError) {
+    return error.type === "validation_error";
+  }
+
   static createPaymentElement(
     elements: StripeElements,
     appName?: string | null,
@@ -192,8 +196,17 @@ export class StripeService {
     });
   }
 
-  static createAddressElement(elements: StripeElements) {
-    return elements.create("address", { mode: "billing" });
+  static createAddressElement(
+    elements: StripeElements,
+    defaultValues?: {
+      country: string;
+      postalCode?: string;
+    },
+  ) {
+    return elements.create("address", {
+      mode: "billing",
+      defaultValues: { address: defaultValues ? defaultValues : undefined },
+    });
   }
 
   static async confirmIntent(

@@ -53,7 +53,9 @@ vi.mock("../../../stripe/stripe-service", () => ({
   StripeService: {
     initializeStripe: vi.fn(),
     createPaymentElement: vi.fn(),
+    createAddressElement: vi.fn(),
     isStripeHandledCardError: vi.fn(),
+    isStripeHandledValidationError: vi.fn(),
   },
 }));
 

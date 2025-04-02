@@ -218,8 +218,8 @@
 
     try {
       const taxCalculation = await purchaseOperationHelper.checkoutCalculateTax(
-        taxCustomerDetails?.countryCode,
-        taxCustomerDetails?.postalCode,
+        taxCustomerDetails?.country,
+        taxCustomerDetails?.postal_code,
       );
       priceBreakdown.taxCalculationStatus = "calculated";
       priceBreakdown.totalAmountInMicros =

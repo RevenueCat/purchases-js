@@ -1,18 +1,18 @@
 <script lang="ts">
-  import { getContext, onMount } from "svelte";
+  import { getContext, onDestroy, onMount } from "svelte";
   import type {
     Appearance,
-    ConfirmationToken,
     Stripe,
-    StripeAddressElement,
     StripeElementLocale,
     StripeElements,
     StripeError,
-    StripePaymentElement,
     StripePaymentElementChangeEvent,
   } from "@stripe/stripe-js";
+
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
   import { Theme } from "../theme/theme";
+  import AddressElement from "./stripe-address-element.svelte";
+  import PaymentElement from "./stripe-payment-element.svelte";
 
   import { translatorContextKey } from "../localization/constants";
   import { Translator } from "../localization/translator";
@@ -33,17 +33,17 @@
   export let taxCollectionEnabled: boolean;
   export let onLoadingComplete: () => void;
   export let onError: (error: PaymentElementError) => void;
+
   export let onPaymentInfoChange: (params: {
     complete: boolean;
     paymentMethod: string | undefined;
   }) => void;
-  export let onSubmissionSuccess: () => void;
-  export let onConfirmationSuccess: () => void;
   export let onTaxCustomerDetailsUpdated: (
     customerDetails: TaxCustomerDetails,
   ) => void;
-  export let stripeLocale: StripeElementLocale | undefined = undefined;
-  export let priceBreakdown: PriceBreakdown;
+
+  export let onSubmissionSuccess: () => void;
+  export let onConfirmationSuccess: () => void;
 
   export async function submit() {
     if (!elements) return;
@@ -72,40 +72,12 @@
     }
   }
 
-  $: if (elements) {
-    (async () => {
-      const elementsConfiguration = gatewayParams.elements_configuration;
-      if (!elementsConfiguration) return;
-
-      await StripeService.updateElementsConfiguration(
-        elements,
-        elementsConfiguration,
-      );
-    })();
-  }
-
-  function handleFormSubmissionError(error: StripeError) {
-    if (StripeService.isStripeHandledCardError(error)) {
-      onError({
-        code: PaymentElementErrorCode.HandledFormSubmissionError,
-        gatewayErrorCode: error.code,
-        message: error.message,
-      });
-    } else {
-      onError({
-        code: PaymentElementErrorCode.UnhandledFormSubmissionError,
-        gatewayErrorCode: error.code,
-        message: error.message,
-      });
-    }
-  }
+  export let stripeLocale: StripeElementLocale | undefined = undefined;
+  export let priceBreakdown: PriceBreakdown;
 
   let stripe: Stripe | null = null;
-  let unsafeElements: StripeElements | null = null;
   let elements: StripeElements | null = null;
-
   let lastTaxCustomerDetails: TaxCustomerDetails | undefined = undefined;
-
   let spacing = new Theme().spacing;
   let stripeVariables: undefined | Appearance["variables"];
   let viewport: "mobile" | "desktop" = "mobile";
@@ -144,13 +116,6 @@
 
   $: stripeLocale = getLocaleToUse(initialLocale);
 
-  $: {
-    // @ts-ignore
-    if (unsafeElements && unsafeElements._elements.length > 0) {
-      elements = unsafeElements;
-    }
-  }
-
   /**
    * This function converts some particular locales to the ones that stripe supports.
    * Finally falls back to 'auto' if the initialLocale is not supported by stripe.
@@ -178,6 +143,26 @@
     return initialLocale as StripeElementLocale;
   };
 
+  function handleFormSubmissionError(error: StripeError) {
+    if (
+      StripeService.isStripeHandledCardError(error) ||
+      StripeService.isStripeHandledValidationError(error)
+    ) {
+      onError({
+        code: PaymentElementErrorCode.HandledFormSubmissionError,
+        gatewayErrorCode: error.code,
+        message: error.message,
+      });
+      return;
+    }
+
+    onError({
+      code: PaymentElementErrorCode.UnhandledFormSubmissionError,
+      gatewayErrorCode: error.code,
+      message: error.message,
+    });
+  }
+
   async function triggerTaxDetailsUpdated() {
     if (!elements || !stripe) return;
 
@@ -197,49 +182,37 @@
       return;
     }
 
-    const { countryCode, postalCode } =
-      getCountryAndPostalCodeFromConfirmationToken(confirmationToken);
+    const billingAddress =
+      confirmationToken.payment_method_preview?.billing_details?.address;
 
     if (
-      countryCode === lastTaxCustomerDetails?.countryCode &&
-      postalCode === lastTaxCustomerDetails?.postalCode
+      !billingAddress ||
+      JSON.stringify(billingAddress) === JSON.stringify(lastTaxCustomerDetails)
     ) {
       return;
     }
 
-    lastTaxCustomerDetails = { countryCode, postalCode };
+    lastTaxCustomerDetails = {
+      ...billingAddress,
+    } as TaxCustomerDetails;
 
-    onTaxCustomerDetailsUpdated({
-      countryCode,
-      postalCode,
+    onTaxCustomerDetailsUpdated(lastTaxCustomerDetails);
+  }
+
+  const onStripeElementsLoadingError = (error: any) => {
+    const actualError = error.error ? error.error : error;
+    onError({
+      code: PaymentElementErrorCode.ErrorLoadingStripe,
+      gatewayErrorCode: actualError.code ? actualError.code : undefined,
+      message: actualError.message,
     });
-  }
+    onLoadingComplete();
+  };
 
-  function getCountryAndPostalCodeFromConfirmationToken(
-    confirmationToken: ConfirmationToken,
-  ): { countryCode?: string; postalCode?: string } {
-    const billingAddress =
-      confirmationToken.payment_method_preview?.billing_details?.address;
-    const countryCode = billingAddress?.country ?? undefined;
-    const postalCode = billingAddress?.postal_code ?? undefined;
-    return { countryCode, postalCode };
-  }
+  const initStripe = async () => {
+    if (stripe) return;
+    if (elements) return;
 
-  onMount(() => {
-    updateStripeVariables();
-
-    window.addEventListener("resize", onResize);
-
-    return () => {
-      window.removeEventListener("resize", onResize);
-    };
-  });
-
-  let paymentElement: StripePaymentElement | null = null;
-  let addressElement: StripeAddressElement | null = null;
-  let isMounted = false;
-
-  const mountStripeElements = async () => {
     try {
       const { stripe: stripeInstance, elements: elementsInstance } =
         await StripeService.initializeStripe(
@@ -249,103 +222,78 @@
           stripeVariables,
           viewport,
         );
-
-      if (!isMounted) return;
-
       stripe = stripeInstance;
-      unsafeElements = elementsInstance;
+      elements = elementsInstance;
 
-      paymentElement = StripeService.createPaymentElement(
-        unsafeElements,
-        brandingInfo?.app_name,
-      );
-
-      paymentElement.mount("#payment-element");
-
-      paymentElement.on("ready", () => {
-        onLoadingComplete();
-      });
-
-      paymentElement.on(
-        "change",
-        async (event: StripePaymentElementChangeEvent) => {
-          if (
-            taxCollectionEnabled &&
-            event.complete &&
-            event.value.type === "card"
-          ) {
-            await triggerTaxDetailsUpdated();
-          }
-
-          onPaymentInfoChange({
-            complete: event.complete,
-            paymentMethod: event.complete ? event.value.type : undefined,
-          });
-        },
-      );
-      paymentElement.on("loaderror", (event) => {
-        isMounted = false;
-        onError({
-          code: PaymentElementErrorCode.ErrorLoadingStripe,
-          gatewayErrorCode: event.error.code,
-          message: event.error.message,
-        });
-        onLoadingComplete();
-      });
+      const elementsConfiguration = gatewayParams.elements_configuration;
+      if (elementsConfiguration) {
+        await StripeService.updateElementsConfiguration(
+          elements,
+          elementsConfiguration,
+        );
+      }
     } catch (error) {
-      if (!isMounted) return;
-
-      onError({
-        code: PaymentElementErrorCode.ErrorLoadingStripe,
-        gatewayErrorCode: undefined,
-        message: error instanceof Error ? error.message : String(error),
-      });
-      onLoadingComplete();
+      onStripeElementsLoadingError(error);
     }
   };
 
-  onMount(() => {
-    isMounted = true;
-    mountStripeElements();
-    return () => {
-      if (isMounted) {
-        isMounted = false;
-        paymentElement?.destroy();
-        addressElement?.destroy();
-        addressElement = null;
-      }
-    };
+  onMount(async () => {
+    updateStripeVariables();
+    window.addEventListener("resize", onResize);
+    await initStripe();
   });
 
-  $: (() => {
-    if (!isMounted || !elements || !paymentElement) {
-      return;
-    }
+  onDestroy(() => {
+    window.removeEventListener("resize", onResize);
+  });
 
-    if (priceBreakdown.taxCalculationBasedOnFullAddress) {
-      if (addressElement !== null) {
-        return;
-      }
-      addressElement = StripeService.createAddressElement(elements);
-      addressElement.mount("#address-element");
-      addressElement.on(
-        "change",
-        async (event: StripeAddressElementChangeEvent) => {
-          if (taxCollectionEnabled && event.complete && event.isNewAddress) {
-            await triggerTaxDetailsUpdated();
-          }
-        },
-      );
-    } else {
-      addressElement?.destroy();
-      addressElement = null;
+  const onPaymentElementChange = async (
+    event: StripePaymentElementChangeEvent,
+  ) => {
+    if (taxCollectionEnabled && event.complete && event.value.type === "card") {
+      await triggerTaxDetailsUpdated();
     }
-  })();
+    onPaymentInfoChange({
+      complete: event.complete,
+      paymentMethod: event.complete ? event.value.type : undefined,
+    });
+  };
+
+  const onAddressElementChange = async (
+    event: StripeAddressElementChangeEvent,
+  ) => {
+    if (taxCollectionEnabled && event.complete && event.isNewAddress) {
+      await triggerTaxDetailsUpdated();
+    }
+  };
 </script>
 
 <div
-  style="display: flex; flex-direction: column; align-items: stretch; gap: 21px;"
+  style="display: flex; flex-direction: column; align-items: stretch; gap: {spacing
+    .gapXLarge[viewport]};"
 >
-  <div id="payment-element"></div>
-  <div id="address-element"></div>
+  {#if elements}
+    <PaymentElement
+      {elements}
+      {brandingInfo}
+      onReady={() => {
+        onLoadingComplete();
+      }}
+      onChange={onPaymentElementChange}
+      onError={onStripeElementsLoadingError}
+    />
+    {#if priceBreakdown.taxCalculationBasedOnFullAddress && taxCollectionEnabled}
+      <AddressElement
+        {elements}
+        {priceBreakdown}
+        onReady={() => {
+          onLoadingComplete();
+        }}
+        initialCountry={lastTaxCustomerDetails?.country}
+        initialPostalCode={lastTaxCustomerDetails?.postal_code}
+        onNewAddress={onAddressElementChange}
+        onError={onStripeElementsLoadingError}
+      />
+    {/if}
+  {/if}
 </div>

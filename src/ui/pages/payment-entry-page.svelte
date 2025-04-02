@@ -35,7 +35,7 @@
     PaymentElementErrorCode,
   } from "../types/payment-element-error";
   import PaymentButton from "../molecules/payment-button.svelte";
-  import StripePaymentElements from "../molecules/stripe-payment-elements.svelte";
+  import StripeElements from "../molecules/stripe-elements.svelte";
   import { type GatewayParams } from "../../networking/responses/stripe-elements";
 
   export let onContinue: (params?: ContinueHandlerParams) => void;
@@ -121,7 +121,6 @@
 
   function handleStripeElementError(error: PaymentElementError) {
     processing = false;
-
     const event = createCheckoutPaymentGatewayErrorEvent({
       errorCode: error.gatewayErrorCode ?? "",
       errorMessage: error.message ?? "",
@@ -163,11 +162,11 @@
   >
     <div class="rc-checkout-form-container" hidden={!!modalErrorMessage}>
       <div class="rc-payment-element-container">
-        <StripePaymentElements
+        <StripeElements
           bind:submit={stripeSubmit}
           bind:confirm={stripeConfirm}
           bind:stripeLocale
-          bind:priceBreakdown
+          {priceBreakdown}
           {gatewayParams}
           {brandingInfo}
           onLoadingComplete={handleStripeLoadingComplete}

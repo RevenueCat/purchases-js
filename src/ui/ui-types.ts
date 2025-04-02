@@ -35,6 +35,10 @@ export type PriceBreakdown = {
 };
 
 export type TaxCustomerDetails = {
-  countryCode: string | undefined;
-  postalCode: string | undefined;
+  country: string | undefined;
+  postal_code: string | undefined;
+  city?: string | null;
+  line1?: string | null;
+  line2?: string | null;
+  state?: string | null;
 };
