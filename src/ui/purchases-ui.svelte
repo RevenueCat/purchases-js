@@ -1,12 +1,18 @@
 <script lang="ts">
   import { onMount, setContext, onDestroy } from "svelte";
-  import type { Package, Product, PurchaseOption, Purchases } from "../main";
+  import {
+    type Package,
+    type Product,
+    type PurchaseOption,
+    type Purchases,
+  } from "../main";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
 
   import {
     PurchaseFlowError,
     PurchaseFlowErrorCode,
     PurchaseOperationHelper,
+    TaxCalculationError,
   } from "../helpers/purchase-operation-helper";
 
   import { type RedemptionInfo } from "../entities/redemption-info";
@@ -30,7 +36,7 @@
   import { createCheckoutFlowErrorEvent } from "../behavioural-events/sdk-event-helpers";
   import type { PurchaseMetadata } from "../entities/offerings";
   import { writable } from "svelte/store";
-  import { GatewayParams } from "../networking/responses/stripe-elements";
+  import { type GatewayParams } from "../networking/responses/stripe-elements";
   import { ALLOW_TAX_CALCULATION_FF } from "../helpers/constants";
 
   export let customerEmail: string | undefined;
@@ -207,30 +213,49 @@
   async function refreshTaxCalculation(
     taxCustomerDetails: TaxCustomerDetails | undefined = undefined,
   ) {
-    // TODO: Handle tax calculation errors including:
-    // - missing state
-    // - missing postal code
-    // - generic
-    // - unexpected error
-
     priceBreakdown.taxCalculationStatus = "loading";
 
     const taxCalculation = await purchaseOperationHelper.checkoutCalculateTax(
       taxCustomerDetails?.countryCode,
       taxCustomerDetails?.postalCode,
     );
+    if (taxCalculation.error) {
+      switch (taxCalculation.error) {
+        case TaxCalculationError.Pending:
+          priceBreakdown.taxCalculationStatus = "pending";
+          break;
+        case TaxCalculationError.Disabled:
+          priceBreakdown.taxCollectionEnabled = false;
+          priceBreakdown.taxCalculationStatus = null;
+          break;
+        case TaxCalculationError.InvalidLocation:
+          // TODO: Show an error message
+          priceBreakdown.taxCalculationStatus = "pending";
+          break;
+        default:
+          handleError(
+            new PurchaseFlowError(
+              PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+              "Unknown error without state set.",
+            ),
+          );
+      }
+
+      return;
+    }
 
     priceBreakdown.taxCalculationStatus = "calculated";
-    priceBreakdown.totalAmountInMicros = taxCalculation.total_amount_in_micros;
-    priceBreakdown.taxAmountInMicros = taxCalculation.tax_amount_in_micros;
+    priceBreakdown.totalAmountInMicros =
+      taxCalculation.data.total_amount_in_micros;
+    priceBreakdown.taxAmountInMicros = taxCalculation.data.tax_amount_in_micros;
     priceBreakdown.totalExcludingTaxInMicros =
-      taxCalculation.total_excluding_tax_in_micros;
+      taxCalculation.data.total_excluding_tax_in_micros;
     priceBreakdown.taxBreakdown =
-      taxCalculation.pricing_phases.base.tax_breakdown;
+      taxCalculation.data.pricing_phases.base.tax_breakdown;
     priceBreakdown.pendingReason = null;
 
     gatewayParams.elements_configuration =
-      taxCalculation.gateway_params.elements_configuration;
+      taxCalculation.data.gateway_params.elements_configuration;
   }
 
   const handleError = (e: PurchaseFlowError) => {

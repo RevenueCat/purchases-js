@@ -36,10 +36,16 @@ export enum ErrorCode {
   CustomerInfoError = 28,
   SignatureVerificationError = 36,
   InvalidEmailError = 38,
+  RateLimitError = 39,
+  TaxCollectionNotEnabledError = 40,
+  TaxLocationCannotBeDeterminedError = 41,
+  InvalidTaxLocationError = 42,
+  GatewaySetupError = 43,
+  SandboxModeOnlyError = 44,
 }
 
 export class ErrorCodeUtils {
-  static getPublicMessage(errorCode: ErrorCode): string {
+  static getPublicMessage(errorCode: ErrorCode): string | undefined {
     switch (errorCode) {
       case ErrorCode.UnknownError:
         return "Unknown error.";
@@ -104,6 +110,8 @@ export class ErrorCodeUtils {
         return "Request failed signature verification. Please see https://rev.cat/trusted-entitlements for more info.";
       case ErrorCode.InvalidEmailError:
         return "Email is not valid. Please provide a valid email address.";
+      case ErrorCode.InvalidTaxLocationError:
+        return "The billing address you entered couldn't be verified. Please double-check your postal code and country to ensure they match";
     }
   }
 
@@ -155,6 +163,20 @@ export class ErrorCodeUtils {
       case BackendErrorCode.BackendNoMXRecordsFound:
       case BackendErrorCode.BackendEmailIsRequired:
         return ErrorCode.InvalidEmailError;
+      case BackendErrorCode.BackendTaxCalculationRequiresPostalCode:
+        return ErrorCode.UnexpectedBackendResponseError;
+      case BackendErrorCode.BackendTaxCollectionNotEnabled:
+        return ErrorCode.TaxCollectionNotEnabledError;
+      case BackendErrorCode.BackendTaxLocationCannotBeDetermined:
+        return ErrorCode.TaxLocationCannotBeDeterminedError;
+      case BackendErrorCode.BackendTaxInvalidTaxLocation:
+        return ErrorCode.InvalidTaxLocationError;
+      case BackendErrorCode.BackendGatewaySetupErrorStripeTaxNotActive:
+      case BackendErrorCode.BackendGatewaySetupErrorInvalidTaxOriginAddress:
+      case BackendErrorCode.BackendGatewaySetupErrorMissingRequiredPermission:
+        return ErrorCode.GatewaySetupError;
+      case BackendErrorCode.BackendGatewaySetupErrorSandboxModeOnly:
+        return ErrorCode.SandboxModeOnlyError;
     }
   }
 
@@ -216,6 +238,14 @@ export enum BackendErrorCode {
   BackendInvalidOperationSession = 7877,
   BackendPurchaseCannotBeCompleted = 7878,
   BackendEmailIsRequired = 7879,
+  BackendTaxCollectionNotEnabled = 7886,
+  BackendTaxCalculationRequiresPostalCode = 7887,
+  BackendTaxLocationCannotBeDetermined = 7896,
+  BackendTaxInvalidTaxLocation = 7897,
+  BackendGatewaySetupErrorStripeTaxNotActive = 7898,
+  BackendGatewaySetupErrorInvalidTaxOriginAddress = 7899,
+  BackendGatewaySetupErrorMissingRequiredPermission = 7900,
+  BackendGatewaySetupErrorSandboxModeOnly = 7901,
 }
 
 /**
