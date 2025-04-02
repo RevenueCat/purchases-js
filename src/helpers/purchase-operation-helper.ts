@@ -89,6 +89,22 @@ export class PurchaseFlowError extends Error {
   }
 }
 
+export enum TaxCalculationError {
+  Pending = "pending",
+  InvalidLocation = "invalid_location",
+  Disabled = "disabled",
+}
+
+export type TaxCalculationResult =
+  | {
+      error: TaxCalculationError;
+      data?: CheckoutCalculateTaxResponse;
+    }
+  | {
+      error?: TaxCalculationError;
+      data: CheckoutCalculateTaxResponse;
+    };
+
 export class PurchaseOperationHelper {
   private operationSessionId: string | null = null;
   private readonly backend: Backend;
@@ -149,7 +165,7 @@ export class PurchaseOperationHelper {
   async checkoutCalculateTax(
     countryCode?: string,
     postalCode?: string,
-  ): Promise<CheckoutCalculateTaxResponse> {
+  ): Promise<TaxCalculationResult> {
     const operationSessionId = this.operationSessionId;
     if (!operationSessionId) {
       throw new PurchaseFlowError(
@@ -165,13 +181,32 @@ export class PurchaseOperationHelper {
           countryCode,
           postalCode,
         );
-      return checkoutCalculateTaxResponse;
+      return {
+        error: undefined,
+        data: checkoutCalculateTaxResponse,
+      };
     } catch (error) {
       if (error instanceof PurchasesError) {
-        throw PurchaseFlowError.fromPurchasesError(
-          error,
-          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-        );
+        let calculationError: TaxCalculationError;
+        if (error.errorCode === ErrorCode.TaxLocationCannotBeDeterminedError) {
+          calculationError = TaxCalculationError.Pending;
+        } else if (error.errorCode === ErrorCode.InvalidTaxLocationError) {
+          calculationError = TaxCalculationError.InvalidLocation;
+        } else if (
+          error.errorCode === ErrorCode.TaxCollectionNotEnabledError ||
+          (!this.backend.getIsSandbox() &&
+            error.errorCode !== ErrorCode.SandboxModeOnlyError)
+        ) {
+          calculationError = TaxCalculationError.Disabled;
+        } else {
+          throw PurchaseFlowError.fromPurchasesError(
+            error,
+            PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+          );
+        }
+        return {
+          error: calculationError,
+        };
       } else {
         const errorMessage = "Unknown error calculating tax: " + String(error);
         Logger.errorLog(errorMessage);
