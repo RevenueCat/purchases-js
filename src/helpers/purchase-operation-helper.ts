@@ -13,8 +13,6 @@ import {
 } from "../networking/responses/checkout-status-response";
 import {
   type PresentedOfferingContext,
-  type Product,
-  ProductType,
   type PurchaseMetadata,
   type PurchaseOption,
 } from "../entities/offerings";
@@ -64,30 +62,6 @@ export class PurchaseFlowError extends Error {
     return (
       this.extra?.backendErrorCode ?? this.purchasesErrorCode ?? this.errorCode
     );
-  }
-
-  getPublicErrorMessage(productDetails: Product | null): string {
-    const errorCode =
-      this.extra?.backendErrorCode ?? this.purchasesErrorCode ?? this.errorCode;
-    switch (this.errorCode) {
-      // TODO: Localize these messages
-      case PurchaseFlowErrorCode.UnknownError:
-        return `An unknown error occurred. Error code: ${errorCode}.`;
-      case PurchaseFlowErrorCode.ErrorSettingUpPurchase:
-        return `Purchase not started due to an error. Error code: ${errorCode}.`;
-      case PurchaseFlowErrorCode.ErrorChargingPayment:
-        return "Payment failed.";
-      case PurchaseFlowErrorCode.NetworkError:
-        return "Network error. Please check your internet connection.";
-      case PurchaseFlowErrorCode.MissingEmailError:
-        return "Email is required to complete the purchase.";
-      case PurchaseFlowErrorCode.AlreadyPurchasedError:
-        if (productDetails?.productType === ProductType.Subscription) {
-          return "You are already subscribed to this product.";
-        } else {
-          return "You have already purchased this product.";
-        }
-    }
   }
 
   static fromPurchasesError(
