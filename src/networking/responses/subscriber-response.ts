@@ -1,4 +1,8 @@
-import { type PeriodType, type Store } from "../../entities/customer-info";
+import {
+  type OwnershipType,
+  type PeriodType,
+  type Store,
+} from "../../entities/customer-info";
 
 export interface SubscriberEntitlementResponse {
   expires_date: string | null;
@@ -22,6 +26,7 @@ export interface SubscriberSubscriptionResponse {
   store: Store;
   store_transaction_id?: string | null;
   unsubscribe_detected_at: string | null;
+  ownership_type?: OwnershipType | null;
 }
 
 export interface NonSubscriptionResponse {

@@ -87,6 +87,9 @@ export type {
   EntitlementInfo,
   Store,
   PeriodType,
+  OwnershipType,
+  SubscriptionInfo,
+  NonSubscriptionTransaction,
 } from "./entities/customer-info";
 export {
   ErrorCode,
