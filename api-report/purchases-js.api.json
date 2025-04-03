@@ -1384,6 +1384,27 @@
             },
             {
               "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ErrorCode.GatewaySetupError:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "GatewaySetupError = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "43"
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "GatewaySetupError"
+            },
+            {
+              "kind": "EnumMember",
               "canonicalReference": "@revenuecat/purchases-js!ErrorCode.IneligibleError:member",
               "docComment": "",
               "excerptTokens": [
@@ -1549,6 +1570,27 @@
               },
               "releaseTag": "Public",
               "name": "InvalidSubscriberAttributesError"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ErrorCode.InvalidTaxLocationError:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "InvalidTaxLocationError = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "42"
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "InvalidTaxLocationError"
             },
             {
               "kind": "EnumMember",
@@ -1741,6 +1783,27 @@
             },
             {
               "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ErrorCode.RateLimitError:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "RateLimitError = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "39"
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "RateLimitError"
+            },
+            {
+              "kind": "EnumMember",
               "canonicalReference": "@revenuecat/purchases-js!ErrorCode.ReceiptAlreadyInUseError:member",
               "docComment": "",
               "excerptTokens": [
@@ -1759,6 +1822,27 @@
               },
               "releaseTag": "Public",
               "name": "ReceiptAlreadyInUseError"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ErrorCode.SandboxModeOnlyError:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "SandboxModeOnlyError = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "44"
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "SandboxModeOnlyError"
             },
             {
               "kind": "EnumMember",
@@ -1801,6 +1885,48 @@
               },
               "releaseTag": "Public",
               "name": "StoreProblemError"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ErrorCode.TaxCollectionNotEnabledError:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "TaxCollectionNotEnabledError = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "40"
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "TaxCollectionNotEnabledError"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ErrorCode.TaxLocationCannotBeDeterminedError:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "TaxLocationCannotBeDeterminedError = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "41"
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "TaxLocationCannotBeDeterminedError"
             },
             {
               "kind": "EnumMember",
