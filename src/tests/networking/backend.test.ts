@@ -16,6 +16,8 @@ import {
   PurchasesError,
 } from "../../entities/errors";
 import { expectPromiseToError } from "../test-helpers";
+import { VERSION } from "../../helpers/constants";
+import { Purchases } from "../../main";
 
 let server: SetupServer;
 let backend: Backend;
@@ -81,6 +83,50 @@ describe("httpConfig is setup correctly", () => {
     await backend.getCustomerInfo("someAppUserId");
     expect(requestPerformed).not.toBeNull();
     expect(requestPerformed?.headers.get("X-Platform")).toEqual("web");
+  });
+
+  test("expected headers are sent", async () => {
+    setCustomerInfoResponse(
+      HttpResponse.json(customerInfoResponse, { status: 200 }),
+    );
+
+    let requestPerformed: Request | undefined;
+    server.events.on("request:start", (req) => {
+      requestPerformed = req.request;
+    });
+    backend = new Backend("test_api_key");
+    await backend.getCustomerInfo("someAppUserId");
+    const headers = requestPerformed?.headers;
+    expect(headers).not.toBeNull();
+    if (!headers) return;
+    expect(headers.get("X-Platform")).toEqual("web");
+    expect(headers.get("X-Version")).toEqual(VERSION);
+    expect(headers.get("X-Platform-Flavor")).toBeNull();
+    expect(headers.get("X-Platform-Flavor-Version")).toBeNull();
+    expect(headers.get("X-Is-Sandbox")).toEqual("false");
+  });
+
+  test("expected platformInfo headers are sent", async () => {
+    setCustomerInfoResponse(
+      HttpResponse.json(customerInfoResponse, { status: 200 }),
+    );
+
+    Purchases.setPlatformInfo({
+      flavor: "flutter",
+      version: "1.2.3",
+    });
+
+    let requestPerformed: Request | undefined;
+    server.events.on("request:start", (req) => {
+      requestPerformed = req.request;
+    });
+    backend = new Backend("test_api_key");
+    await backend.getCustomerInfo("someAppUserId");
+    const headers = requestPerformed?.headers;
+    expect(headers).not.toBeNull();
+    if (!headers) return;
+    expect(headers.get("X-Platform-Flavor")).toEqual("flutter");
+    expect(headers.get("X-Platform-Flavor-Version")).toEqual("1.2.3");
   });
 });
 
