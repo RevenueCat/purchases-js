@@ -86,8 +86,6 @@ export enum ErrorCode {
     // (undocumented)
     EmptySubscriberAttributesError = 25,
     // (undocumented)
-    GatewaySetupError = 43,
-    // (undocumented)
     IneligibleError = 18,
     // (undocumented)
     InsufficientPermissionsError = 19,
@@ -103,8 +101,6 @@ export enum ErrorCode {
     InvalidReceiptError = 8,
     // (undocumented)
     InvalidSubscriberAttributesError = 21,
-    // (undocumented)
-    InvalidTaxLocationError = 42,
     // (undocumented)
     LogOutWithAnonymousUserError = 22,
     // (undocumented)
@@ -124,19 +120,11 @@ export enum ErrorCode {
     // (undocumented)
     PurchaseNotAllowedError = 3,
     // (undocumented)
-    RateLimitError = 39,
-    // (undocumented)
     ReceiptAlreadyInUseError = 7,
-    // (undocumented)
-    SandboxModeOnlyError = 44,
     // (undocumented)
     SignatureVerificationError = 36,
     // (undocumented)
     StoreProblemError = 2,
-    // (undocumented)
-    TaxCollectionNotEnabledError = 40,
-    // (undocumented)
-    TaxLocationCannotBeDeterminedError = 41,
     // (undocumented)
     UnexpectedBackendResponseError = 12,
     // (undocumented)

@@ -36,16 +36,11 @@ export enum ErrorCode {
   CustomerInfoError = 28,
   SignatureVerificationError = 36,
   InvalidEmailError = 38,
-  RateLimitError = 39,
-  TaxCollectionNotEnabledError = 40,
-  TaxLocationCannotBeDeterminedError = 41,
-  InvalidTaxLocationError = 42,
-  GatewaySetupError = 43,
-  SandboxModeOnlyError = 44,
 }
 
 export class ErrorCodeUtils {
-  static getPublicMessage(errorCode: ErrorCode): string | undefined {
+  // This is the message shown to developers. It is not intended to be displayed to end customers.
+  static getPublicMessage(errorCode: ErrorCode): string {
     switch (errorCode) {
       case ErrorCode.UnknownError:
         return "Unknown error.";
@@ -110,8 +105,6 @@ export class ErrorCodeUtils {
         return "Request failed signature verification. Please see https://rev.cat/trusted-entitlements for more info.";
       case ErrorCode.InvalidEmailError:
         return "Email is not valid. Please provide a valid email address.";
-      case ErrorCode.InvalidTaxLocationError:
-        return "The billing address you entered couldn't be verified. Please double-check your postal code and country to ensure they match";
     }
   }
 
@@ -121,6 +114,10 @@ export class ErrorCodeUtils {
     switch (backendErrorCode) {
       case BackendErrorCode.BackendStoreProblem:
       case BackendErrorCode.BackendPaymentGatewayGenericError:
+      case BackendErrorCode.BackendGatewaySetupErrorStripeTaxNotActive:
+      case BackendErrorCode.BackendGatewaySetupErrorInvalidTaxOriginAddress:
+      case BackendErrorCode.BackendGatewaySetupErrorMissingRequiredPermission:
+      case BackendErrorCode.BackendGatewaySetupErrorSandboxModeOnly:
         return ErrorCode.StoreProblemError;
       case BackendErrorCode.BackendCannotTransferPurchase:
         return ErrorCode.ReceiptAlreadyInUseError;
@@ -156,6 +153,7 @@ export class ErrorCodeUtils {
       case BackendErrorCode.BackendInvalidAppleSubscriptionKey:
       case BackendErrorCode.BackendBadRequest:
       case BackendErrorCode.BackendInternalServerError:
+      case BackendErrorCode.BackendTaxCalculationRequiresPostalCode:
         return ErrorCode.UnexpectedBackendResponseError;
       case BackendErrorCode.BackendProductIDsMalformed:
         return ErrorCode.UnsupportedError;
@@ -163,20 +161,13 @@ export class ErrorCodeUtils {
       case BackendErrorCode.BackendNoMXRecordsFound:
       case BackendErrorCode.BackendEmailIsRequired:
         return ErrorCode.InvalidEmailError;
-      case BackendErrorCode.BackendTaxCalculationRequiresPostalCode:
-        return ErrorCode.UnexpectedBackendResponseError;
-      case BackendErrorCode.BackendTaxCollectionNotEnabled:
-        return ErrorCode.TaxCollectionNotEnabledError;
+
+      // These error codes should never be exposed to developers, as they are handled internally within the purchase flow.
+      // We map them to UnknownError because a mapping is required.
       case BackendErrorCode.BackendTaxLocationCannotBeDetermined:
-        return ErrorCode.TaxLocationCannotBeDeterminedError;
-      case BackendErrorCode.BackendTaxInvalidTaxLocation:
-        return ErrorCode.InvalidTaxLocationError;
-      case BackendErrorCode.BackendGatewaySetupErrorStripeTaxNotActive:
-      case BackendErrorCode.BackendGatewaySetupErrorInvalidTaxOriginAddress:
-      case BackendErrorCode.BackendGatewaySetupErrorMissingRequiredPermission:
-        return ErrorCode.GatewaySetupError;
-      case BackendErrorCode.BackendGatewaySetupErrorSandboxModeOnly:
-        return ErrorCode.SandboxModeOnlyError;
+      case BackendErrorCode.BackendInvalidTaxLocation:
+      case BackendErrorCode.BackendTaxCollectionNotEnabled:
+        return ErrorCode.UnknownError;
     }
   }
 
@@ -241,7 +232,7 @@ export enum BackendErrorCode {
   BackendTaxCollectionNotEnabled = 7886,
   BackendTaxCalculationRequiresPostalCode = 7887,
   BackendTaxLocationCannotBeDetermined = 7896,
-  BackendTaxInvalidTaxLocation = 7897,
+  BackendInvalidTaxLocation = 7897,
   BackendGatewaySetupErrorStripeTaxNotActive = 7898,
   BackendGatewaySetupErrorInvalidTaxOriginAddress = 7899,
   BackendGatewaySetupErrorMissingRequiredPermission = 7900,

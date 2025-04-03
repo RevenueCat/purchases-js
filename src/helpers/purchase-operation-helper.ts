@@ -1,4 +1,5 @@
 import {
+  BackendErrorCode,
   ErrorCode,
   PurchasesError,
   type PurchasesErrorExtra,
@@ -187,15 +188,24 @@ export class PurchaseOperationHelper {
       };
     } catch (error) {
       if (error instanceof PurchasesError) {
+        const backendErrorCode = error.extra?.backendErrorCode;
         let calculationError: TaxCalculationError;
-        if (error.errorCode === ErrorCode.TaxLocationCannotBeDeterminedError) {
+        if (
+          backendErrorCode ===
+          BackendErrorCode.BackendTaxLocationCannotBeDetermined
+        ) {
           calculationError = TaxCalculationError.Pending;
-        } else if (error.errorCode === ErrorCode.InvalidTaxLocationError) {
+        } else if (
+          backendErrorCode === BackendErrorCode.BackendInvalidTaxLocation
+        ) {
           calculationError = TaxCalculationError.InvalidLocation;
         } else if (
-          error.errorCode === ErrorCode.TaxCollectionNotEnabledError ||
+          backendErrorCode ===
+            BackendErrorCode.BackendTaxCollectionNotEnabled ||
           (!this.backend.getIsSandbox() &&
-            error.errorCode !== ErrorCode.SandboxModeOnlyError)
+            backendErrorCode &&
+            backendErrorCode !==
+              BackendErrorCode.BackendGatewaySetupErrorSandboxModeOnly)
         ) {
           calculationError = TaxCalculationError.Disabled;
         } else {
