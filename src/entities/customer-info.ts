@@ -206,7 +206,7 @@ export interface SubscriptionInfo {
   /**
    * How the Customer received access to this subscription:
    * - "PURCHASED": The customer bought the subscription.
-   * - "FAMILY_SHARED": The Customer has access to the product via their family.
+   * - "FAMILY_SHARED": The customer has access to the product via their family.
    */
   readonly ownershipType: OwnershipType;
   /**
