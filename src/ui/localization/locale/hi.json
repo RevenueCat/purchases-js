@@ -50,6 +50,7 @@
   "error_page.error_message_network_error": "नेटवर्क त्रुटि। कृपया अपना इंटरनेट कनेक्शन जांचें।",
   "error_page.error_message_error_charging_payment": "भुगतान विफल।",
   "error_page.error_message_error_setting_up_purchase": "त्रुटि के कारण खरीद शुरू नहीं हुई। त्रुटि कोड: {{errorCode}}",
+  "error_page.error_message_invalid_tax_location": "हम आपके बिलिंग पते को सत्यापित नहीं कर सके। कृपया सुनिश्चित करें कि पिन कोड और देश सही हैं।",
   "error_page.error_message_unknown_error": "एक अज्ञात त्रुटि हुई। त्रुटि कोड: {{errorCode}}",
   "error_page.button_try_again": "फिर से कोशिश करें",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",

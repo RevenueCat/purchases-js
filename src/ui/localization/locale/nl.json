@@ -50,6 +50,7 @@
   "error_page.error_message_network_error": "Netwerkfout. Controleer uw internetverbinding.",
   "error_page.error_message_error_charging_payment": "Betaling mislukt.",
   "error_page.error_message_error_setting_up_purchase": "Aankoop niet gestart vanwege een fout. Foutcode: {{errorCode}}",
+  "error_page.error_message_invalid_tax_location": "We konden uw factuuradres niet verifiëren. Controleer of de postcode en het land correct zijn.",
   "error_page.error_message_unknown_error": "Er is een onbekende fout opgetreden. Foutcode: {{errorCode}}",
   "error_page.button_try_again": "Opnieuw proberen",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",

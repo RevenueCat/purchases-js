@@ -50,6 +50,7 @@
   "error_page.error_message_network_error": "Netzwerkfehler. Bitte überprüfen Sie Ihre Internetverbindung.",
   "error_page.error_message_error_charging_payment": "Zahlung fehlgeschlagen.",
   "error_page.error_message_error_setting_up_purchase": "Der Kauf konnte aufgrund eines Fehlers nicht gestartet werden. Fehlercode: {{errorCode}}",
+  "error_page.error_message_invalid_tax_location": "Wir konnten Ihre Rechnungsadresse nicht überprüfen. Bitte überprüfen Sie, ob die Postleitzahl und das Land korrekt sind.",
   "error_page.error_message_unknown_error": "Ein unbekannter Fehler ist aufgetreten. Fehlercode: {{errorCode}}",
   "error_page.button_try_again": "Erneut versuchen",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",

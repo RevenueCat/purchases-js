@@ -50,6 +50,7 @@
   "error_page.error_message_network_error": "Síťová chyba. Zkontrolujte prosím své internetové připojení.",
   "error_page.error_message_error_charging_payment": "Platba selhala.",
   "error_page.error_message_error_setting_up_purchase": "Nákup nebyl zahájen kvůli chybě. Kód chyby: {{errorCode}}",
+  "error_page.error_message_invalid_tax_location": "Nemohli jsme ověřit vaši fakturační adresu. Zkontrolujte prosím, zda je poštovní směrovací číslo a země správné.",
   "error_page.error_message_unknown_error": "Došlo k neznámé chybě. Kód chyby: {{errorCode}}",
   "error_page.button_try_again": "Zkusit znovu",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",

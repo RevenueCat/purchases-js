@@ -92,6 +92,7 @@ export enum LocalizationKeys {
   ErrorPageErrorMessageErrorChargingPayment = "error_page.error_message_error_charging_payment",
   ErrorPageErrorMessageErrorSettingUpPurchase = "error_page.error_message_error_setting_up_purchase",
   ErrorPageErrorMessageUnknownError = "error_page.error_message_unknown_error",
+  ErrorPageErrorMessageInvalidTaxLocation = "error_page.error_message_invalid_tax_location",
   ErrorButtonTryAgain = "error_page.button_try_again",
   PaywallVariablesPricePerPeriod = "paywall_variables.price_per_period",
   PaywallVariablesSubRelativeDiscount = "paywall_variables.sub_relative_discount",

@@ -50,6 +50,7 @@
   "error_page.error_message_network_error": "Błąd sieci. Sprawdź połączenie internetowe.",
   "error_page.error_message_error_charging_payment": "Płatność nieudana.",
   "error_page.error_message_error_setting_up_purchase": "Zakupu nie rozpoczęto z powodu błędu. Kod błędu: {{errorCode}}",
+  "error_page.error_message_invalid_tax_location": "Nie mogliśmy zweryfikować Twojego adresu rozliczeniowego. Sprawdź, czy kod pocztowy i kraj są poprawne.",
   "error_page.error_message_unknown_error": "Wystąpił nieznany błąd. Kod błędu: {{errorCode}}",
   "error_page.button_try_again": "Spróbuj ponownie",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
