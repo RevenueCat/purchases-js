@@ -64,6 +64,7 @@ import { SDKEventName } from "./behavioural-events/sdk-events";
 import { autoParseUTMParams } from "./helpers/utm-params";
 import { defaultFlagsConfig, type FlagsConfig } from "./entities/flags-config";
 import { generateUUID } from "./helpers/uuid-helper";
+import type { PlatformInfo } from "./entities/platform-info";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -107,6 +108,7 @@ export type { PurchaseParams } from "./entities/purchase-params";
 export type { RedemptionInfo } from "./entities/redemption-info";
 export type { PurchaseResult } from "./entities/purchase-result";
 export type { BrandingAppearance } from "./entities/branding";
+export type { PlatformInfo } from "./entities/platform-info";
 
 const ANONYMOUS_PREFIX = "$RCAnonymousID:";
 
@@ -142,6 +144,9 @@ export class Purchases {
   private readonly eventsTracker: IEventsTracker;
 
   /** @internal */
+  private static _platformInfo: PlatformInfo | undefined = undefined;
+
+  /** @internal */
   private static instance: Purchases | undefined = undefined;
 
   /**
@@ -152,6 +157,19 @@ export class Purchases {
    */
   static setLogLevel(logLevel: LogLevel) {
     Logger.setLogLevel(logLevel);
+  }
+
+  /**
+   * Meant to be used by RevenueCat hybrids SDKS only.
+   * @experimental
+   * */
+  static setPlatformInfo(platformInfo: PlatformInfo) {
+    Purchases._platformInfo = platformInfo;
+  }
+
+  /** @internal */
+  static getPlatformInfo(): PlatformInfo | undefined {
+    return Purchases._platformInfo;
   }
 
   /**

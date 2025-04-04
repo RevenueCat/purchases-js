@@ -261,6 +261,12 @@ export enum PeriodUnit {
 }
 
 // @public
+export interface PlatformInfo {
+    readonly flavor: string;
+    readonly version: string;
+}
+
+// @public
 export interface PresentedOfferingContext {
     readonly offeringIdentifier: string;
     readonly placementIdentifier: string | null;
@@ -359,6 +365,7 @@ export class Purchases {
     // @deprecated
     purchasePackage(rcPackage: Package, customerEmail?: string, htmlTarget?: HTMLElement): Promise<PurchaseResult>;
     static setLogLevel(logLevel: LogLevel): void;
+    static setPlatformInfo(platformInfo: PlatformInfo): void;
 }
 
 // @public
