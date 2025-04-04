@@ -223,8 +223,8 @@
           priceBreakdown.taxCalculationStatus = null;
           break;
         case TaxCalculationError.InvalidLocation:
-          // TODO: Show an error message
           priceBreakdown.taxCalculationStatus = "pending";
+          priceBreakdown.pendingReason = "invalid_postal_code";
           break;
         default:
           handleError(

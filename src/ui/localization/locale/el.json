@@ -56,6 +56,7 @@
   "error_page.error_message_network_error": "Σφάλμα δικτύου. Ελέγξτε τη σύνδεσή σας στο διαδίκτυο.",
   "error_page.error_message_error_charging_payment": "Η πληρωμή απέτυχε.",
   "error_page.error_message_error_setting_up_purchase": "Η αγορά δεν ξεκίνησε λόγω σφάλματος. Κωδικός σφάλματος: {{errorCode}}",
+  "error_page.error_message_invalid_tax_location": "Δεν μπορέσαμε να επαληθεύσουμε τη διεύθυνση χρέωσής σας. Παρακαλούμε ελέγξτε ξανά τον ταχυδρομικό κώδικα και τη χώρα για να βεβαιωθείτε ότι είναι σωστά.",
   "error_page.error_message_unknown_error": "Παρουσιάστηκε άγνωστο σφάλμα. Κωδικός σφάλματος: {{errorCode}}",
   "error_page.button_try_again": "Προσπαθήστε ξανά",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",

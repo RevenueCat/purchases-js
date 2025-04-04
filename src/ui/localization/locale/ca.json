@@ -50,6 +50,7 @@
   "error_page.error_message_network_error": "Error de xarxa. Comprova la teva connexió a internet.",
   "error_page.error_message_error_charging_payment": "El pagament ha fallat.",
   "error_page.error_message_error_setting_up_purchase": "La compra no s'ha iniciat a causa d'un error. Codi d'error: {{errorCode}}",
+  "error_page.error_message_invalid_tax_location": "No hem pogut verificar la vostra adreça de facturació. Si us plau, verifiqueu de nou el codi postal i el país per assegurar-vos que són correctes.",
   "error_page.error_message_unknown_error": "S'ha produït un error desconegut. Codi d'error: {{errorCode}}",
   "error_page.button_try_again": "Torna a intentar-ho",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",

@@ -50,6 +50,7 @@
   "error_page.error_message_network_error": "Nätverksfel. Kontrollera din internetanslutning.",
   "error_page.error_message_error_charging_payment": "Betalningen misslyckades.",
   "error_page.error_message_error_setting_up_purchase": "Köpet kunde inte påbörjas på grund av ett fel. Felkod: {{errorCode}}",
+  "error_page.error_message_invalid_tax_location": "Vi kunde inte verifiera din faktureringsadress. Kontrollera att postnummer och land är korrekta.",
   "error_page.error_message_unknown_error": "Ett okänt fel uppstod. Felkod: {{errorCode}}",
   "error_page.button_try_again": "Försök igen",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
