@@ -9,6 +9,7 @@ import { RC_ENDPOINT, VERSION } from "../helpers/constants";
 import { StatusCodes } from "http-status-codes";
 import { isSandboxApiKey } from "../helpers/api-key-helper";
 import type { HttpConfig } from "../entities/http-config";
+import { Purchases } from "../main";
 
 interface HttpRequestConfig<RequestBody> {
   apiKey: string;
@@ -106,6 +107,8 @@ const CONTENT_TYPE_HEADER = "Content-Type";
 const ACCEPT_HEADER = "Accept";
 const PLATFORM_HEADER = "X-Platform";
 const VERSION_HEADER = "X-Version";
+const FLAVOR_HEADER = "X-Platform-Flavor";
+const FLAVOR_VERSION_HEADER = "X-Platform-Flavor-Version";
 const IS_SANDBOX_HEADER = "X-Is-Sandbox";
 
 export const SDK_HEADERS = new Set([
@@ -115,6 +118,8 @@ export const SDK_HEADERS = new Set([
   PLATFORM_HEADER,
   VERSION_HEADER,
   IS_SANDBOX_HEADER,
+  FLAVOR_HEADER,
+  FLAVOR_VERSION_HEADER,
 ]);
 
 export function getHeaders(
@@ -130,6 +135,14 @@ export function getHeaders(
     [VERSION_HEADER]: VERSION,
     [IS_SANDBOX_HEADER]: `${isSandboxApiKey(apiKey)}`,
   };
+  const platformInfo = Purchases.getPlatformInfo();
+  if (platformInfo) {
+    const platform_info_headers = {
+      [FLAVOR_HEADER]: platformInfo.flavor,
+      [FLAVOR_VERSION_HEADER]: platformInfo.version,
+    };
+    all_headers = { ...all_headers, ...platform_info_headers };
+  }
   if (headers) {
     all_headers = { ...all_headers, ...headers };
   }
