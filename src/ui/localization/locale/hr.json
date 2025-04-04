@@ -50,6 +50,7 @@
   "error_page.error_message_network_error": "Mrežna pogreška. Provjerite internetsku vezu.",
   "error_page.error_message_error_charging_payment": "Plaćanje nije uspjelo.",
   "error_page.error_message_error_setting_up_purchase": "Kupnja nije započela zbog pogreške. Šifra pogreške: {{errorCode}}",
+  "error_page.error_message_invalid_tax_location": "Nismo mogli potvrditi vašu adresu za naplatu. Molimo provjerite poštanski broj i državu kako biste bili sigurni da su točni.",
   "error_page.error_message_unknown_error": "Dogodila se nepoznata pogreška. Šifra pogreške: {{errorCode}}",
   "error_page.button_try_again": "Pokušaj ponovno",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",

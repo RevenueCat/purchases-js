@@ -50,6 +50,7 @@
   "error_page.error_message_network_error": "Erreur réseau. Veuillez vérifier votre connexion Internet.",
   "error_page.error_message_error_charging_payment": "Échec du paiement.",
   "error_page.error_message_error_setting_up_purchase": "Achat non démarré en raison d'une erreur. Code d'erreur : {{errorCode}}",
+  "error_page.error_message_invalid_tax_location": "Nous n'avons pas pu vérifier votre adresse de facturation. Veuillez vérifier que le code postal et le pays sont corrects.",
   "error_page.error_message_unknown_error": "Une erreur inconnue s'est produite. Code d'erreur : {{errorCode}}",
   "error_page.button_try_again": "Réessayer",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
