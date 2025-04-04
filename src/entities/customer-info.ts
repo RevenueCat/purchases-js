@@ -31,6 +31,13 @@ export type Store =
 export type PeriodType = "normal" | "intro" | "trial" | "prepaid";
 
 /**
+ * The types used to describe whether a transaction was purchased by the user,
+ * or is available to them through Family Sharing.
+ * @public
+ */
+export type OwnershipType = "PURCHASED" | "FAMILY_SHARED" | "UNKNOWN";
+
+/**
  * This object gives you access to all the information about the status
  * of a user's entitlements.
  * @public
@@ -73,6 +80,10 @@ export interface EntitlementInfo {
    */
   readonly productIdentifier: string;
   /**
+   * The base plan identifier that unlocked this entitlement (For Google Play subs only).
+   */
+  readonly productPlanIdentifier: string | null;
+  /**
    * The date an unsubscribe was detected. Can be `null`.
    * Note: Entitlement may still be active even if user has unsubscribed.
    * Check the {@link EntitlementInfo.isActive} property.
@@ -93,6 +104,13 @@ export interface EntitlementInfo {
    * The last period type this entitlement was in.
    */
   readonly periodType: PeriodType;
+  /**
+   * Use this property to determine whether a purchase was made by the
+   * current user or shared to them by a family member. This can be useful
+   * for onboarding users who have had an entitlement shared with them,
+   * but might not be entirely aware of the benefits they now have.
+   */
+  readonly ownershipType: OwnershipType | null;
 }
 
 /**
@@ -109,6 +127,113 @@ export interface EntitlementInfos {
    * Dictionary of active {@link EntitlementInfo} keyed by entitlement identifier.
    */
   readonly active: { [entitlementId: string]: EntitlementInfo };
+}
+
+/**
+ * Information that represents a non-subscription purchase made by a user.
+ * @public
+ */
+export interface NonSubscriptionTransaction {
+  /**
+   * The unique identifier for the transaction created by RevenueCat.
+   */
+  readonly transactionIdentifier: string;
+  /**
+   * The product identifier.
+   */
+  readonly productIdentifier: string;
+  /**
+   * The date that the store charged the user’s account.
+   */
+  readonly purchaseDate: Date;
+  /**
+   * The unique identifier for the transaction created by the Store.
+   */
+  readonly storeTransactionId: string | null;
+  /**
+   * The {@link Store} where the transaction was made.
+   */
+  readonly store: Store;
+}
+
+/**
+ * Subscription purchases of the Customer.
+ * @public
+ */
+export interface SubscriptionInfo {
+  /**
+   * The product identifier.
+   */
+  readonly productIdentifier: string;
+  /**
+   * Date when the last subscription period started.
+   */
+  readonly purchaseDate: Date;
+  /**
+   * Date when this subscription first started. This property does not update with renewals.
+   * This property also does not update for product changes within a subscription group or
+   * re-subscriptions by lapsed subscribers.
+   */
+  readonly originalPurchaseDate: Date | null;
+  /**
+   * Date when the subscription expires/expired
+   */
+  readonly expiresDate: Date | null;
+  /**
+   * Store where the subscription was purchased.
+   */
+  readonly store: Store;
+  /**
+   * Date when RevenueCat detected that auto-renewal was turned off for this subscription.
+   * Note the subscription may still be active, check the {@link SubscriptionInfo.expiresDate} attribute.
+   */
+  readonly unsubscribeDetectedAt: Date | null;
+  /**
+   * Whether or not the purchase was made in sandbox mode.
+   */
+  readonly isSandbox: boolean;
+  /**
+   * Date when RevenueCat detected any billing issues with this subscription.
+   * If and when the billing issue gets resolved, this field is set to null.
+   * Note the subscription may still be active, check the {@link SubscriptionInfo.expiresDate} attribute.
+   */
+  readonly billingIssuesDetectedAt: Date | null;
+  /**
+   * Date when any grace period for this subscription expires/expired.
+   * null if the customer has never been in a grace period.
+   */
+  readonly gracePeriodExpiresDate: Date | null;
+  /**
+   * How the Customer received access to this subscription:
+   * - "PURCHASED": The customer bought the subscription.
+   * - "FAMILY_SHARED": The customer has access to the product via their family.
+   */
+  readonly ownershipType: OwnershipType;
+  /**
+   * Type of the current subscription period:
+   * - "normal": The product is in a normal period (default)
+   * - "trial": The product is in a free trial period
+   * - "intro": The product is in an introductory pricing period
+   * - "prepaid": The product is in a prepaid pricing period
+   */
+  readonly periodType: PeriodType;
+  /**
+   * Date when RevenueCat detected a refund of this subscription.
+   */
+  readonly refundedAt: Date | null;
+  /**
+   * The transaction id in the store of the subscription.
+   */
+  readonly storeTransactionId: string | null;
+  /**
+   * Whether the subscription is currently active
+   * (at the time this object was obtained).
+   */
+  readonly isActive: boolean;
+  /**
+   * Whether the subscription will renew at the next billing period.
+   */
+  readonly willRenew: boolean;
 }
 
 /**
@@ -161,13 +286,21 @@ export interface CustomerInfo {
    * The original App User Id recorded for this user.
    */
   readonly originalAppUserId: string;
+  /**
+   * The list of non-subscription transactions made by the user.
+   */
+  readonly nonSubscriptionTransactions: NonSubscriptionTransaction[];
+  /**
+   * Dictionary of all subscription product identifiers and their subscription info.
+   */
+  readonly subscriptionsByProductIdentifier: {
+    [productId: string]: SubscriptionInfo;
+  };
 }
 
-function isActive(
-  entitlementInfoResponse: SubscriberEntitlementResponse,
-): boolean {
-  if (entitlementInfoResponse.expires_date == null) return true;
-  const expirationDate = new Date(entitlementInfoResponse.expires_date);
+function isActive(expires_date: string | null): boolean {
+  if (expires_date == null) return true;
+  const expirationDate = new Date(expires_date);
   const currentDate = new Date();
   return expirationDate > currentDate;
 }
@@ -207,13 +340,18 @@ function toSubscriptionEntitlementInfo(
 ): EntitlementInfo {
   return {
     identifier: entitlementIdentifier,
-    isActive: isActive(entitlementInfoResponse),
-    willRenew: getWillRenew(entitlementInfoResponse, subscriptionResponse),
+    isActive: isActive(entitlementInfoResponse.expires_date),
+    willRenew: getWillRenew(
+      entitlementInfoResponse.expires_date,
+      subscriptionResponse,
+    ),
     store: subscriptionResponse?.store ?? "unknown",
     latestPurchaseDate: new Date(entitlementInfoResponse.purchase_date),
     originalPurchaseDate: new Date(entitlementInfoResponse.purchase_date),
     expirationDate: toDateIfNotNull(entitlementInfoResponse.expires_date),
     productIdentifier: entitlementInfoResponse.product_identifier,
+    productPlanIdentifier:
+      entitlementInfoResponse.product_plan_identifier ?? null,
     unsubscribeDetectedAt: toDateIfNotNull(
       subscriptionResponse?.unsubscribe_detected_at,
     ),
@@ -222,6 +360,7 @@ function toSubscriptionEntitlementInfo(
     ),
     isSandbox: subscriptionResponse?.is_sandbox ?? false,
     periodType: subscriptionResponse?.period_type ?? "normal",
+    ownershipType: subscriptionResponse?.ownership_type ?? "UNKNOWN",
   };
 }
 
@@ -241,10 +380,12 @@ function toNonSubscriptionEntitlementInfo(
     ),
     expirationDate: null,
     productIdentifier: entitlementInfoResponse.product_identifier,
+    productPlanIdentifier: null,
     unsubscribeDetectedAt: null,
     billingIssueDetectedAt: null,
     isSandbox: nonSubscriptionResponse.is_sandbox,
     periodType: "normal",
+    ownershipType: "UNKNOWN",
   };
 }
 
@@ -294,6 +435,57 @@ export function toCustomerInfo(
     getLatestNonSubscriptionPurchaseByProduct(
       subscriberResponse.non_subscriptions,
     );
+
+  const nonSubscriptionTransactions: NonSubscriptionTransaction[] =
+    Object.entries(customerInfoResponse.subscriber.non_subscriptions).flatMap(
+      ([productIdentifier, responses]) =>
+        responses.map((response) => ({
+          transactionIdentifier: response.id,
+          productIdentifier: productIdentifier,
+          purchaseDate: new Date(
+            response.purchase_date || response.original_purchase_date,
+          ),
+          storeTransactionId: response.store_transaction_id || null,
+          store: response.store,
+        })),
+    );
+
+  const requestDate = new Date(customerInfoResponse.request_date);
+
+  const subscriptionsByProductIdentifier: Record<string, SubscriptionInfo> =
+    Object.fromEntries(
+      Object.entries(customerInfoResponse.subscriber.subscriptions).map(
+        ([productIdentifier, response]) => [
+          productIdentifier,
+          {
+            productIdentifier,
+            purchaseDate: new Date(response.purchase_date),
+            originalPurchaseDate: toDateIfNotNull(
+              response.original_purchase_date,
+            ),
+            expiresDate: toDateIfNotNull(response.expires_date),
+            store: response.store,
+            unsubscribeDetectedAt: toDateIfNotNull(
+              response.unsubscribe_detected_at,
+            ),
+            isSandbox: response.is_sandbox,
+            billingIssuesDetectedAt: toDateIfNotNull(
+              response.billing_issues_detected_at,
+            ),
+            gracePeriodExpiresDate: toDateIfNotNull(
+              response.grace_period_expires_date,
+            ),
+            ownershipType: response.ownership_type ?? "UNKNOWN",
+            periodType: response.period_type,
+            refundedAt: toDateIfNotNull(response.refunded_at),
+            storeTransactionId: response.store_transaction_id || null,
+            isActive: isActive(response.expires_date),
+            willRenew: getWillRenew(response.expires_date, response),
+          },
+        ],
+      ),
+    );
+
   return {
     entitlements: toEntitlementInfos(
       subscriberResponse.entitlements,
@@ -307,22 +499,24 @@ export function toCustomerInfo(
     ),
     activeSubscriptions: getActiveSubscriptions(expirationDatesByProductId),
     managementURL: subscriberResponse.management_url,
-    requestDate: new Date(customerInfoResponse.request_date),
+    requestDate: requestDate,
     firstSeenDate: new Date(subscriberResponse.first_seen),
     originalPurchaseDate: toDateIfNotNull(
       subscriberResponse.original_purchase_date,
     ),
     originalAppUserId: customerInfoResponse.subscriber.original_app_user_id,
+    nonSubscriptionTransactions: nonSubscriptionTransactions,
+    subscriptionsByProductIdentifier: subscriptionsByProductIdentifier,
   };
 }
 
 function getWillRenew(
-  entitlementInfoResponse: SubscriberEntitlementResponse,
+  expires_date: string | null,
   subscriptionResponse: SubscriberSubscriptionResponse | null,
 ) {
   if (subscriptionResponse == null) return false;
   const isPromo = subscriptionResponse.store == "promotional";
-  const isLifetime = entitlementInfoResponse.expires_date == null;
+  const isLifetime = expires_date == null;
   const hasUnsubscribed = subscriptionResponse.unsubscribe_detected_at != null;
   const hasBillingIssues =
     subscriptionResponse.billing_issues_detected_at != null;
