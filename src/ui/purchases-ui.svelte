@@ -80,14 +80,6 @@
     taxBreakdown: null,
   };
 
-  if (
-    ALLOW_TAX_CALCULATION_FF &&
-    brandingInfo?.gateway_tax_collection_enabled
-  ) {
-    priceBreakdown.taxCollectionEnabled = true;
-    priceBreakdown.taxCalculationStatus = "pending";
-  }
-
   // Setting the context for the Localized components
   let translator: Translator = new Translator(
     customTranslations,
@@ -142,10 +134,6 @@
       return;
     }
 
-    if (priceBreakdown.taxCollectionEnabled) {
-      priceBreakdown.taxCalculationStatus = "loading";
-    }
-
     purchaseOperationHelper
       .checkoutStart(
         appUserId,
@@ -161,8 +149,13 @@
         gatewayParams = result.gateway_params;
       })
       .then(async (result) => {
-        if (priceBreakdown.taxCollectionEnabled) {
+        if (
+          ALLOW_TAX_CALCULATION_FF &&
+          brandingInfo?.gateway_tax_collection_enabled
+        ) {
           await refreshTaxCalculation();
+          priceBreakdown.taxCollectionEnabled =
+            priceBreakdown.taxCalculationStatus !== null;
         }
         return result;
       })
@@ -213,7 +206,9 @@
   async function refreshTaxCalculation(
     taxCustomerDetails: TaxCustomerDetails | undefined = undefined,
   ) {
-    priceBreakdown.taxCalculationStatus = "loading";
+    if (priceBreakdown.taxCalculationStatus !== null) {
+      priceBreakdown.taxCalculationStatus = "loading";
+    }
 
     const taxCalculation = await purchaseOperationHelper.checkoutCalculateTax(
       taxCustomerDetails?.countryCode,
@@ -225,7 +220,6 @@
           priceBreakdown.taxCalculationStatus = "pending";
           break;
         case TaxCalculationError.Disabled:
-          priceBreakdown.taxCollectionEnabled = false;
           priceBreakdown.taxCalculationStatus = null;
           break;
         case TaxCalculationError.InvalidLocation:
