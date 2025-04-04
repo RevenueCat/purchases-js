@@ -440,6 +440,49 @@ test.describe("Main", () => {
     await navigateToUrl(page, userId);
     await waitForTrackEventPromise;
   });
+
+  test("Can set user attributes", async ({ browser, browserName }) => {
+    const userId = `${getUserId(browserName)}_attributes`;
+    const attributes = {
+      $displayName: "Test User",
+      nickname: "testy",
+    };
+    const page = await setupTest(browser, userId, attributes);
+
+    // Verify the attributes were set by checking the network requests
+    const requestPromise = page.waitForRequest(
+      (request) =>
+        request.url().includes("/v1/subscribers/") &&
+        request.url().includes("/attributes") &&
+        request.method() === "POST",
+    );
+
+    const request = await requestPromise;
+    const requestBody = request.postDataJSON();
+
+    // Verify the request payload
+    expect(requestBody).toHaveProperty("attributes");
+    expect(requestBody.attributes).toHaveProperty("$displayName");
+    expect(requestBody.attributes).toHaveProperty("nickname");
+
+    expect(requestBody.attributes["$displayName"]).toHaveProperty(
+      "value",
+      "Test User",
+    );
+    expect(requestBody.attributes["$displayName"]).toHaveProperty(
+      "updated_at_ms",
+    );
+    expect(requestBody.attributes["nickname"]).toHaveProperty("value", "testy");
+    expect(requestBody.attributes["nickname"]).toHaveProperty("updated_at_ms");
+
+    // Verify the request succeeds by waiting for the response
+    const response = await request.response();
+    expect(response?.status()).toBe(200);
+
+    // Verify the response body is empty
+    const responseBody = await response?.json();
+    expect(responseBody).toEqual({});
+  });
 });
 
 function successfulEventTrackingResponseMatcher(
@@ -491,6 +534,8 @@ async function setupTest(
     utm_term?: string;
     utm_content?: string;
     optOutOfAutoUTM?: boolean;
+    $displayName?: string;
+    nickname?: string;
   },
 ) {
   const page = await browser.newPage();
@@ -557,6 +602,8 @@ async function navigateToUrl(
     utm_term?: string;
     utm_content?: string;
     optOutOfAutoUTM?: boolean;
+    $displayName?: string;
+    nickname?: string;
   },
 ): Promise<void> {
   const baseUrl =
@@ -573,6 +620,8 @@ async function navigateToUrl(
     utm_content,
     utm_medium,
     optOutOfAutoUTM,
+    $displayName,
+    nickname,
   } = queryString ?? {};
 
   const params = new URLSearchParams();
@@ -599,6 +648,12 @@ async function navigateToUrl(
   }
   if (optOutOfAutoUTM) {
     params.append("optOutOfAutoUTM", optOutOfAutoUTM.toString());
+  }
+  if ($displayName) {
+    params.append("$displayName", $displayName);
+  }
+  if (nickname) {
+    params.append("nickname", nickname);
   }
 
   const url = `${baseUrl}${useRcPaywall ? "rc_paywall" : "paywall"}/${encodeURIComponent(userId)}?${params.toString()}`;

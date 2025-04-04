@@ -152,6 +152,7 @@ button.button:focus-visible {
 
 .login form {
   display: flex;
+  flex-direction: column;
   gap: 16px;
 }
 
@@ -163,7 +164,7 @@ button.button:focus-visible {
   line-height: 24px;
   height: 64px;
   padding: 16px 20px;
-  flex: 1;
+  width: 100%;
   border-radius: 16px;
 }
 
@@ -329,6 +330,29 @@ button.button:focus-visible {
   line-height: 12px;
   padding: 6px 12px;
   border-radius: 12px;
+}
+
+.attributes-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 2px solid var(--color-grey-ui-dark);
+}
+
+.attributes-section h3 {
+  font-size: 20px;
+  line-height: 26px;
+  margin-bottom: 16px;
+  color: var(--color-purple);
+}
+
+.button-group {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.button-group button {
+  flex: 1;
 }
 
 @media (max-width: 1300px) {
