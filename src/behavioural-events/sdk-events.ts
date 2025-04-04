@@ -16,6 +16,7 @@ export type SDKEvent =
   | CheckoutPaymentFormDismissEvent
   | CheckoutPaymentFormSubmitEvent
   | CheckoutPaymentFormGatewayErrorEvent
+  | CheckoutPaymentFormErrorEvent
   | CheckoutPurchaseSuccessfulImpressionEvent
   | CheckoutPurchaseSuccessfulDismissEvent;
 
@@ -30,6 +31,7 @@ export enum SDKEventName {
   CheckoutBillingFormSuccess = "checkout_billing_form_success",
   CheckoutBillingFormError = "checkout_billing_form_error",
   CheckoutPaymentFormImpression = "checkout_payment_form_impression",
+  CheckoutPaymentFormError = "checkout_payment_form_error",
   CheckoutPaymentFormDismiss = "checkout_payment_form_dismiss",
   CheckoutPaymentFormSubmit = "checkout_payment_form_submit",
   CheckoutPaymentFormGatewayError = "checkout_payment_form_gateway_error",
@@ -126,6 +128,14 @@ export interface CheckoutBillingFormErrorEvent extends ISDKEvent {
 
 export interface CheckoutPaymentFormImpressionEvent extends ISDKEvent {
   eventName: SDKEventName.CheckoutPaymentFormImpression;
+}
+
+export interface CheckoutPaymentFormErrorEvent extends ISDKEvent {
+  eventName: SDKEventName.CheckoutPaymentFormError;
+  properties: {
+    errorCode: string | null;
+    errorMessage: string;
+  };
 }
 
 export interface CheckoutPaymentFormDismissEvent extends ISDKEvent {

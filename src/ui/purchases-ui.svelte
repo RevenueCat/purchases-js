@@ -44,7 +44,6 @@
     redemptionInfo: RedemptionInfo | null,
   ) => void;
   export let onError: (error: PurchaseFlowError) => void;
-  // We don't have a close button in the UI, but we might add one soon
   export let onClose: (() => void) | undefined = undefined;
   export let purchases: Purchases;
   export let eventsTracker: IEventsTracker;
@@ -120,21 +119,7 @@
       return;
     }
 
-    if (!customerEmail) {
-      currentPage = "email-entry";
-    } else {
-      currentPage = "payment-entry-loading";
-      handleCheckoutStart();
-    }
-  });
-
-  const handleCheckoutStart = () => {
-    if (!customerEmail) {
-      handleError(
-        new PurchaseFlowError(PurchaseFlowErrorCode.MissingEmailError),
-      );
-      return;
-    }
+    currentPage = "payment-entry-loading";
 
     if (priceBreakdown.taxCollectionEnabled) {
       priceBreakdown.taxCalculationStatus = "loading";
@@ -146,7 +131,7 @@
         productId,
         purchaseOption,
         rcPackage.webBillingProduct.presentedOfferingContext,
-        customerEmail,
+        undefined,
         metadata,
       )
       .then((result) => {
@@ -163,21 +148,11 @@
       .catch((e: PurchaseFlowError) => {
         handleError(e);
       });
-  };
+  });
 
   const handleContinue = (params: ContinueHandlerParams = {}) => {
     if (params.error) {
       handleError(params.error);
-      return;
-    }
-
-    if (currentPage === "email-entry") {
-      if (params.authInfo) {
-        customerEmail = params.authInfo.email;
-        currentPage = "email-entry-processing";
-      }
-
-      handleCheckoutStart();
       return;
     }
 
@@ -239,11 +214,6 @@
       errorMessage: e.message,
     });
     eventsTracker.trackSDKEvent(event);
-    if (currentPage === "email-entry-processing" && e.isRecoverable()) {
-      lastError = e;
-      currentPage = "email-entry";
-      return;
-    }
     lastError = e;
     currentPage = "error";
   };
@@ -265,7 +235,7 @@
   {brandingInfo}
   {productDetails}
   purchaseOptionToUse={purchaseOption}
-  {handleContinue}
+  onContinue={handleContinue}
   {lastError}
   {gatewayParams}
   {purchaseOperationHelper}
@@ -274,4 +244,5 @@
   {onClose}
   {priceBreakdown}
   onTaxCustomerDetailsUpdated={refreshTaxCalculation}
+  customerEmail={customerEmail ?? null}
 />
