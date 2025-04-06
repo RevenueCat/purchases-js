@@ -288,6 +288,9 @@ export interface PricingPhase {
     readonly period: Period | null;
     readonly periodDuration: string | null;
     readonly price: Price | null;
+    readonly pricePerMonth: Price | null;
+    readonly pricePerWeek: Price | null;
+    readonly pricePerYear: Price | null;
 }
 
 // @public
