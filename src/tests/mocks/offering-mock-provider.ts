@@ -30,6 +30,24 @@ export function createMonthlyPackageMock(
         currency: "USD",
         formattedPrice: "$3.00",
       },
+      pricePerWeek: {
+        amount: 68.9882,
+        amountMicros: 689882,
+        currency: "USD",
+        formattedPrice: "$0.69",
+      },
+      pricePerMonth: {
+        amount: 300,
+        amountMicros: 3000000,
+        currency: "USD",
+        formattedPrice: "$3.00",
+      },
+      pricePerYear: {
+        amount: 3599.7043,
+        amountMicros: 35997043,
+        currency: "USD",
+        formattedPrice: "$36.00",
+      },
     },
     trial: null,
   };
