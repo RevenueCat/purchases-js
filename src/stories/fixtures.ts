@@ -30,6 +30,24 @@ const subscriptionOptionBasePrice = {
     formattedPrice: "9.90$",
   },
   cycleCount: 0,
+  pricePerWeek: {
+    amount: 227.64,
+    amountMicros: 2276418,
+    currency: "USD",
+    formattedPrice: "2.28$",
+  },
+  pricePerMonth: {
+    amount: 990,
+    amountMicros: 9900000,
+    currency: "USD",
+    formattedPrice: "9.90$",
+  },
+  pricePerYear: {
+    amount: 11879.31,
+    amountMicros: 118793101,
+    currency: "USD",
+    formattedPrice: "118.79$",
+  },
 };
 
 export const subscriptionOption: SubscriptionOption = {
@@ -51,6 +69,9 @@ export const subscriptionOptionWithTrial: SubscriptionOption = {
     },
     cycleCount: 1,
     price: null,
+    pricePerWeek: null,
+    pricePerMonth: null,
+    pricePerYear: null,
   },
 };
 
