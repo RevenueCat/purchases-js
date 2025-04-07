@@ -24,6 +24,7 @@
   import { type IEventsTracker } from "../../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "../constants";
   import {
+    createCheckoutPaymentFormErrorEvent,
     createCheckoutPaymentFormSubmitEvent,
     createCheckoutPaymentGatewayErrorEvent,
   } from "../../behavioural-events/sdk-event-helpers";
@@ -37,6 +38,7 @@
   import PaymentButton from "../molecules/payment-button.svelte";
   import StripePaymentElements from "../molecules/stripe-payment-elements.svelte";
   import { type GatewayParams } from "../../networking/responses/stripe-elements";
+  import { validateEmail } from "../../helpers/validators";
 
   export let onContinue: (params?: ContinueHandlerParams) => void;
   export let gatewayParams: GatewayParams = {};
@@ -46,6 +48,7 @@
   export let purchaseOption: PurchaseOption;
   export let brandingInfo: BrandingInfoResponse | null;
   export let purchaseOperationHelper: PurchaseOperationHelper;
+  export let customerEmail: string | null;
   export let onTaxCustomerDetailsUpdated: (
     customerDetails: TaxCustomerDetails,
   ) => void;
@@ -60,6 +63,11 @@
   let selectedPaymentMethod: string | undefined = undefined;
   let modalErrorMessage: string | undefined = undefined;
   let clientSecret: string | undefined = undefined;
+
+  $: email = customerEmail ?? "";
+  $: emailErrorMessage = "";
+  $: emailInputClass = emailErrorMessage !== "" ? "error" : "";
+  let hasEmailBeenValidated = false;
 
   const subscriptionOption =
     productDetails.subscriptionOptions?.[purchaseOption.id];
@@ -91,6 +99,19 @@
   async function handleSubmit(): Promise<void> {
     if (processing) return;
 
+    if (customerEmail === null) {
+      emailErrorMessage = validateEmail(email) ?? "";
+
+      if (emailErrorMessage !== "") {
+        const event = createCheckoutPaymentFormErrorEvent({
+          errorCode: null,
+          errorMessage: emailErrorMessage,
+        });
+        eventsTracker.trackSDKEvent(event);
+        return;
+      }
+    }
+
     const event = createCheckoutPaymentFormSubmitEvent({
       selectedPaymentMethod: selectedPaymentMethod ?? null,
     });
@@ -105,13 +126,28 @@
     // Get client secret if not already present
     if (!clientSecret) {
       try {
-        const response = await purchaseOperationHelper.checkoutComplete();
+        const response = await purchaseOperationHelper.checkoutComplete(
+          customerEmail ?? email,
+        );
         clientSecret = response?.gateway_params?.client_secret;
         if (!clientSecret) {
           throw new Error("Failed to complete checkout");
         }
       } catch (error) {
-        handleStripeElementError(error as PaymentElementError);
+        if (error instanceof PurchaseFlowError) {
+          if (error.errorCode === PurchaseFlowErrorCode.MissingEmailError) {
+            const event = createCheckoutPaymentFormErrorEvent({
+              errorCode: error.errorCode.toString(),
+              errorMessage: error.message,
+            });
+            eventsTracker.trackSDKEvent(event);
+
+            processing = false;
+            emailErrorMessage = error.message;
+          }
+        } else {
+          handleStripeElementError(error as PaymentElementError);
+        }
         return;
       }
     }
@@ -161,6 +197,32 @@
     class="rc-checkout-form"
     class:hidden={isStripeLoading || processing}
   >
+    {#if customerEmail === null}
+      <div class="rcb-form-container">
+        <div class="rcb-form-input {emailInputClass}">
+          <input
+            id="email"
+            name="email"
+            inputmode="email"
+            placeholder={$translator.translate(
+              LocalizationKeys.EmailEntryPageEmailInputPlaceholder,
+            )}
+            autocapitalize="off"
+            autocomplete="email"
+            data-testid="email"
+            bind:value={email}
+            on:change={() => {
+              emailErrorMessage = validateEmail(email) ?? "";
+              hasEmailBeenValidated = true;
+            }}
+          />
+        </div>
+        {#if emailErrorMessage !== ""}
+          <div class="rcb-form-error">{emailErrorMessage}</div>
+        {/if}
+      </div>
+    {/if}
+
     <div class="rc-checkout-form-container" hidden={!!modalErrorMessage}>
       <div class="rc-payment-element-container">
         <StripePaymentElements
@@ -184,6 +246,8 @@
           <PaymentButton
             disabled={processing ||
               !isPaymentInfoComplete ||
+              (!customerEmail &&
+                (!hasEmailBeenValidated || emailErrorMessage !== "")) ||
               priceBreakdown.taxCalculationStatus === "loading"}
             {subscriptionOption}
           />
@@ -279,5 +343,119 @@
     .rc-checkout-pay-container {
       margin-top: var(--rc-spacing-gapXLarge-desktop);
     }
+  }
+
+  .rcb-auth-info-title {
+    font: var(--rc-text-titleLarge-mobile);
+  }
+
+  .secure-checkout-container {
+    margin-top: var(--rc-spacing-gapXXLarge-mobile);
+  }
+
+  @container layout-query-container (width >= 768px) {
+    .rcb-auth-info-title {
+      font: var(--rc-text-titleLarge-desktop);
+    }
+
+    .secure-checkout-container {
+      margin-top: var(--rc-spacing-gapXXLarge-desktop);
+    }
+  }
+
+  .rcb-state-container {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    user-select: none;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+
+  .rcb-form-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-top: var(--rc-spacing-gapXLarge-desktop);
+    margin-bottom: var(--rc-spacing-gapXLarge-desktop);
+  }
+
+  @media screen and (max-width: 767px) {
+    .rcb-form-container {
+      margin-top: var(--rc-spacing-gapXLarge-mobile);
+      margin-bottom: var(--rc-spacing-gapXLarge-mobile);
+    }
+  }
+
+  .rcb-form-label {
+    margin-top: var(--rc-spacing-gapSmall-desktop);
+    margin-bottom: var(--rc-spacing-gapSmall-desktop);
+    font: var(--rc-text-body1-mobile);
+    display: block;
+  }
+
+  @container layout-query-container (width >= 768px) {
+    .rcb-form-label {
+      font: var(--rc-text-body1-desktop);
+    }
+  }
+
+  .rcb-form-input.error input {
+    border-color: var(--rc-color-error);
+  }
+
+  .rcb-form-error {
+    margin-top: var(--rc-spacing-gapSmall-desktop);
+    font: var(--rc-text-body1-mobile);
+    color: var(--rc-color-error);
+  }
+
+  @container layout-query-container (width >= 768px) {
+    .rcb-form-error {
+      font: var(--rc-text-body1-desktop);
+    }
+  }
+
+  input {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid var(--rc-color-grey-ui-dark);
+    border-radius: var(--rc-shape-input-border-radius);
+    font: var(--rc-text-body1-mobile);
+    height: var(--rc-spacing-inputHeight-desktop);
+    background: var(--rc-color-input-background);
+    color: inherit;
+  }
+
+  @container layout-query-container (width < 768px) {
+    input {
+      padding-left: var(--rc-spacing-gapLarge-mobile);
+      height: var(--rc-spacing-inputHeight-mobile);
+    }
+  }
+
+  @container layout-query-container (width >= 768px) {
+    input {
+      font: var(--rc-text-body1-desktop);
+      padding-left: var(--rc-spacing-gapLarge-desktop);
+    }
+
+    .rcb-state-container {
+      max-width: 50vw;
+      flex-grow: 0;
+    }
+  }
+
+  input:focus {
+    outline: none;
+    border: 1px solid var(--rc-color-focus);
+  }
+
+  input::placeholder {
+    color: var(--rc-color-grey-ui-dark);
   }
 </style>

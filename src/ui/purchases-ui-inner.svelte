@@ -1,6 +1,5 @@
 <script lang="ts">
   import PaymentEntryPage from "./pages/payment-entry-page.svelte";
-  import EmailEntryPage from "./pages/email-entry-page.svelte";
   import ErrorPage from "./pages/error-page.svelte";
   import SuccessPage from "./pages/success-page.svelte";
   import LoadingPage from "./pages/payment-entry-loading-page.svelte";
@@ -25,7 +24,8 @@
   export let productDetails: Product;
   export let purchaseOptionToUse: PurchaseOption;
   export let isSandbox: boolean = false;
-  export let handleContinue: (params?: ContinueHandlerParams) => void;
+  export let customerEmail: string | null;
+  export let onContinue: (params?: ContinueHandlerParams) => void;
   export let closeWithError: () => void;
   export let onClose: (() => void) | undefined = undefined;
   export let lastError: PurchaseFlowError | null;
@@ -49,19 +49,12 @@
     />
   {/snippet}
   {#snippet mainContent()}
-    {#if currentPage === "email-entry" || currentPage === "email-entry-processing"}
-      <EmailEntryPage
-        onContinue={handleContinue}
-        processing={currentPage === "email-entry-processing"}
-        {lastError}
-      />
-    {/if}
     {#if currentPage === "payment-entry-loading"}
       <LoadingPage />
     {/if}
     {#if currentPage === "payment-entry" || currentPage === "payment-entry-processing"}
       <PaymentEntryPage
-        onContinue={handleContinue}
+        {onContinue}
         processing={currentPage === "payment-entry-processing"}
         {productDetails}
         purchaseOption={purchaseOptionToUse}
@@ -70,6 +63,7 @@
         {gatewayParams}
         {priceBreakdown}
         {onTaxCustomerDetailsUpdated}
+        {customerEmail}
       />
     {/if}
 
@@ -82,7 +76,7 @@
       />
     {/if}
     {#if currentPage === "success"}
-      <SuccessPage {productDetails} onContinue={handleContinue} />
+      <SuccessPage {productDetails} {onContinue} />
     {/if}
   {/snippet}
 </Template>
