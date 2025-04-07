@@ -35,10 +35,10 @@ describe("getOfferings", () => {
         formattedPrice: "$5.00",
       },
       pricePerWeek: {
-        amount: 114.9803,
-        amountMicros: 1149803,
+        amount: 116.6667,
+        amountMicros: 1166667,
         currency: "USD",
-        formattedPrice: "$1.15",
+        formattedPrice: "$1.17",
       },
       pricePerMonth: {
         amount: 500,
@@ -47,10 +47,10 @@ describe("getOfferings", () => {
         formattedPrice: "$5.00",
       },
       pricePerYear: {
-        amount: 5999.5072,
-        amountMicros: 59995072,
+        amount: 6083.3333,
+        amountMicros: 60833333,
         currency: "USD",
-        formattedPrice: "$60.00",
+        formattedPrice: "$60.83",
       },
     },
     trial: {

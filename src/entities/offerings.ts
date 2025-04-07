@@ -133,17 +133,17 @@ export interface PricingPhase {
    */
   readonly cycleCount: number;
   /**
-   * The price converted to weekly rate, based on the period information.
+   * The approximated price converted to weekly rate, based on the period information.
    * Null in case of trials.
    */
   readonly pricePerWeek: Price | null;
   /**
-   * The price converted to monthly rate, based on the period information.
+   * The approximated price converted to monthly rate, based on the period information.
    * Null in case of trials.
    */
   readonly pricePerMonth: Price | null;
   /**
-   * The price converted to yearly rate, based on the period information.
+   * The approximated price converted to yearly rate, based on the period information.
    * Null in case of trials.
    */
   readonly pricePerYear: Price | null;
@@ -473,8 +473,8 @@ function getPriceConversionFactor(period: Period): {
   const { number, unit } = period;
 
   const DAYS_PER_WEEK = 7;
-  const DAYS_PER_MONTH = 30.44;
-  const DAYS_PER_YEAR = 365.25;
+  const DAYS_PER_MONTH = 30.0;
+  const DAYS_PER_YEAR = 365.0;
 
   let daysInPeriod: number;
 
