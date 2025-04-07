@@ -1,7 +1,7 @@
 {
   "metadata": {
     "toolPackage": "@microsoft/api-extractor",
-    "toolVersion": "7.50.1",
+    "toolVersion": "7.49.0",
     "schemaVersion": 1011,
     "oldestForwardsCompatibleVersion": 1001,
     "tsdocConfig": {
@@ -4039,7 +4039,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PricingPhase#pricePerMonth:member",
-              "docComment": "/**\n * The price converted to monthly rate, based on the period information. Null in case of trials.\n */\n",
+              "docComment": "/**\n * The approximated price converted to monthly rate, based on the period information. Null in case of trials.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4071,7 +4071,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PricingPhase#pricePerWeek:member",
-              "docComment": "/**\n * The price converted to weekly rate, based on the period information. Null in case of trials.\n */\n",
+              "docComment": "/**\n * The approximated price converted to weekly rate, based on the period information. Null in case of trials.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4103,7 +4103,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PricingPhase#pricePerYear:member",
-              "docComment": "/**\n * The price converted to yearly rate, based on the period information. Null in case of trials.\n */\n",
+              "docComment": "/**\n * The approximated price converted to yearly rate, based on the period information. Null in case of trials.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
