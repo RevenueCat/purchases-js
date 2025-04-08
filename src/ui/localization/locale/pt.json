@@ -50,6 +50,7 @@
   "error_page.error_message_network_error": "Erro de rede. Verifique sua conexão com a internet.",
   "error_page.error_message_error_charging_payment": "Pagamento falhou.",
   "error_page.error_message_error_setting_up_purchase": "Compra não iniciada devido a um erro. Código do erro: {{errorCode}}",
+  "error_page.error_message_invalid_tax_location": "Não conseguimos verificar seu endereço de cobrança. Por favor, verifique se o código postal e o país estão corretos.",
   "error_page.error_message_unknown_error": "Ocorreu um erro desconhecido. Código do erro: {{errorCode}}",
   "error_page.button_try_again": "Tentar novamente",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",

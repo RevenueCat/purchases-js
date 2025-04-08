@@ -50,6 +50,7 @@
   "error_page.error_message_network_error": "Hálózati hiba. Kérjük, ellenőrizd az internetkapcsolatodat.",
   "error_page.error_message_error_charging_payment": "A fizetés sikertelen volt.",
   "error_page.error_message_error_setting_up_purchase": "A vásárlás nem indult el egy hiba miatt. Hibakód: {{errorCode}}",
+  "error_page.error_message_invalid_tax_location": "Nem tudtuk ellenőrizni a számlázási címét. Kérjük, ellenőrizze, hogy az irányítószám és az ország helyes-e.",
   "error_page.error_message_unknown_error": "Ismeretlen hiba történt. Hibakód: {{errorCode}}",
   "error_page.button_try_again": "Újrapróbálkozás",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",

@@ -1,4 +1,5 @@
 import {
+  BackendErrorCode,
   ErrorCode,
   PurchasesError,
   type PurchasesErrorExtra,
@@ -13,8 +14,6 @@ import {
 } from "../networking/responses/checkout-status-response";
 import {
   type PresentedOfferingContext,
-  type Product,
-  ProductType,
   type PurchaseMetadata,
   type PurchaseOption,
 } from "../entities/offerings";
@@ -66,30 +65,6 @@ export class PurchaseFlowError extends Error {
     );
   }
 
-  getPublicErrorMessage(productDetails: Product | null): string {
-    const errorCode =
-      this.extra?.backendErrorCode ?? this.purchasesErrorCode ?? this.errorCode;
-    switch (this.errorCode) {
-      // TODO: Localize these messages
-      case PurchaseFlowErrorCode.UnknownError:
-        return `An unknown error occurred. Error code: ${errorCode}.`;
-      case PurchaseFlowErrorCode.ErrorSettingUpPurchase:
-        return `Purchase not started due to an error. Error code: ${errorCode}.`;
-      case PurchaseFlowErrorCode.ErrorChargingPayment:
-        return "Payment failed.";
-      case PurchaseFlowErrorCode.NetworkError:
-        return "Network error. Please check your internet connection.";
-      case PurchaseFlowErrorCode.MissingEmailError:
-        return "Email is required to complete the purchase.";
-      case PurchaseFlowErrorCode.AlreadyPurchasedError:
-        if (productDetails?.productType === ProductType.Subscription) {
-          return "You are already subscribed to this product.";
-        } else {
-          return "You have already purchased this product.";
-        }
-    }
-  }
-
   static fromPurchasesError(
     e: PurchasesError,
     defaultFlowErrorCode: PurchaseFlowErrorCode,
@@ -114,6 +89,22 @@ export class PurchaseFlowError extends Error {
     );
   }
 }
+
+export enum TaxCalculationError {
+  Pending = "pending",
+  InvalidLocation = "invalid_location",
+  Disabled = "disabled",
+}
+
+export type TaxCalculationResult =
+  | {
+      error: TaxCalculationError;
+      data?: CheckoutCalculateTaxResponse;
+    }
+  | {
+      error?: TaxCalculationError;
+      data: CheckoutCalculateTaxResponse;
+    };
 
 export class PurchaseOperationHelper {
   private operationSessionId: string | null = null;
@@ -175,7 +166,7 @@ export class PurchaseOperationHelper {
   async checkoutCalculateTax(
     countryCode?: string,
     postalCode?: string,
-  ): Promise<CheckoutCalculateTaxResponse> {
+  ): Promise<TaxCalculationResult> {
     const operationSessionId = this.operationSessionId;
     if (!operationSessionId) {
       throw new PurchaseFlowError(
@@ -191,13 +182,41 @@ export class PurchaseOperationHelper {
           countryCode,
           postalCode,
         );
-      return checkoutCalculateTaxResponse;
+      return {
+        error: undefined,
+        data: checkoutCalculateTaxResponse,
+      };
     } catch (error) {
       if (error instanceof PurchasesError) {
-        throw PurchaseFlowError.fromPurchasesError(
-          error,
-          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-        );
+        const backendErrorCode = error.extra?.backendErrorCode;
+        let calculationError: TaxCalculationError;
+        if (
+          backendErrorCode ===
+          BackendErrorCode.BackendTaxLocationCannotBeDetermined
+        ) {
+          calculationError = TaxCalculationError.Pending;
+        } else if (
+          backendErrorCode === BackendErrorCode.BackendInvalidTaxLocation
+        ) {
+          calculationError = TaxCalculationError.InvalidLocation;
+        } else if (
+          backendErrorCode ===
+            BackendErrorCode.BackendTaxCollectionNotEnabled ||
+          (!this.backend.getIsSandbox() &&
+            backendErrorCode &&
+            backendErrorCode !==
+              BackendErrorCode.BackendGatewaySetupErrorSandboxModeOnly)
+        ) {
+          calculationError = TaxCalculationError.Disabled;
+        } else {
+          throw PurchaseFlowError.fromPurchasesError(
+            error,
+            PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+          );
+        }
+        return {
+          error: calculationError,
+        };
       } else {
         const errorMessage = "Unknown error calculating tax: " + String(error);
         Logger.errorLog(errorMessage);

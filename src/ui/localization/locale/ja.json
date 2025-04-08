@@ -50,6 +50,7 @@
   "error_page.error_message_network_error": "ネットワークエラーです。インターネット接続を確認してください。",
   "error_page.error_message_error_charging_payment": "支払いに失敗しました。",
   "error_page.error_message_error_setting_up_purchase": "エラーのため購入が開始されませんでした。エラーコード：{{errorCode}}",
+  "error_page.error_message_invalid_tax_location": "請求先住所を確認できませんでした。郵便番号と国が正しいかご確認ください。",
   "error_page.error_message_unknown_error": "不明なエラーが発生しました。エラーコード：{{errorCode}}",
   "error_page.button_try_again": "再試行",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",

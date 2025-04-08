@@ -50,6 +50,7 @@
   "error_page.error_message_network_error": "Verkkovirhe. Tarkista internet-yhteytesi.",
   "error_page.error_message_error_charging_payment": "Maksaminen epäonnistui.",
   "error_page.error_message_error_setting_up_purchase": "Ostoa ei aloitettu virheen vuoksi. Virhekoodi: {{errorCode}}",
+  "error_page.error_message_invalid_tax_location": "Emme voineet vahvistaa laskutusosoitettasi. Tarkista, että postinumero ja maa ovat oikein.",
   "error_page.error_message_unknown_error": "Tuntematon virhe tapahtui. Virhekoodi: {{errorCode}}",
   "error_page.button_try_again": "Yritä uudelleen",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
