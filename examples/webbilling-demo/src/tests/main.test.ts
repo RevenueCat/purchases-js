@@ -19,8 +19,7 @@ test.describe("Main", () => {
   test("Get offerings displays packages", async ({ browser, browserName }) => {
     const userId = getUserId(browserName);
     const page = await setupTest(browser, userId);
-    // Gets all elements that match the selector
-    const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
+    const packageCards = await getPackageCards(page);
 
     const EXPECTED_VALUES = [
       /30[,.]00/,
@@ -46,10 +45,8 @@ test.describe("Main", () => {
     const offeringId = "default_download";
     const page = await setupTest(browser, userId, { offeringId });
 
-    const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
-
     const EXPECTED_VALUES = [/30[,.]00/, /15[,.]00/, /19[,.]99/];
-
+    const packageCards = await getPackageCards(page);
     expect(packageCards.length).toBe(3);
     await Promise.all(
       packageCards.map(
@@ -66,11 +63,8 @@ test.describe("Main", () => {
     const userId = `${getUserId(browserName)}_subscription`;
     const page = await setupTest(browser, userId);
 
-    // Gets all elements that match the selector
-    const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
-    const singleCard = packageCards[1];
-
-    await performPurchase(page, singleCard, userId);
+    const packageCards = await getPackageCards(page);
+    await performPurchase(page, packageCards[1], userId);
   });
 
   test("Can purchase skipping the email", async ({ browser, browserName }) => {
@@ -79,16 +73,9 @@ test.describe("Main", () => {
       email: `${userId}@revenuecat.com`,
     });
 
-    // Gets all elements that match the selector
-    const packageCards = await getAllElementsByLocator(
-      page,
-      CARD_SELECTOR,
-      "E2E NonConsumable",
-    );
+    const packageCards = await getPackageCards(page, "E2E NonConsumable");
     expect(packageCards.length).toEqual(1);
-    const singleCard = packageCards[0];
-
-    await startPurchaseFlow(singleCard);
+    await startPurchaseFlow(packageCards[0]);
     await enterCreditCardDetails(page, "4242 4242 4242 4242");
     await clickPayButton(page);
     await confirmPaymentComplete(page);
@@ -98,21 +85,30 @@ test.describe("Main", () => {
     const userId = `${getUserId(browserName)}_subscription`;
     const page = await setupTest(browser, userId);
 
-    // Gets all elements that match the selector
-    const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
-    const singleCard = packageCards[1];
+    const packageCards = await getPackageCards(page);
+    await startPurchaseFlow(packageCards[1]);
+    await enterEmail(page, "invalid-email");
 
-    await startPurchaseFlow(singleCard);
-    await enterEmail(page, userId);
+    const stripeFrame = getStripeEmailFrame(page);
+    const errorText = stripeFrame.getByText("Your email address is invalid.");
+    await expect(errorText).toBeVisible({ timeout: 10000 });
+  });
 
-    await page.waitForSelector("input[placeholder='john@appleseed.com']", {
-      timeout: 10000,
-    });
-    const emailInput = page.getByPlaceholder("john@appleseed.com");
-    await emailInput.fill("invalid-email");
-    await emailInput.blur();
+  test("Displays email suggestion from stripe", async ({
+    browser,
+    browserName,
+  }) => {
+    const userId = `${getUserId(browserName)}_subscription`;
+    const page = await setupTest(browser, userId);
 
-    const errorText = page.getByText("Email is not valid");
+    const packageCards = await getPackageCards(page);
+    await startPurchaseFlow(packageCards[1]);
+    await enterEmail(page, `${userId}@revenueci.comm`);
+    await enterCreditCardDetails(page, "4242 4242 4242 4242");
+    await clickPayButton(page);
+
+    const stripeFrame = getStripeEmailFrame(page);
+    const errorText = stripeFrame.getByText("Did you mean @revenueci.com?");
     await expect(errorText).toBeVisible({ timeout: 10000 });
   });
 
@@ -123,19 +119,9 @@ test.describe("Main", () => {
     const userId = `${getUserId(browserName)}_subscription`;
     const page = await setupTest(browser, userId);
 
-    // Gets all elements that match the selector
-    const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
-    const singleCard = packageCards[1];
-
-    await startPurchaseFlow(singleCard);
-    await page.waitForSelector("input[placeholder='john@appleseed.com']", {
-      timeout: 10000,
-    });
-    await page.getByPlaceholder("john@appleseed.com").click();
-    await page
-      .getByPlaceholder("john@appleseed.com")
-      .fill(`${userId}@revenueci.comm`);
-
+    const packageCards = await getPackageCards(page);
+    await startPurchaseFlow(packageCards[1]);
+    await enterEmail(page, `${userId}@revenueci.comm`);
     await enterCreditCardDetails(page, "4242 4242 4242 4242");
     await clickPayButton(page);
 
@@ -150,20 +136,16 @@ test.describe("Main", () => {
     browserName,
   }) => {
     const userId = `${getUserId(browserName)}_subscription`;
+    const email = getEmailFromUserId(userId);
     const page = await setupTest(browser, userId);
 
-    // Gets all elements that match the selector
-    const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
-    const singleCard = packageCards[1];
-
-    await startPurchaseFlow(singleCard);
-    await enterEmail(page, userId);
+    const packageCards = await getPackageCards(page);
+    await startPurchaseFlow(packageCards[1]);
+    await enterEmail(page, email);
     await enterCreditCardDetails(page, "4000 0000 0000 0002");
     await clickPayButton(page);
 
-    const stripeFrame = page.frameLocator(
-      "iframe[title='Secure payment input frame']",
-    );
+    const stripeFrame = getStripePaymentFrame(page);
     const errorText = stripeFrame.getByText("Your card was declined.");
     await expect(errorText).toBeVisible({ timeout: 10000 });
   });
@@ -173,20 +155,16 @@ test.describe("Main", () => {
     browserName,
   }) => {
     const userId = `${getUserId(browserName)}_subscription`;
+    const email = getEmailFromUserId(userId);
     const page = await setupTest(browser, userId);
 
-    // Gets all elements that match the selector
-    const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
-    const singleCard = packageCards[1];
-
-    await startPurchaseFlow(singleCard);
-    await enterEmail(page, userId);
+    const packageCards = await getPackageCards(page);
+    await startPurchaseFlow(packageCards[1]);
+    await enterEmail(page, email);
     await enterCreditCardDetails(page, "4000003800000446");
     await clickPayButton(page);
 
-    const stripe3DSFrame = page.frameLocator(
-      "iframe[src*='https://js.stripe.com/v3/three-ds-2-challenge']",
-    );
+    const stripe3DSFrame = getStripe3DSFrame(page);
 
     const cancelButton = stripe3DSFrame.getByText("Cancel");
     await expect(cancelButton).toBeVisible({
@@ -215,14 +193,10 @@ test.describe("Main", () => {
     };
     const page = await setupTest(browser, userId, { ...utm_params });
 
-    // Gets all elements that match the selector
-    const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
-    const singleCard = packageCards[1];
-
+    const packageCards = await getPackageCards(page);
+    await startPurchaseFlow(packageCards[1]);
     const requestPromise = waitForCheckoutStartRequest(page);
-
-    await performPurchase(page, singleCard, userId);
-
+    await performPurchase(page, packageCards[1], userId);
     const request = await requestPromise;
     expect(request.postDataJSON()).toHaveProperty("metadata");
     const metadata = request.postDataJSON().metadata;
@@ -246,14 +220,9 @@ test.describe("Main", () => {
       optOutOfAutoUTM: true,
     });
 
-    // Gets all elements that match the selector
-    const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
-    const singleCard = packageCards[1];
-
+    const packageCards = await getPackageCards(page);
     const requestPromise = waitForCheckoutStartRequest(page);
-
-    await performPurchase(page, singleCard, userId);
-
+    await performPurchase(page, packageCards[1], userId);
     const request = await requestPromise;
     expect(request.postDataJSON()).toHaveProperty("metadata");
     const metadata = request.postDataJSON().metadata;
@@ -279,8 +248,7 @@ test.describe("Main", () => {
       offeringId: RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES,
       useRcPaywall: true,
     });
-    // Gets all packages
-    const packageCards = await getAllElementsByLocator(page, PACKAGE_SELECTOR);
+    const packageCards = await getPaywallPackageCards(page);
 
     // Get the purchase button as a Locator
     const purchaseButton = (
@@ -312,11 +280,8 @@ test.describe("Main", () => {
     const title = page.getByText("E2E Tests for Purchases JS");
     await expect(title).toBeVisible();
 
-    // Gets all packages
-    const packageCards = await getAllElementsByLocator(page, PACKAGE_SELECTOR);
-    const singleCard = packageCards[0];
-    // Pick the first package
-    await singleCard.click();
+    const packageCards = await getPaywallPackageCards(page);
+    await packageCards[0].click();
 
     // Get the purchase button as a Locator
     const purchaseButton = (
@@ -336,16 +301,9 @@ test.describe("Main", () => {
     const userId = `${getUserId(browserName)}_consumable`;
     const page = await setupTest(browser, userId);
 
-    // Gets all elements that match the selector
-    const packageCards = await getAllElementsByLocator(
-      page,
-      CARD_SELECTOR,
-      "E2E Consumable",
-    );
+    const packageCards = await getPackageCards(page, "E2E Consumable");
     expect(packageCards.length).toEqual(1);
-    const singleCard = packageCards[0];
-
-    await performPurchase(page, singleCard, userId);
+    await performPurchase(page, packageCards[0], userId);
   });
 
   test("Can purchase a non consumable product", async ({
@@ -355,16 +313,9 @@ test.describe("Main", () => {
     const userId = `${getUserId(browserName)}_non_consumable`;
     const page = await setupTest(browser, userId);
 
-    // Gets all elements that match the selector
-    const packageCards = await getAllElementsByLocator(
-      page,
-      CARD_SELECTOR,
-      "E2E NonConsumable",
-    );
+    const packageCards = await getPackageCards(page, "E2E NonConsumable");
     expect(packageCards.length).toEqual(1);
-    const singleCard = packageCards[0];
-
-    await performPurchase(page, singleCard, userId);
+    await performPurchase(page, packageCards[0], userId);
   });
 
   test("Displays error when unknown backend error", async ({
@@ -374,9 +325,7 @@ test.describe("Main", () => {
     const userId = `${getUserId(browserName)}_already_purchased`;
     const page = await setupTest(browser, userId);
 
-    // Gets all elements that match the selector
-    const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
-    const singleCard = packageCards[1];
+    const packageCards = await getPackageCards(page);
 
     // Prepare error
     await page.route("*/**/checkout/start", async (route) => {
@@ -387,8 +336,7 @@ test.describe("Main", () => {
     });
 
     // Start purchase flow
-    const cardButton = singleCard.getByRole("button");
-    await cardButton.click();
+    await performPurchase(page, packageCards[1], userId);
 
     // Confirm error page has shown.
     const errorTitleText = page.getByText("Something went wrong");
@@ -414,11 +362,8 @@ test.describe("Main", () => {
       const userId = `${getUserId(browserName)}_${lang}_language`;
       const page = await setupTest(browser, userId, { lang });
 
-      // Gets all elements that match the selector
-      const packageCards = await getAllElementsByLocator(page, CARD_SELECTOR);
-      const singleCard = packageCards[1];
-
-      await startPurchaseFlow(singleCard);
+      const packageCards = await getPackageCards(page);
+      await startPurchaseFlow(packageCards[1]);
 
       await expect(page.getByText(title)).toBeVisible({ timeout: 10000 });
     });
@@ -442,14 +387,8 @@ test.describe("Main", () => {
         useRcPaywall: true,
       });
 
-      // Gets all packages
-      const packageCards = await getAllElementsByLocator(
-        page,
-        PACKAGE_SELECTOR,
-      );
-      const singleCard = packageCards[0];
-      // Pick the first package
-      await singleCard.click();
+      const packageCards = await getPaywallPackageCards(page);
+      await packageCards[0].click();
 
       // Get the purchase button as a Locator
       const purchaseButton = (
@@ -531,8 +470,9 @@ function successfulEventTrackingResponseMatcher(
 }
 
 async function performPurchase(page: Page, card: Locator, userId: string) {
+  const email = getEmailFromUserId(userId);
   await startPurchaseFlow(card);
-  await enterEmail(page, userId);
+  await enterEmail(page, email);
   await enterCreditCardDetails(page, "4242 4242 4242 4242");
   await clickPayButton(page);
   await confirmPaymentComplete(page);
@@ -542,6 +482,8 @@ async function startPurchaseFlow(card: Locator) {
   const cardButton = card.getByRole("button");
   await cardButton.click();
 }
+
+const getEmailFromUserId = (userId: string) => `${userId}@revenuecat.com`;
 
 const getUserId = (browserName: string) =>
   `rc_billing_demo_test_${Date.now()}_${browserName}`;
@@ -581,13 +523,28 @@ async function getAllElementsByLocator(
   return await locatorResult.all();
 }
 
-async function enterEmail(page: Page, userId: string): Promise<void> {
-  const stripeFrame = page.frameLocator(
-    "iframe[title='Secure email input frame']",
+const getPackageCards = (page: Page, text?: string) =>
+  getAllElementsByLocator(page, CARD_SELECTOR, text);
+
+const getPaywallPackageCards = (page: Page, text?: string) =>
+  getAllElementsByLocator(page, PACKAGE_SELECTOR, text);
+
+const getStripePaymentFrame = (page: Page) =>
+  page.frameLocator("iframe[title='Secure payment input frame']");
+
+const getStripeEmailFrame = (page: Page) =>
+  page.frameLocator("iframe[title='Secure email input frame']");
+
+const getStripe3DSFrame = (page: Page) =>
+  page.frameLocator(
+    "iframe[src*='https://js.stripe.com/v3/three-ds-2-challenge']",
   );
 
+async function enterEmail(page: Page, email: string): Promise<void> {
+  const stripeFrame = getStripeEmailFrame(page);
   const emailInput = stripeFrame.getByPlaceholder("you@example.com");
-  await emailInput.fill(`${userId}@revenuecat.com`);
+  await emailInput.fill(email);
+  await emailInput.blur();
 }
 
 async function enterCreditCardDetails(
@@ -597,13 +554,9 @@ async function enterCreditCardDetails(
   // Checmout modal
   const checkoutTitle = page.getByText("Secure Checkout");
   await expect(checkoutTitle).toBeVisible();
-  const stripeFrame = page.frameLocator(
-    "iframe[title='Secure payment input frame']",
-  );
-
+  const stripeFrame = getStripePaymentFrame(page);
   const numberInput = stripeFrame.getByPlaceholder("1234 1234 1234");
   await numberInput.fill(cardNumber);
-
   const expirationYear = (new Date().getFullYear() % 100) + 3;
   await stripeFrame.getByPlaceholder("MM / YY").fill(`01 / ${expirationYear}`);
   await stripeFrame.getByLabel("Security Code").fill("123");
