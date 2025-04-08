@@ -89,7 +89,8 @@ test.describe("Main", () => {
     const singleCard = packageCards[0];
 
     await startPurchaseFlow(singleCard);
-    await enterCreditCardDetailsAndContinue(page, "4242 4242 4242 4242");
+    await enterCreditCardDetails(page, "4242 4242 4242 4242");
+    await clickPayButton(page);
     // Confirm success page has shown.
     const successText = page.getByText("Payment complete");
     await expect(successText).toBeVisible({ timeout: 10000 });
@@ -137,7 +138,8 @@ test.describe("Main", () => {
       .getByPlaceholder("john@appleseed.com")
       .fill(`${userId}@revenueci.comm`);
 
-    await enterCreditCardDetailsAndContinue(page, "4242 4242 4242 4242");
+    await enterCreditCardDetails(page, "4242 4242 4242 4242");
+    await clickPayButton(page);
 
     const errorText = page.getByText(
       "Email domain is not valid. Please check the email address or try a different one.",
@@ -160,7 +162,8 @@ test.describe("Main", () => {
     await enterEmail(page, userId);
 
     // Try with an invalid card declined server side
-    await enterCreditCardDetailsAndContinue(page, "4000 0000 0000 0002");
+    await enterCreditCardDetails(page, "4000 0000 0000 0002");
+    await clickPayButton(page);
     const stripeFrame = page.frameLocator(
       "iframe[title='Secure payment input frame']",
     );
@@ -183,7 +186,8 @@ test.describe("Main", () => {
     await enterEmail(page, userId);
 
     // Try with an invalid card declined server side
-    await enterCreditCardDetailsAndContinue(page, "4000003800000446");
+    await enterCreditCardDetails(page, "4000003800000446");
+    await clickPayButton(page);
 
     const stripe3DSFrame = page.frameLocator(
       "iframe[src*='https://js.stripe.com/v3/three-ds-2-challenge']",
@@ -540,7 +544,8 @@ async function startPurchaseFlow(card: Locator) {
 async function performPurchase(page: Page, card: Locator, userId: string) {
   await startPurchaseFlow(card);
   await enterEmail(page, userId);
-  await enterCreditCardDetailsAndContinue(page, "4242 4242 4242 4242");
+  await enterCreditCardDetails(page, "4242 4242 4242 4242");
+  await clickPayButton(page);
   // Confirm success page has shown.
   const successText = page.getByText("Payment complete");
   await expect(successText).toBeVisible({ timeout: 10000 });
@@ -593,7 +598,7 @@ async function enterEmail(page: Page, userId: string): Promise<void> {
   await page.getByPlaceholder("john@appleseed.com").fill(email);
 }
 
-async function enterCreditCardDetailsAndContinue(
+async function enterCreditCardDetails(
   page: Page,
   cardNumber: string,
 ): Promise<void> {
@@ -612,6 +617,9 @@ async function enterCreditCardDetailsAndContinue(
   await stripeFrame.getByLabel("Security Code").fill("123");
   await stripeFrame.getByLabel("Country").selectOption("US");
   await stripeFrame.getByPlaceholder("12345").fill("12345");
+}
+
+async function clickPayButton(page: Page) {
   await page.getByTestId("PayButton").click();
 }
 
