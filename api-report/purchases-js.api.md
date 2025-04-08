@@ -40,9 +40,13 @@ export interface CustomerInfo {
     readonly entitlements: EntitlementInfos;
     readonly firstSeenDate: Date;
     readonly managementURL: string | null;
+    readonly nonSubscriptionTransactions: NonSubscriptionTransaction[];
     readonly originalAppUserId: string;
     readonly originalPurchaseDate: Date | null;
     readonly requestDate: Date;
+    readonly subscriptionsByProductIdentifier: {
+        [productId: string]: SubscriptionInfo;
+    };
 }
 
 // @public
@@ -54,8 +58,10 @@ export interface EntitlementInfo {
     readonly isSandbox: boolean;
     readonly latestPurchaseDate: Date;
     readonly originalPurchaseDate: Date;
+    readonly ownershipType: OwnershipType | null;
     readonly periodType: PeriodType;
     readonly productIdentifier: string;
+    readonly productPlanIdentifier: string | null;
     readonly store: Store;
     readonly unsubscribeDetectedAt: Date | null;
     readonly willRenew: boolean;
@@ -165,6 +171,15 @@ export interface NonSubscriptionOption extends PurchaseOption {
 }
 
 // @public
+export interface NonSubscriptionTransaction {
+    readonly productIdentifier: string;
+    readonly purchaseDate: Date;
+    readonly store: Store;
+    readonly storeTransactionId: string | null;
+    readonly transactionIdentifier: string;
+}
+
+// @public
 export interface Offering {
     readonly annual: Package | null;
     readonly availablePackages: Package[];
@@ -198,6 +213,9 @@ export interface Offerings {
     };
     readonly current: Offering | null;
 }
+
+// @public
+export type OwnershipType = "PURCHASED" | "FAMILY_SHARED" | "UNKNOWN";
 
 // @public
 export interface Package {
@@ -243,6 +261,12 @@ export enum PeriodUnit {
 }
 
 // @public
+export interface PlatformInfo {
+    readonly flavor: string;
+    readonly version: string;
+}
+
+// @public
 export interface PresentedOfferingContext {
     readonly offeringIdentifier: string;
     readonly placementIdentifier: string | null;
@@ -264,6 +288,9 @@ export interface PricingPhase {
     readonly period: Period | null;
     readonly periodDuration: string | null;
     readonly price: Price | null;
+    readonly pricePerMonth: Price | null;
+    readonly pricePerWeek: Price | null;
+    readonly pricePerYear: Price | null;
 }
 
 // @public
@@ -341,6 +368,7 @@ export class Purchases {
     // @deprecated
     purchasePackage(rcPackage: Package, customerEmail?: string, htmlTarget?: HTMLElement): Promise<PurchaseResult>;
     static setLogLevel(logLevel: LogLevel): void;
+    static setPlatformInfo(platformInfo: PlatformInfo): void;
 }
 
 // @public
@@ -370,6 +398,25 @@ export interface RedemptionInfo {
 
 // @public
 export type Store = "app_store" | "mac_app_store" | "play_store" | "amazon" | "stripe" | "rc_billing" | "promotional" | "unknown";
+
+// @public
+export interface SubscriptionInfo {
+    readonly billingIssuesDetectedAt: Date | null;
+    readonly expiresDate: Date | null;
+    readonly gracePeriodExpiresDate: Date | null;
+    readonly isActive: boolean;
+    readonly isSandbox: boolean;
+    readonly originalPurchaseDate: Date | null;
+    readonly ownershipType: OwnershipType;
+    readonly periodType: PeriodType;
+    readonly productIdentifier: string;
+    readonly purchaseDate: Date;
+    readonly refundedAt: Date | null;
+    readonly store: Store;
+    readonly storeTransactionId: string | null;
+    readonly unsubscribeDetectedAt: Date | null;
+    readonly willRenew: boolean;
+}
 
 // @public
 export interface SubscriptionOption extends PurchaseOption {

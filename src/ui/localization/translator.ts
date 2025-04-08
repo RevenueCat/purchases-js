@@ -20,7 +20,7 @@ export type EmptyString = "";
  * ```typescript
  * const customTranslations = {
  *  en: {
- *    "state_needs_auth_info.email_step_title": "Billing email",
+ *    "email_entry_page.email_step_title": "Billing email",
  *   }
  * }
  * ```
@@ -176,6 +176,14 @@ export class Translator {
     );
   }
 
+  public formatCountry(countryCode: string): string {
+    return (
+      new Intl.DisplayNames([this.locale], { type: "region" }).of(
+        countryCode,
+      ) || countryCode
+    );
+  }
+
   public translatePeriod(
     amount: number,
     period: PeriodUnit,
@@ -230,7 +238,6 @@ export class Translator {
     );
   }
 }
-
 export class LocaleTranslations {
   public constructor(
     public readonly labels: Record<string, string> = {},

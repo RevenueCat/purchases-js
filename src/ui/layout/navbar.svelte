@@ -9,34 +9,21 @@
   $: style = new Theme(brandingAppearance).productInfoStyleVars;
 
   export let headerContent;
-  export let bodyContent: (expanded: boolean) => any;
-  export let shouldShowDetailsButton = false;
+  export let bodyContent: () => any;
 
   export let showCloseButton: boolean;
   export let onClose: (() => void) | undefined = undefined;
-
-  let expanded = false;
-
-  function toggleExpanded() {
-    expanded = !expanded;
-  }
 </script>
 
 <div class="rcb-ui-navbar" {style}>
   <SectionLayout layoutStyle="justify-content: flex-end;">
     {#snippet header()}
-      <NavBarHeader
-        {expanded}
-        toggle={toggleExpanded}
-        {showCloseButton}
-        {onClose}
-        {shouldShowDetailsButton}
-      >
+      <NavBarHeader {showCloseButton} {onClose}>
         {@render headerContent?.()}
       </NavBarHeader>
     {/snippet}
     {#snippet body()}
-      {@render bodyContent?.(expanded)}
+      {@render bodyContent?.()}
     {/snippet}
   </SectionLayout>
 </div>

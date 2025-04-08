@@ -10,59 +10,68 @@ import {
 } from "../entities/offerings";
 import { PeriodUnit } from "../helpers/duration-helper";
 import { PurchaseFlowError } from "../helpers/purchase-operation-helper";
-import {
-  type CheckoutStartResponse,
-  StripeElementsMode,
-  StripeElementsSetupFutureUsage,
-} from "../networking/responses/checkout-start-response";
+import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
 import type { BrandingAppearance } from "../entities/branding";
-import type { CheckoutCalculateTaxesResponse } from "src/networking/responses/checkout-calculate-taxes-response";
+import type { CheckoutCalculateTaxResponse } from "../networking/responses/checkout-calculate-tax-response";
+import { StripeElementsSetupFutureUsage } from "../networking/responses/stripe-elements";
+import { StripeElementsMode } from "../networking/responses/stripe-elements";
+import type { PriceBreakdown } from "src/ui/ui-types";
+
+const subscriptionOptionBasePrice = {
+  periodDuration: "P1M",
+  period: {
+    unit: PeriodUnit.Month,
+    number: 1,
+  },
+  price: {
+    amount: 990,
+    amountMicros: 9900000,
+    currency: "USD",
+    formattedPrice: "9.90$",
+  },
+  cycleCount: 0,
+  pricePerWeek: {
+    amount: 227.64,
+    amountMicros: 2276418,
+    currency: "USD",
+    formattedPrice: "2.28$",
+  },
+  pricePerMonth: {
+    amount: 990,
+    amountMicros: 9900000,
+    currency: "USD",
+    formattedPrice: "9.90$",
+  },
+  pricePerYear: {
+    amount: 11879.31,
+    amountMicros: 118793101,
+    currency: "USD",
+    formattedPrice: "118.79$",
+  },
+};
 
 export const subscriptionOption: SubscriptionOption = {
   id: "option_id_1",
   priceId: "price_1",
-  base: {
-    periodDuration: "P1M",
-    period: {
-      unit: PeriodUnit.Month,
-      number: 1,
-    },
-    price: {
-      amount: 999,
-      amountMicros: 999,
-      currency: "USD",
-      formattedPrice: "9.99$",
-    },
-    cycleCount: 0,
-  },
+  base: subscriptionOptionBasePrice,
   trial: null,
 };
 
 export const subscriptionOptionWithTrial: SubscriptionOption = {
   id: "option_id_1",
   priceId: "price_1",
-  base: {
-    periodDuration: "P1Y",
-    period: {
-      unit: PeriodUnit.Year,
-      number: 1,
-    },
-    price: {
-      amount: 999,
-      amountMicros: 9990000,
-      currency: "USD",
-      formattedPrice: "9.99$",
-    },
-    cycleCount: 0,
-  },
+  base: subscriptionOption.base,
   trial: {
-    periodDuration: "P1M",
+    periodDuration: "P1W",
     period: {
       number: 1,
-      unit: PeriodUnit.Month,
+      unit: PeriodUnit.Week,
     },
     cycleCount: 1,
     price: null,
+    pricePerWeek: null,
+    pricePerMonth: null,
+    pricePerYear: null,
   },
 };
 
@@ -70,10 +79,10 @@ export const nonSubscriptionOption: NonSubscriptionOption = {
   id: "option_id_1",
   priceId: "price_1",
   basePrice: {
-    amount: 999,
-    amountMicros: 999,
+    amount: 1995,
+    amountMicros: 19950000,
     currency: "USD",
-    formattedPrice: "9.99$",
+    formattedPrice: "19.95$",
   },
 };
 
@@ -86,10 +95,10 @@ export const product: Product = {
   title: "Fantastic Cat Pro",
   productType: ProductType.Subscription,
   currentPrice: {
-    amount: 999,
-    amountMicros: 999,
+    amount: 990,
+    amountMicros: 9900000,
     currency: "USD",
-    formattedPrice: "9.99$",
+    formattedPrice: "9.90$",
   },
   normalPeriodDuration: "P1M",
   presentedOfferingIdentifier: "some_offering_identifier",
@@ -146,6 +155,7 @@ export const brandingInfo: BrandingInfoResponse = {
   app_icon: "1005820_1715624566.png",
   app_icon_webp: "1005820_1715624566.webp",
   appearance: null,
+  gateway_tax_collection_enabled: false,
 };
 
 export const purchaseFlowError = new PurchaseFlowError(1);
@@ -163,21 +173,37 @@ export const stripeElementsConfiguration = {
   mode: StripeElementsMode.Payment,
   payment_method_types: ["card"],
   setup_future_usage: StripeElementsSetupFutureUsage.OffSession,
-  amount: 9.99,
-  currency: "EUR",
+  amount: 999,
+  currency: "usd",
 };
 
+const publishableApiKey = import.meta.env.VITE_STORYBOOK_PUBLISHABLE_API_KEY;
+const accountId = import.meta.env.VITE_STORYBOOK_ACCOUNT_ID;
+
 export const checkoutStartResponse: CheckoutStartResponse = {
-  operation_session_id: "operation-session-id",
+  operation_session_id: "rcbopsess_test_test_test",
   gateway_params: {
-    stripe_account_id: "test_stripe_account_id",
-    publishable_api_key: "test_publishable_api_key",
+    publishable_api_key: publishableApiKey,
+    stripe_account_id: accountId,
     elements_configuration: stripeElementsConfiguration,
   },
 };
 
-export const checkoutCalculateTaxesResponse: CheckoutCalculateTaxesResponse = {
+export const checkoutCalculateTaxResponse: CheckoutCalculateTaxResponse = {
   operation_session_id: "operation-session-id",
+  currency: "USD",
+  tax_inclusive: false,
+  total_amount_in_micros: 9900000 + 2450000,
+  total_excluding_tax_in_micros: 9900000,
+  tax_amount_in_micros: 2450000,
+  pricing_phases: {
+    base: {
+      tax_breakdown: [],
+    },
+  },
+  gateway_params: {
+    elements_configuration: stripeElementsConfiguration,
+  },
 };
 
 export const defaultContext = {
@@ -198,7 +224,7 @@ export const brandingInfos: Record<string, BrandingInfoResponse> = {
     app_icon: "1005820_1715624566.png",
     app_icon_webp: "1005820_1715624566.webp",
     appearance: {
-      shapes: "rounded",
+      shapes: "rectangle",
       color_form_bg: "#313131",
       color_error: "#E79462",
       color_product_info_bg: "#ffffff",
@@ -208,6 +234,7 @@ export const brandingInfos: Record<string, BrandingInfoResponse> = {
       font: "sans-serif",
       show_product_description: true,
     },
+    gateway_tax_collection_enabled: false,
   },
   Igify: {
     id: "app7e12a2a4b3",
@@ -226,6 +253,7 @@ export const brandingInfos: Record<string, BrandingInfoResponse> = {
       shapes: "default",
       show_product_description: true,
     },
+    gateway_tax_collection_enabled: false,
   },
   Dipsea: {
     id: "appd458f1e3a2",
@@ -244,5 +272,99 @@ export const brandingInfos: Record<string, BrandingInfoResponse> = {
       shapes: "pill",
       show_product_description: false,
     },
+    gateway_tax_collection_enabled: false,
   },
+};
+
+export const priceBreakdownTaxDisabled: PriceBreakdown = {
+  currency: "USD",
+  totalAmountInMicros: 9900000,
+  totalExcludingTaxInMicros: 9900000,
+  taxCollectionEnabled: false,
+  taxCalculationStatus: "calculated",
+  taxAmountInMicros: 0,
+  pendingReason: null,
+  taxBreakdown: null,
+};
+
+export const priceBreakdownTaxInclusive: PriceBreakdown = {
+  ...priceBreakdownTaxDisabled,
+  totalAmountInMicros: 1718000 + 8180000,
+  totalExcludingTaxInMicros: 8180000,
+  taxAmountInMicros: 1718000,
+  taxCollectionEnabled: true,
+  taxCalculationStatus: "calculated",
+  taxBreakdown: [
+    {
+      tax_type: "VAT",
+      tax_amount_in_micros: 1718000,
+      tax_rate_in_micros: 210000,
+      country: "ES",
+      state: null,
+      taxable_amount_in_micros: 8180000,
+      display_name: "VAT - Spain (21%)",
+    },
+  ],
+};
+
+export const priceBreakdownTaxExclusive: PriceBreakdown = {
+  ...priceBreakdownTaxDisabled,
+  totalAmountInMicros: 693000 + 9900000,
+  totalExcludingTaxInMicros: 9900000,
+  taxAmountInMicros: 693000,
+  taxCollectionEnabled: true,
+  taxCalculationStatus: "calculated",
+  taxBreakdown: [
+    {
+      tax_type: "tax_rate",
+      tax_amount_in_micros: 693000,
+      tax_rate_in_micros: 70000,
+      country: "USA",
+      state: "NY",
+      taxable_amount_in_micros: 9900000,
+      display_name: "Tax Rate - NY (7%)",
+    },
+  ],
+};
+
+export const priceBreakdownTaxLoading: PriceBreakdown = {
+  ...priceBreakdownTaxExclusive,
+  totalAmountInMicros: 9900000,
+  taxCalculationStatus: "loading",
+};
+
+export const priceBreakdownTaxPending: PriceBreakdown = {
+  ...priceBreakdownTaxExclusive,
+  totalAmountInMicros: 9900000,
+  taxCalculationStatus: "pending",
+  pendingReason: null,
+};
+
+export const priceBreakdownTaxExclusiveWithMultipleTaxItems: PriceBreakdown = {
+  ...priceBreakdownTaxDisabled,
+  totalAmountInMicros: 9900000 + 495000 + 987525,
+  totalExcludingTaxInMicros: 9900000,
+  taxAmountInMicros: 495000 + 987525,
+  taxCollectionEnabled: true,
+  taxCalculationStatus: "calculated",
+  taxBreakdown: [
+    {
+      tax_type: "GST",
+      tax_amount_in_micros: 495000,
+      tax_rate_in_micros: 50000,
+      country: "CA",
+      state: null,
+      taxable_amount_in_micros: 9900000,
+      display_name: "GST - Canada (5%)",
+    },
+    {
+      tax_type: "QST",
+      tax_amount_in_micros: 987525,
+      tax_rate_in_micros: 99750,
+      country: "CA",
+      state: "ON",
+      taxable_amount_in_micros: 9900000,
+      display_name: "QST - Ontario (9.975%)",
+    },
+  ],
 };

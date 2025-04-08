@@ -5,12 +5,10 @@ import type {
   ProductResponse,
   ProductsResponse,
 } from "../networking/responses/products-response";
-import {
-  StripeElementsMode,
-  StripeElementsSetupFutureUsage,
-  type CheckoutStartResponse,
-} from "../networking/responses/checkout-start-response";
+import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
 import type { CheckoutCompleteResponse } from "../networking/responses/checkout-complete-response";
+import { StripeElementsSetupFutureUsage } from "../networking/responses/stripe-elements";
+import { StripeElementsMode } from "../networking/responses/stripe-elements";
 
 const monthlyProductResponse: ProductResponse = {
   identifier: "monthly",
@@ -120,6 +118,7 @@ export const customerInfoResponse = {
         expires_date: "2023-12-20T16:48:42Z",
         grace_period_expires_date: null,
         product_identifier: "black_f_friday_worten_2",
+        product_plan_identifier: "plan_id",
         purchase_date: "2023-12-19T16:48:42Z",
       },
       activeCatServices: {
@@ -132,7 +131,18 @@ export const customerInfoResponse = {
     first_seen: "2023-11-20T16:48:29Z",
     last_seen: "2023-11-20T16:48:29Z",
     management_url: "https://test-management-url.revenuecat.com",
-    non_subscriptions: {},
+    non_subscriptions: {
+      consumable: [
+        {
+          id: "abcd1234",
+          is_sandbox: true,
+          original_purchase_date: "2025-04-03T16:14:47Z",
+          purchase_date: "2025-04-03T16:14:47Z",
+          store: "play_store",
+          store_transaction_id: "GPA.0000-0000-0000-00000",
+        },
+      ],
+    },
     original_app_user_id: "someAppUserId",
     original_application_version: null,
     original_purchase_date: null,
@@ -151,6 +161,7 @@ export const customerInfoResponse = {
         store: "rc_billing",
         store_transaction_id: "one_transaction_id",
         unsubscribe_detected_at: null,
+        ownership_type: "FAMILY_SHARED",
       },
       black_f_friday_worten: {
         auto_resume_date: null,

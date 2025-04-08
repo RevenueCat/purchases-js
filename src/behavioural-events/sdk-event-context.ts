@@ -41,7 +41,7 @@ export function buildEventContext(
     utmContent: urlParams.get("utm_content") ?? null,
     utmTerm: urlParams.get("utm_term") ?? null,
     pageReferrer: document.referrer,
-    pageUrl: window.location.href,
+    pageUrl: `${window.location.origin}${window.location.pathname}`,
     pageTitle: document.title,
     source: source,
   };

@@ -34,6 +34,24 @@ describe("getOfferings", () => {
         currency: "USD",
         formattedPrice: "$5.00",
       },
+      pricePerWeek: {
+        amount: 116.6667,
+        amountMicros: 1166667,
+        currency: "USD",
+        formattedPrice: "$1.17",
+      },
+      pricePerMonth: {
+        amount: 500,
+        amountMicros: 5000000,
+        currency: "USD",
+        formattedPrice: "$5.00",
+      },
+      pricePerYear: {
+        amount: 6083.3333,
+        amountMicros: 60833333,
+        currency: "USD",
+        formattedPrice: "$60.83",
+      },
     },
     trial: {
       cycleCount: 1,
@@ -43,6 +61,9 @@ describe("getOfferings", () => {
         unit: PeriodUnit.Week,
       },
       price: null,
+      pricePerWeek: null,
+      pricePerMonth: null,
+      pricePerYear: null,
     },
   };
 

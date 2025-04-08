@@ -1,5 +1,5 @@
 import type { Preview } from "@storybook/svelte";
-import GlobalDecorator from "../src/stories/utils/global-decorator.svelte";
+import GlobalDecorator from "../src/stories/decorators/global-decorator.svelte";
 import { brandingInfos } from "../src/stories/fixtures";
 
 const preview: Preview = {
@@ -20,13 +20,6 @@ const preview: Preview = {
           styles: {
             width: "375px",
             height: "667px",
-          },
-        },
-        tablet: {
-          name: "Tablet",
-          styles: {
-            width: "1024px",
-            height: "768px",
           },
         },
         desktop: {
