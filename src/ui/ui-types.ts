@@ -19,7 +19,8 @@ export type TaxCalculationStatus = "pending" | "loading" | "calculated";
 
 export type TaxCalculationPendingReason =
   | "needs_postal_code"
-  | "needs_state_or_postal_code";
+  | "needs_state_or_postal_code"
+  | "invalid_postal_code";
 
 export type PriceBreakdown = {
   currency: string;

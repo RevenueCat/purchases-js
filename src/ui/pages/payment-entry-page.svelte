@@ -145,6 +145,13 @@
     }
   }
 
+  $: if (priceBreakdown.pendingReason === "invalid_postal_code") {
+    priceBreakdown.pendingReason = null;
+    modalErrorMessage = $translator.translate(
+      LocalizationKeys.ErrorPageErrorMessageInvalidTaxLocation,
+    );
+  }
+
   const handleErrorTryAgain = () => {
     modalErrorMessage = undefined;
   };

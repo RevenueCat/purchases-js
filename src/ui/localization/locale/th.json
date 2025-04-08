@@ -50,6 +50,7 @@
   "error_page.error_message_network_error": "ข้อผิดพลาดของเครือข่าย โปรดตรวจสอบการเชื่อมต่ออินเทอร์เน็ตของคุณ",
   "error_page.error_message_error_charging_payment": "การชำระเงินล้มเหลว",
   "error_page.error_message_error_setting_up_purchase": "การซื้อไม่เริ่มต้นเนื่องจากข้อผิดพลาด รหัสข้อผิดพลาด: {{errorCode}}",
+  "error_page.error_message_invalid_tax_location": "เราไม่สามารถยืนยันที่อยู่สำหรับออกใบแจ้งหนี้ของคุณได้ กรุณาตรวจสอบรหัสไปรษณีย์และประเทศให้ถูกต้อง",
   "error_page.error_message_unknown_error": "เกิดข้อผิดพลาดที่ไม่รู้จัก รหัสข้อผิดพลาด: {{errorCode}}",
   "error_page.button_try_again": "ลองอีกครั้ง",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
