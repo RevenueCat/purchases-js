@@ -91,9 +91,7 @@ test.describe("Main", () => {
     await startPurchaseFlow(singleCard);
     await enterCreditCardDetails(page, "4242 4242 4242 4242");
     await clickPayButton(page);
-    // Confirm success page has shown.
-    const successText = page.getByText("Payment complete");
-    await expect(successText).toBeVisible({ timeout: 10000 });
+    await confirmPaymentComplete(page);
   });
 
   test("Displays email format errors", async ({ browser, browserName }) => {
@@ -160,10 +158,9 @@ test.describe("Main", () => {
 
     await startPurchaseFlow(singleCard);
     await enterEmail(page, userId);
-
-    // Try with an invalid card declined server side
     await enterCreditCardDetails(page, "4000 0000 0000 0002");
     await clickPayButton(page);
+
     const stripeFrame = page.frameLocator(
       "iframe[title='Secure payment input frame']",
     );
@@ -184,8 +181,6 @@ test.describe("Main", () => {
 
     await startPurchaseFlow(singleCard);
     await enterEmail(page, userId);
-
-    // Try with an invalid card declined server side
     await enterCreditCardDetails(page, "4000003800000446");
     await clickPayButton(page);
 
@@ -535,20 +530,17 @@ function successfulEventTrackingResponseMatcher(
   };
 }
 
-async function startPurchaseFlow(card: Locator) {
-  // Perform purchase
-  const cardButton = card.getByRole("button");
-  await cardButton.click();
-}
-
 async function performPurchase(page: Page, card: Locator, userId: string) {
   await startPurchaseFlow(card);
   await enterEmail(page, userId);
   await enterCreditCardDetails(page, "4242 4242 4242 4242");
   await clickPayButton(page);
-  // Confirm success page has shown.
-  const successText = page.getByText("Payment complete");
-  await expect(successText).toBeVisible({ timeout: 10000 });
+  await confirmPaymentComplete(page);
+}
+
+async function startPurchaseFlow(card: Locator) {
+  const cardButton = card.getByRole("button");
+  await cardButton.click();
 }
 
 const getUserId = (browserName: string) =>
@@ -590,12 +582,12 @@ async function getAllElementsByLocator(
 }
 
 async function enterEmail(page: Page, userId: string): Promise<void> {
-  await page.waitForSelector("input[placeholder='john@appleseed.com']", {
-    timeout: 10000,
-  });
-  const email = `${userId}@revenuecat.com`;
-  await page.getByPlaceholder("john@appleseed.com").click();
-  await page.getByPlaceholder("john@appleseed.com").fill(email);
+  const stripeFrame = page.frameLocator(
+    "iframe[title='Secure email input frame']",
+  );
+
+  const emailInput = stripeFrame.getByPlaceholder("you@example.com");
+  await emailInput.fill(`${userId}@revenuecat.com`);
 }
 
 async function enterCreditCardDetails(
@@ -621,6 +613,11 @@ async function enterCreditCardDetails(
 
 async function clickPayButton(page: Page) {
   await page.getByTestId("PayButton").click();
+}
+
+async function confirmPaymentComplete(page: Page) {
+  const successText = page.getByText("Payment complete");
+  await expect(successText).toBeVisible({ timeout: 10000 });
 }
 
 async function navigateToUrl(
