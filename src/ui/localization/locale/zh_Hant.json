@@ -73,5 +73,6 @@
   "pricing_table.total_excluding_tax": "總計（不含稅）",
   "pricing_table.enter_billing_address_to_calculate": "輸入帳單地址以計算",
   "pricing_table.enter_state_or_postal_code_to_calculate": "輸入州或郵政編碼以計算",
-  "pricing_table.enter_postal_code_to_calculate": "輸入郵政編碼以計算"
+  "pricing_table.enter_postal_code_to_calculate": "輸入郵政編碼以計算",
+  "error_page.error_message_invalid_email_error": "無法驗證電子郵件地址 {{email}}。請提供有效的電子郵件地址。"
 }

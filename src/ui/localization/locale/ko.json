@@ -73,5 +73,6 @@
   "pricing_table.total_excluding_tax": "세금 제외 총액",
   "pricing_table.enter_billing_address_to_calculate": "계산을 위해 청구지 주소를 입력하세요",
   "pricing_table.enter_state_or_postal_code_to_calculate": "주 또는 우편 번호를 입력하여 계산",
-  "pricing_table.enter_postal_code_to_calculate": "우편 번호를 입력하여 계산"
+  "pricing_table.enter_postal_code_to_calculate": "우편 번호를 입력하여 계산",
+  "error_page.error_message_invalid_email_error": "이메일 주소 {{email}}을(를) 확인할 수 없습니다. 유효한 이메일 주소를 제공해 주세요."
 }

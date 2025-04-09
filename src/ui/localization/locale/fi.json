@@ -73,5 +73,6 @@
   "pricing_table.total_excluding_tax": "Veroton kokonaissumma",
   "pricing_table.enter_billing_address_to_calculate": "Syötä laskutusosoite laskeaksesi",
   "pricing_table.enter_state_or_postal_code_to_calculate": "Syötä osavaltio tai postinumero laskeaksesi",
-  "pricing_table.enter_postal_code_to_calculate": "Syötä postinumero laskeaksesi"
+  "pricing_table.enter_postal_code_to_calculate": "Syötä postinumero laskeaksesi",
+  "error_page.error_message_invalid_email_error": "Sähköpostiosoitetta {{email}} ei voitu vahvistaa. Anna kelvollinen sähköpostiosoite."
 }

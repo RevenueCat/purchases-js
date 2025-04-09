@@ -54,6 +54,7 @@
   "error_page.error_message_already_subscribed": "You are already subscribed to this product.",
   "error_page.error_message_already_purchased": "You have already purchased this product.",
   "error_page.error_message_missing_email_error": "Email is required to complete the purchase.",
+  "error_page.error_message_invalid_email_error": "The email address {{email}} couldn't be verified. Please provide a valid email address.",
   "error_page.error_message_network_error": "Network error. Please check your internet connection.",
   "error_page.error_message_error_charging_payment": "Payment failed.",
   "error_page.error_message_error_setting_up_purchase": "Purchase not started due to an error. Error code: {{errorCode}}",

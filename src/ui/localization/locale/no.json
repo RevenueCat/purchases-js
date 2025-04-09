@@ -73,5 +73,6 @@
   "pricing_table.total_excluding_tax": "Total eksklusive skatt",
   "pricing_table.enter_billing_address_to_calculate": "Oppgi faktureringsadresse for å beregne",
   "pricing_table.enter_state_or_postal_code_to_calculate": "Skriv inn stat eller postnummer for å beregne",
-  "pricing_table.enter_postal_code_to_calculate": "Skriv inn postnummer for å beregne"
+  "pricing_table.enter_postal_code_to_calculate": "Skriv inn postnummer for å beregne",
+  "error_page.error_message_invalid_email_error": "E-postadressen {{email}} kunne ikke bekreftes. Vennligst oppgi en gyldig e-postadresse."
 }

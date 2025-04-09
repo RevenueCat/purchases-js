@@ -73,5 +73,6 @@
   "pricing_table.total_excluding_tax": "总计（不含税）",
   "pricing_table.enter_billing_address_to_calculate": "输入账单地址以计算",
   "pricing_table.enter_state_or_postal_code_to_calculate": "输入州或邮政编码以计算",
-  "pricing_table.enter_postal_code_to_calculate": "输入邮政编码以计算"
+  "pricing_table.enter_postal_code_to_calculate": "输入邮政编码以计算",
+  "error_page.error_message_invalid_email_error": "无法验证电子邮件地址{{email}}。请提供有效的电子邮件地址。"
 }
