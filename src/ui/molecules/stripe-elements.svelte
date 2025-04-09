@@ -36,6 +36,7 @@
     complete: boolean;
     paymentMethod: string | undefined;
   }) => void;
+
   export let onTaxCustomerDetailsUpdated: (
     customerDetails: TaxCustomerDetails,
   ) => void;
@@ -43,8 +44,10 @@
   export let onSubmissionSuccess: () => void;
   export let onConfirmationSuccess: () => void;
 
+  let paymentElementReadyForSubmission = false;
+
   export async function submit() {
-    if (!elements) return;
+    if (!elements || !paymentElementReadyForSubmission) return;
 
     const { error: submitError } = await elements.submit();
     if (submitError) {
@@ -55,7 +58,7 @@
   }
 
   export async function confirm(clientSecret: string) {
-    if (!stripe || !elements) return;
+    if (!stripe || !elements || !paymentElementReadyForSubmission) return;
 
     const confirmError = await StripeService.confirmIntent(
       stripe,
@@ -158,7 +161,7 @@
   }
 
   async function triggerTaxDetailsUpdated() {
-    if (!elements || !stripe) return;
+    if (!elements || !stripe || !paymentElementReadyForSubmission) return;
 
     const { error: submitError } = await elements.submit();
     if (submitError) {
@@ -220,6 +223,7 @@
       stripe = stripeInstance;
       elements = elementsInstance;
 
+      // At this point, the gatewayParams might have been updated so we attempt to set them.
       const elementsConfiguration = gatewayParams.elements_configuration;
       if (elementsConfiguration) {
         await StripeService.updateElementsConfiguration(
@@ -242,10 +246,20 @@
     window.removeEventListener("resize", onResize);
   });
 
+  const onPaymentElementReady = async () => {
+    paymentElementReadyForSubmission = true;
+    onLoadingComplete();
+  };
+
   const onPaymentElementChange = async (
     event: StripePaymentElementChangeEvent,
   ) => {
     if (taxCollectionEnabled && event.complete && event.value.type === "card") {
+      // This calls a callback from outside and that callback might create issues
+      // with the other callback from below.
+      // We should merge the 2 callbacks and send the tax details along with the
+      // onPaymentInfoChange.
+      // As undefined if no tax collection is enabled.
       await triggerTaxDetailsUpdated();
     }
     onPaymentInfoChange({
@@ -253,15 +267,23 @@
       paymentMethod: event.complete ? event.value.type : undefined,
     });
   };
+
+  $: if (gatewayParams.elements_configuration && elements) {
+    const elementsConfiguration = gatewayParams.elements_configuration;
+    (async () => {
+      await StripeService.updateElementsConfiguration(
+        elements,
+        elementsConfiguration,
+      );
+    })();
+  }
 </script>
 
 {#if elements}
   <PaymentElement
     {elements}
     {brandingInfo}
-    onReady={() => {
-      onLoadingComplete();
-    }}
+    onReady={onPaymentElementReady}
     onChange={onPaymentElementChange}
     onError={onStripeElementsLoadingError}
   />
