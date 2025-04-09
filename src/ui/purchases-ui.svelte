@@ -131,7 +131,7 @@
         productId,
         purchaseOption,
         rcPackage.webBillingProduct.presentedOfferingContext,
-        undefined,
+        customerEmail,
         metadata,
       )
       .then((result) => {

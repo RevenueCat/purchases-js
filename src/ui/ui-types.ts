@@ -11,7 +11,6 @@ export type CurrentPage =
   | "error";
 
 export type ContinueHandlerParams = {
-  authInfo?: { email: string };
   error?: PurchaseFlowError;
 };
 

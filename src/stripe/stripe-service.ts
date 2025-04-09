@@ -188,11 +188,11 @@ export class StripeService {
 
   static createLinkAuthenticationElement(
     elements: StripeElements,
-    email: string,
+    email?: string,
   ) {
     return elements.create("linkAuthentication", {
       defaultValues: {
-        email: email,
+        email: email ?? "",
       },
     });
   }

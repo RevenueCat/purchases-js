@@ -30,7 +30,7 @@
   export let gatewayParams: GatewayParams;
   export let brandingInfo: BrandingInfoResponse | null;
   export let taxCollectionEnabled: boolean;
-  export let email: string;
+  export let customerEmail: string | undefined;
   export let onLoadingComplete: () => void;
   export let onError: (error: PaymentElementError) => void;
   export let onEmailChange: (complete: boolean, email: string) => void;
@@ -240,7 +240,7 @@
     let linkAuthenticationElement: StripeLinkAuthenticationElement | null =
       null;
     let isMounted = true;
-    let isLinkAuthenticationElementReady = false;
+    let isLinkAuthenticationElementReady = customerEmail ? true : false;
     let isPaymentElementReady = false;
 
     (async () => {
@@ -259,34 +259,36 @@
         stripe = stripeInstance;
         unsafeElements = elementsInstance;
 
-        linkAuthenticationElement =
-          StripeService.createLinkAuthenticationElement(unsafeElements, email);
+        if (!customerEmail) {
+          linkAuthenticationElement =
+            StripeService.createLinkAuthenticationElement(unsafeElements);
 
-        linkAuthenticationElement.mount("#link-authentication-element");
+          linkAuthenticationElement.mount("#link-authentication-element");
 
-        linkAuthenticationElement.on("change", (event) => {
-          onEmailChange(event.complete, event.value.email);
-        });
-
-        linkAuthenticationElement.on("loaderror", (event) => {
-          if (!isMounted) return;
-
-          isMounted = false;
-          onError({
-            code: PaymentElementErrorCode.ErrorLoadingStripe,
-            gatewayErrorCode: event.error.code,
-            message: event.error.message,
+          linkAuthenticationElement.on("change", (event) => {
+            onEmailChange(event.complete, event.value.email);
           });
-          onLoadingComplete();
-        });
 
-        linkAuthenticationElement.on("ready", () => {
-          isLinkAuthenticationElementReady = true;
+          linkAuthenticationElement.on("loaderror", (event) => {
+            if (!isMounted) return;
 
-          if (isLinkAuthenticationElementReady && isPaymentElementReady) {
+            isMounted = false;
+            onError({
+              code: PaymentElementErrorCode.ErrorLoadingStripe,
+              gatewayErrorCode: event.error.code,
+              message: event.error.message,
+            });
             onLoadingComplete();
-          }
-        });
+          });
+
+          linkAuthenticationElement.on("ready", () => {
+            isLinkAuthenticationElementReady = true;
+
+            if (isLinkAuthenticationElementReady && isPaymentElementReady) {
+              onLoadingComplete();
+            }
+          });
+        }
 
         paymentElement = StripeService.createPaymentElement(
           unsafeElements,

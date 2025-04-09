@@ -38,7 +38,6 @@
   import PaymentButton from "../molecules/payment-button.svelte";
   import StripeElements from "../molecules/stripe-elements.svelte";
   import { type GatewayParams } from "../../networking/responses/stripe-elements";
-  import ErrorPage from "./error-page.svelte";
 
   interface Props {
     onContinue: (params?: ContinueHandlerParams) => void;
@@ -77,7 +76,7 @@
   );
 
   let email: string = $state(customerEmail ?? "");
-  let isEmailComplete = $state(false);
+  let isEmailComplete = $state(customerEmail ? true : false);
   let isStripeLoading = $state(true);
   let stripeLocale: StripeElementLocale | undefined = $state(undefined);
   let isPaymentInfoComplete = $state(false);
@@ -85,7 +84,6 @@
   let modalErrorMessage: string | undefined = $state(undefined);
   let clientSecret: string | undefined = $state(undefined);
   let processing = $state(false);
-  let emailError: PurchaseFlowError | undefined = $state(undefined);
 
   let isFormReady = $derived(
     !processing &&
@@ -135,35 +133,41 @@
     await stripeSubmit();
   }
 
-  function handleDismissPurchaseFlowError() {
-    emailError = undefined;
-  }
-
   async function handlePaymentSubmissionSuccess(): Promise<void> {
     // Get client secret if not already present
     if (!clientSecret) {
       try {
-        const response = await purchaseOperationHelper.checkoutComplete(email);
+        const response = await purchaseOperationHelper.checkoutComplete(
+          customerEmail ? undefined : email,
+        );
         clientSecret = response?.gateway_params?.client_secret;
         if (!clientSecret) {
-          throw new Error("Failed to complete checkout");
+          throw new PurchaseFlowError(
+            PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+            "Failed to complete checkout",
+          );
         }
       } catch (error) {
-        if (error instanceof PurchaseFlowError) {
-          if (error.errorCode === PurchaseFlowErrorCode.MissingEmailError) {
-            const event = createCheckoutPaymentFormErrorEvent({
-              errorCode: error.errorCode.toString(),
-              errorMessage: error.message,
-            });
-            eventsTracker.trackSDKEvent(event);
+        if (!(error instanceof PurchaseFlowError)) {
+          throw error;
+        }
 
-            processing = false;
-            emailError = error;
-          } else {
-            throw error;
-          }
+        const event = createCheckoutPaymentFormErrorEvent({
+          errorCode: error.errorCode.toString(),
+          errorMessage: error.message,
+        });
+        eventsTracker.trackSDKEvent(event);
+
+        if (error.errorCode === PurchaseFlowErrorCode.MissingEmailError) {
+          processing = false;
+          modalErrorMessage = $translator.translate(
+            LocalizationKeys.ErrorPageErrorMessageInvalidEmailError,
+            { email: email },
+          );
         } else {
-          handleStripeElementError(error as PaymentElementError);
+          onContinue({
+            error: error,
+          });
         }
         return;
       }
@@ -203,16 +207,6 @@
   };
 </script>
 
-{#if emailError}
-  <ErrorPage
-    lastError={emailError}
-    {email}
-    {productDetails}
-    supportEmail={brandingInfo?.support_email ?? null}
-    onContinue={handleDismissPurchaseFlowError}
-  />
-{/if}
-
 <div class="rc-checkout-container">
   {#if isStripeLoading || processing}
     <Loading />
@@ -222,7 +216,7 @@
     onsubmit={handleSubmit}
     data-testid="payment-form"
     class="rc-checkout-form"
-    class:hidden={isStripeLoading || processing || emailError}
+    class:hidden={isStripeLoading || processing}
   >
     <div class="rc-checkout-form-container" hidden={!!modalErrorMessage}>
       <div class="rc-elements-container">
@@ -232,7 +226,7 @@
           bind:stripeLocale
           {gatewayParams}
           {brandingInfo}
-          email={customerEmail ?? ""}
+          customerEmail={customerEmail ?? ""}
           onLoadingComplete={handleStripeLoadingComplete}
           onError={handleStripeElementError}
           onEmailChange={handleEmailChange}
