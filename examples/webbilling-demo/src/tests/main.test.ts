@@ -8,11 +8,20 @@ const RC_PAYWALL_TEST_OFFERING_ID = "rc_paywalls_e2e_test_2";
 const RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES =
   "rc_paywalls_e2e_test_variables_2";
 
-const waitForCheckoutStartRequest = (page: Page) => {
-  return page.waitForRequest(
-    (request) =>
-      request.url().includes("checkout/start") && request.method() === "POST",
-  );
+const waitForCheckoutStartRequest = (
+  page: Page,
+  expectedMetadata: Record<string, string>,
+) => {
+  return page.waitForRequest((request) => {
+    if (
+      request.url().includes("checkout/start") &&
+      request.method() === "POST"
+    ) {
+      expect(request.postDataJSON().metadata).toStrictEqual(expectedMetadata);
+      return true;
+    }
+    return false;
+  });
 };
 
 test.describe("Main", () => {
@@ -194,13 +203,9 @@ test.describe("Main", () => {
     const page = await setupTest(browser, userId, { ...utm_params });
 
     const packageCards = await getPackageCards(page);
+    const requestPromise = waitForCheckoutStartRequest(page, utm_params);
     await startPurchaseFlow(packageCards[1]);
-    const requestPromise = waitForCheckoutStartRequest(page);
-    await performPurchase(page, packageCards[1], userId);
-    const request = await requestPromise;
-    expect(request.postDataJSON()).toHaveProperty("metadata");
-    const metadata = request.postDataJSON().metadata;
-    expect(metadata).toStrictEqual(utm_params);
+    await requestPromise;
   });
 
   test("Does not propagate UTM params to metadata when purchasing if the developer opts out", async ({
@@ -221,12 +226,9 @@ test.describe("Main", () => {
     });
 
     const packageCards = await getPackageCards(page);
-    const requestPromise = waitForCheckoutStartRequest(page);
-    await performPurchase(page, packageCards[1], userId);
-    const request = await requestPromise;
-    expect(request.postDataJSON()).toHaveProperty("metadata");
-    const metadata = request.postDataJSON().metadata;
-    expect(metadata).toStrictEqual({});
+    const requestPromise = waitForCheckoutStartRequest(page, {});
+    await startPurchaseFlow(packageCards[1]);
+    await requestPromise;
   });
 
   test("Can render an RC Paywall", async ({ browser, browserName }) => {
