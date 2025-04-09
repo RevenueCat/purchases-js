@@ -149,7 +149,35 @@ test.describe("Purchase error paths", () => {
     await expect(errorText).toBeVisible({ timeout: 10000 });
   });
 
-  test("Displays handled card form submission errors", async ({
+  test("Displays email deliverability errors after card declined errors", async ({
+    browser,
+    browserName,
+  }) => {
+    // Reproduce an issue where the email is not operation has been completed
+
+    const userId = getUserId(browserName);
+    const page = await setupTest(browser, userId);
+    const email = getEmailFromUserId(userId);
+
+    const packageCards = await getPackageCards(page);
+    await startPurchaseFlow(packageCards[1]);
+    await enterEmail(page, email);
+    await enterCreditCardDetails(page, "4000 0000 0000 0002");
+    await clickPayButton(page);
+
+    const stripeFrame = getStripePaymentFrame(page);
+    const cardError = stripeFrame.getByText("Your card was declined.");
+    await expect(cardError).toBeVisible({ timeout: 10000 });
+
+    await enterCreditCardDetails(page, "4242 4242 4242 4242");
+    await enterEmail(page, `${userId}@revenueci.comm`);
+    await clickPayButton(page);
+
+    const emailError = page.getByText(`Please provide a valid email address.`);
+    await expect(emailError).toBeVisible({ timeout: 10000 });
+  });
+
+  test("Displays handled card card declined errors", async ({
     browser,
     browserName,
   }) => {
