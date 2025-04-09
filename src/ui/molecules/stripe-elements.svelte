@@ -182,10 +182,11 @@
     const billingAddress =
       confirmationToken.payment_method_preview?.billing_details?.address;
 
-    if (
-      !billingAddress ||
-      JSON.stringify(billingAddress) === JSON.stringify(lastTaxCustomerDetails)
-    ) {
+    const sameAddress =
+      billingAddress?.postal_code === lastTaxCustomerDetails?.postalCode &&
+      billingAddress?.country === lastTaxCustomerDetails?.countryCode;
+
+    if (!billingAddress || sameAddress) {
       return;
     }
 
