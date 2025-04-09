@@ -240,6 +240,8 @@
     let linkAuthenticationElement: StripeLinkAuthenticationElement | null =
       null;
     let isMounted = true;
+    let isLinkAuthenticationElementReady = false;
+    let isPaymentElementReady = false;
 
     (async () => {
       try {
@@ -266,6 +268,26 @@
           onEmailChange(event.complete, event.value.email);
         });
 
+        linkAuthenticationElement.on("loaderror", (event) => {
+          if (!isMounted) return;
+
+          isMounted = false;
+          onError({
+            code: PaymentElementErrorCode.ErrorLoadingStripe,
+            gatewayErrorCode: event.error.code,
+            message: event.error.message,
+          });
+          onLoadingComplete();
+        });
+
+        linkAuthenticationElement.on("ready", () => {
+          isLinkAuthenticationElementReady = true;
+
+          if (isLinkAuthenticationElementReady && isPaymentElementReady) {
+            onLoadingComplete();
+          }
+        });
+
         paymentElement = StripeService.createPaymentElement(
           unsafeElements,
           brandingInfo?.app_name,
@@ -274,7 +296,11 @@
         paymentElement.mount("#payment-element");
 
         paymentElement.on("ready", () => {
-          onLoadingComplete();
+          isPaymentElementReady = true;
+
+          if (isLinkAuthenticationElementReady && isPaymentElementReady) {
+            onLoadingComplete();
+          }
         });
 
         paymentElement.on(
@@ -295,6 +321,8 @@
           },
         );
         paymentElement.on("loaderror", (event) => {
+          if (!isMounted) return;
+
           isMounted = false;
           onError({
             code: PaymentElementErrorCode.ErrorLoadingStripe,
@@ -319,6 +347,7 @@
       if (isMounted) {
         isMounted = false;
         paymentElement?.destroy();
+        linkAuthenticationElement?.destroy();
       }
     };
   });

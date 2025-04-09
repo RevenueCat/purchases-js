@@ -127,15 +127,16 @@ test.describe("Main", () => {
   }) => {
     const userId = `${getUserId(browserName)}_subscription`;
     const page = await setupTest(browser, userId);
+    const email = `${userId}@revenueci.comm`;
 
     const packageCards = await getPackageCards(page);
     await startPurchaseFlow(packageCards[1]);
-    await enterEmail(page, `${userId}@revenueci.comm`);
+    await enterEmail(page, email);
     await enterCreditCardDetails(page, "4242 4242 4242 4242");
     await clickPayButton(page);
 
     const errorText = page.getByText(
-      "Email domain is not valid. Please check the email address or try a different one.",
+      "The email address ${email} couldn't be verified. Please provide a valid email address.",
     );
     await expect(errorText).toBeVisible({ timeout: 10000 });
   });
@@ -338,7 +339,7 @@ test.describe("Main", () => {
     });
 
     // Start purchase flow
-    await performPurchase(page, packageCards[1], userId);
+    await startPurchaseFlow(packageCards[1]);
 
     // Confirm error page has shown.
     const errorTitleText = page.getByText("Something went wrong");

@@ -159,6 +159,8 @@
 
             processing = false;
             emailError = error;
+          } else {
+            throw error;
           }
         } else {
           handleStripeElementError(error as PaymentElementError);
@@ -204,6 +206,7 @@
 {#if emailError}
   <ErrorPage
     lastError={emailError}
+    {email}
     {productDetails}
     supportEmail={brandingInfo?.support_email ?? null}
     onContinue={handlePurchaseFlowError}

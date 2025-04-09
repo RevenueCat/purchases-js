@@ -88,6 +88,7 @@ export enum LocalizationKeys {
   ErrorPageErrorMessageAlreadySubscribed = "error_page.error_message_already_subscribed",
   ErrorPageErrorMessageAlreadyPurchased = "error_page.error_message_already_purchased",
   ErrorPageErrorMessageMissingEmailError = "error_page.error_message_missing_email_error",
+  ErrorPageErrorMessageInvalidEmailError = "error_page.error_message_invalid_email_error",
   ErrorPageErrorMessageNetworkError = "error_page.error_message_network_error",
   ErrorPageErrorMessageErrorChargingPayment = "error_page.error_message_error_charging_payment",
   ErrorPageErrorMessageErrorSettingUpPurchase = "error_page.error_message_error_setting_up_purchase",
