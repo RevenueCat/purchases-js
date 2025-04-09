@@ -163,10 +163,6 @@
     color: var(--rc-color-grey-text-dark);
   }
 
-  .rcb-pricing-table-value {
-    text-align: right;
-  }
-
   .rcb-pricing-table-row:last-child > .rcb-pricing-table-header,
   .rcb-pricing-table-row:last-child > .rcb-pricing-table-value {
     color: var(--rc-color-grey-text-dark);
