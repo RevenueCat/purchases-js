@@ -255,19 +255,14 @@
   };
 </script>
 
-<div
-  style="display: flex; flex-direction: column; align-items: stretch; gap: {spacing
-    .gapXLarge[viewport]};"
->
-  {#if elements}
-    <PaymentElement
-      {elements}
-      {brandingInfo}
-      onReady={() => {
-        onLoadingComplete();
-      }}
-      onChange={onPaymentElementChange}
-      onError={onStripeElementsLoadingError}
-    />
-  {/if}
-</div>
+{#if elements}
+  <PaymentElement
+    {elements}
+    {brandingInfo}
+    onReady={() => {
+      onLoadingComplete();
+    }}
+    onChange={onPaymentElementChange}
+    onError={onStripeElementsLoadingError}
+  />
+{/if}
