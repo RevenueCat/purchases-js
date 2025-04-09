@@ -8,22 +8,6 @@ const RC_PAYWALL_TEST_OFFERING_ID = "rc_paywalls_e2e_test_2";
 const RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES =
   "rc_paywalls_e2e_test_variables_2";
 
-const waitForCheckoutStartRequest = (
-  page: Page,
-  expectedMetadata: Record<string, string>,
-) => {
-  return page.waitForRequest((request) => {
-    if (
-      request.url().includes("checkout/start") &&
-      request.method() === "POST"
-    ) {
-      expect(request.postDataJSON().metadata).toStrictEqual(expectedMetadata);
-      return true;
-    }
-    return false;
-  });
-};
-
 test.describe("Main", () => {
   test("Get offerings displays packages", async ({ browser, browserName }) => {
     const userId = getUserId(browserName);
@@ -641,3 +625,19 @@ async function navigateToUrl(
   const url = `${baseUrl}${useRcPaywall ? "rc_paywall" : "paywall"}/${encodeURIComponent(userId)}?${params.toString()}`;
   await page.goto(url);
 }
+
+const waitForCheckoutStartRequest = (
+  page: Page,
+  expectedMetadata: Record<string, string>,
+) => {
+  return page.waitForRequest((request) => {
+    if (
+      request.url().includes("checkout/start") &&
+      request.method() === "POST"
+    ) {
+      expect(request.postDataJSON().metadata).toStrictEqual(expectedMetadata);
+      return true;
+    }
+    return false;
+  });
+};
