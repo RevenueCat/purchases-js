@@ -135,7 +135,7 @@
     await stripeSubmit();
   }
 
-  function handlePurchaseFlowError() {
+  function handleDismissPurchaseFlowError() {
     emailError = undefined;
   }
 
@@ -209,7 +209,7 @@
     {email}
     {productDetails}
     supportEmail={brandingInfo?.support_email ?? null}
-    onContinue={handlePurchaseFlowError}
+    onContinue={handleDismissPurchaseFlowError}
   />
 {/if}
 
