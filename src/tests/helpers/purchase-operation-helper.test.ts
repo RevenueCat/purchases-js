@@ -23,6 +23,8 @@ import {
 } from "../../networking/responses/checkout-status-response";
 import { type IEventsTracker } from "../../behavioural-events/events-tracker";
 import { checkoutStartResponse } from "../test-responses";
+import { BackendErrorCode } from "../../entities/errors";
+import { checkoutCalculateTaxResponse } from "../../stories/fixtures";
 
 describe("PurchaseOperationHelper", () => {
   let server: SetupServer;
@@ -66,6 +68,17 @@ describe("PurchaseOperationHelper", () => {
           if (traceId) {
             expect(json["trace_id"]).toBe(traceId);
           }
+          return httpResponse;
+        },
+      ),
+    );
+  }
+
+  function setCheckoutCalculateTaxResponse(httpResponse: HttpResponse) {
+    server.use(
+      http.post(
+        `http://localhost:8000/rcbilling/v1/checkout/${operationSessionId}/calculate_taxes`,
+        () => {
           return httpResponse;
         },
       ),
@@ -153,6 +166,321 @@ describe("PurchaseOperationHelper", () => {
         "This subscriber is already subscribed to the requested product.",
       ),
     );
+  });
+
+  test("checkoutCalculateTax fails if checkoutStart not called before", async () => {
+    await expectPromiseToPurchaseFlowError(
+      purchaseOperationHelper.checkoutCalculateTax(),
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "No purchase started",
+      ),
+    );
+  });
+
+  test("checkoutCalculateTax returns succeeds if tax breakdown is empty", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    const checkoutCalculateTaxResponse = {
+      pricing_phases: {
+        base: {
+          tax_breakdown: [],
+        },
+      },
+    };
+    setCheckoutCalculateTaxResponse(
+      HttpResponse.json(checkoutCalculateTaxResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+
+    await purchaseOperationHelper.checkoutStart(
+      "test-app-user-id",
+      "test-product-id",
+      { id: "test-option-id", priceId: "test-price-id" },
+      {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    );
+
+    const result = await purchaseOperationHelper.checkoutCalculateTax();
+    expect(result.error).toBeUndefined();
+    expect(result.data).toEqual(checkoutCalculateTaxResponse);
+  });
+
+  test("checkoutCalculateTax returns pending error when tax location cannot be determined", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    setCheckoutCalculateTaxResponse(
+      HttpResponse.json(
+        {
+          code: BackendErrorCode.BackendTaxLocationCannotBeDetermined,
+          message: "Tax location cannot be determined",
+        },
+        { status: StatusCodes.BAD_REQUEST },
+      ),
+    );
+
+    await purchaseOperationHelper.checkoutStart(
+      "test-app-user-id",
+      "test-product-id",
+      { id: "test-option-id", priceId: "test-price-id" },
+      {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    );
+
+    const result = await purchaseOperationHelper.checkoutCalculateTax();
+    expect(result.error).toBe("pending");
+    expect(result.data).toBeUndefined();
+  });
+
+  test("checkoutCalculateTax returns invalid location error when tax location is invalid", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    setCheckoutCalculateTaxResponse(
+      HttpResponse.json(
+        {
+          code: BackendErrorCode.BackendInvalidTaxLocation,
+          message: "Invalid tax location",
+        },
+        { status: StatusCodes.BAD_REQUEST },
+      ),
+    );
+
+    await purchaseOperationHelper.checkoutStart(
+      "test-app-user-id",
+      "test-product-id",
+      { id: "test-option-id", priceId: "test-price-id" },
+      {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    );
+
+    const result = await purchaseOperationHelper.checkoutCalculateTax();
+    expect(result.error).toBe("invalid_location");
+    expect(result.data).toBeUndefined();
+  });
+
+  test("checkoutCalculateTax returns disabled error in production mode for unexpected backend errors", async () => {
+    vi.spyOn(backend, "getIsSandbox").mockReturnValue(false);
+
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    setCheckoutCalculateTaxResponse(
+      HttpResponse.json(
+        {
+          code: 9999,
+          message: "Unexpected backend error",
+        },
+        { status: StatusCodes.BAD_REQUEST },
+      ),
+    );
+
+    await purchaseOperationHelper.checkoutStart(
+      "test-app-user-id",
+      "test-product-id",
+      { id: "test-option-id", priceId: "test-price-id" },
+      {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    );
+
+    const result = await purchaseOperationHelper.checkoutCalculateTax();
+    expect(result.error).toBe("disabled");
+    expect(result.data).toBeUndefined();
+  });
+
+  test("checkoutCalculateTax throws error in production mode for sandbox mode only error", async () => {
+    vi.spyOn(backend, "getIsSandbox").mockReturnValue(false);
+
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    setCheckoutCalculateTaxResponse(
+      HttpResponse.json(
+        {
+          code: BackendErrorCode.BackendGatewaySetupErrorSandboxModeOnly,
+          message: "Sandbox mode only error",
+        },
+        { status: StatusCodes.BAD_REQUEST },
+      ),
+    );
+
+    await purchaseOperationHelper.checkoutStart(
+      "test-app-user-id",
+      "test-product-id",
+      { id: "test-option-id", priceId: "test-price-id" },
+      {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    );
+
+    await expectPromiseToPurchaseFlowError(
+      purchaseOperationHelper.checkoutCalculateTax(),
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "There was a problem with the store.",
+        "Sandbox mode only error",
+      ),
+    );
+  });
+
+  test("checkoutCalculateTax throws error in sandbox mode for unexpected backend errors", async () => {
+    vi.spyOn(backend, "getIsSandbox").mockReturnValue(true);
+
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    setCheckoutCalculateTaxResponse(
+      HttpResponse.json(
+        {
+          code: 9999,
+          message: "Unexpected backend error",
+        },
+        { status: StatusCodes.BAD_REQUEST },
+      ),
+    );
+
+    await purchaseOperationHelper.checkoutStart(
+      "test-app-user-id",
+      "test-product-id",
+      { id: "test-option-id", priceId: "test-price-id" },
+      {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    );
+
+    await expectPromiseToPurchaseFlowError(
+      purchaseOperationHelper.checkoutCalculateTax(),
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "Unknown backend error.",
+        'Request: postCheckoutCalculateTax. Status code: 400. Body: {"code":9999,"message":"Unexpected backend error"}.',
+      ),
+    );
+  });
+
+  test("checkoutCalculateTax throws error for unknown backend error", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    setCheckoutCalculateTaxResponse(
+      HttpResponse.json(
+        {
+          code: 9999,
+          message: "Unknown error",
+        },
+        { status: StatusCodes.INTERNAL_SERVER_ERROR },
+      ),
+    );
+
+    await purchaseOperationHelper.checkoutStart(
+      "test-app-user-id",
+      "test-product-id",
+      { id: "test-option-id", priceId: "test-price-id" },
+      {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    );
+
+    await expectPromiseToPurchaseFlowError(
+      purchaseOperationHelper.checkoutCalculateTax(),
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "Unknown backend error.",
+        'Request: postCheckoutCalculateTax. Status code: 500. Body: {"code":9999,"message":"Unknown error"}.',
+      ),
+    );
+  });
+
+  test("checkoutCalculateTax throws error for Network error", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    setCheckoutCalculateTaxResponse(HttpResponse.error());
+
+    await purchaseOperationHelper.checkoutStart(
+      "test-app-user-id",
+      "test-product-id",
+      { id: "test-option-id", priceId: "test-price-id" },
+      {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    );
+
+    await expectPromiseToPurchaseFlowError(
+      purchaseOperationHelper.checkoutCalculateTax(),
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.NetworkError,
+        "Error performing request. Please check your network connection and try again.",
+        "Failed to fetch",
+      ),
+    );
+  });
+
+  test("checkoutCalculateTax succeeds if tax location is valid", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    setCheckoutCalculateTaxResponse(
+      HttpResponse.json(checkoutCalculateTaxResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+
+    await purchaseOperationHelper.checkoutStart(
+      "test-app-user-id",
+      "test-product-id",
+      { id: "test-option-id", priceId: "test-price-id" },
+      {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    );
+
+    const result = await purchaseOperationHelper.checkoutCalculateTax();
+    expect(result.error).toBeUndefined();
+    expect(result.data).toEqual(checkoutCalculateTaxResponse);
   });
 
   test("checkoutComplete fails if checkoutStart not called before", async () => {
