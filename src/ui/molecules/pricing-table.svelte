@@ -23,11 +23,17 @@
   }
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
+
+  let showTaxBreakdown = $derived(
+    priceBreakdown.taxCollectionEnabled &&
+      priceBreakdown.taxBreakdown &&
+      priceBreakdown.taxBreakdown.length > 0,
+  );
 </script>
 
 {#snippet pricingTable()}
   <div class="rcb-pricing-table">
-    {#if priceBreakdown.taxCollectionEnabled}
+    {#if showTaxBreakdown}
       <div class="rcb-pricing-table-row">
         <div class="rcb-pricing-table-header">
           {$translator.translate(LocalizationKeys.PricingTotalExcludingTax)}
@@ -127,7 +133,7 @@
   </div>
 {/snippet}
 
-{#if priceBreakdown.taxCollectionEnabled}
+{#if showTaxBreakdown}
   <PricingDropdown>
     {@render pricingTable()}
   </PricingDropdown>
