@@ -155,7 +155,7 @@ test.describe("Main", () => {
     const packageCards = await getPackageCards(page);
     await startPurchaseFlow(packageCards[1]);
     await enterEmail(page, email);
-    await enterCreditCardDetails(page, "4000003800000446");
+    await enterCreditCardDetails(page, "4000 0038 0000 0446");
     await clickPayButton(page);
 
     const stripe3DSFrame = getStripe3DSFrame(page);
