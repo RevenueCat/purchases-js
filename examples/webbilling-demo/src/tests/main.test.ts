@@ -1,7 +1,7 @@
-import type { Browser, Page, Response, Locator } from "@playwright/test";
+import type { Browser, Page, Locator } from "@playwright/test";
 import test, { expect } from "@playwright/test";
+import { getUserId, navigateToUrl } from "./test-helpers";
 
-const _LOCAL_URL = "http://localhost:3001/";
 const CARD_SELECTOR = "div.card";
 const PACKAGE_SELECTOR = "button.rc-pw-package";
 const RC_PAYWALL_TEST_OFFERING_ID = "rc_paywalls_e2e_test_2";
@@ -388,73 +388,7 @@ test.describe("Main", () => {
       await expect(page.getByText(title)).toBeVisible({ timeout: 10000 });
     });
   });
-
-  test("Tracks events", async ({ browser, browserName }) => {
-    const userId = `${getUserId(browserName)}_subscription`;
-    const page = await browser.newPage();
-
-    const waitForTrackEventPromise = page.waitForResponse(
-      successfulEventTrackingResponseMatcher((event) => {
-        try {
-          expect(event?.id).toBeDefined();
-          expect(event?.timestamp_ms).toBeDefined();
-          expect(event?.type).toBe("web_billing");
-          expect(event?.event_name).toBe("sdk_initialized");
-          expect(event?.app_user_id).toBe(userId);
-
-          const context = event?.context;
-          expect(context).toBeInstanceOf(Object);
-
-          expect(context.library_name).toEqual("purchases-js");
-          expect(typeof context.library_version).toBe("string");
-          expect(typeof context.locale).toBe("string");
-          expect(typeof context.user_agent).toBe("string");
-          expect(typeof context.time_zone).toBe("string");
-          expect(typeof context.screen_width).toBe("number");
-          expect(typeof context.screen_height).toBe("number");
-          expect(context.utm_source).toBeNull();
-          expect(context.utm_medium).toBeNull();
-          expect(context.utm_campaign).toBeNull();
-          expect(context.utm_content).toBeNull();
-          expect(context.utm_term).toBeNull();
-          expect(context.page_referrer).toBe("");
-          expect(typeof context.page_url).toBe("string");
-          expect(context.page_title).toBe("Health Check – Web Billing Demo");
-          expect(context.source).toBe("sdk");
-
-          const properties = event?.properties;
-          expect(typeof properties.trace_id).toBe("string");
-
-          return true;
-        } catch (error) {
-          console.error("Event validation failed:", error);
-          return false;
-        }
-      }),
-      { timeout: 3_000 },
-    );
-    await navigateToUrl(page, userId);
-    await waitForTrackEventPromise;
-  });
 });
-
-function successfulEventTrackingResponseMatcher(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  eventMatcher: (event: any) => boolean,
-) {
-  return async (response: Response) => {
-    if (
-      response.url() !== "https://e.revenue.cat/v1/events" ||
-      response.status() !== 200
-    ) {
-      return false;
-    }
-
-    const json = response.request().postDataJSON();
-    const sdk_initialized_events = (json?.events || []).filter(eventMatcher);
-    return sdk_initialized_events.length === 1;
-  };
-}
 
 async function performPurchase(page: Page, card: Locator, userId: string) {
   const email = getEmailFromUserId(userId);
@@ -471,9 +405,6 @@ async function startPurchaseFlow(card: Locator) {
 }
 
 const getEmailFromUserId = (userId: string) => `${userId}@revenuecat.com`;
-
-const getUserId = (browserName: string) =>
-  `rc_billing_demo_test_${Date.now()}_${browserName}`;
 
 async function setupTest(
   browser: Browser,
@@ -558,72 +489,6 @@ async function clickPayButton(page: Page) {
 async function confirmPaymentComplete(page: Page) {
   const successText = page.getByText("Payment complete");
   await expect(successText).toBeVisible({ timeout: 10000 });
-}
-
-async function navigateToUrl(
-  page: Page,
-  userId: string,
-  queryString?: {
-    offeringId?: string;
-    useRcPaywall?: boolean;
-    lang?: string;
-    utm_source?: string;
-    utm_medium?: string;
-    utm_campaign?: string;
-    utm_term?: string;
-    utm_content?: string;
-    optOutOfAutoUTM?: boolean;
-    email?: string;
-  },
-): Promise<void> {
-  const baseUrl =
-    (import.meta.env?.VITE_RC_BILLING_DEMO_URL as string | undefined) ??
-    _LOCAL_URL;
-
-  const {
-    offeringId,
-    useRcPaywall,
-    lang,
-    utm_source,
-    utm_campaign,
-    utm_term,
-    utm_content,
-    utm_medium,
-    optOutOfAutoUTM,
-    email,
-  } = queryString ?? {};
-
-  const params = new URLSearchParams();
-  if (offeringId) {
-    params.append("offeringId", offeringId);
-  }
-  if (lang) {
-    params.append("lang", lang);
-  }
-  if (utm_source) {
-    params.append("utm_source", utm_source);
-  }
-  if (utm_content) {
-    params.append("utm_content", utm_content);
-  }
-  if (utm_term) {
-    params.append("utm_term", utm_term);
-  }
-  if (utm_medium) {
-    params.append("utm_medium", utm_medium);
-  }
-  if (utm_campaign) {
-    params.append("utm_campaign", utm_campaign);
-  }
-  if (optOutOfAutoUTM) {
-    params.append("optOutOfAutoUTM", optOutOfAutoUTM.toString());
-  }
-  if (email) {
-    params.append("email", email);
-  }
-
-  const url = `${baseUrl}${useRcPaywall ? "rc_paywall" : "paywall"}/${encodeURIComponent(userId)}?${params.toString()}`;
-  await page.goto(url);
 }
 
 const waitForCheckoutStartRequest = (
