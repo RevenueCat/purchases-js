@@ -8,6 +8,7 @@
   import { withNavbar } from "../decorators/with-navbar";
   import { brandingModes } from "../../../.storybook/modes";
   import {
+    priceBreakdownNotCollectingTax,
     priceBreakdownTaxDisabled,
     priceBreakdownTaxExclusive,
     priceBreakdownTaxExclusiveWithMultipleTaxItems,
@@ -45,6 +46,17 @@
 <Story
   name="Disabled Tax Trial"
   args={{
+    trialPhase: subscriptionOptionWithTrial.trial,
+  }}
+/>
+<Story
+  name="Not collecting tax"
+  args={{ priceBreakdown: priceBreakdownNotCollectingTax }}
+/>
+<Story
+  name="Not collecting tax Trial"
+  args={{
+    priceBreakdown: priceBreakdownNotCollectingTax,
     trialPhase: subscriptionOptionWithTrial.trial,
   }}
 />

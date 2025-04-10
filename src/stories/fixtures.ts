@@ -300,6 +300,17 @@ export const priceBreakdownTaxDisabled: PriceBreakdown = {
   taxBreakdown: null,
 };
 
+export const priceBreakdownNotCollectingTax: PriceBreakdown = {
+  currency: "USD",
+  totalAmountInMicros: 9900000,
+  totalExcludingTaxInMicros: 9900000,
+  taxCollectionEnabled: true,
+  taxCalculationStatus: "calculated",
+  taxAmountInMicros: 0,
+  pendingReason: null,
+  taxBreakdown: [],
+};
+
 export const priceBreakdownTaxInclusive: PriceBreakdown = {
   ...priceBreakdownTaxDisabled,
   totalAmountInMicros: 1718000 + 8180000,
