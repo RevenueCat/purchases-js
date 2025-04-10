@@ -1,19 +1,22 @@
-import type { Browser, Page, Response, Locator } from "@playwright/test";
 import test, { expect } from "@playwright/test";
+import {
+  enterCreditCardDetailsAndContinue,
+  enterEmailAndContinue,
+  getAllElementsByLocator,
+  getUserId,
+  navigateToUrl,
+  performPurchase,
+  setupTest,
+  startPurchaseFlow,
+  successfulEventTrackingResponseMatcher,
+  waitForCheckoutStartRequest,
+} from "./utils.ts";
 
-const _LOCAL_URL = "http://localhost:3001/";
 const CARD_SELECTOR = "div.card";
 const PACKAGE_SELECTOR = "button.rc-pw-package";
 const RC_PAYWALL_TEST_OFFERING_ID = "rc_paywalls_e2e_test_2";
 const RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES =
   "rc_paywalls_e2e_test_variables_2";
-
-const waitForCheckoutStartRequest = (page: Page) => {
-  return page.waitForRequest(
-    (request) =>
-      request.url().includes("checkout/start") && request.method() === "POST",
-  );
-};
 
 test.describe("Main", () => {
   test("Get offerings displays packages", async ({ browser, browserName }) => {
@@ -441,174 +444,3 @@ test.describe("Main", () => {
     await waitForTrackEventPromise;
   });
 });
-
-function successfulEventTrackingResponseMatcher(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  eventMatcher: (event: any) => boolean,
-) {
-  return async (response: Response) => {
-    if (
-      response.url() !== "https://e.revenue.cat/v1/events" ||
-      response.status() !== 200
-    ) {
-      return false;
-    }
-
-    const json = response.request().postDataJSON();
-    const sdk_initialized_events = (json?.events || []).filter(eventMatcher);
-    return sdk_initialized_events.length === 1;
-  };
-}
-
-async function startPurchaseFlow(card: Locator) {
-  // Perform purchase
-  const cardButton = card.getByRole("button");
-  await cardButton.click();
-}
-
-async function performPurchase(page: Page, card: Locator, userId: string) {
-  await startPurchaseFlow(card);
-  await enterEmailAndContinue(page, userId);
-  await enterCreditCardDetailsAndContinue(page, "4242 4242 4242 4242");
-  // Confirm success page has shown.
-  const successText = page.getByText("Payment complete");
-  await expect(successText).toBeVisible({ timeout: 10000 });
-}
-
-const getUserId = (browserName: string) =>
-  `rc_billing_demo_test_${Date.now()}_${browserName}`;
-
-async function setupTest(
-  browser: Browser,
-  userId: string,
-  queryString?: {
-    offeringId?: string;
-    useRcPaywall?: boolean;
-    lang?: string;
-    utm_source?: string;
-    utm_medium?: string;
-    utm_campaign?: string;
-    utm_term?: string;
-    utm_content?: string;
-    optOutOfAutoUTM?: boolean;
-  },
-) {
-  const page = await browser.newPage();
-  await navigateToUrl(page, userId, queryString);
-
-  return page;
-}
-
-async function getAllElementsByLocator(
-  page: Page,
-  locator: string,
-  containsText?: string,
-) {
-  await page.waitForSelector(locator);
-  let locatorResult = page.locator(locator);
-  if (containsText !== undefined) {
-    locatorResult = locatorResult.filter({ hasText: containsText });
-  }
-  return await locatorResult.all();
-}
-
-async function enterEmailAndContinue(
-  page: Page,
-  userId: string,
-): Promise<void> {
-  const email = `${userId}@revenuecat.com`;
-
-  await typeTextInPageSelector(page, email);
-  await page.getByRole("button", { name: "Continue" }).click();
-}
-
-async function enterCreditCardDetailsAndContinue(
-  page: Page,
-  cardNumber: string,
-): Promise<void> {
-  // Checmout modal
-  const checkoutTitle = page.getByText("Secure Checkout");
-  await expect(checkoutTitle).toBeVisible();
-  const stripeFrame = page.frameLocator(
-    "iframe[title='Secure payment input frame']",
-  );
-
-  const numberInput = stripeFrame.getByPlaceholder("1234 1234 1234");
-  await numberInput.fill(cardNumber);
-
-  const expirationYear = (new Date().getFullYear() % 100) + 3;
-  await stripeFrame.getByPlaceholder("MM / YY").fill(`01 / ${expirationYear}`);
-  await stripeFrame.getByLabel("Security Code").fill("123");
-  await stripeFrame.getByLabel("Country").selectOption("US");
-  await stripeFrame.getByPlaceholder("12345").fill("12345");
-  await page.getByTestId("PayButton").click();
-}
-
-async function navigateToUrl(
-  page: Page,
-  userId: string,
-  queryString?: {
-    offeringId?: string;
-    useRcPaywall?: boolean;
-    lang?: string;
-    utm_source?: string;
-    utm_medium?: string;
-    utm_campaign?: string;
-    utm_term?: string;
-    utm_content?: string;
-    optOutOfAutoUTM?: boolean;
-  },
-): Promise<void> {
-  const baseUrl =
-    (import.meta.env?.VITE_RC_BILLING_DEMO_URL as string | undefined) ??
-    _LOCAL_URL;
-
-  const {
-    offeringId,
-    useRcPaywall,
-    lang,
-    utm_source,
-    utm_campaign,
-    utm_term,
-    utm_content,
-    utm_medium,
-    optOutOfAutoUTM,
-  } = queryString ?? {};
-
-  const params = new URLSearchParams();
-  if (offeringId) {
-    params.append("offeringId", offeringId);
-  }
-  if (lang) {
-    params.append("lang", lang);
-  }
-  if (utm_source) {
-    params.append("utm_source", utm_source);
-  }
-  if (utm_content) {
-    params.append("utm_content", utm_content);
-  }
-  if (utm_term) {
-    params.append("utm_term", utm_term);
-  }
-  if (utm_medium) {
-    params.append("utm_medium", utm_medium);
-  }
-  if (utm_campaign) {
-    params.append("utm_campaign", utm_campaign);
-  }
-  if (optOutOfAutoUTM) {
-    params.append("optOutOfAutoUTM", optOutOfAutoUTM.toString());
-  }
-
-  const url = `${baseUrl}${useRcPaywall ? "rc_paywall" : "paywall"}/${encodeURIComponent(userId)}?${params.toString()}`;
-  await page.goto(url);
-}
-
-async function typeTextInPageSelector(page: Page, text: string): Promise<void> {
-  // Fill email
-  const emailTitle = page.getByText("What's your email?");
-  await expect(emailTitle).toBeVisible();
-  await page.getByPlaceholder("john@appleseed.com").click();
-  await page.getByPlaceholder("john@appleseed.com").fill(text);
-}
