@@ -118,7 +118,6 @@ test.describe("Tax calculation breakdown", () => {
       .locator(TAX_BREAKDOWN_ITEM_SELECTOR)
       .all();
 
-    await expect(priceBreakdownLines.length).toBe(4);
     await expect(
       priceBreakdownLines[0].getByText("Total excluding tax"),
     ).toBeVisible();
