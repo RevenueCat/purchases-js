@@ -102,7 +102,7 @@ export async function enterCreditCardDetails(
     postalCode?: string;
   },
 ): Promise<void> {
-  // Checmout modal
+  // Checkout modal
   const checkoutTitle = page.getByText("Secure Checkout");
   await expect(checkoutTitle).toBeVisible();
   const stripeFrame = page.frameLocator(
