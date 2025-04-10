@@ -62,8 +62,12 @@ export async function setupTest(
     utm_content?: string;
     optOutOfAutoUTM?: boolean;
   },
+  apiKey?: string,
 ) {
   const page = await browser.newPage();
+  if (apiKey) {
+    await page.addInitScript(`window.__RC_API_KEY__ = "${apiKey}";`);
+  }
   await navigateToUrl(page, userId, queryString);
 
   return page;

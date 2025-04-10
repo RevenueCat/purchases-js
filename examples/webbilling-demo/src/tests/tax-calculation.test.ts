@@ -10,10 +10,14 @@ import {
 
 const CARD_SELECTOR = "div.card";
 
+const TAXES_TEST_OFFERING_ID = "rcb_e2e_taxes";
+
 // Assuming there's a selector or some identifiable locator for the tax breakdown UI element
 const TAX_BREAKDOWN_ITEM_SELECTOR = ".rcb-pricing-table-row";
 const ALLOW_TAX_CALCULATION_FF =
   process.env.VITE_ALLOW_TAX_CALCULATION_FF === "true";
+
+const TAX_TEST_API_KEY = process.env.VITE_RC_TAX_E2E_API_KEY;
 
 test.describe("Tax calculation breakdown", () => {
   test.skip(
@@ -28,7 +32,14 @@ test.describe("Tax calculation breakdown", () => {
     const userId = getUserId(browserName);
 
     // Set up the page (standard user, location, default params)
-    const page = await setupTest(browser, userId);
+    const page = await setupTest(
+      browser,
+      userId,
+      {
+        offeringId: TAXES_TEST_OFFERING_ID,
+      },
+      TAX_TEST_API_KEY,
+    );
 
     // Select and make a purchase of the first available product card
     const cards = await getAllElementsByLocator(page, CARD_SELECTOR);
@@ -47,7 +58,14 @@ test.describe("Tax calculation breakdown", () => {
     const userId = getUserId(browserName);
 
     // Set up the page (standard user, location, default params)
-    const page = await setupTest(browser, userId);
+    const page = await setupTest(
+      browser,
+      userId,
+      {
+        offeringId: TAXES_TEST_OFFERING_ID,
+      },
+      TAX_TEST_API_KEY,
+    );
 
     // Select and make a purchase of the first available product card
     const cards = await getAllElementsByLocator(page, CARD_SELECTOR);
@@ -68,7 +86,14 @@ test.describe("Tax calculation breakdown", () => {
     const userId = getUserId(browserName);
 
     // Set up the page (standard user, location, default params)
-    const page = await setupTest(browser, userId);
+    const page = await setupTest(
+      browser,
+      userId,
+      {
+        offeringId: TAXES_TEST_OFFERING_ID,
+      },
+      TAX_TEST_API_KEY,
+    );
 
     // Select and make a purchase of the first available product card
     const cards = await getAllElementsByLocator(page, CARD_SELECTOR);
@@ -100,7 +125,14 @@ test.describe("Tax calculation breakdown", () => {
     const userId = getUserId(browserName);
 
     // Set up the page (standard user, location, default params)
-    const page = await setupTest(browser, userId);
+    const page = await setupTest(
+      browser,
+      userId,
+      {
+        offeringId: TAXES_TEST_OFFERING_ID,
+      },
+      TAX_TEST_API_KEY,
+    );
 
     // Select and make a purchase of the first available product card
     const cards = await getAllElementsByLocator(page, CARD_SELECTOR);
@@ -121,20 +153,17 @@ test.describe("Tax calculation breakdown", () => {
     await expect(
       priceBreakdownLines[0].getByText(/Total excluding tax/),
     ).toBeVisible();
-    await expect(priceBreakdownLines[0].getByText("$24.59")).toBeVisible();
+    await expect(priceBreakdownLines[0].getByText("$8.19")).toBeVisible();
 
     await expect(priceBreakdownLines[1].getByText(/VAT - Italy/)).toBeVisible();
-    await expect(priceBreakdownLines[1].getByText("$5.41")).toBeVisible();
-
-    await expect(page.getByText(/After trial ends/)).toBeVisible();
-    await expect(priceBreakdownLines[2].getByText("$30.00")).toBeVisible();
+    await expect(priceBreakdownLines[1].getByText("$1.80")).toBeVisible();
 
     const totalDueTodayLine = page.locator(
       `${TAX_BREAKDOWN_ITEM_SELECTOR}.rcb-header`,
     );
 
     await expect(totalDueTodayLine.getByText(/Total due today/)).toBeVisible();
-    await expect(totalDueTodayLine.getByText("$0")).toBeVisible();
+    await expect(totalDueTodayLine.getByText("$9.99")).toBeVisible();
   });
 
   test("should show error message when the postal code was not recognized", async ({
@@ -144,7 +173,14 @@ test.describe("Tax calculation breakdown", () => {
     const userId = getUserId(browserName);
 
     // Set up the page (standard user, location, default params)
-    const page = await setupTest(browser, userId);
+    const page = await setupTest(
+      browser,
+      userId,
+      {
+        offeringId: TAXES_TEST_OFFERING_ID,
+      },
+      TAX_TEST_API_KEY,
+    );
 
     // Select and make a purchase of the first available product card
     const cards = await getAllElementsByLocator(page, CARD_SELECTOR);
