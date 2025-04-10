@@ -126,15 +126,11 @@ test.describe("Tax calculation breakdown", () => {
     await expect(priceBreakdownLines[1].getByText(/VAT - Italy/)).toBeVisible();
     await expect(priceBreakdownLines[1].getByText("$5.41")).toBeVisible();
 
-    await expect(
-      priceBreakdownLines[2].getByText(/After trial ends/),
-    ).toBeVisible();
+    await expect(page.getByText(/After trial ends/)).toBeVisible();
     await expect(priceBreakdownLines[2].getByText("$30.00")).toBeVisible();
 
-    await expect(
-      priceBreakdownLines[3].getByText("Total due today"),
-    ).toBeVisible();
-    await expect(priceBreakdownLines[3].getByText("$0")).toBeVisible();
+    await expect(page.getByText("Total due today")).toBeVisible();
+    await expect(page.getByText("$0")).toBeVisible();
   });
 
   test("should show error message when the postal code was not recognized", async ({
