@@ -119,7 +119,7 @@ test.describe("Tax calculation breakdown", () => {
       .all();
 
     await expect(
-      priceBreakdownLines[0].getByText("Total excluding tax"),
+      priceBreakdownLines[0].getByText(/Total excluding tax/),
     ).toBeVisible();
     await expect(priceBreakdownLines[0].getByText("$24.59")).toBeVisible();
 
@@ -129,8 +129,12 @@ test.describe("Tax calculation breakdown", () => {
     await expect(page.getByText(/After trial ends/)).toBeVisible();
     await expect(priceBreakdownLines[2].getByText("$30.00")).toBeVisible();
 
-    await expect(page.getByText("Total due today")).toBeVisible();
-    await expect(page.getByText("$0")).toBeVisible();
+    const totalDueTodayLine = page.locator(
+      `${TAX_BREAKDOWN_ITEM_SELECTOR}.rcb-header`,
+    );
+
+    await expect(totalDueTodayLine.getByText(/Total due today/)).toBeVisible();
+    await expect(totalDueTodayLine.getByText("$0")).toBeVisible();
   });
 
   test("should show error message when the postal code was not recognized", async ({
