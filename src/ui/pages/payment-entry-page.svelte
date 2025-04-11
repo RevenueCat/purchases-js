@@ -35,7 +35,7 @@
     PaymentElementErrorCode,
   } from "../types/payment-element-error";
   import PaymentButton from "../molecules/payment-button.svelte";
-  import StripePaymentElements from "../molecules/stripe-payment-elements.svelte";
+  import StripeElements from "../molecules/stripe-elements.svelte";
   import { type GatewayParams } from "../../networking/responses/stripe-elements";
 
   export let onContinue: (params?: ContinueHandlerParams) => void;
@@ -170,7 +170,7 @@
   >
     <div class="rc-checkout-form-container" hidden={!!modalErrorMessage}>
       <div class="rc-payment-element-container">
-        <StripePaymentElements
+        <StripeElements
           bind:submit={stripeSubmit}
           bind:confirm={stripeConfirm}
           bind:stripeLocale
@@ -259,6 +259,7 @@
       flex-grow: 1;
       justify-content: flex-end;
     }
+
     .rc-checkout-form {
       flex-grow: 1;
     }

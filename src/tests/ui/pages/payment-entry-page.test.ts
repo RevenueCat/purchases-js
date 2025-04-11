@@ -203,7 +203,7 @@ describe("PurchasesUI", () => {
     });
   });
 
-  test("tracks the CheckoutPaymentFormGatewayError event when stripe ", async () => {
+  test("tracks the CheckoutPaymentFormGatewayError event when stripe submit returns error", async () => {
     const stripeInitializationMock = {
       stripe: { exists: true },
       elements: {
@@ -220,6 +220,36 @@ describe("PurchasesUI", () => {
     vi.mocked(StripeService.initializeStripe).mockReturnValue(
       // @ts-expect-error - This is a mock
       stripeInitializationMock,
+    );
+
+    const paymentElement = {
+      on: (
+        eventType: string,
+        callback: (event?: StripePaymentElementChangeEvent) => void,
+      ) => {
+        if (eventType === "ready") {
+          setTimeout(() => callback(), 0);
+        }
+        if (eventType === "change") {
+          setTimeout(() => {
+            callback({
+              complete: true,
+              value: {
+                type: "card",
+              },
+              elementType: "payment",
+              empty: false,
+              collapsed: false,
+            });
+          }, 100);
+        }
+      },
+      mount: vi.fn(),
+      destroy: vi.fn(),
+    };
+    vi.mocked(StripeService.createPaymentElement).mockReturnValue(
+      // @ts-expect-error - This is a mock
+      paymentElement,
     );
 
     render(PaymentEntryPage, {

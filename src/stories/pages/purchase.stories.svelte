@@ -1,22 +1,22 @@
-<script module>
+<script module lang="ts">
   import {
+    type Args,
     defineMeta,
     setTemplate,
     type StoryContext,
-    type Args,
   } from "@storybook/addon-svelte-csf";
   import PurchasesInner from "../../ui/purchases-ui-inner.svelte";
   import { brandingLanguageViewportModes } from "../../../.storybook/modes";
 
   import {
     brandingInfos,
+    checkoutStartResponse,
+    priceBreakdownTaxDisabled,
+    priceBreakdownTaxInclusive,
     product,
     purchaseFlowError,
     subscriptionOption,
     subscriptionOptionWithTrial,
-    checkoutStartResponse,
-    priceBreakdownTaxDisabled,
-    priceBreakdownTaxInclusive,
   } from "../fixtures";
   import { PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
 
@@ -46,6 +46,7 @@
       },
     },
   });
+  let purchaseOperationHelper = null as unknown as PurchaseOperationHelper;
 </script>
 
 <script lang="ts">
@@ -70,7 +71,7 @@
     priceBreakdown={args.withTaxes
       ? priceBreakdownTaxInclusive
       : priceBreakdownTaxDisabled}
-    purchaseOperationHelper={null as unknown as PurchaseOperationHelper}
+    {purchaseOperationHelper}
     isInElement={context.globals.viewport === "embedded"}
     onTaxCustomerDetailsUpdated={() => {}}
   />
