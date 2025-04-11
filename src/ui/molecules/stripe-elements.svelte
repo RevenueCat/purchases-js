@@ -223,7 +223,6 @@
         );
       stripe = stripeInstance;
       elements = elementsInstance;
-
     } catch (error) {
       onStripeElementsLoadingError(error);
     }
