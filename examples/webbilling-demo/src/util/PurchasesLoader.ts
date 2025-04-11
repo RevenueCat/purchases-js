@@ -3,7 +3,13 @@ import { LogLevel, Purchases } from "@revenuecat/purchases-js";
 import type { LoaderFunction } from "react-router-dom";
 import { redirect, useLoaderData } from "react-router-dom";
 
-const apiKey = import.meta.env.VITE_RC_API_KEY as string;
+declare global {
+  interface Window {
+    __RC_API_KEY__?: string;
+  }
+}
+
+const apiKey = window.__RC_API_KEY__ || import.meta.env.VITE_RC_API_KEY;
 
 type IPurchasesLoaderData = {
   purchases: Purchases;
