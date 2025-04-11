@@ -203,7 +203,7 @@ describe("PurchasesUI", () => {
     });
   });
 
-  test("tracks the CheckoutPaymentFormGatewayError event when stripe ", async () => {
+  test("tracks the CheckoutPaymentFormGatewayError event when stripe submit returns error", async () => {
     const stripeInitializationMock = {
       stripe: { exists: true },
       elements: {
