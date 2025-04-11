@@ -182,6 +182,7 @@ export class PurchaseOperationHelper {
           countryCode,
           postalCode,
         );
+
       return {
         error: undefined,
         data: checkoutCalculateTaxResponse,
