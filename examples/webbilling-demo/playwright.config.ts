@@ -14,6 +14,11 @@ dotenv.config({
   path: resolve(__dirname, ".env"),
 });
 
+dotenv.config({
+  path: resolve(__dirname, ".env.local"),
+  override: true,
+});
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -27,7 +32,7 @@ export default defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 4 : undefined,
+  workers: process.env.CI ? 4 : 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: process.env.CI
     ? [["junit", { outputFile: "results.xml" }]]

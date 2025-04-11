@@ -214,6 +214,7 @@
       taxCustomerDetails?.countryCode,
       taxCustomerDetails?.postalCode,
     );
+
     if (taxCalculation.error) {
       switch (taxCalculation.error) {
         case TaxCalculationError.Pending:
@@ -238,18 +239,17 @@
       return;
     }
 
+    const { data } = taxCalculation;
     priceBreakdown.taxCalculationStatus = "calculated";
-    priceBreakdown.totalAmountInMicros =
-      taxCalculation.data.total_amount_in_micros;
-    priceBreakdown.taxAmountInMicros = taxCalculation.data.tax_amount_in_micros;
+    priceBreakdown.totalAmountInMicros = data.total_amount_in_micros;
+    priceBreakdown.taxAmountInMicros = data.tax_amount_in_micros;
     priceBreakdown.totalExcludingTaxInMicros =
-      taxCalculation.data.total_excluding_tax_in_micros;
-    priceBreakdown.taxBreakdown =
-      taxCalculation.data.pricing_phases.base.tax_breakdown;
+      data.total_excluding_tax_in_micros;
+    priceBreakdown.taxBreakdown = data.pricing_phases.base.tax_breakdown;
     priceBreakdown.pendingReason = null;
 
     gatewayParams.elements_configuration =
-      taxCalculation.data.gateway_params.elements_configuration;
+      data.gateway_params.elements_configuration;
   }
 
   const handleError = (e: PurchaseFlowError) => {
