@@ -193,16 +193,29 @@ export const checkoutCalculateTaxResponse: CheckoutCalculateTaxResponse = {
   operation_session_id: "operation-session-id",
   currency: "USD",
   tax_inclusive: false,
-  total_amount_in_micros: 9900000 + 2450000,
-  total_excluding_tax_in_micros: 9900000,
-  tax_amount_in_micros: 2450000,
+  total_amount_in_micros: 9990000 + 400000,
+  total_excluding_tax_in_micros: 9990000,
+  tax_amount_in_micros: 400000,
   pricing_phases: {
     base: {
-      tax_breakdown: [],
+      tax_breakdown: [
+        {
+          tax_type: "sales_tax",
+          tax_amount_in_micros: 400000,
+          tax_rate_in_micros: 40000,
+          country: "US",
+          state: "NY",
+          taxable_amount_in_micros: 9990000,
+          display_name: "Sales Tax - New York (4%)",
+        },
+      ],
     },
   },
   gateway_params: {
-    elements_configuration: stripeElementsConfiguration,
+    elements_configuration: {
+      ...stripeElementsConfiguration,
+      amount: 999 + 40,
+    },
   },
 };
 
@@ -281,10 +294,21 @@ export const priceBreakdownTaxDisabled: PriceBreakdown = {
   totalAmountInMicros: 9900000,
   totalExcludingTaxInMicros: 9900000,
   taxCollectionEnabled: false,
-  taxCalculationStatus: "calculated",
+  taxCalculationStatus: null,
   taxAmountInMicros: 0,
   pendingReason: null,
   taxBreakdown: null,
+};
+
+export const priceBreakdownNotCollectingTax: PriceBreakdown = {
+  currency: "USD",
+  totalAmountInMicros: 9900000,
+  totalExcludingTaxInMicros: 9900000,
+  taxCollectionEnabled: true,
+  taxCalculationStatus: "calculated",
+  taxAmountInMicros: 0,
+  pendingReason: null,
+  taxBreakdown: [],
 };
 
 export const priceBreakdownTaxInclusive: PriceBreakdown = {
