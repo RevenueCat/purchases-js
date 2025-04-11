@@ -224,14 +224,6 @@
       stripe = stripeInstance;
       elements = elementsInstance;
 
-      // At this point, the gatewayParams might have been updated so we attempt to set them.
-      const elementsConfiguration = gatewayParams.elements_configuration;
-      if (elementsConfiguration) {
-        await StripeService.updateElementsConfiguration(
-          elements,
-          elementsConfiguration,
-        );
-      }
     } catch (error) {
       onStripeElementsLoadingError(error);
     }
