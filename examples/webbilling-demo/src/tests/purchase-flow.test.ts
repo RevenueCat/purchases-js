@@ -130,6 +130,25 @@ test.describe("Purchase error paths", () => {
     await confirmStripeCardError(page, "Your card was declined.");
   });
 
+  // TODO: Re-enable this test once complete endpoint allows override of email
+  integrationTest.skip(
+    "Email deliverability errors after card declined errors",
+    async ({ page, userId, email }) => {
+      page = await navigateToLandingUrl(page, userId);
+
+      const packageCards = await getPackageCards(page);
+      await startPurchaseFlow(packageCards[1]);
+      await enterEmail(page, email);
+      await enterCreditCardDetails(page, "4000 0000 0000 0002");
+      await clickPayButton(page);
+      await confirmStripeCardError(page, "Your card was declined.");
+      await enterCreditCardDetails(page, "4242 4242 4242 4242");
+      await enterEmail(page, `${userId}@revenueci.comm`);
+      await clickPayButton(page);
+      await confirmPaymentError(page, "Please provide a valid email address.");
+    },
+  );
+
   integrationTest("Unhandled card errors", async ({ page, userId }) => {
     page = await navigateToLandingUrl(page, userId);
     const email = getEmailFromUserId(userId);
@@ -147,7 +166,6 @@ test.describe("Purchase error paths", () => {
     "Unknown error on checkout start",
     async ({ page, userId }) => {
       page = await navigateToLandingUrl(page, userId);
-      const email = getEmailFromUserId(userId);
 
       page.route("*/**/checkout/start", async (route) => {
         await route.fulfill({
