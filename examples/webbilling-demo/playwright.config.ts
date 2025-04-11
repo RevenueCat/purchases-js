@@ -14,6 +14,11 @@ dotenv.config({
   path: resolve(__dirname, ".env"),
 });
 
+dotenv.config({
+  path: resolve(__dirname, ".env.local"),
+  override: true,
+});
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
