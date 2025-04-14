@@ -175,8 +175,10 @@
           brandingInfo?.gateway_tax_collection_enabled
         ) {
           await refreshTaxCalculation();
-          priceBreakdown.taxCollectionEnabled =
-            priceBreakdown.taxCalculationStatus !== null;
+          priceBreakdown = {
+            ...priceBreakdown,
+            taxCollectionEnabled: priceBreakdown.taxCalculationStatus !== null,
+          };
         }
         return result;
       })
@@ -228,7 +230,10 @@
     taxCustomerDetails: TaxCustomerDetails | undefined = undefined,
   ) {
     if (priceBreakdown.taxCalculationStatus !== null) {
-      priceBreakdown.taxCalculationStatus = "loading";
+      priceBreakdown = {
+        ...priceBreakdown,
+        taxCalculationStatus: "loading",
+      };
     }
 
     const taxCalculation = await purchaseOperationHelper.checkoutCalculateTax(
@@ -239,14 +244,23 @@
     if (taxCalculation.error) {
       switch (taxCalculation.error) {
         case TaxCalculationError.Pending:
-          priceBreakdown.taxCalculationStatus = "pending";
+          priceBreakdown = {
+            ...priceBreakdown,
+            taxCalculationStatus: "pending",
+          };
           break;
         case TaxCalculationError.Disabled:
-          priceBreakdown.taxCalculationStatus = null;
+          priceBreakdown = {
+            ...priceBreakdown,
+            taxCalculationStatus: null,
+          };
           break;
         case TaxCalculationError.InvalidLocation:
-          priceBreakdown.taxCalculationStatus = "pending";
-          priceBreakdown.pendingReason = "invalid_postal_code";
+          priceBreakdown = {
+            ...priceBreakdown,
+            taxCalculationStatus: "pending",
+            pendingReason: "invalid_postal_code",
+          };
           break;
         default:
           handleError(
@@ -261,13 +275,15 @@
     }
 
     const { data } = taxCalculation;
-    priceBreakdown.taxCalculationStatus = "calculated";
-    priceBreakdown.totalAmountInMicros = data.total_amount_in_micros;
-    priceBreakdown.taxAmountInMicros = data.tax_amount_in_micros;
-    priceBreakdown.totalExcludingTaxInMicros =
-      data.total_excluding_tax_in_micros;
-    priceBreakdown.taxBreakdown = data.pricing_phases.base.tax_breakdown;
-    priceBreakdown.pendingReason = null;
+    priceBreakdown = {
+      ...priceBreakdown,
+      taxCalculationStatus: "calculated",
+      totalAmountInMicros: data.total_amount_in_micros,
+      taxAmountInMicros: data.tax_amount_in_micros,
+      totalExcludingTaxInMicros: data.total_excluding_tax_in_micros,
+      taxBreakdown: data.pricing_phases.base.tax_breakdown,
+      pendingReason: null,
+    };
 
     gatewayParams.elements_configuration =
       data.gateway_params.elements_configuration;
