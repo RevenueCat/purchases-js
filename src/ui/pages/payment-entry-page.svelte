@@ -1,6 +1,5 @@
 <script lang="ts">
   import { getContext, onMount } from "svelte";
-  import type { StripeElementLocale } from "@stripe/stripe-js";
   import type { Product, PurchaseOption } from "../../entities/offerings";
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
   import IconError from "../atoms/icons/icon-error.svelte";
@@ -73,7 +72,6 @@
   );
 
   let isStripeLoading = $state(true);
-  let stripeLocale: StripeElementLocale | undefined = $state(undefined);
   let isPaymentInfoComplete = $state(false);
   let selectedPaymentMethod: string | undefined = $state(undefined);
   let modalErrorMessage: string | undefined = $state(undefined);
@@ -196,7 +194,6 @@
         <StripeElements
           bind:submit={stripeSubmit}
           bind:confirm={stripeConfirm}
-          bind:stripeLocale
           {gatewayParams}
           {brandingInfo}
           onLoadingComplete={handleStripeLoadingComplete}

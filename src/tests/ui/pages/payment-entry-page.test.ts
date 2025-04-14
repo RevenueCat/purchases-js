@@ -30,6 +30,12 @@ const purchaseOperationHelperMock: PurchaseOperationHelper = {
 } as unknown as PurchaseOperationHelper;
 
 const basicProps: ComponentProps<PaymentEntryPage> = {
+  gatewayParams: {
+    elements_configuration: {
+      payment_method_types: ["card"],
+      mode: "payment",
+    },
+  },
   brandingInfo: brandingInfo,
   priceBreakdown: priceBreakdownTaxDisabled,
   purchaseOption: rcPackage.webBillingProduct.defaultPurchaseOption,
@@ -54,6 +60,8 @@ vi.mock("../../../stripe/stripe-service", () => ({
     initializeStripe: vi.fn(),
     createPaymentElement: vi.fn(),
     isStripeHandledCardError: vi.fn(),
+    updateElementsConfiguration: vi.fn(),
+    getStripeLocale: vi.fn().mockImplementation((locale: string) => locale),
   },
 }));
 
