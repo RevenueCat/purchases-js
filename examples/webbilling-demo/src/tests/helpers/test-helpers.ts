@@ -1,5 +1,5 @@
 import { type Page, type Locator, expect } from "@playwright/test";
-import { LOCAL_URL } from "./fixtures";
+import { BASE_URL } from "./fixtures";
 
 export const CARD_SELECTOR = "div.card";
 export const PACKAGE_SELECTOR = "button.rc-pw-package";
@@ -70,7 +70,7 @@ export async function navigateToUrl(
     params.append("email", email);
   }
 
-  const url = `${baseUrl}${useRcPaywall ? "rc_paywall" : "paywall"}/${encodeURIComponent(userId)}?${params.toString()}`;
+  const url = `${BASE_URL}${useRcPaywall ? "rc_paywall" : "paywall"}/${encodeURIComponent(userId)}?${params.toString()}`;
   await page.goto(url);
 }
 
