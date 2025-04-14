@@ -285,8 +285,10 @@
       pendingReason: null,
     };
 
-    gatewayParams.elements_configuration =
-      data.gateway_params.elements_configuration;
+    gatewayParams = {
+      ...gatewayParams,
+      elements_configuration: data.gateway_params.elements_configuration,
+    };
   }
 
   const handleError = (e: PurchaseFlowError) => {
