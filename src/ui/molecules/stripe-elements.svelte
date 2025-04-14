@@ -45,10 +45,6 @@
   let {
     submit = $bindable(),
     confirm = $bindable(),
-    ...props
-  }: Props = $props();
-
-  const {
     gatewayParams,
     brandingInfo,
     taxCollectionEnabled,
@@ -58,7 +54,7 @@
     onPaymentInfoChange,
     onSubmissionSuccess,
     onConfirmationSuccess,
-  } = props;
+  }: Props = $props();
 
   const translator = getContext<Writable<Translator>>(translatorContextKey);
   const spacing = new Theme().spacing;

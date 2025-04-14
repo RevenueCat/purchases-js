@@ -25,6 +25,8 @@
     type PriceBreakdown,
     type TaxCustomerDetails,
     type CurrentPage,
+    TaxCalculationStatus,
+    TaxCalculationPendingReason,
   } from "./ui-types";
   import PurchasesUiInner from "./purchases-ui-inner.svelte";
   import { type ContinueHandlerParams } from "./ui-types";
@@ -35,6 +37,7 @@
   import { writable } from "svelte/store";
   import { type GatewayParams } from "../networking/responses/stripe-elements";
   import { ALLOW_TAX_CALCULATION_FF } from "../helpers/constants";
+  import type { TaxBreakdown } from "../networking/responses/checkout-calculate-tax-response";
 
   interface Props {
     customerEmail: string | undefined;
@@ -78,26 +81,34 @@
   }: Props = $props();
 
   let customerEmailOverride: string | undefined = $state(customerEmail);
-  let productDetails: Product = $derived(rcPackage.webBillingProduct);
+  let productDetails: Product = rcPackage.webBillingProduct;
   let lastError: PurchaseFlowError | null = $state(null);
-  const productId = $derived(rcPackage.webBillingProduct.identifier ?? null);
+  const productId = rcPackage.webBillingProduct.identifier ?? null;
 
   let currentPage: CurrentPage | null = $state(null);
   let redemptionInfo: RedemptionInfo | null = $state(null);
   let operationSessionId: string | null = $state(null);
   let gatewayParams: GatewayParams = $state({});
 
-  let priceBreakdown: PriceBreakdown = $state({
-    // svelte-ignore state_referenced_locally
+  let taxCalculationStatus: TaxCalculationStatus = $state("disabled");
+  let pendingReason: TaxCalculationPendingReason | null = $state(null);
+  let taxAmountInMicros: number | null = $state(null);
+  let taxBreakdown: TaxBreakdown[] | null = $state(null);
+  let totalExcludingTaxInMicros: number | null = $state(
+    productDetails.currentPrice.amountMicros,
+  );
+  let totalAmountInMicros: number | null = $state(
+    productDetails.currentPrice.amountMicros,
+  );
+
+  let priceBreakdown: PriceBreakdown = $derived({
     currency: productDetails.currentPrice.currency,
-    // svelte-ignore state_referenced_locally
-    totalAmountInMicros: productDetails.currentPrice.amountMicros,
-    // svelte-ignore state_referenced_locally
-    totalExcludingTaxInMicros: productDetails.currentPrice.amountMicros,
-    taxCalculationStatus: "disabled",
-    pendingReason: null,
-    taxAmountInMicros: null,
-    taxBreakdown: null,
+    totalAmountInMicros,
+    totalExcludingTaxInMicros,
+    taxCalculationStatus,
+    pendingReason,
+    taxAmountInMicros,
+    taxBreakdown,
   });
 
   // Setting the context for the Localized components
@@ -225,11 +236,8 @@
   async function refreshTaxCalculation(
     taxCustomerDetails: TaxCustomerDetails | undefined = undefined,
   ) {
-    if (priceBreakdown.taxCalculationStatus !== "disabled") {
-      priceBreakdown = {
-        ...priceBreakdown,
-        taxCalculationStatus: "loading",
-      };
+    if (taxCalculationStatus !== "disabled") {
+      taxCalculationStatus = "loading";
     }
 
     const taxCalculation = await purchaseOperationHelper.checkoutCalculateTax(
@@ -240,25 +248,16 @@
     if (taxCalculation.error) {
       switch (taxCalculation.error) {
         case TaxCalculationError.Pending:
-          priceBreakdown = {
-            ...priceBreakdown,
-            taxCalculationStatus: "pending",
-            pendingReason: null,
-          };
+          taxCalculationStatus = "pending";
+          pendingReason = null;
           break;
         case TaxCalculationError.Disabled:
-          priceBreakdown = {
-            ...priceBreakdown,
-            taxCalculationStatus: "disabled",
-            pendingReason: null,
-          };
+          taxCalculationStatus = "disabled";
+          pendingReason = null;
           break;
         case TaxCalculationError.InvalidLocation:
-          priceBreakdown = {
-            ...priceBreakdown,
-            taxCalculationStatus: "pending",
-            pendingReason: "invalid_postal_code",
-          };
+          taxCalculationStatus = "pending";
+          pendingReason = "invalid_postal_code";
           break;
         default:
           handleError(
@@ -273,15 +272,13 @@
     }
 
     const { data } = taxCalculation;
-    priceBreakdown = {
-      ...priceBreakdown,
-      taxCalculationStatus: "calculated",
-      totalAmountInMicros: data.total_amount_in_micros,
-      taxAmountInMicros: data.tax_amount_in_micros,
-      totalExcludingTaxInMicros: data.total_excluding_tax_in_micros,
-      taxBreakdown: data.pricing_phases.base.tax_breakdown,
-      pendingReason: null,
-    };
+
+    taxCalculationStatus = "calculated";
+    taxAmountInMicros = data.tax_amount_in_micros;
+    totalExcludingTaxInMicros = data.total_excluding_tax_in_micros;
+    totalAmountInMicros = data.total_amount_in_micros;
+    taxBreakdown = data.pricing_phases.base.tax_breakdown;
+    pendingReason = null;
 
     gatewayParams = {
       ...gatewayParams,
