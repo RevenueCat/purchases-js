@@ -311,7 +311,7 @@
   {isInElement}
   {priceBreakdown}
   {closeWithError}
-  {handleContinue}
+  onContinue={handleContinue}
   {onClose}
   onTaxCustomerDetailsUpdated={refreshTaxCalculation}
 />

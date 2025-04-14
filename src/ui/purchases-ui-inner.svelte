@@ -20,22 +20,39 @@
   import Template from "./layout/template.svelte";
   import { type GatewayParams } from "../networking/responses/stripe-elements";
 
-  export let currentPage: CurrentPage;
-  export let brandingInfo: BrandingInfoResponse | null;
-  export let productDetails: Product;
-  export let purchaseOptionToUse: PurchaseOption;
-  export let isSandbox: boolean = false;
-  export let handleContinue: (params?: ContinueHandlerParams) => void;
-  export let closeWithError: () => void;
-  export let onClose: (() => void) | undefined = undefined;
-  export let lastError: PurchaseFlowError | null;
-  export let priceBreakdown: PriceBreakdown;
-  export let purchaseOperationHelper: PurchaseOperationHelper;
-  export let isInElement: boolean = false;
-  export let gatewayParams: GatewayParams;
-  export let onTaxCustomerDetailsUpdated: (
-    customerDetails: TaxCustomerDetails,
-  ) => void;
+  interface Props {
+    currentPage: CurrentPage;
+    brandingInfo: BrandingInfoResponse | null;
+    productDetails: Product;
+    purchaseOptionToUse: PurchaseOption;
+    isSandbox: boolean;
+    lastError: PurchaseFlowError | null;
+    priceBreakdown: PriceBreakdown;
+    purchaseOperationHelper: PurchaseOperationHelper;
+    isInElement: boolean;
+    gatewayParams: GatewayParams;
+    closeWithError: () => void;
+    onContinue: (params?: ContinueHandlerParams) => void;
+    onClose?: () => void;
+    onTaxCustomerDetailsUpdated: (customerDetails: TaxCustomerDetails) => void;
+  }
+
+  const {
+    currentPage,
+    brandingInfo,
+    productDetails,
+    purchaseOptionToUse,
+    isSandbox,
+    lastError,
+    priceBreakdown,
+    purchaseOperationHelper,
+    isInElement,
+    gatewayParams,
+    closeWithError,
+    onContinue,
+    onTaxCustomerDetailsUpdated,
+    onClose = undefined,
+  }: Props = $props();
 </script>
 
 <Template {brandingInfo} {isInElement} {isSandbox} {onClose}>
@@ -61,7 +78,6 @@
     {/if}
     {#if currentPage === "payment-entry" || currentPage === "payment-entry-processing"}
       <PaymentEntryPage
-        onContinue={handleContinue}
         processing={currentPage === "payment-entry-processing"}
         {productDetails}
         purchaseOption={purchaseOptionToUse}
@@ -69,6 +85,7 @@
         {purchaseOperationHelper}
         {gatewayParams}
         {priceBreakdown}
+        {onContinue}
         {onTaxCustomerDetailsUpdated}
       />
     {/if}
@@ -82,7 +99,7 @@
       />
     {/if}
     {#if currentPage === "success"}
-      <SuccessPage {productDetails} onContinue={handleContinue} />
+      <SuccessPage {productDetails} {onContinue} />
     {/if}
   {/snippet}
 </Template>

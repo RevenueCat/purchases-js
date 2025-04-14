@@ -64,7 +64,7 @@
     productDetails={args.productDetails}
     purchaseOptionToUse={args.purchaseOptionToUse}
     {brandingInfo}
-    handleContinue={() => {}}
+    onContinue={() => {}}
     closeWithError={() => {}}
     lastError={null}
     gatewayParams={checkoutStartResponse.gateway_params}
