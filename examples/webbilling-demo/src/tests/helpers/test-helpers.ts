@@ -8,7 +8,28 @@ export function getUserId(browserName: string) {
   return `rc_billing_demo_test_${Date.now()}_${browserName}`;
 }
 
-export async function navigateToUrl(
+export async function performPurchase(
+  page: Page,
+  card: Locator,
+  email: string,
+) {
+  await startPurchaseFlow(card);
+  await enterEmail(page, email);
+  await clickContinueButton(page);
+  await enterCreditCardDetails(page, "4242 4242 4242 4242");
+  await clickPayButton(page);
+  await confirmPaymentComplete(page);
+}
+
+export async function startPurchaseFlow(card: Locator) {
+  const cardButton = card.getByRole("button");
+  await cardButton.click();
+}
+
+export const getEmailFromUserId = (userId: string) =>
+  `${userId}@revenuecat.com`;
+
+export async function navigateToLandingUrl(
   page: Page,
   userId: string,
   queryString?: {
@@ -23,10 +44,11 @@ export async function navigateToUrl(
     optOutOfAutoUTM?: boolean;
     email?: string;
   },
-): Promise<void> {
-  const baseUrl =
-    (import.meta.env?.VITE_RC_BILLING_DEMO_URL as string | undefined) ??
-    LOCAL_URL;
+  apiKey?: string,
+) {
+  if (apiKey) {
+    await page.addInitScript(`window.__RC_API_KEY__ = "${apiKey}";`);
+  }
 
   const {
     offeringId,
@@ -72,52 +94,6 @@ export async function navigateToUrl(
 
   const url = `${BASE_URL}${useRcPaywall ? "rc_paywall" : "paywall"}/${encodeURIComponent(userId)}?${params.toString()}`;
   await page.goto(url);
-}
-
-export async function performPurchase(
-  page: Page,
-  card: Locator,
-  userId: string,
-) {
-  const email = getEmailFromUserId(userId);
-  await startPurchaseFlow(card);
-  await enterEmail(page, email);
-  await clickContinueButton(page);
-  await enterCreditCardDetails(page, "4242 4242 4242 4242");
-  await clickPayButton(page);
-  await confirmPaymentComplete(page);
-}
-
-export async function startPurchaseFlow(card: Locator) {
-  const cardButton = card.getByRole("button");
-  await cardButton.click();
-}
-
-export const getEmailFromUserId = (userId: string) =>
-  `${userId}@revenuecat.com`;
-
-export async function navigateToLandingUrl(
-  page: Page,
-  userId: string,
-  queryString?: {
-    offeringId?: string;
-    useRcPaywall?: boolean;
-    lang?: string;
-    utm_source?: string;
-    utm_medium?: string;
-    utm_campaign?: string;
-    utm_term?: string;
-    utm_content?: string;
-    optOutOfAutoUTM?: boolean;
-    email?: string;
-  },
-  apiKey?: string,
-) {
-  if (apiKey) {
-    await page.addInitScript(`window.__RC_API_KEY__ = "${apiKey}";`);
-  }
-
-  await navigateToUrl(page, userId, queryString);
 
   return page;
 }
@@ -200,6 +176,11 @@ export async function enterCreditCardDetails(
   await stripeFrame.getByLabel("Security Code").fill(securityCode);
 }
 
+export async function clickContinueButton(page: Page) {
+  const button = page.getByText("Continue");
+  await button.click();
+}
+
 export async function clickPayButton(page: Page) {
   const button = await page.waitForSelector(
     "button[data-testid='PayButton']:not([disabled])",
@@ -207,12 +188,25 @@ export async function clickPayButton(page: Page) {
   await button.click();
 }
 
-export async function clickContinueButton(page: Page) {
-  const button = page.getByText("Continue");
-  await button.click();
-}
-
 export async function confirmPaymentComplete(page: Page) {
   const successText = page.getByText("Payment complete");
   await expect(successText).toBeVisible({ timeout: 10000 });
+}
+
+export async function confirmPaymentError(page: Page, message: string) {
+  const errorText = page.getByText(message);
+  await expect(errorText).toBeVisible({ timeout: 10000 });
+}
+
+export async function clickCancelStripe3DSButton(page: Page) {
+  const stripe3DSFrame = getStripe3DSFrame(page);
+  const button = stripe3DSFrame.getByText("Cancel");
+  await expect(button).toBeVisible({ timeout: 10000 });
+  await button.click();
+}
+
+export async function confirmStripeCardError(page: Page, message: string) {
+  const stripeFrame = getStripePaymentFrame(page);
+  const cardError = stripeFrame.getByText(message);
+  await expect(cardError).toBeVisible({ timeout: 10000 });
 }
