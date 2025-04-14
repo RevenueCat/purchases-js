@@ -155,7 +155,9 @@ export async function enterCreditCardDetails(
   const expiration = cardInfo?.expiration || `01 / ${expirationYear}`;
   const securityCode = cardInfo?.securityCode || "123";
 
+  await page.waitForSelector("button[data-testid='PayButton']");
   const checkoutTitle = page.getByText("Secure Checkout");
+
   await expect(checkoutTitle).toBeVisible();
   const stripeFrame = getStripePaymentFrame(page);
 
@@ -186,31 +188,31 @@ export async function clickPayButton(page: Page) {
 
 export async function confirmPaymentComplete(page: Page) {
   const successText = page.getByText("Payment complete");
-  await expect(successText).toBeVisible({ timeout: 10000 });
+  await expect(successText).toBeVisible();
 }
 
 export async function confirmPaymentError(page: Page, message: string) {
   const errorText = page.getByText(message);
-  await expect(errorText).toBeVisible({ timeout: 10000 });
+  await expect(errorText).toBeVisible();
 }
 
 export async function clickCancelStripe3DSButton(page: Page) {
   const stripe3DSFrame = getStripe3DSFrame(page);
   const button = stripe3DSFrame.getByText("Cancel");
-  await expect(button).toBeVisible({ timeout: 10000 });
+  await expect(button).toBeVisible();
   await button.click();
 }
 
 export async function confirmStripeCardError(page: Page, message: string) {
   const stripeFrame = getStripePaymentFrame(page);
   const cardError = stripeFrame.getByText(message);
-  await expect(cardError).toBeVisible({ timeout: 10000 });
+  await expect(cardError).toBeVisible();
 }
 
 export async function confirmStripeEmailError(page: Page, message: string) {
   const stripeFrame = getStripeEmailFrame(page);
   const emailError = stripeFrame.getByText(message);
-  await expect(emailError).toBeVisible({ timeout: 10000 });
+  await expect(emailError).toBeVisible();
 }
 
 export async function confirmStripeEmailFieldNotVisible(page: Page) {

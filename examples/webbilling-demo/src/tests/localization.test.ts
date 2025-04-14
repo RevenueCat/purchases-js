@@ -27,7 +27,7 @@ TEST_CASES.forEach(([lang, title]) => {
     const packageCards = await getPackageCards(page);
     await startPurchaseFlow(packageCards[1]);
 
-    await expect(page.getByText(title)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(title)).toBeVisible();
   });
 
   integrationTest(`Displays paywall in ${lang}`, async ({ page, userId }) => {
@@ -48,6 +48,6 @@ TEST_CASES.forEach(([lang, title]) => {
     await expect(purchaseButton).toBeVisible();
     await purchaseButton.click();
 
-    await expect(page.getByText(title)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(title)).toBeVisible();
   });
 });
