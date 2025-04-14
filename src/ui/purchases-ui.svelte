@@ -20,10 +20,7 @@
     type CustomTranslations,
     Translator,
   } from "./localization/translator";
-  import {
-    englishLocale,
-    translatorContextKey,
-  } from "./localization/constants";
+  import { translatorContextKey } from "./localization/constants";
   import {
     type PriceBreakdown,
     type TaxCustomerDetails,
@@ -39,46 +36,70 @@
   import { type GatewayParams } from "../networking/responses/stripe-elements";
   import { ALLOW_TAX_CALCULATION_FF } from "../helpers/constants";
 
-  export let customerEmail: string | undefined;
-  export let appUserId: string;
-  export let rcPackage: Package;
-  export let purchaseOption: PurchaseOption;
-  export let metadata: PurchaseMetadata | undefined;
-  export let brandingInfo: BrandingInfoResponse | null;
-  export let onFinished: (
-    operationSessionId: string,
-    redemptionInfo: RedemptionInfo | null,
-  ) => void;
-  export let onError: (error: PurchaseFlowError) => void;
-  // We don't have a close button in the UI, but we might add one soon
-  export let onClose: (() => void) | undefined = undefined;
-  export let purchases: Purchases;
-  export let eventsTracker: IEventsTracker;
-  export let purchaseOperationHelper: PurchaseOperationHelper;
-  export let selectedLocale: string = englishLocale;
-  export let defaultLocale: string = englishLocale;
-  export let customTranslations: CustomTranslations = {};
-  export let isInElement: boolean = false;
+  interface Props {
+    customerEmail: string | undefined;
+    appUserId: string;
+    rcPackage: Package;
+    purchaseOption: PurchaseOption;
+    metadata: PurchaseMetadata | undefined;
+    brandingInfo: BrandingInfoResponse | null;
+    purchases: Purchases;
+    eventsTracker: IEventsTracker;
+    purchaseOperationHelper: PurchaseOperationHelper;
+    selectedLocale: string;
+    defaultLocale: string;
+    customTranslations?: CustomTranslations;
+    isInElement: boolean;
+    onFinished: (
+      operationSessionId: string,
+      redemptionInfo: RedemptionInfo | null,
+    ) => void;
+    onError: (error: PurchaseFlowError) => void;
+    onClose: (() => void) | undefined;
+  }
 
-  let productDetails: Product = rcPackage.webBillingProduct;
-  let lastError: PurchaseFlowError | null = null;
-  const productId = rcPackage.webBillingProduct.identifier ?? null;
+  const {
+    customerEmail,
+    appUserId,
+    rcPackage,
+    purchaseOption,
+    metadata,
+    brandingInfo,
+    purchases,
+    eventsTracker,
+    purchaseOperationHelper,
+    selectedLocale,
+    defaultLocale,
+    customTranslations = {},
+    isInElement,
+    onFinished,
+    onError,
+    onClose,
+  }: Props = $props();
 
-  let currentPage: CurrentPage | null = null;
-  let redemptionInfo: RedemptionInfo | null = null;
-  let operationSessionId: string | null = null;
-  let gatewayParams: GatewayParams = {};
+  let customerEmailOverride: string | undefined = $state(customerEmail);
+  let productDetails: Product = $derived(rcPackage.webBillingProduct);
+  let lastError: PurchaseFlowError | null = $state(null);
+  const productId = $derived(rcPackage.webBillingProduct.identifier ?? null);
 
-  let priceBreakdown: PriceBreakdown = {
+  let currentPage: CurrentPage | null = $state(null);
+  let redemptionInfo: RedemptionInfo | null = $state(null);
+  let operationSessionId: string | null = $state(null);
+  let gatewayParams: GatewayParams = $state({});
+
+  let priceBreakdown: PriceBreakdown = $state({
+    // svelte-ignore state_referenced_locally
     currency: productDetails.currentPrice.currency,
+    // svelte-ignore state_referenced_locally
     totalAmountInMicros: productDetails.currentPrice.amountMicros,
+    // svelte-ignore state_referenced_locally
     totalExcludingTaxInMicros: productDetails.currentPrice.amountMicros,
     taxCollectionEnabled: false,
     taxCalculationStatus: null,
     pendingReason: null,
     taxAmountInMicros: null,
     taxBreakdown: null,
-  };
+  });
 
   // Setting the context for the Localized components
   let translator: Translator = new Translator(
@@ -118,7 +139,7 @@
       return;
     }
 
-    if (!customerEmail) {
+    if (!customerEmailOverride) {
       currentPage = "email-entry";
     } else {
       currentPage = "payment-entry-loading";
@@ -127,7 +148,7 @@
   });
 
   const handleCheckoutStart = () => {
-    if (!customerEmail) {
+    if (!customerEmailOverride) {
       handleError(
         new PurchaseFlowError(PurchaseFlowErrorCode.MissingEmailError),
       );
@@ -140,7 +161,7 @@
         productId,
         purchaseOption,
         rcPackage.webBillingProduct.presentedOfferingContext,
-        customerEmail,
+        customerEmailOverride,
         metadata,
       )
       .then((result) => {
@@ -172,7 +193,7 @@
 
     if (currentPage === "email-entry") {
       if (params.authInfo) {
-        customerEmail = params.authInfo.email;
+        customerEmailOverride = params.authInfo.email;
         currentPage = "email-entry-processing";
       }
 
@@ -284,13 +305,13 @@
   {brandingInfo}
   {productDetails}
   purchaseOptionToUse={purchaseOption}
-  {handleContinue}
   {lastError}
   {gatewayParams}
   {purchaseOperationHelper}
-  {closeWithError}
   {isInElement}
-  {onClose}
   {priceBreakdown}
+  {closeWithError}
+  {handleContinue}
+  {onClose}
   onTaxCustomerDetailsUpdated={refreshTaxCalculation}
 />
