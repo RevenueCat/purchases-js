@@ -20,14 +20,13 @@
     type CustomTranslations,
     Translator,
   } from "./localization/translator";
-  import {
-    englishLocale,
-    translatorContextKey,
-  } from "./localization/constants";
+  import { translatorContextKey } from "./localization/constants";
   import {
     type PriceBreakdown,
     type TaxCustomerDetails,
     type CurrentPage,
+    TaxCalculationStatus,
+    TaxCalculationPendingReason,
   } from "./ui-types";
   import PurchasesUiInner from "./purchases-ui-inner.svelte";
   import { type ContinueHandlerParams } from "./ui-types";
@@ -38,47 +37,79 @@
   import { writable } from "svelte/store";
   import { type GatewayParams } from "../networking/responses/stripe-elements";
   import { ALLOW_TAX_CALCULATION_FF } from "../helpers/constants";
+  import type { TaxBreakdown } from "../networking/responses/checkout-calculate-tax-response";
 
-  export let customerEmail: string | undefined;
-  export let appUserId: string;
-  export let rcPackage: Package;
-  export let purchaseOption: PurchaseOption;
-  export let metadata: PurchaseMetadata | undefined;
-  export let brandingInfo: BrandingInfoResponse | null;
-  export let onFinished: (
-    operationSessionId: string,
-    redemptionInfo: RedemptionInfo | null,
-  ) => void;
-  export let onError: (error: PurchaseFlowError) => void;
-  // We don't have a close button in the UI, but we might add one soon
-  export let onClose: (() => void) | undefined = undefined;
-  export let purchases: Purchases;
-  export let eventsTracker: IEventsTracker;
-  export let purchaseOperationHelper: PurchaseOperationHelper;
-  export let selectedLocale: string = englishLocale;
-  export let defaultLocale: string = englishLocale;
-  export let customTranslations: CustomTranslations = {};
-  export let isInElement: boolean = false;
+  interface Props {
+    customerEmail: string | undefined;
+    appUserId: string;
+    rcPackage: Package;
+    purchaseOption: PurchaseOption;
+    metadata: PurchaseMetadata | undefined;
+    brandingInfo: BrandingInfoResponse | null;
+    purchases: Purchases;
+    eventsTracker: IEventsTracker;
+    purchaseOperationHelper: PurchaseOperationHelper;
+    selectedLocale: string;
+    defaultLocale: string;
+    customTranslations?: CustomTranslations;
+    isInElement: boolean;
+    onFinished: (
+      operationSessionId: string,
+      redemptionInfo: RedemptionInfo | null,
+    ) => void;
+    onError: (error: PurchaseFlowError) => void;
+    onClose: (() => void) | undefined;
+  }
 
+  const {
+    customerEmail,
+    appUserId,
+    rcPackage,
+    purchaseOption,
+    metadata,
+    brandingInfo,
+    purchases,
+    eventsTracker,
+    purchaseOperationHelper,
+    selectedLocale,
+    defaultLocale,
+    customTranslations = {},
+    isInElement,
+    onFinished,
+    onError,
+    onClose,
+  }: Props = $props();
+
+  let customerEmailOverride: string | undefined = $state(customerEmail);
   let productDetails: Product = rcPackage.webBillingProduct;
-  let lastError: PurchaseFlowError | null = null;
+  let lastError: PurchaseFlowError | null = $state(null);
   const productId = rcPackage.webBillingProduct.identifier ?? null;
 
-  let currentPage: CurrentPage | null = null;
-  let redemptionInfo: RedemptionInfo | null = null;
-  let operationSessionId: string | null = null;
-  let gatewayParams: GatewayParams = {};
+  let currentPage: CurrentPage | null = $state(null);
+  let redemptionInfo: RedemptionInfo | null = $state(null);
+  let operationSessionId: string | null = $state(null);
+  let gatewayParams: GatewayParams = $state({});
 
-  let priceBreakdown: PriceBreakdown = {
+  let taxCalculationStatus: TaxCalculationStatus = $state("disabled");
+  let pendingReason: TaxCalculationPendingReason | null = $state(null);
+  let taxAmountInMicros: number | null = $state(null);
+  let taxBreakdown: TaxBreakdown[] | null = $state(null);
+  let totalExcludingTaxInMicros: number | null = $state(
+    productDetails.currentPrice.amountMicros,
+  );
+  let totalAmountInMicros: number | null = $state(
+    productDetails.currentPrice.amountMicros,
+  );
+
+  let priceBreakdown: PriceBreakdown = $derived({
     currency: productDetails.currentPrice.currency,
-    totalAmountInMicros: productDetails.currentPrice.amountMicros,
-    totalExcludingTaxInMicros: productDetails.currentPrice.amountMicros,
-    taxCollectionEnabled: false,
-    taxCalculationStatus: null,
-    pendingReason: null,
-    taxAmountInMicros: null,
-    taxBreakdown: null,
-  };
+    totalAmountInMicros,
+    totalExcludingTaxInMicros,
+    taxCalculationStatus,
+    pendingReason,
+    taxAmountInMicros,
+    taxBreakdown,
+  });
 
   // Setting the context for the Localized components
   let translator: Translator = new Translator(
@@ -118,7 +149,7 @@
       return;
     }
 
-    if (!customerEmail) {
+    if (!customerEmailOverride) {
       currentPage = "email-entry";
     } else {
       currentPage = "payment-entry-loading";
@@ -127,7 +158,7 @@
   });
 
   const handleCheckoutStart = () => {
-    if (!customerEmail) {
+    if (!customerEmailOverride) {
       handleError(
         new PurchaseFlowError(PurchaseFlowErrorCode.MissingEmailError),
       );
@@ -140,7 +171,7 @@
         productId,
         purchaseOption,
         rcPackage.webBillingProduct.presentedOfferingContext,
-        customerEmail,
+        customerEmailOverride,
         metadata,
       )
       .then((result) => {
@@ -149,13 +180,12 @@
         gatewayParams = result.gateway_params;
       })
       .then(async (result) => {
+        // If tax collection is enabled, we start in the state `disabled`
         if (
           ALLOW_TAX_CALCULATION_FF &&
           brandingInfo?.gateway_tax_collection_enabled
         ) {
           await refreshTaxCalculation();
-          priceBreakdown.taxCollectionEnabled =
-            priceBreakdown.taxCalculationStatus !== null;
         }
         return result;
       })
@@ -172,7 +202,7 @@
 
     if (currentPage === "email-entry") {
       if (params.authInfo) {
-        customerEmail = params.authInfo.email;
+        customerEmailOverride = params.authInfo.email;
         currentPage = "email-entry-processing";
       }
 
@@ -206,8 +236,8 @@
   async function refreshTaxCalculation(
     taxCustomerDetails: TaxCustomerDetails | undefined = undefined,
   ) {
-    if (priceBreakdown.taxCalculationStatus !== null) {
-      priceBreakdown.taxCalculationStatus = "loading";
+    if (taxCalculationStatus !== "disabled") {
+      taxCalculationStatus = "loading";
     }
 
     const taxCalculation = await purchaseOperationHelper.checkoutCalculateTax(
@@ -218,14 +248,16 @@
     if (taxCalculation.error) {
       switch (taxCalculation.error) {
         case TaxCalculationError.Pending:
-          priceBreakdown.taxCalculationStatus = "pending";
+          taxCalculationStatus = "pending";
+          pendingReason = null;
           break;
         case TaxCalculationError.Disabled:
-          priceBreakdown.taxCalculationStatus = null;
+          taxCalculationStatus = "disabled";
+          pendingReason = null;
           break;
         case TaxCalculationError.InvalidLocation:
-          priceBreakdown.taxCalculationStatus = "pending";
-          priceBreakdown.pendingReason = "invalid_postal_code";
+          taxCalculationStatus = "pending";
+          pendingReason = "invalid_postal_code";
           break;
         default:
           handleError(
@@ -240,16 +272,18 @@
     }
 
     const { data } = taxCalculation;
-    priceBreakdown.taxCalculationStatus = "calculated";
-    priceBreakdown.totalAmountInMicros = data.total_amount_in_micros;
-    priceBreakdown.taxAmountInMicros = data.tax_amount_in_micros;
-    priceBreakdown.totalExcludingTaxInMicros =
-      data.total_excluding_tax_in_micros;
-    priceBreakdown.taxBreakdown = data.pricing_phases.base.tax_breakdown;
-    priceBreakdown.pendingReason = null;
 
-    gatewayParams.elements_configuration =
-      data.gateway_params.elements_configuration;
+    taxCalculationStatus = "calculated";
+    taxAmountInMicros = data.tax_amount_in_micros;
+    totalExcludingTaxInMicros = data.total_excluding_tax_in_micros;
+    totalAmountInMicros = data.total_amount_in_micros;
+    taxBreakdown = data.pricing_phases.base.tax_breakdown;
+    pendingReason = null;
+
+    gatewayParams = {
+      ...gatewayParams,
+      elements_configuration: data.gateway_params.elements_configuration,
+    };
   }
 
   const handleError = (e: PurchaseFlowError) => {
@@ -284,13 +318,13 @@
   {brandingInfo}
   {productDetails}
   purchaseOptionToUse={purchaseOption}
-  {handleContinue}
   {lastError}
   {gatewayParams}
   {purchaseOperationHelper}
-  {closeWithError}
   {isInElement}
-  {onClose}
   {priceBreakdown}
+  {closeWithError}
+  onContinue={handleContinue}
+  {onClose}
   onTaxCustomerDetailsUpdated={refreshTaxCalculation}
 />

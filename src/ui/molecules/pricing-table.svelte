@@ -15,7 +15,7 @@
     trialPhase: PricingPhase | null;
   }
 
-  let { priceBreakdown, trialPhase }: Props = $props();
+  const { priceBreakdown, trialPhase }: Props = $props();
 
   let trialEndDate = $state<Date | null>(null);
   if (trialPhase?.period) {
@@ -24,8 +24,8 @@
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
 
-  let showTaxBreakdown = $derived(
-    priceBreakdown.taxCollectionEnabled &&
+  const showTaxBreakdown = $derived(
+    priceBreakdown.taxCalculationStatus !== "disabled" &&
       priceBreakdown.taxBreakdown &&
       priceBreakdown.taxBreakdown.length > 0,
   );

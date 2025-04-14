@@ -2,8 +2,14 @@ import type { Response } from "@playwright/test";
 import { expect } from "@playwright/test";
 import { navigateToLandingUrl } from "./helpers/test-helpers";
 import { integrationTest } from "./helpers/integration-test";
+import { VITE_RC_ANALYTICS_ENDPOINT } from "./helpers/fixtures";
 
 integrationTest("Tracks events", async ({ page, userId }) => {
+  integrationTest.skip(
+    !process.env.CI && VITE_RC_ANALYTICS_ENDPOINT === undefined,
+    "VITE_RC_ANALYTICS_ENDPOINT is not set",
+  );
+
   page = await navigateToLandingUrl(page, userId);
 
   const waitForTrackEventPromise = page.waitForResponse(
@@ -55,10 +61,9 @@ function successfulEventTrackingResponseMatcher(
   eventMatcher: (event: any) => boolean,
 ) {
   return async (response: Response) => {
-    if (
-      response.url() !== "https://e.revenue.cat/v1/events" ||
-      response.status() !== 200
-    ) {
+    const endpoint =
+      VITE_RC_ANALYTICS_ENDPOINT ?? "https://e.revenue.cat/v1/events";
+    if (response.url() !== endpoint || response.status() !== 200) {
       return false;
     }
 

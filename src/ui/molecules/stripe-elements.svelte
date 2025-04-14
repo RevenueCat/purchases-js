@@ -1,9 +1,8 @@
 <script lang="ts">
-  import { getContext, onDestroy, onMount } from "svelte";
+  import { getContext, onMount } from "svelte";
   import type {
     Appearance,
     Stripe,
-    StripeElementLocale,
     StripeElements,
     StripeError,
     StripePaymentElementChangeEvent,
@@ -26,27 +25,54 @@
   } from "../types/payment-element-error";
   import { type TaxCustomerDetails } from "../ui-types";
 
-  export let gatewayParams: GatewayParams;
-  export let brandingInfo: BrandingInfoResponse | null;
-  export let taxCollectionEnabled: boolean;
-  export let onLoadingComplete: () => void;
-  export let onError: (error: PaymentElementError) => void;
+  interface Props {
+    gatewayParams: GatewayParams;
+    brandingInfo: BrandingInfoResponse | null;
+    taxCollectionEnabled: boolean;
+    onLoadingComplete: () => void;
+    onError: (error: PaymentElementError) => void;
+    onTaxCustomerDetailsUpdated: (customerDetails: TaxCustomerDetails) => void;
+    onPaymentInfoChange: (params: {
+      complete: boolean;
+      paymentMethod: string | undefined;
+    }) => void;
+    onSubmissionSuccess: () => void;
+    onConfirmationSuccess: () => void;
+    submit: () => void;
+    confirm: (clientSecret: string) => void;
+  }
 
-  export let onPaymentInfoChange: (params: {
-    complete: boolean;
-    paymentMethod: string | undefined;
-  }) => void;
+  let {
+    // @ts-ignore
+    submit = $bindable(),
+    // @ts-ignore
+    confirm = $bindable(),
+    gatewayParams,
+    brandingInfo,
+    taxCollectionEnabled,
+    onTaxCustomerDetailsUpdated,
+    onLoadingComplete,
+    onError,
+    onPaymentInfoChange,
+    onSubmissionSuccess,
+    onConfirmationSuccess,
+  }: Props = $props();
 
-  export let onTaxCustomerDetailsUpdated: (
-    customerDetails: TaxCustomerDetails,
-  ) => void;
+  const translator = getContext<Writable<Translator>>(translatorContextKey);
+  const spacing = new Theme().spacing;
+  const stripeLocale = StripeService.getStripeLocale(
+    $translator.locale || $translator.fallbackLocale,
+  );
 
-  export let onSubmissionSuccess: () => void;
-  export let onConfirmationSuccess: () => void;
+  let stripe: Stripe | null = $state(null);
+  let stripeVariables: undefined | Appearance["variables"] = $state(undefined);
+  let viewport: "mobile" | "desktop" = $state("mobile");
+  let resizeTimeout: number | undefined = $state(undefined);
+  let elements: StripeElements | null = $state(null);
+  let paymentElementReadyForSubmission = $state(false);
+  let lastTaxCustomerDetails: TaxCustomerDetails | undefined = undefined;
 
-  let paymentElementReadyForSubmission = false;
-
-  export async function submit() {
+  async function submitElements() {
     if (!elements || !paymentElementReadyForSubmission) return;
 
     const { error: submitError } = await elements.submit();
@@ -57,7 +83,7 @@
     }
   }
 
-  export async function confirm(clientSecret: string) {
+  async function confirmElements(clientSecret: string) {
     if (!stripe || !elements || !paymentElementReadyForSubmission) return;
 
     const confirmError = await StripeService.confirmIntent(
@@ -72,15 +98,6 @@
       onConfirmationSuccess();
     }
   }
-
-  export let stripeLocale: StripeElementLocale | undefined = undefined;
-
-  let stripe: Stripe | null = null;
-  let elements: StripeElements | null = null;
-  let lastTaxCustomerDetails: TaxCustomerDetails | undefined = undefined;
-  let spacing = new Theme().spacing;
-  let stripeVariables: undefined | Appearance["variables"];
-  let viewport: "mobile" | "desktop" = "mobile";
 
   // Maybe extract this to a hook
   function updateStripeVariables() {
@@ -100,48 +117,12 @@
     };
   }
 
-  let resizeTimeout: number | undefined;
-
   function onResize() {
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(() => {
       updateStripeVariables();
     }, 150);
   }
-
-  const translator = getContext<Writable<Translator>>(translatorContextKey);
-
-  $: initialLocale = ($translator.locale ||
-    $translator.fallbackLocale) as string;
-
-  $: stripeLocale = getLocaleToUse(initialLocale);
-
-  /**
-   * This function converts some particular locales to the ones that stripe supports.
-   * Finally falls back to 'auto' if the initialLocale is not supported by stripe.
-   * @param initialLocale
-   */
-  const getLocaleToUse = (initialLocale: string): StripeElementLocale => {
-    // These locale that we support are not supported by stripe.
-    // if any of these is passed we fallback to 'auto' so that
-    // stripe will pick up the locale from the browser.
-    const stripeUnsupportedLocale = ["ca", "hi", "uk"];
-
-    if (stripeUnsupportedLocale.includes(initialLocale)) {
-      return "auto";
-    }
-
-    const mappedLocale: Record<string, StripeElementLocale> = {
-      zh_Hans: "zh",
-      zh_Hant: "zh",
-    };
-
-    if (Object.keys(mappedLocale).includes(initialLocale)) {
-      return mappedLocale[initialLocale];
-    }
-
-    return initialLocale as StripeElementLocale;
-  };
 
   function handleFormSubmissionError(error: StripeError) {
     if (StripeService.isStripeHandledCardError(error)) {
@@ -208,36 +189,6 @@
     onLoadingComplete();
   };
 
-  const initStripe = async () => {
-    if (stripe) return;
-    if (elements) return;
-
-    try {
-      const { stripe: stripeInstance, elements: elementsInstance } =
-        await StripeService.initializeStripe(
-          gatewayParams,
-          brandingInfo,
-          stripeLocale,
-          stripeVariables,
-          viewport,
-        );
-      stripe = stripeInstance;
-      elements = elementsInstance;
-    } catch (error) {
-      onStripeElementsLoadingError(error);
-    }
-  };
-
-  onMount(async () => {
-    updateStripeVariables();
-    window.addEventListener("resize", onResize);
-    await initStripe();
-  });
-
-  onDestroy(() => {
-    window.removeEventListener("resize", onResize);
-  });
-
   const onPaymentElementReady = async () => {
     paymentElementReadyForSubmission = true;
     onLoadingComplete();
@@ -260,15 +211,51 @@
     });
   };
 
-  $: if (gatewayParams.elements_configuration && elements) {
-    const elementsConfiguration = gatewayParams.elements_configuration;
-    (async () => {
-      await StripeService.updateElementsConfiguration(
-        elements,
-        elementsConfiguration,
-      );
-    })();
-  }
+  onMount(async () => {
+    submit = submitElements;
+    confirm = confirmElements;
+  });
+
+  onMount(() => {
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      window.removeEventListener("resize", onResize);
+    };
+  });
+
+  onMount(async () => {
+    updateStripeVariables();
+
+    if (stripe || elements) return;
+
+    try {
+      const { stripe: stripeInstance, elements: elementsInstance } =
+        await StripeService.initializeStripe(
+          gatewayParams,
+          brandingInfo,
+          stripeLocale,
+          stripeVariables,
+          viewport,
+        );
+      stripe = stripeInstance;
+      elements = elementsInstance;
+    } catch (error) {
+      onStripeElementsLoadingError(error);
+    }
+  });
+
+  $effect(() => {
+    if (gatewayParams.elements_configuration && elements) {
+      const elementsConfiguration = gatewayParams.elements_configuration;
+      (async () => {
+        await StripeService.updateElementsConfiguration(
+          elements,
+          elementsConfiguration,
+        );
+      })();
+    }
+  });
 </script>
 
 {#if elements}

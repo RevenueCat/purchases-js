@@ -23,6 +23,33 @@ export class StripeService {
     "incorrect_number",
   ];
 
+  /**
+   * This function converts some particular locales to the ones that stripe supports.
+   * Finally falls back to 'auto' if the initialLocale is not supported by stripe.
+   * @param locael
+   */
+  static getStripeLocale(locale: string): StripeElementLocale {
+    // These locale that we support are not supported by stripe.
+    // if any of these is passed we fallback to 'auto' so that
+    // stripe will pick up the locale from the browser.
+    const stripeUnsupportedLocale = ["ca", "hi", "uk"];
+
+    if (stripeUnsupportedLocale.includes(locale)) {
+      return "auto";
+    }
+
+    const mappedLocale: Record<string, StripeElementLocale> = {
+      zh_Hans: "zh",
+      zh_Hant: "zh",
+    };
+
+    if (Object.keys(mappedLocale).includes(locale)) {
+      return mappedLocale[locale];
+    }
+
+    return locale as StripeElementLocale;
+  }
+
   static async initializeStripe(
     gatewayParams: GatewayParams,
     brandingInfo: BrandingInfoResponse | null,

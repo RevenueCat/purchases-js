@@ -1,6 +1,5 @@
 <script lang="ts">
   import { getContext, onMount } from "svelte";
-  import type { StripeElementLocale } from "@stripe/stripe-js";
   import type { Product, PurchaseOption } from "../../entities/offerings";
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
   import IconError from "../atoms/icons/icon-error.svelte";
@@ -38,34 +37,55 @@
   import StripeElements from "../molecules/stripe-elements.svelte";
   import { type GatewayParams } from "../../networking/responses/stripe-elements";
 
-  export let onContinue: (params?: ContinueHandlerParams) => void;
-  export let gatewayParams: GatewayParams = {};
-  export let priceBreakdown: PriceBreakdown;
-  export let processing = false;
-  export let productDetails: Product;
-  export let purchaseOption: PurchaseOption;
-  export let brandingInfo: BrandingInfoResponse | null;
-  export let purchaseOperationHelper: PurchaseOperationHelper;
-  export let onTaxCustomerDetailsUpdated: (
-    customerDetails: TaxCustomerDetails,
-  ) => void;
+  interface Props {
+    gatewayParams?: GatewayParams;
+    priceBreakdown: PriceBreakdown;
+    processing: boolean;
+    productDetails: Product;
+    purchaseOption: PurchaseOption;
+    brandingInfo: BrandingInfoResponse | null;
+    purchaseOperationHelper: PurchaseOperationHelper;
+    onContinue: (params?: ContinueHandlerParams) => void;
+    onTaxCustomerDetailsUpdated: (customerDetails: TaxCustomerDetails) => void;
+  }
 
-  let isStripeLoading = true;
-  let stripeLocale: StripeElementLocale | undefined;
-
-  let stripeSubmit: () => Promise<void>;
-  let stripeConfirm: (clientSecret: string) => Promise<void>;
-
-  let isPaymentInfoComplete = false;
-  let selectedPaymentMethod: string | undefined = undefined;
-  let modalErrorMessage: string | undefined = undefined;
-  let clientSecret: string | undefined = undefined;
+  const {
+    gatewayParams = {},
+    priceBreakdown,
+    productDetails,
+    purchaseOption,
+    brandingInfo,
+    purchaseOperationHelper,
+    onContinue,
+    onTaxCustomerDetailsUpdated,
+  }: Props = $props();
 
   const subscriptionOption =
     productDetails.subscriptionOptions?.[purchaseOption.id];
 
   const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
   const translator = getContext<Writable<Translator>>(translatorContextKey);
+  const taxCollectionEnabled = $derived(
+    priceBreakdown.taxCalculationStatus !== "disabled",
+  );
+
+  let stripeSubmit: () => Promise<void> = $state(() => Promise.resolve());
+  let stripeConfirm: (clientSecret: string) => Promise<void> = $state(() =>
+    Promise.resolve(),
+  );
+
+  let isStripeLoading = $state(true);
+  let isPaymentInfoComplete = $state(false);
+  let selectedPaymentMethod: string | undefined = $state(undefined);
+  let modalErrorMessage: string | undefined = $state(undefined);
+  let clientSecret: string | undefined = $state(undefined);
+  let processing = $state(false);
+
+  let isFormReady = $derived(
+    !processing &&
+      priceBreakdown.taxCalculationStatus !== "loading" &&
+      isPaymentInfoComplete,
+  );
 
   onMount(() => {
     eventsTracker.trackSDKEvent({
@@ -88,7 +108,9 @@
     isPaymentInfoComplete = complete;
   }
 
-  async function handleSubmit(): Promise<void> {
+  async function handleSubmit(e: Event): Promise<void> {
+    e.preventDefault();
+
     if (processing) return;
 
     const event = createCheckoutPaymentFormSubmitEvent({
@@ -145,12 +167,14 @@
     }
   }
 
-  $: if (priceBreakdown.pendingReason === "invalid_postal_code") {
-    priceBreakdown.pendingReason = null;
-    modalErrorMessage = $translator.translate(
-      LocalizationKeys.ErrorPageErrorMessageInvalidTaxLocation,
-    );
-  }
+  $effect(() => {
+    if (priceBreakdown.pendingReason === "invalid_postal_code") {
+      priceBreakdown.pendingReason = null;
+      modalErrorMessage = $translator.translate(
+        LocalizationKeys.ErrorPageErrorMessageInvalidTaxLocation,
+      );
+    }
+  });
 
   const handleErrorTryAgain = () => {
     modalErrorMessage = undefined;
@@ -163,7 +187,7 @@
   {/if}
   <!-- <TextSeparator text="Pay by card" /> -->
   <form
-    on:submit|preventDefault={handleSubmit}
+    onsubmit={handleSubmit}
     data-testid="payment-form"
     class="rc-checkout-form"
     class:hidden={isStripeLoading || processing}
@@ -173,27 +197,21 @@
         <StripeElements
           bind:submit={stripeSubmit}
           bind:confirm={stripeConfirm}
-          bind:stripeLocale
           {gatewayParams}
           {brandingInfo}
+          {taxCollectionEnabled}
           onLoadingComplete={handleStripeLoadingComplete}
           onError={handleStripeElementError}
           onPaymentInfoChange={handlePaymentInfoChange}
           onSubmissionSuccess={handlePaymentSubmissionSuccess}
           onConfirmationSuccess={onContinue}
-          taxCollectionEnabled={priceBreakdown.taxCollectionEnabled}
           {onTaxCustomerDetailsUpdated}
         />
       </div>
 
       <div class="rc-checkout-pay-container">
         {#if !modalErrorMessage}
-          <PaymentButton
-            disabled={processing ||
-              !isPaymentInfoComplete ||
-              priceBreakdown.taxCalculationStatus === "loading"}
-            {subscriptionOption}
-          />
+          <PaymentButton disabled={!isFormReady} {subscriptionOption} />
         {/if}
 
         <div class="rc-checkout-secure-container">
