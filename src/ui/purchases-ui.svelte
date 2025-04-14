@@ -94,8 +94,7 @@
     totalAmountInMicros: productDetails.currentPrice.amountMicros,
     // svelte-ignore state_referenced_locally
     totalExcludingTaxInMicros: productDetails.currentPrice.amountMicros,
-    taxCollectionEnabled: false,
-    taxCalculationStatus: null,
+    taxCalculationStatus: "disabled",
     pendingReason: null,
     taxAmountInMicros: null,
     taxBreakdown: null,
@@ -170,15 +169,12 @@
         gatewayParams = result.gateway_params;
       })
       .then(async (result) => {
+        // If tax collection is enabled, we start in the state `disabled`
         if (
           ALLOW_TAX_CALCULATION_FF &&
           brandingInfo?.gateway_tax_collection_enabled
         ) {
           await refreshTaxCalculation();
-          priceBreakdown = {
-            ...priceBreakdown,
-            taxCollectionEnabled: priceBreakdown.taxCalculationStatus !== null,
-          };
         }
         return result;
       })
@@ -229,7 +225,7 @@
   async function refreshTaxCalculation(
     taxCustomerDetails: TaxCustomerDetails | undefined = undefined,
   ) {
-    if (priceBreakdown.taxCalculationStatus !== null) {
+    if (priceBreakdown.taxCalculationStatus !== "disabled") {
       priceBreakdown = {
         ...priceBreakdown,
         taxCalculationStatus: "loading",
@@ -247,12 +243,14 @@
           priceBreakdown = {
             ...priceBreakdown,
             taxCalculationStatus: "pending",
+            pendingReason: null,
           };
           break;
         case TaxCalculationError.Disabled:
           priceBreakdown = {
             ...priceBreakdown,
-            taxCalculationStatus: null,
+            taxCalculationStatus: "disabled",
+            pendingReason: null,
           };
           break;
         case TaxCalculationError.InvalidLocation:

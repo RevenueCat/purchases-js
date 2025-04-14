@@ -293,8 +293,7 @@ export const priceBreakdownTaxDisabled: PriceBreakdown = {
   currency: "USD",
   totalAmountInMicros: 9900000,
   totalExcludingTaxInMicros: 9900000,
-  taxCollectionEnabled: false,
-  taxCalculationStatus: null,
+  taxCalculationStatus: "disabled",
   taxAmountInMicros: 0,
   pendingReason: null,
   taxBreakdown: null,
@@ -304,7 +303,6 @@ export const priceBreakdownNotCollectingTax: PriceBreakdown = {
   currency: "USD",
   totalAmountInMicros: 9900000,
   totalExcludingTaxInMicros: 9900000,
-  taxCollectionEnabled: true,
   taxCalculationStatus: "calculated",
   taxAmountInMicros: 0,
   pendingReason: null,
@@ -316,7 +314,6 @@ export const priceBreakdownTaxInclusive: PriceBreakdown = {
   totalAmountInMicros: 1718000 + 8180000,
   totalExcludingTaxInMicros: 8180000,
   taxAmountInMicros: 1718000,
-  taxCollectionEnabled: true,
   taxCalculationStatus: "calculated",
   taxBreakdown: [
     {
@@ -336,7 +333,6 @@ export const priceBreakdownTaxExclusive: PriceBreakdown = {
   totalAmountInMicros: 693000 + 9900000,
   totalExcludingTaxInMicros: 9900000,
   taxAmountInMicros: 693000,
-  taxCollectionEnabled: true,
   taxCalculationStatus: "calculated",
   taxBreakdown: [
     {
@@ -369,7 +365,6 @@ export const priceBreakdownTaxExclusiveWithMultipleTaxItems: PriceBreakdown = {
   totalAmountInMicros: 9900000 + 495000 + 987525,
   totalExcludingTaxInMicros: 9900000,
   taxAmountInMicros: 495000 + 987525,
-  taxCollectionEnabled: true,
   taxCalculationStatus: "calculated",
   taxBreakdown: [
     {

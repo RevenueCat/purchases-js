@@ -15,7 +15,11 @@ export type ContinueHandlerParams = {
   error?: PurchaseFlowError;
 };
 
-export type TaxCalculationStatus = "pending" | "loading" | "calculated";
+export type TaxCalculationStatus =
+  | "pending"
+  | "loading"
+  | "calculated"
+  | "disabled";
 
 export type TaxCalculationPendingReason =
   | "needs_postal_code"
@@ -25,9 +29,8 @@ export type TaxCalculationPendingReason =
 export type PriceBreakdown = {
   currency: string;
   totalAmountInMicros: number;
-  taxCollectionEnabled: boolean;
   totalExcludingTaxInMicros: number;
-  taxCalculationStatus: TaxCalculationStatus | null;
+  taxCalculationStatus: TaxCalculationStatus;
   pendingReason: TaxCalculationPendingReason | null;
   taxAmountInMicros: number | null;
   taxBreakdown: TaxBreakdown[] | null;

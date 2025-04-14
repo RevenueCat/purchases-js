@@ -65,6 +65,8 @@
 
   const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
   const translator = getContext<Writable<Translator>>(translatorContextKey);
+  const taxCollectionEnabled =
+    priceBreakdown.taxCalculationStatus !== "disabled";
 
   let stripeSubmit: () => Promise<void> = $state(() => Promise.resolve());
   let stripeConfirm: (clientSecret: string) => Promise<void> = $state(() =>
@@ -196,12 +198,12 @@
           bind:confirm={stripeConfirm}
           {gatewayParams}
           {brandingInfo}
+          {taxCollectionEnabled}
           onLoadingComplete={handleStripeLoadingComplete}
           onError={handleStripeElementError}
           onPaymentInfoChange={handlePaymentInfoChange}
           onSubmissionSuccess={handlePaymentSubmissionSuccess}
           onConfirmationSuccess={onContinue}
-          taxCollectionEnabled={priceBreakdown.taxCollectionEnabled}
           {onTaxCustomerDetailsUpdated}
         />
       </div>
