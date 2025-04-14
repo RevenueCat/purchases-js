@@ -43,7 +43,9 @@
   }
 
   let {
+    // @ts-ignore
     submit = $bindable(),
+    // @ts-ignore
     confirm = $bindable(),
     gatewayParams,
     brandingInfo,
