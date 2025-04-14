@@ -6,12 +6,10 @@ import type {
   CheckoutPurchaseSuccessfulDismissEvent,
   CheckoutPaymentFormGatewayErrorEvent,
   CheckoutPaymentFormSubmitEvent,
+  CheckoutPaymentFormErrorEvent,
+  CheckoutSessionStartEvent,
 } from "./sdk-events";
-import {
-  SDKEventName,
-  type CheckoutBillingFormErrorEvent,
-  type CheckoutSessionStartEvent,
-} from "./sdk-events";
+import { SDKEventName } from "./sdk-events";
 import type { Package } from "../entities/offerings";
 import type { PurchaseOption } from "../entities/offerings";
 import type { RedemptionInfo } from "../entities/redemption-info";
@@ -33,15 +31,15 @@ export function createCheckoutFlowErrorEvent({
   };
 }
 
-export function createCheckoutBillingFormErrorEvent({
+export function createCheckoutPaymentFormErrorEvent({
   errorCode,
   errorMessage,
 }: {
   errorCode: string | null;
   errorMessage: string;
-}): CheckoutBillingFormErrorEvent {
+}): CheckoutPaymentFormErrorEvent {
   return {
-    eventName: SDKEventName.CheckoutBillingFormError,
+    eventName: SDKEventName.CheckoutPaymentFormError,
     properties: {
       errorCode: errorCode,
       errorMessage: errorMessage,

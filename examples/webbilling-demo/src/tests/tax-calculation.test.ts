@@ -6,7 +6,6 @@ import {
   startPurchaseFlow,
   navigateToLandingUrl,
   getPackageCards,
-  clickContinueButton,
 } from "./helpers/test-helpers";
 import {
   integrationTest,
@@ -33,7 +32,7 @@ integrationTest.describe("Tax calculation", () => {
 
   integrationTest(
     "Displays taxes on email entry page",
-    async ({ page, userId, email }) => {
+    async ({ page, userId }) => {
       page = await navigateToLandingUrl(
         page,
         userId,
@@ -45,8 +44,6 @@ integrationTest.describe("Tax calculation", () => {
 
       const packageCards = await getPackageCards(page);
       await startPurchaseFlow(packageCards[0]);
-      await enterEmail(page, email);
-      await clickContinueButton(page);
       await expect(page.getByText("Total excluding tax")).toBeVisible();
       await expect(page.getByText("Total due today")).toBeVisible();
     },
@@ -66,13 +63,12 @@ integrationTest.describe("Tax calculation", () => {
 
       const packageCards = await getPackageCards(page);
       await startPurchaseFlow(packageCards[0]);
-      await enterEmail(page, email);
-      await clickContinueButton(page);
 
       await expect(page.getByText("Total excluding tax")).toBeVisible();
       await expect(page.getByText(/Sales Tax - New York/)).not.toBeVisible();
       await expect(page.getByText("Total due today")).toBeVisible();
 
+      await enterEmail(page, email);
       await enterCreditCardDetails(page, "4242 4242 4242 4242", {
         countryCode: "US",
         postalCode: "12345",
@@ -99,7 +95,6 @@ integrationTest.describe("Tax calculation", () => {
       const packageCards = await getPackageCards(page);
       await startPurchaseFlow(packageCards[0]);
       await enterEmail(page, email);
-      await clickContinueButton(page);
       await enterCreditCardDetails(page, "4242 4242 4242 4242", {
         countryCode: "IT",
       });
@@ -133,13 +128,12 @@ integrationTest.describe("Tax calculation", () => {
       const targetCard = cards[0];
 
       await startPurchaseFlow(targetCard);
-      await enterEmail(page, email);
-      await clickContinueButton(page);
 
       await expect(page.getByText("Total excluding tax")).toBeVisible();
       await expect(page.getByText(/Sales Tax - New York/)).not.toBeVisible();
       await expect(page.getByText("Total due today")).toBeVisible();
 
+      await enterEmail(page, email);
       await enterCreditCardDetails(page, "4242 4242 4242 4242", {
         countryCode: "US",
         postalCode: "33125", // Miami, FL
@@ -167,15 +161,13 @@ integrationTest.describe("Tax calculation", () => {
       const packageCards = await getPackageCards(page);
       await startPurchaseFlow(packageCards[0]);
 
-      await enterEmail(page, email);
-      await clickContinueButton(page);
-
       await expect(page.getByText("Total excluding tax")).toBeVisible();
       await expect(
         page.getByText("Sales Tax - New York (8%)"),
       ).not.toBeVisible();
       await expect(page.getByText("Total due today")).toBeVisible();
 
+      await enterEmail(page, email);
       await enterCreditCardDetails(page, "4242 4242 4242 4242", {
         countryCode: "US",
         postalCode: "00093",

@@ -80,7 +80,6 @@
     onClose,
   }: Props = $props();
 
-  let customerEmailOverride: string | undefined = $state(customerEmail);
   let productDetails: Product = rcPackage.webBillingProduct;
   let lastError: PurchaseFlowError | null = $state(null);
   const productId = rcPackage.webBillingProduct.identifier ?? null;
@@ -149,21 +148,7 @@
       return;
     }
 
-    if (!customerEmailOverride) {
-      currentPage = "email-entry";
-    } else {
-      currentPage = "payment-entry-loading";
-      handleCheckoutStart();
-    }
-  });
-
-  const handleCheckoutStart = () => {
-    if (!customerEmailOverride) {
-      handleError(
-        new PurchaseFlowError(PurchaseFlowErrorCode.MissingEmailError),
-      );
-      return;
-    }
+    currentPage = "payment-entry-loading";
 
     purchaseOperationHelper
       .checkoutStart(
@@ -171,7 +156,7 @@
         productId,
         purchaseOption,
         rcPackage.webBillingProduct.presentedOfferingContext,
-        customerEmailOverride,
+        customerEmail,
         metadata,
       )
       .then((result) => {
@@ -192,21 +177,11 @@
       .catch((e: PurchaseFlowError) => {
         handleError(e);
       });
-  };
+  });
 
   const handleContinue = (params: ContinueHandlerParams = {}) => {
     if (params.error) {
       handleError(params.error);
-      return;
-    }
-
-    if (currentPage === "email-entry") {
-      if (params.authInfo) {
-        customerEmailOverride = params.authInfo.email;
-        currentPage = "email-entry-processing";
-      }
-
-      handleCheckoutStart();
       return;
     }
 
@@ -292,11 +267,6 @@
       errorMessage: e.message,
     });
     eventsTracker.trackSDKEvent(event);
-    if (currentPage === "email-entry-processing" && e.isRecoverable()) {
-      lastError = e;
-      currentPage = "email-entry";
-      return;
-    }
     lastError = e;
     currentPage = "error";
   };
@@ -323,6 +293,7 @@
   {purchaseOperationHelper}
   {isInElement}
   {priceBreakdown}
+  customerEmail={customerEmail ?? null}
   {closeWithError}
   onContinue={handleContinue}
   {onClose}

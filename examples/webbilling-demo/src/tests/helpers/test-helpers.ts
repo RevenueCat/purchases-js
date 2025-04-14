@@ -15,7 +15,6 @@ export async function performPurchase(
 ) {
   await startPurchaseFlow(card);
   await enterEmail(page, email);
-  await clickContinueButton(page);
   await enterCreditCardDetails(page, "4242 4242 4242 4242");
   await clickPayButton(page);
   await confirmPaymentComplete(page);
@@ -133,7 +132,8 @@ export const getStripe3DSFrame = (page: Page) =>
   );
 
 export async function enterEmail(page: Page, email: string): Promise<void> {
-  const emailInput = page.getByPlaceholder("john@appleseed.com");
+  const stripeFrame = getStripeEmailFrame(page);
+  const emailInput = stripeFrame.getByPlaceholder("you@example.com");
   await emailInput.fill(email);
   await emailInput.blur();
 }
@@ -177,11 +177,6 @@ export async function enterCreditCardDetails(
   await stripeFrame.getByLabel("Security Code").fill(securityCode);
 }
 
-export async function clickContinueButton(page: Page) {
-  const button = page.getByText("Continue");
-  await button.click();
-}
-
 export async function clickPayButton(page: Page) {
   const button = await page.waitForSelector(
     "button[data-testid='PayButton']:not([disabled])",
@@ -210,4 +205,16 @@ export async function confirmStripeCardError(page: Page, message: string) {
   const stripeFrame = getStripePaymentFrame(page);
   const cardError = stripeFrame.getByText(message);
   await expect(cardError).toBeVisible({ timeout: 10000 });
+}
+
+export async function confirmStripeEmailError(page: Page, message: string) {
+  const stripeFrame = getStripeEmailFrame(page);
+  const emailError = stripeFrame.getByText(message);
+  await expect(emailError).toBeVisible({ timeout: 10000 });
+}
+
+export async function confirmStripeEmailFieldNotVisible(page: Page) {
+  const stripeFrame = getStripeEmailFrame(page);
+  const emailField = stripeFrame.getByPlaceholder("you@example.com");
+  await expect(emailField).not.toBeVisible();
 }

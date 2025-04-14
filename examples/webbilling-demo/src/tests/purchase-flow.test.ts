@@ -1,6 +1,5 @@
 import test, { expect } from "@playwright/test";
 import {
-  clickContinueButton,
   clickPayButton,
   confirmPaymentComplete,
   enterCreditCardDetails,
@@ -15,6 +14,8 @@ import {
   confirmPaymentError,
   clickCancelStripe3DSButton,
   confirmStripeCardError,
+  confirmStripeEmailError,
+  confirmStripeEmailFieldNotVisible,
 } from "./helpers/test-helpers";
 import {
   integrationTest,
@@ -87,6 +88,7 @@ test.describe("Purchase flow", () => {
       const packageCards = await getPackageCards(page, "E2E NonConsumable");
       expect(packageCards.length).toEqual(1);
       await startPurchaseFlow(packageCards[0]);
+      await confirmStripeEmailFieldNotVisible(page);
       await enterCreditCardDetails(page, "4242 4242 4242 4242");
       await clickPayButton(page);
       await confirmPaymentComplete(page);
@@ -101,8 +103,7 @@ test.describe("Purchase error paths", () => {
     const packageCards = await getPackageCards(page);
     await startPurchaseFlow(packageCards[1]);
     await enterEmail(page, "invalid-email");
-    await clickContinueButton(page);
-    await confirmPaymentError(page, "Email is not valid.");
+    await confirmStripeEmailError(page, "Your email address is invalid.");
   });
 
   integrationTest("Email deliverability errors", async ({ page, userId }) => {
@@ -112,8 +113,9 @@ test.describe("Purchase error paths", () => {
     const packageCards = await getPackageCards(page);
     await startPurchaseFlow(packageCards[1]);
     await enterEmail(page, email);
-    await clickContinueButton(page);
-    await confirmPaymentError(page, "Email is not valid.");
+    await enterCreditCardDetails(page, "4242 4242 4242 4242");
+    await clickPayButton(page);
+    await confirmPaymentError(page, "Please provide a valid email address.");
   });
 
   integrationTest("Handled card declined errors", async ({ page, userId }) => {
@@ -123,7 +125,6 @@ test.describe("Purchase error paths", () => {
     const packageCards = await getPackageCards(page);
     await startPurchaseFlow(packageCards[1]);
     await enterEmail(page, email);
-    await clickContinueButton(page);
     await enterCreditCardDetails(page, "4000 0000 0000 0002");
     await clickPayButton(page);
     await confirmStripeCardError(page, "Your card was declined.");
@@ -136,7 +137,6 @@ test.describe("Purchase error paths", () => {
     const packageCards = await getPackageCards(page);
     await startPurchaseFlow(packageCards[1]);
     await enterEmail(page, email);
-    await clickContinueButton(page);
     await enterCreditCardDetails(page, "4000 0038 0000 0446");
     await clickPayButton(page);
     await clickCancelStripe3DSButton(page);
@@ -158,9 +158,6 @@ test.describe("Purchase error paths", () => {
 
       const packageCards = await getPackageCards(page);
       await startPurchaseFlow(packageCards[1]);
-      await enterEmail(page, email);
-      await clickContinueButton(page);
-
       await confirmPaymentError(page, "Something went wrong");
       await confirmPaymentError(
         page,
@@ -184,7 +181,6 @@ test.describe("Purchase error paths", () => {
       const packageCards = await getPackageCards(page);
       await startPurchaseFlow(packageCards[1]);
       await enterEmail(page, email);
-      await clickContinueButton(page);
       await enterCreditCardDetails(page, "4242 4242 4242 4242");
       await clickPayButton(page);
       await confirmPaymentError(page, "Something went wrong");

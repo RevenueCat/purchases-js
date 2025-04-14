@@ -59,6 +59,7 @@ vi.mock("../../../stripe/stripe-service", () => ({
   StripeService: {
     initializeStripe: vi.fn(),
     createPaymentElement: vi.fn(),
+    createLinkAuthenticationElement: vi.fn(),
     isStripeHandledCardError: vi.fn(),
     updateElementsConfiguration: vi.fn(),
     getStripeLocale: vi.fn().mockImplementation((locale: string) => locale),
@@ -125,6 +126,17 @@ describe("PurchasesUI", () => {
       paymentElement,
     );
 
+    const linkAuthenticationElement = {
+      on: vi.fn(),
+      mount: vi.fn(),
+      destroy: vi.fn(),
+    };
+
+    vi.mocked(StripeService.createLinkAuthenticationElement).mockReturnValue(
+      // @ts-expect-error - This is a mock
+      linkAuthenticationElement,
+    );
+
     render(PaymentEntryPage, {
       props: { ...basicProps },
       context: defaultContext,
@@ -165,7 +177,7 @@ describe("PurchasesUI", () => {
     });
   });
 
-  test("tracks the CheckoutPaymentFormGatewayError event when stripe onload error occurs", async () => {
+  test("tracks the CheckoutPaymentFormGatewayError event when the payment element onload error occurs", async () => {
     const paymentElement = {
       on: (
         eventType: string,
@@ -195,6 +207,76 @@ describe("PurchasesUI", () => {
       // @ts-expect-error - This is a mock
       paymentElement,
     );
+
+    const linkAuthenticationElement = {
+      on: vi.fn(),
+      mount: vi.fn(),
+      destroy: vi.fn(),
+    };
+
+    vi.mocked(StripeService.createLinkAuthenticationElement).mockReturnValue(
+      // @ts-expect-error - This is a mock
+      linkAuthenticationElement,
+    );
+
+    render(PaymentEntryPage, {
+      props: { ...basicProps },
+      context: defaultContext,
+    });
+
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
+      eventName: SDKEventName.CheckoutPaymentFormGatewayError,
+      properties: {
+        errorCode: "0",
+        errorMessage: "Failed to initialize payment form",
+      },
+    });
+  });
+
+  test("tracks the CheckoutPaymentFormGatewayError event when the link authentication element onload error occurs", async () => {
+    const linkAuthenticationElement = {
+      on: (
+        eventType: string,
+        callback: (event?: {
+          elementType: "link_authentication";
+          error: StripeError;
+        }) => void,
+      ) => {
+        if (eventType === "loaderror") {
+          setTimeout(
+            () =>
+              callback({
+                elementType: "link_authentication",
+                error: {
+                  code: "0",
+                  message: "Failed to initialize payment form",
+                } as StripeError,
+              }),
+            0,
+          );
+        }
+      },
+      mount: vi.fn(),
+      destroy: vi.fn(),
+    };
+    vi.mocked(StripeService.createLinkAuthenticationElement).mockReturnValue(
+      // @ts-expect-error - This is a mock
+      linkAuthenticationElement,
+    );
+
+    const paymentElement = {
+      on: vi.fn(),
+      mount: vi.fn(),
+      destroy: vi.fn(),
+    };
+
+    vi.mocked(StripeService.createPaymentElement).mockReturnValue(
+      // @ts-expect-error - This is a mock
+      paymentElement,
+    );
+
     render(PaymentEntryPage, {
       props: { ...basicProps },
       context: defaultContext,
