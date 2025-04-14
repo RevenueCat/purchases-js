@@ -1,246 +1,191 @@
-import { expect, test } from "@playwright/test";
+import { expect } from "@playwright/test";
 import {
   enterCreditCardDetails,
-  enterEmailAndContinue,
-  getAllElementsByLocator,
-  getUserId,
-  setupTest,
+  enterEmail,
+  clickPayButton,
   startPurchaseFlow,
-} from "./utils.ts";
+  navigateToLandingUrl,
+  getPackageCards,
+  clickContinueButton,
+} from "./helpers/test-helpers";
+import {
+  integrationTest,
+  skipTaxCalculationTestIfDisabled,
+} from "./helpers/integration-test";
+import { TAX_TEST_API_KEY } from "./helpers/fixtures";
+import { TAX_TEST_OFFERING_ID } from "./helpers/fixtures";
 
-const CARD_SELECTOR = "div.card";
-
-const TAXES_TEST_OFFERING_ID = "rcb_e2e_taxes";
-
-// Assuming there's a selector or some identifiable locator for the tax breakdown UI element
 const TAX_BREAKDOWN_ITEM_SELECTOR = ".rcb-pricing-table-row";
-const ALLOW_TAX_CALCULATION_FF =
-  process.env.VITE_ALLOW_TAX_CALCULATION_FF === "true";
 
-const TAX_TEST_API_KEY = process.env.VITE_RC_TAX_E2E_API_KEY;
+integrationTest.describe("Tax calculation", () => {
+  skipTaxCalculationTestIfDisabled(integrationTest);
 
-test.describe("Tax calculation breakdown", () => {
-  test.skip(
-    !ALLOW_TAX_CALCULATION_FF,
-    "Tax calculation breakdown is disabled. To enable, set VITE_ALLOW_TAX_CALCULATION_FF=true in the environment variables.",
+  integrationTest(
+    "Does NOT display taxes at the email step",
+    async ({ page, userId }) => {
+      page = await navigateToLandingUrl(page, userId);
+
+      const packageCards = await getPackageCards(page);
+      await startPurchaseFlow(packageCards[1]);
+
+      await expect(page.getByText("Total excluding tax")).not.toBeVisible();
+    },
   );
 
-  test("should not display the tax breakdown at the enter email step", async ({
-    browser,
-    browserName,
-  }) => {
-    const userId = getUserId(browserName);
+  integrationTest(
+    "Displays taxes at the checkout step",
+    async ({ page, userId, email }) => {
+      page = await navigateToLandingUrl(
+        page,
+        userId,
+        {
+          offeringId: TAX_TEST_OFFERING_ID,
+        },
+        TAX_TEST_API_KEY,
+      );
 
-    // Set up the page (standard user, location, default params)
-    const page = await setupTest(
-      browser,
-      userId,
-      {
-        offeringId: TAXES_TEST_OFFERING_ID,
-      },
-      TAX_TEST_API_KEY,
-    );
+      const packageCards = await getPackageCards(page);
+      await startPurchaseFlow(packageCards[0]);
 
-    // Select and make a purchase of the first available product card
-    const cards = await getAllElementsByLocator(page, CARD_SELECTOR);
-    const targetCard = cards[0];
+      await enterEmail(page, email);
+      await clickContinueButton(page);
 
-    // Perform a purchase action
-    await startPurchaseFlow(targetCard);
+      await expect(page.getByText("Total excluding tax")).toBeVisible();
+      await expect(page.getByText("Total due today")).toBeVisible();
+    },
+  );
 
-    await expect(page.getByText("Total excluding tax")).not.toBeVisible();
-  });
+  integrationTest(
+    "Refreshes taxes when card info changes",
+    async ({ page, userId, email }) => {
+      page = await navigateToLandingUrl(
+        page,
+        userId,
+        {
+          offeringId: TAX_TEST_OFFERING_ID,
+        },
+        TAX_TEST_API_KEY,
+      );
 
-  test("should display the tax breakdown at the checkout step", async ({
-    browser,
-    browserName,
-  }) => {
-    const userId = getUserId(browserName);
+      const packageCards = await getPackageCards(page);
+      await startPurchaseFlow(packageCards[0]);
+      await enterEmail(page, email);
+      await clickContinueButton(page);
 
-    // Set up the page (standard user, location, default params)
-    const page = await setupTest(
-      browser,
-      userId,
-      {
-        offeringId: TAXES_TEST_OFFERING_ID,
-      },
-      TAX_TEST_API_KEY,
-    );
+      await expect(page.getByText("Total excluding tax")).toBeVisible();
+      await expect(page.getByText(/Sales Tax - New York/)).not.toBeVisible();
+      await expect(page.getByText("Total due today")).toBeVisible();
 
-    // Select and make a purchase of the first available product card
-    const cards = await getAllElementsByLocator(page, CARD_SELECTOR);
-    const targetCard = cards[0];
+      await enterCreditCardDetails(page, "4242 4242 4242 4242", {
+        countryCode: "US",
+        postalCode: "12345",
+      });
 
-    // Perform a purchase action
-    await startPurchaseFlow(targetCard);
-    await enterEmailAndContinue(page, userId);
+      await expect(page.getByText("Total excluding tax")).toBeVisible();
+      await expect(page.getByText(/Sales Tax - New York/)).toBeVisible();
+      await expect(page.getByText("Total due today")).toBeVisible();
+    },
+  );
 
-    await expect(page.getByText("Total excluding tax")).toBeVisible();
-    await expect(page.getByText("Total due today")).toBeVisible();
-  });
+  integrationTest(
+    "Displays inclusive taxes",
+    async ({ page, userId, email }) => {
+      page = await navigateToLandingUrl(
+        page,
+        userId,
+        {
+          offeringId: TAX_TEST_OFFERING_ID,
+        },
+        TAX_TEST_API_KEY,
+      );
 
-  test("should update taxes when changing the credit card info changes", async ({
-    browser,
-    browserName,
-  }) => {
-    const userId = getUserId(browserName);
+      const packageCards = await getPackageCards(page);
+      await startPurchaseFlow(packageCards[0]);
+      await enterEmail(page, email);
+      await clickContinueButton(page);
+      await enterCreditCardDetails(page, "4242 4242 4242 4242", {
+        countryCode: "IT",
+      });
+      await clickPayButton(page);
 
-    // Set up the page (standard user, location, default params)
-    const page = await setupTest(
-      browser,
-      userId,
-      {
-        offeringId: TAXES_TEST_OFFERING_ID,
-      },
-      TAX_TEST_API_KEY,
-    );
+      const lines = await page.locator(TAX_BREAKDOWN_ITEM_SELECTOR).all();
+      expect(lines).toHaveLength(3);
+      await expect(lines[0].getByText(/Total excluding tax/)).toBeVisible();
+      await expect(lines[0].getByText("$8.19")).toBeVisible();
+      await expect(lines[1].getByText(/VAT - Italy/)).toBeVisible();
+      await expect(lines[1].getByText("$1.80")).toBeVisible();
+      await expect(lines[2].getByText(/Total due today/)).toBeVisible();
+      await expect(lines[2].getByText("$9.99")).toBeVisible();
+    },
+  );
 
-    // Select and make a purchase of the first available product card
-    const cards = await getAllElementsByLocator(page, CARD_SELECTOR);
-    const targetCard = cards[0];
+  integrationTest(
+    "Does NOT display taxes if not collecting in location",
+    async ({ page, userId, email }) => {
+      // Set up the page (standard user, location, default params)
+      page = await navigateToLandingUrl(
+        page,
+        userId,
+        {
+          offeringId: TAX_TEST_OFFERING_ID,
+        },
+        TAX_TEST_API_KEY,
+      );
 
-    // Perform a purchase action
-    await startPurchaseFlow(targetCard);
-    await enterEmailAndContinue(page, userId);
+      const cards = await getPackageCards(page);
+      const targetCard = cards[0];
 
-    // Expecting the first calculation to be done.
-    await expect(page.getByText("Total excluding tax")).toBeVisible();
-    await expect(page.getByText(/Sales Tax - New York/)).not.toBeVisible();
-    await expect(page.getByText("Total due today")).toBeVisible();
+      await startPurchaseFlow(targetCard);
+      await enterEmail(page, email);
+      await clickContinueButton(page);
 
-    await enterCreditCardDetails(page, "4242 4242 4242 4242", {
-      countryCode: "US",
-      postalCode: "12345",
-    });
+      await expect(page.getByText("Total excluding tax")).toBeVisible();
+      await expect(page.getByText(/Sales Tax - New York/)).not.toBeVisible();
+      await expect(page.getByText("Total due today")).toBeVisible();
 
-    await expect(page.getByText("Total excluding tax")).toBeVisible();
-    await expect(page.getByText(/Sales Tax - New York/)).toBeVisible();
-    await expect(page.getByText("Total due today")).toBeVisible();
-  });
+      await enterCreditCardDetails(page, "4242 4242 4242 4242", {
+        countryCode: "US",
+        postalCode: "33125", // Miami, FL
+      });
 
-  test("should not display the tax breakdown if not collecting location is selected", async ({
-    browser,
-    browserName,
-  }) => {
-    const userId = getUserId(browserName);
+      await expect(page.getByText("Total excluding tax")).not.toBeVisible();
+      await expect(page.getByText(/Sales Tax - New York/)).not.toBeVisible();
+      await expect(page.getByText("Total due today")).toBeVisible();
+    },
+  );
 
-    // Set up the page (standard user, location, default params)
-    const page = await setupTest(
-      browser,
-      userId,
-      {
-        offeringId: TAXES_TEST_OFFERING_ID,
-      },
-      TAX_TEST_API_KEY,
-    );
+  integrationTest(
+    "Postal code not recognized error",
+    async ({ page, userId, email }) => {
+      page = await navigateToLandingUrl(
+        page,
+        userId,
+        {
+          offeringId: TAX_TEST_OFFERING_ID,
+        },
+        TAX_TEST_API_KEY,
+      );
 
-    // Select and make a purchase of the first available product card
-    const cards = await getAllElementsByLocator(page, CARD_SELECTOR);
-    const targetCard = cards[0];
+      const packageCards = await getPackageCards(page);
+      await startPurchaseFlow(packageCards[0]);
 
-    // Perform a purchase action
-    await startPurchaseFlow(targetCard);
-    await enterEmailAndContinue(page, userId);
+      await enterEmail(page, email);
+      await clickContinueButton(page);
 
-    // Expecting the first calculation to be done.
-    await expect(page.getByText("Total excluding tax")).toBeVisible();
-    await expect(page.getByText(/Sales Tax - New York/)).not.toBeVisible();
-    await expect(page.getByText("Total due today")).toBeVisible();
+      await expect(page.getByText("Total excluding tax")).toBeVisible();
+      await expect(
+        page.getByText("Sales Tax - New York (8%)"),
+      ).not.toBeVisible();
+      await expect(page.getByText("Total due today")).toBeVisible();
 
-    await enterCreditCardDetails(page, "4242 4242 4242 4242", {
-      countryCode: "US",
-      postalCode: "33125", // Miami, FL
-    });
+      await enterCreditCardDetails(page, "4242 4242 4242 4242", {
+        countryCode: "US",
+        postalCode: "00093",
+      });
 
-    await expect(page.getByText("Total excluding tax")).not.toBeVisible();
-    await expect(page.getByText(/Sales Tax - New York/)).not.toBeVisible();
-    await expect(page.getByText("Total due today")).toBeVisible();
-  });
-
-  test("product price and total should match for inclusive taxes", async ({
-    browser,
-    browserName,
-  }) => {
-    const userId = getUserId(browserName);
-
-    // Set up the page (standard user, location, default params)
-    const page = await setupTest(
-      browser,
-      userId,
-      {
-        offeringId: TAXES_TEST_OFFERING_ID,
-      },
-      TAX_TEST_API_KEY,
-    );
-
-    // Select and make a purchase of the first available product card
-    const cards = await getAllElementsByLocator(page, CARD_SELECTOR);
-    const targetCard = cards[0];
-
-    // Perform a purchase action
-    await startPurchaseFlow(targetCard);
-    await enterEmailAndContinue(page, userId);
-
-    await enterCreditCardDetails(page, "4242 4242 4242 4242", {
-      countryCode: "IT",
-    });
-
-    const priceBreakdownLines = await page
-      .locator(TAX_BREAKDOWN_ITEM_SELECTOR)
-      .all();
-
-    await expect(
-      priceBreakdownLines[0].getByText(/Total excluding tax/),
-    ).toBeVisible();
-    await expect(priceBreakdownLines[0].getByText("$8.19")).toBeVisible();
-
-    await expect(priceBreakdownLines[1].getByText(/VAT - Italy/)).toBeVisible();
-    await expect(priceBreakdownLines[1].getByText("$1.80")).toBeVisible();
-
-    const totalDueTodayLine = page.locator(
-      `${TAX_BREAKDOWN_ITEM_SELECTOR}.rcb-header`,
-    );
-
-    await expect(totalDueTodayLine.getByText(/Total due today/)).toBeVisible();
-    await expect(totalDueTodayLine.getByText("$9.99")).toBeVisible();
-  });
-
-  test("should show error message when the postal code was not recognized", async ({
-    browser,
-    browserName,
-  }) => {
-    const userId = getUserId(browserName);
-
-    // Set up the page (standard user, location, default params)
-    const page = await setupTest(
-      browser,
-      userId,
-      {
-        offeringId: TAXES_TEST_OFFERING_ID,
-      },
-      TAX_TEST_API_KEY,
-    );
-
-    // Select and make a purchase of the first available product card
-    const cards = await getAllElementsByLocator(page, CARD_SELECTOR);
-    const targetCard = cards[0];
-
-    // Perform a purchase action
-    await startPurchaseFlow(targetCard);
-    await enterEmailAndContinue(page, userId);
-
-    // Expecting the first calculation to be done.
-    await expect(page.getByText("Total excluding tax")).toBeVisible();
-    await expect(page.getByText("Sales Tax - New York (8%)")).not.toBeVisible();
-    await expect(page.getByText("Total due today")).toBeVisible();
-
-    await enterCreditCardDetails(page, "4242 4242 4242 4242", {
-      countryCode: "US",
-      postalCode: "00093",
-    });
-
-    await expect(
-      page.getByText(/We couldn’t verify your billing address./),
-    ).toBeVisible({ timeout: 3000 });
-  });
+      await expect(
+        page.getByText(/We couldn’t verify your billing address./),
+      ).toBeVisible({ timeout: 3000 });
+    },
+  );
 });
