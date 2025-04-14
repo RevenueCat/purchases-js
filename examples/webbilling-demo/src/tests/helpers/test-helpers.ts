@@ -1,5 +1,5 @@
 import { type Page, type Locator, expect } from "@playwright/test";
-import { BASE_URL } from "./fixtures";
+import { BASE_URL, NON_TAX_TEST_API_KEY } from "./fixtures";
 
 export const CARD_SELECTOR = "div.card";
 export const PACKAGE_SELECTOR = "button.rc-pw-package";
@@ -46,8 +46,9 @@ export async function navigateToLandingUrl(
   },
   apiKey?: string,
 ) {
-  if (apiKey) {
-    await page.addInitScript(`window.__RC_API_KEY__ = "${apiKey}";`);
+  const key = apiKey ?? NON_TAX_TEST_API_KEY;
+  if (key) {
+    await page.addInitScript(`window.__RC_API_KEY__ = "${key}";`);
   }
 
   const {

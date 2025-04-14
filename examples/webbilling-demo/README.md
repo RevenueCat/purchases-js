@@ -23,6 +23,13 @@ npm run dev
 
 ### E2E Tests
 
+- Set the following env variables. You can set them in a `.env` file in the root of this demo app.
+
+```bash
+export VITE_RC_NON_TAX_E2E_API_KEY = 'your e2e tests public api key'
+export VITE_RC_TAX_E2E_API_KEY = 'your e2e tests public api key'
+```
+
 Install playwright
 
 ```bash
