@@ -68,7 +68,7 @@
   {#snippet mainContent()}
     {#if currentPage === "email-entry" || currentPage === "email-entry-processing"}
       <EmailEntryPage
-        onContinue={handleContinue}
+        {onContinue}
         processing={currentPage === "email-entry-processing"}
         {lastError}
       />
