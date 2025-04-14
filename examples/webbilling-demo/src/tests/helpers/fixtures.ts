@@ -4,3 +4,6 @@ export const RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES =
 export const TAX_TEST_OFFERING_ID = "rcb_e2e_taxes";
 export const TAX_TEST_API_KEY = process.env.VITE_RC_TAX_E2E_API_KEY;
 export const LOCAL_URL = "http://localhost:3001/";
+export const BASE_URL =
+  (import.meta.env?.VITE_RC_BILLING_DEMO_URL as string | undefined) ??
+  LOCAL_URL;

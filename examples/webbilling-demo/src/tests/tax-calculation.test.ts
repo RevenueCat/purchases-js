@@ -21,19 +21,18 @@ integrationTest.describe("Tax calculation", () => {
   skipTaxCalculationTestIfDisabled(integrationTest);
 
   integrationTest(
-    "Does NOT display taxes at the email step",
+    "Does NOT display taxes when tax collection is disabled",
     async ({ page, userId }) => {
       page = await navigateToLandingUrl(page, userId);
-
       const packageCards = await getPackageCards(page);
       await startPurchaseFlow(packageCards[1]);
-
+      await expect(page.getByText("Total due today")).toBeVisible();
       await expect(page.getByText("Total excluding tax")).not.toBeVisible();
     },
   );
 
   integrationTest(
-    "Displays taxes at the checkout step",
+    "Displays taxes on email entry page",
     async ({ page, userId, email }) => {
       page = await navigateToLandingUrl(
         page,
@@ -46,10 +45,8 @@ integrationTest.describe("Tax calculation", () => {
 
       const packageCards = await getPackageCards(page);
       await startPurchaseFlow(packageCards[0]);
-
       await enterEmail(page, email);
       await clickContinueButton(page);
-
       await expect(page.getByText("Total excluding tax")).toBeVisible();
       await expect(page.getByText("Total due today")).toBeVisible();
     },
@@ -147,6 +144,7 @@ integrationTest.describe("Tax calculation", () => {
         countryCode: "US",
         postalCode: "33125", // Miami, FL
       });
+      await clickPayButton(page);
 
       await expect(page.getByText("Total excluding tax")).not.toBeVisible();
       await expect(page.getByText(/Sales Tax - New York/)).not.toBeVisible();
