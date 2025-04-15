@@ -1,5 +1,4 @@
 import type { TaxBreakdown } from "../networking/responses/checkout-calculate-tax-response";
-import type { PurchaseFlowError } from "../helpers/purchase-operation-helper";
 
 export type CurrentPage =
   | "email-entry"
@@ -9,10 +8,6 @@ export type CurrentPage =
   | "payment-entry-processing"
   | "success"
   | "error";
-
-export type ContinueHandlerParams = {
-  error?: PurchaseFlowError;
-};
 
 export type TaxCalculationStatus =
   | "pending"

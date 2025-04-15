@@ -72,6 +72,7 @@
     gatewayParams={checkoutStartResponse.gateway_params}
     {purchaseOperationHelper}
     isInElement={context.globals.viewport === "embedded"}
+    onError={() => {}}
   />
 {/snippet}
 
