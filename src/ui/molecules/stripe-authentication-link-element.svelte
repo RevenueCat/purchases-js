@@ -18,7 +18,7 @@
   export let elements: StripeElements;
 
   let linkAuthenticationElement: StripeLinkAuthenticationElement | null = null;
-  let linkAuthenticationElementId = "link-authentication-element";
+  const linkAuthenticationElementId = "link-authentication-element";
 
   const onChangeCallback = async (
     event: StripeLinkAuthenticationElementChangeEvent,
