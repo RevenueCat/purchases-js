@@ -343,5 +343,14 @@ export function getRequestHandlers(): RequestHandler[] {
     }),
   );
 
+  const checkoutStartURL = "http://localhost:8000/rcbilling/v1/checkout/start";
+  requestHandlers.push(
+    http.post(checkoutStartURL, async ({ request }) => {
+      const json = await request.json();
+      APIPostRequest({ url: checkoutStartURL, json });
+      return HttpResponse.json(checkoutStartResponse, { status: 200 });
+    }),
+  );
+
   return requestHandlers;
 }
