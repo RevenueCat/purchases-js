@@ -31,7 +31,6 @@
     publishableApiKey?: string;
     elementsConfiguration?: StripeElementsConfiguration;
     brandingInfo: BrandingInfoResponse | null;
-    taxCollectionEnabled: boolean;
     skipEmail: boolean;
     onLoadingComplete: () => void;
     onError: (error: StripeServiceError) => void;
