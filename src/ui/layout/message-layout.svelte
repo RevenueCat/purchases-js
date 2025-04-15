@@ -6,7 +6,7 @@
   import { type ContinueHandlerParams } from "../ui-types";
   import Typography from "../atoms/typography.svelte";
 
-  export let onDismiss: (params?: ContinueHandlerParams) => void;
+  export let onDismiss: () => void;
   export let title: string | null = null;
   export let type: string;
   export let closeButtonTitle: string = "Go back to app";

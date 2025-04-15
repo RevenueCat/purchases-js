@@ -17,7 +17,6 @@
     TaxCalculationError,
   } from "../../helpers/purchase-operation-helper";
   import type {
-    ContinueHandlerParams,
     PriceBreakdown,
     TaxCalculationStatus,
     TaxCalculationPendingReason,
@@ -55,7 +54,8 @@
     brandingInfo: BrandingInfoResponse | null;
     purchaseOperationHelper: PurchaseOperationHelper;
     customerEmail: string | null;
-    onContinue: (params?: ContinueHandlerParams) => void;
+    onContinue: () => void;
+    onError: (error: PurchaseFlowError) => void;
     onPriceBreakdownUpdated: (priceBreakdown: PriceBreakdown) => void;
   }
 
@@ -67,6 +67,7 @@
     purchaseOperationHelper,
     customerEmail,
     onContinue,
+    onError,
     onPriceBreakdownUpdated,
   }: Props = $props();
 
@@ -142,7 +143,7 @@
         await refreshTaxCalculation();
       }
     } catch (error) {
-      onContinue({ error: error as PurchaseFlowError });
+      onError(error as PurchaseFlowError);
     }
   });
 
@@ -171,12 +172,12 @@
           pendingReason = "invalid_postal_code";
           break;
         default:
-          onContinue({
-            error: new PurchaseFlowError(
+          onError(
+            new PurchaseFlowError(
               PurchaseFlowErrorCode.ErrorSettingUpPurchase,
               "Unknown error without state set.",
             ),
-          });
+          );
       }
     } else {
       const { data } = taxCalculation;
@@ -271,9 +272,7 @@
             { email: email },
           );
         } else {
-          onContinue({
-            error: error,
-          });
+          onError(error);
         }
       });
 
@@ -307,13 +306,13 @@
     if (error.code === StripeServiceErrorCode.UnhandledFormError) {
       modalErrorMessage = error.message;
     } else {
-      onContinue({
-        error: new PurchaseFlowError(
+      onError(
+        new PurchaseFlowError(
           PurchaseFlowErrorCode.ErrorSettingUpPurchase,
           "Failed to initialize payment form",
           error.message,
         ),
-      });
+      );
     }
   }
 

@@ -3,11 +3,7 @@
   import ErrorPage from "./pages/error-page.svelte";
   import SuccessPage from "./pages/success-page.svelte";
   import LoadingPage from "./pages/payment-entry-loading-page.svelte";
-  import {
-    type PriceBreakdown,
-    type ContinueHandlerParams,
-    type CurrentPage,
-  } from "./ui-types";
+  import { type PriceBreakdown, type CurrentPage } from "./ui-types";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import type { Product, PurchaseOption } from "../main";
   import ProductInfo from "./organisms/product-info.svelte";
@@ -30,7 +26,8 @@
     gatewayParams: GatewayParams;
     customerEmail: string | null;
     closeWithError: () => void;
-    onContinue: (params?: ContinueHandlerParams) => void;
+    onContinue: () => void;
+    onError: (error: PurchaseFlowError) => void;
     onClose?: () => void;
   }
 
@@ -47,6 +44,7 @@
     customerEmail,
     closeWithError,
     onContinue,
+    onError,
     onClose = undefined,
   }: Props = $props();
 
@@ -89,6 +87,7 @@
         {gatewayParams}
         {customerEmail}
         {onContinue}
+        {onError}
         {onPriceBreakdownUpdated}
       />
     {/if}

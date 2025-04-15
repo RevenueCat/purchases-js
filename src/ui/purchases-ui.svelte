@@ -22,7 +22,6 @@
   import { translatorContextKey } from "./localization/constants";
   import { type CurrentPage } from "./ui-types";
   import PurchasesUiInner from "./purchases-ui-inner.svelte";
-  import { type ContinueHandlerParams } from "./ui-types";
   import { type IEventsTracker } from "../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "./constants";
   import { createCheckoutFlowErrorEvent } from "../behavioural-events/sdk-event-helpers";
@@ -162,12 +161,7 @@
       });
   });
 
-  const handleContinue = (params: ContinueHandlerParams = {}) => {
-    if (params.error) {
-      handleError(params.error);
-      return;
-    }
-
+  const handleContinue = () => {
     if (currentPage === "payment-entry") {
       currentPage = "payment-entry-processing";
       purchaseOperationHelper
@@ -225,5 +219,6 @@
   customerEmail={email ?? null}
   {closeWithError}
   onContinue={handleContinue}
+  onError={handleError}
   {onClose}
 />
