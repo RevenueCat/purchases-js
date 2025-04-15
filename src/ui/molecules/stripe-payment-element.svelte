@@ -12,13 +12,16 @@
   import { onDestroy, onMount } from "svelte";
   import type { BrandingInfoResponse } from "../../networking/responses/branding-response";
 
-  export let onChange: (
-    event: StripePaymentElementChangeEvent,
-  ) => void | Promise<void>;
-  export let onError: (error: StripeServiceError) => void | Promise<void>;
-  export let onReady: () => void | Promise<void>;
-  export let brandingInfo: BrandingInfoResponse | null = null;
-  export let elements: StripeElements;
+  export interface Props {
+    onChange: (event: StripePaymentElementChangeEvent) => Promise<void>;
+    onError: (error: StripeServiceError) => void | Promise<void>;
+    onReady: () => void | Promise<void>;
+    brandingInfo: BrandingInfoResponse | null;
+    elements: StripeElements;
+  }
+
+  const { onChange, onError, onReady, brandingInfo, elements }: Props =
+    $props();
 
   let paymentElement: StripePaymentElement | null = null;
   const paymentElementId = "payment-element";
