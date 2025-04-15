@@ -216,6 +216,12 @@ export async function confirmStripeEmailError(page: Page, message: string) {
 }
 
 export async function confirmStripeEmailFieldNotVisible(page: Page) {
+  // Wait for the credit card to be loaded
+  const numberInput =
+    getStripePaymentFrame(page).getByPlaceholder("1234 1234 1234");
+  await expect(numberInput).toBeVisible();
+
+  // Then check that the email field is not visible
   const stripeFrame = getStripeEmailFrame(page);
   const emailField = stripeFrame.getByPlaceholder("you@example.com");
   await expect(emailField).not.toBeVisible();

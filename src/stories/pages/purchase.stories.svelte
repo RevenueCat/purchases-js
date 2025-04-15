@@ -87,6 +87,17 @@
   name="Checkout"
   args={{ ...defaultArgs, currentPage: "payment-entry" }}
 />
+
+<Story
+  name="Checkout (with email input skipped)"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    isSandbox: true,
+    customerEmail: "test@test.com",
+  }}
+/>
+
 <Story
   name="Checkout (with Tax)"
   args={{
@@ -95,6 +106,7 @@
     withTaxes: true,
   }}
 />
+
 <Story
   name="Checkout (with Trial Product)"
   args={{

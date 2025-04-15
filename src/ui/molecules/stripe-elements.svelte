@@ -31,7 +31,7 @@
     gatewayParams: GatewayParams;
     brandingInfo: BrandingInfoResponse | null;
     taxCollectionEnabled: boolean;
-    customerEmail: string;
+    skipEmail: boolean;
     onLoadingComplete: () => void;
     onError: (error: PaymentElementError) => void;
     onEmailChange: (complete: boolean, email: string) => void;
@@ -54,7 +54,7 @@
     gatewayParams,
     brandingInfo,
     taxCollectionEnabled,
-    customerEmail,
+    skipEmail,
     onLoadingComplete,
     onError,
     onEmailChange,
@@ -70,7 +70,7 @@
   );
 
   let paymentElementReadyForSubmission = $state(false);
-  let emailElementReadyForSubmission = $state(false);
+  let emailElementReadyForSubmission = $state(skipEmail);
   let stripe: Stripe | null = $state(null);
   let lastTaxCustomerDetails: TaxCustomerDetails | undefined =
     $state(undefined);
@@ -290,15 +290,16 @@
 </script>
 
 {#if elements}
-  <div class="rc-email-element">
-    <LinkAuthenticationElement
-      {elements}
-      email={customerEmail}
-      onReady={onLinkAuthenticationElementReady}
-      onChange={onLinkAuthenticationElementChange}
-      onError={onStripeElementsLoadingError}
-    />
-  </div>
+  {#if !skipEmail}
+    <div class="rc-email-element">
+      <LinkAuthenticationElement
+        {elements}
+        onReady={onLinkAuthenticationElementReady}
+        onChange={onLinkAuthenticationElementChange}
+        onError={onStripeElementsLoadingError}
+      />
+    </div>
+  {/if}
   <div class="rc-payment-element">
     <PaymentElement
       {elements}

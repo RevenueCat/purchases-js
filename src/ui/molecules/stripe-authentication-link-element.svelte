@@ -8,14 +8,17 @@
 
   import { onDestroy, onMount } from "svelte";
 
-  export let onChange: (
-    event: StripeLinkAuthenticationElementChangeEvent,
-  ) => void | Promise<void>;
-  export let onError: undefined | ((error: any) => void | Promise<void>) =
-    undefined;
-  export let onReady: undefined | (() => void | Promise<void>) = undefined;
-  export let email: string | undefined;
-  export let elements: StripeElements;
+  interface Props {
+    onChange: (
+      event: StripeLinkAuthenticationElementChangeEvent,
+    ) => void | Promise<void>;
+    onError: undefined | ((error: any) => void | Promise<void>);
+    onReady: undefined | (() => void | Promise<void>);
+    email?: string;
+    elements: StripeElements;
+  }
+
+  const { onChange, onError, onReady, email, elements }: Props = $props();
 
   let linkAuthenticationElement: StripeLinkAuthenticationElement | null = null;
   const linkAuthenticationElementId = "link-authentication-element";

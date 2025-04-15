@@ -77,7 +77,7 @@
     Promise.resolve(),
   );
 
-  let email: string = $state(customerEmail ?? "");
+  let email: string | undefined = $state(customerEmail ?? undefined);
   let isEmailComplete = $state(customerEmail ? true : false);
   let isStripeLoading = $state(true);
   let isPaymentInfoComplete = $state(false);
@@ -240,7 +240,7 @@
           bind:confirm={stripeConfirm}
           {gatewayParams}
           {brandingInfo}
-          customerEmail={customerEmail ?? ""}
+          skipEmail={!!customerEmail}
           {taxCollectionEnabled}
           onLoadingComplete={handleStripeLoadingComplete}
           onError={handleStripeElementError}
