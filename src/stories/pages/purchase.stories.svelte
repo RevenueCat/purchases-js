@@ -11,8 +11,6 @@
   import {
     brandingInfos,
     checkoutStartResponse,
-    priceBreakdownTaxDisabled,
-    priceBreakdownTaxInclusive,
     product,
     purchaseFlowError,
     subscriptionOption,
@@ -57,7 +55,10 @@
   args: Args<typeof Story>,
   context: StoryContext<typeof Story>,
 )}
-  {@const brandingInfo = brandingInfos[context.globals.brandingName]}
+  {@const brandingInfo = {
+    ...brandingInfos[context.globals.brandingName],
+    gateway_tax_collection_enabled: args.withTaxes,
+  }}
   <PurchasesInner
     isSandbox={args.isSandbox}
     currentPage={args.currentPage}
@@ -69,12 +70,8 @@
     customerEmail={args.customerEmail}
     lastError={null}
     gatewayParams={checkoutStartResponse.gateway_params}
-    priceBreakdown={args.withTaxes
-      ? priceBreakdownTaxInclusive
-      : priceBreakdownTaxDisabled}
     {purchaseOperationHelper}
     isInElement={context.globals.viewport === "embedded"}
-    onTaxCustomerDetailsUpdated={() => {}}
   />
 {/snippet}
 

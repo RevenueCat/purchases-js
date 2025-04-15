@@ -17,7 +17,7 @@
   import { translatorContextKey } from "../localization/constants";
   import { Translator } from "../localization/translator";
 
-  import { type GatewayParams } from "../../networking/responses/stripe-elements";
+  import type { StripeElementsConfiguration } from "../../networking/responses/stripe-elements";
   import { DEFAULT_FONT_FAMILY } from "../theme/text";
   import { StripeService } from "../../stripe/stripe-service";
   import { type Writable } from "svelte/store";
@@ -28,7 +28,9 @@
   import { type TaxCustomerDetails } from "../ui-types";
 
   interface Props {
-    gatewayParams: GatewayParams;
+    stripeAccountId?: string;
+    publishableApiKey?: string;
+    elementsConfiguration?: StripeElementsConfiguration;
     brandingInfo: BrandingInfoResponse | null;
     taxCollectionEnabled: boolean;
     skipEmail: boolean;
@@ -51,7 +53,9 @@
     submit = $bindable(),
     // @ts-ignore
     confirm = $bindable(),
-    gatewayParams,
+    stripeAccountId,
+    publishableApiKey,
+    elementsConfiguration,
     brandingInfo,
     taxCollectionEnabled,
     skipEmail,
@@ -260,10 +264,16 @@
     if (stripe) return;
     if (elements) return;
 
+    if (!stripeAccountId || !publishableApiKey || !elementsConfiguration) {
+      return;
+    }
+
     try {
       const { stripe: stripeInstance, elements: elementsInstance } =
         await StripeService.initializeStripe(
-          gatewayParams,
+          stripeAccountId,
+          publishableApiKey,
+          elementsConfiguration,
           brandingInfo,
           stripeLocale,
           stripeVariables,
@@ -277,8 +287,7 @@
   });
 
   $effect(() => {
-    if (gatewayParams.elements_configuration && elements) {
-      const elementsConfiguration = gatewayParams.elements_configuration;
+    if (elementsConfiguration && elements) {
       (async () => {
         await StripeService.updateElementsConfiguration(
           elements,

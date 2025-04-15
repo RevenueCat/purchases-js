@@ -14,11 +14,14 @@
     PurchaseFlowError,
     PurchaseFlowErrorCode,
     PurchaseOperationHelper,
+    TaxCalculationError,
   } from "../../helpers/purchase-operation-helper";
-  import {
-    type TaxCustomerDetails,
-    type ContinueHandlerParams,
-    type PriceBreakdown,
+  import type {
+    TaxCustomerDetails,
+    ContinueHandlerParams,
+    PriceBreakdown,
+    TaxCalculationStatus,
+    TaxCalculationPendingReason,
   } from "../ui-types";
   import { type IEventsTracker } from "../../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "../constants";
@@ -36,11 +39,15 @@
   } from "../types/payment-element-error";
   import PaymentButton from "../molecules/payment-button.svelte";
   import StripeElements from "../molecules/stripe-elements.svelte";
-  import { type GatewayParams } from "../../networking/responses/stripe-elements";
+  import type {
+    StripeElementsConfiguration,
+    GatewayParams,
+  } from "../../networking/responses/stripe-elements";
+  import { ALLOW_TAX_CALCULATION_FF } from "../../helpers/constants";
+  import type { TaxBreakdown } from "../../networking/responses/checkout-calculate-tax-response";
 
   interface Props {
-    gatewayParams?: GatewayParams;
-    priceBreakdown: PriceBreakdown;
+    gatewayParams: GatewayParams;
     processing: boolean;
     productDetails: Product;
     purchaseOption: PurchaseOption;
@@ -48,23 +55,47 @@
     purchaseOperationHelper: PurchaseOperationHelper;
     customerEmail: string | null;
     onContinue: (params?: ContinueHandlerParams) => void;
-    onTaxCustomerDetailsUpdated: (customerDetails: TaxCustomerDetails) => void;
+    onPriceBreakdownUpdated: (priceBreakdown: PriceBreakdown) => void;
   }
 
   const {
-    gatewayParams = {},
-    priceBreakdown,
+    gatewayParams,
     productDetails,
     purchaseOption,
     brandingInfo,
     purchaseOperationHelper,
     customerEmail,
     onContinue,
-    onTaxCustomerDetailsUpdated,
+    onPriceBreakdownUpdated,
   }: Props = $props();
 
   const subscriptionOption =
     productDetails.subscriptionOptions?.[purchaseOption.id];
+
+  let taxCalculationStatus: TaxCalculationStatus = $state("disabled");
+  let pendingReason: TaxCalculationPendingReason | null = $state(null);
+  let taxAmountInMicros: number | null = $state(null);
+  let taxBreakdown: TaxBreakdown[] | null = $state(null);
+  let totalExcludingTaxInMicros: number | null = $state(
+    productDetails.currentPrice.amountMicros,
+  );
+  let totalAmountInMicros: number | null = $state(
+    productDetails.currentPrice.amountMicros,
+  );
+
+  let priceBreakdown: PriceBreakdown = $derived({
+    currency: productDetails.currentPrice.currency,
+    totalAmountInMicros,
+    totalExcludingTaxInMicros,
+    taxCalculationStatus,
+    pendingReason,
+    taxAmountInMicros,
+    taxBreakdown,
+  });
+
+  let elementsConfiguration: StripeElementsConfiguration | undefined = $state(
+    gatewayParams.elements_configuration,
+  );
 
   const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
   const translator = getContext<Writable<Translator>>(translatorContextKey);
@@ -99,6 +130,70 @@
     });
   });
 
+  onMount(async () => {
+    try {
+      // If tax collection is enabled, we start in the state `disabled`
+      if (
+        ALLOW_TAX_CALCULATION_FF &&
+        brandingInfo?.gateway_tax_collection_enabled
+      ) {
+        await refreshTaxCalculation();
+      }
+    } catch (error) {
+      onContinue({ error: error as PurchaseFlowError });
+    }
+  });
+
+  async function refreshTaxCalculation(
+    taxCustomerDetails: TaxCustomerDetails | undefined = undefined,
+  ) {
+    if (taxCalculationStatus !== "disabled") {
+      taxCalculationStatus = "loading";
+    }
+
+    const taxCalculation = await purchaseOperationHelper.checkoutCalculateTax(
+      taxCustomerDetails?.countryCode,
+      taxCustomerDetails?.postalCode,
+    );
+
+    if (taxCalculation.error) {
+      switch (taxCalculation.error) {
+        case TaxCalculationError.Pending:
+          taxCalculationStatus = "pending";
+          pendingReason = null;
+          break;
+        case TaxCalculationError.Disabled:
+          taxCalculationStatus = "disabled";
+          pendingReason = null;
+          break;
+        case TaxCalculationError.InvalidLocation:
+          taxCalculationStatus = "pending";
+          pendingReason = "invalid_postal_code";
+          break;
+        default:
+          onContinue({
+            error: new PurchaseFlowError(
+              PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+              "Unknown error without state set.",
+            ),
+          });
+      }
+    } else {
+      const { data } = taxCalculation;
+
+      taxCalculationStatus = "calculated";
+      taxAmountInMicros = data.tax_amount_in_micros;
+      totalExcludingTaxInMicros = data.total_excluding_tax_in_micros;
+      totalAmountInMicros = data.total_amount_in_micros;
+      taxBreakdown = data.pricing_phases.base.tax_breakdown;
+      pendingReason = null;
+
+      elementsConfiguration = data.gateway_params.elements_configuration;
+    }
+
+    onPriceBreakdownUpdated(priceBreakdown);
+  }
+
   function handleStripeLoadingComplete() {
     isStripeLoading = false;
   }
@@ -120,7 +215,7 @@
     selectedPaymentMethod = paymentMethod;
     isPaymentInfoComplete = complete;
     if (updatedTaxDetails) {
-      onTaxCustomerDetailsUpdated(updatedTaxDetails);
+      refreshTaxCalculation(updatedTaxDetails);
     }
   }
 
@@ -238,7 +333,9 @@
         <StripeElements
           bind:submit={stripeSubmit}
           bind:confirm={stripeConfirm}
-          {gatewayParams}
+          stripeAccountId={gatewayParams.stripe_account_id}
+          publishableApiKey={gatewayParams.publishable_api_key}
+          {elementsConfiguration}
           {brandingInfo}
           skipEmail={!!customerEmail}
           {taxCollectionEnabled}
