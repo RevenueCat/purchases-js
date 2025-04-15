@@ -352,7 +352,6 @@
           {elementsConfiguration}
           {brandingInfo}
           skipEmail={!!customerEmail}
-          {taxCollectionEnabled}
           onLoadingComplete={handleStripeLoadingComplete}
           onError={handleStripeElementError}
           onEmailChange={handleEmailChange}
