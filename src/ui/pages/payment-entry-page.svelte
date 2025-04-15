@@ -212,9 +212,6 @@
   }) {
     if (!elements || !stripe) return;
 
-    selectedPaymentMethod = paymentMethod;
-    isPaymentInfoComplete = complete;
-
     if (taxCollectionEnabled && paymentMethod === "card") {
       const taxCustomerDetails = await StripeService.extractTaxCustomerDetails(
         elements,
@@ -228,8 +225,11 @@
       if (sameDetails) return;
 
       lastTaxCustomerDetails = taxCustomerDetails;
-      refreshTaxCalculation();
+      await refreshTaxCalculation();
     }
+
+    selectedPaymentMethod = paymentMethod;
+    isPaymentInfoComplete = complete;
   }
 
   async function handleSubmit(e: Event): Promise<void> {
