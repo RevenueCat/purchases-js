@@ -312,6 +312,12 @@
 
 <style>
   .rc-payment-element {
-    margin-top: var(--rc-spacing-gapXLarge-mobile);
+    margin-top: var(--rc-spacing-gapStripeElement-mobile);
+  }
+
+  @container layout-query-container (width >= 768px) {
+    .rc-payment-element {
+      margin-top: var(--rc-spacing-gapStripeElement-desktop);
+    }
   }
 </style>
