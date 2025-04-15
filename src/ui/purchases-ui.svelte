@@ -131,25 +131,34 @@
         email,
         metadata,
       )
-      .catch((e: PurchaseFlowError) => {
-        if (e.errorCode === PurchaseFlowErrorCode.MissingEmailError) {
-          email = undefined;
-          return purchaseOperationHelper.checkoutStart(
-            appUserId,
-            productId,
-            purchaseOption,
-            rcPackage.webBillingProduct.presentedOfferingContext,
-            email,
-            metadata,
-          );
-        } else {
-          throw e;
-        }
-      })
       .then((result) => {
         lastError = null;
         currentPage = "payment-entry";
         gatewayParams = result.gateway_params;
+      })
+      .catch((e: PurchaseFlowError) => {
+        if (e.errorCode === PurchaseFlowErrorCode.MissingEmailError) {
+          email = undefined;
+          return purchaseOperationHelper
+            .checkoutStart(
+              appUserId,
+              productId,
+              purchaseOption,
+              rcPackage.webBillingProduct.presentedOfferingContext,
+              email,
+              metadata,
+            )
+            .then((result) => {
+              lastError = null;
+              currentPage = "payment-entry";
+              gatewayParams = result.gateway_params;
+            })
+            .catch((e: PurchaseFlowError) => {
+              handleError(e);
+            });
+        } else {
+          handleError(e);
+        }
       });
   });
 
