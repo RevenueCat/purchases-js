@@ -41,7 +41,7 @@
 <MessageLayout
   type="success"
   title={$translator.translate(LocalizationKeys.SuccessPagePurchaseSuccessful)}
-  onContinue={handleContinue}
+  onDismiss={handleContinue}
   closeButtonTitle={$translator.translate(
     LocalizationKeys.SuccessPageButtonClose,
   )}

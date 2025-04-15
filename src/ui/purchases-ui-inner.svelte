@@ -98,7 +98,7 @@
         {lastError}
         {productDetails}
         supportEmail={brandingInfo?.support_email ?? null}
-        onContinue={closeWithError}
+        onDismiss={closeWithError}
       />
     {/if}
     {#if currentPage === "success"}

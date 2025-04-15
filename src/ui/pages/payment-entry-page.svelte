@@ -377,7 +377,7 @@
         closeButtonTitle={$translator.translate(
           LocalizationKeys.ErrorButtonTryAgain,
         )}
-        onContinue={handleErrorTryAgain}
+        onDismiss={handleErrorTryAgain}
       >
         {#snippet icon()}
           <IconError />
