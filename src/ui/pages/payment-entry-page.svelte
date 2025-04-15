@@ -146,6 +146,7 @@
   async function refreshTaxCalculation() {
     if (taxCalculationStatus !== "disabled") {
       taxCalculationStatus = "loading";
+      onPriceBreakdownUpdated(priceBreakdown);
     }
 
     await purchaseOperationHelper
