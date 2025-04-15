@@ -73,7 +73,7 @@ export class StripeService {
     localeToUse: StripeElementLocale,
     stripeVariables: Appearance["variables"],
     viewport: "mobile" | "desktop",
-  ) {
+  ): Promise<{ stripe: Stripe; elements: StripeElements }> {
     if (!publishableApiKey || !stripeAccountId || !elementsConfiguration) {
       throw {
         code: StripeServiceErrorCode.ErrorLoadingStripe,
@@ -85,7 +85,7 @@ export class StripeService {
     const stripe = await loadStripe(publishableApiKey, {
       stripeAccount: stripeAccountId,
     }).catch((error) => {
-      throw StripeService.mapError(error);
+      throw this.mapError(error);
     });
 
     if (!stripe) {
@@ -250,12 +250,12 @@ export class StripeService {
   static async submitElements(elements: StripeElements) {
     const { error: submitError } = await elements.submit();
     if (submitError) {
-      throw StripeService.mapError(submitError);
+      throw this.mapError(submitError);
     }
   }
 
   static mapError(error: StripeError) {
-    if (StripeService.isStripeHandledCardError(error)) {
+    if (this.isStripeHandledCardError(error)) {
       return {
         code: StripeServiceErrorCode.HandledFormSubmissionError,
         gatewayErrorCode: error.code,
@@ -300,7 +300,7 @@ export class StripeService {
     }
 
     if (result?.error) {
-      throw StripeService.mapError(result.error);
+      throw this.mapError(result.error);
     }
   }
 

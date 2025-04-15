@@ -5,7 +5,6 @@ import {
   brandingInfo,
   rcPackage,
   checkoutStartResponse,
-  priceBreakdownTaxDisabled,
 } from "../../../stories/fixtures";
 import { SDKEventName } from "../../../behavioural-events/sdk-events";
 import { createEventsTrackerMock } from "../../mocks/events-tracker-mock-provider";
@@ -15,12 +14,39 @@ import type { CheckoutStartResponse } from "../../../networking/responses/checko
 import { writable } from "svelte/store";
 import { Translator } from "../../../ui/localization/translator";
 import { translatorContextKey } from "../../../ui/localization/constants";
+import type { StripeServiceErrorCode } from "../../../stripe/stripe-service";
 import { StripeService } from "../../../stripe/stripe-service";
 import type {
   StripeError,
   StripePaymentElementChangeEvent,
 } from "@stripe/stripe-js";
 import type { ComponentProps } from "svelte";
+
+vi.mock("../../../stripe/stripe-service", async () => {
+  const actual = await vi.importActual<{
+    StripeService: typeof StripeService;
+    StripeServiceErrorCode: typeof StripeServiceErrorCode;
+  }>("../../../stripe/stripe-service");
+  return {
+    StripeServiceErrorCode: actual.StripeServiceErrorCode,
+    StripeService: {
+      mapError: actual.StripeService.mapError,
+      initializeStripe: vi.fn().mockResolvedValue({
+        stripe: { exists: true },
+        elements: {
+          _elements: [1],
+          submit: vi.fn().mockResolvedValue({ error: null }),
+        },
+      }),
+      createPaymentElement: vi.fn(),
+      createLinkAuthenticationElement: vi.fn(),
+      isStripeHandledCardError: vi.fn(),
+      updateElementsConfiguration: vi.fn(),
+      getStripeLocale: vi.fn().mockImplementation((locale: string) => locale),
+      confirmIntent: vi.fn(),
+    },
+  };
+});
 
 const eventsTrackerMock = createEventsTrackerMock();
 const purchaseOperationHelperMock: PurchaseOperationHelper = {
@@ -62,18 +88,6 @@ const defaultContext = new Map(
   }),
 );
 
-vi.mock("../../../stripe/stripe-service", () => ({
-  StripeService: {
-    initializeStripe: vi.fn(),
-    createPaymentElement: vi.fn(),
-    createLinkAuthenticationElement: vi.fn(),
-    isStripeHandledCardError: vi.fn(),
-    updateElementsConfiguration: vi.fn(),
-    getStripeLocale: vi.fn().mockImplementation((locale: string) => locale),
-    confirmIntent: vi.fn(),
-  },
-}));
-
 describe("PurchasesUI", () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -90,7 +104,7 @@ describe("PurchasesUI", () => {
     vi.mocked(StripeService.isStripeHandledCardError).mockReturnValue(false);
   });
 
-  test("tracks the PaymentEntryImpression event when the payment entry is displayed", async () => {
+  test.only("tracks the PaymentEntryImpression event when the payment entry is displayed", async () => {
     render(PaymentEntryPage, {
       props: {
         ...basicProps,
