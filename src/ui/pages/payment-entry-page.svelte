@@ -101,9 +101,7 @@
 
   const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
   const translator = getContext<Writable<Translator>>(translatorContextKey);
-  const taxCollectionEnabled = $derived(
-    priceBreakdown.taxCalculationStatus !== "disabled",
-  );
+  const taxCollectionEnabled = $derived(taxCalculationStatus !== "disabled");
 
   let lastTaxCustomerDetails: TaxCustomerDetails | undefined =
     $state(undefined);
@@ -122,7 +120,7 @@
 
   let isFormReady = $derived(
     !processing &&
-      priceBreakdown.taxCalculationStatus !== "loading" &&
+      (taxCalculationStatus as TaxCalculationStatus) !== "loading" &&
       isPaymentInfoComplete &&
       isEmailComplete,
   );
@@ -312,7 +310,7 @@
 
   $effect(() => {
     if (priceBreakdown.pendingReason === "invalid_postal_code") {
-      priceBreakdown.pendingReason = null;
+      pendingReason = null;
       modalErrorMessage = $translator.translate(
         LocalizationKeys.ErrorPageErrorMessageInvalidTaxLocation,
       );
