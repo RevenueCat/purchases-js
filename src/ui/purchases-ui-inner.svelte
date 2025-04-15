@@ -7,7 +7,6 @@
     type PriceBreakdown,
     type ContinueHandlerParams,
     type CurrentPage,
-    type TaxCustomerDetails,
   } from "./ui-types";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import type { Product, PurchaseOption } from "../main";
@@ -26,7 +25,6 @@
     purchaseOptionToUse: PurchaseOption;
     isSandbox: boolean;
     lastError: PurchaseFlowError | null;
-    priceBreakdown: PriceBreakdown;
     purchaseOperationHelper: PurchaseOperationHelper;
     isInElement: boolean;
     gatewayParams: GatewayParams;
@@ -34,7 +32,6 @@
     closeWithError: () => void;
     onContinue: (params?: ContinueHandlerParams) => void;
     onClose?: () => void;
-    onTaxCustomerDetailsUpdated: (customerDetails: TaxCustomerDetails) => void;
   }
 
   const {
@@ -44,16 +41,28 @@
     purchaseOptionToUse,
     isSandbox,
     lastError,
-    priceBreakdown,
     purchaseOperationHelper,
     isInElement,
     gatewayParams,
     customerEmail,
     closeWithError,
     onContinue,
-    onTaxCustomerDetailsUpdated,
     onClose = undefined,
   }: Props = $props();
+
+  let priceBreakdown: PriceBreakdown = $state({
+    currency: productDetails.currentPrice.currency,
+    totalAmountInMicros: productDetails.currentPrice.amountMicros,
+    totalExcludingTaxInMicros: productDetails.currentPrice.amountMicros,
+    taxCalculationStatus: "disabled",
+    pendingReason: null,
+    taxAmountInMicros: null,
+    taxBreakdown: null,
+  });
+
+  const onPriceBreakdownUpdated = (value: PriceBreakdown) => {
+    priceBreakdown = value;
+  };
 </script>
 
 <Template {brandingInfo} {isInElement} {isSandbox} {onClose}>
@@ -78,10 +87,9 @@
         {brandingInfo}
         {purchaseOperationHelper}
         {gatewayParams}
-        {priceBreakdown}
         {customerEmail}
         {onContinue}
-        {onTaxCustomerDetailsUpdated}
+        {onPriceBreakdownUpdated}
       />
     {/if}
 

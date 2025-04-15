@@ -36,6 +36,8 @@ const purchaseOperationHelperMock: PurchaseOperationHelper = {
 
 const basicProps: ComponentProps<PaymentEntryPage> = {
   gatewayParams: {
+    publishable_api_key: "test_publishable_api_key",
+    stripe_account_id: "test_stripe_account_id",
     client_secret: "test_client_secret",
     elements_configuration: {
       payment_method_types: ["card"],
@@ -43,15 +45,14 @@ const basicProps: ComponentProps<PaymentEntryPage> = {
     },
   },
   brandingInfo: brandingInfo,
-  priceBreakdown: priceBreakdownTaxDisabled,
   purchaseOption: rcPackage.webBillingProduct.defaultPurchaseOption,
   productDetails: rcPackage.webBillingProduct,
   processing: false,
   purchaseOperationHelper: purchaseOperationHelperMock,
   checkoutStartResponse: checkoutStartResponse,
-  initialTaxCalculation: null,
   onClose: vi.fn(),
   onContinue: vi.fn(),
+  onPriceBreakdownUpdated: vi.fn(),
 };
 
 const defaultContext = new Map(

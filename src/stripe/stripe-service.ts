@@ -11,10 +11,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import type { BrandingInfoResponse } from "../networking/responses/branding-response";
 import { Theme } from "../ui/theme/theme";
 import { DEFAULT_TEXT_STYLES } from "../ui/theme/text";
-import type {
-  GatewayParams,
-  StripeElementsConfiguration,
-} from "../networking/responses/stripe-elements";
+import type { StripeElementsConfiguration } from "../networking/responses/stripe-elements";
 export class StripeService {
   private static FORM_VALIDATED_CARD_ERROR_CODES = [
     "card_declined",
@@ -26,7 +23,7 @@ export class StripeService {
   /**
    * This function converts some particular locales to the ones that stripe supports.
    * Finally falls back to 'auto' if the initialLocale is not supported by stripe.
-   * @param locael
+   * @param locale
    */
   static getStripeLocale(locale: string): StripeElementLocale {
     // These locale that we support are not supported by stripe.
@@ -51,22 +48,20 @@ export class StripeService {
   }
 
   static async initializeStripe(
-    gatewayParams: GatewayParams,
+    stripeAccountId: string,
+    publishableApiKey: string,
+    elementsConfiguration: StripeElementsConfiguration,
     brandingInfo: BrandingInfoResponse | null,
     localeToUse: StripeElementLocale,
     stripeVariables: Appearance["variables"],
     viewport: "mobile" | "desktop",
   ) {
-    const stripePk = gatewayParams.publishable_api_key;
-    const stripeAcctId = gatewayParams.stripe_account_id;
-    const elementsConfiguration = gatewayParams.elements_configuration;
-
-    if (!stripePk || !stripeAcctId || !elementsConfiguration) {
+    if (!publishableApiKey || !stripeAccountId || !elementsConfiguration) {
       throw new Error("Stripe configuration is missing");
     }
 
-    const stripe = await loadStripe(stripePk, {
-      stripeAccount: stripeAcctId,
+    const stripe = await loadStripe(publishableApiKey, {
+      stripeAccount: stripeAccountId,
     });
 
     if (!stripe) {
