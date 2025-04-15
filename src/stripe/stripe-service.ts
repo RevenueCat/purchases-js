@@ -12,6 +12,24 @@ import type { BrandingInfoResponse } from "../networking/responses/branding-resp
 import { Theme } from "../ui/theme/theme";
 import { DEFAULT_TEXT_STYLES } from "../ui/theme/text";
 import type { StripeElementsConfiguration } from "../networking/responses/stripe-elements";
+
+export enum StripeServiceErrorCode {
+  ErrorLoadingStripe = 0,
+  HandledFormSubmissionError = 1,
+  UnhandledFormSubmissionError = 2,
+}
+
+export type StripeServiceError = {
+  code: StripeServiceErrorCode;
+  gatewayErrorCode: string | undefined;
+  message: string | undefined;
+};
+
+export type TaxCustomerDetails = {
+  countryCode: string | undefined;
+  postalCode: string | undefined;
+};
+
 export class StripeService {
   private static FORM_VALIDATED_CARD_ERROR_CODES = [
     "card_declined",
@@ -57,15 +75,25 @@ export class StripeService {
     viewport: "mobile" | "desktop",
   ) {
     if (!publishableApiKey || !stripeAccountId || !elementsConfiguration) {
-      throw new Error("Stripe configuration is missing");
+      throw {
+        code: StripeServiceErrorCode.ErrorLoadingStripe,
+        gatewayErrorCode: undefined,
+        message: "Stripe configuration is missing",
+      };
     }
 
     const stripe = await loadStripe(publishableApiKey, {
       stripeAccount: stripeAccountId,
+    }).catch((error) => {
+      throw StripeService.mapError(error);
     });
 
     if (!stripe) {
-      throw new Error("Stripe client not found");
+      throw {
+        code: StripeServiceErrorCode.ErrorLoadingStripe,
+        gatewayErrorCode: undefined,
+        message: "Stripe client not found",
+      };
     }
 
     const theme = new Theme(brandingInfo?.appearance);
@@ -162,7 +190,7 @@ export class StripeService {
     elements: StripeElements,
     elementsConfiguration: StripeElementsConfiguration,
   ) {
-    await elements.update({
+    elements.update({
       mode: elementsConfiguration.mode,
       paymentMethodTypes: elementsConfiguration.payment_method_types,
       setupFutureUsage: elementsConfiguration.setup_future_usage,
@@ -219,12 +247,35 @@ export class StripeService {
     });
   }
 
-  static async confirmIntent(
+  static async submitElements(elements: StripeElements) {
+    const { error: submitError } = await elements.submit();
+    if (submitError) {
+      throw StripeService.mapError(submitError);
+    }
+  }
+
+  static mapError(error: StripeError) {
+    if (StripeService.isStripeHandledCardError(error)) {
+      return {
+        code: StripeServiceErrorCode.HandledFormSubmissionError,
+        gatewayErrorCode: error.code,
+        message: error.message,
+      };
+    }
+
+    return {
+      code: StripeServiceErrorCode.UnhandledFormSubmissionError,
+      gatewayErrorCode: error.code,
+      message: error.message,
+    };
+  }
+
+  static async confirmElements(
     stripe: Stripe,
     elements: StripeElements,
     clientSecret: string,
     confirmationTokenId?: string,
-  ): Promise<StripeError | undefined> {
+  ) {
     const baseOptions = {
       clientSecret,
       redirect: "if_required" as const,
@@ -248,6 +299,35 @@ export class StripeService {
       result = await stripe.confirmPayment(confirmOptions);
     }
 
-    return result?.error;
+    if (result?.error) {
+      throw StripeService.mapError(result.error);
+    }
+  }
+
+  static async extractTaxCustomerDetails(
+    elements: StripeElements,
+    stripe: Stripe,
+  ): Promise<TaxCustomerDetails | undefined> {
+    const { error: submitError } = await elements.submit();
+    if (submitError) {
+      throw submitError;
+    }
+
+    const { error: confirmationError, confirmationToken } =
+      await stripe.createConfirmationToken({
+        elements: elements,
+      });
+
+    if (confirmationError) {
+      throw confirmationError;
+    }
+
+    const billingAddress =
+      confirmationToken.payment_method_preview?.billing_details?.address;
+
+    return {
+      countryCode: billingAddress?.country ?? undefined,
+      postalCode: billingAddress?.postal_code ?? undefined,
+    };
   }
 }

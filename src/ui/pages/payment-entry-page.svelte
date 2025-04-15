@@ -17,7 +17,6 @@
     TaxCalculationError,
   } from "../../helpers/purchase-operation-helper";
   import type {
-    TaxCustomerDetails,
     ContinueHandlerParams,
     PriceBreakdown,
     TaxCalculationStatus,
@@ -33,19 +32,21 @@
   import { SDKEventName } from "../../behavioural-events/sdk-events";
   import Loading from "../molecules/loading.svelte";
   import { type Writable } from "svelte/store";
-  import {
-    type PaymentElementError,
-    PaymentElementErrorCode,
-  } from "../types/payment-element-error";
   import PaymentButton from "../molecules/payment-button.svelte";
-  import StripeElements from "../molecules/stripe-elements.svelte";
   import type {
     StripeElementsConfiguration,
     GatewayParams,
   } from "../../networking/responses/stripe-elements";
   import { ALLOW_TAX_CALCULATION_FF } from "../../helpers/constants";
   import type { TaxBreakdown } from "../../networking/responses/checkout-calculate-tax-response";
-
+  import type { Stripe, StripeElements } from "@stripe/stripe-js";
+  import {
+    StripeService,
+    type StripeServiceError,
+    StripeServiceErrorCode,
+    type TaxCustomerDetails,
+  } from "../../stripe/stripe-service";
+  import StripeElementsComponent from "../molecules/stripe-elements.svelte";
   interface Props {
     gatewayParams: GatewayParams;
     processing: boolean;
@@ -103,10 +104,11 @@
     priceBreakdown.taxCalculationStatus !== "disabled",
   );
 
-  let stripeSubmit: () => Promise<void> = $state(() => Promise.resolve());
-  let stripeConfirm: (clientSecret: string) => Promise<void> = $state(() =>
-    Promise.resolve(),
-  );
+  let lastTaxCustomerDetails: TaxCustomerDetails | undefined =
+    $state(undefined);
+
+  let stripe: Stripe | null = $state(null);
+  let elements: StripeElements | null = $state(null);
 
   let email: string | undefined = $state(customerEmail ?? undefined);
   let isEmailComplete = $state(customerEmail ? true : false);
@@ -144,16 +146,14 @@
     }
   });
 
-  async function refreshTaxCalculation(
-    taxCustomerDetails: TaxCustomerDetails | undefined = undefined,
-  ) {
+  async function refreshTaxCalculation() {
     if (taxCalculationStatus !== "disabled") {
       taxCalculationStatus = "loading";
     }
 
     const taxCalculation = await purchaseOperationHelper.checkoutCalculateTax(
-      taxCustomerDetails?.countryCode,
-      taxCustomerDetails?.postalCode,
+      lastTaxCustomerDetails?.countryCode,
+      lastTaxCustomerDetails?.postalCode,
     );
 
     if (taxCalculation.error) {
@@ -203,26 +203,39 @@
     isEmailComplete = complete;
   }
 
-  function handlePaymentInfoChange({
+  async function handlePaymentInfoChange({
     complete,
     paymentMethod,
-    updatedTaxDetails,
   }: {
     complete: boolean;
     paymentMethod: string | undefined;
-    updatedTaxDetails: TaxCustomerDetails | undefined;
   }) {
+    if (!elements || !stripe) return;
+
     selectedPaymentMethod = paymentMethod;
     isPaymentInfoComplete = complete;
-    if (updatedTaxDetails) {
-      refreshTaxCalculation(updatedTaxDetails);
+
+    if (taxCollectionEnabled && paymentMethod === "card") {
+      const taxCustomerDetails = await StripeService.extractTaxCustomerDetails(
+        elements,
+        stripe,
+      );
+
+      const sameDetails =
+        taxCustomerDetails?.postalCode === lastTaxCustomerDetails?.postalCode &&
+        taxCustomerDetails?.countryCode === lastTaxCustomerDetails?.countryCode;
+
+      if (sameDetails) return;
+
+      lastTaxCustomerDetails = taxCustomerDetails;
+      refreshTaxCalculation();
     }
   }
 
   async function handleSubmit(e: Event): Promise<void> {
     e.preventDefault();
 
-    if (processing) return;
+    if (processing || !elements || !stripe) return;
 
     const event = createCheckoutPaymentFormSubmitEvent({
       selectedPaymentMethod: selectedPaymentMethod ?? null,
@@ -231,41 +244,38 @@
 
     processing = true;
 
-    await stripeSubmit();
-  }
+    await StripeService.submitElements(elements).catch((e) => {
+      handleStripeElementError(e);
+    });
 
-  async function handlePaymentSubmissionSuccess(): Promise<void> {
-    try {
-      const response = await purchaseOperationHelper.checkoutComplete(email);
-      const newClientSecret = response?.gateway_params?.client_secret;
+    await purchaseOperationHelper
+      .checkoutComplete(email)
+      .then((response) => {
+        const newClientSecret = response?.gateway_params?.client_secret;
 
-      if (newClientSecret) {
-        clientSecret = newClientSecret;
-      }
-    } catch (error) {
-      if (!(error instanceof PurchaseFlowError)) {
-        throw error;
-      }
-
-      const event = createCheckoutPaymentFormErrorEvent({
-        errorCode: error.errorCode.toString(),
-        errorMessage: error.message,
-      });
-      eventsTracker.trackSDKEvent(event);
-
-      if (error.errorCode === PurchaseFlowErrorCode.MissingEmailError) {
-        processing = false;
-        modalErrorMessage = $translator.translate(
-          LocalizationKeys.ErrorPageErrorMessageInvalidEmailError,
-          { email: email },
-        );
-      } else {
-        onContinue({
-          error: error,
+        if (newClientSecret) {
+          clientSecret = newClientSecret;
+        }
+      })
+      .catch((error) => {
+        const event = createCheckoutPaymentFormErrorEvent({
+          errorCode: error.errorCode.toString(),
+          errorMessage: error.message,
         });
-      }
-      return;
-    }
+        eventsTracker.trackSDKEvent(event);
+
+        if (error.errorCode === PurchaseFlowErrorCode.MissingEmailError) {
+          processing = false;
+          modalErrorMessage = $translator.translate(
+            LocalizationKeys.ErrorPageErrorMessageInvalidEmailError,
+            { email: email },
+          );
+        } else {
+          onContinue({
+            error: error,
+          });
+        }
+      });
 
     if (!clientSecret) {
       throw new PurchaseFlowError(
@@ -274,10 +284,14 @@
       );
     }
 
-    await stripeConfirm(clientSecret);
+    await StripeService.confirmElements(stripe, elements, clientSecret).catch(
+      (e) => {
+        handleStripeElementError(e);
+      },
+    );
   }
 
-  function handleStripeElementError(error: PaymentElementError) {
+  function handleStripeElementError(error: StripeServiceError) {
     processing = false;
 
     const event = createCheckoutPaymentGatewayErrorEvent({
@@ -286,11 +300,11 @@
     });
     eventsTracker.trackSDKEvent(event);
 
-    if (error.code === PaymentElementErrorCode.HandledFormSubmissionError) {
+    if (error.code === StripeServiceErrorCode.HandledFormSubmissionError) {
       return;
     }
 
-    if (error.code === PaymentElementErrorCode.UnhandledFormSubmissionError) {
+    if (error.code === StripeServiceErrorCode.UnhandledFormSubmissionError) {
       modalErrorMessage = error.message;
     } else {
       onContinue({
@@ -330,9 +344,9 @@
   >
     <div class="rc-checkout-form-container" hidden={!!modalErrorMessage}>
       <div class="rc-elements-container">
-        <StripeElements
-          bind:submit={stripeSubmit}
-          bind:confirm={stripeConfirm}
+        <StripeElementsComponent
+          bind:stripe
+          bind:elements
           stripeAccountId={gatewayParams.stripe_account_id}
           publishableApiKey={gatewayParams.publishable_api_key}
           {elementsConfiguration}
@@ -343,8 +357,6 @@
           onError={handleStripeElementError}
           onEmailChange={handleEmailChange}
           onPaymentInfoChange={handlePaymentInfoChange}
-          onSubmissionSuccess={handlePaymentSubmissionSuccess}
-          onConfirmationSuccess={onContinue}
         />
       </div>
 
