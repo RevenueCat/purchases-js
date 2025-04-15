@@ -140,43 +140,43 @@
   }
 
   async function handlePaymentSubmissionSuccess(): Promise<void> {
-    // Get client secret if not already present
-    if (!clientSecret) {
-      try {
-        const response = await purchaseOperationHelper.checkoutComplete(
-          customerEmail ? undefined : email,
-        );
-        clientSecret = response?.gateway_params?.client_secret;
-        if (!clientSecret) {
-          throw new PurchaseFlowError(
-            PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-            "Failed to complete checkout",
-          );
-        }
-      } catch (error) {
-        if (!(error instanceof PurchaseFlowError)) {
-          throw error;
-        }
+    try {
+      const response = await purchaseOperationHelper.checkoutComplete(email);
+      const newClientSecret = response?.gateway_params?.client_secret;
 
-        const event = createCheckoutPaymentFormErrorEvent({
-          errorCode: error.errorCode.toString(),
-          errorMessage: error.message,
-        });
-        eventsTracker.trackSDKEvent(event);
-
-        if (error.errorCode === PurchaseFlowErrorCode.MissingEmailError) {
-          processing = false;
-          modalErrorMessage = $translator.translate(
-            LocalizationKeys.ErrorPageErrorMessageInvalidEmailError,
-            { email: email },
-          );
-        } else {
-          onContinue({
-            error: error,
-          });
-        }
-        return;
+      if (newClientSecret) {
+        clientSecret = newClientSecret;
       }
+    } catch (error) {
+      if (!(error instanceof PurchaseFlowError)) {
+        throw error;
+      }
+
+      const event = createCheckoutPaymentFormErrorEvent({
+        errorCode: error.errorCode.toString(),
+        errorMessage: error.message,
+      });
+      eventsTracker.trackSDKEvent(event);
+
+      if (error.errorCode === PurchaseFlowErrorCode.MissingEmailError) {
+        processing = false;
+        modalErrorMessage = $translator.translate(
+          LocalizationKeys.ErrorPageErrorMessageInvalidEmailError,
+          { email: email },
+        );
+      } else {
+        onContinue({
+          error: error,
+        });
+      }
+      return;
+    }
+
+    if (!clientSecret) {
+      throw new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "Failed to complete checkout",
+      );
     }
 
     await stripeConfirm(clientSecret);

@@ -159,8 +159,7 @@ test.describe("Purchase error paths", () => {
     await confirmStripeCardError(page, "Your card was declined.");
   });
 
-  // TODO: Re-enable this test once complete endpoint allows override of email
-  integrationTest.skip(
+  integrationTest(
     "Email deliverability errors after card declined errors",
     async ({ page, userId, email }) => {
       page = await navigateToLandingUrl(page, userId);

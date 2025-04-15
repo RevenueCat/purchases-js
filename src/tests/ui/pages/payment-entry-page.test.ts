@@ -26,11 +26,17 @@ const eventsTrackerMock = createEventsTrackerMock();
 const purchaseOperationHelperMock: PurchaseOperationHelper = {
   checkoutStart: async () =>
     Promise.resolve(checkoutStartResponse as CheckoutStartResponse),
-  checkoutComplete: async () => Promise.resolve(null),
+  checkoutComplete: async () =>
+    Promise.resolve({
+      gateway_params: {
+        client_secret: "test_client_secret",
+      },
+    }),
 } as unknown as PurchaseOperationHelper;
 
 const basicProps: ComponentProps<PaymentEntryPage> = {
   gatewayParams: {
+    client_secret: "test_client_secret",
     elements_configuration: {
       payment_method_types: ["card"],
       mode: "payment",
@@ -63,6 +69,7 @@ vi.mock("../../../stripe/stripe-service", () => ({
     isStripeHandledCardError: vi.fn(),
     updateElementsConfiguration: vi.fn(),
     getStripeLocale: vi.fn().mockImplementation((locale: string) => locale),
+    confirmIntent: vi.fn(),
   },
 }));
 
