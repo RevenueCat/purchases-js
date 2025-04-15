@@ -300,11 +300,11 @@
     });
     eventsTracker.trackSDKEvent(event);
 
-    if (error.code === StripeServiceErrorCode.HandledFormSubmissionError) {
+    if (error.code === StripeServiceErrorCode.HandledFormError) {
       return;
     }
 
-    if (error.code === StripeServiceErrorCode.UnhandledFormSubmissionError) {
+    if (error.code === StripeServiceErrorCode.UnhandledFormError) {
       modalErrorMessage = error.message;
     } else {
       onContinue({

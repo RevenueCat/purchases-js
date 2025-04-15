@@ -15,8 +15,8 @@ import type { StripeElementsConfiguration } from "../networking/responses/stripe
 
 export enum StripeServiceErrorCode {
   ErrorLoadingStripe = 0,
-  HandledFormSubmissionError = 1,
-  UnhandledFormSubmissionError = 2,
+  HandledFormError = 1,
+  UnhandledFormError = 2,
 }
 
 export type StripeServiceError = {
@@ -257,14 +257,14 @@ export class StripeService {
   static mapError(error: StripeError) {
     if (this.isStripeHandledCardError(error)) {
       return {
-        code: StripeServiceErrorCode.HandledFormSubmissionError,
+        code: StripeServiceErrorCode.HandledFormError,
         gatewayErrorCode: error.code,
         message: error.message,
       };
     }
 
     return {
-      code: StripeServiceErrorCode.UnhandledFormSubmissionError,
+      code: StripeServiceErrorCode.UnhandledFormError,
       gatewayErrorCode: error.code,
       message: error.message,
     };
