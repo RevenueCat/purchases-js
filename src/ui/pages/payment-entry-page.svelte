@@ -134,16 +134,12 @@
   });
 
   onMount(async () => {
-    try {
-      // If tax collection is enabled, we start in the state `disabled`
-      if (
-        ALLOW_TAX_CALCULATION_FF &&
-        brandingInfo?.gateway_tax_collection_enabled
-      ) {
-        await refreshTaxCalculation();
-      }
-    } catch (error) {
-      onError(error as PurchaseFlowError);
+    // If tax collection is enabled, we start in the state `disabled`
+    if (
+      ALLOW_TAX_CALCULATION_FF &&
+      brandingInfo?.gateway_tax_collection_enabled
+    ) {
+      await refreshTaxCalculation();
     }
   });
 
@@ -152,47 +148,50 @@
       taxCalculationStatus = "loading";
     }
 
-    const taxCalculation = await purchaseOperationHelper.checkoutCalculateTax(
-      lastTaxCustomerDetails?.countryCode,
-      lastTaxCustomerDetails?.postalCode,
-    );
+    await purchaseOperationHelper
+      .checkoutCalculateTax(
+        lastTaxCustomerDetails?.countryCode,
+        lastTaxCustomerDetails?.postalCode,
+      )
+      .then((taxCalculation) => {
+        if (taxCalculation.error) {
+          switch (taxCalculation.error) {
+            case TaxCalculationError.Pending:
+              taxCalculationStatus = "pending";
+              pendingReason = null;
+              break;
+            case TaxCalculationError.Disabled:
+              taxCalculationStatus = "disabled";
+              pendingReason = null;
+              break;
+            case TaxCalculationError.InvalidLocation:
+              taxCalculationStatus = "pending";
+              pendingReason = "invalid_postal_code";
+              break;
+            default:
+              throw new PurchaseFlowError(
+                PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+                "Unknown error without state set.",
+              );
+          }
+        } else {
+          const { data } = taxCalculation;
 
-    if (taxCalculation.error) {
-      switch (taxCalculation.error) {
-        case TaxCalculationError.Pending:
-          taxCalculationStatus = "pending";
+          taxCalculationStatus = "calculated";
+          taxAmountInMicros = data.tax_amount_in_micros;
+          totalExcludingTaxInMicros = data.total_excluding_tax_in_micros;
+          totalAmountInMicros = data.total_amount_in_micros;
+          taxBreakdown = data.pricing_phases.base.tax_breakdown;
           pendingReason = null;
-          break;
-        case TaxCalculationError.Disabled:
-          taxCalculationStatus = "disabled";
-          pendingReason = null;
-          break;
-        case TaxCalculationError.InvalidLocation:
-          taxCalculationStatus = "pending";
-          pendingReason = "invalid_postal_code";
-          break;
-        default:
-          onError(
-            new PurchaseFlowError(
-              PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-              "Unknown error without state set.",
-            ),
-          );
-      }
-    } else {
-      const { data } = taxCalculation;
 
-      taxCalculationStatus = "calculated";
-      taxAmountInMicros = data.tax_amount_in_micros;
-      totalExcludingTaxInMicros = data.total_excluding_tax_in_micros;
-      totalAmountInMicros = data.total_amount_in_micros;
-      taxBreakdown = data.pricing_phases.base.tax_breakdown;
-      pendingReason = null;
+          elementsConfiguration = data.gateway_params.elements_configuration;
+        }
 
-      elementsConfiguration = data.gateway_params.elements_configuration;
-    }
-
-    onPriceBreakdownUpdated(priceBreakdown);
+        onPriceBreakdownUpdated(priceBreakdown);
+      })
+      .catch((error) => {
+        onError(error as PurchaseFlowError);
+      });
   }
 
   function handleStripeLoadingComplete() {
@@ -226,6 +225,7 @@
       if (sameDetails) return;
 
       lastTaxCustomerDetails = taxCustomerDetails;
+
       await refreshTaxCalculation();
     }
 
@@ -238,61 +238,55 @@
 
     if (processing || !elements || !stripe) return;
 
+    processing = true;
+
     const event = createCheckoutPaymentFormSubmitEvent({
       selectedPaymentMethod: selectedPaymentMethod ?? null,
     });
     eventsTracker.trackSDKEvent(event);
 
-    processing = true;
-
-    await StripeService.submitElements(elements).catch((e) => {
-      handleStripeElementError(e);
-    });
-
-    await purchaseOperationHelper
-      .checkoutComplete(email)
-      .then((response) => {
+    await StripeService.submitElements(elements)
+      .then(async () => {
+        return purchaseOperationHelper.checkoutComplete(email);
+      })
+      .then(async (response) => {
         const newClientSecret = response?.gateway_params?.client_secret;
 
         if (newClientSecret) {
           clientSecret = newClientSecret;
         }
       })
-      .catch((error) => {
-        const event = createCheckoutPaymentFormErrorEvent({
-          errorCode: error.errorCode.toString(),
-          errorMessage: error.message,
-        });
-        eventsTracker.trackSDKEvent(event);
+      .then(async () => {
+        if (!stripe || !elements || !clientSecret) return; // TODO: Handle this
+        await StripeService.confirmElements(stripe, elements, clientSecret);
+      })
+      .then(async () => {
+        onContinue();
+      })
+      .catch(async (error) => {
+        if (error instanceof PurchaseFlowError) {
+          const event = createCheckoutPaymentFormErrorEvent({
+            errorCode: error.errorCode.toString(),
+            errorMessage: error.message,
+          });
+          eventsTracker.trackSDKEvent(event);
 
-        if (error.errorCode === PurchaseFlowErrorCode.MissingEmailError) {
-          processing = false;
-          modalErrorMessage = $translator.translate(
-            LocalizationKeys.ErrorPageErrorMessageInvalidEmailError,
-            { email: email },
-          );
+          if (error.errorCode === PurchaseFlowErrorCode.MissingEmailError) {
+            modalErrorMessage = $translator.translate(
+              LocalizationKeys.ErrorPageErrorMessageInvalidEmailError,
+              { email: email },
+            );
+            processing = false;
+          } else {
+            onError(error);
+          }
         } else {
-          onError(error);
+          await handleStripeElementError(error);
         }
       });
-
-    if (!clientSecret) {
-      throw new PurchaseFlowError(
-        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-        "Failed to complete checkout",
-      );
-    }
-
-    await StripeService.confirmElements(stripe, elements, clientSecret).catch(
-      (e) => {
-        handleStripeElementError(e);
-      },
-    );
   }
 
-  function handleStripeElementError(error: StripeServiceError) {
-    processing = false;
-
+  async function handleStripeElementError(error: StripeServiceError) {
     const event = createCheckoutPaymentGatewayErrorEvent({
       errorCode: error.gatewayErrorCode ?? "",
       errorMessage: error.message ?? "",
@@ -300,10 +294,9 @@
     eventsTracker.trackSDKEvent(event);
 
     if (error.code === StripeServiceErrorCode.HandledFormError) {
-      return;
-    }
-
-    if (error.code === StripeServiceErrorCode.UnhandledFormError) {
+      processing = false;
+    } else if (error.code === StripeServiceErrorCode.UnhandledFormError) {
+      processing = false;
       modalErrorMessage = error.message;
     } else {
       onError(
