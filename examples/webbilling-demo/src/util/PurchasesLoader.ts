@@ -37,11 +37,7 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
       Purchases.configure(
         apiKey,
         appUserId,
-        {
-          additionalHeaders: {
-            "X-Rc-Canary": "noemail",
-          },
-        },
+        {},
         { autoCollectUTMAsMetadata: !optOutOfAutoUTM },
       );
     } else {
