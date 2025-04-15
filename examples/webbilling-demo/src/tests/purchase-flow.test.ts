@@ -16,6 +16,7 @@ import {
   confirmStripeCardError,
   confirmStripeEmailError,
   confirmStripeEmailFieldNotVisible,
+  confirmStripeEmailFieldVisible,
 } from "./helpers/test-helpers";
 import {
   integrationTest,
@@ -97,6 +98,34 @@ test.describe("Purchase flow", () => {
 });
 
 test.describe("Purchase error paths", () => {
+  integrationTest(
+    "Ignores invalid email query parameter",
+    async ({ page, userId }) => {
+      page = await navigateToLandingUrl(page, userId, {
+        email: "invalid-email",
+      });
+
+      const packageCards = await getPackageCards(page, "E2E NonConsumable");
+      expect(packageCards.length).toEqual(1);
+      await startPurchaseFlow(packageCards[0]);
+      await confirmStripeEmailFieldVisible(page);
+    },
+  );
+
+  integrationTest(
+    "Ignores unreachable email query parameter",
+    async ({ page, userId }) => {
+      page = await navigateToLandingUrl(page, userId, {
+        email: "unreachable@revenuecatcio.commomio",
+      });
+
+      const packageCards = await getPackageCards(page, "E2E NonConsumable");
+      expect(packageCards.length).toEqual(1);
+      await startPurchaseFlow(packageCards[0]);
+      await confirmStripeEmailFieldVisible(page);
+    },
+  );
+
   integrationTest("Email format errors", async ({ page, userId }) => {
     page = await navigateToLandingUrl(page, userId);
 

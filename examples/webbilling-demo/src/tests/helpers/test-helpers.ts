@@ -220,3 +220,9 @@ export async function confirmStripeEmailFieldNotVisible(page: Page) {
   const emailField = stripeFrame.getByPlaceholder("you@example.com");
   await expect(emailField).not.toBeVisible();
 }
+
+export async function confirmStripeEmailFieldVisible(page: Page) {
+  const stripeFrame = getStripeEmailFrame(page);
+  const emailField = stripeFrame.getByPlaceholder("you@example.com");
+  await expect(emailField).toBeVisible();
+}

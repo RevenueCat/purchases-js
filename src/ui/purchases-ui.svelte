@@ -38,6 +38,7 @@
   import { type GatewayParams } from "../networking/responses/stripe-elements";
   import { ALLOW_TAX_CALCULATION_FF } from "../helpers/constants";
   import type { TaxBreakdown } from "../networking/responses/checkout-calculate-tax-response";
+  import { validateEmail } from "../helpers/validators";
 
   interface Props {
     customerEmail: string | undefined;
@@ -79,6 +80,9 @@
     onError,
     onClose,
   }: Props = $props();
+
+  const emailError = customerEmail ? validateEmail(customerEmail) : null;
+  let email = $state(emailError ? undefined : customerEmail);
 
   let productDetails: Product = rcPackage.webBillingProduct;
   let lastError: PurchaseFlowError | null = $state(null);
@@ -156,9 +160,24 @@
         productId,
         purchaseOption,
         rcPackage.webBillingProduct.presentedOfferingContext,
-        customerEmail,
+        email,
         metadata,
       )
+      .catch((e: PurchaseFlowError) => {
+        if (e.errorCode === PurchaseFlowErrorCode.MissingEmailError) {
+          email = undefined;
+          return purchaseOperationHelper.checkoutStart(
+            appUserId,
+            productId,
+            purchaseOption,
+            rcPackage.webBillingProduct.presentedOfferingContext,
+            email,
+            metadata,
+          );
+        } else {
+          throw e;
+        }
+      })
       .then((result) => {
         lastError = null;
         currentPage = "payment-entry";
@@ -293,7 +312,7 @@
   {purchaseOperationHelper}
   {isInElement}
   {priceBreakdown}
-  customerEmail={customerEmail ?? null}
+  customerEmail={email ?? null}
   {closeWithError}
   onContinue={handleContinue}
   {onClose}

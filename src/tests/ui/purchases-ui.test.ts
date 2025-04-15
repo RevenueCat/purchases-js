@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom";
-import { render, screen } from "@testing-library/svelte";
+import { render } from "@testing-library/svelte";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import PurchasesUI from "../../ui/purchases-ui.svelte";
 import {
@@ -132,13 +132,5 @@ describe("PurchasesUI", () => {
     await new Promise(process.nextTick);
 
     expect(calculateTaxSpy).not.toHaveBeenCalled();
-  });
-
-  test("NOTs render CheckoutBillingFormImpression when email has been provided", async () => {
-    render(PurchasesUI, {
-      props: { ...basicProps, customerEmail: "test@test.com" },
-    });
-
-    expect(screen.queryByText(/Billing email address/));
   });
 });
