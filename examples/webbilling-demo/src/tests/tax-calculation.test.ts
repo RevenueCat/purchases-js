@@ -182,6 +182,15 @@ integrationTest.describe("Tax calculation", () => {
   integrationTest(
     "In-flight tax calculations are aborted when the user changes their billing address",
     async ({ page, userId, email }) => {
+      await page.route(
+        "**/rcbilling/v1/checkout/*/calculate_taxes",
+        async (route) => {
+          // Add some throttle to reduce flakiness
+          await new Promise((resolve) => setTimeout(resolve, 3000));
+          await route.continue();
+        },
+      );
+
       page = await navigateToLandingUrl(
         page,
         userId,
@@ -219,7 +228,7 @@ integrationTest.describe("Tax calculation", () => {
       });
 
       await expect(
-        page.getByText(/We couldn’t verify your billing address./),
+        page.getByText(/We couldn't verify your billing address./),
       ).not.toBeVisible();
 
       await expect(page.getByText(/Sales Tax - New York/)).toBeVisible();
