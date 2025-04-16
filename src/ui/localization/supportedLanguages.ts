@@ -106,6 +106,8 @@ export enum LocalizationKeys {
   PricingTableEnterPostalCodeToCalculate = "pricing_table.enter_postal_code_to_calculate",
   NavbarHeaderDetails = "navbar_header.details",
   NavbarBackButton = "navbar_header.back_button",
+  PriceUpdateTitle = "price_update.title",
+  PriceUpdateMessage = "price_update.message",
 }
 
 export const supportedLanguages: Record<

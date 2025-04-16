@@ -55,7 +55,7 @@
   "error_page.error_message_network_error": "Network error. Please check your internet connection.",
   "error_page.error_message_error_charging_payment": "Payment failed.",
   "error_page.error_message_error_setting_up_purchase": "Purchase not started due to an error. Error code: {{errorCode}}",
-  "error_page.error_message_invalid_tax_location": "We couldn’t verify your billing address. Please double-check that the postal code and country are correct.",
+  "error_page.error_message_invalid_tax_location": "We couldn't verify your billing address. Please double-check that the postal code and country are correct.",
   "error_page.error_message_unknown_error": "An unknown error occurred. Error code: {{errorCode}}",
   "error_page.button_try_again": "Try again",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
@@ -71,5 +71,7 @@
   "pricing_table.enter_postal_code_to_calculate": "Enter zip code to calculate",
   "pricing_table.enter_state_or_postal_code_to_calculate": "Enter state or postal code to calculate",
   "navbar_header.details": "Details",
-  "navbar_header.back_button": "Back"
+  "navbar_header.back_button": "Back",
+  "price_update.title": "Price update",
+  "price_update.message": "The total price was updated with tax based on your billing address. Please review and try again. Your card will only be charged once."
 }
