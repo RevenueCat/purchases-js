@@ -14,15 +14,15 @@
 
 <style>
   .rcb-app-icon {
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
     border-radius: 12px;
     box-shadow: 0px 1px 10px 0px rgba(0, 0, 0, 0.1);
-    margin-right: 16px;
+    margin-right: 12px;
   }
 
   .rcb-app-icon-picture-container {
-    height: 32px;
+    height: 40px;
   }
 
   .rcb-app-icon.loading {
