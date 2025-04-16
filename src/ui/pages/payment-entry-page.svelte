@@ -280,7 +280,7 @@
   async function handleEmailChange(complete: boolean, emailValue: string) {
     email = emailValue;
     isEmailComplete = complete;
-    if (taxNeedingRefresh && elementsComplete) {
+    if (taxNeedingRefresh && isEmailComplete) {
       taxNeedingRefresh = false;
       await refreshTaxCalculation();
     }
@@ -295,10 +295,10 @@
   }) {
     selectedPaymentMethod = paymentMethod;
     isPaymentInfoComplete = complete;
-    if (elementsComplete) {
+    if (isEmailComplete) {
       await refreshTaxCalculation();
-    } else {
-      taxNeedingRefresh = isPaymentInfoComplete;
+    } else if (isPaymentInfoComplete) {
+      taxNeedingRefresh = true;
     }
   }
 

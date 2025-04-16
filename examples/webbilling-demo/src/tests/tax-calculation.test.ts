@@ -306,4 +306,61 @@ integrationTest.describe("Tax calculation", () => {
       await expect(page.getByText(/VAT - Italy/)).toBeVisible();
     },
   );
+
+  integrationTest(
+    "Tax calculation is not performed if payment info is incomplete",
+    async ({ page, userId, email }) => {
+      let calculateTaxesCount = 0;
+      await page.route("**/calculate_taxes", async (route) => {
+        calculateTaxesCount++;
+        await route.continue();
+      });
+
+      page = await navigateToLandingUrl(
+        page,
+        userId,
+        {
+          offeringId: TAX_TEST_OFFERING_ID,
+        },
+        TAX_TEST_API_KEY,
+      );
+
+      const packageCards = await getPackageCards(page);
+      await startPurchaseFlow(packageCards[0]);
+
+      await expect(page.getByText("Total excluding tax")).toBeVisible();
+      await expect(page.getByText(/VAT - Italy/)).not.toBeVisible();
+      await expect(page.getByText("Total due today")).toBeVisible();
+
+      calculateTaxesCount = 0;
+
+      await enterCreditCardDetails(page, "4242 4242 4242 4242", {
+        countryCode: "IT",
+      });
+      const skeleton = page.getByTestId("tax-loading-skeleton");
+      await expect(skeleton).not.toBeVisible();
+
+      await confirmPayButtonDisabled(page);
+
+      await expect(calculateTaxesCount).toBe(0);
+
+      // Remove the last digit of the card number
+      await enterCreditCardDetails(page, "4242 4242 4242 424", {
+        countryCode: "IT",
+      });
+
+      await enterEmail(page, email);
+
+      await expect(calculateTaxesCount).toBe(0);
+
+      const taxCalculationPromise = page.waitForRequest("**/calculate_taxes");
+      await enterCreditCardDetails(page, "4242 4242 4242 4242", {
+        countryCode: "IT",
+      });
+      await taxCalculationPromise;
+
+      await expect(skeleton).toBeVisible();
+      await expect(page.getByText(/VAT - Italy/)).toBeVisible();
+    },
+  );
 });
