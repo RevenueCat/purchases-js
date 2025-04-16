@@ -297,7 +297,7 @@
     isPaymentInfoComplete = complete;
     if (isEmailComplete) {
       await refreshTaxCalculation();
-    } else {
+    } else if (isPaymentInfoComplete) {
       taxNeedingRefresh = true;
     }
   }
