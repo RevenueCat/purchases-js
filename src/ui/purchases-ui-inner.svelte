@@ -25,6 +25,7 @@
     isInElement: boolean;
     gatewayParams: GatewayParams;
     customerEmail: string | null;
+    defaultPriceBreakdown?: PriceBreakdown;
     closeWithError: () => void;
     onContinue: () => void;
     onError: (error: PurchaseFlowError) => void;
@@ -42,21 +43,24 @@
     isInElement,
     gatewayParams,
     customerEmail,
+    defaultPriceBreakdown,
     closeWithError,
     onContinue,
     onError,
     onClose = undefined,
   }: Props = $props();
 
-  let priceBreakdown: PriceBreakdown = $state({
-    currency: productDetails.currentPrice.currency,
-    totalAmountInMicros: productDetails.currentPrice.amountMicros,
-    totalExcludingTaxInMicros: productDetails.currentPrice.amountMicros,
-    taxCalculationStatus: "disabled",
-    pendingReason: null,
-    taxAmountInMicros: null,
-    taxBreakdown: null,
-  });
+  let priceBreakdown: PriceBreakdown = $state(
+    defaultPriceBreakdown ?? {
+      currency: productDetails.currentPrice.currency,
+      totalAmountInMicros: productDetails.currentPrice.amountMicros,
+      totalExcludingTaxInMicros: productDetails.currentPrice.amountMicros,
+      taxCalculationStatus: "disabled",
+      pendingReason: null,
+      taxAmountInMicros: null,
+      taxBreakdown: null,
+    },
+  );
 
   const onPriceBreakdownUpdated = (value: PriceBreakdown) => {
     priceBreakdown = value;
