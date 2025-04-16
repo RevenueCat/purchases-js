@@ -140,6 +140,8 @@
     ) {
       await recalculatePriceBreakdown(null);
       initialTaxCalculationSucceeded = taxCalculationStatus !== "disabled";
+    } else {
+      initialTaxCalculationSucceeded = false;
     }
   });
 
