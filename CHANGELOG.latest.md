@@ -1,14 +1,16 @@
 ## RevenueCat SDK
 ### ✨ New Features
-* Add pricePerWeek/pricePerMonth/pricePerYear APIs to PricingPhase (#428) via Toni Rico (@tonidero)
-* Add new APIs to CustomerInfo to match our mobile SDKs (#426) via Toni Rico (@tonidero)
-### 🐞 Bugfixes
-* Fix PeriodUnit enum not being exported correctly (#429) via Toni Rico (@tonidero)
+* Remove email step (#421) via Pol Miro (@polmiro)
 
 ### 🔄 Other Changes
-* Bump fastlane from 2.227.0 to 2.227.1 (#434) via dependabot[bot] (@dependabot[bot])
-* Update esbuild, vite and vitest in example app to solve security vulnerabilities (#431) via Toni Rico (@tonidero)
-* Bump esbuild and vitest (#430) via dependabot[bot] (@dependabot[bot])
-* Bump esbuild and vite (#388) via dependabot[bot] (@dependabot[bot])
-* [WEB-2367] Handle tax calculation errors (FF) (#425) via Víctor Ferrer García (@vicfergar)
-* Adds ability to set PlatformInfo info used by hybrids integrating the JS SDK (#424) via Toni Rico (@tonidero)
+* Add `isAnonymous` API (#445) via Toni Rico (@tonidero)
+* Runes mode on a couple components (#442) via Pol Miro (@polmiro)
+* Add an env var for non tax test api key (#443) via Pol Miro (@polmiro)
+* Improvement integration testing (#441) via Pol Miro (@polmiro)
+* Bump vite from 6.2.2 to 6.2.6 (#440) via dependabot[bot] (@dependabot[bot])
+* Overhaul refactor integration tests (#437) via Pol Miro (@polmiro)
+* WEB-2370 - part 1: Refactored the Stripe Payment Elements component to isolate the Payment Elements part (#432) via Nicola Sacco (@nicfix)
+* chore: isolate tax calculation e2e tests (#439) via Víctor Ferrer García (@vicfergar)
+* [WEB-2398] Do not present taxes to customers in `not_collecting` jurisdictions (FF) (#433) via Víctor Ferrer García (@vicfergar)
+* Disable tax calculation E2E tests based on env var in CircleCI (#438) via Nicola Sacco (@nicfix)
+* WEB-2370: Added E2E tests for the tax calculation behaviour (#436) via Nicola Sacco (@nicfix)
