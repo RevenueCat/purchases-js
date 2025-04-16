@@ -213,7 +213,10 @@ integrationTest.describe("Tax calculation", () => {
   integrationTest(
     "Tax calculation is aborted when the user changes their billing address",
     async ({ page, userId, email }) => {
+      let calculateTaxesCount = 0;
       await page.route("**/calculate_taxes", async (route) => {
+        calculateTaxesCount++;
+
         // Add some throttle to reduce flakiness
         await new Promise((resolve) => setTimeout(resolve, 3000));
         await route.continue();
@@ -235,6 +238,8 @@ integrationTest.describe("Tax calculation", () => {
       await expect(page.getByText(/Sales Tax - New York/)).not.toBeVisible();
       await expect(page.getByText("Total due today")).toBeVisible();
 
+      calculateTaxesCount = 0;
+
       await enterEmail(page, email);
       await enterCreditCardDetails(page, "4242 4242 4242 4242", {
         countryCode: "US",
@@ -243,6 +248,8 @@ integrationTest.describe("Tax calculation", () => {
 
       const skeleton = page.getByTestId("tax-loading-skeleton");
       await expect(skeleton).toBeVisible();
+
+      await expect(calculateTaxesCount).toBe(1);
 
       // Clear the country code, to make sure that the change event is triggered by Stripe
       await enterCreditCardDetails(page, "4242 4242 4242 4242", {
@@ -259,6 +266,8 @@ integrationTest.describe("Tax calculation", () => {
       ).not.toBeVisible();
 
       await expect(page.getByText(/Sales Tax - New York/)).toBeVisible();
+
+      await expect(calculateTaxesCount).toBe(2);
     },
   );
 
