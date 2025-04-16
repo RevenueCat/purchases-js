@@ -3,7 +3,11 @@
   import { defineMeta } from "@storybook/addon-svelte-csf";
   import { withLayout } from "../decorators/with-layout";
   import { brandingModes } from "../../../.storybook/modes";
-  import { subscriptionOption, subscriptionOptionWithTrial } from "../fixtures";
+  import {
+    subscriptionOption,
+    subscriptionOptionWithTrial,
+    priceBreakdownTaxDisabled,
+  } from "../fixtures";
 
   let { Story } = defineMeta({
     component: PaymentButton,
@@ -47,5 +51,25 @@
   args={{
     disabled: true,
     subscriptionOption: subscriptionOptionWithTrial,
+  }}
+/>
+
+<Story
+  name="With Wallet"
+  args={{
+    disabled: false,
+    subscriptionOption: subscriptionOption,
+    priceBreakdown: priceBreakdownTaxDisabled,
+    wallet: "Google Pay",
+  }}
+/>
+
+<Story
+  name="With Wallet Disabled"
+  args={{
+    disabled: true,
+    subscriptionOption: subscriptionOption,
+    priceBreakdown: priceBreakdownTaxDisabled,
+    wallet: "Google Pay",
   }}
 />
