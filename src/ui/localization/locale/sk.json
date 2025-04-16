@@ -71,5 +71,7 @@
   "pricing_table.enter_state_or_postal_code_to_calculate": "Zadajte štát alebo PSČ pre výpočet",
   "pricing_table.enter_postal_code_to_calculate": "Zadajte PSČ pre výpočet",
   "error_page.error_message_invalid_email_error": "E-mailová adresa {{email}} sa nedala overiť. Zadajte platnú e-mailovú adresu.",
-  "payment_entry_page.button_wallet": "Zaplatiť sumu {{formattedPrice}} pomocou {{wallet}}"
+  "payment_entry_page.button_wallet": "Zaplatiť sumu {{formattedPrice}} pomocou {{wallet}}",
+  "price_update.title": "Aktualizácia ceny",
+  "price_update.message": "Celková cena bola aktualizovaná o daň na základe vašej fakturačnej adresy. Skontrolujte to a skúste znova. Vaša karta bude zaťažená iba raz."
 }

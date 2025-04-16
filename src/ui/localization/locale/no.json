@@ -71,5 +71,7 @@
   "pricing_table.enter_state_or_postal_code_to_calculate": "Skriv inn stat eller postnummer for å beregne",
   "pricing_table.enter_postal_code_to_calculate": "Skriv inn postnummer for å beregne",
   "error_page.error_message_invalid_email_error": "E-postadressen {{email}} kunne ikke bekreftes. Vennligst oppgi en gyldig e-postadresse.",
-  "payment_entry_page.button_wallet": "Betal {{formattedPrice}} med {{wallet}}"
+  "payment_entry_page.button_wallet": "Betal {{formattedPrice}} med {{wallet}}",
+  "price_update.title": "Prisoppdatering",
+  "price_update.message": "Totalprisen er oppdatert med skatt basert på fakturaadressen din. Vennligst se gjennom og prøv igjen. Kortet ditt vil kun bli belastet én gang."
 }

@@ -71,5 +71,7 @@
   "pricing_table.enter_state_or_postal_code_to_calculate": "Masukkan negara bagian atau kode pos untuk menghitung",
   "pricing_table.enter_postal_code_to_calculate": "Masukkan kode pos untuk menghitung",
   "error_page.error_message_invalid_email_error": "Alamat email {{email}} tidak dapat diverifikasi. Harap berikan alamat email yang valid.",
-  "payment_entry_page.button_wallet": "Bayar {{formattedPrice}} dengan {{wallet}}"
+  "payment_entry_page.button_wallet": "Bayar {{formattedPrice}} dengan {{wallet}}",
+  "price_update.title": "Pembaruan Harga",
+  "price_update.message": "Total harga telah diperbarui dengan pajak berdasarkan alamat penagihan Anda. Harap tinjau dan coba lagi. Kartu Anda hanya akan dikenakan biaya sekali."
 }

@@ -71,5 +71,7 @@
   "pricing_table.enter_state_or_postal_code_to_calculate": "Entrez l'état ou le code postal pour calculer",
   "pricing_table.enter_postal_code_to_calculate": "Entrez le code postal pour calculer",
   "error_page.error_message_invalid_email_error": "L'adresse e-mail {{email}} n'a pas pu être vérifiée. Veuillez fournir une adresse e-mail valide.",
-  "payment_entry_page.button_wallet": "Payer {{formattedPrice}} avec {{wallet}}"
+  "payment_entry_page.button_wallet": "Payer {{formattedPrice}} avec {{wallet}}",
+  "price_update.title": "Mise à jour du prix",
+  "price_update.message": "Le prix total a été mis à jour avec la taxe en fonction de votre adresse de facturation. Veuillez vérifier et réessayer. Votre carte ne sera débitée qu'une seule fois."
 }

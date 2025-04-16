@@ -71,5 +71,7 @@
   "pricing_table.enter_state_or_postal_code_to_calculate": "Wprowadź stan lub kod pocztowy, aby obliczyć",
   "pricing_table.enter_postal_code_to_calculate": "Wprowadź kod pocztowy, aby obliczyć",
   "error_page.error_message_invalid_email_error": "Nie można zweryfikować adresu e-mail {{email}}. Proszę podać prawidłowy adres e-mail.",
-  "payment_entry_page.button_wallet": "Zapłać {{formattedPrice}} przez {{wallet}}"
+  "payment_entry_page.button_wallet": "Zapłać {{formattedPrice}} przez {{wallet}}",
+  "price_update.title": "Aktualizacja ceny",
+  "price_update.message": "Cena całkowita została zaktualizowana o podatek na podstawie Twojego adresu rozliczeniowego. Sprawdź i spróbuj ponownie. Twoja karta zostanie obciążona tylko raz."
 }

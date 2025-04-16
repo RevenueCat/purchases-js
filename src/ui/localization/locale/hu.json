@@ -71,5 +71,7 @@
   "pricing_table.enter_state_or_postal_code_to_calculate": "Adja meg az államot vagy az irányítószámot a számításhoz",
   "pricing_table.enter_postal_code_to_calculate": "Adja meg az irányítószámot a számításhoz",
   "error_page.error_message_invalid_email_error": "A(z) {{email}} e-mail címet nem sikerült ellenőrizni. Kérjük, adj meg egy érvényes e-mail címet.",
-  "payment_entry_page.button_wallet": "Fizetés {{formattedPrice}} összeggel a következővel: {{wallet}}"
+  "payment_entry_page.button_wallet": "Fizetés {{formattedPrice}} összeggel a következővel: {{wallet}}",
+  "price_update.title": "Árváltozás",
+  "price_update.message": "A teljes ár frissítve lett az adóval a számlázási címed alapján. Kérjük, tekintsd át és próbáld újra. A kártyádat csak egyszer terheljük meg."
 }
