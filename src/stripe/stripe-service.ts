@@ -209,16 +209,15 @@ export class StripeService {
     });
   }
 
-  static isStripeHandledCardError(error: StripeError) {
-    if (
+  static isStripeHandledFormError(error: StripeError) {
+    const isValidationError = error.type === "validation_error";
+
+    const isCardError =
       error.type === "card_error" &&
       error.code &&
-      this.FORM_VALIDATED_CARD_ERROR_CODES.includes(error.code)
-    ) {
-      return true;
-    }
+      this.FORM_VALIDATED_CARD_ERROR_CODES.includes(error.code);
 
-    return false;
+    return isValidationError || isCardError;
   }
 
   static createPaymentElement(
@@ -273,7 +272,7 @@ export class StripeService {
   }
 
   static mapError(error: StripeError) {
-    if (this.isStripeHandledCardError(error)) {
+    if (this.isStripeHandledFormError(error)) {
       return {
         code: StripeServiceErrorCode.HandledFormError,
         gatewayErrorCode: error.code,
