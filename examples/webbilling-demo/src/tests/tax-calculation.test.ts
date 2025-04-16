@@ -180,16 +180,13 @@ integrationTest.describe("Tax calculation", () => {
   );
 
   integrationTest(
-    "In-flight tax calculations are aborted when the user changes their billing address",
+    "Tax calculation is aborted when the user changes their billing address",
     async ({ page, userId, email }) => {
-      await page.route(
-        "**/rcbilling/v1/checkout/*/calculate_taxes",
-        async (route) => {
-          // Add some throttle to reduce flakiness
-          await new Promise((resolve) => setTimeout(resolve, 3000));
-          await route.continue();
-        },
-      );
+      await page.route("**/calculate_taxes", async (route) => {
+        // Add some throttle to reduce flakiness
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+        await route.continue();
+      });
 
       page = await navigateToLandingUrl(
         page,
@@ -214,7 +211,6 @@ integrationTest.describe("Tax calculation", () => {
       });
 
       const skeleton = page.getByTestId("tax-loading-skeleton");
-
       await expect(skeleton).toBeVisible();
 
       // Clear the country code, to make sure that the change event is triggered by Stripe
@@ -232,6 +228,42 @@ integrationTest.describe("Tax calculation", () => {
       ).not.toBeVisible();
 
       await expect(page.getByText(/Sales Tax - New York/)).toBeVisible();
+    },
+  );
+
+  integrationTest(
+    "Tax calculation is not performed until the user has entered their email",
+    async ({ page, userId, email }) => {
+      page = await navigateToLandingUrl(
+        page,
+        userId,
+        {
+          offeringId: TAX_TEST_OFFERING_ID,
+        },
+        TAX_TEST_API_KEY,
+      );
+
+      const packageCards = await getPackageCards(page);
+      await startPurchaseFlow(packageCards[0]);
+
+      await expect(page.getByText("Total excluding tax")).toBeVisible();
+      await expect(page.getByText(/VAT - Italy/)).not.toBeVisible();
+      await expect(page.getByText("Total due today")).toBeVisible();
+
+      await enterCreditCardDetails(page, "4242 4242 4242 4242", {
+        countryCode: "IT",
+      });
+      const skeleton = page.getByTestId("tax-loading-skeleton");
+      await expect(skeleton).not.toBeVisible();
+
+      await confirmPayButtonDisabled(page);
+
+      const taxCalculationPromise = page.waitForRequest("**/calculate_taxes");
+      await enterEmail(page, email);
+      await taxCalculationPromise;
+
+      await expect(skeleton).toBeVisible();
+      await expect(page.getByText(/VAT - Italy/)).toBeVisible();
     },
   );
 });
