@@ -122,6 +122,7 @@
   let elementsComplete = $derived(isPaymentInfoComplete && isEmailComplete);
 
   let calculatingTaxes = $state(false);
+  let taxNeedingRefresh = $state(false);
 
   let isFormReady = $derived(
     !processing &&
@@ -278,8 +279,11 @@
 
   async function handleEmailChange(complete: boolean, emailValue: string) {
     email = emailValue;
-    await refreshTaxCalculation();
     isEmailComplete = complete;
+    if (taxNeedingRefresh && isEmailComplete) {
+      taxNeedingRefresh = false;
+      await refreshTaxCalculation();
+    }
   }
 
   async function handlePaymentInfoChange({
@@ -290,8 +294,12 @@
     paymentMethod: string | undefined;
   }) {
     selectedPaymentMethod = paymentMethod;
-    await refreshTaxCalculation();
     isPaymentInfoComplete = complete;
+    if (isEmailComplete) {
+      await refreshTaxCalculation();
+    } else {
+      taxNeedingRefresh = true;
+    }
   }
 
   async function handleSubmit(e: Event): Promise<void> {
