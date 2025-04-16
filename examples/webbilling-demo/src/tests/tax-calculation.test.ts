@@ -2,7 +2,6 @@ import { expect } from "@playwright/test";
 import {
   enterCreditCardDetails,
   enterEmail,
-  clickPayButton,
   startPurchaseFlow,
   navigateToLandingUrl,
   getPackageCards,
