@@ -10,6 +10,7 @@ export type CurrentPage =
   | "error";
 
 export type TaxCalculationStatus =
+  | "unavailable" // Tax collection status is not yet known
   | "pending"
   | "loading"
   | "calculated"

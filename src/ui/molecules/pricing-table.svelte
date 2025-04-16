@@ -26,7 +26,8 @@
   const translator: Writable<Translator> = getContext(translatorContextKey);
 
   const showTaxBreakdown = $derived(
-    priceBreakdown.taxCalculationStatus !== "disabled" &&
+    priceBreakdown.taxCalculationStatus !== "unavailable" &&
+      priceBreakdown.taxCalculationStatus !== "disabled" &&
       priceBreakdown.taxBreakdown &&
       priceBreakdown.taxBreakdown.length > 0,
   );
