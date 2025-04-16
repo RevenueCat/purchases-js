@@ -7,10 +7,11 @@
   } from "@storybook/addon-svelte-csf";
   import PurchasesInner from "../../ui/purchases-ui-inner.svelte";
   import { brandingLanguageViewportModes } from "../../../.storybook/modes";
-
   import {
     brandingInfos,
     checkoutStartResponse,
+    priceBreakdownTaxDisabled,
+    priceBreakdownTaxInclusive,
     product,
     purchaseFlowError,
     subscriptionOption,
@@ -55,10 +56,7 @@
   args: Args<typeof Story>,
   context: StoryContext<typeof Story>,
 )}
-  {@const brandingInfo = {
-    ...brandingInfos[context.globals.brandingName],
-    gateway_tax_collection_enabled: args.withTaxes,
-  }}
+  {@const brandingInfo = brandingInfos[context.globals.brandingName]}
   <PurchasesInner
     isSandbox={args.isSandbox}
     currentPage={args.currentPage}
@@ -71,6 +69,9 @@
     lastError={null}
     gatewayParams={checkoutStartResponse.gateway_params}
     {purchaseOperationHelper}
+    defaultPriceBreakdown={args.withTaxes
+      ? priceBreakdownTaxInclusive
+      : priceBreakdownTaxDisabled}
     isInElement={context.globals.viewport === "embedded"}
     onError={() => {}}
   />
