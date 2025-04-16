@@ -77,6 +77,21 @@ describe("Purchases.isConfigured()", () => {
   });
 });
 
+describe("Purchases.isAnonymous()", () => {
+  test("returns true if configured with anonymous user", () => {
+    Purchases.configure(
+      testApiKey,
+      Purchases.generateRevenueCatAnonymousAppUserId(),
+    );
+    expect(Purchases.getSharedInstance().isAnonymous()).toBeTruthy();
+  });
+
+  test("returns false if configured with non anonymous user", () => {
+    Purchases.configure(testApiKey, testUserId);
+    expect(Purchases.getSharedInstance().isAnonymous()).toBeFalsy();
+  });
+});
+
 describe("Purchases.getSharedInstance()", () => {
   test("throws error if not configured", () => {
     expect(() => Purchases.getSharedInstance()).toThrowError(

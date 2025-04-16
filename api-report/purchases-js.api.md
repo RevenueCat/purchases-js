@@ -359,6 +359,8 @@ export class Purchases {
     getCustomerInfo(): Promise<CustomerInfo>;
     getOfferings(params?: GetOfferingsParams): Promise<Offerings>;
     static getSharedInstance(): Purchases;
+    // (undocumented)
+    isAnonymous(): boolean;
     static isConfigured(): boolean;
     isEntitledTo(entitlementIdentifier: string): Promise<boolean>;
     // (undocumented)
