@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getContext, onMount } from "svelte";
+  import { getContext, onDestroy, onMount } from "svelte";
   import type { Product, PurchaseOption } from "../../entities/offerings";
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
   import IconError from "../atoms/icons/icon-error.svelte";
@@ -101,10 +101,9 @@
 
   const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
   const translator = getContext<Writable<Translator>>(translatorContextKey);
-  const taxCollectionEnabled = $derived(taxCalculationStatus !== "disabled");
 
-  let lastTaxCustomerDetails: TaxCustomerDetails | undefined =
-    $state(undefined);
+  let initialTaxCalculationSucceeded: boolean | null = $state(null);
+  let lastTaxCustomerDetails: TaxCustomerDetails | null = $state(null);
 
   let stripe: Stripe | null = $state(null);
   let elements: StripeElements | null = $state(null);
@@ -117,9 +116,11 @@
   let modalErrorMessage: string | undefined = $state(undefined);
   let clientSecret: string | undefined = $state(undefined);
   let processing = $state(false);
+  let abortController: AbortController | null = $state(null);
 
   let isFormReady = $derived(
     !processing &&
+      initialTaxCalculationSucceeded !== null &&
       (taxCalculationStatus as TaxCalculationStatus) !== "loading" &&
       isPaymentInfoComplete &&
       isEmailComplete,
@@ -137,22 +138,79 @@
       ALLOW_TAX_CALCULATION_FF &&
       brandingInfo?.gateway_tax_collection_enabled
     ) {
-      await refreshTaxCalculation();
+      await recalculatePriceBreakdown(null);
+      initialTaxCalculationSucceeded = taxCalculationStatus !== "disabled";
     }
   });
 
-  async function refreshTaxCalculation() {
-    if (taxCalculationStatus !== "disabled") {
-      taxCalculationStatus = "loading";
-      onPriceBreakdownUpdated(priceBreakdown);
+  onDestroy(() => {
+    if (abortController) {
+      abortController.abort();
+      abortController = null;
+    }
+  });
+
+  const refreshTaxCalculation = async () => {
+    if (!initialTaxCalculationSucceeded) {
+      return;
     }
 
+    taxCalculationStatus = "loading";
+    onPriceBreakdownUpdated(priceBreakdown);
+
+    if (abortController) {
+      abortController.abort();
+    }
+
+    abortController = new AbortController();
+    const signal = abortController.signal;
+
+    await extractNewTaxCustomerDetails()
+      .then(async (newTaxCustomerDetails) => {
+        signal.throwIfAborted();
+
+        await recalculatePriceBreakdown(newTaxCustomerDetails, signal);
+      })
+      .catch((error) => {
+        if (error instanceof DOMException && error.name === "AbortError") {
+          // Silently handle cancellation
+          return;
+        }
+        throw error;
+      });
+  };
+
+  const extractNewTaxCustomerDetails =
+    async (): Promise<TaxCustomerDetails | null> => {
+      if (!elements || !stripe) return null;
+
+      const taxCustomerDetails = await StripeService.extractTaxCustomerDetails(
+        elements,
+        stripe,
+      );
+
+      const sameDetails =
+        taxCustomerDetails?.postalCode === lastTaxCustomerDetails?.postalCode &&
+        taxCustomerDetails?.countryCode === lastTaxCustomerDetails?.countryCode;
+
+      if (sameDetails) {
+        return null;
+      }
+      return taxCustomerDetails ?? null;
+    };
+
+  async function recalculatePriceBreakdown(
+    taxCustomerDetails: TaxCustomerDetails | null,
+    signal?: AbortSignal,
+  ) {
     await purchaseOperationHelper
       .checkoutCalculateTax(
-        lastTaxCustomerDetails?.countryCode,
-        lastTaxCustomerDetails?.postalCode,
+        taxCustomerDetails?.countryCode,
+        taxCustomerDetails?.postalCode,
       )
       .then((taxCalculation) => {
+        signal?.throwIfAborted();
+
         if (taxCalculation.error) {
           switch (taxCalculation.error) {
             case TaxCalculationError.Pending:
@@ -186,6 +244,7 @@
           elementsConfiguration = data.gateway_params.elements_configuration;
         }
 
+        lastTaxCustomerDetails = taxCustomerDetails;
         onPriceBreakdownUpdated(priceBreakdown);
       })
       .catch((error) => {
@@ -209,22 +268,7 @@
     complete: boolean;
     paymentMethod: string | undefined;
   }) {
-    if (!elements || !stripe) return;
-
-    if (taxCollectionEnabled && paymentMethod === "card") {
-      const taxCustomerDetails = await StripeService.extractTaxCustomerDetails(
-        elements,
-        stripe,
-      );
-
-      const sameDetails =
-        taxCustomerDetails?.postalCode === lastTaxCustomerDetails?.postalCode &&
-        taxCustomerDetails?.countryCode === lastTaxCustomerDetails?.countryCode;
-
-      if (sameDetails) return;
-
-      lastTaxCustomerDetails = taxCustomerDetails;
-
+    if (paymentMethod === "card") {
       await refreshTaxCalculation();
     }
 
@@ -309,8 +353,7 @@
   }
 
   $effect(() => {
-    if (priceBreakdown.pendingReason === "invalid_postal_code") {
-      pendingReason = null;
+    if (pendingReason === "invalid_postal_code") {
       modalErrorMessage = $translator.translate(
         LocalizationKeys.ErrorPageErrorMessageInvalidTaxLocation,
       );
