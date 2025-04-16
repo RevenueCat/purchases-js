@@ -70,5 +70,6 @@
   "pricing_table.enter_billing_address_to_calculate": "กรุณากรอกที่อยู่สำหรับเรียกเก็บเงินเพื่อคำนวณ",
   "pricing_table.enter_state_or_postal_code_to_calculate": "ใส่รัฐหรือรหัสไปรษณีย์เพื่อคำนวณ",
   "pricing_table.enter_postal_code_to_calculate": "ใส่รหัสไปรษณีย์เพื่อคำนวณ",
-  "error_page.error_message_invalid_email_error": "ไม่สามารถยืนยันที่อยู่อีเมล {{email}} ได้ โปรดระบุที่อยู่อีเมลที่ถูกต้อง"
+  "error_page.error_message_invalid_email_error": "ไม่สามารถยืนยันที่อยู่อีเมล {{email}} ได้ โปรดระบุที่อยู่อีเมลที่ถูกต้อง",
+  "payment_entry_page.button_wallet": "ชำระเงิน {{formattedPrice}} ด้วย {{wallet}}"
 }

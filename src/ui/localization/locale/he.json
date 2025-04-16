@@ -70,5 +70,6 @@
   "pricing_table.enter_billing_address_to_calculate": "הזן כתובת לחיוב כדי לחשב",
   "pricing_table.enter_state_or_postal_code_to_calculate": "הזן מדינה או מיקוד לחישוב",
   "pricing_table.enter_postal_code_to_calculate": "הזן מיקוד לחישוב",
-  "error_page.error_message_invalid_email_error": "לא ניתן לאמת את כתובת האימייל {{email}}. אנא ספק כתובת אימייל חוקית."
+  "error_page.error_message_invalid_email_error": "לא ניתן לאמת את כתובת האימייל {{email}}. אנא ספק כתובת אימייל חוקית.",
+  "payment_entry_page.button_wallet": "שלם {{formattedPrice}} באמצעות {{wallet}}"
 }
