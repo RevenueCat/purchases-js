@@ -29,10 +29,6 @@
   "product_info.renewal_frequency": "Es renova {{frequency}}",
   "product_info.continues_until_cancelled": "Continua fins que es cancel·li",
   "product_info.cancel_anytime": "Cancel·la en qualsevol moment",
-  "email_entry_page.email_step_title": "Quin és el teu correu electrònic?",
-  "email_entry_page.email_input_label": "Correu electrònic",
-  "email_entry_page.email_input_placeholder": "john@appleseed.com",
-  "email_entry_page.button_continue": "Continua",
   "payment_entry_page.payment_step_title": "Pagament segur amb RevenueCat",
   "payment_entry_page.terms_info": "En proporcionar la teva informació de targeta, permets a {{appName}} carregar la teva targeta per a futurs pagaments d'acord amb els seus termes.",
   "payment_entry_page.button_pay": "Paga ara",
@@ -73,5 +69,6 @@
   "pricing_table.total_excluding_tax": "Total sense impostos",
   "pricing_table.enter_billing_address_to_calculate": "Introduïu l'adreça de facturació per calcular",
   "pricing_table.enter_state_or_postal_code_to_calculate": "Introduïu la província o el codi postal per calcular",
-  "pricing_table.enter_postal_code_to_calculate": "Introduïu el codi postal per calcular"
+  "pricing_table.enter_postal_code_to_calculate": "Introduïu el codi postal per calcular",
+  "error_page.error_message_invalid_email_error": "No s'ha pogut verificar l'adreça de correu electrònic {{email}}. Si us plau, proporcioneu una adreça de correu electrònic vàlida."
 }

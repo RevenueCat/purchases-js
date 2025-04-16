@@ -23,6 +23,7 @@
   import { type IEventsTracker } from "../../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "../constants";
   import {
+    createCheckoutPaymentFormErrorEvent,
     createCheckoutPaymentFormSubmitEvent,
     createCheckoutPaymentGatewayErrorEvent,
   } from "../../behavioural-events/sdk-event-helpers";
@@ -45,6 +46,7 @@
     purchaseOption: PurchaseOption;
     brandingInfo: BrandingInfoResponse | null;
     purchaseOperationHelper: PurchaseOperationHelper;
+    customerEmail: string | null;
     onContinue: (params?: ContinueHandlerParams) => void;
     onTaxCustomerDetailsUpdated: (customerDetails: TaxCustomerDetails) => void;
   }
@@ -56,6 +58,7 @@
     purchaseOption,
     brandingInfo,
     purchaseOperationHelper,
+    customerEmail,
     onContinue,
     onTaxCustomerDetailsUpdated,
   }: Props = $props();
@@ -74,6 +77,8 @@
     Promise.resolve(),
   );
 
+  let email: string | undefined = $state(customerEmail ?? undefined);
+  let isEmailComplete = $state(customerEmail ? true : false);
   let isStripeLoading = $state(true);
   let isPaymentInfoComplete = $state(false);
   let selectedPaymentMethod: string | undefined = $state(undefined);
@@ -84,7 +89,8 @@
   let isFormReady = $derived(
     !processing &&
       priceBreakdown.taxCalculationStatus !== "loading" &&
-      isPaymentInfoComplete,
+      isPaymentInfoComplete &&
+      isEmailComplete,
   );
 
   onMount(() => {
@@ -97,15 +103,25 @@
     isStripeLoading = false;
   }
 
+  function handleEmailChange(complete: boolean, emailValue: string) {
+    email = emailValue;
+    isEmailComplete = complete;
+  }
+
   function handlePaymentInfoChange({
     complete,
     paymentMethod,
+    updatedTaxDetails,
   }: {
     complete: boolean;
     paymentMethod: string | undefined;
+    updatedTaxDetails: TaxCustomerDetails | undefined;
   }) {
     selectedPaymentMethod = paymentMethod;
     isPaymentInfoComplete = complete;
+    if (updatedTaxDetails) {
+      onTaxCustomerDetailsUpdated(updatedTaxDetails);
+    }
   }
 
   async function handleSubmit(e: Event): Promise<void> {
@@ -124,18 +140,43 @@
   }
 
   async function handlePaymentSubmissionSuccess(): Promise<void> {
-    // Get client secret if not already present
-    if (!clientSecret) {
-      try {
-        const response = await purchaseOperationHelper.checkoutComplete();
-        clientSecret = response?.gateway_params?.client_secret;
-        if (!clientSecret) {
-          throw new Error("Failed to complete checkout");
-        }
-      } catch (error) {
-        handleStripeElementError(error as PaymentElementError);
-        return;
+    try {
+      const response = await purchaseOperationHelper.checkoutComplete(email);
+      const newClientSecret = response?.gateway_params?.client_secret;
+
+      if (newClientSecret) {
+        clientSecret = newClientSecret;
       }
+    } catch (error) {
+      if (!(error instanceof PurchaseFlowError)) {
+        throw error;
+      }
+
+      const event = createCheckoutPaymentFormErrorEvent({
+        errorCode: error.errorCode.toString(),
+        errorMessage: error.message,
+      });
+      eventsTracker.trackSDKEvent(event);
+
+      if (error.errorCode === PurchaseFlowErrorCode.MissingEmailError) {
+        processing = false;
+        modalErrorMessage = $translator.translate(
+          LocalizationKeys.ErrorPageErrorMessageInvalidEmailError,
+          { email: email },
+        );
+      } else {
+        onContinue({
+          error: error,
+        });
+      }
+      return;
+    }
+
+    if (!clientSecret) {
+      throw new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "Failed to complete checkout",
+      );
     }
 
     await stripeConfirm(clientSecret);
@@ -193,19 +234,20 @@
     class:hidden={isStripeLoading || processing}
   >
     <div class="rc-checkout-form-container" hidden={!!modalErrorMessage}>
-      <div class="rc-payment-element-container">
+      <div class="rc-elements-container">
         <StripeElements
           bind:submit={stripeSubmit}
           bind:confirm={stripeConfirm}
           {gatewayParams}
           {brandingInfo}
+          skipEmail={!!customerEmail}
           {taxCollectionEnabled}
           onLoadingComplete={handleStripeLoadingComplete}
           onError={handleStripeElementError}
+          onEmailChange={handleEmailChange}
           onPaymentInfoChange={handlePaymentInfoChange}
           onSubmissionSuccess={handlePaymentSubmissionSuccess}
           onConfirmationSuccess={onContinue}
-          {onTaxCustomerDetailsUpdated}
         />
       </div>
 
@@ -262,7 +304,7 @@
     width: 100%;
   }
 
-  .rc-payment-element-container {
+  .rc-elements-container {
     /* The standard height of the payment form from Stripe */
     /* Added to avoid the card getting smaller while loading */
     min-height: 210px;
@@ -305,5 +347,11 @@
     .rc-checkout-pay-container {
       margin-top: var(--rc-spacing-gapXLarge-desktop);
     }
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
   }
 </style>

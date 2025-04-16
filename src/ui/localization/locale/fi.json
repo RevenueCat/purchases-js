@@ -29,10 +29,6 @@
   "product_info.renewal_frequency": "Uusiutuu {{frequency}}",
   "product_info.continues_until_cancelled": "Jatkuu, kunnes peruutetaan",
   "product_info.cancel_anytime": "Peruuta milloin tahansa",
-  "email_entry_page.email_step_title": "Mikä on sähköpostiosoitteesi?",
-  "email_entry_page.email_input_label": "Sähköposti",
-  "email_entry_page.email_input_placeholder": "john@appleseed.com",
-  "email_entry_page.button_continue": "Jatka",
   "payment_entry_page.payment_step_title": "Suojautunut kassatoiminto RevenueCatin kautta",
   "payment_entry_page.terms_info": "Antamalla korttitietosi annat {{appName}} -sovellukselle luvan veloittaa korttiasi tulevien maksujen osalta heidän ehtojensa mukaisesti.",
   "payment_entry_page.button_pay": "Maksa nyt",
@@ -73,5 +69,6 @@
   "pricing_table.total_excluding_tax": "Veroton kokonaissumma",
   "pricing_table.enter_billing_address_to_calculate": "Syötä laskutusosoite laskeaksesi",
   "pricing_table.enter_state_or_postal_code_to_calculate": "Syötä osavaltio tai postinumero laskeaksesi",
-  "pricing_table.enter_postal_code_to_calculate": "Syötä postinumero laskeaksesi"
+  "pricing_table.enter_postal_code_to_calculate": "Syötä postinumero laskeaksesi",
+  "error_page.error_message_invalid_email_error": "Sähköpostiosoitetta {{email}} ei voitu vahvistaa. Anna kelvollinen sähköpostiosoite."
 }

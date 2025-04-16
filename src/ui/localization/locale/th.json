@@ -29,10 +29,6 @@
   "product_info.renewal_frequency": "ต่ออายุ {{frequency}}",
   "product_info.continues_until_cancelled": "ต่อเนื่องจนกว่าจะยกเลิก",
   "product_info.cancel_anytime": "ยกเลิกได้ตลอดเวลา",
-  "email_entry_page.email_step_title": "อีเมลของคุณคืออะไร?",
-  "email_entry_page.email_input_label": "อีเมล",
-  "email_entry_page.email_input_placeholder": "john@appleseed.com",
-  "email_entry_page.button_continue": "ดำเนินการต่อ",
   "payment_entry_page.payment_step_title": "การชำระเงินอย่างปลอดภัยโดย RevenueCat",
   "payment_entry_page.terms_info": "โดยการให้ข้อมูลบัตรของคุณ คุณอนุญาตให้ {{appName}} เรียกเก็บเงินจากบัตรของคุณสำหรับการชำระเงินในอนาคตตามข้อกำหนดของพวกเขา",
   "payment_entry_page.button_pay": "ชำระเงินตอนนี้",
@@ -73,5 +69,6 @@
   "pricing_table.total_excluding_tax": "ราคารวมก่อนภาษี",
   "pricing_table.enter_billing_address_to_calculate": "กรุณากรอกที่อยู่สำหรับเรียกเก็บเงินเพื่อคำนวณ",
   "pricing_table.enter_state_or_postal_code_to_calculate": "ใส่รัฐหรือรหัสไปรษณีย์เพื่อคำนวณ",
-  "pricing_table.enter_postal_code_to_calculate": "ใส่รหัสไปรษณีย์เพื่อคำนวณ"
+  "pricing_table.enter_postal_code_to_calculate": "ใส่รหัสไปรษณีย์เพื่อคำนวณ",
+  "error_page.error_message_invalid_email_error": "ไม่สามารถยืนยันที่อยู่อีเมล {{email}} ได้ โปรดระบุที่อยู่อีเมลที่ถูกต้อง"
 }

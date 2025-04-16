@@ -1,8 +1,6 @@
 import type { Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 import {
-  clickContinueButton,
-  enterEmail,
   getPackageCards,
   navigateToLandingUrl,
   startPurchaseFlow,
@@ -11,7 +9,7 @@ import { integrationTest } from "./helpers/integration-test";
 
 integrationTest(
   "Propagates UTM params to metadata when purchasing",
-  async ({ page, userId, email }) => {
+  async ({ page, userId }) => {
     const utm_params = {
       utm_source: "utm-source",
       utm_medium: "utm-medium",
@@ -22,17 +20,14 @@ integrationTest(
     page = await navigateToLandingUrl(page, userId, { ...utm_params });
 
     const packageCards = await getPackageCards(page);
-    const requestPromise = waitForCheckoutStartRequest(page, utm_params);
     await startPurchaseFlow(packageCards[1]);
-    await enterEmail(page, email);
-    await clickContinueButton(page);
-    await requestPromise;
+    await waitForCheckoutStartRequest(page, utm_params);
   },
 );
 
 integrationTest(
   "Does not propagate UTM params to metadata when purchasing if the developer opts out",
-  async ({ page, userId, email }) => {
+  async ({ page, userId }) => {
     const utm_params = {
       utm_source: "utm-source",
       utm_medium: "utm-medium",
@@ -47,10 +42,7 @@ integrationTest(
 
     const packageCards = await getPackageCards(page);
     await startPurchaseFlow(packageCards[1]);
-    const requestPromise = waitForCheckoutStartRequest(page, {});
-    await enterEmail(page, email);
-    await clickContinueButton(page);
-    await requestPromise;
+    await waitForCheckoutStartRequest(page, {});
   },
 );
 

@@ -38,6 +38,7 @@
   import { type GatewayParams } from "../networking/responses/stripe-elements";
   import { ALLOW_TAX_CALCULATION_FF } from "../helpers/constants";
   import type { TaxBreakdown } from "../networking/responses/checkout-calculate-tax-response";
+  import { validateEmail } from "../helpers/validators";
 
   interface Props {
     customerEmail: string | undefined;
@@ -80,7 +81,9 @@
     onClose,
   }: Props = $props();
 
-  let customerEmailOverride: string | undefined = $state(customerEmail);
+  const emailError = customerEmail ? validateEmail(customerEmail) : null;
+  let email = $state(emailError ? undefined : customerEmail);
+
   let productDetails: Product = rcPackage.webBillingProduct;
   let lastError: PurchaseFlowError | null = $state(null);
   const productId = rcPackage.webBillingProduct.identifier ?? null;
@@ -149,21 +152,7 @@
       return;
     }
 
-    if (!customerEmailOverride) {
-      currentPage = "email-entry";
-    } else {
-      currentPage = "payment-entry-loading";
-      handleCheckoutStart();
-    }
-  });
-
-  const handleCheckoutStart = () => {
-    if (!customerEmailOverride) {
-      handleError(
-        new PurchaseFlowError(PurchaseFlowErrorCode.MissingEmailError),
-      );
-      return;
-    }
+    currentPage = "payment-entry-loading";
 
     purchaseOperationHelper
       .checkoutStart(
@@ -171,9 +160,24 @@
         productId,
         purchaseOption,
         rcPackage.webBillingProduct.presentedOfferingContext,
-        customerEmailOverride,
+        email,
         metadata,
       )
+      .catch((e: PurchaseFlowError) => {
+        if (e.errorCode === PurchaseFlowErrorCode.MissingEmailError) {
+          email = undefined;
+          return purchaseOperationHelper.checkoutStart(
+            appUserId,
+            productId,
+            purchaseOption,
+            rcPackage.webBillingProduct.presentedOfferingContext,
+            email,
+            metadata,
+          );
+        } else {
+          throw e;
+        }
+      })
       .then((result) => {
         lastError = null;
         currentPage = "payment-entry";
@@ -192,21 +196,11 @@
       .catch((e: PurchaseFlowError) => {
         handleError(e);
       });
-  };
+  });
 
   const handleContinue = (params: ContinueHandlerParams = {}) => {
     if (params.error) {
       handleError(params.error);
-      return;
-    }
-
-    if (currentPage === "email-entry") {
-      if (params.authInfo) {
-        customerEmailOverride = params.authInfo.email;
-        currentPage = "email-entry-processing";
-      }
-
-      handleCheckoutStart();
       return;
     }
 
@@ -292,11 +286,6 @@
       errorMessage: e.message,
     });
     eventsTracker.trackSDKEvent(event);
-    if (currentPage === "email-entry-processing" && e.isRecoverable()) {
-      lastError = e;
-      currentPage = "email-entry";
-      return;
-    }
     lastError = e;
     currentPage = "error";
   };
@@ -323,6 +312,7 @@
   {purchaseOperationHelper}
   {isInElement}
   {priceBreakdown}
+  customerEmail={email ?? null}
   {closeWithError}
   onContinue={handleContinue}
   {onClose}

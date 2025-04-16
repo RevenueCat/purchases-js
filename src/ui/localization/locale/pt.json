@@ -29,10 +29,6 @@
   "product_info.renewal_frequency": "Renova {{frequency}}",
   "product_info.continues_until_cancelled": "Continua até ser cancelado",
   "product_info.cancel_anytime": "Cancelar a qualquer momento",
-  "email_entry_page.email_step_title": "Qual o seu email?",
-  "email_entry_page.email_input_label": "Email",
-  "email_entry_page.email_input_placeholder": "john@appleseed.com",
-  "email_entry_page.button_continue": "Continuar",
   "payment_entry_page.payment_step_title": "Pagamento seguro pela RevenueCat",
   "payment_entry_page.terms_info": "Ao fornecer suas informações de cartão, você permite que o {{appName}} cobre seu cartão para pagamentos futuros de acordo com seus termos.",
   "payment_entry_page.button_pay": "Pagar agora",
@@ -73,5 +69,6 @@
   "pricing_table.total_excluding_tax": "Total sem impostos",
   "pricing_table.enter_billing_address_to_calculate": "Insira o endereço de cobrança para calcular",
   "pricing_table.enter_state_or_postal_code_to_calculate": "Insira o estado ou o CEP para calcular",
-  "pricing_table.enter_postal_code_to_calculate": "Insira o CEP para calcular"
+  "pricing_table.enter_postal_code_to_calculate": "Insira o CEP para calcular",
+  "error_page.error_message_invalid_email_error": "O endereço de e-mail {{email}} não pôde ser verificado. Por favor, forneça um endereço de e-mail válido."
 }

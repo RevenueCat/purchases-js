@@ -29,10 +29,6 @@
   "product_info.renewal_frequency": "Gia hạn {{frequency}}",
   "product_info.continues_until_cancelled": "Tiếp tục cho đến khi hủy",
   "product_info.cancel_anytime": "Hủy bất cứ lúc nào",
-  "email_entry_page.email_step_title": "Email của bạn là gì?",
-  "email_entry_page.email_input_label": "Email",
-  "email_entry_page.email_input_placeholder": "john@appleseed.com",
-  "email_entry_page.button_continue": "Tiếp tục",
   "payment_entry_page.payment_step_title": "Thanh toán an toàn bởi RevenueCat",
   "payment_entry_page.terms_info": "Bằng cách cung cấp thông tin thẻ của bạn, bạn cho phép {{appName}} tính phí thẻ của bạn cho các khoản thanh toán trong tương lai theo các điều khoản của họ.",
   "payment_entry_page.button_pay": "Thanh toán ngay",
@@ -73,5 +69,6 @@
   "pricing_table.total_excluding_tax": "Tổng cộng chưa bao gồm thuế",
   "pricing_table.enter_billing_address_to_calculate": "Nhập địa chỉ thanh toán để tính toán",
   "pricing_table.enter_state_or_postal_code_to_calculate": "Nhập tiểu bang hoặc mã bưu điện để tính toán",
-  "pricing_table.enter_postal_code_to_calculate": "Nhập mã bưu điện để tính toán"
+  "pricing_table.enter_postal_code_to_calculate": "Nhập mã bưu điện để tính toán",
+  "error_page.error_message_invalid_email_error": "Không thể xác minh địa chỉ email {{email}}. Vui lòng cung cấp một địa chỉ email hợp lệ."
 }

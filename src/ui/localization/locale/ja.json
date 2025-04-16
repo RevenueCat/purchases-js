@@ -29,10 +29,6 @@
   "product_info.renewal_frequency": "{{frequency}}で更新",
   "product_info.continues_until_cancelled": "キャンセルされるまで継続されます",
   "product_info.cancel_anytime": "いつでもキャンセルできます",
-  "email_entry_page.email_step_title": "メールアドレスを入力してください",
-  "email_entry_page.email_input_label": "メールアドレス",
-  "email_entry_page.email_input_placeholder": "john@appleseed.com",
-  "email_entry_page.button_continue": "続行",
   "payment_entry_page.payment_step_title": "RevenueCatによる安全なチェックアウト",
   "payment_entry_page.terms_info": "カード情報を入力することにより、{{appName}}が利用規約に従って今後の支払いを請求することを許可します。",
   "payment_entry_page.button_pay": "今すぐ支払う",
@@ -73,5 +69,6 @@
   "pricing_table.total_excluding_tax": "税抜き合計",
   "pricing_table.enter_billing_address_to_calculate": "請求先住所を入力して計算",
   "pricing_table.enter_state_or_postal_code_to_calculate": "計算するには州または郵便番号を入力してください",
-  "pricing_table.enter_postal_code_to_calculate": "計算するには郵便番号を入力してください"
+  "pricing_table.enter_postal_code_to_calculate": "計算するには郵便番号を入力してください",
+  "error_page.error_message_invalid_email_error": "メールアドレス{{email}}を確認できませんでした。有効なメールアドレスを入力してください。"
 }

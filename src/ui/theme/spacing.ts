@@ -52,4 +52,9 @@ export const DEFAULT_SPACING: Spacing = {
     tablet: "3rem",
     desktop: "3rem",
   },
+  gapStripeElement: {
+    mobile: "0.70rem",
+    tablet: "1rem",
+    desktop: "1rem",
+  },
 };

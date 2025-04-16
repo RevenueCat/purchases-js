@@ -7,15 +7,11 @@ export type SDKEvent =
   | CheckoutSessionClosedEvent
   | CheckoutFlowErrorEvent
   | CheckoutSessionErroredEvent
-  | CheckoutBillingFormImpressionEvent
-  | CheckoutBillingFormDismissEvent
-  | CheckoutBillingFormSubmitEvent
-  | CheckoutBillingFormSuccessEvent
-  | CheckoutBillingFormErrorEvent
   | CheckoutPaymentFormImpressionEvent
   | CheckoutPaymentFormDismissEvent
   | CheckoutPaymentFormSubmitEvent
   | CheckoutPaymentFormGatewayErrorEvent
+  | CheckoutPaymentFormErrorEvent
   | CheckoutPurchaseSuccessfulImpressionEvent
   | CheckoutPurchaseSuccessfulDismissEvent;
 
@@ -24,12 +20,8 @@ export enum SDKEventName {
   CheckoutSessionStart = "checkout_session_start",
   CheckoutSessionEnd = "checkout_session_end",
   CheckoutFlowError = "checkout_flow_error",
-  CheckoutBillingFormImpression = "checkout_billing_form_impression",
-  CheckoutBillingFormDismiss = "checkout_billing_form_dismiss",
-  CheckoutBillingFormSubmit = "checkout_billing_form_submit",
-  CheckoutBillingFormSuccess = "checkout_billing_form_success",
-  CheckoutBillingFormError = "checkout_billing_form_error",
   CheckoutPaymentFormImpression = "checkout_payment_form_impression",
+  CheckoutPaymentFormError = "checkout_payment_form_error",
   CheckoutPaymentFormDismiss = "checkout_payment_form_dismiss",
   CheckoutPaymentFormSubmit = "checkout_payment_form_submit",
   CheckoutPaymentFormGatewayError = "checkout_payment_form_gateway_error",
@@ -100,32 +92,16 @@ export interface CheckoutFlowErrorEvent extends ISDKEvent {
   };
 }
 
-export interface CheckoutBillingFormImpressionEvent extends ISDKEvent {
-  eventName: SDKEventName.CheckoutBillingFormImpression;
+export interface CheckoutPaymentFormImpressionEvent extends ISDKEvent {
+  eventName: SDKEventName.CheckoutPaymentFormImpression;
 }
 
-export interface CheckoutBillingFormDismissEvent extends ISDKEvent {
-  eventName: SDKEventName.CheckoutBillingFormDismiss;
-}
-
-export interface CheckoutBillingFormSubmitEvent extends ISDKEvent {
-  eventName: SDKEventName.CheckoutBillingFormSubmit;
-}
-
-export interface CheckoutBillingFormSuccessEvent extends ISDKEvent {
-  eventName: SDKEventName.CheckoutBillingFormSuccess;
-}
-
-export interface CheckoutBillingFormErrorEvent extends ISDKEvent {
-  eventName: SDKEventName.CheckoutBillingFormError;
+export interface CheckoutPaymentFormErrorEvent extends ISDKEvent {
+  eventName: SDKEventName.CheckoutPaymentFormError;
   properties: {
     errorCode: string | null;
     errorMessage: string;
   };
-}
-
-export interface CheckoutPaymentFormImpressionEvent extends ISDKEvent {
-  eventName: SDKEventName.CheckoutPaymentFormImpression;
 }
 
 export interface CheckoutPaymentFormDismissEvent extends ISDKEvent {

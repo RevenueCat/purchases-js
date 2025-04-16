@@ -29,10 +29,6 @@
   "product_info.renewal_frequency": "每 {{frequency}} 續約",
   "product_info.continues_until_cancelled": "持續到取消",
   "product_info.cancel_anytime": "隨時取消",
-  "email_entry_page.email_step_title": "您的電子郵件地址？",
-  "email_entry_page.email_input_label": "電子郵件",
-  "email_entry_page.email_input_placeholder": "john@appleseed.com",
-  "email_entry_page.button_continue": "繼續",
   "payment_entry_page.payment_step_title": "RevenueCat 安全結帳",
   "payment_entry_page.terms_info": "提供您的卡號即表示您允許 {{appName}} 依照其條款向您的卡收取未來付款。",
   "payment_entry_page.button_pay": "立即付款",
@@ -73,5 +69,6 @@
   "pricing_table.total_excluding_tax": "總計（不含稅）",
   "pricing_table.enter_billing_address_to_calculate": "輸入帳單地址以計算",
   "pricing_table.enter_state_or_postal_code_to_calculate": "輸入州或郵政編碼以計算",
-  "pricing_table.enter_postal_code_to_calculate": "輸入郵政編碼以計算"
+  "pricing_table.enter_postal_code_to_calculate": "輸入郵政編碼以計算",
+  "error_page.error_message_invalid_email_error": "無法驗證電子郵件地址 {{email}}。請提供有效的電子郵件地址。"
 }

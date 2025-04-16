@@ -29,10 +29,6 @@
   "product_info.renewal_frequency": "续订 {{frequency}}",
   "product_info.continues_until_cancelled": "持续到取消",
   "product_info.cancel_anytime": "随时取消",
-  "email_entry_page.email_step_title": "您的邮箱地址是什么？",
-  "email_entry_page.email_input_label": "邮箱",
-  "email_entry_page.email_input_placeholder": "john@appleseed.com",
-  "email_entry_page.button_continue": "继续",
   "payment_entry_page.payment_step_title": "RevenueCat 安全结账",
   "payment_entry_page.terms_info": "通过提供您的卡信息，您允许 {{appName}} 根据其条款向您的卡收取未来付款。",
   "payment_entry_page.button_pay": "立即支付",
@@ -73,5 +69,6 @@
   "pricing_table.total_excluding_tax": "总计（不含税）",
   "pricing_table.enter_billing_address_to_calculate": "输入账单地址以计算",
   "pricing_table.enter_state_or_postal_code_to_calculate": "输入州或邮政编码以计算",
-  "pricing_table.enter_postal_code_to_calculate": "输入邮政编码以计算"
+  "pricing_table.enter_postal_code_to_calculate": "输入邮政编码以计算",
+  "error_page.error_message_invalid_email_error": "无法验证电子邮件地址{{email}}。请提供有效的电子邮件地址。"
 }

@@ -29,10 +29,6 @@
   "product_info.renewal_frequency": "Obnovuje sa {{frequency}}",
   "product_info.continues_until_cancelled": "Pokračuje, kým sa nezruší",
   "product_info.cancel_anytime": "Kedykoľvek zrušiť",
-  "email_entry_page.email_step_title": "Aký je váš e-mail?",
-  "email_entry_page.email_input_label": "E-mail",
-  "email_entry_page.email_input_placeholder": "john@appleseed.com",
-  "email_entry_page.button_continue": "Pokračovať",
   "payment_entry_page.payment_step_title": "Bezpečný nákup prostredníctvom RevenueCat",
   "payment_entry_page.terms_info": "Poskytnutím údajov o vašej karte povoľujete {{appName}} účtovať vašu kartu za budúce platby v súlade s ich podmienkami.",
   "payment_entry_page.button_pay": "Zaplatiť teraz",
@@ -73,5 +69,6 @@
   "pricing_table.total_excluding_tax": "Celkom bez dane",
   "pricing_table.enter_billing_address_to_calculate": "Zadajte fakturačnú adresu pre výpočet",
   "pricing_table.enter_state_or_postal_code_to_calculate": "Zadajte štát alebo PSČ pre výpočet",
-  "pricing_table.enter_postal_code_to_calculate": "Zadajte PSČ pre výpočet"
+  "pricing_table.enter_postal_code_to_calculate": "Zadajte PSČ pre výpočet",
+  "error_page.error_message_invalid_email_error": "E-mailová adresa {{email}} sa nedala overiť. Zadajte platnú e-mailovú adresu."
 }
