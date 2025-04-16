@@ -2,9 +2,11 @@ import { expect } from "@playwright/test";
 import {
   enterCreditCardDetails,
   enterEmail,
+  clickPayButton,
   startPurchaseFlow,
   navigateToLandingUrl,
   getPackageCards,
+  confirmPaymentComplete,
 } from "./helpers/test-helpers";
 import {
   integrationTest,
@@ -49,7 +51,7 @@ integrationTest.describe("Tax calculation", () => {
   );
 
   integrationTest(
-    "Refreshes taxes when card info changes",
+    "Refreshes taxes when card info changes and performs payment",
     async ({ page, userId, email }) => {
       page = await navigateToLandingUrl(
         page,
@@ -76,6 +78,9 @@ integrationTest.describe("Tax calculation", () => {
       await expect(page.getByText("Total excluding tax")).toBeVisible();
       await expect(page.getByText(/Sales Tax - New York/)).toBeVisible();
       await expect(page.getByText("Total due today")).toBeVisible();
+
+      await clickPayButton(page);
+      await confirmPaymentComplete(page);
     },
   );
 
