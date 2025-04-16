@@ -157,7 +157,7 @@
     }
   });
 
-  const refreshTaxCalculation = async (signal?: AbortSignal) => {
+  async function refreshTaxCalculation(signal?: AbortSignal) {
     if (!initialTaxCalculationSucceeded) {
       return;
     }
@@ -179,26 +179,25 @@
       .finally(() => {
         calculatingTaxes = false;
       });
-  };
+  }
 
-  const extractNewTaxCustomerDetails =
-    async (): Promise<TaxCustomerDetails | null> => {
-      if (!elements || !stripe) return null;
+  async function extractNewTaxCustomerDetails(): Promise<TaxCustomerDetails | null> {
+    if (!elements || !stripe) return null;
 
-      const taxCustomerDetails = await StripeService.extractTaxCustomerDetails(
-        elements,
-        stripe,
-      );
+    const taxCustomerDetails = await StripeService.extractTaxCustomerDetails(
+      elements,
+      stripe,
+    );
 
-      const sameDetails =
-        taxCustomerDetails.postalCode === lastTaxCustomerDetails?.postalCode &&
-        taxCustomerDetails.countryCode === lastTaxCustomerDetails?.countryCode;
+    const sameDetails =
+      taxCustomerDetails.postalCode === lastTaxCustomerDetails?.postalCode &&
+      taxCustomerDetails.countryCode === lastTaxCustomerDetails?.countryCode;
 
-      if (sameDetails) {
-        return null;
-      }
-      return taxCustomerDetails;
-    };
+    if (sameDetails) {
+      return null;
+    }
+    return taxCustomerDetails;
+  }
 
   async function recalculatePriceBreakdown(
     taxCustomerDetails: TaxCustomerDetails | null,
