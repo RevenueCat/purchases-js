@@ -5,6 +5,7 @@ import {
   brandingInfo,
   rcPackage,
   checkoutStartResponse,
+  stripeElementsConfiguration,
 } from "../../../stories/fixtures";
 import { SDKEventName } from "../../../behavioural-events/sdk-events";
 import { createEventsTrackerMock } from "../../mocks/events-tracker-mock-provider";
@@ -21,6 +22,7 @@ import type {
   StripePaymentElementChangeEvent,
 } from "@stripe/stripe-js";
 import type { ComponentProps } from "svelte";
+import type { GatewayParams } from "../../../networking/responses/stripe-elements";
 
 vi.mock("../../../stripe/stripe-service", async () => {
   const actual = await vi.importActual<{
@@ -31,6 +33,7 @@ vi.mock("../../../stripe/stripe-service", async () => {
     StripeServiceErrorCode: actual.StripeServiceErrorCode,
     StripeService: {
       mapError: actual.StripeService.mapError,
+      mapInitializationError: actual.StripeService.mapInitializationError,
       initializeStripe: vi.fn().mockResolvedValue({
         stripe: { exists: true },
         elements: {
@@ -38,8 +41,17 @@ vi.mock("../../../stripe/stripe-service", async () => {
           submit: vi.fn().mockResolvedValue({ error: null }),
         },
       }),
-      createPaymentElement: vi.fn(),
-      createLinkAuthenticationElement: vi.fn(),
+      submitElements: actual.StripeService.submitElements,
+      createPaymentElement: vi.fn().mockReturnValue({
+        mount: vi.fn(),
+        on: vi.fn(),
+        destroy: vi.fn(),
+      }),
+      createLinkAuthenticationElement: vi.fn().mockReturnValue({
+        mount: vi.fn(),
+        on: vi.fn(),
+        destroy: vi.fn(),
+      }),
       isStripeHandledCardError: vi.fn(),
       updateElementsConfiguration: vi.fn(),
       getStripeLocale: vi.fn().mockImplementation((locale: string) => locale),
@@ -60,24 +72,22 @@ const purchaseOperationHelperMock: PurchaseOperationHelper = {
     }),
 } as unknown as PurchaseOperationHelper;
 
+const gatewayParams: GatewayParams = {
+  publishable_api_key: "test_publishable_api_key",
+  stripe_account_id: "test_stripe_account_id",
+  elements_configuration: stripeElementsConfiguration,
+};
+
 const basicProps: ComponentProps<PaymentEntryPage> = {
-  gatewayParams: {
-    publishable_api_key: "test_publishable_api_key",
-    stripe_account_id: "test_stripe_account_id",
-    client_secret: "test_client_secret",
-    elements_configuration: {
-      payment_method_types: ["card"],
-      mode: "payment",
-    },
-  },
-  brandingInfo: brandingInfo,
-  purchaseOption: rcPackage.webBillingProduct.defaultPurchaseOption,
-  productDetails: rcPackage.webBillingProduct,
+  gatewayParams: gatewayParams,
   processing: false,
+  productDetails: rcPackage.webBillingProduct,
+  purchaseOption: rcPackage.webBillingProduct.defaultPurchaseOption,
+  brandingInfo: brandingInfo,
   purchaseOperationHelper: purchaseOperationHelperMock,
-  checkoutStartResponse: checkoutStartResponse,
-  onClose: vi.fn(),
+  customerEmail: null,
   onContinue: vi.fn(),
+  onError: vi.fn(),
   onPriceBreakdownUpdated: vi.fn(),
 };
 
@@ -104,11 +114,9 @@ describe("PurchasesUI", () => {
     vi.mocked(StripeService.isStripeHandledCardError).mockReturnValue(false);
   });
 
-  test.only("tracks the PaymentEntryImpression event when the payment entry is displayed", async () => {
+  test("tracks the PaymentEntryImpression event when the payment entry is displayed", async () => {
     render(PaymentEntryPage, {
-      props: {
-        ...basicProps,
-      },
+      props: { ...basicProps },
       context: defaultContext,
     });
 
@@ -178,7 +186,7 @@ describe("PurchasesUI", () => {
     });
   });
 
-  test("tracks the CheckoutPaymentFormGatewayError event when the payment form fails to initialize", async () => {
+  test("tracks the CheckoutPaymentFormGatewayError event when the stripe fail to initialize", async () => {
     vi.mocked(StripeService.initializeStripe).mockRejectedValue(
       new Error("Failed to initialize payment form"),
     );
@@ -214,6 +222,7 @@ describe("PurchasesUI", () => {
               callback({
                 elementType: "payment",
                 error: {
+                  type: "api_connection_error",
                   code: "0",
                   message: "Failed to initialize payment form",
                 } as StripeError,
@@ -262,7 +271,7 @@ describe("PurchasesUI", () => {
       on: (
         eventType: string,
         callback: (event?: {
-          elementType: "link_authentication";
+          elementType: "linkAuthentication";
           error: StripeError;
         }) => void,
       ) => {
@@ -270,8 +279,9 @@ describe("PurchasesUI", () => {
           setTimeout(
             () =>
               callback({
-                elementType: "link_authentication",
+                elementType: "linkAuthentication",
                 error: {
+                  type: "api_connection_error",
                   code: "0",
                   message: "Failed to initialize payment form",
                 } as StripeError,
@@ -329,7 +339,7 @@ describe("PurchasesUI", () => {
         }),
       },
     };
-    vi.mocked(StripeService.initializeStripe).mockReturnValue(
+    vi.mocked(StripeService.initializeStripe).mockResolvedValue(
       // @ts-expect-error - This is a mock
       stripeInitializationMock,
     );
@@ -374,6 +384,8 @@ describe("PurchasesUI", () => {
 
     const paymentForm = screen.getByTestId("payment-form");
     await fireEvent.submit(paymentForm);
+
+    await vi.advanceTimersToNextTimerAsync();
 
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
       eventName: SDKEventName.CheckoutPaymentFormGatewayError,
