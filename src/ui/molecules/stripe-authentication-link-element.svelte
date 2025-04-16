@@ -1,8 +1,9 @@
 <script lang="ts">
-  import {
-    type StripeElements,
-    type StripeLinkAuthenticationElement,
-    type StripeLinkAuthenticationElementChangeEvent,
+  import type {
+    StripeError,
+    StripeElements,
+    StripeLinkAuthenticationElement,
+    StripeLinkAuthenticationElementChangeEvent,
   } from "@stripe/stripe-js";
   import type { StripeServiceError } from "../../stripe/stripe-service";
   import { StripeService } from "../../stripe/stripe-service";
@@ -24,11 +25,14 @@
   let linkAuthenticationElement: StripeLinkAuthenticationElement | null = null;
   const linkAuthenticationElementId = "link-authentication-element";
 
-  const onLoadErrorCallback = async (error: any) => {
-    await onError(StripeService.mapError(error));
+  const onLoadErrorCallback = async (event: {
+    elementType: "linkAuthentication";
+    error: StripeError;
+  }) => {
+    await onError(StripeService.mapInitializationError(event.error));
   };
 
-  onMount(async () => {
+  onMount(() => {
     try {
       linkAuthenticationElement = StripeService.createLinkAuthenticationElement(
         elements,
@@ -39,7 +43,7 @@
       linkAuthenticationElement.on("change", onChange);
       linkAuthenticationElement.on("loaderror", onLoadErrorCallback);
     } catch (e) {
-      onLoadErrorCallback(e);
+      onError(StripeService.mapInitializationError(e as StripeError));
     }
   });
 
