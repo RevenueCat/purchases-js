@@ -7,6 +7,8 @@ import {
   navigateToLandingUrl,
   getPackageCards,
   confirmPaymentComplete,
+  getStripePaymentFrame,
+  confirmPayButtonDisabled,
 } from "./helpers/test-helpers";
 import {
   integrationTest,
@@ -47,6 +49,35 @@ integrationTest.describe("Tax calculation", () => {
       await startPurchaseFlow(packageCards[0]);
       await expect(page.getByText("Total excluding tax")).toBeVisible();
       await expect(page.getByText("Total due today")).toBeVisible();
+    },
+  );
+
+  integrationTest(
+    "Entering only email does not trigger payment method validation errors",
+    async ({ page, userId, email }) => {
+      page = await navigateToLandingUrl(
+        page,
+        userId,
+        {
+          offeringId: TAX_TEST_OFFERING_ID,
+        },
+        TAX_TEST_API_KEY,
+      );
+
+      const packageCards = await getPackageCards(page);
+      await startPurchaseFlow(packageCards[0]);
+
+      await expect(page.getByText("Total excluding tax")).toBeVisible();
+      await expect(page.getByText(/Sales Tax - New York/)).not.toBeVisible();
+      await expect(page.getByText("Total due today")).toBeVisible();
+
+      await enterEmail(page, email);
+
+      const stripeFrame = getStripePaymentFrame(page);
+      const cardError = stripeFrame.getByText(/Your card number is incomplete/);
+      await expect(cardError).not.toBeVisible();
+
+      await confirmPayButtonDisabled(page);
     },
   );
 
