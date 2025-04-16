@@ -85,7 +85,7 @@ export class StripeService {
     const stripe = await loadStripe(publishableApiKey, {
       stripeAccount: stripeAccountId,
     }).catch((error) => {
-      throw this.mapError(error);
+      throw this.mapInitializationError(error);
     });
 
     if (!stripe) {
@@ -105,83 +105,93 @@ export class StripeService {
       DEFAULT_TEXT_STYLES.bodyBase[viewport].fontSize ||
       DEFAULT_TEXT_STYLES.bodyBase["mobile"].fontSize;
 
-    const elements = stripe.elements({
-      loader: "always",
-      locale: localeToUse,
-      appearance: {
-        theme: "stripe",
-        labels: "floating",
-        variables: {
-          borderRadius: customShape["input-border-radius"],
-          fontLineHeight: "10px",
-          focusBoxShadow: "none",
-          colorDanger: customColors["error"],
-          colorTextPlaceholder: customColors["grey-text-light"],
-          colorText: customColors["grey-text-dark"],
-          colorTextSecondary: customColors["grey-text-light"],
-          fontSizeBase: baseFontSize,
-          ...stripeVariables,
-        },
-        rules: {
-          ".Input": {
-            boxShadow: "none",
-            paddingTop: "6px",
-            paddingBottom: "6px",
-            fontSize: baseFontSize,
-            border: `1px solid ${customColors["grey-ui-dark"]}`,
-            backgroundColor: customColors["input-background"],
-            color: customColors["grey-text-dark"],
+    let elements: StripeElements;
+    try {
+      elements = stripe.elements({
+        loader: "always",
+        locale: localeToUse,
+        appearance: {
+          theme: "stripe",
+          labels: "floating",
+          variables: {
+            borderRadius: customShape["input-border-radius"],
+            fontLineHeight: "10px",
+            focusBoxShadow: "none",
+            colorDanger: customColors["error"],
+            colorTextPlaceholder: customColors["grey-text-light"],
+            colorText: customColors["grey-text-dark"],
+            colorTextSecondary: customColors["grey-text-light"],
+            fontSizeBase: baseFontSize,
+            ...stripeVariables,
           },
-          ".Input:focus": {
-            border: `1px solid ${customColors["focus"]}`,
-            outline: "none",
-          },
-          ".Label": {
-            fontWeight: textStyles.bodyBase[viewport].fontWeight,
-            lineHeight: "22px",
-            color: customColors["grey-text-dark"],
-          },
-          ".Label--floating": {
-            opacity: "1",
-          },
-          ".Input--invalid": {
-            boxShadow: "none",
-          },
-          ".TermsText": {
-            fontSize: textStyles.captionDefault[viewport].fontSize,
-            lineHeight: textStyles.captionDefault[viewport].lineHeight,
-          },
-          ".Tab": {
-            boxShadow: "none",
-            backgroundColor: "transparent",
-            color: customColors["grey-text-light"],
-            border: `1px solid ${customColors["grey-ui-dark"]}`,
-          },
-          ".Tab:hover, .Tab:focus, .Tab--selected, .Tab--selected:hover, .Tab--selected:focus":
-            {
+          rules: {
+            ".Input": {
               boxShadow: "none",
+              paddingTop: "6px",
+              paddingBottom: "6px",
+              fontSize: baseFontSize,
+              border: `1px solid ${customColors["grey-ui-dark"]}`,
+              backgroundColor: customColors["input-background"],
               color: customColors["grey-text-dark"],
             },
-          ".Tab:focus, .Tab--selected, .Tab--selected:hover, .Tab--selected:focus":
-            {
+            ".Input:focus": {
               border: `1px solid ${customColors["focus"]}`,
+              outline: "none",
             },
-          ".TabIcon": {
-            fill: customColors["grey-text-light"],
-          },
-          ".TabIcon--selected": {
-            fill: customColors["grey-text-dark"],
-          },
-          ".Block": {
-            boxShadow: "none",
-            backgroundColor: "transparent",
-            border: `1px solid ${customColors["grey-ui-dark"]}`,
+            ".Label": {
+              fontWeight: textStyles.bodyBase[viewport].fontWeight,
+              lineHeight: "22px",
+              color: customColors["grey-text-dark"],
+            },
+            ".Label--floating": {
+              opacity: "1",
+            },
+            ".Input--invalid": {
+              boxShadow: "none",
+            },
+            ".TermsText": {
+              fontSize: textStyles.captionDefault[viewport].fontSize,
+              lineHeight: textStyles.captionDefault[viewport].lineHeight,
+            },
+            ".Tab": {
+              boxShadow: "none",
+              backgroundColor: "transparent",
+              color: customColors["grey-text-light"],
+              border: `1px solid ${customColors["grey-ui-dark"]}`,
+            },
+            ".Tab:hover, .Tab:focus, .Tab--selected, .Tab--selected:hover, .Tab--selected:focus":
+              {
+                boxShadow: "none",
+                color: customColors["grey-text-dark"],
+              },
+            ".Tab:focus, .Tab--selected, .Tab--selected:hover, .Tab--selected:focus":
+              {
+                border: `1px solid ${customColors["focus"]}`,
+              },
+            ".TabIcon": {
+              fill: customColors["grey-text-light"],
+            },
+            ".TabIcon--selected": {
+              fill: customColors["grey-text-dark"],
+            },
+            ".Block": {
+              boxShadow: "none",
+              backgroundColor: "transparent",
+              border: `1px solid ${customColors["grey-ui-dark"]}`,
+            },
           },
         },
-      },
-    });
+      });
+    } catch (error) {
+      throw this.mapInitializationError(error as StripeError);
+    }
 
-    await this.updateElementsConfiguration(elements, elementsConfiguration);
+    await this.updateElementsConfiguration(
+      elements,
+      elementsConfiguration,
+    ).catch((error) => {
+      throw this.mapInitializationError(error);
+    });
 
     return { stripe, elements };
   }
@@ -252,6 +262,14 @@ export class StripeService {
     if (submitError) {
       throw this.mapError(submitError);
     }
+  }
+
+  static mapInitializationError(error: StripeError) {
+    return {
+      code: StripeServiceErrorCode.ErrorLoadingStripe,
+      gatewayErrorCode: error.code,
+      message: error.message,
+    };
   }
 
   static mapError(error: StripeError) {

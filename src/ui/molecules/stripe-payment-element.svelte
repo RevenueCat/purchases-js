@@ -1,8 +1,9 @@
 <script lang="ts">
-  import {
-    type StripeElements,
-    type StripePaymentElement,
-    type StripePaymentElementChangeEvent,
+  import type {
+    StripeError,
+    StripeElements,
+    StripePaymentElement,
+    StripePaymentElementChangeEvent,
   } from "@stripe/stripe-js";
   import {
     StripeService,
@@ -26,11 +27,14 @@
   let paymentElement: StripePaymentElement | null = null;
   const paymentElementId = "payment-element";
 
-  const onLoadErrorCallback = async (error: any) => {
-    await onError(StripeService.mapError(error));
+  const onLoadErrorCallback = async (event: {
+    elementType: "payment";
+    error: StripeError;
+  }) => {
+    await onError(StripeService.mapInitializationError(event.error));
   };
 
-  const mountStripePaymentElements = async () => {
+  onMount(() => {
     try {
       paymentElement = StripeService.createPaymentElement(
         elements,
@@ -41,12 +45,8 @@
       paymentElement.on("change", onChange);
       paymentElement.on("loaderror", onLoadErrorCallback);
     } catch (e) {
-      onLoadErrorCallback(e);
+      onError(StripeService.mapInitializationError(e as StripeError));
     }
-  };
-
-  onMount(async () => {
-    await mountStripePaymentElements();
   });
 
   onDestroy(() => {
