@@ -34,12 +34,12 @@
   }
 
   .rcb-app-name {
-    font: var(--rc-text-titleMedium-mobile);
+    font: var(--rc-text-body1-mobile);
   }
 
   @container layout-query-container (width >= 768px) {
     .rcb-app-name {
-      font: var(--rc-text-titleLarge-desktop);
+      font: var(--rc-text-body1-desktop);
     }
   }
 </style>
