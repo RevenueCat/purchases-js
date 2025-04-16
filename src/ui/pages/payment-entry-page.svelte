@@ -74,8 +74,11 @@
   const subscriptionOption =
     productDetails.subscriptionOptions?.[purchaseOption.id];
 
-  let taxCalculationStatus: TaxCalculationStatus =
-    $state<TaxCalculationStatus>("disabled");
+  let taxCalculationStatus: TaxCalculationStatus = $state<TaxCalculationStatus>(
+    ALLOW_TAX_CALCULATION_FF && brandingInfo?.gateway_tax_collection_enabled
+      ? "unavailable"
+      : "disabled",
+  );
   let pendingReason: TaxCalculationPendingReason | null = $state(null);
   let taxAmountInMicros: number | null = $state(null);
   let taxBreakdown: TaxBreakdown[] | null = $state(null);
@@ -103,7 +106,6 @@
   const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
   const translator = getContext<Writable<Translator>>(translatorContextKey);
 
-  let initialTaxCalculationSucceeded: boolean | null = $state(null);
   let lastTaxCustomerDetails: TaxCustomerDetails | null = $state(null);
 
   let stripe: Stripe | null = $state(null);
@@ -127,8 +129,9 @@
   let isFormReady = $derived(
     !processing &&
       elementsComplete &&
-      initialTaxCalculationSucceeded !== null &&
-      !calculatingTaxes,
+      !calculatingTaxes &&
+      (taxCalculationStatus === "disabled" ||
+        taxCalculationStatus === "calculated"),
   );
 
   onMount(() => {
@@ -138,15 +141,8 @@
   });
 
   onMount(async () => {
-    // If tax collection is enabled, we start in the state `disabled`
-    if (
-      ALLOW_TAX_CALCULATION_FF &&
-      brandingInfo?.gateway_tax_collection_enabled
-    ) {
+    if (taxCalculationStatus === "unavailable") {
       await recalculatePriceBreakdown(null);
-      initialTaxCalculationSucceeded = taxCalculationStatus !== "disabled";
-    } else {
-      initialTaxCalculationSucceeded = false;
     }
   });
 
@@ -158,7 +154,7 @@
   });
 
   async function refreshTaxCalculation(signal?: AbortSignal) {
-    if (!initialTaxCalculationSucceeded) {
+    if (taxCalculationStatus === "disabled") {
       return;
     }
 
@@ -204,7 +200,7 @@
     signal?: AbortSignal,
   ) {
     // Skip loading spinner on first load
-    if (initialTaxCalculationSucceeded) {
+    if (taxCalculationStatus !== "unavailable") {
       taxCalculationStatus = "loading";
       onPriceBreakdownUpdated(priceBreakdown);
     }
@@ -325,7 +321,7 @@
       .then(async () => {
         signal.throwIfAborted();
 
-        if (initialTaxCalculationSucceeded) {
+        if (taxCalculationStatus !== "unavailable") {
           const previousAmount = totalAmountInMicros;
           await refreshTaxCalculation(signal);
           if (withComplete && totalAmountInMicros !== previousAmount) {
