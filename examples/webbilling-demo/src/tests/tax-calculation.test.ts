@@ -31,7 +31,7 @@ integrationTest.describe("Tax calculation", () => {
   );
 
   integrationTest(
-    "Displays taxes on email entry page",
+    "Displays taxes on payment entry page",
     async ({ page, userId }) => {
       page = await navigateToLandingUrl(
         page,
