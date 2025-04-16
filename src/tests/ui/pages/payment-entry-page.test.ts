@@ -186,7 +186,7 @@ describe("PurchasesUI", () => {
     });
   });
 
-  test("tracks the CheckoutPaymentFormGatewayError event when the stripe fail to initialize", async () => {
+  test("tracks the CheckoutPaymentFormGatewayError event when the stripe fails to initialize", async () => {
     vi.mocked(StripeService.initializeStripe).mockRejectedValue(
       new Error("Failed to initialize payment form"),
     );
