@@ -52,7 +52,7 @@ vi.mock("../../../stripe/stripe-service", async () => {
         on: vi.fn(),
         destroy: vi.fn(),
       }),
-      isStripeHandledCardError: vi.fn(),
+      isStripeHandledFormError: vi.fn(),
       updateElementsConfiguration: vi.fn(),
       getStripeLocale: vi.fn().mockImplementation((locale: string) => locale),
       confirmIntent: vi.fn(),
@@ -111,7 +111,7 @@ describe("PurchasesUI", () => {
         submit: vi.fn().mockResolvedValue({ error: null }),
       },
     });
-    vi.mocked(StripeService.isStripeHandledCardError).mockReturnValue(false);
+    vi.mocked(StripeService.isStripeHandledFormError).mockReturnValue(false);
   });
 
   test("tracks the PaymentEntryImpression event when the payment entry is displayed", async () => {

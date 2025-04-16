@@ -159,7 +159,12 @@ describe("StripeService", () => {
     });
   });
 
-  describe("isStripeHandledCardError", () => {
+  describe("isStripeHandledFormError", () => {
+    test("returns true for validation error", () => {
+      const error = { type: "validation_error" } as StripeError;
+      expect(StripeService.isStripeHandledFormError(error)).toBe(true);
+    });
+
     test("returns true for handled card error codes", () => {
       const handledErrors = [
         { type: "card_error", code: "card_declined" },
@@ -170,7 +175,7 @@ describe("StripeService", () => {
 
       handledErrors.forEach((error) => {
         expect(
-          StripeService.isStripeHandledCardError(error as StripeError),
+          StripeService.isStripeHandledFormError(error as StripeError),
         ).toBe(true);
       });
     });
@@ -179,12 +184,11 @@ describe("StripeService", () => {
       const unhandledErrors = [
         { type: "api_error", code: "card_declined" },
         { type: "card_error", code: "unknown_error" },
-        { type: "validation_error" },
       ];
 
       unhandledErrors.forEach((error) => {
         expect(
-          StripeService.isStripeHandledCardError(error as StripeError),
+          StripeService.isStripeHandledFormError(error as StripeError),
         ).toBe(false);
       });
     });
