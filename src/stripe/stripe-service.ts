@@ -325,7 +325,7 @@ export class StripeService {
   static async extractTaxCustomerDetails(
     elements: StripeElements,
     stripe: Stripe,
-  ): Promise<TaxCustomerDetails | undefined> {
+  ): Promise<TaxCustomerDetails> {
     const { error: submitError } = await elements.submit();
     if (submitError) {
       throw submitError;

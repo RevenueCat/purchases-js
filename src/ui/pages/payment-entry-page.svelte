@@ -74,7 +74,8 @@
   const subscriptionOption =
     productDetails.subscriptionOptions?.[purchaseOption.id];
 
-  let taxCalculationStatus: TaxCalculationStatus = $state("disabled");
+  let taxCalculationStatus: TaxCalculationStatus =
+    $state<TaxCalculationStatus>("disabled");
   let pendingReason: TaxCalculationPendingReason | null = $state(null);
   let taxAmountInMicros: number | null = $state(null);
   let taxBreakdown: TaxBreakdown[] | null = $state(null);
@@ -118,12 +119,15 @@
   let processing = $state(false);
   let abortController: AbortController | null = $state(null);
 
+  let elementsComplete = $derived(isPaymentInfoComplete && isEmailComplete);
+
+  let calculatingTaxes = $state(false);
+
   let isFormReady = $derived(
     !processing &&
+      elementsComplete &&
       initialTaxCalculationSucceeded !== null &&
-      (taxCalculationStatus as TaxCalculationStatus) !== "loading" &&
-      isPaymentInfoComplete &&
-      isEmailComplete,
+      !calculatingTaxes,
   );
 
   onMount(() => {
@@ -157,8 +161,11 @@
       return;
     }
 
-    taxCalculationStatus = "loading";
-    onPriceBreakdownUpdated(priceBreakdown);
+    if (selectedPaymentMethod !== "card" || !elementsComplete) {
+      return;
+    }
+
+    calculatingTaxes = true;
 
     if (abortController) {
       abortController.abort();
@@ -171,7 +178,9 @@
       .then(async (newTaxCustomerDetails) => {
         signal.throwIfAborted();
 
-        await recalculatePriceBreakdown(newTaxCustomerDetails, signal);
+        if (newTaxCustomerDetails) {
+          await recalculatePriceBreakdown(newTaxCustomerDetails, signal);
+        }
       })
       .catch((error) => {
         if (error instanceof DOMException && error.name === "AbortError") {
@@ -179,6 +188,9 @@
           return;
         }
         throw error;
+      })
+      .finally(() => {
+        calculatingTaxes = false;
       });
   };
 
@@ -192,19 +204,25 @@
       );
 
       const sameDetails =
-        taxCustomerDetails?.postalCode === lastTaxCustomerDetails?.postalCode &&
-        taxCustomerDetails?.countryCode === lastTaxCustomerDetails?.countryCode;
+        taxCustomerDetails.postalCode === lastTaxCustomerDetails?.postalCode &&
+        taxCustomerDetails.countryCode === lastTaxCustomerDetails?.countryCode;
 
       if (sameDetails) {
         return null;
       }
-      return taxCustomerDetails ?? null;
+      return taxCustomerDetails;
     };
 
   async function recalculatePriceBreakdown(
     taxCustomerDetails: TaxCustomerDetails | null,
     signal?: AbortSignal,
   ) {
+    // Skip loading spinner on first load
+    if (initialTaxCalculationSucceeded) {
+      taxCalculationStatus = "loading";
+      onPriceBreakdownUpdated(priceBreakdown);
+    }
+
     await purchaseOperationHelper
       .checkoutCalculateTax(
         taxCustomerDetails?.countryCode,
@@ -258,8 +276,9 @@
     isStripeLoading = false;
   }
 
-  function handleEmailChange(complete: boolean, emailValue: string) {
+  async function handleEmailChange(complete: boolean, emailValue: string) {
     email = emailValue;
+    await refreshTaxCalculation();
     isEmailComplete = complete;
   }
 
@@ -270,11 +289,8 @@
     complete: boolean;
     paymentMethod: string | undefined;
   }) {
-    if (paymentMethod === "card") {
-      await refreshTaxCalculation();
-    }
-
     selectedPaymentMethod = paymentMethod;
+    await refreshTaxCalculation();
     isPaymentInfoComplete = complete;
   }
 
