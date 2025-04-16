@@ -154,14 +154,6 @@
   });
 
   async function refreshTaxCalculation(signal?: AbortSignal) {
-    if (taxCalculationStatus === "disabled") {
-      return;
-    }
-
-    if (selectedPaymentMethod !== "card" || !elementsComplete) {
-      return;
-    }
-
     calculatingTaxes = true;
 
     await extractNewTaxCustomerDetails()
@@ -321,7 +313,12 @@
       .then(async () => {
         signal.throwIfAborted();
 
-        if (taxCalculationStatus !== "unavailable") {
+        if (
+          taxCalculationStatus !== "unavailable" &&
+          taxCalculationStatus !== "disabled" &&
+          selectedPaymentMethod === "card" &&
+          elementsComplete
+        ) {
           const previousAmount = totalAmountInMicros;
           await refreshTaxCalculation(signal);
           if (withComplete && totalAmountInMicros !== previousAmount) {
