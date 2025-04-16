@@ -1,7 +1,7 @@
 {
   "metadata": {
     "toolPackage": "@microsoft/api-extractor",
-    "toolVersion": "7.50.1",
+    "toolVersion": "7.49.0",
     "schemaVersion": 1011,
     "oldestForwardsCompatibleVersion": 1001,
     "tsdocConfig": {
@@ -5518,6 +5518,37 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "getSharedInstance"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@revenuecat/purchases-js!Purchases#isAnonymous:member(1)",
+              "docComment": "/**\n * @returns Whether the current user is anonymous.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "isAnonymous(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "isAnonymous"
             },
             {
               "kind": "Method",

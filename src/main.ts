@@ -762,6 +762,13 @@ export class Purchases {
   }
 
   /**
+   * @returns Whether the current user is anonymous.
+   */
+  public isAnonymous(): boolean {
+    return this._appUserId.startsWith(ANONYMOUS_PREFIX);
+  }
+
+  /**
    * Closes the Purchases instance. You should never have to do this normally.
    */
   public close() {
