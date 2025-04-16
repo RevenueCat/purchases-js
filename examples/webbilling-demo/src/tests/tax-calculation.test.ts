@@ -98,7 +98,6 @@ integrationTest.describe("Tax calculation", () => {
       await enterCreditCardDetails(page, "4242 4242 4242 4242", {
         countryCode: "IT",
       });
-      await clickPayButton(page);
 
       const lines = await page.locator(TAX_BREAKDOWN_ITEM_SELECTOR).all();
       expect(lines).toHaveLength(3);
@@ -138,7 +137,6 @@ integrationTest.describe("Tax calculation", () => {
         countryCode: "US",
         postalCode: "33125", // Miami, FL
       });
-      await clickPayButton(page);
 
       await expect(page.getByText("Total excluding tax")).not.toBeVisible();
       await expect(page.getByText(/Sales Tax - New York/)).not.toBeVisible();
@@ -162,9 +160,7 @@ integrationTest.describe("Tax calculation", () => {
       await startPurchaseFlow(packageCards[0]);
 
       await expect(page.getByText("Total excluding tax")).toBeVisible();
-      await expect(
-        page.getByText("Sales Tax - New York (8%)"),
-      ).not.toBeVisible();
+      await expect(page.getByText(/Sales Tax - New York/)).not.toBeVisible();
       await expect(page.getByText("Total due today")).toBeVisible();
 
       await enterEmail(page, email);
@@ -176,6 +172,53 @@ integrationTest.describe("Tax calculation", () => {
       await expect(
         page.getByText(/We couldn't verify your billing address./),
       ).toBeVisible();
+    },
+  );
+
+  integrationTest(
+    "In-flight tax calculations are aborted when the user changes their billing address",
+    async ({ page, userId, email }) => {
+      page = await navigateToLandingUrl(
+        page,
+        userId,
+        {
+          offeringId: TAX_TEST_OFFERING_ID,
+        },
+        TAX_TEST_API_KEY,
+      );
+
+      const packageCards = await getPackageCards(page);
+      await startPurchaseFlow(packageCards[0]);
+
+      await expect(page.getByText("Total excluding tax")).toBeVisible();
+      await expect(page.getByText(/Sales Tax - New York/)).not.toBeVisible();
+      await expect(page.getByText("Total due today")).toBeVisible();
+
+      await enterEmail(page, email);
+      await enterCreditCardDetails(page, "4242 4242 4242 4242", {
+        countryCode: "US",
+        postalCode: "00093",
+      });
+
+      const skeleton = page.getByTestId("tax-loading-skeleton");
+
+      await expect(skeleton).toBeVisible();
+
+      // Clear the country code, to make sure that the change event is triggered by Stripe
+      await enterCreditCardDetails(page, "4242 4242 4242 4242", {
+        countryCode: "IT",
+      });
+
+      await enterCreditCardDetails(page, "4242 4242 4242 4242", {
+        countryCode: "US",
+        postalCode: "12345",
+      });
+
+      await expect(
+        page.getByText(/We couldn’t verify your billing address./),
+      ).not.toBeVisible();
+
+      await expect(page.getByText(/Sales Tax - New York/)).toBeVisible();
     },
   );
 });

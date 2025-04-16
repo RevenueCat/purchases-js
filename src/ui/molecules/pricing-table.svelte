@@ -47,7 +47,7 @@
       </div>
 
       {#if priceBreakdown.taxCalculationStatus === "loading"}
-        <div class="rcb-pricing-table-row">
+        <div class="rcb-pricing-table-row" data-testid="tax-loading-skeleton">
           <div class="rcb-pricing-table-header">
             {$translator.translate(LocalizationKeys.PricingTableTax)}
           </div>
