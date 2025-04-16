@@ -157,7 +157,7 @@
     }
   });
 
-  const refreshTaxCalculation = async () => {
+  const refreshTaxCalculation = async (signal?: AbortSignal) => {
     if (!initialTaxCalculationSucceeded) {
       return;
     }
@@ -168,27 +168,13 @@
 
     calculatingTaxes = true;
 
-    if (abortController) {
-      abortController.abort();
-    }
-
-    abortController = new AbortController();
-    const signal = abortController.signal;
-
     await extractNewTaxCustomerDetails()
       .then(async (newTaxCustomerDetails) => {
-        signal.throwIfAborted();
+        signal?.throwIfAborted();
 
         if (newTaxCustomerDetails) {
           await recalculatePriceBreakdown(newTaxCustomerDetails, signal);
         }
-      })
-      .catch((error) => {
-        if (error instanceof DOMException && error.name === "AbortError") {
-          // Silently handle cancellation
-          return;
-        }
-        throw error;
       })
       .finally(() => {
         calculatingTaxes = false;
@@ -269,7 +255,11 @@
         onPriceBreakdownUpdated(priceBreakdown);
       })
       .catch((error) => {
-        onError(error as PurchaseFlowError);
+        if (error instanceof PurchaseFlowError) {
+          onError(error);
+        }
+
+        throw error;
       });
   }
 
@@ -282,7 +272,7 @@
     isEmailComplete = complete;
     if (taxNeedingRefresh && isEmailComplete) {
       taxNeedingRefresh = false;
-      await refreshTaxCalculation();
+      await doSubmit(false);
     }
   }
 
@@ -296,7 +286,7 @@
     selectedPaymentMethod = paymentMethod;
     isPaymentInfoComplete = complete;
     if (isEmailComplete) {
-      await refreshTaxCalculation();
+      await doSubmit(false);
     } else if (isPaymentInfoComplete) {
       taxNeedingRefresh = true;
     }
@@ -305,34 +295,77 @@
   async function handleSubmit(e: Event): Promise<void> {
     e.preventDefault();
 
-    if (processing || !elements || !stripe) return;
-
-    processing = true;
+    if (processing) return;
 
     const event = createCheckoutPaymentFormSubmitEvent({
       selectedPaymentMethod: selectedPaymentMethod ?? null,
     });
     eventsTracker.trackSDKEvent(event);
 
-    await StripeService.submitElements(elements)
+    processing = true;
+    const completed = await doSubmit(true);
+
+    if (completed) {
+      onContinue();
+    } else {
+      processing = false;
+    }
+  }
+
+  async function doSubmit(withComplete: boolean): Promise<boolean> {
+    if (!elements || !stripe) return false;
+
+    if (abortController) {
+      abortController.abort();
+    }
+
+    abortController = new AbortController();
+    const signal = abortController.signal;
+
+    return await StripeService.submitElements(elements)
       .then(async () => {
-        return purchaseOperationHelper.checkoutComplete(email);
+        signal.throwIfAborted();
+
+        if (initialTaxCalculationSucceeded) {
+          const previousAmount = totalAmountInMicros;
+          await refreshTaxCalculation(signal);
+          if (withComplete && totalAmountInMicros !== previousAmount) {
+            modalErrorMessage =
+              "The total price was updated with tax based on your billing address. Please review and try again. Your card will only be charged once.";
+            return false;
+          }
+        }
+
+        return withComplete;
       })
-      .then(async (response) => {
-        const newClientSecret = response?.gateway_params?.client_secret;
+      .then(async (shouldContinue) => {
+        if (!shouldContinue) {
+          return false;
+        }
+
+        signal.throwIfAborted();
+
+        const completeResponse =
+          await purchaseOperationHelper.checkoutComplete(email);
+
+        signal.throwIfAborted();
+
+        const newClientSecret = completeResponse?.gateway_params?.client_secret;
 
         if (newClientSecret) {
           clientSecret = newClientSecret;
         }
-      })
-      .then(async () => {
-        if (!stripe || !elements || !clientSecret) return; // TODO: Handle this
+        if (!stripe || !elements || !clientSecret) return false; // TODO: Handle this
+
         await StripeService.confirmElements(stripe, elements, clientSecret);
-      })
-      .then(async () => {
-        onContinue();
+        return true;
       })
       .catch(async (error) => {
+        if (error instanceof DOMException && error.name === "AbortError") {
+          // Silently handle cancellation
+          return false;
+        }
+
         if (error instanceof PurchaseFlowError) {
           const event = createCheckoutPaymentFormErrorEvent({
             errorCode: error.errorCode.toString(),
@@ -345,13 +378,13 @@
               LocalizationKeys.ErrorPageErrorMessageInvalidEmailError,
               { email: email },
             );
-            processing = false;
           } else {
             onError(error);
           }
         } else {
           await handleStripeElementError(error);
         }
+        return false;
       });
   }
 
@@ -363,9 +396,7 @@
     eventsTracker.trackSDKEvent(event);
 
     if (error.code === StripeServiceErrorCode.HandledFormError) {
-      processing = false;
     } else if (error.code === StripeServiceErrorCode.UnhandledFormError) {
-      processing = false;
       modalErrorMessage = error.message;
     } else {
       onError(
