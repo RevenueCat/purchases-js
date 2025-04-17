@@ -14,7 +14,8 @@ export type TaxCalculationStatus =
   | "pending"
   | "loading"
   | "calculated"
-  | "disabled";
+  | "disabled"
+  | "miss-match"; // Billing details do not match the calculation;
 
 export type TaxCalculationPendingReason =
   | "needs_postal_code"

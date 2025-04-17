@@ -34,9 +34,6 @@
       withTaxes: {
         control: "boolean",
       },
-      defaultUnmatchingTotalsError: {
-        control: "boolean",
-      },
     },
     parameters: {
       viewport: {
@@ -72,10 +69,8 @@
     lastError={null}
     gatewayParams={checkoutStartResponse.gateway_params}
     {purchaseOperationHelper}
-    defaultPriceBreakdown={args.withTaxes
-      ? priceBreakdownTaxInclusive
-      : priceBreakdownTaxDisabled}
-    defaultUnmatchingTotalsError={args.defaultUnmatchingTotalsError}
+    defaultPriceBreakdown={args.defaultPriceBreakdown ??
+      (args.withTaxes ? priceBreakdownTaxInclusive : priceBreakdownTaxDisabled)}
     isInElement={context.globals.viewport === "embedded"}
     onError={() => {}}
   />
@@ -128,12 +123,15 @@
 />
 
 <Story
-  name="Checkout (with unmatching totals error)"
+  name="Checkout (with Tax miss-match)"
   args={{
     ...defaultArgs,
     currentPage: "payment-entry",
     withTaxes: true,
-    defaultUnmatchingTotalsError: true,
+    defaultPriceBreakdown: {
+      ...priceBreakdownTaxInclusive,
+      taxCalculationStatus: "miss-match",
+    },
   }}
 />
 <Story name="Loading" args={{ currentPage: "payment-entry-loading" }} />
