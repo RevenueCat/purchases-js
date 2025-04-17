@@ -13,10 +13,10 @@
     disabled: boolean;
     subscriptionOption: SubscriptionOption | null;
     priceBreakdown?: PriceBreakdown;
-    wallet?: string;
+    paymentMethod?: string;
   };
 
-  const { disabled, subscriptionOption, priceBreakdown, wallet }: Props =
+  const { disabled, subscriptionOption, priceBreakdown, paymentMethod }: Props =
     $props();
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
@@ -32,10 +32,10 @@
 </script>
 
 <Button {disabled} testId="PayButton">
-  {#if wallet && formattedPrice}
+  {#if paymentMethod && formattedPrice}
     <Localized
       key={LocalizationKeys.PaymentEntryPageButtonWallet}
-      variables={{ formattedPrice, wallet }}
+      variables={{ formattedPrice, paymentMethod }}
     />
   {:else if subscriptionOption?.trial}
     <Localized key={LocalizationKeys.PaymentEntryPageButtonStartTrial} />

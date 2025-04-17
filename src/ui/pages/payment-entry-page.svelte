@@ -546,7 +546,7 @@
           disabled={!isFormReady}
           {subscriptionOption}
           {priceBreakdown}
-          wallet={payButtonPaymentMethod}
+          paymentMethod={payButtonPaymentMethod}
         />
 
         <div class="rc-checkout-secure-container">
