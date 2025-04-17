@@ -399,9 +399,11 @@
 
   // Helper function to handle errors of the tax recalculation or form submission
   async function handleErrors(error: unknown): Promise<boolean> {
+    // TODO: Convert to known error to avoid literal comparison
     if (error instanceof Error && error.message === "UnmatchingTotalsError") {
-      modalErrorMessage =
-        "The total price was updated with tax based on your billing address. Please review and try again. Your card will only be charged once.";
+      modalErrorMessage = $translator.translate(
+        LocalizationKeys.PriceUpdateMessage,
+      );
     } else if (error instanceof PurchaseFlowError) {
       const event = createCheckoutPaymentFormErrorEvent({
         errorCode: error.errorCode.toString(),
