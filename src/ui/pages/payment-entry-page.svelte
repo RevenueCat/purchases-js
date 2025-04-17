@@ -120,8 +120,6 @@
   let processing = $state(false);
   let abortController: AbortController | null = $state(null);
 
-  let taxNeedingRefresh = $state(false);
-
   let isFormReady = $derived(
     !processing &&
       isPaymentInfoComplete &&
@@ -219,10 +217,7 @@
   async function handleEmailChange(complete: boolean, emailValue: string) {
     email = emailValue;
     isEmailComplete = complete;
-    if (taxNeedingRefresh && isEmailComplete) {
-      taxNeedingRefresh = false;
-      await refreshTaxes();
-    }
+    await refreshTaxes();
   }
 
   async function handlePaymentInfoChange({
@@ -234,11 +229,7 @@
   }) {
     selectedPaymentMethod = paymentMethod;
     isPaymentInfoComplete = complete;
-    if (isEmailComplete) {
-      await refreshTaxes();
-    } else if (isPaymentInfoComplete) {
-      taxNeedingRefresh = true;
-    }
+    await refreshTaxes();
   }
 
   async function handleSubmit(e: Event): Promise<void> {
@@ -262,18 +253,29 @@
   }
 
   /**
-   * Refreshes the taxes by performing a series of steps with abort protection.
+   * Refreshes taxes in real-time as the customer enters payment details.
    *
-   * This function performs the following steps:
-   * 1. Submits the payment elements.
-   * 2. Recalculates the taxes if necessary extracting tax details from the payment elements.
-   * 3. Handles any errors that occur during the process.
+   * This method can only be used for card payments, as it will trigger a native prompt
+   * if wallet payment methods (like Apple Pay or Google Pay) are selected.
    *
-   * If any step is aborted or fails, the function will handle the errors accordingly.
+   * It requires both email and payment information to be complete before execution,
+   * otherwise it will trigger validation errors in the payment form.
    *
-   * @returns {Promise<void>} - Returns a promise that resolves when the tax refresh process completes.
+   * The method performs the following steps with abort protection:
+   * 1. Submits the payment elements to get the latest billing details
+   * 2. Recalculates taxes based on the extracted customer details
+   * 3. Handles any errors that occur during the process
+   *
+   * The operation is protected with an AbortController to prevent race conditions
+   * when multiple tax refresh requests are triggered in quick succession.
    */
   async function refreshTaxes(): Promise<void> {
+    if (selectedPaymentMethod !== "card") return;
+
+    if (!isEmailComplete || !isPaymentInfoComplete) {
+      return;
+    }
+
     await withAbortProtection(async (signal) => {
       await submitElements()
         .then(() => signal.throwIfAborted())
@@ -345,14 +347,11 @@
     await StripeService.submitElements(elements);
   }
 
-  // Helper function to recalculate the taxes
+  // Helper function to recalculate the taxes with customer details extracted from the elements
   async function recalculateTaxes(signal?: AbortSignal): Promise<void> {
     if (
       taxCalculationStatus === "unavailable" ||
       taxCalculationStatus === "disabled" ||
-      selectedPaymentMethod !== "card" ||
-      !isPaymentInfoComplete ||
-      !isEmailComplete ||
       !elements ||
       !stripe
     ) {

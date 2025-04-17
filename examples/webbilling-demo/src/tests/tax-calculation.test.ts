@@ -373,6 +373,7 @@ integrationTest.describe("Tax calculation", () => {
       await enterEmail(page, email);
 
       await expect(calculateTaxesCount).toBe(0);
+      await expect(page.getByText(/VAT - Italy/)).not.toBeVisible();
 
       await enterCreditCardDetails(
         page,
@@ -380,7 +381,6 @@ integrationTest.describe("Tax calculation", () => {
         ITALY_CUSTOMER_DETAILS,
       );
 
-      await expect(skeleton).toBeVisible();
       await expect(page.getByText(/VAT - Italy/)).toBeVisible();
 
       await expect(calculateTaxesCount).toBe(1);
