@@ -326,7 +326,10 @@ export class StripeService {
   static async extractTaxCustomerDetails(
     elements: StripeElements,
     stripe: Stripe,
-  ): Promise<TaxCustomerDetails> {
+  ): Promise<{
+    customerDetails: TaxCustomerDetails;
+    confirmationTokenId: string;
+  }> {
     const { error: submitError } = await elements.submit();
     if (submitError) {
       throw submitError;
@@ -345,8 +348,11 @@ export class StripeService {
       confirmationToken.payment_method_preview?.billing_details?.address;
 
     return {
-      countryCode: billingAddress?.country ?? undefined,
-      postalCode: billingAddress?.postal_code ?? undefined,
+      customerDetails: {
+        countryCode: billingAddress?.country ?? undefined,
+        postalCode: billingAddress?.postal_code ?? undefined,
+      },
+      confirmationTokenId: confirmationToken.id,
     };
   }
 }
