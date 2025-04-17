@@ -277,8 +277,8 @@
     await withAbortProtection(async (signal) => {
       await submitElements()
         .then(() => signal.throwIfAborted())
-        .then(() => recalculateTaxes())
-        .then(signal.throwIfAborted)
+        .then(recalculateTaxes)
+        .then(() => signal.throwIfAborted())
         .catch(handleErrors);
     });
   }
@@ -302,15 +302,15 @@
       const previousTotal = totalAmountInMicros;
 
       return await submitElements()
-        .then(signal.throwIfAborted)
+        .then(() => signal.throwIfAborted())
         .then(recalculateTaxes)
-        .then(signal.throwIfAborted)
+        .then(() => signal.throwIfAborted())
         .then(ensureMatchingTotals(previousTotal))
-        .then(signal.throwIfAborted)
+        .then(() => signal.throwIfAborted())
         .then(completeCheckout)
-        .then(signal.throwIfAborted)
+        .then(() => signal.throwIfAborted())
         .then(confirmElements)
-        .then(signal.throwIfAborted)
+        .then(() => signal.throwIfAborted())
         .then(() => true)
         .catch(handleErrors);
     });
