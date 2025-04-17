@@ -51,9 +51,7 @@
       {/snippet}
     </NavBar>
     <Main brandingAppearance={brandingInfo?.appearance}>
-      {#snippet body()}
-        {@render mainContent?.()}
-      {/snippet}
+      {@render mainContent?.()}
     </Main>
   </Layout>
 </Container>

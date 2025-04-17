@@ -6,13 +6,13 @@ export interface Spacing {
 }
 
 export const DEFAULT_SPACING: Spacing = {
+  outerPaddingTop: {
+    mobile: "clamp(1.3125rem, 5.6vw, 1.5rem)",
+    desktop: "clamp(1.5rem, 9.44vw, 7.5rem)",
+  },
   outerPadding: {
     mobile: "clamp(1.3125rem, 5.6vw, 1.5rem)",
-    desktop: "clamp(1.5rem, 9.44vw, 5rem)",
-  },
-  outerPaddingSmall: {
-    mobile: "clamp(0.75rem, 4.2vw, 1rem)",
-    desktop: "clamp(1.5rem, 9.44vw, 5rem)",
+    desktop: "clamp(1.5rem, 9.44vw, 4.5rem)",
   },
   gapSmall: {
     mobile: "0.25rem",
