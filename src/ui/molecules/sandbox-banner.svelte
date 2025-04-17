@@ -2,6 +2,7 @@
   import { fly } from "svelte/transition";
   import CloseButton from "./close-button.svelte";
   import { Logger } from "../../helpers/logger";
+  import Typography from "../atoms/typography.svelte";
 
   export let style = "";
   export let isInElement = false;
@@ -21,9 +22,13 @@
     out:fly={{ y: -100, duration: 300 }}
     class:isInElement
   >
-    <span class="rcb-sandbox-banner-text">Sandbox</span>
+    <Typography size="caption-default">
+      <span class="rcb-sandbox-text">Sandbox</span>
+    </Typography>
     <div class="rcb-sandbox-banner-close-button-wrapper">
-      <CloseButton on:click={closeBanner} />
+      <Typography size="caption-default">
+        <CloseButton on:click={closeBanner} />
+      </Typography>
     </div>
   </div>
 {/if}
@@ -37,8 +42,6 @@
     width: 100%;
     background-color: var(--rc-color-warning);
     color: rgba(0, 0, 0, 1);
-    font: var(--rc-text-caption-mobile);
-    font-weight: bold;
     text-transform: uppercase;
     padding: var(--rc-spacing-gapSmall-mobile);
     display: flex;
@@ -58,20 +61,13 @@
     color: black;
   }
 
-  :global(.rcb-sandbox-banner-close-button-icon) {
-    color: black;
-    height: var(--rc-text-caption-mobile-font-size);
+  .rcb-sandbox-text {
+    font-weight: bold;
   }
 
   @container layout-query-container (width >= 768px) {
-    :global(.rcb-sandbox-banner-close-button-icon) {
-      height: var(--rc-text-caption-desktop-font-size);
-    }
-
     .rcb-ui-sandbox-banner {
       padding: var(--rc-spacing-gapMedium-desktop);
-      font: var(--rc-text-caption-desktop);
-      font-weight: bold;
     }
 
     .rcb-sandbox-banner-close-button-wrapper {
