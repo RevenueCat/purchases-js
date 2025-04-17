@@ -277,7 +277,7 @@
     await withAbortProtection(async (signal) => {
       await submitElements()
         .then(() => signal.throwIfAborted())
-        .then(recalculateTaxes)
+        .then(() => recalculateTaxes(signal))
         .then(() => signal.throwIfAborted())
         .catch(handleErrors);
     });
@@ -303,7 +303,7 @@
 
       return await submitElements()
         .then(() => signal.throwIfAborted())
-        .then(recalculateTaxes)
+        .then(() => recalculateTaxes(signal))
         .then(() => signal.throwIfAborted())
         .then(ensureMatchingTotals(previousTotal))
         .then(() => signal.throwIfAborted())
@@ -346,7 +346,7 @@
   }
 
   // Helper function to recalculate the taxes
-  async function recalculateTaxes(): Promise<void> {
+  async function recalculateTaxes(signal?: AbortSignal): Promise<void> {
     if (
       taxCalculationStatus === "unavailable" ||
       taxCalculationStatus === "disabled" ||
@@ -364,12 +364,14 @@
       stripe,
     );
 
+    signal?.throwIfAborted();
+
     const sameDetails =
       taxCustomerDetails.postalCode === lastTaxCustomerDetails?.postalCode &&
       taxCustomerDetails.countryCode === lastTaxCustomerDetails?.countryCode;
 
     if (!sameDetails) {
-      await recalculatePriceBreakdown(taxCustomerDetails);
+      await recalculatePriceBreakdown(taxCustomerDetails, signal);
     }
   }
 
