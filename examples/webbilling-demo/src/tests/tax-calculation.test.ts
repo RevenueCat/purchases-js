@@ -145,6 +145,8 @@ integrationTest.describe("Tax calculation", () => {
         ITALY_CUSTOMER_DETAILS,
       );
 
+      await expect(page.getByText("Total excluding tax")).toBeVisible();
+
       const lines = await page.locator(TAX_BREAKDOWN_ITEM_SELECTOR).all();
       expect(lines).toHaveLength(3);
       await expect(lines[0].getByText(/Total excluding tax/)).toBeVisible();
