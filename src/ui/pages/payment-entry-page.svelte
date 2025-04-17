@@ -71,6 +71,8 @@
     onPriceBreakdownUpdated,
   }: Props = $props();
 
+  const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
+  const translator = getContext<Writable<Translator>>(translatorContextKey);
   const subscriptionOption =
     productDetails.subscriptionOptions?.[purchaseOption.id];
 
@@ -103,9 +105,6 @@
     gatewayParams.elements_configuration,
   );
 
-  const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
-  const translator = getContext<Writable<Translator>>(translatorContextKey);
-
   let lastTaxCustomerDetails: TaxCustomerDetails | null = $state(null);
 
   let stripe: Stripe | null = $state(null);
@@ -121,15 +120,12 @@
   let processing = $state(false);
   let abortController: AbortController | null = $state(null);
 
-  let elementsComplete = $derived(isPaymentInfoComplete && isEmailComplete);
-
-  let calculatingTaxes = $state(false);
   let taxNeedingRefresh = $state(false);
 
   let isFormReady = $derived(
     !processing &&
-      elementsComplete &&
-      !calculatingTaxes &&
+      isPaymentInfoComplete &&
+      isEmailComplete &&
       (taxCalculationStatus === "disabled" ||
         taxCalculationStatus === "calculated"),
   );
@@ -152,40 +148,6 @@
       abortController = null;
     }
   });
-
-  async function refreshTaxCalculation(signal?: AbortSignal) {
-    calculatingTaxes = true;
-
-    await extractNewTaxCustomerDetails()
-      .then(async (newTaxCustomerDetails) => {
-        signal?.throwIfAborted();
-
-        if (newTaxCustomerDetails) {
-          await recalculatePriceBreakdown(newTaxCustomerDetails, signal);
-        }
-      })
-      .finally(() => {
-        calculatingTaxes = false;
-      });
-  }
-
-  async function extractNewTaxCustomerDetails(): Promise<TaxCustomerDetails | null> {
-    if (!elements || !stripe) return null;
-
-    const taxCustomerDetails = await StripeService.extractTaxCustomerDetails(
-      elements,
-      stripe,
-    );
-
-    const sameDetails =
-      taxCustomerDetails.postalCode === lastTaxCustomerDetails?.postalCode &&
-      taxCustomerDetails.countryCode === lastTaxCustomerDetails?.countryCode;
-
-    if (sameDetails) {
-      return null;
-    }
-    return taxCustomerDetails;
-  }
 
   async function recalculatePriceBreakdown(
     taxCustomerDetails: TaxCustomerDetails | null,
@@ -259,7 +221,7 @@
     isEmailComplete = complete;
     if (taxNeedingRefresh && isEmailComplete) {
       taxNeedingRefresh = false;
-      await doSubmit(false);
+      await refreshTaxes();
     }
   }
 
@@ -273,7 +235,7 @@
     selectedPaymentMethod = paymentMethod;
     isPaymentInfoComplete = complete;
     if (isEmailComplete) {
-      await doSubmit(false);
+      await refreshTaxes();
     } else if (isPaymentInfoComplete) {
       taxNeedingRefresh = true;
     }
@@ -290,7 +252,7 @@
     eventsTracker.trackSDKEvent(event);
 
     processing = true;
-    const completed = await doSubmit(true);
+    const completed = await submitPayment();
 
     if (completed) {
       onContinue();
@@ -299,9 +261,65 @@
     }
   }
 
-  async function doSubmit(withComplete: boolean): Promise<boolean> {
-    if (!elements || !stripe) return false;
+  /**
+   * Refreshes the taxes by performing a series of steps with abort protection.
+   *
+   * This function performs the following steps:
+   * 1. Submits the payment elements.
+   * 2. Recalculates the taxes if necessary extracting tax details from the payment elements.
+   * 3. Handles any errors that occur during the process.
+   *
+   * If any step is aborted or fails, the function will handle the errors accordingly.
+   *
+   * @returns {Promise<void>} - Returns a promise that resolves when the tax refresh process completes.
+   */
+  async function refreshTaxes(): Promise<void> {
+    await withAbortProtection(async (signal) => {
+      await submitElements()
+        .then(() => signal.throwIfAborted())
+        .then(() => recalculateTaxes())
+        .then(signal.throwIfAborted)
+        .catch(handleErrors);
+    });
+  }
 
+  /**
+   * Submits the payment process by performing a series of steps with abort protection.
+   *
+   * This function performs the following steps:
+   * 1. Submits the payment elements.
+   * 2. Recalculates the taxes if necessary extracting tax details from the payment elements.
+   * 3. Ensures the totals match the previous total amount.
+   * 4. Completes the checkout process.
+   * 5. Confirms the payment elements.
+   *
+   * If any step is aborted or fails, the function will handle the errors accordingly.
+   *
+   * @returns {Promise<boolean>} - Returns true if the payment process completes successfully, otherwise false.
+   */
+  async function submitPayment(): Promise<boolean> {
+    return await withAbortProtection(async (signal) => {
+      const previousTotal = totalAmountInMicros;
+
+      return await submitElements()
+        .then(signal.throwIfAborted)
+        .then(recalculateTaxes)
+        .then(signal.throwIfAborted)
+        .then(ensureMatchingTotals(previousTotal))
+        .then(signal.throwIfAborted)
+        .then(completeCheckout)
+        .then(signal.throwIfAborted)
+        .then(confirmElements)
+        .then(signal.throwIfAborted)
+        .then(() => true)
+        .catch(handleErrors);
+    });
+  }
+
+  // Helper function to mitigate multiple calls from happening
+  async function withAbortProtection<T>(
+    operation: (signal: AbortSignal) => Promise<T>,
+  ): Promise<T> {
     if (abortController) {
       abortController.abort();
     }
@@ -309,75 +327,98 @@
     abortController = new AbortController();
     const signal = abortController.signal;
 
-    return await StripeService.submitElements(elements)
-      .then(async () => {
-        signal.throwIfAborted();
+    try {
+      return await operation(signal);
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") {
+        // Silently handle abortion
+      }
+      throw error;
+    }
+  }
 
-        if (
-          taxCalculationStatus !== "unavailable" &&
-          taxCalculationStatus !== "disabled" &&
-          selectedPaymentMethod === "card" &&
-          elementsComplete
-        ) {
-          const previousAmount = totalAmountInMicros;
-          await refreshTaxCalculation(signal);
-          if (withComplete && totalAmountInMicros !== previousAmount) {
-            modalErrorMessage =
-              "The total price was updated with tax based on your billing address. Please review and try again. Your card will only be charged once.";
-            return false;
-          }
-        }
+  // Helper function to submit the elements
+  async function submitElements(): Promise<void> {
+    if (!elements) return;
+    await StripeService.submitElements(elements);
+  }
 
-        return withComplete;
-      })
-      .then(async (shouldContinue) => {
-        if (!shouldContinue) {
-          return false;
-        }
+  // Helper function to recalculate the taxes
+  async function recalculateTaxes(): Promise<void> {
+    if (
+      taxCalculationStatus === "unavailable" ||
+      taxCalculationStatus === "disabled" ||
+      selectedPaymentMethod !== "card" ||
+      !isPaymentInfoComplete ||
+      !isEmailComplete ||
+      !elements ||
+      !stripe
+    ) {
+      return;
+    }
 
-        signal.throwIfAborted();
+    const taxCustomerDetails = await StripeService.extractTaxCustomerDetails(
+      elements,
+      stripe,
+    );
 
-        const completeResponse =
-          await purchaseOperationHelper.checkoutComplete(email);
+    const sameDetails =
+      taxCustomerDetails.postalCode === lastTaxCustomerDetails?.postalCode &&
+      taxCustomerDetails.countryCode === lastTaxCustomerDetails?.countryCode;
 
-        signal.throwIfAborted();
+    if (!sameDetails) {
+      await recalculatePriceBreakdown(taxCustomerDetails);
+    }
+  }
 
-        const newClientSecret = completeResponse?.gateway_params?.client_secret;
+  // Helper function to ensure the totals match
+  function ensureMatchingTotals(previousTotal: number | null): () => void {
+    return () => {
+      if (totalAmountInMicros !== previousTotal) {
+        throw new Error("UnmatchingTotalsError");
+      }
+    };
+  }
 
-        if (newClientSecret) {
-          clientSecret = newClientSecret;
-        }
-        if (!stripe || !elements || !clientSecret) return false; // TODO: Handle this
+  // Helper function to complete the checkout
+  async function completeCheckout(): Promise<void> {
+    const completeResponse =
+      await purchaseOperationHelper.checkoutComplete(email);
+    const newClientSecret = completeResponse?.gateway_params?.client_secret;
+    if (newClientSecret) clientSecret = newClientSecret;
+  }
 
-        await StripeService.confirmElements(stripe, elements, clientSecret);
-        return true;
-      })
-      .catch(async (error) => {
-        if (error instanceof DOMException && error.name === "AbortError") {
-          // Silently handle cancellation
-          return false;
-        }
+  // Helper function to confirm the elements
+  async function confirmElements(): Promise<void> {
+    if (!stripe || !elements || !clientSecret) return;
+    await StripeService.confirmElements(stripe, elements, clientSecret);
+  }
 
-        if (error instanceof PurchaseFlowError) {
-          const event = createCheckoutPaymentFormErrorEvent({
-            errorCode: error.errorCode.toString(),
-            errorMessage: error.message,
-          });
-          eventsTracker.trackSDKEvent(event);
-
-          if (error.errorCode === PurchaseFlowErrorCode.MissingEmailError) {
-            modalErrorMessage = $translator.translate(
-              LocalizationKeys.ErrorPageErrorMessageInvalidEmailError,
-              { email: email },
-            );
-          } else {
-            onError(error);
-          }
-        } else {
-          await handleStripeElementError(error);
-        }
-        return false;
+  // Helper function to handle errors of the tax recalculation or form submission
+  async function handleErrors(error: unknown): Promise<boolean> {
+    if (error instanceof Error && error.name === "UnmatchingTotalsError") {
+      modalErrorMessage =
+        "The total price was updated with tax based on your billing address. Please review and try again. Your card will only be charged once.";
+    }
+    if (error instanceof PurchaseFlowError) {
+      const event = createCheckoutPaymentFormErrorEvent({
+        errorCode: error.errorCode.toString(),
+        errorMessage: error.message,
       });
+      eventsTracker.trackSDKEvent(event);
+
+      if (error.errorCode === PurchaseFlowErrorCode.MissingEmailError) {
+        modalErrorMessage = $translator.translate(
+          LocalizationKeys.ErrorPageErrorMessageInvalidEmailError,
+          { email: email },
+        );
+      } else {
+        onError(error);
+      }
+    } else {
+      await handleStripeElementError(error as StripeServiceError);
+    }
+    return false;
   }
 
   async function handleStripeElementError(error: StripeServiceError) {
