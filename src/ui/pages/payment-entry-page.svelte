@@ -1,4 +1,4 @@
-<script lang="ts">
+<script module>
   import { getContext, onDestroy, onMount } from "svelte";
   import type { Product, PurchaseOption } from "../../entities/offerings";
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
@@ -61,6 +61,10 @@
     onPriceBreakdownUpdated: (priceBreakdown: PriceBreakdown) => void;
   }
 
+  class TaxCustomerDetailsMissMatchError extends Error {}
+</script>
+
+<script lang="ts">
   const {
     gatewayParams,
     productDetails,
@@ -409,7 +413,7 @@
   function ensureMatchingTotals(previousTotal: number | null): () => void {
     return () => {
       if (totalAmountInMicros !== previousTotal) {
-        throw new Error("UnmatchingTotalsError");
+        throw new TaxCustomerDetailsMissMatchError();
       }
     };
   }
@@ -443,8 +447,7 @@
 
   // Helper function to handle errors of the tax recalculation or form submission
   async function handleErrors(error: unknown): Promise<boolean> {
-    // TODO: Convert to known error to avoid literal comparison
-    if (error instanceof Error && error.message === "UnmatchingTotalsError") {
+    if (error instanceof TaxCustomerDetailsMissMatchError) {
       taxCalculationStatus = "miss-match";
     } else if (error instanceof PurchaseFlowError) {
       const event = createCheckoutPaymentFormErrorEvent({
