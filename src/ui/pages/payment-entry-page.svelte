@@ -154,7 +154,7 @@
 
   onMount(async () => {
     if (taxCalculationStatus === "unavailable") {
-      await recalculatePriceBreakdown(null);
+      await recalculatePriceBreakdown(null).catch(handleErrors);
     }
   });
 
@@ -218,13 +218,6 @@
 
         lastTaxCustomerDetails = taxCustomerDetails;
         onPriceBreakdownUpdated(priceBreakdown);
-      })
-      .catch((error) => {
-        if (error instanceof PurchaseFlowError) {
-          onError(error);
-        }
-
-        throw error;
       });
   }
 
