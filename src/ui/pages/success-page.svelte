@@ -11,10 +11,9 @@
   import { SDKEventName } from "../../behavioural-events/sdk-events";
   import { type IEventsTracker } from "../../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "../constants";
-  import { type ContinueHandlerParams } from "../ui-types";
   import { type Writable } from "svelte/store";
   export let productDetails: Product;
-  export let onContinue: (params?: ContinueHandlerParams) => void;
+  export let onContinue: () => void;
 
   const isSubscription =
     productDetails.productType === ProductType.Subscription;
@@ -41,7 +40,7 @@
 <MessageLayout
   type="success"
   title={$translator.translate(LocalizationKeys.SuccessPagePurchaseSuccessful)}
-  onContinue={handleContinue}
+  onDismiss={handleContinue}
   closeButtonTitle={$translator.translate(
     LocalizationKeys.SuccessPageButtonClose,
   )}

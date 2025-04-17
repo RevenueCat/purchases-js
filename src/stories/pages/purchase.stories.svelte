@@ -7,7 +7,6 @@
   } from "@storybook/addon-svelte-csf";
   import PurchasesInner from "../../ui/purchases-ui-inner.svelte";
   import { brandingLanguageViewportModes } from "../../../.storybook/modes";
-
   import {
     brandingInfos,
     checkoutStartResponse,
@@ -69,12 +68,12 @@
     customerEmail={args.customerEmail}
     lastError={null}
     gatewayParams={checkoutStartResponse.gateway_params}
-    priceBreakdown={args.withTaxes
+    {purchaseOperationHelper}
+    defaultPriceBreakdown={args.withTaxes
       ? priceBreakdownTaxInclusive
       : priceBreakdownTaxDisabled}
-    {purchaseOperationHelper}
     isInElement={context.globals.viewport === "embedded"}
-    onTaxCustomerDetailsUpdated={() => {}}
+    onError={() => {}}
   />
 {/snippet}
 

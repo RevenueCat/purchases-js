@@ -20,10 +20,10 @@
     supportEmail: string | null;
     productDetails: Product;
     email?: string;
-    onContinue: () => void;
+    onDismiss: () => void;
   }
 
-  const { lastError, supportEmail, productDetails, email, onContinue }: Props =
+  const { lastError, supportEmail, productDetails, email, onDismiss }: Props =
     $props();
 
   const error: PurchaseFlowError = $derived(
@@ -107,7 +107,7 @@
 
 <MessageLayout
   title={getTranslatedErrorTitle()}
-  {onContinue}
+  {onDismiss}
   type="error"
   closeButtonTitle={$translator.translate(LocalizationKeys.ErrorButtonTryAgain)}
 >
