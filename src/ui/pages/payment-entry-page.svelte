@@ -396,7 +396,7 @@
 
   // Helper function to handle errors of the tax recalculation or form submission
   async function handleErrors(error: unknown): Promise<boolean> {
-    if (error instanceof Error && error.name === "UnmatchingTotalsError") {
+    if (error instanceof Error && error.message === "UnmatchingTotalsError") {
       modalErrorMessage =
         "The total price was updated with tax based on your billing address. Please review and try again. Your card will only be charged once.";
     }
