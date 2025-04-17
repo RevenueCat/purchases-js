@@ -1,6 +1,7 @@
 <script lang="ts">
   import { type Snippet } from "svelte";
-  import ProcessingAnimation from "./processing-animation.svelte";
+  import ProcessingAnimation from "../atoms/processing-animation.svelte";
+  import Typography from "../atoms/typography.svelte";
 
   export let intent: "primary" = "primary";
   export let disabled = false;
@@ -21,7 +22,7 @@
   {#if loading}
     <ProcessingAnimation size="small" />
   {:else}
-    {@render children?.()}
+    <Typography size="body-base">{@render children?.()}</Typography>
   {/if}
 </button>
 
@@ -29,7 +30,6 @@
   button {
     border: none;
     border-radius: var(--rc-shape-input-button-border-radius);
-    font-size: 16px;
     cursor: pointer;
     height: var(--rc-spacing-inputHeight-mobile);
     color: var(--rc-color-grey-text-dark);
@@ -57,7 +57,6 @@
   button.intent-primary {
     background-color: var(--rc-color-primary);
     color: var(--rc-color-primary-text);
-    font-size: 16px;
   }
 
   button:disabled {

@@ -18,7 +18,7 @@
     height: 40px;
     border-radius: 12px;
     box-shadow: 0px 1px 10px 0px rgba(0, 0, 0, 0.1);
-    margin-right: 16px;
+    margin-right: 12px;
   }
 
   .rcb-app-icon-picture-container {

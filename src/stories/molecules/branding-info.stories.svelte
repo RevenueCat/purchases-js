@@ -8,11 +8,17 @@
   } from "@storybook/addon-svelte-csf";
   import { brandingInfos } from "../fixtures";
   import { withNavbar } from "../decorators/with-navbar";
+  import { mobileAndDesktopBrandingModes } from "../../../.storybook/modes";
 
   let { Story } = defineMeta({
     component: BrandingInfo,
     // @ts-expect-error ignore typing of decorator
     decorators: [withNavbar],
+    parameters: {
+      chromatic: {
+        modes: mobileAndDesktopBrandingModes,
+      },
+    },
     title: "Molecules/Branding Info",
   });
 </script>
