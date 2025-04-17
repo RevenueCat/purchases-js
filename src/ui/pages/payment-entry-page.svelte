@@ -306,7 +306,9 @@
     }
 
     await withAbortProtection(async (signal) => {
-      await recalculateTaxes(signal)
+      await submitElements()
+        .then(() => signal.throwIfAborted())
+        .then(() => recalculateTaxes(signal))
         .then(() => signal.throwIfAborted())
         .catch(handleErrors);
     });
@@ -330,13 +332,9 @@
     return await withAbortProtection(async (signal) => {
       const previousTotal = totalAmountInMicros;
 
-      return await (async () => {
-        if (taxCalculationStatus === "disabled") {
-          await submitElements();
-        } else {
-          await recalculateTaxes(signal);
-        }
-      })()
+      return await submitElements()
+        .then(() => signal.throwIfAborted())
+        .then(() => recalculateTaxes(signal))
         .then(() => signal.throwIfAborted())
         .then(ensureMatchingTotals(previousTotal))
         .then(() => signal.throwIfAborted())

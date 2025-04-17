@@ -330,18 +330,13 @@ export class StripeService {
     customerDetails: TaxCustomerDetails;
     confirmationTokenId: string;
   }> {
-    const { error: submitError } = await elements.submit();
-    if (submitError) {
-      throw submitError;
-    }
-
     const { error: confirmationError, confirmationToken } =
       await stripe.createConfirmationToken({
         elements: elements,
       });
 
     if (confirmationError) {
-      throw confirmationError;
+      throw this.mapError(confirmationError);
     }
 
     const billingAddress =
