@@ -6,6 +6,7 @@
   import { getContext } from "svelte";
   import { type Writable } from "svelte/store";
   import { Translator } from "../localization/translator";
+  import Typography from "../atoms/typography.svelte";
 
   export let isExpanded: boolean = true;
   export let children: Snippet;
@@ -27,11 +28,13 @@
     role="button"
     aria-expanded={isExpanded}
   >
-    {#if isExpanded}
-      {$translator.translate(LocalizationKeys.PricingDropdownHideDetails)}
-    {:else}
-      {$translator.translate(LocalizationKeys.PricingDropdownShowDetails)}
-    {/if}
+    <Typography size="label-default">
+      {#if isExpanded}
+        {$translator.translate(LocalizationKeys.PricingDropdownHideDetails)}
+      {:else}
+        {$translator.translate(LocalizationKeys.PricingDropdownShowDetails)}
+      {/if}
+    </Typography>
     <span class="rcb-pricing-dropdown-toggle">
       {#if isExpanded}
         <Icon name="chevron-up" />
@@ -60,7 +63,6 @@
     padding-bottom: var(--rc-spacing-gapSmall-mobile);
     padding-left: var(--rc-spacing-gapLarge-mobile);
     padding-right: var(--rc-spacing-gapMedium-mobile);
-    font: var(--rc-text-largeCaption-mobile);
     color: var(--rc-color-grey-text-light);
     border-radius: var(--rc-shape-input-button-border-radius);
     cursor: pointer;
@@ -75,7 +77,6 @@
     display: flex;
     align-items: center;
     margin-left: var(--rc-spacing-gapSmall-mobile);
-    font: var(--rc-text-caption-mobile);
   }
 
   .rcb-pricing-dropdown-content {
