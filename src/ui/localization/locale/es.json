@@ -73,5 +73,5 @@
   "error_page.error_message_invalid_email_error": "La dirección de correo electrónico {{email}} no se pudo verificar. Por favor, proporciona una dirección de correo electrónico válida.",
   "payment_entry_page.button_wallet": "Pagar {{formattedPrice}} con {{wallet}}",
   "price_update.title": "Actualización de precio",
-  "price_update.message": "El precio total se actualizó con impuestos según su dirección de facturación. Revise e intente nuevamente. Su tarjeta solo se cobrará una vez."
+  "price_update.message": "El precio total se actualizó con impuestos según su dirección de facturación. Revise e intente nuevamente. Solo se efectuará un cobro en su tarjeta."
 }
