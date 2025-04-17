@@ -46,6 +46,7 @@
     type TaxCustomerDetails,
   } from "../../stripe/stripe-service";
   import StripeElementsComponent from "../molecules/stripe-elements.svelte";
+  import PriceUpdateInfo from "../molecules/price-update-info.svelte";
   interface Props {
     gatewayParams: GatewayParams;
     processing: boolean;
@@ -54,6 +55,7 @@
     brandingInfo: BrandingInfoResponse | null;
     purchaseOperationHelper: PurchaseOperationHelper;
     customerEmail: string | null;
+    defaultUnmatchingTotalsError?: boolean;
     onContinue: () => void;
     onError: (error: PurchaseFlowError) => void;
     onPriceBreakdownUpdated: (priceBreakdown: PriceBreakdown) => void;
@@ -66,6 +68,7 @@
     brandingInfo,
     purchaseOperationHelper,
     customerEmail,
+    defaultUnmatchingTotalsError,
     onContinue,
     onError,
     onPriceBreakdownUpdated,
@@ -101,6 +104,10 @@
     taxBreakdown,
   });
 
+  let showUnmatchingTotalsError: boolean = $state(
+    defaultUnmatchingTotalsError ?? false,
+  );
+
   let elementsConfiguration: StripeElementsConfiguration | undefined = $state(
     gatewayParams.elements_configuration,
   );
@@ -127,6 +134,12 @@
       isEmailComplete &&
       (taxCalculationStatus === "disabled" ||
         taxCalculationStatus === "calculated"),
+  );
+
+  const payButtonPaymentMethod: string | undefined = $derived(
+    showUnmatchingTotalsError
+      ? formatPaymentMethod(selectedPaymentMethod)
+      : undefined,
   );
 
   onMount(() => {
@@ -157,6 +170,8 @@
       taxCalculationStatus = "loading";
       onPriceBreakdownUpdated(priceBreakdown);
     }
+
+    showUnmatchingTotalsError = false;
 
     await purchaseOperationHelper
       .checkoutCalculateTax(
@@ -250,6 +265,19 @@
       onContinue();
     } else {
       processing = false;
+    }
+  }
+
+  function formatPaymentMethod(method: string | undefined): string | undefined {
+    switch (method) {
+      case "google_pay":
+        return "Google Pay";
+      case "apple_pay":
+        return "Apple Pay";
+      case "card":
+        return "Card";
+      default:
+        return undefined;
     }
   }
 
@@ -421,9 +449,7 @@
   async function handleErrors(error: unknown): Promise<boolean> {
     // TODO: Convert to known error to avoid literal comparison
     if (error instanceof Error && error.message === "UnmatchingTotalsError") {
-      modalErrorMessage = $translator.translate(
-        LocalizationKeys.PriceUpdateMessage,
-      );
+      showUnmatchingTotalsError = true;
     } else if (error instanceof PurchaseFlowError) {
       const event = createCheckoutPaymentFormErrorEvent({
         errorCode: error.errorCode.toString(),
@@ -510,10 +536,20 @@
         />
       </div>
 
+      <div
+        class="rc-checkout-price-update-info-container"
+        hidden={!showUnmatchingTotalsError}
+      >
+        <PriceUpdateInfo />
+      </div>
+
       <div class="rc-checkout-pay-container">
-        {#if !modalErrorMessage}
-          <PaymentButton disabled={!isFormReady} {subscriptionOption} />
-        {/if}
+        <PaymentButton
+          disabled={!isFormReady}
+          {subscriptionOption}
+          {priceBreakdown}
+          wallet={payButtonPaymentMethod}
+        />
 
         <div class="rc-checkout-secure-container">
           <SecureCheckoutRc {brandingInfo} {subscriptionOption} />
@@ -551,6 +587,10 @@
     flex-direction: column;
     gap: var(--rc-spacing-gapXLarge-mobile);
     user-select: none;
+  }
+
+  .rc-checkout-price-update-info-container {
+    margin-top: var(--rc-spacing-gapXLarge-mobile);
   }
 
   .rc-checkout-pay-container {
@@ -604,6 +644,10 @@
     }
 
     .rc-checkout-pay-container {
+      margin-top: var(--rc-spacing-gapXLarge-desktop);
+    }
+
+    .rc-checkout-price-update-info-container {
       margin-top: var(--rc-spacing-gapXLarge-desktop);
     }
   }
