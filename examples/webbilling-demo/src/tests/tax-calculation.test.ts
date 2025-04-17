@@ -226,7 +226,7 @@ integrationTest.describe("Tax calculation", () => {
   );
 
   integrationTest(
-    "Tax calculation is aborted when the user changes their billing address",
+    "In-flight tax calculation is aborted when the user changes their billing address",
     async ({ page, userId, email }) => {
       page = await navigateToLandingUrl(
         page,
@@ -278,13 +278,13 @@ integrationTest.describe("Tax calculation", () => {
         NEW_YORK_CUSTOMER_DETAILS,
       );
 
-      await expect(
-        page.getByText(/We couldn't verify your billing address./),
-      ).not.toBeVisible();
-
       await expect(page.getByText(/Sales Tax - New York/)).toBeVisible();
 
       await expect(calculateTaxesCount).toBe(2);
+
+      await expect(
+        page.getByText(/We couldn't verify your billing address./i),
+      ).not.toBeVisible();
     },
   );
 
