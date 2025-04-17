@@ -174,7 +174,7 @@ integrationTest.describe("Tax calculation", () => {
       });
 
       await expect(
-        page.getByText(/We couldn’t verify your billing address./),
+        page.getByText(/We couldn't verify your billing address./),
       ).toBeVisible();
     },
   );

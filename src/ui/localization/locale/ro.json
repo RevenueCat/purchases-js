@@ -70,5 +70,8 @@
   "pricing_table.enter_billing_address_to_calculate": "Introduceți adresa de facturare pentru a calcula",
   "pricing_table.enter_state_or_postal_code_to_calculate": "Introduceți statul sau codul poștal pentru a calcula",
   "pricing_table.enter_postal_code_to_calculate": "Introduceți codul poștal pentru a calcula",
-  "error_page.error_message_invalid_email_error": "Adresa de e-mail {{email}} nu a putut fi verificată. Vă rugăm să furnizați o adresă de e-mail validă."
+  "error_page.error_message_invalid_email_error": "Adresa de e-mail {{email}} nu a putut fi verificată. Vă rugăm să furnizați o adresă de e-mail validă.",
+  "payment_entry_page.button_wallet": "Plătește {{formattedPrice}} cu {{wallet}}",
+  "price_update.title": "Actualizare preț",
+  "price_update.message": "Prețul total a fost actualizat cu taxe, în funcție de adresa dumneavoastră de facturare. Vă rugăm să revizuiți și să încercați din nou. Cardul dumneavoastră va fi debitat o singură dată."
 }

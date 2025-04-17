@@ -70,5 +70,8 @@
   "pricing_table.enter_billing_address_to_calculate": "Rechnungsadresse eingeben, um zu berechnen",
   "pricing_table.enter_state_or_postal_code_to_calculate": "Bundesland oder Postleitzahl zur Berechnung eingeben",
   "pricing_table.enter_postal_code_to_calculate": "Postleitzahl zur Berechnung eingeben",
-  "error_page.error_message_invalid_email_error": "Die E-Mail-Adresse {{email}} konnte nicht verifiziert werden. Bitte gib eine gültige E-Mail-Adresse an."
+  "error_page.error_message_invalid_email_error": "Die E-Mail-Adresse {{email}} konnte nicht verifiziert werden. Bitte gib eine gültige E-Mail-Adresse an.",
+  "payment_entry_page.button_wallet": "Mit {{wallet}} für {{formattedPrice}} bezahlen",
+  "price_update.title": "Preisaktualisierung",
+  "price_update.message": "Der Gesamtpreis wurde basierend auf Ihrer Rechnungsadresse mit Steuern aktualisiert. Bitte überprüfen Sie ihn und versuchen Sie es erneut. Ihre Karte wird erst belastet, wenn alles korrekt ist."
 }

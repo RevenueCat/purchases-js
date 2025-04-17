@@ -70,5 +70,8 @@
   "pricing_table.enter_billing_address_to_calculate": "Ange faktureringsadress för att beräkna",
   "pricing_table.enter_state_or_postal_code_to_calculate": "Ange delstat eller postnummer för att beräkna",
   "pricing_table.enter_postal_code_to_calculate": "Ange postnummer för att beräkna",
-  "error_page.error_message_invalid_email_error": "E-postadressen {{email}} kunde inte verifieras. Ange en giltig e-postadress."
+  "error_page.error_message_invalid_email_error": "E-postadressen {{email}} kunde inte verifieras. Ange en giltig e-postadress.",
+  "payment_entry_page.button_wallet": "Betala {{formattedPrice}} med {{wallet}}",
+  "price_update.title": "Prisuppdatering",
+  "price_update.message": "Det totala priset har uppdaterats med moms baserat på din faktureringsadress. Granska och försök igen. Ditt kort kommer endast att debiteras en gång."
 }

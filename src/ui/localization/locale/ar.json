@@ -70,5 +70,8 @@
   "pricing_table.enter_billing_address_to_calculate": "أدخل عنوان إرسال الفواتير لحسابها",
   "pricing_table.enter_state_or_postal_code_to_calculate": "أدخل الولاية أو الرمز البريدي للحساب",
   "pricing_table.enter_postal_code_to_calculate": "أدخل الرمز البريدي للحساب",
-  "error_page.error_message_invalid_email_error": "تعذر التحقق من عنوان البريد الإلكتروني {{email}}. يرجى تقديم عنوان بريد إلكتروني صالح."
+  "error_page.error_message_invalid_email_error": "تعذر التحقق من عنوان البريد الإلكتروني {{email}}. يرجى تقديم عنوان بريد إلكتروني صالح.",
+  "payment_entry_page.button_wallet": "ادفع {{formattedPrice}} باستخدام {{wallet}}",
+  "price_update.title": "تحديث السعر",
+  "price_update.message": "تم تحديث السعر الإجمالي مع الضريبة بناءً على عنوان إرسال الفواتير الخاص بك. يرجى المراجعة والمحاولة مرة أخرى. لن يتم تحصيل رسوم من بطاقتك إلا مرة واحدة."
 }

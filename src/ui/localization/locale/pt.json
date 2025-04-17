@@ -70,5 +70,8 @@
   "pricing_table.enter_billing_address_to_calculate": "Insira o endereço de cobrança para calcular",
   "pricing_table.enter_state_or_postal_code_to_calculate": "Insira o estado ou o CEP para calcular",
   "pricing_table.enter_postal_code_to_calculate": "Insira o CEP para calcular",
-  "error_page.error_message_invalid_email_error": "O endereço de e-mail {{email}} não pôde ser verificado. Por favor, forneça um endereço de e-mail válido."
+  "error_page.error_message_invalid_email_error": "O endereço de e-mail {{email}} não pôde ser verificado. Por favor, forneça um endereço de e-mail válido.",
+  "payment_entry_page.button_wallet": "Pagar {{formattedPrice}} com {{wallet}}",
+  "price_update.title": "Atualização de Preço",
+  "price_update.message": "O preço total foi atualizado com impostos com base no seu endereço de cobrança. Por favor, revise e tente novamente. Seu cartão só será cobrado uma vez."
 }

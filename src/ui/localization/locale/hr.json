@@ -70,5 +70,8 @@
   "pricing_table.enter_billing_address_to_calculate": "Unesite adresu za naplatu za izračun",
   "pricing_table.enter_state_or_postal_code_to_calculate": "Unesite državu ili poštanski broj za izračun",
   "pricing_table.enter_postal_code_to_calculate": "Unesite poštanski broj za izračun",
-  "error_page.error_message_invalid_email_error": "Adresa e-pošte {{email}} nije se mogla potvrditi. Molimo unesite valjanu adresu e-pošte."
+  "error_page.error_message_invalid_email_error": "Adresa e-pošte {{email}} nije se mogla potvrditi. Molimo unesite valjanu adresu e-pošte.",
+  "payment_entry_page.button_wallet": "Plati {{formattedPrice}} putem {{wallet}}",
+  "price_update.title": "Ažuriranje cijene",
+  "price_update.message": "Ukupna cijena je ažurirana s porezom na temelju vaše adrese za naplatu. Pregledajte i pokušajte ponovo. Vaša kartica bit će naplaćena samo jednom."
 }

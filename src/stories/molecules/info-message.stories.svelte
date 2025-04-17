@@ -1,0 +1,27 @@
+<script module>
+  import InfoMessage from "../../ui/molecules/info-message.svelte";
+  import { defineMeta } from "@storybook/addon-svelte-csf";
+  import { withLayout } from "../decorators/with-layout";
+  import { brandingModes } from "../../../.storybook/modes";
+  import { getContext } from "svelte";
+  import { translatorContextKey } from "../../ui/localization/constants";
+
+  let { Story } = defineMeta({
+    component: InfoMessage,
+    title: "Molecules/InfoMessage",
+    // @ts-expect-error ignore typing of decorator
+    decorators: [withLayout],
+    parameters: {
+      chromatic: {
+        modes: brandingModes,
+      },
+    },
+  });
+</script>
+
+<Story name="Default">
+  <InfoMessage
+    title="Important Information"
+    message="This is an example of a custom info message that can be used throughout the application."
+  />
+</Story>

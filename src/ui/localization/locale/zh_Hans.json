@@ -70,5 +70,8 @@
   "pricing_table.enter_billing_address_to_calculate": "输入账单地址以计算",
   "pricing_table.enter_state_or_postal_code_to_calculate": "输入州或邮政编码以计算",
   "pricing_table.enter_postal_code_to_calculate": "输入邮政编码以计算",
-  "error_page.error_message_invalid_email_error": "无法验证电子邮件地址{{email}}。请提供有效的电子邮件地址。"
+  "error_page.error_message_invalid_email_error": "无法验证电子邮件地址{{email}}。请提供有效的电子邮件地址。",
+  "payment_entry_page.button_wallet": "使用{{wallet}}支付{{formattedPrice}}",
+  "price_update.title": "价格更新",
+  "price_update.message": "总价已根据您的账单地址更新了税费。请查看并重试。您的银行卡只会扣款一次。"
 }
