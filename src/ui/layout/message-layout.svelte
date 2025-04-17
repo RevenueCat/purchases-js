@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Button from "../atoms/button.svelte";
+  import Button from "../molecules/button.svelte";
   import ModalFooter from "./modal-footer.svelte";
   import ModalSection from "./modal-section.svelte";
   import RowLayout from "./row-layout.svelte";

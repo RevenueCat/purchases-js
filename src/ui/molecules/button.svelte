@@ -1,6 +1,6 @@
 <script lang="ts">
   import { type Snippet } from "svelte";
-  import ProcessingAnimation from "./processing-animation.svelte";
+  import ProcessingAnimation from "../atoms/processing-animation.svelte";
 
   export let intent: "primary" = "primary";
   export let disabled = false;
