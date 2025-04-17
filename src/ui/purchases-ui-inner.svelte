@@ -26,6 +26,7 @@
     gatewayParams: GatewayParams;
     customerEmail: string | null;
     defaultPriceBreakdown?: PriceBreakdown;
+    defaultUnmatchingTotalsError?: boolean;
     closeWithError: () => void;
     onContinue: () => void;
     onError: (error: PurchaseFlowError) => void;
@@ -44,6 +45,7 @@
     gatewayParams,
     customerEmail,
     defaultPriceBreakdown,
+    defaultUnmatchingTotalsError,
     closeWithError,
     onContinue,
     onError,
@@ -90,6 +92,7 @@
         {purchaseOperationHelper}
         {gatewayParams}
         {customerEmail}
+        {defaultUnmatchingTotalsError}
         {onContinue}
         {onError}
         {onPriceBreakdownUpdated}

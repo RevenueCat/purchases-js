@@ -34,6 +34,9 @@
       withTaxes: {
         control: "boolean",
       },
+      defaultUnmatchingTotalsError: {
+        control: "boolean",
+      },
     },
     parameters: {
       viewport: {
@@ -72,6 +75,7 @@
     defaultPriceBreakdown={args.withTaxes
       ? priceBreakdownTaxInclusive
       : priceBreakdownTaxDisabled}
+    defaultUnmatchingTotalsError={args.defaultUnmatchingTotalsError}
     isInElement={context.globals.viewport === "embedded"}
     onError={() => {}}
   />
@@ -120,6 +124,16 @@
     },
     purchaseOptionToUse: subscriptionOptionWithTrial,
     defaultPurchaseOption: subscriptionOptionWithTrial,
+  }}
+/>
+
+<Story
+  name="Checkout (with unmatching totals error)"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    withTaxes: true,
+    defaultUnmatchingTotalsError: true,
   }}
 />
 <Story name="Loading" args={{ currentPage: "payment-entry-loading" }} />
