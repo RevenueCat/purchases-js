@@ -41,7 +41,7 @@
   import type { Stripe, StripeElements } from "@stripe/stripe-js";
   import {
     StripeService,
-    type StripeServiceError,
+    StripeServiceError,
     StripeServiceErrorCode,
     type TaxCustomerDetails,
   } from "../../stripe/stripe-service";
@@ -332,7 +332,9 @@
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") {
         // Silently handle abortion
+        return Promise.resolve(undefined as T);
       }
+
       throw error;
     }
   }
@@ -399,8 +401,7 @@
     if (error instanceof Error && error.message === "UnmatchingTotalsError") {
       modalErrorMessage =
         "The total price was updated with tax based on your billing address. Please review and try again. Your card will only be charged once.";
-    }
-    if (error instanceof PurchaseFlowError) {
+    } else if (error instanceof PurchaseFlowError) {
       const event = createCheckoutPaymentFormErrorEvent({
         errorCode: error.errorCode.toString(),
         errorMessage: error.message,
@@ -415,9 +416,12 @@
       } else {
         onError(error);
       }
+    } else if (error instanceof StripeServiceError) {
+      await handleStripeElementError(error);
     } else {
-      await handleStripeElementError(error as StripeServiceError);
+      throw error;
     }
+
     return false;
   }
 

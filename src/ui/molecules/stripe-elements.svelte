@@ -20,7 +20,7 @@
   import { DEFAULT_FONT_FAMILY } from "../theme/text";
   import {
     StripeService,
-    type StripeServiceError,
+    StripeServiceError,
   } from "../../stripe/stripe-service";
   import { type Writable } from "svelte/store";
 
