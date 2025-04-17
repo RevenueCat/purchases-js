@@ -15,7 +15,10 @@ import type { CheckoutStartResponse } from "../../../networking/responses/checko
 import { writable } from "svelte/store";
 import { Translator } from "../../../ui/localization/translator";
 import { translatorContextKey } from "../../../ui/localization/constants";
-import type { StripeServiceErrorCode } from "../../../stripe/stripe-service";
+import type {
+  StripeServiceErrorCode,
+  StripeServiceError,
+} from "../../../stripe/stripe-service";
 import { StripeService } from "../../../stripe/stripe-service";
 import type {
   StripeError,
@@ -28,9 +31,11 @@ vi.mock("../../../stripe/stripe-service", async () => {
   const actual = await vi.importActual<{
     StripeService: typeof StripeService;
     StripeServiceErrorCode: typeof StripeServiceErrorCode;
+    StripeServiceError: typeof StripeServiceError;
   }>("../../../stripe/stripe-service");
   return {
     StripeServiceErrorCode: actual.StripeServiceErrorCode,
+    StripeServiceError: actual.StripeServiceError,
     StripeService: {
       mapError: actual.StripeService.mapError,
       mapInitializationError: actual.StripeService.mapInitializationError,

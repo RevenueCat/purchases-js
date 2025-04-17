@@ -5,7 +5,7 @@
     StripeLinkAuthenticationElement,
     StripeLinkAuthenticationElementChangeEvent,
   } from "@stripe/stripe-js";
-  import type { StripeServiceError } from "../../stripe/stripe-service";
+  import { StripeServiceError } from "../../stripe/stripe-service";
   import { StripeService } from "../../stripe/stripe-service";
 
   import { onDestroy, onMount } from "svelte";

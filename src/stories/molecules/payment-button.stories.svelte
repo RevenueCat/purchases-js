@@ -60,7 +60,7 @@
     disabled: false,
     subscriptionOption: subscriptionOption,
     priceBreakdown: priceBreakdownTaxDisabled,
-    wallet: "Google Pay",
+    paymentMethod: "Google Pay",
   }}
 />
 
@@ -70,6 +70,6 @@
     disabled: true,
     subscriptionOption: subscriptionOption,
     priceBreakdown: priceBreakdownTaxDisabled,
-    wallet: "Google Pay",
+    paymentMethod: "Google Pay",
   }}
 />

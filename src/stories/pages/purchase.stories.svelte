@@ -69,9 +69,8 @@
     lastError={null}
     gatewayParams={checkoutStartResponse.gateway_params}
     {purchaseOperationHelper}
-    defaultPriceBreakdown={args.withTaxes
-      ? priceBreakdownTaxInclusive
-      : priceBreakdownTaxDisabled}
+    defaultPriceBreakdown={args.defaultPriceBreakdown ??
+      (args.withTaxes ? priceBreakdownTaxInclusive : priceBreakdownTaxDisabled)}
     isInElement={context.globals.viewport === "embedded"}
     onError={() => {}}
   />
@@ -120,6 +119,19 @@
     },
     purchaseOptionToUse: subscriptionOptionWithTrial,
     defaultPurchaseOption: subscriptionOptionWithTrial,
+  }}
+/>
+
+<Story
+  name="Checkout (with Tax miss-match)"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    withTaxes: true,
+    defaultPriceBreakdown: {
+      ...priceBreakdownTaxInclusive,
+      taxCalculationStatus: "miss-match",
+    },
   }}
 />
 <Story name="Loading" args={{ currentPage: "payment-entry-loading" }} />

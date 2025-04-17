@@ -293,7 +293,7 @@ export const priceBreakdownTaxDisabled: PriceBreakdown = {
   currency: "USD",
   totalAmountInMicros: 9900000,
   totalExcludingTaxInMicros: 9900000,
-  taxCalculationStatus: "disabled",
+  taxCalculationStatus: "unavailable",
   taxAmountInMicros: 0,
   pendingReason: null,
   taxBreakdown: null,
