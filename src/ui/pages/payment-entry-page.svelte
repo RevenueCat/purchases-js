@@ -106,6 +106,7 @@
   );
 
   let lastTaxCustomerDetails: TaxCustomerDetails | null = $state(null);
+  let confirmationTokenId: string | null = $state(null);
 
   let stripe: Stripe | null = $state(null);
   let elements: StripeElements | null = $state(null);
@@ -277,9 +278,7 @@
     }
 
     await withAbortProtection(async (signal) => {
-      await submitElements()
-        .then(() => signal.throwIfAborted())
-        .then(() => recalculateTaxes(signal))
+      await recalculateTaxes(signal)
         .then(() => signal.throwIfAborted())
         .catch(handleErrors);
     });
@@ -303,9 +302,13 @@
     return await withAbortProtection(async (signal) => {
       const previousTotal = totalAmountInMicros;
 
-      return await submitElements()
-        .then(() => signal.throwIfAborted())
-        .then(() => recalculateTaxes(signal))
+      return await (async () => {
+        if (taxCalculationStatus === "disabled") {
+          await submitElements();
+        } else {
+          await recalculateTaxes(signal);
+        }
+      })()
         .then(() => signal.throwIfAborted())
         .then(ensureMatchingTotals(previousTotal))
         .then(() => signal.throwIfAborted())
@@ -358,10 +361,14 @@
       return;
     }
 
-    const taxCustomerDetails = await StripeService.extractTaxCustomerDetails(
-      elements,
-      stripe,
-    );
+    const {
+      customerDetails: taxCustomerDetails,
+      confirmationTokenId: newConfirmationTokenId,
+    } = await StripeService.extractTaxCustomerDetails(elements, stripe);
+
+    if (newConfirmationTokenId !== confirmationTokenId) {
+      confirmationTokenId = newConfirmationTokenId;
+    }
 
     signal?.throwIfAborted();
 
@@ -394,7 +401,20 @@
   // Helper function to confirm the elements
   async function confirmElements(): Promise<void> {
     if (!stripe || !elements || !clientSecret) return;
-    await StripeService.confirmElements(stripe, elements, clientSecret);
+
+    const confirmationToken =
+      confirmationTokenId && selectedPaymentMethod !== "card"
+        ? confirmationTokenId
+        : undefined;
+
+    confirmationTokenId = null;
+
+    await StripeService.confirmElements(
+      stripe,
+      elements,
+      clientSecret,
+      confirmationToken,
+    );
   }
 
   // Helper function to handle errors of the tax recalculation or form submission
