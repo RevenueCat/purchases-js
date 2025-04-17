@@ -55,7 +55,7 @@
     brandingInfo: BrandingInfoResponse | null;
     purchaseOperationHelper: PurchaseOperationHelper;
     customerEmail: string | null;
-    defaultUnmatchingTotalsError?: boolean;
+    defaultPriceBreakdown?: PriceBreakdown;
     onContinue: () => void;
     onError: (error: PurchaseFlowError) => void;
     onPriceBreakdownUpdated: (priceBreakdown: PriceBreakdown) => void;
@@ -68,7 +68,7 @@
     brandingInfo,
     purchaseOperationHelper,
     customerEmail,
-    defaultUnmatchingTotalsError,
+    defaultPriceBreakdown,
     onContinue,
     onError,
     onPriceBreakdownUpdated,
@@ -80,9 +80,10 @@
     productDetails.subscriptionOptions?.[purchaseOption.id];
 
   let taxCalculationStatus: TaxCalculationStatus = $state<TaxCalculationStatus>(
-    ALLOW_TAX_CALCULATION_FF && brandingInfo?.gateway_tax_collection_enabled
-      ? "unavailable"
-      : "disabled",
+    defaultPriceBreakdown?.taxCalculationStatus ??
+      (ALLOW_TAX_CALCULATION_FF && brandingInfo?.gateway_tax_collection_enabled
+        ? "unavailable"
+        : "disabled"),
   );
   let pendingReason: TaxCalculationPendingReason | null = $state(null);
   let taxAmountInMicros: number | null = $state(null);
@@ -94,18 +95,16 @@
     productDetails.currentPrice.amountMicros,
   );
 
-  let priceBreakdown: PriceBreakdown = $derived({
-    currency: productDetails.currentPrice.currency,
-    totalAmountInMicros,
-    totalExcludingTaxInMicros,
-    taxCalculationStatus,
-    pendingReason,
-    taxAmountInMicros,
-    taxBreakdown,
-  });
-
-  let showUnmatchingTotalsError: boolean = $state(
-    defaultUnmatchingTotalsError ?? false,
+  let priceBreakdown: PriceBreakdown = $derived(
+    defaultPriceBreakdown ?? {
+      currency: productDetails.currentPrice.currency,
+      totalAmountInMicros,
+      totalExcludingTaxInMicros,
+      taxCalculationStatus,
+      pendingReason,
+      taxAmountInMicros,
+      taxBreakdown,
+    },
   );
 
   let elementsConfiguration: StripeElementsConfiguration | undefined = $state(
@@ -133,11 +132,12 @@
       isPaymentInfoComplete &&
       isEmailComplete &&
       (taxCalculationStatus === "disabled" ||
-        taxCalculationStatus === "calculated"),
+        taxCalculationStatus === "calculated" ||
+        taxCalculationStatus === "miss-match"),
   );
 
   const payButtonPaymentMethod: string | undefined = $derived(
-    showUnmatchingTotalsError
+    taxCalculationStatus === "miss-match"
       ? formatPaymentMethod(selectedPaymentMethod)
       : undefined,
   );
@@ -170,8 +170,6 @@
       taxCalculationStatus = "loading";
       onPriceBreakdownUpdated(priceBreakdown);
     }
-
-    showUnmatchingTotalsError = false;
 
     await purchaseOperationHelper
       .checkoutCalculateTax(
@@ -447,7 +445,7 @@
   async function handleErrors(error: unknown): Promise<boolean> {
     // TODO: Convert to known error to avoid literal comparison
     if (error instanceof Error && error.message === "UnmatchingTotalsError") {
-      showUnmatchingTotalsError = true;
+      taxCalculationStatus = "miss-match";
     } else if (error instanceof PurchaseFlowError) {
       const event = createCheckoutPaymentFormErrorEvent({
         errorCode: error.errorCode.toString(),
@@ -536,7 +534,7 @@
 
       <div
         class="rc-checkout-price-update-info-container"
-        hidden={!showUnmatchingTotalsError}
+        hidden={taxCalculationStatus !== "miss-match"}
       >
         <PriceUpdateInfo />
       </div>
