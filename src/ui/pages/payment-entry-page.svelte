@@ -116,7 +116,6 @@
   );
 
   let lastTaxCustomerDetails: TaxCustomerDetails | null = $state(null);
-  let confirmationTokenId: string | null = $state(null);
 
   let stripe: Stripe | null = $state(null);
   let elements: StripeElements | null = $state(null);
@@ -326,16 +325,20 @@
   async function submitPayment(): Promise<boolean> {
     return await withAbortProtection(async (signal) => {
       const previousTotal = totalAmountInMicros;
+      let confirmationTokenId: string | undefined;
 
       return await submitElements()
         .then(() => signal.throwIfAborted())
         .then(() => recalculateTaxes(signal))
+        .then((newConfirmationTokenId) => {
+          confirmationTokenId = newConfirmationTokenId;
+        })
         .then(() => signal.throwIfAborted())
         .then(ensureMatchingTotals(previousTotal))
         .then(() => signal.throwIfAborted())
         .then(completeCheckout)
         .then(() => signal.throwIfAborted())
-        .then(confirmElements)
+        .then(() => confirmElements(confirmationTokenId))
         .then(() => signal.throwIfAborted())
         .then(() => true)
         .catch(handleErrors);
@@ -372,7 +375,9 @@
   }
 
   // Helper function to recalculate the taxes with customer details extracted from the elements
-  async function recalculateTaxes(signal?: AbortSignal): Promise<void> {
+  async function recalculateTaxes(
+    signal?: AbortSignal,
+  ): Promise<string | undefined> {
     if (
       taxCalculationStatus === "unavailable" ||
       taxCalculationStatus === "disabled" ||
@@ -387,10 +392,6 @@
       confirmationTokenId: newConfirmationTokenId,
     } = await StripeService.extractTaxCustomerDetails(elements, stripe);
 
-    if (newConfirmationTokenId !== confirmationTokenId) {
-      confirmationTokenId = newConfirmationTokenId;
-    }
-
     signal?.throwIfAborted();
 
     const sameDetails =
@@ -400,6 +401,10 @@
     if (!sameDetails) {
       await recalculatePriceBreakdown(taxCustomerDetails, signal);
     }
+
+    return newConfirmationTokenId && selectedPaymentMethod !== "card"
+      ? newConfirmationTokenId
+      : undefined;
   }
 
   // Helper function to ensure the totals match
@@ -420,21 +425,14 @@
   }
 
   // Helper function to confirm the elements
-  async function confirmElements(): Promise<void> {
+  async function confirmElements(confirmationTokenId?: string): Promise<void> {
     if (!stripe || !elements || !clientSecret) return;
-
-    const confirmationToken =
-      confirmationTokenId && selectedPaymentMethod !== "card"
-        ? confirmationTokenId
-        : undefined;
-
-    confirmationTokenId = null;
 
     await StripeService.confirmElements(
       stripe,
       elements,
       clientSecret,
-      confirmationToken,
+      confirmationTokenId,
     );
   }
 
