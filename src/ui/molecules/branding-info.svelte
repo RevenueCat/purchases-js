@@ -13,13 +13,15 @@
     return value;
   };
 
-  const appIcon = valueOrNull(brandingInfo?.app_icon);
-  const webpIcon = valueOrNull(brandingInfo?.app_icon_webp);
+  const appIcon = $derived(valueOrNull(brandingInfo?.app_icon));
+  const webpIcon = $derived(valueOrNull(brandingInfo?.app_icon_webp));
+  const src = $derived(appIcon ? buildAssetURL(appIcon) : null);
+  const srcWebp = $derived(webpIcon ? buildAssetURL(webpIcon) : null);
 </script>
 
 <div class="rcb-header-layout__business-info">
   {#if appIcon !== null && webpIcon !== null}
-    <AppLogo src={buildAssetURL(appIcon)} srcWebp={buildAssetURL(webpIcon)} />
+    <AppLogo {src} {srcWebp} />
   {/if}
 
   <Typography size="body-base">{brandingInfo?.app_name}</Typography>
