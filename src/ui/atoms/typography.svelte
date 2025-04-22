@@ -30,95 +30,103 @@
 <style>
   /* svelte-ignore css-unused-selector */
   .rcb-typography-heading-2xl {
-    font-size: 28px;
-    line-height: 140%;
-    font-weight: 600; /* SF Pro - Semibold */
+    font: var(--rc-text-heading2xl-mobile);
   }
 
   /* svelte-ignore css-unused-selector */
   .rcb-typography-heading-xl {
-    font-size: 24px;
-    line-height: 140%;
-    font-weight: 600; /* SF Pro - Semibold */
+    font: var(--rc-text-headingXl-mobile);
   }
 
   /* svelte-ignore css-unused-selector */
   .rcb-typography-heading-lg {
-    font-size: 20px;
-    line-height: 140%;
-    font-weight: 600; /* SF Pro - Semibold */
+    font: var(--rc-text-headingLg-mobile);
   }
 
   /* svelte-ignore css-unused-selector */
   .rcb-typography-heading-md {
-    font-size: 16px;
-    line-height: 140%;
-    font-weight: 500; /* SF Pro - Medium */
+    font: var(--rc-text-headingMd-mobile);
   }
 
   /* svelte-ignore css-unused-selector */
   .rcb-typography-body-base {
-    font-size: 16px;
-    line-height: 140%;
-    font-weight: 400; /* SF Pro - Regular */
+    font: var(--rc-text-bodyBase-mobile);
   }
 
   /* svelte-ignore css-unused-selector */
   .rcb-typography-body-small {
-    font-size: 14px;
-    line-height: 140%;
-    font-weight: 400; /* SF Pro - Regular */
+    font: var(--rc-text-bodySmall-mobile);
   }
 
   /* svelte-ignore css-unused-selector */
   .rcb-typography-label-button {
-    font-size: 16px;
-    line-height: 140%;
-    font-weight: 400; /* SF Pro - Regular */
-    letter-spacing: -0.2px;
+    font: var(--rc-text-labelButton-mobile);
   }
 
   /* svelte-ignore css-unused-selector */
   .rcb-typography-label-default {
-    font-size: 14px;
-    line-height: 140%;
-    font-weight: 400; /* SF Pro - Regular */
-    letter-spacing: -0.2px;
+    font: var(--rc-text-labelDefault-mobile);
   }
 
   /* svelte-ignore css-unused-selector */
   .rcb-typography-caption-default {
-    font-size: 12px;
-    line-height: 140%;
-    font-weight: 400; /* SF Pro - Regular */
+    font: var(--rc-text-captionDefault-mobile);
   }
 
   /* svelte-ignore css-unused-selector */
   .rcb-typography-caption-link {
-    font-size: 12px;
-    line-height: 140%;
-    font-weight: 400; /* SF Pro - Regular */
+    font: var(--rc-text-captionLink-mobile);
   }
 
   @container layout-query-container (width >= 768px) {
     /* svelte-ignore css-unused-selector */
     .rcb-typography-heading-2xl {
-      font-size: 36px;
+      font: var(--rc-text-heading2xl-desktop);
     }
 
     /* svelte-ignore css-unused-selector */
     .rcb-typography-heading-xl {
-      font-size: 32px;
+      font: var(--rc-text-headingXl-desktop);
     }
 
     /* svelte-ignore css-unused-selector */
     .rcb-typography-heading-lg {
-      font-size: 26px;
+      font: var(--rc-text-headingLg-desktop);
     }
 
     /* svelte-ignore css-unused-selector */
     .rcb-typography-heading-md {
-      font-size: 18px;
+      font: var(--rc-text-headingMd-desktop);
+    }
+
+    /* svelte-ignore css-unused-selector */
+    .rcb-typography-body-base {
+      font: var(--rc-text-bodyBase-desktop);
+    }
+
+    /* svelte-ignore css-unused-selector */
+    .rcb-typography-body-small {
+      font: var(--rc-text-bodySmall-desktop);
+    }
+
+    /* svelte-ignore css-unused-selector */
+    .rcb-typography-label-button {
+      font: var(--rc-text-labelButton-desktop);
+    }
+
+    /* svelte-ignore css-unused-selector */
+    .rcb-typography-label-default {
+      font: var(--rc-text-labelDefault-desktop);
+    }
+
+    /* svelte-ignore css-unused-selector */
+    .rcb-typography-caption-default {
+      font: var(--rc-text-captionDefault-desktop);
+    }
+
+    /* svelte-ignore css-unused-selector */
+    .rcb-typography-caption-link {
+      font: var(--rc-text-captionLink-desktop);
     }
   }
 </style>
