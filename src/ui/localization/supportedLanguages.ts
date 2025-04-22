@@ -74,7 +74,7 @@ export enum LocalizationKeys {
   PaymentEntryPageTrialInfo = "payment_entry_page.trial_info",
   PaymentEntryPageButtonPay = "payment_entry_page.button_pay",
   PaymentEntryPageButtonStartTrial = "payment_entry_page.button_start_trial",
-  PaymentEntryPageButtonWallet = "payment_entry_page.button_wallet",
+  PaymentEntryPageButtonPaymentMethod = "payment_entry_page.button_payment_method",
   SuccessPagePurchaseSuccessful = "success_page.purchase_successful",
   SuccessPageSubscriptionNowActive = "success_page.subscription_now_active",
   SuccessPageButtonClose = "success_page.button_close",

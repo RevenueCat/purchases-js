@@ -71,7 +71,7 @@
   "pricing_table.enter_state_or_postal_code_to_calculate": "ใส่รัฐหรือรหัสไปรษณีย์เพื่อคำนวณ",
   "pricing_table.enter_postal_code_to_calculate": "ใส่รหัสไปรษณีย์เพื่อคำนวณ",
   "error_page.error_message_invalid_email_error": "ไม่สามารถยืนยันที่อยู่อีเมล {{email}} ได้ โปรดระบุที่อยู่อีเมลที่ถูกต้อง",
-  "payment_entry_page.button_wallet": "ชำระเงิน {{formattedPrice}} ด้วย {{wallet}}",
+  "payment_entry_page.button_payment_method": "ชำระเงิน {{formattedPrice}} ด้วย {{paymentMethod}}",
   "price_update.title": "อัปเดตราคา",
   "price_update.message": "ราคารวมได้รับการอัปเดตพร้อมภาษีตามที่อยู่สำหรับการเรียกเก็บเงินของคุณ โปรดตรวจสอบและลองอีกครั้ง บัตรของคุณจะถูกเรียกเก็บเงินเพียงครั้งเดียวเท่านั้น"
 }

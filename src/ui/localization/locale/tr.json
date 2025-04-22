@@ -71,7 +71,7 @@
   "pricing_table.enter_state_or_postal_code_to_calculate": "Hesaplamak için eyalet veya posta kodunu girin",
   "pricing_table.enter_postal_code_to_calculate": "Hesaplamak için posta kodunu girin",
   "error_page.error_message_invalid_email_error": "{{email}} e-posta adresi doğrulanamadı. Lütfen geçerli bir e-posta adresi girin.",
-  "payment_entry_page.button_wallet": "{{wallet}} ile {{formattedPrice}} öde",
+  "payment_entry_page.button_payment_method": "{{paymentMethod}} ile {{formattedPrice}} öde",
   "price_update.title": "Fiyat Güncellemesi",
   "price_update.message": "Toplam fiyat, fatura adresinize göre vergi dahil olacak şekilde güncellendi. Lütfen inceleyip tekrar deneyin. Kartınızdan yalnızca bir kez ücret alınacaktır."
 }

@@ -71,7 +71,7 @@
   "pricing_table.enter_state_or_postal_code_to_calculate": "Voer provincie of postcode in om te berekenen",
   "pricing_table.enter_postal_code_to_calculate": "Voer postcode in om te berekenen",
   "error_page.error_message_invalid_email_error": "Het e-mailadres {{email}} kon niet worden geverifieerd. Geef een geldig e-mailadres op.",
-  "payment_entry_page.button_wallet": "Betaal {{formattedPrice}} met {{wallet}}",
+  "payment_entry_page.button_payment_method": "Betaal {{formattedPrice}} met {{paymentMethod}}",
   "price_update.title": "Prijsupdate",
   "price_update.message": "De totale prijs is bijgewerkt met belasting op basis van uw factuuradres. Controleer en probeer het opnieuw. Uw kaart wordt slechts één keer belast."
 }

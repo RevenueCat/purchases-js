@@ -71,7 +71,7 @@
   "pricing_table.enter_state_or_postal_code_to_calculate": "Introduïu la província o el codi postal per calcular",
   "pricing_table.enter_postal_code_to_calculate": "Introduïu el codi postal per calcular",
   "error_page.error_message_invalid_email_error": "No s'ha pogut verificar l'adreça de correu electrònic {{email}}. Si us plau, proporcioneu una adreça de correu electrònic vàlida.",
-  "payment_entry_page.button_wallet": "Paga {{formattedPrice}} amb {{wallet}}",
+  "payment_entry_page.button_payment_method": "Paga {{formattedPrice}} amb {{paymentMethod}}",
   "price_update.title": "Actualització de preu",
   "price_update.message": "El preu total s'ha actualitzat amb els impostos segons la vostra adreça de facturació. Reviseu-ho i torneu-ho a provar. Només es carregarà la vostra targeta una vegada."
 }

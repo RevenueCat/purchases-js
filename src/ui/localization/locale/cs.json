@@ -71,7 +71,7 @@
   "pricing_table.enter_state_or_postal_code_to_calculate": "Zadejte stát nebo PSČ pro výpočet",
   "pricing_table.enter_postal_code_to_calculate": "Zadejte PSČ pro výpočet",
   "error_page.error_message_invalid_email_error": "E-mailová adresa {{email}} nemohla být ověřena. Zadejte prosím platnou e-mailovou adresu.",
-  "payment_entry_page.button_wallet": "Zaplatit {{formattedPrice}} pomocí {{wallet}}",
+  "payment_entry_page.button_payment_method": "Zaplatit {{formattedPrice}} pomocí {{paymentMethod}}",
   "price_update.title": "Aktualizace ceny",
   "price_update.message": "Celková cena byla aktualizována o daň na základě vaší fakturační adresy. Zkontrolujte ji a zkuste to znovu. Vaše karta bude stržena pouze jednou."
 }

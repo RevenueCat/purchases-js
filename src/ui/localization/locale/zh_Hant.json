@@ -71,7 +71,7 @@
   "pricing_table.enter_state_or_postal_code_to_calculate": "輸入州或郵政編碼以計算",
   "pricing_table.enter_postal_code_to_calculate": "輸入郵政編碼以計算",
   "error_page.error_message_invalid_email_error": "無法驗證電子郵件地址 {{email}}。請提供有效的電子郵件地址。",
-  "payment_entry_page.button_wallet": "使用 {{wallet}} 支付 {{formattedPrice}}",
+  "payment_entry_page.button_payment_method": "使用 {{paymentMethod}} 支付 {{formattedPrice}}",
   "price_update.title": "價格更新",
   "price_update.message": "總價已根據您的帳單地址更新稅金。請檢查後重試。您的信用卡只會被收取一次費用。"
 }

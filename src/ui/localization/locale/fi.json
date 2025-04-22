@@ -71,7 +71,7 @@
   "pricing_table.enter_state_or_postal_code_to_calculate": "Syötä osavaltio tai postinumero laskeaksesi",
   "pricing_table.enter_postal_code_to_calculate": "Syötä postinumero laskeaksesi",
   "error_page.error_message_invalid_email_error": "Sähköpostiosoitetta {{email}} ei voitu vahvistaa. Anna kelvollinen sähköpostiosoite.",
-  "payment_entry_page.button_wallet": "Maksa {{formattedPrice}} käyttämällä {{wallet}}",
+  "payment_entry_page.button_payment_method": "Maksa {{formattedPrice}} käyttämällä {{paymentMethod}}",
   "price_update.title": "Hinnan päivitys",
   "price_update.message": "Kokonaishinta on päivitetty verolla laskutusosoitteesi perusteella. Tarkista ja yritä uudelleen. Korttiasi veloitetaan vain kerran."
 }

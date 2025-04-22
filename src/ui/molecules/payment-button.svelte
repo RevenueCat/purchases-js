@@ -34,7 +34,7 @@
 <Button {disabled} testId="PayButton">
   {#if paymentMethod && formattedPrice}
     <Localized
-      key={LocalizationKeys.PaymentEntryPageButtonWallet}
+      key={LocalizationKeys.PaymentEntryPageButtonPaymentMethod}
       variables={{ formattedPrice, paymentMethod }}
     />
   {:else if subscriptionOption?.trial}

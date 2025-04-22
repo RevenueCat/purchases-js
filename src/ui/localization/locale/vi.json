@@ -71,7 +71,7 @@
   "pricing_table.enter_state_or_postal_code_to_calculate": "Nhập tiểu bang hoặc mã bưu điện để tính toán",
   "pricing_table.enter_postal_code_to_calculate": "Nhập mã bưu điện để tính toán",
   "error_page.error_message_invalid_email_error": "Không thể xác minh địa chỉ email {{email}}. Vui lòng cung cấp một địa chỉ email hợp lệ.",
-  "payment_entry_page.button_wallet": "Thanh toán {{formattedPrice}} bằng {{wallet}}",
+  "payment_entry_page.button_payment_method": "Thanh toán {{formattedPrice}} bằng {{paymentMethod}}",
   "price_update.title": "Cập nhật giá",
   "price_update.message": "Tổng giá đã được cập nhật với thuế dựa trên địa chỉ thanh toán của bạn. Vui lòng xem lại và thử lại. Thẻ của bạn sẽ chỉ bị tính phí một lần."
 }
