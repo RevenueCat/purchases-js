@@ -25,6 +25,7 @@
   "periods.monthFrequencyPlural": "every {{amount}} months",
   "periods.yearFrequencyPlural": "every {{amount}} years",
   "periods.dayFrequencyPlural": "every {{amount}} days",
+  "payment_method.card": "card",
   "product_info.subscribe_to": "Subscribe to",
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",

@@ -59,6 +59,7 @@ export enum LocalizationKeys {
   PeriodsMonthFrequencyPlural = "periods.monthFrequencyPlural",
   PeriodsYearFrequencyPlural = "periods.yearFrequencyPlural",
   PeriodsDayFrequencyPlural = "periods.dayFrequencyPlural",
+  PaymentMethodCard = "payment_method.card",
   ProductInfoProductTitle = "product_info.product_title",
   ProductInfoProductDescription = "product_info.product_description",
   ProductInfoProductPrice = "product_info.product_price",

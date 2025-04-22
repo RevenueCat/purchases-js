@@ -25,6 +25,7 @@
   "periods.monthFrequencyPlural": "κάθε {{amount}} μήνες",
   "periods.yearFrequencyPlural": "κάθε {{amount}} χρόνια",
   "periods.dayFrequencyPlural": "κάθε {{amount}} ημέρες",
+  "payment_method.card": "κάρτα",
   "product_info.subscribe_to": "Εγγραφείτε στο",
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
