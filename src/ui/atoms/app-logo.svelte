@@ -1,11 +1,17 @@
 <script lang="ts">
-  export let src: string | null = null;
-  export let srcWebp: string | null = null;
+  type Props = {
+    src: string | null;
+    srcWebp: string | null;
+  };
+
+  const { src, srcWebp }: Props = $props();
 </script>
 
-{#if src !== null}
+{#if src}
   <picture class="rcb-app-icon-picture-container">
-    <source type="image/webp" srcset={srcWebp} />
+    {#if srcWebp}
+      <source type="image/webp" srcset={srcWebp} />
+    {/if}
     <img class="rcb-app-icon" {src} alt="App icon" />
   </picture>
 {:else}
