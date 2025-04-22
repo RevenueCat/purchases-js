@@ -265,7 +265,7 @@ integrationTest.describe("Tax calculation", () => {
 
       await expect(calculateTaxesCount).toBe(1);
 
-      // Clear the country code, to make sure that the change event is triggered by Stripe
+      // Clear the postal code, to make sure that the change event is triggered by Stripe
       await enterCreditCardDetails(
         page,
         "4242 4242 4242 4242",
