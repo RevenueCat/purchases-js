@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Button from "../atoms/button.svelte";
+  import { Button } from "@revenuecat/purchases-ui-js";
   import ModalFooter from "./modal-footer.svelte";
   import ModalSection from "./modal-section.svelte";
   import RowLayout from "./row-layout.svelte";
@@ -47,8 +47,7 @@
   </div>
   <div class="message-layout-footer">
     <ModalFooter>
-      <Button on:click={handleContinue} type="submit">{closeButtonTitle}</Button
-      >
+      <Button onclick={handleContinue} type="submit">{closeButtonTitle}</Button>
     </ModalFooter>
   </div>
 </div>
