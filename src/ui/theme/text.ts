@@ -3,23 +3,36 @@
  * i.e., --rc-text-title1-font-size or --rc-text-title1-line-height
  */
 
-interface TextStyle {
+export interface TextStyle {
   fontSize: string;
   lineHeight: string;
   fontWeight: string;
   letterSpacing?: string;
 }
 
-interface ScreenTextStyle {
-  [key: string]: TextStyle;
-}
+export type ScreenType = "mobile" | "desktop";
 
-export interface TextStyles {
-  [key: string]: {
+export type ScreenTextStyle = Record<TextStyleKey, TextStyle>;
+
+export type TextStyleKey =
+  | "heading2xl"
+  | "headingXl"
+  | "headingLg"
+  | "headingMd"
+  | "bodyBase"
+  | "bodySmall"
+  | "labelButton"
+  | "labelDefault"
+  | "captionDefault"
+  | "captionLink";
+
+export type TextStyles = Record<
+  TextStyleKey,
+  {
     mobile: TextStyle;
     desktop: TextStyle;
-  };
-}
+  }
+>;
 
 export const DEFAULT_FONT_FAMILY =
   "-apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto, arial, sans-serif";
