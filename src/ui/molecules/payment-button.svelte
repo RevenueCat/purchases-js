@@ -13,11 +13,15 @@
     disabled: boolean;
     subscriptionOption: SubscriptionOption | null;
     priceBreakdown?: PriceBreakdown;
-    paymentMethod?: string;
+    selectedPaymentMethod?: string;
   };
 
-  const { disabled, subscriptionOption, priceBreakdown, paymentMethod }: Props =
-    $props();
+  const {
+    disabled,
+    subscriptionOption,
+    priceBreakdown,
+    selectedPaymentMethod,
+  }: Props = $props();
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
 
@@ -29,16 +33,24 @@
         )
       : null,
   );
+
+  const paymentMethod = $derived(
+    $translator.translatePaymentMethod(selectedPaymentMethod ?? "card"),
+  );
+
+  $effect(() => {
+    console.log("translatedPaymentMethod", paymentMethod);
+  });
 </script>
 
 <Button {disabled} testId="PayButton">
-  {#if paymentMethod && formattedPrice}
+  {#if subscriptionOption?.trial}
+    <Localized key={LocalizationKeys.PaymentEntryPageButtonStartTrial} />
+  {:else if formattedPrice && paymentMethod}
     <Localized
       key={LocalizationKeys.PaymentEntryPageButtonPaymentMethod}
       variables={{ formattedPrice, paymentMethod }}
     />
-  {:else if subscriptionOption?.trial}
-    <Localized key={LocalizationKeys.PaymentEntryPageButtonStartTrial} />
   {:else}
     <Localized key={LocalizationKeys.PaymentEntryPageButtonPay} />
   {/if}

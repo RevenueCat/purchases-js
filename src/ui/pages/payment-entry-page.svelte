@@ -139,12 +139,6 @@
         taxCalculationStatus === "miss-match"),
   );
 
-  const payButtonPaymentMethod: string | undefined = $derived(
-    taxCalculationStatus === "miss-match"
-      ? formatPaymentMethod(selectedPaymentMethod)
-      : undefined,
-  );
-
   onMount(() => {
     eventsTracker.trackSDKEvent({
       eventName: SDKEventName.CheckoutPaymentFormImpression,
@@ -259,19 +253,6 @@
       onContinue();
     } else {
       processing = false;
-    }
-  }
-
-  function formatPaymentMethod(method: string | undefined): string | undefined {
-    switch (method) {
-      case "google_pay":
-        return "Google Pay";
-      case "apple_pay":
-        return "Apple Pay";
-      case "card":
-        return "Card";
-      default:
-        return undefined;
     }
   }
 
@@ -538,7 +519,7 @@
           disabled={!isFormReady}
           {subscriptionOption}
           {priceBreakdown}
-          paymentMethod={payButtonPaymentMethod}
+          {selectedPaymentMethod}
         />
 
         <div class="rc-checkout-secure-container">

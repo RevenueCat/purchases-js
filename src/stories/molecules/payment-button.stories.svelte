@@ -1,6 +1,10 @@
 <script module>
   import PaymentButton from "../../ui/molecules/payment-button.svelte";
-  import { defineMeta } from "@storybook/addon-svelte-csf";
+  import {
+    type Args,
+    defineMeta,
+    setTemplate,
+  } from "@storybook/addon-svelte-csf";
   import { withLayout } from "../decorators/with-layout";
   import { brandingModes } from "../../../.storybook/modes";
   import {
@@ -22,26 +26,22 @@
   });
 </script>
 
-<Story
-  name="With Subscription"
-  args={{
-    disabled: false,
-    subscriptionOption: subscriptionOption,
-  }}
-/>
+<script lang="ts">
+  setTemplate(template);
+</script>
 
-<Story
-  name="With Subscription Disabled"
-  args={{
-    disabled: true,
-    subscriptionOption: subscriptionOption,
-  }}
-/>
+{#snippet template(args: Args<typeof Story>)}
+  <PaymentButton
+    disabled={args.disabled ?? false}
+    subscriptionOption={args.subscriptionOption ?? subscriptionOption}
+    priceBreakdown={args.priceBreakdown ?? priceBreakdownTaxDisabled}
+    selectedPaymentMethod={args.selectedPaymentMethod ?? "card"}
+  />
+{/snippet}
 
 <Story
   name="With Trial"
   args={{
-    disabled: false,
     subscriptionOption: subscriptionOptionWithTrial,
   }}
 />
@@ -54,22 +54,41 @@
   }}
 />
 
+<Story name="With Card" args={{}} />
+
 <Story
-  name="With Wallet"
+  name="With Card Disabled"
   args={{
-    disabled: false,
-    subscriptionOption: subscriptionOption,
-    priceBreakdown: priceBreakdownTaxDisabled,
-    paymentMethod: "Google Pay",
+    disabled: true,
   }}
 />
 
 <Story
-  name="With Wallet Disabled"
+  name="With Google Pay"
+  args={{
+    selectedPaymentMethod: "google_pay",
+  }}
+/>
+
+<Story
+  name="With Google Pay Disabled"
   args={{
     disabled: true,
-    subscriptionOption: subscriptionOption,
-    priceBreakdown: priceBreakdownTaxDisabled,
-    paymentMethod: "Google Pay",
+    selectedPaymentMethod: "google_pay",
+  }}
+/>
+
+<Story
+  name="With Apple Pay"
+  args={{
+    selectedPaymentMethod: "apple_pay",
+  }}
+/>
+
+<Story
+  name="With Apple Pay Disabled"
+  args={{
+    disabled: true,
+    selectedPaymentMethod: "apple_pay",
   }}
 />
