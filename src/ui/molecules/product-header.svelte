@@ -2,6 +2,7 @@
   import Localized from "../localization/localized.svelte";
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import { ProductType, type Product } from "../../entities/offerings";
+  import Typography from "../atoms/typography.svelte";
 
   export let productDetails: Product;
   export let showProductDescription: boolean;
@@ -12,27 +13,33 @@
 
 <div class="rcb-pricing-info-header">
   {#if isSubscription}
-    <div class="rcb-subscribe-to only-desktop">
-      <Localized
-        key={LocalizationKeys.ProductInfoSubscribeTo}
-        variables={{ productTitle: productDetails.title }}
-      />
+    <div class="rcb-subscribe-to">
+      <Typography size="body-base">
+        <Localized
+          key={LocalizationKeys.ProductInfoSubscribeTo}
+          variables={{ productTitle: productDetails.title }}
+        />
+      </Typography>
     </div>
   {/if}
   <div class="rcb-product-title">
-    <Localized
-      key={LocalizationKeys.ProductInfoProductTitle}
-      variables={{ productTitle: productDetails.title }}
-    />
+    <Typography size="heading-lg">
+      <Localized
+        key={LocalizationKeys.ProductInfoProductTitle}
+        variables={{ productTitle: productDetails.title }}
+      />
+    </Typography>
   </div>
   {#if showProductDescription && productDetails.description}
     <span class="rcb-product-description">
-      <Localized
-        key={LocalizationKeys.ProductInfoProductDescription}
-        variables={{
-          productDescription: productDetails.description,
-        }}
-      />
+      <Typography size="body-small">
+        <Localized
+          key={LocalizationKeys.ProductInfoProductDescription}
+          variables={{
+            productDescription: productDetails.description,
+          }}
+        />
+      </Typography>
     </span>
   {/if}
 </div>
@@ -46,24 +53,18 @@
 
   .rcb-product-title {
     color: var(--rc-color-grey-text-dark);
-    font: var(--rc-text-titleXLarge-mobile);
   }
 
   .rcb-product-description {
-    font: var(--rc-text-body1-mobile);
     color: var(--rc-color-grey-text-light);
   }
 
   .rcb-subscribe-to {
-    font: var(--rc-text-body1-desktop);
-  }
-
-  .only-desktop {
     display: none;
   }
 
   @container layout-query-container (width >= 768px) {
-    .only-desktop {
+    .rcb-subscribe-to {
       display: block;
     }
 
@@ -71,14 +72,6 @@
       display: flex;
       flex-direction: column;
       gap: var(--rc-spacing-gapXLarge-desktop);
-    }
-
-    .rcb-product-title {
-      font: var(--rc-text-titleXLarge-desktop);
-    }
-
-    .rcb-product-description {
-      font: var(--rc-text-body1-desktop);
     }
   }
 </style>

@@ -31,9 +31,7 @@
     flex-direction: column;
     inset: 0;
     color-scheme: none;
-    font-size: 16px;
     line-height: 1.5em;
-    font-weight: 400;
     font-family:
       -apple-system,
       BlinkMacSystemFont,

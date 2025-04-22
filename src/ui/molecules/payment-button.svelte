@@ -1,6 +1,6 @@
 <script lang="ts">
   import { type SubscriptionOption } from "../../entities/offerings";
-  import Button from "../atoms/button.svelte";
+  import Button from "./button.svelte";
   import Localized from "../localization/localized.svelte";
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import { type PriceBreakdown } from "../ui-types";

@@ -1,10 +1,13 @@
 <script>
+  import { Typography } from "../atoms/typography.svelte";
   export let text;
 </script>
 
 <div class="text-separator">
   <hr class="line" />
-  <span class="text">{text}</span>
+  <span class="text"
+    ><Typography size="caption-default">{text}</Typography></span
+  >
   <hr class="line" />
 </div>
 
@@ -30,15 +33,8 @@
   }
 
   .text {
-    font: var(--rc-text-caption-mobile);
     color: var(--rc-color-grey-text-light);
     text-transform: uppercase;
     white-space: nowrap;
-  }
-
-  @container layout-query-container (width >= 768px) {
-    .text {
-      font: var(--rc-text-caption-desktop);
-    }
   }
 </style>

@@ -36,7 +36,6 @@
   .rcb-pricing-info {
     display: flex;
     flex-direction: column;
-    font: var(--rc-text-body1-mobile);
     gap: var(--rc-spacing-gapLarge-mobile);
     user-select: none;
   }

@@ -1,5 +1,5 @@
 <script module>
-  import { default as Button } from "../../ui/atoms/button.svelte";
+  import { default as Button } from "../../ui/molecules/button.svelte";
   import {
     type Args,
     defineMeta,
@@ -10,7 +10,7 @@
 
   let { Story } = defineMeta<typeof Button>({
     component: Button,
-    title: "Atoms/Button",
+    title: "Molecules/Button",
     // @ts-expect-error ignore typing of decorator
     decorators: [withLayout],
     argTypes: {
