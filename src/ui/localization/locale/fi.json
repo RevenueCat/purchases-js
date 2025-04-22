@@ -74,5 +74,6 @@
   "error_page.error_message_invalid_email_error": "Sähköpostiosoitetta {{email}} ei voitu vahvistaa. Anna kelvollinen sähköpostiosoite.",
   "payment_entry_page.button_payment_method": "Maksa {{formattedPrice}} käyttämällä {{paymentMethod}}",
   "price_update.title": "Hinnan päivitys",
-  "price_update.message": "Kokonaishinta on päivitetty verolla laskutusosoitteesi perusteella. Tarkista ja yritä uudelleen. Korttiasi veloitetaan vain kerran."
+  "price_update.base_message": "Kokonaishinta on päivitetty veron kanssa laskutusosoitteesi perusteella. Tarkista ja yritä uudelleen.",
+  "price_update.charged_once_message": "Korttisi veloitetaan vain kerran."
 }

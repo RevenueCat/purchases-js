@@ -74,5 +74,6 @@
   "error_page.error_message_invalid_email_error": "Không thể xác minh địa chỉ email {{email}}. Vui lòng cung cấp một địa chỉ email hợp lệ.",
   "payment_entry_page.button_payment_method": "Thanh toán {{formattedPrice}} bằng {{paymentMethod}}",
   "price_update.title": "Cập nhật giá",
-  "price_update.message": "Tổng giá đã được cập nhật với thuế dựa trên địa chỉ thanh toán của bạn. Vui lòng xem lại và thử lại. Thẻ của bạn sẽ chỉ bị tính phí một lần."
+  "price_update.base_message": "Tổng giá đã được cập nhật với thuế dựa trên địa chỉ thanh toán của bạn. Vui lòng xem xét và thử lại.",
+  "price_update.charged_once_message": "Thẻ của bạn sẽ chỉ bị tính phí một lần."
 }

@@ -74,5 +74,6 @@
   "error_page.error_message_invalid_email_error": "Die E-Mail-Adresse {{email}} konnte nicht verifiziert werden. Bitte gib eine gültige E-Mail-Adresse an.",
   "payment_entry_page.button_payment_method": "Mit {{paymentMethod}} für {{formattedPrice}} bezahlen",
   "price_update.title": "Preisaktualisierung",
-  "price_update.message": "Der Gesamtpreis wurde basierend auf Ihrer Rechnungsadresse mit Steuern aktualisiert. Bitte überprüfen Sie ihn und versuchen Sie es erneut. Ihre Karte wird erst belastet, wenn alles korrekt ist."
+  "price_update.base_message": "Der Gesamtpreis wurde basierend auf Ihrer Rechnungsadresse mit Steuern aktualisiert. Bitte überprüfen Sie ihn und versuchen Sie es erneut.",
+  "price_update.charged_once_message": "Ihre Karte wird erst belastet, wenn alles korrekt ist."
 }

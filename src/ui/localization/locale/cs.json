@@ -74,5 +74,6 @@
   "error_page.error_message_invalid_email_error": "E-mailová adresa {{email}} nemohla být ověřena. Zadejte prosím platnou e-mailovou adresu.",
   "payment_entry_page.button_payment_method": "Zaplatit {{formattedPrice}} pomocí {{paymentMethod}}",
   "price_update.title": "Aktualizace ceny",
-  "price_update.message": "Celková cena byla aktualizována o daň na základě vaší fakturační adresy. Zkontrolujte ji a zkuste to znovu. Vaše karta bude stržena pouze jednou."
+  "price_update.base_message": "Celková cena byla aktualizována s daní na základě vaší fakturační adresy. Prosím, zkontrolujte a zkuste to znovu.",
+  "price_update.charged_once_message": "Vaše karta bude účtována pouze jednou."
 }

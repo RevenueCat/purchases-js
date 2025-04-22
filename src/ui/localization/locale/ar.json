@@ -74,5 +74,6 @@
   "error_page.error_message_invalid_email_error": "تعذر التحقق من عنوان البريد الإلكتروني {{email}}. يرجى تقديم عنوان بريد إلكتروني صالح.",
   "payment_entry_page.button_payment_method": "ادفع {{formattedPrice}} باستخدام {{paymentMethod}}",
   "price_update.title": "تحديث السعر",
-  "price_update.message": "تم تحديث السعر الإجمالي مع الضريبة بناءً على عنوان إرسال الفواتير الخاص بك. يرجى المراجعة والمحاولة مرة أخرى. لن يتم تحصيل رسوم من بطاقتك إلا مرة واحدة."
+  "price_update.base_message": "تم تحديث السعر الإجمالي مع الضريبة بناءً على عنوان إرسال الفواتير الخاص بك. يرجى المراجعة والمحاولة مرة أخرى.",
+  "price_update.charged_once_message": "لن يتم تحصيل رسوم من بطاقتك إلا مرة واحدة."
 }

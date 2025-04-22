@@ -74,5 +74,6 @@
   "error_page.error_message_invalid_email_error": "Adresa e-pošte {{email}} nije se mogla potvrditi. Molimo unesite valjanu adresu e-pošte.",
   "payment_entry_page.button_payment_method": "Plati {{formattedPrice}} putem {{paymentMethod}}",
   "price_update.title": "Ažuriranje cijene",
-  "price_update.message": "Ukupna cijena je ažurirana s porezom na temelju vaše adrese za naplatu. Pregledajte i pokušajte ponovo. Vaša kartica bit će naplaćena samo jednom."
+  "price_update.base_message": "Ukupna cijena je ažurirana s porezom na temelju vaše adrese za naplatu. Molimo pregledajte i pokušajte ponovno.",
+  "price_update.charged_once_message": "Vaša kartica bit će naplaćena samo jednom."
 }

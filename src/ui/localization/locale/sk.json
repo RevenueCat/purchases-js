@@ -74,5 +74,6 @@
   "error_page.error_message_invalid_email_error": "E-mailová adresa {{email}} sa nedala overiť. Zadajte platnú e-mailovú adresu.",
   "payment_entry_page.button_payment_method": "Zaplatiť sumu {{formattedPrice}} pomocou {{paymentMethod}}",
   "price_update.title": "Aktualizácia ceny",
-  "price_update.message": "Celková cena bola aktualizovaná o daň na základe vašej fakturačnej adresy. Skontrolujte to a skúste znova. Vaša karta bude zaťažená iba raz."
+  "price_update.base_message": "Celková cena bola aktualizovaná s daňou na základe vašej fakturačnej adresy. Prosím, skontrolujte a skúste znova.",
+  "price_update.charged_once_message": "Z vašej karty bude účtovaná platba len raz."
 }

@@ -73,6 +73,7 @@
   "pricing_table.enter_postal_code_to_calculate": "गणना करने के लिए ज़िप कोड दर्ज करें",
   "error_page.error_message_invalid_email_error": "ईमेल पता {{email}} सत्यापित नहीं किया जा सका. कृपया एक मान्य ईमेल पता प्रदान करें.",
   "payment_entry_page.button_payment_method": "{{paymentMethod}} के साथ {{formattedPrice}} का भुगतान करें",
-  "price_update.title": "कीमत अपडेट",
-  "price_update.message": "आप के बिलिंग पते के आधार पर कुल कीमत कर के साथ अपडेट की गई थी। कृपया समीक्षा करें और फिर से प्रयास करें। आपके कार्ड से केवल एक बार शुल्क लिया जाएगा।"
+  "price_update.title": "मूल्य अपडेट",
+  "price_update.base_message": "कुल मूल्य आपके बिलिंग पते के आधार पर कर के साथ अपडेट किया गया है। कृपया जांचें और पुनः प्रयास करें।",
+  "price_update.charged_once_message": "आपके कार्ड से केवल एक बार शुल्क लिया जाएगा।"
 }

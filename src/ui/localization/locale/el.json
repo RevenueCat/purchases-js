@@ -74,5 +74,6 @@
   "error_page.error_message_invalid_email_error": "Η διεύθυνση email {{email}} δεν μπόρεσε να επαληθευτεί. Παρακαλώ δώστε μια έγκυρη διεύθυνση email.",
   "payment_entry_page.button_payment_method": "Πληρωμή {{formattedPrice}} με {{paymentMethod}}",
   "price_update.title": "Ενημέρωση τιμής",
-  "price_update.message": "Η συνολική τιμή ενημερώθηκε με τον φόρο βάσει της διεύθυνσης χρέωσής σας. Ελέγξτε και δοκιμάστε ξανά. Η κάρτα σας θα χρεωθεί μόνο μία φορά."
+  "price_update.base_message": "Η συνολική τιμή ενημερώθηκε με φόρο με βάση τη διεύθυνση χρέωσής σας. Παρακαλώ ελέγξτε και δοκιμάστε ξανά.",
+  "price_update.charged_once_message": "Η κάρτα σας θα χρεωθεί μόνο μία φορά."
 }

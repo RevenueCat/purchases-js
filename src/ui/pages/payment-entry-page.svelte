@@ -511,7 +511,7 @@
         class="rc-checkout-price-update-info-container"
         hidden={taxCalculationStatus !== "miss-match"}
       >
-        <PriceUpdateInfo />
+        <PriceUpdateInfo {subscriptionOption} />
       </div>
 
       <div class="rc-checkout-pay-container">

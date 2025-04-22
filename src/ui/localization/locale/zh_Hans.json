@@ -74,5 +74,6 @@
   "error_page.error_message_invalid_email_error": "无法验证电子邮件地址{{email}}。请提供有效的电子邮件地址。",
   "payment_entry_page.button_payment_method": "使用{{paymentMethod}}支付{{formattedPrice}}",
   "price_update.title": "价格更新",
-  "price_update.message": "总价已根据您的账单地址更新了税费。请查看并重试。您的银行卡只会扣款一次。"
+  "price_update.base_message": "总价已根据您的账单地址更新了税费。请查看并重试。",
+  "price_update.charged_once_message": "您的银行卡只会扣款一次。"
 }

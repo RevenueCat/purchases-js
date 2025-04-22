@@ -73,6 +73,7 @@
   "pricing_table.enter_postal_code_to_calculate": "Masukkan poskod untuk mengira",
   "error_page.error_message_invalid_email_error": "Alamat e-mel {{email}} tidak dapat disahkan. Sila berikan alamat e-mel yang sah.",
   "payment_entry_page.button_payment_method": "Bayar {{formattedPrice}} dengan {{paymentMethod}}",
-  "price_update.title": "Kemas Kini Harga",
-  "price_update.message": "Jumlah harga telah dikemas kini dengan cukai berdasarkan alamat pengebilan anda. Sila semak dan cuba lagi. Kad anda hanya akan dicaj sekali."
+  "price_update.title": "Kemaskini harga",
+  "price_update.base_message": "Jumlah harga telah dikemas kini dengan cukai berdasarkan alamat bil anda. Sila semak dan cuba lagi.",
+  "price_update.charged_once_message": "Kad anda hanya akan dikenakan caj sekali."
 }

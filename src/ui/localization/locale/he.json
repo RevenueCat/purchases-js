@@ -74,5 +74,6 @@
   "error_page.error_message_invalid_email_error": "לא ניתן לאמת את כתובת האימייל {{email}}. אנא ספק כתובת אימייל חוקית.",
   "payment_entry_page.button_payment_method": "שלם {{formattedPrice}} באמצעות {{paymentMethod}}",
   "price_update.title": "עדכון מחיר",
-  "price_update.message": "המחיר הכולל עודכן עם מס בהתבסס על כתובת החיוב שלך. אנא בדוק שוב ונסה שוב. החיוב יתבצע רק פעם אחת."
+  "price_update.base_message": "המחיר הכולל עודכן עם מס בהתבסס על כתובת החיוב שלך. אנא בדוק ונסה שוב.",
+  "price_update.charged_once_message": "הכרטיס שלך יחויב רק פעם אחת."
 }

@@ -74,5 +74,6 @@
   "error_page.error_message_invalid_email_error": "이메일 주소 {{email}}을(를) 확인할 수 없습니다. 유효한 이메일 주소를 제공해 주세요.",
   "payment_entry_page.button_payment_method": "{{paymentMethod}}으로 {{formattedPrice}} 결제",
   "price_update.title": "가격 업데이트",
-  "price_update.message": "청구지 주소를 기준으로 세금이 포함된 총 가격이 업데이트되었습니다. 다시 확인하고 시도해 주세요. 카드는 한 번만 청구됩니다."
+  "price_update.base_message": "청구지 주소를 기준으로 세금이 포함된 총 가격이 업데이트되었습니다. 다시 확인하고 시도해 주세요.",
+  "price_update.charged_once_message": "카드는 한 번만 청구됩니다."
 }

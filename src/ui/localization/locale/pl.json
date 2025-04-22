@@ -74,5 +74,6 @@
   "error_page.error_message_invalid_email_error": "Nie można zweryfikować adresu e-mail {{email}}. Proszę podać prawidłowy adres e-mail.",
   "payment_entry_page.button_payment_method": "Zapłać {{formattedPrice}} przez {{paymentMethod}}",
   "price_update.title": "Aktualizacja ceny",
-  "price_update.message": "Cena całkowita została zaktualizowana o podatek na podstawie Twojego adresu rozliczeniowego. Sprawdź i spróbuj ponownie. Twoja karta zostanie obciążona tylko raz."
+  "price_update.base_message": "Całkowita cena została zaktualizowana o podatek na podstawie Twojego adresu rozliczeniowego. Sprawdź i spróbuj ponownie.",
+  "price_update.charged_once_message": "Twoja karta zostanie obciążona tylko raz."
 }

@@ -74,5 +74,6 @@
   "error_page.error_message_invalid_email_error": "無法驗證電子郵件地址 {{email}}。請提供有效的電子郵件地址。",
   "payment_entry_page.button_payment_method": "使用 {{paymentMethod}} 支付 {{formattedPrice}}",
   "price_update.title": "價格更新",
-  "price_update.message": "總價已根據您的帳單地址更新稅金。請檢查後重試。您的信用卡只會被收取一次費用。"
+  "price_update.base_message": "總價已根據您的帳單地址更新稅金。請檢查後重試。",
+  "price_update.charged_once_message": "您的信用卡只會被收取一次費用。"
 }

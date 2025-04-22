@@ -108,7 +108,8 @@ export enum LocalizationKeys {
   NavbarHeaderDetails = "navbar_header.details",
   NavbarBackButton = "navbar_header.back_button",
   PriceUpdateTitle = "price_update.title",
-  PriceUpdateMessage = "price_update.message",
+  PriceUpdateBaseMessage = "price_update.base_message",
+  PriceUpdateChargedOnceMessage = "price_update.charged_once_message",
 }
 
 export const supportedLanguages: Record<

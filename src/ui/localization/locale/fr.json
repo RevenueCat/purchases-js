@@ -74,5 +74,6 @@
   "error_page.error_message_invalid_email_error": "L'adresse e-mail {{email}} n'a pas pu être vérifiée. Veuillez fournir une adresse e-mail valide.",
   "payment_entry_page.button_payment_method": "Payer {{formattedPrice}} avec {{paymentMethod}}",
   "price_update.title": "Mise à jour du prix",
-  "price_update.message": "Le prix total a été mis à jour avec la taxe en fonction de votre adresse de facturation. Veuillez vérifier et réessayer. Votre carte ne sera débitée qu'une seule fois."
+  "price_update.base_message": "Le prix total a été mis à jour avec la taxe en fonction de votre adresse de facturation. Veuillez vérifier et réessayer.",
+  "price_update.charged_once_message": "Votre carte ne sera débitée qu'une seule fois."
 }
