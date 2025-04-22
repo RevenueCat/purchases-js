@@ -79,8 +79,8 @@ export class StripeService {
     const textStyles = theme.textStyles;
 
     const baseFontSize =
-      DEFAULT_TEXT_STYLES.body1[viewport].fontSize ||
-      DEFAULT_TEXT_STYLES.body1["mobile"].fontSize;
+      DEFAULT_TEXT_STYLES.bodyBase[viewport].fontSize ||
+      DEFAULT_TEXT_STYLES.bodyBase["mobile"].fontSize;
 
     const elements = stripe.elements({
       loader: "always",
@@ -114,7 +114,7 @@ export class StripeService {
             outline: "none",
           },
           ".Label": {
-            fontWeight: textStyles.body1[viewport].fontWeight,
+            fontWeight: textStyles.bodyBase[viewport].fontWeight,
             lineHeight: "22px",
             color: customColors["grey-text-dark"],
           },
@@ -125,8 +125,8 @@ export class StripeService {
             boxShadow: "none",
           },
           ".TermsText": {
-            fontSize: textStyles.caption[viewport].fontSize,
-            lineHeight: textStyles.caption[viewport].lineHeight,
+            fontSize: textStyles.captionDefault[viewport].fontSize,
+            lineHeight: textStyles.captionDefault[viewport].lineHeight,
           },
           ".Tab": {
             boxShadow: "none",
