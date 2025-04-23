@@ -25,7 +25,6 @@
   "periods.monthFrequencyPlural": "her {{amount}} ayda",
   "periods.yearFrequencyPlural": "her {{amount}} yılda",
   "periods.dayFrequencyPlural": "her {{amount}} günde",
-  "payment_method.card": "kart",
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
@@ -73,6 +72,7 @@
   "pricing_table.enter_postal_code_to_calculate": "Hesaplamak için posta kodunu girin",
   "error_page.error_message_invalid_email_error": "{{email}} e-posta adresi doğrulanamadı. Lütfen geçerli bir e-posta adresi girin.",
   "payment_entry_page.button_payment_method": "{{paymentMethod}} ile {{formattedPrice}} öde",
+  "payment_entry_page.button_with_price": "{{formattedPrice}} öde",
   "price_update.title": "Fiyat güncellemesi",
   "price_update.base_message": "Toplam fiyat, fatura adresinize göre vergilerle güncellendi. Lütfen kontrol edin ve tekrar deneyin.",
   "price_update.trial_message": "Abonelik fiyatı, fatura adresinize göre vergileri içerecek şekilde güncellendi. Ücretsiz deneme süresi hala geçerli. Lütfen kontrol edin ve tekrar deneyin."

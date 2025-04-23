@@ -25,6 +25,23 @@
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
 
+  function paymentMethodDisplayName(
+    method: string | undefined,
+  ): string | undefined {
+    switch (method) {
+      case "google_pay":
+        return "Google Pay";
+      case "apple_pay":
+        return "Apple Pay";
+      default:
+        return undefined;
+    }
+  }
+
+  const paymentMethod = $derived(
+    paymentMethodDisplayName(selectedPaymentMethod),
+  );
+
   const formattedPrice = $derived(
     priceBreakdown
       ? $translator.formatPrice(
@@ -32,10 +49,6 @@
           priceBreakdown.currency,
         )
       : null,
-  );
-
-  const paymentMethod = $derived(
-    $translator.translatePaymentMethod(selectedPaymentMethod ?? "card"),
   );
 </script>
 
@@ -46,6 +59,11 @@
     <Localized
       key={LocalizationKeys.PaymentEntryPageButtonPaymentMethod}
       variables={{ formattedPrice, paymentMethod }}
+    />
+  {:else if formattedPrice}
+    <Localized
+      key={LocalizationKeys.PaymentEntryPageButtonWithPrice}
+      variables={{ formattedPrice }}
     />
   {:else}
     <Localized key={LocalizationKeys.PaymentEntryPageButtonPay} />

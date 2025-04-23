@@ -25,7 +25,6 @@
   "periods.monthFrequencyPlural": "每 {{amount}} 個月",
   "periods.yearFrequencyPlural": "每 {{amount}} 年",
   "periods.dayFrequencyPlural": "每 {{amount}} 天",
-  "payment_method.card": "卡",
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
@@ -73,6 +72,7 @@
   "pricing_table.enter_postal_code_to_calculate": "輸入郵政編碼以計算",
   "error_page.error_message_invalid_email_error": "無法驗證電子郵件地址 {{email}}。請提供有效的電子郵件地址。",
   "payment_entry_page.button_payment_method": "使用 {{paymentMethod}} 支付 {{formattedPrice}}",
+  "payment_entry_page.button_with_price": "支付 {{formattedPrice}}",
   "price_update.title": "價格更新",
   "price_update.base_message": "根據您的帳單地址，總價已更新為含稅價格。請查看並重試。",
   "price_update.trial_message": "根據您的帳單地址，訂閱價格已更新為含稅價格。免費試用仍然有效。請查看並重試。"

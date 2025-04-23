@@ -25,7 +25,6 @@
   "periods.monthFrequencyPlural": "cada {{amount}} meses",
   "periods.yearFrequencyPlural": "cada {{amount}} años",
   "periods.dayFrequencyPlural": "cada {{amount}} días",
-  "payment_method.card": "tarjeta",
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
@@ -73,6 +72,7 @@
   "pricing_table.enter_postal_code_to_calculate": "Introduce el código postal para calcular",
   "error_page.error_message_invalid_email_error": "La dirección de correo electrónico {{email}} no se pudo verificar. Por favor, proporciona una dirección de correo electrónico válida.",
   "payment_entry_page.button_payment_method": "Pagar {{formattedPrice}} con {{paymentMethod}}",
+  "payment_entry_page.button_with_price": "Pagar {{formattedPrice}}",
   "price_update.title": "Actualización de precio",
   "price_update.base_message": "El precio total se actualizó con impuestos según su dirección de facturación. Revise e intente nuevamente.",
   "price_update.trial_message": "El precio de la suscripción se actualizó para incluir impuestos según su dirección de facturación. La prueba gratuita sigue aplicándose. Revise e intente nuevamente."

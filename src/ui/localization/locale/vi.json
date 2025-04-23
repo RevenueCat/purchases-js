@@ -25,7 +25,6 @@
   "periods.monthFrequencyPlural": "cứ {{amount}} tháng",
   "periods.yearFrequencyPlural": "cứ {{amount}} năm",
   "periods.dayFrequencyPlural": "cứ {{amount}} ngày",
-  "payment_method.card": "thẻ",
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
@@ -73,6 +72,7 @@
   "pricing_table.enter_postal_code_to_calculate": "Nhập mã bưu điện để tính toán",
   "error_page.error_message_invalid_email_error": "Không thể xác minh địa chỉ email {{email}}. Vui lòng cung cấp một địa chỉ email hợp lệ.",
   "payment_entry_page.button_payment_method": "Thanh toán {{formattedPrice}} bằng {{paymentMethod}}",
+  "payment_entry_page.button_with_price": "Thanh toán {{formattedPrice}}",
   "price_update.title": "Cập nhật giá",
   "price_update.base_message": "Tổng giá đã được cập nhật với thuế dựa trên địa chỉ thanh toán của bạn. Vui lòng kiểm tra và thử lại.",
   "price_update.trial_message": "Giá đăng ký đã được cập nhật để bao gồm thuế dựa trên địa chỉ thanh toán của bạn. Thời gian dùng thử miễn phí vẫn được áp dụng. Vui lòng kiểm tra và thử lại."

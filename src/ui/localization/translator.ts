@@ -2,7 +2,7 @@ import { Logger } from "../../helpers/logger";
 import type { PeriodUnit } from "../../helpers/duration-helper";
 import { englishLocale } from "./constants";
 
-import { LocalizationKeys } from "./supportedLanguages";
+import type { LocalizationKeys } from "./supportedLanguages";
 import { supportedLanguages } from "./supportedLanguages";
 
 import { formatPrice } from "../../helpers/price-labels";
@@ -237,18 +237,6 @@ export class Translator {
       fallbackInstance?.translateDate(date, options)
     );
   }
-
-  public translatePaymentMethod(
-    method: string | undefined,
-  ): string | undefined {
-    const localeInstance = this.getLocaleInstance(this.selectedLocale);
-    const fallbackInstance = this.getLocaleInstance(this.defaultLocale);
-
-    return (
-      localeInstance?.translatePaymentMethod(method) ||
-      fallbackInstance?.translatePaymentMethod(method)
-    );
-  }
 }
 export class LocaleTranslations {
   public constructor(
@@ -339,20 +327,5 @@ export class LocaleTranslations {
     options: Intl.DateTimeFormatOptions = {},
   ): string | undefined {
     return date.toLocaleDateString(this.localeKey, options);
-  }
-
-  public translatePaymentMethod(
-    method: string | undefined,
-  ): string | undefined {
-    switch (method) {
-      case "google_pay":
-        return "Google Pay";
-      case "apple_pay":
-        return "Apple Pay";
-      case "card":
-        return this.translate(LocalizationKeys.PaymentMethodCard);
-      default:
-        return undefined;
-    }
   }
 }

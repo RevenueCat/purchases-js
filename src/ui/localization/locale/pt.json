@@ -25,7 +25,6 @@
   "periods.monthFrequencyPlural": "a cada {{amount}} meses",
   "periods.yearFrequencyPlural": "a cada {{amount}} anos",
   "periods.dayFrequencyPlural": "a cada {{amount}} dias",
-  "payment_method.card": "cartão",
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
@@ -73,6 +72,7 @@
   "pricing_table.enter_postal_code_to_calculate": "Insira o CEP para calcular",
   "error_page.error_message_invalid_email_error": "O endereço de e-mail {{email}} não pôde ser verificado. Por favor, forneça um endereço de e-mail válido.",
   "payment_entry_page.button_payment_method": "Pagar {{formattedPrice}} com {{paymentMethod}}",
+  "payment_entry_page.button_with_price": "Pagar {{formattedPrice}}",
   "price_update.title": "Atualização de preço",
   "price_update.base_message": "O preço total foi atualizado com impostos com base no seu endereço de faturação. Por favor, verifique e tente novamente.",
   "price_update.trial_message": "O preço da assinatura foi atualizado para incluir impostos com base no seu endereço de faturação. O período de teste gratuito continua válido. Por favor, verifique e tente novamente."

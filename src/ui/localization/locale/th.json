@@ -25,7 +25,6 @@
   "periods.monthFrequencyPlural": "ทุกๆ {{amount}} เดือน",
   "periods.yearFrequencyPlural": "ทุกๆ {{amount}} ปี",
   "periods.dayFrequencyPlural": "ทุกๆ {{amount}} วัน",
-  "payment_method.card": "บัตร",
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
@@ -73,6 +72,7 @@
   "pricing_table.enter_postal_code_to_calculate": "ใส่รหัสไปรษณีย์เพื่อคำนวณ",
   "error_page.error_message_invalid_email_error": "ไม่สามารถยืนยันที่อยู่อีเมล {{email}} ได้ โปรดระบุที่อยู่อีเมลที่ถูกต้อง",
   "payment_entry_page.button_payment_method": "ชำระเงิน {{formattedPrice}} ด้วย {{paymentMethod}}",
+  "payment_entry_page.button_with_price": "ชำระเงิน {{formattedPrice}}",
   "price_update.title": "อัปเดตราคา",
   "price_update.base_message": "ราคารวมได้รับการอัปเดตพร้อมภาษีตามที่อยู่สำหรับการเรียกเก็บเงินของคุณ โปรดตรวจสอบและลองอีกครั้ง",
   "price_update.trial_message": "ราคาการสมัครสมาชิกได้รับการอัปเดตเพื่อรวมภาษีตามที่อยู่สำหรับการเรียกเก็บเงินของคุณ ระยะเวลาทดลองใช้ฟรียังคงมีผล โปรดตรวจสอบและลองอีกครั้ง"

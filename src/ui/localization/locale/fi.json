@@ -25,7 +25,6 @@
   "periods.monthFrequencyPlural": "joka {{amount}} kuukausi",
   "periods.yearFrequencyPlural": "joka {{amount}} vuosi",
   "periods.dayFrequencyPlural": "joka {{amount}} päivä",
-  "payment_method.card": "kortti",
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
@@ -73,6 +72,7 @@
   "pricing_table.enter_postal_code_to_calculate": "Syötä postinumero laskeaksesi",
   "error_page.error_message_invalid_email_error": "Sähköpostiosoitetta {{email}} ei voitu vahvistaa. Anna kelvollinen sähköpostiosoite.",
   "payment_entry_page.button_payment_method": "Maksa {{formattedPrice}} käyttämällä {{paymentMethod}}",
+  "payment_entry_page.button_with_price": "Maksa {{formattedPrice}}",
   "price_update.title": "Hinnan päivitys",
   "price_update.base_message": "Kokonaishinta on päivitetty verojen kanssa laskutusosoitteesi perusteella. Tarkista ja yritä uudelleen.",
   "price_update.trial_message": "Tilauksen hinta on päivitetty sisältämään verot laskutusosoitteesi perusteella. Ilmainen kokeilujakso on edelleen voimassa. Tarkista ja yritä uudelleen."

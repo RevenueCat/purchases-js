@@ -25,7 +25,6 @@
   "periods.monthFrequencyPlural": "hver {{amount}} måneder",
   "periods.yearFrequencyPlural": "hver {{amount}} år",
   "periods.dayFrequencyPlural": "hver {{amount}} dage",
-  "payment_method.card": "kort",
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
@@ -73,6 +72,7 @@
   "pricing_table.enter_postal_code_to_calculate": "Indtast postnummer for at beregne",
   "error_page.error_message_invalid_email_error": "E-mailadressen {{email}} kunne ikke bekræftes. Angiv en gyldig e-mailadresse.",
   "payment_entry_page.button_payment_method": "Betal {{formattedPrice}} med {{paymentMethod}}",
+  "payment_entry_page.button_with_price": "Betal {{formattedPrice}}",
   "price_update.title": "Prisopdatering",
   "price_update.base_message": "Totalprisen er opdateret med skatter baseret på din faktureringsadresse. Kontroller venligst og prøv igen.",
   "price_update.trial_message": "Abonnementsprisen er opdateret for at inkludere skatter baseret på din faktureringsadresse. Den gratis prøveperiode gælder stadig. Kontroller venligst og prøv igen."

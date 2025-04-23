@@ -34,8 +34,8 @@
   <PaymentButton
     disabled={args.disabled ?? false}
     subscriptionOption={args.subscriptionOption ?? subscriptionOption}
-    priceBreakdown={args.priceBreakdown ?? priceBreakdownTaxDisabled}
-    selectedPaymentMethod={args.selectedPaymentMethod ?? "card"}
+    priceBreakdown={args.priceBreakdown}
+    selectedPaymentMethod={args.selectedPaymentMethod}
   />
 {/snippet}
 
@@ -43,6 +43,7 @@
   name="With Trial"
   args={{
     subscriptionOption: subscriptionOptionWithTrial,
+    priceBreakdown: priceBreakdownTaxDisabled,
   }}
 />
 
@@ -51,21 +52,44 @@
   args={{
     disabled: true,
     subscriptionOption: subscriptionOptionWithTrial,
+    priceBreakdown: priceBreakdownTaxDisabled,
   }}
 />
 
-<Story name="With Card" args={{}} />
+<Story
+  name="Without price"
+  args={{
+    priceBreakdown: undefined,
+  }}
+/>
 
 <Story
-  name="With Card Disabled"
+  name="Without price Disabled"
   args={{
     disabled: true,
+    priceBreakdown: undefined,
+  }}
+/>
+
+<Story
+  name="With price"
+  args={{
+    priceBreakdown: priceBreakdownTaxDisabled,
+  }}
+/>
+
+<Story
+  name="With price Disabled"
+  args={{
+    disabled: true,
+    priceBreakdown: priceBreakdownTaxDisabled,
   }}
 />
 
 <Story
   name="With Google Pay"
   args={{
+    priceBreakdown: priceBreakdownTaxDisabled,
     selectedPaymentMethod: "google_pay",
   }}
 />
@@ -74,6 +98,7 @@
   name="With Google Pay Disabled"
   args={{
     disabled: true,
+    priceBreakdown: priceBreakdownTaxDisabled,
     selectedPaymentMethod: "google_pay",
   }}
 />
@@ -81,6 +106,7 @@
 <Story
   name="With Apple Pay"
   args={{
+    priceBreakdown: priceBreakdownTaxDisabled,
     selectedPaymentMethod: "apple_pay",
   }}
 />
@@ -89,6 +115,7 @@
   name="With Apple Pay Disabled"
   args={{
     disabled: true,
+    priceBreakdown: priceBreakdownTaxDisabled,
     selectedPaymentMethod: "apple_pay",
   }}
 />

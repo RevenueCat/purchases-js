@@ -25,7 +25,6 @@
   "periods.monthFrequencyPlural": "svakih {{amount}} mjeseci",
   "periods.yearFrequencyPlural": "svakih {{amount}} godina",
   "periods.dayFrequencyPlural": "svakih {{amount}} dana",
-  "payment_method.card": "kartica",
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
@@ -73,6 +72,7 @@
   "pricing_table.enter_postal_code_to_calculate": "Unesite poštanski broj za izračun",
   "error_page.error_message_invalid_email_error": "Adresa e-pošte {{email}} nije se mogla potvrditi. Molimo unesite valjanu adresu e-pošte.",
   "payment_entry_page.button_payment_method": "Plati {{formattedPrice}} putem {{paymentMethod}}",
+  "payment_entry_page.button_with_price": "Plati {{formattedPrice}}",
   "price_update.title": "Ažuriranje cijene",
   "price_update.base_message": "Ukupna cijena je ažurirana s porezima na temelju vaše adrese za naplatu. Molimo provjerite i pokušajte ponovno.",
   "price_update.trial_message": "Cijena pretplate je ažurirana da uključi poreze na temelju vaše adrese za naplatu. Besplatno probno razdoblje i dalje vrijedi. Molimo provjerite i pokušajte ponovno."

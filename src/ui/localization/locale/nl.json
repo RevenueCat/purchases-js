@@ -25,7 +25,6 @@
   "periods.monthFrequencyPlural": "elke {{amount}} maanden",
   "periods.yearFrequencyPlural": "elke {{amount}} jaren",
   "periods.dayFrequencyPlural": "elke {{amount}} dagen",
-  "payment_method.card": "kaart",
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
@@ -73,6 +72,7 @@
   "pricing_table.enter_postal_code_to_calculate": "Voer postcode in om te berekenen",
   "error_page.error_message_invalid_email_error": "Het e-mailadres {{email}} kon niet worden geverifieerd. Geef een geldig e-mailadres op.",
   "payment_entry_page.button_payment_method": "Betaal {{formattedPrice}} met {{paymentMethod}}",
+  "payment_entry_page.button_with_price": "Betaal {{formattedPrice}}",
   "price_update.title": "Prijsupdate",
   "price_update.base_message": "De totale prijs is bijgewerkt met belastingen op basis van uw factuuradres. Controleer en probeer het opnieuw.",
   "price_update.trial_message": "De abonnementsprijs is bijgewerkt om belastingen op te nemen op basis van uw factuuradres. De gratis proefperiode blijft van toepassing. Controleer en probeer het opnieuw."

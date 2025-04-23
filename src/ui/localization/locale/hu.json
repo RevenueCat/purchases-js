@@ -25,7 +25,6 @@
   "periods.monthFrequencyPlural": "minden {{amount}} hónapban",
   "periods.yearFrequencyPlural": "minden {{amount}} évben",
   "periods.dayFrequencyPlural": "minden {{amount}} napban",
-  "payment_method.card": "kártya",
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
@@ -73,6 +72,7 @@
   "pricing_table.enter_postal_code_to_calculate": "Adja meg az irányítószámot a számításhoz",
   "error_page.error_message_invalid_email_error": "A(z) {{email}} e-mail címet nem sikerült ellenőrizni. Kérjük, adj meg egy érvényes e-mail címet.",
   "payment_entry_page.button_payment_method": "Fizetés {{formattedPrice}} összeggel a következővel: {{paymentMethod}}",
+  "payment_entry_page.button_with_price": "Fizetés {{formattedPrice}}",
   "price_update.title": "Ár frissítése",
   "price_update.base_message": "A teljes ár adókkal együtt frissítésre került a számlázási címének megfelelően. Kérjük, ellenőrizze és próbálja újra.",
   "price_update.trial_message": "Az előfizetés ára adókkal együtt frissítésre került a számlázási címének megfelelően. Az ingyenes próbaidőszak továbbra is érvényes. Kérjük, ellenőrizze és próbálja újra."

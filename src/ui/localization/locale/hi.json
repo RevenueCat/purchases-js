@@ -25,7 +25,6 @@
   "periods.monthFrequencyPlural": "प्रत्येक {{amount}} महीने",
   "periods.yearFrequencyPlural": "प्रत्येक {{amount}} वर्ष",
   "periods.dayFrequencyPlural": "प्रत्येक {{amount}} दिन",
-  "payment_method.card": "कार्ड",
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
@@ -73,6 +72,7 @@
   "pricing_table.enter_postal_code_to_calculate": "गणना करने के लिए ज़िप कोड दर्ज करें",
   "error_page.error_message_invalid_email_error": "ईमेल पता {{email}} सत्यापित नहीं किया जा सका. कृपया एक मान्य ईमेल पता प्रदान करें.",
   "payment_entry_page.button_payment_method": "{{paymentMethod}} के साथ {{formattedPrice}} का भुगतान करें",
+  "payment_entry_page.button_with_price": "{{formattedPrice}} का भुगतान करें",
   "price_update.title": "मूल्य अपडेट",
   "price_update.base_message": "कुल मूल्य आपके बिलिंग पते के आधार पर करों के साथ अपडेट किया गया है। कृपया जांचें और पुनः प्रयास करें।",
   "price_update.trial_message": "सदस्यता मूल्य आपके बिलिंग पते के आधार पर करों को शामिल करने के लिए अपडेट किया गया है। निःशुल्क परीक्षण अवधि अभी भी लागू है। कृपया जांचें और पुनः प्रयास करें।"

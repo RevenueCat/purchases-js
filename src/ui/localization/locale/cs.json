@@ -25,7 +25,6 @@
   "periods.monthFrequencyPlural": "každých {{amount}} měsíců",
   "periods.yearFrequencyPlural": "každých {{amount}} let",
   "periods.dayFrequencyPlural": "každých {{amount}} dnů",
-  "payment_method.card": "karta",
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
@@ -73,6 +72,7 @@
   "pricing_table.enter_postal_code_to_calculate": "Zadejte PSČ pro výpočet",
   "error_page.error_message_invalid_email_error": "E-mailová adresa {{email}} nemohla být ověřena. Zadejte prosím platnou e-mailovou adresu.",
   "payment_entry_page.button_payment_method": "Zaplatit {{formattedPrice}} pomocí {{paymentMethod}}",
+  "payment_entry_page.button_with_price": "Zaplatit {{formattedPrice}}",
   "price_update.title": "Aktualizace ceny",
   "price_update.base_message": "Celková cena byla aktualizována včetně daní na základě vaší fakturační adresy. Prosím, zkontrolujte a zkuste to znovu.",
   "price_update.trial_message": "Cena předplatného byla aktualizována včetně daní na základě vaší fakturační adresy. Bezplatná zkušební doba stále platí. Prosím, zkontrolujte a zkuste to znovu."

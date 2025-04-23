@@ -25,7 +25,6 @@
   "periods.monthFrequencyPlural": "co {{amount}} miesięcy",
   "periods.yearFrequencyPlural": "co {{amount}} lat",
   "periods.dayFrequencyPlural": "co {{amount}} dni",
-  "payment_method.card": "karta",
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
@@ -73,6 +72,7 @@
   "pricing_table.enter_postal_code_to_calculate": "Wprowadź kod pocztowy, aby obliczyć",
   "error_page.error_message_invalid_email_error": "Nie można zweryfikować adresu e-mail {{email}}. Proszę podać prawidłowy adres e-mail.",
   "payment_entry_page.button_payment_method": "Zapłać {{formattedPrice}} przez {{paymentMethod}}",
+  "payment_entry_page.button_with_price": "Zapłać {{formattedPrice}}",
   "price_update.title": "Aktualizacja ceny",
   "price_update.base_message": "Całkowita cena została zaktualizowana o podatki na podstawie Twojego adresu rozliczeniowego. Sprawdź i spróbuj ponownie.",
   "price_update.trial_message": "Cena subskrypcji została zaktualizowana o podatki na podstawie Twojego adresu rozliczeniowego. Okres próbny nadal obowiązuje. Sprawdź i spróbuj ponownie."

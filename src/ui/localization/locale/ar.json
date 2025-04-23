@@ -25,7 +25,6 @@
   "periods.monthFrequencyPlural": "كل {{amount}} أشهر",
   "periods.yearFrequencyPlural": "كل {{amount}} سنوات",
   "periods.dayFrequencyPlural": "كل {{amount}} أيام",
-  "payment_method.card": "بطاقة",
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
@@ -73,6 +72,7 @@
   "pricing_table.enter_postal_code_to_calculate": "أدخل الرمز البريدي للحساب",
   "error_page.error_message_invalid_email_error": "تعذر التحقق من عنوان البريد الإلكتروني {{email}}. يرجى تقديم عنوان بريد إلكتروني صالح.",
   "payment_entry_page.button_payment_method": "ادفع {{formattedPrice}} باستخدام {{paymentMethod}}",
+  "payment_entry_page.button_with_price": "ادفع {{formattedPrice}}",
   "price_update.title": "تحديث السعر",
   "price_update.base_message": "تم تحديث السعر الإجمالي مع الضرائب بناءً على عنوان الفوترة الخاص بك. يرجى التحقق والمحاولة مرة أخرى.",
   "price_update.trial_message": "تم تحديث سعر الاشتراك ليشمل الضرائب بناءً على عنوان الفوترة الخاص بك. فترة التجربة المجانية لا تزال سارية. يرجى التحقق والمحاولة مرة أخرى."

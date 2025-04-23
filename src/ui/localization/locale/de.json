@@ -25,7 +25,6 @@
   "periods.monthFrequencyPlural": "alle {{amount}} Monate",
   "periods.yearFrequencyPlural": "alle {{amount}} Jahre",
   "periods.dayFrequencyPlural": "alle {{amount}} Tage",
-  "payment_method.card": "karte",
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
@@ -73,6 +72,7 @@
   "pricing_table.enter_postal_code_to_calculate": "Postleitzahl zur Berechnung eingeben",
   "error_page.error_message_invalid_email_error": "Die E-Mail-Adresse {{email}} konnte nicht verifiziert werden. Bitte gib eine gültige E-Mail-Adresse an.",
   "payment_entry_page.button_payment_method": "Mit {{paymentMethod}} für {{formattedPrice}} bezahlen",
+  "payment_entry_page.button_with_price": "{{formattedPrice}} bezahlen",
   "price_update.title": "Preisaktualisierung",
   "price_update.base_message": "Der Gesamtpreis wurde mit Steuern basierend auf Ihrer Rechnungsadresse aktualisiert. Bitte überprüfen Sie und versuchen Sie es erneut.",
   "price_update.trial_message": "Der Abonnementpreis wurde aktualisiert, um Steuern basierend auf Ihrer Rechnungsadresse einzuschließen. Die kostenlose Testphase gilt weiterhin. Bitte überprüfen Sie und versuchen Sie es erneut."

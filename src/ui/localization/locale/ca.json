@@ -25,7 +25,6 @@
   "periods.monthFrequencyPlural": "cada {{amount}} mesos",
   "periods.yearFrequencyPlural": "cada {{amount}} anys",
   "periods.dayFrequencyPlural": "cada {{amount}} dies",
-  "payment_method.card": "targeta",
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
@@ -73,6 +72,7 @@
   "pricing_table.enter_postal_code_to_calculate": "Introduïu el codi postal per calcular",
   "error_page.error_message_invalid_email_error": "No s'ha pogut verificar l'adreça de correu electrònic {{email}}. Si us plau, proporcioneu una adreça de correu electrònic vàlida.",
   "payment_entry_page.button_payment_method": "Paga {{formattedPrice}} amb {{paymentMethod}}",
+  "payment_entry_page.button_with_price": "Paga {{formattedPrice}}",
   "price_update.title": "Actualització de preu",
   "price_update.base_message": "El preu total s'ha actualitzat amb els impostos segons la seva adreça de facturació. Si us plau, comprovi-ho i torni-ho a provar.",
   "price_update.trial_message": "El preu de la subscripció s'ha actualitzat per incloure els impostos segons la seva adreça de facturació. El període de prova gratuït segueix vigent. Si us plau, comprovi-ho i torni-ho a provar."

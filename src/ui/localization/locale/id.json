@@ -25,7 +25,6 @@
   "periods.monthFrequencyPlural": "setiap {{amount}} bulan",
   "periods.yearFrequencyPlural": "setiap {{amount}} tahun",
   "periods.dayFrequencyPlural": "setiap {{amount}} hari",
-  "payment_method.card": "kartu",
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
@@ -73,6 +72,7 @@
   "pricing_table.enter_postal_code_to_calculate": "Masukkan kode pos untuk menghitung",
   "error_page.error_message_invalid_email_error": "Alamat email {{email}} tidak dapat diverifikasi. Harap berikan alamat email yang valid.",
   "payment_entry_page.button_payment_method": "Bayar {{formattedPrice}} dengan {{paymentMethod}}",
+  "payment_entry_page.button_with_price": "Bayar {{formattedPrice}}",
   "price_update.title": "Pembaruan harga",
   "price_update.base_message": "Total harga telah diperbarui dengan pajak berdasarkan alamat penagihan Anda. Silakan periksa dan coba lagi.",
   "price_update.trial_message": "Harga langganan telah diperbarui untuk menyertakan pajak berdasarkan alamat penagihan Anda. Masa percobaan gratis masih berlaku. Silakan periksa dan coba lagi."

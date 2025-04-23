@@ -25,7 +25,6 @@
   "periods.monthFrequencyPlural": "кожні {{amount}} місяців",
   "periods.yearFrequencyPlural": "кожні {{amount}} років",
   "periods.dayFrequencyPlural": "кожні {{amount}} днів",
-  "payment_method.card": "картка",
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
@@ -73,6 +72,7 @@
   "pricing_table.enter_postal_code_to_calculate": "Введіть поштовий індекс для розрахунку",
   "error_page.error_message_invalid_email_error": "Електронну адресу {{email}} не вдалося підтвердити. Будь ласка, вкажіть дійсну електронну адресу.",
   "payment_entry_page.button_payment_method": "Сплатити {{formattedPrice}} за допомогою {{paymentMethod}}",
+  "payment_entry_page.button_with_price": "Сплатити {{formattedPrice}}",
   "price_update.title": "Оновлення ціни",
   "price_update.base_message": "Загальна ціна була оновлена з урахуванням податків на основі вашої платіжної адреси. Будь ласка, перевірте та спробуйте ще раз.",
   "price_update.trial_message": "Ціна підписки була оновлена для включення податків на основі вашої платіжної адреси. Безкоштовний пробний період все ще діє. Будь ласка, перевірте та спробуйте ще раз."

@@ -25,7 +25,6 @@
   "periods.monthFrequencyPlural": "setiap {{amount}} bulan",
   "periods.yearFrequencyPlural": "setiap {{amount}} tahun",
   "periods.dayFrequencyPlural": "setiap {{amount}} hari",
-  "payment_method.card": "kad",
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
@@ -73,6 +72,7 @@
   "pricing_table.enter_postal_code_to_calculate": "Masukkan poskod untuk mengira",
   "error_page.error_message_invalid_email_error": "Alamat e-mel {{email}} tidak dapat disahkan. Sila berikan alamat e-mel yang sah.",
   "payment_entry_page.button_payment_method": "Bayar {{formattedPrice}} dengan {{paymentMethod}}",
+  "payment_entry_page.button_with_price": "Bayar {{formattedPrice}}",
   "price_update.title": "Kemaskini harga",
   "price_update.base_message": "Jumlah harga telah dikemas kini dengan cukai berdasarkan alamat bil anda. Sila semak dan cuba lagi.",
   "price_update.trial_message": "Harga langganan telah dikemas kini untuk memasukkan cukai berdasarkan alamat bil anda. Tempoh percubaan percuma masih terpakai. Sila semak dan cuba lagi."

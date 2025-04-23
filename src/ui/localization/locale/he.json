@@ -25,7 +25,6 @@
   "periods.monthFrequencyPlural": "כל {{amount}} חודשים",
   "periods.yearFrequencyPlural": "כל {{amount}} שנים",
   "periods.dayFrequencyPlural": "כל {{amount}} ימים",
-  "payment_method.card": "כרטיס",
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
@@ -73,6 +72,7 @@
   "pricing_table.enter_postal_code_to_calculate": "הזן מיקוד לחישוב",
   "error_page.error_message_invalid_email_error": "לא ניתן לאמת את כתובת האימייל {{email}}. אנא ספק כתובת אימייל חוקית.",
   "payment_entry_page.button_payment_method": "שלם {{formattedPrice}} באמצעות {{paymentMethod}}",
+  "payment_entry_page.button_with_price": "שלם {{formattedPrice}}",
   "price_update.title": "עדכון מחיר",
   "price_update.base_message": "המחיר הכולל עודכן עם מיסים בהתבסס על כתובת החיוב שלך. אנא בדוק ונסה שוב.",
   "price_update.trial_message": "מחיר המנוי עודכן כדי לכלול מיסים בהתבסס על כתובת החיוב שלך. תקופת הניסיון החינמית עדיין תקפה. אנא בדוק ונסה שוב."

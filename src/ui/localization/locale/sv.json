@@ -25,7 +25,6 @@
   "periods.monthFrequencyPlural": "varje {{amount}} månader",
   "periods.yearFrequencyPlural": "varje {{amount}} år",
   "periods.dayFrequencyPlural": "varje {{amount}} dagar",
-  "payment_method.card": "kort",
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
@@ -73,6 +72,7 @@
   "pricing_table.enter_postal_code_to_calculate": "Ange postnummer för att beräkna",
   "error_page.error_message_invalid_email_error": "E-postadressen {{email}} kunde inte verifieras. Ange en giltig e-postadress.",
   "payment_entry_page.button_payment_method": "Betala {{formattedPrice}} med {{paymentMethod}}",
+  "payment_entry_page.button_with_price": "Betala {{formattedPrice}}",
   "price_update.title": "Prisuppdatering",
   "price_update.base_message": "Det totala priset har uppdaterats med skatter baserat på din fakturaadress. Kontrollera och försök igen.",
   "price_update.trial_message": "Prenumerationspriset har uppdaterats för att inkludera skatter baserat på din fakturaadress. Den kostnadsfria provperioden gäller fortfarande. Kontrollera och försök igen."

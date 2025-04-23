@@ -25,7 +25,6 @@
   "periods.monthFrequencyPlural": "la fiecare {{amount}} luni",
   "periods.yearFrequencyPlural": "la fiecare {{amount}} ani",
   "periods.dayFrequencyPlural": "la fiecare {{amount}} zile",
-  "payment_method.card": "card",
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
@@ -73,6 +72,7 @@
   "pricing_table.enter_postal_code_to_calculate": "Introduceți codul poștal pentru a calcula",
   "error_page.error_message_invalid_email_error": "Adresa de e-mail {{email}} nu a putut fi verificată. Vă rugăm să furnizați o adresă de e-mail validă.",
   "payment_entry_page.button_payment_method": "Plătește {{formattedPrice}} cu {{paymentMethod}}",
+  "payment_entry_page.button_with_price": "Plătește {{formattedPrice}}",
   "price_update.title": "Actualizare preț",
   "price_update.base_message": "Prețul total a fost actualizat cu taxele bazate pe adresa dvs. de facturare. Vă rugăm să verificați și să încercați din nou.",
   "price_update.trial_message": "Prețul abonamentului a fost actualizat pentru a include taxele bazate pe adresa dvs. de facturare. Perioada de probă gratuită rămâne valabilă. Vă rugăm să verificați și să încercați din nou."
