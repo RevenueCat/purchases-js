@@ -7,13 +7,13 @@
     type StoryContext,
   } from "@storybook/addon-svelte-csf";
   import { brandingInfos } from "../fixtures";
-  import { withNavbar } from "../decorators/with-navbar";
+  import { renderInsideNavbarHeader } from "../decorators/layout-decorators";
   import { mobileAndDesktopBrandingModes } from "../../../.storybook/modes";
 
   let { Story } = defineMeta({
     component: BrandingInfo,
     // @ts-expect-error ignore typing of decorator
-    decorators: [withNavbar],
+    decorators: [renderInsideNavbarHeader],
     parameters: {
       chromatic: {
         modes: mobileAndDesktopBrandingModes,

@@ -5,14 +5,14 @@
     defineMeta,
     setTemplate,
   } from "@storybook/addon-svelte-csf";
-  import { withLayout } from "../decorators/with-layout";
+  import { renderInsideMain } from "../decorators/layout-decorators";
   import { brandingModes } from "../../../.storybook/modes";
 
   let { Story } = defineMeta<typeof Button>({
     component: Button,
     title: "Molecules/Button",
     // @ts-expect-error ignore typing of decorator
-    decorators: [withLayout],
+    decorators: [renderInsideMain],
     argTypes: {
       intent: {
         control: "radio",

@@ -1,18 +1,18 @@
 <script module>
-  import { default as Typography } from "../../ui/atoms/typography.svelte";
+  import Typography from "../../ui/atoms/typography.svelte";
   import {
     type Args,
     defineMeta,
     setTemplate,
   } from "@storybook/addon-svelte-csf";
-  import { withLayout } from "../decorators/with-layout";
+  import { renderInsideMain } from "../decorators/layout-decorators";
   import { brandingModes } from "../../../.storybook/modes";
 
-  let { Story } = defineMeta<typeof Typography>({
+  let { Story } = defineMeta({
     component: Typography,
     title: "Atoms/Typography",
     // @ts-expect-error ignore typing of decorator
-    decorators: [withLayout],
+    decorators: [renderInsideMain],
     argTypes: {
       size: {
         control: "select",
