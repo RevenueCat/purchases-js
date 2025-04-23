@@ -72,7 +72,7 @@
   .footer-caption-container {
     display: flex;
     flex-direction: column;
-    gap: var(--rc-spacing-gapXLarge-mobile);
+    gap: var(--rc-spacing-gapLarge-mobile);
   }
 
   .footer-caption {
