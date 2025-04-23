@@ -11,10 +11,25 @@ import { loadStripe } from "@stripe/stripe-js";
 import type { BrandingInfoResponse } from "../networking/responses/branding-response";
 import { Theme } from "../ui/theme/theme";
 import { DEFAULT_TEXT_STYLES } from "../ui/theme/text";
-import type {
-  GatewayParams,
-  StripeElementsConfiguration,
-} from "../networking/responses/stripe-elements";
+import type { StripeElementsConfiguration } from "../networking/responses/stripe-elements";
+
+export enum StripeServiceErrorCode {
+  ErrorLoadingStripe = 0,
+  HandledFormError = 1,
+  UnhandledFormError = 2,
+}
+
+export type StripeServiceError = {
+  code: StripeServiceErrorCode;
+  gatewayErrorCode: string | undefined;
+  message: string | undefined;
+};
+
+export type TaxCustomerDetails = {
+  countryCode: string | undefined;
+  postalCode: string | undefined;
+};
+
 export class StripeService {
   private static FORM_VALIDATED_CARD_ERROR_CODES = [
     "card_declined",
@@ -26,7 +41,7 @@ export class StripeService {
   /**
    * This function converts some particular locales to the ones that stripe supports.
    * Finally falls back to 'auto' if the initialLocale is not supported by stripe.
-   * @param locael
+   * @param locale
    */
   static getStripeLocale(locale: string): StripeElementLocale {
     // These locale that we support are not supported by stripe.
@@ -51,26 +66,34 @@ export class StripeService {
   }
 
   static async initializeStripe(
-    gatewayParams: GatewayParams,
+    stripeAccountId: string,
+    publishableApiKey: string,
+    elementsConfiguration: StripeElementsConfiguration,
     brandingInfo: BrandingInfoResponse | null,
     localeToUse: StripeElementLocale,
     stripeVariables: Appearance["variables"],
     viewport: "mobile" | "desktop",
-  ) {
-    const stripePk = gatewayParams.publishable_api_key;
-    const stripeAcctId = gatewayParams.stripe_account_id;
-    const elementsConfiguration = gatewayParams.elements_configuration;
-
-    if (!stripePk || !stripeAcctId || !elementsConfiguration) {
-      throw new Error("Stripe configuration is missing");
+  ): Promise<{ stripe: Stripe; elements: StripeElements }> {
+    if (!publishableApiKey || !stripeAccountId || !elementsConfiguration) {
+      throw {
+        code: StripeServiceErrorCode.ErrorLoadingStripe,
+        gatewayErrorCode: undefined,
+        message: "Stripe configuration is missing",
+      };
     }
 
-    const stripe = await loadStripe(stripePk, {
-      stripeAccount: stripeAcctId,
+    const stripe = await loadStripe(publishableApiKey, {
+      stripeAccount: stripeAccountId,
+    }).catch((error) => {
+      throw this.mapInitializationError(error);
     });
 
     if (!stripe) {
-      throw new Error("Stripe client not found");
+      throw {
+        code: StripeServiceErrorCode.ErrorLoadingStripe,
+        gatewayErrorCode: undefined,
+        message: "Stripe client not found",
+      };
     }
 
     const theme = new Theme(brandingInfo?.appearance);
@@ -82,83 +105,93 @@ export class StripeService {
       DEFAULT_TEXT_STYLES.bodyBase[viewport].fontSize ||
       DEFAULT_TEXT_STYLES.bodyBase["mobile"].fontSize;
 
-    const elements = stripe.elements({
-      loader: "always",
-      locale: localeToUse,
-      appearance: {
-        theme: "stripe",
-        labels: "floating",
-        variables: {
-          borderRadius: customShape["input-border-radius"],
-          fontLineHeight: "10px",
-          focusBoxShadow: "none",
-          colorDanger: customColors["error"],
-          colorTextPlaceholder: customColors["grey-text-light"],
-          colorText: customColors["grey-text-dark"],
-          colorTextSecondary: customColors["grey-text-light"],
-          fontSizeBase: baseFontSize,
-          ...stripeVariables,
-        },
-        rules: {
-          ".Input": {
-            boxShadow: "none",
-            paddingTop: "6px",
-            paddingBottom: "6px",
-            fontSize: baseFontSize,
-            border: `1px solid ${customColors["grey-ui-dark"]}`,
-            backgroundColor: customColors["input-background"],
-            color: customColors["grey-text-dark"],
+    let elements: StripeElements;
+    try {
+      elements = stripe.elements({
+        loader: "always",
+        locale: localeToUse,
+        appearance: {
+          theme: "stripe",
+          labels: "floating",
+          variables: {
+            borderRadius: customShape["input-border-radius"],
+            fontLineHeight: "10px",
+            focusBoxShadow: "none",
+            colorDanger: customColors["error"],
+            colorTextPlaceholder: customColors["grey-text-light"],
+            colorText: customColors["grey-text-dark"],
+            colorTextSecondary: customColors["grey-text-light"],
+            fontSizeBase: baseFontSize,
+            ...stripeVariables,
           },
-          ".Input:focus": {
-            border: `1px solid ${customColors["focus"]}`,
-            outline: "none",
-          },
-          ".Label": {
-            fontWeight: textStyles.bodyBase[viewport].fontWeight,
-            lineHeight: "22px",
-            color: customColors["grey-text-dark"],
-          },
-          ".Label--floating": {
-            opacity: "1",
-          },
-          ".Input--invalid": {
-            boxShadow: "none",
-          },
-          ".TermsText": {
-            fontSize: textStyles.captionDefault[viewport].fontSize,
-            lineHeight: textStyles.captionDefault[viewport].lineHeight,
-          },
-          ".Tab": {
-            boxShadow: "none",
-            backgroundColor: "transparent",
-            color: customColors["grey-text-light"],
-            border: `1px solid ${customColors["grey-ui-dark"]}`,
-          },
-          ".Tab:hover, .Tab:focus, .Tab--selected, .Tab--selected:hover, .Tab--selected:focus":
-            {
+          rules: {
+            ".Input": {
               boxShadow: "none",
+              paddingTop: "6px",
+              paddingBottom: "6px",
+              fontSize: baseFontSize,
+              border: `1px solid ${customColors["grey-ui-dark"]}`,
+              backgroundColor: customColors["input-background"],
               color: customColors["grey-text-dark"],
             },
-          ".Tab:focus, .Tab--selected, .Tab--selected:hover, .Tab--selected:focus":
-            {
+            ".Input:focus": {
               border: `1px solid ${customColors["focus"]}`,
+              outline: "none",
             },
-          ".TabIcon": {
-            fill: customColors["grey-text-light"],
-          },
-          ".TabIcon--selected": {
-            fill: customColors["grey-text-dark"],
-          },
-          ".Block": {
-            boxShadow: "none",
-            backgroundColor: "transparent",
-            border: `1px solid ${customColors["grey-ui-dark"]}`,
+            ".Label": {
+              fontWeight: textStyles.bodyBase[viewport].fontWeight,
+              lineHeight: "22px",
+              color: customColors["grey-text-dark"],
+            },
+            ".Label--floating": {
+              opacity: "1",
+            },
+            ".Input--invalid": {
+              boxShadow: "none",
+            },
+            ".TermsText": {
+              fontSize: textStyles.captionDefault[viewport].fontSize,
+              lineHeight: textStyles.captionDefault[viewport].lineHeight,
+            },
+            ".Tab": {
+              boxShadow: "none",
+              backgroundColor: "transparent",
+              color: customColors["grey-text-light"],
+              border: `1px solid ${customColors["grey-ui-dark"]}`,
+            },
+            ".Tab:hover, .Tab:focus, .Tab--selected, .Tab--selected:hover, .Tab--selected:focus":
+              {
+                boxShadow: "none",
+                color: customColors["grey-text-dark"],
+              },
+            ".Tab:focus, .Tab--selected, .Tab--selected:hover, .Tab--selected:focus":
+              {
+                border: `1px solid ${customColors["focus"]}`,
+              },
+            ".TabIcon": {
+              fill: customColors["grey-text-light"],
+            },
+            ".TabIcon--selected": {
+              fill: customColors["grey-text-dark"],
+            },
+            ".Block": {
+              boxShadow: "none",
+              backgroundColor: "transparent",
+              border: `1px solid ${customColors["grey-ui-dark"]}`,
+            },
           },
         },
-      },
-    });
+      });
+    } catch (error) {
+      throw this.mapInitializationError(error as StripeError);
+    }
 
-    await this.updateElementsConfiguration(elements, elementsConfiguration);
+    await this.updateElementsConfiguration(
+      elements,
+      elementsConfiguration,
+    ).catch((error) => {
+      throw this.mapInitializationError(error);
+    });
 
     return { stripe, elements };
   }
@@ -167,7 +200,7 @@ export class StripeService {
     elements: StripeElements,
     elementsConfiguration: StripeElementsConfiguration,
   ) {
-    await elements.update({
+    elements.update({
       mode: elementsConfiguration.mode,
       paymentMethodTypes: elementsConfiguration.payment_method_types,
       setupFutureUsage: elementsConfiguration.setup_future_usage,
@@ -176,16 +209,15 @@ export class StripeService {
     });
   }
 
-  static isStripeHandledCardError(error: StripeError) {
-    if (
+  static isStripeHandledFormError(error: StripeError) {
+    const isValidationError = error.type === "validation_error";
+
+    const isCardError =
       error.type === "card_error" &&
       error.code &&
-      this.FORM_VALIDATED_CARD_ERROR_CODES.includes(error.code)
-    ) {
-      return true;
-    }
+      this.FORM_VALIDATED_CARD_ERROR_CODES.includes(error.code);
 
-    return false;
+    return isValidationError || isCardError;
   }
 
   static createPaymentElement(
@@ -224,12 +256,43 @@ export class StripeService {
     });
   }
 
-  static async confirmIntent(
+  static async submitElements(elements: StripeElements) {
+    const { error: submitError } = await elements.submit();
+    if (submitError) {
+      throw this.mapError(submitError);
+    }
+  }
+
+  static mapInitializationError(error: StripeError) {
+    return {
+      code: StripeServiceErrorCode.ErrorLoadingStripe,
+      gatewayErrorCode: error.code,
+      message: error.message,
+    };
+  }
+
+  static mapError(error: StripeError) {
+    if (this.isStripeHandledFormError(error)) {
+      return {
+        code: StripeServiceErrorCode.HandledFormError,
+        gatewayErrorCode: error.code,
+        message: error.message,
+      };
+    }
+
+    return {
+      code: StripeServiceErrorCode.UnhandledFormError,
+      gatewayErrorCode: error.code,
+      message: error.message,
+    };
+  }
+
+  static async confirmElements(
     stripe: Stripe,
     elements: StripeElements,
     clientSecret: string,
     confirmationTokenId?: string,
-  ): Promise<StripeError | undefined> {
+  ) {
     const baseOptions = {
       clientSecret,
       redirect: "if_required" as const,
@@ -253,6 +316,35 @@ export class StripeService {
       result = await stripe.confirmPayment(confirmOptions);
     }
 
-    return result?.error;
+    if (result?.error) {
+      throw this.mapError(result.error);
+    }
+  }
+
+  static async extractTaxCustomerDetails(
+    elements: StripeElements,
+    stripe: Stripe,
+  ): Promise<TaxCustomerDetails> {
+    const { error: submitError } = await elements.submit();
+    if (submitError) {
+      throw submitError;
+    }
+
+    const { error: confirmationError, confirmationToken } =
+      await stripe.createConfirmationToken({
+        elements: elements,
+      });
+
+    if (confirmationError) {
+      throw confirmationError;
+    }
+
+    const billingAddress =
+      confirmationToken.payment_method_preview?.billing_details?.address;
+
+    return {
+      countryCode: billingAddress?.country ?? undefined,
+      postalCode: billingAddress?.postal_code ?? undefined,
+    };
   }
 }
