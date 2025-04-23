@@ -23,7 +23,7 @@
         modes: mobileAndDesktopBrandingModes,
       },
     },
-    title: "Molecules/Branding Info",
+    title: "Molecules/BrandingHeader",
   });
 </script>
 

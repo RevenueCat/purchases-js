@@ -2,6 +2,7 @@
   import { Theme } from "../theme/theme";
   import type { BrandingAppearance } from "../../entities/branding";
   import type { Snippet } from "svelte";
+  import SectionLayout from "./section-layout.svelte";
 
   type Props = {
     headerContent?: Snippet<[]>;
@@ -19,20 +20,16 @@
 </script>
 
 <div class="rcb-ui-navbar" {style}>
-  <div class="layout-wrapper-outer" style="justify-content: flex-end;">
-    <div class="layout-wrapper">
-      <div class="layout-content">
-        <div class="navbar-header">
-          {@render headerContent?.()}
-        </div>
-        {#if bodyContent}
-          <div class="navbar-body" class:rcb-with-header={!!headerContent}>
-            {@render bodyContent?.()}
-          </div>
-        {/if}
-      </div>
+  <SectionLayout location="navbar">
+    <div class="navbar-header">
+      {@render headerContent?.()}
     </div>
-  </div>
+    {#if bodyContent}
+      <div class="navbar-body" class:rcb-with-header={!!headerContent}>
+        {@render bodyContent?.()}
+      </div>
+    {/if}
+  </SectionLayout>
 </div>
 
 <style>
@@ -43,45 +40,7 @@
     background-color: var(--rc-color-background);
   }
 
-  @container layout-query-container (width >= 768px) {
-    .rcb-ui-navbar {
-      width: 50vw;
-      display: flex;
-      justify-content: flex-end;
-    }
-  }
-
-  .layout-wrapper-outer {
-    flex: 1;
-    display: flex;
-    background-color: var(--rc-color-background);
-  }
-
-  .layout-wrapper {
-    width: 100%;
-  }
-
-  .layout-content {
-    box-sizing: border-box;
-    background-color: var(--rc-color-background);
-    color: var(--rc-color-grey-text-dark);
-    display: flex;
-    flex-direction: column;
-  }
-
   @container layout-query-container (width < 768px) {
-    .layout-wrapper {
-      width: 100%;
-      min-width: 300px;
-      display: flex;
-      flex-grow: 1;
-    }
-
-    .layout-content {
-      flex-grow: 1;
-      height: 100%;
-    }
-
     .navbar-body {
       padding: var(--rc-spacing-outerPadding-mobile);
     }
@@ -92,13 +51,20 @@
   }
 
   @container layout-query-container (width >= 768px) {
-    .layout-wrapper {
-      min-height: 100vh;
-      flex-basis: 600px;
+    .rcb-ui-navbar {
+      width: 50vw;
+      display: flex;
+      justify-content: flex-end;
     }
 
-    .layout-content {
+    .navbar-header {
       padding: var(--rc-spacing-outerPadding-desktop);
+      padding-bottom: 0;
+    }
+
+    .navbar-body {
+      padding: var(--rc-spacing-outerPadding-desktop);
+      padding-top: 0;
     }
   }
 </style>
