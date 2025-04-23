@@ -16,10 +16,10 @@
   </div>
   <div class="rcb-info-content">
     <div class="rcb-info-title">
-      <Typography size="body-base">{title}</Typography>
+      <Typography size="body-small">{title}</Typography>
     </div>
     <div class="rcb-info-message">
-      <Typography size="body-base">{message}</Typography>
+      <Typography size="body-small">{message}</Typography>
     </div>
   </div>
 </div>
