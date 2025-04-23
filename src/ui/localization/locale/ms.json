@@ -74,6 +74,6 @@
   "payment_entry_page.button_payment_method": "Bayar {{formattedPrice}} dengan {{paymentMethod}}",
   "payment_entry_page.button_with_price": "Bayar {{formattedPrice}}",
   "price_update.title": "Kemaskini harga",
-  "price_update.base_message": "Jumlah harga telah dikemas kini dengan cukai berdasarkan alamat bil anda. Sila semak dan cuba lagi.",
+  "price_update.base_message": "Jumlah harga telah dikemas kini dengan cukai berdasarkan alamat pengebilan anda. Sila semak dan cuba lagi. Kad anda hanya akan dicaj sekali.",
   "price_update.trial_message": "Harga langganan telah dikemas kini untuk memasukkan cukai berdasarkan alamat bil anda. Tempoh percubaan percuma masih terpakai. Sila semak dan cuba lagi."
 }

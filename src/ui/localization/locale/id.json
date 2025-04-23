@@ -74,6 +74,6 @@
   "payment_entry_page.button_payment_method": "Bayar {{formattedPrice}} dengan {{paymentMethod}}",
   "payment_entry_page.button_with_price": "Bayar {{formattedPrice}}",
   "price_update.title": "Pembaruan harga",
-  "price_update.base_message": "Total harga telah diperbarui dengan pajak berdasarkan alamat penagihan Anda. Silakan periksa dan coba lagi.",
+  "price_update.base_message": "Total harga telah diperbarui dengan pajak berdasarkan alamat penagihan Anda. Harap tinjau dan coba lagi. Kartu Anda hanya akan dikenakan biaya sekali.",
   "price_update.trial_message": "Harga langganan telah diperbarui untuk menyertakan pajak berdasarkan alamat penagihan Anda. Masa percobaan gratis masih berlaku. Silakan periksa dan coba lagi."
 }

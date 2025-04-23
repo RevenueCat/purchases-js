@@ -74,6 +74,6 @@
   "payment_entry_page.button_payment_method": "使用 {{paymentMethod}} 支付 {{formattedPrice}}",
   "payment_entry_page.button_with_price": "支付 {{formattedPrice}}",
   "price_update.title": "價格更新",
-  "price_update.base_message": "根據您的帳單地址，總價已更新為含稅價格。請查看並重試。",
+  "price_update.base_message": "總價已根據您的帳單地址更新稅金。請檢查後重試。您的信用卡只會被收取一次費用。",
   "price_update.trial_message": "根據您的帳單地址，訂閱價格已更新為含稅價格。免費試用仍然有效。請查看並重試。"
 }

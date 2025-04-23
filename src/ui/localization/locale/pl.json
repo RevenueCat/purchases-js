@@ -74,6 +74,6 @@
   "payment_entry_page.button_payment_method": "Zapłać {{formattedPrice}} przez {{paymentMethod}}",
   "payment_entry_page.button_with_price": "Zapłać {{formattedPrice}}",
   "price_update.title": "Aktualizacja ceny",
-  "price_update.base_message": "Całkowita cena została zaktualizowana o podatki na podstawie Twojego adresu rozliczeniowego. Sprawdź i spróbuj ponownie.",
+  "price_update.base_message": "Cena całkowita została zaktualizowana o podatek na podstawie Twojego adresu rozliczeniowego. Sprawdź i spróbuj ponownie. Twoja karta zostanie obciążona tylko raz.",
   "price_update.trial_message": "Cena subskrypcji została zaktualizowana o podatki na podstawie Twojego adresu rozliczeniowego. Okres próbny nadal obowiązuje. Sprawdź i spróbuj ponownie."
 }

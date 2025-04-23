@@ -74,6 +74,6 @@
   "payment_entry_page.button_payment_method": "{{paymentMethod}}で{{formattedPrice}}を支払う",
   "payment_entry_page.button_with_price": "{{formattedPrice}}を支払う",
   "price_update.title": "価格の更新",
-  "price_update.base_message": "請求先住所に基づいて税金を含む合計金額が更新されました。確認して再度お試しください。",
+  "price_update.base_message": "合計金額が、お客様の請求先住所に基づいて税金とともに更新されました。再度ご確認ください。カードへの請求は1回のみです。",
   "price_update.trial_message": "請求先住所に基づいて税金を含むサブスクリプション料金が更新されました。無料トライアルは引き続き適用されます。確認して再度お試しください。"
 }

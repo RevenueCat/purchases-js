@@ -74,6 +74,6 @@
   "payment_entry_page.button_payment_method": "Fizetés {{formattedPrice}} összeggel a következővel: {{paymentMethod}}",
   "payment_entry_page.button_with_price": "Fizetés {{formattedPrice}}",
   "price_update.title": "Ár frissítése",
-  "price_update.base_message": "A teljes ár adókkal együtt frissítésre került a számlázási címének megfelelően. Kérjük, ellenőrizze és próbálja újra.",
+  "price_update.base_message": "A teljes ár frissítve lett az adóval a számlázási címed alapján. Kérjük, tekintsd át és próbáld újra. A kártyádat csak egyszer terheljük meg.",
   "price_update.trial_message": "Az előfizetés ára adókkal együtt frissítésre került a számlázási címének megfelelően. Az ingyenes próbaidőszak továbbra is érvényes. Kérjük, ellenőrizze és próbálja újra."
 }

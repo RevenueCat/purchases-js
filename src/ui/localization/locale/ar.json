@@ -74,6 +74,6 @@
   "payment_entry_page.button_payment_method": "ادفع {{formattedPrice}} باستخدام {{paymentMethod}}",
   "payment_entry_page.button_with_price": "ادفع {{formattedPrice}}",
   "price_update.title": "تحديث السعر",
-  "price_update.base_message": "تم تحديث السعر الإجمالي مع الضرائب بناءً على عنوان الفوترة الخاص بك. يرجى التحقق والمحاولة مرة أخرى.",
+  "price_update.base_message": "تم تحديث السعر الإجمالي مع الضريبة بناءً على عنوان إرسال الفواتير الخاص بك. يرجى المراجعة والمحاولة مرة أخرى. لن يتم تحصيل رسوم من بطاقتك إلا مرة واحدة.",
   "price_update.trial_message": "تم تحديث سعر الاشتراك ليشمل الضرائب بناءً على عنوان الفوترة الخاص بك. فترة التجربة المجانية لا تزال سارية. يرجى التحقق والمحاولة مرة أخرى."
 }

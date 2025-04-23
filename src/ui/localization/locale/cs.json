@@ -74,6 +74,6 @@
   "payment_entry_page.button_payment_method": "Zaplatit {{formattedPrice}} pomocí {{paymentMethod}}",
   "payment_entry_page.button_with_price": "Zaplatit {{formattedPrice}}",
   "price_update.title": "Aktualizace ceny",
-  "price_update.base_message": "Celková cena byla aktualizována včetně daní na základě vaší fakturační adresy. Prosím, zkontrolujte a zkuste to znovu.",
+  "price_update.base_message": "Celková cena byla aktualizována o daň na základě vaší fakturační adresy. Zkontrolujte ji a zkuste to znovu. Vaše karta bude stržena pouze jednou.",
   "price_update.trial_message": "Cena předplatného byla aktualizována včetně daní na základě vaší fakturační adresy. Bezplatná zkušební doba stále platí. Prosím, zkontrolujte a zkuste to znovu."
 }

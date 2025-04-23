@@ -74,6 +74,6 @@
   "navbar_header.details": "Details",
   "navbar_header.back_button": "Back",
   "price_update.title": "Price update",
-  "price_update.base_message": "The total price was updated with tax based on your billing address. Please review and try again.",
+  "price_update.base_message": "The total price was updated with tax based on your billing address. Please review and try again. Your card will only be charged once.",
   "price_update.trial_message": "The subscription price was updated to include tax based on your billing address. Free trial still applies. Review and try again."
 }

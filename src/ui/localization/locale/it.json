@@ -74,6 +74,6 @@
   "payment_entry_page.button_payment_method": "Paga {{formattedPrice}} con {{paymentMethod}}",
   "payment_entry_page.button_with_price": "Paga {{formattedPrice}}",
   "price_update.title": "Aggiornamento prezzo",
-  "price_update.base_message": "Il prezzo totale è stato aggiornato con le tasse in base al tuo indirizzo di fatturazione. Controlla e riprova.",
+  "price_update.base_message": "Il prezzo totale è stato aggiornato con le tasse in base al tuo indirizzo di fatturazione. Rivedi e riprova. L'addebito sulla tua carta avverrà solo una volta.",
   "price_update.trial_message": "Il prezzo dell'abbonamento è stato aggiornato per includere le tasse in base al tuo indirizzo di fatturazione. La prova gratuita è ancora valida. Controlla e riprova."
 }
