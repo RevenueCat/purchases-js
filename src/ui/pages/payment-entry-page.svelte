@@ -518,7 +518,10 @@
         <PaymentButton
           disabled={!isFormReady}
           {subscriptionOption}
-          {priceBreakdown}
+          priceBreakdown={ALLOW_TAX_CALCULATION_FF &&
+          brandingInfo?.gateway_tax_collection_enabled
+            ? priceBreakdown
+            : undefined}
           {selectedPaymentMethod}
         />
 
