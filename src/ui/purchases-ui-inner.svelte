@@ -13,7 +13,7 @@
   } from "../helpers/purchase-operation-helper";
   import Template from "./layout/template.svelte";
   import { type GatewayParams } from "../networking/responses/stripe-elements";
-  import BrandingInfo from "./molecules/branding-info.svelte";
+  import BrandingInfo from "./molecules/branding-header.svelte";
 
   interface Props {
     currentPage: CurrentPage;

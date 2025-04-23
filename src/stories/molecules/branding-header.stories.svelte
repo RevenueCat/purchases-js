@@ -1,5 +1,5 @@
 <script module>
-  import BrandingInfo from "../../ui/molecules/branding-info.svelte";
+  import BrandingHeader from "../../ui/molecules/branding-header.svelte";
   import {
     type Args,
     defineMeta,
@@ -11,7 +11,7 @@
   import { mobileAndDesktopBrandingModes } from "../../../.storybook/modes";
 
   let { Story } = defineMeta({
-    component: BrandingInfo,
+    component: BrandingHeader,
     args: {
       showCloseButton: false,
       onClose: () => {},
@@ -36,7 +36,7 @@
   context: StoryContext<typeof Story>,
 )}
   {@const brandingInfo = brandingInfos[context.globals.brandingName]}
-  <BrandingInfo
+  <BrandingHeader
     {brandingInfo}
     showCloseButton={args.showCloseButton ?? false}
     onClose={args.onClose}
