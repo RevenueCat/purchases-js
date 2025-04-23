@@ -3,7 +3,6 @@
   import ModalFooter from "./modal-footer.svelte";
   import ModalSection from "./modal-section.svelte";
   import RowLayout from "./row-layout.svelte";
-  import { type ContinueHandlerParams } from "../ui-types";
   import Typography from "../atoms/typography.svelte";
 
   export let onDismiss: () => void;
