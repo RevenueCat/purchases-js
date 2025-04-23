@@ -37,10 +37,6 @@
   const paymentMethod = $derived(
     $translator.translatePaymentMethod(selectedPaymentMethod ?? "card"),
   );
-
-  $effect(() => {
-    console.log("translatedPaymentMethod", paymentMethod);
-  });
 </script>
 
 <Button {disabled} testId="PayButton">
