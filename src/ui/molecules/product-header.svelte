@@ -48,7 +48,7 @@
   .rcb-pricing-info-header {
     display: flex;
     flex-direction: column;
-    gap: var(--rc-spacing-gapSmall-mobile);
+    gap: var(--rc-spacing-gapMedium-mobile);
   }
 
   .rcb-product-title {
@@ -71,7 +71,7 @@
     .rcb-pricing-info-header {
       display: flex;
       flex-direction: column;
-      gap: var(--rc-spacing-gapXLarge-desktop);
+      gap: var(--rc-spacing-gapMedium-desktop);
     }
   }
 </style>
