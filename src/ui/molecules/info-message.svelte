@@ -46,6 +46,7 @@
   .rcb-info-title {
     color: var(--rc-color-grey-text-dark);
     margin-bottom: var(--rc-spacing-gapSmall-mobile);
+    display: flex;
   }
 
   .rcb-info-message {
