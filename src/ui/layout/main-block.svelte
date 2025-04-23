@@ -57,7 +57,6 @@
     display: flex;
     flex-direction: column;
     padding: var(--rc-spacing-outerPadding-mobile);
-    padding-top: var(--rc-spacing-outerPaddingTop-mobile);
   }
 
   @container layout-query-container (width < 768px) {
@@ -77,12 +76,11 @@
   @container layout-query-container (width >= 768px) {
     .layout-wrapper {
       min-height: 100vh;
-      flex-basis: 544px;
+      flex-basis: 600px;
     }
 
     .layout-content {
       padding: var(--rc-spacing-outerPadding-desktop);
-      padding-top: var(--rc-spacing-outerPaddingTop-desktop);
     }
   }
 </style>

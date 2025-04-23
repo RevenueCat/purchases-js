@@ -1,26 +1,35 @@
 <script lang="ts">
   import { Theme } from "../theme/theme";
-  import NavBarHeader from "./navbar-header.svelte";
   import type { BrandingAppearance } from "../../entities/branding";
+  import type { Snippet } from "svelte";
 
-  export let brandingAppearance: BrandingAppearance | null | undefined =
-    undefined;
-  $: style = new Theme(brandingAppearance).productInfoStyleVars;
+  type Props = {
+    headerContent?: Snippet<[]>;
+    bodyContent?: Snippet<[]>;
+    brandingAppearance?: BrandingAppearance | null;
+  };
 
-  export let headerContent;
-  export let bodyContent: () => any;
+  const {
+    headerContent,
+    bodyContent,
+    brandingAppearance = undefined,
+  }: Props = $props();
+
+  const style = $derived(new Theme(brandingAppearance).productInfoStyleVars);
 </script>
 
 <div class="rcb-ui-navbar" {style}>
   <div class="layout-wrapper-outer" style="justify-content: flex-end;">
     <div class="layout-wrapper">
       <div class="layout-content">
-        <NavBarHeader>
+        <div class="navbar-header">
           {@render headerContent?.()}
-        </NavBarHeader>
-        <div class="rcb-ui-navbar-body">
-          {@render bodyContent?.()}
         </div>
+        {#if bodyContent}
+          <div class="navbar-body" class:rcb-with-header={!!headerContent}>
+            {@render bodyContent?.()}
+          </div>
+        {/if}
       </div>
     </div>
   </div>
@@ -58,8 +67,6 @@
     color: var(--rc-color-grey-text-dark);
     display: flex;
     flex-direction: column;
-    padding: var(--rc-spacing-outerPadding-mobile);
-    padding-top: var(--rc-spacing-outerPaddingTop-mobile);
   }
 
   @container layout-query-container (width < 768px) {
@@ -74,17 +81,24 @@
       flex-grow: 1;
       height: 100%;
     }
+
+    .navbar-body {
+      padding: var(--rc-spacing-outerPadding-mobile);
+    }
+
+    .navbar-body.rcb-with-header {
+      padding-top: 0;
+    }
   }
 
   @container layout-query-container (width >= 768px) {
     .layout-wrapper {
       min-height: 100vh;
-      flex-basis: 544px;
+      flex-basis: 600px;
     }
 
     .layout-content {
       padding: var(--rc-spacing-outerPadding-desktop);
-      padding-top: var(--rc-spacing-outerPaddingTop-desktop);
     }
   }
 </style>

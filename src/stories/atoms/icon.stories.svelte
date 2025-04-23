@@ -33,6 +33,8 @@
 <Story name="Error" args={{ name: "error" }} />
 <Story name="Lock" args={{ name: "lock" }} />
 <Story name="Success" args={{ name: "success" }} />
+<Story name="Back" args={{ name: "back" }} />
+<Story name="Close" args={{ name: "close" }} />
 <Story name="Chevron Up" args={{ name: "chevron-up" }} />
 <Story name="Chevron Down" args={{ name: "chevron-down" }} />
 <Story name="Chevron Left" args={{ name: "chevron-left" }} />

@@ -12,6 +12,10 @@
 
   let { Story } = defineMeta({
     component: BrandingInfo,
+    args: {
+      showCloseButton: false,
+      onClose: () => {},
+    },
     // @ts-expect-error ignore typing of decorator
     decorators: [renderInsideNavbarHeader],
     parameters: {
@@ -28,11 +32,20 @@
 </script>
 
 {#snippet template(
-  _args: Args<typeof Story>,
+  args: Args<typeof Story>,
   context: StoryContext<typeof Story>,
 )}
   {@const brandingInfo = brandingInfos[context.globals.brandingName]}
-  <BrandingInfo {brandingInfo} />
+  <BrandingInfo
+    {brandingInfo}
+    showCloseButton={args.showCloseButton ?? false}
+    onClose={args.onClose}
+  />
 {/snippet}
 
 <Story name="Default" />
+
+<Story
+  name="With Close Button"
+  args={{ showCloseButton: true, onClose: () => {} }}
+/>
