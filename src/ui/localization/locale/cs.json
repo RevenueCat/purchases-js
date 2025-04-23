@@ -16,6 +16,10 @@
   "periods.monthFrequency": "měsíčně",
   "periods.yearFrequency": "ročně",
   "periods.dayFrequency": "denně",
+  "periods.perWeekFrequency": "týdně",
+  "periods.perMonthFrequency": "měsíčně",
+  "periods.perYearFrequency": "ročně",
+  "periods.perDayFrequency": "denně",
   "periods.unknownFrequency": "neznámé",
   "periods.weekFrequencyPlural": "každých {{amount}} týdnů",
   "periods.monthFrequencyPlural": "každých {{amount}} měsíců",
@@ -54,10 +58,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Celkem dnes k zaplacení",
   "product_info.subscribe_to": "Předplatit",
-  "periods.perWeekFrequency": "týdně",
-  "periods.perMonthFrequency": "měsíčně",
-  "periods.perYearFrequency": "ročně",
-  "periods.perDayFrequency": "denně",
   "payment_entry_page.trial_info": "Po skončení zkušební verze vám bude účtováno {{price}} {{perFrequency}} počínaje {{renewalDate}}. Předtím můžete kdykoli zrušit.",
   "navbar_header.details": "Podrobnosti",
   "navbar_header.back_button": "Zpět",
@@ -71,7 +71,9 @@
   "pricing_table.enter_state_or_postal_code_to_calculate": "Zadejte stát nebo PSČ pro výpočet",
   "pricing_table.enter_postal_code_to_calculate": "Zadejte PSČ pro výpočet",
   "error_page.error_message_invalid_email_error": "E-mailová adresa {{email}} nemohla být ověřena. Zadejte prosím platnou e-mailovou adresu.",
-  "payment_entry_page.button_wallet": "Zaplatit {{formattedPrice}} pomocí {{wallet}}",
+  "payment_entry_page.button_payment_method": "Zaplatit {{formattedPrice}} pomocí {{paymentMethod}}",
+  "payment_entry_page.button_with_price": "Zaplatit {{formattedPrice}}",
   "price_update.title": "Aktualizace ceny",
-  "price_update.message": "Celková cena byla aktualizována o daň na základě vaší fakturační adresy. Zkontrolujte ji a zkuste to znovu. Vaše karta bude stržena pouze jednou."
+  "price_update.base_message": "Celková cena byla aktualizována o daň na základě vaší fakturační adresy. Zkontrolujte ji a zkuste to znovu. Vaše karta bude stržena pouze jednou.",
+  "price_update.trial_message": "Cena předplatného byla aktualizována včetně daní na základě vaší fakturační adresy. Bezplatná zkušební doba stále platí. Prosím, zkontrolujte a zkuste to znovu."
 }

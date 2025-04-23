@@ -16,6 +16,10 @@
   "periods.monthFrequency": "mensual",
   "periods.yearFrequency": "anual",
   "periods.dayFrequency": "diaria",
+  "periods.perWeekFrequency": "por semana",
+  "periods.perMonthFrequency": "por mes",
+  "periods.perYearFrequency": "por año",
+  "periods.perDayFrequency": "por día",
   "periods.unknownFrequency": "desconocida",
   "periods.weekFrequencyPlural": "cada {{amount}} semanas",
   "periods.monthFrequencyPlural": "cada {{amount}} meses",
@@ -54,10 +58,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Total a pagar hoy",
   "product_info.subscribe_to": "Suscribirse a",
-  "periods.perWeekFrequency": "por semana",
-  "periods.perMonthFrequency": "por mes",
-  "periods.perYearFrequency": "por año",
-  "periods.perDayFrequency": "por día",
   "payment_entry_page.trial_info": "Una vez finalizado el período de prueba, se le cobrará {{price}} {{perFrequency}} a partir del {{renewalDate}}. Puede cancelar en cualquier momento antes de esa fecha.",
   "navbar_header.details": "Detalles",
   "navbar_header.back_button": "Atrás",
@@ -71,7 +71,9 @@
   "pricing_table.enter_state_or_postal_code_to_calculate": "Introduce el estado o el código postal para calcular",
   "pricing_table.enter_postal_code_to_calculate": "Introduce el código postal para calcular",
   "error_page.error_message_invalid_email_error": "La dirección de correo electrónico {{email}} no se pudo verificar. Por favor, proporciona una dirección de correo electrónico válida.",
-  "payment_entry_page.button_wallet": "Pagar {{formattedPrice}} con {{wallet}}",
+  "payment_entry_page.button_payment_method": "Pagar {{formattedPrice}} con {{paymentMethod}}",
+  "payment_entry_page.button_with_price": "Pagar {{formattedPrice}}",
   "price_update.title": "Actualización de precio",
-  "price_update.message": "El precio total se actualizó con impuestos según su dirección de facturación. Revise e intente nuevamente. Solo se efectuará un cobro en su tarjeta."
+  "price_update.base_message": "El precio total se actualizó con impuestos según su dirección de facturación. Revise e intente nuevamente. Solo se efectuará un cobro en su tarjeta.",
+  "price_update.trial_message": "El precio de la suscripción se actualizó para incluir impuestos según su dirección de facturación. La prueba gratuita sigue aplicándose. Revise e intente nuevamente."
 }

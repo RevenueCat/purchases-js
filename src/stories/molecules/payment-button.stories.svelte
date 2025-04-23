@@ -1,6 +1,10 @@
 <script module>
   import PaymentButton from "../../ui/molecules/payment-button.svelte";
-  import { defineMeta } from "@storybook/addon-svelte-csf";
+  import {
+    type Args,
+    defineMeta,
+    setTemplate,
+  } from "@storybook/addon-svelte-csf";
   import { withLayout } from "../decorators/with-layout";
   import { brandingModes } from "../../../.storybook/modes";
   import {
@@ -22,27 +26,24 @@
   });
 </script>
 
-<Story
-  name="With Subscription"
-  args={{
-    disabled: false,
-    subscriptionOption: subscriptionOption,
-  }}
-/>
+<script lang="ts">
+  setTemplate(template);
+</script>
 
-<Story
-  name="With Subscription Disabled"
-  args={{
-    disabled: true,
-    subscriptionOption: subscriptionOption,
-  }}
-/>
+{#snippet template(args: Args<typeof Story>)}
+  <PaymentButton
+    disabled={args.disabled ?? false}
+    subscriptionOption={args.subscriptionOption ?? subscriptionOption}
+    priceBreakdown={args.priceBreakdown}
+    selectedPaymentMethod={args.selectedPaymentMethod}
+  />
+{/snippet}
 
 <Story
   name="With Trial"
   args={{
-    disabled: false,
     subscriptionOption: subscriptionOptionWithTrial,
+    priceBreakdown: priceBreakdownTaxDisabled,
   }}
 />
 
@@ -51,25 +52,70 @@
   args={{
     disabled: true,
     subscriptionOption: subscriptionOptionWithTrial,
-  }}
-/>
-
-<Story
-  name="With Wallet"
-  args={{
-    disabled: false,
-    subscriptionOption: subscriptionOption,
     priceBreakdown: priceBreakdownTaxDisabled,
-    wallet: "Google Pay",
   }}
 />
 
 <Story
-  name="With Wallet Disabled"
+  name="Without price"
+  args={{
+    priceBreakdown: undefined,
+  }}
+/>
+
+<Story
+  name="Without price Disabled"
   args={{
     disabled: true,
-    subscriptionOption: subscriptionOption,
+    priceBreakdown: undefined,
+  }}
+/>
+
+<Story
+  name="With price"
+  args={{
     priceBreakdown: priceBreakdownTaxDisabled,
-    wallet: "Google Pay",
+  }}
+/>
+
+<Story
+  name="With price Disabled"
+  args={{
+    disabled: true,
+    priceBreakdown: priceBreakdownTaxDisabled,
+  }}
+/>
+
+<Story
+  name="With Google Pay"
+  args={{
+    priceBreakdown: priceBreakdownTaxDisabled,
+    selectedPaymentMethod: "google_pay",
+  }}
+/>
+
+<Story
+  name="With Google Pay Disabled"
+  args={{
+    disabled: true,
+    priceBreakdown: priceBreakdownTaxDisabled,
+    selectedPaymentMethod: "google_pay",
+  }}
+/>
+
+<Story
+  name="With Apple Pay"
+  args={{
+    priceBreakdown: priceBreakdownTaxDisabled,
+    selectedPaymentMethod: "apple_pay",
+  }}
+/>
+
+<Story
+  name="With Apple Pay Disabled"
+  args={{
+    disabled: true,
+    priceBreakdown: priceBreakdownTaxDisabled,
+    selectedPaymentMethod: "apple_pay",
   }}
 />

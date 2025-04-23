@@ -19,11 +19,13 @@ export enum StripeServiceErrorCode {
   UnhandledFormError = 2,
 }
 
-export type StripeServiceError = {
-  code: StripeServiceErrorCode;
-  gatewayErrorCode: string | undefined;
-  message: string | undefined;
-};
+export class StripeServiceError {
+  constructor(
+    public code: StripeServiceErrorCode,
+    public gatewayErrorCode: string | undefined,
+    public message: string | undefined,
+  ) {}
+}
 
 export type TaxCustomerDetails = {
   countryCode: string | undefined;
@@ -264,27 +266,27 @@ export class StripeService {
   }
 
   static mapInitializationError(error: StripeError) {
-    return {
-      code: StripeServiceErrorCode.ErrorLoadingStripe,
-      gatewayErrorCode: error.code,
-      message: error.message,
-    };
+    return new StripeServiceError(
+      StripeServiceErrorCode.ErrorLoadingStripe,
+      error.code,
+      error.message,
+    );
   }
 
   static mapError(error: StripeError) {
     if (this.isStripeHandledFormError(error)) {
-      return {
-        code: StripeServiceErrorCode.HandledFormError,
-        gatewayErrorCode: error.code,
-        message: error.message,
-      };
+      return new StripeServiceError(
+        StripeServiceErrorCode.HandledFormError,
+        error.code,
+        error.message,
+      );
     }
 
-    return {
-      code: StripeServiceErrorCode.UnhandledFormError,
-      gatewayErrorCode: error.code,
-      message: error.message,
-    };
+    return new StripeServiceError(
+      StripeServiceErrorCode.UnhandledFormError,
+      error.code,
+      error.message,
+    );
   }
 
   static async confirmElements(
@@ -324,27 +326,28 @@ export class StripeService {
   static async extractTaxCustomerDetails(
     elements: StripeElements,
     stripe: Stripe,
-  ): Promise<TaxCustomerDetails> {
-    const { error: submitError } = await elements.submit();
-    if (submitError) {
-      throw submitError;
-    }
-
+  ): Promise<{
+    customerDetails: TaxCustomerDetails;
+    confirmationTokenId: string;
+  }> {
     const { error: confirmationError, confirmationToken } =
       await stripe.createConfirmationToken({
         elements: elements,
       });
 
     if (confirmationError) {
-      throw confirmationError;
+      throw this.mapError(confirmationError);
     }
 
     const billingAddress =
       confirmationToken.payment_method_preview?.billing_details?.address;
 
     return {
-      countryCode: billingAddress?.country ?? undefined,
-      postalCode: billingAddress?.postal_code ?? undefined,
+      customerDetails: {
+        countryCode: billingAddress?.country ?? undefined,
+        postalCode: billingAddress?.postal_code ?? undefined,
+      },
+      confirmationTokenId: confirmationToken.id,
     };
   }
 }

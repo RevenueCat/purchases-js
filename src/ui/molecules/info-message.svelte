@@ -16,10 +16,10 @@
   </div>
   <div class="rcb-info-content">
     <div class="rcb-info-title">
-      <Typography size="body-base">{title}</Typography>
+      <Typography size="body-small">{title}</Typography>
     </div>
     <div class="rcb-info-message">
-      <Typography size="body-base">{message}</Typography>
+      <Typography size="body-small">{message}</Typography>
     </div>
   </div>
 </div>
@@ -46,6 +46,7 @@
   .rcb-info-title {
     color: var(--rc-color-grey-text-dark);
     margin-bottom: var(--rc-spacing-gapSmall-mobile);
+    display: flex;
   }
 
   .rcb-info-message {

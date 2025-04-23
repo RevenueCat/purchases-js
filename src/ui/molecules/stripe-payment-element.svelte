@@ -7,7 +7,7 @@
   } from "@stripe/stripe-js";
   import {
     StripeService,
-    type StripeServiceError,
+    StripeServiceError,
   } from "../../stripe/stripe-service";
 
   import { onDestroy, onMount } from "svelte";

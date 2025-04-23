@@ -16,6 +16,10 @@
   "periods.monthFrequency": "щомісяця",
   "periods.yearFrequency": "щороку",
   "periods.dayFrequency": "щодня",
+  "periods.perWeekFrequency": "на тиждень",
+  "periods.perMonthFrequency": "на місяць",
+  "periods.perYearFrequency": "на рік",
+  "periods.perDayFrequency": "на день",
   "periods.unknownFrequency": "невідомо",
   "periods.weekFrequencyPlural": "кожні {{amount}} тижнів",
   "periods.monthFrequencyPlural": "кожні {{amount}} місяців",
@@ -54,10 +58,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Всього до сплати сьогодні",
   "product_info.subscribe_to": "Підписатися на",
-  "periods.perWeekFrequency": "на тиждень",
-  "periods.perMonthFrequency": "на місяць",
-  "periods.perYearFrequency": "на рік",
-  "periods.perDayFrequency": "на день",
   "payment_entry_page.trial_info": "Після закінчення вашого пробного періоду з вас буде стягнуто {{price}} {{perFrequency}}, починаючи з {{renewalDate}}. Ви завжди можете скасувати підписку до цього часу.",
   "navbar_header.details": "Деталі",
   "navbar_header.back_button": "Назад",
@@ -71,7 +71,9 @@
   "pricing_table.enter_state_or_postal_code_to_calculate": "Введіть штат або поштовий індекс для розрахунку",
   "pricing_table.enter_postal_code_to_calculate": "Введіть поштовий індекс для розрахунку",
   "error_page.error_message_invalid_email_error": "Електронну адресу {{email}} не вдалося підтвердити. Будь ласка, вкажіть дійсну електронну адресу.",
-  "payment_entry_page.button_wallet": "Сплатити {{formattedPrice}} за допомогою {{wallet}}",
+  "payment_entry_page.button_payment_method": "Сплатити {{formattedPrice}} за допомогою {{paymentMethod}}",
+  "payment_entry_page.button_with_price": "Сплатити {{formattedPrice}}",
   "price_update.title": "Оновлення ціни",
-  "price_update.message": "Загальну ціну було оновлено з урахуванням податку на основі вашої платіжної адреси. Перегляньте та спробуйте ще раз. З вашої картки буде списано кошти лише один раз."
+  "price_update.base_message": "Загальну ціну було оновлено з урахуванням податку на основі вашої платіжної адреси. Перегляньте та спробуйте ще раз. З вашої картки буде списано кошти лише один раз.",
+  "price_update.trial_message": "Ціна підписки була оновлена для включення податків на основі вашої платіжної адреси. Безкоштовний пробний період все ще діє. Будь ласка, перевірте та спробуйте ще раз."
 }

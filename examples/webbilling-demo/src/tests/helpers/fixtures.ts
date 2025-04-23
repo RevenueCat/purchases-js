@@ -12,3 +12,31 @@ export const VITE_RC_ENDPOINT = process.env.VITE_RC_ENDPOINT as
   | undefined;
 export const VITE_RC_ANALYTICS_ENDPOINT = process.env
   ?.VITE_RC_ANALYTICS_ENDPOINT as string | undefined;
+
+export const INVALID_CUSTOMER_DETAILS = {
+  countryCode: "US",
+  postalCode: "00093",
+};
+
+export const FLORIDA_CUSTOMER_DETAILS = {
+  countryCode: "US",
+  postalCode: "33125",
+};
+
+export const NEW_YORK_CUSTOMER_DETAILS = {
+  countryCode: "US",
+  postalCode: "12345",
+};
+
+export const TEXAS_CUSTOMER_DETAILS = {
+  countryCode: "US",
+  postalCode: "78759",
+};
+
+export const ITALY_CUSTOMER_DETAILS = {
+  countryCode: "IT",
+};
+
+export const SPAIN_CUSTOMER_DETAILS = {
+  countryCode: "ES",
+};

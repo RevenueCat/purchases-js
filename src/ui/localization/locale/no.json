@@ -16,6 +16,10 @@
   "periods.monthFrequency": "månedlig",
   "periods.yearFrequency": "årlig",
   "periods.dayFrequency": "daglig",
+  "periods.perWeekFrequency": "per uke",
+  "periods.perMonthFrequency": "per måned",
+  "periods.perYearFrequency": "per år",
+  "periods.perDayFrequency": "per dag",
   "periods.unknownFrequency": "ukjent",
   "periods.weekFrequencyPlural": "hver {{amount}} uker",
   "periods.monthFrequencyPlural": "hver {{amount}} måneder",
@@ -54,10 +58,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}} ({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Totalt forfaller i dag",
   "product_info.subscribe_to": "Abonner på",
-  "periods.perWeekFrequency": "per uke",
-  "periods.perMonthFrequency": "per måned",
-  "periods.perYearFrequency": "per år",
-  "periods.perDayFrequency": "per dag",
   "payment_entry_page.trial_info": "Etter at prøveperioden din er over, blir du belastet {{price}} {{perFrequency}} fra og med {{renewalDate}}. Du kan når som helst kansellere før det.",
   "navbar_header.details": "Detaljer",
   "navbar_header.back_button": "Tilbake",
@@ -71,7 +71,9 @@
   "pricing_table.enter_state_or_postal_code_to_calculate": "Skriv inn stat eller postnummer for å beregne",
   "pricing_table.enter_postal_code_to_calculate": "Skriv inn postnummer for å beregne",
   "error_page.error_message_invalid_email_error": "E-postadressen {{email}} kunne ikke bekreftes. Vennligst oppgi en gyldig e-postadresse.",
-  "payment_entry_page.button_wallet": "Betal {{formattedPrice}} med {{wallet}}",
+  "payment_entry_page.button_payment_method": "Betal {{formattedPrice}} med {{paymentMethod}}",
+  "payment_entry_page.button_with_price": "Betal {{formattedPrice}}",
   "price_update.title": "Prisoppdatering",
-  "price_update.message": "Totalprisen er oppdatert med skatt basert på fakturaadressen din. Vennligst se gjennom og prøv igjen. Kortet ditt vil kun bli belastet én gang."
+  "price_update.base_message": "Totalprisen er oppdatert med skatt basert på fakturaadressen din. Vennligst se gjennom og prøv igjen. Kortet ditt vil kun bli belastet én gang.",
+  "price_update.trial_message": "Abonnementsprisen er oppdatert for å inkludere skatter basert på din fakturaadresse. Den gratis prøveperioden gjelder fortsatt. Vennligst sjekk og prøv igjen."
 }

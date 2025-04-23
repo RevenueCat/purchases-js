@@ -16,6 +16,10 @@
   "periods.monthFrequency": "每月",
   "periods.yearFrequency": "每年",
   "periods.dayFrequency": "每天",
+  "periods.perWeekFrequency": "每周",
+  "periods.perMonthFrequency": "每月",
+  "periods.perYearFrequency": "每年",
+  "periods.perDayFrequency": "每天",
   "periods.unknownFrequency": "未知",
   "periods.weekFrequencyPlural": "每 {{amount}} 周",
   "periods.monthFrequencyPlural": "每 {{amount}} 个月",
@@ -54,10 +58,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "今天应付总额",
   "product_info.subscribe_to": "订阅",
-  "periods.perWeekFrequency": "每周",
-  "periods.perMonthFrequency": "每月",
-  "periods.perYearFrequency": "每年",
-  "periods.perDayFrequency": "每天",
   "payment_entry_page.trial_info": "试用期结束后，您将被收取 {{price}} {{perFrequency}}，从 {{renewalDate}} 开始。您可以随时在此之前取消。",
   "navbar_header.details": "详情",
   "navbar_header.back_button": "返回",
@@ -71,7 +71,9 @@
   "pricing_table.enter_state_or_postal_code_to_calculate": "输入州或邮政编码以计算",
   "pricing_table.enter_postal_code_to_calculate": "输入邮政编码以计算",
   "error_page.error_message_invalid_email_error": "无法验证电子邮件地址{{email}}。请提供有效的电子邮件地址。",
-  "payment_entry_page.button_wallet": "使用{{wallet}}支付{{formattedPrice}}",
+  "payment_entry_page.button_payment_method": "使用{{paymentMethod}}支付{{formattedPrice}}",
+  "payment_entry_page.button_with_price": "支付{{formattedPrice}}",
   "price_update.title": "价格更新",
-  "price_update.message": "总价已根据您的账单地址更新了税费。请查看并重试。您的银行卡只会扣款一次。"
+  "price_update.base_message": "总价已根据您的账单地址更新了税费。请查看并重试。您的银行卡只会扣款一次。",
+  "price_update.trial_message": "根据您的账单地址，订阅价格已更新为含税价格。免费试用仍然有效。请查看并重试。"
 }

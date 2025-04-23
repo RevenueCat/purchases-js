@@ -10,10 +10,12 @@ export type CurrentPage =
   | "error";
 
 export type TaxCalculationStatus =
+  | "unavailable" // Tax collection status is not yet known
   | "pending"
   | "loading"
   | "calculated"
-  | "disabled";
+  | "disabled"
+  | "miss-match"; // Billing details do not match the calculation;
 
 export type TaxCalculationPendingReason =
   | "needs_postal_code"

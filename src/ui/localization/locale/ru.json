@@ -16,6 +16,10 @@
   "periods.monthFrequency": "ежемесячно",
   "periods.yearFrequency": "ежегодно",
   "periods.dayFrequency": "ежедневно",
+  "periods.perWeekFrequency": "в неделю",
+  "periods.perMonthFrequency": "в месяц",
+  "periods.perYearFrequency": "в год",
+  "periods.perDayFrequency": "в день",
   "periods.unknownFrequency": "неизвестно",
   "periods.weekFrequencyPlural": "каждые {{amount}} недель",
   "periods.monthFrequencyPlural": "каждые {{amount}} месяцев",
@@ -54,10 +58,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Всего к оплате сегодня",
   "product_info.subscribe_to": "Подписаться",
-  "periods.perWeekFrequency": "в неделю",
-  "periods.perMonthFrequency": "в месяц",
-  "periods.perYearFrequency": "в год",
-  "periods.perDayFrequency": "в день",
   "payment_entry_page.trial_info": "После окончания пробного периода с вас будет взиматься {{price}} {{perFrequency}} начиная с {{renewalDate}}. Вы всегда можете отменить подписку до этого времени.",
   "navbar_header.details": "Детали",
   "navbar_header.back_button": "Назад",
@@ -71,7 +71,9 @@
   "pricing_table.enter_state_or_postal_code_to_calculate": "Введите штат или почтовый индекс для расчета",
   "pricing_table.enter_postal_code_to_calculate": "Введите почтовый индекс для расчета",
   "error_page.error_message_invalid_email_error": "Не удалось проверить адрес электронной почты {{email}}. Пожалуйста, укажите действительный адрес электронной почты.",
-  "payment_entry_page.button_wallet": "Оплатить {{formattedPrice}} через {{wallet}}",
+  "payment_entry_page.button_payment_method": "Оплатить {{formattedPrice}} через {{paymentMethod}}",
+  "payment_entry_page.button_with_price": "Оплатить {{formattedPrice}}",
   "price_update.title": "Обновление цены",
-  "price_update.message": "Общая цена была обновлена с учетом налога на основе вашего платежного адреса. Пожалуйста, проверьте и повторите попытку. С вашей карты будет списано только один раз."
+  "price_update.base_message": "Общая цена была обновлена с учетом налога на основе вашего платежного адреса. Пожалуйста, проверьте и повторите попытку. С вашей карты будет списано только один раз.",
+  "price_update.trial_message": "Цена подписки была обновлена с учетом налогов на основе вашего платежного адреса. Пробный период остается бесплатным. Пожалуйста, проверьте и попробуйте снова."
 }
