@@ -28,6 +28,11 @@
 </span>
 
 <style>
+  .rcb-typography {
+    display: inline-block;
+    line-height: normal;
+  }
+
   /* svelte-ignore css-unused-selector */
   .rcb-typography-heading-2xl {
     font: var(--rc-text-heading2xl-mobile);
