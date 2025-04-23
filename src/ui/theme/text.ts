@@ -72,21 +72,21 @@ const LETTER_SPACING = {
 const MOBILE_TEXT_STYLES: ScreenTextStyle = {
   heading2xl: {
     fontSize: FONT_SIZES["28"],
-    lineHeight: LINE_HEIGHTS["120"],
+    lineHeight: LINE_HEIGHTS["130"],
     fontWeight: FONT_WEIGHTS["semibold"],
-    letterSpacing: LETTER_SPACING["tight"],
+    letterSpacing: LETTER_SPACING["loose"],
   },
   headingXl: {
     fontSize: FONT_SIZES["24"],
     lineHeight: LINE_HEIGHTS["130"],
     fontWeight: FONT_WEIGHTS["semibold"],
-    letterSpacing: LETTER_SPACING["regular"],
+    letterSpacing: LETTER_SPACING["loose"],
   },
   headingLg: {
     fontSize: "20px",
     lineHeight: LINE_HEIGHTS["130"],
     fontWeight: FONT_WEIGHTS["semibold"],
-    letterSpacing: LETTER_SPACING["regular"],
+    letterSpacing: LETTER_SPACING["loose"],
   },
   headingMd: {
     fontSize: "16px",
@@ -109,7 +109,7 @@ const MOBILE_TEXT_STYLES: ScreenTextStyle = {
   labelButton: {
     fontSize: FONT_SIZES["16"],
     lineHeight: LINE_HEIGHTS["140"],
-    fontWeight: FONT_WEIGHTS["regular"],
+    fontWeight: FONT_WEIGHTS["semibold"],
     letterSpacing: LETTER_SPACING["tight"],
   },
   labelDefault: {
