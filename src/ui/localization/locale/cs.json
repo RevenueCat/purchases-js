@@ -74,6 +74,6 @@
   "error_page.error_message_invalid_email_error": "E-mailová adresa {{email}} nemohla být ověřena. Zadejte prosím platnou e-mailovou adresu.",
   "payment_entry_page.button_payment_method": "Zaplatit {{formattedPrice}} pomocí {{paymentMethod}}",
   "price_update.title": "Aktualizace ceny",
-  "price_update.base_message": "Celková cena byla aktualizována s daní na základě vaší fakturační adresy. Prosím, zkontrolujte a zkuste to znovu.",
-  "price_update.charged_once_message": "Vaše karta bude účtována pouze jednou."
+  "price_update.base_message": "Celková cena byla aktualizována včetně daní na základě vaší fakturační adresy. Prosím, zkontrolujte a zkuste to znovu.",
+  "price_update.trial_message": "Cena předplatného byla aktualizována včetně daní na základě vaší fakturační adresy. Bezplatná zkušební doba stále platí. Prosím, zkontrolujte a zkuste to znovu."
 }

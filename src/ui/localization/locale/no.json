@@ -74,6 +74,6 @@
   "error_page.error_message_invalid_email_error": "E-postadressen {{email}} kunne ikke bekreftes. Vennligst oppgi en gyldig e-postadresse.",
   "payment_entry_page.button_payment_method": "Betal {{formattedPrice}} med {{paymentMethod}}",
   "price_update.title": "Prisoppdatering",
-  "price_update.base_message": "Den totale prisen ble oppdatert med skatt basert på din fakturaadresse. Vennligst gjennomgå og prøv igjen.",
-  "price_update.charged_once_message": "Kortet ditt vil bare bli belastet én gang."
+  "price_update.base_message": "Totalprisen er oppdatert med skatter basert på din fakturaadresse. Vennligst sjekk og prøv igjen.",
+  "price_update.trial_message": "Abonnementsprisen er oppdatert for å inkludere skatter basert på din fakturaadresse. Den gratis prøveperioden gjelder fortsatt. Vennligst sjekk og prøv igjen."
 }

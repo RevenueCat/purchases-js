@@ -74,6 +74,6 @@
   "error_page.error_message_invalid_email_error": "Het e-mailadres {{email}} kon niet worden geverifieerd. Geef een geldig e-mailadres op.",
   "payment_entry_page.button_payment_method": "Betaal {{formattedPrice}} met {{paymentMethod}}",
   "price_update.title": "Prijsupdate",
-  "price_update.base_message": "De totale prijs is bijgewerkt met belasting op basis van uw factuuradres. Controleer en probeer het opnieuw.",
-  "price_update.charged_once_message": "Uw kaart wordt slechts één keer in rekening gebracht."
+  "price_update.base_message": "De totale prijs is bijgewerkt met belastingen op basis van uw factuuradres. Controleer en probeer het opnieuw.",
+  "price_update.trial_message": "De abonnementsprijs is bijgewerkt om belastingen op te nemen op basis van uw factuuradres. De gratis proefperiode blijft van toepassing. Controleer en probeer het opnieuw."
 }

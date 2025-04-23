@@ -74,6 +74,6 @@
   "error_page.error_message_invalid_email_error": "无法验证电子邮件地址{{email}}。请提供有效的电子邮件地址。",
   "payment_entry_page.button_payment_method": "使用{{paymentMethod}}支付{{formattedPrice}}",
   "price_update.title": "价格更新",
-  "price_update.base_message": "总价已根据您的账单地址更新了税费。请查看并重试。",
-  "price_update.charged_once_message": "您的银行卡只会扣款一次。"
+  "price_update.base_message": "根据您的账单地址，总价已更新为含税价格。请查看并重试。",
+  "price_update.trial_message": "根据您的账单地址，订阅价格已更新为含税价格。免费试用仍然有效。请查看并重试。"
 }

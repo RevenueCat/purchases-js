@@ -74,6 +74,6 @@
   "error_page.error_message_invalid_email_error": "{{email}} e-posta adresi doğrulanamadı. Lütfen geçerli bir e-posta adresi girin.",
   "payment_entry_page.button_payment_method": "{{paymentMethod}} ile {{formattedPrice}} öde",
   "price_update.title": "Fiyat güncellemesi",
-  "price_update.base_message": "Toplam fiyat, fatura adresinize göre vergi ile güncellendi. Lütfen kontrol edip tekrar deneyin.",
-  "price_update.charged_once_message": "Kartınızdan sadece bir kez ücret alınacaktır."
+  "price_update.base_message": "Toplam fiyat, fatura adresinize göre vergilerle güncellendi. Lütfen kontrol edin ve tekrar deneyin.",
+  "price_update.trial_message": "Abonelik fiyatı, fatura adresinize göre vergileri içerecek şekilde güncellendi. Ücretsiz deneme süresi hala geçerli. Lütfen kontrol edin ve tekrar deneyin."
 }
