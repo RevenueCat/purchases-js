@@ -13,7 +13,7 @@
   } from "../helpers/purchase-operation-helper";
   import Template from "./layout/template.svelte";
   import { type GatewayParams } from "../networking/responses/stripe-elements";
-  import BrandingInfo from "./molecules/branding-header.svelte";
+  import BrandingHeader from "./molecules/branding-header.svelte";
 
   interface Props {
     currentPage: CurrentPage;
@@ -70,7 +70,7 @@
 
 <Template {brandingInfo} {isInElement} {isSandbox} {onClose}>
   {#snippet navbarHeaderContent()}
-    <BrandingInfo {brandingInfo} {onClose} showCloseButton={!isInElement} />
+    <BrandingHeader {brandingInfo} {onClose} showCloseButton={!isInElement} />
   {/snippet}
   {#snippet navbarBodyContent()}
     <ProductInfo

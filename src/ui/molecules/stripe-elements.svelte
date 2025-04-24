@@ -17,7 +17,7 @@
   import { Translator } from "../localization/translator";
 
   import type { StripeElementsConfiguration } from "../../networking/responses/stripe-elements";
-  import { DEFAULT_FONT_FAMILY } from "../theme/text";
+  import { DEFAULT_FONT_FAMILY, DEFAULT_TEXT_STYLES } from "../theme/text";
   import {
     StripeService,
     StripeServiceError,
@@ -80,9 +80,9 @@
     }
 
     stripeVariables = {
-      fontSizeBase: "14px",
+      fontSizeBase: DEFAULT_TEXT_STYLES.labelDefault[viewport].fontSize,
       fontFamily: DEFAULT_FONT_FAMILY,
-      spacingGridRow: spacing.gapXLarge[viewport],
+      spacingGridRow: spacing.gapLarge[viewport],
     };
   }
 
@@ -178,17 +178,15 @@
 </script>
 
 {#if elements}
-  {#if !skipEmail}
-    <div class="rc-email-element">
+  <div class="rc-elements">
+    {#if !skipEmail}
       <LinkAuthenticationElement
         {elements}
         onReady={onLinkAuthenticationElementReady}
         onChange={onLinkAuthenticationElementChange}
         onError={onStripeElementsLoadingError}
       />
-    </div>
-  {/if}
-  <div class="rc-payment-element">
+    {/if}
     <PaymentElement
       {elements}
       {brandingInfo}
@@ -200,13 +198,15 @@
 {/if}
 
 <style>
-  .rc-payment-element {
-    margin-top: var(--rc-spacing-gapStripeElement-mobile);
+  .rc-elements {
+    display: flex;
+    flex-direction: column;
+    gap: var(--rc-spacing-gapStripeElement-mobile);
   }
 
   @container layout-query-container (width >= 768px) {
-    .rc-payment-element {
-      margin-top: var(--rc-spacing-gapStripeElement-desktop);
+    .rc-elements {
+      gap: var(--rc-spacing-gapStripeElement-desktop);
     }
   }
 </style>
