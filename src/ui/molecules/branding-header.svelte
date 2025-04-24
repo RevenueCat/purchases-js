@@ -61,15 +61,17 @@
     display: flex;
     position: relative;
     justify-content: space-between;
+    align-items: center;
   }
 
   .rcb-header {
     display: flex;
+    flex-direction: row;
     align-items: center;
     padding-top: var(--rc-spacing-gapSmall-mobile);
     padding-bottom: var(--rc-spacing-gapSmall-mobile);
-    justify-content: space-between;
     height: 40px;
+    justify-content: space-between;
   }
 
   .rcb-title {
@@ -94,12 +96,6 @@
 
     .rcb-header-wrapper.rcb-with-close-button {
       padding-right: var(--rc-spacing-gapSmall-mobile);
-    }
-
-    .rcb-header {
-      padding-top: var(--rc-spacing-gapSmall-mobile);
-      padding-bottom: var(--rc-spacing-gapSmall-mobile);
-      justify-content: space-between;
     }
 
     .rcb-back-wrapper {
