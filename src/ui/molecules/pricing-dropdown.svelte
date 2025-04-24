@@ -45,7 +45,9 @@
   </div>
 
   <div class="rcb-pricing-dropdown-content" class:collapsed={!isExpanded}>
-    {@render children?.()}
+    <div class="rcb-pricing-dropdown-content-inner">
+      {@render children?.()}
+    </div>
   </div>
 </div>
 
@@ -55,7 +57,6 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    gap: var(--rc-spacing-gapMedium-mobile);
   }
 
   .rcb-pricing-dropdown-header {
@@ -93,6 +94,10 @@
 
     .rcb-pricing-dropdown-content.collapsed {
       max-height: 0;
+    }
+
+    .rcb-pricing-dropdown-content-inner {
+      padding-top: var(--rc-spacing-gapMedium-mobile);
     }
   }
 

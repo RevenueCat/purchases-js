@@ -1,7 +1,7 @@
 <script module>
   import { brandingModes } from "../../../.storybook/modes";
   import { defineMeta, setTemplate } from "@storybook/addon-svelte-csf";
-  import { withNavbar } from "../decorators/with-navbar";
+  import { renderInsideNavbarBody } from "../decorators/layout-decorators";
   import ProductInfo from "../../ui/organisms/product-info.svelte";
   import {
     product,
@@ -17,8 +17,7 @@
   const { Story } = defineMeta({
     component: ProductInfo,
     title: "Organisms/ProductInfo",
-    // @ts-expect-error ignore typing of decorator
-    decorators: [withNavbar],
+    decorators: [renderInsideNavbarBody],
     parameters: {
       chromatic: {
         modes: brandingModes,

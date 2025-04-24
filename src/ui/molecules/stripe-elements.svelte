@@ -9,7 +9,6 @@
   } from "@stripe/stripe-js";
 
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
-  import { Theme } from "../theme/theme";
   import PaymentElement from "./stripe-payment-element.svelte";
   import LinkAuthenticationElement from "./stripe-authentication-link-element.svelte";
 
@@ -56,7 +55,6 @@
   }: Props = $props();
 
   const translator = getContext<Writable<Translator>>(translatorContextKey);
-  const spacing = new Theme().spacing;
   const stripeLocale = StripeService.getStripeLocale(
     $translator.locale || $translator.fallbackLocale,
   );
@@ -80,9 +78,15 @@
     }
 
     stripeVariables = {
+      // Floating labels size cannot be overriden in Stripe since `!important` is being used.
+      // There we set fontSizeBase to the desired label size
+      // and update the input font size to 16px.
       fontSizeBase: "14px",
       fontFamily: DEFAULT_FONT_FAMILY,
-      spacingGridRow: spacing.gapXLarge[viewport],
+      // Spacing is hardcoded to 16px to match the desired gaps in mobile/desktop
+      // which do not match the design system spacing. Also we cannot use "rem" units
+      // since the fontSizeBase is set to 14px per the comment above.
+      spacingGridRow: "16px",
     };
   }
 
@@ -178,17 +182,15 @@
 </script>
 
 {#if elements}
-  {#if !skipEmail}
-    <div class="rc-email-element">
+  <div class="rc-elements">
+    {#if !skipEmail}
       <LinkAuthenticationElement
         {elements}
         onReady={onLinkAuthenticationElementReady}
         onChange={onLinkAuthenticationElementChange}
         onError={onStripeElementsLoadingError}
       />
-    </div>
-  {/if}
-  <div class="rc-payment-element">
+    {/if}
     <PaymentElement
       {elements}
       {brandingInfo}
@@ -200,13 +202,15 @@
 {/if}
 
 <style>
-  .rc-payment-element {
-    margin-top: var(--rc-spacing-gapStripeElement-mobile);
+  .rc-elements {
+    display: flex;
+    flex-direction: column;
+    gap: var(--rc-spacing-gapXLarge-mobile);
   }
 
   @container layout-query-container (width >= 768px) {
-    .rc-payment-element {
-      margin-top: var(--rc-spacing-gapStripeElement-desktop);
+    .rc-elements {
+      gap: var(--rc-spacing-gapLarge-desktop);
     }
   }
 </style>

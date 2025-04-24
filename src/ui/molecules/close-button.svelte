@@ -1,25 +1,24 @@
 <script lang="ts">
-  import Icon from "../../assets/close.svg?raw";
+  import Icon from "../atoms/icon.svelte";
 </script>
 
 <button on:click class="rcb-close-button" data-testid="close-button">
-  {@html Icon}
+  <Icon name="close" />
 </button>
 
 <style>
   .rcb-close-button {
+    padding: 10px;
     border: none;
     cursor: pointer;
     background-color: transparent;
-    padding: 0;
-    height: 24px;
-    width: 24px;
-    padding: 4px;
     border-radius: 50%;
-    color: inherit;
-    display: flex;
+    color: var(--rc-color-grey-text-dark);
+    display: inline-flex;
     align-items: center;
     justify-content: center;
+    width: fit-content;
+    height: fit-content;
   }
 
   .rcb-close-button:active {

@@ -1,26 +1,22 @@
 <script lang="ts">
   import { Theme } from "../theme/theme";
-  import { onMount } from "svelte";
-  import SectionLayout from "./section-layout.svelte";
   import type { BrandingAppearance } from "../../entities/branding";
+  import type { Snippet } from "svelte";
+  import SectionLayout from "./section-layout.svelte";
 
-  export let brandingAppearance: BrandingAppearance | null | undefined =
-    undefined;
-  // Make style reactive to changes in brandingAppearance
-  $: style = new Theme(brandingAppearance).formStyleVars;
+  type Props = {
+    children: Snippet;
+    brandingAppearance: BrandingAppearance | null | undefined;
+  };
 
-  export let body;
-  export let header: (() => any) | null = null;
-
-  let showContent = true;
-  // This makes the tests fail
-  onMount(() => {
-    setTimeout(() => (showContent = true), 10);
-  });
+  const { children, brandingAppearance }: Props = $props();
+  const style = $derived(new Theme(brandingAppearance).formStyleVars);
 </script>
 
 <div class="rcb-ui-main" {style}>
-  <SectionLayout show={showContent} layoutStyle="" {header} {body} />
+  <SectionLayout location="main-block">
+    {@render children?.()}
+  </SectionLayout>
 </div>
 
 <style>

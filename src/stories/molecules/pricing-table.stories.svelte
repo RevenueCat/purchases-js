@@ -5,7 +5,7 @@
     defineMeta,
     setTemplate,
   } from "@storybook/addon-svelte-csf";
-  import { withNavbar } from "../decorators/with-navbar";
+  import { renderInsideNavbarBody } from "../decorators/layout-decorators";
   import { brandingModes } from "../../../.storybook/modes";
   import {
     priceBreakdownNotCollectingTax,
@@ -22,7 +22,7 @@
     component: PricingTable,
     title: "Molecules/PricingTable",
     // @ts-expect-error ignore typing of decorator
-    decorators: [withNavbar],
+    decorators: [renderInsideNavbarBody],
     parameters: {
       chromatic: {
         modes: brandingModes,

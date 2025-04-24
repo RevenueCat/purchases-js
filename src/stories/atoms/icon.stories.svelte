@@ -6,13 +6,13 @@
     defineMeta,
     setTemplate,
   } from "@storybook/addon-svelte-csf";
-  import { withLayout } from "../decorators/with-layout";
+  import { renderInsideMain } from "../decorators/layout-decorators";
 
   const { Story } = defineMeta({
     component: Icon,
     title: "Atoms/Icon",
     // @ts-expect-error ignore typing of decorator
-    decorators: [withLayout],
+    decorators: [renderInsideMain],
     parameters: {
       chromatic: {
         modes: brandingModes,
@@ -33,6 +33,8 @@
 <Story name="Error" args={{ name: "error" }} />
 <Story name="Lock" args={{ name: "lock" }} />
 <Story name="Success" args={{ name: "success" }} />
+<Story name="Back" args={{ name: "back" }} />
+<Story name="Close" args={{ name: "close" }} />
 <Story name="Chevron Up" args={{ name: "chevron-up" }} />
 <Story name="Chevron Down" args={{ name: "chevron-down" }} />
 <Story name="Chevron Left" args={{ name: "chevron-left" }} />

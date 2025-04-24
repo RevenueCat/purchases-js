@@ -1,11 +1,12 @@
 <script module>
   import PriceUpdateInfo from "../../ui/molecules/price-update-info.svelte";
+
   import {
     type Args,
     defineMeta,
     setTemplate,
   } from "@storybook/addon-svelte-csf";
-  import { withLayout } from "../decorators/with-layout";
+  import { renderInsideMain } from "../decorators/layout-decorators";
   import { brandingModes } from "../../../.storybook/modes";
   import { subscriptionOption, subscriptionOptionWithTrial } from "../fixtures";
 
@@ -13,7 +14,7 @@
     component: PriceUpdateInfo,
     title: "Molecules/InfoMessage",
     // @ts-expect-error ignore typing of decorator
-    decorators: [withLayout],
+    decorators: [renderInsideMain],
     parameters: {
       chromatic: {
         modes: brandingModes,
