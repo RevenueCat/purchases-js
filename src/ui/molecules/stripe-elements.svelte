@@ -9,7 +9,6 @@
   } from "@stripe/stripe-js";
 
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
-  import { Theme } from "../theme/theme";
   import PaymentElement from "./stripe-payment-element.svelte";
   import LinkAuthenticationElement from "./stripe-authentication-link-element.svelte";
 
@@ -17,7 +16,7 @@
   import { Translator } from "../localization/translator";
 
   import type { StripeElementsConfiguration } from "../../networking/responses/stripe-elements";
-  import { DEFAULT_FONT_FAMILY, DEFAULT_TEXT_STYLES } from "../theme/text";
+  import { DEFAULT_FONT_FAMILY } from "../theme/text";
   import {
     StripeService,
     StripeServiceError,
@@ -56,7 +55,6 @@
   }: Props = $props();
 
   const translator = getContext<Writable<Translator>>(translatorContextKey);
-  const spacing = new Theme().spacing;
   const stripeLocale = StripeService.getStripeLocale(
     $translator.locale || $translator.fallbackLocale,
   );
@@ -80,9 +78,15 @@
     }
 
     stripeVariables = {
-      fontSizeBase: DEFAULT_TEXT_STYLES.bodyBase[viewport].fontSize,
+      // Floating labels size cannot be overriden in Stripe since `!important` is being used.
+      // There we set fontSizeBase to the desired label size
+      // and update the input font size to 16px.
+      fontSizeBase: "14px",
       fontFamily: DEFAULT_FONT_FAMILY,
-      spacingGridRow: spacing.gapLarge[viewport],
+      // Spacing is hardcoded to 16px to match the desired gaps in mobile/desktop
+      // which do not match the design system spacing. Also we cannot use "rem" units
+      // since the fontSizeBase is set to 14px per the comment above.
+      spacingGridRow: "16px",
     };
   }
 
@@ -201,12 +205,12 @@
   .rc-elements {
     display: flex;
     flex-direction: column;
-    gap: var(--rc-spacing-gapStripeElement-mobile);
+    gap: var(--rc-spacing-gapXLarge-mobile);
   }
 
   @container layout-query-container (width >= 768px) {
     .rc-elements {
-      gap: var(--rc-spacing-gapStripeElement-desktop);
+      gap: var(--rc-spacing-gapLarge-desktop);
     }
   }
 </style>
