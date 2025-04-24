@@ -12,7 +12,7 @@ export const DEFAULT_SPACING: Spacing = {
   },
   outerPadding: {
     mobile: "clamp(1.3125rem, 5.6vw, 1.5rem)", // 21px to 24px
-    desktop: "clamp(3rem, 4.44vw, 4.5rem)", // 48px to 72px
+    desktop: "clamp(3rem, 6.44vw, 4.5rem)", // 48px to 72px
   },
   gapSmall: {
     mobile: "0.25rem", // 4px
