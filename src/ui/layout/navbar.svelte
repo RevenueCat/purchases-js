@@ -46,7 +46,7 @@
     }
 
     .navbar-body.rcb-with-header {
-      padding-top: 0;
+      padding-top: var(--rc-spacing-gapLarge-desktop);
     }
   }
 
@@ -64,7 +64,7 @@
 
     .navbar-body {
       padding: var(--rc-spacing-outerPadding-desktop);
-      padding-top: 0;
+      padding-top: var(--rc-spacing-gapXXLarge-desktop);
     }
   }
 </style>
