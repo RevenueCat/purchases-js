@@ -74,7 +74,8 @@ export enum LocalizationKeys {
   PaymentEntryPageTrialInfo = "payment_entry_page.trial_info",
   PaymentEntryPageButtonPay = "payment_entry_page.button_pay",
   PaymentEntryPageButtonStartTrial = "payment_entry_page.button_start_trial",
-  PaymentEntryPageButtonWallet = "payment_entry_page.button_wallet",
+  PaymentEntryPageButtonWithPrice = "payment_entry_page.button_with_price",
+  PaymentEntryPageButtonPaymentMethod = "payment_entry_page.button_payment_method",
   SuccessPagePurchaseSuccessful = "success_page.purchase_successful",
   SuccessPageSubscriptionNowActive = "success_page.subscription_now_active",
   SuccessPageButtonClose = "success_page.button_close",
@@ -107,7 +108,8 @@ export enum LocalizationKeys {
   NavbarHeaderDetails = "navbar_header.details",
   NavbarBackButton = "navbar_header.back_button",
   PriceUpdateTitle = "price_update.title",
-  PriceUpdateMessage = "price_update.message",
+  PriceUpdateBaseMessage = "price_update.base_message",
+  PriceUpdateTrialMessage = "price_update.trial_message",
 }
 
 export const supportedLanguages: Record<

@@ -16,6 +16,10 @@
   "periods.monthFrequency": "kuukausittain",
   "periods.yearFrequency": "vuosittain",
   "periods.dayFrequency": "päivittäin",
+  "periods.perWeekFrequency": "viikossa",
+  "periods.perMonthFrequency": "kuukaudessa",
+  "periods.perYearFrequency": "vuodessa",
+  "periods.perDayFrequency": "päivässä",
   "periods.unknownFrequency": "tuntematon",
   "periods.weekFrequencyPlural": "joka {{amount}} viikko",
   "periods.monthFrequencyPlural": "joka {{amount}} kuukausi",
@@ -54,10 +58,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}} ({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Maksettava summa tänään",
   "product_info.subscribe_to": "Tilaa",
-  "periods.perWeekFrequency": "viikossa",
-  "periods.perMonthFrequency": "kuukaudessa",
-  "periods.perYearFrequency": "vuodessa",
-  "periods.perDayFrequency": "päivässä",
   "payment_entry_page.trial_info": "Kokeilujakson päätyttyä sinulta veloitetaan {{price}} {{perFrequency}} alkaen {{renewalDate}}. Voit peruuttaa tilauksen milloin tahansa ennen sitä.",
   "navbar_header.details": "Yksityiskohdat",
   "navbar_header.back_button": "Takaisin",
@@ -71,7 +71,9 @@
   "pricing_table.enter_state_or_postal_code_to_calculate": "Syötä osavaltio tai postinumero laskeaksesi",
   "pricing_table.enter_postal_code_to_calculate": "Syötä postinumero laskeaksesi",
   "error_page.error_message_invalid_email_error": "Sähköpostiosoitetta {{email}} ei voitu vahvistaa. Anna kelvollinen sähköpostiosoite.",
-  "payment_entry_page.button_wallet": "Maksa {{formattedPrice}} käyttämällä {{wallet}}",
+  "payment_entry_page.button_payment_method": "Maksa {{formattedPrice}} käyttämällä {{paymentMethod}}",
+  "payment_entry_page.button_with_price": "Maksa {{formattedPrice}}",
   "price_update.title": "Hinnan päivitys",
-  "price_update.message": "Kokonaishinta on päivitetty verolla laskutusosoitteesi perusteella. Tarkista ja yritä uudelleen. Korttiasi veloitetaan vain kerran."
+  "price_update.base_message": "Kokonaishinta on päivitetty verolla laskutusosoitteesi perusteella. Tarkista ja yritä uudelleen. Korttiasi veloitetaan vain kerran.",
+  "price_update.trial_message": "Tilauksen hinta on päivitetty sisältämään verot laskutusosoitteesi perusteella. Ilmainen kokeilujakso on edelleen voimassa. Tarkista ja yritä uudelleen."
 }

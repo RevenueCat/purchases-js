@@ -1,9 +1,11 @@
 <script lang="ts">
-  import {
-    type StripeElements,
-    type StripeLinkAuthenticationElement,
-    type StripeLinkAuthenticationElementChangeEvent,
+  import type {
+    StripeError,
+    StripeElements,
+    StripeLinkAuthenticationElement,
+    StripeLinkAuthenticationElementChangeEvent,
   } from "@stripe/stripe-js";
+  import { StripeServiceError } from "../../stripe/stripe-service";
   import { StripeService } from "../../stripe/stripe-service";
 
   import { onDestroy, onMount } from "svelte";
@@ -12,8 +14,8 @@
     onChange: (
       event: StripeLinkAuthenticationElementChangeEvent,
     ) => void | Promise<void>;
-    onError: undefined | ((error: any) => void | Promise<void>);
-    onReady: undefined | (() => void | Promise<void>);
+    onError: (error: StripeServiceError) => void | Promise<void>;
+    onReady: () => void | Promise<void>;
     email?: string;
     elements: StripeElements;
   }
@@ -23,32 +25,25 @@
   let linkAuthenticationElement: StripeLinkAuthenticationElement | null = null;
   const linkAuthenticationElementId = "link-authentication-element";
 
-  const onChangeCallback = async (
-    event: StripeLinkAuthenticationElementChangeEvent,
-  ) => {
-    await onChange(event);
+  const onLoadErrorCallback = async (event: {
+    elementType: "linkAuthentication";
+    error: StripeError;
+  }) => {
+    await onError(StripeService.mapInitializationError(event.error));
   };
 
-  const onLoadErrorCallback = async (error: any) => {
-    onError && (await onError(error));
-  };
-
-  const onReadyCallback = async () => {
-    onReady && (await onReady());
-  };
-
-  onMount(async () => {
+  onMount(() => {
     try {
       linkAuthenticationElement = StripeService.createLinkAuthenticationElement(
         elements,
         email,
       );
       linkAuthenticationElement.mount(`#${linkAuthenticationElementId}`);
-      linkAuthenticationElement.on("ready", onReadyCallback);
-      linkAuthenticationElement.on("change", onChangeCallback);
+      linkAuthenticationElement.on("ready", onReady);
+      linkAuthenticationElement.on("change", onChange);
       linkAuthenticationElement.on("loaderror", onLoadErrorCallback);
     } catch (e) {
-      onError && (await onError(e));
+      onError(StripeService.mapInitializationError(e as StripeError));
     }
   });
 

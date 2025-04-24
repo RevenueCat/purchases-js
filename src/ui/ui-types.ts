@@ -1,5 +1,4 @@
 import type { TaxBreakdown } from "../networking/responses/checkout-calculate-tax-response";
-import type { PurchaseFlowError } from "../helpers/purchase-operation-helper";
 
 export type CurrentPage =
   | "email-entry"
@@ -10,15 +9,13 @@ export type CurrentPage =
   | "success"
   | "error";
 
-export type ContinueHandlerParams = {
-  error?: PurchaseFlowError;
-};
-
 export type TaxCalculationStatus =
+  | "unavailable" // Tax collection status is not yet known
   | "pending"
   | "loading"
   | "calculated"
-  | "disabled";
+  | "disabled"
+  | "miss-match"; // Billing details do not match the calculation;
 
 export type TaxCalculationPendingReason =
   | "needs_postal_code"
@@ -33,9 +30,4 @@ export type PriceBreakdown = {
   pendingReason: TaxCalculationPendingReason | null;
   taxAmountInMicros: number | null;
   taxBreakdown: TaxBreakdown[] | null;
-};
-
-export type TaxCustomerDetails = {
-  countryCode: string | undefined;
-  postalCode: string | undefined;
 };

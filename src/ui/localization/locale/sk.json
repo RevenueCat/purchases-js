@@ -16,6 +16,10 @@
   "periods.monthFrequency": "mesačne",
   "periods.yearFrequency": "ročne",
   "periods.dayFrequency": "denne",
+  "periods.perWeekFrequency": "týždenne",
+  "periods.perMonthFrequency": "mesačne",
+  "periods.perYearFrequency": "ročne",
+  "periods.perDayFrequency": "denne",
   "periods.unknownFrequency": "neznáme",
   "periods.weekFrequencyPlural": "každých {{amount}} týždňov",
   "periods.monthFrequencyPlural": "každých {{amount}} mesiacov",
@@ -54,10 +58,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Celková suma splatná dnes",
   "product_info.subscribe_to": "Prihlásiť sa na odber",
-  "periods.perWeekFrequency": "týždenne",
-  "periods.perMonthFrequency": "mesačne",
-  "periods.perYearFrequency": "ročne",
-  "periods.perDayFrequency": "denne",
   "payment_entry_page.trial_info": "Po skončení skúšobného obdobia vám bude účtovaná suma {{price}} {{perFrequency}} počnúc dňom {{renewalDate}}. Predtým môžete kedykoľvek zrušiť.",
   "navbar_header.details": "Podrobnosti",
   "navbar_header.back_button": "Späť",
@@ -71,7 +71,9 @@
   "pricing_table.enter_state_or_postal_code_to_calculate": "Zadajte štát alebo PSČ pre výpočet",
   "pricing_table.enter_postal_code_to_calculate": "Zadajte PSČ pre výpočet",
   "error_page.error_message_invalid_email_error": "E-mailová adresa {{email}} sa nedala overiť. Zadajte platnú e-mailovú adresu.",
-  "payment_entry_page.button_wallet": "Zaplatiť sumu {{formattedPrice}} pomocou {{wallet}}",
+  "payment_entry_page.button_payment_method": "Zaplatiť sumu {{formattedPrice}} pomocou {{paymentMethod}}",
+  "payment_entry_page.button_with_price": "Zaplatiť {{formattedPrice}}",
   "price_update.title": "Aktualizácia ceny",
-  "price_update.message": "Celková cena bola aktualizovaná o daň na základe vašej fakturačnej adresy. Skontrolujte to a skúste znova. Vaša karta bude zaťažená iba raz."
+  "price_update.base_message": "Celková cena bola aktualizovaná o daň na základe vašej fakturačnej adresy. Skontrolujte to a skúste znova. Vaša karta bude zaťažená iba raz.",
+  "price_update.trial_message": "Cena predplatného bola aktualizovaná o daňe na základe vašej fakturačnej adresy. Bezplatná skúšobná doba stále platí. Prosím, skontrolujte a skúste znova."
 }

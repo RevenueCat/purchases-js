@@ -71,7 +71,9 @@
   "pricing_table.enter_state_or_postal_code_to_calculate": "Εισαγάγετε την πολιτεία ή τον ταχυδρομικό κώδικα για να υπολογιστεί",
   "pricing_table.enter_postal_code_to_calculate": "Εισαγάγετε τον ταχυδρομικό κώδικα για να υπολογιστεί",
   "error_page.error_message_invalid_email_error": "Η διεύθυνση email {{email}} δεν μπόρεσε να επαληθευτεί. Παρακαλώ δώστε μια έγκυρη διεύθυνση email.",
-  "payment_entry_page.button_wallet": "Πληρωμή {{formattedPrice}} με {{wallet}}",
+  "payment_entry_page.button_payment_method": "Πληρωμή {{formattedPrice}} με {{paymentMethod}}",
+  "payment_entry_page.button_with_price": "Πληρωμή {{formattedPrice}}",
   "price_update.title": "Ενημέρωση τιμής",
-  "price_update.message": "Η συνολική τιμή ενημερώθηκε με τον φόρο βάσει της διεύθυνσης χρέωσής σας. Ελέγξτε και δοκιμάστε ξανά. Η κάρτα σας θα χρεωθεί μόνο μία φορά."
+  "price_update.base_message": "Η συνολική τιμή ενημερώθηκε με τον φόρο βάσει της διεύθυνσης χρέωσής σας. Ελέγξτε και δοκιμάστε ξανά. Η κάρτα σας θα χρεωθεί μόνο μία φορά.",
+  "price_update.trial_message": "Η τιμή της συνδρομής ενημερώθηκε για να συμπεριλάβει τους φόρους βάσει της διεύθυνσης χρέωσής σας. Η δωρεάν δοκιμαστική περίοδος εξακολουθεί να ισχύει. Παρακαλώ ελέγξτε και δοκιμάστε ξανά."
 }

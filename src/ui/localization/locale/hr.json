@@ -16,6 +16,10 @@
   "periods.monthFrequency": "mjesečno",
   "periods.yearFrequency": "godišnje",
   "periods.dayFrequency": "dnevno",
+  "periods.perWeekFrequency": "tjedno",
+  "periods.perMonthFrequency": "mjesečno",
+  "periods.perYearFrequency": "godišnje",
+  "periods.perDayFrequency": "dnevno",
   "periods.unknownFrequency": "nepoznato",
   "periods.weekFrequencyPlural": "svakih {{amount}} tjedana",
   "periods.monthFrequencyPlural": "svakih {{amount}} mjeseci",
@@ -54,10 +58,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Ukupno dospijeće danas",
   "product_info.subscribe_to": "Pretplatite se",
-  "periods.perWeekFrequency": "tjedno",
-  "periods.perMonthFrequency": "mjesečno",
-  "periods.perYearFrequency": "godišnje",
-  "periods.perDayFrequency": "dnevno",
   "payment_entry_page.trial_info": "Nakon završetka probnog razdoblja, bit će vam naplaćeno {{price}} {{perFrequency}} počevši od {{renewalDate}}. Uvijek možete otkazati prije toga.",
   "navbar_header.details": "Detalji",
   "navbar_header.back_button": "Natrag",
@@ -71,7 +71,9 @@
   "pricing_table.enter_state_or_postal_code_to_calculate": "Unesite državu ili poštanski broj za izračun",
   "pricing_table.enter_postal_code_to_calculate": "Unesite poštanski broj za izračun",
   "error_page.error_message_invalid_email_error": "Adresa e-pošte {{email}} nije se mogla potvrditi. Molimo unesite valjanu adresu e-pošte.",
-  "payment_entry_page.button_wallet": "Plati {{formattedPrice}} putem {{wallet}}",
+  "payment_entry_page.button_payment_method": "Plati {{formattedPrice}} putem {{paymentMethod}}",
+  "payment_entry_page.button_with_price": "Plati {{formattedPrice}}",
   "price_update.title": "Ažuriranje cijene",
-  "price_update.message": "Ukupna cijena je ažurirana s porezom na temelju vaše adrese za naplatu. Pregledajte i pokušajte ponovo. Vaša kartica bit će naplaćena samo jednom."
+  "price_update.base_message": "Ukupna cijena je ažurirana s porezom na temelju vaše adrese za naplatu. Pregledajte i pokušajte ponovo. Vaša kartica bit će naplaćena samo jednom.",
+  "price_update.trial_message": "Cijena pretplate je ažurirana da uključi poreze na temelju vaše adrese za naplatu. Besplatno probno razdoblje i dalje vrijedi. Molimo provjerite i pokušajte ponovno."
 }

@@ -7,7 +7,6 @@
   } from "@storybook/addon-svelte-csf";
   import PurchasesInner from "../../ui/purchases-ui-inner.svelte";
   import { brandingLanguageViewportModes } from "../../../.storybook/modes";
-
   import {
     brandingInfos,
     checkoutStartResponse,
@@ -57,7 +56,10 @@
   args: Args<typeof Story>,
   context: StoryContext<typeof Story>,
 )}
-  {@const brandingInfo = brandingInfos[context.globals.brandingName]}
+  {@const brandingInfo = {
+    ...brandingInfos[context.globals.brandingName],
+    gateway_tax_collection_enabled: args.withTaxes ?? false,
+  }}
   <PurchasesInner
     isSandbox={args.isSandbox}
     currentPage={args.currentPage}
@@ -69,12 +71,11 @@
     customerEmail={args.customerEmail}
     lastError={null}
     gatewayParams={checkoutStartResponse.gateway_params}
-    priceBreakdown={args.withTaxes
-      ? priceBreakdownTaxInclusive
-      : priceBreakdownTaxDisabled}
     {purchaseOperationHelper}
+    defaultPriceBreakdown={args.defaultPriceBreakdown ??
+      (args.withTaxes ? priceBreakdownTaxInclusive : priceBreakdownTaxDisabled)}
     isInElement={context.globals.viewport === "embedded"}
-    onTaxCustomerDetailsUpdated={() => {}}
+    onError={() => {}}
   />
 {/snippet}
 
@@ -99,15 +100,6 @@
 />
 
 <Story
-  name="Checkout (with Tax)"
-  args={{
-    ...defaultArgs,
-    currentPage: "payment-entry",
-    withTaxes: true,
-  }}
-/>
-
-<Story
   name="Checkout (with Trial Product)"
   args={{
     ...defaultArgs,
@@ -123,6 +115,47 @@
     defaultPurchaseOption: subscriptionOptionWithTrial,
   }}
 />
+
+<Story
+  name="Checkout (with Tax)"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    withTaxes: true,
+  }}
+/>
+
+<Story
+  name="Checkout (with Tax and Trial Product)"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    productDetails: {
+      ...product,
+      subscriptionOptions: {
+        ...product.subscriptionOptions,
+        [subscriptionOptionWithTrial.id]: subscriptionOptionWithTrial,
+      },
+    },
+    purchaseOptionToUse: subscriptionOptionWithTrial,
+    defaultPurchaseOption: subscriptionOptionWithTrial,
+    withTaxes: true,
+  }}
+/>
+
+<Story
+  name="Checkout (with Tax miss-match)"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    withTaxes: true,
+    defaultPriceBreakdown: {
+      ...priceBreakdownTaxInclusive,
+      taxCalculationStatus: "miss-match",
+    },
+  }}
+/>
+
 <Story name="Loading" args={{ currentPage: "payment-entry-loading" }} />
 <Story name="Payment complete" args={{ currentPage: "success" }} />
 <Story name="Payment failed" args={{ currentPage: "error" }} />

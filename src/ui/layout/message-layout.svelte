@@ -3,17 +3,17 @@
   import ModalFooter from "./modal-footer.svelte";
   import ModalSection from "./modal-section.svelte";
   import RowLayout from "./row-layout.svelte";
-  import { type ContinueHandlerParams } from "../ui-types";
+  import Typography from "../atoms/typography.svelte";
 
-  export let onContinue: (params?: ContinueHandlerParams) => void;
+  export let onDismiss: () => void;
   export let title: string | null = null;
   export let type: string;
   export let closeButtonTitle: string = "Go back to app";
   export let icon: (() => any) | null = null;
   export let message;
 
-  function handleContinue() {
-    onContinue();
+  function handleClick() {
+    onDismiss();
   }
 </script>
 
@@ -32,12 +32,10 @@
                 {@render icon()}
               {/if}
               {#if title}
-                <span class="rcb-title">{title}</span>
+                <Typography size="heading-lg">{title}</Typography>
               {/if}
               {#if message}
-                <span class="rcb-subtitle">
-                  {@render message()}
-                </span>
+                <Typography size="body-base">{@render message?.()}</Typography>
               {/if}
             </RowLayout>
           </RowLayout>
@@ -47,7 +45,7 @@
   </div>
   <div class="message-layout-footer">
     <ModalFooter>
-      <Button onclick={handleContinue} type="submit">{closeButtonTitle}</Button>
+      <Button onclick={handleClick} type="submit">{closeButtonTitle}</Button>
     </ModalFooter>
   </div>
 </div>
@@ -79,14 +77,6 @@
     margin-top: var(--rc-spacing-gapXXLarge-mobile);
   }
 
-  .rcb-title {
-    font: var(--rc-text-titleLarge-mobile);
-  }
-
-  .rcb-subtitle {
-    font: var(--rc-text-body1-mobile);
-  }
-
   @container layout-query-container (width < 768px) {
     .message-layout {
       flex-grow: 1;
@@ -107,14 +97,6 @@
     }
     .rcb-modal-message[data-has-title="false"] {
       margin-top: var(--rc-spacing-gapXXLarge-desktop);
-    }
-
-    .rcb-title {
-      font: var(--rc-text-titleLarge-desktop);
-    }
-
-    .rcb-subtitle {
-      font: var(--rc-text-body1-desktop);
     }
   }
 </style>

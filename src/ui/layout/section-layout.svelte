@@ -51,15 +51,7 @@
       min-height: 100vh;
       flex-basis: 600px;
     }
-  }
 
-  @container layout-query-container (width >= 768px) and (width <= 1024px) {
-    .layout-content {
-      padding: var(--rc-spacing-outerPadding-tablet);
-    }
-  }
-
-  @container layout-query-container (width > 1024px) {
     .layout-content {
       padding: var(--rc-spacing-outerPadding-desktop);
     }

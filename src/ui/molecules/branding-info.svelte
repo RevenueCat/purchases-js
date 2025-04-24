@@ -2,7 +2,7 @@
   import AppLogo from "../atoms/app-logo.svelte";
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
   import { buildAssetURL } from "../../networking/assets";
-
+  import Typography from "../atoms/typography.svelte";
   export let brandingInfo: BrandingInfoResponse | null = null;
 
   const valueOrNull = (value: string | null | undefined) => {
@@ -22,24 +22,12 @@
     <AppLogo src={buildAssetURL(appIcon)} srcWebp={buildAssetURL(webpIcon)} />
   {/if}
 
-  <div class="rcb-app-name">
-    {brandingInfo?.app_name}
-  </div>
+  <Typography size="body-base">{brandingInfo?.app_name}</Typography>
 </div>
 
 <style>
   .rcb-header-layout__business-info {
     display: flex;
     align-items: center;
-  }
-
-  .rcb-app-name {
-    font: var(--rc-text-titleMedium-mobile);
-  }
-
-  @container layout-query-container (width >= 768px) {
-    .rcb-app-name {
-      font: var(--rc-text-titleLarge-desktop);
-    }
   }
 </style>

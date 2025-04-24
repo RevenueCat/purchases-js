@@ -317,7 +317,7 @@ export const toTextStyleVar = (prefix: string = "", textStyles: TextStyles) =>
 export const toSpacingVars = (prefix: string = "", spacing: Spacing) =>
   Object.entries(spacing)
     .map(
-      ([key, { mobile, tablet, desktop }]) =>
-        `--rc-${prefix}-${key}-mobile: ${mobile};  --rc-${prefix}-${key}-tablet: ${tablet};  --rc-${prefix}-${key}-desktop: ${desktop};`,
+      ([key, { mobile, desktop }]) =>
+        `--rc-${prefix}-${key}-mobile: ${mobile};  --rc-${prefix}-${key}-desktop: ${desktop};`,
     )
     .join(" ");

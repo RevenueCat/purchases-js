@@ -16,6 +16,10 @@
   "periods.monthFrequency": "miesięcznie",
   "periods.yearFrequency": "rocznie",
   "periods.dayFrequency": "dziennie",
+  "periods.perWeekFrequency": "na tydzień",
+  "periods.perMonthFrequency": "na miesiąc",
+  "periods.perYearFrequency": "na rok",
+  "periods.perDayFrequency": "na dzień",
   "periods.unknownFrequency": "nieznany",
   "periods.weekFrequencyPlural": "co {{amount}} tygodni",
   "periods.monthFrequencyPlural": "co {{amount}} miesięcy",
@@ -54,10 +58,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Do zapłaty dzisiaj",
   "product_info.subscribe_to": "Subskrybuj",
-  "periods.perWeekFrequency": "na tydzień",
-  "periods.perMonthFrequency": "na miesiąc",
-  "periods.perYearFrequency": "na rok",
-  "periods.perDayFrequency": "na dzień",
   "payment_entry_page.trial_info": "Po zakończeniu okresu próbnego zostanie pobrana opłata w wysokości {{price}} {{perFrequency}} począwszy od {{renewalDate}}. Zawsze możesz anulować wcześniej.",
   "navbar_header.details": "Szczegóły",
   "navbar_header.back_button": "Wstecz",
@@ -71,7 +71,9 @@
   "pricing_table.enter_state_or_postal_code_to_calculate": "Wprowadź stan lub kod pocztowy, aby obliczyć",
   "pricing_table.enter_postal_code_to_calculate": "Wprowadź kod pocztowy, aby obliczyć",
   "error_page.error_message_invalid_email_error": "Nie można zweryfikować adresu e-mail {{email}}. Proszę podać prawidłowy adres e-mail.",
-  "payment_entry_page.button_wallet": "Zapłać {{formattedPrice}} przez {{wallet}}",
+  "payment_entry_page.button_payment_method": "Zapłać {{formattedPrice}} przez {{paymentMethod}}",
+  "payment_entry_page.button_with_price": "Zapłać {{formattedPrice}}",
   "price_update.title": "Aktualizacja ceny",
-  "price_update.message": "Cena całkowita została zaktualizowana o podatek na podstawie Twojego adresu rozliczeniowego. Sprawdź i spróbuj ponownie. Twoja karta zostanie obciążona tylko raz."
+  "price_update.base_message": "Cena całkowita została zaktualizowana o podatek na podstawie Twojego adresu rozliczeniowego. Sprawdź i spróbuj ponownie. Twoja karta zostanie obciążona tylko raz.",
+  "price_update.trial_message": "Cena subskrypcji została zaktualizowana o podatki na podstawie Twojego adresu rozliczeniowego. Okres próbny nadal obowiązuje. Sprawdź i spróbuj ponownie."
 }

@@ -232,3 +232,10 @@ export async function confirmStripeEmailFieldVisible(page: Page) {
   const emailField = stripeFrame.getByPlaceholder("you@example.com");
   await expect(emailField).toBeVisible();
 }
+
+export async function confirmPayButtonDisabled(page: Page) {
+  const button = await page.waitForSelector(
+    "button[data-testid='PayButton'][disabled]",
+  );
+  await expect(button).toBeDefined();
+}

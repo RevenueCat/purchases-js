@@ -16,6 +16,10 @@
   "periods.monthFrequency": "mensual",
   "periods.yearFrequency": "anual",
   "periods.dayFrequency": "diari",
+  "periods.perWeekFrequency": "per setmana",
+  "periods.perMonthFrequency": "per mes",
+  "periods.perYearFrequency": "per any",
+  "periods.perDayFrequency": "per dia",
   "periods.unknownFrequency": "desconeguda",
   "periods.weekFrequencyPlural": "cada {{amount}} setmanes",
   "periods.monthFrequencyPlural": "cada {{amount}} mesos",
@@ -54,10 +58,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Total a pagar avui",
   "product_info.subscribe_to": "Subscriu-te a",
-  "periods.perWeekFrequency": "per setmana",
-  "periods.perMonthFrequency": "per mes",
-  "periods.perYearFrequency": "per any",
-  "periods.perDayFrequency": "per dia",
   "payment_entry_page.trial_info": "Un cop finalitzi el període de prova, se us cobrarà {{price}} {{perFrequency}} a partir del {{renewalDate}}. Sempre podeu cancel·lar abans d'aquesta data.",
   "navbar_header.details": "Detalls",
   "navbar_header.back_button": "Enrere",
@@ -71,7 +71,9 @@
   "pricing_table.enter_state_or_postal_code_to_calculate": "Introduïu la província o el codi postal per calcular",
   "pricing_table.enter_postal_code_to_calculate": "Introduïu el codi postal per calcular",
   "error_page.error_message_invalid_email_error": "No s'ha pogut verificar l'adreça de correu electrònic {{email}}. Si us plau, proporcioneu una adreça de correu electrònic vàlida.",
-  "payment_entry_page.button_wallet": "Paga {{formattedPrice}} amb {{wallet}}",
+  "payment_entry_page.button_payment_method": "Paga {{formattedPrice}} amb {{paymentMethod}}",
+  "payment_entry_page.button_with_price": "Paga {{formattedPrice}}",
   "price_update.title": "Actualització de preu",
-  "price_update.message": "El preu total s'ha actualitzat amb els impostos segons la vostra adreça de facturació. Reviseu-ho i torneu-ho a provar. Només es carregarà la vostra targeta una vegada."
+  "price_update.base_message": "El preu total s'ha actualitzat amb els impostos segons la vostra adreça de facturació. Reviseu-ho i torneu-ho a provar. Només es carregarà la vostra targeta una vegada.",
+  "price_update.trial_message": "El preu de la subscripció s'ha actualitzat per incloure els impostos segons la seva adreça de facturació. El període de prova gratuït segueix vigent. Si us plau, comprovi-ho i torni-ho a provar."
 }
