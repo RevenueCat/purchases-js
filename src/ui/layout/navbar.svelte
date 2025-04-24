@@ -25,7 +25,7 @@
       {@render headerContent?.()}
     </div>
     {#if bodyContent}
-      <div class="navbar-body" class:rcb-with-header={!!headerContent}>
+      <div class="navbar-body">
         {@render bodyContent?.()}
       </div>
     {/if}
@@ -42,11 +42,8 @@
 
   @container layout-query-container (width < 768px) {
     .navbar-body {
-      padding: var(--rc-spacing-outerPadding-mobile);
-    }
-
-    .navbar-body.rcb-with-header {
-      padding-top: var(--rc-spacing-gapLarge-desktop);
+      padding-left: var(--rc-spacing-outerPadding-mobile);
+      padding-right: var(--rc-spacing-outerPadding-mobile);
     }
   }
 
@@ -58,13 +55,13 @@
     }
 
     .navbar-header {
-      padding: var(--rc-spacing-outerPadding-desktop);
-      padding-bottom: 0;
+      padding-left: var(--rc-spacing-outerPadding-desktop);
+      padding-right: var(--rc-spacing-outerPadding-desktop);
     }
 
     .navbar-body {
-      padding: var(--rc-spacing-outerPadding-desktop);
-      padding-top: var(--rc-spacing-gapXXLarge-desktop);
+      padding-left: var(--rc-spacing-outerPadding-desktop);
+      padding-right: var(--rc-spacing-outerPadding-desktop);
     }
   }
 </style>
