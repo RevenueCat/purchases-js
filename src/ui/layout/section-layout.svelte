@@ -28,10 +28,7 @@
     flex: 1;
     display: flex;
     background-color: var(--rc-color-background);
-  }
-
-  .layout-wrapper-outer.rcb-navbar {
-    justify-content: flex-end;
+    justify-content: flex-start;
   }
 
   .layout-wrapper {
