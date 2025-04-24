@@ -212,8 +212,5 @@
     .rcb-pricing-table-row > .rcb-pricing-table-value {
       color: var(--rc-color-grey-text-light);
     }
-    .rcb-pricing-table-row:last-child {
-      padding-top: var(--rc-spacing-gapSmall-desktop);
-    }
   }
 </style>
