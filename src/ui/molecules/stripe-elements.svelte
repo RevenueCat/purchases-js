@@ -80,7 +80,7 @@
     }
 
     stripeVariables = {
-      fontSizeBase: DEFAULT_TEXT_STYLES.labelDefault[viewport].fontSize,
+      fontSizeBase: DEFAULT_TEXT_STYLES.bodyBase[viewport].fontSize,
       fontFamily: DEFAULT_FONT_FAMILY,
       spacingGridRow: spacing.gapLarge[viewport],
     };

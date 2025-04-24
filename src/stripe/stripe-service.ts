@@ -141,11 +141,14 @@ export class StripeService {
               outline: "none",
             },
             ".Label": {
-              fontWeight: textStyles.bodyBase[viewport].fontWeight,
+              fontSize: textStyles.labelDefault[viewport].fontSize,
+              fontWeight: textStyles.labelDefault[viewport].fontWeight,
               lineHeight: "22px",
               color: customColors["grey-text-dark"],
             },
             ".Label--floating": {
+              fontSize: textStyles.labelDefault[viewport].fontSize,
+              fontWeight: textStyles.labelDefault[viewport].fontWeight,
               opacity: "1",
             },
             ".Input--invalid": {
