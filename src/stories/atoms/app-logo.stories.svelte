@@ -1,12 +1,12 @@
 <script module>
-  import { default as AppLogo } from "../../ui/atoms/app-logo.svelte";
+  import AppLogo from "../../ui/atoms/app-logo.svelte";
   import {
     type Args,
     defineMeta,
     setTemplate,
     type StoryContext,
   } from "@storybook/addon-svelte-csf";
-  import { withLayout } from "../decorators/with-layout";
+  import { renderInsideMain } from "../decorators/layout-decorators";
   import { brandingModes } from "../../../.storybook/modes";
   import { brandingInfos } from "../fixtures";
   import { buildAssetURL } from "../../networking/assets";
@@ -15,7 +15,7 @@
     component: AppLogo,
     title: "Atoms/AppLogo",
     // @ts-expect-error ignore typing of decorator
-    decorators: [withLayout],
+    decorators: [renderInsideMain],
     parameters: {
       chromatic: {
         modes: brandingModes,

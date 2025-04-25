@@ -141,7 +141,7 @@ export class StripeService {
               outline: "none",
             },
             ".Label": {
-              fontWeight: textStyles.bodyBase[viewport].fontWeight,
+              fontWeight: textStyles.labelDefault[viewport].fontWeight,
               lineHeight: "22px",
               color: customColors["grey-text-dark"],
             },

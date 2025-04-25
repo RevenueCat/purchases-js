@@ -80,13 +80,13 @@
 {/snippet}
 
 <Story
-  name="Checkout (with Sandbox Banner)"
-  args={{ ...defaultArgs, currentPage: "payment-entry", isSandbox: true }}
+  name="Checkout"
+  args={{ ...defaultArgs, currentPage: "payment-entry" }}
 />
 
 <Story
-  name="Checkout"
-  args={{ ...defaultArgs, currentPage: "payment-entry" }}
+  name="Checkout (with Sandbox Banner)"
+  args={{ ...defaultArgs, currentPage: "payment-entry", isSandbox: true }}
 />
 
 <Story

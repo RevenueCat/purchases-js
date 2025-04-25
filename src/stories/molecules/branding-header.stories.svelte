@@ -1,5 +1,5 @@
 <script module>
-  import BrandingInfo from "../../ui/molecules/branding-info.svelte";
+  import BrandingHeader from "../../ui/molecules/branding-header.svelte";
   import {
     type Args,
     defineMeta,
@@ -7,19 +7,23 @@
     type StoryContext,
   } from "@storybook/addon-svelte-csf";
   import { brandingInfos } from "../fixtures";
-  import { withNavbar } from "../decorators/with-navbar";
+  import { renderInsideNavbarHeader } from "../decorators/layout-decorators";
   import { mobileAndDesktopBrandingModes } from "../../../.storybook/modes";
 
   let { Story } = defineMeta({
-    component: BrandingInfo,
+    component: BrandingHeader,
+    args: {
+      showCloseButton: false,
+      onClose: () => {},
+    },
     // @ts-expect-error ignore typing of decorator
-    decorators: [withNavbar],
+    decorators: [renderInsideNavbarHeader],
     parameters: {
       chromatic: {
         modes: mobileAndDesktopBrandingModes,
       },
     },
-    title: "Molecules/Branding Info",
+    title: "Molecules/BrandingHeader",
   });
 </script>
 
@@ -28,11 +32,20 @@
 </script>
 
 {#snippet template(
-  _args: Args<typeof Story>,
+  args: Args<typeof Story>,
   context: StoryContext<typeof Story>,
 )}
   {@const brandingInfo = brandingInfos[context.globals.brandingName]}
-  <BrandingInfo {brandingInfo} />
+  <BrandingHeader
+    {brandingInfo}
+    showCloseButton={args.showCloseButton ?? false}
+    onClose={args.onClose}
+  />
 {/snippet}
 
 <Story name="Default" />
+
+<Story
+  name="With Close Button"
+  args={{ showCloseButton: true, onClose: () => {} }}
+/>

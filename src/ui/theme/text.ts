@@ -175,8 +175,8 @@ export const DEFAULT_TEXT_STYLES: TextStyles = {
     desktop: DESKTOP_TEXT_STYLES.heading2xl,
   },
   headingXl: {
-    desktop: DESKTOP_TEXT_STYLES.heading2xl,
-    mobile: MOBILE_TEXT_STYLES.heading2xl,
+    desktop: DESKTOP_TEXT_STYLES.headingXl,
+    mobile: MOBILE_TEXT_STYLES.headingXl,
   },
   headingLg: {
     desktop: DESKTOP_TEXT_STYLES.headingLg,

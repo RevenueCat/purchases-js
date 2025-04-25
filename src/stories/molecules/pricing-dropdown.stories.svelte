@@ -5,14 +5,14 @@
     defineMeta,
     setTemplate,
   } from "@storybook/addon-svelte-csf";
-  import { withNavbar } from "../decorators/with-navbar";
+  import { renderInsideNavbarBody } from "../decorators/layout-decorators";
   import { mobileAndDesktopBrandingModes } from "../../../.storybook/modes";
 
   let { Story } = defineMeta({
     component: Dropdown,
     title: "Molecules/PricingDropdown",
     // @ts-expect-error ignore typing of decorator
-    decorators: [withNavbar],
+    decorators: [renderInsideNavbarBody],
     parameters: {
       chromatic: {
         modes: mobileAndDesktopBrandingModes,

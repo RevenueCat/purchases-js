@@ -1,29 +1,26 @@
 <script lang="ts">
+  import { type Snippet } from "svelte";
   import { fade } from "svelte/transition";
 
-  export let show: boolean = true;
-  export let layoutStyle: string | undefined = undefined;
+  type Props = {
+    location: "navbar" | "main-block";
+    children?: Snippet<[]>;
+  };
 
-  export let header: (() => any) | null = null;
-  export let body: (() => any) | null = null;
+  const { location, children }: Props = $props();
+
+  const locationClass = `rcb-${location}`;
 </script>
 
-<div class="layout-wrapper-outer" style={layoutStyle}>
-  {#if show}
-    <div class="layout-wrapper">
-      <div
-        class="layout-content"
-        transition:fade={{ duration: 500, delay: 50 }}
-      >
-        {#if header}
-          {@render header()}
-        {/if}
-        {#if body}
-          {@render body()}
-        {/if}
-      </div>
+<div class="layout-wrapper-outer {locationClass}">
+  <div class="layout-wrapper">
+    <div
+      class="layout-content {locationClass}"
+      transition:fade={{ duration: 500, delay: 50 }}
+    >
+      {@render children?.()}
     </div>
-  {/if}
+  </div>
 </div>
 
 <style>
@@ -31,6 +28,10 @@
     flex: 1;
     display: flex;
     background-color: var(--rc-color-background);
+  }
+
+  .layout-wrapper-outer.rcb-navbar {
+    justify-content: flex-end;
   }
 
   .layout-wrapper {
@@ -43,18 +44,12 @@
     color: var(--rc-color-grey-text-dark);
     display: flex;
     flex-direction: column;
-    padding: var(--rc-spacing-outerPadding-mobile);
   }
 
-  @container layout-query-container (width >= 768px) {
-    .layout-wrapper {
-      min-height: 100vh;
-      flex-basis: 600px;
-    }
-
-    .layout-content {
-      padding: var(--rc-spacing-outerPadding-desktop);
-    }
+  .layout-content.rcb-navbar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--rc-spacing-gapXLarge-mobile);
   }
 
   @container layout-query-container (width < 768px) {
@@ -68,6 +63,35 @@
     .layout-content {
       flex-grow: 1;
       height: 100%;
+    }
+
+    .layout-content.rcb-navbar {
+      padding-bottom: var(--rc-spacing-outerPadding-mobile);
+    }
+
+    .layout-content.rcb-main-block {
+      padding: var(--rc-spacing-outerPadding-mobile);
+    }
+  }
+
+  @container layout-query-container (width >= 768px) {
+    .layout-wrapper {
+      min-height: 100vh;
+      flex-basis: 544px;
+    }
+
+    .layout-content.rcb-main-block {
+      padding-left: var(--rc-spacing-outerPadding-desktop);
+      padding-right: var(--rc-spacing-outerPadding-desktop);
+    }
+
+    .layout-content.rcb-navbar {
+      gap: var(--rc-spacing-gapXXLarge-desktop);
+    }
+
+    .layout-wrapper-outer {
+      padding-top: var(--rc-spacing-outerPaddingTop-desktop);
+      padding-bottom: var(--rc-spacing-outerPadding-desktop);
     }
   }
 </style>

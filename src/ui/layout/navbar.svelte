@@ -1,30 +1,34 @@
 <script lang="ts">
   import { Theme } from "../theme/theme";
-  import NavBarHeader from "./navbar-header.svelte";
-  import SectionLayout from "./section-layout.svelte";
   import type { BrandingAppearance } from "../../entities/branding";
+  import type { Snippet } from "svelte";
+  import SectionLayout from "./section-layout.svelte";
 
-  export let brandingAppearance: BrandingAppearance | null | undefined =
-    undefined;
-  $: style = new Theme(brandingAppearance).productInfoStyleVars;
+  type Props = {
+    headerContent?: Snippet<[]>;
+    bodyContent?: Snippet<[]>;
+    brandingAppearance?: BrandingAppearance | null;
+  };
 
-  export let headerContent;
-  export let bodyContent: () => any;
+  const {
+    headerContent,
+    bodyContent,
+    brandingAppearance = undefined,
+  }: Props = $props();
 
-  export let showCloseButton: boolean;
-  export let onClose: (() => void) | undefined = undefined;
+  const style = $derived(new Theme(brandingAppearance).productInfoStyleVars);
 </script>
 
 <div class="rcb-ui-navbar" {style}>
-  <SectionLayout layoutStyle="justify-content: flex-end;">
-    {#snippet header()}
-      <NavBarHeader {showCloseButton} {onClose}>
-        {@render headerContent?.()}
-      </NavBarHeader>
-    {/snippet}
-    {#snippet body()}
-      {@render bodyContent?.()}
-    {/snippet}
+  <SectionLayout location="navbar">
+    <div class="navbar-header">
+      {@render headerContent?.()}
+    </div>
+    {#if bodyContent}
+      <div class="navbar-body">
+        {@render bodyContent?.()}
+      </div>
+    {/if}
   </SectionLayout>
 </div>
 
@@ -36,11 +40,28 @@
     background-color: var(--rc-color-background);
   }
 
+  @container layout-query-container (width < 768px) {
+    .navbar-body {
+      padding-left: var(--rc-spacing-outerPadding-mobile);
+      padding-right: var(--rc-spacing-outerPadding-mobile);
+    }
+  }
+
   @container layout-query-container (width >= 768px) {
     .rcb-ui-navbar {
       width: 50vw;
       display: flex;
       justify-content: flex-end;
+    }
+
+    .navbar-header {
+      padding-left: var(--rc-spacing-outerPadding-desktop);
+      padding-right: var(--rc-spacing-outerPadding-desktop);
+    }
+
+    .navbar-body {
+      padding-left: var(--rc-spacing-outerPadding-desktop);
+      padding-right: var(--rc-spacing-outerPadding-desktop);
     }
   }
 </style>

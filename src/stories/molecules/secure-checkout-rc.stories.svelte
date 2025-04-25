@@ -1,7 +1,7 @@
 <script module>
   import { brandingModes } from "../../../.storybook/modes";
   import { defineMeta, setTemplate } from "@storybook/addon-svelte-csf";
-  import { withNavbar } from "../decorators/with-navbar";
+  import { renderInsideNavbarBody } from "../decorators/layout-decorators";
   import SecureCheckoutRC from "../../ui/molecules/secure-checkout-rc.svelte";
   import { brandingInfo } from "../fixtures";
   import { subscriptionOptionWithTrial } from "../fixtures";
@@ -9,8 +9,7 @@
   const { Story } = defineMeta({
     component: SecureCheckoutRC,
     title: "Molecules/SecureCheckoutRC",
-    // @ts-expect-error ignore typing of decorator
-    decorators: [withNavbar],
+    decorators: [renderInsideNavbarBody],
     parameters: {
       chromatic: {
         modes: brandingModes,

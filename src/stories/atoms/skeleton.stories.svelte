@@ -5,14 +5,14 @@
     defineMeta,
     setTemplate,
   } from "@storybook/addon-svelte-csf";
-  import { withLayout } from "../decorators/with-layout";
+  import { renderInsideMain } from "../decorators/layout-decorators";
   import Skeleton from "../../ui/atoms/skeleton.svelte";
 
   const { Story } = defineMeta({
     component: Skeleton,
     title: "Atoms/Skeleton",
     // @ts-expect-error ignore typing of decorator
-    decorators: [withLayout],
+    decorators: [renderInsideMain],
     parameters: {
       chromatic: {
         modes: brandingModes,
