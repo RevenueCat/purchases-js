@@ -153,7 +153,6 @@ export class ErrorCodeUtils {
       case BackendErrorCode.BackendInvalidAppleSubscriptionKey:
       case BackendErrorCode.BackendBadRequest:
       case BackendErrorCode.BackendInternalServerError:
-      case BackendErrorCode.BackendTaxCalculationRequiresPostalCode:
         return ErrorCode.UnexpectedBackendResponseError;
       case BackendErrorCode.BackendProductIDsMalformed:
         return ErrorCode.UnsupportedError;
@@ -161,13 +160,6 @@ export class ErrorCodeUtils {
       case BackendErrorCode.BackendNoMXRecordsFound:
       case BackendErrorCode.BackendEmailIsRequired:
         return ErrorCode.InvalidEmailError;
-
-      // These error codes should never be exposed to developers, as they are handled internally within the purchase flow.
-      // We map them to UnknownError because a mapping is required.
-      case BackendErrorCode.BackendTaxLocationCannotBeDetermined:
-      case BackendErrorCode.BackendInvalidTaxLocation:
-      case BackendErrorCode.BackendTaxCollectionNotEnabled:
-        return ErrorCode.UnknownError;
     }
   }
 
@@ -229,10 +221,6 @@ export enum BackendErrorCode {
   BackendInvalidOperationSession = 7877,
   BackendPurchaseCannotBeCompleted = 7878,
   BackendEmailIsRequired = 7879,
-  BackendTaxCollectionNotEnabled = 7886,
-  BackendTaxCalculationRequiresPostalCode = 7887,
-  BackendTaxLocationCannotBeDetermined = 7896,
-  BackendInvalidTaxLocation = 7897,
   BackendGatewaySetupErrorStripeTaxNotActive = 7898,
   BackendGatewaySetupErrorInvalidTaxOriginAddress = 7899,
   BackendGatewaySetupErrorMissingRequiredPermission = 7900,
