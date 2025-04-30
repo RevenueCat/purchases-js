@@ -254,7 +254,7 @@ export const brandingInfos: Record<string, BrandingInfoResponse> = {
     support_email: "devservices@revenuecat.com",
     app_icon: "1005820_1739283698.png",
     app_icon_webp: "1005820_1739283698.webp",
-    app_name: "Igify",
+    app_name: "Igify Pro LTD",
     appearance: {
       color_accent: "#969696",
       color_buttons_primary: "#000000",
@@ -293,7 +293,7 @@ export const priceBreakdownTaxDisabled: PriceBreakdown = {
   currency: "USD",
   totalAmountInMicros: 9900000,
   totalExcludingTaxInMicros: 9900000,
-  taxCalculationStatus: "disabled",
+  taxCalculationStatus: "unavailable",
   taxAmountInMicros: 0,
   pendingReason: null,
   taxBreakdown: null,

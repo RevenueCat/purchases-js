@@ -16,6 +16,10 @@
   "periods.monthFrequency": "毎月",
   "periods.yearFrequency": "毎年",
   "periods.dayFrequency": "毎日",
+  "periods.perWeekFrequency": "週ごと",
+  "periods.perMonthFrequency": "月ごと",
+  "periods.perYearFrequency": "年ごと",
+  "periods.perDayFrequency": "日ごと",
   "periods.unknownFrequency": "不明",
   "periods.weekFrequencyPlural": "{{amount}}週間ごと",
   "periods.monthFrequencyPlural": "{{amount}}ヶ月ごと",
@@ -54,10 +58,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "本日のお支払い合計",
   "product_info.subscribe_to": "購読する",
-  "periods.perWeekFrequency": "週ごと",
-  "periods.perMonthFrequency": "月ごと",
-  "periods.perYearFrequency": "年ごと",
-  "periods.perDayFrequency": "日ごと",
   "payment_entry_page.trial_info": "{{renewalDate}}から{{price}} {{perFrequency}}で開始され、トライアル終了後に請求されます。いつでもキャンセルできます。",
   "navbar_header.details": "詳細",
   "navbar_header.back_button": "戻る",
@@ -71,7 +71,9 @@
   "pricing_table.enter_state_or_postal_code_to_calculate": "計算するには州または郵便番号を入力してください",
   "pricing_table.enter_postal_code_to_calculate": "計算するには郵便番号を入力してください",
   "error_page.error_message_invalid_email_error": "メールアドレス{{email}}を確認できませんでした。有効なメールアドレスを入力してください。",
-  "payment_entry_page.button_wallet": "{{wallet}}で{{formattedPrice}}を支払う",
+  "payment_entry_page.button_payment_method": "{{paymentMethod}}で{{formattedPrice}}を支払う",
+  "payment_entry_page.button_with_price": "{{formattedPrice}}を支払う",
   "price_update.title": "価格の更新",
-  "price_update.message": "合計金額が、お客様の請求先住所に基づいて税金とともに更新されました。再度ご確認ください。カードへの請求は1回のみです。"
+  "price_update.base_message": "合計金額が、お客様の請求先住所に基づいて税金とともに更新されました。再度ご確認ください。カードへの請求は1回のみです。",
+  "price_update.trial_message": "請求先住所に基づいて税金を含むサブスクリプション料金が更新されました。無料トライアルは引き続き適用されます。確認して再度お試しください。"
 }

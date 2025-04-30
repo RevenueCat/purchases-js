@@ -1,7 +1,7 @@
 <script module>
   import InfoMessage from "../../ui/molecules/info-message.svelte";
   import { defineMeta } from "@storybook/addon-svelte-csf";
-  import { withLayout } from "../decorators/with-layout";
+  import { renderInsideMain } from "../decorators/layout-decorators";
   import { brandingModes } from "../../../.storybook/modes";
   import { getContext } from "svelte";
   import { translatorContextKey } from "../../ui/localization/constants";
@@ -9,8 +9,7 @@
   let { Story } = defineMeta({
     component: InfoMessage,
     title: "Molecules/InfoMessage",
-    // @ts-expect-error ignore typing of decorator
-    decorators: [withLayout],
+    decorators: [renderInsideMain],
     parameters: {
       chromatic: {
         modes: brandingModes,

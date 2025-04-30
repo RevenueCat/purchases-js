@@ -16,6 +16,10 @@
   "periods.monthFrequency": "חודשי",
   "periods.yearFrequency": "שנתי",
   "periods.dayFrequency": "יומי",
+  "periods.perWeekFrequency": "לשבוע",
+  "periods.perMonthFrequency": "לחודש",
+  "periods.perYearFrequency": "לשנה",
+  "periods.perDayFrequency": "ליום",
   "periods.unknownFrequency": "לא ידוע",
   "periods.weekFrequencyPlural": "כל {{amount}} שבועות",
   "periods.monthFrequencyPlural": "כל {{amount}} חודשים",
@@ -54,10 +58,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "סה\"כ לתשלום היום",
   "product_info.subscribe_to": "הירשם כמנוי ל-",
-  "periods.perWeekFrequency": "לשבוע",
-  "periods.perMonthFrequency": "לחודש",
-  "periods.perYearFrequency": "לשנה",
-  "periods.perDayFrequency": "ליום",
   "payment_entry_page.trial_info": "לאחר סיום תקופת הניסיון שלך, תחויב בסך {{price}} {{perFrequency}} החל מ-{{renewalDate}}. תמיד תוכל לבטל לפני כן.",
   "navbar_header.details": "פרטים",
   "navbar_header.back_button": "חזרה",
@@ -71,7 +71,9 @@
   "pricing_table.enter_state_or_postal_code_to_calculate": "הזן מדינה או מיקוד לחישוב",
   "pricing_table.enter_postal_code_to_calculate": "הזן מיקוד לחישוב",
   "error_page.error_message_invalid_email_error": "לא ניתן לאמת את כתובת האימייל {{email}}. אנא ספק כתובת אימייל חוקית.",
-  "payment_entry_page.button_wallet": "שלם {{formattedPrice}} באמצעות {{wallet}}",
+  "payment_entry_page.button_payment_method": "שלם {{formattedPrice}} באמצעות {{paymentMethod}}",
+  "payment_entry_page.button_with_price": "שלם {{formattedPrice}}",
   "price_update.title": "עדכון מחיר",
-  "price_update.message": "המחיר הכולל עודכן עם מס בהתבסס על כתובת החיוב שלך. אנא בדוק שוב ונסה שוב. החיוב יתבצע רק פעם אחת."
+  "price_update.base_message": "המחיר הכולל עודכן עם מס בהתבסס על כתובת החיוב שלך. אנא בדוק שוב ונסה שוב. החיוב יתבצע רק פעם אחת.",
+  "price_update.trial_message": "מחיר המנוי עודכן כדי לכלול מיסים בהתבסס על כתובת החיוב שלך. תקופת הניסיון החינמית עדיין תקפה. אנא בדוק ונסה שוב."
 }

@@ -3,12 +3,7 @@
   import ErrorPage from "./pages/error-page.svelte";
   import SuccessPage from "./pages/success-page.svelte";
   import LoadingPage from "./pages/payment-entry-loading-page.svelte";
-  import {
-    type PriceBreakdown,
-    type ContinueHandlerParams,
-    type CurrentPage,
-    type TaxCustomerDetails,
-  } from "./ui-types";
+  import { type PriceBreakdown, type CurrentPage } from "./ui-types";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import type { Product, PurchaseOption } from "../main";
   import ProductInfo from "./organisms/product-info.svelte";
@@ -18,6 +13,7 @@
   } from "../helpers/purchase-operation-helper";
   import Template from "./layout/template.svelte";
   import { type GatewayParams } from "../networking/responses/stripe-elements";
+  import BrandingHeader from "./molecules/branding-header.svelte";
 
   interface Props {
     currentPage: CurrentPage;
@@ -26,15 +22,15 @@
     purchaseOptionToUse: PurchaseOption;
     isSandbox: boolean;
     lastError: PurchaseFlowError | null;
-    priceBreakdown: PriceBreakdown;
     purchaseOperationHelper: PurchaseOperationHelper;
     isInElement: boolean;
     gatewayParams: GatewayParams;
     customerEmail: string | null;
+    defaultPriceBreakdown?: PriceBreakdown;
     closeWithError: () => void;
-    onContinue: (params?: ContinueHandlerParams) => void;
+    onContinue: () => void;
+    onError: (error: PurchaseFlowError) => void;
     onClose?: () => void;
-    onTaxCustomerDetailsUpdated: (customerDetails: TaxCustomerDetails) => void;
   }
 
   const {
@@ -44,20 +40,39 @@
     purchaseOptionToUse,
     isSandbox,
     lastError,
-    priceBreakdown,
     purchaseOperationHelper,
     isInElement,
     gatewayParams,
     customerEmail,
+    defaultPriceBreakdown,
     closeWithError,
     onContinue,
-    onTaxCustomerDetailsUpdated,
+    onError,
     onClose = undefined,
   }: Props = $props();
+
+  let priceBreakdown: PriceBreakdown = $state(
+    defaultPriceBreakdown ?? {
+      currency: productDetails.currentPrice.currency,
+      totalAmountInMicros: productDetails.currentPrice.amountMicros,
+      totalExcludingTaxInMicros: productDetails.currentPrice.amountMicros,
+      taxCalculationStatus: "unavailable",
+      pendingReason: null,
+      taxAmountInMicros: null,
+      taxBreakdown: null,
+    },
+  );
+
+  const onPriceBreakdownUpdated = (value: PriceBreakdown) => {
+    priceBreakdown = value;
+  };
 </script>
 
 <Template {brandingInfo} {isInElement} {isSandbox} {onClose}>
-  {#snippet navbarContent()}
+  {#snippet navbarHeaderContent()}
+    <BrandingHeader {brandingInfo} {onClose} showCloseButton={!isInElement} />
+  {/snippet}
+  {#snippet navbarBodyContent()}
     <ProductInfo
       {productDetails}
       purchaseOption={purchaseOptionToUse}
@@ -78,10 +93,11 @@
         {brandingInfo}
         {purchaseOperationHelper}
         {gatewayParams}
-        {priceBreakdown}
         {customerEmail}
+        {defaultPriceBreakdown}
         {onContinue}
-        {onTaxCustomerDetailsUpdated}
+        {onError}
+        {onPriceBreakdownUpdated}
       />
     {/if}
 
@@ -90,7 +106,7 @@
         {lastError}
         {productDetails}
         supportEmail={brandingInfo?.support_email ?? null}
-        onContinue={closeWithError}
+        onDismiss={closeWithError}
       />
     {/if}
     {#if currentPage === "success"}

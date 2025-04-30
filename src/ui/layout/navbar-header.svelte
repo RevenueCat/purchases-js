@@ -48,7 +48,6 @@
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    font: var(--rc-text-titleXLarge-mobile);
     margin: 0;
   }
 

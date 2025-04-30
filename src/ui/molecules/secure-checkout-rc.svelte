@@ -9,6 +9,7 @@
   import type { BrandingInfoResponse } from "../../networking/responses/branding-response";
   import type { SubscriptionOption } from "../../entities/offerings";
   import { type Writable } from "svelte/store";
+  import Typography from "../atoms/typography.svelte";
 
   export let brandingInfo: BrandingInfoResponse | null = null;
   export let subscriptionOption: SubscriptionOption | null = null;
@@ -52,16 +53,18 @@
 <div class="footer-caption-container">
   {#if termsInfo}
     <p class="footer-caption">
-      {termsInfo}
+      <Typography size="caption-default">{termsInfo}</Typography>
     </p>
   {/if}
   {#if trialInfo}
     <p class="footer-caption">
-      {trialInfo}
+      <Typography size="caption-default">{trialInfo}</Typography>
     </p>
   {/if}
   <p class="footer-caption">
-    <Localized key={LocalizationKeys.PaymentEntryPagePaymentStepTitle} />
+    <Typography size="caption-default">
+      <Localized key={LocalizationKeys.PaymentEntryPagePaymentStepTitle} />
+    </Typography>
   </p>
 </div>
 
@@ -69,21 +72,16 @@
   .footer-caption-container {
     display: flex;
     flex-direction: column;
-    gap: var(--rc-spacing-gapXLarge-mobile);
+    gap: var(--rc-spacing-gapLarge-mobile);
   }
 
   .footer-caption {
-    font: var(--rc-text-caption-mobile);
     color: var(--rc-color-grey-text-light);
     text-align: center;
     margin: 0;
   }
 
   @container layout-query-container (width >= 768px) {
-    .footer-caption {
-      font: var(--rc-text-caption-desktop);
-    }
-
     .footer-caption-container {
       gap: var(--rc-spacing-gapLarge-desktop);
     }

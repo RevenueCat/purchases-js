@@ -1,5 +1,6 @@
 <script lang="ts">
   import IconInfo from "../atoms/icons/icon-info.svelte";
+  import Typography from "../atoms/typography.svelte";
 
   export type Props = {
     title: string;
@@ -14,8 +15,12 @@
     <IconInfo />
   </div>
   <div class="rcb-info-content">
-    <div class="rcb-info-title">{title}</div>
-    <div class="rcb-info-message">{message}</div>
+    <div class="rcb-info-title">
+      <Typography size="body-small">{title}</Typography>
+    </div>
+    <div class="rcb-info-message">
+      <Typography size="body-small">{message}</Typography>
+    </div>
   </div>
 </div>
 
@@ -40,13 +45,12 @@
 
   .rcb-info-title {
     color: var(--rc-color-grey-text-dark);
-    font: var(--rc-text-body1-mobile);
     margin-bottom: var(--rc-spacing-gapSmall-mobile);
+    display: flex;
   }
 
   .rcb-info-message {
     color: var(--rc-color-grey-text-light);
-    font: var(--rc-text-body1-mobile);
   }
 
   @container layout-query-container (width >= 768px) {
@@ -56,7 +60,6 @@
     }
 
     .rcb-info-title {
-      font: var(--rc-text-body1-desktop);
       margin-bottom: var(--rc-spacing-gapSmall-desktop);
     }
   }

@@ -16,6 +16,10 @@
   "periods.monthFrequency": "mensuel",
   "periods.yearFrequency": "annuel",
   "periods.dayFrequency": "quotidien",
+  "periods.perWeekFrequency": "par semaine",
+  "periods.perMonthFrequency": "par mois",
+  "periods.perYearFrequency": "par an",
+  "periods.perDayFrequency": "par jour",
   "periods.unknownFrequency": "inconnu",
   "periods.weekFrequencyPlural": "toutes les {{amount}} semaines",
   "periods.monthFrequencyPlural": "tous les {{amount}} mois",
@@ -54,10 +58,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}} ({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Total dû aujourd'hui",
   "product_info.subscribe_to": "S'abonner à",
-  "periods.perWeekFrequency": "par semaine",
-  "periods.perMonthFrequency": "par mois",
-  "periods.perYearFrequency": "par an",
-  "periods.perDayFrequency": "par jour",
   "payment_entry_page.trial_info": "Après la fin de votre essai, vous serez facturé {{price}} {{perFrequency}} à partir du {{renewalDate}}. Vous pouvez annuler à tout moment avant cette date.",
   "navbar_header.details": "Détails",
   "navbar_header.back_button": "Retour",
@@ -71,7 +71,9 @@
   "pricing_table.enter_state_or_postal_code_to_calculate": "Entrez l'état ou le code postal pour calculer",
   "pricing_table.enter_postal_code_to_calculate": "Entrez le code postal pour calculer",
   "error_page.error_message_invalid_email_error": "L'adresse e-mail {{email}} n'a pas pu être vérifiée. Veuillez fournir une adresse e-mail valide.",
-  "payment_entry_page.button_wallet": "Payer {{formattedPrice}} avec {{wallet}}",
+  "payment_entry_page.button_payment_method": "Payer {{formattedPrice}} avec {{paymentMethod}}",
+  "payment_entry_page.button_with_price": "Payer {{formattedPrice}}",
   "price_update.title": "Mise à jour du prix",
-  "price_update.message": "Le prix total a été mis à jour avec la taxe en fonction de votre adresse de facturation. Veuillez vérifier et réessayer. Votre carte ne sera débitée qu'une seule fois."
+  "price_update.base_message": "Le prix total a été mis à jour avec la taxe en fonction de votre adresse de facturation. Veuillez vérifier et réessayer. Votre carte ne sera débitée qu'une seule fois.",
+  "price_update.trial_message": "Le prix de l'abonnement a été mis à jour pour inclure les taxes en fonction de votre adresse de facturation. La période d'essai gratuit reste applicable. Veuillez vérifier et réessayer."
 }

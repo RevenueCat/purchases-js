@@ -16,6 +16,10 @@
   "periods.monthFrequency": "monatlich",
   "periods.yearFrequency": "jährlich",
   "periods.dayFrequency": "täglich",
+  "periods.perWeekFrequency": "pro Woche",
+  "periods.perMonthFrequency": "pro Monat",
+  "periods.perYearFrequency": "pro Jahr",
+  "periods.perDayFrequency": "pro Tag",
   "periods.unknownFrequency": "unbekannt",
   "periods.weekFrequencyPlural": "alle {{amount}} Wochen",
   "periods.monthFrequencyPlural": "alle {{amount}} Monate",
@@ -54,10 +58,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}} ({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Heute fälliger Gesamtbetrag",
   "product_info.subscribe_to": "Abonnieren",
-  "periods.perWeekFrequency": "pro Woche",
-  "periods.perMonthFrequency": "pro Monat",
-  "periods.perYearFrequency": "pro Jahr",
-  "periods.perDayFrequency": "pro Tag",
   "payment_entry_page.trial_info": "Nach Ablauf Ihres Testzeitraums werden Ihnen {{price}} {{perFrequency}} ab dem {{renewalDate}} berechnet. Sie können jederzeit vorher kündigen.",
   "navbar_header.details": "Details",
   "navbar_header.back_button": "Zurück",
@@ -71,7 +71,9 @@
   "pricing_table.enter_state_or_postal_code_to_calculate": "Bundesland oder Postleitzahl zur Berechnung eingeben",
   "pricing_table.enter_postal_code_to_calculate": "Postleitzahl zur Berechnung eingeben",
   "error_page.error_message_invalid_email_error": "Die E-Mail-Adresse {{email}} konnte nicht verifiziert werden. Bitte gib eine gültige E-Mail-Adresse an.",
-  "payment_entry_page.button_wallet": "Mit {{wallet}} für {{formattedPrice}} bezahlen",
+  "payment_entry_page.button_payment_method": "Mit {{paymentMethod}} für {{formattedPrice}} bezahlen",
+  "payment_entry_page.button_with_price": "{{formattedPrice}} bezahlen",
   "price_update.title": "Preisaktualisierung",
-  "price_update.message": "Der Gesamtpreis wurde basierend auf Ihrer Rechnungsadresse mit Steuern aktualisiert. Bitte überprüfen Sie ihn und versuchen Sie es erneut. Ihre Karte wird erst belastet, wenn alles korrekt ist."
+  "price_update.base_message": "Der Gesamtpreis wurde basierend auf Ihrer Rechnungsadresse mit Steuern aktualisiert. Bitte überprüfen Sie ihn und versuchen Sie es erneut. Ihre Karte wird erst belastet, wenn alles korrekt ist.",
+  "price_update.trial_message": "Der Abonnementpreis wurde aktualisiert, um Steuern basierend auf Ihrer Rechnungsadresse einzuschließen. Die kostenlose Testphase gilt weiterhin. Bitte überprüfen Sie und versuchen Sie es erneut."
 }

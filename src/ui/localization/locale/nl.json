@@ -16,6 +16,10 @@
   "periods.monthFrequency": "maandelijks",
   "periods.yearFrequency": "jaarlijks",
   "periods.dayFrequency": "dagelijks",
+  "periods.perWeekFrequency": "per week",
+  "periods.perMonthFrequency": "per maand",
+  "periods.perYearFrequency": "per jaar",
+  "periods.perDayFrequency": "per dag",
   "periods.unknownFrequency": "onbekend",
   "periods.weekFrequencyPlural": "elke {{amount}} weken",
   "periods.monthFrequencyPlural": "elke {{amount}} maanden",
@@ -54,10 +58,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Totaal te betalen vandaag",
   "product_info.subscribe_to": "Abonneren op",
-  "periods.perWeekFrequency": "per week",
-  "periods.perMonthFrequency": "per maand",
-  "periods.perYearFrequency": "per jaar",
-  "periods.perDayFrequency": "per dag",
   "payment_entry_page.trial_info": "Na afloop van je proefperiode wordt {{price}} {{perFrequency}} in rekening gebracht vanaf {{renewalDate}}. Je kunt altijd eerder annuleren.",
   "navbar_header.details": "Details",
   "navbar_header.back_button": "Terug",
@@ -71,7 +71,9 @@
   "pricing_table.enter_state_or_postal_code_to_calculate": "Voer provincie of postcode in om te berekenen",
   "pricing_table.enter_postal_code_to_calculate": "Voer postcode in om te berekenen",
   "error_page.error_message_invalid_email_error": "Het e-mailadres {{email}} kon niet worden geverifieerd. Geef een geldig e-mailadres op.",
-  "payment_entry_page.button_wallet": "Betaal {{formattedPrice}} met {{wallet}}",
+  "payment_entry_page.button_payment_method": "Betaal {{formattedPrice}} met {{paymentMethod}}",
+  "payment_entry_page.button_with_price": "Betaal {{formattedPrice}}",
   "price_update.title": "Prijsupdate",
-  "price_update.message": "De totale prijs is bijgewerkt met belasting op basis van uw factuuradres. Controleer en probeer het opnieuw. Uw kaart wordt slechts één keer belast."
+  "price_update.base_message": "De totale prijs is bijgewerkt met belasting op basis van uw factuuradres. Controleer en probeer het opnieuw. Uw kaart wordt slechts één keer belast.",
+  "price_update.trial_message": "De abonnementsprijs is bijgewerkt om belastingen op te nemen op basis van uw factuuradres. De gratis proefperiode blijft van toepassing. Controleer en probeer het opnieuw."
 }

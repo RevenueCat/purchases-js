@@ -9,6 +9,7 @@
   import { type PricingPhase } from "../../entities/offerings";
   import PricingDropdown from "./pricing-dropdown.svelte";
   import Skeleton from "../atoms/skeleton.svelte";
+  import Typography from "../atoms/typography.svelte";
 
   interface Props {
     priceBreakdown: PriceBreakdown;
@@ -25,7 +26,8 @@
   const translator: Writable<Translator> = getContext(translatorContextKey);
 
   const showTaxBreakdown = $derived(
-    priceBreakdown.taxCalculationStatus !== "disabled" &&
+    priceBreakdown.taxCalculationStatus !== "unavailable" &&
+      priceBreakdown.taxCalculationStatus !== "disabled" &&
       priceBreakdown.taxBreakdown &&
       priceBreakdown.taxBreakdown.length > 0,
   );
@@ -36,25 +38,33 @@
     {#if showTaxBreakdown}
       <div class="rcb-pricing-table-row">
         <div class="rcb-pricing-table-header">
-          {$translator.translate(LocalizationKeys.PricingTotalExcludingTax)}
+          <Typography size="body-small">
+            {$translator.translate(LocalizationKeys.PricingTotalExcludingTax)}
+          </Typography>
         </div>
         <div class="rcb-pricing-table-value">
-          {$translator.formatPrice(
-            priceBreakdown.totalExcludingTaxInMicros,
-            priceBreakdown.currency,
-          )}
+          <Typography size="body-small">
+            {$translator.formatPrice(
+              priceBreakdown.totalExcludingTaxInMicros,
+              priceBreakdown.currency,
+            )}
+          </Typography>
         </div>
       </div>
 
       {#if priceBreakdown.taxCalculationStatus === "loading"}
-        <div class="rcb-pricing-table-row">
+        <div class="rcb-pricing-table-row" data-testid="tax-loading-skeleton">
           <div class="rcb-pricing-table-header">
-            {$translator.translate(LocalizationKeys.PricingTableTax)}
+            <Typography size="body-small">
+              {$translator.translate(LocalizationKeys.PricingTableTax)}
+            </Typography>
           </div>
           <div class="rcb-pricing-table-value">
-            <Skeleton>
-              {$translator.formatPrice(12340000, priceBreakdown.currency)}
-            </Skeleton>
+            <Typography size="body-small">
+              <Skeleton>
+                {$translator.formatPrice(12340000, priceBreakdown.currency)}
+              </Skeleton>
+            </Typography>
           </div>
         </div>
       {:else if priceBreakdown.taxCalculationStatus === "pending"}
@@ -64,17 +74,23 @@
           </div>
           <div class="rcb-pricing-table-value">
             {#if priceBreakdown.pendingReason === "needs_postal_code"}
-              {$translator.translate(
-                LocalizationKeys.PricingTableEnterPostalCodeToCalculate,
-              )}
+              <Typography size="body-small">
+                {$translator.translate(
+                  LocalizationKeys.PricingTableEnterPostalCodeToCalculate,
+                )}
+              </Typography>
             {:else if priceBreakdown.pendingReason === "needs_state_or_postal_code"}
-              {$translator.translate(
-                LocalizationKeys.PricingTableEnterStateOrPostalCodeToCalculate,
-              )}
+              <Typography size="body-small">
+                {$translator.translate(
+                  LocalizationKeys.PricingTableEnterStateOrPostalCodeToCalculate,
+                )}
+              </Typography>
             {:else}
-              {$translator.translate(
-                LocalizationKeys.PricingTableEnterBillingAddressToCalculate,
-              )}
+              <Typography size="body-small">
+                {$translator.translate(
+                  LocalizationKeys.PricingTableEnterBillingAddressToCalculate,
+                )}
+              </Typography>
             {/if}
           </div>
         </div>
@@ -82,13 +98,17 @@
         {#each priceBreakdown.taxBreakdown as taxItem}
           <div class="rcb-pricing-table-row">
             <div class="rcb-pricing-table-header">
-              {taxItem.display_name}
+              <Typography size="body-small">
+                {taxItem.display_name}
+              </Typography>
             </div>
             <div class="rcb-pricing-table-value">
-              {$translator.formatPrice(
-                taxItem.tax_amount_in_micros,
-                priceBreakdown.currency,
-              )}
+              <Typography size="body-small">
+                {$translator.formatPrice(
+                  taxItem.tax_amount_in_micros,
+                  priceBreakdown.currency,
+                )}
+              </Typography>
             </div>
           </div>
         {/each}
@@ -100,34 +120,42 @@
     {#if trialEndDate}
       <div class="rcb-pricing-table-row">
         <div class="rcb-pricing-table-header">
-          {$translator.translate(LocalizationKeys.PricingTableTrialEnds, {
-            formattedTrialEndDate: $translator.translateDate(trialEndDate, {
-              dateStyle: "medium",
-            }),
-          })}
+          <Typography size="body-small">
+            {$translator.translate(LocalizationKeys.PricingTableTrialEnds, {
+              formattedTrialEndDate: $translator.translateDate(trialEndDate, {
+                dateStyle: "medium",
+              }),
+            })}
+          </Typography>
         </div>
         <div class="rcb-pricing-table-value">
-          {$translator.formatPrice(
-            priceBreakdown.totalAmountInMicros,
-            priceBreakdown.currency,
-          )}
+          <Typography size="body-small">
+            {$translator.formatPrice(
+              priceBreakdown.totalAmountInMicros,
+              priceBreakdown.currency,
+            )}
+          </Typography>
         </div>
       </div>
     {/if}
 
     <div class="rcb-pricing-table-row rcb-header">
       <div class="rcb-pricing-table-header">
-        {$translator.translate(LocalizationKeys.PricingTableTotalDueToday)}
+        <Typography size="body-small">
+          {$translator.translate(LocalizationKeys.PricingTableTotalDueToday)}
+        </Typography>
       </div>
       <div class="rcb-pricing-table-value">
-        {#if trialEndDate}
-          {$translator.formatPrice(0, priceBreakdown.currency)}
-        {:else}
-          {$translator.formatPrice(
-            priceBreakdown.totalAmountInMicros,
-            priceBreakdown.currency,
-          )}
-        {/if}
+        <Typography size="body-small">
+          {#if trialEndDate}
+            {$translator.formatPrice(0, priceBreakdown.currency)}
+          {:else}
+            {$translator.formatPrice(
+              priceBreakdown.totalAmountInMicros,
+              priceBreakdown.currency,
+            )}
+          {/if}
+        </Typography>
       </div>
     </div>
   </div>
@@ -145,8 +173,7 @@
   .rcb-pricing-table {
     display: flex;
     flex-direction: column;
-    gap: var(--rc-spacing-gapMedium-mobile);
-    font: var(--rc-text-caption-mobile);
+    gap: var(--rc-spacing-gapSmall-mobile);
   }
 
   .rcb-pricing-table-row {
@@ -183,16 +210,7 @@
     }
     .rcb-pricing-table-row > .rcb-pricing-table-header,
     .rcb-pricing-table-row > .rcb-pricing-table-value {
-      font: var(--rc-text-caption-desktop);
       color: var(--rc-color-grey-text-light);
-    }
-    .rcb-pricing-table-row:last-child {
-      padding-top: var(--rc-spacing-gapSmall-desktop);
-    }
-
-    .rcb-pricing-table-row:last-child > .rcb-pricing-table-header,
-    .rcb-pricing-table-row:last-child > .rcb-pricing-table-value {
-      font: var(--rc-text-body1-desktop);
     }
   }
 </style>

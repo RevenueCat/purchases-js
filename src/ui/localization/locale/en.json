@@ -40,7 +40,8 @@
   "payment_entry_page.trial_info": "After your trial ends, you will be charged {{price}} {{perFrequency}} starting {{renewalDate}}. You can always cancel before then.",
   "payment_entry_page.button_pay": "Pay now",
   "payment_entry_page.button_start_trial": "Start trial",
-  "payment_entry_page.button_wallet": "Pay {{formattedPrice}} with {{wallet}}",
+  "payment_entry_page.button_with_price": "Pay {{formattedPrice}}",
+  "payment_entry_page.button_payment_method": "Pay {{formattedPrice}} with {{paymentMethod}}",
   "success_page.purchase_successful": "Payment complete",
   "success_page.subscription_now_active": "Your subscription is now active",
   "success_page.button_close": "Continue",
@@ -73,5 +74,6 @@
   "navbar_header.details": "Details",
   "navbar_header.back_button": "Back",
   "price_update.title": "Price update",
-  "price_update.message": "The total price was updated with tax based on your billing address. Please review and try again. Your card will only be charged once."
+  "price_update.base_message": "The total price was updated with tax based on your billing address. Please review and try again. Your card will only be charged once.",
+  "price_update.trial_message": "The subscription price was updated to include tax based on your billing address. Free trial still applies. Review and try again."
 }
