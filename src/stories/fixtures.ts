@@ -192,7 +192,6 @@ export const checkoutStartResponse: CheckoutStartResponse = {
 export const checkoutCalculateTaxResponse: CheckoutCalculateTaxResponse = {
   operation_session_id: "operation-session-id",
   currency: "USD",
-  tax_inclusive: false,
   total_amount_in_micros: 9990000 + 400000,
   total_excluding_tax_in_micros: 9990000,
   tax_amount_in_micros: 400000,
@@ -200,12 +199,7 @@ export const checkoutCalculateTaxResponse: CheckoutCalculateTaxResponse = {
     base: {
       tax_breakdown: [
         {
-          tax_type: "sales_tax",
           tax_amount_in_micros: 400000,
-          tax_rate_in_micros: 40000,
-          country: "US",
-          state: "NY",
-          taxable_amount_in_micros: 9990000,
           display_name: "Sales Tax - New York (4%)",
         },
       ],
@@ -317,12 +311,7 @@ export const priceBreakdownTaxInclusive: PriceBreakdown = {
   taxCalculationStatus: "calculated",
   taxBreakdown: [
     {
-      tax_type: "VAT",
       tax_amount_in_micros: 1718000,
-      tax_rate_in_micros: 210000,
-      country: "ES",
-      state: null,
-      taxable_amount_in_micros: 8180000,
       display_name: "VAT - Spain (21%)",
     },
   ],
@@ -336,12 +325,7 @@ export const priceBreakdownTaxExclusive: PriceBreakdown = {
   taxCalculationStatus: "calculated",
   taxBreakdown: [
     {
-      tax_type: "tax_rate",
       tax_amount_in_micros: 693000,
-      tax_rate_in_micros: 70000,
-      country: "USA",
-      state: "NY",
-      taxable_amount_in_micros: 9900000,
       display_name: "Tax Rate - NY (7%)",
     },
   ],
@@ -368,21 +352,11 @@ export const priceBreakdownTaxExclusiveWithMultipleTaxItems: PriceBreakdown = {
   taxCalculationStatus: "calculated",
   taxBreakdown: [
     {
-      tax_type: "GST",
       tax_amount_in_micros: 495000,
-      tax_rate_in_micros: 50000,
-      country: "CA",
-      state: null,
-      taxable_amount_in_micros: 9900000,
       display_name: "GST - Canada (5%)",
     },
     {
-      tax_type: "QST",
       tax_amount_in_micros: 987525,
-      tax_rate_in_micros: 99750,
-      country: "CA",
-      state: "ON",
-      taxable_amount_in_micros: 9900000,
       display_name: "QST - Ontario (9.975%)",
     },
   ],
