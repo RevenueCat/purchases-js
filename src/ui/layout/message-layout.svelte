@@ -4,13 +4,23 @@
   import ModalSection from "./modal-section.svelte";
   import RowLayout from "./row-layout.svelte";
   import Typography from "../atoms/typography.svelte";
+  import { getContext } from "svelte";
+  import { brandingContextKey } from "../constants";
+  import type { BrandingAppearance } from "../../entities/branding";
+  import { type Writable } from "svelte/store";
 
-  export let onDismiss: () => void;
-  export let title: string | null = null;
-  export let type: string;
-  export let closeButtonTitle: string = "Go back to app";
-  export let icon: (() => any) | null = null;
-  export let message;
+  let {
+    onDismiss,
+    title = null,
+    type,
+    closeButtonTitle = "Go back to app",
+    icon = null,
+    message,
+  } = $props();
+
+  const brandingAppearanceStore =
+    getContext<Writable<BrandingAppearance>>(brandingContextKey);
+  const brandingAppearance = $derived($brandingAppearanceStore);
 
   function handleClick() {
     onDismiss();
@@ -45,7 +55,9 @@
   </div>
   <div class="message-layout-footer">
     <ModalFooter>
-      <Button onclick={handleClick} type="submit">{closeButtonTitle}</Button>
+      <Button onclick={handleClick} type="submit" {brandingAppearance}
+        >{closeButtonTitle}</Button
+      >
     </ModalFooter>
   </div>
 </div>

@@ -8,6 +8,8 @@
   import { Translator } from "../localization/translator";
   import { translatorContextKey } from "../../ui/localization/constants";
   import { getContext } from "svelte";
+  import { brandingContextKey } from "../constants";
+  import type { BrandingAppearance } from "../../entities/branding";
 
   type Props = {
     disabled: boolean;
@@ -24,6 +26,10 @@
   }: Props = $props();
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
+
+  const brandingAppearanceStore =
+    getContext<Writable<BrandingAppearance>>(brandingContextKey);
+  const brandingAppearance = $derived($brandingAppearanceStore);
 
   function paymentMethodDisplayName(
     method: string | undefined,
@@ -52,7 +58,7 @@
   );
 </script>
 
-<Button {disabled} testId="PayButton">
+<Button {disabled} testId="PayButton" {brandingAppearance}>
   {#if subscriptionOption?.trial}
     <Localized key={LocalizationKeys.PaymentEntryPageButtonStartTrial} />
   {:else if formattedPrice && paymentMethod}
