@@ -231,6 +231,7 @@ export class StripeService {
       layout: {
         type: "tabs",
       },
+      paymentMethodOrder: ["apple_pay", "google_pay"],
       terms: {
         applePay: "never",
         auBecsDebit: "never",
