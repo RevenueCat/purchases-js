@@ -230,6 +230,7 @@ export class StripeService {
       business: appName ? { name: appName } : undefined,
       layout: {
         type: "tabs",
+        defaultCollapsed: true,
       },
       paymentMethodOrder: ["apple_pay", "google_pay"],
       terms: {

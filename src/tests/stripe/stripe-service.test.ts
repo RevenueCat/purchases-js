@@ -259,6 +259,7 @@ describe("StripeService", () => {
         business: { name: "Test App" },
         layout: {
           type: "tabs",
+          defaultCollapsed: true,
         },
         paymentMethodOrder: ["apple_pay", "google_pay"],
         terms: {
@@ -287,6 +288,7 @@ describe("StripeService", () => {
       expect(mockElements.create).toHaveBeenCalledWith("payment", {
         layout: {
           type: "tabs",
+          defaultCollapsed: true,
         },
         paymentMethodOrder: ["apple_pay", "google_pay"],
         terms: expect.any(Object),
