@@ -590,9 +590,9 @@
   }
 
   .rc-elements-container {
-    /* The standard height of the payment form from Stripe */
+    /* The height of the payment form from Stripe with a wallet collapsed */
     /* Added to avoid the card getting smaller while loading */
-    min-height: 210px;
+    min-height: 130px;
   }
 
   .hidden {
