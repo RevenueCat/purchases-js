@@ -85,9 +85,8 @@
     {#if currentPage === "payment-entry-loading"}
       <LoadingPage />
     {/if}
-    {#if currentPage === "payment-entry" || currentPage === "payment-entry-processing"}
+    {#if currentPage === "payment-entry"}
       <PaymentEntryPage
-        processing={currentPage === "payment-entry-processing"}
         {productDetails}
         purchaseOption={purchaseOptionToUse}
         {brandingInfo}
