@@ -1,4 +1,4 @@
-<script module>
+<script module lang="ts">
   import { getContext, onDestroy, onMount } from "svelte";
   import type { Product, PurchaseOption } from "../../entities/offerings";
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
@@ -47,6 +47,7 @@
   } from "../../stripe/stripe-service";
   import StripeElementsComponent from "../molecules/stripe-elements.svelte";
   import PriceUpdateInfo from "../molecules/price-update-info.svelte";
+
   interface Props {
     gatewayParams: GatewayParams;
     processing: boolean;
@@ -490,7 +491,7 @@
     class="rc-checkout-form"
     class:hidden={isStripeLoading || processing}
   >
-    <div class="rc-checkout-form-container" hidden={!!modalErrorMessage}>
+    <div class="rc-checkout-form-container" class:hidden={!!modalErrorMessage}>
       <div class="rc-elements-container">
         <StripeElementsComponent
           bind:stripe
@@ -585,6 +586,11 @@
 
   .hidden {
     visibility: hidden;
+  }
+
+  .rc-checkout-form-container.hidden {
+    display: none;
+    height: 0;
   }
 
   @container layout-query-container (width <= 767px) {
