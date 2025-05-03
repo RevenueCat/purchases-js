@@ -65,7 +65,7 @@ describe("PurchasesUI", () => {
 
     const calculateTaxSpy = vi
       .spyOn(purchaseOperationHelperMock, "checkoutCalculateTax")
-      .mockResolvedValue({ data: checkoutCalculateTaxResponse });
+      .mockResolvedValue(checkoutCalculateTaxResponse);
 
     render(PurchasesUI, {
       props: {
@@ -93,7 +93,7 @@ describe("PurchasesUI", () => {
 
     const calculateTaxSpy = vi
       .spyOn(purchaseOperationHelperMock, "checkoutCalculateTax")
-      .mockResolvedValue({ data: checkoutCalculateTaxResponse });
+      .mockResolvedValue(checkoutCalculateTaxResponse);
 
     render(PurchasesUI, {
       props: {
@@ -117,7 +117,7 @@ describe("PurchasesUI", () => {
 
     const calculateTaxSpy = vi
       .spyOn(purchaseOperationHelperMock, "checkoutCalculateTax")
-      .mockResolvedValue({ data: checkoutCalculateTaxResponse });
+      .mockResolvedValue(checkoutCalculateTaxResponse);
 
     render(PurchasesUI, {
       props: {
