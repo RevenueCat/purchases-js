@@ -234,18 +234,7 @@
   }) {
     selectedPaymentMethod = paymentMethod;
     isPaymentInfoComplete = complete;
-
-    const isWallet =
-      paymentMethod === "apple_pay" || paymentMethod === "google_pay";
-
-    if (isEmailComplete && isPaymentInfoComplete && isWallet) {
-      // Since a calculation for taxes is triggered and
-      // matching totals are checked in the handleSubmit
-      // we do not have to refresh taxes beforehand.
-      handleSubmit(new Event("submit"));
-    } else {
-      await refreshTaxes();
-    }
+    await refreshTaxes();
   }
 
   async function handleSubmit(e: Event): Promise<void> {
