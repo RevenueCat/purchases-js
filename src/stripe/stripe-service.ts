@@ -122,7 +122,6 @@ export class StripeService {
           labels: "floating",
           variables: {
             borderRadius: customShape["input-border-radius"],
-            fontLineHeight: "10px",
             focusBoxShadow: "none",
             colorDanger: customColors["error"],
             colorTextPlaceholder: customColors["grey-text-light"],
