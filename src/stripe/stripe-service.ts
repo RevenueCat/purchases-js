@@ -110,6 +110,11 @@ export class StripeService {
     let elements: StripeElements;
     try {
       elements = stripe.elements({
+        mode: elementsConfiguration.mode,
+        paymentMethodTypes: elementsConfiguration.payment_method_types,
+        setupFutureUsage: elementsConfiguration.setup_future_usage,
+        amount: elementsConfiguration.amount,
+        currency: elementsConfiguration.currency,
         loader: "always",
         locale: localeToUse,
         appearance: {
@@ -188,13 +193,6 @@ export class StripeService {
       throw this.mapInitializationError(error as StripeError);
     }
 
-    await this.updateElementsConfiguration(
-      elements,
-      elementsConfiguration,
-    ).catch((error) => {
-      throw this.mapInitializationError(error);
-    });
-
     return { stripe, elements };
   }
 
@@ -245,6 +243,10 @@ export class StripeService {
         usBankAccount: "never",
       },
     });
+  }
+
+  static createExpressCheckoutElement(elements: StripeElements) {
+    return elements.create("expressCheckout", {});
   }
 
   static createLinkAuthenticationElement(
