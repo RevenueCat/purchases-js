@@ -82,11 +82,21 @@
 <Story
   name="Checkout"
   args={{ ...defaultArgs, currentPage: "payment-entry" }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
+  }}
 />
 
 <Story
   name="Checkout (with Sandbox Banner)"
   args={{ ...defaultArgs, currentPage: "payment-entry", isSandbox: true }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
+  }}
 />
 
 <Story
@@ -96,6 +106,11 @@
     currentPage: "payment-entry",
     isSandbox: true,
     customerEmail: "test@test.com",
+  }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
   }}
 />
 
@@ -114,6 +129,11 @@
     purchaseOptionToUse: subscriptionOptionWithTrial,
     defaultPurchaseOption: subscriptionOptionWithTrial,
   }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
+  }}
 />
 
 <Story
@@ -122,6 +142,11 @@
     ...defaultArgs,
     currentPage: "payment-entry",
     withTaxes: true,
+  }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
   }}
 />
 
@@ -141,6 +166,11 @@
     defaultPurchaseOption: subscriptionOptionWithTrial,
     withTaxes: true,
   }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
+  }}
 />
 
 <Story
@@ -152,6 +182,11 @@
     defaultPriceBreakdown: {
       ...priceBreakdownTaxInclusive,
       taxCalculationStatus: "miss-match",
+    },
+  }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
     },
   }}
 />
