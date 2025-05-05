@@ -75,5 +75,6 @@
   "payment_entry_page.button_with_price": "Pagar {{formattedPrice}}",
   "price_update.title": "Actualización de precio",
   "price_update.base_message": "El precio total se actualizó con impuestos según su dirección de facturación. Revise e intente nuevamente. Solo se efectuará un cobro en su tarjeta.",
-  "price_update.trial_message": "El precio de la suscripción se actualizó para incluir impuestos según su dirección de facturación. La prueba gratuita sigue aplicándose. Revise e intente nuevamente."
+  "price_update.trial_message": "El precio de la suscripción se actualizó para incluir impuestos según su dirección de facturación. La prueba gratuita sigue aplicándose. Revise e intente nuevamente.",
+  "payment_entry_page.express_checkout_divider": "O PAGA CON TARJETA"
 }

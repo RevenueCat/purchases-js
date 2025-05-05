@@ -75,5 +75,6 @@
   "payment_entry_page.button_with_price": "{{formattedPrice}} bezahlen",
   "price_update.title": "Preisaktualisierung",
   "price_update.base_message": "Der Gesamtpreis wurde basierend auf Ihrer Rechnungsadresse mit Steuern aktualisiert. Bitte überprüfen Sie ihn und versuchen Sie es erneut. Ihre Karte wird erst belastet, wenn alles korrekt ist.",
-  "price_update.trial_message": "Der Abonnementpreis wurde aktualisiert, um Steuern basierend auf Ihrer Rechnungsadresse einzuschließen. Die kostenlose Testphase gilt weiterhin. Bitte überprüfen Sie und versuchen Sie es erneut."
+  "price_update.trial_message": "Der Abonnementpreis wurde aktualisiert, um Steuern basierend auf Ihrer Rechnungsadresse einzuschließen. Die kostenlose Testphase gilt weiterhin. Bitte überprüfen Sie und versuchen Sie es erneut.",
+  "payment_entry_page.express_checkout_divider": "ODER MIT KARTE ZAHLEN"
 }

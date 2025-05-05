@@ -75,5 +75,6 @@
   "payment_entry_page.button_with_price": "Betala {{formattedPrice}}",
   "price_update.title": "Prisuppdatering",
   "price_update.base_message": "Det totala priset har uppdaterats med moms baserat på din faktureringsadress. Granska och försök igen. Ditt kort kommer endast att debiteras en gång.",
-  "price_update.trial_message": "Prenumerationspriset har uppdaterats för att inkludera skatter baserat på din fakturaadress. Den kostnadsfria provperioden gäller fortfarande. Kontrollera och försök igen."
+  "price_update.trial_message": "Prenumerationspriset har uppdaterats för att inkludera skatter baserat på din fakturaadress. Den kostnadsfria provperioden gäller fortfarande. Kontrollera och försök igen.",
+  "payment_entry_page.express_checkout_divider": "ELLER BETALA MED KORT"
 }

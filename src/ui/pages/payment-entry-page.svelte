@@ -237,8 +237,8 @@
     await refreshTaxes();
   }
 
-  async function handleSubmit(e: Event): Promise<void> {
-    e.preventDefault();
+  async function handleSubmit(e?: Event): Promise<void> {
+    e?.preventDefault();
 
     if (processing) return;
 
@@ -255,6 +255,15 @@
     } else {
       processing = false;
     }
+  }
+
+  async function handleExpressCheckoutElementSubmit(
+    paymentMethod: string,
+    emailValue: string,
+  ) {
+    selectedPaymentMethod = paymentMethod;
+    email = emailValue;
+    await handleSubmit();
   }
 
   /**
@@ -501,10 +510,12 @@
           {elementsConfiguration}
           {brandingInfo}
           skipEmail={!!customerEmail}
+          billingAddressRequired={false}
           onLoadingComplete={handleStripeLoadingComplete}
           onError={handleStripeElementError}
           onEmailChange={handleEmailChange}
           onPaymentInfoChange={handlePaymentInfoChange}
+          onExpressCheckoutElementSubmit={handleExpressCheckoutElementSubmit}
         />
       </div>
 

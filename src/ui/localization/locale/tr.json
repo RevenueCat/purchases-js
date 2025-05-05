@@ -75,5 +75,6 @@
   "payment_entry_page.button_with_price": "{{formattedPrice}} öde",
   "price_update.title": "Fiyat güncellemesi",
   "price_update.base_message": "Toplam fiyat, fatura adresinize göre vergi dahil olacak şekilde güncellendi. Lütfen inceleyip tekrar deneyin. Kartınızdan yalnızca bir kez ücret alınacaktır.",
-  "price_update.trial_message": "Abonelik fiyatı, fatura adresinize göre vergileri içerecek şekilde güncellendi. Ücretsiz deneme süresi hala geçerli. Lütfen kontrol edin ve tekrar deneyin."
+  "price_update.trial_message": "Abonelik fiyatı, fatura adresinize göre vergileri içerecek şekilde güncellendi. Ücretsiz deneme süresi hala geçerli. Lütfen kontrol edin ve tekrar deneyin.",
+  "payment_entry_page.express_checkout_divider": "VEYA KARTLA ÖDEYİN"
 }

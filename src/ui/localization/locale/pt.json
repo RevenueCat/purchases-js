@@ -75,5 +75,6 @@
   "payment_entry_page.button_with_price": "Pagar {{formattedPrice}}",
   "price_update.title": "Atualização de preço",
   "price_update.base_message": "O preço total foi atualizado com impostos com base no seu endereço de cobrança. Por favor, revise e tente novamente. Seu cartão só será cobrado uma vez.",
-  "price_update.trial_message": "O preço da assinatura foi atualizado para incluir impostos com base no seu endereço de faturação. O período de teste gratuito continua válido. Por favor, verifique e tente novamente."
+  "price_update.trial_message": "O preço da assinatura foi atualizado para incluir impostos com base no seu endereço de faturação. O período de teste gratuito continua válido. Por favor, verifique e tente novamente.",
+  "payment_entry_page.express_checkout_divider": "OU PAGUE COM CARTÃO"
 }

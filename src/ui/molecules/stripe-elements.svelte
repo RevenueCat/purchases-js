@@ -11,6 +11,7 @@
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
   import PaymentElement from "./stripe-payment-element.svelte";
   import LinkAuthenticationElement from "./stripe-authentication-link-element.svelte";
+  import ExpressCheckoutElement from "./stripe-express-checkout-element.svelte";
 
   import { translatorContextKey } from "../localization/constants";
   import { Translator } from "../localization/translator";
@@ -31,6 +32,7 @@
     elementsConfiguration?: StripeElementsConfiguration;
     brandingInfo: BrandingInfoResponse | null;
     skipEmail: boolean;
+    billingAddressRequired: boolean;
     onLoadingComplete: () => void;
     onError: (error: StripeServiceError) => void;
     onEmailChange: (complete: boolean, email: string) => void;
@@ -38,6 +40,10 @@
       complete: boolean;
       paymentMethod: string | undefined;
     }) => void;
+    onExpressCheckoutElementSubmit: (
+      paymentMethod: string,
+      emailValue: string,
+    ) => void;
   }
 
   let {
@@ -48,10 +54,12 @@
     elementsConfiguration,
     brandingInfo,
     skipEmail,
+    billingAddressRequired,
     onLoadingComplete,
     onError,
     onEmailChange,
     onPaymentInfoChange,
+    onExpressCheckoutElementSubmit,
   }: Props = $props();
 
   const translator = getContext<Writable<Translator>>(translatorContextKey);
@@ -61,6 +69,7 @@
 
   let paymentElementReadyForSubmission = $state(false);
   let emailElementReadyForSubmission = $state(skipEmail);
+  let expressCheckoutElementReadyForSubmission = $state(false);
 
   let stripeVariables: undefined | Appearance["variables"] = $state(undefined);
   let viewport: "mobile" | "desktop" = $state("mobile");
@@ -105,7 +114,24 @@
   const onLinkAuthenticationElementReady = async () => {
     if (!emailElementReadyForSubmission) {
       emailElementReadyForSubmission = true;
-      if (emailElementReadyForSubmission && paymentElementReadyForSubmission) {
+      if (
+        emailElementReadyForSubmission &&
+        paymentElementReadyForSubmission &&
+        expressCheckoutElementReadyForSubmission
+      ) {
+        onLoadingComplete();
+      }
+    }
+  };
+
+  const onExpressCheckoutElementReady = async () => {
+    if (!expressCheckoutElementReadyForSubmission) {
+      expressCheckoutElementReadyForSubmission = true;
+      if (
+        emailElementReadyForSubmission &&
+        paymentElementReadyForSubmission &&
+        expressCheckoutElementReadyForSubmission
+      ) {
         onLoadingComplete();
       }
     }
@@ -114,7 +140,11 @@
   const onPaymentElementReady = async () => {
     if (!paymentElementReadyForSubmission) {
       paymentElementReadyForSubmission = true;
-      if (emailElementReadyForSubmission && paymentElementReadyForSubmission) {
+      if (
+        emailElementReadyForSubmission &&
+        paymentElementReadyForSubmission &&
+        expressCheckoutElementReadyForSubmission
+      ) {
         onLoadingComplete();
       }
     }
@@ -183,6 +213,13 @@
 
 {#if elements}
   <div class="rc-elements">
+    <ExpressCheckoutElement
+      {elements}
+      onError={onStripeElementsLoadingError}
+      onReady={onExpressCheckoutElementReady}
+      onSubmit={onExpressCheckoutElementSubmit}
+      {billingAddressRequired}
+    />
     {#if !skipEmail}
       <LinkAuthenticationElement
         {elements}

@@ -121,7 +121,9 @@ export const getPaywallPurchaseButtons = (page: Page) =>
   getAllElementsByLocator(page, "button.rc-pw-purchase-button");
 
 export const getStripePaymentFrame = (page: Page) =>
-  page.frameLocator("iframe[title='Secure payment input frame']");
+  page.frameLocator(
+    "iframe[src*='https://js.stripe.com/v3/elements-inner-payment']",
+  );
 
 export const getStripeEmailFrame = (page: Page) =>
   page.frameLocator("iframe[title='Secure email input frame']");

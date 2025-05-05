@@ -75,5 +75,6 @@
   "payment_entry_page.button_with_price": "Plati {{formattedPrice}}",
   "price_update.title": "Ažuriranje cijene",
   "price_update.base_message": "Ukupna cijena je ažurirana s porezom na temelju vaše adrese za naplatu. Pregledajte i pokušajte ponovo. Vaša kartica bit će naplaćena samo jednom.",
-  "price_update.trial_message": "Cijena pretplate je ažurirana da uključi poreze na temelju vaše adrese za naplatu. Besplatno probno razdoblje i dalje vrijedi. Molimo provjerite i pokušajte ponovno."
+  "price_update.trial_message": "Cijena pretplate je ažurirana da uključi poreze na temelju vaše adrese za naplatu. Besplatno probno razdoblje i dalje vrijedi. Molimo provjerite i pokušajte ponovno.",
+  "payment_entry_page.express_checkout_divider": "ILI PLATITE KARTICOM"
 }
