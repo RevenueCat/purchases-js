@@ -76,7 +76,6 @@
 
   @container layout-query-container (width >= 768px) {
     .layout-wrapper {
-      min-height: 100vh;
       flex-basis: 544px;
     }
 
