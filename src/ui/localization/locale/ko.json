@@ -75,5 +75,6 @@
   "payment_entry_page.button_with_price": "{{formattedPrice}} 결제",
   "price_update.title": "가격 업데이트",
   "price_update.base_message": "청구지 주소를 기준으로 세금이 포함된 총 가격이 업데이트되었습니다. 다시 확인하고 시도해 주세요. 카드는 한 번만 청구됩니다.",
-  "price_update.trial_message": "청구 주소에 따라 세금이 포함된 구독 가격이 업데이트되었습니다. 무료 체험은 계속 적용됩니다. 확인하고 다시 시도해 주세요."
+  "price_update.trial_message": "청구 주소에 따라 세금이 포함된 구독 가격이 업데이트되었습니다. 무료 체험은 계속 적용됩니다. 확인하고 다시 시도해 주세요.",
+  "payment_entry_page.express_checkout_divider": "또는 카드 결제"
 }

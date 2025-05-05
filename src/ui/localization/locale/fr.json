@@ -75,5 +75,6 @@
   "payment_entry_page.button_with_price": "Payer {{formattedPrice}}",
   "price_update.title": "Mise à jour du prix",
   "price_update.base_message": "Le prix total a été mis à jour avec la taxe en fonction de votre adresse de facturation. Veuillez vérifier et réessayer. Votre carte ne sera débitée qu'une seule fois.",
-  "price_update.trial_message": "Le prix de l'abonnement a été mis à jour pour inclure les taxes en fonction de votre adresse de facturation. La période d'essai gratuit reste applicable. Veuillez vérifier et réessayer."
+  "price_update.trial_message": "Le prix de l'abonnement a été mis à jour pour inclure les taxes en fonction de votre adresse de facturation. La période d'essai gratuit reste applicable. Veuillez vérifier et réessayer.",
+  "payment_entry_page.express_checkout_divider": "OU PAYER PAR CARTE"
 }

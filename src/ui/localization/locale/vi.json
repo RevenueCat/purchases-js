@@ -75,5 +75,6 @@
   "payment_entry_page.button_with_price": "Thanh toán {{formattedPrice}}",
   "price_update.title": "Cập nhật giá",
   "price_update.base_message": "Tổng giá đã được cập nhật với thuế dựa trên địa chỉ thanh toán của bạn. Vui lòng xem lại và thử lại. Thẻ của bạn sẽ chỉ bị tính phí một lần.",
-  "price_update.trial_message": "Giá đăng ký đã được cập nhật để bao gồm thuế dựa trên địa chỉ thanh toán của bạn. Thời gian dùng thử miễn phí vẫn được áp dụng. Vui lòng kiểm tra và thử lại."
+  "price_update.trial_message": "Giá đăng ký đã được cập nhật để bao gồm thuế dựa trên địa chỉ thanh toán của bạn. Thời gian dùng thử miễn phí vẫn được áp dụng. Vui lòng kiểm tra và thử lại.",
+  "payment_entry_page.express_checkout_divider": "HOẶC THANH TOÁN BẰNG THẺ"
 }

@@ -75,5 +75,6 @@
   "payment_entry_page.button_with_price": "Maksa {{formattedPrice}}",
   "price_update.title": "Hinnan päivitys",
   "price_update.base_message": "Kokonaishinta on päivitetty verolla laskutusosoitteesi perusteella. Tarkista ja yritä uudelleen. Korttiasi veloitetaan vain kerran.",
-  "price_update.trial_message": "Tilauksen hinta on päivitetty sisältämään verot laskutusosoitteesi perusteella. Ilmainen kokeilujakso on edelleen voimassa. Tarkista ja yritä uudelleen."
+  "price_update.trial_message": "Tilauksen hinta on päivitetty sisältämään verot laskutusosoitteesi perusteella. Ilmainen kokeilujakso on edelleen voimassa. Tarkista ja yritä uudelleen.",
+  "payment_entry_page.express_checkout_divider": "TAI MAKSA KORTILLA"
 }

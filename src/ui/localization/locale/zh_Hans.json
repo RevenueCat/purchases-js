@@ -75,5 +75,6 @@
   "payment_entry_page.button_with_price": "支付{{formattedPrice}}",
   "price_update.title": "价格更新",
   "price_update.base_message": "总价已根据您的账单地址更新了税费。请查看并重试。您的银行卡只会扣款一次。",
-  "price_update.trial_message": "根据您的账单地址，订阅价格已更新为含税价格。免费试用仍然有效。请查看并重试。"
+  "price_update.trial_message": "根据您的账单地址，订阅价格已更新为含税价格。免费试用仍然有效。请查看并重试。",
+  "payment_entry_page.express_checkout_divider": "或使用银行卡支付"
 }

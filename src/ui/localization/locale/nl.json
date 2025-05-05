@@ -75,5 +75,6 @@
   "payment_entry_page.button_with_price": "Betaal {{formattedPrice}}",
   "price_update.title": "Prijsupdate",
   "price_update.base_message": "De totale prijs is bijgewerkt met belasting op basis van uw factuuradres. Controleer en probeer het opnieuw. Uw kaart wordt slechts één keer belast.",
-  "price_update.trial_message": "De abonnementsprijs is bijgewerkt om belastingen op te nemen op basis van uw factuuradres. De gratis proefperiode blijft van toepassing. Controleer en probeer het opnieuw."
+  "price_update.trial_message": "De abonnementsprijs is bijgewerkt om belastingen op te nemen op basis van uw factuuradres. De gratis proefperiode blijft van toepassing. Controleer en probeer het opnieuw.",
+  "payment_entry_page.express_checkout_divider": "OF BETAAL MET EEN KAART"
 }

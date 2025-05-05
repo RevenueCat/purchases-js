@@ -12,8 +12,12 @@
     StripeServiceError,
   } from "../../stripe/stripe-service";
 
-  import { onDestroy, onMount } from "svelte";
+  import { getContext, onDestroy, onMount } from "svelte";
   import TextSeparator from "../atoms/text-separator.svelte";
+  import { LocalizationKeys } from "../localization/supportedLanguages";
+  import { Translator } from "../localization/translator";
+  import { Writable } from "svelte/store";
+  import { translatorContextKey } from "../localization/constants";
 
   export interface Props {
     onError: (error: StripeServiceError) => void | Promise<void>;
@@ -33,6 +37,8 @@
     elements,
     billingAddressRequired,
   }: Props = $props();
+
+  const translator = getContext<Writable<Translator>>(translatorContextKey);
 
   let expressCheckoutElement: StripeExpressCheckoutElement | null = null;
   let hideExpressCheckoutElement = $state(false);
@@ -88,8 +94,10 @@
 </script>
 
 {#if !hideExpressCheckoutElement}
-  <!-- TODO: Text translations -->
-  <TextSeparator text="EXPRESS CHECKOUT" />
   <div id={expressCheckoutElementId}></div>
-  <TextSeparator text="OR PAY BY CARD" />
+  <TextSeparator
+    text={$translator.translate(
+      LocalizationKeys.PaymentEntryPageExpressCheckoutDivider,
+    )}
+  />
 {/if}
