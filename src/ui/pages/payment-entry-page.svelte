@@ -50,7 +50,6 @@
 
   interface Props {
     gatewayParams: GatewayParams;
-    processing: boolean;
     productDetails: Product;
     purchaseOption: PurchaseOption;
     brandingInfo: BrandingInfoResponse | null;
