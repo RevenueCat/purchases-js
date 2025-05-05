@@ -695,6 +695,7 @@ export class Purchases {
           selectedLocale: localeToBeUsed,
           metadata: metadata,
           defaultLocale,
+          customTranslations: params.labelsOverride,
         },
       });
     });
