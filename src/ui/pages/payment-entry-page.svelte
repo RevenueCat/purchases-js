@@ -48,6 +48,8 @@
   import StripeElementsComponent from "../molecules/stripe-elements.svelte";
   import PriceUpdateInfo from "../molecules/price-update-info.svelte";
 
+  type View = "loading" | "form" | "message";
+
   interface Props {
     gatewayParams: GatewayParams;
     productDetails: Product;
@@ -129,6 +131,13 @@
   let clientSecret: string | undefined = $state(undefined);
   let processing = $state(false);
   let abortController: AbortController | null = $state(null);
+  let view: View = $derived(
+    isStripeLoading || processing
+      ? "loading"
+      : modalErrorMessage
+        ? "message"
+        : "form",
+  );
 
   let isFormReady = $derived(
     !processing &&
@@ -489,17 +498,36 @@
 </script>
 
 <div class="rc-checkout-container">
-  {#if isStripeLoading || processing}
-    <Loading />
+  {#if view === "loading"}
+    <div class="rc-loading">
+      <Loading />
+    </div>
+  {/if}
+
+  {#if view === "message"}
+    <MessageLayout
+      title={null}
+      type="error"
+      closeButtonTitle={$translator.translate(
+        LocalizationKeys.ErrorButtonTryAgain,
+      )}
+      onDismiss={handleErrorTryAgain}
+    >
+      {#snippet icon()}
+        <IconError />
+      {/snippet}
+      {#snippet message()}
+        {modalErrorMessage}
+      {/snippet}
+    </MessageLayout>
   {/if}
   <!-- <TextSeparator text="Pay by card" /> -->
   <form
     onsubmit={handleSubmit}
     data-testid="payment-form"
     class="rc-checkout-form"
-    class:hidden={isStripeLoading || processing}
   >
-    <div class="rc-checkout-form-container" class:hidden={!!modalErrorMessage}>
+    <div class="rc-checkout-form-container" class:invisible={view !== "form"}>
       <div class="rc-elements-container">
         <StripeElementsComponent
           bind:stripe
@@ -520,12 +548,16 @@
 
       <div
         class="rc-checkout-price-update-info-container"
-        hidden={taxCalculationStatus !== "miss-match"}
+        class:fully-hidden={taxCalculationStatus !== "miss-match" ||
+          view !== "form"}
       >
         <PriceUpdateInfo {subscriptionOption} />
       </div>
 
-      <div class="rc-checkout-pay-container">
+      <div
+        class="rc-checkout-pay-container"
+        class:fully-hidden={view !== "form"}
+      >
         <PaymentButton
           disabled={!isFormReady}
           {subscriptionOption}
@@ -541,24 +573,6 @@
         </div>
       </div>
     </div>
-
-    {#if modalErrorMessage}
-      <MessageLayout
-        title={null}
-        type="error"
-        closeButtonTitle={$translator.translate(
-          LocalizationKeys.ErrorButtonTryAgain,
-        )}
-        onDismiss={handleErrorTryAgain}
-      >
-        {#snippet icon()}
-          <IconError />
-        {/snippet}
-        {#snippet message()}
-          {modalErrorMessage}
-        {/snippet}
-      </MessageLayout>
-    {/if}
   </form>
 </div>
 
@@ -572,16 +586,26 @@
     flex-direction: column;
     gap: var(--rc-spacing-gapXLarge-mobile);
     user-select: none;
+    position: relative;
   }
 
   .rc-checkout-price-update-info-container {
     margin-top: var(--rc-spacing-gapXLarge-mobile);
   }
 
+  .fully-hidden {
+    display: none;
+    height: 0;
+  }
+
   .rc-checkout-pay-container {
     display: flex;
     flex-direction: column;
     margin-top: var(--rc-spacing-gapXLarge-mobile);
+  }
+
+  .rc-checkout-pay-container.fully-hidden {
+    display: none;
   }
 
   .rc-checkout-form-container {
@@ -594,13 +618,16 @@
     min-height: 210px;
   }
 
-  .hidden {
+  .rc-checkout-form-container.invisible {
     visibility: hidden;
   }
 
-  .rc-checkout-form-container.hidden {
-    display: none;
-    height: 0;
+  .rc-loading {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   @container layout-query-container (width <= 767px) {
@@ -621,6 +648,12 @@
 
     .rc-checkout-container {
       flex-grow: 1;
+    }
+
+    .rc-loading {
+      position: absolute;
+      top: 0;
+      left: 0;
     }
   }
 
