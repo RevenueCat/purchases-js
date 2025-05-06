@@ -49,13 +49,13 @@
 
   <div class="rcb-header">
     <div class="rcb-title">
-      {#if wordmarkSrc !== null || wordmarkSrcWebp !== null}
+      {#if wordmarkSrc !== null}
         <AppWordmark src={wordmarkSrc} srcWebp={wordmarkSrcWebp} />
-      {:else if src !== null || srcWebp !== null}
+      {:else if src !== null}
         <AppLogo {src} {srcWebp} />
       {/if}
 
-      {#if wordmarkSrc === null && wordmarkSrcWebp === null}
+      {#if wordmarkSrc === null}
         <Typography size="body-base">{brandingInfo?.app_name}</Typography>
       {/if}
     </div>

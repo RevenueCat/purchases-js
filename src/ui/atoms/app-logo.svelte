@@ -7,7 +7,7 @@
   const { src, srcWebp }: Props = $props();
 </script>
 
-{#if src || srcWebp}
+{#if src}
   <picture class="rcb-app-icon-picture-container">
     {#if srcWebp}
       <source type="image/webp" srcset={srcWebp} />
