@@ -80,7 +80,7 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding-top: var(--rc-spacing-gapSmall-mobile);
+    padding-top: var(--rc-spacing-gapMedium-mobile);
     padding-bottom: var(--rc-spacing-gapSmall-mobile);
     height: 40px;
     justify-content: space-between;
