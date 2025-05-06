@@ -236,7 +236,8 @@ export const brandingInfos: Record<string, BrandingInfoResponse> = {
     id: "branding_info_id",
     support_email: "support@somefantasticcat.com",
     app_name: "Some Fantastic Cat, Inc.",
-    app_icon: "1005820_1715624566.png",
+    // To test if the webp renders without the png
+    app_icon: null,
     app_icon_webp: "1005820_1715624566.webp",
     app_wordmark: null,
     app_wordmark_webp: null,
