@@ -620,23 +620,26 @@ export class Purchases {
         window.history.pushState({ checkoutOpen: true }, "");
       }
 
-      const onClose = () => {
-        const event = createCheckoutSessionEndClosedEvent();
-        this.eventsTracker.trackSDKEvent(event);
-        window.removeEventListener("popstate", onClose);
+      const onClose =
+        this._flags.rcSource === "app"
+          ? undefined
+          : () => {
+              const event = createCheckoutSessionEndClosedEvent();
+              this.eventsTracker.trackSDKEvent(event);
+              window.removeEventListener("popstate", onClose as EventListener);
 
-        if (component) {
-          unmount(component);
-        }
+              if (component) {
+                unmount(component);
+              }
 
-        certainHTMLTarget.innerHTML = "";
+              certainHTMLTarget.innerHTML = "";
 
-        Logger.debugLog("Purchase cancelled by user");
-        reject(new PurchasesError(ErrorCode.UserCancelledError));
-      };
+              Logger.debugLog("Purchase cancelled by user");
+              reject(new PurchasesError(ErrorCode.UserCancelledError));
+            };
 
-      if (!isInElement) {
-        window.addEventListener("popstate", onClose);
+      if (!isInElement && onClose) {
+        window.addEventListener("popstate", onClose as EventListener);
       }
 
       const onFinished = async (

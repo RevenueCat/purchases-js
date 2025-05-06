@@ -70,7 +70,11 @@
 
 <Template {brandingInfo} {isInElement} {isSandbox} {onClose}>
   {#snippet navbarHeaderContent()}
-    <BrandingHeader {brandingInfo} {onClose} showCloseButton={!isInElement} />
+    <BrandingHeader
+      {brandingInfo}
+      {onClose}
+      showCloseButton={!isInElement && !!onClose}
+    />
   {/snippet}
   {#snippet navbarBodyContent()}
     <ProductInfo
