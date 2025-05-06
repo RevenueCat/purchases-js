@@ -154,6 +154,31 @@ describe("EventsTracker", (test) => {
     );
   });
 
+  test<EventsTrackerFixtures>("passes the operation session id to the event", async ({
+    eventsTracker,
+  }) => {
+    eventsTracker.updateOperationSessionId("operationSessionId");
+    eventsTracker.trackExternalEvent({
+      eventName: "external",
+      source: "sdk",
+    });
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(APIPostRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        json: expect.objectContaining({
+          events: expect.arrayContaining([
+            expect.objectContaining({
+              properties: expect.objectContaining({
+                operation_session_id: "operationSessionId",
+              }),
+            }),
+          ]),
+        }),
+      }),
+    );
+  });
+
   test<EventsTrackerFixtures>("retries tracking events exponentially", async ({
     eventsTracker,
   }) => {

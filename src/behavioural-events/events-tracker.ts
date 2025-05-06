@@ -29,13 +29,10 @@ export interface EventsTrackerProps {
 
 export interface IEventsTracker {
   getTraceId(): string;
-
   updateUser(appUserId: string): Promise<void>;
-
+  updateOperationSessionId(operationSessionId: string): Promise<void>;
   trackSDKEvent(props: SDKEvent): void;
-
   trackExternalEvent(props: TrackEventProps): void;
-
   dispose(): void;
 }
 
@@ -45,6 +42,7 @@ export default class EventsTracker implements IEventsTracker {
   private readonly eventsUrl: string;
   private readonly flushManager: FlushManager;
   private readonly traceId: string = uuid();
+  private operationSessionId: string | null = null;
   private appUserId: string;
   private readonly isSilent: boolean;
 
@@ -65,6 +63,10 @@ export default class EventsTracker implements IEventsTracker {
     this.appUserId = appUserId;
   }
 
+  public async updateOperationSessionId(operationSessionId: string) {
+    this.operationSessionId = operationSessionId;
+  }
+
   public getTraceId() {
     return this.traceId;
   }
@@ -75,6 +77,17 @@ export default class EventsTracker implements IEventsTracker {
 
   public trackExternalEvent(props: TrackEventProps): void {
     this.trackEvent({ ...props });
+  }
+
+  private buildEventProperties(properties: EventProperties) {
+    if (this.operationSessionId !== null) {
+      return {
+        ...properties,
+        operation_session_id: this.operationSessionId,
+      };
+    }
+
+    return properties;
   }
 
   private trackEvent(props: TrackEventProps) {
@@ -88,7 +101,7 @@ export default class EventsTracker implements IEventsTracker {
         traceId: this.traceId,
         appUserId: this.appUserId,
         context: buildEventContext(props.source),
-        properties: props.properties || {},
+        properties: this.buildEventProperties(props.properties ?? {}),
       });
       this.eventsQueue.push(event);
       this.flushManager.tryFlush();

@@ -42,6 +42,7 @@ describe("PurchaseOperationHelper", () => {
     const eventsTrackerMock: IEventsTracker = {
       getTraceId: () => testTraceId,
       updateUser: () => Promise.resolve(),
+      updateOperationSessionId: () => Promise.resolve(),
       trackSDKEvent: () => {},
       trackExternalEvent: () => {},
       dispose: () => {},

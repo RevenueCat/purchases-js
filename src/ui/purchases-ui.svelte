@@ -133,6 +133,7 @@
       .then((result) => {
         lastError = null;
         currentPage = "payment-entry";
+        eventsTracker.updateOperationSessionId(result.operation_session_id);
         gatewayParams = result.gateway_params;
       })
       .catch((e: PurchaseFlowError) => {
@@ -169,6 +170,7 @@
           currentPage = "success";
           redemptionInfo = pollResult.redemptionInfo;
           operationSessionId = pollResult.operationSessionId;
+          eventsTracker.updateOperationSessionId(operationSessionId);
         })
         .catch((error: PurchaseFlowError) => {
           handleError(error);
