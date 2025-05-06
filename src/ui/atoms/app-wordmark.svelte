@@ -8,9 +8,9 @@
 </script>
 
 {#if src}
-  <picture class="rcb-app-icon-picture-container">
+  <picture class="rcb-app-icon">
     {#if srcWebp}
-      <source type="image/webp" srcset={srcWebp} />
+      <source type="image/webp" srcset={srcWebp} class="rcb-app-icon" />
     {/if}
     <img class="rcb-app-icon" {src} alt="App icon" />
   </picture>
