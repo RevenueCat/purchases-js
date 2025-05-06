@@ -51,7 +51,7 @@
     <div class="rcb-title">
       {#if wordmarkSrc !== null || wordmarkSrcWebp !== null}
         <AppWordmark src={wordmarkSrc} srcWebp={wordmarkSrcWebp} />
-      {:else if appIcon !== null || webpIcon !== null}
+      {:else if src !== null || srcWebp !== null}
         <AppLogo {src} {srcWebp} />
       {/if}
 
