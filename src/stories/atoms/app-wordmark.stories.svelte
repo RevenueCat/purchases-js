@@ -46,4 +46,3 @@
 {/snippet}
 
 <Story name="Default" />
-<Story name="Loading" />
