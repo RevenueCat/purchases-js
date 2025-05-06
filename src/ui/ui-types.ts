@@ -1,11 +1,8 @@
 import type { TaxBreakdown } from "../networking/responses/checkout-calculate-tax-response";
 
 export type CurrentPage =
-  | "email-entry"
-  | "email-entry-processing"
   | "payment-entry-loading"
   | "payment-entry"
-  | "payment-entry-processing"
   | "success"
   | "error";
 
