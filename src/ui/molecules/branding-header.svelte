@@ -5,6 +5,7 @@
   import Typography from "../atoms/typography.svelte";
   import BackButton from "./back-button.svelte";
   import CloseButton from "./close-button.svelte";
+  import AppWordmark from "../atoms/app-wordmark.svelte";
 
   type Props = {
     brandingInfo: BrandingInfoResponse | null;
@@ -24,8 +25,15 @@
 
   const appIcon = $derived(valueOrNull(brandingInfo?.app_icon));
   const webpIcon = $derived(valueOrNull(brandingInfo?.app_icon_webp));
+  const appWordmark = $derived(valueOrNull(brandingInfo?.app_wordmark));
+  const webpWordmark = $derived(valueOrNull(brandingInfo?.app_wordmark_webp));
+
   const src = $derived(appIcon ? buildAssetURL(appIcon) : null);
   const srcWebp = $derived(webpIcon ? buildAssetURL(webpIcon) : null);
+  const wordmarkSrc = $derived(appWordmark ? buildAssetURL(appWordmark) : null);
+  const wordmarkSrcWebp = $derived(
+    webpWordmark ? buildAssetURL(webpWordmark) : null,
+  );
 
   const handleCloseClick = () => {
     onClose && onClose();
@@ -41,11 +49,15 @@
 
   <div class="rcb-header">
     <div class="rcb-title">
-      {#if appIcon !== null && webpIcon !== null}
+      {#if wordmarkSrc !== null}
+        <AppWordmark src={wordmarkSrc} srcWebp={wordmarkSrcWebp} />
+      {:else if src !== null && srcWebp !== null}
         <AppLogo {src} {srcWebp} />
       {/if}
 
-      <Typography size="body-base">{brandingInfo?.app_name}</Typography>
+      {#if wordmarkSrc === null}
+        <Typography size="body-base">{brandingInfo?.app_name}</Typography>
+      {/if}
     </div>
   </div>
 
