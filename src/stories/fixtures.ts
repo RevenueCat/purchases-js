@@ -154,8 +154,8 @@ export const brandingInfo: BrandingInfoResponse = {
   app_name: "Some Fantastic Cat, Inc.",
   app_icon: "1005820_1715624566.png",
   app_icon_webp: "1005820_1715624566.webp",
-  app_wordmark: "1005820_1715624566.png",
-  app_wordmark_webp: "1005820_1715624566.webp",
+  app_wordmark: null,
+  app_wordmark_webp: null,
   appearance: null,
   gateway_tax_collection_enabled: false,
 };
@@ -238,8 +238,8 @@ export const brandingInfos: Record<string, BrandingInfoResponse> = {
     app_name: "Some Fantastic Cat, Inc.",
     app_icon: "1005820_1715624566.png",
     app_icon_webp: "1005820_1715624566.webp",
-    app_wordmark: "1005820_1715624566.png",
-    app_wordmark_webp: "1005820_1715624566.webp",
+    app_wordmark: null,
+    app_wordmark_webp: null,
     appearance: {
       shapes: "rectangle",
       color_form_bg: "#313131",
