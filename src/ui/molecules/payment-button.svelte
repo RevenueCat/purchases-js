@@ -50,11 +50,22 @@
         )
       : null,
   );
+
+  const trialPeriod = subscriptionOption?.trial?.period;
+
+  const trialPeriodLabel = $derived(
+    trialPeriod
+      ? $translator.translatePeriod(trialPeriod.number, trialPeriod.unit)
+      : null,
+  );
 </script>
 
 <Button {disabled} testId="PayButton">
   {#if subscriptionOption?.trial}
-    <Localized key={LocalizationKeys.PaymentEntryPageButtonStartTrial} />
+    <Localized
+      key={LocalizationKeys.PaymentEntryPageButtonStartTrial}
+      variables={{ trialPeriodLabel }}
+    />
   {:else if formattedPrice && paymentMethod}
     <Localized
       key={LocalizationKeys.PaymentEntryPageButtonPaymentMethod}
