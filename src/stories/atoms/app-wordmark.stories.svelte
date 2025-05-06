@@ -1,4 +1,4 @@
-<script module>
+<script module lang="ts">
   import AppWordmark from "../../ui/atoms/app-wordmark.svelte";
   import {
     type Args,
