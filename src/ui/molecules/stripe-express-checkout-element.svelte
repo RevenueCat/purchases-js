@@ -16,7 +16,7 @@
   import TextSeparator from "../atoms/text-separator.svelte";
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import { Translator } from "../localization/translator";
-  import { Writable } from "svelte/store";
+  import { type Writable } from "svelte/store";
   import { translatorContextKey } from "../localization/constants";
 
   export interface Props {

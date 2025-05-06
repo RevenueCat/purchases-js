@@ -119,6 +119,13 @@ const PaywallPage: React.FC = () => {
         purchaseOption: option,
         selectedLocale: lang || navigator.language,
         customerEmail: email || undefined,
+        // @ts-expect-error This method is marked as internal for now but it's public.'
+        labelsOverride: {
+          en: {
+            "payment_entry_page.button_start_trial":
+              "Start {{trialPeriodLabel}} free",
+          },
+        },
       });
 
       console.log(`CustomerInfo after purchase: ${customerInfo}`);
