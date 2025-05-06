@@ -14,6 +14,14 @@ export interface FlagsConfig {
    * @defaultValue true
    */
   collectAnalyticsEvents?: boolean;
+
+  /**
+   * Describes the platform that originated the purchase.
+   * This does not technically belong here but since the public Purchase configuration
+   * does not use objects, it is the easiest way to pass this internal parameter.
+   * @internal
+   */
+  rcSource?: string;
 }
 
 export const defaultFlagsConfig: FlagsConfig = {

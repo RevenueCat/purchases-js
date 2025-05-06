@@ -20,7 +20,10 @@ describe("Purchases.configure()", () => {
   beforeEach(async () => {
     vi.spyOn(Logger, "debugLog").mockImplementation(() => undefined);
     vi.mock("../behavioural-events/sdk-event-context", () => ({
-      buildEventContext: vi.fn().mockReturnValue({}),
+      buildEventContext: vi.fn((source, rcSource) => ({
+        source,
+        rc_source: rcSource,
+      })),
     }));
     vi.useFakeTimers();
     vi.setSystemTime(date);
@@ -45,7 +48,10 @@ describe("Purchases.configure()", () => {
             event_name: "sdk_initialized",
             timestamp_ms: date.getTime(),
             app_user_id: "someAppUserId",
-            context: {},
+            context: {
+              source: "sdk",
+              rc_source: "rcSource",
+            },
             properties: {
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
             },
@@ -76,7 +82,10 @@ describe("Purchases.configure()", () => {
             event_name: "checkout_session_start",
             timestamp_ms: date.getTime(),
             app_user_id: "someAppUserId",
-            context: {},
+            context: {
+              source: "sdk",
+              rc_source: "rcSource",
+            },
             properties: {
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               customer_email_provided_by_developer: false,
@@ -128,7 +137,10 @@ describe("Purchases.configure()", () => {
             event_name: "checkout_session_end",
             timestamp_ms: date.getTime(),
             app_user_id: "someAppUserId",
-            context: {},
+            context: {
+              source: "sdk",
+              rc_source: "rcSource",
+            },
             properties: {
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               outcome: "finished",
@@ -172,7 +184,10 @@ describe("Purchases.configure()", () => {
             event_name: "checkout_session_end",
             timestamp_ms: date.getTime(),
             app_user_id: "someAppUserId",
-            context: {},
+            context: {
+              source: "sdk",
+              rc_source: "rcSource",
+            },
             properties: {
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               outcome: "closed",
@@ -217,7 +232,10 @@ describe("Purchases.configure()", () => {
             event_name: "checkout_session_end",
             timestamp_ms: date.getTime(),
             app_user_id: "someAppUserId",
-            context: {},
+            context: {
+              source: "sdk",
+              rc_source: "rcSource",
+            },
             properties: {
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               outcome: "errored",
