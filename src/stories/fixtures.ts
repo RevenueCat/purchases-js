@@ -258,8 +258,8 @@ export const brandingInfos: Record<string, BrandingInfoResponse> = {
     support_email: "devservices@revenuecat.com",
     app_icon: "1005820_1739283698.png",
     app_icon_webp: "1005820_1739283698.webp",
-    app_wordmark: "1005820_1739283698.png",
-    app_wordmark_webp: "1005820_1739283698.webp",
+    app_wordmark: "Dipsea_Wordmark_MidnightBlue.png",
+    app_wordmark_webp: "Dipsea_Wordmark_MidnightBlue.webp",
     app_name: "Igify Pro LTD",
     appearance: {
       color_accent: "#969696",
