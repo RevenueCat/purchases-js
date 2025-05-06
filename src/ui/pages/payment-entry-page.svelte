@@ -48,7 +48,7 @@
   import StripeElementsComponent from "../molecules/stripe-elements.svelte";
   import PriceUpdateInfo from "../molecules/price-update-info.svelte";
 
-  type View = "loading" | "form" | "message";
+  type View = "loading" | "form" | "error";
 
   interface Props {
     gatewayParams: GatewayParams;
@@ -135,7 +135,7 @@
     isStripeLoading || processing
       ? "loading"
       : modalErrorMessage
-        ? "message"
+        ? "error"
         : "form",
   );
 
@@ -504,7 +504,7 @@
     </div>
   {/if}
 
-  {#if view === "message"}
+  {#if view === "error"}
     <MessageLayout
       title={null}
       type="error"
