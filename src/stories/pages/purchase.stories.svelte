@@ -76,6 +76,7 @@
       (args.withTaxes ? priceBreakdownTaxInclusive : priceBreakdownTaxDisabled)}
     isInElement={context.globals.viewport === "embedded"}
     onError={() => {}}
+    onClose={() => {}}
   />
 {/snippet}
 
