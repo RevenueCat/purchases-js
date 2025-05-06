@@ -42,7 +42,9 @@
     brandingInfo?.app_wordmark_webp && !isLoading
       ? buildAssetURL(brandingInfo?.app_wordmark_webp)
       : null}
-  <AppWordmark {src} {srcWebp} />
+  {#if src}
+    <AppWordmark {src} {srcWebp} />
+  {/if}
 {/snippet}
 
 <Story name="Default" />

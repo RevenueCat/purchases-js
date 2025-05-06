@@ -1,20 +1,18 @@
 <script lang="ts">
   type Props = {
-    src: string | null;
+    src: string;
     srcWebp: string | null;
   };
 
   const { src, srcWebp }: Props = $props();
 </script>
 
-{#if src}
-  <picture class="rcb-app-icon">
-    {#if srcWebp}
-      <source type="image/webp" srcset={srcWebp} class="rcb-app-icon" />
-    {/if}
-    <img class="rcb-app-icon" {src} alt="App icon" />
-  </picture>
-{/if}
+<picture class="rcb-app-icon">
+  {#if srcWebp}
+    <source type="image/webp" srcset={srcWebp} class="rcb-app-icon" />
+  {/if}
+  <img class="rcb-app-icon" {src} alt="App icon" />
+</picture>
 
 <style>
   .rcb-app-icon {
