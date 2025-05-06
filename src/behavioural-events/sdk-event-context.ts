@@ -19,11 +19,13 @@ export interface SDKEventContext {
   pageReferrer: string;
   pageUrl: string;
   pageTitle: string;
-  source: SDKEventContextSource;
+  source: SDKEventContextSource; // Describes where the event was triggered from
+  rcSource: string | null; // Describes where the purchase was originated
 }
 
 export function buildEventContext(
   source: SDKEventContextSource,
+  rcSource: string | null,
 ): SDKEventContext & EventContext {
   const urlParams = new URLSearchParams(window.location.search);
 
@@ -44,5 +46,6 @@ export function buildEventContext(
     pageUrl: `${window.location.origin}${window.location.pathname}`,
     pageTitle: document.title,
     source: source,
+    rcSource: rcSource,
   };
 }

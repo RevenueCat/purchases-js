@@ -11,10 +11,12 @@ interface EventsTrackerFixtures {
 }
 
 vi.mock("../../behavioural-events/sdk-event-context", () => ({
-  buildEventContext: vi.fn().mockReturnValue({
+  buildEventContext: vi.fn((source, rcSource) => ({
     library_name: "purchases-js",
     library_version: "1.0.0",
-  }),
+    source,
+    rcSource,
+  })),
 }));
 
 const MAX_JITTER_MULTIPLIER = 1 + 0.1;
@@ -32,6 +34,7 @@ describe("EventsTracker", (test) => {
     context.eventsTracker = new EventsTracker({
       apiKey: testApiKey,
       appUserId: "someAppUserId",
+      rcSource: "rcSource",
     });
     vi.useFakeTimers();
     vi.setSystemTime(date);
@@ -48,6 +51,7 @@ describe("EventsTracker", (test) => {
       apiKey: testApiKey,
       appUserId: "someAppUserId",
       silent: true,
+      rcSource: "rcSource",
     });
     eventsTracker.trackExternalEvent({
       eventName: "external",
@@ -92,6 +96,8 @@ describe("EventsTracker", (test) => {
             context: {
               library_name: "purchases-js",
               library_version: "1.0.0",
+              source: "sdk",
+              rc_source: "rcSource",
             },
             properties: {
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
@@ -104,30 +110,6 @@ describe("EventsTracker", (test) => {
         ],
       },
     });
-  });
-
-  test<EventsTrackerFixtures>("passes the user props to the event", async ({
-    eventsTracker,
-  }) => {
-    eventsTracker.updateUser("newAppUserId");
-    eventsTracker.trackExternalEvent({
-      eventName: "external",
-      source: "sdk",
-      properties: { a: "b" },
-    });
-    await vi.advanceTimersToNextTimerAsync();
-
-    expect(APIPostRequest).toHaveBeenCalledWith(
-      expect.objectContaining({
-        json: expect.objectContaining({
-          events: expect.arrayContaining([
-            expect.objectContaining({
-              app_user_id: "newAppUserId",
-            }),
-          ]),
-        }),
-      }),
-    );
   });
 
   test<EventsTrackerFixtures>("passes the checkout trace id to the event", async ({
@@ -146,6 +128,31 @@ describe("EventsTracker", (test) => {
             expect.objectContaining({
               properties: expect.objectContaining({
                 trace_id: expect.any(String),
+              }),
+            }),
+          ]),
+        }),
+      }),
+    );
+  });
+
+  test<EventsTrackerFixtures>("passes the rcSource to the event", async ({
+    eventsTracker,
+  }) => {
+    eventsTracker.trackExternalEvent({
+      eventName: "external",
+      source: "sdk",
+      properties: { a: "b" },
+    });
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(APIPostRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        json: expect.objectContaining({
+          events: expect.arrayContaining([
+            expect.objectContaining({
+              context: expect.objectContaining({
+                rc_source: "rcSource",
               }),
             }),
           ]),

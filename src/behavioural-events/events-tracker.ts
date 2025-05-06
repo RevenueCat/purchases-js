@@ -24,6 +24,7 @@ export interface TrackEventProps {
 export interface EventsTrackerProps {
   apiKey: string;
   appUserId: string;
+  rcSource: string | null;
   silent?: boolean;
 }
 
@@ -47,12 +48,14 @@ export default class EventsTracker implements IEventsTracker {
   private readonly traceId: string = uuid();
   private appUserId: string;
   private readonly isSilent: boolean;
+  private rcSource: string | null;
 
   constructor(props: EventsTrackerProps) {
     this.apiKey = props.apiKey;
     this.eventsUrl = `${RC_ANALYTICS_ENDPOINT}/v1/events`;
     this.appUserId = props.appUserId;
     this.isSilent = props.silent || false;
+    this.rcSource = props.rcSource;
     this.flushManager = new FlushManager(
       MIN_INTERVAL_RETRY,
       MAX_INTERVAL_RETRY,
@@ -87,7 +90,7 @@ export default class EventsTracker implements IEventsTracker {
         eventName: props.eventName,
         traceId: this.traceId,
         appUserId: this.appUserId,
-        context: buildEventContext(props.source),
+        context: buildEventContext(props.source, this.rcSource),
         properties: props.properties || {},
       });
       this.eventsQueue.push(event);
