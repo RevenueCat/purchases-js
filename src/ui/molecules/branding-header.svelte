@@ -55,7 +55,7 @@
         <AppLogo {src} {srcWebp} />
       {/if}
 
-      {#if appWordmark === null && webpWordmark === null}
+      {#if wordmarkSrc === null && wordmarkSrcWebp === null}
         <Typography size="body-base">{brandingInfo?.app_name}</Typography>
       {/if}
     </div>
