@@ -23,7 +23,7 @@
     </div>
   {/if}
   <div class="rcb-product-title">
-    <Typography size="heading-lg">
+    <Typography size="heading-lg" branded>
       <Localized
         key={LocalizationKeys.ProductInfoProductTitle}
         variables={{ productTitle: productDetails.title }}
