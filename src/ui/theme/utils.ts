@@ -316,14 +316,14 @@ export const toTextStyleVar = (
     .flatMap(([key, { desktop, mobile }]) => {
       const desktopFontStyle = `normal normal ${desktop.fontWeight} ${desktop.fontSize}/${desktop.lineHeight} ${DEFAULT_FONT_FAMILY}`;
       const mobileFontStyle = `normal normal ${mobile.fontWeight} ${mobile.fontSize}/${mobile.lineHeight} ${DEFAULT_FONT_FAMILY}`;
-      const brandedDesktopFontStyle = `normal normal ${brand_font_config?.desktop.font_weight} ${brand_font_config?.desktop.font_size} ${BRANDED_FONT_FAMILY}`;
-      const brandedMobileFontStyle = `normal normal ${brand_font_config?.mobile.font_weight} ${brand_font_config?.mobile.font_size} ${BRANDED_FONT_FAMILY}`;
+      const brandedDesktopFontStyle = `normal normal ${brand_font_config?.desktop?.font_weight} ${brand_font_config?.desktop?.font_size} ${BRANDED_FONT_FAMILY}`;
+      const brandedMobileFontStyle = `normal normal ${brand_font_config?.mobile?.font_weight} ${brand_font_config?.mobile?.font_size} ${BRANDED_FONT_FAMILY}`;
 
       return [
         `--rc-${prefix}-${key}-desktop: ${desktopFontStyle}`,
         `--rc-${prefix}-${key}-mobile: ${mobileFontStyle}`,
-        `--rc-${prefix}-${key}-branded-desktop: ${brand_font_config ? brandedDesktopFontStyle : desktopFontStyle}`,
-        `--rc-${prefix}-${key}-branded-mobile: ${brand_font_config ? brandedMobileFontStyle : mobileFontStyle}`,
+        `--rc-${prefix}-${key}-branded-desktop: ${brand_font_config?.desktop ? brandedDesktopFontStyle : desktopFontStyle}`,
+        `--rc-${prefix}-${key}-branded-mobile: ${brand_font_config?.mobile ? brandedMobileFontStyle : mobileFontStyle}`,
         `--rc-${prefix}-${key}-desktop-font-size: ${desktop.fontSize}`,
         `--rc-${prefix}-${key}-mobile-font-size: ${mobile.fontSize}`,
       ];
