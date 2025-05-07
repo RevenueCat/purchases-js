@@ -105,25 +105,28 @@
   }
 </script>
 
-<MessageLayout
-  title={getTranslatedErrorTitle()}
-  {onDismiss}
-  type="error"
-  closeButtonTitle={$translator.translate(LocalizationKeys.ErrorButtonTryAgain)}
->
-  {#snippet icon()}
-    <IconError />
-  {/snippet}
+{#if error.errorCode === PurchaseFlowErrorCode.AlreadyPurchasedError}
+  <MessageLayout title={getTranslatedErrorTitle()} {onDismiss} type="error">
+    {#snippet message()}
+      {getTranslatedErrorMessage()}
+    {/snippet}
+  </MessageLayout>
+{:else}
+  <MessageLayout title={getTranslatedErrorTitle()} {onDismiss} type="error">
+    {#snippet icon()}
+      <IconError />
+    {/snippet}
 
-  {#snippet message()}
-    {getTranslatedErrorMessage()}
-    {#if supportEmail}
-      <br />
-      <Localized key={LocalizationKeys.ErrorPageIfErrorPersists} />
-      <a href="mailto:{supportEmail}">{supportEmail}</a>.
-    {/if}
-  {/snippet}
-</MessageLayout>
+    {#snippet message()}
+      {getTranslatedErrorMessage()}
+      {#if supportEmail}
+        <br />
+        <Localized key={LocalizationKeys.ErrorPageIfErrorPersists} />
+        <a href="mailto:{supportEmail}">{supportEmail}</a>.
+      {/if}
+    {/snippet}
+  </MessageLayout>
+{/if}
 
 <style>
   a {
