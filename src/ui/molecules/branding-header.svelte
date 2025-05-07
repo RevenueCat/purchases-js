@@ -96,8 +96,6 @@
   .rcb-close-wrapper {
     padding-top: var(--rc-spacing-gapMedium-mobile);
   }
-
-  .rcb-close-wrapper,
   .rcb-back-wrapper {
     padding: var(--rc-spacing-gapSmall-mobile);
   }
