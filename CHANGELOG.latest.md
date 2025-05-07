@@ -1,13 +1,17 @@
 ## RevenueCat SDK
-### 📦 Dependency Updates
-* [WEB-2480] Button to component lib (#453) via James O'Donnell (@james-od)
+### ✨ New Features
+* Support branded fonts in typography (#476) via Elena Pérez Rioja (@elenaperezrioja)
+* Render wordmark when possible (#472) via Alfonso Embid-Desmet (@alfondotnet)
+* Exposed the possibility of customizing the labels as internal parameter (#471) via Nicola Sacco (@nicfix)
+* feat: Add support to Stripe Express checkout (#467) via Víctor Ferrer García (@vicfergar)
+### 🐞 Bugfixes
+* Fixed modal errors appearing below the form on mobile (#464) via Nicola Sacco (@nicfix)
 
 ### 🔄 Other Changes
-* Explicit align of header (#457) via Pol Miro (@polmiro)
-* [WEB-2436] Update header and fix spacing (#451) via Pol Miro (@polmiro)
-* A few minor text style fixes (#454) via Pol Miro (@polmiro)
-* [WEB-2424] Trigger a tax calculation upon payment submission (#450) via Víctor Ferrer García (@vicfergar)
-* refactor: Simplify Stripe integration and improve error handling (#444) via Víctor Ferrer García (@vicfergar)
-* [WEB-2430] Update font sizes (#449) via Pol Miro (@polmiro)
-* [WEB-2450] Add PayButton with Wallet (#446) via Pol Miro (@polmiro)
-* Add stories for BrandingInfo (#448) via Pol Miro (@polmiro)
+* Hide back button when coming from app (#475) via Pol Miro (@polmiro)
+* Track rcSource (#474) via Pol Miro (@polmiro)
+* Fix loading spinner positional glitch (#470) via Pol Miro (@polmiro)
+* Remove unneeded payment-entry-processing enum value (#465) via Pol Miro (@polmiro)
+* Bump fastlane from 2.227.1 to 2.227.2 (#468) via dependabot[bot] (@dependabot[bot])
+* Bump nokogiri from 1.18.4 to 1.18.8 (#452) via dependabot[bot] (@dependabot[bot])
+* Bump react-router and react-router-dom in /examples/webbilling-demo (#460) via dependabot[bot] (@dependabot[bot])
