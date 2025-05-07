@@ -8,6 +8,7 @@ import {
 } from "./utils";
 import type { Shape } from "./shapes";
 import type { Colors } from "./colors";
+import type { BrandFontConfig } from "./text";
 import { DEFAULT_TEXT_STYLES } from "./text";
 import { DEFAULT_SPACING } from "./spacing";
 import type { BrandingAppearance } from "../../entities/branding";
@@ -47,8 +48,8 @@ export class Theme {
     return DEFAULT_TEXT_STYLES;
   }
 
-  get textStyleVars() {
-    return toTextStyleVar("text", this.textStyles);
+  getTextStyleVars(brand_font_config: BrandFontConfig | null | undefined) {
+    return toTextStyleVar("text", this.textStyles, brand_font_config);
   }
 
   get spacingStyleVars() {

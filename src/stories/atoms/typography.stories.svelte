@@ -113,6 +113,12 @@
   </Typography>
 </Story>
 
+<Story name="Branded">
+  <Typography size="heading-xl" branded>
+    Branded - {baseContent}
+  </Typography>
+</Story>
+
 <!-- Story showing all variants -->
 <Story name="All Variants">
   <div class="story-container">
@@ -174,6 +180,12 @@
       <div class="variant-name">caption-link</div>
       <Typography size="caption-link">
         Caption Link - {baseContent}
+      </Typography>
+    </div>
+    <div class="variant-row">
+      <div class="variant-name">Brand Custom Font</div>
+      <Typography size="heading-xl" branded>
+        Brand Custom Font - {baseContent}
       </Typography>
     </div>
   </div>

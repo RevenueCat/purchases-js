@@ -158,6 +158,7 @@ export const brandingInfo: BrandingInfoResponse = {
   app_wordmark_webp: null,
   appearance: null,
   gateway_tax_collection_enabled: false,
+  brand_font_config: null,
 };
 
 export const purchaseFlowError = new PurchaseFlowError(1);
@@ -252,6 +253,7 @@ export const brandingInfos: Record<string, BrandingInfoResponse> = {
       show_product_description: true,
     },
     gateway_tax_collection_enabled: false,
+    brand_font_config: null,
   },
   Igify: {
     id: "app7e12a2a4b3",
@@ -273,6 +275,7 @@ export const brandingInfos: Record<string, BrandingInfoResponse> = {
       show_product_description: true,
     },
     gateway_tax_collection_enabled: false,
+    brand_font_config: null,
   },
   Dipsea: {
     id: "appd458f1e3a2",
@@ -294,6 +297,11 @@ export const brandingInfos: Record<string, BrandingInfoResponse> = {
       show_product_description: false,
     },
     gateway_tax_collection_enabled: false,
+    brand_font_config: {
+      font_url: "QueensCondensed-Light.ttf",
+      mobile: { font_weight: 300, font_size: "28px" },
+      desktop: { font_weight: 300, font_size: "36px" },
+    },
   },
 };
 
