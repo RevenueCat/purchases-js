@@ -41,8 +41,8 @@
   "success_page.subscription_now_active": "اشتراكك نشط الآن",
   "success_page.button_close": "متابعة",
   "error_page.if_error_persists": "إذا استمرت المشكلة، يرجى الاتصال بـ ",
-  "error_page.error_title_already_subscribed": "مشترك بالفعل",
-  "error_page.error_title_already_purchased": "تم الشراء بالفعل",
+  "error_page.error_title_already_subscribed": "أنت مشترك بالفعل",
+  "error_page.error_title_already_purchased": "أنت تملك هذا المنتج بالفعل",
   "error_page.error_title_other_errors": "حدث خطأ ما",
   "error_page.error_message_already_subscribed": "أنت مشترك بالفعل في هذا المنتج.",
   "error_page.error_message_already_purchased": "لقد قمت بالفعل بشراء هذا المنتج.",
@@ -76,5 +76,6 @@
   "price_update.title": "تحديث السعر",
   "price_update.base_message": "تم تحديث السعر الإجمالي مع الضريبة بناءً على عنوان إرسال الفواتير الخاص بك. يرجى المراجعة والمحاولة مرة أخرى. لن يتم تحصيل رسوم من بطاقتك إلا مرة واحدة.",
   "price_update.trial_message": "تم تحديث سعر الاشتراك ليشمل الضرائب بناءً على عنوان الفوترة الخاص بك. فترة التجربة المجانية لا تزال سارية. يرجى التحقق والمحاولة مرة أخرى.",
-  "payment_entry_page.express_checkout_divider": "أو ادفع بواسطة البطاقة"
+  "payment_entry_page.express_checkout_divider": "أو ادفع بواسطة البطاقة",
+  "error_page.trouble_accessing": "إذا كنت تواجه مشكلة في الوصول إلى عملية الشراء، فتواصل مع الدعم على "
 }

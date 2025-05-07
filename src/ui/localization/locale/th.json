@@ -41,8 +41,8 @@
   "success_page.subscription_now_active": "การสมัครสมาชิกของคุณใช้งานได้แล้ว",
   "success_page.button_close": "ดำเนินการต่อ",
   "error_page.if_error_persists": "หากข้อผิดพลาดยังคงอยู่ โปรดติดต่อ ",
-  "error_page.error_title_already_subscribed": "สมัครสมาชิกแล้ว",
-  "error_page.error_title_already_purchased": "ซื้อแล้ว",
+  "error_page.error_title_already_subscribed": "คุณได้สมัครรับข้อมูลแล้ว",
+  "error_page.error_title_already_purchased": "คุณเป็นเจ้าของผลิตภัณฑ์นี้แล้ว",
   "error_page.error_title_other_errors": "มีบางอย่างผิดพลาด",
   "error_page.error_message_already_subscribed": "คุณสมัครสมาชิกผลิตภัณฑ์นี้แล้ว",
   "error_page.error_message_already_purchased": "คุณซื้อผลิตภัณฑ์นี้แล้ว",
@@ -76,5 +76,6 @@
   "price_update.title": "อัปเดตราคา",
   "price_update.base_message": "ราคารวมได้รับการอัปเดตพร้อมภาษีตามที่อยู่สำหรับการเรียกเก็บเงินของคุณ โปรดตรวจสอบและลองอีกครั้ง บัตรของคุณจะถูกเรียกเก็บเงินเพียงครั้งเดียวเท่านั้น",
   "price_update.trial_message": "ราคาการสมัครสมาชิกได้รับการอัปเดตเพื่อรวมภาษีตามที่อยู่สำหรับการเรียกเก็บเงินของคุณ ระยะเวลาทดลองใช้ฟรียังคงมีผล โปรดตรวจสอบและลองอีกครั้ง",
-  "payment_entry_page.express_checkout_divider": "หรือชำระด้วยบัตร"
+  "payment_entry_page.express_checkout_divider": "หรือชำระด้วยบัตร",
+  "error_page.trouble_accessing": "หากคุณมีปัญหาในการเข้าถึงสินค้าที่คุณซื้อ โปรดติดต่อทีมสนับสนุนที่ "
 }

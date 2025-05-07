@@ -110,6 +110,7 @@
         {productDetails}
         supportEmail={brandingInfo?.support_email ?? null}
         onDismiss={closeWithError}
+        email={customerEmail ?? undefined}
       />
     {/if}
     {#if currentPage === "success"}

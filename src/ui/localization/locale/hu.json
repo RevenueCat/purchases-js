@@ -41,8 +41,8 @@
   "success_page.subscription_now_active": "Az előfizetésed aktív",
   "success_page.button_close": "Tovább",
   "error_page.if_error_persists": "Ha a hiba továbbra is fennáll, kérjük, vedd fel a kapcsolatot ",
-  "error_page.error_title_already_subscribed": "Már előfizettél",
-  "error_page.error_title_already_purchased": "Már megvetted",
+  "error_page.error_title_already_subscribed": "Már feliratkoztál",
+  "error_page.error_title_already_purchased": "Már a tiéd ez a termék",
   "error_page.error_title_other_errors": "Valami hiba történt",
   "error_page.error_message_already_subscribed": "Már előfizettél erre a termékre.",
   "error_page.error_message_already_purchased": "Már megvetted ezt a terméket.",
@@ -76,5 +76,6 @@
   "price_update.title": "Ár frissítése",
   "price_update.base_message": "A teljes ár frissítve lett az adóval a számlázási címed alapján. Kérjük, tekintsd át és próbáld újra. A kártyádat csak egyszer terheljük meg.",
   "price_update.trial_message": "Az előfizetés ára adókkal együtt frissítésre került a számlázási címének megfelelően. Az ingyenes próbaidőszak továbbra is érvényes. Kérjük, ellenőrizze és próbálja újra.",
-  "payment_entry_page.express_checkout_divider": "VAGY FIZESSEN KÁRTYÁVAL"
+  "payment_entry_page.express_checkout_divider": "VAGY FIZESSEN KÁRTYÁVAL",
+  "error_page.trouble_accessing": "Ha problémád van a vásárlásod elérésével, vedd fel a kapcsolatot az ügyfélszolgálattal a következő címen: "
 }

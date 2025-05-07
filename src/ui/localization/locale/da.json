@@ -41,8 +41,8 @@
   "success_page.subscription_now_active": "Dit abonnement er nu aktivt",
   "success_page.button_close": "Fortsæt",
   "error_page.if_error_persists": "Hvis fejlen fortsætter, kontakt venligst ",
-  "error_page.error_title_already_subscribed": "Allerede abonneret",
-  "error_page.error_title_already_purchased": "Allerede købt",
+  "error_page.error_title_already_subscribed": "Du abonnerer allerede",
+  "error_page.error_title_already_purchased": "Du ejer allerede dette produkt",
   "error_page.error_title_other_errors": "Noget gik galt",
   "error_page.error_message_already_subscribed": "Du er allerede abonneret på dette produkt.",
   "error_page.error_message_already_purchased": "Du har allerede købt dette produkt.",
@@ -76,5 +76,6 @@
   "price_update.title": "Prisopdatering",
   "price_update.base_message": "Den samlede pris er blevet opdateret med moms baseret på din faktureringsadresse. Gennemgå og prøv igen. Dit kort vil kun blive debiteret én gang.",
   "price_update.trial_message": "Abonnementsprisen er opdateret for at inkludere skatter baseret på din faktureringsadresse. Den gratis prøveperiode gælder stadig. Kontroller venligst og prøv igen.",
-  "payment_entry_page.express_checkout_divider": "ELLER BETAL MED KORT"
+  "payment_entry_page.express_checkout_divider": "ELLER BETAL MED KORT",
+  "error_page.trouble_accessing": "Hvis du har problemer med at få adgang til dit køb, kan du kontakte support på "
 }

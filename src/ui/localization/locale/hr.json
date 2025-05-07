@@ -41,8 +41,8 @@
   "success_page.subscription_now_active": "Vaša pretplata je sada aktivna",
   "success_page.button_close": "Nastavi",
   "error_page.if_error_persists": "Ako se pogreška nastavi, obratite se ",
-  "error_page.error_title_already_subscribed": "Već pretplaćeni",
-  "error_page.error_title_already_purchased": "Već kupljeno",
+  "error_page.error_title_already_subscribed": "Već ste pretplaćeni",
+  "error_page.error_title_already_purchased": "Već posjedujete ovaj proizvod",
   "error_page.error_title_other_errors": "Nešto je pošlo po zlu",
   "error_page.error_message_already_subscribed": "Već ste pretplaćeni na ovaj proizvod.",
   "error_page.error_message_already_purchased": "Već ste kupili ovaj proizvod.",
@@ -76,5 +76,6 @@
   "price_update.title": "Ažuriranje cijene",
   "price_update.base_message": "Ukupna cijena je ažurirana s porezom na temelju vaše adrese za naplatu. Pregledajte i pokušajte ponovo. Vaša kartica bit će naplaćena samo jednom.",
   "price_update.trial_message": "Cijena pretplate je ažurirana da uključi poreze na temelju vaše adrese za naplatu. Besplatno probno razdoblje i dalje vrijedi. Molimo provjerite i pokušajte ponovno.",
-  "payment_entry_page.express_checkout_divider": "ILI PLATITE KARTICOM"
+  "payment_entry_page.express_checkout_divider": "ILI PLATITE KARTICOM",
+  "error_page.trouble_accessing": "Ako imate problema s pristupom svojoj kupnji, obratite se podršci na "
 }

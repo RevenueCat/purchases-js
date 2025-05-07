@@ -44,7 +44,7 @@
   "success_page.button_close": "Συνέχεια",
   "error_page.if_error_persists": "Εάν το σφάλμα παραμένει, επικοινωνήστε με ",
   "error_page.error_title_already_subscribed": "Έχετε ήδη εγγραφεί",
-  "error_page.error_title_already_purchased": "Έχετε ήδη αγοράσει",
+  "error_page.error_title_already_purchased": "Έχετε ήδη αγοράσει αυτό το προϊόν",
   "error_page.error_title_other_errors": "Κάτι πήγε στραβά",
   "error_page.error_message_already_subscribed": "Έχετε ήδη εγγραφεί σε αυτό το προϊόν.",
   "error_page.error_message_already_purchased": "Έχετε ήδη αγοράσει αυτό το προϊόν.",
@@ -76,5 +76,6 @@
   "price_update.title": "Ενημέρωση τιμής",
   "price_update.base_message": "Η συνολική τιμή ενημερώθηκε με τον φόρο βάσει της διεύθυνσης χρέωσής σας. Ελέγξτε και δοκιμάστε ξανά. Η κάρτα σας θα χρεωθεί μόνο μία φορά.",
   "price_update.trial_message": "Η τιμή της συνδρομής ενημερώθηκε για να συμπεριλάβει τους φόρους βάσει της διεύθυνσης χρέωσής σας. Η δωρεάν δοκιμαστική περίοδος εξακολουθεί να ισχύει. Παρακαλώ ελέγξτε και δοκιμάστε ξανά.",
-  "payment_entry_page.express_checkout_divider": "Ή ΠΛΗΡΩΣΤΕ ΜΕ ΚΑΡΤΑ"
+  "payment_entry_page.express_checkout_divider": "Ή ΠΛΗΡΩΣΤΕ ΜΕ ΚΑΡΤΑ",
+  "error_page.trouble_accessing": "Εάν αντιμετωπίζετε προβλήματα πρόσβασης στην αγορά σας, επικοινωνήστε με την υποστήριξη στο "
 }

@@ -41,8 +41,8 @@
   "success_page.subscription_now_active": "המנוי שלך פעיל כעת",
   "success_page.button_close": "המשך",
   "error_page.if_error_persists": "אם השגיאה נמשכת, אנא פנה אל ",
-  "error_page.error_title_already_subscribed": "מנוי קיים",
-  "error_page.error_title_already_purchased": "רכישה קיימת",
+  "error_page.error_title_already_subscribed": "כבר נרשמת כמנוי",
+  "error_page.error_title_already_purchased": "כבר יש לך מוצר זה",
   "error_page.error_title_other_errors": "משהו השתבש",
   "error_page.error_message_already_subscribed": "אתה כבר מנוי למוצר זה.",
   "error_page.error_message_already_purchased": "כבר רכשת מוצר זה.",
@@ -76,5 +76,6 @@
   "price_update.title": "עדכון מחיר",
   "price_update.base_message": "המחיר הכולל עודכן עם מס בהתבסס על כתובת החיוב שלך. אנא בדוק שוב ונסה שוב. החיוב יתבצע רק פעם אחת.",
   "price_update.trial_message": "מחיר המנוי עודכן כדי לכלול מיסים בהתבסס על כתובת החיוב שלך. תקופת הניסיון החינמית עדיין תקפה. אנא בדוק ונסה שוב.",
-  "payment_entry_page.express_checkout_divider": "או שלם באמצעות כרטיס"
+  "payment_entry_page.express_checkout_divider": "או שלם באמצעות כרטיס",
+  "error_page.trouble_accessing": "אם אתה מתקשה לגשת לרכישה שלך, פנה לתמיכה בכתובת "
 }

@@ -41,8 +41,8 @@
   "success_page.subscription_now_active": "Votre abonnement est maintenant actif",
   "success_page.button_close": "Continuer",
   "error_page.if_error_persists": "Si l'erreur persiste, veuillez contacter ",
-  "error_page.error_title_already_subscribed": "Déjà abonné",
-  "error_page.error_title_already_purchased": "Déjà acheté",
+  "error_page.error_title_already_subscribed": "Vous êtes déjà abonné",
+  "error_page.error_title_already_purchased": "Vous possédez déjà ce produit",
   "error_page.error_title_other_errors": "Une erreur s'est produite",
   "error_page.error_message_already_subscribed": "Vous êtes déjà abonné à ce produit.",
   "error_page.error_message_already_purchased": "Vous avez déjà acheté ce produit.",
@@ -76,5 +76,6 @@
   "price_update.title": "Mise à jour du prix",
   "price_update.base_message": "Le prix total a été mis à jour avec la taxe en fonction de votre adresse de facturation. Veuillez vérifier et réessayer. Votre carte ne sera débitée qu'une seule fois.",
   "price_update.trial_message": "Le prix de l'abonnement a été mis à jour pour inclure les taxes en fonction de votre adresse de facturation. La période d'essai gratuit reste applicable. Veuillez vérifier et réessayer.",
-  "payment_entry_page.express_checkout_divider": "OU PAYER PAR CARTE"
+  "payment_entry_page.express_checkout_divider": "OU PAYER PAR CARTE",
+  "error_page.trouble_accessing": "Si vous rencontrez des difficultés pour accéder à votre achat, contactez le support à l'adresse "
 }

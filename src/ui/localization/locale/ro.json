@@ -41,8 +41,8 @@
   "success_page.subscription_now_active": "Abonamentul dvs. este acum activ",
   "success_page.button_close": "Continuă",
   "error_page.if_error_persists": "Dacă eroarea persistă, vă rugăm să contactați ",
-  "error_page.error_title_already_subscribed": "Deja abonat",
-  "error_page.error_title_already_purchased": "Deja achiziționat",
+  "error_page.error_title_already_subscribed": "Sunteți deja abonat",
+  "error_page.error_title_already_purchased": "Dețineți deja acest produs",
   "error_page.error_title_other_errors": "A apărut o eroare",
   "error_page.error_message_already_subscribed": "Sunteți deja abonat la acest produs.",
   "error_page.error_message_already_purchased": "Ați achiziționat deja acest produs.",
@@ -76,5 +76,6 @@
   "price_update.title": "Actualizare preț",
   "price_update.base_message": "Prețul total a fost actualizat cu taxe, în funcție de adresa dumneavoastră de facturare. Vă rugăm să revizuiți și să încercați din nou. Cardul dumneavoastră va fi debitat o singură dată.",
   "price_update.trial_message": "Prețul abonamentului a fost actualizat pentru a include taxele bazate pe adresa dvs. de facturare. Perioada de probă gratuită rămâne valabilă. Vă rugăm să verificați și să încercați din nou.",
-  "payment_entry_page.express_checkout_divider": "SAU PLĂTEȘTE CU CARDUL"
+  "payment_entry_page.express_checkout_divider": "SAU PLĂTEȘTE CU CARDUL",
+  "error_page.trouble_accessing": "Dacă întâmpini dificultăți în accesarea achiziției tale, contactează echipa de asistență la "
 }

@@ -41,8 +41,8 @@
   "success_page.subscription_now_active": "Twoja subskrypcja jest już aktywna",
   "success_page.button_close": "Kontynuuj",
   "error_page.if_error_persists": "Jeśli błąd będzie się powtarzał, skontaktuj się z ",
-  "error_page.error_title_already_subscribed": "Już subskrybowany",
-  "error_page.error_title_already_purchased": "Już zakupiony",
+  "error_page.error_title_already_subscribed": "Już subskrybujesz",
+  "error_page.error_title_already_purchased": "Już posiadasz ten produkt",
   "error_page.error_title_other_errors": "Coś poszło nie tak",
   "error_page.error_message_already_subscribed": "Jesteś już subskrybentem tego produktu.",
   "error_page.error_message_already_purchased": "Już zakupiłeś ten produkt.",
@@ -76,5 +76,6 @@
   "price_update.title": "Aktualizacja ceny",
   "price_update.base_message": "Cena całkowita została zaktualizowana o podatek na podstawie Twojego adresu rozliczeniowego. Sprawdź i spróbuj ponownie. Twoja karta zostanie obciążona tylko raz.",
   "price_update.trial_message": "Cena subskrypcji została zaktualizowana o podatki na podstawie Twojego adresu rozliczeniowego. Okres próbny nadal obowiązuje. Sprawdź i spróbuj ponownie.",
-  "payment_entry_page.express_checkout_divider": "LUB ZAPŁAĆ KARTĄ"
+  "payment_entry_page.express_checkout_divider": "LUB ZAPŁAĆ KARTĄ",
+  "error_page.trouble_accessing": "Jeśli masz problemy z dostępem do zakupu, skontaktuj się z działem pomocy pod adresem "
 }

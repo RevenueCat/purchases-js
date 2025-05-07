@@ -41,8 +41,8 @@
   "success_page.subscription_now_active": "La teva subscripció ja està activa",
   "success_page.button_close": "Continua",
   "error_page.if_error_persists": "Si l'error persisteix, contacta amb ",
-  "error_page.error_title_already_subscribed": "Ja subscrit",
-  "error_page.error_title_already_purchased": "Ja comprat",
+  "error_page.error_title_already_subscribed": "Ja estàs subscrit",
+  "error_page.error_title_already_purchased": "Ja tens aquest producte",
   "error_page.error_title_other_errors": "Alguna cosa ha anat malament",
   "error_page.error_message_already_subscribed": "Ja estàs subscrit a aquest producte.",
   "error_page.error_message_already_purchased": "Ja has comprat aquest producte.",
@@ -76,5 +76,6 @@
   "price_update.title": "Actualització de preu",
   "price_update.base_message": "El preu total s'ha actualitzat amb els impostos segons la vostra adreça de facturació. Reviseu-ho i torneu-ho a provar. Només es carregarà la vostra targeta una vegada.",
   "price_update.trial_message": "El preu de la subscripció s'ha actualitzat per incloure els impostos segons la seva adreça de facturació. El període de prova gratuït segueix vigent. Si us plau, comprovi-ho i torni-ho a provar.",
-  "payment_entry_page.express_checkout_divider": "O PAGUEU AMB TARGETA"
+  "payment_entry_page.express_checkout_divider": "O PAGUEU AMB TARGETA",
+  "error_page.trouble_accessing": "Si teniu problemes per accedir a la vostra compra, poseu-vos en contacte amb el servei d'assistència a "
 }

@@ -81,6 +81,7 @@ export enum LocalizationKeys {
   SuccessPageSubscriptionNowActive = "success_page.subscription_now_active",
   SuccessPageButtonClose = "success_page.button_close",
   ErrorPageIfErrorPersists = "error_page.if_error_persists",
+  ErrorPageTroubleAccessing = "error_page.trouble_accessing",
   ErrorPageErrorTitleAlreadySubscribed = "error_page.error_title_already_subscribed",
   ErrorPageErrorTitleAlreadyPurchased = "error_page.error_title_already_purchased",
   ErrorPageErrorTitleOtherErrors = "error_page.error_title_other_errors",

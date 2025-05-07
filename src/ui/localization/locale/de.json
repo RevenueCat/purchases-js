@@ -41,8 +41,8 @@
   "success_page.subscription_now_active": "Ihr Abonnement ist jetzt aktiv",
   "success_page.button_close": "Weiter",
   "error_page.if_error_persists": "Wenn der Fehler weiterhin besteht, wenden Sie sich bitte an ",
-  "error_page.error_title_already_subscribed": "Bereits abonniert",
-  "error_page.error_title_already_purchased": "Bereits gekauft",
+  "error_page.error_title_already_subscribed": "Du hast dieses Abonnement bereits abgeschlossen",
+  "error_page.error_title_already_purchased": "Du besitzt dieses Produkt bereits",
   "error_page.error_title_other_errors": "Etwas ist schief gelaufen",
   "error_page.error_message_already_subscribed": "Sie haben dieses Produkt bereits abonniert.",
   "error_page.error_message_already_purchased": "Sie haben dieses Produkt bereits gekauft.",
@@ -76,5 +76,6 @@
   "price_update.title": "Preisaktualisierung",
   "price_update.base_message": "Der Gesamtpreis wurde basierend auf Ihrer Rechnungsadresse mit Steuern aktualisiert. Bitte überprüfen Sie ihn und versuchen Sie es erneut. Ihre Karte wird erst belastet, wenn alles korrekt ist.",
   "price_update.trial_message": "Der Abonnementpreis wurde aktualisiert, um Steuern basierend auf Ihrer Rechnungsadresse einzuschließen. Die kostenlose Testphase gilt weiterhin. Bitte überprüfen Sie und versuchen Sie es erneut.",
-  "payment_entry_page.express_checkout_divider": "ODER MIT KARTE ZAHLEN"
+  "payment_entry_page.express_checkout_divider": "ODER MIT KARTE ZAHLEN",
+  "error_page.trouble_accessing": "Wenn Sie Probleme beim Zugriff auf Ihren Kauf haben, wenden Sie sich an den Support unter "
 }

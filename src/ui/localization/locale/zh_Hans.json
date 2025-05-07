@@ -41,8 +41,8 @@
   "success_page.subscription_now_active": "您的订阅现已生效",
   "success_page.button_close": "继续",
   "error_page.if_error_persists": "如果错误仍然存在，请联系 ",
-  "error_page.error_title_already_subscribed": "已订阅",
-  "error_page.error_title_already_purchased": "已购买",
+  "error_page.error_title_already_subscribed": "您已订阅",
+  "error_page.error_title_already_purchased": "您已拥有此产品",
   "error_page.error_title_other_errors": "出现错误",
   "error_page.error_message_already_subscribed": "您已订阅此产品。",
   "error_page.error_message_already_purchased": "您已购买此产品。",
@@ -76,5 +76,6 @@
   "price_update.title": "价格更新",
   "price_update.base_message": "总价已根据您的账单地址更新了税费。请查看并重试。您的银行卡只会扣款一次。",
   "price_update.trial_message": "根据您的账单地址，订阅价格已更新为含税价格。免费试用仍然有效。请查看并重试。",
-  "payment_entry_page.express_checkout_divider": "或使用银行卡支付"
+  "payment_entry_page.express_checkout_divider": "或使用银行卡支付",
+  "error_page.trouble_accessing": "如果您在访问购买内容时遇到问题，请联系我们的支持团队："
 }

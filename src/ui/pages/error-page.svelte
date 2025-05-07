@@ -14,6 +14,7 @@
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import { type Writable } from "svelte/store";
+  import IconSuccess from "../atoms/icons/icon-success.svelte";
 
   interface Props {
     lastError: PurchaseFlowError | null;
@@ -93,12 +94,12 @@
         if (productDetails.productType === ProductType.Subscription) {
           return $translator.translate(
             LocalizationKeys.ErrorPageErrorMessageAlreadySubscribed,
-            { errorCode: publicErrorCode },
+            { errorCode: publicErrorCode, email: email ?? "" },
           );
         } else {
           return $translator.translate(
             LocalizationKeys.ErrorPageErrorMessageAlreadyPurchased,
-            { errorCode: publicErrorCode },
+            { errorCode: publicErrorCode, email: email ?? "" },
           );
         }
     }
@@ -106,13 +107,34 @@
 </script>
 
 {#if error.errorCode === PurchaseFlowErrorCode.AlreadyPurchasedError}
-  <MessageLayout title={getTranslatedErrorTitle()} {onDismiss} type="error">
+  <MessageLayout
+    title={getTranslatedErrorTitle()}
+    {onDismiss}
+    type="error"
+    closeButtonTitle="Go to <Igify>"
+  >
+    {#snippet icon()}
+      <IconSuccess />
+    {/snippet}
+
     {#snippet message()}
       {getTranslatedErrorMessage()}
+      {#if supportEmail}
+        <br />
+        <Localized key={LocalizationKeys.ErrorPageTroubleAccessing} />
+        <a href="mailto:{supportEmail}">{supportEmail}</a>.
+      {/if}
     {/snippet}
   </MessageLayout>
 {:else}
-  <MessageLayout title={getTranslatedErrorTitle()} {onDismiss} type="error">
+  <MessageLayout
+    title={getTranslatedErrorTitle()}
+    {onDismiss}
+    type="error"
+    closeButtonTitle={$translator.translate(
+      LocalizationKeys.ErrorButtonTryAgain,
+    )}
+  >
     {#snippet icon()}
       <IconError />
     {/snippet}

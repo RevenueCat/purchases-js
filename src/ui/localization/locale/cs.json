@@ -41,8 +41,8 @@
   "success_page.subscription_now_active": "Vaše předplatné je nyní aktivní",
   "success_page.button_close": "Pokračovat",
   "error_page.if_error_persists": "Pokud chyba přetrvává, kontaktujte ",
-  "error_page.error_title_already_subscribed": "Již přihlášen k odběru",
-  "error_page.error_title_already_purchased": "Již zakoupeno",
+  "error_page.error_title_already_subscribed": "Již máte předplatné",
+  "error_page.error_title_already_purchased": "Tento produkt již vlastníte",
   "error_page.error_title_other_errors": "Něco se pokazilo",
   "error_page.error_message_already_subscribed": "Již jste přihlášeni k odběru tohoto produktu.",
   "error_page.error_message_already_purchased": "Tento produkt jste již zakoupili.",
@@ -76,5 +76,6 @@
   "price_update.title": "Aktualizace ceny",
   "price_update.base_message": "Celková cena byla aktualizována o daň na základě vaší fakturační adresy. Zkontrolujte ji a zkuste to znovu. Vaše karta bude stržena pouze jednou.",
   "price_update.trial_message": "Cena předplatného byla aktualizována včetně daní na základě vaší fakturační adresy. Bezplatná zkušební doba stále platí. Prosím, zkontrolujte a zkuste to znovu.",
-  "payment_entry_page.express_checkout_divider": "NEBO ZAPLATIT KARTOU"
+  "payment_entry_page.express_checkout_divider": "NEBO ZAPLATIT KARTOU",
+  "error_page.trouble_accessing": "Pokud máte potíže s přístupem k zakoupenému obsahu, obraťte se na podporu na "
 }

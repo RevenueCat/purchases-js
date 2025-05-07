@@ -41,8 +41,8 @@
   "success_page.subscription_now_active": "Ваша підписка активна",
   "success_page.button_close": "Продовжити",
   "error_page.if_error_persists": "Якщо помилка повторюється, зверніться до ",
-  "error_page.error_title_already_subscribed": "Вже підписано",
-  "error_page.error_title_already_purchased": "Вже придбано",
+  "error_page.error_title_already_subscribed": "Ви вже підписані",
+  "error_page.error_title_already_purchased": "Ви вже маєте цей продукт",
   "error_page.error_title_other_errors": "Щось пішло не так",
   "error_page.error_message_already_subscribed": "Ви вже підписані на цей продукт.",
   "error_page.error_message_already_purchased": "Ви вже придбали цей продукт.",
@@ -76,5 +76,6 @@
   "price_update.title": "Оновлення ціни",
   "price_update.base_message": "Загальну ціну було оновлено з урахуванням податку на основі вашої платіжної адреси. Перегляньте та спробуйте ще раз. З вашої картки буде списано кошти лише один раз.",
   "price_update.trial_message": "Ціна підписки була оновлена для включення податків на основі вашої платіжної адреси. Безкоштовний пробний період все ще діє. Будь ласка, перевірте та спробуйте ще раз.",
-  "payment_entry_page.express_checkout_divider": "АБО СПЛАТІТЬ КАРТКОЮ"
+  "payment_entry_page.express_checkout_divider": "АБО СПЛАТІТЬ КАРТКОЮ",
+  "error_page.trouble_accessing": "Якщо у вас виникли проблеми з доступом до вашої покупки, зверніться до служби підтримки за адресою "
 }

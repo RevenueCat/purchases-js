@@ -41,8 +41,8 @@
   "success_page.subscription_now_active": "您的訂閱現已啟用",
   "success_page.button_close": "繼續",
   "error_page.if_error_persists": "如果錯誤持續存在，請聯絡 ",
-  "error_page.error_title_already_subscribed": "已訂閱",
-  "error_page.error_title_already_purchased": "已購買",
+  "error_page.error_title_already_subscribed": "您已訂閱",
+  "error_page.error_title_already_purchased": "您已擁有此產品",
   "error_page.error_title_other_errors": "發生錯誤",
   "error_page.error_message_already_subscribed": "您已訂閱此產品。",
   "error_page.error_message_already_purchased": "您已購買此產品。",
@@ -76,5 +76,6 @@
   "price_update.title": "價格更新",
   "price_update.base_message": "總價已根據您的帳單地址更新稅金。請檢查後重試。您的信用卡只會被收取一次費用。",
   "price_update.trial_message": "根據您的帳單地址，訂閱價格已更新為含稅價格。免費試用仍然有效。請查看並重試。",
-  "payment_entry_page.express_checkout_divider": "或以信用卡付款"
+  "payment_entry_page.express_checkout_divider": "或以信用卡付款",
+  "error_page.trouble_accessing": "如果您在存取購買項目時遇到問題，請聯絡支援部門："
 }

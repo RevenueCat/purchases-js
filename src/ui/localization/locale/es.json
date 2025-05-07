@@ -41,8 +41,8 @@
   "success_page.subscription_now_active": "Tu suscripción está ahora activa",
   "success_page.button_close": "Continuar",
   "error_page.if_error_persists": "Si el error persiste, contacta con ",
-  "error_page.error_title_already_subscribed": "Ya suscrito",
-  "error_page.error_title_already_purchased": "Ya comprado",
+  "error_page.error_title_already_subscribed": "Ya estás suscrito",
+  "error_page.error_title_already_purchased": "Ya tienes este producto",
   "error_page.error_title_other_errors": "Algo salió mal",
   "error_page.error_message_already_subscribed": "Ya estás suscrito a este producto.",
   "error_page.error_message_already_purchased": "Ya has comprado este producto.",
@@ -76,5 +76,6 @@
   "price_update.title": "Actualización de precio",
   "price_update.base_message": "El precio total se actualizó con impuestos según su dirección de facturación. Revise e intente nuevamente. Solo se efectuará un cobro en su tarjeta.",
   "price_update.trial_message": "El precio de la suscripción se actualizó para incluir impuestos según su dirección de facturación. La prueba gratuita sigue aplicándose. Revise e intente nuevamente.",
-  "payment_entry_page.express_checkout_divider": "O PAGA CON TARJETA"
+  "payment_entry_page.express_checkout_divider": "O PAGA CON TARJETA",
+  "error_page.trouble_accessing": "Si tienes problemas para acceder a tu compra, ponte en contacto con el servicio de asistencia en "
 }

@@ -41,8 +41,8 @@
   "success_page.subscription_now_active": "購読が有効になりました",
   "success_page.button_close": "続行",
   "error_page.if_error_persists": "エラーが続く場合は、ご連絡ください。",
-  "error_page.error_title_already_subscribed": "既に購読済みです",
-  "error_page.error_title_already_purchased": "既に購入済みです",
+  "error_page.error_title_already_subscribed": "すでにサブスクリプションに登録されています",
+  "error_page.error_title_already_purchased": "すでにこの商品を所有しています",
   "error_page.error_title_other_errors": "エラーが発生しました",
   "error_page.error_message_already_subscribed": "この製品は既に購読されています。",
   "error_page.error_message_already_purchased": "この製品は既に購入されています。",
@@ -76,5 +76,6 @@
   "price_update.title": "価格の更新",
   "price_update.base_message": "合計金額が、お客様の請求先住所に基づいて税金とともに更新されました。再度ご確認ください。カードへの請求は1回のみです。",
   "price_update.trial_message": "請求先住所に基づいて税金を含むサブスクリプション料金が更新されました。無料トライアルは引き続き適用されます。確認して再度お試しください。",
-  "payment_entry_page.express_checkout_divider": "カードで支払う"
+  "payment_entry_page.express_checkout_divider": "カードで支払う",
+  "error_page.trouble_accessing": "購入へのアクセスに問題がある場合は、{{{{support}}}}までお問い合わせください。"
 }

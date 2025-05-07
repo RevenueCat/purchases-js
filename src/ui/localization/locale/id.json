@@ -41,8 +41,8 @@
   "success_page.subscription_now_active": "Langganan Anda sekarang aktif",
   "success_page.button_close": "Lanjutkan",
   "error_page.if_error_persists": "Jika kesalahan berlanjut, silakan hubungi ",
-  "error_page.error_title_already_subscribed": "Sudah Berlangganan",
-  "error_page.error_title_already_purchased": "Sudah Dibeli",
+  "error_page.error_title_already_subscribed": "Anda sudah berlangganan",
+  "error_page.error_title_already_purchased": "Anda sudah memiliki produk ini",
   "error_page.error_title_other_errors": "Terjadi kesalahan",
   "error_page.error_message_already_subscribed": "Anda sudah berlangganan produk ini.",
   "error_page.error_message_already_purchased": "Anda sudah membeli produk ini.",
@@ -76,5 +76,6 @@
   "price_update.title": "Pembaruan harga",
   "price_update.base_message": "Total harga telah diperbarui dengan pajak berdasarkan alamat penagihan Anda. Harap tinjau dan coba lagi. Kartu Anda hanya akan dikenakan biaya sekali.",
   "price_update.trial_message": "Harga langganan telah diperbarui untuk menyertakan pajak berdasarkan alamat penagihan Anda. Masa percobaan gratis masih berlaku. Silakan periksa dan coba lagi.",
-  "payment_entry_page.express_checkout_divider": "ATAU BAYAR DENGAN KARTU"
+  "payment_entry_page.express_checkout_divider": "ATAU BAYAR DENGAN KARTU",
+  "error_page.trouble_accessing": "Jika Anda mengalami masalah saat mengakses pembelian, hubungi dukungan di "
 }

@@ -41,8 +41,8 @@
   "success_page.subscription_now_active": "Tilauksesi on nyt aktiivinen",
   "success_page.button_close": "Jatka",
   "error_page.if_error_persists": "Jos virhe jatkuu, ota yhteyttä ",
-  "error_page.error_title_already_subscribed": "Jo tilaaja",
-  "error_page.error_title_already_purchased": "Jo ostettu",
+  "error_page.error_title_already_subscribed": "Olet jo tilannut",
+  "error_page.error_title_already_purchased": "Omistat jo tämän tuotteen",
   "error_page.error_title_other_errors": "Jokin meni pieleen",
   "error_page.error_message_already_subscribed": "Olet jo tilannut tämän tuotteen.",
   "error_page.error_message_already_purchased": "Olet jo ostanut tämän tuotteen.",
@@ -76,5 +76,6 @@
   "price_update.title": "Hinnan päivitys",
   "price_update.base_message": "Kokonaishinta on päivitetty verolla laskutusosoitteesi perusteella. Tarkista ja yritä uudelleen. Korttiasi veloitetaan vain kerran.",
   "price_update.trial_message": "Tilauksen hinta on päivitetty sisältämään verot laskutusosoitteesi perusteella. Ilmainen kokeilujakso on edelleen voimassa. Tarkista ja yritä uudelleen.",
-  "payment_entry_page.express_checkout_divider": "TAI MAKSA KORTILLA"
+  "payment_entry_page.express_checkout_divider": "TAI MAKSA KORTILLA",
+  "error_page.trouble_accessing": "Jos sinulla on ongelmia ostoksesi käyttämisessä, ota yhteyttä tukeen osoitteessa "
 }
