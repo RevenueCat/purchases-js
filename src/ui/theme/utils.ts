@@ -12,7 +12,13 @@ import {
   RoundedShape,
   type Shape,
 } from "./shapes";
-import { DEFAULT_FONT_FAMILY, type TextStyles } from "./text";
+
+import type { BrandFontConfig } from "./text";
+import {
+  BRANDED_FONT_FAMILY,
+  DEFAULT_FONT_FAMILY,
+  type TextStyles,
+} from "./text";
 import type { Spacing } from "./spacing";
 import type { BrandingAppearance } from "../../entities/branding";
 
@@ -301,15 +307,29 @@ export const toFormStyleVar = (appearance?: BrandingAppearance | null) => {
 /**
  * Convert text styles into CSS variables for both desktop and mobile.
  */
-export const toTextStyleVar = (prefix: string = "", textStyles: TextStyles) =>
-  Object.entries(textStyles)
-    .flatMap(([key, { desktop, mobile }]) => [
-      `--rc-${prefix}-${key}-desktop: normal normal ${desktop.fontWeight} ${desktop.fontSize}/${desktop.lineHeight} ${DEFAULT_FONT_FAMILY}`,
-      `--rc-${prefix}-${key}-mobile: normal normal ${mobile.fontWeight} ${mobile.fontSize}/${mobile.lineHeight} ${DEFAULT_FONT_FAMILY}`,
-      `--rc-${prefix}-${key}-desktop-font-size: ${desktop.fontSize}`,
-      `--rc-${prefix}-${key}-mobile-font-size: ${mobile.fontSize}`,
-    ])
+export const toTextStyleVar = (
+  prefix: string = "",
+  textStyles: TextStyles,
+  brand_font_config: BrandFontConfig | null | undefined,
+) => {
+  return Object.entries(textStyles)
+    .flatMap(([key, { desktop, mobile }]) => {
+      const desktopFontStyle = `normal normal ${desktop.fontWeight} ${desktop.fontSize}/${desktop.lineHeight} ${DEFAULT_FONT_FAMILY}`;
+      const mobileFontStyle = `normal normal ${mobile.fontWeight} ${mobile.fontSize}/${mobile.lineHeight} ${DEFAULT_FONT_FAMILY}`;
+      const brandedDesktopFontStyle = `normal normal ${brand_font_config?.desktop.font_weight} ${brand_font_config?.desktop.font_size} ${BRANDED_FONT_FAMILY}`;
+      const brandedMobileFontStyle = `normal normal ${brand_font_config?.mobile.font_weight} ${brand_font_config?.mobile.font_size} ${BRANDED_FONT_FAMILY}`;
+
+      return [
+        `--rc-${prefix}-${key}-desktop: ${desktopFontStyle}`,
+        `--rc-${prefix}-${key}-mobile: ${mobileFontStyle}`,
+        `--rc-${prefix}-${key}-branded-desktop: ${brand_font_config ? brandedDesktopFontStyle : desktopFontStyle}`,
+        `--rc-${prefix}-${key}-branded-mobile: ${brand_font_config ? brandedMobileFontStyle : mobileFontStyle}`,
+        `--rc-${prefix}-${key}-desktop-font-size: ${desktop.fontSize}`,
+        `--rc-${prefix}-${key}-mobile-font-size: ${mobile.fontSize}`,
+      ];
+    })
     .join("; ");
+};
 
 /**
  * Generates CSS variables for the spacing system.
