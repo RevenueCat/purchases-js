@@ -1,3 +1,4 @@
+import type { BrandFontConfig } from "src/ui/theme/text";
 import type { BrandingAppearance } from "../../entities/branding";
 
 export type BrandingInfoResponse = {
@@ -10,4 +11,5 @@ export type BrandingInfoResponse = {
   app_name: string | null;
   support_email?: string | null;
   gateway_tax_collection_enabled: boolean;
+  brand_font_config: BrandFontConfig | null;
 };

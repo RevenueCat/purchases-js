@@ -31,7 +31,11 @@
   );
 </script>
 
-<Container brandingAppearance={brandingInfo?.appearance} {isInElement}>
+<Container
+  brandingAppearance={brandingInfo?.appearance}
+  brandFontConfig={brandingInfo?.brand_font_config}
+  {isInElement}
+>
   {#if isSandbox}
     <SandboxBanner style={colorVariables} {isInElement} />
   {/if}

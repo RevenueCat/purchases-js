@@ -10,6 +10,12 @@ export interface TextStyle {
   letterSpacing?: string;
 }
 
+export interface BrandFontConfig {
+  font_url: string;
+  mobile: { font_weight: number; font_size: string };
+  desktop: { font_weight: number; font_size: string };
+}
+
 export type ScreenType = "mobile" | "desktop";
 
 export type ScreenTextStyle = Record<TextStyleKey, TextStyle>;
@@ -36,6 +42,9 @@ export type TextStyles = Record<
 
 export const DEFAULT_FONT_FAMILY =
   "-apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto, arial, sans-serif";
+
+export const BRANDED_FONT_NAME = "BrandCustomFont";
+export const BRANDED_FONT_FAMILY = `${BRANDED_FONT_NAME}, ${DEFAULT_FONT_FAMILY}`;
 
 const FONT_WEIGHTS = {
   regular: "400",

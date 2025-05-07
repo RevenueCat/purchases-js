@@ -3,17 +3,47 @@
   import { Theme } from "../theme/theme";
 
   import type { BrandingAppearance } from "../../entities/branding";
+  import { BRANDED_FONT_NAME } from "../theme/text";
+  import { buildAssetURL } from "../../networking/assets";
+  import type { BrandFontConfig } from "../theme/text";
 
-  export let brandingAppearance: BrandingAppearance | null | undefined =
-    undefined;
-  export let isInElement: boolean = false;
+  const {
+    brandingAppearance = undefined,
+    brandFontConfig = undefined,
+    isInElement = false,
+    children,
+  } = $props<{
+    brandingAppearance: BrandingAppearance | null | undefined;
+    brandFontConfig: BrandFontConfig | null | undefined;
+    isInElement: boolean;
+    children: Snippet;
+  }>();
 
   // Make styles reactive to changes in brandingAppearance
-  $: textStyle = new Theme(brandingAppearance).textStyleVars;
-  $: spacingStyle = new Theme(brandingAppearance).spacingStyleVars;
-  $: style = [textStyle, spacingStyle].join("; ");
+  const textStyle = $derived(
+    new Theme(brandingAppearance).getTextStyleVars(brandFontConfig),
+  );
+  const spacingStyle = $derived(new Theme(brandingAppearance).spacingStyleVars);
+  const style = $derived([textStyle, spacingStyle].join("; "));
+  const fontURL = $derived(
+    brandFontConfig?.font_url ? buildAssetURL(brandFontConfig.font_url) : null,
+  );
 
-  export let children: Snippet;
+  const loadBrandFont = async (fontURL: string): Promise<void> => {
+    try {
+      const fontFace = new FontFace(BRANDED_FONT_NAME, `url(${fontURL})`);
+      await fontFace.load();
+      (document as any).fonts.add(fontFace);
+    } catch (error) {
+      console.error(`Failed to set brand font:`, error);
+    }
+  };
+
+  $effect(() => {
+    if (fontURL) {
+      void loadBrandFont(fontURL);
+    }
+  });
 </script>
 
 <div
