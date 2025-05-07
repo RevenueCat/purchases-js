@@ -41,11 +41,11 @@
   "success_page.subscription_now_active": "Votre abonnement est maintenant actif",
   "success_page.button_close": "Continuer",
   "error_page.if_error_persists": "Si l'erreur persiste, veuillez contacter ",
-  "error_page.error_title_already_subscribed": "Vous êtes déjà abonné",
+  "error_page.error_title_already_subscribed": "Vous êtes déjà abonné(e)",
   "error_page.error_title_already_purchased": "Vous possédez déjà ce produit",
   "error_page.error_title_other_errors": "Une erreur s'est produite",
-  "error_page.error_message_already_subscribed": "Vous êtes déjà abonné à ce produit.",
-  "error_page.error_message_already_purchased": "Vous avez déjà acheté ce produit.",
+  "error_page.error_message_already_subscribed": "Vous avez déjà accès à Igify Pro avec l'adresse e-mail {{email}}. Vous ne pouvez pas vous abonner à nouveau.",
+  "error_page.error_message_already_purchased": "Vous avez déjà accès à Igify Pro avec l'adresse e-mail {{email}}. Vous ne pouvez pas acheter ce produit à nouveau.",
   "error_page.error_message_missing_email_error": "L'adresse e-mail est requise pour effectuer l'achat.",
   "error_page.error_message_network_error": "Erreur réseau. Veuillez vérifier votre connexion Internet.",
   "error_page.error_message_error_charging_payment": "Échec du paiement.",
@@ -77,5 +77,5 @@
   "price_update.base_message": "Le prix total a été mis à jour avec la taxe en fonction de votre adresse de facturation. Veuillez vérifier et réessayer. Votre carte ne sera débitée qu'une seule fois.",
   "price_update.trial_message": "Le prix de l'abonnement a été mis à jour pour inclure les taxes en fonction de votre adresse de facturation. La période d'essai gratuit reste applicable. Veuillez vérifier et réessayer.",
   "payment_entry_page.express_checkout_divider": "OU PAYER PAR CARTE",
-  "error_page.trouble_accessing": "Si vous rencontrez des difficultés pour accéder à votre achat, contactez le support à l'adresse "
+  "error_page.trouble_accessing": "Si vous avez des difficultés à accéder à votre achat, contactez le support à l'adresse suivante : "
 }

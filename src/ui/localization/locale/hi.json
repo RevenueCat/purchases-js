@@ -41,11 +41,11 @@
   "success_page.subscription_now_active": "आपकी सदस्यता अब सक्रिय है",
   "success_page.button_close": "जारी रखें",
   "error_page.if_error_persists": "यदि त्रुटि बनी रहती है, तो कृपया संपर्क करें ",
-  "error_page.error_title_already_subscribed": "आप पहले से ही सदस्यता ले चुके हैं",
+  "error_page.error_title_already_subscribed": "आपने पहले ही सदस्यता ले ली है",
   "error_page.error_title_already_purchased": "आपके पास पहले से ही यह उत्पाद है",
   "error_page.error_title_other_errors": "कुछ गलत हो गया",
-  "error_page.error_message_already_subscribed": "आप पहले से ही इस उत्पाद की सदस्यता ले चुके हैं।",
-  "error_page.error_message_already_purchased": "आप पहले ही इस उत्पाद को खरीद चुके हैं।",
+  "error_page.error_message_already_subscribed": "आपके पास {{email}} के साथ Igify Pro तक पहुंच है. आप फिर से सदस्यता नहीं ले सकते.",
+  "error_page.error_message_already_purchased": "आपके पास {{email}} के साथ Igify Pro तक पहुंच है. आप इस उत्पाद को फिर से नहीं खरीद सकते.",
   "error_page.error_message_missing_email_error": "खरीद को पूरा करने के लिए ईमेल आवश्यक है।",
   "error_page.error_message_network_error": "नेटवर्क त्रुटि। कृपया अपना इंटरनेट कनेक्शन जांचें।",
   "error_page.error_message_error_charging_payment": "भुगतान विफल।",
@@ -77,5 +77,5 @@
   "price_update.base_message": "आप के बिलिंग पते के आधार पर कुल कीमत कर के साथ अपडेट की गई थी। कृपया समीक्षा करें और फिर से प्रयास करें। आपके कार्ड से केवल एक बार शुल्क लिया जाएगा।",
   "price_update.trial_message": "सदस्यता मूल्य आपके बिलिंग पते के आधार पर करों को शामिल करने के लिए अपडेट किया गया है। निःशुल्क परीक्षण अवधि अभी भी लागू है। कृपया जांचें और पुनः प्रयास करें।",
   "payment_entry_page.express_checkout_divider": "या कार्ड से भुगतान करें",
-  "error_page.trouble_accessing": "यदि आपको अपनी खरीदारी तक पहुंचने में परेशानी हो रही है, तो {{support_email}} पर समर्थन के लिए संपर्क करें"
+  "error_page.trouble_accessing": "यदि आपको अपनी खरीदारी तक पहुंचने में परेशानी हो रही है, तो पर समर्थन के लिए संपर्क करें"
 }

@@ -111,6 +111,7 @@
         supportEmail={brandingInfo?.support_email ?? null}
         onDismiss={closeWithError}
         email={customerEmail ?? undefined}
+        appName={brandingInfo?.app_name ?? null}
       />
     {/if}
     {#if currentPage === "success"}

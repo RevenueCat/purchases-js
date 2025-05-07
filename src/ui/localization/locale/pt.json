@@ -44,8 +44,8 @@
   "error_page.error_title_already_subscribed": "Você já se inscreveu",
   "error_page.error_title_already_purchased": "Você já possui este produto",
   "error_page.error_title_other_errors": "Algo deu errado",
-  "error_page.error_message_already_subscribed": "Você já está inscrito neste produto.",
-  "error_page.error_message_already_purchased": "Você já comprou este produto.",
+  "error_page.error_message_already_subscribed": "Você tem acesso ao Igify Pro com {{email}}. Você não pode se inscrever novamente.",
+  "error_page.error_message_already_purchased": "Você tem acesso ao Igify Pro com {{email}}. Você não pode comprar este produto novamente.",
   "error_page.error_message_missing_email_error": "Email é necessário para concluir a compra.",
   "error_page.error_message_network_error": "Erro de rede. Verifique sua conexão com a internet.",
   "error_page.error_message_error_charging_payment": "Pagamento falhou.",
@@ -77,5 +77,5 @@
   "price_update.base_message": "O preço total foi atualizado com impostos com base no seu endereço de cobrança. Por favor, revise e tente novamente. Seu cartão só será cobrado uma vez.",
   "price_update.trial_message": "O preço da assinatura foi atualizado para incluir impostos com base no seu endereço de faturação. O período de teste gratuito continua válido. Por favor, verifique e tente novamente.",
   "payment_entry_page.express_checkout_divider": "OU PAGUE COM CARTÃO",
-  "error_page.trouble_accessing": "Se você estiver com problemas para acessar sua compra, entre em contato com o suporte em "
+  "error_page.trouble_accessing": "Se estiver com problemas para acessar sua compra, entre em contato com o suporte em "
 }

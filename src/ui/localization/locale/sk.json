@@ -41,11 +41,11 @@
   "success_page.subscription_now_active": "Vaše predplatné je teraz aktívne",
   "success_page.button_close": "Pokračovať",
   "error_page.if_error_persists": "Ak chyba pretrváva, kontaktujte ",
-  "error_page.error_title_already_subscribed": "Už ste sa prihlásili na odber",
+  "error_page.error_title_already_subscribed": "Už ste prihlásený/á na odber",
   "error_page.error_title_already_purchased": "Tento produkt už vlastníte",
   "error_page.error_title_other_errors": "Niečo sa pokazilo",
-  "error_page.error_message_already_subscribed": "Už ste prihlásení k odberu tohto produktu.",
-  "error_page.error_message_already_purchased": "Tento produkt ste si už kúpili.",
+  "error_page.error_message_already_subscribed": "Máte prístup k Igify Pro s {{email}}. Nemôžete sa znova prihlásiť na odber.",
+  "error_page.error_message_already_purchased": "Máte prístup k Igify Pro s {{email}}. Tento produkt si nemôžete kúpiť znova.",
   "error_page.error_message_missing_email_error": "Na dokončenie nákupu je potrebný e-mail.",
   "error_page.error_message_network_error": "Chyba siete. Skontrolujte svoje internetové pripojenie.",
   "error_page.error_message_error_charging_payment": "Platba zlyhala.",
@@ -77,5 +77,5 @@
   "price_update.base_message": "Celková cena bola aktualizovaná o daň na základe vašej fakturačnej adresy. Skontrolujte to a skúste znova. Vaša karta bude zaťažená iba raz.",
   "price_update.trial_message": "Cena predplatného bola aktualizovaná o daňe na základe vašej fakturačnej adresy. Bezplatná skúšobná doba stále platí. Prosím, skontrolujte a skúste znova.",
   "payment_entry_page.express_checkout_divider": "ALEBO ZAPLATIŤ KARTOU",
-  "error_page.trouble_accessing": "Ak máte problémy s prístupom k vášmu nákupu, kontaktujte podporu na "
+  "error_page.trouble_accessing": "Ak máte problémy s prístupom k svojmu nákupu, kontaktujte podporu na "
 }

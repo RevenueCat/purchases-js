@@ -44,8 +44,8 @@
   "error_page.error_title_already_subscribed": "이미 구독하셨습니다",
   "error_page.error_title_already_purchased": "이미 이 제품을 소유하고 있습니다",
   "error_page.error_title_other_errors": "문제가 발생했습니다.",
-  "error_page.error_message_already_subscribed": "이미 이 상품을 구독하고 있습니다.",
-  "error_page.error_message_already_purchased": "이미 이 상품을 구매했습니다.",
+  "error_page.error_message_already_subscribed": "{{email}} 계정으로 Igify Pro에 액세스할 수 있습니다. 다시 구독할 수 없습니다.",
+  "error_page.error_message_already_purchased": "{{email}} 계정으로 Igify Pro에 액세스할 수 있습니다. 이 제품을 다시 구매할 수 없습니다.",
   "error_page.error_message_missing_email_error": "구매를 완료하려면 이메일이 필요합니다.",
   "error_page.error_message_network_error": "네트워크 오류입니다. 인터넷 연결을 확인하십시오.",
   "error_page.error_message_error_charging_payment": "결제에 실패했습니다.",
@@ -77,5 +77,5 @@
   "price_update.base_message": "청구지 주소를 기준으로 세금이 포함된 총 가격이 업데이트되었습니다. 다시 확인하고 시도해 주세요. 카드는 한 번만 청구됩니다.",
   "price_update.trial_message": "청구 주소에 따라 세금이 포함된 구독 가격이 업데이트되었습니다. 무료 체험은 계속 적용됩니다. 확인하고 다시 시도해 주세요.",
   "payment_entry_page.express_checkout_divider": "또는 카드 결제",
-  "error_page.trouble_accessing": "구매 접속에 문제가 있는 경우, 다음 주소로 지원팀에 문의하십시오. "
+  "error_page.trouble_accessing": "구매에 문제가 있는 경우 다음 주소로 지원팀에 문의하세요. "
 }

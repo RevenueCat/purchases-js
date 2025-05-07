@@ -44,8 +44,8 @@
   "error_page.error_title_already_subscribed": "Již máte předplatné",
   "error_page.error_title_already_purchased": "Tento produkt již vlastníte",
   "error_page.error_title_other_errors": "Něco se pokazilo",
-  "error_page.error_message_already_subscribed": "Již jste přihlášeni k odběru tohoto produktu.",
-  "error_page.error_message_already_purchased": "Tento produkt jste již zakoupili.",
+  "error_page.error_message_already_subscribed": "Máte přístup k Igify Pro s účtem {{email}}. Nemůžete se přihlásit k odběru znovu.",
+  "error_page.error_message_already_purchased": "Máte přístup k Igify Pro s účtem {{email}}. Nemůžete tento produkt zakoupit znovu.",
   "error_page.error_message_missing_email_error": "Pro dokončení nákupu je vyžadován e-mail.",
   "error_page.error_message_network_error": "Síťová chyba. Zkontrolujte prosím své internetové připojení.",
   "error_page.error_message_error_charging_payment": "Platba selhala.",
@@ -77,5 +77,5 @@
   "price_update.base_message": "Celková cena byla aktualizována o daň na základě vaší fakturační adresy. Zkontrolujte ji a zkuste to znovu. Vaše karta bude stržena pouze jednou.",
   "price_update.trial_message": "Cena předplatného byla aktualizována včetně daní na základě vaší fakturační adresy. Bezplatná zkušební doba stále platí. Prosím, zkontrolujte a zkuste to znovu.",
   "payment_entry_page.express_checkout_divider": "NEBO ZAPLATIT KARTOU",
-  "error_page.trouble_accessing": "Pokud máte potíže s přístupem k zakoupenému obsahu, obraťte se na podporu na "
+  "error_page.trouble_accessing": "Pokud máte potíže s přístupem k zakoupenému obsahu, kontaktujte podporu na "
 }

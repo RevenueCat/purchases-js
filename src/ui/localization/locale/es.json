@@ -41,11 +41,11 @@
   "success_page.subscription_now_active": "Tu suscripción está ahora activa",
   "success_page.button_close": "Continuar",
   "error_page.if_error_persists": "Si el error persiste, contacta con ",
-  "error_page.error_title_already_subscribed": "Ya estás suscrito",
+  "error_page.error_title_already_subscribed": "Ya te has suscrito",
   "error_page.error_title_already_purchased": "Ya tienes este producto",
   "error_page.error_title_other_errors": "Algo salió mal",
-  "error_page.error_message_already_subscribed": "Ya estás suscrito a este producto.",
-  "error_page.error_message_already_purchased": "Ya has comprado este producto.",
+  "error_page.error_message_already_subscribed": "Tienes acceso a Igify Pro con {{email}}. No puedes suscribirte de nuevo.",
+  "error_page.error_message_already_purchased": "Tienes acceso a Igify Pro con {{email}}. No puedes comprar este producto de nuevo.",
   "error_page.error_message_missing_email_error": "Se requiere un correo electrónico para completar la compra.",
   "error_page.error_message_network_error": "Error de red. Por favor, comprueba tu conexión a internet.",
   "error_page.error_message_error_charging_payment": "Pago fallido.",
@@ -77,5 +77,5 @@
   "price_update.base_message": "El precio total se actualizó con impuestos según su dirección de facturación. Revise e intente nuevamente. Solo se efectuará un cobro en su tarjeta.",
   "price_update.trial_message": "El precio de la suscripción se actualizó para incluir impuestos según su dirección de facturación. La prueba gratuita sigue aplicándose. Revise e intente nuevamente.",
   "payment_entry_page.express_checkout_divider": "O PAGA CON TARJETA",
-  "error_page.trouble_accessing": "Si tienes problemas para acceder a tu compra, ponte en contacto con el servicio de asistencia en "
+  "error_page.trouble_accessing": "Si tiene problemas para acceder a su compra, póngase en contacto con el servicio de asistencia en "
 }

@@ -22,10 +22,17 @@
     productDetails: Product;
     email?: string;
     onDismiss: () => void;
+    appName: string | null;
   }
 
-  const { lastError, supportEmail, productDetails, email, onDismiss }: Props =
-    $props();
+  const {
+    lastError,
+    supportEmail,
+    productDetails,
+    email,
+    onDismiss,
+    appName,
+  }: Props = $props();
 
   const error: PurchaseFlowError = $derived(
     lastError ??
@@ -111,7 +118,7 @@
     title={getTranslatedErrorTitle()}
     {onDismiss}
     type="error"
-    closeButtonTitle="Go to <Igify>"
+    closeButtonTitle={`Go to ${appName ?? "App"}`}
   >
     {#snippet icon()}
       <IconSuccess />

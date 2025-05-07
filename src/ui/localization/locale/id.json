@@ -44,8 +44,8 @@
   "error_page.error_title_already_subscribed": "Anda sudah berlangganan",
   "error_page.error_title_already_purchased": "Anda sudah memiliki produk ini",
   "error_page.error_title_other_errors": "Terjadi kesalahan",
-  "error_page.error_message_already_subscribed": "Anda sudah berlangganan produk ini.",
-  "error_page.error_message_already_purchased": "Anda sudah membeli produk ini.",
+  "error_page.error_message_already_subscribed": "Anda memiliki akses ke Igify Pro dengan {{email}}. Anda tidak dapat berlangganan lagi.",
+  "error_page.error_message_already_purchased": "Anda memiliki akses ke Igify Pro dengan {{email}}. Anda tidak dapat membeli produk ini lagi.",
   "error_page.error_message_missing_email_error": "Email diperlukan untuk menyelesaikan pembelian.",
   "error_page.error_message_network_error": "Kesalahan jaringan. Periksa koneksi internet Anda.",
   "error_page.error_message_error_charging_payment": "Pembayaran gagal.",
@@ -77,5 +77,5 @@
   "price_update.base_message": "Total harga telah diperbarui dengan pajak berdasarkan alamat penagihan Anda. Harap tinjau dan coba lagi. Kartu Anda hanya akan dikenakan biaya sekali.",
   "price_update.trial_message": "Harga langganan telah diperbarui untuk menyertakan pajak berdasarkan alamat penagihan Anda. Masa percobaan gratis masih berlaku. Silakan periksa dan coba lagi.",
   "payment_entry_page.express_checkout_divider": "ATAU BAYAR DENGAN KARTU",
-  "error_page.trouble_accessing": "Jika Anda mengalami masalah saat mengakses pembelian, hubungi dukungan di "
+  "error_page.trouble_accessing": "Jika Anda mengalami masalah dalam mengakses pembelian, hubungi dukungan di "
 }

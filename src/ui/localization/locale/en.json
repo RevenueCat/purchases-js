@@ -47,7 +47,7 @@
   "success_page.subscription_now_active": "Your subscription is now active",
   "success_page.button_close": "Continue",
   "error_page.if_error_persists": "If the error persists, please contact ",
-  "error_page.trouble_accessing": "If you’re having trouble accessing your purchase, reach out to support on ",
+  "error_page.trouble_accessing": "If you're having trouble accessing your purchase, reach out to support on ",
   "error_page.error_title_already_subscribed": "You already subscribed",
   "error_page.error_title_already_purchased": "You already own this product",
   "error_page.error_title_other_errors": "Something went wrong",

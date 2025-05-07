@@ -9,7 +9,10 @@ import {
   type SubscriptionOption,
 } from "../entities/offerings";
 import { PeriodUnit } from "../helpers/duration-helper";
-import { PurchaseFlowError } from "../helpers/purchase-operation-helper";
+import {
+  PurchaseFlowError,
+  PurchaseFlowErrorCode,
+} from "../helpers/purchase-operation-helper";
 import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
 import type { BrandingAppearance } from "../entities/branding";
 import type { CheckoutCalculateTaxResponse } from "../networking/responses/checkout-calculate-tax-response";
@@ -162,6 +165,10 @@ export const brandingInfo: BrandingInfoResponse = {
 };
 
 export const purchaseFlowError = new PurchaseFlowError(1);
+
+export const purchaseFlowAlreadySubscribedError = new PurchaseFlowError(
+  PurchaseFlowErrorCode.AlreadyPurchasedError,
+);
 
 export const purchaseResponse = {
   next_action: "collect_payment_info",

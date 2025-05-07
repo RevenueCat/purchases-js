@@ -14,6 +14,7 @@
     priceBreakdownTaxInclusive,
     product,
     purchaseFlowError,
+    purchaseFlowAlreadySubscribedError,
     subscriptionOption,
     subscriptionOptionWithTrial,
   } from "../fixtures";
@@ -69,7 +70,7 @@
     onContinue={() => {}}
     closeWithError={() => {}}
     customerEmail={args.customerEmail}
-    lastError={null}
+    lastError={args.lastError}
     gatewayParams={checkoutStartResponse.gateway_params}
     {purchaseOperationHelper}
     defaultPriceBreakdown={args.defaultPriceBreakdown ??
@@ -195,3 +196,7 @@
 <Story name="Loading" args={{ currentPage: "payment-entry-loading" }} />
 <Story name="Payment complete" args={{ currentPage: "success" }} />
 <Story name="Payment failed" args={{ currentPage: "error" }} />
+<Story
+  name="Already subscribed"
+  args={{ currentPage: "error", lastError: purchaseFlowAlreadySubscribedError }}
+/>
