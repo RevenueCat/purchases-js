@@ -93,14 +93,16 @@
     gap: var(--rc-spacing-gapMedium-mobile);
   }
 
-  .rcb-close-wrapper {
-    padding-top: var(--rc-spacing-gapMedium-mobile);
-  }
+  .rcb-close-wrapper,
   .rcb-back-wrapper {
     padding: var(--rc-spacing-gapSmall-mobile);
   }
 
   @container layout-query-container (width < 768px) {
+    .rcb-close-wrapper {
+      padding-top: var(--rc-spacing-gapMedium-mobile);
+    }
+
     .rcb-header-wrapper {
       padding-top: var(--rc-spacing-gapSmall-mobile);
       padding-bottom: var(--rc-spacing-gapSmall-mobile);
