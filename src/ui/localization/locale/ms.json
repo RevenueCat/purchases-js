@@ -41,11 +41,11 @@
   "success_page.subscription_now_active": "Langganan anda kini aktif",
   "success_page.button_close": "Teruskan",
   "error_page.if_error_persists": "Jika ralat berterusan, sila hubungi ",
-  "error_page.error_title_already_subscribed": "Anda sudah melanggan",
-  "error_page.error_title_already_purchased": "Anda sudah memiliki produk ini",
+  "error_page.error_title_already_subscribed": "Anda sudah melanggan {{productTitle}}",
+  "error_page.error_title_already_purchased": "Anda sudah membeli {{productTitle}}",
   "error_page.error_title_other_errors": "Ada sesuatu yang tidak kena",
-  "error_page.error_message_already_subscribed": "Anda mempunyai akses ke Igify Pro dengan {{email}}. Anda tidak boleh melanggan lagi.",
-  "error_page.error_message_already_purchased": "Anda mempunyai akses ke Igify Pro dengan {{email}}. Anda tidak boleh membeli produk ini lagi.",
+  "error_page.error_message_already_subscribed": "Anda tidak boleh melanggan produk ini lagi.",
+  "error_page.error_message_already_purchased": "Anda tidak boleh membeli produk ini lagi.",
   "error_page.error_message_missing_email_error": "Emel diperlukan untuk menyelesaikan pembelian.",
   "error_page.error_message_network_error": "Ralat rangkaian. Sila semak sambungan internet anda.",
   "error_page.error_message_error_charging_payment": "Pembayaran gagal.",
@@ -77,5 +77,6 @@
   "price_update.base_message": "Jumlah harga telah dikemas kini dengan cukai berdasarkan alamat pengebilan anda. Sila semak dan cuba lagi. Kad anda hanya akan dicaj sekali.",
   "price_update.trial_message": "Harga langganan telah dikemas kini untuk memasukkan cukai berdasarkan alamat bil anda. Tempoh percubaan percuma masih terpakai. Sila semak dan cuba lagi.",
   "payment_entry_page.express_checkout_divider": "ATAU BAYAR DENGAN KAD",
-  "error_page.trouble_accessing": "Jika anda menghadapi masalah untuk mengakses pembelian anda, hubungi sokongan di "
+  "error_page.trouble_accessing": "Jika anda menghadapi masalah untuk mengakses pembelian anda, hubungi sokongan di ",
+  "error_page.close_button_title": "Pergi ke {{appName}}"
 }

@@ -41,11 +41,11 @@
   "success_page.subscription_now_active": "Ihr Abonnement ist jetzt aktiv",
   "success_page.button_close": "Weiter",
   "error_page.if_error_persists": "Wenn der Fehler weiterhin besteht, wenden Sie sich bitte an ",
-  "error_page.error_title_already_subscribed": "Sie haben bereits ein Abonnement",
-  "error_page.error_title_already_purchased": "Sie besitzen dieses Produkt bereits",
+  "error_page.error_title_already_subscribed": "Du hast {{productTitle}} bereits abonniert",
+  "error_page.error_title_already_purchased": "Du hast {{productTitle}} bereits gekauft",
   "error_page.error_title_other_errors": "Etwas ist schief gelaufen",
-  "error_page.error_message_already_subscribed": "Sie haben mit {{email}} Zugriff auf Igify Pro. Sie können kein weiteres Abonnement abschließen.",
-  "error_page.error_message_already_purchased": "Sie haben mit {{email}} Zugriff auf Igify Pro. Sie können dieses Produkt nicht erneut kaufen.",
+  "error_page.error_message_already_subscribed": "Du kannst dieses Produkt nicht erneut abonnieren.",
+  "error_page.error_message_already_purchased": "Du kannst dieses Produkt nicht erneut kaufen.",
   "error_page.error_message_missing_email_error": "Für den Kauf ist eine E-Mail-Adresse erforderlich.",
   "error_page.error_message_network_error": "Netzwerkfehler. Bitte überprüfen Sie Ihre Internetverbindung.",
   "error_page.error_message_error_charging_payment": "Zahlung fehlgeschlagen.",
@@ -77,5 +77,6 @@
   "price_update.base_message": "Der Gesamtpreis wurde basierend auf Ihrer Rechnungsadresse mit Steuern aktualisiert. Bitte überprüfen Sie ihn und versuchen Sie es erneut. Ihre Karte wird erst belastet, wenn alles korrekt ist.",
   "price_update.trial_message": "Der Abonnementpreis wurde aktualisiert, um Steuern basierend auf Ihrer Rechnungsadresse einzuschließen. Die kostenlose Testphase gilt weiterhin. Bitte überprüfen Sie und versuchen Sie es erneut.",
   "payment_entry_page.express_checkout_divider": "ODER MIT KARTE ZAHLEN",
-  "error_page.trouble_accessing": "Wenn Sie Probleme beim Zugriff auf Ihren Kauf haben, wenden Sie sich an den Support unter "
+  "error_page.trouble_accessing": "Wenn Sie Probleme beim Zugriff auf Ihren Kauf haben, wenden Sie sich an den Support unter ",
+  "error_page.close_button_title": "Zu {{appName}} gehen"
 }

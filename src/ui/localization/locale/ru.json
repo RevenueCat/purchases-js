@@ -41,11 +41,11 @@
   "success_page.subscription_now_active": "Ваша подписка теперь активна",
   "success_page.button_close": "Продолжить",
   "error_page.if_error_persists": "Если ошибка сохраняется, пожалуйста, свяжитесь с ",
-  "error_page.error_title_already_subscribed": "Вы уже подписаны",
-  "error_page.error_title_already_purchased": "Этот продукт у вас уже есть",
+  "error_page.error_title_already_subscribed": "Вы уже подписаны на {{productTitle}}",
+  "error_page.error_title_already_purchased": "Вы уже приобрели {{productTitle}}",
   "error_page.error_title_other_errors": "Что-то пошло не так",
-  "error_page.error_message_already_subscribed": "У вас уже есть доступ к Igify Pro с адресом электронной почты {{email}}. Вы не можете подписаться снова.",
-  "error_page.error_message_already_purchased": "У вас уже есть доступ к Igify Pro с адресом электронной почты {{email}}. Вы не можете купить этот продукт снова.",
+  "error_page.error_message_already_subscribed": "Вы не можете подписаться на этот продукт повторно.",
+  "error_page.error_message_already_purchased": "Вы не можете приобрести этот продукт повторно.",
   "error_page.error_message_missing_email_error": "Для завершения покупки необходим адрес электронной почты.",
   "error_page.error_message_network_error": "Ошибка сети. Проверьте ваше интернет-соединение.",
   "error_page.error_message_error_charging_payment": "Оплата не прошла.",
@@ -77,5 +77,6 @@
   "price_update.base_message": "Общая цена была обновлена с учетом налога на основе вашего платежного адреса. Пожалуйста, проверьте и повторите попытку. С вашей карты будет списано только один раз.",
   "price_update.trial_message": "Цена подписки была обновлена с учетом налогов на основе вашего платежного адреса. Пробный период остается бесплатным. Пожалуйста, проверьте и попробуйте снова.",
   "payment_entry_page.express_checkout_divider": "ИЛИ ОПЛАТИТЕ КАРТОЙ",
-  "error_page.trouble_accessing": "Если у вас возникли проблемы с доступом к вашей покупке, обратитесь в службу поддержки по адресу "
+  "error_page.trouble_accessing": "Если у вас возникли проблемы с доступом к вашей покупке, обратитесь в службу поддержки по адресу ",
+  "error_page.close_button_title": "Перейти в {{appName}}"
 }

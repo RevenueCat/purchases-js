@@ -43,11 +43,11 @@
   "success_page.subscription_now_active": "Η συνδρομή σας είναι πλέον ενεργή",
   "success_page.button_close": "Συνέχεια",
   "error_page.if_error_persists": "Εάν το σφάλμα παραμένει, επικοινωνήστε με ",
-  "error_page.error_title_already_subscribed": "Έχετε ήδη εγγραφεί",
-  "error_page.error_title_already_purchased": "Έχετε ήδη αυτό το προϊόν",
+  "error_page.error_title_already_subscribed": "Έχετε ήδη εγγραφεί στο {{productTitle}}",
+  "error_page.error_title_already_purchased": "Έχετε ήδη αγοράσει το {{productTitle}}",
   "error_page.error_title_other_errors": "Κάτι πήγε στραβά",
-  "error_page.error_message_already_subscribed": "Έχετε πρόσβαση στο Igify Pro με το {{email}}. Δεν μπορείτε να εγγραφείτε ξανά.",
-  "error_page.error_message_already_purchased": "Έχετε πρόσβαση στο Igify Pro με το {{email}}. Δεν μπορείτε να αγοράσετε ξανά αυτό το προϊόν.",
+  "error_page.error_message_already_subscribed": "Δεν μπορείτε να εγγραφείτε ξανά σε αυτό το προϊόν.",
+  "error_page.error_message_already_purchased": "Δεν μπορείτε να αγοράσετε ξανά αυτό το προϊόν.",
   "error_page.error_message_missing_email_error": "Απαιτείται email για την ολοκλήρωση της αγοράς.",
   "error_page.error_message_network_error": "Σφάλμα δικτύου. Ελέγξτε τη σύνδεσή σας στο διαδίκτυο.",
   "error_page.error_message_error_charging_payment": "Η πληρωμή απέτυχε.",
@@ -77,5 +77,6 @@
   "price_update.base_message": "Η συνολική τιμή ενημερώθηκε με τον φόρο βάσει της διεύθυνσης χρέωσής σας. Ελέγξτε και δοκιμάστε ξανά. Η κάρτα σας θα χρεωθεί μόνο μία φορά.",
   "price_update.trial_message": "Η τιμή της συνδρομής ενημερώθηκε για να συμπεριλάβει τους φόρους βάσει της διεύθυνσης χρέωσής σας. Η δωρεάν δοκιμαστική περίοδος εξακολουθεί να ισχύει. Παρακαλώ ελέγξτε και δοκιμάστε ξανά.",
   "payment_entry_page.express_checkout_divider": "Ή ΠΛΗΡΩΣΤΕ ΜΕ ΚΑΡΤΑ",
-  "error_page.trouble_accessing": "Εάν αντιμετωπίζετε προβλήματα πρόσβασης στην αγορά σας, επικοινωνήστε με την υποστήριξη στο "
+  "error_page.trouble_accessing": "Εάν αντιμετωπίζετε προβλήματα πρόσβασης στην αγορά σας, επικοινωνήστε με την υποστήριξη στο ",
+  "error_page.close_button_title": "Μετάβαση στο {{appName}}"
 }

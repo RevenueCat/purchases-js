@@ -41,11 +41,11 @@
   "success_page.subscription_now_active": "המנוי שלך פעיל כעת",
   "success_page.button_close": "המשך",
   "error_page.if_error_persists": "אם השגיאה נמשכת, אנא פנה אל ",
-  "error_page.error_title_already_subscribed": "כבר נרשמת כמנוי",
-  "error_page.error_title_already_purchased": "כבר יש לך מוצר זה",
+  "error_page.error_title_already_subscribed": "כבר נרשמת כמנוי ל-{{productTitle}}",
+  "error_page.error_title_already_purchased": "כבר רכשת את {{productTitle}}",
   "error_page.error_title_other_errors": "משהו השתבש",
-  "error_page.error_message_already_subscribed": "יש לך גישה ל-Igify Pro עם {{email}}. אינך יכול להירשם שוב.",
-  "error_page.error_message_already_purchased": "יש לך גישה ל-Igify Pro עם {{email}}. אינך יכול לקנות מוצר זה שוב.",
+  "error_page.error_message_already_subscribed": "אינך יכול להירשם כמנוי למוצר זה שוב.",
+  "error_page.error_message_already_purchased": "אינך יכול לרכוש מוצר זה שוב.",
   "error_page.error_message_missing_email_error": "דוא\"ל נדרש כדי להשלים את הרכישה.",
   "error_page.error_message_network_error": "שגיאת רשת. אנא בדוק את חיבור האינטרנט שלך.",
   "error_page.error_message_error_charging_payment": "התשלום נכשל.",
@@ -77,5 +77,6 @@
   "price_update.base_message": "המחיר הכולל עודכן עם מס בהתבסס על כתובת החיוב שלך. אנא בדוק שוב ונסה שוב. החיוב יתבצע רק פעם אחת.",
   "price_update.trial_message": "מחיר המנוי עודכן כדי לכלול מיסים בהתבסס על כתובת החיוב שלך. תקופת הניסיון החינמית עדיין תקפה. אנא בדוק ונסה שוב.",
   "payment_entry_page.express_checkout_divider": "או שלם באמצעות כרטיס",
-  "error_page.trouble_accessing": "אם אתה מתקשה לגשת לרכישה שלך, פנה לתמיכה בכתובת "
+  "error_page.trouble_accessing": "אם אתה מתקשה לגשת לרכישה שלך, פנה לתמיכה בכתובת ",
+  "error_page.close_button_title": "עבור אל {{appName}}"
 }

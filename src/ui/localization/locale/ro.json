@@ -41,11 +41,11 @@
   "success_page.subscription_now_active": "Abonamentul dvs. este acum activ",
   "success_page.button_close": "Continuă",
   "error_page.if_error_persists": "Dacă eroarea persistă, vă rugăm să contactați ",
-  "error_page.error_title_already_subscribed": "Ești deja abonat",
-  "error_page.error_title_already_purchased": "Deții deja acest produs",
+  "error_page.error_title_already_subscribed": "Sunteți deja abonat la {{productTitle}}",
+  "error_page.error_title_already_purchased": "Ați achiziționat deja {{productTitle}}",
   "error_page.error_title_other_errors": "A apărut o eroare",
-  "error_page.error_message_already_subscribed": "Ai acces la Igify Pro cu {{email}}. Nu te poți abona din nou.",
-  "error_page.error_message_already_purchased": "Ai acces la Igify Pro cu {{email}}. Nu poți cumpăra acest produs din nou.",
+  "error_page.error_message_already_subscribed": "Nu vă puteți abona din nou la acest produs.",
+  "error_page.error_message_already_purchased": "Nu puteți achiziționa din nou acest produs.",
   "error_page.error_message_missing_email_error": "Adresa de e-mail este necesară pentru a finaliza achiziția.",
   "error_page.error_message_network_error": "Eroare de rețea. Verificați conexiunea la internet.",
   "error_page.error_message_error_charging_payment": "Plata a eșuat.",
@@ -77,5 +77,6 @@
   "price_update.base_message": "Prețul total a fost actualizat cu taxe, în funcție de adresa dumneavoastră de facturare. Vă rugăm să revizuiți și să încercați din nou. Cardul dumneavoastră va fi debitat o singură dată.",
   "price_update.trial_message": "Prețul abonamentului a fost actualizat pentru a include taxele bazate pe adresa dvs. de facturare. Perioada de probă gratuită rămâne valabilă. Vă rugăm să verificați și să încercați din nou.",
   "payment_entry_page.express_checkout_divider": "SAU PLĂTEȘTE CU CARDUL",
-  "error_page.trouble_accessing": "Dacă întâmpini probleme în accesarea achiziției tale, contactează serviciul de asistență la "
+  "error_page.trouble_accessing": "Dacă întâmpini probleme în accesarea achiziției tale, contactează serviciul de asistență la ",
+  "error_page.close_button_title": "Mergi la {{appName}}"
 }

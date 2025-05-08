@@ -41,11 +41,11 @@
   "success_page.subscription_now_active": "您的訂閱現已啟用",
   "success_page.button_close": "繼續",
   "error_page.if_error_persists": "如果錯誤持續存在，請聯絡 ",
-  "error_page.error_title_already_subscribed": "您已訂閱",
-  "error_page.error_title_already_purchased": "您已擁有此產品",
+  "error_page.error_title_already_subscribed": "您已經訂閱 {{productTitle}}",
+  "error_page.error_title_already_purchased": "您已經購買 {{productTitle}}",
   "error_page.error_title_other_errors": "發生錯誤",
-  "error_page.error_message_already_subscribed": "您已透過 {{email}} 存取 Igify Pro。您無法再次訂閱。",
-  "error_page.error_message_already_purchased": "您已透過 {{email}} 存取 Igify Pro。您無法再次購買此產品。",
+  "error_page.error_message_already_subscribed": "您無法再次訂閱此產品。",
+  "error_page.error_message_already_purchased": "您無法再次購買此產品。",
   "error_page.error_message_missing_email_error": "完成購買需要電子郵件地址。",
   "error_page.error_message_network_error": "網路錯誤。請檢查您的網路連線。",
   "error_page.error_message_error_charging_payment": "付款失敗。",
@@ -77,5 +77,6 @@
   "price_update.base_message": "總價已根據您的帳單地址更新稅金。請檢查後重試。您的信用卡只會被收取一次費用。",
   "price_update.trial_message": "根據您的帳單地址，訂閱價格已更新為含稅價格。免費試用仍然有效。請查看並重試。",
   "payment_entry_page.express_checkout_divider": "或以信用卡付款",
-  "error_page.trouble_accessing": "如果您在存取購買項目時遇到問題，請透過以下方式聯絡支援人員："
+  "error_page.trouble_accessing": "如果您在存取購買項目時遇到問題，請透過以下方式聯絡支援人員：",
+  "error_page.close_button_title": "前往{{appName}}"
 }

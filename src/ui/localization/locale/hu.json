@@ -41,11 +41,11 @@
   "success_page.subscription_now_active": "Az előfizetésed aktív",
   "success_page.button_close": "Tovább",
   "error_page.if_error_persists": "Ha a hiba továbbra is fennáll, kérjük, vedd fel a kapcsolatot ",
-  "error_page.error_title_already_subscribed": "Már feliratkozott",
-  "error_page.error_title_already_purchased": "Már a tulajdonában van ez a termék",
+  "error_page.error_title_already_subscribed": "Már előfizettél a(z) {{productTitle}} termékre",
+  "error_page.error_title_already_purchased": "Már megvásároltad a(z) {{productTitle}} terméket",
   "error_page.error_title_other_errors": "Valami hiba történt",
-  "error_page.error_message_already_subscribed": "Hozzáférésed van az Igify Pro-hoz a következő e-mail címmel: {{email}}. Nem iratkozhatsz fel újra.",
-  "error_page.error_message_already_purchased": "Hozzáférésed van az Igify Pro-hoz a következő e-mail címmel: {{email}}. Nem vásárolhatod meg újra ezt a terméket.",
+  "error_page.error_message_already_subscribed": "Nem fizethetsz elő újra erre a termékre.",
+  "error_page.error_message_already_purchased": "Nem vásárolhatod meg újra ezt a terméket.",
   "error_page.error_message_missing_email_error": "Az email cím szükséges a vásárlás befejezéséhez.",
   "error_page.error_message_network_error": "Hálózati hiba. Kérjük, ellenőrizd az internetkapcsolatodat.",
   "error_page.error_message_error_charging_payment": "A fizetés sikertelen volt.",
@@ -77,5 +77,6 @@
   "price_update.base_message": "A teljes ár frissítve lett az adóval a számlázási címed alapján. Kérjük, tekintsd át és próbáld újra. A kártyádat csak egyszer terheljük meg.",
   "price_update.trial_message": "Az előfizetés ára adókkal együtt frissítésre került a számlázási címének megfelelően. Az ingyenes próbaidőszak továbbra is érvényes. Kérjük, ellenőrizze és próbálja újra.",
   "payment_entry_page.express_checkout_divider": "VAGY FIZESSEN KÁRTYÁVAL",
-  "error_page.trouble_accessing": "Ha problémái vannak a vásárláshoz való hozzáféréssel, forduljon az ügyfélszolgálathoz a következő címen: "
+  "error_page.trouble_accessing": "Ha problémái vannak a vásárláshoz való hozzáféréssel, forduljon az ügyfélszolgálathoz a következő címen: ",
+  "error_page.close_button_title": "Ugrás a(z) {{appName}} alkalmazáshoz"
 }

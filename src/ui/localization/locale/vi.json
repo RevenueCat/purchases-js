@@ -41,11 +41,11 @@
   "success_page.subscription_now_active": "Đã kích hoạt đăng ký của bạn",
   "success_page.button_close": "Tiếp tục",
   "error_page.if_error_persists": "Nếu lỗi vẫn tiếp diễn, vui lòng liên hệ ",
-  "error_page.error_title_already_subscribed": "Bạn đã đăng ký",
-  "error_page.error_title_already_purchased": "Bạn đã sở hữu sản phẩm này",
+  "error_page.error_title_already_subscribed": "Bạn đã đăng ký {{productTitle}} rồi",
+  "error_page.error_title_already_purchased": "Bạn đã mua {{productTitle}} rồi",
   "error_page.error_title_other_errors": "Có lỗi xảy ra",
-  "error_page.error_message_already_subscribed": "Bạn có quyền truy cập Igify Pro bằng {{email}}. Bạn không thể đăng ký lại.",
-  "error_page.error_message_already_purchased": "Bạn có quyền truy cập Igify Pro bằng {{email}}. Bạn không thể mua lại sản phẩm này.",
+  "error_page.error_message_already_subscribed": "Bạn không thể đăng ký sản phẩm này lần nữa.",
+  "error_page.error_message_already_purchased": "Bạn không thể mua sản phẩm này lần nữa.",
   "error_page.error_message_missing_email_error": "Email bắt buộc để hoàn tất việc mua hàng.",
   "error_page.error_message_network_error": "Lỗi mạng. Vui lòng kiểm tra kết nối internet của bạn.",
   "error_page.error_message_error_charging_payment": "Thanh toán thất bại.",
@@ -77,5 +77,6 @@
   "price_update.base_message": "Tổng giá đã được cập nhật với thuế dựa trên địa chỉ thanh toán của bạn. Vui lòng xem lại và thử lại. Thẻ của bạn sẽ chỉ bị tính phí một lần.",
   "price_update.trial_message": "Giá đăng ký đã được cập nhật để bao gồm thuế dựa trên địa chỉ thanh toán của bạn. Thời gian dùng thử miễn phí vẫn được áp dụng. Vui lòng kiểm tra và thử lại.",
   "payment_entry_page.express_checkout_divider": "HOẶC THANH TOÁN BẰNG THẺ",
-  "error_page.trouble_accessing": "Nếu bạn gặp sự cố khi truy cập giao dịch mua của mình, hãy liên hệ với bộ phận hỗ trợ theo địa chỉ "
+  "error_page.trouble_accessing": "Nếu bạn gặp sự cố khi truy cập giao dịch mua của mình, hãy liên hệ với bộ phận hỗ trợ theo địa chỉ ",
+  "error_page.close_button_title": "Đi đến {{appName}}"
 }

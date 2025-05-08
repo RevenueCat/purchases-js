@@ -14,9 +14,10 @@
     priceBreakdownTaxInclusive,
     product,
     purchaseFlowError,
-    purchaseFlowAlreadySubscribedError,
+    purchaseFlowAlreadyPurchasedError,
     subscriptionOption,
     subscriptionOptionWithTrial,
+    consumableProduct,
   } from "../fixtures";
   import { PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
 
@@ -198,5 +199,17 @@
 <Story name="Payment failed" args={{ currentPage: "error" }} />
 <Story
   name="Already subscribed"
-  args={{ currentPage: "error", lastError: purchaseFlowAlreadySubscribedError }}
+  args={{
+    currentPage: "error",
+    lastError: purchaseFlowAlreadyPurchasedError,
+    productDetails: product,
+  }}
+/>
+<Story
+  name="Already purchased"
+  args={{
+    currentPage: "error",
+    lastError: purchaseFlowAlreadyPurchasedError,
+    productDetails: consumableProduct,
+  }}
 />

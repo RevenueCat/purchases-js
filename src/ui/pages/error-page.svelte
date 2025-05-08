@@ -56,10 +56,12 @@
         if (productDetails.productType === ProductType.Subscription) {
           return $translator.translate(
             LocalizationKeys.ErrorPageErrorTitleAlreadySubscribed,
+            { productTitle: productDetails.title },
           );
         } else {
           return $translator.translate(
             LocalizationKeys.ErrorPageErrorTitleAlreadyPurchased,
+            { productTitle: productDetails.title },
           );
         }
       default:
@@ -118,7 +120,10 @@
     title={getTranslatedErrorTitle()}
     {onDismiss}
     type="error"
-    closeButtonTitle={`Go to ${appName ?? "App"}`}
+    closeButtonTitle={$translator.translate(
+      LocalizationKeys.ErrorPageCloseButtonTitle,
+      { appName: appName ?? "App" },
+    )}
   >
     {#snippet icon()}
       <IconSuccess />

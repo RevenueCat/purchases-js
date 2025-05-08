@@ -41,11 +41,11 @@
   "success_page.subscription_now_active": "L'abbonamento è ora attivo",
   "success_page.button_close": "Continua",
   "error_page.if_error_persists": "Se l'errore persiste, contatta ",
-  "error_page.error_title_already_subscribed": "Hai già un abbonamento",
-  "error_page.error_title_already_purchased": "Hai già acquistato questo prodotto",
+  "error_page.error_title_already_subscribed": "Hai già un abbonamento a {{productTitle}}",
+  "error_page.error_title_already_purchased": "Hai già acquistato {{productTitle}}",
   "error_page.error_title_other_errors": "Qualcosa è andato storto",
-  "error_page.error_message_already_subscribed": "Hai accesso a Igify Pro con {{email}}. Non puoi abbonarti di nuovo.",
-  "error_page.error_message_already_purchased": "Hai accesso a Igify Pro con {{email}}. Non puoi acquistare di nuovo questo prodotto.",
+  "error_page.error_message_already_subscribed": "Non puoi abbonarti di nuovo a questo prodotto.",
+  "error_page.error_message_already_purchased": "Non puoi acquistare di nuovo questo prodotto.",
   "error_page.error_message_missing_email_error": "L'email è necessaria per completare l'acquisto.",
   "error_page.error_message_network_error": "Errore di rete. Verifica la connessione internet.",
   "error_page.error_message_error_charging_payment": "Pagamento fallito.",
@@ -77,5 +77,6 @@
   "price_update.base_message": "Il prezzo totale è stato aggiornato con le tasse in base al tuo indirizzo di fatturazione. Rivedi e riprova. L'addebito sulla tua carta avverrà solo una volta.",
   "price_update.trial_message": "Il prezzo dell'abbonamento è stato aggiornato per includere le tasse in base al tuo indirizzo di fatturazione. La prova gratuita è ancora valida. Controlla e riprova.",
   "payment_entry_page.express_checkout_divider": "OPPURE PAGA CON CARTA",
-  "error_page.trouble_accessing": "Se hai problemi ad accedere al tuo acquisto, contatta l'assistenza all'indirizzo "
+  "error_page.trouble_accessing": "Se hai problemi ad accedere al tuo acquisto, contatta l'assistenza all'indirizzo ",
+  "error_page.close_button_title": "Vai a {{appName}}"
 }

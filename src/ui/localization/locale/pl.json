@@ -41,11 +41,11 @@
   "success_page.subscription_now_active": "Twoja subskrypcja jest już aktywna",
   "success_page.button_close": "Kontynuuj",
   "error_page.if_error_persists": "Jeśli błąd będzie się powtarzał, skontaktuj się z ",
-  "error_page.error_title_already_subscribed": "Już subskrybujesz",
-  "error_page.error_title_already_purchased": "Już posiadasz ten produkt",
+  "error_page.error_title_already_subscribed": "Już subskrybujesz {{productTitle}}",
+  "error_page.error_title_already_purchased": "Już zakupiłeś/aś {{productTitle}}",
   "error_page.error_title_other_errors": "Coś poszło nie tak",
-  "error_page.error_message_already_subscribed": "Masz dostęp do Igify Pro z kontem {{email}}. Nie możesz subskrybować ponownie.",
-  "error_page.error_message_already_purchased": "Masz dostęp do Igify Pro z kontem {{email}}. Nie możesz ponownie kupić tego produktu.",
+  "error_page.error_message_already_subscribed": "Nie możesz ponownie subskrybować tego produktu.",
+  "error_page.error_message_already_purchased": "Nie możesz ponownie zakupić tego produktu.",
   "error_page.error_message_missing_email_error": "Adres e-mail jest wymagany do dokonania zakupu.",
   "error_page.error_message_network_error": "Błąd sieci. Sprawdź połączenie internetowe.",
   "error_page.error_message_error_charging_payment": "Płatność nieudana.",
@@ -77,5 +77,6 @@
   "price_update.base_message": "Cena całkowita została zaktualizowana o podatek na podstawie Twojego adresu rozliczeniowego. Sprawdź i spróbuj ponownie. Twoja karta zostanie obciążona tylko raz.",
   "price_update.trial_message": "Cena subskrypcji została zaktualizowana o podatki na podstawie Twojego adresu rozliczeniowego. Okres próbny nadal obowiązuje. Sprawdź i spróbuj ponownie.",
   "payment_entry_page.express_checkout_divider": "LUB ZAPŁAĆ KARTĄ",
-  "error_page.trouble_accessing": "Jeśli masz problemy z dostępem do zakupu, skontaktuj się z działem pomocy pod adresem "
+  "error_page.trouble_accessing": "Jeśli masz problemy z dostępem do zakupu, skontaktuj się z działem pomocy pod adresem ",
+  "error_page.close_button_title": "Przejdź do {{appName}}"
 }

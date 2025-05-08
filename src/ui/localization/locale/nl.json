@@ -41,11 +41,11 @@
   "success_page.subscription_now_active": "Uw abonnement is nu actief",
   "success_page.button_close": "Doorgaan",
   "error_page.if_error_persists": "Neem contact op met  als de fout aanhoudt",
-  "error_page.error_title_already_subscribed": "Je bent al geabonneerd",
-  "error_page.error_title_already_purchased": "Je bent al eigenaar van dit product",
+  "error_page.error_title_already_subscribed": "Je bent al geabonneerd op {{productTitle}}",
+  "error_page.error_title_already_purchased": "Je hebt {{productTitle}} al gekocht",
   "error_page.error_title_other_errors": "Er is iets misgegaan",
-  "error_page.error_message_already_subscribed": "Je hebt toegang tot Igify Pro met {{email}}. Je kunt je niet opnieuw abonneren.",
-  "error_page.error_message_already_purchased": "Je hebt toegang tot Igify Pro met {{email}}. Je kunt dit product niet opnieuw kopen.",
+  "error_page.error_message_already_subscribed": "Je kunt je niet opnieuw abonneren op dit product.",
+  "error_page.error_message_already_purchased": "Je kunt dit product niet opnieuw kopen.",
   "error_page.error_message_missing_email_error": "Een e-mailadres is vereist om de aankoop te voltooien.",
   "error_page.error_message_network_error": "Netwerkfout. Controleer uw internetverbinding.",
   "error_page.error_message_error_charging_payment": "Betaling mislukt.",
@@ -77,5 +77,6 @@
   "price_update.base_message": "De totale prijs is bijgewerkt met belasting op basis van uw factuuradres. Controleer en probeer het opnieuw. Uw kaart wordt slechts één keer belast.",
   "price_update.trial_message": "De abonnementsprijs is bijgewerkt om belastingen op te nemen op basis van uw factuuradres. De gratis proefperiode blijft van toepassing. Controleer en probeer het opnieuw.",
   "payment_entry_page.express_checkout_divider": "OF BETAAL MET EEN KAART",
-  "error_page.trouble_accessing": "Als je problemen hebt met het verkrijgen van toegang tot je aankoop, neem dan contact op met de ondersteuning via "
+  "error_page.trouble_accessing": "Als je problemen hebt met het verkrijgen van toegang tot je aankoop, neem dan contact op met de ondersteuning via ",
+  "error_page.close_button_title": "Ga naar {{appName}}"
 }

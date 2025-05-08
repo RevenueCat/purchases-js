@@ -41,11 +41,11 @@
   "success_page.subscription_now_active": "Aboneliğiniz şimdi aktif",
   "success_page.button_close": "Devam et",
   "error_page.if_error_persists": "Hata devam ederse lütfen iletişime geçin ",
-  "error_page.error_title_already_subscribed": "Zaten abone oldunuz",
-  "error_page.error_title_already_purchased": "Bu ürüne zaten sahipsiniz",
+  "error_page.error_title_already_subscribed": "{{productTitle}} ürününe zaten abone oldunuz",
+  "error_page.error_title_already_purchased": "{{productTitle}} ürününü zaten satın aldınız",
   "error_page.error_title_other_errors": "Bir şeyler ters gitti",
-  "error_page.error_message_already_subscribed": "{{email}} ile Igify Pro'ya erişiminiz var. Tekrar abone olamazsınız.",
-  "error_page.error_message_already_purchased": "{{email}} ile Igify Pro'ya erişiminiz var. Bu ürünü tekrar satın alamazsınız.",
+  "error_page.error_message_already_subscribed": "Bu ürüne tekrar abone olamazsınız.",
+  "error_page.error_message_already_purchased": "Bu ürünü tekrar satın alamazsınız.",
   "error_page.error_message_missing_email_error": "Satın almayı tamamlamak için e-posta gereklidir.",
   "error_page.error_message_network_error": "Ağ hatası. Lütfen internet bağlantınızı kontrol edin.",
   "error_page.error_message_error_charging_payment": "Ödeme başarısız oldu.",
@@ -77,5 +77,6 @@
   "price_update.base_message": "Toplam fiyat, fatura adresinize göre vergi dahil olacak şekilde güncellendi. Lütfen inceleyip tekrar deneyin. Kartınızdan yalnızca bir kez ücret alınacaktır.",
   "price_update.trial_message": "Abonelik fiyatı, fatura adresinize göre vergileri içerecek şekilde güncellendi. Ücretsiz deneme süresi hala geçerli. Lütfen kontrol edin ve tekrar deneyin.",
   "payment_entry_page.express_checkout_divider": "VEYA KARTLA ÖDEYİN",
-  "error_page.trouble_accessing": "Satın alımınıza erişmekte sorun yaşıyorsanız, şu adresten destek ekibine ulaşın: "
+  "error_page.trouble_accessing": "Satın alımınıza erişmekte sorun yaşıyorsanız, şu adresten destek ekibine ulaşın: ",
+  "error_page.close_button_title": "{{appName}}'e Git"
 }

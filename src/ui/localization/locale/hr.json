@@ -41,11 +41,11 @@
   "success_page.subscription_now_active": "Vaša pretplata je sada aktivna",
   "success_page.button_close": "Nastavi",
   "error_page.if_error_persists": "Ako se pogreška nastavi, obratite se ",
-  "error_page.error_title_already_subscribed": "Već ste pretplaćeni",
-  "error_page.error_title_already_purchased": "Već posjedujete ovaj proizvod",
+  "error_page.error_title_already_subscribed": "Već ste pretplaćeni na {{productTitle}}",
+  "error_page.error_title_already_purchased": "Već ste kupili {{productTitle}}",
   "error_page.error_title_other_errors": "Nešto je pošlo po zlu",
-  "error_page.error_message_already_subscribed": "Imate pristup Igify Pro s računom {{email}}. Ne možete se ponovno pretplatiti.",
-  "error_page.error_message_already_purchased": "Imate pristup Igify Pro s računom {{email}}. Ne možete ponovno kupiti ovaj proizvod.",
+  "error_page.error_message_already_subscribed": "Ne možete se ponovno pretplatiti na ovaj proizvod.",
+  "error_page.error_message_already_purchased": "Ne možete ponovno kupiti ovaj proizvod.",
   "error_page.error_message_missing_email_error": "E-pošta je potrebna za dovršetak kupnje.",
   "error_page.error_message_network_error": "Mrežna pogreška. Provjerite internetsku vezu.",
   "error_page.error_message_error_charging_payment": "Plaćanje nije uspjelo.",
@@ -77,5 +77,6 @@
   "price_update.base_message": "Ukupna cijena je ažurirana s porezom na temelju vaše adrese za naplatu. Pregledajte i pokušajte ponovo. Vaša kartica bit će naplaćena samo jednom.",
   "price_update.trial_message": "Cijena pretplate je ažurirana da uključi poreze na temelju vaše adrese za naplatu. Besplatno probno razdoblje i dalje vrijedi. Molimo provjerite i pokušajte ponovno.",
   "payment_entry_page.express_checkout_divider": "ILI PLATITE KARTICOM",
-  "error_page.trouble_accessing": "Ako imate problema s pristupom kupnji, obratite se podršci na "
+  "error_page.trouble_accessing": "Ako imate problema s pristupom kupnji, obratite se podršci na ",
+  "error_page.close_button_title": "Idi na {{appName}}"
 }

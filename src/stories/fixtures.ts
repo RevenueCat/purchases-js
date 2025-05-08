@@ -166,7 +166,7 @@ export const brandingInfo: BrandingInfoResponse = {
 
 export const purchaseFlowError = new PurchaseFlowError(1);
 
-export const purchaseFlowAlreadySubscribedError = new PurchaseFlowError(
+export const purchaseFlowAlreadyPurchasedError = new PurchaseFlowError(
   PurchaseFlowErrorCode.AlreadyPurchasedError,
 );
 

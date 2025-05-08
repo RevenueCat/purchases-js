@@ -41,11 +41,11 @@
   "success_page.subscription_now_active": "Din prenumeration är nu aktiv",
   "success_page.button_close": "Fortsätt",
   "error_page.if_error_persists": "Om felet kvarstår, vänligen kontakta ",
-  "error_page.error_title_already_subscribed": "Du prenumererar redan",
-  "error_page.error_title_already_purchased": "Du äger redan den här produkten",
+  "error_page.error_title_already_subscribed": "Du prenumererar redan på {{productTitle}}",
+  "error_page.error_title_already_purchased": "Du har redan köpt {{productTitle}}",
   "error_page.error_title_other_errors": "Något gick fel",
-  "error_page.error_message_already_subscribed": "Du har tillgång till Igify Pro med {{email}}. Du kan inte prenumerera igen.",
-  "error_page.error_message_already_purchased": "Du har tillgång till Igify Pro med {{email}}. Du kan inte köpa den här produkten igen.",
+  "error_page.error_message_already_subscribed": "Du kan inte prenumerera på den här produkten igen.",
+  "error_page.error_message_already_purchased": "Du kan inte köpa den här produkten igen.",
   "error_page.error_message_missing_email_error": "E-post krävs för att slutföra köpet.",
   "error_page.error_message_network_error": "Nätverksfel. Kontrollera din internetanslutning.",
   "error_page.error_message_error_charging_payment": "Betalningen misslyckades.",
@@ -77,5 +77,6 @@
   "price_update.base_message": "Det totala priset har uppdaterats med moms baserat på din faktureringsadress. Granska och försök igen. Ditt kort kommer endast att debiteras en gång.",
   "price_update.trial_message": "Prenumerationspriset har uppdaterats för att inkludera skatter baserat på din fakturaadress. Den kostnadsfria provperioden gäller fortfarande. Kontrollera och försök igen.",
   "payment_entry_page.express_checkout_divider": "ELLER BETALA MED KORT",
-  "error_page.trouble_accessing": "Om du har problem med att komma åt ditt köp, kontakta support på "
+  "error_page.trouble_accessing": "Om du har problem med att komma åt ditt köp, kontakta support på ",
+  "error_page.close_button_title": "Gå till {{appName}}"
 }
