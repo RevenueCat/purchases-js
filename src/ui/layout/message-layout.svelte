@@ -84,9 +84,6 @@
   }
 
   @container layout-query-container (width >= 768px) {
-    .message-layout {
-      min-height: 200px;
-    }
     .message-layout-content {
       justify-content: flex-start;
       flex-grow: 1;

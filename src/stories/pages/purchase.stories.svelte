@@ -8,17 +8,25 @@
   import PurchasesInner from "../../ui/purchases-ui-inner.svelte";
   import { brandingLanguageViewportModes } from "../../../.storybook/modes";
   import {
+    PurchaseFlowError,
+    PurchaseFlowErrorCode,
+  } from "../../helpers/purchase-operation-helper";
+  import {
     brandingInfos,
     checkoutStartResponse,
     priceBreakdownTaxDisabled,
     priceBreakdownTaxInclusive,
     product,
     purchaseFlowError,
-    purchaseFlowAlreadyPurchasedError,
     subscriptionOption,
     subscriptionOptionWithTrial,
     consumableProduct,
   } from "../fixtures";
+
+  const purchaseFlowAlreadyPurchasedError = new PurchaseFlowError(
+    PurchaseFlowErrorCode.AlreadyPurchasedError,
+  );
+
   import { PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
 
   const defaultArgs = {

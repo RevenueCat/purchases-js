@@ -103,12 +103,12 @@
         if (productDetails.productType === ProductType.Subscription) {
           return $translator.translate(
             LocalizationKeys.ErrorPageErrorMessageAlreadySubscribed,
-            { errorCode: publicErrorCode, email: email ?? "" },
+            { errorCode: publicErrorCode },
           );
         } else {
           return $translator.translate(
             LocalizationKeys.ErrorPageErrorMessageAlreadyPurchased,
-            { errorCode: publicErrorCode, email: email ?? "" },
+            { errorCode: publicErrorCode },
           );
         }
     }
