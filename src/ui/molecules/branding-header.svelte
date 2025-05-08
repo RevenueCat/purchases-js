@@ -80,7 +80,7 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding-top: var(--rc-spacing-gapSmall-mobile);
+    padding-top: var(--rc-spacing-gapMedium-mobile);
     padding-bottom: var(--rc-spacing-gapSmall-mobile);
     height: 40px;
     justify-content: space-between;
@@ -99,6 +99,10 @@
   }
 
   @container layout-query-container (width < 768px) {
+    .rcb-close-wrapper {
+      padding-top: var(--rc-spacing-gapMedium-mobile);
+    }
+
     .rcb-header-wrapper {
       padding-top: var(--rc-spacing-gapSmall-mobile);
       padding-bottom: var(--rc-spacing-gapSmall-mobile);

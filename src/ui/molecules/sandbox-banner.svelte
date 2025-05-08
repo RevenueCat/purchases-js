@@ -25,7 +25,10 @@
     <Typography size="caption-default">
       <span class="rcb-sandbox-text">Sandbox</span>
     </Typography>
-    <div class="rcb-sandbox-banner-close-button-wrapper">
+    <div
+      class="rcb-sandbox-banner-close-button-wrapper"
+      style="--arrow-fill-color: black"
+    >
       <Typography size="caption-default">
         <CloseButton on:click={closeBanner} />
       </Typography>

@@ -14,6 +14,6 @@
 
 <style>
   .arrow-fill {
-    fill: var(--rc-color-grey-text-dark);
+    fill: var(--arrow-fill-color, var(--rc-color-grey-text-dark));
   }
 </style>
