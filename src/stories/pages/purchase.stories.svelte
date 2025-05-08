@@ -8,6 +8,10 @@
   import PurchasesInner from "../../ui/purchases-ui-inner.svelte";
   import { brandingLanguageViewportModes } from "../../../.storybook/modes";
   import {
+    PurchaseFlowError,
+    PurchaseFlowErrorCode,
+  } from "../../helpers/purchase-operation-helper";
+  import {
     brandingInfos,
     checkoutStartResponse,
     priceBreakdownTaxDisabled,
@@ -16,7 +20,13 @@
     purchaseFlowError,
     subscriptionOption,
     subscriptionOptionWithTrial,
+    consumableProduct,
   } from "../fixtures";
+
+  const purchaseFlowAlreadyPurchasedError = new PurchaseFlowError(
+    PurchaseFlowErrorCode.AlreadyPurchasedError,
+  );
+
   import { PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
 
   const defaultArgs = {
@@ -69,7 +79,7 @@
     onContinue={() => {}}
     closeWithError={() => {}}
     customerEmail={args.customerEmail}
-    lastError={null}
+    lastError={args.lastError}
     gatewayParams={checkoutStartResponse.gateway_params}
     {purchaseOperationHelper}
     defaultPriceBreakdown={args.defaultPriceBreakdown ??
@@ -195,3 +205,19 @@
 <Story name="Loading" args={{ currentPage: "payment-entry-loading" }} />
 <Story name="Payment complete" args={{ currentPage: "success" }} />
 <Story name="Payment failed" args={{ currentPage: "error" }} />
+<Story
+  name="Already subscribed"
+  args={{
+    currentPage: "error",
+    lastError: purchaseFlowAlreadyPurchasedError,
+    productDetails: product,
+  }}
+/>
+<Story
+  name="Already purchased"
+  args={{
+    currentPage: "error",
+    lastError: purchaseFlowAlreadyPurchasedError,
+    productDetails: consumableProduct,
+  }}
+/>

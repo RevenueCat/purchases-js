@@ -14,6 +14,7 @@
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import { type Writable } from "svelte/store";
+  import IconSuccess from "../atoms/icons/icon-success.svelte";
 
   interface Props {
     lastError: PurchaseFlowError | null;
@@ -21,10 +22,17 @@
     productDetails: Product;
     email?: string;
     onDismiss: () => void;
+    appName: string | null;
   }
 
-  const { lastError, supportEmail, productDetails, email, onDismiss }: Props =
-    $props();
+  const {
+    lastError,
+    supportEmail,
+    productDetails,
+    email,
+    onDismiss,
+    appName,
+  }: Props = $props();
 
   const error: PurchaseFlowError = $derived(
     lastError ??
@@ -48,10 +56,12 @@
         if (productDetails.productType === ProductType.Subscription) {
           return $translator.translate(
             LocalizationKeys.ErrorPageErrorTitleAlreadySubscribed,
+            { productTitle: productDetails.title },
           );
         } else {
           return $translator.translate(
             LocalizationKeys.ErrorPageErrorTitleAlreadyPurchased,
+            { productTitle: productDetails.title },
           );
         }
       default:
@@ -105,25 +115,52 @@
   }
 </script>
 
-<MessageLayout
-  title={getTranslatedErrorTitle()}
-  {onDismiss}
-  type="error"
-  closeButtonTitle={$translator.translate(LocalizationKeys.ErrorButtonTryAgain)}
->
-  {#snippet icon()}
-    <IconError />
-  {/snippet}
+{#if error.errorCode === PurchaseFlowErrorCode.AlreadyPurchasedError}
+  <MessageLayout
+    title={getTranslatedErrorTitle()}
+    {onDismiss}
+    type="error"
+    closeButtonTitle={$translator.translate(
+      LocalizationKeys.ErrorPageCloseButtonTitle,
+      { appName: appName ?? "App" },
+    )}
+  >
+    {#snippet icon()}
+      <IconSuccess />
+    {/snippet}
 
-  {#snippet message()}
-    {getTranslatedErrorMessage()}
-    {#if supportEmail}
-      <br />
-      <Localized key={LocalizationKeys.ErrorPageIfErrorPersists} />
-      <a href="mailto:{supportEmail}">{supportEmail}</a>.
-    {/if}
-  {/snippet}
-</MessageLayout>
+    {#snippet message()}
+      {getTranslatedErrorMessage()}
+      {#if supportEmail}
+        <br />
+        <Localized key={LocalizationKeys.ErrorPageTroubleAccessing} />
+        <a href="mailto:{supportEmail}">{supportEmail}</a>.
+      {/if}
+    {/snippet}
+  </MessageLayout>
+{:else}
+  <MessageLayout
+    title={getTranslatedErrorTitle()}
+    {onDismiss}
+    type="error"
+    closeButtonTitle={$translator.translate(
+      LocalizationKeys.ErrorButtonTryAgain,
+    )}
+  >
+    {#snippet icon()}
+      <IconError />
+    {/snippet}
+
+    {#snippet message()}
+      {getTranslatedErrorMessage()}
+      {#if supportEmail}
+        <br />
+        <Localized key={LocalizationKeys.ErrorPageIfErrorPersists} />
+        <a href="mailto:{supportEmail}">{supportEmail}</a>.
+      {/if}
+    {/snippet}
+  </MessageLayout>
+{/if}
 
 <style>
   a {

@@ -10,6 +10,12 @@
   .rcb-ui-asset-icon {
     width: 40px;
     height: 40px;
-    margin: 0 auto;
+  }
+
+  @container layout-query-container (width >= 768px) {
+    .rcb-ui-asset-icon {
+      width: 32px;
+      height: 32px;
+    }
   }
 </style>

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { type Snippet } from "svelte";
-  type Gap = "large" | "medium" | "small";
+  type Gap = "large" | "medium" | "small" | "custom";
   export let gap: Gap = "small";
   export let align: "start" | "center" | "end" = "start";
   export let children: Snippet;
@@ -16,6 +16,7 @@
     flex-direction: column;
     justify-content: flex-start;
     flex-grow: 1;
+    min-width: 100%;
   }
 
   .rcb-column.align-center {
@@ -31,7 +32,7 @@
   }
 
   .rcb-column.gap-medium {
-    gap: var(--rc-spacing-gapMedium-mobile);
+    gap: var(--rc-spacing-gapXLarge-mobile);
   }
 
   .rcb-column.gap-large {
@@ -44,7 +45,7 @@
     }
 
     .rcb-column.gap-medium {
-      gap: var(--rc-spacing-gapMedium-desktop);
+      gap: var(--rc-spacing-gapXLarge-desktop);
     }
 
     .rcb-column.gap-large {

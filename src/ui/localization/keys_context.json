@@ -47,6 +47,7 @@
   "success_page.subscription_now_active": "Message confirming that the subscription is now active.",
   "success_page.button_close": "Button text to close or continue from a success screen.",
   "error_page.if_error_persists": "A message preceding the support e-mail of the app, advising the user to contact support if the error continues.",
+  "error_page.trouble_accessing": "A message preceding the support e-mail of the app, shown when the user has already subscribed/purchased the product.",
   "error_page.error_title_already_subscribed": "Error title displayed when the user has already subscribed to this product.",
   "error_page.error_title_already_purchased": "Error title displayed when the user has already purchased this product.",
   "error_page.error_title_other_errors": "Generic error title for unspecified issues.",

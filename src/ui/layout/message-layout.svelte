@@ -27,7 +27,7 @@
           data-has-title={!!title}
         >
           <RowLayout gap="large" align="center">
-            <RowLayout gap="large" align="center">
+            <RowLayout gap="medium" align="start">
               {#if icon}
                 {@render icon()}
               {/if}
@@ -70,7 +70,7 @@
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    text-align: center;
+    text-align: left;
   }
 
   .rcb-modal-message[data-has-title="false"] {
@@ -84,9 +84,6 @@
   }
 
   @container layout-query-container (width >= 768px) {
-    .message-layout {
-      min-height: 440px;
-    }
     .message-layout-content {
       justify-content: flex-start;
       flex-grow: 1;
