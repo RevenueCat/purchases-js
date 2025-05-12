@@ -8,14 +8,7 @@
 
 <style>
   .rcb-ui-asset-icon {
-    width: 40px;
-    height: 40px;
-  }
-
-  @container layout-query-container (width >= 768px) {
-    .rcb-ui-asset-icon {
-      width: 32px;
-      height: 32px;
-    }
+    width: 32px;
+    height: 32px;
   }
 </style>

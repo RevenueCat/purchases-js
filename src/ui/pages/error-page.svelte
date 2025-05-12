@@ -132,7 +132,6 @@
     {#snippet message()}
       {getTranslatedErrorMessage()}
       {#if supportEmail}
-        <br />
         <Localized key={LocalizationKeys.ErrorPageTroubleAccessing} />
         <a href="mailto:{supportEmail}">{supportEmail}</a>.
       {/if}
@@ -154,7 +153,6 @@
     {#snippet message()}
       {getTranslatedErrorMessage()}
       {#if supportEmail}
-        <br />
         <Localized key={LocalizationKeys.ErrorPageIfErrorPersists} />
         <a href="mailto:{supportEmail}">{supportEmail}</a>.
       {/if}
