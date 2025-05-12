@@ -10,5 +10,6 @@
   .rcb-ui-asset-icon {
     width: 32px;
     height: 32px;
+    margin: 8px 0;
   }
 </style>
