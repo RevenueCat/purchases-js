@@ -191,7 +191,8 @@
           const isInitialCalculation = !taxCustomerDetails;
           if (
             isInitialCalculation &&
-            CheckoutCalculateTaxFailedReason.invalid_tax_location
+            taxCalculation.failed_reason ===
+              CheckoutCalculateTaxFailedReason.invalid_tax_location
           ) {
             taxCalculationStatus = "pending";
             pendingReason = null;

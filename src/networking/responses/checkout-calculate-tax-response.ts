@@ -5,7 +5,6 @@ export interface TaxBreakdown {
   display_name: string;
 }
 
-// TODO: Not all codes are needed, only 'invalid_tax_location'
 export enum CheckoutCalculateTaxFailedReason {
   tax_collection_disabled = "tax_collection_disabled",
   invalid_tax_location = "invalid_tax_location",
@@ -30,5 +29,5 @@ export interface CheckoutCalculateTaxResponse {
   gateway_params: {
     elements_configuration: StripeElementsConfiguration;
   };
-  failed_reason?: CheckoutCalculateTaxFailedReason;
+  failed_reason?: CheckoutCalculateTaxFailedReason | string;
 }
