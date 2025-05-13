@@ -561,7 +561,6 @@
           brandingInfo?.gateway_tax_collection_enabled
             ? priceBreakdown
             : undefined}
-          {selectedPaymentMethod}
         />
 
         <div class="rc-checkout-secure-container">
