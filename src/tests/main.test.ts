@@ -411,16 +411,28 @@ describe("Purchases.purchase()", () => {
 describe("setAttributes", () => {
   test("can set attributes successfully", async () => {
     const purchases = configurePurchases();
+
+    let capturedBody: Record<string, string> = {};
+
     server.use(
       http.post(
         "http://localhost:8000/v1/subscribers/someAppUserId/attributes",
-        () => {
+        async ({ request }) => {
+          const body = (await request.json()) as Record<string, string>;
+          capturedBody = body;
           return HttpResponse.json({}, { status: StatusCodes.OK });
         },
       ),
     );
 
     await purchases.setAttributes({ name: "John", age: "30" });
+
+    expect(capturedBody).toEqual({
+      attributes: {
+        name: { value: "John", updated_at_ms: expect.any(Number) },
+        age: { value: "30", updated_at_ms: expect.any(Number) },
+      },
+    });
   });
 
   test("throws an error if getCustomerInfo fails", async () => {
