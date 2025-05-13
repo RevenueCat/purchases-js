@@ -155,36 +155,6 @@ export class StripeService {
             ".Input--invalid": {
               boxShadow: "none",
             },
-            ".TermsText": {
-              fontSize: textStyles.captionDefault[viewport].fontSize,
-              lineHeight: textStyles.captionDefault[viewport].lineHeight,
-            },
-            ".Tab": {
-              boxShadow: "none",
-              backgroundColor: "transparent",
-              color: customColors["grey-text-light"],
-              border: `1px solid ${customColors["grey-ui-dark"]}`,
-            },
-            ".Tab:hover, .Tab:focus, .Tab--selected, .Tab--selected:hover, .Tab--selected:focus":
-              {
-                boxShadow: "none",
-                color: customColors["grey-text-dark"],
-              },
-            ".Tab:focus, .Tab--selected, .Tab--selected:hover, .Tab--selected:focus":
-              {
-                border: `1px solid ${customColors["focus"]}`,
-              },
-            ".TabIcon": {
-              fill: customColors["grey-text-light"],
-            },
-            ".TabIcon--selected": {
-              fill: customColors["grey-text-dark"],
-            },
-            ".Block": {
-              boxShadow: "none",
-              backgroundColor: "transparent",
-              border: `1px solid ${customColors["grey-ui-dark"]}`,
-            },
           },
         },
       });
