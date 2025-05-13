@@ -89,14 +89,16 @@ describe("getCustomerInfo endpoint", () => {
 });
 
 describe("getBrandingInfo endpoint", () => {
-  const endpoint = new GetBrandingInfoEndpoint();
+  const endpoint = new GetBrandingInfoEndpoint("rc_billing");
 
   test("uses correct method", () => {
     expect(endpoint.method).toBe("GET");
   });
 
   test("has correct urlPath", () => {
-    expect(endpoint.urlPath()).toBe("/rcbilling/v1/branding");
+    expect(endpoint.urlPath()).toBe(
+      "/rcbilling/v1/branding?provider=rc_billing",
+    );
   });
 });
 
