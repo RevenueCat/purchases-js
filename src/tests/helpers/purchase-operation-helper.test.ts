@@ -287,8 +287,6 @@ describe("PurchaseOperationHelper", () => {
   });
 
   test("checkoutCalculateTax throws error for unexpected backend errors", async () => {
-    vi.spyOn(backend, "getIsSandbox").mockReturnValue(false);
-
     setCheckoutStartResponse(
       HttpResponse.json(checkoutStartResponse, {
         status: StatusCodes.OK,
@@ -300,7 +298,7 @@ describe("PurchaseOperationHelper", () => {
           code: 9999,
           message: "Unexpected backend error",
         },
-        { status: StatusCodes.BAD_REQUEST },
+        { status: StatusCodes.INTERNAL_SERVER_ERROR },
       ),
     );
 
@@ -320,7 +318,7 @@ describe("PurchaseOperationHelper", () => {
       new PurchaseFlowError(
         PurchaseFlowErrorCode.ErrorSettingUpPurchase,
         "Unknown backend error.",
-        'Request: postCheckoutCalculateTax. Status code: 400. Body: {"code":9999,"message":"Unexpected backend error"}.',
+        'Request: postCheckoutCalculateTax. Status code: 500. Body: {"code":9999,"message":"Unexpected backend error"}.',
       ),
     );
   });
