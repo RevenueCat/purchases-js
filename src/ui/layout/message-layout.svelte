@@ -122,13 +122,13 @@
   }
 
   .rcb-modal-message-icon.small {
-    height: var(--rc-text-headingLg-mobile-font-size);
-    width: var(--rc-text-headingLg-mobile-font-size);
+    height: var(--rc-text-headingMd-mobile-font-size);
+    width: var(--rc-text-headingMd-mobile-font-size);
   }
 
   .rcb-modal-message-icon.large {
-    height: calc(2 * var(--rc-text-headingLg-mobile-font-size));
-    width: calc(2 * var(--rc-text-headingLg-mobile-font-size));
+    height: calc(2 * var(--rc-text-headingMd-mobile-font-size));
+    width: calc(2 * var(--rc-text-headingMd-mobile-font-size));
   }
 
   @container layout-query-container (width < 768px) {
@@ -150,13 +150,13 @@
       margin-top: var(--rc-spacing-gapXXLarge-desktop);
     }
     .rcb-modal-message-icon.small {
-      height: var(--rc-text-headingLg-desktop-font-size);
-      width: var(--rc-text-headingLg-desktop-font-size);
+      height: var(--rc-text-headingMd-desktop-font-size);
+      width: var(--rc-text-headingMd-desktop-font-size);
     }
 
     .rcb-modal-message-icon.large {
-      height: calc(2 * var(--rc-text-headingLg-desktop-font-size));
-      width: calc(2 * var(--rc-text-headingLg-desktop-font-size));
+      height: calc(2 * var(--rc-text-headingMd-desktop-font-size));
+      width: calc(2 * var(--rc-text-headingMd-desktop-font-size));
     }
   }
 </style>

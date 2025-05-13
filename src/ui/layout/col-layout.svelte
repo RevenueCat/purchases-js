@@ -45,7 +45,7 @@
     }
 
     .rcb-column.gap-medium {
-      gap: var(--rc-spacing-gapXLarge-desktop);
+      gap: var(--rc-spacing-gapLarge-desktop);
     }
 
     .rcb-column.gap-large {
