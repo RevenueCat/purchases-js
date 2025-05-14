@@ -13,7 +13,6 @@
     priceBreakdownTaxDisabled,
     priceBreakdownTaxInclusive,
     product,
-    purchaseFlowError,
     subscriptionOption,
     subscriptionOptionWithTrial,
   } from "../fixtures";
@@ -23,12 +22,11 @@
     productDetails: product,
     purchaseOptionToUse: subscriptionOption,
     purchaseOption: subscriptionOption,
-    lastError: purchaseFlowError,
     onContinue: () => {},
   };
 
   let { Story } = defineMeta({
-    title: "Pages/Purchase",
+    title: "Pages/PaymentEntryPage",
     args: defaultArgs,
     argTypes: {
       withTaxes: {
@@ -81,7 +79,7 @@
 {/snippet}
 
 <Story
-  name="Checkout"
+  name="Default"
   args={{ ...defaultArgs, currentPage: "payment-entry" }}
   parameters={{
     chromatic: {
@@ -91,7 +89,7 @@
 />
 
 <Story
-  name="Checkout (with Sandbox Banner)"
+  name="With Sandbox Banner"
   args={{ ...defaultArgs, currentPage: "payment-entry", isSandbox: true }}
   parameters={{
     chromatic: {
@@ -101,7 +99,7 @@
 />
 
 <Story
-  name="Checkout (with email input skipped)"
+  name="Without Email Input"
   args={{
     ...defaultArgs,
     currentPage: "payment-entry",
@@ -116,7 +114,7 @@
 />
 
 <Story
-  name="Checkout (with Trial Product)"
+  name="With Trial Product"
   args={{
     ...defaultArgs,
     currentPage: "payment-entry",
@@ -138,7 +136,7 @@
 />
 
 <Story
-  name="Checkout (with Tax)"
+  name="With Tax"
   args={{
     ...defaultArgs,
     currentPage: "payment-entry",
@@ -152,7 +150,7 @@
 />
 
 <Story
-  name="Checkout (with Tax and Trial Product)"
+  name="With Tax and Trial Product"
   args={{
     ...defaultArgs,
     currentPage: "payment-entry",
@@ -175,7 +173,7 @@
 />
 
 <Story
-  name="Checkout (with Tax miss-match)"
+  name="With Tax Miss-Match"
   args={{
     ...defaultArgs,
     currentPage: "payment-entry",
@@ -191,7 +189,3 @@
     },
   }}
 />
-
-<Story name="Loading" args={{ currentPage: "payment-entry-loading" }} />
-<Story name="Payment complete" args={{ currentPage: "success" }} />
-<Story name="Payment failed" args={{ currentPage: "error" }} />

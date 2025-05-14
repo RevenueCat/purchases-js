@@ -1,13 +1,18 @@
 import type { StripeElementsConfiguration } from "./stripe-elements";
 
 export interface TaxBreakdown {
-  taxable_amount_in_micros: number;
   tax_amount_in_micros: number;
   display_name: string;
-  tax_rate_in_micros: number | null;
-  country: string | null;
-  state: string | null;
-  tax_type: string | null;
+}
+
+export enum CheckoutCalculateTaxFailedReason {
+  tax_collection_disabled = "tax_collection_disabled",
+  invalid_tax_location = "invalid_tax_location",
+  rate_limit_exceeded = "rate_limit_exceeded",
+  missing_required_permission = "missing_required_permission",
+  invalid_origin_address = "invalid_origin_address",
+  taxes_not_active = "taxes_not_active",
+  unexpected_gateway_error = "unexpected_gateway_error",
 }
 
 export interface CheckoutCalculateTaxResponse {
@@ -16,7 +21,6 @@ export interface CheckoutCalculateTaxResponse {
   total_amount_in_micros: number;
   tax_amount_in_micros: number;
   total_excluding_tax_in_micros: number;
-  tax_inclusive: boolean;
   pricing_phases: {
     base: {
       tax_breakdown: TaxBreakdown[];
@@ -25,4 +29,5 @@ export interface CheckoutCalculateTaxResponse {
   gateway_params: {
     elements_configuration: StripeElementsConfiguration;
   };
+  failed_reason?: CheckoutCalculateTaxFailedReason | string;
 }
