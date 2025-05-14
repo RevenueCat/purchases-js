@@ -168,6 +168,9 @@ export const purchaseFlowErrors = {
   networkError: new PurchaseFlowError(3),
   missingEmailError: new PurchaseFlowError(4),
   alreadyPurchasedError: new PurchaseFlowError(5),
+  stripeNotActive: new PurchaseFlowError(6),
+  stripeInvalidTaxOriginAddress: new PurchaseFlowError(7),
+  stripeMissingRequiredPermission: new PurchaseFlowError(8),
 };
 
 export const purchaseResponse = {

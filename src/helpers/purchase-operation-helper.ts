@@ -1,4 +1,5 @@
 import {
+  BackendErrorCode,
   ErrorCode,
   PurchasesError,
   type PurchasesErrorExtra,
@@ -32,6 +33,9 @@ export enum PurchaseFlowErrorCode {
   NetworkError = 3,
   MissingEmailError = 4,
   AlreadyPurchasedError = 5,
+  StripeTaxNotActive = 6,
+  StripeInvalidTaxOriginAddress = 7,
+  StripeMissingRequiredPermission = 8,
 }
 
 export class PurchaseFlowError extends Error {
@@ -63,7 +67,9 @@ export class PurchaseFlowError extends Error {
     } else if (e.errorCode === ErrorCode.NetworkError) {
       errorCode = PurchaseFlowErrorCode.NetworkError;
     } else {
-      errorCode = defaultFlowErrorCode;
+      errorCode =
+        PurchaseFlowError.fromBackendErrorCode(e.extra?.backendErrorCode) ??
+        defaultFlowErrorCode;
     }
 
     return new PurchaseFlowError(
@@ -73,6 +79,21 @@ export class PurchaseFlowError extends Error {
       e.errorCode,
       e.extra,
     );
+  }
+
+  static fromBackendErrorCode(
+    backendErrorCode: BackendErrorCode | undefined,
+  ): PurchaseFlowErrorCode | null {
+    switch (backendErrorCode) {
+      case BackendErrorCode.BackendGatewaySetupErrorStripeTaxNotActive:
+        return PurchaseFlowErrorCode.StripeTaxNotActive;
+      case BackendErrorCode.BackendGatewaySetupErrorInvalidTaxOriginAddress:
+        return PurchaseFlowErrorCode.StripeInvalidTaxOriginAddress;
+      case BackendErrorCode.BackendGatewaySetupErrorMissingRequiredPermission:
+        return PurchaseFlowErrorCode.StripeMissingRequiredPermission;
+      default:
+        return null;
+    }
   }
 }
 

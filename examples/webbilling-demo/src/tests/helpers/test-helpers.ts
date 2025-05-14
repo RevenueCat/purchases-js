@@ -194,7 +194,10 @@ export async function confirmPaymentComplete(page: Page) {
   await expect(successText).toBeVisible();
 }
 
-export async function confirmPaymentError(page: Page, message: string) {
+export async function confirmPaymentError(
+  page: Page,
+  message: string | RegExp,
+) {
   const errorText = page.getByText(message);
   await expect(errorText).toBeVisible();
 }

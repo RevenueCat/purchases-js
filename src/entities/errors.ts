@@ -183,10 +183,10 @@ export class ErrorCodeUtils {
         return ErrorCode.NetworkError;
       case PurchaseFlowErrorCode.MissingEmailError:
         return ErrorCode.PurchaseInvalidError;
-      case PurchaseFlowErrorCode.UnknownError:
-        return ErrorCode.UnknownError;
       case PurchaseFlowErrorCode.AlreadyPurchasedError:
         return ErrorCode.ProductAlreadyPurchasedError;
+      default:
+        return ErrorCode.UnknownError;
     }
   }
 }
