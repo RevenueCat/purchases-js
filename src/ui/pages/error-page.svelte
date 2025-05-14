@@ -19,11 +19,10 @@
     lastError: PurchaseFlowError | null;
     supportEmail: string | null;
     productDetails: Product;
-    email?: string;
     onDismiss: () => void;
   }
 
-  const { lastError, supportEmail, productDetails, email, onDismiss }: Props =
+  const { lastError, supportEmail, productDetails, onDismiss }: Props =
     $props();
 
   const error: PurchaseFlowError = $derived(
@@ -83,11 +82,6 @@
         return $translator.translate(
           LocalizationKeys.ErrorPageErrorMessageNetworkError,
           { errorCode: publicErrorCode },
-        );
-      case PurchaseFlowErrorCode.MissingEmailError:
-        return $translator.translate(
-          LocalizationKeys.ErrorPageErrorMessageInvalidEmailError,
-          { errorCode: publicErrorCode, email: email ?? "" },
         );
       case PurchaseFlowErrorCode.AlreadyPurchasedError:
         if (productDetails.productType === ProductType.Subscription) {
