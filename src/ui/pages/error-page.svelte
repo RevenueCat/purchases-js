@@ -73,11 +73,6 @@
           LocalizationKeys.ErrorPageErrorMessageErrorChargingPayment,
           { errorCode: publicErrorCode },
         );
-      case PurchaseFlowErrorCode.NetworkError:
-        return $translator.translate(
-          LocalizationKeys.ErrorPageErrorMessageNetworkError,
-          { errorCode: publicErrorCode },
-        );
       case PurchaseFlowErrorCode.AlreadyPurchasedError:
         if (productDetails.productType === ProductType.Subscription) {
           return $translator.translate(
@@ -90,6 +85,11 @@
             { errorCode: publicErrorCode },
           );
         }
+      case PurchaseFlowErrorCode.NetworkError:
+        return $translator.translate(
+          LocalizationKeys.ErrorPageErrorMessageNetworkError,
+          { errorCode: publicErrorCode },
+        );
       default:
         return $translator.translate(
           LocalizationKeys.ErrorPageErrorMessageUnknownError,
