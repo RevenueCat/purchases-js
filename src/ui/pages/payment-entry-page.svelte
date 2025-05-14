@@ -532,7 +532,7 @@
           {elementsConfiguration}
           {brandingInfo}
           skipEmail={!!customerEmail}
-          billingAddressRequired={false}
+          billingAddressRequired={taxCalculationStatus !== "disabled"}
           onLoadingComplete={handleStripeLoadingComplete}
           onError={handleStripeElementError}
           onEmailChange={handleEmailChange}
