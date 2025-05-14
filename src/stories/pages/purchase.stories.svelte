@@ -191,7 +191,3 @@
     },
   }}
 />
-
-<Story name="Loading" args={{ currentPage: "payment-entry-loading" }} />
-<Story name="Payment complete" args={{ currentPage: "success" }} />
-<Story name="Payment failed" args={{ currentPage: "error" }} />
