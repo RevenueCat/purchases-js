@@ -392,14 +392,12 @@ describe("Purchases.purchase()", () => {
   });
 
   test("throws error if api key is not provided", () => {
-    expect(() => Purchases.configure("", testUserId)).not.toThrowError(
-      PurchasesError,
-    );
+    // @ts-expect-error - we want to test the error case
+    expect(() => Purchases.configure()).toThrowError(PurchasesError);
   });
 
   test("throws error if app user id is not provided", () => {
-    expect(() => Purchases.configure(testApiKey, "")).toThrowError(
-      PurchasesError,
-    );
+    // @ts-expect-error - we want to test the error case
+    expect(() => Purchases.configure(testApiKey)).toThrowError(PurchasesError);
   });
 });
