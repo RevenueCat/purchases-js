@@ -11,6 +11,7 @@ import {
   getStripePaymentFrame,
   confirmPayButtonDisabled,
   confirmPaymentError,
+  enterSecurityCode,
 } from "./helpers/test-helpers";
 import {
   integrationTest,
@@ -198,40 +199,62 @@ integrationTest.describe("Tax calculation", () => {
     async ({ page, userId, email }) => {
       page = await navigateToTaxesLandingUrl(page, userId);
 
+      const taxSkeleton = page.getByTestId("tax-loading-skeleton");
+
       const packageCards = await getPackageCards(page);
       await startPurchaseFlow(packageCards[0]);
 
       await expect(page.getByText("Total excluding tax")).toBeVisible();
-      await expect(page.getByText(/Sales Tax - New York/)).not.toBeVisible();
       await expect(page.getByText("Total due today")).toBeVisible();
 
-      let calculateTaxesCount = 0;
       await page.route("**/calculate_taxes", async (route) => {
-        calculateTaxesCount++;
-
-        // Add some throttle to reduce flakiness
-        await new Promise((resolve) => setTimeout(resolve, 3000));
-        await route.continue();
+        const body = await route.request().postDataJSON();
+        if (body !== null && body["country_code"] === "IT") {
+          setTimeout(async () => {
+            route.continue();
+          }, 10_000);
+        } else {
+          route.continue();
+        }
       });
+
+      const italyTaxCalculationRequestPromise = page.waitForRequest(
+        (request) =>
+          request.url().includes("/calculate_taxes") &&
+          request.postDataJSON().country_code === "IT",
+      );
+      const newYorkTaxCalculationRequestPromise = page.waitForRequest(
+        (request) =>
+          request.url().includes("/calculate_taxes") &&
+          request.postDataJSON().country_code === "US",
+      );
+
+      const newYorkTaxCalculationResponsePromise = page.waitForResponse(
+        (response) =>
+          response.url().includes("/calculate_taxes") &&
+          response.request().postDataJSON().country_code === "US",
+      );
+
+      const italyTaxCalculationResponsePromise = page.waitForResponse(
+        (response) =>
+          response.url().includes("/calculate_taxes") &&
+          response.request().postDataJSON().country_code === "IT",
+      );
 
       await enterEmail(page, email);
       await enterCreditCardDetails(
         page,
         "4242 4242 4242 4242",
-        INVALID_CUSTOMER_DETAILS,
-      );
-
-      const skeleton = page.getByTestId("tax-loading-skeleton");
-      await expect(skeleton).toBeVisible();
-
-      await expect(calculateTaxesCount).toBe(1);
-
-      // Clear the postal code, to make sure that the change event is triggered by Stripe
-      await enterCreditCardDetails(
-        page,
-        "4242 4242 4242 4242",
         ITALY_CUSTOMER_DETAILS,
       );
+
+      await expect(taxSkeleton).toBeVisible();
+
+      // Must wait for the request to be started,
+      // visual skeleton is not enough to prevent race condition
+      await italyTaxCalculationRequestPromise;
+
+      await enterSecurityCode(page, "");
 
       await enterCreditCardDetails(
         page,
@@ -239,13 +262,26 @@ integrationTest.describe("Tax calculation", () => {
         NEW_YORK_CUSTOMER_DETAILS,
       );
 
+      await expect(taxSkeleton).toBeVisible();
+
+      // Must wait for the request to be started,
+      // visual skeleton is not enough to prevent race condition
+      await newYorkTaxCalculationRequestPromise;
+
       await expect(page.getByText(/Sales Tax - New York/)).toBeVisible();
 
-      await expect(calculateTaxesCount).toBe(2);
+      await newYorkTaxCalculationResponsePromise;
 
-      await expect(
-        page.getByText(/We couldn't verify your billing address./i),
-      ).not.toBeVisible();
+      const hasCompleted = await Promise.race([
+        italyTaxCalculationResponsePromise.then(() => true),
+        new Promise((resolve) => setTimeout(() => resolve(false), 0)),
+      ]);
+
+      if (hasCompleted) {
+        expect("Italy tax calculation should not have finished").toBeFalsy();
+      } else {
+        expect("Italy tax calculation finished").toBeTruthy();
+      }
     },
   );
 

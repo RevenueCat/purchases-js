@@ -140,6 +140,9 @@
         : "form",
   );
 
+  let previousTaxCalculationStatus: TaxCalculationStatus =
+    $state("unavailable");
+
   let isFormReady = $derived(
     !processing &&
       isPaymentInfoComplete &&
@@ -148,6 +151,10 @@
         taxCalculationStatus === "calculated" ||
         taxCalculationStatus === "miss-match"),
   );
+
+  $effect(() => {
+    onPriceBreakdownUpdated(priceBreakdown);
+  });
 
   onMount(() => {
     eventsTracker.trackSDKEvent({
@@ -172,12 +179,6 @@
     taxCustomerDetails: TaxCustomerDetails | null,
     signal?: AbortSignal,
   ) {
-    // Skip loading spinner on first load
-    if (taxCalculationStatus !== "unavailable") {
-      taxCalculationStatus = "loading";
-      onPriceBreakdownUpdated(priceBreakdown);
-    }
-
     await purchaseOperationHelper
       .checkoutCalculateTax(
         taxCustomerDetails?.countryCode,
@@ -214,7 +215,6 @@
           taxCalculation.gateway_params.elements_configuration;
 
         lastTaxCustomerDetails = taxCustomerDetails;
-        onPriceBreakdownUpdated(priceBreakdown);
       });
   }
 
@@ -292,13 +292,24 @@
     if (!isEmailComplete || !isPaymentInfoComplete) {
       return;
     }
+    if (processing) return;
+
+    if (taxCalculationStatus !== "loading") {
+      previousTaxCalculationStatus = taxCalculationStatus;
+      taxCalculationStatus = "loading";
+    }
 
     await withAbortProtection(async (signal) => {
       await submitElements()
         .then(() => signal.throwIfAborted())
         .then(() => recalculateTaxes(signal))
         .then(() => signal.throwIfAborted())
-        .catch(handleErrors);
+        .catch(handleErrors)
+        .finally(() => {
+          if (taxCalculationStatus === "loading" && !signal.aborted) {
+            taxCalculationStatus = previousTaxCalculationStatus;
+          }
+        });
     });
   }
 
@@ -478,14 +489,6 @@
       );
     }
   }
-
-  $effect(() => {
-    if (pendingReason === "invalid_postal_code") {
-      modalErrorMessage = $translator.translate(
-        LocalizationKeys.ErrorPageErrorMessageInvalidTaxLocation,
-      );
-    }
-  });
 
   const handleErrorTryAgain = () => {
     modalErrorMessage = undefined;
