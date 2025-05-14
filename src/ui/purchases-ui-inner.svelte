@@ -114,7 +114,7 @@
       />
     {/if}
     {#if currentPage === "success"}
-      <SuccessPage {productDetails} {onContinue} />
+      <SuccessPage {onContinue} />
     {/if}
   {/snippet}
 </Template>

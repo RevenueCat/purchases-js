@@ -1,6 +1,6 @@
 <script lang="ts">
   import IconSuccess from "../atoms/icons/icon-success.svelte";
-  import MessageLayoutSuccess from "../layout/message-layout-success.svelte";
+  import MessageLayout from "../layout/message-layout.svelte";
   import { getContext, onMount } from "svelte";
   import { translatorContextKey } from "../localization/constants";
   import { Translator } from "../localization/translator";
@@ -32,7 +32,7 @@
   });
 </script>
 
-<MessageLayoutSuccess
+<MessageLayout
   type="success"
   title={$translator.translate(LocalizationKeys.SuccessPagePurchaseSuccessful)}
   onDismiss={handleContinue}
@@ -43,4 +43,4 @@
   {#snippet icon()}
     <IconSuccess />
   {/snippet}
-</MessageLayoutSuccess>
+</MessageLayout>
