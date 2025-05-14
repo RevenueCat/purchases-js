@@ -45,19 +45,6 @@ export class PurchaseFlowError extends Error {
     super(message);
   }
 
-  isRecoverable(): boolean {
-    switch (this.errorCode) {
-      case PurchaseFlowErrorCode.NetworkError:
-      case PurchaseFlowErrorCode.MissingEmailError:
-        return true;
-      case PurchaseFlowErrorCode.ErrorSettingUpPurchase:
-      case PurchaseFlowErrorCode.ErrorChargingPayment:
-      case PurchaseFlowErrorCode.AlreadyPurchasedError:
-      case PurchaseFlowErrorCode.UnknownError:
-        return false;
-    }
-  }
-
   getErrorCode(): number {
     return (
       this.extra?.backendErrorCode ?? this.purchasesErrorCode ?? this.errorCode

@@ -161,7 +161,14 @@ export const brandingInfo: BrandingInfoResponse = {
   brand_font_config: null,
 };
 
-export const purchaseFlowError = new PurchaseFlowError(1);
+export const purchaseFlowErrors = {
+  errorSettingUpPurchase: new PurchaseFlowError(0),
+  errorChargingPayment: new PurchaseFlowError(1),
+  unknownError: new PurchaseFlowError(2),
+  networkError: new PurchaseFlowError(3),
+  missingEmailError: new PurchaseFlowError(4),
+  alreadyPurchasedError: new PurchaseFlowError(5),
+};
 
 export const purchaseResponse = {
   next_action: "collect_payment_info",
