@@ -35,7 +35,6 @@
     StripeElementsConfiguration,
     GatewayParams,
   } from "../../networking/responses/stripe-elements";
-  import { ALLOW_TAX_CALCULATION_FF } from "../../helpers/constants";
   import {
     CheckoutCalculateTaxFailedReason,
     type TaxBreakdown,
@@ -89,7 +88,7 @@
 
   let taxCalculationStatus: TaxCalculationStatus = $state<TaxCalculationStatus>(
     defaultPriceBreakdown?.taxCalculationStatus ??
-      (ALLOW_TAX_CALCULATION_FF && brandingInfo?.gateway_tax_collection_enabled
+      (brandingInfo?.gateway_tax_collection_enabled
         ? "unavailable"
         : "disabled"),
   );
@@ -557,8 +556,7 @@
         <PaymentButton
           disabled={!isFormReady}
           {subscriptionOption}
-          priceBreakdown={ALLOW_TAX_CALCULATION_FF &&
-          brandingInfo?.gateway_tax_collection_enabled
+          priceBreakdown={brandingInfo?.gateway_tax_collection_enabled
             ? priceBreakdown
             : undefined}
         />

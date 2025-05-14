@@ -5,8 +5,8 @@ import { getEmailFromUserId } from "./test-helpers";
 export const ALLOW_PAYWALLS_TESTS =
   process.env.VITE_ALLOW_PAYWALLS_TESTS === "true";
 
-export const ALLOW_TAX_CALCULATION_FF =
-  process.env.VITE_ALLOW_TAX_CALCULATION_FF === "true";
+export const VITE_RC_TAX_E2E_API_KEY =
+  process.env.VITE_RC_TAX_E2E_API_KEY === "true";
 
 interface TestFixtures {
   userId: string;
@@ -41,7 +41,7 @@ export const skipTaxCalculationTestIfDisabled = (
   test: typeof integrationTest,
 ) => {
   test.skip(
-    !ALLOW_TAX_CALCULATION_FF,
-    "Tax calculation is disabled. To enable, set VITE_ALLOW_TAX_CALCULATION_FF=true in the environment variables.",
+    !VITE_RC_TAX_E2E_API_KEY,
+    "Tax calculation tests are disabled. To enable, set VITE_RC_TAX_E2E_API_KEY=true in the environment variables.",
   );
 };

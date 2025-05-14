@@ -54,11 +54,7 @@ describe("PurchasesUI", () => {
     vi.clearAllMocks();
   });
 
-  test("performs tax calculation when gateway_tax_collection_enabled is true and VITE_ALLOW_TAX_CALCULATION_FF is enabled", async () => {
-    vi.spyOn(constants, "ALLOW_TAX_CALCULATION_FF", "get").mockReturnValue(
-      true,
-    );
-
+  test("performs tax calculation when gateway_tax_collection_enabled is true", async () => {
     vi.spyOn(purchaseOperationHelperMock, "checkoutStart").mockResolvedValue(
       checkoutStartResponse,
     );
@@ -80,34 +76,6 @@ describe("PurchasesUI", () => {
     await new Promise(process.nextTick);
 
     expect(calculateTaxSpy).toHaveBeenCalled();
-  });
-
-  test("does not perform tax calculation when VITE_ALLOW_TAX_CALCULATION_FF is disabled, even if gateway_tax_collection_enabled is true", async () => {
-    vi.spyOn(constants, "ALLOW_TAX_CALCULATION_FF", "get").mockReturnValue(
-      false,
-    );
-
-    vi.spyOn(purchaseOperationHelperMock, "checkoutStart").mockResolvedValue(
-      checkoutStartResponse,
-    );
-
-    const calculateTaxSpy = vi
-      .spyOn(purchaseOperationHelperMock, "checkoutCalculateTax")
-      .mockResolvedValue(checkoutCalculateTaxResponse);
-
-    render(PurchasesUI, {
-      props: {
-        ...basicProps,
-        brandingInfo: {
-          ...brandingInfo,
-          gateway_tax_collection_enabled: true,
-        },
-      },
-    });
-
-    await new Promise(process.nextTick);
-
-    expect(calculateTaxSpy).not.toHaveBeenCalled();
   });
 
   test("does not perform tax calculation when gateway_tax_collection_enabled is false", async () => {
