@@ -14,7 +14,6 @@ import { type PurchaseOperationHelper } from "../../helpers/purchase-operation-h
 import { createEventsTrackerMock } from "../mocks/events-tracker-mock-provider";
 import type { CheckoutStartResponse } from "../../networking/responses/checkout-start-response";
 import type { CheckoutCalculateTaxResponse } from "../../networking/responses/checkout-calculate-tax-response";
-import * as constants from "../../helpers/constants";
 
 const eventsTrackerMock = createEventsTrackerMock();
 
