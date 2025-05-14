@@ -2,14 +2,6 @@
   import Icon from "../../../assets/error.svg?raw"; // Load SVG as a raw string
 </script>
 
-<div style="color:var(--rc-color-primary);" class="rcb-ui-asset-icon">
+<div style="color:var(--rc-color-primary);">
   {@html Icon}
 </div>
-
-<style>
-  .rcb-ui-asset-icon {
-    width: 32px;
-    height: 32px;
-    margin: 8px 0;
-  }
-</style>
