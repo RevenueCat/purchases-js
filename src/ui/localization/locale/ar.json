@@ -38,7 +38,6 @@
   "payment_entry_page.button_pay": "ادفع الآن",
   "payment_entry_page.button_start_trial": "ابدأ التجربة",
   "success_page.purchase_successful": "تم الدفع بنجاح",
-  "success_page.subscription_now_active": "اشتراكك نشط الآن",
   "success_page.button_close": "متابعة",
   "error_page.if_error_persists": "إذا استمرت المشكلة، يرجى الاتصال بـ ",
   "error_page.error_title_already_subscribed": "أنت مشترك بالفعل في {{productTitle}}",

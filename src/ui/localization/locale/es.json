@@ -38,7 +38,6 @@
   "payment_entry_page.button_pay": "Pagar ahora",
   "payment_entry_page.button_start_trial": "Comenzar prueba",
   "success_page.purchase_successful": "Pago completado",
-  "success_page.subscription_now_active": "Tu suscripción está ahora activa",
   "success_page.button_close": "Continuar",
   "error_page.if_error_persists": "Si el error persiste, contacta con ",
   "error_page.error_title_already_subscribed": "Ya te has suscrito a {{productTitle}}",

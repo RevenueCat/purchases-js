@@ -40,7 +40,6 @@
   "payment_entry_page.button_pay": "Πληρωμή τώρα",
   "payment_entry_page.button_start_trial": "Έναρξη δοκιμής",
   "success_page.purchase_successful": "Η πληρωμή ολοκληρώθηκε",
-  "success_page.subscription_now_active": "Η συνδρομή σας είναι πλέον ενεργή",
   "success_page.button_close": "Συνέχεια",
   "error_page.if_error_persists": "Εάν το σφάλμα παραμένει, επικοινωνήστε με ",
   "error_page.error_title_already_subscribed": "Έχετε ήδη εγγραφεί στο {{productTitle}}",

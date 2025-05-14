@@ -38,7 +38,6 @@
   "payment_entry_page.button_pay": "Plati sada",
   "payment_entry_page.button_start_trial": "Počni probno razdoblje",
   "success_page.purchase_successful": "Uplata je uspješna",
-  "success_page.subscription_now_active": "Vaša pretplata je sada aktivna",
   "success_page.button_close": "Nastavi",
   "error_page.if_error_persists": "Ako se pogreška nastavi, obratite se ",
   "error_page.error_title_already_subscribed": "Već ste pretplaćeni na {{productTitle}}",

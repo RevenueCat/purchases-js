@@ -38,7 +38,6 @@
   "payment_entry_page.button_pay": "Plătește acum",
   "payment_entry_page.button_start_trial": "Începe perioada de probă",
   "success_page.purchase_successful": "Plata efectuată",
-  "success_page.subscription_now_active": "Abonamentul dvs. este acum activ",
   "success_page.button_close": "Continuă",
   "error_page.if_error_persists": "Dacă eroarea persistă, vă rugăm să contactați ",
   "error_page.error_title_already_subscribed": "Sunteți deja abonat la {{productTitle}}",

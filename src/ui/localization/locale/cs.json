@@ -38,7 +38,6 @@
   "payment_entry_page.button_pay": "Platit nyní",
   "payment_entry_page.button_start_trial": "Spustit zkušební verzi",
   "success_page.purchase_successful": "Platba dokončena",
-  "success_page.subscription_now_active": "Vaše předplatné je nyní aktivní",
   "success_page.button_close": "Pokračovat",
   "error_page.if_error_persists": "Pokud chyba přetrvává, kontaktujte ",
   "error_page.error_title_already_subscribed": "Již máte předplatné pro {{productTitle}}",

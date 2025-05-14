@@ -38,7 +38,6 @@
   "payment_entry_page.button_pay": "今すぐ支払う",
   "payment_entry_page.button_start_trial": "トライアルを開始",
   "success_page.purchase_successful": "支払いが完了しました",
-  "success_page.subscription_now_active": "購読が有効になりました",
   "success_page.button_close": "続行",
   "error_page.if_error_persists": "エラーが続く場合は、ご連絡ください。",
   "error_page.error_title_already_subscribed": "すでに{{productTitle}}を購読しています",

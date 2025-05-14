@@ -38,7 +38,6 @@
   "payment_entry_page.button_pay": "שלם עכשיו",
   "payment_entry_page.button_start_trial": "התחל ניסיון",
   "success_page.purchase_successful": "התשלום הושלם",
-  "success_page.subscription_now_active": "המנוי שלך פעיל כעת",
   "success_page.button_close": "המשך",
   "error_page.if_error_persists": "אם השגיאה נמשכת, אנא פנה אל ",
   "error_page.error_title_already_subscribed": "כבר נרשמת כמנוי ל-{{productTitle}}",

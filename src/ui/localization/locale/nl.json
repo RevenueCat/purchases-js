@@ -38,7 +38,6 @@
   "payment_entry_page.button_pay": "Nu betalen",
   "payment_entry_page.button_start_trial": "Start proefperiode",
   "success_page.purchase_successful": "Betaling voltooid",
-  "success_page.subscription_now_active": "Uw abonnement is nu actief",
   "success_page.button_close": "Doorgaan",
   "error_page.if_error_persists": "Neem contact op met  als de fout aanhoudt",
   "error_page.error_title_already_subscribed": "Je bent al geabonneerd op {{productTitle}}",

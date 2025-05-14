@@ -38,7 +38,6 @@
   "payment_entry_page.button_pay": "ชำระเงินตอนนี้",
   "payment_entry_page.button_start_trial": "เริ่มทดลองใช้",
   "success_page.purchase_successful": "การชำระเงินเสร็จสมบูรณ์",
-  "success_page.subscription_now_active": "การสมัครสมาชิกของคุณใช้งานได้แล้ว",
   "success_page.button_close": "ดำเนินการต่อ",
   "error_page.if_error_persists": "หากข้อผิดพลาดยังคงอยู่ โปรดติดต่อ ",
   "error_page.error_title_already_subscribed": "คุณได้สมัครสมาชิก {{productTitle}} แล้ว",

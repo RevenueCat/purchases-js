@@ -38,7 +38,6 @@
   "payment_entry_page.button_pay": "立即支付",
   "payment_entry_page.button_start_trial": "开始试用",
   "success_page.purchase_successful": "支付完成",
-  "success_page.subscription_now_active": "您的订阅现已生效",
   "success_page.button_close": "继续",
   "error_page.if_error_persists": "如果错误仍然存在，请联系 ",
   "error_page.error_title_already_subscribed": "您已订阅 {{productTitle}}",

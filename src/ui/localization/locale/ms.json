@@ -38,7 +38,6 @@
   "payment_entry_page.button_pay": "Bayar sekarang",
   "payment_entry_page.button_start_trial": "Mula Percubaan",
   "success_page.purchase_successful": "Pembayaran selesai",
-  "success_page.subscription_now_active": "Langganan anda kini aktif",
   "success_page.button_close": "Teruskan",
   "error_page.if_error_persists": "Jika ralat berterusan, sila hubungi ",
   "error_page.error_title_already_subscribed": "Anda sudah melanggan {{productTitle}}",

@@ -38,7 +38,6 @@
   "payment_entry_page.button_pay": "Maksa nyt",
   "payment_entry_page.button_start_trial": "Aloita kokeilujakso",
   "success_page.purchase_successful": "Maksaminen onnistui",
-  "success_page.subscription_now_active": "Tilauksesi on nyt aktiivinen",
   "success_page.button_close": "Jatka",
   "error_page.if_error_persists": "Jos virhe jatkuu, ota yhteyttä ",
   "error_page.error_title_already_subscribed": "Olet jo tilannut tuotteen {{productTitle}}",

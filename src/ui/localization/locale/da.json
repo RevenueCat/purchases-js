@@ -38,7 +38,6 @@
   "payment_entry_page.button_pay": "Betal nu",
   "payment_entry_page.button_start_trial": "Start prøveperiode",
   "success_page.purchase_successful": "Betaling gennemført",
-  "success_page.subscription_now_active": "Dit abonnement er nu aktivt",
   "success_page.button_close": "Fortsæt",
   "error_page.if_error_persists": "Hvis fejlen fortsætter, kontakt venligst ",
   "error_page.error_title_already_subscribed": "Du abonnerer allerede på {{productTitle}}",

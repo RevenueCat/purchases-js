@@ -38,7 +38,6 @@
   "payment_entry_page.button_pay": "Jetzt bezahlen",
   "payment_entry_page.button_start_trial": "Testversion starten",
   "success_page.purchase_successful": "Zahlung abgeschlossen",
-  "success_page.subscription_now_active": "Ihr Abonnement ist jetzt aktiv",
   "success_page.button_close": "Weiter",
   "error_page.if_error_persists": "Wenn der Fehler weiterhin besteht, wenden Sie sich bitte an ",
   "error_page.error_title_already_subscribed": "Du hast {{productTitle}} bereits abonniert",

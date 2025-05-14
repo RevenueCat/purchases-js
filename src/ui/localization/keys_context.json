@@ -44,7 +44,6 @@
   "payment_entry_page.button_pay": "Button text prompting the user to pay immediately.",
   "payment_entry_page.button_start_trial": "Button text prompting the user to start the free trial.",
   "success_page.purchase_successful": "Message confirming that payment was successfully completed.",
-  "success_page.subscription_now_active": "Message confirming that the subscription is now active.",
   "success_page.button_close": "Button text to close or continue from a success screen.",
   "error_page.if_error_persists": "A message preceding the support e-mail of the app, advising the user to contact support if the error continues.",
   "error_page.trouble_accessing": "A message preceding the support e-mail of the app, shown when the user has already subscribed/purchased the product.",

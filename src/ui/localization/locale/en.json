@@ -44,7 +44,6 @@
   "payment_entry_page.button_payment_method": "Pay {{formattedPrice}} with {{paymentMethod}}",
   "payment_entry_page.express_checkout_divider": "OR PAY BY CARD",
   "success_page.purchase_successful": "Payment complete",
-  "success_page.subscription_now_active": "Your subscription is now active",
   "success_page.button_close": "Continue",
   "error_page.close_button_title": "Go to {{appName}}",
   "error_page.if_error_persists": "If the error persists, please contact ",

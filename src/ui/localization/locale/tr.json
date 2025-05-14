@@ -38,7 +38,6 @@
   "payment_entry_page.button_pay": "Şimdi öde",
   "payment_entry_page.button_start_trial": "Denemeyi başlat",
   "success_page.purchase_successful": "Ödeme tamamlandı",
-  "success_page.subscription_now_active": "Aboneliğiniz şimdi aktif",
   "success_page.button_close": "Devam et",
   "error_page.if_error_persists": "Hata devam ederse lütfen iletişime geçin ",
   "error_page.error_title_already_subscribed": "{{productTitle}} ürününe zaten abone oldunuz",

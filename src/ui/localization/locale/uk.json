@@ -38,7 +38,6 @@
   "payment_entry_page.button_pay": "Оплатити зараз",
   "payment_entry_page.button_start_trial": "Розпочати пробний період",
   "success_page.purchase_successful": "Оплата завершена",
-  "success_page.subscription_now_active": "Ваша підписка активна",
   "success_page.button_close": "Продовжити",
   "error_page.if_error_persists": "Якщо помилка повторюється, зверніться до ",
   "error_page.error_title_already_subscribed": "Ви вже підписалися на {{productTitle}}",

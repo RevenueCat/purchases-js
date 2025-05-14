@@ -38,7 +38,6 @@
   "payment_entry_page.button_pay": "Zaplatiť teraz",
   "payment_entry_page.button_start_trial": "Spustiť skúšobné obdobie",
   "success_page.purchase_successful": "Platba dokončená",
-  "success_page.subscription_now_active": "Vaše predplatné je teraz aktívne",
   "success_page.button_close": "Pokračovať",
   "error_page.if_error_persists": "Ak chyba pretrváva, kontaktujte ",
   "error_page.error_title_already_subscribed": "Už ste si predplatili {{productTitle}}",

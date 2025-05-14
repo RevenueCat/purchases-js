@@ -38,7 +38,6 @@
   "payment_entry_page.button_pay": "지금 결제",
   "payment_entry_page.button_start_trial": "체험 시작",
   "success_page.purchase_successful": "결제가 완료되었습니다.",
-  "success_page.subscription_now_active": "구독이 활성화되었습니다.",
   "success_page.button_close": "계속",
   "error_page.if_error_persists": "오류가 지속되면 다음으로 문의하십시오.",
   "error_page.error_title_already_subscribed": "이미 {{productTitle}}을 구독하셨습니다",

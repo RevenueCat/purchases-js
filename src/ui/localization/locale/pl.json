@@ -38,7 +38,6 @@
   "payment_entry_page.button_pay": "Zapłać teraz",
   "payment_entry_page.button_start_trial": "Rozpocznij okres próbny",
   "success_page.purchase_successful": "Płatność zakończona",
-  "success_page.subscription_now_active": "Twoja subskrypcja jest już aktywna",
   "success_page.button_close": "Kontynuuj",
   "error_page.if_error_persists": "Jeśli błąd będzie się powtarzał, skontaktuj się z ",
   "error_page.error_title_already_subscribed": "Już subskrybujesz {{productTitle}}",

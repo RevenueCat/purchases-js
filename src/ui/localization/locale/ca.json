@@ -38,7 +38,6 @@
   "payment_entry_page.button_pay": "Paga ara",
   "payment_entry_page.button_start_trial": "Comença la prova",
   "success_page.purchase_successful": "Pagament complet",
-  "success_page.subscription_now_active": "La teva subscripció ja està activa",
   "success_page.button_close": "Continua",
   "error_page.if_error_persists": "Si l'error persisteix, contacta amb ",
   "error_page.error_title_already_subscribed": "Ja us heu subscrit a {{productTitle}}",

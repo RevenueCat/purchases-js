@@ -38,7 +38,6 @@
   "payment_entry_page.button_pay": "Betala nu",
   "payment_entry_page.button_start_trial": "Starta provperiod",
   "success_page.purchase_successful": "Betalningen är klar",
-  "success_page.subscription_now_active": "Din prenumeration är nu aktiv",
   "success_page.button_close": "Fortsätt",
   "error_page.if_error_persists": "Om felet kvarstår, vänligen kontakta ",
   "error_page.error_title_already_subscribed": "Du prenumererar redan på {{productTitle}}",

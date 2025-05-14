@@ -38,7 +38,6 @@
   "payment_entry_page.button_pay": "अभी भुगतान करें",
   "payment_entry_page.button_start_trial": "परीक्षण प्रारंभ करें",
   "success_page.purchase_successful": "भुगतान पूर्ण",
-  "success_page.subscription_now_active": "आपकी सदस्यता अब सक्रिय है",
   "success_page.button_close": "जारी रखें",
   "error_page.if_error_persists": "यदि त्रुटि बनी रहती है, तो कृपया संपर्क करें ",
   "error_page.error_title_already_subscribed": "आपने पहले ही {{productTitle}} की सदस्यता ले ली है",
