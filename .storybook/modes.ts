@@ -29,12 +29,6 @@ export const brandingLanguageViewportModes = {
     brandingName: "Igify",
     locale: "fr",
   },
-  "embedded-fr-igify": {
-    name: "Embedded / French / Igify",
-    viewport: "embedded",
-    brandingName: "Igify",
-    locale: "fr",
-  },
 };
 
 export const brandingModes = {
