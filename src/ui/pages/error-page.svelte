@@ -150,6 +150,6 @@
 
 <style>
   a {
-    color: var(--rc-color-primary);
+    color: var(--rc-color-grey-text-dark);
   }
 </style>
