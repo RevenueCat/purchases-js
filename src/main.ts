@@ -214,6 +214,21 @@ export class Purchases {
           "Creating and returning new instance.",
       );
     }
+
+    if (!apiKey) {
+      throw new PurchasesError(
+        ErrorCode.ConfigurationError,
+        "API key is required. Please provide a valid RevenueCat API key.",
+      );
+    }
+
+    if (!appUserId) {
+      throw new PurchasesError(
+        ErrorCode.ConfigurationError,
+        "App user ID is required. Please provide a valid user identifier.",
+      );
+    }
+
     validateApiKey(apiKey);
     validateAppUserId(appUserId);
     validateProxyUrl(httpConfig.proxyURL);
