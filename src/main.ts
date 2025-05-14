@@ -214,7 +214,6 @@ export class Purchases {
           "Creating and returning new instance.",
       );
     }
-
     validateApiKey(apiKey);
     validateAppUserId(appUserId);
     validateProxyUrl(httpConfig.proxyURL);
