@@ -194,7 +194,7 @@ integrationTest.describe("Tax calculation", () => {
   );
 
   integrationTest(
-    "Postal code not recognized error",
+    "Does NOT display taxes if postal code is not recognized",
     async ({ page, userId, email }) => {
       page = await navigateToLandingUrl(
         page,
@@ -219,9 +219,9 @@ integrationTest.describe("Tax calculation", () => {
         INVALID_CUSTOMER_DETAILS,
       );
 
-      await expect(
-        page.getByText(/We couldn't verify your billing address./),
-      ).toBeVisible();
+      await expect(page.getByText("Total excluding tax")).not.toBeVisible();
+      await expect(page.getByText(/Sales Tax - New York/)).not.toBeVisible();
+      await expect(page.getByText("Total due today")).toBeVisible();
     },
   );
 
