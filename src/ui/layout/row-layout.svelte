@@ -4,7 +4,6 @@
   export let gap: Gap = "small";
   export let align: "start" | "center" | "end" = "start";
   export let children: Snippet;
-  export let icon: (() => any) | null = null;
 </script>
 
 <div class="rcb-row gap-{gap} align-{align}">

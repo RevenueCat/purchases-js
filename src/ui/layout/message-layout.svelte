@@ -62,10 +62,8 @@
                   </div>
                 {/if}
                 {#if title}
-                  <span style="display: block;">
-                    <Typography bind:elementRef={titleElement} size="heading-md"
-                      >{title}</Typography
-                    >
+                  <span style="display: block;" bind:this={titleElement}>
+                    <Typography size="heading-md">{title}</Typography>
                   </span>
                 {/if}
               </RowLayout>

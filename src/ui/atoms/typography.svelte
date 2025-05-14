@@ -16,24 +16,17 @@
     size?: Size;
     children?: Snippet;
     branded?: boolean;
-    elementRef?: HTMLElement | null;
   };
 </script>
 
 <script lang="ts">
-  let {
-    children,
-    size = "body-base",
-    branded = false,
-    elementRef = $bindable(),
-  }: Props = $props();
+  let { children, size = "body-base", branded = false }: Props = $props();
 </script>
 
 <span
   class="rcb-typography rcb-typography-{size} {branded
     ? 'rcb-typography-branded'
     : ''}"
-  bind:this={elementRef}
 >
   {@render children?.()}
 </span>
