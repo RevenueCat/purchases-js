@@ -113,6 +113,7 @@
     {getTranslatedErrorMessage()}
     {#if supportEmail}
       <br />
+      <br />
       <Localized key={LocalizationKeys.ErrorPageIfErrorPersists} />
       <a href="mailto:{supportEmail}">{supportEmail}</a>.
     {/if}
