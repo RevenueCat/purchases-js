@@ -4,6 +4,7 @@
 
 <div style="color:var(--rc-color-primary);" class="rcb-ui-asset-icon">
   {@html Icon}
+  <!-- Empty commit -->
 </div>
 
 <style>
