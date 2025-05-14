@@ -13,7 +13,6 @@
     priceBreakdownTaxDisabled,
     priceBreakdownTaxInclusive,
     product,
-    purchaseFlowError,
     subscriptionOption,
     subscriptionOptionWithTrial,
   } from "../fixtures";
@@ -23,7 +22,6 @@
     productDetails: product,
     purchaseOptionToUse: subscriptionOption,
     purchaseOption: subscriptionOption,
-    lastError: purchaseFlowError,
     onContinue: () => {},
   };
 

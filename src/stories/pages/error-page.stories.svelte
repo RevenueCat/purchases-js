@@ -11,7 +11,7 @@
     brandingInfos,
     priceBreakdownTaxDisabled,
     product,
-    purchaseFlowError,
+    purchaseFlowErrors,
     subscriptionOption,
   } from "../fixtures";
   import { PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
@@ -20,8 +20,7 @@
     productDetails: product,
     purchaseOptionToUse: subscriptionOption,
     purchaseOption: subscriptionOption,
-    lastError: purchaseFlowError,
-    onContinue: () => {},
+    lastError: purchaseFlowErrors.unknownError,
   };
 
   let { Story } = defineMeta({
@@ -66,4 +65,20 @@
   />
 {/snippet}
 
-<Story name="Default" />
+<Story name="Unknown error" />
+<Story
+  name="Already purchased"
+  args={{ lastError: purchaseFlowErrors.alreadyPurchasedError }}
+/>
+<Story
+  name="Error setting up purchase"
+  args={{ lastError: purchaseFlowErrors.errorSettingUpPurchase }}
+/>
+<Story
+  name="Error charging payment"
+  args={{ lastError: purchaseFlowErrors.errorChargingPayment }}
+/>
+<Story
+  name="Network error"
+  args={{ lastError: purchaseFlowErrors.networkError }}
+/>

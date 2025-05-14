@@ -11,7 +11,6 @@
     brandingInfos,
     priceBreakdownTaxDisabled,
     product,
-    purchaseFlowError,
     subscriptionOption,
   } from "../fixtures";
   import { PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
@@ -20,7 +19,6 @@
     productDetails: product,
     purchaseOptionToUse: subscriptionOption,
     purchaseOption: subscriptionOption,
-    lastError: purchaseFlowError,
     onContinue: () => {},
   };
 
