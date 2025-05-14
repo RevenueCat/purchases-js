@@ -51,7 +51,7 @@
         >
           <ColLayout gap="large" align="center">
             <ColLayout gap="medium" align="start">
-              <RowLayout gap="medium" align="center">
+              <RowLayout>
                 {#if icon}
                   <div
                     class="rcb-modal-message-icon {isTitleWrapped

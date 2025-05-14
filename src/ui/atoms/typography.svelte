@@ -1,5 +1,6 @@
 <script module>
   import { type Snippet } from "svelte";
+
   type Size =
     | "heading-2xl"
     | "heading-xl"
@@ -20,7 +21,7 @@
 </script>
 
 <script lang="ts">
-  let { children, size = "body-base", branded = false }: Props = $props();
+  const { children, size = "body-base", branded = false }: Props = $props();
 </script>
 
 <span

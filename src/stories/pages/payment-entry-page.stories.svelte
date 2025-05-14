@@ -16,7 +16,6 @@
     subscriptionOption,
     subscriptionOptionWithTrial,
   } from "../fixtures";
-
   import { PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
 
   const defaultArgs = {
@@ -68,7 +67,7 @@
     onContinue={() => {}}
     closeWithError={() => {}}
     customerEmail={args.customerEmail}
-    lastError={args.lastError}
+    lastError={null}
     gatewayParams={checkoutStartResponse.gateway_params}
     {purchaseOperationHelper}
     defaultPriceBreakdown={args.defaultPriceBreakdown ??
