@@ -35,7 +35,6 @@
     disabled={args.disabled ?? false}
     subscriptionOption={args.subscriptionOption ?? subscriptionOption}
     priceBreakdown={args.priceBreakdown}
-    selectedPaymentMethod={args.selectedPaymentMethod}
   />
 {/snippet}
 
@@ -83,39 +82,5 @@
   args={{
     disabled: true,
     priceBreakdown: priceBreakdownTaxDisabled,
-  }}
-/>
-
-<Story
-  name="With Google Pay"
-  args={{
-    priceBreakdown: priceBreakdownTaxDisabled,
-    selectedPaymentMethod: "google_pay",
-  }}
-/>
-
-<Story
-  name="With Google Pay Disabled"
-  args={{
-    disabled: true,
-    priceBreakdown: priceBreakdownTaxDisabled,
-    selectedPaymentMethod: "google_pay",
-  }}
-/>
-
-<Story
-  name="With Apple Pay"
-  args={{
-    priceBreakdown: priceBreakdownTaxDisabled,
-    selectedPaymentMethod: "apple_pay",
-  }}
-/>
-
-<Story
-  name="With Apple Pay Disabled"
-  args={{
-    disabled: true,
-    priceBreakdown: priceBreakdownTaxDisabled,
-    selectedPaymentMethod: "apple_pay",
   }}
 />

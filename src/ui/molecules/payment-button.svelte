@@ -16,31 +16,9 @@
     selectedPaymentMethod?: string;
   };
 
-  const {
-    disabled,
-    subscriptionOption,
-    priceBreakdown,
-    selectedPaymentMethod,
-  }: Props = $props();
+  const { disabled, subscriptionOption, priceBreakdown }: Props = $props();
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
-
-  function paymentMethodDisplayName(
-    method: string | undefined,
-  ): string | undefined {
-    switch (method) {
-      case "google_pay":
-        return "Google Pay";
-      case "apple_pay":
-        return "Apple Pay";
-      default:
-        return undefined;
-    }
-  }
-
-  const paymentMethod = $derived(
-    paymentMethodDisplayName(selectedPaymentMethod),
-  );
 
   const formattedPrice = $derived(
     priceBreakdown
@@ -65,11 +43,6 @@
     <Localized
       key={LocalizationKeys.PaymentEntryPageButtonStartTrial}
       variables={{ trialPeriodLabel }}
-    />
-  {:else if formattedPrice && paymentMethod}
-    <Localized
-      key={LocalizationKeys.PaymentEntryPageButtonPaymentMethod}
-      variables={{ formattedPrice, paymentMethod }}
     />
   {:else if formattedPrice}
     <Localized

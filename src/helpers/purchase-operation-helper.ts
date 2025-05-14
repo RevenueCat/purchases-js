@@ -1,5 +1,4 @@
 import {
-  BackendErrorCode,
   ErrorCode,
   PurchasesError,
   type PurchasesErrorExtra,
@@ -96,16 +95,6 @@ export enum TaxCalculationError {
   Disabled = "disabled",
 }
 
-export type TaxCalculationResult =
-  | {
-      error: TaxCalculationError;
-      data?: CheckoutCalculateTaxResponse;
-    }
-  | {
-      error?: TaxCalculationError;
-      data: CheckoutCalculateTaxResponse;
-    };
-
 export class PurchaseOperationHelper {
   private operationSessionId: string | null = null;
   private readonly backend: Backend;
@@ -166,7 +155,7 @@ export class PurchaseOperationHelper {
   async checkoutCalculateTax(
     countryCode?: string,
     postalCode?: string,
-  ): Promise<TaxCalculationResult> {
+  ): Promise<CheckoutCalculateTaxResponse> {
     const operationSessionId = this.operationSessionId;
     if (!operationSessionId) {
       throw new PurchaseFlowError(
@@ -176,48 +165,17 @@ export class PurchaseOperationHelper {
     }
 
     try {
-      const checkoutCalculateTaxResponse =
-        await this.backend.postCheckoutCalculateTax(
-          operationSessionId,
-          countryCode,
-          postalCode,
-        );
-
-      return {
-        error: undefined,
-        data: checkoutCalculateTaxResponse,
-      };
+      return await this.backend.postCheckoutCalculateTax(
+        operationSessionId,
+        countryCode,
+        postalCode,
+      );
     } catch (error) {
       if (error instanceof PurchasesError) {
-        const backendErrorCode = error.extra?.backendErrorCode;
-        let calculationError: TaxCalculationError;
-        if (
-          backendErrorCode ===
-          BackendErrorCode.BackendTaxLocationCannotBeDetermined
-        ) {
-          calculationError = TaxCalculationError.Pending;
-        } else if (
-          backendErrorCode === BackendErrorCode.BackendInvalidTaxLocation
-        ) {
-          calculationError = TaxCalculationError.InvalidLocation;
-        } else if (
-          backendErrorCode ===
-            BackendErrorCode.BackendTaxCollectionNotEnabled ||
-          (!this.backend.getIsSandbox() &&
-            backendErrorCode &&
-            backendErrorCode !==
-              BackendErrorCode.BackendGatewaySetupErrorSandboxModeOnly)
-        ) {
-          calculationError = TaxCalculationError.Disabled;
-        } else {
-          throw PurchaseFlowError.fromPurchasesError(
-            error,
-            PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-          );
-        }
-        return {
-          error: calculationError,
-        };
+        throw PurchaseFlowError.fromPurchasesError(
+          error,
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        );
       } else {
         const errorMessage = "Unknown error calculating tax: " + String(error);
         Logger.errorLog(errorMessage);
