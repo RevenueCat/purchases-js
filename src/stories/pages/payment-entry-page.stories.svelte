@@ -28,7 +28,7 @@
   };
 
   let { Story } = defineMeta({
-    title: "Pages/Purchase",
+    title: "Pages/PaymentEntryPage",
     args: defaultArgs,
     argTypes: {
       withTaxes: {
