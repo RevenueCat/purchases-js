@@ -14,7 +14,6 @@
     PurchaseFlowError,
     PurchaseFlowErrorCode,
     PurchaseOperationHelper,
-    TaxCalculationError,
   } from "../../helpers/purchase-operation-helper";
   import type {
     PriceBreakdown,
@@ -36,8 +35,10 @@
     StripeElementsConfiguration,
     GatewayParams,
   } from "../../networking/responses/stripe-elements";
-  import { ALLOW_TAX_CALCULATION_FF } from "../../helpers/constants";
-  import type { TaxBreakdown } from "../../networking/responses/checkout-calculate-tax-response";
+  import {
+    CheckoutCalculateTaxFailedReason,
+    type TaxBreakdown,
+  } from "../../networking/responses/checkout-calculate-tax-response";
   import type { Stripe, StripeElements } from "@stripe/stripe-js";
   import {
     StripeService,
@@ -87,7 +88,7 @@
 
   let taxCalculationStatus: TaxCalculationStatus = $state<TaxCalculationStatus>(
     defaultPriceBreakdown?.taxCalculationStatus ??
-      (ALLOW_TAX_CALCULATION_FF && brandingInfo?.gateway_tax_collection_enabled
+      (brandingInfo?.gateway_tax_collection_enabled
         ? "unavailable"
         : "disabled"),
   );
@@ -185,38 +186,32 @@
       .then((taxCalculation) => {
         signal?.throwIfAborted();
 
-        if (taxCalculation.error) {
-          switch (taxCalculation.error) {
-            case TaxCalculationError.Pending:
-              taxCalculationStatus = "pending";
-              pendingReason = null;
-              break;
-            case TaxCalculationError.Disabled:
-              taxCalculationStatus = "disabled";
-              pendingReason = null;
-              break;
-            case TaxCalculationError.InvalidLocation:
-              taxCalculationStatus = "pending";
-              pendingReason = "invalid_postal_code";
-              break;
-            default:
-              throw new PurchaseFlowError(
-                PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-                "Unknown error without state set.",
-              );
+        if (taxCalculation.failed_reason) {
+          const isInitialCalculation = !taxCustomerDetails;
+          if (
+            isInitialCalculation &&
+            taxCalculation.failed_reason ===
+              CheckoutCalculateTaxFailedReason.invalid_tax_location
+          ) {
+            taxCalculationStatus = "pending";
+            pendingReason = null;
+          } else {
+            taxCalculationStatus = "disabled";
+            pendingReason = null;
           }
         } else {
-          const { data } = taxCalculation;
-
           taxCalculationStatus = "calculated";
-          taxAmountInMicros = data.tax_amount_in_micros;
-          totalExcludingTaxInMicros = data.total_excluding_tax_in_micros;
-          totalAmountInMicros = data.total_amount_in_micros;
-          taxBreakdown = data.pricing_phases.base.tax_breakdown;
           pendingReason = null;
-
-          elementsConfiguration = data.gateway_params.elements_configuration;
         }
+
+        taxAmountInMicros = taxCalculation.tax_amount_in_micros;
+        totalExcludingTaxInMicros =
+          taxCalculation.total_excluding_tax_in_micros;
+        totalAmountInMicros = taxCalculation.total_amount_in_micros;
+        taxBreakdown = taxCalculation.pricing_phases.base.tax_breakdown;
+
+        elementsConfiguration =
+          taxCalculation.gateway_params.elements_configuration;
 
         lastTaxCustomerDetails = taxCustomerDetails;
         onPriceBreakdownUpdated(priceBreakdown);
@@ -537,7 +532,7 @@
           {elementsConfiguration}
           {brandingInfo}
           skipEmail={!!customerEmail}
-          billingAddressRequired={false}
+          billingAddressRequired={taxCalculationStatus !== "disabled"}
           onLoadingComplete={handleStripeLoadingComplete}
           onError={handleStripeElementError}
           onEmailChange={handleEmailChange}
@@ -561,11 +556,9 @@
         <PaymentButton
           disabled={!isFormReady}
           {subscriptionOption}
-          priceBreakdown={ALLOW_TAX_CALCULATION_FF &&
-          brandingInfo?.gateway_tax_collection_enabled
+          priceBreakdown={brandingInfo?.gateway_tax_collection_enabled
             ? priceBreakdown
             : undefined}
-          {selectedPaymentMethod}
         />
 
         <div class="rc-checkout-secure-container">

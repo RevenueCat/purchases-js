@@ -2,8 +2,8 @@ import { ErrorCode, PurchasesError } from "../entities/errors";
 import { SDK_HEADERS } from "../networking/http-client";
 
 export function validateApiKey(apiKey: string) {
-  const api_key_regex = /^rcb_[a-zA-Z0-9_.-]+$/;
-  if (!api_key_regex.test(apiKey)) {
+  const apiKeyRegex = /^rcb_[a-zA-Z0-9_.-]+$/;
+  if (!apiKeyRegex.test(apiKey)) {
     throw new PurchasesError(
       ErrorCode.InvalidCredentialsError,
       "Invalid API key. Use your Web Billing API key.",
@@ -25,11 +25,16 @@ export function validateAppUserId(appUserId: string) {
     "undefined",
     "unknown",
   ]);
-  if (invalidAppUserIds.has(appUserId) || appUserId.includes("/")) {
+
+  if (
+    !appUserId ||
+    invalidAppUserIds.has(appUserId) ||
+    appUserId.includes("/")
+  ) {
     throw new PurchasesError(
       ErrorCode.InvalidAppUserIdError,
       'Provided user id: "' +
-        appUserId +
+        (appUserId ?? "[Not provided]") +
         '" is not valid. See https://www.revenuecat.com/docs/customers/user-ids#tips-for-setting-app-user-ids for more information.',
     );
   }
