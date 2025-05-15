@@ -9,3 +9,11 @@ if (!Element.prototype.animate) {
     finish: () => {},
   });
 }
+
+if (!globalThis.ResizeObserver) {
+  globalThis.ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+}
