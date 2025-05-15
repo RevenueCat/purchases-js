@@ -182,7 +182,7 @@ export async function enterCreditCardDetails(
 }
 
 export async function clickPayButton(page: Page) {
-  //await page.waitForTimeout(100);
+  await page.waitForTimeout(100);
   const button = await page.waitForSelector(
     "button[data-testid='PayButton']:not([disabled])",
   );
