@@ -77,5 +77,13 @@
   "price_update.trial_message": "Abonelik fiyatı, fatura adresinize göre vergileri içerecek şekilde güncellendi. Ücretsiz deneme süresi hala geçerli. Lütfen kontrol edin ve tekrar deneyin.",
   "payment_entry_page.express_checkout_divider": "VEYA KARTLA ÖDEYİN",
   "error_page.trouble_accessing": "Satın alımınıza erişmekte sorun yaşıyorsanız, şu adresten destek ekibine ulaşın: ",
-  "error_page.close_button_title": "{{appName}}'e Git"
+  "error_page.close_button_title": "{{appName}}'e Git",
+  "error_page.error_title_stripe_missing_required_permission": "Eksik Stripe izni",
+  "error_page.button_close": "Kapat",
+  "error_page.error_message_stripe_invalid_tax_origin_address": "Vergi başlangıç adresi geçersiz olduğu için satın alma başarısız oldu. Üretimde, satın alımlar vergi uygulanmadan çalışacaktır.",
+  "error_page.error_message_stripe_tax_not_active": "Stripe Vergi etkinleştirilmediği için satın alma başarısız oldu. Üretimde, satın alımlar vergi uygulanmadan çalışacaktır.",
+  "error_page.error_only_in_sandbox": "Bu mesaj yalnızca sanal ortamda görünür.",
+  "error_page.error_message_stripe_missing_required_permission": "Stripe uygulamasında gerekli bir izin eksik olduğu için satın alma başarısız oldu. Üretimde, satın alımlar vergi uygulanmadan çalışacaktır.",
+  "error_page.error_title_stripe_tax_not_active": "Stripe Vergi aktif değil",
+  "error_page.error_title_stripe_invalid_tax_origin_address": "Geçersiz vergi başlangıç adresi"
 }

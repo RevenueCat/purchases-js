@@ -77,5 +77,13 @@
   "price_update.trial_message": "O preço da assinatura foi atualizado para incluir impostos com base no seu endereço de faturação. O período de teste gratuito continua válido. Por favor, verifique e tente novamente.",
   "payment_entry_page.express_checkout_divider": "OU PAGUE COM CARTÃO",
   "error_page.trouble_accessing": "Se estiver com problemas para acessar sua compra, entre em contato com o suporte em ",
-  "error_page.close_button_title": "Ir para {{appName}}"
+  "error_page.close_button_title": "Ir para {{appName}}",
+  "error_page.error_title_stripe_missing_required_permission": "Permissão do Stripe em falta",
+  "error_page.button_close": "Fechar",
+  "error_page.error_message_stripe_invalid_tax_origin_address": "A compra falhou porque o endereço de origem fiscal é inválido. Em produção, as compras funcionarão sem impostos aplicados.",
+  "error_page.error_message_stripe_tax_not_active": "A compra falhou porque o Stripe Tax não está ativado. Em produção, as compras funcionarão sem impostos aplicados.",
+  "error_page.error_only_in_sandbox": "Esta mensagem aparece apenas na sandbox.",
+  "error_page.error_message_stripe_missing_required_permission": "A compra falhou porque o aplicativo Stripe não tem uma permissão necessária. Em produção, as compras funcionarão sem impostos aplicados.",
+  "error_page.error_title_stripe_tax_not_active": "Stripe Tax não está ativo",
+  "error_page.error_title_stripe_invalid_tax_origin_address": "Endereço de origem fiscal inválido"
 }

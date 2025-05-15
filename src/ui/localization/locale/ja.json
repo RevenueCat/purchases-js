@@ -77,5 +77,13 @@
   "price_update.trial_message": "請求先住所に基づいて税金を含むサブスクリプション料金が更新されました。無料トライアルは引き続き適用されます。確認して再度お試しください。",
   "payment_entry_page.express_checkout_divider": "カードで支払う",
   "error_page.trouble_accessing": "購入へのアクセスに問題がある場合は、サポートにお問い合わせください: ",
-  "error_page.close_button_title": "{{appName}} に移動"
+  "error_page.close_button_title": "{{appName}} に移動",
+  "error_page.error_title_stripe_missing_required_permission": "必要なStripeの権限がありません",
+  "error_page.button_close": "閉じる",
+  "error_page.error_message_stripe_invalid_tax_origin_address": "税の原産地住所が無効なため、購入に失敗しました。 本番環境では、税金が適用されなくても購入は可能です。",
+  "error_page.error_message_stripe_tax_not_active": "Stripe Taxが有効になっていないため、購入に失敗しました。 本番環境では、税金が適用されなくても購入は可能です。",
+  "error_page.error_only_in_sandbox": "このメッセージはサンドボックスでのみ表示されます。",
+  "error_page.error_message_stripe_missing_required_permission": "Stripeアプリに必要な権限がないため、購入に失敗しました。 本番環境では、税金が適用されなくても購入は可能です。",
+  "error_page.error_title_stripe_tax_not_active": "Stripe Taxが有効ではありません",
+  "error_page.error_title_stripe_invalid_tax_origin_address": "税の原産地住所が無効です"
 }

@@ -77,5 +77,13 @@
   "price_update.trial_message": "根据您的账单地址，订阅价格已更新为含税价格。免费试用仍然有效。请查看并重试。",
   "payment_entry_page.express_checkout_divider": "或使用银行卡支付",
   "error_page.trouble_accessing": "如果您在访问购买项目时遇到问题，请通过以下方式联系支持：",
-  "error_page.close_button_title": "前往{{appName}}"
+  "error_page.close_button_title": "前往{{appName}}",
+  "error_page.error_title_stripe_missing_required_permission": "缺少Stripe权限",
+  "error_page.button_close": "关闭",
+  "error_page.error_message_stripe_invalid_tax_origin_address": "购买失败，因为税务起始地址无效。在生产环境中，购买将在不应用税款的情况下进行。",
+  "error_page.error_message_stripe_tax_not_active": "购买失败，因为Stripe Tax未启用。在生产环境中，购买将在不应用税款的情况下进行。",
+  "error_page.error_only_in_sandbox": "此消息仅在沙盒中显示。",
+  "error_page.error_message_stripe_missing_required_permission": "购买失败，因为Stripe应用程序缺少必需的权限。在生产环境中，购买将在不应用税款的情况下进行。",
+  "error_page.error_title_stripe_tax_not_active": "Stripe Tax未激活",
+  "error_page.error_title_stripe_invalid_tax_origin_address": "税务起始地址无效"
 }

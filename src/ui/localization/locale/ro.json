@@ -77,5 +77,13 @@
   "price_update.trial_message": "Prețul abonamentului a fost actualizat pentru a include taxele bazate pe adresa dvs. de facturare. Perioada de probă gratuită rămâne valabilă. Vă rugăm să verificați și să încercați din nou.",
   "payment_entry_page.express_checkout_divider": "SAU PLĂTEȘTE CU CARDUL",
   "error_page.trouble_accessing": "Dacă întâmpini probleme în accesarea achiziției tale, contactează serviciul de asistență la ",
-  "error_page.close_button_title": "Mergi la {{appName}}"
+  "error_page.close_button_title": "Mergi la {{appName}}",
+  "error_page.error_title_stripe_missing_required_permission": "Permisiune Stripe lipsă",
+  "error_page.button_close": "Închide",
+  "error_page.error_message_stripe_invalid_tax_origin_address": "Achiziția a eșuat deoarece adresa de origine fiscală este nevalidă. În producție, achizițiile vor funcționa fără taxe aplicate.",
+  "error_page.error_message_stripe_tax_not_active": "Achiziția a eșuat deoarece Stripe Tax nu este activat. În producție, achizițiile vor funcționa fără taxe aplicate.",
+  "error_page.error_only_in_sandbox": "Acest mesaj apare doar în sandbox.",
+  "error_page.error_message_stripe_missing_required_permission": "Achiziția a eșuat deoarece aplicației Stripe îi lipsește o permisiune necesară. În producție, achizițiile vor funcționa fără taxe aplicate.",
+  "error_page.error_title_stripe_tax_not_active": "Stripe Tax nu este activ",
+  "error_page.error_title_stripe_invalid_tax_origin_address": "Adresă de origine fiscală Stripe nevalidă"
 }

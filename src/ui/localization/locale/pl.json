@@ -77,5 +77,13 @@
   "price_update.trial_message": "Cena subskrypcji została zaktualizowana o podatki na podstawie Twojego adresu rozliczeniowego. Okres próbny nadal obowiązuje. Sprawdź i spróbuj ponownie.",
   "payment_entry_page.express_checkout_divider": "LUB ZAPŁAĆ KARTĄ",
   "error_page.trouble_accessing": "Jeśli masz problemy z dostępem do zakupu, skontaktuj się z działem pomocy pod adresem ",
-  "error_page.close_button_title": "Przejdź do {{appName}}"
+  "error_page.close_button_title": "Przejdź do {{appName}}",
+  "error_page.error_title_stripe_missing_required_permission": "Brakujące uprawnienie Stripe",
+  "error_page.button_close": "Zamknij",
+  "error_page.error_message_stripe_invalid_tax_origin_address": "Zakup nie powiódł się, ponieważ adres pochodzenia podatku jest nieprawidłowy. W środowisku produkcyjnym zakupy będą działać bez naliczania podatków.",
+  "error_page.error_message_stripe_tax_not_active": "Zakup nie powiódł się, ponieważ Stripe Tax nie jest włączony. W środowisku produkcyjnym zakupy będą działać bez naliczania podatków.",
+  "error_page.error_only_in_sandbox": "Ta wiadomość pojawia się tylko w środowisku testowym.",
+  "error_page.error_message_stripe_missing_required_permission": "Zakup nie powiódł się, ponieważ aplikacja Stripe nie ma wymaganego uprawnienia. W środowisku produkcyjnym zakupy będą działać bez naliczania podatków.",
+  "error_page.error_title_stripe_tax_not_active": "Stripe Tax nieaktywny",
+  "error_page.error_title_stripe_invalid_tax_origin_address": "Nieprawidłowy adres pochodzenia podatku"
 }
