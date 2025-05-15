@@ -38,7 +38,7 @@ describe("The Translator class", () => {
 
       expect(
         eqSet(expectedKeysSet, otherLabelKeys),
-        `Language ${lang} doesn't have all the expected keys${missingKeysText}${extraKeysText}`,
+        `Language ${lang} doesn't have all the expected keys. ${missingKeysText}${extraKeysText}\n\n`,
       ).toBe(true);
     });
   });
