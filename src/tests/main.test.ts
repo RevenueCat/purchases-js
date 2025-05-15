@@ -390,4 +390,14 @@ describe("Purchases.purchase()", () => {
 
     unmountSpy.mockRestore();
   });
+
+  test("throws error if api key is not provided", () => {
+    // @ts-expect-error - we want to test the error case
+    expect(() => Purchases.configure()).toThrowError(PurchasesError);
+  });
+
+  test("throws error if app user id is not provided", () => {
+    // @ts-expect-error - we want to test the error case
+    expect(() => Purchases.configure(testApiKey)).toThrowError(PurchasesError);
+  });
 });
