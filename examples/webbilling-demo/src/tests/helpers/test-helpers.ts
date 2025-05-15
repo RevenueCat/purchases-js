@@ -99,26 +99,26 @@ export async function navigateToLandingUrl(
 }
 
 async function getAllElementsByLocator(
-  page: Page,
-  locator: string,
+  locator: Locator,
   containsText?: string,
 ) {
-  await page.waitForSelector(locator);
-  let locatorResult = page.locator(locator);
+  // Wait for at least one element to be visible
+  await expect(locator.first()).toBeVisible();
+
   if (containsText !== undefined) {
-    locatorResult = locatorResult.filter({ hasText: containsText });
+    locator = locator.filter({ hasText: containsText });
   }
-  return await locatorResult.all();
+  return await locator.all();
 }
 
 export const getPackageCards = (page: Page, text?: string) =>
-  getAllElementsByLocator(page, CARD_SELECTOR, text);
+  getAllElementsByLocator(page.locator(CARD_SELECTOR), text);
 
 export const getPaywallPackageCards = (page: Page, text?: string) =>
-  getAllElementsByLocator(page, PACKAGE_SELECTOR, text);
+  getAllElementsByLocator(page.locator(PACKAGE_SELECTOR), text);
 
 export const getPaywallPurchaseButtons = (page: Page) =>
-  getAllElementsByLocator(page, "button.rc-pw-purchase-button");
+  getAllElementsByLocator(page.locator("button.rc-pw-purchase-button"));
 
 export const getStripePaymentFrame = (page: Page) =>
   page.frameLocator(
