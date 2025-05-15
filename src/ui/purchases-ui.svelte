@@ -84,9 +84,9 @@
   let gatewayParams: GatewayParams = $state({});
 
   // For storing original styles
-  let originalHtmlHeight: string | null = $state("");
-  let originalHtmlOverflow: string | null = $state("");
-  let originalBodyHeight: string | null = $state("");
+  let originalHtmlHeight: string | null = $state(null);
+  let originalHtmlOverflow: string | null = $state(null);
+  let originalBodyHeight: string | null = $state(null);
 
   // Setting the context for the Localized components
   let translator: Translator = new Translator(
@@ -114,9 +114,13 @@
   onDestroy(() => {
     if (!isInElement) {
       // Restore original styles
-      document.documentElement.style.height = originalHtmlHeight;
-      document.body.style.height = originalBodyHeight;
-      document.documentElement.style.overflow = originalHtmlOverflow;
+      const restoreStyle = (element, property, value) => {
+        value === "" ? element.style.removeProperty(property) : element.style[property] = value;
+      };
+      
+      restoreStyle(document.documentElement, "height", originalHtmlHeight);
+      restoreStyle(document.body, "height", originalBodyHeight);
+      restoreStyle(document.documentElement, "overflow", originalHtmlOverflow);
     }
   });
 
