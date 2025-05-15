@@ -77,5 +77,13 @@
   "price_update.trial_message": "Η τιμή της συνδρομής ενημερώθηκε για να συμπεριλάβει τους φόρους βάσει της διεύθυνσης χρέωσής σας. Η δωρεάν δοκιμαστική περίοδος εξακολουθεί να ισχύει. Παρακαλώ ελέγξτε και δοκιμάστε ξανά.",
   "payment_entry_page.express_checkout_divider": "Ή ΠΛΗΡΩΣΤΕ ΜΕ ΚΑΡΤΑ",
   "error_page.trouble_accessing": "Εάν αντιμετωπίζετε προβλήματα πρόσβασης στην αγορά σας, επικοινωνήστε με την υποστήριξη στο ",
-  "error_page.close_button_title": "Μετάβαση στο {{appName}}"
+  "error_page.close_button_title": "Μετάβαση στο {{appName}}",
+  "error_page.error_title_stripe_missing_required_permission": "Λείπει άδεια Stripe",
+  "error_page.button_close": "Κλείσιμο",
+  "error_page.error_message_stripe_invalid_tax_origin_address": "Η αγορά απέτυχε επειδή η διεύθυνση προέλευσης φόρου δεν είναι έγκυρη. Στην παραγωγή, οι αγορές θα λειτουργούν χωρίς να εφαρμόζονται φόροι.",
+  "error_page.error_message_stripe_tax_not_active": "Η αγορά απέτυχε επειδή το Stripe Tax δεν είναι ενεργοποιημένο. Στην παραγωγή, οι αγορές θα λειτουργούν χωρίς να εφαρμόζονται φόροι.",
+  "error_page.error_only_in_sandbox": "Αυτό το μήνυμα εμφανίζεται μόνο στο sandbox.",
+  "error_page.error_message_stripe_missing_required_permission": "Η αγορά απέτυχε επειδή η εφαρμογή Stripe δεν διαθέτει την απαιτούμενη άδεια. Στην παραγωγή, οι αγορές θα λειτουργούν χωρίς να εφαρμόζονται φόροι.",
+  "error_page.error_title_stripe_tax_not_active": "Το Stripe Tax δεν είναι ενεργό",
+  "error_page.error_title_stripe_invalid_tax_origin_address": "Μη έγκυρη διεύθυνση προέλευσης φόρου"
 }

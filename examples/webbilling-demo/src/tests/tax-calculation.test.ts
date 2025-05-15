@@ -1,3 +1,4 @@
+import type { Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 import {
   enterCreditCardDetails,
@@ -9,6 +10,7 @@ import {
   confirmPaymentComplete,
   getStripePaymentFrame,
   confirmPayButtonDisabled,
+  confirmPaymentError,
 } from "./helpers/test-helpers";
 import {
   integrationTest,
@@ -27,6 +29,14 @@ import { TAX_TEST_OFFERING_ID } from "./helpers/fixtures";
 
 const TAX_BREAKDOWN_ITEM_SELECTOR = ".rcb-pricing-table-row";
 
+const navigateToTaxesLandingUrl = (page: Page, userId: string) =>
+  navigateToLandingUrl(
+    page,
+    userId,
+    { offeringId: TAX_TEST_OFFERING_ID },
+    TAX_TEST_API_KEY,
+  );
+
 integrationTest.describe("Tax calculation", () => {
   skipTaxCalculationTestIfDisabled(integrationTest);
 
@@ -44,14 +54,7 @@ integrationTest.describe("Tax calculation", () => {
   integrationTest(
     "Displays taxes on payment entry page",
     async ({ page, userId }) => {
-      page = await navigateToLandingUrl(
-        page,
-        userId,
-        {
-          offeringId: TAX_TEST_OFFERING_ID,
-        },
-        TAX_TEST_API_KEY,
-      );
+      page = await navigateToTaxesLandingUrl(page, userId);
 
       const packageCards = await getPackageCards(page);
       await startPurchaseFlow(packageCards[0]);
@@ -63,14 +66,7 @@ integrationTest.describe("Tax calculation", () => {
   integrationTest(
     "Entering only email does not trigger payment method validation errors",
     async ({ page, userId, email }) => {
-      page = await navigateToLandingUrl(
-        page,
-        userId,
-        {
-          offeringId: TAX_TEST_OFFERING_ID,
-        },
-        TAX_TEST_API_KEY,
-      );
+      page = await navigateToTaxesLandingUrl(page, userId);
 
       const packageCards = await getPackageCards(page);
       await startPurchaseFlow(packageCards[0]);
@@ -92,14 +88,7 @@ integrationTest.describe("Tax calculation", () => {
   integrationTest(
     "Refreshes taxes when card info changes and performs payment",
     async ({ page, userId, email }) => {
-      page = await navigateToLandingUrl(
-        page,
-        userId,
-        {
-          offeringId: TAX_TEST_OFFERING_ID,
-        },
-        TAX_TEST_API_KEY,
-      );
+      page = await navigateToTaxesLandingUrl(page, userId);
 
       const packageCards = await getPackageCards(page);
       await startPurchaseFlow(packageCards[0]);
@@ -127,14 +116,7 @@ integrationTest.describe("Tax calculation", () => {
   integrationTest(
     "Displays inclusive taxes",
     async ({ page, userId, email }) => {
-      page = await navigateToLandingUrl(
-        page,
-        userId,
-        {
-          offeringId: TAX_TEST_OFFERING_ID,
-        },
-        TAX_TEST_API_KEY,
-      );
+      page = await navigateToTaxesLandingUrl(page, userId);
 
       const packageCards = await getPackageCards(page);
       await startPurchaseFlow(packageCards[0]);
@@ -162,14 +144,7 @@ integrationTest.describe("Tax calculation", () => {
     "Does NOT display taxes if not collecting in location",
     async ({ page, userId, email }) => {
       // Set up the page (standard user, location, default params)
-      page = await navigateToLandingUrl(
-        page,
-        userId,
-        {
-          offeringId: TAX_TEST_OFFERING_ID,
-        },
-        TAX_TEST_API_KEY,
-      );
+      page = await navigateToTaxesLandingUrl(page, userId);
 
       const cards = await getPackageCards(page);
       const targetCard = cards[0];
@@ -196,14 +171,7 @@ integrationTest.describe("Tax calculation", () => {
   integrationTest(
     "Does NOT display taxes if postal code is not recognized",
     async ({ page, userId, email }) => {
-      page = await navigateToLandingUrl(
-        page,
-        userId,
-        {
-          offeringId: TAX_TEST_OFFERING_ID,
-        },
-        TAX_TEST_API_KEY,
-      );
+      page = await navigateToTaxesLandingUrl(page, userId);
 
       const packageCards = await getPackageCards(page);
       await startPurchaseFlow(packageCards[0]);
@@ -228,14 +196,7 @@ integrationTest.describe("Tax calculation", () => {
   integrationTest(
     "In-flight tax calculation is aborted when the user changes their billing address",
     async ({ page, userId, email }) => {
-      page = await navigateToLandingUrl(
-        page,
-        userId,
-        {
-          offeringId: TAX_TEST_OFFERING_ID,
-        },
-        TAX_TEST_API_KEY,
-      );
+      page = await navigateToTaxesLandingUrl(page, userId);
 
       const packageCards = await getPackageCards(page);
       await startPurchaseFlow(packageCards[0]);
@@ -291,14 +252,7 @@ integrationTest.describe("Tax calculation", () => {
   integrationTest(
     "Tax calculation is not performed until the user has entered their email",
     async ({ page, userId, email }) => {
-      page = await navigateToLandingUrl(
-        page,
-        userId,
-        {
-          offeringId: TAX_TEST_OFFERING_ID,
-        },
-        TAX_TEST_API_KEY,
-      );
+      page = await navigateToTaxesLandingUrl(page, userId);
 
       const packageCards = await getPackageCards(page);
       await startPurchaseFlow(packageCards[0]);
@@ -329,14 +283,7 @@ integrationTest.describe("Tax calculation", () => {
   integrationTest(
     "Tax calculation is not performed if payment info is incomplete",
     async ({ page, userId, email }) => {
-      page = await navigateToLandingUrl(
-        page,
-        userId,
-        {
-          offeringId: TAX_TEST_OFFERING_ID,
-        },
-        TAX_TEST_API_KEY,
-      );
+      page = await navigateToTaxesLandingUrl(page, userId);
 
       const packageCards = await getPackageCards(page);
       await startPurchaseFlow(packageCards[0]);
@@ -390,14 +337,7 @@ integrationTest.describe("Tax calculation", () => {
   integrationTest(
     "Tax calculation is performed upon submission and message is shown when final amount differs from initial amount",
     async ({ page, userId, email }) => {
-      page = await navigateToLandingUrl(
-        page,
-        userId,
-        {
-          offeringId: TAX_TEST_OFFERING_ID,
-        },
-        TAX_TEST_API_KEY,
-      );
+      page = await navigateToTaxesLandingUrl(page, userId);
 
       const packageCards = await getPackageCards(page);
       await startPurchaseFlow(packageCards[0]);
@@ -446,14 +386,7 @@ integrationTest.describe("Tax calculation", () => {
   integrationTest(
     "Tax calculation is performed upon submission but no message is shown when final amount matches initial amount",
     async ({ page, userId, email }) => {
-      page = await navigateToLandingUrl(
-        page,
-        userId,
-        {
-          offeringId: TAX_TEST_OFFERING_ID,
-        },
-        TAX_TEST_API_KEY,
-      );
+      page = await navigateToTaxesLandingUrl(page, userId);
 
       const packageCards = await getPackageCards(page);
       await startPurchaseFlow(packageCards[0]);
@@ -498,4 +431,49 @@ integrationTest.describe("Tax calculation", () => {
       await expect(calculateTaxesCount).toBe(2);
     },
   );
+
+  integrationTest("Stripe tax not active", async ({ page, userId }) => {
+    page = await navigateToTaxesLandingUrl(page, userId);
+
+    page.route("*/**/checkout/*/calculate_taxes", async (route) => {
+      await route.fulfill({
+        body: '{ "code": 7898, "message": "Stripe account setup error: Stripe Tax must be active to calculate taxes."}',
+        status: 422,
+      });
+    });
+
+    const packageCards = await getPackageCards(page);
+    await startPurchaseFlow(packageCards[0]);
+    await confirmPaymentError(page, "Stripe Tax not active");
+  });
+
+  integrationTest("Invalid tax origin address", async ({ page, userId }) => {
+    page = await navigateToTaxesLandingUrl(page, userId);
+
+    page.route("*/**/checkout/*/calculate_taxes", async (route) => {
+      await route.fulfill({
+        body: '{ "code": 7899, "message": "Stripe account setup error: Origin address for Stripe Tax is missing or invalid."}',
+        status: 422,
+      });
+    });
+
+    const packageCards = await getPackageCards(page);
+    await startPurchaseFlow(packageCards[0]);
+    await confirmPaymentError(page, /Invalid tax origin address/);
+  });
+
+  integrationTest("Missing Stripe permission", async ({ page, userId }) => {
+    page = await navigateToTaxesLandingUrl(page, userId);
+
+    page.route("*/**/checkout/*/calculate_taxes", async (route) => {
+      await route.fulfill({
+        body: '{ "code": 7900, "message": "Stripe account setup error: Required permission is missing."}',
+        status: 422,
+      });
+    });
+
+    const packageCards = await getPackageCards(page);
+    await startPurchaseFlow(packageCards[0]);
+    await confirmPaymentError(page, "Missing Stripe permission");
+  });
 });

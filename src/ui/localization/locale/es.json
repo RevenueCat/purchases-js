@@ -77,5 +77,13 @@
   "price_update.trial_message": "El precio de la suscripción se actualizó para incluir impuestos según su dirección de facturación. La prueba gratuita sigue aplicándose. Revise e intente nuevamente.",
   "payment_entry_page.express_checkout_divider": "O PAGA CON TARJETA",
   "error_page.trouble_accessing": "Si tiene problemas para acceder a su compra, póngase en contacto con el servicio de asistencia en ",
-  "error_page.close_button_title": "Ir a {{appName}}"
+  "error_page.close_button_title": "Ir a {{appName}}",
+  "error_page.error_title_stripe_missing_required_permission": "Falta permiso de Stripe",
+  "error_page.button_close": "Cerrar",
+  "error_page.error_message_stripe_invalid_tax_origin_address": "La compra falló porque la dirección de origen fiscal no es válida. En producción, las compras funcionarán sin impuestos aplicados.",
+  "error_page.error_message_stripe_tax_not_active": "La compra falló porque Stripe Tax no está habilitado. En producción, las compras funcionarán sin impuestos aplicados.",
+  "error_page.error_only_in_sandbox": "Este mensaje aparece solo en el entorno de pruebas.",
+  "error_page.error_message_stripe_missing_required_permission": "La compra falló porque la aplicación Stripe carece de un permiso necesario. En producción, las compras funcionarán sin impuestos aplicados.",
+  "error_page.error_title_stripe_tax_not_active": "Stripe Tax no está activo",
+  "error_page.error_title_stripe_invalid_tax_origin_address": "Dirección de origen fiscal no válida"
 }

@@ -77,5 +77,13 @@
   "price_update.trial_message": "Giá đăng ký đã được cập nhật để bao gồm thuế dựa trên địa chỉ thanh toán của bạn. Thời gian dùng thử miễn phí vẫn được áp dụng. Vui lòng kiểm tra và thử lại.",
   "payment_entry_page.express_checkout_divider": "HOẶC THANH TOÁN BẰNG THẺ",
   "error_page.trouble_accessing": "Nếu bạn gặp sự cố khi truy cập giao dịch mua của mình, hãy liên hệ với bộ phận hỗ trợ theo địa chỉ ",
-  "error_page.close_button_title": "Đi đến {{appName}}"
+  "error_page.close_button_title": "Đi đến {{appName}}",
+  "error_page.error_title_stripe_missing_required_permission": "Thiếu quyền Stripe",
+  "error_page.button_close": "Đóng",
+  "error_page.error_message_stripe_invalid_tax_origin_address": "Giao dịch mua không thành công vì địa chỉ gốc thuế không hợp lệ. Trong môi trường thực tế, giao dịch mua sẽ hoạt động mà không áp dụng thuế.",
+  "error_page.error_message_stripe_tax_not_active": "Giao dịch mua không thành công vì Thuế Stripe chưa được bật. Trong môi trường thực tế, giao dịch mua sẽ hoạt động mà không áp dụng thuế.",
+  "error_page.error_only_in_sandbox": "Thông báo này chỉ xuất hiện trong môi trường thử nghiệm.",
+  "error_page.error_message_stripe_missing_required_permission": "Giao dịch mua không thành công vì ứng dụng Stripe thiếu một quyền cần thiết. Trong môi trường thực tế, giao dịch mua sẽ hoạt động mà không áp dụng thuế.",
+  "error_page.error_title_stripe_tax_not_active": "Thuế Stripe chưa hoạt động",
+  "error_page.error_title_stripe_invalid_tax_origin_address": "Địa chỉ gốc thuế không hợp lệ"
 }

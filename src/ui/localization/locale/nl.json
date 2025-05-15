@@ -77,5 +77,13 @@
   "price_update.trial_message": "De abonnementsprijs is bijgewerkt om belastingen op te nemen op basis van uw factuuradres. De gratis proefperiode blijft van toepassing. Controleer en probeer het opnieuw.",
   "payment_entry_page.express_checkout_divider": "OF BETAAL MET EEN KAART",
   "error_page.trouble_accessing": "Als je problemen hebt met het verkrijgen van toegang tot je aankoop, neem dan contact op met de ondersteuning via ",
-  "error_page.close_button_title": "Ga naar {{appName}}"
+  "error_page.close_button_title": "Ga naar {{appName}}",
+  "error_page.error_title_stripe_missing_required_permission": "Ontbrekende Stripe-toestemming",
+  "error_page.button_close": "Sluiten",
+  "error_page.error_message_stripe_invalid_tax_origin_address": "De aankoop is mislukt omdat het belastingoorsprongadres ongeldig is. In productie werken aankopen zonder toegepaste belastingen.",
+  "error_page.error_message_stripe_tax_not_active": "De aankoop is mislukt omdat Stripe Tax niet is ingeschakeld. In productie werken aankopen zonder toegepaste belastingen.",
+  "error_page.error_only_in_sandbox": "Dit bericht verschijnt alleen in de sandbox.",
+  "error_page.error_message_stripe_missing_required_permission": "De aankoop is mislukt omdat de Stripe-app een vereiste toestemming mist. In productie werken aankopen zonder toegepaste belastingen.",
+  "error_page.error_title_stripe_tax_not_active": "Stripe Tax niet actief",
+  "error_page.error_title_stripe_invalid_tax_origin_address": "Ongeldig belastingoorsprongadres"
 }

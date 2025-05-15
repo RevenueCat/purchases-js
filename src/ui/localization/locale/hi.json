@@ -77,5 +77,13 @@
   "price_update.trial_message": "सदस्यता मूल्य आपके बिलिंग पते के आधार पर करों को शामिल करने के लिए अपडेट किया गया है। निःशुल्क परीक्षण अवधि अभी भी लागू है। कृपया जांचें और पुनः प्रयास करें।",
   "payment_entry_page.express_checkout_divider": "या कार्ड से भुगतान करें",
   "error_page.trouble_accessing": "यदि आपको अपनी खरीदारी तक पहुंचने में परेशानी हो रही है, तो पर समर्थन के लिए संपर्क करें",
-  "error_page.close_button_title": "{{appName}} पर जाएं"
+  "error_page.close_button_title": "{{appName}} पर जाएं",
+  "error_page.error_title_stripe_missing_required_permission": "स्ट्राइप अनुमति गुम है",
+  "error_page.button_close": "बंद करें",
+  "error_page.error_message_stripe_invalid_tax_origin_address": "खरीदारी विफल रही क्योंकि कर उत्पत्ति पता अमान्य है. उत्पादन में, खरीदारी बिना करों के लागू किए काम करेगी.",
+  "error_page.error_message_stripe_tax_not_active": "खरीदारी विफल रही क्योंकि स्ट्राइप टैक्स सक्षम नहीं है. उत्पादन में, खरीदारी बिना करों के लागू किए काम करेगी.",
+  "error_page.error_only_in_sandbox": "यह संदेश केवल सैंडबॉक्स में दिखाई देता है.",
+  "error_page.error_message_stripe_missing_required_permission": "खरीदारी विफल रही क्योंकि स्ट्राइप ऐप में आवश्यक अनुमति नहीं है. उत्पादन में, खरीदारी बिना करों के लागू किए काम करेगी.",
+  "error_page.error_title_stripe_tax_not_active": "स्ट्राइप टैक्स सक्रिय नहीं है",
+  "error_page.error_title_stripe_invalid_tax_origin_address": "अमान्य कर उत्पत्ति पता"
 }

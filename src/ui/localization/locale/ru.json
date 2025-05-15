@@ -77,5 +77,13 @@
   "price_update.trial_message": "Цена подписки была обновлена с учетом налогов на основе вашего платежного адреса. Пробный период остается бесплатным. Пожалуйста, проверьте и попробуйте снова.",
   "payment_entry_page.express_checkout_divider": "ИЛИ ОПЛАТИТЕ КАРТОЙ",
   "error_page.trouble_accessing": "Если у вас возникли проблемы с доступом к вашей покупке, обратитесь в службу поддержки по адресу ",
-  "error_page.close_button_title": "Перейти в {{appName}}"
+  "error_page.close_button_title": "Перейти в {{appName}}",
+  "error_page.error_title_stripe_missing_required_permission": "Отсутствует разрешение Stripe",
+  "error_page.button_close": "Закрыть",
+  "error_page.error_message_stripe_invalid_tax_origin_address": "Покупка не удалась, так как адрес отправления налога недействителен. В рабочей среде покупки будут работать без применения налогов.",
+  "error_page.error_message_stripe_tax_not_active": "Покупка не удалась, так как Stripe Tax не включен. В рабочей среде покупки будут работать без применения налогов.",
+  "error_page.error_only_in_sandbox": "Это сообщение появляется только в песочнице.",
+  "error_page.error_message_stripe_missing_required_permission": "Покупка не удалась, так как у приложения Stripe отсутствует необходимое разрешение. В рабочей среде покупки будут работать без применения налогов.",
+  "error_page.error_title_stripe_tax_not_active": "Stripe Tax не активен",
+  "error_page.error_title_stripe_invalid_tax_origin_address": "Недействительный адрес отправления налога"
 }

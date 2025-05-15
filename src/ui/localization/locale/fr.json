@@ -77,5 +77,13 @@
   "price_update.trial_message": "Le prix de l'abonnement a été mis à jour pour inclure les taxes en fonction de votre adresse de facturation. La période d'essai gratuit reste applicable. Veuillez vérifier et réessayer.",
   "payment_entry_page.express_checkout_divider": "OU PAYER PAR CARTE",
   "error_page.trouble_accessing": "Si vous avez des difficultés à accéder à votre achat, contactez le support à l'adresse suivante : ",
-  "error_page.close_button_title": "Aller sur {{appName}}"
+  "error_page.close_button_title": "Aller sur {{appName}}",
+  "error_page.error_title_stripe_missing_required_permission": "Autorisation Stripe manquante",
+  "error_page.button_close": "Fermer",
+  "error_page.error_message_stripe_invalid_tax_origin_address": "L'achat a échoué car l'adresse d'origine de la taxe n'est pas valide. En production, les achats fonctionneront sans taxes appliquées.",
+  "error_page.error_message_stripe_tax_not_active": "L'achat a échoué car Stripe Tax n'est pas activé. En production, les achats fonctionneront sans taxes appliquées.",
+  "error_page.error_only_in_sandbox": "Ce message apparaît uniquement dans l'environnement de test.",
+  "error_page.error_message_stripe_missing_required_permission": "L'achat a échoué car l'application Stripe ne dispose pas d'une autorisation requise. En production, les achats fonctionneront sans taxes appliquées.",
+  "error_page.error_title_stripe_tax_not_active": "Stripe Tax non actif",
+  "error_page.error_title_stripe_invalid_tax_origin_address": "Adresse d'origine de la taxe non valide"
 }

@@ -77,5 +77,13 @@
   "price_update.trial_message": "Il prezzo dell'abbonamento è stato aggiornato per includere le tasse in base al tuo indirizzo di fatturazione. La prova gratuita è ancora valida. Controlla e riprova.",
   "payment_entry_page.express_checkout_divider": "OPPURE PAGA CON CARTA",
   "error_page.trouble_accessing": "Se hai problemi ad accedere al tuo acquisto, contatta l'assistenza all'indirizzo ",
-  "error_page.close_button_title": "Vai a {{appName}}"
+  "error_page.close_button_title": "Vai a {{appName}}",
+  "error_page.error_title_stripe_missing_required_permission": "Autorizzazione Stripe mancante",
+  "error_page.button_close": "Chiudi",
+  "error_page.error_message_stripe_invalid_tax_origin_address": "L'acquisto non è andato a buon fine perché l'indirizzo di origine fiscale non è valido. In produzione, gli acquisti verranno effettuati senza l'applicazione delle imposte e questo errore non sarà visibile.",
+  "error_page.error_message_stripe_tax_not_active": "L'acquisto non è andato a buon fine perché Stripe Tax non è abilitato. In produzione, gli acquisti verranno effettuati senza l'applicazione delle imposte e questo errore non sarà visibile.",
+  "error_page.error_only_in_sandbox": "Questo messaggio viene visualizzato solo in sandbox.",
+  "error_page.error_message_stripe_missing_required_permission": "L'acquisto non è andato a buon fine perché l'app Stripe non dispone dell'autorizzazione necessaria. In produzione, gli acquisti verranno effettuati senza l'applicazione delle imposte e questo errore non sarà visibile.",
+  "error_page.error_title_stripe_tax_not_active": "Stripe Tax non attivo",
+  "error_page.error_title_stripe_invalid_tax_origin_address": "Indirizzo di origine fiscale non valido"
 }

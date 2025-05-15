@@ -77,5 +77,13 @@
   "price_update.trial_message": "Abonnementsprisen er oppdatert for å inkludere skatter basert på din fakturaadresse. Den gratis prøveperioden gjelder fortsatt. Vennligst sjekk og prøv igjen.",
   "payment_entry_page.express_checkout_divider": "ELLER BETAL MED KORT",
   "error_page.trouble_accessing": "Hvis du har problemer med å få tilgang til kjøpet ditt, kan du kontakte support på ",
-  "error_page.close_button_title": "Gå til {{appName}}"
+  "error_page.close_button_title": "Gå til {{appName}}",
+  "error_page.error_title_stripe_missing_required_permission": "Mangler Stripe-tillatelse",
+  "error_page.button_close": "Lukk",
+  "error_page.error_message_stripe_invalid_tax_origin_address": "Kjøpet mislyktes fordi skatteopprinnelsesadressen er ugyldig. I produksjon vil kjøp fungere uten at skatter brukes.",
+  "error_page.error_message_stripe_tax_not_active": "Kjøpet mislyktes fordi Stripe Tax ikke er aktivert. I produksjon vil kjøp fungere uten at skatter brukes.",
+  "error_page.error_only_in_sandbox": "Denne meldingen vises bare i sandkassen.",
+  "error_page.error_message_stripe_missing_required_permission": "Kjøpet mislyktes fordi Stripe-appen mangler en nødvendig tillatelse. I produksjon vil kjøp fungere uten at skatter brukes.",
+  "error_page.error_title_stripe_tax_not_active": "Stripe Tax er ikke aktivt",
+  "error_page.error_title_stripe_invalid_tax_origin_address": "Ugyldig skatteopprinnelsesadresse"
 }

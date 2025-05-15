@@ -82,3 +82,15 @@
   name="Network error"
   args={{ lastError: purchaseFlowErrors.networkError }}
 />
+<Story
+  name="Stripe Not Active"
+  args={{ lastError: purchaseFlowErrors.stripeNotActive }}
+/>
+<Story
+  name="Stripe Invalid Tax Origin Address"
+  args={{ lastError: purchaseFlowErrors.stripeInvalidTaxOriginAddress }}
+/>
+<Story
+  name="Stripe Missing Required Permission"
+  args={{ lastError: purchaseFlowErrors.stripeMissingRequiredPermission }}
+/>
