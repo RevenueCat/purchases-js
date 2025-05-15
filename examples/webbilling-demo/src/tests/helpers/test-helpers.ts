@@ -157,7 +157,7 @@ export async function enterCreditCardDetails(
   const expiration = cardInfo?.expiration || `01 / ${expirationYear}`;
   const securityCode = cardInfo?.securityCode || "123";
 
-  await page.waitForSelector("button[data-testid='PayButton']");
+  page.locator("button[data-testid='PayButton']").waitFor();
   const checkoutTitle = page.getByText("Secure Checkout");
 
   await expect(checkoutTitle).toBeVisible();
@@ -182,10 +182,10 @@ export async function enterCreditCardDetails(
 }
 
 export async function clickPayButton(page: Page) {
-  await page.waitForTimeout(100);
-  const button = await page.waitForSelector(
+  const button = page.locator(
     "button[data-testid='PayButton']:not([disabled])",
   );
+  await button.waitFor();
   await button.click();
 }
 
@@ -237,8 +237,6 @@ export async function confirmStripeEmailFieldVisible(page: Page) {
 }
 
 export async function confirmPayButtonDisabled(page: Page) {
-  const button = await page.waitForSelector(
-    "button[data-testid='PayButton'][disabled]",
-  );
-  await expect(button).toBeDefined();
+  const button = page.locator("button[data-testid='PayButton'][disabled]");
+  await expect(button).toBeVisible();
 }
