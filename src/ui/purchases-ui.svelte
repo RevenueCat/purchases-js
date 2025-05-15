@@ -114,9 +114,9 @@
   onDestroy(() => {
     if (!isInElement) {
       // Restore original styles
-      document.documentElement.style.height = originalHtmlHeight || "";
-      document.body.style.height = originalBodyHeight || "";
-      document.documentElement.style.overflow = originalHtmlOverflow || "";
+      document.documentElement.style.height = originalHtmlHeight;
+      document.body.style.height = originalBodyHeight;
+      document.documentElement.style.overflow = originalHtmlOverflow;
     }
   });
 
