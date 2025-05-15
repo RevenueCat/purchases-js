@@ -110,10 +110,11 @@
         {productDetails}
         supportEmail={brandingInfo?.support_email ?? null}
         onDismiss={closeWithError}
+        appName={brandingInfo?.app_name ?? null}
       />
     {/if}
     {#if currentPage === "success"}
-      <SuccessPage {productDetails} {onContinue} />
+      <SuccessPage {onContinue} />
     {/if}
   {/snippet}
 </Template>
