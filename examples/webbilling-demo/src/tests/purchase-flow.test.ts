@@ -207,7 +207,7 @@ test.describe("Purchase error paths", () => {
       await confirmPaymentError(page, "Something went wrong");
       await confirmPaymentError(
         page,
-        "Purchase not started due to an error. Error code: 7110",
+        "Purchase not started due to an error (error code: 7110).",
       );
     },
   );
@@ -230,7 +230,7 @@ test.describe("Purchase error paths", () => {
       await enterCreditCardDetails(page, "4242 4242 4242 4242");
       await clickPayButton(page);
       await confirmPaymentError(page, "Something went wrong");
-      await confirmPaymentError(page, "Purchase not started due to an error.");
+      await confirmPaymentError(page, "Purchase not started due to an error");
     },
   );
 
