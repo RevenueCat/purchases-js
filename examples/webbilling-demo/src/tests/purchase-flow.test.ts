@@ -233,4 +233,29 @@ test.describe("Purchase error paths", () => {
       await confirmPaymentError(page, "Purchase not started due to an error.");
     },
   );
+
+  integrationTest(
+    "Already subscribed error",
+    async ({ page, userId, email }) => {
+      page = await navigateToLandingUrl(page, userId);
+
+      page.route("*/**/checkout/*/complete", async (route) => {
+        await route.fulfill({
+          body: '{ "code": 7772, "message": "Test error message"}',
+          status: 409,
+        });
+      });
+
+      const packageCards = await getPackageCards(page);
+      await startPurchaseFlow(packageCards[1]);
+      await enterEmail(page, email);
+      await enterCreditCardDetails(page, "4242 4242 4242 4242");
+      await clickPayButton(page);
+      await confirmPaymentError(page, "You already subscribed");
+      await confirmPaymentError(
+        page,
+        "You can't subscribe to this product again",
+      );
+    },
+  );
 });
