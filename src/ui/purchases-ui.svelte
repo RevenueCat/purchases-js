@@ -84,9 +84,9 @@
   let gatewayParams: GatewayParams = $state({});
 
   // For storing original styles
-  let originalHtmlHeight: string | null = $state(null);
-  let originalHtmlOverflow: string | null = $state(null);
-  let originalBodyHeight: string | null = $state(null);
+  let originalHtmlHeight: string | null = $state("");
+  let originalHtmlOverflow: string | null = $state("");
+  let originalBodyHeight: string | null = $state("");
 
   // Setting the context for the Localized components
   let translator: Translator = new Translator(
