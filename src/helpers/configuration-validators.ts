@@ -26,11 +26,16 @@ export function validateAppUserId(appUserId: string) {
     "undefined",
     "unknown",
   ]);
-  if (invalidAppUserIds.has(appUserId) || appUserId.includes("/")) {
+
+  if (
+    !appUserId ||
+    invalidAppUserIds.has(appUserId) ||
+    appUserId.includes("/")
+  ) {
     throw new PurchasesError(
       ErrorCode.InvalidAppUserIdError,
       'Provided user id: "' +
-        appUserId +
+        (appUserId ?? "[Not provided]") +
         '" is not valid. See https://www.revenuecat.com/docs/customers/user-ids#tips-for-setting-app-user-ids for more information.',
     );
   }
