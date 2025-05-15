@@ -99,26 +99,26 @@ export async function navigateToLandingUrl(
 }
 
 async function getAllElementsByLocator(
-  page: Page,
-  locator: string,
+  locator: Locator,
   containsText?: string,
 ) {
-  await page.waitForSelector(locator);
-  let locatorResult = page.locator(locator);
+  // Wait for at least one element to be visible
+  await expect(locator.first()).toBeVisible();
+
   if (containsText !== undefined) {
-    locatorResult = locatorResult.filter({ hasText: containsText });
+    locator = locator.filter({ hasText: containsText });
   }
-  return await locatorResult.all();
+  return await locator.all();
 }
 
 export const getPackageCards = (page: Page, text?: string) =>
-  getAllElementsByLocator(page, CARD_SELECTOR, text);
+  getAllElementsByLocator(page.locator(CARD_SELECTOR), text);
 
 export const getPaywallPackageCards = (page: Page, text?: string) =>
-  getAllElementsByLocator(page, PACKAGE_SELECTOR, text);
+  getAllElementsByLocator(page.locator(PACKAGE_SELECTOR), text);
 
 export const getPaywallPurchaseButtons = (page: Page) =>
-  getAllElementsByLocator(page, "button.rc-pw-purchase-button");
+  getAllElementsByLocator(page.locator("button.rc-pw-purchase-button"));
 
 export const getStripePaymentFrame = (page: Page) =>
   page.frameLocator(
@@ -157,7 +157,7 @@ export async function enterCreditCardDetails(
   const expiration = cardInfo?.expiration || `01 / ${expirationYear}`;
   const securityCode = cardInfo?.securityCode || "123";
 
-  await page.waitForSelector("button[data-testid='PayButton']");
+  page.locator("button[data-testid='PayButton']").waitFor();
   const checkoutTitle = page.getByText("Secure Checkout");
 
   await expect(checkoutTitle).toBeVisible();
@@ -182,9 +182,10 @@ export async function enterCreditCardDetails(
 }
 
 export async function clickPayButton(page: Page) {
-  const button = await page.waitForSelector(
+  const button = page.locator(
     "button[data-testid='PayButton']:not([disabled])",
   );
+  await button.waitFor();
   await button.click();
 }
 
@@ -236,8 +237,6 @@ export async function confirmStripeEmailFieldVisible(page: Page) {
 }
 
 export async function confirmPayButtonDisabled(page: Page) {
-  const button = await page.waitForSelector(
-    "button[data-testid='PayButton'][disabled]",
-  );
-  await expect(button).toBeDefined();
+  const button = page.locator("button[data-testid='PayButton'][disabled]");
+  await expect(button).toBeVisible();
 }
