@@ -272,16 +272,12 @@ integrationTest.describe("Tax calculation", () => {
 
       await newYorkTaxCalculationResponsePromise;
 
-      const hasCompleted = await Promise.race([
+      const italyTaxCalculationRequestCompleted = await Promise.race([
         italyTaxCalculationResponsePromise.then(() => true),
         new Promise((resolve) => setTimeout(() => resolve(false), 0)),
       ]);
 
-      if (hasCompleted) {
-        expect("Italy tax calculation should not have finished").toBeFalsy();
-      } else {
-        expect("Italy tax calculation finished").toBeTruthy();
-      }
+      expect(italyTaxCalculationRequestCompleted).toBe(false);
     },
   );
 
