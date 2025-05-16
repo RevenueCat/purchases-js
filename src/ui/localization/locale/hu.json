@@ -77,5 +77,13 @@
   "price_update.trial_message": "Az előfizetés ára adókkal együtt frissítésre került a számlázási címének megfelelően. Az ingyenes próbaidőszak továbbra is érvényes. Kérjük, ellenőrizze és próbálja újra.",
   "payment_entry_page.express_checkout_divider": "VAGY FIZESSEN KÁRTYÁVAL",
   "error_page.trouble_accessing": "Ha problémái vannak a vásárláshoz való hozzáféréssel, forduljon az ügyfélszolgálathoz a következő címen: ",
-  "error_page.close_button_title": "Ugrás a(z) {{appName}} alkalmazáshoz"
+  "error_page.close_button_title": "Ugrás a(z) {{appName}} alkalmazáshoz",
+  "error_page.error_title_stripe_missing_required_permission": "Hiányzó Stripe engedély",
+  "error_page.button_close": "Bezárás",
+  "error_page.error_message_stripe_invalid_tax_origin_address": "A vásárlás sikertelen volt, mert az adókiindulási cím érvénytelen. Éles környezetben a vásárlások adók alkalmazása nélkül fognak működni.",
+  "error_page.error_message_stripe_tax_not_active": "A vásárlás sikertelen volt, mert a Stripe adó nincs engedélyezve. Éles környezetben a vásárlások adók alkalmazása nélkül fognak működni.",
+  "error_page.error_only_in_sandbox": "Ez az üzenet csak a tesztkörnyezetben jelenik meg.",
+  "error_page.error_message_stripe_missing_required_permission": "A vásárlás sikertelen volt, mert a Stripe alkalmazásból hiányzik egy szükséges engedély. Éles környezetben a vásárlások adók alkalmazása nélkül fognak működni.",
+  "error_page.error_title_stripe_tax_not_active": "A Stripe adó nincs aktiválva",
+  "error_page.error_title_stripe_invalid_tax_origin_address": "Érvénytelen adókiindulási cím"
 }

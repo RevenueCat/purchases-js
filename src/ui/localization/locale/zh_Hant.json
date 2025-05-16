@@ -77,5 +77,13 @@
   "price_update.trial_message": "根據您的帳單地址，訂閱價格已更新為含稅價格。免費試用仍然有效。請查看並重試。",
   "payment_entry_page.express_checkout_divider": "或以信用卡付款",
   "error_page.trouble_accessing": "如果您在存取購買項目時遇到問題，請透過以下方式聯絡支援人員：",
-  "error_page.close_button_title": "前往{{appName}}"
+  "error_page.close_button_title": "前往{{appName}}",
+  "error_page.error_title_stripe_missing_required_permission": "缺少 Stripe 權限",
+  "error_page.button_close": "關閉",
+  "error_page.error_message_stripe_invalid_tax_origin_address": "購買失敗，因為稅務起始地址無效。在正式環境中，購買將在不套用稅金的情況下運作。",
+  "error_page.error_message_stripe_tax_not_active": "購買失敗，因為 Stripe Tax 未啟用。在正式環境中，購買將在不套用稅金的情況下運作。",
+  "error_page.error_only_in_sandbox": "此訊息僅在沙盒中顯示。",
+  "error_page.error_message_stripe_missing_required_permission": "購買失敗，因為 Stripe 應用程式缺少必要的權限。在正式環境中，購買將在不套用稅金的情況下運作。",
+  "error_page.error_title_stripe_tax_not_active": "Stripe Tax 未啟用",
+  "error_page.error_title_stripe_invalid_tax_origin_address": "無效的稅務起始地址"
 }

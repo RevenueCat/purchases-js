@@ -77,5 +77,13 @@
   "price_update.trial_message": "Cijena pretplate je ažurirana da uključi poreze na temelju vaše adrese za naplatu. Besplatno probno razdoblje i dalje vrijedi. Molimo provjerite i pokušajte ponovno.",
   "payment_entry_page.express_checkout_divider": "ILI PLATITE KARTICOM",
   "error_page.trouble_accessing": "Ako imate problema s pristupom kupnji, obratite se podršci na ",
-  "error_page.close_button_title": "Idi na {{appName}}"
+  "error_page.close_button_title": "Idi na {{appName}}",
+  "error_page.error_title_stripe_missing_required_permission": "Nedostaje Stripe dopuštenje",
+  "error_page.button_close": "Zatvori",
+  "error_page.error_message_stripe_invalid_tax_origin_address": "Kupnja nije uspjela jer je adresa poreznog podrijetla nevažeća. U produkciji će kupnje funkcionirati bez primijenjenih poreza.",
+  "error_page.error_message_stripe_tax_not_active": "Kupnja nije uspjela jer Stripe Tax nije omogućen. U produkciji će kupnje funkcionirati bez primijenjenih poreza.",
+  "error_page.error_only_in_sandbox": "Ova se poruka pojavljuje samo u sandboxu.",
+  "error_page.error_message_stripe_missing_required_permission": "Kupnja nije uspjela jer Stripe aplikaciji nedostaje potrebno dopuštenje. U produkciji će kupnje funkcionirati bez primijenjenih poreza.",
+  "error_page.error_title_stripe_tax_not_active": "Stripe Tax nije aktivan",
+  "error_page.error_title_stripe_invalid_tax_origin_address": "Nevažeća adresa poreznog podrijetla"
 }

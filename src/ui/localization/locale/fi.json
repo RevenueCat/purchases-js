@@ -77,5 +77,13 @@
   "price_update.trial_message": "Tilauksen hinta on päivitetty sisältämään verot laskutusosoitteesi perusteella. Ilmainen kokeilujakso on edelleen voimassa. Tarkista ja yritä uudelleen.",
   "payment_entry_page.express_checkout_divider": "TAI MAKSA KORTILLA",
   "error_page.trouble_accessing": "Jos sinulla on ongelmia ostoksesi käyttämisessä, ota yhteyttä tukeen osoitteessa ",
-  "error_page.close_button_title": "Siirry sovellukseen {{appName}}"
+  "error_page.close_button_title": "Siirry sovellukseen {{appName}}",
+  "error_page.error_title_stripe_missing_required_permission": "Puuttuva Stripe-käyttöoikeus",
+  "error_page.button_close": "Sulje",
+  "error_page.error_message_stripe_invalid_tax_origin_address": "Osto epäonnistui, koska veron alkuperäosoite on virheellinen. Tuotantoympäristössä ostot toimivat ilman veroja.",
+  "error_page.error_message_stripe_tax_not_active": "Osto epäonnistui, koska Stripe Tax ei ole käytössä. Tuotantoympäristössä ostot toimivat ilman veroja.",
+  "error_page.error_only_in_sandbox": "Tämä viesti näkyy vain hiekkalaatikossa.",
+  "error_page.error_message_stripe_missing_required_permission": "Osto epäonnistui, koska Stripe-sovellukselta puuttuu vaadittu käyttöoikeus. Tuotantoympäristössä ostot toimivat ilman veroja.",
+  "error_page.error_title_stripe_tax_not_active": "Stripe Tax ei ole aktiivinen",
+  "error_page.error_title_stripe_invalid_tax_origin_address": "Virheellinen veron alkuperäosoite"
 }

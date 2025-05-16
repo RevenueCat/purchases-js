@@ -77,5 +77,13 @@
   "price_update.trial_message": "Cena předplatného byla aktualizována včetně daní na základě vaší fakturační adresy. Bezplatná zkušební doba stále platí. Prosím, zkontrolujte a zkuste to znovu.",
   "payment_entry_page.express_checkout_divider": "NEBO ZAPLATIT KARTOU",
   "error_page.trouble_accessing": "Pokud máte potíže s přístupem k zakoupenému obsahu, kontaktujte podporu na ",
-  "error_page.close_button_title": "Přejít na {{appName}}"
+  "error_page.close_button_title": "Přejít na {{appName}}",
+  "error_page.error_title_stripe_missing_required_permission": "Chybí oprávnění Stripe",
+  "error_page.button_close": "Zavřít",
+  "error_page.error_message_stripe_invalid_tax_origin_address": "Nákup se nezdařil, protože adresa původu daně je neplatná. V produkčním prostředí budou nákupy fungovat bez uplatnění daní.",
+  "error_page.error_message_stripe_tax_not_active": "Nákup se nezdařil, protože Stripe Tax není aktivní. V produkčním prostředí budou nákupy fungovat bez uplatnění daní.",
+  "error_page.error_only_in_sandbox": "Tato zpráva se zobrazuje pouze v sandboxu.",
+  "error_page.error_message_stripe_missing_required_permission": "Nákup se nezdařil, protože aplikaci Stripe chybí požadované oprávnění. V produkčním prostředí budou nákupy fungovat bez uplatnění daní.",
+  "error_page.error_title_stripe_tax_not_active": "Stripe Tax není aktivní",
+  "error_page.error_title_stripe_invalid_tax_origin_address": "Neplatná adresa původu daně"
 }

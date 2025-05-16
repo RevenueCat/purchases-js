@@ -77,5 +77,13 @@
   "price_update.trial_message": "Ціна підписки була оновлена для включення податків на основі вашої платіжної адреси. Безкоштовний пробний період все ще діє. Будь ласка, перевірте та спробуйте ще раз.",
   "payment_entry_page.express_checkout_divider": "АБО СПЛАТІТЬ КАРТКОЮ",
   "error_page.trouble_accessing": "Якщо у вас виникли проблеми з доступом до вашої покупки, зверніться до служби підтримки за адресою ",
-  "error_page.close_button_title": "Перейти до {{appName}}"
+  "error_page.close_button_title": "Перейти до {{appName}}",
+  "error_page.error_title_stripe_missing_required_permission": "Відсутній дозвіл Stripe",
+  "error_page.button_close": "Закрити",
+  "error_page.error_message_stripe_invalid_tax_origin_address": "Покупка не вдалася, оскільки адреса походження податку недійсна. У виробництві покупки працюватимуть без застосування податків.",
+  "error_page.error_message_stripe_tax_not_active": "Покупка не вдалася, оскільки Stripe Tax не ввімкнено. У виробництві покупки працюватимуть без застосування податків.",
+  "error_page.error_only_in_sandbox": "Це повідомлення з’являється лише в пісочниці.",
+  "error_page.error_message_stripe_missing_required_permission": "Покупка не вдалася, оскільки програмі Stripe не вистачає необхідного дозволу. У виробництві покупки працюватимуть без застосування податків.",
+  "error_page.error_title_stripe_tax_not_active": "Stripe Tax не активовано",
+  "error_page.error_title_stripe_invalid_tax_origin_address": "Недійсна адреса походження податку"
 }

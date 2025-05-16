@@ -77,5 +77,13 @@
   "price_update.trial_message": "ราคาการสมัครสมาชิกได้รับการอัปเดตเพื่อรวมภาษีตามที่อยู่สำหรับการเรียกเก็บเงินของคุณ ระยะเวลาทดลองใช้ฟรียังคงมีผล โปรดตรวจสอบและลองอีกครั้ง",
   "payment_entry_page.express_checkout_divider": "หรือชำระด้วยบัตร",
   "error_page.trouble_accessing": "หากคุณมีปัญหาในการเข้าถึงการซื้อ โปรดติดต่อฝ่ายสนับสนุนที่ ",
-  "error_page.close_button_title": "ไปที่ {{appName}}"
+  "error_page.close_button_title": "ไปที่ {{appName}}",
+  "error_page.error_title_stripe_missing_required_permission": "ขาดสิทธิ์ Stripe ที่จำเป็น",
+  "error_page.button_close": "ปิด",
+  "error_page.error_message_stripe_invalid_tax_origin_address": "การซื้อล้มเหลวเนื่องจากที่อยู่ต้นทางภาษีไม่ถูกต้อง ในสภาพแวดล้อมจริง การซื้อจะทำงานได้โดยไม่มีการเรียกเก็บภาษี",
+  "error_page.error_message_stripe_tax_not_active": "การซื้อล้มเหลวเนื่องจากไม่ได้เปิดใช้งาน Stripe Tax ในสภาพแวดล้อมจริง การซื้อจะทำงานได้โดยไม่มีการเรียกเก็บภาษี",
+  "error_page.error_only_in_sandbox": "ข้อความนี้จะปรากฏเฉพาะใน sandbox เท่านั้น",
+  "error_page.error_message_stripe_missing_required_permission": "การซื้อล้มเหลวเนื่องจากแอป Stripe ขาดสิทธิ์ที่จำเป็น ในสภาพแวดล้อมจริง การซื้อจะทำงานได้โดยไม่มีการเรียกเก็บภาษี",
+  "error_page.error_title_stripe_tax_not_active": "Stripe Tax ไม่เปิดใช้งาน",
+  "error_page.error_title_stripe_invalid_tax_origin_address": "ที่อยู่ต้นทางภาษีไม่ถูกต้อง"
 }

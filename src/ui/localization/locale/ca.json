@@ -77,5 +77,13 @@
   "price_update.trial_message": "El preu de la subscripció s'ha actualitzat per incloure els impostos segons la seva adreça de facturació. El període de prova gratuït segueix vigent. Si us plau, comprovi-ho i torni-ho a provar.",
   "payment_entry_page.express_checkout_divider": "O PAGUEU AMB TARGETA",
   "error_page.trouble_accessing": "Si teniu problemes per accedir a la vostra compra, poseu-vos en contacte amb el servei d'assistència a ",
-  "error_page.close_button_title": "Vés a {{appName}}"
+  "error_page.close_button_title": "Vés a {{appName}}",
+  "error_page.error_title_stripe_missing_required_permission": "Falta el permís de Stripe",
+  "error_page.button_close": "Tanca",
+  "error_page.error_message_stripe_invalid_tax_origin_address": "La compra ha fallat perquè l'adreça d'origen fiscal no és vàlida. En producció, les compres funcionaran sense impostos aplicats.",
+  "error_page.error_message_stripe_tax_not_active": "La compra ha fallat perquè Stripe Tax no està activat. En producció, les compres funcionaran sense impostos aplicats.",
+  "error_page.error_only_in_sandbox": "Aquest missatge apareix només a l'entorn de proves.",
+  "error_page.error_message_stripe_missing_required_permission": "La compra ha fallat perquè l'aplicació Stripe no té un permís necessari. En producció, les compres funcionaran sense impostos aplicats.",
+  "error_page.error_title_stripe_tax_not_active": "Stripe Tax no està actiu",
+  "error_page.error_title_stripe_invalid_tax_origin_address": "Adreça d'origen fiscal no vàlida"
 }

@@ -54,20 +54,18 @@
   @container layout-query-container (width < 768px) {
     .message-layout {
       flex-grow: 1;
+      gap: var(--rc-spacing-gapXXLarge-mobile);
     }
   }
 
   @container layout-query-container (width >= 768px) {
     .message-layout {
       min-height: 354px;
+      gap: var(--rc-spacing-gapXXLarge-desktop);
     }
     .message-layout-content {
       justify-content: flex-start;
       flex-grow: 1;
-    }
-
-    .message-layout-footer {
-      margin-top: var(--rc-spacing-gapXXLarge-desktop);
     }
   }
 </style>

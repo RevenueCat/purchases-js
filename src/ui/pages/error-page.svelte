@@ -3,7 +3,6 @@
     PurchaseFlowError,
     PurchaseFlowErrorCode,
   } from "../../helpers/purchase-operation-helper";
-  import IconError from "../atoms/icons/icon-error.svelte";
   import { getContext, onMount } from "svelte";
   import { Logger } from "../../helpers/logger.js";
   import MessageLayout from "../layout/message-layout.svelte";
@@ -14,7 +13,7 @@
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import { type Writable } from "svelte/store";
-  import IconSuccess from "../atoms/icons/icon-success.svelte";
+  import Icon, { type IconName } from "../atoms/icon.svelte";
 
   interface Props {
     lastError: PurchaseFlowError | null;
@@ -37,11 +36,29 @@
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
 
+  const showOnlyInSandboxNote = $derived(
+    error.errorCode === PurchaseFlowErrorCode.StripeTaxNotActive ||
+      error.errorCode === PurchaseFlowErrorCode.StripeInvalidTaxOriginAddress ||
+      error.errorCode === PurchaseFlowErrorCode.StripeMissingRequiredPermission,
+  );
+
   onMount(() => {
     Logger.errorLog(
       `Displayed error: ${PurchaseFlowErrorCode[error.errorCode]}. Message: ${error.message ?? "None"}. Underlying error: ${error.underlyingErrorMessage ?? "None"}`,
     );
   });
+
+  function getButtonTitle(): string {
+    if (error.errorCode === PurchaseFlowErrorCode.AlreadyPurchasedError) {
+      return $translator.translate(LocalizationKeys.ErrorPageCloseButtonTitle, {
+        appName: appName ?? "App",
+      });
+    } else if (showOnlyInSandboxNote) {
+      return $translator.translate(LocalizationKeys.ErrorButtonClose);
+    } else {
+      return $translator.translate(LocalizationKeys.ErrorButtonTryAgain);
+    }
+  }
 
   function getTranslatedErrorTitle(): string {
     switch (error.errorCode) {
@@ -57,6 +74,18 @@
             { productTitle: productDetails.title },
           );
         }
+      case PurchaseFlowErrorCode.StripeTaxNotActive:
+        return $translator.translate(
+          LocalizationKeys.ErrorPageErrorTitleStripeTaxNotActive,
+        );
+      case PurchaseFlowErrorCode.StripeInvalidTaxOriginAddress:
+        return $translator.translate(
+          LocalizationKeys.ErrorPageErrorTitleStripeInvalidTaxOriginAddress,
+        );
+      case PurchaseFlowErrorCode.StripeMissingRequiredPermission:
+        return $translator.translate(
+          LocalizationKeys.ErrorPageErrorTitleStripeMissingRequiredPermission,
+        );
       default:
         return $translator.translate(
           LocalizationKeys.ErrorPageErrorTitleOtherErrors,
@@ -64,7 +93,7 @@
     }
   }
 
-  function getTranslatedErrorMessage(): string | undefined {
+  function getTranslatedErrorMessage(): string {
     const publicErrorCode = error.getErrorCode();
     switch (error.errorCode) {
       case PurchaseFlowErrorCode.ErrorSettingUpPurchase:
@@ -89,6 +118,21 @@
             { errorCode: publicErrorCode },
           );
         }
+      case PurchaseFlowErrorCode.StripeTaxNotActive:
+        return $translator.translate(
+          LocalizationKeys.ErrorPageErrorMessageStripeTaxNotActive,
+          { errorCode: publicErrorCode },
+        );
+      case PurchaseFlowErrorCode.StripeInvalidTaxOriginAddress:
+        return $translator.translate(
+          LocalizationKeys.ErrorPageErrorMessageStripeInvalidTaxOriginAddress,
+          { errorCode: publicErrorCode },
+        );
+      case PurchaseFlowErrorCode.StripeMissingRequiredPermission:
+        return $translator.translate(
+          LocalizationKeys.ErrorPageErrorMessageStripeMissingRequiredPermission,
+          { errorCode: publicErrorCode },
+        );
       case PurchaseFlowErrorCode.NetworkError:
         return $translator.translate(
           LocalizationKeys.ErrorPageErrorMessageNetworkError,
@@ -101,55 +145,57 @@
         );
     }
   }
+
+  function getTranslatedSupportMessageKey(): LocalizationKeys {
+    if (error.errorCode === PurchaseFlowErrorCode.AlreadyPurchasedError) {
+      return LocalizationKeys.ErrorPageTroubleAccessing;
+    } else {
+      return LocalizationKeys.ErrorPageIfErrorPersists;
+    }
+  }
+
+  function iconName(): IconName {
+    if (error.errorCode === PurchaseFlowErrorCode.AlreadyPurchasedError) {
+      return "success";
+    } else {
+      return "error";
+    }
+  }
 </script>
 
-{#if error.errorCode === PurchaseFlowErrorCode.AlreadyPurchasedError}
-  <MessageLayout
-    title={getTranslatedErrorTitle()}
-    {onDismiss}
-    type="error"
-    closeButtonTitle={$translator.translate(
-      LocalizationKeys.ErrorPageCloseButtonTitle,
-      { appName: appName ?? "App" },
-    )}
-  >
-    {#snippet icon()}
-      <IconSuccess />
-    {/snippet}
+<MessageLayout
+  title={getTranslatedErrorTitle()}
+  {onDismiss}
+  type="error"
+  closeButtonTitle={getButtonTitle()}
+>
+  {#snippet icon()}
+    <Icon name={iconName()} />
+  {/snippet}
 
-    {#snippet message()}
-      {getTranslatedErrorMessage()}
-      {#if supportEmail}
-        <Localized key={LocalizationKeys.ErrorPageTroubleAccessing} />
-        <a href="mailto:{supportEmail}">{supportEmail}</a>.
-      {/if}
-    {/snippet}
-  </MessageLayout>
-{:else}
-  <MessageLayout
-    title={getTranslatedErrorTitle()}
-    {onDismiss}
-    type="error"
-    closeButtonTitle={$translator.translate(
-      LocalizationKeys.ErrorButtonTryAgain,
-    )}
-  >
-    {#snippet icon()}
-      <IconError />
-    {/snippet}
+  {#snippet message()}
+    {#if showOnlyInSandboxNote}
+      <span class="rc-sandbox-only-error">
+        <Localized key={LocalizationKeys.ErrorPageErrorMessageOnlyInSandbox} />
+      </span>
+      <br />
+      <br />
+    {/if}
 
-    {#snippet message()}
-      {getTranslatedErrorMessage()}
-      {#if supportEmail}
-        <Localized key={LocalizationKeys.ErrorPageIfErrorPersists} />
-        <a href="mailto:{supportEmail}">{supportEmail}</a>.
-      {/if}
-    {/snippet}
-  </MessageLayout>
-{/if}
+    {getTranslatedErrorMessage()}
+    {#if !showOnlyInSandboxNote && supportEmail}
+      <Localized key={getTranslatedSupportMessageKey()} />
+      <a href="mailto:{supportEmail}">{supportEmail}</a>.
+    {/if}
+  {/snippet}
+</MessageLayout>
 
 <style>
   a {
     color: var(--rc-color-grey-text-dark);
+  }
+
+  .rc-sandbox-only-error {
+    font-weight: bold;
   }
 </style>

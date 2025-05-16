@@ -77,5 +77,13 @@
   "price_update.trial_message": "Der Abonnementpreis wurde aktualisiert, um Steuern basierend auf Ihrer Rechnungsadresse einzuschließen. Die kostenlose Testphase gilt weiterhin. Bitte überprüfen Sie und versuchen Sie es erneut.",
   "payment_entry_page.express_checkout_divider": "ODER MIT KARTE ZAHLEN",
   "error_page.trouble_accessing": "Wenn Sie Probleme beim Zugriff auf Ihren Kauf haben, wenden Sie sich an den Support unter ",
-  "error_page.close_button_title": "Zu {{appName}} gehen"
+  "error_page.close_button_title": "Zu {{appName}} gehen",
+  "error_page.error_title_stripe_missing_required_permission": "Fehlende Stripe-Berechtigung",
+  "error_page.button_close": "Schließen",
+  "error_page.error_message_stripe_invalid_tax_origin_address": "Der Kauf ist fehlgeschlagen, da die Steuerursprungsadresse ungültig ist. In der Produktion funktionieren Käufe ohne angewendete Steuern.",
+  "error_page.error_message_stripe_tax_not_active": "Der Kauf ist fehlgeschlagen, da Stripe Tax nicht aktiviert ist. In der Produktion funktionieren Käufe ohne angewendete Steuern.",
+  "error_page.error_only_in_sandbox": "Diese Meldung wird nur in der Sandbox angezeigt.",
+  "error_page.error_message_stripe_missing_required_permission": "Der Kauf ist fehlgeschlagen, da der Stripe-App eine erforderliche Berechtigung fehlt. In der Produktion funktionieren Käufe ohne angewendete Steuern.",
+  "error_page.error_title_stripe_tax_not_active": "Stripe Tax ist nicht aktiv",
+  "error_page.error_title_stripe_invalid_tax_origin_address": "Ungültige Steuerursprungsadresse"
 }

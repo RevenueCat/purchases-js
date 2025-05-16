@@ -77,5 +77,13 @@
   "price_update.trial_message": "Harga langganan telah diperbarui untuk menyertakan pajak berdasarkan alamat penagihan Anda. Masa percobaan gratis masih berlaku. Silakan periksa dan coba lagi.",
   "payment_entry_page.express_checkout_divider": "ATAU BAYAR DENGAN KARTU",
   "error_page.trouble_accessing": "Jika Anda mengalami masalah dalam mengakses pembelian, hubungi dukungan di ",
-  "error_page.close_button_title": "Pergi ke {{appName}}"
+  "error_page.close_button_title": "Pergi ke {{appName}}",
+  "error_page.error_title_stripe_missing_required_permission": "Izin Stripe tidak ada",
+  "error_page.button_close": "Tutup",
+  "error_page.error_message_stripe_invalid_tax_origin_address": "Pembelian gagal karena alamat asal pajak tidak valid. Dalam produksi, pembelian akan berfungsi tanpa pajak yang diterapkan.",
+  "error_page.error_message_stripe_tax_not_active": "Pembelian gagal karena Stripe Tax tidak diaktifkan. Dalam produksi, pembelian akan berfungsi tanpa pajak yang diterapkan.",
+  "error_page.error_only_in_sandbox": "Pesan ini hanya muncul di sandbox.",
+  "error_page.error_message_stripe_missing_required_permission": "Pembelian gagal karena aplikasi Stripe tidak memiliki izin yang diperlukan. Dalam produksi, pembelian akan berfungsi tanpa pajak yang diterapkan.",
+  "error_page.error_title_stripe_tax_not_active": "Stripe Tax tidak aktif",
+  "error_page.error_title_stripe_invalid_tax_origin_address": "Alamat asal pajak tidak valid"
 }

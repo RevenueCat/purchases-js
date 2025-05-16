@@ -1,5 +1,5 @@
 <script module>
-  import { type Snippet } from "svelte";
+  import type { Snippet } from "svelte";
 </script>
 
 <script lang="ts">
