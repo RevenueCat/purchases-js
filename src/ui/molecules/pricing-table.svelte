@@ -73,25 +73,11 @@
             {$translator.translate(LocalizationKeys.PricingTableTax)}
           </div>
           <div class="rcb-pricing-table-value">
-            {#if priceBreakdown.pendingReason === "needs_postal_code"}
-              <Typography size="body-small">
-                {$translator.translate(
-                  LocalizationKeys.PricingTableEnterPostalCodeToCalculate,
-                )}
-              </Typography>
-            {:else if priceBreakdown.pendingReason === "needs_state_or_postal_code"}
-              <Typography size="body-small">
-                {$translator.translate(
-                  LocalizationKeys.PricingTableEnterStateOrPostalCodeToCalculate,
-                )}
-              </Typography>
-            {:else}
-              <Typography size="body-small">
-                {$translator.translate(
-                  LocalizationKeys.PricingTableEnterBillingAddressToCalculate,
-                )}
-              </Typography>
-            {/if}
+            <Typography size="body-small">
+              {$translator.translate(
+                LocalizationKeys.PricingTableEnterBillingAddressToCalculate,
+              )}
+            </Typography>
           </div>
         </div>
       {:else if priceBreakdown.taxBreakdown !== null}

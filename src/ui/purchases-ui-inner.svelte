@@ -57,7 +57,6 @@
       totalAmountInMicros: productDetails.currentPrice.amountMicros,
       totalExcludingTaxInMicros: productDetails.currentPrice.amountMicros,
       taxCalculationStatus: "unavailable",
-      pendingReason: null,
       taxAmountInMicros: null,
       taxBreakdown: null,
     },
