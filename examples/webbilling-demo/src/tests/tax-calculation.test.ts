@@ -1,22 +1,5 @@
-import type { Page } from "@playwright/test";
+import type { Page, Request } from "@playwright/test";
 import { expect } from "@playwright/test";
-import {
-  enterCreditCardDetails,
-  enterEmail,
-  clickPayButton,
-  startPurchaseFlow,
-  navigateToLandingUrl,
-  getPackageCards,
-  confirmPaymentComplete,
-  getStripePaymentFrame,
-  confirmPayButtonDisabled,
-  confirmPaymentError,
-  enterSecurityCode,
-} from "./helpers/test-helpers";
-import {
-  integrationTest,
-  skipTaxCalculationTestIfDisabled,
-} from "./helpers/integration-test";
 import {
   FLORIDA_CUSTOMER_DETAILS,
   INVALID_CUSTOMER_DETAILS,
@@ -24,9 +7,26 @@ import {
   NEW_YORK_CUSTOMER_DETAILS,
   SPAIN_CUSTOMER_DETAILS,
   TAX_TEST_API_KEY,
+  TAX_TEST_OFFERING_ID,
   TEXAS_CUSTOMER_DETAILS,
 } from "./helpers/fixtures";
-import { TAX_TEST_OFFERING_ID } from "./helpers/fixtures";
+import {
+  integrationTest,
+  skipTaxCalculationTestIfDisabled,
+} from "./helpers/integration-test";
+import {
+  clickPayButton,
+  confirmPayButtonDisabled,
+  confirmPaymentComplete,
+  confirmPaymentError,
+  enterCreditCardDetails,
+  enterEmail,
+  enterSecurityCode,
+  getPackageCards,
+  getStripePaymentFrame,
+  navigateToLandingUrl,
+  startPurchaseFlow,
+} from "./helpers/test-helpers";
 
 const TAX_BREAKDOWN_ITEM_SELECTOR = ".rcb-pricing-table-row";
 
@@ -218,27 +218,21 @@ integrationTest.describe("Tax calculation", () => {
         }
       });
 
+      let italyTaxCalculationRequest: Request | undefined;
       const italyTaxCalculationRequestPromise = page.waitForRequest(
-        (request) =>
-          request.url().includes("/calculate_taxes") &&
-          request.postDataJSON().country_code === "IT",
+        (request) => {
+          italyTaxCalculationRequest = request;
+          return (
+            request.url().includes("/calculate_taxes") &&
+            request.postDataJSON().country_code === "IT"
+          );
+        },
       );
+
       const newYorkTaxCalculationRequestPromise = page.waitForRequest(
         (request) =>
           request.url().includes("/calculate_taxes") &&
           request.postDataJSON().country_code === "US",
-      );
-
-      const newYorkTaxCalculationResponsePromise = page.waitForResponse(
-        (response) =>
-          response.url().includes("/calculate_taxes") &&
-          response.request().postDataJSON().country_code === "US",
-      );
-
-      const italyTaxCalculationResponsePromise = page.waitForResponse(
-        (response) =>
-          response.url().includes("/calculate_taxes") &&
-          response.request().postDataJSON().country_code === "IT",
       );
 
       await enterEmail(page, email);
@@ -268,16 +262,9 @@ integrationTest.describe("Tax calculation", () => {
       // visual skeleton is not enough to prevent race condition
       await newYorkTaxCalculationRequestPromise;
 
+      expect(italyTaxCalculationRequest?.failure()).toBe("NS_BINDING_ABORTED");
+
       await expect(page.getByText(/Sales Tax - New York/)).toBeVisible();
-
-      await newYorkTaxCalculationResponsePromise;
-
-      const italyTaxCalculationRequestCompleted = await Promise.race([
-        italyTaxCalculationResponsePromise.then(() => true),
-        new Promise((resolve) => setTimeout(() => resolve(false), 0)),
-      ]);
-
-      expect(italyTaxCalculationRequestCompleted).toBe(false);
     },
   );
 
