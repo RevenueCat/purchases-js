@@ -181,6 +181,11 @@ export async function enterCreditCardDetails(
   await stripeFrame.getByLabel("Security Code").fill(securityCode);
 }
 
+export async function enterSecurityCode(page: Page, code: string) {
+  const stripeFrame = getStripePaymentFrame(page);
+  await stripeFrame.getByLabel("Security Code").fill(code);
+}
+
 export async function clickPayButton(page: Page) {
   const button = page.locator(
     "button[data-testid='PayButton']:not([disabled])",

@@ -163,6 +163,7 @@ export class PurchaseOperationHelper {
   async checkoutCalculateTax(
     countryCode?: string,
     postalCode?: string,
+    signal?: AbortSignal | null,
   ): Promise<CheckoutCalculateTaxResponse> {
     const operationSessionId = this.operationSessionId;
     if (!operationSessionId) {
@@ -177,6 +178,7 @@ export class PurchaseOperationHelper {
         operationSessionId,
         countryCode,
         postalCode,
+        signal,
       );
     } catch (error) {
       if (error instanceof PurchasesError) {
