@@ -21,6 +21,7 @@ interface HttpRequestConfig<RequestBody> {
 export async function performRequest<RequestBody, ResponseType>(
   endpoint: SupportedEndpoint,
   config: HttpRequestConfig<RequestBody>,
+  signal?: AbortSignal | null,
 ): Promise<ResponseType> {
   const { apiKey, body, headers, httpConfig } = config;
   const baseUrl = httpConfig?.proxyURL ?? RC_ENDPOINT;
@@ -31,6 +32,7 @@ export async function performRequest<RequestBody, ResponseType>(
       method: endpoint.method,
       headers: getHeaders(apiKey, headers, httpConfig?.additionalHeaders),
       body: getBody(body),
+      signal,
     });
 
     await handleErrors(response, endpoint);

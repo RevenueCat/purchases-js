@@ -183,6 +183,7 @@
       .checkoutCalculateTax(
         taxCustomerDetails?.countryCode,
         taxCustomerDetails?.postalCode,
+        signal,
       )
       .then((taxCalculation) => {
         signal?.throwIfAborted();
@@ -304,7 +305,11 @@
         .then(() => signal.throwIfAborted())
         .then(() => recalculateTaxes(signal))
         .then(() => signal.throwIfAborted())
-        .catch(handleErrors)
+        .catch((e) => {
+          if (!signal.aborted) {
+            handleErrors(e);
+          }
+        })
         .finally(() => {
           if (taxCalculationStatus === "loading" && !signal.aborted) {
             taxCalculationStatus = previousTaxCalculationStatus;
@@ -346,7 +351,12 @@
         .then(() => confirmElements(confirmationTokenId))
         .then(() => signal.throwIfAborted())
         .then(() => true)
-        .catch(handleErrors);
+        .catch((e) => {
+          if (!signal.aborted) {
+            handleErrors(e);
+          }
+          return false;
+        });
     });
   }
 
@@ -442,7 +452,7 @@
   }
 
   // Helper function to handle errors of the tax recalculation or form submission
-  async function handleErrors(error: unknown): Promise<boolean> {
+  async function handleErrors(error: unknown) {
     if (error instanceof TaxCustomerDetailsMissMatchError) {
       taxCalculationStatus = "miss-match";
     } else if (error instanceof PurchaseFlowError) {
@@ -465,8 +475,6 @@
     } else {
       throw error;
     }
-
-    return false;
   }
 
   async function handleStripeElementError(error: StripeServiceError) {
