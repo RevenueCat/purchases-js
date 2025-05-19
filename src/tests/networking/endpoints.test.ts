@@ -89,7 +89,7 @@ describe("getCustomerInfo endpoint", () => {
 });
 
 describe("getBrandingInfo endpoint", () => {
-  const endpoint = new GetBrandingInfoEndpoint("rc_billing");
+  const endpoint = new GetBrandingInfoEndpoint();
 
   test("uses correct method", () => {
     expect(endpoint.method).toBe("GET");
