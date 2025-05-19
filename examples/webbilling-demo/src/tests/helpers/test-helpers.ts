@@ -1,5 +1,16 @@
+import type { APIResponse } from "@playwright/test";
 import { type Page, type Locator, expect } from "@playwright/test";
 import { BASE_URL, NON_TAX_TEST_API_KEY } from "./fixtures";
+
+export type RouteFulfillOptions = {
+  body?: string | Buffer | undefined;
+  contentType?: string | undefined;
+  headers?: { [key: string]: string } | undefined;
+  json?: Record<string, unknown>;
+  path?: string | undefined;
+  response?: APIResponse | undefined;
+  status?: number | undefined;
+};
 
 export const CARD_SELECTOR = "div.card";
 export const PACKAGE_SELECTOR = "button.rc-pw-package";
