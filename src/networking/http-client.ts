@@ -1,10 +1,6 @@
 import { type SupportedEndpoint } from "./endpoints";
-import {
-  type BackendErrorCode,
-  ErrorCode,
-  ErrorCodeUtils,
-  PurchasesError,
-} from "../entities/errors";
+import type { BackendErrorCode } from "../entities/errors";
+import { ErrorCode, ErrorCodeUtils, PurchasesError } from "../entities/errors";
 import { RC_ENDPOINT, VERSION } from "../helpers/constants";
 import { StatusCodes } from "http-status-codes";
 import { isSandboxApiKey } from "../helpers/api-key-helper";

@@ -1,6 +1,9 @@
 import type { Offering, Package } from "@revenuecat/purchases-js";
-import { PurchasesError } from "@revenuecat/purchases-js";
-import React from "react";
+import {
+  PurchasesError,
+  ReservedCustomerAttribute,
+} from "@revenuecat/purchases-js";
+import React, { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { usePurchasesLoaderData } from "../../util/PurchasesLoader";
 import Button from "../../components/Button";
@@ -95,6 +98,31 @@ const PaywallPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const lang = searchParams.get("lang");
   const email = searchParams.get("email");
+  const displayName = searchParams.get("$displayName");
+  const nickname = searchParams.get("nickname");
+
+  useEffect(() => {
+    const setAttributes = async () => {
+      const attributes: { [key: string]: string } = {};
+      if (displayName) {
+        attributes[ReservedCustomerAttribute.DisplayName] = displayName;
+      }
+      if (nickname) {
+        attributes["nickname"] = nickname;
+      }
+
+      if (Object.keys(attributes).length > 0) {
+        try {
+          await purchases.setAttributes(attributes);
+        } catch (error) {
+          console.error("Error setting attributes:", error);
+        }
+      }
+    };
+
+    setAttributes();
+  }, [purchases, displayName, nickname]);
+
   if (!offering) {
     console.error("No offering found");
     return <>No offering found!</>;
