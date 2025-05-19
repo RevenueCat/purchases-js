@@ -153,6 +153,7 @@ export class Backend {
     operationSessionId: string,
     countryCode?: string,
     postalCode?: string,
+    signal?: AbortSignal | null,
   ): Promise<CheckoutCalculateTaxResponse> {
     type CheckoutCalculateTaxRequestBody = {
       country_code?: string;
@@ -167,11 +168,15 @@ export class Backend {
     return await performRequest<
       CheckoutCalculateTaxRequestBody,
       CheckoutCalculateTaxResponse
-    >(new CheckoutCalculateTaxEndpoint(operationSessionId), {
-      apiKey: this.API_KEY,
-      body: requestBody,
-      httpConfig: this.httpConfig,
-    });
+    >(
+      new CheckoutCalculateTaxEndpoint(operationSessionId),
+      {
+        apiKey: this.API_KEY,
+        body: requestBody,
+        httpConfig: this.httpConfig,
+      },
+      signal,
+    );
   }
 
   async postCheckoutComplete(

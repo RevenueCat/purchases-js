@@ -1,21 +1,5 @@
-import type { Page } from "@playwright/test";
+import type { Page, Request } from "@playwright/test";
 import { expect } from "@playwright/test";
-import {
-  enterCreditCardDetails,
-  enterEmail,
-  clickPayButton,
-  startPurchaseFlow,
-  navigateToLandingUrl,
-  getPackageCards,
-  confirmPaymentComplete,
-  getStripePaymentFrame,
-  confirmPayButtonDisabled,
-  confirmPaymentError,
-} from "./helpers/test-helpers";
-import {
-  integrationTest,
-  skipTaxCalculationTestIfDisabled,
-} from "./helpers/integration-test";
 import {
   FLORIDA_CUSTOMER_DETAILS,
   INVALID_CUSTOMER_DETAILS,
@@ -23,9 +7,26 @@ import {
   NEW_YORK_CUSTOMER_DETAILS,
   SPAIN_CUSTOMER_DETAILS,
   TAX_TEST_API_KEY,
+  TAX_TEST_OFFERING_ID,
   TEXAS_CUSTOMER_DETAILS,
 } from "./helpers/fixtures";
-import { TAX_TEST_OFFERING_ID } from "./helpers/fixtures";
+import {
+  integrationTest,
+  skipTaxCalculationTestIfDisabled,
+} from "./helpers/integration-test";
+import {
+  clickPayButton,
+  confirmPayButtonDisabled,
+  confirmPaymentComplete,
+  confirmPaymentError,
+  enterCreditCardDetails,
+  enterEmail,
+  enterSecurityCode,
+  getPackageCards,
+  getStripePaymentFrame,
+  navigateToLandingUrl,
+  startPurchaseFlow,
+} from "./helpers/test-helpers";
 
 const TAX_BREAKDOWN_ITEM_SELECTOR = ".rcb-pricing-table-row";
 
@@ -198,40 +199,56 @@ integrationTest.describe("Tax calculation", () => {
     async ({ page, userId, email }) => {
       page = await navigateToTaxesLandingUrl(page, userId);
 
+      const taxSkeleton = page.getByTestId("tax-loading-skeleton");
+
       const packageCards = await getPackageCards(page);
       await startPurchaseFlow(packageCards[0]);
 
       await expect(page.getByText("Total excluding tax")).toBeVisible();
-      await expect(page.getByText(/Sales Tax - New York/)).not.toBeVisible();
       await expect(page.getByText("Total due today")).toBeVisible();
 
-      let calculateTaxesCount = 0;
       await page.route("**/calculate_taxes", async (route) => {
-        calculateTaxesCount++;
-
-        // Add some throttle to reduce flakiness
-        await new Promise((resolve) => setTimeout(resolve, 3000));
-        await route.continue();
+        const body = await route.request().postDataJSON();
+        if (body !== null && body["country_code"] === "IT") {
+          setTimeout(async () => {
+            route.continue();
+          }, 10_000);
+        } else {
+          route.continue();
+        }
       });
+
+      let italyTaxCalculationRequest: Request | undefined;
+      const italyTaxCalculationRequestPromise = page.waitForRequest(
+        (request) => {
+          italyTaxCalculationRequest = request;
+          return (
+            request.url().includes("/calculate_taxes") &&
+            request.postDataJSON().country_code === "IT"
+          );
+        },
+      );
+
+      const newYorkTaxCalculationRequestPromise = page.waitForRequest(
+        (request) =>
+          request.url().includes("/calculate_taxes") &&
+          request.postDataJSON().country_code === "US",
+      );
 
       await enterEmail(page, email);
       await enterCreditCardDetails(
         page,
         "4242 4242 4242 4242",
-        INVALID_CUSTOMER_DETAILS,
-      );
-
-      const skeleton = page.getByTestId("tax-loading-skeleton");
-      await expect(skeleton).toBeVisible();
-
-      await expect(calculateTaxesCount).toBe(1);
-
-      // Clear the postal code, to make sure that the change event is triggered by Stripe
-      await enterCreditCardDetails(
-        page,
-        "4242 4242 4242 4242",
         ITALY_CUSTOMER_DETAILS,
       );
+
+      await expect(taxSkeleton).toBeVisible();
+
+      // Must wait for the request to be started,
+      // visual skeleton is not enough to prevent race condition
+      await italyTaxCalculationRequestPromise;
+
+      await enterSecurityCode(page, "");
 
       await enterCreditCardDetails(
         page,
@@ -239,13 +256,15 @@ integrationTest.describe("Tax calculation", () => {
         NEW_YORK_CUSTOMER_DETAILS,
       );
 
+      await expect(taxSkeleton).toBeVisible();
+
+      // Must wait for the request to be started,
+      // visual skeleton is not enough to prevent race condition
+      await newYorkTaxCalculationRequestPromise;
+
+      expect(italyTaxCalculationRequest?.failure()).toBe("NS_BINDING_ABORTED");
+
       await expect(page.getByText(/Sales Tax - New York/)).toBeVisible();
-
-      await expect(calculateTaxesCount).toBe(2);
-
-      await expect(
-        page.getByText(/We couldn't verify your billing address./i),
-      ).not.toBeVisible();
     },
   );
 
