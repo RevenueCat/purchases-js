@@ -61,27 +61,9 @@
   }}
 />
 <Story
-  name="Pending Tax Generic"
+  name="Pending Tax"
   args={{
     priceBreakdown: priceBreakdownTaxPending,
-  }}
-/>
-<Story
-  name="Pending Tax US"
-  args={{
-    priceBreakdown: {
-      ...priceBreakdownTaxPending,
-      pendingReason: "needs_postal_code",
-    },
-  }}
-/>
-<Story
-  name="Pending Tax CA"
-  args={{
-    priceBreakdown: {
-      ...priceBreakdownTaxPending,
-      pendingReason: "needs_state_or_postal_code",
-    },
   }}
 />
 <Story
