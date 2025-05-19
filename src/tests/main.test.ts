@@ -6,6 +6,7 @@ import {
   type EntitlementInfo,
   Purchases,
   PurchasesError,
+  ReservedCustomerAttribute,
 } from "../main";
 import { ErrorCode, UninitializedPurchasesError } from "../entities/errors";
 import {
@@ -430,6 +431,39 @@ describe("setAttributes", () => {
     expect(capturedBody).toEqual({
       attributes: {
         name: { value: "John", updated_at_ms: expect.any(Number) },
+        age: { value: "30", updated_at_ms: expect.any(Number) },
+      },
+    });
+  });
+  test("can set attributes successfully using reserved attributes enum", async () => {
+    const purchases = configurePurchases();
+
+    let capturedBody: Record<string, string> = {};
+
+    server.use(
+      http.post(
+        "http://localhost:8000/v1/subscribers/someAppUserId/attributes",
+        async ({ request }) => {
+          const body = (await request.json()) as Record<string, string>;
+          capturedBody = body;
+          return HttpResponse.json({}, { status: StatusCodes.OK });
+        },
+      ),
+    );
+
+    await purchases.setAttributes({
+      [ReservedCustomerAttribute.DisplayName]: "John",
+      [ReservedCustomerAttribute.Email]: "john@example.com",
+      age: "30",
+    });
+
+    expect(capturedBody).toEqual({
+      attributes: {
+        $displayName: { value: "John", updated_at_ms: expect.any(Number) },
+        $email: {
+          value: "john@example.com",
+          updated_at_ms: expect.any(Number),
+        },
         age: { value: "30", updated_at_ms: expect.any(Number) },
       },
     });

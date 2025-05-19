@@ -1,5 +1,8 @@
 import type { Offering, Package } from "@revenuecat/purchases-js";
-import { PurchasesError } from "@revenuecat/purchases-js";
+import {
+  PurchasesError,
+  ReservedCustomerAttribute,
+} from "@revenuecat/purchases-js";
 import React, { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { usePurchasesLoaderData } from "../../util/PurchasesLoader";
@@ -102,7 +105,7 @@ const PaywallPage: React.FC = () => {
     const setAttributes = async () => {
       const attributes: { [key: string]: string } = {};
       if (displayName) {
-        attributes["$displayName"] = displayName;
+        attributes[ReservedCustomerAttribute.DisplayName] = displayName;
       }
       if (nickname) {
         attributes["nickname"] = nickname;

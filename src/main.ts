@@ -65,6 +65,7 @@ import { autoParseUTMParams } from "./helpers/utm-params";
 import { defaultFlagsConfig, type FlagsConfig } from "./entities/flags-config";
 import { generateUUID } from "./helpers/uuid-helper";
 import type { PlatformInfo } from "./entities/platform-info";
+import type { ReservedCustomerAttribute } from "./entities/attributes";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -82,6 +83,7 @@ export type {
   PricingPhase,
 } from "./entities/offerings";
 export { PackageType } from "./entities/offerings";
+export { ReservedCustomerAttribute } from "./entities/attributes";
 export type { CustomerInfo } from "./entities/customer-info";
 export type {
   EntitlementInfos,
@@ -728,7 +730,7 @@ export class Purchases {
    * @throws {@link PurchasesError} if there is an error while setting the attributes or if the customer doesn't exist.
    */
   public async setAttributes(attributes: {
-    [key: string]: string | null;
+    [key: string | ReservedCustomerAttribute]: string | null;
   }): Promise<void> {
     /*
      * Ensure the customer exists by calling getCustomerInfo as setAttributes will throw an error
@@ -737,6 +739,7 @@ export class Purchases {
      * Note: We may want to optimize this in the future by prefetching customer info during SDK initialization.
      */
     await this.getCustomerInfo();
+
     return await this.backend.setAttributes(this._appUserId, attributes);
   }
 

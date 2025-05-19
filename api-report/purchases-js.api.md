@@ -370,7 +370,7 @@ export class Purchases {
     // @deprecated
     purchasePackage(rcPackage: Package, customerEmail?: string, htmlTarget?: HTMLElement): Promise<PurchaseResult>;
     setAttributes(attributes: {
-        [key: string]: string | null;
+        [key: string | ReservedCustomerAttribute]: string | null;
     }): Promise<void>;
     static setLogLevel(logLevel: LogLevel): void;
     static setPlatformInfo(platformInfo: PlatformInfo): void;
@@ -399,6 +399,57 @@ export interface PurchasesErrorExtra {
 // @public
 export interface RedemptionInfo {
     readonly redeemUrl: string | null;
+}
+
+// @public
+export enum ReservedCustomerAttribute {
+    AdGroup = "$adGroup",
+    AdId = "$ad",
+    AdjustId = "$adjustId",
+    AirshipChannelId = "$airshipChannelId",
+    AmazonAdId = "$amazonAdId",
+    AmplitudeDeviceId = "$amplitudeDeviceId",
+    AmplitudeUserId = "$amplitudeUserId",
+    AndroidId = "$androidId",
+    APNSTokens = "$apnsTokens",
+    AppleRefundHandlingPreference = "$appleRefundHandlingPreference",
+    AppsflyerId = "$appsflyerId",
+    AppsflyerSharingFilter = "$appsflyerSharingFilter",
+    ATTConsentStatus = "$attConsentStatus",
+    BranchId = "$branchId",
+    BrazeAliasLabel = "$brazeAliasLabel",
+    BrazeAliasName = "$brazeAliasName",
+    Campaign = "$campaign",
+    ClevertapId = "$clevertapId",
+    Creative = "$creative",
+    CustomerioId = "$customerioId",
+    DeviceVersion = "$deviceVersion",
+    DisplayName = "$displayName",
+    Email = "$email",
+    FbAnonId = "$fbAnonId",
+    FCMTokens = "$fcmTokens",
+    FirebaseAppInstanceId = "$firebaseAppInstanceId",
+    GPSAdId = "$gpsAdId",
+    IDFA = "$idfa",
+    IDFV = "$idfv",
+    IntercomContactId = "$intercomContactId",
+    IP = "$ip",
+    IterableCampaignId = "$iterableCampaignId",
+    IterableTemplateId = "$iterableTemplateId",
+    IterableUserId = "$iterableUserId",
+    Keyword = "$keyword",
+    KochavaDeviceId = "$kochavaDeviceId",
+    MediaSource = "$mediaSource",
+    MixpanelDistinctId = "$mixpanelDistinctId",
+    MparticleId = "$mparticleId",
+    OnesignalId = "$onesignalId",
+    OnesignalUserId = "$onesignalUserId",
+    PhoneNumber = "$phoneNumber",
+    PosthogUserId = "$posthogUserId",
+    SegmentId = "$segmentId",
+    TelemetryDeckAppId = "$telemetryDeckAppId",
+    TelemetryDeckUserId = "$telemetryDeckUserId",
+    TenjinId = "$tenjinId"
 }
 
 // @public
