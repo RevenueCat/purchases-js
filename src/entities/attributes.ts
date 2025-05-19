@@ -20,7 +20,7 @@ export enum ReservedCustomerAttribute {
    */
   IDFA = "$idfa",
   /**
-   * iOS vender identifier UUID for the customer.
+   * iOS vendor identifier UUID for the customer.
    */
   IDFV = "$idfv",
   /**

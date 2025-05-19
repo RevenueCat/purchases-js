@@ -6990,7 +6990,7 @@
             {
               "kind": "EnumMember",
               "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.IDFV:member",
-              "docComment": "/**\n * iOS vender identifier UUID for the customer.\n */\n",
+              "docComment": "/**\n * iOS vendor identifier UUID for the customer.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
