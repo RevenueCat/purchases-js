@@ -279,12 +279,14 @@
    * when multiple tax refresh requests are triggered in quick succession.
    */
   async function refreshTaxes(): Promise<void> {
-    if (selectedPaymentMethod !== "card") return;
-
-    if (!isEmailComplete || !isPaymentInfoComplete) {
+    if (
+      selectedPaymentMethod !== "card" ||
+      !isEmailComplete ||
+      !isPaymentInfoComplete ||
+      processing ||
+      taxCalculationStatus === "disabled"
+    )
       return;
-    }
-    if (processing) return;
 
     if (taxCalculationStatus !== "loading") {
       previousTaxCalculationStatus = taxCalculationStatus;
