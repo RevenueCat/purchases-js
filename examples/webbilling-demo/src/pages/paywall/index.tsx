@@ -116,9 +116,10 @@ const PaywallPage: React.FC = () => {
 
       if (Object.keys(attributes).length > 0) {
         try {
-          await purchases.setAttributes(attributes);
           attributesSetRef.current = true;
+          await purchases.setAttributes(attributes);
         } catch (error) {
+          attributesSetRef.current = false;
           console.error("Error setting attributes:", error);
         }
       }
