@@ -565,7 +565,12 @@ const navigateToTaxesLandingUrl = (page: Page, userId: string) =>
       integrationTest("Stripe tax not active", async ({ page, userId }) => {
         await page.route(TAX_ROUTE_PATH, async (route) => {
           await route.fulfill({
-            body: '{ "mocked": true, "code": 7898, "message": "Stripe account setup error: Stripe Tax must be active to calculate taxes."}',
+            json: {
+              mocked: true,
+              code: 7898,
+              message:
+                "Stripe account setup error: Stripe Tax must be active to calculate taxes.",
+            },
             status: 422,
           });
         });
@@ -581,7 +586,12 @@ const navigateToTaxesLandingUrl = (page: Page, userId: string) =>
         async ({ page, userId }) => {
           await page.route(TAX_ROUTE_PATH, async (route) => {
             await route.fulfill({
-              body: '{ "mocked": true, "code": 7899, "message": "Stripe account setup error: Origin address for Stripe Tax is missing or invalid."}',
+              json: {
+                mocked: true,
+                code: 7899,
+                message:
+                  "Stripe account setup error: Origin address for Stripe Tax is missing or invalid.",
+              },
               status: 422,
             });
           });
@@ -596,7 +606,12 @@ const navigateToTaxesLandingUrl = (page: Page, userId: string) =>
       integrationTest("Missing Stripe permission", async ({ page, userId }) => {
         await page.route(TAX_ROUTE_PATH, async (route) => {
           await route.fulfill({
-            body: '{ "mocked": true, "code": 7900, "message": "Stripe account setup error: Required permission is missing."}',
+            json: {
+              mocked: true,
+              code: 7900,
+              message:
+                "Stripe account setup error: Required permission is missing.",
+            },
             status: 422,
           });
         });
