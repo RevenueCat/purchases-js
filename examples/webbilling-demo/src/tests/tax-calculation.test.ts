@@ -54,17 +54,15 @@ const navigateToTaxesLandingUrl = (page: Page, userId: string) =>
     page: Page,
     fulfillment: RouteFulfillOptions,
   ) => {
-    if (mockMode) {
-      let completed = false;
-      await page.route(TAX_ROUTE_PATH, async (route) => {
-        if (!completed) {
-          await route.fulfill(fulfillment);
-          completed = true;
-        } else {
-          route.fallback();
-        }
-      });
-    }
+    let completed = false;
+    await page.route(TAX_ROUTE_PATH, async (route) => {
+      if (!completed) {
+        await route.fulfill(fulfillment);
+        completed = true;
+      } else {
+        route.fallback();
+      }
+    });
   };
 
   integrationTest.describe(
