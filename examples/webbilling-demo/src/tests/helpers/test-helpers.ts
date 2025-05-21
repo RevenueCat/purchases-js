@@ -12,7 +12,9 @@ function getRandomHash(length: number = 6): string {
 }
 
 export function getUserId(browserName: string) {
-  return `rc_billing_demo_test_${Date.now()}_${getRandomHash()}_${browserName}`;
+  const randomId = getRandomHash();
+  const shortBrowserName = browserName.slice(0, 3);
+  return `e2e_${randomId}_${shortBrowserName}`;
 }
 
 export async function performPurchase(
