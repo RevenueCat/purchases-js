@@ -3,6 +3,7 @@ import { BASE_URL, NON_TAX_TEST_API_KEY } from "./fixtures";
 
 export const CARD_SELECTOR = "div.card";
 export const PACKAGE_SELECTOR = "button.rc-pw-package";
+export const TAX_SKELETON_SELECTOR = "div[data-testid='tax-loading-skeleton']";
 
 function getRandomHash(length: number = 6): string {
   const characters = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -211,6 +212,20 @@ export async function clickPayButton(page: Page) {
   );
   await button.waitFor();
   await button.click();
+}
+
+export async function confirmTaxCalculation(page: Page) {
+  await expect(page.locator(TAX_SKELETON_SELECTOR)).toBeVisible();
+  await expect(page.locator(TAX_SKELETON_SELECTOR)).not.toBeVisible();
+}
+
+export async function confirmTaxCalculating(page: Page) {
+  await expect(page.locator(TAX_SKELETON_SELECTOR)).toBeVisible();
+}
+
+// Not a reliable check since it's a negative one
+export async function confirmTaxNotCalculating(page: Page) {
+  await expect(page.locator(TAX_SKELETON_SELECTOR)).not.toBeVisible();
 }
 
 export async function confirmPaymentComplete(page: Page) {
