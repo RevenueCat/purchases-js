@@ -4,8 +4,15 @@ import { BASE_URL, NON_TAX_TEST_API_KEY } from "./fixtures";
 export const CARD_SELECTOR = "div.card";
 export const PACKAGE_SELECTOR = "button.rc-pw-package";
 
+function getRandomHash(length: number = 6): string {
+  const characters = "abcdefghijklmnopqrstuvwxyz0123456789";
+  return Array.from({ length }, () =>
+    characters.charAt(Math.floor(Math.random() * characters.length)),
+  ).join("");
+}
+
 export function getUserId(browserName: string) {
-  return `rc_billing_demo_test_${Date.now()}_${browserName}`;
+  return `rc_billing_demo_test_${Date.now()}_${getRandomHash()}_${browserName}`;
 }
 
 export async function performPurchase(

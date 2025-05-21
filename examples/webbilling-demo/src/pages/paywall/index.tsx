@@ -3,7 +3,7 @@ import {
   PurchasesError,
   ReservedCustomerAttribute,
 } from "@revenuecat/purchases-js";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { usePurchasesLoaderData } from "../../util/PurchasesLoader";
 import Button from "../../components/Button";
@@ -100,9 +100,12 @@ const PaywallPage: React.FC = () => {
   const email = searchParams.get("email");
   const displayName = searchParams.get("$displayName");
   const nickname = searchParams.get("nickname");
+  const attributesSetRef = useRef(false);
 
   useEffect(() => {
     const setAttributes = async () => {
+      if (attributesSetRef.current) return;
+
       const attributes: { [key: string]: string } = {};
       if (displayName) {
         attributes[ReservedCustomerAttribute.DisplayName] = displayName;
@@ -114,6 +117,7 @@ const PaywallPage: React.FC = () => {
       if (Object.keys(attributes).length > 0) {
         try {
           await purchases.setAttributes(attributes);
+          attributesSetRef.current = true;
         } catch (error) {
           console.error("Error setting attributes:", error);
         }
