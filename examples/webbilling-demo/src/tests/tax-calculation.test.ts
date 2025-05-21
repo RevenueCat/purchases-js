@@ -76,8 +76,9 @@ const navigateToTaxesLandingUrl = (page: Page, userId: string) =>
       );
 
       integrationTest.beforeEach(async ({ page }) => {
+        page.unrouteAll();
+
         if (mockMode) {
-          page.unrouteAll();
           // Prevent the real requests from being performed
           await page.route(TAX_ROUTE_PATH, async (route) => {
             route.abort();
