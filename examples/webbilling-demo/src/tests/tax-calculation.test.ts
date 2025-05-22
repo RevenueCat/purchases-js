@@ -75,8 +75,6 @@ const mockTaxCalculationRequest = async (
       );
 
       integrationTest.beforeEach(async ({ page }) => {
-        page.unrouteAll();
-
         if (mockMode) {
           // Prevent the real requests from being performed
           await page.route(TAX_ROUTE_PATH, async (route) => {
