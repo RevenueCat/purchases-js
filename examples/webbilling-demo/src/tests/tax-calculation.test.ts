@@ -100,7 +100,7 @@ const navigateToTaxesLandingUrl = (page: Page, userId: string) =>
         "Displays taxes on payment entry page",
         async ({ page, userId }) => {
           if (mockMode) {
-            mockTaxCalculationRequest(page, SPAIN_TAX_RESPONSE);
+            await mockTaxCalculationRequest(page, SPAIN_TAX_RESPONSE);
           }
 
           page = await navigateToTaxesLandingUrl(page, userId);
@@ -117,7 +117,7 @@ const navigateToTaxesLandingUrl = (page: Page, userId: string) =>
         "Entering only email does not trigger payment method validation errors",
         async ({ page, userId, email }) => {
           if (mockMode) {
-            mockTaxCalculationRequest(page, SPAIN_TAX_RESPONSE);
+            await mockTaxCalculationRequest(page, SPAIN_TAX_RESPONSE);
           }
 
           page = await navigateToTaxesLandingUrl(page, userId);
@@ -145,8 +145,8 @@ const navigateToTaxesLandingUrl = (page: Page, userId: string) =>
         "Refreshes taxes when card info changes and performs payment",
         async ({ page, userId, email }) => {
           if (mockMode) {
-            mockTaxCalculationRequest(page, NEW_YORK_TAX_RESPONSE);
-            mockTaxCalculationRequest(page, SPAIN_TAX_RESPONSE);
+            await mockTaxCalculationRequest(page, NEW_YORK_TAX_RESPONSE);
+            await mockTaxCalculationRequest(page, SPAIN_TAX_RESPONSE);
           }
 
           page = await navigateToTaxesLandingUrl(page, userId);
@@ -177,8 +177,8 @@ const navigateToTaxesLandingUrl = (page: Page, userId: string) =>
         "Displays inclusive taxes",
         async ({ page, userId, email }) => {
           if (mockMode) {
-            mockTaxCalculationRequest(page, ITALY_TAX_RESPONSE);
-            mockTaxCalculationRequest(page, SPAIN_TAX_RESPONSE);
+            await mockTaxCalculationRequest(page, ITALY_TAX_RESPONSE);
+            await mockTaxCalculationRequest(page, SPAIN_TAX_RESPONSE);
           }
 
           page = await navigateToTaxesLandingUrl(page, userId);
@@ -210,8 +210,8 @@ const navigateToTaxesLandingUrl = (page: Page, userId: string) =>
         "Does NOT display taxes if not collecting in location",
         async ({ page, userId, email }) => {
           if (mockMode) {
-            mockTaxCalculationRequest(page, NOT_COLLECTING_TAX_RESPONSE);
-            mockTaxCalculationRequest(page, SPAIN_TAX_RESPONSE);
+            await mockTaxCalculationRequest(page, NOT_COLLECTING_TAX_RESPONSE);
+            await mockTaxCalculationRequest(page, SPAIN_TAX_RESPONSE);
           }
 
           // Set up the page (standard user, location, default params)
@@ -245,8 +245,11 @@ const navigateToTaxesLandingUrl = (page: Page, userId: string) =>
         "Does NOT display taxes if postal code is not recognized",
         async ({ page, userId, email }) => {
           if (mockMode) {
-            mockTaxCalculationRequest(page, INVALID_TAX_LOCATION_RESPONSE);
-            mockTaxCalculationRequest(page, SPAIN_TAX_RESPONSE);
+            await mockTaxCalculationRequest(
+              page,
+              INVALID_TAX_LOCATION_RESPONSE,
+            );
+            await mockTaxCalculationRequest(page, SPAIN_TAX_RESPONSE);
           }
 
           page = await navigateToTaxesLandingUrl(page, userId);
@@ -276,8 +279,8 @@ const navigateToTaxesLandingUrl = (page: Page, userId: string) =>
         "In-flight tax calculation is aborted when the user changes their billing address",
         async ({ page, userId, email }) => {
           if (mockMode) {
-            mockTaxCalculationRequest(page, NEW_YORK_TAX_RESPONSE);
-            mockTaxCalculationRequest(page, ITALY_TAX_RESPONSE);
+            await mockTaxCalculationRequest(page, NEW_YORK_TAX_RESPONSE);
+            await mockTaxCalculationRequest(page, ITALY_TAX_RESPONSE);
           }
 
           page = await navigateToTaxesLandingUrl(page, userId);
@@ -361,8 +364,8 @@ const navigateToTaxesLandingUrl = (page: Page, userId: string) =>
         "Tax calculation is not performed until the user has entered their email",
         async ({ page, userId, email }) => {
           if (mockMode) {
-            mockTaxCalculationRequest(page, ITALY_TAX_RESPONSE);
-            mockTaxCalculationRequest(page, SPAIN_TAX_RESPONSE);
+            await mockTaxCalculationRequest(page, ITALY_TAX_RESPONSE);
+            await mockTaxCalculationRequest(page, SPAIN_TAX_RESPONSE);
           }
 
           page = await navigateToTaxesLandingUrl(page, userId);
@@ -394,8 +397,8 @@ const navigateToTaxesLandingUrl = (page: Page, userId: string) =>
         "Tax calculation is not performed if payment info is incomplete",
         async ({ page, userId, email }) => {
           if (mockMode) {
-            mockTaxCalculationRequest(page, ITALY_TAX_RESPONSE);
-            mockTaxCalculationRequest(page, SPAIN_TAX_RESPONSE);
+            await mockTaxCalculationRequest(page, ITALY_TAX_RESPONSE);
+            await mockTaxCalculationRequest(page, SPAIN_TAX_RESPONSE);
           }
 
           page = await navigateToTaxesLandingUrl(page, userId);
@@ -454,9 +457,9 @@ const navigateToTaxesLandingUrl = (page: Page, userId: string) =>
         "Tax calculation is performed upon submission and message is shown when final amount differs from initial amount",
         async ({ page, userId, email }) => {
           if (mockMode) {
-            mockTaxCalculationRequest(page, ITALY_TAX_RESPONSE);
-            mockTaxCalculationRequest(page, TEXAS_TAX_RESPONSE);
-            mockTaxCalculationRequest(page, SPAIN_TAX_RESPONSE);
+            await mockTaxCalculationRequest(page, ITALY_TAX_RESPONSE);
+            await mockTaxCalculationRequest(page, TEXAS_TAX_RESPONSE);
+            await mockTaxCalculationRequest(page, SPAIN_TAX_RESPONSE);
           }
 
           page = await navigateToTaxesLandingUrl(page, userId);
@@ -510,9 +513,9 @@ const navigateToTaxesLandingUrl = (page: Page, userId: string) =>
         "Tax calculation is performed upon submission but no message is shown when final amount matches initial amount",
         async ({ page, userId, email }) => {
           if (mockMode) {
-            mockTaxCalculationRequest(page, SPAIN_TAX_RESPONSE);
-            mockTaxCalculationRequest(page, ITALY_TAX_RESPONSE);
-            mockTaxCalculationRequest(page, SPAIN_TAX_RESPONSE);
+            await mockTaxCalculationRequest(page, SPAIN_TAX_RESPONSE);
+            await mockTaxCalculationRequest(page, ITALY_TAX_RESPONSE);
+            await mockTaxCalculationRequest(page, SPAIN_TAX_RESPONSE);
           }
 
           page = await navigateToTaxesLandingUrl(page, userId);
