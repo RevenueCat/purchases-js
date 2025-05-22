@@ -44,8 +44,6 @@ commands:
           name: Npm Install
           command: npm ci
 
-
-
 jobs:
   docs-deploy:
     docker:
@@ -80,6 +78,30 @@ jobs:
       - run:
           name: release
           command: bundle exec fastlane release
+
+  make-snapshot-release:
+    description: "Publishes a snapshot version and creates a github pre-release"
+    docker:
+      - image: cimg/ruby:3.3.0-node
+    steps:
+      - checkout
+      - revenuecat/install-gem-unix-dependencies:
+          cache-version: v1
+      - revenuecat/trust-github-key
+      - install-dependencies
+      - run:
+          name: Build
+          command: npm run build
+      - run:
+          name: Pack
+          command: npm pack
+      - copy-npm-rc
+      - run:
+          name: Create snapshot release
+          command: bundle exec fastlane snapshot_release
+      # - run:
+      #     name: Create PR to update WPL dependency
+      #     command: TO DO
 
   deploy-demo:
     docker:
@@ -274,3 +296,15 @@ workflows:
           <<: *release-tags
           requires:
             - make-release
+
+  create-snapshot-on-main:
+    jobs:
+      - test:
+          <<: *only-main
+      - test-e2e:
+          <<: *only-main
+      - make-snapshot-release:
+          requires:
+            - test
+            - test-e2e
+          <<: *only-main
