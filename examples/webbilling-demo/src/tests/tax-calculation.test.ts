@@ -49,28 +49,29 @@ const navigateToTaxesLandingUrl = (page: Page, userId: string) =>
     TAX_TEST_API_KEY,
   );
 
-[true, false].forEach((mockMode) => {
-  const mockTaxCalculationRequest = async (
-    page: Page,
-    fulfillment: RouteFulfillOptions,
-  ) => {
-    let completed = false;
-    await page.route(TAX_ROUTE_PATH, async (route) => {
-      if (!completed) {
-        await route.fulfill(fulfillment);
-        completed = true;
-      } else {
-        route.fallback();
-      }
-    });
-  };
+const mockTaxCalculationRequest = async (
+  page: Page,
+  fulfillment: RouteFulfillOptions,
+) => {
+  let completed = false;
+  await page.route(TAX_ROUTE_PATH, async (route) => {
+    if (!completed) {
+      await route.fulfill(fulfillment);
+      completed = true;
+    } else {
+      route.fallback();
+    }
+  });
+};
 
+[true, false].forEach((mockMode) => {
   integrationTest.describe(
     `Tax calculation (${mockMode ? "mocked" : "real"})`,
     () => {
       integrationTest.skip(
         !mockMode && SKIP_TAX_CALCULATION_REAL_TESTS,
-        `Tax calculation ${mockMode ? "mocked" : "real"} tests are disabled. To enable, set VITE_SKIP_TAX_CALCULATION_REAL_TESTS=true in the environment variables.`,
+        `Tax calculation ${mockMode ? "mocked" : "real"} tests are disabled.
+        To enable, set VITE_SKIP_TAX_CALCULATION_REAL_TESTS=true in the environment variables.`,
       );
 
       integrationTest.beforeEach(async ({ page }) => {
