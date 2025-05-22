@@ -84,7 +84,7 @@ lane :snapshot_release do
   stable_version   = current_version_number
   snapshot_version = "#{stable_version}-SNAPSHOT.#{Time.now.strftime('%Y%m%d%H%M')}"
 
-  UI.message("Creating snapshot release #{snapshot_version}…")
+  UI.message("Creating snapshot release #{snapshot_version}...")
 
   Dir.chdir(get_root_folder) do
     sh("npm version #{snapshot_version} --no-git-tag-version")
@@ -102,16 +102,15 @@ lane :snapshot_release do
     changelog_latest_path: changelog_latest_path,
     is_prerelease:         true
   )
+
+  create_wpl_dependency_pr(version: snapshot_version)
 end
 
 desc "Create a PR to update the SDK dependency in the Checkout repo"
-lane :create_wpl_dependency_pr do
-  version_number = current_version_number
+lane :create_wpl_dependency_pr do |options|
+  version_number = options[:version]
 
-  branch_name = "update-purchases-js-to-#{version_number}"
-
-  sh("git", "config", "--global", "user.name", "RevenueCat CI")
-  sh("git", "config", "--global", "user.email", "ci@revenuecat.com")
+  branch_name = "purchases-js-snapshot-release-#{version_number}"
 
   Dir.mktmpdir do |temp_dir|
     Dir.chdir(temp_dir) do
@@ -127,7 +126,7 @@ lane :create_wpl_dependency_pr do
       end
 
       sh("git", "add", "package.json", "package-lock.json")
-      sh("git", "commit", "-m", "Update purchases-js to #{version_number} [skip ci]")
+      sh("git", "commit", "-m", "Update purchases-js to #{version_number}")
       sh("git", "push", "--set-upstream", "origin", branch_name)
 
       pr_body = "This PR updates the purchases-js dependency to version #{version_number}."
