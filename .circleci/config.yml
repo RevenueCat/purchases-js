@@ -99,9 +99,6 @@ jobs:
       - run:
           name: Create snapshot release
           command: bundle exec fastlane snapshot_release
-      # - run:
-      #     name: Create PR to update WPL dependency
-      #     command: TO DO
 
   deploy-demo:
     docker:

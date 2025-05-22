@@ -92,7 +92,6 @@ lane :snapshot_release do
     sh("npm version #{stable_version} --no-git-tag-version")
   end
 
-  # (optional) tag & push locally
   add_git_tag(tag: snapshot_version, message: "Snapshot #{snapshot_version}")
   push_to_git_remote(remote: "origin", tags: true)
 
