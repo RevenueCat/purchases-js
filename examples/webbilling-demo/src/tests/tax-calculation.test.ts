@@ -414,7 +414,7 @@ const mockTaxCalculationRequest = async (
           let calculateTaxesCount = 0;
           await page.route(TAX_ROUTE_PATH, async (route) => {
             calculateTaxesCount++;
-            await route.continue();
+            await route.fallback();
           });
 
           await enterCreditCardDetails(
@@ -473,7 +473,7 @@ const mockTaxCalculationRequest = async (
           let calculateTaxesCount = 0;
           await page.route(TAX_ROUTE_PATH, async (route) => {
             calculateTaxesCount++;
-            await route.continue();
+            await route.fallback();
           });
 
           await enterEmail(page, email);
@@ -529,7 +529,7 @@ const mockTaxCalculationRequest = async (
           let calculateTaxesCount = 0;
           await page.route(TAX_ROUTE_PATH, async (route) => {
             calculateTaxesCount++;
-            await route.continue();
+            await route.fallback();
           });
 
           await enterEmail(page, email);
