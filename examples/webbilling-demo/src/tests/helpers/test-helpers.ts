@@ -43,16 +43,18 @@ export async function performPurchase(
   card: Locator,
   email: string,
 ) {
-  await startPurchaseFlow(card);
+  await startPurchaseFlow(page, card);
   await enterEmail(page, email);
   await enterCreditCardDetails(page, "4242 4242 4242 4242");
   await clickPayButton(page);
   await confirmPaymentComplete(page);
 }
 
-export async function startPurchaseFlow(card: Locator) {
-  const cardButton = card.getByRole("button");
-  await cardButton.click();
+export async function startPurchaseFlow(page: Page, card: Locator) {
+  const productName = await card.locator(".productName").textContent();
+  await card.getByRole("button").click();
+  const productTitle = page.locator(".rcb-product-title");
+  await expect(productTitle.getByText(productName!)).toBeVisible();
 }
 
 export const getEmailFromUserId = (userId: string) =>

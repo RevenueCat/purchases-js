@@ -23,7 +23,7 @@ TEST_CASES.forEach(([lang, title]) => {
     page = await navigateToLandingUrl(page, userId, { lang });
 
     const packageCards = await getPackageCards(page);
-    await startPurchaseFlow(packageCards[1]);
+    await startPurchaseFlow(page, packageCards[1]);
 
     await expect(page.getByText(title)).toBeVisible();
   });

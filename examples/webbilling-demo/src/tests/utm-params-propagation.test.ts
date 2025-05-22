@@ -20,8 +20,9 @@ integrationTest(
     page = await navigateToLandingUrl(page, userId, { ...utm_params });
 
     const packageCards = await getPackageCards(page);
-    await startPurchaseFlow(packageCards[1]);
-    await waitForCheckoutStartRequest(page, utm_params);
+    const request = waitForCheckoutStartRequest(page, {});
+    await startPurchaseFlow(page, packageCards[1]);
+    await request;
   },
 );
 
@@ -41,8 +42,9 @@ integrationTest(
     });
 
     const packageCards = await getPackageCards(page);
-    await startPurchaseFlow(packageCards[1]);
-    await waitForCheckoutStartRequest(page, {});
+    const request = waitForCheckoutStartRequest(page, {});
+    await startPurchaseFlow(page, packageCards[1]);
+    await request;
   },
 );
 

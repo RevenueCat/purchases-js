@@ -86,7 +86,7 @@ test.describe("Purchase flow", () => {
 
       const packageCards = await getPackageCards(page, "E2E NonConsumable");
       expect(packageCards.length).toEqual(1);
-      await startPurchaseFlow(packageCards[0]);
+      await startPurchaseFlow(page, packageCards[0]);
       await confirmStripeEmailFieldNotVisible(page);
       await enterCreditCardDetails(page, "4242 4242 4242 4242");
       await clickPayButton(page);
@@ -105,7 +105,7 @@ test.describe("Purchase error paths", () => {
 
       const packageCards = await getPackageCards(page, "E2E NonConsumable");
       expect(packageCards.length).toEqual(1);
-      await startPurchaseFlow(packageCards[0]);
+      await startPurchaseFlow(page, packageCards[0]);
       await confirmStripeEmailFieldVisible(page);
     },
   );
@@ -119,7 +119,7 @@ test.describe("Purchase error paths", () => {
 
       const packageCards = await getPackageCards(page, "E2E NonConsumable");
       expect(packageCards.length).toEqual(1);
-      await startPurchaseFlow(packageCards[0]);
+      await startPurchaseFlow(page, packageCards[0]);
       await confirmStripeEmailFieldVisible(page);
     },
   );
@@ -128,7 +128,7 @@ test.describe("Purchase error paths", () => {
     page = await navigateToLandingUrl(page, userId);
 
     const packageCards = await getPackageCards(page);
-    await startPurchaseFlow(packageCards[1]);
+    await startPurchaseFlow(page, packageCards[1]);
     await enterEmail(page, "invalid-email");
     await confirmStripeEmailError(page, "Your email address is invalid.");
   });
@@ -138,7 +138,7 @@ test.describe("Purchase error paths", () => {
     const email = `${userId}@revenueci.comm`;
 
     const packageCards = await getPackageCards(page);
-    await startPurchaseFlow(packageCards[1]);
+    await startPurchaseFlow(page, packageCards[1]);
     await enterEmail(page, email);
     await enterCreditCardDetails(page, "4242 4242 4242 4242");
     await clickPayButton(page);
@@ -150,7 +150,7 @@ test.describe("Purchase error paths", () => {
     const email = getEmailFromUserId(userId);
 
     const packageCards = await getPackageCards(page);
-    await startPurchaseFlow(packageCards[1]);
+    await startPurchaseFlow(page, packageCards[1]);
     await enterEmail(page, email);
     await enterCreditCardDetails(page, "4000 0000 0000 0002");
     await clickPayButton(page);
@@ -163,7 +163,7 @@ test.describe("Purchase error paths", () => {
       page = await navigateToLandingUrl(page, userId);
 
       const packageCards = await getPackageCards(page);
-      await startPurchaseFlow(packageCards[1]);
+      await startPurchaseFlow(page, packageCards[1]);
       await enterEmail(page, email);
       await enterCreditCardDetails(page, "4000 0000 0000 0002");
       await clickPayButton(page);
@@ -180,7 +180,7 @@ test.describe("Purchase error paths", () => {
     const email = getEmailFromUserId(userId);
 
     const packageCards = await getPackageCards(page);
-    await startPurchaseFlow(packageCards[1]);
+    await startPurchaseFlow(page, packageCards[1]);
     await enterEmail(page, email);
     await enterCreditCardDetails(page, "4000 0038 0000 0446");
     await clickPayButton(page);
@@ -201,7 +201,7 @@ test.describe("Purchase error paths", () => {
       });
 
       const packageCards = await getPackageCards(page);
-      await startPurchaseFlow(packageCards[1]);
+      await startPurchaseFlow(page, packageCards[1]);
       await confirmPaymentError(page, "Something went wrong");
       await confirmPaymentError(
         page,
@@ -223,7 +223,7 @@ test.describe("Purchase error paths", () => {
       });
 
       const packageCards = await getPackageCards(page);
-      await startPurchaseFlow(packageCards[1]);
+      await startPurchaseFlow(page, packageCards[1]);
       await enterEmail(page, email);
       await enterCreditCardDetails(page, "4242 4242 4242 4242");
       await clickPayButton(page);
@@ -245,7 +245,7 @@ test.describe("Purchase error paths", () => {
       });
 
       const packageCards = await getPackageCards(page);
-      await startPurchaseFlow(packageCards[1]);
+      await startPurchaseFlow(page, packageCards[1]);
       await enterEmail(page, email);
       await enterCreditCardDetails(page, "4242 4242 4242 4242");
       await clickPayButton(page);

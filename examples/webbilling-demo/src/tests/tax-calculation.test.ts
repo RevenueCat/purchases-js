@@ -88,7 +88,7 @@ const mockTaxCalculationRequest = async (
         async ({ page, userId }) => {
           page = await navigateToLandingUrl(page, userId);
           const packageCards = await getPackageCards(page);
-          await startPurchaseFlow(packageCards[1]);
+          await startPurchaseFlow(page, packageCards[1]);
           await confirmTaxNotCalculating(page); // Not very reliable since there is no visual queue when this does not happen
           await expect(page.getByText("Total due today")).toBeVisible();
           await expect(page.getByText("Total excluding tax")).not.toBeVisible();
@@ -105,7 +105,7 @@ const mockTaxCalculationRequest = async (
           page = await navigateToTaxesLandingUrl(page, userId);
 
           const packageCards = await getPackageCards(page);
-          await startPurchaseFlow(packageCards[0]);
+          await startPurchaseFlow(page, packageCards[0]);
 
           await expect(page.getByText("Total excluding tax")).toBeVisible();
           await expect(page.getByText("Total due today")).toBeVisible();
@@ -122,7 +122,7 @@ const mockTaxCalculationRequest = async (
           page = await navigateToTaxesLandingUrl(page, userId);
 
           const packageCards = await getPackageCards(page);
-          await startPurchaseFlow(packageCards[0]);
+          await startPurchaseFlow(page, packageCards[0]);
 
           await expect(page.getByText("Total excluding tax")).toBeVisible();
           await expect(page.getByText(/Sales Tax/)).not.toBeVisible();
@@ -151,7 +151,7 @@ const mockTaxCalculationRequest = async (
           page = await navigateToTaxesLandingUrl(page, userId);
 
           const packageCards = await getPackageCards(page);
-          await startPurchaseFlow(packageCards[0]);
+          await startPurchaseFlow(page, packageCards[0]);
           await expect(page.getByText("Total excluding tax")).toBeVisible();
           await expect(page.getByText(/Sales Tax/)).not.toBeVisible();
           await expect(page.getByText("Total due today")).toBeVisible();
@@ -183,7 +183,7 @@ const mockTaxCalculationRequest = async (
           page = await navigateToTaxesLandingUrl(page, userId);
 
           const packageCards = await getPackageCards(page);
-          await startPurchaseFlow(packageCards[0]);
+          await startPurchaseFlow(page, packageCards[0]);
 
           await enterEmail(page, email);
           await enterCreditCardDetails(
@@ -217,9 +217,7 @@ const mockTaxCalculationRequest = async (
           page = await navigateToTaxesLandingUrl(page, userId);
 
           const cards = await getPackageCards(page);
-          const targetCard = cards[0];
-
-          await startPurchaseFlow(targetCard);
+          await startPurchaseFlow(page, cards[0]);
 
           await expect(page.getByText("Total excluding tax")).toBeVisible();
           await expect(page.getByText(/Sales Tax/)).not.toBeVisible();
@@ -254,7 +252,7 @@ const mockTaxCalculationRequest = async (
           page = await navigateToTaxesLandingUrl(page, userId);
 
           const packageCards = await getPackageCards(page);
-          await startPurchaseFlow(packageCards[0]);
+          await startPurchaseFlow(page, packageCards[0]);
 
           await expect(page.getByText("Total excluding tax")).toBeVisible();
           await expect(page.getByText(/Sales Tax/)).not.toBeVisible();
@@ -285,7 +283,7 @@ const mockTaxCalculationRequest = async (
           page = await navigateToTaxesLandingUrl(page, userId);
 
           const packageCards = await getPackageCards(page);
-          await startPurchaseFlow(packageCards[0]);
+          await startPurchaseFlow(page, packageCards[0]);
 
           await expect(page.getByText("Total excluding tax")).toBeVisible();
           await expect(page.getByText("Total due today")).toBeVisible();
@@ -370,7 +368,7 @@ const mockTaxCalculationRequest = async (
           page = await navigateToTaxesLandingUrl(page, userId);
 
           const packageCards = await getPackageCards(page);
-          await startPurchaseFlow(packageCards[0]);
+          await startPurchaseFlow(page, packageCards[0]);
 
           await expect(page.getByText("Total excluding tax")).toBeVisible();
           await expect(page.getByText(/VAT - Italy/)).not.toBeVisible();
@@ -403,7 +401,7 @@ const mockTaxCalculationRequest = async (
           page = await navigateToTaxesLandingUrl(page, userId);
 
           const packageCards = await getPackageCards(page);
-          await startPurchaseFlow(packageCards[0]);
+          await startPurchaseFlow(page, packageCards[0]);
 
           await expect(page.getByText("Total excluding tax")).toBeVisible();
           await expect(page.getByText(/VAT - Italy/)).not.toBeVisible();
@@ -464,7 +462,7 @@ const mockTaxCalculationRequest = async (
           page = await navigateToTaxesLandingUrl(page, userId);
 
           const packageCards = await getPackageCards(page);
-          await startPurchaseFlow(packageCards[0]);
+          await startPurchaseFlow(page, packageCards[0]);
 
           await expect(page.getByText("Total excluding tax")).toBeVisible();
 
@@ -520,7 +518,7 @@ const mockTaxCalculationRequest = async (
           page = await navigateToTaxesLandingUrl(page, userId);
 
           const packageCards = await getPackageCards(page);
-          await startPurchaseFlow(packageCards[0]);
+          await startPurchaseFlow(page, packageCards[0]);
 
           await expect(page.getByText("Total excluding tax")).toBeVisible();
 
@@ -582,7 +580,7 @@ integrationTest.describe("Tax calculation setup errors", () => {
 
     page = await navigateToTaxesLandingUrl(page, userId);
     const packageCards = await getPackageCards(page);
-    await startPurchaseFlow(packageCards[0]);
+    await startPurchaseFlow(page, packageCards[0]);
     await confirmPaymentError(page, "Stripe Tax not active");
   });
 
@@ -601,7 +599,7 @@ integrationTest.describe("Tax calculation setup errors", () => {
 
     page = await navigateToTaxesLandingUrl(page, userId);
     const packageCards = await getPackageCards(page);
-    await startPurchaseFlow(packageCards[0]);
+    await startPurchaseFlow(page, packageCards[0]);
     await confirmPaymentError(page, /Invalid tax origin address/);
   });
 
@@ -620,7 +618,7 @@ integrationTest.describe("Tax calculation setup errors", () => {
 
     page = await navigateToTaxesLandingUrl(page, userId);
     const packageCards = await getPackageCards(page);
-    await startPurchaseFlow(packageCards[0]);
+    await startPurchaseFlow(page, packageCards[0]);
     await confirmPaymentError(page, "Missing Stripe permission");
   });
 });
