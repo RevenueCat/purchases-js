@@ -24,6 +24,7 @@ import type {
 import type { CheckoutCompleteResponse } from "./responses/checkout-complete-response";
 import type { CheckoutCalculateTaxResponse } from "./responses/checkout-calculate-tax-response";
 import { isSandboxApiKey } from "../helpers/api-key-helper";
+import { SetAttributesEndpoint } from "./endpoints";
 
 export class Backend {
   private readonly API_KEY: string;
@@ -153,6 +154,7 @@ export class Backend {
     operationSessionId: string,
     countryCode?: string,
     postalCode?: string,
+    signal?: AbortSignal | null,
   ): Promise<CheckoutCalculateTaxResponse> {
     type CheckoutCalculateTaxRequestBody = {
       country_code?: string;
@@ -167,11 +169,15 @@ export class Backend {
     return await performRequest<
       CheckoutCalculateTaxRequestBody,
       CheckoutCalculateTaxResponse
-    >(new CheckoutCalculateTaxEndpoint(operationSessionId), {
-      apiKey: this.API_KEY,
-      body: requestBody,
-      httpConfig: this.httpConfig,
-    });
+    >(
+      new CheckoutCalculateTaxEndpoint(operationSessionId),
+      {
+        apiKey: this.API_KEY,
+        body: requestBody,
+        httpConfig: this.httpConfig,
+      },
+      signal,
+    );
   }
 
   async postCheckoutComplete(
@@ -203,6 +209,43 @@ export class Backend {
       new GetCheckoutStatusEndpoint(operationSessionId),
       {
         apiKey: this.API_KEY,
+        httpConfig: this.httpConfig,
+      },
+    );
+  }
+
+  async setAttributes(
+    appUserId: string,
+    attributes: { [key: string]: string | null },
+  ): Promise<void> {
+    type AttributeValue = {
+      value: string | null;
+      updated_at_ms: number;
+    };
+
+    type SetAttributesRequestBody = {
+      attributes: { [key: string]: AttributeValue };
+    };
+
+    const now = Date.now();
+    const formattedAttributes: { [key: string]: AttributeValue } = {};
+
+    for (const [key, value] of Object.entries(attributes)) {
+      formattedAttributes[key] = {
+        value,
+        updated_at_ms: now,
+      };
+    }
+
+    const requestBody: SetAttributesRequestBody = {
+      attributes: formattedAttributes,
+    };
+
+    return await performRequest<SetAttributesRequestBody, void>(
+      new SetAttributesEndpoint(appUserId),
+      {
+        apiKey: this.API_KEY,
+        body: requestBody,
         httpConfig: this.httpConfig,
       },
     );

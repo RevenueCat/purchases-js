@@ -168,6 +168,9 @@ export const purchaseFlowErrors = {
   networkError: new PurchaseFlowError(3),
   missingEmailError: new PurchaseFlowError(4),
   alreadyPurchasedError: new PurchaseFlowError(5),
+  stripeNotActive: new PurchaseFlowError(6),
+  stripeInvalidTaxOriginAddress: new PurchaseFlowError(7),
+  stripeMissingRequiredPermission: new PurchaseFlowError(8),
 };
 
 export const purchaseResponse = {
@@ -312,7 +315,6 @@ export const priceBreakdownTaxDisabled: PriceBreakdown = {
   totalExcludingTaxInMicros: 9900000,
   taxCalculationStatus: "unavailable",
   taxAmountInMicros: 0,
-  pendingReason: null,
   taxBreakdown: null,
 };
 
@@ -322,7 +324,6 @@ export const priceBreakdownNotCollectingTax: PriceBreakdown = {
   totalExcludingTaxInMicros: 9900000,
   taxCalculationStatus: "calculated",
   taxAmountInMicros: 0,
-  pendingReason: null,
   taxBreakdown: [],
 };
 
@@ -364,7 +365,6 @@ export const priceBreakdownTaxPending: PriceBreakdown = {
   ...priceBreakdownTaxExclusive,
   totalAmountInMicros: 9900000,
   taxCalculationStatus: "pending",
-  pendingReason: null,
 };
 
 export const priceBreakdownTaxExclusiveWithMultipleTaxItems: PriceBreakdown = {

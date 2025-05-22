@@ -16,11 +16,29 @@ describe("The Translator class", () => {
   test("should have the expected keys in all supported languages", () => {
     const expectedKeysSet = new Set(Object.values(LocalizationKeys));
     Object.entries(supportedLanguages).forEach(([lang, translations]) => {
-      const otherLabelKeys = new Set(Object.keys(translations));
+      const otherLabelKeys = new Set(
+        Object.keys(translations) as LocalizationKeys[],
+      );
+
+      const missingKeys = [...expectedKeysSet].filter(
+        (key) => !otherLabelKeys.has(key as LocalizationKeys),
+      );
+      const extraKeys = [...otherLabelKeys].filter(
+        (key) => !expectedKeysSet.has(key as LocalizationKeys),
+      );
+
+      const missingKeysText =
+        missingKeys.length > 0
+          ? `\n\nMissing keys:\n${missingKeys.map((key) => `- ${key}`).join("\n")}`
+          : "";
+      const extraKeysText =
+        extraKeys.length > 0
+          ? `\n\nExtra keys:\n${extraKeys.map((key) => `- ${key}`).join("\n")}`
+          : "";
 
       expect(
         eqSet(expectedKeysSet, otherLabelKeys),
-        `Language ${lang} doesn't have all the expected keys`,
+        `Language ${lang} doesn't have all the expected keys. ${missingKeysText}${extraKeysText}\n\n`,
       ).toBe(true);
     });
   });

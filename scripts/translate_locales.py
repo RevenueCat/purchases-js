@@ -1,7 +1,8 @@
 import json
 import os
-import requests
 import sys
+
+import requests
 
 
 def get_api_key():
@@ -25,7 +26,7 @@ def load_keys_context(directory):
             return json.load(f)
     except json.JSONDecodeError:
         print(
-            f"Warning: keys_context.json contains invalid JSON. Proceeding without context."
+            "Warning: keys_context.json contains invalid JSON. Proceeding without context."
         )
         return {}
 
@@ -98,7 +99,7 @@ def translate_text(text, target_language, keys_context=None):
         return translated_text
 
     except requests.exceptions.RequestException as e:
-        print(f"Error during translation: {e}")
+        print(f"Error during translation: {e} {e.response.text}")
         return None
     except (KeyError, IndexError, ValueError) as e:
         print(f"Error parsing Gemini response: {e}. Response: {response.text}")

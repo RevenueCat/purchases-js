@@ -57,7 +57,6 @@
       totalAmountInMicros: productDetails.currentPrice.amountMicros,
       totalExcludingTaxInMicros: productDetails.currentPrice.amountMicros,
       taxCalculationStatus: "unavailable",
-      pendingReason: null,
       taxAmountInMicros: null,
       taxBreakdown: null,
     },
@@ -110,10 +109,11 @@
         {productDetails}
         supportEmail={brandingInfo?.support_email ?? null}
         onDismiss={closeWithError}
+        appName={brandingInfo?.app_name ?? null}
       />
     {/if}
     {#if currentPage === "success"}
-      <SuccessPage {productDetails} {onContinue} />
+      <SuccessPage {onContinue} />
     {/if}
   {/snippet}
 </Template>
