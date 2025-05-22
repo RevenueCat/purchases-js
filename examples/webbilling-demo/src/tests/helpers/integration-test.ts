@@ -38,10 +38,3 @@ integrationTest.beforeEach(async ({ page }) => {
     });
   });
 });
-
-export const skipPaywallsTestIfDisabled = (test: typeof integrationTest) => {
-  test.skip(
-    !ALLOW_PAYWALLS_TESTS,
-    "Paywalls tests are disabled. To enable, set VITE_ALLOW_PAYWALLS_TESTS=true in the environment variables.",
-  );
-};

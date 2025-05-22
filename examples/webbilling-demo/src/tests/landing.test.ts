@@ -4,11 +4,9 @@ import {
   getPaywallPackageCards,
   getPaywallPurchaseButtons,
   navigateToLandingUrl,
-} from "./helpers/test-helpers";
-import {
-  integrationTest,
   skipPaywallsTestIfDisabled,
-} from "./helpers/integration-test";
+} from "./helpers/test-helpers";
+import { integrationTest } from "./helpers/integration-test";
 import { RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES } from "./helpers/fixtures";
 import { RC_PAYWALL_TEST_OFFERING_ID } from "./helpers/fixtures";
 
