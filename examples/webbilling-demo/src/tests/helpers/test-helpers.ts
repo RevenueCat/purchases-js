@@ -233,6 +233,9 @@ export async function clickPayButton(page: Page) {
     "button[data-testid='PayButton']:not([disabled])",
   );
   await button.waitFor();
+  // Tests indeterministically fail here
+  // This timeout helps avoiding that
+  await page.waitForTimeout(1000);
   await button.click();
 }
 
