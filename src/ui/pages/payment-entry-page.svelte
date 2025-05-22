@@ -15,11 +15,7 @@
     PurchaseFlowErrorCode,
     PurchaseOperationHelper,
   } from "../../helpers/purchase-operation-helper";
-  import type {
-    PriceBreakdown,
-    TaxCalculationStatus,
-    TaxCalculationPendingReason,
-  } from "../ui-types";
+  import type { PriceBreakdown, TaxCalculationStatus } from "../ui-types";
   import { type IEventsTracker } from "../../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "../constants";
   import {
@@ -92,7 +88,6 @@
         ? "unavailable"
         : "disabled"),
   );
-  let pendingReason: TaxCalculationPendingReason | null = $state(null);
   let taxAmountInMicros: number | null = $state(null);
   let taxBreakdown: TaxBreakdown[] | null = $state(null);
   let totalExcludingTaxInMicros: number | null = $state(
@@ -108,7 +103,6 @@
       totalAmountInMicros,
       totalExcludingTaxInMicros,
       taxCalculationStatus,
-      pendingReason,
       taxAmountInMicros,
       taxBreakdown,
     },
@@ -196,14 +190,11 @@
               CheckoutCalculateTaxFailedReason.invalid_tax_location
           ) {
             taxCalculationStatus = "pending";
-            pendingReason = null;
           } else {
             taxCalculationStatus = "disabled";
-            pendingReason = null;
           }
         } else {
           taxCalculationStatus = "calculated";
-          pendingReason = null;
         }
 
         taxAmountInMicros = taxCalculation.tax_amount_in_micros;
@@ -288,12 +279,14 @@
    * when multiple tax refresh requests are triggered in quick succession.
    */
   async function refreshTaxes(): Promise<void> {
-    if (selectedPaymentMethod !== "card") return;
-
-    if (!isEmailComplete || !isPaymentInfoComplete) {
+    if (
+      selectedPaymentMethod !== "card" ||
+      !isEmailComplete ||
+      !isPaymentInfoComplete ||
+      processing ||
+      taxCalculationStatus === "disabled"
+    )
       return;
-    }
-    if (processing) return;
 
     if (taxCalculationStatus !== "loading") {
       previousTaxCalculationStatus = taxCalculationStatus;

@@ -1,7 +1,7 @@
 {
   "metadata": {
     "toolPackage": "@microsoft/api-extractor",
-    "toolVersion": "7.50.1",
+    "toolVersion": "7.52.8",
     "schemaVersion": 1011,
     "oldestForwardsCompatibleVersion": 1001,
     "tsdocConfig": {
@@ -5862,6 +5862,68 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "@revenuecat/purchases-js!Purchases#setAttributes:member(1)",
+              "docComment": "/**\n * Sets attributes for the current user. Attributes are useful for storing additional, structured information on a customer that can be used elsewhere in the system. For example, you could store your customer's email address or additional system identifiers through the applicable reserved attributes, or store arbitrary facts like onboarding survey responses, feature usage, or other dimensions as custom attributes.\n *\n * Note: Unlike our mobile SDKs, the web SDK does not cache or retry sending attributes if the request fails. If the request fails, the attributes will not be saved and you will need to retry the operation.\n *\n * @param attributes - A dictionary of attributes to set for the current user.\n *\n * @throws\n *\n * {@link PurchasesError} if there is an error while setting the attributes or if the customer doesn't exist.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "setAttributes(attributes: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n               [key: string | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ReservedCustomerAttribute",
+                  "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute:enum"
+                },
+                {
+                  "kind": "Content",
+                  "text": "]: string | null;\n           }"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<void>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 5,
+                "endIndex": 7
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "attributes",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 4
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "setAttributes"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "@revenuecat/purchases-js!Purchases.setLogLevel:member(1)",
               "docComment": "/**\n * Set the log level. Logs of the given level and below will be printed in the console. Default is `LogLevel.Silent` so no logs will be printed in the console.\n *\n * @param logLevel - LogLevel to set.\n */\n",
               "excerptTokens": [
@@ -5993,7 +6055,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "constructor(\n             errorCode: "
+                  "text": "constructor(\n              errorCode: "
                 },
                 {
                   "kind": "Reference",
@@ -6002,7 +6064,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", \n             message?: "
+                  "text": ", \n              message?: "
                 },
                 {
                   "kind": "Content",
@@ -6010,7 +6072,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", \n             underlyingErrorMessage?: "
+                  "text": ", \n              underlyingErrorMessage?: "
                 },
                 {
                   "kind": "Content",
@@ -6018,7 +6080,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", \n             extra?: "
+                  "text": ", \n              extra?: "
                 },
                 {
                   "kind": "Reference",
@@ -6321,6 +6383,1010 @@
             }
           ],
           "extendsTokenRanges": []
+        },
+        {
+          "kind": "Enum",
+          "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute:enum",
+          "docComment": "/**\n * Enumeration of reserved customer attributes.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare enum ReservedCustomerAttribute "
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "name": "ReservedCustomerAttribute",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.AdGroup:member",
+              "docComment": "/**\n * The ad group of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "AdGroup = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$adGroup\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "AdGroup"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.AdId:member",
+              "docComment": "/**\n * The Ad ID of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "AdId = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$ad\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "AdId"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.AdjustId:member",
+              "docComment": "/**\n * The unique Adjust identifier for the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "AdjustId = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$adjustId\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "AdjustId"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.AirshipChannelId:member",
+              "docComment": "/**\n * The Airship channel ID of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "AirshipChannelId = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$airshipChannelId\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "AirshipChannelId"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.AmazonAdId:member",
+              "docComment": "/**\n * The Amazon Advertising ID of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "AmazonAdId = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$amazonAdId\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "AmazonAdId"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.AmplitudeDeviceId:member",
+              "docComment": "/**\n * The Amplitude device ID of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "AmplitudeDeviceId = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$amplitudeDeviceId\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "AmplitudeDeviceId"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.AmplitudeUserId:member",
+              "docComment": "/**\n * The Amplitude user ID of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "AmplitudeUserId = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$amplitudeUserId\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "AmplitudeUserId"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.AndroidId:member",
+              "docComment": "/**\n * The Android ID of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "AndroidId = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$androidId\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "AndroidId"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.APNSTokens:member",
+              "docComment": "/**\n * Apple push notification tokens for the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "APNSTokens = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$apnsTokens\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "APNSTokens"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.AppleRefundHandlingPreference:member",
+              "docComment": "/**\n * The Apple refund handling preference of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "AppleRefundHandlingPreference = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$appleRefundHandlingPreference\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "AppleRefundHandlingPreference"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.AppsflyerId:member",
+              "docComment": "/**\n * Appsflyer Id. The unique Appsflyer identifier for the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "AppsflyerId = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$appsflyerId\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "AppsflyerId"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.AppsflyerSharingFilter:member",
+              "docComment": "/**\n * The AppsFlyer sharing filter of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "AppsflyerSharingFilter = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$appsflyerSharingFilter\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "AppsflyerSharingFilter"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.ATTConsentStatus:member",
+              "docComment": "/**\n * Apple App Tracking Transparency consent status for the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "ATTConsentStatus = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$attConsentStatus\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "ATTConsentStatus"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.BranchId:member",
+              "docComment": "/**\n * The Branch ID of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "BranchId = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$branchId\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "BranchId"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.BrazeAliasLabel:member",
+              "docComment": "/**\n * The Braze 'alias_label' in User Alias Object.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "BrazeAliasLabel = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$brazeAliasLabel\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "BrazeAliasLabel"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.BrazeAliasName:member",
+              "docComment": "/**\n * The Braze 'alias_name' in User Alias Object.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "BrazeAliasName = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$brazeAliasName\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "BrazeAliasName"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.Campaign:member",
+              "docComment": "/**\n * The campaign of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Campaign = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$campaign\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "Campaign"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.ClevertapId:member",
+              "docComment": "/**\n * The CleverTap ID of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "ClevertapId = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$clevertapId\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "ClevertapId"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.Creative:member",
+              "docComment": "/**\n * The creative of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Creative = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$creative\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "Creative"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.CustomerioId:member",
+              "docComment": "/**\n * The customer.io ID of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "CustomerioId = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$customerioId\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "CustomerioId"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.DeviceVersion:member",
+              "docComment": "/**\n * The device version of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "DeviceVersion = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$deviceVersion\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "DeviceVersion"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.DisplayName:member",
+              "docComment": "/**\n * The display name that should be used to reference the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "DisplayName = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$displayName\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "DisplayName"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.Email:member",
+              "docComment": "/**\n * The email address of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Email = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$email\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "Email"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.FbAnonId:member",
+              "docComment": "/**\n * The Facebook anonymous ID of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "FbAnonId = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$fbAnonId\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "FbAnonId"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.FCMTokens:member",
+              "docComment": "/**\n * Google push notification tokens for the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "FCMTokens = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$fcmTokens\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "FCMTokens"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.FirebaseAppInstanceId:member",
+              "docComment": "/**\n * The Firebase app instance ID of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "FirebaseAppInstanceId = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$firebaseAppInstanceId\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "FirebaseAppInstanceId"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.GPSAdId:member",
+              "docComment": "/**\n * The advertising ID that is provided by Google Play services for the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "GPSAdId = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$gpsAdId\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "GPSAdId"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.IDFA:member",
+              "docComment": "/**\n * iOS advertising identifier UUID for the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "IDFA = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$idfa\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "IDFA"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.IDFV:member",
+              "docComment": "/**\n * iOS vendor identifier UUID for the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "IDFV = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$idfv\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "IDFV"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.IntercomContactId:member",
+              "docComment": "/**\n * The Intercom contact ID of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "IntercomContactId = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$intercomContactId\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "IntercomContactId"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.IP:member",
+              "docComment": "/**\n * The IP address of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "IP = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$ip\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "IP"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.IterableCampaignId:member",
+              "docComment": "/**\n * The Iterable campaign ID of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "IterableCampaignId = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$iterableCampaignId\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "IterableCampaignId"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.IterableTemplateId:member",
+              "docComment": "/**\n * The Iterable template ID of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "IterableTemplateId = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$iterableTemplateId\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "IterableTemplateId"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.IterableUserId:member",
+              "docComment": "/**\n * The Iterable user ID of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "IterableUserId = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$iterableUserId\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "IterableUserId"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.Keyword:member",
+              "docComment": "/**\n * The keyword of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Keyword = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$keyword\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "Keyword"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.KochavaDeviceId:member",
+              "docComment": "/**\n * The unique Kochava device identifier of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "KochavaDeviceId = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$kochavaDeviceId\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "KochavaDeviceId"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.MediaSource:member",
+              "docComment": "/**\n * The media source of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "MediaSource = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$mediaSource\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "MediaSource"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.MixpanelDistinctId:member",
+              "docComment": "/**\n * The Mixpanel distinct ID of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "MixpanelDistinctId = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$mixpanelDistinctId\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "MixpanelDistinctId"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.MparticleId:member",
+              "docComment": "/**\n * The unique mParticle user identifier (mpid).\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "MparticleId = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$mparticleId\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "MparticleId"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.OnesignalId:member",
+              "docComment": "/**\n * The OneSignal Player Id for the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "OnesignalId = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$onesignalId\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "OnesignalId"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.OnesignalUserId:member",
+              "docComment": "/**\n * The OneSignal user ID of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "OnesignalUserId = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$onesignalUserId\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "OnesignalUserId"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.PhoneNumber:member",
+              "docComment": "/**\n * The phone number of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "PhoneNumber = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$phoneNumber\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "PhoneNumber"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.PosthogUserId:member",
+              "docComment": "/**\n * The PostHog user ID of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "PosthogUserId = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$posthogUserId\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "PosthogUserId"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.SegmentId:member",
+              "docComment": "/**\n * The segment ID of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "SegmentId = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$segmentId\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "SegmentId"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.TelemetryDeckAppId:member",
+              "docComment": "/**\n * The Telemetry Deck app ID of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "TelemetryDeckAppId = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$telemetryDeckAppId\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "TelemetryDeckAppId"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.TelemetryDeckUserId:member",
+              "docComment": "/**\n * The Telemetry Deck user ID of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "TelemetryDeckUserId = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$telemetryDeckUserId\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "TelemetryDeckUserId"
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.TenjinId:member",
+              "docComment": "/**\n * The Tenjin ID of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "TenjinId = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$tenjinId\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "TenjinId"
+            }
+          ]
         },
         {
           "kind": "TypeAlias",

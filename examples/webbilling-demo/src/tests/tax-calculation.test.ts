@@ -19,6 +19,9 @@ import {
   confirmPayButtonDisabled,
   confirmPaymentComplete,
   confirmPaymentError,
+  confirmTaxCalculating,
+  confirmTaxCalculation,
+  confirmTaxNotCalculating,
   enterCreditCardDetails,
   enterEmail,
   enterSecurityCode,
@@ -29,6 +32,7 @@ import {
 } from "./helpers/test-helpers";
 
 const TAX_BREAKDOWN_ITEM_SELECTOR = ".rcb-pricing-table-row";
+const TAX_ROUTE_PATH = "**/checkout/*/calculate_taxes";
 
 const navigateToTaxesLandingUrl = (page: Page, userId: string) =>
   navigateToLandingUrl(
@@ -47,6 +51,7 @@ integrationTest.describe("Tax calculation", () => {
       page = await navigateToLandingUrl(page, userId);
       const packageCards = await getPackageCards(page);
       await startPurchaseFlow(packageCards[1]);
+      await confirmTaxNotCalculating(page); // Not very reliable since there is no visual queue when this does not happen
       await expect(page.getByText("Total due today")).toBeVisible();
       await expect(page.getByText("Total excluding tax")).not.toBeVisible();
     },
@@ -59,6 +64,7 @@ integrationTest.describe("Tax calculation", () => {
 
       const packageCards = await getPackageCards(page);
       await startPurchaseFlow(packageCards[0]);
+
       await expect(page.getByText("Total excluding tax")).toBeVisible();
       await expect(page.getByText("Total due today")).toBeVisible();
     },
@@ -73,7 +79,7 @@ integrationTest.describe("Tax calculation", () => {
       await startPurchaseFlow(packageCards[0]);
 
       await expect(page.getByText("Total excluding tax")).toBeVisible();
-      await expect(page.getByText(/Sales Tax - New York/)).not.toBeVisible();
+      await expect(page.getByText(/Sales Tax/)).not.toBeVisible();
       await expect(page.getByText("Total due today")).toBeVisible();
 
       await enterEmail(page, email);
@@ -93,9 +99,8 @@ integrationTest.describe("Tax calculation", () => {
 
       const packageCards = await getPackageCards(page);
       await startPurchaseFlow(packageCards[0]);
-
       await expect(page.getByText("Total excluding tax")).toBeVisible();
-      await expect(page.getByText(/Sales Tax - New York/)).not.toBeVisible();
+      await expect(page.getByText(/Sales Tax/)).not.toBeVisible();
       await expect(page.getByText("Total due today")).toBeVisible();
 
       await enterEmail(page, email);
@@ -104,9 +109,9 @@ integrationTest.describe("Tax calculation", () => {
         "4242 4242 4242 4242",
         NEW_YORK_CUSTOMER_DETAILS,
       );
-
+      await confirmTaxCalculation(page);
       await expect(page.getByText("Total excluding tax")).toBeVisible();
-      await expect(page.getByText(/Sales Tax - New York/)).toBeVisible();
+      await expect(page.getByText(/Sales Tax/)).toBeVisible();
       await expect(page.getByText("Total due today")).toBeVisible();
 
       await clickPayButton(page);
@@ -121,13 +126,14 @@ integrationTest.describe("Tax calculation", () => {
 
       const packageCards = await getPackageCards(page);
       await startPurchaseFlow(packageCards[0]);
+
       await enterEmail(page, email);
       await enterCreditCardDetails(
         page,
         "4242 4242 4242 4242",
         ITALY_CUSTOMER_DETAILS,
       );
-
+      await confirmTaxCalculation(page);
       await expect(page.getByText(/VAT - Italy/)).toBeVisible();
 
       const lines = await page.locator(TAX_BREAKDOWN_ITEM_SELECTOR).all();
@@ -153,7 +159,7 @@ integrationTest.describe("Tax calculation", () => {
       await startPurchaseFlow(targetCard);
 
       await expect(page.getByText("Total excluding tax")).toBeVisible();
-      await expect(page.getByText(/Sales Tax - New York/)).not.toBeVisible();
+      await expect(page.getByText(/Sales Tax/)).not.toBeVisible();
       await expect(page.getByText("Total due today")).toBeVisible();
 
       await enterEmail(page, email);
@@ -163,8 +169,10 @@ integrationTest.describe("Tax calculation", () => {
         FLORIDA_CUSTOMER_DETAILS,
       );
 
+      await confirmTaxCalculation(page);
+
       await expect(page.getByText("Total excluding tax")).not.toBeVisible();
-      await expect(page.getByText(/Sales Tax - New York/)).not.toBeVisible();
+      await expect(page.getByText(/Sales Tax/)).not.toBeVisible();
       await expect(page.getByText("Total due today")).toBeVisible();
     },
   );
@@ -178,7 +186,7 @@ integrationTest.describe("Tax calculation", () => {
       await startPurchaseFlow(packageCards[0]);
 
       await expect(page.getByText("Total excluding tax")).toBeVisible();
-      await expect(page.getByText(/Sales Tax - New York/)).not.toBeVisible();
+      await expect(page.getByText(/Sales Tax/)).not.toBeVisible();
       await expect(page.getByText("Total due today")).toBeVisible();
 
       await enterEmail(page, email);
@@ -188,8 +196,9 @@ integrationTest.describe("Tax calculation", () => {
         INVALID_CUSTOMER_DETAILS,
       );
 
+      await confirmTaxCalculation(page);
       await expect(page.getByText("Total excluding tax")).not.toBeVisible();
-      await expect(page.getByText(/Sales Tax - New York/)).not.toBeVisible();
+      await expect(page.getByText(/Sales Tax/)).not.toBeVisible();
       await expect(page.getByText("Total due today")).toBeVisible();
     },
   );
@@ -199,22 +208,20 @@ integrationTest.describe("Tax calculation", () => {
     async ({ page, userId, email }) => {
       page = await navigateToTaxesLandingUrl(page, userId);
 
-      const taxSkeleton = page.getByTestId("tax-loading-skeleton");
-
       const packageCards = await getPackageCards(page);
       await startPurchaseFlow(packageCards[0]);
 
       await expect(page.getByText("Total excluding tax")).toBeVisible();
       await expect(page.getByText("Total due today")).toBeVisible();
 
-      await page.route("**/calculate_taxes", async (route) => {
+      await page.route(TAX_ROUTE_PATH, async (route) => {
         const body = await route.request().postDataJSON();
         if (body !== null && body["country_code"] === "IT") {
           setTimeout(async () => {
-            route.continue();
+            route.fallback();
           }, 10_000);
         } else {
-          route.continue();
+          route.fallback();
         }
       });
 
@@ -242,7 +249,7 @@ integrationTest.describe("Tax calculation", () => {
         ITALY_CUSTOMER_DETAILS,
       );
 
-      await expect(taxSkeleton).toBeVisible();
+      await confirmTaxCalculating(page);
 
       // Must wait for the request to be started,
       // visual skeleton is not enough to prevent race condition
@@ -256,13 +263,21 @@ integrationTest.describe("Tax calculation", () => {
         NEW_YORK_CUSTOMER_DETAILS,
       );
 
-      await expect(taxSkeleton).toBeVisible();
+      await confirmTaxCalculation(page);
 
       // Must wait for the request to be started,
       // visual skeleton is not enough to prevent race condition
       await newYorkTaxCalculationRequestPromise;
 
-      expect(italyTaxCalculationRequest?.failure()).toBe("NS_BINDING_ABORTED");
+      const errorText =
+        italyTaxCalculationRequest?.failure()?.["errorText"] ?? "";
+
+      expect([
+        "Load request cancelled",
+        "NS_BINDING_ABORTED",
+        "net::ERR_ABORTED",
+        "cancelled",
+      ]).toContain(errorText);
 
       await expect(page.getByText(/Sales Tax - New York/)).toBeVisible();
     },
@@ -285,16 +300,13 @@ integrationTest.describe("Tax calculation", () => {
         "4242 4242 4242 4242",
         ITALY_CUSTOMER_DETAILS,
       );
-      const skeleton = page.getByTestId("tax-loading-skeleton");
-      await expect(skeleton).not.toBeVisible();
 
       await confirmPayButtonDisabled(page);
+      await confirmTaxNotCalculating(page);
+      await expect(page.getByText(/VAT - Spain/)).toBeVisible();
 
-      const taxCalculationPromise = page.waitForRequest("**/calculate_taxes");
       await enterEmail(page, email);
-      await taxCalculationPromise;
-
-      await expect(skeleton).toBeVisible();
+      await confirmTaxCalculation(page);
       await expect(page.getByText(/VAT - Italy/)).toBeVisible();
     },
   );
@@ -312,7 +324,7 @@ integrationTest.describe("Tax calculation", () => {
       await expect(page.getByText("Total due today")).toBeVisible();
 
       let calculateTaxesCount = 0;
-      await page.route("**/calculate_taxes", async (route) => {
+      await page.route(TAX_ROUTE_PATH, async (route) => {
         calculateTaxesCount++;
         await route.continue();
       });
@@ -322,11 +334,9 @@ integrationTest.describe("Tax calculation", () => {
         "4242 4242 4242 4242",
         ITALY_CUSTOMER_DETAILS,
       );
-      const skeleton = page.getByTestId("tax-loading-skeleton");
-      await expect(skeleton).not.toBeVisible();
 
       await confirmPayButtonDisabled(page);
-
+      await confirmTaxNotCalculating(page);
       await expect(calculateTaxesCount).toBe(0);
 
       // Remove the last digit of the card number
@@ -338,17 +348,20 @@ integrationTest.describe("Tax calculation", () => {
 
       await enterEmail(page, email);
 
+      await confirmPayButtonDisabled(page);
+      await confirmTaxNotCalculating(page);
       await expect(calculateTaxesCount).toBe(0);
       await expect(page.getByText(/VAT - Italy/)).not.toBeVisible();
 
+      // Fix the card number
       await enterCreditCardDetails(
         page,
         "4242 4242 4242 4242",
         ITALY_CUSTOMER_DETAILS,
       );
 
+      await confirmTaxCalculation(page);
       await expect(page.getByText(/VAT - Italy/)).toBeVisible();
-
       await expect(calculateTaxesCount).toBe(1);
     },
   );
@@ -364,7 +377,7 @@ integrationTest.describe("Tax calculation", () => {
       await expect(page.getByText("Total excluding tax")).toBeVisible();
 
       let calculateTaxesCount = 0;
-      await page.route("**/calculate_taxes", async (route) => {
+      await page.route(TAX_ROUTE_PATH, async (route) => {
         calculateTaxesCount++;
         await route.continue();
       });
@@ -375,8 +388,9 @@ integrationTest.describe("Tax calculation", () => {
         "4242 4242 4242 4242",
         TEXAS_CUSTOMER_DETAILS,
       );
-      await expect(page.getByText(/Sales Tax - Texas/)).toBeVisible();
 
+      await confirmTaxCalculation(page);
+      await expect(page.getByText(/Sales Tax - Texas/)).toBeVisible();
       await expect(calculateTaxesCount).toBe(1);
 
       await enterCreditCardDetails(
@@ -386,8 +400,8 @@ integrationTest.describe("Tax calculation", () => {
       );
 
       // A tax calculation is not performed because the system cannot detect a change in the billing address
+      await confirmTaxNotCalculating(page);
       await expect(page.getByText(/VAT - Italy/)).not.toBeVisible();
-
       await expect(calculateTaxesCount).toBe(1);
 
       await clickPayButton(page);
@@ -413,7 +427,7 @@ integrationTest.describe("Tax calculation", () => {
       await expect(page.getByText("Total excluding tax")).toBeVisible();
 
       let calculateTaxesCount = 0;
-      await page.route("**/calculate_taxes", async (route) => {
+      await page.route(TAX_ROUTE_PATH, async (route) => {
         calculateTaxesCount++;
         await route.continue();
       });
@@ -425,8 +439,8 @@ integrationTest.describe("Tax calculation", () => {
         ITALY_CUSTOMER_DETAILS,
       );
 
+      await confirmTaxCalculation(page);
       await expect(page.getByText(/VAT - Italy/)).toBeVisible();
-
       await expect(calculateTaxesCount).toBe(1);
 
       await enterCreditCardDetails(
@@ -435,8 +449,8 @@ integrationTest.describe("Tax calculation", () => {
         SPAIN_CUSTOMER_DETAILS,
       );
 
+      await confirmTaxNotCalculating(page);
       await expect(page.getByText(/VAT - Spain/)).not.toBeVisible();
-
       await expect(calculateTaxesCount).toBe(1);
 
       await clickPayButton(page);
@@ -452,45 +466,42 @@ integrationTest.describe("Tax calculation", () => {
   );
 
   integrationTest("Stripe tax not active", async ({ page, userId }) => {
-    page = await navigateToTaxesLandingUrl(page, userId);
-
-    page.route("*/**/checkout/*/calculate_taxes", async (route) => {
+    await page.route(TAX_ROUTE_PATH, async (route) => {
       await route.fulfill({
         body: '{ "code": 7898, "message": "Stripe account setup error: Stripe Tax must be active to calculate taxes."}',
         status: 422,
       });
     });
 
+    page = await navigateToTaxesLandingUrl(page, userId);
     const packageCards = await getPackageCards(page);
     await startPurchaseFlow(packageCards[0]);
     await confirmPaymentError(page, "Stripe Tax not active");
   });
 
   integrationTest("Invalid tax origin address", async ({ page, userId }) => {
-    page = await navigateToTaxesLandingUrl(page, userId);
-
-    page.route("*/**/checkout/*/calculate_taxes", async (route) => {
+    await page.route(TAX_ROUTE_PATH, async (route) => {
       await route.fulfill({
         body: '{ "code": 7899, "message": "Stripe account setup error: Origin address for Stripe Tax is missing or invalid."}',
         status: 422,
       });
     });
 
+    page = await navigateToTaxesLandingUrl(page, userId);
     const packageCards = await getPackageCards(page);
     await startPurchaseFlow(packageCards[0]);
     await confirmPaymentError(page, /Invalid tax origin address/);
   });
 
   integrationTest("Missing Stripe permission", async ({ page, userId }) => {
-    page = await navigateToTaxesLandingUrl(page, userId);
-
-    page.route("*/**/checkout/*/calculate_taxes", async (route) => {
+    await page.route(TAX_ROUTE_PATH, async (route) => {
       await route.fulfill({
         body: '{ "code": 7900, "message": "Stripe account setup error: Required permission is missing."}',
         status: 422,
       });
     });
 
+    page = await navigateToTaxesLandingUrl(page, userId);
     const packageCards = await getPackageCards(page);
     await startPurchaseFlow(packageCards[0]);
     await confirmPaymentError(page, "Missing Stripe permission");

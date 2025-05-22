@@ -65,6 +65,7 @@ import { autoParseUTMParams } from "./helpers/utm-params";
 import { defaultFlagsConfig, type FlagsConfig } from "./entities/flags-config";
 import { generateUUID } from "./helpers/uuid-helper";
 import type { PlatformInfo } from "./entities/platform-info";
+import type { ReservedCustomerAttribute } from "./entities/attributes";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -82,6 +83,7 @@ export type {
   PricingPhase,
 } from "./entities/offerings";
 export { PackageType } from "./entities/offerings";
+export { ReservedCustomerAttribute } from "./entities/attributes";
 export type { CustomerInfo } from "./entities/customer-info";
 export type {
   EntitlementInfos,
@@ -719,6 +721,29 @@ export class Purchases {
    */
   public getAppUserId(): string {
     return this._appUserId;
+  }
+
+  /**
+   * Sets attributes for the current user. Attributes are useful for storing additional, structured information on a customer that can be used elsewhere in the system.
+   * For example, you could store your customer's email address or additional system identifiers through the applicable reserved attributes, or store arbitrary facts like onboarding survey responses, feature usage, or other dimensions as custom attributes.
+   *
+   * Note: Unlike our mobile SDKs, the web SDK does not cache or retry sending attributes if the request fails. If the request fails, the attributes will not be saved and you will need to retry the operation.
+   *
+   * @param attributes - A dictionary of attributes to set for the current user.
+   * @throws {@link PurchasesError} if there is an error while setting the attributes or if the customer doesn't exist.
+   */
+  public async setAttributes(attributes: {
+    [key: string | ReservedCustomerAttribute]: string | null;
+  }): Promise<void> {
+    /*
+     * Ensure the customer exists by calling getCustomerInfo as setAttributes will throw an error
+     * if the customer doesn't exist.
+     *
+     * Note: We may want to optimize this in the future by prefetching customer info during SDK initialization.
+     */
+    await this.getCustomerInfo();
+
+    return await this.backend.setAttributes(this._appUserId, attributes);
   }
 
   /**
