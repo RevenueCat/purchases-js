@@ -83,6 +83,11 @@
   let operationSessionId: string | null = $state(null);
   let gatewayParams: GatewayParams = $state({});
 
+  // For storing original styles
+  let originalHtmlHeight: string | null = $state(null);
+  let originalHtmlOverflow: string | null = $state(null);
+  let originalBodyHeight: string | null = $state(null);
+
   // Setting the context for the Localized components
   let translator: Translator = new Translator(
     customTranslations,
@@ -94,6 +99,12 @@
 
   onMount(() => {
     if (!isInElement) {
+      // Save original styles
+      originalHtmlHeight = document.documentElement.style.height;
+      originalHtmlOverflow = document.documentElement.style.overflow;
+      originalBodyHeight = document.body.style.height;
+      
+      // Apply new styles
       document.documentElement.style.height = "100%";
       document.body.style.height = "100%";
       document.documentElement.style.overflow = "hidden";
@@ -102,9 +113,14 @@
 
   onDestroy(() => {
     if (!isInElement) {
-      document.documentElement.style.height = "auto";
-      document.body.style.height = "auto";
-      document.documentElement.style.overflow = "auto";
+      // Restore original styles
+      const restoreStyle = (element, property, value) => {
+        value === "" ? element.style.removeProperty(property) : element.style[property] = value;
+      };
+      
+      restoreStyle(document.documentElement, "height", originalHtmlHeight);
+      restoreStyle(document.body, "height", originalBodyHeight);
+      restoreStyle(document.documentElement, "overflow", originalHtmlOverflow);
     }
   });
 
