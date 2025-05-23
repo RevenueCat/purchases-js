@@ -83,7 +83,6 @@
   let operationSessionId: string | null = $state(null);
   let gatewayParams: GatewayParams = $state({});
 
-  // For storing original styles
   let originalHtmlHeight: string | null = $state(null);
   let originalHtmlOverflow: string | null = $state(null);
   let originalBodyHeight: string | null = $state(null);
@@ -99,12 +98,10 @@
 
   onMount(() => {
     if (!isInElement) {
-      // Save original styles
       originalHtmlHeight = document.documentElement.style.height;
       originalHtmlOverflow = document.documentElement.style.overflow;
       originalBodyHeight = document.body.style.height;
 
-      // Apply new styles
       document.documentElement.style.height = "100%";
       document.body.style.height = "100%";
       document.documentElement.style.overflow = "hidden";
@@ -113,11 +110,14 @@
 
   onDestroy(() => {
     if (!isInElement) {
-      // Restore original styles
-      const restoreStyle = (element, property, value) => {
+      const restoreStyle = (
+        element: HTMLElement,
+        property: string,
+        value: string | null,
+      ) => {
         value === ""
           ? element.style.removeProperty(property)
-          : (element.style[property] = value);
+          : element.style.setProperty(property, value);
       };
 
       restoreStyle(document.documentElement, "height", originalHtmlHeight);

@@ -100,4 +100,25 @@ describe("PurchasesUI", () => {
 
     expect(calculateTaxSpy).not.toHaveBeenCalled();
   });
+
+  test("restores original styles when the component is unmounted", async () => {
+    const { unmount } = render(PurchasesUI, {
+      props: {
+        ...basicProps,
+      },
+    });
+
+    const htmlElement = document.documentElement;
+    const bodyElement = document.body;
+
+    expect(htmlElement.style.height).toBe("100%");
+    expect(htmlElement.style.overflow).toBe("hidden");
+    expect(bodyElement.style.height).toBe("100%");
+
+    unmount();
+
+    expect(htmlElement.style.height).toBe("");
+    expect(htmlElement.style.overflow).toBe("");
+    expect(bodyElement.style.height).toBe("");
+  });
 });
