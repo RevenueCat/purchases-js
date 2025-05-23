@@ -103,7 +103,7 @@
       originalHtmlHeight = document.documentElement.style.height;
       originalHtmlOverflow = document.documentElement.style.overflow;
       originalBodyHeight = document.body.style.height;
-      
+
       // Apply new styles
       document.documentElement.style.height = "100%";
       document.body.style.height = "100%";
@@ -115,9 +115,11 @@
     if (!isInElement) {
       // Restore original styles
       const restoreStyle = (element, property, value) => {
-        value === "" ? element.style.removeProperty(property) : element.style[property] = value;
+        value === ""
+          ? element.style.removeProperty(property)
+          : (element.style[property] = value);
       };
-      
+
       restoreStyle(document.documentElement, "height", originalHtmlHeight);
       restoreStyle(document.body, "height", originalBodyHeight);
       restoreStyle(document.documentElement, "overflow", originalHtmlOverflow);
