@@ -6,6 +6,7 @@ import {
   getRequestHandlers,
 } from "./test-responses";
 import { afterAll, beforeAll, beforeEach } from "vitest";
+import { defaultHttpConfig } from "../entities/http-config";
 
 export const testApiKey = "rcb_test_api_key";
 export const testUserId = "someAppUserId";
@@ -19,6 +20,7 @@ beforeAll(() => {
 beforeEach(() => {
   APIGetRequest.mockReset();
   APIPostRequest.mockReset();
+  server.resetHandlers();
   if (Purchases.isConfigured()) {
     Purchases.getSharedInstance().close();
   }
@@ -27,5 +29,7 @@ beforeEach(() => {
 afterAll(() => server.close());
 
 export function configurePurchases(appUserId: string = testUserId): Purchases {
-  return Purchases.configure(testApiKey, appUserId);
+  return Purchases.configure(testApiKey, appUserId, defaultHttpConfig, {
+    rcSource: "rcSource",
+  });
 }

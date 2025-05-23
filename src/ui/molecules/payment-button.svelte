@@ -18,35 +18,13 @@
     selectedPaymentMethod?: string;
   };
 
-  const {
-    disabled,
-    subscriptionOption,
-    priceBreakdown,
-    selectedPaymentMethod,
-  }: Props = $props();
+  const { disabled, subscriptionOption, priceBreakdown }: Props = $props();
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
 
   const brandingAppearanceStore =
     getContext<Writable<BrandingAppearance>>(brandingContextKey);
   const brandingAppearance = $derived($brandingAppearanceStore);
-
-  function paymentMethodDisplayName(
-    method: string | undefined,
-  ): string | undefined {
-    switch (method) {
-      case "google_pay":
-        return "Google Pay";
-      case "apple_pay":
-        return "Apple Pay";
-      default:
-        return undefined;
-    }
-  }
-
-  const paymentMethod = $derived(
-    paymentMethodDisplayName(selectedPaymentMethod),
-  );
 
   const formattedPrice = $derived(
     priceBreakdown
@@ -56,15 +34,21 @@
         )
       : null,
   );
+
+  const trialPeriod = subscriptionOption?.trial?.period;
+
+  const trialPeriodLabel = $derived(
+    trialPeriod
+      ? $translator.translatePeriod(trialPeriod.number, trialPeriod.unit)
+      : null,
+  );
 </script>
 
 <Button {disabled} testId="PayButton" {brandingAppearance}>
   {#if subscriptionOption?.trial}
-    <Localized key={LocalizationKeys.PaymentEntryPageButtonStartTrial} />
-  {:else if formattedPrice && paymentMethod}
     <Localized
-      key={LocalizationKeys.PaymentEntryPageButtonPaymentMethod}
-      variables={{ formattedPrice, paymentMethod }}
+      key={LocalizationKeys.PaymentEntryPageButtonStartTrial}
+      variables={{ trialPeriodLabel }}
     />
   {:else if formattedPrice}
     <Localized

@@ -1,6 +1,9 @@
 import type { Offering, Package } from "@revenuecat/purchases-js";
-import { PurchasesError } from "@revenuecat/purchases-js";
-import React from "react";
+import {
+  PurchasesError,
+  ReservedCustomerAttribute,
+} from "@revenuecat/purchases-js";
+import React, { useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { usePurchasesLoaderData } from "../../util/PurchasesLoader";
 import Button from "../../components/Button";
@@ -95,6 +98,36 @@ const PaywallPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const lang = searchParams.get("lang");
   const email = searchParams.get("email");
+  const displayName = searchParams.get("$displayName");
+  const nickname = searchParams.get("nickname");
+  const attributesSetRef = useRef(false);
+
+  useEffect(() => {
+    const setAttributes = async () => {
+      if (attributesSetRef.current) return;
+
+      const attributes: { [key: string]: string } = {};
+      if (displayName) {
+        attributes[ReservedCustomerAttribute.DisplayName] = displayName;
+      }
+      if (nickname) {
+        attributes["nickname"] = nickname;
+      }
+
+      if (Object.keys(attributes).length > 0) {
+        try {
+          attributesSetRef.current = true;
+          await purchases.setAttributes(attributes);
+        } catch (error) {
+          attributesSetRef.current = false;
+          console.error("Error setting attributes:", error);
+        }
+      }
+    };
+
+    setAttributes();
+  }, [purchases, displayName, nickname]);
+
   if (!offering) {
     console.error("No offering found");
     return <>No offering found!</>;
@@ -119,6 +152,13 @@ const PaywallPage: React.FC = () => {
         purchaseOption: option,
         selectedLocale: lang || navigator.language,
         customerEmail: email || undefined,
+        // @ts-expect-error This method is marked as internal for now but it's public.'
+        labelsOverride: {
+          en: {
+            "payment_entry_page.button_start_trial":
+              "Start {{trialPeriodLabel}} free",
+          },
+        },
       });
 
       console.log(`CustomerInfo after purchase: ${customerInfo}`);

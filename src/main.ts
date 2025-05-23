@@ -65,6 +65,7 @@ import { autoParseUTMParams } from "./helpers/utm-params";
 import { defaultFlagsConfig, type FlagsConfig } from "./entities/flags-config";
 import { generateUUID } from "./helpers/uuid-helper";
 import type { PlatformInfo } from "./entities/platform-info";
+import type { ReservedCustomerAttribute } from "./entities/attributes";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -82,6 +83,7 @@ export type {
   PricingPhase,
 } from "./entities/offerings";
 export { PackageType } from "./entities/offerings";
+export { ReservedCustomerAttribute } from "./entities/attributes";
 export type { CustomerInfo } from "./entities/customer-info";
 export type {
   EntitlementInfos,
@@ -286,6 +288,7 @@ export class Purchases {
       apiKey: this._API_KEY,
       appUserId: this._appUserId,
       silent: !this._flags.collectAnalyticsEvents,
+      rcSource: this._flags.rcSource ?? null,
     });
     this.backend = new Backend(this._API_KEY, httpConfig);
     this.purchaseOperationHelper = new PurchaseOperationHelper(
@@ -619,23 +622,26 @@ export class Purchases {
         window.history.pushState({ checkoutOpen: true }, "");
       }
 
-      const onClose = () => {
-        const event = createCheckoutSessionEndClosedEvent();
-        this.eventsTracker.trackSDKEvent(event);
-        window.removeEventListener("popstate", onClose);
+      const onClose =
+        this._flags.rcSource === "app"
+          ? undefined
+          : () => {
+              const event = createCheckoutSessionEndClosedEvent();
+              this.eventsTracker.trackSDKEvent(event);
+              window.removeEventListener("popstate", onClose as EventListener);
 
-        if (component) {
-          unmount(component);
-        }
+              if (component) {
+                unmount(component);
+              }
 
-        certainHTMLTarget.innerHTML = "";
+              certainHTMLTarget.innerHTML = "";
 
-        Logger.debugLog("Purchase cancelled by user");
-        reject(new PurchasesError(ErrorCode.UserCancelledError));
-      };
+              Logger.debugLog("Purchase cancelled by user");
+              reject(new PurchasesError(ErrorCode.UserCancelledError));
+            };
 
-      if (!isInElement) {
-        window.addEventListener("popstate", onClose);
+      if (!isInElement && onClose) {
+        window.addEventListener("popstate", onClose as EventListener);
       }
 
       const onFinished = async (
@@ -695,6 +701,7 @@ export class Purchases {
           selectedLocale: localeToBeUsed,
           metadata: metadata,
           defaultLocale,
+          customTranslations: params.labelsOverride,
         },
       });
     });
@@ -714,6 +721,29 @@ export class Purchases {
    */
   public getAppUserId(): string {
     return this._appUserId;
+  }
+
+  /**
+   * Sets attributes for the current user. Attributes are useful for storing additional, structured information on a customer that can be used elsewhere in the system.
+   * For example, you could store your customer's email address or additional system identifiers through the applicable reserved attributes, or store arbitrary facts like onboarding survey responses, feature usage, or other dimensions as custom attributes.
+   *
+   * Note: Unlike our mobile SDKs, the web SDK does not cache or retry sending attributes if the request fails. If the request fails, the attributes will not be saved and you will need to retry the operation.
+   *
+   * @param attributes - A dictionary of attributes to set for the current user.
+   * @throws {@link PurchasesError} if there is an error while setting the attributes or if the customer doesn't exist.
+   */
+  public async setAttributes(attributes: {
+    [key: string | ReservedCustomerAttribute]: string | null;
+  }): Promise<void> {
+    /*
+     * Ensure the customer exists by calling getCustomerInfo as setAttributes will throw an error
+     * if the customer doesn't exist.
+     *
+     * Note: We may want to optimize this in the future by prefetching customer info during SDK initialization.
+     */
+    await this.getCustomerInfo();
+
+    return await this.backend.setAttributes(this._appUserId, attributes);
   }
 
   /**

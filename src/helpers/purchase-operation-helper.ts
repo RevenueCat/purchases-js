@@ -33,6 +33,9 @@ export enum PurchaseFlowErrorCode {
   NetworkError = 3,
   MissingEmailError = 4,
   AlreadyPurchasedError = 5,
+  StripeTaxNotActive = 6,
+  StripeInvalidTaxOriginAddress = 7,
+  StripeMissingRequiredPermission = 8,
 }
 
 export class PurchaseFlowError extends Error {
@@ -44,19 +47,6 @@ export class PurchaseFlowError extends Error {
     public readonly extra?: PurchasesErrorExtra,
   ) {
     super(message);
-  }
-
-  isRecoverable(): boolean {
-    switch (this.errorCode) {
-      case PurchaseFlowErrorCode.NetworkError:
-      case PurchaseFlowErrorCode.MissingEmailError:
-        return true;
-      case PurchaseFlowErrorCode.ErrorSettingUpPurchase:
-      case PurchaseFlowErrorCode.ErrorChargingPayment:
-      case PurchaseFlowErrorCode.AlreadyPurchasedError:
-      case PurchaseFlowErrorCode.UnknownError:
-        return false;
-    }
   }
 
   getErrorCode(): number {
@@ -77,7 +67,9 @@ export class PurchaseFlowError extends Error {
     } else if (e.errorCode === ErrorCode.NetworkError) {
       errorCode = PurchaseFlowErrorCode.NetworkError;
     } else {
-      errorCode = defaultFlowErrorCode;
+      errorCode =
+        PurchaseFlowError.fromBackendErrorCode(e.extra?.backendErrorCode) ??
+        defaultFlowErrorCode;
     }
 
     return new PurchaseFlowError(
@@ -88,6 +80,21 @@ export class PurchaseFlowError extends Error {
       e.extra,
     );
   }
+
+  static fromBackendErrorCode(
+    backendErrorCode: BackendErrorCode | undefined,
+  ): PurchaseFlowErrorCode | null {
+    switch (backendErrorCode) {
+      case BackendErrorCode.BackendGatewaySetupErrorStripeTaxNotActive:
+        return PurchaseFlowErrorCode.StripeTaxNotActive;
+      case BackendErrorCode.BackendGatewaySetupErrorInvalidTaxOriginAddress:
+        return PurchaseFlowErrorCode.StripeInvalidTaxOriginAddress;
+      case BackendErrorCode.BackendGatewaySetupErrorMissingRequiredPermission:
+        return PurchaseFlowErrorCode.StripeMissingRequiredPermission;
+      default:
+        return null;
+    }
+  }
 }
 
 export enum TaxCalculationError {
@@ -95,16 +102,6 @@ export enum TaxCalculationError {
   InvalidLocation = "invalid_location",
   Disabled = "disabled",
 }
-
-export type TaxCalculationResult =
-  | {
-      error: TaxCalculationError;
-      data?: CheckoutCalculateTaxResponse;
-    }
-  | {
-      error?: TaxCalculationError;
-      data: CheckoutCalculateTaxResponse;
-    };
 
 export class PurchaseOperationHelper {
   private operationSessionId: string | null = null;
@@ -166,7 +163,8 @@ export class PurchaseOperationHelper {
   async checkoutCalculateTax(
     countryCode?: string,
     postalCode?: string,
-  ): Promise<TaxCalculationResult> {
+    signal?: AbortSignal | null,
+  ): Promise<CheckoutCalculateTaxResponse> {
     const operationSessionId = this.operationSessionId;
     if (!operationSessionId) {
       throw new PurchaseFlowError(
@@ -176,48 +174,18 @@ export class PurchaseOperationHelper {
     }
 
     try {
-      const checkoutCalculateTaxResponse =
-        await this.backend.postCheckoutCalculateTax(
-          operationSessionId,
-          countryCode,
-          postalCode,
-        );
-
-      return {
-        error: undefined,
-        data: checkoutCalculateTaxResponse,
-      };
+      return await this.backend.postCheckoutCalculateTax(
+        operationSessionId,
+        countryCode,
+        postalCode,
+        signal,
+      );
     } catch (error) {
       if (error instanceof PurchasesError) {
-        const backendErrorCode = error.extra?.backendErrorCode;
-        let calculationError: TaxCalculationError;
-        if (
-          backendErrorCode ===
-          BackendErrorCode.BackendTaxLocationCannotBeDetermined
-        ) {
-          calculationError = TaxCalculationError.Pending;
-        } else if (
-          backendErrorCode === BackendErrorCode.BackendInvalidTaxLocation
-        ) {
-          calculationError = TaxCalculationError.InvalidLocation;
-        } else if (
-          backendErrorCode ===
-            BackendErrorCode.BackendTaxCollectionNotEnabled ||
-          (!this.backend.getIsSandbox() &&
-            backendErrorCode &&
-            backendErrorCode !==
-              BackendErrorCode.BackendGatewaySetupErrorSandboxModeOnly)
-        ) {
-          calculationError = TaxCalculationError.Disabled;
-        } else {
-          throw PurchaseFlowError.fromPurchasesError(
-            error,
-            PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-          );
-        }
-        return {
-          error: calculationError,
-        };
+        throw PurchaseFlowError.fromPurchasesError(
+          error,
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        );
       } else {
         const errorMessage = "Unknown error calculating tax: " + String(error);
         Logger.errorLog(errorMessage);

@@ -164,7 +164,6 @@
 
   const handleContinue = () => {
     if (currentPage === "payment-entry") {
-      currentPage = "payment-entry-processing";
       purchaseOperationHelper
         .pollCurrentPurchaseForCompletion()
         .then((pollResult) => {

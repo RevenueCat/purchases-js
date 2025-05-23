@@ -57,7 +57,6 @@
       totalAmountInMicros: productDetails.currentPrice.amountMicros,
       totalExcludingTaxInMicros: productDetails.currentPrice.amountMicros,
       taxCalculationStatus: "unavailable",
-      pendingReason: null,
       taxAmountInMicros: null,
       taxBreakdown: null,
     },
@@ -70,7 +69,11 @@
 
 <Template {brandingInfo} {isInElement} {isSandbox} {onClose}>
   {#snippet navbarHeaderContent()}
-    <BrandingHeader {brandingInfo} {onClose} showCloseButton={!isInElement} />
+    <BrandingHeader
+      {brandingInfo}
+      {onClose}
+      showCloseButton={!isInElement && !!onClose}
+    />
   {/snippet}
   {#snippet navbarBodyContent()}
     <ProductInfo
@@ -85,9 +88,8 @@
     {#if currentPage === "payment-entry-loading"}
       <LoadingPage />
     {/if}
-    {#if currentPage === "payment-entry" || currentPage === "payment-entry-processing"}
+    {#if currentPage === "payment-entry"}
       <PaymentEntryPage
-        processing={currentPage === "payment-entry-processing"}
         {productDetails}
         purchaseOption={purchaseOptionToUse}
         {brandingInfo}
@@ -107,10 +109,11 @@
         {productDetails}
         supportEmail={brandingInfo?.support_email ?? null}
         onDismiss={closeWithError}
+        appName={brandingInfo?.app_name ?? null}
       />
     {/if}
     {#if currentPage === "success"}
-      <SuccessPage {productDetails} {onContinue} />
+      <SuccessPage {onContinue} />
     {/if}
   {/snippet}
 </Template>

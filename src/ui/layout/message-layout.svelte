@@ -2,8 +2,8 @@
   import { Button } from "@revenuecat/purchases-ui-js";
   import ModalFooter from "./modal-footer.svelte";
   import ModalSection from "./modal-section.svelte";
-  import RowLayout from "./row-layout.svelte";
-  import Typography from "../atoms/typography.svelte";
+  import MessageLayoutError from "./message-layout-error.svelte";
+  import MessageLayoutSuccess from "./message-layout-success.svelte";
   import { getContext } from "svelte";
   import { brandingContextKey } from "../constants";
   import type { BrandingAppearance } from "../../entities/branding";
@@ -29,29 +29,13 @@
 
 <div class="message-layout">
   <div class="message-layout-content">
-    <RowLayout gap="large">
-      <ModalSection>
-        <div
-          class="rcb-modal-message"
-          data-type={type}
-          data-has-title={!!title}
-        >
-          <RowLayout gap="large" align="center">
-            <RowLayout gap="large" align="center">
-              {#if icon}
-                {@render icon()}
-              {/if}
-              {#if title}
-                <Typography size="heading-lg">{title}</Typography>
-              {/if}
-              {#if message}
-                <Typography size="body-base">{@render message?.()}</Typography>
-              {/if}
-            </RowLayout>
-          </RowLayout>
-        </div>
-      </ModalSection>
-    </RowLayout>
+    <ModalSection>
+      {#if type === "success"}
+        <MessageLayoutSuccess {title} {icon} />
+      {:else}
+        <MessageLayoutError {title} {icon} {message} />
+      {/if}
+    </ModalSection>
   </div>
   <div class="message-layout-footer">
     <ModalFooter>
@@ -75,40 +59,21 @@
     justify-content: center;
   }
 
-  .rcb-modal-message {
-    width: 100%;
-    min-height: 160px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .rcb-modal-message[data-has-title="false"] {
-    margin-top: var(--rc-spacing-gapXXLarge-mobile);
-  }
-
   @container layout-query-container (width < 768px) {
     .message-layout {
       flex-grow: 1;
+      gap: var(--rc-spacing-gapXXLarge-mobile);
     }
   }
 
   @container layout-query-container (width >= 768px) {
     .message-layout {
-      min-height: 440px;
+      min-height: 354px;
+      gap: var(--rc-spacing-gapXXLarge-desktop);
     }
     .message-layout-content {
       justify-content: flex-start;
       flex-grow: 1;
-    }
-
-    .message-layout-footer {
-      margin-top: var(--rc-spacing-gapXXLarge-desktop);
-    }
-    .rcb-modal-message[data-has-title="false"] {
-      margin-top: var(--rc-spacing-gapXXLarge-desktop);
     }
   }
 </style>

@@ -110,6 +110,11 @@ export class StripeService {
     let elements: StripeElements;
     try {
       elements = stripe.elements({
+        mode: elementsConfiguration.mode,
+        paymentMethodTypes: elementsConfiguration.payment_method_types,
+        setupFutureUsage: elementsConfiguration.setup_future_usage,
+        amount: elementsConfiguration.amount,
+        currency: elementsConfiguration.currency,
         loader: "always",
         locale: localeToUse,
         appearance: {
@@ -117,7 +122,6 @@ export class StripeService {
           labels: "floating",
           variables: {
             borderRadius: customShape["input-border-radius"],
-            fontLineHeight: "10px",
             focusBoxShadow: "none",
             colorDanger: customColors["error"],
             colorTextPlaceholder: customColors["grey-text-light"],
@@ -151,49 +155,12 @@ export class StripeService {
             ".Input--invalid": {
               boxShadow: "none",
             },
-            ".TermsText": {
-              fontSize: textStyles.captionDefault[viewport].fontSize,
-              lineHeight: textStyles.captionDefault[viewport].lineHeight,
-            },
-            ".Tab": {
-              boxShadow: "none",
-              backgroundColor: "transparent",
-              color: customColors["grey-text-light"],
-              border: `1px solid ${customColors["grey-ui-dark"]}`,
-            },
-            ".Tab:hover, .Tab:focus, .Tab--selected, .Tab--selected:hover, .Tab--selected:focus":
-              {
-                boxShadow: "none",
-                color: customColors["grey-text-dark"],
-              },
-            ".Tab:focus, .Tab--selected, .Tab--selected:hover, .Tab--selected:focus":
-              {
-                border: `1px solid ${customColors["focus"]}`,
-              },
-            ".TabIcon": {
-              fill: customColors["grey-text-light"],
-            },
-            ".TabIcon--selected": {
-              fill: customColors["grey-text-dark"],
-            },
-            ".Block": {
-              boxShadow: "none",
-              backgroundColor: "transparent",
-              border: `1px solid ${customColors["grey-ui-dark"]}`,
-            },
           },
         },
       });
     } catch (error) {
       throw this.mapInitializationError(error as StripeError);
     }
-
-    await this.updateElementsConfiguration(
-      elements,
-      elementsConfiguration,
-    ).catch((error) => {
-      throw this.mapInitializationError(error);
-    });
 
     return { stripe, elements };
   }
@@ -245,6 +212,10 @@ export class StripeService {
         usBankAccount: "never",
       },
     });
+  }
+
+  static createExpressCheckoutElement(elements: StripeElements) {
+    return elements.create("expressCheckout", {});
   }
 
   static createLinkAuthenticationElement(

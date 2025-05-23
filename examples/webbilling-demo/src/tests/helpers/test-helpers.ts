@@ -3,9 +3,19 @@ import { BASE_URL, NON_TAX_TEST_API_KEY } from "./fixtures";
 
 export const CARD_SELECTOR = "div.card";
 export const PACKAGE_SELECTOR = "button.rc-pw-package";
+export const TAX_SKELETON_SELECTOR = "div[data-testid='tax-loading-skeleton']";
+
+function getRandomHash(length: number = 6): string {
+  const characters = "abcdefghijklmnopqrstuvwxyz0123456789";
+  return Array.from({ length }, () =>
+    characters.charAt(Math.floor(Math.random() * characters.length)),
+  ).join("");
+}
 
 export function getUserId(browserName: string) {
-  return `rc_billing_demo_test_${Date.now()}_${browserName}`;
+  const randomId = getRandomHash();
+  const shortBrowserName = browserName.slice(0, 3);
+  return `e2e_${randomId}_${shortBrowserName}`;
 }
 
 export async function performPurchase(
@@ -42,6 +52,8 @@ export async function navigateToLandingUrl(
     utm_content?: string;
     optOutOfAutoUTM?: boolean;
     email?: string;
+    $displayName?: string;
+    nickname?: string;
   },
   apiKey?: string,
 ) {
@@ -61,6 +73,8 @@ export async function navigateToLandingUrl(
     utm_medium,
     optOutOfAutoUTM,
     email,
+    $displayName,
+    nickname,
   } = queryString ?? {};
 
   const params = new URLSearchParams();
@@ -91,6 +105,12 @@ export async function navigateToLandingUrl(
   if (email) {
     params.append("email", email);
   }
+  if ($displayName) {
+    params.append("$displayName", $displayName);
+  }
+  if (nickname) {
+    params.append("nickname", nickname);
+  }
 
   const url = `${BASE_URL}${useRcPaywall ? "rc_paywall" : "paywall"}/${encodeURIComponent(userId)}?${params.toString()}`;
   await page.goto(url);
@@ -99,29 +119,31 @@ export async function navigateToLandingUrl(
 }
 
 async function getAllElementsByLocator(
-  page: Page,
-  locator: string,
+  locator: Locator,
   containsText?: string,
 ) {
-  await page.waitForSelector(locator);
-  let locatorResult = page.locator(locator);
+  // Wait for at least one element to be visible
+  await expect(locator.first()).toBeVisible();
+
   if (containsText !== undefined) {
-    locatorResult = locatorResult.filter({ hasText: containsText });
+    locator = locator.filter({ hasText: containsText });
   }
-  return await locatorResult.all();
+  return await locator.all();
 }
 
 export const getPackageCards = (page: Page, text?: string) =>
-  getAllElementsByLocator(page, CARD_SELECTOR, text);
+  getAllElementsByLocator(page.locator(CARD_SELECTOR), text);
 
 export const getPaywallPackageCards = (page: Page, text?: string) =>
-  getAllElementsByLocator(page, PACKAGE_SELECTOR, text);
+  getAllElementsByLocator(page.locator(PACKAGE_SELECTOR), text);
 
 export const getPaywallPurchaseButtons = (page: Page) =>
-  getAllElementsByLocator(page, "button.rc-pw-purchase-button");
+  getAllElementsByLocator(page.locator("button.rc-pw-purchase-button"));
 
 export const getStripePaymentFrame = (page: Page) =>
-  page.frameLocator("iframe[title='Secure payment input frame']");
+  page.frameLocator(
+    "iframe[src*='https://js.stripe.com/v3/elements-inner-payment']",
+  );
 
 export const getStripeEmailFrame = (page: Page) =>
   page.frameLocator("iframe[title='Secure email input frame']");
@@ -155,7 +177,7 @@ export async function enterCreditCardDetails(
   const expiration = cardInfo?.expiration || `01 / ${expirationYear}`;
   const securityCode = cardInfo?.securityCode || "123";
 
-  await page.waitForSelector("button[data-testid='PayButton']");
+  page.locator("button[data-testid='PayButton']").waitFor();
   const checkoutTitle = page.getByText("Secure Checkout");
 
   await expect(checkoutTitle).toBeVisible();
@@ -179,11 +201,31 @@ export async function enterCreditCardDetails(
   await stripeFrame.getByLabel("Security Code").fill(securityCode);
 }
 
+export async function enterSecurityCode(page: Page, code: string) {
+  const stripeFrame = getStripePaymentFrame(page);
+  await stripeFrame.getByLabel("Security Code").fill(code);
+}
+
 export async function clickPayButton(page: Page) {
-  const button = await page.waitForSelector(
+  const button = page.locator(
     "button[data-testid='PayButton']:not([disabled])",
   );
+  await button.waitFor();
   await button.click();
+}
+
+export async function confirmTaxCalculation(page: Page) {
+  await expect(page.locator(TAX_SKELETON_SELECTOR)).toBeVisible();
+  await expect(page.locator(TAX_SKELETON_SELECTOR)).not.toBeVisible();
+}
+
+export async function confirmTaxCalculating(page: Page) {
+  await expect(page.locator(TAX_SKELETON_SELECTOR)).toBeVisible();
+}
+
+// Not a reliable check since it's a negative one
+export async function confirmTaxNotCalculating(page: Page) {
+  await expect(page.locator(TAX_SKELETON_SELECTOR)).not.toBeVisible();
 }
 
 export async function confirmPaymentComplete(page: Page) {
@@ -191,7 +233,10 @@ export async function confirmPaymentComplete(page: Page) {
   await expect(successText).toBeVisible();
 }
 
-export async function confirmPaymentError(page: Page, message: string) {
+export async function confirmPaymentError(
+  page: Page,
+  message: string | RegExp,
+) {
   const errorText = page.getByText(message);
   await expect(errorText).toBeVisible();
 }
@@ -234,8 +279,6 @@ export async function confirmStripeEmailFieldVisible(page: Page) {
 }
 
 export async function confirmPayButtonDisabled(page: Page) {
-  const button = await page.waitForSelector(
-    "button[data-testid='PayButton'][disabled]",
-  );
-  await expect(button).toBeDefined();
+  const button = page.locator("button[data-testid='PayButton'][disabled]");
+  await expect(button).toBeVisible();
 }

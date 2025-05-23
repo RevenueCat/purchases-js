@@ -198,7 +198,7 @@ jobs:
       - run:
           name: Update ENV for E2E test
           command: |
-            echo 'export VITE_RC_API_KEY=${E2E_RC_API_KEY}; export VITE_RC_TAX_E2E_API_KEY=${E2E_RC_TAX_E2E_API_KEY}; export VITE_ALLOW_TAX_CALCULATION_FF=${E2E_ALLOW_TAX_CALCULATION}; export VITE_ALLOW_PAYWALLS_TESTS=${E2E_ALLOW_PAYWALLS_TESTS}' >> "$BASH_ENV"
+            echo 'export VITE_RC_API_KEY=${E2E_RC_API_KEY}; export VITE_RC_TAX_E2E_API_KEY=${E2E_RC_TAX_E2E_API_KEY}; export VITE_ALLOW_TAXES_TESTS=${E2E_ALLOW_TAX_CALCULATION}; export VITE_ALLOW_PAYWALLS_TESTS=${E2E_ALLOW_PAYWALLS_TESTS}' >> "$BASH_ENV"
             source "$BASH_ENV"
       - install-dependencies
       - run:

@@ -6,6 +6,7 @@ import {
   GetOfferingsEndpoint,
   GetProductsEndpoint,
   PurchaseEndpoint,
+  SetAttributesEndpoint,
 } from "../../networking/endpoints";
 
 describe("getOfferings endpoint", () => {
@@ -110,6 +111,28 @@ describe("getCheckoutStatus endpoint", () => {
   test("has correct urlPath", () => {
     expect(endpoint.urlPath()).toBe(
       "/rcbilling/v1/checkout/someOperationSessionId",
+    );
+  });
+});
+
+describe("setAttributes endpoint", () => {
+  const endpoint = new SetAttributesEndpoint("someAppUserId");
+
+  test("uses correct method", () => {
+    expect(endpoint.method).toBe("POST");
+  });
+
+  test("has correct urlPath for common app user id", () => {
+    expect(endpoint.urlPath()).toBe("/v1/subscribers/someAppUserId/attributes");
+  });
+
+  test("correctly encodes app user id", () => {
+    expect(
+      new SetAttributesEndpoint(
+        "some+User/id#That$Requires&Encoding",
+      ).urlPath(),
+    ).toBe(
+      "/v1/subscribers/some%2BUser%2Fid%23That%24Requires%26Encoding/attributes",
     );
   });
 });

@@ -1,6 +1,7 @@
 import type { Package, PurchaseMetadata, PurchaseOption } from "./offerings";
 
 import type { BrandingAppearance } from "./branding";
+import type { CustomTranslations } from "../ui/localization/translator";
 
 /**
  * Parameters used to customise the purchase flow when invoking the `.purchase` method.
@@ -53,4 +54,12 @@ export interface PurchaseParams {
    * @internal
    */
   brandingAppearanceOverride?: BrandingAppearance;
+
+  /**
+   * @internal
+   * @experimental
+   * Allows the user to override the default labels used in the purchase flow.
+   *
+   */
+  labelsOverride?: CustomTranslations;
 }

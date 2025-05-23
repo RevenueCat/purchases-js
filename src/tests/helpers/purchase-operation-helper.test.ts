@@ -209,24 +209,27 @@ describe("PurchaseOperationHelper", () => {
     );
 
     const result = await purchaseOperationHelper.checkoutCalculateTax();
-    expect(result.error).toBeUndefined();
-    expect(result.data).toEqual(checkoutCalculateTaxResponse);
+    expect(result).toEqual(checkoutCalculateTaxResponse);
   });
 
-  test("checkoutCalculateTax returns pending error when tax location cannot be determined", async () => {
+  test("checkoutCalculateTax returns failed tax calculation error", async () => {
     setCheckoutStartResponse(
       HttpResponse.json(checkoutStartResponse, {
         status: StatusCodes.OK,
       }),
     );
-    setCheckoutCalculateTaxResponse(
-      HttpResponse.json(
-        {
-          code: BackendErrorCode.BackendTaxLocationCannotBeDetermined,
-          message: "Tax location cannot be determined",
+    const checkoutCalculateTaxResponse = {
+      failed_reason: "invalid_tax_location",
+      pricing_phases: {
+        base: {
+          tax_breakdown: [],
         },
-        { status: StatusCodes.BAD_REQUEST },
-      ),
+      },
+    };
+    setCheckoutCalculateTaxResponse(
+      HttpResponse.json(checkoutCalculateTaxResponse, {
+        status: StatusCodes.OK,
+      }),
     );
 
     await purchaseOperationHelper.checkoutStart(
@@ -241,74 +244,7 @@ describe("PurchaseOperationHelper", () => {
     );
 
     const result = await purchaseOperationHelper.checkoutCalculateTax();
-    expect(result.error).toBe("pending");
-    expect(result.data).toBeUndefined();
-  });
-
-  test("checkoutCalculateTax returns invalid location error when tax location is invalid", async () => {
-    setCheckoutStartResponse(
-      HttpResponse.json(checkoutStartResponse, {
-        status: StatusCodes.OK,
-      }),
-    );
-    setCheckoutCalculateTaxResponse(
-      HttpResponse.json(
-        {
-          code: BackendErrorCode.BackendInvalidTaxLocation,
-          message: "Invalid tax location",
-        },
-        { status: StatusCodes.BAD_REQUEST },
-      ),
-    );
-
-    await purchaseOperationHelper.checkoutStart(
-      "test-app-user-id",
-      "test-product-id",
-      { id: "test-option-id", priceId: "test-price-id" },
-      {
-        offeringIdentifier: "test-offering-id",
-        targetingContext: null,
-        placementIdentifier: null,
-      },
-    );
-
-    const result = await purchaseOperationHelper.checkoutCalculateTax();
-    expect(result.error).toBe("invalid_location");
-    expect(result.data).toBeUndefined();
-  });
-
-  test("checkoutCalculateTax returns disabled error in production mode for unexpected backend errors", async () => {
-    vi.spyOn(backend, "getIsSandbox").mockReturnValue(false);
-
-    setCheckoutStartResponse(
-      HttpResponse.json(checkoutStartResponse, {
-        status: StatusCodes.OK,
-      }),
-    );
-    setCheckoutCalculateTaxResponse(
-      HttpResponse.json(
-        {
-          code: 9999,
-          message: "Unexpected backend error",
-        },
-        { status: StatusCodes.BAD_REQUEST },
-      ),
-    );
-
-    await purchaseOperationHelper.checkoutStart(
-      "test-app-user-id",
-      "test-product-id",
-      { id: "test-option-id", priceId: "test-price-id" },
-      {
-        offeringIdentifier: "test-offering-id",
-        targetingContext: null,
-        placementIdentifier: null,
-      },
-    );
-
-    const result = await purchaseOperationHelper.checkoutCalculateTax();
-    expect(result.error).toBe("disabled");
-    expect(result.data).toBeUndefined();
+    expect(result).toEqual(checkoutCalculateTaxResponse);
   });
 
   test("checkoutCalculateTax throws error in production mode for sandbox mode only error", async () => {
@@ -350,9 +286,7 @@ describe("PurchaseOperationHelper", () => {
     );
   });
 
-  test("checkoutCalculateTax throws error in sandbox mode for unexpected backend errors", async () => {
-    vi.spyOn(backend, "getIsSandbox").mockReturnValue(true);
-
+  test("checkoutCalculateTax throws error for unexpected backend errors", async () => {
     setCheckoutStartResponse(
       HttpResponse.json(checkoutStartResponse, {
         status: StatusCodes.OK,
@@ -363,43 +297,6 @@ describe("PurchaseOperationHelper", () => {
         {
           code: 9999,
           message: "Unexpected backend error",
-        },
-        { status: StatusCodes.BAD_REQUEST },
-      ),
-    );
-
-    await purchaseOperationHelper.checkoutStart(
-      "test-app-user-id",
-      "test-product-id",
-      { id: "test-option-id", priceId: "test-price-id" },
-      {
-        offeringIdentifier: "test-offering-id",
-        targetingContext: null,
-        placementIdentifier: null,
-      },
-    );
-
-    await expectPromiseToPurchaseFlowError(
-      purchaseOperationHelper.checkoutCalculateTax(),
-      new PurchaseFlowError(
-        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-        "Unknown backend error.",
-        'Request: postCheckoutCalculateTax. Status code: 400. Body: {"code":9999,"message":"Unexpected backend error"}.',
-      ),
-    );
-  });
-
-  test("checkoutCalculateTax throws error for unknown backend error", async () => {
-    setCheckoutStartResponse(
-      HttpResponse.json(checkoutStartResponse, {
-        status: StatusCodes.OK,
-      }),
-    );
-    setCheckoutCalculateTaxResponse(
-      HttpResponse.json(
-        {
-          code: 9999,
-          message: "Unknown error",
         },
         { status: StatusCodes.INTERNAL_SERVER_ERROR },
       ),
@@ -421,7 +318,7 @@ describe("PurchaseOperationHelper", () => {
       new PurchaseFlowError(
         PurchaseFlowErrorCode.ErrorSettingUpPurchase,
         "Unknown backend error.",
-        'Request: postCheckoutCalculateTax. Status code: 500. Body: {"code":9999,"message":"Unknown error"}.',
+        'Request: postCheckoutCalculateTax. Status code: 500. Body: {"code":9999,"message":"Unexpected backend error"}.',
       ),
     );
   });
@@ -479,8 +376,7 @@ describe("PurchaseOperationHelper", () => {
     );
 
     const result = await purchaseOperationHelper.checkoutCalculateTax();
-    expect(result.error).toBeUndefined();
-    expect(result.data).toEqual(checkoutCalculateTaxResponse);
+    expect(result).toEqual(checkoutCalculateTaxResponse);
   });
 
   test("checkoutComplete fails if checkoutStart not called before", async () => {

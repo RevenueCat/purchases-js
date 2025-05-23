@@ -137,6 +137,8 @@ export class ErrorCodeUtils {
         return ErrorCode.ProductAlreadyPurchasedError;
       case BackendErrorCode.BackendEmptyAppUserId:
         return ErrorCode.InvalidAppUserIdError;
+      case BackendErrorCode.BackendSubscriberNotFound:
+        return ErrorCode.CustomerInfoError;
       case BackendErrorCode.BackendPlayStoreQuotaExceeded:
         return ErrorCode.StoreProblemError;
       case BackendErrorCode.BackendPlayStoreInvalidPackageName:
@@ -153,7 +155,6 @@ export class ErrorCodeUtils {
       case BackendErrorCode.BackendInvalidAppleSubscriptionKey:
       case BackendErrorCode.BackendBadRequest:
       case BackendErrorCode.BackendInternalServerError:
-      case BackendErrorCode.BackendTaxCalculationRequiresPostalCode:
         return ErrorCode.UnexpectedBackendResponseError;
       case BackendErrorCode.BackendProductIDsMalformed:
         return ErrorCode.UnsupportedError;
@@ -161,13 +162,6 @@ export class ErrorCodeUtils {
       case BackendErrorCode.BackendNoMXRecordsFound:
       case BackendErrorCode.BackendEmailIsRequired:
         return ErrorCode.InvalidEmailError;
-
-      // These error codes should never be exposed to developers, as they are handled internally within the purchase flow.
-      // We map them to UnknownError because a mapping is required.
-      case BackendErrorCode.BackendTaxLocationCannotBeDetermined:
-      case BackendErrorCode.BackendInvalidTaxLocation:
-      case BackendErrorCode.BackendTaxCollectionNotEnabled:
-        return ErrorCode.UnknownError;
     }
   }
 
@@ -191,10 +185,10 @@ export class ErrorCodeUtils {
         return ErrorCode.NetworkError;
       case PurchaseFlowErrorCode.MissingEmailError:
         return ErrorCode.PurchaseInvalidError;
-      case PurchaseFlowErrorCode.UnknownError:
-        return ErrorCode.UnknownError;
       case PurchaseFlowErrorCode.AlreadyPurchasedError:
         return ErrorCode.ProductAlreadyPurchasedError;
+      default:
+        return ErrorCode.UnknownError;
     }
   }
 }
@@ -219,6 +213,7 @@ export enum BackendErrorCode {
   BackendPlayStoreGenericError = 7231,
   BackendUserIneligibleForPromoOffer = 7232,
   BackendInvalidAppleSubscriptionKey = 7234,
+  BackendSubscriberNotFound = 7259,
   BackendInvalidSubscriberAttributes = 7263,
   BackendInvalidSubscriberAttributesBody = 7264,
   BackendProductIDsMalformed = 7662,
@@ -229,10 +224,6 @@ export enum BackendErrorCode {
   BackendInvalidOperationSession = 7877,
   BackendPurchaseCannotBeCompleted = 7878,
   BackendEmailIsRequired = 7879,
-  BackendTaxCollectionNotEnabled = 7886,
-  BackendTaxCalculationRequiresPostalCode = 7887,
-  BackendTaxLocationCannotBeDetermined = 7896,
-  BackendInvalidTaxLocation = 7897,
   BackendGatewaySetupErrorStripeTaxNotActive = 7898,
   BackendGatewaySetupErrorInvalidTaxOriginAddress = 7899,
   BackendGatewaySetupErrorMissingRequiredPermission = 7900,

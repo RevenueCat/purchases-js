@@ -1,4 +1,4 @@
-<script module>
+<script module lang="ts">
   import { getContext, onDestroy, onMount } from "svelte";
   import type { Product, PurchaseOption } from "../../entities/offerings";
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
@@ -14,13 +14,8 @@
     PurchaseFlowError,
     PurchaseFlowErrorCode,
     PurchaseOperationHelper,
-    TaxCalculationError,
   } from "../../helpers/purchase-operation-helper";
-  import type {
-    PriceBreakdown,
-    TaxCalculationStatus,
-    TaxCalculationPendingReason,
-  } from "../ui-types";
+  import type { PriceBreakdown, TaxCalculationStatus } from "../ui-types";
   import { type IEventsTracker } from "../../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "../constants";
   import {
@@ -36,8 +31,10 @@
     StripeElementsConfiguration,
     GatewayParams,
   } from "../../networking/responses/stripe-elements";
-  import { ALLOW_TAX_CALCULATION_FF } from "../../helpers/constants";
-  import type { TaxBreakdown } from "../../networking/responses/checkout-calculate-tax-response";
+  import {
+    CheckoutCalculateTaxFailedReason,
+    type TaxBreakdown,
+  } from "../../networking/responses/checkout-calculate-tax-response";
   import type { Stripe, StripeElements } from "@stripe/stripe-js";
   import {
     StripeService,
@@ -47,9 +44,11 @@
   } from "../../stripe/stripe-service";
   import StripeElementsComponent from "../molecules/stripe-elements.svelte";
   import PriceUpdateInfo from "../molecules/price-update-info.svelte";
+
+  type View = "loading" | "form" | "error";
+
   interface Props {
     gatewayParams: GatewayParams;
-    processing: boolean;
     productDetails: Product;
     purchaseOption: PurchaseOption;
     brandingInfo: BrandingInfoResponse | null;
@@ -85,11 +84,10 @@
 
   let taxCalculationStatus: TaxCalculationStatus = $state<TaxCalculationStatus>(
     defaultPriceBreakdown?.taxCalculationStatus ??
-      (ALLOW_TAX_CALCULATION_FF && brandingInfo?.gateway_tax_collection_enabled
+      (brandingInfo?.gateway_tax_collection_enabled
         ? "unavailable"
         : "disabled"),
   );
-  let pendingReason: TaxCalculationPendingReason | null = $state(null);
   let taxAmountInMicros: number | null = $state(null);
   let taxBreakdown: TaxBreakdown[] | null = $state(null);
   let totalExcludingTaxInMicros: number | null = $state(
@@ -105,7 +103,6 @@
       totalAmountInMicros,
       totalExcludingTaxInMicros,
       taxCalculationStatus,
-      pendingReason,
       taxAmountInMicros,
       taxBreakdown,
     },
@@ -129,6 +126,16 @@
   let clientSecret: string | undefined = $state(undefined);
   let processing = $state(false);
   let abortController: AbortController | null = $state(null);
+  let view: View = $derived(
+    isStripeLoading || processing
+      ? "loading"
+      : modalErrorMessage
+        ? "error"
+        : "form",
+  );
+
+  let previousTaxCalculationStatus: TaxCalculationStatus =
+    $state("unavailable");
 
   let isFormReady = $derived(
     !processing &&
@@ -138,6 +145,10 @@
         taxCalculationStatus === "calculated" ||
         taxCalculationStatus === "miss-match"),
   );
+
+  $effect(() => {
+    onPriceBreakdownUpdated(priceBreakdown);
+  });
 
   onMount(() => {
     eventsTracker.trackSDKEvent({
@@ -162,55 +173,40 @@
     taxCustomerDetails: TaxCustomerDetails | null,
     signal?: AbortSignal,
   ) {
-    // Skip loading spinner on first load
-    if (taxCalculationStatus !== "unavailable") {
-      taxCalculationStatus = "loading";
-      onPriceBreakdownUpdated(priceBreakdown);
-    }
-
     await purchaseOperationHelper
       .checkoutCalculateTax(
         taxCustomerDetails?.countryCode,
         taxCustomerDetails?.postalCode,
+        signal,
       )
       .then((taxCalculation) => {
         signal?.throwIfAborted();
 
-        if (taxCalculation.error) {
-          switch (taxCalculation.error) {
-            case TaxCalculationError.Pending:
-              taxCalculationStatus = "pending";
-              pendingReason = null;
-              break;
-            case TaxCalculationError.Disabled:
-              taxCalculationStatus = "disabled";
-              pendingReason = null;
-              break;
-            case TaxCalculationError.InvalidLocation:
-              taxCalculationStatus = "pending";
-              pendingReason = "invalid_postal_code";
-              break;
-            default:
-              throw new PurchaseFlowError(
-                PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-                "Unknown error without state set.",
-              );
+        if (taxCalculation.failed_reason) {
+          const isInitialCalculation = !taxCustomerDetails;
+          if (
+            isInitialCalculation &&
+            taxCalculation.failed_reason ===
+              CheckoutCalculateTaxFailedReason.invalid_tax_location
+          ) {
+            taxCalculationStatus = "pending";
+          } else {
+            taxCalculationStatus = "disabled";
           }
         } else {
-          const { data } = taxCalculation;
-
           taxCalculationStatus = "calculated";
-          taxAmountInMicros = data.tax_amount_in_micros;
-          totalExcludingTaxInMicros = data.total_excluding_tax_in_micros;
-          totalAmountInMicros = data.total_amount_in_micros;
-          taxBreakdown = data.pricing_phases.base.tax_breakdown;
-          pendingReason = null;
-
-          elementsConfiguration = data.gateway_params.elements_configuration;
         }
 
+        taxAmountInMicros = taxCalculation.tax_amount_in_micros;
+        totalExcludingTaxInMicros =
+          taxCalculation.total_excluding_tax_in_micros;
+        totalAmountInMicros = taxCalculation.total_amount_in_micros;
+        taxBreakdown = taxCalculation.pricing_phases.base.tax_breakdown;
+
+        elementsConfiguration =
+          taxCalculation.gateway_params.elements_configuration;
+
         lastTaxCustomerDetails = taxCustomerDetails;
-        onPriceBreakdownUpdated(priceBreakdown);
       });
   }
 
@@ -236,8 +232,8 @@
     await refreshTaxes();
   }
 
-  async function handleSubmit(e: Event): Promise<void> {
-    e.preventDefault();
+  async function handleSubmit(e?: Event): Promise<void> {
+    e?.preventDefault();
 
     if (processing) return;
 
@@ -254,6 +250,15 @@
     } else {
       processing = false;
     }
+  }
+
+  async function handleExpressCheckoutElementSubmit(
+    paymentMethod: string,
+    emailValue: string,
+  ) {
+    selectedPaymentMethod = paymentMethod;
+    email = emailValue;
+    await handleSubmit();
   }
 
   /**
@@ -274,10 +279,18 @@
    * when multiple tax refresh requests are triggered in quick succession.
    */
   async function refreshTaxes(): Promise<void> {
-    if (selectedPaymentMethod !== "card") return;
-
-    if (!isEmailComplete || !isPaymentInfoComplete) {
+    if (
+      selectedPaymentMethod !== "card" ||
+      !isEmailComplete ||
+      !isPaymentInfoComplete ||
+      processing ||
+      taxCalculationStatus === "disabled"
+    )
       return;
+
+    if (taxCalculationStatus !== "loading") {
+      previousTaxCalculationStatus = taxCalculationStatus;
+      taxCalculationStatus = "loading";
     }
 
     await withAbortProtection(async (signal) => {
@@ -285,7 +298,16 @@
         .then(() => signal.throwIfAborted())
         .then(() => recalculateTaxes(signal))
         .then(() => signal.throwIfAborted())
-        .catch(handleErrors);
+        .catch((e) => {
+          if (!signal.aborted) {
+            handleErrors(e);
+          }
+        })
+        .finally(() => {
+          if (taxCalculationStatus === "loading" && !signal.aborted) {
+            taxCalculationStatus = previousTaxCalculationStatus;
+          }
+        });
     });
   }
 
@@ -322,7 +344,12 @@
         .then(() => confirmElements(confirmationTokenId))
         .then(() => signal.throwIfAborted())
         .then(() => true)
-        .catch(handleErrors);
+        .catch((e) => {
+          if (!signal.aborted) {
+            handleErrors(e);
+          }
+          return false;
+        });
     });
   }
 
@@ -418,7 +445,7 @@
   }
 
   // Helper function to handle errors of the tax recalculation or form submission
-  async function handleErrors(error: unknown): Promise<boolean> {
+  async function handleErrors(error: unknown) {
     if (error instanceof TaxCustomerDetailsMissMatchError) {
       taxCalculationStatus = "miss-match";
     } else if (error instanceof PurchaseFlowError) {
@@ -441,8 +468,6 @@
     } else {
       throw error;
     }
-
-    return false;
   }
 
   async function handleStripeElementError(error: StripeServiceError) {
@@ -466,31 +491,42 @@
     }
   }
 
-  $effect(() => {
-    if (pendingReason === "invalid_postal_code") {
-      modalErrorMessage = $translator.translate(
-        LocalizationKeys.ErrorPageErrorMessageInvalidTaxLocation,
-      );
-    }
-  });
-
   const handleErrorTryAgain = () => {
     modalErrorMessage = undefined;
   };
 </script>
 
 <div class="rc-checkout-container">
-  {#if isStripeLoading || processing}
-    <Loading />
+  {#if view === "loading"}
+    <div class="rc-loading">
+      <Loading />
+    </div>
+  {/if}
+
+  {#if view === "error"}
+    <MessageLayout
+      title={null}
+      type="error"
+      closeButtonTitle={$translator.translate(
+        LocalizationKeys.ErrorButtonTryAgain,
+      )}
+      onDismiss={handleErrorTryAgain}
+    >
+      {#snippet icon()}
+        <IconError />
+      {/snippet}
+      {#snippet message()}
+        {modalErrorMessage}
+      {/snippet}
+    </MessageLayout>
   {/if}
   <!-- <TextSeparator text="Pay by card" /> -->
   <form
     onsubmit={handleSubmit}
     data-testid="payment-form"
     class="rc-checkout-form"
-    class:hidden={isStripeLoading || processing}
   >
-    <div class="rc-checkout-form-container" hidden={!!modalErrorMessage}>
+    <div class="rc-checkout-form-container" class:invisible={view !== "form"}>
       <div class="rc-elements-container">
         <StripeElementsComponent
           bind:stripe
@@ -500,29 +536,33 @@
           {elementsConfiguration}
           {brandingInfo}
           skipEmail={!!customerEmail}
+          billingAddressRequired={taxCalculationStatus !== "disabled"}
           onLoadingComplete={handleStripeLoadingComplete}
           onError={handleStripeElementError}
           onEmailChange={handleEmailChange}
           onPaymentInfoChange={handlePaymentInfoChange}
+          onExpressCheckoutElementSubmit={handleExpressCheckoutElementSubmit}
         />
       </div>
 
       <div
         class="rc-checkout-price-update-info-container"
-        hidden={taxCalculationStatus !== "miss-match"}
+        class:fully-hidden={taxCalculationStatus !== "miss-match" ||
+          view !== "form"}
       >
         <PriceUpdateInfo {subscriptionOption} />
       </div>
 
-      <div class="rc-checkout-pay-container">
+      <div
+        class="rc-checkout-pay-container"
+        class:fully-hidden={view !== "form"}
+      >
         <PaymentButton
           disabled={!isFormReady}
           {subscriptionOption}
-          priceBreakdown={ALLOW_TAX_CALCULATION_FF &&
-          brandingInfo?.gateway_tax_collection_enabled
+          priceBreakdown={brandingInfo?.gateway_tax_collection_enabled
             ? priceBreakdown
             : undefined}
-          {selectedPaymentMethod}
         />
 
         <div class="rc-checkout-secure-container">
@@ -530,24 +570,6 @@
         </div>
       </div>
     </div>
-
-    {#if modalErrorMessage}
-      <MessageLayout
-        title={null}
-        type="error"
-        closeButtonTitle={$translator.translate(
-          LocalizationKeys.ErrorButtonTryAgain,
-        )}
-        onDismiss={handleErrorTryAgain}
-      >
-        {#snippet icon()}
-          <IconError />
-        {/snippet}
-        {#snippet message()}
-          {modalErrorMessage}
-        {/snippet}
-      </MessageLayout>
-    {/if}
   </form>
 </div>
 
@@ -561,16 +583,26 @@
     flex-direction: column;
     gap: var(--rc-spacing-gapXLarge-mobile);
     user-select: none;
+    position: relative;
   }
 
   .rc-checkout-price-update-info-container {
     margin-top: var(--rc-spacing-gapXLarge-mobile);
   }
 
+  .fully-hidden {
+    display: none;
+    height: 0;
+  }
+
   .rc-checkout-pay-container {
     display: flex;
     flex-direction: column;
     margin-top: var(--rc-spacing-gapXLarge-mobile);
+  }
+
+  .rc-checkout-pay-container.fully-hidden {
+    display: none;
   }
 
   .rc-checkout-form-container {
@@ -583,8 +615,16 @@
     min-height: 210px;
   }
 
-  .hidden {
+  .rc-checkout-form-container.invisible {
     visibility: hidden;
+  }
+
+  .rc-loading {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   @container layout-query-container (width <= 767px) {
@@ -605,6 +645,12 @@
 
     .rc-checkout-container {
       flex-grow: 1;
+    }
+
+    .rc-loading {
+      position: absolute;
+      top: 0;
+      left: 0;
     }
   }
 

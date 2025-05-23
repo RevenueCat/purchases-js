@@ -3,7 +3,6 @@
     PurchaseFlowError,
     PurchaseFlowErrorCode,
   } from "../../helpers/purchase-operation-helper";
-  import IconError from "../atoms/icons/icon-error.svelte";
   import { getContext, onMount } from "svelte";
   import { Logger } from "../../helpers/logger.js";
   import MessageLayout from "../layout/message-layout.svelte";
@@ -14,16 +13,17 @@
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import { type Writable } from "svelte/store";
+  import Icon, { type IconName } from "../atoms/icon.svelte";
 
   interface Props {
     lastError: PurchaseFlowError | null;
     supportEmail: string | null;
     productDetails: Product;
-    email?: string;
     onDismiss: () => void;
+    appName: string | null;
   }
 
-  const { lastError, supportEmail, productDetails, email, onDismiss }: Props =
+  const { lastError, supportEmail, productDetails, onDismiss, appName }: Props =
     $props();
 
   const error: PurchaseFlowError = $derived(
@@ -36,11 +36,29 @@
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
 
+  const showOnlyInSandboxNote = $derived(
+    error.errorCode === PurchaseFlowErrorCode.StripeTaxNotActive ||
+      error.errorCode === PurchaseFlowErrorCode.StripeInvalidTaxOriginAddress ||
+      error.errorCode === PurchaseFlowErrorCode.StripeMissingRequiredPermission,
+  );
+
   onMount(() => {
     Logger.errorLog(
       `Displayed error: ${PurchaseFlowErrorCode[error.errorCode]}. Message: ${error.message ?? "None"}. Underlying error: ${error.underlyingErrorMessage ?? "None"}`,
     );
   });
+
+  function getButtonTitle(): string {
+    if (error.errorCode === PurchaseFlowErrorCode.AlreadyPurchasedError) {
+      return $translator.translate(LocalizationKeys.ErrorPageCloseButtonTitle, {
+        appName: appName ?? "App",
+      });
+    } else if (showOnlyInSandboxNote) {
+      return $translator.translate(LocalizationKeys.ErrorButtonClose);
+    } else {
+      return $translator.translate(LocalizationKeys.ErrorButtonTryAgain);
+    }
+  }
 
   function getTranslatedErrorTitle(): string {
     switch (error.errorCode) {
@@ -48,12 +66,26 @@
         if (productDetails.productType === ProductType.Subscription) {
           return $translator.translate(
             LocalizationKeys.ErrorPageErrorTitleAlreadySubscribed,
+            { productTitle: productDetails.title },
           );
         } else {
           return $translator.translate(
             LocalizationKeys.ErrorPageErrorTitleAlreadyPurchased,
+            { productTitle: productDetails.title },
           );
         }
+      case PurchaseFlowErrorCode.StripeTaxNotActive:
+        return $translator.translate(
+          LocalizationKeys.ErrorPageErrorTitleStripeTaxNotActive,
+        );
+      case PurchaseFlowErrorCode.StripeInvalidTaxOriginAddress:
+        return $translator.translate(
+          LocalizationKeys.ErrorPageErrorTitleStripeInvalidTaxOriginAddress,
+        );
+      case PurchaseFlowErrorCode.StripeMissingRequiredPermission:
+        return $translator.translate(
+          LocalizationKeys.ErrorPageErrorTitleStripeMissingRequiredPermission,
+        );
       default:
         return $translator.translate(
           LocalizationKeys.ErrorPageErrorTitleOtherErrors,
@@ -61,14 +93,9 @@
     }
   }
 
-  function getTranslatedErrorMessage(): string | undefined {
+  function getTranslatedErrorMessage(): string {
     const publicErrorCode = error.getErrorCode();
     switch (error.errorCode) {
-      case PurchaseFlowErrorCode.UnknownError:
-        return $translator.translate(
-          LocalizationKeys.ErrorPageErrorMessageUnknownError,
-          { errorCode: publicErrorCode },
-        );
       case PurchaseFlowErrorCode.ErrorSettingUpPurchase:
         return $translator.translate(
           LocalizationKeys.ErrorPageErrorMessageErrorSettingUpPurchase,
@@ -78,16 +105,6 @@
         return $translator.translate(
           LocalizationKeys.ErrorPageErrorMessageErrorChargingPayment,
           { errorCode: publicErrorCode },
-        );
-      case PurchaseFlowErrorCode.NetworkError:
-        return $translator.translate(
-          LocalizationKeys.ErrorPageErrorMessageNetworkError,
-          { errorCode: publicErrorCode },
-        );
-      case PurchaseFlowErrorCode.MissingEmailError:
-        return $translator.translate(
-          LocalizationKeys.ErrorPageErrorMessageInvalidEmailError,
-          { errorCode: publicErrorCode, email: email ?? "" },
         );
       case PurchaseFlowErrorCode.AlreadyPurchasedError:
         if (productDetails.productType === ProductType.Subscription) {
@@ -101,6 +118,47 @@
             { errorCode: publicErrorCode },
           );
         }
+      case PurchaseFlowErrorCode.StripeTaxNotActive:
+        return $translator.translate(
+          LocalizationKeys.ErrorPageErrorMessageStripeTaxNotActive,
+          { errorCode: publicErrorCode },
+        );
+      case PurchaseFlowErrorCode.StripeInvalidTaxOriginAddress:
+        return $translator.translate(
+          LocalizationKeys.ErrorPageErrorMessageStripeInvalidTaxOriginAddress,
+          { errorCode: publicErrorCode },
+        );
+      case PurchaseFlowErrorCode.StripeMissingRequiredPermission:
+        return $translator.translate(
+          LocalizationKeys.ErrorPageErrorMessageStripeMissingRequiredPermission,
+          { errorCode: publicErrorCode },
+        );
+      case PurchaseFlowErrorCode.NetworkError:
+        return $translator.translate(
+          LocalizationKeys.ErrorPageErrorMessageNetworkError,
+          { errorCode: publicErrorCode },
+        );
+      default:
+        return $translator.translate(
+          LocalizationKeys.ErrorPageErrorMessageUnknownError,
+          { errorCode: publicErrorCode },
+        );
+    }
+  }
+
+  function getTranslatedSupportMessageKey(): LocalizationKeys {
+    if (error.errorCode === PurchaseFlowErrorCode.AlreadyPurchasedError) {
+      return LocalizationKeys.ErrorPageTroubleAccessing;
+    } else {
+      return LocalizationKeys.ErrorPageIfErrorPersists;
+    }
+  }
+
+  function iconName(): IconName {
+    if (error.errorCode === PurchaseFlowErrorCode.AlreadyPurchasedError) {
+      return "success";
+    } else {
+      return "error";
     }
   }
 </script>
@@ -109,17 +167,24 @@
   title={getTranslatedErrorTitle()}
   {onDismiss}
   type="error"
-  closeButtonTitle={$translator.translate(LocalizationKeys.ErrorButtonTryAgain)}
+  closeButtonTitle={getButtonTitle()}
 >
   {#snippet icon()}
-    <IconError />
+    <Icon name={iconName()} />
   {/snippet}
 
   {#snippet message()}
-    {getTranslatedErrorMessage()}
-    {#if supportEmail}
+    {#if showOnlyInSandboxNote}
+      <span class="rc-sandbox-only-error">
+        <Localized key={LocalizationKeys.ErrorPageErrorMessageOnlyInSandbox} />
+      </span>
       <br />
-      <Localized key={LocalizationKeys.ErrorPageIfErrorPersists} />
+      <br />
+    {/if}
+
+    {getTranslatedErrorMessage()}
+    {#if !showOnlyInSandboxNote && supportEmail}
+      <Localized key={getTranslatedSupportMessageKey()} />
       <a href="mailto:{supportEmail}">{supportEmail}</a>.
     {/if}
   {/snippet}
@@ -127,6 +192,10 @@
 
 <style>
   a {
-    color: var(--rc-color-primary);
+    color: var(--rc-color-grey-text-dark);
+  }
+
+  .rc-sandbox-only-error {
+    font-weight: bold;
   }
 </style>

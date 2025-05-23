@@ -1,10 +1,6 @@
 import { type SupportedEndpoint } from "./endpoints";
-import {
-  type BackendErrorCode,
-  ErrorCode,
-  ErrorCodeUtils,
-  PurchasesError,
-} from "../entities/errors";
+import type { BackendErrorCode } from "../entities/errors";
+import { ErrorCode, ErrorCodeUtils, PurchasesError } from "../entities/errors";
 import { RC_ENDPOINT, VERSION } from "../helpers/constants";
 import { StatusCodes } from "http-status-codes";
 import { isSandboxApiKey } from "../helpers/api-key-helper";
@@ -21,6 +17,7 @@ interface HttpRequestConfig<RequestBody> {
 export async function performRequest<RequestBody, ResponseType>(
   endpoint: SupportedEndpoint,
   config: HttpRequestConfig<RequestBody>,
+  signal?: AbortSignal | null,
 ): Promise<ResponseType> {
   const { apiKey, body, headers, httpConfig } = config;
   const baseUrl = httpConfig?.proxyURL ?? RC_ENDPOINT;
@@ -31,6 +28,7 @@ export async function performRequest<RequestBody, ResponseType>(
       method: endpoint.method,
       headers: getHeaders(apiKey, headers, httpConfig?.additionalHeaders),
       body: getBody(body),
+      signal,
     });
 
     await handleErrors(response, endpoint);

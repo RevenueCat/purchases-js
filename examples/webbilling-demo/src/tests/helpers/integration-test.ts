@@ -5,8 +5,7 @@ import { getEmailFromUserId } from "./test-helpers";
 export const ALLOW_PAYWALLS_TESTS =
   process.env.VITE_ALLOW_PAYWALLS_TESTS === "true";
 
-export const ALLOW_TAX_CALCULATION_FF =
-  process.env.VITE_ALLOW_TAX_CALCULATION_FF === "true";
+export const ALLOW_TAXES_TESTS = process.env.VITE_ALLOW_TAXES_TESTS === "true";
 
 interface TestFixtures {
   userId: string;
@@ -30,6 +29,15 @@ export const integrationTest = test.extend<TestFixtures>({
   },
 });
 
+integrationTest.beforeEach(async ({ page }) => {
+  await page.route("**/v1/events", async (route) => {
+    await route.fulfill({
+      status: 200,
+      body: JSON.stringify({}),
+    });
+  });
+});
+
 export const skipPaywallsTestIfDisabled = (test: typeof integrationTest) => {
   test.skip(
     !ALLOW_PAYWALLS_TESTS,
@@ -41,7 +49,7 @@ export const skipTaxCalculationTestIfDisabled = (
   test: typeof integrationTest,
 ) => {
   test.skip(
-    !ALLOW_TAX_CALCULATION_FF,
-    "Tax calculation is disabled. To enable, set VITE_ALLOW_TAX_CALCULATION_FF=true in the environment variables.",
+    !ALLOW_TAXES_TESTS,
+    "Tax calculation tests are disabled. To enable, set VITE_ALLOW_TAXES_TESTS=true in the environment variables.",
   );
 };
