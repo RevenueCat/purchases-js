@@ -102,23 +102,22 @@ describe("PurchasesUI", () => {
   });
 
   test("restores original styles when the component is unmounted", async () => {
+    document.body.style.height = "100px";
+    document.body.style.overflow = "scroll";
+
     const { unmount } = render(PurchasesUI, {
       props: {
         ...basicProps,
       },
     });
 
-    const htmlElement = document.documentElement;
-    const bodyElement = document.body;
-
-    expect(htmlElement.style.height).toBe("100%");
-    expect(htmlElement.style.overflow).toBe("hidden");
-    expect(bodyElement.style.height).toBe("100%");
+    expect(document.documentElement.style.height).toBe("100%");
+    expect(document.documentElement.style.overflow).toBe("hidden");
+    expect(document.body.style.height).toBe("100%");
 
     unmount();
-
-    expect(htmlElement.style.height).toBe("");
-    expect(htmlElement.style.overflow).toBe("");
-    expect(bodyElement.style.height).toBe("");
+    expect(document.documentElement.style.height).toBe("");
+    expect(document.body.style.height).toBe("100px");
+    expect(document.body.style.overflow).toBe("scroll");
   });
 });
