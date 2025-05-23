@@ -29,6 +29,15 @@ export const integrationTest = test.extend<TestFixtures>({
   },
 });
 
+integrationTest.beforeEach(async ({ page }) => {
+  await page.route("**/v1/events", async (route) => {
+    await route.fulfill({
+      status: 200,
+      body: JSON.stringify({}),
+    });
+  });
+});
+
 export const skipPaywallsTestIfDisabled = (test: typeof integrationTest) => {
   test.skip(
     !ALLOW_PAYWALLS_TESTS,

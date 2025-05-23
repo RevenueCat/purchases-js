@@ -137,6 +137,8 @@ export class ErrorCodeUtils {
         return ErrorCode.ProductAlreadyPurchasedError;
       case BackendErrorCode.BackendEmptyAppUserId:
         return ErrorCode.InvalidAppUserIdError;
+      case BackendErrorCode.BackendSubscriberNotFound:
+        return ErrorCode.CustomerInfoError;
       case BackendErrorCode.BackendPlayStoreQuotaExceeded:
         return ErrorCode.StoreProblemError;
       case BackendErrorCode.BackendPlayStoreInvalidPackageName:
@@ -183,10 +185,10 @@ export class ErrorCodeUtils {
         return ErrorCode.NetworkError;
       case PurchaseFlowErrorCode.MissingEmailError:
         return ErrorCode.PurchaseInvalidError;
-      case PurchaseFlowErrorCode.UnknownError:
-        return ErrorCode.UnknownError;
       case PurchaseFlowErrorCode.AlreadyPurchasedError:
         return ErrorCode.ProductAlreadyPurchasedError;
+      default:
+        return ErrorCode.UnknownError;
     }
   }
 }
@@ -211,6 +213,7 @@ export enum BackendErrorCode {
   BackendPlayStoreGenericError = 7231,
   BackendUserIneligibleForPromoOffer = 7232,
   BackendInvalidAppleSubscriptionKey = 7234,
+  BackendSubscriberNotFound = 7259,
   BackendInvalidSubscriberAttributes = 7263,
   BackendInvalidSubscriberAttributesBody = 7264,
   BackendProductIDsMalformed = 7662,

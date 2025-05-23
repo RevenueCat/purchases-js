@@ -15,11 +15,7 @@
     PurchaseFlowErrorCode,
     PurchaseOperationHelper,
   } from "../../helpers/purchase-operation-helper";
-  import type {
-    PriceBreakdown,
-    TaxCalculationStatus,
-    TaxCalculationPendingReason,
-  } from "../ui-types";
+  import type { PriceBreakdown, TaxCalculationStatus } from "../ui-types";
   import { type IEventsTracker } from "../../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "../constants";
   import {
@@ -92,7 +88,6 @@
         ? "unavailable"
         : "disabled"),
   );
-  let pendingReason: TaxCalculationPendingReason | null = $state(null);
   let taxAmountInMicros: number | null = $state(null);
   let taxBreakdown: TaxBreakdown[] | null = $state(null);
   let totalExcludingTaxInMicros: number | null = $state(
@@ -108,7 +103,6 @@
       totalAmountInMicros,
       totalExcludingTaxInMicros,
       taxCalculationStatus,
-      pendingReason,
       taxAmountInMicros,
       taxBreakdown,
     },
@@ -140,6 +134,9 @@
         : "form",
   );
 
+  let previousTaxCalculationStatus: TaxCalculationStatus =
+    $state("unavailable");
+
   let isFormReady = $derived(
     !processing &&
       isPaymentInfoComplete &&
@@ -148,6 +145,10 @@
         taxCalculationStatus === "calculated" ||
         taxCalculationStatus === "miss-match"),
   );
+
+  $effect(() => {
+    onPriceBreakdownUpdated(priceBreakdown);
+  });
 
   onMount(() => {
     eventsTracker.trackSDKEvent({
@@ -172,16 +173,11 @@
     taxCustomerDetails: TaxCustomerDetails | null,
     signal?: AbortSignal,
   ) {
-    // Skip loading spinner on first load
-    if (taxCalculationStatus !== "unavailable") {
-      taxCalculationStatus = "loading";
-      onPriceBreakdownUpdated(priceBreakdown);
-    }
-
     await purchaseOperationHelper
       .checkoutCalculateTax(
         taxCustomerDetails?.countryCode,
         taxCustomerDetails?.postalCode,
+        signal,
       )
       .then((taxCalculation) => {
         signal?.throwIfAborted();
@@ -194,14 +190,11 @@
               CheckoutCalculateTaxFailedReason.invalid_tax_location
           ) {
             taxCalculationStatus = "pending";
-            pendingReason = null;
           } else {
             taxCalculationStatus = "disabled";
-            pendingReason = null;
           }
         } else {
           taxCalculationStatus = "calculated";
-          pendingReason = null;
         }
 
         taxAmountInMicros = taxCalculation.tax_amount_in_micros;
@@ -214,7 +207,6 @@
           taxCalculation.gateway_params.elements_configuration;
 
         lastTaxCustomerDetails = taxCustomerDetails;
-        onPriceBreakdownUpdated(priceBreakdown);
       });
   }
 
@@ -287,10 +279,18 @@
    * when multiple tax refresh requests are triggered in quick succession.
    */
   async function refreshTaxes(): Promise<void> {
-    if (selectedPaymentMethod !== "card") return;
-
-    if (!isEmailComplete || !isPaymentInfoComplete) {
+    if (
+      selectedPaymentMethod !== "card" ||
+      !isEmailComplete ||
+      !isPaymentInfoComplete ||
+      processing ||
+      taxCalculationStatus === "disabled"
+    )
       return;
+
+    if (taxCalculationStatus !== "loading") {
+      previousTaxCalculationStatus = taxCalculationStatus;
+      taxCalculationStatus = "loading";
     }
 
     await withAbortProtection(async (signal) => {
@@ -298,7 +298,16 @@
         .then(() => signal.throwIfAborted())
         .then(() => recalculateTaxes(signal))
         .then(() => signal.throwIfAborted())
-        .catch(handleErrors);
+        .catch((e) => {
+          if (!signal.aborted) {
+            handleErrors(e);
+          }
+        })
+        .finally(() => {
+          if (taxCalculationStatus === "loading" && !signal.aborted) {
+            taxCalculationStatus = previousTaxCalculationStatus;
+          }
+        });
     });
   }
 
@@ -335,7 +344,12 @@
         .then(() => confirmElements(confirmationTokenId))
         .then(() => signal.throwIfAborted())
         .then(() => true)
-        .catch(handleErrors);
+        .catch((e) => {
+          if (!signal.aborted) {
+            handleErrors(e);
+          }
+          return false;
+        });
     });
   }
 
@@ -431,7 +445,7 @@
   }
 
   // Helper function to handle errors of the tax recalculation or form submission
-  async function handleErrors(error: unknown): Promise<boolean> {
+  async function handleErrors(error: unknown) {
     if (error instanceof TaxCustomerDetailsMissMatchError) {
       taxCalculationStatus = "miss-match";
     } else if (error instanceof PurchaseFlowError) {
@@ -454,8 +468,6 @@
     } else {
       throw error;
     }
-
-    return false;
   }
 
   async function handleStripeElementError(error: StripeServiceError) {
@@ -478,14 +490,6 @@
       );
     }
   }
-
-  $effect(() => {
-    if (pendingReason === "invalid_postal_code") {
-      modalErrorMessage = $translator.translate(
-        LocalizationKeys.ErrorPageErrorMessageInvalidTaxLocation,
-      );
-    }
-  });
 
   const handleErrorTryAgain = () => {
     modalErrorMessage = undefined;
