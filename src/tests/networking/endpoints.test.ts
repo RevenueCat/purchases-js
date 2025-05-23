@@ -97,9 +97,7 @@ describe("getBrandingInfo endpoint", () => {
   });
 
   test("has correct urlPath", () => {
-    expect(endpoint.urlPath()).toBe(
-      "/rcbilling/v1/branding?provider=rc_billing",
-    );
+    expect(endpoint.urlPath()).toBe("/rcbilling/v1/branding");
   });
 });
 
