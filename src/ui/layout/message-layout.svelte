@@ -4,15 +4,23 @@
   import ModalSection from "./modal-section.svelte";
   import MessageLayoutError from "./message-layout-error.svelte";
   import MessageLayoutSuccess from "./message-layout-success.svelte";
-  import Typography from "../atoms/typography.svelte";
-  const {
+  import { getContext } from "svelte";
+  import { brandingContextKey } from "../constants";
+  import type { BrandingAppearance } from "../../entities/branding";
+  import { type Writable } from "svelte/store";
+
+  let {
     onDismiss,
     title = null,
     type,
     closeButtonTitle = "Go back to app",
     icon = null,
-    message = null,
+    message,
   } = $props();
+
+  const brandingAppearanceStore =
+    getContext<Writable<BrandingAppearance>>(brandingContextKey);
+  const brandingAppearance = $derived($brandingAppearanceStore);
 
   function handleClick() {
     onDismiss();
@@ -31,8 +39,8 @@
   </div>
   <div class="message-layout-footer">
     <ModalFooter>
-      <Button onclick={handleClick} type="submit"
-        ><Typography size="body-small">{closeButtonTitle}</Typography></Button
+      <Button onclick={handleClick} type="submit" {brandingAppearance}
+        >{closeButtonTitle}</Button
       >
     </ModalFooter>
   </div>
