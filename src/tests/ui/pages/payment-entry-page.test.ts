@@ -6,6 +6,7 @@ import {
   rcPackage,
   checkoutStartResponse,
   stripeElementsConfiguration,
+  checkoutCalculateTaxResponse,
 } from "../../../stories/fixtures";
 import { SDKEventName } from "../../../behavioural-events/sdk-events";
 import { createEventsTrackerMock } from "../../mocks/events-tracker-mock-provider";
@@ -26,6 +27,7 @@ import type {
 } from "@stripe/stripe-js";
 import type { ComponentProps } from "svelte";
 import type { GatewayParams } from "../../../networking/responses/stripe-elements";
+import type { CheckoutCalculateTaxResponse } from "../../../networking/responses/checkout-calculate-tax-response";
 
 vi.mock("../../../stripe/stripe-service", async () => {
   const actual = await vi.importActual<{
@@ -67,6 +69,10 @@ vi.mock("../../../stripe/stripe-service", async () => {
 
 const eventsTrackerMock = createEventsTrackerMock();
 const purchaseOperationHelperMock: PurchaseOperationHelper = {
+  checkoutCalculateTax: async () =>
+    Promise.resolve(
+      checkoutCalculateTaxResponse as CheckoutCalculateTaxResponse,
+    ),
   checkoutStart: async () =>
     Promise.resolve(checkoutStartResponse as CheckoutStartResponse),
   checkoutComplete: async () =>
@@ -397,6 +403,31 @@ describe("PurchasesUI", () => {
       properties: {
         errorCode: "0",
         errorMessage: "Submission error",
+      },
+    });
+  });
+
+  test("tracks the CheckoutPaymentTaxCalculation event when the tax calculation on page load when enabled", async () => {
+    render(PaymentEntryPage, {
+      props: {
+        ...basicProps,
+        brandingInfo: {
+          ...brandingInfo,
+          gateway_tax_collection_enabled: true,
+        },
+      },
+      context: defaultContext,
+    });
+
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
+      eventName: SDKEventName.CheckoutPaymentTaxCalculation,
+      properties: {
+        outcome: "taxed",
+        ui_element: "auto",
+        tax_inclusive: false,
+        error_code: null,
       },
     });
   });
