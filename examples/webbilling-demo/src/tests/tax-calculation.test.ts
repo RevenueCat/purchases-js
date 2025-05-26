@@ -18,7 +18,7 @@ import {
 } from "./helpers/fixtures";
 import {
   integrationTest,
-  SKIP_TAX_CALCULATION_REAL_TESTS,
+  SKIP_TAX_REAL_TESTS,
 } from "./helpers/integration-test";
 import {
   clickPayButton,
@@ -69,9 +69,9 @@ const mockTaxCalculationRequest = async (
     `Tax calculation (${mockMode ? "mocked" : "real"})`,
     () => {
       integrationTest.skip(
-        !mockMode && SKIP_TAX_CALCULATION_REAL_TESTS,
+        !mockMode && SKIP_TAX_REAL_TESTS,
         `Tax calculation ${mockMode ? "mocked" : "real"} tests are disabled.
-        To enable, set VITE_SKIP_TAX_CALCULATION_REAL_TESTS=true in the environment variables.`,
+        To enable, set VITE_SKIP_TAX_REAL_TESTS_UNTIL=2025-02-21 in the environment variables.`,
       );
 
       integrationTest.beforeEach(async ({ page }) => {
