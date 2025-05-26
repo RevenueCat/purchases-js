@@ -181,6 +181,11 @@
         signal,
       )
       .then((taxCalculation) => {
+        /*
+         * The event will be tracked as soon as the request ends,
+         * despite the fact that the recalculation may be aborted
+         * if a new recalculation is triggered.
+         */
         const event = createCheckoutPaymentTaxCalculationEvent({
           taxCalculation,
           taxCustomerDetails,
