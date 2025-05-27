@@ -15,7 +15,7 @@
     type,
     closeButtonTitle = "Go back to app",
     icon = null,
-    message,
+    message = null,
   } = $props();
 
   const brandingAppearanceStore =
