@@ -65,7 +65,7 @@ test.describe("Purchase flow", () => {
       page = await navigateToLandingUrl(page, userId);
       const packageCards = await getPackageCards(page, "E2E Consumable");
       expect(packageCards.length).toEqual(1);
-      await performPurchase(page, packageCards[0], email, false);
+      await performPurchase(page, packageCards[0], email);
     },
   );
 
@@ -75,7 +75,7 @@ test.describe("Purchase flow", () => {
       page = await navigateToLandingUrl(page, userId);
       const packageCards = await getPackageCards(page, "E2E NonConsumable");
       expect(packageCards.length).toEqual(1);
-      await performPurchase(page, packageCards[0], email, false);
+      await performPurchase(page, packageCards[0], email);
     },
   );
 
@@ -90,7 +90,7 @@ test.describe("Purchase flow", () => {
       expect(packageCards.length).toEqual(1);
       await startPurchaseFlow(packageCards[0]);
       await confirmStripeEmailFieldNotVisible(page);
-      await enterCreditCardDetails(page, "4242 4242 4242 4242", {}, false);
+      await enterCreditCardDetails(page, "4242 4242 4242 4242");
       await clickPayButton(page);
       await confirmPaymentComplete(page);
     },
