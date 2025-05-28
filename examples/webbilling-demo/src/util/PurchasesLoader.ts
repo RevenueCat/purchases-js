@@ -44,7 +44,7 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
         apiKey,
         appUserId,
         {
-          additionalHeaders: additionalHeaders,
+          additionalHeaders,
         },
         { autoCollectUTMAsMetadata: !optOutOfAutoUTM },
       );
