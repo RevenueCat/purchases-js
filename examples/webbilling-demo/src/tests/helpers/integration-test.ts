@@ -5,7 +5,8 @@ import { getEmailFromUserId } from "./test-helpers";
 export const ALLOW_PAYWALLS_TESTS =
   process.env.VITE_ALLOW_PAYWALLS_TESTS === "true";
 
-export const ALLOW_TAXES_TESTS = process.env.VITE_ALLOW_TAXES_TESTS === "true";
+export const SKIP_TAX_CALCULATION_REAL_TESTS =
+  process.env.VITE_ALLOW_TAXES_TESTS !== "true";
 
 interface TestFixtures {
   userId: string;
@@ -37,19 +38,3 @@ integrationTest.beforeEach(async ({ page }) => {
     });
   });
 });
-
-export const skipPaywallsTestIfDisabled = (test: typeof integrationTest) => {
-  test.skip(
-    !ALLOW_PAYWALLS_TESTS,
-    "Paywalls tests are disabled. To enable, set VITE_ALLOW_PAYWALLS_TESTS=true in the environment variables.",
-  );
-};
-
-export const skipTaxCalculationTestIfDisabled = (
-  test: typeof integrationTest,
-) => {
-  test.skip(
-    !ALLOW_TAXES_TESTS,
-    "Tax calculation tests are disabled. To enable, set VITE_ALLOW_TAXES_TESTS=true in the environment variables.",
-  );
-};
