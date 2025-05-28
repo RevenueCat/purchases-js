@@ -10,6 +10,7 @@ declare global {
 }
 
 const apiKey = window.__RC_API_KEY__ || import.meta.env.VITE_RC_API_KEY;
+const canary = import.meta.env.VITE_RC_CANARY;
 
 type IPurchasesLoaderData = {
   purchases: Purchases;
@@ -31,13 +32,20 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
   if (!appUserId) {
     throw redirect("/");
   }
+  const additionalHeaders: Record<string, string> = {};
+  if (canary) {
+    additionalHeaders["X-RC-Canary"] = canary;
+  }
+
   Purchases.setLogLevel(LogLevel.Verbose);
   try {
     if (!Purchases.isConfigured()) {
       Purchases.configure(
         apiKey,
         appUserId,
-        {},
+        {
+          additionalHeaders: additionalHeaders,
+        },
         { autoCollectUTMAsMetadata: !optOutOfAutoUTM },
       );
     } else {
