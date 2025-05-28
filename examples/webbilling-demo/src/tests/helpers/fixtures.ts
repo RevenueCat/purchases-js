@@ -233,29 +233,29 @@ export const INVALID_TAX_LOCATION_RESPONSE: RouteFulfillOptions = {
 
 export const STRIPE_TAX_NOT_ACTIVE_RESPONSE: RouteFulfillOptions = {
   status: 422,
-  contentType: "application/json",
-  body: JSON.stringify({
+  json: {
+    mocked: true,
     code: 7898,
     message:
       "Stripe account setup error: Stripe Tax must be active to calculate taxes.",
-  }),
+  },
 };
 
 export const INVALID_TAX_ORIGIN_RESPONSE: RouteFulfillOptions = {
   status: 422,
-  contentType: "application/json",
-  body: JSON.stringify({
-    code: 7898,
+  json: {
+    mocked: true,
+    code: 7899,
     message:
       "Stripe account setup error: Origin address for Stripe Tax is missing or invalid.",
-  }),
+  },
 };
 
 export const MISSING_STRIPE_PERMISSION_RESPONSE: RouteFulfillOptions = {
   status: 422,
-  contentType: "application/json",
-  body: JSON.stringify({
-    code: 7898,
-    message: "SStripe account setup error: Required permission is missing.",
-  }),
+  json: {
+    mocked: true,
+    code: 7900,
+    message: "Stripe account setup error: Required permission is missing.",
+  },
 };

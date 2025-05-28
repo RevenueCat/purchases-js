@@ -15,6 +15,9 @@ import {
   TEXAS_TAX_RESPONSE,
   NEW_YORK_TAX_RESPONSE,
   ITALY_TAX_RESPONSE,
+  STRIPE_TAX_NOT_ACTIVE_RESPONSE,
+  INVALID_TAX_ORIGIN_RESPONSE,
+  MISSING_STRIPE_PERMISSION_RESPONSE,
 } from "./helpers/fixtures";
 import {
   integrationTest,
@@ -577,36 +580,20 @@ const mockTaxCalculationRequest = async (
 integrationTest.describe("Tax calculation setup errors", () => {
   integrationTest.fixme("Stripe tax not active", async ({ page, userId }) => {
     await page.route(TAX_ROUTE_PATH, async (route) => {
-      await route.fulfill({
-        json: {
-          mocked: true,
-          code: 7898,
-          message:
-            "Stripe account setup error: Stripe Tax must be active to calculate taxes.",
-        },
-        status: 422,
-      });
-    });
+      await route.fulfill(STRIPE_TAX_NOT_ACTIVE_RESPONSE);
 
-    page = await navigateToTaxesLandingUrl(page, userId);
-    const packageCards = await getPackageCards(page);
-    await startPurchaseFlow(packageCards[0]);
-    await confirmPaymentError(page, "Stripe Tax not active");
+      page = await navigateToTaxesLandingUrl(page, userId);
+      const packageCards = await getPackageCards(page);
+      await startPurchaseFlow(packageCards[0]);
+      await confirmPaymentError(page, "Stripe Tax not active");
+    });
   });
 
   integrationTest.fixme(
     "Invalid tax origin address",
     async ({ page, userId }) => {
       await page.route(TAX_ROUTE_PATH, async (route) => {
-        await route.fulfill({
-          json: {
-            mocked: true,
-            code: 7899,
-            message:
-              "Stripe account setup error: Origin address for Stripe Tax is missing or invalid.",
-          },
-          status: 422,
-        });
+        await route.fulfill(INVALID_TAX_ORIGIN_RESPONSE);
       });
 
       page = await navigateToTaxesLandingUrl(page, userId);
@@ -620,15 +607,7 @@ integrationTest.describe("Tax calculation setup errors", () => {
     "Missing Stripe permission",
     async ({ page, userId }) => {
       await page.route(TAX_ROUTE_PATH, async (route) => {
-        await route.fulfill({
-          json: {
-            mocked: true,
-            code: 7900,
-            message:
-              "Stripe account setup error: Required permission is missing.",
-          },
-          status: 422,
-        });
+        await route.fulfill(MISSING_STRIPE_PERMISSION_RESPONSE);
       });
 
       page = await navigateToTaxesLandingUrl(page, userId);
