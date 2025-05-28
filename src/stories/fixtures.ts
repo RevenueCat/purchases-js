@@ -121,12 +121,14 @@ export const consumableProduct: Product = {
   ...structuredClone(product),
   productType: ProductType.Consumable,
   defaultPurchaseOption: nonSubscriptionOption,
+  subscriptionOptions: {},
 };
 
 export const nonConsumableProduct: Product = {
   ...structuredClone(product),
   productType: ProductType.NonConsumable,
   defaultPurchaseOption: nonSubscriptionOption,
+  subscriptionOptions: {},
 };
 
 export const rcPackage: Package = {
