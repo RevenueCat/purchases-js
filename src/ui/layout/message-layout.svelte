@@ -4,8 +4,11 @@
   import ModalSection from "./modal-section.svelte";
   import MessageLayoutError from "./message-layout-error.svelte";
   import MessageLayoutSuccess from "./message-layout-success.svelte";
-  import Typography from "../atoms/typography.svelte";
-  const {
+  import { getContext } from "svelte";
+  import { brandingContextKey } from "../constants";
+  import type { BrandingAppearance } from "../../entities/branding";
+
+  let {
     onDismiss,
     title = null,
     type,
@@ -13,6 +16,8 @@
     icon = null,
     message = null,
   } = $props();
+
+  const brandingAppearance = getContext<BrandingAppearance>(brandingContextKey);
 
   function handleClick() {
     onDismiss();
@@ -31,8 +36,8 @@
   </div>
   <div class="message-layout-footer">
     <ModalFooter>
-      <Button onclick={handleClick} type="submit"
-        ><Typography size="body-small">{closeButtonTitle}</Typography></Button
+      <Button onclick={handleClick} type="submit" {brandingAppearance}
+        >{closeButtonTitle}</Button
       >
     </ModalFooter>
   </div>
