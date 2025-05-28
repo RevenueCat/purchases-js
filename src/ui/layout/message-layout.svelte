@@ -7,7 +7,6 @@
   import { getContext } from "svelte";
   import { brandingContextKey } from "../constants";
   import type { BrandingAppearance } from "../../entities/branding";
-  import { type Writable } from "svelte/store";
 
   let {
     onDismiss,
@@ -18,9 +17,7 @@
     message = null,
   } = $props();
 
-  const brandingAppearanceStore =
-    getContext<Writable<BrandingAppearance>>(brandingContextKey);
-  const brandingAppearance = $derived($brandingAppearanceStore);
+  const brandingAppearance = getContext<BrandingAppearance>(brandingContextKey);
 
   function handleClick() {
     onDismiss();
