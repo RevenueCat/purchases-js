@@ -77,6 +77,11 @@ const mockTaxCalculationRequest = async (
         To enable, set VITE_SKIP_TAX_REAL_TESTS_UNTIL=2025-02-21 in the environment variables.`,
       );
 
+      integrationTest.skip(
+        ({ browserName }) => !mockMode && browserName !== "chromium",
+        "Real tax calculation tests only run in Chromium",
+      );
+
       integrationTest.beforeEach(async ({ page }) => {
         if (mockMode) {
           // Prevent the real requests from being performed
