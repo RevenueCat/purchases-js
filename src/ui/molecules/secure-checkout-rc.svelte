@@ -51,7 +51,7 @@
 </script>
 
 <div class="footer-caption-container">
-  {#if termsInfo}
+  {#if termsInfo && subscriptionOption}
     <p class="footer-caption">
       <Typography size="caption-default">{termsInfo}</Typography>
     </p>

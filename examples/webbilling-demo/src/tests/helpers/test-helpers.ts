@@ -22,10 +22,11 @@ export async function performPurchase(
   page: Page,
   card: Locator,
   email: string,
+  isSubscription: boolean = true,
 ) {
   await startPurchaseFlow(card);
   await enterEmail(page, email);
-  await enterCreditCardDetails(page, "4242 4242 4242 4242");
+  await enterCreditCardDetails(page, "4242 4242 4242 4242", {}, isSubscription);
   await clickPayButton(page);
   await confirmPaymentComplete(page);
 }
@@ -169,6 +170,7 @@ export async function enterCreditCardDetails(
     countryCode?: string;
     postalCode?: string;
   },
+  isSubscription: boolean = true,
 ): Promise<void> {
   const countryCode = cardInfo?.countryCode || "US";
   const postalCode =
@@ -179,8 +181,17 @@ export async function enterCreditCardDetails(
 
   page.locator("button[data-testid='PayButton']").waitFor();
   const checkoutTitle = page.getByText("Secure Checkout");
-
   await expect(checkoutTitle).toBeVisible();
+
+  const allowingCardUsageText = page.getByText(
+    /By providing your card information you allow/,
+  );
+  if (isSubscription) {
+    await expect(allowingCardUsageText).toBeVisible();
+  } else {
+    await expect(allowingCardUsageText).not.toBeVisible();
+  }
+
   const stripeFrame = getStripePaymentFrame(page);
 
   const numberInput = stripeFrame.getByPlaceholder("1234 1234 1234");
