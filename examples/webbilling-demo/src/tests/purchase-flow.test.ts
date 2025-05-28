@@ -17,11 +17,9 @@ import {
   confirmStripeEmailError,
   confirmStripeEmailFieldNotVisible,
   confirmStripeEmailFieldVisible,
-} from "./helpers/test-helpers";
-import {
-  integrationTest,
   skipPaywallsTestIfDisabled,
-} from "./helpers/integration-test";
+} from "./helpers/test-helpers";
+import { integrationTest } from "./helpers/integration-test";
 import { RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES } from "./helpers/fixtures";
 
 test.describe("Purchase flow", () => {
