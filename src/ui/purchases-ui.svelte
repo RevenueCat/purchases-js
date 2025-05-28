@@ -23,7 +23,7 @@
   import { type CurrentPage } from "./ui-types";
   import PurchasesUiInner from "./purchases-ui-inner.svelte";
   import { type IEventsTracker } from "../behavioural-events/events-tracker";
-  import { eventsTrackerContextKey } from "./constants";
+  import { eventsTrackerContextKey, brandingContextKey } from "./constants";
   import { createCheckoutFlowErrorEvent } from "../behavioural-events/sdk-event-helpers";
   import type { PurchaseMetadata } from "../entities/offerings";
   import { writable } from "svelte/store";
@@ -95,6 +95,7 @@
   );
   var translatorStore = writable(translator);
   setContext(translatorContextKey, translatorStore);
+  setContext(brandingContextKey, brandingInfo?.appearance);
 
   onMount(() => {
     if (!isInElement) {

@@ -22,6 +22,7 @@
     createCheckoutPaymentFormErrorEvent,
     createCheckoutPaymentFormSubmitEvent,
     createCheckoutPaymentGatewayErrorEvent,
+    createCheckoutPaymentTaxCalculationEvent,
   } from "../../behavioural-events/sdk-event-helpers";
   import { SDKEventName } from "../../behavioural-events/sdk-events";
   import Loading from "../molecules/loading.svelte";
@@ -180,6 +181,17 @@
         signal,
       )
       .then((taxCalculation) => {
+        /*
+         * The event will be tracked as soon as the request ends,
+         * despite the fact that the recalculation may be aborted
+         * if a new recalculation is triggered.
+         */
+        const event = createCheckoutPaymentTaxCalculationEvent({
+          taxCalculation,
+          taxCustomerDetails,
+        });
+        eventsTracker.trackSDKEvent(event);
+
         signal?.throwIfAborted();
 
         if (taxCalculation.failed_reason) {

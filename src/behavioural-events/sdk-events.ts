@@ -7,6 +7,7 @@ export type SDKEvent =
   | CheckoutSessionClosedEvent
   | CheckoutFlowErrorEvent
   | CheckoutSessionErroredEvent
+  | CheckoutPaymentTaxCalculationEvent
   | CheckoutPaymentFormImpressionEvent
   | CheckoutPaymentFormDismissEvent
   | CheckoutPaymentFormSubmitEvent
@@ -20,6 +21,7 @@ export enum SDKEventName {
   CheckoutSessionStart = "checkout_session_start",
   CheckoutSessionEnd = "checkout_session_end",
   CheckoutFlowError = "checkout_flow_error",
+  CheckoutPaymentTaxCalculation = "checkout_payment_tax_calculation",
   CheckoutPaymentFormImpression = "checkout_payment_form_impression",
   CheckoutPaymentFormError = "checkout_payment_form_error",
   CheckoutPaymentFormDismiss = "checkout_payment_form_dismiss",
@@ -89,6 +91,16 @@ export interface CheckoutFlowErrorEvent extends ISDKEvent {
   properties: {
     errorCode: string | null;
     errorMessage: string;
+  };
+}
+
+export interface CheckoutPaymentTaxCalculationEvent extends ISDKEvent {
+  eventName: SDKEventName.CheckoutPaymentTaxCalculation;
+  properties: {
+    outcome: "disabled" | "failed" | "not-taxed" | "taxed";
+    ui_element: "form" | "auto";
+    error_code: string | null;
+    tax_inclusive: boolean;
   };
 }
 

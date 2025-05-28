@@ -4,6 +4,8 @@
   import { eventsTrackerContextKey } from "../../ui/constants";
   import { setContext, type Snippet } from "svelte";
   import { writable, type Writable } from "svelte/store";
+  import { brandingInfos } from "../fixtures";
+  import { brandingContextKey } from "../../ui/constants";
 </script>
 
 <script lang="ts">
@@ -12,6 +14,7 @@
     globals: {
       locale: string;
       viewport: string;
+      brandingName: string;
     };
   }
 
@@ -21,7 +24,9 @@
   const initiaLocale = globals.locale || "en";
   const translator = new Translator({}, initiaLocale, initiaLocale);
   const translatorStore: Writable<Translator> = writable(translator);
+  const brandingInfo = brandingInfos[globals.brandingName];
 
+  setContext(brandingContextKey, brandingInfo.appearance);
   setContext(translatorContextKey, translatorStore);
   setContext(eventsTrackerContextKey, { trackSDKEvent: () => {} });
 

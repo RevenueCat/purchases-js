@@ -1,9 +1,29 @@
+import type { APIResponse } from "@playwright/test";
 import { type Page, type Locator, expect } from "@playwright/test";
 import { BASE_URL, NON_TAX_TEST_API_KEY } from "./fixtures";
+import type { integrationTest } from "./integration-test";
+import { ALLOW_PAYWALLS_TESTS } from "./integration-test";
+
+export type RouteFulfillOptions = {
+  body?: string | Buffer | undefined;
+  contentType?: string | undefined;
+  headers?: { [key: string]: string } | undefined;
+  json?: Record<string, unknown>;
+  path?: string | undefined;
+  response?: APIResponse | undefined;
+  status?: number | undefined;
+};
 
 export const CARD_SELECTOR = "div.card";
 export const PACKAGE_SELECTOR = "button.rc-pw-package";
 export const TAX_SKELETON_SELECTOR = "div[data-testid='tax-loading-skeleton']";
+
+export const skipPaywallsTestIfDisabled = (test: typeof integrationTest) => {
+  test.skip(
+    !ALLOW_PAYWALLS_TESTS,
+    "Paywalls tests are disabled. To enable, set VITE_ALLOW_PAYWALLS_TESTS=true in the environment variables.",
+  );
+};
 
 function getRandomHash(length: number = 6): string {
   const characters = "abcdefghijklmnopqrstuvwxyz0123456789";
