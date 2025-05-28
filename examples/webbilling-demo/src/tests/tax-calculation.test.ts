@@ -83,6 +83,16 @@ const mockTaxCalculationRequest = async (
           await page.route(TAX_ROUTE_PATH, async (route) => {
             route.abort();
           });
+        } else {
+          // Fail the test if the rate limit is reached
+          await page.route(TAX_ROUTE_PATH, async (route) => {
+            const response = await route.fetch();
+            const json = await response.json();
+            if (json["failed_reason"] === "rate_limit_exceeded") {
+              throw new Error("Stripe Tax Calculation API rate limit reached.");
+            }
+            route.fulfill({ response, json });
+          });
         }
       });
 
