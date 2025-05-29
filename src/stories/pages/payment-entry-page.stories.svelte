@@ -47,6 +47,8 @@
 </script>
 
 <script lang="ts">
+  import { consumableProduct, nonSubscriptionOption } from "../fixtures";
+
   setTemplate(template);
 </script>
 
@@ -127,6 +129,24 @@
     },
     purchaseOptionToUse: subscriptionOptionWithTrial,
     defaultPurchaseOption: subscriptionOptionWithTrial,
+  }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
+  }}
+/>
+
+<Story
+  name="With Non Subscription product"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    productDetails: {
+      ...consumableProduct,
+    },
+    purchaseOptionToUse: nonSubscriptionOption,
+    defaultPurchaseOption: nonSubscriptionOption,
   }}
   parameters={{
     chromatic: {
