@@ -151,12 +151,6 @@
     onPriceBreakdownUpdated(priceBreakdown);
   });
 
-  onMount(() => {
-    eventsTracker.trackSDKEvent({
-      eventName: SDKEventName.CheckoutPaymentFormImpression,
-    });
-  });
-
   onMount(async () => {
     if (taxCalculationStatus === "unavailable") {
       await recalculatePriceBreakdown(null).catch(handleErrors);
@@ -223,6 +217,9 @@
   }
 
   function handleStripeLoadingComplete() {
+    eventsTracker.trackSDKEvent({
+      eventName: SDKEventName.CheckoutPaymentFormImpression,
+    });
     isStripeLoading = false;
   }
 
