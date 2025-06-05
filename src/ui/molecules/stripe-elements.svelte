@@ -16,7 +16,10 @@
   import { translatorContextKey } from "../localization/constants";
   import { Translator } from "../localization/translator";
 
-  import type { StripeElementsConfiguration } from "../../networking/responses/stripe-elements";
+  import type {
+    StripeElementsConfiguration,
+    StripeExpressCheckoutOptions,
+  } from "../../networking/responses/stripe-elements";
   import { DEFAULT_FONT_FAMILY } from "../theme/text";
   import {
     StripeService,
@@ -30,6 +33,7 @@
     stripeAccountId?: string;
     publishableApiKey?: string;
     elementsConfiguration?: StripeElementsConfiguration;
+    expressCheckoutOptions?: StripeExpressCheckoutOptions;
     brandingInfo: BrandingInfoResponse | null;
     skipEmail: boolean;
     billingAddressRequired: boolean;
@@ -52,6 +56,7 @@
     stripeAccountId,
     publishableApiKey,
     elementsConfiguration,
+    expressCheckoutOptions,
     brandingInfo,
     skipEmail,
     billingAddressRequired,
@@ -218,6 +223,7 @@
       onError={onStripeElementsLoadingError}
       onReady={onExpressCheckoutElementReady}
       onSubmit={onExpressCheckoutElementSubmit}
+      {expressCheckoutOptions}
       {billingAddressRequired}
     />
     {#if !skipEmail}

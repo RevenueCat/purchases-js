@@ -1,11 +1,10 @@
 <script lang="ts">
   import type {
-    StripeError,
     StripeElements,
+    StripeError,
     StripeExpressCheckoutElement,
     StripeExpressCheckoutElementConfirmEvent,
     StripeExpressCheckoutElementReadyEvent,
-    StripeExpressCheckoutElementClickEvent,
   } from "@stripe/stripe-js";
   import {
     StripeService,
@@ -18,6 +17,7 @@
   import { Translator } from "../localization/translator";
   import { type Writable } from "svelte/store";
   import { translatorContextKey } from "../localization/constants";
+  import type { StripeExpressCheckoutOptions } from "../../networking/responses/stripe-elements";
 
   export interface Props {
     onError: (error: StripeServiceError) => void | Promise<void>;
@@ -28,6 +28,7 @@
     ) => void | Promise<void>;
     elements: StripeElements;
     billingAddressRequired: boolean;
+    expressCheckoutOptions?: StripeExpressCheckoutOptions;
   }
 
   const {
@@ -36,6 +37,7 @@
     onSubmit,
     elements,
     billingAddressRequired,
+    expressCheckoutOptions,
   }: Props = $props();
 
   const translator = getContext<Writable<Translator>>(translatorContextKey);
@@ -66,22 +68,16 @@
 
   onMount(() => {
     try {
-      expressCheckoutElement =
-        StripeService.createExpressCheckoutElement(elements);
+      expressCheckoutElement = StripeService.createExpressCheckoutElement(
+        elements,
+        billingAddressRequired,
+        true,
+        expressCheckoutOptions,
+      );
       expressCheckoutElement.mount(`#${expressCheckoutElementId}`);
       expressCheckoutElement.on("ready", onReadyCallback);
       expressCheckoutElement.on("confirm", onConfirmCallback);
       expressCheckoutElement.on("loaderror", onLoadErrorCallback);
-
-      expressCheckoutElement.on(
-        "click",
-        (event: StripeExpressCheckoutElementClickEvent) => {
-          event.resolve({
-            billingAddressRequired,
-            emailRequired: true,
-          });
-        },
-      );
     } catch (e) {
       onError(StripeService.mapInitializationError(e as StripeError));
     }
@@ -91,6 +87,8 @@
     expressCheckoutElement?.destroy();
     expressCheckoutElement = null;
   });
+
+  // TODO: find a way to update the wallet config when expressCheckoutOptions get updated.
 </script>
 
 {#if !hideExpressCheckoutElement}

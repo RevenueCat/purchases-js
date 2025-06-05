@@ -85,5 +85,6 @@
   "error_page.error_only_in_sandbox": "Questo messaggio viene visualizzato solo in sandbox.",
   "error_page.error_message_stripe_missing_required_permission": "L'acquisto non è andato a buon fine perché l'app Stripe non dispone dell'autorizzazione necessaria. In produzione, gli acquisti verranno effettuati senza l'applicazione delle imposte e questo errore non sarà visibile.",
   "error_page.error_title_stripe_tax_not_active": "Stripe Tax non attivo",
-  "error_page.error_title_stripe_invalid_tax_origin_address": "Indirizzo di origine fiscale non valido"
+  "error_page.error_title_stripe_invalid_tax_origin_address": "Indirizzo di origine fiscale non valido",
+  "apple_pay.free_trial": "Prova gratuita"
 }

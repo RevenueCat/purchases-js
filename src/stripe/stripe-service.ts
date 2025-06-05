@@ -10,7 +10,15 @@ import type {
 import type { BrandingInfoResponse } from "../networking/responses/branding-response";
 import { Theme } from "../ui/theme/theme";
 import { DEFAULT_TEXT_STYLES } from "../ui/theme/text";
-import type { StripeElementsConfiguration } from "../networking/responses/stripe-elements";
+import type {
+  StripeElementsConfiguration,
+  StripeExpressCheckoutOptions,
+} from "../networking/responses/stripe-elements";
+import type { Product, SubscriptionOption } from "../entities/offerings";
+import type { Translator } from "../ui/localization/translator";
+import { LocalizationKeys } from "../ui/localization/supportedLanguages";
+import type { StripeExpressCheckoutElementOptions } from "@stripe/stripe-js/dist/stripe-js/elements/index";
+import { type Period, PeriodUnit } from "../helpers/duration-helper";
 
 export enum StripeServiceErrorCode {
   ErrorLoadingStripe = 0,
@@ -215,8 +223,22 @@ export class StripeService {
     });
   }
 
-  static createExpressCheckoutElement(elements: StripeElements) {
-    return elements.create("expressCheckout", {});
+  static createExpressCheckoutElement(
+    elements: StripeElements,
+    billingAddressRequired: boolean,
+    emailRequired: boolean,
+    expressCheckoutOptions?: StripeExpressCheckoutOptions,
+  ) {
+    const options = {
+      billingAddressRequired,
+      emailRequired: emailRequired,
+      ...(expressCheckoutOptions ? expressCheckoutOptions : {}),
+    };
+
+    return elements.create(
+      "expressCheckout",
+      options as StripeExpressCheckoutElementOptions,
+    );
   }
 
   static createLinkAuthenticationElement(
@@ -320,6 +342,92 @@ export class StripeService {
         postalCode: billingAddress?.postal_code ?? undefined,
       },
       confirmationTokenId: confirmationToken.id,
+    };
+  }
+
+  static nextDateforPeriod(period: Period, startDate: Date) {
+    if (period.unit === PeriodUnit.Year) {
+      startDate.setFullYear(startDate.getFullYear() + period.number);
+      return startDate;
+    }
+
+    if (period.unit === PeriodUnit.Month) {
+      startDate.setMonth(startDate.getMonth() + period.number);
+      return startDate;
+    }
+
+    if (period.unit === PeriodUnit.Week) {
+      startDate.setDate(startDate.getDate() + period.number * 7);
+      return startDate;
+    }
+
+    if (period.unit === PeriodUnit.Day) {
+      startDate.setDate(startDate.getDate() + period.number);
+      return startDate;
+    }
+
+    return startDate;
+  }
+
+  static applePayPeriod(period: Period): {
+    recurringPaymentIntervalUnit?: "year" | "month" | "day" | "hour" | "minute";
+    recurringPaymentIntervalCount?: number;
+  } {
+    if (period.unit === PeriodUnit.Week) {
+      return {
+        recurringPaymentIntervalUnit: "day",
+        recurringPaymentIntervalCount: period.number * 7,
+      };
+    }
+    return {
+      recurringPaymentIntervalUnit: period.unit,
+      recurringPaymentIntervalCount: period.number,
+    };
+  }
+
+  static buildStripeExpressCheckoutOptionsForSubscription(
+    productDetails: Product,
+    subscriptionOption: SubscriptionOption,
+    translator: Translator,
+  ): StripeExpressCheckoutOptions {
+    const priceMicros = subscriptionOption.base.price?.amountMicros;
+
+    if (!priceMicros) {
+      return {};
+    }
+
+    const hasTrial = subscriptionOption.trial;
+    const trialPeriod = subscriptionOption.trial?.period;
+    const basePeriod = subscriptionOption.base.period;
+
+    const recurringPaymentStartDate =
+      hasTrial && trialPeriod
+        ? StripeService.nextDateforPeriod(trialPeriod, new Date())
+        : new Date();
+
+    const recurringPeriod = basePeriod
+      ? StripeService.applePayPeriod(basePeriod)
+      : {};
+
+    return {
+      applePay: {
+        recurringPaymentRequest: {
+          paymentDescription: productDetails.title,
+          managementURL: "https://example.com/manage",
+          trialBilling: hasTrial
+            ? {
+                label: translator.translate(LocalizationKeys.ApplePayFreeTrial),
+                amount: 0,
+              }
+            : undefined,
+          regularBilling: {
+            label: productDetails.title,
+            amount: priceMicros / 10000,
+            recurringPaymentStartDate: recurringPaymentStartDate,
+            ...recurringPeriod,
+          },
+        },
+      },
     };
   }
 }

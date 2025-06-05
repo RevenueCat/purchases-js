@@ -120,6 +120,7 @@ export enum LocalizationKeys {
   PriceUpdateTitle = "price_update.title",
   PriceUpdateBaseMessage = "price_update.base_message",
   PriceUpdateTrialMessage = "price_update.trial_message",
+  ApplePayFreeTrial = "apple_pay.free_trial",
 }
 
 export const supportedLanguages: Record<

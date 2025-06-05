@@ -85,5 +85,6 @@
   "error_page.error_only_in_sandbox": "Ova se poruka pojavljuje samo u sandboxu.",
   "error_page.error_message_stripe_missing_required_permission": "Kupnja nije uspjela jer Stripe aplikaciji nedostaje potrebno dopuštenje. U produkciji će kupnje funkcionirati bez primijenjenih poreza.",
   "error_page.error_title_stripe_tax_not_active": "Stripe Tax nije aktivan",
-  "error_page.error_title_stripe_invalid_tax_origin_address": "Nevažeća adresa poreznog podrijetla"
+  "error_page.error_title_stripe_invalid_tax_origin_address": "Nevažeća adresa poreznog podrijetla",
+  "apple_pay.free_trial": "Besplatna proba"
 }
