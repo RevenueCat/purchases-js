@@ -453,7 +453,7 @@ export enum ReservedCustomerAttribute {
 }
 
 // @public
-export type Store = "app_store" | "mac_app_store" | "play_store" | "amazon" | "stripe" | "rc_billing" | "promotional" | "unknown";
+export type Store = "app_store" | "mac_app_store" | "play_store" | "amazon" | "stripe" | "rc_billing" | "promotional" | "paddle" | "unknown";
 
 // @public
 export interface SubscriptionInfo {
