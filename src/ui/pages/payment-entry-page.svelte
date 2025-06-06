@@ -148,11 +148,15 @@
   );
 
   let expressCheckoutOptions = $derived(
-    subscriptionOption
+    subscriptionOption &&
+      gatewayParams?.express_checkout_configuration?.apple_pay
+        ?.recurring_payment_request?.management_url
       ? StripeService.buildStripeExpressCheckoutOptionsForSubscription(
           productDetails,
           subscriptionOption,
           $translator,
+          gatewayParams.express_checkout_configuration.apple_pay
+            .recurring_payment_request.management_url,
         )
       : undefined,
   );

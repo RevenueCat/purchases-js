@@ -1,7 +1,5 @@
-import type {
-  StripeElementsConfiguration,
-  StripeExpressCheckoutConfiguration,
-} from "./stripe-elements";
+import type { StripeElementsConfiguration } from "./stripe-elements";
+import type { StripeExpressCheckoutConfiguration } from "../../stripe/stripe-express-checkout-configuration";
 
 export interface TaxBreakdown {
   tax_amount_in_micros: number;

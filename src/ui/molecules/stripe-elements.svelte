@@ -16,16 +16,14 @@
   import { translatorContextKey } from "../localization/constants";
   import { Translator } from "../localization/translator";
 
-  import type {
-    StripeElementsConfiguration,
-    StripeExpressCheckoutConfiguration,
-  } from "../../networking/responses/stripe-elements";
+  import type { StripeElementsConfiguration } from "../../networking/responses/stripe-elements";
   import { DEFAULT_FONT_FAMILY } from "../theme/text";
   import {
     StripeService,
     StripeServiceError,
   } from "../../stripe/stripe-service";
   import { type Writable } from "svelte/store";
+  import type { StripeExpressCheckoutConfiguration } from "../../stripe/stripe-express-checkout-configuration";
 
   interface Props {
     stripe: Stripe | null;

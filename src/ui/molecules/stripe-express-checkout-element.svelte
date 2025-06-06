@@ -17,7 +17,8 @@
   import { Translator } from "../localization/translator";
   import { type Writable } from "svelte/store";
   import { translatorContextKey } from "../localization/constants";
-  import type { StripeExpressCheckoutConfiguration } from "../../networking/responses/stripe-elements";
+
+  import type { StripeExpressCheckoutConfiguration } from "../../stripe/stripe-express-checkout-configuration";
 
   export interface Props {
     onError: (error: StripeServiceError) => void | Promise<void>;

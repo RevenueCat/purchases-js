@@ -16,38 +16,10 @@ export interface StripeElementsConfiguration {
   currency?: string;
 }
 
-export interface StripeExpressCheckoutConfiguration {
-  applePay?: {
-    recurringPaymentRequest?: {
-      paymentDescription: string;
-      managementURL: string;
-      regularBilling: {
-        amount: number;
-        label: string;
-        recurringPaymentStartDate?: Date;
-        recurringPaymentEndDate?: Date;
-        recurringPaymentIntervalUnit?:
-          | "year"
-          | "month"
-          | "day"
-          | "hour"
-          | "minute";
-        recurringPaymentIntervalCount?: number;
-      };
-      trialBilling?: {
-        amount: number;
-        label?: string;
-        recurringPaymentStartDate?: Date;
-        recurringPaymentEndDate?: Date;
-        recurringPaymentIntervalUnit?:
-          | "year"
-          | "month"
-          | "day"
-          | "hour"
-          | "minute";
-        recurringPaymentIntervalCount?: number;
-      };
-      billingAgreement?: string;
+export interface PartialStripeExpressCheckoutConfiguration {
+  apple_pay?: {
+    recurring_payment_request?: {
+      management_url: string;
     };
   };
 }
@@ -56,5 +28,5 @@ export interface GatewayParams {
   stripe_account_id?: string;
   publishable_api_key?: string;
   elements_configuration?: StripeElementsConfiguration;
-  express_checkout_configuration?: StripeExpressCheckoutConfiguration;
+  express_checkout_configuration?: PartialStripeExpressCheckoutConfiguration;
 }
