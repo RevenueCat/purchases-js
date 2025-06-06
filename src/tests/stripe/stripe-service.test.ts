@@ -1,13 +1,13 @@
-import { describe, test, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import {
   StripeService,
   StripeServiceErrorCode,
 } from "../../stripe/stripe-service";
 import type {
-  StripeError,
-  StripeElements,
   Stripe,
   StripeElementLocale,
+  StripeElements,
+  StripeError,
 } from "@stripe/stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import type { StripeElementsConfiguration } from "../../networking/responses/stripe-elements";
@@ -324,6 +324,22 @@ describe("StripeService", () => {
           email: "",
         },
       });
+    });
+  });
+
+  describe("microsToMinimumAmountPrice", () => {
+    test("converts correctly JPY and USD", () => {
+      const priceMicros = 1_000_000;
+
+      // 1 yen
+      expect(StripeService.microsToMinimumAmountPrice(priceMicros, "JPY")).toBe(
+        1,
+      );
+
+      // 1 dollar
+      expect(StripeService.microsToMinimumAmountPrice(priceMicros, "USD")).toBe(
+        100,
+      );
     });
   });
 });

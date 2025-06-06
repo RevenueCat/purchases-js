@@ -380,6 +380,37 @@ export class StripeService {
     };
   }
 
+  // https://docs.stripe.com/js/elements_object/create_without_intent#stripe_elements_no_intent-options-amount
+  static microsToMinimumAmountPrice(
+    priceMicros: number,
+    currency: string,
+  ): number {
+    const zeroDecimalCurrencies = [
+      "BIF",
+      "CLP",
+      "DJF",
+      "GNF",
+      "JPY",
+      "KMF",
+      "KRW",
+      "MGA",
+      "PYG",
+      "RWF",
+      "UGX",
+      "VND",
+      "VUV",
+      "XAF",
+      "XOF",
+      "XPF",
+    ];
+
+    if (zeroDecimalCurrencies.includes(currency)) {
+      return Math.floor(priceMicros / 1_000_000);
+    }
+
+    return Math.floor(priceMicros / 10_000);
+  }
+
   static buildStripeExpressCheckoutOptionsForSubscription(
     productDetails: Product,
     priceBreakdown: PriceBreakdown,
@@ -387,11 +418,10 @@ export class StripeService {
     translator: Translator,
     managementUrl: string,
   ): StripeExpressCheckoutConfiguration {
-    const priceMicros = priceBreakdown.totalAmountInMicros;
-
-    if (!priceMicros) {
-      return {};
-    }
+    const priceMinimumAmount = StripeService.microsToMinimumAmountPrice(
+      priceBreakdown.totalAmountInMicros,
+      priceBreakdown.currency,
+    );
 
     const hasTrial = subscriptionOption.trial;
     const trialPeriod = subscriptionOption.trial?.period;
@@ -419,7 +449,7 @@ export class StripeService {
             : undefined,
           regularBilling: {
             label: productDetails.title,
-            amount: priceMicros / 10000,
+            amount: priceMinimumAmount,
             recurringPaymentStartDate: recurringPaymentStartDate,
             ...recurringPeriod,
           },
