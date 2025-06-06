@@ -4,4 +4,5 @@
 
 <div style="color:var(--rc-color-primary);">
   {@html Icon}
+  <!-- Empty commit -->
 </div>
