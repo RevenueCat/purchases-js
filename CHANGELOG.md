@@ -1,3 +1,8 @@
+## 1.5.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Added the customization of the stripe checkout element given a subscription option product (#519) via Nicola Sacco (@nicfix)
+
 ## 1.5.0
 ## RevenueCat SDK
 ### ✨ New Features
