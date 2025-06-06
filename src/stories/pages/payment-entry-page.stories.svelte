@@ -77,6 +77,7 @@
     isInElement={context.globals.viewport === "embedded"}
     onError={() => {}}
     onClose={() => {}}
+    managementUrl="http://test.com"
   />
 {/snippet}
 

@@ -85,5 +85,6 @@
   "error_page.error_only_in_sandbox": "Thông báo này chỉ xuất hiện trong môi trường thử nghiệm.",
   "error_page.error_message_stripe_missing_required_permission": "Giao dịch mua không thành công vì ứng dụng Stripe thiếu một quyền cần thiết. Trong môi trường thực tế, giao dịch mua sẽ hoạt động mà không áp dụng thuế.",
   "error_page.error_title_stripe_tax_not_active": "Thuế Stripe chưa hoạt động",
-  "error_page.error_title_stripe_invalid_tax_origin_address": "Địa chỉ gốc thuế không hợp lệ"
+  "error_page.error_title_stripe_invalid_tax_origin_address": "Địa chỉ gốc thuế không hợp lệ",
+  "apple_pay.free_trial": "Dùng thử miễn phí"
 }

@@ -11,6 +11,13 @@ import type { BrandingInfoResponse } from "../networking/responses/branding-resp
 import { Theme } from "../ui/theme/theme";
 import { DEFAULT_TEXT_STYLES } from "../ui/theme/text";
 import type { StripeElementsConfiguration } from "../networking/responses/stripe-elements";
+import type { Product, SubscriptionOption } from "../entities/offerings";
+import type { Translator } from "../ui/localization/translator";
+import { LocalizationKeys } from "../ui/localization/supportedLanguages";
+import type { StripeExpressCheckoutElementOptions } from "@stripe/stripe-js/dist/stripe-js/elements/index";
+import { type Period, PeriodUnit } from "../helpers/duration-helper";
+import type { StripeExpressCheckoutConfiguration } from "./stripe-express-checkout-configuration";
+import type { PriceBreakdown } from "../ui/ui-types";
 
 export enum StripeServiceErrorCode {
   ErrorLoadingStripe = 0,
@@ -215,8 +222,18 @@ export class StripeService {
     });
   }
 
-  static createExpressCheckoutElement(elements: StripeElements) {
-    return elements.create("expressCheckout", {});
+  static createExpressCheckoutElement(
+    elements: StripeElements,
+    billingAddressRequired: boolean,
+    expressCheckoutOptions?: StripeExpressCheckoutConfiguration,
+  ) {
+    const options = {
+      billingAddressRequired,
+      emailRequired: true,
+      ...(expressCheckoutOptions ? expressCheckoutOptions : {}),
+    } as StripeExpressCheckoutElementOptions;
+
+    return elements.create("expressCheckout", options);
   }
 
   static createLinkAuthenticationElement(
@@ -320,6 +337,124 @@ export class StripeService {
         postalCode: billingAddress?.postal_code ?? undefined,
       },
       confirmationTokenId: confirmationToken.id,
+    };
+  }
+
+  static nextDateForPeriod(period: Period, startDate: Date) {
+    if (period.unit === PeriodUnit.Year) {
+      startDate.setFullYear(startDate.getFullYear() + period.number);
+      return startDate;
+    }
+
+    if (period.unit === PeriodUnit.Month) {
+      startDate.setMonth(startDate.getMonth() + period.number);
+      return startDate;
+    }
+
+    if (period.unit === PeriodUnit.Week) {
+      startDate.setDate(startDate.getDate() + period.number * 7);
+      return startDate;
+    }
+
+    if (period.unit === PeriodUnit.Day) {
+      startDate.setDate(startDate.getDate() + period.number);
+      return startDate;
+    }
+
+    return startDate;
+  }
+
+  static applePayPeriod(period: Period): {
+    recurringPaymentIntervalUnit?: "year" | "month" | "day" | "hour" | "minute";
+    recurringPaymentIntervalCount?: number;
+  } {
+    if (period.unit === PeriodUnit.Week) {
+      return {
+        recurringPaymentIntervalUnit: "day",
+        recurringPaymentIntervalCount: period.number * 7,
+      };
+    }
+    return {
+      recurringPaymentIntervalUnit: period.unit,
+      recurringPaymentIntervalCount: period.number,
+    };
+  }
+
+  // https://docs.stripe.com/js/elements_object/create_without_intent#stripe_elements_no_intent-options-amount
+  static microsToMinimumAmountPrice(
+    priceMicros: number,
+    currency: string,
+  ): number {
+    const zeroDecimalCurrencies = [
+      "BIF",
+      "CLP",
+      "DJF",
+      "GNF",
+      "JPY",
+      "KMF",
+      "KRW",
+      "MGA",
+      "PYG",
+      "RWF",
+      "UGX",
+      "VND",
+      "VUV",
+      "XAF",
+      "XOF",
+      "XPF",
+    ];
+
+    if (zeroDecimalCurrencies.includes(currency)) {
+      return Math.floor(priceMicros / 1_000_000);
+    }
+
+    return Math.floor(priceMicros / 10_000);
+  }
+
+  static buildStripeExpressCheckoutOptionsForSubscription(
+    productDetails: Product,
+    priceBreakdown: PriceBreakdown,
+    subscriptionOption: SubscriptionOption,
+    translator: Translator,
+    managementUrl: string,
+  ): StripeExpressCheckoutConfiguration {
+    const priceMinimumAmount = StripeService.microsToMinimumAmountPrice(
+      priceBreakdown.totalAmountInMicros,
+      priceBreakdown.currency,
+    );
+
+    const hasTrial = subscriptionOption.trial;
+    const trialPeriod = subscriptionOption.trial?.period;
+    const basePeriod = subscriptionOption.base.period;
+
+    const recurringPaymentStartDate =
+      hasTrial && trialPeriod
+        ? StripeService.nextDateForPeriod(trialPeriod, new Date())
+        : new Date();
+
+    const recurringPeriod = basePeriod
+      ? StripeService.applePayPeriod(basePeriod)
+      : {};
+
+    return {
+      applePay: {
+        recurringPaymentRequest: {
+          paymentDescription: productDetails.title,
+          managementURL: managementUrl,
+          trialBilling: hasTrial
+            ? {
+                label: translator.translate(LocalizationKeys.ApplePayFreeTrial),
+                amount: 0,
+              }
+            : undefined,
+          regularBilling: {
+            label: productDetails.title,
+            amount: priceMinimumAmount,
+            recurringPaymentStartDate: recurringPaymentStartDate,
+            ...recurringPeriod,
+          },
+        },
+      },
     };
   }
 }

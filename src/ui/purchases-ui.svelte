@@ -82,6 +82,7 @@
   let redemptionInfo: RedemptionInfo | null = $state(null);
   let operationSessionId: string | null = $state(null);
   let gatewayParams: GatewayParams = $state({});
+  let managementUrl: string | null = $state(null);
 
   let originalHtmlHeight: string | null = $state(null);
   let originalHtmlOverflow: string | null = $state(null);
@@ -153,6 +154,7 @@
         lastError = null;
         currentPage = "payment-entry";
         gatewayParams = result.gateway_params;
+        managementUrl = result.management_url;
       })
       .catch((e: PurchaseFlowError) => {
         if (e.errorCode === PurchaseFlowErrorCode.MissingEmailError) {
@@ -170,6 +172,7 @@
               lastError = null;
               currentPage = "payment-entry";
               gatewayParams = result.gateway_params;
+              managementUrl = result.management_url;
             })
             .catch((e: PurchaseFlowError) => {
               handleError(e);
@@ -232,6 +235,7 @@
   purchaseOptionToUse={purchaseOption}
   {lastError}
   {gatewayParams}
+  {managementUrl}
   {purchaseOperationHelper}
   {isInElement}
   customerEmail={email ?? null}

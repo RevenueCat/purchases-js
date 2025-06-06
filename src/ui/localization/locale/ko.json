@@ -85,5 +85,6 @@
   "error_page.error_only_in_sandbox": "이 메시지는 샌드박스에서만 표시됩니다.",
   "error_page.error_message_stripe_missing_required_permission": "Stripe 앱에 필요한 권한이 없어 구매에 실패했습니다. 프로덕션 환경에서는 세금이 적용되지 않은 상태로 구매가 진행됩니다.",
   "error_page.error_title_stripe_tax_not_active": "Stripe Tax가 활성화되지 않음",
-  "error_page.error_title_stripe_invalid_tax_origin_address": "잘못된 세금 원산지 주소"
+  "error_page.error_title_stripe_invalid_tax_origin_address": "잘못된 세금 원산지 주소",
+  "apple_pay.free_trial": "무료 체험"
 }

@@ -85,5 +85,6 @@
   "error_page.error_only_in_sandbox": "Denne meddelelse vises kun i sandkassen.",
   "error_page.error_message_stripe_missing_required_permission": "Købet mislykkedes, fordi Stripe-appen mangler en påkrævet tilladelse. I produktion vil køb fungere uden påførte skatter.",
   "error_page.error_title_stripe_tax_not_active": "Stripe Tax er ikke aktiv",
-  "error_page.error_title_stripe_invalid_tax_origin_address": "Ugyldig skatteoprindelsesadresse"
+  "error_page.error_title_stripe_invalid_tax_origin_address": "Ugyldig skatteoprindelsesadresse",
+  "apple_pay.free_trial": "Gratis prøveperiode"
 }

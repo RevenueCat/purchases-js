@@ -1,11 +1,10 @@
 <script lang="ts">
   import type {
-    StripeError,
     StripeElements,
+    StripeError,
     StripeExpressCheckoutElement,
     StripeExpressCheckoutElementConfirmEvent,
     StripeExpressCheckoutElementReadyEvent,
-    StripeExpressCheckoutElementClickEvent,
   } from "@stripe/stripe-js";
   import {
     StripeService,
@@ -19,6 +18,12 @@
   import { type Writable } from "svelte/store";
   import { translatorContextKey } from "../localization/constants";
 
+  import type { StripeExpressCheckoutConfiguration } from "../../stripe/stripe-express-checkout-configuration";
+  import type {
+    ClickResolveDetails,
+    StripeExpressCheckoutElementClickEvent,
+  } from "@stripe/stripe-js/dist/stripe-js/elements/express-checkout";
+
   export interface Props {
     onError: (error: StripeServiceError) => void | Promise<void>;
     onReady: () => void | Promise<void>;
@@ -28,6 +33,7 @@
     ) => void | Promise<void>;
     elements: StripeElements;
     billingAddressRequired: boolean;
+    expressCheckoutOptions?: StripeExpressCheckoutConfiguration;
   }
 
   const {
@@ -36,6 +42,7 @@
     onSubmit,
     elements,
     billingAddressRequired,
+    expressCheckoutOptions,
   }: Props = $props();
 
   const translator = getContext<Writable<Translator>>(translatorContextKey);
@@ -43,6 +50,15 @@
   let expressCheckoutElement: StripeExpressCheckoutElement | null = null;
   let hideExpressCheckoutElement = $state(false);
   const expressCheckoutElementId = "express-checkout-element";
+
+  const onClickCallback = async (
+    event: StripeExpressCheckoutElementClickEvent,
+  ) => {
+    const options = {
+      ...(expressCheckoutOptions ? expressCheckoutOptions : {}),
+    } as ClickResolveDetails;
+    event.resolve(options);
+  };
 
   const onLoadErrorCallback = async (event: {
     elementType: "expressCheckout";
@@ -66,22 +82,16 @@
 
   onMount(() => {
     try {
-      expressCheckoutElement =
-        StripeService.createExpressCheckoutElement(elements);
+      expressCheckoutElement = StripeService.createExpressCheckoutElement(
+        elements,
+        billingAddressRequired,
+        expressCheckoutOptions,
+      );
       expressCheckoutElement.mount(`#${expressCheckoutElementId}`);
       expressCheckoutElement.on("ready", onReadyCallback);
       expressCheckoutElement.on("confirm", onConfirmCallback);
       expressCheckoutElement.on("loaderror", onLoadErrorCallback);
-
-      expressCheckoutElement.on(
-        "click",
-        (event: StripeExpressCheckoutElementClickEvent) => {
-          event.resolve({
-            billingAddressRequired,
-            emailRequired: true,
-          });
-        },
-      );
+      expressCheckoutElement.on("click", onClickCallback);
     } catch (e) {
       onError(StripeService.mapInitializationError(e as StripeError));
     }

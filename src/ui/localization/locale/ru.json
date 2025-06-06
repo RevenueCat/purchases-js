@@ -85,5 +85,6 @@
   "error_page.error_only_in_sandbox": "Это сообщение появляется только в песочнице.",
   "error_page.error_message_stripe_missing_required_permission": "Покупка не удалась, так как у приложения Stripe отсутствует необходимое разрешение. В рабочей среде покупки будут работать без применения налогов.",
   "error_page.error_title_stripe_tax_not_active": "Stripe Tax не активен",
-  "error_page.error_title_stripe_invalid_tax_origin_address": "Недействительный адрес отправления налога"
+  "error_page.error_title_stripe_invalid_tax_origin_address": "Недействительный адрес отправления налога",
+  "apple_pay.free_trial": "Бесплатная пробная версия"
 }

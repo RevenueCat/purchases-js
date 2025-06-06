@@ -29,8 +29,8 @@
   import { type Writable } from "svelte/store";
   import PaymentButton from "../molecules/payment-button.svelte";
   import type {
-    StripeElementsConfiguration,
     GatewayParams,
+    StripeElementsConfiguration,
   } from "../../networking/responses/stripe-elements";
   import {
     CheckoutCalculateTaxFailedReason,
@@ -50,6 +50,7 @@
 
   interface Props {
     gatewayParams: GatewayParams;
+    managementUrl: string | null;
     productDetails: Product;
     purchaseOption: PurchaseOption;
     brandingInfo: BrandingInfoResponse | null;
@@ -67,6 +68,7 @@
 <script lang="ts">
   const {
     gatewayParams,
+    managementUrl,
     productDetails,
     purchaseOption,
     brandingInfo,
@@ -145,6 +147,18 @@
       (taxCalculationStatus === "disabled" ||
         taxCalculationStatus === "calculated" ||
         taxCalculationStatus === "miss-match"),
+  );
+
+  let expressCheckoutOptions = $derived(
+    subscriptionOption && managementUrl && priceBreakdown
+      ? StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          productDetails,
+          priceBreakdown,
+          subscriptionOption,
+          $translator,
+          managementUrl,
+        )
+      : undefined,
   );
 
   $effect(() => {
@@ -551,6 +565,7 @@
           onEmailChange={handleEmailChange}
           onPaymentInfoChange={handlePaymentInfoChange}
           onExpressCheckoutElementSubmit={handleExpressCheckoutElementSubmit}
+          {expressCheckoutOptions}
         />
       </div>
 
