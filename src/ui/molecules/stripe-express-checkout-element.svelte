@@ -17,7 +17,7 @@
   import { Translator } from "../localization/translator";
   import { type Writable } from "svelte/store";
   import { translatorContextKey } from "../localization/constants";
-  import type { StripeExpressCheckoutOptions } from "../../networking/responses/stripe-elements";
+  import type { StripeExpressCheckoutConfiguration } from "../../networking/responses/stripe-elements";
 
   export interface Props {
     onError: (error: StripeServiceError) => void | Promise<void>;
@@ -28,7 +28,7 @@
     ) => void | Promise<void>;
     elements: StripeElements;
     billingAddressRequired: boolean;
-    expressCheckoutOptions?: StripeExpressCheckoutOptions;
+    expressCheckoutOptions?: StripeExpressCheckoutConfiguration;
   }
 
   const {

@@ -12,7 +12,7 @@ import { Theme } from "../ui/theme/theme";
 import { DEFAULT_TEXT_STYLES } from "../ui/theme/text";
 import type {
   StripeElementsConfiguration,
-  StripeExpressCheckoutOptions,
+  StripeExpressCheckoutConfiguration,
 } from "../networking/responses/stripe-elements";
 import type { Product, SubscriptionOption } from "../entities/offerings";
 import type { Translator } from "../ui/localization/translator";
@@ -227,7 +227,7 @@ export class StripeService {
     elements: StripeElements,
     billingAddressRequired: boolean,
     emailRequired: boolean,
-    expressCheckoutOptions?: StripeExpressCheckoutOptions,
+    expressCheckoutOptions?: StripeExpressCheckoutConfiguration,
   ) {
     const options = {
       billingAddressRequired,
@@ -389,7 +389,7 @@ export class StripeService {
     productDetails: Product,
     subscriptionOption: SubscriptionOption,
     translator: Translator,
-  ): StripeExpressCheckoutOptions {
+  ): StripeExpressCheckoutConfiguration {
     const priceMicros = subscriptionOption.base.price?.amountMicros;
 
     if (!priceMicros) {

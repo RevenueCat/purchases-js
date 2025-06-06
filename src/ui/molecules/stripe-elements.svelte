@@ -18,7 +18,7 @@
 
   import type {
     StripeElementsConfiguration,
-    StripeExpressCheckoutOptions,
+    StripeExpressCheckoutConfiguration,
   } from "../../networking/responses/stripe-elements";
   import { DEFAULT_FONT_FAMILY } from "../theme/text";
   import {
@@ -33,7 +33,7 @@
     stripeAccountId?: string;
     publishableApiKey?: string;
     elementsConfiguration?: StripeElementsConfiguration;
-    expressCheckoutOptions?: StripeExpressCheckoutOptions;
+    expressCheckoutOptions?: StripeExpressCheckoutConfiguration;
     brandingInfo: BrandingInfoResponse | null;
     skipEmail: boolean;
     billingAddressRequired: boolean;

@@ -16,7 +16,7 @@ export interface StripeElementsConfiguration {
   currency?: string;
 }
 
-export interface StripeExpressCheckoutOptions {
+export interface StripeExpressCheckoutConfiguration {
   applePay?: {
     recurringPaymentRequest?: {
       paymentDescription: string;
@@ -56,5 +56,5 @@ export interface GatewayParams {
   stripe_account_id?: string;
   publishable_api_key?: string;
   elements_configuration?: StripeElementsConfiguration;
-  express_checkout_configuration?: StripeElementsConfiguration;
+  express_checkout_configuration?: StripeExpressCheckoutConfiguration;
 }
