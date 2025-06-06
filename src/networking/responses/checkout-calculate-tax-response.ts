@@ -1,5 +1,4 @@
 import type { StripeElementsConfiguration } from "./stripe-elements";
-import type { StripeExpressCheckoutConfiguration } from "../../stripe/stripe-express-checkout-configuration";
 
 export interface TaxBreakdown {
   tax_amount_in_micros: number;
@@ -30,7 +29,6 @@ export interface CheckoutCalculateTaxResponse {
   };
   gateway_params: {
     elements_configuration: StripeElementsConfiguration;
-    express_checkout_configuration?: StripeExpressCheckoutConfiguration;
   };
   failed_reason?: CheckoutCalculateTaxFailedReason | string;
 }

@@ -225,19 +225,15 @@ export class StripeService {
   static createExpressCheckoutElement(
     elements: StripeElements,
     billingAddressRequired: boolean,
-    emailRequired: boolean,
     expressCheckoutOptions?: StripeExpressCheckoutConfiguration,
   ) {
     const options = {
       billingAddressRequired,
-      emailRequired: emailRequired,
+      emailRequired: true,
       ...(expressCheckoutOptions ? expressCheckoutOptions : {}),
-    };
+    } as StripeExpressCheckoutElementOptions;
 
-    return elements.create(
-      "expressCheckout",
-      options as StripeExpressCheckoutElementOptions,
-    );
+    return elements.create("expressCheckout", options);
   }
 
   static createLinkAuthenticationElement(
@@ -344,7 +340,7 @@ export class StripeService {
     };
   }
 
-  static nextDateforPeriod(period: Period, startDate: Date) {
+  static nextDateForPeriod(period: Period, startDate: Date) {
     if (period.unit === PeriodUnit.Year) {
       startDate.setFullYear(startDate.getFullYear() + period.number);
       return startDate;
@@ -403,7 +399,7 @@ export class StripeService {
 
     const recurringPaymentStartDate =
       hasTrial && trialPeriod
-        ? StripeService.nextDateforPeriod(trialPeriod, new Date())
+        ? StripeService.nextDateForPeriod(trialPeriod, new Date())
         : new Date();
 
     const recurringPeriod = basePeriod

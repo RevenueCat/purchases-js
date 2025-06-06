@@ -19,6 +19,10 @@
   import { translatorContextKey } from "../localization/constants";
 
   import type { StripeExpressCheckoutConfiguration } from "../../stripe/stripe-express-checkout-configuration";
+  import type {
+    ClickResolveDetails,
+    StripeExpressCheckoutElementClickEvent,
+  } from "@stripe/stripe-js/dist/stripe-js/elements/express-checkout";
 
   export interface Props {
     onError: (error: StripeServiceError) => void | Promise<void>;
@@ -47,6 +51,15 @@
   let hideExpressCheckoutElement = $state(false);
   const expressCheckoutElementId = "express-checkout-element";
 
+  const onClickCallback = async (
+    event: StripeExpressCheckoutElementClickEvent,
+  ) => {
+    const options = {
+      ...(expressCheckoutOptions ? expressCheckoutOptions : {}),
+    } as ClickResolveDetails;
+    event.resolve(options);
+  };
+
   const onLoadErrorCallback = async (event: {
     elementType: "expressCheckout";
     error: StripeError;
@@ -72,13 +85,13 @@
       expressCheckoutElement = StripeService.createExpressCheckoutElement(
         elements,
         billingAddressRequired,
-        true,
         expressCheckoutOptions,
       );
       expressCheckoutElement.mount(`#${expressCheckoutElementId}`);
       expressCheckoutElement.on("ready", onReadyCallback);
       expressCheckoutElement.on("confirm", onConfirmCallback);
       expressCheckoutElement.on("loaderror", onLoadErrorCallback);
+      expressCheckoutElement.on("click", onClickCallback);
     } catch (e) {
       onError(StripeService.mapInitializationError(e as StripeError));
     }

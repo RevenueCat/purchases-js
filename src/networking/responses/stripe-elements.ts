@@ -16,17 +16,8 @@ export interface StripeElementsConfiguration {
   currency?: string;
 }
 
-export interface PartialStripeExpressCheckoutConfiguration {
-  apple_pay?: {
-    recurring_payment_request?: {
-      management_url: string;
-    };
-  };
-}
-
 export interface GatewayParams {
   stripe_account_id?: string;
   publishable_api_key?: string;
   elements_configuration?: StripeElementsConfiguration;
-  express_checkout_configuration?: PartialStripeExpressCheckoutConfiguration;
 }
