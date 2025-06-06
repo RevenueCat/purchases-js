@@ -50,6 +50,7 @@
 
   interface Props {
     gatewayParams: GatewayParams;
+    managementUrl: string | null;
     productDetails: Product;
     purchaseOption: PurchaseOption;
     brandingInfo: BrandingInfoResponse | null;
@@ -67,6 +68,7 @@
 <script lang="ts">
   const {
     gatewayParams,
+    managementUrl,
     productDetails,
     purchaseOption,
     brandingInfo,
@@ -148,15 +150,13 @@
   );
 
   let expressCheckoutOptions = $derived(
-    subscriptionOption &&
-      gatewayParams?.express_checkout_configuration?.apple_pay
-        ?.recurring_payment_request?.management_url
+    subscriptionOption && managementUrl && priceBreakdown
       ? StripeService.buildStripeExpressCheckoutOptionsForSubscription(
           productDetails,
+          priceBreakdown,
           subscriptionOption,
           $translator,
-          gatewayParams.express_checkout_configuration.apple_pay
-            .recurring_payment_request.management_url,
+          managementUrl,
         )
       : undefined,
   );

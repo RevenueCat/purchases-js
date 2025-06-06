@@ -202,6 +202,7 @@ export const checkoutStartResponse: CheckoutStartResponse = {
     stripe_account_id: accountId,
     elements_configuration: stripeElementsConfiguration,
   },
+  management_url: "https://manage.revenuecat.com/test_test_test",
 };
 
 export const checkoutCalculateTaxResponse: CheckoutCalculateTaxResponse = {

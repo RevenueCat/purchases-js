@@ -17,6 +17,7 @@ import { LocalizationKeys } from "../ui/localization/supportedLanguages";
 import type { StripeExpressCheckoutElementOptions } from "@stripe/stripe-js/dist/stripe-js/elements/index";
 import { type Period, PeriodUnit } from "../helpers/duration-helper";
 import type { StripeExpressCheckoutConfiguration } from "./stripe-express-checkout-configuration";
+import type { PriceBreakdown } from "../ui/ui-types";
 
 export enum StripeServiceErrorCode {
   ErrorLoadingStripe = 0,
@@ -385,11 +386,12 @@ export class StripeService {
 
   static buildStripeExpressCheckoutOptionsForSubscription(
     productDetails: Product,
+    priceBreakdown: PriceBreakdown,
     subscriptionOption: SubscriptionOption,
     translator: Translator,
     managementUrl: string,
   ): StripeExpressCheckoutConfiguration {
-    const priceMicros = subscriptionOption.base.price?.amountMicros;
+    const priceMicros = priceBreakdown.totalAmountInMicros;
 
     if (!priceMicros) {
       return {};
