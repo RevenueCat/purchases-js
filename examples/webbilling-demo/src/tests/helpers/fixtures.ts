@@ -73,6 +73,7 @@ export const SPAIN_TAX_RESPONSE: RouteFulfillOptions = {
     tax_amount_in_micros: 1730000,
     total_amount_in_micros: 9990000,
     total_excluding_tax_in_micros: 8260000,
+    tax_inclusive: true,
   }),
 };
 
@@ -106,6 +107,7 @@ export const ITALY_TAX_RESPONSE: RouteFulfillOptions = {
     tax_amount_in_micros: 1800000,
     total_amount_in_micros: 9990000,
     total_excluding_tax_in_micros: 8190000,
+    tax_inclusive: true,
   }),
 };
 
@@ -139,6 +141,7 @@ export const NEW_YORK_TAX_RESPONSE: RouteFulfillOptions = {
     tax_amount_in_micros: 0,
     total_amount_in_micros: 9990000,
     total_excluding_tax_in_micros: 9990000,
+    tax_inclusive: false,
   }),
 };
 
@@ -172,6 +175,7 @@ export const TEXAS_TAX_RESPONSE: RouteFulfillOptions = {
     tax_amount_in_micros: 800000,
     total_amount_in_micros: 10790000,
     total_excluding_tax_in_micros: 9990000,
+    tax_inclusive: false,
   }),
 };
 
@@ -200,6 +204,7 @@ export const NOT_COLLECTING_TAX_RESPONSE: RouteFulfillOptions = {
     tax_amount_in_micros: 0,
     total_amount_in_micros: 9990000,
     total_excluding_tax_in_micros: 9990000,
+    tax_inclusive: false,
   }),
 };
 
@@ -228,6 +233,7 @@ export const INVALID_TAX_LOCATION_RESPONSE: RouteFulfillOptions = {
     tax_amount_in_micros: 0,
     total_amount_in_micros: 9990000,
     total_excluding_tax_in_micros: 9990000,
+    tax_inclusive: true,
   }),
 };
 
