@@ -54,7 +54,7 @@ To test Apple Pay and Google Pay we have to fake an https setup for the Apple Pa
 The following instructions allow you to do it just using this repo but require you to play with your `/etc/hosts` and won't work on windows.
 
 > [!WARNING]  
-> This setup will install local certificates for somedomain.com in your machine using , therefore, you need to run this
+> This setup will install local certificates for somedomain.com in your machine using the vite-plugin-mkcert, therefore, you need to run this
 > command as superuser. Make sure to pick a domain (or add one) that you don't want to mess up on your machine or you'll
 > have to fix your certificates manually.
 
@@ -72,7 +72,7 @@ This will resolve `somedomain.com` to localhost.
 Now you can run the webserver forcing the usage of that domain and the 443 port (for full https support).
 
 ```
-sudo npm run dev -- --host somedomain.com --port 443
+sudo npm run dev-fake-https -- --host somedomain.com --port 443
 ```
 
 Now you should be able to run safari with Apple Pay just by visiting `somedomain.com`.
