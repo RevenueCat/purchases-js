@@ -1,5 +1,32 @@
 import type { RouteFulfillOptions } from "./test-helpers";
 
+type CheckoutCalculateTaxResponse = {
+  operation_session_id: string;
+  currency: string;
+  total_amount_in_micros: number;
+  tax_amount_in_micros: number;
+  total_excluding_tax_in_micros: number;
+  tax_inclusive: boolean;
+  pricing_phases: {
+    base: {
+      tax_breakdown: Array<{
+        display_name: string;
+        tax_amount_in_micros: number;
+      }>;
+    };
+  };
+  gateway_params: {
+    elements_configuration: {
+      amount: number;
+      currency: string;
+      mode: "payment";
+      payment_method_types: string[];
+      setup_future_usage: "off_session";
+    };
+  };
+  failed_reason?: string;
+};
+
 export const RC_PAYWALL_TEST_OFFERING_ID = "rc_paywalls_e2e_test_2";
 export const RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES =
   "rc_paywalls_e2e_test_variables_2";
@@ -49,7 +76,7 @@ export const SPAIN_TAX_RESPONSE: RouteFulfillOptions = {
   body: JSON.stringify({
     mocked: true,
     currency: "USD",
-    failed_reason: null,
+    failed_reason: undefined,
     gateway_params: {
       elements_configuration: {
         amount: 999,
@@ -74,7 +101,7 @@ export const SPAIN_TAX_RESPONSE: RouteFulfillOptions = {
     total_amount_in_micros: 9990000,
     total_excluding_tax_in_micros: 8260000,
     tax_inclusive: true,
-  }),
+  } as CheckoutCalculateTaxResponse),
 };
 
 export const ITALY_TAX_RESPONSE: RouteFulfillOptions = {
@@ -83,7 +110,7 @@ export const ITALY_TAX_RESPONSE: RouteFulfillOptions = {
   body: JSON.stringify({
     mocked: true,
     currency: "USD",
-    failed_reason: null,
+    failed_reason: undefined,
     gateway_params: {
       elements_configuration: {
         amount: 999,
@@ -108,7 +135,7 @@ export const ITALY_TAX_RESPONSE: RouteFulfillOptions = {
     total_amount_in_micros: 9990000,
     total_excluding_tax_in_micros: 8190000,
     tax_inclusive: true,
-  }),
+  } as CheckoutCalculateTaxResponse),
 };
 
 export const NEW_YORK_TAX_RESPONSE: RouteFulfillOptions = {
@@ -117,7 +144,7 @@ export const NEW_YORK_TAX_RESPONSE: RouteFulfillOptions = {
   body: JSON.stringify({
     mocked: true,
     currency: "USD",
-    failed_reason: null,
+    failed_reason: undefined,
     gateway_params: {
       elements_configuration: {
         amount: 999,
@@ -142,7 +169,7 @@ export const NEW_YORK_TAX_RESPONSE: RouteFulfillOptions = {
     total_amount_in_micros: 9990000,
     total_excluding_tax_in_micros: 9990000,
     tax_inclusive: false,
-  }),
+  } as CheckoutCalculateTaxResponse),
 };
 
 export const TEXAS_TAX_RESPONSE: RouteFulfillOptions = {
@@ -151,7 +178,7 @@ export const TEXAS_TAX_RESPONSE: RouteFulfillOptions = {
   body: JSON.stringify({
     mocked: true,
     currency: "USD",
-    failed_reason: null,
+    failed_reason: undefined,
     gateway_params: {
       elements_configuration: {
         amount: 1079,
@@ -176,7 +203,7 @@ export const TEXAS_TAX_RESPONSE: RouteFulfillOptions = {
     total_amount_in_micros: 10790000,
     total_excluding_tax_in_micros: 9990000,
     tax_inclusive: false,
-  }),
+  } as CheckoutCalculateTaxResponse),
 };
 
 export const NOT_COLLECTING_TAX_RESPONSE: RouteFulfillOptions = {
@@ -185,7 +212,7 @@ export const NOT_COLLECTING_TAX_RESPONSE: RouteFulfillOptions = {
   body: JSON.stringify({
     mocked: true,
     currency: "USD",
-    failed_reason: null,
+    failed_reason: undefined,
     gateway_params: {
       elements_configuration: {
         amount: 999,
@@ -205,7 +232,7 @@ export const NOT_COLLECTING_TAX_RESPONSE: RouteFulfillOptions = {
     total_amount_in_micros: 9990000,
     total_excluding_tax_in_micros: 9990000,
     tax_inclusive: false,
-  }),
+  } as CheckoutCalculateTaxResponse),
 };
 
 export const INVALID_TAX_LOCATION_RESPONSE: RouteFulfillOptions = {
@@ -234,7 +261,7 @@ export const INVALID_TAX_LOCATION_RESPONSE: RouteFulfillOptions = {
     total_amount_in_micros: 9990000,
     total_excluding_tax_in_micros: 9990000,
     tax_inclusive: true,
-  }),
+  } as CheckoutCalculateTaxResponse),
 };
 
 export const STRIPE_TAX_NOT_ACTIVE_RESPONSE: RouteFulfillOptions = {
