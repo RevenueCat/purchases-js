@@ -1,3 +1,3 @@
 ## RevenueCat SDK
 ### 🐞 Bugfixes
-* Fix customElements not defined error (#522) via James O'Donnell (@james-od)
+* Fixed an issue with Apple Pay when the passed date can get outdated between calculation and click (#524) via Nicola Sacco (@nicfix)
