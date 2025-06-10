@@ -430,7 +430,7 @@ export class StripeService {
     const recurringPaymentStartDate =
       hasTrial && trialPeriod
         ? StripeService.nextDateForPeriod(trialPeriod, new Date())
-        : new Date();
+        : undefined;
 
     const recurringPeriod = basePeriod
       ? StripeService.applePayPeriod(basePeriod)
