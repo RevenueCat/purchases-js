@@ -13,8 +13,10 @@ import { PurchaseFlowError } from "../helpers/purchase-operation-helper";
 import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
 import type { BrandingAppearance } from "../entities/branding";
 import type { CheckoutCalculateTaxResponse } from "../networking/responses/checkout-calculate-tax-response";
-import { StripeElementsSetupFutureUsage } from "../networking/responses/stripe-elements";
-import { StripeElementsMode } from "../networking/responses/stripe-elements";
+import {
+  StripeElementsMode,
+  StripeElementsSetupFutureUsage,
+} from "../networking/responses/stripe-elements";
 import type { PriceBreakdown } from "src/ui/ui-types";
 
 const subscriptionOptionBasePrice = {
@@ -129,6 +131,14 @@ export const nonConsumableProduct: Product = {
   productType: ProductType.NonConsumable,
   defaultPurchaseOption: nonSubscriptionOption,
   subscriptionOptions: {},
+};
+
+export const trialProduct: Product = {
+  ...structuredClone(product),
+  defaultPurchaseOption: subscriptionOptionWithTrial,
+  subscriptionOptions: {
+    option_id_1: subscriptionOptionWithTrial,
+  },
 };
 
 export const rcPackage: Package = {
