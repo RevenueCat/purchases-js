@@ -1,6 +1,16 @@
 # Releasing
 Releases happen automatically every week. If you need to make a manual release, there are 2 ways you can do that: using CircleCI and locally, using Fastlane.
 
+## Snapshot Releases
+
+Snapshot releases are automatically created whenever code is merged to the `main` branch. These releases:
+
+1. Have a version number with `-SNAPSHOT` suffix (e.g., `1.3.0-SNAPSHOT`)
+2. Are published to npm with the `snapshot` tag (not `latest`)
+
+Snapshot releases are meant for testing purposes only and should not be used in production unless specifically intended.
+
+
 ## Using CircleCI
 Trigger a pipeline in CircleCI for the branch you want to release (e.g. `main`), and pass a paramater with name `action` and value `bump`.
 
