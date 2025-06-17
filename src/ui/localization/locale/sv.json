@@ -86,5 +86,7 @@
   "error_page.error_message_stripe_missing_required_permission": "Köpet misslyckades eftersom Stripe-appen saknar en nödvändig behörighet. I produktion kommer köp att fungera utan att skatter tillämpas.",
   "error_page.error_title_stripe_tax_not_active": "Stripe Tax är inte aktivt",
   "error_page.error_title_stripe_invalid_tax_origin_address": "Ogiltig skatteursprungsadress",
-  "apple_pay.free_trial": "Gratis provperiod"
+  "apple_pay.free_trial": "Gratis provperiod",
+  "product_info.price_after_intro_price": "Efter {{introPriceDuration}}, den {{renewalDate}}",
+  "product_info.intro_price_phase": "Första {{introPriceDuration}} för {{introPrice}}"
 }

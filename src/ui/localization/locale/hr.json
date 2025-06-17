@@ -86,5 +86,7 @@
   "error_page.error_message_stripe_missing_required_permission": "Kupnja nije uspjela jer Stripe aplikaciji nedostaje potrebno dopuštenje. U produkciji će kupnje funkcionirati bez primijenjenih poreza.",
   "error_page.error_title_stripe_tax_not_active": "Stripe Tax nije aktivan",
   "error_page.error_title_stripe_invalid_tax_origin_address": "Nevažeća adresa poreznog podrijetla",
-  "apple_pay.free_trial": "Besplatna proba"
+  "apple_pay.free_trial": "Besplatna proba",
+  "product_info.price_after_intro_price": "Nakon {{introPriceDuration}}, na {{renewalDate}}",
+  "product_info.intro_price_phase": "Prvih {{introPriceDuration}} za {{introPrice}}"
 }

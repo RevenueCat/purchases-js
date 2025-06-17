@@ -86,5 +86,7 @@
   "error_page.error_message_stripe_missing_required_permission": "La compra falló porque la aplicación Stripe carece de un permiso necesario. En producción, las compras funcionarán sin impuestos aplicados.",
   "error_page.error_title_stripe_tax_not_active": "Stripe Tax no está activo",
   "error_page.error_title_stripe_invalid_tax_origin_address": "Dirección de origen fiscal no válida",
-  "apple_pay.free_trial": "Prueba gratuita"
+  "apple_pay.free_trial": "Prueba gratuita",
+  "product_info.price_after_intro_price": "Después de {{introPriceDuration}}, el {{renewalDate}}",
+  "product_info.intro_price_phase": "Los primeros {{introPriceDuration}} por {{introPrice}}"
 }
