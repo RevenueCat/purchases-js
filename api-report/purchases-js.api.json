@@ -1,7 +1,7 @@
 {
   "metadata": {
     "toolPackage": "@microsoft/api-extractor",
-    "toolVersion": "7.49.0",
+    "toolVersion": "7.52.8",
     "schemaVersion": 1011,
     "oldestForwardsCompatibleVersion": 1001,
     "tsdocConfig": {
@@ -8112,8 +8112,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "Period",
-                  "canonicalReference": "@revenuecat/purchases-js!Period:interface"
+                  "text": "PricingPhase",
+                  "canonicalReference": "@revenuecat/purchases-js!PricingPhase:interface"
                 },
                 {
                   "kind": "Content",
