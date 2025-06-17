@@ -86,5 +86,7 @@
   "error_page.error_message_stripe_missing_required_permission": "Η αγορά απέτυχε επειδή η εφαρμογή Stripe δεν διαθέτει την απαιτούμενη άδεια. Στην παραγωγή, οι αγορές θα λειτουργούν χωρίς να εφαρμόζονται φόροι.",
   "error_page.error_title_stripe_tax_not_active": "Το Stripe Tax δεν είναι ενεργό",
   "error_page.error_title_stripe_invalid_tax_origin_address": "Μη έγκυρη διεύθυνση προέλευσης φόρου",
-  "apple_pay.free_trial": "Δωρεάν δοκιμή"
+  "apple_pay.free_trial": "Δωρεάν δοκιμή",
+  "product_info.price_after_intro_price": "Μετά από {{introPriceDuration}}, στις {{renewalDate}}",
+  "product_info.intro_price_phase": "Πρώτα {{introPriceDuration}} για {{introPrice}}"
 }

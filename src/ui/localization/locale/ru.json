@@ -86,5 +86,7 @@
   "error_page.error_message_stripe_missing_required_permission": "Покупка не удалась, так как у приложения Stripe отсутствует необходимое разрешение. В рабочей среде покупки будут работать без применения налогов.",
   "error_page.error_title_stripe_tax_not_active": "Stripe Tax не активен",
   "error_page.error_title_stripe_invalid_tax_origin_address": "Недействительный адрес отправления налога",
-  "apple_pay.free_trial": "Бесплатная пробная версия"
+  "apple_pay.free_trial": "Бесплатная пробная версия",
+  "product_info.price_after_intro_price": "После {{introPriceDuration}}, {{renewalDate}}",
+  "product_info.intro_price_phase": "Первые {{introPriceDuration}} за {{introPrice}}"
 }

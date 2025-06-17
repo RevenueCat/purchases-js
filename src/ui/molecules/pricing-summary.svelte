@@ -14,15 +14,24 @@
     priceBreakdown: PriceBreakdown;
     basePhase: PricingPhase | null;
     trialPhase: PricingPhase | null;
+    introPricePhase: PricingPhase | null;
   };
 
-  let { priceBreakdown, basePhase, trialPhase }: Props = $props();
+  let { priceBreakdown, basePhase, trialPhase, introPricePhase }: Props =
+    $props();
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
 
   const formattedPrice = $derived(
     $translator.formatPrice(
       priceBreakdown.totalAmountInMicros,
+      priceBreakdown.currency,
+    ),
+  );
+
+  const formattedIntroPrice = $derived(
+    $translator.formatPrice(
+      introPricePhase?.price?.amountMicros ?? 0,
       priceBreakdown.currency,
     ),
   );
@@ -39,6 +48,23 @@
               trialPhase.periodDuration,
               $translator,
             ),
+          }}
+        />
+      </Typography>
+    </div>
+  {/if}
+
+  {#if introPricePhase?.periodDuration}
+    <div>
+      <Typography size="heading-lg">
+        <Localized
+          key={LocalizationKeys.ProductInfoIntroPricePhase}
+          variables={{
+            introPriceDuration: getTranslatedPeriodLength(
+              introPricePhase.periodDuration,
+              $translator,
+            ),
+            introPrice: formattedIntroPrice,
           }}
         />
       </Typography>
