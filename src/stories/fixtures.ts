@@ -57,6 +57,7 @@ export const subscriptionOption: SubscriptionOption = {
   priceId: "price_1",
   base: subscriptionOptionBasePrice,
   trial: null,
+  introPrice: null,
 };
 
 export const subscriptionOptionWithTrial: SubscriptionOption = {
@@ -75,6 +76,7 @@ export const subscriptionOptionWithTrial: SubscriptionOption = {
     pricePerMonth: null,
     pricePerYear: null,
   },
+  introPrice: null,
 };
 
 export const nonSubscriptionOption: NonSubscriptionOption = {
