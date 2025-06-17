@@ -477,6 +477,7 @@ export interface SubscriptionInfo {
 // @public
 export interface SubscriptionOption extends PurchaseOption {
     readonly base: PricingPhase;
+    readonly introPrice: Period | null;
     readonly trial: PricingPhase | null;
 }
 
