@@ -53,6 +53,8 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
     : null;
 
   const trial = option?.trial;
+  const introPrice = option?.introPrice;
+
   return (
     <div className="card">
       {trial && (
@@ -62,6 +64,7 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
           free trial
         </div>
       )}
+      {introPrice && <div className="introPrice">{introPrice}</div>}
       {price && (
         <>
           {!trial && originalPrice && (

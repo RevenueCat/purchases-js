@@ -183,7 +183,7 @@ export interface SubscriptionOption extends PurchaseOption {
   /**
    * The introductory price period for this subscription option if available.
    */
-  readonly introPrice: Period | null;
+  readonly introPrice: PricingPhase | null;
 }
 
 /**
