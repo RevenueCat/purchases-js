@@ -4,6 +4,7 @@ import {
   type CustomerInfo,
   type EntitlementInfo,
   Purchases,
+  type PurchasesConfig,
   PurchasesError,
   ReservedCustomerAttribute,
 } from "../main";
@@ -71,6 +72,109 @@ describe("Purchases.configure()", () => {
       "another_user_id",
     );
     expect(purchases).not.toEqual(purchases2);
+  });
+
+  // Tests for the new object-based configuration API
+  test("configures successfully with object syntax", () => {
+    const purchases = Purchases.configure({
+      apiKey: testApiKey,
+      appUserId: testUserId,
+    });
+    expect(purchases).toBeDefined();
+  });
+
+  test("configures successfully with object syntax and optional parameters", () => {
+    const purchases = Purchases.configure({
+      apiKey: testApiKey,
+      appUserId: testUserId,
+      httpConfig: {},
+      flags: { autoCollectUTMAsMetadata: false },
+    });
+    expect(purchases).toBeDefined();
+  });
+
+  test("throws error if given invalid api key with object syntax", () => {
+    expect(() =>
+      Purchases.configure({
+        apiKey: "goog_api_key",
+        appUserId: testUserId,
+      }),
+    ).toThrowError(PurchasesError);
+
+    expect(() =>
+      Purchases.configure({
+        apiKey: "rcb_test invalidchar",
+        appUserId: testUserId,
+      }),
+    ).toThrowError(PurchasesError);
+  });
+
+  test("throws error if given invalid user id with object syntax", () => {
+    expect(() =>
+      Purchases.configure({
+        apiKey: testApiKey,
+        appUserId: "",
+      }),
+    ).toThrowError(PurchasesError);
+
+    expect(() =>
+      Purchases.configure({
+        apiKey: testApiKey,
+        appUserId: "some/AppUserId",
+      }),
+    ).toThrowError(PurchasesError);
+  });
+
+  test("throws error if given invalid proxy url with object syntax", () => {
+    expect(() =>
+      Purchases.configure({
+        apiKey: testApiKey,
+        appUserId: testUserId,
+        httpConfig: {
+          proxyURL: "https://test.revenuecat.com/",
+        },
+      }),
+    ).toThrowError(PurchasesError);
+  });
+
+  test("throws error if given reserved additional header with object syntax", () => {
+    expect(() =>
+      Purchases.configure({
+        apiKey: testApiKey,
+        appUserId: testUserId,
+        httpConfig: {
+          additionalHeaders: { "X-Version": "123" },
+        },
+      }),
+    ).toThrowError(PurchasesError);
+  });
+
+  test("configure multiple times returns different instances with object syntax", () => {
+    const purchases = Purchases.configure({
+      apiKey: testApiKey,
+      appUserId: testUserId,
+    });
+    const purchases2 = Purchases.configure({
+      apiKey: "rcb_another_api_key",
+      appUserId: "another_user_id",
+    });
+    expect(purchases).not.toEqual(purchases2);
+  });
+
+  test("throws error if api key is not provided in object", () => {
+    expect(() =>
+      Purchases.configure({
+        appUserId: testUserId,
+      } as PurchasesConfig),
+    ).toThrowError(PurchasesError);
+  });
+
+  test("throws error if app user id is not provided in object", () => {
+    expect(() =>
+      Purchases.configure({
+        apiKey: testApiKey,
+      } as PurchasesConfig),
+    ).toThrowError(PurchasesError);
   });
 });
 

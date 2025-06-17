@@ -120,6 +120,49 @@ export type { PlatformInfo } from "./entities/platform-info";
 const ANONYMOUS_PREFIX = "$RCAnonymousID:";
 
 /**
+ * Configuration object for initializing the Purchases SDK.
+ *
+ * @example
+ * ```typescript
+ * // Object-based configuration (recommended)
+ * const purchases = Purchases.configure({
+ *   apiKey: "your_api_key",
+ *   appUserId: "user_123",
+ *   httpConfig: { additionalHeaders: { "Custom-Header": "value" } },
+ *   flags: { autoCollectUTMAsMetadata: true }
+ * });
+ *
+ * // Legacy separate arguments (still supported)
+ * const purchases = Purchases.configure(
+ *   "your_api_key",
+ *   "user_123",
+ *   { additionalHeaders: { "Custom-Header": "value" } },
+ *   { autoCollectUTMAsMetadata: true }
+ * );
+ * ```
+ *
+ * @public
+ */
+export interface PurchasesConfig {
+  /**
+   * RevenueCat API Key. Can be obtained from the RevenueCat dashboard.
+   */
+  apiKey: string;
+  /**
+   * Your unique id for identifying the user.
+   */
+  appUserId: string;
+  /**
+   * Advanced http configuration to customise the SDK usage {@link HttpConfig}.
+   */
+  httpConfig?: HttpConfig;
+  /**
+   * Advanced functionality configuration {@link FlagsConfig}.
+   */
+  flags?: FlagsConfig;
+}
+
+/**
  * Entry point for Purchases SDK. It should be instantiated as soon as your
  * app is started. Only one instance of Purchases should be instantiated
  * at a time!
@@ -181,7 +224,7 @@ export class Purchases {
 
   /**
    * Get the singleton instance of Purchases. It's preferred to use the instance
-   * obtained from the {@link Purchases.configure} method when possible.
+   * obtained from the `configure` method when possible.
    * @throws {@link UninitializedPurchasesError} if the instance has not been initialized yet.
    */
   static getSharedInstance(): Purchases {
@@ -202,6 +245,15 @@ export class Purchases {
    * Configures the Purchases SDK. This should be called as soon as your app
    * has a unique user id for your user. You should only call this once, and
    * keep the returned instance around for use throughout your application.
+   * @param config - Configuration object containing apiKey, appUserId, and optional configurations.
+   * @throws {@link PurchasesError} if the API key or user id are invalid.
+   */
+  static configure(config: PurchasesConfig): Purchases;
+
+  /**
+   * Configures the Purchases SDK. This should be called as soon as your app
+   * has a unique user id for your user. You should only call this once, and
+   * keep the returned instance around for use throughout your application.
    * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.
    * @param appUserId - Your unique id for identifying the user.
    * @param httpConfig - Advanced http configuration to customise the SDK usage {@link HttpConfig}.
@@ -211,6 +263,13 @@ export class Purchases {
   static configure(
     apiKey: string,
     appUserId: string,
+    httpConfig?: HttpConfig,
+    flags?: FlagsConfig,
+  ): Purchases;
+
+  static configure(
+    configOrApiKey: PurchasesConfig | string,
+    appUserId?: string,
     httpConfig: HttpConfig = defaultHttpConfig,
     flags: FlagsConfig = defaultFlagsConfig,
   ): Purchases {
@@ -220,11 +279,50 @@ export class Purchases {
           "Creating and returning new instance.",
       );
     }
-    validateApiKey(apiKey);
-    validateAppUserId(appUserId);
-    validateProxyUrl(httpConfig.proxyURL);
-    validateAdditionalHeaders(httpConfig.additionalHeaders);
-    Purchases.instance = new Purchases(apiKey, appUserId, httpConfig, flags);
+
+    let finalApiKey: string;
+    let finalAppUserId: string;
+    let finalHttpConfig: HttpConfig;
+    let finalFlags: FlagsConfig;
+
+    // Check if first argument is a configuration object
+    if (typeof configOrApiKey === "object" && configOrApiKey !== null) {
+      // Object-based configuration
+      const config = configOrApiKey;
+      finalApiKey = config.apiKey;
+      finalAppUserId = config.appUserId;
+      finalHttpConfig = config.httpConfig ?? defaultHttpConfig;
+      finalFlags = config.flags ?? defaultFlagsConfig;
+    } else {
+      // Traditional separate arguments
+      if (typeof configOrApiKey !== "string") {
+        throw new PurchasesError(
+          ErrorCode.ConfigurationError,
+          "API key must be provided as a string",
+        );
+      }
+      if (typeof appUserId !== "string") {
+        throw new PurchasesError(
+          ErrorCode.ConfigurationError,
+          "App user ID must be provided as a string",
+        );
+      }
+      finalApiKey = configOrApiKey;
+      finalAppUserId = appUserId;
+      finalHttpConfig = httpConfig;
+      finalFlags = flags;
+    }
+
+    validateApiKey(finalApiKey);
+    validateAppUserId(finalAppUserId);
+    validateProxyUrl(finalHttpConfig.proxyURL);
+    validateAdditionalHeaders(finalHttpConfig.additionalHeaders);
+    Purchases.instance = new Purchases(
+      finalApiKey,
+      finalAppUserId,
+      finalHttpConfig,
+      finalFlags,
+    );
     return Purchases.getSharedInstance();
   }
 
