@@ -55,42 +55,74 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
   const trial = option?.trial;
   const introPrice = option?.introPrice;
 
+  const renderTrialBadge = () => {
+    if (!trial) return null;
+
+    const trialLabel = trial.periodDuration
+      ? trialLabels[trial.periodDuration] || trial.periodDuration
+      : "";
+
+    return <div className="freeTrial">{trialLabel} free trial</div>;
+  };
+
+  const renderIntroPricing = () => {
+    if (!introPrice) return null;
+
+    return (
+      <div className="introPrice">
+        <div className="currentPrice">
+          {introPrice.price?.formattedPrice}
+          {introPrice.period?.unit && `/${introPrice.period.unit}`}
+          <div className="futurePrice">
+            for {introPrice.cycleCount} {introPrice.period?.unit}, then{" "}
+            {price?.formattedPrice}
+            {pkg.webBillingProduct.normalPeriodDuration &&
+              `/${
+                priceLabels[pkg.webBillingProduct.normalPeriodDuration] ||
+                pkg.webBillingProduct.normalPeriodDuration
+              }`}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderRegularPricing = () => {
+    if (!price || introPrice) return null;
+
+    const periodLabel = pkg.webBillingProduct.normalPeriodDuration
+      ? priceLabels[pkg.webBillingProduct.normalPeriodDuration] ||
+        pkg.webBillingProduct.normalPeriodDuration
+      : "";
+
+    return (
+      <>
+        {!trial && originalPrice && (
+          <div className="previousPrice">{originalPrice}</div>
+        )}
+
+        <div className="currentPrice">
+          <div>{price.formattedPrice}</div>
+          {periodLabel && <div>/{periodLabel}</div>}
+        </div>
+      </>
+    );
+  };
+
   return (
     <div className="card">
-      {trial && (
-        <div className="freeTrial">
-          {trial.periodDuration &&
-            (trialLabels[trial.periodDuration] || trial.periodDuration)}{" "}
-          free trial
-        </div>
-      )}
-      {introPrice && <div className="introPrice">{introPrice}</div>}
-      {price && (
-        <>
-          {!trial && originalPrice && (
-            <div className="previousPrice">{originalPrice}</div>
-          )}
-          <div className="currentPrice">
-            <div>{`${price.formattedPrice}`}</div>
+      {renderTrialBadge()}
+      {renderIntroPricing()}
+      {renderRegularPricing()}
 
-            {pkg.webBillingProduct.normalPeriodDuration && (
-              <div>
-                /
-                {priceLabels[pkg.webBillingProduct.normalPeriodDuration] ||
-                  pkg.webBillingProduct.normalPeriodDuration}
-              </div>
-            )}
-          </div>
+      <div className="productName">{pkg.webBillingProduct.displayName}</div>
 
-          <div className="productName">{pkg.webBillingProduct.displayName}</div>
-          <div className="packageCTA">
-            <Button
-              caption={option?.trial ? "Start Free Trial" : "Choose plan"}
-              onClick={onClick}
-            />
-          </div>
-        </>
-      )}
+      <div className="packageCTA">
+        <Button
+          caption={trial ? "Start Free Trial" : "Choose plan"}
+          onClick={onClick}
+        />
+      </div>
     </div>
   );
 };
