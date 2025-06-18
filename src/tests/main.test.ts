@@ -399,7 +399,7 @@ describe("Purchases.purchase()", () => {
     unmountSpy.mockRestore();
   });
 
-  test("does shows the back button", async () => {
+  test("does show the back button", async () => {
     const purchases = configurePurchases(testUserId, "anyOtherValue");
     purchases.purchase({
       rcPackage: createMonthlyPackageMock(),
