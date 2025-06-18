@@ -132,7 +132,7 @@ const ANONYMOUS_PREFIX = "$RCAnonymousID:";
  *   flags: { autoCollectUTMAsMetadata: true }
  * });
  *
- * // Legacy separate arguments (still supported)
+ * // Legacy separate arguments (deprecated)
  * const purchases = Purchases.configure(
  *   "your_api_key",
  *   "user_123",
@@ -251,9 +251,8 @@ export class Purchases {
   static configure(config: PurchasesConfig): Purchases;
 
   /**
-   * Configures the Purchases SDK. This should be called as soon as your app
-   * has a unique user id for your user. You should only call this once, and
-   * keep the returned instance around for use throughout your application.
+   * Legacy method to configure the Purchases SDK. This method is deprecated and will be removed in a future version.
+   * @deprecated - please use the `configure` method with a {@link PurchasesConfig} object instead.
    * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.
    * @param appUserId - Your unique id for identifying the user.
    * @param httpConfig - Advanced http configuration to customise the SDK usage {@link HttpConfig}.

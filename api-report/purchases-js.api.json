@@ -5192,7 +5192,7 @@
             {
               "kind": "Method",
               "canonicalReference": "@revenuecat/purchases-js!Purchases.configure:member(2)",
-              "docComment": "/**\n * Configures the Purchases SDK. This should be called as soon as your app has a unique user id for your user. You should only call this once, and keep the returned instance around for use throughout your application.\n *\n * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.\n *\n * @param appUserId - Your unique id for identifying the user.\n *\n * @param httpConfig - Advanced http configuration to customise the SDK usage {@link HttpConfig}.\n *\n * @param flags - Advanced functionality configuration {@link FlagsConfig}.\n *\n * @throws\n *\n * {@link PurchasesError} if the API key or user id are invalid.\n */\n",
+              "docComment": "/**\n * Legacy method to configure the Purchases SDK. This method is deprecated and will be removed in a future version.\n *\n * @deprecated\n *\n * - please use the `configure` method with a {@link PurchasesConfig} object instead.\n *\n * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.\n *\n * @param appUserId - Your unique id for identifying the user.\n *\n * @param httpConfig - Advanced http configuration to customise the SDK usage {@link HttpConfig}.\n *\n * @param flags - Advanced functionality configuration {@link FlagsConfig}.\n *\n * @throws\n *\n * {@link PurchasesError} if the API key or user id are invalid.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -6076,7 +6076,7 @@
         {
           "kind": "Interface",
           "canonicalReference": "@revenuecat/purchases-js!PurchasesConfig:interface",
-          "docComment": "/**\n * Configuration object for initializing the Purchases SDK.\n *\n * @example\n * ```typescript\n * // Object-based configuration (recommended)\n * const purchases = Purchases.configure({\n *   apiKey: \"your_api_key\",\n *   appUserId: \"user_123\",\n *   httpConfig: { additionalHeaders: { \"Custom-Header\": \"value\" } },\n *   flags: { autoCollectUTMAsMetadata: true }\n * });\n *\n * // Legacy separate arguments (still supported)\n * const purchases = Purchases.configure(\n *   \"your_api_key\",\n *   \"user_123\",\n *   { additionalHeaders: { \"Custom-Header\": \"value\" } },\n *   { autoCollectUTMAsMetadata: true }\n * );\n * ```\n *\n * @public\n */\n",
+          "docComment": "/**\n * Configuration object for initializing the Purchases SDK.\n *\n * @example\n * ```typescript\n * // Object-based configuration (recommended)\n * const purchases = Purchases.configure({\n *   apiKey: \"your_api_key\",\n *   appUserId: \"user_123\",\n *   httpConfig: { additionalHeaders: { \"Custom-Header\": \"value\" } },\n *   flags: { autoCollectUTMAsMetadata: true }\n * });\n *\n * // Legacy separate arguments (deprecated)\n * const purchases = Purchases.configure(\n *   \"your_api_key\",\n *   \"user_123\",\n *   { additionalHeaders: { \"Custom-Header\": \"value\" } },\n *   { autoCollectUTMAsMetadata: true }\n * );\n * ```\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",

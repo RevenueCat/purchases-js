@@ -353,6 +353,7 @@ export class Purchases {
     changeUser(newAppUserId: string): Promise<CustomerInfo>;
     close(): void;
     static configure(config: PurchasesConfig): Purchases;
+    // @deprecated
     static configure(apiKey: string, appUserId: string, httpConfig?: HttpConfig, flags?: FlagsConfig): Purchases;
     static generateRevenueCatAnonymousAppUserId(): string;
     getAppUserId(): string;
