@@ -1,8 +1,8 @@
 import type { CustomerInfo, Offering } from "@revenuecat/purchases-js";
 import {
+  type FlagsConfig,
   LogLevel,
   Purchases,
-  type FlagsConfig,
 } from "@revenuecat/purchases-js";
 import type { LoaderFunction } from "react-router-dom";
 import { redirect, useLoaderData } from "react-router-dom";
@@ -42,11 +42,13 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
     additionalHeaders["X-RC-Canary"] = canary;
   }
 
-  const additionalFlags: FlagsConfig = {};
+  const flagsConfig: FlagsConfig = {
+    autoCollectUTMAsMetadata: !optOutOfAutoUTM,
+  };
   if (rcSource) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
-    additionalFlags["rcSource"] = rcSource;
+    flagsConfig.rcSource = rcSource;
   }
 
   Purchases.setLogLevel(LogLevel.Verbose);
@@ -58,7 +60,7 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
         {
           additionalHeaders,
         },
-        { autoCollectUTMAsMetadata: !optOutOfAutoUTM, ...additionalFlags },
+        flagsConfig,
       );
     } else {
       await Purchases.getSharedInstance().changeUser(appUserId);
