@@ -25,7 +25,7 @@ import { http, HttpResponse } from "msw";
 import { expectPromiseToError } from "./test-helpers";
 import { StatusCodes } from "http-status-codes";
 
-describe("Purchases.configure()", () => {
+describe("Purchases.configure() legacy", () => {
   test("throws error if given invalid api key", () => {
     expect(() => Purchases.configure("goog_api_key", "appUserId")).toThrowError(
       PurchasesError,
@@ -73,8 +73,10 @@ describe("Purchases.configure()", () => {
     );
     expect(purchases).not.toEqual(purchases2);
   });
+});
 
-  test("configures successfully with object syntax", () => {
+describe("Purchases.configure()", () => {
+  test("configures successfully", () => {
     const purchases = Purchases.configure({
       apiKey: testApiKey,
       appUserId: testUserId,
@@ -82,7 +84,7 @@ describe("Purchases.configure()", () => {
     expect(purchases).toBeDefined();
   });
 
-  test("configures successfully with object syntax and optional parameters", () => {
+  test("configures successfully with optional parameters", () => {
     const purchases = Purchases.configure({
       apiKey: testApiKey,
       appUserId: testUserId,
@@ -92,7 +94,7 @@ describe("Purchases.configure()", () => {
     expect(purchases).toBeDefined();
   });
 
-  test("throws error if given invalid api key with object syntax", () => {
+  test("throws error if given invalid api key", () => {
     expect(() =>
       Purchases.configure({
         apiKey: "goog_api_key",
@@ -108,7 +110,7 @@ describe("Purchases.configure()", () => {
     ).toThrowError(PurchasesError);
   });
 
-  test("throws error if given invalid user id with object syntax", () => {
+  test("throws error if given invalid user id", () => {
     expect(() =>
       Purchases.configure({
         apiKey: testApiKey,
@@ -124,7 +126,7 @@ describe("Purchases.configure()", () => {
     ).toThrowError(PurchasesError);
   });
 
-  test("throws error if given invalid proxy url with object syntax", () => {
+  test("throws error if given invalid proxy url", () => {
     expect(() =>
       Purchases.configure({
         apiKey: testApiKey,
@@ -136,7 +138,7 @@ describe("Purchases.configure()", () => {
     ).toThrowError(PurchasesError);
   });
 
-  test("throws error if given reserved additional header with object syntax", () => {
+  test("throws error if given reserved additional header", () => {
     expect(() =>
       Purchases.configure({
         apiKey: testApiKey,
@@ -148,7 +150,7 @@ describe("Purchases.configure()", () => {
     ).toThrowError(PurchasesError);
   });
 
-  test("configure multiple times returns different instances with object syntax", () => {
+  test("configure multiple times returns different instances", () => {
     const purchases = Purchases.configure({
       apiKey: testApiKey,
       appUserId: testUserId,
