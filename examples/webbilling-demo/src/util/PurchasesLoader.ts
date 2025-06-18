@@ -1,8 +1,11 @@
 import type { CustomerInfo, Offering } from "@revenuecat/purchases-js";
-import { LogLevel, Purchases } from "@revenuecat/purchases-js";
+import {
+  LogLevel,
+  Purchases,
+  type FlagsConfig,
+} from "@revenuecat/purchases-js";
 import type { LoaderFunction } from "react-router-dom";
 import { redirect, useLoaderData } from "react-router-dom";
-import type { FlagsConfig } from "../../../../src/entities/flags-config.ts";
 
 declare global {
   interface Window {
@@ -41,6 +44,8 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
 
   const additionalFlags: FlagsConfig = {};
   if (rcSource) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
     additionalFlags["rcSource"] = rcSource;
   }
 
