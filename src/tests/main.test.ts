@@ -74,7 +74,6 @@ describe("Purchases.configure()", () => {
     expect(purchases).not.toEqual(purchases2);
   });
 
-  // Tests for the new object-based configuration API
   test("configures successfully with object syntax", () => {
     const purchases = Purchases.configure({
       apiKey: testApiKey,
