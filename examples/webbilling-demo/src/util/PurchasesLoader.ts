@@ -2,6 +2,7 @@ import type { CustomerInfo, Offering } from "@revenuecat/purchases-js";
 import { LogLevel, Purchases } from "@revenuecat/purchases-js";
 import type { LoaderFunction } from "react-router-dom";
 import { redirect, useLoaderData } from "react-router-dom";
+import type { FlagsConfig } from "../../../../src/entities/flags-config.ts";
 
 declare global {
   interface Window {
@@ -26,6 +27,7 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
   const searchParams = new URL(request.url).searchParams;
   const currency = searchParams.get("currency");
   const offeringId = searchParams.get("offeringId");
+  const rcSource = searchParams.get("rcSource") || undefined;
   const optOutOfAutoUTM =
     searchParams.get("optOutOfAutoUTM") === "true" || false;
 
@@ -37,6 +39,11 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
     additionalHeaders["X-RC-Canary"] = canary;
   }
 
+  const additionalFlags: FlagsConfig = {};
+  if (rcSource) {
+    additionalFlags["rcSource"] = rcSource;
+  }
+
   Purchases.setLogLevel(LogLevel.Verbose);
   try {
     if (!Purchases.isConfigured()) {
@@ -46,7 +53,7 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
         {
           additionalHeaders,
         },
-        { autoCollectUTMAsMetadata: !optOutOfAutoUTM },
+        { autoCollectUTMAsMetadata: !optOutOfAutoUTM, ...additionalFlags },
       );
     } else {
       await Purchases.getSharedInstance().changeUser(appUserId);

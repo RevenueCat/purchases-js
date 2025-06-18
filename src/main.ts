@@ -622,23 +622,25 @@ export class Purchases {
         window.history.pushState({ checkoutOpen: true }, "");
       }
 
-      const onClose =
-        this._flags.rcSource === "app"
-          ? undefined
-          : () => {
-              const event = createCheckoutSessionEndClosedEvent();
-              this.eventsTracker.trackSDKEvent(event);
-              window.removeEventListener("popstate", onClose as EventListener);
+      const shouldPassOnCloseBehaviour =
+        this._flags.rcSource === "app" || this._flags.rcSource === "embedded";
 
-              if (component) {
-                unmount(component);
-              }
+      const onClose = shouldPassOnCloseBehaviour
+        ? undefined
+        : () => {
+            const event = createCheckoutSessionEndClosedEvent();
+            this.eventsTracker.trackSDKEvent(event);
+            window.removeEventListener("popstate", onClose as EventListener);
 
-              certainHTMLTarget.innerHTML = "";
+            if (component) {
+              unmount(component);
+            }
 
-              Logger.debugLog("Purchase cancelled by user");
-              reject(new PurchasesError(ErrorCode.UserCancelledError));
-            };
+            certainHTMLTarget.innerHTML = "";
+
+            Logger.debugLog("Purchase cancelled by user");
+            reject(new PurchasesError(ErrorCode.UserCancelledError));
+          };
 
       if (!isInElement && onClose) {
         window.addEventListener("popstate", onClose as EventListener);

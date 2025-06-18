@@ -28,8 +28,11 @@ beforeEach(() => {
 
 afterAll(() => server.close());
 
-export function configurePurchases(appUserId: string = testUserId): Purchases {
+export function configurePurchases(
+  appUserId: string = testUserId,
+  rcSource: string = "rcSource",
+): Purchases {
   return Purchases.configure(testApiKey, appUserId, defaultHttpConfig, {
-    rcSource: "rcSource",
+    rcSource: rcSource,
   });
 }
