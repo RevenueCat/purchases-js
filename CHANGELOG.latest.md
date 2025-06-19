@@ -1,3 +1,7 @@
 ## RevenueCat SDK
-### 🐞 Bugfixes
-* Fixed an issue with Apple Pay when the passed date can get outdated between calculation and click (#524) via Nicola Sacco (@nicfix)
+### ✨ New Features
+* Internally track embedded usages (#531) via Nicola Sacco (@nicfix)
+
+### 🔄 Other Changes
+* Update footer note to reflect applicable taxes (#529) via Pol Miro (@polmiro)
+* Update fixture (#528) via Pol Miro (@polmiro)
