@@ -62,7 +62,11 @@ import {
 } from "./behavioural-events/sdk-event-helpers";
 import { SDKEventName } from "./behavioural-events/sdk-events";
 import { autoParseUTMParams } from "./helpers/utm-params";
-import { defaultFlagsConfig, type FlagsConfig } from "./entities/flags-config";
+import {
+  defaultFlagsConfig,
+  type FlagsConfig,
+  supportedRCSources,
+} from "./entities/flags-config";
 import { generateUUID } from "./helpers/uuid-helper";
 import type { PlatformInfo } from "./entities/platform-info";
 import type { ReservedCustomerAttribute } from "./entities/attributes";
@@ -622,23 +626,26 @@ export class Purchases {
         window.history.pushState({ checkoutOpen: true }, "");
       }
 
-      const onClose =
-        this._flags.rcSource === "app"
-          ? undefined
-          : () => {
-              const event = createCheckoutSessionEndClosedEvent();
-              this.eventsTracker.trackSDKEvent(event);
-              window.removeEventListener("popstate", onClose as EventListener);
+      const shouldPassOnCloseBehaviour =
+        this._flags.rcSource &&
+        supportedRCSources.includes(this._flags.rcSource);
 
-              if (component) {
-                unmount(component);
-              }
+      const onClose = shouldPassOnCloseBehaviour
+        ? undefined
+        : () => {
+            const event = createCheckoutSessionEndClosedEvent();
+            this.eventsTracker.trackSDKEvent(event);
+            window.removeEventListener("popstate", onClose as EventListener);
 
-              certainHTMLTarget.innerHTML = "";
+            if (component) {
+              unmount(component);
+            }
 
-              Logger.debugLog("Purchase cancelled by user");
-              reject(new PurchasesError(ErrorCode.UserCancelledError));
-            };
+            certainHTMLTarget.innerHTML = "";
+
+            Logger.debugLog("Purchase cancelled by user");
+            reject(new PurchasesError(ErrorCode.UserCancelledError));
+          };
 
       if (!isInElement && onClose) {
         window.addEventListener("popstate", onClose as EventListener);
