@@ -62,7 +62,11 @@ import {
 } from "./behavioural-events/sdk-event-helpers";
 import { SDKEventName } from "./behavioural-events/sdk-events";
 import { autoParseUTMParams } from "./helpers/utm-params";
-import { defaultFlagsConfig, type FlagsConfig } from "./entities/flags-config";
+import {
+  defaultFlagsConfig,
+  type FlagsConfig,
+  supportedRCSources,
+} from "./entities/flags-config";
 import { generateUUID } from "./helpers/uuid-helper";
 import type { PlatformInfo } from "./entities/platform-info";
 import type { ReservedCustomerAttribute } from "./entities/attributes";
@@ -623,7 +627,8 @@ export class Purchases {
       }
 
       const shouldPassOnCloseBehaviour =
-        this._flags.rcSource === "app" || this._flags.rcSource === "embedded";
+        this._flags.rcSource &&
+        supportedRCSources.includes(this._flags.rcSource);
 
       const onClose = shouldPassOnCloseBehaviour
         ? undefined
