@@ -228,8 +228,8 @@ export class Purchases {
   static configure(
     configOrApiKey: PurchasesConfig | string,
     appUserId?: string,
-    httpConfig: HttpConfig = defaultHttpConfig,
-    flags: FlagsConfig = defaultFlagsConfig,
+    httpConfig?: HttpConfig,
+    flags?: FlagsConfig,
   ): Purchases {
     if (Purchases.instance !== undefined) {
       Logger.warnLog(
@@ -238,21 +238,14 @@ export class Purchases {
       );
     }
 
-    let finalApiKey: string;
-    let finalAppUserId: string;
-    let finalHttpConfig: HttpConfig;
-    let finalFlags: FlagsConfig;
+    let config: PurchasesConfig;
 
     // Check if first argument is a configuration object
     if (typeof configOrApiKey === "object" && configOrApiKey !== null) {
       // Object-based configuration
-      const config = configOrApiKey;
-      finalApiKey = config.apiKey;
-      finalAppUserId = config.appUserId;
-      finalHttpConfig = config.httpConfig ?? defaultHttpConfig;
-      finalFlags = config.flags ?? defaultFlagsConfig;
+      config = configOrApiKey;
     } else {
-      // Traditional separate arguments
+      // Traditional separate arguments - convert to PurchasesConfig
       if (typeof configOrApiKey !== "string") {
         throw new PurchasesError(
           ErrorCode.ConfigurationError,
@@ -265,23 +258,32 @@ export class Purchases {
           "App user ID must be provided as a string",
         );
       }
-      finalApiKey = configOrApiKey;
-      finalAppUserId = appUserId;
-      finalHttpConfig = httpConfig;
-      finalFlags = flags;
+      config = {
+        apiKey: configOrApiKey,
+        appUserId: appUserId,
+        httpConfig: httpConfig,
+        flags: flags,
+      };
     }
 
-    validateApiKey(finalApiKey);
-    validateAppUserId(finalAppUserId);
-    validateProxyUrl(finalHttpConfig.proxyURL);
-    validateAdditionalHeaders(finalHttpConfig.additionalHeaders);
-    Purchases.instance = new Purchases(
-      finalApiKey,
-      finalAppUserId,
-      finalHttpConfig,
-      finalFlags,
-    );
+    Purchases.instance = Purchases.configureInternal(config);
     return Purchases.getSharedInstance();
+  }
+
+  private static configureInternal(config: PurchasesConfig): Purchases {
+    const { apiKey, appUserId, httpConfig, flags } = config;
+    const finalHttpConfig = httpConfig ?? defaultHttpConfig;
+    const finalFlags = flags ?? defaultFlagsConfig;
+
+    Purchases.validateConfig(config);
+    return new Purchases(apiKey, appUserId, finalHttpConfig, finalFlags);
+  }
+
+  private static validateConfig(config: PurchasesConfig) {
+    validateApiKey(config.apiKey);
+    validateAppUserId(config.appUserId);
+    validateProxyUrl(config.httpConfig?.proxyURL);
+    validateAdditionalHeaders(config.httpConfig?.additionalHeaders);
   }
 
   /**
