@@ -67,6 +67,7 @@ import {
   type FlagsConfig,
   supportedRCSources,
 } from "./entities/flags-config";
+import { type PurchasesConfig } from "./entities/purchases-config";
 import { generateUUID } from "./helpers/uuid-helper";
 import type { PlatformInfo } from "./entities/platform-info";
 import type { ReservedCustomerAttribute } from "./entities/attributes";
@@ -116,51 +117,9 @@ export type { RedemptionInfo } from "./entities/redemption-info";
 export type { PurchaseResult } from "./entities/purchase-result";
 export type { BrandingAppearance } from "./entities/branding";
 export type { PlatformInfo } from "./entities/platform-info";
+export type { PurchasesConfig } from "./entities/purchases-config";
 
 const ANONYMOUS_PREFIX = "$RCAnonymousID:";
-
-/**
- * Configuration object for initializing the Purchases SDK.
- *
- * @example
- * ```typescript
- * // Object-based configuration (recommended)
- * const purchases = Purchases.configure({
- *   apiKey: "your_api_key",
- *   appUserId: "user_123",
- *   httpConfig: { additionalHeaders: { "Custom-Header": "value" } },
- *   flags: { autoCollectUTMAsMetadata: true }
- * });
- *
- * // Legacy separate arguments (deprecated)
- * const purchases = Purchases.configure(
- *   "your_api_key",
- *   "user_123",
- *   { additionalHeaders: { "Custom-Header": "value" } },
- *   { autoCollectUTMAsMetadata: true }
- * );
- * ```
- *
- * @public
- */
-export interface PurchasesConfig {
-  /**
-   * RevenueCat API Key. Can be obtained from the RevenueCat dashboard.
-   */
-  apiKey: string;
-  /**
-   * Your unique id for identifying the user.
-   */
-  appUserId: string;
-  /**
-   * Advanced http configuration to customise the SDK usage {@link HttpConfig}.
-   */
-  httpConfig?: HttpConfig;
-  /**
-   * Advanced functionality configuration {@link FlagsConfig}.
-   */
-  flags?: FlagsConfig;
-}
 
 /**
  * Entry point for Purchases SDK. It should be instantiated as soon as your
