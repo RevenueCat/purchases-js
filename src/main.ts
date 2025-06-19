@@ -67,6 +67,7 @@ import {
   type FlagsConfig,
   supportedRCSources,
 } from "./entities/flags-config";
+import { type PurchasesConfig } from "./entities/purchases-config";
 import { generateUUID } from "./helpers/uuid-helper";
 import type { PlatformInfo } from "./entities/platform-info";
 import type { ReservedCustomerAttribute } from "./entities/attributes";
@@ -116,6 +117,7 @@ export type { RedemptionInfo } from "./entities/redemption-info";
 export type { PurchaseResult } from "./entities/purchase-result";
 export type { BrandingAppearance } from "./entities/branding";
 export type { PlatformInfo } from "./entities/platform-info";
+export type { PurchasesConfig } from "./entities/purchases-config";
 
 const ANONYMOUS_PREFIX = "$RCAnonymousID:";
 
@@ -181,7 +183,7 @@ export class Purchases {
 
   /**
    * Get the singleton instance of Purchases. It's preferred to use the instance
-   * obtained from the {@link Purchases.configure} method when possible.
+   * obtained from the `configure` method when possible.
    * @throws {@link UninitializedPurchasesError} if the instance has not been initialized yet.
    */
   static getSharedInstance(): Purchases {
@@ -202,6 +204,14 @@ export class Purchases {
    * Configures the Purchases SDK. This should be called as soon as your app
    * has a unique user id for your user. You should only call this once, and
    * keep the returned instance around for use throughout your application.
+   * @param config - Configuration object containing apiKey, appUserId, and optional configurations.
+   * @throws {@link PurchasesError} if the API key or user id are invalid.
+   */
+  static configure(config: PurchasesConfig): Purchases;
+
+  /**
+   * Legacy method to configure the Purchases SDK. This method is deprecated and will be removed in a future version.
+   * @deprecated - please use the `configure` method with a {@link PurchasesConfig} object instead.
    * @param apiKey - RevenueCat API Key. Can be obtained from the RevenueCat dashboard.
    * @param appUserId - Your unique id for identifying the user.
    * @param httpConfig - Advanced http configuration to customise the SDK usage {@link HttpConfig}.
@@ -211,8 +221,15 @@ export class Purchases {
   static configure(
     apiKey: string,
     appUserId: string,
-    httpConfig: HttpConfig = defaultHttpConfig,
-    flags: FlagsConfig = defaultFlagsConfig,
+    httpConfig?: HttpConfig,
+    flags?: FlagsConfig,
+  ): Purchases;
+
+  static configure(
+    configOrApiKey: PurchasesConfig | string,
+    appUserId?: string,
+    httpConfig?: HttpConfig,
+    flags?: FlagsConfig,
   ): Purchases {
     if (Purchases.instance !== undefined) {
       Logger.warnLog(
@@ -220,12 +237,58 @@ export class Purchases {
           "Creating and returning new instance.",
       );
     }
-    validateApiKey(apiKey);
-    validateAppUserId(appUserId);
-    validateProxyUrl(httpConfig.proxyURL);
-    validateAdditionalHeaders(httpConfig.additionalHeaders);
-    Purchases.instance = new Purchases(apiKey, appUserId, httpConfig, flags);
+
+    let config: PurchasesConfig;
+
+    // Check if first argument is a configuration object
+    if (typeof configOrApiKey === "object" && configOrApiKey !== null) {
+      // Object-based configuration
+      config = configOrApiKey;
+    } else {
+      // Legacy positional arguments - convert to PurchasesConfig
+      if (typeof configOrApiKey !== "string") {
+        throw new PurchasesError(
+          ErrorCode.ConfigurationError,
+          "API key must be provided as a string",
+        );
+      }
+      if (typeof appUserId !== "string") {
+        throw new PurchasesError(
+          ErrorCode.ConfigurationError,
+          "App user ID must be provided as a string",
+        );
+      }
+      config = {
+        apiKey: configOrApiKey,
+        appUserId: appUserId,
+        httpConfig: httpConfig,
+        flags: flags,
+      };
+    }
+
+    Purchases.configureInternal(config);
     return Purchases.getSharedInstance();
+  }
+
+  private static configureInternal(config: PurchasesConfig): void {
+    const { apiKey, appUserId, httpConfig, flags } = config;
+    const finalHttpConfig = httpConfig ?? defaultHttpConfig;
+    const finalFlags = flags ?? defaultFlagsConfig;
+
+    Purchases.validateConfig(config);
+    Purchases.instance = new Purchases(
+      apiKey,
+      appUserId,
+      finalHttpConfig,
+      finalFlags,
+    );
+  }
+
+  private static validateConfig(config: PurchasesConfig) {
+    validateApiKey(config.apiKey);
+    validateAppUserId(config.appUserId);
+    validateProxyUrl(config.httpConfig?.proxyURL);
+    validateAdditionalHeaders(config.httpConfig?.additionalHeaders);
   }
 
   /**

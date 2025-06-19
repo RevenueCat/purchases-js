@@ -352,6 +352,8 @@ export interface PurchaseResult {
 export class Purchases {
     changeUser(newAppUserId: string): Promise<CustomerInfo>;
     close(): void;
+    static configure(config: PurchasesConfig): Purchases;
+    // @deprecated
     static configure(apiKey: string, appUserId: string, httpConfig?: HttpConfig, flags?: FlagsConfig): Purchases;
     static generateRevenueCatAnonymousAppUserId(): string;
     getAppUserId(): string;
@@ -374,6 +376,14 @@ export class Purchases {
     }): Promise<void>;
     static setLogLevel(logLevel: LogLevel): void;
     static setPlatformInfo(platformInfo: PlatformInfo): void;
+}
+
+// @public
+export interface PurchasesConfig {
+    apiKey: string;
+    appUserId: string;
+    flags?: FlagsConfig;
+    httpConfig?: HttpConfig;
 }
 
 // @public

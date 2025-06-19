@@ -54,14 +54,12 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
   Purchases.setLogLevel(LogLevel.Verbose);
   try {
     if (!Purchases.isConfigured()) {
-      Purchases.configure(
+      Purchases.configure({
         apiKey,
         appUserId,
-        {
-          additionalHeaders,
-        },
-        flagsConfig,
-      );
+        httpConfig: additionalHeaders,
+        flags: flagsConfig,
+      });
     } else {
       await Purchases.getSharedInstance().changeUser(appUserId);
     }
