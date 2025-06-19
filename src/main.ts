@@ -245,7 +245,7 @@ export class Purchases {
       // Object-based configuration
       config = configOrApiKey;
     } else {
-      // Traditional separate arguments - convert to PurchasesConfig
+      // Legacy positional arguments - convert to PurchasesConfig
       if (typeof configOrApiKey !== "string") {
         throw new PurchasesError(
           ErrorCode.ConfigurationError,
@@ -266,17 +266,22 @@ export class Purchases {
       };
     }
 
-    Purchases.instance = Purchases.configureInternal(config);
+    Purchases.configureInternal(config);
     return Purchases.getSharedInstance();
   }
 
-  private static configureInternal(config: PurchasesConfig): Purchases {
+  private static configureInternal(config: PurchasesConfig): void {
     const { apiKey, appUserId, httpConfig, flags } = config;
     const finalHttpConfig = httpConfig ?? defaultHttpConfig;
     const finalFlags = flags ?? defaultFlagsConfig;
 
     Purchases.validateConfig(config);
-    return new Purchases(apiKey, appUserId, finalHttpConfig, finalFlags);
+    Purchases.instance = new Purchases(
+      apiKey,
+      appUserId,
+      finalHttpConfig,
+      finalFlags,
+    );
   }
 
   private static validateConfig(config: PurchasesConfig) {
