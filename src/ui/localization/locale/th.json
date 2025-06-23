@@ -90,5 +90,6 @@
   "product_info.price_after_intro_price": "หลังจาก {{introPriceDuration}} ในวันที่ {{renewalDate}}",
   "product_info.intro_price_phase": "{{introPriceDuration}} แรกในราคา {{introPrice}}",
   "product_info.after_trial": "หลังช่วงทดลองใช้",
-  "product_info.after": "หลังจาก"
+  "product_info.after": "หลังจาก",
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} ในราคา {{introPrice}}"
 }

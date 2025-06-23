@@ -90,5 +90,6 @@
   "product_info.price_after_intro_price": "לאחר {{introPriceDuration}}, בתאריך {{renewalDate}}",
   "product_info.intro_price_phase": "{{introPriceDuration}} ראשונים עבור {{introPrice}}",
   "product_info.after_trial": "אחרי תקופת ניסיון",
-  "product_info.after": "אחרי"
+  "product_info.after": "אחרי",
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} עבור {{introPrice}}"
 }

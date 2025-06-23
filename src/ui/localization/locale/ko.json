@@ -90,5 +90,6 @@
   "product_info.price_after_intro_price": "{{introPriceDuration}} 후 {{renewalDate}}에",
   "product_info.intro_price_phase": "처음 {{introPriceDuration}} 동안 {{introPrice}}",
   "product_info.after_trial": "체험 후",
-  "product_info.after": "후"
+  "product_info.after": "후",
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} 동안 {{introPrice}}"
 }

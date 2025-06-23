@@ -90,5 +90,6 @@
   "product_info.price_after_intro_price": "{{introPriceDuration}}の後、{{renewalDate}}に",
   "product_info.intro_price_phase": "最初の{{introPriceDuration}}は{{introPrice}}",
   "product_info.after_trial": "トライアル後",
-  "product_info.after": "後"
+  "product_info.after": "後",
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}}間{{introPrice}}でお試し"
 }

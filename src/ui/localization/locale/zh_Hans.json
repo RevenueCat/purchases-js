@@ -90,5 +90,6 @@
   "product_info.price_after_intro_price": "在{{introPriceDuration}}之后，于{{renewalDate}}开始",
   "product_info.intro_price_phase": "前{{introPriceDuration}}只需{{introPrice}}",
   "product_info.after_trial": "试用后",
-  "product_info.after": "之后"
+  "product_info.after": "之后",
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}}，价格为{{introPrice}}"
 }

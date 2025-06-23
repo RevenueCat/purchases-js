@@ -90,5 +90,6 @@
   "product_info.price_after_intro_price": "Po {{introPriceDuration}}, dne {{renewalDate}}",
   "product_info.intro_price_phase": "Prvních {{introPriceDuration}} za {{introPrice}}",
   "product_info.after_trial": "po zkušební době",
-  "product_info.after": "po"
+  "product_info.after": "po",
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} za {{introPrice}}"
 }

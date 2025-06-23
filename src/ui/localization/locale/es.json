@@ -89,6 +89,7 @@
   "apple_pay.free_trial": "Prueba gratuita",
   "product_info.price_after_intro_price": "Después de {{introPriceDuration}}, el {{renewalDate}}",
   "product_info.intro_price_phase": "Los primeros {{introPriceDuration}} por {{introPrice}}",
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} por {{introPrice}}",
   "product_info.after_trial": "después del período de prueba",
   "product_info.after": "después de"
 }

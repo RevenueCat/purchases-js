@@ -90,5 +90,6 @@
   "product_info.price_after_intro_price": "在 {{introPriceDuration}} 之後，於 {{renewalDate}}",
   "product_info.intro_price_phase": "首 {{introPriceDuration}} 為 {{introPrice}}",
   "product_info.after_trial": "試用期後",
-  "product_info.after": "之後"
+  "product_info.after": "之後",
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}}，價格為{{introPrice}}"
 }

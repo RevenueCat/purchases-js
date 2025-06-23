@@ -90,5 +90,6 @@
   "product_info.price_after_intro_price": "Nakon {{introPriceDuration}}, na {{renewalDate}}",
   "product_info.intro_price_phase": "Prvih {{introPriceDuration}} za {{introPrice}}",
   "product_info.after_trial": "nakon probnog perioda",
-  "product_info.after": "nakon"
+  "product_info.after": "nakon",
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} za {{introPrice}}"
 }

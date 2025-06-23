@@ -90,5 +90,6 @@
   "product_info.price_after_intro_price": "Etter {{introPriceDuration}}, den {{renewalDate}}",
   "product_info.intro_price_phase": "Første {{introPriceDuration}} for {{introPrice}}",
   "product_info.after_trial": "etter prøveperiode",
-  "product_info.after": "etter"
+  "product_info.after": "etter",
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} for {{introPrice}}"
 }

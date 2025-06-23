@@ -90,5 +90,6 @@
   "product_info.price_after_intro_price": "{{introPriceDuration}} के बाद, {{renewalDate}} पर",
   "product_info.intro_price_phase": "पहले {{introPriceDuration}} के लिए {{introPrice}}",
   "product_info.after_trial": "ट्रायल के बाद",
-  "product_info.after": "के बाद"
+  "product_info.after": "के बाद",
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} के लिए {{introPrice}}"
 }

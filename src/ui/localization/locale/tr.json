@@ -90,5 +90,6 @@
   "product_info.price_after_intro_price": "{{introPriceDuration}} sonra, {{renewalDate}} tarihinde",
   "product_info.intro_price_phase": "İlk {{introPriceDuration}} için {{introPrice}}",
   "product_info.after_trial": "deneme süresinden sonra",
-  "product_info.after": "sonra"
+  "product_info.after": "sonra",
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} boyunca {{introPrice}}"
 }

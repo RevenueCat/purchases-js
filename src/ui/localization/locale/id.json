@@ -90,5 +90,6 @@
   "product_info.price_after_intro_price": "Setelah {{introPriceDuration}}, pada {{renewalDate}}",
   "product_info.intro_price_phase": "Pertama {{introPriceDuration}} seharga {{introPrice}}",
   "product_info.after_trial": "setelah uji coba",
-  "product_info.after": "setelah"
+  "product_info.after": "setelah",
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} dengan harga {{introPrice}}"
 }

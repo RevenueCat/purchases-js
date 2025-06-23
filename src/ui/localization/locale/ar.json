@@ -90,5 +90,6 @@
   "product_info.price_after_intro_price": "بعد {{introPriceDuration}}، في {{renewalDate}}",
   "product_info.intro_price_phase": "أول {{introPriceDuration}} مقابل {{introPrice}}",
   "product_info.after_trial": "بعد الفترة التجريبية",
-  "product_info.after": "بعد"
+  "product_info.after": "بعد",
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} مقابل {{introPrice}}"
 }

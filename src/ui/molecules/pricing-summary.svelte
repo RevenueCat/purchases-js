@@ -73,7 +73,9 @@
     <div>
       <Typography size={introTypographySize}>
         <Localized
-          key={LocalizationKeys.ProductInfoIntroPricePhase}
+          key={introPricePhase.cycleCount === 1
+            ? LocalizationKeys.ProductInfoIntroPricePhase
+            : LocalizationKeys.ProductInfoIntroPricePhaseRecurring}
           variables={{
             introPriceDuration: getTranslatedPeriodLength(
               introPricePhase.periodDuration,
@@ -83,6 +85,16 @@
           }}
         />
       </Typography>
+
+      {#if introPricePhase.cycleCount > 1 && introPricePhase.period}
+        <Typography size="body-small">
+          {$translator.translatePeriodFrequency(
+            introPricePhase.period.number,
+            introPricePhase.period.unit,
+            { useMultipleWords: true },
+          )}
+        </Typography>
+      {/if}
 
       {#if hasTrial}
         <Typography size="body-small">

@@ -90,5 +90,6 @@
   "product_info.price_after_intro_price": "Sau {{introPriceDuration}}, vào {{renewalDate}}",
   "product_info.intro_price_phase": "{{introPriceDuration}} đầu tiên với giá {{introPrice}}",
   "product_info.after_trial": "sau khi dùng thử",
-  "product_info.after": "sau"
+  "product_info.after": "sau",
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} với giá {{introPrice}}"
 }
