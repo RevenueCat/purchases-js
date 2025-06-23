@@ -33,6 +33,8 @@
   "product_info.price_after_free_trial": "After trial ends, on {{renewalDate}}",
   "product_info.intro_price_phase": "First {{introPriceDuration}} for {{introPrice}}",
   "product_info.price_after_intro_price": "After {{introPriceDuration}}, on {{renewalDate}}",
+  "product_info.after_trial": "after trial",
+  "product_info.after": "after",
   "product_info.total_due_today": "Total due today",
   "product_info.renewal_frequency": "Renews {{frequency}}",
   "product_info.continues_until_cancelled": "Continues until cancelled",

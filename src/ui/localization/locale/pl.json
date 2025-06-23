@@ -88,5 +88,7 @@
   "error_page.error_title_stripe_invalid_tax_origin_address": "Nieprawidłowy adres pochodzenia podatku",
   "apple_pay.free_trial": "Okres próbny",
   "product_info.price_after_intro_price": "Po {{introPriceDuration}}, od {{renewalDate}}",
-  "product_info.intro_price_phase": "Pierwsze {{introPriceDuration}} za {{introPrice}}"
+  "product_info.intro_price_phase": "Pierwsze {{introPriceDuration}} za {{introPrice}}",
+  "product_info.after_trial": "po okresie próbnym",
+  "product_info.after": "po"
 }

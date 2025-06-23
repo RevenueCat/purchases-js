@@ -88,5 +88,7 @@
   "error_page.error_title_stripe_invalid_tax_origin_address": "Virheellinen veron alkuperäosoite",
   "apple_pay.free_trial": "Ilmainen kokeilu",
   "product_info.price_after_intro_price": "{{introPriceDuration}} jälkeen, {{renewalDate}}",
-  "product_info.intro_price_phase": "Ensimmäiset {{introPriceDuration}} hintaan {{introPrice}}"
+  "product_info.intro_price_phase": "Ensimmäiset {{introPriceDuration}} hintaan {{introPrice}}",
+  "product_info.after_trial": "kokeilujakson jälkeen",
+  "product_info.after": "jälkeen"
 }

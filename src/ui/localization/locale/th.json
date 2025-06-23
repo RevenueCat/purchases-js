@@ -88,5 +88,7 @@
   "error_page.error_title_stripe_invalid_tax_origin_address": "ที่อยู่ต้นทางภาษีไม่ถูกต้อง",
   "apple_pay.free_trial": "ทดลองใช้ฟรี",
   "product_info.price_after_intro_price": "หลังจาก {{introPriceDuration}} ในวันที่ {{renewalDate}}",
-  "product_info.intro_price_phase": "{{introPriceDuration}} แรกในราคา {{introPrice}}"
+  "product_info.intro_price_phase": "{{introPriceDuration}} แรกในราคา {{introPrice}}",
+  "product_info.after_trial": "หลังช่วงทดลองใช้",
+  "product_info.after": "หลังจาก"
 }

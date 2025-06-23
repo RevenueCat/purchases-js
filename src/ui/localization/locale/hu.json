@@ -88,5 +88,7 @@
   "error_page.error_title_stripe_invalid_tax_origin_address": "Érvénytelen adókiindulási cím",
   "apple_pay.free_trial": "Ingyenes próbaidőszak",
   "product_info.price_after_intro_price": "{{introPriceDuration}} után, {{renewalDate}} napján",
-  "product_info.intro_price_phase": "Az első {{introPriceDuration}} ára {{introPrice}}"
+  "product_info.intro_price_phase": "Az első {{introPriceDuration}} ára {{introPrice}}",
+  "product_info.after_trial": "próbaidőszak után",
+  "product_info.after": "utána"
 }

@@ -88,5 +88,7 @@
   "error_page.error_title_stripe_invalid_tax_origin_address": "Ungültige Steuerursprungsadresse",
   "apple_pay.free_trial": "Kostenlose Testversion",
   "product_info.price_after_intro_price": "Nach {{introPriceDuration}}, am {{renewalDate}}",
-  "product_info.intro_price_phase": "Die ersten {{introPriceDuration}} für {{introPrice}}"
+  "product_info.intro_price_phase": "Die ersten {{introPriceDuration}} für {{introPrice}}",
+  "product_info.after_trial": "nach Testphase",
+  "product_info.after": "nach"
 }

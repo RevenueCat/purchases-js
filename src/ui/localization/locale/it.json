@@ -88,5 +88,7 @@
   "error_page.error_title_stripe_invalid_tax_origin_address": "Indirizzo di origine fiscale non valido",
   "apple_pay.free_trial": "Prova gratuita",
   "product_info.price_after_intro_price": "Dopo {{introPriceDuration}}, il {{renewalDate}}",
-  "product_info.intro_price_phase": "I primi {{introPriceDuration}} a {{introPrice}}"
+  "product_info.intro_price_phase": "I primi {{introPriceDuration}} a {{introPrice}}",
+  "product_info.after_trial": "dopo il periodo di prova",
+  "product_info.after": "dopo"
 }

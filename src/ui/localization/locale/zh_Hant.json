@@ -88,5 +88,7 @@
   "error_page.error_title_stripe_invalid_tax_origin_address": "無效的稅務起始地址",
   "apple_pay.free_trial": "免費試用",
   "product_info.price_after_intro_price": "在 {{introPriceDuration}} 之後，於 {{renewalDate}}",
-  "product_info.intro_price_phase": "首 {{introPriceDuration}} 為 {{introPrice}}"
+  "product_info.intro_price_phase": "首 {{introPriceDuration}} 為 {{introPrice}}",
+  "product_info.after_trial": "試用期後",
+  "product_info.after": "之後"
 }

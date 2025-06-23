@@ -88,5 +88,7 @@
   "error_page.error_title_stripe_invalid_tax_origin_address": "Địa chỉ gốc thuế không hợp lệ",
   "apple_pay.free_trial": "Dùng thử miễn phí",
   "product_info.price_after_intro_price": "Sau {{introPriceDuration}}, vào {{renewalDate}}",
-  "product_info.intro_price_phase": "{{introPriceDuration}} đầu tiên với giá {{introPrice}}"
+  "product_info.intro_price_phase": "{{introPriceDuration}} đầu tiên với giá {{introPrice}}",
+  "product_info.after_trial": "sau khi dùng thử",
+  "product_info.after": "sau"
 }

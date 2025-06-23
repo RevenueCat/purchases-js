@@ -46,6 +46,10 @@
       ? "heading-md"
       : "heading-lg",
   );
+
+  // Determine conditional text to show after intro price and base price
+  const hasTrial = $derived(trialPhase?.periodDuration);
+  const hasIntroPrice = $derived(introPricePhase?.periodDuration);
 </script>
 
 <div class="rcb-product-price-container">
@@ -79,6 +83,12 @@
           }}
         />
       </Typography>
+
+      {#if hasTrial}
+        <Typography size="body-small">
+          <Localized key={LocalizationKeys.ProductInfoAfterTrial} />
+        </Typography>
+      {/if}
     </div>
   {/if}
 
@@ -94,6 +104,16 @@
           basePhase.period.unit,
           { useMultipleWords: true },
         )}
+      </Typography>
+    {/if}
+
+    {#if hasIntroPrice}
+      <Typography size="body-small">
+        <Localized key={LocalizationKeys.ProductInfoAfter} />
+      </Typography>
+    {:else if hasTrial}
+      <Typography size="body-small">
+        <Localized key={LocalizationKeys.ProductInfoAfterTrial} />
       </Typography>
     {/if}
   </div>

@@ -88,5 +88,7 @@
   "error_page.error_title_stripe_invalid_tax_origin_address": "Недействительный адрес отправления налога",
   "apple_pay.free_trial": "Бесплатная пробная версия",
   "product_info.price_after_intro_price": "После {{introPriceDuration}}, {{renewalDate}}",
-  "product_info.intro_price_phase": "Первые {{introPriceDuration}} за {{introPrice}}"
+  "product_info.intro_price_phase": "Первые {{introPriceDuration}} за {{introPrice}}",
+  "product_info.after_trial": "после пробного периода",
+  "product_info.after": "после"
 }

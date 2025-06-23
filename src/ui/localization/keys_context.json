@@ -33,6 +33,8 @@
   "product_info.price_after_free_trial": "Tells the user about the cost after the free trial ends, including a date. {{renewalDate}} is replaced with the date the renewal starts.",
   "product_info.intro_price_phase": "Informs the user about the discounted introductory price phase of the subscription. {{introPriceDuration}} is replaced with the introductory price duration, {{introPrice}} is replaced with the introductory price.",
   "product_info.price_after_intro_price": "Tells the user about the cost after the introductory price phase ends, including a date. {{introPriceDuration}} is replaced with the introductory price duration, {{renewalDate}} is replaced with the date the renewal starts.",
+  "product_info.after_trial": "Small text appended to indicate something happens after a trial period ends.",
+  "product_info.after": "Small text appended to indicate something happens after another phase or period.",
   "product_info.total_due_today": "Indicates the total amount the user must pay immediately (today).",
   "product_info.renewal_frequency": "Indicates how often the subscription renews (e.g. 'Renews monthly'). {{frequency}} is replaced with the renewal period.",
   "product_info.continues_until_cancelled": "Advises that the subscription continues until the user cancels it.",
