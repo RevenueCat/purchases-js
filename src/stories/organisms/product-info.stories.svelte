@@ -7,11 +7,18 @@
     product,
     subscriptionOption,
     subscriptionOptionWithTrial,
+    subscriptionOptionWithIntroPricePaidUpfront,
+    subscriptionOptionWithIntroPriceRecurring,
+    subscriptionOptionWithTrialAndIntroPricePaidUpfront,
+    subscriptionOptionWithTrialAndIntroPriceRecurring,
     nonSubscriptionOption,
     consumableProduct,
     priceBreakdownTaxDisabled,
+    priceBreakdownTaxDisabledIntroPrice,
     priceBreakdownTaxInclusive,
+    priceBreakdownTaxInclusiveWithIntroPricePaidUpfront,
     priceBreakdownTaxExclusive,
+    priceBreakdownTaxExclusiveWithIntroPricePaidUpfront,
   } from "../fixtures";
 
   const { Story } = defineMeta({
@@ -47,6 +54,46 @@
 />
 
 <Story
+  name="Intro Price - Paid Upfront"
+  args={{
+    productDetails: product,
+    purchaseOption: subscriptionOptionWithIntroPricePaidUpfront,
+    showProductDescription: true,
+    priceBreakdown: priceBreakdownTaxDisabledIntroPrice,
+  }}
+/>
+
+<Story
+  name="Intro Price - Recurring"
+  args={{
+    productDetails: product,
+    purchaseOption: subscriptionOptionWithIntroPriceRecurring,
+    showProductDescription: true,
+    priceBreakdown: priceBreakdownTaxDisabledIntroPrice,
+  }}
+/>
+
+<Story
+  name="Trial + Intro Price - Paid Upfront"
+  args={{
+    productDetails: product,
+    purchaseOption: subscriptionOptionWithTrialAndIntroPricePaidUpfront,
+    showProductDescription: true,
+    priceBreakdown: priceBreakdownTaxDisabledIntroPrice,
+  }}
+/>
+
+<Story
+  name="Trial + Intro Price - Recurring"
+  args={{
+    productDetails: product,
+    purchaseOption: subscriptionOptionWithTrialAndIntroPriceRecurring,
+    showProductDescription: true,
+    priceBreakdown: priceBreakdownTaxDisabledIntroPrice,
+  }}
+/>
+
+<Story
   name="Non-subscription"
   args={{
     productDetails: consumableProduct,
@@ -67,6 +114,36 @@
 />
 
 <Story
+  name="Tax Inclusive with Trial + Intro Price - Paid Upfront"
+  args={{
+    productDetails: product,
+    purchaseOption: subscriptionOptionWithTrialAndIntroPricePaidUpfront,
+    showProductDescription: true,
+    priceBreakdown: priceBreakdownTaxInclusiveWithIntroPricePaidUpfront,
+  }}
+/>
+
+<Story
+  name="Tax Inclusive with Intro Price - Paid Upfront"
+  args={{
+    productDetails: product,
+    purchaseOption: subscriptionOptionWithIntroPricePaidUpfront,
+    showProductDescription: true,
+    priceBreakdown: priceBreakdownTaxInclusiveWithIntroPricePaidUpfront,
+  }}
+/>
+
+<Story
+  name="Tax Inclusive with Intro Price - Recurring"
+  args={{
+    productDetails: product,
+    purchaseOption: subscriptionOptionWithIntroPriceRecurring,
+    showProductDescription: true,
+    priceBreakdown: priceBreakdownTaxInclusiveWithIntroPricePaidUpfront,
+  }}
+/>
+
+<Story
   name="Tax Exclusive"
   args={{
     productDetails: product,
@@ -83,5 +160,25 @@
     purchaseOption: subscriptionOptionWithTrial,
     showProductDescription: true,
     priceBreakdown: priceBreakdownTaxExclusive,
+  }}
+/>
+
+<Story
+  name="Tax Exclusive with Trial + Intro Price - Paid Upfront"
+  args={{
+    productDetails: product,
+    purchaseOption: subscriptionOptionWithTrialAndIntroPricePaidUpfront,
+    showProductDescription: true,
+    priceBreakdown: priceBreakdownTaxExclusiveWithIntroPricePaidUpfront,
+  }}
+/>
+
+<Story
+  name="Tax Exclusive with Intro Price - Recurring"
+  args={{
+    productDetails: product,
+    purchaseOption: subscriptionOptionWithIntroPriceRecurring,
+    showProductDescription: true,
+    priceBreakdown: priceBreakdownTaxExclusiveWithIntroPricePaidUpfront,
   }}
 />

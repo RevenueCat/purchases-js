@@ -22,20 +22,6 @@
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
 
-  const formattedPrice = $derived(
-    $translator.formatPrice(
-      priceBreakdown.totalAmountInMicros,
-      priceBreakdown.currency,
-    ),
-  );
-
-  const formattedIntroPrice = $derived(
-    $translator.formatPrice(
-      introPricePhase?.price?.amountMicros ?? 0,
-      priceBreakdown.currency,
-    ),
-  );
-
   const introPriceDuration = $derived(
     introPricePhase?.period
       ? $translator.translatePeriod(
@@ -59,6 +45,22 @@
   // Determine conditional text to show after intro price and base price
   const hasTrial = $derived(trialPhase?.periodDuration);
   const hasIntroPrice = $derived(introPricePhase?.periodDuration);
+
+  const formattedPrice = $derived(
+    $translator.formatPrice(
+      hasIntroPrice
+        ? (basePhase?.price?.amountMicros ?? 0)
+        : priceBreakdown.totalAmountInMicros,
+      priceBreakdown.currency,
+    ),
+  );
+
+  const formattedIntroPrice = $derived(
+    $translator.formatPrice(
+      priceBreakdown.totalAmountInMicros,
+      priceBreakdown.currency,
+    ),
+  );
 </script>
 
 <div class="rcb-product-price-container">
