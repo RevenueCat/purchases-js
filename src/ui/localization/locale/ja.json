@@ -88,7 +88,7 @@
   "error_page.error_title_stripe_invalid_tax_origin_address": "税の原産地住所が無効です",
   "apple_pay.free_trial": "無料トライアル",
   "product_info.price_after_intro_price": "{{introPriceDuration}}の後、{{renewalDate}}に",
-  "product_info.intro_price_phase": "最初の{{introPriceDuration}}は{{introPrice}}",
+  "product_info.intro_price_phase_paid_upfront": "最初の{{introPriceDuration}}は{{introPrice}}",
   "product_info.after_trial": "トライアル後",
   "product_info.after": "後",
   "product_info.intro_price_phase_recurring": "{{introPriceDuration}}間{{introPrice}}でお試し"

@@ -88,7 +88,7 @@
   "error_page.error_title_stripe_invalid_tax_origin_address": "Neplatná adresa původu daně",
   "apple_pay.free_trial": "Zkušební verze zdarma",
   "product_info.price_after_intro_price": "Po {{introPriceDuration}}, dne {{renewalDate}}",
-  "product_info.intro_price_phase": "Prvních {{introPriceDuration}} za {{introPrice}}",
+  "product_info.intro_price_phase_paid_upfront": "Prvních {{introPriceDuration}} za {{introPrice}}",
   "product_info.after_trial": "po zkušební době",
   "product_info.after": "po",
   "product_info.intro_price_phase_recurring": "{{introPriceDuration}} za {{introPrice}}"

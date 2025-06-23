@@ -88,7 +88,7 @@
   "error_page.error_title_stripe_invalid_tax_origin_address": "عنوان منشأ ضريبي غير صالح",
   "apple_pay.free_trial": "تجربة مجانية",
   "product_info.price_after_intro_price": "بعد {{introPriceDuration}}، في {{renewalDate}}",
-  "product_info.intro_price_phase": "أول {{introPriceDuration}} مقابل {{introPrice}}",
+  "product_info.intro_price_phase_paid_upfront": "أول {{introPriceDuration}} مقابل {{introPrice}}",
   "product_info.after_trial": "بعد الفترة التجريبية",
   "product_info.after": "بعد",
   "product_info.intro_price_phase_recurring": "{{introPriceDuration}} مقابل {{introPrice}}"

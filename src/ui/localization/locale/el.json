@@ -88,7 +88,7 @@
   "error_page.error_title_stripe_invalid_tax_origin_address": "Μη έγκυρη διεύθυνση προέλευσης φόρου",
   "apple_pay.free_trial": "Δωρεάν δοκιμή",
   "product_info.price_after_intro_price": "Μετά από {{introPriceDuration}}, στις {{renewalDate}}",
-  "product_info.intro_price_phase": "Πρώτα {{introPriceDuration}} για {{introPrice}}",
+  "product_info.intro_price_phase_paid_upfront": "Πρώτα {{introPriceDuration}} για {{introPrice}}",
   "product_info.after_trial": "μετά τη δοκιμή",
   "product_info.after": "μετά",
   "product_info.intro_price_phase_recurring": "{{introPriceDuration}} για {{introPrice}}"

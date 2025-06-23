@@ -88,7 +88,7 @@
   "error_page.error_title_stripe_invalid_tax_origin_address": "Ogiltig skatteursprungsadress",
   "apple_pay.free_trial": "Gratis provperiod",
   "product_info.price_after_intro_price": "Efter {{introPriceDuration}}, den {{renewalDate}}",
-  "product_info.intro_price_phase": "Första {{introPriceDuration}} för {{introPrice}}",
+  "product_info.intro_price_phase_paid_upfront": "Första {{introPriceDuration}} för {{introPrice}}",
   "product_info.after_trial": "efter provperioden",
   "product_info.after": "efter",
   "product_info.intro_price_phase_recurring": "{{introPriceDuration}} för {{introPrice}}"

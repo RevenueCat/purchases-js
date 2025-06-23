@@ -74,7 +74,7 @@
       <Typography size={introTypographySize}>
         <Localized
           key={introPricePhase.cycleCount === 1
-            ? LocalizationKeys.ProductInfoIntroPricePhase
+            ? LocalizationKeys.ProductInfoIntroPricePhasePaidUpfront
             : LocalizationKeys.ProductInfoIntroPricePhaseRecurring}
           variables={{
             introPriceDuration: getTranslatedPeriodLength(

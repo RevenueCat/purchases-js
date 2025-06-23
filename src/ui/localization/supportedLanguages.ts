@@ -64,7 +64,7 @@ export enum LocalizationKeys {
   ProductInfoProductPrice = "product_info.product_price",
   ProductInfoFreeTrialDuration = "product_info.free_trial_duration",
   ProductInfoPriceAfterFreeTrial = "product_info.price_after_free_trial",
-  ProductInfoIntroPricePhase = "product_info.intro_price_phase",
+  ProductInfoIntroPricePhasePaidUpfront = "product_info.intro_price_phase_paid_upfront",
   ProductInfoIntroPricePhaseRecurring = "product_info.intro_price_phase_recurring",
   ProductInfoPriceAfterIntroPrice = "product_info.price_after_intro_price",
   ProductInfoAfterTrial = "product_info.after_trial",

@@ -88,7 +88,7 @@
   "error_page.error_title_stripe_invalid_tax_origin_address": "Ongeldig belastingoorsprongadres",
   "apple_pay.free_trial": "Gratis proefperiode",
   "product_info.price_after_intro_price": "Na {{introPriceDuration}}, op {{renewalDate}}",
-  "product_info.intro_price_phase": "Eerste {{introPriceDuration}} voor {{introPrice}}",
+  "product_info.intro_price_phase_paid_upfront": "Eerste {{introPriceDuration}} voor {{introPrice}}",
   "product_info.after_trial": "na proefperiode",
   "product_info.after": "na",
   "product_info.intro_price_phase_recurring": "{{introPriceDuration}} voor {{introPrice}}"

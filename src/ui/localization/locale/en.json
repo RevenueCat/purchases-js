@@ -31,7 +31,7 @@
   "product_info.product_price": "{{productPrice}}",
   "product_info.free_trial_duration": "Free for {{trialDuration}}",
   "product_info.price_after_free_trial": "After trial ends, on {{renewalDate}}",
-  "product_info.intro_price_phase": "First {{introPriceDuration}} for {{introPrice}}",
+  "product_info.intro_price_phase_paid_upfront": "First {{introPriceDuration}} for {{introPrice}}",
   "product_info.intro_price_phase_recurring": "{{introPriceDuration}} for {{introPrice}}",
   "product_info.price_after_intro_price": "After {{introPriceDuration}}, on {{renewalDate}}",
   "product_info.after_trial": "after trial",

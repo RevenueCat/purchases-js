@@ -88,7 +88,7 @@
   "error_page.error_title_stripe_invalid_tax_origin_address": "잘못된 세금 원산지 주소",
   "apple_pay.free_trial": "무료 체험",
   "product_info.price_after_intro_price": "{{introPriceDuration}} 후 {{renewalDate}}에",
-  "product_info.intro_price_phase": "처음 {{introPriceDuration}} 동안 {{introPrice}}",
+  "product_info.intro_price_phase_paid_upfront": "처음 {{introPriceDuration}} 동안 {{introPrice}}",
   "product_info.after_trial": "체험 후",
   "product_info.after": "후",
   "product_info.intro_price_phase_recurring": "{{introPriceDuration}} 동안 {{introPrice}}"
