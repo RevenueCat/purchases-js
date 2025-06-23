@@ -35,12 +35,23 @@
       priceBreakdown.currency,
     ),
   );
+
+  // Determine typography sizes - first visible element gets heading-lg, rest get heading-md
+  const trialTypographySize = $derived("heading-lg");
+  const introTypographySize = $derived(
+    trialPhase?.periodDuration ? "heading-md" : "heading-lg",
+  );
+  const baseTypographySize = $derived(
+    trialPhase?.periodDuration || introPricePhase?.periodDuration
+      ? "heading-md"
+      : "heading-lg",
+  );
 </script>
 
 <div class="rcb-product-price-container">
   {#if trialPhase?.periodDuration}
     <div>
-      <Typography size="heading-lg">
+      <Typography size={trialTypographySize}>
         <Localized
           key={LocalizationKeys.ProductInfoFreeTrialDuration}
           variables={{
@@ -56,7 +67,7 @@
 
   {#if introPricePhase?.periodDuration}
     <div>
-      <Typography size="heading-lg">
+      <Typography size={introTypographySize}>
         <Localized
           key={LocalizationKeys.ProductInfoIntroPricePhase}
           variables={{
@@ -72,7 +83,7 @@
   {/if}
 
   <div>
-    <Typography size="heading-lg">
+    <Typography size={baseTypographySize}>
       {formattedPrice}
     </Typography>
 
