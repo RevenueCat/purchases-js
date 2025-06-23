@@ -36,6 +36,15 @@
     ),
   );
 
+  const introPriceDuration = $derived(
+    introPricePhase?.period
+      ? $translator.translatePeriod(
+          introPricePhase.period.number * introPricePhase.cycleCount,
+          introPricePhase.period.unit,
+        ) || ""
+      : "",
+  );
+
   // Determine typography sizes - first visible element gets heading-lg, rest get heading-md
   const trialTypographySize = $derived("heading-lg");
   const introTypographySize = $derived(
@@ -77,10 +86,7 @@
             ? LocalizationKeys.ProductInfoIntroPricePhasePaidUpfront
             : LocalizationKeys.ProductInfoIntroPricePhaseRecurring}
           variables={{
-            introPriceDuration: getTranslatedPeriodLength(
-              introPricePhase.periodDuration,
-              $translator,
-            ),
+            introPriceDuration: introPriceDuration,
             introPrice: formattedIntroPrice,
           }}
         />
