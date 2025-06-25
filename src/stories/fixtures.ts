@@ -13,8 +13,10 @@ import { PurchaseFlowError } from "../helpers/purchase-operation-helper";
 import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
 import type { BrandingAppearance } from "../entities/branding";
 import type { CheckoutCalculateTaxResponse } from "../networking/responses/checkout-calculate-tax-response";
-import { StripeElementsSetupFutureUsage } from "../networking/responses/stripe-elements";
-import { StripeElementsMode } from "../networking/responses/stripe-elements";
+import {
+  StripeElementsMode,
+  StripeElementsSetupFutureUsage,
+} from "../networking/responses/stripe-elements";
 import type { PriceBreakdown } from "src/ui/ui-types";
 
 const subscriptionOptionBasePrice = {
@@ -121,12 +123,22 @@ export const consumableProduct: Product = {
   ...structuredClone(product),
   productType: ProductType.Consumable,
   defaultPurchaseOption: nonSubscriptionOption,
+  subscriptionOptions: {},
 };
 
 export const nonConsumableProduct: Product = {
   ...structuredClone(product),
   productType: ProductType.NonConsumable,
   defaultPurchaseOption: nonSubscriptionOption,
+  subscriptionOptions: {},
+};
+
+export const trialProduct: Product = {
+  ...structuredClone(product),
+  defaultPurchaseOption: subscriptionOptionWithTrial,
+  subscriptionOptions: {
+    option_id_1: subscriptionOptionWithTrial,
+  },
 };
 
 export const rcPackage: Package = {
@@ -200,6 +212,7 @@ export const checkoutStartResponse: CheckoutStartResponse = {
     stripe_account_id: accountId,
     elements_configuration: stripeElementsConfiguration,
   },
+  management_url: "https://manage.revenuecat.com/test_test_test",
 };
 
 export const checkoutCalculateTaxResponse: CheckoutCalculateTaxResponse = {
@@ -208,6 +221,7 @@ export const checkoutCalculateTaxResponse: CheckoutCalculateTaxResponse = {
   total_amount_in_micros: 9990000 + 400000,
   total_excluding_tax_in_micros: 9990000,
   tax_amount_in_micros: 400000,
+  tax_inclusive: false,
   pricing_phases: {
     base: {
       tax_breakdown: [

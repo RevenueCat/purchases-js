@@ -1,5 +1,9 @@
 import type { CustomerInfo, Offering } from "@revenuecat/purchases-js";
-import { LogLevel, Purchases } from "@revenuecat/purchases-js";
+import {
+  type FlagsConfig,
+  LogLevel,
+  Purchases,
+} from "@revenuecat/purchases-js";
 import type { LoaderFunction } from "react-router-dom";
 import { redirect, useLoaderData } from "react-router-dom";
 
@@ -10,6 +14,7 @@ declare global {
 }
 
 const apiKey = window.__RC_API_KEY__ || import.meta.env.VITE_RC_API_KEY;
+const canary = import.meta.env.VITE_RC_CANARY;
 
 type IPurchasesLoaderData = {
   purchases: Purchases;
@@ -25,21 +30,36 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
   const searchParams = new URL(request.url).searchParams;
   const currency = searchParams.get("currency");
   const offeringId = searchParams.get("offeringId");
+  const rcSource = searchParams.get("rcSource") || undefined;
   const optOutOfAutoUTM =
     searchParams.get("optOutOfAutoUTM") === "true" || false;
 
   if (!appUserId) {
     throw redirect("/");
   }
+  const additionalHeaders: Record<string, string> = {};
+  if (canary) {
+    additionalHeaders["X-RC-Canary"] = canary;
+  }
+
+  const flagsConfig: FlagsConfig = {
+    autoCollectUTMAsMetadata: !optOutOfAutoUTM,
+  };
+  if (rcSource) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    flagsConfig.rcSource = rcSource;
+  }
+
   Purchases.setLogLevel(LogLevel.Verbose);
   try {
     if (!Purchases.isConfigured()) {
-      Purchases.configure(
+      Purchases.configure({
         apiKey,
         appUserId,
-        {},
-        { autoCollectUTMAsMetadata: !optOutOfAutoUTM },
-      );
+        httpConfig: additionalHeaders,
+        flags: flagsConfig,
+      });
     } else {
       await Purchases.getSharedInstance().changeUser(appUserId);
     }

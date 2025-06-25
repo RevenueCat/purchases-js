@@ -1,29 +1,31 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import * as svelte from "svelte"; // import the module as a namespace
-
 import {
   type CustomerInfo,
   type EntitlementInfo,
   Purchases,
+  type PurchasesConfig,
   PurchasesError,
   ReservedCustomerAttribute,
 } from "../main";
-import { ErrorCode, UninitializedPurchasesError } from "../entities/errors";
+import {
+  BackendErrorCode,
+  ErrorCode,
+  UninitializedPurchasesError,
+} from "../entities/errors";
 import {
   configurePurchases,
+  server,
   testApiKey,
   testUserId,
 } from "./base.purchases_test";
 import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
 import { waitFor } from "@testing-library/svelte";
-import { server } from "./base.purchases_test";
-import { HttpResponse } from "msw";
-import { BackendErrorCode } from "../entities/errors";
+import { http, HttpResponse } from "msw";
 import { expectPromiseToError } from "./test-helpers";
-import { http } from "msw";
 import { StatusCodes } from "http-status-codes";
 
-describe("Purchases.configure()", () => {
+describe("Purchases.configure() legacy", () => {
   test("throws error if given invalid api key", () => {
     expect(() => Purchases.configure("goog_api_key", "appUserId")).toThrowError(
       PurchasesError,
@@ -70,6 +72,110 @@ describe("Purchases.configure()", () => {
       "another_user_id",
     );
     expect(purchases).not.toEqual(purchases2);
+  });
+});
+
+describe("Purchases.configure()", () => {
+  test("configures successfully", () => {
+    const purchases = Purchases.configure({
+      apiKey: testApiKey,
+      appUserId: testUserId,
+    });
+    expect(purchases).toBeDefined();
+  });
+
+  test("configures successfully with optional parameters", () => {
+    const purchases = Purchases.configure({
+      apiKey: testApiKey,
+      appUserId: testUserId,
+      httpConfig: {},
+      flags: { autoCollectUTMAsMetadata: false },
+    });
+    expect(purchases).toBeDefined();
+  });
+
+  test("throws error if given invalid api key", () => {
+    expect(() =>
+      Purchases.configure({
+        apiKey: "goog_api_key",
+        appUserId: testUserId,
+      }),
+    ).toThrowError(PurchasesError);
+
+    expect(() =>
+      Purchases.configure({
+        apiKey: "rcb_test invalidchar",
+        appUserId: testUserId,
+      }),
+    ).toThrowError(PurchasesError);
+  });
+
+  test("throws error if given invalid user id", () => {
+    expect(() =>
+      Purchases.configure({
+        apiKey: testApiKey,
+        appUserId: "",
+      }),
+    ).toThrowError(PurchasesError);
+
+    expect(() =>
+      Purchases.configure({
+        apiKey: testApiKey,
+        appUserId: "some/AppUserId",
+      }),
+    ).toThrowError(PurchasesError);
+  });
+
+  test("throws error if given invalid proxy url", () => {
+    expect(() =>
+      Purchases.configure({
+        apiKey: testApiKey,
+        appUserId: testUserId,
+        httpConfig: {
+          proxyURL: "https://test.revenuecat.com/",
+        },
+      }),
+    ).toThrowError(PurchasesError);
+  });
+
+  test("throws error if given reserved additional header", () => {
+    expect(() =>
+      Purchases.configure({
+        apiKey: testApiKey,
+        appUserId: testUserId,
+        httpConfig: {
+          additionalHeaders: { "X-Version": "123" },
+        },
+      }),
+    ).toThrowError(PurchasesError);
+  });
+
+  test("configure multiple times returns different instances", () => {
+    const purchases = Purchases.configure({
+      apiKey: testApiKey,
+      appUserId: testUserId,
+    });
+    const purchases2 = Purchases.configure({
+      apiKey: "rcb_another_api_key",
+      appUserId: "another_user_id",
+    });
+    expect(purchases).not.toEqual(purchases2);
+  });
+
+  test("throws error if api key is not provided in object", () => {
+    expect(() =>
+      Purchases.configure({
+        appUserId: testUserId,
+      } as PurchasesConfig),
+    ).toThrowError(PurchasesError);
+  });
+
+  test("throws error if app user id is not provided in object", () => {
+    expect(() =>
+      Purchases.configure({
+        apiKey: testApiKey,
+      } as PurchasesConfig),
+    ).toThrowError(PurchasesError);
   });
 });
 
@@ -367,7 +473,7 @@ describe("Purchases._trackEvent", () => {
 });
 
 describe("Purchases.purchase()", () => {
-  test("pressing back button onmounts the component", async () => {
+  test("pressing back button unmounts the component", async () => {
     const unmountSpy = vi.spyOn(svelte, "unmount").mockImplementation(() => {
       return Promise.resolve();
     });
@@ -396,6 +502,57 @@ describe("Purchases.purchase()", () => {
     );
 
     unmountSpy.mockRestore();
+  });
+
+  test("does show the back button", async () => {
+    const purchases = configurePurchases(testUserId, "anyOtherValue");
+    purchases.purchase({
+      rcPackage: createMonthlyPackageMock(),
+    });
+
+    await waitFor(() => {
+      const container = document.querySelector(".rcb-ui-root");
+      expect(container).not.toBeNull();
+      expect(document.querySelector(".rcb-back-button")).not.toBeNull();
+    });
+
+    purchases.close();
+    // Forcing the body to cleanup to not affect other tests
+    document.body.innerHTML = "";
+  });
+
+  test("does not show the back button for rcSource='app'", async () => {
+    const purchases = configurePurchases(testUserId, "app");
+    purchases.purchase({
+      rcPackage: createMonthlyPackageMock(),
+    });
+
+    await waitFor(() => {
+      const container = document.querySelector(".rcb-ui-root");
+      expect(container).not.toBeNull();
+      expect(document.querySelector(".rcb-back-button")).toBeNull();
+    });
+
+    purchases.close();
+    // Forcing the body to cleanup to not affect other tests
+    document.body.innerHTML = "";
+  });
+
+  test("does not show the back button for rcSource='embedded'", async () => {
+    const purchases = configurePurchases(testUserId, "embedded");
+    purchases.purchase({
+      rcPackage: createMonthlyPackageMock(),
+    });
+
+    await waitFor(() => {
+      const container = document.querySelector(".rcb-ui-root");
+      expect(container).not.toBeNull();
+      expect(document.querySelector(".rcb-back-button")).toBeNull();
+    });
+
+    purchases.close();
+    // Forcing the body to cleanup to not affect other tests
+    document.body.innerHTML = "";
   });
 
   test("throws error if api key is not provided", () => {

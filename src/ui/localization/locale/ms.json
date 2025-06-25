@@ -85,5 +85,6 @@
   "error_page.error_only_in_sandbox": "Mesej ini hanya muncul dalam kotak pasir.",
   "error_page.error_message_stripe_missing_required_permission": "Pembelian gagal kerana aplikasi Stripe kekurangan kebenaran yang diperlukan. Dalam pengeluaran, pembelian akan berfungsi tanpa cukai dikenakan.",
   "error_page.error_title_stripe_tax_not_active": "Cukai Stripe tidak aktif",
-  "error_page.error_title_stripe_invalid_tax_origin_address": "Alamat asal cukai Stripe tidak sah"
+  "error_page.error_title_stripe_invalid_tax_origin_address": "Alamat asal cukai Stripe tidak sah",
+  "apple_pay.free_trial": "Percubaan Percuma"
 }

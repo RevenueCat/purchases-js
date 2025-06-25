@@ -1,3 +1,58 @@
+## 1.6.0
+## RevenueCat SDK
+### ✨ New Features
+* Internally track embedded usages (#531) via Nicola Sacco (@nicfix)
+
+### 🔄 Other Changes
+* Update footer note to reflect applicable taxes (#529) via Pol Miro (@polmiro)
+* Update fixture (#528) via Pol Miro (@polmiro)
+
+## 1.5.3
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Fixed an issue with Apple Pay when the passed date can get outdated between calculation and click (#524) via Nicola Sacco (@nicfix)
+
+## 1.5.2
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Fix customElements not defined error (#522) via James O'Donnell (@james-od)
+
+## 1.5.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Added the customization of the stripe checkout element given a subscription option product (#519) via Nicola Sacco (@nicfix)
+
+## 1.5.0
+## RevenueCat SDK
+### ✨ New Features
+* Add `paddle` store (#516) via Will Taylor (@fire-at-will)
+### 🐞 Bugfixes
+* WEB-2643: Do not show recurrent payment message for one-time purchases (#514) via Nicola Sacco (@nicfix)
+* @gezquinndesign: fix: save and apply original inline styles on close (#484) (#505) via Alfonso Embid-Desmet (@alfondotnet)
+
+### 🔄 Other Changes
+* Fire CheckoutPaymentFormImpression event only when stripe loaded (#515) via Pol Miro (@polmiro)
+* Re-enable tax calculation e2e tests (#507) via Pol Miro (@polmiro)
+* Skip running tax calculation tests based on date (#508) via Pol Miro (@polmiro)
+* [WEB-2510] Pass brandingAppearance to Buttons (#461) via James O'Donnell (@james-od)
+* Allow for Canary testing with ENV vars. (#512) via Nicola Sacco (@nicfix)
+* Mock taxes endpoint when rate limited (v2) (#513) via Pol Miro (@polmiro)
+
+## 1.4.3
+### 🔄 Other Changes
+* [PSP-189] Allow Paddle Api key on validation (#509) via Roger Solé (@rogersole)
+
+## 1.4.2
+## RevenueCat SDK
+### 🐞 Bugfixes
+* only load Stripe when calling .purchase() (#494) via Alfonso Embid-Desmet (@alfondotnet)
+
+### 🔄 Other Changes
+* Add tracking for tax calculations (#506) via Pol Miro (@polmiro)
+* Fix concurrent call in `StrictMode` (#503) via Antonio Borrero Granell (@antoniobg)
+* [WEB-2563] Improve robustness on integration tests (#502) via Pol Miro (@polmiro)
+* Fix e2e test app user ID generation (#501) via Antonio Borrero Granell (@antoniobg)
+
 ## 1.4.1
 ## RevenueCat SDK
 ### 🐞 Bugfixes

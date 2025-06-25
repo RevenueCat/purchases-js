@@ -85,5 +85,6 @@
   "error_page.error_only_in_sandbox": "Acest mesaj apare doar în sandbox.",
   "error_page.error_message_stripe_missing_required_permission": "Achiziția a eșuat deoarece aplicației Stripe îi lipsește o permisiune necesară. În producție, achizițiile vor funcționa fără taxe aplicate.",
   "error_page.error_title_stripe_tax_not_active": "Stripe Tax nu este activ",
-  "error_page.error_title_stripe_invalid_tax_origin_address": "Adresă de origine fiscală Stripe nevalidă"
+  "error_page.error_title_stripe_invalid_tax_origin_address": "Adresă de origine fiscală Stripe nevalidă",
+  "apple_pay.free_trial": "Perioadă de probă gratuită"
 }

@@ -1,3 +1,32 @@
+import type { RouteFulfillOptions } from "./test-helpers";
+
+type CheckoutCalculateTaxResponse = {
+  operation_session_id: string;
+  currency: string;
+  total_amount_in_micros: number;
+  tax_amount_in_micros: number;
+  total_excluding_tax_in_micros: number;
+  tax_inclusive: boolean;
+  pricing_phases: {
+    base: {
+      tax_breakdown: Array<{
+        display_name: string;
+        tax_amount_in_micros: number;
+      }>;
+    };
+  };
+  gateway_params: {
+    elements_configuration: {
+      amount: number;
+      currency: string;
+      mode: "payment";
+      payment_method_types: string[];
+      setup_future_usage: "off_session";
+    };
+  };
+  failed_reason?: string;
+};
+
 export const RC_PAYWALL_TEST_OFFERING_ID = "rc_paywalls_e2e_test_2";
 export const RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES =
   "rc_paywalls_e2e_test_variables_2";
@@ -39,4 +68,227 @@ export const ITALY_CUSTOMER_DETAILS = {
 
 export const SPAIN_CUSTOMER_DETAILS = {
   countryCode: "ES",
+};
+
+export const SPAIN_TAX_RESPONSE: RouteFulfillOptions = {
+  status: 200,
+  contentType: "application/json",
+  body: JSON.stringify({
+    mocked: true,
+    currency: "USD",
+    failed_reason: undefined,
+    gateway_params: {
+      elements_configuration: {
+        amount: 999,
+        currency: "usd",
+        mode: "payment",
+        payment_method_types: ["card"],
+        setup_future_usage: "off_session",
+      },
+    },
+    operation_session_id: "MOCKED",
+    pricing_phases: {
+      base: {
+        tax_breakdown: [
+          {
+            display_name: "VAT - Spain (21%)",
+            tax_amount_in_micros: 1730000,
+          },
+        ],
+      },
+    },
+    tax_amount_in_micros: 1730000,
+    total_amount_in_micros: 9990000,
+    total_excluding_tax_in_micros: 8260000,
+    tax_inclusive: true,
+  } as CheckoutCalculateTaxResponse),
+};
+
+export const ITALY_TAX_RESPONSE: RouteFulfillOptions = {
+  status: 200,
+  contentType: "application/json",
+  body: JSON.stringify({
+    mocked: true,
+    currency: "USD",
+    failed_reason: undefined,
+    gateway_params: {
+      elements_configuration: {
+        amount: 999,
+        currency: "usd",
+        mode: "payment",
+        payment_method_types: ["card"],
+        setup_future_usage: "off_session",
+      },
+    },
+    operation_session_id: "MOCKED",
+    pricing_phases: {
+      base: {
+        tax_breakdown: [
+          {
+            display_name: "VAT - Italy (22%)",
+            tax_amount_in_micros: 1800000,
+          },
+        ],
+      },
+    },
+    tax_amount_in_micros: 1800000,
+    total_amount_in_micros: 9990000,
+    total_excluding_tax_in_micros: 8190000,
+    tax_inclusive: true,
+  } as CheckoutCalculateTaxResponse),
+};
+
+export const NEW_YORK_TAX_RESPONSE: RouteFulfillOptions = {
+  status: 200,
+  contentType: "application/json",
+  body: JSON.stringify({
+    mocked: true,
+    currency: "USD",
+    failed_reason: undefined,
+    gateway_params: {
+      elements_configuration: {
+        amount: 999,
+        currency: "usd",
+        mode: "payment",
+        payment_method_types: ["card"],
+        setup_future_usage: "off_session",
+      },
+    },
+    operation_session_id: "MOCKED",
+    pricing_phases: {
+      base: {
+        tax_breakdown: [
+          {
+            display_name: "Sales Tax - New York (Exempt)",
+            tax_amount_in_micros: 0,
+          },
+        ],
+      },
+    },
+    tax_amount_in_micros: 0,
+    total_amount_in_micros: 9990000,
+    total_excluding_tax_in_micros: 9990000,
+    tax_inclusive: false,
+  } as CheckoutCalculateTaxResponse),
+};
+
+export const TEXAS_TAX_RESPONSE: RouteFulfillOptions = {
+  status: 200,
+  contentType: "application/json",
+  body: JSON.stringify({
+    mocked: true,
+    currency: "USD",
+    failed_reason: undefined,
+    gateway_params: {
+      elements_configuration: {
+        amount: 1079,
+        currency: "usd",
+        mode: "payment",
+        payment_method_types: ["card"],
+        setup_future_usage: "off_session",
+      },
+    },
+    operation_session_id: "MOCKED",
+    pricing_phases: {
+      base: {
+        tax_breakdown: [
+          {
+            display_name: "Sales Tax - Texas (8%)",
+            tax_amount_in_micros: 800000,
+          },
+        ],
+      },
+    },
+    tax_amount_in_micros: 800000,
+    total_amount_in_micros: 10790000,
+    total_excluding_tax_in_micros: 9990000,
+    tax_inclusive: false,
+  } as CheckoutCalculateTaxResponse),
+};
+
+export const NOT_COLLECTING_TAX_RESPONSE: RouteFulfillOptions = {
+  status: 200,
+  contentType: "application/json",
+  body: JSON.stringify({
+    mocked: true,
+    currency: "USD",
+    failed_reason: undefined,
+    gateway_params: {
+      elements_configuration: {
+        amount: 999,
+        currency: "usd",
+        mode: "payment",
+        payment_method_types: ["card"],
+        setup_future_usage: "off_session",
+      },
+    },
+    operation_session_id: "MOCKED",
+    pricing_phases: {
+      base: {
+        tax_breakdown: [],
+      },
+    },
+    tax_amount_in_micros: 0,
+    total_amount_in_micros: 9990000,
+    total_excluding_tax_in_micros: 9990000,
+    tax_inclusive: false,
+  } as CheckoutCalculateTaxResponse),
+};
+
+export const INVALID_TAX_LOCATION_RESPONSE: RouteFulfillOptions = {
+  status: 200,
+  contentType: "application/json",
+  body: JSON.stringify({
+    mocked: true,
+    currency: "USD",
+    failed_reason: "invalid_tax_location",
+    gateway_params: {
+      elements_configuration: {
+        amount: 999,
+        currency: "usd",
+        mode: "payment",
+        payment_method_types: ["card"],
+        setup_future_usage: "off_session",
+      },
+    },
+    operation_session_id: "MOCKED",
+    pricing_phases: {
+      base: {
+        tax_breakdown: [],
+      },
+    },
+    tax_amount_in_micros: 0,
+    total_amount_in_micros: 9990000,
+    total_excluding_tax_in_micros: 9990000,
+    tax_inclusive: true,
+  } as CheckoutCalculateTaxResponse),
+};
+
+export const STRIPE_TAX_NOT_ACTIVE_RESPONSE: RouteFulfillOptions = {
+  status: 422,
+  json: {
+    mocked: true,
+    code: 7898,
+    message:
+      "Stripe account setup error: Stripe Tax must be active to calculate taxes.",
+  },
+};
+
+export const INVALID_TAX_ORIGIN_RESPONSE: RouteFulfillOptions = {
+  status: 422,
+  json: {
+    mocked: true,
+    code: 7899,
+    message:
+      "Stripe account setup error: Origin address for Stripe Tax is missing or invalid.",
+  },
+};
+
+export const MISSING_STRIPE_PERMISSION_RESPONSE: RouteFulfillOptions = {
+  status: 422,
+  json: {
+    mocked: true,
+    code: 7900,
+    message: "Stripe account setup error: Required permission is missing.",
+  },
 };

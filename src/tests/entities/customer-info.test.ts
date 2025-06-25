@@ -441,4 +441,121 @@ describe("customer info parsing", () => {
     const customerInfo = toCustomerInfo(subscriberResponse);
     expect(customerInfo).toEqual(expectedCustomerInfo);
   });
+
+  test("subscriber info with paddle subscription purchase is parsed correctly", () => {
+    const subscriberResponse: SubscriberResponse = {
+      request_date: "2024-01-31T15:10:21Z",
+      request_date_ms: 1706713821860,
+      subscriber: {
+        entitlements: {
+          catServices: {
+            expires_date: "2124-02-07T13:46:23Z",
+            grace_period_expires_date: null,
+            product_identifier: "weekly_test",
+            purchase_date: "2024-01-31T13:46:23Z",
+          },
+        },
+        first_seen: "2024-01-23T13:22:12Z",
+        last_seen: "2024-01-29T15:40:09Z",
+        management_url: null,
+        non_subscriptions: {},
+        original_app_user_id: "someUserTest6",
+        original_application_version: null,
+        original_purchase_date: null,
+        other_purchases: {},
+        subscriptions: {
+          weekly_test: {
+            auto_resume_date: null,
+            billing_issues_detected_at: null,
+            expires_date: "2124-02-07T13:46:23Z",
+            grace_period_expires_date: null,
+            is_sandbox: true,
+            original_purchase_date: "2024-01-24T13:46:23Z",
+            period_type: "normal",
+            purchase_date: "2024-01-31T13:46:23Z",
+            refunded_at: null,
+            store: "paddle",
+            store_transaction_id:
+              "txRcb1486347e9afce2143eec187a781f82e8..1706708783",
+            unsubscribe_detected_at: null,
+          },
+        },
+      },
+    };
+    const expectedCustomerInfo: CustomerInfo = {
+      activeSubscriptions: new Set(["weekly_test"]),
+      allExpirationDatesByProduct: {
+        weekly_test: new Date("2124-02-07T13:46:23.000Z"),
+      },
+      allPurchaseDatesByProduct: {
+        weekly_test: new Date("2024-01-31T13:46:23.000Z"),
+      },
+      entitlements: {
+        active: {
+          catServices: {
+            billingIssueDetectedAt: null,
+            expirationDate: new Date("2124-02-07T13:46:23.000Z"),
+            identifier: "catServices",
+            isActive: true,
+            isSandbox: true,
+            latestPurchaseDate: new Date("2024-01-31T13:46:23Z"),
+            originalPurchaseDate: new Date("2024-01-31T13:46:23.000Z"),
+            periodType: "normal",
+            productIdentifier: "weekly_test",
+            productPlanIdentifier: null,
+            store: "paddle",
+            unsubscribeDetectedAt: null,
+            willRenew: true,
+            ownershipType: "UNKNOWN",
+          },
+        },
+        all: {
+          catServices: {
+            billingIssueDetectedAt: null,
+            expirationDate: new Date("2124-02-07T13:46:23.000Z"),
+            identifier: "catServices",
+            isActive: true,
+            isSandbox: true,
+            latestPurchaseDate: new Date("2024-01-31T13:46:23Z"),
+            originalPurchaseDate: new Date("2024-01-31T13:46:23.000Z"),
+            periodType: "normal",
+            productIdentifier: "weekly_test",
+            productPlanIdentifier: null,
+            store: "paddle",
+            unsubscribeDetectedAt: null,
+            willRenew: true,
+            ownershipType: "UNKNOWN",
+          },
+        },
+      },
+      firstSeenDate: new Date("2024-01-23T13:22:12.000Z"),
+      managementURL: null,
+      originalAppUserId: "someUserTest6",
+      originalPurchaseDate: null,
+      requestDate: new Date("2024-01-31T15:10:21.000Z"),
+      nonSubscriptionTransactions: [],
+      subscriptionsByProductIdentifier: {
+        weekly_test: {
+          productIdentifier: "weekly_test",
+          purchaseDate: new Date("2024-01-31T13:46:23Z"),
+          originalPurchaseDate: new Date("2024-01-24T13:46:23Z"),
+          expiresDate: new Date("2124-02-07T13:46:23Z"),
+          store: "paddle",
+          unsubscribeDetectedAt: null,
+          isSandbox: true,
+          billingIssuesDetectedAt: null,
+          gracePeriodExpiresDate: null,
+          ownershipType: "UNKNOWN",
+          periodType: "normal",
+          refundedAt: null,
+          storeTransactionId:
+            "txRcb1486347e9afce2143eec187a781f82e8..1706708783",
+          isActive: true,
+          willRenew: true,
+        },
+      },
+    };
+    const customerInfo = toCustomerInfo(subscriberResponse);
+    expect(customerInfo).toEqual(expectedCustomerInfo);
+  });
 });

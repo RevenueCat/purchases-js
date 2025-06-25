@@ -85,5 +85,6 @@
   "error_page.error_only_in_sandbox": "Diese Meldung wird nur in der Sandbox angezeigt.",
   "error_page.error_message_stripe_missing_required_permission": "Der Kauf ist fehlgeschlagen, da der Stripe-App eine erforderliche Berechtigung fehlt. In der Produktion funktionieren Käufe ohne angewendete Steuern.",
   "error_page.error_title_stripe_tax_not_active": "Stripe Tax ist nicht aktiv",
-  "error_page.error_title_stripe_invalid_tax_origin_address": "Ungültige Steuerursprungsadresse"
+  "error_page.error_title_stripe_invalid_tax_origin_address": "Ungültige Steuerursprungsadresse",
+  "apple_pay.free_trial": "Kostenlose Testversion"
 }

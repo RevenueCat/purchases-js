@@ -85,5 +85,6 @@
   "error_page.error_only_in_sandbox": "Tato zpráva se zobrazuje pouze v sandboxu.",
   "error_page.error_message_stripe_missing_required_permission": "Nákup se nezdařil, protože aplikaci Stripe chybí požadované oprávnění. V produkčním prostředí budou nákupy fungovat bez uplatnění daní.",
   "error_page.error_title_stripe_tax_not_active": "Stripe Tax není aktivní",
-  "error_page.error_title_stripe_invalid_tax_origin_address": "Neplatná adresa původu daně"
+  "error_page.error_title_stripe_invalid_tax_origin_address": "Neplatná adresa původu daně",
+  "apple_pay.free_trial": "Zkušební verze zdarma"
 }

@@ -5,7 +5,43 @@ import { getEmailFromUserId } from "./test-helpers";
 export const ALLOW_PAYWALLS_TESTS =
   process.env.VITE_ALLOW_PAYWALLS_TESTS === "true";
 
-export const ALLOW_TAXES_TESTS = process.env.VITE_ALLOW_TAXES_TESTS === "true";
+export const SKIP_TAX_REAL_TESTS = (() => {
+  const skipUntilDate = process.env.VITE_SKIP_TAX_REAL_TESTS_UNTIL;
+  if (!skipUntilDate) return false;
+  try {
+    // Validate the format is yyyy-mm-dd
+    const dateFormatRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateFormatRegex.test(skipUntilDate)) {
+      console.error(
+        "Invalid date format for VITE_SKIP_TAX_REAL_TESTS_UNTIL. Expected format is 'yyyy-mm-dd'",
+      );
+      return false;
+    }
+    const skipDate = new Date(skipUntilDate);
+    if (isNaN(skipDate.getTime())) {
+      console.error(
+        "Invalid date format for VITE_SKIP_TAX_REAL_TESTS_UNTIL. Expecting 'yyyy-mm-dd'",
+      );
+      return false;
+    }
+
+    // Get current date normalized to midnight UTC
+    const now = new Date();
+    const currentDate = new Date(
+      Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()),
+    );
+
+    // Normalize skip date to midnight UTC to ensure consistent comparison
+    const normalizedSkipDate = new Date(
+      Date.UTC(skipDate.getFullYear(), skipDate.getMonth(), skipDate.getDate()),
+    );
+
+    return currentDate < normalizedSkipDate;
+  } catch (error) {
+    console.error("Error parsing VITE_SKIP_TAX_REAL_TESTS_UNTIL:", error);
+    return false;
+  }
+})();
 
 interface TestFixtures {
   userId: string;
@@ -37,19 +73,3 @@ integrationTest.beforeEach(async ({ page }) => {
     });
   });
 });
-
-export const skipPaywallsTestIfDisabled = (test: typeof integrationTest) => {
-  test.skip(
-    !ALLOW_PAYWALLS_TESTS,
-    "Paywalls tests are disabled. To enable, set VITE_ALLOW_PAYWALLS_TESTS=true in the environment variables.",
-  );
-};
-
-export const skipTaxCalculationTestIfDisabled = (
-  test: typeof integrationTest,
-) => {
-  test.skip(
-    !ALLOW_TAXES_TESTS,
-    "Tax calculation tests are disabled. To enable, set VITE_ALLOW_TAXES_TESTS=true in the environment variables.",
-  );
-};

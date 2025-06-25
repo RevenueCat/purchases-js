@@ -22,14 +22,15 @@
     createCheckoutPaymentFormErrorEvent,
     createCheckoutPaymentFormSubmitEvent,
     createCheckoutPaymentGatewayErrorEvent,
+    createCheckoutPaymentTaxCalculationEvent,
   } from "../../behavioural-events/sdk-event-helpers";
   import { SDKEventName } from "../../behavioural-events/sdk-events";
   import Loading from "../molecules/loading.svelte";
   import { type Writable } from "svelte/store";
   import PaymentButton from "../molecules/payment-button.svelte";
   import type {
-    StripeElementsConfiguration,
     GatewayParams,
+    StripeElementsConfiguration,
   } from "../../networking/responses/stripe-elements";
   import {
     CheckoutCalculateTaxFailedReason,
@@ -49,6 +50,7 @@
 
   interface Props {
     gatewayParams: GatewayParams;
+    managementUrl: string | null;
     productDetails: Product;
     purchaseOption: PurchaseOption;
     brandingInfo: BrandingInfoResponse | null;
@@ -66,6 +68,7 @@
 <script lang="ts">
   const {
     gatewayParams,
+    managementUrl,
     productDetails,
     purchaseOption,
     brandingInfo,
@@ -146,14 +149,20 @@
         taxCalculationStatus === "miss-match"),
   );
 
+  let expressCheckoutOptions = $derived(
+    subscriptionOption && managementUrl && priceBreakdown
+      ? StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          productDetails,
+          priceBreakdown,
+          subscriptionOption,
+          $translator,
+          managementUrl,
+        )
+      : undefined,
+  );
+
   $effect(() => {
     onPriceBreakdownUpdated(priceBreakdown);
-  });
-
-  onMount(() => {
-    eventsTracker.trackSDKEvent({
-      eventName: SDKEventName.CheckoutPaymentFormImpression,
-    });
   });
 
   onMount(async () => {
@@ -180,6 +189,17 @@
         signal,
       )
       .then((taxCalculation) => {
+        /*
+         * The event will be tracked as soon as the request ends,
+         * despite the fact that the recalculation may be aborted
+         * if a new recalculation is triggered.
+         */
+        const event = createCheckoutPaymentTaxCalculationEvent({
+          taxCalculation,
+          taxCustomerDetails,
+        });
+        eventsTracker.trackSDKEvent(event);
+
         signal?.throwIfAborted();
 
         if (taxCalculation.failed_reason) {
@@ -211,6 +231,9 @@
   }
 
   function handleStripeLoadingComplete() {
+    eventsTracker.trackSDKEvent({
+      eventName: SDKEventName.CheckoutPaymentFormImpression,
+    });
     isStripeLoading = false;
   }
 
@@ -542,6 +565,7 @@
           onEmailChange={handleEmailChange}
           onPaymentInfoChange={handlePaymentInfoChange}
           onExpressCheckoutElementSubmit={handleExpressCheckoutElementSubmit}
+          {expressCheckoutOptions}
         />
       </div>
 
