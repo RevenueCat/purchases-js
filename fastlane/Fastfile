@@ -109,6 +109,7 @@ lane :create_wpl_dependency_pr do |options|
     "-X", "POST",
     "-H", "Accept: application/vnd.github.v3+json",
     "-H", "Authorization: token #{ENV['GITHUB_TOKEN']}",
+    "-H", "Content-Type: application/json",
     "https://api.github.com/repos/RevenueCat/#{wpl_repo_name}/dispatches",
     "-d", "{\"event_type\":\"upgrade-purchases-js\",\"client_payload\":{\"version\":\"#{version_number}\"}}"
   )
