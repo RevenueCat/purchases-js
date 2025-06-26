@@ -107,7 +107,7 @@
         {gatewayParams}
         {managementUrl}
         {customerEmail}
-        defaultPriceBreakdown={priceBreakdown}
+        {defaultPriceBreakdown}
         {onContinue}
         {onError}
         {onPriceBreakdownUpdated}
