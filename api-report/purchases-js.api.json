@@ -4921,6 +4921,33 @@
                 "startIndex": 1,
                 "endIndex": 2
               }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PurchaseParams#skipSuccessPage:member",
+              "docComment": "/**\\n * If set to true, the SDK will skip the success page and automatically continue the flow once the purchase completes successfully. Defaults to `false`.\\n */\\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "skipSuccessPage?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "skipSuccessPage",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
             }
           ],
           "extendsTokenRanges": []

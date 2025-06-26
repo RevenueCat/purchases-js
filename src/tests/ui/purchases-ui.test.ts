@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom";
-import { render } from "@testing-library/svelte";
+import { render, fireEvent, screen } from "@testing-library/svelte";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import PurchasesUI from "../../ui/purchases-ui.svelte";
 import {
@@ -24,6 +24,8 @@ const purchaseOperationHelperMock: PurchaseOperationHelper = {
     Promise.resolve(
       checkoutCalculateTaxResponse as CheckoutCalculateTaxResponse,
     ),
+  pollCurrentPurchaseForCompletion: async () =>
+    Promise.resolve({ redemptionInfo: null, operationSessionId: "op-id" }),
 } as unknown as PurchaseOperationHelper;
 
 const purchasesMock: Purchases = {
@@ -119,5 +121,30 @@ describe("PurchasesUI", () => {
     expect(document.documentElement.style.height).toBe("");
     expect(document.body.style.height).toBe("100px");
     expect(document.body.style.overflow).toBe("scroll");
+  });
+
+  test("calls onFinished immediately when skipSuccessPage is true", async () => {
+    const onFinished = vi.fn();
+    const pollSpy = vi
+      .spyOn(purchaseOperationHelperMock, "pollCurrentPurchaseForCompletion")
+      .mockResolvedValue({ redemptionInfo: null, operationSessionId: "op-id" });
+
+    render(PurchasesUI, {
+      props: {
+        ...basicProps,
+        onFinished,
+        skipSuccessPage: true,
+      },
+    });
+
+    await new Promise(process.nextTick);
+
+    const paymentForm = screen.getByTestId("payment-form");
+    await fireEvent.submit(paymentForm);
+
+    await new Promise(process.nextTick);
+
+    expect(pollSpy).toHaveBeenCalled();
+    expect(onFinished).toHaveBeenCalledWith("op-id", null);
   });
 });
