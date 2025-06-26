@@ -102,7 +102,7 @@ desc "Trigger GitHub action to update the SDK dependency in the Checkout repo"
 lane :create_wpl_dependency_pr do |options|
   version_number = options[:version]
 
-  UI.message("Triggering repository dispatch event for #{wpl_repo_name} with version #{version_number}")
+  UI.message("Creating a PR to update the SDK dependency in #{wpl_repo_name} to #{version_number}")
 
   sh(
     "curl",
@@ -112,8 +112,6 @@ lane :create_wpl_dependency_pr do |options|
     "https://api.github.com/repos/RevenueCat/#{wpl_repo_name}/dispatches",
     "-d", "{\"event_type\":\"upgrade-purchases-js\",\"client_payload\":{\"version\":\"#{version_number}\"}}"
   )
-
-  UI.message("Repository dispatch event sent successfully")
 end
 
 desc "Generate docs"
