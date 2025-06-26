@@ -79,10 +79,10 @@ lane :release do |options|
   github_release(version: version_number)
 end
 
-desc "Creates GitHub snapshot pre-release and publishes with the 'snapshot' tag"
+desc "Creates snapshot pre-release and publishes with the 'snapshot' tag"
 lane :snapshot_release do
   stable_version   = current_version_number
-  snapshot_version = "#{stable_version}-SNAPSHOT.#{Time.now.strftime('%Y%m%d%H%M')}"
+  snapshot_version = "snapshot-#{stable_version}-#{Time.now.strftime('%Y%m%d%H%M')}"
 
   UI.message("Creating snapshot release #{snapshot_version}...")
 
@@ -94,14 +94,6 @@ lane :snapshot_release do
 
   add_git_tag(tag: snapshot_version, message: "Snapshot #{snapshot_version}")
   push_to_git_remote(remote: "origin", tags: true)
-
-  create_github_release(
-    version:               snapshot_version,
-    repo_name:             repo_name,
-    github_api_token:      ENV["GITHUB_TOKEN"],
-    changelog_latest_path: changelog_latest_path,
-    is_prerelease:         true
-  )
 
   create_wpl_dependency_pr(version: snapshot_version)
 end
