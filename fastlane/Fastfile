@@ -98,42 +98,22 @@ lane :snapshot_release do
   create_wpl_dependency_pr(version: snapshot_version)
 end
 
-desc "Create a PR to update the SDK dependency in the Checkout repo"
+desc "Trigger GitHub action to update the SDK dependency in the Checkout repo"
 lane :create_wpl_dependency_pr do |options|
   version_number = options[:version]
 
-  branch_name = "purchases-js-snapshot-release-#{version_number}"
+  UI.message("Triggering repository dispatch event for #{wpl_repo_name} with version #{version_number}")
 
-  Dir.mktmpdir do |temp_dir|
-    Dir.chdir(temp_dir) do
-      sh("git", "clone", "https://#{ENV['GITHUB_TOKEN']}@github.com/RevenueCat/#{wpl_repo_name}.git", ".")
-      sh("git", "checkout", "main")
-      sh("git", "checkout", "-b", branch_name)
+  sh(
+    "curl",
+    "-X", "POST",
+    "-H", "Accept: application/vnd.github.v3+json",
+    "-H", "Authorization: token #{ENV['GITHUB_TOKEN']}",
+    "https://api.github.com/repos/RevenueCat/#{wpl_repo_name}/dispatches",
+    "-d", "{\"event_type\":\"upgrade-purchases-js\",\"client_payload\":{\"version\":\"#{version_number}\"}}"
+  )
 
-      sh("npm", "install", "--save-exact", "@revenuecat/purchases-js@#{version_number}")
-
-      if system("git diff --quiet")
-        UI.message("No dependency update needed; skipping PR")
-        next
-      end
-
-      sh("git", "add", "package.json", "package-lock.json")
-      sh("git", "commit", "-m", "Update purchases-js to #{version_number}")
-      sh("git", "push", "--set-upstream", "origin", branch_name)
-
-      pr_body = "This PR updates the purchases-js dependency to version #{version_number}."
-      pr_title = "Update purchases-js to #{version_number}"
-
-      create_pull_request(
-        api_token: ENV["GITHUB_TOKEN"],
-        repo: "RevenueCat/#{wpl_repo_name}",
-        title: pr_title,
-        body: pr_body,
-        head: branch_name,
-        base: "main"
-      )
-    end
-  end
+  UI.message("Repository dispatch event sent successfully")
 end
 
 desc "Generate docs"
