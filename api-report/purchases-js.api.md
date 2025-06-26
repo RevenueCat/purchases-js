@@ -338,7 +338,6 @@ export interface PurchaseParams {
     metadata?: PurchaseMetadata;
     purchaseOption?: PurchaseOption | null;
     rcPackage: Package;
-    skipSuccessPage?: boolean;
     selectedLocale?: string;
 }
 
