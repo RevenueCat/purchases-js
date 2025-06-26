@@ -5,7 +5,7 @@ Releases happen automatically every week. If you need to make a manual release, 
 
 Snapshot releases are automatically created whenever code is merged to the `main` branch. These releases:
 
-1. Have a version number with `-SNAPSHOT` suffix (e.g., `1.3.0-SNAPSHOT`)
+1. Have a version number with `snapshot-` prefix (e.g., `snapshot-1.3.0-202506251200`)
 2. Are published to npm with the `snapshot` tag (not `latest`)
 
 Snapshot releases are meant for testing purposes only and should not be used in production unless specifically intended.
