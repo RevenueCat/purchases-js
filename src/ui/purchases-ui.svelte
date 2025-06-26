@@ -67,7 +67,7 @@
     defaultLocale,
     customTranslations = {},
     isInElement,
-    skipSuccessPage,
+    skipSuccessPage = false,
     onFinished,
     onError,
     onClose,
