@@ -27,8 +27,6 @@ export function getPriceFromPurchaseOption(
 ): Price {
   const isSubscription = productDetails.productType === "subscription";
 
-  console.log("!!!! isSubscription", isSubscription);
-
   if (isSubscription) {
     const subscriptionOptionToUse = purchaseOption as SubscriptionOption;
 

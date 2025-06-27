@@ -59,7 +59,6 @@
     purchaseOptionToUse,
   );
 
-  console.log("!!!! initialPrice", initialPrice);
   let priceBreakdown: PriceBreakdown = $state(
     defaultPriceBreakdown ?? {
       currency: initialPrice.currency,
@@ -72,7 +71,6 @@
   );
 
   const onPriceBreakdownUpdated = (value: PriceBreakdown) => {
-    console.log("!!!! onPriceBreakdownUpdated", value);
     priceBreakdown = value;
   };
 </script>
