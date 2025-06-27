@@ -21,7 +21,7 @@ import type {
  * @returns The price to use for the initial price breakdown
  * @internal
  */
-export function getPriceFromPurchaseOption(
+export function getInitialPriceFromPurchaseOption(
   productDetails: Product,
   purchaseOption: PurchaseOption,
 ): Price {

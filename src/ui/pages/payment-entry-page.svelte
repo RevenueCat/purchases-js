@@ -45,7 +45,7 @@
   } from "../../stripe/stripe-service";
   import StripeElementsComponent from "../molecules/stripe-elements.svelte";
   import PriceUpdateInfo from "../molecules/price-update-info.svelte";
-  import { getPriceFromPurchaseOption } from "../../helpers/purchase-option-price-helper";
+  import { getInitialPriceFromPurchaseOption } from "../../helpers/purchase-option-price-helper";
 
   type View = "loading" | "form" | "error";
 
@@ -86,7 +86,7 @@
   const subscriptionOption =
     productDetails.subscriptionOptions?.[purchaseOption.id];
 
-  const initialPrice = getPriceFromPurchaseOption(
+  const initialPrice = getInitialPriceFromPurchaseOption(
     productDetails,
     purchaseOption,
   );

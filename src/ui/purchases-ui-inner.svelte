@@ -6,7 +6,7 @@
   import { type PriceBreakdown, type CurrentPage } from "./ui-types";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import type { Product, PurchaseOption } from "../main";
-  import { getPriceFromPurchaseOption } from "../helpers/purchase-option-price-helper";
+  import { getInitialPriceFromPurchaseOption } from "../helpers/purchase-option-price-helper";
   import ProductInfo from "./organisms/product-info.svelte";
   import {
     PurchaseFlowError,
@@ -54,7 +54,7 @@
     onClose = undefined,
   }: Props = $props();
 
-  const initialPrice = getPriceFromPurchaseOption(
+  const initialPrice = getInitialPriceFromPurchaseOption(
     productDetails,
     purchaseOptionToUse,
   );
