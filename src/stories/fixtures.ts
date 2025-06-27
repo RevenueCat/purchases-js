@@ -456,10 +456,19 @@ export const priceBreakdownTaxDisabled: PriceBreakdown = {
   taxBreakdown: null,
 };
 
-export const priceBreakdownTaxDisabledIntroPrice: PriceBreakdown = {
+export const priceBreakdownTaxDisabledIntroPriceRecurring: PriceBreakdown = {
   currency: "USD",
   totalAmountInMicros: 3490000,
   totalExcludingTaxInMicros: 3490000,
+  taxCalculationStatus: "unavailable",
+  taxAmountInMicros: 0,
+  taxBreakdown: null,
+};
+
+export const priceBreakdownTaxDisabledIntroPricePaidUpfront: PriceBreakdown = {
+  currency: "USD",
+  totalAmountInMicros: 19990000,
+  totalExcludingTaxInMicros: 19990000,
   taxCalculationStatus: "unavailable",
   taxAmountInMicros: 0,
   taxBreakdown: null,
@@ -491,6 +500,21 @@ export const priceBreakdownTaxInclusive: PriceBreakdown = {
 export const priceBreakdownTaxInclusiveWithIntroPricePaidUpfront: PriceBreakdown =
   {
     ...priceBreakdownTaxInclusive,
+    totalAmountInMicros: 19990000,
+    totalExcludingTaxInMicros: 15792100,
+    taxAmountInMicros: 4197900,
+    taxCalculationStatus: "calculated",
+    taxBreakdown: [
+      {
+        tax_amount_in_micros: 4197900,
+        display_name: "VAT - Spain (21%)",
+      },
+    ],
+  };
+
+export const priceBreakdownTaxInclusiveWithIntroPriceRecurring: PriceBreakdown =
+  {
+    ...priceBreakdownTaxInclusive,
     totalAmountInMicros: 3490000,
     totalExcludingTaxInMicros: 2757100,
     taxAmountInMicros: 732900,
@@ -520,7 +544,22 @@ export const priceBreakdownTaxExclusive: PriceBreakdown = {
 export const priceBreakdownTaxExclusiveWithIntroPricePaidUpfront: PriceBreakdown =
   {
     ...priceBreakdownTaxExclusive,
-    totalAmountInMicros: 244300 + 3490000,
+    totalAmountInMicros: 19990000 + 1399300,
+    totalExcludingTaxInMicros: 19990000,
+    taxAmountInMicros: 1399300,
+    taxCalculationStatus: "calculated",
+    taxBreakdown: [
+      {
+        tax_amount_in_micros: 1399300,
+        display_name: "Tax Rate - NY (7%)",
+      },
+    ],
+  };
+
+export const priceBreakdownTaxExclusiveWithIntroPriceRecurring: PriceBreakdown =
+  {
+    ...priceBreakdownTaxExclusive,
+    totalAmountInMicros: 3490000 + 244300,
     totalExcludingTaxInMicros: 3490000,
     taxAmountInMicros: 244300,
     taxCalculationStatus: "calculated",
@@ -531,6 +570,7 @@ export const priceBreakdownTaxExclusiveWithIntroPricePaidUpfront: PriceBreakdown
       },
     ],
   };
+
 export const priceBreakdownTaxLoading: PriceBreakdown = {
   ...priceBreakdownTaxExclusive,
   totalAmountInMicros: 9900000,

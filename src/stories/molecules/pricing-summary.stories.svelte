@@ -14,6 +14,8 @@
     nonSubscriptionOption,
     consumableProduct,
     priceBreakdownTaxDisabled,
+    priceBreakdownTaxDisabledIntroPriceRecurring,
+    priceBreakdownTaxDisabledIntroPricePaidUpfront,
   } from "../fixtures";
 
   const { Story } = defineMeta({
@@ -48,7 +50,7 @@
 <Story
   name="Intro Price - Paid Upfront"
   args={{
-    priceBreakdown: priceBreakdownTaxDisabled,
+    priceBreakdown: priceBreakdownTaxDisabledIntroPricePaidUpfront,
     basePhase: subscriptionOptionWithIntroPricePaidUpfront.base,
     introPricePhase: subscriptionOptionWithIntroPricePaidUpfront.introPrice,
   }}
@@ -57,7 +59,7 @@
 <Story
   name="Intro Price - Recurring"
   args={{
-    priceBreakdown: priceBreakdownTaxDisabled,
+    priceBreakdown: priceBreakdownTaxDisabledIntroPriceRecurring,
     basePhase: subscriptionOptionWithIntroPriceRecurring.base,
     introPricePhase: subscriptionOptionWithIntroPriceRecurring.introPrice,
   }}
@@ -66,7 +68,7 @@
 <Story
   name="Trial + Intro Price - Paid Upfront"
   args={{
-    priceBreakdown: priceBreakdownTaxDisabled,
+    priceBreakdown: priceBreakdownTaxDisabledIntroPricePaidUpfront,
     basePhase: subscriptionOptionWithTrialAndIntroPricePaidUpfront.base,
     trialPhase: subscriptionOptionWithTrialAndIntroPricePaidUpfront.trial,
     introPricePhase:
@@ -77,7 +79,7 @@
 <Story
   name="Trial + Intro Price - Recurring"
   args={{
-    priceBreakdown: priceBreakdownTaxDisabled,
+    priceBreakdown: priceBreakdownTaxDisabledIntroPriceRecurring,
     basePhase: subscriptionOptionWithTrialAndIntroPriceRecurring.base,
     trialPhase: subscriptionOptionWithTrialAndIntroPriceRecurring.trial,
     introPricePhase:

@@ -15,6 +15,9 @@
     product,
     subscriptionOption,
     subscriptionOptionWithTrial,
+    subscriptionOptionWithTrialAndIntroPricePaidUpfront,
+    priceBreakdownTaxDisabledIntroPricePaidUpfront,
+    priceBreakdownTaxInclusiveWithIntroPricePaidUpfront,
   } from "../fixtures";
   import { PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
 
@@ -139,6 +142,30 @@
 />
 
 <Story
+  name="With Trial + Intro Price Paid Upfront"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    defaultPriceBreakdown: priceBreakdownTaxDisabledIntroPricePaidUpfront,
+    productDetails: {
+      ...product,
+      subscriptionOptions: {
+        ...product.subscriptionOptions,
+        [subscriptionOptionWithTrialAndIntroPricePaidUpfront.id]:
+          subscriptionOptionWithTrialAndIntroPricePaidUpfront,
+      },
+    },
+    purchaseOptionToUse: subscriptionOptionWithTrialAndIntroPricePaidUpfront,
+    defaultPurchaseOption: subscriptionOptionWithTrialAndIntroPricePaidUpfront,
+  }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
+  }}
+/>
+
+<Story
   name="With Non Subscription product"
   args={{
     ...defaultArgs,
@@ -184,6 +211,30 @@
     },
     purchaseOptionToUse: subscriptionOptionWithTrial,
     defaultPurchaseOption: subscriptionOptionWithTrial,
+    withTaxes: true,
+  }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
+  }}
+/>
+
+<Story
+  name="With Tax and Trial Product + Intro Price Paid Upfront"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    defaultPriceBreakdown: priceBreakdownTaxInclusiveWithIntroPricePaidUpfront,
+    productDetails: {
+      ...product,
+      subscriptionOptions: {
+        [subscriptionOptionWithTrialAndIntroPricePaidUpfront.id]:
+          subscriptionOptionWithTrialAndIntroPricePaidUpfront,
+      },
+    },
+    purchaseOptionToUse: subscriptionOptionWithTrialAndIntroPricePaidUpfront,
+    defaultPurchaseOption: subscriptionOptionWithTrialAndIntroPricePaidUpfront,
     withTaxes: true,
   }}
   parameters={{

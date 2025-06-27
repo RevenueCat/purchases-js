@@ -14,11 +14,13 @@
     nonSubscriptionOption,
     consumableProduct,
     priceBreakdownTaxDisabled,
-    priceBreakdownTaxDisabledIntroPrice,
+    priceBreakdownTaxDisabledIntroPriceRecurring,
     priceBreakdownTaxInclusive,
     priceBreakdownTaxInclusiveWithIntroPricePaidUpfront,
+    priceBreakdownTaxInclusiveWithIntroPriceRecurring,
     priceBreakdownTaxExclusive,
     priceBreakdownTaxExclusiveWithIntroPricePaidUpfront,
+    priceBreakdownTaxExclusiveWithIntroPriceRecurring,
   } from "../fixtures";
 
   const { Story } = defineMeta({
@@ -59,7 +61,7 @@
     productDetails: product,
     purchaseOption: subscriptionOptionWithIntroPricePaidUpfront,
     showProductDescription: true,
-    priceBreakdown: priceBreakdownTaxDisabledIntroPrice,
+    priceBreakdown: priceBreakdownTaxDisabledIntroPriceRecurring,
   }}
 />
 
@@ -69,7 +71,7 @@
     productDetails: product,
     purchaseOption: subscriptionOptionWithIntroPriceRecurring,
     showProductDescription: true,
-    priceBreakdown: priceBreakdownTaxDisabledIntroPrice,
+    priceBreakdown: priceBreakdownTaxDisabledIntroPriceRecurring,
   }}
 />
 
@@ -79,7 +81,7 @@
     productDetails: product,
     purchaseOption: subscriptionOptionWithTrialAndIntroPricePaidUpfront,
     showProductDescription: true,
-    priceBreakdown: priceBreakdownTaxDisabledIntroPrice,
+    priceBreakdown: priceBreakdownTaxDisabledIntroPriceRecurring,
   }}
 />
 
@@ -89,7 +91,7 @@
     productDetails: product,
     purchaseOption: subscriptionOptionWithTrialAndIntroPriceRecurring,
     showProductDescription: true,
-    priceBreakdown: priceBreakdownTaxDisabledIntroPrice,
+    priceBreakdown: priceBreakdownTaxDisabledIntroPriceRecurring,
   }}
 />
 
@@ -139,7 +141,7 @@
     productDetails: product,
     purchaseOption: subscriptionOptionWithIntroPriceRecurring,
     showProductDescription: true,
-    priceBreakdown: priceBreakdownTaxInclusiveWithIntroPricePaidUpfront,
+    priceBreakdown: priceBreakdownTaxInclusiveWithIntroPriceRecurring,
   }}
 />
 
@@ -179,6 +181,6 @@
     productDetails: product,
     purchaseOption: subscriptionOptionWithIntroPriceRecurring,
     showProductDescription: true,
-    priceBreakdown: priceBreakdownTaxExclusiveWithIntroPricePaidUpfront,
+    priceBreakdown: priceBreakdownTaxExclusiveWithIntroPriceRecurring,
   }}
 />
