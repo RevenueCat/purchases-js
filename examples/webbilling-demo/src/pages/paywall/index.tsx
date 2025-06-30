@@ -17,6 +17,7 @@ interface IPackageCardProps {
 
 const priceLabels: Record<string, string> = {
   P3M: "quarter",
+  P6M: "6mo",
   P1M: "mo",
   P1Y: "yr",
   P2M: "2mo",
@@ -34,6 +35,18 @@ const trialLabels: Record<string, string> = {
   P3M: "3 months",
   P6M: "6 months",
   P1Y: "1 year",
+};
+
+const formattedCombinedPeriod = (
+  cycleCount: number,
+  period?: number,
+  unit?: string,
+) => {
+  if (!period || !unit) {
+    return "";
+  }
+  const cyclesInIntroDuration = cycleCount * period;
+  return `${cyclesInIntroDuration} ${unit}${cyclesInIntroDuration > 1 ? "s" : ""}`;
 };
 
 export const PackageCard: React.FC<IPackageCardProps> = ({
@@ -67,15 +80,22 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
 
   const renderIntroPricing = () => {
     if (!introPrice) return null;
+    console.log("option", option);
 
     return (
       <div className="introPrice">
         <div className="currentPrice">
           {introPrice.price?.formattedPrice}
-          {introPrice.period?.unit && `/${introPrice.period.unit}`}
+          {introPrice.periodDuration &&
+            `/${priceLabels[introPrice.periodDuration]}`}
           <div className="futurePrice">
-            for {introPrice.cycleCount} {introPrice.period?.unit}, then{" "}
-            {price?.formattedPrice}
+            for{" "}
+            {formattedCombinedPeriod(
+              introPrice.cycleCount,
+              introPrice.period?.number,
+              introPrice.period?.unit,
+            )}
+            , then {price?.formattedPrice}
             {pkg.webBillingProduct.normalPeriodDuration &&
               `/${
                 priceLabels[pkg.webBillingProduct.normalPeriodDuration] ||
