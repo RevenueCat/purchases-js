@@ -631,6 +631,7 @@ export class Purchases {
       customerEmail,
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
+      skipSuccessPage = false,
     } = params;
     let resolvedHTMLTarget =
       htmlTarget ?? document.getElementById("rcb-ui-root");
@@ -772,6 +773,7 @@ export class Purchases {
           metadata: metadata,
           defaultLocale,
           customTranslations: params.labelsOverride,
+          skipSuccessPage,
         },
       });
     });
