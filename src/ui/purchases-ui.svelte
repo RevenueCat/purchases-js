@@ -82,6 +82,11 @@
   let redemptionInfo: RedemptionInfo | null = $state(null);
   let operationSessionId: string | null = $state(null);
   let gatewayParams: GatewayParams = $state({});
+  let managementUrl: string | null = $state(null);
+
+  let originalHtmlHeight: string | null = $state(null);
+  let originalHtmlOverflow: string | null = $state(null);
+  let originalBodyHeight: string | null = $state(null);
 
   // Setting the context for the Localized components
   let translator: Translator = new Translator(
@@ -95,6 +100,10 @@
 
   onMount(() => {
     if (!isInElement) {
+      originalHtmlHeight = document.documentElement.style.height;
+      originalHtmlOverflow = document.documentElement.style.overflow;
+      originalBodyHeight = document.body.style.height;
+
       document.documentElement.style.height = "100%";
       document.body.style.height = "100%";
       document.documentElement.style.overflow = "hidden";
@@ -103,9 +112,19 @@
 
   onDestroy(() => {
     if (!isInElement) {
-      document.documentElement.style.height = "auto";
-      document.body.style.height = "auto";
-      document.documentElement.style.overflow = "auto";
+      const restoreStyle = (
+        element: HTMLElement,
+        property: string,
+        value: string | null,
+      ) => {
+        value === ""
+          ? element.style.removeProperty(property)
+          : element.style.setProperty(property, value);
+      };
+
+      restoreStyle(document.documentElement, "height", originalHtmlHeight);
+      restoreStyle(document.body, "height", originalBodyHeight);
+      restoreStyle(document.documentElement, "overflow", originalHtmlOverflow);
     }
   });
 
@@ -135,6 +154,7 @@
         lastError = null;
         currentPage = "payment-entry";
         gatewayParams = result.gateway_params;
+        managementUrl = result.management_url;
       })
       .catch((e: PurchaseFlowError) => {
         if (e.errorCode === PurchaseFlowErrorCode.MissingEmailError) {
@@ -152,6 +172,7 @@
               lastError = null;
               currentPage = "payment-entry";
               gatewayParams = result.gateway_params;
+              managementUrl = result.management_url;
             })
             .catch((e: PurchaseFlowError) => {
               handleError(e);
@@ -214,6 +235,7 @@
   purchaseOptionToUse={purchaseOption}
   {lastError}
   {gatewayParams}
+  {managementUrl}
   {purchaseOperationHelper}
   {isInElement}
   customerEmail={email ?? null}

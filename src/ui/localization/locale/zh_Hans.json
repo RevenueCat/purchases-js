@@ -85,5 +85,6 @@
   "error_page.error_only_in_sandbox": "此消息仅在沙盒中显示。",
   "error_page.error_message_stripe_missing_required_permission": "购买失败，因为Stripe应用程序缺少必需的权限。在生产环境中，购买将在不应用税款的情况下进行。",
   "error_page.error_title_stripe_tax_not_active": "Stripe Tax未激活",
-  "error_page.error_title_stripe_invalid_tax_origin_address": "税务起始地址无效"
+  "error_page.error_title_stripe_invalid_tax_origin_address": "税务起始地址无效",
+  "apple_pay.free_trial": "免费试用"
 }

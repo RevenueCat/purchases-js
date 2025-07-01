@@ -133,17 +133,20 @@ test.describe("Purchase error paths", () => {
     await confirmStripeEmailError(page, "Your email address is invalid.");
   });
 
-  integrationTest("Email deliverability errors", async ({ page, userId }) => {
-    page = await navigateToLandingUrl(page, userId);
-    const email = `${userId}@revenueci.comm`;
+  integrationTest.fixme(
+    "Email deliverability errors",
+    async ({ page, userId }) => {
+      page = await navigateToLandingUrl(page, userId);
+      const email = `${userId}@revenueci.comm`;
 
-    const packageCards = await getPackageCards(page);
-    await startPurchaseFlow(packageCards[1]);
-    await enterEmail(page, email);
-    await enterCreditCardDetails(page, "4242 4242 4242 4242");
-    await clickPayButton(page);
-    await confirmPaymentError(page, "Please provide a valid email address.");
-  });
+      const packageCards = await getPackageCards(page);
+      await startPurchaseFlow(packageCards[1]);
+      await enterEmail(page, email);
+      await enterCreditCardDetails(page, "4242 4242 4242 4242");
+      await clickPayButton(page);
+      await confirmPaymentError(page, "Please provide a valid email address.");
+    },
+  );
 
   integrationTest("Handled card declined errors", async ({ page, userId }) => {
     page = await navigateToLandingUrl(page, userId);

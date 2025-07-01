@@ -18,6 +18,7 @@ export type Store =
   | "stripe"
   | "rc_billing"
   | "promotional"
+  | "paddle"
   | "unknown";
 
 /**

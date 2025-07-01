@@ -125,11 +125,13 @@ describe("PurchasesUI", () => {
     vi.mocked(StripeService.isStripeHandledFormError).mockReturnValue(false);
   });
 
-  test("tracks the PaymentEntryImpression event when the payment entry is displayed", async () => {
+  test("tracks the CheckoutPaymentFormImpression event when the payment entry is displayed and form loaded", async () => {
     render(PaymentEntryPage, {
       props: { ...basicProps },
       context: defaultContext,
     });
+
+    await vi.advanceTimersToNextTimerAsync();
 
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
       eventName: SDKEventName.CheckoutPaymentFormImpression,

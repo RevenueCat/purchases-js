@@ -274,6 +274,7 @@ export const checkoutStartResponse: CheckoutStartResponse = {
       setup_future_usage: StripeElementsSetupFutureUsage.OffSession,
     },
   },
+  management_url: "https://test-management-url.revenuecat.com",
 };
 
 export const checkoutCompleteResponse: CheckoutCompleteResponse = {

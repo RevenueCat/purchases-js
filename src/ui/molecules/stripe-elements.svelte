@@ -23,6 +23,7 @@
     StripeServiceError,
   } from "../../stripe/stripe-service";
   import { type Writable } from "svelte/store";
+  import type { StripeExpressCheckoutConfiguration } from "../../stripe/stripe-express-checkout-configuration";
 
   interface Props {
     stripe: Stripe | null;
@@ -30,6 +31,7 @@
     stripeAccountId?: string;
     publishableApiKey?: string;
     elementsConfiguration?: StripeElementsConfiguration;
+    expressCheckoutOptions?: StripeExpressCheckoutConfiguration;
     brandingInfo: BrandingInfoResponse | null;
     skipEmail: boolean;
     billingAddressRequired: boolean;
@@ -52,6 +54,7 @@
     stripeAccountId,
     publishableApiKey,
     elementsConfiguration,
+    expressCheckoutOptions,
     brandingInfo,
     skipEmail,
     billingAddressRequired,
@@ -218,6 +221,7 @@
       onError={onStripeElementsLoadingError}
       onReady={onExpressCheckoutElementReady}
       onSubmit={onExpressCheckoutElementSubmit}
+      {expressCheckoutOptions}
       {billingAddressRequired}
     />
     {#if !skipEmail}

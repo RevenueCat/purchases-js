@@ -85,5 +85,6 @@
   "error_page.error_only_in_sandbox": "Ta wiadomość pojawia się tylko w środowisku testowym.",
   "error_page.error_message_stripe_missing_required_permission": "Zakup nie powiódł się, ponieważ aplikacja Stripe nie ma wymaganego uprawnienia. W środowisku produkcyjnym zakupy będą działać bez naliczania podatków.",
   "error_page.error_title_stripe_tax_not_active": "Stripe Tax nieaktywny",
-  "error_page.error_title_stripe_invalid_tax_origin_address": "Nieprawidłowy adres pochodzenia podatku"
+  "error_page.error_title_stripe_invalid_tax_origin_address": "Nieprawidłowy adres pochodzenia podatku",
+  "apple_pay.free_trial": "Okres próbny"
 }

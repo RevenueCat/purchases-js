@@ -1,2 +1,3 @@
-### 🔄 Other Changes
-* [PSP-189] Allow Paddle Api key on validation (#509) via Roger Solé (@rogersole)
+## RevenueCat SDK
+### ✨ New Features
+* [WEB-2744] Add object-based configuration for Purchases SDK initialization (#530) via Antonio Borrero Granell (@antoniobg)

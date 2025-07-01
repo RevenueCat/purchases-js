@@ -85,5 +85,6 @@
   "error_page.error_only_in_sandbox": "Dit bericht verschijnt alleen in de sandbox.",
   "error_page.error_message_stripe_missing_required_permission": "De aankoop is mislukt omdat de Stripe-app een vereiste toestemming mist. In productie werken aankopen zonder toegepaste belastingen.",
   "error_page.error_title_stripe_tax_not_active": "Stripe Tax niet actief",
-  "error_page.error_title_stripe_invalid_tax_origin_address": "Ongeldig belastingoorsprongadres"
+  "error_page.error_title_stripe_invalid_tax_origin_address": "Ongeldig belastingoorsprongadres",
+  "apple_pay.free_trial": "Gratis proefperiode"
 }

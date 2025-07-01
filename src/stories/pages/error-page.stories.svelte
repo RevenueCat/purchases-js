@@ -62,6 +62,7 @@
     onError={() => {}}
     onClose={() => {}}
     lastError={args.lastError}
+    managementUrl="http://test.com"
   />
 {/snippet}
 

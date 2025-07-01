@@ -1,3 +1,5 @@
+export const supportedRCSources = ["app", "embedded"];
+
 /**
  * Flags used to enable or disable certain features in the sdk.
  * @public

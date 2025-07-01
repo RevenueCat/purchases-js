@@ -85,5 +85,6 @@
   "error_page.error_only_in_sandbox": "यह संदेश केवल सैंडबॉक्स में दिखाई देता है.",
   "error_page.error_message_stripe_missing_required_permission": "खरीदारी विफल रही क्योंकि स्ट्राइप ऐप में आवश्यक अनुमति नहीं है. उत्पादन में, खरीदारी बिना करों के लागू किए काम करेगी.",
   "error_page.error_title_stripe_tax_not_active": "स्ट्राइप टैक्स सक्रिय नहीं है",
-  "error_page.error_title_stripe_invalid_tax_origin_address": "अमान्य कर उत्पत्ति पता"
+  "error_page.error_title_stripe_invalid_tax_origin_address": "अमान्य कर उत्पत्ति पता",
+  "apple_pay.free_trial": "मुफ़्त ट्रायल"
 }

@@ -25,6 +25,7 @@
     purchaseOperationHelper: PurchaseOperationHelper;
     isInElement: boolean;
     gatewayParams: GatewayParams;
+    managementUrl: string | null;
     customerEmail: string | null;
     defaultPriceBreakdown?: PriceBreakdown;
     closeWithError: () => void;
@@ -43,6 +44,7 @@
     purchaseOperationHelper,
     isInElement,
     gatewayParams,
+    managementUrl,
     customerEmail,
     defaultPriceBreakdown,
     closeWithError,
@@ -95,6 +97,7 @@
         {brandingInfo}
         {purchaseOperationHelper}
         {gatewayParams}
+        {managementUrl}
         {customerEmail}
         {defaultPriceBreakdown}
         {onContinue}

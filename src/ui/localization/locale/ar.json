@@ -85,5 +85,6 @@
   "error_page.error_only_in_sandbox": "تظهر هذه الرسالة فقط في البيئة التجريبية.",
   "error_page.error_message_stripe_missing_required_permission": "فشلت عملية الشراء لأن تطبيق Stripe يفتقر إلى إذن مطلوب. في مرحلة الإنتاج، ستعمل عمليات الشراء بدون تطبيق الضرائب.",
   "error_page.error_title_stripe_tax_not_active": "ضريبة Stripe غير نشطة",
-  "error_page.error_title_stripe_invalid_tax_origin_address": "عنوان منشأ ضريبي غير صالح"
+  "error_page.error_title_stripe_invalid_tax_origin_address": "عنوان منشأ ضريبي غير صالح",
+  "apple_pay.free_trial": "تجربة مجانية"
 }

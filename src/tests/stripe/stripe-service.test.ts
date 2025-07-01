@@ -1,17 +1,20 @@
-import { describe, test, expect, vi, beforeEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import {
   StripeService,
   StripeServiceErrorCode,
 } from "../../stripe/stripe-service";
 import type {
-  StripeError,
-  StripeElements,
   Stripe,
   StripeElementLocale,
+  StripeElements,
+  StripeError,
 } from "@stripe/stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import type { StripeElementsConfiguration } from "../../networking/responses/stripe-elements";
 import type { BrandingInfoResponse } from "../../networking/responses/branding-response";
+import { Translator } from "../../ui/localization/translator";
+import { product, trialProduct } from "../../stories/fixtures";
+import type { PriceBreakdown } from "../../ui/ui-types";
 
 vi.mock("@stripe/stripe-js", () => ({
   loadStripe: vi.fn(),
@@ -322,6 +325,104 @@ describe("StripeService", () => {
       expect(mockElements.create).toHaveBeenCalledWith("linkAuthentication", {
         defaultValues: {
           email: "",
+        },
+      });
+    });
+  });
+
+  describe("microsToMinimumAmountPrice", () => {
+    test("converts correctly JPY and USD", () => {
+      const priceMicros = 1_000_000;
+
+      // 1 yen
+      expect(StripeService.microsToMinimumAmountPrice(priceMicros, "JPY")).toBe(
+        1,
+      );
+
+      // 1 dollar
+      expect(StripeService.microsToMinimumAmountPrice(priceMicros, "USD")).toBe(
+        100,
+      );
+    });
+  });
+
+  describe("buildStripeExpressCheckoutOptionsForSubscription", () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date("2025-01-01T00:00:00.000Z"));
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    const translator = new Translator();
+    const managementUrl =
+      "https://somewhere.com/manage/subscriptions/1234567890";
+    const priceBreakdown: PriceBreakdown = {
+      currency: "USD",
+      totalAmountInMicros: 10000,
+      totalExcludingTaxInMicros: 10000,
+      taxCalculationStatus: "calculated",
+      taxAmountInMicros: 0,
+      taxBreakdown: [],
+    };
+
+    test("creates the ApplePay configuration correctly for a Trial Subscription Option", () => {
+      const expressCheckoutOptionsStripeService =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          trialProduct,
+          priceBreakdown,
+          trialProduct.subscriptionOptions.option_id_1,
+          translator,
+          managementUrl,
+        );
+
+      expect(expressCheckoutOptionsStripeService).toStrictEqual({
+        applePay: {
+          recurringPaymentRequest: {
+            paymentDescription: trialProduct.title,
+            managementURL: managementUrl,
+            regularBilling: {
+              amount: 1,
+              label: trialProduct.title,
+              recurringPaymentStartDate: new Date("2025-01-08T00:00:00.000Z"),
+              recurringPaymentIntervalUnit: "month",
+              recurringPaymentIntervalCount: 1,
+            },
+            trialBilling: {
+              amount: 0,
+              label: "Free Trial",
+            },
+          },
+        },
+      });
+    });
+
+    test("creates the ApplePay configuration correctly for a Subscription Option without Trial", () => {
+      const expressCheckoutOptionsStripeService =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          priceBreakdown,
+          product.subscriptionOptions.option_id_1,
+          translator,
+          managementUrl,
+        );
+
+      expect(expressCheckoutOptionsStripeService).toStrictEqual({
+        applePay: {
+          recurringPaymentRequest: {
+            paymentDescription: trialProduct.title,
+            managementURL: managementUrl,
+            regularBilling: {
+              amount: 1,
+              label: trialProduct.title,
+              recurringPaymentStartDate: undefined,
+              recurringPaymentIntervalUnit: "month",
+              recurringPaymentIntervalCount: 1,
+            },
+            trialBilling: undefined,
+          },
         },
       });
     });

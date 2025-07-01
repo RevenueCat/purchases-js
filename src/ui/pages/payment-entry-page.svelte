@@ -29,8 +29,8 @@
   import { type Writable } from "svelte/store";
   import PaymentButton from "../molecules/payment-button.svelte";
   import type {
-    StripeElementsConfiguration,
     GatewayParams,
+    StripeElementsConfiguration,
   } from "../../networking/responses/stripe-elements";
   import {
     CheckoutCalculateTaxFailedReason,
@@ -50,6 +50,7 @@
 
   interface Props {
     gatewayParams: GatewayParams;
+    managementUrl: string | null;
     productDetails: Product;
     purchaseOption: PurchaseOption;
     brandingInfo: BrandingInfoResponse | null;
@@ -67,6 +68,7 @@
 <script lang="ts">
   const {
     gatewayParams,
+    managementUrl,
     productDetails,
     purchaseOption,
     brandingInfo,
@@ -147,14 +149,20 @@
         taxCalculationStatus === "miss-match"),
   );
 
+  let expressCheckoutOptions = $derived(
+    subscriptionOption && managementUrl && priceBreakdown
+      ? StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          productDetails,
+          priceBreakdown,
+          subscriptionOption,
+          $translator,
+          managementUrl,
+        )
+      : undefined,
+  );
+
   $effect(() => {
     onPriceBreakdownUpdated(priceBreakdown);
-  });
-
-  onMount(() => {
-    eventsTracker.trackSDKEvent({
-      eventName: SDKEventName.CheckoutPaymentFormImpression,
-    });
   });
 
   onMount(async () => {
@@ -223,6 +231,9 @@
   }
 
   function handleStripeLoadingComplete() {
+    eventsTracker.trackSDKEvent({
+      eventName: SDKEventName.CheckoutPaymentFormImpression,
+    });
     isStripeLoading = false;
   }
 
@@ -554,6 +565,7 @@
           onEmailChange={handleEmailChange}
           onPaymentInfoChange={handlePaymentInfoChange}
           onExpressCheckoutElementSubmit={handleExpressCheckoutElementSubmit}
+          {expressCheckoutOptions}
         />
       </div>
 

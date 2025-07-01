@@ -85,5 +85,6 @@
   "error_page.error_only_in_sandbox": "このメッセージはサンドボックスでのみ表示されます。",
   "error_page.error_message_stripe_missing_required_permission": "Stripeアプリに必要な権限がないため、購入に失敗しました。 本番環境では、税金が適用されなくても購入は可能です。",
   "error_page.error_title_stripe_tax_not_active": "Stripe Taxが有効ではありません",
-  "error_page.error_title_stripe_invalid_tax_origin_address": "税の原産地住所が無効です"
+  "error_page.error_title_stripe_invalid_tax_origin_address": "税の原産地住所が無効です",
+  "apple_pay.free_trial": "無料トライアル"
 }
