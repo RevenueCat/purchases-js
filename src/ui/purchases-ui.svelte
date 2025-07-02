@@ -44,6 +44,7 @@
     defaultLocale: string;
     customTranslations?: CustomTranslations;
     isInElement: boolean;
+    skipSuccessPage: boolean;
     onFinished: (
       operationSessionId: string,
       redemptionInfo: RedemptionInfo | null,
@@ -66,6 +67,7 @@
     defaultLocale,
     customTranslations = {},
     isInElement,
+    skipSuccessPage = false,
     onFinished,
     onError,
     onClose,
@@ -188,9 +190,13 @@
       purchaseOperationHelper
         .pollCurrentPurchaseForCompletion()
         .then((pollResult) => {
-          currentPage = "success";
           redemptionInfo = pollResult.redemptionInfo;
           operationSessionId = pollResult.operationSessionId;
+          if (skipSuccessPage) {
+            onFinished(operationSessionId, redemptionInfo);
+          } else {
+            currentPage = "success";
+          }
         })
         .catch((error: PurchaseFlowError) => {
           handleError(error);

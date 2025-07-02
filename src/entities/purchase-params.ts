@@ -44,6 +44,13 @@ export interface PurchaseParams {
   metadata?: PurchaseMetadata;
 
   /**
+   * If set to true, the SDK will skip the success page and automatically
+   * continue the flow once the purchase completes successfully.
+   * Defaults to `false`.
+   */
+  skipSuccessPage?: boolean;
+
+  /**
    * Defines an optional override for the default branding appearance.
    *
    * This property is used internally at RevenueCat to handle dynamic themes such

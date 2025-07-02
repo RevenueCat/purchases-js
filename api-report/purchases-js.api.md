@@ -339,6 +339,7 @@ export interface PurchaseParams {
     purchaseOption?: PurchaseOption | null;
     rcPackage: Package;
     selectedLocale?: string;
+    skipSuccessPage?: boolean;
 }
 
 // @public

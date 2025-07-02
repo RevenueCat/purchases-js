@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom";
-import { render } from "@testing-library/svelte";
+import { render, fireEvent, screen } from "@testing-library/svelte";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import PurchasesUI from "../../ui/purchases-ui.svelte";
 import {
@@ -14,6 +14,8 @@ import { type PurchaseOperationHelper } from "../../helpers/purchase-operation-h
 import { createEventsTrackerMock } from "../mocks/events-tracker-mock-provider";
 import type { CheckoutStartResponse } from "../../networking/responses/checkout-start-response";
 import type { CheckoutCalculateTaxResponse } from "../../networking/responses/checkout-calculate-tax-response";
+import { checkoutCompleteResponse } from "../test-responses";
+import type { CheckoutCompleteResponse } from "../../networking/responses/checkout-complete-response";
 
 const eventsTrackerMock = createEventsTrackerMock();
 
@@ -24,6 +26,10 @@ const purchaseOperationHelperMock: PurchaseOperationHelper = {
     Promise.resolve(
       checkoutCalculateTaxResponse as CheckoutCalculateTaxResponse,
     ),
+  checkoutComplete: async () =>
+    Promise.resolve(checkoutCompleteResponse as CheckoutCompleteResponse),
+  pollCurrentPurchaseForCompletion: async () =>
+    Promise.resolve({ redemptionInfo: null, operationSessionId: "op-id" }),
 } as unknown as PurchaseOperationHelper;
 
 const purchasesMock: Purchases = {
@@ -119,5 +125,30 @@ describe("PurchasesUI", () => {
     expect(document.documentElement.style.height).toBe("");
     expect(document.body.style.height).toBe("100px");
     expect(document.body.style.overflow).toBe("scroll");
+  });
+
+  test("calls onFinished immediately when skipSuccessPage is true", async () => {
+    const onFinished = vi.fn();
+    const pollSpy = vi
+      .spyOn(purchaseOperationHelperMock, "pollCurrentPurchaseForCompletion")
+      .mockResolvedValue({ redemptionInfo: null, operationSessionId: "op-id" });
+
+    render(PurchasesUI, {
+      props: {
+        ...basicProps,
+        onFinished,
+        skipSuccessPage: true,
+      },
+    });
+
+    await new Promise(process.nextTick);
+
+    const paymentForm = screen.getByTestId("payment-form");
+    await fireEvent.submit(paymentForm);
+
+    await new Promise(process.nextTick);
+
+    expect(pollSpy).toHaveBeenCalled();
+    expect(onFinished).toHaveBeenCalledWith("op-id", null);
   });
 });
