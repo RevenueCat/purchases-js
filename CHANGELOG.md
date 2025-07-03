@@ -1,3 +1,22 @@
+## 1.8.0
+## RevenueCat SDK
+### ✨ New Features
+* WEB-2872: Add skipSuccessPage option (#535) via Nicola Sacco (@nicfix)
+
+## 1.7.0
+## RevenueCat SDK
+### ✨ New Features
+* [WEB-2744] Add object-based configuration for Purchases SDK initialization (#530) via Antonio Borrero Granell (@antoniobg)
+
+## 1.6.0
+## RevenueCat SDK
+### ✨ New Features
+* Internally track embedded usages (#531) via Nicola Sacco (@nicfix)
+
+### 🔄 Other Changes
+* Update footer note to reflect applicable taxes (#529) via Pol Miro (@polmiro)
+* Update fixture (#528) via Pol Miro (@polmiro)
+
 ## 1.5.3
 ## RevenueCat SDK
 ### 🐞 Bugfixes
