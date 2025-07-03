@@ -101,8 +101,6 @@
     expressCheckoutElement?.destroy();
     expressCheckoutElement = null;
   });
-
-  // TODO: find a way to update the wallet config when expressCheckoutOptions get updated.
 </script>
 
 {#if !hideExpressCheckoutElement}
