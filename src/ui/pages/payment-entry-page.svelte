@@ -280,7 +280,9 @@
     emailValue: string,
   ) {
     selectedPaymentMethod = paymentMethod;
-    email = emailValue;
+    // If the customerEmail parameter was provided when starting the purchase
+    // flow, prefer that value over the email returned by the wallet
+    email = customerEmail ?? emailValue;
     await handleSubmit();
   }
 
