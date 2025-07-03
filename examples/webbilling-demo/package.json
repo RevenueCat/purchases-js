@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev-fake-https": "vite ",
+    "dev-fake-https": "vite --config vite-https.config.ts",
     "build": "tsc && vite build",
     "lint": "eslint \"**/*.{ts,tsx}\" --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
