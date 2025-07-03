@@ -6,6 +6,7 @@
   import { type PriceBreakdown, type CurrentPage } from "./ui-types";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import type { Product, PurchaseOption } from "../main";
+  import { getInitialPriceFromPurchaseOption } from "../helpers/purchase-option-price-helper";
   import ProductInfo from "./organisms/product-info.svelte";
   import {
     PurchaseFlowError,
@@ -53,11 +54,16 @@
     onClose = undefined,
   }: Props = $props();
 
+  const initialPrice = getInitialPriceFromPurchaseOption(
+    productDetails,
+    purchaseOptionToUse,
+  );
+
   let priceBreakdown: PriceBreakdown = $state(
     defaultPriceBreakdown ?? {
-      currency: productDetails.currentPrice.currency,
-      totalAmountInMicros: productDetails.currentPrice.amountMicros,
-      totalExcludingTaxInMicros: productDetails.currentPrice.amountMicros,
+      currency: initialPrice.currency,
+      totalAmountInMicros: initialPrice.amountMicros,
+      totalExcludingTaxInMicros: initialPrice.amountMicros,
       taxCalculationStatus: "unavailable",
       taxAmountInMicros: null,
       taxBreakdown: null,

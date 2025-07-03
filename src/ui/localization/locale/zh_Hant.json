@@ -86,5 +86,10 @@
   "error_page.error_message_stripe_missing_required_permission": "購買失敗，因為 Stripe 應用程式缺少必要的權限。在正式環境中，購買將在不套用稅金的情況下運作。",
   "error_page.error_title_stripe_tax_not_active": "Stripe Tax 未啟用",
   "error_page.error_title_stripe_invalid_tax_origin_address": "無效的稅務起始地址",
-  "apple_pay.free_trial": "免費試用"
+  "apple_pay.free_trial": "免費試用",
+  "product_info.price_after_intro_price": "在 {{introPriceDuration}} 之後，於 {{renewalDate}}",
+  "product_info.intro_price_phase_paid_upfront": "首 {{introPriceDuration}} 為 {{introPrice}}",
+  "product_info.after_trial": "試用期後",
+  "product_info.after": "之後",
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}}，價格為{{introPrice}}"
 }

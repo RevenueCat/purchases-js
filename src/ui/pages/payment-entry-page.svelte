@@ -45,6 +45,7 @@
   } from "../../stripe/stripe-service";
   import StripeElementsComponent from "../molecules/stripe-elements.svelte";
   import PriceUpdateInfo from "../molecules/price-update-info.svelte";
+  import { getInitialPriceFromPurchaseOption } from "../../helpers/purchase-option-price-helper";
 
   type View = "loading" | "form" | "error";
 
@@ -85,6 +86,11 @@
   const subscriptionOption =
     productDetails.subscriptionOptions?.[purchaseOption.id];
 
+  const initialPrice = getInitialPriceFromPurchaseOption(
+    productDetails,
+    purchaseOption,
+  );
+
   let taxCalculationStatus: TaxCalculationStatus = $state<TaxCalculationStatus>(
     defaultPriceBreakdown?.taxCalculationStatus ??
       (brandingInfo?.gateway_tax_collection_enabled
@@ -94,15 +100,13 @@
   let taxAmountInMicros: number | null = $state(null);
   let taxBreakdown: TaxBreakdown[] | null = $state(null);
   let totalExcludingTaxInMicros: number | null = $state(
-    productDetails.currentPrice.amountMicros,
+    initialPrice.amountMicros,
   );
-  let totalAmountInMicros: number | null = $state(
-    productDetails.currentPrice.amountMicros,
-  );
+  let totalAmountInMicros: number | null = $state(initialPrice.amountMicros);
 
   let priceBreakdown: PriceBreakdown = $derived(
     defaultPriceBreakdown ?? {
-      currency: productDetails.currentPrice.currency,
+      currency: initialPrice.currency,
       totalAmountInMicros,
       totalExcludingTaxInMicros,
       taxCalculationStatus,

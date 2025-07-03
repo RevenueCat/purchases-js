@@ -29,6 +29,7 @@ const monthlyProductResponse: ProductResponse = {
         },
       },
       trial: null,
+      intro_price: null,
     },
   },
 };
@@ -56,6 +57,73 @@ const monthly2ProductResponse: ProductResponse = {
         cycle_count: 1,
         price: null,
       },
+      intro_price: null,
+    },
+  },
+};
+
+const monthlyWithIntroPriceProductResponse: ProductResponse = {
+  identifier: "monthly_intro",
+  product_type: "subscription",
+  title: "Monthly with Intro Price",
+  description: "Monthly subscription with introductory pricing",
+  default_purchase_option_id: "intro_option",
+  purchase_options: {
+    intro_option: {
+      id: "intro_option",
+      price_id: "test_intro_price_id",
+      base: {
+        period_duration: "P1M",
+        cycle_count: 1,
+        price: {
+          amount_micros: 9990000,
+          currency: "USD",
+        },
+      },
+      trial: null,
+      intro_price: {
+        period_duration: "P1M",
+        cycle_count: 3,
+        price: {
+          amount_micros: 1990000,
+          currency: "USD",
+        },
+      },
+    },
+  },
+};
+
+const monthlyWithTrialAndIntroPriceProductResponse: ProductResponse = {
+  identifier: "monthly_trial_intro",
+  product_type: "subscription",
+  title: "Monthly with Trial and Intro Price",
+  description: "Monthly subscription with trial and intro pricing",
+  default_purchase_option_id: "trial_intro_option",
+  purchase_options: {
+    trial_intro_option: {
+      id: "trial_intro_option",
+      price_id: "test_trial_intro_price_id",
+      base: {
+        period_duration: "P1M",
+        cycle_count: 1,
+        price: {
+          amount_micros: 14990000,
+          currency: "USD",
+        },
+      },
+      trial: {
+        period_duration: "P1W",
+        cycle_count: 1,
+        price: null,
+      },
+      intro_price: {
+        period_duration: "P1M",
+        cycle_count: 6,
+        price: {
+          amount_micros: 4990000,
+          currency: "USD",
+        },
+      },
     },
   },
 };
@@ -82,6 +150,15 @@ export const productsResponse: ProductsResponse = {
   product_details: [monthlyProductResponse, monthly2ProductResponse],
 };
 
+export const productsWithIntroPriceResponse: ProductsResponse = {
+  product_details: [
+    monthlyProductResponse,
+    monthly2ProductResponse,
+    monthlyWithIntroPriceProductResponse,
+    monthlyWithTrialAndIntroPriceProductResponse,
+  ],
+};
+
 export const offeringsArray = [
   {
     identifier: "offering_1",
@@ -103,6 +180,33 @@ export const offeringsArray = [
       {
         identifier: "package_2",
         platform_product_identifier: "monthly_2",
+      },
+    ],
+    paywall_components: null,
+  },
+];
+
+export const offeringsWithIntroPriceArray = [
+  {
+    identifier: "offering_intro",
+    description: "Offering with Intro Price",
+    metadata: null,
+    packages: [
+      {
+        identifier: "$rc_monthly_intro",
+        platform_product_identifier: "monthly_intro",
+      },
+    ],
+    paywall_components: null,
+  },
+  {
+    identifier: "offering_trial_intro",
+    description: "Offering with Trial and Intro Price",
+    metadata: null,
+    packages: [
+      {
+        identifier: "$rc_monthly_trial_intro",
+        platform_product_identifier: "monthly_trial_intro",
       },
     ],
     paywall_components: null,
@@ -239,6 +343,14 @@ const offeringsResponsesPerUserId: { [userId: string]: OfferingsResponse } = {
       },
     ],
   },
+  appUserIdWithIntroPricing: {
+    current_offering_id: "offering_intro",
+    offerings: offeringsWithIntroPriceArray,
+  },
+  appUserIdWithTrialAndIntroPricing: {
+    current_offering_id: "offering_trial_intro",
+    offerings: offeringsWithIntroPriceArray,
+  },
 };
 
 const productsResponsesPerUserId: { [userId: string]: object } = {
@@ -248,6 +360,8 @@ const productsResponsesPerUserId: { [userId: string]: object } = {
   appUserIdWithNonSubscriptionProducts: {
     product_details: [consumableProductResponse],
   },
+  appUserIdWithIntroPricing: productsWithIntroPriceResponse,
+  appUserIdWithTrialAndIntroPricing: productsWithIntroPriceResponse,
 };
 
 const customerInfoResponsePerUserId: { [userId: string]: object } = {
