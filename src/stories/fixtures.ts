@@ -18,6 +18,7 @@ import {
   StripeElementsSetupFutureUsage,
 } from "../networking/responses/stripe-elements";
 import type { PriceBreakdown } from "src/ui/ui-types";
+import type { CheckoutCompleteResponse } from "../networking/responses/checkout-complete-response";
 
 const subscriptionOptionBasePrice = {
   periodDuration: "P1M",
@@ -362,6 +363,11 @@ export const checkoutCalculateTaxResponse: CheckoutCalculateTaxResponse = {
       amount: 999 + 40,
     },
   },
+};
+
+export const checkoutCompleteResponse: CheckoutCompleteResponse = {
+  operation_session_id: "operation-session-id",
+  gateway_params: {},
 };
 
 export const defaultContext = {

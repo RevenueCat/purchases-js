@@ -1,3 +1,8 @@
 ## RevenueCat SDK
 ### ✨ New Features
-* [WEB-2744] Add object-based configuration for Purchases SDK initialization (#530) via Antonio Borrero Granell (@antoniobg)
+* Prefer provided email for wallet payments (#538) via Nicola Sacco (@nicfix)
+### 🐞 Bugfixes
+* Fixed the package.json to actually use the https config file (#539) via Nicola Sacco (@nicfix)
+
+### 🔄 Other Changes
+* Mkcert for local wallets (#525) via Nicola Sacco (@nicfix)
