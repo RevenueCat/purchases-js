@@ -7,6 +7,7 @@ files_to_update_on_latest_stable_releases = {
   './scripts/docs/index.html' => ['purchases-js-docs/{x}/']
 }
 repo_name = 'purchases-js'
+wpl_repo_name = 'rc-billing-checkout'
 changelog_latest_path = './CHANGELOG.latest.md'
 changelog_path = './CHANGELOG.md'
 
@@ -76,6 +77,42 @@ lane :release do |options|
     sh(args)
   end
   github_release(version: version_number)
+end
+
+desc "Creates snapshot pre-release and publishes with the 'snapshot' tag"
+lane :snapshot_release do
+  stable_version   = current_version_number
+  snapshot_version = "snapshot-#{stable_version}-#{Time.now.strftime('%Y%m%d%H%M')}"
+
+  UI.message("Creating snapshot release #{snapshot_version}...")
+
+  Dir.chdir(get_root_folder) do
+    sh("npm version #{snapshot_version} --no-git-tag-version")
+    sh("npm publish --tag snapshot")
+    sh("npm version #{stable_version} --no-git-tag-version")
+  end
+
+  add_git_tag(tag: snapshot_version, message: "Snapshot #{snapshot_version}")
+  push_to_git_remote(remote: "origin", tags: true)
+
+  create_wpl_dependency_pr(version: snapshot_version)
+end
+
+desc "Trigger GitHub action to update the SDK dependency in the Checkout repo"
+lane :create_wpl_dependency_pr do |options|
+  version_number = options[:version]
+
+  UI.message("Creating a PR to update the SDK dependency in #{wpl_repo_name} to #{version_number}")
+
+  sh(
+    "curl",
+    "-X", "POST",
+    "-H", "Accept: application/vnd.github.v3+json",
+    "-H", "Authorization: token #{ENV['GITHUB_TOKEN']}",
+    "-H", "Content-Type: application/json",
+    "https://api.github.com/repos/RevenueCat/#{wpl_repo_name}/dispatches",
+    "-d", "{\"event_type\":\"upgrade-purchases-js\",\"client_payload\":{\"version\":\"#{version_number}\"}}"
+  )
 end
 
 desc "Generate docs"
