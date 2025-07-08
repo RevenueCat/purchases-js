@@ -31,8 +31,10 @@
     args: {
       billingDuration: subscriptionOption.base.periodDuration,
       hasIntroOffer: false,
-      introDuration: subscriptionOptionWithIntroPriceRecurring.introPrice.periodDuration,
-      introCycles: subscriptionOptionWithIntroPriceRecurring.introPrice.cycleCount,
+      introDuration:
+        subscriptionOptionWithIntroPriceRecurring.introPrice.periodDuration,
+      introCycles:
+        subscriptionOptionWithIntroPriceRecurring.introPrice.cycleCount,
       hasTrial: false,
       trialDuration: subscriptionOptionWithTrial.trial.periodDuration,
     },
@@ -70,29 +72,35 @@
   {@const trialPhase = args.hasTrial
     ? {
         ...subscriptionOptionWithTrial.trial,
-        periodDuration: args.trialDuration ?? subscriptionOptionWithTrial.trial.periodDuration,
+        periodDuration:
+          args.trialDuration ??
+          subscriptionOptionWithTrial.trial.periodDuration,
         period: parseISODuration(
-          args.trialDuration ?? subscriptionOptionWithTrial.trial.periodDuration,
+          args.trialDuration ??
+            subscriptionOptionWithTrial.trial.periodDuration,
         ),
       }
     : null}
 
   {@const introPricePhase = args.hasIntroOffer
     ? {
-        ...
-          (args.introCycles === 1
-            ? subscriptionOptionWithIntroPricePaidUpfront.introPrice
-            : subscriptionOptionWithIntroPriceRecurring.introPrice),
+        ...(args.introCycles === 1
+          ? subscriptionOptionWithIntroPricePaidUpfront.introPrice
+          : subscriptionOptionWithIntroPriceRecurring.introPrice),
         periodDuration:
           args.introDuration ??
           (args.introCycles === 1
-            ? subscriptionOptionWithIntroPricePaidUpfront.introPrice.periodDuration
-            : subscriptionOptionWithIntroPriceRecurring.introPrice.periodDuration),
+            ? subscriptionOptionWithIntroPricePaidUpfront.introPrice
+                .periodDuration
+            : subscriptionOptionWithIntroPriceRecurring.introPrice
+                .periodDuration),
         period: parseISODuration(
           args.introDuration ??
             (args.introCycles === 1
-              ? subscriptionOptionWithIntroPricePaidUpfront.introPrice.periodDuration
-              : subscriptionOptionWithIntroPriceRecurring.introPrice.periodDuration),
+              ? subscriptionOptionWithIntroPricePaidUpfront.introPrice
+                  .periodDuration
+              : subscriptionOptionWithIntroPriceRecurring.introPrice
+                  .periodDuration),
         ),
         cycleCount:
           args.introCycles ??
@@ -110,12 +118,7 @@
         : priceBreakdownTaxDisabledIntroPricePaidUpfront
       : priceBreakdownTaxDisabled)}
 
-  <PricingSummary
-    {priceBreakdown}
-    {basePhase}
-    {trialPhase}
-    introPricePhase={introPricePhase}
-  />
+  <PricingSummary {priceBreakdown} {basePhase} {trialPhase} {introPricePhase} />
 {/snippet}
 
 <Story
@@ -143,10 +146,13 @@
   name="Intro Price - Paid Upfront"
   args={{
     priceBreakdown: priceBreakdownTaxDisabledIntroPricePaidUpfront,
-    billingDuration: subscriptionOptionWithIntroPricePaidUpfront.base.periodDuration,
+    billingDuration:
+      subscriptionOptionWithIntroPricePaidUpfront.base.periodDuration,
     hasIntroOffer: true,
-    introDuration: subscriptionOptionWithIntroPricePaidUpfront.introPrice.periodDuration,
-    introCycles: subscriptionOptionWithIntroPricePaidUpfront.introPrice.cycleCount,
+    introDuration:
+      subscriptionOptionWithIntroPricePaidUpfront.introPrice.periodDuration,
+    introCycles:
+      subscriptionOptionWithIntroPricePaidUpfront.introPrice.cycleCount,
     hasTrial: false,
   }}
 />
@@ -155,10 +161,13 @@
   name="Intro Price - Recurring"
   args={{
     priceBreakdown: priceBreakdownTaxDisabledIntroPriceRecurring,
-    billingDuration: subscriptionOptionWithIntroPriceRecurring.base.periodDuration,
+    billingDuration:
+      subscriptionOptionWithIntroPriceRecurring.base.periodDuration,
     hasIntroOffer: true,
-    introDuration: subscriptionOptionWithIntroPriceRecurring.introPrice.periodDuration,
-    introCycles: subscriptionOptionWithIntroPriceRecurring.introPrice.cycleCount,
+    introDuration:
+      subscriptionOptionWithIntroPriceRecurring.introPrice.periodDuration,
+    introCycles:
+      subscriptionOptionWithIntroPriceRecurring.introPrice.cycleCount,
     hasTrial: false,
   }}
 />
@@ -167,12 +176,17 @@
   name="Trial + Intro Price - Paid Upfront"
   args={{
     priceBreakdown: priceBreakdownTaxDisabledIntroPricePaidUpfront,
-    billingDuration: subscriptionOptionWithTrialAndIntroPricePaidUpfront.base.periodDuration,
+    billingDuration:
+      subscriptionOptionWithTrialAndIntroPricePaidUpfront.base.periodDuration,
     hasTrial: true,
-    trialDuration: subscriptionOptionWithTrialAndIntroPricePaidUpfront.trial.periodDuration,
+    trialDuration:
+      subscriptionOptionWithTrialAndIntroPricePaidUpfront.trial.periodDuration,
     hasIntroOffer: true,
-    introDuration: subscriptionOptionWithTrialAndIntroPricePaidUpfront.introPrice.periodDuration,
-    introCycles: subscriptionOptionWithTrialAndIntroPricePaidUpfront.introPrice.cycleCount,
+    introDuration:
+      subscriptionOptionWithTrialAndIntroPricePaidUpfront.introPrice
+        .periodDuration,
+    introCycles:
+      subscriptionOptionWithTrialAndIntroPricePaidUpfront.introPrice.cycleCount,
   }}
 />
 
@@ -180,12 +194,17 @@
   name="Trial + Intro Price - Recurring"
   args={{
     priceBreakdown: priceBreakdownTaxDisabledIntroPriceRecurring,
-    billingDuration: subscriptionOptionWithTrialAndIntroPriceRecurring.base.periodDuration,
+    billingDuration:
+      subscriptionOptionWithTrialAndIntroPriceRecurring.base.periodDuration,
     hasTrial: true,
-    trialDuration: subscriptionOptionWithTrialAndIntroPriceRecurring.trial.periodDuration,
+    trialDuration:
+      subscriptionOptionWithTrialAndIntroPriceRecurring.trial.periodDuration,
     hasIntroOffer: true,
-    introDuration: subscriptionOptionWithTrialAndIntroPriceRecurring.introPrice.periodDuration,
-    introCycles: subscriptionOptionWithTrialAndIntroPriceRecurring.introPrice.cycleCount,
+    introDuration:
+      subscriptionOptionWithTrialAndIntroPriceRecurring.introPrice
+        .periodDuration,
+    introCycles:
+      subscriptionOptionWithTrialAndIntroPriceRecurring.introPrice.cycleCount,
   }}
 />
 
