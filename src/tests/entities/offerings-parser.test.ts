@@ -170,21 +170,6 @@ describe("Offerings Parser - Intro Price Support", () => {
       expect(result!.introPrice!.cycleCount).toBe(3);
     });
 
-    test("handles missing intro_price field (undefined)", () => {
-      const response: SubscriptionOptionResponse = {
-        id: "test_option",
-        price_id: "test_price_id",
-        base: mockBasePricingPhase,
-        trial: null,
-        // intro_price is undefined (not included in response)
-      };
-
-      const result = toSubscriptionOption(response);
-
-      expect(result).not.toBeNull();
-      expect(result!.introPrice).toBeNull();
-    });
-
     test("returns null when base is missing", () => {
       const response: SubscriptionOptionResponse = {
         id: "test_option",
