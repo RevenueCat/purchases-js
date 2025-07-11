@@ -86,5 +86,10 @@
   "error_page.error_message_stripe_missing_required_permission": "Nákup sa nepodaril, pretože aplikácii Stripe chýba požadované povolenie. V produkčnom prostredí budú nákupy fungovať bez uplatnenia daní.",
   "error_page.error_title_stripe_tax_not_active": "Stripe Tax nie je aktívny",
   "error_page.error_title_stripe_invalid_tax_origin_address": "Neplatná adresa pôvodu dane",
-  "apple_pay.free_trial": "Skúšobná verzia zdarma"
+  "apple_pay.free_trial": "Skúšobná verzia zdarma",
+  "product_info.price_after_intro_price": "Po {{introPriceDuration}}, dňa {{renewalDate}}",
+  "product_info.intro_price_phase_paid_upfront": "Prvých {{introPriceDuration}} za {{introPrice}}",
+  "product_info.after_trial": "po skúšobnej dobe",
+  "product_info.after": "po",
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} za {{introPrice}}"
 }

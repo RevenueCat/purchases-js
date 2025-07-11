@@ -18,12 +18,18 @@
 
   const basePhase = subscriptionOption?.base;
   const trialPhase = subscriptionOption?.trial;
+  const introPricePhase = subscriptionOption?.introPrice;
 </script>
 
 <div class="rcb-pricing-info">
   <div class="rcb-pricing-info-header">
     <ProductHeader {productDetails} {showProductDescription} />
-    <PricingSummary {priceBreakdown} {basePhase} {trialPhase} />
+    <PricingSummary
+      {priceBreakdown}
+      {basePhase}
+      {trialPhase}
+      {introPricePhase}
+    />
   </div>
   <PricingTable {priceBreakdown} {trialPhase} />
 </div>

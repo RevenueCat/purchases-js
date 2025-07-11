@@ -58,6 +58,7 @@ export const subscriptionOption: SubscriptionOption = {
   priceId: "price_1",
   base: subscriptionOptionBasePrice,
   trial: null,
+  introPrice: null,
 };
 
 export const subscriptionOptionWithTrial: SubscriptionOption = {
@@ -76,7 +77,130 @@ export const subscriptionOptionWithTrial: SubscriptionOption = {
     pricePerMonth: null,
     pricePerYear: null,
   },
+  introPrice: null,
 };
+
+// Intro price - Paid upfront (6 months for $19.99, one time)
+export const subscriptionOptionWithIntroPricePaidUpfront: SubscriptionOption = {
+  id: "option_id_intro_upfront",
+  priceId: "price_intro_upfront",
+  base: subscriptionOption.base,
+  trial: null,
+  introPrice: {
+    periodDuration: "P6M",
+    period: {
+      number: 6,
+      unit: PeriodUnit.Month,
+    },
+    cycleCount: 1, // Paid upfront - one payment
+    price: {
+      amount: 1999,
+      amountMicros: 19990000,
+      currency: "USD",
+      formattedPrice: "$19.99",
+    },
+    pricePerWeek: {
+      amount: 767,
+      amountMicros: 7670000,
+      currency: "USD",
+      formattedPrice: "$7.67",
+    },
+    pricePerMonth: {
+      amount: 333,
+      amountMicros: 3330000,
+      currency: "USD",
+      formattedPrice: "$3.33",
+    },
+    pricePerYear: {
+      amount: 3998,
+      amountMicros: 39980000,
+      currency: "USD",
+      formattedPrice: "$39.98",
+    },
+  },
+};
+
+// Intro price - Recurring (3 months for $4.99 each)
+export const subscriptionOptionWithIntroPriceRecurring: SubscriptionOption = {
+  id: "option_id_intro_recurring",
+  priceId: "price_intro_recurring",
+  base: subscriptionOption.base,
+  trial: null,
+  introPrice: {
+    periodDuration: "P1M",
+    period: {
+      number: 1,
+      unit: PeriodUnit.Month,
+    },
+    cycleCount: 3, // Recurring - 3 payments
+    price: {
+      amount: 499,
+      amountMicros: 4990000,
+      currency: "USD",
+      formattedPrice: "$4.99",
+    },
+    pricePerWeek: {
+      amount: 115,
+      amountMicros: 1150000,
+      currency: "USD",
+      formattedPrice: "$1.15",
+    },
+    pricePerMonth: {
+      amount: 499,
+      amountMicros: 4990000,
+      currency: "USD",
+      formattedPrice: "$4.99",
+    },
+    pricePerYear: {
+      amount: 5988,
+      amountMicros: 59880000,
+      currency: "USD",
+      formattedPrice: "$59.88",
+    },
+  },
+};
+
+// Trial + Intro price - Paid upfront
+export const subscriptionOptionWithTrialAndIntroPricePaidUpfront: SubscriptionOption =
+  {
+    id: "option_id_trial_intro_upfront",
+    priceId: "price_trial_intro_upfront",
+    base: subscriptionOption.base,
+    trial: {
+      periodDuration: "P1W",
+      period: {
+        number: 1,
+        unit: PeriodUnit.Week,
+      },
+      cycleCount: 1,
+      price: null,
+      pricePerWeek: null,
+      pricePerMonth: null,
+      pricePerYear: null,
+    },
+    introPrice: subscriptionOptionWithIntroPricePaidUpfront.introPrice,
+  };
+
+// Trial + Intro price - Recurring
+export const subscriptionOptionWithTrialAndIntroPriceRecurring: SubscriptionOption =
+  {
+    id: "option_id_trial_intro_recurring",
+    priceId: "price_trial_intro_recurring",
+    base: subscriptionOption.base,
+    trial: {
+      periodDuration: "P1W",
+      period: {
+        number: 1,
+        unit: PeriodUnit.Week,
+      },
+      cycleCount: 1,
+      price: null,
+      pricePerWeek: null,
+      pricePerMonth: null,
+      pricePerYear: null,
+    },
+    introPrice: subscriptionOptionWithIntroPriceRecurring.introPrice,
+  };
 
 export const nonSubscriptionOption: NonSubscriptionOption = {
   id: "option_id_1",
@@ -338,6 +462,24 @@ export const priceBreakdownTaxDisabled: PriceBreakdown = {
   taxBreakdown: null,
 };
 
+export const priceBreakdownTaxDisabledIntroPriceRecurring: PriceBreakdown = {
+  currency: "USD",
+  totalAmountInMicros: 3490000,
+  totalExcludingTaxInMicros: 3490000,
+  taxCalculationStatus: "unavailable",
+  taxAmountInMicros: 0,
+  taxBreakdown: null,
+};
+
+export const priceBreakdownTaxDisabledIntroPricePaidUpfront: PriceBreakdown = {
+  currency: "USD",
+  totalAmountInMicros: 19990000,
+  totalExcludingTaxInMicros: 19990000,
+  taxCalculationStatus: "unavailable",
+  taxAmountInMicros: 0,
+  taxBreakdown: null,
+};
+
 export const priceBreakdownNotCollectingTax: PriceBreakdown = {
   currency: "USD",
   totalAmountInMicros: 9900000,
@@ -361,6 +503,36 @@ export const priceBreakdownTaxInclusive: PriceBreakdown = {
   ],
 };
 
+export const priceBreakdownTaxInclusiveWithIntroPricePaidUpfront: PriceBreakdown =
+  {
+    ...priceBreakdownTaxInclusive,
+    totalAmountInMicros: 19990000,
+    totalExcludingTaxInMicros: 15792100,
+    taxAmountInMicros: 4197900,
+    taxCalculationStatus: "calculated",
+    taxBreakdown: [
+      {
+        tax_amount_in_micros: 4197900,
+        display_name: "VAT - Spain (21%)",
+      },
+    ],
+  };
+
+export const priceBreakdownTaxInclusiveWithIntroPriceRecurring: PriceBreakdown =
+  {
+    ...priceBreakdownTaxInclusive,
+    totalAmountInMicros: 3490000,
+    totalExcludingTaxInMicros: 2757100,
+    taxAmountInMicros: 732900,
+    taxCalculationStatus: "calculated",
+    taxBreakdown: [
+      {
+        tax_amount_in_micros: 732900,
+        display_name: "VAT - Spain (21%)",
+      },
+    ],
+  };
+
 export const priceBreakdownTaxExclusive: PriceBreakdown = {
   ...priceBreakdownTaxDisabled,
   totalAmountInMicros: 693000 + 9900000,
@@ -374,6 +546,36 @@ export const priceBreakdownTaxExclusive: PriceBreakdown = {
     },
   ],
 };
+
+export const priceBreakdownTaxExclusiveWithIntroPricePaidUpfront: PriceBreakdown =
+  {
+    ...priceBreakdownTaxExclusive,
+    totalAmountInMicros: 19990000 + 1399300,
+    totalExcludingTaxInMicros: 19990000,
+    taxAmountInMicros: 1399300,
+    taxCalculationStatus: "calculated",
+    taxBreakdown: [
+      {
+        tax_amount_in_micros: 1399300,
+        display_name: "Tax Rate - NY (7%)",
+      },
+    ],
+  };
+
+export const priceBreakdownTaxExclusiveWithIntroPriceRecurring: PriceBreakdown =
+  {
+    ...priceBreakdownTaxExclusive,
+    totalAmountInMicros: 3490000 + 244300,
+    totalExcludingTaxInMicros: 3490000,
+    taxAmountInMicros: 244300,
+    taxCalculationStatus: "calculated",
+    taxBreakdown: [
+      {
+        tax_amount_in_micros: 244300,
+        display_name: "Tax Rate - NY (7%)",
+      },
+    ],
+  };
 
 export const priceBreakdownTaxLoading: PriceBreakdown = {
   ...priceBreakdownTaxExclusive,

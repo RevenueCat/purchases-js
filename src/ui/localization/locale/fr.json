@@ -86,5 +86,10 @@
   "error_page.error_message_stripe_missing_required_permission": "L'achat a échoué car l'application Stripe ne dispose pas d'une autorisation requise. En production, les achats fonctionneront sans taxes appliquées.",
   "error_page.error_title_stripe_tax_not_active": "Stripe Tax non actif",
   "error_page.error_title_stripe_invalid_tax_origin_address": "Adresse d'origine de la taxe non valide",
-  "apple_pay.free_trial": "Essai gratuit"
+  "apple_pay.free_trial": "Essai gratuit",
+  "product_info.price_after_intro_price": "Après {{introPriceDuration}}, le {{renewalDate}}",
+  "product_info.intro_price_phase_paid_upfront": "Les {{introPriceDuration}} premiers jours pour {{introPrice}}",
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} pour {{introPrice}}",
+  "product_info.after_trial": "après l'essai",
+  "product_info.after": "après"
 }

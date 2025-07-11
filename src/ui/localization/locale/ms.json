@@ -86,5 +86,10 @@
   "error_page.error_message_stripe_missing_required_permission": "Pembelian gagal kerana aplikasi Stripe kekurangan kebenaran yang diperlukan. Dalam pengeluaran, pembelian akan berfungsi tanpa cukai dikenakan.",
   "error_page.error_title_stripe_tax_not_active": "Cukai Stripe tidak aktif",
   "error_page.error_title_stripe_invalid_tax_origin_address": "Alamat asal cukai Stripe tidak sah",
-  "apple_pay.free_trial": "Percubaan Percuma"
+  "apple_pay.free_trial": "Percubaan Percuma",
+  "product_info.price_after_intro_price": "Selepas {{introPriceDuration}}, pada {{renewalDate}}",
+  "product_info.intro_price_phase_paid_upfront": "Pertama {{introPriceDuration}} untuk {{introPrice}}",
+  "product_info.after_trial": "selepas percubaan",
+  "product_info.after": "selepas",
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} untuk {{introPrice}}"
 }

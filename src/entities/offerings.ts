@@ -179,6 +179,11 @@ export interface SubscriptionOption extends PurchaseOption {
    * The trial information for this subscription option if available.
    */
   readonly trial: PricingPhase | null;
+
+  /**
+   * The introductory price period for this subscription option if available.
+   */
+  readonly introPrice: PricingPhase | null;
 }
 
 /**
@@ -515,6 +520,7 @@ const toSubscriptionOption = (
     priceId: option.price_id,
     base: toPricingPhase(option.base),
     trial: option.trial ? toPricingPhase(option.trial) : null,
+    introPrice: option.intro_price ? toPricingPhase(option.intro_price) : null,
   } as SubscriptionOption;
 };
 
