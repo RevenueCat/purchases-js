@@ -520,7 +520,7 @@ const toSubscriptionOption = (
     priceId: option.price_id,
     base: toPricingPhase(option.base),
     trial: option.trial ? toPricingPhase(option.trial) : null,
-    introPrice: option.intro_price ? toPricingPhase(option.intro_price) : null,
+    introPrice: option.intro_price,
   } as SubscriptionOption;
 };
 
