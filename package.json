@@ -63,14 +63,14 @@
     "@storybook/addon-essentials": "^8.5.0",
     "@storybook/addon-interactions": "^8.5.0",
     "@storybook/addon-links": "^8.5.0",
-    "@storybook/addon-svelte-csf": "^5.0.0-next.24",
+    "@storybook/addon-svelte-csf": "^5.0.6",
     "@storybook/addon-viewport": "^8.5.2",
     "@storybook/blocks": "^8.5.0",
     "@storybook/svelte": "^8.5.0",
     "@storybook/sveltekit": "^8.5.0",
     "@storybook/test": "^8.5.0",
     "@stripe/stripe-js": "^7.3.1",
-    "@sveltejs/vite-plugin-svelte": "^5.0.2",
+    "@sveltejs/vite-plugin-svelte": "^5.1.1",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/svelte": "^5.2.6",
     "@tsconfig/svelte": "^5.0.4",
@@ -103,9 +103,9 @@
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.17.0",
     "uuid": "^11.0.5",
-    "vite": "^6.0.3",
-    "vite-plugin-dts": "^4.3.0",
-    "vitest": "^3.1.1"
+    "vite": "^6.3.5",
+    "vite-plugin-dts": "^4.5.4",
+    "vitest": "^3.2.4"
   },
   "lint-staged": {
     "**/*": [
