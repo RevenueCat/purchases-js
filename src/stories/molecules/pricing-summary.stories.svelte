@@ -103,7 +103,7 @@
     args.introCycles,
     setPeriodDuration(
       args.introDuration,
-      args.trialPhase,
+      args.introPricePhase,
       subscriptionOptionWithIntroPriceRecurring.introPrice!,
     ),
   )}
