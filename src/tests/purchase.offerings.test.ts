@@ -65,6 +65,7 @@ describe("getOfferings", () => {
       pricePerMonth: null,
       pricePerYear: null,
     },
+    introPrice: null,
   };
 
   test("can get offerings", async () => {
@@ -420,6 +421,64 @@ describe("getOfferings", () => {
 
     expect(Object.keys(offerings.all).length).toBe(0);
     expect(offerings.current).toBeNull();
+  });
+
+  describe("intro pricing support", () => {
+    test("can parse offerings with intro pricing", async () => {
+      const purchases = configurePurchases("appUserIdWithIntroPricing");
+      const offerings = await purchases.getOfferings();
+
+      // Find the offering with intro pricing
+      const introOffering = offerings.all["offering_intro"];
+      expect(introOffering).toBeDefined();
+
+      const introPackage = introOffering.availablePackages[0];
+      expect(introPackage).toBeDefined();
+
+      const subscriptionOption =
+        introPackage.webBillingProduct.defaultSubscriptionOption;
+      expect(subscriptionOption).toBeDefined();
+      expect(subscriptionOption!.introPrice).toBeDefined();
+      expect(subscriptionOption!.introPrice!.price).toBeDefined();
+      expect(subscriptionOption!.introPrice!.cycleCount).toBeGreaterThan(0);
+    });
+
+    test("can parse offerings with trial and intro pricing", async () => {
+      const purchases = configurePurchases("appUserIdWithTrialAndIntroPricing");
+      const offerings = await purchases.getOfferings();
+
+      const trialIntroOffering = offerings.all["offering_trial_intro"];
+      expect(trialIntroOffering).toBeDefined();
+
+      const trialIntroPackage = trialIntroOffering.availablePackages[0];
+      expect(trialIntroPackage).toBeDefined();
+
+      const subscriptionOption =
+        trialIntroPackage.webBillingProduct.defaultSubscriptionOption;
+      expect(subscriptionOption).toBeDefined();
+
+      // Verify both trial and intro price are present
+      expect(subscriptionOption!.trial).toBeDefined();
+      expect(subscriptionOption!.trial!.price).toBeNull();
+      expect(subscriptionOption!.introPrice).toBeDefined();
+      expect(subscriptionOption!.introPrice!.price).toBeDefined();
+    });
+
+    test("maintains backward compatibility with options without intro pricing", async () => {
+      const purchases = configurePurchases();
+      const offerings = await purchases.getOfferings();
+
+      const currentOffering = offerings.current;
+      expect(currentOffering).toBeDefined();
+
+      const monthlyPackage = currentOffering!.monthly;
+      expect(monthlyPackage).toBeDefined();
+
+      const subscriptionOption =
+        monthlyPackage!.webBillingProduct.defaultSubscriptionOption;
+      expect(subscriptionOption).toBeDefined();
+      expect(subscriptionOption!.introPrice).toBeNull();
+    });
   });
 });
 

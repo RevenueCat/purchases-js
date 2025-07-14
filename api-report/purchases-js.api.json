@@ -8130,6 +8130,38 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!SubscriptionOption#introPrice:member",
+              "docComment": "/**\n * The introductory price period for this subscription option if available.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly introPrice: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "PricingPhase",
+                  "canonicalReference": "@revenuecat/purchases-js!PricingPhase:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "introPrice",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!SubscriptionOption#trial:member",
               "docComment": "/**\n * The trial information for this subscription option if available.\n */\n",
               "excerptTokens": [
