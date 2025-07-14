@@ -28,7 +28,7 @@
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
-  "product_info.free_trial_duration": "{{trialDuration}} бесплатная пробная версия",
+  "product_info.free_trial_duration": "Попробуйте бесплатно в течение {{trialDuration}}",
   "product_info.price_after_free_trial": "После окончания пробного периода, {{renewalDate}}",
   "product_info.renewal_frequency": "Продлевается {{frequency}}",
   "product_info.continues_until_cancelled": "Продолжается до отмены",
@@ -91,5 +91,10 @@
   "product_info.intro_price_phase_paid_upfront": "Первые {{introPriceDuration}} за {{introPrice}}",
   "product_info.after_trial": "после пробного периода",
   "product_info.after": "после",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} за {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} за {{introPrice}}",
+  "product_info.intro_price_phase_paid_upfront_paid_once": ", оплачивается один раз",
+  "pricing_table.intro_price_paid_recurring": "Вводное предложение на {{introPriceDuration}}, оплачивается {{introPriceFrequency}}",
+  "pricing_table.intro_price_paid_once": "Вводное предложение на {{introPriceDuration}}, оплачивается один раз",
+  "pricing_table.from_date_paid_frequency": "С {{startDate}}, оплачивается {{basePriceFrequency}}",
+  "pricing_table.payment_cycle_length_and_duration": "в течение {{introPriceDuration}}, оплачивается {{introPriceFrequency}}"
 }

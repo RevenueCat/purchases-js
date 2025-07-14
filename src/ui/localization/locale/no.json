@@ -28,7 +28,7 @@
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
-  "product_info.free_trial_duration": "{{trialDuration}} gratis prøveperiode",
+  "product_info.free_trial_duration": "Prøv gratis i {{trialDuration}}",
   "product_info.price_after_free_trial": "Etter prøveperioden slutter, den {{renewalDate}}",
   "product_info.renewal_frequency": "Fornyes {{frequency}}",
   "product_info.continues_until_cancelled": "Varer til den avbestilles",
@@ -91,5 +91,10 @@
   "product_info.intro_price_phase_paid_upfront": "Første {{introPriceDuration}} for {{introPrice}}",
   "product_info.after_trial": "etter prøveperiode",
   "product_info.after": "etter",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} for {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} for {{introPrice}}",
+  "product_info.intro_price_phase_paid_upfront_paid_once": ", betales én gang",
+  "pricing_table.intro_price_paid_once": "{{introPriceDuration}} introduksjonstilbud, betales én gang",
+  "pricing_table.intro_price_paid_recurring": "{{introPriceDuration}} introduksjonstilbud, betales {{introPriceFrequency}}",
+  "pricing_table.from_date_paid_frequency": "Fra {{startDate}}, betales {{basePriceFrequency}}",
+  "pricing_table.payment_cycle_length_and_duration": "for {{introPriceDuration}}, betales {{introPriceFrequency}}"
 }

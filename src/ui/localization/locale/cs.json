@@ -28,7 +28,7 @@
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
-  "product_info.free_trial_duration": "{{trialDuration}} zkušební verze zdarma",
+  "product_info.free_trial_duration": "Vyzkoušejte zdarma po dobu {{trialDuration}}",
   "product_info.price_after_free_trial": "Po skončení zkušební verze, {{renewalDate}}",
   "product_info.renewal_frequency": "Obnovuje se {{frequency}}",
   "product_info.continues_until_cancelled": "Pokračuje, dokud není zrušeno",
@@ -91,5 +91,10 @@
   "product_info.intro_price_phase_paid_upfront": "Prvních {{introPriceDuration}} za {{introPrice}}",
   "product_info.after_trial": "po zkušební době",
   "product_info.after": "po",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} za {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} za {{introPrice}}",
+  "product_info.intro_price_phase_paid_upfront_paid_once": ", zaplaceno jednorázově",
+  "pricing_table.from_date_paid_frequency": "Od {{startDate}}, placeno {{basePriceFrequency}}",
+  "pricing_table.payment_cycle_length_and_duration": "za {{introPriceDuration}}, placeno {{introPriceFrequency}}",
+  "pricing_table.intro_price_paid_recurring": "{{introPriceDuration}} úvodní nabídka, placeno {{introPriceFrequency}}",
+  "pricing_table.intro_price_paid_once": "{{introPriceDuration}} úvodní nabídka, placeno jednou"
 }

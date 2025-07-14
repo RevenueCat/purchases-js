@@ -91,5 +91,10 @@
   "product_info.intro_price_phase_paid_upfront": "أول {{introPriceDuration}} مقابل {{introPrice}}",
   "product_info.after_trial": "بعد الفترة التجريبية",
   "product_info.after": "بعد",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} مقابل {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} مقابل {{introPrice}}",
+  "product_info.intro_price_phase_paid_upfront_paid_once": "، تدفع مرة واحدة",
+  "pricing_table.intro_price_paid_recurring": "عرض تمهيدي لمدة {{introPriceDuration}}، يُدفع {{introPriceFrequency}}",
+  "pricing_table.intro_price_paid_once": "عرض تمهيدي لمدة {{introPriceDuration}}، يُدفع مرة واحدة",
+  "pricing_table.payment_cycle_length_and_duration": "لمدة {{introPriceDuration}}، يتم الدفع {{introPriceFrequency}}",
+  "pricing_table.from_date_paid_frequency": "من {{startDate}}، يتم الدفع {{basePriceFrequency}}"
 }

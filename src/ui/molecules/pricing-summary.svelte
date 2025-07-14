@@ -82,18 +82,32 @@
 
   {#if introPricePhase?.periodDuration}
     <div>
-      <Typography size={introTypographySize}>
-        <Localized
-          key={introPricePhase.cycleCount === 1
-            ? LocalizationKeys.ProductInfoIntroPricePhasePaidUpfront
-            : LocalizationKeys.ProductInfoIntroPricePhaseRecurring}
-          variables={{
-            introPriceDuration: introPriceDuration,
-            introPrice: formattedIntroPrice,
-          }}
-        />
-      </Typography>
-
+      {#if introPricePhase.cycleCount === 1}
+        <Typography size={introTypographySize}>
+          <Localized
+            key={LocalizationKeys.ProductInfoIntroPricePhasePaidUpfront}
+            variables={{
+              introPriceDuration: introPriceDuration,
+              introPrice: formattedIntroPrice,
+            }}
+          />
+        </Typography>
+        <Typography size="body-small">
+          <Localized
+            key={LocalizationKeys.ProductInfoIntroPricePhasePaidUpfrontPaidOnce}
+          />
+        </Typography>
+      {:else}
+        <Typography size={introTypographySize}>
+          <Localized
+            key={LocalizationKeys.ProductInfoIntroPricePhaseRecurring}
+            variables={{
+              introPriceDuration: introPriceDuration,
+              introPrice: formattedIntroPrice,
+            }}
+          />
+        </Typography>
+      {/if}
       {#if introPricePhase.cycleCount > 1 && introPricePhase.period}
         <Typography size="body-small">
           {$translator.translatePeriodFrequency(
@@ -101,12 +115,6 @@
             introPricePhase.period.unit,
             { useMultipleWords: true },
           )}
-        </Typography>
-      {/if}
-
-      {#if hasTrial}
-        <Typography size="body-small">
-          <Localized key={LocalizationKeys.ProductInfoAfterTrial} />
         </Typography>
       {/if}
     </div>

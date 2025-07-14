@@ -28,7 +28,7 @@
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
-  "product_info.free_trial_duration": "{{trialDuration}} ilmainen kokeilujakso",
+  "product_info.free_trial_duration": "Kokeile ilmaiseksi {{trialDuration}}",
   "product_info.price_after_free_trial": "Kokeilujakson päätyttyä, {{renewalDate}}",
   "product_info.renewal_frequency": "Uusiutuu {{frequency}}",
   "product_info.continues_until_cancelled": "Jatkuu, kunnes peruutetaan",
@@ -91,5 +91,10 @@
   "product_info.intro_price_phase_paid_upfront": "Ensimmäiset {{introPriceDuration}} hintaan {{introPrice}}",
   "product_info.after_trial": "kokeilujakson jälkeen",
   "product_info.after": "jälkeen",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} hintaan {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} hintaan {{introPrice}}",
+  "product_info.intro_price_phase_paid_upfront_paid_once": ", maksetaan kerran",
+  "pricing_table.intro_price_paid_recurring": "{{introPriceDuration}} tutustumistarjous, maksetaan {{introPriceFrequency}}",
+  "pricing_table.intro_price_paid_once": "{{introPriceDuration}} tutustumistarjous, maksetaan kerran",
+  "pricing_table.from_date_paid_frequency": "Alkaen {{startDate}}, maksetaan {{basePriceFrequency}}",
+  "pricing_table.payment_cycle_length_and_duration": "{{introPriceDuration}} ajan, maksetaan {{introPriceFrequency}}"
 }

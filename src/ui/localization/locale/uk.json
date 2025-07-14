@@ -28,7 +28,7 @@
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
-  "product_info.free_trial_duration": "{{trialDuration}} безкоштовний пробний період",
+  "product_info.free_trial_duration": "Спробуйте безкоштовно протягом {{trialDuration}}",
   "product_info.price_after_free_trial": "Після закінчення пробного періоду, {{renewalDate}}",
   "product_info.renewal_frequency": "Продовжується {{frequency}}",
   "product_info.continues_until_cancelled": "Триває до скасування",
@@ -91,5 +91,10 @@
   "product_info.intro_price_phase_paid_upfront": "Перші {{introPriceDuration}} за {{introPrice}}",
   "product_info.after_trial": "після пробного періоду",
   "product_info.after": "після",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} за {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} за {{introPrice}}",
+  "product_info.intro_price_phase_paid_upfront_paid_once": ", сплачено один раз",
+  "pricing_table.intro_price_paid_recurring": "Вступна пропозиція на період {{introPriceDuration}}, оплачується {{introPriceFrequency}}",
+  "pricing_table.intro_price_paid_once": "Вступна пропозиція на період {{introPriceDuration}}, оплачується один раз",
+  "pricing_table.from_date_paid_frequency": "З {{startDate}}, оплата {{basePriceFrequency}}",
+  "pricing_table.payment_cycle_length_and_duration": "протягом {{introPriceDuration}}, оплата {{introPriceFrequency}}"
 }

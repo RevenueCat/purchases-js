@@ -28,7 +28,7 @@
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
-  "product_info.free_trial_duration": "{{trialDuration}} próbaidőszak",
+  "product_info.free_trial_duration": "Próbáld ki ingyen {{trialDuration}} ideig",
   "product_info.price_after_free_trial": "A próbaidőszak vége után, {{renewalDate}}-kor",
   "product_info.renewal_frequency": "{{frequency}} gyakorisággal megújul",
   "product_info.continues_until_cancelled": "Folytatódik, amíg le nem mondják",
@@ -91,5 +91,10 @@
   "product_info.intro_price_phase_paid_upfront": "Az első {{introPriceDuration}} ára {{introPrice}}",
   "product_info.after_trial": "próbaidőszak után",
   "product_info.after": "utána",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} ideig {{introPrice}} áron"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} ideig {{introPrice}} áron",
+  "product_info.intro_price_phase_paid_upfront_paid_once": ", egyszeri fizetéssel",
+  "pricing_table.intro_price_paid_recurring": "{{introPriceDuration}} bevezető ajánlat, {{introPriceFrequency}} fizetéssel",
+  "pricing_table.intro_price_paid_once": "{{introPriceDuration}} bevezető ajánlat, egyszeri fizetéssel",
+  "pricing_table.from_date_paid_frequency": "{{startDate}} dátumtól, fizetve {{basePriceFrequency}}",
+  "pricing_table.payment_cycle_length_and_duration": "{{introPriceDuration}} ideig, fizetve {{introPriceFrequency}}"
 }

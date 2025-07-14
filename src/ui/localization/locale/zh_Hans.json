@@ -28,7 +28,7 @@
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
-  "product_info.free_trial_duration": "{{trialDuration}} 天免费试用",
+  "product_info.free_trial_duration": "免费试用 {{trialDuration}}",
   "product_info.price_after_free_trial": "试用期结束后，于 {{renewalDate}}",
   "product_info.renewal_frequency": "续订 {{frequency}}",
   "product_info.continues_until_cancelled": "持续到取消",
@@ -91,5 +91,10 @@
   "product_info.intro_price_phase_paid_upfront": "前{{introPriceDuration}}只需{{introPrice}}",
   "product_info.after_trial": "试用后",
   "product_info.after": "之后",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}}，价格为{{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}}，价格为{{introPrice}}",
+  "product_info.intro_price_phase_paid_upfront_paid_once": "，一次性支付",
+  "pricing_table.intro_price_paid_recurring": "{{introPriceDuration}} 体验价，每{{introPriceFrequency}}支付一次",
+  "pricing_table.intro_price_paid_once": "{{introPriceDuration}} 体验价，一次性支付",
+  "pricing_table.payment_cycle_length_and_duration": "在{{introPriceDuration}}内，每{{introPriceFrequency}}支付一次",
+  "pricing_table.from_date_paid_frequency": "从{{startDate}}起，已支付{{basePriceFrequency}}"
 }

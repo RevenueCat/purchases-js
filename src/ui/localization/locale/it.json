@@ -28,7 +28,7 @@
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
-  "product_info.free_trial_duration": "{{trialDuration}} prova gratuita",
+  "product_info.free_trial_duration": "Prova gratuita per {{trialDuration}}",
   "product_info.price_after_free_trial": "Dopo la fine della prova, il {{renewalDate}}",
   "product_info.renewal_frequency": "Si rinnova {{frequency}}",
   "product_info.continues_until_cancelled": "Continua fino a disdetta",
@@ -91,5 +91,10 @@
   "product_info.intro_price_phase_paid_upfront": "I primi {{introPriceDuration}} a {{introPrice}}",
   "product_info.intro_price_phase_recurring": "{{introPriceDuration}} a {{introPrice}}",
   "product_info.after_trial": "dopo il periodo di prova",
-  "product_info.after": "dopo"
+  "product_info.after": "dopo",
+  "product_info.intro_price_phase_paid_upfront_paid_once": ", pagato una volta",
+  "pricing_table.intro_price_paid_recurring": "Offerta introduttiva di {{introPriceDuration}}, pagata {{introPriceFrequency}}",
+  "pricing_table.intro_price_paid_once": "Offerta introduttiva di {{introPriceDuration}}, pagata una sola volta",
+  "pricing_table.payment_cycle_length_and_duration": "per {{introPriceDuration}}, pagato {{introPriceFrequency}}",
+  "pricing_table.from_date_paid_frequency": "A partire dal {{startDate}}, pagato {{basePriceFrequency}}"
 }

@@ -29,7 +29,7 @@
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
-  "product_info.free_trial_duration": "Δωρεάν για {{trialDuration}}",
+  "product_info.free_trial_duration": "Δοκιμάστε δωρεάν για {{trialDuration}}",
   "product_info.price_after_free_trial": "Μετά τη λήξη της δοκιμής, στις {{renewalDate}}",
   "product_info.total_due_today": "Σύνολο πληρωτέο σήμερα",
   "product_info.renewal_frequency": "Ανανεώνεται {{frequency}}",
@@ -91,5 +91,10 @@
   "product_info.intro_price_phase_paid_upfront": "Πρώτα {{introPriceDuration}} για {{introPrice}}",
   "product_info.after_trial": "μετά τη δοκιμή",
   "product_info.after": "μετά",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} για {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} για {{introPrice}}",
+  "product_info.intro_price_phase_paid_upfront_paid_once": ", πληρωμένο εφάπαξ",
+  "pricing_table.intro_price_paid_once": "{{introPriceDuration}} εισαγωγική προσφορά, πληρωμή εφάπαξ",
+  "pricing_table.intro_price_paid_recurring": "{{introPriceDuration}} εισαγωγική προσφορά, πληρωμή {{introPriceFrequency}}",
+  "pricing_table.from_date_paid_frequency": "Από {{startDate}}, πληρωμένο {{basePriceFrequency}}",
+  "pricing_table.payment_cycle_length_and_duration": "για {{introPriceDuration}}, πληρωμένο {{introPriceFrequency}}"
 }

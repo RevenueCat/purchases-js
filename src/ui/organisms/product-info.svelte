@@ -31,7 +31,7 @@
       {introPricePhase}
     />
   </div>
-  <PricingTable {priceBreakdown} {trialPhase} />
+  <PricingTable {basePhase} {priceBreakdown} {trialPhase} {introPricePhase} />
 </div>
 
 <style>

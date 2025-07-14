@@ -28,7 +28,7 @@
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
-  "product_info.free_trial_duration": "{{trialDuration}} ניסיון חינם",
+  "product_info.free_trial_duration": "נסה בחינם למשך {{trialDuration}}",
   "product_info.price_after_free_trial": "לאחר סיום הניסיון, ב-{{renewalDate}}",
   "product_info.renewal_frequency": "מתחדש {{frequency}}",
   "product_info.continues_until_cancelled": "נמשך עד ביטול",
@@ -91,5 +91,10 @@
   "product_info.intro_price_phase_paid_upfront": "{{introPriceDuration}} ראשונים עבור {{introPrice}}",
   "product_info.after_trial": "אחרי תקופת ניסיון",
   "product_info.after": "אחרי",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} עבור {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} עבור {{introPrice}}",
+  "product_info.intro_price_phase_paid_upfront_paid_once": ", משולם פעם אחת",
+  "pricing_table.intro_price_paid_once": "הצעת היכרות של {{introPriceDuration}}, משולם פעם אחת",
+  "pricing_table.intro_price_paid_recurring": "הצעת היכרות של {{introPriceDuration}}, משולם {{introPriceFrequency}}",
+  "pricing_table.from_date_paid_frequency": "מ-{{startDate}}, משולם {{basePriceFrequency}}",
+  "pricing_table.payment_cycle_length_and_duration": "עבור {{introPriceDuration}}, משולם {{introPriceFrequency}}"
 }

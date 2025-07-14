@@ -28,7 +28,7 @@
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
-  "product_info.free_trial_duration": "{{trialDuration}} dùng thử miễn phí",
+  "product_info.free_trial_duration": "Dùng thử miễn phí trong {{trialDuration}}",
   "product_info.price_after_free_trial": "Sau khi dùng thử kết thúc, vào {{renewalDate}}",
   "product_info.renewal_frequency": "Gia hạn {{frequency}}",
   "product_info.continues_until_cancelled": "Tiếp tục cho đến khi hủy",
@@ -91,5 +91,10 @@
   "product_info.intro_price_phase_paid_upfront": "{{introPriceDuration}} đầu tiên với giá {{introPrice}}",
   "product_info.after_trial": "sau khi dùng thử",
   "product_info.after": "sau",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} với giá {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} với giá {{introPrice}}",
+  "product_info.intro_price_phase_paid_upfront_paid_once": ", trả một lần",
+  "pricing_table.from_date_paid_frequency": "Từ {{startDate}}, thanh toán {{basePriceFrequency}}",
+  "pricing_table.payment_cycle_length_and_duration": "cho {{introPriceDuration}}, thanh toán {{introPriceFrequency}}",
+  "pricing_table.intro_price_paid_once": "Ưu đãi giới thiệu {{introPriceDuration}}, thanh toán một lần",
+  "pricing_table.intro_price_paid_recurring": "Ưu đãi giới thiệu {{introPriceDuration}}, thanh toán {{introPriceFrequency}}"
 }

@@ -28,7 +28,7 @@
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
-  "product_info.free_trial_duration": "{{trialDuration}} gratis provperiod",
+  "product_info.free_trial_duration": "Prova gratis i {{trialDuration}}",
   "product_info.price_after_free_trial": "Efter provperioden slutar, den {{renewalDate}}",
   "product_info.renewal_frequency": "Förnyas {{frequency}}",
   "product_info.continues_until_cancelled": "Gäller tills avbokad",
@@ -91,5 +91,10 @@
   "product_info.intro_price_phase_paid_upfront": "Första {{introPriceDuration}} för {{introPrice}}",
   "product_info.after_trial": "efter provperioden",
   "product_info.after": "efter",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} för {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} för {{introPrice}}",
+  "product_info.intro_price_phase_paid_upfront_paid_once": ", betalas en gång",
+  "pricing_table.from_date_paid_frequency": "Från {{startDate}}, betalas {{basePriceFrequency}}",
+  "pricing_table.payment_cycle_length_and_duration": "för {{introPriceDuration}}, betalas {{introPriceFrequency}}",
+  "pricing_table.intro_price_paid_once": "{{introPriceDuration}} introduktionserbjudande, betalas en gång",
+  "pricing_table.intro_price_paid_recurring": "{{introPriceDuration}} introduktionserbjudande, betalas {{introPriceFrequency}}"
 }

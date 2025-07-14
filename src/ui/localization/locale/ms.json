@@ -28,7 +28,7 @@
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
-  "product_info.free_trial_duration": "{{trialDuration}} percubaan percuma",
+  "product_info.free_trial_duration": "Cuba percuma selama {{trialDuration}}",
   "product_info.price_after_free_trial": "Selepas tamat percubaan, pada {{renewalDate}}",
   "product_info.renewal_frequency": "Diperbaharui {{frequency}}",
   "product_info.continues_until_cancelled": "Berterusan sehingga dibatalkan",
@@ -91,5 +91,10 @@
   "product_info.intro_price_phase_paid_upfront": "Pertama {{introPriceDuration}} untuk {{introPrice}}",
   "product_info.after_trial": "selepas percubaan",
   "product_info.after": "selepas",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} untuk {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} untuk {{introPrice}}",
+  "product_info.intro_price_phase_paid_upfront_paid_once": ", dibayar sekali",
+  "pricing_table.intro_price_paid_recurring": "Tawaran pengenalan {{introPriceDuration}}, dibayar {{introPriceFrequency}}",
+  "pricing_table.intro_price_paid_once": "Tawaran pengenalan {{introPriceDuration}}, dibayar sekali",
+  "pricing_table.from_date_paid_frequency": "Dari {{startDate}}, dibayar {{basePriceFrequency}}",
+  "pricing_table.payment_cycle_length_and_duration": "untuk {{introPriceDuration}}, dibayar {{introPriceFrequency}}"
 }

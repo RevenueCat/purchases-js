@@ -10,13 +10,30 @@
   import PricingDropdown from "./pricing-dropdown.svelte";
   import Skeleton from "../atoms/skeleton.svelte";
   import Typography from "../atoms/typography.svelte";
+  import {
+    getTranslatedPeriodFrequency,
+    getTranslatedPeriodLength,
+    getTranslatedPeriodLengthFromPeriod,
+  } from "../../helpers/price-labels";
+
+  // TODO
+  // Confirm row ordering
+  // Confirm haven't broken existing
+  // Walk through each condition and look for improvements
+  // Localize all new strings
+  // Dedupe?
+  // pricing summary stories
+  // product info stories
 
   interface Props {
     priceBreakdown: PriceBreakdown;
+    basePhase: PricingPhase | null;
     trialPhase: PricingPhase | null;
+    introPricePhase: PricingPhase | null;
   }
 
-  const { priceBreakdown, trialPhase }: Props = $props();
+  const { basePhase, priceBreakdown, trialPhase, introPricePhase }: Props =
+    $props();
 
   let trialEndDate = $state<Date | null>(null);
   if (trialPhase?.period) {
@@ -31,10 +48,125 @@
       priceBreakdown.taxBreakdown &&
       priceBreakdown.taxBreakdown.length > 0,
   );
+
+  const hasIntroPrice = $derived(introPricePhase?.periodDuration);
+
+  const formattedPrice = $derived(
+    $translator.formatPrice(
+      hasIntroPrice
+        ? (basePhase?.price?.amountMicros ?? 0)
+        : priceBreakdown.totalAmountInMicros,
+      priceBreakdown.currency,
+    ),
+  );
+
+  let introPriceEndDate = $state<Date | null>(null);
+  if (introPricePhase?.period) {
+    introPriceEndDate = getNextRenewalDate(
+      new Date(),
+      {
+        ...introPricePhase.period,
+        number: introPricePhase.cycleCount,
+      },
+      true,
+    );
+  }
 </script>
 
 {#snippet pricingTable()}
   <div class="rcb-pricing-table">
+    {#if trialEndDate}
+      <div class="rcb-pricing-table-row">
+        <div class="rcb-pricing-table-header">
+          <Typography size="body-small">
+            {$translator.translate(LocalizationKeys.PricingTableTrialEnds, {
+              formattedTrialEndDate: $translator.translateDate(trialEndDate, {
+                dateStyle: "medium",
+              }),
+            })}
+            {#if introPricePhase?.periodDuration && introPricePhase.cycleCount === 1}
+              <Typography size="body-small">
+                {$translator.translate(
+                  LocalizationKeys.ProductInfoIntroPricePhasePaidUpfrontPaidOnce,
+                )}
+              </Typography>
+            {/if}
+            {#if introPricePhase?.period && introPricePhase?.periodDuration && introPricePhase.cycleCount > 1}
+              <Typography size="body-small">
+                {$translator.translate(
+                  LocalizationKeys.PricingTablePaymentCycleLengthAndDuration,
+                  {
+                    introPriceDuration: getTranslatedPeriodLengthFromPeriod(
+                      {
+                        ...introPricePhase.period,
+                        number: introPricePhase.cycleCount,
+                      },
+                      $translator,
+                    ),
+                    introPriceFrequency: getTranslatedPeriodFrequency(
+                      introPricePhase.periodDuration,
+                      $translator,
+                    ),
+                  },
+                )}
+              </Typography>
+            {/if}
+          </Typography>
+        </div>
+        <div class="rcb-pricing-table-value">
+          <Typography size="body-small">
+            {$translator.formatPrice(
+              priceBreakdown.totalAmountInMicros,
+              priceBreakdown.currency,
+            )}
+          </Typography>
+        </div>
+      </div>
+    {:else if introPricePhase?.periodDuration}
+      <div class="rcb-pricing-table-row">
+        <div class="rcb-pricing-table-header">
+          {#if introPricePhase.cycleCount === 1}
+            <Typography size="body-small">
+              {$translator.translate(
+                LocalizationKeys.PricingTableIntroPricePaidOnce,
+                {
+                  introPriceDuration: getTranslatedPeriodLength(
+                    introPricePhase.periodDuration,
+                    $translator,
+                  ),
+                },
+              )}
+            </Typography>
+          {/if}
+
+          {#if introPricePhase.period && introPricePhase.cycleCount > 1}
+            <Typography size="body-small">
+              {$translator.translate(
+                LocalizationKeys.PricingTableIntroPricePaidRecurring,
+                {
+                  introPriceDuration: getTranslatedPeriodLengthFromPeriod(
+                    {
+                      ...introPricePhase.period,
+                      number: introPricePhase.cycleCount,
+                    },
+                    $translator,
+                  ),
+                  introPriceFrequency: getTranslatedPeriodFrequency(
+                    introPricePhase.periodDuration,
+                    $translator,
+                  ),
+                },
+              )}
+            </Typography>
+          {/if}
+        </div>
+        <div class="rcb-pricing-table-value">
+          <Typography size="body-small">
+            {introPricePhase.price?.formattedPrice}
+          </Typography>
+        </div>
+      </div>
+    {/if}
     {#if showTaxBreakdown}
       <div class="rcb-pricing-table-row">
         <div class="rcb-pricing-table-header">
@@ -99,32 +231,33 @@
           </div>
         {/each}
       {/if}
-
-      <div class="rcb-pricing-table-separator"></div>
     {/if}
-
-    {#if trialEndDate}
+    {#if introPriceEndDate}
       <div class="rcb-pricing-table-row">
         <div class="rcb-pricing-table-header">
           <Typography size="body-small">
-            {$translator.translate(LocalizationKeys.PricingTableTrialEnds, {
-              formattedTrialEndDate: $translator.translateDate(trialEndDate, {
-                dateStyle: "medium",
-              }),
-            })}
+            {$translator.translate(
+              LocalizationKeys.PricingTableFromDatePaidFrequency,
+              {
+                startDate: $translator.translateDate(introPriceEndDate, {
+                  dateStyle: "medium",
+                }),
+                basePriceFrequency: getTranslatedPeriodFrequency(
+                  basePhase?.periodDuration ?? "",
+                  $translator,
+                ),
+              },
+            )}
           </Typography>
         </div>
         <div class="rcb-pricing-table-value">
           <Typography size="body-small">
-            {$translator.formatPrice(
-              priceBreakdown.totalAmountInMicros,
-              priceBreakdown.currency,
-            )}
+            {formattedPrice}
           </Typography>
         </div>
       </div>
     {/if}
-
+    <div class="rcb-pricing-table-separator"></div>
     <div class="rcb-pricing-table-row rcb-header">
       <div class="rcb-pricing-table-header">
         <Typography size="body-small">

@@ -28,7 +28,7 @@
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
-  "product_info.free_trial_duration": "{{trialDuration}}일 무료 체험",
+  "product_info.free_trial_duration": "{{trialDuration}} 동안 무료로 사용해 보세요",
   "product_info.price_after_free_trial": "체험 종료 후, {{renewalDate}}에",
   "product_info.renewal_frequency": "{{frequency}}마다 갱신",
   "product_info.continues_until_cancelled": "취소될 때까지 계속됩니다.",
@@ -91,5 +91,10 @@
   "product_info.intro_price_phase_paid_upfront": "처음 {{introPriceDuration}} 동안 {{introPrice}}",
   "product_info.after_trial": "체험 후",
   "product_info.after": "후",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} 동안 {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} 동안 {{introPrice}}",
+  "product_info.intro_price_phase_paid_upfront_paid_once": ", 한 번 결제",
+  "pricing_table.intro_price_paid_once": "{{introPriceDuration}} 특별 가격, 1회 결제",
+  "pricing_table.intro_price_paid_recurring": "{{introPriceDuration}} 특별 가격, {{introPriceFrequency}}마다 결제",
+  "pricing_table.from_date_paid_frequency": "{{startDate}}부터, {{basePriceFrequency}} 지불",
+  "pricing_table.payment_cycle_length_and_duration": "{{introPriceDuration}} 동안, {{introPriceFrequency}} 지불"
 }

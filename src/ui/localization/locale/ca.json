@@ -28,7 +28,7 @@
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
-  "product_info.free_trial_duration": "{{trialDuration}} de prova gratuïta",
+  "product_info.free_trial_duration": "Prova-ho gratis durant {{trialDuration}}",
   "product_info.price_after_free_trial": "Després del període de prova, el {{renewalDate}}",
   "product_info.renewal_frequency": "Es renova {{frequency}}",
   "product_info.continues_until_cancelled": "Continua fins que es cancel·li",
@@ -91,5 +91,10 @@
   "product_info.intro_price_phase_paid_upfront": "Primer {{introPriceDuration}} per {{introPrice}}",
   "product_info.after_trial": "després del període de prova",
   "product_info.after": "després de",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} per {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} per {{introPrice}}",
+  "product_info.intro_price_phase_paid_upfront_paid_once": ", pagat una vegada",
+  "pricing_table.intro_price_paid_recurring": "Oferta de presentació de {{introPriceDuration}}, pagada {{introPriceFrequency}}",
+  "pricing_table.intro_price_paid_once": "Oferta de presentació de {{introPriceDuration}}, pagada una vegada",
+  "pricing_table.payment_cycle_length_and_duration": "durant {{introPriceDuration}}, pagat {{introPriceFrequency}}",
+  "pricing_table.from_date_paid_frequency": "Des de {{startDate}}, pagat {{basePriceFrequency}}"
 }

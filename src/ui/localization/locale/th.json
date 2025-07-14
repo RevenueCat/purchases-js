@@ -28,7 +28,7 @@
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
-  "product_info.free_trial_duration": "{{trialDuration}} ทดลองใช้ฟรี",
+  "product_info.free_trial_duration": "ทดลองใช้ฟรีเป็นเวลา {{trialDuration}}",
   "product_info.price_after_free_trial": "หลังจากสิ้นสุดการทดลองใช้ ในวันที่ {{renewalDate}}",
   "product_info.renewal_frequency": "ต่ออายุ {{frequency}}",
   "product_info.continues_until_cancelled": "ต่อเนื่องจนกว่าจะยกเลิก",
@@ -91,5 +91,10 @@
   "product_info.intro_price_phase_paid_upfront": "{{introPriceDuration}} แรกในราคา {{introPrice}}",
   "product_info.after_trial": "หลังช่วงทดลองใช้",
   "product_info.after": "หลังจาก",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} ในราคา {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} ในราคา {{introPrice}}",
+  "product_info.intro_price_phase_paid_upfront_paid_once": ", ชำระครั้งเดียว",
+  "pricing_table.from_date_paid_frequency": "ตั้งแต่วันที่ {{startDate}} ชำระเงิน {{basePriceFrequency}}",
+  "pricing_table.payment_cycle_length_and_duration": "เป็นเวลา {{introPriceDuration}} ชำระเงิน {{introPriceFrequency}}",
+  "pricing_table.intro_price_paid_once": "ข้อเสนอเบื้องต้น {{introPriceDuration}} ชำระครั้งเดียว",
+  "pricing_table.intro_price_paid_recurring": "ข้อเสนอเบื้องต้น {{introPriceDuration}} ชำระ {{introPriceFrequency}}"
 }

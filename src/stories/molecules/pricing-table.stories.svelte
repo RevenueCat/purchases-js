@@ -39,6 +39,8 @@
   <PricingTable
     priceBreakdown={args.priceBreakdown ?? priceBreakdownTaxDisabled}
     trialPhase={args.trialPhase ?? null}
+    basePhase={args.basePhase ?? null}
+    introPricePhase={args.introPricePhase ?? null}
   />
 {/snippet}
 

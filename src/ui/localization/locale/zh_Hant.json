@@ -28,7 +28,7 @@
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
-  "product_info.free_trial_duration": "{{trialDuration}} 天免費試用",
+  "product_info.free_trial_duration": "免費試用 {{trialDuration}}",
   "product_info.price_after_free_trial": "試用期結束後，於 {{renewalDate}}",
   "product_info.renewal_frequency": "每 {{frequency}} 續約",
   "product_info.continues_until_cancelled": "持續到取消",
@@ -91,5 +91,10 @@
   "product_info.intro_price_phase_paid_upfront": "首 {{introPriceDuration}} 為 {{introPrice}}",
   "product_info.after_trial": "試用期後",
   "product_info.after": "之後",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}}，價格為{{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}}，價格為{{introPrice}}",
+  "product_info.intro_price_phase_paid_upfront_paid_once": "，一次性付款",
+  "pricing_table.intro_price_paid_recurring": "{{introPriceDuration}} 優惠價格，每 {{introPriceFrequency}} 支付一次",
+  "pricing_table.intro_price_paid_once": "{{introPriceDuration}} 首次優惠價格，一次性支付",
+  "pricing_table.payment_cycle_length_and_duration": "於 {{introPriceDuration}} 內，每 {{introPriceFrequency}} 付款",
+  "pricing_table.from_date_paid_frequency": "從 {{startDate}} 起，已支付 {{basePriceFrequency}}"
 }

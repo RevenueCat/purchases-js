@@ -28,7 +28,7 @@
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
-  "product_info.free_trial_duration": "{{trialDuration}} ücretsiz deneme",
+  "product_info.free_trial_duration": "{{trialDuration}} boyunca ücretsiz deneyin",
   "product_info.price_after_free_trial": "Deneme süresi sona erdiğinde, {{renewalDate}} tarihinde",
   "product_info.renewal_frequency": "{{frequency}} sıklığında yenilenir",
   "product_info.continues_until_cancelled": "İptal edilene kadar devam eder",
@@ -91,5 +91,10 @@
   "product_info.intro_price_phase_paid_upfront": "İlk {{introPriceDuration}} için {{introPrice}}",
   "product_info.after_trial": "deneme süresinden sonra",
   "product_info.after": "sonra",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} boyunca {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} boyunca {{introPrice}}",
+  "product_info.intro_price_phase_paid_upfront_paid_once": ", bir defaya mahsus ödeme",
+  "pricing_table.intro_price_paid_recurring": "{{introPriceDuration}} tanıtım teklifi, {{introPriceFrequency}} başına ödenir",
+  "pricing_table.intro_price_paid_once": "{{introPriceDuration}} tanıtım teklifi, bir kez ödenir",
+  "pricing_table.from_date_paid_frequency": "{{startDate}} tarihinden itibaren, {{basePriceFrequency}} ödendi",
+  "pricing_table.payment_cycle_length_and_duration": "{{introPriceDuration}} için, {{introPriceFrequency}} ödendi"
 }

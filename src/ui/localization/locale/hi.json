@@ -91,5 +91,10 @@
   "product_info.intro_price_phase_paid_upfront": "पहले {{introPriceDuration}} के लिए {{introPrice}}",
   "product_info.after_trial": "ट्रायल के बाद",
   "product_info.after": "के बाद",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} के लिए {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} के लिए {{introPrice}}",
+  "product_info.intro_price_phase_paid_upfront_paid_once": ", एक बार भुगतान किया गया",
+  "pricing_table.from_date_paid_frequency": "{{startDate}} से, {{basePriceFrequency}} भुगतान किया गया",
+  "pricing_table.payment_cycle_length_and_duration": "{{introPriceDuration}} के लिए, {{introPriceFrequency}} भुगतान किया गया",
+  "pricing_table.intro_price_paid_recurring": "{{introPriceDuration}} परिचयात्मक प्रस्ताव, {{introPriceFrequency}} भुगतान किया गया",
+  "pricing_table.intro_price_paid_once": "{{introPriceDuration}} परिचयात्मक प्रस्ताव, एक बार भुगतान किया गया"
 }

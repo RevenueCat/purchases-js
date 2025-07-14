@@ -28,7 +28,7 @@
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
-  "product_info.free_trial_duration": "{{trialDuration}}日間無料トライアル",
+  "product_info.free_trial_duration": "{{trialDuration}}間無料でお試し",
   "product_info.price_after_free_trial": "トライアル終了後、{{renewalDate}}に",
   "product_info.renewal_frequency": "{{frequency}}で更新",
   "product_info.continues_until_cancelled": "キャンセルされるまで継続されます",
@@ -91,5 +91,10 @@
   "product_info.intro_price_phase_paid_upfront": "最初の{{introPriceDuration}}は{{introPrice}}",
   "product_info.after_trial": "トライアル後",
   "product_info.after": "後",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}}間{{introPrice}}でお試し"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}}間{{introPrice}}でお試し",
+  "product_info.intro_price_phase_paid_upfront_paid_once": "、1回払い",
+  "pricing_table.intro_price_paid_recurring": "{{introPriceDuration}} のお試し価格、{{introPriceFrequency}} ごとに支払い",
+  "pricing_table.intro_price_paid_once": "{{introPriceDuration}} のお試し価格、1 回のみ",
+  "pricing_table.from_date_paid_frequency": "{{startDate}}から、{{basePriceFrequency}}ごとに支払い",
+  "pricing_table.payment_cycle_length_and_duration": "{{introPriceDuration}}間、{{introPriceFrequency}}ごとに支払い"
 }

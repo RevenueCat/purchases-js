@@ -1,4 +1,4 @@
-import { parseISODuration } from "./duration-helper";
+import { parseISODuration, type Period } from "./duration-helper";
 import { type Translator } from "../ui/localization/translator";
 
 import { LocalizationKeys } from "../ui/localization/supportedLanguages";
@@ -57,6 +57,13 @@ export const getTranslatedPeriodLength = (
     return isoPeriodString;
   }
 
+  return getTranslatedPeriodLengthFromPeriod(period, translator);
+};
+
+export const getTranslatedPeriodLengthFromPeriod = (
+  period: Period,
+  translator: Translator,
+): string => {
   return (
     translator.translatePeriod(period.number, period.unit) ||
     `${period.number} ${period.unit}s`

@@ -28,7 +28,7 @@
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
-  "product_info.free_trial_duration": "{{trialDuration}} perioadă de probă gratuită",
+  "product_info.free_trial_duration": "Încearcă gratuit timp de {{trialDuration}}",
   "product_info.price_after_free_trial": "După terminarea perioadei de probă, pe {{renewalDate}}",
   "product_info.renewal_frequency": "Se reînnoiește {{frequency}}",
   "product_info.continues_until_cancelled": "Continuă până la anulare",
@@ -91,5 +91,10 @@
   "product_info.intro_price_phase_paid_upfront": "Primele {{introPriceDuration}} pentru {{introPrice}}",
   "product_info.after_trial": "după perioada de probă",
   "product_info.after": "după",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} pentru {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} pentru {{introPrice}}",
+  "product_info.intro_price_phase_paid_upfront_paid_once": ", plătit o singură dată",
+  "pricing_table.intro_price_paid_once": "Ofertă introductivă de {{introPriceDuration}}, plătită o singură dată",
+  "pricing_table.intro_price_paid_recurring": "Ofertă introductivă de {{introPriceDuration}}, plătită {{introPriceFrequency}}",
+  "pricing_table.from_date_paid_frequency": "Din {{startDate}}, plătit {{basePriceFrequency}}",
+  "pricing_table.payment_cycle_length_and_duration": "pentru {{introPriceDuration}}, plătit {{introPriceFrequency}}"
 }
