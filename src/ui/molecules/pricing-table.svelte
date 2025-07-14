@@ -17,7 +17,7 @@
   } from "../../helpers/price-labels";
 
   // TODO
-  // Confirm row ordering
+  // Confirm row ordering (including split line, its wrong in some cases - lots of stories changed)
   // Confirm haven't broken existing
   // Walk through each condition and look for improvements
   // Localize all new strings
@@ -66,11 +66,18 @@
       new Date(),
       {
         ...introPricePhase.period,
-        number: introPricePhase.cycleCount,
+        number: introPricePhase.cycleCount * introPricePhase.period.number,
       },
       true,
     );
   }
+
+  const formattedIntroPrice = $derived(
+    $translator.formatPrice(
+      priceBreakdown.totalAmountInMicros,
+      priceBreakdown.currency,
+    ),
+  );
 </script>
 
 {#snippet pricingTable()}
@@ -99,7 +106,9 @@
                     introPriceDuration: getTranslatedPeriodLengthFromPeriod(
                       {
                         ...introPricePhase.period,
-                        number: introPricePhase.cycleCount,
+                        number:
+                          introPricePhase.cycleCount *
+                          introPricePhase.period.number,
                       },
                       $translator,
                     ),
@@ -147,7 +156,9 @@
                   introPriceDuration: getTranslatedPeriodLengthFromPeriod(
                     {
                       ...introPricePhase.period,
-                      number: introPricePhase.cycleCount,
+                      number:
+                        introPricePhase.cycleCount *
+                        introPricePhase.period.number,
                     },
                     $translator,
                   ),
@@ -162,7 +173,7 @@
         </div>
         <div class="rcb-pricing-table-value">
           <Typography size="body-small">
-            {introPricePhase.price?.formattedPrice}
+            {formattedIntroPrice}
           </Typography>
         </div>
       </div>

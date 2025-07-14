@@ -99,6 +99,8 @@
         </Typography>
       {:else}
         <Typography size={introTypographySize}>
+          <!-- TODO: Localize this -->
+          Then
           <Localized
             key={LocalizationKeys.ProductInfoIntroPricePhaseRecurring}
             variables={{
