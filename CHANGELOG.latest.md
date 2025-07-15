@@ -1,8 +1,8 @@
 ## RevenueCat SDK
 ### ✨ New Features
-* Prefer provided email for wallet payments (#538) via Nicola Sacco (@nicfix)
+* [WEB-2193] Add Intro Price Support (#536) via Antonio Borrero Granell (@antoniobg)
 ### 🐞 Bugfixes
-* Fixed the package.json to actually use the https config file (#539) via Nicola Sacco (@nicfix)
+* Improve storybook coverage for intro offers payment page (#545) via James O'Donnell (@james-od)
 
 ### 🔄 Other Changes
-* Mkcert for local wallets (#525) via Nicola Sacco (@nicfix)
+* Bump danger from 9.5.1 to 9.5.3 (#541) via dependabot[bot] (@dependabot[bot])
