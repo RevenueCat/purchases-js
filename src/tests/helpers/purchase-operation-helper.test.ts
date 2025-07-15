@@ -583,6 +583,9 @@ describe("PurchaseOperationHelper", () => {
         status: CheckoutSessionStatus.Succeeded,
         is_expired: false,
         error: null,
+        store_transaction_identifier: "test-store-transaction-id",
+        product_identifier: "test-product_identifier",
+        purchase_date: "2025-07-15T00:00:00Z",
       },
     };
     setGetCheckoutStatusResponse(
@@ -617,6 +620,9 @@ describe("PurchaseOperationHelper", () => {
         redemption_info: {
           redeem_url: "test-url://redeem_my_rcb?token=1234",
         },
+        store_transaction_identifier: "test-store-transaction-id",
+        product_identifier: "test-product_identifier",
+        purchase_date: "2025-07-15T00:00:00Z",
       },
     };
     setGetCheckoutStatusResponse(
@@ -639,6 +645,50 @@ describe("PurchaseOperationHelper", () => {
       "test-url://redeem_my_rcb?token=1234",
     );
     expect(pollResult.operationSessionId).toEqual(operationSessionId);
+    expect(pollResult.storeTransactionIdentifier).toEqual(
+      "test-store-transaction-id",
+    );
+    expect(pollResult.productIdentifier).toEqual("test-product_identifier");
+    expect(pollResult.purchaseDate).toEqual(new Date("2025-07-15T00:00:00Z"));
+  });
+
+  test("pollCurrentPurchaseForCompletion success with missing info in poll returns error", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    const getCheckoutStatusResponse: CheckoutStatusResponse = {
+      operation: {
+        status: CheckoutSessionStatus.Succeeded,
+        is_expired: false,
+        error: null,
+        redemption_info: {
+          redeem_url: "test-url://redeem_my_rcb?token=1234",
+        },
+      },
+    };
+    setGetCheckoutStatusResponse(
+      HttpResponse.json(getCheckoutStatusResponse, { status: StatusCodes.OK }),
+    );
+
+    await purchaseOperationHelper.checkoutStart(
+      "test-app-user-id",
+      "test-product-id",
+      { id: "test-option-id", priceId: "test-price-id" },
+      {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    );
+    await expectPromiseToPurchaseFlowError(
+      purchaseOperationHelper.pollCurrentPurchaseForCompletion(),
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.UnknownError,
+        "Missing required fields in operation response.",
+      ),
+    );
   });
 
   test("pollCurrentPurchaseForCompletion fails if poll returns in progress more times than retries", async () => {

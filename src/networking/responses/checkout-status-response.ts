@@ -27,6 +27,9 @@ export interface CheckoutStatusInnerResponse {
   readonly is_expired: boolean;
   readonly error?: CheckoutStatusError | null;
   readonly redemption_info?: CheckoutStatusRedemptionInfo | null;
+  readonly store_transaction_identifier?: string | null;
+  readonly product_identifier?: string | null;
+  readonly purchase_date?: string | null;
 }
 
 export interface CheckoutStatusResponse {

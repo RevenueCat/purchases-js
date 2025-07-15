@@ -17,6 +17,7 @@ import { RC_ENDPOINT } from "./helpers/constants";
 import { Backend } from "./networking/backend";
 import { isSandboxApiKey } from "./helpers/api-key-helper";
 import {
+  type OperationSessionSuccessfulResult,
   type PurchaseFlowError,
   PurchaseOperationHelper,
 } from "./helpers/purchase-operation-helper";
@@ -41,7 +42,6 @@ import {
   findOfferingByPlacementId,
   toOfferings,
 } from "./helpers/offerings-parser";
-import { type RedemptionInfo } from "./entities/redemption-info";
 import { type PurchaseResult } from "./entities/purchase-result";
 import { mount, unmount } from "svelte";
 import { type RenderPaywallParams } from "./entities/render-paywall-params";
@@ -105,6 +105,7 @@ export {
   UninitializedPurchasesError,
 } from "./entities/errors";
 export type { PurchasesErrorExtra } from "./entities/errors";
+export type { StoreTransaction } from "./entities/store-transaction";
 export { PeriodUnit } from "./helpers/duration-helper";
 export type { Period } from "./helpers/duration-helper";
 export type { HttpConfig } from "./entities/http-config";
@@ -322,10 +323,8 @@ export class Purchases {
   }
 
   /** @internal */
-  private fetchAndCacheBrandingInfo(): Promise<void> {
-    return this.backend.getBrandingInfo().then((brandingInfo) => {
-      this._brandingInfo = brandingInfo;
-    });
+  private async fetchAndCacheBrandingInfo(): Promise<void> {
+    this._brandingInfo = await this.backend.getBrandingInfo();
   }
 
   /** @internal */
@@ -716,11 +715,10 @@ export class Purchases {
       }
 
       const onFinished = async (
-        operationSessionId: string,
-        redemptionInfo: RedemptionInfo | null,
+        operationResult: OperationSessionSuccessfulResult,
       ) => {
         const event = createCheckoutSessionEndFinishedEvent({
-          redemptionInfo,
+          redemptionInfo: operationResult.redemptionInfo,
         });
         this.eventsTracker.trackSDKEvent(event);
         Logger.debugLog("Purchase finished");
@@ -730,11 +728,15 @@ export class Purchases {
         }
 
         certainHTMLTarget.innerHTML = "";
-        // TODO: Add info about transaction in result.
         const purchaseResult: PurchaseResult = {
           customerInfo: await this._getCustomerInfoForUserId(appUserId),
-          redemptionInfo: redemptionInfo,
-          operationSessionId: operationSessionId,
+          redemptionInfo: operationResult.redemptionInfo,
+          operationSessionId: operationResult.operationSessionId,
+          storeTransaction: {
+            storeTransactionId: operationResult.storeTransactionIdentifier,
+            productIdentifier: rcPackage.webBillingProduct.identifier,
+            purchaseDate: operationResult.purchaseDate,
+          },
         };
         resolve(purchaseResult);
       };
