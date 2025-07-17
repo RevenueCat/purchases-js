@@ -585,7 +585,7 @@ describe("PurchaseOperationHelper", () => {
         error: null,
         store_transaction_identifier: "test-store-transaction-id",
         product_identifier: "test-product_identifier",
-        purchase_date: "2025-07-15T00:00:00Z",
+        purchase_date: "2025-07-15T04:21:11Z",
       },
     };
     setGetCheckoutStatusResponse(
@@ -622,7 +622,7 @@ describe("PurchaseOperationHelper", () => {
         },
         store_transaction_identifier: "test-store-transaction-id",
         product_identifier: "test-product_identifier",
-        purchase_date: "2025-07-15T00:00:00Z",
+        purchase_date: "2025-07-15T04:21:11Z",
       },
     };
     setGetCheckoutStatusResponse(
@@ -649,7 +649,7 @@ describe("PurchaseOperationHelper", () => {
       "test-store-transaction-id",
     );
     expect(pollResult.productIdentifier).toEqual("test-product_identifier");
-    expect(pollResult.purchaseDate).toEqual(new Date("2025-07-15T00:00:00Z"));
+    expect(pollResult.purchaseDate).toEqual(new Date("2025-07-15T04:21:11Z"));
   });
 
   test("pollCurrentPurchaseForCompletion success with missing info in poll returns error", async () => {
