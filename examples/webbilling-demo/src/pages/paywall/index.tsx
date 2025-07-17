@@ -203,22 +203,26 @@ const PaywallPage: React.FC = () => {
 
     // How do we complete the purchase?
     try {
-      const { customerInfo, redemptionInfo } = await purchases.purchase({
-        rcPackage: pkg,
-        purchaseOption: option,
-        selectedLocale: lang || navigator.language,
-        customerEmail: email || undefined,
-        skipSuccessPage: skipSuccessPage,
-        // @ts-expect-error This method is marked as internal for now but it's public.'
-        labelsOverride: {
-          en: {
-            "payment_entry_page.button_start_trial":
-              "Start {{trialPeriodLabel}} free",
+      const { customerInfo, redemptionInfo, storeTransaction } =
+        await purchases.purchase({
+          rcPackage: pkg,
+          purchaseOption: option,
+          selectedLocale: lang || navigator.language,
+          customerEmail: email || undefined,
+          skipSuccessPage: skipSuccessPage,
+          // @ts-expect-error This method is marked as internal for now but it's public.'
+          labelsOverride: {
+            en: {
+              "payment_entry_page.button_start_trial":
+                "Start {{trialPeriodLabel}} free",
+            },
           },
-        },
-      });
+        });
 
-      console.log(`CustomerInfo after purchase: ${customerInfo}`);
+      console.log(`StoreTransaction: ${JSON.stringify(storeTransaction)}`);
+      console.log(
+        `CustomerInfo after purchase: ${JSON.stringify(customerInfo)}`,
+      );
       console.log(
         `RedemptionInfo after purchase: ${JSON.stringify(redemptionInfo)}`,
       );

@@ -347,6 +347,7 @@ export interface PurchaseResult {
     readonly customerInfo: CustomerInfo;
     readonly operationSessionId: string;
     readonly redemptionInfo: RedemptionInfo | null;
+    readonly storeTransaction: StoreTransaction;
 }
 
 // @public
@@ -465,6 +466,13 @@ export enum ReservedCustomerAttribute {
 
 // @public
 export type Store = "app_store" | "mac_app_store" | "play_store" | "amazon" | "stripe" | "rc_billing" | "promotional" | "paddle" | "unknown";
+
+// @public
+export interface StoreTransaction {
+    readonly productIdentifier: string;
+    readonly purchaseDate: Date;
+    readonly storeTransactionId: string;
+}
 
 // @public
 export interface SubscriptionInfo {
