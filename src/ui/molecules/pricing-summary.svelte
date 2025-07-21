@@ -14,13 +14,48 @@
     priceBreakdown: PriceBreakdown;
     basePhase: PricingPhase | null;
     trialPhase: PricingPhase | null;
+    introPricePhase: PricingPhase | null;
   };
 
-  let { priceBreakdown, basePhase, trialPhase }: Props = $props();
+  let { priceBreakdown, basePhase, trialPhase, introPricePhase }: Props =
+    $props();
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
 
+  const introPriceDuration = $derived(
+    introPricePhase?.period
+      ? $translator.translatePeriod(
+          introPricePhase.period.number * introPricePhase.cycleCount,
+          introPricePhase.period.unit,
+        ) || ""
+      : "",
+  );
+
+  // Determine typography sizes - first visible element gets heading-lg, rest get heading-md
+  const trialTypographySize = $derived("heading-lg");
+  const introTypographySize = $derived(
+    trialPhase?.periodDuration ? "heading-md" : "heading-lg",
+  );
+  const baseTypographySize = $derived(
+    trialPhase?.periodDuration || introPricePhase?.periodDuration
+      ? "heading-md"
+      : "heading-lg",
+  );
+
+  // Determine conditional text to show after intro price and base price
+  const hasTrial = $derived(trialPhase?.periodDuration);
+  const hasIntroPrice = $derived(introPricePhase?.periodDuration);
+
   const formattedPrice = $derived(
+    $translator.formatPrice(
+      hasIntroPrice
+        ? (basePhase?.price?.amountMicros ?? 0)
+        : priceBreakdown.totalAmountInMicros,
+      priceBreakdown.currency,
+    ),
+  );
+
+  const formattedIntroPrice = $derived(
     $translator.formatPrice(
       priceBreakdown.totalAmountInMicros,
       priceBreakdown.currency,
@@ -31,7 +66,7 @@
 <div class="rcb-product-price-container">
   {#if trialPhase?.periodDuration}
     <div>
-      <Typography size="heading-lg">
+      <Typography size={trialTypographySize}>
         <Localized
           key={LocalizationKeys.ProductInfoFreeTrialDuration}
           variables={{
@@ -45,8 +80,40 @@
     </div>
   {/if}
 
+  {#if introPricePhase?.periodDuration}
+    <div>
+      <Typography size={introTypographySize}>
+        <Localized
+          key={introPricePhase.cycleCount === 1
+            ? LocalizationKeys.ProductInfoIntroPricePhasePaidUpfront
+            : LocalizationKeys.ProductInfoIntroPricePhaseRecurring}
+          variables={{
+            introPriceDuration: introPriceDuration,
+            introPrice: formattedIntroPrice,
+          }}
+        />
+      </Typography>
+
+      {#if introPricePhase.cycleCount > 1 && introPricePhase.period}
+        <Typography size="body-small">
+          {$translator.translatePeriodFrequency(
+            introPricePhase.period.number,
+            introPricePhase.period.unit,
+            { useMultipleWords: true },
+          )}
+        </Typography>
+      {/if}
+
+      {#if hasTrial}
+        <Typography size="body-small">
+          <Localized key={LocalizationKeys.ProductInfoAfterTrial} />
+        </Typography>
+      {/if}
+    </div>
+  {/if}
+
   <div>
-    <Typography size="heading-lg">
+    <Typography size={baseTypographySize}>
       {formattedPrice}
     </Typography>
 
@@ -57,6 +124,16 @@
           basePhase.period.unit,
           { useMultipleWords: true },
         )}
+      </Typography>
+    {/if}
+
+    {#if hasIntroPrice}
+      <Typography size="body-small">
+        <Localized key={LocalizationKeys.ProductInfoAfter} />
+      </Typography>
+    {:else if hasTrial}
+      <Typography size="body-small">
+        <Localized key={LocalizationKeys.ProductInfoAfterTrial} />
       </Typography>
     {/if}
   </div>

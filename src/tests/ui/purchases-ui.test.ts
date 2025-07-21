@@ -129,9 +129,16 @@ describe("PurchasesUI", () => {
 
   test("calls onFinished immediately when skipSuccessPage is true", async () => {
     const onFinished = vi.fn();
+    const purchaseDate = new Date();
     const pollSpy = vi
       .spyOn(purchaseOperationHelperMock, "pollCurrentPurchaseForCompletion")
-      .mockResolvedValue({ redemptionInfo: null, operationSessionId: "op-id" });
+      .mockResolvedValue({
+        redemptionInfo: null,
+        operationSessionId: "op-id",
+        storeTransactionIdentifier: "store-tx-id",
+        productIdentifier: "product-id",
+        purchaseDate: purchaseDate,
+      });
 
     render(PurchasesUI, {
       props: {
@@ -149,6 +156,12 @@ describe("PurchasesUI", () => {
     await new Promise(process.nextTick);
 
     expect(pollSpy).toHaveBeenCalled();
-    expect(onFinished).toHaveBeenCalledWith("op-id", null);
+    expect(onFinished).toHaveBeenCalledWith({
+      operationSessionId: "op-id",
+      productIdentifier: "product-id",
+      storeTransactionIdentifier: "store-tx-id",
+      purchaseDate: purchaseDate,
+      redemptionInfo: null,
+    });
   });
 });
