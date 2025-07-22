@@ -9,12 +9,12 @@
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
 
   import {
+    OperationSessionSuccessfulResult,
     PurchaseFlowError,
     PurchaseFlowErrorCode,
     PurchaseOperationHelper,
   } from "../helpers/purchase-operation-helper";
 
-  import { type RedemptionInfo } from "../entities/redemption-info";
   import {
     type CustomTranslations,
     Translator,
@@ -45,10 +45,7 @@
     customTranslations?: CustomTranslations;
     isInElement: boolean;
     skipSuccessPage: boolean;
-    onFinished: (
-      operationSessionId: string,
-      redemptionInfo: RedemptionInfo | null,
-    ) => void;
+    onFinished: (operationResult: OperationSessionSuccessfulResult) => void;
     onError: (error: PurchaseFlowError) => void;
     onClose: (() => void) | undefined;
   }
@@ -81,8 +78,7 @@
   const productId = rcPackage.webBillingProduct.identifier ?? null;
 
   let currentPage: CurrentPage = $state("payment-entry-loading");
-  let redemptionInfo: RedemptionInfo | null = $state(null);
-  let operationSessionId: string | null = $state(null);
+  let operationResult: OperationSessionSuccessfulResult | null = $state(null);
   let gatewayParams: GatewayParams = $state({});
   let managementUrl: string | null = $state(null);
 
@@ -96,7 +92,7 @@
     selectedLocale,
     defaultLocale,
   );
-  var translatorStore = writable(translator);
+  let translatorStore = writable(translator);
   setContext(translatorContextKey, translatorStore);
   setContext(brandingContextKey, brandingInfo?.appearance);
 
@@ -190,10 +186,9 @@
       purchaseOperationHelper
         .pollCurrentPurchaseForCompletion()
         .then((pollResult) => {
-          redemptionInfo = pollResult.redemptionInfo;
-          operationSessionId = pollResult.operationSessionId;
+          operationResult = pollResult;
           if (skipSuccessPage) {
-            onFinished(operationSessionId, redemptionInfo);
+            onFinished(pollResult);
           } else {
             currentPage = "success";
           }
@@ -205,7 +200,7 @@
     }
 
     if (currentPage === "success" || currentPage === "error") {
-      onFinished(operationSessionId!, redemptionInfo);
+      onFinished(operationResult!);
       return;
     }
 

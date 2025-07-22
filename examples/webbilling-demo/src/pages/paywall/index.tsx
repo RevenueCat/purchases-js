@@ -17,6 +17,7 @@ interface IPackageCardProps {
 
 const priceLabels: Record<string, string> = {
   P3M: "quarter",
+  P6M: "6mo",
   P1M: "mo",
   P1Y: "yr",
   P2M: "2mo",
@@ -36,6 +37,18 @@ const trialLabels: Record<string, string> = {
   P1Y: "1 year",
 };
 
+const formattedCombinedPeriod = (
+  cycleCount: number,
+  period?: number,
+  unit?: string,
+) => {
+  if (!period || !unit) {
+    return "";
+  }
+  const cyclesInIntroDuration = cycleCount * period;
+  return `${cyclesInIntroDuration} ${unit}${cyclesInIntroDuration > 1 ? "s" : ""}`;
+};
+
 export const PackageCard: React.FC<IPackageCardProps> = ({
   pkg,
   offering,
@@ -53,41 +66,83 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
     : null;
 
   const trial = option?.trial;
+  const introPrice = option?.introPrice;
+
+  const renderTrialBadge = () => {
+    if (!trial) return null;
+
+    const trialLabel = trial.periodDuration
+      ? trialLabels[trial.periodDuration] || trial.periodDuration
+      : "";
+
+    return <div className="freeTrial">{trialLabel} free trial</div>;
+  };
+
+  const renderIntroPricing = () => {
+    if (!introPrice) return null;
+    console.log("option", option);
+
+    return (
+      <div className="introPrice">
+        <div className="currentPrice">
+          {introPrice.price?.formattedPrice}
+          {introPrice.periodDuration &&
+            `/${priceLabels[introPrice.periodDuration]}`}
+          <div className="futurePrice">
+            for{" "}
+            {formattedCombinedPeriod(
+              introPrice.cycleCount,
+              introPrice.period?.number,
+              introPrice.period?.unit,
+            )}
+            , then {price?.formattedPrice}
+            {pkg.webBillingProduct.normalPeriodDuration &&
+              `/${
+                priceLabels[pkg.webBillingProduct.normalPeriodDuration] ||
+                pkg.webBillingProduct.normalPeriodDuration
+              }`}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderRegularPricing = () => {
+    if (!price || introPrice) return null;
+
+    const periodLabel = pkg.webBillingProduct.normalPeriodDuration
+      ? priceLabels[pkg.webBillingProduct.normalPeriodDuration] ||
+        pkg.webBillingProduct.normalPeriodDuration
+      : "";
+
+    return (
+      <>
+        {!trial && originalPrice && (
+          <div className="previousPrice">{originalPrice}</div>
+        )}
+
+        <div className="currentPrice">
+          <div>{price.formattedPrice}</div>
+          {periodLabel && <div>/{periodLabel}</div>}
+        </div>
+      </>
+    );
+  };
+
   return (
     <div className="card">
-      {trial && (
-        <div className="freeTrial">
-          {trial.periodDuration &&
-            (trialLabels[trial.periodDuration] || trial.periodDuration)}{" "}
-          free trial
-        </div>
-      )}
-      {price && (
-        <>
-          {!trial && originalPrice && (
-            <div className="previousPrice">{originalPrice}</div>
-          )}
-          <div className="currentPrice">
-            <div>{`${price.formattedPrice}`}</div>
+      {renderTrialBadge()}
+      {renderIntroPricing()}
+      {renderRegularPricing()}
 
-            {pkg.webBillingProduct.normalPeriodDuration && (
-              <div>
-                /
-                {priceLabels[pkg.webBillingProduct.normalPeriodDuration] ||
-                  pkg.webBillingProduct.normalPeriodDuration}
-              </div>
-            )}
-          </div>
+      <div className="productName">{pkg.webBillingProduct.displayName}</div>
 
-          <div className="productName">{pkg.webBillingProduct.displayName}</div>
-          <div className="packageCTA">
-            <Button
-              caption={option?.trial ? "Start Free Trial" : "Choose plan"}
-              onClick={onClick}
-            />
-          </div>
-        </>
-      )}
+      <div className="packageCTA">
+        <Button
+          caption={trial ? "Start Free Trial" : "Choose plan"}
+          onClick={onClick}
+        />
+      </div>
     </div>
   );
 };
@@ -148,22 +203,26 @@ const PaywallPage: React.FC = () => {
 
     // How do we complete the purchase?
     try {
-      const { customerInfo, redemptionInfo } = await purchases.purchase({
-        rcPackage: pkg,
-        purchaseOption: option,
-        selectedLocale: lang || navigator.language,
-        customerEmail: email || undefined,
-        skipSuccessPage: skipSuccessPage,
-        // @ts-expect-error This method is marked as internal for now but it's public.'
-        labelsOverride: {
-          en: {
-            "payment_entry_page.button_start_trial":
-              "Start {{trialPeriodLabel}} free",
+      const { customerInfo, redemptionInfo, storeTransaction } =
+        await purchases.purchase({
+          rcPackage: pkg,
+          purchaseOption: option,
+          selectedLocale: lang || navigator.language,
+          customerEmail: email || undefined,
+          skipSuccessPage: skipSuccessPage,
+          // @ts-expect-error This method is marked as internal for now but it's public.'
+          labelsOverride: {
+            en: {
+              "payment_entry_page.button_start_trial":
+                "Start {{trialPeriodLabel}} free",
+            },
           },
-        },
-      });
+        });
 
-      console.log(`CustomerInfo after purchase: ${customerInfo}`);
+      console.log(`StoreTransaction: ${JSON.stringify(storeTransaction)}`);
+      console.log(
+        `CustomerInfo after purchase: ${JSON.stringify(customerInfo)}`,
+      );
       console.log(
         `RedemptionInfo after purchase: ${JSON.stringify(redemptionInfo)}`,
       );

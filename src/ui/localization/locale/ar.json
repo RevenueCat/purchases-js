@@ -86,5 +86,10 @@
   "error_page.error_message_stripe_missing_required_permission": "فشلت عملية الشراء لأن تطبيق Stripe يفتقر إلى إذن مطلوب. في مرحلة الإنتاج، ستعمل عمليات الشراء بدون تطبيق الضرائب.",
   "error_page.error_title_stripe_tax_not_active": "ضريبة Stripe غير نشطة",
   "error_page.error_title_stripe_invalid_tax_origin_address": "عنوان منشأ ضريبي غير صالح",
-  "apple_pay.free_trial": "تجربة مجانية"
+  "apple_pay.free_trial": "تجربة مجانية",
+  "product_info.price_after_intro_price": "بعد {{introPriceDuration}}، في {{renewalDate}}",
+  "product_info.intro_price_phase_paid_upfront": "أول {{introPriceDuration}} مقابل {{introPrice}}",
+  "product_info.after_trial": "بعد الفترة التجريبية",
+  "product_info.after": "بعد",
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} مقابل {{introPrice}}"
 }
