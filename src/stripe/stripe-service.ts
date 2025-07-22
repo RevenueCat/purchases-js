@@ -18,6 +18,7 @@ import type { StripeExpressCheckoutElementOptions } from "@stripe/stripe-js/dist
 import { type Period, PeriodUnit } from "../helpers/duration-helper";
 import type { StripeExpressCheckoutConfiguration } from "./stripe-express-checkout-configuration";
 import type { PriceBreakdown } from "../ui/ui-types";
+import { loadStripe } from "@stripe/stripe-js";
 
 export enum StripeServiceErrorCode {
   ErrorLoadingStripe = 0,
@@ -82,8 +83,6 @@ export class StripeService {
     stripeVariables: Appearance["variables"],
     viewport: "mobile" | "desktop",
   ): Promise<{ stripe: Stripe; elements: StripeElements }> {
-    const { loadStripe } = await import("@stripe/stripe-js");
-
     if (!publishableApiKey || !stripeAccountId || !elementsConfiguration) {
       throw {
         code: StripeServiceErrorCode.ErrorLoadingStripe,
