@@ -15,6 +15,13 @@
     product,
     subscriptionOption,
     subscriptionOptionWithTrial,
+    subscriptionOptionWithTrialAndIntroPricePaidUpfront,
+    priceBreakdownTaxDisabledIntroPricePaidUpfront,
+    priceBreakdownTaxInclusiveWithIntroPricePaidUpfront,
+    priceBreakdownTaxInclusiveWithIntroPriceRecurring,
+    subscriptionOptionWithTrialAndIntroPriceRecurring,
+    subscriptionOptionWithIntroPriceRecurring,
+    subscriptionOptionWithIntroPricePaidUpfront,
   } from "../fixtures";
   import { PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
 
@@ -139,6 +146,30 @@
 />
 
 <Story
+  name="With Trial + Intro Price Paid Upfront"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    defaultPriceBreakdown: priceBreakdownTaxDisabledIntroPricePaidUpfront,
+    productDetails: {
+      ...product,
+      subscriptionOptions: {
+        ...product.subscriptionOptions,
+        [subscriptionOptionWithTrialAndIntroPricePaidUpfront.id]:
+          subscriptionOptionWithTrialAndIntroPricePaidUpfront,
+      },
+    },
+    purchaseOptionToUse: subscriptionOptionWithTrialAndIntroPricePaidUpfront,
+    defaultPurchaseOption: subscriptionOptionWithTrialAndIntroPricePaidUpfront,
+  }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
+  }}
+/>
+
+<Story
   name="With Non Subscription product"
   args={{
     ...defaultArgs,
@@ -184,6 +215,102 @@
     },
     purchaseOptionToUse: subscriptionOptionWithTrial,
     defaultPurchaseOption: subscriptionOptionWithTrial,
+    withTaxes: true,
+  }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
+  }}
+/>
+
+<Story
+  name="With Tax and Trial Product + Intro Price Paid Upfront"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    defaultPriceBreakdown: priceBreakdownTaxInclusiveWithIntroPricePaidUpfront,
+    productDetails: {
+      ...product,
+      subscriptionOptions: {
+        [subscriptionOptionWithTrialAndIntroPricePaidUpfront.id]:
+          subscriptionOptionWithTrialAndIntroPricePaidUpfront,
+      },
+    },
+    purchaseOptionToUse: subscriptionOptionWithTrialAndIntroPricePaidUpfront,
+    defaultPurchaseOption: subscriptionOptionWithTrialAndIntroPricePaidUpfront,
+    withTaxes: true,
+  }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
+  }}
+/>
+
+<Story
+  name="With Tax and Trial Product + Intro Price Recurring"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    defaultPriceBreakdown: priceBreakdownTaxInclusiveWithIntroPriceRecurring,
+    productDetails: {
+      ...product,
+      subscriptionOptions: {
+        [subscriptionOptionWithTrialAndIntroPriceRecurring.id]:
+          subscriptionOptionWithTrialAndIntroPriceRecurring,
+      },
+    },
+    purchaseOptionToUse: subscriptionOptionWithTrialAndIntroPriceRecurring,
+    defaultPurchaseOption: subscriptionOptionWithTrialAndIntroPriceRecurring,
+    withTaxes: true,
+  }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
+  }}
+/>
+
+<Story
+  name="With Tax and Intro Price Paid Upfront"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    defaultPriceBreakdown: priceBreakdownTaxInclusiveWithIntroPricePaidUpfront,
+    productDetails: {
+      ...product,
+      subscriptionOptions: {
+        [subscriptionOptionWithIntroPricePaidUpfront.id]:
+          subscriptionOptionWithIntroPricePaidUpfront,
+      },
+    },
+    purchaseOptionToUse: subscriptionOptionWithIntroPricePaidUpfront,
+    defaultPurchaseOption: subscriptionOptionWithIntroPricePaidUpfront,
+    withTaxes: true,
+  }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
+  }}
+/>
+
+<Story
+  name="With Tax and Intro Price Recurring"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    defaultPriceBreakdown: priceBreakdownTaxInclusiveWithIntroPriceRecurring,
+    productDetails: {
+      ...product,
+      subscriptionOptions: {
+        [subscriptionOptionWithIntroPriceRecurring.id]:
+          subscriptionOptionWithIntroPriceRecurring,
+      },
+    },
+    purchaseOptionToUse: subscriptionOptionWithIntroPriceRecurring,
+    defaultPurchaseOption: subscriptionOptionWithIntroPriceRecurring,
     withTaxes: true,
   }}
   parameters={{

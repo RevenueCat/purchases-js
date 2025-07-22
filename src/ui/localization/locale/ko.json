@@ -86,5 +86,10 @@
   "error_page.error_message_stripe_missing_required_permission": "Stripe 앱에 필요한 권한이 없어 구매에 실패했습니다. 프로덕션 환경에서는 세금이 적용되지 않은 상태로 구매가 진행됩니다.",
   "error_page.error_title_stripe_tax_not_active": "Stripe Tax가 활성화되지 않음",
   "error_page.error_title_stripe_invalid_tax_origin_address": "잘못된 세금 원산지 주소",
-  "apple_pay.free_trial": "무료 체험"
+  "apple_pay.free_trial": "무료 체험",
+  "product_info.price_after_intro_price": "{{introPriceDuration}} 후 {{renewalDate}}에",
+  "product_info.intro_price_phase_paid_upfront": "처음 {{introPriceDuration}} 동안 {{introPrice}}",
+  "product_info.after_trial": "체험 후",
+  "product_info.after": "후",
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} 동안 {{introPrice}}"
 }

@@ -86,5 +86,10 @@
   "error_page.error_message_stripe_missing_required_permission": "Zakup nie powiódł się, ponieważ aplikacja Stripe nie ma wymaganego uprawnienia. W środowisku produkcyjnym zakupy będą działać bez naliczania podatków.",
   "error_page.error_title_stripe_tax_not_active": "Stripe Tax nieaktywny",
   "error_page.error_title_stripe_invalid_tax_origin_address": "Nieprawidłowy adres pochodzenia podatku",
-  "apple_pay.free_trial": "Okres próbny"
+  "apple_pay.free_trial": "Okres próbny",
+  "product_info.price_after_intro_price": "Po {{introPriceDuration}}, od {{renewalDate}}",
+  "product_info.intro_price_phase_paid_upfront": "Pierwsze {{introPriceDuration}} za {{introPrice}}",
+  "product_info.after_trial": "po okresie próbnym",
+  "product_info.after": "po",
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} za {{introPrice}}"
 }

@@ -97,10 +97,12 @@ export class PurchaseFlowError extends Error {
   }
 }
 
-export enum TaxCalculationError {
-  Pending = "pending",
-  InvalidLocation = "invalid_location",
-  Disabled = "disabled",
+export interface OperationSessionSuccessfulResult {
+  redemptionInfo: RedemptionInfo | null;
+  operationSessionId: string;
+  storeTransactionIdentifier: string;
+  productIdentifier: string;
+  purchaseDate: Date;
 }
 
 export class PurchaseOperationHelper {
@@ -207,11 +209,7 @@ export class PurchaseOperationHelper {
     }
 
     try {
-      const checkoutCompleteResponse = await this.backend.postCheckoutComplete(
-        operationSessionId,
-        email,
-      );
-      return checkoutCompleteResponse;
+      return await this.backend.postCheckoutComplete(operationSessionId, email);
     } catch (error) {
       if (error instanceof PurchasesError) {
         throw PurchaseFlowError.fromPurchasesError(
@@ -230,10 +228,7 @@ export class PurchaseOperationHelper {
     }
   }
 
-  async pollCurrentPurchaseForCompletion(): Promise<{
-    redemptionInfo: RedemptionInfo | null;
-    operationSessionId: string;
-  }> {
+  async pollCurrentPurchaseForCompletion(): Promise<OperationSessionSuccessfulResult> {
     const operationSessionId = this.operationSessionId;
     if (!operationSessionId) {
       throw new PurchaseFlowError(
@@ -242,10 +237,7 @@ export class PurchaseOperationHelper {
       );
     }
 
-    return new Promise<{
-      redemptionInfo: RedemptionInfo | null;
-      operationSessionId: string;
-    }>((resolve, reject) => {
+    return new Promise<OperationSessionSuccessfulResult>((resolve, reject) => {
       const checkForOperationStatus = (checkCount = 1) => {
         if (checkCount > this.maxNumberAttempts) {
           this.clearPurchaseInProgress();
@@ -260,6 +252,15 @@ export class PurchaseOperationHelper {
         this.backend
           .getCheckoutStatus(operationSessionId)
           .then((operationResponse: CheckoutStatusResponse) => {
+            const storeTransactionIdentifier =
+              operationResponse.operation.store_transaction_identifier;
+            const productIdentifier =
+              operationResponse.operation.product_identifier;
+            const purchaseDate = operationResponse.operation.purchase_date
+              ? isNaN(Date.parse(operationResponse.operation.purchase_date))
+                ? null
+                : new Date(operationResponse.operation.purchase_date)
+              : null;
             switch (operationResponse.operation.status) {
               case CheckoutSessionStatus.Started:
               case CheckoutSessionStatus.InProgress:
@@ -270,9 +271,25 @@ export class PurchaseOperationHelper {
                 break;
               case CheckoutSessionStatus.Succeeded:
                 this.clearPurchaseInProgress();
+                if (
+                  !storeTransactionIdentifier ||
+                  !productIdentifier ||
+                  !purchaseDate
+                ) {
+                  reject(
+                    new PurchaseFlowError(
+                      PurchaseFlowErrorCode.UnknownError,
+                      "Missing required fields in operation response.",
+                    ),
+                  );
+                  return;
+                }
                 resolve({
                   redemptionInfo: toRedemptionInfo(operationResponse),
                   operationSessionId: operationSessionId,
+                  storeTransactionIdentifier: storeTransactionIdentifier,
+                  productIdentifier: productIdentifier,
+                  purchaseDate: purchaseDate,
                 });
                 return;
               case CheckoutSessionStatus.Failed:
