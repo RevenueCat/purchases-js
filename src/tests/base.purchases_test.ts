@@ -8,7 +8,7 @@ import {
 import { afterAll, beforeAll, beforeEach } from "vitest";
 import { defaultHttpConfig } from "../entities/http-config";
 
-export const testApiKey = "rcb_test_api_key";
+export const testApiKey = "rcb_sb_test_api_key";
 export const testUserId = "someAppUserId";
 
 export const server = setupServer(...getRequestHandlers());
@@ -29,10 +29,16 @@ beforeEach(() => {
 afterAll(() => server.close());
 
 export function configurePurchases(
+  apiKey: string = testApiKey,
   appUserId: string = testUserId,
   rcSource: string = "rcSource",
 ): Purchases {
-  return Purchases.configure(testApiKey, appUserId, defaultHttpConfig, {
-    rcSource: rcSource,
+  return Purchases.configure({
+    apiKey: apiKey,
+    appUserId: appUserId,
+    httpConfig: defaultHttpConfig,
+    flags: {
+      rcSource: rcSource,
+    },
   });
 }

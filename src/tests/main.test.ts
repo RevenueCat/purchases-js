@@ -564,6 +564,17 @@ describe("Purchases.purchase()", () => {
     // @ts-expect-error - we want to test the error case
     expect(() => Purchases.configure(testApiKey)).toThrowError(PurchasesError);
   });
+
+  test("throws error if configured with RC Sandbox API key", () => {
+    const purchases = configurePurchases(
+      "rc_sbx_1234567890",
+      testUserId,
+      "anyOtherValue",
+    );
+    expect(() =>
+      purchases.purchase({ rcPackage: createMonthlyPackageMock() }),
+    ).toThrowError(PurchasesError);
+  });
 });
 
 describe("setAttributes", () => {
