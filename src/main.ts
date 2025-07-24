@@ -871,17 +871,10 @@ export class Purchases {
   }
 
   /**
-   * Whether the SDK is using a Web billing sandbox API Key.
+   * @returns Whether the SDK is using a sandbox API Key.
    */
   public isSandbox(): boolean {
-    return isSandboxApiKey(this._API_KEY);
-  }
-
-  /**
-   * Whether the SDK is using a RevenueCat Sandbox API Key.
-   */
-  public isRCSandbox(): boolean {
-    return isRCSandboxApiKey(this._API_KEY);
+    return isSandboxApiKey(this._API_KEY) || isRCSandboxApiKey(this._API_KEY);
   }
 
   /**

@@ -367,7 +367,7 @@ export class Purchases {
     isAnonymous(): boolean;
     static isConfigured(): boolean;
     isEntitledTo(entitlementIdentifier: string): Promise<boolean>;
-    isRCSandbox(): boolean;
+    // (undocumented)
     isSandbox(): boolean;
     preload(): Promise<void>;
     purchase(params: PurchaseParams): Promise<PurchaseResult>;
