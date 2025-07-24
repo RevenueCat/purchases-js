@@ -29,9 +29,9 @@ beforeEach(() => {
 afterAll(() => server.close());
 
 export function configurePurchases(
-  apiKey: string = testApiKey,
   appUserId: string = testUserId,
   rcSource: string = "rcSource",
+  apiKey: string = testApiKey,
 ): Purchases {
   return Purchases.configure({
     apiKey: apiKey,

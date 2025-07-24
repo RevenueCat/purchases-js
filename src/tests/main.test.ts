@@ -567,13 +567,13 @@ describe("Purchases.purchase()", () => {
 
   test("throws error if configured with RC Sandbox API key", () => {
     const purchases = configurePurchases(
-      "rc_sbx_1234567890",
       testUserId,
       "anyOtherValue",
+      "rc_sbx_1234567890",
     );
-    expect(() =>
+    expect(
       purchases.purchase({ rcPackage: createMonthlyPackageMock() }),
-    ).toThrowError(PurchasesError);
+    ).rejects.toThrowError(PurchasesError);
   });
 });
 
