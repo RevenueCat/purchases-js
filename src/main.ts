@@ -15,7 +15,7 @@ import {
 import { type ProductResponse } from "./networking/responses/products-response";
 import { RC_ENDPOINT } from "./helpers/constants";
 import { Backend } from "./networking/backend";
-import { isSandboxApiKey } from "./helpers/api-key-helper";
+import { isRCTestStoreApiKey, isSandboxApiKey } from "./helpers/api-key-helper";
 import {
   type OperationSessionSuccessfulResult,
   type PurchaseFlowError,
@@ -348,7 +348,13 @@ export class Purchases {
       );
     }
     if (isSandboxApiKey(apiKey)) {
-      Logger.debugLog("Initializing Purchases SDK with sandbox API Key");
+      Logger.debugLog(
+        "Initializing Purchases SDK with Web billing sandbox API Key",
+      );
+    } else if (isRCTestStoreApiKey(apiKey)) {
+      Logger.debugLog(
+        "Initializing Purchases SDK with RC Test store API Key. Purchases are not currently supported in RC Test store.",
+      );
     }
     this.eventsTracker = new EventsTracker({
       apiKey: this._API_KEY,
@@ -632,6 +638,12 @@ export class Purchases {
       defaultLocale = englishLocale,
       skipSuccessPage = false,
     } = params;
+    if (isRCTestStoreApiKey(this._API_KEY)) {
+      throw new PurchasesError(
+        ErrorCode.ConfigurationError,
+        "Purchases are not currently supported in RC Test store. Please use a Web Billing or Paddle API key instead.",
+      );
+    }
     let resolvedHTMLTarget =
       htmlTarget ?? document.getElementById("rcb-ui-root");
 
@@ -862,7 +874,7 @@ export class Purchases {
    * @returns Whether the SDK is using a sandbox API Key.
    */
   public isSandbox(): boolean {
-    return isSandboxApiKey(this._API_KEY);
+    return isSandboxApiKey(this._API_KEY) || isRCTestStoreApiKey(this._API_KEY);
   }
 
   /**
