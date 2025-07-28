@@ -565,11 +565,11 @@ describe("Purchases.purchase()", () => {
     expect(() => Purchases.configure(testApiKey)).toThrowError(PurchasesError);
   });
 
-  test("throws error if configured with RC Sandbox API key", () => {
+  test("throws error if configured with RC Test store API key", () => {
     const purchases = configurePurchases(
       testUserId,
       "anyOtherValue",
-      "rc_sbx_1234567890",
+      "test_1234567890",
     );
     expect(
       purchases.purchase({ rcPackage: createMonthlyPackageMock() }),
