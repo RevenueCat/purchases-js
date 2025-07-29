@@ -34,7 +34,6 @@
   "product_info.continues_until_cancelled": "Wordt voortgezet tot annulering",
   "product_info.cancel_anytime": "Annuleer op elk gewenst moment",
   "payment_entry_page.payment_step_title": "Veilige afrekening via RevenueCat",
-  "payment_entry_page.terms_info": "Door uw kaartgegevens te verstrekken, staat u {{appName}} toe om uw kaart te belasten voor toekomstige betalingen in overeenstemming met hun voorwaarden.",
   "payment_entry_page.button_pay": "Nu betalen",
   "payment_entry_page.button_start_trial": "Start proefperiode",
   "success_page.purchase_successful": "Betaling voltooid",
@@ -57,7 +56,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Totaal te betalen vandaag",
   "product_info.subscribe_to": "Abonneren op",
-  "payment_entry_page.trial_info": "Na afloop van je proefperiode wordt {{price}} {{perFrequency}} in rekening gebracht vanaf {{renewalDate}}. Je kunt altijd eerder annuleren.",
   "navbar_header.details": "Details",
   "navbar_header.back_button": "Terug",
   "pricing_dropdown.show_details": "Toon details",
@@ -91,5 +89,9 @@
   "product_info.intro_price_phase_paid_upfront": "Eerste {{introPriceDuration}} voor {{introPrice}}",
   "product_info.after_trial": "na proefperiode",
   "product_info.after": "na",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} voor {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} voor {{introPrice}}",
+  "payment_entry_page.trial_subscription_terms_info": "Door je te abonneren, ga je ermee akkoord dat {{appName}} {{price}} {{perFrequency}} in rekening brengt nadat je gratis proefperiode eindigt op {{renewalDate}}, volgens hun voorwaarden.",
+  "payment_entry_page.subscription_info": "Abonnement wordt automatisch verlengd - annuleer op elk moment.",
+  "payment_entry_page.otp_terms_info": "Door te kopen, ga je ermee akkoord dat {{appName}} {{price}} in rekening brengt, volgens hun voorwaarden.",
+  "payment_entry_page.non_trial_subscription_terms_info": "Door je te abonneren, ga je ermee akkoord dat {{appName}} {{price}} {{perFrequency}} in rekening brengt, volgens hun voorwaarden."
 }

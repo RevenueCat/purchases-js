@@ -34,7 +34,6 @@
   "product_info.continues_until_cancelled": "Continua até ser cancelado",
   "product_info.cancel_anytime": "Cancelar a qualquer momento",
   "payment_entry_page.payment_step_title": "Pagamento seguro pela RevenueCat",
-  "payment_entry_page.terms_info": "Ao fornecer suas informações de cartão, você permite que o {{appName}} cobre seu cartão para pagamentos futuros de acordo com seus termos.",
   "payment_entry_page.button_pay": "Pagar agora",
   "payment_entry_page.button_start_trial": "Iniciar Teste",
   "success_page.purchase_successful": "Pagamento concluído",
@@ -57,7 +56,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Total a pagar hoje",
   "product_info.subscribe_to": "Subscrever",
-  "payment_entry_page.trial_info": "Após o término do seu período de avaliação, será cobrado o valor de {{price}} {{perFrequency}} a partir de {{renewalDate}}. Você pode cancelar a qualquer momento antes disso.",
   "navbar_header.details": "Detalhes",
   "navbar_header.back_button": "Voltar",
   "pricing_dropdown.show_details": "Mostrar detalhes",
@@ -91,5 +89,9 @@
   "product_info.intro_price_phase_paid_upfront": "Primeiros {{introPriceDuration}} por {{introPrice}}",
   "product_info.after_trial": "após o período de teste",
   "product_info.after": "após",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} por {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} por {{introPrice}}",
+  "payment_entry_page.trial_subscription_terms_info": "Ao subscrever, você concorda em permitir que o {{appName}} cobre {{price}} {{perFrequency}} após o término do seu período de avaliação gratuita em {{renewalDate}}, de acordo com os termos deles.",
+  "payment_entry_page.subscription_info": "A assinatura é renovada automaticamente - cancele a qualquer momento.",
+  "payment_entry_page.otp_terms_info": "Ao comprar, você concorda em permitir que o {{appName}} cobre {{price}}, de acordo com os termos deles.",
+  "payment_entry_page.non_trial_subscription_terms_info": "Ao subscrever, você concorda em permitir que o {{appName}} cobre {{price}} {{perFrequency}}, de acordo com os termos deles."
 }

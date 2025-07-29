@@ -34,7 +34,6 @@
   "product_info.continues_until_cancelled": "Jatkuu, kunnes peruutetaan",
   "product_info.cancel_anytime": "Peruuta milloin tahansa",
   "payment_entry_page.payment_step_title": "Suojautunut kassatoiminto RevenueCatin kautta",
-  "payment_entry_page.terms_info": "Antamalla korttitietosi annat {{appName}} -sovellukselle luvan veloittaa korttiasi tulevien maksujen osalta heidän ehtojensa mukaisesti.",
   "payment_entry_page.button_pay": "Maksa nyt",
   "payment_entry_page.button_start_trial": "Aloita kokeilujakso",
   "success_page.purchase_successful": "Maksaminen onnistui",
@@ -57,7 +56,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}} ({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Maksettava summa tänään",
   "product_info.subscribe_to": "Tilaa",
-  "payment_entry_page.trial_info": "Kokeilujakson päätyttyä sinulta veloitetaan {{price}} {{perFrequency}} alkaen {{renewalDate}}. Voit peruuttaa tilauksen milloin tahansa ennen sitä.",
   "navbar_header.details": "Yksityiskohdat",
   "navbar_header.back_button": "Takaisin",
   "pricing_dropdown.show_details": "Näytä tiedot",
@@ -91,5 +89,9 @@
   "product_info.intro_price_phase_paid_upfront": "Ensimmäiset {{introPriceDuration}} hintaan {{introPrice}}",
   "product_info.after_trial": "kokeilujakson jälkeen",
   "product_info.after": "jälkeen",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} hintaan {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} hintaan {{introPrice}}",
+  "payment_entry_page.trial_subscription_terms_info": "Tilaamalla hyväksyt, että {{appName}} veloittaa sinulta {{price}} {{perFrequency}} ilmaisen kokeilujaksosi päätyttyä {{renewalDate}}, heidän ehtojensa mukaisesti.",
+  "payment_entry_page.subscription_info": "Tilaus uusiutuu automaattisesti - peruuta milloin tahansa.",
+  "payment_entry_page.otp_terms_info": "Ostamalla hyväksyt, että {{appName}} veloittaa sinulta {{price}}, heidän ehtojensa mukaisesti.",
+  "payment_entry_page.non_trial_subscription_terms_info": "Tilaamalla hyväksyt, että {{appName}} veloittaa sinulta {{price}} {{perFrequency}}, heidän ehtojensa mukaisesti."
 }

@@ -34,7 +34,6 @@
   "product_info.continues_until_cancelled": "Continuă până la anulare",
   "product_info.cancel_anytime": "Anulare oricând",
   "payment_entry_page.payment_step_title": "Plata securizată prin RevenueCat",
-  "payment_entry_page.terms_info": "Prin furnizarea informațiilor dvs. despre card, permiteți aplicației {{appName}} să vă încarce cardul pentru plăți viitoare, în conformitate cu termenii acesteia.",
   "payment_entry_page.button_pay": "Plătește acum",
   "payment_entry_page.button_start_trial": "Începe perioada de probă",
   "success_page.purchase_successful": "Plata efectuată",
@@ -57,7 +56,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Total de plată astăzi",
   "product_info.subscribe_to": "Abonare la",
-  "payment_entry_page.trial_info": "După ce perioada de probă se termină, veți fi taxat cu {{price}} {{perFrequency}} începând cu {{renewalDate}}. Puteți anula oricând înainte de această dată.",
   "navbar_header.details": "Detalii",
   "navbar_header.back_button": "Înapoi",
   "pricing_dropdown.show_details": "Arată detalii",
@@ -91,5 +89,9 @@
   "product_info.intro_price_phase_paid_upfront": "Primele {{introPriceDuration}} pentru {{introPrice}}",
   "product_info.after_trial": "după perioada de probă",
   "product_info.after": "după",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} pentru {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} pentru {{introPrice}}",
+  "payment_entry_page.trial_subscription_terms_info": "Prin abonare, sunteți de acord să permiteți aplicației {{appName}} să vă taxeze {{price}} {{perFrequency}} după ce perioada de probă gratuită se termină pe {{renewalDate}}, conform termenilor acestora.",
+  "payment_entry_page.subscription_info": "Abonamentul se reînnoiește automat - anulați oricând.",
+  "payment_entry_page.otp_terms_info": "Prin achiziționare, sunteți de acord să permiteți aplicației {{appName}} să vă taxeze {{price}}, conform termenilor acestora.",
+  "payment_entry_page.non_trial_subscription_terms_info": "Prin abonare, sunteți de acord să permiteți aplicației {{appName}} să vă taxeze {{price}} {{perFrequency}}, conform termenilor acestora."
 }

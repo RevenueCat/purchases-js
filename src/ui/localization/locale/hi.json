@@ -34,7 +34,6 @@
   "product_info.continues_until_cancelled": "रद्द होने तक जारी रहता है",
   "product_info.cancel_anytime": "किसी भी समय रद्द करें",
   "payment_entry_page.payment_step_title": "RevenueCat द्वारा सुरक्षित चेकआउट",
-  "payment_entry_page.terms_info": "अपनी कार्ड जानकारी प्रदान करके आप {{appName}} को उनकी शर्तों के अनुसार भविष्य के भुगतानों के लिए आपके कार्ड से शुल्क लेने की अनुमति देते हैं।",
   "payment_entry_page.button_pay": "अभी भुगतान करें",
   "payment_entry_page.button_start_trial": "परीक्षण प्रारंभ करें",
   "success_page.purchase_successful": "भुगतान पूर्ण",
@@ -57,7 +56,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "आज देय कुल राशि",
   "product_info.subscribe_to": "सदस्यता लें",
-  "payment_entry_page.trial_info": "आपकी परीक्षण अवधि समाप्त होने के बाद, आपसे {{renewalDate}} से शुरू होकर {{price}} {{perFrequency}} शुल्क लिया जाएगा. आप तब से पहले हमेशा रद्द कर सकते हैं.",
   "navbar_header.details": "विवरण",
   "navbar_header.back_button": "वापस",
   "pricing_dropdown.show_details": "विवरण दिखाएँ",
@@ -91,5 +89,9 @@
   "product_info.intro_price_phase_paid_upfront": "पहले {{introPriceDuration}} के लिए {{introPrice}}",
   "product_info.after_trial": "ट्रायल के बाद",
   "product_info.after": "के बाद",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} के लिए {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} के लिए {{introPrice}}",
+  "payment_entry_page.trial_subscription_terms_info": "सदस्यता लेकर, आप {{appName}} को अपनी नि:शुल्क परीक्षण अवधि {{renewalDate}} पर समाप्त होने के बाद उनकी शर्तों के अनुसार {{price}} {{perFrequency}} चार्ज करने की अनुमति देने के लिए सहमत हैं।",
+  "payment_entry_page.subscription_info": "सदस्यता स्वचालित रूप से नवीनीकृत हो जाती है - कभी भी रद्द करें।",
+  "payment_entry_page.otp_terms_info": "खरीदकर, आप {{appName}} को उनकी शर्तों के अनुसार {{price}} चार्ज करने की अनुमति देने के लिए सहमत हैं।",
+  "payment_entry_page.non_trial_subscription_terms_info": "सदस्यता लेकर, आप {{appName}} को उनकी शर्तों के अनुसार {{price}} {{perFrequency}} चार्ज करने की अनुमति देने के लिए सहमत हैं।"
 }

@@ -34,7 +34,6 @@
   "product_info.continues_until_cancelled": "Folytatódik, amíg le nem mondják",
   "product_info.cancel_anytime": "Bármikor lemondható",
   "payment_entry_page.payment_step_title": "Biztonságos fizetés a RevenueCat-en keresztül",
-  "payment_entry_page.terms_info": "A kártyaadataid megadásával engedélyezed a {{appName}} számára, hogy a feltételeiknek megfelelően a jövőbeni fizetésekhez terhelje a kártyádat.",
   "payment_entry_page.button_pay": "Fizetés most",
   "payment_entry_page.button_start_trial": "Próbaidőszak indítása",
   "success_page.purchase_successful": "Fizetés sikeres",
@@ -57,7 +56,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Ma fizetendő összesen",
   "product_info.subscribe_to": "Feliratkozás erre:",
-  "payment_entry_page.trial_info": "A próbaidőszak lejárta után {{price}} {{perFrequency}} összeget számítunk fel {{renewalDate}} napjától kezdődően. Bármikor lemondhatja addig.",
   "navbar_header.details": "Részletek",
   "navbar_header.back_button": "Vissza",
   "pricing_dropdown.show_details": "Részletek mutatása",
@@ -91,5 +89,9 @@
   "product_info.intro_price_phase_paid_upfront": "Az első {{introPriceDuration}} ára {{introPrice}}",
   "product_info.after_trial": "próbaidőszak után",
   "product_info.after": "utána",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} ideig {{introPrice}} áron"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} ideig {{introPrice}} áron",
+  "payment_entry_page.trial_subscription_terms_info": "A feliratkozással elfogadod, hogy a(z) {{appName}} a(z) {{renewalDate}} napján véget érő ingyenes próbaidőszak után {{price}} {{perFrequency}} összeget számítson fel a feltételeik szerint.",
+  "payment_entry_page.subscription_info": "Az előfizetés automatikusan megújul – bármikor lemondhatod.",
+  "payment_entry_page.otp_terms_info": "A vásárlással elfogadod, hogy a(z) {{appName}} {{price}} összeget számítson fel a feltételeik szerint.",
+  "payment_entry_page.non_trial_subscription_terms_info": "A feliratkozással elfogadod, hogy a(z) {{appName}} {{price}} {{perFrequency}} összeget számítson fel a feltételeik szerint."
 }

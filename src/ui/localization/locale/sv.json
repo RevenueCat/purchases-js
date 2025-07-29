@@ -34,7 +34,6 @@
   "product_info.continues_until_cancelled": "Gäller tills avbokad",
   "product_info.cancel_anytime": "Avboka när som helst",
   "payment_entry_page.payment_step_title": "Säker betalning via RevenueCat",
-  "payment_entry_page.terms_info": "Genom att ange dina kortuppgifter tillåter du {{appName}} att debitera ditt kort för framtida betalningar i enlighet med deras villkor.",
   "payment_entry_page.button_pay": "Betala nu",
   "payment_entry_page.button_start_trial": "Starta provperiod",
   "success_page.purchase_successful": "Betalningen är klar",
@@ -57,7 +56,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}} ({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Totalt att betala idag",
   "product_info.subscribe_to": "Prenumerera på",
-  "payment_entry_page.trial_info": "Efter din provperiod avslutas debiteras du {{price}} {{perFrequency}} från och med {{renewalDate}}. Du kan alltid avbryta innan dess.",
   "navbar_header.details": "Detaljer",
   "navbar_header.back_button": "Tillbaka",
   "pricing_dropdown.show_details": "Visa detaljer",
@@ -91,5 +89,9 @@
   "product_info.intro_price_phase_paid_upfront": "Första {{introPriceDuration}} för {{introPrice}}",
   "product_info.after_trial": "efter provperioden",
   "product_info.after": "efter",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} för {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} för {{introPrice}}",
+  "payment_entry_page.trial_subscription_terms_info": "Genom att prenumerera godkänner du att {{appName}} debiterar dig {{price}} {{perFrequency}} efter att din kostnadsfria provperiod avslutas den {{renewalDate}}, i enlighet med deras villkor.",
+  "payment_entry_page.subscription_info": "Prenumerationen förnyas automatiskt – avbryt när som helst.",
+  "payment_entry_page.otp_terms_info": "Genom att köpa godkänner du att {{appName}} debiterar dig {{price}}, i enlighet med deras villkor.",
+  "payment_entry_page.non_trial_subscription_terms_info": "Genom att prenumerera godkänner du att {{appName}} debiterar dig {{price}} {{perFrequency}}, i enlighet med deras villkor."
 }

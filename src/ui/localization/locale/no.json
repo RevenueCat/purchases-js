@@ -34,7 +34,6 @@
   "product_info.continues_until_cancelled": "Varer til den avbestilles",
   "product_info.cancel_anytime": "Avbestille når som helst",
   "payment_entry_page.payment_step_title": "Sikker betaling via RevenueCat",
-  "payment_entry_page.terms_info": "Ved å oppgi kortinformasjonen din, tillater du {{appName}} å belaste kortet ditt for fremtidige betalinger i henhold til deres vilkår.",
   "payment_entry_page.button_pay": "Betal nå",
   "payment_entry_page.button_start_trial": "Start prøveperiode",
   "success_page.purchase_successful": "Betalingen er fullført",
@@ -57,7 +56,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}} ({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Totalt forfaller i dag",
   "product_info.subscribe_to": "Abonner på",
-  "payment_entry_page.trial_info": "Etter at prøveperioden din er over, blir du belastet {{price}} {{perFrequency}} fra og med {{renewalDate}}. Du kan når som helst kansellere før det.",
   "navbar_header.details": "Detaljer",
   "navbar_header.back_button": "Tilbake",
   "pricing_dropdown.show_details": "Vis detaljer",
@@ -91,5 +89,9 @@
   "product_info.intro_price_phase_paid_upfront": "Første {{introPriceDuration}} for {{introPrice}}",
   "product_info.after_trial": "etter prøveperiode",
   "product_info.after": "etter",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} for {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} for {{introPrice}}",
+  "payment_entry_page.trial_subscription_terms_info": "Ved å abonnere godtar du at {{appName}} belaster deg {{price}} {{perFrequency}} etter at din gratis prøveperiode utløper {{renewalDate}}, i henhold til deres vilkår.",
+  "payment_entry_page.subscription_info": "Abonnementet fornyes automatisk - avbestill når som helst.",
+  "payment_entry_page.otp_terms_info": "Ved å kjøpe godtar du at {{appName}} belaster deg {{price}}, i henhold til deres vilkår.",
+  "payment_entry_page.non_trial_subscription_terms_info": "Ved å abonnere godtar du at {{appName}} belaster deg {{price}} {{perFrequency}}, i henhold til deres vilkår."
 }

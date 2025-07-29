@@ -34,7 +34,6 @@
   "product_info.continues_until_cancelled": "Pokračuje, kým sa nezruší",
   "product_info.cancel_anytime": "Kedykoľvek zrušiť",
   "payment_entry_page.payment_step_title": "Bezpečný nákup prostredníctvom RevenueCat",
-  "payment_entry_page.terms_info": "Poskytnutím údajov o vašej karte povoľujete {{appName}} účtovať vašu kartu za budúce platby v súlade s ich podmienkami.",
   "payment_entry_page.button_pay": "Zaplatiť teraz",
   "payment_entry_page.button_start_trial": "Spustiť skúšobné obdobie",
   "success_page.purchase_successful": "Platba dokončená",
@@ -57,7 +56,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Celková suma splatná dnes",
   "product_info.subscribe_to": "Prihlásiť sa na odber",
-  "payment_entry_page.trial_info": "Po skončení skúšobného obdobia vám bude účtovaná suma {{price}} {{perFrequency}} počnúc dňom {{renewalDate}}. Predtým môžete kedykoľvek zrušiť.",
   "navbar_header.details": "Podrobnosti",
   "navbar_header.back_button": "Späť",
   "pricing_dropdown.show_details": "Zobraziť podrobnosti",
@@ -91,5 +89,9 @@
   "product_info.intro_price_phase_paid_upfront": "Prvých {{introPriceDuration}} za {{introPrice}}",
   "product_info.after_trial": "po skúšobnej dobe",
   "product_info.after": "po",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} za {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} za {{introPrice}}",
+  "payment_entry_page.trial_subscription_terms_info": "Prihlásením na odber súhlasíte s tým, že spoločnosti {{appName}} umožníte účtovať vám {{price}} {{perFrequency}} po skončení bezplatného skúšobného obdobia dňa {{renewalDate}}, v súlade s ich podmienkami.",
+  "payment_entry_page.subscription_info": "Odber sa automaticky obnovuje – kedykoľvek ho môžete zrušiť.",
+  "payment_entry_page.otp_terms_info": "Zakúpením súhlasíte s tým, že spoločnosti {{appName}} umožníte účtovať vám {{price}}, v súlade s ich podmienkami.",
+  "payment_entry_page.non_trial_subscription_terms_info": "Prihlásením na odber súhlasíte s tým, že spoločnosti {{appName}} umožníte účtovať vám {{price}} {{perFrequency}}, v súlade s ich podmienkami."
 }

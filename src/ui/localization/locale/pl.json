@@ -34,7 +34,6 @@
   "product_info.continues_until_cancelled": "Kontynuowane do momentu anulowania",
   "product_info.cancel_anytime": "Możesz anulować w dowolnym momencie",
   "payment_entry_page.payment_step_title": "Bezpieczna płatność przez RevenueCat",
-  "payment_entry_page.terms_info": "Podając dane swojej karty, zezwalasz {{appName}} na obciążanie Twojej karty za przyszłe płatności zgodnie z ich regulaminem.",
   "payment_entry_page.button_pay": "Zapłać teraz",
   "payment_entry_page.button_start_trial": "Rozpocznij okres próbny",
   "success_page.purchase_successful": "Płatność zakończona",
@@ -57,7 +56,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Do zapłaty dzisiaj",
   "product_info.subscribe_to": "Subskrybuj",
-  "payment_entry_page.trial_info": "Po zakończeniu okresu próbnego zostanie pobrana opłata w wysokości {{price}} {{perFrequency}} począwszy od {{renewalDate}}. Zawsze możesz anulować wcześniej.",
   "navbar_header.details": "Szczegóły",
   "navbar_header.back_button": "Wstecz",
   "pricing_dropdown.show_details": "Pokaż szczegóły",
@@ -91,5 +89,9 @@
   "product_info.intro_price_phase_paid_upfront": "Pierwsze {{introPriceDuration}} za {{introPrice}}",
   "product_info.after_trial": "po okresie próbnym",
   "product_info.after": "po",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} za {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} za {{introPrice}}",
+  "payment_entry_page.trial_subscription_terms_info": "Subskrybując, zgadzasz się na obciążenie przez {{appName}} kwotą {{price}} {{perFrequency}} po zakończeniu bezpłatnego okresu próbnego w dniu {{renewalDate}}, zgodnie z ich warunkami.",
+  "payment_entry_page.subscription_info": "Subskrypcja odnawia się automatycznie - możesz zrezygnować w dowolnym momencie.",
+  "payment_entry_page.otp_terms_info": "Kupując, zgadzasz się na obciążenie przez {{appName}} kwotą {{price}}, zgodnie z ich warunkami.",
+  "payment_entry_page.non_trial_subscription_terms_info": "Subskrybując, zgadzasz się na obciążenie przez {{appName}} kwotą {{price}} {{perFrequency}}, zgodnie z ich warunkami."
 }

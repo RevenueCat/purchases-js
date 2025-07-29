@@ -34,7 +34,6 @@
   "product_info.continues_until_cancelled": "Continue jusqu'à annulation",
   "product_info.cancel_anytime": "Annulez à tout moment",
   "payment_entry_page.payment_step_title": "Paiement sécurisé par RevenueCat",
-  "payment_entry_page.terms_info": "En fournissant vos informations de carte, vous autorisez {{appName}} à débiter votre carte pour les paiements futurs conformément à ses conditions.",
   "payment_entry_page.button_pay": "Payer maintenant",
   "payment_entry_page.button_start_trial": "Commencer l'essai",
   "success_page.purchase_successful": "Paiement effectué",
@@ -57,7 +56,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}} ({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Total dû aujourd'hui",
   "product_info.subscribe_to": "S'abonner à",
-  "payment_entry_page.trial_info": "Après la fin de votre essai, vous serez facturé {{price}} {{perFrequency}} à partir du {{renewalDate}}. Vous pouvez annuler à tout moment avant cette date.",
   "navbar_header.details": "Détails",
   "navbar_header.back_button": "Retour",
   "pricing_dropdown.show_details": "Afficher les détails",
@@ -91,5 +89,9 @@
   "product_info.intro_price_phase_paid_upfront": "Les {{introPriceDuration}} premiers jours pour {{introPrice}}",
   "product_info.intro_price_phase_recurring": "{{introPriceDuration}} pour {{introPrice}}",
   "product_info.after_trial": "après l'essai",
-  "product_info.after": "après"
+  "product_info.after": "après",
+  "payment_entry_page.trial_subscription_terms_info": "En vous abonnant, vous acceptez d'autoriser {{appName}} à vous facturer {{price}} {{perFrequency}} après la fin de votre essai gratuit le {{renewalDate}}, conformément à leurs conditions.",
+  "payment_entry_page.subscription_info": "L'abonnement est renouvelé automatiquement - annulez à tout moment.",
+  "payment_entry_page.otp_terms_info": "En achetant, vous acceptez d'autoriser {{appName}} à vous facturer {{price}}, conformément à leurs conditions.",
+  "payment_entry_page.non_trial_subscription_terms_info": "En vous abonnant, vous acceptez d'autoriser {{appName}} à vous facturer {{price}} {{perFrequency}}, conformément à leurs conditions."
 }

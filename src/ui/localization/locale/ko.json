@@ -34,7 +34,6 @@
   "product_info.continues_until_cancelled": "취소될 때까지 계속됩니다.",
   "product_info.cancel_anytime": "언제든지 취소 가능",
   "payment_entry_page.payment_step_title": "RevenueCat을 통한 안전한 결제",
-  "payment_entry_page.terms_info": "{{appName}}의 약관에 따라 향후 결제를 위해 귀하의 카드 정보를 제공함으로써 귀하의 카드에 요금을 청구할 수 있도록 허용합니다.",
   "payment_entry_page.button_pay": "지금 결제",
   "payment_entry_page.button_start_trial": "체험 시작",
   "success_page.purchase_successful": "결제가 완료되었습니다.",
@@ -57,7 +56,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "오늘 총 결제 금액",
   "product_info.subscribe_to": "구독하기",
-  "payment_entry_page.trial_info": "체험 기간이 종료되면 {{renewalDate}}부터 {{price}} {{perFrequency}}가 청구됩니다. 그 전에 언제든지 취소할 수 있습니다.",
   "navbar_header.details": "세부 정보",
   "navbar_header.back_button": "뒤로",
   "pricing_dropdown.show_details": "세부 정보 표시",
@@ -91,5 +89,9 @@
   "product_info.intro_price_phase_paid_upfront": "처음 {{introPriceDuration}} 동안 {{introPrice}}",
   "product_info.after_trial": "체험 후",
   "product_info.after": "후",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} 동안 {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} 동안 {{introPrice}}",
+  "payment_entry_page.trial_subscription_terms_info": "구독하면 {{appName}}이 해당 약관에 따라 무료 평가판이 {{renewalDate}}에 종료된 후 {{price}} {{perFrequency}}를 청구하는 데 동의하는 것입니다.",
+  "payment_entry_page.subscription_info": "구독은 자동으로 갱신되며 언제든지 취소할 수 있습니다.",
+  "payment_entry_page.otp_terms_info": "구매하면 {{appName}}이 해당 약관에 따라 {{price}}를 청구하는 데 동의하는 것입니다.",
+  "payment_entry_page.non_trial_subscription_terms_info": "구독하면 {{appName}}이 해당 약관에 따라 {{price}} {{perFrequency}}를 청구하는 데 동의하는 것입니다."
 }

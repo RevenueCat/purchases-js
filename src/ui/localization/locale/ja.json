@@ -34,7 +34,6 @@
   "product_info.continues_until_cancelled": "キャンセルされるまで継続されます",
   "product_info.cancel_anytime": "いつでもキャンセルできます",
   "payment_entry_page.payment_step_title": "RevenueCatによる安全なチェックアウト",
-  "payment_entry_page.terms_info": "カード情報を入力することにより、{{appName}}が利用規約に従って今後の支払いを請求することを許可します。",
   "payment_entry_page.button_pay": "今すぐ支払う",
   "payment_entry_page.button_start_trial": "トライアルを開始",
   "success_page.purchase_successful": "支払いが完了しました",
@@ -57,7 +56,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "本日のお支払い合計",
   "product_info.subscribe_to": "購読する",
-  "payment_entry_page.trial_info": "{{renewalDate}}から{{price}} {{perFrequency}}で開始され、トライアル終了後に請求されます。いつでもキャンセルできます。",
   "navbar_header.details": "詳細",
   "navbar_header.back_button": "戻る",
   "pricing_dropdown.show_details": "詳細を表示",
@@ -91,5 +89,9 @@
   "product_info.intro_price_phase_paid_upfront": "最初の{{introPriceDuration}}は{{introPrice}}",
   "product_info.after_trial": "トライアル後",
   "product_info.after": "後",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}}間{{introPrice}}でお試し"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}}間{{introPrice}}でお試し",
+  "payment_entry_page.trial_subscription_terms_info": "サブスクリプションに登録すると、{{appName}}が無料トライアル終了日の{{renewalDate}}以降に、{{price}} {{perFrequency}}を規約に従って請求することに同意したことになります。",
+  "payment_entry_page.subscription_info": "サブスクリプションは自動的に更新されます - いつでもキャンセルできます。",
+  "payment_entry_page.otp_terms_info": "購入すると、{{appName}}が{{price}}を規約に従って請求することに同意したことになります。",
+  "payment_entry_page.non_trial_subscription_terms_info": "サブスクリプションに登録すると、{{appName}}が{{price}} {{perFrequency}}を規約に従って請求することに同意したことになります。"
 }
