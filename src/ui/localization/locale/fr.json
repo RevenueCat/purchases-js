@@ -89,7 +89,7 @@
   "product_info.after_trial": "après l'essai",
   "product_info.after": "après",
   "product_info.intro_price_phase_after_trial": "Puis {{introPriceDuration}} pour {{introPrice}},",
-  "product_info.intro_price_phase": "Les {{introPriceDuration}} premiers pour {{introPrice}},",
+  "product_info.intro_price_phase": "Les premiers {{introPriceDuration}} pour {{introPrice}},",
   "product_info.intro_price_phase_paid_once": "payé une fois",
   "payment_entry_page.trial_subscription_terms_info": "En vous abonnant, vous acceptez d'autoriser {{appName}} à vous facturer {{price}} {{perFrequency}} après la fin de votre essai gratuit le {{renewalDate}}, conformément à leurs conditions.",
   "payment_entry_page.subscription_info": "L'abonnement est renouvelé automatiquement - annulez à tout moment.",
