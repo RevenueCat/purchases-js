@@ -34,7 +34,6 @@
   "product_info.continues_until_cancelled": "Continua fins que es cancel·li",
   "product_info.cancel_anytime": "Cancel·la en qualsevol moment",
   "payment_entry_page.payment_step_title": "Pagament segur amb RevenueCat",
-  "payment_entry_page.terms_info": "En proporcionar la teva informació de targeta, permets a {{appName}} carregar la teva targeta per a futurs pagaments d'acord amb els seus termes.",
   "payment_entry_page.button_pay": "Paga ara",
   "payment_entry_page.button_start_trial": "Comença la prova",
   "success_page.purchase_successful": "Pagament complet",
@@ -57,7 +56,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Total a pagar avui",
   "product_info.subscribe_to": "Subscriu-te a",
-  "payment_entry_page.trial_info": "Un cop finalitzi el període de prova, se us cobrarà {{price}} {{perFrequency}} a partir del {{renewalDate}}. Sempre podeu cancel·lar abans d'aquesta data.",
   "navbar_header.details": "Detalls",
   "navbar_header.back_button": "Enrere",
   "pricing_dropdown.show_details": "Mostra detalls",
@@ -91,5 +89,9 @@
   "product_info.intro_price_phase_paid_upfront": "Primer {{introPriceDuration}} per {{introPrice}}",
   "product_info.after_trial": "després del període de prova",
   "product_info.after": "després de",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} per {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} per {{introPrice}}",
+  "payment_entry_page.trial_subscription_terms_info": "En subscriure't, acceptes que {{appName}} et cobri {{price}} {{perFrequency}} després que finalitzi el període de prova gratuït el {{renewalDate}}, d'acord amb les seves condicions.",
+  "payment_entry_page.subscription_info": "La subscripció es renova automàticament; pots cancel·lar-la en qualsevol moment.",
+  "payment_entry_page.otp_terms_info": "En comprar, acceptes que {{appName}} et cobri {{price}}, d'acord amb les seves condicions.",
+  "payment_entry_page.non_trial_subscription_terms_info": "En subscriure't, acceptes que {{appName}} et cobri {{price}} {{perFrequency}}, d'acord amb les seves condicions."
 }

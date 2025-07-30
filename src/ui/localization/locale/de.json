@@ -34,7 +34,6 @@
   "product_info.continues_until_cancelled": "Läuft bis zur Kündigung",
   "product_info.cancel_anytime": "Jederzeit kündbar",
   "payment_entry_page.payment_step_title": "Sicherer Checkout über RevenueCat",
-  "payment_entry_page.terms_info": "Durch die Angabe Ihrer Karteninformationen erlauben Sie {{appName}}, Ihre Karte gemäß deren Bedingungen für zukünftige Zahlungen zu belasten.",
   "payment_entry_page.button_pay": "Jetzt bezahlen",
   "payment_entry_page.button_start_trial": "Testversion starten",
   "success_page.purchase_successful": "Zahlung abgeschlossen",
@@ -57,7 +56,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}} ({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Heute fälliger Gesamtbetrag",
   "product_info.subscribe_to": "Abonnieren",
-  "payment_entry_page.trial_info": "Nach Ablauf Ihres Testzeitraums werden Ihnen {{price}} {{perFrequency}} ab dem {{renewalDate}} berechnet. Sie können jederzeit vorher kündigen.",
   "navbar_header.details": "Details",
   "navbar_header.back_button": "Zurück",
   "pricing_dropdown.show_details": "Details anzeigen",
@@ -91,5 +89,9 @@
   "product_info.intro_price_phase_paid_upfront": "Die ersten {{introPriceDuration}} für {{introPrice}}",
   "product_info.intro_price_phase_recurring": "{{introPriceDuration}} für {{introPrice}}",
   "product_info.after_trial": "nach Testphase",
-  "product_info.after": "nach"
+  "product_info.after": "nach",
+  "payment_entry_page.trial_subscription_terms_info": "Mit dem Abonnieren stimmen Sie zu, dass {{appName}} Ihnen nach Ablauf Ihrer kostenlosen Testphase am {{renewalDate}} gemäß ihren Bedingungen {{price}} {{perFrequency}} in Rechnung stellt.",
+  "payment_entry_page.subscription_info": "Das Abonnement verlängert sich automatisch – jederzeit kündbar.",
+  "payment_entry_page.otp_terms_info": "Mit dem Kauf stimmen Sie zu, dass {{appName}} Ihnen gemäß ihren Bedingungen {{price}} in Rechnung stellt.",
+  "payment_entry_page.non_trial_subscription_terms_info": "Mit dem Abonnieren stimmen Sie zu, dass {{appName}} Ihnen gemäß ihren Bedingungen {{price}} {{perFrequency}} in Rechnung stellt."
 }

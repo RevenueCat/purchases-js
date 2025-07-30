@@ -34,7 +34,6 @@
   "product_info.continues_until_cancelled": "İptal edilene kadar devam eder",
   "product_info.cancel_anytime": "İstediğiniz zaman iptal edebilirsiniz",
   "payment_entry_page.payment_step_title": "RevenueCat ile güvenli ödeme",
-  "payment_entry_page.terms_info": "Kart bilgilerinizi vererek, {{appName}}'nin şartlarına uygun olarak gelecekteki ödemeler için kartınızdan ücret almasına izin verirsiniz.",
   "payment_entry_page.button_pay": "Şimdi öde",
   "payment_entry_page.button_start_trial": "Denemeyi başlat",
   "success_page.purchase_successful": "Ödeme tamamlandı",
@@ -57,7 +56,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Bugün ödenecek toplam tutar",
   "product_info.subscribe_to": "Abone Ol",
-  "payment_entry_page.trial_info": "Deneme süreniz sona erdikten sonra, {{renewalDate}} tarihinden itibaren {{price}} {{perFrequency}} ücretlendirileceksiniz. O zamana kadar istediğiniz zaman iptal edebilirsiniz.",
   "navbar_header.details": "Detaylar",
   "navbar_header.back_button": "Geri",
   "pricing_dropdown.show_details": "Detayları göster",
@@ -91,5 +89,9 @@
   "product_info.intro_price_phase_paid_upfront": "İlk {{introPriceDuration}} için {{introPrice}}",
   "product_info.after_trial": "deneme süresinden sonra",
   "product_info.after": "sonra",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} boyunca {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} boyunca {{introPrice}}",
+  "payment_entry_page.trial_subscription_terms_info": "Abone olarak, {{appName}}'in ücretsiz deneme sürümünüz {{renewalDate}} tarihinde sona erdikten sonra, şartlarına göre sizden {{price}} {{perFrequency}} ücret almasına izin vermeyi kabul edersiniz.",
+  "payment_entry_page.subscription_info": "Abonelik otomatik olarak yenilenir - istediğiniz zaman iptal edin.",
+  "payment_entry_page.otp_terms_info": "Satın alarak, {{appName}}'in şartlarına göre sizden {{price}} ücret almasına izin vermeyi kabul edersiniz.",
+  "payment_entry_page.non_trial_subscription_terms_info": "Abone olarak, {{appName}}'in şartlarına göre sizden {{price}} {{perFrequency}} ücret almasına izin vermeyi kabul edersiniz."
 }

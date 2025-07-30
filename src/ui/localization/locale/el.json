@@ -36,7 +36,6 @@
   "product_info.continues_until_cancelled": "Συνεχίζεται μέχρι την ακύρωση",
   "product_info.cancel_anytime": "Ακύρωση ανά πάσα στιγμή",
   "payment_entry_page.payment_step_title": "Ασφαλής ολοκλήρωση αγοράς από την RevenueCat",
-  "payment_entry_page.terms_info": "Με την παροχή των στοιχείων της κάρτας σας, επιτρέπετε στην {{appName}} να χρεώσει την κάρτα σας για μελλοντικές πληρωμές σύμφωνα με τους όρους της.",
   "payment_entry_page.button_pay": "Πληρωμή τώρα",
   "payment_entry_page.button_start_trial": "Έναρξη δοκιμής",
   "success_page.purchase_successful": "Η πληρωμή ολοκληρώθηκε",
@@ -57,7 +56,6 @@
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
   "paywall_variables.sub_relative_discount": "{{discount}}% έκπτωση",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
-  "payment_entry_page.trial_info": "Μετά τη λήξη της δοκιμαστικής περιόδου, θα χρεωθείτε {{price}} {{perFrequency}} ξεκινώντας από {{renewalDate}}. Μπορείτε να ακυρώσετε ανά πάσα στιγμή πριν από αυτό.",
   "navbar_header.details": "Λεπτομέρειες",
   "navbar_header.back_button": "Πίσω",
   "pricing_dropdown.show_details": "Εμφάνιση λεπτομερειών",
@@ -91,5 +89,9 @@
   "product_info.intro_price_phase_paid_upfront": "Πρώτα {{introPriceDuration}} για {{introPrice}}",
   "product_info.after_trial": "μετά τη δοκιμή",
   "product_info.after": "μετά",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} για {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} για {{introPrice}}",
+  "payment_entry_page.trial_subscription_terms_info": "Με την εγγραφή σας, συμφωνείτε να επιτρέψετε στην εφαρμογή {{appName}} να σας χρεώσει {{price}} {{perFrequency}} μετά τη λήξη της δωρεάν δοκιμής σας στις {{renewalDate}}, σύμφωνα με τους όρους της.",
+  "payment_entry_page.subscription_info": "Η συνδρομή ανανεώνεται αυτόματα - ακυρώστε οποτεδήποτε.",
+  "payment_entry_page.otp_terms_info": "Με την αγορά, συμφωνείτε να επιτρέψετε στην εφαρμογή {{appName}} να σας χρεώσει {{price}}, σύμφωνα με τους όρους της.",
+  "payment_entry_page.non_trial_subscription_terms_info": "Με την εγγραφή σας, συμφωνείτε να επιτρέψετε στην εφαρμογή {{appName}} να σας χρεώσει {{price}} {{perFrequency}}, σύμφωνα με τους όρους της."
 }

@@ -34,7 +34,6 @@
   "product_info.continues_until_cancelled": "Continua fino a disdetta",
   "product_info.cancel_anytime": "Disdici in qualsiasi momento",
   "payment_entry_page.payment_step_title": "Pagamento sicuro tramite RevenueCat",
-  "payment_entry_page.terms_info": "Fornendo i dati della tua carta, autorizzi {{appName}} ad addebitare sulla tua carta i pagamenti futuri in conformità con i suoi termini.",
   "payment_entry_page.button_pay": "Paga ora",
   "payment_entry_page.button_start_trial": "Inizia la prova",
   "success_page.purchase_successful": "Pagamento completato",
@@ -57,7 +56,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Totale dovuto oggi",
   "product_info.subscribe_to": "Abbonati a",
-  "payment_entry_page.trial_info": "Al termine del periodo di prova, ti verranno addebitati {{price}} {{perFrequency}} a partire dal {{renewalDate}}. Puoi annullare in qualsiasi momento prima di allora.",
   "navbar_header.details": "Dettagli",
   "navbar_header.back_button": "Indietro",
   "pricing_dropdown.show_details": "Mostra dettagli",
@@ -91,5 +89,9 @@
   "product_info.intro_price_phase_paid_upfront": "I primi {{introPriceDuration}} a {{introPrice}}",
   "product_info.intro_price_phase_recurring": "{{introPriceDuration}} a {{introPrice}}",
   "product_info.after_trial": "dopo il periodo di prova",
-  "product_info.after": "dopo"
+  "product_info.after": "dopo",
+  "payment_entry_page.trial_subscription_terms_info": "Abbonandoti, accetti che {{appName}} ti addebiti {{price}} {{perFrequency}} al termine del periodo di prova gratuito il {{renewalDate}}, in conformità con i loro termini.",
+  "payment_entry_page.subscription_info": "L'abbonamento si rinnova automaticamente - puoi annullarlo in qualsiasi momento.",
+  "payment_entry_page.otp_terms_info": "Acquistando, accetti che {{appName}} ti addebiti {{price}}, in conformità con i loro termini.",
+  "payment_entry_page.non_trial_subscription_terms_info": "Abbonandoti, accetti che {{appName}} ti addebiti {{price}} {{perFrequency}}, in conformità con i loro termini."
 }

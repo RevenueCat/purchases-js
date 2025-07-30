@@ -34,7 +34,6 @@
   "product_info.continues_until_cancelled": "持续到取消",
   "product_info.cancel_anytime": "随时取消",
   "payment_entry_page.payment_step_title": "RevenueCat 安全结账",
-  "payment_entry_page.terms_info": "通过提供您的卡信息，您允许 {{appName}} 根据其条款向您的卡收取未来付款。",
   "payment_entry_page.button_pay": "立即支付",
   "payment_entry_page.button_start_trial": "开始试用",
   "success_page.purchase_successful": "支付完成",
@@ -57,7 +56,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "今天应付总额",
   "product_info.subscribe_to": "订阅",
-  "payment_entry_page.trial_info": "试用期结束后，您将被收取 {{price}} {{perFrequency}}，从 {{renewalDate}} 开始。您可以随时在此之前取消。",
   "navbar_header.details": "详情",
   "navbar_header.back_button": "返回",
   "pricing_dropdown.show_details": "显示详情",
@@ -91,5 +89,9 @@
   "product_info.intro_price_phase_paid_upfront": "前{{introPriceDuration}}只需{{introPrice}}",
   "product_info.after_trial": "试用后",
   "product_info.after": "之后",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}}，价格为{{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}}，价格为{{introPrice}}",
+  "payment_entry_page.trial_subscription_terms_info": "订阅即表示您同意在免费试用期于{{renewalDate}}结束后，允许{{appName}}按照其条款向您收取{{price}}{{perFrequency}}。",
+  "payment_entry_page.subscription_info": "订阅自动续订 - 可随时取消。",
+  "payment_entry_page.otp_terms_info": "购买即表示您同意允许{{appName}}按照其条款向您收取{{price}}。",
+  "payment_entry_page.non_trial_subscription_terms_info": "订阅即表示您同意允许{{appName}}按照其条款向您收取{{price}}{{perFrequency}}。"
 }

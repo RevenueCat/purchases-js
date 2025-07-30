@@ -34,7 +34,6 @@
   "product_info.continues_until_cancelled": "يستمر حتى يتم إلغاؤه",
   "product_info.cancel_anytime": "يمكن الإلغاء في أي وقت",
   "payment_entry_page.payment_step_title": "الدفع الآمن عبر RevenueCat",
-  "payment_entry_page.terms_info": "بتقديم معلومات بطاقتك، فإنك تسمح لـ {{appName}} بتحصيل الرسوم من بطاقتك مقابل المدفوعات المستقبلية وفقًا لشروطها.",
   "payment_entry_page.button_pay": "ادفع الآن",
   "payment_entry_page.button_start_trial": "ابدأ التجربة",
   "success_page.purchase_successful": "تم الدفع بنجاح",
@@ -57,7 +56,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "إجمالي المبلغ المستحق اليوم",
   "product_info.subscribe_to": "اشترك في",
-  "payment_entry_page.trial_info": "بعد انتهاء الفترة التجريبية، سيتم محاسبتك بمبلغ {{price}} {{perFrequency}} بدءًا من {{renewalDate}}. يمكنك الإلغاء دائمًا قبل ذلك.",
   "navbar_header.details": "تفاصيل",
   "navbar_header.back_button": "عودة",
   "pricing_dropdown.show_details": "إظهار التفاصيل",
@@ -91,5 +89,9 @@
   "product_info.intro_price_phase_paid_upfront": "أول {{introPriceDuration}} مقابل {{introPrice}}",
   "product_info.after_trial": "بعد الفترة التجريبية",
   "product_info.after": "بعد",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} مقابل {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} مقابل {{introPrice}}",
+  "payment_entry_page.trial_subscription_terms_info": "بالاشتراك، أنت توافق على السماح لتطبيق {{appName}} بتحصيل {{price}} {{perFrequency}} بعد انتهاء الفترة التجريبية المجانية في {{renewalDate}}، وفقًا لشروطهم.",
+  "payment_entry_page.subscription_info": "يتم تجديد الاشتراك تلقائيًا - يمكنك الإلغاء في أي وقت.",
+  "payment_entry_page.otp_terms_info": "بالشراء، أنت توافق على السماح لتطبيق {{appName}} بتحصيل {{price}}، وفقًا لشروطهم.",
+  "payment_entry_page.non_trial_subscription_terms_info": "بالاشتراك، أنت توافق على السماح لتطبيق {{appName}} بتحصيل {{price}} {{perFrequency}}، وفقًا لشروطهم."
 }

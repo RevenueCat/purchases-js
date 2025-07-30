@@ -596,7 +596,7 @@
         />
 
         <div class="rc-checkout-secure-container">
-          <SecureCheckoutRc {brandingInfo} {subscriptionOption} />
+          <SecureCheckoutRc {brandingInfo} {purchaseOption} />
         </div>
       </div>
     </div>

@@ -4,7 +4,11 @@
   import { renderInsideNavbarBody } from "../decorators/layout-decorators";
   import SecureCheckoutRC from "../../ui/molecules/secure-checkout-rc.svelte";
   import { brandingInfo } from "../fixtures";
-  import { subscriptionOptionWithTrial, subscriptionOption } from "../fixtures";
+  import {
+    subscriptionOptionWithTrial,
+    subscriptionOption,
+    nonSubscriptionOption,
+  } from "../fixtures";
 
   const { Story } = defineMeta({
     component: SecureCheckoutRC,
@@ -19,16 +23,20 @@
 </script>
 
 <Story name="Without Extra Info">
-  <SecureCheckoutRC brandingInfo={null} subscriptionOption={null} />
+  <SecureCheckoutRC brandingInfo={null} purchaseOption={null} />
 </Story>
 
-<Story name="With Terms Info">
-  <SecureCheckoutRC {brandingInfo} {subscriptionOption} />
+<Story name="Non Subscription with branding info">
+  <SecureCheckoutRC {brandingInfo} purchaseOption={nonSubscriptionOption} />
 </Story>
 
-<Story name="With Terms and Trial Info">
+<Story name="Subscription with branding info">
+  <SecureCheckoutRC {brandingInfo} purchaseOption={subscriptionOption} />
+</Story>
+
+<Story name="Trial Subscription with branding info">
   <SecureCheckoutRC
     {brandingInfo}
-    subscriptionOption={subscriptionOptionWithTrial}
+    purchaseOption={subscriptionOptionWithTrial}
   />
 </Story>

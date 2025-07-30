@@ -34,7 +34,6 @@
   "product_info.continues_until_cancelled": "Tiếp tục cho đến khi hủy",
   "product_info.cancel_anytime": "Hủy bất cứ lúc nào",
   "payment_entry_page.payment_step_title": "Thanh toán an toàn bởi RevenueCat",
-  "payment_entry_page.terms_info": "Bằng cách cung cấp thông tin thẻ của bạn, bạn cho phép {{appName}} tính phí thẻ của bạn cho các khoản thanh toán trong tương lai theo các điều khoản của họ.",
   "payment_entry_page.button_pay": "Thanh toán ngay",
   "payment_entry_page.button_start_trial": "Bắt đầu dùng thử",
   "success_page.purchase_successful": "Thanh toán hoàn tất",
@@ -57,7 +56,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Tổng số tiền phải trả hôm nay",
   "product_info.subscribe_to": "Đăng ký",
-  "payment_entry_page.trial_info": "Sau khi thời gian dùng thử của bạn kết thúc, bạn sẽ bị tính phí {{price}} {{perFrequency}} bắt đầu từ {{renewalDate}}. Bạn luôn có thể hủy trước thời điểm đó.",
   "navbar_header.details": "Chi tiết",
   "navbar_header.back_button": "Quay lại",
   "pricing_dropdown.show_details": "Xem chi tiết",
@@ -91,5 +89,9 @@
   "product_info.intro_price_phase_paid_upfront": "{{introPriceDuration}} đầu tiên với giá {{introPrice}}",
   "product_info.after_trial": "sau khi dùng thử",
   "product_info.after": "sau",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} với giá {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} với giá {{introPrice}}",
+  "payment_entry_page.trial_subscription_terms_info": "Bằng cách đăng ký, bạn đồng ý cho phép {{appName}} tính phí {{price}} {{perFrequency}} sau khi thời gian dùng thử miễn phí của bạn kết thúc vào ngày {{renewalDate}}, theo các điều khoản của họ.",
+  "payment_entry_page.subscription_info": "Gói đăng ký tự động gia hạn - hủy bất cứ lúc nào.",
+  "payment_entry_page.otp_terms_info": "Bằng cách mua, bạn đồng ý cho phép {{appName}} tính phí {{price}}, theo các điều khoản của họ.",
+  "payment_entry_page.non_trial_subscription_terms_info": "Bằng cách đăng ký, bạn đồng ý cho phép {{appName}} tính phí {{price}} {{perFrequency}}, theo các điều khoản của họ."
 }

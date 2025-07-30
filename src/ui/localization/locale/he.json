@@ -34,7 +34,6 @@
   "product_info.continues_until_cancelled": "נמשך עד ביטול",
   "product_info.cancel_anytime": "ניתן לבטל בכל עת",
   "payment_entry_page.payment_step_title": "קופה מאובטחת באמצעות RevenueCat",
-  "payment_entry_page.terms_info": "על ידי מתן פרטי הכרטיס שלך אתה מאפשר ל-{{appName}} לחייב את הכרטיס שלך עבור תשלומים עתידיים בהתאם לתנאים שלהם.",
   "payment_entry_page.button_pay": "שלם עכשיו",
   "payment_entry_page.button_start_trial": "התחל ניסיון",
   "success_page.purchase_successful": "התשלום הושלם",
@@ -57,7 +56,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "סה\"כ לתשלום היום",
   "product_info.subscribe_to": "הירשם כמנוי ל-",
-  "payment_entry_page.trial_info": "לאחר סיום תקופת הניסיון שלך, תחויב בסך {{price}} {{perFrequency}} החל מ-{{renewalDate}}. תמיד תוכל לבטל לפני כן.",
   "navbar_header.details": "פרטים",
   "navbar_header.back_button": "חזרה",
   "pricing_dropdown.show_details": "הצג פרטים",
@@ -91,5 +89,9 @@
   "product_info.intro_price_phase_paid_upfront": "{{introPriceDuration}} ראשונים עבור {{introPrice}}",
   "product_info.after_trial": "אחרי תקופת ניסיון",
   "product_info.after": "אחרי",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} עבור {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} עבור {{introPrice}}",
+  "payment_entry_page.trial_subscription_terms_info": "על ידי הרשמה כמנוי, אתה מסכים לאפשר ל-{{appName}} לחייב אותך {{price}} {{perFrequency}} לאחר שתקופת הניסיון בחינם שלך תסתיים ב-{{renewalDate}}, בהתאם לתנאים שלהם.",
+  "payment_entry_page.subscription_info": "המנוי מתחדש אוטומטית - ניתן לבטל בכל עת.",
+  "payment_entry_page.otp_terms_info": "ברכישה, אתה מסכים לאפשר ל-{{appName}} לחייב אותך {{price}}, בהתאם לתנאים שלהם.",
+  "payment_entry_page.non_trial_subscription_terms_info": "על ידי הרשמה כמנוי, אתה מסכים לאפשר ל-{{appName}} לחייב אותך {{price}} {{perFrequency}}, בהתאם לתנאים שלהם."
 }

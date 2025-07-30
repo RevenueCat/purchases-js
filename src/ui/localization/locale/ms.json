@@ -34,7 +34,6 @@
   "product_info.continues_until_cancelled": "Berterusan sehingga dibatalkan",
   "product_info.cancel_anytime": "Batal bila-bila masa",
   "payment_entry_page.payment_step_title": "Pembayaran selamat oleh RevenueCat",
-  "payment_entry_page.terms_info": "Dengan memberikan maklumat kad anda, anda membenarkan {{appName}} untuk mengenakan bayaran pada kad anda untuk pembayaran masa hadapan mengikut terma mereka.",
   "payment_entry_page.button_pay": "Bayar sekarang",
   "payment_entry_page.button_start_trial": "Mula Percubaan",
   "success_page.purchase_successful": "Pembayaran selesai",
@@ -57,7 +56,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Jumlah yang perlu dibayar hari ini",
   "product_info.subscribe_to": "Langgan",
-  "payment_entry_page.trial_info": "Selepas tempoh percubaan anda tamat, anda akan dikenakan bayaran sebanyak {{price}} {{perFrequency}} bermula {{renewalDate}}. Anda sentiasa boleh membatalkan sebelum itu.",
   "navbar_header.details": "Butiran",
   "navbar_header.back_button": "Kembali",
   "pricing_dropdown.show_details": "Tunjukkan butiran",
@@ -91,5 +89,9 @@
   "product_info.intro_price_phase_paid_upfront": "Pertama {{introPriceDuration}} untuk {{introPrice}}",
   "product_info.after_trial": "selepas percubaan",
   "product_info.after": "selepas",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} untuk {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} untuk {{introPrice}}",
+  "payment_entry_page.trial_subscription_terms_info": "Dengan melanggan, anda bersetuju untuk membenarkan {{appName}} mengenakan bayaran kepada anda sebanyak {{price}} {{perFrequency}} selepas tempoh percubaan percuma anda tamat pada {{renewalDate}}, mengikut terma mereka.",
+  "payment_entry_page.subscription_info": "Langganan diperbaharui secara automatik - batalkan bila-bila masa.",
+  "payment_entry_page.otp_terms_info": "Dengan membeli, anda bersetuju untuk membenarkan {{appName}} mengenakan bayaran kepada anda sebanyak {{price}}, mengikut terma mereka.",
+  "payment_entry_page.non_trial_subscription_terms_info": "Dengan melanggan, anda bersetuju untuk membenarkan {{appName}} mengenakan bayaran kepada anda sebanyak {{price}} {{perFrequency}}, mengikut terma mereka."
 }

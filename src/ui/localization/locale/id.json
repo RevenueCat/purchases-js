@@ -34,7 +34,6 @@
   "product_info.continues_until_cancelled": "Berlanjut hingga dibatalkan",
   "product_info.cancel_anytime": "Batalkan kapan saja",
   "payment_entry_page.payment_step_title": "Pembayaran aman oleh RevenueCat",
-  "payment_entry_page.terms_info": "Dengan memberikan informasi kartu Anda, Anda mengizinkan {{appName}} untuk menagih kartu Anda untuk pembayaran di masa mendatang sesuai dengan ketentuan mereka.",
   "payment_entry_page.button_pay": "Bayar sekarang",
   "payment_entry_page.button_start_trial": "Mulai Uji Coba",
   "success_page.purchase_successful": "Pembayaran selesai",
@@ -57,7 +56,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Total yang harus dibayar hari ini",
   "product_info.subscribe_to": "Berlangganan ke",
-  "payment_entry_page.trial_info": "Setelah masa percobaan Anda berakhir, Anda akan dikenakan biaya {{price}} {{perFrequency}} mulai {{renewalDate}}. Anda selalu dapat membatalkan sebelum itu.",
   "navbar_header.details": "Detail",
   "navbar_header.back_button": "Kembali",
   "pricing_dropdown.show_details": "Tampilkan detail",
@@ -91,5 +89,9 @@
   "product_info.intro_price_phase_paid_upfront": "Pertama {{introPriceDuration}} seharga {{introPrice}}",
   "product_info.after_trial": "setelah uji coba",
   "product_info.after": "setelah",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} dengan harga {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} dengan harga {{introPrice}}",
+  "payment_entry_page.trial_subscription_terms_info": "Dengan berlangganan, Anda setuju untuk mengizinkan {{appName}} menagih Anda {{price}} {{perFrequency}} setelah uji coba gratis Anda berakhir pada {{renewalDate}}, sesuai dengan ketentuan mereka.",
+  "payment_entry_page.subscription_info": "Langganan diperpanjang secara otomatis - batalkan kapan saja.",
+  "payment_entry_page.otp_terms_info": "Dengan membeli, Anda setuju untuk mengizinkan {{appName}} menagih Anda {{price}}, sesuai dengan ketentuan mereka.",
+  "payment_entry_page.non_trial_subscription_terms_info": "Dengan berlangganan, Anda setuju untuk mengizinkan {{appName}} menagih Anda {{price}} {{perFrequency}}, sesuai dengan ketentuan mereka."
 }

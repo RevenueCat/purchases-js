@@ -34,7 +34,6 @@
   "product_info.continues_until_cancelled": "Продолжается до отмены",
   "product_info.cancel_anytime": "Отменить в любое время",
   "payment_entry_page.payment_step_title": "Безопасная оплата через RevenueCat",
-  "payment_entry_page.terms_info": "Предоставляя данные вашей карты, вы разрешаете {{appName}} списывать средства с вашей карты для будущих платежей в соответствии с их условиями.",
   "payment_entry_page.button_pay": "Оплатить сейчас",
   "payment_entry_page.button_start_trial": "Начать пробный период",
   "success_page.purchase_successful": "Оплата завершена",
@@ -57,7 +56,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Всего к оплате сегодня",
   "product_info.subscribe_to": "Подписаться",
-  "payment_entry_page.trial_info": "После окончания пробного периода с вас будет взиматься {{price}} {{perFrequency}} начиная с {{renewalDate}}. Вы всегда можете отменить подписку до этого времени.",
   "navbar_header.details": "Детали",
   "navbar_header.back_button": "Назад",
   "pricing_dropdown.show_details": "Показать детали",
@@ -91,5 +89,9 @@
   "product_info.intro_price_phase_paid_upfront": "Первые {{introPriceDuration}} за {{introPrice}}",
   "product_info.after_trial": "после пробного периода",
   "product_info.after": "после",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} за {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} за {{introPrice}}",
+  "payment_entry_page.trial_subscription_terms_info": "Подписываясь, вы соглашаетесь с тем, что {{appName}} будет взимать с вас {{price}} {{perFrequency}} после окончания бесплатного пробного периода {{renewalDate}}, в соответствии с их условиями.",
+  "payment_entry_page.subscription_info": "Подписка продлевается автоматически - отменить можно в любое время.",
+  "payment_entry_page.otp_terms_info": "Приобретая, вы соглашаетесь с тем, что {{appName}} будет взимать с вас {{price}}, в соответствии с их условиями.",
+  "payment_entry_page.non_trial_subscription_terms_info": "Подписываясь, вы соглашаетесь с тем, что {{appName}} будет взимать с вас {{price}} {{perFrequency}}, в соответствии с их условиями."
 }

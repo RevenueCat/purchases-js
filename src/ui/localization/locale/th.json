@@ -34,7 +34,6 @@
   "product_info.continues_until_cancelled": "ต่อเนื่องจนกว่าจะยกเลิก",
   "product_info.cancel_anytime": "ยกเลิกได้ตลอดเวลา",
   "payment_entry_page.payment_step_title": "การชำระเงินอย่างปลอดภัยโดย RevenueCat",
-  "payment_entry_page.terms_info": "โดยการให้ข้อมูลบัตรของคุณ คุณอนุญาตให้ {{appName}} เรียกเก็บเงินจากบัตรของคุณสำหรับการชำระเงินในอนาคตตามข้อกำหนดของพวกเขา",
   "payment_entry_page.button_pay": "ชำระเงินตอนนี้",
   "payment_entry_page.button_start_trial": "เริ่มทดลองใช้",
   "success_page.purchase_successful": "การชำระเงินเสร็จสมบูรณ์",
@@ -57,7 +56,6 @@
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "ยอดรวมที่ต้องชำระวันนี้",
   "product_info.subscribe_to": "สมัครสมาชิก",
-  "payment_entry_page.trial_info": "หลังจากช่วงทดลองใช้ของคุณสิ้นสุดลง คุณจะถูกเรียกเก็บเงิน {{price}} {{perFrequency}} โดยเริ่มในวันที่ {{renewalDate}} คุณสามารถยกเลิกได้ตลอดเวลาก่อนหน้านั้น",
   "navbar_header.details": "รายละเอียด",
   "navbar_header.back_button": "ย้อนกลับ",
   "pricing_dropdown.show_details": "แสดงรายละเอียด",
@@ -91,5 +89,9 @@
   "product_info.intro_price_phase_paid_upfront": "{{introPriceDuration}} แรกในราคา {{introPrice}}",
   "product_info.after_trial": "หลังช่วงทดลองใช้",
   "product_info.after": "หลังจาก",
-  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} ในราคา {{introPrice}}"
+  "product_info.intro_price_phase_recurring": "{{introPriceDuration}} ในราคา {{introPrice}}",
+  "payment_entry_page.trial_subscription_terms_info": "เมื่อสมัครรับข้อมูล แสดงว่าคุณยินยอมให้ {{appName}} เรียกเก็บเงิน {{price}} {{perFrequency}} หลังจากช่วงทดลองใช้ฟรีของคุณสิ้นสุดในวันที่ {{renewalDate}} ตามข้อกำหนดของพวกเขา",
+  "payment_entry_page.subscription_info": "การสมัครรับข้อมูลจะต่ออายุโดยอัตโนมัติ - ยกเลิกได้ตลอดเวลา",
+  "payment_entry_page.otp_terms_info": "เมื่อซื้อ แสดงว่าคุณยินยอมให้ {{appName}} เรียกเก็บเงิน {{price}} ตามข้อกำหนดของพวกเขา",
+  "payment_entry_page.non_trial_subscription_terms_info": "เมื่อสมัครรับข้อมูล แสดงว่าคุณยินยอมให้ {{appName}} เรียกเก็บเงิน {{price}} {{perFrequency}} ตามข้อกำหนดของพวกเขา"
 }

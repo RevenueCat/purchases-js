@@ -7,58 +7,98 @@
   import { formatPrice } from "../../helpers/price-labels";
   import { getNextRenewalDate } from "../../helpers/duration-helper";
   import type { BrandingInfoResponse } from "../../networking/responses/branding-response";
-  import type { SubscriptionOption } from "../../entities/offerings";
+  import type {
+    PurchaseOption,
+    SubscriptionOption,
+    NonSubscriptionOption,
+  } from "../../entities/offerings";
   import { type Writable } from "svelte/store";
   import Typography from "../atoms/typography.svelte";
 
   export let brandingInfo: BrandingInfoResponse | null = null;
-  export let subscriptionOption: SubscriptionOption | null = null;
+  export let purchaseOption: PurchaseOption | null = null;
 
   const translator = getContext<Writable<Translator>>(translatorContextKey);
 
-  $: termsInfo = brandingInfo
-    ? $translator.translate(LocalizationKeys.PaymentEntryPageTermsInfo, {
-        appName: brandingInfo?.app_name,
-      })
+  function isSubscriptionOption(
+    option: PurchaseOption | null,
+  ): option is SubscriptionOption {
+    return option != null && "base" in option;
+  }
+
+  function isNonSubscriptionOption(
+    option: PurchaseOption | null,
+  ): option is NonSubscriptionOption {
+    return option != null && "basePrice" in option;
+  }
+
+  $: subscriptionOption = isSubscriptionOption(purchaseOption)
+    ? purchaseOption
+    : null;
+  $: nonSubscriptionOption = isNonSubscriptionOption(purchaseOption)
+    ? purchaseOption
     : null;
 
-  $: trialInfo =
-    subscriptionOption?.base?.price &&
-    subscriptionOption?.trial?.period &&
-    subscriptionOption?.base?.period &&
-    subscriptionOption?.base?.period?.unit
-      ? $translator.translate(LocalizationKeys.PaymentEntryPageTrialInfo, {
-          price: formatPrice(
-            subscriptionOption?.base?.price.amountMicros,
-            subscriptionOption?.base?.price.currency,
-            $translator.locale || $translator.fallbackLocale,
-          ),
-          perFrequency: $translator.translatePeriodFrequency(
-            subscriptionOption?.base?.period?.number || 1,
-            subscriptionOption?.base?.period?.unit,
-            { useMultipleWords: true },
-          ),
-          renewalDate: $translator.translateDate(
-            getNextRenewalDate(
-              new Date(),
-              subscriptionOption.trial.period || subscriptionOption.base.period,
-              true,
-            ) as Date,
-            { year: "numeric", month: "long", day: "numeric" },
-          ),
+  $: termsKey = !subscriptionOption
+    ? LocalizationKeys.PaymentEntryPageOtpTermsInfo
+    : subscriptionOption.trial
+      ? LocalizationKeys.PaymentEntryPageTrialSubscriptionTermsInfo
+      : LocalizationKeys.PaymentEntryPageNonTrialSubscriptionTermsInfo;
+
+  $: basePrice =
+    nonSubscriptionOption?.basePrice || subscriptionOption?.base?.price;
+
+  $: basePriceFormatted = basePrice
+    ? formatPrice(
+        basePrice.amountMicros,
+        basePrice.currency,
+        $translator.locale || $translator.fallbackLocale,
+      )
+    : null;
+
+  $: perFrequency = subscriptionOption?.base?.period
+    ? $translator.translatePeriodFrequency(
+        subscriptionOption?.base?.period?.number || 1,
+        subscriptionOption?.base?.period?.unit,
+        { useMultipleWords: true },
+      )
+    : null;
+
+  $: renewalDate = subscriptionOption?.trial?.period
+    ? $translator.translateDate(
+        getNextRenewalDate(
+          new Date(),
+          subscriptionOption.trial.period,
+          true,
+        ) as Date,
+        { year: "numeric", month: "long", day: "numeric" },
+      )
+    : null;
+
+  $: termsInfo =
+    brandingInfo && basePrice
+      ? $translator.translate(termsKey, {
+          appName: brandingInfo?.app_name,
+          price: basePriceFormatted,
+          perFrequency,
+          renewalDate,
         })
       : null;
+
+  $: subscriptionInfo = subscriptionOption
+    ? $translator.translate(LocalizationKeys.PaymentEntryPageSubscriptionInfo)
+    : null;
 </script>
 
 <div class="footer-caption-container">
-  {#if termsInfo && subscriptionOption}
+  {#if termsInfo}
     <p class="footer-caption">
       <Typography size="caption-default">{termsInfo}</Typography>
     </p>
   {/if}
-  {#if trialInfo}
+  {#if subscriptionInfo}
     <p class="footer-caption">
-      <Typography size="caption-default">{trialInfo}</Typography>
+      <Typography size="caption-default">{subscriptionInfo}</Typography>
     </p>
   {/if}
   <p class="footer-caption">
