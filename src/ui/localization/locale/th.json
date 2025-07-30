@@ -94,5 +94,9 @@
   "payment_entry_page.trial_subscription_terms_info": "เมื่อสมัครรับข้อมูล แสดงว่าคุณยินยอมให้ {{appName}} เรียกเก็บเงิน {{price}} {{perFrequency}} หลังจากช่วงทดลองใช้ฟรีของคุณสิ้นสุดในวันที่ {{renewalDate}} ตามข้อกำหนดของพวกเขา",
   "payment_entry_page.subscription_info": "การสมัครรับข้อมูลจะต่ออายุโดยอัตโนมัติ - ยกเลิกได้ตลอดเวลา",
   "payment_entry_page.otp_terms_info": "เมื่อซื้อ แสดงว่าคุณยินยอมให้ {{appName}} เรียกเก็บเงิน {{price}} ตามข้อกำหนดของพวกเขา",
-  "payment_entry_page.non_trial_subscription_terms_info": "เมื่อสมัครรับข้อมูล แสดงว่าคุณยินยอมให้ {{appName}} เรียกเก็บเงิน {{price}} {{perFrequency}} ตามข้อกำหนดของพวกเขา"
+  "payment_entry_page.non_trial_subscription_terms_info": "เมื่อสมัครรับข้อมูล แสดงว่าคุณยินยอมให้ {{appName}} เรียกเก็บเงิน {{price}} {{perFrequency}} ตามข้อกำหนดของพวกเขา",
+  "payment_entry_page.trial_and_intro_paid_upfront_subscription_terms_info": "เมื่อสมัครรับข้อมูล คุณตกลงที่จะอนุญาตให้ {{appName}} เรียกเก็บเงินจากคุณ {{price}} เป็นข้อเสนอแบบจำกัดเวลา หลังจากช่วงทดลองใช้ฟรีของคุณสิ้นสุดในวันที่ {{renewalDate}} ตามด้วยราคาที่ระบุ (บวกภาษีที่เกี่ยวข้อง) หลังจากช่วงเวลาข้อเสนอสิ้นสุดลง ตามข้อกำหนดของพวกเขา",
+  "payment_entry_page.intro_recurring_subscription_terms_info": "เมื่อสมัครรับข้อมูล คุณตกลงที่จะอนุญาตให้ {{appName}} เรียกเก็บเงินจากคุณ {{price}} {{perFrequency}} เป็นข้อเสนอแบบจำกัดเวลา จากนั้นราคาที่ระบุ (บวกภาษีที่เกี่ยวข้อง) หลังจากช่วงเวลาข้อเสนอสิ้นสุดลง ตามข้อกำหนดของพวกเขา",
+  "payment_entry_page.intro_paid_upfront_subscription_terms_info": "เมื่อสมัครรับข้อมูล คุณตกลงที่จะอนุญาตให้ {{appName}} เรียกเก็บเงินจากคุณ {{price}} เป็นข้อเสนอแบบจำกัดเวลา จากนั้นราคาที่ระบุ (บวกภาษีที่เกี่ยวข้อง) หลังจากช่วงเวลาข้อเสนอสิ้นสุดลง ตามข้อกำหนดของพวกเขา",
+  "payment_entry_page.trial_and_intro_recurring_subscription_terms_info": "เมื่อสมัครรับข้อมูล คุณตกลงที่จะอนุญาตให้ {{appName}} เรียกเก็บเงินจากคุณ {{price}} {{perFrequency}} เป็นข้อเสนอแบบจำกัดเวลา หลังจากช่วงทดลองใช้ฟรีของคุณสิ้นสุดในวันที่ {{renewalDate}} ตามด้วยราคาที่ระบุ (บวกภาษีที่เกี่ยวข้อง) หลังจากช่วงเวลาข้อเสนอสิ้นสุดลง ตามข้อกำหนดของพวกเขา"
 }

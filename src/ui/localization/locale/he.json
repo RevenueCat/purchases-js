@@ -94,5 +94,9 @@
   "payment_entry_page.trial_subscription_terms_info": "על ידי הרשמה כמנוי, אתה מסכים לאפשר ל-{{appName}} לחייב אותך {{price}} {{perFrequency}} לאחר שתקופת הניסיון בחינם שלך תסתיים ב-{{renewalDate}}, בהתאם לתנאים שלהם.",
   "payment_entry_page.subscription_info": "המנוי מתחדש אוטומטית - ניתן לבטל בכל עת.",
   "payment_entry_page.otp_terms_info": "ברכישה, אתה מסכים לאפשר ל-{{appName}} לחייב אותך {{price}}, בהתאם לתנאים שלהם.",
-  "payment_entry_page.non_trial_subscription_terms_info": "על ידי הרשמה כמנוי, אתה מסכים לאפשר ל-{{appName}} לחייב אותך {{price}} {{perFrequency}}, בהתאם לתנאים שלהם."
+  "payment_entry_page.non_trial_subscription_terms_info": "על ידי הרשמה כמנוי, אתה מסכים לאפשר ל-{{appName}} לחייב אותך {{price}} {{perFrequency}}, בהתאם לתנאים שלהם.",
+  "payment_entry_page.trial_and_intro_paid_upfront_subscription_terms_info": "על ידי הרשמה כמנוי, אתה מסכים לאפשר ל-{{appName}} לחייב אותך {{price}} כהצעה לזמן מוגבל, לאחר שתקופת הניסיון בחינם שלך תסתיים בתאריך {{renewalDate}}, ואחריה המחיר המצוין (בתוספת מיסים רלוונטיים) לאחר סיום תקופת ההצעה, בהתאם לתנאים שלהם.",
+  "payment_entry_page.intro_recurring_subscription_terms_info": "על ידי הרשמה כמנוי, אתה מסכים לאפשר ל-{{appName}} לחייב אותך {{price}} {{perFrequency}} כהצעה לזמן מוגבל, ואז המחיר המצוין (בתוספת מיסים רלוונטיים) לאחר סיום תקופת ההצעה, בהתאם לתנאים שלהם.",
+  "payment_entry_page.intro_paid_upfront_subscription_terms_info": "על ידי הרשמה כמנוי, אתה מסכים לאפשר ל-{{appName}} לחייב אותך {{price}} כהצעה לזמן מוגבל, ואז המחיר המצוין (בתוספת מיסים רלוונטיים) לאחר סיום תקופת ההצעה, בהתאם לתנאים שלהם.",
+  "payment_entry_page.trial_and_intro_recurring_subscription_terms_info": "על ידי הרשמה כמנוי, אתה מסכים לאפשר ל-{{appName}} לחייב אותך {{price}} {{perFrequency}} כהצעה לזמן מוגבל, לאחר שתקופת הניסיון בחינם שלך תסתיים בתאריך {{renewalDate}}, ואחריה המחיר המצוין (בתוספת מיסים רלוונטיים) לאחר סיום תקופת ההצעה, בהתאם לתנאים שלהם."
 }

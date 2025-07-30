@@ -94,5 +94,9 @@
   "payment_entry_page.trial_subscription_terms_info": "订阅即表示您同意在免费试用期于{{renewalDate}}结束后，允许{{appName}}按照其条款向您收取{{price}}{{perFrequency}}。",
   "payment_entry_page.subscription_info": "订阅自动续订 - 可随时取消。",
   "payment_entry_page.otp_terms_info": "购买即表示您同意允许{{appName}}按照其条款向您收取{{price}}。",
-  "payment_entry_page.non_trial_subscription_terms_info": "订阅即表示您同意允许{{appName}}按照其条款向您收取{{price}}{{perFrequency}}。"
+  "payment_entry_page.non_trial_subscription_terms_info": "订阅即表示您同意允许{{appName}}按照其条款向您收取{{price}}{{perFrequency}}。",
+  "payment_entry_page.trial_and_intro_paid_upfront_subscription_terms_info": "订阅即表示您同意允许{{appName}}在您的免费试用期于{{renewalDate}}结束后，以限时优惠价格{{price}}向您收费，优惠期结束后，将按照其条款收取所示价格（加上适用的税费）。",
+  "payment_entry_page.intro_recurring_subscription_terms_info": "订阅即表示您同意允许{{appName}}以限时优惠价格{{price}}{{perFrequency}}向您收费，优惠期结束后，将按照其条款收取所示价格（加上适用的税费）。",
+  "payment_entry_page.intro_paid_upfront_subscription_terms_info": "订阅即表示您同意允许{{appName}}以限时优惠价格{{price}}向您收费，优惠期结束后，将按照其条款收取所示价格（加上适用的税费）。",
+  "payment_entry_page.trial_and_intro_recurring_subscription_terms_info": "订阅即表示您同意允许{{appName}}在您的免费试用期于{{renewalDate}}结束后，以限时优惠价格{{price}}{{perFrequency}}向您收费，优惠期结束后，将按照其条款收取所示价格（加上适用的税费）。"
 }
