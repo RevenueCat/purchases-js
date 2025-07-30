@@ -45,6 +45,7 @@
   // Determine conditional text to show after intro price and base price
   const hasTrial = $derived(trialPhase?.periodDuration);
   const hasIntroPrice = $derived(introPricePhase?.periodDuration);
+  const isIntroPricePaidUpfront = $derived(introPricePhase?.cycleCount == 1);
 
   const formattedPrice = $derived(
     $translator.formatPrice(
@@ -84,9 +85,9 @@
     <div>
       <Typography size={introTypographySize}>
         <Localized
-          key={introPricePhase.cycleCount === 1
-            ? LocalizationKeys.ProductInfoIntroPricePhasePaidUpfront
-            : LocalizationKeys.ProductInfoIntroPricePhaseRecurring}
+          key={hasTrial
+            ? LocalizationKeys.ProductInfoIntroPricePhaseAfterTrial
+            : LocalizationKeys.ProductInfoIntroPricePhase}
           variables={{
             introPriceDuration: introPriceDuration,
             introPrice: formattedIntroPrice,
@@ -94,19 +95,19 @@
         />
       </Typography>
 
-      {#if introPricePhase.cycleCount > 1 && introPricePhase.period}
+      {#if isIntroPricePaidUpfront}
+        <Typography size="body-small">
+          <Localized
+            key={LocalizationKeys.ProductInfoIntroPricePhasePaidOnce}
+          />
+        </Typography>
+      {:else if introPricePhase.period}
         <Typography size="body-small">
           {$translator.translatePeriodFrequency(
             introPricePhase.period.number,
             introPricePhase.period.unit,
             { useMultipleWords: true },
           )}
-        </Typography>
-      {/if}
-
-      {#if hasTrial}
-        <Typography size="body-small">
-          <Localized key={LocalizationKeys.ProductInfoAfterTrial} />
         </Typography>
       {/if}
     </div>
