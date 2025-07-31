@@ -1,11 +1,17 @@
 import type { PurchaseParams } from "../entities/purchase-params";
 import type { PurchaseResult } from "../entities/purchase-result";
+import type { StoreTransaction } from "../entities/store-transaction";
 import { PurchasesError, ErrorCode } from "../entities/errors";
 import { mount, unmount } from "svelte";
 import TestStoreModal from "../ui/molecules/test-store-modal.svelte";
+import type { Backend } from "../networking/backend";
+import { toCustomerInfo } from "../entities/customer-info";
+import { generateUUID } from "./uuid-helper";
 
 export function purchaseTestStoreProduct(
   purchaseParams: PurchaseParams,
+  backend: Backend,
+  appUserId: string,
 ): Promise<PurchaseResult> {
   const product = purchaseParams.rcPackage.webBillingProduct;
   const productType = product.productType;
@@ -20,7 +26,7 @@ export function purchaseTestStoreProduct(
     return `${period.number} ${period.unit}${period.number > 1 ? "s" : ""}`;
   };
 
-  return new Promise((_resolve, reject) => {
+  return new Promise((resolve, reject) => {
     // Create a container for the modal
     const container = document.createElement("div");
     document.body.appendChild(container);
@@ -44,15 +50,40 @@ export function purchaseTestStoreProduct(
           ? formatPeriod(freeTrialPhase.period)
           : undefined,
         introPriceFormatted: introPricePhase?.price?.formattedPrice,
-        onValidPurchase: () => {
+        onValidPurchase: async () => {
           cleanup();
-          // TODO: Implement valid purchase logic
-          reject(
-            new PurchasesError(
-              ErrorCode.UnknownError,
-              "TODO: Implement valid purchase logic",
-            ),
-          );
+          try {
+            const fetchToken = generateUUID();
+            const operationSessionId = `test_store_operation_session_${generateUUID()}`;
+            const storeTransactionId = generateUUID();
+
+            const storeTransaction: StoreTransaction = {
+              storeTransactionId,
+              productIdentifier: product.identifier,
+              purchaseDate: new Date(),
+            };
+
+            const subscriberResponse = await backend.postReceipt(
+              appUserId,
+              product.identifier,
+              fetchToken,
+              product.presentedOfferingContext,
+              "purchase",
+            );
+
+            const customerInfo = toCustomerInfo(subscriberResponse);
+
+            const purchaseResult: PurchaseResult = {
+              customerInfo,
+              redemptionInfo: null,
+              operationSessionId,
+              storeTransaction,
+            };
+
+            resolve(purchaseResult);
+          } catch (error) {
+            reject(error);
+          }
         },
         onFailedPurchase: () => {
           cleanup();

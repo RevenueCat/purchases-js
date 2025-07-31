@@ -640,7 +640,11 @@ export class Purchases {
       skipSuccessPage = false,
     } = params;
     if (isRCTestStoreApiKey(this._API_KEY)) {
-      return await purchaseTestStoreProduct(params);
+      return await purchaseTestStoreProduct(
+        params,
+        this.backend,
+        this._appUserId,
+      );
     }
     let resolvedHTMLTarget =
       htmlTarget ?? document.getElementById("rcb-ui-root");
