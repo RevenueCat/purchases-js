@@ -71,6 +71,7 @@ import { type PurchasesConfig } from "./entities/purchases-config";
 import { generateUUID } from "./helpers/uuid-helper";
 import type { PlatformInfo } from "./entities/platform-info";
 import type { ReservedCustomerAttribute } from "./entities/attributes";
+import { purchaseTestStoreProduct } from "./test-store-purchase-helper";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -628,7 +629,7 @@ export class Purchases {
    * @throws {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.
    */
   @requiresLoadedResources
-  public purchase(params: PurchaseParams): Promise<PurchaseResult> {
+  public async purchase(params: PurchaseParams): Promise<PurchaseResult> {
     const {
       rcPackage,
       purchaseOption,
@@ -639,10 +640,7 @@ export class Purchases {
       skipSuccessPage = false,
     } = params;
     if (isRCTestStoreApiKey(this._API_KEY)) {
-      throw new PurchasesError(
-        ErrorCode.ConfigurationError,
-        "Purchases are not currently supported in RC Test store. Please use a Web Billing or Paddle API key instead.",
-      );
+      return await purchaseTestStoreProduct(params);
     }
     let resolvedHTMLTarget =
       htmlTarget ?? document.getElementById("rcb-ui-root");
