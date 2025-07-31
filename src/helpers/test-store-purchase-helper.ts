@@ -1,8 +1,8 @@
-import type { PurchaseParams } from "./entities/purchase-params";
-import type { PurchaseResult } from "./entities/purchase-result";
-import { PurchasesError, ErrorCode } from "./entities/errors";
+import type { PurchaseParams } from "../entities/purchase-params";
+import type { PurchaseResult } from "../entities/purchase-result";
+import { PurchasesError, ErrorCode } from "../entities/errors";
 import { mount, unmount } from "svelte";
-import TestStoreModal from "./ui/molecules/test-store-modal.svelte";
+import TestStoreModal from "../ui/molecules/test-store-modal.svelte";
 
 export function purchaseTestStoreProduct(
   purchaseParams: PurchaseParams,

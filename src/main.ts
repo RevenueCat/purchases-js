@@ -71,7 +71,7 @@ import { type PurchasesConfig } from "./entities/purchases-config";
 import { generateUUID } from "./helpers/uuid-helper";
 import type { PlatformInfo } from "./entities/platform-info";
 import type { ReservedCustomerAttribute } from "./entities/attributes";
-import { purchaseTestStoreProduct } from "./test-store-purchase-helper";
+import { purchaseTestStoreProduct } from "./helpers/test-store-purchase-helper";
 
 export { ProductType } from "./entities/offerings";
 export type {
