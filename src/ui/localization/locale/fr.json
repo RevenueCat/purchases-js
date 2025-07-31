@@ -91,8 +91,12 @@
   "product_info.intro_price_phase_after_trial": "Puis {{introPriceDuration}} pour {{introPrice}}",
   "product_info.intro_price_phase": "{{introPriceDuration}} pour {{introPrice}} au départ",
   "product_info.intro_price_phase_paid_once": "payé une fois",
-  "payment_entry_page.trial_subscription_terms_info": "En vous abonnant, vous acceptez d'autoriser {{appName}} à vous facturer {{price}} {{perFrequency}} après la fin de votre essai gratuit le {{renewalDate}}, conformément à leurs conditions.",
+  "payment_entry_page.trial_subscription_terms_info": "En vous abonnant, vous acceptez d'autoriser {{appName}} à vous facturer {{price}} {{perFrequency}} (plus les taxes applicables) après la fin de votre essai gratuit le {{renewalDate}}, conformément à leurs conditions.",
   "payment_entry_page.subscription_info": "L'abonnement est renouvelé automatiquement - annulez à tout moment.",
-  "payment_entry_page.otp_terms_info": "En achetant, vous acceptez d'autoriser {{appName}} à vous facturer {{price}}, conformément à leurs conditions.",
-  "payment_entry_page.non_trial_subscription_terms_info": "En vous abonnant, vous acceptez d'autoriser {{appName}} à vous facturer {{price}} {{perFrequency}}, conformément à leurs conditions."
+  "payment_entry_page.otp_terms_info": "En achetant, vous acceptez d'autoriser {{appName}} à vous facturer {{price}} (plus les taxes applicables), conformément à leurs conditions.",
+  "payment_entry_page.non_trial_subscription_terms_info": "En vous abonnant, vous acceptez d'autoriser {{appName}} à vous facturer {{price}} {{perFrequency}} (plus les taxes applicables), conformément à leurs conditions.",
+  "payment_entry_page.trial_and_intro_paid_upfront_subscription_terms_info": "En vous abonnant, vous acceptez d'autoriser {{appName}} à vous facturer {{price}} à titre d'offre limitée dans le temps, une fois votre essai gratuit terminé le {{renewalDate}}, puis le prix indiqué (taxes applicables en sus) une fois la période d'offre terminée, conformément à leurs conditions.",
+  "payment_entry_page.intro_recurring_subscription_terms_info": "En vous abonnant, vous acceptez d'autoriser {{appName}} à vous facturer {{price}} {{perFrequency}} à titre d'offre limitée dans le temps, puis le prix indiqué (taxes applicables en sus) une fois la période d'offre terminée, conformément à leurs conditions.",
+  "payment_entry_page.intro_paid_upfront_subscription_terms_info": "En vous abonnant, vous acceptez d'autoriser {{appName}} à vous facturer {{price}} à titre d'offre limitée dans le temps, puis le prix indiqué (taxes applicables en sus) une fois la période d'offre terminée, conformément à leurs conditions.",
+  "payment_entry_page.trial_and_intro_recurring_subscription_terms_info": "En vous abonnant, vous acceptez d'autoriser {{appName}} à vous facturer {{price}} {{perFrequency}} à titre d'offre limitée dans le temps, une fois votre essai gratuit terminé le {{renewalDate}}, puis le prix indiqué (taxes applicables en sus) une fois la période d'offre terminée, conformément à leurs conditions."
 }

@@ -8,6 +8,10 @@
     subscriptionOptionWithTrial,
     subscriptionOption,
     nonSubscriptionOption,
+    subscriptionOptionWithIntroPricePaidUpfront,
+    subscriptionOptionWithIntroPriceRecurring,
+    subscriptionOptionWithTrialAndIntroPricePaidUpfront,
+    subscriptionOptionWithTrialAndIntroPriceRecurring,
   } from "../fixtures";
 
   const { Story } = defineMeta({
@@ -38,5 +42,33 @@
   <SecureCheckoutRC
     {brandingInfo}
     purchaseOption={subscriptionOptionWithTrial}
+  />
+</Story>
+
+<Story name="Intro Price Paid Upfront with branding info">
+  <SecureCheckoutRC
+    {brandingInfo}
+    purchaseOption={subscriptionOptionWithIntroPricePaidUpfront}
+  />
+</Story>
+
+<Story name="Intro Price Recurring with branding info">
+  <SecureCheckoutRC
+    {brandingInfo}
+    purchaseOption={subscriptionOptionWithIntroPriceRecurring}
+  />
+</Story>
+
+<Story name="Trial + Intro Price Paid Upfront with branding info">
+  <SecureCheckoutRC
+    {brandingInfo}
+    purchaseOption={subscriptionOptionWithTrialAndIntroPricePaidUpfront}
+  />
+</Story>
+
+<Story name="Trial + Intro Price Recurring with branding info">
+  <SecureCheckoutRC
+    {brandingInfo}
+    purchaseOption={subscriptionOptionWithTrialAndIntroPriceRecurring}
   />
 </Story>

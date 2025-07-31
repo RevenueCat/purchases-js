@@ -91,8 +91,12 @@
   "product_info.intro_price_phase_after_trial": "Potom {{introPriceDuration}} za {{introPrice}}",
   "product_info.intro_price_phase": "Najprv {{introPriceDuration}} za {{introPrice}}",
   "product_info.intro_price_phase_paid_once": "zaplatené jednorazovo",
-  "payment_entry_page.trial_subscription_terms_info": "Prihlásením na odber súhlasíte s tým, že spoločnosti {{appName}} umožníte účtovať vám {{price}} {{perFrequency}} po skončení bezplatného skúšobného obdobia dňa {{renewalDate}}, v súlade s ich podmienkami.",
+  "payment_entry_page.trial_subscription_terms_info": "Prihlásením na odber súhlasíte s tým, že spoločnosti {{appName}} umožníte účtovať vám sumu {{price}} {{perFrequency}} (plus príslušné dane) po skončení bezplatného skúšobného obdobia dňa {{renewalDate}}, v súlade s jej podmienkami.",
   "payment_entry_page.subscription_info": "Odber sa automaticky obnovuje – kedykoľvek ho môžete zrušiť.",
-  "payment_entry_page.otp_terms_info": "Zakúpením súhlasíte s tým, že spoločnosti {{appName}} umožníte účtovať vám {{price}}, v súlade s ich podmienkami.",
-  "payment_entry_page.non_trial_subscription_terms_info": "Prihlásením na odber súhlasíte s tým, že spoločnosti {{appName}} umožníte účtovať vám {{price}} {{perFrequency}}, v súlade s ich podmienkami."
+  "payment_entry_page.otp_terms_info": "Zakúpením súhlasíte s tým, že spoločnosti {{appName}} umožníte účtovať vám sumu {{price}} (plus príslušné dane), v súlade s jej podmienkami.",
+  "payment_entry_page.non_trial_subscription_terms_info": "Prihlásením na odber súhlasíte s tým, že spoločnosti {{appName}} umožníte účtovať vám sumu {{price}} {{perFrequency}} (plus príslušné dane), v súlade s jej podmienkami.",
+  "payment_entry_page.trial_and_intro_paid_upfront_subscription_terms_info": "Prihlásením na odber súhlasíte s tým, že aplikácia {{appName}} vám bude účtovať poplatok {{price}} ako časovo obmedzenú ponuku po skončení bezplatného skúšobného obdobia dňa {{renewalDate}} a následne cenu uvedenú (plus príslušné dane) po skončení obdobia ponuky, v súlade s ich podmienkami.",
+  "payment_entry_page.intro_recurring_subscription_terms_info": "Prihlásením na odber súhlasíte s tým, že aplikácia {{appName}} vám bude účtovať poplatok {{price}} {{perFrequency}} ako časovo obmedzenú ponuku a následne cenu uvedenú (plus príslušné dane) po skončení obdobia ponuky, v súlade s ich podmienkami.",
+  "payment_entry_page.intro_paid_upfront_subscription_terms_info": "Prihlásením na odber súhlasíte s tým, že aplikácia {{appName}} vám bude účtovať poplatok {{price}} ako časovo obmedzenú ponuku a následne cenu uvedenú (plus príslušné dane) po skončení obdobia ponuky, v súlade s ich podmienkami.",
+  "payment_entry_page.trial_and_intro_recurring_subscription_terms_info": "Prihlásením na odber súhlasíte s tým, že aplikácia {{appName}} vám bude účtovať poplatok {{price}} {{perFrequency}} ako časovo obmedzenú ponuku po skončení bezplatného skúšobného obdobia dňa {{renewalDate}} a následne cenu uvedenú (plus príslušné dane) po skončení obdobia ponuky, v súlade s ich podmienkami."
 }

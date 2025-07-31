@@ -91,8 +91,12 @@
   "product_info.intro_price_phase_after_trial": "Daarna {{introPriceDuration}} voor {{introPrice}}",
   "product_info.intro_price_phase": "Eerst {{introPriceDuration}} voor {{introPrice}}",
   "product_info.intro_price_phase_paid_once": "eenmalig betaald",
-  "payment_entry_page.trial_subscription_terms_info": "Door je te abonneren, ga je ermee akkoord dat {{appName}} {{price}} {{perFrequency}} in rekening brengt nadat je gratis proefperiode eindigt op {{renewalDate}}, volgens hun voorwaarden.",
+  "payment_entry_page.trial_subscription_terms_info": "Door je te abonneren, ga je ermee akkoord dat {{appName}} je {{price}} {{perFrequency}} (plus toepasselijke belastingen) in rekening brengt nadat je gratis proefperiode eindigt op {{renewalDate}}, volgens hun voorwaarden.",
   "payment_entry_page.subscription_info": "Abonnement wordt automatisch verlengd - annuleer op elk moment.",
-  "payment_entry_page.otp_terms_info": "Door te kopen, ga je ermee akkoord dat {{appName}} {{price}} in rekening brengt, volgens hun voorwaarden.",
-  "payment_entry_page.non_trial_subscription_terms_info": "Door je te abonneren, ga je ermee akkoord dat {{appName}} {{price}} {{perFrequency}} in rekening brengt, volgens hun voorwaarden."
+  "payment_entry_page.otp_terms_info": "Door te kopen, ga je ermee akkoord dat {{appName}} je {{price}} (plus toepasselijke belastingen) in rekening brengt, volgens hun voorwaarden.",
+  "payment_entry_page.non_trial_subscription_terms_info": "Door je te abonneren, ga je ermee akkoord dat {{appName}} je {{price}} {{perFrequency}} (plus toepasselijke belastingen) in rekening brengt, volgens hun voorwaarden.",
+  "payment_entry_page.trial_and_intro_paid_upfront_subscription_terms_info": "Door u te abonneren, gaat u ermee akkoord dat {{appName}} u {{price}} in rekening brengt als een aanbieding voor een beperkte tijd, nadat uw gratis proefperiode eindigt op {{renewalDate}}, gevolgd door de aangegeven prijs (plus toepasselijke belastingen) nadat de aanbiedingsperiode is afgelopen, volgens hun voorwaarden.",
+  "payment_entry_page.intro_recurring_subscription_terms_info": "Door u te abonneren, gaat u ermee akkoord dat {{appName}} u {{price}} {{perFrequency}} in rekening brengt als een aanbieding voor een beperkte tijd, en vervolgens de aangegeven prijs (plus toepasselijke belastingen) nadat de aanbiedingsperiode is afgelopen, volgens hun voorwaarden.",
+  "payment_entry_page.intro_paid_upfront_subscription_terms_info": "Door u te abonneren, gaat u ermee akkoord dat {{appName}} u {{price}} in rekening brengt als een aanbieding voor een beperkte tijd, en vervolgens de aangegeven prijs (plus toepasselijke belastingen) nadat de aanbiedingsperiode is afgelopen, volgens hun voorwaarden.",
+  "payment_entry_page.trial_and_intro_recurring_subscription_terms_info": "Door u te abonneren, gaat u ermee akkoord dat {{appName}} u {{price}} {{perFrequency}} in rekening brengt als een aanbieding voor een beperkte tijd, nadat uw gratis proefperiode eindigt op {{renewalDate}}, gevolgd door de aangegeven prijs (plus toepasselijke belastingen) nadat de aanbiedingsperiode is afgelopen, volgens hun voorwaarden."
 }

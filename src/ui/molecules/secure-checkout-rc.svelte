@@ -1,4 +1,18 @@
 <script lang="ts">
+  /**
+   * SecureCheckoutRC Component
+   *
+   * Displays footer information for the checkout process, including:
+   * - Terms & conditions text that varies based on purchase type (subscription vs one-time)
+   * - Subscription-specific features (trials, intro pricing)
+   * - Payment security messaging
+   *
+   * The component automatically selects the appropriate terms text based on:
+   * - Whether it's a subscription or one-time purchase
+   * - Whether there's a free trial period
+   * - Whether there's an introductory price
+   * - Whether intro pricing is paid upfront or recurring
+   */
   import Localized from "../localization/localized.svelte";
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import { getContext } from "svelte";
@@ -39,27 +53,56 @@
     ? purchaseOption
     : null;
 
-  $: termsKey = !subscriptionOption
-    ? LocalizationKeys.PaymentEntryPageOtpTermsInfo
-    : subscriptionOption.trial
-      ? LocalizationKeys.PaymentEntryPageTrialSubscriptionTermsInfo
-      : LocalizationKeys.PaymentEntryPageNonTrialSubscriptionTermsInfo;
+  $: termsKey = getTermsLocalizationKey(subscriptionOption);
 
-  $: basePrice =
-    nonSubscriptionOption?.basePrice || subscriptionOption?.base?.price;
+  function getTermsLocalizationKey(
+    subscription: SubscriptionOption | null,
+  ): LocalizationKeys {
+    if (!subscription) {
+      return LocalizationKeys.PaymentEntryPageOtpTermsInfo;
+    }
 
-  $: basePriceFormatted = basePrice
+    const hasTrial = !!subscription.trial;
+    const hasIntroPrice = !!subscription.introPrice;
+    const isIntroPricePaidUpfront = subscription.introPrice?.cycleCount == 1;
+
+    if (hasTrial) {
+      if (hasIntroPrice) {
+        return isIntroPricePaidUpfront
+          ? LocalizationKeys.PaymentEntryPageTrialAndIntroPricePaidUpfrontSubscriptionTermsInfo
+          : LocalizationKeys.PaymentEntryPageTrialAndIntroPriceRecurringSubscriptionTermsInfo;
+      } else {
+        return LocalizationKeys.PaymentEntryPageTrialSubscriptionTermsInfo;
+      }
+    }
+
+    if (hasIntroPrice) {
+      return isIntroPricePaidUpfront
+        ? LocalizationKeys.PaymentEntryPageIntroPricePaidUpfrontSubscriptionTermsInfo
+        : LocalizationKeys.PaymentEntryPageIntroPriceRecurringSubscriptionTermsInfo;
+    }
+
+    return LocalizationKeys.PaymentEntryPageNonTrialSubscriptionTermsInfo;
+  }
+
+  $: firstSubscriptionPricingPhase =
+    subscriptionOption?.introPrice || subscriptionOption?.base;
+
+  $: firstPaymentPrice =
+    nonSubscriptionOption?.basePrice || firstSubscriptionPricingPhase?.price;
+
+  $: firstPriceFormatted = firstPaymentPrice
     ? formatPrice(
-        basePrice.amountMicros,
-        basePrice.currency,
+        firstPaymentPrice.amountMicros,
+        firstPaymentPrice.currency,
         $translator.locale || $translator.fallbackLocale,
       )
     : null;
 
-  $: perFrequency = subscriptionOption?.base?.period
+  $: perFrequency = firstSubscriptionPricingPhase?.period
     ? $translator.translatePeriodFrequency(
-        subscriptionOption?.base?.period?.number || 1,
-        subscriptionOption?.base?.period?.unit,
+        firstSubscriptionPricingPhase?.period?.number || 1,
+        firstSubscriptionPricingPhase?.period?.unit,
         { useMultipleWords: true },
       )
     : null;
@@ -76,10 +119,10 @@
     : null;
 
   $: termsInfo =
-    brandingInfo && basePrice
+    brandingInfo && firstPaymentPrice
       ? $translator.translate(termsKey, {
           appName: brandingInfo?.app_name,
-          price: basePriceFormatted,
+          price: firstPriceFormatted,
           perFrequency,
           renewalDate,
         })

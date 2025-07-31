@@ -91,8 +91,12 @@
   "product_info.intro_price_phase_after_trial": "Apoi {{introPriceDuration}} pentru {{introPrice}}",
   "product_info.intro_price_phase": "Mai întâi {{introPriceDuration}} pentru {{introPrice}}",
   "product_info.intro_price_phase_paid_once": "plătit o singură dată",
-  "payment_entry_page.trial_subscription_terms_info": "Prin abonare, sunteți de acord să permiteți aplicației {{appName}} să vă taxeze {{price}} {{perFrequency}} după ce perioada de probă gratuită se termină pe {{renewalDate}}, conform termenilor acestora.",
+  "payment_entry_page.trial_subscription_terms_info": "Prin abonare, sunteți de acord să permiteți aplicației {{appName}} să vă taxeze cu {{price}} {{perFrequency}} (plus taxele aplicabile) după ce perioada de probă gratuită se termină pe {{renewalDate}}, conform termenilor acesteia.",
   "payment_entry_page.subscription_info": "Abonamentul se reînnoiește automat - anulați oricând.",
-  "payment_entry_page.otp_terms_info": "Prin achiziționare, sunteți de acord să permiteți aplicației {{appName}} să vă taxeze {{price}}, conform termenilor acestora.",
-  "payment_entry_page.non_trial_subscription_terms_info": "Prin abonare, sunteți de acord să permiteți aplicației {{appName}} să vă taxeze {{price}} {{perFrequency}}, conform termenilor acestora."
+  "payment_entry_page.otp_terms_info": "Prin achiziționare, sunteți de acord să permiteți aplicației {{appName}} să vă taxeze cu {{price}} (plus taxele aplicabile), conform termenilor acesteia.",
+  "payment_entry_page.non_trial_subscription_terms_info": "Prin abonare, sunteți de acord să permiteți aplicației {{appName}} să vă taxeze cu {{price}} {{perFrequency}} (plus taxele aplicabile), conform termenilor acesteia.",
+  "payment_entry_page.trial_and_intro_paid_upfront_subscription_terms_info": "Prin abonare, sunteți de acord să permiteți aplicației {{appName}} să vă taxeze cu {{price}} ca ofertă limitată în timp, după ce perioada de probă gratuită se termină pe {{renewalDate}}, urmată de prețul indicat (plus taxele aplicabile) după ce perioada ofertei se termină, conform termenilor acesteia.",
+  "payment_entry_page.intro_recurring_subscription_terms_info": "Prin abonare, sunteți de acord să permiteți aplicației {{appName}} să vă taxeze cu {{price}} {{perFrequency}} ca ofertă limitată în timp, apoi prețul indicat (plus taxele aplicabile) după ce perioada ofertei se termină, conform termenilor acesteia.",
+  "payment_entry_page.intro_paid_upfront_subscription_terms_info": "Prin abonare, sunteți de acord să permiteți aplicației {{appName}} să vă taxeze cu {{price}} ca ofertă limitată în timp, apoi prețul indicat (plus taxele aplicabile) după ce perioada ofertei se termină, conform termenilor acesteia.",
+  "payment_entry_page.trial_and_intro_recurring_subscription_terms_info": "Prin abonare, sunteți de acord să permiteți aplicației {{appName}} să vă taxeze cu {{price}} {{perFrequency}} ca ofertă limitată în timp, după ce perioada de probă gratuită se termină pe {{renewalDate}}, urmată de prețul indicat (plus taxele aplicabile) după ce perioada ofertei se termină, conform termenilor acesteia."
 }

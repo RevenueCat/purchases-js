@@ -91,8 +91,12 @@
   "product_info.intro_price_phase_after_trial": "Потім {{introPriceDuration}} за {{introPrice}}",
   "product_info.intro_price_phase": "Спочатку {{introPriceDuration}} за {{introPrice}}",
   "product_info.intro_price_phase_paid_once": "сплачено один раз",
-  "payment_entry_page.trial_subscription_terms_info": "Підписуючись, ви погоджуєтеся дозволити {{appName}} стягувати з вас {{price}} {{perFrequency}} після закінчення вашого безкоштовного пробного періоду {{renewalDate}}, відповідно до їхніх умов.",
+  "payment_entry_page.trial_subscription_terms_info": "Підписуючись, ви погоджуєтеся дозволити {{appName}} стягувати з вас {{price}} {{perFrequency}} (плюс відповідні податки) після закінчення вашого безкоштовного пробного періоду {{renewalDate}}, згідно з їхніми умовами.",
   "payment_entry_page.subscription_info": "Підписка поновлюється автоматично - скасувати можна будь-коли.",
-  "payment_entry_page.otp_terms_info": "Купуючи, ви погоджуєтеся дозволити {{appName}} стягувати з вас {{price}}, відповідно до їхніх умов.",
-  "payment_entry_page.non_trial_subscription_terms_info": "Підписуючись, ви погоджуєтеся дозволити {{appName}} стягувати з вас {{price}} {{perFrequency}}, відповідно до їхніх умов."
+  "payment_entry_page.otp_terms_info": "Купуючи, ви погоджуєтеся дозволити {{appName}} стягувати з вас {{price}} (плюс відповідні податки), згідно з їхніми умовами.",
+  "payment_entry_page.non_trial_subscription_terms_info": "Підписуючись, ви погоджуєтеся дозволити {{appName}} стягувати з вас {{price}} {{perFrequency}} (плюс відповідні податки), згідно з їхніми умовами.",
+  "payment_entry_page.trial_and_intro_paid_upfront_subscription_terms_info": "Підписуючись, ви погоджуєтеся дозволити {{appName}} стягувати з вас {{price}} як пропозицію з обмеженим терміном дії, після закінчення вашого безкоштовного пробного періоду {{renewalDate}}, а потім вказану ціну (плюс відповідні податки) після закінчення періоду пропозиції, згідно з їхніми умовами.",
+  "payment_entry_page.intro_recurring_subscription_terms_info": "Підписуючись, ви погоджуєтеся дозволити {{appName}} стягувати з вас {{price}} {{perFrequency}} як пропозицію з обмеженим терміном дії, а потім вказану ціну (плюс відповідні податки) після закінчення періоду пропозиції, згідно з їхніми умовами.",
+  "payment_entry_page.intro_paid_upfront_subscription_terms_info": "Підписуючись, ви погоджуєтеся дозволити {{appName}} стягувати з вас {{price}} як пропозицію з обмеженим терміном дії, а потім вказану ціну (плюс відповідні податки) після закінчення періоду пропозиції, згідно з їхніми умовами.",
+  "payment_entry_page.trial_and_intro_recurring_subscription_terms_info": "Підписуючись, ви погоджуєтеся дозволити {{appName}} стягувати з вас {{price}} {{perFrequency}} як пропозицію з обмеженим терміном дії, після закінчення вашого безкоштовного пробного періоду {{renewalDate}}, а потім вказану ціну (плюс відповідні податки) після закінчення періоду пропозиції, згідно з їхніми умовами."
 }

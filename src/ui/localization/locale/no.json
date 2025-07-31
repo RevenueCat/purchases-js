@@ -91,8 +91,12 @@
   "product_info.intro_price_phase_after_trial": "Deretter {{introPriceDuration}} for {{introPrice}}",
   "product_info.intro_price_phase": "Først {{introPriceDuration}} for {{introPrice}}",
   "product_info.intro_price_phase_paid_once": "betales én gang",
-  "payment_entry_page.trial_subscription_terms_info": "Ved å abonnere godtar du at {{appName}} belaster deg {{price}} {{perFrequency}} etter at din gratis prøveperiode utløper {{renewalDate}}, i henhold til deres vilkår.",
+  "payment_entry_page.trial_subscription_terms_info": "Ved å abonnere godtar du at {{appName}} belaster deg {{price}} {{perFrequency}} (pluss gjeldende skatter) etter at din gratis prøveperiode utløper {{renewalDate}}, i henhold til deres vilkår.",
   "payment_entry_page.subscription_info": "Abonnementet fornyes automatisk - avbestill når som helst.",
-  "payment_entry_page.otp_terms_info": "Ved å kjøpe godtar du at {{appName}} belaster deg {{price}}, i henhold til deres vilkår.",
-  "payment_entry_page.non_trial_subscription_terms_info": "Ved å abonnere godtar du at {{appName}} belaster deg {{price}} {{perFrequency}}, i henhold til deres vilkår."
+  "payment_entry_page.otp_terms_info": "Ved å kjøpe godtar du at {{appName}} belaster deg {{price}} (pluss gjeldende skatter), i henhold til deres vilkår.",
+  "payment_entry_page.non_trial_subscription_terms_info": "Ved å abonnere godtar du at {{appName}} belaster deg {{price}} {{perFrequency}} (pluss gjeldende skatter), i henhold til deres vilkår.",
+  "payment_entry_page.trial_and_intro_paid_upfront_subscription_terms_info": "Ved å abonnere godtar du at {{appName}} belaster deg {{price}} som et tidsbegrenset tilbud, etter at den kostnadsfrie prøveperioden din avsluttes {{renewalDate}}, etterfulgt av den angitte prisen (pluss gjeldende skatter) etter at tilbudsperioden er over, i henhold til deres vilkår.",
+  "payment_entry_page.intro_recurring_subscription_terms_info": "Ved å abonnere godtar du at {{appName}} belaster deg {{price}} {{perFrequency}} som et tidsbegrenset tilbud, deretter den angitte prisen (pluss gjeldende skatter) etter at tilbudsperioden er over, i henhold til deres vilkår.",
+  "payment_entry_page.intro_paid_upfront_subscription_terms_info": "Ved å abonnere godtar du at {{appName}} belaster deg {{price}} som et tidsbegrenset tilbud, deretter den angitte prisen (pluss gjeldende skatter) etter at tilbudsperioden er over, i henhold til deres vilkår.",
+  "payment_entry_page.trial_and_intro_recurring_subscription_terms_info": "Ved å abonnere godtar du at {{appName}} belaster deg {{price}} {{perFrequency}} som et tidsbegrenset tilbud, etter at den kostnadsfrie prøveperioden din avsluttes {{renewalDate}}, etterfulgt av den angitte prisen (pluss gjeldende skatter) etter at tilbudsperioden er over, i henhold til deres vilkår."
 }
