@@ -325,6 +325,9 @@ export class Purchases {
 
   /** @internal */
   private async fetchAndCacheBrandingInfo(): Promise<void> {
+    if (isRCTestStoreApiKey(this._API_KEY)) {
+      throw Error("Branding info is not available for RC Test Store API keys.");
+    }
     this._brandingInfo = await this.backend.getBrandingInfo();
   }
 
