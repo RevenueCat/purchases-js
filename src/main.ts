@@ -353,9 +353,7 @@ export class Purchases {
         "Initializing Purchases SDK with Web billing sandbox API Key",
       );
     } else if (isRCTestStoreApiKey(apiKey)) {
-      Logger.debugLog(
-        "Initializing Purchases SDK with RC Test store API Key. Purchases are not currently supported in RC Test store.",
-      );
+      Logger.debugLog("Initializing Purchases SDK with RC Test store API Key.");
     }
     this.eventsTracker = new EventsTracker({
       apiKey: this._API_KEY,
