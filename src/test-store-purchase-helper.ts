@@ -76,7 +76,12 @@ export function purchaseTestStoreProduct(
       "rc-test-store-modal-button rc-test-store-modal-button-secondary";
     failedButton.onclick = () => {
       cleanup();
-      reject(new PurchasesError(ErrorCode.ProductNotAvailableForPurchaseError));
+      reject(
+        new PurchasesError(
+          ErrorCode.ProductNotAvailableForPurchaseError,
+          "Simulated test purchase failure: no real transaction occurred",
+        ),
+      );
     };
 
     // Cancel button
