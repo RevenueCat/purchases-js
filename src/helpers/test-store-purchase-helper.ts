@@ -1,12 +1,46 @@
 import type { PurchaseParams } from "../entities/purchase-params";
 import type { PurchaseResult } from "../entities/purchase-result";
 import type { StoreTransaction } from "../entities/store-transaction";
-import { PurchasesError, ErrorCode } from "../entities/errors";
+import { ErrorCode, PurchasesError } from "../entities/errors";
 import { mount, unmount } from "svelte";
 import TestStoreModal from "../ui/molecules/test-store-modal.svelte";
 import type { Backend } from "../networking/backend";
 import { toCustomerInfo } from "../entities/customer-info";
 import { generateUUID } from "./uuid-helper";
+import type { Product } from "../entities/offerings";
+
+async function postReceipt(
+  product: Product,
+  backend: Backend,
+  appUserId: string,
+): Promise<PurchaseResult> {
+  const fetchToken = generateUUID();
+  const operationSessionId = `test_store_operation_session_${generateUUID()}`;
+  const storeTransactionId = generateUUID();
+
+  const storeTransaction: StoreTransaction = {
+    storeTransactionId,
+    productIdentifier: product.identifier,
+    purchaseDate: new Date(),
+  };
+
+  const subscriberResponse = await backend.postReceipt(
+    appUserId,
+    product.identifier,
+    fetchToken,
+    product.presentedOfferingContext,
+    "purchase",
+  );
+
+  const customerInfo = toCustomerInfo(subscriberResponse);
+
+  return {
+    customerInfo,
+    redemptionInfo: null,
+    operationSessionId,
+    storeTransaction,
+  };
+}
 
 export function purchaseTestStoreProduct(
   purchaseParams: PurchaseParams,
@@ -53,34 +87,7 @@ export function purchaseTestStoreProduct(
         onValidPurchase: async () => {
           cleanup();
           try {
-            const fetchToken = generateUUID();
-            const operationSessionId = `test_store_operation_session_${generateUUID()}`;
-            const storeTransactionId = generateUUID();
-
-            const storeTransaction: StoreTransaction = {
-              storeTransactionId,
-              productIdentifier: product.identifier,
-              purchaseDate: new Date(),
-            };
-
-            const subscriberResponse = await backend.postReceipt(
-              appUserId,
-              product.identifier,
-              fetchToken,
-              product.presentedOfferingContext,
-              "purchase",
-            );
-
-            const customerInfo = toCustomerInfo(subscriberResponse);
-
-            const purchaseResult: PurchaseResult = {
-              customerInfo,
-              redemptionInfo: null,
-              operationSessionId,
-              storeTransaction,
-            };
-
-            resolve(purchaseResult);
+            resolve(await postReceipt(product, backend, appUserId));
           } catch (error) {
             reject(error);
           }
