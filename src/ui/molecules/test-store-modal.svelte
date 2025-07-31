@@ -15,6 +15,7 @@
   }
 </script>
 
+<!--svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions-->
 <div class="rc-test-store-modal-overlay" on:click={handleOverlayClick}>
   <div class="rc-test-store-modal">
     <div class="rc-test-store-modal-content">
