@@ -5,31 +5,15 @@ import type { PurchaseParams } from "../../entities/purchase-params";
 import type { Backend } from "../../networking/backend";
 import { mount, unmount } from "svelte";
 import { createMonthlyPackageWithTrialAndIntroPriceMock } from "../mocks/offering-mock-provider";
+import { postTestStoreReceipt } from "../../helpers/test-store-post-receipt-helper";
 
 vi.mock("svelte", () => ({
   mount: vi.fn(),
   unmount: vi.fn(),
 }));
 
-vi.mock("../../helpers/uuid-helper", () => ({
-  generateUUID: vi.fn(() => "test-uuid-123"),
-}));
-
-vi.mock("../../entities/customer-info", () => ({
-  toCustomerInfo: vi.fn(() => ({
-    originalAppUserId: "test-user",
-    entitlements: {},
-    nonSubscriptionTransactions: [],
-    originalApplicationVersion: "1.0.0",
-    originalPurchaseDate: null,
-    requestDate: new Date(),
-    firstSeen: new Date(),
-    activeSubscriptions: [],
-    allPurchasedProductIdentifiers: [],
-    allExpirationDatesByProduct: {},
-    allPurchaseDatesByProduct: {},
-    url: null,
-  })),
+vi.mock("../../helpers/test-store-post-receipt-helper", () => ({
+  postTestStoreReceipt: vi.fn(),
 }));
 
 const mockBackend: Backend = {
@@ -50,21 +34,15 @@ describe("purchaseTestStoreProduct", () => {
     };
     vi.mocked(mount).mockReturnValue(mockComponent);
     vi.mocked(unmount).mockImplementation(async () => {});
-    vi.mocked(mockBackend.postReceipt).mockResolvedValue({
-      subscriber: {
-        original_app_user_id: "test-user",
-        entitlements: {},
-        non_subscriptions: {},
-        subscriptions: {},
-        other_purchases: {},
-        original_application_version: "1.0.0",
-        original_purchase_date: null,
-        first_seen: new Date().toISOString(),
-        last_seen: new Date().toISOString(),
-        management_url: null,
+    vi.mocked(postTestStoreReceipt).mockResolvedValue({
+      customerInfo: {} as never,
+      redemptionInfo: null,
+      operationSessionId: "test_store_operation_session_test-uuid-123",
+      storeTransaction: {
+        storeTransactionId: "test_123_test-uuid-123",
+        productIdentifier: "monthly_trial_intro",
+        purchaseDate: new Date(),
       },
-      request_date: new Date().toISOString(),
-      request_date_ms: Date.now(),
     });
 
     document.body.innerHTML = "";
@@ -122,12 +100,10 @@ describe("purchaseTestStoreProduct", () => {
     await props?.onValidPurchase();
     const result = await promise;
 
-    expect(mockBackend.postReceipt).toHaveBeenCalledWith(
+    expect(postTestStoreReceipt).toHaveBeenCalledWith(
+      mockPurchaseParams.rcPackage.webBillingProduct,
+      mockBackend,
       "test-user-id",
-      "monthly_trial_intro",
-      expect.stringMatching(/^test_.*test-uuid-123$/),
-      mockPurchaseParams.rcPackage.webBillingProduct.presentedOfferingContext,
-      "purchase",
     );
 
     expect(result).toEqual({
@@ -135,7 +111,7 @@ describe("purchaseTestStoreProduct", () => {
       redemptionInfo: null,
       operationSessionId: "test_store_operation_session_test-uuid-123",
       storeTransaction: {
-        storeTransactionId: expect.stringMatching(/^test_.*test-uuid-123$/),
+        storeTransactionId: "test_123_test-uuid-123",
         productIdentifier: "monthly_trial_intro",
         purchaseDate: expect.any(Date),
       },
@@ -175,7 +151,7 @@ describe("purchaseTestStoreProduct", () => {
 
   test("handles backend error during purchase", async () => {
     const backendError = new Error("Network error");
-    vi.mocked(mockBackend.postReceipt).mockRejectedValue(backendError);
+    vi.mocked(postTestStoreReceipt).mockRejectedValue(backendError);
 
     const promise = purchaseTestStoreProduct(
       mockPurchaseParams,
