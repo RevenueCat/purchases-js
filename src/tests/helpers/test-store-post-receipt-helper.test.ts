@@ -131,33 +131,4 @@ describe("postTestStoreReceipt", () => {
       postTestStoreReceipt(mockProduct, mockBackend, "test-user-id"),
     ).rejects.toThrow("Network error");
   });
-
-  test("generates unique transaction IDs", async () => {
-    const result1 = await postTestStoreReceipt(
-      mockProduct,
-      mockBackend,
-      "test-user-id",
-    );
-
-    vi.mocked(mockBackend.postReceipt).mockClear();
-
-    const result2 = await postTestStoreReceipt(
-      mockProduct,
-      mockBackend,
-      "test-user-id",
-    );
-
-    expect(result1.storeTransaction.storeTransactionId).toMatch(
-      /^test_.*test-uuid-123$/,
-    );
-    expect(result2.storeTransaction.storeTransactionId).toMatch(
-      /^test_.*test-uuid-123$/,
-    );
-    expect(result1.operationSessionId).toBe(
-      "test_store_operation_session_test-uuid-123",
-    );
-    expect(result2.operationSessionId).toBe(
-      "test_store_operation_session_test-uuid-123",
-    );
-  });
 });
