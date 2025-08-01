@@ -9,6 +9,7 @@ import {
   GetCustomerInfoEndpoint,
   GetOfferingsEndpoint,
   GetProductsEndpoint,
+  PostReceiptEndpoint,
 } from "./endpoints";
 import { type SubscriberResponse } from "./responses/subscriber-response";
 import type { CheckoutStartResponse } from "./responses/checkout-start-response";
@@ -243,6 +244,57 @@ export class Backend {
 
     return await performRequest<SetAttributesRequestBody, void>(
       new SetAttributesEndpoint(appUserId),
+      {
+        apiKey: this.API_KEY,
+        body: requestBody,
+        httpConfig: this.httpConfig,
+      },
+    );
+  }
+
+  async postReceipt(
+    appUserId: string,
+    productId: string,
+    fetchToken: string,
+    presentedOfferingContext: PresentedOfferingContext,
+    initiationSource: string,
+  ): Promise<SubscriberResponse> {
+    type PostReceiptTargetingRule = {
+      rule_id: string;
+      revision: number;
+    };
+    type PostReceiptRequestBody = {
+      fetch_token: string;
+      product_id: string;
+      app_user_id: string;
+      presented_offering_identifier: string;
+      presented_placement_identifier: string | null;
+      applied_targeting_rule?: PostReceiptTargetingRule | null;
+      initiation_source: string;
+    };
+
+    let targetingInfo: PostReceiptTargetingRule | null = null;
+    if (presentedOfferingContext.targetingContext) {
+      targetingInfo = {
+        rule_id: presentedOfferingContext.targetingContext.ruleId,
+        revision: presentedOfferingContext.targetingContext.revision,
+      };
+    }
+
+    const requestBody: PostReceiptRequestBody = {
+      fetch_token: fetchToken,
+      product_id: productId,
+      app_user_id: appUserId,
+      presented_offering_identifier:
+        presentedOfferingContext.offeringIdentifier,
+      presented_placement_identifier:
+        presentedOfferingContext.placementIdentifier,
+      applied_targeting_rule: targetingInfo,
+      initiation_source: initiationSource,
+    };
+
+    return await performRequest<PostReceiptRequestBody, SubscriberResponse>(
+      new PostReceiptEndpoint(),
       {
         apiKey: this.API_KEY,
         body: requestBody,

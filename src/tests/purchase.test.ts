@@ -34,4 +34,18 @@ describe("preload", () => {
     await purchases.preload();
     expect(APIGetRequest).toHaveBeenCalledWith(expectedRequest);
   });
+
+  test("does not load branding info if using test store api key", async () => {
+    const purchases = configurePurchases(
+      "test-app-user-id",
+      "test-rc-source",
+      "test_store_api_key",
+    );
+    const expectedRequest: GetRequest = {
+      url: "http://localhost:8000/rcbilling/v1/branding",
+    };
+    expect(APIGetRequest).not.toHaveBeenCalledWith(expectedRequest);
+    await purchases.preload();
+    expect(APIGetRequest).not.toHaveBeenCalledWith(expectedRequest);
+  });
 });

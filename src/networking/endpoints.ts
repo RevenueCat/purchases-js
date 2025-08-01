@@ -146,6 +146,15 @@ export class SetAttributesEndpoint implements Endpoint {
   }
 }
 
+export class PostReceiptEndpoint implements Endpoint {
+  method: HttpMethodType = "POST";
+  name: string = "postReceipt";
+
+  urlPath(): string {
+    return "/v1/receipts";
+  }
+}
+
 export type SupportedEndpoint =
   | GetOfferingsEndpoint
   | PurchaseEndpoint
@@ -153,4 +162,5 @@ export type SupportedEndpoint =
   | GetCustomerInfoEndpoint
   | GetBrandingInfoEndpoint
   | GetCheckoutStatusEndpoint
-  | SetAttributesEndpoint;
+  | SetAttributesEndpoint
+  | PostReceiptEndpoint;
