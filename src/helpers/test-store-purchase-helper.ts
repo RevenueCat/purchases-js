@@ -1,47 +1,10 @@
 import type { PurchaseParams } from "../entities/purchase-params";
 import type { PurchaseResult } from "../entities/purchase-result";
-import type { StoreTransaction } from "../entities/store-transaction";
 import { ErrorCode, PurchasesError } from "../entities/errors";
 import { mount, unmount } from "svelte";
 import TestStoreModal from "../ui/molecules/test-store-modal.svelte";
 import type { Backend } from "../networking/backend";
-import { toCustomerInfo } from "../entities/customer-info";
-import { generateUUID } from "./uuid-helper";
-import type { Product } from "../entities/offerings";
-
-async function postReceipt(
-  product: Product,
-  backend: Backend,
-  appUserId: string,
-): Promise<PurchaseResult> {
-  const purchaseDate = new Date();
-  const fetchToken = `test_${purchaseDate.getTime()}_${generateUUID()}`;
-  const operationSessionId = `test_store_operation_session_${generateUUID()}`;
-  const storeTransactionId = fetchToken;
-
-  const storeTransaction: StoreTransaction = {
-    storeTransactionId,
-    productIdentifier: product.identifier,
-    purchaseDate: purchaseDate,
-  };
-
-  const subscriberResponse = await backend.postReceipt(
-    appUserId,
-    product.identifier,
-    fetchToken,
-    product.presentedOfferingContext,
-    "purchase",
-  );
-
-  const customerInfo = toCustomerInfo(subscriberResponse);
-
-  return {
-    customerInfo,
-    redemptionInfo: null,
-    operationSessionId,
-    storeTransaction,
-  };
-}
+import { postTestStoreReceipt } from "./test-store-post-receipt-helper";
 
 export function purchaseTestStoreProduct(
   purchaseParams: PurchaseParams,
@@ -88,7 +51,7 @@ export function purchaseTestStoreProduct(
         onValidPurchase: async () => {
           cleanup();
           try {
-            resolve(await postReceipt(product, backend, appUserId));
+            resolve(await postTestStoreReceipt(product, backend, appUserId));
           } catch (error) {
             reject(error);
           }

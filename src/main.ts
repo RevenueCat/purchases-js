@@ -1,4 +1,9 @@
-import type { Offering, Offerings, Package } from "./entities/offerings";
+import type {
+  Offering,
+  Offerings,
+  Package,
+  Product,
+} from "./entities/offerings";
 import PurchasesUi from "./ui/purchases-ui.svelte";
 
 import { type CustomerInfo, toCustomerInfo } from "./entities/customer-info";
@@ -72,6 +77,7 @@ import { generateUUID } from "./helpers/uuid-helper";
 import type { PlatformInfo } from "./entities/platform-info";
 import type { ReservedCustomerAttribute } from "./entities/attributes";
 import { purchaseTestStoreProduct } from "./helpers/test-store-purchase-helper";
+import { postTestStoreReceipt } from "./helpers/test-store-post-receipt-helper";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -122,6 +128,13 @@ export type { PlatformInfo } from "./entities/platform-info";
 export type { PurchasesConfig } from "./entities/purchases-config";
 
 const ANONYMOUS_PREFIX = "$RCAnonymousID:";
+
+/**
+ * @internal
+ * ⚠️ This API is internal and not intended for public use.
+ * Use only if you know what you're doing.
+ */
+export const INTERNAL_RC_API: unique symbol = Symbol("INTERNAL_RC_API");
 
 /**
  * Entry point for Purchases SDK. It should be instantiated as soon as your
@@ -346,6 +359,17 @@ export class Purchases {
     this._API_KEY = apiKey;
     this._appUserId = appUserId;
     this._flags = { ...defaultFlagsConfig, ...flags };
+    this[INTERNAL_RC_API] = {
+      postTestStoreReceipt: async (
+        product: Product,
+      ): Promise<PurchaseResult> => {
+        return await postTestStoreReceipt(
+          product,
+          this.backend,
+          this._appUserId,
+        );
+      },
+    };
     if (RC_ENDPOINT === undefined) {
       Logger.errorLog(
         "Project was build without some of the environment variables set",
@@ -795,6 +819,11 @@ export class Purchases {
       });
     });
   }
+
+  /** @internal */
+  [INTERNAL_RC_API]: {
+    postTestStoreReceipt: (product: Product) => Promise<PurchaseResult>;
+  };
 
   /**
    * Gets latest available {@link CustomerInfo}.
