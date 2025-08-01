@@ -125,7 +125,7 @@ describe("purchaseTestStoreProduct", () => {
     expect(mockBackend.postReceipt).toHaveBeenCalledWith(
       "test-user-id",
       "monthly_trial_intro",
-      "test-uuid-123",
+      expect.stringMatching(/^test_.*test-uuid-123$/),
       mockPurchaseParams.rcPackage.webBillingProduct.presentedOfferingContext,
       "purchase",
     );
@@ -135,7 +135,7 @@ describe("purchaseTestStoreProduct", () => {
       redemptionInfo: null,
       operationSessionId: "test_store_operation_session_test-uuid-123",
       storeTransaction: {
-        storeTransactionId: "test-uuid-123",
+        storeTransactionId: expect.stringMatching(/^test_.*test-uuid-123$/),
         productIdentifier: "monthly_trial_intro",
         purchaseDate: expect.any(Date),
       },

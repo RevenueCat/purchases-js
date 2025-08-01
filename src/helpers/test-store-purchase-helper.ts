@@ -14,14 +14,15 @@ async function postReceipt(
   backend: Backend,
   appUserId: string,
 ): Promise<PurchaseResult> {
-  const fetchToken = generateUUID();
+  const purchaseDate = new Date();
+  const fetchToken = `test_${purchaseDate.getTime()}_${generateUUID()}`;
   const operationSessionId = `test_store_operation_session_${generateUUID()}`;
-  const storeTransactionId = generateUUID();
+  const storeTransactionId = fetchToken;
 
   const storeTransaction: StoreTransaction = {
     storeTransactionId,
     productIdentifier: product.identifier,
-    purchaseDate: new Date(),
+    purchaseDate: purchaseDate,
   };
 
   const subscriberResponse = await backend.postReceipt(
