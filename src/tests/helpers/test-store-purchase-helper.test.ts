@@ -1,10 +1,11 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { purchaseTestStoreProduct } from "../../helpers/test-store-purchase-helper";
-import { PurchasesError } from "../../entities/errors";
+import { ErrorCode, PurchasesError } from "../../entities/errors";
 import type { PurchaseParams } from "../../entities/purchase-params";
 import type { Backend } from "../../networking/backend";
 import { mount, unmount } from "svelte";
 import { createMonthlyPackageWithTrialAndIntroPriceMock } from "../mocks/offering-mock-provider";
+import { expectPromiseToError } from "../test-helpers";
 
 vi.mock("svelte", () => ({
   mount: vi.fn(),
@@ -219,12 +220,13 @@ describe("purchaseTestStoreProduct", () => {
 
     props?.onFailedPurchase();
 
-    try {
-      await promise;
-      expect(false).toBe(true); // Should not reach here
-    } catch {
-      // Expected error
-    }
+    await expectPromiseToError(
+      promise,
+      new PurchasesError(
+        ErrorCode.ProductNotAvailableForPurchaseError,
+        "Simulated test purchase failure: no real transaction occurred",
+      ),
+    );
 
     expect(unmount).toHaveBeenCalledWith(mockComponent);
   });
@@ -241,12 +243,10 @@ describe("purchaseTestStoreProduct", () => {
 
     props?.onCancel();
 
-    try {
-      await promise;
-      expect(false).toBe(true); // Should not reach here
-    } catch {
-      // Expected error
-    }
+    await expectPromiseToError(
+      promise,
+      new PurchasesError(ErrorCode.UserCancelledError),
+    );
 
     expect(unmount).toHaveBeenCalledWith(mockComponent);
   });
