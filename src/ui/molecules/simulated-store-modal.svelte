@@ -19,7 +19,7 @@
 <div class="rc-simulated-store-modal-overlay" on:click={handleOverlayClick}>
   <div class="rc-simulated-store-modal">
     <div class="rc-simulated-store-modal-content">
-      <h2 class="rc-simulated-store-modal-title">Simulated Store Purchase</h2>
+      <h2 class="rc-simulated-store-modal-title">Test Store Purchase</h2>
 
       <div class="rc-simulated-store-modal-details">
         <div>
