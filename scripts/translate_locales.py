@@ -146,6 +146,7 @@ def process_json_files(
     if target_language is not None:
         process_json_file(
             en_data_to_translate,
+            en_data,  # Pass full source data for deletion logic
             directory,
             f"{target_language}.json",
             target_language,
@@ -165,6 +166,7 @@ def process_json_files(
             target_language = filename[:-5]
             process_json_file(
                 en_data_to_translate,
+                en_data,  # Pass full source data for deletion logic
                 directory,
                 filename,
                 target_language,
@@ -177,6 +179,7 @@ def process_json_files(
 
 def process_json_file(
     en_data_to_translate,
+    full_source_data,
     directory,
     filename,
     target_language,
@@ -235,7 +238,7 @@ def process_json_file(
 
     # Handle deletion of missing keys
     if delete_missing_keys and existing_data:
-        source_keys = set(en_data_to_translate.keys())
+        source_keys = set(full_source_data.keys())
         existing_keys = set(existing_data.keys())
         keys_to_delete = existing_keys - source_keys
 
@@ -256,7 +259,7 @@ def process_json_file(
     else:
         print(f"Dry run: Would update {filename}")
         if delete_missing_keys and existing_data:
-            source_keys = set(en_data_to_translate.keys())
+            source_keys = set(full_source_data.keys())
             existing_keys = set(existing_data.keys())
             keys_to_delete = existing_keys - source_keys
             if keys_to_delete:
@@ -313,7 +316,8 @@ if __name__ == "__main__":
         keys_to_update = set(args.keys_to_update.split(","))
         print(f"Only updating keys: {', '.join(keys_to_update)}")
     # Allow specifying keys_to_update as the third argument when no target language is specified
-    elif target_language and (len(target_language) > 3 or "," in target_language):
+    # Only treat as keys if it contains dots (typical for JSON keys) or commas
+    elif target_language and ("." in target_language or "," in target_language):
         keys_to_update = set(target_language.split(","))
         target_language = None
         print(f"Only updating keys: {', '.join(keys_to_update)}")
