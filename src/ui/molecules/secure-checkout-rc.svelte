@@ -63,26 +63,12 @@
     }
 
     const hasTrial = !!subscription.trial;
-    const hasIntroPrice = !!subscription.introPrice;
-    const isIntroPricePaidUpfront = subscription.introPrice?.cycleCount == 1;
 
     if (hasTrial) {
-      if (hasIntroPrice) {
-        return isIntroPricePaidUpfront
-          ? LocalizationKeys.PaymentEntryPageTrialAndIntroPricePaidUpfrontSubscriptionTermsInfo
-          : LocalizationKeys.PaymentEntryPageTrialAndIntroPriceRecurringSubscriptionTermsInfo;
-      } else {
-        return LocalizationKeys.PaymentEntryPageTrialSubscriptionTermsInfo;
-      }
+      return LocalizationKeys.PaymentEntryPageTrialSubscriptionTermsInfo;
     }
 
-    if (hasIntroPrice) {
-      return isIntroPricePaidUpfront
-        ? LocalizationKeys.PaymentEntryPageIntroPricePaidUpfrontSubscriptionTermsInfo
-        : LocalizationKeys.PaymentEntryPageIntroPriceRecurringSubscriptionTermsInfo;
-    }
-
-    return LocalizationKeys.PaymentEntryPageNonTrialSubscriptionTermsInfo;
+    return LocalizationKeys.PaymentEntryPageSubscriptionTermsInfo;
   }
 
   $: firstSubscriptionPricingPhase =

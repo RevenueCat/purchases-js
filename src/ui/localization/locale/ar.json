@@ -91,12 +91,13 @@
   "product_info.intro_price_phase_after_trial": "ثم {{introPriceDuration}} مقابل {{introPrice}}",
   "product_info.intro_price_phase": "أولاً {{introPriceDuration}} مقابل {{introPrice}}",
   "product_info.intro_price_phase_paid_once": "تدفع مرة واحدة",
-  "payment_entry_page.trial_subscription_terms_info": "بالاشتراك، أنت توافق على السماح لتطبيق {{appName}} بتحصيل رسوم {{price}} {{perFrequency}} (بالإضافة إلى الضرائب المطبقة) بعد انتهاء الفترة التجريبية المجانية في {{renewalDate}}، وفقًا لشروطها.",
-  "payment_entry_page.subscription_info": "يتم تجديد الاشتراك تلقائيًا - يمكنك الإلغاء في أي وقت.",
-  "payment_entry_page.otp_terms_info": "بالشراء، أنت توافق على السماح لتطبيق {{appName}} بتحصيل رسوم {{price}} (بالإضافة إلى الضرائب المطبقة)، وفقًا لشروطها.",
+  "payment_entry_page.trial_subscription_terms_info": "بعد انتهاء الفترة التجريبية، سيتم محاسبتك بمبلغ {{price}} {{perFrequency}} بدءًا من {{renewalDate}}. يمكنك الإلغاء في أي وقت قبل هذا التاريخ.",
+  "payment_entry_page.subscription_info": "يتم تجديد الاشتراك تلقائيًا. يمكنك الإلغاء في أي وقت.",
+  "payment_entry_page.otp_terms_info": "بالشراء، أنت توافق على السماح لتطبيق {{appName}} بتحصيل مبلغ {{price}} منك، وفقًا لشروطهم.",
   "payment_entry_page.non_trial_subscription_terms_info": "بالاشتراك، أنت توافق على السماح لتطبيق {{appName}} بتحصيل رسوم {{price}} {{perFrequency}} (بالإضافة إلى الضرائب المطبقة)، وفقًا لشروطها.",
   "payment_entry_page.trial_and_intro_paid_upfront_subscription_terms_info": "بالاشتراك، أنت توافق على السماح لـ {{appName}} بتحصيل {{price}} كعرض لفترة محدودة، بعد انتهاء تجربتك المجانية في {{renewalDate}}، يتبعها السعر المشار إليه (بالإضافة إلى الضرائب المطبقة) بعد انتهاء فترة العرض، وفقًا لشروطها.",
   "payment_entry_page.intro_recurring_subscription_terms_info": "بالاشتراك، أنت توافق على السماح لـ {{appName}} بتحصيل {{price}} {{perFrequency}} كعرض لفترة محدودة، ثم السعر المشار إليه (بالإضافة إلى الضرائب المطبقة) بعد انتهاء فترة العرض، وفقًا لشروطها.",
   "payment_entry_page.intro_paid_upfront_subscription_terms_info": "بالاشتراك، أنت توافق على السماح لـ {{appName}} بتحصيل {{price}} كعرض لفترة محدودة، ثم السعر المشار إليه (بالإضافة إلى الضرائب المطبقة) بعد انتهاء فترة العرض، وفقًا لشروطها.",
-  "payment_entry_page.trial_and_intro_recurring_subscription_terms_info": "بالاشتراك، أنت توافق على السماح لـ {{appName}} بتحصيل {{price}} {{perFrequency}} كعرض لفترة محدودة، بعد انتهاء تجربتك المجانية في {{renewalDate}}، يتبعها السعر المشار إليه (بالإضافة إلى الضرائب المطبقة) بعد انتهاء فترة العرض، وفقًا لشروطها."
+  "payment_entry_page.trial_and_intro_recurring_subscription_terms_info": "بالاشتراك، أنت توافق على السماح لـ {{appName}} بتحصيل {{price}} {{perFrequency}} كعرض لفترة محدودة، بعد انتهاء تجربتك المجانية في {{renewalDate}}، يتبعها السعر المشار إليه (بالإضافة إلى الضرائب المطبقة) بعد انتهاء فترة العرض، وفقًا لشروطها.",
+  "payment_entry_page.subscription_terms_info": "بالاشتراك، فإنك توافق على السماح لـ {{appName}} بتحصيل رسوم منك وفقًا لشروطها حتى تقوم بالإلغاء."
 }

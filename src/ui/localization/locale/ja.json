@@ -91,12 +91,13 @@
   "product_info.intro_price_phase_after_trial": "その後、{{introPriceDuration}}間は{{introPrice}}",
   "product_info.intro_price_phase": "最初の{{introPriceDuration}}間は{{introPrice}}",
   "product_info.intro_price_phase_paid_once": "一回払い",
-  "payment_entry_page.trial_subscription_terms_info": "サブスクリプションに登録すると、{{appName}}が無料トライアル終了日の{{renewalDate}}以降に、{{price}} {{perFrequency}}（該当する場合は税金も加算）を、利用規約に従って請求することに同意したことになります。",
-  "payment_entry_page.subscription_info": "サブスクリプションは自動的に更新されます - いつでもキャンセルできます。",
-  "payment_entry_page.otp_terms_info": "購入すると、{{appName}}が{{price}}（該当する場合は税金も加算）を、利用規約に従って請求することに同意したことになります。",
+  "payment_entry_page.trial_subscription_terms_info": "トライアル期間が終了すると、{{renewalDate}}から{{price}} {{perFrequency}}が課金されます。この日より前にいつでもキャンセルできます。",
+  "payment_entry_page.subscription_info": "サブスクリプションは自動的に更新されます。いつでもキャンセルできます。",
+  "payment_entry_page.otp_terms_info": "購入することにより、{{appName}}が利用規約に従って{{price}}を請求することに同意したことになります。",
   "payment_entry_page.non_trial_subscription_terms_info": "サブスクリプションに登録すると、{{appName}}が{{price}} {{perFrequency}}（該当する場合は税金も加算）を、利用規約に従って請求することに同意したことになります。",
   "payment_entry_page.trial_and_intro_paid_upfront_subscription_terms_info": "サブスクリプションに登録すると、{{appName}}が無料トライアルが{{renewalDate}}に終了した後、期間限定オファーとして{{price}}を請求し、その後、オファー期間終了後に示された価格（該当する場合は税金が加算されます）を、利用規約に従って請求することに同意したことになります。",
   "payment_entry_page.intro_recurring_subscription_terms_info": "サブスクリプションに登録すると、{{appName}}が期間限定オファーとして{{price}} {{perFrequency}}を請求し、その後、オファー期間終了後に示された価格（該当する場合は税金が加算されます）を、利用規約に従って請求することに同意したことになります。",
   "payment_entry_page.intro_paid_upfront_subscription_terms_info": "サブスクリプションに登録すると、{{appName}}が期間限定オファーとして{{price}}を請求し、その後、オファー期間終了後に示された価格（該当する場合は税金が加算されます）を、利用規約に従って請求することに同意したことになります。",
-  "payment_entry_page.trial_and_intro_recurring_subscription_terms_info": "サブスクリプションに登録すると、{{appName}}が無料トライアルが{{renewalDate}}に終了した後、期間限定オファーとして{{price}} {{perFrequency}}を請求し、その後、オファー期間終了後に示された価格（該当する場合は税金が加算されます）を、利用規約に従って請求することに同意したことになります。"
+  "payment_entry_page.trial_and_intro_recurring_subscription_terms_info": "サブスクリプションに登録すると、{{appName}}が無料トライアルが{{renewalDate}}に終了した後、期間限定オファーとして{{price}} {{perFrequency}}を請求し、その後、オファー期間終了後に示された価格（該当する場合は税金が加算されます）を、利用規約に従って請求することに同意したことになります。",
+  "payment_entry_page.subscription_terms_info": "サブスクリプションに登録すると、キャンセルするまで{{appName}}が利用規約に従って課金することを許可することに同意したことになります。"
 }

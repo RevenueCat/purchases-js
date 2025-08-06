@@ -1,8 +1,10 @@
 import json
 import os
 import sys
+import argparse
 
 import requests
+from requests.exceptions import RequestException
 
 
 def get_api_key():
@@ -98,7 +100,7 @@ def translate_text(text, target_language, keys_context=None):
 
         return translated_text
 
-    except requests.exceptions.RequestException as e:
+    except RequestException as e:
         print(f"Error during translation: {e} {e.response.text}")
         return None
     except (KeyError, IndexError, ValueError) as e:
@@ -106,7 +108,13 @@ def translate_text(text, target_language, keys_context=None):
         return None
 
 
-def process_json_files(directory, target_language, keys_to_update=None):
+def process_json_files(
+    directory,
+    target_language,
+    keys_to_update=None,
+    delete_missing_keys=False,
+    dry_run=False,
+):
     en_data = None
     for filename in os.listdir(directory):
         if filename == "en.json":
@@ -143,6 +151,8 @@ def process_json_files(directory, target_language, keys_to_update=None):
             target_language,
             keys_to_update,
             keys_context,
+            delete_missing_keys,
+            dry_run,
         )
         return
 
@@ -160,6 +170,8 @@ def process_json_files(directory, target_language, keys_to_update=None):
                 target_language,
                 keys_to_update,
                 keys_context,
+                delete_missing_keys,
+                dry_run,
             )
 
 
@@ -170,6 +182,8 @@ def process_json_file(
     target_language,
     keys_to_update=None,
     keys_context=None,
+    delete_missing_keys=False,
+    dry_run=False,
 ):
     filepath = os.path.join(directory, filename)
     existing_data = {}
@@ -182,43 +196,108 @@ def process_json_file(
         except json.JSONDecodeError:
             print(f"Warning: {filename} contains invalid JSON. Creating a new file.")
 
-    print(f"Translating JSON file {filename}...")
-
-    translated_values = translate_text(
-        json.dumps(en_data_to_translate, ensure_ascii=False),
-        target_language,
-        keys_context,
-    )
-
-    if not translated_values:
-        print(f"Translation failed for {filename}. Skipping.")
-        return
-
-    try:
-        translated_data = json.loads(translated_values)
-    except json.JSONDecodeError as e:
-        print(f"Error: Could not parse translated JSON for {filename}: {e}")
-        print(f"Raw translated text: {translated_values[:200]}...")
-        return
-
-    # If we're only updating specific keys, merge with existing data
-    if keys_to_update:
-        # Update only the specified keys in the existing data
-        for key in keys_to_update:
-            if key in translated_data:
-                existing_data[key] = translated_data[key]
-        output_data = existing_data
+    # If we're only deleting missing keys and not translating, skip translation
+    if delete_missing_keys and not keys_to_update and not dry_run:
+        print(f"Deleting missing keys from {filename}...")
+        output_data = existing_data.copy()
+    elif dry_run:
+        print(f"Dry run: Analyzing {filename}...")
+        output_data = existing_data.copy()
     else:
-        output_data = translated_data
+        print(f"Translating JSON file {filename}...")
 
-    with open(filepath, "w", encoding="utf-8") as f:
-        json.dump(output_data, f, indent=2, ensure_ascii=False)
-    print(f"Updated {filename}")
+        translated_values = translate_text(
+            json.dumps(en_data_to_translate, ensure_ascii=False),
+            target_language,
+            keys_context,
+        )
+
+        if not translated_values:
+            print(f"Translation failed for {filename}. Skipping.")
+            return
+
+        try:
+            translated_data = json.loads(translated_values)
+        except json.JSONDecodeError as e:
+            print(f"Error: Could not parse translated JSON for {filename}: {e}")
+            print(f"Raw translated text: {translated_values[:200]}...")
+            return
+
+        # If we're only updating specific keys, merge with existing data
+        if keys_to_update:
+            # Update only the specified keys in the existing data
+            for key in keys_to_update:
+                if key in translated_data:
+                    existing_data[key] = translated_data[key]
+            output_data = existing_data
+        else:
+            output_data = translated_data
+
+    # Handle deletion of missing keys
+    if delete_missing_keys and existing_data:
+        source_keys = set(en_data_to_translate.keys())
+        existing_keys = set(existing_data.keys())
+        keys_to_delete = existing_keys - source_keys
+
+        if keys_to_delete:
+            print(
+                f"Deleting {len(keys_to_delete)} missing keys from {filename}: {', '.join(sorted(keys_to_delete))}"
+            )
+            for key in keys_to_delete:
+                if key in output_data:
+                    del output_data[key]
+        else:
+            print(f"No missing keys to delete in {filename}")
+
+    if not dry_run:
+        with open(filepath, "w", encoding="utf-8") as f:
+            json.dump(output_data, f, indent=2, ensure_ascii=False)
+        print(f"Updated {filename}")
+    else:
+        print(f"Dry run: Would update {filename}")
+        if delete_missing_keys and existing_data:
+            source_keys = set(en_data_to_translate.keys())
+            existing_keys = set(existing_data.keys())
+            keys_to_delete = existing_keys - source_keys
+            if keys_to_delete:
+                print(f"  Would delete keys: {', '.join(sorted(keys_to_delete))}")
+            else:
+                print(f"  No keys would be deleted")
 
 
 if __name__ == "__main__":
-    directory_path = sys.argv[1] if len(sys.argv) > 1 else "."
-    target_language = sys.argv[2] if len(sys.argv) > 2 else None
+    parser = argparse.ArgumentParser(
+        description="Translate locale files using Gemini API"
+    )
+    parser.add_argument(
+        "directory", nargs="?", default=".", help="Directory containing locale files"
+    )
+    parser.add_argument(
+        "target_language",
+        nargs="?",
+        help="Target language code (e.g., 'es', 'fr') or 'all' for all languages",
+    )
+    parser.add_argument(
+        "keys_to_update",
+        nargs="?",
+        help="Comma-separated list of specific keys to update",
+    )
+    parser.add_argument(
+        "--delete-missing-keys",
+        action="store_true",
+        help="Delete keys that are no longer present in the source language",
+    )
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Perform a dry run (no changes to files)"
+    )
+
+    args = parser.parse_args()
+
+    directory_path = args.directory
+    target_language = args.target_language
+    keys_to_update = None
+    delete_missing_keys = args.delete_missing_keys
+    dry_run = args.dry_run
 
     # Parse target languages
     target_languages = None
@@ -230,24 +309,29 @@ if __name__ == "__main__":
         target_language = None
 
     # Parse keys to update if provided
-    keys_to_update = None
-    if len(sys.argv) > 3:
-        keys_to_update = set(sys.argv[3].split(","))
+    if args.keys_to_update:
+        keys_to_update = set(args.keys_to_update.split(","))
         print(f"Only updating keys: {', '.join(keys_to_update)}")
     # Allow specifying keys_to_update as the third argument when no target language is specified
-    elif len(sys.argv) == 3 and (
-        target_language == "all"
-        or
-        # Check if the argument doesn't look like a language code (typically 2-3 chars)
-        (target_language and (len(target_language) > 3 or "," in target_language))
-    ):
+    elif target_language and (len(target_language) > 3 or "," in target_language):
         keys_to_update = set(target_language.split(","))
         target_language = None
         print(f"Only updating keys: {', '.join(keys_to_update)}")
 
+    if delete_missing_keys:
+        print("Deleting missing keys from translation files.")
+
     if target_languages:
         for lang in target_languages:
             print(f"\nProcessing language: {lang}")
-            process_json_files(directory_path, lang, keys_to_update)
+            process_json_files(
+                directory_path, lang, keys_to_update, delete_missing_keys, dry_run
+            )
     else:
-        process_json_files(directory_path, target_language, keys_to_update)
+        process_json_files(
+            directory_path,
+            target_language,
+            keys_to_update,
+            delete_missing_keys,
+            dry_run,
+        )
