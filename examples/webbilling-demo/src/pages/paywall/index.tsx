@@ -58,15 +58,18 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
     (offering.metadata?.original_price_by_product as Record<string, string>) ??
     null;
 
-  const option = pkg.webBillingProduct.defaultSubscriptionOption;
-
-  const price = option ? option.base.price : pkg.webBillingProduct.currentPrice;
+  // Use new convenience accessors for easier access to pricing information
+  // Before: const price = option ? option.base.price : pkg.webBillingProduct.currentPrice;
+  // After: Much simpler direct access!
+  const price = pkg.webBillingProduct.price;
   const originalPrice = originalPriceByProduct
     ? originalPriceByProduct[pkg.webBillingProduct.identifier]
     : null;
 
-  const trial = option?.trial;
-  const introPrice = option?.introPrice;
+  // Before: const trial = option?.trial; const introPrice = option?.introPrice;
+  // After: Direct access without complex nested path!
+  const trial = pkg.webBillingProduct.freeTrialPhase;
+  const introPrice = pkg.webBillingProduct.introPricePhase;
 
   const renderTrialBadge = () => {
     if (!trial) return null;
@@ -80,7 +83,6 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
 
   const renderIntroPricing = () => {
     if (!introPrice) return null;
-    console.log("option", option);
 
     return (
       <div className="introPrice">
@@ -96,9 +98,9 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
               introPrice.period?.unit,
             )}
             , then {price?.formattedPrice}
-            {pkg.webBillingProduct.normalPeriodDuration &&
+            {pkg.webBillingProduct.period &&
               `/${
-                priceLabels[pkg.webBillingProduct.normalPeriodDuration] ||
+                priceLabels[pkg.webBillingProduct.normalPeriodDuration || ""] ||
                 pkg.webBillingProduct.normalPeriodDuration
               }`}
           </div>
@@ -200,6 +202,18 @@ const PaywallPage: React.FC = () => {
 
     const option = pkg.webBillingProduct.defaultSubscriptionOption;
     console.log(`Purchasing with option ${option?.id}`);
+
+    // Note: Can also easily check for trial/intro pricing using convenience accessors
+    if (pkg.webBillingProduct.freeTrialPhase) {
+      console.log(
+        `Package has free trial: ${pkg.webBillingProduct.freeTrialPhase.periodDuration}`,
+      );
+    }
+    if (pkg.webBillingProduct.introPricePhase) {
+      console.log(
+        `Package has intro pricing: ${pkg.webBillingProduct.introPricePhase.price?.formattedPrice}`,
+      );
+    }
 
     // How do we complete the purchase?
     try {
