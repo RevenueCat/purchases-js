@@ -93,6 +93,6 @@
   "product_info.intro_price_phase_paid_once": "единоразовый платеж",
   "payment_entry_page.trial_subscription_terms_info": "По окончании пробного периода с вас будет взиматься плата в размере {{price}} {{perFrequency}}, начиная с {{renewalDate}}. Вы можете отменить подписку в любое время до этой даты.",
   "payment_entry_page.subscription_info": "Подписка продлевается автоматически. Отменить можно в любое время.",
-  "payment_entry_page.otp_terms_info": "Совершая покупку, вы соглашаетесь с тем, что {{appName}} спишет с вас {{price}} в соответствии с их условиями.",
+  "payment_entry_page.otp_terms_info": "Совершая покупку, вы соглашаетесь с тем, что {{appName}} будет взимать с вас плату в соответствии со своими условиями.",
   "payment_entry_page.subscription_terms_info": "Подписываясь, вы соглашаетесь с тем, что {{appName}} будет взимать с вас плату в соответствии с их условиями до тех пор, пока вы не отмените подписку."
 }

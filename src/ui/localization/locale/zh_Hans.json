@@ -93,6 +93,6 @@
   "product_info.intro_price_phase_paid_once": "一次性支付",
   "payment_entry_page.trial_subscription_terms_info": "试用期结束后，您将被收取 {{price}} {{perFrequency}}，从 {{renewalDate}} 开始。您可以在此日期之前的任何时间取消。",
   "payment_entry_page.subscription_info": "订阅自动续订。随时取消。",
-  "payment_entry_page.otp_terms_info": "购买即表示您同意允许{{appName}}按照其条款向您收取{{price}}。",
+  "payment_entry_page.otp_terms_info": "购买即表示您同意允许{{appName}}根据其条款向您收费。",
   "payment_entry_page.subscription_terms_info": "订阅即表示您同意允许 {{appName}} 按照其条款向您收费，直到您取消订阅。"
 }

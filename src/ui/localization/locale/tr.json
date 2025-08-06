@@ -93,6 +93,6 @@
   "product_info.intro_price_phase_paid_once": "bir defaya mahsus ödenir",
   "payment_entry_page.trial_subscription_terms_info": "Deneme süreniz sona erdikten sonra, {{renewalDate}} tarihinden itibaren {{price}} {{perFrequency}} ücretlendirileceksiniz. Bu tarihten önce istediğiniz zaman iptal edebilirsiniz.",
   "payment_entry_page.subscription_info": "Abonelik otomatik olarak yenilenir. İstediğiniz zaman iptal edin.",
-  "payment_entry_page.otp_terms_info": "Satın alarak, {{appName}} uygulamasının şartlarına uygun olarak sizden {{price}} ücret almasına izin vermeyi kabul ediyorsunuz.",
+  "payment_entry_page.otp_terms_info": "Satın alarak, {{appName}}'in sizi şartlarına göre ücretlendirmesine izin vermeyi kabul edersiniz.",
   "payment_entry_page.subscription_terms_info": "Abone olarak, iptal edene kadar {{appName}}'in sizi şartlarına göre ücretlendirmesine izin vermeyi kabul edersiniz."
 }

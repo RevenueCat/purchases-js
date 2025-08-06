@@ -93,6 +93,6 @@
   "product_info.intro_price_phase_paid_once": "płatne jednorazowo",
   "payment_entry_page.trial_subscription_terms_info": "Po zakończeniu okresu próbnego zostanie pobrana opłata w wysokości {{price}} {{perFrequency}} począwszy od {{renewalDate}}. Możesz anulować subskrypcję w dowolnym momencie przed tą datą.",
   "payment_entry_page.subscription_info": "Subskrypcja odnawia się automatycznie. Anuluj w dowolnym momencie.",
-  "payment_entry_page.otp_terms_info": "Dokonując zakupu, zgadzasz się na obciążenie przez {{appName}} kwotą {{price}}, zgodnie z ich warunkami.",
+  "payment_entry_page.otp_terms_info": "Dokonując zakupu, zgadzasz się na obciążenie przez {{appName}} zgodnie z ich warunkami.",
   "payment_entry_page.subscription_terms_info": "Subskrybując, zgadzasz się na obciążanie przez {{appName}} zgodnie z ich warunkami do momentu anulowania."
 }

@@ -93,6 +93,6 @@
   "product_info.intro_price_phase_paid_once": "pagato una volta",
   "payment_entry_page.trial_subscription_terms_info": "Al termine del periodo di prova, ti verranno addebitati {{price}} {{perFrequency}} a partire dal {{renewalDate}}. Puoi annullare in qualsiasi momento prima di questa data.",
   "payment_entry_page.subscription_info": "L'abbonamento si rinnova automaticamente. Annulla in qualsiasi momento.",
-  "payment_entry_page.otp_terms_info": "Acquistando, accetti che {{appName}} ti addebiti {{price}}, in conformità con i loro termini.",
+  "payment_entry_page.otp_terms_info": "Acquistando, accetti che {{appName}} ti addebiti l'importo in base ai suoi termini.",
   "payment_entry_page.subscription_terms_info": "Abbonandoti, accetti che {{appName}} ti addebiti l'importo secondo i suoi termini fino all'annullamento."
 }

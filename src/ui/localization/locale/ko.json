@@ -93,6 +93,6 @@
   "product_info.intro_price_phase_paid_once": "1회 결제",
   "payment_entry_page.trial_subscription_terms_info": "체험 기간이 종료되면 {{renewalDate}}부터 {{price}} {{perFrequency}}가 청구됩니다. 이 날짜 전에는 언제든지 취소할 수 있습니다.",
   "payment_entry_page.subscription_info": "구독은 자동으로 갱신됩니다. 언제든지 취소할 수 있습니다.",
-  "payment_entry_page.otp_terms_info": "구매하시면 {{appName}}이(가) 해당 약관에 따라 {{price}}를 청구하는 데 동의하는 것입니다.",
+  "payment_entry_page.otp_terms_info": "구매하시면 {{appName}}의 약관에 따라 요금이 청구되는 것에 동의하는 것입니다.",
   "payment_entry_page.subscription_terms_info": "구독하면 취소할 때까지 {{appName}}이 약관에 따라 요금을 청구하는 데 동의하는 것입니다."
 }
