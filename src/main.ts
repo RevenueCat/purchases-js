@@ -330,7 +330,7 @@ export class Purchases {
   private async fetchAndCacheBrandingInfo(): Promise<void> {
     if (isSimulatedStoreApiKey(this._API_KEY)) {
       Logger.warnLog(
-        "Branding info is not available for RC Test Store API keys.",
+        "Branding info is not available for RC simulated Store API keys.",
       );
       return;
     }
@@ -362,7 +362,9 @@ export class Purchases {
         "Initializing Purchases SDK with Web billing sandbox API Key",
       );
     } else if (isSimulatedStoreApiKey(apiKey)) {
-      Logger.debugLog("Initializing Purchases SDK with RC Test store API Key.");
+      Logger.debugLog(
+        "Initializing Purchases SDK with RC simulated store API Key.",
+      );
     }
     this.eventsTracker = new EventsTracker({
       apiKey: this._API_KEY,
