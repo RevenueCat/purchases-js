@@ -302,6 +302,31 @@ export interface Product {
    * Null in the case of subscriptions.
    */
   readonly defaultNonSubscriptionOption: NonSubscriptionOption | null;
+
+  // Convenience accessors for easier access to pricing phase information
+  /**
+   * Base price for subscriptions, "normal" price for non-subscriptions.
+   * Convenience accessor for currentPrice.
+   */
+  readonly price: Price;
+  /**
+   * Base subscription duration as a parsed Period object.
+   * Null for non-subscriptions.
+   * Convenience accessor for the default subscription option's base phase period.
+   */
+  readonly period: Period | null;
+  /**
+   * Free trial phase information for subscriptions.
+   * Null for non-subscriptions or when no free trial is available.
+   * Convenience accessor for defaultSubscriptionOption?.trial.
+   */
+  readonly freeTrialPhase: PricingPhase | null;
+  /**
+   * Introductory price phase information for subscriptions.
+   * Null for non-subscriptions or when no introductory price is available.
+   * Convenience accessor for defaultSubscriptionOption?.introPrice.
+   */
+  readonly introPricePhase: PricingPhase | null;
 }
 
 /**
@@ -614,6 +639,11 @@ const toNonSubscriptionProduct = (
     defaultSubscriptionOption: null,
     subscriptionOptions: {},
     defaultNonSubscriptionOption: defaultOption,
+    // Convenience accessors
+    price: defaultOption.basePrice,
+    period: null,
+    freeTrialPhase: null,
+    introPricePhase: null,
   };
 };
 
@@ -673,6 +703,11 @@ const toSubscriptionProduct = (
     defaultSubscriptionOption: defaultOption,
     subscriptionOptions: subscriptionOptions,
     defaultNonSubscriptionOption: null,
+    // Convenience accessors
+    price: currentPrice,
+    period: defaultOption.base.period,
+    freeTrialPhase: defaultOption.trial,
+    introPricePhase: defaultOption.introPrice,
   };
 };
 

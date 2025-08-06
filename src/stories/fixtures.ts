@@ -242,6 +242,19 @@ export const product: Product = {
   subscriptionOptions: {
     option_id_1: subscriptionOption,
   },
+  // Convenience accessors
+  price: {
+    amount: 990,
+    amountMicros: 9900000,
+    currency: "USD",
+    formattedPrice: "9.90$",
+  },
+  period: {
+    number: 1,
+    unit: PeriodUnit.Month,
+  },
+  freeTrialPhase: subscriptionOption.trial,
+  introPricePhase: subscriptionOption.introPrice,
 };
 
 export const consumableProduct: Product = {
@@ -249,6 +262,13 @@ export const consumableProduct: Product = {
   productType: ProductType.Consumable,
   defaultPurchaseOption: nonSubscriptionOption,
   subscriptionOptions: {},
+  defaultNonSubscriptionOption: nonSubscriptionOption,
+  defaultSubscriptionOption: null,
+  // Convenience accessors for non-subscription
+  price: nonSubscriptionOption.basePrice,
+  period: null,
+  freeTrialPhase: null,
+  introPricePhase: null,
 };
 
 export const nonConsumableProduct: Product = {
@@ -256,14 +276,25 @@ export const nonConsumableProduct: Product = {
   productType: ProductType.NonConsumable,
   defaultPurchaseOption: nonSubscriptionOption,
   subscriptionOptions: {},
+  defaultNonSubscriptionOption: nonSubscriptionOption,
+  defaultSubscriptionOption: null,
+  // Convenience accessors for non-subscription
+  price: nonSubscriptionOption.basePrice,
+  period: null,
+  freeTrialPhase: null,
+  introPricePhase: null,
 };
 
 export const trialProduct: Product = {
   ...structuredClone(product),
   defaultPurchaseOption: subscriptionOptionWithTrial,
+  defaultSubscriptionOption: subscriptionOptionWithTrial,
   subscriptionOptions: {
     option_id_1: subscriptionOptionWithTrial,
   },
+  // Convenience accessors for trial product
+  freeTrialPhase: subscriptionOptionWithTrial.trial,
+  introPricePhase: subscriptionOptionWithTrial.introPrice,
 };
 
 export const rcPackage: Package = {
