@@ -302,11 +302,15 @@ export interface Product {
     readonly description: string | null;
     // @deprecated
     readonly displayName: string;
+    readonly freeTrialPhase: PricingPhase | null;
     readonly identifier: string;
+    readonly introPricePhase: PricingPhase | null;
     readonly normalPeriodDuration: string | null;
+    readonly period: Period | null;
     readonly presentedOfferingContext: PresentedOfferingContext;
     // @deprecated
     readonly presentedOfferingIdentifier: string;
+    readonly price: Price;
     readonly productType: ProductType;
     readonly subscriptionOptions: {
         [optionId: string]: SubscriptionOption;
