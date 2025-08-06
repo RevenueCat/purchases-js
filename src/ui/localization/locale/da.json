@@ -94,10 +94,5 @@
   "payment_entry_page.trial_subscription_terms_info": "Efter din prøveperiode slutter, vil du blive opkrævet {{price}} {{perFrequency}} fra og med {{renewalDate}}. Du kan opsige når som helst før denne dato.",
   "payment_entry_page.subscription_info": "Abonnementet fornys automatisk. Opsig når som helst.",
   "payment_entry_page.otp_terms_info": "Ved køb accepterer du, at {{appName}} kan debitere dig {{price}} i overensstemmelse med deres vilkår.",
-  "payment_entry_page.non_trial_subscription_terms_info": "Ved at abonnere accepterer du, at {{appName}} kan debitere dig {{price}} {{perFrequency}} (plus gældende skatter) i henhold til deres vilkår.",
-  "payment_entry_page.trial_and_intro_paid_upfront_subscription_terms_info": "Ved at abonnere accepterer du, at {{appName}} må opkræve dig {{price}} som et tidsbegrænset tilbud, efter din gratis prøveperiode slutter den {{renewalDate}}, efterfulgt af den angivne pris (plus gældende skatter), når tilbudsperioden slutter, i henhold til deres vilkår.",
-  "payment_entry_page.intro_recurring_subscription_terms_info": "Ved at abonnere accepterer du, at {{appName}} må opkræve dig {{price}} {{perFrequency}} som et tidsbegrænset tilbud, derefter den angivne pris (plus gældende skatter), når tilbudsperioden slutter, i henhold til deres vilkår.",
-  "payment_entry_page.intro_paid_upfront_subscription_terms_info": "Ved at abonnere accepterer du, at {{appName}} må opkræve dig {{price}} som et tidsbegrænset tilbud, derefter den angivne pris (plus gældende skatter), når tilbudsperioden slutter, i henhold til deres vilkår.",
-  "payment_entry_page.trial_and_intro_recurring_subscription_terms_info": "Ved at abonnere accepterer du, at {{appName}} må opkræve dig {{price}} {{perFrequency}} som et tidsbegrænset tilbud, efter din gratis prøveperiode slutter den {{renewalDate}}, efterfulgt af den angivne pris (plus gældende skatter), når tilbudsperioden slutter, i henhold til deres vilkår.",
   "payment_entry_page.subscription_terms_info": "Ved at abonnere accepterer du, at {{appName}} kan opkræve dig i henhold til deres vilkår, indtil du opsiger."
 }

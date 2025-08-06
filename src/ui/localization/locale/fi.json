@@ -94,10 +94,5 @@
   "payment_entry_page.trial_subscription_terms_info": "Kokeilujakson päätyttyä sinulta veloitetaan {{price}} {{perFrequency}} alkaen {{renewalDate}}. Voit peruuttaa milloin tahansa ennen tätä päivämäärää.",
   "payment_entry_page.subscription_info": "Tilaus uusiutuu automaattisesti. Peruuta milloin tahansa.",
   "payment_entry_page.otp_terms_info": "Ostamalla hyväksyt, että {{appName}} veloittaa sinulta {{price}} heidän ehtojensa mukaisesti.",
-  "payment_entry_page.non_trial_subscription_terms_info": "Tilaamalla hyväksyt, että {{appName}} veloittaa sinulta {{price}} {{perFrequency}} (sekä sovellettavat verot) heidän ehtojensa mukaisesti.",
-  "payment_entry_page.trial_and_intro_paid_upfront_subscription_terms_info": "Tilaamalla hyväksyt, että {{appName}} veloittaa sinulta {{price}} rajoitetun ajan tarjouksena, kun ilmainen kokeilujaksosi päättyy {{renewalDate}}, minkä jälkeen veloitetaan ilmoitettu hinta (sekä mahdolliset verot) tarjousjakson päätyttyä heidän ehtojensa mukaisesti.",
-  "payment_entry_page.intro_recurring_subscription_terms_info": "Tilaamalla hyväksyt, että {{appName}} veloittaa sinulta {{price}} {{perFrequency}} rajoitetun ajan tarjouksena, minkä jälkeen veloitetaan ilmoitettu hinta (sekä mahdolliset verot) tarjousjakson päätyttyä heidän ehtojensa mukaisesti.",
-  "payment_entry_page.intro_paid_upfront_subscription_terms_info": "Tilaamalla hyväksyt, että {{appName}} veloittaa sinulta {{price}} rajoitetun ajan tarjouksena, minkä jälkeen veloitetaan ilmoitettu hinta (sekä mahdolliset verot) tarjousjakson päätyttyä heidän ehtojensa mukaisesti.",
-  "payment_entry_page.trial_and_intro_recurring_subscription_terms_info": "Tilaamalla hyväksyt, että {{appName}} veloittaa sinulta {{price}} {{perFrequency}} rajoitetun ajan tarjouksena, kun ilmainen kokeilujaksosi päättyy {{renewalDate}}, minkä jälkeen veloitetaan ilmoitettu hinta (sekä mahdolliset verot) tarjousjakson päätyttyä heidän ehtojensa mukaisesti.",
   "payment_entry_page.subscription_terms_info": "Tilaamalla hyväksyt, että {{appName}} veloittaa sinulta ehtojensa mukaisesti, kunnes peruutat tilauksen."
 }

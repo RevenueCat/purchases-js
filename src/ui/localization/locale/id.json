@@ -94,10 +94,5 @@
   "payment_entry_page.trial_subscription_terms_info": "Setelah masa percobaan Anda berakhir, Anda akan dikenakan biaya sebesar {{price}} {{perFrequency}} mulai {{renewalDate}}. Anda dapat membatalkan kapan saja sebelum tanggal ini.",
   "payment_entry_page.subscription_info": "Langganan diperpanjang secara otomatis. Batalkan kapan saja.",
   "payment_entry_page.otp_terms_info": "Dengan membeli, Anda setuju untuk mengizinkan {{appName}} mengenakan biaya sebesar {{price}} kepada Anda, sesuai dengan ketentuan mereka.",
-  "payment_entry_page.non_trial_subscription_terms_info": "Dengan berlangganan, Anda setuju untuk mengizinkan {{appName}} mengenakan biaya sebesar {{price}} {{perFrequency}} (ditambah pajak yang berlaku), sesuai dengan ketentuan mereka.",
-  "payment_entry_page.trial_and_intro_paid_upfront_subscription_terms_info": "通过订阅，您同意允许{{appName}}在您的免费试用期于{{renewalDate}}结束后，按照其条款，以限时优惠价格向您收取{{price}}，优惠期结束后，按照指示的价格（加上适用的税费）收费。",
-  "payment_entry_page.intro_recurring_subscription_terms_info": "通过订阅，您同意允许{{appName}}以限时优惠价格向您收取{{price}}{{perFrequency}}，然后按照其条款，在优惠期结束后，按照指示的价格（加上适用的税费）收费。",
-  "payment_entry_page.intro_paid_upfront_subscription_terms_info": "通过订阅，您同意允许{{appName}}以限时优惠价格向您收取{{price}}，然后按照其条款，在优惠期结束后，按照指示的价格（加上适用的税费）收费。",
-  "payment_entry_page.trial_and_intro_recurring_subscription_terms_info": "通过订阅，您同意允许{{appName}}在您的免费试用期于{{renewalDate}}结束后，按照其条款，以限时优惠价格向您收取{{price}}{{perFrequency}}，优惠期结束后，按照指示的价格（加上适用的税费）收费。",
   "payment_entry_page.subscription_terms_info": "Dengan berlangganan, Anda setuju untuk mengizinkan {{appName}} mengenakan biaya sesuai dengan ketentuan mereka hingga Anda membatalkan."
 }

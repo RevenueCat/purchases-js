@@ -94,10 +94,5 @@
   "payment_entry_page.trial_subscription_terms_info": "Etter at prøveperioden din er over, blir du belastet {{price}} {{perFrequency}} fra og med {{renewalDate}}. Du kan kansellere når som helst før denne datoen.",
   "payment_entry_page.subscription_info": "Abonnementet fornyes automatisk. Avbryt når som helst.",
   "payment_entry_page.otp_terms_info": "Ved å kjøpe godtar du at {{appName}} belaster deg {{price}} i henhold til deres vilkår.",
-  "payment_entry_page.non_trial_subscription_terms_info": "Ved å abonnere godtar du at {{appName}} belaster deg {{price}} {{perFrequency}} (pluss gjeldende skatter), i henhold til deres vilkår.",
-  "payment_entry_page.trial_and_intro_paid_upfront_subscription_terms_info": "Ved å abonnere godtar du at {{appName}} belaster deg {{price}} som et tidsbegrenset tilbud, etter at den kostnadsfrie prøveperioden din avsluttes {{renewalDate}}, etterfulgt av den angitte prisen (pluss gjeldende skatter) etter at tilbudsperioden er over, i henhold til deres vilkår.",
-  "payment_entry_page.intro_recurring_subscription_terms_info": "Ved å abonnere godtar du at {{appName}} belaster deg {{price}} {{perFrequency}} som et tidsbegrenset tilbud, deretter den angitte prisen (pluss gjeldende skatter) etter at tilbudsperioden er over, i henhold til deres vilkår.",
-  "payment_entry_page.intro_paid_upfront_subscription_terms_info": "Ved å abonnere godtar du at {{appName}} belaster deg {{price}} som et tidsbegrenset tilbud, deretter den angitte prisen (pluss gjeldende skatter) etter at tilbudsperioden er over, i henhold til deres vilkår.",
-  "payment_entry_page.trial_and_intro_recurring_subscription_terms_info": "Ved å abonnere godtar du at {{appName}} belaster deg {{price}} {{perFrequency}} som et tidsbegrenset tilbud, etter at den kostnadsfrie prøveperioden din avsluttes {{renewalDate}}, etterfulgt av den angitte prisen (pluss gjeldende skatter) etter at tilbudsperioden er over, i henhold til deres vilkår.",
   "payment_entry_page.subscription_terms_info": "Ved å abonnere godtar du at {{appName}} belaster deg i henhold til deres vilkår til du kansellerer."
 }
