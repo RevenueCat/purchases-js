@@ -5,6 +5,7 @@ import {
   GetCustomerInfoEndpoint,
   GetOfferingsEndpoint,
   GetProductsEndpoint,
+  PostReceiptEndpoint,
   PurchaseEndpoint,
   SetAttributesEndpoint,
 } from "../../networking/endpoints";
@@ -134,5 +135,17 @@ describe("setAttributes endpoint", () => {
     ).toBe(
       "/v1/subscribers/some%2BUser%2Fid%23That%24Requires%26Encoding/attributes",
     );
+  });
+});
+
+describe("postReceipt endopint", () => {
+  const endpoint = new PostReceiptEndpoint();
+
+  test("uses correct method", () => {
+    expect(endpoint.method).toBe("POST");
+  });
+
+  test("has correct urlPath", () => {
+    expect(endpoint.urlPath()).toBe("/v1/receipts");
   });
 });

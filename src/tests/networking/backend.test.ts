@@ -846,3 +846,223 @@ describe("setAttributes request", () => {
     );
   });
 });
+
+describe("postReceipt request", () => {
+  const postReceiptAPIMock = vi.fn();
+
+  function setPostReceiptResponse(httpResponse: HttpResponse) {
+    server.use(
+      http.post("http://localhost:8000/v1/receipts", (req) => {
+        postReceiptAPIMock(req);
+        return httpResponse;
+      }),
+    );
+  }
+
+  afterEach(() => {
+    postReceiptAPIMock.mockReset();
+  });
+
+  test("can post receipt successfully", async () => {
+    setPostReceiptResponse(
+      HttpResponse.json(customerInfoResponse, { status: 200 }),
+    );
+
+    const result = await backend.postReceipt(
+      "someAppUserId",
+      "monthly",
+      "test_fetch_token",
+      {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      "restore",
+    );
+
+    expect(postReceiptAPIMock).toHaveBeenCalledTimes(1);
+    const request = postReceiptAPIMock.mock.calls[0][0].request;
+    expect(request.headers.get("Content-Type")).toBe("application/json");
+    expect(request.headers.get("Authorization")).toBe("Bearer test_api_key");
+
+    const requestBody = await request.json();
+    expect(requestBody).toEqual({
+      fetch_token: "test_fetch_token",
+      product_id: "monthly",
+      app_user_id: "someAppUserId",
+      presented_offering_identifier: "offering_1",
+      presented_placement_identifier: null,
+      applied_targeting_rule: null,
+      initiation_source: "restore",
+    });
+
+    expect(result).toEqual(customerInfoResponse);
+  });
+
+  test("includes targeting context when provided", async () => {
+    setPostReceiptResponse(
+      HttpResponse.json(customerInfoResponse, { status: 200 }),
+    );
+
+    const result = await backend.postReceipt(
+      "someAppUserId",
+      "monthly",
+      "test_fetch_token",
+      {
+        offeringIdentifier: "offering_1",
+        targetingContext: {
+          ruleId: "rule_123",
+          revision: 5,
+        },
+        placementIdentifier: "placement_1",
+      },
+      "purchase",
+    );
+
+    expect(postReceiptAPIMock).toHaveBeenCalledTimes(1);
+    const request = postReceiptAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody).toEqual({
+      fetch_token: "test_fetch_token",
+      product_id: "monthly",
+      app_user_id: "someAppUserId",
+      presented_offering_identifier: "offering_1",
+      presented_placement_identifier: "placement_1",
+      applied_targeting_rule: {
+        rule_id: "rule_123",
+        revision: 5,
+      },
+      initiation_source: "purchase",
+    });
+
+    expect(result).toEqual(customerInfoResponse);
+  });
+
+  test("handles placement identifier correctly", async () => {
+    setPostReceiptResponse(
+      HttpResponse.json(customerInfoResponse, { status: 200 }),
+    );
+
+    await backend.postReceipt(
+      "someAppUserId",
+      "monthly",
+      "test_fetch_token",
+      {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: "home_screen",
+      },
+      "purchase",
+    );
+
+    const request = postReceiptAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.presented_placement_identifier).toBe("home_screen");
+  });
+
+  test("throws an error if the backend returns a server error", async () => {
+    setPostReceiptResponse(
+      HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
+    );
+    await expectPromiseToError(
+      backend.postReceipt(
+        "someAppUserId",
+        "monthly",
+        "test_fetch_token",
+        {
+          offeringIdentifier: "offering_1",
+          targetingContext: null,
+          placementIdentifier: null,
+        },
+        "restore",
+      ),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        "Request: postReceipt. Status code: 500. Body: null.",
+      ),
+    );
+  });
+
+  test("throws a known error if the backend returns a request error with correct body", async () => {
+    setPostReceiptResponse(
+      HttpResponse.json(
+        {
+          code: BackendErrorCode.BackendInvalidAPIKey,
+          message: "API key was wrong",
+        },
+        { status: StatusCodes.BAD_REQUEST },
+      ),
+    );
+    await expectPromiseToError(
+      backend.postReceipt(
+        "someAppUserId",
+        "monthly",
+        "test_fetch_token",
+        {
+          offeringIdentifier: "offering_1",
+          targetingContext: null,
+          placementIdentifier: null,
+        },
+        "restore",
+      ),
+      new PurchasesError(
+        ErrorCode.InvalidCredentialsError,
+        "There was a credentials issue. Check the underlying error for more details.",
+        "API key was wrong",
+      ),
+    );
+  });
+
+  test("throws network error if cannot reach server", async () => {
+    setPostReceiptResponse(HttpResponse.error());
+    await expectPromiseToError(
+      backend.postReceipt(
+        "someAppUserId",
+        "monthly",
+        "test_fetch_token",
+        {
+          offeringIdentifier: "offering_1",
+          targetingContext: null,
+          placementIdentifier: null,
+        },
+        "restore",
+      ),
+      new PurchasesError(
+        ErrorCode.NetworkError,
+        "Error performing request. Please check your network connection and try again.",
+        "Failed to fetch",
+      ),
+    );
+  });
+
+  test("handles invalid receipt error", async () => {
+    setPostReceiptResponse(
+      HttpResponse.json(
+        {
+          code: BackendErrorCode.BackendInvalidReceiptToken,
+          message: "Receipt token is invalid",
+        },
+        { status: StatusCodes.BAD_REQUEST },
+      ),
+    );
+    await expectPromiseToError(
+      backend.postReceipt(
+        "someAppUserId",
+        "monthly",
+        "invalid_token",
+        {
+          offeringIdentifier: "offering_1",
+          targetingContext: null,
+          placementIdentifier: null,
+        },
+        "restore",
+      ),
+      new PurchasesError(
+        ErrorCode.InvalidReceiptError,
+        "The receipt is not valid.",
+        "Receipt token is invalid",
+      ),
+    );
+  });
+});

@@ -1,0 +1,112 @@
+import type { PurchaseParams } from "../entities/purchase-params";
+import type { PurchaseResult } from "../entities/purchase-result";
+import type { StoreTransaction } from "../entities/store-transaction";
+import { ErrorCode, PurchasesError } from "../entities/errors";
+import { mount, unmount } from "svelte";
+import TestStoreModal from "../ui/molecules/test-store-modal.svelte";
+import type { Backend } from "../networking/backend";
+import { toCustomerInfo } from "../entities/customer-info";
+import { generateUUID } from "./uuid-helper";
+import type { Product } from "../entities/offerings";
+
+async function postReceipt(
+  product: Product,
+  backend: Backend,
+  appUserId: string,
+): Promise<PurchaseResult> {
+  const purchaseDate = new Date();
+  const fetchToken = `test_${purchaseDate.getTime()}_${generateUUID()}`;
+  const operationSessionId = `test_store_operation_session_${generateUUID()}`;
+  const storeTransactionId = fetchToken;
+
+  const storeTransaction: StoreTransaction = {
+    storeTransactionId,
+    productIdentifier: product.identifier,
+    purchaseDate: purchaseDate,
+  };
+
+  const subscriberResponse = await backend.postReceipt(
+    appUserId,
+    product.identifier,
+    fetchToken,
+    product.presentedOfferingContext,
+    "purchase",
+  );
+
+  const customerInfo = toCustomerInfo(subscriberResponse);
+
+  return {
+    customerInfo,
+    redemptionInfo: null,
+    operationSessionId,
+    storeTransaction,
+  };
+}
+
+export function purchaseTestStoreProduct(
+  purchaseParams: PurchaseParams,
+  backend: Backend,
+  appUserId: string,
+): Promise<PurchaseResult> {
+  const product = purchaseParams.rcPackage.webBillingProduct;
+  const productType = product.productType;
+  const freeTrialPhase = product.defaultSubscriptionOption?.trial;
+  const introPricePhase = product.defaultSubscriptionOption?.introPrice;
+  const basePrice = product.currentPrice;
+
+  const formatPeriod = (
+    period: { number: number; unit: string } | null,
+  ): string => {
+    if (!period) return "N/A";
+    return `${period.number} ${period.unit}${period.number > 1 ? "s" : ""}`;
+  };
+
+  return new Promise((resolve, reject) => {
+    // Create a container for the modal
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+
+    const cleanup = () => {
+      if (component) {
+        unmount(component);
+      }
+      document.body.removeChild(container);
+    };
+
+    let component: ReturnType<typeof mount> | null = null;
+
+    component = mount(TestStoreModal, {
+      target: container,
+      props: {
+        productIdentifier: product.identifier,
+        productType: productType,
+        basePrice: basePrice.formattedPrice,
+        freeTrialPeriod: freeTrialPhase
+          ? formatPeriod(freeTrialPhase.period)
+          : undefined,
+        introPriceFormatted: introPricePhase?.price?.formattedPrice,
+        onValidPurchase: async () => {
+          cleanup();
+          try {
+            resolve(await postReceipt(product, backend, appUserId));
+          } catch (error) {
+            reject(error);
+          }
+        },
+        onFailedPurchase: () => {
+          cleanup();
+          reject(
+            new PurchasesError(
+              ErrorCode.ProductNotAvailableForPurchaseError,
+              "Simulated test purchase failure: no real transaction occurred",
+            ),
+          );
+        },
+        onCancel: () => {
+          cleanup();
+          reject(new PurchasesError(ErrorCode.UserCancelledError));
+        },
+      },
+    });
+  });
+}

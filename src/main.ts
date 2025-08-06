@@ -71,6 +71,7 @@ import { type PurchasesConfig } from "./entities/purchases-config";
 import { generateUUID } from "./helpers/uuid-helper";
 import type { PlatformInfo } from "./entities/platform-info";
 import type { ReservedCustomerAttribute } from "./entities/attributes";
+import { purchaseTestStoreProduct } from "./helpers/test-store-purchase-helper";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -324,6 +325,12 @@ export class Purchases {
 
   /** @internal */
   private async fetchAndCacheBrandingInfo(): Promise<void> {
+    if (isRCTestStoreApiKey(this._API_KEY)) {
+      Logger.warnLog(
+        "Branding info is not available for RC Test Store API keys.",
+      );
+      return;
+    }
     this._brandingInfo = await this.backend.getBrandingInfo();
   }
 
@@ -352,9 +359,7 @@ export class Purchases {
         "Initializing Purchases SDK with Web billing sandbox API Key",
       );
     } else if (isRCTestStoreApiKey(apiKey)) {
-      Logger.debugLog(
-        "Initializing Purchases SDK with RC Test store API Key. Purchases are not currently supported in RC Test store.",
-      );
+      Logger.debugLog("Initializing Purchases SDK with RC Test store API Key.");
     }
     this.eventsTracker = new EventsTracker({
       apiKey: this._API_KEY,
@@ -628,7 +633,7 @@ export class Purchases {
    * @throws {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.
    */
   @requiresLoadedResources
-  public purchase(params: PurchaseParams): Promise<PurchaseResult> {
+  public async purchase(params: PurchaseParams): Promise<PurchaseResult> {
     const {
       rcPackage,
       purchaseOption,
@@ -639,9 +644,10 @@ export class Purchases {
       skipSuccessPage = false,
     } = params;
     if (isRCTestStoreApiKey(this._API_KEY)) {
-      throw new PurchasesError(
-        ErrorCode.ConfigurationError,
-        "Purchases are not currently supported in RC Test store. Please use a Web Billing or Paddle API key instead.",
+      return await purchaseTestStoreProduct(
+        params,
+        this.backend,
+        this._appUserId,
       );
     }
     let resolvedHTMLTarget =
