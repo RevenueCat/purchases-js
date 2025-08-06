@@ -78,7 +78,6 @@ export function createMonthlyPackageMock(
     subscriptionOptions: {
       base_option: subscriptionOption,
     },
-    // Convenience accessors
     price: {
       currency: "USD",
       amount: 300,
@@ -200,7 +199,6 @@ export function createMonthlyPackageWithIntroPriceMock(): Package {
     subscriptionOptions: {
       intro_option: subscriptionOptionWithIntroPrice,
     },
-    // Convenience accessors
     price: {
       currency: "USD",
       amount: 999,
@@ -364,7 +362,6 @@ export function createMonthlyPackageWithTrialAndIntroPriceMock(): Package {
     subscriptionOptions: {
       trial_intro_option: subscriptionOptionWithTrialAndIntroPrice,
     },
-    // Convenience accessors
     price: {
       currency: "USD",
       amount: 1499,
@@ -471,7 +468,6 @@ export function createConsumablePackageMock(): Package {
       },
     },
     subscriptionOptions: {},
-    // Convenience accessors
     price: {
       currency: "USD",
       amount: 100,

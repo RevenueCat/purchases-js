@@ -115,7 +115,6 @@ describe("getOfferings", () => {
       subscriptionOptions: {
         offer_12345: subscriptionOption,
       },
-      // Convenience accessors
       price: {
         currency: "USD",
         amount: 500,
@@ -204,7 +203,6 @@ describe("getOfferings", () => {
       subscriptionOptions: {
         offer_12345: subscriptionOption,
       },
-      // Convenience accessors
       price: {
         currency: "USD",
         amount: 500,
@@ -393,7 +391,6 @@ describe("getOfferings", () => {
       subscriptionOptions: {
         offer_12345: subscriptionOption,
       },
-      // Convenience accessors
       price: {
         currency: "USD",
         amount: 500,

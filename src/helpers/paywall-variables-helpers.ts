@@ -223,7 +223,6 @@ function parsePackageIntoVariables(
   translator: Translator,
 ) {
   const webBillingProduct = pkg.webBillingProduct;
-  // Use convenience accessor with fallback for backward compatibility
   const productPrice =
     webBillingProduct.price || webBillingProduct.currentPrice;
   const formattedPrice = translator.formatPrice(
@@ -266,7 +265,6 @@ function parsePackageIntoVariables(
       true,
     );
 
-    // Use convenience accessor for period with fallback
     const basePeriod =
       webBillingProduct.period || (product as SubscriptionOption).base.period;
 

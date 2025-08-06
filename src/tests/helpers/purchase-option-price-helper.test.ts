@@ -49,7 +49,6 @@ describe("getInitialPriceFromPurchaseOption", () => {
     defaultSubscriptionOption: {} as SubscriptionOption,
     subscriptionOptions: {},
     defaultNonSubscriptionOption: null,
-    // Convenience accessors
     price: mockBasePrice,
     period: { number: 1, unit: PeriodUnit.Month },
     freeTrialPhase: null,
@@ -74,7 +73,6 @@ describe("getInitialPriceFromPurchaseOption", () => {
     defaultSubscriptionOption: null,
     subscriptionOptions: {},
     defaultNonSubscriptionOption: {} as NonSubscriptionOption,
-    // Convenience accessors
     price: mockBasePrice,
     period: null,
     freeTrialPhase: null,

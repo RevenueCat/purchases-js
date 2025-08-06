@@ -639,7 +639,6 @@ const toNonSubscriptionProduct = (
     defaultSubscriptionOption: null,
     subscriptionOptions: {},
     defaultNonSubscriptionOption: defaultOption,
-    // Convenience accessors
     price: defaultOption.basePrice,
     period: null,
     freeTrialPhase: null,
@@ -703,7 +702,6 @@ const toSubscriptionProduct = (
     defaultSubscriptionOption: defaultOption,
     subscriptionOptions: subscriptionOptions,
     defaultNonSubscriptionOption: null,
-    // Convenience accessors
     price: currentPrice,
     period: defaultOption.base.period,
     freeTrialPhase: defaultOption.trial,

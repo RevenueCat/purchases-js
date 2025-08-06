@@ -104,7 +104,6 @@ const createSubscriptionProduct = (
     defaultSubscriptionOption: defaultOption,
     subscriptionOptions,
     defaultNonSubscriptionOption: null,
-    // Convenience accessors
     price: currentPrice,
     period: defaultOption.base.period,
     freeTrialPhase: defaultOption.trial,
@@ -154,7 +153,6 @@ const createNonSubscriptionProduct = (
     defaultSubscriptionOption: null,
     subscriptionOptions: {},
     defaultNonSubscriptionOption: defaultOption,
-    // Convenience accessors
     price: defaultOption.basePrice,
     period: null,
     freeTrialPhase: null,

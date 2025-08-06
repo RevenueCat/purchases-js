@@ -50,7 +50,6 @@ export function purchaseSimulatedStoreProduct(
 ): Promise<PurchaseResult> {
   const product = purchaseParams.rcPackage.webBillingProduct;
   const productType = product.productType;
-  // Use new convenience accessors for easier access
   const freeTrialPhase = product.freeTrialPhase;
   const introPricePhase = product.introPricePhase;
   const basePrice = product.price;

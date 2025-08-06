@@ -242,7 +242,6 @@ export const product: Product = {
   subscriptionOptions: {
     option_id_1: subscriptionOption,
   },
-  // Convenience accessors
   price: {
     amount: 990,
     amountMicros: 9900000,

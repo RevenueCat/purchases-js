@@ -58,16 +58,11 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
     (offering.metadata?.original_price_by_product as Record<string, string>) ??
     null;
 
-  // Use new convenience accessors for easier access to pricing information
-  // Before: const price = option ? option.base.price : pkg.webBillingProduct.currentPrice;
-  // After: Much simpler direct access!
   const price = pkg.webBillingProduct.price;
   const originalPrice = originalPriceByProduct
     ? originalPriceByProduct[pkg.webBillingProduct.identifier]
     : null;
 
-  // Before: const trial = option?.trial; const introPrice = option?.introPrice;
-  // After: Direct access without complex nested path!
   const trial = pkg.webBillingProduct.freeTrialPhase;
   const introPrice = pkg.webBillingProduct.introPricePhase;
 
