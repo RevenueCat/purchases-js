@@ -198,9 +198,9 @@ export function parseOfferingIntoVariables(
   const packages = offering.availablePackages;
   const highestPricePackage = packages.reduce((prev, current) => {
     const prevPrice =
-      prev.webBillingProduct.price || prev.webBillingProduct.currentPrice;
+      prev.webBillingProduct.price || prev.webBillingProduct.price;
     const currentPrice =
-      current.webBillingProduct.price || current.webBillingProduct.currentPrice;
+      current.webBillingProduct.price || current.webBillingProduct.price;
     return prevPrice.amountMicros > currentPrice.amountMicros ? prev : current;
   });
 
@@ -223,8 +223,7 @@ function parsePackageIntoVariables(
   translator: Translator,
 ) {
   const webBillingProduct = pkg.webBillingProduct;
-  const productPrice =
-    webBillingProduct.price || webBillingProduct.currentPrice;
+  const productPrice = webBillingProduct.price || webBillingProduct.price;
   const formattedPrice = translator.formatPrice(
     productPrice.amountMicros,
     productPrice.currency,
@@ -324,7 +323,7 @@ function parsePackageIntoVariables(
     const packagePrice = productPrice.amountMicros;
     const highestPrice = (
       highestPricePackage.webBillingProduct.price ||
-      highestPricePackage.webBillingProduct.currentPrice
+      highestPricePackage.webBillingProduct.price
     ).amountMicros;
     const discount = (
       ((highestPrice - packagePrice) * 100) /
