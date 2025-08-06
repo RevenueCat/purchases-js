@@ -2,6 +2,7 @@ import { describe, expect, test, beforeEach, afterEach } from "vitest";
 import { vi } from "vitest";
 import { Logger } from "../../helpers/logger";
 import { ProductType, type Product } from "../../entities/offerings";
+import { PeriodUnit } from "../../helpers/duration-helper";
 import type {
   ProductResponse,
   SubscriptionOptionResponse,
@@ -15,7 +16,7 @@ const toPricingPhase = (phase: PricingPhaseResponse) => {
   return {
     periodDuration: phase.period_duration,
     period: phase.period_duration
-      ? { number: 1, unit: "month" as const }
+      ? { number: 1, unit: PeriodUnit.Month }
       : null,
     cycleCount: phase.cycle_count,
     price: phase.price
@@ -74,10 +75,15 @@ const createSubscriptionProduct = (
       if (option) acc[key] = option;
       return acc;
     },
-    {} as { [key: string]: ReturnType<typeof toSubscriptionOption> },
+    {} as {
+      [key: string]: NonNullable<ReturnType<typeof toSubscriptionOption>>;
+    },
   );
 
   const defaultOption = subscriptionOptions[defaultOptionId];
+  if (!defaultOption) {
+    throw new Error(`Default option not found: ${defaultOptionId}`);
+  }
   const currentPrice = defaultOption.base.price!;
 
   return {
@@ -120,10 +126,15 @@ const createNonSubscriptionProduct = (
       if (option) acc[key] = option;
       return acc;
     },
-    {} as { [key: string]: ReturnType<typeof toNonSubscriptionOption> },
+    {} as {
+      [key: string]: NonNullable<ReturnType<typeof toNonSubscriptionOption>>;
+    },
   );
 
   const defaultOption = nonSubscriptionOptions[defaultOptionId];
+  if (!defaultOption) {
+    throw new Error(`Default option not found: ${defaultOptionId}`);
+  }
 
   return {
     identifier: productData.identifier,
