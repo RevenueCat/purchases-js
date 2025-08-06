@@ -257,7 +257,7 @@ export interface Product {
   /**
    * Price of the product. This will match the default option's base phase price
    * in subscriptions or the price in non-subscriptions.
-   * @deprecated Use {@link Product.price} instead for cleaner API access.
+   * @deprecated Use {@link Product.price}.
    */
   readonly currentPrice: Price;
   /**
@@ -304,14 +304,12 @@ export interface Product {
    */
   readonly defaultNonSubscriptionOption: NonSubscriptionOption | null;
 
-  // Convenience accessors for easier access to pricing phase information
   /**
-   * Base price for subscriptions, "normal" price for non-subscriptions.
-   * Preferred accessor for product pricing.
+   * Base price (after any offers) for subscriptions, price for non-subscriptions.
    */
   readonly price: Price;
   /**
-   * Base subscription duration as a parsed Period object.
+   * Base subscription duration.
    * Null for non-subscriptions.
    * Convenience accessor for the default subscription option's base phase period.
    */

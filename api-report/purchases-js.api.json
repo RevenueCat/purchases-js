@@ -4153,7 +4153,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!Product#currentPrice:member",
-              "docComment": "/**\n * Price of the product. This will match the default option's base phase price in subscriptions or the price in non-subscriptions.\n *\n * @deprecated\n *\n * Use {@link Product.price} instead for cleaner API access.\n */\n",
+              "docComment": "/**\n * Price of the product. This will match the default option's base phase price in subscriptions or the price in non-subscriptions.\n *\n * @deprecated\n *\n * Use {@link Product.price}.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4445,7 +4445,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!Product#period:member",
-              "docComment": "/**\n * Base subscription duration as a parsed Period object. Null for non-subscriptions. Convenience accessor for the default subscription option's base phase period.\n */\n",
+              "docComment": "/**\n * Base subscription duration. Null for non-subscriptions. Convenience accessor for the default subscription option's base phase period.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4532,7 +4532,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!Product#price:member",
-              "docComment": "/**\n * Base price for subscriptions, \"normal\" price for non-subscriptions. Preferred accessor for product pricing.\n */\n",
+              "docComment": "/**\n * Base price (after any offers) for subscriptions, price for non-subscriptions.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
