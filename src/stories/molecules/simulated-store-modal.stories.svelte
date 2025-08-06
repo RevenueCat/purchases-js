@@ -1,16 +1,16 @@
 <script module>
-  import TestStoreModal from "../../ui/molecules/test-store-modal.svelte";
+  import SimulatedStoreModal from "../../ui/molecules/simulated-store-modal.svelte";
+  import { renderInsideMain } from "../decorators/layout-decorators";
+  import { brandingModes } from "../../../.storybook/modes";
   import {
     type Args,
     defineMeta,
     setTemplate,
   } from "@storybook/addon-svelte-csf";
-  import { renderInsideMain } from "../decorators/layout-decorators";
-  import { brandingModes } from "../../../.storybook/modes";
 
   let { Story } = defineMeta({
-    component: TestStoreModal,
-    title: "Molecules/TestStoreModal",
+    component: SimulatedStoreModal,
+    title: "Molecules/SimulatedStoreModal",
     // @ts-expect-error ignore typing of decorator
     decorators: [renderInsideMain],
     parameters: {
@@ -31,7 +31,7 @@
 </script>
 
 {#snippet template(args: Args<typeof Story>)}
-  <TestStoreModal
+  <SimulatedStoreModal
     productIdentifier={args.productIdentifier ?? "test_product_123"}
     productType={args.productType ?? "subscription"}
     basePrice={args.basePrice ?? "$9.99"}

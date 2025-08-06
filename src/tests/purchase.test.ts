@@ -35,7 +35,7 @@ describe("preload", () => {
     expect(APIGetRequest).toHaveBeenCalledWith(expectedRequest);
   });
 
-  test("does not load branding info if using test store api key", async () => {
+  test("does not load branding info if using simulated store api key", async () => {
     const purchases = configurePurchases(
       "test-app-user-id",
       "test-rc-source",
