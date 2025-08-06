@@ -295,6 +295,7 @@ export interface PricingPhase {
 
 // @public
 export interface Product {
+    // @deprecated
     readonly currentPrice: Price;
     readonly defaultNonSubscriptionOption: NonSubscriptionOption | null;
     readonly defaultPurchaseOption: PurchaseOption;
