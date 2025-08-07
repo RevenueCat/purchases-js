@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import { postTestStoreReceipt } from "../../helpers/test-store-post-receipt-helper";
+import { postSimulatedStoreReceipt } from "../../helpers/simulated-store-post-receipt-helper";
 import type { Backend } from "../../networking/backend";
 import type { Product } from "../../entities/offerings";
 import {
@@ -32,7 +32,7 @@ const mockBackend: Backend = {
   postReceipt: vi.fn(),
 } as never;
 
-describe("postTestStoreReceipt", () => {
+describe("postSimulatedStoreReceipt", () => {
   let mockProduct: Product;
 
   beforeEach(() => {
@@ -62,7 +62,7 @@ describe("postTestStoreReceipt", () => {
   });
 
   test("creates receipt with correct product identifier", async () => {
-    const result = await postTestStoreReceipt(
+    const result = await postSimulatedStoreReceipt(
       mockProduct,
       mockBackend,
       "test-user-id",
@@ -82,7 +82,7 @@ describe("postTestStoreReceipt", () => {
   });
 
   test("returns purchase result with correct structure", async () => {
-    const result = await postTestStoreReceipt(
+    const result = await postSimulatedStoreReceipt(
       mockProduct,
       mockBackend,
       "test-user-id",
@@ -104,7 +104,7 @@ describe("postTestStoreReceipt", () => {
     const consumablePackage = createConsumablePackageMock();
     const consumableProduct = consumablePackage.webBillingProduct;
 
-    const result = await postTestStoreReceipt(
+    const result = await postSimulatedStoreReceipt(
       consumableProduct,
       mockBackend,
       "test-user-id",
@@ -128,7 +128,7 @@ describe("postTestStoreReceipt", () => {
     vi.mocked(mockBackend.postReceipt).mockRejectedValue(backendError);
 
     await expect(
-      postTestStoreReceipt(mockProduct, mockBackend, "test-user-id"),
+      postSimulatedStoreReceipt(mockProduct, mockBackend, "test-user-id"),
     ).rejects.toThrow("Network error");
   });
 });

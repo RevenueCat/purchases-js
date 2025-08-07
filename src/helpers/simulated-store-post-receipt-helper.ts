@@ -5,7 +5,7 @@ import { generateUUID } from "./uuid-helper";
 import type { StoreTransaction } from "../entities/store-transaction";
 import { toCustomerInfo } from "../entities/customer-info";
 
-export async function postTestStoreReceipt(
+export async function postSimulatedStoreReceipt(
   product: Product,
   backend: Backend,
   appUserId: string,
