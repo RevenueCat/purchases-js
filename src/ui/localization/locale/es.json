@@ -91,12 +91,8 @@
   "product_info.intro_price_phase_after_trial": "Luego, {{introPriceDuration}} por {{introPrice}}",
   "product_info.intro_price_phase": "Primero, {{introPriceDuration}} por {{introPrice}}",
   "product_info.intro_price_phase_paid_once": "pago único",
-  "payment_entry_page.trial_subscription_terms_info": "Al suscribirte, aceptas permitir que {{appName}} te cobre {{price}} {{perFrequency}} (más los impuestos aplicables) después de que finalice tu prueba gratuita el {{renewalDate}}, de acuerdo con sus términos.",
+  "payment_entry_page.trial_subscription_terms_info": "Una vez finalizado el período de prueba, se te cobrarán {{price}} {{perFrequency}} a partir del {{renewalDate}}. Puedes cancelar en cualquier momento antes de esta fecha.",
   "payment_entry_page.subscription_info": "La suscripción se renueva automáticamente. Cancela en cualquier momento.",
-  "payment_entry_page.otp_terms_info": "Al comprar, aceptas permitir que {{appName}} te cobre {{price}} (más los impuestos aplicables), de acuerdo con sus términos.",
-  "payment_entry_page.non_trial_subscription_terms_info": "Al suscribirte, aceptas permitir que {{appName}} te cobre {{price}} {{perFrequency}} (más los impuestos aplicables), de acuerdo con sus términos.",
-  "payment_entry_page.trial_and_intro_paid_upfront_subscription_terms_info": "Al suscribirte, aceptas permitir que {{appName}} te cobre {{price}} como oferta por tiempo limitado, después de que finalice tu prueba gratuita el {{renewalDate}}, seguido del precio indicado (más los impuestos aplicables) después de que finalice el período de la oferta, de acuerdo con sus términos.",
-  "payment_entry_page.intro_recurring_subscription_terms_info": "Al suscribirte, aceptas permitir que {{appName}} te cobre {{price}} {{perFrequency}} como oferta por tiempo limitado, luego el precio indicado (más los impuestos aplicables) después de que finalice el período de la oferta, de acuerdo con sus términos.",
-  "payment_entry_page.intro_paid_upfront_subscription_terms_info": "Al suscribirte, aceptas permitir que {{appName}} te cobre {{price}} como oferta por tiempo limitado, luego el precio indicado (más los impuestos aplicables) después de que finalice el período de la oferta, de acuerdo con sus términos.",
-  "payment_entry_page.trial_and_intro_recurring_subscription_terms_info": "Al suscribirte, aceptas permitir que {{appName}} te cobre {{price}} {{perFrequency}} como oferta por tiempo limitado, después de que finalice tu prueba gratuita el {{renewalDate}}, seguido del precio indicado (más los impuestos aplicables) después de que finalice el período de la oferta, de acuerdo con sus términos."
+  "payment_entry_page.otp_terms_info": "Al comprar, aceptas que {{appName}} te cobre de acuerdo con sus términos.",
+  "payment_entry_page.subscription_terms_info": "Al suscribirte, aceptas que {{appName}} te cobre de acuerdo con sus términos hasta que canceles."
 }

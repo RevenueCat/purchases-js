@@ -42,6 +42,6 @@ export function getInitialPriceFromPurchaseOption(
     return nonSubscriptionOptionToUse.basePrice;
   }
 
-  // Fallback to currentPrice if we can't find the specific option
-  return productDetails.currentPrice;
+  // Fallback to price if we can't find the specific option
+  return productDetails.price;
 }

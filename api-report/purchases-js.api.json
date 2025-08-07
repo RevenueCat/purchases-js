@@ -4153,7 +4153,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!Product#currentPrice:member",
-              "docComment": "/**\n * Price of the product. This will match the default option's base phase price in subscriptions or the price in non-subscriptions.\n */\n",
+              "docComment": "/**\n * Price of the product. This will match the default option's base phase price in subscriptions or the price in non-subscriptions.\n *\n * @deprecated\n *\n * Use {@link Product.price}.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4326,6 +4326,38 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!Product#freeTrialPhase:member",
+              "docComment": "/**\n * Free trial phase information for subscriptions. Null for non-subscriptions or when no free trial is available. Convenience accessor for defaultSubscriptionOption?.trial.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly freeTrialPhase: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "PricingPhase",
+                  "canonicalReference": "@revenuecat/purchases-js!PricingPhase:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "freeTrialPhase",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!Product#identifier:member",
               "docComment": "/**\n * The product ID.\n */\n",
               "excerptTokens": [
@@ -4353,6 +4385,38 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!Product#introPricePhase:member",
+              "docComment": "/**\n * Introductory price phase information for subscriptions. Null for non-subscriptions or when no introductory price is available. Convenience accessor for defaultSubscriptionOption?.introPrice.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly introPricePhase: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "PricingPhase",
+                  "canonicalReference": "@revenuecat/purchases-js!PricingPhase:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "introPricePhase",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!Product#normalPeriodDuration:member",
               "docComment": "/**\n * The period duration for a subscription product. This will match the default option's base phase period duration. Null for non-subscriptions.\n */\n",
               "excerptTokens": [
@@ -4376,6 +4440,38 @@
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!Product#period:member",
+              "docComment": "/**\n * Base subscription duration. Null for non-subscriptions. Convenience accessor for the default subscription option's base phase period.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly period: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Period",
+                  "canonicalReference": "@revenuecat/purchases-js!Period:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "period",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
               }
             },
             {
@@ -4428,6 +4524,34 @@
               "isOptional": false,
               "releaseTag": "Public",
               "name": "presentedOfferingIdentifier",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!Product#price:member",
+              "docComment": "/**\n * Base price (after any offers) for subscriptions, price for non-subscriptions.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly price: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Price",
+                  "canonicalReference": "@revenuecat/purchases-js!Price:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "price",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2

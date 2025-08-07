@@ -91,12 +91,8 @@
   "product_info.intro_price_phase_after_trial": "Poi {{introPriceDuration}} a {{introPrice}}",
   "product_info.intro_price_phase": "Prima {{introPriceDuration}} a {{introPrice}}",
   "product_info.intro_price_phase_paid_once": "pagato una volta",
-  "payment_entry_page.trial_subscription_terms_info": "Abbonandoti, accetti che {{appName}} ti addebiti {{price}} {{perFrequency}} (più le tasse applicabili) al termine del periodo di prova gratuito il {{renewalDate}}, in conformità con i loro termini.",
-  "payment_entry_page.subscription_info": "L'abbonamento si rinnova automaticamente - puoi annullarlo in qualsiasi momento.",
-  "payment_entry_page.otp_terms_info": "Acquistando, accetti che {{appName}} ti addebiti {{price}} (più le tasse applicabili), in conformità con i loro termini.",
-  "payment_entry_page.non_trial_subscription_terms_info": "Abbonandoti, accetti che {{appName}} ti addebiti {{price}} {{perFrequency}} (più le tasse applicabili), in conformità con i loro termini.",
-  "payment_entry_page.trial_and_intro_paid_upfront_subscription_terms_info": "Abbonandoti, accetti che {{appName}} ti addebiti {{price}} come offerta a tempo limitato, dopo la fine del periodo di prova gratuita il {{renewalDate}}, seguito dal prezzo indicato (più le tasse applicabili) dopo la fine del periodo dell'offerta, in conformità con i loro termini.",
-  "payment_entry_page.intro_recurring_subscription_terms_info": "Abbonandoti, accetti che {{appName}} ti addebiti {{price}} {{perFrequency}} come offerta a tempo limitato, quindi il prezzo indicato (più le tasse applicabili) dopo la fine del periodo dell'offerta, in conformità con i loro termini.",
-  "payment_entry_page.intro_paid_upfront_subscription_terms_info": "Abbonandoti, accetti che {{appName}} ti addebiti {{price}} come offerta a tempo limitato, quindi il prezzo indicato (più le tasse applicabili) dopo la fine del periodo dell'offerta, in conformità con i loro termini.",
-  "payment_entry_page.trial_and_intro_recurring_subscription_terms_info": "Abbonandoti, accetti che {{appName}} ti addebiti {{price}} {{perFrequency}} come offerta a tempo limitato, dopo la fine del periodo di prova gratuita il {{renewalDate}}, seguito dal prezzo indicato (più le tasse applicabili) dopo la fine del periodo dell'offerta, in conformità con i loro termini."
+  "payment_entry_page.trial_subscription_terms_info": "Al termine del periodo di prova, ti verranno addebitati {{price}} {{perFrequency}} a partire dal {{renewalDate}}. Puoi annullare in qualsiasi momento prima di questa data.",
+  "payment_entry_page.subscription_info": "L'abbonamento si rinnova automaticamente. Annulla in qualsiasi momento.",
+  "payment_entry_page.otp_terms_info": "Acquistando, accetti che {{appName}} ti addebiti l'importo in base ai suoi termini.",
+  "payment_entry_page.subscription_terms_info": "Abbonandoti, accetti che {{appName}} ti addebiti l'importo secondo i suoi termini fino all'annullamento."
 }

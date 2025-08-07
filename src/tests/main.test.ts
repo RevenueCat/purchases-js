@@ -110,6 +110,54 @@ describe("Purchases.configure()", () => {
     ).toThrowError(PurchasesError);
   });
 
+  test("throws error if given invalid paddle api key", () => {
+    expect(() =>
+      Purchases.configure({
+        apiKey: "pdl_invalid_key",
+        appUserId: testUserId,
+      }),
+    ).toThrowError(PurchasesError);
+  });
+
+  test("throws error if given valid paddle api key but allowPaddleAPIKey is false", () => {
+    expect(() =>
+      Purchases.configure({
+        apiKey: "pdl_valid_key",
+        appUserId: testUserId,
+      }),
+    ).toThrowError(PurchasesError);
+  });
+
+  test("does not throw error if given valid paddle api key but allowPaddleAPIKey is true", () => {
+    expect(() =>
+      Purchases.configure({
+        apiKey: "pdl_valid_key",
+        appUserId: testUserId,
+        flags: {
+          allowPaddleAPIKey: true,
+        },
+      }),
+    ).not.toThrow();
+  });
+
+  test("does not throw error if given valid web billing api key", () => {
+    expect(() =>
+      Purchases.configure({
+        apiKey: testApiKey,
+        appUserId: testUserId,
+      }),
+    ).not.toThrow();
+  });
+
+  test("does not throw error if given valid simulated store api key", () => {
+    expect(() =>
+      Purchases.configure({
+        apiKey: "test_valid_key",
+        appUserId: testUserId,
+      }),
+    ).not.toThrow();
+  });
+
   test("throws error if given invalid user id", () => {
     expect(() =>
       Purchases.configure({

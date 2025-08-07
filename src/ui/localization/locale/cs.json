@@ -91,12 +91,8 @@
   "product_info.intro_price_phase_after_trial": "Poté {{introPriceDuration}} za {{introPrice}}",
   "product_info.intro_price_phase": "Nejprve {{introPriceDuration}} za {{introPrice}}",
   "product_info.intro_price_phase_paid_once": "placeno jednorázově",
-  "payment_entry_page.trial_subscription_terms_info": "Přihlášením k odběru souhlasíte s tím, že společnosti {{appName}} povolíte účtovat vám {{price}} {{perFrequency}} (plus příslušné daně) po skončení bezplatné zkušební verze dne {{renewalDate}}, v souladu s jejími podmínkami.",
-  "payment_entry_page.subscription_info": "Předplatné se automaticky obnovuje – kdykoli ho můžete zrušit.",
-  "payment_entry_page.otp_terms_info": "Zakoupením souhlasíte s tím, že společnosti {{appName}} povolíte účtovat vám {{price}} (plus příslušné daně), v souladu s jejími podmínkami.",
-  "payment_entry_page.non_trial_subscription_terms_info": "Přihlášením k odběru souhlasíte s tím, že společnosti {{appName}} povolíte účtovat vám {{price}} {{perFrequency}} (plus příslušné daně), v souladu s jejími podmínkami.",
-  "payment_entry_page.trial_and_intro_paid_upfront_subscription_terms_info": "Přihlášením k odběru souhlasíte s tím, že aplikaci {{appName}} povolíte účtovat vám {{price}} jako časově omezenou nabídku po skončení bezplatné zkušební verze dne {{renewalDate}}, poté bude účtována uvedená cena (plus příslušné daně) po skončení období nabídky, a to v souladu s jejími podmínkami.",
-  "payment_entry_page.intro_recurring_subscription_terms_info": "Přihlášením k odběru souhlasíte s tím, že aplikaci {{appName}} povolíte účtovat vám {{price}} {{perFrequency}} jako časově omezenou nabídku, poté bude účtována uvedená cena (plus příslušné daně) po skončení období nabídky, a to v souladu s jejími podmínkami.",
-  "payment_entry_page.intro_paid_upfront_subscription_terms_info": "Přihlášením k odběru souhlasíte s tím, že aplikaci {{appName}} povolíte účtovat vám {{price}} jako časově omezenou nabídku, poté bude účtována uvedená cena (plus příslušné daně) po skončení období nabídky, a to v souladu s jejími podmínkami.",
-  "payment_entry_page.trial_and_intro_recurring_subscription_terms_info": "Přihlášením k odběru souhlasíte s tím, že aplikaci {{appName}} povolíte účtovat vám {{price}} {{perFrequency}} jako časově omezenou nabídku po skončení bezplatné zkušební verze dne {{renewalDate}}, poté bude účtována uvedená cena (plus příslušné daně) po skončení období nabídky, a to v souladu s jejími podmínkami."
+  "payment_entry_page.trial_subscription_terms_info": "Po skončení zkušebního období vám bude účtováno {{price}} {{perFrequency}} počínaje {{renewalDate}}. Před tímto datem můžete kdykoli zrušit.",
+  "payment_entry_page.subscription_info": "Předplatné se automaticky obnovuje. Zrušit můžete kdykoli.",
+  "payment_entry_page.otp_terms_info": "Zakoupením souhlasíte s tím, že umožníte aplikaci {{appName}} účtovat vám poplatky v souladu s jejími podmínkami.",
+  "payment_entry_page.subscription_terms_info": "Přihlášením k odběru souhlasíte s tím, že společnost {{appName}} vám bude účtovat poplatky v souladu s jejími podmínkami, dokud odběr nezrušíte."
 }

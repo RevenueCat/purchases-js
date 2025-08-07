@@ -20,7 +20,10 @@ import {
 import { type ProductResponse } from "./networking/responses/products-response";
 import { RC_ENDPOINT } from "./helpers/constants";
 import { Backend } from "./networking/backend";
-import { isRCTestStoreApiKey, isSandboxApiKey } from "./helpers/api-key-helper";
+import {
+  isSimulatedStoreApiKey,
+  isWebBillingSandboxApiKey,
+} from "./helpers/api-key-helper";
 import {
   type OperationSessionSuccessfulResult,
   type PurchaseFlowError,
@@ -76,8 +79,8 @@ import { type PurchasesConfig } from "./entities/purchases-config";
 import { generateUUID } from "./helpers/uuid-helper";
 import type { PlatformInfo } from "./entities/platform-info";
 import type { ReservedCustomerAttribute } from "./entities/attributes";
-import { purchaseTestStoreProduct } from "./helpers/test-store-purchase-helper";
 import { postTestStoreReceipt } from "./helpers/test-store-post-receipt-helper";
+import { purchaseSimulatedStoreProduct } from "./helpers/simulated-store-purchase-helper";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -300,7 +303,7 @@ export class Purchases {
   }
 
   private static validateConfig(config: PurchasesConfig) {
-    validateApiKey(config.apiKey);
+    validateApiKey(config.apiKey, config.flags);
     validateAppUserId(config.appUserId);
     validateProxyUrl(config.httpConfig?.proxyURL);
     validateAdditionalHeaders(config.httpConfig?.additionalHeaders);
@@ -338,8 +341,11 @@ export class Purchases {
 
   /** @internal */
   private async fetchAndCacheBrandingInfo(): Promise<void> {
-    if (isRCTestStoreApiKey(this._API_KEY)) {
-      throw Error("Branding info is not available for RC Test Store API keys.");
+    if (isSimulatedStoreApiKey(this._API_KEY)) {
+      Logger.warnLog(
+        "Branding info is not available for RC Test Store API keys.",
+      );
+      return;
     }
     this._brandingInfo = await this.backend.getBrandingInfo();
   }
@@ -375,11 +381,11 @@ export class Purchases {
         "Project was build without some of the environment variables set",
       );
     }
-    if (isSandboxApiKey(apiKey)) {
+    if (isWebBillingSandboxApiKey(apiKey)) {
       Logger.debugLog(
         "Initializing Purchases SDK with Web billing sandbox API Key",
       );
-    } else if (isRCTestStoreApiKey(apiKey)) {
+    } else if (isSimulatedStoreApiKey(apiKey)) {
       Logger.debugLog("Initializing Purchases SDK with RC Test store API Key.");
     }
     this.eventsTracker = new EventsTracker({
@@ -664,8 +670,8 @@ export class Purchases {
       defaultLocale = englishLocale,
       skipSuccessPage = false,
     } = params;
-    if (isRCTestStoreApiKey(this._API_KEY)) {
-      return await purchaseTestStoreProduct(
+    if (isSimulatedStoreApiKey(this._API_KEY)) {
+      return await purchaseSimulatedStoreProduct(
         params,
         this.backend,
         this._appUserId,
@@ -906,7 +912,10 @@ export class Purchases {
    * @returns Whether the SDK is using a sandbox API Key.
    */
   public isSandbox(): boolean {
-    return isSandboxApiKey(this._API_KEY) || isRCTestStoreApiKey(this._API_KEY);
+    return (
+      isWebBillingSandboxApiKey(this._API_KEY) ||
+      isSimulatedStoreApiKey(this._API_KEY)
+    );
   }
 
   /**

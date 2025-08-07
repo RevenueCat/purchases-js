@@ -24,8 +24,8 @@ import type {
 } from "../entities/offerings";
 import type { CheckoutCompleteResponse } from "./responses/checkout-complete-response";
 import type { CheckoutCalculateTaxResponse } from "./responses/checkout-calculate-tax-response";
-import { isSandboxApiKey } from "../helpers/api-key-helper";
 import { SetAttributesEndpoint } from "./endpoints";
+import { isWebBillingSandboxApiKey } from "../helpers/api-key-helper";
 
 export class Backend {
   private readonly API_KEY: string;
@@ -35,7 +35,7 @@ export class Backend {
   constructor(API_KEY: string, httpConfig: HttpConfig = defaultHttpConfig) {
     this.API_KEY = API_KEY;
     this.httpConfig = httpConfig;
-    this.isSandbox = isSandboxApiKey(API_KEY);
+    this.isSandbox = isWebBillingSandboxApiKey(API_KEY);
   }
 
   getIsSandbox(): boolean {

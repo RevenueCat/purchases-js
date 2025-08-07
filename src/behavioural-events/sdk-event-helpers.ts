@@ -78,8 +78,8 @@ export function createCheckoutSessionStartEvent({
       customizationShowProductDescription:
         appearance?.show_product_description ?? null,
       productInterval: rcPackage.webBillingProduct.normalPeriodDuration,
-      productPrice: rcPackage.webBillingProduct.currentPrice.amountMicros,
-      productCurrency: rcPackage.webBillingProduct.currentPrice.currency,
+      productPrice: rcPackage.webBillingProduct.price.amountMicros,
+      productCurrency: rcPackage.webBillingProduct.price.currency,
       selectedProductId: rcPackage.webBillingProduct.identifier,
       selectedPackageId: rcPackage.identifier,
       selectedPurchaseOption: purchaseOptionToUse.id,
