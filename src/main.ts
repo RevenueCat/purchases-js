@@ -290,7 +290,7 @@ export class Purchases {
   }
 
   private static validateConfig(config: PurchasesConfig) {
-    validateApiKey(config.apiKey);
+    validateApiKey(config.apiKey, config.flags);
     validateAppUserId(config.appUserId);
     validateProxyUrl(config.httpConfig?.proxyURL);
     validateAdditionalHeaders(config.httpConfig?.additionalHeaders);

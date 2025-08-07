@@ -1,3 +1,4 @@
+import type { FlagsConfig } from "../main";
 import { ErrorCode, PurchasesError } from "../entities/errors";
 import { SDK_HEADERS } from "../networking/http-client";
 import {
@@ -6,15 +7,16 @@ import {
   isWebBillingApiKey,
 } from "./api-key-helper";
 
-export function validateApiKey(apiKey: string) {
-  if (
-    !isWebBillingApiKey(apiKey) &&
-    !isPaddleApiKey(apiKey) &&
-    !isSimulatedStoreApiKey(apiKey)
-  ) {
+export function validateApiKey(apiKey: string, flags?: FlagsConfig) {
+  const isValidApiKey =
+    isWebBillingApiKey(apiKey) ||
+    isSimulatedStoreApiKey(apiKey) ||
+    (isPaddleApiKey(apiKey) && flags?.allowPaddleAPIKey);
+
+  if (!isValidApiKey) {
     throw new PurchasesError(
       ErrorCode.InvalidCredentialsError,
-      "Invalid API key. Use your Web Billing or Paddle API key.",
+      "Invalid API key. Use your Web Billing API key.",
     );
   }
 }

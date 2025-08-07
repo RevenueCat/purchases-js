@@ -24,6 +24,13 @@ export interface FlagsConfig {
    * @internal
    */
   rcSource?: string;
+
+  /**
+   * If set to true, the SDK will allow Paddle API keys. Paddle is not fully supported yet, only some features are available.
+   * @defaultValue false
+   * @internal
+   */
+  allowPaddleAPIKey?: boolean;
 }
 
 export const defaultFlagsConfig: FlagsConfig = {
