@@ -1,14 +1,16 @@
 import { ErrorCode, PurchasesError } from "../entities/errors";
 import { SDK_HEADERS } from "../networking/http-client";
+import {
+  isPaddleApiKey,
+  isSimulatedStoreApiKey,
+  isWebBillingApiKey,
+} from "./api-key-helper";
 
 export function validateApiKey(apiKey: string) {
-  const rc_api_key_regex = /^rcb_[a-zA-Z0-9_.-]+$/;
-  const paddle_api_key_regex = /^pdl_[a-zA-Z0-9_.-]+$/;
-  const rc_simulated_store_api_key_regex = /^test_[a-zA-Z0-9_.-]+$/;
   if (
-    !rc_api_key_regex.test(apiKey) &&
-    !paddle_api_key_regex.test(apiKey) &&
-    !rc_simulated_store_api_key_regex.test(apiKey)
+    !isWebBillingApiKey(apiKey) &&
+    !isPaddleApiKey(apiKey) &&
+    !isSimulatedStoreApiKey(apiKey)
   ) {
     throw new PurchasesError(
       ErrorCode.InvalidCredentialsError,

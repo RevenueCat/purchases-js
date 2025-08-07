@@ -17,7 +17,7 @@ import { RC_ENDPOINT } from "./helpers/constants";
 import { Backend } from "./networking/backend";
 import {
   isSimulatedStoreApiKey,
-  isSandboxApiKey,
+  isWebBillingSandboxApiKey,
 } from "./helpers/api-key-helper";
 import {
   type OperationSessionSuccessfulResult,
@@ -357,7 +357,7 @@ export class Purchases {
         "Project was build without some of the environment variables set",
       );
     }
-    if (isSandboxApiKey(apiKey)) {
+    if (isWebBillingSandboxApiKey(apiKey)) {
       Logger.debugLog(
         "Initializing Purchases SDK with Web billing sandbox API Key",
       );
@@ -884,7 +884,8 @@ export class Purchases {
    */
   public isSandbox(): boolean {
     return (
-      isSandboxApiKey(this._API_KEY) || isSimulatedStoreApiKey(this._API_KEY)
+      isWebBillingSandboxApiKey(this._API_KEY) ||
+      isSimulatedStoreApiKey(this._API_KEY)
     );
   }
 
