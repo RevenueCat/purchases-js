@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import { purchaseTestStoreProduct } from "../../helpers/test-store-purchase-helper";
+import { purchaseSimulatedStoreProduct } from "../../helpers/simulated-store-purchase-helper";
 import { ErrorCode, PurchasesError } from "../../entities/errors";
 import type { PurchaseParams } from "../../entities/purchase-params";
 import type { Backend } from "../../networking/backend";
@@ -42,7 +42,7 @@ const mockPurchaseParams: PurchaseParams = {
   rcPackage: mockPackage,
 };
 
-describe("purchaseTestStoreProduct", () => {
+describe("purchaseSimulatedStoreProduct", () => {
   let mockComponent: Record<string, unknown>;
 
   beforeEach(() => {
@@ -77,7 +77,7 @@ describe("purchaseTestStoreProduct", () => {
   });
 
   test("creates modal with correct props", async () => {
-    const promise = purchaseTestStoreProduct(
+    const promise = purchaseSimulatedStoreProduct(
       mockPurchaseParams,
       mockBackend,
       "test-user-id",
@@ -111,7 +111,7 @@ describe("purchaseTestStoreProduct", () => {
   });
 
   test("resolves with purchase result on valid purchase", async () => {
-    const promise = purchaseTestStoreProduct(
+    const promise = purchaseSimulatedStoreProduct(
       mockPurchaseParams,
       mockBackend,
       "test-user-id",
@@ -144,7 +144,7 @@ describe("purchaseTestStoreProduct", () => {
   });
 
   test("rejects with error on failed purchase", async () => {
-    const promise = purchaseTestStoreProduct(
+    const promise = purchaseSimulatedStoreProduct(
       mockPurchaseParams,
       mockBackend,
       "test-user-id",
@@ -160,7 +160,7 @@ describe("purchaseTestStoreProduct", () => {
   });
 
   test("rejects with user cancelled error on cancel", async () => {
-    const promise = purchaseTestStoreProduct(
+    const promise = purchaseSimulatedStoreProduct(
       mockPurchaseParams,
       mockBackend,
       "test-user-id",
@@ -178,7 +178,7 @@ describe("purchaseTestStoreProduct", () => {
     const backendError = new Error("Network error");
     vi.mocked(mockBackend.postReceipt).mockRejectedValue(backendError);
 
-    const promise = purchaseTestStoreProduct(
+    const promise = purchaseSimulatedStoreProduct(
       mockPurchaseParams,
       mockBackend,
       "test-user-id",
@@ -193,7 +193,7 @@ describe("purchaseTestStoreProduct", () => {
   });
 
   test("cleans up DOM and component on successful purchase", async () => {
-    const promise = purchaseTestStoreProduct(
+    const promise = purchaseSimulatedStoreProduct(
       mockPurchaseParams,
       mockBackend,
       "test-user-id",
@@ -209,7 +209,7 @@ describe("purchaseTestStoreProduct", () => {
   });
 
   test("cleans up DOM and component on failed purchase", async () => {
-    const promise = purchaseTestStoreProduct(
+    const promise = purchaseSimulatedStoreProduct(
       mockPurchaseParams,
       mockBackend,
       "test-user-id",
@@ -232,7 +232,7 @@ describe("purchaseTestStoreProduct", () => {
   });
 
   test("cleans up DOM and component on cancel", async () => {
-    const promise = purchaseTestStoreProduct(
+    const promise = purchaseSimulatedStoreProduct(
       mockPurchaseParams,
       mockBackend,
       "test-user-id",

@@ -16,12 +16,12 @@
 </script>
 
 <!--svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions-->
-<div class="rc-test-store-modal-overlay" on:click={handleOverlayClick}>
-  <div class="rc-test-store-modal">
-    <div class="rc-test-store-modal-content">
-      <h2 class="rc-test-store-modal-title">Test Store Purchase</h2>
+<div class="rc-simulated-store-modal-overlay" on:click={handleOverlayClick}>
+  <div class="rc-simulated-store-modal">
+    <div class="rc-simulated-store-modal-content">
+      <h2 class="rc-simulated-store-modal-title">Test Store Purchase</h2>
 
-      <div class="rc-test-store-modal-details">
+      <div class="rc-simulated-store-modal-details">
         <div>
           <p><strong>Product:</strong> {productIdentifier}</p>
           <p><strong>Type:</strong> {productType}</p>
@@ -35,10 +35,10 @@
         </div>
       </div>
 
-      <div class="rc-test-store-modal-buttons">
+      <div class="rc-simulated-store-modal-buttons">
         <button
           type="button"
-          class="rc-test-store-modal-button rc-test-store-modal-button-primary"
+          class="rc-simulated-store-modal-button rc-simulated-store-modal-button-primary"
           on:click={onValidPurchase}
         >
           Test valid purchase
@@ -46,7 +46,7 @@
 
         <button
           type="button"
-          class="rc-test-store-modal-button rc-test-store-modal-button-secondary"
+          class="rc-simulated-store-modal-button rc-simulated-store-modal-button-secondary"
           on:click={onFailedPurchase}
         >
           Test failed purchase
@@ -54,7 +54,7 @@
 
         <button
           type="button"
-          class="rc-test-store-modal-button rc-test-store-modal-button-cancel"
+          class="rc-simulated-store-modal-button rc-simulated-store-modal-button-cancel"
           on:click={onCancel}
         >
           Cancel
@@ -65,7 +65,7 @@
 </div>
 
 <style>
-  .rc-test-store-modal-overlay {
+  .rc-simulated-store-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -78,7 +78,7 @@
     z-index: 9999;
   }
 
-  .rc-test-store-modal {
+  .rc-simulated-store-modal {
     background: white;
     border-radius: 8px;
     padding: 0;
@@ -89,34 +89,34 @@
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   }
 
-  .rc-test-store-modal-content {
+  .rc-simulated-store-modal-content {
     padding: 24px;
   }
 
-  .rc-test-store-modal-title {
+  .rc-simulated-store-modal-title {
     margin: 0 0 20px 0;
     font-size: 24px;
     font-weight: 600;
     color: #333;
   }
 
-  .rc-test-store-modal-details {
+  .rc-simulated-store-modal-details {
     margin-bottom: 24px;
   }
 
-  .rc-test-store-modal-details p {
+  .rc-simulated-store-modal-details p {
     margin: 8px 0;
     color: #666;
     line-height: 1.5;
   }
 
-  .rc-test-store-modal-buttons {
+  .rc-simulated-store-modal-buttons {
     display: flex;
     flex-direction: column;
     gap: 12px;
   }
 
-  .rc-test-store-modal-button {
+  .rc-simulated-store-modal-button {
     padding: 12px 24px;
     border: none;
     border-radius: 6px;
@@ -126,40 +126,40 @@
     transition: background-color 0.2s ease;
   }
 
-  .rc-test-store-modal-button-primary {
+  .rc-simulated-store-modal-button-primary {
     background-color: #007aff;
     color: white;
   }
 
-  .rc-test-store-modal-button-primary:hover {
+  .rc-simulated-store-modal-button-primary:hover {
     background-color: #0056cc;
   }
 
-  .rc-test-store-modal-button-secondary {
+  .rc-simulated-store-modal-button-secondary {
     background-color: #ff3b30;
     color: white;
   }
 
-  .rc-test-store-modal-button-secondary:hover {
+  .rc-simulated-store-modal-button-secondary:hover {
     background-color: #cc2e24;
   }
 
-  .rc-test-store-modal-button-cancel {
+  .rc-simulated-store-modal-button-cancel {
     background-color: #f2f2f7;
     color: #333;
   }
 
-  .rc-test-store-modal-button-cancel:hover {
+  .rc-simulated-store-modal-button-cancel:hover {
     background-color: #e5e5ea;
   }
 
   /* Mobile responsive - full screen on small screens */
   @media (max-width: 768px) {
-    .rc-test-store-modal-overlay {
+    .rc-simulated-store-modal-overlay {
       padding: 0;
     }
 
-    .rc-test-store-modal {
+    .rc-simulated-store-modal {
       width: 100%;
       height: 100%;
       border-radius: 0;
@@ -167,7 +167,7 @@
       max-height: none;
     }
 
-    .rc-test-store-modal-content {
+    .rc-simulated-store-modal-content {
       height: 100%;
       display: flex;
       flex-direction: column;

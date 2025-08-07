@@ -3,7 +3,7 @@ import type { PurchaseResult } from "../entities/purchase-result";
 import type { StoreTransaction } from "../entities/store-transaction";
 import { ErrorCode, PurchasesError } from "../entities/errors";
 import { mount, unmount } from "svelte";
-import TestStoreModal from "../ui/molecules/test-store-modal.svelte";
+import SimulatedStoreModal from "../ui/molecules/simulated-store-modal.svelte";
 import type { Backend } from "../networking/backend";
 import { toCustomerInfo } from "../entities/customer-info";
 import { generateUUID } from "./uuid-helper";
@@ -43,7 +43,7 @@ async function postReceipt(
   };
 }
 
-export function purchaseTestStoreProduct(
+export function purchaseSimulatedStoreProduct(
   purchaseParams: PurchaseParams,
   backend: Backend,
   appUserId: string,
@@ -75,7 +75,7 @@ export function purchaseTestStoreProduct(
 
     let component: ReturnType<typeof mount> | null = null;
 
-    component = mount(TestStoreModal, {
+    component = mount(SimulatedStoreModal, {
       target: container,
       props: {
         productIdentifier: product.identifier,
