@@ -18,6 +18,13 @@ const monthlyProduct = {
     currency: "EUR",
     formattedPrice: "€9.00",
   },
+  price: {
+    amount: 900,
+    amountMicros: 9000000,
+    currency: "EUR",
+    formattedPrice: "€9.00",
+  },
+  duration: "P1M",
   normalPeriodDuration: "P1M",
   presentedOfferingIdentifier: "MultiCurrencyTest",
   presentedOfferingContext: {
@@ -153,6 +160,13 @@ const weeklyProduct = {
     currency: "EUR",
     formattedPrice: "€9.00",
   },
+  price: {
+    amount: 900,
+    amountMicros: 9000000,
+    currency: "EUR",
+    formattedPrice: "€9.00",
+  },
+  duration: "P1W",
   normalPeriodDuration: "P1W",
   presentedOfferingIdentifier: "MultiCurrencyTest",
   presentedOfferingContext: {
@@ -287,6 +301,24 @@ const trialProduct = {
     amountMicros: 30000000,
     currency: "EUR",
     formattedPrice: "€30.00",
+  },
+  price: {
+    amount: 3000,
+    amountMicros: 30000000,
+    currency: "EUR",
+    formattedPrice: "€30.00",
+  },
+  trialPhase: {
+    periodDuration: "P2W",
+    period: {
+      number: 2,
+      unit: "week",
+    },
+    cycleCount: 1,
+    price: null,
+    pricePerWeek: null,
+    pricePerMonth: null,
+    pricePerYear: null,
   },
   normalPeriodDuration: "P1M",
   presentedOfferingIdentifier: "MultiCurrencyTest",
@@ -455,6 +487,24 @@ const trialProduct900 = {
     amountMicros: 9000000,
     currency: "EUR",
     formattedPrice: "€9.00",
+  },
+  price: {
+    amount: 900,
+    amountMicros: 9000000,
+    currency: "EUR",
+    formattedPrice: "€9.00",
+  },
+  trialPhase: {
+    periodDuration: "P2W",
+    period: {
+      number: 2,
+      unit: "week",
+    },
+    cycleCount: 1,
+    price: null,
+    pricePerWeek: null,
+    pricePerMonth: null,
+    pricePerYear: null,
   },
   normalPeriodDuration: "P1M",
   presentedOfferingIdentifier: "MultiCurrencyTest",
@@ -625,6 +675,12 @@ const monthlyProduct300 = {
     currency: "EUR",
     formattedPrice: "€3.00",
   },
+  price: {
+    amount: 300,
+    amountMicros: 3000000,
+    currency: "EUR",
+    formattedPrice: "€3.00",
+  },
   normalPeriodDuration: "P1M",
   presentedOfferingIdentifier: "MultiCurrencyTest",
   presentedOfferingContext: {
@@ -755,6 +811,12 @@ const weeklyProduct600 = {
   description: "A fresh alternative to the Mario's, clean them up every week",
   productType: "subscription",
   currentPrice: {
+    amount: 600,
+    amountMicros: 6000000,
+    currency: "EUR",
+    formattedPrice: "€6.00",
+  },
+  price: {
     amount: 600,
     amountMicros: 6000000,
     currency: "EUR",

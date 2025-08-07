@@ -78,6 +78,18 @@ export function createMonthlyPackageMock(
     subscriptionOptions: {
       base_option: subscriptionOption,
     },
+    price: {
+      currency: "USD",
+      amount: 300,
+      amountMicros: 3000000,
+      formattedPrice: "$3.00",
+    },
+    period: {
+      number: 1,
+      unit: PeriodUnit.Month,
+    },
+    freeTrialPhase: null,
+    introPricePhase: null,
   };
 
   return {
@@ -186,6 +198,49 @@ export function createMonthlyPackageWithIntroPriceMock(): Package {
     defaultNonSubscriptionOption: null,
     subscriptionOptions: {
       intro_option: subscriptionOptionWithIntroPrice,
+    },
+    price: {
+      currency: "USD",
+      amount: 999,
+      amountMicros: 9990000,
+      formattedPrice: "$9.99",
+    },
+    period: {
+      number: 1,
+      unit: PeriodUnit.Month,
+    },
+    freeTrialPhase: null,
+    introPricePhase: {
+      periodDuration: "P1M",
+      period: {
+        number: 1,
+        unit: PeriodUnit.Month,
+      },
+      cycleCount: 3,
+      price: {
+        amount: 199,
+        amountMicros: 1990000,
+        currency: "USD",
+        formattedPrice: "$1.99",
+      },
+      pricePerWeek: {
+        amount: 46,
+        amountMicros: 460000,
+        currency: "USD",
+        formattedPrice: "$0.46",
+      },
+      pricePerMonth: {
+        amount: 199,
+        amountMicros: 1990000,
+        currency: "USD",
+        formattedPrice: "$1.99",
+      },
+      pricePerYear: {
+        amount: 2388,
+        amountMicros: 23880000,
+        currency: "USD",
+        formattedPrice: "$23.88",
+      },
     },
   };
 
@@ -307,6 +362,60 @@ export function createMonthlyPackageWithTrialAndIntroPriceMock(): Package {
     subscriptionOptions: {
       trial_intro_option: subscriptionOptionWithTrialAndIntroPrice,
     },
+    price: {
+      currency: "USD",
+      amount: 1499,
+      amountMicros: 14990000,
+      formattedPrice: "$14.99",
+    },
+    period: {
+      number: 1,
+      unit: PeriodUnit.Month,
+    },
+    freeTrialPhase: {
+      periodDuration: "P1W",
+      period: {
+        number: 1,
+        unit: PeriodUnit.Week,
+      },
+      cycleCount: 1,
+      price: null,
+      pricePerWeek: null,
+      pricePerMonth: null,
+      pricePerYear: null,
+    },
+    introPricePhase: {
+      periodDuration: "P1M",
+      period: {
+        number: 1,
+        unit: PeriodUnit.Month,
+      },
+      cycleCount: 6,
+      price: {
+        amount: 499,
+        amountMicros: 4990000,
+        currency: "USD",
+        formattedPrice: "$4.99",
+      },
+      pricePerWeek: {
+        amount: 115,
+        amountMicros: 1150000,
+        currency: "USD",
+        formattedPrice: "$1.15",
+      },
+      pricePerMonth: {
+        amount: 499,
+        amountMicros: 4990000,
+        currency: "USD",
+        formattedPrice: "$4.99",
+      },
+      pricePerYear: {
+        amount: 5988,
+        amountMicros: 59880000,
+        currency: "USD",
+        formattedPrice: "$59.88",
+      },
+    },
   };
 
   return {
@@ -359,6 +468,15 @@ export function createConsumablePackageMock(): Package {
       },
     },
     subscriptionOptions: {},
+    price: {
+      currency: "USD",
+      amount: 100,
+      amountMicros: 1000000,
+      formattedPrice: "$1.00",
+    },
+    period: null,
+    freeTrialPhase: null,
+    introPricePhase: null,
   };
 
   return {

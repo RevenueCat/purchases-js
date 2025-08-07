@@ -197,10 +197,11 @@ export function parseOfferingIntoVariables(
 ): Record<string, VariableDictionary> {
   const packages = offering.availablePackages;
   const highestPricePackage = packages.reduce((prev, current) => {
-    return prev.webBillingProduct.currentPrice.amountMicros >
-      current.webBillingProduct.currentPrice.amountMicros
-      ? prev
-      : current;
+    const prevPrice =
+      prev.webBillingProduct.price || prev.webBillingProduct.price;
+    const currentPrice =
+      current.webBillingProduct.price || current.webBillingProduct.price;
+    return prevPrice.amountMicros > currentPrice.amountMicros ? prev : current;
   });
 
   return packages.reduce(
@@ -222,9 +223,10 @@ function parsePackageIntoVariables(
   translator: Translator,
 ) {
   const webBillingProduct = pkg.webBillingProduct;
+  const productPrice = webBillingProduct.price || webBillingProduct.price;
   const formattedPrice = translator.formatPrice(
-    webBillingProduct.currentPrice.amountMicros,
-    webBillingProduct.currentPrice.currency,
+    productPrice.amountMicros,
+    productPrice.currency,
   );
   const product = getProductPerType(pkg);
   const productType = webBillingProduct.productType;
@@ -262,29 +264,30 @@ function parsePackageIntoVariables(
       true,
     );
 
-    const basePeriod = (product as SubscriptionOption).base.period;
+    const basePeriod =
+      webBillingProduct.period || (product as SubscriptionOption).base.period;
 
     baseObject.total_price_and_per_month = getTotalPriceAndPerMonth({
-      price: webBillingProduct.currentPrice,
+      price: productPrice,
       period: basePeriod,
       translator,
     });
 
     baseObject.total_price_and_per_month_full = getTotalPriceAndPerMonth({
-      price: webBillingProduct.currentPrice,
+      price: productPrice,
       period: basePeriod,
       full: true,
       translator,
     });
 
     baseObject.sub_price_per_month = getPricePerMonth({
-      price: webBillingProduct.currentPrice,
+      price: productPrice,
       period: basePeriod,
       translator,
     });
 
     baseObject.sub_price_per_week = getPricePerWeek({
-      price: webBillingProduct.currentPrice,
+      price: productPrice,
       period: basePeriod,
       translator,
     });
@@ -317,9 +320,11 @@ function parsePackageIntoVariables(
         })
       : undefined;
 
-    const packagePrice = webBillingProduct.currentPrice.amountMicros;
-    const highestPrice =
-      highestPricePackage.webBillingProduct.currentPrice.amountMicros;
+    const packagePrice = productPrice.amountMicros;
+    const highestPrice = (
+      highestPricePackage.webBillingProduct.price ||
+      highestPricePackage.webBillingProduct.price
+    ).amountMicros;
     const discount = (
       ((highestPrice - packagePrice) * 100) /
       highestPrice

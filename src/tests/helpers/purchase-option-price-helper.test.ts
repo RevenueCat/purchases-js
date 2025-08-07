@@ -49,6 +49,10 @@ describe("getInitialPriceFromPurchaseOption", () => {
     defaultSubscriptionOption: {} as SubscriptionOption,
     subscriptionOptions: {},
     defaultNonSubscriptionOption: null,
+    price: mockBasePrice,
+    period: { number: 1, unit: PeriodUnit.Month },
+    freeTrialPhase: null,
+    introPricePhase: null,
   };
 
   const mockNonSubscriptionProduct: Product = {
@@ -69,6 +73,10 @@ describe("getInitialPriceFromPurchaseOption", () => {
     defaultSubscriptionOption: null,
     subscriptionOptions: {},
     defaultNonSubscriptionOption: {} as NonSubscriptionOption,
+    price: mockBasePrice,
+    period: null,
+    freeTrialPhase: null,
+    introPricePhase: null,
   };
 
   describe("subscription products", () => {

@@ -156,3 +156,6 @@ yarn.lock
 /blob-report/
 /playwright/.cache/
 /storybook-static/
+
+# AI Agents
+.claude/settings.local.json

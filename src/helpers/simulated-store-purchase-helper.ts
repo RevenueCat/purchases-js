@@ -50,9 +50,9 @@ export function purchaseSimulatedStoreProduct(
 ): Promise<PurchaseResult> {
   const product = purchaseParams.rcPackage.webBillingProduct;
   const productType = product.productType;
-  const freeTrialPhase = product.defaultSubscriptionOption?.trial;
-  const introPricePhase = product.defaultSubscriptionOption?.introPrice;
-  const basePrice = product.currentPrice;
+  const freeTrialPhase = product.freeTrialPhase;
+  const introPricePhase = product.introPricePhase;
+  const basePrice = product.price;
 
   const formatPeriod = (
     period: { number: number; unit: string } | null,

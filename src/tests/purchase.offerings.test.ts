@@ -115,6 +115,29 @@ describe("getOfferings", () => {
       subscriptionOptions: {
         offer_12345: subscriptionOption,
       },
+      price: {
+        currency: "USD",
+        amount: 500,
+        amountMicros: 5000000,
+        formattedPrice: "$5.00",
+      },
+      period: {
+        number: 1,
+        unit: PeriodUnit.Month,
+      },
+      freeTrialPhase: {
+        cycleCount: 1,
+        periodDuration: "P1W",
+        period: {
+          number: 1,
+          unit: PeriodUnit.Week,
+        },
+        price: null,
+        pricePerWeek: null,
+        pricePerMonth: null,
+        pricePerYear: null,
+      },
+      introPricePhase: null,
     };
 
     const package2: Package = {
@@ -180,6 +203,29 @@ describe("getOfferings", () => {
       subscriptionOptions: {
         offer_12345: subscriptionOption,
       },
+      price: {
+        currency: "USD",
+        amount: 500,
+        amountMicros: 5000000,
+        formattedPrice: "$5.00",
+      },
+      period: {
+        number: 1,
+        unit: PeriodUnit.Month,
+      },
+      freeTrialPhase: {
+        cycleCount: 1,
+        periodDuration: "P1W",
+        period: {
+          number: 1,
+          unit: PeriodUnit.Week,
+        },
+        price: null,
+        pricePerWeek: null,
+        pricePerMonth: null,
+        pricePerYear: null,
+      },
+      introPricePhase: null,
     };
     const package2: Package = {
       identifier: "package_2",
@@ -345,6 +391,29 @@ describe("getOfferings", () => {
       subscriptionOptions: {
         offer_12345: subscriptionOption,
       },
+      price: {
+        currency: "USD",
+        amount: 500,
+        amountMicros: 5000000,
+        formattedPrice: "$5.00",
+      },
+      period: {
+        number: 1,
+        unit: PeriodUnit.Month,
+      },
+      freeTrialPhase: {
+        cycleCount: 1,
+        periodDuration: "P1W",
+        period: {
+          number: 1,
+          unit: PeriodUnit.Week,
+        },
+        price: null,
+        pricePerWeek: null,
+        pricePerMonth: null,
+        pricePerYear: null,
+      },
+      introPricePhase: null,
     };
 
     const package2: Package = {

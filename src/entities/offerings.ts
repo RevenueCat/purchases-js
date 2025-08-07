@@ -257,6 +257,7 @@ export interface Product {
   /**
    * Price of the product. This will match the default option's base phase price
    * in subscriptions or the price in non-subscriptions.
+   * @deprecated Use {@link Product.price}.
    */
   readonly currentPrice: Price;
   /**
@@ -302,6 +303,29 @@ export interface Product {
    * Null in the case of subscriptions.
    */
   readonly defaultNonSubscriptionOption: NonSubscriptionOption | null;
+
+  /**
+   * Base price (after any offers) for subscriptions, price for non-subscriptions.
+   */
+  readonly price: Price;
+  /**
+   * Base subscription duration.
+   * Null for non-subscriptions.
+   * Convenience accessor for the default subscription option's base phase period.
+   */
+  readonly period: Period | null;
+  /**
+   * Free trial phase information for subscriptions.
+   * Null for non-subscriptions or when no free trial is available.
+   * Convenience accessor for defaultSubscriptionOption?.trial.
+   */
+  readonly freeTrialPhase: PricingPhase | null;
+  /**
+   * Introductory price phase information for subscriptions.
+   * Null for non-subscriptions or when no introductory price is available.
+   * Convenience accessor for defaultSubscriptionOption?.introPrice.
+   */
+  readonly introPricePhase: PricingPhase | null;
 }
 
 /**
@@ -614,6 +638,10 @@ const toNonSubscriptionProduct = (
     defaultSubscriptionOption: null,
     subscriptionOptions: {},
     defaultNonSubscriptionOption: defaultOption,
+    price: defaultOption.basePrice,
+    period: null,
+    freeTrialPhase: null,
+    introPricePhase: null,
   };
 };
 
@@ -673,6 +701,10 @@ const toSubscriptionProduct = (
     defaultSubscriptionOption: defaultOption,
     subscriptionOptions: subscriptionOptions,
     defaultNonSubscriptionOption: null,
+    price: currentPrice,
+    period: defaultOption.base.period,
+    freeTrialPhase: defaultOption.trial,
+    introPricePhase: defaultOption.introPrice,
   };
 };
 
