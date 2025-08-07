@@ -1,3 +1,7 @@
+## 1.12.1
+### 🔄 Other Changes
+* chore: Paddle Support Limitation and API Key Restriction (#566) via Víctor Ferrer García (@vicfergar)
+
 ## 1.12.0
 ## RevenueCat SDK
 ### ✨ New Features
