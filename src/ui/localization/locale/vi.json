@@ -91,12 +91,8 @@
   "product_info.intro_price_phase_after_trial": "Sau đó {{introPriceDuration}} với giá {{introPrice}}",
   "product_info.intro_price_phase": "{{introPriceDuration}} đầu tiên với giá {{introPrice}}",
   "product_info.intro_price_phase_paid_once": "trả một lần",
-  "payment_entry_page.trial_subscription_terms_info": "Bằng cách đăng ký, bạn đồng ý cho phép {{appName}} tính phí {{price}} {{perFrequency}} (cộng thêm các loại thuế áp dụng) sau khi thời gian dùng thử miễn phí của bạn kết thúc vào {{renewalDate}}, theo các điều khoản của họ.",
-  "payment_entry_page.subscription_info": "Gói đăng ký tự động gia hạn - hủy bất cứ lúc nào.",
-  "payment_entry_page.otp_terms_info": "Bằng cách mua hàng, bạn đồng ý cho phép {{appName}} tính phí {{price}} (cộng thêm các loại thuế áp dụng), theo các điều khoản của họ.",
-  "payment_entry_page.non_trial_subscription_terms_info": "Bằng cách đăng ký, bạn đồng ý cho phép {{appName}} tính phí {{price}} {{perFrequency}} (cộng thêm các loại thuế áp dụng), theo các điều khoản của họ.",
-  "payment_entry_page.trial_and_intro_paid_upfront_subscription_terms_info": "Bằng cách đăng ký, bạn đồng ý cho phép {{appName}} tính phí {{price}} cho bạn như một ưu đãi có thời hạn, sau khi thời gian dùng thử miễn phí của bạn kết thúc vào {{renewalDate}}, sau đó là mức giá được chỉ định (cộng thêm các loại thuế áp dụng) sau khi thời gian ưu đãi kết thúc, theo các điều khoản của họ.",
-  "payment_entry_page.intro_recurring_subscription_terms_info": "Bằng cách đăng ký, bạn đồng ý cho phép {{appName}} tính phí {{price}} {{perFrequency}} cho bạn như một ưu đãi có thời hạn, sau đó là mức giá được chỉ định (cộng thêm các loại thuế áp dụng) sau khi thời gian ưu đãi kết thúc, theo các điều khoản của họ.",
-  "payment_entry_page.intro_paid_upfront_subscription_terms_info": "Bằng cách đăng ký, bạn đồng ý cho phép {{appName}} tính phí {{price}} cho bạn như một ưu đãi có thời hạn, sau đó là mức giá được chỉ định (cộng thêm các loại thuế áp dụng) sau khi thời gian ưu đãi kết thúc, theo các điều khoản của họ.",
-  "payment_entry_page.trial_and_intro_recurring_subscription_terms_info": "Bằng cách đăng ký, bạn đồng ý cho phép {{appName}} tính phí {{price}} {{perFrequency}} cho bạn như một ưu đãi có thời hạn, sau khi thời gian dùng thử miễn phí của bạn kết thúc vào {{renewalDate}}, sau đó là mức giá được chỉ định (cộng thêm các loại thuế áp dụng) sau khi thời gian ưu đãi kết thúc, theo các điều khoản của họ."
+  "payment_entry_page.trial_subscription_terms_info": "Sau khi thời gian dùng thử của bạn kết thúc, bạn sẽ bị tính phí {{price}} {{perFrequency}} bắt đầu từ {{renewalDate}}. Bạn có thể hủy bất cứ lúc nào trước ngày này.",
+  "payment_entry_page.subscription_info": "Gói đăng ký tự động gia hạn. Hủy bất cứ lúc nào.",
+  "payment_entry_page.otp_terms_info": "Bằng cách mua, bạn đồng ý cho phép {{appName}} tính phí bạn theo các điều khoản của họ.",
+  "payment_entry_page.subscription_terms_info": "Bằng cách đăng ký, bạn đồng ý cho phép {{appName}} tính phí bạn theo các điều khoản của họ cho đến khi bạn hủy."
 }

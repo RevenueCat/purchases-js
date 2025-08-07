@@ -91,12 +91,8 @@
   "product_info.intro_price_phase_after_trial": "Ezután {{introPriceDuration}} ideig {{introPrice}} áron",
   "product_info.intro_price_phase": "Először {{introPriceDuration}} ideig {{introPrice}} áron",
   "product_info.intro_price_phase_paid_once": "egyszeri fizetéssel",
-  "payment_entry_page.trial_subscription_terms_info": "A feliratkozással elfogadod, hogy a(z) {{appName}} a díjmentes próbaidőszak {{renewalDate}} napján történő lejárta után {{price}} {{perFrequency}} (plusz a vonatkozó adók) összeggel terheljen a feltételeik szerint.",
-  "payment_entry_page.subscription_info": "Az előfizetés automatikusan megújul – bármikor lemondhatod.",
-  "payment_entry_page.otp_terms_info": "A vásárlással elfogadod, hogy a(z) {{appName}} {{price}} (plusz a vonatkozó adók) összeggel terheljen a feltételeik szerint.",
-  "payment_entry_page.non_trial_subscription_terms_info": "A feliratkozással elfogadod, hogy a(z) {{appName}} {{price}} {{perFrequency}} (plusz a vonatkozó adók) összeggel terheljen a feltételeik szerint.",
-  "payment_entry_page.trial_and_intro_paid_upfront_subscription_terms_info": "A feliratkozással elfogadod, hogy a {{appName}} a {{renewalDate}} napján véget érő ingyenes próbaidőszak után {{price}} összeget számítson fel neked korlátozott ideig tartó ajánlatként, majd az ajánlati időszak végét követően a feltüntetett árat (plusz az alkalmazandó adókat) a feltételeiknek megfelelően.",
-  "payment_entry_page.intro_recurring_subscription_terms_info": "A feliratkozással elfogadod, hogy a {{appName}} {{price}} {{perFrequency}} összeget számítson fel neked korlátozott ideig tartó ajánlatként, majd az ajánlati időszak végét követően a feltüntetett árat (plusz az alkalmazandó adókat) a feltételeiknek megfelelően.",
-  "payment_entry_page.intro_paid_upfront_subscription_terms_info": "A feliratkozással elfogadod, hogy a {{appName}} {{price}} összeget számítson fel neked korlátozott ideig tartó ajánlatként, majd az ajánlati időszak végét követően a feltüntetett árat (plusz az alkalmazandó adókat) a feltételeiknek megfelelően.",
-  "payment_entry_page.trial_and_intro_recurring_subscription_terms_info": "A feliratkozással elfogadod, hogy a {{appName}} a {{renewalDate}} napján véget érő ingyenes próbaidőszak után {{price}} {{perFrequency}} összeget számítson fel neked korlátozott ideig tartó ajánlatként, majd az ajánlati időszak végét követően a feltüntetett árat (plusz az alkalmazandó adókat) a feltételeiknek megfelelően."
+  "payment_entry_page.trial_subscription_terms_info": "A próbaidőszak vége után {{price}} összeget számítunk fel {{perFrequency}} gyakorisággal, kezdve {{renewalDate}} dátummal. Ezt a dátumot megelőzően bármikor lemondhatod.",
+  "payment_entry_page.subscription_info": "Az előfizetés automatikusan megújul. Bármikor lemondhatod.",
+  "payment_entry_page.otp_terms_info": "A vásárlással elfogadod, hogy a {{appName}} az általa meghatározott feltételek szerint terheljen.",
+  "payment_entry_page.subscription_terms_info": "A feliratkozással elfogadod, hogy a {{appName}} az általa meghatározott feltételek szerint terheljen, amíg le nem mondod."
 }
