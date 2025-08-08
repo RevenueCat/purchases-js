@@ -5,6 +5,7 @@ import {
   GetCustomerInfoEndpoint,
   GetOfferingsEndpoint,
   GetProductsEndpoint,
+  GetVirtualCurrenciesEndpoint,
   PostReceiptEndpoint,
   PurchaseEndpoint,
   SetAttributesEndpoint,
@@ -147,5 +148,29 @@ describe("postReceipt endopint", () => {
 
   test("has correct urlPath", () => {
     expect(endpoint.urlPath()).toBe("/v1/receipts");
+  });
+});
+
+describe("getVirtualCurrencies endpoint", () => {
+  const endpoint = new GetVirtualCurrenciesEndpoint("someAppUserId");
+
+  test("uses correct method", () => {
+    expect(endpoint.method).toBe("GET");
+  });
+
+  test("has correct urlPath for common app user id", () => {
+    expect(endpoint.urlPath()).toBe(
+      "/v1/subscribers/someAppUserId/virtual_currencies",
+    );
+  });
+
+  test("correctly encodes app user id", () => {
+    expect(
+      new GetVirtualCurrenciesEndpoint(
+        "some+User/id#That$Requires&Encoding",
+      ).urlPath(),
+    ).toBe(
+      "/v1/subscribers/some%2BUser%2Fid%23That%24Requires%26Encoding/virtual_currencies",
+    );
   });
 });

@@ -10,12 +10,14 @@ import {
   GetOfferingsEndpoint,
   GetProductsEndpoint,
   PostReceiptEndpoint,
+  GetVirtualCurrenciesEndpoint,
 } from "./endpoints";
 import { type SubscriberResponse } from "./responses/subscriber-response";
 import type { CheckoutStartResponse } from "./responses/checkout-start-response";
 import { type ProductsResponse } from "./responses/products-response";
 import { type BrandingInfoResponse } from "./responses/branding-response";
 import { type CheckoutStatusResponse } from "./responses/checkout-status-response";
+import { type VirtualCurrenciesResponse } from "./responses/virtual-currencies-response";
 import { defaultHttpConfig, type HttpConfig } from "../entities/http-config";
 import type {
   PresentedOfferingContext,
@@ -298,6 +300,18 @@ export class Backend {
       {
         apiKey: this.API_KEY,
         body: requestBody,
+        httpConfig: this.httpConfig,
+      },
+    );
+  }
+
+  async getVirtualCurrencies(
+    appUserId: string,
+  ): Promise<VirtualCurrenciesResponse> {
+    return await performRequest<null, VirtualCurrenciesResponse>(
+      new GetVirtualCurrenciesEndpoint(appUserId),
+      {
+        apiKey: this.API_KEY,
         httpConfig: this.httpConfig,
       },
     );
