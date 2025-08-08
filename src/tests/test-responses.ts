@@ -398,6 +398,32 @@ export const checkoutCompleteResponse: CheckoutCompleteResponse = {
   },
 };
 
+export const getVirtualCurrenciesResponseWith3Currencies = {
+  virtual_currencies: {
+    GLD: {
+      balance: 100,
+      code: "GLD",
+      description: "It's gold",
+      name: "Gold",
+    },
+    SLV: {
+      balance: 100,
+      code: "SLV",
+      name: "Silver",
+    },
+    BRNZ: {
+      balance: -1,
+      code: "BRNZ",
+      description: "It's bronze",
+      name: "Bronze",
+    },
+  },
+};
+
+export const getVirtualCurrenciesResponseWithNoCurrencies = {
+  virtual_currencies: {},
+};
+
 export interface GetRequest {
   url: string;
 }
