@@ -6,7 +6,7 @@ import type {
 import type { VirtualCurrencies } from "../../entities/virtual-currencies";
 import { toVirtualCurrencies } from "../../entities/virtual-currencies";
 
-describe("virtual currencies parsing", () => {
+describe("virtual currencies backend response to public model parsing", () => {
   test("virtual currencies with no currencies is parsed correctly", () => {
     const virtualCurrenciesResponse: VirtualCurrenciesResponse = {
       virtual_currencies: {},

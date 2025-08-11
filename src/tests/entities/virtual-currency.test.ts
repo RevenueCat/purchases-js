@@ -3,7 +3,7 @@ import type { VirtualCurrencyResponse } from "../../networking/responses/virtual
 import type { VirtualCurrency } from "../../entities/virtual-currency";
 import { toVirtualCurrency } from "../../entities/virtual-currency";
 
-describe("virtual currency parsing", () => {
+describe("virtual currency backend response to public model parsing", () => {
   test("virtual currency with a description is parsed correctly", () => {
     const balance = 100;
     const code = "GLD";
