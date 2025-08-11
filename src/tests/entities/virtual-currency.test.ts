@@ -1,10 +1,7 @@
 import { describe, expect, test } from "vitest";
 import type { VirtualCurrencyResponse } from "../../networking/responses/virtual-currencies-response";
-import type {
-  VirtualCurrency} from "../../entities/virtual-currency";
-import {
-  toVirtualCurrency
-} from "../../entities/virtual-currency";
+import type { VirtualCurrency } from "../../entities/virtual-currency";
+import { toVirtualCurrency } from "../../entities/virtual-currency";
 
 describe("virtual currency parsing", () => {
   test("virtual currency with a description is parsed correctly", () => {

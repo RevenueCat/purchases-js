@@ -3,11 +3,8 @@ import type {
   VirtualCurrenciesResponse,
   VirtualCurrencyResponse,
 } from "../../networking/responses/virtual-currencies-response";
-import type {
-  VirtualCurrencies} from "../../entities/virtual-currencies";
-import {
-  toVirtualCurrencies
-} from "../../entities/virtual-currencies";
+import type { VirtualCurrencies } from "../../entities/virtual-currencies";
+import { toVirtualCurrencies } from "../../entities/virtual-currencies";
 
 describe("virtual currencies parsing", () => {
   test("virtual currencies with no currencies is parsed correctly", () => {
