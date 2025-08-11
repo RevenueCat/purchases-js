@@ -225,7 +225,7 @@
         totalExcludingTaxInMicros =
           taxCalculation.total_excluding_tax_in_micros;
         totalAmountInMicros = taxCalculation.total_amount_in_micros;
-        taxBreakdown = taxCalculation.pricing_phases.base.tax_breakdown;
+        taxBreakdown = taxCalculation.tax_breakdown;
 
         elementsConfiguration =
           taxCalculation.gateway_params.elements_configuration;

@@ -22,6 +22,8 @@ export interface CheckoutCalculateTaxResponse {
   tax_amount_in_micros: number;
   total_excluding_tax_in_micros: number;
   tax_inclusive: boolean;
+  tax_breakdown: TaxBreakdown[];
+  /** @deprecated Use tax_breakdown instead */
   pricing_phases: {
     base: {
       tax_breakdown: TaxBreakdown[];
