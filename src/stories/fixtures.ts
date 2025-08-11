@@ -383,16 +383,6 @@ export const checkoutCalculateTaxResponse: CheckoutCalculateTaxResponse = {
       display_name: "Sales Tax - New York (4%)",
     },
   ],
-  pricing_phases: {
-    base: {
-      tax_breakdown: [
-        {
-          tax_amount_in_micros: 400000,
-          display_name: "Sales Tax - New York (4%)",
-        },
-      ],
-    },
-  },
   gateway_params: {
     elements_configuration: {
       ...stripeElementsConfiguration,

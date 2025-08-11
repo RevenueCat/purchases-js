@@ -23,12 +23,6 @@ export interface CheckoutCalculateTaxResponse {
   total_excluding_tax_in_micros: number;
   tax_inclusive: boolean;
   tax_breakdown: TaxBreakdown[];
-  /** @deprecated Use tax_breakdown instead */
-  pricing_phases: {
-    base: {
-      tax_breakdown: TaxBreakdown[];
-    };
-  };
   gateway_params: {
     elements_configuration: StripeElementsConfiguration;
   };
