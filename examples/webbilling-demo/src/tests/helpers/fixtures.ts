@@ -7,6 +7,10 @@ type CheckoutCalculateTaxResponse = {
   tax_amount_in_micros: number;
   total_excluding_tax_in_micros: number;
   tax_inclusive: boolean;
+  tax_breakdown: Array<{
+    display_name: string;
+    tax_amount_in_micros: number;
+  }>;
   pricing_phases: {
     base: {
       tax_breakdown: Array<{
@@ -87,6 +91,12 @@ export const SPAIN_TAX_RESPONSE: RouteFulfillOptions = {
       },
     },
     operation_session_id: "MOCKED",
+    tax_breakdown: [
+      {
+        display_name: "VAT - Spain (21%)",
+        tax_amount_in_micros: 1730000,
+      },
+    ],
     pricing_phases: {
       base: {
         tax_breakdown: [
@@ -121,6 +131,12 @@ export const ITALY_TAX_RESPONSE: RouteFulfillOptions = {
       },
     },
     operation_session_id: "MOCKED",
+    tax_breakdown: [
+      {
+        display_name: "VAT - Italy (22%)",
+        tax_amount_in_micros: 1800000,
+      },
+    ],
     pricing_phases: {
       base: {
         tax_breakdown: [
@@ -155,6 +171,12 @@ export const NEW_YORK_TAX_RESPONSE: RouteFulfillOptions = {
       },
     },
     operation_session_id: "MOCKED",
+    tax_breakdown: [
+      {
+        display_name: "Sales Tax - New York (Exempt)",
+        tax_amount_in_micros: 0,
+      },
+    ],
     pricing_phases: {
       base: {
         tax_breakdown: [
@@ -189,6 +211,12 @@ export const TEXAS_TAX_RESPONSE: RouteFulfillOptions = {
       },
     },
     operation_session_id: "MOCKED",
+    tax_breakdown: [
+      {
+        display_name: "Sales Tax - Texas (8%)",
+        tax_amount_in_micros: 800000,
+      },
+    ],
     pricing_phases: {
       base: {
         tax_breakdown: [
@@ -223,6 +251,7 @@ export const NOT_COLLECTING_TAX_RESPONSE: RouteFulfillOptions = {
       },
     },
     operation_session_id: "MOCKED",
+    tax_breakdown: [],
     pricing_phases: {
       base: {
         tax_breakdown: [],
@@ -252,6 +281,7 @@ export const INVALID_TAX_LOCATION_RESPONSE: RouteFulfillOptions = {
       },
     },
     operation_session_id: "MOCKED",
+    tax_breakdown: [],
     pricing_phases: {
       base: {
         tax_breakdown: [],

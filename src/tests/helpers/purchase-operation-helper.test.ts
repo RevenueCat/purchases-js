@@ -185,11 +185,7 @@ describe("PurchaseOperationHelper", () => {
       }),
     );
     const checkoutCalculateTaxResponse = {
-      pricing_phases: {
-        base: {
-          tax_breakdown: [],
-        },
-      },
+      tax_breakdown: [],
     };
     setCheckoutCalculateTaxResponse(
       HttpResponse.json(checkoutCalculateTaxResponse, {
@@ -220,11 +216,7 @@ describe("PurchaseOperationHelper", () => {
     );
     const checkoutCalculateTaxResponse = {
       failed_reason: "invalid_tax_location",
-      pricing_phases: {
-        base: {
-          tax_breakdown: [],
-        },
-      },
+      tax_breakdown: [],
     };
     setCheckoutCalculateTaxResponse(
       HttpResponse.json(checkoutCalculateTaxResponse, {
