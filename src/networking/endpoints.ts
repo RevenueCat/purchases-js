@@ -155,6 +155,21 @@ export class PostReceiptEndpoint implements Endpoint {
   }
 }
 
+export class GetVirtualCurrenciesEndpoint implements Endpoint {
+  method: HttpMethodType = "GET";
+  name: string = "getVirtualCurrencies";
+  private readonly appUserId: string;
+
+  constructor(appUserId: string) {
+    this.appUserId = appUserId;
+  }
+
+  urlPath(): string {
+    const encodedAppUserId = encodeURIComponent(this.appUserId);
+    return `${SUBSCRIBERS_PATH}/${encodedAppUserId}/virtual_currencies`;
+  }
+}
+
 export type SupportedEndpoint =
   | GetOfferingsEndpoint
   | PurchaseEndpoint
@@ -163,4 +178,5 @@ export type SupportedEndpoint =
   | GetBrandingInfoEndpoint
   | GetCheckoutStatusEndpoint
   | SetAttributesEndpoint
-  | PostReceiptEndpoint;
+  | PostReceiptEndpoint
+  | GetVirtualCurrenciesEndpoint;

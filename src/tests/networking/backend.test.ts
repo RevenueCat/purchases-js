@@ -7,6 +7,8 @@ import {
   customerInfoResponse,
   offeringsArray,
   productsResponse,
+  getVirtualCurrenciesResponseWith3Currencies,
+  getVirtualCurrenciesResponseWithNoCurrencies,
 } from "../test-responses";
 import { Backend } from "../../networking/backend";
 import { StatusCodes } from "http-status-codes";
@@ -1062,6 +1064,123 @@ describe("postReceipt request", () => {
         ErrorCode.InvalidReceiptError,
         "The receipt is not valid.",
         "Receipt token is invalid",
+      ),
+    );
+  });
+});
+
+describe("getVirtualCurrencies request", () => {
+  function setVirtualCurrenciesResponse(httpResponse: HttpResponse) {
+    server.use(
+      http.get(
+        "http://localhost:8000/v1/subscribers/someAppUserId/virtual_currencies",
+        () => {
+          return httpResponse;
+        },
+      ),
+    );
+  }
+
+  test("can get virtual currencies successfully when currencies are present", async () => {
+    setVirtualCurrenciesResponse(
+      HttpResponse.json(getVirtualCurrenciesResponseWith3Currencies, {
+        status: 200,
+      }),
+    );
+    const backendResponse = await backend.getVirtualCurrencies("someAppUserId");
+    expect(backendResponse).toEqual(
+      getVirtualCurrenciesResponseWith3Currencies,
+    );
+  });
+
+  test("can get virtual currencies successfully when no currencies are present", async () => {
+    setVirtualCurrenciesResponse(
+      HttpResponse.json(getVirtualCurrenciesResponseWithNoCurrencies, {
+        status: 200,
+      }),
+    );
+    const backendResponse = await backend.getVirtualCurrencies("someAppUserId");
+    expect(backendResponse).toEqual(
+      getVirtualCurrenciesResponseWithNoCurrencies,
+    );
+  });
+
+  test("throws an error if the backend returns a server error", async () => {
+    setVirtualCurrenciesResponse(
+      HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
+    );
+    await expectPromiseToError(
+      backend.getVirtualCurrencies("someAppUserId"),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        "Request: getVirtualCurrencies. Status code: 500. Body: null.",
+      ),
+    );
+  });
+
+  test("throws a known error if the backend returns a request error with correct body", async () => {
+    setVirtualCurrenciesResponse(
+      HttpResponse.json(
+        {
+          code: BackendErrorCode.BackendInvalidAPIKey,
+          message: "API key was wrong",
+        },
+        { status: StatusCodes.BAD_REQUEST },
+      ),
+    );
+    await expectPromiseToError(
+      backend.getVirtualCurrencies("someAppUserId"),
+      new PurchasesError(
+        ErrorCode.InvalidCredentialsError,
+        "There was a credentials issue. Check the underlying error for more details.",
+        "API key was wrong",
+      ),
+    );
+  });
+
+  test("throws unknown error if the backend returns a request error with unknown error code in body", async () => {
+    setVirtualCurrenciesResponse(
+      HttpResponse.json(
+        {
+          code: 1234567890,
+          message: "Invalid error message",
+        },
+        { status: StatusCodes.BAD_REQUEST },
+      ),
+    );
+    await expectPromiseToError(
+      backend.getVirtualCurrencies("someAppUserId"),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        'Request: getVirtualCurrencies. Status code: 400. Body: {"code":1234567890,"message":"Invalid error message"}.',
+      ),
+    );
+  });
+
+  test("throws unknown error if the backend returns a request error without error code in body", async () => {
+    setVirtualCurrenciesResponse(
+      HttpResponse.json(null, { status: StatusCodes.BAD_REQUEST }),
+    );
+    await expectPromiseToError(
+      backend.getVirtualCurrencies("someAppUserId"),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        "Request: getVirtualCurrencies. Status code: 400. Body: null.",
+      ),
+    );
+  });
+
+  test("throws network error if cannot reach server", async () => {
+    setVirtualCurrenciesResponse(HttpResponse.error());
+    await expectPromiseToError(
+      backend.getVirtualCurrencies("someAppUserId"),
+      new PurchasesError(
+        ErrorCode.NetworkError,
+        "Error performing request. Please check your network connection and try again.",
+        "Failed to fetch",
       ),
     );
   });
