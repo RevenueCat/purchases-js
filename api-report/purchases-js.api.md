@@ -516,21 +516,6 @@ export class UninitializedPurchasesError extends Error {
     constructor();
 }
 
-// @public
-export interface VirtualCurrencies {
-    readonly all: {
-        [key: string]: VirtualCurrency;
-    };
-}
-
-// @public
-export interface VirtualCurrency {
-    readonly balance: number;
-    readonly code: string;
-    readonly name: string;
-    readonly serverDescription: string | null;
-}
-
 // (No @packageDocumentation comment for this package)
 
 ```
