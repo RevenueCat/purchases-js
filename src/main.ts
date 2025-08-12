@@ -1,4 +1,9 @@
-import type { Offering, Offerings, Package } from "./entities/offerings";
+import type {
+  Offering,
+  Offerings,
+  Package,
+  Product,
+} from "./entities/offerings";
 import PurchasesUi from "./ui/purchases-ui.svelte";
 
 import { type CustomerInfo, toCustomerInfo } from "./entities/customer-info";
@@ -75,6 +80,7 @@ import { generateUUID } from "./helpers/uuid-helper";
 import type { PlatformInfo } from "./entities/platform-info";
 import type { ReservedCustomerAttribute } from "./entities/attributes";
 import { purchaseSimulatedStoreProduct } from "./helpers/simulated-store-purchase-helper";
+import { postSimulatedStoreReceipt } from "./helpers/simulated-store-post-receipt-helper";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -802,6 +808,22 @@ export class Purchases {
         },
       });
     });
+  }
+
+  /**
+   * Posts a simulated store receipt to the server.
+   * @internal
+   * @param product - The product for which we want to post the receipt for.
+   * @returns Promise<PurchaseResult>
+   */
+  public async _postSimulatedStoreReceipt(
+    product: Product,
+  ): Promise<PurchaseResult> {
+    return await postSimulatedStoreReceipt(
+      product,
+      this.backend,
+      this._appUserId,
+    );
   }
 
   /**

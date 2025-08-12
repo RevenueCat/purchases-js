@@ -377,16 +377,12 @@ export const checkoutCalculateTaxResponse: CheckoutCalculateTaxResponse = {
   total_excluding_tax_in_micros: 9990000,
   tax_amount_in_micros: 400000,
   tax_inclusive: false,
-  pricing_phases: {
-    base: {
-      tax_breakdown: [
-        {
-          tax_amount_in_micros: 400000,
-          display_name: "Sales Tax - New York (4%)",
-        },
-      ],
+  tax_breakdown: [
+    {
+      tax_amount_in_micros: 400000,
+      display_name: "Sales Tax - New York (4%)",
     },
-  },
+  ],
   gateway_params: {
     elements_configuration: {
       ...stripeElementsConfiguration,
