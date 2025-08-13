@@ -81,6 +81,12 @@ import type { PlatformInfo } from "./entities/platform-info";
 import type { ReservedCustomerAttribute } from "./entities/attributes";
 import { purchaseSimulatedStoreProduct } from "./helpers/simulated-store-purchase-helper";
 import { postSimulatedStoreReceipt } from "./helpers/simulated-store-post-receipt-helper";
+import { InMemoryCache } from "./helpers/in-memory-cache";
+import type {
+  VirtualCurrencies} from "./entities/virtual-currencies";
+import {
+  toVirtualCurrencies
+} from "./entities/virtual-currencies";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -165,6 +171,9 @@ export class Purchases {
 
   /** @internal */
   private static _platformInfo: PlatformInfo | undefined = undefined;
+
+  /** @internal */
+  private readonly inMemoryCache: InMemoryCache;
 
   /** @internal */
   private static instance: Purchases | undefined = undefined;
@@ -377,6 +386,7 @@ export class Purchases {
       rcSource: this._flags.rcSource ?? null,
     });
     this.backend = new Backend(this._API_KEY, httpConfig);
+    this.inMemoryCache = new InMemoryCache();
     this.purchaseOperationHelper = new PurchaseOperationHelper(
       this.backend,
       this.eventsTracker,
@@ -919,6 +929,37 @@ export class Purchases {
   }
 
   /**
+   * Fetches the virtual currencies for the current subscriber.
+   *
+   * @returns {Promise<VirtualCurrencies>} A VirtualCurrencies object containing the subscriber's virtual currencies.
+   */
+  public async getVirtualCurrencies(): Promise<VirtualCurrencies> {
+    return await this._getVirtualCurrenciesForUserId(this._appUserId);
+  }
+
+  /**
+   * The currently cached {@link VirtualCurrencies} if one is available.
+   * This value will remain null until virtual currencies have been fetched at
+   * least once with {@link Purchases.getVirtualCurrencies} or an equivalent function.
+   *
+   * @returns {VirtualCurrencies | null} The currently cached virtual currencies for the current subscriber.
+   */
+  public getCachedVirtualCurrencies(): VirtualCurrencies | null {
+    return this.inMemoryCache.getCachedVirtualCurrencies(this._appUserId);
+  }
+
+  /**
+   * Invalidates the cache for virtual currencies.
+   *
+   * This is useful for cases where a virtual currency's balance might have been updated
+   * outside of the website, like if you decreased a user's balance from the user spending a virtual currency,
+   * or if you increased the balance from your backend using the server APIs.
+   */
+  public invalidateCachedVirtualCurrencies(): void {
+    this.inMemoryCache.invalidateVirtualCurrenciesCache(this._appUserId);
+  }
+
+  /**
    * Closes the Purchases instance. You should never have to do this normally.
    */
   public close() {
@@ -941,6 +982,29 @@ export class Purchases {
     const subscriberResponse = await this.backend.getCustomerInfo(appUserId);
 
     return toCustomerInfo(subscriberResponse);
+  }
+
+  /** @internal  */
+  private async _getVirtualCurrenciesForUserId(
+    appUserId: string,
+  ): Promise<VirtualCurrencies> {
+    const cachedVirtualCurrencies =
+      await this.inMemoryCache.getCachedVirtualCurrencies(appUserId);
+
+    if (cachedVirtualCurrencies) {
+      Logger.debugLog("Vending VirtualCurrencies from cache.");
+      return cachedVirtualCurrencies;
+    }
+
+    const virtualCurrenciesResponse =
+      await this.backend.getVirtualCurrencies(appUserId);
+    const virtualCurrencies = toVirtualCurrencies(virtualCurrenciesResponse);
+
+    Logger.debugLog("VirtualCurrencies updated from the network.");
+
+    this.inMemoryCache.cacheVirtualCurrencies(appUserId, virtualCurrencies);
+
+    return virtualCurrencies;
   }
 
   /**
