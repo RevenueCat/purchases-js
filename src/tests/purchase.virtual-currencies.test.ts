@@ -1,7 +1,11 @@
 import { describe, expect, test } from "vitest";
-import { configurePurchases } from "./base.purchases_test";
+import { StatusCodes } from "http-status-codes";
+import { configurePurchases, server } from "./base.purchases_test";
 import { APIGetRequest, type GetRequest } from "./test-responses";
+import { expectPromiseToError } from "./test-helpers";
 import type { VirtualCurrencies } from "../entities/virtual-currencies";
+import { http, HttpResponse } from "msw";
+import { PurchasesError, ErrorCode } from "../entities/errors";
 
 describe("getVirtualCurrencies", () => {
   const appUserIDWith3Currencies = "test-app-user-id-with-3-currencies";
@@ -119,5 +123,54 @@ describe("getVirtualCurrencies", () => {
     // Verify we made both virtual currencies API calls
     expect(APIGetRequest).toHaveBeenCalledWith(expectedUser1Request);
     expect(APIGetRequest).toHaveBeenCalledWith(expectedUser2Request);
+  });
+
+  describe("error handling", () => {
+    test("throws UnknownBackendError on 500 server error", async () => {
+      const purchases = configurePurchases(appUserIDWith3Currencies);
+
+      server.use(
+        http.get(
+          `http://localhost:8000/v1/subscribers/${appUserIDWith3Currencies}/virtual_currencies`,
+          () => {
+            return HttpResponse.json(null, {
+              status: StatusCodes.INTERNAL_SERVER_ERROR,
+            });
+          },
+        ),
+      );
+
+      await expectPromiseToError(
+        purchases.getVirtualCurrencies(),
+        new PurchasesError(
+          ErrorCode.UnknownBackendError,
+          "Unknown backend error.",
+          "Request: getVirtualCurrencies. Status code: 500. Body: null.",
+        ),
+      );
+    });
+
+    test("throws NetworkError on connection failure", async () => {
+      const purchases = configurePurchases(appUserIDWith3Currencies);
+
+      server.use(
+        http.get(
+          `http://localhost:8000/v1/subscribers/${appUserIDWith3Currencies}/virtual_currencies`,
+          () => {
+            // Simulate connection failure by throwing a network error
+            return HttpResponse.error();
+          },
+        ),
+      );
+
+      await expectPromiseToError(
+        purchases.getVirtualCurrencies(),
+        new PurchasesError(
+          ErrorCode.NetworkError,
+          "Error performing request. Please check your network connection and try again.",
+          "Failed to fetch",
+        ),
+      );
+    });
   });
 });
