@@ -35,6 +35,6 @@ export function toVirtualCurrency(
     balance: virtualCurrencyResponse.balance,
     name: virtualCurrencyResponse.name,
     code: virtualCurrencyResponse.code,
-    serverDescription: virtualCurrencyResponse.description,
+    serverDescription: virtualCurrencyResponse.description ?? null,
   };
 }

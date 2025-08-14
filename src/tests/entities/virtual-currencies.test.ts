@@ -174,4 +174,37 @@ describe("virtual currencies backend response to public model parsing", () => {
     const virtualCurrencies = toVirtualCurrencies(virtualCurrenciesResponse);
     expect(virtualCurrencies).toEqual(expectedVirtualCurrencies);
   });
+
+  test("virtual currencies with one currency with missing description is parsed as null", () => {
+    const balance = 1;
+    const code = "GLD";
+    const name = "Gold";
+
+    const virtualCurrencyResponse: VirtualCurrencyResponse = {
+      balance: balance,
+      code: code,
+      name: name,
+      // description field is intentionally omitted
+    } as VirtualCurrencyResponse;
+
+    const virtualCurrenciesResponse: VirtualCurrenciesResponse = {
+      virtual_currencies: {
+        [code]: virtualCurrencyResponse,
+      },
+    };
+
+    const expectedVirtualCurrencies: VirtualCurrencies = {
+      all: {
+        [code]: {
+          balance: balance,
+          code: code,
+          name: name,
+          serverDescription: null,
+        },
+      },
+    };
+
+    const virtualCurrencies = toVirtualCurrencies(virtualCurrenciesResponse);
+    expect(virtualCurrencies).toEqual(expectedVirtualCurrencies);
+  });
 });
