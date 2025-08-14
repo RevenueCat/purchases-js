@@ -2,7 +2,7 @@ import type { VirtualCurrencies } from "../entities/virtual-currencies";
 
 interface CacheEntry<T> {
   data: T;
-  timestamp: number;
+  lastUpdatedAt: number;
 }
 
 export class InMemoryCache {
@@ -18,7 +18,7 @@ export class InMemoryCache {
   ): void {
     this.virtualCurrenciesCache.set(appUserID, {
       data: virtualCurrencies,
-      timestamp: Date.now(),
+      lastUpdatedAt: Date.now(),
     });
   }
 
@@ -37,7 +37,7 @@ export class InMemoryCache {
     }
 
     const now = Date.now();
-    const isExpired = now - entry.timestamp >= this.CACHE_EXPIRY_MS;
+    const isExpired = now - entry.lastUpdatedAt >= this.CACHE_EXPIRY_MS;
 
     if (isExpired) {
       return null;
