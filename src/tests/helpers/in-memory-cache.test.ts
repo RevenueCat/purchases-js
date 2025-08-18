@@ -23,6 +23,18 @@ describe("InMemoryCache", () => {
   const appUserID = "user123";
   const appUserID2 = "user456";
 
+  it("should invalidate all caches", () => {
+    const cache = new InMemoryCache();
+
+    cache.cacheVirtualCurrencies(appUserID, mockVirtualCurrencies);
+    cache.cacheVirtualCurrencies(appUserID2, mockVirtualCurrencies);
+
+    cache.invalidateAllCaches();
+
+    expect(cache.getCachedVirtualCurrencies(appUserID)).toBeNull();
+    expect(cache.getCachedVirtualCurrencies(appUserID2)).toBeNull();
+  });
+
   it("should cache and retrieve virtual currencies", () => {
     const cache = new InMemoryCache();
 

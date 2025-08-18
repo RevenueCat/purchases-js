@@ -12,6 +12,10 @@ export class InMemoryCache {
   >();
   readonly CACHE_EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
 
+  invalidateAllCaches(): void {
+    this.virtualCurrenciesCache.clear();
+  }
+
   cacheVirtualCurrencies(
     appUserID: string,
     virtualCurrencies: VirtualCurrencies,

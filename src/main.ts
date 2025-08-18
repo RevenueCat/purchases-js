@@ -757,6 +757,7 @@ export class Purchases {
           redemptionInfo: operationResult.redemptionInfo,
         });
         this.eventsTracker.trackSDKEvent(event);
+        this.inMemoryCache.invalidateAllCaches();
         Logger.debugLog("Purchase finished");
 
         if (component) {
