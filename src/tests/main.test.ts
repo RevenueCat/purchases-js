@@ -293,6 +293,19 @@ describe("Purchases.changeUser", () => {
     await purchases.changeUser(newAppUserId);
     expect(purchases.getAppUserId()).toEqual(newAppUserId);
   });
+
+  test("invalidates all caches when user is changed", async () => {
+    const newAppUserId = "newAppUserId";
+    const purchases = configurePurchases();
+    const invalidateAllCachesSpy = vi.spyOn(
+      purchases["inMemoryCache"],
+      "invalidateAllCaches",
+    );
+
+    await purchases.changeUser(newAppUserId);
+
+    expect(invalidateAllCachesSpy).toHaveBeenCalledOnce();
+  });
 });
 
 describe("Purchases.getAppUserId()", () => {

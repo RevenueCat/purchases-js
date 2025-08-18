@@ -882,6 +882,7 @@ export class Purchases {
     validateAppUserId(newAppUserId);
     this._appUserId = newAppUserId;
     this.eventsTracker.updateUser(newAppUserId);
+    this.inMemoryCache.invalidateAllCaches();
     // TODO: Cancel all pending requests if any.
     // TODO: What happens with a possibly initialized purchase?
     return await this.getCustomerInfo();
