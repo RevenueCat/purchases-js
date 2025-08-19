@@ -968,7 +968,7 @@ export class Purchases {
     appUserId: string,
   ): Promise<VirtualCurrencies> {
     const cachedVirtualCurrencies =
-      await this.inMemoryCache.getCachedVirtualCurrencies(appUserId);
+      this.inMemoryCache.getCachedVirtualCurrencies(appUserId);
 
     if (cachedVirtualCurrencies) {
       Logger.debugLog("Vending VirtualCurrencies from cache.");
