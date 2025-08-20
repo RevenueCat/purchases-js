@@ -364,6 +364,7 @@ export class Purchases {
     static configure(apiKey: string, appUserId: string, httpConfig?: HttpConfig, flags?: FlagsConfig): Purchases;
     static generateRevenueCatAnonymousAppUserId(): string;
     getAppUserId(): string;
+    getCachedVirtualCurrencies(): VirtualCurrencies | null;
     getCurrentOfferingForPlacement(placementIdentifier: string, params?: GetOfferingsParams): Promise<Offering | null>;
     getCustomerInfo(): Promise<CustomerInfo>;
     getOfferings(params?: GetOfferingsParams): Promise<Offerings>;
