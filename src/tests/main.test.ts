@@ -19,6 +19,7 @@ import {
   testApiKey,
   testUserId,
 } from "./base.purchases_test";
+import { APIGetRequest, type GetRequest } from "./test-responses";
 import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
 import { waitFor } from "@testing-library/svelte";
 import { http, HttpResponse } from "msw";
@@ -292,6 +293,42 @@ describe("Purchases.changeUser", () => {
     expect(purchases.getAppUserId()).toEqual(testUserId);
     await purchases.changeUser(newAppUserId);
     expect(purchases.getAppUserId()).toEqual(newAppUserId);
+  });
+
+  test("invalidates all caches when user is changed", async () => {
+    const originalUserId = "test-app-user-id-with-3-currencies";
+    const newAppUserId = "test-app-user-id-with-0-currencies";
+    const purchases = configurePurchases(originalUserId);
+    const invalidateAllCachesSpy = vi.spyOn(
+      purchases["inMemoryCache"],
+      "invalidateAllCaches",
+    );
+
+    const originalUserRequest: GetRequest = {
+      url: `http://localhost:8000/v1/subscribers/${originalUserId}/virtual_currencies`,
+    };
+    const newUserRequest: GetRequest = {
+      url: `http://localhost:8000/v1/subscribers/${newAppUserId}/virtual_currencies`,
+    };
+
+    // First call should cache data for original user
+    await purchases.getVirtualCurrencies();
+    expect(APIGetRequest).toHaveBeenCalledWith(originalUserRequest);
+
+    // Second call should use cache (no additional request)
+    await purchases.getVirtualCurrencies();
+    expect(APIGetRequest).toHaveBeenCalledTimes(1);
+
+    // Change user - this should invalidate the cache
+    await purchases.changeUser(newAppUserId);
+
+    expect(invalidateAllCachesSpy).toHaveBeenCalledOnce();
+
+    APIGetRequest.mockReset();
+
+    // Next call should make fresh network request for new user (indicating cache was cleared)
+    await purchases.getVirtualCurrencies();
+    expect(APIGetRequest).toHaveBeenCalledWith(newUserRequest);
   });
 });
 
