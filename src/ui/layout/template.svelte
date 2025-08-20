@@ -37,7 +37,7 @@
   {isInElement}
 >
   {#if isSandbox}
-    <SandboxBanner style={colorVariables} {isInElement} />
+    <SandboxBanner style={colorVariables} {isInElement} {brandingInfo} />
   {/if}
   <Layout style={colorVariables}>
     {#if navbarHeaderContent || navbarBodyContent}
