@@ -939,6 +939,18 @@ export class Purchases {
   }
 
   /**
+   * The currently cached {@link VirtualCurrencies} if one is available.
+   * This value will remain null until virtual currencies have been fetched at
+   * least once with {@link Purchases.getVirtualCurrencies} or an equivalent function.
+   *
+   * @returns {VirtualCurrencies | null} A {@link VirtualCurrencies} object containing the subscriber's virtual currencies,
+   * or null if no cached data is available.
+   */
+  public getCachedVirtualCurrencies(): VirtualCurrencies | null {
+    return this.inMemoryCache.getCachedVirtualCurrencies(this._appUserId, true);
+  }
+
+  /**
    * Closes the Purchases instance. You should never have to do this normally.
    */
   public close() {

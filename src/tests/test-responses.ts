@@ -368,6 +368,7 @@ const customerInfoResponsePerUserId: { [userId: string]: object } = {
   someAppUserId: customerInfoResponse,
   newAppUserId: newAppUserIdCustomerInfoResponse,
   "test-app-user-id-with-0-currencies": newAppUserIdCustomerInfoResponse,
+  "test-app-user-id-with-3-currencies": newAppUserIdCustomerInfoResponse,
 };
 
 const brandingInfoResponse = {

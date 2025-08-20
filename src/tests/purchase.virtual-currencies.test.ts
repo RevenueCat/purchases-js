@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { StatusCodes } from "http-status-codes";
 import { configurePurchases, server } from "./base.purchases_test";
 import { APIGetRequest, type GetRequest } from "./test-responses";
@@ -7,34 +7,34 @@ import type { VirtualCurrencies } from "../entities/virtual-currencies";
 import { http, HttpResponse } from "msw";
 import { PurchasesError, ErrorCode } from "../entities/errors";
 
-describe("getVirtualCurrencies", () => {
-  const appUserIDWith3Currencies = "test-app-user-id-with-3-currencies";
-  const appUserIDWith0Currencies = "test-app-user-id-with-0-currencies";
+const appUserIDWith3Currencies = "test-app-user-id-with-3-currencies";
+const appUserIDWith0Currencies = "test-app-user-id-with-0-currencies";
 
-  const createExpectedVirtualCurrenciesWith3Currencies: () => VirtualCurrencies =
-    () => ({
-      all: {
-        GLD: {
-          balance: 100,
-          code: "GLD",
-          name: "Gold",
-          serverDescription: "It's gold",
-        },
-        SLV: {
-          balance: 100,
-          code: "SLV",
-          name: "Silver",
-          serverDescription: null,
-        },
-        BRNZ: {
-          balance: -1,
-          code: "BRNZ",
-          name: "Bronze",
-          serverDescription: "It's bronze",
-        },
+const createExpectedVirtualCurrenciesWith3Currencies: () => VirtualCurrencies =
+  () => ({
+    all: {
+      GLD: {
+        balance: 100,
+        code: "GLD",
+        name: "Gold",
+        serverDescription: "It's gold",
       },
-    });
+      SLV: {
+        balance: 100,
+        code: "SLV",
+        name: "Silver",
+        serverDescription: null,
+      },
+      BRNZ: {
+        balance: -1,
+        code: "BRNZ",
+        name: "Bronze",
+        serverDescription: "It's bronze",
+      },
+    },
+  });
 
+describe("getVirtualCurrencies", () => {
   const createExpectedVirtualCurrenciesWith0Currencies: () => VirtualCurrencies =
     () => ({
       all: {},
@@ -172,5 +172,126 @@ describe("getVirtualCurrencies", () => {
         ),
       );
     });
+  });
+});
+
+describe("getCachedVirtualCurrencies", () => {
+  test("returns null when no virtual currencies are cached", () => {
+    const purchases = configurePurchases(appUserIDWith3Currencies);
+    const cachedVirtualCurrencies = purchases.getCachedVirtualCurrencies();
+
+    expect(cachedVirtualCurrencies).toBeNull();
+  });
+
+  test("returns cached virtual currencies after network fetch", async () => {
+    const expectedVirtualCurrencies =
+      createExpectedVirtualCurrenciesWith3Currencies();
+    const expectedRequest: GetRequest = {
+      url: `http://localhost:8000/v1/subscribers/${appUserIDWith3Currencies}/virtual_currencies`,
+    };
+
+    const purchases = configurePurchases(appUserIDWith3Currencies);
+
+    // First, fetch from network to populate cache
+    await purchases.getVirtualCurrencies();
+    expect(APIGetRequest).toHaveBeenCalledWith(expectedRequest);
+
+    // Then get from cache
+    const cachedVirtualCurrencies = purchases.getCachedVirtualCurrencies();
+
+    expect(cachedVirtualCurrencies).toEqual(expectedVirtualCurrencies);
+  });
+
+  test("returns stale cached virtual currencies even when expired", async () => {
+    vi.useFakeTimers();
+    const expectedVirtualCurrencies =
+      createExpectedVirtualCurrenciesWith3Currencies();
+    const expectedRequest: GetRequest = {
+      url: `http://localhost:8000/v1/subscribers/${appUserIDWith3Currencies}/virtual_currencies`,
+    };
+
+    const purchases = configurePurchases(appUserIDWith3Currencies);
+
+    // First, fetch from network to populate cache
+    await purchases.getVirtualCurrencies();
+    expect(APIGetRequest).toHaveBeenCalledWith(expectedRequest);
+
+    // Fast-forward time by more than the cache expiry (5 minutes + 100ms)
+    vi.advanceTimersByTime(5 * 60 * 1000 + 100);
+
+    // getCachedVirtualCurrencies should still return the cached data (allowStaleCache = true)
+    const cachedVirtualCurrencies = purchases.getCachedVirtualCurrencies();
+
+    expect(cachedVirtualCurrencies).toEqual(expectedVirtualCurrencies);
+
+    vi.useRealTimers();
+  });
+
+  test("returns different cached virtual currencies for different users", async () => {
+    const expectedVirtualCurrencies3 =
+      createExpectedVirtualCurrenciesWith3Currencies();
+    const expectedVirtualCurrencies0 = { all: {} };
+    const expectedRequestForUserWith3Currencies: GetRequest = {
+      url: `http://localhost:8000/v1/subscribers/${appUserIDWith3Currencies}/virtual_currencies`,
+    };
+    const expectedRequestForUserWith0Currencies: GetRequest = {
+      url: `http://localhost:8000/v1/subscribers/${appUserIDWith0Currencies}/virtual_currencies`,
+    };
+    const purchases = configurePurchases(appUserIDWith3Currencies);
+
+    // User 1: fetch and cache virtual currencies
+    await purchases.getVirtualCurrencies();
+    const user1CachedVirtualCurrencies = purchases.getCachedVirtualCurrencies();
+    expect(user1CachedVirtualCurrencies).toEqual(expectedVirtualCurrencies3);
+    expect(APIGetRequest).toHaveBeenCalledTimes(1);
+    expect(APIGetRequest).toHaveBeenCalledWith(
+      expectedRequestForUserWith3Currencies,
+    );
+
+    // Switch to user 2
+    await purchases.changeUser(appUserIDWith0Currencies);
+
+    // User 2: should have no cached data initially
+    const user2InitialCache = purchases.getCachedVirtualCurrencies();
+    expect(user2InitialCache).toBeNull();
+    expect(APIGetRequest).toHaveBeenCalledTimes(2); // 1 VC request, 1 customer info request
+
+    // User 2: fetch and cache virtual currencies
+    await purchases.getVirtualCurrencies();
+    const user2CachedVirtualCurrencies = purchases.getCachedVirtualCurrencies();
+    expect(user2CachedVirtualCurrencies).toEqual(expectedVirtualCurrencies0);
+    expect(APIGetRequest).toHaveBeenCalledTimes(3); // 2 VC requests, 1 customer info request
+    expect(APIGetRequest).toHaveBeenCalledWith(
+      expectedRequestForUserWith0Currencies,
+    );
+
+    // Switch back to user 1 - cached data should be cleared from the changeUser call
+    await purchases.changeUser(appUserIDWith3Currencies);
+    const user1CachedVirtualCurrenciesTheSecondTime =
+      purchases.getCachedVirtualCurrencies();
+    expect(user1CachedVirtualCurrenciesTheSecondTime).toBeNull();
+  });
+
+  test("returns cached virtual currencies without network request when the cache entry exists", async () => {
+    const expectedVirtualCurrencies =
+      createExpectedVirtualCurrenciesWith3Currencies();
+    const purchases = configurePurchases(appUserIDWith3Currencies);
+
+    await purchases.getVirtualCurrencies();
+    expect(APIGetRequest).toHaveBeenCalledTimes(1);
+
+    const cachedVirtualCurrencies = purchases.getCachedVirtualCurrencies();
+
+    expect(APIGetRequest).toHaveBeenCalledTimes(1);
+    expect(cachedVirtualCurrencies).toEqual(expectedVirtualCurrencies);
+  });
+
+  test("returns cached virtual currencies without network request when the cache entry does not exist", async () => {
+    const purchases = configurePurchases(appUserIDWith3Currencies);
+
+    const cachedVirtualCurrencies = purchases.getCachedVirtualCurrencies();
+
+    expect(APIGetRequest).toHaveBeenCalledTimes(0);
+    expect(cachedVirtualCurrencies).toBeNull();
   });
 });
