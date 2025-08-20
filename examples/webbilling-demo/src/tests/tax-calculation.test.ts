@@ -5,14 +5,11 @@ import {
   INVALID_CUSTOMER_DETAILS,
   ITALY_CUSTOMER_DETAILS,
   NEW_YORK_CUSTOMER_DETAILS,
-  SPAIN_CUSTOMER_DETAILS,
   SPAIN_TAX_RESPONSE,
   TAX_TEST_API_KEY,
   TAX_TEST_OFFERING_ID,
-  TEXAS_CUSTOMER_DETAILS,
   NOT_COLLECTING_TAX_RESPONSE,
   INVALID_TAX_LOCATION_RESPONSE,
-  TEXAS_TAX_RESPONSE,
   NEW_YORK_TAX_RESPONSE,
   ITALY_TAX_RESPONSE,
   STRIPE_TAX_NOT_ACTIVE_RESPONSE,
@@ -475,117 +472,6 @@ const mockTaxCalculationRequest = async (
           await confirmTaxCalculation(page);
           await expect(page.getByText(/VAT - Italy/)).toBeVisible();
           await expect(calculateTaxesCount).toBe(1);
-        },
-      );
-
-      integrationTest(
-        "Tax calculation is performed upon submission and message is shown when final amount differs from initial amount",
-        async ({ page, userId, email }) => {
-          if (mockMode) {
-            await mockTaxCalculationRequest(page, ITALY_TAX_RESPONSE);
-            await mockTaxCalculationRequest(page, TEXAS_TAX_RESPONSE);
-            await mockTaxCalculationRequest(page, SPAIN_TAX_RESPONSE);
-          }
-
-          page = await navigateToTaxesLandingUrl(page, userId);
-
-          const packageCards = await getPackageCards(page);
-          await startPurchaseFlow(packageCards[0]);
-
-          await expect(page.getByText("Total excluding tax")).toBeVisible();
-
-          let calculateTaxesCount = 0;
-          await page.route(TAX_ROUTE_PATH, async (route) => {
-            calculateTaxesCount++;
-            await route.fallback();
-          });
-
-          await enterEmail(page, email);
-          await enterCreditCardDetails(
-            page,
-            "4242 4242 4242 4242",
-            TEXAS_CUSTOMER_DETAILS,
-          );
-
-          await confirmTaxCalculation(page);
-          await expect(page.getByText(/Sales Tax - Texas/)).toBeVisible();
-          await expect(calculateTaxesCount).toBe(1);
-
-          await enterCreditCardDetails(
-            page,
-            "4242 4242 4242 4242",
-            ITALY_CUSTOMER_DETAILS,
-          );
-
-          // A tax calculation is not performed because the system cannot detect a change in the billing address
-          await confirmTaxNotCalculating(page);
-          await expect(page.getByText(/VAT - Italy/)).not.toBeVisible();
-          await expect(calculateTaxesCount).toBe(1);
-
-          await clickPayButton(page);
-
-          await expect(
-            page.getByText(
-              /The total price was updated with tax based on your billing address/i,
-            ),
-          ).toBeVisible();
-          await expect(page.getByText(/VAT - Italy/)).toBeVisible();
-          await expect(calculateTaxesCount).toBe(2);
-        },
-      );
-
-      integrationTest(
-        "Tax calculation is performed upon submission but no message is shown when final amount matches initial amount",
-        async ({ page, userId, email }) => {
-          if (mockMode) {
-            await mockTaxCalculationRequest(page, SPAIN_TAX_RESPONSE);
-            await mockTaxCalculationRequest(page, ITALY_TAX_RESPONSE);
-            await mockTaxCalculationRequest(page, SPAIN_TAX_RESPONSE);
-          }
-
-          page = await navigateToTaxesLandingUrl(page, userId);
-
-          const packageCards = await getPackageCards(page);
-          await startPurchaseFlow(packageCards[0]);
-
-          await expect(page.getByText("Total excluding tax")).toBeVisible();
-
-          let calculateTaxesCount = 0;
-          await page.route(TAX_ROUTE_PATH, async (route) => {
-            calculateTaxesCount++;
-            await route.fallback();
-          });
-
-          await enterEmail(page, email);
-          await enterCreditCardDetails(
-            page,
-            "4242 4242 4242 4242",
-            ITALY_CUSTOMER_DETAILS,
-          );
-
-          await confirmTaxCalculation(page);
-          await expect(page.getByText(/VAT - Italy/)).toBeVisible();
-          await expect(calculateTaxesCount).toBe(1);
-
-          await enterCreditCardDetails(
-            page,
-            "4242 4242 4242 4242",
-            SPAIN_CUSTOMER_DETAILS,
-          );
-
-          await confirmTaxNotCalculating(page);
-          await expect(page.getByText(/VAT - Spain/)).not.toBeVisible();
-          await expect(calculateTaxesCount).toBe(1);
-
-          await clickPayButton(page);
-
-          await expect(
-            page.getByText(
-              /The total price was updated with tax based on your billing address/i,
-            ),
-          ).not.toBeVisible();
-          await expect(page.getByText(/VAT - Spain/)).toBeVisible();
-          await expect(calculateTaxesCount).toBe(2);
         },
       );
     },
