@@ -8,6 +8,7 @@ export const ALLOW_PAYWALLS_TESTS =
 export const SKIP_TAX_REAL_TESTS = (() => {
   const skipUntilDate = process.env.VITE_SKIP_TAX_REAL_TESTS_UNTIL;
   if (!skipUntilDate) return false;
+  console.log("skipUntilDate", skipUntilDate.split("-").join(" "));
   try {
     // Validate the format is yyyy-mm-dd
     const dateFormatRegex = /^\d{4}-\d{2}-\d{2}$/;

@@ -428,6 +428,9 @@ export const brandingInfos: Record<string, BrandingInfoResponse> = {
     },
     gateway_tax_collection_enabled: false,
     brand_font_config: null,
+    sandbox_configuration: {
+      checkout_feedback_form_url: "https://revenuecat.com",
+    },
   },
   Igify: {
     id: "app7e12a2a4b3",
@@ -450,6 +453,9 @@ export const brandingInfos: Record<string, BrandingInfoResponse> = {
     },
     gateway_tax_collection_enabled: false,
     brand_font_config: null,
+    sandbox_configuration: {
+      checkout_feedback_form_url: "https://revenuecat.com",
+    },
   },
   Dipsea: {
     id: "appd458f1e3a2",
@@ -475,6 +481,9 @@ export const brandingInfos: Record<string, BrandingInfoResponse> = {
       font_url: "QueensCondensed-Light.ttf",
       mobile: { font_weight: 300, font_size: "28px" },
       desktop: { font_weight: 300, font_size: "36px" },
+    },
+    sandbox_configuration: {
+      checkout_feedback_form_url: "https://revenuecat.com",
     },
   },
 };
