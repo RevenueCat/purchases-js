@@ -951,6 +951,18 @@ export class Purchases {
   }
 
   /**
+   * Invalidates the cache for virtual currencies.
+   *
+   * This is useful for cases where a virtual currency's balance might have been updated
+   * in a different part of your system, like if you decreased a user's balance from the user spending a virtual currency,
+   * or if you increased the balance from your backend using the server APIs.
+   */
+  public invalidateVirtualCurrenciesCache() {
+    Logger.debugLog("Invalidating VirtualCurrencies cache.");
+    this.inMemoryCache.invalidateVirtualCurrenciesCache(this._appUserId);
+  }
+
+  /**
    * Closes the Purchases instance. You should never have to do this normally.
    */
   public close() {
