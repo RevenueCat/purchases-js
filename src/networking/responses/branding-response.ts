@@ -12,4 +12,7 @@ export type BrandingInfoResponse = {
   support_email?: string | null;
   gateway_tax_collection_enabled: boolean;
   brand_font_config: BrandFontConfig | null;
+  sandbox_configuration?: {
+    checkout_feedback_form_url: string | null;
+  };
 };

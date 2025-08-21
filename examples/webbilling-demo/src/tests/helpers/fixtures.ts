@@ -61,17 +61,8 @@ export const NEW_YORK_CUSTOMER_DETAILS = {
   postalCode: "12345",
 };
 
-export const TEXAS_CUSTOMER_DETAILS = {
-  countryCode: "US",
-  postalCode: "78759",
-};
-
 export const ITALY_CUSTOMER_DETAILS = {
   countryCode: "IT",
-};
-
-export const SPAIN_CUSTOMER_DETAILS = {
-  countryCode: "ES",
 };
 
 export const SPAIN_TAX_RESPONSE: RouteFulfillOptions = {
@@ -189,46 +180,6 @@ export const NEW_YORK_TAX_RESPONSE: RouteFulfillOptions = {
     },
     tax_amount_in_micros: 0,
     total_amount_in_micros: 9990000,
-    total_excluding_tax_in_micros: 9990000,
-    tax_inclusive: false,
-  } as CheckoutCalculateTaxResponse),
-};
-
-export const TEXAS_TAX_RESPONSE: RouteFulfillOptions = {
-  status: 200,
-  contentType: "application/json",
-  body: JSON.stringify({
-    mocked: true,
-    currency: "USD",
-    failed_reason: undefined,
-    gateway_params: {
-      elements_configuration: {
-        amount: 1079,
-        currency: "usd",
-        mode: "payment",
-        payment_method_types: ["card"],
-        setup_future_usage: "off_session",
-      },
-    },
-    operation_session_id: "MOCKED",
-    tax_breakdown: [
-      {
-        display_name: "Sales Tax - Texas (8%)",
-        tax_amount_in_micros: 800000,
-      },
-    ],
-    pricing_phases: {
-      base: {
-        tax_breakdown: [
-          {
-            display_name: "Sales Tax - Texas (8%)",
-            tax_amount_in_micros: 800000,
-          },
-        ],
-      },
-    },
-    tax_amount_in_micros: 800000,
-    total_amount_in_micros: 10790000,
     total_excluding_tax_in_micros: 9990000,
     tax_inclusive: false,
   } as CheckoutCalculateTaxResponse),
