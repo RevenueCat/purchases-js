@@ -128,4 +128,63 @@ describe("InMemoryCache", () => {
     expect(cache.getCachedVirtualCurrencies(appUserID)).toEqual(user1Data);
     expect(cache.getCachedVirtualCurrencies(appUserID2)).toEqual(user2Data);
   });
+
+  describe("getCachedVirtualCurrencies with allowStaleCache parameter", () => {
+    it("should return expired cache when allowStaleCache is true", () => {
+      vi.useFakeTimers();
+      const cache = new InMemoryCache();
+
+      cache.cacheVirtualCurrencies(appUserID, mockVirtualCurrencies);
+
+      vi.advanceTimersByTime(cache.CACHE_EXPIRY_MS + 100);
+
+      // Should return null with default behavior (allowStaleCache = false)
+      expect(cache.getCachedVirtualCurrencies(appUserID, false)).toBeNull();
+
+      // Should return cached data when allowStaleCache is true
+      expect(cache.getCachedVirtualCurrencies(appUserID, true)).toEqual(
+        mockVirtualCurrencies,
+      );
+
+      vi.useRealTimers();
+    });
+
+    it("should return cached data when allowStaleCache is true and cache is not expired", () => {
+      vi.useFakeTimers();
+      const cache = new InMemoryCache();
+
+      cache.cacheVirtualCurrencies(appUserID, mockVirtualCurrencies);
+      vi.advanceTimersByTime(cache.CACHE_EXPIRY_MS - 100);
+
+      // Should return cached data in both cases
+      expect(cache.getCachedVirtualCurrencies(appUserID, false)).toEqual(
+        mockVirtualCurrencies,
+      );
+      expect(cache.getCachedVirtualCurrencies(appUserID, true)).toEqual(
+        mockVirtualCurrencies,
+      );
+
+      vi.useRealTimers();
+    });
+
+    it("should return null when allowStaleCache is true but no cache entry exists", () => {
+      const cache = new InMemoryCache();
+
+      // Should return null when no cache exists, regardless of allowStaleCache value
+      expect(cache.getCachedVirtualCurrencies(appUserID, false)).toBeNull();
+      expect(cache.getCachedVirtualCurrencies(appUserID, true)).toBeNull();
+    });
+
+    it("should respect allowStaleCache false (default behavior)", () => {
+      vi.useFakeTimers();
+      const cache = new InMemoryCache();
+
+      cache.cacheVirtualCurrencies(appUserID, mockVirtualCurrencies);
+      vi.advanceTimersByTime(cache.CACHE_EXPIRY_MS + 100);
+
+      expect(cache.getCachedVirtualCurrencies(appUserID, false)).toBeNull();
+
+      vi.useRealTimers();
+    });
+  });
 });

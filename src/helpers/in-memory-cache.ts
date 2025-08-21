@@ -26,18 +26,42 @@ export class InMemoryCache {
     });
   }
 
-  getCachedVirtualCurrencies(appUserID: string): VirtualCurrencies | null {
+  /**
+   * Retrieves cached virtual currencies for a given app user.
+   *
+   * @param appUserID - The unique identifier for the app user
+   * @param allowStaleCache - If true, returns cached data regardless of age; if false, respects cache expiry
+   * @returns The cached virtual currencies or null if not found or expired
+   */
+  getCachedVirtualCurrencies(
+    appUserID: string,
+    allowStaleCache: boolean = false,
+  ): VirtualCurrencies | null {
     const entry = this.virtualCurrenciesCache.get(appUserID);
-    return this.getCachedData(entry ?? null);
+    return this.getCachedData(entry ?? null, allowStaleCache);
   }
 
   invalidateVirtualCurrenciesCache(appUserID: string): void {
     this.virtualCurrenciesCache.delete(appUserID);
   }
 
-  private getCachedData<T>(entry: CacheEntry<T> | null): T | null {
+  /**
+   * Generic method to retrieve cached data with expiry checking.
+   *
+   * @param entry - The cache entry containing the data and timestamp
+   * @param allowStaleCache - If true, bypasses expiry checks and returns data regardless of age
+   * @returns The cached data or null if not found or expired (when allowStaleCache is false)
+   */
+  private getCachedData<T>(
+    entry: CacheEntry<T> | null,
+    allowStaleCache: boolean = false,
+  ): T | null {
     if (!entry) {
       return null;
+    }
+
+    if (allowStaleCache) {
+      return entry.data;
     }
 
     const now = Date.now();

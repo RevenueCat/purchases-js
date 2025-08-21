@@ -5531,6 +5531,42 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "@revenuecat/purchases-js!Purchases#getCachedVirtualCurrencies:member(1)",
+              "docComment": "/**\n * The currently cached {@link VirtualCurrencies} if one is available. This value will remain null until virtual currencies have been fetched at least once with {@link Purchases.getVirtualCurrencies} or an equivalent function.\n *\n * @returns {VirtualCurrencies | null} A {@link VirtualCurrencies} object containing the subscriber's virtual currencies, or null if no cached data is available.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "getCachedVirtualCurrencies(): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "VirtualCurrencies",
+                  "canonicalReference": "@revenuecat/purchases-js!VirtualCurrencies:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "getCachedVirtualCurrencies"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "@revenuecat/purchases-js!Purchases#getCurrentOfferingForPlacement:member(1)",
               "docComment": "/**\n * Retrieves a specific offering by a placement identifier. For more info see https://www.revenuecat.com/docs/tools/targeting\n *\n * @param placementIdentifier - The placement identifier to retrieve the offering for.\n *\n * @param params - The parameters object to customise the offerings fetch. Check {@link GetOfferingsParams}\n */\n",
               "excerptTokens": [
