@@ -5831,6 +5831,37 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "@revenuecat/purchases-js!Purchases#invalidateVirtualCurrenciesCache:member(1)",
+              "docComment": "/**\n * Invalidates the cache for virtual currencies.\n *\n * This is useful for cases where a virtual currency's balance might have been updated in a different part of your system, like if you decreased a user's balance from the user spending a virtual currency, or if you increased the balance from your backend using the server APIs.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "invalidateVirtualCurrenciesCache(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "invalidateVirtualCurrenciesCache"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "@revenuecat/purchases-js!Purchases#isAnonymous:member(1)",
               "docComment": "/**\n * @returns Whether the current user is anonymous.\n */\n",
               "excerptTokens": [
