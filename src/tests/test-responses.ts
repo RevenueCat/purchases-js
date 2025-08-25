@@ -367,6 +367,8 @@ const productsResponsesPerUserId: { [userId: string]: object } = {
 const customerInfoResponsePerUserId: { [userId: string]: object } = {
   someAppUserId: customerInfoResponse,
   newAppUserId: newAppUserIdCustomerInfoResponse,
+  "test-app-user-id-with-0-currencies": newAppUserIdCustomerInfoResponse,
+  "test-app-user-id-with-3-currencies": newAppUserIdCustomerInfoResponse,
 };
 
 const brandingInfoResponse = {
@@ -490,6 +492,28 @@ export function getRequestHandlers(): RequestHandler[] {
       const json = await request.json();
       APIPostRequest({ url: checkoutStartURL, json });
       return HttpResponse.json(checkoutStartResponse, { status: 200 });
+    }),
+  );
+
+  const virtualCurrenciesURLWith3Currencies =
+    "http://localhost:8000/v1/subscribers/test-app-user-id-with-3-currencies/virtual_currencies";
+  requestHandlers.push(
+    http.get(virtualCurrenciesURLWith3Currencies, async () => {
+      APIGetRequest({ url: virtualCurrenciesURLWith3Currencies });
+      return HttpResponse.json(getVirtualCurrenciesResponseWith3Currencies, {
+        status: 200,
+      });
+    }),
+  );
+
+  const virtualCurrenciesURLWith0Currencies =
+    "http://localhost:8000/v1/subscribers/test-app-user-id-with-0-currencies/virtual_currencies";
+  requestHandlers.push(
+    http.get(virtualCurrenciesURLWith0Currencies, async () => {
+      APIGetRequest({ url: virtualCurrenciesURLWith0Currencies });
+      return HttpResponse.json(getVirtualCurrenciesResponseWithNoCurrencies, {
+        status: 200,
+      });
     }),
   );
 

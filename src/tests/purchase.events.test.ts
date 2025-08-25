@@ -152,6 +152,32 @@ describe("Purchases.configure()", () => {
     });
   });
 
+  test("invalidates all caches when purchase is finished", async () => {
+    vi.mocked(mount).mockImplementation((_component, options) => {
+      options.props?.onFinished({
+        operationSessionId: "test-session-id",
+        storeTransactionIdentifier: "test-transaction-id",
+        purchaseDate: new Date(),
+        redemptionInfo: null,
+      });
+      return vi.fn();
+    });
+
+    const purchases = Purchases.getSharedInstance();
+    const invalidateAllCachesSpy = vi.spyOn(
+      purchases["inMemoryCache"],
+      "invalidateAllCaches",
+    );
+    const offerings = await purchases.getOfferings();
+    const packageToBuy = offerings.current?.availablePackages[0];
+
+    await purchases.purchase({
+      rcPackage: packageToBuy!,
+    });
+
+    expect(invalidateAllCachesSpy).toHaveBeenCalledOnce();
+  });
+
   test("tracks the CheckoutSessionEnded event upon closing a purchase", async () => {
     vi.mocked(mount).mockImplementation((_component, options) => {
       options.props?.onClose();
