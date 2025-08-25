@@ -286,7 +286,7 @@ describe("getCachedVirtualCurrencies", () => {
     expect(cachedVirtualCurrencies).toEqual(expectedVirtualCurrencies);
   });
 
-  test("returns cached virtual currencies without network request when the cache entry does not exist", async () => {
+  test("returns cached virtual currencies (null) without network request when the cache entry does not exist", async () => {
     const purchases = configurePurchases(appUserIDWith3Currencies);
 
     const cachedVirtualCurrencies = purchases.getCachedVirtualCurrencies();
