@@ -370,6 +370,7 @@ export class Purchases {
     getOfferings(params?: GetOfferingsParams): Promise<Offerings>;
     static getSharedInstance(): Purchases;
     getVirtualCurrencies(): Promise<VirtualCurrencies>;
+    invalidateVirtualCurrenciesCache(): void;
     // (undocumented)
     isAnonymous(): boolean;
     static isConfigured(): boolean;

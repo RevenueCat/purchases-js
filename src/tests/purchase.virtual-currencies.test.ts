@@ -295,3 +295,60 @@ describe("getCachedVirtualCurrencies", () => {
     expect(cachedVirtualCurrencies).toBeNull();
   });
 });
+
+describe("invalidateVirtualCurrenciesCache", () => {
+  test("invalidates the virtual currencies cache", async () => {
+    const purchases = configurePurchases(appUserIDWith3Currencies);
+    const expectedVirtualCurrencies =
+      createExpectedVirtualCurrenciesWith3Currencies();
+
+    const virtualCurrencies = await purchases.getVirtualCurrencies();
+    expect(APIGetRequest).toHaveBeenCalledTimes(1);
+    expect(virtualCurrencies).toEqual(expectedVirtualCurrencies);
+
+    // Ensure that the VCs are cached
+    const cachedVirtualCurrencies = purchases.getCachedVirtualCurrencies();
+    expect(cachedVirtualCurrencies).toEqual(expectedVirtualCurrencies);
+
+    expect(APIGetRequest).toHaveBeenCalledTimes(1);
+
+    purchases.invalidateVirtualCurrenciesCache();
+    const cachedVirtualCurrenciesAfterInvalidation =
+      purchases.getCachedVirtualCurrencies();
+    expect(cachedVirtualCurrenciesAfterInvalidation).toBeNull();
+
+    // The cache should be invalidated, so the next call to getVirtualCurrenciesshould make a network request
+    const virtualCurrenciesAfterInvalidation =
+      await purchases.getVirtualCurrencies();
+    expect(APIGetRequest).toHaveBeenCalledTimes(2);
+    expect(virtualCurrenciesAfterInvalidation).toEqual(
+      expectedVirtualCurrencies,
+    );
+  });
+
+  test("works properly when invalidating an empty cache", () => {
+    const purchases = configurePurchases(appUserIDWith3Currencies);
+    expect(purchases.getCachedVirtualCurrencies()).toBeNull();
+
+    expect(() => purchases.invalidateVirtualCurrenciesCache()).not.toThrow();
+
+    expect(purchases.getCachedVirtualCurrencies()).toBeNull();
+  });
+
+  test("can be called multiple times without issues", async () => {
+    const purchases = configurePurchases(appUserIDWith3Currencies);
+
+    await purchases.getVirtualCurrencies();
+    expect(purchases.getCachedVirtualCurrencies()).not.toBeNull();
+
+    purchases.invalidateVirtualCurrenciesCache();
+    purchases.invalidateVirtualCurrenciesCache();
+    purchases.invalidateVirtualCurrenciesCache();
+
+    expect(purchases.getCachedVirtualCurrencies()).toBeNull();
+
+    // Should not affect subsequent operations
+    await purchases.getVirtualCurrencies();
+    expect(purchases.getCachedVirtualCurrencies()).not.toBeNull();
+  });
+});
