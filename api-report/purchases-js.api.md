@@ -364,10 +364,13 @@ export class Purchases {
     static configure(apiKey: string, appUserId: string, httpConfig?: HttpConfig, flags?: FlagsConfig): Purchases;
     static generateRevenueCatAnonymousAppUserId(): string;
     getAppUserId(): string;
+    getCachedVirtualCurrencies(): VirtualCurrencies | null;
     getCurrentOfferingForPlacement(placementIdentifier: string, params?: GetOfferingsParams): Promise<Offering | null>;
     getCustomerInfo(): Promise<CustomerInfo>;
     getOfferings(params?: GetOfferingsParams): Promise<Offerings>;
     static getSharedInstance(): Purchases;
+    getVirtualCurrencies(): Promise<VirtualCurrencies>;
+    invalidateVirtualCurrenciesCache(): void;
     // (undocumented)
     isAnonymous(): boolean;
     static isConfigured(): boolean;
@@ -514,6 +517,21 @@ export interface TargetingContext {
 // @public
 export class UninitializedPurchasesError extends Error {
     constructor();
+}
+
+// @public
+export interface VirtualCurrencies {
+    readonly all: {
+        [key: string]: VirtualCurrency;
+    };
+}
+
+// @public
+export interface VirtualCurrency {
+    readonly balance: number;
+    readonly code: string;
+    readonly name: string;
+    readonly serverDescription: string | null;
 }
 
 // (No @packageDocumentation comment for this package)
