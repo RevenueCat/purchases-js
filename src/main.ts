@@ -662,11 +662,13 @@ export class Purchases {
       skipSuccessPage = false,
     } = params;
     if (isSimulatedStoreApiKey(this._API_KEY)) {
-      return await purchaseSimulatedStoreProduct(
+      const purchaseResult = await purchaseSimulatedStoreProduct(
         params,
         this.backend,
         this._appUserId,
       );
+      this.inMemoryCache.invalidateAllCaches();
+      return purchaseResult;
     }
     let resolvedHTMLTarget =
       htmlTarget ?? document.getElementById("rcb-ui-root");
