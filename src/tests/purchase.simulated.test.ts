@@ -10,8 +10,6 @@ vi.mock("../helpers/in-memory-cache");
 describe("simulated purchase", () => {
   test("invalidates in-memory cache after simulated store purchase", async () => {
     // Use "embedded" rcSource to avoid popstate event listener setup that can cause timeouts in tests.
-    // When rcSource is not in supportedRCSources ["app", "embedded"], the purchase flow adds a popstate
-    // event listener for cleanup, but this can hang in test environments where DOM events don't fire properly.
     const purchases = configurePurchases(
       "someAppUserId",
       "embedded",
