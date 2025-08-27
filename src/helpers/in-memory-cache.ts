@@ -1,29 +1,21 @@
 import type { VirtualCurrencies } from "../entities/virtual-currencies";
 
-interface CacheEntry<T> {
-  data: T;
-  lastUpdatedAt: number;
-}
-
 export class InMemoryCache {
-  private virtualCurrenciesCache = new Map<
-    string,
-    CacheEntry<VirtualCurrencies>
-  >();
+  private virtualCurrenciesCache = new Map<string, VirtualCurrencies>();
+  private virtualCurrenciesTimestamps = new Map<string, number>();
   readonly CACHE_EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
 
   invalidateAllCaches(): void {
     this.virtualCurrenciesCache.clear();
+    this.virtualCurrenciesTimestamps.clear();
   }
 
   cacheVirtualCurrencies(
     appUserID: string,
     virtualCurrencies: VirtualCurrencies,
   ): void {
-    this.virtualCurrenciesCache.set(appUserID, {
-      data: virtualCurrencies,
-      lastUpdatedAt: Date.now(),
-    });
+    this.virtualCurrenciesCache.set(appUserID, virtualCurrencies);
+    this.virtualCurrenciesTimestamps.set(appUserID, Date.now());
   }
 
   /**
@@ -37,40 +29,29 @@ export class InMemoryCache {
     appUserID: string,
     allowStaleCache: boolean = false,
   ): VirtualCurrencies | null {
-    const entry = this.virtualCurrenciesCache.get(appUserID);
-    return this.getCachedData(entry ?? null, allowStaleCache);
-  }
+    const data = this.virtualCurrenciesCache.get(appUserID);
+    const timestamp = this.virtualCurrenciesTimestamps.get(appUserID);
 
-  invalidateVirtualCurrenciesCache(appUserID: string): void {
-    this.virtualCurrenciesCache.delete(appUserID);
-  }
-
-  /**
-   * Generic method to retrieve cached data with expiry checking.
-   *
-   * @param entry - The cache entry containing the data and timestamp
-   * @param allowStaleCache - If true, bypasses expiry checks and returns data regardless of age
-   * @returns The cached data or null if not found or expired (when allowStaleCache is false)
-   */
-  private getCachedData<T>(
-    entry: CacheEntry<T> | null,
-    allowStaleCache: boolean = false,
-  ): T | null {
-    if (!entry) {
+    if (!data || timestamp === undefined) {
       return null;
     }
 
     if (allowStaleCache) {
-      return entry.data;
+      return data;
     }
 
     const now = Date.now();
-    const isExpired = now - entry.lastUpdatedAt >= this.CACHE_EXPIRY_MS;
+    const isExpired = now - timestamp >= this.CACHE_EXPIRY_MS;
 
     if (isExpired) {
       return null;
     }
 
-    return entry.data;
+    return data;
+  }
+
+  invalidateVirtualCurrenciesCache(appUserID: string): void {
+    this.virtualCurrenciesCache.delete(appUserID);
+    this.virtualCurrenciesTimestamps.delete(appUserID);
   }
 }
