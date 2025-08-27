@@ -1,3 +1,8 @@
+## 1.13.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Remove Log Message that Creates Corrupted UMD Files (#581) via Will Taylor (@fire-at-will)
+
 ## 1.13.0
 ## RevenueCat SDK
 ### ✨ New Features
