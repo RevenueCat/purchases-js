@@ -4,9 +4,6 @@ const config: StorybookConfig = {
   stories: ["../src/**/*.mdx", "../src/**/*.stories.@(js|jsx|ts|tsx|svelte)"],
   addons: [
     "@storybook/addon-links",
-    "@storybook/addon-essentials",
-    "@storybook/addon-interactions",
-    "@storybook/addon-controls",
     "@storybook/sveltekit",
     "storybook-addon-pseudo-states",
     "storybook-addon-mock-date",
@@ -16,6 +13,7 @@ const config: StorybookConfig = {
         legacyTemplate: false,
       },
     },
+    "@storybook/addon-docs",
   ],
   framework: "@storybook/svelte-vite",
   docs: {},

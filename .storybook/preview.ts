@@ -1,4 +1,4 @@
-import type { Preview } from "@storybook/svelte";
+import type { Preview } from "@storybook/sveltekit";
 import GlobalDecorator from "../src/stories/decorators/global-decorator.svelte";
 import { brandingInfos } from "../src/stories/fixtures";
 
