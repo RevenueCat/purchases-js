@@ -960,6 +960,7 @@ export class Purchases {
    * or if you increased the balance from your backend using the server APIs.
    */
   public invalidateVirtualCurrenciesCache() {
+    Logger.debugLog("Invalidating VirtualCurrencies cache.");
     this.inMemoryCache.invalidateVirtualCurrenciesCache(this._appUserId);
   }
 

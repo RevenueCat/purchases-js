@@ -163,6 +163,9 @@ jobs:
           name: Build
           command: npm run build
       - run:
+          name: Check UMD compilation
+          command: node -c dist/Purchases.umd.js         
+      - run:
           name: Extract API using api-extractor
           command: npm run extract-api
       - run:
