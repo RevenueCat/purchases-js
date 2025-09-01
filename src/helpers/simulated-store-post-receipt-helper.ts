@@ -24,6 +24,7 @@ export async function postSimulatedStoreReceipt(
   const subscriberResponse = await backend.postReceipt(
     appUserId,
     product.identifier,
+    product.price.currency,
     fetchToken,
     product.presentedOfferingContext,
     "purchase",

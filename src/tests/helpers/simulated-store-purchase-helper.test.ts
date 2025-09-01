@@ -126,6 +126,7 @@ describe("purchaseSimulatedStoreProduct", () => {
     expect(mockBackend.postReceipt).toHaveBeenCalledWith(
       "test-user-id",
       "monthly_trial_intro",
+      "USD",
       expect.stringMatching(/^test_.*test-uuid-123$/),
       mockPurchaseParams.rcPackage.webBillingProduct.presentedOfferingContext,
       "purchase",

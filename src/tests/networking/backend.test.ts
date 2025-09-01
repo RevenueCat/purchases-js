@@ -873,6 +873,7 @@ describe("postReceipt request", () => {
     const result = await backend.postReceipt(
       "someAppUserId",
       "monthly",
+      "EUR",
       "test_fetch_token",
       {
         offeringIdentifier: "offering_1",
@@ -891,6 +892,7 @@ describe("postReceipt request", () => {
     expect(requestBody).toEqual({
       fetch_token: "test_fetch_token",
       product_id: "monthly",
+      currency: "EUR",
       app_user_id: "someAppUserId",
       presented_offering_identifier: "offering_1",
       presented_placement_identifier: null,
@@ -909,6 +911,7 @@ describe("postReceipt request", () => {
     const result = await backend.postReceipt(
       "someAppUserId",
       "monthly",
+      "EUR",
       "test_fetch_token",
       {
         offeringIdentifier: "offering_1",
@@ -927,6 +930,7 @@ describe("postReceipt request", () => {
     expect(requestBody).toEqual({
       fetch_token: "test_fetch_token",
       product_id: "monthly",
+      currency: "EUR",
       app_user_id: "someAppUserId",
       presented_offering_identifier: "offering_1",
       presented_placement_identifier: "placement_1",
@@ -948,6 +952,7 @@ describe("postReceipt request", () => {
     await backend.postReceipt(
       "someAppUserId",
       "monthly",
+      "EUR",
       "test_fetch_token",
       {
         offeringIdentifier: "offering_1",
@@ -970,6 +975,7 @@ describe("postReceipt request", () => {
       backend.postReceipt(
         "someAppUserId",
         "monthly",
+        "EUR",
         "test_fetch_token",
         {
           offeringIdentifier: "offering_1",
@@ -1000,6 +1006,7 @@ describe("postReceipt request", () => {
       backend.postReceipt(
         "someAppUserId",
         "monthly",
+        "EUR",
         "test_fetch_token",
         {
           offeringIdentifier: "offering_1",
@@ -1022,6 +1029,7 @@ describe("postReceipt request", () => {
       backend.postReceipt(
         "someAppUserId",
         "monthly",
+        "EUR",
         "test_fetch_token",
         {
           offeringIdentifier: "offering_1",
@@ -1052,6 +1060,7 @@ describe("postReceipt request", () => {
       backend.postReceipt(
         "someAppUserId",
         "monthly",
+        "EUR",
         "invalid_token",
         {
           offeringIdentifier: "offering_1",
