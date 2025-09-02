@@ -71,6 +71,7 @@ describe("postSimulatedStoreReceipt", () => {
     expect(mockBackend.postReceipt).toHaveBeenCalledWith(
       "test-user-id",
       "monthly_trial_intro",
+      "USD",
       expect.stringMatching(/^test_.*test-uuid-123$/),
       mockProduct.presentedOfferingContext,
       "purchase",
@@ -113,6 +114,7 @@ describe("postSimulatedStoreReceipt", () => {
     expect(mockBackend.postReceipt).toHaveBeenCalledWith(
       "test-user-id",
       "test-consumable-product",
+      "USD",
       expect.stringMatching(/^test_.*test-uuid-123$/),
       consumableProduct.presentedOfferingContext,
       "purchase",

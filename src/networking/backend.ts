@@ -257,6 +257,7 @@ export class Backend {
   async postReceipt(
     appUserId: string,
     productId: string,
+    currency: string,
     fetchToken: string,
     presentedOfferingContext: PresentedOfferingContext,
     initiationSource: string,
@@ -268,6 +269,7 @@ export class Backend {
     type PostReceiptRequestBody = {
       fetch_token: string;
       product_id: string;
+      currency: string;
       app_user_id: string;
       presented_offering_identifier: string;
       presented_placement_identifier: string | null;
@@ -286,6 +288,7 @@ export class Backend {
     const requestBody: PostReceiptRequestBody = {
       fetch_token: fetchToken,
       product_id: productId,
+      currency: currency,
       app_user_id: appUserId,
       presented_offering_identifier:
         presentedOfferingContext.offeringIdentifier,
