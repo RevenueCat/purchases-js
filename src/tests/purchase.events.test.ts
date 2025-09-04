@@ -10,8 +10,8 @@ vi.mock("svelte", () => ({
   mount: vi.fn(),
 }));
 
-vi.mock("uuid", () => ({
-  v4: () => "c1365463-ce59-4b83-b61b-ef0d883e9047",
+vi.mock("../helpers/uuid-helper", () => ({
+  generateUUID: () => "c1365463-ce59-4b83-b61b-ef0d883e9047",
 }));
 
 describe("Purchases.configure()", () => {

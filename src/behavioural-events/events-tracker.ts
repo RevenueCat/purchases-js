@@ -1,4 +1,4 @@
-import { v4 as uuid } from "uuid";
+import { generateUUID } from "../helpers/uuid-helper";
 import { RC_ANALYTICS_ENDPOINT } from "../helpers/constants";
 import { HttpMethods } from "msw";
 import { getHeaders } from "../networking/http-client";
@@ -45,7 +45,7 @@ export default class EventsTracker implements IEventsTracker {
   private readonly eventsQueue: Array<Event> = [];
   private readonly eventsUrl: string;
   private readonly flushManager: FlushManager;
-  private readonly traceId: string = uuid();
+  private readonly traceId: string = generateUUID();
   private appUserId: string;
   private readonly isSilent: boolean;
   private rcSource: string | null;

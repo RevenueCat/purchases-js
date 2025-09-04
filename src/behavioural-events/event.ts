@@ -1,5 +1,5 @@
 import { camelToUnderscore } from "../helpers/camel-to-underscore";
-import { v4 as uuidv4 } from "uuid";
+import { generateUUID } from "../helpers/uuid-helper";
 
 export type EventData = {
   eventName: string;
@@ -49,7 +49,7 @@ export class Event {
   public readonly data: EventData;
 
   public constructor(data: EventData) {
-    this.id = uuidv4();
+    this.id = generateUUID();
     this.timestampMs = Date.now();
     this.data = data;
   }
