@@ -1,3 +1,6 @@
 ## RevenueCat SDK
 ### 🐞 Bugfixes
-* Remove Log Message that Creates Corrupted UMD Files (#581) via Will Taylor (@fire-at-will)
+* Fix Expo Go compatibility (#585) via Toni Rico (@tonidero)
+
+### 🔄 Other Changes
+* Add `currency` property to simulated store post receipt (#584) via Toni Rico (@tonidero)
