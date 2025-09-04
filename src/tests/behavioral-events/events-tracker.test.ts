@@ -23,8 +23,8 @@ const MAX_JITTER_MULTIPLIER = 1 + 0.1;
 
 describe("EventsTracker", (test) => {
   const date = new Date(1988, 10, 18, 13, 37, 0);
-  vi.mock("uuid", () => ({
-    v4: () => "c1365463-ce59-4b83-b61b-ef0d883e9047",
+  vi.mock("../../helpers/uuid-helper", () => ({
+    generateUUID: () => "c1365463-ce59-4b83-b61b-ef0d883e9047",
   }));
   const loggerMock = vi
     .spyOn(Logger, "debugLog")

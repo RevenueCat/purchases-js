@@ -1,20 +1,39 @@
 /**
+ * Fills the provided byte array with random values using Math.random
+ * @param bytes The byte array to fill with random values
+ */
+function fillBytesWithMathRandom(bytes: Uint8Array): void {
+  for (let i = 0; i < bytes.length; i++) {
+    bytes[i] = Math.floor(Math.random() * 256);
+  }
+}
+
+/**
  * Generates a UUID v4 string.
  * Uses crypto.randomUUID if available, otherwise falls back to a manual implementation.
  * @returns A UUID v4 string in the format xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
  */
 export function generateUUID(): string {
-  if (crypto && crypto.randomUUID) {
-    return crypto.randomUUID();
+  // Check if crypto is available
+  // (not available in React Native Expo Go by default)
+  const cryptoObj = typeof crypto !== "undefined" ? crypto : globalThis.crypto;
+
+  if (cryptoObj && cryptoObj.randomUUID) {
+    return cryptoObj.randomUUID();
   }
 
   const bytes = new Uint8Array(16);
-  if (crypto && crypto.getRandomValues) {
-    crypto.getRandomValues(bytes);
-  } else {
-    for (let i = 0; i < 16; i++) {
-      bytes[i] = Math.floor(Math.random() * 256);
+  try {
+    if (cryptoObj && cryptoObj.getRandomValues) {
+      cryptoObj.getRandomValues(bytes);
+    } else {
+      fillBytesWithMathRandom(bytes);
     }
+  } catch (error) {
+    console.log(
+      `Error using crypto.getRandomValues(), falling back to Math.random. + ${error}`,
+    );
+    fillBytesWithMathRandom(bytes);
   }
 
   // Set version (4) and variant bits
