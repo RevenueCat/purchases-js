@@ -821,6 +821,14 @@ export class Purchases {
   }
 
   /**
+   * Used by internal RC code to detect if used a test store API key.
+   * @internal
+   */
+  public _isConfiguredWithSimulatedStore(): boolean {
+    return isSimulatedStoreApiKey(this._API_KEY);
+  }
+
+  /**
    * Posts a simulated store receipt to the server.
    * @internal
    * @param product - The product for which we want to post the receipt for.
@@ -829,6 +837,12 @@ export class Purchases {
   public async _postSimulatedStoreReceipt(
     product: Product,
   ): Promise<PurchaseResult> {
+    if (!isSimulatedStoreApiKey(this._API_KEY)) {
+      throw new PurchasesError(
+        ErrorCode.ConfigurationError,
+        "Posting a test store receipt is only available for RC Test Store API keys.",
+      );
+    }
     return await postSimulatedStoreReceipt(
       product,
       this.backend,
