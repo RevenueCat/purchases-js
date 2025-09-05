@@ -829,6 +829,12 @@ export class Purchases {
   public async _postSimulatedStoreReceipt(
     product: Product,
   ): Promise<PurchaseResult> {
+    if (!isSimulatedStoreApiKey(this._API_KEY)) {
+      throw new PurchasesError(
+        ErrorCode.ConfigurationError,
+        "Posting a test store receipt is only available for RC Test Store API keys.",
+      );
+    }
     return await postSimulatedStoreReceipt(
       product,
       this.backend,
