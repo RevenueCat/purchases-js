@@ -770,7 +770,7 @@ export const toOffering = (
     monthly: packagesById[PackageType.Monthly] ?? null,
     weekly: packagesById[PackageType.Weekly] ?? null,
     paywall_components: offeringsData.paywall_components
-      ? (offeringsData.paywall_components as PaywallData)
+      ? (offeringsData.paywall_components as unknown as PaywallData)
       : null,
   };
 };

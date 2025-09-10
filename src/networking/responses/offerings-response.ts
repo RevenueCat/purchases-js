@@ -1,3 +1,5 @@
+import type { PaywallData } from "@revenuecat/purchases-ui-js";
+
 export interface PackageResponse {
   identifier: string;
   platform_product_identifier: string;
@@ -8,7 +10,7 @@ export interface OfferingResponse {
   description: string;
   packages: PackageResponse[];
   metadata: { [key: string]: unknown } | null;
-  paywall_components: { [key: string]: unknown } | null;
+  paywall_components: PaywallData | null;
 }
 
 export interface TargetingResponse {
