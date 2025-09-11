@@ -769,9 +769,7 @@ export const toOffering = (
     twoMonth: packagesById[PackageType.TwoMonth] ?? null,
     monthly: packagesById[PackageType.Monthly] ?? null,
     weekly: packagesById[PackageType.Weekly] ?? null,
-    paywall_components: offeringsData.paywall_components
-      ? (offeringsData.paywall_components as unknown as PaywallData)
-      : null,
+    paywall_components: offeringsData.paywall_components,
   };
 };
 
