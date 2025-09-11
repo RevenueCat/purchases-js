@@ -29,7 +29,7 @@ import {
   type PurchaseFlowError,
   PurchaseOperationHelper,
 } from "./helpers/purchase-operation-helper";
-import { type LogLevel, type LogHandler } from "./entities/log-level";
+import { type LogLevel, type LogHandler } from "./entities/logging";
 import { Logger } from "./helpers/logger";
 import {
   validateAdditionalHeaders,
@@ -123,8 +123,8 @@ export { PeriodUnit } from "./helpers/duration-helper";
 export type { Period } from "./helpers/duration-helper";
 export type { HttpConfig } from "./entities/http-config";
 export type { FlagsConfig } from "./entities/flags-config";
-export { LogLevel } from "./entities/log-level";
-export type { LogHandler } from "./entities/log-level";
+export { LogLevel } from "./entities/logging";
+export type { LogHandler } from "./entities/logging";
 export type { GetOfferingsParams } from "./entities/get-offerings-params";
 export { OfferingKeyword } from "./entities/get-offerings-params";
 export type { PurchaseParams } from "./entities/purchase-params";

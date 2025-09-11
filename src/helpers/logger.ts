@@ -1,4 +1,4 @@
-import { LogLevel, type LogHandler } from "../entities/log-level";
+import { LogLevel, type LogHandler } from "../entities/logging";
 
 export class Logger {
   private static logLevel: LogLevel = LogLevel.Silent;

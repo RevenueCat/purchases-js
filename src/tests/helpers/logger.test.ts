@@ -1,6 +1,6 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
 import { Logger } from "../../helpers/logger";
-import { LogLevel, type LogHandler } from "../../entities/log-level";
+import { LogLevel, type LogHandler } from "../../entities/logging";
 
 describe("Logger", () => {
   beforeEach(() => {
