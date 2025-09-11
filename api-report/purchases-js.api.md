@@ -156,6 +156,9 @@ export interface HttpConfig {
 }
 
 // @public
+export type LogHandler = (logLevel: LogLevel, message: string) => void;
+
+// @public
 export enum LogLevel {
     Debug = 4,
     Error = 1,
@@ -384,6 +387,7 @@ export class Purchases {
     setAttributes(attributes: {
         [key: string | ReservedCustomerAttribute]: string | null;
     }): Promise<void>;
+    static setLogHandler(handler: LogHandler | null): void;
     static setLogLevel(logLevel: LogLevel): void;
     static setPlatformInfo(platformInfo: PlatformInfo): void;
 }
