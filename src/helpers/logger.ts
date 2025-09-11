@@ -1,10 +1,15 @@
-import { LogLevel } from "../entities/log-level";
+import { LogLevel, type LogHandler } from "../entities/log-level";
 
 export class Logger {
   private static logLevel: LogLevel = LogLevel.Silent;
+  private static logHandler: LogHandler | null = null;
 
   static setLogLevel(logLevel: LogLevel) {
     this.logLevel = logLevel;
+  }
+
+  static setLogHandler(handler: LogHandler | null) {
+    this.logHandler = handler;
   }
 
   static log(message: string, logLevel: LogLevel = this.logLevel): void {
@@ -12,6 +17,14 @@ export class Logger {
     if (this.logLevel < logLevel || logLevel === LogLevel.Silent) {
       return;
     }
+
+    // Use custom handler if available
+    if (this.logHandler !== null) {
+      this.logHandler(logLevel, messageWithTag);
+      return;
+    }
+
+    // Fallback to console logging
     switch (logLevel) {
       case LogLevel.Error:
         console.error(messageWithTag);

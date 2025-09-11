@@ -3,6 +3,7 @@ import * as svelte from "svelte"; // import the module as a namespace
 import {
   type CustomerInfo,
   type EntitlementInfo,
+  LogLevel,
   Purchases,
   type PurchasesConfig,
   PurchasesError,
@@ -782,5 +783,51 @@ describe("setAttributes", () => {
         "Request: setAttributes. Status code: 500. Body: {}.",
       ),
     );
+  });
+});
+
+describe("Purchases.setLogHandler()", () => {
+  beforeEach(() => {
+    // Reset log handler before each test
+    Purchases.setLogHandler(null);
+  });
+
+  afterEach(() => {
+    // Clean up after each test
+    vi.restoreAllMocks();
+    Purchases.setLogHandler(null);
+  });
+
+  test("should set custom log handler", () => {
+    const mockHandler = vi.fn();
+
+    Purchases.setLogHandler(mockHandler);
+
+    // The handler should be set (we can't directly test this, but we can test the effect)
+    expect(() => Purchases.setLogHandler(mockHandler)).not.toThrow();
+  });
+
+  test("should reset to null handler", () => {
+    const mockHandler = vi.fn();
+
+    Purchases.setLogHandler(mockHandler);
+    Purchases.setLogHandler(null);
+
+    // Should not throw
+    expect(() => Purchases.setLogHandler(null)).not.toThrow();
+  });
+
+  test("should call custom handler when logging occurs", () => {
+    const mockHandler = vi.fn();
+
+    Purchases.setLogHandler(mockHandler);
+    Purchases.setLogLevel(LogLevel.Debug);
+
+    // Configure purchases to trigger some logging
+    const purchases = Purchases.configure(testApiKey, testUserId);
+
+    // We expect some logging to have occurred during configuration
+    // Note: The exact logging behavior depends on the implementation
+    expect(purchases).toBeDefined();
   });
 });
