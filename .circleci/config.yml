@@ -241,8 +241,8 @@ workflows:
       - revenuecat/automatic-bump
 
   manual-trigger-bump:
-    when:
-      equal: [ bump, << pipeline.parameters.action >> ]
+    # when:
+      # equal: [ bump, << pipeline.parameters.action >> ]
     jobs:
       - revenuecat/automatic-bump
 
