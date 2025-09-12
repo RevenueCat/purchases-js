@@ -7,6 +7,7 @@ const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const [displayName, setDisplayName] = useState("");
   const [nickname, setNickname] = useState("");
+  const [useCustomLogger, setUseCustomLogger] = useState(true);
 
   const navigateToAppUserIDPaywall = (appUserId?: string) => {
     if (appUserId) {
@@ -17,6 +18,9 @@ const LoginPage: React.FC = () => {
       if (nickname) {
         params.append("nickname", nickname);
       }
+      // Add custom logger preference
+      params.append("useCustomLogger", useCustomLogger.toString());
+
       const queryString = params.toString();
       const url = `/paywall/${encodeURIComponent(appUserId)}${queryString ? `?${queryString}` : ""}`;
       navigate(url);
@@ -50,6 +54,19 @@ const LoginPage: React.FC = () => {
             onChange={(e) => setNickname(e.target.value)}
             className="input-field"
           />
+        </div>
+        <div className="logger-section">
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              checked={useCustomLogger}
+              onChange={(e) => setUseCustomLogger(e.target.checked)}
+              className="checkbox-input"
+            />
+            <span className="checkbox-text">
+              🏥 Use custom health logger (adds health icon to SDK logs)
+            </span>
+          </label>
         </div>
         <div className="button-group">
           <Button
