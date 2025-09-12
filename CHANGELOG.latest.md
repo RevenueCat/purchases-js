@@ -1,6 +1,9 @@
 ## RevenueCat SDK
+### ✨ New Features
+* Add custom log handler support (#589) via Antonio Borrero Granell (@antoniobg)
 ### 🐞 Bugfixes
-* Fix Expo Go compatibility (#585) via Toni Rico (@tonidero)
+* Fix paywall types (#590) via Marek Dabek (@marek-dabek)
 
 ### 🔄 Other Changes
-* Add `currency` property to simulated store post receipt (#584) via Toni Rico (@tonidero)
+* Use purchases-ui-js v2.0.2 (#591) via Marek Dabek (@marek-dabek)
+* Fail posting simulated receipt if not using test api key (#587) via Toni Rico (@tonidero)
