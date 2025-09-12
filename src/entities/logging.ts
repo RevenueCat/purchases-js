@@ -28,3 +28,12 @@ export enum LogLevel {
    */
   Verbose = 5,
 }
+
+/**
+ * Custom log handler function type. Allows you to handle SDK log messages
+ * with your own logging system.
+ * @param logLevel - The log level of the message
+ * @param message - The log message
+ * @public
+ */
+export type LogHandler = (logLevel: LogLevel, message: string) => void;

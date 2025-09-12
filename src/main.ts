@@ -29,7 +29,7 @@ import {
   type PurchaseFlowError,
   PurchaseOperationHelper,
 } from "./helpers/purchase-operation-helper";
-import { type LogLevel } from "./entities/log-level";
+import { type LogLevel, type LogHandler } from "./entities/logging";
 import { Logger } from "./helpers/logger";
 import {
   validateAdditionalHeaders,
@@ -123,7 +123,8 @@ export { PeriodUnit } from "./helpers/duration-helper";
 export type { Period } from "./helpers/duration-helper";
 export type { HttpConfig } from "./entities/http-config";
 export type { FlagsConfig } from "./entities/flags-config";
-export { LogLevel } from "./entities/log-level";
+export { LogLevel } from "./entities/logging";
+export type { LogHandler } from "./entities/logging";
 export type { GetOfferingsParams } from "./entities/get-offerings-params";
 export { OfferingKeyword } from "./entities/get-offerings-params";
 export type { PurchaseParams } from "./entities/purchase-params";
@@ -185,6 +186,15 @@ export class Purchases {
    */
   static setLogLevel(logLevel: LogLevel) {
     Logger.setLogLevel(logLevel);
+  }
+
+  /**
+   * Set a custom log handler to handle SDK log messages with your own logging system.
+   * If set to null, the SDK will use the default console logging.
+   * @param handler - LogHandler function or null to use default console logging.
+   */
+  static setLogHandler(handler: LogHandler | null) {
+    Logger.setLogHandler(handler);
   }
 
   /**

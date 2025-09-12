@@ -1,6 +1,7 @@
 import type { CustomerInfo, Offering } from "@revenuecat/purchases-js";
 import {
   type FlagsConfig,
+  type LogHandler,
   LogLevel,
   Purchases,
 } from "@revenuecat/purchases-js";
@@ -33,6 +34,7 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
   const rcSource = searchParams.get("rcSource") || undefined;
   const optOutOfAutoUTM =
     searchParams.get("optOutOfAutoUTM") === "true" || false;
+  const useCustomLogger = searchParams.get("useCustomLogger") === "true";
 
   if (!appUserId) {
     throw redirect("/");
@@ -49,6 +51,40 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
     flagsConfig.rcSource = rcSource;
+  }
+
+  // Set up logging based on user preference
+  if (useCustomLogger) {
+    // Set up custom log handler for health app
+    // This demonstrates how to customize SDK logging with your own handler
+    // In this case, we're adding a health icon 🏥 to all log messages
+    const healthLogHandler: LogHandler = (level, message) => {
+      const healthIcon = "🏥";
+      const logMessage = `${healthIcon} ${message}`;
+
+      switch (level) {
+        case LogLevel.Error:
+          console.error(logMessage);
+          break;
+        case LogLevel.Warn:
+          console.warn(logMessage);
+          break;
+        case LogLevel.Info:
+          console.info(logMessage);
+          break;
+        case LogLevel.Debug:
+          console.debug(logMessage);
+          break;
+        case LogLevel.Verbose:
+          console.debug(logMessage);
+          break;
+      }
+    };
+
+    Purchases.setLogHandler(healthLogHandler);
+  } else {
+    // Use default console logging (no custom handler)
+    Purchases.setLogHandler(null);
   }
 
   Purchases.setLogLevel(LogLevel.Verbose);
