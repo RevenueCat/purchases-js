@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import Icon from "../../assets/spinner.svg?raw";
 </script>
 

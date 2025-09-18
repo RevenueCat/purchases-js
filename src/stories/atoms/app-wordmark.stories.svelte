@@ -1,15 +1,11 @@
 <script module lang="ts">
   import AppWordmark from "../../ui/atoms/app-wordmark.svelte";
-  import {
-    type Args,
-    defineMeta,
-    setTemplate,
-    type StoryContext,
-  } from "@storybook/addon-svelte-csf";
+  import { defineMeta, type StoryContext } from "@storybook/addon-svelte-csf";
   import { renderInsideMain } from "../decorators/layout-decorators";
   import { brandingModes } from "../../../.storybook/modes";
   import { brandingInfos } from "../fixtures";
   import { buildAssetURL } from "../../networking/assets";
+  import type { ComponentProps } from "svelte";
 
   let { Story } = defineMeta({
     component: AppWordmark,
@@ -21,17 +17,14 @@
         modes: brandingModes,
       },
     },
+    // @ts-expect-error ignore importing before initializing
+    render: template,
   });
+  type Args = ComponentProps<typeof AppWordmark>;
+  type Context = StoryContext<typeof AppWordmark>;
 </script>
 
-<script lang="ts">
-  setTemplate(template);
-</script>
-
-{#snippet template(
-  _args: Args<typeof Story>,
-  context: StoryContext<typeof Story>,
-)}
+{#snippet template(_args: Args, context: Context)}
   {@const isLoading = context.story === "Loading"}
   {@const brandingInfo = brandingInfos[context.globals.brandingName]}
   {@const src =

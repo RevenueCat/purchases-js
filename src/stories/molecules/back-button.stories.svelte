@@ -1,4 +1,4 @@
-<script module>
+<script module lang="ts">
   import BackButton from "../../ui/molecules/back-button.svelte";
   import { defineMeta } from "@storybook/addon-svelte-csf";
   import { renderInsideMain } from "../decorators/layout-decorators";
@@ -7,6 +7,7 @@
   let { Story } = defineMeta({
     component: BackButton,
     title: "Molecules/BackButton",
+    // @ts-expect-error ignore typing of decorator
     decorators: [renderInsideMain],
     parameters: {
       chromatic: {

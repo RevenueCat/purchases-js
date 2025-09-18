@@ -1,14 +1,11 @@
-<script module>
+<script module lang="ts">
   import { default as Icon } from "../../ui/atoms/icon.svelte";
   import { brandingModes } from "../../../.storybook/modes";
-  import {
-    type Args,
-    defineMeta,
-    setTemplate,
-  } from "@storybook/addon-svelte-csf";
+  import { defineMeta, type StoryContext } from "@storybook/addon-svelte-csf";
   import { renderInsideMain } from "../decorators/layout-decorators";
+  import type { ComponentProps } from "svelte";
 
-  const { Story } = defineMeta({
+  let { Story } = defineMeta({
     component: Icon,
     title: "Atoms/Icon",
     // @ts-expect-error ignore typing of decorator
@@ -18,15 +15,15 @@
         modes: brandingModes,
       },
     },
+    // @ts-expect-error ignore importing before initializing
+    render: template,
   });
+  type Args = ComponentProps<typeof Icon>;
+  type Context = StoryContext<typeof Icon>;
 </script>
 
-<script lang="ts">
-  setTemplate(template);
-</script>
-
-{#snippet template({ name }: Args<typeof Story>)}
-  <Icon name={name ?? "cart"} />
+{#snippet template(args: Args, _context: Context)}
+  <Icon name={args.name ?? "cart"} />
 {/snippet}
 
 <Story name="Cart" args={{ name: "cart" }} />

@@ -1,18 +1,14 @@
-<script module>
+<script module lang="ts">
   import PriceUpdateInfo from "../../ui/molecules/price-update-info.svelte";
-
-  import {
-    type Args,
-    defineMeta,
-    setTemplate,
-  } from "@storybook/addon-svelte-csf";
+  import { defineMeta, type StoryContext } from "@storybook/addon-svelte-csf";
   import { renderInsideMain } from "../decorators/layout-decorators";
   import { brandingModes } from "../../../.storybook/modes";
   import { subscriptionOption, subscriptionOptionWithTrial } from "../fixtures";
+  import type { ComponentProps } from "svelte";
 
   let { Story } = defineMeta({
     component: PriceUpdateInfo,
-    title: "Molecules/InfoMessage",
+    title: "Molecules/PriceUpdateInfo",
     // @ts-expect-error ignore typing of decorator
     decorators: [renderInsideMain],
     parameters: {
@@ -20,14 +16,14 @@
         modes: brandingModes,
       },
     },
+    // @ts-expect-error ignore importing before initializing
+    render: template,
   });
+  type Args = ComponentProps<typeof PriceUpdateInfo>;
+  type Context = StoryContext<typeof PriceUpdateInfo>;
 </script>
 
-<script lang="ts">
-  setTemplate(template);
-</script>
-
-{#snippet template(args: Args<typeof Story>)}
+{#snippet template(args: Args, _context: Context)}
   <PriceUpdateInfo
     subscriptionOption={args.subscriptionOption ?? subscriptionOption}
   />
