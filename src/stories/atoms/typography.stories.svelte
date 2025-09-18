@@ -41,8 +41,8 @@
   type Context = StoryContext<typeof Typography>;
 </script>
 
-{#snippet template(_: Args, _context: Context)}
-  <Typography>
+{#snippet template(args: Args, _context: Context)}
+  <Typography size={args.size} branded={args.branded}>
     {#snippet children()}
       Default text
     {/snippet}
@@ -50,70 +50,48 @@
 {/snippet}
 
 <!-- Stories for each typography variant -->
-<Story name="Heading 2XL">
-  <Typography size="heading-2xl">
-    Heading 2XL - {baseContent}
-  </Typography>
+<Story name="Heading 2XL" args={{ size: "heading-2xl" }}>
+  Heading 2XL - {baseContent}
 </Story>
 
-<Story name="Heading XL">
-  <Typography size="heading-xl">
-    Heading XL - {baseContent}
-  </Typography>
+<Story name="Heading XL" args={{ size: "heading-xl" }}>
+  Heading XL - {baseContent}
 </Story>
 
-<Story name="Heading LG">
-  <Typography size="heading-lg">
-    Heading LG - {baseContent}
-  </Typography>
+<Story name="Heading LG" args={{ size: "heading-lg" }}>
+  Heading LG - {baseContent}
 </Story>
 
-<Story name="Heading MD">
-  <Typography size="heading-md">
-    Heading MD - {baseContent}
-  </Typography>
+<Story name="Heading MD" args={{ size: "heading-md" }}>
+  Heading MD - {baseContent}
 </Story>
 
-<Story name="Body Base">
-  <Typography size="body-base">
-    Body Base - {baseContent}
-  </Typography>
+<Story name="Body Base" args={{ size: "body-base" }}>
+  Body Base - {baseContent}
 </Story>
 
-<Story name="Body Small">
-  <Typography size="body-small">
-    Body Small - {baseContent}
-  </Typography>
+<Story name="Body Small" args={{ size: "body-small" }}>
+  Body Small - {baseContent}
 </Story>
 
-<Story name="Label Button">
-  <Typography size="label-button">
-    Label Button - {baseContent}
-  </Typography>
+<Story name="Label Button" args={{ size: "label-button" }}>
+  Label Button - {baseContent}
 </Story>
 
-<Story name="Label Default">
-  <Typography size="label-default">
-    Label Default - {baseContent}
-  </Typography>
+<Story name="Label Default" args={{ size: "label-default" }}>
+  Label Default - {baseContent}
 </Story>
 
-<Story name="Caption Default">
-  <Typography size="caption-default">
-    Caption Default - {baseContent}
-  </Typography>
+<Story name="Caption Default" args={{ size: "caption-default" }}>
+  Caption Default - {baseContent}
 </Story>
 
-<Story name="Caption Link">
-  <Typography size="caption-link">
-    Caption Link - {baseContent}
-  </Typography>
+<Story name="Caption Link" args={{ size: "caption-link" }}>
+  Caption Link - {baseContent}
 </Story>
 
-<Story name="Branded">
-  <Typography size="heading-xl" branded>
-    Branded - {baseContent}
-  </Typography>
+<Story name="Branded" args={{ size: "heading-xl", branded: true }}>
+  Branded - {baseContent}
 </Story>
 
 <!-- Story showing all variants -->
