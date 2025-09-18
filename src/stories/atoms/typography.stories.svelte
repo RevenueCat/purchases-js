@@ -41,8 +41,8 @@
   type Context = StoryContext<typeof Typography>;
 </script>
 
-{#snippet template(args: Args, _context: Context)}
-  <Typography size={args.size}>
+{#snippet template(_: Args, _context: Context)}
+  <Typography>
     {#snippet children()}
       Default text
     {/snippet}
