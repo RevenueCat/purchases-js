@@ -42,7 +42,7 @@
 </script>
 
 {#snippet template(args: Args, _context: Context)}
-  <Typography size={args.size ?? "body-base"}>
+  <Typography size={args.size}>
     {#snippet children()}
       Default text
     {/snippet}

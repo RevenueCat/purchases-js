@@ -85,7 +85,10 @@
       periodDuration: periodDuration,
     } as PricingPhase;
   };
-  const setCyclesCount = (cyclesCount: number, pricingPhase: PricingPhase) => {
+  const setCyclesCount = (
+    cyclesCount: number | null | undefined,
+    pricingPhase: PricingPhase,
+  ) => {
     if (!cyclesCount) {
       return pricingPhase;
     }
@@ -107,24 +110,22 @@
   _context: StoryContext<typeof PricingSummary>,
 )}
   {@const priceBreakdown = args.priceBreakdown}
-  {@const basePhase = setPeriodDuration(
-    args.billingDuration,
-    args.basePhase,
-    defaultBasePhase,
-  )}
-  {@const trialPhase = setPeriodDuration(
-    args.trialDuration,
-    args.trialPhase,
-    defaultTrialPhase,
-  )}
-  {@const introPricePhase = setCyclesCount(
-    args.introCycles || 1,
-    setPeriodDuration(
-      args.introDuration,
-      args.introPricePhase,
-      defaultIntroPricePhase,
-    ),
-  )}
+  {@const basePhase = args.basePhase
+    ? setPeriodDuration(args.billingDuration, args.basePhase, defaultBasePhase)
+    : null}
+  {@const trialPhase = args.trialPhase
+    ? setPeriodDuration(args.trialDuration, args.trialPhase, defaultTrialPhase)
+    : null}
+  {@const introPricePhase = args.introPricePhase
+    ? setCyclesCount(
+        args.introCycles,
+        setPeriodDuration(
+          args.introDuration,
+          args.introPricePhase,
+          defaultIntroPricePhase,
+        ),
+      )
+    : null}
 
   <PricingSummary {priceBreakdown} {basePhase} {trialPhase} {introPricePhase} />
 {/snippet}

@@ -8,7 +8,7 @@
 
   let { Story } = defineMeta({
     component: PriceUpdateInfo,
-    title: "Molecules/InfoMessage",
+    title: "Molecules/PriceUpdateInfo",
     // @ts-expect-error ignore typing of decorator
     decorators: [renderInsideMain],
     parameters: {
