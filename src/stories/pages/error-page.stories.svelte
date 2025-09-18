@@ -30,8 +30,8 @@
         modes: brandingLanguageViewportModes,
       },
     },
-    render: (args: StoryArgs, context: StoryContext<typeof PurchasesInner>) =>
-      template(args, context),
+    // @ts-expect-error ignore importing before initializing
+    render: template,
   });
   type StoryArgs = {
     productDetails: typeof product;

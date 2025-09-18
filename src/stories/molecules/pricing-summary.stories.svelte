@@ -60,8 +60,8 @@
         modes: brandingModes,
       },
     },
-    render: (args: StoryArgs, _context: StoryContext<typeof PricingSummary>) =>
-      template(args, _context),
+    // @ts-expect-error ignore importing before initializing
+    render: template,
   });
 
   const setPeriodDuration = (

@@ -20,7 +20,8 @@
         modes: brandingModes,
       },
     },
-    render: (args: Args, context: Context) => template(args, context),
+    // @ts-expect-error ignore importing before initializing
+    render: template,
   });
   type Args = ComponentProps<typeof PaymentButton>;
   type Context = StoryContext<typeof PaymentButton>;

@@ -20,7 +20,8 @@
       },
     },
     title: "Molecules/BrandingHeader",
-    render: (args: Args, context: Context) => template(args, context),
+    // @ts-expect-error ignore importing before initializing
+    render: template,
   });
   type Args = ComponentProps<typeof BrandingHeader>;
   type Context = StoryContext<typeof BrandingHeader>;
