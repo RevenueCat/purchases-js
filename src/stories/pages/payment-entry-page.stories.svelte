@@ -1,10 +1,5 @@
 <script module lang="ts">
-  import {
-    type Args,
-    defineMeta,
-    setTemplate,
-    type StoryContext,
-  } from "@storybook/addon-svelte-csf";
+  import { defineMeta, type StoryContext } from "@storybook/addon-svelte-csf";
   import PurchasesInner from "../../ui/purchases-ui-inner.svelte";
   import { brandingLanguageViewportModes } from "../../../.storybook/modes";
   import {
@@ -22,6 +17,8 @@
     subscriptionOptionWithTrialAndIntroPriceRecurring,
     subscriptionOptionWithIntroPriceRecurring,
     subscriptionOptionWithIntroPricePaidUpfront,
+    consumableProduct,
+    nonSubscriptionOption,
   } from "../fixtures";
   import { PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
 
@@ -33,6 +30,7 @@
   };
 
   let { Story } = defineMeta({
+    component: PurchasesInner,
     title: "Pages/PaymentEntryPage",
     args: defaultArgs,
     argTypes: {
@@ -49,19 +47,16 @@
         diffThreshold: 0.49,
       },
     },
+    render: (args: StoryArgs, context: StoryContext<typeof PurchasesInner>) =>
+      template(args, context),
   });
+  type StoryArgs = any;
   let purchaseOperationHelper = null as unknown as PurchaseOperationHelper;
 </script>
 
-<script lang="ts">
-  import { consumableProduct, nonSubscriptionOption } from "../fixtures";
-
-  setTemplate(template);
-</script>
-
 {#snippet template(
-  args: Args<typeof Story>,
-  context: StoryContext<typeof Story>,
+  args: StoryArgs,
+  context: StoryContext<typeof PurchasesInner>,
 )}
   {@const brandingInfo = {
     ...brandingInfos[context.globals.brandingName],

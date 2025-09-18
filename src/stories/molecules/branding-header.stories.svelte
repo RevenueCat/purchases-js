@@ -1,14 +1,10 @@
-<script module>
+<script module lang="ts">
   import BrandingHeader from "../../ui/molecules/branding-header.svelte";
-  import {
-    type Args,
-    defineMeta,
-    setTemplate,
-    type StoryContext,
-  } from "@storybook/addon-svelte-csf";
+  import { defineMeta, type StoryContext } from "@storybook/addon-svelte-csf";
   import { brandingInfos } from "../fixtures";
   import { renderInsideNavbarHeader } from "../decorators/layout-decorators";
   import { mobileAndDesktopBrandingModes } from "../../../.storybook/modes";
+  import type { ComponentProps } from "svelte";
 
   let { Story } = defineMeta({
     component: BrandingHeader,
@@ -24,17 +20,13 @@
       },
     },
     title: "Molecules/BrandingHeader",
+    render: (args: Args, context: Context) => template(args, context),
   });
+  type Args = ComponentProps<typeof BrandingHeader>;
+  type Context = StoryContext<typeof BrandingHeader>;
 </script>
 
-<script lang="ts">
-  setTemplate(template);
-</script>
-
-{#snippet template(
-  args: Args<typeof Story>,
-  context: StoryContext<typeof Story>,
-)}
+{#snippet template(args: Args, context: Context)}
   {@const brandingInfo = brandingInfos[context.globals.brandingName]}
   <BrandingHeader
     {brandingInfo}

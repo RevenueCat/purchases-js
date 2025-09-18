@@ -1,6 +1,6 @@
 <script module lang="ts">
   import { brandingModes } from "../../../.storybook/modes";
-  import { defineMeta, setTemplate } from "@storybook/addon-svelte-csf";
+  import { defineMeta, type StoryContext } from "@storybook/addon-svelte-csf";
   import { renderInsideNavbarBody } from "../decorators/layout-decorators";
   import PricingSummary from "../../ui/molecules/pricing-summary.svelte";
   import {
@@ -17,10 +17,22 @@
 
   import { parseISODuration } from "../../helpers/duration-helper";
   import type { PricingPhase } from "../../entities/offerings";
+  import type { PriceBreakdown } from "../../ui/ui-types";
 
   const billingDurations = ["P1W", "P1M", "P3M", "P6M", "P1Y", null];
   const introDurations = ["P1W", "P1M", "P3M", "P6M", "P1Y", null];
   const trialDurations = ["P3D", "P1W", "P2W", "P1M", null];
+
+  type StoryArgs = {
+    priceBreakdown: PriceBreakdown;
+    basePhase?: PricingPhase | null;
+    introPricePhase?: PricingPhase | null;
+    trialPhase?: PricingPhase | null;
+    billingDuration?: string | null;
+    introDuration?: string | null;
+    introCycles?: number | null;
+    trialDuration?: string | null;
+  };
 
   const { Story } = defineMeta({
     component: PricingSummary,
@@ -48,15 +60,17 @@
         modes: brandingModes,
       },
     },
+    render: (args: StoryArgs, _context: StoryContext<typeof PricingSummary>) =>
+      template(args, _context),
   });
 
   const setPeriodDuration = (
-    periodDuration: string,
-    pricingPhase: PricingPhase,
+    periodDuration: string | null | undefined,
+    pricingPhase: PricingPhase | null | undefined,
     defaultP: PricingPhase,
   ) => {
     if (!periodDuration) {
-      return pricingPhase;
+      return pricingPhase || defaultP;
     }
     if (!pricingPhase) {
       return {
@@ -80,31 +94,35 @@
       cycleCount: cyclesCount || pricingPhase.cycleCount,
     } as PricingPhase;
   };
+  const defaultBasePhase: PricingPhase =
+    subscriptionOption.base as PricingPhase;
+  const defaultTrialPhase: PricingPhase =
+    subscriptionOption.trial as PricingPhase;
+  const defaultIntroPricePhase: PricingPhase =
+    subscriptionOptionWithIntroPriceRecurring.introPrice as PricingPhase;
 </script>
 
-<script lang="ts">
-  // Using a template to translate the custom controls into props.
-  setTemplate(template);
-</script>
-
-{#snippet template(args: any)}
+{#snippet template(
+  args: StoryArgs,
+  _context: StoryContext<typeof PricingSummary>,
+)}
   {@const priceBreakdown = args.priceBreakdown}
   {@const basePhase = setPeriodDuration(
     args.billingDuration,
     args.basePhase,
-    subscriptionOption.base,
+    defaultBasePhase,
   )}
   {@const trialPhase = setPeriodDuration(
     args.trialDuration,
     args.trialPhase,
-    subscriptionOptionWithTrial.trial!,
+    defaultTrialPhase,
   )}
   {@const introPricePhase = setCyclesCount(
-    args.introCycles,
+    args.introCycles || 1,
     setPeriodDuration(
       args.introDuration,
       args.introPricePhase,
-      subscriptionOptionWithIntroPriceRecurring.introPrice!,
+      defaultIntroPricePhase,
     ),
   )}
 

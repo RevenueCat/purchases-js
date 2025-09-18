@@ -1,12 +1,9 @@
-<script module>
+<script module lang="ts">
   import Typography from "../../ui/atoms/typography.svelte";
-  import {
-    type Args,
-    defineMeta,
-    setTemplate,
-  } from "@storybook/addon-svelte-csf";
+  import { defineMeta, type StoryContext } from "@storybook/addon-svelte-csf";
   import { renderInsideMain } from "../decorators/layout-decorators";
   import { brandingModes } from "../../../.storybook/modes";
+  import type { ComponentProps } from "svelte";
 
   let { Story } = defineMeta({
     component: Typography,
@@ -35,17 +32,16 @@
         modes: brandingModes,
       },
     },
+    render: (args: Args, context: Context) => template(args, context),
   });
 
   const baseContent = "The quick brown fox jumps over the lazy dog";
+  type Args = ComponentProps<typeof Typography>;
+  type Context = StoryContext<typeof Typography>;
 </script>
 
-<script lang="ts">
-  setTemplate(template);
-</script>
-
-{#snippet template({ size = "body-base" }: Args<typeof Story>)}
-  <Typography {size}>
+{#snippet template(args: Args, _context: Context)}
+  <Typography size={args.size ?? "body-base"}>
     {#snippet children()}
       Default text
     {/snippet}

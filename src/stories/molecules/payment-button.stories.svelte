@@ -1,10 +1,6 @@
-<script module>
+<script module lang="ts">
   import PaymentButton from "../../ui/molecules/payment-button.svelte";
-  import {
-    type Args,
-    defineMeta,
-    setTemplate,
-  } from "@storybook/addon-svelte-csf";
+  import { defineMeta, type StoryContext } from "@storybook/addon-svelte-csf";
   import { renderInsideMain } from "../decorators/layout-decorators";
   import { brandingModes } from "../../../.storybook/modes";
   import {
@@ -12,6 +8,7 @@
     subscriptionOptionWithTrial,
     priceBreakdownTaxDisabled,
   } from "../fixtures";
+  import type { ComponentProps } from "svelte";
 
   let { Story } = defineMeta({
     component: PaymentButton,
@@ -23,14 +20,13 @@
         modes: brandingModes,
       },
     },
+    render: (args: Args, context: Context) => template(args, context),
   });
+  type Args = ComponentProps<typeof PaymentButton>;
+  type Context = StoryContext<typeof PaymentButton>;
 </script>
 
-<script lang="ts">
-  setTemplate(template);
-</script>
-
-{#snippet template(args: Args<typeof Story>)}
+{#snippet template(args: Args, _context: Context)}
   <PaymentButton
     disabled={args.disabled ?? false}
     subscriptionOption={args.subscriptionOption ?? subscriptionOption}

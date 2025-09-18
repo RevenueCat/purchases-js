@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import Icon from "../../../assets/error.svg?raw"; // Load SVG as a raw string
 </script>
 

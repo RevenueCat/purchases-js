@@ -1,13 +1,14 @@
-<script module>
+<script module lang="ts">
   import { brandingModes } from "../../../.storybook/modes";
-  import { defineMeta, setTemplate } from "@storybook/addon-svelte-csf";
+  import { defineMeta } from "@storybook/addon-svelte-csf";
   import { renderInsideNavbarBody } from "../decorators/layout-decorators";
   import ProductHeader from "../../ui/molecules/product-header.svelte";
-  import { product, colorfulBrandingAppearance } from "../fixtures";
+  import { product } from "../fixtures";
 
   const { Story } = defineMeta({
     component: ProductHeader,
     title: "Molecules/ProductHeader",
+    // @ts-expect-error ignore typing of decorator
     decorators: [renderInsideNavbarBody],
     parameters: {
       chromatic: {

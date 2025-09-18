@@ -1,4 +1,4 @@
-<script module>
+<script module lang="ts">
   import { type Component } from "svelte";
   import {
     type Direction,
@@ -25,13 +25,13 @@
     | "back"
     | "close";
 
-  const iconMap: Record<IconName, Component<{ direction?: Direction }>> = {
-    cart: IconCart,
-    error: IconError,
-    lock: IconLock,
-    success: IconSuccess,
+  const iconMap: Record<IconName, Component<{ direction?: Direction } | {}>> = {
+    cart: IconCart as Component<{}>,
+    error: IconError as Component<{}>,
+    lock: IconLock as Component<{}>,
+    success: IconSuccess as Component<{}>,
     back: IconBack,
-    info: IconInfo,
+    info: IconInfo as Component<{}>,
     close: IconClose,
     "chevron-left": IconChevron as Component<{ direction?: Direction }>,
     "chevron-right": IconChevron as Component<{ direction?: Direction }>,

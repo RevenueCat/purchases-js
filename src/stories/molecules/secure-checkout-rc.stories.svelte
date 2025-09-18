@@ -1,6 +1,6 @@
-<script module>
+<script module lang="ts">
   import { brandingModes } from "../../../.storybook/modes";
-  import { defineMeta, setTemplate } from "@storybook/addon-svelte-csf";
+  import { defineMeta } from "@storybook/addon-svelte-csf";
   import { renderInsideNavbarBody } from "../decorators/layout-decorators";
   import SecureCheckoutRC from "../../ui/molecules/secure-checkout-rc.svelte";
   import { brandingInfo } from "../fixtures";
@@ -17,6 +17,7 @@
   const { Story } = defineMeta({
     component: SecureCheckoutRC,
     title: "Molecules/SecureCheckoutRC",
+    // @ts-expect-error ignore typing of decorator
     decorators: [renderInsideNavbarBody],
     parameters: {
       chromatic: {
