@@ -1,8 +1,10 @@
 <script lang="ts">
   import Icon from "../atoms/icon.svelte";
+
+  let { disabled = false } = $props();
 </script>
 
-<button on:click class="rcb-back-button" data-testid="close-button">
+<button on:click {disabled} class="rcb-back-button" data-testid="close-button">
   <Icon name="back" />
 </button>
 

@@ -1,12 +1,9 @@
-<script module>
+<script module lang="ts">
   import { default as Dropdown } from "../../ui/molecules/pricing-dropdown.svelte";
-  import {
-    type Args,
-    defineMeta,
-    setTemplate,
-  } from "@storybook/addon-svelte-csf";
+  import { defineMeta, type StoryContext } from "@storybook/addon-svelte-csf";
   import { renderInsideNavbarBody } from "../decorators/layout-decorators";
   import { mobileAndDesktopBrandingModes } from "../../../.storybook/modes";
+  import type { ComponentProps } from "svelte";
 
   let { Story } = defineMeta({
     component: Dropdown,
@@ -18,15 +15,15 @@
         modes: mobileAndDesktopBrandingModes,
       },
     },
+    // @ts-expect-error ignore importing before initializing
+    render: template,
   });
+  type Args = ComponentProps<typeof Dropdown>;
+  type Context = StoryContext<typeof Dropdown>;
 </script>
 
-<script lang="ts">
-  setTemplate(template);
-</script>
-
-{#snippet template({ ...props }: Args<typeof Story>)}
-  <Dropdown isExpanded={props.isExpanded ?? true}>
+{#snippet template(args: Args, _context: Context)}
+  <Dropdown isExpanded={args.isExpanded ?? true}>
     {#snippet children()}
       <p>
         This is the dropdown content.<br />

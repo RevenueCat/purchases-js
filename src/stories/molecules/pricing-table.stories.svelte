@@ -1,10 +1,6 @@
-<script module>
+<script module lang="ts">
   import PricingTable from "../../ui/molecules/pricing-table.svelte";
-  import {
-    type Args,
-    defineMeta,
-    setTemplate,
-  } from "@storybook/addon-svelte-csf";
+  import { defineMeta, type StoryContext } from "@storybook/addon-svelte-csf";
   import { renderInsideNavbarBody } from "../decorators/layout-decorators";
   import { brandingModes } from "../../../.storybook/modes";
   import {
@@ -17,6 +13,7 @@
     priceBreakdownTaxPending,
     subscriptionOptionWithTrial,
   } from "../fixtures";
+  import type { ComponentProps } from "svelte";
 
   let { Story } = defineMeta({
     component: PricingTable,
@@ -28,14 +25,14 @@
         modes: brandingModes,
       },
     },
+    // @ts-expect-error ignore importing before initializing
+    render: template,
   });
+  type Args = ComponentProps<typeof PricingTable>;
+  type Context = StoryContext<typeof PricingTable>;
 </script>
 
-<script lang="ts">
-  setTemplate(template);
-</script>
-
-{#snippet template(args: Args<typeof Story>)}
+{#snippet template(args: Args, _context: Context)}
   <PricingTable
     priceBreakdown={args.priceBreakdown ?? priceBreakdownTaxDisabled}
     trialPhase={args.trialPhase ?? null}

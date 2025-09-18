@@ -1,10 +1,5 @@
 <script module lang="ts">
-  import {
-    type Args,
-    defineMeta,
-    setTemplate,
-    type StoryContext,
-  } from "@storybook/addon-svelte-csf";
+  import { defineMeta, type StoryContext } from "@storybook/addon-svelte-csf";
   import PurchasesInner from "../../ui/purchases-ui-inner.svelte";
   import { brandingLanguageViewportModes } from "../../../.storybook/modes";
   import {
@@ -24,6 +19,7 @@
   };
 
   let { Story } = defineMeta({
+    component: PurchasesInner,
     title: "Pages/ErrorPage",
     args: defaultArgs,
     parameters: {
@@ -34,16 +30,20 @@
         modes: brandingLanguageViewportModes,
       },
     },
+    // @ts-expect-error ignore importing before initializing
+    render: template,
   });
-</script>
-
-<script lang="ts">
-  setTemplate(template);
+  type StoryArgs = {
+    productDetails: typeof product;
+    purchaseOptionToUse: typeof subscriptionOption;
+    purchaseOption: typeof subscriptionOption;
+    lastError: (typeof purchaseFlowErrors)[keyof typeof purchaseFlowErrors];
+  };
 </script>
 
 {#snippet template(
-  args: Args<typeof Story>,
-  context: StoryContext<typeof Story>,
+  args: StoryArgs,
+  context: StoryContext<typeof PurchasesInner>,
 )}
   {@const brandingInfo = { ...brandingInfos[context.globals.brandingName] }}
   <PurchasesInner

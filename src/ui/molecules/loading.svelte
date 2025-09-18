@@ -1,7 +1,5 @@
-<script>
+<script lang="ts">
   import Spinner from "../atoms/spinner.svelte";
-
-  let style = "";
 </script>
 
 <div class="rcb-modal-loader">

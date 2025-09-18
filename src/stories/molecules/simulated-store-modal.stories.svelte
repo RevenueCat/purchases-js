@@ -1,12 +1,9 @@
-<script module>
+<script module lang="ts">
   import SimulatedStoreModal from "../../ui/molecules/simulated-store-modal.svelte";
   import { renderInsideMain } from "../decorators/layout-decorators";
   import { brandingModes } from "../../../.storybook/modes";
-  import {
-    type Args,
-    defineMeta,
-    setTemplate,
-  } from "@storybook/addon-svelte-csf";
+  import { defineMeta, type StoryContext } from "@storybook/addon-svelte-csf";
+  import type { ComponentProps } from "svelte";
 
   let { Story } = defineMeta({
     component: SimulatedStoreModal,
@@ -18,11 +15,11 @@
         modes: brandingModes,
       },
     },
+    // @ts-expect-error ignore importing before initializing
+    render: template,
   });
-</script>
-
-<script lang="ts">
-  setTemplate(template);
+  type Args = ComponentProps<typeof SimulatedStoreModal>;
+  type Context = StoryContext<typeof SimulatedStoreModal>;
 
   // Mock callback functions for the stories
   const mockValidPurchase = () => console.log("Valid purchase clicked");
@@ -30,7 +27,7 @@
   const mockCancel = () => console.log("Cancel clicked");
 </script>
 
-{#snippet template(args: Args<typeof Story>)}
+{#snippet template(args: Args, _context: Context)}
   <SimulatedStoreModal
     productIdentifier={args.productIdentifier ?? "test_product_123"}
     productType={args.productType ?? "subscription"}

@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import Typography from "./typography.svelte";
   export let text;
 </script>
