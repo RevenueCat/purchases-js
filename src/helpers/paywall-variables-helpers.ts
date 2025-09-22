@@ -12,6 +12,37 @@ import { type Translator } from "../ui/localization/translator";
 
 import { LocalizationKeys } from "../ui/localization/supportedLanguages";
 
+// Conversion constants for consistent pricing calculations
+const WEEKS_PER_MONTH = 4.33; // More accurate: 52 weeks / 12 months
+const DAYS_PER_MONTH = 30;
+const MONTHS_PER_YEAR = 12;
+
+// Helper function to get monthly equivalent price for any package
+function getPackageMonthlyPrice(pkg: Package): number {
+  const price = pkg.webBillingProduct.price;
+  const product = getProductPerType(pkg);
+  const period =
+    pkg.webBillingProduct.period ||
+    (product as SubscriptionOption)?.base?.period;
+
+  if (!period || !period.number || period.number <= 0) {
+    return price.amountMicros;
+  }
+
+  switch (period.unit) {
+    case "year":
+      return price.amountMicros / MONTHS_PER_YEAR;
+    case "month":
+      return price.amountMicros / period.number;
+    case "week":
+      return (price.amountMicros * WEEKS_PER_MONTH) / period.number;
+    case "day":
+      return (price.amountMicros * DAYS_PER_MONTH) / period.number;
+    default:
+      return price.amountMicros / (period.number || 1);
+  }
+}
+
 function getProductPerType(pkg: Package): PurchaseOption | undefined | null {
   return pkg.webBillingProduct.defaultPurchaseOption;
 }
@@ -20,19 +51,22 @@ function getPricePerPeriod(
   formattedPrice: string,
   product: SubscriptionOption,
   translator: Translator,
-  full: boolean = false,
 ) {
   return translator.translate(LocalizationKeys.PaywallVariablesPricePerPeriod, {
     formattedPrice,
     period: product.base.period
-      ? translator.translatePeriod(
-          product.base.period.number,
-          product.base.period.unit,
-          {
+      ? product.base.period.number === 1
+        ? translator.translatePeriodUnit(product.base.period.unit, {
             noWhitespace: true,
-            short: !full,
-          },
-        )
+          })
+        : translator.translatePeriod(
+            product.base.period.number,
+            product.base.period.unit,
+            {
+              noWhitespace: true,
+              short: false,
+            },
+          )
       : "",
   });
 }
@@ -59,11 +93,14 @@ function getPricePerWeek({
   if (!period) return fallback;
 
   if (period.unit === "year") {
-    return translator.formatPrice(price.amountMicros / 12 / 4, price.currency);
+    return translator.formatPrice(
+      price.amountMicros / MONTHS_PER_YEAR / WEEKS_PER_MONTH,
+      price.currency,
+    );
   }
   if (period.unit === "month") {
     return translator.formatPrice(
-      price.amountMicros / period.number,
+      (price.amountMicros * WEEKS_PER_MONTH) / period.number,
       price.currency,
     );
   }
@@ -93,13 +130,23 @@ export function getPricePerMonth({
   translator: Translator;
   full?: boolean;
 }) {
-  const fallback = translator.formatPrice(price.amountMicros, price.currency);
-  if (!period || !period.number) return fallback;
+  // Check if price is valid
+  if (!price || price.amountMicros === 0 || !price.currency) {
+    return "N/A";
+  }
+
+  // If no period info, assume it's a monthly price
+  if (!period || !period.number || period.number <= 0) {
+    return translator.formatPrice(price.amountMicros, price.currency);
+  }
 
   if (period.unit === "year") {
-    return translator.formatPrice(price.amountMicros / 12, price.currency);
+    return translator.formatPrice(
+      price.amountMicros / MONTHS_PER_YEAR,
+      price.currency,
+    );
   }
-  if (period.unit === "month" && period.number > 1) {
+  if (period.unit === "month") {
     return translator.formatPrice(
       price.amountMicros / period.number,
       price.currency,
@@ -107,18 +154,22 @@ export function getPricePerMonth({
   }
   if (period.unit === "week") {
     return translator.formatPrice(
-      (price.amountMicros * 4) / period.number,
+      (price.amountMicros * WEEKS_PER_MONTH) / period.number,
       price.currency,
     );
   }
   if (period.unit === "day") {
     return translator.formatPrice(
-      (price.amountMicros * 30) / period.number,
+      (price.amountMicros * DAYS_PER_MONTH) / period.number,
       price.currency,
     );
   }
 
-  return fallback;
+  // Fallback: treat as monthly if unit is unrecognized
+  return translator.formatPrice(
+    price.amountMicros / (period.number || 1),
+    price.currency,
+  );
 }
 
 function getTotalPriceAndPerMonth({
@@ -144,7 +195,7 @@ function getTotalPriceAndPerMonth({
   switch (period.unit) {
     case PeriodUnit.Year:
       pricePerMonth = translator.formatPrice(
-        price.amountMicros / 12,
+        price.amountMicros / MONTHS_PER_YEAR,
         price.currency,
       );
       break;
@@ -158,14 +209,14 @@ function getTotalPriceAndPerMonth({
 
     case PeriodUnit.Week:
       pricePerMonth = translator.formatPrice(
-        (price.amountMicros * 4) / period.number,
+        (price.amountMicros * WEEKS_PER_MONTH) / period.number,
         price.currency,
       );
       break;
 
     case PeriodUnit.Day:
       pricePerMonth = translator.formatPrice(
-        (price.amountMicros * 30) / period.number,
+        (price.amountMicros * DAYS_PER_MONTH) / period.number,
         price.currency,
       );
       break;
@@ -196,12 +247,11 @@ export function parseOfferingIntoVariables(
   translator: Translator,
 ): Record<string, VariableDictionary> {
   const packages = offering.availablePackages;
+
   const highestPricePackage = packages.reduce((prev, current) => {
-    const prevPrice =
-      prev.webBillingProduct.price || prev.webBillingProduct.price;
-    const currentPrice =
-      current.webBillingProduct.price || current.webBillingProduct.price;
-    return prevPrice.amountMicros > currentPrice.amountMicros ? prev : current;
+    const prevMonthlyPrice = getPackageMonthlyPrice(prev);
+    const currentMonthlyPrice = getPackageMonthlyPrice(current);
+    return prevMonthlyPrice > currentMonthlyPrice ? prev : current;
   });
 
   return packages.reduce(
@@ -223,7 +273,7 @@ function parsePackageIntoVariables(
   translator: Translator,
 ) {
   const webBillingProduct = pkg.webBillingProduct;
-  const productPrice = webBillingProduct.price || webBillingProduct.price;
+  const productPrice = webBillingProduct.price;
   const formattedPrice = translator.formatPrice(
     productPrice.amountMicros,
     productPrice.currency,
@@ -250,6 +300,9 @@ function parsePackageIntoVariables(
     sub_offer_price: undefined,
     sub_offer_price_2: undefined, // doesn't apply - only google play
     sub_relative_discount: "",
+    relative_discount: "",
+    periodly: "",
+    price_per_month: "",
   };
   if (productType === ProductType.Subscription && product) {
     baseObject.price_per_period = getPricePerPeriod(
@@ -257,12 +310,7 @@ function parsePackageIntoVariables(
       product as SubscriptionOption,
       translator,
     );
-    baseObject.price_per_period_full = getPricePerPeriod(
-      formattedPrice,
-      product as SubscriptionOption,
-      translator,
-      true,
-    );
+    baseObject.price_per_period_full = baseObject.price_per_period;
 
     const basePeriod =
       webBillingProduct.period || (product as SubscriptionOption).base.period;
@@ -285,6 +333,7 @@ function parsePackageIntoVariables(
       period: basePeriod,
       translator,
     });
+    baseObject.price_per_month = baseObject.sub_price_per_month;
 
     baseObject.sub_price_per_week = getPricePerWeek({
       price: productPrice,
@@ -320,18 +369,16 @@ function parsePackageIntoVariables(
         })
       : undefined;
 
-    const packagePrice = productPrice.amountMicros;
-    const highestPrice = (
-      highestPricePackage.webBillingProduct.price ||
-      highestPricePackage.webBillingProduct.price
-    ).amountMicros;
+    // Calculate discount based on monthly equivalent prices
+    const packageMonthlyPrice = getPackageMonthlyPrice(pkg);
+    const highestMonthlyPrice = getPackageMonthlyPrice(highestPricePackage);
     const discount = (
-      ((highestPrice - packagePrice) * 100) /
-      highestPrice
+      ((highestMonthlyPrice - packageMonthlyPrice) * 100) /
+      highestMonthlyPrice
     ).toFixed(0);
 
     baseObject.sub_relative_discount =
-      packagePrice === highestPrice
+      packageMonthlyPrice === highestMonthlyPrice
         ? ""
         : translator.translate(
             LocalizationKeys.PaywallVariablesSubRelativeDiscount,
@@ -339,6 +386,27 @@ function parsePackageIntoVariables(
               discount: discount,
             },
           );
+    baseObject.relative_discount = baseObject.sub_relative_discount;
+
+    // Set periodly based on period unit
+    if (basePeriod) {
+      switch (basePeriod.unit) {
+        case PeriodUnit.Year:
+          baseObject.periodly = "Yearly";
+          break;
+        case PeriodUnit.Month:
+          baseObject.periodly = "Monthly";
+          break;
+        case PeriodUnit.Week:
+          baseObject.periodly = "Weekly";
+          break;
+        case PeriodUnit.Day:
+          baseObject.periodly = "Daily";
+          break;
+        default:
+          baseObject.periodly = "";
+      }
+    }
   }
 
   if (
@@ -368,5 +436,5 @@ function parsePackageIntoVariables(
     baseObject.sub_period_abbreviated = undefined;
   }
 
-  return baseObject;
+  return { ...baseObject, product: baseObject };
 }
