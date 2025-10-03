@@ -1,4 +1,5 @@
 import type { PaywallData } from "@revenuecat/purchases-ui-js";
+import type { UIConfig } from "../../../../purchases-ui-js/.svelte-kit/__package__/data/entities";
 
 export interface PackageResponse {
   identifier: string;
@@ -28,4 +29,5 @@ export interface OfferingsResponse {
   offerings: OfferingResponse[];
   targeting?: TargetingResponse;
   placements?: PlacementsResponse;
+  ui_config: UIConfig;
 }

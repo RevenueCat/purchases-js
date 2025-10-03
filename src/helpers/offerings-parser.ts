@@ -124,6 +124,7 @@ export function toOfferings(
     const offering = toOffering(
       isCurrent,
       o,
+      offeringsData.ui_config,
       productsMap,
       offeringsData.targeting,
     );
