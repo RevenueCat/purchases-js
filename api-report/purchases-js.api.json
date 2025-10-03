@@ -1,7 +1,7 @@
 {
   "metadata": {
     "toolPackage": "@microsoft/api-extractor",
-    "toolVersion": "7.49.0",
+    "toolVersion": "7.52.13",
     "schemaVersion": 1011,
     "oldestForwardsCompatibleVersion": 1001,
     "tsdocConfig": {
@@ -173,6 +173,90 @@
       "name": "",
       "preserveMemberOrder": false,
       "members": [
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "@revenuecat/purchases-js!~AppFontFamilyConfig:type",
+          "docComment": "",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "declare type AppFontFamilyConfig = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    type: \"name\" | \"url\";\n    value?: string;\n    family: string;\n    hash: string;\n    style: string;\n    url: string;\n    weight: number;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "name": "AppFontFamilyConfig",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "@revenuecat/purchases-js!~AppFontsConfig:type",
+          "docComment": "",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "declare type AppFontsConfig = "
+            },
+            {
+              "kind": "Reference",
+              "text": "Record",
+              "canonicalReference": "!Record:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<string, {\n    ios?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "AppFontFamilyConfig",
+              "canonicalReference": "@revenuecat/purchases-js!~AppFontFamilyConfig:type"
+            },
+            {
+              "kind": "Content",
+              "text": ";\n    android?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "AppFontFamilyConfig",
+              "canonicalReference": "@revenuecat/purchases-js!~AppFontFamilyConfig:type"
+            },
+            {
+              "kind": "Content",
+              "text": ";\n    web?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "AppFontFamilyConfig",
+              "canonicalReference": "@revenuecat/purchases-js!~AppFontFamilyConfig:type"
+            },
+            {
+              "kind": "Content",
+              "text": ";\n}>"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "name": "AppFontsConfig",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 9
+          }
+        },
         {
           "kind": "Interface",
           "canonicalReference": "@revenuecat/purchases-js!BrandingAppearance:interface",
@@ -2914,6 +2998,34 @@
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 3
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!Offering#ui_config:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly ui_config?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "UIConfig",
+                  "canonicalReference": "@revenuecat/purchases-js!~UIConfig:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "ui_config",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
               }
             },
             {
@@ -8723,6 +8835,41 @@
             }
           ],
           "extendsTokenRanges": []
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "@revenuecat/purchases-js!~UIConfig:type",
+          "docComment": "",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "declare type UIConfig = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n               app: {\n                   fonts: "
+            },
+            {
+              "kind": "Reference",
+              "text": "AppFontsConfig",
+              "canonicalReference": "@revenuecat/purchases-js!~AppFontsConfig:type"
+            },
+            {
+              "kind": "Content",
+              "text": ";\n               };\n           }"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "name": "UIConfig",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 4
+          }
         },
         {
           "kind": "Class",

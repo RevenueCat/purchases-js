@@ -6,6 +6,24 @@
 
 import { PaywallData } from '@revenuecat/purchases-ui-js';
 
+// @public (undocumented)
+type AppFontFamilyConfig = {
+    type: "name" | "url";
+    value?: string;
+    family: string;
+    hash: string;
+    style: string;
+    url: string;
+    weight: number;
+};
+
+// @public (undocumented)
+type AppFontsConfig = Record<string, {
+    ios?: AppFontFamilyConfig;
+    android?: AppFontFamilyConfig;
+    web?: AppFontFamilyConfig;
+}>;
+
 // @public
 export interface BrandingAppearance {
     // (undocumented)
@@ -201,6 +219,10 @@ export interface Offering {
     readonly sixMonth: Package | null;
     readonly threeMonth: Package | null;
     readonly twoMonth: Package | null;
+    // Warning: (ae-forgotten-export) The symbol "UIConfig" needs to be exported by the entry point Purchases.es.d.ts
+    //
+    // (undocumented)
+    readonly ui_config?: UIConfig;
     readonly weekly: Package | null;
 }
 
@@ -518,6 +540,13 @@ export interface TargetingContext {
     readonly ruleId: string;
 }
 
+// @public (undocumented)
+type UIConfig = {
+    app: {
+        fonts: AppFontsConfig;
+    };
+};
+
 // @public
 export class UninitializedPurchasesError extends Error {
     constructor();
@@ -537,6 +566,11 @@ export interface VirtualCurrency {
     readonly name: string;
     readonly serverDescription: string | null;
 }
+
+// Warnings were encountered during analysis:
+//
+// dist/Purchases.es.d.ts:14:5 - (ae-forgotten-export) The symbol "AppFontFamilyConfig" needs to be exported by the entry point Purchases.es.d.ts
+// dist/Purchases.es.d.ts:1501:20 - (ae-forgotten-export) The symbol "AppFontsConfig" needs to be exported by the entry point Purchases.es.d.ts
 
 // (No @packageDocumentation comment for this package)
 
