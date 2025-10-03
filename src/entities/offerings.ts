@@ -409,8 +409,17 @@ export interface Offering {
    */
   readonly weekly: Package | null;
 
+  /**
+   * The paywall components configured in the RevenueCat dashboard, if available.
+   * @internal
+   */
   readonly paywall_components: PaywallData | null;
 
+  /**
+   * The UI configuration needed to render the paywall components, usually set
+   * together
+   * @internal
+   */
   readonly ui_config?: UIConfig;
 }
 
