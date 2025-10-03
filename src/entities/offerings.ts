@@ -19,6 +19,7 @@ import {
   PeriodUnit,
 } from "../helpers/duration-helper";
 import type { PaywallData } from "@revenuecat/purchases-ui-js";
+import type { UIConfig } from "../../../purchases-ui-js/.svelte-kit/__package__/data/entities";
 
 /**
  * Enumeration of all possible Package types.
@@ -409,6 +410,8 @@ export interface Offering {
   readonly weekly: Package | null;
 
   readonly paywall_components: PaywallData | null;
+
+  readonly ui_config: UIConfig;
 }
 
 /**
@@ -730,6 +733,7 @@ const toPackage = (
 export const toOffering = (
   isCurrentOffering: boolean,
   offeringsData: OfferingResponse,
+  uiConfig: UIConfig,
   productDetailsData: { [productId: string]: ProductResponse },
   targetingResponse?: TargetingResponse,
 ): Offering | null => {
@@ -770,6 +774,7 @@ export const toOffering = (
     monthly: packagesById[PackageType.Monthly] ?? null,
     weekly: packagesById[PackageType.Weekly] ?? null,
     paywall_components: offeringsData.paywall_components,
+    ui_config: uiConfig,
   };
 };
 
