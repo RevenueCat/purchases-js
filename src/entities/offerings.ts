@@ -411,7 +411,7 @@ export interface Offering {
 
   readonly paywall_components: PaywallData | null;
 
-  readonly ui_config: UIConfig;
+  readonly ui_config?: UIConfig;
 }
 
 /**
@@ -733,9 +733,9 @@ const toPackage = (
 export const toOffering = (
   isCurrentOffering: boolean,
   offeringsData: OfferingResponse,
-  uiConfig: UIConfig,
   productDetailsData: { [productId: string]: ProductResponse },
   targetingResponse?: TargetingResponse,
+  uiConfig?: UIConfig,
 ): Offering | null => {
   const presentedOfferingContext: PresentedOfferingContext = {
     offeringIdentifier: offeringsData.identifier,
@@ -760,6 +760,7 @@ export const toOffering = (
     }
   }
   if (packages.length == 0) return null;
+
   return {
     identifier: offeringsData.identifier,
     serverDescription: offeringsData.description,
