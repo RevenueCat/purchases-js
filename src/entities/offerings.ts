@@ -18,8 +18,7 @@ import {
   type Period,
   PeriodUnit,
 } from "../helpers/duration-helper";
-import type { PaywallData } from "@revenuecat/purchases-ui-js";
-import type { UIConfig } from "../../../purchases-ui-js/.svelte-kit/__package__/data/entities";
+import type { PaywallData, UIConfig } from "@revenuecat/purchases-ui-js";
 
 /**
  * Enumeration of all possible Package types.
