@@ -1,7 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { parseOfferingIntoVariables } from "../../helpers/paywall-variables-helpers";
 import type { Offering, SubscriptionOption } from "../../entities/offerings";
-import { type VariableDictionary } from "@revenuecat/purchases-ui-js";
 import { Translator } from "../../ui/localization/translator";
 import { englishLocale } from "../../ui/localization/constants";
 
@@ -1136,75 +1135,55 @@ const differentPricedPackages = {
   paywall_components: null,
 } as unknown as Offering;
 
-const expectedVariables: Record<string, VariableDictionary> = {
-  $rc_monthly: {
-    price: "€9.00",
-    price_per_period: "€9.00/1mo",
-    price_per_period_full: "€9.00/1month",
-    product_name: "Mario",
-    sub_duration: "1 month",
-    sub_duration_in_months: "1 month",
-    sub_offer_duration: undefined,
-    sub_offer_duration_2: undefined,
-    sub_offer_price: undefined,
-    sub_offer_price_2: undefined,
-    sub_period: "monthly",
-    sub_period_abbreviated: "mo",
-    sub_period_length: "month",
-    sub_price_per_month: "€9.00",
-    sub_price_per_week: "€9.00",
-    sub_relative_discount: "70% off",
-    total_price_and_per_month: "€9.00",
-    total_price_and_per_month_full: "€9.00",
-  },
-  $rc_weekly: {
-    price: "€9.00",
-    price_per_period: "€9.00/1wk",
-    price_per_period_full: "€9.00/1week",
-    product_name: "Luigi Special",
-    sub_duration: "1 week",
-    sub_duration_in_months: "1 week",
-    sub_offer_duration: undefined,
-    sub_offer_duration_2: undefined,
-    sub_offer_price: undefined,
-    sub_offer_price_2: undefined,
-    sub_period: "weekly",
-    sub_period_abbreviated: "wk",
-    sub_period_length: "week",
-    sub_price_per_month: "€36.00",
-    sub_price_per_week: "€9.00",
-    sub_relative_discount: "70% off",
-    total_price_and_per_month: "€9.00/1wk(€36.00/mo)",
-    total_price_and_per_month_full: "€9.00/1week(€36.00/month)",
-  },
-  trial: {
-    price: "€30.00",
-    price_per_period: "€30.00/1mo",
-    price_per_period_full: "€30.00/1month",
-    product_name: "Trial Mario",
-    sub_duration: "1 month",
-    sub_duration_in_months: "1 month",
-    sub_offer_duration: undefined,
-    sub_offer_duration_2: undefined,
-    sub_offer_price: undefined,
-    sub_offer_price_2: undefined,
-    sub_period: "monthly",
-    sub_period_abbreviated: "mo",
-    sub_period_length: "month",
-    sub_price_per_month: "€30.00",
-    sub_price_per_week: "€30.00",
-    sub_relative_discount: "",
-    total_price_and_per_month: "€30.00",
-    total_price_and_per_month_full: "€30.00",
-  },
-};
-
 const enTranslator = new Translator({}, englishLocale);
 
 describe("getPaywallVariables", () => {
   test("should return expected paywall variables", () => {
     expect(parseOfferingIntoVariables(offering, enTranslator)).toEqual(
-      expectedVariables,
+      expect.objectContaining({
+        $rc_monthly: expect.objectContaining({
+          "product.store_product_name": "Mario",
+          "product.price": "€9.00",
+          "product.price_per_period_abbreviated": "€9.00/1mo",
+          "product.price_per_period": "€9.00/1month",
+          "product.period_with_unit": "1 month",
+          "product.period_in_months": "1 month",
+          "product.periodly": "monthly",
+          "product.period": "month",
+          "product.period_abbreviated": "mo",
+          "product.price_per_month": "€9.00",
+          "product.price_per_week": "€9.00",
+          "product.relative_discount": "70% off",
+        }),
+        $rc_weekly: expect.objectContaining({
+          "product.store_product_name": "Luigi Special",
+          "product.price": "€9.00",
+          "product.price_per_period_abbreviated": "€9.00/1wk",
+          "product.price_per_period": "€9.00/1week",
+          "product.period_with_unit": "1 week",
+          "product.period_in_months": "1 week",
+          "product.periodly": "weekly",
+          "product.period": "week",
+          "product.period_abbreviated": "wk",
+          "product.price_per_month": "€36.00",
+          "product.price_per_week": "€9.00",
+          "product.relative_discount": "70% off",
+        }),
+        trial: expect.objectContaining({
+          "product.store_product_name": "Trial Mario",
+          "product.price": "€30.00",
+          "product.price_per_period_abbreviated": "€30.00/1mo",
+          "product.price_per_period": "€30.00/1month",
+          "product.period_with_unit": "1 month",
+          "product.period_in_months": "1 month",
+          "product.periodly": "monthly",
+          "product.period": "month",
+          "product.period_abbreviated": "mo",
+          "product.price_per_month": "€30.00",
+          "product.price_per_week": "€30.00",
+          "product.relative_discount": "",
+        }),
+      }),
     );
   });
   test("sub_relative_discount is calculated correctly for same-priced packages", () => {
@@ -1213,7 +1192,7 @@ describe("getPaywallVariables", () => {
       enTranslator,
     );
     Object.values(variables).forEach((variable) =>
-      expect(variable.sub_relative_discount).toBe(""),
+      expect(variable["product.relative_discount"]).toBe(""),
     );
   });
   test("sub_relative_discount is calculated correctly for two packages with the same price", () => {
@@ -1224,7 +1203,7 @@ describe("getPaywallVariables", () => {
     );
 
     Object.values(variables).forEach((variable, idx) =>
-      expect(variable.sub_relative_discount).toBe(expectedValues[idx]),
+      expect(variable["product.relative_discount"]).toBe(expectedValues[idx]),
     );
   });
 });

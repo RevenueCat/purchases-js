@@ -124,9 +124,9 @@ export function toOfferings(
     const offering = toOffering(
       isCurrent,
       o,
-      offeringsData.ui_config,
       productsMap,
       offeringsData.targeting,
+      offeringsData.ui_config,
     );
     if (offering != null) {
       allOfferings[o.identifier] = offering;
