@@ -18,7 +18,7 @@ import {
   type Period,
   PeriodUnit,
 } from "../helpers/duration-helper";
-import type { PaywallData } from "@revenuecat/purchases-ui-js";
+import type { PaywallData, UIConfig } from "@revenuecat/purchases-ui-js";
 
 /**
  * Enumeration of all possible Package types.
@@ -408,7 +408,18 @@ export interface Offering {
    */
   readonly weekly: Package | null;
 
+  /**
+   * The paywall components configured in the RevenueCat dashboard, if available.
+   * @internal
+   */
   readonly paywall_components: PaywallData | null;
+
+  /**
+   * The UI configuration needed to render the paywall components, usually set
+   * together
+   * @internal
+   */
+  readonly ui_config?: UIConfig;
 }
 
 /**
@@ -732,6 +743,7 @@ export const toOffering = (
   offeringsData: OfferingResponse,
   productDetailsData: { [productId: string]: ProductResponse },
   targetingResponse?: TargetingResponse,
+  uiConfig?: UIConfig,
 ): Offering | null => {
   const presentedOfferingContext: PresentedOfferingContext = {
     offeringIdentifier: offeringsData.identifier,
@@ -756,6 +768,7 @@ export const toOffering = (
     }
   }
   if (packages.length == 0) return null;
+
   return {
     identifier: offeringsData.identifier,
     serverDescription: offeringsData.description,
@@ -770,6 +783,7 @@ export const toOffering = (
     monthly: packagesById[PackageType.Monthly] ?? null,
     weekly: packagesById[PackageType.Weekly] ?? null,
     paywall_components: offeringsData.paywall_components,
+    ui_config: uiConfig,
   };
 };
 

@@ -29,7 +29,7 @@ import {
   type PurchaseFlowError,
   PurchaseOperationHelper,
 } from "./helpers/purchase-operation-helper";
-import { type LogLevel, type LogHandler } from "./entities/logging";
+import { type LogHandler, type LogLevel } from "./entities/logging";
 import { Logger } from "./helpers/logger";
 import {
   validateAdditionalHeaders,
@@ -448,6 +448,12 @@ export class Purchases {
       throw new Error("You cannot use paywalls yet, they are coming soon!");
     }
 
+    if (!offering.ui_config) {
+      throw new Error(
+        "No ui_config found for this offering, please contact support!",
+      );
+    }
+
     const selectedLocale = paywallParams.selectedLocale || navigator.language;
 
     const translator = new Translator(
@@ -514,6 +520,7 @@ export class Purchases {
           selectedLocale: selectedLocale,
           onNavigateToUrlClicked: navigateToUrl,
           onVisitCustomerCenterClicked: onVisitCustomerCenterClicked,
+          uiConfig: offering.ui_config!,
           onBackClicked: () => {
             if (paywallParams.onBack) {
               paywallParams.onBack();

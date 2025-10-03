@@ -126,6 +126,7 @@ export function toOfferings(
       o,
       productsMap,
       offeringsData.targeting,
+      offeringsData.ui_config,
     );
     if (offering != null) {
       allOfferings[o.identifier] = offering;
