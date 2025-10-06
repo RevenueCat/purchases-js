@@ -19,6 +19,7 @@
     subscriptionOptionWithMultipleMonthsIntroPriceRecurring,
     subscriptionOptionWithMultipleWeeksIntroPriceRecurring,
     subscriptionOptionWithMultipleYearsIntroPriceRecurring,
+    subscriptionOptionWithSingleWeekWithTrialAndIntroPriceRecurring,
   } from "../fixtures";
 
   import { parseISODuration } from "../../helpers/duration-helper";
@@ -257,5 +258,18 @@
     basePhase: subscriptionOptionWithMultipleYearsIntroPriceRecurring.base,
     introPricePhase:
       subscriptionOptionWithMultipleYearsIntroPriceRecurring.introPrice,
+  }}
+/>
+
+<Story
+  name="Intro Price - Single Week with Trial"
+  args={{
+    priceBreakdown: priceBreakdownTaxDisabledIntroPriceRecurring,
+    basePhase:
+      subscriptionOptionWithSingleWeekWithTrialAndIntroPriceRecurring.base,
+    trialPhase:
+      subscriptionOptionWithSingleWeekWithTrialAndIntroPriceRecurring.trial,
+    introPricePhase:
+      subscriptionOptionWithSingleWeekWithTrialAndIntroPriceRecurring.introPrice,
   }}
 />

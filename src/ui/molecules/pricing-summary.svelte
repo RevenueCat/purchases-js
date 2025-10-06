@@ -22,19 +22,21 @@
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
 
-  const introPriceDuration = $derived(() => {
-    const phase = introPricePhase;
-    if (!phase?.period) return "";
+  const introPriceDuration = $derived(
+    ({ hideSingularNumber = false }: { hideSingularNumber: boolean }) => {
+      const phase = introPricePhase;
+      if (!phase?.period) return "";
 
-    const { number, unit } = phase.period;
-    const totalPeriods = number * phase.cycleCount;
+      const { number, unit } = phase.period;
+      const totalPeriods = number * phase.cycleCount;
 
-    if (totalPeriods === 1) {
-      return $translator.translatePeriodUnit(unit) || "";
-    }
+      if (totalPeriods === 1 && hideSingularNumber) {
+        return $translator.translatePeriodUnit(unit) || "";
+      }
 
-    return $translator.translatePeriod(totalPeriods, unit) || "";
-  });
+      return $translator.translatePeriod(totalPeriods, unit) || "";
+    },
+  );
 
   // Determine typography sizes - first visible element gets heading-lg, rest get heading-md
   const trialTypographySize = $derived("heading-lg");
@@ -89,15 +91,27 @@
   {#if introPricePhase?.periodDuration}
     <div>
       <Typography size={introTypographySize}>
-        <Localized
-          key={hasTrial
-            ? LocalizationKeys.ProductInfoIntroPricePhaseAfterTrial
-            : LocalizationKeys.ProductInfoIntroPricePhase}
-          variables={{
-            introPriceDuration: introPriceDuration(),
-            introPrice: formattedIntroPrice,
-          }}
-        />
+        {#if hasTrial}
+          <Localized
+            key={LocalizationKeys.ProductInfoIntroPricePhaseAfterTrial}
+            variables={{
+              introPriceDuration: introPriceDuration({
+                hideSingularNumber: false,
+              }),
+              introPrice: formattedIntroPrice,
+            }}
+          />
+        {:else}
+          <Localized
+            key={LocalizationKeys.ProductInfoIntroPricePhase}
+            variables={{
+              introPriceDuration: introPriceDuration({
+                hideSingularNumber: true,
+              }),
+              introPrice: formattedIntroPrice,
+            }}
+          />
+        {/if}
       </Typography>
 
       {#if isIntroPricePaidUpfront}

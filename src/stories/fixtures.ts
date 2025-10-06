@@ -202,6 +202,34 @@ export const subscriptionOptionWithTrialAndIntroPriceRecurring: SubscriptionOpti
     introPrice: subscriptionOptionWithIntroPriceRecurring.introPrice,
   };
 
+export const subscriptionOptionWithSingleWeekWithTrialAndIntroPriceRecurring: SubscriptionOption =
+  {
+    id: "option_id_single_week_with_trial_recurring",
+    priceId: "price_single_week_recurring",
+    base: subscriptionOption.base,
+    trial: {
+      periodDuration: "P1W",
+      period: {
+        number: 1,
+        unit: PeriodUnit.Week,
+      },
+      cycleCount: 1,
+      price: null,
+      pricePerWeek: null,
+      pricePerMonth: null,
+      pricePerYear: null,
+    },
+    introPrice: {
+      ...subscriptionOptionBasePrice,
+      periodDuration: "P1W",
+      period: {
+        number: 1,
+        unit: PeriodUnit.Week,
+      },
+      cycleCount: 1,
+    },
+  };
+
 export const subscriptionOptionWithSingleWeekIntroPriceRecurring: SubscriptionOption =
   {
     id: "option_id_single_week_recurring",
