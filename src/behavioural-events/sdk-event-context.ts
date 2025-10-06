@@ -9,16 +9,16 @@ export interface SDKEventContext {
   locale: string;
   userAgent: string;
   timeZone: string;
-  screenWidth: number;
-  screenHeight: number;
+  screenWidth: number | null;
+  screenHeight: number | null;
   utmSource: string | null;
   utmMedium: string | null;
   utmCampaign: string | null;
   utmContent: string | null;
   utmTerm: string | null;
-  pageReferrer: string;
+  pageReferrer: string | null;
   pageUrl: string;
-  pageTitle: string;
+  pageTitle: string | null;
   source: SDKEventContextSource; // Describes where the event was triggered from
   rcSource: string | null; // Describes where the purchase was originated
 }
@@ -28,6 +28,18 @@ export function buildEventContext(
   rcSource: string | null,
 ): SDKEventContext & EventContext {
   const urlParams = new URLSearchParams(window.location.search);
+  let screenWidth: number | null = null;
+  let screenHeight: number | null = null;
+  if (typeof screen !== "undefined" && screen) {
+    screenWidth = screen.width;
+    screenHeight = screen.height;
+  }
+  let pageReferrer: string | null = null;
+  let pageTitle: string | null = null;
+  if (typeof document !== "undefined" && document) {
+    pageReferrer = document.referrer;
+    pageTitle = document.title;
+  }
 
   return {
     libraryName: "purchases-js",
@@ -35,16 +47,16 @@ export function buildEventContext(
     locale: navigator.language,
     userAgent: navigator.userAgent,
     timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    screenWidth: screen.width,
-    screenHeight: screen.height,
+    screenWidth: screenWidth,
+    screenHeight: screenHeight,
     utmSource: urlParams.get("utm_source") ?? null,
     utmMedium: urlParams.get("utm_medium") ?? null,
     utmCampaign: urlParams.get("utm_campaign") ?? null,
     utmContent: urlParams.get("utm_content") ?? null,
     utmTerm: urlParams.get("utm_term") ?? null,
-    pageReferrer: document.referrer,
+    pageReferrer: pageReferrer,
     pageUrl: `${window.location.origin}${window.location.pathname}`,
-    pageTitle: document.title,
+    pageTitle: pageTitle,
     source: source,
     rcSource: rcSource,
   };
