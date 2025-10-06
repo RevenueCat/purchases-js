@@ -22,14 +22,19 @@
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
 
-  const introPriceDuration = $derived(
-    introPricePhase?.period
-      ? $translator.translatePeriod(
-          introPricePhase.period.number * introPricePhase.cycleCount,
-          introPricePhase.period.unit,
-        ) || ""
-      : "",
-  );
+  const introPriceDuration = $derived(() => {
+    const phase = introPricePhase;
+    if (!phase?.period) return "";
+
+    const { number, unit } = phase.period;
+    const totalPeriods = number * phase.cycleCount;
+
+    if (totalPeriods === 1) {
+      return $translator.translatePeriodUnit(unit) || "";
+    }
+
+    return $translator.translatePeriod(totalPeriods, unit) || "";
+  });
 
   // Determine typography sizes - first visible element gets heading-lg, rest get heading-md
   const trialTypographySize = $derived("heading-lg");
@@ -89,7 +94,7 @@
             ? LocalizationKeys.ProductInfoIntroPricePhaseAfterTrial
             : LocalizationKeys.ProductInfoIntroPricePhase}
           variables={{
-            introPriceDuration: introPriceDuration,
+            introPriceDuration: introPriceDuration(),
             introPrice: formattedIntroPrice,
           }}
         />

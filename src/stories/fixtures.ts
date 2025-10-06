@@ -202,6 +202,108 @@ export const subscriptionOptionWithTrialAndIntroPriceRecurring: SubscriptionOpti
     introPrice: subscriptionOptionWithIntroPriceRecurring.introPrice,
   };
 
+export const subscriptionOptionWithSingleWeekIntroPriceRecurring: SubscriptionOption =
+  {
+    id: "option_id_single_week_recurring",
+    priceId: "price_single_week_recurring",
+    base: subscriptionOption.base,
+    trial: null,
+    introPrice: {
+      ...subscriptionOptionBasePrice,
+      periodDuration: "P1W",
+      period: {
+        number: 1,
+        unit: PeriodUnit.Week,
+      },
+      cycleCount: 1,
+    },
+  };
+
+export const subscriptionOptionWithMultipleWeeksIntroPriceRecurring: SubscriptionOption =
+  {
+    id: "option_id_multiple_weeks_recurring",
+    priceId: "price_multiple_weeks_recurring",
+    base: subscriptionOption.base,
+    trial: null,
+    introPrice: {
+      ...subscriptionOptionBasePrice,
+      periodDuration: "P1W",
+      period: {
+        number: 2,
+        unit: PeriodUnit.Week,
+      },
+      cycleCount: 1,
+    },
+  };
+
+export const subscriptionOptionWithSingleMonthIntroPriceRecurring: SubscriptionOption =
+  {
+    id: "option_id_single_month_recurring",
+    priceId: "price_single_month_recurring",
+    base: subscriptionOption.base,
+    trial: null,
+    introPrice: {
+      ...subscriptionOptionBasePrice,
+      periodDuration: "P1M",
+      period: {
+        number: 1,
+        unit: PeriodUnit.Month,
+      },
+      cycleCount: 1,
+    },
+  };
+
+export const subscriptionOptionWithMultipleMonthsIntroPriceRecurring: SubscriptionOption =
+  {
+    id: "option_id_multiple_months_recurring",
+    priceId: "price_multiple_months_recurring",
+    base: subscriptionOption.base,
+    trial: null,
+    introPrice: {
+      ...subscriptionOptionBasePrice,
+      periodDuration: "P1M",
+      period: {
+        number: 2,
+        unit: PeriodUnit.Month,
+      },
+      cycleCount: 1,
+    },
+  };
+
+export const subscriptionOptionWithSingleYearIntroPriceRecurring: SubscriptionOption =
+  {
+    id: "option_id_single_year_recurring",
+    priceId: "price_single_year_recurring",
+    base: subscriptionOption.base,
+    trial: null,
+    introPrice: {
+      ...subscriptionOptionBasePrice,
+      periodDuration: "P1Y",
+      period: {
+        number: 1,
+        unit: PeriodUnit.Year,
+      },
+      cycleCount: 1,
+    },
+  };
+
+export const subscriptionOptionWithMultipleYearsIntroPriceRecurring: SubscriptionOption =
+  {
+    id: "option_id_multiple_years_recurring",
+    priceId: "price_multiple_years_recurring",
+    base: subscriptionOption.base,
+    trial: null,
+    introPrice: {
+      ...subscriptionOptionBasePrice,
+      periodDuration: "P1Y",
+      period: {
+        number: 2,
+        unit: PeriodUnit.Year,
+      },
+      cycleCount: 1,
+    },
+  };
+
 export const nonSubscriptionOption: NonSubscriptionOption = {
   id: "option_id_1",
   priceId: "price_1",
