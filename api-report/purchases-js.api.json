@@ -7956,7 +7956,7 @@
             },
             {
               "kind": "Content",
-              "text": "\"app_store\" | \"mac_app_store\" | \"play_store\" | \"amazon\" | \"stripe\" | \"rc_billing\" | \"promotional\" | \"paddle\" | \"unknown\""
+              "text": "\"app_store\" | \"mac_app_store\" | \"play_store\" | \"amazon\" | \"stripe\" | \"rc_billing\" | \"promotional\" | \"paddle\" | \"test_store\" | \"unknown\""
             },
             {
               "kind": "Content",
