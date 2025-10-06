@@ -37,8 +37,8 @@ export function buildEventContext(
   let pageReferrer: string | null = null;
   let pageTitle: string | null = null;
   if (typeof document !== "undefined" && document) {
-    pageReferrer = document.referrer || null;
-    pageTitle = document.title || null;
+    pageReferrer = document.referrer;
+    pageTitle = document.title;
   }
 
   return {
