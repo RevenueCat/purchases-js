@@ -9,6 +9,7 @@
   import { type PriceBreakdown } from "../ui-types";
   import { type PricingPhase } from "../../entities/offerings";
   import Typography from "../atoms/typography.svelte";
+  import { englishLocale } from "../localization/constants";
 
   export type Props = {
     priceBreakdown: PriceBreakdown;
@@ -23,14 +24,21 @@
   const translator: Writable<Translator> = getContext(translatorContextKey);
 
   const introPriceDuration = $derived(
-    ({ hideSingularNumber = false }: { hideSingularNumber: boolean }) => {
+    ({ hideSingularNumber }: { hideSingularNumber: boolean }) => {
       const phase = introPricePhase;
       if (!phase?.period) return "";
 
       const { number, unit } = phase.period;
       const totalPeriods = number * phase.cycleCount;
 
-      if (totalPeriods === 1 && hideSingularNumber) {
+      // Specifically for English locale, instead of showing "First 1 week for..." we show "First week for..."
+      // This is a customer paper cut that we want to fix, but we run into limitations of the templating translation system.
+      // In order to avoid impact to other locales, we only apply this to the English locale.
+      if (
+        totalPeriods === 1 &&
+        hideSingularNumber &&
+        $translator.selectedLocale === englishLocale
+      ) {
         return $translator.translatePeriodUnit(unit) || "";
       }
 
