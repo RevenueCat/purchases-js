@@ -412,14 +412,14 @@ export interface Offering {
    * The paywall components configured in the RevenueCat dashboard, if available.
    * @internal
    */
-  readonly paywall_components: PaywallData | null;
+  readonly paywallComponents: PaywallData | null;
 
   /**
    * The UI configuration needed to render the paywall components, usually set
    * together
    * @internal
    */
-  readonly ui_config?: UIConfig;
+  readonly uiConfig?: UIConfig;
 }
 
 /**
@@ -782,8 +782,8 @@ export const toOffering = (
     twoMonth: packagesById[PackageType.TwoMonth] ?? null,
     monthly: packagesById[PackageType.Monthly] ?? null,
     weekly: packagesById[PackageType.Weekly] ?? null,
-    paywall_components: offeringsData.paywall_components,
-    ui_config: uiConfig,
+    paywallComponents: offeringsData.paywall_components,
+    uiConfig: uiConfig,
   };
 };
 
