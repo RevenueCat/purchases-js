@@ -1,6 +1,6 @@
 import type { PurchaseParams } from "../entities/purchase-params";
 import type { PurchaseResult } from "../entities/purchase-result";
-import { ErrorCode, PurchasesError } from "../entities/errors";
+import { ErrorCode, ErrorCodeUtils, PurchasesError } from "../entities/errors";
 import { mount, unmount } from "svelte";
 import SimulatedStoreModal from "../ui/molecules/simulated-store-modal.svelte";
 import type { Backend } from "../networking/backend";
@@ -62,8 +62,11 @@ export function purchaseSimulatedStoreProduct(
           cleanup();
           reject(
             new PurchasesError(
-              ErrorCode.ProductNotAvailableForPurchaseError,
-              "Simulated test purchase failure: no real transaction occurred",
+              ErrorCode.TestStoreSimulatedPurchaseError,
+              ErrorCodeUtils.getPublicMessage(
+                ErrorCode.TestStoreSimulatedPurchaseError,
+              ),
+              "Simulated error successfully.",
             ),
           );
         },

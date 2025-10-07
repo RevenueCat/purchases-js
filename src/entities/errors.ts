@@ -36,6 +36,7 @@ export enum ErrorCode {
   CustomerInfoError = 28,
   SignatureVerificationError = 36,
   InvalidEmailError = 38,
+  TestStoreSimulatedPurchaseError = 42,
 }
 
 export class ErrorCodeUtils {
@@ -105,6 +106,8 @@ export class ErrorCodeUtils {
         return "Request failed signature verification. Please see https://rev.cat/trusted-entitlements for more info.";
       case ErrorCode.InvalidEmailError:
         return "Email is not valid. Please provide a valid email address.";
+      case ErrorCode.TestStoreSimulatedPurchaseError:
+        return "Purchase failure simulated successfully in Test Store.";
     }
   }
 
