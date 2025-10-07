@@ -1804,6 +1804,27 @@
             },
             {
               "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ErrorCode.TestStoreSimulatedPurchaseError:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "TestStoreSimulatedPurchaseError = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "42"
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "TestStoreSimulatedPurchaseError"
+            },
+            {
+              "kind": "EnumMember",
               "canonicalReference": "@revenuecat/purchases-js!ErrorCode.UnexpectedBackendResponseError:member",
               "docComment": "",
               "excerptTokens": [
