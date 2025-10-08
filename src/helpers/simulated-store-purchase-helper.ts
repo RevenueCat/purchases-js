@@ -5,6 +5,7 @@ import { mount, unmount } from "svelte";
 import SimulatedStoreModal from "../ui/molecules/simulated-store-modal.svelte";
 import type { Backend } from "../networking/backend";
 import { postSimulatedStoreReceipt } from "./simulated-store-post-receipt-helper";
+import { Logger } from "./logger";
 
 export function purchaseSimulatedStoreProduct(
   purchaseParams: PurchaseParams,
@@ -50,6 +51,9 @@ export function purchaseSimulatedStoreProduct(
         introPriceFormatted: introPricePhase?.price?.formattedPrice,
         onValidPurchase: async () => {
           cleanup();
+          Logger.debugLog(
+            "[Test store] Performing test purchase. This purchase won't appear in production.",
+          );
           try {
             resolve(
               await postSimulatedStoreReceipt(product, backend, appUserId),
@@ -60,6 +64,9 @@ export function purchaseSimulatedStoreProduct(
         },
         onFailedPurchase: () => {
           cleanup();
+          Logger.debugLog(
+            "[Test store] Purchase failure simulated successfully in Test Store.",
+          );
           reject(
             new PurchasesError(
               ErrorCode.TestStoreSimulatedPurchaseError,
