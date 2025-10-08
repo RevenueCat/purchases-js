@@ -84,6 +84,7 @@ import { postSimulatedStoreReceipt } from "./helpers/simulated-store-post-receip
 import { InMemoryCache } from "./helpers/in-memory-cache";
 import type { VirtualCurrencies } from "./entities/virtual-currencies";
 import { toVirtualCurrencies } from "./entities/virtual-currencies";
+import type { LogInResult } from "./entities/log-in-result";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -912,13 +913,60 @@ export class Purchases {
    * @param newAppUserId - The user id to change to.
    */
   public async changeUser(newAppUserId: string): Promise<CustomerInfo> {
-    validateAppUserId(newAppUserId);
-    this._appUserId = newAppUserId;
-    this.eventsTracker.updateUser(newAppUserId);
-    this.inMemoryCache.invalidateAllCaches();
+    await this.replaceUserId(newAppUserId);
     // TODO: Cancel all pending requests if any.
     // TODO: What happens with a possibly initialized purchase?
     return await this.getCustomerInfo();
+  }
+
+  /**
+   * Changes the current app user id, aliasing the previous user id with the new
+   * one. This will create an alias between the two user ids in RevenueCat.
+   * @returns The customer info for the new user id.
+   * @throws {@link PurchasesError} if there is an error while performing the aliasing or fetching the customer info.
+   * @param newAppUserId
+   */
+  public async logIn(newAppUserId: string): Promise<LogInResult> {
+    validateAppUserId(newAppUserId);
+
+    if (newAppUserId === this._appUserId) {
+      Logger.debugLog(
+        `logIn called with the current appUserID: ${newAppUserId}. Ignoring.`,
+      );
+      return {
+        customerInfo: await this.getCustomerInfo(),
+        wasCreated: false,
+      };
+    }
+
+    const result = await this.backend.identify(this._appUserId, newAppUserId);
+
+    await this.replaceUserId(newAppUserId);
+
+    return {
+      customerInfo: toCustomerInfo(result),
+      wasCreated: result.was_created,
+    };
+  }
+
+  /**
+   * Resets the Purchases client clearing the saved appUserID.
+   * This will generate a random anonymous user id and save it in the
+   * memory cache.
+   */
+  public async logOut(): Promise<CustomerInfo> {
+    if (this.isAnonymous()) {
+      throw new PurchasesError(ErrorCode.LogOutWithAnonymousUserError);
+    }
+
+    return this.changeUser(Purchases.generateRevenueCatAnonymousAppUserId());
+  }
+
+  private async replaceUserId(newAppUserId: string): Promise<void> {
+    validateAppUserId(newAppUserId);
+    this._appUserId = newAppUserId;
+    await this.eventsTracker.updateUser(newAppUserId);
+    this.inMemoryCache.invalidateAllCaches();
   }
 
   /** @internal */
