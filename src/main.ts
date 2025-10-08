@@ -126,6 +126,7 @@ export type { HttpConfig } from "./entities/http-config";
 export type { FlagsConfig } from "./entities/flags-config";
 export { LogLevel } from "./entities/logging";
 export type { LogHandler } from "./entities/logging";
+export type { LogInResult } from "./entities/log-in-result";
 export type { GetOfferingsParams } from "./entities/get-offerings-params";
 export { OfferingKeyword } from "./entities/get-offerings-params";
 export type { PurchaseParams } from "./entities/purchase-params";
