@@ -29,7 +29,7 @@ import {
   type PurchaseFlowError,
   PurchaseOperationHelper,
 } from "./helpers/purchase-operation-helper";
-import { type LogLevel, type LogHandler } from "./entities/logging";
+import { type LogHandler, type LogLevel } from "./entities/logging";
 import { Logger } from "./helpers/logger";
 import {
   validateAdditionalHeaders,
@@ -444,8 +444,14 @@ export class Purchases {
     certainHTMLTarget.innerHTML = "";
 
     const offering = paywallParams.offering;
-    if (!offering.paywall_components) {
+    if (!offering.paywallComponents) {
       throw new Error("You cannot use paywalls yet, they are coming soon!");
+    }
+
+    if (!offering.uiConfig) {
+      throw new Error(
+        "No ui_config found for this offering, please contact support!",
+      );
     }
 
     const selectedLocale = paywallParams.selectedLocale || navigator.language;
@@ -453,7 +459,7 @@ export class Purchases {
     const translator = new Translator(
       {},
       selectedLocale,
-      offering.paywall_components.default_locale,
+      offering.paywallComponents.default_locale,
     );
 
     const startPurchaseFlow = (
@@ -473,7 +479,7 @@ export class Purchases {
         customerEmail: paywallParams.customerEmail,
         selectedLocale: selectedLocale,
         defaultLocale:
-          offering.paywall_components?.default_locale || englishLocale,
+          offering.paywallComponents?.default_locale || englishLocale,
       });
     };
 
@@ -510,10 +516,11 @@ export class Purchases {
       mount(Paywall, {
         target: certainHTMLTarget,
         props: {
-          paywallData: offering.paywall_components!,
+          paywallData: offering.paywallComponents!,
           selectedLocale: selectedLocale,
           onNavigateToUrlClicked: navigateToUrl,
           onVisitCustomerCenterClicked: onVisitCustomerCenterClicked,
+          uiConfig: offering.uiConfig!,
           onBackClicked: () => {
             if (paywallParams.onBack) {
               paywallParams.onBack();
