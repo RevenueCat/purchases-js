@@ -157,6 +157,12 @@ export interface HttpConfig {
 export type LogHandler = (logLevel: LogLevel, message: string) => void;
 
 // @public
+export interface LogInResult {
+    readonly customerInfo: CustomerInfo;
+    readonly wasCreated: boolean;
+}
+
+// @public
 export enum LogLevel {
     Debug = 4,
     Error = 1,
@@ -376,6 +382,8 @@ export class Purchases {
     isEntitledTo(entitlementIdentifier: string): Promise<boolean>;
     // (undocumented)
     isSandbox(): boolean;
+    logIn(newAppUserId: string): Promise<LogInResult>;
+    logOut(): Promise<CustomerInfo>;
     preload(): Promise<void>;
     purchase(params: PurchaseParams): Promise<PurchaseResult>;
     // @deprecated

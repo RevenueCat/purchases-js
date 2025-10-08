@@ -2171,6 +2171,79 @@
           }
         },
         {
+          "kind": "Interface",
+          "canonicalReference": "@revenuecat/purchases-js!LogInResult:interface",
+          "docComment": "/**\n * Represents the result of a log in operation.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare interface LogInResult "
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "name": "LogInResult",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!LogInResult#customerInfo:member",
+              "docComment": "/**\n * The customer information after the logIn attempt.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly customerInfo: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "CustomerInfo",
+                  "canonicalReference": "@revenuecat/purchases-js!CustomerInfo:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "customerInfo",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!LogInResult#wasCreated:member",
+              "docComment": "/**\n * true if a new user has been registered in the backend, false if the user had already been registered.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly wasCreated: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "wasCreated",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
           "kind": "Enum",
           "canonicalReference": "@revenuecat/purchases-js!LogLevel:enum",
           "docComment": "/**\n * Possible levels to log in the console.\n *\n * @public\n */\n",
@@ -6011,6 +6084,113 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "@revenuecat/purchases-js!Purchases#logIn:member(1)",
+              "docComment": "/**\n * Changes the current app user id, aliasing the previous user id with the new one. This will create an alias between the two user ids in RevenueCat.\n *\n * @param newAppUserId - \n *\n * @returns The customer info for the new user id.\n *\n * @throws\n *\n * {@link PurchasesError} if there is an error while performing the aliasing or fetching the customer info.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "logIn(newAppUserId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "LogInResult",
+                  "canonicalReference": "@revenuecat/purchases-js!LogInResult:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 7
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "newAppUserId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "logIn"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@revenuecat/purchases-js!Purchases#logOut:member(1)",
+              "docComment": "/**\n * Resets the Purchases client clearing the saved appUserID. This will generate a random anonymous user id and save it in the memory cache.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "logOut(): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "CustomerInfo",
+                  "canonicalReference": "@revenuecat/purchases-js!CustomerInfo:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "logOut"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "@revenuecat/purchases-js!Purchases#preload:member(1)",
               "docComment": "/**\n * Loads and caches some optional data in the Purchases SDK. Currently only fetching branding information. You can call this method after configuring the SDK to speed up the first call to {@link Purchases.purchase}.\n */\n",
               "excerptTokens": [
@@ -6580,7 +6760,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "constructor(\n               errorCode: "
+                  "text": "constructor(\n                errorCode: "
                 },
                 {
                   "kind": "Reference",
@@ -6589,7 +6769,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", \n               message?: "
+                  "text": ", \n                message?: "
                 },
                 {
                   "kind": "Content",
@@ -6597,7 +6777,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", \n               underlyingErrorMessage?: "
+                  "text": ", \n                underlyingErrorMessage?: "
                 },
                 {
                   "kind": "Content",
@@ -6605,7 +6785,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", \n               extra?: "
+                  "text": ", \n                extra?: "
                 },
                 {
                   "kind": "Reference",
@@ -8765,7 +8945,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "{\n                   [key: string]: "
+                  "text": "{\n                    [key: string]: "
                 },
                 {
                   "kind": "Reference",
@@ -8774,7 +8954,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ";\n               }"
+                  "text": ";\n                }"
                 },
                 {
                   "kind": "Content",
