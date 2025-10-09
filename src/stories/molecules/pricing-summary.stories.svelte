@@ -13,6 +13,13 @@
     subscriptionOptionWithTrial,
     subscriptionOptionWithTrialAndIntroPricePaidUpfront,
     subscriptionOptionWithTrialAndIntroPriceRecurring,
+    subscriptionOptionWithSingleMonthIntroPriceRecurring,
+    subscriptionOptionWithSingleWeekIntroPriceRecurring,
+    subscriptionOptionWithSingleYearIntroPriceRecurring,
+    subscriptionOptionWithMultipleMonthsIntroPriceRecurring,
+    subscriptionOptionWithMultipleWeeksIntroPriceRecurring,
+    subscriptionOptionWithMultipleYearsIntroPriceRecurring,
+    subscriptionOptionWithSingleWeekWithTrialAndIntroPriceRecurring,
   } from "../fixtures";
 
   import { parseISODuration } from "../../helpers/duration-helper";
@@ -191,5 +198,78 @@
   name="Non Subscription"
   args={{
     priceBreakdown: priceBreakdownTaxDisabled,
+  }}
+/>
+
+<Story
+  name="Intro Price - Single Week"
+  args={{
+    priceBreakdown: priceBreakdownTaxDisabledIntroPriceRecurring,
+    basePhase: subscriptionOptionWithSingleWeekIntroPriceRecurring.base,
+    introPricePhase:
+      subscriptionOptionWithSingleWeekIntroPriceRecurring.introPrice,
+  }}
+/>
+
+<Story
+  name="Intro Price - Multiple Weeks"
+  args={{
+    priceBreakdown: priceBreakdownTaxDisabledIntroPriceRecurring,
+    basePhase: subscriptionOptionWithMultipleWeeksIntroPriceRecurring.base,
+    introPricePhase:
+      subscriptionOptionWithMultipleWeeksIntroPriceRecurring.introPrice,
+  }}
+/>
+
+<Story
+  name="Intro Price - Single Month"
+  args={{
+    priceBreakdown: priceBreakdownTaxDisabledIntroPriceRecurring,
+    basePhase: subscriptionOptionWithSingleMonthIntroPriceRecurring.base,
+    introPricePhase:
+      subscriptionOptionWithSingleMonthIntroPriceRecurring.introPrice,
+  }}
+/>
+
+<Story
+  name="Intro Price - Multiple Months"
+  args={{
+    priceBreakdown: priceBreakdownTaxDisabledIntroPriceRecurring,
+    basePhase: subscriptionOptionWithMultipleMonthsIntroPriceRecurring.base,
+    introPricePhase:
+      subscriptionOptionWithMultipleMonthsIntroPriceRecurring.introPrice,
+  }}
+/>
+
+<Story
+  name="Intro Price - Single Year"
+  args={{
+    priceBreakdown: priceBreakdownTaxDisabledIntroPriceRecurring,
+    basePhase: subscriptionOptionWithSingleYearIntroPriceRecurring.base,
+    introPricePhase:
+      subscriptionOptionWithSingleYearIntroPriceRecurring.introPrice,
+  }}
+/>
+
+<Story
+  name="Intro Price - Multiple Years"
+  args={{
+    priceBreakdown: priceBreakdownTaxDisabledIntroPriceRecurring,
+    basePhase: subscriptionOptionWithMultipleYearsIntroPriceRecurring.base,
+    introPricePhase:
+      subscriptionOptionWithMultipleYearsIntroPriceRecurring.introPrice,
+  }}
+/>
+
+<Story
+  name="Intro Price - Single Week with Trial"
+  args={{
+    priceBreakdown: priceBreakdownTaxDisabledIntroPriceRecurring,
+    basePhase:
+      subscriptionOptionWithSingleWeekWithTrialAndIntroPriceRecurring.base,
+    trialPhase:
+      subscriptionOptionWithSingleWeekWithTrialAndIntroPriceRecurring.trial,
+    introPricePhase:
+      subscriptionOptionWithSingleWeekWithTrialAndIntroPriceRecurring.introPrice,
   }}
 />
