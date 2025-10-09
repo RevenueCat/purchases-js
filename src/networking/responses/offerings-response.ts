@@ -1,4 +1,4 @@
-import type { PaywallData } from "@revenuecat/purchases-ui-js";
+import type { PaywallData, UIConfig } from "@revenuecat/purchases-ui-js";
 
 export interface PackageResponse {
   identifier: string;
@@ -28,4 +28,5 @@ export interface OfferingsResponse {
   offerings: OfferingResponse[];
   targeting?: TargetingResponse;
   placements?: PlacementsResponse;
+  ui_config?: UIConfig;
 }

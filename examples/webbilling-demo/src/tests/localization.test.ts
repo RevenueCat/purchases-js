@@ -11,21 +11,21 @@ import { integrationTest } from "./helpers/integration-test";
 import { RC_PAYWALL_TEST_OFFERING_ID } from "./helpers/fixtures";
 
 const TEST_CASES = [
-  ["es", "Pago seguro mediante RevenueCat"],
-  ["it", "Pagamento sicuro tramite RevenueCat"],
-  ["en", "Secure checkout by RevenueCat"],
-  ["fr", "Paiement sécurisé par RevenueCat"],
-  ["de", "Sicherer Checkout über RevenueCat"],
+  ["es", "Suscribirse a", "Pago seguro mediante RevenueCat"],
+  ["it", "Abbonati a", "Pagamento sicuro tramite RevenueCat"],
+  ["en", "Subscribe to", "Secure checkout by RevenueCat"],
+  ["fr", "S'abonner à", "Paiement sécurisé par RevenueCat"],
+  ["de", "Abonnieren", "Sicherer Checkout über RevenueCat"],
 ];
 
-TEST_CASES.forEach(([lang, title]) => {
+TEST_CASES.forEach(([lang, subscribeTo, safePayment]) => {
   integrationTest(`Displays in ${lang}`, async ({ page, userId }) => {
     page = await navigateToLandingUrl(page, userId, { lang });
 
     const packageCards = await getPackageCards(page);
     await startPurchaseFlow(packageCards[1]);
 
-    await expect(page.getByText(title)).toBeVisible();
+    await expect(page.getByText(subscribeTo)).toBeVisible();
   });
 
   integrationTest(`Displays paywall in ${lang}`, async ({ page, userId }) => {
@@ -46,6 +46,6 @@ TEST_CASES.forEach(([lang, title]) => {
     await expect(purchaseButton).toBeVisible();
     await purchaseButton.click();
 
-    await expect(page.getByText(title)).toBeVisible();
+    await expect(page.getByText(safePayment)).toBeVisible();
   });
 });

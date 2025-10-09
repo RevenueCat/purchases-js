@@ -1,9 +1,7 @@
 ## RevenueCat SDK
-### ✨ New Features
-* Add custom log handler support (#589) via Antonio Borrero Granell (@antoniobg)
 ### 🐞 Bugfixes
-* Fix paywall types (#590) via Marek Dabek (@marek-dabek)
+* Fix copy for single occurence of periodUnit (#611) via James O'Donnell (@james-od)
 
 ### 🔄 Other Changes
-* Use purchases-ui-js v2.0.2 (#591) via Marek Dabek (@marek-dabek)
-* Fail posting simulated receipt if not using test api key (#587) via Toni Rico (@tonidero)
+* Updated to the latest version of purchases-ui-js (#618) via Nicola Sacco (@nicfix)
+* Bump fastlane-plugin-revenuecat_internal from `7508f17` to `3f7fffc` (#617) via dependabot[bot] (@dependabot[bot])

@@ -4,8 +4,6 @@
 
 ```ts
 
-import { PaywallData } from '@revenuecat/purchases-ui-js';
-
 // @public
 export interface BrandingAppearance {
     // (undocumented)
@@ -195,8 +193,6 @@ export interface Offering {
     readonly packagesById: {
         [key: string]: Package;
     };
-    // (undocumented)
-    readonly paywall_components: PaywallData | null;
     readonly serverDescription: string;
     readonly sixMonth: Package | null;
     readonly threeMonth: Package | null;

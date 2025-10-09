@@ -1,7 +1,7 @@
 {
   "metadata": {
     "toolPackage": "@microsoft/api-extractor",
-    "toolVersion": "7.49.0",
+    "toolVersion": "7.52.13",
     "schemaVersion": 1011,
     "oldestForwardsCompatibleVersion": 1001,
     "tsdocConfig": {
@@ -2759,38 +2759,6 @@
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 4
-              }
-            },
-            {
-              "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!Offering#paywall_components:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "readonly paywall_components: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "PaywallData",
-                  "canonicalReference": "@revenuecat/purchases-ui-js!PaywallData:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": " | null"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": true,
-              "isOptional": false,
-              "releaseTag": "Public",
-              "name": "paywall_components",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 3
               }
             },
             {
