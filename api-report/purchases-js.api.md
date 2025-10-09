@@ -124,6 +124,8 @@ export enum ErrorCode {
     // (undocumented)
     StoreProblemError = 2,
     // (undocumented)
+    TestStoreSimulatedPurchaseError = 42,
+    // (undocumented)
     UnexpectedBackendResponseError = 12,
     // (undocumented)
     UnknownBackendError = 16,
