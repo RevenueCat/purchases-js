@@ -473,7 +473,7 @@ export enum ReservedCustomerAttribute {
 }
 
 // @public
-export type Store = "app_store" | "mac_app_store" | "play_store" | "amazon" | "stripe" | "rc_billing" | "promotional" | "paddle" | "unknown";
+export type Store = "app_store" | "mac_app_store" | "play_store" | "amazon" | "stripe" | "rc_billing" | "promotional" | "paddle" | "test_store" | "unknown";
 
 // @public
 export interface StoreTransaction {
