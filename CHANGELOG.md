@@ -1,3 +1,8 @@
+## 1.16.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Removed "off" from all "X% off" localization labels (#625) via Nicola Sacco (@nicfix)
+
 ## 1.16.0
 ## RevenueCat SDK
 ### 🐞 Bugfixes
