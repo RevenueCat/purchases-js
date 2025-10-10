@@ -1330,9 +1330,9 @@ describe("getPaywallVariables", () => {
   });
   test("sub_relative_discount is calculated correctly for same-priced packages", () => {
     /**
-     * Monthly: 9$/month = 88%off
-     * Weekly: 9$/week - 38.97$/month - most expensive
-     * Trial: 30$/month = 65%off
+     * Monthly: 9€/month
+     * Weekly: 2.08€/week - 9€/month
+     * Trial: 9€/month after trial
      */
     const variables = parseOfferingIntoVariables(
       samePricePackages,
@@ -1344,9 +1344,9 @@ describe("getPaywallVariables", () => {
   });
   test("sub_relative_discount is calculated correctly for two packages with the same price", () => {
     /**
-     * Monthly: 3$/month = 88%off
-     * Weekly: 6$/week - 25.98$/month - most expensive
-     * Trial: 9$/month = 65%off
+     * Monthly: 3€/month = 88%off
+     * Weekly: 6€/week - 25.98€/month - most expensive
+     * Trial: 9€/month after trial = 65%off
      */
     const expectedValues = ["88% off", "", "65% off"];
 
