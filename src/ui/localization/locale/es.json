@@ -52,7 +52,7 @@
   "error_page.error_message_unknown_error": "Ocurrió un error desconocido (código de error: {{errorCode}}).",
   "error_page.button_try_again": "Intentar de nuevo",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
-  "paywall_variables.sub_relative_discount": "{{discount}}% de descuento",
+  "paywall_variables.sub_relative_discount": "{{discount}}%",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Total a pagar hoy",
   "product_info.subscribe_to": "Suscribirse a",

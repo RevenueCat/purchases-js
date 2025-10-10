@@ -52,7 +52,7 @@
   "error_page.error_message_unknown_error": "En ukjent feil oppstod (feilkode: {{errorCode}}).",
   "error_page.button_try_again": "Prøv igjen",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
-  "paywall_variables.sub_relative_discount": "{{discount}}% rabatt",
+  "paywall_variables.sub_relative_discount": "{{discount}}%",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}} ({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Totalt forfaller i dag",
   "product_info.subscribe_to": "Abonner på",

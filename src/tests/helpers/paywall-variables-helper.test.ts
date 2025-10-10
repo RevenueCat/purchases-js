@@ -1295,7 +1295,7 @@ describe("getPaywallVariables", () => {
           "product.period_abbreviated": "mo",
           "product.price_per_month": "€9.00",
           "product.price_per_week": "€2.08",
-          "product.relative_discount": "77% off",
+          "product.relative_discount": "77%",
         }),
         $rc_weekly: expect.objectContaining({
           "product.store_product_name": "Luigi Special",
@@ -1323,7 +1323,7 @@ describe("getPaywallVariables", () => {
           "product.period_abbreviated": "mo",
           "product.price_per_month": "€30.00",
           "product.price_per_week": "€6.93",
-          "product.relative_discount": "23% off",
+          "product.relative_discount": "23%",
         }),
       }),
     );
@@ -1348,7 +1348,7 @@ describe("getPaywallVariables", () => {
      * Weekly: 6€/week - 25.98€/month - most expensive
      * Trial: 9€/month after trial = 65%off
      */
-    const expectedValues = ["88% off", "", "65% off"];
+    const expectedValues = ["88%", "", "65%"];
 
     const variables = parseOfferingIntoVariables(
       differentPricedPackages,

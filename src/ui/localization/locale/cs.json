@@ -52,7 +52,7 @@
   "error_page.error_message_unknown_error": "Došlo k neznámé chybě (kód chyby: {{errorCode}}).",
   "error_page.button_try_again": "Zkusit znovu",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
-  "paywall_variables.sub_relative_discount": "{{discount}}% sleva",
+  "paywall_variables.sub_relative_discount": "{{discount}}%",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Celkem dnes k zaplacení",
   "product_info.subscribe_to": "Předplatit",

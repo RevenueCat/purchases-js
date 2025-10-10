@@ -52,7 +52,7 @@
   "error_page.error_message_unknown_error": "发生未知错误（错误代码：{{errorCode}}）。",
   "error_page.button_try_again": "重试",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
-  "paywall_variables.sub_relative_discount": "{{discount}}% 折扣",
+  "paywall_variables.sub_relative_discount": "{{discount}}%",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "今天应付总额",
   "product_info.subscribe_to": "订阅",

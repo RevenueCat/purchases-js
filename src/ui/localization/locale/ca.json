@@ -52,7 +52,7 @@
   "error_page.error_message_unknown_error": "S'ha produït un error desconegut (codi d'error: {{errorCode}}).",
   "error_page.button_try_again": "Torna a intentar-ho",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
-  "paywall_variables.sub_relative_discount": "{{discount}}% de descompte",
+  "paywall_variables.sub_relative_discount": "{{discount}}%",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Total a pagar avui",
   "product_info.subscribe_to": "Subscriu-te a",

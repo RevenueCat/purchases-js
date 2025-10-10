@@ -52,7 +52,7 @@
   "error_page.error_message_unknown_error": "เกิดข้อผิดพลาดที่ไม่รู้จัก (รหัสข้อผิดพลาด: {{errorCode}})",
   "error_page.button_try_again": "ลองอีกครั้ง",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
-  "paywall_variables.sub_relative_discount": "{{discount}}% ลด",
+  "paywall_variables.sub_relative_discount": "{{discount}}%",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "ยอดรวมที่ต้องชำระวันนี้",
   "product_info.subscribe_to": "สมัครสมาชิก",

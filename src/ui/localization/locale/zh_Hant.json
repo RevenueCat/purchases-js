@@ -52,7 +52,7 @@
   "error_page.error_message_unknown_error": "發生不明錯誤（錯誤代碼：{{errorCode}}）。",
   "error_page.button_try_again": "再試一次",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
-  "paywall_variables.sub_relative_discount": "{{discount}}% 折扣",
+  "paywall_variables.sub_relative_discount": "{{discount}}%",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}} ({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "今日應付總額",
   "product_info.subscribe_to": "訂閱",

@@ -52,7 +52,7 @@
   "error_page.error_message_unknown_error": "Une erreur inconnue s'est produite (code d'erreur : {{errorCode}}).",
   "error_page.button_try_again": "Réessayer",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
-  "paywall_variables.sub_relative_discount": "{{discount}}% de réduction",
+  "paywall_variables.sub_relative_discount": "{{discount}}%",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}} ({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Total dû aujourd'hui",
   "product_info.subscribe_to": "S'abonner à",
