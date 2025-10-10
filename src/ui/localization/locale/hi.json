@@ -52,7 +52,7 @@
   "error_page.error_message_unknown_error": "एक अज्ञात त्रुटि हुई (त्रुटि कोड: {{errorCode}})।",
   "error_page.button_try_again": "फिर से कोशिश करें",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
-  "paywall_variables.sub_relative_discount": "{{discount}}% छूट",
+  "paywall_variables.sub_relative_discount": "{{discount}}%",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "आज देय कुल राशि",
   "product_info.subscribe_to": "सदस्यता लें",

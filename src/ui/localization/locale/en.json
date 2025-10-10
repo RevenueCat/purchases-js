@@ -78,7 +78,7 @@
   "error_page.button_try_again": "Try again",
   "error_page.button_close": "Close",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
-  "paywall_variables.sub_relative_discount": "{{discount}}% off",
+  "paywall_variables.sub_relative_discount": "{{discount}}%",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "pricing_dropdown.show_details": "Show details",
   "pricing_dropdown.hide_details": "Hide details",

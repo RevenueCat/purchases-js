@@ -52,7 +52,7 @@
   "error_page.error_message_unknown_error": "Ett okänt fel inträffade (felkod: {{errorCode}}).",
   "error_page.button_try_again": "Försök igen",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
-  "paywall_variables.sub_relative_discount": "{{discount}}% rabatt",
+  "paywall_variables.sub_relative_discount": "{{discount}}%",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}} ({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Totalt att betala idag",
   "product_info.subscribe_to": "Prenumerera på",

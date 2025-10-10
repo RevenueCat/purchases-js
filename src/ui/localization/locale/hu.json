@@ -52,7 +52,7 @@
   "error_page.error_message_unknown_error": "Ismeretlen hiba történt (hibakód: {{errorCode}}).",
   "error_page.button_try_again": "Újrapróbálkozás",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
-  "paywall_variables.sub_relative_discount": "{{discount}}% kedvezmény",
+  "paywall_variables.sub_relative_discount": "{{discount}}%",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Ma fizetendő összesen",
   "product_info.subscribe_to": "Feliratkozás erre:",
