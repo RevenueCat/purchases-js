@@ -19,6 +19,7 @@ export type Store =
   | "rc_billing"
   | "promotional"
   | "paddle"
+  | "test_store"
   | "unknown";
 
 /**

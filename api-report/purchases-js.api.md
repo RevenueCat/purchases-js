@@ -4,8 +4,6 @@
 
 ```ts
 
-import { PaywallData } from '@revenuecat/purchases-ui-js';
-
 // @public
 export interface BrandingAppearance {
     // (undocumented)
@@ -126,6 +124,8 @@ export enum ErrorCode {
     // (undocumented)
     StoreProblemError = 2,
     // (undocumented)
+    TestStoreSimulatedPurchaseError = 42,
+    // (undocumented)
     UnexpectedBackendResponseError = 12,
     // (undocumented)
     UnknownBackendError = 16,
@@ -195,8 +195,6 @@ export interface Offering {
     readonly packagesById: {
         [key: string]: Package;
     };
-    // (undocumented)
-    readonly paywall_components: PaywallData | null;
     readonly serverDescription: string;
     readonly sixMonth: Package | null;
     readonly threeMonth: Package | null;
@@ -477,7 +475,7 @@ export enum ReservedCustomerAttribute {
 }
 
 // @public
-export type Store = "app_store" | "mac_app_store" | "play_store" | "amazon" | "stripe" | "rc_billing" | "promotional" | "paddle" | "unknown";
+export type Store = "app_store" | "mac_app_store" | "play_store" | "amazon" | "stripe" | "rc_billing" | "promotional" | "paddle" | "test_store" | "unknown";
 
 // @public
 export interface StoreTransaction {

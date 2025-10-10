@@ -95,8 +95,10 @@ export default class EventsTracker implements IEventsTracker {
       });
       this.eventsQueue.push(event);
       this.flushManager.tryFlush();
-    } catch {
-      Logger.errorLog(`Error while tracking event ${props.eventName}`);
+    } catch (error) {
+      Logger.errorLog(
+        `Error while tracking event ${props.eventName}: ${error}`,
+      );
     }
   }
 
