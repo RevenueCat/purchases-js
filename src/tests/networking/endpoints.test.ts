@@ -6,6 +6,7 @@ import {
   GetOfferingsEndpoint,
   GetProductsEndpoint,
   GetVirtualCurrenciesEndpoint,
+  IdentifyEndpoint,
   PostReceiptEndpoint,
   PurchaseEndpoint,
   SetAttributesEndpoint,
@@ -88,6 +89,18 @@ describe("getCustomerInfo endpoint", () => {
         "some+User/id#That$Requires&Encoding",
       ).urlPath(),
     ).toBe("/v1/subscribers/some%2BUser%2Fid%23That%24Requires%26Encoding");
+  });
+});
+
+describe("identify endpoint", () => {
+  const endpoint = new IdentifyEndpoint();
+
+  test("uses correct method", () => {
+    expect(endpoint.method).toBe("POST");
+  });
+
+  test("has correct urlPath", () => {
+    expect(endpoint.urlPath()).toBe("/v1/subscribers/identify");
   });
 });
 

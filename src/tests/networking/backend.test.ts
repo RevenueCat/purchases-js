@@ -9,6 +9,7 @@ import {
   productsResponse,
   getVirtualCurrenciesResponseWith3Currencies,
   getVirtualCurrenciesResponseWithNoCurrencies,
+  identifyResponse,
 } from "../test-responses";
 import { Backend } from "../../networking/backend";
 import { StatusCodes } from "http-status-codes";
@@ -221,6 +222,105 @@ describe("getCustomerInfo request", () => {
     setCustomerInfoResponse(HttpResponse.error());
     await expectPromiseToError(
       backend.getCustomerInfo("someAppUserId"),
+      new PurchasesError(
+        ErrorCode.NetworkError,
+        "Error performing request. Please check your network connection and try again.",
+        "Failed to fetch",
+      ),
+    );
+  });
+});
+
+describe("identify request", () => {
+  function setIdentifyResponse(httpResponse: HttpResponse) {
+    server.use(
+      http.post("http://localhost:8000/v1/subscribers/identify", () => {
+        return httpResponse;
+      }),
+    );
+  }
+
+  test("can get customer info successfully", async () => {
+    setIdentifyResponse(HttpResponse.json(identifyResponse, { status: 200 }));
+    const backendResponse = await backend.identify(
+      "oldAppUserId",
+      "newAppUserId",
+    );
+    expect(backendResponse).toEqual(identifyResponse);
+  });
+
+  test("throws an error if the backend returns a server error", async () => {
+    setIdentifyResponse(
+      HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
+    );
+    await expectPromiseToError(
+      backend.identify("oldAppUserId", "newAppUserId"),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        "Request: identify. Status code: 500. Body: null.",
+      ),
+    );
+  });
+
+  test("throws a known error if the backend returns a request error with correct body", async () => {
+    setIdentifyResponse(
+      HttpResponse.json(
+        {
+          code: BackendErrorCode.BackendInvalidAPIKey,
+          message: "API key was wrong",
+        },
+        { status: StatusCodes.BAD_REQUEST },
+      ),
+    );
+    await expectPromiseToError(
+      backend.identify("oldAppUserId", "newAppUserId"),
+      new PurchasesError(
+        ErrorCode.InvalidCredentialsError,
+        "There was a credentials issue. Check the underlying error for more details.",
+        "API key was wrong",
+      ),
+    );
+  });
+
+  test("throws unknown error if the backend returns a request error with unknown error code in body", async () => {
+    setIdentifyResponse(
+      HttpResponse.json(
+        {
+          code: 1234567890,
+          message: "Invalid error message",
+        },
+        { status: StatusCodes.BAD_REQUEST },
+      ),
+    );
+    await expectPromiseToError(
+      backend.identify("oldAppUserId", "newAppUserId"),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        'Request: identify. Status code: 400. Body: {"code":1234567890,"message":"Invalid error message"}.',
+      ),
+    );
+  });
+
+  test("throws unknown error if the backend returns a request error without error code in body", async () => {
+    setIdentifyResponse(
+      HttpResponse.json(null, { status: StatusCodes.BAD_REQUEST }),
+    );
+    await expectPromiseToError(
+      backend.identify("oldAppUserId", "newAppUserId"),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        "Request: identify. Status code: 400. Body: null.",
+      ),
+    );
+  });
+
+  test("throws network error if cannot reach server", async () => {
+    setIdentifyResponse(HttpResponse.error());
+    await expectPromiseToError(
+      backend.identify("oldAppUserId", "newAppUserId"),
       new PurchasesError(
         ErrorCode.NetworkError,
         "Error performing request. Please check your network connection and try again.",

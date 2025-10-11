@@ -11,6 +11,7 @@ import {
   GetProductsEndpoint,
   PostReceiptEndpoint,
   GetVirtualCurrenciesEndpoint,
+  IdentifyEndpoint,
 } from "./endpoints";
 import { type SubscriberResponse } from "./responses/subscriber-response";
 import type { CheckoutStartResponse } from "./responses/checkout-start-response";
@@ -28,6 +29,7 @@ import type { CheckoutCompleteResponse } from "./responses/checkout-complete-res
 import type { CheckoutCalculateTaxResponse } from "./responses/checkout-calculate-tax-response";
 import { SetAttributesEndpoint } from "./endpoints";
 import { isWebBillingSandboxApiKey } from "../helpers/api-key-helper";
+import type { IdentifyResponse } from "./responses/identify-response";
 
 export class Backend {
   private readonly API_KEY: string;
@@ -59,6 +61,30 @@ export class Backend {
       new GetCustomerInfoEndpoint(appUserId),
       {
         apiKey: this.API_KEY,
+        httpConfig: this.httpConfig,
+      },
+    );
+  }
+
+  async identify(
+    oldAppUserId: string,
+    newAppUserId: string,
+  ): Promise<IdentifyResponse> {
+    type IdentifyRequestBody = {
+      app_user_id: string;
+      new_app_user_id: string;
+    };
+
+    const body: IdentifyRequestBody = {
+      app_user_id: oldAppUserId,
+      new_app_user_id: newAppUserId,
+    };
+
+    return await performRequest<IdentifyRequestBody, IdentifyResponse>(
+      new IdentifyEndpoint(),
+      {
+        apiKey: this.API_KEY,
+        body: body,
         httpConfig: this.httpConfig,
       },
     );
