@@ -18,7 +18,7 @@ import type { StripeExpressCheckoutElementOptions } from "@stripe/stripe-js/dist
 import { type Period, PeriodUnit } from "../helpers/duration-helper";
 import type { StripeExpressCheckoutConfiguration } from "./stripe-express-checkout-configuration";
 import type { PriceBreakdown } from "../ui/ui-types";
-import { loadStripe } from "@stripe/stripe-js";
+import { loadStripe } from "@stripe/stripe-js/pure";
 
 export enum StripeServiceErrorCode {
   ErrorLoadingStripe = 0,
