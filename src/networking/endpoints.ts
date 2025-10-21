@@ -126,6 +126,21 @@ export class CheckoutCompleteEndpoint implements Endpoint {
   }
 }
 
+export class CreatePayPalOrderEndpoint implements Endpoint {
+  method: HttpMethodType = "POST";
+  name: string = "createPaypalOrder";
+  private readonly operationSessionId: string;
+
+  constructor(operationSessionId: string) {
+    this.operationSessionId = operationSessionId;
+  }
+
+  urlPath(): string {
+    // TODO: replace with correct endpoint and response types
+    return `${RC_BILLING_PATH}/checkout/${this.operationSessionId}/paypal/create_order`;
+  }
+}
+
 export class GetCheckoutStatusEndpoint implements Endpoint {
   method: HttpMethodType = "GET";
   name: string = "getCheckoutStatus";
@@ -186,6 +201,10 @@ export type SupportedEndpoint =
   | GetCustomerInfoEndpoint
   | GetBrandingInfoEndpoint
   | GetCheckoutStatusEndpoint
+  | CheckoutStartEndpoint
+  | CheckoutCompleteEndpoint
+  | CheckoutCalculateTaxEndpoint
+  | CreatePayPalOrderEndpoint
   | SetAttributesEndpoint
   | PostReceiptEndpoint
   | GetVirtualCurrenciesEndpoint;

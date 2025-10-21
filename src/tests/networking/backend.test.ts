@@ -737,7 +737,7 @@ describe("postCheckoutComplete request", () => {
 
     const result = await backend.postCheckoutComplete(
       "someOperationSessionId",
-      "testemail@revenuecat.com",
+      { email: "testemail@revenuecat.com" },
     );
 
     expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);

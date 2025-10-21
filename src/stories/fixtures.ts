@@ -490,13 +490,18 @@ export const stripeElementsConfiguration = {
 const publishableApiKey = import.meta.env.VITE_STORYBOOK_PUBLISHABLE_API_KEY;
 const accountId = import.meta.env.VITE_STORYBOOK_ACCOUNT_ID;
 
+const checkoutStartGatewayParams = {
+  publishable_api_key: publishableApiKey,
+  stripe_account_id: accountId,
+  elements_configuration: stripeElementsConfiguration,
+};
+
 export const checkoutStartResponse: CheckoutStartResponse = {
   operation_session_id: "rcbopsess_test_test_test",
-  gateway_params: {
-    publishable_api_key: publishableApiKey,
-    stripe_account_id: accountId,
-    elements_configuration: stripeElementsConfiguration,
-  },
+  gateway_params: checkoutStartGatewayParams,
+  stripe_gateway_params: checkoutStartGatewayParams,
+  paypal_gateway_params: null,
+
   management_url: "https://manage.revenuecat.com/test_test_test",
 };
 

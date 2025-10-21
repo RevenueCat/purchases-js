@@ -25,6 +25,7 @@ import {
 import { type IEventsTracker } from "../behavioural-events/events-tracker";
 import type { CheckoutCompleteResponse } from "../networking/responses/checkout-complete-response";
 import type { CheckoutCalculateTaxResponse } from "../networking/responses/checkout-calculate-tax-response";
+import type { CreatePayPalOrderResponse } from "../networking/responses/paypal";
 
 export enum PurchaseFlowErrorCode {
   ErrorSettingUpPurchase = 0,
@@ -36,6 +37,7 @@ export enum PurchaseFlowErrorCode {
   StripeTaxNotActive = 6,
   StripeInvalidTaxOriginAddress = 7,
   StripeMissingRequiredPermission = 8,
+  PayPalOrderCreationFailed = 9,
 }
 
 export class PurchaseFlowError extends Error {
@@ -103,6 +105,12 @@ export interface OperationSessionSuccessfulResult {
   storeTransactionIdentifier: string;
   productIdentifier: string;
   purchaseDate: Date;
+}
+
+export interface CheckoutCompleteRequestBody {
+  paypal_order_id?: string;
+  paypal_payer_id?: string;
+  email?: string;
 }
 
 export class PurchaseOperationHelper {
@@ -199,7 +207,7 @@ export class PurchaseOperationHelper {
     }
   }
 
-  async checkoutComplete(email?: string): Promise<CheckoutCompleteResponse> {
+  async checkoutPaypalCreateOrder(): Promise<CreatePayPalOrderResponse> {
     const operationSessionId = this.operationSessionId;
     if (!operationSessionId) {
       throw new PurchaseFlowError(
@@ -209,7 +217,41 @@ export class PurchaseOperationHelper {
     }
 
     try {
-      return await this.backend.postCheckoutComplete(operationSessionId, email);
+      return await this.backend.postCreatePaypalOrder(operationSessionId);
+    } catch (error) {
+      if (error instanceof PurchasesError) {
+        throw PurchaseFlowError.fromPurchasesError(
+          error,
+          PurchaseFlowErrorCode.PayPalOrderCreationFailed,
+        );
+      } else {
+        const errorMessage =
+          "Unknown error creating PayPal order: " + String(error);
+        Logger.errorLog(errorMessage);
+        throw new PurchaseFlowError(
+          PurchaseFlowErrorCode.PayPalOrderCreationFailed,
+          errorMessage,
+        );
+      }
+    }
+  }
+
+  async checkoutComplete(
+    requestBody?: CheckoutCompleteRequestBody,
+  ): Promise<CheckoutCompleteResponse> {
+    const operationSessionId = this.operationSessionId;
+    if (!operationSessionId) {
+      throw new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "No purchase started",
+      );
+    }
+
+    try {
+      return await this.backend.postCheckoutComplete(
+        operationSessionId,
+        requestBody,
+      );
     } catch (error) {
       if (error instanceof PurchasesError) {
         throw PurchaseFlowError.fromPurchasesError(

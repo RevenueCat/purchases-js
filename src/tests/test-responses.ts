@@ -385,16 +385,23 @@ const brandingInfoResponse = {
   support_email: "test-rcbilling-support@revenuecat.com",
 };
 
+const checkoutStartGatewayParams = {
+  stripe_account_id: "test-stripe-account-id",
+  publishable_api_key: "test-publishable-api-key",
+  elements_configuration: {
+    mode: StripeElementsMode.Setup,
+    payment_method_types: ["card"],
+    setup_future_usage: StripeElementsSetupFutureUsage.OffSession,
+  },
+};
+
 export const checkoutStartResponse: CheckoutStartResponse = {
   operation_session_id: "test-operation-session-id",
-  gateway_params: {
-    stripe_account_id: "test-stripe-account-id",
-    publishable_api_key: "test-publishable-api-key",
-    elements_configuration: {
-      mode: StripeElementsMode.Setup,
-      payment_method_types: ["card"],
-      setup_future_usage: StripeElementsSetupFutureUsage.OffSession,
-    },
+  gateway_params: checkoutStartGatewayParams,
+  stripe_gateway_params: checkoutStartGatewayParams,
+  paypal_gateway_params: {
+    client_access_token: "test-paypal-client-access-token",
+    currency: "USD",
   },
   management_url: "https://test-management-url.revenuecat.com",
 };

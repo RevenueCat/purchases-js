@@ -66,6 +66,15 @@ With a UI
 npm run test:e2e-ui
 ```
 
+### Configuring PayPal
+
+The demo renders a PayPal button whenever the RevenueCat checkout flow returns PayPal settings. Set the VITE_RC_API_KEY to an app that has the PayPal payment method enabled for its Web Billing app. For the PayPal button to appear, the checkout start response must contain a `gateway_params.paypal_configuration` object with:
+
+- The PayPal **client_access_token** - a client-side JWT access token.
+- The target **currency**.
+
+If the configuration is absent the PayPal button stays hidden while the Stripe checkout remain available.
+
 ### Testing Apple Pay and Google Pay with local certs
 
 To test Apple Pay and Google Pay we have to fake an https setup for the Apple Pay/Google Pay authorized domains locally.

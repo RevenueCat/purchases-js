@@ -9,7 +9,7 @@
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
 
   import {
-    OperationSessionSuccessfulResult,
+    type OperationSessionSuccessfulResult,
     PurchaseFlowError,
     PurchaseFlowErrorCode,
     PurchaseOperationHelper,
@@ -29,6 +29,7 @@
   import { writable } from "svelte/store";
   import { type GatewayParams } from "../networking/responses/stripe-elements";
   import { validateEmail } from "../helpers/validators";
+  import type { PayPalGatewayParams } from "../networking/responses/paypal";
 
   interface Props {
     customerEmail: string | undefined;
@@ -80,6 +81,7 @@
   let currentPage: CurrentPage = $state("payment-entry-loading");
   let operationResult: OperationSessionSuccessfulResult | null = $state(null);
   let gatewayParams: GatewayParams = $state({});
+  let paypalGatewayParams: PayPalGatewayParams | null = $state(null);
   let managementUrl: string | null = $state(null);
 
   let originalHtmlHeight: string | null = $state(null);
@@ -152,6 +154,7 @@
         lastError = null;
         currentPage = "payment-entry";
         gatewayParams = result.gateway_params;
+        paypalGatewayParams = result.paypal_gateway_params;
         managementUrl = result.management_url;
       })
       .catch((e: PurchaseFlowError) => {
@@ -170,6 +173,7 @@
               lastError = null;
               currentPage = "payment-entry";
               gatewayParams = result.gateway_params;
+              paypalGatewayParams = result.paypal_gateway_params;
               managementUrl = result.management_url;
             })
             .catch((e: PurchaseFlowError) => {
@@ -236,6 +240,7 @@
   purchaseOptionToUse={purchaseOption}
   {lastError}
   {gatewayParams}
+  {paypalGatewayParams}
   {managementUrl}
   {purchaseOperationHelper}
   {isInElement}

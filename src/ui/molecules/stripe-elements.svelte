@@ -24,6 +24,9 @@
   } from "../../stripe/stripe-service";
   import { type Writable } from "svelte/store";
   import type { StripeExpressCheckoutConfiguration } from "../../stripe/stripe-express-checkout-configuration";
+  import PaypalButton from "./paypal-button.svelte";
+  import type { PayPalGatewayParams } from "../../networking/responses/paypal";
+  import type { OnApproveDataOneTimePayments } from "@paypal/paypal-js/sdk-v6";
 
   interface Props {
     stripe: Stripe | null;
@@ -32,6 +35,12 @@
     publishableApiKey?: string;
     elementsConfiguration?: StripeElementsConfiguration;
     expressCheckoutOptions?: StripeExpressCheckoutConfiguration;
+    isSandbox: boolean;
+    paypalGatewayParams?: PayPalGatewayParams | null;
+    onPaypalCreateOrder: () => Promise<{ orderId: string }>;
+    onPaypalApprove: (data: OnApproveDataOneTimePayments) => Promise<void>;
+    onPaypalError: (error: unknown) => void;
+    onPaypalCancel?: () => void;
     brandingInfo: BrandingInfoResponse | null;
     skipEmail: boolean;
     billingAddressRequired: boolean;
@@ -55,6 +64,12 @@
     publishableApiKey,
     elementsConfiguration,
     expressCheckoutOptions,
+    isSandbox,
+    paypalGatewayParams,
+    onPaypalCreateOrder,
+    onPaypalApprove,
+    onPaypalError,
+    onPaypalCancel,
     brandingInfo,
     skipEmail,
     billingAddressRequired,
@@ -73,6 +88,7 @@
   let paymentElementReadyForSubmission = $state(false);
   let emailElementReadyForSubmission = $state(skipEmail);
   let expressCheckoutElementReadyForSubmission = $state(false);
+  let paypalButtonReadyForSubmission = $state(!paypalGatewayParams);
 
   let stripeVariables: undefined | Appearance["variables"] = $state(undefined);
   let viewport: "mobile" | "desktop" = $state("mobile");
@@ -102,6 +118,17 @@
     };
   }
 
+  function notifyLoadingCompleteIfReady() {
+    if (
+      emailElementReadyForSubmission &&
+      paymentElementReadyForSubmission &&
+      expressCheckoutElementReadyForSubmission &&
+      paypalButtonReadyForSubmission
+    ) {
+      onLoadingComplete();
+    }
+  }
+
   function onResize() {
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(() => {
@@ -117,39 +144,28 @@
   const onLinkAuthenticationElementReady = async () => {
     if (!emailElementReadyForSubmission) {
       emailElementReadyForSubmission = true;
-      if (
-        emailElementReadyForSubmission &&
-        paymentElementReadyForSubmission &&
-        expressCheckoutElementReadyForSubmission
-      ) {
-        onLoadingComplete();
-      }
+      notifyLoadingCompleteIfReady();
     }
   };
 
   const onExpressCheckoutElementReady = async () => {
     if (!expressCheckoutElementReadyForSubmission) {
       expressCheckoutElementReadyForSubmission = true;
-      if (
-        emailElementReadyForSubmission &&
-        paymentElementReadyForSubmission &&
-        expressCheckoutElementReadyForSubmission
-      ) {
-        onLoadingComplete();
-      }
+      notifyLoadingCompleteIfReady();
     }
   };
 
   const onPaymentElementReady = async () => {
     if (!paymentElementReadyForSubmission) {
       paymentElementReadyForSubmission = true;
-      if (
-        emailElementReadyForSubmission &&
-        paymentElementReadyForSubmission &&
-        expressCheckoutElementReadyForSubmission
-      ) {
-        onLoadingComplete();
-      }
+      notifyLoadingCompleteIfReady();
+    }
+  };
+
+  const onPaypalButtonReady = () => {
+    if (!paypalButtonReadyForSubmission) {
+      paypalButtonReadyForSubmission = true;
+      notifyLoadingCompleteIfReady();
     }
   };
 
@@ -174,6 +190,10 @@
     return () => {
       window.removeEventListener("resize", onResize);
     };
+  });
+
+  $effect(() => {
+    paypalButtonReadyForSubmission = !paypalGatewayParams;
   });
 
   onMount(async () => {
@@ -216,6 +236,17 @@
 
 {#if elements}
   <div class="rc-elements">
+    {#if paypalGatewayParams}
+      <PaypalButton
+        {isSandbox}
+        {paypalGatewayParams}
+        onCreateOrder={onPaypalCreateOrder}
+        onApprove={onPaypalApprove}
+        onError={onPaypalError}
+        onCancel={onPaypalCancel}
+        onReady={onPaypalButtonReady}
+      />
+    {/if}
     <ExpressCheckoutElement
       {elements}
       onError={onStripeElementsLoadingError}

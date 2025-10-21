@@ -46,11 +46,16 @@
   import StripeElementsComponent from "../molecules/stripe-elements.svelte";
   import PriceUpdateInfo from "../molecules/price-update-info.svelte";
   import { getInitialPriceFromPurchaseOption } from "../../helpers/purchase-option-price-helper";
+  import type { PayPalGatewayParams } from "../../networking/responses/paypal";
+  import { PayPalServiceError } from "../../paypal/paypal-service";
+  import type { OnApproveDataOneTimePayments } from "@paypal/paypal-js/sdk-v6";
 
   type View = "loading" | "form" | "error";
 
   interface Props {
     gatewayParams: GatewayParams;
+    paypalGatewayParams: PayPalGatewayParams | null;
+    isSandbox: boolean;
     managementUrl: string | null;
     productDetails: Product;
     purchaseOption: PurchaseOption;
@@ -69,6 +74,8 @@
 <script lang="ts">
   const {
     gatewayParams,
+    paypalGatewayParams,
+    isSandbox,
     managementUrl,
     productDetails,
     purchaseOption,
@@ -164,6 +171,8 @@
         )
       : undefined,
   );
+
+  const paypalConfiguration = $derived(paypalGatewayParams ?? null);
 
   $effect(() => {
     onPriceBreakdownUpdated(priceBreakdown);
@@ -288,6 +297,53 @@
     // flow, prefer that value over the email returned by the wallet
     email = customerEmail ?? emailValue;
     await handleSubmit();
+  }
+
+  async function handlePaypalCreateOrder(): Promise<{ orderId: string }> {
+    try {
+      const response =
+        await purchaseOperationHelper.checkoutPaypalCreateOrder();
+      return { orderId: response.order_id };
+    } catch (error) {
+      await handleErrors(error);
+      throw error;
+    }
+  }
+
+  async function handlePaypalApprove(
+    data: OnApproveDataOneTimePayments,
+  ): Promise<void> {
+    const event = createCheckoutPaymentFormSubmitEvent({
+      selectedPaymentMethod: "paypal",
+    });
+    eventsTracker.trackSDKEvent(event);
+
+    await withAbortProtection(async (signal) => {
+      try {
+        // TODO: replace with correct request body
+        await purchaseOperationHelper.checkoutComplete({
+          paypal_order_id: data.orderId,
+          paypal_payer_id: data.payerId,
+        });
+
+        signal?.throwIfAborted();
+
+        onContinue();
+      } catch (error) {
+        if (!signal.aborted) {
+          await handleErrors(error);
+        }
+        throw error;
+      }
+    });
+  }
+
+  async function handlePaypalError(error: unknown) {
+    try {
+      await handleErrors(error);
+    } catch (handledError) {
+      throw handledError;
+    }
   }
 
   /**
@@ -455,8 +511,9 @@
 
   // Helper function to complete the checkout
   async function completeCheckout(): Promise<void> {
-    const completeResponse =
-      await purchaseOperationHelper.checkoutComplete(email);
+    const completeResponse = await purchaseOperationHelper.checkoutComplete({
+      email: email,
+    });
     const newClientSecret = completeResponse?.gateway_params?.client_secret;
     if (newClientSecret) clientSecret = newClientSecret;
   }
@@ -494,6 +551,8 @@
       }
     } else if (error instanceof StripeServiceError) {
       await handleStripeElementError(error);
+    } else if (error instanceof PayPalServiceError) {
+      await handlePaypalServiceError(error);
     } else {
       throw error;
     }
@@ -518,6 +577,22 @@
         ),
       );
     }
+  }
+
+  async function handlePaypalServiceError(error: PayPalServiceError) {
+    const event = createCheckoutPaymentGatewayErrorEvent({
+      errorCode: error.gatewayErrorCode ?? "",
+      errorMessage: error.message ?? "",
+    });
+    eventsTracker.trackSDKEvent(event);
+
+    onError(
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "Failed to initialize PayPal payment form",
+        error.message,
+      ),
+    );
   }
 
   const handleErrorTryAgain = () => {
@@ -572,6 +647,11 @@
           onPaymentInfoChange={handlePaymentInfoChange}
           onExpressCheckoutElementSubmit={handleExpressCheckoutElementSubmit}
           {expressCheckoutOptions}
+          {isSandbox}
+          paypalGatewayParams={paypalConfiguration}
+          onPaypalCreateOrder={handlePaypalCreateOrder}
+          onPaypalApprove={handlePaypalApprove}
+          onPaypalError={handlePaypalError}
         />
       </div>
 

@@ -3,6 +3,7 @@ import { performRequest } from "./http-client";
 import {
   CheckoutCalculateTaxEndpoint,
   CheckoutCompleteEndpoint,
+  CreatePayPalOrderEndpoint,
   CheckoutStartEndpoint,
   GetBrandingInfoEndpoint,
   GetCheckoutStatusEndpoint,
@@ -27,9 +28,11 @@ import type {
 } from "../entities/offerings";
 import type { CheckoutCompleteResponse } from "./responses/checkout-complete-response";
 import type { CheckoutCalculateTaxResponse } from "./responses/checkout-calculate-tax-response";
+import type { CreatePayPalOrderResponse } from "./responses/paypal";
 import { SetAttributesEndpoint } from "./endpoints";
 import { isWebBillingSandboxApiKey } from "../helpers/api-key-helper";
 import type { IdentifyResponse } from "./responses/identify-response";
+import type { CheckoutCompleteRequestBody } from "../helpers/purchase-operation-helper";
 
 export class Backend {
   private readonly API_KEY: string;
@@ -209,18 +212,22 @@ export class Backend {
     );
   }
 
+  async postCreatePaypalOrder(
+    operationSessionId: string,
+  ): Promise<CreatePayPalOrderResponse> {
+    return await performRequest<null, CreatePayPalOrderResponse>(
+      new CreatePayPalOrderEndpoint(operationSessionId),
+      {
+        apiKey: this.API_KEY,
+        httpConfig: this.httpConfig,
+      },
+    );
+  }
+
   async postCheckoutComplete(
     operationSessionId: string,
-    email?: string,
+    requestBody: CheckoutCompleteRequestBody = {},
   ): Promise<CheckoutCompleteResponse> {
-    type CheckoutCompleteRequestBody = {
-      email?: string;
-    };
-
-    const requestBody: CheckoutCompleteRequestBody = {
-      email: email,
-    };
-
     return await performRequest<
       CheckoutCompleteRequestBody,
       CheckoutCompleteResponse

@@ -15,6 +15,7 @@
   import Template from "./layout/template.svelte";
   import { type GatewayParams } from "../networking/responses/stripe-elements";
   import BrandingHeader from "./molecules/branding-header.svelte";
+  import type { PayPalGatewayParams } from "../networking/responses/paypal";
 
   interface Props {
     currentPage: CurrentPage;
@@ -26,6 +27,7 @@
     purchaseOperationHelper: PurchaseOperationHelper;
     isInElement: boolean;
     gatewayParams: GatewayParams;
+    paypalGatewayParams: PayPalGatewayParams | null;
     managementUrl: string | null;
     customerEmail: string | null;
     defaultPriceBreakdown?: PriceBreakdown;
@@ -45,6 +47,7 @@
     purchaseOperationHelper,
     isInElement,
     gatewayParams,
+    paypalGatewayParams,
     managementUrl,
     customerEmail,
     defaultPriceBreakdown,
@@ -103,6 +106,8 @@
         {brandingInfo}
         {purchaseOperationHelper}
         {gatewayParams}
+        {paypalGatewayParams}
+        {isSandbox}
         {managementUrl}
         {customerEmail}
         {defaultPriceBreakdown}
