@@ -156,6 +156,12 @@ export interface HttpConfig {
 }
 
 // @public
+export interface IdentifyResult {
+    readonly customerInfo: CustomerInfo;
+    readonly wasCreated: boolean;
+}
+
+// @public
 export type LogHandler = (logLevel: LogLevel, message: string) => void;
 
 // @public
@@ -371,6 +377,7 @@ export class Purchases {
     getOfferings(params?: GetOfferingsParams): Promise<Offerings>;
     static getSharedInstance(): Purchases;
     getVirtualCurrencies(): Promise<VirtualCurrencies>;
+    identifyUser(appUserId: string): Promise<IdentifyResult>;
     invalidateVirtualCurrenciesCache(): void;
     // (undocumented)
     isAnonymous(): boolean;

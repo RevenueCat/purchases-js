@@ -72,6 +72,15 @@ export class GetCustomerInfoEndpoint implements Endpoint {
   }
 }
 
+export class IdentifyEndpoint implements Endpoint {
+  method: HttpMethodType = "POST";
+  name: string = "identify";
+
+  urlPath(): string {
+    return `${SUBSCRIBERS_PATH}/identify`;
+  }
+}
+
 export class GetBrandingInfoEndpoint implements Endpoint {
   method: HttpMethodType = "GET";
   name: string = "getBrandingInfo";

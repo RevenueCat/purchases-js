@@ -9,6 +9,7 @@ import { type CheckoutStartResponse } from "../networking/responses/checkout-sta
 import type { CheckoutCompleteResponse } from "../networking/responses/checkout-complete-response";
 import { StripeElementsSetupFutureUsage } from "../networking/responses/stripe-elements";
 import { StripeElementsMode } from "../networking/responses/stripe-elements";
+import type { SubscriberResponse } from "../networking/responses/subscriber-response";
 
 const monthlyProductResponse: ProductResponse = {
   identifier: "monthly",
@@ -213,7 +214,7 @@ export const offeringsWithIntroPriceArray = [
   },
 ];
 
-export const customerInfoResponse = {
+export const customerInfoResponse: SubscriberResponse = {
   request_date: "2024-01-22T13:23:07Z",
   request_date_ms: 1705929787636,
   subscriber: {
@@ -283,6 +284,11 @@ export const customerInfoResponse = {
       },
     },
   },
+};
+
+export const identifyResponse = {
+  ...customerInfoResponse,
+  was_created: true,
 };
 
 export const newAppUserIdCustomerInfoResponse = {
@@ -514,6 +520,15 @@ export function getRequestHandlers(): RequestHandler[] {
       return HttpResponse.json(getVirtualCurrenciesResponseWithNoCurrencies, {
         status: 200,
       });
+    }),
+  );
+
+  const identify = "http://localhost:8000/v1/subscribers/identify";
+  requestHandlers.push(
+    http.post(identify, async ({ request }) => {
+      const json = await request.json();
+      APIPostRequest({ url: identify, json });
+      return HttpResponse.json(identifyResponse, { status: 200 });
     }),
   );
 

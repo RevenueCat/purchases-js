@@ -2157,6 +2157,79 @@
           "extendsTokenRanges": []
         },
         {
+          "kind": "Interface",
+          "canonicalReference": "@revenuecat/purchases-js!IdentifyResult:interface",
+          "docComment": "/**\n * Represents the result of an identify user operation.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare interface IdentifyResult "
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "name": "IdentifyResult",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!IdentifyResult#customerInfo:member",
+              "docComment": "/**\n * The customer information after the logIn attempt.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly customerInfo: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "CustomerInfo",
+                  "canonicalReference": "@revenuecat/purchases-js!CustomerInfo:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "customerInfo",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!IdentifyResult#wasCreated:member",
+              "docComment": "/**\n * true if a new user has been registered in the backend, false if the user had already been registered.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly wasCreated: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "wasCreated",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
           "kind": "TypeAlias",
           "canonicalReference": "@revenuecat/purchases-js!LogHandler:type",
           "docComment": "/**\n * Custom log handler function type. Allows you to handle SDK log messages with your own logging system.\n *\n * @param logLevel - The log level of the message\n *\n * @param message - The log message\n *\n * @public\n */\n",
@@ -5855,6 +5928,68 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "@revenuecat/purchases-js!Purchases#identifyUser:member(1)",
+              "docComment": "/**\n * Identifies the current user ID with the provided appUserId, as long as the previous user ID is an anonymous user ID. This will create an alias between the two user ids in RevenueCat and replace the current user ID used. If the old user ID is not anonymous, this method will change the current user ID to the given appUserId without creating an alias.\n *\n * @param appUserId - The new user ID to identify the current user as.\n *\n * @returns The customer info for the new user ID.\n *\n * @throws\n *\n * {@link PurchasesError} if there is an error while performing the aliasing or fetching the customer info.\n *\n * @experimental\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "identifyUser(appUserId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IdentifyResult",
+                  "canonicalReference": "@revenuecat/purchases-js!IdentifyResult:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 7
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "appUserId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "identifyUser"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "@revenuecat/purchases-js!Purchases#invalidateVirtualCurrenciesCache:member(1)",
               "docComment": "/**\n * Invalidates the cache for virtual currencies.\n *\n * This is useful for cases where a virtual currency's balance might have been updated in a different part of your system, like if you decreased a user's balance from the user spending a virtual currency, or if you increased the balance from your backend using the server APIs.\n */\n",
               "excerptTokens": [
@@ -6601,7 +6736,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "constructor(\n               errorCode: "
+                  "text": "constructor(\n                errorCode: "
                 },
                 {
                   "kind": "Reference",
@@ -6610,7 +6745,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", \n               message?: "
+                  "text": ", \n                message?: "
                 },
                 {
                   "kind": "Content",
@@ -6618,7 +6753,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", \n               underlyingErrorMessage?: "
+                  "text": ", \n                underlyingErrorMessage?: "
                 },
                 {
                   "kind": "Content",
@@ -6626,7 +6761,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", \n               extra?: "
+                  "text": ", \n                extra?: "
                 },
                 {
                   "kind": "Reference",
@@ -8786,7 +8921,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "{\n                   [key: string]: "
+                  "text": "{\n                    [key: string]: "
                 },
                 {
                   "kind": "Reference",
@@ -8795,7 +8930,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ";\n               }"
+                  "text": ";\n                }"
                 },
                 {
                   "kind": "Content",

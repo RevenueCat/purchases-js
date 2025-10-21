@@ -84,6 +84,7 @@ import { postSimulatedStoreReceipt } from "./helpers/simulated-store-post-receip
 import { InMemoryCache } from "./helpers/in-memory-cache";
 import type { VirtualCurrencies } from "./entities/virtual-currencies";
 import { toVirtualCurrencies } from "./entities/virtual-currencies";
+import type { IdentifyResult } from "./entities/identify-result";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -125,6 +126,7 @@ export type { HttpConfig } from "./entities/http-config";
 export type { FlagsConfig } from "./entities/flags-config";
 export { LogLevel } from "./entities/logging";
 export type { LogHandler } from "./entities/logging";
+export type { IdentifyResult } from "./entities/identify-result";
 export type { GetOfferingsParams } from "./entities/get-offerings-params";
 export { OfferingKeyword } from "./entities/get-offerings-params";
 export type { PurchaseParams } from "./entities/purchase-params";
@@ -912,13 +914,51 @@ export class Purchases {
    * @param newAppUserId - The user id to change to.
    */
   public async changeUser(newAppUserId: string): Promise<CustomerInfo> {
-    validateAppUserId(newAppUserId);
-    this._appUserId = newAppUserId;
-    this.eventsTracker.updateUser(newAppUserId);
-    this.inMemoryCache.invalidateAllCaches();
+    await this.replaceUserId(newAppUserId);
     // TODO: Cancel all pending requests if any.
     // TODO: What happens with a possibly initialized purchase?
     return await this.getCustomerInfo();
+  }
+
+  /**
+   * Identifies the current user ID with the provided appUserId, as long as the
+   * previous user ID is an anonymous user ID. This will create an alias
+   * between the two user ids in RevenueCat and replace the current user ID used.
+   * If the old user ID is not anonymous, this method will change the current
+   * user ID to the given appUserId without creating an alias.
+   * @returns The customer info for the new user ID.
+   * @throws {@link PurchasesError} if there is an error while performing the aliasing or fetching the customer info.
+   * @param appUserId - The new user ID to identify the current user as.
+   * @experimental
+   */
+  public async identifyUser(appUserId: string): Promise<IdentifyResult> {
+    validateAppUserId(appUserId);
+
+    if (appUserId === this._appUserId) {
+      Logger.debugLog(
+        `aliasUser called with the current appUserID: ${appUserId}. Ignoring.`,
+      );
+      return {
+        customerInfo: await this.getCustomerInfo(),
+        wasCreated: false,
+      };
+    }
+
+    const result = await this.backend.identify(this._appUserId, appUserId);
+
+    await this.replaceUserId(appUserId);
+
+    return {
+      customerInfo: toCustomerInfo(result),
+      wasCreated: result.was_created,
+    };
+  }
+
+  private async replaceUserId(newAppUserId: string): Promise<void> {
+    validateAppUserId(newAppUserId);
+    this._appUserId = newAppUserId;
+    await this.eventsTracker.updateUser(newAppUserId);
+    this.inMemoryCache.invalidateAllCaches();
   }
 
   /** @internal */

@@ -29,50 +29,76 @@ import { StatusCodes } from "http-status-codes";
 
 describe("Purchases.configure() legacy", () => {
   test("throws error if given invalid api key", () => {
-    expect(() => Purchases.configure("goog_api_key", "appUserId")).toThrowError(
-      PurchasesError,
-    );
     expect(() =>
-      Purchases.configure("rcb_test invalidchar", "appUserId"),
+      Purchases.configure({
+        apiKey: "goog_api_key",
+        appUserId: "appUserId",
+      }),
+    ).toThrowError(PurchasesError);
+    expect(() =>
+      Purchases.configure({
+        apiKey: "rcb_test invalidchar",
+        appUserId: "appUserId",
+      }),
     ).toThrowError(PurchasesError);
   });
 
   test("throws error if given invalid user id", () => {
-    expect(() => Purchases.configure(testApiKey, "")).toThrowError(
-      PurchasesError,
-    );
     expect(() =>
-      Purchases.configure(testApiKey, "some/AppUserId"),
+      Purchases.configure({
+        apiKey: testApiKey,
+        appUserId: "",
+      }),
+    ).toThrowError(PurchasesError);
+    expect(() =>
+      Purchases.configure({
+        apiKey: testApiKey,
+        appUserId: "some/AppUserId",
+      }),
     ).toThrowError(PurchasesError);
   });
 
   test("throws error if given invalid proxy url", () => {
     expect(() =>
-      Purchases.configure(testApiKey, testUserId, {
-        proxyURL: "https://test.revenuecat.com/",
+      Purchases.configure({
+        apiKey: testApiKey,
+        appUserId: testUserId,
+        httpConfig: {
+          proxyURL: "https://test.revenuecat.com/",
+        },
       }),
     ).toThrowError(PurchasesError);
   });
 
   test("throws error if given reserved additional header", () => {
     expect(() =>
-      Purchases.configure(testApiKey, testUserId, {
-        additionalHeaders: { "X-Version": "123" },
+      Purchases.configure({
+        apiKey: testApiKey,
+        appUserId: testUserId,
+        httpConfig: {
+          additionalHeaders: { "X-Version": "123" },
+        },
       }),
     ).toThrowError(PurchasesError);
   });
 
   test("configures successfully", () => {
-    const purchases = Purchases.configure(testApiKey, testUserId);
+    const purchases = Purchases.configure({
+      apiKey: testApiKey,
+      appUserId: testUserId,
+    });
     expect(purchases).toBeDefined();
   });
 
   test("configure multiple times returns different instances", () => {
-    const purchases = Purchases.configure(testApiKey, testUserId);
-    const purchases2 = Purchases.configure(
-      "rcb_another_api_key",
-      "another_user_id",
-    );
+    const purchases = Purchases.configure({
+      apiKey: testApiKey,
+      appUserId: testUserId,
+    });
+    const purchases2 = Purchases.configure({
+      apiKey: "rcb_another_api_key",
+      appUserId: "another_user_id",
+    });
     expect(purchases).not.toEqual(purchases2);
   });
 });
@@ -235,22 +261,22 @@ describe("Purchases.isConfigured()", () => {
   });
 
   test("returns true if configured", () => {
-    Purchases.configure(testApiKey, testUserId);
+    Purchases.configure({ apiKey: testApiKey, appUserId: testUserId });
     expect(Purchases.isConfigured()).toBeTruthy();
   });
 });
 
 describe("Purchases.isAnonymous()", () => {
   test("returns true if configured with anonymous user", () => {
-    Purchases.configure(
-      testApiKey,
-      Purchases.generateRevenueCatAnonymousAppUserId(),
-    );
+    Purchases.configure({
+      apiKey: testApiKey,
+      appUserId: Purchases.generateRevenueCatAnonymousAppUserId(),
+    });
     expect(Purchases.getSharedInstance().isAnonymous()).toBeTruthy();
   });
 
   test("returns false if configured with non anonymous user", () => {
-    Purchases.configure(testApiKey, testUserId);
+    Purchases.configure({ apiKey: testApiKey, appUserId: testUserId });
     expect(Purchases.getSharedInstance().isAnonymous()).toBeFalsy();
   });
 });
@@ -523,7 +549,12 @@ uuidImplementations.forEach((implementation) => {
 
     test("generated ID passes appUserId validation", () => {
       const anonymousId = Purchases.generateRevenueCatAnonymousAppUserId();
-      expect(() => Purchases.configure(testApiKey, anonymousId)).not.toThrow();
+      expect(() =>
+        Purchases.configure({
+          apiKey: testApiKey,
+          appUserId: anonymousId,
+        }),
+      ).not.toThrow();
     });
 
     test("calls the expected uuid implementation", () => {
@@ -555,6 +586,28 @@ describe("Purchases._trackEvent", () => {
         test_property: "test_value",
       },
     });
+  });
+});
+
+describe("Purchases.identifyUser", () => {
+  test("allows to identify User", async () => {
+    const purchases = configurePurchases();
+    const initialAppUserId = purchases.getAppUserId();
+    await purchases.identifyUser("newAppUserId");
+    const newAppUserId = purchases.getAppUserId();
+    expect(newAppUserId).toBe("newAppUserId");
+    expect(initialAppUserId).not.toBe(newAppUserId);
+  });
+
+  test("fails if invalid user ID given", async () => {
+    const purchases = configurePurchases();
+    await expectPromiseToError(
+      purchases.identifyUser(""),
+      new PurchasesError(
+        ErrorCode.InvalidAppUserIdError,
+        'Provided user id: "" is not valid. See https://www.revenuecat.com/docs/customers/user-ids#tips-for-setting-app-user-ids for more information.',
+      ),
+    );
   });
 });
 
@@ -824,7 +877,10 @@ describe("Purchases.setLogHandler()", () => {
     Purchases.setLogLevel(LogLevel.Debug);
 
     // Configure purchases to trigger some logging
-    const purchases = Purchases.configure(testApiKey, testUserId);
+    const purchases = Purchases.configure({
+      apiKey: testApiKey,
+      appUserId: testUserId,
+    });
 
     // We expect some logging to have occurred during configuration
     // Note: The exact logging behavior depends on the implementation
