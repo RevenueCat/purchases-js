@@ -928,8 +928,8 @@ export class Purchases {
    * user ID to the given appUserId without creating an alias.
    * @returns The customer info for the new user ID.
    * @throws {@link PurchasesError} if there is an error while performing the aliasing or fetching the customer info.
-   * @param appUserId
-   * @experimental This function is experimental and subject to changes in future versions.
+   * @param appUserId - The new user ID to identify the current user as.
+   * @experimental
    */
   public async identifyUser(appUserId: string): Promise<IdentifyResult> {
     validateAppUserId(appUserId);

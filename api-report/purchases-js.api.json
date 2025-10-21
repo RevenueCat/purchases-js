@@ -5929,7 +5929,7 @@
             {
               "kind": "Method",
               "canonicalReference": "@revenuecat/purchases-js!Purchases#identifyUser:member(1)",
-              "docComment": "/**\n * Identifies the current user ID with the provided appUserId, as long as the previous user ID is an anonymous user ID. This will create an alias between the two user ids in RevenueCat and replace the current user ID used. If the old user ID is not anonymous, this method will change the current user ID to the given appUserId without creating an alias.\n *\n * @param appUserId - This function is experimental and subject to changes in future versions.\n *\n * @returns The customer info for the new user ID.\n *\n * @throws\n *\n * {@link PurchasesError} if there is an error while performing the aliasing or fetching the customer info.\n *\n * @experimental\n */\n",
+              "docComment": "/**\n * Identifies the current user ID with the provided appUserId, as long as the previous user ID is an anonymous user ID. This will create an alias between the two user ids in RevenueCat and replace the current user ID used. If the old user ID is not anonymous, this method will change the current user ID to the given appUserId without creating an alias.\n *\n * @param appUserId - The new user ID to identify the current user as.\n *\n * @returns The customer info for the new user ID.\n *\n * @throws\n *\n * {@link PurchasesError} if there is an error while performing the aliasing or fetching the customer info.\n *\n * @experimental\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
