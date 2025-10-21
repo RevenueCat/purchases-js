@@ -20,17 +20,12 @@ import {
   testApiKey,
   testUserId,
 } from "./base.purchases_test";
-import {
-  APIGetRequest,
-  customerInfoResponse,
-  type GetRequest,
-} from "./test-responses";
+import { APIGetRequest, type GetRequest } from "./test-responses";
 import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
 import { waitFor } from "@testing-library/svelte";
 import { http, HttpResponse } from "msw";
 import { expectPromiseToError } from "./test-helpers";
 import { StatusCodes } from "http-status-codes";
-import { toCustomerInfo } from "../entities/customer-info";
 
 describe("Purchases.configure() legacy", () => {
   test("throws error if given invalid api key", () => {
@@ -594,11 +589,11 @@ describe("Purchases._trackEvent", () => {
   });
 });
 
-describe("Purchases.logIn", () => {
-  test("allows log in", async () => {
+describe("Purchases.identifyUser", () => {
+  test("allows to identify User", async () => {
     const purchases = configurePurchases();
     const initialAppUserId = purchases.getAppUserId();
-    await purchases.logIn("newAppUserId");
+    await purchases.identifyUser("newAppUserId");
     const newAppUserId = purchases.getAppUserId();
     expect(newAppUserId).toBe("newAppUserId");
     expect(initialAppUserId).not.toBe(newAppUserId);
@@ -607,43 +602,11 @@ describe("Purchases.logIn", () => {
   test("fails if invalid user ID given", async () => {
     const purchases = configurePurchases();
     await expectPromiseToError(
-      purchases.logIn(""),
+      purchases.identifyUser(""),
       new PurchasesError(
         ErrorCode.InvalidAppUserIdError,
         'Provided user id: "" is not valid. See https://www.revenuecat.com/docs/customers/user-ids#tips-for-setting-app-user-ids for more information.',
       ),
-    );
-  });
-});
-
-describe("Purchases.logOut", () => {
-  test("allows log out", async () => {
-    const purchases = configurePurchases();
-    expect(purchases.getAppUserId()).toBe("someAppUserId");
-
-    server.use(
-      http.get("http://localhost:8000/v1/subscribers/:appUserId", () => {
-        return HttpResponse.json(customerInfoResponse, { status: 200 });
-      }),
-    );
-    const response = await purchases.logOut();
-    expect(purchases.getAppUserId()).toMatch(/^\$RCAnonymousID:[0-9a-f]{32}$/);
-    expect(response).toEqual(toCustomerInfo(customerInfoResponse));
-  });
-
-  test("fails if already anonymous", async () => {
-    const purchases = configurePurchases();
-
-    server.use(
-      http.get("http://localhost:8000/v1/subscribers/:appUserId", () => {
-        return HttpResponse.json(customerInfoResponse, { status: 200 });
-      }),
-    );
-    await purchases.logOut();
-    expect(purchases.getAppUserId()).toMatch(/^\$RCAnonymousID:[0-9a-f]{32}$/);
-    await expectPromiseToError(
-      purchases.logOut(),
-      new PurchasesError(ErrorCode.LogOutWithAnonymousUserError),
     );
   });
 });

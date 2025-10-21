@@ -84,7 +84,7 @@ import { postSimulatedStoreReceipt } from "./helpers/simulated-store-post-receip
 import { InMemoryCache } from "./helpers/in-memory-cache";
 import type { VirtualCurrencies } from "./entities/virtual-currencies";
 import { toVirtualCurrencies } from "./entities/virtual-currencies";
-import type { LogInResult } from "./entities/log-in-result";
+import type { IdentifyResult } from "./entities/identify-result";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -126,7 +126,7 @@ export type { HttpConfig } from "./entities/http-config";
 export type { FlagsConfig } from "./entities/flags-config";
 export { LogLevel } from "./entities/logging";
 export type { LogHandler } from "./entities/logging";
-export type { LogInResult } from "./entities/log-in-result";
+export type { IdentifyResult } from "./entities/identify-result";
 export type { GetOfferingsParams } from "./entities/get-offerings-params";
 export { OfferingKeyword } from "./entities/get-offerings-params";
 export type { PurchaseParams } from "./entities/purchase-params";
@@ -921,18 +921,22 @@ export class Purchases {
   }
 
   /**
-   * Changes the current app user id, aliasing the previous user id with the new
-   * one. This will create an alias between the two user ids in RevenueCat.
-   * @returns The customer info for the new user id.
+   * Identifies the current user ID with the provided appUserId, as long as the
+   * previous user ID is an anonymous user ID. This will create an alias
+   * between the two user ids in RevenueCat and replace the current user ID used.
+   * If the old user ID is not anonymous, this method will change the current
+   * user ID to the given appUserId without creating an alias.
+   * @returns The customer info for the new user ID.
    * @throws {@link PurchasesError} if there is an error while performing the aliasing or fetching the customer info.
-   * @param newAppUserId
+   * @param appUserId
+   * @experimental This function is experimental and subject to changes in future versions.
    */
-  public async logIn(newAppUserId: string): Promise<LogInResult> {
-    validateAppUserId(newAppUserId);
+  public async identifyUser(appUserId: string): Promise<IdentifyResult> {
+    validateAppUserId(appUserId);
 
-    if (newAppUserId === this._appUserId) {
+    if (appUserId === this._appUserId) {
       Logger.debugLog(
-        `logIn called with the current appUserID: ${newAppUserId}. Ignoring.`,
+        `aliasUser called with the current appUserID: ${appUserId}. Ignoring.`,
       );
       return {
         customerInfo: await this.getCustomerInfo(),
@@ -940,27 +944,14 @@ export class Purchases {
       };
     }
 
-    const result = await this.backend.identify(this._appUserId, newAppUserId);
+    const result = await this.backend.identify(this._appUserId, appUserId);
 
-    await this.replaceUserId(newAppUserId);
+    await this.replaceUserId(appUserId);
 
     return {
       customerInfo: toCustomerInfo(result),
       wasCreated: result.was_created,
     };
-  }
-
-  /**
-   * Resets the Purchases client clearing the saved appUserID.
-   * This will generate a random anonymous user id and save it in the
-   * memory cache.
-   */
-  public async logOut(): Promise<CustomerInfo> {
-    if (this.isAnonymous()) {
-      throw new PurchasesError(ErrorCode.LogOutWithAnonymousUserError);
-    }
-
-    return this.changeUser(Purchases.generateRevenueCatAnonymousAppUserId());
   }
 
   private async replaceUserId(newAppUserId: string): Promise<void> {

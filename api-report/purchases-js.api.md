@@ -154,13 +154,13 @@ export interface HttpConfig {
 }
 
 // @public
-export type LogHandler = (logLevel: LogLevel, message: string) => void;
-
-// @public
-export interface LogInResult {
+export interface IdentifyResult {
     readonly customerInfo: CustomerInfo;
     readonly wasCreated: boolean;
 }
+
+// @public
+export type LogHandler = (logLevel: LogLevel, message: string) => void;
 
 // @public
 export enum LogLevel {
@@ -375,6 +375,7 @@ export class Purchases {
     getOfferings(params?: GetOfferingsParams): Promise<Offerings>;
     static getSharedInstance(): Purchases;
     getVirtualCurrencies(): Promise<VirtualCurrencies>;
+    identifyUser(appUserId: string): Promise<IdentifyResult>;
     invalidateVirtualCurrenciesCache(): void;
     // (undocumented)
     isAnonymous(): boolean;
@@ -382,8 +383,6 @@ export class Purchases {
     isEntitledTo(entitlementIdentifier: string): Promise<boolean>;
     // (undocumented)
     isSandbox(): boolean;
-    logIn(newAppUserId: string): Promise<LogInResult>;
-    logOut(): Promise<CustomerInfo>;
     preload(): Promise<void>;
     purchase(params: PurchaseParams): Promise<PurchaseResult>;
     // @deprecated

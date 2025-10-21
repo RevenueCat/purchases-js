@@ -2136,6 +2136,79 @@
           "extendsTokenRanges": []
         },
         {
+          "kind": "Interface",
+          "canonicalReference": "@revenuecat/purchases-js!IdentifyResult:interface",
+          "docComment": "/**\n * Represents the result of an identify user operation.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare interface IdentifyResult "
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "name": "IdentifyResult",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!IdentifyResult#customerInfo:member",
+              "docComment": "/**\n * The customer information after the logIn attempt.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly customerInfo: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "CustomerInfo",
+                  "canonicalReference": "@revenuecat/purchases-js!CustomerInfo:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "customerInfo",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!IdentifyResult#wasCreated:member",
+              "docComment": "/**\n * true if a new user has been registered in the backend, false if the user had already been registered.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly wasCreated: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "wasCreated",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
           "kind": "TypeAlias",
           "canonicalReference": "@revenuecat/purchases-js!LogHandler:type",
           "docComment": "/**\n * Custom log handler function type. Allows you to handle SDK log messages with your own logging system.\n *\n * @param logLevel - The log level of the message\n *\n * @param message - The log message\n *\n * @public\n */\n",
@@ -2169,79 +2242,6 @@
             "startIndex": 1,
             "endIndex": 4
           }
-        },
-        {
-          "kind": "Interface",
-          "canonicalReference": "@revenuecat/purchases-js!LogInResult:interface",
-          "docComment": "/**\n * Represents the result of a log in operation.\n *\n * @public\n */\n",
-          "excerptTokens": [
-            {
-              "kind": "Content",
-              "text": "export declare interface LogInResult "
-            }
-          ],
-          "fileUrlPath": "dist/Purchases.es.d.ts",
-          "releaseTag": "Public",
-          "name": "LogInResult",
-          "preserveMemberOrder": false,
-          "members": [
-            {
-              "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!LogInResult#customerInfo:member",
-              "docComment": "/**\n * The customer information after the logIn attempt.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "readonly customerInfo: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "CustomerInfo",
-                  "canonicalReference": "@revenuecat/purchases-js!CustomerInfo:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": true,
-              "isOptional": false,
-              "releaseTag": "Public",
-              "name": "customerInfo",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              }
-            },
-            {
-              "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!LogInResult#wasCreated:member",
-              "docComment": "/**\n * true if a new user has been registered in the backend, false if the user had already been registered.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "readonly wasCreated: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "boolean"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": true,
-              "isOptional": false,
-              "releaseTag": "Public",
-              "name": "wasCreated",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              }
-            }
-          ],
-          "extendsTokenRanges": []
         },
         {
           "kind": "Enum",
@@ -5907,6 +5907,68 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "@revenuecat/purchases-js!Purchases#identifyUser:member(1)",
+              "docComment": "/**\n * Identifies the current user ID with the provided appUserId, as long as the previous user ID is an anonymous user ID. This will create an alias between the two user ids in RevenueCat and replace the current user ID used. If the old user ID is not anonymous, this method will change the current user ID to the given appUserId without creating an alias.\n *\n * @param appUserId - This function is experimental and subject to changes in future versions.\n *\n * @returns The customer info for the new user ID.\n *\n * @throws\n *\n * {@link PurchasesError} if there is an error while performing the aliasing or fetching the customer info.\n *\n * @experimental\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "identifyUser(appUserId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IdentifyResult",
+                  "canonicalReference": "@revenuecat/purchases-js!IdentifyResult:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 7
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "appUserId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "identifyUser"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "@revenuecat/purchases-js!Purchases#invalidateVirtualCurrenciesCache:member(1)",
               "docComment": "/**\n * Invalidates the cache for virtual currencies.\n *\n * This is useful for cases where a virtual currency's balance might have been updated in a different part of your system, like if you decreased a user's balance from the user spending a virtual currency, or if you increased the balance from your backend using the server APIs.\n */\n",
               "excerptTokens": [
@@ -6081,113 +6143,6 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "isSandbox"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "@revenuecat/purchases-js!Purchases#logIn:member(1)",
-              "docComment": "/**\n * Changes the current app user id, aliasing the previous user id with the new one. This will create an alias between the two user ids in RevenueCat.\n *\n * @param newAppUserId - \n *\n * @returns The customer info for the new user id.\n *\n * @throws\n *\n * {@link PurchasesError} if there is an error while performing the aliasing or fetching the customer info.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "logIn(newAppUserId: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<"
-                },
-                {
-                  "kind": "Reference",
-                  "text": "LogInResult",
-                  "canonicalReference": "@revenuecat/purchases-js!LogInResult:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": ">"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 7
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "newAppUserId",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": false
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "logIn"
-            },
-            {
-              "kind": "Method",
-              "canonicalReference": "@revenuecat/purchases-js!Purchases#logOut:member(1)",
-              "docComment": "/**\n * Resets the Purchases client clearing the saved appUserID. This will generate a random anonymous user id and save it in the memory cache.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "logOut(): "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Promise",
-                  "canonicalReference": "!Promise:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<"
-                },
-                {
-                  "kind": "Reference",
-                  "text": "CustomerInfo",
-                  "canonicalReference": "@revenuecat/purchases-js!CustomerInfo:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": ">"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 5
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "logOut"
             },
             {
               "kind": "Method",

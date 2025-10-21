@@ -1,10 +1,10 @@
 import type { CustomerInfo } from "./customer-info";
 
 /**
- * Represents the result of a log in operation.
+ * Represents the result of an identify user operation.
  * @public
  */
-export interface LogInResult {
+export interface IdentifyResult {
   /**
    * The customer information after the logIn attempt.
    */
