@@ -52,7 +52,7 @@
   "error_page.error_message_unknown_error": "Сталася невідома помилка (код помилки: {{errorCode}}).",
   "error_page.button_try_again": "Спробувати ще раз",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
-  "paywall_variables.sub_relative_discount": "{{discount}}% знижки",
+  "paywall_variables.sub_relative_discount": "{{discount}}%",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Всього до сплати сьогодні",
   "product_info.subscribe_to": "Підписатися на",

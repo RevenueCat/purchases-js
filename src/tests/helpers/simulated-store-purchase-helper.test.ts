@@ -157,7 +157,9 @@ describe("purchaseSimulatedStoreProduct", () => {
     props?.onFailedPurchase();
 
     await expect(promise).rejects.toThrow(PurchasesError);
-    await expect(promise).rejects.toThrow("Simulated test purchase failure");
+    await expect(promise).rejects.toThrow(
+      "Purchase failure simulated successfully in Test Store.",
+    );
   });
 
   test("rejects with user cancelled error on cancel", async () => {
@@ -224,8 +226,9 @@ describe("purchaseSimulatedStoreProduct", () => {
     await expectPromiseToError(
       promise,
       new PurchasesError(
-        ErrorCode.ProductNotAvailableForPurchaseError,
-        "Simulated test purchase failure: no real transaction occurred",
+        ErrorCode.TestStoreSimulatedPurchaseError,
+        "Purchase failure simulated successfully in Test Store.",
+        "Simulated error successfully.",
       ),
     );
 

@@ -9,6 +9,7 @@
   import { type PriceBreakdown } from "../ui-types";
   import { type PricingPhase } from "../../entities/offerings";
   import Typography from "../atoms/typography.svelte";
+  import { englishLocale } from "../localization/constants";
 
   export type Props = {
     priceBreakdown: PriceBreakdown;
@@ -23,12 +24,26 @@
   const translator: Writable<Translator> = getContext(translatorContextKey);
 
   const introPriceDuration = $derived(
-    introPricePhase?.period
-      ? $translator.translatePeriod(
-          introPricePhase.period.number * introPricePhase.cycleCount,
-          introPricePhase.period.unit,
-        ) || ""
-      : "",
+    ({ hideSingularNumber }: { hideSingularNumber: boolean }) => {
+      const phase = introPricePhase;
+      if (!phase?.period) return "";
+
+      const { number, unit } = phase.period;
+      const totalPeriods = number * phase.cycleCount;
+
+      // Specifically for English locale, instead of showing "First 1 week for..." we show "First week for..."
+      // This is a customer paper cut that we want to fix, but we run into limitations of the templating translation system.
+      // In order to avoid impact to other locales, we only apply this to the English locale.
+      if (
+        totalPeriods === 1 &&
+        hideSingularNumber &&
+        $translator.selectedLocale === englishLocale
+      ) {
+        return $translator.translatePeriodUnit(unit) || "";
+      }
+
+      return $translator.translatePeriod(totalPeriods, unit) || "";
+    },
   );
 
   // Determine typography sizes - first visible element gets heading-lg, rest get heading-md
@@ -84,15 +99,27 @@
   {#if introPricePhase?.periodDuration}
     <div>
       <Typography size={introTypographySize}>
-        <Localized
-          key={hasTrial
-            ? LocalizationKeys.ProductInfoIntroPricePhaseAfterTrial
-            : LocalizationKeys.ProductInfoIntroPricePhase}
-          variables={{
-            introPriceDuration: introPriceDuration,
-            introPrice: formattedIntroPrice,
-          }}
-        />
+        {#if hasTrial}
+          <Localized
+            key={LocalizationKeys.ProductInfoIntroPricePhaseAfterTrial}
+            variables={{
+              introPriceDuration: introPriceDuration({
+                hideSingularNumber: false,
+              }),
+              introPrice: formattedIntroPrice,
+            }}
+          />
+        {:else}
+          <Localized
+            key={LocalizationKeys.ProductInfoIntroPricePhase}
+            variables={{
+              introPriceDuration: introPriceDuration({
+                hideSingularNumber: true,
+              }),
+              introPrice: formattedIntroPrice,
+            }}
+          />
+        {/if}
       </Typography>
 
       {#if isIntroPricePaidUpfront}

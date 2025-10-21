@@ -943,6 +943,148 @@ const weeklyProduct600 = {
   },
   defaultNonSubscriptionOption: null,
 };
+
+const weeklyProduct208 = {
+  identifier: "luigis_weekly",
+  displayName: "Luigi Special",
+  title: "Luigi Special",
+  description: "A fresh alternative to the Mario's, clean them up every week",
+  productType: "subscription",
+  currentPrice: {
+    amount: 208,
+    amountMicros: 2080000,
+    currency: "EUR",
+    formattedPrice: "€2.08",
+  },
+  price: {
+    amount: 208,
+    amountMicros: 2080000,
+    currency: "EUR",
+    formattedPrice: "€2.08",
+  },
+  normalPeriodDuration: "P1W",
+  presentedOfferingIdentifier: "MultiCurrencyTest",
+  presentedOfferingContext: {
+    offeringIdentifier: "MultiCurrencyTest",
+    targetingContext: null,
+    placementIdentifier: null,
+  },
+  defaultPurchaseOption: {
+    id: "base_option",
+    priceId: "prca9ad8d30922442b58e05",
+    base: {
+      periodDuration: "P1W",
+      period: {
+        number: 1,
+        unit: "week",
+      },
+      cycleCount: 1,
+      price: {
+        amount: 208,
+        amountMicros: 2080000,
+        currency: "EUR",
+        formattedPrice: "€2.08",
+      },
+      pricePerWeek: {
+        amount: 208,
+        amountMicros: 2080000,
+        currency: "EUR",
+        formattedPrice: "€2.08",
+      },
+      pricePerMonth: {
+        amount: 900,
+        amountMicros: 9000000,
+        currency: "EUR",
+        formattedPrice: "€9.00",
+      },
+      pricePerYear: {
+        amount: 10800,
+        amountMicros: 108000000,
+        currency: "EUR",
+        formattedPrice: "€108.00",
+      },
+    },
+    trial: null,
+  },
+  defaultSubscriptionOption: {
+    id: "base_option",
+    priceId: "prca9ad8d30922442b58e05",
+    base: {
+      periodDuration: "P1W",
+      period: {
+        number: 1,
+        unit: "week",
+      },
+      cycleCount: 1,
+      price: {
+        amount: 208,
+        amountMicros: 2080000,
+        currency: "EUR",
+        formattedPrice: "€2.08",
+      },
+      pricePerWeek: {
+        amount: 208,
+        amountMicros: 2080000,
+        currency: "EUR",
+        formattedPrice: "€2.08",
+      },
+      pricePerMonth: {
+        amount: 900,
+        amountMicros: 9000000,
+        currency: "EUR",
+        formattedPrice: "€9.00",
+      },
+      pricePerYear: {
+        amount: 10800,
+        amountMicros: 108000000,
+        currency: "EUR",
+        formattedPrice: "€108.00",
+      },
+    },
+    trial: null,
+  },
+  subscriptionOptions: {
+    base_option: {
+      id: "base_option",
+      priceId: "prca9ad8d30922442b58e05",
+      base: {
+        periodDuration: "P1W",
+        period: {
+          number: 1,
+          unit: "week",
+        },
+        cycleCount: 1,
+        price: {
+          amount: 208,
+          amountMicros: 2080000,
+          currency: "EUR",
+          formattedPrice: "€2.08",
+        },
+        pricePerWeek: {
+          amount: 208,
+          amountMicros: 2080000,
+          currency: "EUR",
+          formattedPrice: "€2.08",
+        },
+        pricePerMonth: {
+          amount: 900,
+          amountMicros: 9000000,
+          currency: "EUR",
+          formattedPrice: "€9.00",
+        },
+        pricePerYear: {
+          amount: 10800,
+          amountMicros: 108000000,
+          currency: "EUR",
+          formattedPrice: "€108.00",
+        },
+      },
+      trial: null,
+    },
+  },
+  defaultNonSubscriptionOption: null,
+};
+
 const offering = {
   identifier: "MultiCurrencyTest",
   serverDescription: "Multi currency test Nicola",
@@ -1020,14 +1162,14 @@ const samePricePackages = {
     },
     $rc_weekly: {
       identifier: "$rc_weekly",
-      rcBillingProduct: weeklyProduct,
-      webBillingProduct: weeklyProduct,
+      rcBillingProduct: weeklyProduct208,
+      webBillingProduct: weeklyProduct208,
       packageType: "$rc_weekly",
     },
     trial: {
       identifier: "trial",
-      rcBillingProduct: trialProduct,
-      webBillingProduct: trialProduct,
+      rcBillingProduct: trialProduct900,
+      webBillingProduct: trialProduct900,
       packageType: "custom",
     },
   },
@@ -1040,8 +1182,8 @@ const samePricePackages = {
     },
     {
       identifier: "$rc_weekly",
-      rcBillingProduct: weeklyProduct,
-      webBillingProduct: weeklyProduct,
+      rcBillingProduct: weeklyProduct208,
+      webBillingProduct: weeklyProduct208,
       packageType: "$rc_weekly",
     },
     {
@@ -1078,20 +1220,20 @@ const differentPricedPackages = {
   packagesById: {
     $rc_monthly: {
       identifier: "$rc_monthly",
-      rcBillingProduct: monthlyProduct,
-      webBillingProduct: monthlyProduct,
+      rcBillingProduct: monthlyProduct300,
+      webBillingProduct: monthlyProduct300,
       packageType: "$rc_monthly",
     },
     $rc_weekly: {
       identifier: "$rc_weekly",
-      rcBillingProduct: weeklyProduct,
-      webBillingProduct: weeklyProduct,
+      rcBillingProduct: weeklyProduct600,
+      webBillingProduct: weeklyProduct600,
       packageType: "$rc_weekly",
     },
     trial: {
       identifier: "trial",
-      rcBillingProduct: trialProduct,
-      webBillingProduct: trialProduct,
+      rcBillingProduct: trialProduct900,
+      webBillingProduct: trialProduct900,
       packageType: "custom",
     },
   },
@@ -1144,49 +1286,54 @@ describe("getPaywallVariables", () => {
         $rc_monthly: expect.objectContaining({
           "product.store_product_name": "Mario",
           "product.price": "€9.00",
-          "product.price_per_period_abbreviated": "€9.00/1mo",
-          "product.price_per_period": "€9.00/1month",
+          "product.price_per_period_abbreviated": "€9.00/mo",
+          "product.price_per_period": "€9.00/month",
           "product.period_with_unit": "1 month",
           "product.period_in_months": "1 month",
           "product.periodly": "monthly",
           "product.period": "month",
           "product.period_abbreviated": "mo",
           "product.price_per_month": "€9.00",
-          "product.price_per_week": "€9.00",
-          "product.relative_discount": "70% off",
+          "product.price_per_week": "€2.08",
+          "product.relative_discount": "77%",
         }),
         $rc_weekly: expect.objectContaining({
           "product.store_product_name": "Luigi Special",
           "product.price": "€9.00",
-          "product.price_per_period_abbreviated": "€9.00/1wk",
-          "product.price_per_period": "€9.00/1week",
+          "product.price_per_period_abbreviated": "€9.00/wk",
+          "product.price_per_period": "€9.00/week",
           "product.period_with_unit": "1 week",
           "product.period_in_months": "1 week",
           "product.periodly": "weekly",
           "product.period": "week",
           "product.period_abbreviated": "wk",
-          "product.price_per_month": "€36.00",
+          "product.price_per_month": "€38.97",
           "product.price_per_week": "€9.00",
-          "product.relative_discount": "70% off",
+          "product.relative_discount": "",
         }),
         trial: expect.objectContaining({
           "product.store_product_name": "Trial Mario",
           "product.price": "€30.00",
-          "product.price_per_period_abbreviated": "€30.00/1mo",
-          "product.price_per_period": "€30.00/1month",
+          "product.price_per_period_abbreviated": "€30.00/mo",
+          "product.price_per_period": "€30.00/month",
           "product.period_with_unit": "1 month",
           "product.period_in_months": "1 month",
           "product.periodly": "monthly",
           "product.period": "month",
           "product.period_abbreviated": "mo",
           "product.price_per_month": "€30.00",
-          "product.price_per_week": "€30.00",
-          "product.relative_discount": "",
+          "product.price_per_week": "€6.93",
+          "product.relative_discount": "23%",
         }),
       }),
     );
   });
   test("sub_relative_discount is calculated correctly for same-priced packages", () => {
+    /**
+     * Monthly: 9€/month
+     * Weekly: 2.08€/week - 9€/month
+     * Trial: 9€/month after trial
+     */
     const variables = parseOfferingIntoVariables(
       samePricePackages,
       enTranslator,
@@ -1196,14 +1343,20 @@ describe("getPaywallVariables", () => {
     );
   });
   test("sub_relative_discount is calculated correctly for two packages with the same price", () => {
-    const expectedValues = ["67% off", "33% off", ""];
+    /**
+     * Monthly: 3€/month = 88%off
+     * Weekly: 6€/week - 25.98€/month - most expensive
+     * Trial: 9€/month after trial = 65%off
+     */
+    const expectedValues = ["88%", "", "65%"];
+
     const variables = parseOfferingIntoVariables(
       differentPricedPackages,
       enTranslator,
     );
 
-    Object.values(variables).forEach((variable, idx) =>
-      expect(variable["product.relative_discount"]).toBe(expectedValues[idx]),
-    );
+    Object.values(variables).forEach((variable, idx) => {
+      expect(variable["product.relative_discount"]).toBe(expectedValues[idx]);
+    });
   });
 });

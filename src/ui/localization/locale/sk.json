@@ -52,7 +52,7 @@
   "error_page.error_message_unknown_error": "Vyskytla sa neznáma chyba (kód chyby: {{errorCode}}).",
   "error_page.button_try_again": "Skúsiť znova",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
-  "paywall_variables.sub_relative_discount": "{{discount}}% zľava",
+  "paywall_variables.sub_relative_discount": "{{discount}}%",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Celková suma splatná dnes",
   "product_info.subscribe_to": "Prihlásiť sa na odber",

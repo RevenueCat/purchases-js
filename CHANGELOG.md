@@ -1,3 +1,38 @@
+## 1.16.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Removed "off" from all "X% off" localization labels (#625) via Nicola Sacco (@nicfix)
+
+## 1.16.0
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Add support for existing production variable names (#599) via Franco Correa (@francocorreasosa)
+
+### 🔄 Other Changes
+* Bumped purchases-ui-js to v2.0.6 (#622) via Nicola Sacco (@nicfix)
+* Bump fastlane-plugin-revenuecat_internal from `3f7fffc` to `25c7fb8` (#621) via dependabot[bot] (@dependabot[bot])
+
+## 1.15.0
+## RevenueCat SDK
+### ✨ New Features
+* Add support for Test Store (#608) via Toni Rico (@tonidero)
+
+### 🔄 Other Changes
+* Add `TestStoreSimulatedPurchaseError` error code for test store simulated errors (#613) via Toni Rico (@tonidero)
+
+## 1.14.3
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Fix copy for single occurence of periodUnit (#611) via James O'Donnell (@james-od)
+
+### 🔄 Other Changes
+* Updated to the latest version of purchases-ui-js (#618) via Nicola Sacco (@nicfix)
+* Bump fastlane-plugin-revenuecat_internal from `7508f17` to `3f7fffc` (#617) via dependabot[bot] (@dependabot[bot])
+
+## 1.14.2
+### 🔄 Other Changes
+* Bumped purchases-ui-js to the latest version (#615) via Nicola Sacco (@nicfix)
+
 ## 1.14.1
 ## RevenueCat SDK
 ### 🐞 Bugfixes
