@@ -1,3 +1,8 @@
+## 1.17.0
+## RevenueCat SDK
+### ✨ New Features
+* Add `identifyUser` experimental function (#614) via Toni Rico (@tonidero)
+
 ## 1.16.1
 ## RevenueCat SDK
 ### 🐞 Bugfixes
