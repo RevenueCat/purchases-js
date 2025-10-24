@@ -20,10 +20,10 @@ const MONTHS_PER_YEAR = 12;
 // Helper function to get monthly equivalent price for any package
 function getPackageMonthlyPrice(pkg: Package): number {
   const price = pkg.webBillingProduct.price;
-  const product = getProductPerType(pkg);
+  const purchaseOption = getDefaultPurchaseOption(pkg);
   const period =
     pkg.webBillingProduct.period ||
-    (product as SubscriptionOption)?.base?.period;
+    (purchaseOption as SubscriptionOption)?.base?.period;
 
   if (!period || !period.number || period.number <= 0) {
     return price.amountMicros;
@@ -43,7 +43,12 @@ function getPackageMonthlyPrice(pkg: Package): number {
   }
 }
 
-function getProductPerType(pkg: Package): PurchaseOption | undefined | null {
+function getDefaultPurchaseOption(
+  pkg: Package,
+): PurchaseOption | undefined | null {
+  if (pkg.webBillingProduct.productType === ProductType.Subscription) {
+    return pkg.webBillingProduct.defaultSubscriptionOption;
+  }
   return pkg.webBillingProduct.defaultPurchaseOption;
 }
 
@@ -210,7 +215,7 @@ function parsePackageIntoVariables(
     productPrice.amountMicros,
     productPrice.currency,
   );
-  const product = getProductPerType(pkg);
+  const purchaseOption = getDefaultPurchaseOption(pkg);
   const productType = webBillingProduct.productType;
 
   const baseObject: VariableDictionary = {
@@ -250,22 +255,23 @@ function parsePackageIntoVariables(
     "product.secondary_offer_period_abbreviated": "",
     "product.relative_discount": "",
   };
-  if (productType === ProductType.Subscription && product) {
+  if (productType === ProductType.Subscription && purchaseOption) {
     // price per period (full and abbreviated)
     baseObject["product.price_per_period_abbreviated"] = getPricePerPeriod(
       formattedPrice,
-      product as SubscriptionOption,
+      purchaseOption as SubscriptionOption,
       translator,
     );
     baseObject["product.price_per_period"] = getPricePerPeriod(
       formattedPrice,
-      product as SubscriptionOption,
+      purchaseOption as SubscriptionOption,
       translator,
       true,
     );
 
     const basePeriod =
-      webBillingProduct.period || (product as SubscriptionOption).base.period;
+      webBillingProduct.period ||
+      (purchaseOption as SubscriptionOption).base.period;
 
     // price per week/month
     baseObject["product.price_per_month"] = getPricePerMonth({
@@ -329,7 +335,7 @@ function parsePackageIntoVariables(
   if (
     (productType === ProductType.NonConsumable ||
       productType === ProductType.Consumable) &&
-    product
+    purchaseOption
   ) {
     baseObject["product.price"] = formattedPrice;
     baseObject["product.price_per_period"] = formattedPrice;
