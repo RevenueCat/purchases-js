@@ -63,7 +63,7 @@ function getPricePerWeek(
 
   if (period.unit === "year") {
     return translator.formatPrice(
-      price.amountMicros / MONTHS_PER_YEAR / WEEKS_PER_MONTH,
+      price.amountMicros / WEEKS_PER_YEAR / period.number,
       price.currency,
     );
   }
@@ -73,7 +73,7 @@ function getPricePerWeek(
       price.currency,
     );
   }
-  if (period.unit === "week" && period.number > 1) {
+  if (period.unit === "week") {
     return translator.formatPrice(
       price.amountMicros / period.number,
       price.currency,
