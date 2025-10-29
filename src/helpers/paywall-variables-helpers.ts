@@ -1,21 +1,22 @@
+import { type VariableDictionary } from "@revenuecat/purchases-ui-js";
 import {
   type Offering,
   type Package,
-  type Price,
   ProductType,
   type PurchaseOption,
   type SubscriptionOption,
 } from "../entities/offerings";
-import { type Period, PeriodUnit } from "./duration-helper";
-import { type VariableDictionary } from "@revenuecat/purchases-ui-js";
 import { type Translator } from "../ui/localization/translator";
+import type { PeriodUnit } from "./duration-helper";
 
 import { LocalizationKeys } from "../ui/localization/supportedLanguages";
-
-// Conversion constants for consistent pricing calculations
-const WEEKS_PER_MONTH = 4.33; // More accurate: 52 weeks / 12 months
-const DAYS_PER_MONTH = 30;
-const MONTHS_PER_YEAR = 12;
+import {
+  DAYS_PER_MONTH,
+  MONTHS_PER_YEAR,
+  setPeriodVariables,
+  WEEKS_PER_MONTH,
+} from "./paywall-period-helpers";
+import { setPriceVariables } from "./paywall-price-helpers";
 
 // Helper function to get monthly equivalent price for any package
 function getPackageMonthlyPrice(pkg: Package): number {
@@ -76,107 +77,6 @@ function getPricePerPeriod(
           )
       : "",
   });
-}
-
-function getDurationInMonths(period: Period, translator: Translator) {
-  if (period.unit === "year") {
-    return translator.translatePeriod(period.number * 12, PeriodUnit.Month);
-  }
-  return translator.translatePeriod(period.number, period.unit);
-}
-
-function getPricePerWeek({
-  price,
-  period,
-  translator,
-}: {
-  price: Price;
-  period: Period | null;
-  translator: Translator;
-  full?: boolean;
-}) {
-  const fallback = translator.formatPrice(price.amountMicros, price.currency);
-
-  if (!period) return fallback;
-
-  if (period.unit === "year") {
-    return translator.formatPrice(
-      price.amountMicros / MONTHS_PER_YEAR / WEEKS_PER_MONTH,
-      price.currency,
-    );
-  }
-  if (period.unit === "month") {
-    return translator.formatPrice(
-      price.amountMicros / WEEKS_PER_MONTH / period.number,
-      price.currency,
-    );
-  }
-  if (period.unit === "week" && period.number > 1) {
-    return translator.formatPrice(
-      price.amountMicros / period.number,
-      price.currency,
-    );
-  }
-  if (period.unit === "day") {
-    return translator.formatPrice(
-      (price.amountMicros * 7) / period.number,
-      price.currency,
-    );
-  }
-
-  return fallback;
-}
-
-export function getPricePerMonth({
-  price,
-  period,
-  translator,
-}: {
-  price: Price;
-  period: Period | null;
-  translator: Translator;
-  full?: boolean;
-}) {
-  // Check if price is valid
-  if (!price || price.amountMicros === 0 || !price.currency) {
-    return "N/A";
-  }
-
-  // If no period info, assume it's a monthly price
-  if (!period || !period.number || period.number <= 0) {
-    return translator.formatPrice(price.amountMicros, price.currency);
-  }
-
-  if (period.unit === "year") {
-    return translator.formatPrice(
-      price.amountMicros / MONTHS_PER_YEAR,
-      price.currency,
-    );
-  }
-  if (period.unit === "month") {
-    return translator.formatPrice(
-      price.amountMicros / period.number,
-      price.currency,
-    );
-  }
-  if (period.unit === "week") {
-    return translator.formatPrice(
-      (price.amountMicros * WEEKS_PER_MONTH) / period.number,
-      price.currency,
-    );
-  }
-  if (period.unit === "day") {
-    return translator.formatPrice(
-      (price.amountMicros * DAYS_PER_MONTH) / period.number,
-      price.currency,
-    );
-  }
-
-  // Fallback: treat as monthly if unit is unrecognized
-  return translator.formatPrice(
-    price.amountMicros / (period.number || 1),
-    price.currency,
-  );
 }
 
 export function parseOfferingIntoVariables(
@@ -273,40 +173,26 @@ function parsePackageIntoVariables(
       webBillingProduct.period ||
       (purchaseOption as SubscriptionOption).base.period;
 
-    // price per week/month
-    baseObject["product.price_per_month"] = getPricePerMonth({
-      price: productPrice,
-      period: basePeriod,
-      translator,
-    });
-
-    baseObject["product.price_per_week"] = getPricePerWeek({
-      price: productPrice,
-      period: basePeriod,
-      translator,
-    });
+    setPriceVariables(productPrice, basePeriod, translator, baseObject);
 
     // periods
-    baseObject["product.period_with_unit"] =
-      translator.translatePeriod(
-        basePeriod?.number as number,
-        basePeriod?.unit as PeriodUnit,
-      ) || "";
+    if (basePeriod) {
+      baseObject["product.period_with_unit"] =
+        translator.translatePeriod(basePeriod.number, basePeriod.unit) || "";
 
-    baseObject["product.period_in_months"] =
-      getDurationInMonths(basePeriod as Period, translator) || "";
+      baseObject["product.period"] =
+        translator.translatePeriodUnit(basePeriod.unit as PeriodUnit, {
+          noWhitespace: true,
+        }) || "";
+
+      setPeriodVariables(basePeriod, baseObject);
+    }
 
     baseObject["product.periodly"] =
       translator.translatePeriodFrequency(
         basePeriod?.number as number,
         basePeriod?.unit as PeriodUnit,
       ) || "";
-
-    baseObject["product.period"] = basePeriod
-      ? translator.translatePeriodUnit(basePeriod.unit as PeriodUnit, {
-          noWhitespace: true,
-        }) || ""
-      : "";
 
     baseObject["product.period_abbreviated"] = basePeriod
       ? translator.translatePeriodUnit(basePeriod.unit as PeriodUnit, {

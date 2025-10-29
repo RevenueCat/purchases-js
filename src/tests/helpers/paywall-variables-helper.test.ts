@@ -4,7 +4,7 @@ import { Translator } from "../../ui/localization/translator";
 import { englishLocale } from "../../ui/localization/constants";
 import { PeriodUnit } from "../../helpers/duration-helper";
 import { toOffering } from "../utils/fixtures-utils";
-
+import type { VariableDictionary } from "@revenuecat/purchases-ui-js";
 const enTranslator = new Translator({}, englishLocale);
 
 describe("getPaywallVariables", () => {
@@ -51,42 +51,57 @@ describe("getPaywallVariables", () => {
           "product.price_per_period_abbreviated": "€9.00/mo",
           "product.price_per_period": "€9.00/month",
           "product.period_with_unit": "1 month",
-          "product.period_in_months": "1 month",
+          "product.period_in_days": "30",
+          "product.period_in_weeks": "4.33",
+          "product.period_in_months": "1",
+          "product.period_in_years": "0",
           "product.periodly": "monthly",
           "product.period": "month",
           "product.period_abbreviated": "mo",
+          "product.price_per_year": "€108.00",
           "product.price_per_month": "€9.00",
           "product.price_per_week": "€2.08",
+          "product.price_per_day": "€0.30",
           "product.relative_discount": "77%",
-        }),
+        } satisfies Partial<VariableDictionary>),
         $rc_weekly: expect.objectContaining({
           "product.store_product_name": "Luigi",
           "product.price": "€9.00",
           "product.price_per_period_abbreviated": "€9.00/wk",
           "product.price_per_period": "€9.00/week",
           "product.period_with_unit": "1 week",
-          "product.period_in_months": "1 week",
+          "product.period_in_days": "7",
+          "product.period_in_months": "0",
+          "product.period_in_weeks": "1",
+          "product.period_in_years": "0",
           "product.periodly": "weekly",
           "product.period": "week",
           "product.period_abbreviated": "wk",
+          "product.price_per_year": "€468.00",
           "product.price_per_month": "€38.97",
           "product.price_per_week": "€9.00",
+          "product.price_per_day": "€1.29",
           "product.relative_discount": "",
-        }),
+        } satisfies Partial<VariableDictionary>),
         trial: expect.objectContaining({
           "product.store_product_name": "Mario with Trial",
           "product.price": "€30.00",
           "product.price_per_period_abbreviated": "€30.00/mo",
           "product.price_per_period": "€30.00/month",
           "product.period_with_unit": "1 month",
-          "product.period_in_months": "1 month",
+          "product.period_in_days": "30",
+          "product.period_in_months": "1",
+          "product.period_in_weeks": "4.33",
+          "product.period_in_years": "0",
           "product.periodly": "monthly",
           "product.period": "month",
           "product.period_abbreviated": "mo",
+          "product.price_per_year": "€360.00",
           "product.price_per_month": "€30.00",
           "product.price_per_week": "€6.93",
+          "product.price_per_day": "€1.00",
           "product.relative_discount": "23%",
-        }),
+        } satisfies Partial<VariableDictionary>),
       }),
     );
   });
