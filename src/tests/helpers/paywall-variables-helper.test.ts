@@ -1,9 +1,9 @@
 import { describe, expect, test } from "vitest";
-import { parseOfferingIntoVariables } from "../../../helpers/paywall-variables-helpers";
-import { Translator } from "../../../ui/localization/translator";
-import { englishLocale } from "../../../ui/localization/constants";
-import { PeriodUnit } from "../../../helpers/duration-helper";
-import { toOffering } from "./fixtures-utils";
+import { parseOfferingIntoVariables } from "../../helpers/paywall-variables-helpers";
+import { Translator } from "../../ui/localization/translator";
+import { englishLocale } from "../../ui/localization/constants";
+import { PeriodUnit } from "../../helpers/duration-helper";
+import { toOffering } from "../utils/fixtures-utils";
 
 const enTranslator = new Translator({}, englishLocale);
 

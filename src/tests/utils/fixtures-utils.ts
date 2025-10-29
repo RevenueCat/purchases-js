@@ -1,12 +1,12 @@
-import { type Period, PeriodUnit } from "../../../helpers/duration-helper";
+import { type Period, PeriodUnit } from "../../helpers/duration-helper";
 import {
   type Offering,
   type Package,
   PackageType,
   type Product,
   ProductType,
-} from "../../../entities/offerings";
-import { formatPrice } from "../../../helpers/price-labels";
+} from "../../entities/offerings";
+import { formatPrice } from "../../helpers/price-labels";
 
 export interface MinimumProductInfo {
   identifier: string;
