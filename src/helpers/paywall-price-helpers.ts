@@ -94,13 +94,7 @@ function getPricePerMonth(
   period: Period | null,
   translator: Translator,
 ) {
-  // Check if price is valid
-  if (!price || price.amountMicros === 0 || !price.currency) {
-    return "N/A";
-  }
-
-  // If no period info, assume it's a monthly price
-  if (!period || !period.number || period.number <= 0) {
+  if (!period) {
     return translator.formatPrice(price.amountMicros, price.currency);
   }
 
