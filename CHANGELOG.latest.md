@@ -1,3 +1,3 @@
 ## RevenueCat SDK
-### ✨ New Features
-* Add `identifyUser` experimental function (#614) via Toni Rico (@tonidero)
+### 🐞 Bugfixes
+* Add period and price variables (#632) via Marek Dabek (@marek-dabek)

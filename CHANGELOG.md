@@ -1,3 +1,8 @@
+## 1.17.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Add period and price variables (#632) via Marek Dabek (@marek-dabek)
+
 ## 1.17.0
 ## RevenueCat SDK
 ### ✨ New Features
