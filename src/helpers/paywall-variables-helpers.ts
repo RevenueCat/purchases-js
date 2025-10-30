@@ -144,7 +144,9 @@ function parsePackageIntoVariables(
     "product.period_in_years": "",
     "product.period_with_unit": "",
     "product.currency_code": productPrice.currency,
-    "product.currency_symbol": "",
+    "product.currency_symbol": translator
+      .formatPrice(0, productPrice.currency)
+      .replace("0", ""),
     "product.offer_price": "",
     "product.offer_price_per_day": "",
     "product.offer_price_per_week": "",
@@ -163,6 +165,7 @@ function parsePackageIntoVariables(
     "product.secondary_offer_period_abbreviated": "",
     "product.relative_discount": "",
   };
+
   if (productIsSubscription(productType, purchaseOption)) {
     // price per period (full and abbreviated)
     baseObject["product.price_per_period_abbreviated"] = getPricePerPeriod(
