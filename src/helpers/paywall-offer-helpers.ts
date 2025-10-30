@@ -33,8 +33,6 @@ export function setOfferVariables(
   const primaryOffer = product.trial ?? product.introPrice;
   const secondaryOffer = product.trial ? product.introPrice : null;
 
-  console.log("primaryOffer", product);
-
   if (primaryOffer === null) {
     return;
   }
