@@ -38,7 +38,7 @@ function getDurationInWeeks(period: Period): number {
 function getDurationInMonths(period: Period): number {
   switch (period.unit) {
     case PeriodUnit.Year:
-      return period.number * 12;
+      return period.number * MONTHS_PER_YEAR;
     case PeriodUnit.Month:
       return period.number;
     case PeriodUnit.Week:
@@ -62,15 +62,9 @@ export function setPeriodVariables(
   period: Period,
   variables: VariableDictionary,
 ) {
-  variables["product.period_in_days"] =
-    getDurationInDays(period).toString() || "";
-
-  variables["product.period_in_weeks"] =
-    getDurationInWeeks(period).toString() || "";
-
+  variables["product.period_in_days"] = getDurationInDays(period).toString();
+  variables["product.period_in_weeks"] = getDurationInWeeks(period).toString();
   variables["product.period_in_months"] =
-    getDurationInMonths(period).toString() || "";
-
-  variables["product.period_in_years"] =
-    getDurationInYears(period).toString() || "";
+    getDurationInMonths(period).toString();
+  variables["product.period_in_years"] = getDurationInYears(period).toString();
 }
