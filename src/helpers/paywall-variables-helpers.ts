@@ -7,7 +7,7 @@ import {
   type SubscriptionOption,
 } from "../entities/offerings";
 import { type Translator } from "../ui/localization/translator";
-import type { PeriodUnit } from "./duration-helper";
+import { PeriodUnit } from "./duration-helper";
 
 import { LocalizationKeys } from "../ui/localization/supportedLanguages";
 import {
@@ -31,13 +31,13 @@ function getPackageMonthlyPrice(pkg: Package): number {
   }
 
   switch (period.unit) {
-    case "year":
+    case PeriodUnit.Year:
       return price.amountMicros / MONTHS_PER_YEAR;
-    case "month":
+    case PeriodUnit.Month:
       return price.amountMicros / period.number;
-    case "week":
+    case PeriodUnit.Week:
       return (price.amountMicros * WEEKS_PER_MONTH) / period.number;
-    case "day":
+    case PeriodUnit.Day:
       return (price.amountMicros * DAYS_PER_MONTH) / period.number;
     default:
       return price.amountMicros / (period.number || 1);
