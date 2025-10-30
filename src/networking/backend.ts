@@ -3,7 +3,6 @@ import { performRequest } from "./http-client";
 import {
   CheckoutCalculateTaxEndpoint,
   CheckoutCompleteEndpoint,
-  CreatePayPalOrderEndpoint,
   CheckoutStartEndpoint,
   GetBrandingInfoEndpoint,
   GetCheckoutStatusEndpoint,
@@ -28,7 +27,6 @@ import type {
 } from "../entities/offerings";
 import type { CheckoutCompleteResponse } from "./responses/checkout-complete-response";
 import type { CheckoutCalculateTaxResponse } from "./responses/checkout-calculate-tax-response";
-import type { CreatePayPalOrderResponse } from "./responses/paypal";
 import { SetAttributesEndpoint } from "./endpoints";
 import { isWebBillingSandboxApiKey } from "../helpers/api-key-helper";
 import type { IdentifyResponse } from "./responses/identify-response";
@@ -209,18 +207,6 @@ export class Backend {
         httpConfig: this.httpConfig,
       },
       signal,
-    );
-  }
-
-  async postCreatePaypalOrder(
-    operationSessionId: string,
-  ): Promise<CreatePayPalOrderResponse> {
-    return await performRequest<null, CreatePayPalOrderResponse>(
-      new CreatePayPalOrderEndpoint(operationSessionId),
-      {
-        apiKey: this.API_KEY,
-        httpConfig: this.httpConfig,
-      },
     );
   }
 

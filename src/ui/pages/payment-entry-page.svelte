@@ -48,7 +48,6 @@
   import { getInitialPriceFromPurchaseOption } from "../../helpers/purchase-option-price-helper";
   import type { PayPalGatewayParams } from "../../networking/responses/paypal";
   import { PayPalServiceError } from "../../paypal/paypal-service";
-  import type { OnApproveDataOneTimePayments } from "@paypal/paypal-js/sdk-v6";
 
   type View = "loading" | "form" | "error";
 
@@ -301,41 +300,27 @@
 
   async function handlePaypalCreateOrder(): Promise<{ orderId: string }> {
     try {
-      const response =
-        await purchaseOperationHelper.checkoutPaypalCreateOrder();
-      return { orderId: response.order_id };
+      const response = await purchaseOperationHelper.checkoutComplete({
+        email: email,
+        gateway: "paypal",
+      });
+      return { orderId: response.gateway_params.order_id ?? "" };
     } catch (error) {
       await handleErrors(error);
       throw error;
     }
   }
 
-  async function handlePaypalApprove(
-    data: OnApproveDataOneTimePayments,
-  ): Promise<void> {
+  async function handlePaypalApprove(): Promise<void> {
+    if (processing) return;
+
     const event = createCheckoutPaymentFormSubmitEvent({
       selectedPaymentMethod: "paypal",
     });
     eventsTracker.trackSDKEvent(event);
 
-    await withAbortProtection(async (signal) => {
-      try {
-        // TODO: replace with correct request body
-        await purchaseOperationHelper.checkoutComplete({
-          paypal_order_id: data.orderId,
-          paypal_payer_id: data.payerId,
-        });
-
-        signal?.throwIfAborted();
-
-        onContinue();
-      } catch (error) {
-        if (!signal.aborted) {
-          await handleErrors(error);
-        }
-        throw error;
-      }
-    });
+    processing = true;
+    onContinue();
   }
 
   async function handlePaypalError(error: unknown) {

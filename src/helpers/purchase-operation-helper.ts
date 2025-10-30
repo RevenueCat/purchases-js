@@ -25,7 +25,6 @@ import {
 import { type IEventsTracker } from "../behavioural-events/events-tracker";
 import type { CheckoutCompleteResponse } from "../networking/responses/checkout-complete-response";
 import type { CheckoutCalculateTaxResponse } from "../networking/responses/checkout-calculate-tax-response";
-import type { CreatePayPalOrderResponse } from "../networking/responses/paypal";
 
 export enum PurchaseFlowErrorCode {
   ErrorSettingUpPurchase = 0,
@@ -108,8 +107,7 @@ export interface OperationSessionSuccessfulResult {
 }
 
 export interface CheckoutCompleteRequestBody {
-  paypal_order_id?: string;
-  paypal_payer_id?: string;
+  gateway?: "paypal";
   email?: string;
 }
 
@@ -201,35 +199,6 @@ export class PurchaseOperationHelper {
         Logger.errorLog(errorMessage);
         throw new PurchaseFlowError(
           PurchaseFlowErrorCode.UnknownError,
-          errorMessage,
-        );
-      }
-    }
-  }
-
-  async checkoutPaypalCreateOrder(): Promise<CreatePayPalOrderResponse> {
-    const operationSessionId = this.operationSessionId;
-    if (!operationSessionId) {
-      throw new PurchaseFlowError(
-        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-        "No purchase started",
-      );
-    }
-
-    try {
-      return await this.backend.postCreatePaypalOrder(operationSessionId);
-    } catch (error) {
-      if (error instanceof PurchasesError) {
-        throw PurchaseFlowError.fromPurchasesError(
-          error,
-          PurchaseFlowErrorCode.PayPalOrderCreationFailed,
-        );
-      } else {
-        const errorMessage =
-          "Unknown error creating PayPal order: " + String(error);
-        Logger.errorLog(errorMessage);
-        throw new PurchaseFlowError(
-          PurchaseFlowErrorCode.PayPalOrderCreationFailed,
           errorMessage,
         );
       }
