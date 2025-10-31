@@ -1,4 +1,5 @@
 import { type Period, PeriodUnit } from "../../helpers/duration-helper";
+import type { SubscriptionOption } from "../../entities/offerings";
 import {
   type Offering,
   type Package,
@@ -17,6 +18,8 @@ export interface MinimumProductInfo {
   pricePerMonthMicros?: number;
   pricePerYearMicros?: number;
   currency?: string;
+  trial?: SubscriptionOption["trial"];
+  introPrice?: SubscriptionOption["introPrice"];
 }
 
 export interface MinimumPackageInfo extends MinimumProductInfo {
@@ -69,6 +72,8 @@ export const buildProduct: (data: MinimumProductInfo) => Product = ({
   pricePerMonthMicros = 9000000,
   pricePerYearMicros = 109500000,
   currency = "EUR",
+  trial = null,
+  introPrice = null,
 }) => {
   const toPrice = (amountMicros: number, currency: string) => ({
     amount: Math.floor(amountMicros / 10000),
@@ -94,9 +99,9 @@ export const buildProduct: (data: MinimumProductInfo) => Product = ({
       pricePerMonth: pricePerMonth,
       pricePerYear: pricePerYear,
     },
-    trial: null,
-    introPrice: null,
-  };
+    trial,
+    introPrice,
+  } satisfies SubscriptionOption;
 
   return {
     identifier: identifier,

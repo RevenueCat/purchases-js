@@ -1,4 +1,4 @@
-import type { VariableDictionary } from "@revenuecat/purchases-ui-js";
+import { type Translator } from "../ui/localization/translator";
 import { type Period, PeriodUnit } from "./duration-helper";
 
 // Conversion constants for consistent pricing calculations
@@ -9,7 +9,7 @@ export const WEEKS_PER_MONTH = 4.33; // More accurate: 52 weeks / 12 months
 export const WEEKS_PER_YEAR = 52;
 export const MONTHS_PER_YEAR = 12;
 
-function getDurationInDays(period: Period): number {
+export function getDurationInDays(period: Period): number {
   switch (period.unit) {
     case PeriodUnit.Year:
       return period.number * DAYS_PER_YEAR;
@@ -58,13 +58,32 @@ function getDurationInYears(period: Period): number {
   }
 }
 
-export function setPeriodVariables(
+interface PeriodVariables {
+  period: string;
+  periodWithUnit: string;
+  periodAbbreviated: string;
+  periodInDays: string;
+  periodInWeeks: string;
+  periodInMonths: string;
+  periodInYears: string;
+}
+
+export function getPeriodVariables(
   period: Period,
-  variables: VariableDictionary,
-) {
-  variables["product.period_in_days"] = getDurationInDays(period).toString();
-  variables["product.period_in_weeks"] = getDurationInWeeks(period).toString();
-  variables["product.period_in_months"] =
-    getDurationInMonths(period).toString();
-  variables["product.period_in_years"] = getDurationInYears(period).toString();
+  translator: Translator,
+): PeriodVariables {
+  const { unit, number } = period;
+  return {
+    period: translator.translatePeriodUnit(unit, { noWhitespace: true }) ?? "",
+    periodAbbreviated:
+      translator.translatePeriodUnit(unit, {
+        noWhitespace: true,
+        short: true,
+      }) ?? "",
+    periodWithUnit: translator.translatePeriod(number, unit) ?? "",
+    periodInDays: getDurationInDays(period).toString(),
+    periodInWeeks: getDurationInWeeks(period).toString(),
+    periodInMonths: getDurationInMonths(period).toString(),
+    periodInYears: getDurationInYears(period).toString(),
+  };
 }

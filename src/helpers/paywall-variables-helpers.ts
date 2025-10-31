@@ -12,11 +12,12 @@ import { PeriodUnit } from "./duration-helper";
 import { LocalizationKeys } from "../ui/localization/supportedLanguages";
 import {
   DAYS_PER_MONTH,
+  getPeriodVariables,
   MONTHS_PER_YEAR,
-  setPeriodVariables,
   WEEKS_PER_MONTH,
 } from "./paywall-period-helpers";
-import { setPriceVariables } from "./paywall-price-helpers";
+import { getPriceVariables } from "./paywall-price-helpers";
+import { setOfferVariables } from "./paywall-offer-helpers";
 
 // Helper function to get monthly equivalent price for any package
 function getPackageMonthlyPrice(pkg: Package): number {
@@ -51,6 +52,13 @@ function getDefaultPurchaseOption(
     return pkg.webBillingProduct.defaultSubscriptionOption;
   }
   return pkg.webBillingProduct.defaultPurchaseOption;
+}
+
+function productIsSubscription(
+  productType: ProductType,
+  product: PurchaseOption | undefined | null,
+): product is SubscriptionOption {
+  return productType === ProductType.Subscription && product != null;
 }
 
 function getPricePerPeriod(
@@ -136,7 +144,9 @@ function parsePackageIntoVariables(
     "product.period_in_years": "",
     "product.period_with_unit": "",
     "product.currency_code": productPrice.currency,
-    "product.currency_symbol": "",
+    "product.currency_symbol": translator
+      .formatPrice(0, productPrice.currency)
+      .replace("0", ""),
     "product.offer_price": "",
     "product.offer_price_per_day": "",
     "product.offer_price_per_week": "",
@@ -155,51 +165,50 @@ function parsePackageIntoVariables(
     "product.secondary_offer_period_abbreviated": "",
     "product.relative_discount": "",
   };
-  if (productType === ProductType.Subscription && purchaseOption) {
+
+  if (productIsSubscription(productType, purchaseOption)) {
     // price per period (full and abbreviated)
     baseObject["product.price_per_period_abbreviated"] = getPricePerPeriod(
       formattedPrice,
-      purchaseOption as SubscriptionOption,
+      purchaseOption,
       translator,
     );
     baseObject["product.price_per_period"] = getPricePerPeriod(
       formattedPrice,
-      purchaseOption as SubscriptionOption,
+      purchaseOption,
       translator,
       true,
     );
 
-    const basePeriod =
-      webBillingProduct.period ||
-      (purchaseOption as SubscriptionOption).base.period;
+    const basePeriod = webBillingProduct.period || purchaseOption.base.period;
 
-    setPriceVariables(productPrice, basePeriod, translator, baseObject);
+    const priceVariables = getPriceVariables(
+      productPrice,
+      basePeriod,
+      translator,
+    );
+    baseObject["product.price_per_day"] = priceVariables.pricePerDay;
+    baseObject["product.price_per_week"] = priceVariables.pricePerWeek;
+    baseObject["product.price_per_month"] = priceVariables.pricePerMonth;
+    baseObject["product.price_per_year"] = priceVariables.pricePerYear;
 
     // periods
     if (basePeriod) {
-      baseObject["product.period_with_unit"] =
-        translator.translatePeriod(basePeriod.number, basePeriod.unit) || "";
+      const periodVars = getPeriodVariables(basePeriod, translator);
+      baseObject["product.period"] = periodVars.period;
+      baseObject["product.period_abbreviated"] = periodVars.periodAbbreviated;
+      baseObject["product.period_with_unit"] = periodVars.periodWithUnit;
+      baseObject["product.period_in_days"] = periodVars.periodInDays;
+      baseObject["product.period_in_weeks"] = periodVars.periodInWeeks;
+      baseObject["product.period_in_months"] = periodVars.periodInMonths;
+      baseObject["product.period_in_years"] = periodVars.periodInYears;
 
-      baseObject["product.period"] =
-        translator.translatePeriodUnit(basePeriod.unit as PeriodUnit, {
-          noWhitespace: true,
-        }) || "";
-
-      setPeriodVariables(basePeriod, baseObject);
+      baseObject["product.periodly"] =
+        translator.translatePeriodFrequency(
+          basePeriod.number,
+          basePeriod.unit,
+        ) || "";
     }
-
-    baseObject["product.periodly"] =
-      translator.translatePeriodFrequency(
-        basePeriod?.number as number,
-        basePeriod?.unit as PeriodUnit,
-      ) || "";
-
-    baseObject["product.period_abbreviated"] = basePeriod
-      ? translator.translatePeriodUnit(basePeriod.unit as PeriodUnit, {
-          noWhitespace: true,
-          short: true,
-        }) || ""
-      : "";
 
     // Calculate discount based on monthly equivalent prices
     const packageMonthlyPrice = getPackageMonthlyPrice(pkg);
@@ -216,6 +225,8 @@ function parsePackageIntoVariables(
               discount: discount.toFixed(0),
             },
           );
+
+    setOfferVariables(purchaseOption, translator, baseObject);
   }
 
   if (

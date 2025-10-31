@@ -1,14 +1,54 @@
-import { describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { parseOfferingIntoVariables } from "../../helpers/paywall-variables-helpers";
 import { Translator } from "../../ui/localization/translator";
 import { englishLocale } from "../../ui/localization/constants";
 import { PeriodUnit } from "../../helpers/duration-helper";
 import { toOffering } from "../utils/fixtures-utils";
 import type { VariableDictionary } from "@revenuecat/purchases-ui-js";
+import type {
+  PricingPhase,
+  SubscriptionOption,
+} from "../../entities/offerings";
+
 const enTranslator = new Translator({}, englishLocale);
 
 describe("getPaywallVariables", () => {
+  const trial: SubscriptionOption["trial"] = {
+    period: { unit: PeriodUnit.Week, number: 2 },
+    periodDuration: "P2W",
+    cycleCount: 1,
+    price: null,
+    pricePerWeek: null,
+    pricePerMonth: null,
+    pricePerYear: null,
+  } satisfies PricingPhase;
+
+  const introPrice: SubscriptionOption["introPrice"] = {
+    period: { unit: PeriodUnit.Month, number: 2 },
+    periodDuration: "P2M",
+    cycleCount: 1,
+    price: {
+      amount: 4500,
+      amountMicros: 4500000,
+      currency: "EUR",
+      formattedPrice: "45.00€",
+    },
+    pricePerWeek: null,
+    pricePerMonth: null,
+    pricePerYear: null,
+  } satisfies PricingPhase;
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   test("should return expected paywall variables", () => {
+    vi.setSystemTime(new Date("2025-10-30T00:00:00.000Z"));
+
     const off = toOffering([
       {
         packageIdentifier: "$rc_monthly",
@@ -19,6 +59,8 @@ describe("getPaywallVariables", () => {
         //pricePerWeekMicros: 2100000,
         //pricePerMonthMicros: 9000000,
         //pricePerYearMicros: 109500000,
+        trial,
+        introPrice,
       },
       {
         packageIdentifier: "$rc_weekly",
@@ -30,6 +72,19 @@ describe("getPaywallVariables", () => {
         //pricePerMonthMicros: 39000000,
         //pricePerWeekMicros: 9000000,
         //pricePerYearMicros: 474000000,
+        trial,
+      },
+      {
+        packageIdentifier: "$rc_yearly",
+        identifier: "yearly_bingo",
+        title: "Peach",
+        period: { unit: PeriodUnit.Year, number: 1 },
+        basePriceMicros: 9000000,
+        // Server side PerPeriod prices are ignored for now and recalculated locally
+        //pricePerMonthMicros: 39000000,
+        //pricePerWeekMicros: 9000000,
+        //pricePerYearMicros: 474000000,
+        introPrice,
       },
       {
         packageIdentifier: "trial",
@@ -63,7 +118,25 @@ describe("getPaywallVariables", () => {
           "product.price_per_week": "€2.08",
           "product.price_per_day": "€0.30",
           "product.relative_discount": "77%",
-        } satisfies Partial<VariableDictionary>),
+          "product.currency_code": "EUR",
+          "product.currency_symbol": "€",
+          "product.offer_price": "",
+          "product.offer_price_per_day": "",
+          "product.offer_price_per_week": "",
+          "product.offer_price_per_month": "",
+          "product.offer_price_per_year": "",
+          "product.offer_period": "week",
+          "product.offer_period_abbreviated": "wk",
+          "product.offer_period_in_days": "14",
+          "product.offer_period_in_months": "0",
+          "product.offer_period_in_weeks": "2",
+          "product.offer_period_in_years": "0",
+          "product.offer_period_with_unit": "2 weeks",
+          "product.offer_end_date": "November 13, 2025",
+          "product.secondary_offer_period": "month",
+          "product.secondary_offer_period_abbreviated": "mo",
+          "product.secondary_offer_price": "€4.50",
+        } satisfies VariableDictionary),
         $rc_weekly: expect.objectContaining({
           "product.store_product_name": "Luigi",
           "product.price": "€9.00",
@@ -82,7 +155,62 @@ describe("getPaywallVariables", () => {
           "product.price_per_week": "€9.00",
           "product.price_per_day": "€1.29",
           "product.relative_discount": "",
-        } satisfies Partial<VariableDictionary>),
+          "product.currency_code": "EUR",
+          "product.currency_symbol": "€",
+          "product.offer_price": "",
+          "product.offer_price_per_day": "",
+          "product.offer_price_per_week": "",
+          "product.offer_price_per_month": "",
+          "product.offer_price_per_year": "",
+          "product.offer_period": "week",
+          "product.offer_period_abbreviated": "wk",
+          "product.offer_period_in_days": "14",
+          "product.offer_period_in_months": "0",
+          "product.offer_period_in_weeks": "2",
+          "product.offer_period_in_years": "0",
+          "product.offer_period_with_unit": "2 weeks",
+          "product.offer_end_date": "November 13, 2025",
+          "product.secondary_offer_price": "",
+          "product.secondary_offer_period": "",
+          "product.secondary_offer_period_abbreviated": "",
+        } satisfies VariableDictionary),
+        $rc_yearly: expect.objectContaining({
+          "product.store_product_name": "Peach",
+          "product.price": "€9.00",
+          "product.price_per_period_abbreviated": "€9.00/yr",
+          "product.price_per_period": "€9.00/year",
+          "product.period_with_unit": "1 year",
+          "product.period_in_days": "365",
+          "product.period_in_months": "12",
+          "product.period_in_weeks": "52",
+          "product.period_in_years": "1",
+          "product.periodly": "yearly",
+          "product.period": "year",
+          "product.period_abbreviated": "yr",
+          "product.price_per_year": "€9.00",
+          "product.price_per_month": "€0.75",
+          "product.price_per_week": "€0.17",
+          "product.price_per_day": "€0.02",
+          "product.relative_discount": "98%",
+          "product.currency_code": "EUR",
+          "product.currency_symbol": "€",
+          "product.offer_price": "€4.50",
+          "product.offer_price_per_day": "€0.08",
+          "product.offer_price_per_month": "€2.25",
+          "product.offer_price_per_week": "€0.52",
+          "product.offer_price_per_year": "€27.00",
+          "product.offer_period": "month",
+          "product.offer_period_abbreviated": "mo",
+          "product.offer_period_in_days": "60",
+          "product.offer_period_in_months": "2",
+          "product.offer_period_in_weeks": "8.66",
+          "product.offer_period_in_years": "0",
+          "product.offer_period_with_unit": "2 months",
+          "product.offer_end_date": "December 30, 2025",
+          "product.secondary_offer_price": "",
+          "product.secondary_offer_period": "",
+          "product.secondary_offer_period_abbreviated": "",
+        } satisfies VariableDictionary),
         trial: expect.objectContaining({
           "product.store_product_name": "Mario with Trial",
           "product.price": "€30.00",
@@ -101,7 +229,25 @@ describe("getPaywallVariables", () => {
           "product.price_per_week": "€6.93",
           "product.price_per_day": "€1.00",
           "product.relative_discount": "23%",
-        } satisfies Partial<VariableDictionary>),
+          "product.currency_code": "EUR",
+          "product.currency_symbol": "€",
+          "product.offer_price": "",
+          "product.offer_price_per_day": "",
+          "product.offer_price_per_month": "",
+          "product.offer_price_per_week": "",
+          "product.offer_price_per_year": "",
+          "product.offer_period": "",
+          "product.offer_period_abbreviated": "",
+          "product.offer_period_in_days": "",
+          "product.offer_period_in_months": "",
+          "product.offer_period_in_weeks": "",
+          "product.offer_period_in_years": "",
+          "product.offer_period_with_unit": "",
+          "product.offer_end_date": "",
+          "product.secondary_offer_price": "",
+          "product.secondary_offer_period": "",
+          "product.secondary_offer_period_abbreviated": "",
+        } satisfies VariableDictionary),
       }),
     );
   });
