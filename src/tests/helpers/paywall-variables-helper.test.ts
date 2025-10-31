@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { parseOfferingIntoVariables } from "../../helpers/paywall-variables-helpers";
 import { Translator } from "../../ui/localization/translator";
 import { englishLocale } from "../../ui/localization/constants";
@@ -9,6 +9,7 @@ import type {
   PricingPhase,
   SubscriptionOption,
 } from "../../entities/offerings";
+
 const enTranslator = new Translator({}, englishLocale);
 
 describe("getPaywallVariables", () => {
@@ -37,7 +38,17 @@ describe("getPaywallVariables", () => {
     pricePerYear: null,
   } satisfies PricingPhase;
 
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   test("should return expected paywall variables", () => {
+    vi.setSystemTime(new Date("2025-10-30T00:00:00.000Z"));
+
     const off = toOffering([
       {
         packageIdentifier: "$rc_monthly",
