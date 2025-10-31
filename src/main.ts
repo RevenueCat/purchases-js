@@ -85,6 +85,7 @@ import { InMemoryCache } from "./helpers/in-memory-cache";
 import type { VirtualCurrencies } from "./entities/virtual-currencies";
 import { toVirtualCurrencies } from "./entities/virtual-currencies";
 import type { IdentifyResult } from "./entities/identify-result";
+import { parseOfferingIntoPackageInfoPerPackage } from "./helpers/paywall-package-info-helpers";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -514,6 +515,8 @@ export class Purchases {
       translator,
     );
 
+    const infoPerPackage = parseOfferingIntoPackageInfoPerPackage(offering);
+
     return new Promise((resolve, reject) => {
       mount(Paywall, {
         target: certainHTMLTarget,
@@ -545,6 +548,7 @@ export class Purchases {
           },
           onError: (err: unknown) => reject(err),
           variablesPerPackage,
+          infoPerPackage,
         },
       });
     });
