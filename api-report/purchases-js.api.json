@@ -6362,6 +6362,69 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "@revenuecat/purchases-js!Purchases#purchaseUsingPaywall:member(1)",
+              "docComment": "/**\n * Renders an RC Paywall and allows the user to purchase from it using Web Billing.\n *\n * @param paywallParams - The parameters object to customise the paywall render. Check {@link RenderPaywallParams}\n *\n * @returns Promise<PurchaseResult>\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "purchaseUsingPaywall(paywallParams: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "RenderPaywallParams",
+                  "canonicalReference": "@revenuecat/purchases-js!~RenderPaywallParams:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "PurchaseResult",
+                  "canonicalReference": "@revenuecat/purchases-js!PurchaseResult:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 7
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "paywallParams",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "purchaseUsingPaywall"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "@revenuecat/purchases-js!Purchases#setAttributes:member(1)",
               "docComment": "/**\n * Sets attributes for the current user. Attributes are useful for storing additional, structured information on a customer that can be used elsewhere in the system. For example, you could store your customer's email address or additional system identifiers through the applicable reserved attributes, or store arbitrary facts like onboarding survey responses, feature usage, or other dimensions as custom attributes.\n *\n * Note: Unlike our mobile SDKs, the web SDK does not cache or retry sending attributes if the request fails. If the request fails, the attributes will not be saved and you will need to retry the operation.\n *\n * @param attributes - A dictionary of attributes to set for the current user.\n *\n * @throws\n *\n * {@link PurchasesError} if there is an error while setting the attributes or if the customer doesn't exist.\n */\n",
               "excerptTokens": [
@@ -7057,6 +7120,243 @@
               "isOptional": false,
               "releaseTag": "Public",
               "name": "redeemUrl",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
+          "kind": "Interface",
+          "canonicalReference": "@revenuecat/purchases-js!~RenderPaywallParams:interface",
+          "docComment": "/**\n * Parameters for the {@link Purchases.purchaseUsingPaywall} method.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "declare interface RenderPaywallParams "
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "name": "RenderPaywallParams",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!~RenderPaywallParams#customerEmail:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly customerEmail?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "customerEmail",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!~RenderPaywallParams#htmlTarget:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly htmlTarget?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "HTMLElement",
+                  "canonicalReference": "!HTMLElement:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "htmlTarget",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!~RenderPaywallParams#offering:member",
+              "docComment": "/**\n * The identifier of the offering to fetch the paywall for. Can be a string identifier or one of the predefined keywords.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly offering: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Offering",
+                  "canonicalReference": "@revenuecat/purchases-js!Offering:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "offering",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!~RenderPaywallParams#onBack:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly onBack?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "() => void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "onBack",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!~RenderPaywallParams#onNavigateToUrl:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly onNavigateToUrl?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "(url: string) => void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "onNavigateToUrl",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!~RenderPaywallParams#onVisitCustomerCenter:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly onVisitCustomerCenter?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "() => void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "onVisitCustomerCenter",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!~RenderPaywallParams#purchaseHtmlTarget:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly purchaseHtmlTarget?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "HTMLElement",
+                  "canonicalReference": "!HTMLElement:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "purchaseHtmlTarget",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!~RenderPaywallParams#selectedLocale:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly selectedLocale?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "selectedLocale",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2

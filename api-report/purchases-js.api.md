@@ -389,6 +389,8 @@ export class Purchases {
     purchase(params: PurchaseParams): Promise<PurchaseResult>;
     // @deprecated
     purchasePackage(rcPackage: Package, customerEmail?: string, htmlTarget?: HTMLElement): Promise<PurchaseResult>;
+    // Warning: (ae-forgotten-export) The symbol "RenderPaywallParams" needs to be exported by the entry point Purchases.es.d.ts
+    purchaseUsingPaywall(paywallParams: RenderPaywallParams): Promise<PurchaseResult>;
     setAttributes(attributes: {
         [key: string | ReservedCustomerAttribute]: string | null;
     }): Promise<void>;
@@ -428,6 +430,25 @@ export interface PurchasesErrorExtra {
 // @public
 export interface RedemptionInfo {
     readonly redeemUrl: string | null;
+}
+
+// @public
+interface RenderPaywallParams {
+    // (undocumented)
+    readonly customerEmail?: string;
+    // (undocumented)
+    readonly htmlTarget?: HTMLElement;
+    readonly offering: Offering;
+    // (undocumented)
+    readonly onBack?: () => void;
+    // (undocumented)
+    readonly onNavigateToUrl?: (url: string) => void;
+    // (undocumented)
+    readonly onVisitCustomerCenter?: () => void;
+    // (undocumented)
+    readonly purchaseHtmlTarget?: HTMLElement;
+    // (undocumented)
+    readonly selectedLocale?: string;
 }
 
 // @public

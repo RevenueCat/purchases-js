@@ -410,17 +410,12 @@ export class Purchases {
 
   /**
    * Renders an RC Paywall and allows the user to purchase from it using Web Billing.
-   * @experimental
-   * @internal
    * @param paywallParams - The parameters object to customise the paywall render. Check {@link RenderPaywallParams}
    * @returns Promise<PurchaseResult>
    */
-  public async renderPaywall(
+  public async purchaseUsingPaywall(
     paywallParams: RenderPaywallParams,
   ): Promise<PurchaseResult> {
-    console.warn(
-      "This method is @experimental, Paywalls are not generally available but they will come soon!",
-    );
     const htmlTarget = paywallParams.htmlTarget;
 
     let resolvedHTMLTarget =
@@ -448,7 +443,7 @@ export class Purchases {
 
     const offering = paywallParams.offering;
     if (!offering.paywallComponents) {
-      throw new Error("You cannot use paywalls yet, they are coming soon!");
+      throw new Error("This offering doesn't have a paywall attached.");
     }
 
     if (!offering.uiConfig) {

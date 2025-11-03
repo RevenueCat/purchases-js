@@ -19,8 +19,7 @@ const RCPaywallPage: React.FC = () => {
     const purchases = Purchases.getSharedInstance();
 
     purchases
-      // @ts-expect-error This method is marked as internal for now but it's public.
-      .renderPaywall({
+      .purchaseUsingPaywall({
         offering: offering,
         htmlTarget: document.getElementById("paywall") || undefined,
         selectedLocale: lang || undefined,

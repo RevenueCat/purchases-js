@@ -1,7 +1,7 @@
 import type { Offering } from "./offerings";
 
 /**
- * Parameters for the {@link Purchases.renderPaywall} method.
+ * Parameters for the {@link Purchases.purchaseUsingPaywall} method.
  * @public
  */
 export interface RenderPaywallParams {
