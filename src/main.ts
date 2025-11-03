@@ -138,6 +138,7 @@ export type { PlatformInfo } from "./entities/platform-info";
 export type { PurchasesConfig } from "./entities/purchases-config";
 export type { VirtualCurrencies } from "./entities/virtual-currencies";
 export type { VirtualCurrency } from "./entities/virtual-currency";
+export type { PresentPaywallParams } from "./entities/present-paywall-params";
 
 const ANONYMOUS_PREFIX = "$RCAnonymousID:";
 
