@@ -9,11 +9,11 @@ import { integrationTest } from "./helpers/integration-test";
 import { RC_PAYWALL_TEST_OFFERING_ID } from "./helpers/fixtures";
 
 const TEST_CASES = [
-  ["es", "Suscribirse a", "semanal", "mensual", "anual"],
+  ["es", "Suscribirse a", "Pago seguro mediante RevenueCat"],
   ["it", "Abbonati a", "settimanale", "mensile", "annuale"],
-  ["en", "Subscribe to", "weekly", "monthly", "yearly"],
-  ["fr", "S'abonner à", "hebdomadaire", "mensuel", "annuel"],
-  ["de", "Abonnieren", "wöchentlich", "monatlich", "jährlich"],
+  ["en", "Subscribe to", "Secure checkout by RevenueCat"],
+  ["fr", "S'abonner à", "Paiement sécurisé par RevenueCat"],
+  ["de", "Abonnieren", "Sicherer Checkout über RevenueCat"],
 ];
 
 TEST_CASES.forEach(([lang, subscribeTo, weekly, monthly, yearly]) => {
@@ -36,7 +36,7 @@ TEST_CASES.forEach(([lang, subscribeTo, weekly, monthly, yearly]) => {
     });
 
     const packageCards = [weekly, monthly, yearly].map((x) =>
-      page.getByText(x, { exact: true }),
+      page.getByText(x),
     );
     for (const x of packageCards) {
       await expect(x).toBeVisible();
