@@ -52,7 +52,7 @@ import {
 } from "./helpers/offerings-parser";
 import { type PurchaseResult } from "./entities/purchase-result";
 import { mount, unmount } from "svelte";
-import { type RenderPaywallParams } from "./entities/render-paywall-params";
+import { type PurchaseUsingPaywallParams } from "./entities/purchase-using-paywall-params";
 import { Paywall } from "@revenuecat/purchases-ui-js";
 import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
 import { parseOfferingIntoVariables } from "./helpers/paywall-variables-helpers";
@@ -410,11 +410,11 @@ export class Purchases {
 
   /**
    * Renders an RC Paywall and allows the user to purchase from it using Web Billing.
-   * @param paywallParams - The parameters object to customise the paywall render. Check {@link RenderPaywallParams}
+   * @param paywallParams - The parameters object to customise the paywall render. Check {@link PurchaseUsingPaywallParams}
    * @returns Promise<PurchaseResult>
    */
   public async purchaseUsingPaywall(
-    paywallParams: RenderPaywallParams,
+    paywallParams: PurchaseUsingPaywallParams,
   ): Promise<PurchaseResult> {
     const htmlTarget = paywallParams.htmlTarget;
 
