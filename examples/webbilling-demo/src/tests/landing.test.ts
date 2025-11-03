@@ -1,15 +1,15 @@
 import { expect } from "@playwright/test";
 import {
   getPackageCards,
-  getPaywallPackageCards,
-  getPaywallPurchaseButtons,
   navigateToLandingUrl,
   skipPaywallsTestIfDisabled,
 } from "./helpers/test-helpers";
 import { integrationTest } from "./helpers/integration-test";
 
-import { RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES } from "./helpers/fixtures";
-import { RC_PAYWALL_TEST_OFFERING_ID } from "./helpers/fixtures";
+import {
+  RC_PAYWALL_TEST_OFFERING_ID,
+  RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES,
+} from "./helpers/fixtures";
 
 integrationTest("Displays all packages", async ({ page, userId }) => {
   page = await navigateToLandingUrl(page, userId);
@@ -57,16 +57,27 @@ integrationTest(
       offeringId: RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES,
       useRcPaywall: true,
     });
-    const packageCards = await getPaywallPackageCards(page);
-    const purchaseButtons = await getPaywallPurchaseButtons(page);
-    const button = purchaseButtons[0];
+    const packageCards = [
+      page.getByText("weekly"),
+      page.getByText("monthly"),
+      page.getByText("yearly"),
+    ];
 
-    await expect(button).toContainText("PURCHASE FOR $1.25/1wk($5.00/mo)");
+    const buttonWithWeeklyVariables = page.getByText("PURCHASE weekly", {
+      exact: true,
+    });
+    await expect(buttonWithWeeklyVariables).toBeVisible();
 
     await packageCards[1].click();
-    await expect(button).toContainText("PURCHASE FOR $30.00");
+    const buttonWithMonthlyVariables = page.getByText("PURCHASE monthly", {
+      exact: true,
+    });
+    await expect(buttonWithMonthlyVariables).toBeVisible();
 
     await packageCards[2].click();
-    await expect(button).toContainText("PURCHASE FOR $19.99/1yr($1.67/mo)");
+    const buttonWithYearlyVariables = page.getByText("PURCHASE yearly", {
+      exact: true,
+    });
+    await expect(buttonWithYearlyVariables).toBeVisible();
   },
 );

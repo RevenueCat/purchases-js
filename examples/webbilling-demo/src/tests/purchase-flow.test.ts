@@ -1,23 +1,21 @@
 import test, { expect } from "@playwright/test";
 import {
+  clickCancelStripe3DSButton,
   clickPayButton,
   confirmPaymentComplete,
-  enterCreditCardDetails,
-  enterEmail,
-  getEmailFromUserId,
-  getPackageCards,
-  getPaywallPackageCards,
-  getPaywallPurchaseButtons,
-  performPurchase,
-  startPurchaseFlow,
-  navigateToLandingUrl,
   confirmPaymentError,
-  clickCancelStripe3DSButton,
   confirmStripeCardError,
   confirmStripeEmailError,
   confirmStripeEmailFieldNotVisible,
   confirmStripeEmailFieldVisible,
+  enterCreditCardDetails,
+  enterEmail,
+  getEmailFromUserId,
+  getPackageCards,
+  navigateToLandingUrl,
+  performPurchase,
   skipPaywallsTestIfDisabled,
+  startPurchaseFlow,
 } from "./helpers/test-helpers";
 import { integrationTest } from "./helpers/integration-test";
 import { RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES } from "./helpers/fixtures";
@@ -44,16 +42,14 @@ test.describe("Purchase flow", () => {
       const title = page.getByText("E2E Tests for Purchases JS");
       await expect(title).toBeVisible();
 
-      const packageCards = await getPaywallPackageCards(page);
-      await packageCards[0].click();
+      const weekly = page.getByText("weekly");
+      await weekly.click();
 
-      const purchaseButtons = await getPaywallPurchaseButtons(page);
-      const purchaseButton = purchaseButtons[0];
-
+      const purchaseButton = page.getByText("PURCHASE weekly", { exact: true });
       await expect(purchaseButton).toBeVisible();
 
       // Target the parent element of the purchase button since the function targets the button itself
-      await performPurchase(page, purchaseButton.locator(".."), email);
+      await performPurchase(page, purchaseButton.locator("../../.."), email);
     },
   );
 

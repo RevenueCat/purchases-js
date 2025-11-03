@@ -9,7 +9,7 @@ export interface PresentPaywallParams {
    * The identifier of the offering to fetch the paywall for.
    * Can be a string identifier or one of the predefined keywords.
    */
-  readonly offering: Offering;
+  readonly offering?: Offering;
 
   /**
    * The target element where the paywall will be rendered.
