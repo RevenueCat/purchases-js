@@ -3876,12 +3876,12 @@
         },
         {
           "kind": "Interface",
-          "canonicalReference": "@revenuecat/purchases-js!~PresentPaywallParams:interface",
+          "canonicalReference": "@revenuecat/purchases-js!PresentPaywallParams:interface",
           "docComment": "/**\n * Parameters for the {@link Purchases.presentPaywall} method.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "declare interface PresentPaywallParams "
+              "text": "export declare interface PresentPaywallParams "
             }
           ],
           "fileUrlPath": "dist/Purchases.es.d.ts",
@@ -3891,8 +3891,8 @@
           "members": [
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!~PresentPaywallParams#customerEmail:member",
-              "docComment": "",
+              "canonicalReference": "@revenuecat/purchases-js!PresentPaywallParams#customerEmail:member",
+              "docComment": "/**\n * The email of the customer starting the purchase. If passed the checkout flow will not ask for it to the customer.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -3918,8 +3918,8 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!~PresentPaywallParams#htmlTarget:member",
-              "docComment": "",
+              "canonicalReference": "@revenuecat/purchases-js!PresentPaywallParams#htmlTarget:member",
+              "docComment": "/**\n * The target element where the paywall will be rendered. The paywall will create a full-screen overlay if null.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -3946,7 +3946,7 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!~PresentPaywallParams#offering:member",
+              "canonicalReference": "@revenuecat/purchases-js!PresentPaywallParams#offering:member",
               "docComment": "/**\n * The identifier of the offering to fetch the paywall for. Can be a string identifier or one of the predefined keywords.\n */\n",
               "excerptTokens": [
                 {
@@ -3974,8 +3974,8 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!~PresentPaywallParams#onBack:member",
-              "docComment": "",
+              "canonicalReference": "@revenuecat/purchases-js!PresentPaywallParams#onBack:member",
+              "docComment": "/**\n * Callback to be called when the paywall tries to navigate back.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4001,8 +4001,8 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!~PresentPaywallParams#onNavigateToUrl:member",
-              "docComment": "",
+              "canonicalReference": "@revenuecat/purchases-js!PresentPaywallParams#onNavigateToUrl:member",
+              "docComment": "/**\n * Callback to be called when the paywall tries to navigate to an external URL.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4028,8 +4028,8 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!~PresentPaywallParams#onVisitCustomerCenter:member",
-              "docComment": "",
+              "canonicalReference": "@revenuecat/purchases-js!PresentPaywallParams#onVisitCustomerCenter:member",
+              "docComment": "/**\n * Callback to be called when the paywall tries to visit the customer center.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4055,8 +4055,8 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!~PresentPaywallParams#purchaseHtmlTarget:member",
-              "docComment": "",
+              "canonicalReference": "@revenuecat/purchases-js!PresentPaywallParams#purchaseHtmlTarget:member",
+              "docComment": "/**\n * The target element where the checkout flow will be rendered. The checkout flow will create a full-screen overlay if null.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4083,8 +4083,8 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!~PresentPaywallParams#selectedLocale:member",
-              "docComment": "",
+              "canonicalReference": "@revenuecat/purchases-js!PresentPaywallParams#selectedLocale:member",
+              "docComment": "/**\n * The locale to use for the paywall and the checkout flow.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -6450,7 +6450,7 @@
                 {
                   "kind": "Reference",
                   "text": "PresentPaywallParams",
-                  "canonicalReference": "@revenuecat/purchases-js!~PresentPaywallParams:interface"
+                  "canonicalReference": "@revenuecat/purchases-js!PresentPaywallParams:interface"
                 },
                 {
                   "kind": "Content",
