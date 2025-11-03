@@ -281,6 +281,25 @@ export interface PresentedOfferingContext {
 }
 
 // @public
+interface PresentPaywallParams {
+    // (undocumented)
+    readonly customerEmail?: string;
+    // (undocumented)
+    readonly htmlTarget?: HTMLElement;
+    readonly offering: Offering;
+    // (undocumented)
+    readonly onBack?: () => void;
+    // (undocumented)
+    readonly onNavigateToUrl?: (url: string) => void;
+    // (undocumented)
+    readonly onVisitCustomerCenter?: () => void;
+    // (undocumented)
+    readonly purchaseHtmlTarget?: HTMLElement;
+    // (undocumented)
+    readonly selectedLocale?: string;
+}
+
+// @public
 export interface Price {
     // @deprecated
     readonly amount: number;
@@ -386,6 +405,8 @@ export class Purchases {
     // (undocumented)
     isSandbox(): boolean;
     preload(): Promise<void>;
+    // Warning: (ae-forgotten-export) The symbol "PresentPaywallParams" needs to be exported by the entry point Purchases.es.d.ts
+    presentPaywall(paywallParams: PresentPaywallParams): Promise<PurchaseResult>;
     purchase(params: PurchaseParams): Promise<PurchaseResult>;
     // @deprecated
     purchasePackage(rcPackage: Package, customerEmail?: string, htmlTarget?: HTMLElement): Promise<PurchaseResult>;
