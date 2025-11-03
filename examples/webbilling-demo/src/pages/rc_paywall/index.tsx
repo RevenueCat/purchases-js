@@ -19,7 +19,7 @@ const RCPaywallPage: React.FC = () => {
     const purchases = Purchases.getSharedInstance();
 
     purchases
-      .purchaseUsingPaywall({
+      .presentPaywall({
         offering: offering,
         htmlTarget: document.getElementById("paywall") || undefined,
         selectedLocale: lang || undefined,
