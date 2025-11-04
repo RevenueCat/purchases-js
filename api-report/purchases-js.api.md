@@ -284,7 +284,7 @@ export interface PresentedOfferingContext {
 export interface PresentPaywallParams {
     readonly customerEmail?: string;
     readonly htmlTarget?: HTMLElement;
-    readonly offering: Offering;
+    readonly offering?: Offering;
     readonly onBack?: () => void;
     readonly onNavigateToUrl?: (url: string) => void;
     readonly onVisitCustomerCenter?: () => void;
