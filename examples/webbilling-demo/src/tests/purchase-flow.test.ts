@@ -42,7 +42,7 @@ test.describe("Purchase flow", () => {
       const title = page.getByText("E2E Tests for Purchases JS");
       await expect(title).toBeVisible();
 
-      const weekly = page.getByText("weekly");
+      const weekly = page.getByText("weekly", { exact: true });
       await weekly.click();
 
       const purchaseButton = page.getByText("PURCHASE weekly", { exact: true });

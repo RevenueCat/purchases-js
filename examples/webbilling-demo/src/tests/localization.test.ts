@@ -36,7 +36,7 @@ TEST_CASES.forEach(([lang, subscribeTo, weekly, monthly, yearly]) => {
     });
 
     const packageCards = [weekly, monthly, yearly].map((x) =>
-      page.getByText(x),
+      page.getByText(x, { exact: true }),
     );
     for (const x of packageCards) {
       await expect(x).toBeVisible();
