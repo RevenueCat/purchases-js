@@ -442,7 +442,12 @@ export class Purchases {
     // cleanup whatever is already there.
     certainHTMLTarget.innerHTML = "";
 
-    const offering = paywallParams.offering;
+    const offering = paywallParams.offering
+      ? paywallParams.offering
+      : (await this.getOfferings()).current;
+    if (!offering) {
+      throw new Error("No offering found.");
+    }
     if (!offering.paywallComponents) {
       throw new Error("This offering doesn't have a paywall attached.");
     }

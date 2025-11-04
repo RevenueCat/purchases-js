@@ -3951,7 +3951,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "readonly offering: "
+                  "text": "readonly offering?: "
                 },
                 {
                   "kind": "Reference",
@@ -3964,7 +3964,7 @@
                 }
               ],
               "isReadonly": true,
-              "isOptional": false,
+              "isOptional": true,
               "releaseTag": "Public",
               "name": "offering",
               "propertyTypeTokenRange": {
