@@ -49,6 +49,23 @@ integrationTest("Displays an RC Paywall", async ({ page, userId }) => {
 });
 
 integrationTest(
+  "Displays an RC Paywall using the current offering if none is passed",
+  async ({ page, userId }) => {
+    skipPaywallsTestIfDisabled(integrationTest);
+
+    page = await navigateToLandingUrl(page, userId, {
+      useRcPaywall: true,
+    });
+    const title = page.getByText("E2E Tests for Purchases JS");
+    await expect(title).toBeVisible();
+    const subtitle = page.getByText(
+      "Testing current Offering is picked when no offering is passed",
+    );
+    await expect(subtitle).toBeVisible();
+  },
+);
+
+integrationTest(
   "Displays an RC Paywall using variables",
   async ({ page, userId }) => {
     skipPaywallsTestIfDisabled(integrationTest);

@@ -3,6 +3,8 @@ import { Purchases } from "@revenuecat/purchases-js";
 import React, { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
+// This page is used to test the case where no offering is passed to the paywall.
+// We expect the sdk to be smart enough to pick the .current offering autonomously.
 const RCPaywallNoOfferingPassedPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();

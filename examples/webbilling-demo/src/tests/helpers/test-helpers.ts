@@ -132,7 +132,9 @@ export async function navigateToLandingUrl(
     params.append("nickname", nickname);
   }
 
-  const url = `${BASE_URL}${useRcPaywall ? "rc_paywall" : "paywall"}/${encodeURIComponent(userId)}?${params.toString()}`;
+  const rcPaywallPath = offeringId ? "rc_paywall" : "rc_paywall_no_offering";
+
+  const url = `${BASE_URL}${useRcPaywall ? rcPaywallPath : "paywall"}/${encodeURIComponent(userId)}?${params.toString()}`;
   await page.goto(url);
 
   return page;
