@@ -458,11 +458,25 @@ export class Purchases {
       );
     }
 
+    // Resolving the correct locale to use.
     const selectedLocale = paywallParams.selectedLocale || navigator.language;
+    const localesSupportedByCurrentPaywall = Object.keys(
+      offering.paywallComponents.components_localizations,
+    ).map((l) => toLocalePrefix(l));
+
+    const toLocalePrefix = (potentialLocale: string) => {
+      return potentialLocale.toLowerCase().split("_")[0];
+    };
+
+    const finalLocale = localesSupportedByCurrentPaywall.includes(
+      toLocalePrefix(selectedLocale),
+    )
+      ? selectedLocale
+      : offering.paywallComponents.default_locale;
 
     const translator = new Translator(
       {},
-      selectedLocale,
+      finalLocale,
       offering.paywallComponents.default_locale,
     );
 
