@@ -39,6 +39,23 @@ npm run dev
 >
 > **Expected behavior:** When using your Web Billing product API key, you should see customers created in Sandbox in your dashboard after completing purchases. View activity at https://app.revenuecat.com/activity after a few minutes to see sandbox transactions and customer data.
 
+### Payment Methods
+
+The demo supports both **Stripe** and **Paddle** payment flows:
+
+- **Stripe** (default): Uses RevenueCat's built-in Stripe UI flow. Works with Web Billing API keys.
+- **Paddle**: Uses Paddle's checkout overlay. Works with Paddle API keys.
+
+#### Using Paddle
+
+Set your Paddle API key in the environment variable:
+
+```bash
+export VITE_RC_API_KEY = 'your paddle api key'
+```
+
+The SDK automatically detects Paddle API keys and routes to the Paddle flow. The same `purchases.purchase()` call works for both Stripe and Paddle.
+
 ### E2E Tests
 
 - Set the following env variables. You can set them in a `.env` file in the root of this demo app.
