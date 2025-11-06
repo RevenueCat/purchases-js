@@ -14,7 +14,7 @@ declare global {
   }
 }
 
-const apiKey = window.__RC_API_KEY__ || import.meta.env.VITE_RC_API_KEY;
+export const apiKey = window.__RC_API_KEY__ || import.meta.env.VITE_RC_API_KEY;
 const canary = import.meta.env.VITE_RC_CANARY;
 
 type IPurchasesLoaderData = {
@@ -46,6 +46,8 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
 
   const flagsConfig: FlagsConfig = {
     autoCollectUTMAsMetadata: !optOutOfAutoUTM,
+    // @ts-expect-error allowPaddleAPIKey is an internal property
+    allowPaddleAPIKey: true,
   };
   if (rcSource) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
