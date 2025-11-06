@@ -5,9 +5,13 @@ import {
 } from "@revenuecat/purchases-js";
 import React, { useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { usePurchasesLoaderData } from "../../util/PurchasesLoader";
+import { usePurchasesLoaderData, apiKey } from "../../util/PurchasesLoader";
 import Button from "../../components/Button";
 import LogoutButton from "../../components/LogoutButton";
+
+const isPaddleApiKey = (apiKey: string): boolean => {
+  return /^pdl_[a-zA-Z0-9_.-]+$/.test(apiKey);
+};
 
 interface IPackageCardProps {
   pkg: Package;
@@ -257,6 +261,21 @@ const PaywallPage: React.FC = () => {
     <>
       <LogoutButton />
       <div className="paywall">
+        <div
+          className="payment-method-badge"
+          style={{
+            backgroundColor: "#f7f8f9",
+            padding: "8px 16px",
+            borderRadius: "4px",
+            marginBottom: "16px",
+            display: "inline-block",
+            fontSize: "14px",
+            fontWeight: "500",
+          }}
+        >
+          {isPaddleApiKey(apiKey) ? "Paddle demo" : "Web Billing demo"}
+        </div>
+
         <h1>
           Subscribe today and <em>save up to 25%!</em>
         </h1>

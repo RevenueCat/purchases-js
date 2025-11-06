@@ -498,6 +498,7 @@ export const checkoutStartResponse: CheckoutStartResponse = {
     elements_configuration: stripeElementsConfiguration,
   },
   management_url: "https://manage.revenuecat.com/test_test_test",
+  paddle_billing_params: null,
 };
 
 export const checkoutCalculateTaxResponse: CheckoutCalculateTaxResponse = {

@@ -397,6 +397,7 @@ export const checkoutStartResponse: CheckoutStartResponse = {
     },
   },
   management_url: "https://test-management-url.revenuecat.com",
+  paddle_billing_params: null,
 };
 
 export const checkoutCompleteResponse: CheckoutCompleteResponse = {

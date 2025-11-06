@@ -1,4 +1,4 @@
-type HttpMethodType = "GET" | "POST";
+type HttpMethodType = "GET" | "POST" | "PATCH";
 
 const SUBSCRIBERS_PATH = "/v1/subscribers";
 const RC_BILLING_PATH = "/rcbilling/v1";
@@ -140,6 +140,20 @@ export class GetCheckoutStatusEndpoint implements Endpoint {
   }
 }
 
+export class PatchOperationSessionEndpoint implements Endpoint {
+  method: HttpMethodType = "PATCH";
+  name: string = "patchOperationSession";
+  private readonly operationSessionId: string;
+
+  constructor(operationSessionId: string) {
+    this.operationSessionId = operationSessionId;
+  }
+
+  urlPath(): string {
+    return `${RC_BILLING_PATH}/checkout/${this.operationSessionId}`;
+  }
+}
+
 export class SetAttributesEndpoint implements Endpoint {
   method: HttpMethodType = "POST";
   name: string = "setAttributes";
@@ -185,7 +199,11 @@ export type SupportedEndpoint =
   | GetProductsEndpoint
   | GetCustomerInfoEndpoint
   | GetBrandingInfoEndpoint
+  | CheckoutStartEndpoint
+  | CheckoutCalculateTaxEndpoint
+  | CheckoutCompleteEndpoint
   | GetCheckoutStatusEndpoint
+  | PatchOperationSessionEndpoint
   | SetAttributesEndpoint
   | PostReceiptEndpoint
   | GetVirtualCurrenciesEndpoint;
