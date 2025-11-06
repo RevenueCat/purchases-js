@@ -5,6 +5,7 @@ import type {
   Product,
 } from "./entities/offerings";
 import PurchasesUi from "./ui/purchases-ui.svelte";
+import PaddlePurchaseUi from "./ui/paddle-purchase-ui.svelte";
 
 import { type CustomerInfo, toCustomerInfo } from "./entities/customer-info";
 import {
@@ -23,10 +24,12 @@ import { Backend } from "./networking/backend";
 import {
   isSimulatedStoreApiKey,
   isWebBillingSandboxApiKey,
+  isPaddleApiKey,
 } from "./helpers/api-key-helper";
 import {
   type OperationSessionSuccessfulResult,
-  type PurchaseFlowError,
+  PurchaseFlowError,
+  PurchaseFlowErrorCode,
   PurchaseOperationHelper,
 } from "./helpers/purchase-operation-helper";
 import { type LogHandler, type LogLevel } from "./entities/logging";
@@ -52,6 +55,7 @@ import {
 } from "./helpers/offerings-parser";
 import { type PurchaseResult } from "./entities/purchase-result";
 import { mount, unmount } from "svelte";
+import { writable, type Writable } from "svelte/store";
 import { type PresentPaywallParams } from "./entities/present-paywall-params";
 import { Paywall, type PaywallData } from "@revenuecat/purchases-ui-js";
 import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
@@ -89,6 +93,8 @@ import type { VirtualCurrencies } from "./entities/virtual-currencies";
 import { toVirtualCurrencies } from "./entities/virtual-currencies";
 import type { IdentifyResult } from "./entities/identify-result";
 import { parseOfferingIntoPackageInfoPerPackage } from "./helpers/paywall-package-info-helpers";
+import { PaddleService } from "./paddle/paddle-service";
+import type { PresentedOfferingContext } from "./entities/offerings";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -748,15 +754,6 @@ export class Purchases {
    */
   @requiresLoadedResources
   public async purchase(params: PurchaseParams): Promise<PurchaseResult> {
-    const {
-      rcPackage,
-      purchaseOption,
-      htmlTarget,
-      customerEmail,
-      selectedLocale = englishLocale,
-      defaultLocale = englishLocale,
-      skipSuccessPage = false,
-    } = params;
     if (isSimulatedStoreApiKey(this._API_KEY)) {
       const purchaseResult = await purchaseSimulatedStoreProduct(
         params,
@@ -766,23 +763,29 @@ export class Purchases {
       this.inMemoryCache.invalidateAllCaches();
       return purchaseResult;
     }
-    let resolvedHTMLTarget =
-      htmlTarget ?? document.getElementById("rcb-ui-root");
 
-    if (resolvedHTMLTarget === null) {
-      const element = document.createElement("div");
-      element.className = "rcb-ui-root";
-      document.body.appendChild(element);
-      resolvedHTMLTarget = element;
+    const isPaddle = isPaddleApiKey(this._API_KEY);
+    if (isPaddle) {
+      return await this.performPaddlePurchase(params);
     }
 
-    if (resolvedHTMLTarget === null) {
-      throw new Error(
-        "Could not generate a mount point for the billing widget",
-      );
-    }
+    return await this.performWebBillingPurchase(params);
+  }
 
-    const certainHTMLTarget = resolvedHTMLTarget as unknown as HTMLElement;
+  private async performWebBillingPurchase(
+    params: PurchaseParams,
+  ): Promise<PurchaseResult> {
+    const {
+      rcPackage,
+      purchaseOption,
+      htmlTarget,
+      customerEmail,
+      selectedLocale = englishLocale,
+      defaultLocale = englishLocale,
+      skipSuccessPage = false,
+    } = params;
+
+    const certainHTMLTarget = this.resolveHTMLTarget(htmlTarget);
 
     const appUserId = this._appUserId;
 
@@ -823,73 +826,33 @@ export class Purchases {
         window.history.pushState({ checkoutOpen: true }, "");
       }
 
-      const shouldPassOnCloseBehaviour =
-        this._flags.rcSource &&
-        supportedRCSources.includes(this._flags.rcSource);
+      const unmountPurchaseUI = () => {
+        if (component) {
+          unmount(component);
+        }
+        certainHTMLTarget.innerHTML = "";
+      };
 
-      const onClose = shouldPassOnCloseBehaviour
-        ? undefined
-        : () => {
-            const event = createCheckoutSessionEndClosedEvent();
-            this.eventsTracker.trackSDKEvent(event);
-            window.removeEventListener("popstate", onClose as EventListener);
-
-            if (component) {
-              unmount(component);
-            }
-
-            certainHTMLTarget.innerHTML = "";
-
-            Logger.debugLog("Purchase cancelled by user");
-            reject(new PurchasesError(ErrorCode.UserCancelledError));
-          };
+      const onClose = this.createCheckoutOnCloseHandler(
+        reject,
+        unmountPurchaseUI,
+      );
 
       if (!isInElement && onClose) {
         window.addEventListener("popstate", onClose as EventListener);
       }
 
-      const onFinished = async (
-        operationResult: OperationSessionSuccessfulResult,
-      ) => {
-        const event = createCheckoutSessionEndFinishedEvent({
-          redemptionInfo: operationResult.redemptionInfo,
-        });
-        this.eventsTracker.trackSDKEvent(event);
-        this.inMemoryCache.invalidateAllCaches();
-        Logger.debugLog("Purchase finished");
+      const onFinished = this.createCheckoutOnFinishedHandler(
+        resolve,
+        appUserId,
+        rcPackage,
+        unmountPurchaseUI,
+      );
 
-        if (component) {
-          unmount(component);
-        }
-
-        certainHTMLTarget.innerHTML = "";
-        const purchaseResult: PurchaseResult = {
-          customerInfo: await this._getCustomerInfoForUserId(appUserId),
-          redemptionInfo: operationResult.redemptionInfo,
-          operationSessionId: operationResult.operationSessionId,
-          storeTransaction: {
-            storeTransactionId: operationResult.storeTransactionIdentifier,
-            productIdentifier: rcPackage.webBillingProduct.identifier,
-            purchaseDate: operationResult.purchaseDate,
-          },
-        };
-        resolve(purchaseResult);
-      };
-
-      const onError = (e: PurchaseFlowError) => {
-        const event = createCheckoutSessionEndErroredEvent({
-          errorCode: e.errorCode?.toString(),
-          errorMessage: e.message,
-        });
-        this.eventsTracker.trackSDKEvent(event);
-
-        if (component) {
-          unmount(component);
-        }
-
-        certainHTMLTarget.innerHTML = "";
-        reject(PurchasesError.getForPurchasesFlowError(e));
-      };
+      const onError = this.createCheckoutOnErrorHandler(
+        reject,
+        unmountPurchaseUI,
+      );
 
       component = mount(PurchasesUi, {
         target: certainHTMLTarget,
@@ -915,6 +878,295 @@ export class Purchases {
         },
       });
     });
+  }
+
+  private async performPaddlePurchase(
+    params: PurchaseParams,
+  ): Promise<PurchaseResult> {
+    const {
+      rcPackage,
+      purchaseOption,
+      customerEmail,
+      selectedLocale = englishLocale,
+      defaultLocale = englishLocale,
+      skipSuccessPage = false,
+      htmlTarget,
+    } = params;
+    const certainHTMLTarget = this.resolveHTMLTarget(htmlTarget);
+
+    const appUserId = this._appUserId;
+
+    Logger.debugLog(
+      `Presenting Paddle checkout for package ${rcPackage.identifier}`,
+    );
+
+    const purchaseOptionToUse =
+      purchaseOption ?? rcPackage.webBillingProduct.defaultPurchaseOption;
+
+    const utmParamsMetadata = this._flags.autoCollectUTMAsMetadata
+      ? autoParseUTMParams()
+      : {};
+    const metadata = {
+      source: "paddle",
+      ...utmParamsMetadata,
+      ...(params.metadata || {}),
+    };
+
+    const finalBrandingInfo: BrandingInfoResponse | null = this._brandingInfo;
+
+    if (finalBrandingInfo && params.brandingAppearanceOverride) {
+      finalBrandingInfo.appearance = params.brandingAppearanceOverride;
+    }
+
+    const event = createCheckoutSessionStartEvent({
+      appearance: this._brandingInfo?.appearance,
+      rcPackage,
+      purchaseOptionToUse,
+      customerEmail,
+    });
+    this.eventsTracker.trackSDKEvent(event);
+
+    const presentedOfferingContext: PresentedOfferingContext = {
+      offeringIdentifier:
+        rcPackage.webBillingProduct.presentedOfferingContext.offeringIdentifier,
+      targetingContext: null,
+      placementIdentifier: null,
+    };
+
+    const startResponse = await this.backend.postCheckoutStart(
+      appUserId,
+      rcPackage.webBillingProduct.identifier,
+      presentedOfferingContext,
+      purchaseOptionToUse,
+      this.eventsTracker.getTraceId(),
+      customerEmail ?? undefined,
+      metadata,
+    );
+
+    await PaddleService.initializePaddle(
+      startResponse.paddle_billing_params?.client_side_token ?? "",
+      startResponse.paddle_billing_params?.is_sandbox ?? false,
+    );
+
+    let component: ReturnType<typeof mount> | null = null;
+    const isInElement = htmlTarget !== undefined;
+
+    return new Promise((resolve, reject) => {
+      if (!isInElement) {
+        window.history.pushState({ checkoutOpen: true }, "");
+      }
+
+      const unmountPurchaseUI = () => {
+        if (component) {
+          unmount(component);
+        }
+        certainHTMLTarget.innerHTML = "";
+      };
+
+      const onClose = this.createCheckoutOnCloseHandler(
+        reject,
+        unmountPurchaseUI,
+      );
+
+      if (!isInElement && onClose) {
+        window.addEventListener("popstate", onClose as EventListener);
+      }
+
+      const onFinished = this.createCheckoutOnFinishedHandler(
+        resolve,
+        appUserId,
+        rcPackage,
+        unmountPurchaseUI,
+      );
+
+      const onError = this.createCheckoutOnErrorHandler(reject);
+
+      const operationResultStore: Writable<OperationSessionSuccessfulResult | null> =
+        writable<OperationSessionSuccessfulResult | null>(null);
+      const errorStore: Writable<PurchaseFlowError | null> =
+        writable<PurchaseFlowError | null>(null);
+
+      const onCheckoutLoaded = () => {
+        if (!component) {
+          component = mount(PaddlePurchaseUi, {
+            target: certainHTMLTarget,
+            props: {
+              eventsTracker: this.eventsTracker,
+              brandingInfo: this._brandingInfo,
+              selectedLocale: selectedLocale || defaultLocale,
+              defaultLocale,
+              customTranslations: params.labelsOverride,
+              isInElement,
+              onFinished,
+              onClose,
+              onError,
+              skipSuccessPage,
+              productDetails: rcPackage.webBillingProduct,
+              operationResultStore,
+              errorStore,
+            },
+          });
+        }
+      };
+
+      const purchasePromise = PaddleService.purchase({
+        backend: this.backend,
+        operationSessionId: startResponse.operation_session_id,
+        transactionId:
+          startResponse.paddle_billing_params?.transaction_id ?? "",
+        onCheckoutLoaded,
+        unmountPurchaseUI,
+        params: {
+          rcPackage,
+          purchaseOption: purchaseOptionToUse,
+          appUserId,
+          presentedOfferingIdentifier:
+            rcPackage.webBillingProduct.presentedOfferingContext
+              .offeringIdentifier,
+          customerEmail,
+          locale: selectedLocale || defaultLocale,
+        },
+      });
+
+      purchasePromise
+        .then((result: OperationSessionSuccessfulResult) => {
+          Logger.debugLog(
+            "PaddleService polling completed, showing success page",
+          );
+          if (skipSuccessPage) {
+            onFinished(result);
+          } else {
+            operationResultStore.set(result);
+          }
+        })
+        .catch((err: unknown) => {
+          Logger.debugLog(`PaddleService polling failed: ${err}`);
+          const purchaseFlowError =
+            err instanceof PurchasesError
+              ? PurchaseFlowError.fromPurchasesError(
+                  err,
+                  PurchaseFlowErrorCode.UnknownError,
+                )
+              : new PurchaseFlowError(
+                  PurchaseFlowErrorCode.UnknownError,
+                  `Paddle purchase failed: ${err}`,
+                );
+
+          if (
+            err instanceof PurchasesError &&
+            err.errorCode === ErrorCode.UserCancelledError
+          ) {
+            if (onClose) {
+              onClose();
+            } else {
+              onError(purchaseFlowError);
+            }
+          } else {
+            // Update store so component can show error page
+            errorStore.set(purchaseFlowError);
+          }
+        });
+    });
+  }
+
+  /**
+   * Resolves the HTML target element for mounting the billing widget.
+   * Uses htmlTarget if provided. Otherwise, looks for an element with id "rcb-ui-root".
+   * If no element is found, creates a new div with className "rcb-ui-root".
+   */
+  private resolveHTMLTarget(htmlTarget?: HTMLElement): HTMLElement {
+    let resolvedHTMLTarget =
+      htmlTarget ?? document.getElementById("rcb-ui-root");
+
+    if (resolvedHTMLTarget === null) {
+      const element = document.createElement("div");
+      element.className = "rcb-ui-root";
+      document.body.appendChild(element);
+      resolvedHTMLTarget = element;
+    }
+
+    if (resolvedHTMLTarget === null) {
+      throw new Error(
+        "Could not generate a mount point for the billing widget",
+      );
+    }
+
+    return resolvedHTMLTarget;
+  }
+
+  private createCheckoutOnCloseHandler(
+    reject: (error: PurchasesError) => void,
+    callback?: () => void,
+  ): (() => void) | undefined {
+    const shouldPassOnCloseBehaviour =
+      this._flags.rcSource && supportedRCSources.includes(this._flags.rcSource);
+
+    if (shouldPassOnCloseBehaviour) {
+      return undefined;
+    }
+
+    const onClose = () => {
+      const event = createCheckoutSessionEndClosedEvent();
+      this.eventsTracker.trackSDKEvent(event);
+      window.removeEventListener("popstate", onClose as EventListener);
+
+      callback?.();
+
+      Logger.debugLog("Purchase cancelled by user");
+      reject(new PurchasesError(ErrorCode.UserCancelledError));
+    };
+
+    return onClose;
+  }
+
+  private createCheckoutOnFinishedHandler(
+    resolve: (value: PurchaseResult) => void,
+    appUserId: string,
+    rcPackage: Package,
+    callback?: () => void,
+  ): (operationResult: OperationSessionSuccessfulResult) => Promise<void> {
+    const onFinished = async (
+      operationResult: OperationSessionSuccessfulResult,
+    ) => {
+      const event = createCheckoutSessionEndFinishedEvent({
+        redemptionInfo: operationResult.redemptionInfo,
+      });
+      this.eventsTracker.trackSDKEvent(event);
+      this.inMemoryCache.invalidateAllCaches();
+      Logger.debugLog("Purchase finished");
+
+      callback?.();
+
+      const purchaseResult: PurchaseResult = {
+        customerInfo: await this._getCustomerInfoForUserId(appUserId),
+        redemptionInfo: operationResult.redemptionInfo,
+        operationSessionId: operationResult.operationSessionId,
+        storeTransaction: {
+          storeTransactionId: operationResult.storeTransactionIdentifier,
+          productIdentifier: rcPackage.webBillingProduct.identifier,
+          purchaseDate: operationResult.purchaseDate,
+        },
+      };
+      resolve(purchaseResult);
+    };
+    return onFinished;
+  }
+
+  private createCheckoutOnErrorHandler(
+    reject: (error: PurchasesError) => void,
+    callback?: () => void,
+  ): (error: PurchaseFlowError) => void {
+    const onError = (e: PurchaseFlowError) => {
+      const event = createCheckoutSessionEndErroredEvent({
+        errorCode: e.errorCode?.toString(),
+        errorMessage: e.message,
+      });
+      this.eventsTracker.trackSDKEvent(event);
+
+      callback?.();
+      reject(PurchasesError.getForPurchasesFlowError(e));
+    };
+    return onError;
   }
 
   /**
