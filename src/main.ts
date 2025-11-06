@@ -53,7 +53,7 @@ import {
 import { type PurchaseResult } from "./entities/purchase-result";
 import { mount, unmount } from "svelte";
 import { type PresentPaywallParams } from "./entities/present-paywall-params";
-import { Paywall } from "@revenuecat/purchases-ui-js";
+import { Paywall, type PaywallData } from "@revenuecat/purchases-ui-js";
 import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
 import { parseOfferingIntoVariables } from "./helpers/paywall-variables-helpers";
 import { Translator } from "./ui/localization/translator";
@@ -458,21 +458,50 @@ export class Purchases {
       );
     }
 
-    // Resolving the correct locale to use.
-    const selectedLocale = paywallParams.selectedLocale || navigator.language;
-    const localesSupportedByCurrentPaywall = Object.keys(
-      offering.paywallComponents.components_localizations,
-    ).map((l) => toLocalePrefix(l));
+    const calculateLocale = (
+      paywallData: PaywallData,
+      selectedLocale: string,
+    ) => {
+      const localesSupportedByPaywall: { [key: string]: string[] } = {};
 
-    const toLocalePrefix = (potentialLocale: string) => {
-      return potentialLocale.toLowerCase().split("_")[0];
+      const toLocalePrefix = (potentialLocale: string) => {
+        return potentialLocale.toLowerCase().split("_")[0];
+      };
+
+      Object.keys(paywallData.components_localizations).forEach((l) => {
+        if (localesSupportedByPaywall[toLocalePrefix(l)] === undefined) {
+          localesSupportedByPaywall[toLocalePrefix(l)] = [];
+        }
+        localesSupportedByPaywall[toLocalePrefix(l)].push(l);
+      });
+
+      const localesGroup =
+        localesSupportedByPaywall[toLocalePrefix(selectedLocale)];
+      if (!localesGroup) {
+        return paywallData.default_locale;
+      }
+
+      const bestMatch = localesGroup.find(
+        (l) => l.toLowerCase() === selectedLocale,
+      );
+
+      if (bestMatch) {
+        return bestMatch;
+      }
+
+      // Finding best match for the selected locale group.
+      return localesGroup[0];
     };
 
-    const finalLocale = localesSupportedByCurrentPaywall.includes(
-      toLocalePrefix(selectedLocale),
-    )
-      ? selectedLocale
-      : offering.paywallComponents.default_locale;
+    // Resolving the correct locale to use.
+    const selectedLocale = paywallParams.selectedLocale
+      ? paywallParams.selectedLocale
+      : navigator.language;
+
+    const finalLocale = calculateLocale(
+      offering.paywallComponents,
+      selectedLocale,
+    );
 
     const translator = new Translator(
       {},
@@ -495,7 +524,7 @@ export class Purchases {
         rcPackage: pkg,
         htmlTarget: paywallParams.purchaseHtmlTarget,
         customerEmail: paywallParams.customerEmail,
-        selectedLocale: selectedLocale,
+        selectedLocale: finalLocale,
         defaultLocale:
           offering.paywallComponents?.default_locale || englishLocale,
       });
@@ -537,7 +566,7 @@ export class Purchases {
         target: certainHTMLTarget,
         props: {
           paywallData: offering.paywallComponents!,
-          selectedLocale: selectedLocale,
+          selectedLocale: finalLocale,
           onNavigateToUrlClicked: navigateToUrl,
           onVisitCustomerCenterClicked: onVisitCustomerCenterClicked,
           uiConfig: offering.uiConfig!,

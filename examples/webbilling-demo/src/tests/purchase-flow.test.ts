@@ -18,7 +18,10 @@ import {
   startPurchaseFlow,
 } from "./helpers/test-helpers";
 import { integrationTest } from "./helpers/integration-test";
-import { RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES } from "./helpers/fixtures";
+import {
+  RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES,
+  RC_PAYWALL_WITH_LATAM_TRANSLATION_OFFERING_ID,
+} from "./helpers/fixtures";
 
 test.describe("Purchase flow", () => {
   integrationTest(
@@ -50,6 +53,62 @@ test.describe("Purchase flow", () => {
 
       // Target the parent element of the purchase button since the function targets the button itself
       await performPurchase(page, purchaseButton.locator("../../.."), email);
+    },
+  );
+
+  integrationTest(
+    "Purchase a subscription product for RC Paywall in a locale that the RC Paywall does not support",
+    async ({ page, userId }) => {
+      skipPaywallsTestIfDisabled(integrationTest);
+
+      page = await navigateToLandingUrl(page, userId, {
+        offeringId: RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES,
+        useRcPaywall: true,
+        lang: "sk", // sk is supported by the SDK but not by this specific RC Paywall
+      });
+
+      const title = page.getByText("E2E Tests for Purchases JS");
+      await expect(title).toBeVisible();
+
+      const weekly = page.getByText("weekly", { exact: true });
+      await weekly.click();
+
+      const purchaseButton = page.getByText("PURCHASE weekly", { exact: true });
+      await expect(purchaseButton).toBeVisible();
+      await purchaseButton.click();
+
+      const subscribeTo = page.getByText("Subscribe to", { exact: true });
+      await expect(subscribeTo).toBeVisible();
+
+      const subscribeToInSK = page.getByText("Prihlásiť sa na odber");
+      await expect(subscribeToInSK).not.toBeVisible();
+    },
+  );
+
+  integrationTest(
+    "Purchase a subscription product for RC Paywall falls back to a supported locale in case of similar ones",
+    async ({ page, userId }) => {
+      skipPaywallsTestIfDisabled(integrationTest);
+
+      page = await navigateToLandingUrl(page, userId, {
+        offeringId: RC_PAYWALL_WITH_LATAM_TRANSLATION_OFFERING_ID,
+        useRcPaywall: true,
+        lang: "es_419", // es_419 is supported by paywalls but not by the SDK.
+        // We expect the SDk to fall back to es_ES since it is a similar locale to es_419.
+      });
+
+      const title = page.getByText("Pruebas E2E para compras JS");
+      await expect(title).toBeVisible();
+
+      const weekly = page.getByText("semanal", { exact: true });
+      await weekly.click();
+
+      const purchaseButton = page.getByText("COMPRAR semanal", { exact: true });
+      await expect(purchaseButton).toBeVisible();
+      await purchaseButton.click();
+
+      const subscribeTo = page.getByText("Suscribirse a", { exact: true });
+      await expect(subscribeTo).toBeVisible();
     },
   );
 
