@@ -80,6 +80,7 @@
     onError={() => {}}
     onClose={() => {}}
     managementUrl="http://test.com"
+    termsAndConditionsUrl={args.termsAndConditionsUrl}
   />
 {/snippet}
 
@@ -325,6 +326,20 @@
       ...priceBreakdownTaxInclusive,
       taxCalculationStatus: "miss-match",
     },
+  }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
+  }}
+/>
+
+<Story
+  name="With Terms & Conditions URL"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    termsAndConditionsUrl: "https://www.revenuecat.com/terms",
   }}
   parameters={{
     chromatic: {

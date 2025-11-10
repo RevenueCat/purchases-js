@@ -1,12 +1,12 @@
 import { fireEvent, render, screen } from "@testing-library/svelte";
-import { describe, test, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import PaymentEntryPage from "../../../ui/pages/payment-entry-page.svelte";
 import {
   brandingInfo,
-  rcPackage,
-  checkoutStartResponse,
-  stripeElementsConfiguration,
   checkoutCalculateTaxResponse,
+  checkoutStartResponse,
+  rcPackage,
+  stripeElementsConfiguration,
 } from "../../../stories/fixtures";
 import { SDKEventName } from "../../../behavioural-events/sdk-events";
 import { createEventsTrackerMock } from "../../mocks/events-tracker-mock-provider";
@@ -17,8 +17,8 @@ import { writable } from "svelte/store";
 import { Translator } from "../../../ui/localization/translator";
 import { translatorContextKey } from "../../../ui/localization/constants";
 import type {
-  StripeServiceErrorCode,
   StripeServiceError,
+  StripeServiceErrorCode,
 } from "../../../stripe/stripe-service";
 import { StripeService } from "../../../stripe/stripe-service";
 import type {

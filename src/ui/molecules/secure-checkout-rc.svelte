@@ -125,17 +125,6 @@
     <p class="footer-caption">
       <Typography size="caption-default">
         {termsInfo}
-        {#if termsAndConditionsUrl}
-          {" "}
-          <a
-            class="terms-link"
-            href={termsAndConditionsUrl}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            <Localized key={LocalizationKeys.PaymentEntryPageTermsLinkLabel} />
-          </a>
-        {/if}
       </Typography>
     </p>
   {/if}
@@ -147,6 +136,17 @@
   <p class="footer-caption">
     <Typography size="caption-default">
       <Localized key={LocalizationKeys.PaymentEntryPagePaymentStepTitle} />
+      {#if termsAndConditionsUrl}
+        {" | "}
+        <a
+          class="terms-link"
+          href={termsAndConditionsUrl}
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          <Localized key={LocalizationKeys.PaymentEntryPageTermsLinkLabel} />
+        </a>
+      {/if}
     </Typography>
   </p>
 </div>
