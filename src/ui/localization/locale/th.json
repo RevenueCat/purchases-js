@@ -94,6 +94,6 @@
   "payment_entry_page.trial_subscription_terms_info": "หลังจากช่วงทดลองใช้ของคุณสิ้นสุดลง คุณจะถูกเรียกเก็บเงิน {{price}} {{perFrequency}} เริ่มตั้งแต่วันที่ {{renewalDate}} คุณสามารถยกเลิกได้ตลอดเวลาก่อนวันดังกล่าว",
   "payment_entry_page.subscription_info": "การสมัครรับข้อมูลจะต่ออายุโดยอัตโนมัติ ยกเลิกได้ตลอดเวลา",
   "payment_entry_page.otp_terms_info": "เมื่อทำการซื้อ คุณตกลงที่จะอนุญาตให้ {{appName}} เรียกเก็บเงินจากคุณตามข้อกำหนดของพวกเขา",
-  "payment_entry_page.terms_link_label": "Terms",
+  "payment_entry_page.terms_link_label": "ข้อกำหนด",
   "payment_entry_page.subscription_terms_info": "เมื่อสมัครรับข้อมูล แสดงว่าคุณยินยอมให้ {{appName}} เรียกเก็บเงินจากคุณตามข้อกำหนดจนกว่าคุณจะยกเลิก"
 }

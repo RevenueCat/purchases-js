@@ -94,6 +94,6 @@
   "payment_entry_page.trial_subscription_terms_info": "לאחר סיום תקופת הניסיון שלך, תחויב בסך {{price}} {{perFrequency}} החל מ-{{renewalDate}}. באפשרותך לבטל בכל עת לפני תאריך זה.",
   "payment_entry_page.subscription_info": "המנוי מתחדש אוטומטית. ניתן לבטל בכל עת.",
   "payment_entry_page.otp_terms_info": "ברכישה, אתה מסכים לאפשר ל-{{appName}} לחייב אותך בהתאם לתנאים שלהם.",
-  "payment_entry_page.terms_link_label": "Terms",
+  "payment_entry_page.terms_link_label": "תנאים",
   "payment_entry_page.subscription_terms_info": "על ידי הרשמה כמנוי, אתה מסכים לאפשר ל-{{appName}} לחייב אותך בהתאם לתנאים שלהם עד שתבטל."
 }

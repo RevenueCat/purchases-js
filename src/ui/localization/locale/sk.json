@@ -94,6 +94,6 @@
   "payment_entry_page.trial_subscription_terms_info": "Po skončení skúšobného obdobia vám bude účtovaná suma {{price}} {{perFrequency}} počnúc dňom {{renewalDate}}. Pred týmto dátumom môžete kedykoľvek zrušiť.",
   "payment_entry_page.subscription_info": "Predplatné sa automaticky obnovuje. Zrušiť môžete kedykoľvek.",
   "payment_entry_page.otp_terms_info": "Zakúpením súhlasíte s tým, že spoločnosti {{appName}} umožníte účtovať vám poplatky v súlade s jej podmienkami.",
-  "payment_entry_page.terms_link_label": "Terms",
+  "payment_entry_page.terms_link_label": "Podmienky",
   "payment_entry_page.subscription_terms_info": "Prihlásením na odber súhlasíte s tým, že spoločnosť {{appName}} vám bude účtovať poplatky podľa svojich podmienok, až kým odber nezrušíte."
 }

@@ -94,6 +94,6 @@
   "payment_entry_page.trial_subscription_terms_info": "Після закінчення пробного періоду з вас буде стягуватися плата в розмірі {{price}} {{perFrequency}} починаючи з {{renewalDate}}. Ви можете скасувати підписку в будь-який час до цієї дати.",
   "payment_entry_page.subscription_info": "Підписка поновлюється автоматично. Скасувати можна в будь-який час.",
   "payment_entry_page.otp_terms_info": "Купуючи, ви погоджуєтеся дозволити {{appName}} стягувати з вас плату відповідно до їхніх умов.",
-  "payment_entry_page.terms_link_label": "Terms",
+  "payment_entry_page.terms_link_label": "Умови",
   "payment_entry_page.subscription_terms_info": "Підписуючись, ви погоджуєтеся дозволити {{appName}} стягувати з вас плату відповідно до їхніх умов, поки ви не скасуєте підписку."
 }

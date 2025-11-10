@@ -94,6 +94,6 @@
   "payment_entry_page.trial_subscription_terms_info": "आपकी परीक्षण अवधि समाप्त होने के बाद, आपसे {{renewalDate}} से शुरू होकर {{price}} {{perFrequency}} शुल्क लिया जाएगा. आप इस तिथि से पहले कभी भी रद्द कर सकते हैं.",
   "payment_entry_page.subscription_info": "सदस्यता स्वतः नवीनीकृत हो जाती है. कभी भी रद्द करें.",
   "payment_entry_page.otp_terms_info": "खरीदकर, आप {{appName}} को उनकी शर्तों के अनुसार आपसे शुल्क लेने की अनुमति देने के लिए सहमत हैं.",
-  "payment_entry_page.terms_link_label": "Terms",
+  "payment_entry_page.terms_link_label": "नियम",
   "payment_entry_page.subscription_terms_info": "सदस्यता लेकर, आप {{appName}} को रद्द करने तक उनकी शर्तों के अनुसार आपसे शुल्क लेने की अनुमति देने के लिए सहमत हैं."
 }

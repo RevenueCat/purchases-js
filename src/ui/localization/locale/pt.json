@@ -94,6 +94,6 @@
   "payment_entry_page.trial_subscription_terms_info": "Após o término do período de avaliação, será cobrado o valor de {{price}} {{perFrequency}} a partir de {{renewalDate}}. Pode cancelar a qualquer momento antes desta data.",
   "payment_entry_page.subscription_info": "A subscrição é renovada automaticamente. Cancele a qualquer momento.",
   "payment_entry_page.otp_terms_info": "Ao comprar, você concorda em permitir que o {{appName}} cobre de acordo com os termos deles.",
-  "payment_entry_page.terms_link_label": "Terms",
+  "payment_entry_page.terms_link_label": "Termos",
   "payment_entry_page.subscription_terms_info": "Ao subscrever, concorda em permitir que a {{appName}} lhe cobre de acordo com os seus termos até cancelar."
 }
