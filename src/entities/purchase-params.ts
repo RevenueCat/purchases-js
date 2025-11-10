@@ -69,4 +69,11 @@ export interface PurchaseParams {
    *
    */
   labelsOverride?: CustomTranslations;
+
+  /**
+   * Link to the terms and conditions that should be shown in the checkout footer.
+   *
+   * @internal
+   */
+  termsAndConditionsUrl?: string;
 }

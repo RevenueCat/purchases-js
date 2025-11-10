@@ -94,5 +94,6 @@
   "payment_entry_page.trial_subscription_terms_info": "Selepas tempoh percubaan anda tamat, anda akan dikenakan bayaran sebanyak {{price}} {{perFrequency}} bermula {{renewalDate}}. Anda boleh membatalkan pada bila-bila masa sebelum tarikh ini.",
   "payment_entry_page.subscription_info": "Langganan diperbaharui secara automatik. Batalkan bila-bila masa.",
   "payment_entry_page.otp_terms_info": "Dengan membuat pembelian, anda bersetuju untuk membenarkan {{appName}} mengenakan bayaran kepada anda mengikut terma mereka.",
+  "payment_entry_page.terms_link_label": "Terms",
   "payment_entry_page.subscription_terms_info": "Dengan melanggan, anda bersetuju untuk membenarkan {{appName}} mengenakan bayaran kepada anda mengikut terma mereka sehingga anda membatalkan."
 }

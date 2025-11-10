@@ -94,5 +94,6 @@
   "payment_entry_page.trial_subscription_terms_info": "Efter din prøveperiode slutter, vil du blive opkrævet {{price}} {{perFrequency}} fra og med {{renewalDate}}. Du kan opsige når som helst før denne dato.",
   "payment_entry_page.subscription_info": "Abonnementet fornys automatisk. Opsig når som helst.",
   "payment_entry_page.otp_terms_info": "Ved at købe accepterer du, at {{appName}} kan debitere dig i overensstemmelse med deres vilkår.",
+  "payment_entry_page.terms_link_label": "Terms",
   "payment_entry_page.subscription_terms_info": "Ved at abonnere accepterer du, at {{appName}} kan opkræve dig i henhold til deres vilkår, indtil du opsiger."
 }

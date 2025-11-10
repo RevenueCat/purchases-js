@@ -94,5 +94,6 @@
   "payment_entry_page.trial_subscription_terms_info": "Μετά τη λήξη της δοκιμαστικής περιόδου, θα χρεωθείτε {{price}} {{perFrequency}} ξεκινώντας από {{renewalDate}}. Μπορείτε να ακυρώσετε ανά πάσα στιγμή πριν από αυτήν την ημερομηνία.",
   "payment_entry_page.subscription_info": "Η συνδρομή ανανεώνεται αυτόματα. Ακυρώστε ανά πάσα στιγμή.",
   "payment_entry_page.otp_terms_info": "Με την αγορά, συμφωνείτε να επιτρέψετε στην {{appName}} να σας χρεώσει σύμφωνα με τους όρους της.",
+  "payment_entry_page.terms_link_label": "Terms",
   "payment_entry_page.subscription_terms_info": "Με την εγγραφή σας, συμφωνείτε να επιτρέψετε στην εφαρμογή {{appName}} να σας χρεώνει σύμφωνα με τους όρους της έως ότου ακυρώσετε."
 }

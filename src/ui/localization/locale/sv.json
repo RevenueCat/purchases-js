@@ -94,5 +94,6 @@
   "payment_entry_page.trial_subscription_terms_info": "Efter att din provperiod slutar debiteras du {{price}} {{perFrequency}} från och med {{renewalDate}}. Du kan avbryta när som helst före detta datum.",
   "payment_entry_page.subscription_info": "Prenumerationen förnyas automatiskt. Avbryt när som helst.",
   "payment_entry_page.otp_terms_info": "Genom att köpa godkänner du att {{appName}} debiterar dig i enlighet med deras villkor.",
+  "payment_entry_page.terms_link_label": "Terms",
   "payment_entry_page.subscription_terms_info": "Genom att prenumerera godkänner du att {{appName}} debiterar dig i enlighet med deras villkor tills du avbryter."
 }

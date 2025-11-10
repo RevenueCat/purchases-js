@@ -94,5 +94,6 @@
   "payment_entry_page.trial_subscription_terms_info": "Après la fin de votre essai, vous serez facturé {{price}} {{perFrequency}} à partir du {{renewalDate}}. Vous pouvez annuler à tout moment avant cette date.",
   "payment_entry_page.subscription_info": "L'abonnement est renouvelé automatiquement. Annulez à tout moment.",
   "payment_entry_page.otp_terms_info": "En achetant, vous acceptez d'autoriser {{appName}} à vous facturer conformément à ses conditions.",
+  "payment_entry_page.terms_link_label": "Terms",
   "payment_entry_page.subscription_terms_info": "En vous abonnant, vous acceptez d'autoriser {{appName}} à vous facturer conformément à ses conditions jusqu'à ce que vous annuliez."
 }
