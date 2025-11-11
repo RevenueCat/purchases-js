@@ -1,6 +1,6 @@
 ## RevenueCat SDK
-### ✨ New Features
-* WEB-3390: presentPaywall method. (#637) via Nicola Sacco (@nicfix)
 ### 🐞 Bugfixes
-* WEB-3392: Making offering an optional parameter for presentPaywall (#639) via Nicola Sacco (@nicfix)
-* WEB-3390: Docs follow-up (#638) via Nicola Sacco (@nicfix)
+* Fixing locale mismatch when the paywall does not support a locale supported by the SDK. (#640) via Nicola Sacco (@nicfix)
+
+### 🔄 Other Changes
+* Add internal terms link to checkout footer (#643) via Nicola Sacco (@nicfix)
