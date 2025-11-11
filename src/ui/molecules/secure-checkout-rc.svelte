@@ -135,9 +135,7 @@
   {/if}
   <p class="footer-caption">
     <Typography size="caption-default">
-      <Localized key={LocalizationKeys.PaymentEntryPagePaymentStepTitle} />
       {#if termsAndConditionsUrl}
-        {" | "}
         <a
           class="terms-link"
           href={termsAndConditionsUrl}
@@ -146,7 +144,9 @@
         >
           <Localized key={LocalizationKeys.PaymentEntryPageTermsLinkLabel} />
         </a>
+        <span class="terms-divider">{"|"}</span>
       {/if}
+      <Localized key={LocalizationKeys.PaymentEntryPagePaymentStepTitle} />
     </Typography>
   </p>
 </div>
@@ -166,6 +166,10 @@
 
   .terms-link {
     color: inherit;
+  }
+
+  .terms-divider {
+    margin: 0 4px;
   }
 
   @container layout-query-container (width >= 768px) {
