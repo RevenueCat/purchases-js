@@ -49,6 +49,7 @@
   "payment_entry_page.trial_subscription_terms_info": "Legal text for trial subscriptions indicating that the user authorizes charges in accordance with the app’s terms. {{price}} is replaced with the renewal price, {{perFrequency}} is replaced with the standard frequency, {{renewalDate}} is replaced with the renewal date.",
   "payment_entry_page.subscription_terms_info": "Legal text for non-trial subscriptions indicating that the user authorizes charges in accordance with the app’s terms.",
   "payment_entry_page.otp_terms_info": "Legal text for one-time purchases indicating that the user authorizes charges in accordance with the app’s terms. {{price}} is replaced with the purchase price.",
+  "payment_entry_page.terms_link_label": "Label for the optional link to the terms and conditions page.",
   "payment_entry_page.subscription_info": "Text indicating that the subscription renews automatically and can be cancelled at any time.",
   "payment_entry_page.button_pay": "Button text prompting the user to pay immediately.",
   "payment_entry_page.button_start_trial": "Button text prompting the user to start the free trial.",

@@ -881,6 +881,7 @@ export class Purchases {
           metadata: metadata,
           defaultLocale,
           customTranslations: params.labelsOverride,
+          termsAndConditionsUrl: params.termsAndConditionsUrl,
           skipSuccessPage,
         },
       });

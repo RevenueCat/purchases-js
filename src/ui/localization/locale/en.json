@@ -45,6 +45,7 @@
   "payment_entry_page.trial_subscription_terms_info": "After your trial ends, you will be charged {{price}} {{perFrequency}} starting {{renewalDate}}. You can cancel any time before this date.",
   "payment_entry_page.subscription_terms_info": "By subscribing, you agree to allow {{appName}} to charge you according to their terms until you cancel.",
   "payment_entry_page.otp_terms_info": "By purchasing, you agree to allow {{appName}} to charge you according to their terms.",
+  "payment_entry_page.terms_link_label": "Terms",
   "payment_entry_page.subscription_info": "Subscription renews automatically. Cancel anytime.",
   "payment_entry_page.button_pay": "Pay now",
   "payment_entry_page.button_start_trial": "Start trial",

@@ -94,5 +94,6 @@
   "payment_entry_page.trial_subscription_terms_info": "トライアル期間が終了すると、{{renewalDate}}から{{price}} {{perFrequency}}が課金されます。この日より前にいつでもキャンセルできます。",
   "payment_entry_page.subscription_info": "サブスクリプションは自動的に更新されます。いつでもキャンセルできます。",
   "payment_entry_page.otp_terms_info": "購入することにより、{{appName}}が利用規約に基づいて料金を請求することに同意したことになります。",
+  "payment_entry_page.terms_link_label": "利用規約",
   "payment_entry_page.subscription_terms_info": "サブスクリプションに登録すると、キャンセルするまで{{appName}}が利用規約に従って課金することを許可することに同意したことになります。"
 }

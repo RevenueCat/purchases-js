@@ -94,5 +94,6 @@
   "payment_entry_page.trial_subscription_terms_info": "A próbaidőszak vége után {{price}} összeget számítunk fel {{perFrequency}} gyakorisággal, kezdve {{renewalDate}} dátummal. Ezt a dátumot megelőzően bármikor lemondhatod.",
   "payment_entry_page.subscription_info": "Az előfizetés automatikusan megújul. Bármikor lemondhatod.",
   "payment_entry_page.otp_terms_info": "A vásárlással elfogadod, hogy a {{appName}} az általa meghatározott feltételek szerint terheljen.",
+  "payment_entry_page.terms_link_label": "Feltételek",
   "payment_entry_page.subscription_terms_info": "A feliratkozással elfogadod, hogy a {{appName}} az általa meghatározott feltételek szerint terheljen, amíg le nem mondod."
 }

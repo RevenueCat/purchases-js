@@ -94,5 +94,6 @@
   "payment_entry_page.trial_subscription_terms_info": "Nakon isteka probnog razdoblja, bit će vam naplaćeno {{price}} {{perFrequency}} počevši od {{renewalDate}}. Možete otkazati bilo kada prije tog datuma.",
   "payment_entry_page.subscription_info": "Pretplata se automatski obnavlja. Otkažite bilo kada.",
   "payment_entry_page.otp_terms_info": "Kupnjom pristajete dopustiti aplikaciji {{appName}} da vam naplati u skladu s njihovim uvjetima.",
+  "payment_entry_page.terms_link_label": "Uvjeti",
   "payment_entry_page.subscription_terms_info": "Pretplatom se slažete da ćete dopustiti {{appName}} da vam naplaćuje u skladu s njihovim uvjetima dok ne otkažete."
 }

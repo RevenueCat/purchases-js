@@ -94,5 +94,6 @@
   "payment_entry_page.trial_subscription_terms_info": "Kokeilujakson päätyttyä sinulta veloitetaan {{price}} {{perFrequency}} alkaen {{renewalDate}}. Voit peruuttaa milloin tahansa ennen tätä päivämäärää.",
   "payment_entry_page.subscription_info": "Tilaus uusiutuu automaattisesti. Peruuta milloin tahansa.",
   "payment_entry_page.otp_terms_info": "Ostamalla hyväksyt, että {{appName}} veloittaa sinua heidän ehtojensa mukaisesti.",
+  "payment_entry_page.terms_link_label": "Ehdot",
   "payment_entry_page.subscription_terms_info": "Tilaamalla hyväksyt, että {{appName}} veloittaa sinulta ehtojensa mukaisesti, kunnes peruutat tilauksen."
 }

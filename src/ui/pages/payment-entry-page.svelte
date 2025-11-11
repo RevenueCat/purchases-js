@@ -58,6 +58,7 @@
     purchaseOperationHelper: PurchaseOperationHelper;
     customerEmail: string | null;
     defaultPriceBreakdown?: PriceBreakdown;
+    termsAndConditionsUrl?: string | null;
     onContinue: () => void;
     onError: (error: PurchaseFlowError) => void;
     onPriceBreakdownUpdated: (priceBreakdown: PriceBreakdown) => void;
@@ -76,6 +77,7 @@
     purchaseOperationHelper,
     customerEmail,
     defaultPriceBreakdown,
+    termsAndConditionsUrl,
     onContinue,
     onError,
     onPriceBreakdownUpdated,
@@ -596,7 +598,11 @@
         />
 
         <div class="rc-checkout-secure-container">
-          <SecureCheckoutRc {brandingInfo} {purchaseOption} />
+          <SecureCheckoutRc
+            {brandingInfo}
+            {purchaseOption}
+            {termsAndConditionsUrl}
+          />
         </div>
       </div>
     </div>

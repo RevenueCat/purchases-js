@@ -94,5 +94,6 @@
   "payment_entry_page.trial_subscription_terms_info": "在您的試用期結束後，您將被收取 {{price}} {{perFrequency}}，從 {{renewalDate}} 開始。您可以隨時在此日期之前取消。",
   "payment_entry_page.subscription_info": "訂閱會自動續訂。隨時取消。",
   "payment_entry_page.otp_terms_info": "購買即表示您同意授權 {{appName}} 根據其條款向您收費。",
+  "payment_entry_page.terms_link_label": "條款",
   "payment_entry_page.subscription_terms_info": "訂閱即表示您同意允許 {{appName}} 根據其條款向您收費，直到您取消為止。"
 }

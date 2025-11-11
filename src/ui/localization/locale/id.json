@@ -94,5 +94,6 @@
   "payment_entry_page.trial_subscription_terms_info": "Setelah masa percobaan Anda berakhir, Anda akan dikenakan biaya sebesar {{price}} {{perFrequency}} mulai {{renewalDate}}. Anda dapat membatalkan kapan saja sebelum tanggal ini.",
   "payment_entry_page.subscription_info": "Langganan diperpanjang secara otomatis. Batalkan kapan saja.",
   "payment_entry_page.otp_terms_info": "Dengan membeli, Anda setuju untuk mengizinkan {{appName}} menagih Anda sesuai dengan ketentuan mereka.",
+  "payment_entry_page.terms_link_label": "Ketentuan",
   "payment_entry_page.subscription_terms_info": "Dengan berlangganan, Anda setuju untuk mengizinkan {{appName}} mengenakan biaya sesuai dengan ketentuan mereka hingga Anda membatalkan."
 }

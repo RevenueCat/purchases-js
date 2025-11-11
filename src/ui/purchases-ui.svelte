@@ -45,6 +45,7 @@
     customTranslations?: CustomTranslations;
     isInElement: boolean;
     skipSuccessPage: boolean;
+    termsAndConditionsUrl?: string;
     onFinished: (operationResult: OperationSessionSuccessfulResult) => void;
     onError: (error: PurchaseFlowError) => void;
     onClose: (() => void) | undefined;
@@ -65,6 +66,7 @@
     customTranslations = {},
     isInElement,
     skipSuccessPage = false,
+    termsAndConditionsUrl,
     onFinished,
     onError,
     onClose,
@@ -239,6 +241,7 @@
   {managementUrl}
   {purchaseOperationHelper}
   {isInElement}
+  {termsAndConditionsUrl}
   customerEmail={email ?? null}
   {closeWithError}
   onContinue={handleContinue}

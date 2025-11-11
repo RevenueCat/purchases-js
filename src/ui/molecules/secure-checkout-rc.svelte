@@ -31,6 +31,7 @@
 
   export let brandingInfo: BrandingInfoResponse | null = null;
   export let purchaseOption: PurchaseOption | null = null;
+  export let termsAndConditionsUrl: string | null = null;
 
   const translator = getContext<Writable<Translator>>(translatorContextKey);
 
@@ -122,7 +123,9 @@
 <div class="footer-caption-container">
   {#if termsInfo}
     <p class="footer-caption">
-      <Typography size="caption-default">{termsInfo}</Typography>
+      <Typography size="caption-default">
+        {termsInfo}
+      </Typography>
     </p>
   {/if}
   {#if subscriptionInfo}
@@ -132,6 +135,17 @@
   {/if}
   <p class="footer-caption">
     <Typography size="caption-default">
+      {#if termsAndConditionsUrl}
+        <a
+          class="terms-link"
+          href={termsAndConditionsUrl}
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          <Localized key={LocalizationKeys.PaymentEntryPageTermsLinkLabel} />
+        </a>
+        <span class="terms-divider">{"|"}</span>
+      {/if}
       <Localized key={LocalizationKeys.PaymentEntryPagePaymentStepTitle} />
     </Typography>
   </p>
@@ -148,6 +162,14 @@
     color: var(--rc-color-grey-text-light);
     text-align: center;
     margin: 0;
+  }
+
+  .terms-link {
+    color: inherit;
+  }
+
+  .terms-divider {
+    margin: 0 4px;
   }
 
   @container layout-query-container (width >= 768px) {

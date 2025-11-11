@@ -29,6 +29,7 @@
     managementUrl: string | null;
     customerEmail: string | null;
     defaultPriceBreakdown?: PriceBreakdown;
+    termsAndConditionsUrl?: string;
     closeWithError: () => void;
     onContinue: () => void;
     onError: (error: PurchaseFlowError) => void;
@@ -48,6 +49,7 @@
     managementUrl,
     customerEmail,
     defaultPriceBreakdown,
+    termsAndConditionsUrl,
     closeWithError,
     onContinue,
     onError,
@@ -106,6 +108,7 @@
         {managementUrl}
         {customerEmail}
         {defaultPriceBreakdown}
+        {termsAndConditionsUrl}
         {onContinue}
         {onError}
         {onPriceBreakdownUpdated}

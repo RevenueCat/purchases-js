@@ -94,5 +94,6 @@
   "payment_entry_page.trial_subscription_terms_info": "După ce perioada de probă se termină, veți fi taxat cu {{price}} {{perFrequency}} începând cu {{renewalDate}}. Puteți anula oricând înainte de această dată.",
   "payment_entry_page.subscription_info": "Abonamentul se reînnoiește automat. Anulați oricând.",
   "payment_entry_page.otp_terms_info": "Prin achiziționarea, sunteți de acord să permiteți {{appName}} să vă taxeze conform termenilor săi.",
+  "payment_entry_page.terms_link_label": "Termeni",
   "payment_entry_page.subscription_terms_info": "Prin abonare, sunteți de acord să permiteți {{appName}} să vă taxeze conform termenilor săi până la anulare."
 }

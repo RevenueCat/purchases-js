@@ -94,5 +94,6 @@
   "payment_entry_page.trial_subscription_terms_info": "Na afloop van uw proefperiode wordt {{price}} {{perFrequency}} in rekening gebracht, beginnend op {{renewalDate}}. U kunt op elk moment vóór deze datum annuleren.",
   "payment_entry_page.subscription_info": "Abonnement wordt automatisch verlengd. Annuleer op elk moment.",
   "payment_entry_page.otp_terms_info": "Door de aankoop ga je ermee akkoord dat {{appName}} kosten in rekening brengt volgens hun voorwaarden.",
+  "payment_entry_page.terms_link_label": "Voorwaarden",
   "payment_entry_page.subscription_terms_info": "Door u te abonneren, stemt u ermee in dat {{appName}} u kosten in rekening brengt volgens hun voorwaarden totdat u annuleert."
 }

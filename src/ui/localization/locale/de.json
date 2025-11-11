@@ -94,5 +94,6 @@
   "payment_entry_page.trial_subscription_terms_info": "Nach Ablauf Ihres Testzeitraums werden Ihnen {{price}} {{perFrequency}} ab dem {{renewalDate}} berechnet. Sie können jederzeit vor diesem Datum kündigen.",
   "payment_entry_page.subscription_info": "Das Abonnement verlängert sich automatisch. Jederzeit kündbar.",
   "payment_entry_page.otp_terms_info": "Mit dem Kauf erklären Sie sich einverstanden, dass {{appName}} Ihnen Gebühren gemäß ihren Bedingungen berechnet.",
+  "payment_entry_page.terms_link_label": "Bedingungen",
   "payment_entry_page.subscription_terms_info": "Mit dem Abonnieren erklären Sie sich damit einverstanden, dass {{appName}} Ihnen gemäß ihren Bedingungen Gebühren berechnet, bis Sie kündigen."
 }
