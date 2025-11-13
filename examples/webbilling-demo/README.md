@@ -41,9 +41,9 @@ npm run dev
 
 ### Payment Methods
 
-The demo supports both **Stripe** and **Paddle** payment flows:
+The demo supports both **Web Billing** and **Paddle** payment flows:
 
-- **Stripe** (default): Uses RevenueCat's built-in Stripe UI flow. Works with Web Billing API keys.
+- **Web Billing** (default): Uses RevenueCat's built-in Web Billing UI flow. Works with Web Billing API keys.
 - **Paddle**: Uses Paddle's checkout overlay. Works with Paddle API keys.
 
 #### Using Paddle
@@ -54,7 +54,7 @@ Set your Paddle API key in the environment variable:
 export VITE_RC_API_KEY = 'your paddle api key'
 ```
 
-The SDK automatically detects Paddle API keys and routes to the Paddle flow. The same `purchases.purchase()` call works for both Stripe and Paddle.
+The SDK automatically detects Paddle API keys and routes to the Paddle flow. The same `purchases.purchase()` call works for both Web Billing and Paddle.
 
 ### E2E Tests
 
