@@ -46,8 +46,6 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
 
   const flagsConfig: FlagsConfig = {
     autoCollectUTMAsMetadata: !optOutOfAutoUTM,
-    // @ts-expect-error allowPaddleAPIKey is an internal property
-    allowPaddleAPIKey: true,
   };
   if (rcSource) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
