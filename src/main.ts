@@ -28,10 +28,10 @@ import {
 } from "./helpers/api-key-helper";
 import {
   type OperationSessionSuccessfulResult,
-  PurchaseFlowError,
-  PurchaseFlowErrorCode,
+  type PurchaseFlowError,
   PurchaseOperationHelper,
 } from "./helpers/purchase-operation-helper";
+import { PaddleService } from "./paddle/paddle-service";
 import { type LogHandler, type LogLevel } from "./entities/logging";
 import { Logger } from "./helpers/logger";
 import {
@@ -55,7 +55,6 @@ import {
 } from "./helpers/offerings-parser";
 import { type PurchaseResult } from "./entities/purchase-result";
 import { mount, unmount } from "svelte";
-import { writable, type Writable } from "svelte/store";
 import { type PresentPaywallParams } from "./entities/present-paywall-params";
 import { Paywall } from "@revenuecat/purchases-ui-js";
 import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
@@ -90,8 +89,6 @@ import type { VirtualCurrencies } from "./entities/virtual-currencies";
 import { toVirtualCurrencies } from "./entities/virtual-currencies";
 import type { IdentifyResult } from "./entities/identify-result";
 import { parseOfferingIntoPackageInfoPerPackage } from "./helpers/paywall-package-info-helpers";
-import { PaddleService } from "./paddle/paddle-service";
-import type { PresentedOfferingContext } from "./entities/offerings";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -754,7 +751,7 @@ export class Purchases {
         window.history.pushState({ checkoutOpen: true }, "");
       }
 
-      const unmountPurchaseUI = () => {
+      const unmountPurchaseUi = () => {
         if (component) {
           unmount(component);
         }
@@ -763,7 +760,7 @@ export class Purchases {
 
       const onClose = this.createCheckoutOnCloseHandler(
         reject,
-        unmountPurchaseUI,
+        unmountPurchaseUi,
       );
 
       if (!isInElement && onClose) {
@@ -774,12 +771,12 @@ export class Purchases {
         resolve,
         appUserId,
         rcPackage,
-        unmountPurchaseUI,
+        unmountPurchaseUi,
       );
 
       const onError = this.createCheckoutOnErrorHandler(
         reject,
-        unmountPurchaseUI,
+        unmountPurchaseUi,
       );
 
       component = mount(PurchasesUi, {
@@ -853,27 +850,7 @@ export class Purchases {
     });
     this.eventsTracker.trackSDKEvent(event);
 
-    const presentedOfferingContext: PresentedOfferingContext = {
-      offeringIdentifier:
-        rcPackage.webBillingProduct.presentedOfferingContext.offeringIdentifier,
-      targetingContext: null,
-      placementIdentifier: null,
-    };
-
-    const startResponse = await this.backend.postCheckoutStart(
-      appUserId,
-      rcPackage.webBillingProduct.identifier,
-      presentedOfferingContext,
-      purchaseOptionToUse,
-      this.eventsTracker.getTraceId(),
-      customerEmail ?? undefined,
-      metadata,
-    );
-
-    await PaddleService.initializePaddle(
-      startResponse.paddle_billing_params?.client_side_token ?? "",
-      startResponse.paddle_billing_params?.is_sandbox ?? false,
-    );
+    const paddleService = new PaddleService(this.backend, this.eventsTracker);
 
     let component: ReturnType<typeof mount> | null = null;
     const isInElement = htmlTarget !== undefined;
@@ -883,7 +860,7 @@ export class Purchases {
         window.history.pushState({ checkoutOpen: true }, "");
       }
 
-      const unmountPurchaseUI = () => {
+      const unmountPaddlePurchaseUi = () => {
         if (component) {
           unmount(component);
         }
@@ -892,7 +869,7 @@ export class Purchases {
 
       const onClose = this.createCheckoutOnCloseHandler(
         reject,
-        unmountPurchaseUI,
+        unmountPaddlePurchaseUi,
       );
 
       if (!isInElement && onClose) {
@@ -903,101 +880,42 @@ export class Purchases {
         resolve,
         appUserId,
         rcPackage,
-        unmountPurchaseUI,
+        unmountPaddlePurchaseUi,
       );
 
+      // Don't pass in unmountPaddlePurchaseUi to onError. We usually want to show
+      // errors on PaddlePurchaseUi's error page instead of unmounting the UI.
       const onError = this.createCheckoutOnErrorHandler(reject);
 
-      const operationResultStore: Writable<OperationSessionSuccessfulResult | null> =
-        writable<OperationSessionSuccessfulResult | null>(null);
-      const errorStore: Writable<PurchaseFlowError | null> =
-        writable<PurchaseFlowError | null>(null);
-
-      const onCheckoutLoaded = () => {
-        if (!component) {
-          component = mount(PaddlePurchaseUi, {
-            target: certainHTMLTarget,
-            props: {
-              eventsTracker: this.eventsTracker,
-              brandingInfo: this._brandingInfo,
-              selectedLocale: selectedLocale || defaultLocale,
-              defaultLocale,
-              customTranslations: params.labelsOverride,
-              isInElement,
-              onFinished,
-              onClose,
-              onError,
-              skipSuccessPage,
-              productDetails: rcPackage.webBillingProduct,
-              operationResultStore,
-              errorStore,
-            },
-          });
-        }
-      };
-
-      const purchasePromise = PaddleService.purchase({
-        backend: this.backend,
-        operationSessionId: startResponse.operation_session_id,
-        transactionId:
-          startResponse.paddle_billing_params?.transaction_id ?? "",
-        onCheckoutLoaded,
-        unmountPurchaseUI,
-        params: {
-          rcPackage,
-          purchaseOption: purchaseOptionToUse,
-          appUserId,
-          presentedOfferingIdentifier:
-            rcPackage.webBillingProduct.presentedOfferingContext
-              .offeringIdentifier,
-          customerEmail,
-          locale: selectedLocale || defaultLocale,
-        },
-      });
-
-      purchasePromise
-        .then((result: OperationSessionSuccessfulResult) => {
-          Logger.debugLog(
-            "PaddleService polling completed, showing success page",
-          );
-          if (skipSuccessPage) {
-            onFinished(result);
-          } else {
-            operationResultStore.set(result);
-          }
-        })
-        .catch((err: unknown) => {
-          Logger.debugLog(`PaddleService polling failed: ${err}`);
-          const purchaseFlowError =
-            err instanceof PurchasesError
-              ? PurchaseFlowError.fromPurchasesError(
-                  err,
-                  PurchaseFlowErrorCode.UnknownError,
-                )
-              : new PurchaseFlowError(
-                  PurchaseFlowErrorCode.UnknownError,
-                  `Paddle purchase failed: ${err}`,
-                );
-
-          if (
-            err instanceof PurchasesError &&
-            err.errorCode === ErrorCode.UserCancelledError
-          ) {
-            if (onClose) {
-              onClose();
-            } else {
-              onError(purchaseFlowError);
-            }
-          } else {
-            // Update store so component can show error page
-            errorStore.set(purchaseFlowError);
-          }
+      if (!component) {
+        component = mount(PaddlePurchaseUi, {
+          target: certainHTMLTarget,
+          props: {
+            eventsTracker: this.eventsTracker,
+            brandingInfo: this._brandingInfo,
+            selectedLocale: selectedLocale || defaultLocale,
+            defaultLocale,
+            customTranslations: params.labelsOverride,
+            isInElement,
+            onFinished,
+            onClose,
+            onError,
+            skipSuccessPage,
+            productDetails: rcPackage.webBillingProduct,
+            rcPackage,
+            appUserId,
+            purchaseOption: purchaseOptionToUse,
+            customerEmail,
+            metadata,
+            unmountPaddlePurchaseUi,
+            paddleService,
+          },
         });
+      }
     });
   }
 
   /**
-   * Resolves the HTML target element for mounting the billing widget.
    * Uses htmlTarget if provided. Otherwise, looks for an element with id "rcb-ui-root".
    * If no element is found, creates a new div with className "rcb-ui-root".
    */
@@ -1040,6 +958,7 @@ export class Purchases {
       callback?.();
 
       Logger.debugLog("Purchase cancelled by user");
+      // TODO: not correct for paddle
       reject(new PurchasesError(ErrorCode.UserCancelledError));
     };
 
