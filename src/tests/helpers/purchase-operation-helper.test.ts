@@ -127,6 +127,7 @@ describe("PurchaseOperationHelper", () => {
           offeringIdentifier: "test-offering-id",
           targetingContext: null,
           placementIdentifier: null,
+          workflowIdentifier: null,
         },
       ),
       new PurchaseFlowError(
@@ -157,6 +158,7 @@ describe("PurchaseOperationHelper", () => {
           offeringIdentifier: "test-offering-id",
           targetingContext: null,
           placementIdentifier: null,
+          workflowIdentifier: null,
         },
         "test-email@test.com",
       ),
@@ -201,6 +203,7 @@ describe("PurchaseOperationHelper", () => {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
+        workflowIdentifier: null,
       },
     );
 
@@ -232,6 +235,7 @@ describe("PurchaseOperationHelper", () => {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
+        workflowIdentifier: null,
       },
     );
 
@@ -265,6 +269,7 @@ describe("PurchaseOperationHelper", () => {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
+        workflowIdentifier: null,
       },
     );
 
@@ -302,6 +307,7 @@ describe("PurchaseOperationHelper", () => {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
+        workflowIdentifier: null,
       },
     );
 
@@ -331,6 +337,7 @@ describe("PurchaseOperationHelper", () => {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
+        workflowIdentifier: null,
       },
     );
 
@@ -364,6 +371,7 @@ describe("PurchaseOperationHelper", () => {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
+        workflowIdentifier: null,
       },
     );
 
@@ -399,6 +407,7 @@ describe("PurchaseOperationHelper", () => {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
+        workflowIdentifier: null,
       },
       "test-email@test.com",
     );
@@ -437,6 +446,7 @@ describe("PurchaseOperationHelper", () => {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
+        workflowIdentifier: null,
       },
     );
 
@@ -474,6 +484,7 @@ describe("PurchaseOperationHelper", () => {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
+        workflowIdentifier: null,
       },
     );
 
@@ -511,6 +522,7 @@ describe("PurchaseOperationHelper", () => {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
+        workflowIdentifier: null,
       },
     );
 
@@ -552,6 +564,7 @@ describe("PurchaseOperationHelper", () => {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
+        workflowIdentifier: null,
       },
     );
     await expectPromiseToPurchaseFlowError(
@@ -592,6 +605,7 @@ describe("PurchaseOperationHelper", () => {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
+        workflowIdentifier: null,
       },
       "test-email",
     );
@@ -629,6 +643,7 @@ describe("PurchaseOperationHelper", () => {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
+        workflowIdentifier: null,
       },
     );
     const pollResult =
@@ -672,6 +687,7 @@ describe("PurchaseOperationHelper", () => {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
+        workflowIdentifier: null,
       },
     );
     await expectPromiseToPurchaseFlowError(
@@ -721,6 +737,7 @@ describe("PurchaseOperationHelper", () => {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
+        workflowIdentifier: null,
       },
     );
 
@@ -769,6 +786,7 @@ describe("PurchaseOperationHelper", () => {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
+        workflowIdentifier: null,
       },
     );
     await expectPromiseToPurchaseFlowError(
@@ -808,6 +826,7 @@ describe("PurchaseOperationHelper", () => {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
+        workflowIdentifier: null,
       },
     );
     await expectPromiseToPurchaseFlowError(

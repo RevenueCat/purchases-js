@@ -129,6 +129,7 @@ export class Backend {
       presented_offering_identifier: string;
       price_id: string;
       presented_placement_identifier?: string;
+      presented_workflow_id?: string;
       offer_id?: string;
       applied_targeting_rule?: {
         rule_id: string;
@@ -167,6 +168,11 @@ export class Backend {
     if (presentedOfferingContext.placementIdentifier) {
       requestBody.presented_placement_identifier =
         presentedOfferingContext.placementIdentifier;
+    }
+
+    if (presentedOfferingContext.workflowIdentifier) {
+      requestBody.presented_workflow_id =
+        presentedOfferingContext.workflowIdentifier;
     }
 
     return await performRequest<
@@ -299,6 +305,7 @@ export class Backend {
       app_user_id: string;
       presented_offering_identifier: string;
       presented_placement_identifier: string | null;
+      presented_workflow_id?: string | null;
       applied_targeting_rule?: PostReceiptTargetingRule | null;
       initiation_source: string;
     };
@@ -320,6 +327,7 @@ export class Backend {
         presentedOfferingContext.offeringIdentifier,
       presented_placement_identifier:
         presentedOfferingContext.placementIdentifier,
+      presented_workflow_id: presentedOfferingContext.workflowIdentifier,
       applied_targeting_rule: targetingInfo,
       initiation_source: initiationSource,
     };

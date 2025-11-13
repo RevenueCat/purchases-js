@@ -119,6 +119,7 @@ export const buildProduct: (data: MinimumProductInfo) => Product = ({
       offeringIdentifier: "MultiCurrencyTest",
       targetingContext: null,
       placementIdentifier: null,
+      workflowIdentifier: null,
     },
     defaultPurchaseOption: {
       id: "base_option",

@@ -518,6 +518,7 @@ describe("postCheckoutStart request", () => {
         offeringIdentifier: "offering_1",
         targetingContext: null,
         placementIdentifier: null,
+        workflowIdentifier: null,
       },
       { id: "base_option", priceId: "test_price_id" },
       "test-trace-id",
@@ -552,6 +553,7 @@ describe("postCheckoutStart request", () => {
         offeringIdentifier: "offering_1",
         targetingContext: null,
         placementIdentifier: null,
+        workflowIdentifier: null,
       },
       { id: "base_option", priceId: "test_price_id" },
       "test-trace-id",
@@ -578,6 +580,30 @@ describe("postCheckoutStart request", () => {
     expect(result).toEqual(checkoutStartResponse);
   });
 
+  test("handles workflow identifier correctly", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutStart(
+      "someAppUserId",
+      "monthly",
+      {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+        workflowIdentifier: "workflow_456",
+      },
+      { id: "base_option", priceId: "test_price_id" },
+      "test-trace-id",
+    );
+
+    expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.presented_workflow_id).toBe("workflow_456");
+  });
+
   test("throws an error if the backend returns a server error", async () => {
     setCheckoutStartResponse(
       HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
@@ -590,6 +616,7 @@ describe("postCheckoutStart request", () => {
           offeringIdentifier: "offering_1",
           targetingContext: null,
           placementIdentifier: null,
+          workflowIdentifier: null,
         },
         { id: "base_option", priceId: "test_price_id" },
         "test-trace-id",
@@ -622,6 +649,7 @@ describe("postCheckoutStart request", () => {
           offeringIdentifier: "offering_1",
           targetingContext: null,
           placementIdentifier: null,
+          workflowIdentifier: null,
         },
         { id: "base_option", priceId: "test_price_id" },
         "test-trace-id",
@@ -654,6 +682,7 @@ describe("postCheckoutStart request", () => {
           offeringIdentifier: "offering_1",
           targetingContext: null,
           placementIdentifier: null,
+          workflowIdentifier: null,
         },
         { id: "base_option", priceId: "test_price_id" },
         "test-trace-id",
@@ -678,6 +707,7 @@ describe("postCheckoutStart request", () => {
           offeringIdentifier: "offering_1",
           targetingContext: null,
           placementIdentifier: null,
+          workflowIdentifier: null,
         },
         { id: "base_option", priceId: "test_price_id" },
         "test-trace-id",
@@ -979,6 +1009,7 @@ describe("postReceipt request", () => {
         offeringIdentifier: "offering_1",
         targetingContext: null,
         placementIdentifier: null,
+        workflowIdentifier: null,
       },
       "restore",
     );
@@ -996,6 +1027,7 @@ describe("postReceipt request", () => {
       app_user_id: "someAppUserId",
       presented_offering_identifier: "offering_1",
       presented_placement_identifier: null,
+      presented_workflow_id: null,
       applied_targeting_rule: null,
       initiation_source: "restore",
     });
@@ -1020,6 +1052,7 @@ describe("postReceipt request", () => {
           revision: 5,
         },
         placementIdentifier: "placement_1",
+        workflowIdentifier: null,
       },
       "purchase",
     );
@@ -1034,6 +1067,7 @@ describe("postReceipt request", () => {
       app_user_id: "someAppUserId",
       presented_offering_identifier: "offering_1",
       presented_placement_identifier: "placement_1",
+      presented_workflow_id: null,
       applied_targeting_rule: {
         rule_id: "rule_123",
         revision: 5,
@@ -1058,6 +1092,7 @@ describe("postReceipt request", () => {
         offeringIdentifier: "offering_1",
         targetingContext: null,
         placementIdentifier: "home_screen",
+        workflowIdentifier: null,
       },
       "purchase",
     );
@@ -1065,6 +1100,30 @@ describe("postReceipt request", () => {
     const request = postReceiptAPIMock.mock.calls[0][0].request;
     const requestBody = await request.json();
     expect(requestBody.presented_placement_identifier).toBe("home_screen");
+  });
+
+  test("handles workflow identifier correctly", async () => {
+    setPostReceiptResponse(
+      HttpResponse.json(customerInfoResponse, { status: 200 }),
+    );
+
+    await backend.postReceipt(
+      "someAppUserId",
+      "monthly",
+      "EUR",
+      "test_fetch_token",
+      {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+        workflowIdentifier: "workflow_123",
+      },
+      "purchase",
+    );
+
+    const request = postReceiptAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.presented_workflow_id).toBe("workflow_123");
   });
 
   test("throws an error if the backend returns a server error", async () => {
@@ -1081,6 +1140,7 @@ describe("postReceipt request", () => {
           offeringIdentifier: "offering_1",
           targetingContext: null,
           placementIdentifier: null,
+          workflowIdentifier: null,
         },
         "restore",
       ),
@@ -1112,6 +1172,7 @@ describe("postReceipt request", () => {
           offeringIdentifier: "offering_1",
           targetingContext: null,
           placementIdentifier: null,
+          workflowIdentifier: null,
         },
         "restore",
       ),
@@ -1135,6 +1196,7 @@ describe("postReceipt request", () => {
           offeringIdentifier: "offering_1",
           targetingContext: null,
           placementIdentifier: null,
+          workflowIdentifier: null,
         },
         "restore",
       ),
@@ -1166,6 +1228,7 @@ describe("postReceipt request", () => {
           offeringIdentifier: "offering_1",
           targetingContext: null,
           placementIdentifier: null,
+          workflowIdentifier: null,
         },
         "restore",
       ),
