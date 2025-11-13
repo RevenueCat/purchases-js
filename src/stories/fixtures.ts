@@ -363,6 +363,7 @@ export const product: Product = {
     offeringIdentifier: "offering_1",
     targetingContext: null,
     placementIdentifier: null,
+    workflowIdentifier: null,
   },
   defaultPurchaseOption: subscriptionOption,
 
