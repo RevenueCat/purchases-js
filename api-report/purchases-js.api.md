@@ -278,6 +278,7 @@ export interface PresentedOfferingContext {
     readonly offeringIdentifier: string;
     readonly placementIdentifier: string | null;
     readonly targetingContext: TargetingContext | null;
+    readonly workflowIdentifier?: string | null;
 }
 
 // @public

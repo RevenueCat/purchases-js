@@ -234,7 +234,7 @@ export interface PresentedOfferingContext {
   /**
    * The identifier of the workflow used to obtain this object.
    */
-  readonly workflowIdentifier: string | null;
+  readonly workflowIdentifier?: string | null;
 }
 
 /**
