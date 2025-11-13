@@ -27,10 +27,7 @@ import type {
 } from "../entities/offerings";
 import type { CheckoutCompleteResponse } from "./responses/checkout-complete-response";
 import type { CheckoutCalculateTaxResponse } from "./responses/checkout-calculate-tax-response";
-import {
-  SetAttributesEndpoint,
-  PatchOperationSessionEndpoint,
-} from "./endpoints";
+import { SetAttributesEndpoint } from "./endpoints";
 import { isWebBillingSandboxApiKey } from "../helpers/api-key-helper";
 import type { IdentifyResponse } from "./responses/identify-response";
 
@@ -244,40 +241,6 @@ export class Backend {
         httpConfig: this.httpConfig,
       },
     );
-  }
-
-  async patchOperationSession(
-    operationSessionId: string,
-    appUserId: string,
-    email?: string,
-    metadata: PurchaseMetadata | undefined = undefined,
-  ): Promise<{ operation_session_id: string }> {
-    type PatchOperationSessionRequestBody = {
-      app_user_id: string;
-      email?: string;
-      metadata?: PurchaseMetadata;
-    };
-
-    const requestBody: PatchOperationSessionRequestBody = {
-      app_user_id: appUserId,
-    };
-
-    if (email !== undefined) {
-      requestBody.email = email;
-    }
-
-    if (metadata) {
-      requestBody.metadata = metadata;
-    }
-
-    return await performRequest<
-      PatchOperationSessionRequestBody,
-      { operation_session_id: string }
-    >(new PatchOperationSessionEndpoint(operationSessionId), {
-      apiKey: this.API_KEY,
-      body: requestBody,
-      httpConfig: this.httpConfig,
-    });
   }
 
   async setAttributes(

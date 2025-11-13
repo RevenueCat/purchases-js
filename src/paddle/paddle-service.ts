@@ -19,7 +19,6 @@ import {
 } from "../helpers/purchase-operation-helper";
 import type { Backend } from "../networking/backend";
 import type { Package, PurchaseOption } from "../main";
-import type { PurchaseMetadata } from "../entities/offerings";
 import type { CheckoutStatusResponse } from "../networking/responses/checkout-status-response";
 import { CheckoutSessionStatus } from "../networking/responses/checkout-status-response";
 import { toRedemptionInfo } from "../entities/redemption-info";
@@ -110,10 +109,6 @@ export class PaddleService {
     const { appUserId, customerEmail, locale = "en" } = params;
 
     return new Promise<OperationSessionSuccessfulResult>((resolve, reject) => {
-      let customerDefinedEmail: string | null = null;
-      let customerId: string | null = null;
-      let checkoutSessionId: string | null = null;
-
       paddleInstance.Update({
         eventCallback: async (paddleEventData: PaddleEventData) => {
           const eventName = paddleEventData.name;
@@ -122,41 +117,6 @@ export class PaddleService {
           try {
             if (eventName === CheckoutEventNames.CHECKOUT_LOADED) {
               onCheckoutLoaded();
-            } else if (
-              eventName === CheckoutEventNames.CHECKOUT_CUSTOMER_CREATED
-            ) {
-              customerDefinedEmail = data?.customer.email ?? null;
-              customerId = data?.customer.id ?? null;
-              checkoutSessionId = data?.id ?? null;
-
-              if (customerDefinedEmail || customerId) {
-                // Update existing operation session with customer info
-                try {
-                  const metadata: PurchaseMetadata = {
-                    checkout_session_id: checkoutSessionId ?? "",
-                    customer_id: customerId ?? "",
-                  };
-                  await backend.patchOperationSession(
-                    operationSessionId,
-                    appUserId,
-                    customerDefinedEmail ?? customerEmail ?? undefined,
-                    metadata,
-                  );
-                } catch (error) {
-                  Logger.errorLog(
-                    `Paddle operation session update failed: ${error}`,
-                  );
-                  paddleInstance.Checkout.close();
-                  reject(
-                    new PurchasesError(
-                      ErrorCode.UnknownError,
-                      `Operation session update failed: ${error}`,
-                      String(error),
-                    ),
-                  );
-                  return;
-                }
-              }
             } else if (eventName === CheckoutEventNames.CHECKOUT_COMPLETED) {
               paddleInstance.Checkout.close();
 
