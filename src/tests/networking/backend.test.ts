@@ -578,6 +578,56 @@ describe("postCheckoutStart request", () => {
     expect(result).toEqual(checkoutStartResponse);
   });
 
+  test("handles workflow identifier correctly", async () => {
+    const backendWithContext = new Backend("test_api_key", undefined, {
+      workflowContext: { workflowIdentifier: "workflow_456" },
+    });
+
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, { status: 200 }),
+    );
+
+    await backendWithContext.postCheckoutStart(
+      "someAppUserId",
+      "monthly",
+      {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      { id: "base_option", priceId: "test_price_id" },
+      "test-trace-id",
+    );
+
+    expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.presented_workflow_id).toBe("workflow_456");
+  });
+
+  test("omits workflow identifier from request when not present", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutStart(
+      "someAppUserId",
+      "monthly",
+      {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      { id: "base_option", priceId: "test_price_id" },
+      "test-trace-id",
+    );
+
+    expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.presented_workflow_id).toBeUndefined();
+  });
+
   test("throws an error if the backend returns a server error", async () => {
     setCheckoutStartResponse(
       HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
@@ -1065,6 +1115,56 @@ describe("postReceipt request", () => {
     const request = postReceiptAPIMock.mock.calls[0][0].request;
     const requestBody = await request.json();
     expect(requestBody.presented_placement_identifier).toBe("home_screen");
+  });
+
+  test("handles workflow identifier correctly", async () => {
+    const backendWithContext = new Backend("test_api_key", undefined, {
+      workflowContext: { workflowIdentifier: "workflow_123" },
+    });
+
+    setPostReceiptResponse(
+      HttpResponse.json(customerInfoResponse, { status: 200 }),
+    );
+
+    await backendWithContext.postReceipt(
+      "someAppUserId",
+      "monthly",
+      "EUR",
+      "test_fetch_token",
+      {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      "purchase",
+    );
+
+    const request = postReceiptAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.presented_workflow_id).toBe("workflow_123");
+  });
+
+  test("omits workflow identifier from postReceipt when not present", async () => {
+    setPostReceiptResponse(
+      HttpResponse.json(customerInfoResponse, { status: 200 }),
+    );
+
+    await backend.postReceipt(
+      "someAppUserId",
+      "monthly",
+      "EUR",
+      "test_fetch_token",
+      {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      "purchase",
+    );
+
+    const request = postReceiptAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.presented_workflow_id).toBeUndefined();
   });
 
   test("throws an error if the backend returns a server error", async () => {
