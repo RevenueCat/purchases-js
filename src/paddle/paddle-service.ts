@@ -12,21 +12,25 @@ import {
   CheckoutEventNames,
 } from "@paddle/paddle-js";
 import { Logger } from "../helpers/logger";
-import { ErrorCode, PurchasesError } from "../entities/errors";
+import { PurchasesError } from "../entities/errors";
 import {
   PurchaseFlowError,
   PurchaseFlowErrorCode,
 } from "../helpers/purchase-operation-helper";
 import type { Backend } from "../networking/backend";
-import type { Package, PurchaseOption } from "../main";
+import type {
+  Package,
+  PurchaseOption,
+  PresentedOfferingContext,
+  PurchaseMetadata,
+} from "../main";
 import type { CheckoutStatusResponse } from "../networking/responses/checkout-status-response";
 import { CheckoutSessionStatus } from "../networking/responses/checkout-status-response";
 import { toRedemptionInfo } from "../entities/redemption-info";
 import type { OperationSessionSuccessfulResult } from "../helpers/purchase-operation-helper";
 import { handleCheckoutSessionFailed } from "../helpers/checkout-error-handler";
-
-const POLL_INTERVAL_MS = 1000;
-const MAX_POLL_ATTEMPTS = 10;
+import type { PaddleCheckoutStartResponse } from "../networking/responses/checkout-start-response";
+import type { IEventsTracker } from "../behavioural-events/events-tracker";
 
 interface PaddlePurchaseParams {
   rcPackage: Package;
@@ -38,21 +42,40 @@ interface PaddlePurchaseParams {
 }
 
 interface PaddlePurchase {
-  backend: Backend;
   operationSessionId: string;
   transactionId: string;
   onCheckoutLoaded: () => void;
   params: PaddlePurchaseParams;
-  unmountPurchaseUI: () => void;
+  unmountPaddlePurchaseUi: () => void;
+}
+
+interface PaddleStartCheckoutParams {
+  appUserId: string;
+  productId: string;
+  presentedOfferingContext: PresentedOfferingContext;
+  purchaseOption: PurchaseOption;
+  customerEmail?: string;
+  metadata?: PurchaseMetadata;
 }
 
 export class PaddleService {
-  private static paddleInstance: Paddle | undefined;
+  private paddleInstance: Paddle | undefined;
+  private readonly backend: Backend;
+  private readonly eventsTracker: IEventsTracker;
+  private readonly maxNumberAttempts: number;
+  private readonly waitMSBetweenAttempts = 1000;
 
-  static async initializePaddle(
-    token: string,
-    isSandbox: boolean,
-  ): Promise<Paddle> {
+  constructor(
+    backend: Backend,
+    eventsTracker: IEventsTracker,
+    maxNumberAttempts: number = 10,
+  ) {
+    this.backend = backend;
+    this.eventsTracker = eventsTracker;
+    this.maxNumberAttempts = maxNumberAttempts;
+  }
+
+  async initializePaddle(token: string, isSandbox: boolean): Promise<Paddle> {
     if (this.paddleInstance?.Initialized) {
       Logger.debugLog(
         "Paddle already initialized, returning existing instance",
@@ -68,8 +91,8 @@ export class PaddleService {
         environment: environment,
       });
       if (!paddleInstance) {
-        throw new PurchasesError(
-          ErrorCode.ConfigurationError,
+        throw new PurchaseFlowError(
+          PurchaseFlowErrorCode.UnknownError,
           "Paddle client not found",
         );
       }
@@ -77,32 +100,69 @@ export class PaddleService {
       Logger.debugLog(`Paddle initialized with environment: ${environment}`);
       return paddleInstance;
     } catch (error) {
-      const errorMessage = `Error initializing Paddle: ${error}`;
-      Logger.errorLog(errorMessage);
-      throw new PurchasesError(
-        ErrorCode.ConfigurationError,
-        errorMessage,
-        String(error),
+      throw new PurchaseFlowError(
+        PurchaseFlowErrorCode.UnknownError,
+        `Error initializing Paddle: ${error}`,
       );
     }
   }
 
-  static getPaddleInstance(): Paddle {
+  getPaddleInstance(): Paddle {
     if (!this.paddleInstance?.Initialized) {
-      throw new PurchasesError(
-        ErrorCode.ConfigurationError,
+      throw new PurchaseFlowError(
+        PurchaseFlowErrorCode.UnknownError,
         "Paddle not initialized.",
       );
     }
     return this.paddleInstance;
   }
 
-  static async purchase({
-    backend,
+  async startCheckout({
+    appUserId,
+    productId,
+    presentedOfferingContext,
+    purchaseOption,
+    customerEmail,
+    metadata,
+  }: PaddleStartCheckoutParams): Promise<PaddleCheckoutStartResponse> {
+    try {
+      const traceId = this.eventsTracker.getTraceId();
+      const startResponse = (await this.backend.postCheckoutStart(
+        appUserId,
+        productId,
+        presentedOfferingContext,
+        purchaseOption,
+        traceId,
+        customerEmail ?? undefined,
+        metadata,
+      )) as PaddleCheckoutStartResponse;
+
+      await this.initializePaddle(
+        startResponse.paddle_billing_params.client_side_token,
+        startResponse.paddle_billing_params.is_sandbox,
+      );
+
+      return startResponse;
+    } catch (error) {
+      if (error instanceof PurchasesError) {
+        throw PurchaseFlowError.fromPurchasesError(
+          error,
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        );
+      } else {
+        throw new PurchaseFlowError(
+          PurchaseFlowErrorCode.UnknownError,
+          `Error starting Paddle checkout: ${error}`,
+        );
+      }
+    }
+  }
+
+  async purchase({
     operationSessionId,
     transactionId,
     onCheckoutLoaded,
-    unmountPurchaseUI,
+    unmountPaddlePurchaseUi,
     params,
   }: PaddlePurchase): Promise<OperationSessionSuccessfulResult> {
     const paddleInstance = this.getPaddleInstance();
@@ -118,49 +178,50 @@ export class PaddleService {
             if (eventName === CheckoutEventNames.CHECKOUT_LOADED) {
               onCheckoutLoaded();
             } else if (eventName === CheckoutEventNames.CHECKOUT_COMPLETED) {
+              // Close Paddle's success page to show this PaddlePurchaseUi status page
               paddleInstance.Checkout.close();
 
-              try {
-                const result = await this.pollOperationStatus(
-                  backend,
-                  operationSessionId,
-                );
-                resolve(result);
-              } catch (error) {
-                if (error instanceof PurchaseFlowError) {
-                  reject(
-                    PurchasesError.getForPurchasesFlowError(error) ??
-                      new PurchasesError(
-                        ErrorCode.UnknownError,
-                        error.message ?? "Unknown purchase flow error",
-                      ),
-                  );
-                } else {
-                  reject(error);
-                }
-              }
+              const result = await this.pollOperationStatus(operationSessionId);
+              resolve(result);
+            } else if (eventName === CheckoutEventNames.CHECKOUT_ERROR) {
+              // Close Paddle's error modal to show the PaddlePurchaseUi status page
+              paddleInstance.Checkout.close();
+              reject(
+                new PurchaseFlowError(
+                  PurchaseFlowErrorCode.UnknownError,
+                  "Paddle checkout error",
+                ),
+              );
             } else if (eventName === CheckoutEventNames.CHECKOUT_CLOSED) {
-              Logger.debugLog("Paddle checkout closed");
+              // Only unmount PaddlePurchaseUi if the user closes Paddle's checkout modal
+              // not when this code calls paddleInstance.Checkout.close()
               const paddleInitiatedCheckoutClosedEvent = !!data?.status;
               if (paddleInitiatedCheckoutClosedEvent) {
-                unmountPurchaseUI();
+                unmountPaddlePurchaseUi();
               }
             }
           } catch (error) {
-            Logger.errorLog(`Paddle event handler error: ${error}`);
             paddleInstance.Checkout.close();
-            reject(
-              new PurchasesError(
-                ErrorCode.UnknownError,
-                `Paddle event handler error: ${error}`,
-                String(error),
-              ),
-            );
+
+            if (error instanceof PurchasesError) {
+              reject(
+                PurchaseFlowError.fromPurchasesError(
+                  error,
+                  PurchaseFlowErrorCode.UnknownError,
+                ),
+              );
+            } else {
+              reject(
+                new PurchaseFlowError(
+                  PurchaseFlowErrorCode.UnknownError,
+                  `Paddle event handler error: ${error}`,
+                ),
+              );
+            }
           }
         },
       });
 
-      // Open the paddle checkout overlay
       const checkoutData: CheckoutOpenOptions = {
         transactionId,
         settings: {
@@ -182,20 +243,17 @@ export class PaddleService {
       try {
         paddleInstance.Checkout.open(checkoutData);
       } catch (error) {
-        Logger.errorLog(`Failed to open Paddle checkout: ${error}`);
         reject(
-          new PurchasesError(
-            ErrorCode.UnknownError,
+          new PurchaseFlowError(
+            PurchaseFlowErrorCode.UnknownError,
             `Failed to open Paddle checkout: ${error}`,
-            String(error),
           ),
         );
       }
     });
   }
 
-  private static async pollOperationStatus(
-    backend: Backend,
+  private async pollOperationStatus(
     operationSessionId: string | null,
   ): Promise<OperationSessionSuccessfulResult> {
     if (!operationSessionId) {
@@ -207,7 +265,7 @@ export class PaddleService {
 
     return new Promise<OperationSessionSuccessfulResult>((resolve, reject) => {
       const checkForOperationStatus = (checkCount = 1) => {
-        if (checkCount > MAX_POLL_ATTEMPTS) {
+        if (checkCount > this.maxNumberAttempts) {
           reject(
             new PurchaseFlowError(
               PurchaseFlowErrorCode.UnknownError,
@@ -216,7 +274,7 @@ export class PaddleService {
           );
           return;
         }
-        backend
+        this.backend
           .getCheckoutStatus(operationSessionId)
           .then((operationResponse: CheckoutStatusResponse) => {
             const storeTransactionIdentifier =
@@ -233,7 +291,7 @@ export class PaddleService {
               case CheckoutSessionStatus.InProgress:
                 setTimeout(
                   () => checkForOperationStatus(checkCount + 1),
-                  POLL_INTERVAL_MS,
+                  this.waitMSBetweenAttempts,
                 );
                 break;
               case CheckoutSessionStatus.Succeeded:
@@ -261,12 +319,21 @@ export class PaddleService {
                 );
             }
           })
-          .catch((error: PurchasesError) => {
-            const purchasesError = PurchaseFlowError.fromPurchasesError(
-              error,
-              PurchaseFlowErrorCode.NetworkError,
-            );
-            reject(purchasesError);
+          .catch((error) => {
+            if (error instanceof PurchasesError) {
+              const purchasesError = PurchaseFlowError.fromPurchasesError(
+                error,
+                PurchaseFlowErrorCode.NetworkError,
+              );
+              reject(purchasesError);
+            } else {
+              reject(
+                new PurchaseFlowError(
+                  PurchaseFlowErrorCode.NetworkError,
+                  `Failed to get checkout status: ${error}`,
+                ),
+              );
+            }
           });
       };
 
