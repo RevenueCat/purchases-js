@@ -1,4 +1,3 @@
-import type { FlagsConfig } from "../main";
 import { ErrorCode, PurchasesError } from "../entities/errors";
 import { SDK_HEADERS } from "../networking/http-client";
 import {
@@ -7,11 +6,11 @@ import {
   isWebBillingApiKey,
 } from "./api-key-helper";
 
-export function validateApiKey(apiKey: string, flags?: FlagsConfig) {
+export function validateApiKey(apiKey: string) {
   const isValidApiKey =
     isWebBillingApiKey(apiKey) ||
     isSimulatedStoreApiKey(apiKey) ||
-    (isPaddleApiKey(apiKey) && flags?.allowPaddleAPIKey);
+    isPaddleApiKey(apiKey);
 
   if (!isValidApiKey) {
     throw new PurchasesError(
