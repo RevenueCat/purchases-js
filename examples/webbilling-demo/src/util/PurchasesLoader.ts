@@ -95,7 +95,7 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
       Purchases.configure({
         apiKey,
         appUserId,
-        httpConfig: additionalHeaders,
+        httpConfig: { additionalHeaders },
         flags: flagsConfig,
       });
     } else {
