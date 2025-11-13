@@ -233,6 +233,7 @@ export interface PresentedOfferingContext {
 
   /**
    * The identifier of the workflow used to obtain this object.
+   * @experimental
    */
   readonly workflowIdentifier?: string | null;
 }
@@ -760,7 +761,6 @@ export const toOffering = (
           }
         : null,
     placementIdentifier: null,
-    workflowIdentifier: null,
   };
   const packages = offeringsData.packages
     .map((p: PackageResponse) =>

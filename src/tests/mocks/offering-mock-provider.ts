@@ -71,7 +71,6 @@ export function createMonthlyPackageMock(
       offeringIdentifier: "offering_1",
       targetingContext: targetingContext,
       placementIdentifier: null,
-      workflowIdentifier: null,
     },
     defaultPurchaseOption: subscriptionOption,
     defaultSubscriptionOption: subscriptionOption,
@@ -448,7 +447,6 @@ export function createConsumablePackageMock(): Package {
       offeringIdentifier: "offering_consumables",
       placementIdentifier: null,
       targetingContext: null,
-      workflowIdentifier: null,
     },
     defaultPurchaseOption: {
       id: "base_option",
