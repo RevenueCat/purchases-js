@@ -10,7 +10,7 @@ import {
 } from "../entities/offerings";
 import { PeriodUnit } from "../helpers/duration-helper";
 import { PurchaseFlowError } from "../helpers/purchase-operation-helper";
-import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
+import type { WebBillingCheckoutStartResponse } from "../networking/responses/checkout-start-response";
 import type { BrandingAppearance } from "../entities/branding";
 import type { CheckoutCalculateTaxResponse } from "../networking/responses/checkout-calculate-tax-response";
 import {
@@ -490,7 +490,7 @@ export const stripeElementsConfiguration = {
 const publishableApiKey = import.meta.env.VITE_STORYBOOK_PUBLISHABLE_API_KEY;
 const accountId = import.meta.env.VITE_STORYBOOK_ACCOUNT_ID;
 
-export const checkoutStartResponse: CheckoutStartResponse = {
+export const checkoutStartResponse: WebBillingCheckoutStartResponse = {
   operation_session_id: "rcbopsess_test_test_test",
   gateway_params: {
     publishable_api_key: publishableApiKey,

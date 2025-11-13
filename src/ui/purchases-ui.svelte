@@ -28,6 +28,7 @@
   import type { PurchaseMetadata } from "../entities/offerings";
   import { writable } from "svelte/store";
   import { type GatewayParams } from "../networking/responses/stripe-elements";
+  import { type WebBillingCheckoutStartResponse } from "../networking/responses/checkout-start-response";
   import { validateEmail } from "../helpers/validators";
 
   interface Props {
@@ -160,8 +161,9 @@
       .then((result) => {
         lastError = null;
         currentPage = "payment-entry";
-        gatewayParams = result.gateway_params;
-        managementUrl = result.management_url;
+        const webBillingResult = result as WebBillingCheckoutStartResponse;
+        gatewayParams = webBillingResult.gateway_params;
+        managementUrl = webBillingResult.management_url;
       })
       .catch((e: PurchaseFlowError) => {
         if (e.errorCode === PurchaseFlowErrorCode.MissingEmailError) {
@@ -178,8 +180,10 @@
             .then((result) => {
               lastError = null;
               currentPage = "payment-entry";
-              gatewayParams = result.gateway_params;
-              managementUrl = result.management_url;
+              const webBillingResult =
+                result as WebBillingCheckoutStartResponse;
+              gatewayParams = webBillingResult.gateway_params;
+              managementUrl = webBillingResult.management_url;
             })
             .catch((e: PurchaseFlowError) => {
               handleError(e);

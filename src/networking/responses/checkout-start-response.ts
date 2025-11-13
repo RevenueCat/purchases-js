@@ -1,12 +1,23 @@
 import type { GatewayParams } from "./stripe-elements";
 
-export interface CheckoutStartResponse {
+export interface WebBillingCheckoutStartResponse {
   operation_session_id: string;
-  gateway_params: GatewayParams | null;
-  management_url: string | null;
+  gateway_params: GatewayParams;
+  management_url: string;
+  paddle_billing_params: null;
+}
+
+export interface PaddleCheckoutStartResponse {
+  operation_session_id: string;
+  gateway_params: null;
+  management_url: null;
   paddle_billing_params: {
     client_side_token: string;
     is_sandbox: boolean;
     transaction_id: string;
-  } | null;
+  };
 }
+
+export type CheckoutStartResponse =
+  | WebBillingCheckoutStartResponse
+  | PaddleCheckoutStartResponse;
