@@ -142,29 +142,17 @@ describe("Purchases.configure()", () => {
   test("throws error if given invalid paddle api key", () => {
     expect(() =>
       Purchases.configure({
-        apiKey: "pdl_invalid_key",
+        apiKey: "pdl_test invalidchar",
         appUserId: testUserId,
       }),
     ).toThrowError(PurchasesError);
   });
 
-  test("throws error if given valid paddle api key but allowPaddleAPIKey is false", () => {
+  test("does not throw error if given valid paddle api key", () => {
     expect(() =>
       Purchases.configure({
         apiKey: "pdl_valid_key",
         appUserId: testUserId,
-      }),
-    ).toThrowError(PurchasesError);
-  });
-
-  test("does not throw error if given valid paddle api key but allowPaddleAPIKey is true", () => {
-    expect(() =>
-      Purchases.configure({
-        apiKey: "pdl_valid_key",
-        appUserId: testUserId,
-        flags: {
-          allowPaddleAPIKey: true,
-        },
       }),
     ).not.toThrow();
   });
