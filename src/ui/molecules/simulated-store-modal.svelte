@@ -75,7 +75,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 9999;
+    /** One more than the paywall */
+    z-index: 1000002;
   }
 
   .rc-simulated-store-modal {

@@ -12,6 +12,8 @@ import PaywallPage from "./pages/paywall";
 import SuccessPage from "./pages/success";
 import { loadPurchases } from "./util/PurchasesLoader";
 import RCPaywallPage from "./pages/rc_paywall";
+import RCPaywallNoOfferingPassedPage from "./pages/rc_paywall_no_offering_passed";
+import RCPaywallNoTargetElementPassedPage from "./pages/rc_paywall_no_target_element_passed";
 
 const router = createBrowserRouter([
   {
@@ -51,7 +53,16 @@ const router = createBrowserRouter([
     loader: loadPurchases,
     element: (
       <WithoutEntitlement>
-        <RCPaywallPage />
+        <RCPaywallNoOfferingPassedPage />
+      </WithoutEntitlement>
+    ),
+  },
+  {
+    path: "/rc_paywall_no_target_element/:app_user_id",
+    loader: loadPurchases,
+    element: (
+      <WithoutEntitlement>
+        <RCPaywallNoTargetElementPassedPage />
       </WithoutEntitlement>
     ),
   },
