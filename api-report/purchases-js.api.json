@@ -6947,34 +6947,6 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!PurchasesConfig#context:member",
-              "docComment": "/**\n * Additional contextual information for the Purchases instance.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "context?: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "PurchasesContext",
-                  "canonicalReference": "@revenuecat/purchases-js!PurchasesContext:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": true,
-              "releaseTag": "Public",
-              "name": "context",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              }
-            },
-            {
-              "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PurchasesConfig#flags:member",
               "docComment": "/**\n * Advanced functionality configuration {@link FlagsConfig}.\n */\n",
               "excerptTokens": [
@@ -7024,51 +6996,6 @@
               "isOptional": true,
               "releaseTag": "Public",
               "name": "httpConfig",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              }
-            }
-          ],
-          "extendsTokenRanges": []
-        },
-        {
-          "kind": "Interface",
-          "canonicalReference": "@revenuecat/purchases-js!PurchasesContext:interface",
-          "docComment": "/**\n * Additional context to be associated with the configured Purchases instance.\n *\n * @public\n */\n",
-          "excerptTokens": [
-            {
-              "kind": "Content",
-              "text": "export declare interface PurchasesContext "
-            }
-          ],
-          "fileUrlPath": "dist/Purchases.es.d.ts",
-          "releaseTag": "Public",
-          "name": "PurchasesContext",
-          "preserveMemberOrder": false,
-          "members": [
-            {
-              "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!PurchasesContext#workflowIdentifier:member",
-              "docComment": "/**\n * Optional identifier to group events emitted by the SDK.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "workflowIdentifier?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": true,
-              "releaseTag": "Public",
-              "name": "workflowIdentifier",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2

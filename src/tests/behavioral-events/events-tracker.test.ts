@@ -166,7 +166,7 @@ describe("EventsTracker", (test) => {
       apiKey: testApiKey,
       appUserId: "someAppUserId",
       rcSource: "rcSource",
-      workflowIdentifier: "workflow-id",
+      workflowContext: { workflowIdentifier: "workflow-id" },
     });
 
     eventsTracker.trackExternalEvent({

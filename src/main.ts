@@ -409,7 +409,7 @@ export class Purchases {
       appUserId: this._appUserId,
       silent: !this._flags.collectAnalyticsEvents,
       rcSource: this._flags.rcSource ?? null,
-      workflowIdentifier: this._context?.workflowIdentifier,
+      workflowContext: this._context?.workflowContext,
     });
     this.backend = new Backend(this._API_KEY, httpConfig);
     this.inMemoryCache = new InMemoryCache();
