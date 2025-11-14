@@ -1,10 +1,6 @@
 <script lang="ts">
   import { onMount, setContext, onDestroy } from "svelte";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
-  import Loading from "./molecules/loading.svelte";
-  import SuccessPage from "./pages/success-page.svelte";
-  import Template from "./layout/template.svelte";
-  import BrandingHeader from "./molecules/branding-header.svelte";
   import { translatorContextKey } from "./localization/constants";
   import { Translator } from "./localization/translator";
   import { writable } from "svelte/store";
@@ -15,7 +11,6 @@
     PurchaseFlowError,
     PurchaseFlowErrorCode,
   } from "../helpers/purchase-operation-helper";
-  import ErrorPage from "./pages/error-page.svelte";
   import type {
     Product,
     PurchaseOption,
@@ -26,6 +21,7 @@
   import { PaddleService } from "../paddle/paddle-service";
   import { PurchasesError } from "../entities/errors";
   import type { PaddleCheckoutStartResponse } from "../networking/responses/checkout-start-response";
+  import PaddlePurchasesUiInner from "./paddle-purchases-ui-inner.svelte";
 
   interface Props {
     brandingInfo: BrandingInfoResponse | null;
@@ -79,6 +75,7 @@
   setContext(brandingContextKey, brandingInfo?.appearance);
   setContext(eventsTrackerContextKey, eventsTracker);
 
+  let isSandbox = $state(false);
   let operationResult = $state<OperationSessionSuccessfulResult | null>(null);
   let error = $state<PurchaseFlowError | null>(null);
   let currentPage = $state<"waiting" | "loading" | "success" | "error">(
@@ -157,6 +154,7 @@
         customerEmail,
         metadata,
       });
+      isSandbox = startResponse.paddle_billing_params.is_sandbox;
     } catch (err) {
       error = err as PurchaseFlowError;
       currentPage = "error";
@@ -187,16 +185,21 @@
         currentPage = "success";
       }
     } catch (e) {
-      const purchaseFlowError =
-        e instanceof PurchasesError
-          ? PurchaseFlowError.fromPurchasesError(
-              e,
-              PurchaseFlowErrorCode.UnknownError,
-            )
-          : new PurchaseFlowError(
-              PurchaseFlowErrorCode.UnknownError,
-              `Paddle purchase failed: ${e}`,
-            );
+      let purchaseFlowError: PurchaseFlowError;
+
+      if (e instanceof PurchaseFlowError) {
+        purchaseFlowError = e;
+      } else if (e instanceof PurchasesError) {
+        purchaseFlowError = PurchaseFlowError.fromPurchasesError(
+          e,
+          PurchaseFlowErrorCode.UnknownError,
+        );
+      } else {
+        purchaseFlowError = new PurchaseFlowError(
+          PurchaseFlowErrorCode.UnknownError,
+          `Paddle purchase failed: ${e}`,
+        );
+      }
 
       error = purchaseFlowError;
       currentPage = "error";
@@ -224,33 +227,16 @@
 </script>
 
 {#if currentPage !== "waiting"}
-  <Template
+  <PaddlePurchasesUiInner
+    currentPage={currentPage as "loading" | "success" | "error"}
     {brandingInfo}
+    {productDetails}
+    {purchaseOption}
+    {isSandbox}
+    lastError={error}
     {isInElement}
-    isSandbox={false}
+    onContinue={handleContinue}
+    {closeWithError}
     onClose={handleBackClicked}
-  >
-    {#snippet navbarHeaderContent()}
-      <BrandingHeader
-        {brandingInfo}
-        onClose={handleBackClicked}
-        showCloseButton={!isInElement}
-      />
-    {/snippet}
-    {#snippet mainContent()}
-      {#if currentPage === "loading"}
-        <Loading />
-      {:else if currentPage === "success"}
-        <SuccessPage onContinue={handleContinue} />
-      {:else if currentPage === "error"}
-        <ErrorPage
-          lastError={error}
-          {productDetails}
-          supportEmail={brandingInfo?.support_email ?? null}
-          onDismiss={closeWithError}
-          appName={brandingInfo?.app_name ?? null}
-        />
-      {/if}
-    {/snippet}
-  </Template>
+  />
 {/if}

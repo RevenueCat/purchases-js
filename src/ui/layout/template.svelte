@@ -16,6 +16,7 @@
     navbarHeaderContent?: Snippet<[]>;
     navbarBodyContent?: Snippet<[]>;
     mainContent?: Snippet<[]>;
+    isPaddle?: boolean;
   }
 
   const {
@@ -25,9 +26,10 @@
     mainContent,
     navbarHeaderContent,
     navbarBodyContent,
+    isPaddle = false,
   }: Props = $props();
   const colorVariables = $derived(
-    toProductInfoStyleVar(brandingInfo?.appearance) ?? "",
+    toProductInfoStyleVar(brandingInfo?.appearance, isPaddle) ?? "",
   );
 </script>
 
@@ -45,6 +47,7 @@
         brandingAppearance={brandingInfo?.appearance}
         headerContent={navbarHeaderContent}
         bodyContent={navbarBodyContent}
+        {isPaddle}
       />
     {/if}
     <Main brandingAppearance={brandingInfo?.appearance}>
