@@ -118,6 +118,7 @@ describe("Purchases.configure()", () => {
       appUserId: testUserId,
       httpConfig: {},
       flags: { autoCollectUTMAsMetadata: false },
+      context: { workflowIdentifier: "workflow-id" },
     });
     expect(purchases).toBeDefined();
   });

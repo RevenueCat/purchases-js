@@ -414,8 +414,14 @@ export class Purchases {
 export interface PurchasesConfig {
     apiKey: string;
     appUserId: string;
+    context?: PurchasesContext;
     flags?: FlagsConfig;
     httpConfig?: HttpConfig;
+}
+
+// @public
+export interface PurchasesContext {
+    workflowIdentifier?: string;
 }
 
 // @public

@@ -161,6 +161,39 @@ describe("EventsTracker", (test) => {
     );
   });
 
+  test("passes the workflow identifier to the event", async () => {
+    const eventsTracker = new EventsTracker({
+      apiKey: testApiKey,
+      appUserId: "someAppUserId",
+      rcSource: "rcSource",
+      workflowIdentifier: "workflow-id",
+    });
+
+    eventsTracker.trackExternalEvent({
+      eventName: "external",
+      source: "sdk",
+      properties: { a: "b" },
+    });
+
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(APIPostRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        json: expect.objectContaining({
+          events: expect.arrayContaining([
+            expect.objectContaining({
+              properties: expect.objectContaining({
+                workflow_identifier: "workflow-id",
+              }),
+            }),
+          ]),
+        }),
+      }),
+    );
+
+    eventsTracker.dispose();
+  });
+
   test<EventsTrackerFixtures>("retries tracking events exponentially", async ({
     eventsTracker,
   }) => {

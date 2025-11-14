@@ -26,6 +26,7 @@ export interface EventsTrackerProps {
   appUserId: string;
   rcSource: string | null;
   silent?: boolean;
+  workflowIdentifier?: string;
 }
 
 export interface IEventsTracker {
@@ -49,6 +50,7 @@ export default class EventsTracker implements IEventsTracker {
   private appUserId: string;
   private readonly isSilent: boolean;
   private rcSource: string | null;
+  private readonly workflowIdentifier?: string;
 
   constructor(props: EventsTrackerProps) {
     this.apiKey = props.apiKey;
@@ -56,6 +58,7 @@ export default class EventsTracker implements IEventsTracker {
     this.appUserId = props.appUserId;
     this.isSilent = props.silent || false;
     this.rcSource = props.rcSource;
+    this.workflowIdentifier = props.workflowIdentifier;
     this.flushManager = new FlushManager(
       MIN_INTERVAL_RETRY,
       MAX_INTERVAL_RETRY,
@@ -91,6 +94,7 @@ export default class EventsTracker implements IEventsTracker {
         traceId: this.traceId,
         appUserId: this.appUserId,
         context: buildEventContext(props.source, this.rcSource),
+        workflowIdentifier: this.workflowIdentifier,
         properties: props.properties || {},
       });
       this.eventsQueue.push(event);
