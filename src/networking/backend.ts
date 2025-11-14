@@ -25,6 +25,7 @@ import type {
   PurchaseMetadata,
   PurchaseOption,
 } from "../entities/offerings";
+import type { PurchasesContext } from "../entities/purchases-config";
 import type { CheckoutCompleteResponse } from "./responses/checkout-complete-response";
 import type { CheckoutCalculateTaxResponse } from "./responses/checkout-calculate-tax-response";
 import { SetAttributesEndpoint } from "./endpoints";
@@ -35,11 +36,17 @@ export class Backend {
   private readonly API_KEY: string;
   private readonly httpConfig: HttpConfig;
   private readonly isSandbox: boolean;
+  private readonly purchasesContext?: PurchasesContext;
 
-  constructor(API_KEY: string, httpConfig: HttpConfig = defaultHttpConfig) {
+  constructor(
+    API_KEY: string,
+    httpConfig: HttpConfig = defaultHttpConfig,
+    purchasesContext?: PurchasesContext,
+  ) {
     this.API_KEY = API_KEY;
     this.httpConfig = httpConfig;
     this.isSandbox = isWebBillingSandboxApiKey(API_KEY);
+    this.purchasesContext = purchasesContext;
   }
 
   getIsSandbox(): boolean {
@@ -129,6 +136,7 @@ export class Backend {
       presented_offering_identifier: string;
       price_id: string;
       presented_placement_identifier?: string;
+      presented_workflow_id?: string;
       offer_id?: string;
       applied_targeting_rule?: {
         rule_id: string;
@@ -167,6 +175,11 @@ export class Backend {
     if (presentedOfferingContext.placementIdentifier) {
       requestBody.presented_placement_identifier =
         presentedOfferingContext.placementIdentifier;
+    }
+
+    if (this.purchasesContext?.workflowContext?.workflowIdentifier) {
+      requestBody.presented_workflow_id =
+        this.purchasesContext.workflowContext.workflowIdentifier;
     }
 
     return await performRequest<
@@ -299,6 +312,7 @@ export class Backend {
       app_user_id: string;
       presented_offering_identifier: string;
       presented_placement_identifier: string | null;
+      presented_workflow_id?: string | null;
       applied_targeting_rule?: PostReceiptTargetingRule | null;
       initiation_source: string;
     };
@@ -320,6 +334,8 @@ export class Backend {
         presentedOfferingContext.offeringIdentifier,
       presented_placement_identifier:
         presentedOfferingContext.placementIdentifier,
+      presented_workflow_id:
+        this.purchasesContext?.workflowContext?.workflowIdentifier,
       applied_targeting_rule: targetingInfo,
       initiation_source: initiationSource,
     };
