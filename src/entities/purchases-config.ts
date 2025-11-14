@@ -4,7 +4,6 @@ import type { HttpConfig } from "./http-config";
 /**
  * Contextual information specific to workflows.
  *
- * @public
  * @internal
  */
 export interface WorkflowContext {
@@ -17,7 +16,6 @@ export interface WorkflowContext {
 /**
  * Additional context to be associated with the configured Purchases instance.
  *
- * @public
  * @internal
  */
 export interface PurchasesContext {
@@ -70,6 +68,7 @@ export interface PurchasesConfig {
   flags?: FlagsConfig;
   /**
    * Additional contextual information for the Purchases instance.
+   * @internal
    */
   context?: PurchasesContext;
 }
