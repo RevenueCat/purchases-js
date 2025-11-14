@@ -5,7 +5,7 @@ import type {
   Product,
 } from "./entities/offerings";
 import PurchasesUi from "./ui/purchases-ui.svelte";
-import PaddlePurchaseUi from "./ui/paddle-purchase-ui.svelte";
+import PaddlePurchasesUi from "./ui/paddle-purchases-ui.svelte";
 
 import { type CustomerInfo, toCustomerInfo } from "./entities/customer-info";
 import {
@@ -961,7 +961,7 @@ export class Purchases {
       const onError = this.createCheckoutOnErrorHandler(reject);
 
       if (!component) {
-        component = mount(PaddlePurchaseUi, {
+        component = mount(PaddlePurchasesUi, {
           target: certainHTMLTarget,
           props: {
             eventsTracker: this.eventsTracker,

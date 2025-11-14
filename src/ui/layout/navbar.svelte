@@ -8,15 +8,19 @@
     headerContent?: Snippet<[]>;
     bodyContent?: Snippet<[]>;
     brandingAppearance?: BrandingAppearance | null;
+    isPaddle?: boolean;
   };
 
   const {
     headerContent,
     bodyContent,
     brandingAppearance = undefined,
+    isPaddle = false,
   }: Props = $props();
 
-  const style = $derived(new Theme(brandingAppearance).productInfoStyleVars);
+  const style = $derived(
+    new Theme(brandingAppearance).productInfoStyleVars(isPaddle),
+  );
 </script>
 
 <div class="rcb-ui-navbar" {style}>
