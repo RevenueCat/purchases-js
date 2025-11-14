@@ -441,19 +441,31 @@ export class Purchases {
       element.className = "rcb-ui-pw-root";
       // one point less than the purchase flow modal.
       element.style.zIndex = `${PaywallDefaultContainerZIndex}`;
+      element.style.position = "fixed";
+      element.style.top = "0";
+      element.style.left = "0";
+      element.style.width = "100%";
+      element.style.height = "100%";
+      element.style.overflow = "auto";
+      element.style.backgroundColor = "rgba(0, 0, 0, 0.4)";
+      if (document.body.offsetWidth > 968) {
+        element.style.display = "flex";
+        element.style.justifyContent = "center";
+        element.style.alignItems = "center";
+      }
+      element.style.transition = "opacity 0.3s";
+      element.style.opacity = "0";
       document.body.appendChild(element);
       resolvedHTMLTarget = element;
     }
 
     if (resolvedHTMLTarget === null) {
       throw new Error(
-        "Could not generate a mount point for the billing widget",
+        "Could not generate a mount point for the paywall widget",
       );
     }
 
     const certainHTMLTarget = resolvedHTMLTarget as unknown as HTMLElement;
-    // cleanup whatever is already there.
-    certainHTMLTarget.innerHTML = "";
 
     const offering = paywallParams.offering
       ? paywallParams.offering
@@ -575,7 +587,8 @@ export class Purchases {
     const infoPerPackage = parseOfferingIntoPackageInfoPerPackage(offering);
 
     return new Promise((resolve, reject) => {
-      mount(Paywall, {
+      certainHTMLTarget.innerHTML = "";
+      const component: ReturnType<typeof mount> = mount(Paywall, {
         target: certainHTMLTarget,
         props: {
           paywallData: offering.paywallComponents!,
@@ -588,7 +601,9 @@ export class Purchases {
               paywallParams.onBack();
               return;
             }
-
+            if (component !== null) {
+              component?.unmount();
+            }
             // Opinionated approach
             // closing the current purchase and emptying the paywall.
             certainHTMLTarget.innerHTML = "";
@@ -608,6 +623,10 @@ export class Purchases {
           infoPerPackage,
         },
       });
+
+      if (certainHTMLTarget.style.opacity === "0") {
+        certainHTMLTarget.style.opacity = "1";
+      }
     });
   }
 
