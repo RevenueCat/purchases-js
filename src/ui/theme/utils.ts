@@ -3,7 +3,7 @@ import {
   DEFAULT_FORM_COLORS,
   DEFAULT_INFO_COLORS,
   FormColorsToBrandingAppearanceMapping,
-  InfoColorsToBrandingAppearanceMapping,
+  getInfoColorsToBrandingAppearanceMapping,
 } from "./colors";
 import {
   DefaultShape,
@@ -225,9 +225,10 @@ export const toColors = (
 
 export const toProductInfoColors = (
   brandingAppearance?: BrandingAppearance | null | undefined,
+  isPaddle: boolean = false,
 ): Colors => {
   return toColors(
-    InfoColorsToBrandingAppearanceMapping,
+    getInfoColorsToBrandingAppearanceMapping(isPaddle),
     DEFAULT_INFO_COLORS,
     brandingAppearance,
   );
@@ -271,10 +272,11 @@ export const toStyleVar = (prefix: string = "", entries: [string, string][]) =>
  */
 export const toProductInfoStyleVar = (
   appearance?: BrandingAppearance | null,
+  isPaddle: boolean = false,
 ) => {
   const colorVariablesString = toStyleVar(
     "color",
-    Object.entries(toProductInfoColors(appearance)),
+    Object.entries(toProductInfoColors(appearance, isPaddle)),
   );
 
   const shapeVariableString = toStyleVar(
