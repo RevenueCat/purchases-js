@@ -1,6 +1,6 @@
 ## RevenueCat SDK
 ### 🐞 Bugfixes
-* Fixing locale mismatch when the paywall does not support a locale supported by the SDK. (#640) via Nicola Sacco (@nicfix)
+* WEB-3408: Add Overlay background when renderPaywall is called with no targetElement. (#648) via Nicola Sacco (@nicfix)
 
 ### 🔄 Other Changes
-* Add internal terms link to checkout footer (#643) via Nicola Sacco (@nicfix)
+* Bump fastlane-plugin-revenuecat_internal from `25c7fb8` to `1e3e3fd` (#646) via dependabot[bot] (@dependabot[bot])
