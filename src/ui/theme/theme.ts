@@ -36,8 +36,8 @@ export class Theme {
     return toFormStyleVar(this.brandingAppearance);
   }
 
-  get productInfoStyleVars() {
-    return toProductInfoStyleVar(this.brandingAppearance);
+  productInfoStyleVars(isPaddle: boolean = false) {
+    return toProductInfoStyleVar(this.brandingAppearance, isPaddle);
   }
 
   get spacing() {

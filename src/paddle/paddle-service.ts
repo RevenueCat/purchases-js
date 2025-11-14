@@ -184,12 +184,23 @@ export class PaddleService {
               const result = await this.pollOperationStatus(operationSessionId);
               resolve(result);
             } else if (eventName === CheckoutEventNames.CHECKOUT_ERROR) {
-              // Close Paddle's error modal to show the PaddlePurchaseUi status page
+              // Close Paddle's error modal to show the PaddlePurchaseUi error page
               paddleInstance.Checkout.close();
               reject(
                 new PurchaseFlowError(
-                  PurchaseFlowErrorCode.UnknownError,
-                  "Paddle checkout error",
+                  PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+                  paddleEventData.detail,
+                ),
+              );
+            } else if (
+              eventName === CheckoutEventNames.CHECKOUT_PAYMENT_FAILED
+            ) {
+              // Close Paddle's error modal to show the PaddlePurchaseUi error page
+              paddleInstance.Checkout.close();
+              reject(
+                new PurchaseFlowError(
+                  PurchaseFlowErrorCode.ErrorChargingPayment,
+                  "Paddle payment failed",
                 ),
               );
             } else if (eventName === CheckoutEventNames.CHECKOUT_CLOSED) {
