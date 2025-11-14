@@ -75,7 +75,10 @@ import {
   type FlagsConfig,
   supportedRCSources,
 } from "./entities/flags-config";
-import { type PurchasesConfig } from "./entities/purchases-config";
+import {
+  type PurchasesConfig,
+  type PurchasesContext,
+} from "./entities/purchases-config";
 import { generateUUID } from "./helpers/uuid-helper";
 import type { PlatformInfo } from "./entities/platform-info";
 import type { ReservedCustomerAttribute } from "./entities/attributes";
@@ -163,6 +166,9 @@ export class Purchases {
 
   /** @internal */
   private readonly _flags: FlagsConfig;
+
+  /** @internal */
+  private readonly _context?: PurchasesContext;
 
   /** @internal */
   private readonly backend: Backend;
@@ -304,7 +310,7 @@ export class Purchases {
   }
 
   private static configureInternal(config: PurchasesConfig): void {
-    const { apiKey, appUserId, httpConfig, flags } = config;
+    const { apiKey, appUserId, httpConfig, flags, context } = config;
     const finalHttpConfig = httpConfig ?? defaultHttpConfig;
     const finalFlags = flags ?? defaultFlagsConfig;
 
@@ -314,6 +320,7 @@ export class Purchases {
       appUserId,
       finalHttpConfig,
       finalFlags,
+      context,
     );
   }
 
@@ -376,10 +383,12 @@ export class Purchases {
     appUserId: string,
     httpConfig: HttpConfig = defaultHttpConfig,
     flags: FlagsConfig = defaultFlagsConfig,
+    context?: PurchasesContext,
   ) {
     this._API_KEY = apiKey;
     this._appUserId = appUserId;
     this._flags = { ...defaultFlagsConfig, ...flags };
+    this._context = context;
     if (RC_ENDPOINT === undefined) {
       Logger.errorLog(
         "Project was build without some of the environment variables set",
@@ -397,6 +406,7 @@ export class Purchases {
       appUserId: this._appUserId,
       silent: !this._flags.collectAnalyticsEvents,
       rcSource: this._flags.rcSource ?? null,
+      workflowContext: this._context?.workflowContext,
     });
     this.backend = new Backend(this._API_KEY, httpConfig);
     this.inMemoryCache = new InMemoryCache();

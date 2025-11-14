@@ -10,6 +10,7 @@ import {
   buildEventContext,
   type SDKEventContextSource,
 } from "./sdk-event-context";
+import type { WorkflowContext } from "../entities/purchases-config";
 
 const MIN_INTERVAL_RETRY = 2_000;
 const MAX_INTERVAL_RETRY = 5 * 60_000;
@@ -26,6 +27,7 @@ export interface EventsTrackerProps {
   appUserId: string;
   rcSource: string | null;
   silent?: boolean;
+  workflowContext?: WorkflowContext;
 }
 
 export interface IEventsTracker {
@@ -49,6 +51,7 @@ export default class EventsTracker implements IEventsTracker {
   private appUserId: string;
   private readonly isSilent: boolean;
   private rcSource: string | null;
+  private readonly workflowContext?: WorkflowContext;
 
   constructor(props: EventsTrackerProps) {
     this.apiKey = props.apiKey;
@@ -56,6 +59,7 @@ export default class EventsTracker implements IEventsTracker {
     this.appUserId = props.appUserId;
     this.isSilent = props.silent || false;
     this.rcSource = props.rcSource;
+    this.workflowContext = props.workflowContext;
     this.flushManager = new FlushManager(
       MIN_INTERVAL_RETRY,
       MAX_INTERVAL_RETRY,
@@ -91,6 +95,7 @@ export default class EventsTracker implements IEventsTracker {
         traceId: this.traceId,
         appUserId: this.appUserId,
         context: buildEventContext(props.source, this.rcSource),
+        workflowIdentifier: this.workflowContext?.workflowIdentifier,
         properties: props.properties || {},
       });
       this.eventsQueue.push(event);

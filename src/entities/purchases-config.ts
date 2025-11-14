@@ -2,6 +2,28 @@ import type { FlagsConfig } from "./flags-config";
 import type { HttpConfig } from "./http-config";
 
 /**
+ * Contextual information specific to workflows.
+ * @internal
+ */
+export interface WorkflowContext {
+  /**
+   * Optional identifier to group events emitted by the SDK.
+   */
+  workflowIdentifier?: string;
+}
+
+/**
+ * Additional context to be associated with the configured Purchases instance.
+ * @internal
+ */
+export interface PurchasesContext {
+  /**
+   * Optional workflow-specific context shared across SDK components.
+   */
+  workflowContext?: WorkflowContext;
+}
+
+/**
  * Configuration object for initializing the Purchases SDK.
  *
  * @example
@@ -42,4 +64,9 @@ export interface PurchasesConfig {
    * Advanced functionality configuration {@link FlagsConfig}.
    */
   flags?: FlagsConfig;
+  /**
+   * Additional contextual information for the Purchases instance.
+   * @internal
+   */
+  context?: PurchasesContext;
 }

@@ -7,6 +7,7 @@ export type EventData = {
   appUserId: string;
   properties: EventProperties;
   context: EventContext;
+  workflowIdentifier?: string;
 };
 
 type EventContextSingleValue = string | number | boolean;
@@ -67,6 +68,9 @@ export class Event {
       properties: {
         ...this.data.properties,
         traceId: this.data.traceId,
+        ...(this.data.workflowIdentifier !== undefined
+          ? { workflowIdentifier: this.data.workflowIdentifier }
+          : {}),
       },
     }) as EventPayload;
   }
