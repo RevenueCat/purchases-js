@@ -138,10 +138,7 @@ export type { RedemptionInfo } from "./entities/redemption-info";
 export type { PurchaseResult } from "./entities/purchase-result";
 export type { BrandingAppearance } from "./entities/branding";
 export type { PlatformInfo } from "./entities/platform-info";
-export type {
-  PurchasesConfig,
-  PurchasesContext,
-} from "./entities/purchases-config";
+export type { PurchasesConfig } from "./entities/purchases-config";
 export type { VirtualCurrencies } from "./entities/virtual-currencies";
 export type { VirtualCurrency } from "./entities/virtual-currency";
 export type { PresentPaywallParams } from "./entities/present-paywall-params";
