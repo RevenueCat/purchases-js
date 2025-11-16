@@ -286,11 +286,6 @@ export const customerInfoResponse: SubscriberResponse = {
   },
 };
 
-export const identifyResponse = {
-  ...customerInfoResponse,
-  was_created: true,
-};
-
 export const newAppUserIdCustomerInfoResponse = {
   request_date: "2024-01-22T13:23:07Z",
   request_date_ms: 1705929787636,
@@ -528,7 +523,7 @@ export function getRequestHandlers(): RequestHandler[] {
     http.post(identify, async ({ request }) => {
       const json = await request.json();
       APIPostRequest({ url: identify, json });
-      return HttpResponse.json(identifyResponse, { status: 200 });
+      return HttpResponse.json(customerInfoResponse, { status: 200 });
     }),
   );
 

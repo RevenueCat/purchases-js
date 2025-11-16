@@ -14,11 +14,29 @@ interface HttpRequestConfig<RequestBody> {
   httpConfig?: HttpConfig;
 }
 
+export interface ResponseWithStatus<ResponseType> {
+  data: ResponseType;
+  statusCode: number;
+}
+
 export async function performRequest<RequestBody, ResponseType>(
   endpoint: SupportedEndpoint,
   config: HttpRequestConfig<RequestBody>,
   signal?: AbortSignal | null,
 ): Promise<ResponseType> {
+  const result = await performRequestWithStatus<RequestBody, ResponseType>(
+    endpoint,
+    config,
+    signal,
+  );
+  return result.data;
+}
+
+export async function performRequestWithStatus<RequestBody, ResponseType>(
+  endpoint: SupportedEndpoint,
+  config: HttpRequestConfig<RequestBody>,
+  signal?: AbortSignal | null,
+): Promise<ResponseWithStatus<ResponseType>> {
   const { apiKey, body, headers, httpConfig } = config;
   const baseUrl = httpConfig?.proxyURL ?? RC_ENDPOINT;
   const url = `${baseUrl}${endpoint.urlPath()}`;
@@ -33,7 +51,10 @@ export async function performRequest<RequestBody, ResponseType>(
 
     await handleErrors(response, endpoint);
 
-    return (await response.json()) as ResponseType; // TODO: Validate response is correct.
+    const statusCode = response.status;
+    const data = (await response.json()) as ResponseType;
+
+    return { data, statusCode };
   } catch (error) {
     if (error instanceof TypeError) {
       throw new PurchasesError(

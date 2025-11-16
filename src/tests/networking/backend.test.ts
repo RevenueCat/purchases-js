@@ -9,7 +9,6 @@ import {
   productsResponse,
   getVirtualCurrenciesResponseWith3Currencies,
   getVirtualCurrenciesResponseWithNoCurrencies,
-  identifyResponse,
 } from "../test-responses";
 import { Backend } from "../../networking/backend";
 import { StatusCodes } from "http-status-codes";
@@ -240,13 +239,32 @@ describe("identify request", () => {
     );
   }
 
-  test("can get customer info successfully", async () => {
-    setIdentifyResponse(HttpResponse.json(identifyResponse, { status: 200 }));
+  test("returns was_created: false when backend returns 200", async () => {
+    setIdentifyResponse(
+      HttpResponse.json(customerInfoResponse, { status: 200 }),
+    );
     const backendResponse = await backend.identify(
       "oldAppUserId",
       "newAppUserId",
     );
-    expect(backendResponse).toEqual(identifyResponse);
+    expect(backendResponse).toEqual({
+      ...customerInfoResponse,
+      was_created: false,
+    });
+  });
+
+  test("returns was_created: true when backend returns 201", async () => {
+    setIdentifyResponse(
+      HttpResponse.json(customerInfoResponse, { status: 201 }),
+    );
+    const backendResponse = await backend.identify(
+      "oldAppUserId",
+      "newAppUserId",
+    );
+    expect(backendResponse).toEqual({
+      ...customerInfoResponse,
+      was_created: true,
+    });
   });
 
   test("throws an error if the backend returns a server error", async () => {

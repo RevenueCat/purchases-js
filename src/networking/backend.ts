@@ -1,5 +1,5 @@
 import { type OfferingsResponse } from "./responses/offerings-response";
-import { performRequest } from "./http-client";
+import { performRequest, performRequestWithStatus } from "./http-client";
 import {
   CheckoutCalculateTaxEndpoint,
   CheckoutCompleteEndpoint,
@@ -87,14 +87,22 @@ export class Backend {
       new_app_user_id: newAppUserId,
     };
 
-    return await performRequest<IdentifyRequestBody, IdentifyResponse>(
-      new IdentifyEndpoint(),
-      {
-        apiKey: this.API_KEY,
-        body: body,
-        httpConfig: this.httpConfig,
-      },
-    );
+    const result = await performRequestWithStatus<
+      IdentifyRequestBody,
+      SubscriberResponse
+    >(new IdentifyEndpoint(), {
+      apiKey: this.API_KEY,
+      body: body,
+      httpConfig: this.httpConfig,
+    });
+
+    // HTTP 201 indicates the user was created, 200 indicates it already existed
+    const was_created = result.statusCode === 201;
+
+    return {
+      ...result.data,
+      was_created,
+    };
   }
 
   async getProducts(
