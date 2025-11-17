@@ -100,6 +100,9 @@ export class PaddleService {
       Logger.debugLog(`Paddle initialized with environment: ${environment}`);
       return paddleInstance;
     } catch (error) {
+      if (error instanceof PurchaseFlowError) {
+        throw error;
+      }
       throw new PurchaseFlowError(
         PurchaseFlowErrorCode.UnknownError,
         `Error initializing Paddle: ${error}`,
@@ -178,10 +181,12 @@ export class PaddleService {
             if (eventName === CheckoutEventNames.CHECKOUT_LOADED) {
               onCheckoutLoaded();
             } else if (eventName === CheckoutEventNames.CHECKOUT_COMPLETED) {
-              // Close Paddle's success page to show this PaddlePurchaseUi status page
+              // Close Paddle's success page to show the PaddlePurchaseUi status page
               paddleInstance.Checkout.close();
-              const result = await this.pollOperationStatus(operationSessionId);
-              resolve(result);
+              const checkoutStatus =
+                await this.pollOperationStatus(operationSessionId);
+
+              resolve(checkoutStatus);
             } else if (eventName === CheckoutEventNames.CHECKOUT_CLOSED) {
               // Only unmount PaddlePurchaseUi if the user closes Paddle's checkout modal
               // not when this code calls paddleInstance.Checkout.close()
@@ -193,7 +198,9 @@ export class PaddleService {
           } catch (error) {
             paddleInstance.Checkout.close();
 
-            if (error instanceof PurchasesError) {
+            if (error instanceof PurchaseFlowError) {
+              reject(error);
+            } else if (error instanceof PurchasesError) {
               reject(
                 PurchaseFlowError.fromPurchasesError(
                   error,
@@ -285,7 +292,11 @@ export class PaddleService {
                 );
                 break;
               case CheckoutSessionStatus.Succeeded:
-                if (!productIdentifier) {
+                if (
+                  !storeTransactionIdentifier ||
+                  !productIdentifier ||
+                  !purchaseDate
+                ) {
                   reject(
                     new PurchaseFlowError(
                       PurchaseFlowErrorCode.UnknownError,

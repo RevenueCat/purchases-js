@@ -1,6 +1,7 @@
 import {
   toFormColors,
   toFormStyleVar,
+  toPageStyleVar,
   toProductInfoStyleVar,
   toShape,
   toSpacingVars,
@@ -36,8 +37,12 @@ export class Theme {
     return toFormStyleVar(this.brandingAppearance);
   }
 
-  productInfoStyleVars(isPaddle: boolean = false) {
-    return toProductInfoStyleVar(this.brandingAppearance, isPaddle);
+  get productInfoStyleVars() {
+    return toProductInfoStyleVar(this.brandingAppearance);
+  }
+
+  get pageStyleVars() {
+    return toPageStyleVar(this.brandingAppearance);
   }
 
   get spacing() {

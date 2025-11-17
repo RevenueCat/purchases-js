@@ -95,5 +95,8 @@
   "payment_entry_page.subscription_info": "सदस्यता स्वतः नवीनीकृत हो जाती है. कभी भी रद्द करें.",
   "payment_entry_page.otp_terms_info": "खरीदकर, आप {{appName}} को उनकी शर्तों के अनुसार आपसे शुल्क लेने की अनुमति देने के लिए सहमत हैं.",
   "payment_entry_page.terms_link_label": "नियम",
-  "payment_entry_page.subscription_terms_info": "सदस्यता लेकर, आप {{appName}} को रद्द करने तक उनकी शर्तों के अनुसार आपसे शुल्क लेने की अनुमति देने के लिए सहमत हैं."
+  "payment_entry_page.subscription_terms_info": "सदस्यता लेकर, आप {{appName}} को रद्द करने तक उनकी शर्तों के अनुसार आपसे शुल्क लेने की अनुमति देने के लिए सहमत हैं.",
+  "loading_page.keep_page_open": "प्रक्रिया लगभग पूरी हो चुकी है. इस पृष्ठ को खुला रखें.",
+  "loading_page.processing_payment": "भुगतान संसाधित किया जा रहा है",
+  "success_page.button_return_to_app": "{{appName}} पर वापस जाएं"
 }

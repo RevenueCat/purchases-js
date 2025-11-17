@@ -576,7 +576,7 @@ export const brandingInfos: Record<string, BrandingInfoResponse> = {
       color_buttons_primary: "#000000",
       color_error: "#e61054",
       color_form_bg: "#FFFFFF",
-      color_page_bg: "#114ab8",
+      color_page_bg: "#B9CEF8",
       color_product_info_bg: "#114ab8",
       font: "default",
       shapes: "default",

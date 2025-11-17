@@ -95,5 +95,8 @@
   "payment_entry_page.subscription_info": "Abonamentul se reînnoiește automat. Anulați oricând.",
   "payment_entry_page.otp_terms_info": "Prin achiziționarea, sunteți de acord să permiteți {{appName}} să vă taxeze conform termenilor săi.",
   "payment_entry_page.terms_link_label": "Termeni",
-  "payment_entry_page.subscription_terms_info": "Prin abonare, sunteți de acord să permiteți {{appName}} să vă taxeze conform termenilor săi până la anulare."
+  "payment_entry_page.subscription_terms_info": "Prin abonare, sunteți de acord să permiteți {{appName}} să vă taxeze conform termenilor săi până la anulare.",
+  "loading_page.keep_page_open": "Procesul este aproape finalizat. Păstrați această pagină deschisă.",
+  "loading_page.processing_payment": "Se procesează plata",
+  "success_page.button_return_to_app": "Întoarce-te la {{{{appName}}}}"
 }

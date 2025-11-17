@@ -65,15 +65,7 @@
 />
 
 <Story
-  name="Error - Unknown"
-  args={{
-    currentPage: "error",
-    lastError: purchaseFlowErrors.unknownError,
-  }}
-/>
-
-<Story
-  name="Error - Setting Up Purchase"
+  name="Error"
   args={{
     currentPage: "error",
     lastError: purchaseFlowErrors.errorSettingUpPurchase,
@@ -81,17 +73,10 @@
 />
 
 <Story
-  name="Error - Charging Payment"
+  name="Error with Sandbox Banner"
   args={{
     currentPage: "error",
-    lastError: purchaseFlowErrors.errorChargingPayment,
-  }}
-/>
-
-<Story
-  name="Error - Network Error"
-  args={{
-    currentPage: "error",
-    lastError: purchaseFlowErrors.networkError,
+    lastError: purchaseFlowErrors.errorSettingUpPurchase,
+    isSandbox: true,
   }}
 />
