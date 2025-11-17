@@ -21,10 +21,17 @@
     productDetails: Product;
     onDismiss: () => void;
     appName: string | null;
+    fullWidth?: boolean;
   }
 
-  const { lastError, supportEmail, productDetails, onDismiss, appName }: Props =
-    $props();
+  const {
+    lastError,
+    supportEmail,
+    productDetails,
+    onDismiss,
+    appName,
+    fullWidth = false,
+  }: Props = $props();
 
   const error: PurchaseFlowError = $derived(
     lastError ??
@@ -168,6 +175,7 @@
   {onDismiss}
   type="error"
   closeButtonTitle={getButtonTitle()}
+  {fullWidth}
 >
   {#snippet icon()}
     <Icon name={iconName()} />

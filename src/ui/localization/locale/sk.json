@@ -95,5 +95,8 @@
   "payment_entry_page.subscription_info": "Predplatné sa automaticky obnovuje. Zrušiť môžete kedykoľvek.",
   "payment_entry_page.otp_terms_info": "Zakúpením súhlasíte s tým, že spoločnosti {{appName}} umožníte účtovať vám poplatky v súlade s jej podmienkami.",
   "payment_entry_page.terms_link_label": "Podmienky",
-  "payment_entry_page.subscription_terms_info": "Prihlásením na odber súhlasíte s tým, že spoločnosť {{appName}} vám bude účtovať poplatky podľa svojich podmienok, až kým odber nezrušíte."
+  "payment_entry_page.subscription_terms_info": "Prihlásením na odber súhlasíte s tým, že spoločnosť {{appName}} vám bude účtovať poplatky podľa svojich podmienok, až kým odber nezrušíte.",
+  "loading_page.keep_page_open": "Proces sa takmer dokončil. Nechajte túto stránku otvorenú.",
+  "loading_page.processing_payment": "Spracováva sa platba",
+  "success_page.button_return_to_app": "Späť do aplikácie {{appName}}"
 }

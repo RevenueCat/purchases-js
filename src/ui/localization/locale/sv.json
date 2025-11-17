@@ -95,5 +95,8 @@
   "payment_entry_page.subscription_info": "Prenumerationen förnyas automatiskt. Avbryt när som helst.",
   "payment_entry_page.otp_terms_info": "Genom att köpa godkänner du att {{appName}} debiterar dig i enlighet med deras villkor.",
   "payment_entry_page.terms_link_label": "Villkor",
-  "payment_entry_page.subscription_terms_info": "Genom att prenumerera godkänner du att {{appName}} debiterar dig i enlighet med deras villkor tills du avbryter."
+  "payment_entry_page.subscription_terms_info": "Genom att prenumerera godkänner du att {{appName}} debiterar dig i enlighet med deras villkor tills du avbryter.",
+  "loading_page.keep_page_open": "Processen är nästan klar. Håll den här sidan öppen.",
+  "loading_page.processing_payment": "Behandlar betalning",
+  "success_page.button_return_to_app": "Återgå till {{{{appName}}}}"
 }

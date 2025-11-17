@@ -95,5 +95,8 @@
   "payment_entry_page.subscription_info": "يتم تجديد الاشتراك تلقائيًا. يمكنك الإلغاء في أي وقت.",
   "payment_entry_page.otp_terms_info": "بالشراء، أنت توافق على السماح لتطبيق {{appName}} بتحصيل الرسوم منك وفقًا لشروطه.",
   "payment_entry_page.terms_link_label": "الشروط",
-  "payment_entry_page.subscription_terms_info": "بالاشتراك، فإنك توافق على السماح لـ {{appName}} بتحصيل رسوم منك وفقًا لشروطها حتى تقوم بالإلغاء."
+  "payment_entry_page.subscription_terms_info": "بالاشتراك، فإنك توافق على السماح لـ {{appName}} بتحصيل رسوم منك وفقًا لشروطها حتى تقوم بالإلغاء.",
+  "loading_page.keep_page_open": "العملية شارفت على الانتهاء. أبقِ هذه الصفحة مفتوحة.",
+  "loading_page.processing_payment": "جاري معالجة الدفع",
+  "success_page.button_return_to_app": "العودة إلى {{appName}}"
 }

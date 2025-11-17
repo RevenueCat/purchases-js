@@ -2,8 +2,10 @@ import {
   type Colors,
   DEFAULT_FORM_COLORS,
   DEFAULT_INFO_COLORS,
+  DEFAULT_PAGE_COLORS,
   FormColorsToBrandingAppearanceMapping,
-  getInfoColorsToBrandingAppearanceMapping,
+  InfoColorsToBrandingAppearanceMapping,
+  PageColorsToBrandingAppearanceMapping,
 } from "./colors";
 import {
   DefaultShape,
@@ -225,10 +227,9 @@ export const toColors = (
 
 export const toProductInfoColors = (
   brandingAppearance?: BrandingAppearance | null | undefined,
-  isPaddle: boolean = false,
 ): Colors => {
   return toColors(
-    getInfoColorsToBrandingAppearanceMapping(isPaddle),
+    InfoColorsToBrandingAppearanceMapping,
     DEFAULT_INFO_COLORS,
     brandingAppearance,
   );
@@ -240,6 +241,16 @@ export const toFormColors = (
   return toColors(
     FormColorsToBrandingAppearanceMapping,
     DEFAULT_FORM_COLORS,
+    brandingAppearance,
+  );
+};
+
+export const toPageColors = (
+  brandingAppearance?: BrandingAppearance | null | undefined,
+): Colors => {
+  return toColors(
+    PageColorsToBrandingAppearanceMapping,
+    DEFAULT_PAGE_COLORS,
     brandingAppearance,
   );
 };
@@ -272,11 +283,10 @@ export const toStyleVar = (prefix: string = "", entries: [string, string][]) =>
  */
 export const toProductInfoStyleVar = (
   appearance?: BrandingAppearance | null,
-  isPaddle: boolean = false,
 ) => {
   const colorVariablesString = toStyleVar(
     "color",
-    Object.entries(toProductInfoColors(appearance, isPaddle)),
+    Object.entries(toProductInfoColors(appearance)),
   );
 
   const shapeVariableString = toStyleVar(
@@ -296,6 +306,26 @@ export const toFormStyleVar = (appearance?: BrandingAppearance | null) => {
   const colorVariablesString = toStyleVar(
     "color",
     Object.entries(toFormColors(appearance)),
+  );
+
+  const shapeVariableString = toStyleVar(
+    "shape",
+    Object.entries(toShape(appearance)),
+  );
+
+  return [colorVariablesString, shapeVariableString].join("; ");
+};
+
+/**
+ * Assigns values to the css variables given the branding appearance customization.
+ * Uses color_page_bg as the background for calculating contrasting text colors.
+ * @param appearance BrandingAppearance
+ * @return a style parameter compatible string.
+ */
+export const toPageStyleVar = (appearance?: BrandingAppearance | null) => {
+  const colorVariablesString = toStyleVar(
+    "color",
+    Object.entries(toPageColors(appearance)),
   );
 
   const shapeVariableString = toStyleVar(

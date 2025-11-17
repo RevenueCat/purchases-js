@@ -1,83 +1,72 @@
 <script lang="ts">
-  import Loading from "./molecules/loading.svelte";
   import SuccessPage from "./pages/success-page.svelte";
   import ErrorPage from "./pages/error-page.svelte";
-  import Template from "./layout/template.svelte";
-  import BrandingHeader from "./molecules/branding-header.svelte";
-  import { type PriceBreakdown } from "./ui-types";
+  import FullscreenTemplate from "./layout/fullscreen-template.svelte";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
-  import type { Product, PurchaseOption } from "../main";
-  import { getInitialPriceFromPurchaseOption } from "../helpers/purchase-option-price-helper";
-  import ProductInfo from "./organisms/product-info.svelte";
+  import type { Product } from "../main";
   import { PurchaseFlowError } from "../helpers/purchase-operation-helper";
+  import Typography from "./atoms/typography.svelte";
+  import Spinner from "./atoms/spinner.svelte";
+  import { LocalizationKeys } from "./localization/supportedLanguages";
+  import { getContext } from "svelte";
+  import { translatorContextKey } from "./localization/constants";
+  import { Translator } from "./localization/translator";
+  import { type Writable } from "svelte/store";
+  import ColLayout from "./layout/col-layout.svelte";
 
   interface Props {
     currentPage: "loading" | "success" | "error";
     brandingInfo: BrandingInfoResponse | null;
     productDetails: Product;
-    purchaseOption: PurchaseOption;
     isSandbox: boolean;
     lastError: PurchaseFlowError | null;
     isInElement: boolean;
-    defaultPriceBreakdown?: PriceBreakdown;
     onContinue: () => void;
     closeWithError: () => void;
-    onClose?: () => void;
   }
 
   const {
     currentPage,
     brandingInfo,
     productDetails,
-    purchaseOption,
     isSandbox,
     lastError,
     isInElement,
-    defaultPriceBreakdown,
     onContinue,
     closeWithError,
-    onClose = undefined,
   }: Props = $props();
 
-  const initialPrice = getInitialPriceFromPurchaseOption(
-    productDetails,
-    purchaseOption,
-  );
-
-  let priceBreakdown: PriceBreakdown = $state(
-    defaultPriceBreakdown ?? {
-      currency: initialPrice.currency,
-      totalAmountInMicros: initialPrice.amountMicros,
-      totalExcludingTaxInMicros: initialPrice.amountMicros,
-      taxCalculationStatus: "unavailable",
-      taxAmountInMicros: null,
-      taxBreakdown: null,
-    },
-  );
+  const translator: Writable<Translator> = getContext(translatorContextKey);
 </script>
 
-<Template {brandingInfo} {isInElement} {isSandbox} {onClose} isPaddle={true}>
-  {#snippet navbarHeaderContent()}
-    <BrandingHeader
-      {brandingInfo}
-      {onClose}
-      showCloseButton={!isInElement && !!onClose}
-    />
-  {/snippet}
-  {#snippet navbarBodyContent()}
-    <ProductInfo
-      {productDetails}
-      {purchaseOption}
-      showProductDescription={brandingInfo?.appearance
-        ?.show_product_description ?? false}
-      {priceBreakdown}
-    />
-  {/snippet}
+<FullscreenTemplate {brandingInfo} {isInElement} {isSandbox}>
   {#snippet mainContent()}
     {#if currentPage === "loading"}
-      <Loading />
+      <div class="rcb-ui-loading-container">
+        <ColLayout gap="medium" align="center">
+          <Spinner />
+          <Typography size="heading-md"
+            >{$translator.translate(
+              LocalizationKeys.LoadingPageProcessingPayment,
+            )}</Typography
+          >
+
+          <Typography size="body-small"
+            >{$translator.translate(
+              LocalizationKeys.LoadingPageKeepPageOpen,
+            )}</Typography
+          ></ColLayout
+        >
+      </div>
     {:else if currentPage === "success"}
-      <SuccessPage {onContinue} />
+      <SuccessPage
+        {onContinue}
+        closeButtonTitle={$translator.translate(
+          LocalizationKeys.SuccessPageButtonReturnToApp,
+          { appName: brandingInfo?.app_name ?? "App" },
+        )}
+        fullWidth={true}
+      />
     {:else if currentPage === "error"}
       <ErrorPage
         {lastError}
@@ -85,7 +74,16 @@
         supportEmail={brandingInfo?.support_email ?? null}
         onDismiss={closeWithError}
         appName={brandingInfo?.app_name ?? null}
+        fullWidth={true}
       />
     {/if}
   {/snippet}
-</Template>
+</FullscreenTemplate>
+
+<style>
+  .rcb-ui-loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+</style>

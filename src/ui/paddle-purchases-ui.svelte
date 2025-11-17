@@ -33,7 +33,6 @@
     skipSuccessPage: boolean;
     onFinished: (operationResult: OperationSessionSuccessfulResult) => void;
     onError: (error: PurchaseFlowError) => void;
-    onClose: (() => void) | undefined;
     productDetails: Product;
     rcPackage: Package;
     appUserId: string;
@@ -54,7 +53,6 @@
     skipSuccessPage = false,
     onFinished,
     onError,
-    onClose,
     productDetails,
     rcPackage,
     appUserId,
@@ -105,15 +103,22 @@
     unmountPaddlePurchaseUi();
   };
 
-  const handleBackClicked = () => {
-    if (currentPage === "error") {
-      closeWithError();
-    } else if (currentPage === "success") {
-      handleContinue();
-    } else if (currentPage === "loading") {
-      unmountPaddlePurchaseUi();
-    } else if (onClose) {
-      onClose();
+  const normalizeToPurchaseFlowError = (
+    e: unknown,
+    defaultMessage: string,
+  ): PurchaseFlowError => {
+    if (e instanceof PurchaseFlowError) {
+      return e;
+    } else if (e instanceof PurchasesError) {
+      return PurchaseFlowError.fromPurchasesError(
+        e,
+        PurchaseFlowErrorCode.UnknownError,
+      );
+    } else {
+      return new PurchaseFlowError(
+        PurchaseFlowErrorCode.UnknownError,
+        defaultMessage,
+      );
     }
   };
 
@@ -155,9 +160,14 @@
         metadata,
       });
       isSandbox = startResponse.paddle_billing_params.is_sandbox;
-    } catch (err) {
-      error = err as PurchaseFlowError;
+    } catch (e) {
+      const purchaseFlowError = normalizeToPurchaseFlowError(
+        e,
+        `Start Paddle checkout failed: ${e}`,
+      );
+      error = purchaseFlowError;
       currentPage = "error";
+      onError(purchaseFlowError);
       return;
     }
 
@@ -185,21 +195,10 @@
         currentPage = "success";
       }
     } catch (e) {
-      let purchaseFlowError: PurchaseFlowError;
-
-      if (e instanceof PurchaseFlowError) {
-        purchaseFlowError = e;
-      } else if (e instanceof PurchasesError) {
-        purchaseFlowError = PurchaseFlowError.fromPurchasesError(
-          e,
-          PurchaseFlowErrorCode.UnknownError,
-        );
-      } else {
-        purchaseFlowError = new PurchaseFlowError(
-          PurchaseFlowErrorCode.UnknownError,
-          `Paddle purchase failed: ${e}`,
-        );
-      }
+      const purchaseFlowError = normalizeToPurchaseFlowError(
+        e,
+        `Paddle purchase failed: ${e}`,
+      );
 
       error = purchaseFlowError;
       currentPage = "error";
@@ -231,12 +230,10 @@
     currentPage={currentPage as "loading" | "success" | "error"}
     {brandingInfo}
     {productDetails}
-    {purchaseOption}
     {isSandbox}
     lastError={error}
     {isInElement}
     onContinue={handleContinue}
     {closeWithError}
-    onClose={handleBackClicked}
   />
 {/if}
