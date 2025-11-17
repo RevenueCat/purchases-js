@@ -78,12 +78,8 @@ export const FormColorsToBrandingAppearanceMapping = {
   background: "color_form_bg",
 };
 
-export const getInfoColorsToBrandingAppearanceMapping = (
-  isPaddle: boolean = false,
-) => {
-  return {
-    ...ColorsToBrandingAppearanceMapping,
-    "input-background": isPaddle ? "color_page_bg" : "color_product_info_bg",
-    background: isPaddle ? "color_page_bg" : "color_product_info_bg",
-  };
+export const InfoColorsToBrandingAppearanceMapping = {
+  ...ColorsToBrandingAppearanceMapping,
+  "input-background": "color_product_info_bg",
+  background: "color_product_info_bg",
 };

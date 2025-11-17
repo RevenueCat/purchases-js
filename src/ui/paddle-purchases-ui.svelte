@@ -33,7 +33,6 @@
     skipSuccessPage: boolean;
     onFinished: (operationResult: OperationSessionSuccessfulResult) => void;
     onError: (error: PurchaseFlowError) => void;
-    onClose: (() => void) | undefined;
     productDetails: Product;
     rcPackage: Package;
     appUserId: string;
@@ -54,7 +53,6 @@
     skipSuccessPage = false,
     onFinished,
     onError,
-    onClose,
     productDetails,
     rcPackage,
     appUserId,
@@ -103,18 +101,6 @@
         ),
     );
     unmountPaddlePurchaseUi();
-  };
-
-  const handleBackClicked = () => {
-    if (currentPage === "error") {
-      closeWithError();
-    } else if (currentPage === "success") {
-      handleContinue();
-    } else if (currentPage === "loading") {
-      unmountPaddlePurchaseUi();
-    } else if (onClose) {
-      onClose();
-    }
   };
 
   let originalHtmlHeight: string | null = null;
@@ -231,12 +217,10 @@
     currentPage={currentPage as "loading" | "success" | "error"}
     {brandingInfo}
     {productDetails}
-    {purchaseOption}
     {isSandbox}
     lastError={error}
     {isInElement}
     onContinue={handleContinue}
     {closeWithError}
-    onClose={handleBackClicked}
   />
 {/if}
