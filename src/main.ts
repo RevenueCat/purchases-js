@@ -867,15 +867,6 @@ export class Purchases {
         certainHTMLTarget.innerHTML = "";
       };
 
-      const onClose = this.createCheckoutOnCloseHandler(
-        reject,
-        unmountPaddlePurchaseUi,
-      );
-
-      if (!isInElement && onClose) {
-        window.addEventListener("popstate", onClose as EventListener);
-      }
-
       const onFinished = this.createCheckoutOnFinishedHandler(
         resolve,
         appUserId,
@@ -898,7 +889,6 @@ export class Purchases {
             customTranslations: params.labelsOverride,
             isInElement,
             onFinished,
-            onClose,
             onError,
             skipSuccessPage,
             productDetails: rcPackage.webBillingProduct,
