@@ -180,29 +180,8 @@ export class PaddleService {
             } else if (eventName === CheckoutEventNames.CHECKOUT_COMPLETED) {
               // Close Paddle's success page to show this PaddlePurchaseUi status page
               paddleInstance.Checkout.close();
-
               const result = await this.pollOperationStatus(operationSessionId);
               resolve(result);
-            } else if (eventName === CheckoutEventNames.CHECKOUT_ERROR) {
-              // Close Paddle's error modal to show the PaddlePurchaseUi error page
-              paddleInstance.Checkout.close();
-              reject(
-                new PurchaseFlowError(
-                  PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-                  paddleEventData.detail,
-                ),
-              );
-            } else if (
-              eventName === CheckoutEventNames.CHECKOUT_PAYMENT_FAILED
-            ) {
-              // Close Paddle's error modal to show the PaddlePurchaseUi error page
-              paddleInstance.Checkout.close();
-              reject(
-                new PurchaseFlowError(
-                  PurchaseFlowErrorCode.ErrorChargingPayment,
-                  "Paddle payment failed",
-                ),
-              );
             } else if (eventName === CheckoutEventNames.CHECKOUT_CLOSED) {
               // Only unmount PaddlePurchaseUi if the user closes Paddle's checkout modal
               // not when this code calls paddleInstance.Checkout.close()
