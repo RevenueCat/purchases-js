@@ -14,7 +14,7 @@ import { loadPurchases } from "./util/PurchasesLoader";
 import RCPaywallPage from "./pages/rc_paywall";
 import RCPaywallNoOfferingPassedPage from "./pages/rc_paywall_no_offering_passed";
 import RCPaywallNoTargetElementPassedPage from "./pages/rc_paywall_no_target_element_passed";
-import RedemptionLinksTester from "./pages/redemptionLinksTester";
+import RedemptionLinksTester from "./pages/redemption_links_tester";
 
 const router = createBrowserRouter([
   {
