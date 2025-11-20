@@ -73,6 +73,7 @@
   let paymentElementReadyForSubmission = $state(false);
   let emailElementReadyForSubmission = $state(skipEmail);
   let expressCheckoutElementReadyForSubmission = $state(false);
+  let showCardFields = $state(!expressCheckoutOptions);
 
   let stripeVariables: undefined | Appearance["variables"] = $state(undefined);
   let viewport: "mobile" | "desktop" = $state("mobile");
@@ -138,6 +139,19 @@
         onLoadingComplete();
       }
     }
+  };
+
+  const onExpressCheckoutAvailabilityChange = (available: boolean) => {
+    if (!available) {
+      showCardFields = true;
+      return;
+    }
+
+    showCardFields = false;
+  };
+
+  const onShowCardFieldsRequest = () => {
+    showCardFields = true;
   };
 
   const onPaymentElementReady = async () => {
@@ -223,22 +237,26 @@
       onSubmit={onExpressCheckoutElementSubmit}
       {expressCheckoutOptions}
       {billingAddressRequired}
+      onAvailabilityChange={onExpressCheckoutAvailabilityChange}
+      {onShowCardFieldsRequest}
     />
-    {#if !skipEmail}
-      <LinkAuthenticationElement
+    <div class:collapsed={!showCardFields} class="rc-card-fields">
+      {#if !skipEmail}
+        <LinkAuthenticationElement
+          {elements}
+          onReady={onLinkAuthenticationElementReady}
+          onChange={onLinkAuthenticationElementChange}
+          onError={onStripeElementsLoadingError}
+        />
+      {/if}
+      <PaymentElement
         {elements}
-        onReady={onLinkAuthenticationElementReady}
-        onChange={onLinkAuthenticationElementChange}
+        {brandingInfo}
+        onReady={onPaymentElementReady}
+        onChange={onPaymentElementChange}
         onError={onStripeElementsLoadingError}
       />
-    {/if}
-    <PaymentElement
-      {elements}
-      {brandingInfo}
-      onReady={onPaymentElementReady}
-      onChange={onPaymentElementChange}
-      onError={onStripeElementsLoadingError}
-    />
+    </div>
   </div>
 {/if}
 
@@ -247,6 +265,22 @@
     display: flex;
     flex-direction: column;
     gap: var(--rc-spacing-gapXLarge-mobile);
+    position: relative;
+  }
+
+  .rc-card-fields {
+    display: flex;
+    flex-direction: column;
+    gap: var(--rc-spacing-gapXLarge-mobile);
+  }
+
+  .rc-card-fields.collapsed {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
   }
 
   @container layout-query-container (width >= 768px) {
