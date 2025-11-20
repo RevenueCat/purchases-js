@@ -31,6 +31,8 @@
       paymentMethod: string,
       emailValue: string,
     ) => void | Promise<void>;
+    onAvailabilityChange?: (available: boolean) => void | Promise<void>;
+    onShowCardFieldsRequest?: () => void | Promise<void>;
     elements: StripeElements;
     billingAddressRequired: boolean;
     expressCheckoutOptions?: StripeExpressCheckoutConfiguration;
@@ -40,6 +42,8 @@
     onError,
     onReady,
     onSubmit,
+    onAvailabilityChange,
+    onShowCardFieldsRequest,
     elements,
     billingAddressRequired,
     expressCheckoutOptions,
@@ -77,6 +81,7 @@
     event: StripeExpressCheckoutElementReadyEvent,
   ) => {
     hideExpressCheckoutElement = !event.availablePaymentMethods;
+    await onAvailabilityChange?.(event.availablePaymentMethods);
     onReady();
   };
 
@@ -109,5 +114,6 @@
     text={$translator.translate(
       LocalizationKeys.PaymentEntryPageExpressCheckoutDivider,
     )}
+    on:click={onShowCardFieldsRequest}
   />
 {/if}
