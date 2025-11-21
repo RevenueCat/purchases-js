@@ -35,6 +35,7 @@
     billingAddressRequired: boolean;
     forceEnableWalletMethods: boolean;
     expressCheckoutOptions?: StripeExpressCheckoutConfiguration;
+    hideOtherOptions?: boolean;
   }
 
   const {
@@ -45,13 +46,15 @@
     billingAddressRequired,
     forceEnableWalletMethods,
     expressCheckoutOptions,
+    hideOtherOptions = false,
   }: Props = $props();
 
   const translator = getContext<Writable<Translator>>(translatorContextKey);
 
   let expressCheckoutElement: StripeExpressCheckoutElement | null = null;
   let hideExpressCheckoutElement = $state(false);
-  const expressCheckoutElementId = "express-checkout-element";
+  // Allows having more than one in the page.
+  const expressCheckoutElementId = `express-checkout-element-${new Date().getTime()}`;
 
   const onClickCallback = async (
     event: StripeExpressCheckoutElementClickEvent,
@@ -108,9 +111,11 @@
 
 {#if !hideExpressCheckoutElement}
   <div id={expressCheckoutElementId}></div>
-  <TextSeparator
-    text={$translator.translate(
-      LocalizationKeys.PaymentEntryPageExpressCheckoutDivider,
-    )}
-  />
+  {#if !hideOtherOptions}
+    <TextSeparator
+      text={$translator.translate(
+        LocalizationKeys.PaymentEntryPageExpressCheckoutDivider,
+      )}
+    />
+  {/if}
 {/if}

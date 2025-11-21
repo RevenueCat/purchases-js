@@ -33,7 +33,7 @@ const RCPaywallPage: React.FC = () => {
 
         let queryParamRedemptionInfoUrl = "";
         if (redemptionInfo && redemptionInfo.redeemUrl) {
-          queryParamRedemptionInfoUrl = `?redeem_url=${redemptionInfo.redeemUrl}`;
+          queryParamRedemptionInfoUrl = `?redeem_url=${redemptionInfo.redeemUrl}&offering`;
         }
 
         navigate(
@@ -50,7 +50,7 @@ const RCPaywallPage: React.FC = () => {
 
   return (
     <>
-      <div id="paywall"></div>
+      <div style={{ height: "100vh" }} id="paywall"></div>
     </>
   );
 };
