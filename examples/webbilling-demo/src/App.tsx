@@ -1,7 +1,7 @@
 import {
-  RouterProvider,
   createBrowserRouter,
   redirect,
+  RouterProvider,
 } from "react-router-dom";
 import "./App.css";
 import WithEntitlement from "./components/WithEntitlement";
@@ -14,6 +14,7 @@ import { loadPurchases } from "./util/PurchasesLoader";
 import RCPaywallPage from "./pages/rc_paywall";
 import RCPaywallNoOfferingPassedPage from "./pages/rc_paywall_no_offering_passed";
 import RCPaywallNoTargetElementPassedPage from "./pages/rc_paywall_no_target_element_passed";
+import JustApplePayPaywallPage from "./pages/just_apple_pay";
 
 const router = createBrowserRouter([
   {
@@ -36,6 +37,15 @@ const router = createBrowserRouter([
     element: (
       <WithoutEntitlement>
         <PaywallPage />
+      </WithoutEntitlement>
+    ),
+  },
+  {
+    path: "/just_apple_pay/:app_user_id",
+    loader: loadPurchases,
+    element: (
+      <WithoutEntitlement>
+        <JustApplePayPaywallPage />
       </WithoutEntitlement>
     ),
   },

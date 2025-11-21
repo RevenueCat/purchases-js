@@ -6440,6 +6440,69 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "@revenuecat/purchases-js!Purchases#presentExpressPurchaseButton:member(1)",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "presentExpressPurchaseButton(params: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "PurchaseParams",
+                  "canonicalReference": "@revenuecat/purchases-js!PurchaseParams:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "PurchaseResult",
+                  "canonicalReference": "@revenuecat/purchases-js!PurchaseResult:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 7
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "presentExpressPurchaseButton"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "@revenuecat/purchases-js!Purchases#presentPaywall:member(1)",
               "docComment": "/**\n * Renders an RC Paywall and allows the user to purchase from it using Web Billing.\n *\n * @param paywallParams - The parameters object to customise the paywall render. Check {@link PresentPaywallParams}\n *\n * @returns Promise<PurchaseResult>\n */\n",
               "excerptTokens": [

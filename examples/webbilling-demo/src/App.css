@@ -174,13 +174,13 @@ button.button:focus-visible {
   margin-top: 48px;
 }
 
-.paywall {
+.rc-paywall {
   max-width: 972px;
   padding: 32px;
   margin: auto;
 }
 
-.paywall h1 {
+.rc-paywall h1 {
   margin-top: 120px;
   margin-bottom: 72px;
   font-size: 52px;
@@ -188,7 +188,7 @@ button.button:focus-visible {
   text-align: center;
 }
 
-.paywall h1 em {
+.rc-paywall h1 em {
   font-weight: 500;
   font-variant: normal;
   font-style: normal;
@@ -290,7 +290,7 @@ button.button:focus-visible {
   display: inline-block;
 }
 
-.paywall .notice {
+.rc-paywall .notice {
   text-align: center;
 }
 
@@ -486,13 +486,13 @@ button.button:focus-visible {
 }
 
 @media (max-width: 600px) {
-  .paywall h1 {
+  .rc-paywall h1 {
     margin-top: 32px;
     margin-bottom: 32px;
     font-size: 32px;
   }
 
-  .paywall h1 em {
+  .rc-paywall h1 em {
     display: inline;
   }
 

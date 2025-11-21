@@ -1,18 +1,13 @@
-import type { Offering, Package } from "@revenuecat/purchases-js";
-import {
-  PurchasesError,
-  ReservedCustomerAttribute,
-} from "@revenuecat/purchases-js";
+import type { Offering, Package, Purchases } from "@revenuecat/purchases-js";
 import React, { useEffect, useRef } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
 import { usePurchasesLoaderData } from "../../util/PurchasesLoader";
-import Button from "../../components/Button";
 import LogoutButton from "../../components/LogoutButton";
+import { useNavigate } from "react-router-dom";
 
 interface IPackageCardProps {
   pkg: Package;
   offering: Offering;
-  onClick: () => void;
+  purchases: Purchases;
 }
 
 const priceLabels: Record<string, string> = {
@@ -52,8 +47,16 @@ const formattedCombinedPeriod = (
 export const PackageCard: React.FC<IPackageCardProps> = ({
   pkg,
   offering,
-  onClick,
+  purchases,
 }) => {
+  const navigate = useNavigate();
+
+  const applePayButtonref = useRef<HTMLDivElement>(null);
+
+  if (!pkg.webBillingProduct) {
+    return;
+  }
+
   const originalPriceByProduct: Record<string, string> | null =
     (offering.metadata?.original_price_by_product as Record<string, string>) ??
     null;
@@ -126,6 +129,32 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
     );
   };
 
+  useEffect(() => {
+    if (!applePayButtonref.current) return;
+    if (applePayButtonref.current.children.length > 0) {
+      console.log("Apple Pay button already rendered, skipping.");
+      return;
+    }
+    if (!purchases) {
+      return;
+    }
+
+    purchases
+      .presentExpressPurchaseButton({
+        rcPackage: pkg,
+        htmlTarget: applePayButtonref.current,
+      })
+      .then((purchaseResult) => {
+        const { customerInfo, redemptionInfo } = purchaseResult;
+        console.log(`CustomerInfo after purchase: ${customerInfo}`);
+        console.log(
+          `RedemptionInfo after purchase: ${JSON.stringify(redemptionInfo)}`,
+        );
+
+        navigate(`/success/${purchases.getAppUserId()}`);
+      });
+  }, [applePayButtonref, purchases]);
+
   return (
     <div className="card">
       {renderTrialBadge()}
@@ -134,52 +163,13 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
 
       <div className="productName">{pkg.webBillingProduct.displayName}</div>
 
-      <div className="packageCTA">
-        <Button
-          caption={trial ? "Start Free Trial" : "Choose plan"}
-          onClick={onClick}
-        />
-      </div>
+      <div className="packageCTA" ref={applePayButtonref}></div>
     </div>
   );
 };
 
 const PaywallPage: React.FC = () => {
-  const navigate = useNavigate();
   const { purchases, offering } = usePurchasesLoaderData();
-  const [searchParams] = useSearchParams();
-  const lang = searchParams.get("lang");
-  const email = searchParams.get("email");
-  const displayName = searchParams.get("$displayName");
-  const nickname = searchParams.get("nickname");
-  const skipSuccessPage = searchParams.get("skipSuccessPage") === "true";
-  const attributesSetRef = useRef(false);
-
-  useEffect(() => {
-    const setAttributes = async () => {
-      if (attributesSetRef.current) return;
-
-      const attributes: { [key: string]: string } = {};
-      if (displayName) {
-        attributes[ReservedCustomerAttribute.DisplayName] = displayName;
-      }
-      if (nickname) {
-        attributes["nickname"] = nickname;
-      }
-
-      if (Object.keys(attributes).length > 0) {
-        try {
-          attributesSetRef.current = true;
-          await purchases.setAttributes(attributes);
-        } catch (error) {
-          attributesSetRef.current = false;
-          console.error("Error setting attributes:", error);
-        }
-      }
-    };
-
-    setAttributes();
-  }, [purchases, displayName, nickname]);
 
   if (!offering) {
     console.error("No offering found");
@@ -189,69 +179,6 @@ const PaywallPage: React.FC = () => {
   if (packages.length == 0) {
     console.error("No packages found in current offering.");
   }
-
-  const onPackageCardClicked = async (pkg: Package) => {
-    if (!pkg.webBillingProduct) {
-      return;
-    }
-
-    const option = pkg.webBillingProduct.defaultSubscriptionOption;
-    console.log(`Purchasing with option ${option?.id}`);
-
-    // Note: Can also easily check for trial/intro pricing using convenience accessors
-    if (pkg.webBillingProduct.freeTrialPhase) {
-      console.log(
-        `Package has free trial: ${pkg.webBillingProduct.freeTrialPhase.periodDuration}`,
-      );
-    }
-    if (pkg.webBillingProduct.introPricePhase) {
-      console.log(
-        `Package has intro pricing: ${pkg.webBillingProduct.introPricePhase.price?.formattedPrice}`,
-      );
-    }
-
-    // How do we complete the purchase?
-    try {
-      const { customerInfo, redemptionInfo, storeTransaction } =
-        await purchases.purchase({
-          rcPackage: pkg,
-          purchaseOption: option,
-          selectedLocale: lang || navigator.language,
-          customerEmail: email || undefined,
-          skipSuccessPage: skipSuccessPage,
-          // @ts-expect-error This method is marked as internal for now but it's public.'
-          labelsOverride: {
-            en: {
-              "payment_entry_page.button_start_trial":
-                "Start {{trialPeriodLabel}} free",
-            },
-          },
-        });
-
-      console.log(`StoreTransaction: ${JSON.stringify(storeTransaction)}`);
-      console.log(
-        `CustomerInfo after purchase: ${JSON.stringify(customerInfo)}`,
-      );
-      console.log(
-        `RedemptionInfo after purchase: ${JSON.stringify(redemptionInfo)}`,
-      );
-
-      let queryParamRedemptionInfoUrl = "";
-      if (redemptionInfo && redemptionInfo.redeemUrl) {
-        queryParamRedemptionInfoUrl = `?redeem_url=${redemptionInfo.redeemUrl}`;
-      }
-
-      navigate(
-        `/success/${purchases.getAppUserId()}${queryParamRedemptionInfoUrl}`,
-      );
-    } catch (e) {
-      if (e instanceof PurchasesError) {
-        console.log(`Error performing purchase: ${e}`);
-      } else {
-        console.error(`Unknown error: ${e}`);
-      }
-    }
-  };
 
   return (
     <>
@@ -267,7 +194,7 @@ const PaywallPage: React.FC = () => {
                 key={pkg.identifier}
                 pkg={pkg}
                 offering={offering}
-                onClick={() => onPackageCardClicked(pkg)}
+                purchases={purchases}
               />
             ) : null,
           )}

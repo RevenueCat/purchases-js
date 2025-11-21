@@ -5,6 +5,7 @@ import type {
   Product,
 } from "./entities/offerings";
 import PurchasesUi from "./ui/purchases-ui.svelte";
+import ApplePayButton from "./ui/apple-pay-button.svelte";
 
 import { type CustomerInfo, toCustomerInfo } from "./entities/customer-info";
 import {
@@ -584,6 +585,46 @@ export class Purchases {
     const infoPerPackage = parseOfferingIntoPackageInfoPerPackage(offering);
 
     return new Promise((resolve, reject) => {
+      const renderForPackage = (
+        element: HTMLElement,
+        selectedPackageId: string,
+      ) => {
+        const pkg = offering.packagesById[selectedPackageId];
+        if (!pkg) {
+          return;
+        }
+
+        element.innerHTML = "";
+        element.style.width = "100%";
+        element.style.marginBottom = "20px";
+
+        this.presentExpressPurchaseButton({
+          rcPackage: pkg,
+          customerEmail: paywallParams.customerEmail,
+          htmlTarget: element,
+        })
+          .then((purchaseResult) => {
+            resolve(purchaseResult);
+          })
+          .catch((err) => reject(err));
+      };
+
+      const walletButtonRender = (
+        element: HTMLElement,
+        selectedPackageId: string,
+      ) => {
+        renderForPackage(element, selectedPackageId);
+
+        return {
+          destroy() {
+            element.innerHTML = "";
+          },
+          update(selectedPackageId: string) {
+            renderForPackage(element, selectedPackageId);
+          },
+        };
+      };
+
       certainHTMLTarget.innerHTML = "";
       const component: ReturnType<typeof mount> = mount(Paywall, {
         target: certainHTMLTarget,
@@ -618,6 +659,7 @@ export class Purchases {
           onError: (err: unknown) => reject(err),
           variablesPerPackage,
           infoPerPackage,
+          walletButtonRender,
         },
       });
 
@@ -734,6 +776,85 @@ export class Purchases {
       rcPackage,
       customerEmail,
       htmlTarget,
+    });
+  }
+
+  /**
+   *
+   * @param params
+   */
+  public async presentExpressPurchaseButton(
+    params: PurchaseParams,
+  ): Promise<PurchaseResult> {
+    const {
+      rcPackage,
+      purchaseOption,
+      htmlTarget,
+      customerEmail,
+      selectedLocale = englishLocale,
+      defaultLocale = englishLocale,
+    } = params;
+
+    if (htmlTarget === undefined) {
+      throw new Error(
+        "htmlTarget is required for presentExpressPurchaseButton",
+      );
+    }
+    const appUserId = this._appUserId;
+
+    const purchaseOptionToUse =
+      purchaseOption ?? rcPackage.webBillingProduct.defaultPurchaseOption;
+
+    const utmParamsMetadata = this._flags.autoCollectUTMAsMetadata
+      ? autoParseUTMParams()
+      : {};
+    const metadata = { ...utmParamsMetadata, ...(params.metadata || {}) };
+
+    const translator = new Translator({}, selectedLocale, defaultLocale);
+
+    // TODO: Track events
+
+    return new Promise((resolve, reject) => {
+      const onFinished = async (
+        operationResult: OperationSessionSuccessfulResult,
+      ) => {
+        Logger.debugLog("Purchase finished");
+
+        const purchaseResult: PurchaseResult = {
+          customerInfo: await this._getCustomerInfoForUserId(appUserId),
+          redemptionInfo: operationResult.redemptionInfo,
+          operationSessionId: operationResult.operationSessionId,
+          storeTransaction: {
+            storeTransactionId: operationResult.storeTransactionIdentifier,
+            productIdentifier: rcPackage.webBillingProduct.identifier,
+            purchaseDate: operationResult.purchaseDate,
+          },
+        };
+        resolve(purchaseResult);
+      };
+
+      const onError = (e: PurchaseFlowError) => {
+        reject(e);
+      };
+
+      mount(ApplePayButton, {
+        target: htmlTarget,
+        props: {
+          appUserId,
+          rcPackage,
+          purchaseOption: purchaseOptionToUse,
+          customerEmail,
+          purchases: this,
+          eventsTracker: this.eventsTracker,
+          brandingInfo: this._brandingInfo,
+          purchaseOperationHelper: this.purchaseOperationHelper,
+          metadata: metadata,
+          customTranslations: params.labelsOverride,
+          translator,
+          onFinished,
+          onError,
+        },
+      });
     });
   }
 
