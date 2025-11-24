@@ -169,7 +169,7 @@ export class PaddleService {
     params,
   }: PaddlePurchase): Promise<OperationSessionSuccessfulResult> {
     const paddleInstance = this.getPaddleInstance();
-    const { appUserId, customerEmail, locale = "en" } = params;
+    const { customerEmail, locale = "en" } = params;
 
     return new Promise<OperationSessionSuccessfulResult>((resolve, reject) => {
       paddleInstance.Update({
@@ -230,9 +230,6 @@ export class PaddleService {
           showAddDiscounts: false,
           showAddTaxId: false,
           allowDiscountRemoval: false,
-        },
-        customData: {
-          rc_user_id: appUserId,
         },
         ...(customerEmail && { customer: { email: customerEmail } }),
       };
