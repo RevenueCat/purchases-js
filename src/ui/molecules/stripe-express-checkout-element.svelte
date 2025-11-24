@@ -22,15 +22,25 @@
   import type {
     ClickResolveDetails,
     StripeExpressCheckoutElementClickEvent,
+    StripeExpressCheckoutElementShippingAddressChangeEvent,
   } from "@stripe/stripe-js/dist/stripe-js/elements/express-checkout";
 
   export interface Props {
     onError: (error: StripeServiceError) => void | Promise<void>;
-    onReady: () => void | Promise<void>;
+    onReady:
+      | (() => void | Promise<void>)
+      | ((
+          event: StripeExpressCheckoutElementReadyEvent,
+        ) => void | Promise<void>);
     onSubmit: (
       paymentMethod: string,
       emailValue: string,
+      event: StripeExpressCheckoutElementConfirmEvent,
     ) => void | Promise<void>;
+    onClick?: (event: StripeExpressCheckoutElementClickEvent) => void;
+    onShippingAddressChange?: (
+      event: StripeExpressCheckoutElementShippingAddressChangeEvent,
+    ) => void;
     elements: StripeElements;
     billingAddressRequired: boolean;
     expressCheckoutOptions?: StripeExpressCheckoutConfiguration;
@@ -41,6 +51,8 @@
     onError,
     onReady,
     onSubmit,
+    onClick,
+    onShippingAddressChange,
     elements,
     billingAddressRequired,
     expressCheckoutOptions,
@@ -61,6 +73,13 @@
       ...(expressCheckoutOptions ? expressCheckoutOptions : {}),
     } as ClickResolveDetails;
     event.resolve(options);
+    onClick && onClick(event);
+  };
+
+  const onShippingAddressChangeCallback = async (
+    event: StripeExpressCheckoutElementShippingAddressChangeEvent,
+  ) => {
+    onShippingAddressChange && onShippingAddressChange(event);
   };
 
   const onLoadErrorCallback = async (event: {
@@ -73,14 +92,18 @@
   const onConfirmCallback = async (
     event: StripeExpressCheckoutElementConfirmEvent,
   ) => {
-    onSubmit(event.expressPaymentType, event.billingDetails?.email ?? "");
+    return onSubmit(
+      event.expressPaymentType,
+      event.billingDetails?.email ?? "",
+      event,
+    );
   };
 
   const onReadyCallback = async (
     event: StripeExpressCheckoutElementReadyEvent,
   ) => {
     hideExpressCheckoutElement = !event.availablePaymentMethods;
-    onReady();
+    onReady(event);
   };
 
   onMount(() => {
@@ -92,6 +115,10 @@
       );
       expressCheckoutElement.mount(`#${expressCheckoutElementId}`);
       expressCheckoutElement.on("ready", onReadyCallback);
+      expressCheckoutElement.on(
+        "shippingaddresschange",
+        onShippingAddressChangeCallback,
+      );
       expressCheckoutElement.on("confirm", onConfirmCallback);
       expressCheckoutElement.on("loaderror", onLoadErrorCallback);
       expressCheckoutElement.on("click", onClickCallback);
