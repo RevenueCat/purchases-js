@@ -104,6 +104,7 @@
     const publicErrorCode = error.getErrorCode();
     switch (error.errorCode) {
       case PurchaseFlowErrorCode.ErrorSettingUpPurchase:
+      case PurchaseFlowErrorCode.InvalidPaddleAPIKeyError:
         return $translator.translate(
           LocalizationKeys.ErrorPageErrorMessageErrorSettingUpPurchase,
           { errorCode: publicErrorCode },
