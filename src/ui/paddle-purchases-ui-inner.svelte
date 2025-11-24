@@ -44,7 +44,7 @@
     {#if currentPage === "loading"}
       <div class="rcb-ui-loading-container">
         <ColLayout gap="medium" align="center">
-          <Spinner />
+          <Spinner color="var(--rc-color-grey-text-dark)" />
           <Typography size="heading-md"
             >{$translator.translate(
               LocalizationKeys.LoadingPageProcessingPayment,

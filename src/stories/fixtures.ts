@@ -468,6 +468,7 @@ export const purchaseFlowErrors = {
   stripeNotActive: new PurchaseFlowError(6),
   stripeInvalidTaxOriginAddress: new PurchaseFlowError(7),
   stripeMissingRequiredPermission: new PurchaseFlowError(8),
+  paddleMissingRequiredPermission: new PurchaseFlowError(9),
 };
 
 export const purchaseResponse = {
@@ -576,8 +577,33 @@ export const brandingInfos: Record<string, BrandingInfoResponse> = {
       color_buttons_primary: "#000000",
       color_error: "#e61054",
       color_form_bg: "#FFFFFF",
-      color_page_bg: "#B9CEF8",
+      color_page_bg: "#114ab8",
       color_product_info_bg: "#114ab8",
+      font: "default",
+      shapes: "default",
+      show_product_description: true,
+    },
+    gateway_tax_collection_enabled: false,
+    brand_font_config: null,
+    sandbox_configuration: {
+      checkout_feedback_form_url: "https://revenuecat.com",
+    },
+  },
+  IgifyPaddle: {
+    id: "app7e12a2a4b3",
+    support_email: "devservices@revenuecat.com",
+    app_icon: "1005820_1739283698.png",
+    app_icon_webp: "1005820_1739283698.webp",
+    app_wordmark: null,
+    app_wordmark_webp: null,
+    app_name: "Igify Paddle",
+    appearance: {
+      color_accent: "#B9CEF8",
+      color_buttons_primary: "#000000",
+      color_error: "#B0171F",
+      color_form_bg: "#FFFFFF",
+      color_page_bg: "#B9CEF8",
+      color_product_info_bg: "#EFF3FA",
       font: "default",
       shapes: "default",
       show_product_description: true,

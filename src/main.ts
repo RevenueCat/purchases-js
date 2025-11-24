@@ -1148,7 +1148,6 @@ export class Purchases {
       callback?.();
 
       Logger.debugLog("Purchase cancelled by user");
-      // TODO: not correct for paddle
       reject(new PurchasesError(ErrorCode.UserCancelledError));
     };
 
