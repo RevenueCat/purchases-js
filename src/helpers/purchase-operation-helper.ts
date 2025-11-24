@@ -35,6 +35,7 @@ export enum PurchaseFlowErrorCode {
   StripeTaxNotActive = 6,
   StripeInvalidTaxOriginAddress = 7,
   StripeMissingRequiredPermission = 8,
+  InvalidPaddleAPIKeyError = 9,
 }
 
 export class PurchaseFlowError extends Error {
@@ -44,19 +45,24 @@ export class PurchaseFlowError extends Error {
     public readonly underlyingErrorMessage?: string | null,
     public readonly purchasesErrorCode?: ErrorCode,
     public readonly extra?: PurchasesErrorExtra,
+    public readonly displayPurchaseFlowErrorCode?: boolean,
   ) {
     super(message);
   }
 
   getErrorCode(): number {
-    return (
-      this.extra?.backendErrorCode ?? this.purchasesErrorCode ?? this.errorCode
-    );
+    const additionalErrorCode =
+      this.extra?.backendErrorCode ?? this.purchasesErrorCode;
+    if (this.displayPurchaseFlowErrorCode) {
+      return this.errorCode ?? additionalErrorCode;
+    }
+    return additionalErrorCode ?? this.errorCode;
   }
 
   static fromPurchasesError(
     e: PurchasesError,
     defaultFlowErrorCode: PurchaseFlowErrorCode,
+    displayPurchaseFlowErrorCode: boolean = false,
   ): PurchaseFlowError {
     let errorCode: PurchaseFlowErrorCode;
     if (e.errorCode === ErrorCode.ProductAlreadyPurchasedError) {
@@ -77,6 +83,7 @@ export class PurchaseFlowError extends Error {
       e.underlyingErrorMessage,
       e.errorCode,
       e.extra,
+      displayPurchaseFlowErrorCode,
     );
   }
 
@@ -90,6 +97,8 @@ export class PurchaseFlowError extends Error {
         return PurchaseFlowErrorCode.StripeInvalidTaxOriginAddress;
       case BackendErrorCode.BackendGatewaySetupErrorMissingRequiredPermission:
         return PurchaseFlowErrorCode.StripeMissingRequiredPermission;
+      case BackendErrorCode.BackendInvalidPaddleAPIKey:
+        return PurchaseFlowErrorCode.InvalidPaddleAPIKeyError;
       default:
         return null;
     }

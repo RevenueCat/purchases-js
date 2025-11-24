@@ -37,6 +37,7 @@ export enum ErrorCode {
   SignatureVerificationError = 36,
   InvalidEmailError = 38,
   TestStoreSimulatedPurchaseError = 42,
+  InvalidPaddleAPIKeyError = 43,
 }
 
 export class ErrorCodeUtils {
@@ -92,6 +93,7 @@ export class ErrorCodeUtils {
       case ErrorCode.LogOutWithAnonymousUserError:
         return "Called logOut but the current user is anonymous.";
       case ErrorCode.ConfigurationError:
+      case ErrorCode.InvalidPaddleAPIKeyError:
         return "There is an issue with your configuration. Check the underlying error for more details.";
       case ErrorCode.UnsupportedError:
         return (
@@ -130,6 +132,8 @@ export class ErrorCodeUtils {
       case BackendErrorCode.BackendInvalidAuthToken:
       case BackendErrorCode.BackendInvalidAPIKey:
         return ErrorCode.InvalidCredentialsError;
+      case BackendErrorCode.BackendInvalidPaddleAPIKey:
+        return ErrorCode.InvalidPaddleAPIKeyError;
       case BackendErrorCode.BackendInvalidPaymentModeOrIntroPriceNotProvided:
       case BackendErrorCode.BackendProductIdForGoogleReceiptNotProvided:
       case BackendErrorCode.BackendOfferNotFound:
@@ -190,6 +194,8 @@ export class ErrorCodeUtils {
         return ErrorCode.PurchaseInvalidError;
       case PurchaseFlowErrorCode.AlreadyPurchasedError:
         return ErrorCode.ProductAlreadyPurchasedError;
+      case PurchaseFlowErrorCode.InvalidPaddleAPIKeyError:
+        return ErrorCode.InvalidPaddleAPIKeyError;
       default:
         return ErrorCode.UnknownError;
     }
@@ -231,6 +237,7 @@ export enum BackendErrorCode {
   BackendGatewaySetupErrorInvalidTaxOriginAddress = 7899,
   BackendGatewaySetupErrorMissingRequiredPermission = 7900,
   BackendGatewaySetupErrorSandboxModeOnly = 7901,
+  BackendInvalidPaddleAPIKey = 7967,
 }
 
 /**

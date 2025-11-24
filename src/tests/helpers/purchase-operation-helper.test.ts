@@ -23,7 +23,7 @@ import {
 } from "../../networking/responses/checkout-status-response";
 import { type IEventsTracker } from "../../behavioural-events/events-tracker";
 import { checkoutStartResponse } from "../test-responses";
-import { BackendErrorCode } from "../../entities/errors";
+import { BackendErrorCode, ErrorCode } from "../../entities/errors";
 import { checkoutCalculateTaxResponse } from "../../stories/fixtures";
 
 describe("PurchaseOperationHelper", () => {
@@ -164,6 +164,35 @@ describe("PurchaseOperationHelper", () => {
         PurchaseFlowErrorCode.AlreadyPurchasedError,
         "This product is already active for the user.",
         "This subscriber is already subscribed to the requested product.",
+      ),
+    );
+  });
+
+  test("checkoutStart fails if Paddle API key is invalid", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(
+        {
+          code: BackendErrorCode.BackendInvalidPaddleAPIKey,
+          message: "Invalid or expired Paddle API Key.",
+        },
+        { status: StatusCodes.UNAUTHORIZED },
+      ),
+    );
+    await expectPromiseToPurchaseFlowError(
+      purchaseOperationHelper.checkoutStart(
+        "test-app-user-id",
+        "test-product-id",
+        { id: "test-option-id", priceId: "test-price-id" },
+        {
+          offeringIdentifier: "test-offering-id",
+          targetingContext: null,
+          placementIdentifier: null,
+        },
+      ),
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.InvalidPaddleAPIKeyError,
+        "There is an issue with your configuration. Check the underlying error for more details.",
+        "Invalid or expired Paddle API Key.",
       ),
     );
   });
@@ -817,6 +846,70 @@ describe("PurchaseOperationHelper", () => {
         "Unknown error code received",
       ),
     );
+  });
+
+  test("getErrorCode returns backendErrorCode when displayPurchaseFlowErrorCode is false", () => {
+    const error = new PurchaseFlowError(
+      PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+      "Test error",
+      null,
+      undefined,
+      { backendErrorCode: BackendErrorCode.BackendInvalidPaddleAPIKey },
+      false,
+    );
+    expect(error.getErrorCode()).toBe(
+      BackendErrorCode.BackendInvalidPaddleAPIKey,
+    );
+  });
+
+  test("getErrorCode returns PurchaseFlowErrorCode when displayPurchaseFlowErrorCode is true", () => {
+    const error = new PurchaseFlowError(
+      PurchaseFlowErrorCode.InvalidPaddleAPIKeyError,
+      "Test error",
+      null,
+      undefined,
+      { backendErrorCode: BackendErrorCode.BackendInvalidPaddleAPIKey },
+      true,
+    );
+    expect(error.getErrorCode()).toBe(
+      PurchaseFlowErrorCode.InvalidPaddleAPIKeyError,
+    );
+  });
+
+  test("getErrorCode returns purchasesErrorCode when displayPurchaseFlowErrorCode is false and no backendErrorCode", () => {
+    const error = new PurchaseFlowError(
+      PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+      "Test error",
+      null,
+      ErrorCode.InvalidPaddleAPIKeyError,
+      undefined,
+      false,
+    );
+    expect(error.getErrorCode()).toBe(ErrorCode.InvalidPaddleAPIKeyError);
+  });
+
+  test("getErrorCode returns PurchaseFlowErrorCode when displayPurchaseFlowErrorCode is true and no additional error code", () => {
+    const error = new PurchaseFlowError(
+      PurchaseFlowErrorCode.NetworkError,
+      "Test error",
+      null,
+      undefined,
+      undefined,
+      true,
+    );
+    expect(error.getErrorCode()).toBe(PurchaseFlowErrorCode.NetworkError);
+  });
+
+  test("getErrorCode falls back to PurchaseFlowErrorCode when displayPurchaseFlowErrorCode is false and no additional error code", () => {
+    const error = new PurchaseFlowError(
+      PurchaseFlowErrorCode.NetworkError,
+      "Test error",
+      null,
+      undefined,
+      undefined,
+      false,
+    );
+    expect(error.getErrorCode()).toBe(PurchaseFlowErrorCode.NetworkError);
   });
 });
 

@@ -12,7 +12,7 @@ import {
   CheckoutEventNames,
 } from "@paddle/paddle-js";
 import { Logger } from "../helpers/logger";
-import { PurchasesError } from "../entities/errors";
+import { ErrorCode, PurchasesError } from "../entities/errors";
 import {
   PurchaseFlowError,
   PurchaseFlowErrorCode,
@@ -151,6 +151,7 @@ export class PaddleService {
         throw PurchaseFlowError.fromPurchasesError(
           error,
           PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+          error.errorCode === ErrorCode.InvalidPaddleAPIKeyError,
         );
       } else {
         throw new PurchaseFlowError(
