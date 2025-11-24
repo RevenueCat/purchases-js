@@ -68,7 +68,7 @@
   name="Error"
   args={{
     currentPage: "error",
-    lastError: purchaseFlowErrors.errorSettingUpPurchase,
+    lastError: purchaseFlowErrors.alreadyPurchasedError,
   }}
 />
 
@@ -76,7 +76,7 @@
   name="Error with Sandbox Banner"
   args={{
     currentPage: "error",
-    lastError: purchaseFlowErrors.errorSettingUpPurchase,
+    lastError: purchaseFlowErrors.paddleMissingRequiredPermission,
     isSandbox: true,
   }}
 />

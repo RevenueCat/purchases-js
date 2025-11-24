@@ -1,8 +1,14 @@
 <script lang="ts">
   import Icon from "../../assets/spinner.svg?raw";
+
+  export type Props = {
+    color?: string;
+  };
+
+  const { color = "var(--rc-color-accent)" }: Props = $props();
 </script>
 
-<div style="color:var(--rc-color-accent);" class="rcb-ui-asset-icon">
+<div style="color:{color};" class="rcb-ui-asset-icon">
   {@html Icon}
 </div>
 

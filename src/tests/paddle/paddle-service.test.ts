@@ -262,6 +262,7 @@ describe("PaddleService", () => {
         "Request: postCheckoutStart. Status code: 500. Body: null.",
         ErrorCode.UnknownBackendError,
         { backendErrorCode: undefined },
+        false,
       );
 
       await expect(
@@ -289,6 +290,7 @@ describe("PaddleService", () => {
         "This subscriber is already subscribed to the requested product.",
         ErrorCode.ProductAlreadyPurchasedError,
         { backendErrorCode: BackendErrorCode.BackendAlreadySubscribedError },
+        false,
       );
 
       await expect(
@@ -336,9 +338,6 @@ describe("PaddleService", () => {
       expect(mockPaddleInstance.Update).toHaveBeenCalled();
       expect(mockPaddleInstance.Checkout?.open).toHaveBeenCalledWith({
         transactionId: "test-transaction-id",
-        customData: {
-          rc_user_id: "test-app-user-id",
-        },
         settings: expect.any(Object),
       });
 
