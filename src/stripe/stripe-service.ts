@@ -172,7 +172,7 @@ export class StripeService {
     return { stripe, elements };
   }
 
-  static async updateElementsConfiguration(
+  static updateElementsConfiguration(
     elements: StripeElements,
     elementsConfiguration: StripeElementsConfiguration,
   ) {
@@ -242,6 +242,22 @@ export class StripeService {
     } as StripeExpressCheckoutElementOptions;
 
     return elements.create("expressCheckout", options);
+  }
+
+  static updateExpressCheckoutElement(
+    elements: StripeElements,
+    expressCheckoutOptions?: StripeExpressCheckoutConfiguration,
+  ) {
+    const options = {
+      ...(expressCheckoutOptions ? expressCheckoutOptions : {}),
+    } as StripeExpressCheckoutElementOptions;
+
+    const express = elements.getElement("expressCheckout");
+    if (!express) {
+      return;
+    }
+
+    return express.update(options);
   }
 
   static createLinkAuthenticationElement(

@@ -22,7 +22,11 @@
   import type { GatewayParams } from "../networking/responses/stripe-elements";
   import ExpressCheckoutElement from "./molecules/stripe-express-checkout-element.svelte";
   import { onMount, setContext } from "svelte";
-  import type { Stripe, StripeElements } from "@stripe/stripe-js";
+  import type {
+    Stripe,
+    StripeElements,
+    StripeExpressCheckoutElementConfirmEvent,
+  } from "@stripe/stripe-js";
   import { StripeService, StripeServiceError } from "../stripe/stripe-service";
   import { getInitialPriceFromPurchaseOption } from "../helpers/purchase-option-price-helper";
   import type { TaxBreakdown } from "../networking/responses/checkout-calculate-tax-response";
@@ -30,6 +34,12 @@
   import { writable } from "svelte/store";
   import { translatorContextKey } from "./localization/constants";
   import { brandingContextKey } from "./constants";
+  import type {
+    StripeExpressCheckoutElementClickEvent,
+    StripeExpressCheckoutElementReadyEvent,
+    StripeExpressCheckoutElementShippingAddressChangeEvent,
+  } from "@stripe/stripe-js/dist/stripe-js/elements/express-checkout";
+  import type { ApplePayUpdateOption } from "@stripe/stripe-js/dist/stripe-js/elements/apple-pay";
 
   interface Props {
     customerEmail: string | undefined;
@@ -85,9 +95,10 @@
     initialPrice.amountMicros,
   );
   let totalAmountInMicros: number | null = $state(initialPrice.amountMicros);
+  let currency: string = $state(initialPrice.currency);
 
   let priceBreakdown: PriceBreakdown = $derived({
-    currency: initialPrice.currency,
+    currency: currency,
     totalAmountInMicros,
     totalExcludingTaxInMicros,
     taxCalculationStatus,
@@ -113,7 +124,7 @@
   setContext(translatorContextKey, translatorStore);
   setContext(brandingContextKey, brandingInfo?.appearance);
 
-  const initStripe = async () => {
+  const initStripe = async (gatewayParams: GatewayParams) => {
     const stripeAccountId = gatewayParams.stripe_account_id;
     const publishableApiKey = gatewayParams.publishable_api_key;
     const stripeLocale = StripeService.getStripeLocale(
@@ -174,20 +185,34 @@
   };
 
   onMount(async () => {
-    purchaseOperationHelper
-      .checkoutStart(
-        appUserId,
-        productId,
-        purchaseOption,
-        rcPackage.webBillingProduct.presentedOfferingContext,
-        email,
-        metadata,
-      )
-      .then((result) => {
-        gatewayParams = result.gateway_params;
-        managementUrl = result.management_url;
-        initStripe();
-      });
+    if (managementUrl) {
+      return;
+    }
+
+    const checkoutStartResult = await purchaseOperationHelper.checkoutStart(
+      appUserId,
+      productId,
+      purchaseOption,
+      rcPackage.webBillingProduct.presentedOfferingContext,
+      email,
+      metadata,
+    );
+
+    managementUrl = checkoutStartResult.management_url;
+    gatewayParams = checkoutStartResult.gateway_params;
+
+    const calculationResponse =
+      await purchaseOperationHelper.checkoutCalculateTax();
+    totalExcludingTaxInMicros =
+      calculationResponse.total_excluding_tax_in_micros;
+    taxAmountInMicros = calculationResponse.total_amount_in_micros;
+    taxBreakdown = calculationResponse.tax_breakdown;
+    totalExcludingTaxInMicros =
+      calculationResponse.total_excluding_tax_in_micros;
+    currency = calculationResponse.currency;
+    gatewayParams = { ...gatewayParams, ...calculationResponse.gateway_params };
+
+    await initStripe(gatewayParams);
   });
 
   const onStripeElementsLoadingError = (_: StripeServiceError) => {
@@ -196,7 +221,31 @@
     );
   };
 
-  const onExpressCheckoutElementReady = () => {};
+  const onExpressCheckoutElementReady = (
+    evt: StripeExpressCheckoutElementReadyEvent,
+  ) => {
+    console.log(evt);
+  };
+
+  const onShippingAddressChange = (
+    evt: StripeExpressCheckoutElementShippingAddressChangeEvent,
+  ) => {
+    if (!elements) {
+      return;
+    }
+
+    if (!expressCheckoutOptions) {
+      return;
+    }
+
+    evt.resolve({
+      applePay: expressCheckoutOptions.applePay as ApplePayUpdateOption,
+    });
+  };
+
+  const onClick = (e: StripeExpressCheckoutElementClickEvent) => {
+    console.log(e);
+  };
 
   // Helper function to confirm the elements
   async function confirmElements(
@@ -222,36 +271,113 @@
     return completeResponse?.gateway_params?.client_secret;
   }
 
-  async function submitPayment(email: string): Promise<boolean> {
+  async function submitPayment(
+    email: string,
+    event: StripeExpressCheckoutElementConfirmEvent,
+  ): Promise<boolean> {
     if (!elements || !stripe) return false;
+    const billingAddress = event.billingDetails?.address;
+
+    const billingDetails = {
+      countryCode: billingAddress?.country ?? undefined,
+      postalCode: billingAddress?.postal_code ?? undefined,
+    };
+
+    const calculationResponse =
+      await purchaseOperationHelper.checkoutCalculateTax(
+        billingDetails.countryCode,
+        billingDetails.postalCode,
+      );
+    totalExcludingTaxInMicros =
+      calculationResponse.total_excluding_tax_in_micros;
+    taxAmountInMicros = calculationResponse.total_amount_in_micros;
+    taxBreakdown = calculationResponse.tax_breakdown;
+    totalExcludingTaxInMicros =
+      calculationResponse.total_excluding_tax_in_micros;
+    currency = calculationResponse.currency;
+    const newGatewayParams = {
+      ...gatewayParams,
+      ...calculationResponse.gateway_params,
+    };
+    gatewayParams = newGatewayParams;
+
+    /**
+     const newPB: PriceBreakdown = {
+     currency: currency,
+     totalAmountInMicros: totalAmountInMicros!,
+     totalExcludingTaxInMicros,
+     taxCalculationStatus,
+     taxAmountInMicros,
+     taxBreakdown,
+     };
+
+     const newCheckoutOptions = StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+     productDetails,
+     newPB,
+     subscriptionOption,
+     translator,
+     managementUrl!,
+     );
+
+
+     if (totalAmountInMicros !== calculationResponse.total_amount_in_micros || taxAmountInMicros !== calculationResponse.tax_amount_in_micros) {
+     console.log("failing payment due to tax change");
+     event.paymentFailed({
+     message: "Different taxes apply for this card.",
+     });
+
+     setTimeout(() => {
+     if (!elements) {
+     return;
+     }
+
+     StripeService.updateElementsConfiguration(elements, newGatewayParams.elements_configuration);
+     StripeService.updateExpressCheckoutElement(
+     elements,
+     newCheckoutOptions,
+     );
+     elements.getElement('expressCheckout')?.blur()
+     }, 500);
+
+
+     return false;
+     }
+     **/
+
     await StripeService.submitElements(elements);
+    const newClientSecret = await completeCheckout(email);
     const { confirmationTokenId } =
       await StripeService.extractTaxCustomerDetails(elements, stripe);
-    // TODO: Deal with taxes here.
-    const newClientSecret = await completeCheckout(email);
     await confirmElements(confirmationTokenId, newClientSecret ?? undefined);
     return true;
   }
 
-  const onExpressCheckoutElementSubmit = (_: string, emailValue: string) => {
+  const onExpressCheckoutElementSubmit = (
+    _: string,
+    emailValue: string,
+    event: StripeExpressCheckoutElementConfirmEvent,
+  ) => {
     if (busy) {
       return;
     }
     busy = true;
-    submitPayment(emailValue).then((success) => {
-      busy = false;
-      if (!success) {
-        return;
-      }
-      purchaseOperationHelper
-        .pollCurrentPurchaseForCompletion()
-        .then((pollResult) => {
-          onFinished(pollResult);
-        })
-        .catch((error: PurchaseFlowError) => {
-          onError(error);
-        });
-    });
+
+    submitPayment(emailValue, event)
+      .then((success) => {
+        busy = false;
+        if (!success) {
+          return;
+        }
+        purchaseOperationHelper
+          .pollCurrentPurchaseForCompletion()
+          .then((pollResult) => {
+            onFinished(pollResult);
+          })
+          .catch((error: PurchaseFlowError) => {
+            onError(error);
+          });
+      })
+      .catch((_) => (busy = false));
   };
 
   const billingAddressRequired = true;
@@ -263,7 +389,9 @@
       {elements}
       onError={onStripeElementsLoadingError}
       onReady={onExpressCheckoutElementReady}
+      {onShippingAddressChange}
       onSubmit={onExpressCheckoutElementSubmit}
+      {onClick}
       {expressCheckoutOptions}
       {billingAddressRequired}
       hideOtherOptions={true}
