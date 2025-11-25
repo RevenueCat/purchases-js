@@ -201,17 +201,6 @@
     managementUrl = checkoutStartResult.management_url;
     gatewayParams = checkoutStartResult.gateway_params;
 
-    const calculationResponse =
-      await purchaseOperationHelper.checkoutCalculateTax();
-    totalExcludingTaxInMicros =
-      calculationResponse.total_excluding_tax_in_micros;
-    taxAmountInMicros = calculationResponse.total_amount_in_micros;
-    taxBreakdown = calculationResponse.tax_breakdown;
-    totalExcludingTaxInMicros =
-      calculationResponse.total_excluding_tax_in_micros;
-    currency = calculationResponse.currency;
-    gatewayParams = { ...gatewayParams, ...calculationResponse.gateway_params };
-
     await initStripe(gatewayParams);
   });
 
@@ -300,49 +289,6 @@
       ...calculationResponse.gateway_params,
     };
     gatewayParams = newGatewayParams;
-
-    /**
-     const newPB: PriceBreakdown = {
-     currency: currency,
-     totalAmountInMicros: totalAmountInMicros!,
-     totalExcludingTaxInMicros,
-     taxCalculationStatus,
-     taxAmountInMicros,
-     taxBreakdown,
-     };
-
-     const newCheckoutOptions = StripeService.buildStripeExpressCheckoutOptionsForSubscription(
-     productDetails,
-     newPB,
-     subscriptionOption,
-     translator,
-     managementUrl!,
-     );
-
-
-     if (totalAmountInMicros !== calculationResponse.total_amount_in_micros || taxAmountInMicros !== calculationResponse.tax_amount_in_micros) {
-     console.log("failing payment due to tax change");
-     event.paymentFailed({
-     message: "Different taxes apply for this card.",
-     });
-
-     setTimeout(() => {
-     if (!elements) {
-     return;
-     }
-
-     StripeService.updateElementsConfiguration(elements, newGatewayParams.elements_configuration);
-     StripeService.updateExpressCheckoutElement(
-     elements,
-     newCheckoutOptions,
-     );
-     elements.getElement('expressCheckout')?.blur()
-     }, 500);
-
-
-     return false;
-     }
-     **/
 
     await StripeService.submitElements(elements);
     const newClientSecret = await completeCheckout(email);

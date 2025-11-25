@@ -1,4 +1,9 @@
-import type { Offering, Package, Purchases } from "@revenuecat/purchases-js";
+import type {
+  Offering,
+  Package,
+  PurchaseResult,
+  Purchases,
+} from "@revenuecat/purchases-js";
 import React, { useEffect, useRef } from "react";
 import { usePurchasesLoaderData } from "../../util/PurchasesLoader";
 import LogoutButton from "../../components/LogoutButton";
@@ -140,11 +145,12 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
     }
 
     purchases
+      // @ts-expect-error - using an internal method while still in development.
       .presentExpressPurchaseButton({
         rcPackage: pkg,
         htmlTarget: applePayButtonref.current,
       })
-      .then((purchaseResult) => {
+      .then((purchaseResult: PurchaseResult) => {
         const { customerInfo, redemptionInfo } = purchaseResult;
         console.log(`CustomerInfo after purchase: ${customerInfo}`);
         console.log(
