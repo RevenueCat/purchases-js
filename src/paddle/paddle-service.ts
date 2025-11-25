@@ -151,7 +151,7 @@ export class PaddleService {
         throw PurchaseFlowError.fromPurchasesError(
           error,
           PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-          error.errorCode === ErrorCode.InvalidPaddleAPIKeyError,
+          error.errorCode === ErrorCode.InvalidCredentialsError,
         );
       } else {
         throw new PurchaseFlowError(

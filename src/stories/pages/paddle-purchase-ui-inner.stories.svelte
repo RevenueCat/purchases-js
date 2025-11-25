@@ -33,6 +33,7 @@
         modes: brandingLanguageViewportModes,
       },
     },
+    // @ts-expect-error ignore importing before initializing
     render: template,
   });
   type StoryArgs = any;

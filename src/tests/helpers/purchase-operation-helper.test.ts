@@ -191,7 +191,7 @@ describe("PurchaseOperationHelper", () => {
       ),
       new PurchaseFlowError(
         PurchaseFlowErrorCode.InvalidPaddleAPIKeyError,
-        "There is an issue with your configuration. Check the underlying error for more details.",
+        "There was a credentials issue. Check the underlying error for more details.",
         "Invalid or expired Paddle API Key.",
       ),
     );
@@ -881,11 +881,11 @@ describe("PurchaseOperationHelper", () => {
       PurchaseFlowErrorCode.ErrorSettingUpPurchase,
       "Test error",
       null,
-      ErrorCode.InvalidPaddleAPIKeyError,
+      ErrorCode.InvalidCredentialsError,
       undefined,
       false,
     );
-    expect(error.getErrorCode()).toBe(ErrorCode.InvalidPaddleAPIKeyError);
+    expect(error.getErrorCode()).toBe(ErrorCode.InvalidCredentialsError);
   });
 
   test("getErrorCode returns PurchaseFlowErrorCode when displayPurchaseFlowErrorCode is true and no additional error code", () => {
