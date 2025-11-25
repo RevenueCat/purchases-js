@@ -9,8 +9,6 @@ const __dirname = dirname(__filename);
 
 export default defineConfig({
   build: {
-    // TODO: Remove, this is only here to test the build. Raise your hand if it makes it to the PR XD
-    minify: false,
     lib: {
       entry: resolve(__dirname, "src/main.ts"),
       name: "Purchases",

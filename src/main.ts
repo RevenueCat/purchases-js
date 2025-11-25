@@ -5,7 +5,7 @@ import type {
   Product,
 } from "./entities/offerings";
 import PurchasesUi from "./ui/purchases-ui.svelte";
-import ApplePayButton from "./ui/apple-pay-button.svelte";
+import ExpressPurchaseButton from "./ui/express-purchase-button.svelte";
 
 import { type CustomerInfo, toCustomerInfo } from "./entities/customer-info";
 import {
@@ -790,6 +790,7 @@ export class Purchases {
    * @param params - The parameters object to customise the purchase flow. Check {@link PurchaseParams}
    * @returns Promise<PurchaseResult>
    */
+  @requiresLoadedResources
   public async presentExpressPurchaseButton(
     params: PurchaseParams,
   ): Promise<PurchaseResult> {
@@ -842,7 +843,7 @@ export class Purchases {
         reject(e);
       };
 
-      mount(ApplePayButton, {
+      mount(ExpressPurchaseButton, {
         target: htmlTarget,
         props: {
           appUserId,
