@@ -43,7 +43,7 @@
     class="rcb-fullscreen-wrapper"
     style="{colorVariables}; background-color: {pageBgColor}"
   >
-    <div class="rcb-fullscreen-header">
+    <div class="rcb-fullscreen-header" class:static-header={isInElement}>
       {#if wordmarkSrc !== null}
         <AppWordmark src={wordmarkSrc} srcWebp={wordmarkSrcWebp} />
       {:else if src !== null && srcWebp !== null}
@@ -75,6 +75,10 @@
     padding-bottom: var(--rc-spacing-gapMedium-mobile);
     flex-shrink: 0;
     position: absolute;
+  }
+
+  .rcb-fullscreen-header.static-header {
+    position: static;
   }
 
   .rcb-fullscreen-content {
