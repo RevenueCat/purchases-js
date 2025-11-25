@@ -185,8 +185,6 @@ const PaywallPage: React.FC = () => {
     console.error("No packages found in current offering.");
   }
 
-  const aPackage = [packages[2]];
-
   return (
     <>
       <LogoutButton />
@@ -195,7 +193,7 @@ const PaywallPage: React.FC = () => {
           Subscribe today and <em>save up to 25%!</em>
         </h1>
         <div className="packages">
-          {aPackage.map((pkg) =>
+          {packages.map((pkg) =>
             pkg.webBillingProduct !== null ? (
               <PackageCard
                 key={pkg.identifier}

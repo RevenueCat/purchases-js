@@ -185,6 +185,17 @@ export class StripeService {
     });
   }
 
+  static createLinkAuthenticationElement(
+    elements: StripeElements,
+    email?: string,
+  ) {
+    return elements.create("linkAuthentication", {
+      defaultValues: {
+        email: email ?? "",
+      },
+    });
+  }
+
   static isStripeHandledFormError(error: StripeError) {
     const isValidationError = error.type === "validation_error";
 
