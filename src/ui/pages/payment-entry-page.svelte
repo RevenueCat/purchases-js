@@ -451,7 +451,6 @@
   // Helper function to ensure the totals match
   function ensureMatchingTotals(previousTotal: number | null): () => void {
     return () => {
-      // TODO: This might fail for same price but in different currencies.
       if (totalAmountInMicros !== previousTotal) {
         throw new TaxCustomerDetailsMissMatchError();
       }

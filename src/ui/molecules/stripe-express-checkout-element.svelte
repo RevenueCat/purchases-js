@@ -27,7 +27,7 @@
 
   export interface Props {
     onError: (error: StripeServiceError) => void | Promise<void>;
-    onReady:
+    onReady?:
       | (() => void | Promise<void>)
       | ((
           event: StripeExpressCheckoutElementReadyEvent,
@@ -105,7 +105,7 @@
     event: StripeExpressCheckoutElementReadyEvent,
   ) => {
     hideExpressCheckoutElement = !event.availablePaymentMethods;
-    onReady(event);
+    onReady && onReady(event);
   };
 
   onMount(() => {

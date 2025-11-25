@@ -244,33 +244,6 @@ export class StripeService {
     return elements.create("expressCheckout", options);
   }
 
-  static updateExpressCheckoutElement(
-    elements: StripeElements,
-    expressCheckoutOptions?: StripeExpressCheckoutConfiguration,
-  ) {
-    const options = {
-      ...(expressCheckoutOptions ? expressCheckoutOptions : {}),
-    } as StripeExpressCheckoutElementOptions;
-
-    const express = elements.getElement("expressCheckout");
-    if (!express) {
-      return;
-    }
-
-    return express.update(options);
-  }
-
-  static createLinkAuthenticationElement(
-    elements: StripeElements,
-    email?: string,
-  ) {
-    return elements.create("linkAuthentication", {
-      defaultValues: {
-        email: email ?? "",
-      },
-    });
-  }
-
   static async submitElements(elements: StripeElements) {
     const { error: submitError } = await elements.submit();
     if (submitError) {
