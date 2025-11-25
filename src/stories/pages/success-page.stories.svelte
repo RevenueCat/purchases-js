@@ -61,6 +61,7 @@
     onError={() => {}}
     onClose={() => {}}
     managementUrl="http://test.com"
+    forceEnableWalletMethods={false}
   />
 {/snippet}
 

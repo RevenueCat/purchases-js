@@ -81,6 +81,7 @@
     onClose={() => {}}
     managementUrl="http://test.com"
     termsAndConditionsUrl={args.termsAndConditionsUrl}
+    forceEnableWalletMethods={false}
   />
 {/snippet}
 

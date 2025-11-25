@@ -33,6 +33,7 @@
     elementsConfiguration?: StripeElementsConfiguration;
     expressCheckoutOptions?: StripeExpressCheckoutConfiguration;
     brandingInfo: BrandingInfoResponse | null;
+    forceEnableWalletMethods: boolean;
     skipEmail: boolean;
     billingAddressRequired: boolean;
     onLoadingComplete: () => void;
@@ -56,6 +57,7 @@
     elementsConfiguration,
     expressCheckoutOptions,
     brandingInfo,
+    forceEnableWalletMethods,
     skipEmail,
     billingAddressRequired,
     onLoadingComplete,
@@ -222,6 +224,7 @@
       onReady={onExpressCheckoutElementReady}
       onSubmit={onExpressCheckoutElementSubmit}
       {expressCheckoutOptions}
+      {forceEnableWalletMethods}
       {billingAddressRequired}
     />
     {#if !skipEmail}

@@ -224,11 +224,20 @@ export class StripeService {
   static createExpressCheckoutElement(
     elements: StripeElements,
     billingAddressRequired: boolean,
+    forceEnableWalletMethods: boolean,
     expressCheckoutOptions?: StripeExpressCheckoutConfiguration,
   ) {
     const options = {
       billingAddressRequired,
       emailRequired: true,
+      ...(forceEnableWalletMethods
+        ? {
+            paymentMethods: {
+              applePay: "always",
+              googlePay: "always",
+            },
+          }
+        : {}),
       ...(expressCheckoutOptions ? expressCheckoutOptions : {}),
     } as StripeExpressCheckoutElementOptions;
 

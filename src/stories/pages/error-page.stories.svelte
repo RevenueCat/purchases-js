@@ -63,6 +63,7 @@
     onClose={() => {}}
     lastError={args.lastError}
     managementUrl="http://test.com"
+    forceEnableWalletMethods={false}
   />
 {/snippet}
 
