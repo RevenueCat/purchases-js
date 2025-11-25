@@ -22,6 +22,7 @@
       },
     },
     title: "Layout/FullscreenTemplate",
+    // @ts-expect-error ignore importing before initializing
     render: template,
   });
   type Args = ComponentProps<typeof FullscreenTemplate>;
@@ -55,29 +56,6 @@
   name="With Loading Content"
   args={{ isSandbox: false, isInElement: false }}
 />
-
-<Story
-  name="With Simple Text Content"
-  args={{ isSandbox: false, isInElement: false }}
->
-  {#snippet template(args, context)}
-    {@const brandingInfo = brandingInfos[context.globals.brandingName]}
-    <FullscreenTemplate
-      {brandingInfo}
-      isSandbox={args.isSandbox ?? false}
-      isInElement={args.isInElement ?? false}
-    >
-      {#snippet mainContent()}
-        <div
-          style="text-align: center; display: flex; flex-direction: column; gap: 1rem;"
-        >
-          <Typography size="heading-xl">Howdy</Typography>
-          <Typography size="body-base">Purchase completed</Typography>
-        </div>
-      {/snippet}
-    </FullscreenTemplate>
-  {/snippet}
-</Story>
 
 <Story
   name="With Sandbox Banner"
