@@ -58,6 +58,24 @@ export const DEFAULT_INFO_COLORS: Colors = {
   background: "#EFF3FA",
 };
 
+export const DEFAULT_PAGE_COLORS: Colors = {
+  error: "#B0171F",
+  warning: "#f4e971",
+  focus: "#1148B8",
+  accent: "#767676",
+  primary: "#576CDB",
+  "primary-hover": "rgba(87, 108, 219, .8)",
+  "primary-pressed": "rgba(87, 108, 219, .9)",
+  "primary-text": "#ffffff",
+  white: "#ffffff",
+  "grey-text-dark": "rgba(0,0,0,1)",
+  "grey-text-light": "rgba(0,0,0,0.7)",
+  "grey-ui-dark": "rgba(0,0,0,0.3)",
+  "grey-ui-light": "rgba(0,0,0,0.1)",
+  "input-background": "white",
+  background: "#ffffff",
+};
+
 /**
  * Mappings from the colors defined above and the colors downloaded from the BrandingAppearance.
  * Bear in mind that font colors are calculated dynamically given the resulting background color.
@@ -82,4 +100,10 @@ export const InfoColorsToBrandingAppearanceMapping = {
   ...ColorsToBrandingAppearanceMapping,
   "input-background": "color_product_info_bg",
   background: "color_product_info_bg",
+};
+
+export const PageColorsToBrandingAppearanceMapping = {
+  ...ColorsToBrandingAppearanceMapping,
+  "input-background": "color_page_bg",
+  background: "color_page_bg",
 };

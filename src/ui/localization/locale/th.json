@@ -95,5 +95,8 @@
   "payment_entry_page.subscription_info": "การสมัครรับข้อมูลจะต่ออายุโดยอัตโนมัติ ยกเลิกได้ตลอดเวลา",
   "payment_entry_page.otp_terms_info": "เมื่อทำการซื้อ คุณตกลงที่จะอนุญาตให้ {{appName}} เรียกเก็บเงินจากคุณตามข้อกำหนดของพวกเขา",
   "payment_entry_page.terms_link_label": "ข้อกำหนด",
-  "payment_entry_page.subscription_terms_info": "เมื่อสมัครรับข้อมูล แสดงว่าคุณยินยอมให้ {{appName}} เรียกเก็บเงินจากคุณตามข้อกำหนดจนกว่าคุณจะยกเลิก"
+  "payment_entry_page.subscription_terms_info": "เมื่อสมัครรับข้อมูล แสดงว่าคุณยินยอมให้ {{appName}} เรียกเก็บเงินจากคุณตามข้อกำหนดจนกว่าคุณจะยกเลิก",
+  "loading_page.keep_page_open": "กระบวนการเกือบเสร็จสมบูรณ์แล้ว โปรดเปิดหน้านี้ไว้",
+  "loading_page.processing_payment": "กำลังดำเนินการชำระเงิน",
+  "success_page.button_return_to_app": "กลับไปที่ {{appName}}"
 }

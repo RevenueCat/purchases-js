@@ -1,7 +1,7 @@
 <script lang="ts">
   import AppLogo from "../atoms/app-logo.svelte";
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
-  import { buildAssetURL } from "../../networking/assets";
+  import { buildBrandingSources } from "../../helpers/build-branding-sources";
   import Typography from "../atoms/typography.svelte";
   import BackButton from "./back-button.svelte";
   import CloseButton from "./close-button.svelte";
@@ -15,24 +15,8 @@
 
   const { brandingInfo, showCloseButton, onClose }: Props = $props();
 
-  const valueOrNull = (value: string | null | undefined) => {
-    if (value == null) return null;
-    if (value == undefined) return null;
-    if (value == "") return null;
-
-    return value;
-  };
-
-  const appIcon = $derived(valueOrNull(brandingInfo?.app_icon));
-  const webpIcon = $derived(valueOrNull(brandingInfo?.app_icon_webp));
-  const appWordmark = $derived(valueOrNull(brandingInfo?.app_wordmark));
-  const webpWordmark = $derived(valueOrNull(brandingInfo?.app_wordmark_webp));
-
-  const src = $derived(appIcon ? buildAssetURL(appIcon) : null);
-  const srcWebp = $derived(webpIcon ? buildAssetURL(webpIcon) : null);
-  const wordmarkSrc = $derived(appWordmark ? buildAssetURL(appWordmark) : null);
-  const wordmarkSrcWebp = $derived(
-    webpWordmark ? buildAssetURL(webpWordmark) : null,
+  const { wordmarkSrc, wordmarkSrcWebp, src, srcWebp } = $derived(
+    buildBrandingSources(brandingInfo),
   );
 
   const handleCloseClick = () => {

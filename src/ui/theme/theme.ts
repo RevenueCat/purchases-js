@@ -1,6 +1,7 @@
 import {
   toFormColors,
   toFormStyleVar,
+  toPageStyleVar,
   toProductInfoStyleVar,
   toShape,
   toSpacingVars,
@@ -38,6 +39,10 @@ export class Theme {
 
   get productInfoStyleVars() {
     return toProductInfoStyleVar(this.brandingAppearance);
+  }
+
+  get pageStyleVars() {
+    return toPageStyleVar(this.brandingAppearance);
   }
 
   get spacing() {

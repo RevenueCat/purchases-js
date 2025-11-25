@@ -95,5 +95,8 @@
   "payment_entry_page.subscription_info": "La suscripción se renueva automáticamente. Cancela en cualquier momento.",
   "payment_entry_page.otp_terms_info": "Al comprar, aceptas que {{appName}} te cobre de acuerdo con sus términos.",
   "payment_entry_page.terms_link_label": "Términos",
-  "payment_entry_page.subscription_terms_info": "Al suscribirte, aceptas que {{appName}} te cobre de acuerdo con sus términos hasta que canceles."
+  "payment_entry_page.subscription_terms_info": "Al suscribirte, aceptas que {{appName}} te cobre de acuerdo con sus términos hasta que canceles.",
+  "loading_page.keep_page_open": "El proceso está casi terminado. Mantén esta página abierta.",
+  "loading_page.processing_payment": "Procesando el pago",
+  "success_page.button_return_to_app": "Volver a {{appName}}"
 }

@@ -95,5 +95,8 @@
   "payment_entry_page.subscription_info": "Subskrypcja odnawia się automatycznie. Anuluj w dowolnym momencie.",
   "payment_entry_page.otp_terms_info": "Dokonując zakupu, zgadzasz się na obciążenie przez {{appName}} zgodnie z ich warunkami.",
   "payment_entry_page.terms_link_label": "Warunki",
-  "payment_entry_page.subscription_terms_info": "Subskrybując, zgadzasz się na obciążanie przez {{appName}} zgodnie z ich warunkami do momentu anulowania."
+  "payment_entry_page.subscription_terms_info": "Subskrybując, zgadzasz się na obciążanie przez {{appName}} zgodnie z ich warunkami do momentu anulowania.",
+  "loading_page.keep_page_open": "Proces jest prawie zakończony. Pozostaw tę stronę otwartą.",
+  "loading_page.processing_payment": "Przetwarzanie płatności",
+  "success_page.button_return_to_app": "Wróć do {{appName}}"
 }

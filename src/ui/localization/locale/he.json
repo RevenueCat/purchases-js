@@ -95,5 +95,8 @@
   "payment_entry_page.subscription_info": "המנוי מתחדש אוטומטית. ניתן לבטל בכל עת.",
   "payment_entry_page.otp_terms_info": "ברכישה, אתה מסכים לאפשר ל-{{appName}} לחייב אותך בהתאם לתנאים שלהם.",
   "payment_entry_page.terms_link_label": "תנאים",
-  "payment_entry_page.subscription_terms_info": "על ידי הרשמה כמנוי, אתה מסכים לאפשר ל-{{appName}} לחייב אותך בהתאם לתנאים שלהם עד שתבטל."
+  "payment_entry_page.subscription_terms_info": "על ידי הרשמה כמנוי, אתה מסכים לאפשר ל-{{appName}} לחייב אותך בהתאם לתנאים שלהם עד שתבטל.",
+  "loading_page.keep_page_open": "התהליך כמעט הסתיים. השאר דף זה פתוח.",
+  "loading_page.processing_payment": "מעבד תשלום תבעה",
+  "success_page.button_return_to_app": "חזור אל {{appName}}"
 }

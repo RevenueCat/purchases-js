@@ -27,7 +27,7 @@
 </script>
 
 <div class="rcb-modal-message" data-type="error" data-has-title={!!title}>
-  <ColLayout gap="medium" align="start">
+  <ColLayout gap="medium" justify="start">
     <RowLayout>
       {#if icon}
         <div

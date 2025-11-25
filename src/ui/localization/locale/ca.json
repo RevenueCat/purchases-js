@@ -95,5 +95,8 @@
   "payment_entry_page.subscription_info": "La subscripció es renova automàticament. Cancel·leu-la quan vulgueu.",
   "payment_entry_page.otp_terms_info": "En comprar, accepteu que {{appName}} us cobri d'acord amb les seves condicions.",
   "payment_entry_page.terms_link_label": "Condicions",
-  "payment_entry_page.subscription_terms_info": "En subscriure-us, accepteu que {{appName}} us cobri d'acord amb les seves condicions fins que ho cancel·leu."
+  "payment_entry_page.subscription_terms_info": "En subscriure-us, accepteu que {{appName}} us cobri d'acord amb les seves condicions fins que ho cancel·leu.",
+  "loading_page.keep_page_open": "El procés està gairebé acabat. Mantingueu aquesta pàgina oberta.",
+  "loading_page.processing_payment": "S'està processant el pagament",
+  "success_page.button_return_to_app": "Torna a {{appName}}"
 }

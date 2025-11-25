@@ -10,7 +10,7 @@ import {
 } from "../entities/offerings";
 import { PeriodUnit } from "../helpers/duration-helper";
 import { PurchaseFlowError } from "../helpers/purchase-operation-helper";
-import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
+import type { WebBillingCheckoutStartResponse } from "../networking/responses/checkout-start-response";
 import type { BrandingAppearance } from "../entities/branding";
 import type { CheckoutCalculateTaxResponse } from "../networking/responses/checkout-calculate-tax-response";
 import {
@@ -468,6 +468,7 @@ export const purchaseFlowErrors = {
   stripeNotActive: new PurchaseFlowError(6),
   stripeInvalidTaxOriginAddress: new PurchaseFlowError(7),
   stripeMissingRequiredPermission: new PurchaseFlowError(8),
+  paddleMissingRequiredPermission: new PurchaseFlowError(9),
 };
 
 export const purchaseResponse = {
@@ -490,7 +491,7 @@ export const stripeElementsConfiguration = {
 const publishableApiKey = import.meta.env.VITE_STORYBOOK_PUBLISHABLE_API_KEY;
 const accountId = import.meta.env.VITE_STORYBOOK_ACCOUNT_ID;
 
-export const checkoutStartResponse: CheckoutStartResponse = {
+export const checkoutStartResponse: WebBillingCheckoutStartResponse = {
   operation_session_id: "rcbopsess_test_test_test",
   gateway_params: {
     publishable_api_key: publishableApiKey,
@@ -498,6 +499,7 @@ export const checkoutStartResponse: CheckoutStartResponse = {
     elements_configuration: stripeElementsConfiguration,
   },
   management_url: "https://manage.revenuecat.com/test_test_test",
+  paddle_billing_params: null,
 };
 
 export const checkoutCalculateTaxResponse: CheckoutCalculateTaxResponse = {
@@ -577,6 +579,31 @@ export const brandingInfos: Record<string, BrandingInfoResponse> = {
       color_form_bg: "#FFFFFF",
       color_page_bg: "#114ab8",
       color_product_info_bg: "#114ab8",
+      font: "default",
+      shapes: "default",
+      show_product_description: true,
+    },
+    gateway_tax_collection_enabled: false,
+    brand_font_config: null,
+    sandbox_configuration: {
+      checkout_feedback_form_url: "https://revenuecat.com",
+    },
+  },
+  IgifyPaddle: {
+    id: "app7e12a2a4b3",
+    support_email: "devservices@revenuecat.com",
+    app_icon: "1005820_1739283698.png",
+    app_icon_webp: "1005820_1739283698.webp",
+    app_wordmark: null,
+    app_wordmark_webp: null,
+    app_name: "Igify Paddle",
+    appearance: {
+      color_accent: "#B9CEF8",
+      color_buttons_primary: "#000000",
+      color_error: "#B0171F",
+      color_form_bg: "#FFFFFF",
+      color_page_bg: "#B9CEF8",
+      color_product_info_bg: "#EFF3FA",
       font: "default",
       shapes: "default",
       show_product_description: true,
