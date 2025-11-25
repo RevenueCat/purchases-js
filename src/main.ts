@@ -659,7 +659,9 @@ export class Purchases {
           onError: (err: unknown) => reject(err),
           variablesPerPackage,
           infoPerPackage,
-          walletButtonRender,
+          walletButtonRender: paywallParams.useExpressPurchaseButtons
+            ? walletButtonRender
+            : undefined,
         },
       });
 
@@ -780,8 +782,13 @@ export class Purchases {
   }
 
   /**
-   *
-   * @param params
+   * Renders an Express Purchase button for the supported wallets (Apple Pay/Google Pay).
+   * When clicked it uses the wallet UI to execute the purchase instead of
+   * the checkout flow that would be shown with `.purchase`.
+   * @internal
+   * @experimental
+   * @param params - The parameters object to customise the purchase flow. Check {@link PurchaseParams}
+   * @returns Promise<PurchaseResult>
    */
   public async presentExpressPurchaseButton(
     params: PurchaseParams,
@@ -811,8 +818,6 @@ export class Purchases {
     const metadata = { ...utmParamsMetadata, ...(params.metadata || {}) };
 
     const translator = new Translator({}, selectedLocale, defaultLocale);
-
-    // TODO: Track events
 
     return new Promise((resolve, reject) => {
       const onFinished = async (

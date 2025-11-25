@@ -398,8 +398,6 @@ export class Purchases {
     // (undocumented)
     isSandbox(): boolean;
     preload(): Promise<void>;
-    // (undocumented)
-    presentExpressPurchaseButton(params: PurchaseParams): Promise<PurchaseResult>;
     presentPaywall(paywallParams: PresentPaywallParams): Promise<PurchaseResult>;
     purchase(params: PurchaseParams): Promise<PurchaseResult>;
     // @deprecated
