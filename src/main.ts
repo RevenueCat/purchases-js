@@ -926,6 +926,14 @@ export class Purchases {
   }
 
   /**
+   * Whether wallet methods should be force-enabled in the Express Checkout Element.
+   * @internal
+   */
+  public _shouldForceEnableWalletMethods(): boolean {
+    return !!this._flags.forceEnableWalletMethods;
+  }
+
+  /**
    * Posts a simulated store receipt to the server.
    * @internal
    * @param product - The product for which we want to post the receipt for.

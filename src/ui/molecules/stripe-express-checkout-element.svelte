@@ -33,6 +33,7 @@
     ) => void | Promise<void>;
     elements: StripeElements;
     billingAddressRequired: boolean;
+    forceEnableWalletMethods: boolean;
     expressCheckoutOptions?: StripeExpressCheckoutConfiguration;
   }
 
@@ -42,6 +43,7 @@
     onSubmit,
     elements,
     billingAddressRequired,
+    forceEnableWalletMethods,
     expressCheckoutOptions,
   }: Props = $props();
 
@@ -85,6 +87,7 @@
       expressCheckoutElement = StripeService.createExpressCheckoutElement(
         elements,
         billingAddressRequired,
+        forceEnableWalletMethods,
         expressCheckoutOptions,
       );
       expressCheckoutElement.mount(`#${expressCheckoutElementId}`);

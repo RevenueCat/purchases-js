@@ -28,6 +28,7 @@
     gatewayParams: GatewayParams;
     managementUrl: string | null;
     customerEmail: string | null;
+    forceEnableWalletMethods: boolean;
     defaultPriceBreakdown?: PriceBreakdown;
     termsAndConditionsUrl?: string;
     closeWithError: () => void;
@@ -48,6 +49,7 @@
     gatewayParams,
     managementUrl,
     customerEmail,
+    forceEnableWalletMethods,
     defaultPriceBreakdown,
     termsAndConditionsUrl,
     closeWithError,
@@ -107,6 +109,7 @@
         {gatewayParams}
         {managementUrl}
         {customerEmail}
+        {forceEnableWalletMethods}
         {defaultPriceBreakdown}
         {termsAndConditionsUrl}
         {onContinue}

@@ -57,6 +57,7 @@
     brandingInfo: BrandingInfoResponse | null;
     purchaseOperationHelper: PurchaseOperationHelper;
     customerEmail: string | null;
+    forceEnableWalletMethods: boolean;
     defaultPriceBreakdown?: PriceBreakdown;
     termsAndConditionsUrl?: string | null;
     onContinue: () => void;
@@ -76,6 +77,7 @@
     brandingInfo,
     purchaseOperationHelper,
     customerEmail,
+    forceEnableWalletMethods,
     defaultPriceBreakdown,
     termsAndConditionsUrl,
     onContinue,
@@ -566,6 +568,7 @@
           publishableApiKey={gatewayParams.publishable_api_key}
           {elementsConfiguration}
           {brandingInfo}
+          {forceEnableWalletMethods}
           skipEmail={!!customerEmail}
           billingAddressRequired={taxCalculationStatus !== "disabled"}
           onLoadingComplete={handleStripeLoadingComplete}

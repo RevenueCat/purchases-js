@@ -31,6 +31,21 @@ export interface FlagsConfig {
    * @internal
    */
   allowPaddleAPIKey?: boolean;
+
+  /**
+   * If set to `true`, the SDK will force the display of Apple Pay and Google Pay
+   * buttons on supported platforms, even when the customer is not signed in to
+   * their wallet. This may result in a sign-in flow being triggered.
+   *
+   * Useful for increasing wallet visibility, particularly on platforms like
+   * desktop Chromium (macOS), where Apple Pay requires explicit enabling.
+   *
+   * Default behavior (`false`) relies on Stripe's auto-detection to optimize
+   * for conversion.
+   * @defaultValue false
+   * @internal
+   */
+  forceEnableWalletMethods?: boolean;
 }
 
 export const defaultFlagsConfig: FlagsConfig = {

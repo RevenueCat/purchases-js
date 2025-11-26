@@ -130,6 +130,13 @@
 
   setContext(eventsTrackerContextKey, eventsTracker);
 
+  // Internal flag to control wallet methods visibility
+  let forceEnableWalletMethods: boolean = $state(
+    typeof purchases._shouldForceEnableWalletMethods === "function"
+      ? purchases._shouldForceEnableWalletMethods()
+      : false,
+  );
+
   onMount(async () => {
     if (productId === null) {
       handleError(
@@ -242,6 +249,7 @@
   {purchaseOperationHelper}
   {isInElement}
   {termsAndConditionsUrl}
+  {forceEnableWalletMethods}
   customerEmail={email ?? null}
   {closeWithError}
   onContinue={handleContinue}
