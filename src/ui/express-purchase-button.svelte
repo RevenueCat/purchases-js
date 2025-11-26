@@ -242,7 +242,6 @@
       stripe,
     );
 
-    // We'll charge the customer with the ip based tax.
     await StripeService.confirmElements(
       stripe,
       elements,
