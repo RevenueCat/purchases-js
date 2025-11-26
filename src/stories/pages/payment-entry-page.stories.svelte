@@ -26,6 +26,7 @@
     productDetails: product,
     purchaseOptionToUse: subscriptionOption,
     purchaseOption: subscriptionOption,
+    forceEnableWalletMethods: false,
     onContinue: () => {},
   };
 
@@ -81,7 +82,7 @@
     onClose={() => {}}
     managementUrl="http://test.com"
     termsAndConditionsUrl={args.termsAndConditionsUrl}
-    forceEnableWalletMethods={false}
+    forceEnableWalletMethods={args.forceEnableWalletMethods}
   />
 {/snippet}
 
@@ -341,6 +342,20 @@
     ...defaultArgs,
     currentPage: "payment-entry",
     termsAndConditionsUrl: "https://www.revenuecat.com/terms",
+  }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
+  }}
+/>
+
+<Story
+  name="With Force Enable Wallet Methods"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    forceEnableWalletMethods: true,
   }}
   parameters={{
     chromatic: {
