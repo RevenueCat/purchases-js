@@ -1,4 +1,3 @@
-// TODO: We can use the ApplePayUpdateOption from Stripe for this.
 export interface StripeExpressCheckoutConfiguration {
   applePay?: {
     recurringPaymentRequest?: {
