@@ -292,7 +292,7 @@
       {expressCheckoutOptions}
       forceEnableWalletMethods={true}
       billingAddressRequired={brandingInfo?.gateway_tax_collection_enabled}
-      hideOtherOptions={true}
+      hideCheckoutSeparator={true}
     />
   {/if}
 </div>

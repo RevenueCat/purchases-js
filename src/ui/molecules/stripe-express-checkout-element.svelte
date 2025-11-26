@@ -22,7 +22,6 @@
   import type {
     ClickResolveDetails,
     StripeExpressCheckoutElementClickEvent,
-    StripeExpressCheckoutElementShippingAddressChangeEvent,
   } from "@stripe/stripe-js/dist/stripe-js/elements/express-checkout";
 
   export interface Props {
@@ -38,14 +37,11 @@
       event: StripeExpressCheckoutElementConfirmEvent,
     ) => void | Promise<void>;
     onClick?: (event: StripeExpressCheckoutElementClickEvent) => void;
-    onShippingAddressChange?: (
-      event: StripeExpressCheckoutElementShippingAddressChangeEvent,
-    ) => void;
     elements: StripeElements;
     billingAddressRequired: boolean;
     forceEnableWalletMethods: boolean;
     expressCheckoutOptions?: StripeExpressCheckoutConfiguration;
-    hideOtherOptions?: boolean;
+    hideCheckoutSeparator?: boolean;
   }
 
   const {
@@ -53,12 +49,11 @@
     onReady,
     onSubmit,
     onClick,
-    onShippingAddressChange,
     elements,
     billingAddressRequired,
     forceEnableWalletMethods,
     expressCheckoutOptions,
-    hideOtherOptions = false,
+    hideCheckoutSeparator = false,
   }: Props = $props();
 
   const translator = getContext<Writable<Translator>>(translatorContextKey);
@@ -74,14 +69,8 @@
     const options = {
       ...(expressCheckoutOptions ? expressCheckoutOptions : {}),
     } as ClickResolveDetails;
-    event.resolve(options);
     onClick && onClick(event);
-  };
-
-  const onShippingAddressChangeCallback = async (
-    event: StripeExpressCheckoutElementShippingAddressChangeEvent,
-  ) => {
-    onShippingAddressChange && onShippingAddressChange(event);
+    event.resolve(options);
   };
 
   const onLoadErrorCallback = async (event: {
@@ -118,10 +107,6 @@
       );
       expressCheckoutElement.mount(`#${expressCheckoutElementId}`);
       expressCheckoutElement.on("ready", onReadyCallback);
-      expressCheckoutElement.on(
-        "shippingaddresschange",
-        onShippingAddressChangeCallback,
-      );
       expressCheckoutElement.on("confirm", onConfirmCallback);
       expressCheckoutElement.on("loaderror", onLoadErrorCallback);
       expressCheckoutElement.on("click", onClickCallback);
@@ -138,7 +123,7 @@
 
 {#if !hideExpressCheckoutElement}
   <div id={expressCheckoutElementId}></div>
-  {#if !hideOtherOptions}
+  {#if !hideCheckoutSeparator}
     <TextSeparator
       text={$translator.translate(
         LocalizationKeys.PaymentEntryPageExpressCheckoutDivider,
