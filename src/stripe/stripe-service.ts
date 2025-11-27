@@ -7,6 +7,7 @@ import type {
   StripeElements,
   StripeError,
 } from "@stripe/stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
 import type { BrandingInfoResponse } from "../networking/responses/branding-response";
 import { Theme } from "../ui/theme/theme";
 import { DEFAULT_TEXT_STYLES } from "../ui/theme/text";
@@ -18,7 +19,6 @@ import type { StripeExpressCheckoutElementOptions } from "@stripe/stripe-js/dist
 import { type Period, PeriodUnit } from "../helpers/duration-helper";
 import type { StripeExpressCheckoutConfiguration } from "./stripe-express-checkout-configuration";
 import type { PriceBreakdown } from "../ui/ui-types";
-import { loadStripe } from "@stripe/stripe-js";
 
 export enum StripeServiceErrorCode {
   ErrorLoadingStripe = 0,
@@ -172,7 +172,7 @@ export class StripeService {
     return { stripe, elements };
   }
 
-  static async updateElementsConfiguration(
+  static updateElementsConfiguration(
     elements: StripeElements,
     elementsConfiguration: StripeElementsConfiguration,
   ) {

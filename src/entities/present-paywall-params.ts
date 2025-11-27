@@ -48,4 +48,9 @@ export interface PresentPaywallParams {
    * The locale to use for the paywall and the checkout flow.
    */
   readonly selectedLocale?: string;
+
+  /**
+   * @internal
+   */
+  readonly useExpressPurchaseButtons?: boolean;
 }

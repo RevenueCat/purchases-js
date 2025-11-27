@@ -26,32 +26,42 @@
 
   export interface Props {
     onError: (error: StripeServiceError) => void | Promise<void>;
-    onReady: () => void | Promise<void>;
+    onReady?:
+      | (() => void | Promise<void>)
+      | ((
+          event: StripeExpressCheckoutElementReadyEvent,
+        ) => void | Promise<void>);
     onSubmit: (
       paymentMethod: string,
       emailValue: string,
+      event: StripeExpressCheckoutElementConfirmEvent,
     ) => void | Promise<void>;
+    onClick?: (event: StripeExpressCheckoutElementClickEvent) => void;
     elements: StripeElements;
     billingAddressRequired: boolean;
     forceEnableWalletMethods: boolean;
     expressCheckoutOptions?: StripeExpressCheckoutConfiguration;
+    hideCheckoutSeparator?: boolean;
   }
 
   const {
     onError,
     onReady,
     onSubmit,
+    onClick,
     elements,
     billingAddressRequired,
     forceEnableWalletMethods,
     expressCheckoutOptions,
+    hideCheckoutSeparator = false,
   }: Props = $props();
 
   const translator = getContext<Writable<Translator>>(translatorContextKey);
 
   let expressCheckoutElement: StripeExpressCheckoutElement | null = null;
   let hideExpressCheckoutElement = $state(false);
-  const expressCheckoutElementId = "express-checkout-element";
+  // Allows having more than one in the page.
+  const expressCheckoutElementId = `express-checkout-element-${new Date().getTime()}`;
 
   const onClickCallback = async (
     event: StripeExpressCheckoutElementClickEvent,
@@ -59,6 +69,7 @@
     const options = {
       ...(expressCheckoutOptions ? expressCheckoutOptions : {}),
     } as ClickResolveDetails;
+    onClick && onClick(event);
     event.resolve(options);
   };
 
@@ -72,14 +83,18 @@
   const onConfirmCallback = async (
     event: StripeExpressCheckoutElementConfirmEvent,
   ) => {
-    onSubmit(event.expressPaymentType, event.billingDetails?.email ?? "");
+    return onSubmit(
+      event.expressPaymentType,
+      event.billingDetails?.email ?? "",
+      event,
+    );
   };
 
   const onReadyCallback = async (
     event: StripeExpressCheckoutElementReadyEvent,
   ) => {
     hideExpressCheckoutElement = !event.availablePaymentMethods;
-    onReady();
+    onReady && onReady(event);
   };
 
   onMount(() => {
@@ -108,9 +123,11 @@
 
 {#if !hideExpressCheckoutElement}
   <div id={expressCheckoutElementId}></div>
-  <TextSeparator
-    text={$translator.translate(
-      LocalizationKeys.PaymentEntryPageExpressCheckoutDivider,
-    )}
-  />
+  {#if !hideCheckoutSeparator}
+    <TextSeparator
+      text={$translator.translate(
+        LocalizationKeys.PaymentEntryPageExpressCheckoutDivider,
+      )}
+    />
+  {/if}
 {/if}
