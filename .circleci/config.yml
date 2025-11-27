@@ -211,7 +211,7 @@ jobs:
       - run:
           name: Install Playwright browsers
           working_directory: examples/webbilling-demo
-          command: npx playwright install --with-deps
+          command: pnpm exec playwright install
       - run:
           name: Build
           command: pnpm run build
