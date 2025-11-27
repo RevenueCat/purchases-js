@@ -64,7 +64,9 @@ export class StripeService {
 
     const mappedLocale: Record<string, StripeElementLocale> = {
       zh_Hans: "zh",
-      zh_Hant: "zh",
+      "zh-Hans": "zh",
+      zh_Hant: "zh-TW",
+      "zh-Hant": "zh-TW",
     };
 
     if (Object.keys(mappedLocale).includes(locale)) {

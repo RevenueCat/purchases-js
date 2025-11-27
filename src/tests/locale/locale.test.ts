@@ -159,6 +159,13 @@ describe("The Translator class", () => {
       }),
     ).toBe("every 2 years");
   });
+
+  test("normalizes locales to BCP-47 for Intl APIs", () => {
+    const translator = new Translator({}, "zh_Hant", "zh_Hans");
+
+    expect(translator.locale).toBe("zh-Hant");
+    expect(translator.fallbackLocale).toBe("zh-Hans");
+  });
 });
 
 describe("The supportedLanguages", () => {

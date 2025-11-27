@@ -7,6 +7,7 @@ import { supportedLanguages } from "./supportedLanguages";
 
 import { formatPrice } from "../../helpers/price-labels";
 import { capitalize } from "../../helpers/string-helpers";
+import { toBcp47Locale } from "../../helpers/locale-helper";
 
 export type EmptyString = "";
 
@@ -141,15 +142,17 @@ export class Translator {
 
   get locale(): string {
     return (
-      this.getLocaleInstance(this.selectedLocale)?.localeKey ||
-      this.getLanguageCodeString(this.selectedLocale)
+      toBcp47Locale(this.getLocaleInstance(this.selectedLocale)?.localeKey) ||
+      toBcp47Locale(this.getLanguageCodeString(this.selectedLocale)) ||
+      englishLocale
     );
   }
 
   get fallbackLocale(): string {
     return (
-      this.getLocaleInstance(this.defaultLocale)?.localeKey ||
-      this.getLanguageCodeString(this.defaultLocale)
+      toBcp47Locale(this.getLocaleInstance(this.defaultLocale)?.localeKey) ||
+      toBcp47Locale(this.getLanguageCodeString(this.defaultLocale)) ||
+      englishLocale
     );
   }
 
@@ -326,6 +329,6 @@ export class LocaleTranslations {
     date: Date,
     options: Intl.DateTimeFormatOptions = {},
   ): string | undefined {
-    return date.toLocaleDateString(this.localeKey, options);
+    return date.toLocaleDateString(toBcp47Locale(this.localeKey), options);
   }
 }
