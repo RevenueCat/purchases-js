@@ -1,7 +1,20 @@
 import type { StoryContext, StoryFn } from "@storybook/svelte";
 import StorybookLayout from "./storybook-layout.svelte";
 
-export function renderInsideMain(_Story: StoryFn, context: StoryContext) {
+type LayoutPosition = "main" | "navbar-header" | "navbar-body";
+
+interface StoryLayoutRenderResult {
+  Component: typeof StorybookLayout;
+  props: {
+    globals: StoryContext["globals"];
+    position: LayoutPosition;
+  };
+}
+
+export function renderInsideMain(
+  _Story: StoryFn,
+  context: StoryContext,
+): StoryLayoutRenderResult {
   return {
     Component: StorybookLayout,
     props: {
@@ -14,7 +27,7 @@ export function renderInsideMain(_Story: StoryFn, context: StoryContext) {
 export function renderInsideNavbarHeader(
   _Story: StoryFn,
   context: StoryContext,
-) {
+): StoryLayoutRenderResult {
   return {
     Component: StorybookLayout,
     props: {
@@ -24,7 +37,10 @@ export function renderInsideNavbarHeader(
   };
 }
 
-export function renderInsideNavbarBody(_Story: StoryFn, context: StoryContext) {
+export function renderInsideNavbarBody(
+  _Story: StoryFn,
+  context: StoryContext,
+): StoryLayoutRenderResult {
   return {
     Component: StorybookLayout,
     props: {
