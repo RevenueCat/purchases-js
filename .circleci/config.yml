@@ -42,9 +42,7 @@ commands:
       - run:
           name: Install pnpm package manager
           command: |
-            npm install --global corepack@latest
-            corepack enable
-            corepack prepare pnpm@latest-10 --activate
+            npm install -g corepack && corepack enable
             pnpm config set store-dir .pnpm-store
       - copy-npm-rc
       - run:
