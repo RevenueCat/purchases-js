@@ -209,10 +209,6 @@ jobs:
             source "$BASH_ENV"
       - install-dependencies
       - run:
-          name: Install dependencies webbilling-demo
-          working_directory: examples/webbilling-demo
-          command: pnpm install
-      - run:
           name: Install Playwright browsers
           working_directory: examples/webbilling-demo
           command: npx playwright install --with-deps
@@ -222,6 +218,10 @@ jobs:
       - run:
           name: Pack
           command: pnpm pack
+      - run:
+          name: Install dependencies webbilling-demo
+          working_directory: examples/webbilling-demo
+          command: pnpm install
       - run:
           name: Build webbilling-demo
           working_directory: examples/webbilling-demo
