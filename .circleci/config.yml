@@ -39,10 +39,15 @@ commands:
 
   install-dependencies:
     steps:
+      - run:
+          name: Install pnpm package manager
+          command: |
+            npm install -g corepack && corepack enable
+            pnpm config set store-dir .pnpm-store
       - copy-npm-rc
       - run:
           name: Npm Install
-          command: npm ci
+          command: pnpm install
 
 
 
@@ -72,10 +77,10 @@ jobs:
       - install-dependencies
       - run:
           name: Build
-          command: npm run build
+          command: pnpm run build
       - run:
           name: Pack
-          command: npm pack
+          command: pnpm pack
       - copy-npm-rc
       - run:
           name: release
@@ -97,14 +102,14 @@ jobs:
       - run:
           name: Install dependencies webbilling-demo
           working_directory: examples/webbilling-demo
-          command: npm ci
+          command: pnpm install
       - run:
           name: Build
-          command: npm run build
+          command: pnpm run build
       - run:
           name: Build webbilling-demo
           working_directory: examples/webbilling-demo
-          command: npm run build
+          command: pnpm run build
       - aws-cli/setup:
           aws_access_key_id: AWS_ACCESS_KEY_ID
           aws_secret_access_key: AWS_SECRET_ACCESS_KEY
@@ -135,42 +140,42 @@ jobs:
       - run:
           name: Install dependencies webbilling-demo
           working_directory: examples/webbilling-demo
-          command: npm ci
+          command: pnpm install
       - run:
           name: Linting
-          command: npm run lint
+          command: pnpm run lint
       - run:
           name: Linting webbilling-demo
           working_directory: examples/webbilling-demo
-          command: npm run lint
+          command: pnpm run lint
       - run:
           name: Prettier
-          command: npm run prettier:ci
+          command: pnpm run prettier:ci
       - run:
           name: Prettier webbilling-demo
           working_directory: examples/webbilling-demo
-          command: npm run prettier:ci
+          command: pnpm run prettier:ci
       - run:
           name: Type checker including tests
-          command: npm run test:typecheck
+          command: pnpm run test:typecheck
       - run:
           name: Svelte check
-          command: npm run svelte-check
+          command: pnpm run svelte-check
       - run:
           name: Unit tests
-          command: npm run test
+          command: pnpm run test
       - run:
           name: Build
-          command: npm run build
+          command: pnpm run build
       - run:
           name: Extract API using api-extractor
-          command: npm run extract-api
+          command: pnpm run extract-api
       - run:
           name: Check if API has changed
           command: git diff --exit-code api-report/purchases-js.api.md
       - run:
           name: Pack
-          command: npm pack
+          command: pnpm pack
       - run:
           name: Publishing Storybook to Chromatic
           command: |
@@ -192,7 +197,7 @@ jobs:
 
   test-e2e:
     docker:
-      - image: mcr.microsoft.com/playwright:v1.46.0-jammy
+      - image: mcr.microsoft.com/playwright:v1.56.1-jammy
     steps:
       - checkout
       - run:
@@ -202,27 +207,27 @@ jobs:
             source "$BASH_ENV"
       - install-dependencies
       - run:
+          name: Build purchases-js
+          command: pnpm run build
+      - run:
+          name: Pack purchases-js
+          command: pnpm pack
+      - run:
           name: Install dependencies webbilling-demo
           working_directory: examples/webbilling-demo
-          command: npm ci
+          command: pnpm install
       - run:
-          name: Install Playwright browsers
+          name: Install Playwright and browsers
           working_directory: examples/webbilling-demo
-          command: npx playwright install --with-deps
-      - run:
-          name: Build
-          command: npm run build
-      - run:
-          name: Pack
-          command: npm pack
+          command: pnpm exec playwright install  --with-deps
       - run:
           name: Build webbilling-demo
           working_directory: examples/webbilling-demo
-          command: npm run build
+          command: pnpm run build
       - run:
           name: E2E tests webbilling-demo
           working_directory: examples/webbilling-demo
-          command: npm run test:ci
+          command: pnpm run test:ci
 
 workflows:
   danger:

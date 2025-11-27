@@ -1,10 +1,9 @@
-import { describe, expect, test } from "vitest";
-import { spyOn } from "@vitest/spy";
+import { describe, expect, test, vi } from "vitest";
 import { autoParseUTMParams } from "../../helpers/utm-params";
 
 describe("autoParseUTMParams", () => {
   test("Returns an empty object if no utm param is set", () => {
-    spyOn(URLSearchParams.prototype, "get").mockImplementation(() => null);
+    vi.spyOn(URLSearchParams.prototype, "get").mockImplementation(() => null);
     const utmParams = autoParseUTMParams();
     expect(utmParams).toEqual({});
   });
@@ -18,7 +17,7 @@ describe("autoParseUTMParams", () => {
       utm_content: "content",
     };
 
-    spyOn(URLSearchParams.prototype, "get").mockImplementation(
+    vi.spyOn(URLSearchParams.prototype, "get").mockImplementation(
       (key: string) => {
         if (mockUTMParams[key] === undefined) {
           return null;
@@ -39,7 +38,7 @@ describe("autoParseUTMParams", () => {
       utm_content: "content",
     };
 
-    spyOn(URLSearchParams.prototype, "get").mockImplementation(
+    vi.spyOn(URLSearchParams.prototype, "get").mockImplementation(
       (key: string) => {
         if (mockUTMParams[key] === undefined) {
           return null;

@@ -35,7 +35,6 @@
     "subscriptions",
     "iap"
   ],
-  "packageManager": "npm@11.2.0+sha512.3dc9c50ba813a3d54393155a435fe66404b72685ab0e3008f9ae9ed8d81f6104860f07ed2656dd5748c1322d95f3140fa9b19c59a6bba7750fd12285f81866da",
   "scripts": {
     "watch": "vite build --watch",
     "build": "tsc && vite build",
@@ -113,5 +112,6 @@
       "prettier --write --ignore-unknown",
       "eslint --fix --no-warn-ignored"
     ]
-  }
+  },
+  "packageManager": "pnpm@10.23.0+sha512.21c4e5698002ade97e4efe8b8b4a89a8de3c85a37919f957e7a0f30f38fbc5bbdd05980ffe29179b2fb6e6e691242e098d945d1601772cad0fef5fb6411e2a4b"
 }

@@ -9,3 +9,4 @@ CHANGELOG.latest.md
 vendor/
 .circleci
 RELEASING.md
+.pnpm-store
