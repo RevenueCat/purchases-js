@@ -9,14 +9,14 @@ import type {
   StripeElements,
   StripeError,
 } from "@stripe/stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
+import { loadStripe } from "@stripe/stripe-js/pure";
 import type { StripeElementsConfiguration } from "../../networking/responses/stripe-elements";
 import type { BrandingInfoResponse } from "../../networking/responses/branding-response";
 import { Translator } from "../../ui/localization/translator";
 import { product, trialProduct } from "../../stories/fixtures";
 import type { PriceBreakdown } from "../../ui/ui-types";
 
-vi.mock("@stripe/stripe-js", () => ({
+vi.mock("@stripe/stripe-js/pure", () => ({
   loadStripe: vi.fn(),
 }));
 
