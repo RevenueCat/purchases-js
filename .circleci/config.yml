@@ -199,7 +199,7 @@ jobs:
 
   test-e2e:
     docker:
-      - image: mcr.microsoft.com/playwright:v1.46.0-jammy
+      - image: mcr.microsoft.com/playwright:v1.56.1-jammy
     steps:
       - checkout
       - run:
