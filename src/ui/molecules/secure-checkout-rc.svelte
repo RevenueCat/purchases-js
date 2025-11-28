@@ -82,7 +82,7 @@
     ? formatPrice(
         firstPaymentPrice.amountMicros,
         firstPaymentPrice.currency,
-        $translator.locale || $translator.fallbackLocale,
+        $translator.bcp47Locale || $translator.fallbackBcp47Locale,
       )
     : null;
 

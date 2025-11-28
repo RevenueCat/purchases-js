@@ -88,7 +88,7 @@
     const stripeAccountId = gatewayParams.stripe_account_id;
     const publishableApiKey = gatewayParams.publishable_api_key;
     const stripeLocale = StripeService.getStripeLocale(
-      translator.locale || translator.fallbackLocale,
+      translator.bcp47Locale || translator.fallbackBcp47Locale,
     );
 
     const stripeVariables = {

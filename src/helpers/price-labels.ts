@@ -2,6 +2,7 @@ import { parseISODuration } from "./duration-helper";
 import { type Translator } from "../ui/localization/translator";
 
 import { LocalizationKeys } from "../ui/localization/supportedLanguages";
+import { toBcp47Locale } from "./locale-helper";
 
 const microsToDollars = (micros: number): number => {
   return micros / 1000000;
@@ -26,7 +27,10 @@ export const formatPrice = (
     minimumFractionDigits: additionalFormattingOptions.maximumFractionDigits,
   };
 
-  const formatter = new Intl.NumberFormat(locale, formatterOptions);
+  const formatter = new Intl.NumberFormat(
+    toBcp47Locale(locale),
+    formatterOptions,
+  );
 
   const formattedPrice = formatter.format(price);
 

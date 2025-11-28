@@ -7,6 +7,7 @@ import { supportedLanguages } from "./supportedLanguages";
 
 import { formatPrice } from "../../helpers/price-labels";
 import { capitalize } from "../../helpers/string-helpers";
+import { toBcp47Locale } from "../../helpers/locale-helper";
 
 export type EmptyString = "";
 
@@ -109,12 +110,12 @@ export class Translator {
       return formatPrice(
         priceInMicros,
         currency,
-        this.locale,
+        this.bcp47Locale,
         additionalFormattingOptions,
       );
     } catch {
       Logger.errorLog(
-        `Failed to create a price formatter for locale: ${this.locale}`,
+        `Failed to create a price formatter for locale: ${this.bcp47Locale}`,
       );
     }
 
@@ -122,12 +123,12 @@ export class Translator {
       return formatPrice(
         priceInMicros,
         currency,
-        this.fallbackLocale,
+        this.fallbackBcp47Locale,
         additionalFormattingOptions,
       );
     } catch {
       Logger.errorLog(
-        `Failed to create a price formatter for locale: ${this.fallbackLocale}`,
+        `Failed to create a price formatter for locale: ${this.fallbackBcp47Locale}`,
       );
     }
 
@@ -139,17 +140,30 @@ export class Translator {
     );
   }
 
-  get locale(): string {
+  /**
+   * Returns the locale in a format that is compatible with other JS libraries.
+   * This is particularly important for zh_Hans and zh_Hant that are instead
+   * represented as zh-Hans and zh-Hant in Intl.DateTimeFormat.
+   */
+  get bcp47Locale(): string {
     return (
-      this.getLocaleInstance(this.selectedLocale)?.localeKey ||
-      this.getLanguageCodeString(this.selectedLocale)
+      toBcp47Locale(this.getLocaleInstance(this.selectedLocale)?.localeKey) ||
+      toBcp47Locale(this.getLanguageCodeString(this.selectedLocale)) ||
+      englishLocale
     );
   }
 
-  get fallbackLocale(): string {
+  /**
+   * Returns the fallback locale in a format that is compatible with other JS
+   * libraries.
+   * This is particularly important for zh_Hans and zh_Hant that are instead
+   * represented as zh-Hans and zh-Hant in Intl.DateTimeFormat.
+   */
+  get fallbackBcp47Locale(): string {
     return (
-      this.getLocaleInstance(this.defaultLocale)?.localeKey ||
-      this.getLanguageCodeString(this.defaultLocale)
+      toBcp47Locale(this.getLocaleInstance(this.defaultLocale)?.localeKey) ||
+      toBcp47Locale(this.getLanguageCodeString(this.defaultLocale)) ||
+      englishLocale
     );
   }
 
@@ -178,7 +192,7 @@ export class Translator {
 
   public formatCountry(countryCode: string): string {
     return (
-      new Intl.DisplayNames([this.locale], { type: "region" }).of(
+      new Intl.DisplayNames([this.bcp47Locale], { type: "region" }).of(
         countryCode,
       ) || countryCode
     );
@@ -238,6 +252,7 @@ export class Translator {
     );
   }
 }
+
 export class LocaleTranslations {
   public constructor(
     public readonly labels: Record<string, string> = {},
@@ -326,6 +341,6 @@ export class LocaleTranslations {
     date: Date,
     options: Intl.DateTimeFormatOptions = {},
   ): string | undefined {
-    return date.toLocaleDateString(this.localeKey, options);
+    return date.toLocaleDateString(toBcp47Locale(this.localeKey), options);
   }
 }

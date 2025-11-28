@@ -34,7 +34,9 @@ describe("StripeService", () => {
 
     test("returns mapped locale for special cases", () => {
       expect(StripeService.getStripeLocale("zh_Hans")).toBe("zh");
-      expect(StripeService.getStripeLocale("zh_Hant")).toBe("zh");
+      expect(StripeService.getStripeLocale("zh-Hans")).toBe("zh");
+      expect(StripeService.getStripeLocale("zh_Hant")).toBe("zh-TW");
+      expect(StripeService.getStripeLocale("zh-Hant")).toBe("zh-TW");
     });
 
     test("returns the same locale for supported locales", () => {
