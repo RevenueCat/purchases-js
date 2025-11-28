@@ -848,7 +848,7 @@ export class Purchases {
         reject(e);
       };
 
-      ExpressPurchaseButtonWrapper.build(htmlTarget, onButtonReady, {
+      new ExpressPurchaseButtonWrapper(htmlTarget, onButtonReady, {
         appUserId,
         rcPackage,
         purchaseOption: purchaseOptionToUse,

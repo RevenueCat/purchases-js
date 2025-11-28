@@ -5,39 +5,18 @@ import type { ExpressPurchaseButtonUpdater } from "../../entities/present-expres
 import type { Package } from "../../entities/offerings";
 
 export class ExpressPurchaseButtonWrapper {
-  protected button = null;
-  private state: { props: ExpressPurchaseButtonProps | null };
+  protected button: ReturnType<typeof mount>;
+  private state: { props: ExpressPurchaseButtonProps };
 
-  static build(
+  constructor(
     htmlTarget: HTMLElement,
     onButtonReady: (updater: ExpressPurchaseButtonUpdater) => void,
     props: ExpressPurchaseButtonProps,
   ) {
-    return new ExpressPurchaseButtonWrapper().setProps(
-      htmlTarget,
-      onButtonReady,
-      props,
-    );
-  }
-
-  constructor() {
     this.state = $state({
-      props: null,
+      props: props,
     });
-  }
 
-  setProps(
-    htmlTarget: HTMLElement,
-    onButtonReady: (updater: ExpressPurchaseButtonUpdater) => void,
-    props: ExpressPurchaseButtonProps,
-  ) {
-    this.state.props = { ...props };
-    if (!this.state.props) {
-      return;
-    }
-
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
     this.button = mount(ExpressPurchaseButton, {
       target: htmlTarget,
       props: this.state.props,
