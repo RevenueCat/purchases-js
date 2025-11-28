@@ -22,15 +22,15 @@ export class ExpressPurchaseButtonWrapper {
       props: this.state.props,
     });
     const updatePurchase = (pkg: Package) => {
-      this.setPackage(pkg);
+      this.changePackage(pkg);
     };
     const updater: ExpressPurchaseButtonUpdater = {
-      updatePurchase: updatePurchase,
+      updatePurchase,
     };
     onButtonReady(updater);
   }
 
-  setPackage(pkg: Package) {
+  changePackage(pkg: Package) {
     if (!this.state.props) {
       return;
     }

@@ -616,7 +616,6 @@ export class Purchases {
             element.innerHTML = "";
           },
           update(selectedPackageId: string) {
-            console.log(`update to ${selectedPackageId}`);
             if (buttonUpdater) {
               const pkg = offering.packagesById[selectedPackageId];
               if (!pkg) {
