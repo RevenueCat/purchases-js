@@ -145,7 +145,6 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
     }
 
     purchases
-      // @ts-expect-error - using an internal method while still in development.
       .presentExpressPurchaseButton({
         rcPackage: pkg,
         htmlTarget: applePayButtonref.current,

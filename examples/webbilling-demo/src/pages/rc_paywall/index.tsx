@@ -23,6 +23,9 @@ const RCPaywallPage: React.FC = () => {
         offering: offering,
         htmlTarget: document.getElementById("paywall") || undefined,
         selectedLocale: lang || undefined,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        useExpressPurchaseButtons: true,
       })
       .then((purchaseResult: PurchaseResult) => {
         const { customerInfo, redemptionInfo } = purchaseResult;

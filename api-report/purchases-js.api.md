@@ -281,6 +281,17 @@ export interface PresentedOfferingContext {
 }
 
 // @public
+interface PresentExpressPurchaseButtonParams {
+    customerEmail?: string;
+    defaultLocale?: string;
+    htmlTarget?: HTMLElement;
+    metadata?: PurchaseMetadata;
+    purchaseOption?: PurchaseOption | null;
+    rcPackage: Package;
+    selectedLocale?: string;
+}
+
+// @public
 export interface PresentPaywallParams {
     readonly customerEmail?: string;
     readonly htmlTarget?: HTMLElement;
@@ -398,6 +409,8 @@ export class Purchases {
     // (undocumented)
     isSandbox(): boolean;
     preload(): Promise<void>;
+    // Warning: (ae-forgotten-export) The symbol "PresentExpressPurchaseButtonParams" needs to be exported by the entry point Purchases.es.d.ts
+    presentExpressPurchaseButton(params: PresentExpressPurchaseButtonParams): Promise<PurchaseResult>;
     presentPaywall(paywallParams: PresentPaywallParams): Promise<PurchaseResult>;
     purchase(params: PurchaseParams): Promise<PurchaseResult>;
     // @deprecated

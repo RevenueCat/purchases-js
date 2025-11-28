@@ -398,6 +398,11 @@ describe("StripeService", () => {
             },
           },
         },
+        layout: {
+          maxColumns: undefined,
+          maxRows: undefined,
+          overflow: undefined,
+        },
       });
     });
 
@@ -425,6 +430,11 @@ describe("StripeService", () => {
             },
             trialBilling: undefined,
           },
+        },
+        layout: {
+          maxColumns: undefined,
+          maxRows: undefined,
+          overflow: undefined,
         },
       });
     });
