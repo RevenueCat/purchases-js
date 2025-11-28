@@ -1,5 +1,9 @@
 <script lang="ts">
-  import type { Package, Product } from "../../entities/offerings";
+  import type {
+    Package,
+    Product,
+    SubscriptionOption,
+  } from "../../entities/offerings";
   import {
     PurchaseFlowError,
     PurchaseFlowErrorCode,
@@ -54,6 +58,7 @@
 
   let expressCheckoutOptions: StripeExpressCheckoutConfiguration | null =
     $state(null);
+  let managementUrl: string | null = $state(null);
 
   const initStripe = async (
     checkoutStartResponse: CheckoutStartResponse,
@@ -111,29 +116,8 @@
       );
 
     const productDetails: Product = rcPackage.webBillingProduct;
-    const subscriptionOption =
-      productDetails.subscriptionOptions?.[purchaseOption.id] ||
-      productDetails.defaultSubscriptionOption;
-
-    const initialPrice = getInitialPriceFromPurchaseOption(
-      productDetails,
-      subscriptionOption,
-    );
-
-    // Design decision: We will always show the price before taxes in the
-    // express checkout modal.
-    // We will charge according to the billing address retrieved by the
-    // wallet, if any, but it would be visible only in the invoice.
-    // This is the behaviour of other IAP stores and we want to be as close
-    // as possible to that in this component.
-    const priceBreakdown: PriceBreakdown = {
-      currency: initialPrice.currency,
-      taxCalculationStatus: "unavailable",
-      totalAmountInMicros: initialPrice.amountMicros,
-      totalExcludingTaxInMicros: initialPrice.amountMicros,
-      taxAmountInMicros: null,
-      taxBreakdown: null,
-    };
+    const { subscriptionOption, priceBreakdown } =
+      resolveExpressCheckoutPricingDetails(productDetails, purchaseOption.id);
     const managementUrl = checkoutStartResponse.management_url;
 
     const options =
@@ -170,6 +154,7 @@
       return;
     }
     checkoutStarted = true;
+    managementUrl = null;
 
     let checkoutStartResult: CheckoutStartResponse | null = null;
     try {
@@ -181,6 +166,7 @@
         customerEmail,
         metadata,
       );
+      managementUrl = checkoutStartResult.management_url;
     } catch (e) {
       return;
     }
@@ -288,11 +274,56 @@
   };
 
   const onExpressClicked = (event: StripeExpressCheckoutElementClickEvent) => {
-    const productDetails: Product = rcPackage.webBillingProduct;
+    try {
+      const productDetails: Product = rcPackage.webBillingProduct;
+      if (!managementUrl) {
+        throw new PurchaseFlowError(
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        );
+      }
+      const { subscriptionOption, priceBreakdown } =
+        resolveExpressCheckoutPricingDetails(productDetails, purchaseOption.id);
+
+      const options =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          productDetails,
+          priceBreakdown,
+          subscriptionOption,
+          translator,
+          managementUrl,
+        );
+
+      event.resolve({ applePay: options.applePay } as ClickResolveDetails);
+    } catch (error) {
+      onError(
+        error instanceof PurchaseFlowError
+          ? error
+          : new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase),
+      );
+    }
+  };
+
+  // Extracted helper: pick the subscription option chosen for the Express Checkout flow.
+  function getSubscriptionOptionForExpressCheckout(
+    productDetails: Product,
+    purchaseOptionId: string,
+  ): SubscriptionOption {
     const subscriptionOption =
-      productDetails.subscriptionOptions?.[purchaseOption.id] ||
+      productDetails.subscriptionOptions?.[purchaseOptionId] ||
       productDetails.defaultSubscriptionOption;
 
+    if (!subscriptionOption) {
+      throw new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase);
+    }
+
+    return subscriptionOption;
+  }
+
+  // Extracted helper: build the price breakdown displayed inside the Express Checkout modal.
+  function buildExpressCheckoutPriceBreakdown(
+    productDetails: Product,
+    subscriptionOption: SubscriptionOption,
+  ): PriceBreakdown {
     const initialPrice = getInitialPriceFromPurchaseOption(
       productDetails,
       subscriptionOption,
@@ -304,7 +335,7 @@
     // wallet, if any, but it would be visible only in the invoice.
     // This is the behaviour of other IAP stores and we want to be as close
     // as possible to that in this component.
-    const priceBreakdown: PriceBreakdown = {
+    return {
       currency: initialPrice.currency,
       taxCalculationStatus: "unavailable",
       totalAmountInMicros: initialPrice.amountMicros,
@@ -312,19 +343,23 @@
       taxAmountInMicros: null,
       taxBreakdown: null,
     };
+  }
 
-    const options =
-      StripeService.buildStripeExpressCheckoutOptionsForSubscription(
-        productDetails,
-        priceBreakdown,
-        subscriptionOption,
-        translator,
-        // TODO: change this
-        "http://example.com",
-      );
-
-    event.resolve({ applePay: options.applePay } as ClickResolveDetails);
-  };
+  // Extracted helper: return the subscription option and price data needed by multiple flows.
+  function resolveExpressCheckoutPricingDetails(
+    productDetails: Product,
+    purchaseOptionId: string,
+  ) {
+    const subscriptionOption = getSubscriptionOptionForExpressCheckout(
+      productDetails,
+      purchaseOptionId,
+    );
+    const priceBreakdown = buildExpressCheckoutPriceBreakdown(
+      productDetails,
+      subscriptionOption,
+    );
+    return { subscriptionOption, priceBreakdown };
+  }
 </script>
 
 <div>
