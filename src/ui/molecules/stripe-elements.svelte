@@ -69,7 +69,7 @@
 
   const translator = getContext<Writable<Translator>>(translatorContextKey);
   const stripeLocale = StripeService.getStripeLocale(
-    $translator.locale || $translator.fallbackLocale,
+    $translator.bcp47Locale || $translator.fallbackBcp47Locale,
   );
 
   let paymentElementReadyForSubmission = $state(false);

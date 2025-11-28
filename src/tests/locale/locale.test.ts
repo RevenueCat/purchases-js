@@ -163,8 +163,44 @@ describe("The Translator class", () => {
   test("normalizes locales to BCP-47 for Intl APIs", () => {
     const translator = new Translator({}, "zh_Hant", "zh_Hans");
 
-    expect(translator.locale).toBe("zh-Hant");
-    expect(translator.fallbackLocale).toBe("zh-Hans");
+    expect(translator.bcp47Locale).toBe("zh-Hant");
+    expect(translator.fallbackBcp47Locale).toBe("zh-Hans");
+  });
+
+  test("should correctly pick translations when zh-Hant and zh-Hans are taken as locale", () => {
+    const traditionalTranslator = new Translator({}, "zh_Hant");
+    expect(
+      traditionalTranslator.translate(
+        LocalizationKeys.PaymentEntryPagePaymentStepTitle,
+      ),
+    ).toBe(
+      supportedLanguages.zh_Hant[
+        LocalizationKeys.PaymentEntryPagePaymentStepTitle
+      ],
+    );
+
+    const simplifiedTranslator = new Translator({}, "zh_Hans");
+    expect(
+      simplifiedTranslator.translate(
+        LocalizationKeys.PaymentEntryPagePaymentStepTitle,
+      ),
+    ).toBe(
+      supportedLanguages.zh_Hans[
+        LocalizationKeys.PaymentEntryPagePaymentStepTitle
+      ],
+    );
+  });
+
+  test("should not fail translating periods when zh_Hant and zh_Hans are taken as locale", () => {
+    const traditionalTranslator = new Translator({}, "zh-Hant");
+    expect(() =>
+      traditionalTranslator.translateDate(new Date()),
+    ).not.toThrowError();
+
+    const simplifiedTranslator = new Translator({}, "zh-Hans");
+    expect(() =>
+      simplifiedTranslator.translateDate(new Date()),
+    ).not.toThrowError();
   });
 });
 

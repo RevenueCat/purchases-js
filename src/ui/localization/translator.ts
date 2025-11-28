@@ -110,12 +110,12 @@ export class Translator {
       return formatPrice(
         priceInMicros,
         currency,
-        this.locale,
+        this.bcp47Locale,
         additionalFormattingOptions,
       );
     } catch {
       Logger.errorLog(
-        `Failed to create a price formatter for locale: ${this.locale}`,
+        `Failed to create a price formatter for locale: ${this.bcp47Locale}`,
       );
     }
 
@@ -123,12 +123,12 @@ export class Translator {
       return formatPrice(
         priceInMicros,
         currency,
-        this.fallbackLocale,
+        this.fallbackBcp47Locale,
         additionalFormattingOptions,
       );
     } catch {
       Logger.errorLog(
-        `Failed to create a price formatter for locale: ${this.fallbackLocale}`,
+        `Failed to create a price formatter for locale: ${this.fallbackBcp47Locale}`,
       );
     }
 
@@ -140,7 +140,12 @@ export class Translator {
     );
   }
 
-  get locale(): string {
+  /**
+   * Returns the locale in a format that is compatible with other JS libraries.
+   * This is particularly important for zh_Hans and zh_Hant that are instead
+   * represented as zh-Hans and zh-Hant in Intl.DateTimeFormat.
+   */
+  get bcp47Locale(): string {
     return (
       toBcp47Locale(this.getLocaleInstance(this.selectedLocale)?.localeKey) ||
       toBcp47Locale(this.getLanguageCodeString(this.selectedLocale)) ||
@@ -148,7 +153,13 @@ export class Translator {
     );
   }
 
-  get fallbackLocale(): string {
+  /**
+   * Returns the fallback locale in a format that is compatible with other JS
+   * libraries.
+   * This is particularly important for zh_Hans and zh_Hant that are instead
+   * represented as zh-Hans and zh-Hant in Intl.DateTimeFormat.
+   */
+  get fallbackBcp47Locale(): string {
     return (
       toBcp47Locale(this.getLocaleInstance(this.defaultLocale)?.localeKey) ||
       toBcp47Locale(this.getLanguageCodeString(this.defaultLocale)) ||
@@ -181,7 +192,7 @@ export class Translator {
 
   public formatCountry(countryCode: string): string {
     return (
-      new Intl.DisplayNames([this.locale], { type: "region" }).of(
+      new Intl.DisplayNames([this.bcp47Locale], { type: "region" }).of(
         countryCode,
       ) || countryCode
     );
@@ -241,6 +252,7 @@ export class Translator {
     );
   }
 }
+
 export class LocaleTranslations {
   public constructor(
     public readonly labels: Record<string, string> = {},
