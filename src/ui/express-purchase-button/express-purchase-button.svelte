@@ -1,55 +1,34 @@
 <script lang="ts">
-  import type {
-    Package,
-    Product,
-    PurchaseMetadata,
-    PurchaseOption,
-  } from "../entities/offerings";
-  import type { BrandingInfoResponse } from "../networking/responses/branding-response";
-  import type { Purchases } from "../main";
-  import type { IEventsTracker } from "../behavioural-events/events-tracker";
+  import type { Package, Product } from "../../entities/offerings";
   import {
-    OperationSessionSuccessfulResult,
     PurchaseFlowError,
     PurchaseFlowErrorCode,
-    PurchaseOperationHelper,
-  } from "../helpers/purchase-operation-helper";
-  import {
-    type CustomTranslations,
-    Translator,
-  } from "./localization/translator";
-  import { type PriceBreakdown } from "./ui-types";
-  import ExpressCheckoutElement from "./molecules/stripe-express-checkout-element.svelte";
-  import { onMount, setContext } from "svelte";
+  } from "../../helpers/purchase-operation-helper";
+  import { type PriceBreakdown } from "../ui-types";
+  import ExpressCheckoutElement from "../molecules/stripe-express-checkout-element.svelte";
+  import { setContext } from "svelte";
   import type {
     Stripe,
     StripeElements,
     StripeExpressCheckoutElementConfirmEvent,
   } from "@stripe/stripe-js";
-  import { StripeService, StripeServiceError } from "../stripe/stripe-service";
-  import { DEFAULT_FONT_FAMILY } from "./theme/text";
+  import {
+    StripeService,
+    StripeServiceError,
+  } from "../../stripe/stripe-service";
+  import { DEFAULT_FONT_FAMILY } from "../theme/text";
   import { writable } from "svelte/store";
-  import { translatorContextKey } from "./localization/constants";
-  import { brandingContextKey } from "./constants";
-  import type { StripeExpressCheckoutConfiguration } from "../stripe/stripe-express-checkout-configuration";
-  import { getInitialPriceFromPurchaseOption } from "../helpers/purchase-option-price-helper";
-  import type { CheckoutStartResponse } from "../networking/responses/checkout-start-response";
+  import { translatorContextKey } from "../localization/constants";
+  import { brandingContextKey } from "../constants";
+  import type { StripeExpressCheckoutConfiguration } from "../../stripe/stripe-express-checkout-configuration";
+  import { getInitialPriceFromPurchaseOption } from "../../helpers/purchase-option-price-helper";
+  import type { CheckoutStartResponse } from "../../networking/responses/checkout-start-response";
 
-  interface Props {
-    customerEmail: string | undefined;
-    appUserId: string;
-    rcPackage: Package;
-    purchaseOption: PurchaseOption;
-    metadata: PurchaseMetadata | undefined;
-    brandingInfo: BrandingInfoResponse | null;
-    purchases: Purchases;
-    eventsTracker: IEventsTracker;
-    purchaseOperationHelper: PurchaseOperationHelper;
-    customTranslations?: CustomTranslations;
-    translator: Translator;
-    onFinished: (operationResult: OperationSessionSuccessfulResult) => void;
-    onError: (error: PurchaseFlowError) => void;
-  }
+  import type { ExpressPurchaseButtonProps } from "./express-purchase-button-props";
+  import type {
+    ClickResolveDetails,
+    StripeExpressCheckoutElementClickEvent,
+  } from "@stripe/stripe-js/dist/stripe-js/elements/express-checkout";
 
   const {
     customerEmail,
@@ -62,9 +41,7 @@
     translator,
     onFinished,
     onError,
-  }: Props = $props();
-
-  const productId = rcPackage.webBillingProduct.identifier ?? null;
+  }: ExpressPurchaseButtonProps = $props();
 
   let translatorStore = writable(translator);
   setContext(translatorContextKey, translatorStore);
@@ -135,7 +112,8 @@
 
     const productDetails: Product = rcPackage.webBillingProduct;
     const subscriptionOption =
-      productDetails.subscriptionOptions?.[purchaseOption.id];
+      productDetails.subscriptionOptions?.[purchaseOption.id] ||
+      productDetails.defaultSubscriptionOption;
 
     const initialPrice = getInitialPriceFromPurchaseOption(
       productDetails,
@@ -165,41 +143,68 @@
         subscriptionOption,
         translator,
         managementUrl,
+        2,
+        1,
       );
 
     return { stripeInstance, elementsInstance, expOptions: options };
   };
 
+  const updateStripe = async (
+    checkoutStartResponse: CheckoutStartResponse,
+    elements: StripeElements,
+  ) => {
+    if (!checkoutStartResponse.gateway_params?.elements_configuration) {
+      throw new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase);
+    }
+
+    StripeService.updateElementsConfiguration(
+      elements,
+      checkoutStartResponse.gateway_params.elements_configuration,
+    );
+  };
+
   let checkoutStarted = false;
-  onMount(async () => {
+  const reInitPurchase = async () => {
     if (checkoutStarted) {
       return;
     }
     checkoutStarted = true;
 
-    const checkoutStartResult = await purchaseOperationHelper.checkoutStart(
-      appUserId,
-      productId,
-      purchaseOption,
-      rcPackage.webBillingProduct.presentedOfferingContext,
-      customerEmail,
-      metadata,
-    );
+    let checkoutStartResult: CheckoutStartResponse | null = null;
+    try {
+      checkoutStartResult = await purchaseOperationHelper.checkoutStart(
+        appUserId,
+        rcPackage.webBillingProduct.identifier,
+        purchaseOption,
+        rcPackage.webBillingProduct.presentedOfferingContext,
+        customerEmail,
+        metadata,
+      );
+    } catch (e) {
+      return;
+    }
 
     try {
-      const { stripeInstance, elementsInstance, expOptions } = await initStripe(
-        checkoutStartResult,
-        rcPackage,
-      );
-
-      stripe = stripeInstance;
-      elements = elementsInstance;
-      expressCheckoutOptions = expOptions;
+      if (!stripe || !elements) {
+        const { stripeInstance, elementsInstance, expOptions } =
+          await initStripe(checkoutStartResult, rcPackage);
+        stripe = stripeInstance;
+        elements = elementsInstance;
+        expressCheckoutOptions = expOptions;
+      } else {
+        await updateStripe(checkoutStartResult, elements);
+      }
     } catch (e) {
       onError(e as PurchaseFlowError);
     }
 
     isLoading = false;
+  };
+
+  $effect(() => {
+    checkoutStarted = false;
+    reInitPurchase().then(() => {});
   });
 
   const onStripeElementsLoadingError = (_: StripeServiceError) => {
@@ -281,6 +286,45 @@
       isPurchasing = false;
     }
   };
+
+  const onExpressClicked = (event: StripeExpressCheckoutElementClickEvent) => {
+    const productDetails: Product = rcPackage.webBillingProduct;
+    const subscriptionOption =
+      productDetails.subscriptionOptions?.[purchaseOption.id] ||
+      productDetails.defaultSubscriptionOption;
+
+    const initialPrice = getInitialPriceFromPurchaseOption(
+      productDetails,
+      subscriptionOption,
+    );
+
+    // Design decision: We will always show the price before taxes in the
+    // express checkout modal.
+    // We will charge according to the billing address retrieved by the
+    // wallet, if any, but it would be visible only in the invoice.
+    // This is the behaviour of other IAP stores and we want to be as close
+    // as possible to that in this component.
+    const priceBreakdown: PriceBreakdown = {
+      currency: initialPrice.currency,
+      taxCalculationStatus: "unavailable",
+      totalAmountInMicros: initialPrice.amountMicros,
+      totalExcludingTaxInMicros: initialPrice.amountMicros,
+      taxAmountInMicros: null,
+      taxBreakdown: null,
+    };
+
+    const options =
+      StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+        productDetails,
+        priceBreakdown,
+        subscriptionOption,
+        translator,
+        // TODO: change this
+        "http://example.com",
+      );
+
+    event.resolve({ applePay: options.applePay } as ClickResolveDetails);
+  };
 </script>
 
 <div>
@@ -289,8 +333,9 @@
       {elements}
       onError={onStripeElementsLoadingError}
       onSubmit={onExpressCheckoutElementSubmit}
+      onClick={onExpressClicked}
       {expressCheckoutOptions}
-      forceEnableWalletMethods={true}
+      forceEnableWalletMethods={false}
       billingAddressRequired={brandingInfo?.gateway_tax_collection_enabled}
       hideCheckoutSeparator={true}
     />
