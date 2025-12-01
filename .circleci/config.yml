@@ -100,12 +100,12 @@ jobs:
             source "$BASH_ENV"
       - install-dependencies
       - run:
+          name: Build purchases-js
+          command: pnpm run build
+      - run:
           name: Install dependencies webbilling-demo
           working_directory: examples/webbilling-demo
           command: pnpm install
-      - run:
-          name: Build
-          command: pnpm run build
       - run:
           name: Build webbilling-demo
           working_directory: examples/webbilling-demo
