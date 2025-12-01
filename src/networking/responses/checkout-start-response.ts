@@ -10,7 +10,7 @@ export interface WebBillingCheckoutStartResponse {
 export interface PaddleCheckoutStartResponse {
   operation_session_id: string;
   gateway_params: null;
-  management_url: null;
+  management_url: string | null;
   paddle_billing_params: {
     client_side_token: string;
     is_sandbox: boolean;

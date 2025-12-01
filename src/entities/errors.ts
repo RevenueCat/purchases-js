@@ -92,6 +92,7 @@ export class ErrorCodeUtils {
       case ErrorCode.LogOutWithAnonymousUserError:
         return "Called logOut but the current user is anonymous.";
       case ErrorCode.ConfigurationError:
+        return "There is an issue with your configuration. Check the underlying error for more details.";
       case ErrorCode.UnsupportedError:
         return (
           "There was a problem with the operation. Looks like we doesn't support " +

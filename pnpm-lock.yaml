@@ -13,6 +13,9 @@ importers:
       "@microsoft/api-extractor":
         specifier: ^7.48.0
         version: 7.52.13(@types/node@22.10.5)
+      "@paddle/paddle-js":
+        specifier: ^1.5.1
+        version: 1.5.1
       "@revenuecat/purchases-ui-js":
         specifier: 2.2.1
         version: 2.2.1(svelte@5.17.0)
@@ -699,6 +702,12 @@ packages:
     resolution:
       {
         integrity: sha512-U69T3ItWHvLwGg5eJ0n3I62nWuE6ilHlmz7zM0npLBRvPRd7e6NYmg54vvRtP5mZG7kZqZCFVdsTWo7BPtBujg==,
+      }
+
+  "@paddle/paddle-js@1.5.1":
+    resolution:
+      {
+        integrity: sha512-n5btAxhRt3ws0/7g8tlz5yH1kYbN3DRp4pKQD5F2hueovmn6rasxrlJJgd33+dI9amA2w2OjkV+mxuori4eEJA==,
       }
 
   "@pkgr/core@0.1.1":
@@ -6017,6 +6026,8 @@ snapshots:
       outvariant: 1.4.3
 
   "@open-draft/until@2.1.0": {}
+
+  "@paddle/paddle-js@1.5.1": {}
 
   "@pkgr/core@0.1.1": {}
 
