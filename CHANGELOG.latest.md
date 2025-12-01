@@ -1,8 +1,11 @@
+## RevenueCat SDK
+### ✨ New Features
+* Web 3380 add paddle (#662) via Burdock (@lburdock)
+### 🐞 Bugfixes
+* Fix the deploy-demo ci step (#677) via Burdock (@lburdock)
+* Normalize locale tags for Intl and Stripe (#674) via Nicola Sacco (@nicfix)
+### 📦 Dependency Updates
+* Migrate to PNPM (#669) via Nicola Sacco (@nicfix)
+
 ### 🔄 Other Changes
-* [WEB-3466] feat: Add `forceEnableWalletMethods` internal config-flag to force the display of Apple Pay and Google Pay buttons (#666) via Víctor Ferrer García (@vicfergar)
-* Bump fastlane from 2.229.0 to 2.229.1 (#664) via dependabot[bot] (@dependabot[bot])
-* Bump fastlane-plugin-revenuecat_internal from `9f78bb9` to `efca663` (#660) via dependabot[bot] (@dependabot[bot])
-* Bump fastlane from 2.228.0 to 2.229.0 (#661) via dependabot[bot] (@dependabot[bot])
-* Bump js-yaml from 4.1.0 to 4.1.1 (#652) via dependabot[bot] (@dependabot[bot])
-* Bump js-yaml from 4.1.0 to 4.1.1 in /examples/webbilling-demo (#657) via dependabot[bot] (@dependabot[bot])
-* Bump fastlane-plugin-revenuecat_internal from `1e3e3fd` to `9f78bb9` (#653) via dependabot[bot] (@dependabot[bot])
+* WEB-3461: Add presentExpressPurchaseButton internal method (#665) via Nicola Sacco (@nicfix)
