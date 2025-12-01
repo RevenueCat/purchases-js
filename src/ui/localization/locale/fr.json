@@ -95,5 +95,8 @@
   "payment_entry_page.subscription_info": "L'abonnement est renouvelé automatiquement. Annulez à tout moment.",
   "payment_entry_page.otp_terms_info": "En achetant, vous acceptez d'autoriser {{appName}} à vous facturer conformément à ses conditions.",
   "payment_entry_page.terms_link_label": "Conditions",
-  "payment_entry_page.subscription_terms_info": "En vous abonnant, vous acceptez d'autoriser {{appName}} à vous facturer conformément à ses conditions jusqu'à ce que vous annuliez."
+  "payment_entry_page.subscription_terms_info": "En vous abonnant, vous acceptez d'autoriser {{appName}} à vous facturer conformément à ses conditions jusqu'à ce que vous annuliez.",
+  "loading_page.keep_page_open": "Le processus est presque terminé. Veuillez garder cette page ouverte.",
+  "loading_page.processing_payment": "Paiement en cours",
+  "success_page.button_return_to_app": "Retourner à {{appName}}"
 }

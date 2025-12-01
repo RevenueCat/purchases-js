@@ -95,5 +95,8 @@
   "payment_entry_page.subscription_info": "Langganan diperbaharui secara automatik. Batalkan bila-bila masa.",
   "payment_entry_page.otp_terms_info": "Dengan membuat pembelian, anda bersetuju untuk membenarkan {{appName}} mengenakan bayaran kepada anda mengikut terma mereka.",
   "payment_entry_page.terms_link_label": "Terma",
-  "payment_entry_page.subscription_terms_info": "Dengan melanggan, anda bersetuju untuk membenarkan {{appName}} mengenakan bayaran kepada anda mengikut terma mereka sehingga anda membatalkan."
+  "payment_entry_page.subscription_terms_info": "Dengan melanggan, anda bersetuju untuk membenarkan {{appName}} mengenakan bayaran kepada anda mengikut terma mereka sehingga anda membatalkan.",
+  "loading_page.keep_page_open": "Proses hampir selesai. Pastikan halaman ini dibuka.",
+  "loading_page.processing_payment": "Memproses pembayaran",
+  "success_page.button_return_to_app": "Kembali ke {{appName}}"
 }

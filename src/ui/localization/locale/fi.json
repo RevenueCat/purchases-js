@@ -95,5 +95,8 @@
   "payment_entry_page.subscription_info": "Tilaus uusiutuu automaattisesti. Peruuta milloin tahansa.",
   "payment_entry_page.otp_terms_info": "Ostamalla hyväksyt, että {{appName}} veloittaa sinua heidän ehtojensa mukaisesti.",
   "payment_entry_page.terms_link_label": "Ehdot",
-  "payment_entry_page.subscription_terms_info": "Tilaamalla hyväksyt, että {{appName}} veloittaa sinulta ehtojensa mukaisesti, kunnes peruutat tilauksen."
+  "payment_entry_page.subscription_terms_info": "Tilaamalla hyväksyt, että {{appName}} veloittaa sinulta ehtojensa mukaisesti, kunnes peruutat tilauksen.",
+  "loading_page.keep_page_open": "Prosessi on melkein valmis. Pidä tämä sivu auki.",
+  "loading_page.processing_payment": "Maksua käsitellään",
+  "success_page.button_return_to_app": "Palaa sovellukseen {{appName}}"
 }

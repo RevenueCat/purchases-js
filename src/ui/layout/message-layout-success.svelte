@@ -6,7 +6,7 @@
 </script>
 
 <div class="rcb-modal-message" data-type="success" data-has-title={!!title}>
-  <ColLayout gap="large" align="center">
+  <ColLayout gap="large" justify="center">
     {#if icon}
       <div class="rcb-modal-message-icon">
         {@render icon()}

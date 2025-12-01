@@ -129,7 +129,9 @@ export class Backend {
     );
   }
 
-  async postCheckoutStart(
+  async postCheckoutStart<
+    T extends CheckoutStartResponse = CheckoutStartResponse,
+  >(
     appUserId: string,
     productId: string,
     presentedOfferingContext: PresentedOfferingContext,
@@ -137,7 +139,7 @@ export class Backend {
     traceId: string,
     email?: string,
     metadata: PurchaseMetadata | undefined = undefined,
-  ): Promise<CheckoutStartResponse> {
+  ): Promise<T> {
     type CheckoutStartRequestBody = {
       app_user_id: string;
       product_id: string;
@@ -190,14 +192,14 @@ export class Backend {
         this.purchasesContext.workflowContext.workflowIdentifier;
     }
 
-    return await performRequest<
-      CheckoutStartRequestBody,
-      CheckoutStartResponse
-    >(new CheckoutStartEndpoint(), {
-      apiKey: this.API_KEY,
-      body: requestBody,
-      httpConfig: this.httpConfig,
-    });
+    return (await performRequest<CheckoutStartRequestBody, T>(
+      new CheckoutStartEndpoint(),
+      {
+        apiKey: this.API_KEY,
+        body: requestBody,
+        httpConfig: this.httpConfig,
+      },
+    )) as T;
   }
 
   async postCheckoutCalculateTax(

@@ -95,5 +95,8 @@
   "payment_entry_page.subscription_info": "Abonnement wordt automatisch verlengd. Annuleer op elk moment.",
   "payment_entry_page.otp_terms_info": "Door de aankoop ga je ermee akkoord dat {{appName}} kosten in rekening brengt volgens hun voorwaarden.",
   "payment_entry_page.terms_link_label": "Voorwaarden",
-  "payment_entry_page.subscription_terms_info": "Door u te abonneren, stemt u ermee in dat {{appName}} u kosten in rekening brengt volgens hun voorwaarden totdat u annuleert."
+  "payment_entry_page.subscription_terms_info": "Door u te abonneren, stemt u ermee in dat {{appName}} u kosten in rekening brengt volgens hun voorwaarden totdat u annuleert.",
+  "loading_page.keep_page_open": "Het proces is bijna voltooid. Houd deze pagina open.",
+  "loading_page.processing_payment": "Betaling verwerken",
+  "success_page.button_return_to_app": "Terug naar {{appName}}"
 }

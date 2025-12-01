@@ -7,6 +7,7 @@
   import { getContext } from "svelte";
   import { brandingContextKey } from "../constants";
   import type { BrandingAppearance } from "../../entities/branding";
+  import type { Snippet } from "svelte";
 
   let {
     onDismiss,
@@ -15,6 +16,15 @@
     closeButtonTitle = "Go back to app",
     icon = null,
     message = null,
+    fullWidth = false,
+  }: {
+    onDismiss: () => void;
+    title?: string | null;
+    type: "success" | "error";
+    closeButtonTitle?: string;
+    icon?: Snippet | null;
+    message?: Snippet | null;
+    fullWidth?: boolean;
   } = $props();
 
   const brandingAppearance = getContext<BrandingAppearance>(brandingContextKey);
@@ -24,7 +34,7 @@
   }
 </script>
 
-<div class="message-layout">
+<div class="message-layout" class:message-layout-full-width={fullWidth}>
   <div class="message-layout-content">
     <ModalSection>
       {#if type === "success"}
@@ -71,6 +81,16 @@
     .message-layout-content {
       justify-content: flex-start;
       flex-grow: 1;
+    }
+  }
+
+  .message-layout-full-width {
+    width: 100%;
+  }
+
+  @media (min-width: 768px) {
+    .message-layout-full-width {
+      width: 544px;
     }
   }
 </style>

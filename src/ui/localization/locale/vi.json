@@ -95,5 +95,8 @@
   "payment_entry_page.subscription_info": "Gói đăng ký tự động gia hạn. Hủy bất cứ lúc nào.",
   "payment_entry_page.otp_terms_info": "Bằng cách mua, bạn đồng ý cho phép {{appName}} tính phí bạn theo các điều khoản của họ.",
   "payment_entry_page.terms_link_label": "Điều khoản",
-  "payment_entry_page.subscription_terms_info": "Bằng cách đăng ký, bạn đồng ý cho phép {{appName}} tính phí bạn theo các điều khoản của họ cho đến khi bạn hủy."
+  "payment_entry_page.subscription_terms_info": "Bằng cách đăng ký, bạn đồng ý cho phép {{appName}} tính phí bạn theo các điều khoản của họ cho đến khi bạn hủy.",
+  "loading_page.keep_page_open": "Quá trình gần hoàn tất. Vui lòng giữ trang này mở.",
+  "loading_page.processing_payment": "Đang xử lý thanh toán",
+  "success_page.button_return_to_app": "Quay lại {{appName}}"
 }
