@@ -1,6 +1,5 @@
 <script module lang="ts">
   import { defineMeta, type StoryContext } from "@storybook/addon-svelte-csf";
-  import { action } from "@storybook/addon-actions";
 
   import PaddlePurchasesUiInner from "../../ui/paddle-purchases-ui-inner.svelte";
   import { brandingLanguageViewportModes } from "../../../.storybook/modes";
@@ -21,9 +20,9 @@
       isSandbox: false,
       lastError: null,
       defaultPriceBreakdown: priceBreakdownTaxDisabled,
-      onContinue: action("onContinue"),
-      closeWithError: action("closeWithError"),
-      onClose: action("onClose"),
+      onContinue: () => {},
+      closeWithError: () => {},
+      onClose: () => {},
     },
     parameters: {
       viewport: {

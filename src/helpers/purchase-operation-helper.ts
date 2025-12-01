@@ -5,7 +5,7 @@ import {
   type PurchasesErrorExtra,
 } from "../entities/errors";
 import { type Backend } from "../networking/backend";
-import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
+import type { WebBillingCheckoutStartResponse } from "../networking/responses/checkout-start-response";
 import {
   CheckoutSessionStatus,
   type CheckoutStatusResponse,
@@ -137,19 +137,20 @@ export class PurchaseOperationHelper {
     presentedOfferingContext: PresentedOfferingContext,
     email?: string,
     metadata?: PurchaseMetadata,
-  ): Promise<CheckoutStartResponse> {
+  ): Promise<WebBillingCheckoutStartResponse> {
     try {
       const traceId = this.eventsTracker.getTraceId();
 
-      const checkoutStartResponse = await this.backend.postCheckoutStart(
-        appUserId,
-        productId,
-        presentedOfferingContext,
-        purchaseOption,
-        traceId,
-        email,
-        metadata,
-      );
+      const checkoutStartResponse =
+        await this.backend.postCheckoutStart<WebBillingCheckoutStartResponse>(
+          appUserId,
+          productId,
+          presentedOfferingContext,
+          purchaseOption,
+          traceId,
+          email,
+          metadata,
+        );
       this.operationSessionId = checkoutStartResponse.operation_session_id;
       return checkoutStartResponse;
     } catch (error) {

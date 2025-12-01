@@ -130,15 +130,16 @@ export class PaddleService {
   }: PaddleStartCheckoutParams): Promise<PaddleCheckoutStartResponse> {
     try {
       const traceId = this.eventsTracker.getTraceId();
-      const startResponse = (await this.backend.postCheckoutStart(
-        appUserId,
-        productId,
-        presentedOfferingContext,
-        purchaseOption,
-        traceId,
-        customerEmail ?? undefined,
-        metadata,
-      )) as PaddleCheckoutStartResponse;
+      const startResponse =
+        await this.backend.postCheckoutStart<PaddleCheckoutStartResponse>(
+          appUserId,
+          productId,
+          presentedOfferingContext,
+          purchaseOption,
+          traceId,
+          customerEmail ?? undefined,
+          metadata,
+        );
 
       await this.initializePaddle(
         startResponse.paddle_billing_params.client_side_token,
