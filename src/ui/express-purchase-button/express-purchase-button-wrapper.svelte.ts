@@ -2,7 +2,7 @@ import { mount } from "svelte";
 import ExpressPurchaseButton from "./express-purchase-button.svelte";
 import type { ExpressPurchaseButtonProps } from "./express-purchase-button-props";
 import type { ExpressPurchaseButtonUpdater } from "../../entities/present-express-purchase-button-params";
-import type { Package } from "../../entities/offerings";
+import type { Package, PurchaseOption } from "../../entities/offerings";
 
 export class ExpressPurchaseButtonWrapper {
   protected button: ReturnType<typeof mount>;
@@ -21,8 +21,8 @@ export class ExpressPurchaseButtonWrapper {
       target: htmlTarget,
       props: this.state.props,
     });
-    const updatePurchase = (pkg: Package) => {
-      this.changePackage(pkg);
+    const updatePurchase = (pkg: Package, purchaseOption: PurchaseOption) => {
+      this.changePackage(pkg, purchaseOption);
     };
     const updater: ExpressPurchaseButtonUpdater = {
       updatePurchase,
@@ -30,12 +30,11 @@ export class ExpressPurchaseButtonWrapper {
     onButtonReady(updater);
   }
 
-  changePackage(pkg: Package) {
+  changePackage(pkg: Package, purchaseOption: PurchaseOption) {
     if (!this.state.props) {
       return;
     }
     this.state.props.rcPackage = pkg;
-    this.state.props.purchaseOption =
-      pkg.webBillingProduct.defaultPurchaseOption;
+    this.state.props.purchaseOption = purchaseOption;
   }
 }
