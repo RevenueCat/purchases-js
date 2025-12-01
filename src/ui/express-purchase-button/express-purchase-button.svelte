@@ -207,10 +207,13 @@
       customerDetails: taxCustomerDetails,
       confirmationTokenId: newConfirmationTokenId,
     } = await StripeService.extractTaxCustomerDetails(elements, stripe);
-    await purchaseOperationHelper.checkoutCalculateTax(
-      taxCustomerDetails.countryCode,
-      taxCustomerDetails.postalCode,
-    );
+
+    if (brandingInfo?.gateway_tax_collection_enabled) {
+      await purchaseOperationHelper.checkoutCalculateTax(
+        taxCustomerDetails.countryCode,
+        taxCustomerDetails.postalCode,
+      );
+    }
 
     return newConfirmationTokenId;
   };
