@@ -135,7 +135,7 @@
   };
 
   const updateStripe = async (
-    checkoutStartResponse: CheckoutStartResponse,
+    checkoutStartResponse: WebBillingCheckoutStartResponse,
     elements: StripeElements,
   ) => {
     if (!checkoutStartResponse.gateway_params?.elements_configuration) {
@@ -156,7 +156,7 @@
     checkoutStarted = true;
     managementUrl = null;
 
-    let checkoutStartResult: CheckoutStartResponse | null = null;
+    let checkoutStartResult: WebBillingCheckoutStartResponse | null = null;
     try {
       checkoutStartResult = await purchaseOperationHelper.checkoutStart(
         appUserId,
