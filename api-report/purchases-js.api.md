@@ -141,6 +141,9 @@ export enum ErrorCode {
 export interface FlagsConfig {
     autoCollectUTMAsMetadata?: boolean;
     collectAnalyticsEvents?: boolean;
+    /* Excluded from this release type: rcSource */
+    /* Excluded from this release type: allowPaddleAPIKey */
+    /* Excluded from this release type: forceEnableWalletMethods */
 }
 
 // @public
@@ -206,6 +209,8 @@ export interface Offering {
     readonly threeMonth: Package | null;
     readonly twoMonth: Package | null;
     readonly weekly: Package | null;
+    /* Excluded from this release type: paywallComponents */
+    /* Excluded from this release type: uiConfig */
 }
 
 // @public
@@ -281,17 +286,6 @@ export interface PresentedOfferingContext {
 }
 
 // @public
-interface PresentExpressPurchaseButtonParams {
-    customerEmail?: string;
-    defaultLocale?: string;
-    htmlTarget?: HTMLElement;
-    metadata?: PurchaseMetadata;
-    purchaseOption?: PurchaseOption | null;
-    rcPackage: Package;
-    selectedLocale?: string;
-}
-
-// @public
 export interface PresentPaywallParams {
     readonly customerEmail?: string;
     readonly htmlTarget?: HTMLElement;
@@ -301,6 +295,7 @@ export interface PresentPaywallParams {
     readonly onVisitCustomerCenter?: () => void;
     readonly purchaseHtmlTarget?: HTMLElement;
     readonly selectedLocale?: string;
+    /* Excluded from this release type: useExpressPurchaseButtons */
 }
 
 // @public
@@ -375,6 +370,9 @@ export interface PurchaseParams {
     rcPackage: Package;
     selectedLocale?: string;
     skipSuccessPage?: boolean;
+    /* Excluded from this release type: brandingAppearanceOverride */
+    /* Excluded from this release type: labelsOverride */
+    /* Excluded from this release type: termsAndConditionsUrl */
 }
 
 // @public
@@ -387,6 +385,18 @@ export interface PurchaseResult {
 
 // @public
 export class Purchases {
+    /* Excluded from this release type: _API_KEY */
+    /* Excluded from this release type: _appUserId */
+    /* Excluded from this release type: _brandingInfo */
+    /* Excluded from this release type: _loadingResourcesPromise */
+    /* Excluded from this release type: _flags */
+    /* Excluded from this release type: _context */
+    /* Excluded from this release type: backend */
+    /* Excluded from this release type: purchaseOperationHelper */
+    /* Excluded from this release type: eventsTracker */
+    /* Excluded from this release type: _platformInfo */
+    /* Excluded from this release type: inMemoryCache */
+    /* Excluded from this release type: instance */
     changeUser(newAppUserId: string): Promise<CustomerInfo>;
     close(): void;
     static configure(config: PurchasesConfig): Purchases;
@@ -409,8 +419,6 @@ export class Purchases {
     // (undocumented)
     isSandbox(): boolean;
     preload(): Promise<void>;
-    // Warning: (ae-forgotten-export) The symbol "PresentExpressPurchaseButtonParams" needs to be exported by the entry point Purchases.es.d.ts
-    presentExpressPurchaseButton(params: PresentExpressPurchaseButtonParams): Promise<PurchaseResult>;
     presentPaywall(paywallParams: PresentPaywallParams): Promise<PurchaseResult>;
     purchase(params: PurchaseParams): Promise<PurchaseResult>;
     // @deprecated
@@ -421,6 +429,7 @@ export class Purchases {
     static setLogHandler(handler: LogHandler | null): void;
     static setLogLevel(logLevel: LogLevel): void;
     static setPlatformInfo(platformInfo: PlatformInfo): void;
+    /* Excluded from this release type: _trackEvent */
 }
 
 // @public
@@ -429,6 +438,7 @@ export interface PurchasesConfig {
     appUserId: string;
     flags?: FlagsConfig;
     httpConfig?: HttpConfig;
+    /* Excluded from this release type: context */
 }
 
 // @public

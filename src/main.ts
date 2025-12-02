@@ -147,6 +147,10 @@ export type { PurchasesConfig } from "./entities/purchases-config";
 export type { VirtualCurrencies } from "./entities/virtual-currencies";
 export type { VirtualCurrency } from "./entities/virtual-currency";
 export type { PresentPaywallParams } from "./entities/present-paywall-params";
+export type {
+  PresentExpressPurchaseButtonParams,
+  ExpressPurchaseButtonUpdater,
+} from "./entities/present-express-purchase-button-params";
 
 const ANONYMOUS_PREFIX = "$RCAnonymousID:";
 
@@ -577,7 +581,6 @@ export class Purchases {
         paywallParams.onVisitCustomerCenter();
         return;
       }
-
       // DO NOTHING, RC's customer center is not supported in web
     };
 
@@ -789,7 +792,7 @@ export class Purchases {
    * Renders an Express Purchase button for the supported wallets (Apple Pay/Google Pay).
    * When clicked it uses the wallet UI to execute the purchase instead of
    * the checkout flow that would be shown with `.purchase`.
-   * @experimental
+   * @internal
    * @param params - The parameters object to customise the purchase flow. Check {@link PurchaseParams}
    * @returns Promise<PurchaseResult>
    */

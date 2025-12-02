@@ -1,18 +1,26 @@
 import type { Package, PurchaseMetadata, PurchaseOption } from "./offerings";
-
 import type { CustomTranslations } from "../ui/localization/translator";
 
+/**
+ * Callback to be called when the express purchase button is ready to be updated.
+ * @internal
+ * @experimental
+ */
 export interface ExpressPurchaseButtonUpdater {
-  updatePurchase(pkg: Package, purchaseOption: PurchaseOption): void;
+  /**
+   * Updates the purchase option of the express purchase button.
+   */
+  updatePurchase: (pkg: Package, purchaseOption: PurchaseOption) => void;
 }
 
 /**
- * Parameters used to customise the purchase flow when invoking the `.purchase` method.
- * @public
+ * Parameters for the {@link Purchases.presentExpressPurchaseButton} method.
+ * @internal
+ * @experimental
  */
 export interface PresentExpressPurchaseButtonParams {
   /**
-   * The package you want to purchase. Obtained from {@link Purchases.getOfferings}.
+   * The package you want to purchase.
    */
   rcPackage: Package;
   /**
@@ -55,8 +63,8 @@ export interface PresentExpressPurchaseButtonParams {
   labelsOverride?: CustomTranslations;
 
   /**
-   * Callback to be called when the express purchase button is ready to be clicked.
    * @internal
+   * Callback to be called when the express purchase button is ready to be clicked.
    */
   onButtonReady?: (updater: ExpressPurchaseButtonUpdater) => void;
 }
