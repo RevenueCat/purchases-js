@@ -145,6 +145,8 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
     }
 
     purchases
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      //@ts-expect-error
       .presentExpressPurchaseButton({
         rcPackage: pkg,
         htmlTarget: applePayButtonref.current,
