@@ -31,6 +31,7 @@
     customTranslations?: Record<string, Record<string, string>>;
     isInElement: boolean;
     skipSuccessPage: boolean;
+    onClose: () => void;
     onFinished: (operationResult: OperationSessionSuccessfulResult) => void;
     onError: (error: PurchaseFlowError) => void;
     productDetails: Product;
@@ -51,6 +52,7 @@
     customTranslations = {},
     isInElement,
     skipSuccessPage = false,
+    onClose,
     onFinished,
     onError,
     productDetails,
@@ -176,7 +178,7 @@
         operationSessionId: startResponse.operation_session_id,
         transactionId: startResponse.paddle_billing_params?.transaction_id,
         onCheckoutLoaded,
-        unmountPaddlePurchaseUi,
+        onClose,
         params: {
           rcPackage,
           purchaseOption,

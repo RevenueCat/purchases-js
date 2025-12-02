@@ -1071,6 +1071,13 @@ export class Purchases {
         certainHTMLTarget.innerHTML = "";
       };
 
+      const onClose =
+        this.createCheckoutOnCloseHandler(reject, unmountPaddlePurchaseUi) ??
+        // Always unmount PaddlePurchaseUi when the user closes the checkout modal
+        (() => {
+          unmountPaddlePurchaseUi();
+        });
+
       const onFinished = this.createCheckoutOnFinishedHandler(
         resolve,
         appUserId,
@@ -1092,6 +1099,7 @@ export class Purchases {
             defaultLocale,
             customTranslations: params.labelsOverride,
             isInElement,
+            onClose,
             onFinished,
             onError,
             skipSuccessPage,

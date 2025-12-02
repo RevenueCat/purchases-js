@@ -46,7 +46,7 @@ interface PaddlePurchase {
   transactionId: string;
   onCheckoutLoaded: () => void;
   params: PaddlePurchaseParams;
-  unmountPaddlePurchaseUi: () => void;
+  onClose: () => void;
 }
 
 interface PaddleStartCheckoutParams {
@@ -167,7 +167,7 @@ export class PaddleService {
     operationSessionId,
     transactionId,
     onCheckoutLoaded,
-    unmountPaddlePurchaseUi,
+    onClose,
     params,
   }: PaddlePurchase): Promise<OperationSessionSuccessfulResult> {
     const paddleInstance = this.getPaddleInstance();
@@ -194,7 +194,7 @@ export class PaddleService {
               // not when this code calls paddleInstance.Checkout.close()
               const paddleInitiatedCheckoutClosedEvent = !!data?.status;
               if (paddleInitiatedCheckoutClosedEvent) {
-                unmountPaddlePurchaseUi();
+                onClose();
               }
             }
           } catch (error) {
