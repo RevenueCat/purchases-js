@@ -17,17 +17,21 @@ export class ExpressPurchaseButtonWrapper {
       props: props,
     });
 
-    this.button = mount(ExpressPurchaseButton, {
-      target: htmlTarget,
-      props: this.state.props,
-    });
     const updatePurchase = (pkg: Package) => {
       this.changePackage(pkg);
     };
     const updater: ExpressPurchaseButtonUpdater = {
       updatePurchase,
     };
-    onButtonReady(updater);
+
+    this.state.props.onReady = () => {
+      onButtonReady(updater);
+    };
+
+    this.button = mount(ExpressPurchaseButton, {
+      target: htmlTarget,
+      props: this.state.props,
+    });
   }
 
   changePackage(pkg: Package) {
