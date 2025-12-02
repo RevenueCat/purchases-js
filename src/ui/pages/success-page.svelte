@@ -11,6 +11,9 @@
   import { eventsTrackerContextKey } from "../constants";
   import { type Writable } from "svelte/store";
   export let onContinue: () => void;
+  export let title: string | undefined = undefined;
+  export let closeButtonTitle: string | undefined = undefined;
+  export let fullWidth: boolean = false;
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
   const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
@@ -34,11 +37,12 @@
 
 <MessageLayout
   type="success"
-  title={$translator.translate(LocalizationKeys.SuccessPagePurchaseSuccessful)}
+  title={title ??
+    $translator.translate(LocalizationKeys.SuccessPagePurchaseSuccessful)}
   onDismiss={handleContinue}
-  closeButtonTitle={$translator.translate(
-    LocalizationKeys.SuccessPageButtonClose,
-  )}
+  closeButtonTitle={closeButtonTitle ??
+    $translator.translate(LocalizationKeys.SuccessPageButtonClose)}
+  {fullWidth}
 >
   {#snippet icon()}
     <IconSuccess />

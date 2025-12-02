@@ -95,5 +95,8 @@
   "payment_entry_page.subscription_info": "Az előfizetés automatikusan megújul. Bármikor lemondhatod.",
   "payment_entry_page.otp_terms_info": "A vásárlással elfogadod, hogy a {{appName}} az általa meghatározott feltételek szerint terheljen.",
   "payment_entry_page.terms_link_label": "Feltételek",
-  "payment_entry_page.subscription_terms_info": "A feliratkozással elfogadod, hogy a {{appName}} az általa meghatározott feltételek szerint terheljen, amíg le nem mondod."
+  "payment_entry_page.subscription_terms_info": "A feliratkozással elfogadod, hogy a {{appName}} az általa meghatározott feltételek szerint terheljen, amíg le nem mondod.",
+  "loading_page.keep_page_open": "A folyamat majdnem befejeződött. Tartsa nyitva ezt az oldalt.",
+  "loading_page.processing_payment": "Fizetés feldolgozása",
+  "success_page.button_return_to_app": "Visszatérés a(z) {{appName}} alkalmazáshoz"
 }

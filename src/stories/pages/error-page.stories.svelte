@@ -1,6 +1,8 @@
 <script module lang="ts">
   import { defineMeta, type StoryContext } from "@storybook/addon-svelte-csf";
   import PurchasesInner from "../../ui/purchases-ui-inner.svelte";
+  import ErrorPage from "../../ui/pages/error-page.svelte";
+  import FullscreenTemplate from "../../ui/layout/fullscreen-template.svelte";
   import { brandingLanguageViewportModes } from "../../../.storybook/modes";
   import {
     brandingInfos,
@@ -96,3 +98,25 @@
   name="Stripe Missing Required Permission"
   args={{ lastError: purchaseFlowErrors.stripeMissingRequiredPermission }}
 />
+
+<Story name="Fullscreen Template"
+  >{#snippet template(_args, context)}
+    {@const brandingInfo = { ...brandingInfos[context.globals.brandingName] }}
+    <FullscreenTemplate
+      {brandingInfo}
+      isInElement={context.globals.viewport === "embedded"}
+      isSandbox={false}
+    >
+      {#snippet mainContent()}
+        <ErrorPage
+          lastError={purchaseFlowErrors.networkError}
+          productDetails={product}
+          supportEmail={brandingInfo?.support_email ?? null}
+          onDismiss={() => {}}
+          appName={brandingInfo?.app_name ?? null}
+          fullWidth={true}
+        />
+      {/snippet}
+    </FullscreenTemplate>
+  {/snippet}
+</Story>

@@ -43,8 +43,8 @@ See the [RevenueCat docs](https://www.revenuecat.com/docs/web/web-billing) and t
 - Build the library
 
 ```bash
-npm install
-npm run build:dev
+pnpm install
+pnpm run build:dev
 ```
 
 To avoid publishing the package you can use Yarn's link feature:
@@ -61,12 +61,12 @@ yarn link
 yarn link "@revenuecat/purchases-js"
 ```
 
-> **Note:** Any changes you make to the library will be automatically reflected in your testing project after running `npm run build:dev` or `npm run build`.
+> **Note:** Any changes you make to the library will be automatically reflected in your testing project after running `pnpm run build:dev` or `pnpm run build`.
 
 ## Running Storybook
 
 ```bash
-npm run storybook
+pnpm run storybook
 ```
 
 ### Environment Setup for Purchase Stories
@@ -92,16 +92,16 @@ VITE_STORYBOOK_ACCOUNT_ID="acct_1234567890"
 ## Running tests
 
 ```bash
-npm run test
+pnpm run test
 ```
 
 ## Running linters
 
 ```bash
-npm run test:typecheck
-npm run svelte-check
-npm run prettier
-npm run lint
+pnpm run test:typecheck
+pnpm run svelte-check
+pnpm run prettier
+pnpm run lint
 ```
 
 ## Running E2E tests
@@ -111,7 +111,7 @@ Please check the Demo app readme [here](./examples/webbilling-demo/README.md#e2e
 ## Update API specs
 
 ```bash
-npm run extract-api
+pnpm run extract-api
 ```
 
 This will update the files in `api-report` with the latest public API.

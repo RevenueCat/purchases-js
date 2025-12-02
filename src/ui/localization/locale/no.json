@@ -95,5 +95,8 @@
   "payment_entry_page.subscription_info": "Abonnementet fornyes automatisk. Avbryt når som helst.",
   "payment_entry_page.otp_terms_info": "Ved å kjøpe godtar du at {{appName}} belaster deg i henhold til deres vilkår.",
   "payment_entry_page.terms_link_label": "Vilkår",
-  "payment_entry_page.subscription_terms_info": "Ved å abonnere godtar du at {{appName}} belaster deg i henhold til deres vilkår til du kansellerer."
+  "payment_entry_page.subscription_terms_info": "Ved å abonnere godtar du at {{appName}} belaster deg i henhold til deres vilkår til du kansellerer.",
+  "loading_page.keep_page_open": "Prosessen er nesten ferdig. Hold denne siden åpen.",
+  "loading_page.processing_payment": "Behandler betaling",
+  "success_page.button_return_to_app": "Gå tilbake til {{appName}}"
 }

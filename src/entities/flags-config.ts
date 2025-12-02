@@ -26,13 +26,6 @@ export interface FlagsConfig {
   rcSource?: string;
 
   /**
-   * If set to true, the SDK will allow Paddle API keys. Paddle is not fully supported yet, only some features are available.
-   * @defaultValue false
-   * @internal
-   */
-  allowPaddleAPIKey?: boolean;
-
-  /**
    * If set to `true`, the SDK will force the display of Apple Pay and Google Pay
    * buttons on supported platforms, even when the customer is not signed in to
    * their wallet. This may result in a sign-in flow being triggered.
