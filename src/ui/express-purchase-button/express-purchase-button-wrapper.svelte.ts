@@ -4,38 +4,33 @@ import type { ExpressPurchaseButtonProps } from "./express-purchase-button-props
 import type { ExpressPurchaseButtonUpdater } from "../../entities/present-express-purchase-button-params";
 import type { Package, PurchaseOption } from "../../entities/offerings";
 
-export class ExpressPurchaseButtonWrapper {
-  protected button: ReturnType<typeof mount>;
-  private state: { props: ExpressPurchaseButtonProps };
+export function renderExpressPurchaseButton(
+  htmlTarget: HTMLElement,
+  onButtonReady: (updater: ExpressPurchaseButtonUpdater) => void,
+  props: ExpressPurchaseButtonProps,
+) {
+  const state = $state({
+    props: props,
+  });
 
-  constructor(
-    htmlTarget: HTMLElement,
-    onButtonReady: (updater: ExpressPurchaseButtonUpdater) => void,
-    props: ExpressPurchaseButtonProps,
-  ) {
-    this.state = $state({
-      props: props,
-    });
+  const button = mount(ExpressPurchaseButton, {
+    target: htmlTarget,
+    props: state.props,
+  });
 
-    this.button = mount(ExpressPurchaseButton, {
-      target: htmlTarget,
-      props: this.state.props,
-    });
-    const updatePurchase = (pkg: Package, purchaseOption?: PurchaseOption) => {
-      this.changePackage(pkg, purchaseOption);
-    };
-    const updater: ExpressPurchaseButtonUpdater = {
-      updatePurchase,
-    };
-    onButtonReady(updater);
-  }
-
-  changePackage(pkg: Package, purchaseOption?: PurchaseOption) {
-    if (!this.state.props) {
+  const updatePurchase: ExpressPurchaseButtonUpdater["updatePurchase"] = (
+    pkg: Package,
+    purchaseOption?: PurchaseOption,
+  ) => {
+    if (!state.props) {
       return;
     }
-    this.state.props.rcPackage = pkg;
-    this.state.props.purchaseOption =
+    state.props.rcPackage = pkg;
+    state.props.purchaseOption =
       purchaseOption ?? pkg.webBillingProduct.defaultPurchaseOption;
-  }
+  };
+
+  onButtonReady({ updatePurchase });
+
+  return button;
 }
