@@ -10,7 +10,7 @@ export interface ExpressPurchaseButtonUpdater {
   /**
    * Updates the purchase option of the express purchase button.
    */
-  updatePurchase: (pkg: Package, purchaseOption: PurchaseOption) => void;
+  updatePurchase: (pkg: Package, purchaseOption?: PurchaseOption) => void;
 }
 
 /**
