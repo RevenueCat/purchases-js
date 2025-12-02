@@ -35,25 +35,21 @@ export interface PresentExpressPurchaseButtonParams {
    * The email of the user. If undefined, RevenueCat will ask the customer for their email.
    */
   customerEmail?: string;
-
   /**
    * The locale to use for the purchase flow. If not specified, English will be used
    */
   selectedLocale?: string;
-
   /**
    * The default locale to use if the selectedLocale is not available.
    * Defaults to english.
    */
   defaultLocale?: string;
-
   /**
    * The purchase metadata to be passed to the backend.
    * Any information provided here will be propagated to the payment gateway and
    * to the RC transaction as metadata.
    */
   metadata?: PurchaseMetadata;
-
   /**
    * @internal
    * @experimental
@@ -61,7 +57,6 @@ export interface PresentExpressPurchaseButtonParams {
    *
    */
   labelsOverride?: CustomTranslations;
-
   /**
    * @internal
    * Callback to be called when the express purchase button is ready to be clicked.
