@@ -101,36 +101,40 @@ describe("PaddlePurchasesUI", () => {
       context: defaultContext,
     });
 
-    await expect(startCheckoutSpy).toHaveBeenCalledWith({
-      appUserId: "test-app-user-id",
-      productId: rcPackage.webBillingProduct.identifier,
-      presentedOfferingContext: {
-        offeringIdentifier:
-          rcPackage.webBillingProduct.presentedOfferingContext
-            .offeringIdentifier,
-        targetingContext: null,
-        placementIdentifier: null,
-      },
-      purchaseOption: subscriptionOption,
-      customerEmail: undefined,
-      metadata: undefined,
+    await waitFor(() => {
+      expect(startCheckoutSpy).toHaveBeenCalledWith({
+        appUserId: "test-app-user-id",
+        productId: rcPackage.webBillingProduct.identifier,
+        presentedOfferingContext: {
+          offeringIdentifier:
+            rcPackage.webBillingProduct.presentedOfferingContext
+              .offeringIdentifier,
+          targetingContext: null,
+          placementIdentifier: null,
+        },
+        purchaseOption: subscriptionOption,
+        customerEmail: undefined,
+        metadata: undefined,
+      });
     });
 
-    await expect(purchaseSpy).toHaveBeenCalledWith({
-      operationSessionId: "test-operation-session-id",
-      transactionId: "test-transaction-id",
-      onCheckoutLoaded: expect.any(Function),
-      unmountPaddlePurchaseUi: expect.any(Function),
-      params: {
-        rcPackage: rcPackage,
-        purchaseOption: subscriptionOption,
-        appUserId: "test-app-user-id",
-        presentedOfferingIdentifier:
-          rcPackage.webBillingProduct.presentedOfferingContext
-            .offeringIdentifier,
-        customerEmail: undefined,
-        locale: "en",
-      },
+    await waitFor(() => {
+      expect(purchaseSpy).toHaveBeenCalledWith({
+        operationSessionId: "test-operation-session-id",
+        transactionId: "test-transaction-id",
+        onCheckoutLoaded: expect.any(Function),
+        unmountPaddlePurchaseUi: expect.any(Function),
+        params: {
+          rcPackage: rcPackage,
+          purchaseOption: subscriptionOption,
+          appUserId: "test-app-user-id",
+          presentedOfferingIdentifier:
+            rcPackage.webBillingProduct.presentedOfferingContext
+              .offeringIdentifier,
+          customerEmail: undefined,
+          locale: "en",
+        },
+      });
     });
   });
 
