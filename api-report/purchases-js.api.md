@@ -142,7 +142,6 @@ export interface FlagsConfig {
     autoCollectUTMAsMetadata?: boolean;
     collectAnalyticsEvents?: boolean;
     /* Excluded from this release type: rcSource */
-    /* Excluded from this release type: allowPaddleAPIKey */
     /* Excluded from this release type: forceEnableWalletMethods */
 }
 
