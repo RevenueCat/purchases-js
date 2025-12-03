@@ -69,6 +69,8 @@
 </script>
 
 <script lang="ts">
+  import { defaultPurchaseMode } from "../../behavioural-events/event";
+
   const {
     gatewayParams,
     managementUrl,
@@ -241,6 +243,9 @@
   function handleStripeLoadingComplete() {
     eventsTracker.trackSDKEvent({
       eventName: SDKEventName.CheckoutPaymentFormImpression,
+      properties: {
+        mode: defaultPurchaseMode,
+      },
     });
     isStripeLoading = false;
   }

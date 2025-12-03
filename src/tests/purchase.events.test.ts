@@ -9,6 +9,7 @@ import {
   PurchaseFlowError,
   PurchaseFlowErrorCode,
 } from "../helpers/purchase-operation-helper";
+import { defaultPurchaseMode } from "../behavioural-events/event";
 
 vi.mock("svelte", () => ({
   mount: vi.fn(),
@@ -91,6 +92,7 @@ describe("Purchases.configure()", () => {
               rc_source: "rcSource",
             },
             properties: {
+              mode: defaultPurchaseMode,
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               customer_email_provided_by_developer: false,
               customization_color_buttons_primary: null,
@@ -146,6 +148,7 @@ describe("Purchases.configure()", () => {
               rc_source: "rcSource",
             },
             properties: {
+              mode: defaultPurchaseMode,
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               outcome: "finished",
               with_redemption_info: false,
@@ -219,6 +222,7 @@ describe("Purchases.configure()", () => {
               rc_source: "rcSource",
             },
             properties: {
+              mode: defaultPurchaseMode,
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               outcome: "closed",
             },
@@ -267,6 +271,7 @@ describe("Purchases.configure()", () => {
               rc_source: "rcSource",
             },
             properties: {
+              mode: defaultPurchaseMode,
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               outcome: "errored",
               error_code: "0",
@@ -309,6 +314,7 @@ describe("Purchases.configure()", () => {
               rc_source: "rcSource",
             },
             properties: {
+              mode: defaultPurchaseMode,
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               customer_email_provided_by_developer: false,
               customization_color_buttons_primary: null,
@@ -373,6 +379,7 @@ describe("Purchases.configure()", () => {
               rc_source: "rcSource",
             },
             properties: {
+              mode: defaultPurchaseMode,
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               outcome: "finished",
               with_redemption_info: false,
@@ -426,6 +433,7 @@ describe("Purchases.configure()", () => {
               rc_source: "rcSource",
             },
             properties: {
+              mode: defaultPurchaseMode,
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               outcome: "errored",
               error_code: "0",

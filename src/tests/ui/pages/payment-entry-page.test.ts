@@ -28,6 +28,7 @@ import type {
 import type { ComponentProps } from "svelte";
 import type { GatewayParams } from "../../../networking/responses/stripe-elements";
 import type { CheckoutCalculateTaxResponse } from "../../../networking/responses/checkout-calculate-tax-response";
+import { defaultPurchaseMode } from "../../../behavioural-events/event";
 
 vi.mock("../../../stripe/stripe-service", async () => {
   const actual = await vi.importActual<{
@@ -194,6 +195,7 @@ describe("PurchasesUI", () => {
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
       eventName: SDKEventName.CheckoutPaymentFormSubmit,
       properties: {
+        mode: defaultPurchaseMode,
         selectedPaymentMethod: "card",
       },
     });
@@ -214,6 +216,7 @@ describe("PurchasesUI", () => {
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
       eventName: SDKEventName.CheckoutPaymentFormGatewayError,
       properties: {
+        mode: defaultPurchaseMode,
         errorCode: "",
         errorMessage: "Failed to initialize payment form",
       },
@@ -273,6 +276,7 @@ describe("PurchasesUI", () => {
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
       eventName: SDKEventName.CheckoutPaymentFormGatewayError,
       properties: {
+        mode: defaultPurchaseMode,
         errorCode: "0",
         errorMessage: "Failed to initialize payment form",
       },
@@ -332,6 +336,7 @@ describe("PurchasesUI", () => {
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
       eventName: SDKEventName.CheckoutPaymentFormGatewayError,
       properties: {
+        mode: defaultPurchaseMode,
         errorCode: "0",
         errorMessage: "Failed to initialize payment form",
       },
@@ -403,6 +408,7 @@ describe("PurchasesUI", () => {
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
       eventName: SDKEventName.CheckoutPaymentFormGatewayError,
       properties: {
+        mode: defaultPurchaseMode,
         errorCode: "0",
         errorMessage: "Submission error",
       },
@@ -426,6 +432,7 @@ describe("PurchasesUI", () => {
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
       eventName: SDKEventName.CheckoutPaymentTaxCalculation,
       properties: {
+        mode: defaultPurchaseMode,
         outcome: "taxed",
         ui_element: "auto",
         tax_inclusive: false,
