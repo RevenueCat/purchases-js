@@ -97,6 +97,5 @@
   "payment_entry_page.terms_link_label": "Podmienky",
   "payment_entry_page.subscription_terms_info": "Prihlásením na odber súhlasíte s tým, že spoločnosť {{appName}} vám bude účtovať poplatky podľa svojich podmienok, až kým odber nezrušíte.",
   "loading_page.keep_page_open": "Proces sa takmer dokončil. Nechajte túto stránku otvorenú.",
-  "loading_page.processing_payment": "Spracováva sa platba",
-  "success_page.button_return_to_app": "Späť do aplikácie {{appName}}"
+  "loading_page.processing_payment": "Spracováva sa platba"
 }

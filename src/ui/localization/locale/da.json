@@ -97,6 +97,5 @@
   "payment_entry_page.terms_link_label": "Vilkår",
   "payment_entry_page.subscription_terms_info": "Ved at abonnere accepterer du, at {{appName}} kan opkræve dig i henhold til deres vilkår, indtil du opsiger.",
   "loading_page.keep_page_open": "Processen er næsten færdig. Hold denne side åben.",
-  "loading_page.processing_payment": "Behandler betaling",
-  "success_page.button_return_to_app": "Vend tilbage til {{appName}}"
+  "loading_page.processing_payment": "Behandler betaling"
 }

@@ -83,22 +83,14 @@
     {@const title = translator.translate(
       LocalizationKeys.PaymentEntryPageSubscriptionInfo,
     )}
-    {@const closeButtonTitle = translator.translate(
-      LocalizationKeys.SuccessPageButtonReturnToApp,
-      { appName: brandingInfo?.app_name ?? "App" },
-    )}
+
     <FullscreenTemplate
       {brandingInfo}
       isInElement={context.globals.viewport === "embedded"}
       isSandbox={false}
     >
       {#snippet mainContent()}
-        <SuccessPage
-          {title}
-          {closeButtonTitle}
-          onContinue={() => {}}
-          fullWidth={true}
-        />
+        <SuccessPage {title} onContinue={() => {}} fullWidth={true} />
       {/snippet}
     </FullscreenTemplate>
   {/snippet}

@@ -77,7 +77,7 @@ const baseProps: ComponentProps<PaddlePurchasesUI> = {
   paddleService: createPaddleServiceMock(),
 };
 
-const continueButtonRegex = /return to some fantastic cat, inc\./i;
+const continueButtonRegex = /continue/i;
 
 describe("PaddlePurchasesUI", () => {
   beforeEach(() => {

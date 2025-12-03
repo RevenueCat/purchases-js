@@ -97,6 +97,5 @@
   "payment_entry_page.terms_link_label": "Условия",
   "payment_entry_page.subscription_terms_info": "Подписываясь, вы соглашаетесь с тем, что {{appName}} будет взимать с вас плату в соответствии с их условиями до тех пор, пока вы не отмените подписку.",
   "loading_page.keep_page_open": "Процесс почти завершен. Не закрывайте эту страницу.",
-  "loading_page.processing_payment": "Обработка платежа",
-  "success_page.button_return_to_app": "Вернуться в {{appName}}"
+  "loading_page.processing_payment": "Обработка платежа"
 }
