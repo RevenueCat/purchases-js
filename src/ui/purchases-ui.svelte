@@ -26,6 +26,7 @@
   import { eventsTrackerContextKey, brandingContextKey } from "./constants";
   import { createCheckoutFlowErrorEvent } from "../behavioural-events/sdk-event-helpers";
   import type { PurchaseMetadata } from "../entities/offerings";
+  import type { WorkflowPurchaseContext } from "../entities/purchase-params";
   import { writable } from "svelte/store";
   import { type GatewayParams } from "../networking/responses/stripe-elements";
   import { validateEmail } from "../helpers/validators";
@@ -46,6 +47,7 @@
     isInElement: boolean;
     skipSuccessPage: boolean;
     termsAndConditionsUrl?: string;
+    workflowPurchaseContext?: WorkflowPurchaseContext;
     onFinished: (operationResult: OperationSessionSuccessfulResult) => void;
     onError: (error: PurchaseFlowError) => void;
     onClose: (() => void) | undefined;
@@ -67,6 +69,7 @@
     isInElement,
     skipSuccessPage = false,
     termsAndConditionsUrl,
+    workflowPurchaseContext,
     onFinished,
     onError,
     onClose,
@@ -156,6 +159,7 @@
         rcPackage.webBillingProduct.presentedOfferingContext,
         email,
         metadata,
+        workflowPurchaseContext,
       )
       .then((result) => {
         lastError = null;
@@ -174,6 +178,7 @@
               rcPackage.webBillingProduct.presentedOfferingContext,
               email,
               metadata,
+              workflowPurchaseContext,
             )
             .then((result) => {
               lastError = null;
