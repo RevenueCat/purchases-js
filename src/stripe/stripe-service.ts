@@ -246,34 +246,6 @@ export class StripeService {
     return elements.create("expressCheckout", options);
   }
 
-  static updateExpressCheckoutElement(
-    elements: StripeElements,
-    billingAddressRequired: boolean,
-    forceEnableWalletMethods: boolean,
-    expressCheckoutOptions?: StripeExpressCheckoutConfiguration,
-  ) {
-    const options = {
-      billingAddressRequired,
-      emailRequired: true,
-      ...(forceEnableWalletMethods
-        ? {
-            paymentMethods: {
-              applePay: "always",
-              googlePay: "always",
-            },
-          }
-        : {}),
-      ...(expressCheckoutOptions ? expressCheckoutOptions : {}),
-    } as StripeExpressCheckoutElementOptions;
-
-    const exp = elements.getElement("expressCheckout");
-    if (!exp) {
-      console.log("Express checkout element not found");
-      return;
-    }
-    exp.update(options);
-  }
-
   static createLinkAuthenticationElement(
     elements: StripeElements,
     email?: string,
