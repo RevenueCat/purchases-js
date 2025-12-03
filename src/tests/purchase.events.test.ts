@@ -5,6 +5,10 @@ import "./utils/to-have-been-called-exactly-once-with";
 import { Logger } from "../helpers/logger";
 import { ErrorCode, Purchases, PurchasesError } from "../main";
 import { mount } from "svelte";
+import {
+  PurchaseFlowError,
+  PurchaseFlowErrorCode,
+} from "../helpers/purchase-operation-helper";
 
 vi.mock("svelte", () => ({
   mount: vi.fn(),
@@ -244,6 +248,165 @@ describe("Purchases.configure()", () => {
       if (!(error instanceof PurchasesError)) {
         throw error;
       }
+    }
+
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(APIPostRequest).toHaveBeenLastCalledWith({
+      url: "http://localhost:8000/v1/events",
+      json: {
+        events: [
+          {
+            id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+            type: "web_billing",
+            event_name: "checkout_session_end",
+            timestamp_ms: date.getTime(),
+            app_user_id: "someAppUserId",
+            context: {
+              source: "sdk",
+              rc_source: "rcSource",
+            },
+            properties: {
+              trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+              outcome: "errored",
+              error_code: "0",
+              error_message: "Unexpected error",
+            },
+          },
+        ],
+      },
+    });
+  });
+
+  test("tracks the CheckoutSessionStarted event upon starting an express purchase", async () => {
+    const purchases = Purchases.getSharedInstance();
+    const offerings = await purchases.getOfferings();
+    const packageToBuy = offerings.current?.availablePackages[0];
+
+    const htmlTarget = document.createElement("div");
+
+    // We don't await the promise here; the start event is tracked synchronously
+    // before the Express button UI is mounted.
+    void purchases.presentExpressPurchaseButton({
+      rcPackage: packageToBuy!,
+      htmlTarget,
+    });
+
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(APIPostRequest).toHaveBeenCalledWith({
+      url: "http://localhost:8000/v1/events",
+      json: {
+        events: [
+          {
+            id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+            type: "web_billing",
+            event_name: "checkout_session_start",
+            timestamp_ms: date.getTime(),
+            app_user_id: "someAppUserId",
+            context: {
+              source: "sdk",
+              rc_source: "rcSource",
+            },
+            properties: {
+              trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+              customer_email_provided_by_developer: false,
+              customization_color_buttons_primary: null,
+              customization_color_accent: null,
+              customization_color_error: null,
+              customization_color_product_info_bg: null,
+              customization_color_form_bg: null,
+              customization_color_page_bg: null,
+              customization_font: null,
+              customization_shapes: null,
+              customization_show_product_description: null,
+              product_currency: "USD",
+              product_interval: "P1M",
+              product_price: 3000000,
+              selected_package_id: "$rc_monthly",
+              selected_product_id: "monthly",
+              selected_purchase_option: "base_option",
+            },
+          },
+        ],
+      },
+    });
+  });
+
+  test("tracks the CheckoutSessionEnded event upon finishing an express purchase", async () => {
+    vi.mocked(mount).mockImplementation((_component, options) => {
+      options.props?.onFinished({
+        redemptionInfo: null,
+        operationSessionId: "op-id",
+        storeTransactionIdentifier: "store-tx-id",
+        productIdentifier: "product-id",
+        purchaseDate: new Date(),
+      });
+      return vi.fn();
+    });
+
+    const purchases = Purchases.getSharedInstance();
+    const offerings = await purchases.getOfferings();
+    const packageToBuy = offerings.current?.availablePackages[0];
+
+    const htmlTarget = document.createElement("div");
+
+    await purchases.presentExpressPurchaseButton({
+      rcPackage: packageToBuy!,
+      htmlTarget,
+    });
+
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(APIPostRequest).toHaveBeenLastCalledWith({
+      url: "http://localhost:8000/v1/events",
+      json: {
+        events: [
+          {
+            id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+            type: "web_billing",
+            event_name: "checkout_session_end",
+            timestamp_ms: date.getTime(),
+            app_user_id: "someAppUserId",
+            context: {
+              source: "sdk",
+              rc_source: "rcSource",
+            },
+            properties: {
+              trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+              outcome: "finished",
+              with_redemption_info: false,
+            },
+          },
+        ],
+      },
+    });
+  });
+
+  test("tracks the CheckoutSessionEnded event upon erroring an express purchase", async () => {
+    vi.mocked(mount).mockImplementation((_component, options) => {
+      options.props?.onError(
+        new PurchaseFlowError(
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+          "Unexpected error",
+        ),
+      );
+      return vi.fn();
+    });
+
+    const purchases = Purchases.getSharedInstance();
+    const offerings = await purchases.getOfferings();
+    const packageToBuy = offerings.current?.availablePackages[0];
+
+    const htmlTarget = document.createElement("div");
+
+    try {
+      await purchases.presentExpressPurchaseButton({
+        rcPackage: packageToBuy!,
+        htmlTarget,
+      });
+    } catch (error: unknown) {
+      expect(error).toBeInstanceOf(PurchaseFlowError);
     }
 
     await vi.advanceTimersToNextTimerAsync();

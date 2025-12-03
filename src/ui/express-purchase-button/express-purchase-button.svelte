@@ -33,6 +33,13 @@
     ClickResolveDetails,
     StripeExpressCheckoutElementClickEvent,
   } from "@stripe/stripe-js/dist/stripe-js/elements/express-checkout";
+  import type { IEventsTracker } from "../../behavioural-events/events-tracker";
+  import {
+    createCheckoutFlowErrorEvent,
+    createCheckoutPaymentFormSubmitEvent,
+    createCheckoutPaymentGatewayErrorEvent,
+    createCheckoutPaymentTaxCalculationEvent,
+  } from "../../behavioural-events/sdk-event-helpers";
 
   const {
     customerEmail,
@@ -41,6 +48,7 @@
     purchaseOption,
     metadata,
     brandingInfo,
+    eventsTracker,
     purchaseOperationHelper,
     translator,
     onFinished,
@@ -59,6 +67,15 @@
   let expressCheckoutOptions: StripeExpressCheckoutConfiguration | null =
     $state(null);
   let managementUrl: string | null = $state(null);
+
+  const handleError = (error: PurchaseFlowError) => {
+    const event = createCheckoutFlowErrorEvent({
+      errorCode: error.getErrorCode().toString(),
+      errorMessage: error.message,
+    });
+    (eventsTracker as IEventsTracker).trackSDKEvent(event);
+    onError(error);
+  };
 
   const initStripe = async (
     checkoutStartResponse: WebBillingCheckoutStartResponse,
@@ -193,9 +210,19 @@
     reInitPurchase().then(() => {});
   });
 
-  const onStripeElementsLoadingError = (_: StripeServiceError) => {
-    onError(
-      new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase),
+  const onStripeElementsLoadingError = (error: StripeServiceError) => {
+    const gatewayEvent = createCheckoutPaymentGatewayErrorEvent({
+      errorCode: error.gatewayErrorCode ?? null,
+      errorMessage: error.message ?? "",
+    });
+    (eventsTracker as IEventsTracker).trackSDKEvent(gatewayEvent);
+
+    handleError(
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "Failed to initialize payment form",
+        error.message,
+      ),
     );
   };
 
@@ -209,10 +236,16 @@
     } = await StripeService.extractTaxCustomerDetails(elements, stripe);
 
     if (brandingInfo?.gateway_tax_collection_enabled) {
-      await purchaseOperationHelper.checkoutCalculateTax(
+      const taxCalculation = await purchaseOperationHelper.checkoutCalculateTax(
         taxCustomerDetails.countryCode,
         taxCustomerDetails.postalCode,
       );
+
+      const taxEvent = createCheckoutPaymentTaxCalculationEvent({
+        taxCalculation,
+        taxCustomerDetails,
+      });
+      (eventsTracker as IEventsTracker).trackSDKEvent(taxEvent);
     }
 
     return newConfirmationTokenId;
@@ -247,13 +280,19 @@
   }
 
   const onExpressCheckoutElementSubmit = async (
-    _: string,
+    paymentMethod: string,
     emailValue: string,
     event: StripeExpressCheckoutElementConfirmEvent,
   ) => {
     if (isPurchasing) {
       return;
     }
+
+    const submitEvent = createCheckoutPaymentFormSubmitEvent({
+      selectedPaymentMethod: paymentMethod ?? null,
+    });
+    (eventsTracker as IEventsTracker).trackSDKEvent(submitEvent);
+
     isPurchasing = true;
     try {
       const success = await submitPayment(emailValue);
@@ -267,7 +306,21 @@
       isPurchasing = false;
     } catch (e) {
       if (e instanceof PurchaseFlowError) {
-        onError(e);
+        handleError(e);
+      } else if (e instanceof StripeServiceError) {
+        const gatewayEvent = createCheckoutPaymentGatewayErrorEvent({
+          errorCode: e.gatewayErrorCode ?? null,
+          errorMessage: e.message ?? "",
+        });
+        (eventsTracker as IEventsTracker).trackSDKEvent(gatewayEvent);
+
+        handleError(
+          new PurchaseFlowError(
+            PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+            "Failed to complete payment",
+            e.message,
+          ),
+        );
       }
       // TODO: Improve the error message here.
       // Notifies the modal that something went wrong with the payment

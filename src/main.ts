@@ -823,6 +823,14 @@ export class Purchases {
     const purchaseOptionToUse =
       purchaseOption ?? rcPackage.webBillingProduct.defaultPurchaseOption;
 
+    const sessionStartEvent = createCheckoutSessionStartEvent({
+      appearance: this._brandingInfo?.appearance,
+      rcPackage,
+      purchaseOptionToUse,
+      customerEmail,
+    });
+    this.eventsTracker.trackSDKEvent(sessionStartEvent);
+
     const utmParamsMetadata = this._flags.autoCollectUTMAsMetadata
       ? autoParseUTMParams()
       : {};
@@ -834,6 +842,11 @@ export class Purchases {
       const onFinished = async (
         operationResult: OperationSessionSuccessfulResult,
       ) => {
+        const sessionEndFinishedEvent = createCheckoutSessionEndFinishedEvent({
+          redemptionInfo: operationResult.redemptionInfo,
+        });
+        this.eventsTracker.trackSDKEvent(sessionEndFinishedEvent);
+
         Logger.debugLog("Purchase finished");
 
         const purchaseResult: PurchaseResult = {
@@ -850,6 +863,11 @@ export class Purchases {
       };
 
       const onError = (e: PurchaseFlowError) => {
+        const sessionEndErroredEvent = createCheckoutSessionEndErroredEvent({
+          errorCode: e.errorCode?.toString() ?? null,
+          errorMessage: e.message,
+        });
+        this.eventsTracker.trackSDKEvent(sessionEndErroredEvent);
         reject(e);
       };
 
