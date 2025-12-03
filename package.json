@@ -71,7 +71,7 @@
     "@storybook/sveltekit": "^8.5.0",
     "@storybook/test": "^8.5.0",
     "@stripe/stripe-js": "^7.3.1",
-    "@sveltejs/vite-plugin-svelte": "^5.1.1",
+    "@sveltejs/vite-plugin-svelte": "^6.2.1",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/svelte": "^5.2.6",
     "@tsconfig/svelte": "^5.0.4",
@@ -98,7 +98,7 @@
     "storybook": "^8.5.0",
     "storybook-addon-mock-date": "^0.6.0",
     "storybook-addon-pseudo-states": "^4.0.2",
-    "svelte": "^5.12.0",
+    "svelte": "^5.44.1",
     "svelte-check": "^4.1.1",
     "typedoc": "^0.27.4",
     "typescript": "^5.7.2",
@@ -113,6 +113,10 @@
       "prettier --write --ignore-unknown",
       "eslint --fix --no-warn-ignored"
     ]
+  },
+  "engine": {
+    "node": "^24.11",
+    "pnpm": "^10.0.0"
   },
   "packageManager": "pnpm@10.23.0+sha512.21c4e5698002ade97e4efe8b8b4a89a8de3c85a37919f957e7a0f30f38fbc5bbdd05980ffe29179b2fb6e6e691242e098d945d1601772cad0fef5fb6411e2a4b"
 }

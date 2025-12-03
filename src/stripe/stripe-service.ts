@@ -427,6 +427,9 @@ export class StripeService {
     subscriptionOption: SubscriptionOption,
     translator: Translator,
     managementUrl: string,
+    maxRows?: number,
+    maxColumns?: number,
+    overflow?: "auto" | "never",
   ): StripeExpressCheckoutConfiguration {
     const priceMinimumAmount = StripeService.microsToMinimumAmountPrice(
       priceBreakdown.totalAmountInMicros,
@@ -447,6 +450,12 @@ export class StripeService {
       : {};
 
     return {
+      layout: {
+        maxRows,
+        maxColumns,
+        overflow,
+      },
+
       applePay: {
         recurringPaymentRequest: {
           paymentDescription: productDetails.title,

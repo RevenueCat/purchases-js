@@ -5,7 +5,6 @@ import type {
   Product,
 } from "./entities/offerings";
 import PurchasesUi from "./ui/purchases-ui.svelte";
-import ExpressPurchaseButton from "./ui/express-purchase-button.svelte";
 import PaddlePurchasesUi from "./ui/paddle-purchases-ui.svelte";
 
 import { type CustomerInfo, toCustomerInfo } from "./entities/customer-info";
@@ -93,6 +92,11 @@ import type { VirtualCurrencies } from "./entities/virtual-currencies";
 import { toVirtualCurrencies } from "./entities/virtual-currencies";
 import type { IdentifyResult } from "./entities/identify-result";
 import { parseOfferingIntoPackageInfoPerPackage } from "./helpers/paywall-package-info-helpers";
+import type {
+  ExpressPurchaseButtonUpdater,
+  PresentExpressPurchaseButtonParams,
+} from "./entities/present-express-purchase-button-params";
+import { ExpressPurchaseButtonWrapper } from "./ui/express-purchase-button/express-purchase-button-wrapper.svelte";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -146,6 +150,10 @@ export type { PurchasesConfig } from "./entities/purchases-config";
 export type { VirtualCurrencies } from "./entities/virtual-currencies";
 export type { VirtualCurrency } from "./entities/virtual-currency";
 export type { PresentPaywallParams } from "./entities/present-paywall-params";
+export type {
+  PresentExpressPurchaseButtonParams,
+  ExpressPurchaseButtonUpdater,
+} from "./entities/present-express-purchase-button-params";
 
 const ANONYMOUS_PREFIX = "$RCAnonymousID:";
 
@@ -576,7 +584,6 @@ export class Purchases {
         paywallParams.onVisitCustomerCenter();
         return;
       }
-
       // DO NOTHING, RC's customer center is not supported in web
     };
 
@@ -588,42 +595,42 @@ export class Purchases {
     const infoPerPackage = parseOfferingIntoPackageInfoPerPackage(offering);
 
     return new Promise((resolve, reject) => {
-      const renderForPackage = (
+      const walletButtonRender = (
         element: HTMLElement,
         selectedPackageId: string,
       ) => {
         const pkg = offering.packagesById[selectedPackageId];
         if (!pkg) {
-          return;
+          return {};
         }
-
-        element.innerHTML = "";
-        element.style.width = "100%";
-        element.style.marginBottom = "20px";
-
+        let buttonUpdater: ExpressPurchaseButtonUpdater | null = null;
         this.presentExpressPurchaseButton({
           rcPackage: pkg,
           customerEmail: paywallParams.customerEmail,
           htmlTarget: element,
+          onButtonReady: (updater) => {
+            buttonUpdater = updater;
+          },
         })
           .then((purchaseResult) => {
             resolve(purchaseResult);
           })
           .catch((err) => reject(err));
-      };
-
-      const walletButtonRender = (
-        element: HTMLElement,
-        selectedPackageId: string,
-      ) => {
-        renderForPackage(element, selectedPackageId);
 
         return {
           destroy() {
             element.innerHTML = "";
           },
           update(selectedPackageId: string) {
-            renderForPackage(element, selectedPackageId);
+            if (buttonUpdater) {
+              const pkg = offering.packagesById[selectedPackageId];
+              if (!pkg) {
+                return;
+              }
+              const purchaseOptionToUse =
+                pkg.webBillingProduct.defaultPurchaseOption;
+              buttonUpdater.updatePurchase(pkg, purchaseOptionToUse);
+            }
           },
         };
       };
@@ -789,13 +796,12 @@ export class Purchases {
    * When clicked it uses the wallet UI to execute the purchase instead of
    * the checkout flow that would be shown with `.purchase`.
    * @internal
-   * @experimental
    * @param params - The parameters object to customise the purchase flow. Check {@link PurchaseParams}
    * @returns Promise<PurchaseResult>
    */
   @requiresLoadedResources
   public async presentExpressPurchaseButton(
-    params: PurchaseParams,
+    params: PresentExpressPurchaseButtonParams,
   ): Promise<PurchaseResult> {
     const {
       rcPackage,
@@ -804,6 +810,7 @@ export class Purchases {
       customerEmail,
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
+      onButtonReady = () => {},
     } = params;
 
     if (htmlTarget === undefined) {
@@ -846,23 +853,20 @@ export class Purchases {
         reject(e);
       };
 
-      mount(ExpressPurchaseButton, {
-        target: htmlTarget,
-        props: {
-          appUserId,
-          rcPackage,
-          purchaseOption: purchaseOptionToUse,
-          customerEmail,
-          purchases: this,
-          eventsTracker: this.eventsTracker,
-          brandingInfo: this._brandingInfo,
-          purchaseOperationHelper: this.purchaseOperationHelper,
-          metadata: metadata,
-          customTranslations: params.labelsOverride,
-          translator,
-          onFinished,
-          onError,
-        },
+      new ExpressPurchaseButtonWrapper(htmlTarget, onButtonReady, {
+        appUserId,
+        rcPackage,
+        purchaseOption: purchaseOptionToUse,
+        customerEmail,
+        purchases: this,
+        eventsTracker: this.eventsTracker,
+        brandingInfo: this._brandingInfo,
+        purchaseOperationHelper: this.purchaseOperationHelper,
+        metadata: metadata,
+        customTranslations: params.labelsOverride,
+        translator,
+        onFinished,
+        onError,
       });
     });
   }

@@ -145,7 +145,8 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
     }
 
     purchases
-      // @ts-expect-error - using an internal method while still in development.
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      //@ts-expect-error
       .presentExpressPurchaseButton({
         rcPackage: pkg,
         htmlTarget: applePayButtonref.current,

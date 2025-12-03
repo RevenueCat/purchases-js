@@ -647,7 +647,6 @@ packages:
 
   "@revenuecat/purchases-js@file:../..":
     resolution: { directory: ../.., type: directory }
-    engines: { pnpm: ^10.0.0 }
 
   "@rolldown/pluginutils@1.0.0-beta.27":
     resolution:
