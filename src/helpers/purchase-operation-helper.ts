@@ -5,11 +5,9 @@ import {
   type PurchasesErrorExtra,
 } from "../entities/errors";
 import { type Backend } from "../networking/backend";
-import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
+import type { WebBillingCheckoutStartResponse } from "../networking/responses/checkout-start-response";
 import {
   CheckoutSessionStatus,
-  type CheckoutStatusError,
-  CheckoutStatusErrorCodes,
   type CheckoutStatusResponse,
 } from "../networking/responses/checkout-status-response";
 import {
@@ -25,6 +23,7 @@ import {
 import { type IEventsTracker } from "../behavioural-events/events-tracker";
 import type { CheckoutCompleteResponse } from "../networking/responses/checkout-complete-response";
 import type { CheckoutCalculateTaxResponse } from "../networking/responses/checkout-calculate-tax-response";
+import { handleCheckoutSessionFailed } from "./checkout-error-handler";
 
 export enum PurchaseFlowErrorCode {
   ErrorSettingUpPurchase = 0,
@@ -36,6 +35,7 @@ export enum PurchaseFlowErrorCode {
   StripeTaxNotActive = 6,
   StripeInvalidTaxOriginAddress = 7,
   StripeMissingRequiredPermission = 8,
+  InvalidPaddleAPIKeyError = 9,
 }
 
 export class PurchaseFlowError extends Error {
@@ -45,19 +45,24 @@ export class PurchaseFlowError extends Error {
     public readonly underlyingErrorMessage?: string | null,
     public readonly purchasesErrorCode?: ErrorCode,
     public readonly extra?: PurchasesErrorExtra,
+    public readonly displayPurchaseFlowErrorCode?: boolean,
   ) {
     super(message);
   }
 
   getErrorCode(): number {
-    return (
-      this.extra?.backendErrorCode ?? this.purchasesErrorCode ?? this.errorCode
-    );
+    const additionalErrorCode =
+      this.extra?.backendErrorCode ?? this.purchasesErrorCode;
+    if (this.displayPurchaseFlowErrorCode) {
+      return this.errorCode ?? additionalErrorCode;
+    }
+    return additionalErrorCode ?? this.errorCode;
   }
 
   static fromPurchasesError(
     e: PurchasesError,
     defaultFlowErrorCode: PurchaseFlowErrorCode,
+    displayPurchaseFlowErrorCode: boolean = false,
   ): PurchaseFlowError {
     let errorCode: PurchaseFlowErrorCode;
     if (e.errorCode === ErrorCode.ProductAlreadyPurchasedError) {
@@ -78,6 +83,7 @@ export class PurchaseFlowError extends Error {
       e.underlyingErrorMessage,
       e.errorCode,
       e.extra,
+      displayPurchaseFlowErrorCode,
     );
   }
 
@@ -91,6 +97,8 @@ export class PurchaseFlowError extends Error {
         return PurchaseFlowErrorCode.StripeInvalidTaxOriginAddress;
       case BackendErrorCode.BackendGatewaySetupErrorMissingRequiredPermission:
         return PurchaseFlowErrorCode.StripeMissingRequiredPermission;
+      case BackendErrorCode.BackendInvalidPaddleAPIKey:
+        return PurchaseFlowErrorCode.InvalidPaddleAPIKeyError;
       default:
         return null;
     }
@@ -129,19 +137,20 @@ export class PurchaseOperationHelper {
     presentedOfferingContext: PresentedOfferingContext,
     email?: string,
     metadata?: PurchaseMetadata,
-  ): Promise<CheckoutStartResponse> {
+  ): Promise<WebBillingCheckoutStartResponse> {
     try {
       const traceId = this.eventsTracker.getTraceId();
 
-      const checkoutStartResponse = await this.backend.postCheckoutStart(
-        appUserId,
-        productId,
-        presentedOfferingContext,
-        purchaseOption,
-        traceId,
-        email,
-        metadata,
-      );
+      const checkoutStartResponse =
+        await this.backend.postCheckoutStart<WebBillingCheckoutStartResponse>(
+          appUserId,
+          productId,
+          presentedOfferingContext,
+          purchaseOption,
+          traceId,
+          email,
+          metadata,
+        );
       this.operationSessionId = checkoutStartResponse.operation_session_id;
       return checkoutStartResponse;
     } catch (error) {
@@ -294,7 +303,7 @@ export class PurchaseOperationHelper {
                 return;
               case CheckoutSessionStatus.Failed:
                 this.clearPurchaseInProgress();
-                this.handlePaymentError(
+                handleCheckoutSessionFailed(
                   operationResponse.operation.error,
                   reject,
                 );
@@ -315,70 +324,5 @@ export class PurchaseOperationHelper {
 
   private clearPurchaseInProgress() {
     this.operationSessionId = null;
-  }
-
-  private handlePaymentError(
-    error: CheckoutStatusError | undefined | null,
-    reject: (error: PurchaseFlowError) => void,
-  ) {
-    if (error === null || error === undefined) {
-      reject(
-        new PurchaseFlowError(
-          PurchaseFlowErrorCode.UnknownError,
-          "Got an error status but error field is empty.",
-        ),
-      );
-      return;
-    }
-    switch (error.code) {
-      case CheckoutStatusErrorCodes.SetupIntentCreationFailed:
-        reject(
-          new PurchaseFlowError(
-            PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-            "Setup intent creation failed",
-          ),
-        );
-        return;
-      case CheckoutStatusErrorCodes.PaymentMethodCreationFailed:
-        reject(
-          new PurchaseFlowError(
-            PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-            "Payment method creation failed",
-          ),
-        );
-        return;
-      case CheckoutStatusErrorCodes.PaymentChargeFailed:
-        reject(
-          new PurchaseFlowError(
-            PurchaseFlowErrorCode.ErrorChargingPayment,
-            "Payment charge failed",
-          ),
-        );
-        return;
-      case CheckoutStatusErrorCodes.SetupIntentCompletionFailed:
-        reject(
-          new PurchaseFlowError(
-            PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-            "Setup intent completion failed",
-          ),
-        );
-        return;
-      case CheckoutStatusErrorCodes.AlreadyPurchased:
-        reject(
-          new PurchaseFlowError(
-            PurchaseFlowErrorCode.AlreadyPurchasedError,
-            "Purchased was already completed",
-          ),
-        );
-        return;
-      default:
-        reject(
-          new PurchaseFlowError(
-            PurchaseFlowErrorCode.UnknownError,
-            "Unknown error code received",
-          ),
-        );
-        return;
-    }
   }
 }

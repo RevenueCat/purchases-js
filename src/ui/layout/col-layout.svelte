@@ -2,11 +2,12 @@
   import { type Snippet } from "svelte";
   type Gap = "large" | "medium" | "small";
   export let gap: Gap = "small";
+  export let justify: "start" | "center" | "end" = "start";
   export let align: "start" | "center" | "end" = "start";
   export let children: Snippet;
 </script>
 
-<div class="rcb-column gap-{gap} align-{align}">
+<div class="rcb-column gap-{gap} justify-{justify} align-{align}">
   {@render children?.()}
 </div>
 
@@ -19,12 +20,20 @@
     min-width: 100%;
   }
 
-  .rcb-column.align-center {
+  .rcb-column.justify-center {
     justify-content: center;
   }
 
-  .rcb-column.align-end {
+  .rcb-column.justify-end {
     justify-content: flex-end;
+  }
+
+  .rcb-column.align-center {
+    align-items: center;
+  }
+
+  .rcb-column.align-end {
+    align-items: flex-end;
   }
 
   .rcb-column.gap-small {

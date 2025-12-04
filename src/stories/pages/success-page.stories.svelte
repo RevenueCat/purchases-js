@@ -1,6 +1,8 @@
 <script module lang="ts">
   import { defineMeta, type StoryContext } from "@storybook/addon-svelte-csf";
   import PurchasesInner from "../../ui/purchases-ui-inner.svelte";
+  import SuccessPage from "../../ui/pages/success-page.svelte";
+  import FullscreenTemplate from "../../ui/layout/fullscreen-template.svelte";
   import { brandingLanguageViewportModes } from "../../../.storybook/modes";
   import {
     brandingInfos,
@@ -9,6 +11,12 @@
     subscriptionOption,
   } from "../fixtures";
   import { PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
+  import { LocalizationKeys } from "../../ui/localization/supportedLanguages";
+  import { getContext } from "svelte";
+  import { translatorContextKey } from "../../ui/localization/constants";
+  import type { Writable } from "svelte/store";
+  import type { Translator } from "../../ui/localization/translator";
+  import { get } from "svelte/store";
 
   const defaultArgs = {
     productDetails: product,
@@ -66,3 +74,32 @@
 {/snippet}
 
 <Story name="Default" />
+
+<Story name="Fullscreen Template"
+  >{#snippet template(_args, context)}
+    {@const brandingInfo = { ...brandingInfos[context.globals.brandingName] }}
+    {@const translatorStore: Writable<Translator> = getContext(translatorContextKey)}
+    {@const translator = get(translatorStore)}
+    {@const title = translator.translate(
+      LocalizationKeys.PaymentEntryPageSubscriptionInfo,
+    )}
+    {@const closeButtonTitle = translator.translate(
+      LocalizationKeys.SuccessPageButtonReturnToApp,
+      { appName: brandingInfo?.app_name ?? "App" },
+    )}
+    <FullscreenTemplate
+      {brandingInfo}
+      isInElement={context.globals.viewport === "embedded"}
+      isSandbox={false}
+    >
+      {#snippet mainContent()}
+        <SuccessPage
+          {title}
+          {closeButtonTitle}
+          onContinue={() => {}}
+          fullWidth={true}
+        />
+      {/snippet}
+    </FullscreenTemplate>
+  {/snippet}
+</Story>

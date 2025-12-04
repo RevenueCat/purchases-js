@@ -21,10 +21,17 @@
     productDetails: Product;
     onDismiss: () => void;
     appName: string | null;
+    fullWidth?: boolean;
   }
 
-  const { lastError, supportEmail, productDetails, onDismiss, appName }: Props =
-    $props();
+  const {
+    lastError,
+    supportEmail,
+    productDetails,
+    onDismiss,
+    appName,
+    fullWidth = false,
+  }: Props = $props();
 
   const error: PurchaseFlowError = $derived(
     lastError ??
@@ -97,6 +104,7 @@
     const publicErrorCode = error.getErrorCode();
     switch (error.errorCode) {
       case PurchaseFlowErrorCode.ErrorSettingUpPurchase:
+      case PurchaseFlowErrorCode.InvalidPaddleAPIKeyError:
         return $translator.translate(
           LocalizationKeys.ErrorPageErrorMessageErrorSettingUpPurchase,
           { errorCode: publicErrorCode },
@@ -168,6 +176,7 @@
   {onDismiss}
   type="error"
   closeButtonTitle={getButtonTitle()}
+  {fullWidth}
 >
   {#snippet icon()}
     <Icon name={iconName()} />

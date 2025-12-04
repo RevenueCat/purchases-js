@@ -26,7 +26,7 @@
   import { brandingContextKey } from "../constants";
   import type { StripeExpressCheckoutConfiguration } from "../../stripe/stripe-express-checkout-configuration";
   import { getInitialPriceFromPurchaseOption } from "../../helpers/purchase-option-price-helper";
-  import type { CheckoutStartResponse } from "../../networking/responses/checkout-start-response";
+  import type { WebBillingCheckoutStartResponse } from "../../networking/responses/checkout-start-response";
 
   import type { ExpressPurchaseButtonProps } from "./express-purchase-button-props";
   import type {
@@ -62,7 +62,7 @@
   let managementUrl: string | null = $state(null);
 
   const initStripe = async (
-    checkoutStartResponse: CheckoutStartResponse,
+    checkoutStartResponse: WebBillingCheckoutStartResponse,
     rcPackage: Package,
   ) => {
     const gatewayParams = checkoutStartResponse.gateway_params;
@@ -136,7 +136,7 @@
   };
 
   const updateStripe = async (
-    checkoutStartResponse: CheckoutStartResponse,
+    checkoutStartResponse: WebBillingCheckoutStartResponse,
     elements: StripeElements,
   ) => {
     if (!checkoutStartResponse.gateway_params?.elements_configuration) {
@@ -157,7 +157,7 @@
     checkoutStarted = true;
     managementUrl = null;
 
-    let checkoutStartResult: CheckoutStartResponse | null = null;
+    let checkoutStartResult: WebBillingCheckoutStartResponse | null = null;
     try {
       checkoutStartResult = await purchaseOperationHelper.checkoutStart(
         appUserId,

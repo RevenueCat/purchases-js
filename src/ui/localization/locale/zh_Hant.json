@@ -95,5 +95,8 @@
   "payment_entry_page.subscription_info": "訂閱會自動續訂。隨時取消。",
   "payment_entry_page.otp_terms_info": "購買即表示您同意授權 {{appName}} 根據其條款向您收費。",
   "payment_entry_page.terms_link_label": "條款",
-  "payment_entry_page.subscription_terms_info": "訂閱即表示您同意允許 {{appName}} 根據其條款向您收費，直到您取消為止。"
+  "payment_entry_page.subscription_terms_info": "訂閱即表示您同意允許 {{appName}} 根據其條款向您收費，直到您取消為止。",
+  "loading_page.keep_page_open": "程序即將完成。請保持此頁面開啟。",
+  "loading_page.processing_payment": "正在處理付款",
+  "success_page.button_return_to_app": "返回 {{appName}}"
 }
