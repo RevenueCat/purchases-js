@@ -97,6 +97,5 @@
   "payment_entry_page.terms_link_label": "条款",
   "payment_entry_page.subscription_terms_info": "订阅即表示您同意允许 {{appName}} 按照其条款向您收费，直到您取消订阅。",
   "loading_page.keep_page_open": "流程即将完成。请保持此页面打开。",
-  "loading_page.processing_payment": "正在处理付款",
-  "success_page.button_return_to_app": "返回到{{appName}}"
+  "loading_page.processing_payment": "正在处理付款"
 }
