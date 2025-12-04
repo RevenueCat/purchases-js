@@ -64,6 +64,7 @@ const baseProps: ComponentProps<PaddlePurchasesUI> = {
   customTranslations: {},
   isInElement: false,
   skipSuccessPage: false,
+  onClose: vi.fn(),
   onFinished: vi.fn(),
   onError: vi.fn(),
   productDetails: rcPackage.webBillingProduct,
@@ -123,7 +124,7 @@ describe("PaddlePurchasesUI", () => {
         operationSessionId: "test-operation-session-id",
         transactionId: "test-transaction-id",
         onCheckoutLoaded: expect.any(Function),
-        unmountPaddlePurchaseUi: expect.any(Function),
+        onClose: expect.any(Function),
         params: {
           rcPackage: rcPackage,
           purchaseOption: subscriptionOption,

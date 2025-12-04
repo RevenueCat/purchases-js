@@ -325,13 +325,13 @@ describe("PaddleService", () => {
 
     test("opens checkout and calls onCheckoutLoaded when CHECKOUT_LOADED event fires", async () => {
       const onCheckoutLoaded = vi.fn();
-      const unmountPaddlePurchaseUi = vi.fn();
+      const onClose = vi.fn();
 
       const purchasePromise = paddleService.purchase({
         operationSessionId,
         transactionId,
         onCheckoutLoaded,
-        unmountPaddlePurchaseUi,
+        onClose,
         params: purchaseParams,
       });
 
@@ -354,7 +354,7 @@ describe("PaddleService", () => {
         operationSessionId,
         transactionId,
         onCheckoutLoaded: vi.fn(),
-        unmountPaddlePurchaseUi: vi.fn(),
+        onClose: vi.fn(),
         params: { ...purchaseParams, locale: "es" },
       });
 
@@ -372,7 +372,7 @@ describe("PaddleService", () => {
         operationSessionId,
         transactionId,
         onCheckoutLoaded: vi.fn(),
-        unmountPaddlePurchaseUi: vi.fn(),
+        onClose: vi.fn(),
         params: { ...purchaseParams, customerEmail: "test@example.com" },
       });
 
@@ -411,7 +411,7 @@ describe("PaddleService", () => {
         operationSessionId,
         transactionId,
         onCheckoutLoaded: vi.fn(),
-        unmountPaddlePurchaseUi: vi.fn(),
+        onClose: vi.fn(),
         params: purchaseParams,
       });
 
@@ -431,14 +431,14 @@ describe("PaddleService", () => {
       });
     });
 
-    test("calls unmountPaddlePurchaseUi when user closes checkout", async () => {
-      const unmountPaddlePurchaseUi = vi.fn();
+    test("calls onClose when user closes checkout", async () => {
+      const onClose = vi.fn();
 
       const purchasePromise = paddleService.purchase({
         operationSessionId,
         transactionId,
         onCheckoutLoaded: vi.fn(),
-        unmountPaddlePurchaseUi,
+        onClose,
         params: purchaseParams,
       });
 
@@ -447,25 +447,25 @@ describe("PaddleService", () => {
         data: { status: "draft" } as PaddleEventData["data"],
       });
 
-      expect(unmountPaddlePurchaseUi).toHaveBeenCalled();
+      expect(onClose).toHaveBeenCalled();
 
       purchasePromise.catch(() => {});
     });
 
-    test("does not call unmountPaddlePurchaseUi when code closes checkout", async () => {
-      const unmountPaddlePurchaseUi = vi.fn();
+    test("does not call onClose when code closes checkout", async () => {
+      const onClose = vi.fn();
 
       const purchasePromise = paddleService.purchase({
         operationSessionId,
         transactionId,
         onCheckoutLoaded: vi.fn(),
-        unmountPaddlePurchaseUi,
+        onClose,
         params: purchaseParams,
       });
 
       await paddleEventCallback({ name: CheckoutEventNames.CHECKOUT_CLOSED });
 
-      expect(unmountPaddlePurchaseUi).not.toHaveBeenCalled();
+      expect(onClose).not.toHaveBeenCalled();
 
       purchasePromise.catch(() => {});
     });
@@ -480,7 +480,7 @@ describe("PaddleService", () => {
           operationSessionId,
           transactionId,
           onCheckoutLoaded: vi.fn(),
-          unmountPaddlePurchaseUi: vi.fn(),
+          onClose: vi.fn(),
           params: purchaseParams,
         }),
       ).rejects.toThrow(
@@ -505,7 +505,7 @@ describe("PaddleService", () => {
           operationSessionId,
           transactionId,
           onCheckoutLoaded: vi.fn(),
-          unmountPaddlePurchaseUi: vi.fn(),
+          onClose: vi.fn(),
           params: purchaseParams,
         }),
       ).rejects.toThrow(
@@ -562,7 +562,7 @@ describe("PaddleService", () => {
         operationSessionId,
         transactionId,
         onCheckoutLoaded: vi.fn(),
-        unmountPaddlePurchaseUi: vi.fn(),
+        onClose: vi.fn(),
         params: purchaseParams,
       });
 
@@ -605,7 +605,7 @@ describe("PaddleService", () => {
         operationSessionId,
         transactionId,
         onCheckoutLoaded: vi.fn(),
-        unmountPaddlePurchaseUi: vi.fn(),
+        onClose: vi.fn(),
         params: purchaseParams,
       });
 
@@ -662,7 +662,7 @@ describe("PaddleService", () => {
         operationSessionId,
         transactionId,
         onCheckoutLoaded: vi.fn(),
-        unmountPaddlePurchaseUi: vi.fn(),
+        onClose: vi.fn(),
         params: purchaseParams,
       });
 
@@ -701,7 +701,7 @@ describe("PaddleService", () => {
         operationSessionId,
         transactionId,
         onCheckoutLoaded: vi.fn(),
-        unmountPaddlePurchaseUi: vi.fn(),
+        onClose: vi.fn(),
         params: purchaseParams,
       });
 
@@ -728,7 +728,7 @@ describe("PaddleService", () => {
         operationSessionId,
         transactionId,
         onCheckoutLoaded: vi.fn(),
-        unmountPaddlePurchaseUi: vi.fn(),
+        onClose: vi.fn(),
         params: purchaseParams,
       });
 
@@ -760,7 +760,7 @@ describe("PaddleService", () => {
         operationSessionId,
         transactionId,
         onCheckoutLoaded: vi.fn(),
-        unmountPaddlePurchaseUi: vi.fn(),
+        onClose: vi.fn(),
         params: purchaseParams,
       });
 
@@ -801,7 +801,7 @@ describe("PaddleService", () => {
         operationSessionId,
         transactionId,
         onCheckoutLoaded: vi.fn(),
-        unmountPaddlePurchaseUi: vi.fn(),
+        onClose: vi.fn(),
         params: {
           rcPackage: createMonthlyPackageMock(),
           purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
