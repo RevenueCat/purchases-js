@@ -136,6 +136,9 @@ describe("PurchasesUI", () => {
 
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
       eventName: SDKEventName.CheckoutPaymentFormImpression,
+      properties: {
+        mode: defaultPurchaseMode,
+      },
     });
   });
 

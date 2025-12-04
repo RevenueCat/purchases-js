@@ -40,6 +40,7 @@
     createCheckoutPaymentGatewayErrorEvent,
     createCheckoutPaymentTaxCalculationEvent,
   } from "../../behavioural-events/sdk-event-helpers";
+  import type { SDKEventPurchaseMode } from "../../behavioural-events/event";
 
   const {
     customerEmail,
@@ -54,6 +55,8 @@
     onFinished,
     onError,
   }: ExpressPurchaseButtonProps = $props();
+
+  const mode: SDKEventPurchaseMode = "express_purchase_button";
 
   let translatorStore = writable(translator);
   setContext(translatorContextKey, translatorStore);
@@ -72,6 +75,7 @@
     const event = createCheckoutFlowErrorEvent({
       errorCode: error.getErrorCode().toString(),
       errorMessage: error.message,
+      mode,
     });
     (eventsTracker as IEventsTracker).trackSDKEvent(event);
     onError(error);
@@ -214,6 +218,7 @@
     const gatewayEvent = createCheckoutPaymentGatewayErrorEvent({
       errorCode: error.gatewayErrorCode ?? null,
       errorMessage: error.message ?? "",
+      mode,
     });
     (eventsTracker as IEventsTracker).trackSDKEvent(gatewayEvent);
 
@@ -244,6 +249,7 @@
       const taxEvent = createCheckoutPaymentTaxCalculationEvent({
         taxCalculation,
         taxCustomerDetails,
+        mode,
       });
       (eventsTracker as IEventsTracker).trackSDKEvent(taxEvent);
     }
@@ -290,6 +296,7 @@
 
     const submitEvent = createCheckoutPaymentFormSubmitEvent({
       selectedPaymentMethod: paymentMethod ?? null,
+      mode,
     });
     (eventsTracker as IEventsTracker).trackSDKEvent(submitEvent);
 
@@ -311,6 +318,7 @@
         const gatewayEvent = createCheckoutPaymentGatewayErrorEvent({
           errorCode: e.gatewayErrorCode ?? null,
           errorMessage: e.message ?? "",
+          mode,
         });
         (eventsTracker as IEventsTracker).trackSDKEvent(gatewayEvent);
 
