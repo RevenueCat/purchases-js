@@ -828,6 +828,7 @@ export class Purchases {
       rcPackage,
       purchaseOptionToUse,
       customerEmail,
+      mode: "express_purchase_button",
     });
     this.eventsTracker.trackSDKEvent(sessionStartEvent);
 
@@ -844,6 +845,7 @@ export class Purchases {
       ) => {
         const sessionEndFinishedEvent = createCheckoutSessionEndFinishedEvent({
           redemptionInfo: operationResult.redemptionInfo,
+          mode: "express_purchase_button",
         });
         this.eventsTracker.trackSDKEvent(sessionEndFinishedEvent);
 
@@ -866,6 +868,7 @@ export class Purchases {
         const sessionEndErroredEvent = createCheckoutSessionEndErroredEvent({
           errorCode: e.errorCode?.toString() ?? null,
           errorMessage: e.message,
+          mode: "express_purchase_button",
         });
         this.eventsTracker.trackSDKEvent(sessionEndErroredEvent);
         reject(e);

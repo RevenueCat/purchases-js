@@ -36,8 +36,6 @@ export type SDKEventPurchaseMode =
 export const defaultPurchaseMode: SDKEventPurchaseMode = "sdk_checkout";
 
 export interface EventProperties {
-  mode: SDKEventPurchaseMode;
-
   [key: string]: EventPropertyValue;
 }
 

@@ -315,7 +315,7 @@ describe("Purchases.configure()", () => {
               rc_source: "rcSource",
             },
             properties: {
-              mode: defaultPurchaseMode,
+              mode: "express_purchase_button",
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               customer_email_provided_by_developer: false,
               customization_color_buttons_primary: null,
@@ -380,7 +380,7 @@ describe("Purchases.configure()", () => {
               rc_source: "rcSource",
             },
             properties: {
-              mode: defaultPurchaseMode,
+              mode: "express_purchase_button",
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               outcome: "finished",
               with_redemption_info: false,
@@ -434,7 +434,7 @@ describe("Purchases.configure()", () => {
               rc_source: "rcSource",
             },
             properties: {
-              mode: defaultPurchaseMode,
+              mode: "express_purchase_button",
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               outcome: "errored",
               error_code: "0",
