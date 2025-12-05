@@ -4,7 +4,7 @@ import type {
   PurchaseResult,
   Purchases,
 } from "@revenuecat/purchases-js";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { usePurchasesLoaderData } from "../../util/PurchasesLoader";
 import LogoutButton from "../../components/LogoutButton";
 import { useNavigate } from "react-router-dom";
@@ -55,7 +55,8 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
   purchases,
 }) => {
   const navigate = useNavigate();
-
+  const [hasRenderedExpressButton, setHasRenderedExpressButton] =
+    useState(false);
   const applePayButtonref = useRef<HTMLDivElement>(null);
 
   if (!pkg.webBillingProduct) {
@@ -144,6 +145,7 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
       return;
     }
 
+    if (hasRenderedExpressButton) return;
     purchases
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       //@ts-expect-error
@@ -159,6 +161,7 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
         );
         navigate(`/success/${purchases.getAppUserId()}`);
       });
+    setHasRenderedExpressButton(true);
   }, [applePayButtonref, purchases]);
 
   return (

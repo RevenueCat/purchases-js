@@ -823,15 +823,6 @@ export class Purchases {
     const purchaseOptionToUse =
       purchaseOption ?? rcPackage.webBillingProduct.defaultPurchaseOption;
 
-    const sessionStartEvent = createCheckoutSessionStartEvent({
-      appearance: this._brandingInfo?.appearance,
-      rcPackage,
-      purchaseOptionToUse,
-      customerEmail,
-      mode: "express_purchase_button",
-    });
-    this.eventsTracker.trackSDKEvent(sessionStartEvent);
-
     const utmParamsMetadata = this._flags.autoCollectUTMAsMetadata
       ? autoParseUTMParams()
       : {};

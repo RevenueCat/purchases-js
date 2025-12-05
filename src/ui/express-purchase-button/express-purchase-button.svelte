@@ -39,6 +39,7 @@
     createCheckoutPaymentFormSubmitEvent,
     createCheckoutPaymentGatewayErrorEvent,
     createCheckoutPaymentTaxCalculationEvent,
+    createCheckoutSessionStartEvent,
   } from "../../behavioural-events/sdk-event-helpers";
   import type { SDKEventPurchaseMode } from "../../behavioural-events/event";
 
@@ -338,6 +339,14 @@
   };
 
   const onExpressClicked = (event: StripeExpressCheckoutElementClickEvent) => {
+    const sessionStartEvent = createCheckoutSessionStartEvent({
+      appearance: brandingInfo?.appearance,
+      rcPackage,
+      purchaseOptionToUse: purchaseOption,
+      customerEmail,
+      mode: "express_purchase_button",
+    });
+    eventsTracker.trackSDKEvent(sessionStartEvent);
     try {
       const productDetails: Product = rcPackage.webBillingProduct;
       if (!managementUrl) {
