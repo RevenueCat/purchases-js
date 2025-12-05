@@ -5,6 +5,11 @@ import "./utils/to-have-been-called-exactly-once-with";
 import { Logger } from "../helpers/logger";
 import { ErrorCode, Purchases, PurchasesError } from "../main";
 import { mount } from "svelte";
+import {
+  PurchaseFlowError,
+  PurchaseFlowErrorCode,
+} from "../helpers/purchase-operation-helper";
+import { defaultPurchaseMode } from "../behavioural-events/event";
 
 vi.mock("svelte", () => ({
   mount: vi.fn(),
@@ -54,6 +59,7 @@ describe("Purchases.configure()", () => {
             },
             properties: {
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+              mode: "sdk_checkout",
             },
           },
         ],
@@ -87,6 +93,7 @@ describe("Purchases.configure()", () => {
               rc_source: "rcSource",
             },
             properties: {
+              mode: defaultPurchaseMode,
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               customer_email_provided_by_developer: false,
               customization_color_buttons_primary: null,
@@ -142,6 +149,7 @@ describe("Purchases.configure()", () => {
               rc_source: "rcSource",
             },
             properties: {
+              mode: defaultPurchaseMode,
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               outcome: "finished",
               with_redemption_info: false,
@@ -215,6 +223,7 @@ describe("Purchases.configure()", () => {
               rc_source: "rcSource",
             },
             properties: {
+              mode: defaultPurchaseMode,
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               outcome: "closed",
             },
@@ -263,6 +272,113 @@ describe("Purchases.configure()", () => {
               rc_source: "rcSource",
             },
             properties: {
+              mode: defaultPurchaseMode,
+              trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+              outcome: "errored",
+              error_code: "0",
+              error_message: "Unexpected error",
+            },
+          },
+        ],
+      },
+    });
+  });
+
+  test("tracks the CheckoutSessionEnded event upon finishing an express purchase", async () => {
+    vi.mocked(mount).mockImplementation((_component, options) => {
+      options.props?.onFinished({
+        redemptionInfo: null,
+        operationSessionId: "op-id",
+        storeTransactionIdentifier: "store-tx-id",
+        productIdentifier: "product-id",
+        purchaseDate: new Date(),
+      });
+      return vi.fn();
+    });
+
+    const purchases = Purchases.getSharedInstance();
+    const offerings = await purchases.getOfferings();
+    const packageToBuy = offerings.current?.availablePackages[0];
+
+    const htmlTarget = document.createElement("div");
+
+    await purchases.presentExpressPurchaseButton({
+      rcPackage: packageToBuy!,
+      htmlTarget,
+    });
+
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(APIPostRequest).toHaveBeenLastCalledWith({
+      url: "http://localhost:8000/v1/events",
+      json: {
+        events: [
+          {
+            id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+            type: "web_billing",
+            event_name: "checkout_session_end",
+            timestamp_ms: date.getTime(),
+            app_user_id: "someAppUserId",
+            context: {
+              source: "sdk",
+              rc_source: "rcSource",
+            },
+            properties: {
+              mode: "express_purchase_button",
+              trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+              outcome: "finished",
+              with_redemption_info: false,
+            },
+          },
+        ],
+      },
+    });
+  });
+
+  test("tracks the CheckoutSessionEnded event upon erroring an express purchase", async () => {
+    vi.mocked(mount).mockImplementation((_component, options) => {
+      options.props?.onError(
+        new PurchaseFlowError(
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+          "Unexpected error",
+        ),
+      );
+      return vi.fn();
+    });
+
+    const purchases = Purchases.getSharedInstance();
+    const offerings = await purchases.getOfferings();
+    const packageToBuy = offerings.current?.availablePackages[0];
+
+    const htmlTarget = document.createElement("div");
+
+    try {
+      await purchases.presentExpressPurchaseButton({
+        rcPackage: packageToBuy!,
+        htmlTarget,
+      });
+    } catch (error: unknown) {
+      expect(error).toBeInstanceOf(PurchaseFlowError);
+    }
+
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(APIPostRequest).toHaveBeenLastCalledWith({
+      url: "http://localhost:8000/v1/events",
+      json: {
+        events: [
+          {
+            id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+            type: "web_billing",
+            event_name: "checkout_session_end",
+            timestamp_ms: date.getTime(),
+            app_user_id: "someAppUserId",
+            context: {
+              source: "sdk",
+              rc_source: "rcSource",
+            },
+            properties: {
+              mode: "express_purchase_button",
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               outcome: "errored",
               error_code: "0",

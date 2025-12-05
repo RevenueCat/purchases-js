@@ -28,6 +28,13 @@ type EventPropertyValue =
   | EventPropertySingleValue
   | Array<EventPropertyValue>;
 
+export type SDKEventPurchaseMode =
+  | "sdk_checkout"
+  | "external_checkout"
+  | "express_purchase_button";
+
+export const defaultPurchaseMode: SDKEventPurchaseMode = "sdk_checkout";
+
 export interface EventProperties {
   [key: string]: EventPropertyValue;
 }

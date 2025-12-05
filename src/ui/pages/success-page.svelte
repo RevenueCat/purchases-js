@@ -10,6 +10,8 @@
   import { type IEventsTracker } from "../../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "../constants";
   import { type Writable } from "svelte/store";
+  import { defaultPurchaseMode } from "../../behavioural-events/event";
+
   export let onContinue: () => void;
   export let title: string | undefined = undefined;
   export let closeButtonTitle: string | undefined = undefined;
@@ -22,6 +24,7 @@
     eventsTracker.trackSDKEvent({
       eventName: SDKEventName.CheckoutPurchaseSuccessfulDismiss,
       properties: {
+        mode: defaultPurchaseMode,
         ui_element: "go_back_to_app",
       },
     });
@@ -31,6 +34,9 @@
   onMount(() => {
     eventsTracker.trackSDKEvent({
       eventName: SDKEventName.CheckoutPurchaseSuccessfulImpression,
+      properties: {
+        mode: defaultPurchaseMode,
+      },
     });
   });
 </script>

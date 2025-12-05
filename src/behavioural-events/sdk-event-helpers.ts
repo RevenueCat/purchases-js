@@ -1,34 +1,36 @@
 import type {
   CheckoutFlowErrorEvent,
-  CheckoutSessionFinishedEvent,
-  CheckoutSessionClosedEvent,
-  CheckoutSessionErroredEvent,
-  CheckoutPurchaseSuccessfulDismissEvent,
+  CheckoutPaymentFormErrorEvent,
   CheckoutPaymentFormGatewayErrorEvent,
   CheckoutPaymentFormSubmitEvent,
-  CheckoutPaymentFormErrorEvent,
-  CheckoutSessionStartEvent,
   CheckoutPaymentTaxCalculationEvent,
+  CheckoutSessionClosedEvent,
+  CheckoutSessionErroredEvent,
+  CheckoutSessionFinishedEvent,
+  CheckoutSessionStartEvent,
 } from "./sdk-events";
 import { SDKEventName } from "./sdk-events";
-import type { Package } from "../entities/offerings";
-import type { PurchaseOption } from "../entities/offerings";
+import type { Package, PurchaseOption } from "../entities/offerings";
 import type { RedemptionInfo } from "../entities/redemption-info";
 import type { BrandingAppearance } from "../entities/branding";
-import { CheckoutCalculateTaxFailedReason } from "../networking/responses/checkout-calculate-tax-response";
 import type { CheckoutCalculateTaxResponse } from "../networking/responses/checkout-calculate-tax-response";
+import { CheckoutCalculateTaxFailedReason } from "../networking/responses/checkout-calculate-tax-response";
 import type { TaxCustomerDetails } from "src/stripe/stripe-service";
+import { defaultPurchaseMode, type SDKEventPurchaseMode } from "./event";
 
 export function createCheckoutFlowErrorEvent({
   errorCode,
   errorMessage,
+  mode = defaultPurchaseMode,
 }: {
+  mode?: SDKEventPurchaseMode;
   errorCode: string | null;
   errorMessage: string;
 }): CheckoutFlowErrorEvent {
   return {
     eventName: SDKEventName.CheckoutFlowError,
     properties: {
+      mode,
       errorCode,
       errorMessage,
     },
@@ -38,13 +40,16 @@ export function createCheckoutFlowErrorEvent({
 export function createCheckoutPaymentFormErrorEvent({
   errorCode,
   errorMessage,
+  mode = defaultPurchaseMode,
 }: {
+  mode?: SDKEventPurchaseMode;
   errorCode: string | null;
   errorMessage: string;
 }): CheckoutPaymentFormErrorEvent {
   return {
     eventName: SDKEventName.CheckoutPaymentFormError,
     properties: {
+      mode,
       errorCode: errorCode,
       errorMessage: errorMessage,
     },
@@ -56,15 +61,18 @@ export function createCheckoutSessionStartEvent({
   rcPackage,
   purchaseOptionToUse,
   customerEmail,
+  mode = defaultPurchaseMode,
 }: {
   appearance: BrandingAppearance | null | undefined;
   rcPackage: Package;
   purchaseOptionToUse: PurchaseOption;
   customerEmail: string | undefined;
+  mode?: SDKEventPurchaseMode;
 }): CheckoutSessionStartEvent {
   return {
     eventName: SDKEventName.CheckoutSessionStart,
     properties: {
+      mode: mode,
       customizationColorButtonsPrimary:
         appearance?.color_buttons_primary ?? null,
       customizationColorAccent: appearance?.color_accent ?? null,
@@ -90,22 +98,28 @@ export function createCheckoutSessionStartEvent({
 
 export function createCheckoutSessionEndFinishedEvent({
   redemptionInfo,
+  mode = defaultPurchaseMode,
 }: {
+  mode?: SDKEventPurchaseMode;
   redemptionInfo: RedemptionInfo | null;
 }): CheckoutSessionFinishedEvent {
   return {
     eventName: SDKEventName.CheckoutSessionEnd,
     properties: {
+      mode: mode,
       outcome: "finished",
       withRedemptionInfo: Boolean(redemptionInfo),
     },
   };
 }
 
-export function createCheckoutSessionEndClosedEvent(): CheckoutSessionClosedEvent {
+export function createCheckoutSessionEndClosedEvent(properties?: {
+  mode: SDKEventPurchaseMode;
+}): CheckoutSessionClosedEvent {
   return {
     eventName: SDKEventName.CheckoutSessionEnd,
     properties: {
+      mode: properties?.mode ?? "sdk_checkout",
       outcome: "closed",
     },
   };
@@ -114,13 +128,16 @@ export function createCheckoutSessionEndClosedEvent(): CheckoutSessionClosedEven
 export function createCheckoutSessionEndErroredEvent({
   errorCode,
   errorMessage,
+  mode = defaultPurchaseMode,
 }: {
+  mode?: SDKEventPurchaseMode;
   errorCode: string | null;
   errorMessage: string;
 }): CheckoutSessionErroredEvent {
   return {
     eventName: SDKEventName.CheckoutSessionEnd,
     properties: {
+      mode,
       outcome: "errored",
       errorCode: errorCode,
       errorMessage: errorMessage,
@@ -131,7 +148,9 @@ export function createCheckoutSessionEndErroredEvent({
 export function createCheckoutPaymentTaxCalculationEvent({
   taxCalculation,
   taxCustomerDetails,
+  mode = defaultPurchaseMode,
 }: {
+  mode?: SDKEventPurchaseMode;
   taxCalculation: CheckoutCalculateTaxResponse;
   taxCustomerDetails: TaxCustomerDetails | null;
 }): CheckoutPaymentTaxCalculationEvent {
@@ -150,6 +169,7 @@ export function createCheckoutPaymentTaxCalculationEvent({
   return {
     eventName: SDKEventName.CheckoutPaymentTaxCalculation,
     properties: {
+      mode,
       outcome,
       ui_element,
       tax_inclusive: taxCalculation.tax_inclusive,
@@ -160,12 +180,15 @@ export function createCheckoutPaymentTaxCalculationEvent({
 
 export function createCheckoutPaymentFormSubmitEvent({
   selectedPaymentMethod,
+  mode = defaultPurchaseMode,
 }: {
+  mode?: SDKEventPurchaseMode;
   selectedPaymentMethod: string | null;
 }): CheckoutPaymentFormSubmitEvent {
   return {
     eventName: SDKEventName.CheckoutPaymentFormSubmit,
     properties: {
+      mode,
       selectedPaymentMethod: selectedPaymentMethod ?? null,
     },
   };
@@ -174,26 +197,18 @@ export function createCheckoutPaymentFormSubmitEvent({
 export function createCheckoutPaymentGatewayErrorEvent({
   errorCode,
   errorMessage,
+  mode = defaultPurchaseMode,
 }: {
+  mode?: SDKEventPurchaseMode;
   errorCode: string | null;
   errorMessage: string;
 }): CheckoutPaymentFormGatewayErrorEvent {
   return {
     eventName: SDKEventName.CheckoutPaymentFormGatewayError,
     properties: {
+      mode,
       errorCode: errorCode,
       errorMessage: errorMessage,
-    },
-  };
-}
-
-export function createCheckoutPurchaseSuccessfulDismissEvent(
-  uiElement: "go_back_to_app" | "close",
-): CheckoutPurchaseSuccessfulDismissEvent {
-  return {
-    eventName: SDKEventName.CheckoutPurchaseSuccessfulDismiss,
-    properties: {
-      ui_element: uiElement,
     },
   };
 }

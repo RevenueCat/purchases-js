@@ -5,6 +5,7 @@ import { http, HttpResponse } from "msw";
 import "../utils/to-have-been-called-exactly-once-with";
 import { Logger } from "../../helpers/logger";
 import EventsTracker from "../../behavioural-events/events-tracker";
+import { defaultPurchaseMode } from "../../behavioural-events/event";
 
 interface EventsTrackerFixtures {
   eventsTracker: EventsTracker;
@@ -57,6 +58,7 @@ describe("EventsTracker", (test) => {
       eventName: "external",
       source: "sdk",
       properties: {
+        mode: defaultPurchaseMode,
         a: "b",
         b: 1,
         c: false,
@@ -75,6 +77,7 @@ describe("EventsTracker", (test) => {
       eventName: "external",
       source: "sdk",
       properties: {
+        mode: defaultPurchaseMode,
         a: "b",
         b: 1,
         c: false,
@@ -100,6 +103,7 @@ describe("EventsTracker", (test) => {
               rc_source: "rcSource",
             },
             properties: {
+              mode: defaultPurchaseMode,
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               a: "b",
               b: 1,
@@ -142,7 +146,7 @@ describe("EventsTracker", (test) => {
     eventsTracker.trackExternalEvent({
       eventName: "external",
       source: "sdk",
-      properties: { a: "b" },
+      properties: { mode: defaultPurchaseMode, a: "b" },
     });
     await vi.advanceTimersToNextTimerAsync();
 
@@ -172,7 +176,7 @@ describe("EventsTracker", (test) => {
     eventsTracker.trackExternalEvent({
       eventName: "external",
       source: "sdk",
-      properties: { a: "b" },
+      properties: { mode: defaultPurchaseMode, a: "b" },
     });
 
     await vi.advanceTimersToNextTimerAsync();
@@ -378,7 +382,7 @@ describe("EventsTracker", (test) => {
             () =>
               eventsTracker.trackExternalEvent({
                 eventName: "external2",
-                properties: { a: "b" },
+                properties: { mode: defaultPurchaseMode, a: "b" },
                 source: "other",
               }),
             1_000,

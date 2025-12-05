@@ -20,7 +20,7 @@ export interface ExpressPurchaseButtonUpdater {
  */
 export interface PresentExpressPurchaseButtonParams {
   /**
-   * The package you want to purchase.
+   * The package you want to purchase. Obtained from {@link Purchases.getOfferings}.
    */
   rcPackage: Package;
   /**

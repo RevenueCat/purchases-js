@@ -4,7 +4,7 @@ import { HttpMethods } from "msw";
 import { getHeaders } from "../networking/http-client";
 import { FlushManager } from "./flush-manager";
 import { Logger } from "../helpers/logger";
-import { type EventProperties, Event } from "./event";
+import { defaultPurchaseMode, Event, type EventProperties } from "./event";
 import type { SDKEvent } from "./sdk-events";
 import {
   buildEventContext,
@@ -96,7 +96,9 @@ export default class EventsTracker implements IEventsTracker {
         appUserId: this.appUserId,
         context: buildEventContext(props.source, this.rcSource),
         workflowIdentifier: this.workflowContext?.workflowIdentifier,
-        properties: props.properties || {},
+        properties: props.properties || {
+          mode: defaultPurchaseMode,
+        },
       });
       this.eventsQueue.push(event);
       this.flushManager.tryFlush();

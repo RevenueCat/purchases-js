@@ -9,6 +9,7 @@ import { eventsTrackerContextKey } from "../../../ui/constants";
 import { Translator } from "../../../ui/localization/translator";
 import { writable } from "svelte/store";
 import { translatorContextKey } from "../../../ui/localization/constants";
+import { defaultPurchaseMode } from "../../../behavioural-events/event";
 
 const eventsTrackerMock = createEventsTrackerMock();
 
@@ -37,6 +38,9 @@ describe("PurchasesUI", () => {
     renderComponent();
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
       eventName: SDKEventName.CheckoutPurchaseSuccessfulImpression,
+      properties: {
+        mode: defaultPurchaseMode,
+      },
     });
   });
 
@@ -48,6 +52,7 @@ describe("PurchasesUI", () => {
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
       eventName: SDKEventName.CheckoutPurchaseSuccessfulDismiss,
       properties: {
+        mode: defaultPurchaseMode,
         ui_element: "go_back_to_app",
       },
     });
