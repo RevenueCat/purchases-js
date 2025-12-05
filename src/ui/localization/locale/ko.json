@@ -97,6 +97,5 @@
   "payment_entry_page.terms_link_label": "약관",
   "payment_entry_page.subscription_terms_info": "구독하면 취소할 때까지 {{appName}}이 약관에 따라 요금을 청구하는 데 동의하는 것입니다.",
   "loading_page.keep_page_open": "거의 완료되었습니다. 이 페이지를 계속 열어 두세요.",
-  "loading_page.processing_payment": "결제 처리 중",
-  "success_page.button_return_to_app": "{{appName}}으로 돌아가기"
+  "loading_page.processing_payment": "결제 처리 중"
 }

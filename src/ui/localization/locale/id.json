@@ -97,6 +97,5 @@
   "payment_entry_page.terms_link_label": "Ketentuan",
   "payment_entry_page.subscription_terms_info": "Dengan berlangganan, Anda setuju untuk mengizinkan {{appName}} mengenakan biaya sesuai dengan ketentuan mereka hingga Anda membatalkan.",
   "loading_page.keep_page_open": "Prosesnya hampir selesai. Jangan tutup halaman ini.",
-  "loading_page.processing_payment": "Pembayaran sedang diproses",
-  "success_page.button_return_to_app": "Kembali ke {{appName}}"
+  "loading_page.processing_payment": "Pembayaran sedang diproses"
 }

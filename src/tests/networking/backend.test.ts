@@ -646,6 +646,55 @@ describe("postCheckoutStart request", () => {
     expect(requestBody.presented_workflow_id).toBeUndefined();
   });
 
+  test("includes step_id in request when provided", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutStart(
+      "someAppUserId",
+      "monthly",
+      {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      { id: "base_option", priceId: "test_price_id" },
+      "test-trace-id",
+      undefined,
+      undefined,
+      "test-step-123",
+    );
+
+    expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.presented_step_id).toBe("test-step-123");
+  });
+
+  test("omits step_id from request when not provided", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutStart(
+      "someAppUserId",
+      "monthly",
+      {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      { id: "base_option", priceId: "test_price_id" },
+      "test-trace-id",
+    );
+
+    expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.presented_step_id).toBeUndefined();
+  });
+
   test("throws an error if the backend returns a server error", async () => {
     setCheckoutStartResponse(
       HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),

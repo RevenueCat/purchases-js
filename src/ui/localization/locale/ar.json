@@ -97,6 +97,5 @@
   "payment_entry_page.terms_link_label": "الشروط",
   "payment_entry_page.subscription_terms_info": "بالاشتراك، فإنك توافق على السماح لـ {{appName}} بتحصيل رسوم منك وفقًا لشروطها حتى تقوم بالإلغاء.",
   "loading_page.keep_page_open": "العملية شارفت على الانتهاء. أبقِ هذه الصفحة مفتوحة.",
-  "loading_page.processing_payment": "جاري معالجة الدفع",
-  "success_page.button_return_to_app": "العودة إلى {{appName}}"
+  "loading_page.processing_payment": "جاري معالجة الدفع"
 }

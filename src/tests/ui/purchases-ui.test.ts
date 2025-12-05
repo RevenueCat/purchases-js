@@ -164,4 +164,53 @@ describe("PurchasesUI", () => {
       redemptionInfo: null,
     });
   });
+
+  test("passes workflowPurchaseContext to checkoutStart when provided", async () => {
+    const checkoutStartSpy = vi
+      .spyOn(purchaseOperationHelperMock, "checkoutStart")
+      .mockResolvedValue(checkoutStartResponse);
+
+    render(PurchasesUI, {
+      props: {
+        ...basicProps,
+        workflowPurchaseContext: { stepId: "test-step-123" },
+      },
+    });
+
+    await new Promise(process.nextTick);
+
+    expect(checkoutStartSpy).toHaveBeenCalledWith(
+      "app-user-id",
+      rcPackage.webBillingProduct.identifier,
+      subscriptionOption,
+      rcPackage.webBillingProduct.presentedOfferingContext,
+      "test@test.com",
+      { utm_term: "something" },
+      { stepId: "test-step-123" },
+    );
+  });
+
+  test("passes undefined workflowPurchaseContext to checkoutStart when not provided", async () => {
+    const checkoutStartSpy = vi
+      .spyOn(purchaseOperationHelperMock, "checkoutStart")
+      .mockResolvedValue(checkoutStartResponse);
+
+    render(PurchasesUI, {
+      props: {
+        ...basicProps,
+      },
+    });
+
+    await new Promise(process.nextTick);
+
+    expect(checkoutStartSpy).toHaveBeenCalledWith(
+      "app-user-id",
+      rcPackage.webBillingProduct.identifier,
+      subscriptionOption,
+      rcPackage.webBillingProduct.presentedOfferingContext,
+      "test@test.com",
+      { utm_term: "something" },
+      undefined,
+    );
+  });
 });
