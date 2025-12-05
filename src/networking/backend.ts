@@ -139,6 +139,7 @@ export class Backend {
     traceId: string,
     email?: string,
     metadata: PurchaseMetadata | undefined = undefined,
+    stepId?: string,
   ): Promise<T> {
     type CheckoutStartRequestBody = {
       app_user_id: string;
@@ -147,6 +148,7 @@ export class Backend {
       price_id: string;
       presented_placement_identifier?: string;
       presented_workflow_id?: string;
+      presented_step_id?: string;
       offer_id?: string;
       applied_targeting_rule?: {
         rule_id: string;
@@ -190,6 +192,10 @@ export class Backend {
     if (this.purchasesContext?.workflowContext?.workflowIdentifier) {
       requestBody.presented_workflow_id =
         this.purchasesContext.workflowContext.workflowIdentifier;
+    }
+
+    if (stepId) {
+      requestBody.presented_step_id = stepId;
     }
 
     return (await performRequest<CheckoutStartRequestBody, T>(

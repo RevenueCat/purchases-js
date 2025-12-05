@@ -15,6 +15,7 @@ import {
   type PurchaseMetadata,
   type PurchaseOption,
 } from "../entities/offerings";
+import type { WorkflowPurchaseContext } from "../entities/purchase-params";
 import { Logger } from "./logger";
 import {
   type RedemptionInfo,
@@ -137,9 +138,11 @@ export class PurchaseOperationHelper {
     presentedOfferingContext: PresentedOfferingContext,
     email?: string,
     metadata?: PurchaseMetadata,
+    workflowPurchaseContext?: WorkflowPurchaseContext,
   ): Promise<WebBillingCheckoutStartResponse> {
     try {
       const traceId = this.eventsTracker.getTraceId();
+      const stepId = workflowPurchaseContext?.stepId;
 
       const checkoutStartResponse =
         await this.backend.postCheckoutStart<WebBillingCheckoutStartResponse>(
@@ -150,6 +153,7 @@ export class PurchaseOperationHelper {
           traceId,
           email,
           metadata,
+          stepId,
         );
       this.operationSessionId = checkoutStartResponse.operation_session_id;
       return checkoutStartResponse;

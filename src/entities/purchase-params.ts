@@ -4,6 +4,17 @@ import type { BrandingAppearance } from "./branding";
 import type { CustomTranslations } from "../ui/localization/translator";
 
 /**
+ * Contextual information specific to workflow purchases.
+ * @internal
+ */
+export interface WorkflowPurchaseContext {
+  /**
+   * The step ID from the workflow where the purchase is being initiated.
+   */
+  stepId?: string;
+}
+
+/**
  * Parameters used to customise the purchase flow when invoking the `.purchase` method.
  * @public
  */
@@ -24,6 +35,12 @@ export interface PurchaseParams {
    * The email of the user. If undefined, RevenueCat will ask the customer for their email.
    */
   customerEmail?: string;
+
+  /**
+   * Workflow-specific context for this purchase.
+   * @internal
+   */
+  workflowPurchaseContext?: WorkflowPurchaseContext;
 
   /**
    * The locale to use for the purchase flow. If not specified, English will be used
