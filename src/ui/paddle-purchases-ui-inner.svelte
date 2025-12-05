@@ -59,14 +59,7 @@
         >
       </div>
     {:else if currentPage === "success"}
-      <SuccessPage
-        {onContinue}
-        closeButtonTitle={$translator.translate(
-          LocalizationKeys.SuccessPageButtonReturnToApp,
-          { appName: brandingInfo?.app_name ?? "App" },
-        )}
-        fullWidth={true}
-      />
+      <SuccessPage {onContinue} fullWidth={true} />
     {:else if currentPage === "error"}
       <ErrorPage
         {lastError}

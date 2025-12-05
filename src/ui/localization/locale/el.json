@@ -97,6 +97,5 @@
   "payment_entry_page.terms_link_label": "Όροι",
   "payment_entry_page.subscription_terms_info": "Με την εγγραφή σας, συμφωνείτε να επιτρέψετε στην εφαρμογή {{appName}} να σας χρεώνει σύμφωνα με τους όρους της έως ότου ακυρώσετε.",
   "loading_page.keep_page_open": "Η διαδικασία σχεδόν ολοκληρώθηκε. Κρατήστε αυτή τη σελίδα ανοιχτή.",
-  "loading_page.processing_payment": "Επεξεργασία πληρωμής",
-  "success_page.button_return_to_app": "Επιστροφή στο {{appName}}"
+  "loading_page.processing_payment": "Επεξεργασία πληρωμής"
 }

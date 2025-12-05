@@ -97,6 +97,5 @@
   "payment_entry_page.terms_link_label": "Warunki",
   "payment_entry_page.subscription_terms_info": "Subskrybując, zgadzasz się na obciążanie przez {{appName}} zgodnie z ich warunkami do momentu anulowania.",
   "loading_page.keep_page_open": "Proces jest prawie zakończony. Pozostaw tę stronę otwartą.",
-  "loading_page.processing_payment": "Przetwarzanie płatności",
-  "success_page.button_return_to_app": "Wróć do {{appName}}"
+  "loading_page.processing_payment": "Przetwarzanie płatności"
 }

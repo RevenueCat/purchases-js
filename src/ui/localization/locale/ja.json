@@ -97,6 +97,5 @@
   "payment_entry_page.terms_link_label": "利用規約",
   "payment_entry_page.subscription_terms_info": "サブスクリプションに登録すると、キャンセルするまで{{appName}}が利用規約に従って課金することを許可することに同意したことになります。",
   "loading_page.keep_page_open": "プロセスはほぼ完了です。このページを開いたままにしてください。",
-  "loading_page.processing_payment": "お支払い手続き中",
-  "success_page.button_return_to_app": "{{appName}}に戻る"
+  "loading_page.processing_payment": "お支払い手続き中"
 }

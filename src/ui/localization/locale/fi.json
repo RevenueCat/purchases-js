@@ -97,6 +97,5 @@
   "payment_entry_page.terms_link_label": "Ehdot",
   "payment_entry_page.subscription_terms_info": "Tilaamalla hyväksyt, että {{appName}} veloittaa sinulta ehtojensa mukaisesti, kunnes peruutat tilauksen.",
   "loading_page.keep_page_open": "Prosessi on melkein valmis. Pidä tämä sivu auki.",
-  "loading_page.processing_payment": "Maksua käsitellään",
-  "success_page.button_return_to_app": "Palaa sovellukseen {{appName}}"
+  "loading_page.processing_payment": "Maksua käsitellään"
 }
