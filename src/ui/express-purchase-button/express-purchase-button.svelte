@@ -45,6 +45,7 @@
     translator,
     onFinished,
     onError,
+    onReady,
   }: ExpressPurchaseButtonProps = $props();
 
   let translatorStore = writable(translator);
@@ -372,6 +373,7 @@
       onError={onStripeElementsLoadingError}
       onSubmit={onExpressCheckoutElementSubmit}
       onClick={onExpressClicked}
+      {onReady}
       {expressCheckoutOptions}
       forceEnableWalletMethods={false}
       billingAddressRequired={brandingInfo?.gateway_tax_collection_enabled}
