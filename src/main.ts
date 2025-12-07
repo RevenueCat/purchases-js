@@ -96,7 +96,7 @@ import type {
   ExpressPurchaseButtonUpdater,
   PresentExpressPurchaseButtonParams,
 } from "./entities/present-express-purchase-button-params";
-import { ExpressPurchaseButtonWrapper } from "./ui/express-purchase-button/express-purchase-button-wrapper.svelte";
+import { renderExpressPurchaseButton } from "./ui/express-purchase-button/express-purchase-button-wrapper.svelte";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -853,7 +853,7 @@ export class Purchases {
         reject(e);
       };
 
-      new ExpressPurchaseButtonWrapper(htmlTarget, onButtonReady, {
+      renderExpressPurchaseButton(htmlTarget, onButtonReady, {
         appUserId,
         rcPackage,
         purchaseOption: purchaseOptionToUse,
