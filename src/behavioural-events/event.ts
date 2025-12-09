@@ -28,10 +28,10 @@ type EventPropertyValue =
   | EventPropertySingleValue
   | Array<EventPropertyValue>;
 
-export type SDKEventPurchaseMode =
-  | "sdk_checkout"
-  | "external_checkout"
-  | "express_purchase_button";
+// Used to track the difference between the regular checkout form
+// and the express purchase button in events.
+// Can be extended for third parties checkout flows.
+export type SDKEventPurchaseMode = "sdk_checkout" | "express_purchase_button";
 
 export const defaultPurchaseMode: SDKEventPurchaseMode = "sdk_checkout";
 

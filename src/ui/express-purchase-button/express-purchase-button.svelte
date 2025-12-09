@@ -205,7 +205,7 @@
         await updateStripe(checkoutStartResult, elements);
       }
     } catch (e) {
-      onError(e as PurchaseFlowError);
+      handleError(e as PurchaseFlowError);
     }
 
     isLoading = false;
@@ -369,7 +369,7 @@
 
       event.resolve({ applePay: options.applePay } as ClickResolveDetails);
     } catch (error) {
-      onError(
+      handleError(
         error instanceof PurchaseFlowError
           ? error
           : new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase),
