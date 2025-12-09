@@ -4,6 +4,8 @@ import type {
   CheckoutPaymentFormGatewayErrorEvent,
   CheckoutPaymentFormSubmitEvent,
   CheckoutPaymentTaxCalculationEvent,
+  CheckoutPurchaseSuccessfulDismissEvent,
+  CheckoutPurchaseSuccessfulImpressionEvent,
   CheckoutSessionClosedEvent,
   CheckoutSessionErroredEvent,
   CheckoutSessionFinishedEvent,
@@ -119,7 +121,7 @@ export function createCheckoutSessionEndClosedEvent(properties?: {
   return {
     eventName: SDKEventName.CheckoutSessionEnd,
     properties: {
-      mode: properties?.mode ?? "sdk_checkout",
+      mode: properties?.mode ?? defaultPurchaseMode,
       outcome: "closed",
     },
   };
@@ -209,6 +211,30 @@ export function createCheckoutPaymentGatewayErrorEvent({
       mode,
       errorCode: errorCode,
       errorMessage: errorMessage,
+    },
+  };
+}
+
+export function createCheckoutPurchaseSuccessfulDismissEvent(
+  uiElement: "go_back_to_app" | "close",
+  mode = defaultPurchaseMode,
+): CheckoutPurchaseSuccessfulDismissEvent {
+  return {
+    eventName: SDKEventName.CheckoutPurchaseSuccessfulDismiss,
+    properties: {
+      mode,
+      ui_element: uiElement,
+    },
+  };
+}
+
+export function createCheckoutPurchaseSuccessfulImpressionEvent(
+  mode = defaultPurchaseMode,
+): CheckoutPurchaseSuccessfulImpressionEvent {
+  return {
+    eventName: SDKEventName.CheckoutPurchaseSuccessfulImpression,
+    properties: {
+      mode,
     },
   };
 }

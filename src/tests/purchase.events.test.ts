@@ -59,7 +59,7 @@ describe("Purchases.configure()", () => {
             },
             properties: {
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
-              mode: "sdk_checkout",
+              mode: defaultPurchaseMode,
             },
           },
         ],

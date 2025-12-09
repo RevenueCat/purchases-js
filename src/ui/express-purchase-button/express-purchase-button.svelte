@@ -39,6 +39,7 @@
     createCheckoutPaymentFormSubmitEvent,
     createCheckoutPaymentGatewayErrorEvent,
     createCheckoutPaymentTaxCalculationEvent,
+    createCheckoutSessionEndClosedEvent,
     createCheckoutSessionStartEvent,
   } from "../../behavioural-events/sdk-event-helpers";
   import type { SDKEventPurchaseMode } from "../../behavioural-events/event";
@@ -376,6 +377,12 @@
     }
   };
 
+  const onExpressCancelled = () => {
+    eventsTracker.trackSDKEvent(
+      createCheckoutSessionEndClosedEvent("express_purchase_button"),
+    );
+  };
+
   // Extracted helper: pick the subscription option chosen for the Express Checkout flow.
   function getSubscriptionOptionForExpressCheckout(
     productDetails: Product,
@@ -404,9 +411,9 @@
 
     // Design decision: We will always show the price before taxes in the
     // express checkout modal.
-    // We will charge according to the billing address retrieved by the
+    // We will charge, according to the billing address retrieved by the
     // wallet, if any, but it would be visible only in the invoice.
-    // This is the behaviour of other IAP stores and we want to be as close
+    // This is the behavior of other IAP stores, and we want to be as close
     // as possible to that in this component.
     return {
       currency: initialPrice.currency,
@@ -442,6 +449,7 @@
       onError={onStripeElementsLoadingError}
       onSubmit={onExpressCheckoutElementSubmit}
       onClick={onExpressClicked}
+      onCancel={onExpressCancelled}
       {expressCheckoutOptions}
       forceEnableWalletMethods={false}
       billingAddressRequired={brandingInfo?.gateway_tax_collection_enabled}
