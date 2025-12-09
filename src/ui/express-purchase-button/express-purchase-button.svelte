@@ -379,7 +379,7 @@
 
   const onExpressCancelled = () => {
     eventsTracker.trackSDKEvent(
-      createCheckoutSessionEndClosedEvent("express_purchase_button"),
+      createCheckoutSessionEndClosedEvent({ mode: "express_purchase_button" }),
     );
   };
 
