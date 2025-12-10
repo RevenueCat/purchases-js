@@ -30,4 +30,5 @@ export interface ExpressPurchaseButtonProps {
   translator: Translator;
   onFinished: (operationResult: OperationSessionSuccessfulResult) => void;
   onError: (error: PurchaseFlowError) => void;
+  onReady?: () => void;
 }

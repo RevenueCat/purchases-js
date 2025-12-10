@@ -56,6 +56,7 @@
     translator,
     onFinished,
     onError,
+    onReady,
   }: ExpressPurchaseButtonProps = $props();
 
   const mode: SDKEventPurchaseMode = "express_purchase_button";
@@ -450,6 +451,7 @@
       onSubmit={onExpressCheckoutElementSubmit}
       onClick={onExpressClicked}
       onCancel={onExpressCancelled}
+      {onReady}
       {expressCheckoutOptions}
       forceEnableWalletMethods={false}
       billingAddressRequired={brandingInfo?.gateway_tax_collection_enabled}

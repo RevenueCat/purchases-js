@@ -597,7 +597,10 @@ export class Purchases {
     return new Promise((resolve, reject) => {
       const walletButtonRender = (
         element: HTMLElement,
-        selectedPackageId: string,
+        {
+          selectedPackageId,
+          onReady,
+        }: { selectedPackageId: string; onReady?: () => void },
       ) => {
         const pkg = offering.packagesById[selectedPackageId];
         if (!pkg) {
@@ -610,6 +613,7 @@ export class Purchases {
           htmlTarget: element,
           onButtonReady: (updater) => {
             buttonUpdater = updater;
+            onReady?.();
           },
         })
           .then((purchaseResult) => {
