@@ -273,10 +273,9 @@
       return false;
     }
 
-    const newConfirmationToken = await updateTaxCalculationBasedOnWalletDetails(
-      elements,
-      stripe,
-    );
+    const newConfirmationToken = brandingInfo?.gateway_tax_collection_enabled
+      ? await updateTaxCalculationBasedOnWalletDetails(elements, stripe)
+      : undefined;
 
     await StripeService.confirmElements(
       stripe,
