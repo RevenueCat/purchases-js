@@ -334,6 +334,8 @@
       }
       // TODO: Improve the error message here.
       // Notifies the modal that something went wrong with the payment
+      // if the modal it's still open.
+      // The modal could be closed by a stripe.createConfirmationToken invocation.
       event.paymentFailed();
       isPurchasing = false;
     }

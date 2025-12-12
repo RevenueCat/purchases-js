@@ -860,6 +860,12 @@ export class Purchases {
       };
 
       const onError = (e: PurchaseFlowError) => {
+        const event = createCheckoutSessionEndErroredEvent({
+          errorCode: e.errorCode?.toString(),
+          errorMessage: e.message,
+          mode: "express_purchase_button",
+        });
+        this.eventsTracker.trackSDKEvent(event);
         reject(e);
       };
 
