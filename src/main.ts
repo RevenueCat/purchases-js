@@ -625,7 +625,12 @@ export class Purchases {
           destroy() {
             element.innerHTML = "";
           },
-          update(selectedPackageId: string) {
+          update({
+            selectedPackageId,
+          }: {
+            selectedPackageId: string;
+            onReady?: () => void;
+          }) {
             if (buttonUpdater) {
               const pkg = offering.packagesById[selectedPackageId];
               if (!pkg) {
