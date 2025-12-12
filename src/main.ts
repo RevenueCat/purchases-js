@@ -838,6 +838,12 @@ export class Purchases {
       const onFinished = async (
         operationResult: OperationSessionSuccessfulResult,
       ) => {
+        const sessionEndFinishedEvent = createCheckoutSessionEndFinishedEvent({
+          redemptionInfo: operationResult.redemptionInfo,
+          mode: "express_purchase_button",
+        });
+        this.eventsTracker.trackSDKEvent(sessionEndFinishedEvent);
+
         Logger.debugLog("Purchase finished");
 
         const purchaseResult: PurchaseResult = {
@@ -854,6 +860,12 @@ export class Purchases {
       };
 
       const onError = (e: PurchaseFlowError) => {
+        const event = createCheckoutSessionEndErroredEvent({
+          errorCode: e.errorCode?.toString(),
+          errorMessage: e.message,
+          mode: "express_purchase_button",
+        });
+        this.eventsTracker.trackSDKEvent(event);
         reject(e);
       };
 

@@ -37,6 +37,7 @@
       event: StripeExpressCheckoutElementConfirmEvent,
     ) => void | Promise<void>;
     onClick?: (event: StripeExpressCheckoutElementClickEvent) => void;
+    onCancel?: () => void;
     elements: StripeElements;
     billingAddressRequired: boolean;
     forceEnableWalletMethods: boolean;
@@ -49,6 +50,7 @@
     onReady,
     onSubmit,
     onClick,
+    onCancel,
     elements,
     billingAddressRequired,
     forceEnableWalletMethods,
@@ -62,6 +64,10 @@
   let hideExpressCheckoutElement = $state(false);
   // Allows having more than one in the page.
   const expressCheckoutElementId = `express-checkout-element-${new Date().getTime()}`;
+
+  const onCancelCallback = async () => {
+    onCancel && onCancel();
+  };
 
   const onClickCallback = async (
     event: StripeExpressCheckoutElementClickEvent,
@@ -110,6 +116,7 @@
       expressCheckoutElement.on("confirm", onConfirmCallback);
       expressCheckoutElement.on("loaderror", onLoadErrorCallback);
       expressCheckoutElement.on("click", onClickCallback);
+      expressCheckoutElement.on("cancel", onCancelCallback);
     } catch (e) {
       onError(StripeService.mapInitializationError(e as StripeError));
     }

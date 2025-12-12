@@ -33,6 +33,16 @@
     ClickResolveDetails,
     StripeExpressCheckoutElementClickEvent,
   } from "@stripe/stripe-js/dist/stripe-js/elements/express-checkout";
+  import type { IEventsTracker } from "../../behavioural-events/events-tracker";
+  import {
+    createCheckoutFlowErrorEvent,
+    createCheckoutPaymentFormSubmitEvent,
+    createCheckoutPaymentGatewayErrorEvent,
+    createCheckoutPaymentTaxCalculationEvent,
+    createCheckoutSessionEndClosedEvent,
+    createCheckoutSessionStartEvent,
+  } from "../../behavioural-events/sdk-event-helpers";
+  import type { SDKEventPurchaseMode } from "../../behavioural-events/event";
 
   const {
     customerEmail,
@@ -41,12 +51,15 @@
     purchaseOption,
     metadata,
     brandingInfo,
+    eventsTracker,
     purchaseOperationHelper,
     translator,
     onFinished,
     onError,
     onReady,
   }: ExpressPurchaseButtonProps = $props();
+
+  const mode: SDKEventPurchaseMode = "express_purchase_button";
 
   let translatorStore = writable(translator);
   setContext(translatorContextKey, translatorStore);
@@ -60,6 +73,16 @@
   let expressCheckoutOptions: StripeExpressCheckoutConfiguration | null =
     $state(null);
   let managementUrl: string | null = $state(null);
+
+  const handleError = (error: PurchaseFlowError) => {
+    const event = createCheckoutFlowErrorEvent({
+      errorCode: error.getErrorCode().toString(),
+      errorMessage: error.message,
+      mode,
+    });
+    (eventsTracker as IEventsTracker).trackSDKEvent(event);
+    onError(error);
+  };
 
   const initStripe = async (
     checkoutStartResponse: WebBillingCheckoutStartResponse,
@@ -183,7 +206,7 @@
         await updateStripe(checkoutStartResult, elements);
       }
     } catch (e) {
-      onError(e as PurchaseFlowError);
+      handleError(e as PurchaseFlowError);
     }
 
     isLoading = false;
@@ -194,9 +217,20 @@
     reInitPurchase().then(() => {});
   });
 
-  const onStripeElementsLoadingError = (_: StripeServiceError) => {
-    onError(
-      new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase),
+  const onStripeElementsLoadingError = (error: StripeServiceError) => {
+    const gatewayEvent = createCheckoutPaymentGatewayErrorEvent({
+      errorCode: error.gatewayErrorCode ?? null,
+      errorMessage: error.message ?? "",
+      mode,
+    });
+    (eventsTracker as IEventsTracker).trackSDKEvent(gatewayEvent);
+
+    handleError(
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "Failed to initialize payment form",
+        error.message,
+      ),
     );
   };
 
@@ -210,10 +244,17 @@
     } = await StripeService.extractTaxCustomerDetails(elements, stripe);
 
     if (brandingInfo?.gateway_tax_collection_enabled) {
-      await purchaseOperationHelper.checkoutCalculateTax(
+      const taxCalculation = await purchaseOperationHelper.checkoutCalculateTax(
         taxCustomerDetails.countryCode,
         taxCustomerDetails.postalCode,
       );
+
+      const taxEvent = createCheckoutPaymentTaxCalculationEvent({
+        taxCalculation,
+        taxCustomerDetails,
+        mode,
+      });
+      (eventsTracker as IEventsTracker).trackSDKEvent(taxEvent);
     }
 
     return newConfirmationTokenId;
@@ -232,10 +273,9 @@
       return false;
     }
 
-    const newConfirmationToken = await updateTaxCalculationBasedOnWalletDetails(
-      elements,
-      stripe,
-    );
+    const newConfirmationToken = brandingInfo?.gateway_tax_collection_enabled
+      ? await updateTaxCalculationBasedOnWalletDetails(elements, stripe)
+      : undefined;
 
     await StripeService.confirmElements(
       stripe,
@@ -248,13 +288,20 @@
   }
 
   const onExpressCheckoutElementSubmit = async (
-    _: string,
+    paymentMethod: string,
     emailValue: string,
     event: StripeExpressCheckoutElementConfirmEvent,
   ) => {
     if (isPurchasing) {
       return;
     }
+
+    const submitEvent = createCheckoutPaymentFormSubmitEvent({
+      selectedPaymentMethod: paymentMethod ?? null,
+      mode,
+    });
+    (eventsTracker as IEventsTracker).trackSDKEvent(submitEvent);
+
     isPurchasing = true;
     try {
       const success = await submitPayment(emailValue);
@@ -268,16 +315,41 @@
       isPurchasing = false;
     } catch (e) {
       if (e instanceof PurchaseFlowError) {
-        onError(e);
+        handleError(e);
+      } else if (e instanceof StripeServiceError) {
+        const gatewayEvent = createCheckoutPaymentGatewayErrorEvent({
+          errorCode: e.gatewayErrorCode ?? null,
+          errorMessage: e.message ?? "",
+          mode,
+        });
+        (eventsTracker as IEventsTracker).trackSDKEvent(gatewayEvent);
+
+        handleError(
+          new PurchaseFlowError(
+            PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+            "Failed to complete payment",
+            e.message,
+          ),
+        );
       }
       // TODO: Improve the error message here.
       // Notifies the modal that something went wrong with the payment
+      // if the modal it's still open.
+      // The modal could be closed by a stripe.createConfirmationToken invocation.
       event.paymentFailed();
       isPurchasing = false;
     }
   };
 
   const onExpressClicked = (event: StripeExpressCheckoutElementClickEvent) => {
+    const sessionStartEvent = createCheckoutSessionStartEvent({
+      appearance: brandingInfo?.appearance,
+      rcPackage,
+      purchaseOptionToUse: purchaseOption,
+      customerEmail,
+      mode: "express_purchase_button",
+    });
+    eventsTracker.trackSDKEvent(sessionStartEvent);
     try {
       const productDetails: Product = rcPackage.webBillingProduct;
       if (!managementUrl) {
@@ -299,12 +371,18 @@
 
       event.resolve({ applePay: options.applePay } as ClickResolveDetails);
     } catch (error) {
-      onError(
+      handleError(
         error instanceof PurchaseFlowError
           ? error
           : new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase),
       );
     }
+  };
+
+  const onExpressCancelled = () => {
+    eventsTracker.trackSDKEvent(
+      createCheckoutSessionEndClosedEvent({ mode: "express_purchase_button" }),
+    );
   };
 
   // Extracted helper: pick the subscription option chosen for the Express Checkout flow.
@@ -335,9 +413,9 @@
 
     // Design decision: We will always show the price before taxes in the
     // express checkout modal.
-    // We will charge according to the billing address retrieved by the
+    // We will charge, according to the billing address retrieved by the
     // wallet, if any, but it would be visible only in the invoice.
-    // This is the behaviour of other IAP stores and we want to be as close
+    // This is the behavior of other IAP stores, and we want to be as close
     // as possible to that in this component.
     return {
       currency: initialPrice.currency,
@@ -373,6 +451,7 @@
       onError={onStripeElementsLoadingError}
       onSubmit={onExpressCheckoutElementSubmit}
       onClick={onExpressClicked}
+      onCancel={onExpressCancelled}
       {onReady}
       {expressCheckoutOptions}
       forceEnableWalletMethods={false}

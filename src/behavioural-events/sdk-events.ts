@@ -1,4 +1,4 @@
-import { type EventProperties } from "./event";
+import { type EventProperties, type SDKEventPurchaseMode } from "./event";
 
 export type SDKEvent =
   | SDKInitializedEvent
@@ -43,6 +43,7 @@ export interface SDKInitializedEvent extends ISDKEvent {
 export interface CheckoutSessionStartEvent extends ISDKEvent {
   eventName: SDKEventName.CheckoutSessionStart;
   properties: {
+    mode: SDKEventPurchaseMode;
     customizationColorButtonsPrimary: string | null;
     customizationColorAccent: string | null;
     customizationColorError: string | null;
@@ -65,6 +66,7 @@ export interface CheckoutSessionStartEvent extends ISDKEvent {
 export interface CheckoutSessionFinishedEvent extends ISDKEvent {
   eventName: SDKEventName.CheckoutSessionEnd;
   properties: {
+    mode: SDKEventPurchaseMode;
     outcome: "finished";
     withRedemptionInfo: boolean;
   };
@@ -73,6 +75,7 @@ export interface CheckoutSessionFinishedEvent extends ISDKEvent {
 export interface CheckoutSessionClosedEvent extends ISDKEvent {
   eventName: SDKEventName.CheckoutSessionEnd;
   properties: {
+    mode: SDKEventPurchaseMode;
     outcome: "closed";
   };
 }
@@ -80,6 +83,7 @@ export interface CheckoutSessionClosedEvent extends ISDKEvent {
 export interface CheckoutSessionErroredEvent extends ISDKEvent {
   eventName: SDKEventName.CheckoutSessionEnd;
   properties: {
+    mode: SDKEventPurchaseMode;
     outcome: "errored";
     errorCode: string | null;
     errorMessage: string;
@@ -89,6 +93,7 @@ export interface CheckoutSessionErroredEvent extends ISDKEvent {
 export interface CheckoutFlowErrorEvent extends ISDKEvent {
   eventName: SDKEventName.CheckoutFlowError;
   properties: {
+    mode: SDKEventPurchaseMode;
     errorCode: string | null;
     errorMessage: string;
   };
@@ -97,6 +102,7 @@ export interface CheckoutFlowErrorEvent extends ISDKEvent {
 export interface CheckoutPaymentTaxCalculationEvent extends ISDKEvent {
   eventName: SDKEventName.CheckoutPaymentTaxCalculation;
   properties: {
+    mode: SDKEventPurchaseMode;
     outcome: "disabled" | "failed" | "not-taxed" | "taxed";
     ui_element: "form" | "auto";
     error_code: string | null;
@@ -106,11 +112,15 @@ export interface CheckoutPaymentTaxCalculationEvent extends ISDKEvent {
 
 export interface CheckoutPaymentFormImpressionEvent extends ISDKEvent {
   eventName: SDKEventName.CheckoutPaymentFormImpression;
+  properties: {
+    mode: SDKEventPurchaseMode;
+  };
 }
 
 export interface CheckoutPaymentFormErrorEvent extends ISDKEvent {
   eventName: SDKEventName.CheckoutPaymentFormError;
   properties: {
+    mode: SDKEventPurchaseMode;
     errorCode: string | null;
     errorMessage: string;
   };
@@ -118,11 +128,15 @@ export interface CheckoutPaymentFormErrorEvent extends ISDKEvent {
 
 export interface CheckoutPaymentFormDismissEvent extends ISDKEvent {
   eventName: SDKEventName.CheckoutPaymentFormDismiss;
+  properties: {
+    mode: SDKEventPurchaseMode;
+  };
 }
 
 export interface CheckoutPaymentFormGatewayErrorEvent extends ISDKEvent {
   eventName: SDKEventName.CheckoutPaymentFormGatewayError;
   properties: {
+    mode: SDKEventPurchaseMode;
     errorCode: string | null;
     errorMessage: string;
   };
@@ -131,17 +145,22 @@ export interface CheckoutPaymentFormGatewayErrorEvent extends ISDKEvent {
 export interface CheckoutPaymentFormSubmitEvent extends ISDKEvent {
   eventName: SDKEventName.CheckoutPaymentFormSubmit;
   properties: {
+    mode: SDKEventPurchaseMode;
     selectedPaymentMethod: string | null;
   };
 }
 
 export interface CheckoutPurchaseSuccessfulImpressionEvent extends ISDKEvent {
   eventName: SDKEventName.CheckoutPurchaseSuccessfulImpression;
+  properties: {
+    mode: SDKEventPurchaseMode;
+  };
 }
 
 export interface CheckoutPurchaseSuccessfulDismissEvent extends ISDKEvent {
   eventName: SDKEventName.CheckoutPurchaseSuccessfulDismiss;
   properties: {
+    mode: SDKEventPurchaseMode;
     ui_element: "go_back_to_app" | "close";
   };
 }

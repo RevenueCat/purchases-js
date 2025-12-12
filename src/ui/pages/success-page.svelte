@@ -6,10 +6,15 @@
   import { Translator } from "../localization/translator";
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
-  import { SDKEventName } from "../../behavioural-events/sdk-events";
   import { type IEventsTracker } from "../../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "../constants";
   import { type Writable } from "svelte/store";
+  import { defaultPurchaseMode } from "../../behavioural-events/event";
+  import {
+    createCheckoutPurchaseSuccessfulDismissEvent,
+    createCheckoutPurchaseSuccessfulImpressionEvent,
+  } from "../../behavioural-events/sdk-event-helpers";
+
   export let onContinue: () => void;
   export let title: string | undefined = undefined;
   export let closeButtonTitle: string | undefined = undefined;
@@ -19,19 +24,19 @@
   const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
 
   function handleContinue() {
-    eventsTracker.trackSDKEvent({
-      eventName: SDKEventName.CheckoutPurchaseSuccessfulDismiss,
-      properties: {
-        ui_element: "go_back_to_app",
-      },
-    });
+    eventsTracker.trackSDKEvent(
+      createCheckoutPurchaseSuccessfulDismissEvent(
+        "go_back_to_app",
+        defaultPurchaseMode,
+      ),
+    );
     onContinue();
   }
 
   onMount(() => {
-    eventsTracker.trackSDKEvent({
-      eventName: SDKEventName.CheckoutPurchaseSuccessfulImpression,
-    });
+    eventsTracker.trackSDKEvent(
+      createCheckoutPurchaseSuccessfulImpressionEvent(defaultPurchaseMode),
+    );
   });
 </script>
 
