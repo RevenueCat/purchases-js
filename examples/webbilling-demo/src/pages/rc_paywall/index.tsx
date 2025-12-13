@@ -9,6 +9,7 @@ const RCPaywallPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const lang = searchParams.get("lang");
+  const hideBackButtons = searchParams.get("hideBackButtons") === "true";
 
   useEffect(() => {
     const target = document.getElementById("paywall");
@@ -23,6 +24,7 @@ const RCPaywallPage: React.FC = () => {
         offering: offering,
         htmlTarget: document.getElementById("paywall") || undefined,
         selectedLocale: lang || undefined,
+        hideBackButtons: hideBackButtons,
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-expect-error
         useExpressPurchaseButtons: true,
@@ -44,7 +46,7 @@ const RCPaywallPage: React.FC = () => {
         );
       })
       .catch((err: Error) => console.log(`Error: ${err}`));
-  }, [offering, navigate, lang]);
+  }, [offering, navigate, lang, hideBackButtons]);
 
   if (!offering) {
     console.error("No offering found");

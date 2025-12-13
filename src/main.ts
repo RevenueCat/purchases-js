@@ -649,6 +649,9 @@ export class Purchases {
           onVisitCustomerCenterClicked: onVisitCustomerCenterClicked,
           uiConfig: offering.uiConfig!,
           onBackClicked: () => {
+            if (paywallParams.hideBackButtons) {
+              return;
+            }
             if (paywallParams.onBack) {
               paywallParams.onBack();
               return;
@@ -673,6 +676,7 @@ export class Purchases {
           onError: (err: unknown) => reject(err),
           variablesPerPackage,
           infoPerPackage,
+          hideBackButtons: paywallParams.hideBackButtons,
           walletButtonRender: paywallParams.useExpressPurchaseButtons
             ? walletButtonRender
             : undefined,
