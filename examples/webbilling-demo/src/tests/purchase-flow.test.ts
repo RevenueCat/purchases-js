@@ -331,7 +331,6 @@ test.describe("Purchase error paths", () => {
       await expect(title).toBeVisible();
 
       const backButtons = getBackButtons(page);
-      // Should find at least one back button
       const buttonCount = await backButtons.count();
       expect(buttonCount).toBeGreaterThan(0);
     },
@@ -345,14 +344,13 @@ test.describe("Purchase error paths", () => {
       page = await navigateToLandingUrl(page, userId, {
         offeringId: RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES,
         useRcPaywall: true,
-        hideBackButtons: true, // Explicitly hide back buttons
+        hideBackButtons: true,
       });
 
       const title = page.getByText("E2E Tests for Purchases JS");
       await expect(title).toBeVisible();
 
       const backButtons = getBackButtons(page);
-      // Should find no back buttons
       const buttonCount = await backButtons.count();
       expect(buttonCount).toBe(0);
     },
