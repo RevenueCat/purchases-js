@@ -14,6 +14,11 @@ export type RouteFulfillOptions = {
   status?: number | undefined;
 };
 
+export const getBackButtons = (page: Page) =>
+  page.locator(
+    "button[data-testid='close-button'], button[aria-label*='back'], button[aria-label*='close'], button.rcb-back-button",
+  );
+
 export const CARD_SELECTOR = "div.card";
 export const PACKAGE_SELECTOR = "button.rc-pw-package";
 export const TAX_SKELETON_SELECTOR = "div[data-testid='tax-loading-skeleton']";
@@ -74,6 +79,7 @@ export async function navigateToLandingUrl(
     email?: string;
     $displayName?: string;
     nickname?: string;
+    hideBackButtons?: boolean;
   },
   apiKey?: string,
 ) {
@@ -130,6 +136,9 @@ export async function navigateToLandingUrl(
   }
   if (nickname) {
     params.append("nickname", nickname);
+  }
+  if (queryString?.hideBackButtons !== undefined) {
+    params.append("hideBackButtons", queryString.hideBackButtons.toString());
   }
 
   const rcPaywallPath = offeringId ? "rc_paywall" : "rc_paywall_no_offering";

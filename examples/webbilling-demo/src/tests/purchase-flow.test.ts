@@ -10,6 +10,7 @@ import {
   confirmStripeEmailFieldVisible,
   enterCreditCardDetails,
   enterEmail,
+  getBackButtons,
   getEmailFromUserId,
   getPackageCards,
   navigateToLandingUrl,
@@ -312,6 +313,48 @@ test.describe("Purchase error paths", () => {
         page,
         "You can't subscribe to this product again",
       );
+    },
+  );
+
+  integrationTest(
+    "Back buttons are shown by default on RC Paywall",
+    async ({ page, userId }) => {
+      skipPaywallsTestIfDisabled(integrationTest);
+
+      page = await navigateToLandingUrl(page, userId, {
+        offeringId: RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES,
+        useRcPaywall: true,
+        // hideBackButtons defaults to false/undefined - buttons should be shown
+      });
+
+      const title = page.getByText("E2E Tests for Purchases JS");
+      await expect(title).toBeVisible();
+
+      const backButtons = getBackButtons(page);
+      // Should find at least one back button
+      const buttonCount = await backButtons.count();
+      expect(buttonCount).toBeGreaterThan(0);
+    },
+  );
+
+  integrationTest(
+    "Back buttons are hidden when hideBackButtons=true",
+    async ({ page, userId }) => {
+      skipPaywallsTestIfDisabled(integrationTest);
+
+      page = await navigateToLandingUrl(page, userId, {
+        offeringId: RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES,
+        useRcPaywall: true,
+        hideBackButtons: true, // Explicitly hide back buttons
+      });
+
+      const title = page.getByText("E2E Tests for Purchases JS");
+      await expect(title).toBeVisible();
+
+      const backButtons = getBackButtons(page);
+      // Should find no back buttons
+      const buttonCount = await backButtons.count();
+      expect(buttonCount).toBe(0);
     },
   );
 });
