@@ -3918,6 +3918,33 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PresentPaywallParams#hideBackButtons:member",
+              "docComment": "/**\n * Whether to hide back buttons in the paywall. Defaults to false.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly hideBackButtons?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "hideBackButtons",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PresentPaywallParams#htmlTarget:member",
               "docComment": "/**\n * The target element where the paywall will be rendered. The paywall will create a full-screen overlay if null.\n */\n",
               "excerptTokens": [
