@@ -1,6 +1,5 @@
 ## RevenueCat SDK
+### ✨ New Features
+* [WEB-3429] Make close buttons conditional (#690) via James O'Donnell (@james-od)
 ### 🐞 Bugfixes
-* Web 3459: Connect the loader from purchases-ui-js (#685) via Nicola Sacco (@nicfix)
-
-### 🔄 Other Changes
-* Bump fastlane-plugin-revenuecat_internal from `efca663` to `76a3a08` (#687) via dependabot[bot] (@dependabot[bot])
+* WEB-3460: Events handling for ExpressPurchaseButton (#681) via Nicola Sacco (@nicfix)
