@@ -287,6 +287,7 @@ export interface PresentedOfferingContext {
 // @public
 export interface PresentPaywallParams {
     readonly customerEmail?: string;
+    readonly hideBackButtons?: boolean;
     readonly htmlTarget?: HTMLElement;
     readonly offering?: Offering;
     readonly onBack?: () => void;
@@ -294,7 +295,6 @@ export interface PresentPaywallParams {
     readonly onVisitCustomerCenter?: () => void;
     readonly purchaseHtmlTarget?: HTMLElement;
     readonly selectedLocale?: string;
-    /* Excluded from this release type: useExpressPurchaseButtons */
 }
 
 // @public

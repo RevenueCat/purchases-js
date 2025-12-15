@@ -673,6 +673,7 @@ export class Purchases {
           onError: (err: unknown) => reject(err),
           variablesPerPackage,
           infoPerPackage,
+          hideBackButtons: paywallParams.hideBackButtons,
           walletButtonRender: paywallParams.useExpressPurchaseButtons
             ? walletButtonRender
             : undefined,
