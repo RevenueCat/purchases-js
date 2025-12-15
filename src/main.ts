@@ -649,9 +649,6 @@ export class Purchases {
           onVisitCustomerCenterClicked: onVisitCustomerCenterClicked,
           uiConfig: offering.uiConfig!,
           onBackClicked: () => {
-            if (paywallParams.hideBackButtons) {
-              return;
-            }
             if (paywallParams.onBack) {
               paywallParams.onBack();
               return;
