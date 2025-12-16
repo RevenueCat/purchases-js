@@ -3500,6 +3500,66 @@
         },
         {
           "kind": "Interface",
+          "canonicalReference": "@revenuecat/purchases-js!PaywallPurchaseResult:interface",
+          "docComment": "/**\n * Represents the result of a purchase operation initiated from a paywall.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare interface PaywallPurchaseResult extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "PurchaseResult",
+              "canonicalReference": "@revenuecat/purchases-js!PurchaseResult:interface"
+            },
+            {
+              "kind": "Content",
+              "text": " "
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "name": "PaywallPurchaseResult",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PaywallPurchaseResult#selectedPackage:member",
+              "docComment": "/**\n * The package selected by the customer while interacting with the paywall.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "selectedPackage: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Package",
+                  "canonicalReference": "@revenuecat/purchases-js!Package:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "selectedPackage",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": [
+            {
+              "startIndex": 1,
+              "endIndex": 2
+            }
+          ]
+        },
+        {
+          "kind": "Interface",
           "canonicalReference": "@revenuecat/purchases-js!Period:interface",
           "docComment": "/**\n * Represents a period of time.\n *\n * @public\n */\n",
           "excerptTokens": [
@@ -6494,8 +6554,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "PurchaseResult",
-                  "canonicalReference": "@revenuecat/purchases-js!PurchaseResult:interface"
+                  "text": "PaywallPurchaseResult",
+                  "canonicalReference": "@revenuecat/purchases-js!PaywallPurchaseResult:interface"
                 },
                 {
                   "kind": "Content",

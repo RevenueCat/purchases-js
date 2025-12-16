@@ -251,6 +251,11 @@ export enum PackageType {
 }
 
 // @public
+export interface PaywallPurchaseResult extends PurchaseResult {
+    selectedPackage: Package;
+}
+
+// @public
 export interface Period {
     number: number;
     unit: PeriodUnit;
@@ -418,7 +423,7 @@ export class Purchases {
     // (undocumented)
     isSandbox(): boolean;
     preload(): Promise<void>;
-    presentPaywall(paywallParams: PresentPaywallParams): Promise<PurchaseResult>;
+    presentPaywall(paywallParams: PresentPaywallParams): Promise<PaywallPurchaseResult>;
     purchase(params: PurchaseParams): Promise<PurchaseResult>;
     // @deprecated
     purchasePackage(rcPackage: Package, customerEmail?: string, htmlTarget?: HTMLElement): Promise<PurchaseResult>;

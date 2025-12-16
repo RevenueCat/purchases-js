@@ -53,7 +53,10 @@ import {
   findOfferingByPlacementId,
   toOfferings,
 } from "./helpers/offerings-parser";
-import { type PurchaseResult } from "./entities/purchase-result";
+import {
+  type PaywallPurchaseResult,
+  type PurchaseResult,
+} from "./entities/purchase-result";
 import { mount, unmount } from "svelte";
 import { type PresentPaywallParams } from "./entities/present-paywall-params";
 import { Paywall, type PaywallData } from "@revenuecat/purchases-ui-js";
@@ -143,7 +146,10 @@ export type { GetOfferingsParams } from "./entities/get-offerings-params";
 export { OfferingKeyword } from "./entities/get-offerings-params";
 export type { PurchaseParams } from "./entities/purchase-params";
 export type { RedemptionInfo } from "./entities/redemption-info";
-export type { PurchaseResult } from "./entities/purchase-result";
+export type {
+  PurchaseResult,
+  PaywallPurchaseResult,
+} from "./entities/purchase-result";
 export type { BrandingAppearance } from "./entities/branding";
 export type { PlatformInfo } from "./entities/platform-info";
 export type { PurchasesConfig } from "./entities/purchases-config";
@@ -438,7 +444,7 @@ export class Purchases {
    */
   public async presentPaywall(
     paywallParams: PresentPaywallParams,
-  ): Promise<PurchaseResult> {
+  ): Promise<PaywallPurchaseResult> {
     const htmlTarget = paywallParams.htmlTarget;
 
     let resolvedHTMLTarget =
@@ -543,9 +549,9 @@ export class Purchases {
       offering.paywallComponents.default_locale,
     );
 
-    const startPurchaseFlow = (
+    const startPurchaseFlow = async (
       selectedPackageId: string,
-    ): Promise<PurchaseResult> => {
+    ): Promise<PaywallPurchaseResult> => {
       const pkg = offering.availablePackages.find(
         (p) => p.identifier === selectedPackageId,
       );
@@ -554,7 +560,7 @@ export class Purchases {
         throw new Error(`No package found for ${selectedPackageId}`);
       }
 
-      return this.purchase({
+      const purchaseResult = await this.purchase({
         rcPackage: pkg,
         htmlTarget: paywallParams.purchaseHtmlTarget,
         customerEmail: paywallParams.customerEmail,
@@ -562,6 +568,8 @@ export class Purchases {
         defaultLocale:
           offering.paywallComponents?.default_locale || englishLocale,
       });
+
+      return { ...purchaseResult, selectedPackage: pkg };
     };
 
     const navigateToUrl = (url: string) => {
@@ -617,7 +625,7 @@ export class Purchases {
           },
         })
           .then((purchaseResult) => {
-            resolve(purchaseResult);
+            resolve({ ...purchaseResult, selectedPackage: pkg });
           })
           .catch((err) => reject(err));
 
