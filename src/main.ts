@@ -659,7 +659,7 @@ export class Purchases {
               return;
             }
             if (component !== null) {
-              component?.unmount();
+              unmount(component);
             }
             // Opinionated approach
             // closing the current purchase and emptying the paywall.
