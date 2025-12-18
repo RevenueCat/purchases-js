@@ -26,6 +26,7 @@
   import { brandingContextKey } from "../constants";
   import type { StripeExpressCheckoutConfiguration } from "../../stripe/stripe-express-checkout-configuration";
   import { getInitialPriceFromPurchaseOption } from "../../helpers/purchase-option-price-helper";
+  import type { BrandingAppearance } from "../../entities/branding";
   import type { WebBillingCheckoutStartResponse } from "../../networking/responses/checkout-start-response";
 
   import type { ExpressPurchaseButtonProps } from "./express-purchase-button-props";
@@ -48,8 +49,11 @@
   }: ExpressPurchaseButtonProps = $props();
 
   let translatorStore = writable(translator);
+  const brandingAppearanceStore = writable<BrandingAppearance | null>(
+    brandingInfo?.appearance ?? null,
+  );
   setContext(translatorContextKey, translatorStore);
-  setContext(brandingContextKey, brandingInfo?.appearance);
+  setContext(brandingContextKey, brandingAppearanceStore);
 
   let isLoading = $state(true);
   let isPurchasing = $state(false);

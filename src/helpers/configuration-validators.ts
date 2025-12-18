@@ -3,6 +3,7 @@ import { SDK_HEADERS } from "../networking/http-client";
 import {
   isPaddleApiKey,
   isSimulatedStoreApiKey,
+  isStripeApiKey,
   isWebBillingApiKey,
 } from "./api-key-helper";
 
@@ -10,7 +11,8 @@ export function validateApiKey(apiKey: string) {
   const isValidApiKey =
     isWebBillingApiKey(apiKey) ||
     isSimulatedStoreApiKey(apiKey) ||
-    isPaddleApiKey(apiKey);
+    isPaddleApiKey(apiKey) ||
+    isStripeApiKey(apiKey);
 
   if (!isValidApiKey) {
     throw new PurchasesError(
