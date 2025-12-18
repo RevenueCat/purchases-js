@@ -10,18 +10,19 @@
   import {
     PurchaseFlowError,
     PurchaseFlowErrorCode,
+    PurchaseOperationHelper,
   } from "../helpers/purchase-operation-helper";
   import type {
     Product,
     PurchaseOption,
     PurchaseMetadata,
-    PresentedOfferingContext,
-    Package,
   } from "../entities/offerings";
-  import { PaddleService } from "../paddle/paddle-service";
+  import type { StripeBillingParams } from "../networking/responses/checkout-start-response";
+  import StripeCheckoutPurchasesUiInner from "./stripe-checkout-purchases-ui-inner.svelte";
   import { normalizeToPurchaseFlowError } from "../helpers/normalize-to-purchase-flow-error";
-  import type { PaddleCheckoutStartResponse } from "../networking/responses/checkout-start-response";
-  import PaddlePurchasesUiInner from "./paddle-purchases-ui-inner.svelte";
+  import type { WorkflowPurchaseContext } from "../entities/purchase-params";
+  import { validateEmail } from "../helpers/validators";
+  import type { Package } from "../main";
   import type { BrandingAppearance } from "../entities/branding";
 
   interface Props {
@@ -32,17 +33,15 @@
     customTranslations?: Record<string, Record<string, string>>;
     isInElement: boolean;
     skipSuccessPage: boolean;
-    onClose: () => void;
     onFinished: (operationResult: OperationSessionSuccessfulResult) => void;
     onError: (error: PurchaseFlowError) => void;
-    productDetails: Product;
     rcPackage: Package;
     appUserId: string;
     purchaseOption: PurchaseOption;
     customerEmail: string | undefined;
     metadata: PurchaseMetadata | undefined;
-    unmountPaddlePurchaseUi: () => void;
-    paddleService: PaddleService;
+    purchaseOperationHelper: PurchaseOperationHelper;
+    workflowPurchaseContext?: WorkflowPurchaseContext;
   }
 
   const {
@@ -53,38 +52,43 @@
     customTranslations = {},
     isInElement,
     skipSuccessPage = false,
-    onClose,
     onFinished,
     onError,
-    productDetails,
     rcPackage,
     appUserId,
     purchaseOption,
     customerEmail,
     metadata,
-    unmountPaddlePurchaseUi,
-    paddleService,
+    purchaseOperationHelper,
+    workflowPurchaseContext,
   }: Props = $props();
-
+  let productDetails: Product = rcPackage.webBillingProduct;
   let translator: Translator = new Translator(
     customTranslations,
     selectedLocale,
     defaultLocale,
   );
   let translatorStore = writable(translator);
-  const brandingAppearanceStore = writable<BrandingAppearance | null>(
-    brandingInfo?.appearance ?? null,
-  );
   setContext(translatorContextKey, translatorStore);
-  setContext(brandingContextKey, brandingAppearanceStore);
   setContext(eventsTrackerContextKey, eventsTracker);
 
   let isSandbox = $state(false);
   let operationResult = $state<OperationSessionSuccessfulResult | null>(null);
   let error = $state<PurchaseFlowError | null>(null);
-  let currentPage = $state<"waiting" | "loading" | "success" | "error">(
-    "waiting",
+  let currentPage = $state<"loading" | "stripe-checkout" | "success" | "error">(
+    "loading",
   );
+  let stripeBillingParams = $state<StripeBillingParams | null>(null);
+
+  // Update branding store when stripeBillingParams are returned
+  const mergedBrandingAppearance = $derived(
+    (stripeBillingParams?.appearance ?? null) as BrandingAppearance | null,
+  );
+  const brandingAppearanceStore = writable<BrandingAppearance | null>(null);
+  setContext(brandingContextKey, brandingAppearanceStore);
+  $effect(() => {
+    brandingAppearanceStore.set(mergedBrandingAppearance);
+  });
 
   $effect(() => {
     if (currentPage === "success" && operationResult && skipSuccessPage) {
@@ -93,9 +97,34 @@
   });
 
   const handleContinue = () => {
+    if (currentPage === "stripe-checkout") {
+      currentPage = "loading";
+      purchaseOperationHelper
+        .pollCurrentPurchaseForCompletion()
+        .then((pollResult) => {
+          operationResult = pollResult;
+          if (skipSuccessPage) {
+            onFinished(pollResult);
+          } else {
+            currentPage = "success";
+          }
+        })
+        .catch((error: unknown) => {
+          handleError(
+            normalizeToPurchaseFlowError(error, "Failed to complete purchase"),
+          );
+        });
+      return;
+    }
+
     if (currentPage === "success" && operationResult) {
       onFinished(operationResult);
     }
+  };
+
+  const handleError = (e: PurchaseFlowError) => {
+    error = e;
+    currentPage = "error";
   };
 
   const closeWithError = () => {
@@ -106,7 +135,6 @@
           "Unknown error without state set.",
         ),
     );
-    unmountPaddlePurchaseUi();
   };
 
   let originalHtmlHeight: string | null = null;
@@ -124,72 +152,50 @@
       document.documentElement.style.overflow = "hidden";
     }
 
-    // Move to the loading UI when the Paddle overlay opens
-    const onCheckoutLoaded = () => {
-      currentPage = "loading";
-    };
-
-    const presentedOfferingContext: PresentedOfferingContext = {
-      offeringIdentifier:
-        productDetails.presentedOfferingContext.offeringIdentifier,
-      targetingContext: null,
-      placementIdentifier: null,
-    };
-
-    let startResponse: PaddleCheckoutStartResponse;
-    try {
-      startResponse = await paddleService.startCheckout({
-        appUserId,
-        productId: productDetails.identifier,
-        presentedOfferingContext,
-        purchaseOption,
-        customerEmail,
-        metadata,
-      });
-      isSandbox = startResponse.paddle_billing_params.is_sandbox;
-    } catch (e) {
-      const purchaseFlowError = normalizeToPurchaseFlowError(
-        e,
-        `Start Paddle checkout failed: ${e}`,
+    const productId = productDetails.identifier;
+    if (!productId) {
+      handleError(
+        new PurchaseFlowError(
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+          "Product ID was not set before purchase.",
+        ),
       );
-      error = purchaseFlowError;
-      currentPage = "error";
-      onError(purchaseFlowError);
       return;
     }
 
-    try {
-      const result = await paddleService.purchase({
-        operationSessionId: startResponse.operation_session_id,
-        transactionId: startResponse.paddle_billing_params?.transaction_id,
-        onCheckoutLoaded,
-        onClose,
-        params: {
-          rcPackage,
-          purchaseOption,
-          appUserId,
-          presentedOfferingIdentifier:
-            productDetails.presentedOfferingContext.offeringIdentifier,
-          customerEmail,
-          locale: selectedLocale || defaultLocale,
-        },
-      });
+    let email = customerEmail;
+    const emailError = email ? validateEmail(email) : null;
+    if (emailError) {
+      email = undefined;
+    }
 
-      if (skipSuccessPage) {
-        onFinished(result);
-      } else {
-        operationResult = result;
-        currentPage = "success";
-      }
-    } catch (e) {
-      const purchaseFlowError = normalizeToPurchaseFlowError(
-        e,
-        `Paddle purchase failed: ${e}`,
+    try {
+      const result = await purchaseOperationHelper.checkoutStart(
+        appUserId,
+        productId,
+        purchaseOption,
+        rcPackage.webBillingProduct.presentedOfferingContext,
+        email,
+        metadata,
+        workflowPurchaseContext,
       );
 
-      error = purchaseFlowError;
-      currentPage = "error";
-      onError(purchaseFlowError);
+      if (!result.stripe_billing_params) {
+        handleError(
+          new PurchaseFlowError(
+            PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+            "Missing Stripe Checkout parameters",
+          ),
+        );
+        return;
+      }
+
+      stripeBillingParams = result.stripe_billing_params;
+      currentPage = "stripe-checkout";
+    } catch (e: PurchaseFlowError | unknown) {
+      handleError(
+        normalizeToPurchaseFlowError(e, "Failed to start Stripe Checkout"),
+      );
     }
   });
 
@@ -212,15 +218,18 @@
   });
 </script>
 
-{#if currentPage !== "waiting"}
-  <PaddlePurchasesUiInner
-    currentPage={currentPage as "loading" | "success" | "error"}
+{#if stripeBillingParams}
+  <StripeCheckoutPurchasesUiInner
+    {currentPage}
     {brandingInfo}
+    brandingAppearance={mergedBrandingAppearance}
     {productDetails}
     {isSandbox}
     lastError={error}
     {isInElement}
+    {stripeBillingParams}
     onContinue={handleContinue}
+    onError={handleError}
     {closeWithError}
   />
 {/if}
