@@ -6,6 +6,7 @@ import type {
 } from "./entities/offerings";
 import PurchasesUi from "./ui/purchases-ui.svelte";
 import PaddlePurchasesUi from "./ui/paddle-purchases-ui.svelte";
+import StripeCheckoutPurchasesUi from "./ui/stripe-checkout-purchases-ui.svelte";
 
 import { type CustomerInfo, toCustomerInfo } from "./entities/customer-info";
 import {
@@ -24,6 +25,7 @@ import { Backend } from "./networking/backend";
 import {
   isPaddleApiKey,
   isSimulatedStoreApiKey,
+  isStripeApiKey,
   isWebBillingApiKey,
   isWebBillingSandboxApiKey,
 } from "./helpers/api-key-helper";
@@ -990,7 +992,120 @@ export class Purchases {
       return await this.performPaddlePurchase(params);
     }
 
+    const isStripe = isStripeApiKey(this._API_KEY);
+    if (isStripe) {
+      return await this.performStripePurchase(params);
+    }
+
     return await this.performWebBillingPurchase(params);
+  }
+
+  private async performStripePurchase(
+    params: PurchaseParams,
+  ): Promise<PurchaseResult> {
+    const {
+      rcPackage,
+      purchaseOption,
+      htmlTarget,
+      customerEmail,
+      workflowPurchaseContext,
+      selectedLocale = englishLocale,
+      defaultLocale = englishLocale,
+      skipSuccessPage = false,
+    } = params;
+
+    const certainHTMLTarget = this.resolveHTMLTarget(htmlTarget);
+
+    const appUserId = this._appUserId;
+
+    Logger.debugLog(
+      `Presenting Stripe checkout for package ${rcPackage.identifier}`,
+    );
+
+    const localeToBeUsed = selectedLocale || defaultLocale;
+
+    const purchaseOptionToUse =
+      purchaseOption ?? rcPackage.webBillingProduct.defaultPurchaseOption;
+
+    const event = createCheckoutSessionStartEvent({
+      appearance: this._brandingInfo?.appearance,
+      rcPackage,
+      purchaseOptionToUse,
+      customerEmail,
+    });
+    this.eventsTracker.trackSDKEvent(event);
+
+    const utmParamsMetadata = this._flags.autoCollectUTMAsMetadata
+      ? autoParseUTMParams()
+      : {};
+    const metadata = { ...utmParamsMetadata, ...(params.metadata || {}) };
+
+    let component: ReturnType<typeof mount> | null = null;
+
+    const finalBrandingInfo: BrandingInfoResponse | null = this._brandingInfo;
+
+    if (finalBrandingInfo && params.brandingAppearanceOverride) {
+      finalBrandingInfo.appearance = params.brandingAppearanceOverride;
+    }
+
+    const isInElement = htmlTarget !== undefined;
+
+    return new Promise((resolve, reject) => {
+      if (!isInElement) {
+        window.history.pushState({ checkoutOpen: true }, "");
+      }
+
+      const unmountPurchaseUi = () => {
+        if (component) {
+          unmount(component);
+        }
+        certainHTMLTarget.innerHTML = "";
+      };
+
+      const onClose = this.createCheckoutOnCloseHandler(
+        reject,
+        unmountPurchaseUi,
+      );
+
+      if (!isInElement && onClose) {
+        window.addEventListener("popstate", onClose as EventListener);
+      }
+
+      const onFinished = this.createCheckoutOnFinishedHandler(
+        resolve,
+        appUserId,
+        rcPackage,
+        unmountPurchaseUi,
+      );
+
+      const onError = this.createCheckoutOnErrorHandler(
+        reject,
+        unmountPurchaseUi,
+      );
+
+      component = mount(StripeCheckoutPurchasesUi, {
+        target: certainHTMLTarget,
+        props: {
+          isInElement: isInElement,
+          appUserId,
+          rcPackage,
+          purchaseOption: purchaseOptionToUse,
+          customerEmail,
+          workflowPurchaseContext,
+          onFinished,
+          onClose,
+          onError,
+          eventsTracker: this.eventsTracker,
+          brandingInfo: this._brandingInfo,
+          purchaseOperationHelper: this.purchaseOperationHelper,
+          selectedLocale: localeToBeUsed,
+          metadata: metadata,
+          defaultLocale,
+          customTranslations: params.labelsOverride,
+          skipSuccessPage,
+        },
+      });
+    });
   }
 
   private async performWebBillingPurchase(
