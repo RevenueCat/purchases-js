@@ -2,14 +2,19 @@ import React, { useState } from "react";
 import Button from "../../components/Button";
 import { useNavigate } from "react-router-dom";
 import { Purchases } from "@revenuecat/purchases-js";
+import { isPaddleApiKey } from "../../util/PurchasesLoader";
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const [displayName, setDisplayName] = useState("");
   const [nickname, setNickname] = useState("");
+  const [appUserId, setAppUserId] = useState("");
   const [useCustomLogger, setUseCustomLogger] = useState(true);
 
-  const navigateToAppUserIDPaywall = (appUserId?: string) => {
+  const navigateToAppUserIDPaywall = (
+    appUserId?: string,
+    extraParams?: Record<string, string>,
+  ) => {
     if (appUserId) {
       const params = new URLSearchParams();
       if (displayName) {
@@ -20,6 +25,13 @@ const LoginPage: React.FC = () => {
       }
       // Add custom logger preference
       params.append("useCustomLogger", useCustomLogger.toString());
+
+      // Add any extra parameters
+      if (extraParams) {
+        Object.entries(extraParams).forEach(([key, value]) => {
+          params.append(key, value);
+        });
+      }
 
       const queryString = params.toString();
       const url = `/paywall/${encodeURIComponent(appUserId)}${queryString ? `?${queryString}` : ""}`;
@@ -37,6 +49,8 @@ const LoginPage: React.FC = () => {
           id="app-user-id"
           placeholder="Your app user ID"
           className="input-field"
+          value={appUserId}
+          onChange={(e) => setAppUserId(e.target.value)}
         />
         <div className="attributes-section">
           <h3>Optional Attributes</h3>
@@ -72,22 +86,29 @@ const LoginPage: React.FC = () => {
           <Button
             caption="Continue"
             onClick={() => {
-              const appUserId = (
-                document.getElementById(
-                  "app-user-id",
-                ) as HTMLInputElement | null
-              )?.value;
               navigateToAppUserIDPaywall(appUserId);
             }}
           />
           <Button
-            caption="Skip"
+            caption={isPaddleApiKey ? "Skip" : "Skip to Web Billing"}
             onClick={() => {
               navigateToAppUserIDPaywall(
-                Purchases.generateRevenueCatAnonymousAppUserId(),
+                appUserId || Purchases.generateRevenueCatAnonymousAppUserId(),
               );
             }}
           />
+
+          {!isPaddleApiKey && (
+            <Button
+              caption="Skip to Stripe Checkout"
+              onClick={() => {
+                navigateToAppUserIDPaywall(
+                  appUserId || Purchases.generateRevenueCatAnonymousAppUserId(),
+                  { checkout: "true" },
+                );
+              }}
+            />
+          )}
         </div>
       </form>
       <p className="notice">

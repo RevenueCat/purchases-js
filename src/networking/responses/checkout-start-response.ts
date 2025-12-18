@@ -1,8 +1,14 @@
 import type { GatewayParams } from "./stripe-elements";
 
+export interface StripeCheckoutGatewayParams {
+  client_secret: string;
+  environment: string;
+}
+
 export interface WebBillingCheckoutStartResponse {
   operation_session_id: string;
   gateway_params: GatewayParams;
+  stripe_checkout_gateway_params: StripeCheckoutGatewayParams | null;
   management_url: string;
   paddle_billing_params: null;
 }

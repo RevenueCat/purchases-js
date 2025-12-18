@@ -139,6 +139,7 @@ export class PurchaseOperationHelper {
     email?: string,
     metadata?: PurchaseMetadata,
     workflowPurchaseContext?: WorkflowPurchaseContext,
+    isCheckout?: boolean,
   ): Promise<WebBillingCheckoutStartResponse> {
     try {
       const traceId = this.eventsTracker.getTraceId();
@@ -154,6 +155,7 @@ export class PurchaseOperationHelper {
           email,
           metadata,
           stepId,
+          isCheckout,
         );
       this.operationSessionId = checkoutStartResponse.operation_session_id;
       return checkoutStartResponse;

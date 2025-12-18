@@ -6,6 +6,7 @@ import type {
 } from "./entities/offerings";
 import PurchasesUi from "./ui/purchases-ui.svelte";
 import PaddlePurchasesUi from "./ui/paddle-purchases-ui.svelte";
+import StripeCheckoutPurchasesUi from "./ui/stripe-checkout-purchases-ui.svelte";
 
 import { type CustomerInfo, toCustomerInfo } from "./entities/customer-info";
 import {
@@ -912,6 +913,7 @@ export class Purchases {
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
       skipSuccessPage = false,
+      isCheckout = false,
     } = params;
 
     const certainHTMLTarget = this.resolveHTMLTarget(htmlTarget);
@@ -983,30 +985,55 @@ export class Purchases {
         unmountPurchaseUi,
       );
 
-      component = mount(PurchasesUi, {
-        target: certainHTMLTarget,
-        props: {
-          isInElement: isInElement,
-          appUserId,
-          rcPackage,
-          purchaseOption: purchaseOptionToUse,
-          customerEmail,
-          workflowPurchaseContext,
-          onFinished,
-          onClose,
-          onError,
-          purchases: this,
-          eventsTracker: this.eventsTracker,
-          brandingInfo: this._brandingInfo,
-          purchaseOperationHelper: this.purchaseOperationHelper,
-          selectedLocale: localeToBeUsed,
-          metadata: metadata,
-          defaultLocale,
-          customTranslations: params.labelsOverride,
-          termsAndConditionsUrl: params.termsAndConditionsUrl,
-          skipSuccessPage,
-        },
-      });
+      if (isCheckout) {
+        component = mount(StripeCheckoutPurchasesUi, {
+          target: certainHTMLTarget,
+          props: {
+            isInElement: isInElement,
+            appUserId,
+            rcPackage,
+            purchaseOption: purchaseOptionToUse,
+            customerEmail,
+            workflowPurchaseContext,
+            onFinished,
+            onClose,
+            onError,
+            eventsTracker: this.eventsTracker,
+            brandingInfo: this._brandingInfo,
+            purchaseOperationHelper: this.purchaseOperationHelper,
+            selectedLocale: localeToBeUsed,
+            metadata: metadata,
+            defaultLocale,
+            customTranslations: params.labelsOverride,
+            skipSuccessPage,
+          },
+        });
+      } else {
+        component = mount(PurchasesUi, {
+          target: certainHTMLTarget,
+          props: {
+            isInElement: isInElement,
+            appUserId,
+            rcPackage,
+            purchaseOption: purchaseOptionToUse,
+            customerEmail,
+            workflowPurchaseContext,
+            onFinished,
+            onClose,
+            onError,
+            purchases: this,
+            eventsTracker: this.eventsTracker,
+            brandingInfo: this._brandingInfo,
+            purchaseOperationHelper: this.purchaseOperationHelper,
+            selectedLocale: localeToBeUsed,
+            metadata: metadata,
+            defaultLocale,
+            customTranslations: params.labelsOverride,
+            termsAndConditionsUrl: params.termsAndConditionsUrl,
+            skipSuccessPage,
+          },
+        });
+      }
     });
   }
 

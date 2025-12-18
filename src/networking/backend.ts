@@ -140,6 +140,7 @@ export class Backend {
     email?: string,
     metadata: PurchaseMetadata | undefined = undefined,
     stepId?: string,
+    isCheckout?: boolean,
   ): Promise<T> {
     type CheckoutStartRequestBody = {
       app_user_id: string;
@@ -157,6 +158,7 @@ export class Backend {
       email?: string;
       metadata?: PurchaseMetadata;
       trace_id: string;
+      is_checkout?: boolean;
     };
 
     const requestBody: CheckoutStartRequestBody = {
@@ -196,6 +198,10 @@ export class Backend {
 
     if (stepId) {
       requestBody.presented_step_id = stepId;
+    }
+
+    if (isCheckout !== undefined) {
+      requestBody.is_checkout = isCheckout;
     }
 
     return (await performRequest<CheckoutStartRequestBody, T>(

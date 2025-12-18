@@ -5,13 +5,12 @@ import {
 } from "@revenuecat/purchases-js";
 import React, { useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { usePurchasesLoaderData, apiKey } from "../../util/PurchasesLoader";
+import {
+  usePurchasesLoaderData,
+  isPaddleApiKey,
+} from "../../util/PurchasesLoader";
 import Button from "../../components/Button";
 import LogoutButton from "../../components/LogoutButton";
-
-const isPaddleApiKey = (apiKey: string): boolean => {
-  return /^pdl_[a-zA-Z0-9_.-]+$/.test(apiKey);
-};
 
 interface IPackageCardProps {
   pkg: Package;
@@ -157,6 +156,7 @@ const PaywallPage: React.FC = () => {
   const displayName = searchParams.get("$displayName");
   const nickname = searchParams.get("nickname");
   const skipSuccessPage = searchParams.get("skipSuccessPage") === "true";
+  const isCheckout = searchParams.get("checkout") === "true";
   const attributesSetRef = useRef(false);
 
   useEffect(() => {
@@ -223,6 +223,7 @@ const PaywallPage: React.FC = () => {
           selectedLocale: lang || navigator.language,
           customerEmail: email || undefined,
           skipSuccessPage: skipSuccessPage,
+          isCheckout,
           // @ts-expect-error This method is marked as internal for now but it's public.'
           labelsOverride: {
             en: {
@@ -273,7 +274,11 @@ const PaywallPage: React.FC = () => {
             fontWeight: "500",
           }}
         >
-          {isPaddleApiKey(apiKey) ? "Paddle demo" : "Web Billing demo"}
+          {isPaddleApiKey
+            ? "Paddle demo"
+            : isCheckout
+              ? "Checkout demo"
+              : "Web Billing demo"}
         </div>
 
         <h1>

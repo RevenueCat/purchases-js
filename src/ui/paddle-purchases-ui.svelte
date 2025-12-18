@@ -19,7 +19,7 @@
     Package,
   } from "../entities/offerings";
   import { PaddleService } from "../paddle/paddle-service";
-  import { PurchasesError } from "../entities/errors";
+  import { normalizeToPurchaseFlowError } from "../helpers/normalize-to-purchase-flow-error";
   import type { PaddleCheckoutStartResponse } from "../networking/responses/checkout-start-response";
   import PaddlePurchasesUiInner from "./paddle-purchases-ui-inner.svelte";
 
@@ -103,25 +103,6 @@
         ),
     );
     unmountPaddlePurchaseUi();
-  };
-
-  const normalizeToPurchaseFlowError = (
-    e: unknown,
-    defaultMessage: string,
-  ): PurchaseFlowError => {
-    if (e instanceof PurchaseFlowError) {
-      return e;
-    } else if (e instanceof PurchasesError) {
-      return PurchaseFlowError.fromPurchasesError(
-        e,
-        PurchaseFlowErrorCode.UnknownError,
-      );
-    } else {
-      return new PurchaseFlowError(
-        PurchaseFlowErrorCode.UnknownError,
-        defaultMessage,
-      );
-    }
   };
 
   let originalHtmlHeight: string | null = null;

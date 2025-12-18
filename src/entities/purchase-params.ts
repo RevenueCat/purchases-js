@@ -93,4 +93,10 @@ export interface PurchaseParams {
    * @internal
    */
   termsAndConditionsUrl?: string;
+
+  /**
+   * If set to true, the SDK will use Stripe Checkout instead of Stripe Elements.
+   * Defaults to `false`.
+   */
+  isCheckout?: boolean;
 }
