@@ -61,5 +61,8 @@ export interface PresentExpressPurchaseButtonParams {
    * @internal
    * Callback to be called when the express purchase button is ready to be clicked.
    */
-  onButtonReady?: (updater: ExpressPurchaseButtonUpdater) => void;
+  onButtonReady?: (
+    updater: ExpressPurchaseButtonUpdater,
+    walletsAvailable: boolean,
+  ) => void;
 }
