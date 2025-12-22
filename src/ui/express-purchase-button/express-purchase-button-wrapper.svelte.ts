@@ -10,7 +10,10 @@ export class ExpressPurchaseButtonWrapper {
 
   constructor(
     htmlTarget: HTMLElement,
-    onButtonReady: (updater: ExpressPurchaseButtonUpdater) => void,
+    onButtonReady: (
+      updater: ExpressPurchaseButtonUpdater,
+      walletsAvailable: boolean,
+    ) => void,
     props: ExpressPurchaseButtonProps,
   ) {
     this.state = $state({
@@ -24,8 +27,8 @@ export class ExpressPurchaseButtonWrapper {
       updatePurchase,
     };
 
-    this.state.props.onReady = () => {
-      onButtonReady(updater);
+    this.state.props.onReady = (walletsAvailable: boolean) => {
+      onButtonReady(updater, walletsAvailable);
     };
 
     this.button = mount(ExpressPurchaseButton, {

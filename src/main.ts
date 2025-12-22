@@ -22,9 +22,9 @@ import { type ProductResponse } from "./networking/responses/products-response";
 import { RC_ENDPOINT } from "./helpers/constants";
 import { Backend } from "./networking/backend";
 import {
+  isPaddleApiKey,
   isSimulatedStoreApiKey,
   isWebBillingSandboxApiKey,
-  isPaddleApiKey,
 } from "./helpers/api-key-helper";
 import {
   type OperationSessionSuccessfulResult,
@@ -608,7 +608,10 @@ export class Purchases {
         {
           selectedPackageId,
           onReady,
-        }: { selectedPackageId: string; onReady?: () => void },
+        }: {
+          selectedPackageId: string;
+          onReady?: (walletsAvailable: boolean) => void;
+        },
       ) => {
         const pkg = offering.packagesById[selectedPackageId];
         if (!pkg) {
@@ -619,9 +622,9 @@ export class Purchases {
           rcPackage: pkg,
           customerEmail: paywallParams.customerEmail,
           htmlTarget: element,
-          onButtonReady: (updater) => {
+          onButtonReady: (updater, walletsAvailable) => {
             buttonUpdater = updater;
-            onReady?.();
+            onReady?.(walletsAvailable);
           },
         })
           .then((purchaseResult) => {

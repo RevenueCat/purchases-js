@@ -15,6 +15,7 @@
     Stripe,
     StripeElements,
     StripeExpressCheckoutElementConfirmEvent,
+    StripeExpressCheckoutElementReadyEvent,
   } from "@stripe/stripe-js";
   import {
     StripeService,
@@ -442,6 +443,15 @@
     );
     return { subscriptionOption, priceBreakdown };
   }
+
+  function onExpressCheckoutElementReady(
+    event: StripeExpressCheckoutElementReadyEvent,
+  ) {
+    const anyWalletAvailable =
+      event.availablePaymentMethods?.applePay ||
+      event.availablePaymentMethods?.googlePay;
+    onReady && onReady(!!anyWalletAvailable);
+  }
 </script>
 
 <div>
@@ -452,7 +462,7 @@
       onSubmit={onExpressCheckoutElementSubmit}
       onClick={onExpressClicked}
       onCancel={onExpressCancelled}
-      {onReady}
+      onReady={onExpressCheckoutElementReady}
       {expressCheckoutOptions}
       forceEnableWalletMethods={false}
       billingAddressRequired={brandingInfo?.gateway_tax_collection_enabled}
