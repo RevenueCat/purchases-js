@@ -1,6 +1,6 @@
 ## RevenueCat SDK
+### ✨ New Features
+* Updated purchases-ui-js to support the Express Checkout stack properties (#705) via Nicola Sacco (@nicfix)
+* Express purchase button support in paywalls (#704) via Nicola Sacco (@nicfix)
 ### 🐞 Bugfixes
-* Bump purchases-ui-js to 3.5.2 (#701) via Franco Correa (@francocorreasosa)
-
-### 🔄 Other Changes
-* Bump fastlane from 2.229.1 to 2.230.0 (#699) via dependabot[bot] (@dependabot[bot])
+* Removed the useExpressPurchaseButtons parameter since not an explicit component is required for that (#706) via Nicola Sacco (@nicfix)
