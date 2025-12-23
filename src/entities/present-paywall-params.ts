@@ -50,11 +50,6 @@ export interface PresentPaywallParams {
   readonly selectedLocale?: string;
 
   /**
-   * @internal
-   */
-  readonly useExpressPurchaseButtons?: boolean;
-
-  /**
    * Whether to hide back buttons in the paywall. Defaults to false.
    */
   readonly hideBackButtons?: boolean;

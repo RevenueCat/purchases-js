@@ -24,6 +24,7 @@ import { Backend } from "./networking/backend";
 import {
   isPaddleApiKey,
   isSimulatedStoreApiKey,
+  isWebBillingApiKey,
   isWebBillingSandboxApiKey,
 } from "./helpers/api-key-helper";
 import {
@@ -603,57 +604,59 @@ export class Purchases {
     const infoPerPackage = parseOfferingIntoPackageInfoPerPackage(offering);
 
     return new Promise((resolve, reject) => {
-      const walletButtonRender = (
-        element: HTMLElement,
-        {
-          selectedPackageId,
-          onReady,
-        }: {
-          selectedPackageId: string;
-          onReady?: (walletsAvailable: boolean) => void;
-        },
-      ) => {
-        const pkg = offering.packagesById[selectedPackageId];
-        if (!pkg) {
-          return {};
-        }
-        let buttonUpdater: ExpressPurchaseButtonUpdater | null = null;
-        this.presentExpressPurchaseButton({
-          rcPackage: pkg,
-          customerEmail: paywallParams.customerEmail,
-          htmlTarget: element,
-          onButtonReady: (updater, walletsAvailable) => {
-            buttonUpdater = updater;
-            onReady?.(walletsAvailable);
-          },
-        })
-          .then((purchaseResult) => {
-            resolve({ ...purchaseResult, selectedPackage: pkg });
-          })
-          .catch((err) => reject(err));
-
-        return {
-          destroy() {
-            element.innerHTML = "";
-          },
-          update({
-            selectedPackageId,
-          }: {
-            selectedPackageId: string;
-            onReady?: () => void;
-          }) {
-            if (buttonUpdater) {
-              const pkg = offering.packagesById[selectedPackageId];
-              if (!pkg) {
-                return;
-              }
-              const purchaseOptionToUse =
-                pkg.webBillingProduct.defaultPurchaseOption;
-              buttonUpdater.updatePurchase(pkg, purchaseOptionToUse);
+      const walletButtonRender = isWebBillingApiKey(this._API_KEY)
+        ? (
+            element: HTMLElement,
+            {
+              selectedPackageId,
+              onReady,
+            }: {
+              selectedPackageId: string;
+              onReady?: (walletsAvailable: boolean) => void;
+            },
+          ) => {
+            const pkg = offering.packagesById[selectedPackageId];
+            if (!pkg) {
+              return {};
             }
-          },
-        };
-      };
+            let buttonUpdater: ExpressPurchaseButtonUpdater | null = null;
+            this.presentExpressPurchaseButton({
+              rcPackage: pkg,
+              customerEmail: paywallParams.customerEmail,
+              htmlTarget: element,
+              onButtonReady: (updater, walletsAvailable) => {
+                buttonUpdater = updater;
+                onReady?.(walletsAvailable);
+              },
+            })
+              .then((purchaseResult) => {
+                resolve({ ...purchaseResult, selectedPackage: pkg });
+              })
+              .catch((err) => reject(err));
+
+            return {
+              destroy() {
+                element.innerHTML = "";
+              },
+              update({
+                selectedPackageId,
+              }: {
+                selectedPackageId: string;
+                onReady?: () => void;
+              }) {
+                if (buttonUpdater) {
+                  const pkg = offering.packagesById[selectedPackageId];
+                  if (!pkg) {
+                    return;
+                  }
+                  const purchaseOptionToUse =
+                    pkg.webBillingProduct.defaultPurchaseOption;
+                  buttonUpdater.updatePurchase(pkg, purchaseOptionToUse);
+                }
+              },
+            };
+          }
+        : undefined;
 
       certainHTMLTarget.innerHTML = "";
       const component: ReturnType<typeof mount> = mount(Paywall, {
@@ -690,9 +693,7 @@ export class Purchases {
           variablesPerPackage,
           infoPerPackage,
           hideBackButtons: paywallParams.hideBackButtons,
-          walletButtonRender: paywallParams.useExpressPurchaseButtons
-            ? walletButtonRender
-            : undefined,
+          walletButtonRender,
         },
       });
 
@@ -840,6 +841,12 @@ export class Purchases {
       );
     }
     const appUserId = this._appUserId;
+
+    if (!isWebBillingApiKey(this._API_KEY)) {
+      throw new Error(
+        "The Express Purchase button is only available with Web Billing API Keys.",
+      );
+    }
 
     const purchaseOptionToUse =
       purchaseOption ?? rcPackage.webBillingProduct.defaultPurchaseOption;
