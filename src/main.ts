@@ -690,9 +690,7 @@ export class Purchases {
           variablesPerPackage,
           infoPerPackage,
           hideBackButtons: paywallParams.hideBackButtons,
-          walletButtonRender: paywallParams.useExpressPurchaseButtons
-            ? walletButtonRender
-            : undefined,
+          walletButtonRender,
         },
       });
 
