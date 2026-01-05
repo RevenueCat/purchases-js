@@ -1150,6 +1150,11 @@ export class Purchases {
           unmountPaddlePurchaseUi();
         });
 
+      // Listen for browser back button on fullscreen modals
+      if (!isInElement && onClose) {
+        window.addEventListener("popstate", onClose as EventListener);
+      }
+
       const onFinished = this.createCheckoutOnFinishedHandler(
         resolve,
         appUserId,
