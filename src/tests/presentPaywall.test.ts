@@ -3,117 +3,72 @@ import * as svelte from "svelte";
 import { ErrorCode } from "../entities/errors";
 import { configurePurchases } from "./base.purchases_test";
 import { waitFor } from "@testing-library/svelte";
-import type { Offering, Package, PackageType } from "../entities/offerings";
+import type { Offering } from "../entities/offerings";
+import { ProductType } from "../entities/offerings";
+import { PeriodUnit } from "../helpers/duration-helper";
 
 // Minimal mock offering with paywall components
 function createOfferingWithPaywall(): Offering {
-  const mockPackage: Package = {
+  const subscriptionOption = {
+    id: "base",
+    priceId: "price_1",
+    base: {
+      cycleCount: 1,
+      periodDuration: "P1M",
+      period: { number: 1, unit: PeriodUnit.Month },
+      price: {
+        amount: 300,
+        amountMicros: 3000000,
+        currency: "USD",
+        formattedPrice: "$3.00",
+      },
+      pricePerWeek: null,
+      pricePerMonth: null,
+      pricePerYear: null,
+    },
+    trial: null,
+    introPrice: null,
+  };
+
+  const product = {
+    currentPrice: {
+      currency: "USD",
+      amount: 300,
+      amountMicros: 3000000,
+      formattedPrice: "$3.00",
+    },
+    displayName: "Monthly",
+    title: "Monthly",
+    description: null,
+    identifier: "monthly",
+    productType: ProductType.Subscription,
+    normalPeriodDuration: "P1M",
+    presentedOfferingIdentifier: "offering_with_paywall",
+    presentedOfferingContext: {
+      offeringIdentifier: "offering_with_paywall",
+      targetingContext: null,
+      placementIdentifier: null,
+    },
+    defaultPurchaseOption: subscriptionOption,
+    defaultSubscriptionOption: subscriptionOption,
+    defaultNonSubscriptionOption: null,
+    subscriptionOptions: { base: subscriptionOption },
+    price: {
+      currency: "USD",
+      amount: 300,
+      amountMicros: 3000000,
+      formattedPrice: "$3.00",
+    },
+    period: { number: 1, unit: PeriodUnit.Month },
+    freeTrialPhase: null,
+    introPricePhase: null,
+  };
+
+  const mockPackage = {
     identifier: "$rc_monthly",
-    packageType: "$rc_monthly" as unknown as PackageType,
-    rcBillingProduct: {
-      currentPrice: {
-        currency: "USD",
-        amount: 300,
-        amountMicros: 3000000,
-        formattedPrice: "$3.00",
-      },
-      displayName: "Monthly",
-      title: "Monthly",
-      description: null,
-      identifier: "monthly",
-      productType: 0,
-      normalPeriodDuration: "P1M",
-      presentedOfferingIdentifier: "offering_with_paywall",
-      presentedOfferingContext: {
-        offeringIdentifier: "offering_with_paywall",
-        targetingContext: null,
-        placementIdentifier: null,
-      },
-      defaultPurchaseOption: {
-        id: "base",
-        priceId: "price_1",
-        base: {
-          cycleCount: 1,
-          periodDuration: "P1M",
-          period: { number: 1, unit: 1 },
-          price: {
-            amount: 300,
-            amountMicros: 3000000,
-            currency: "USD",
-            formattedPrice: "$3.00",
-          },
-          pricePerWeek: null,
-          pricePerMonth: null,
-          pricePerYear: null,
-        },
-        trial: null,
-        introPrice: null,
-      },
-      defaultSubscriptionOption: null,
-      defaultNonSubscriptionOption: null,
-      subscriptionOptions: {},
-      price: {
-        currency: "USD",
-        amount: 300,
-        amountMicros: 3000000,
-        formattedPrice: "$3.00",
-      },
-      period: { number: 1, unit: 1 },
-      freeTrialPhase: null,
-      introPricePhase: null,
-    },
-    webBillingProduct: {
-      currentPrice: {
-        currency: "USD",
-        amount: 300,
-        amountMicros: 3000000,
-        formattedPrice: "$3.00",
-      },
-      displayName: "Monthly",
-      title: "Monthly",
-      description: null,
-      identifier: "monthly",
-      productType: 0,
-      normalPeriodDuration: "P1M",
-      presentedOfferingIdentifier: "offering_with_paywall",
-      presentedOfferingContext: {
-        offeringIdentifier: "offering_with_paywall",
-        targetingContext: null,
-        placementIdentifier: null,
-      },
-      defaultPurchaseOption: {
-        id: "base",
-        priceId: "price_1",
-        base: {
-          cycleCount: 1,
-          periodDuration: "P1M",
-          period: { number: 1, unit: 1 },
-          price: {
-            amount: 300,
-            amountMicros: 3000000,
-            currency: "USD",
-            formattedPrice: "$3.00",
-          },
-          pricePerWeek: null,
-          pricePerMonth: null,
-          pricePerYear: null,
-        },
-        trial: null,
-        introPrice: null,
-      },
-      defaultSubscriptionOption: null,
-      defaultNonSubscriptionOption: null,
-      subscriptionOptions: {},
-      price: {
-        currency: "USD",
-        amount: 300,
-        amountMicros: 3000000,
-        formattedPrice: "$3.00",
-      },
-      period: { number: 1, unit: 1 },
-      freeTrialPhase: null,
-      introPricePhase: null,
-    },
+    packageType: "$rc_monthly",
+    rcBillingProduct: product,
+    webBillingProduct: product,
   };
 
   return {
@@ -133,13 +88,12 @@ function createOfferingWithPaywall(): Offering {
       default_locale: "en_US",
       components_localizations: { en_US: {} },
       components_config: { components: [] },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as any,
+    },
     uiConfig: {
       app: { id: "app_1" },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as any,
-  };
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } as any;
 }
 
 describe("Purchases.presentPaywall() browser back button", () => {
