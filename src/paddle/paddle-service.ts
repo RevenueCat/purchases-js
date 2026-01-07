@@ -120,6 +120,20 @@ export class PaddleService {
     return this.paddleInstance;
   }
 
+  /**
+   * Closes the Paddle checkout modal if it's open.
+   * Safe to call even if Paddle is not initialized or checkout is not open.
+   */
+  closeCheckout(): void {
+    try {
+      if (this.paddleInstance?.Initialized) {
+        this.paddleInstance.Checkout.close();
+      }
+    } catch (error) {
+      Logger.debugLog(`Error closing Paddle checkout: ${error}`);
+    }
+  }
+
   async startCheckout({
     appUserId,
     productId,

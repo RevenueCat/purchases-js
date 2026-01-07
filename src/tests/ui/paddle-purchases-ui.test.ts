@@ -53,6 +53,7 @@ const createPaddleServiceMock = (): PaddleService => {
   return {
     startCheckout: vi.fn().mockResolvedValue(paddleCheckoutStartResponse),
     purchase: vi.fn().mockResolvedValue(operationSessionSuccessfulResult),
+    closeCheckout: vi.fn(),
   } as unknown as PaddleService;
 };
 

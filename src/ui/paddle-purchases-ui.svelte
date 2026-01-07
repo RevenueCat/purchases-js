@@ -209,6 +209,9 @@
   });
 
   onDestroy(() => {
+    // Close the Paddle checkout modal if it's still open
+    paddleService.closeCheckout();
+
     if (!isInElement) {
       const restoreStyle = (
         element: HTMLElement,

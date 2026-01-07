@@ -1143,17 +1143,24 @@ export class Purchases {
         certainHTMLTarget.innerHTML = "";
       };
 
+      const closeHandler = this.createCheckoutOnCloseHandler(
+        reject,
+        unmountPaddlePurchaseUi,
+      );
+
+      // Listen for browser back button on fullscreen modals
+      // Only add listener when we have a proper close handler (not when rcSource is 'app' or 'embedded')
+      if (!isInElement && closeHandler) {
+        window.addEventListener("popstate", closeHandler as EventListener);
+      }
+
+      // onClose must always be defined for the Paddle component
       const onClose =
-        this.createCheckoutOnCloseHandler(reject, unmountPaddlePurchaseUi) ??
+        closeHandler ??
         // Always unmount PaddlePurchaseUi when the user closes the checkout modal
         (() => {
           unmountPaddlePurchaseUi();
         });
-
-      // Listen for browser back button on fullscreen modals
-      if (!isInElement && onClose) {
-        window.addEventListener("popstate", onClose as EventListener);
-      }
 
       const onFinished = this.createCheckoutOnFinishedHandler(
         resolve,
