@@ -15,13 +15,15 @@ const RedemptionLinksTester: React.FC = () => {
   const [purchaseResult, setPurchaseResult] =
     React.useState<PurchaseResult | null>(null);
   const ref = useRef<HTMLDivElement>(null);
-  const purchaseRef = useRef<HTMLDivElement>(null);
   const anonymousInputRef = useRef<HTMLInputElement>(null);
   const identifiedInputRef = useRef<HTMLInputElement>(null);
   const anonymousId = Purchases.generateRevenueCatAnonymousAppUserId();
+  const [redemptionResult, setRedemptionResult] = React.useState<string | null>(
+    null,
+  );
 
   useEffect(() => {
-    if (!offering || !ref.current || !purchaseRef.current) {
+    if (!offering || !ref.current) {
       return;
     }
 
@@ -31,7 +33,6 @@ const RedemptionLinksTester: React.FC = () => {
       .presentPaywall({
         offering: offering,
         htmlTarget: ref.current,
-        purchaseHtmlTarget: purchaseRef.current,
         selectedLocale: lang || undefined,
       })
       .then((purchaseResult: PurchaseResult) => {
@@ -59,10 +60,10 @@ const RedemptionLinksTester: React.FC = () => {
         },
       )
         .then((res) => res.json())
-        .then((data) => alert(data))
-        .catch((err) => alert(err));
+        .then((data) => setRedemptionResult(JSON.stringify(data)))
+        .catch((err) => setRedemptionResult(err.message));
     },
-    [],
+    [setRedemptionResult, ref],
   );
 
   if (!offering) {
@@ -81,11 +82,10 @@ const RedemptionLinksTester: React.FC = () => {
       }}
     >
       <div style={{ height: "100%", width: "30vw" }} ref={ref}></div>
-      <div style={{ height: "100%", width: "30vw" }} ref={purchaseRef}></div>
       <div
         style={{
           height: "100%",
-          width: "30vw",
+          width: "70vw",
           padding: "50px",
           overflow: "scroll",
         }}
@@ -93,64 +93,87 @@ const RedemptionLinksTester: React.FC = () => {
         <h1>Redemption Links Tester</h1>
         {purchaseResult ? (
           <div
-            style={{ display: "flex", flexDirection: "column", gap: "10px" }}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "20px",
+              alignItems: "flex-start",
+              justifyContent: "flex-start",
+            }}
           >
-            <h2>Redemption Link</h2>
-            <p>{purchaseResult?.redemptionInfo?.redeemUrl}</p>
+            <div style={{ width: "100%" }}>
+              <h2>Redemption Link</h2>
+              <p>{purchaseResult?.redemptionInfo?.redeemUrl}</p>
+            </div>
 
-            <h2>Web Purchase Owner</h2>
-            <h3>app user id</h3>
-            <p>{purchaseResult.customerInfo.originalAppUserId}</p>
+            <div>
+              <h2>Web Purchase Owner</h2>
+              <p>
+                app user id: {purchaseResult.customerInfo.originalAppUserId}
+              </p>
+            </div>
 
-            <h2>Redeem</h2>
-            <h3>With Anonymous ID</h3>
-            <input
-              value={anonymousId}
-              ref={anonymousInputRef}
-              type="text"
-              placeholder="Anonymous ID"
-            />
-            <button
-              onClick={() => {
-                if (
-                  !anonymousInputRef.current ||
-                  !purchaseResult?.redemptionInfo?.redeemUrl
-                ) {
-                  return;
-                }
+            <div style={{ width: "100%" }}>
+              <h2>Redeem</h2>
+              <h3>With Anonymous ID (Alias behaviour)</h3>
+              <input
+                value={anonymousId}
+                ref={anonymousInputRef}
+                type="text"
+                placeholder="Anonymous ID"
+                style={{ width: "400px", marginRight: "20px" }}
+              />
+              <button
+                onClick={() => {
+                  if (
+                    !anonymousInputRef.current ||
+                    !purchaseResult?.redemptionInfo?.redeemUrl
+                  ) {
+                    return;
+                  }
 
-                redeem(
-                  anonymousInputRef.current.value,
-                  purchaseResult?.redemptionInfo?.redeemUrl,
-                );
-              }}
-            >
-              Redeem
-            </button>
+                  redeem(
+                    anonymousInputRef.current.value,
+                    purchaseResult?.redemptionInfo?.redeemUrl,
+                  );
+                }}
+              >
+                Redeem
+              </button>
 
-            <h3>With Indentified ID</h3>
-            <input
-              ref={identifiedInputRef}
-              type="text"
-              placeholder="Identified ID"
-            />
-            <button
-              onClick={() => {
-                if (
-                  !identifiedInputRef.current ||
-                  !purchaseResult?.redemptionInfo?.redeemUrl
-                ) {
-                  return;
-                }
+              <h3>With Indentified ID (Purchase Transfer behaviour)</h3>
+              <input
+                ref={identifiedInputRef}
+                type="text"
+                placeholder="Identified ID"
+                style={{ width: "400px", marginRight: "20px" }}
+              />
+              <button
+                onClick={() => {
+                  if (
+                    !identifiedInputRef.current ||
+                    !purchaseResult?.redemptionInfo?.redeemUrl
+                  ) {
+                    return;
+                  }
 
-                redeem(
-                  identifiedInputRef.current.value,
-                  purchaseResult?.redemptionInfo?.redeemUrl,
-                );
-              }}
-            >
-              Redeem
-            </button>
+                  redeem(
+                    identifiedInputRef.current.value,
+                    purchaseResult?.redemptionInfo?.redeemUrl,
+                  );
+                }}
+              >
+                Redeem
+              </button>
+            </div>
+            <div>
+              {redemptionResult && (
+                <>
+                  <h2>Redemption Result</h2>
+                  <p>{redemptionResult}</p>
+                </>
+              )}
+            </div>
           </div>
         ) : (
           <>No purchase result yet</>
