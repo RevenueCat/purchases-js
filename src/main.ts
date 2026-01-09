@@ -451,6 +451,9 @@ export class Purchases {
     let resolvedHTMLTarget =
       htmlTarget ?? document.getElementById("rcb-ui-pw-root");
 
+    // Track if we're creating a fullscreen overlay (not embedded in user's element)
+    const isFullscreenOverlay = resolvedHTMLTarget === null;
+
     if (resolvedHTMLTarget === null) {
       const element = document.createElement("div");
       element.id = "rcb-ui-pw-root";
@@ -604,6 +607,11 @@ export class Purchases {
     const infoPerPackage = parseOfferingIntoPackageInfoPerPackage(offering);
 
     return new Promise((resolve, reject) => {
+      // Push history state for fullscreen overlays to enable back button navigation
+      if (isFullscreenOverlay) {
+        window.history.pushState({ paywallOpen: true }, "");
+      }
+
       const walletButtonRender = isWebBillingApiKey(this._API_KEY)
         ? (
             element: HTMLElement,
@@ -658,6 +666,37 @@ export class Purchases {
           }
         : undefined;
 
+      // Handler for closing the paywall
+      const closePaywall = () => {
+        // Remove popstate listener before closing
+        if (isFullscreenOverlay) {
+          window.removeEventListener("popstate", handlePopState);
+        }
+
+        if (paywallParams.onBack) {
+          paywallParams.onBack();
+          return;
+        }
+        if (component !== null) {
+          unmount(component);
+        }
+        // Opinionated approach
+        // closing the current purchase and emptying the paywall.
+        certainHTMLTarget.innerHTML = "";
+        Logger.debugLog("Purchase cancelled by user");
+        reject(new PurchasesError(ErrorCode.UserCancelledError));
+      };
+
+      // Handler for browser back button (popstate event)
+      const handlePopState = () => {
+        closePaywall();
+      };
+
+      // Listen for browser back button on fullscreen overlays
+      if (isFullscreenOverlay) {
+        window.addEventListener("popstate", handlePopState);
+      }
+
       certainHTMLTarget.innerHTML = "";
       const component: ReturnType<typeof mount> = mount(Paywall, {
         target: certainHTMLTarget,
@@ -667,24 +706,15 @@ export class Purchases {
           onNavigateToUrlClicked: navigateToUrl,
           onVisitCustomerCenterClicked: onVisitCustomerCenterClicked,
           uiConfig: offering.uiConfig!,
-          onBackClicked: () => {
-            if (paywallParams.onBack) {
-              paywallParams.onBack();
-              return;
-            }
-            if (component !== null) {
-              unmount(component);
-            }
-            // Opinionated approach
-            // closing the current purchase and emptying the paywall.
-            certainHTMLTarget.innerHTML = "";
-            Logger.debugLog("Purchase cancelled by user");
-            reject(new PurchasesError(ErrorCode.UserCancelledError));
-          },
+          onBackClicked: closePaywall,
           onRestorePurchasesClicked: onRestorePurchasesClicked,
           onPurchaseClicked: (selectedPackageId: string) => {
             startPurchaseFlow(selectedPackageId)
               .then((purchaseResult) => {
+                // Clean up popstate listener on successful purchase
+                if (isFullscreenOverlay) {
+                  window.removeEventListener("popstate", handlePopState);
+                }
                 resolve(purchaseResult);
               })
               .catch((err) => reject(err));
@@ -1113,8 +1143,20 @@ export class Purchases {
         certainHTMLTarget.innerHTML = "";
       };
 
+      const closeHandler = this.createCheckoutOnCloseHandler(
+        reject,
+        unmountPaddlePurchaseUi,
+      );
+
+      // Listen for browser back button on fullscreen modals
+      // Only add listener when we have a proper close handler (not when rcSource is 'app' or 'embedded')
+      if (!isInElement && closeHandler) {
+        window.addEventListener("popstate", closeHandler as EventListener);
+      }
+
+      // onClose must always be defined for the Paddle component
       const onClose =
-        this.createCheckoutOnCloseHandler(reject, unmountPaddlePurchaseUi) ??
+        closeHandler ??
         // Always unmount PaddlePurchaseUi when the user closes the checkout modal
         (() => {
           unmountPaddlePurchaseUi();
