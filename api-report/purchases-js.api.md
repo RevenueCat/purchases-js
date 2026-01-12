@@ -26,6 +26,22 @@ export interface BrandingAppearance {
     show_product_description: boolean;
 }
 
+// @public (undocumented)
+export interface BuildVariablesPerPackageOptions {
+    // Warning: (ae-forgotten-export) The symbol "CustomTranslations" needs to be exported by the entry point Purchases.es.d.ts
+    //
+    // (undocumented)
+    customTranslations?: CustomTranslations;
+    // (undocumented)
+    fallbackLocale?: string;
+    // (undocumented)
+    selectedLocale?: string;
+    // Warning: (ae-forgotten-export) The symbol "Translator" needs to be exported by the entry point Purchases.es.d.ts
+    //
+    // (undocumented)
+    translator?: Translator;
+}
+
 // @public
 export interface CustomerInfo {
     readonly activeSubscriptions: Set<string>;
@@ -46,6 +62,16 @@ export interface CustomerInfo {
         [productId: string]: SubscriptionInfo;
     };
 }
+
+// @public
+type CustomTranslations = {
+    [langKey: string]: {
+        [translationKey in LocalizationKeys]?: string;
+    };
+};
+
+// @public (undocumented)
+type EmptyString = "";
 
 // @public
 export interface EntitlementInfo {
@@ -161,6 +187,234 @@ export interface HttpConfig {
 export interface IdentifyResult {
     readonly customerInfo: CustomerInfo;
     readonly wasCreated: boolean;
+}
+
+// @public (undocumented)
+class LocaleTranslations {
+    constructor(labels: Record<string, string> | undefined, localeKey: string);
+    // (undocumented)
+    readonly labels: Record<string, string>;
+    // (undocumented)
+    readonly localeKey: string;
+    // Warning: (ae-forgotten-export) The symbol "EmptyString" needs to be exported by the entry point Purchases.es.d.ts
+    // Warning: (ae-forgotten-export) The symbol "TranslationVariables" needs to be exported by the entry point Purchases.es.d.ts
+    //
+    // (undocumented)
+    translate(labelId: LocalizationKeys | EmptyString, variables?: TranslationVariables): string | undefined;
+    // (undocumented)
+    translateDate(date: Date, options?: Intl.DateTimeFormatOptions): string | undefined;
+    // Warning: (ae-forgotten-export) The symbol "TranslatePeriodOptions" needs to be exported by the entry point Purchases.es.d.ts
+    //
+    // (undocumented)
+    translatePeriod(amount: number, period: PeriodUnit, options?: TranslatePeriodOptions): string | undefined;
+    // Warning: (ae-forgotten-export) The symbol "TranslateFrequencyOptions" needs to be exported by the entry point Purchases.es.d.ts
+    //
+    // (undocumented)
+    translatePeriodFrequency(amount: number, period: PeriodUnit, options?: TranslateFrequencyOptions): string | undefined;
+    // (undocumented)
+    translatePeriodUnit(period: PeriodUnit, options?: TranslatePeriodOptions): string | undefined;
+}
+
+// @public (undocumented)
+enum LocalizationKeys {
+    // (undocumented)
+    ApplePayFreeTrial = "apple_pay.free_trial",
+    // (undocumented)
+    ErrorButtonClose = "error_page.button_close",
+    // (undocumented)
+    ErrorButtonTryAgain = "error_page.button_try_again",
+    // (undocumented)
+    ErrorPageCloseButtonTitle = "error_page.close_button_title",
+    // (undocumented)
+    ErrorPageErrorMessageAlreadyPurchased = "error_page.error_message_already_purchased",
+    // (undocumented)
+    ErrorPageErrorMessageAlreadySubscribed = "error_page.error_message_already_subscribed",
+    // (undocumented)
+    ErrorPageErrorMessageErrorChargingPayment = "error_page.error_message_error_charging_payment",
+    // (undocumented)
+    ErrorPageErrorMessageErrorSettingUpPurchase = "error_page.error_message_error_setting_up_purchase",
+    // (undocumented)
+    ErrorPageErrorMessageInvalidEmailError = "error_page.error_message_invalid_email_error",
+    // (undocumented)
+    ErrorPageErrorMessageInvalidTaxLocation = "error_page.error_message_invalid_tax_location",
+    // (undocumented)
+    ErrorPageErrorMessageMissingEmailError = "error_page.error_message_missing_email_error",
+    // (undocumented)
+    ErrorPageErrorMessageNetworkError = "error_page.error_message_network_error",
+    // (undocumented)
+    ErrorPageErrorMessageOnlyInSandbox = "error_page.error_only_in_sandbox",
+    // (undocumented)
+    ErrorPageErrorMessageStripeInvalidTaxOriginAddress = "error_page.error_message_stripe_invalid_tax_origin_address",
+    // (undocumented)
+    ErrorPageErrorMessageStripeMissingRequiredPermission = "error_page.error_message_stripe_missing_required_permission",
+    // (undocumented)
+    ErrorPageErrorMessageStripeTaxNotActive = "error_page.error_message_stripe_tax_not_active",
+    // (undocumented)
+    ErrorPageErrorMessageUnknownError = "error_page.error_message_unknown_error",
+    // (undocumented)
+    ErrorPageErrorTitleAlreadyPurchased = "error_page.error_title_already_purchased",
+    // (undocumented)
+    ErrorPageErrorTitleAlreadySubscribed = "error_page.error_title_already_subscribed",
+    // (undocumented)
+    ErrorPageErrorTitleOtherErrors = "error_page.error_title_other_errors",
+    // (undocumented)
+    ErrorPageErrorTitleStripeInvalidTaxOriginAddress = "error_page.error_title_stripe_invalid_tax_origin_address",
+    // (undocumented)
+    ErrorPageErrorTitleStripeMissingRequiredPermission = "error_page.error_title_stripe_missing_required_permission",
+    // (undocumented)
+    ErrorPageErrorTitleStripeTaxNotActive = "error_page.error_title_stripe_tax_not_active",
+    // (undocumented)
+    ErrorPageIfErrorPersists = "error_page.if_error_persists",
+    // (undocumented)
+    ErrorPageTroubleAccessing = "error_page.trouble_accessing",
+    // (undocumented)
+    LoadingPageKeepPageOpen = "loading_page.keep_page_open",
+    // (undocumented)
+    LoadingPageProcessingPayment = "loading_page.processing_payment",
+    // (undocumented)
+    NavbarBackButton = "navbar_header.back_button",
+    // (undocumented)
+    NavbarHeaderDetails = "navbar_header.details",
+    // (undocumented)
+    PaymentEntryPageButtonPay = "payment_entry_page.button_pay",
+    // (undocumented)
+    PaymentEntryPageButtonPaymentMethod = "payment_entry_page.button_payment_method",
+    // (undocumented)
+    PaymentEntryPageButtonStartTrial = "payment_entry_page.button_start_trial",
+    // (undocumented)
+    PaymentEntryPageButtonWithPrice = "payment_entry_page.button_with_price",
+    // (undocumented)
+    PaymentEntryPageExpressCheckoutDivider = "payment_entry_page.express_checkout_divider",
+    // (undocumented)
+    PaymentEntryPageOtpTermsInfo = "payment_entry_page.otp_terms_info",
+    // (undocumented)
+    PaymentEntryPagePaymentStepTitle = "payment_entry_page.payment_step_title",
+    // (undocumented)
+    PaymentEntryPageSubscriptionInfo = "payment_entry_page.subscription_info",
+    // (undocumented)
+    PaymentEntryPageSubscriptionTermsInfo = "payment_entry_page.subscription_terms_info",
+    // (undocumented)
+    PaymentEntryPageTermsLinkLabel = "payment_entry_page.terms_link_label",
+    // (undocumented)
+    PaymentEntryPageTrialSubscriptionTermsInfo = "payment_entry_page.trial_subscription_terms_info",
+    // (undocumented)
+    PaywallVariablesPricePerPeriod = "paywall_variables.price_per_period",
+    // (undocumented)
+    PaywallVariablesSubRelativeDiscount = "paywall_variables.sub_relative_discount",
+    // (undocumented)
+    PaywallVariablesTotalPriceAndPerMonth = "paywall_variables.total_price_and_per_month",
+    // (undocumented)
+    PeriodsDay = "periods.day",
+    // (undocumented)
+    PeriodsDayFrequency = "periods.dayFrequency",
+    // (undocumented)
+    PeriodsDayFrequencyPlural = "periods.dayFrequencyPlural",
+    // (undocumented)
+    PeriodsDayPlural = "periods.dayPlural",
+    // (undocumented)
+    PeriodsDayShort = "periods.dayShort",
+    // (undocumented)
+    PeriodsLifetime = "periods.lifetime",
+    // (undocumented)
+    PeriodsMonth = "periods.month",
+    // (undocumented)
+    PeriodsMonthFrequency = "periods.monthFrequency",
+    // (undocumented)
+    PeriodsMonthFrequencyPlural = "periods.monthFrequencyPlural",
+    // (undocumented)
+    PeriodsMonthPlural = "periods.monthPlural",
+    // (undocumented)
+    PeriodsMonthShort = "periods.monthShort",
+    // (undocumented)
+    PeriodsPerDayFrequency = "periods.perDayFrequency",
+    // (undocumented)
+    PeriodsPerMonthFrequency = "periods.perMonthFrequency",
+    // (undocumented)
+    PeriodsPerWeekFrequency = "periods.perWeekFrequency",
+    // (undocumented)
+    PeriodsPerYearFrequency = "periods.perYearFrequency",
+    // (undocumented)
+    PeriodsUnknownFrequency = "periods.unknownFrequency",
+    // (undocumented)
+    PeriodsWeek = "periods.week",
+    // (undocumented)
+    PeriodsWeekFrequency = "periods.weekFrequency",
+    // (undocumented)
+    PeriodsWeekFrequencyPlural = "periods.weekFrequencyPlural",
+    // (undocumented)
+    PeriodsWeekPlural = "periods.weekPlural",
+    // (undocumented)
+    PeriodsWeekShort = "periods.weekShort",
+    // (undocumented)
+    PeriodsYear = "periods.year",
+    // (undocumented)
+    PeriodsYearFrequency = "periods.yearFrequency",
+    // (undocumented)
+    PeriodsYearFrequencyPlural = "periods.yearFrequencyPlural",
+    // (undocumented)
+    PeriodsYearPlural = "periods.yearPlural",
+    // (undocumented)
+    PeriodsYearShort = "periods.yearShort",
+    // (undocumented)
+    PriceUpdateBaseMessage = "price_update.base_message",
+    // (undocumented)
+    PriceUpdateTitle = "price_update.title",
+    // (undocumented)
+    PriceUpdateTrialMessage = "price_update.trial_message",
+    // (undocumented)
+    PricingDropdownHideDetails = "pricing_dropdown.hide_details",
+    // (undocumented)
+    PricingDropdownShowDetails = "pricing_dropdown.show_details",
+    // (undocumented)
+    PricingTableEnterBillingAddressToCalculate = "pricing_table.enter_billing_address_to_calculate",
+    // (undocumented)
+    PricingTableEnterPostalCodeToCalculate = "pricing_table.enter_postal_code_to_calculate",
+    // (undocumented)
+    PricingTableEnterStateOrPostalCodeToCalculate = "pricing_table.enter_state_or_postal_code_to_calculate",
+    // (undocumented)
+    PricingTableTax = "pricing_table.tax",
+    // (undocumented)
+    PricingTableTotalDueToday = "pricing_table.total_due_today",
+    // (undocumented)
+    PricingTableTrialEnds = "pricing_table.trial_ends",
+    // (undocumented)
+    PricingTotalExcludingTax = "pricing_table.total_excluding_tax",
+    // (undocumented)
+    ProductInfoAfter = "product_info.after",
+    // (undocumented)
+    ProductInfoAfterTrial = "product_info.after_trial",
+    // (undocumented)
+    ProductInfoCancelAnytime = "product_info.cancel_anytime",
+    // (undocumented)
+    ProductInfoContinuesUntilCancelled = "product_info.continues_until_cancelled",
+    // (undocumented)
+    ProductInfoFreeTrialDuration = "product_info.free_trial_duration",
+    // (undocumented)
+    ProductInfoIntroPricePhase = "product_info.intro_price_phase",
+    // (undocumented)
+    ProductInfoIntroPricePhaseAfterTrial = "product_info.intro_price_phase_after_trial",
+    // (undocumented)
+    ProductInfoIntroPricePhasePaidOnce = "product_info.intro_price_phase_paid_once",
+    // (undocumented)
+    ProductInfoPriceAfterFreeTrial = "product_info.price_after_free_trial",
+    // (undocumented)
+    ProductInfoPriceAfterIntroPrice = "product_info.price_after_intro_price",
+    // (undocumented)
+    ProductInfoPriceTotalDueToday = "product_info.total_due_today",
+    // (undocumented)
+    ProductInfoProductDescription = "product_info.product_description",
+    // (undocumented)
+    ProductInfoProductPrice = "product_info.product_price",
+    // (undocumented)
+    ProductInfoProductTitle = "product_info.product_title",
+    // (undocumented)
+    ProductInfoRenewalFrequency = "product_info.renewal_frequency",
+    // (undocumented)
+    ProductInfoSubscribeTo = "product_info.subscribe_to",
+    // (undocumented)
+    SuccessPageButtonClose = "success_page.button_close",
+    // (undocumented)
+    SuccessPagePurchaseSuccessful = "success_page.purchase_successful"
 }
 
 // @public
@@ -563,6 +817,56 @@ export interface TargetingContext {
     readonly ruleId: string;
 }
 
+// @public (undocumented)
+interface TranslateFrequencyOptions {
+    // (undocumented)
+    useMultipleWords?: boolean;
+}
+
+// @public (undocumented)
+interface TranslatePeriodOptions {
+    // (undocumented)
+    noWhitespace?: boolean;
+    // (undocumented)
+    short?: boolean;
+}
+
+// @public
+type TranslationVariables = Record<string, string | number | undefined | null>;
+
+// @public (undocumented)
+class Translator {
+    constructor(customTranslations?: CustomTranslations, selectedLocale?: string, defaultLocale?: string);
+    get bcp47Locale(): string;
+    // (undocumented)
+    readonly defaultLocale: string;
+    // (undocumented)
+    static fallback(): Translator;
+    get fallbackBcp47Locale(): string;
+    // (undocumented)
+    formatCountry(countryCode: string): string;
+    // (undocumented)
+    formatPrice(priceInMicros: number, currency: string): string;
+    // Warning: (ae-forgotten-export) The symbol "LocaleTranslations" needs to be exported by the entry point Purchases.es.d.ts
+    //
+    // (undocumented)
+    readonly locales: Record<string, LocaleTranslations>;
+    // (undocumented)
+    override(customTranslations: CustomTranslations): void;
+    // (undocumented)
+    readonly selectedLocale: string;
+    // (undocumented)
+    translate(key: LocalizationKeys | EmptyString, variables?: TranslationVariables): string;
+    // (undocumented)
+    translateDate(date: Date, options?: Intl.DateTimeFormatOptions): string | undefined;
+    // (undocumented)
+    translatePeriod(amount: number, period: PeriodUnit, options?: TranslatePeriodOptions): string | undefined;
+    // (undocumented)
+    translatePeriodFrequency(amount: number, period: PeriodUnit, options?: TranslateFrequencyOptions): string | undefined;
+    // (undocumented)
+    translatePeriodUnit(period: PeriodUnit, options?: TranslatePeriodOptions): string | undefined;
+}
+
 // @public
 export class UninitializedPurchasesError extends Error {
     constructor();
@@ -582,6 +886,10 @@ export interface VirtualCurrency {
     readonly name: string;
     readonly serverDescription: string | null;
 }
+
+// Warnings were encountered during analysis:
+//
+// dist/Purchases.es.d.ts:147:5 - (ae-forgotten-export) The symbol "LocalizationKeys" needs to be exported by the entry point Purchases.es.d.ts
 
 // (No @packageDocumentation comment for this package)
 
