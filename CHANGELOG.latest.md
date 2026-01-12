@@ -1,6 +1,7 @@
 ## RevenueCat SDK
 ### ✨ New Features
-* Updated purchases-ui-js to support the Express Checkout stack properties (#705) via Nicola Sacco (@nicfix)
-* Express purchase button support in paywalls (#704) via Nicola Sacco (@nicfix)
-### 🐞 Bugfixes
-* Removed the useExpressPurchaseButtons parameter since not an explicit component is required for that (#706) via Nicola Sacco (@nicfix)
+* Internal export for variablesPerPackage (#714) via James O'Donnell (@james-od)
+
+### 🔄 Other Changes
+* Redemption links tester (#713) via Nicola Sacco (@nicfix)
+* Bump fastlane-plugin-revenuecat_internal from `76a3a08` to `e6454e3` (#708) via dependabot[bot] (@dependabot[bot])
