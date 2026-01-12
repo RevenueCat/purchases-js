@@ -62,7 +62,10 @@ import { mount, unmount } from "svelte";
 import { type PresentPaywallParams } from "./entities/present-paywall-params";
 import { Paywall, type PaywallData } from "@revenuecat/purchases-ui-js";
 import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
-import { parseOfferingIntoVariables } from "./helpers/paywall-variables-helpers";
+import {
+  buildVariablesPerPackage,
+  type BuildVariablesPerPackageOptions,
+} from "./helpers/paywall-variables-helpers";
 import { Translator } from "./ui/localization/translator";
 import { englishLocale } from "./ui/localization/constants";
 import type { TrackEventProps } from "./behavioural-events/events-tracker";
@@ -232,6 +235,18 @@ export class Purchases {
    * */
   static setPlatformInfo(platformInfo: PlatformInfo) {
     Purchases._platformInfo = platformInfo;
+  }
+
+  /**
+   * Build variables for each package in an offering.
+   * Used to support Paywalls in Workflows.
+   * @internal
+   */
+  static buildVariablesPerPackage(
+    offering: Offering,
+    options: BuildVariablesPerPackageOptions = {},
+  ) {
+    return buildVariablesPerPackage(offering, options);
   }
 
   /** @internal */
@@ -596,10 +611,9 @@ export class Purchases {
       // DO NOTHING, RC's customer center is not supported in web
     };
 
-    const variablesPerPackage = parseOfferingIntoVariables(
-      offering,
+    const variablesPerPackage = buildVariablesPerPackage(offering, {
       translator,
-    );
+    });
 
     const infoPerPackage = parseOfferingIntoPackageInfoPerPackage(offering);
 
