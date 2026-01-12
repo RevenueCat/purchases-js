@@ -30,11 +30,6 @@ export interface BuildVariablesPerPackageOptions {
   translator?: Translator;
 }
 
-/**
- * Build variables for each package in an offering.
- * Used to support Paywalls in Workflows.
- * @internal
- */
 export function buildVariablesPerPackage(
   offering: Offering,
   options: BuildVariablesPerPackageOptions = {},

@@ -62,7 +62,10 @@ import { mount, unmount } from "svelte";
 import { type PresentPaywallParams } from "./entities/present-paywall-params";
 import { Paywall, type PaywallData } from "@revenuecat/purchases-ui-js";
 import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
-import { buildVariablesPerPackage } from "./helpers/paywall-variables-helpers";
+import {
+  buildVariablesPerPackage,
+  type BuildVariablesPerPackageOptions,
+} from "./helpers/paywall-variables-helpers";
 import { Translator } from "./ui/localization/translator";
 import { englishLocale } from "./ui/localization/constants";
 import type { TrackEventProps } from "./behavioural-events/events-tracker";
@@ -145,10 +148,6 @@ export type { LogHandler } from "./entities/logging";
 export type { IdentifyResult } from "./entities/identify-result";
 export type { GetOfferingsParams } from "./entities/get-offerings-params";
 export { OfferingKeyword } from "./entities/get-offerings-params";
-export {
-  buildVariablesPerPackage,
-  type BuildVariablesPerPackageOptions,
-} from "./helpers/paywall-variables-helpers";
 export type { PurchaseParams } from "./entities/purchase-params";
 export type { RedemptionInfo } from "./entities/redemption-info";
 export type {
@@ -236,6 +235,18 @@ export class Purchases {
    * */
   static setPlatformInfo(platformInfo: PlatformInfo) {
     Purchases._platformInfo = platformInfo;
+  }
+
+  /**
+   * Build variables for each package in an offering.
+   * Used to support Paywalls in Workflows.
+   * @internal
+   */
+  static buildVariablesPerPackage(
+    offering: Offering,
+    options: BuildVariablesPerPackageOptions = {},
+  ) {
+    return buildVariablesPerPackage(offering, options);
   }
 
   /** @internal */
