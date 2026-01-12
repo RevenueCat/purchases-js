@@ -6,7 +6,10 @@ import {
   type PurchaseOption,
   type SubscriptionOption,
 } from "../entities/offerings";
-import { type Translator } from "../ui/localization/translator";
+import {
+  Translator,
+  type CustomTranslations,
+} from "../ui/localization/translator";
 import { PeriodUnit } from "./duration-helper";
 
 import { LocalizationKeys } from "../ui/localization/supportedLanguages";
@@ -18,6 +21,38 @@ import {
 } from "./paywall-period-helpers";
 import { getPriceVariables } from "./paywall-price-helpers";
 import { setOfferVariables } from "./paywall-offer-helpers";
+import { englishLocale } from "../ui/localization/constants";
+
+export interface BuildVariablesPerPackageOptions {
+  selectedLocale?: string;
+  fallbackLocale?: string;
+  customTranslations?: CustomTranslations;
+  translator?: Translator;
+}
+
+/**
+ * Build variables for each package in an offering.
+ * Used to support Paywalls in Workflows.
+ * @internal
+ */
+export function buildVariablesPerPackage(
+  offering: Offering,
+  options: BuildVariablesPerPackageOptions = {},
+): Record<string, VariableDictionary> {
+  if (options.translator) {
+    return parseOfferingIntoVariables(offering, options.translator);
+  }
+
+  const defaultLocale =
+    offering.paywallComponents?.default_locale || englishLocale;
+  const translator = new Translator(
+    options.customTranslations ?? {},
+    options.selectedLocale ?? defaultLocale,
+    options.fallbackLocale ?? defaultLocale,
+  );
+
+  return parseOfferingIntoVariables(offering, translator);
+}
 
 // Helper function to get monthly equivalent price for any package
 function getPackageMonthlyPrice(pkg: Package): number {
