@@ -1,10 +1,10 @@
-import type { PurchaseResult } from "@revenuecat/purchases-js";
+import type { PaywallPurchaseResult } from "@revenuecat/purchases-js";
 import { Purchases, PurchasesError } from "@revenuecat/purchases-js";
 import React from "react";
 
 const RCPaywallLauncherPage: React.FC = () => {
   const [purchaseResult, setPurchaseResult] =
-    React.useState<PurchaseResult | null>(null);
+    React.useState<PaywallPurchaseResult | null>(null);
   const [error, setError] = React.useState<PurchasesError | null>(null);
 
   const onLaunchPaywallClicked = () => {
@@ -14,7 +14,7 @@ const RCPaywallLauncherPage: React.FC = () => {
         // No offering parameter - SDK uses current offering
         // No htmlTarget parameter - SDK creates overlay
       })
-      .then((purchaseResult: PurchaseResult) => {
+      .then((purchaseResult: PaywallPurchaseResult) => {
         setPurchaseResult(purchaseResult);
         setError(null);
         const { customerInfo, redemptionInfo } = purchaseResult;
