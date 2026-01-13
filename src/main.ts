@@ -462,11 +462,13 @@ export class Purchases {
     paywallParams: PresentPaywallParams,
   ): Promise<PaywallPurchaseResult> {
     const htmlTarget = paywallParams.htmlTarget;
+    let wasRootAutoCreated = false;
 
     let resolvedHTMLTarget =
       htmlTarget ?? document.getElementById("rcb-ui-pw-root");
 
     if (resolvedHTMLTarget === null) {
+      wasRootAutoCreated = true;
       const element = document.createElement("div");
       element.id = "rcb-ui-pw-root";
       element.className = "rcb-ui-pw-root";
@@ -618,6 +620,20 @@ export class Purchases {
     const infoPerPackage = parseOfferingIntoPackageInfoPerPackage(offering);
 
     return new Promise((resolve, reject) => {
+      let component: ReturnType<typeof mount> | null = null;
+
+      const unmountPaywall = () => {
+        if (component) {
+          unmount(component);
+        }
+        certainHTMLTarget.innerHTML = "";
+
+        // Remove auto-created root from DOM
+        if (wasRootAutoCreated && certainHTMLTarget.parentNode) {
+          certainHTMLTarget.parentNode.removeChild(certainHTMLTarget);
+        }
+      };
+
       const walletButtonRender = isWebBillingApiKey(this._API_KEY)
         ? (
             element: HTMLElement,
@@ -644,9 +660,13 @@ export class Purchases {
               },
             })
               .then((purchaseResult) => {
+                unmountPaywall();
                 resolve({ ...purchaseResult, selectedPackage: pkg });
               })
-              .catch((err) => reject(err));
+              .catch((err) => {
+                unmountPaywall();
+                reject(err);
+              });
 
             return {
               destroy() {
@@ -673,7 +693,7 @@ export class Purchases {
         : undefined;
 
       certainHTMLTarget.innerHTML = "";
-      const component: ReturnType<typeof mount> = mount(Paywall, {
+      component = mount(Paywall, {
         target: certainHTMLTarget,
         props: {
           paywallData: offering.paywallComponents!,
@@ -682,16 +702,16 @@ export class Purchases {
           onVisitCustomerCenterClicked: onVisitCustomerCenterClicked,
           uiConfig: offering.uiConfig!,
           onBackClicked: () => {
+            unmountPaywall();
+
             if (paywallParams.onBack) {
               paywallParams.onBack();
+              reject(new PurchasesError(ErrorCode.UserCancelledError));
               return;
             }
-            if (component !== null) {
-              unmount(component);
-            }
+
             // Opinionated approach
             // closing the current purchase and emptying the paywall.
-            certainHTMLTarget.innerHTML = "";
             Logger.debugLog("Purchase cancelled by user");
             reject(new PurchasesError(ErrorCode.UserCancelledError));
           },
@@ -699,11 +719,18 @@ export class Purchases {
           onPurchaseClicked: (selectedPackageId: string) => {
             startPurchaseFlow(selectedPackageId)
               .then((purchaseResult) => {
+                unmountPaywall();
                 resolve(purchaseResult);
               })
-              .catch((err) => reject(err));
+              .catch((err) => {
+                unmountPaywall();
+                reject(err);
+              });
           },
-          onError: (err: unknown) => reject(err),
+          onError: (err: unknown) => {
+            unmountPaywall();
+            reject(err);
+          },
           variablesPerPackage,
           infoPerPackage,
           hideBackButtons: paywallParams.hideBackButtons,
