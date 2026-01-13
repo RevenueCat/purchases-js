@@ -702,17 +702,15 @@ export class Purchases {
           onVisitCustomerCenterClicked: onVisitCustomerCenterClicked,
           uiConfig: offering.uiConfig!,
           onBackClicked: () => {
-            unmountPaywall();
-
             if (paywallParams.onBack) {
               paywallParams.onBack();
-              reject(new PurchasesError(ErrorCode.UserCancelledError));
               return;
             }
 
             // Opinionated approach
             // closing the current purchase and emptying the paywall.
             Logger.debugLog("Purchase cancelled by user");
+            unmountPaywall();
             reject(new PurchasesError(ErrorCode.UserCancelledError));
           },
           onRestorePurchasesClicked: onRestorePurchasesClicked,
