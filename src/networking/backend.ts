@@ -2,6 +2,7 @@ import { type OfferingsResponse } from "./responses/offerings-response";
 import { performRequest, performRequestWithStatus } from "./http-client";
 import {
   CheckoutCalculateTaxEndpoint,
+  CheckoutClientCredentials,
   CheckoutCompleteEndpoint,
   CheckoutStartEndpoint,
   GetBrandingInfoEndpoint,
@@ -9,9 +10,10 @@ import {
   GetCustomerInfoEndpoint,
   GetOfferingsEndpoint,
   GetProductsEndpoint,
-  PostReceiptEndpoint,
   GetVirtualCurrenciesEndpoint,
   IdentifyEndpoint,
+  PostReceiptEndpoint,
+  SetAttributesEndpoint,
 } from "./endpoints";
 import { type SubscriberResponse } from "./responses/subscriber-response";
 import type { CheckoutStartResponse } from "./responses/checkout-start-response";
@@ -28,9 +30,9 @@ import type {
 import type { PurchasesContext } from "../entities/purchases-config";
 import type { CheckoutCompleteResponse } from "./responses/checkout-complete-response";
 import type { CheckoutCalculateTaxResponse } from "./responses/checkout-calculate-tax-response";
-import { SetAttributesEndpoint } from "./endpoints";
 import { isWebBillingSandboxApiKey } from "../helpers/api-key-helper";
 import type { IdentifyResponse } from "./responses/identify-response";
+import type { GetClientCredentialsResponse } from "./responses/get-client-credentials-response";
 
 export class Backend {
   private readonly API_KEY: string;
@@ -122,6 +124,16 @@ export class Backend {
   async getBrandingInfo(): Promise<BrandingInfoResponse> {
     return await performRequest<null, BrandingInfoResponse>(
       new GetBrandingInfoEndpoint(),
+      {
+        apiKey: this.API_KEY,
+        httpConfig: this.httpConfig,
+      },
+    );
+  }
+
+  async getClientCredentials(): Promise<GetClientCredentialsResponse> {
+    return await performRequest<null, GetClientCredentialsResponse>(
+      new CheckoutClientCredentials(),
       {
         apiKey: this.API_KEY,
         httpConfig: this.httpConfig,

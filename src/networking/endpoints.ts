@@ -6,6 +6,7 @@ const RC_BILLING_PATH = "/rcbilling/v1";
 interface Endpoint {
   method: HttpMethodType;
   name: string;
+
   urlPath(): string;
 }
 
@@ -90,9 +91,19 @@ export class GetBrandingInfoEndpoint implements Endpoint {
   }
 }
 
+export class CheckoutClientCredentials implements Endpoint {
+  method: HttpMethodType = "POST";
+  name: string = "getCheckoutClientCredentials";
+
+  urlPath(): string {
+    return `${RC_BILLING_PATH}/checkout/credentials`;
+  }
+}
+
 export class CheckoutStartEndpoint implements Endpoint {
   method: HttpMethodType = "POST";
   name: string = "postCheckoutStart";
+
   urlPath(): string {
     return `${RC_BILLING_PATH}/checkout/start`;
   }

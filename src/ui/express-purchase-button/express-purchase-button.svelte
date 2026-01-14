@@ -183,6 +183,7 @@
 
     let checkoutStartResult: WebBillingCheckoutStartResponse | null = null;
     try {
+      // TODO-WEB-3521: Use just the getCredentials to show the button and start the checkout only when the user clicks on the button;
       checkoutStartResult = await purchaseOperationHelper.checkoutStart(
         appUserId,
         rcPackage.webBillingProduct.identifier,
@@ -191,6 +192,10 @@
         customerEmail,
         metadata,
       );
+
+      // TODO-WEB-3521: Do we need the customer portal link before completing the checkout?
+      // Might be needed in the native apple pay/google pay modal.
+      // In such case I need to add it to the backend.
       managementUrl = checkoutStartResult.management_url;
     } catch (e) {
       return;
@@ -343,6 +348,8 @@
   };
 
   const onExpressClicked = (event: StripeExpressCheckoutElementClickEvent) => {
+    // TODO-WEB-3521: Handle the express clicked event
+    // move the checkoutStart call here.
     const sessionStartEvent = createCheckoutSessionStartEvent({
       appearance: brandingInfo?.appearance,
       rcPackage,
