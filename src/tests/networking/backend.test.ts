@@ -7,6 +7,7 @@ import {
   customerInfoResponse,
   offeringsArray,
   productsResponse,
+  getClientCredentialsResponse,
   getVirtualCurrenciesResponseWith3Currencies,
   getVirtualCurrenciesResponseWithNoCurrencies,
 } from "../test-responses";
@@ -503,6 +504,43 @@ describe("getProducts request", () => {
         ErrorCode.NetworkError,
         "Error performing request. Please check your network connection and try again.",
         "Failed to fetch",
+      ),
+    );
+  });
+});
+
+describe("getClientCredentials request", () => {
+  function setClientCredentialsResponse(httpResponse: HttpResponse) {
+    server.use(
+      http.post(
+        "http://localhost:8000/rcbilling/v1/checkout/credentials",
+        () => {
+          return httpResponse;
+        },
+      ),
+    );
+  }
+
+  test("can get client credentials successfully", async () => {
+    setClientCredentialsResponse(
+      HttpResponse.json(getClientCredentialsResponse, { status: 200 }),
+    );
+
+    const backendResponse = await backend.getClientCredentials();
+    expect(backendResponse).toEqual(getClientCredentialsResponse);
+  });
+
+  test("throws an error if the backend returns a server error", async () => {
+    setClientCredentialsResponse(
+      HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
+    );
+
+    await expectPromiseToError(
+      backend.getClientCredentials(),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        "Request: getCheckoutClientCredentials. Status code: 500. Body: null.",
       ),
     );
   });

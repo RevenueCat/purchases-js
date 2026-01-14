@@ -22,7 +22,10 @@ import {
   type CheckoutStatusResponse,
 } from "../../networking/responses/checkout-status-response";
 import { type IEventsTracker } from "../../behavioural-events/events-tracker";
-import { checkoutStartResponse } from "../test-responses";
+import {
+  checkoutStartResponse,
+  getClientCredentialsResponse,
+} from "../test-responses";
 import { BackendErrorCode, ErrorCode } from "../../entities/errors";
 import { checkoutCalculateTaxResponse } from "../../stories/fixtures";
 
@@ -68,6 +71,17 @@ describe("PurchaseOperationHelper", () => {
           if (traceId) {
             expect(json["trace_id"]).toBe(traceId);
           }
+          return httpResponse;
+        },
+      ),
+    );
+  }
+
+  function setGetClientCredentialsResponse(httpResponse: HttpResponse) {
+    server.use(
+      http.post(
+        "http://localhost:8000/rcbilling/v1/checkout/credentials",
+        () => {
           return httpResponse;
         },
       ),
@@ -193,6 +207,32 @@ describe("PurchaseOperationHelper", () => {
         PurchaseFlowErrorCode.InvalidPaddleAPIKeyError,
         "There was a credentials issue. Check the underlying error for more details.",
         "Invalid or expired Paddle API Key.",
+      ),
+    );
+  });
+
+  test("getClientCredentials returns the backend response", async () => {
+    setGetClientCredentialsResponse(
+      HttpResponse.json(getClientCredentialsResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+
+    const response = await purchaseOperationHelper.getClientCredentials();
+    expect(response).toEqual(getClientCredentialsResponse);
+  });
+
+  test("getClientCredentials fails if /checkout/credentials fails", async () => {
+    setGetClientCredentialsResponse(
+      HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
+    );
+
+    await expectPromiseToPurchaseFlowError(
+      purchaseOperationHelper.getClientCredentials(),
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "Unknown backend error.",
+        "Request: getCheckoutClientCredentials. Status code: 500. Body: null.",
       ),
     );
   });

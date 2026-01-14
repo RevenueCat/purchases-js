@@ -9,6 +9,7 @@ import {
   rcPackage,
   subscriptionOption,
 } from "../../stories/fixtures";
+import { getClientCredentialsResponse } from "../test-responses";
 import type { Purchases } from "../../main";
 import { type PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
 import { createEventsTrackerMock } from "../mocks/events-tracker-mock-provider";
@@ -20,6 +21,8 @@ import type { CheckoutCompleteResponse } from "../../networking/responses/checko
 const eventsTrackerMock = createEventsTrackerMock();
 
 const purchaseOperationHelperMock: PurchaseOperationHelper = {
+  getClientCredentials: async () =>
+    Promise.resolve(getClientCredentialsResponse),
   checkoutStart: async () =>
     Promise.resolve(checkoutStartResponse as CheckoutStartResponse),
   checkoutCalculateTax: async () =>
