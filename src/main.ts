@@ -664,8 +664,9 @@ export class Purchases {
                 resolve({ ...purchaseResult, selectedPackage: pkg });
               })
               .catch((err) => {
-                unmountPaywall();
-                reject(err);
+                Logger.errorLog(
+                  `Error presenting express purchase button: ${err}`,
+                );
               });
 
             return {
@@ -721,8 +722,7 @@ export class Purchases {
                 resolve(purchaseResult);
               })
               .catch((err) => {
-                unmountPaywall();
-                reject(err);
+                Logger.errorLog(`Error performing purchase: ${err}`);
               });
           },
           onError: (err: unknown) => {
