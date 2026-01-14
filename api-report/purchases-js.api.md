@@ -297,6 +297,7 @@ export interface PresentPaywallParams {
     readonly offering?: Offering;
     readonly onBack?: () => void;
     readonly onNavigateToUrl?: (url: string) => void;
+    readonly onPurchaseError?: (error: Error) => void;
     readonly onVisitCustomerCenter?: () => void;
     readonly purchaseHtmlTarget?: HTMLElement;
     readonly selectedLocale?: string;

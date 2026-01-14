@@ -45,6 +45,12 @@ export interface PresentPaywallParams {
   readonly onVisitCustomerCenter?: () => void;
 
   /**
+   * Callback called when an error that won't close the paywall occurs.
+   * For example, a retryable error during the purchase process.
+   */
+  readonly onPurchaseError?: (error: Error) => void;
+
+  /**
    * The locale to use for the paywall and the checkout flow.
    */
   readonly selectedLocale?: string;
