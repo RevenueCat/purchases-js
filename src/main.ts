@@ -667,6 +667,9 @@ export class Purchases {
                 Logger.errorLog(
                   `Error presenting express purchase button: ${err}`,
                 );
+                if (paywallParams.onPurchaseError) {
+                  paywallParams.onPurchaseError(err);
+                }
               });
 
             return {
@@ -723,6 +726,9 @@ export class Purchases {
               })
               .catch((err) => {
                 Logger.errorLog(`Error performing purchase: ${err}`);
+                if (paywallParams.onPurchaseError) {
+                  paywallParams.onPurchaseError(err);
+                }
               });
           },
           onError: (err: unknown) => {

@@ -11,8 +11,11 @@ const RCPaywallLauncherPage: React.FC = () => {
     const purchases = Purchases.getSharedInstance();
     purchases
       .presentPaywall({
-        // No offering parameter - SDK uses current offering
-        // No htmlTarget parameter - SDK creates overlay
+        onPurchaseError: (error) => {
+          console.error(
+            `There was a purchase error inside the paywall: ${error}`,
+          );
+        },
       })
       .then((purchaseResult: PaywallPurchaseResult) => {
         setPurchaseResult(purchaseResult);
