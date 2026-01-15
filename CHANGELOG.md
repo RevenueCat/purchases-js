@@ -1,3 +1,8 @@
+## 1.24.0
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Properly close paywall when no target element is given (#717) via Toni Rico (@tonidero)
+
 ## 1.23.1
 ### 🔄 Other Changes
 * Internal export for variablesPerPackage (#714) via James O'Donnell (@james-od)
