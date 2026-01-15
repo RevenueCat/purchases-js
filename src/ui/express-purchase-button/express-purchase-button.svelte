@@ -1,13 +1,6 @@
 <script lang="ts">
-  import type {
-    Package,
-    Product,
-    SubscriptionOption,
-  } from "../../entities/offerings";
-  import {
-    PurchaseFlowError,
-    PurchaseFlowErrorCode,
-  } from "../../helpers/purchase-operation-helper";
+  import type { Package, Product, SubscriptionOption } from "../../entities/offerings";
+  import { PurchaseFlowError, PurchaseFlowErrorCode } from "../../helpers/purchase-operation-helper";
   import { type PriceBreakdown } from "../ui-types";
   import ExpressCheckoutElement from "../molecules/stripe-express-checkout-element.svelte";
   import { setContext } from "svelte";
@@ -17,10 +10,12 @@
     StripeExpressCheckoutElementConfirmEvent,
     StripeExpressCheckoutElementReadyEvent,
   } from "@stripe/stripe-js";
+  import { StripeService, StripeServiceError } from "../../stripe/stripe-service";
   import {
-    StripeService,
-    StripeServiceError,
-  } from "../../stripe/stripe-service";
+    type StripeElementsConfiguration,
+    StripeElementsMode,
+    StripeElementsSetupFutureUsage,
+  } from "../../networking/responses/stripe-elements";
   import { DEFAULT_FONT_FAMILY } from "../theme/text";
   import { writable } from "svelte/store";
   import { translatorContextKey } from "../localization/constants";
@@ -28,6 +23,7 @@
   import type { StripeExpressCheckoutConfiguration } from "../../stripe/stripe-express-checkout-configuration";
   import { getInitialPriceFromPurchaseOption } from "../../helpers/purchase-option-price-helper";
   import type { WebBillingCheckoutStartResponse } from "../../networking/responses/checkout-start-response";
+  import type { GetClientCredentialsResponse } from "../../networking/responses/get-client-credentials-response";
 
   import type { ExpressPurchaseButtonProps } from "./express-purchase-button-props";
   import type {
@@ -73,7 +69,6 @@
 
   let expressCheckoutOptions: StripeExpressCheckoutConfiguration | null =
     $state(null);
-  let managementUrl: string | null = $state(null);
 
   const handleError = (error: PurchaseFlowError) => {
     const event = createCheckoutFlowErrorEvent({
@@ -86,14 +81,14 @@
   };
 
   const initStripe = async (
-    checkoutStartResponse: WebBillingCheckoutStartResponse,
+    clientCredentialsResponse: GetClientCredentialsResponse,
     rcPackage: Package,
   ) => {
-    const gatewayParams = checkoutStartResponse.gateway_params;
+    const gatewayParams = clientCredentialsResponse.stripe_gateway_params;
     // Aiming for a pure function so that it can be extracted
     // Not assigning any state variable in here.
-    const stripeAccountId = gatewayParams.stripe_account_id;
-    const publishableApiKey = gatewayParams.publishable_api_key;
+    const stripeAccountId = gatewayParams?.stripe_account_id;
+    const publishableApiKey = gatewayParams?.publishable_api_key;
     const stripeLocale = StripeService.getStripeLocale(
       translator.bcp47Locale || translator.fallbackBcp47Locale,
     );
@@ -121,40 +116,41 @@
       viewport = "desktop";
     }
 
-    if (
-      !stripeAccountId ||
-      !publishableApiKey ||
-      !gatewayParams.elements_configuration
-    ) {
+    if (!stripeAccountId || !publishableApiKey) {
       throw new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase);
     }
+
+    const productDetails: Product = rcPackage.webBillingProduct;
+    const { priceBreakdown } =
+      resolveExpressCheckoutPricingDetails(productDetails, purchaseOption.id);
+    const elementsConfiguration: StripeElementsConfiguration = {
+      mode: StripeElementsMode.Payment,
+      payment_method_types: ["card"],
+      setup_future_usage: StripeElementsSetupFutureUsage.OffSession,
+      amount: StripeService.microsToMinimumAmountPrice(
+        priceBreakdown.totalAmountInMicros,
+        priceBreakdown.currency,
+      ),
+      currency: priceBreakdown.currency.toLowerCase(),
+    };
 
     const { stripe: stripeInstance, elements: elementsInstance } =
       await StripeService.initializeStripe(
         stripeAccountId,
         publishableApiKey,
-        gatewayParams.elements_configuration,
+        elementsConfiguration,
         brandingInfo,
         stripeLocale,
         stripeVariables,
         viewport,
       );
 
-    const productDetails: Product = rcPackage.webBillingProduct;
-    const { subscriptionOption, priceBreakdown } =
-      resolveExpressCheckoutPricingDetails(productDetails, purchaseOption.id);
-    const managementUrl = checkoutStartResponse.management_url;
-
-    const options =
-      StripeService.buildStripeExpressCheckoutOptionsForSubscription(
-        productDetails,
-        priceBreakdown,
-        subscriptionOption,
-        translator,
-        managementUrl,
-        2,
-        1,
-      );
+    const options = {
+      layout: {
+        maxRows: 2,
+        maxColumns: 1,
+      },
+    } as StripeExpressCheckoutConfiguration;
 
     return { stripeInstance, elementsInstance, expOptions: options };
   };
@@ -179,40 +175,26 @@
       return;
     }
     checkoutStarted = true;
-    managementUrl = null;
-
-    let checkoutStartResult: WebBillingCheckoutStartResponse | null = null;
+    let clientCredentialsResult: GetClientCredentialsResponse;
     try {
-      // TODO-WEB-3521: Use just the getCredentials to show the button and start the checkout only when the user clicks on the button;
-      checkoutStartResult = await purchaseOperationHelper.checkoutStart(
-        appUserId,
-        rcPackage.webBillingProduct.identifier,
-        purchaseOption,
-        rcPackage.webBillingProduct.presentedOfferingContext,
-        customerEmail,
-        metadata,
-      );
-
-      // TODO-WEB-3521: Do we need the customer portal link before completing the checkout?
-      // Might be needed in the native apple pay/google pay modal.
-      // In such case I need to add it to the backend.
-      managementUrl = checkoutStartResult.management_url;
+      clientCredentialsResult =
+        await purchaseOperationHelper.getClientCredentials();
     } catch (e) {
+      handleError(e as PurchaseFlowError);
       return;
     }
 
     try {
       if (!stripe || !elements) {
         const { stripeInstance, elementsInstance, expOptions } =
-          await initStripe(checkoutStartResult, rcPackage);
+          await initStripe(clientCredentialsResult, rcPackage);
         stripe = stripeInstance;
         elements = elementsInstance;
         expressCheckoutOptions = expOptions;
-      } else {
-        await updateStripe(checkoutStartResult, elements);
       }
     } catch (e) {
       handleError(e as PurchaseFlowError);
+      return;
     }
 
     isLoading = false;
@@ -220,7 +202,8 @@
 
   $effect(() => {
     checkoutStarted = false;
-    reInitPurchase().then(() => {});
+    reInitPurchase().then(() => {
+    });
   });
 
   const onStripeElementsLoadingError = (error: StripeServiceError) => {
@@ -347,9 +330,9 @@
     }
   };
 
-  const onExpressClicked = (event: StripeExpressCheckoutElementClickEvent) => {
-    // TODO-WEB-3521: Handle the express clicked event
-    // move the checkoutStart call here.
+  const onExpressClicked = (
+    event: StripeExpressCheckoutElementClickEvent,
+  ) => {
     const sessionStartEvent = createCheckoutSessionStartEvent({
       appearance: brandingInfo?.appearance,
       rcPackage,
@@ -359,25 +342,47 @@
     });
     eventsTracker.trackSDKEvent(sessionStartEvent);
     try {
-      const productDetails: Product = rcPackage.webBillingProduct;
-      if (!managementUrl) {
+      const checkoutStartResult =
+        await purchaseOperationHelper.checkoutStart(
+          appUserId,
+          rcPackage.webBillingProduct.identifier,
+          purchaseOption,
+          rcPackage.webBillingProduct.presentedOfferingContext,
+          customerEmail,
+          metadata,
+        );
+
+      const managementUrl = checkoutStartResult.management_url;
+
+      if (!elements) {
         throw new PurchaseFlowError(
           PurchaseFlowErrorCode.ErrorSettingUpPurchase,
         );
       }
-      const { subscriptionOption, priceBreakdown } =
-        resolveExpressCheckoutPricingDetails(productDetails, purchaseOption.id);
 
-      const options =
-        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
-          productDetails,
-          priceBreakdown,
-          subscriptionOption,
-          translator,
-          managementUrl,
-        );
+      updateStripe(checkoutStartResult, elements).then(() => {
+        const productDetails: Product = rcPackage.webBillingProduct;
+        if (!managementUrl) {
+          throw new PurchaseFlowError(
+            PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+          );
+        }
+        const { subscriptionOption, priceBreakdown } =
+          resolveExpressCheckoutPricingDetails(productDetails, purchaseOption.id);
 
-      event.resolve({ applePay: options.applePay } as ClickResolveDetails);
+        const options =
+          StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+            productDetails,
+            priceBreakdown,
+            subscriptionOption,
+            translator,
+            managementUrl,
+            2,
+            1,
+          );
+
+        event.resolve({ applePay: options.applePay } as ClickResolveDetails);
+      });
     } catch (error) {
       handleError(
         error instanceof PurchaseFlowError
