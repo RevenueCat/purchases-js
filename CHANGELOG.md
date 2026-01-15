@@ -1,3 +1,8 @@
+## 1.24.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Update svelte to fix CVE (#719) via James O'Donnell (@james-od)
+
 ## 1.24.0
 ## RevenueCat SDK
 ### 🐞 Bugfixes

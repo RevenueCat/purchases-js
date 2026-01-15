@@ -1,3 +1,3 @@
 ## RevenueCat SDK
 ### 🐞 Bugfixes
-* Properly close paywall when no target element is given (#717) via Toni Rico (@tonidero)
+* Update svelte to fix CVE (#719) via James O'Donnell (@james-od)
