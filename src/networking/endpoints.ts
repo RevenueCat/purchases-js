@@ -92,7 +92,7 @@ export class GetBrandingInfoEndpoint implements Endpoint {
 }
 
 export class CheckoutClientCredentials implements Endpoint {
-  method: HttpMethodType = "POST";
+  method: HttpMethodType = "GET";
   name: string = "getCheckoutClientCredentials";
 
   urlPath(): string {

@@ -1,6 +1,13 @@
 <script lang="ts">
-  import type { Package, Product, SubscriptionOption } from "../../entities/offerings";
-  import { PurchaseFlowError, PurchaseFlowErrorCode } from "../../helpers/purchase-operation-helper";
+  import type {
+    Package,
+    Product,
+    SubscriptionOption,
+  } from "../../entities/offerings";
+  import {
+    PurchaseFlowError,
+    PurchaseFlowErrorCode,
+  } from "../../helpers/purchase-operation-helper";
   import { type PriceBreakdown } from "../ui-types";
   import ExpressCheckoutElement from "../molecules/stripe-express-checkout-element.svelte";
   import { setContext } from "svelte";
@@ -10,7 +17,10 @@
     StripeExpressCheckoutElementConfirmEvent,
     StripeExpressCheckoutElementReadyEvent,
   } from "@stripe/stripe-js";
-  import { StripeService, StripeServiceError } from "../../stripe/stripe-service";
+  import {
+    StripeService,
+    StripeServiceError,
+  } from "../../stripe/stripe-service";
   import {
     type StripeElementsConfiguration,
     StripeElementsMode,
@@ -121,8 +131,10 @@
     }
 
     const productDetails: Product = rcPackage.webBillingProduct;
-    const { priceBreakdown } =
-      resolveExpressCheckoutPricingDetails(productDetails, purchaseOption.id);
+    const { priceBreakdown } = resolveExpressCheckoutPricingDetails(
+      productDetails,
+      purchaseOption.id,
+    );
     const elementsConfiguration: StripeElementsConfiguration = {
       mode: StripeElementsMode.Payment,
       payment_method_types: ["card"],
@@ -202,8 +214,7 @@
 
   $effect(() => {
     checkoutStarted = false;
-    reInitPurchase().then(() => {
-    });
+    reInitPurchase().then(() => {});
   });
 
   const onStripeElementsLoadingError = (error: StripeServiceError) => {
@@ -330,7 +341,7 @@
     }
   };
 
-  const onExpressClicked = (
+  const onExpressClicked = async (
     event: StripeExpressCheckoutElementClickEvent,
   ) => {
     const sessionStartEvent = createCheckoutSessionStartEvent({
@@ -342,15 +353,14 @@
     });
     eventsTracker.trackSDKEvent(sessionStartEvent);
     try {
-      const checkoutStartResult =
-        await purchaseOperationHelper.checkoutStart(
-          appUserId,
-          rcPackage.webBillingProduct.identifier,
-          purchaseOption,
-          rcPackage.webBillingProduct.presentedOfferingContext,
-          customerEmail,
-          metadata,
-        );
+      const checkoutStartResult = await purchaseOperationHelper.checkoutStart(
+        appUserId,
+        rcPackage.webBillingProduct.identifier,
+        purchaseOption,
+        rcPackage.webBillingProduct.presentedOfferingContext,
+        customerEmail,
+        metadata,
+      );
 
       const managementUrl = checkoutStartResult.management_url;
 
@@ -360,29 +370,28 @@
         );
       }
 
-      updateStripe(checkoutStartResult, elements).then(() => {
-        const productDetails: Product = rcPackage.webBillingProduct;
-        if (!managementUrl) {
-          throw new PurchaseFlowError(
-            PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-          );
-        }
-        const { subscriptionOption, priceBreakdown } =
-          resolveExpressCheckoutPricingDetails(productDetails, purchaseOption.id);
+      await updateStripe(checkoutStartResult, elements);
+      const productDetails: Product = rcPackage.webBillingProduct;
+      if (!managementUrl) {
+        throw new PurchaseFlowError(
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        );
+      }
+      const { subscriptionOption, priceBreakdown } =
+        resolveExpressCheckoutPricingDetails(productDetails, purchaseOption.id);
 
-        const options =
-          StripeService.buildStripeExpressCheckoutOptionsForSubscription(
-            productDetails,
-            priceBreakdown,
-            subscriptionOption,
-            translator,
-            managementUrl,
-            2,
-            1,
-          );
+      const options =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          productDetails,
+          priceBreakdown,
+          subscriptionOption,
+          translator,
+          managementUrl,
+          2,
+          1,
+        );
 
-        event.resolve({ applePay: options.applePay } as ClickResolveDetails);
-      });
+      return { applePay: options.applePay } as ClickResolveDetails;
     } catch (error) {
       handleError(
         error instanceof PurchaseFlowError
