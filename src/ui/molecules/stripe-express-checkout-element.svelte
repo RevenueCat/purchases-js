@@ -36,9 +36,7 @@
       emailValue: string,
       event: StripeExpressCheckoutElementConfirmEvent,
     ) => void | Promise<void>;
-    onClick?: (
-      event: StripeExpressCheckoutElementClickEvent,
-    ) => Promise<ClickResolveDetails | void> | ClickResolveDetails | void;
+    onClick?: (event: StripeExpressCheckoutElementClickEvent) => void;
     onCancel?: () => void;
     elements: StripeElements;
     billingAddressRequired: boolean;
@@ -74,19 +72,10 @@
   const onClickCallback = async (
     event: StripeExpressCheckoutElementClickEvent,
   ) => {
-    let options = {
+    const options = {
       ...(expressCheckoutOptions ? expressCheckoutOptions : {}),
     } as ClickResolveDetails;
-    if (onClick) {
-      try {
-        const resolvedOptions = await onClick(event);
-        if (resolvedOptions) {
-          options = resolvedOptions;
-        }
-      } catch {
-        // Fall back to existing options on click handler errors.
-      }
-    }
+    onClick && onClick(event);
     event.resolve(options);
   };
 

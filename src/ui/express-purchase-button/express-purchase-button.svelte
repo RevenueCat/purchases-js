@@ -341,9 +341,7 @@
     }
   };
 
-  const onExpressClicked = async (
-    event: StripeExpressCheckoutElementClickEvent,
-  ) => {
+  const startCheckout = async () => {
     const sessionStartEvent = createCheckoutSessionStartEvent({
       appearance: brandingInfo?.appearance,
       rcPackage,
@@ -398,7 +396,12 @@
           ? error
           : new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase),
       );
+      throw error;
     }
+  };
+
+  const onExpressClicked = (event: StripeExpressCheckoutElementClickEvent) => {
+    startCheckout().then((options) => event.resolve(options));
   };
 
   const onExpressCancelled = () => {
