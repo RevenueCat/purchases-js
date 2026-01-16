@@ -1,6 +1,8 @@
 export interface PriceResponse {
   amount_micros: number;
   currency: string;
+  discount_amount_micros: number | null;
+  discounted_amount_micros: number | null;
 }
 
 export interface PricingPhaseResponse {
@@ -12,6 +14,9 @@ export interface PricingPhaseResponse {
 export interface PurchaseOptionResponse {
   id: string;
   price_id: string;
+  discount_identifier: string | null;
+  discount_name: string | null;
+  discount_percentage: number | null;
 }
 
 export interface SubscriptionOptionResponse extends PurchaseOptionResponse {
