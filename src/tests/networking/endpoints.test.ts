@@ -121,7 +121,7 @@ describe("checkoutClientCredentials endpoint", () => {
   const endpoint = new CheckoutClientCredentials();
 
   test("uses correct method", () => {
-    expect(endpoint.method).toBe("POST");
+    expect(endpoint.method).toBe("GET");
   });
 
   test("has correct urlPath", () => {

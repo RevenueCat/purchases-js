@@ -79,7 +79,7 @@ describe("PurchaseOperationHelper", () => {
 
   function setGetClientCredentialsResponse(httpResponse: HttpResponse) {
     server.use(
-      http.post(
+      http.get(
         "http://localhost:8000/rcbilling/v1/checkout/credentials",
         () => {
           return httpResponse;
