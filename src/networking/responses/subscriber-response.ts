@@ -24,6 +24,7 @@ export interface SubscriberSubscriptionResponse {
   purchase_date: string;
   refunded_at?: string | null;
   store: Store;
+  management_url?: string | null;
   store_transaction_id?: string | null;
   unsubscribe_detected_at: string | null;
   ownership_type?: OwnershipType | null;

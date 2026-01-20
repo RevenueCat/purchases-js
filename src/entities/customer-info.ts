@@ -228,6 +228,10 @@ export interface SubscriptionInfo {
    */
   readonly storeTransactionId: string | null;
   /**
+   * URL to manage this subscription, if available.
+   */
+  readonly managementURL: string | null;
+  /**
    * Whether the subscription is currently active
    * (at the time this object was obtained).
    */
@@ -481,6 +485,7 @@ export function toCustomerInfo(
             periodType: response.period_type,
             refundedAt: toDateIfNotNull(response.refunded_at),
             storeTransactionId: response.store_transaction_id || null,
+            managementURL: response.management_url ?? null,
             isActive: isActive(response.expires_date),
             willRenew: getWillRenew(response.expires_date, response),
           },
