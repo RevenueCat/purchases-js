@@ -6,6 +6,7 @@ import type {
 } from "./entities/offerings";
 import PurchasesUi from "./ui/purchases-ui.svelte";
 import PaddlePurchasesUi from "./ui/paddle-purchases-ui.svelte";
+import { initCore, add } from "./core";
 
 import { type CustomerInfo, toCustomerInfo } from "./entities/customer-info";
 import {
@@ -349,6 +350,17 @@ export class Purchases {
     const finalFlags = flags ?? defaultFlagsConfig;
 
     Purchases.validateConfig(config);
+
+    // Initialize Rust WASM core and call add() to verify integration
+    initCore()
+      .then(() => {
+        const rustResult = add(BigInt(2), BigInt(3));
+        Logger.infoLog(`Rust add(2, 3) = ${rustResult}`);
+      })
+      .catch((error) => {
+        Logger.errorLog(`Failed to initialize Rust core: ${error}`);
+      });
+
     Purchases.instance = new Purchases(
       apiKey,
       appUserId,
