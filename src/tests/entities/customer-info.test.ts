@@ -71,6 +71,8 @@ describe("customer info parsing", () => {
             expires_date: "2124-02-07T13:46:23Z",
             grace_period_expires_date: null,
             is_sandbox: true,
+            management_url:
+              "https://test-management-url.revenuecat.com/manage/weekly_test",
             original_purchase_date: "2024-01-24T13:46:23Z",
             period_type: "normal",
             purchase_date: "2024-01-31T13:46:23Z",
@@ -151,6 +153,8 @@ describe("customer info parsing", () => {
           refundedAt: null,
           storeTransactionId:
             "txRcb1486347e9afce2143eec187a781f82e8..1706708783",
+          managementURL:
+            "https://test-management-url.revenuecat.com/manage/weekly_test",
           isActive: true,
           willRenew: true,
         },
@@ -218,6 +222,7 @@ describe("customer info parsing", () => {
           pro: {
             billing_issues_detected_at: null,
             is_sandbox: true,
+            management_url: "https://apps.apple.com/account/subscriptions",
             original_purchase_date: "2019-07-26T23:30:41Z",
             purchase_date: "2019-07-26T23:45:40Z",
             product_plan_identifier: "monthly",
@@ -229,6 +234,7 @@ describe("customer info parsing", () => {
           basic: {
             billing_issues_detected_at: null,
             is_sandbox: true,
+            management_url: "https://apps.apple.com/account/subscriptions",
             original_purchase_date: "2019-07-26T23:30:41Z",
             purchase_date: "2019-07-26T23:45:40Z",
             product_plan_identifier: "monthly",
@@ -408,6 +414,7 @@ describe("customer info parsing", () => {
           gracePeriodExpiresDate: null,
           isActive: false,
           isSandbox: true,
+          managementURL: "https://apps.apple.com/account/subscriptions",
           originalPurchaseDate: new Date("2019-07-26T23:30:41Z"),
           ownershipType: "UNKNOWN",
           periodType: "normal",
@@ -425,6 +432,7 @@ describe("customer info parsing", () => {
           gracePeriodExpiresDate: null,
           isActive: true,
           isSandbox: true,
+          managementURL: "https://apps.apple.com/account/subscriptions",
           originalPurchaseDate: new Date("2019-07-26T23:30:41Z"),
           ownershipType: "UNKNOWN",
           periodType: "normal",
@@ -470,6 +478,8 @@ describe("customer info parsing", () => {
             expires_date: "2124-02-07T13:46:23Z",
             grace_period_expires_date: null,
             is_sandbox: true,
+            management_url:
+              "https://test-management-url.revenuecat.com/manage/paddle_weekly_test",
             original_purchase_date: "2024-01-24T13:46:23Z",
             period_type: "normal",
             purchase_date: "2024-01-31T13:46:23Z",
@@ -545,6 +555,8 @@ describe("customer info parsing", () => {
           isSandbox: true,
           billingIssuesDetectedAt: null,
           gracePeriodExpiresDate: null,
+          managementURL:
+            "https://test-management-url.revenuecat.com/manage/paddle_weekly_test",
           ownershipType: "UNKNOWN",
           periodType: "normal",
           refundedAt: null,
