@@ -539,6 +539,7 @@ export interface SubscriptionInfo {
     readonly gracePeriodExpiresDate: Date | null;
     readonly isActive: boolean;
     readonly isSandbox: boolean;
+    readonly managementURL: string | null;
     readonly originalPurchaseDate: Date | null;
     readonly ownershipType: OwnershipType;
     readonly periodType: PeriodType;
