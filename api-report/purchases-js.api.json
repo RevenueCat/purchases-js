@@ -8785,6 +8785,33 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!SubscriptionInfo#managementURL:member",
+              "docComment": "/**\n * URL to manage this subscription, if available.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly managementURL: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "managementURL",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!SubscriptionInfo#originalPurchaseDate:member",
               "docComment": "/**\n * Date when this subscription first started. This property does not update with renewals. This property also does not update for product changes within a subscription group or re-subscriptions by lapsed subscribers.\n */\n",
               "excerptTokens": [
