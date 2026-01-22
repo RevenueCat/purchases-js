@@ -2,6 +2,7 @@
   import type {
     Package,
     Product,
+    PurchaseOption,
     SubscriptionOption,
   } from "../../entities/offerings";
   import {
@@ -22,9 +23,8 @@
     StripeServiceError,
   } from "../../stripe/stripe-service";
   import {
+    type GatewayParams,
     type StripeElementsConfiguration,
-    StripeElementsMode,
-    StripeElementsSetupFutureUsage,
   } from "../../networking/responses/stripe-elements";
   import { DEFAULT_FONT_FAMILY } from "../theme/text";
   import { writable } from "svelte/store";
@@ -32,8 +32,6 @@
   import { brandingContextKey } from "../constants";
   import type { StripeExpressCheckoutConfiguration } from "../../stripe/stripe-express-checkout-configuration";
   import { getInitialPriceFromPurchaseOption } from "../../helpers/purchase-option-price-helper";
-  import type { WebBillingCheckoutStartResponse } from "../../networking/responses/checkout-start-response";
-  import type { GetClientCredentialsResponse } from "../../networking/responses/get-client-credentials-response";
 
   import type { ExpressPurchaseButtonProps } from "./express-purchase-button-props";
   import type {
@@ -50,6 +48,7 @@
     createCheckoutSessionStartEvent,
   } from "../../behavioural-events/sdk-event-helpers";
   import type { SDKEventPurchaseMode } from "../../behavioural-events/event";
+  import type { CheckoutPrepareResponse } from "../../networking/responses/checkout-prepare-response";
 
   const {
     customerEmail,
@@ -90,15 +89,59 @@
     onError(error);
   };
 
-  const initStripe = async (
-    clientCredentialsResponse: GetClientCredentialsResponse,
+  const toExpressPurchaseOptions = (
     rcPackage: Package,
+    purchaseOption: PurchaseOption,
+    managementUrl: string,
   ) => {
-    const gatewayParams = clientCredentialsResponse.stripe_gateway_params;
+    const productDetails: Product = rcPackage.webBillingProduct;
+    const { subscriptionOption, priceBreakdown } =
+      resolveExpressCheckoutPricingDetails(productDetails, purchaseOption.id);
+
+    return StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+      productDetails,
+      priceBreakdown,
+      subscriptionOption,
+      translator,
+      managementUrl,
+      2,
+      1,
+    );
+  };
+
+  const updateStripe = async (
+    elements: StripeElements,
+    gatewayParams: GatewayParams,
+    managementUrl: string,
+    rcPackage: Package,
+    purchaseOption: PurchaseOption,
+  ) => {
+    if (!gatewayParams.elements_configuration) {
+      throw new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase);
+    }
+
+    StripeService.updateElementsConfiguration(
+      elements,
+      gatewayParams.elements_configuration,
+    );
+
+    const options = toExpressPurchaseOptions(
+      rcPackage,
+      purchaseOption,
+      managementUrl,
+    );
+    return { expOptions: options };
+  };
+
+  const initStripe = async (gatewayParams: GatewayParams) => {
+    if (!gatewayParams.elements_configuration) {
+      throw new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase);
+    }
+
     // Aiming for a pure function so that it can be extracted
     // Not assigning any state variable in here.
-    const stripeAccountId = gatewayParams?.stripe_account_id;
-    const publishableApiKey = gatewayParams?.publishable_api_key;
+    const stripeAccountId = gatewayParams.stripe_account_id;
+    const publishableApiKey = gatewayParams.publishable_api_key;
     const stripeLocale = StripeService.getStripeLocale(
       translator.bcp47Locale || translator.fallbackBcp47Locale,
     );
@@ -130,21 +173,8 @@
       throw new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase);
     }
 
-    const productDetails: Product = rcPackage.webBillingProduct;
-    const { priceBreakdown } = resolveExpressCheckoutPricingDetails(
-      productDetails,
-      purchaseOption.id,
-    );
-    const elementsConfiguration: StripeElementsConfiguration = {
-      mode: StripeElementsMode.Payment,
-      payment_method_types: ["card"],
-      setup_future_usage: StripeElementsSetupFutureUsage.OffSession,
-      amount: StripeService.microsToMinimumAmountPrice(
-        priceBreakdown.totalAmountInMicros,
-        priceBreakdown.currency,
-      ),
-      currency: priceBreakdown.currency.toLowerCase(),
-    };
+    const elementsConfiguration: StripeElementsConfiguration =
+      gatewayParams.elements_configuration;
 
     const { stripe: stripeInstance, elements: elementsInstance } =
       await StripeService.initializeStripe(
@@ -157,28 +187,9 @@
         viewport,
       );
 
-    const options = {
-      layout: {
-        maxRows: 2,
-        maxColumns: 1,
-      },
-    } as StripeExpressCheckoutConfiguration;
+    const options = toExpressPurchaseOptions(rcPackage, purchaseOption, "");
 
     return { stripeInstance, elementsInstance, expOptions: options };
-  };
-
-  const updateStripe = async (
-    checkoutStartResponse: WebBillingCheckoutStartResponse,
-    elements: StripeElements,
-  ) => {
-    if (!checkoutStartResponse.gateway_params?.elements_configuration) {
-      throw new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase);
-    }
-
-    StripeService.updateElementsConfiguration(
-      elements,
-      checkoutStartResponse.gateway_params.elements_configuration,
-    );
   };
 
   let checkoutStarted = false;
@@ -187,21 +198,37 @@
       return;
     }
     checkoutStarted = true;
-    let clientCredentialsResult: GetClientCredentialsResponse;
+    let prepareCheckoutResponse: CheckoutPrepareResponse;
     try {
-      clientCredentialsResult =
-        await purchaseOperationHelper.getClientCredentials();
+      prepareCheckoutResponse = await purchaseOperationHelper.prepareCheckout(
+        rcPackage.webBillingProduct.identifier,
+        purchaseOption,
+      );
     } catch (e) {
       handleError(e as PurchaseFlowError);
+      return;
+    }
+
+    if (!prepareCheckoutResponse.stripe_gateway_params) {
+      // TODO: Raise no stripe gateway params error.
       return;
     }
 
     try {
       if (!stripe || !elements) {
         const { stripeInstance, elementsInstance, expOptions } =
-          await initStripe(clientCredentialsResult, rcPackage);
+          await initStripe(prepareCheckoutResponse.stripe_gateway_params);
         stripe = stripeInstance;
         elements = elementsInstance;
+        expressCheckoutOptions = expOptions;
+      } else {
+        const { expOptions } = await updateStripe(
+          elements,
+          prepareCheckoutResponse.stripe_gateway_params,
+          "",
+          rcPackage,
+          purchaseOption,
+        );
         expressCheckoutOptions = expOptions;
       }
     } catch (e) {
@@ -368,26 +395,13 @@
         );
       }
 
-      await updateStripe(checkoutStartResult, elements);
-      const productDetails: Product = rcPackage.webBillingProduct;
-      if (!managementUrl) {
-        throw new PurchaseFlowError(
-          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-        );
-      }
-      const { subscriptionOption, priceBreakdown } =
-        resolveExpressCheckoutPricingDetails(productDetails, purchaseOption.id);
-
-      const options =
-        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
-          productDetails,
-          priceBreakdown,
-          subscriptionOption,
-          translator,
-          managementUrl,
-          2,
-          1,
-        );
+      const { expOptions: options } = await updateStripe(
+        elements,
+        checkoutStartResult.gateway_params,
+        managementUrl,
+        rcPackage,
+        purchaseOption,
+      );
 
       return { applePay: options.applePay } as ClickResolveDetails;
     } catch (error) {

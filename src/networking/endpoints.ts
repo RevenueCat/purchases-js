@@ -100,6 +100,15 @@ export class CheckoutClientCredentials implements Endpoint {
   }
 }
 
+export class CheckoutPrepareEndpoint implements Endpoint {
+  method: HttpMethodType = "POST";
+  name: string = "postCheckoutPrepare";
+
+  urlPath(): string {
+    return `${RC_BILLING_PATH}/checkout/prepare`;
+  }
+}
+
 export class CheckoutStartEndpoint implements Endpoint {
   method: HttpMethodType = "POST";
   name: string = "postCheckoutStart";

@@ -26,6 +26,7 @@ import type { CheckoutCompleteResponse } from "../networking/responses/checkout-
 import type { CheckoutCalculateTaxResponse } from "../networking/responses/checkout-calculate-tax-response";
 import { handleCheckoutSessionFailed } from "./checkout-error-handler";
 import type { GetClientCredentialsResponse } from "../networking/responses/get-client-credentials-response";
+import type { CheckoutPrepareResponse } from "../networking/responses/checkout-prepare-response";
 
 export enum PurchaseFlowErrorCode {
   ErrorSettingUpPurchase = 0,
@@ -144,6 +145,33 @@ export class PurchaseOperationHelper {
       } else {
         const errorMessage =
           "Unknown error downloading credentials " + String(error);
+        Logger.errorLog(errorMessage);
+        throw new PurchaseFlowError(
+          PurchaseFlowErrorCode.UnknownError,
+          errorMessage,
+        );
+      }
+    }
+  }
+
+  async prepareCheckout(
+    productId: string,
+    purchaseOption: PurchaseOption,
+  ): Promise<CheckoutPrepareResponse> {
+    try {
+      return await this.backend.postCheckoutPrepare<CheckoutPrepareResponse>(
+        productId,
+        purchaseOption,
+      );
+    } catch (error) {
+      if (error instanceof PurchasesError) {
+        throw PurchaseFlowError.fromPurchasesError(
+          error,
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        );
+      } else {
+        const errorMessage =
+          "Unknown error preparing purchase: " + String(error);
         Logger.errorLog(errorMessage);
         throw new PurchaseFlowError(
           PurchaseFlowErrorCode.UnknownError,
