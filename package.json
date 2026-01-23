@@ -41,7 +41,7 @@
     "build:dev": "tsc && vite build --mode development",
     "build:dev-watch": "tsc && vite build --mode development --watch",
     "preview": "vite preview",
-    "lint": "prettier --check .",
+    "lint": "prettier --check . && eslint src/",
     "format": "prettier --write .",
     "pack-build": "npm run build && npm pack",
     "test": "vitest run",
