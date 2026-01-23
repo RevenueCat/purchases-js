@@ -17,8 +17,8 @@ importers:
         specifier: ^1.5.1
         version: 1.5.1
       "@revenuecat/purchases-ui-js":
-        specifier: 3.6.1
-        version: 3.6.1(svelte@5.46.4)
+        specifier: 3.6.2
+        version: 3.6.2(svelte@5.46.4)
       "@storybook/addon-essentials":
         specifier: ^8.5.0
         version: 8.6.4(@types/react@19.0.10)(storybook@8.6.4(prettier@3.4.2))
@@ -716,10 +716,10 @@ packages:
       }
     engines: { node: ^12.20.0 || ^14.18.0 || >=16.0.0 }
 
-  "@revenuecat/purchases-ui-js@3.6.1":
+  "@revenuecat/purchases-ui-js@3.6.2":
     resolution:
       {
-        integrity: sha512-SX2imkwN5Q+vCTF6hGhtdlK3idkXkIQC0q+dsnbaw3U5x459EEQ1xx2QMaOewB2Wo8UEVxc4gjr5tv75A2Javw==,
+        integrity: sha512-bgq5Ysjcl0FAXo2A+DGtL012aVeMX04UducnXsQJK/FWAdN8a9IlJdHvgu2NwXMimQPHhZtf/WNv1cuyed6IEA==,
       }
     engines: { node: ^22.18 || ^24.11 }
     peerDependencies:
@@ -6149,7 +6149,7 @@ snapshots:
 
   "@pkgr/core@0.1.1": {}
 
-  "@revenuecat/purchases-ui-js@3.6.1(svelte@5.46.4)":
+  "@revenuecat/purchases-ui-js@3.6.2(svelte@5.46.4)":
     dependencies:
       qrcode: 1.5.4
       svelte: 5.46.4
