@@ -27,7 +27,12 @@ export function buildEventContext(
   source: SDKEventContextSource,
   rcSource: string | null,
 ): SDKEventContext & EventContext {
-  const urlParams = new URLSearchParams(window.location.search);
+  // Guard against environments where window.location is not available
+  const hasWindowLocation = typeof window !== "undefined" && window.location;
+  const urlParams = hasWindowLocation
+    ? new URLSearchParams(window.location.search)
+    : new URLSearchParams();
+
   let screenWidth: number | null = null;
   let screenHeight: number | null = null;
   if (typeof screen !== "undefined" && screen) {
@@ -55,7 +60,9 @@ export function buildEventContext(
     utmContent: urlParams.get("utm_content") ?? null,
     utmTerm: urlParams.get("utm_term") ?? null,
     pageReferrer: pageReferrer,
-    pageUrl: `${window.location.origin}${window.location.pathname}`,
+    pageUrl: hasWindowLocation
+      ? `${window.location.origin}${window.location.pathname}`
+      : "",
     pageTitle: pageTitle,
     source: source,
     rcSource: rcSource,
