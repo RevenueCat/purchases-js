@@ -32,7 +32,12 @@ export default [
     },
   },
   {
-    files: ["**/*.test.{js,ts}", "**/tests/**/*.{js,ts}", "**/vitest.setup.js"],
+    files: [
+      "**/*.test.{js,ts}",
+      "**/tests/**/*.{js,ts}",
+      "**/vitest.setup.js",
+      "examples/webbilling-demo/**/*.{js,ts,jsx,tsx}",
+    ],
     rules: {
       "no-restricted-globals": "off",
     },
