@@ -1,3 +1,3 @@
 ## RevenueCat SDK
 ### 🐞 Bugfixes
-* Update svelte to fix CVE (#719) via James O'Donnell (@james-od)
+* Web 3663: Fix showing text for intro offers also when only trials are defined in Paywalls (#734) via Nicola Sacco (@nicfix)

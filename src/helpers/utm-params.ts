@@ -1,5 +1,9 @@
 export const autoParseUTMParams = () => {
-  const params = new URLSearchParams(window.location.search);
+  // Guard against environments where window.location is not available
+  const hasWindowLocation = typeof window !== "undefined" && window.location;
+  const params = hasWindowLocation
+    ? new URLSearchParams(window.location.search)
+    : new URLSearchParams();
 
   const possibleParams = [
     "utm_source",
