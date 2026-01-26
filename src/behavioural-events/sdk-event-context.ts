@@ -1,5 +1,9 @@
 import { VERSION } from "../helpers/constants";
 import { type EventContext } from "./event";
+import {
+  getNullableDocument,
+  getNullableWindow,
+} from "../helpers/browser-globals";
 
 export type SDKEventContextSource = "sdk" | "wpl" | string;
 
@@ -28,9 +32,9 @@ export function buildEventContext(
   rcSource: string | null,
 ): SDKEventContext & EventContext {
   // Guard against environments where window.location is not available
-  const hasWindowLocation = typeof window !== "undefined" && window.location;
-  const urlParams = hasWindowLocation
-    ? new URLSearchParams(window.location.search)
+  const win = getNullableWindow();
+  const urlParams = win?.location
+    ? new URLSearchParams(win.location.search)
     : new URLSearchParams();
 
   let screenWidth: number | null = null;
@@ -39,12 +43,10 @@ export function buildEventContext(
     screenWidth = screen.width;
     screenHeight = screen.height;
   }
-  let pageReferrer: string | null = null;
-  let pageTitle: string | null = null;
-  if (typeof document !== "undefined" && document) {
-    pageReferrer = document.referrer;
-    pageTitle = document.title;
-  }
+
+  const doc = getNullableDocument();
+  const pageReferrer = doc?.referrer ?? null;
+  const pageTitle = doc?.title ?? null;
 
   return {
     libraryName: "purchases-js",
@@ -60,8 +62,8 @@ export function buildEventContext(
     utmContent: urlParams.get("utm_content") ?? null,
     utmTerm: urlParams.get("utm_term") ?? null,
     pageReferrer: pageReferrer,
-    pageUrl: hasWindowLocation
-      ? `${window.location.origin}${window.location.pathname}`
+    pageUrl: win?.location
+      ? `${win.location.origin}${win.location.pathname}`
       : "",
     pageTitle: pageTitle,
     source: source,
