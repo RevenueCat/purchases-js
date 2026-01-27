@@ -6,6 +6,7 @@ import SimulatedStoreModal from "../ui/molecules/simulated-store-modal.svelte";
 import type { Backend } from "../networking/backend";
 import { postSimulatedStoreReceipt } from "./simulated-store-post-receipt-helper";
 import { Logger } from "./logger";
+import { getDocument } from "./browser-globals";
 
 export function purchaseSimulatedStoreProduct(
   purchaseParams: PurchaseParams,
@@ -27,14 +28,15 @@ export function purchaseSimulatedStoreProduct(
 
   return new Promise((resolve, reject) => {
     // Create a container for the modal
-    const container = document.createElement("div");
-    document.body.appendChild(container);
+    const doc = getDocument();
+    const container = doc.createElement("div");
+    doc.body.appendChild(container);
 
     const cleanup = () => {
       if (component) {
         unmount(component);
       }
-      document.body.removeChild(container);
+      doc.body.removeChild(container);
     };
 
     let component: ReturnType<typeof mount> | null = null;

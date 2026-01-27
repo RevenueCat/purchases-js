@@ -1,5 +1,11 @@
+import { getNullableWindow } from "./browser-globals";
+
 export const autoParseUTMParams = () => {
-  const params = new URLSearchParams(window.location.search);
+  // Guard against environments where window.location is not available
+  const win = getNullableWindow();
+  const params = win?.location
+    ? new URLSearchParams(win.location.search)
+    : new URLSearchParams();
 
   const possibleParams = [
     "utm_source",

@@ -73,4 +73,34 @@ describe("buildEventContext", () => {
       rcSource: "rcSource",
     });
   });
+
+  it("should handle missing window.location gracefully", () => {
+    const originalWindow = global.window;
+    // @ts-expect-error - Simulating missing window.location
+    delete global.window.location;
+
+    const context = buildEventContext("sdk", "testSource");
+
+    expect(context).toEqual({
+      libraryName: "purchases-js",
+      libraryVersion: VERSION,
+      locale: "en-US",
+      userAgent: "Mozilla/5.0",
+      timeZone: "America/New_York",
+      screenWidth: 1920,
+      screenHeight: 1080,
+      utmSource: null,
+      utmMedium: null,
+      utmCampaign: null,
+      utmContent: null,
+      utmTerm: null,
+      pageReferrer: "https://referrer.com",
+      pageUrl: "",
+      pageTitle: "Example Page",
+      source: "sdk",
+      rcSource: "testSource",
+    });
+
+    global.window = originalWindow;
+  });
 });

@@ -2,6 +2,17 @@ import { describe, expect, test, vi } from "vitest";
 import { autoParseUTMParams } from "../../helpers/utm-params";
 
 describe("autoParseUTMParams", () => {
+  test("Returns an empty object if window.location is undefined", () => {
+    const originalWindow = global.window;
+    // @ts-expect-error - Simulating missing window.location
+    delete global.window.location;
+
+    const utmParams = autoParseUTMParams();
+    expect(utmParams).toEqual({});
+
+    global.window = originalWindow;
+  });
+
   test("Returns an empty object if no utm param is set", () => {
     vi.spyOn(URLSearchParams.prototype, "get").mockImplementation(() => null);
     const utmParams = autoParseUTMParams();
