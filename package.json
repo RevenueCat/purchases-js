@@ -60,7 +60,7 @@
     "@eslint/js": "^9.16.0",
     "@microsoft/api-extractor": "^7.48.0",
     "@paddle/paddle-js": "^1.5.1",
-    "@revenuecat/purchases-ui-js": "3.6.2",
+    "@revenuecat/purchases-ui-js": "3.6.3",
     "@storybook/addon-essentials": "^8.5.0",
     "@storybook/addon-interactions": "^8.5.0",
     "@storybook/addon-links": "^8.5.0",
