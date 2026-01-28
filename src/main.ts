@@ -104,6 +104,7 @@ import type {
   PresentExpressPurchaseButtonParams,
 } from "./entities/present-express-purchase-button-params";
 import { ExpressPurchaseButtonWrapper } from "./ui/express-purchase-button/express-purchase-button-wrapper.svelte";
+import { getWindow, getDocument } from "./helpers/browser-globals";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -464,12 +465,12 @@ export class Purchases {
     const htmlTarget = paywallParams.htmlTarget;
     let wasRootAutoCreated = false;
 
-    let resolvedHTMLTarget =
-      htmlTarget ?? document.getElementById("rcb-ui-pw-root");
+    const doc = getDocument();
+    let resolvedHTMLTarget = htmlTarget ?? doc.getElementById("rcb-ui-pw-root");
 
     if (resolvedHTMLTarget === null) {
       wasRootAutoCreated = true;
-      const element = document.createElement("div");
+      const element = doc.createElement("div");
       element.id = "rcb-ui-pw-root";
       element.className = "rcb-ui-pw-root";
       // one point less than the purchase flow modal.
@@ -481,14 +482,14 @@ export class Purchases {
       element.style.height = "100%";
       element.style.overflow = "auto";
       element.style.backgroundColor = "rgba(0, 0, 0, 0.4)";
-      if (document.body.offsetWidth > 968) {
+      if (doc.body.offsetWidth > 968) {
         element.style.display = "flex";
         element.style.justifyContent = "center";
         element.style.alignItems = "center";
       }
       element.style.transition = "opacity 0.3s";
       element.style.opacity = "0";
-      document.body.appendChild(element);
+      doc.body.appendChild(element);
       resolvedHTMLTarget = element;
     }
 
@@ -598,7 +599,8 @@ export class Purchases {
 
       // Opinionated approach:
       // navigating to the URL in a new tab.
-      window.open(url, "_blank")?.focus();
+      const win = getWindow();
+      win.open(url, "_blank")?.focus();
     };
 
     const onRestorePurchasesClicked = () => {
@@ -1036,8 +1038,9 @@ export class Purchases {
     const isInElement = htmlTarget !== undefined;
 
     return new Promise((resolve, reject) => {
+      const win = getWindow();
       if (!isInElement) {
-        window.history.pushState({ checkoutOpen: true }, "");
+        win.history.pushState({ checkoutOpen: true }, "");
       }
 
       const unmountPurchaseUi = () => {
@@ -1053,7 +1056,7 @@ export class Purchases {
       );
 
       if (!isInElement && onClose) {
-        window.addEventListener("popstate", onClose as EventListener);
+        win.addEventListener("popstate", onClose as EventListener);
       }
 
       const onFinished = this.createCheckoutOnFinishedHandler(
@@ -1147,8 +1150,9 @@ export class Purchases {
     const isInElement = htmlTarget !== undefined;
 
     return new Promise((resolve, reject) => {
+      const win = getWindow();
       if (!isInElement) {
-        window.history.pushState({ checkoutOpen: true }, "");
+        win.history.pushState({ checkoutOpen: true }, "");
       }
 
       const unmountPaddlePurchaseUi = () => {
@@ -1209,13 +1213,13 @@ export class Purchases {
    * If no element is found, creates a new div with className "rcb-ui-root".
    */
   private resolveHTMLTarget(htmlTarget?: HTMLElement): HTMLElement {
-    let resolvedHTMLTarget =
-      htmlTarget ?? document.getElementById("rcb-ui-root");
+    const doc = getDocument();
+    let resolvedHTMLTarget = htmlTarget ?? doc.getElementById("rcb-ui-root");
 
     if (resolvedHTMLTarget === null) {
-      const element = document.createElement("div");
+      const element = doc.createElement("div");
       element.className = "rcb-ui-root";
-      document.body.appendChild(element);
+      doc.body.appendChild(element);
       resolvedHTMLTarget = element;
     }
 
@@ -1242,7 +1246,8 @@ export class Purchases {
     const onClose = () => {
       const event = createCheckoutSessionEndClosedEvent();
       this.eventsTracker.trackSDKEvent(event);
-      window.removeEventListener("popstate", onClose as EventListener);
+      const win = getWindow();
+      win.removeEventListener("popstate", onClose as EventListener);
 
       callback?.();
 
