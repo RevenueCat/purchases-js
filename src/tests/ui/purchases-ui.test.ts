@@ -14,12 +14,16 @@ import { type PurchaseOperationHelper } from "../../helpers/purchase-operation-h
 import { createEventsTrackerMock } from "../mocks/events-tracker-mock-provider";
 import type { CheckoutStartResponse } from "../../networking/responses/checkout-start-response";
 import type { CheckoutCalculateTaxResponse } from "../../networking/responses/checkout-calculate-tax-response";
-import { checkoutCompleteResponse } from "../test-responses";
+import {
+  checkoutCompleteResponse,
+  checkoutPrepareResponse,
+} from "../test-responses";
 import type { CheckoutCompleteResponse } from "../../networking/responses/checkout-complete-response";
 
 const eventsTrackerMock = createEventsTrackerMock();
 
 const purchaseOperationHelperMock: PurchaseOperationHelper = {
+  prepareCheckout: async () => Promise.resolve(checkoutPrepareResponse),
   checkoutStart: async () =>
     Promise.resolve(checkoutStartResponse as CheckoutStartResponse),
   checkoutCalculateTax: async () =>
