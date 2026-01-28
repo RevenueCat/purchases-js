@@ -1,6 +1,6 @@
 <script module lang="ts">
   import PricingTable from "../../ui/molecules/pricing-table.svelte";
-  import { defineMeta, type StoryContext } from "@storybook/addon-svelte-csf";
+  import { defineMeta } from "@storybook/addon-svelte-csf";
   import { renderInsideNavbarBody } from "../decorators/layout-decorators";
   import { brandingModes } from "../../../.storybook/modes";
   import {
@@ -9,6 +9,8 @@
     priceBreakdownTaxLoading,
     priceBreakdownTaxPending,
     subscriptionOption,
+    subscriptionOptionWithDiscountPrice,
+    subscriptionOptionWithDiscountPriceForever,
     subscriptionOptionWithTrial,
   } from "../fixtures";
   import {
@@ -16,7 +18,6 @@
     getPriceBreakdownTaxExclusive,
     getPriceBreakdownTaxInclusive,
   } from "../helpers/get-price-breakdown";
-  import type { ComponentProps } from "svelte";
 
   let { Story } = defineMeta({
     component: PricingTable,
@@ -28,20 +29,15 @@
         modes: brandingModes,
       },
     },
-    // @ts-expect-error ignore importing before initializing
-    render: template,
+    args: {
+      priceBreakdown: getPriceBreakdownTaxDisabled(subscriptionOption),
+      trialPhase: null,
+      basePhase: null,
+      promotionalPricePhase: null,
+      hasDiscount: false,
+    },
   });
-  type Args = ComponentProps<typeof PricingTable>;
-  type Context = StoryContext<typeof PricingTable>;
 </script>
-
-{#snippet template(args: Args, _context: Context)}
-  <PricingTable
-    priceBreakdown={args.priceBreakdown ??
-      getPriceBreakdownTaxDisabled(subscriptionOption)}
-    trialPhase={args.trialPhase ?? null}
-  />
-{/snippet}
 
 <Story name="Disabled Tax" />
 <Story
@@ -110,5 +106,74 @@
   args={{
     priceBreakdown: priceBreakdownTaxExclusiveWithMultipleTaxItems,
     trialPhase: subscriptionOptionWithTrial.trial,
+  }}
+/>
+<Story
+  name="Disabled Tax Discount"
+  args={{
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithDiscountPrice,
+    ),
+    basePhase: subscriptionOptionWithDiscountPrice.base,
+    promotionalPricePhase: subscriptionOptionWithDiscountPrice.discountPrice,
+    hasDiscount: true,
+  }}
+/>
+<Story
+  name="Disabled Tax Forever Discount"
+  args={{
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithDiscountPriceForever,
+    ),
+    basePhase: subscriptionOptionWithDiscountPriceForever.base,
+    promotionalPricePhase:
+      subscriptionOptionWithDiscountPriceForever.discountPrice,
+    hasDiscount: true,
+  }}
+/>
+<Story
+  name="Tax Inclusive Discount"
+  args={{
+    priceBreakdown: getPriceBreakdownTaxInclusive(
+      subscriptionOptionWithDiscountPrice,
+    ),
+    basePhase: subscriptionOptionWithDiscountPrice.base,
+    promotionalPricePhase: subscriptionOptionWithDiscountPrice.discountPrice,
+    hasDiscount: true,
+  }}
+/>
+<Story
+  name="Tax Inclusive Forever Discount"
+  args={{
+    priceBreakdown: getPriceBreakdownTaxInclusive(
+      subscriptionOptionWithDiscountPriceForever,
+    ),
+    basePhase: subscriptionOptionWithDiscountPriceForever.base,
+    promotionalPricePhase:
+      subscriptionOptionWithDiscountPriceForever.discountPrice,
+    hasDiscount: true,
+  }}
+/>
+<Story
+  name="Tax Exclusive Discount"
+  args={{
+    priceBreakdown: getPriceBreakdownTaxExclusive(
+      subscriptionOptionWithDiscountPrice,
+    ),
+    basePhase: subscriptionOptionWithDiscountPrice.base,
+    promotionalPricePhase: subscriptionOptionWithDiscountPrice.discountPrice,
+    hasDiscount: true,
+  }}
+/>
+<Story
+  name="Tax Exclusive Forever Discount"
+  args={{
+    priceBreakdown: getPriceBreakdownTaxExclusive(
+      subscriptionOptionWithDiscountPriceForever,
+    ),
+    basePhase: subscriptionOptionWithDiscountPriceForever.base,
+    promotionalPricePhase:
+      subscriptionOptionWithDiscountPriceForever.discountPrice,
+    hasDiscount: true,
   }}
 />

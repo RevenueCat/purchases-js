@@ -4,6 +4,7 @@
   export let basePrice: string;
   export let freeTrialPeriod: string | undefined = undefined;
   export let introPriceFormatted: string | undefined = undefined;
+  export let discountPriceFormatted: string | undefined = undefined;
   export let onValidPurchase: () => void;
   export let onFailedPurchase: () => void;
   export let onCancel: () => void;
@@ -31,6 +32,9 @@
           {/if}
           {#if introPriceFormatted}
             <p><strong>Intro Price:</strong> {introPriceFormatted}</p>
+          {/if}
+          {#if discountPriceFormatted}
+            <p><strong>Discount Price:</strong> {discountPriceFormatted}</p>
           {/if}
         </div>
       </div>

@@ -1,6 +1,10 @@
 import type { BrandingInfoResponse } from "../networking/responses/branding-response";
 import { eventsTrackerContextKey } from "../ui/constants";
-import type { Price, PricingPhase } from "../entities/offerings";
+import type {
+  Price,
+  PricingPhase,
+  DiscountPricePhase,
+} from "../entities/offerings";
 import {
   type NonSubscriptionOption,
   type Package,
@@ -18,7 +22,7 @@ import {
   StripeElementsMode,
   StripeElementsSetupFutureUsage,
 } from "../networking/responses/stripe-elements";
-import type { PriceBreakdown } from "src/ui/ui-types";
+import type { PriceBreakdown } from "../ui/ui-types";
 import type { CheckoutCompleteResponse } from "../networking/responses/checkout-complete-response";
 import { getPriceBreakdownTaxDisabled } from "./helpers/get-price-breakdown";
 import { formatPrice } from "../helpers/price-labels";
@@ -114,6 +118,41 @@ const introPriceSixMonthsPaidUpfront: PricingPhase = {
   pricePerYear: getPrice(3853),
 };
 
+// The one_time timeWindow will always match the subscription's base price period duration
+const discountPriceOneTime: DiscountPricePhase = {
+  timeWindow: "P1M",
+  durationMode: "one_time",
+  price: getPrice(895),
+  name: "One-time Discount 20%",
+  period: {
+    number: 1,
+    unit: PeriodUnit.Month,
+  },
+  cycleCount: 1,
+};
+
+const discountPriceTimeWindow: DiscountPricePhase = {
+  timeWindow: "P3M",
+  durationMode: "time_window",
+  price: getPrice(799),
+  name: "Holiday Sale 20%",
+  // Calculated from the time window
+  period: {
+    number: 1,
+    unit: PeriodUnit.Month,
+  },
+  cycleCount: 3,
+};
+
+const discountPriceForever: DiscountPricePhase = {
+  timeWindow: null,
+  durationMode: "forever",
+  price: getPrice(688),
+  name: "Forever Discount 30%",
+  period: null,
+  cycleCount: 0,
+};
+
 /**
  * Non-subscription fixtures
  */
@@ -135,11 +174,20 @@ const createNonSubscriptionOption = (
     id: "nonsub_option_id_1",
     priceId: "nonsub_price_1",
     basePrice: subscriptionOptionBasePrice.price!,
+    discountPrice: null,
     ...fields,
   };
 };
 
 export const nonSubscriptionOption = createNonSubscriptionOption();
+
+// Discount
+export const nonSubscriptionOptionWithDiscountPrice =
+  createNonSubscriptionOption({
+    id: "nonsub_option_id_discount",
+    priceId: "nonsub_price_discount",
+    discountPrice: discountPriceOneTime,
+  });
 
 /**
  * Subscription fixtures
@@ -153,6 +201,7 @@ const createSubscriptionOption = (
     priceId: "price_1",
     base: subscriptionOptionBasePrice,
     trial: null,
+    discountPrice: null,
     introPrice: null,
     ...fields,
   };
@@ -270,6 +319,29 @@ export const subscriptionOptionWithMultipleYearsIntroPriceRecurring =
     },
   });
 
+// Discount (One time)
+export const subscriptionOptionWithDiscountPriceOneTime =
+  createSubscriptionOption({
+    id: "option_id_discount_one_time",
+    priceId: "price_discount_one_time",
+    discountPrice: discountPriceOneTime,
+  });
+
+// Discount (Time window)
+export const subscriptionOptionWithDiscountPrice = createSubscriptionOption({
+  id: "option_id_discount_time_window",
+  priceId: "price_discount_time_window",
+  discountPrice: discountPriceTimeWindow,
+});
+
+// Discount (Forever)
+export const subscriptionOptionWithDiscountPriceForever =
+  createSubscriptionOption({
+    id: "option_id_discount_forever",
+    priceId: "price_discount_forever",
+    discountPrice: discountPriceForever,
+  });
+
 /**
  * Product fixtures
  */
@@ -304,6 +376,7 @@ export const product: Product = {
     unit: PeriodUnit.Month,
   },
   freeTrialPhase: subscriptionOption.trial,
+  discountPricePhase: null,
   introPricePhase: subscriptionOption.introPrice,
 };
 
@@ -318,6 +391,7 @@ export const consumableProduct: Product = {
   price: nonSubscriptionOption.basePrice,
   period: null,
   freeTrialPhase: null,
+  discountPricePhase: null,
   introPricePhase: null,
 };
 
@@ -332,6 +406,7 @@ export const nonConsumableProduct: Product = {
   price: nonSubscriptionOption.basePrice,
   period: null,
   freeTrialPhase: null,
+  discountPricePhase: null,
   introPricePhase: null,
 };
 
@@ -344,6 +419,7 @@ export const trialProduct: Product = {
   },
   // Convenience accessors for trial product
   freeTrialPhase: subscriptionOptionWithTrial.trial,
+  discountPricePhase: null,
   introPricePhase: subscriptionOptionWithTrial.introPrice,
 };
 

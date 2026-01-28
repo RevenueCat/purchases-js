@@ -1,4 +1,9 @@
-import type { Offering, Package } from "@revenuecat/purchases-js";
+import type {
+  Offering,
+  Package,
+  Price,
+  Product,
+} from "@revenuecat/purchases-js";
 import {
   PurchasesError,
   ReservedCustomerAttribute,
@@ -19,7 +24,7 @@ interface IPackageCardProps {
   onClick: () => void;
 }
 
-const priceLabels: Record<string, string> = {
+const shortPeriodLabels: Record<string, string> = {
   P3M: "quarter",
   P6M: "6mo",
   P1M: "mo",
@@ -30,7 +35,7 @@ const priceLabels: Record<string, string> = {
   P1W: "wk",
 };
 
-const trialLabels: Record<string, string> = {
+const longPeriodLabels: Record<string, string> = {
   P3D: "3 days",
   P1W: "1 week",
   P2W: "2 weeks",
@@ -39,6 +44,50 @@ const trialLabels: Record<string, string> = {
   P3M: "3 months",
   P6M: "6 months",
   P1Y: "1 year",
+};
+
+const getPeriodLabel = (
+  period: string | null,
+  labels: Record<string, string>,
+) => labels[period ?? ""] ?? period ?? "";
+
+const getLongPeriodLabel = (period: string | null) =>
+  getPeriodLabel(period, longPeriodLabels);
+
+// True for a subscription with a forever discount or a non-subscription product with any discount
+const hasPermanentDiscountPrice = (webBillingProduct: Product) => {
+  const { discountPricePhase, productType } = webBillingProduct;
+  if (!discountPricePhase) return false;
+  return (
+    discountPricePhase.durationMode === "forever" ||
+    productType !== "subscription"
+  );
+};
+
+const getFormattedPrice = (price: Price | null, period: string | null) => {
+  if (!price?.formattedPrice) return "";
+  const periodLabel = getPeriodLabel(period, shortPeriodLabels);
+  return `${price.formattedPrice}${periodLabel ? `/${periodLabel}` : ""}`;
+};
+
+const getCurrentPrice = (webBillingProduct: Product) => {
+  const { price, normalPeriodDuration, discountPricePhase, introPricePhase } =
+    webBillingProduct;
+
+  const promotionalPrice = discountPricePhase ?? introPricePhase;
+  if (!promotionalPrice) {
+    return getFormattedPrice(price, normalPeriodDuration);
+  }
+
+  // Permanent discounts use the base price's period duration
+  if (hasPermanentDiscountPrice(webBillingProduct)) {
+    return getFormattedPrice(promotionalPrice.price, normalPeriodDuration);
+  }
+
+  return getFormattedPrice(
+    promotionalPrice.price,
+    discountPricePhase?.timeWindow ?? introPricePhase?.periodDuration ?? null,
+  );
 };
 
 const formattedCombinedPeriod = (
@@ -53,93 +102,107 @@ const formattedCombinedPeriod = (
   return `${cyclesInIntroDuration} ${unit}${cyclesInIntroDuration > 1 ? "s" : ""}`;
 };
 
-export const PackageCard: React.FC<IPackageCardProps> = ({
+const getPriceDetails = (webBillingProduct: Product) => {
+  const { discountPricePhase, introPricePhase, price, normalPeriodDuration } =
+    webBillingProduct;
+  const promotionalPrice = discountPricePhase ?? introPricePhase;
+  if (!promotionalPrice) return null;
+  const formattedBasePrice = getFormattedPrice(price, normalPeriodDuration);
+
+  if (hasPermanentDiscountPrice(webBillingProduct)) {
+    return `discounted from ${formattedBasePrice}`;
+  }
+
+  const promoPeriod = formattedCombinedPeriod(
+    promotionalPrice.cycleCount,
+    promotionalPrice.period?.number,
+    promotionalPrice.period?.unit,
+  );
+  return `${promoPeriod ? `for ${promoPeriod}, ` : ""}then ${formattedBasePrice}`;
+};
+
+export const Badge = ({
+  webBillingProduct,
+}: {
+  webBillingProduct: Product;
+}) => {
+  const { discountPricePhase, freeTrialPhase } = webBillingProduct;
+  if (discountPricePhase) {
+    return (
+      <div className="freeTrial">
+        {hasPermanentDiscountPrice(webBillingProduct)
+          ? "Lifetime"
+          : getLongPeriodLabel(discountPricePhase.timeWindow)}{" "}
+        Discount
+      </div>
+    );
+  }
+
+  if (freeTrialPhase) {
+    return (
+      <div className="freeTrial">
+        {getLongPeriodLabel(freeTrialPhase.periodDuration)} free trial
+      </div>
+    );
+  }
+
+  return null;
+};
+
+export const PriceContainer = ({
+  webBillingProduct,
+  offering,
+}: {
+  webBillingProduct: Product;
+  offering: Offering;
+}) => {
+  if (!webBillingProduct.price) return null;
+
+  const trial = webBillingProduct.freeTrialPhase;
+  const currentPrice = getCurrentPrice(webBillingProduct);
+  const priceDetails = getPriceDetails(webBillingProduct);
+
+  const originalPriceByProduct =
+    (offering.metadata?.original_price_by_product as Record<string, string>) ??
+    {};
+  const originalPrice = originalPriceByProduct[webBillingProduct.identifier];
+
+  return (
+    <div className="priceContainer">
+      {!trial && originalPrice ? (
+        <div className="previousPrice">{originalPrice}</div>
+      ) : null}
+      <div className="currentPrice">{currentPrice}</div>
+      {priceDetails && <div className="futurePrice">{priceDetails}</div>}
+    </div>
+  );
+};
+
+const PackageCard: React.FC<IPackageCardProps> = ({
   pkg,
   offering,
   onClick,
 }) => {
-  const originalPriceByProduct: Record<string, string> | null =
-    (offering.metadata?.original_price_by_product as Record<string, string>) ??
-    null;
-
-  const price = pkg.webBillingProduct.price;
-  const originalPrice = originalPriceByProduct
-    ? originalPriceByProduct[pkg.webBillingProduct.identifier]
-    : null;
-
-  const trial = pkg.webBillingProduct.freeTrialPhase;
-  const introPrice = pkg.webBillingProduct.introPricePhase;
-
-  const renderTrialBadge = () => {
-    if (!trial) return null;
-
-    const trialLabel = trial.periodDuration
-      ? trialLabels[trial.periodDuration] || trial.periodDuration
-      : "";
-
-    return <div className="freeTrial">{trialLabel} free trial</div>;
-  };
-
-  const renderIntroPricing = () => {
-    if (!introPrice) return null;
-
-    return (
-      <div className="introPrice">
-        <div className="currentPrice">
-          {introPrice.price?.formattedPrice}
-          {introPrice.periodDuration &&
-            `/${priceLabels[introPrice.periodDuration]}`}
-          <div className="futurePrice">
-            for{" "}
-            {formattedCombinedPeriod(
-              introPrice.cycleCount,
-              introPrice.period?.number,
-              introPrice.period?.unit,
-            )}
-            , then {price?.formattedPrice}
-            {pkg.webBillingProduct.period &&
-              `/${
-                priceLabels[pkg.webBillingProduct.normalPeriodDuration || ""] ||
-                pkg.webBillingProduct.normalPeriodDuration
-              }`}
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const renderRegularPricing = () => {
-    if (!price || introPrice) return null;
-
-    const periodLabel = pkg.webBillingProduct.normalPeriodDuration
-      ? priceLabels[pkg.webBillingProduct.normalPeriodDuration] ||
-        pkg.webBillingProduct.normalPeriodDuration
-      : "";
-
-    return (
-      <>
-        {!trial && originalPrice && (
-          <div className="previousPrice">{originalPrice}</div>
-        )}
-
-        <div className="currentPrice">
-          <div>{price.formattedPrice}</div>
-          {periodLabel && <div>/{periodLabel}</div>}
-        </div>
-      </>
-    );
-  };
+  const webBillingProduct = pkg.webBillingProduct;
+  const trial = webBillingProduct.freeTrialPhase;
 
   return (
     <div role="button" className="card" onClick={onClick}>
-      {renderTrialBadge()}
-      {renderIntroPricing()}
-      {renderRegularPricing()}
+      <Badge webBillingProduct={webBillingProduct} />
 
-      <div className="productName">{pkg.webBillingProduct.displayName}</div>
+      <div className="cardContent">
+        <PriceContainer
+          webBillingProduct={webBillingProduct}
+          offering={offering}
+        />
 
-      <div className="packageCTA">
-        <Button caption={trial ? "Start Free Trial" : "Choose plan"} />
+        <div>
+          <div className="productName">{webBillingProduct.title}</div>
+
+          <div className="packageCTA">
+            <Button caption={trial ? "Start Free Trial" : "Choose plan"} />
+          </div>
+        </div>
       </div>
     </div>
   );

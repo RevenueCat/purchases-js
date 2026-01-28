@@ -242,16 +242,28 @@ button.button:focus-visible {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
+.cardContent {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.priceContainer {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .previousPrice {
   text-decoration: line-through;
-  height: 36px;
 }
 
 .currentPrice {
   font-size: 40px;
   line-height: 44px;
-  min-height: 60px;
-  margin: 12px 0;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -261,8 +273,6 @@ button.button:focus-visible {
 }
 
 .futurePrice {
-  min-height: 50px;
-  margin: 8px 0 16px;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -280,14 +290,17 @@ button.button:focus-visible {
 .freeTrial {
   background: var(--color-purple);
   color: white;
-  padding: 8px 16px;
+  padding: 4px 16px;
   border-radius: 16px;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 16px;
   display: inline-block;
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translate(-50%);
 }
 
 .rc-paywall .notice {
@@ -301,7 +314,7 @@ button.button:focus-visible {
 .productName {
   /* font-size: 18px; */
   font-weight: 700;
-  margin: 16px 0 8px;
+  margin: 0 8px;
   line-height: 1.4;
 }
 
