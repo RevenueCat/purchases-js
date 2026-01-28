@@ -1,15 +1,9 @@
 <script lang="ts">
-  import type {
-    Package,
-    Product,
-    PurchaseOption,
-    SubscriptionOption,
-  } from "../../entities/offerings";
+  import type { Package, PurchaseOption } from "../../entities/offerings";
   import {
     PurchaseFlowError,
     PurchaseFlowErrorCode,
   } from "../../helpers/purchase-operation-helper";
-  import { type PriceBreakdown } from "../ui-types";
   import ExpressCheckoutElement from "../molecules/stripe-express-checkout-element.svelte";
   import { setContext } from "svelte";
   import type {
@@ -31,7 +25,7 @@
   import { translatorContextKey } from "../localization/constants";
   import { brandingContextKey } from "../constants";
   import type { StripeExpressCheckoutConfiguration } from "../../stripe/stripe-express-checkout-configuration";
-  import { getInitialPriceFromPurchaseOption } from "../../helpers/purchase-option-price-helper";
+  import { toExpressPurchaseOptions } from "./stripe-helpers";
 
   import type { ExpressPurchaseButtonProps } from "./express-purchase-button-props";
   import type {
@@ -89,26 +83,6 @@
     onError(error);
   };
 
-  const toExpressPurchaseOptions = (
-    rcPackage: Package,
-    purchaseOption: PurchaseOption,
-    managementUrl: string,
-  ) => {
-    const productDetails: Product = rcPackage.webBillingProduct;
-    const { subscriptionOption, priceBreakdown } =
-      resolveExpressCheckoutPricingDetails(productDetails, purchaseOption.id);
-
-    return StripeService.buildStripeExpressCheckoutOptionsForSubscription(
-      productDetails,
-      priceBreakdown,
-      subscriptionOption,
-      translator,
-      managementUrl,
-      2,
-      1,
-    );
-  };
-
   const updateStripe = async (
     elements: StripeElements,
     gatewayParams: GatewayParams,
@@ -129,6 +103,7 @@
       rcPackage,
       purchaseOption,
       managementUrl,
+      translator,
     );
     return { expOptions: options };
   };
@@ -194,6 +169,7 @@
       rcPackage,
       purchaseOption,
       managementUrl,
+      translator,
     );
 
     return { stripeInstance, elementsInstance, expOptions: options };
@@ -440,64 +416,6 @@
       createCheckoutSessionEndClosedEvent({ mode: "express_purchase_button" }),
     );
   };
-
-  // Extracted helper: pick the subscription option chosen for the Express Checkout flow.
-  function getSubscriptionOptionForExpressCheckout(
-    productDetails: Product,
-    purchaseOptionId: string,
-  ): SubscriptionOption {
-    const subscriptionOption =
-      productDetails.subscriptionOptions?.[purchaseOptionId] ||
-      productDetails.defaultSubscriptionOption;
-
-    if (!subscriptionOption) {
-      throw new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase);
-    }
-
-    return subscriptionOption;
-  }
-
-  // Extracted helper: build the price breakdown displayed inside the Express Checkout modal.
-  function buildExpressCheckoutPriceBreakdown(
-    productDetails: Product,
-    subscriptionOption: SubscriptionOption,
-  ): PriceBreakdown {
-    const initialPrice = getInitialPriceFromPurchaseOption(
-      productDetails,
-      subscriptionOption,
-    );
-
-    // Design decision: We will always show the price before taxes in the
-    // express checkout modal.
-    // We will charge, according to the billing address retrieved by the
-    // wallet, if any, but it would be visible only in the invoice.
-    // This is the behavior of other IAP stores, and we want to be as close
-    // as possible to that in this component.
-    return {
-      currency: initialPrice.currency,
-      taxCalculationStatus: "unavailable",
-      totalAmountInMicros: initialPrice.amountMicros,
-      totalExcludingTaxInMicros: initialPrice.amountMicros,
-      taxAmountInMicros: null,
-      taxBreakdown: null,
-    };
-  }
-
-  // Extracted helper: return the subscription option and price data needed by multiple flows.
-  function resolveExpressCheckoutPricingDetails(
-    productDetails: Product,
-    purchaseOptionId: string,
-  ) {
-    const subscriptionOption = getSubscriptionOptionForExpressCheckout(
-      productDetails,
-      purchaseOptionId,
-    );
-    const priceBreakdown = buildExpressCheckoutPriceBreakdown(
-      productDetails,
-      subscriptionOption,
-    );
-    return { subscriptionOption, priceBreakdown };
-  }
 
   function onExpressCheckoutElementReady(
     event: StripeExpressCheckoutElementReadyEvent,
