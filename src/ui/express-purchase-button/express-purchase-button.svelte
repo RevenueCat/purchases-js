@@ -133,7 +133,10 @@
     return { expOptions: options };
   };
 
-  const initStripe = async (gatewayParams: GatewayParams) => {
+  const initStripe = async (
+    gatewayParams: GatewayParams,
+    managementUrl: string,
+  ) => {
     if (!gatewayParams.elements_configuration) {
       throw new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase);
     }
@@ -187,7 +190,11 @@
         viewport,
       );
 
-    const options = toExpressPurchaseOptions(rcPackage, purchaseOption, "");
+    const options = toExpressPurchaseOptions(
+      rcPackage,
+      purchaseOption,
+      managementUrl,
+    );
 
     return { stripeInstance, elementsInstance, expOptions: options };
   };
@@ -214,10 +221,16 @@
       return;
     }
 
+    // Management URL is assigned later in startCheckout when we have an operation session.
+    const managementUrl = "";
+
     try {
       if (!stripe || !elements) {
         const { stripeInstance, elementsInstance, expOptions } =
-          await initStripe(prepareCheckoutResponse.stripe_gateway_params);
+          await initStripe(
+            prepareCheckoutResponse.stripe_gateway_params,
+            managementUrl,
+          );
         stripe = stripeInstance;
         elements = elementsInstance;
         expressCheckoutOptions = expOptions;
@@ -225,7 +238,7 @@
         const { expOptions } = await updateStripe(
           elements,
           prepareCheckoutResponse.stripe_gateway_params,
-          "",
+          managementUrl,
           rcPackage,
           purchaseOption,
         );
