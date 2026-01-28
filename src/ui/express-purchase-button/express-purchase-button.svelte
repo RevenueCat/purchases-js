@@ -217,7 +217,11 @@
     }
 
     if (!prepareCheckoutResponse.stripe_gateway_params) {
-      // TODO: Raise no stripe gateway params error.
+      const missingGatewayParamsError = new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "We couldn’t download Stripe params for this purchase. Please try again.",
+      );
+      handleError(missingGatewayParamsError);
       return;
     }
 
