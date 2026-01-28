@@ -8,6 +8,7 @@ import {
   rcPackage,
   stripeElementsConfiguration,
 } from "../../../stories/fixtures";
+import { checkoutPrepareResponse } from "../../test-responses";
 import { SDKEventName } from "../../../behavioural-events/sdk-events";
 import { createEventsTrackerMock } from "../../mocks/events-tracker-mock-provider";
 import { eventsTrackerContextKey } from "../../../ui/constants";
@@ -70,6 +71,7 @@ vi.mock("../../../stripe/stripe-service", async () => {
 
 const eventsTrackerMock = createEventsTrackerMock();
 const purchaseOperationHelperMock: PurchaseOperationHelper = {
+  prepareCheckout: async () => Promise.resolve(checkoutPrepareResponse),
   checkoutCalculateTax: async () =>
     Promise.resolve(
       checkoutCalculateTaxResponse as CheckoutCalculateTaxResponse,
