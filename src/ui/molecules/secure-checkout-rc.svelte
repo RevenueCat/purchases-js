@@ -72,11 +72,19 @@
     return LocalizationKeys.PaymentEntryPageSubscriptionTermsInfo;
   }
 
+  // Use discountPrice or introPrice directly (only one will be present from backend)
+  // Note: discountPrice is DiscountPricePhase, introPrice is PricingPhase
   $: firstSubscriptionPricingPhase =
-    subscriptionOption?.introPrice || subscriptionOption?.base;
+    subscriptionOption?.discountPrice ??
+    subscriptionOption?.introPrice ??
+    subscriptionOption?.base ??
+    null;
 
   $: firstPaymentPrice =
-    nonSubscriptionOption?.basePrice || firstSubscriptionPricingPhase?.price;
+    nonSubscriptionOption?.basePrice ||
+    (firstSubscriptionPricingPhase && "price" in firstSubscriptionPricingPhase
+      ? firstSubscriptionPricingPhase.price
+      : null);
 
   $: firstPriceFormatted = firstPaymentPrice
     ? formatPrice(
@@ -86,13 +94,16 @@
       )
     : null;
 
-  $: perFrequency = firstSubscriptionPricingPhase?.period
-    ? $translator.translatePeriodFrequency(
-        firstSubscriptionPricingPhase?.period?.number || 1,
-        firstSubscriptionPricingPhase?.period?.unit,
-        { useMultipleWords: true },
-      )
-    : null;
+  $: perFrequency =
+    firstSubscriptionPricingPhase &&
+    "period" in firstSubscriptionPricingPhase &&
+    firstSubscriptionPricingPhase.period
+      ? $translator.translatePeriodFrequency(
+          firstSubscriptionPricingPhase.period.number || 1,
+          firstSubscriptionPricingPhase.period.unit,
+          { useMultipleWords: true },
+        )
+      : null;
 
   $: renewalDate = subscriptionOption?.trial?.period
     ? $translator.translateDate(

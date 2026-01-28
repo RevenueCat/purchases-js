@@ -1,6 +1,10 @@
 import type { BrandingInfoResponse } from "../networking/responses/branding-response";
 import { eventsTrackerContextKey } from "../ui/constants";
-import type { Price, PricingPhase } from "../entities/offerings";
+import type {
+  Price,
+  PricingPhase,
+  DiscountPricePhase,
+} from "../entities/offerings";
 import {
   type NonSubscriptionOption,
   type Package,
@@ -18,7 +22,7 @@ import {
   StripeElementsMode,
   StripeElementsSetupFutureUsage,
 } from "../networking/responses/stripe-elements";
-import type { PriceBreakdown } from "src/ui/ui-types";
+import type { PriceBreakdown } from "../ui/ui-types";
 import type { CheckoutCompleteResponse } from "../networking/responses/checkout-complete-response";
 import { getPriceBreakdownTaxDisabled } from "./helpers/get-price-breakdown";
 import { formatPrice } from "../helpers/price-labels";
@@ -114,6 +118,25 @@ const introPriceSixMonthsPaidUpfront: PricingPhase = {
   pricePerYear: getPrice(3853),
 };
 
+const discountPriceMonthly: DiscountPricePhase = {
+  timeWindow: "P1M",
+  durationMode: "time_window",
+  price: getPrice(799),
+  name: "Holiday Sale 20%",
+  period: {
+    number: 1,
+    unit: PeriodUnit.Month,
+  },
+};
+
+const discountPriceForever: DiscountPricePhase = {
+  timeWindow: null,
+  durationMode: "forever",
+  price: getPrice(688),
+  name: "Forever Discount 30%",
+  period: null,
+};
+
 /**
  * Non-subscription fixtures
  */
@@ -128,6 +151,14 @@ export const nonSubscriptionBasePricingPhase: PricingPhase = {
   pricePerYear: null,
 };
 
+const nonSubscriptionDiscountPricingPhase: DiscountPricePhase = {
+  timeWindow: null,
+  durationMode: "one_time",
+  price: discountPriceMonthly.price,
+  name: discountPriceMonthly.name,
+  period: discountPriceMonthly.period,
+};
+
 const createNonSubscriptionOption = (
   fields: Partial<NonSubscriptionOption> = {},
 ): NonSubscriptionOption => {
@@ -135,11 +166,20 @@ const createNonSubscriptionOption = (
     id: "nonsub_option_id_1",
     priceId: "nonsub_price_1",
     basePrice: subscriptionOptionBasePrice.price!,
+    discountPrice: null,
     ...fields,
   };
 };
 
 export const nonSubscriptionOption = createNonSubscriptionOption();
+
+// Discount
+export const nonSubscriptionOptionWithDiscountPrice =
+  createNonSubscriptionOption({
+    id: "nonsub_option_id_discount",
+    priceId: "nonsub_price_discount",
+    discountPrice: nonSubscriptionDiscountPricingPhase,
+  });
 
 /**
  * Subscription fixtures
@@ -153,6 +193,7 @@ const createSubscriptionOption = (
     priceId: "price_1",
     base: subscriptionOptionBasePrice,
     trial: null,
+    discountPrice: null,
     introPrice: null,
     ...fields,
   };
@@ -270,6 +311,21 @@ export const subscriptionOptionWithMultipleYearsIntroPriceRecurring =
     },
   });
 
+// Discount (Forever)
+export const subscriptionOptionWithDiscountPriceForever =
+  createSubscriptionOption({
+    id: "option_id_discount_forever",
+    priceId: "price_discount_forever",
+    discountPrice: discountPriceForever,
+  });
+
+// Discount (Time window)
+export const subscriptionOptionWithDiscountPrice = createSubscriptionOption({
+  id: "option_id_discount_time_window",
+  priceId: "price_discount_time_window",
+  discountPrice: discountPriceMonthly,
+});
+
 /**
  * Product fixtures
  */
@@ -304,6 +360,7 @@ export const product: Product = {
     unit: PeriodUnit.Month,
   },
   freeTrialPhase: subscriptionOption.trial,
+  discountPricePhase: null,
   introPricePhase: subscriptionOption.introPrice,
 };
 
@@ -318,6 +375,7 @@ export const consumableProduct: Product = {
   price: nonSubscriptionOption.basePrice,
   period: null,
   freeTrialPhase: null,
+  discountPricePhase: null,
   introPricePhase: null,
 };
 
@@ -332,6 +390,7 @@ export const nonConsumableProduct: Product = {
   price: nonSubscriptionOption.basePrice,
   period: null,
   freeTrialPhase: null,
+  discountPricePhase: null,
   introPricePhase: null,
 };
 
@@ -344,8 +403,11 @@ export const trialProduct: Product = {
   },
   // Convenience accessors for trial product
   freeTrialPhase: subscriptionOptionWithTrial.trial,
+  discountPricePhase: null,
   introPricePhase: subscriptionOptionWithTrial.introPrice,
 };
+
+// TODO: discount product
 
 export const rcPackage: Package = {
   identifier: "testPackage",

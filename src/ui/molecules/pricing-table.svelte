@@ -6,7 +6,10 @@
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import { type PriceBreakdown } from "../ui-types";
   import { getNextRenewalDate } from "../../helpers/duration-helper";
-  import { type PricingPhase } from "../../entities/offerings";
+  import {
+    type PricingPhase,
+    type DiscountPricePhase,
+  } from "../../entities/offerings";
   import PricingDropdown from "./pricing-dropdown.svelte";
   import Skeleton from "../atoms/skeleton.svelte";
   import Typography from "../atoms/typography.svelte";
@@ -14,14 +17,22 @@
   interface Props {
     priceBreakdown: PriceBreakdown;
     trialPhase: PricingPhase | null;
+    basePhase: PricingPhase | null;
+    promotionalPricePhase: PricingPhase | DiscountPricePhase | null;
   }
 
-  const { priceBreakdown, trialPhase }: Props = $props();
+  const {
+    priceBreakdown,
+    trialPhase,
+    basePhase,
+    promotionalPricePhase,
+  }: Props = $props();
 
-  let trialEndDate = $state<Date | null>(null);
-  if (trialPhase?.period) {
-    trialEndDate = getNextRenewalDate(new Date(), trialPhase.period, true);
-  }
+  const trialEndDate = $derived(
+    trialPhase?.period
+      ? getNextRenewalDate(new Date(), trialPhase.period, true)
+      : null,
+  );
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
 
@@ -31,10 +42,80 @@
       priceBreakdown.taxBreakdown &&
       priceBreakdown.taxBreakdown.length > 0,
   );
+
+  // Only show discount line item for discounts (not intro prices)
+  // Discounts are pre-tax adjustments that need to be shown as a separate line
+  // Discounts have a name field, intro prices don't
+  const hasDiscount = $derived(
+    !!promotionalPricePhase &&
+      "name" in promotionalPricePhase &&
+      !!promotionalPricePhase.name &&
+      promotionalPricePhase.price !== null &&
+      basePhase !== null &&
+      basePhase.price !== null,
+  );
+
+  const subtotalAmount = $derived(
+    basePhase?.price?.amountMicros ?? priceBreakdown.totalAmountInMicros,
+  );
+
+  const discountAmount = $derived.by(() => {
+    if (!hasDiscount) return 0;
+
+    const base = basePhase?.price?.amountMicros;
+    const promo = promotionalPricePhase?.price?.amountMicros;
+    if (base == null || promo == null) return 0;
+
+    return base - promo;
+  });
+
+  const totalDueToday = $derived(
+    trialEndDate ? 0 : priceBreakdown.totalAmountInMicros,
+  );
 </script>
 
 {#snippet pricingTable()}
   <div class="rcb-pricing-table">
+    {#if hasDiscount}
+      <div class="rcb-pricing-table-row">
+        <div class="rcb-pricing-table-header">
+          <div class="rcb-pricing-table-value">
+            <Typography size="body-small">
+              Subtotal
+              <!-- {$translator.translate(LocalizationKeys.PricingTableSubtotal)} -->
+            </Typography>
+          </div>
+        </div>
+        <div class="rcb-pricing-table-value">
+          <Typography size="body-small">
+            {$translator.formatPrice(subtotalAmount, priceBreakdown.currency)}
+          </Typography>
+        </div>
+      </div>
+
+      <div class="rcb-pricing-table-row">
+        <div class="rcb-pricing-table-header">
+          <div class="rcb-pricing-table-value">
+            <Typography size="body-small">
+              {promotionalPricePhase && "name" in promotionalPricePhase
+                ? (promotionalPricePhase.name ?? "")
+                : ""}
+              <!-- {$translator.translate(LocalizationKeys.PricingTableDiscount, {
+              discountName: promotionalPricePhase && "name" in promotionalPricePhase ? promotionalPricePhase.name ?? "" : "",
+            })} -->
+            </Typography>
+          </div>
+        </div>
+        <div class="rcb-pricing-table-value">
+          <Typography size="body-small">
+            -{$translator.formatPrice(discountAmount, priceBreakdown.currency)}
+          </Typography>
+        </div>
+      </div>
+
+      <div class="rcb-pricing-table-separator"></div>
+    {/if}
+
     {#if showTaxBreakdown}
       <div class="rcb-pricing-table-row">
         <div class="rcb-pricing-table-header">
@@ -133,14 +214,7 @@
       </div>
       <div class="rcb-pricing-table-value">
         <Typography size="body-small">
-          {#if trialEndDate}
-            {$translator.formatPrice(0, priceBreakdown.currency)}
-          {:else}
-            {$translator.formatPrice(
-              priceBreakdown.totalAmountInMicros,
-              priceBreakdown.currency,
-            )}
-          {/if}
+          {$translator.formatPrice(totalDueToday, priceBreakdown.currency)}
         </Typography>
       </div>
     </div>

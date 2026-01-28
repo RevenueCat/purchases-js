@@ -2,6 +2,7 @@ import { describe, expect, test, beforeEach, afterEach } from "vitest";
 import type {
   SubscriptionOptionResponse,
   PricingPhaseResponse,
+  DiscountPriceResponse,
 } from "../../networking/responses/products-response";
 import { Logger } from "../../helpers/logger";
 import { vi } from "vitest";
@@ -11,7 +12,9 @@ import { vi } from "vitest";
 import type { SubscriptionOption } from "../../entities/offerings";
 
 // Helper to simulate the toSubscriptionOption parsing logic
-const toPricingPhase = (phase: PricingPhaseResponse | null) => {
+const toPricingPhase = (
+  phase: PricingPhaseResponse | DiscountPriceResponse | null,
+) => {
   if (!phase) return null;
   return {
     periodDuration: phase.period_duration,
@@ -31,6 +34,7 @@ const toPricingPhase = (phase: PricingPhaseResponse | null) => {
     pricePerWeek: null,
     pricePerMonth: null,
     pricePerYear: null,
+    name: "name" in phase ? phase.name : null,
   };
 };
 

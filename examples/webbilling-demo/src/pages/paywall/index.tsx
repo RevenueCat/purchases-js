@@ -2,6 +2,7 @@ import type { Offering, Package } from "@revenuecat/purchases-js";
 import {
   PurchasesError,
   ReservedCustomerAttribute,
+  type PricingPhase,
 } from "@revenuecat/purchases-js";
 import React, { useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -20,14 +21,32 @@ interface IPackageCardProps {
 }
 
 const priceLabels: Record<string, string> = {
+  P1D: "day",
+  P3D: "3d",
+  P7D: "7d",
+  P1W: "1w",
+  P2W: "2w",
+  P3W: "3w",
+  P4W: "4w",
+  P6W: "6w",
+  P8W: "8w",
+  P10W: "10w",
+  P12W: "12w",
+  P1M: "mo",
+  P2M: "2mo",
   P3M: "quarter",
   P6M: "6mo",
-  P1M: "mo",
+  P8M: "8mo",
+  P9M: "9mo",
+  P10M: "10mo",
+  P12M: "12m",
   P1Y: "yr",
-  P2M: "2mo",
-  P1D: "day",
   PT1H: "hr",
-  P1W: "wk",
+};
+
+const getPriceLabel = (periodDuration?: string | null) => {
+  const label = periodDuration ? priceLabels[periodDuration] : undefined;
+  return label ?? periodDuration ?? "";
 };
 
 const trialLabels: Record<string, string> = {
@@ -39,6 +58,15 @@ const trialLabels: Record<string, string> = {
   P3M: "3 months",
   P6M: "6 months",
   P1Y: "1 year",
+};
+
+const getTrialPriceLabel = (periodDuration?: string | null) => {
+  const label = periodDuration ? trialLabels[periodDuration] : undefined;
+  return label ?? periodDuration ?? "";
+};
+
+const isPermanentPromotionalPrice = (promotionalPrice: PricingPhase | null) => {
+  return promotionalPrice && promotionalPrice.periodDuration === null;
 };
 
 const formattedCombinedPeriod = (
@@ -68,53 +96,87 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
     : null;
 
   const trial = pkg.webBillingProduct.freeTrialPhase;
+  const discountPrice = pkg.webBillingProduct.discountPricePhase;
   const introPrice = pkg.webBillingProduct.introPricePhase;
+  const promotionalPrice = discountPrice ?? introPrice;
 
-  const renderTrialBadge = () => {
-    if (!trial) return null;
+  const isSubscription = pkg.webBillingProduct.productType === "subscription";
 
-    const trialLabel = trial.periodDuration
-      ? trialLabels[trial.periodDuration] || trial.periodDuration
-      : "";
+  const renderBadge = () => {
+    if (discountPrice) {
+      const isPermanentDiscount = isPermanentPromotionalPrice(discountPrice);
+      return (
+        <div className="freeTrial">
+          {isPermanentDiscount
+            ? "Lifetime"
+            : getTrialPriceLabel(discountPrice.periodDuration)}{" "}
+          Discount
+        </div>
+      );
+    }
 
-    return <div className="freeTrial">{trialLabel} free trial</div>;
+    if (trial) {
+      return (
+        <div className="freeTrial">
+          {getTrialPriceLabel(trial.periodDuration)} free trial
+        </div>
+      );
+    }
+
+    return null;
   };
 
-  const renderIntroPricing = () => {
-    if (!introPrice) return null;
+  const renderPromotionalPricing = () => {
+    if (!promotionalPrice) return null;
 
-    return (
-      <div className="introPrice">
-        <div className="currentPrice">
-          {introPrice.price?.formattedPrice}
-          {introPrice.periodDuration &&
-            `/${priceLabels[introPrice.periodDuration]}`}
-          <div className="futurePrice">
-            for{" "}
-            {formattedCombinedPeriod(
-              introPrice.cycleCount,
-              introPrice.period?.number,
-              introPrice.period?.unit,
-            )}
-            , then {price?.formattedPrice}
-            {pkg.webBillingProduct.period &&
-              `/${
-                priceLabels[pkg.webBillingProduct.normalPeriodDuration || ""] ||
-                pkg.webBillingProduct.normalPeriodDuration
-              }`}
+    const webBillingProductPriceLabel = getPriceLabel(
+      pkg.webBillingProduct.normalPeriodDuration,
+    );
+    if (isPermanentPromotionalPrice(promotionalPrice) || !isSubscription) {
+      return (
+        <div className="introPrice">
+          <div className="currentPrice">
+            {promotionalPrice.price?.formattedPrice}
+            {webBillingProductPriceLabel && `/${webBillingProductPriceLabel}`}
+            <div className="futurePrice">
+              Discounted from {price?.formattedPrice}
+              {webBillingProductPriceLabel && `/${webBillingProductPriceLabel}`}
+            </div>
           </div>
         </div>
-      </div>
-    );
+      );
+    } else {
+      const periodLabel = getPriceLabel(promotionalPrice?.periodDuration);
+
+      return (
+        <div className="introPrice">
+          <div className="currentPrice">
+            {promotionalPrice?.price?.formattedPrice}
+            {periodLabel && `/${periodLabel}`}
+
+            <div className="futurePrice">
+              for{" "}
+              {formattedCombinedPeriod(
+                promotionalPrice.cycleCount,
+                promotionalPrice.period?.number,
+                promotionalPrice.period?.unit,
+              )}
+              , then {price?.formattedPrice}
+              {pkg.webBillingProduct.period &&
+                `/${webBillingProductPriceLabel}`}
+            </div>
+          </div>
+        </div>
+      );
+    }
   };
 
   const renderRegularPricing = () => {
-    if (!price || introPrice) return null;
+    if (!price || promotionalPrice) return null;
 
-    const periodLabel = pkg.webBillingProduct.normalPeriodDuration
-      ? priceLabels[pkg.webBillingProduct.normalPeriodDuration] ||
-        pkg.webBillingProduct.normalPeriodDuration
-      : "";
+    const periodLabel = getPriceLabel(
+      pkg.webBillingProduct.normalPeriodDuration,
+    );
 
     return (
       <>
@@ -132,8 +194,8 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
 
   return (
     <div role="button" className="card" onClick={onClick}>
-      {renderTrialBadge()}
-      {renderIntroPricing()}
+      {renderBadge()}
+      {renderPromotionalPricing()}
       {renderRegularPricing()}
 
       <div className="productName">{pkg.webBillingProduct.displayName}</div>

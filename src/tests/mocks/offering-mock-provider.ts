@@ -466,6 +466,7 @@ export function createConsumablePackageMock(): Package {
         currency: "USD",
         formattedPrice: "$1.00",
       },
+      discountPrice: null,
     },
     subscriptionOptions: {},
     price: {

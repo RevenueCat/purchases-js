@@ -11,7 +11,10 @@
     subscriptionOptionWithIntroPriceRecurring,
     subscriptionOptionWithTrialAndIntroPricePaidUpfront,
     subscriptionOptionWithTrialAndIntroPriceRecurring,
+    subscriptionOptionWithDiscountPriceForever,
+    subscriptionOptionWithDiscountPrice,
     nonSubscriptionOption,
+    nonSubscriptionOptionWithDiscountPrice,
     consumableProduct,
   } from "../fixtures";
   import {
@@ -42,6 +45,48 @@
   args={{
     purchaseOption: subscriptionOption,
     priceBreakdown: getPriceBreakdownTaxDisabled(subscriptionOption),
+  }}
+/>
+
+<Story
+  name="Subscription with Forever Discount"
+  args={{
+    productDetails: {
+      ...product,
+      defaultPurchaseOption: subscriptionOptionWithDiscountPriceForever,
+      defaultSubscriptionOption: subscriptionOptionWithDiscountPriceForever,
+      subscriptionOptions: {
+        option_id_discount_forever: subscriptionOptionWithDiscountPriceForever,
+      },
+      price:
+        subscriptionOptionWithDiscountPriceForever.base.price ?? product.price,
+      discountPricePhase:
+        subscriptionOptionWithDiscountPriceForever.discountPrice,
+    },
+    purchaseOption: subscriptionOptionWithDiscountPriceForever,
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithDiscountPriceForever,
+    ),
+  }}
+/>
+
+<Story
+  name="Subscription with Time Window Discount"
+  args={{
+    productDetails: {
+      ...product,
+      defaultPurchaseOption: subscriptionOptionWithDiscountPrice,
+      defaultSubscriptionOption: subscriptionOptionWithDiscountPrice,
+      subscriptionOptions: {
+        option_id_discount_time_window: subscriptionOptionWithDiscountPrice,
+      },
+      price: subscriptionOptionWithDiscountPrice.base.price ?? product.price,
+      discountPricePhase: subscriptionOptionWithDiscountPrice.discountPrice,
+    },
+    purchaseOption: subscriptionOptionWithDiscountPrice,
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithDiscountPrice,
+    ),
   }}
 />
 
@@ -103,6 +148,23 @@
 />
 
 <Story
+  name="Non-subscription with Discount"
+  args={{
+    productDetails: {
+      ...consumableProduct,
+      defaultPurchaseOption: nonSubscriptionOptionWithDiscountPrice,
+      defaultNonSubscriptionOption: nonSubscriptionOptionWithDiscountPrice,
+      price: nonSubscriptionOptionWithDiscountPrice.basePrice,
+      discountPricePhase: nonSubscriptionOptionWithDiscountPrice.discountPrice,
+    },
+    purchaseOption: nonSubscriptionOptionWithDiscountPrice,
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      nonSubscriptionOptionWithDiscountPrice,
+    ),
+  }}
+/>
+
+<Story
   name="Tax Inclusive"
   args={{
     purchaseOption: subscriptionOption,
@@ -141,6 +203,48 @@
 />
 
 <Story
+  name="Tax Inclusive with Forever Discount"
+  args={{
+    productDetails: {
+      ...product,
+      defaultPurchaseOption: subscriptionOptionWithDiscountPriceForever,
+      defaultSubscriptionOption: subscriptionOptionWithDiscountPriceForever,
+      subscriptionOptions: {
+        option_id_discount_forever: subscriptionOptionWithDiscountPriceForever,
+      },
+      price:
+        subscriptionOptionWithDiscountPriceForever.base.price ?? product.price,
+      discountPricePhase:
+        subscriptionOptionWithDiscountPriceForever.discountPrice,
+    },
+    purchaseOption: subscriptionOptionWithDiscountPriceForever,
+    priceBreakdown: getPriceBreakdownTaxInclusive(
+      subscriptionOptionWithDiscountPriceForever,
+    ),
+  }}
+/>
+
+<Story
+  name="Tax Inclusive with Time Window Discount"
+  args={{
+    productDetails: {
+      ...product,
+      defaultPurchaseOption: subscriptionOptionWithDiscountPrice,
+      defaultSubscriptionOption: subscriptionOptionWithDiscountPrice,
+      subscriptionOptions: {
+        option_id_discount_time_window: subscriptionOptionWithDiscountPrice,
+      },
+      price: subscriptionOptionWithDiscountPrice.base.price ?? product.price,
+      discountPricePhase: subscriptionOptionWithDiscountPrice.discountPrice,
+    },
+    purchaseOption: subscriptionOptionWithDiscountPrice,
+    priceBreakdown: getPriceBreakdownTaxInclusive(
+      subscriptionOptionWithDiscountPrice,
+    ),
+  }}
+/>
+
+<Story
   name="Tax Exclusive"
   args={{
     purchaseOption: subscriptionOption,
@@ -172,6 +276,48 @@
     purchaseOption: subscriptionOptionWithIntroPriceRecurring,
     priceBreakdown: getPriceBreakdownTaxExclusive(
       subscriptionOptionWithIntroPriceRecurring,
+    ),
+  }}
+/>
+
+<Story
+  name="Tax Exclusive with Forever Discount"
+  args={{
+    productDetails: {
+      ...product,
+      defaultPurchaseOption: subscriptionOptionWithDiscountPriceForever,
+      defaultSubscriptionOption: subscriptionOptionWithDiscountPriceForever,
+      subscriptionOptions: {
+        option_id_discount_forever: subscriptionOptionWithDiscountPriceForever,
+      },
+      price:
+        subscriptionOptionWithDiscountPriceForever.base.price ?? product.price,
+      discountPricePhase:
+        subscriptionOptionWithDiscountPriceForever.discountPrice,
+    },
+    purchaseOption: subscriptionOptionWithDiscountPriceForever,
+    priceBreakdown: getPriceBreakdownTaxExclusive(
+      subscriptionOptionWithDiscountPriceForever,
+    ),
+  }}
+/>
+
+<Story
+  name="Tax Exclusive with Time Window Discount"
+  args={{
+    productDetails: {
+      ...product,
+      defaultPurchaseOption: subscriptionOptionWithDiscountPrice,
+      defaultSubscriptionOption: subscriptionOptionWithDiscountPrice,
+      subscriptionOptions: {
+        option_id_discount_time_window: subscriptionOptionWithDiscountPrice,
+      },
+      price: subscriptionOptionWithDiscountPrice.base.price ?? product.price,
+      discountPricePhase: subscriptionOptionWithDiscountPrice.discountPrice,
+    },
+    purchaseOption: subscriptionOptionWithDiscountPrice,
+    priceBreakdown: getPriceBreakdownTaxExclusive(
+      subscriptionOptionWithDiscountPrice,
     ),
   }}
 />

@@ -32,6 +32,7 @@ const monthlyProductResponse: ProductResponse = {
       },
       trial: null,
       intro_price: null,
+      discount: null,
     },
   },
 };
@@ -60,6 +61,7 @@ const monthly2ProductResponse: ProductResponse = {
         price: null,
       },
       intro_price: null,
+      discount: null,
     },
   },
 };
@@ -91,6 +93,7 @@ const monthlyWithIntroPriceProductResponse: ProductResponse = {
           currency: "USD",
         },
       },
+      discount: null,
     },
   },
 };
@@ -126,6 +129,7 @@ const monthlyWithTrialAndIntroPriceProductResponse: ProductResponse = {
           currency: "USD",
         },
       },
+      discount: null,
     },
   },
 };
@@ -144,6 +148,7 @@ const consumableProductResponse: ProductResponse = {
         amount_micros: 1000000,
         currency: "USD",
       },
+      discount: null,
     },
   },
 };

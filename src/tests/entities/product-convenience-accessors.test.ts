@@ -1,18 +1,25 @@
 import { describe, expect, test, beforeEach, afterEach } from "vitest";
 import { vi } from "vitest";
 import { Logger } from "../../helpers/logger";
-import { ProductType, type Product } from "../../entities/offerings";
+import {
+  ProductType,
+  type Product,
+  type PricingPhase,
+  type DiscountPricePhase,
+} from "../../entities/offerings";
 import { PeriodUnit } from "../../helpers/duration-helper";
+import { formatPrice } from "../../helpers/price-labels";
 import type {
   ProductResponse,
   SubscriptionOptionResponse,
   NonSubscriptionOptionResponse,
   PricingPhaseResponse,
+  DiscountPriceResponse,
 } from "../../networking/responses/products-response";
 
 // Import internal functions for testing - normally these would be imported from the actual module
 // but for testing purposes, we'll recreate simplified versions
-const toPricingPhase = (phase: PricingPhaseResponse) => {
+const toPricingPhase = (phase: PricingPhaseResponse): PricingPhase => {
   return {
     periodDuration: phase.period_duration,
     period: phase.period_duration
@@ -33,16 +40,39 @@ const toPricingPhase = (phase: PricingPhaseResponse) => {
   };
 };
 
+const toDiscountPricePhase = (
+  phase: DiscountPriceResponse,
+): DiscountPricePhase => {
+  return {
+    timeWindow: phase.time_window,
+    durationMode: phase.duration_mode,
+    price: {
+      amount: phase.amount_micros / 10000,
+      amountMicros: phase.amount_micros,
+      currency: phase.currency,
+      formattedPrice: `$${(phase.amount_micros / 1000000).toFixed(2)}`,
+    },
+    name: phase.name,
+  };
+};
+
 const toSubscriptionOption = (option: SubscriptionOptionResponse) => {
   if (option.base == null) {
     return null;
   }
+  const discountPrice = option.discount
+    ? toDiscountPricePhase(option.discount)
+    : null;
+  const introPrice = option.intro_price
+    ? toPricingPhase(option.intro_price)
+    : null;
   return {
     id: option.id,
     priceId: option.price_id,
     base: toPricingPhase(option.base),
     trial: option.trial ? toPricingPhase(option.trial) : null,
-    introPrice: option.intro_price ? toPricingPhase(option.intro_price) : null,
+    discountPrice,
+    introPrice,
   };
 };
 
@@ -50,6 +80,35 @@ const toNonSubscriptionOption = (option: NonSubscriptionOptionResponse) => {
   if (option.base_price == null) {
     return null;
   }
+  const toPrice = (priceResponse: {
+    amount_micros: number;
+    currency: string;
+  }) => {
+    return {
+      amount: priceResponse.amount_micros / 10000,
+      amountMicros: priceResponse.amount_micros,
+      currency: priceResponse.currency,
+      formattedPrice: formatPrice(
+        priceResponse.amount_micros,
+        priceResponse.currency,
+      ),
+    };
+  };
+  const toDiscountPricePhase = (
+    phase: DiscountPriceResponse | null,
+  ): DiscountPricePhase | null => {
+    if (!phase) return null;
+    return {
+      timeWindow: phase.time_window,
+      durationMode: phase.duration_mode,
+      price: toPrice({
+        amount_micros: phase.amount_micros,
+        currency: phase.currency,
+      }),
+      name: phase.name ?? null,
+    };
+  };
+  const discountPrice = toDiscountPricePhase(option.discount);
   return {
     id: option.id,
     priceId: option.price_id,
@@ -59,6 +118,7 @@ const toNonSubscriptionOption = (option: NonSubscriptionOptionResponse) => {
       currency: option.base_price.currency,
       formattedPrice: `$${(option.base_price.amount_micros / 1000000).toFixed(2)}`,
     },
+    discountPrice,
   };
 };
 
@@ -107,7 +167,10 @@ const createSubscriptionProduct = (
     price: currentPrice,
     period: defaultOption.base.period,
     freeTrialPhase: defaultOption.trial,
-    introPricePhase: defaultOption.introPrice,
+    discountPricePhase: defaultOption.discountPrice,
+    introPricePhase: defaultOption.discountPrice
+      ? null
+      : defaultOption.introPrice,
   };
 };
 
@@ -152,10 +215,12 @@ const createNonSubscriptionProduct = (
     defaultPurchaseOption: defaultOption,
     defaultSubscriptionOption: null,
     subscriptionOptions: {},
+    // TODO: fix
     defaultNonSubscriptionOption: defaultOption,
     price: defaultOption.basePrice,
     period: null,
     freeTrialPhase: null,
+    discountPricePhase: null,
     introPricePhase: null,
   };
 };
@@ -245,9 +310,11 @@ describe("Product Convenience Accessors", () => {
       expect(product.freeTrialPhase).toEqual(
         product.defaultSubscriptionOption!.trial,
       );
+      // When discountPrice is null, introPricePhase should match introPrice
       expect(product.introPricePhase).toEqual(
         product.defaultSubscriptionOption!.introPrice,
       );
+      expect(product.discountPricePhase).toBeNull();
     });
 
     test("subscription product without trial or intro price has null convenience accessors", () => {
@@ -322,6 +389,97 @@ describe("Product Convenience Accessors", () => {
 
       expect(product.freeTrialPhase).toBeNull();
       expect(product.introPricePhase).not.toBeNull();
+    });
+
+    test("subscription product with discount takes precedence over intro_price", () => {
+      const mockDiscountPricingPhase: DiscountPriceResponse = {
+        time_window: "P2M",
+        duration_mode: "time_window",
+        amount_micros: 2990000,
+        currency: "USD",
+        name: "Black Friday 50%",
+      };
+
+      const productData: ProductResponse = {
+        identifier: "discount_subscription",
+        title: "Discount Subscription",
+        description: "Subscription with both discount and intro price",
+        product_type: "subscription",
+        default_purchase_option_id: "discount_option",
+        purchase_options: {
+          discount_option: {
+            id: "discount_option",
+            price_id: "discount",
+            base: mockBasePricingPhase,
+            trial: null,
+            discount: mockDiscountPricingPhase,
+            intro_price: mockIntroPricingPhase,
+          } as SubscriptionOptionResponse,
+        },
+      };
+
+      const product = createSubscriptionProduct(productData, "discount_option");
+
+      // Both discountPricePhase and introPricePhase should be set
+      // (precedence is handled in UI components, not in the entity)
+      expect(product.discountPricePhase).not.toBeNull();
+      expect(product.discountPricePhase!.price).toEqual({
+        amount: 299,
+        amountMicros: 2990000,
+        currency: "USD",
+        formattedPrice: "$2.99",
+      });
+      expect(product.introPricePhase).not.toBeNull();
+
+      // Verify they match the values from the option
+      expect(product.discountPricePhase).toEqual(
+        product.defaultSubscriptionOption!.discountPrice,
+      );
+      expect(product.introPricePhase).toEqual(
+        product.defaultSubscriptionOption!.introPrice,
+      );
+    });
+
+    test("subscription product with only discount (no intro_price) has correct accessors", () => {
+      const mockDiscountPricingPhase: DiscountPriceResponse = {
+        time_window: "P1M",
+        duration_mode: "time_window",
+        amount_micros: 3990000,
+        currency: "USD",
+        name: "Monthly Discount",
+      };
+
+      const productData: ProductResponse = {
+        identifier: "discount_only_subscription",
+        title: "Discount Only Subscription",
+        description: "Subscription with discount price only",
+        product_type: "subscription",
+        default_purchase_option_id: "discount_only_option",
+        purchase_options: {
+          discount_only_option: {
+            id: "discount_only_option",
+            price_id: "discount_only_price",
+            base: mockBasePricingPhase,
+            trial: null,
+            discount: mockDiscountPricingPhase,
+            intro_price: null,
+          } as SubscriptionOptionResponse,
+        },
+      };
+
+      const product = createSubscriptionProduct(
+        productData,
+        "discount_only_option",
+      );
+
+      expect(product.discountPricePhase).not.toBeNull();
+      expect(product.discountPricePhase!.price).toEqual({
+        amount: 399,
+        amountMicros: 3990000,
+        currency: "USD",
+        formattedPrice: "$3.99",
+      });
+      expect(product.introPricePhase).toBeNull();
     });
   });
 
@@ -493,9 +651,11 @@ describe("Product Convenience Accessors", () => {
       expect(product.freeTrialPhase).toEqual(
         product.defaultSubscriptionOption!.trial,
       );
+      // When discountPrice is null, introPricePhase should match introPrice
       expect(product.introPricePhase).toEqual(
         product.defaultSubscriptionOption!.introPrice,
       );
+      expect(product.discountPricePhase).toBeNull();
     });
   });
 });

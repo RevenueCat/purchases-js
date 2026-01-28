@@ -21,6 +21,7 @@ describe("getPaywallVariables", () => {
     pricePerWeek: null,
     pricePerMonth: null,
     pricePerYear: null,
+    name: null,
   } satisfies PricingPhase;
 
   const introPrice: SubscriptionOption["introPrice"] = {
@@ -36,6 +37,7 @@ describe("getPaywallVariables", () => {
     pricePerWeek: null,
     pricePerMonth: null,
     pricePerYear: null,
+    name: null,
   } satisfies PricingPhase;
 
   beforeEach(() => {

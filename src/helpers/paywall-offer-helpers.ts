@@ -30,8 +30,10 @@ export function setOfferVariables(
   translator: Translator,
   variables: VariableDictionary,
 ) {
-  const primaryOffer = product.trial ?? product.introPrice;
-  const secondaryOffer = product.trial ? product.introPrice : null;
+  const primaryOffer =
+    product.discountPrice ?? product.trial ?? product.introPrice;
+  const secondaryOffer =
+    product.trial && !product.discountPrice ? product.introPrice : null;
 
   if (primaryOffer === null) {
     return;

@@ -20,6 +20,7 @@ export interface MinimumProductInfo {
   currency?: string;
   trial?: SubscriptionOption["trial"];
   introPrice?: SubscriptionOption["introPrice"];
+  discountPrice?: SubscriptionOption["discountPrice"];
 }
 
 export interface MinimumPackageInfo extends MinimumProductInfo {
@@ -74,6 +75,7 @@ export const buildProduct: (data: MinimumProductInfo) => Product = ({
   currency = "EUR",
   trial = null,
   introPrice = null,
+  discountPrice = null,
 }) => {
   const toPrice = (amountMicros: number, currency: string) => ({
     amount: Math.floor(amountMicros / 10000),
@@ -87,7 +89,7 @@ export const buildProduct: (data: MinimumProductInfo) => Product = ({
   const pricePerYear = toPrice(pricePerYearMicros, currency);
   const pricePerMonth = toPrice(pricePerMonthMicros, currency);
 
-  const subscriptionOption = {
+  const subscriptionOption: SubscriptionOption = {
     id: "base_option",
     priceId: "prcb358d16d7b7744bb8ab0",
     base: {
@@ -98,10 +100,12 @@ export const buildProduct: (data: MinimumProductInfo) => Product = ({
       pricePerWeek: pricePerWeek,
       pricePerMonth: pricePerMonth,
       pricePerYear: pricePerYear,
+      name: null,
     },
     trial,
     introPrice,
-  } satisfies SubscriptionOption;
+    discountPrice: discountPrice,
+  };
 
   return {
     identifier: identifier,
@@ -131,6 +135,7 @@ export const buildProduct: (data: MinimumProductInfo) => Product = ({
     defaultNonSubscriptionOption: null,
     freeTrialPhase: null,
     introPricePhase: null,
+    discountPricePhase: null,
   };
 };
 export const toOffering = (productInfo: MinimumPackageInfo[]) => {

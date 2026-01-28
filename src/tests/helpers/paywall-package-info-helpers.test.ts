@@ -16,6 +16,7 @@ describe("parseOfferingIntoPackageInfoPerPackage", () => {
     pricePerWeek: null,
     pricePerMonth: null,
     pricePerYear: null,
+    name: null,
   } satisfies PricingPhase;
 
   const introPrice: SubscriptionOption["introPrice"] = {
@@ -31,7 +32,20 @@ describe("parseOfferingIntoPackageInfoPerPackage", () => {
     pricePerWeek: null,
     pricePerMonth: null,
     pricePerYear: null,
+    name: null,
   } satisfies PricingPhase;
+
+  const discountPrice: SubscriptionOption["discountPrice"] = {
+    timeWindow: "P1M",
+    durationMode: "time_window",
+    price: {
+      amount: 3000,
+      amountMicros: 3000000,
+      currency: "EUR",
+      formattedPrice: "30.00€",
+    },
+    name: "Black Friday 50%",
+  };
 
   test("Packages with no trial and no intro offer", () => {
     const off = toOffering([
@@ -48,6 +62,7 @@ describe("parseOfferingIntoPackageInfoPerPackage", () => {
       expect.objectContaining({
         $rc_monthly: expect.objectContaining({
           hasTrial: false,
+          hasDiscount: false,
           hasIntroOffer: false,
         }),
       }),
@@ -70,6 +85,7 @@ describe("parseOfferingIntoPackageInfoPerPackage", () => {
       expect.objectContaining({
         $rc_weekly: expect.objectContaining({
           hasTrial: true,
+          hasDiscount: false,
           hasIntroOffer: false,
         }),
       }),
@@ -92,6 +108,7 @@ describe("parseOfferingIntoPackageInfoPerPackage", () => {
       expect.objectContaining({
         $rc_yearly: expect.objectContaining({
           hasTrial: false,
+          hasDiscount: false,
           hasIntroOffer: true,
         }),
       }),
@@ -115,6 +132,7 @@ describe("parseOfferingIntoPackageInfoPerPackage", () => {
       expect.objectContaining({
         custom_both: expect.objectContaining({
           hasTrial: true,
+          hasDiscount: false,
           hasIntroOffer: true,
         }),
       }),
@@ -155,18 +173,94 @@ describe("parseOfferingIntoPackageInfoPerPackage", () => {
       expect.objectContaining({
         $rc_monthly: expect.objectContaining({
           hasTrial: false,
+          hasDiscount: false,
           hasIntroOffer: false,
         }),
         $rc_weekly: expect.objectContaining({
           hasTrial: true,
+          hasDiscount: false,
           hasIntroOffer: false,
         }),
         $rc_yearly: expect.objectContaining({
           hasTrial: false,
+          hasDiscount: false,
           hasIntroOffer: true,
         }),
         custom_both: expect.objectContaining({
           hasTrial: true,
+          hasDiscount: false,
+          hasIntroOffer: true,
+        }),
+      }),
+    );
+  });
+
+  test("Packages with only discount price", () => {
+    const off = toOffering([
+      {
+        packageIdentifier: "$rc_yearly",
+        identifier: "yearly_discount",
+        title: "Yearly Discount",
+        discountPrice,
+      },
+    ]);
+
+    const result = parseOfferingIntoPackageInfoPerPackage(off);
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        $rc_yearly: expect.objectContaining({
+          hasTrial: false,
+          hasDiscount: true,
+          hasIntroOffer: false,
+        }),
+      }),
+    );
+  });
+
+  test("Packages with both discount price and intro price", () => {
+    const off = toOffering([
+      {
+        packageIdentifier: "custom_discount_intro",
+        identifier: "custom_discount_intro_id",
+        title: "Custom Discount + Intro",
+        discountPrice,
+        introPrice,
+      },
+    ]);
+
+    const result = parseOfferingIntoPackageInfoPerPackage(off);
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        custom_discount_intro: expect.objectContaining({
+          hasTrial: false,
+          hasDiscount: true,
+          hasIntroOffer: true,
+        }),
+      }),
+    );
+  });
+
+  test("Packages with trial, discount price, and intro price", () => {
+    const off = toOffering([
+      {
+        packageIdentifier: "custom_all",
+        identifier: "custom_all_id",
+        title: "Custom All",
+        trial,
+        discountPrice,
+        introPrice,
+      },
+    ]);
+
+    const result = parseOfferingIntoPackageInfoPerPackage(off);
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        custom_all: expect.objectContaining({
+          hasTrial: true,
+          hasDiscount: true,
           hasIntroOffer: true,
         }),
       }),

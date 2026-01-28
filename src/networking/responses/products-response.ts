@@ -11,12 +11,14 @@ export interface PricingPhaseResponse {
 
 export interface DiscountPriceResponse extends PriceResponse {
   name: string | null;
+  duration_mode: "one_time" | "time_window" | "forever";
+  time_window: string | null;
 }
 
 export interface PurchaseOptionResponse {
   id: string;
   price_id: string;
-  discount_price: DiscountPriceResponse | null;
+  discount: DiscountPriceResponse | null;
 }
 
 export interface SubscriptionOptionResponse extends PurchaseOptionResponse {

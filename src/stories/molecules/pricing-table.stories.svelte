@@ -9,6 +9,8 @@
     priceBreakdownTaxLoading,
     priceBreakdownTaxPending,
     subscriptionOption,
+    subscriptionOptionWithDiscountPrice,
+    subscriptionOptionWithDiscountPriceForever,
     subscriptionOptionWithTrial,
   } from "../fixtures";
   import {
@@ -40,6 +42,8 @@
     priceBreakdown={args.priceBreakdown ??
       getPriceBreakdownTaxDisabled(subscriptionOption)}
     trialPhase={args.trialPhase ?? null}
+    basePhase={args.basePhase ?? null}
+    promotionalPricePhase={args.promotionalPricePhase ?? null}
   />
 {/snippet}
 
@@ -110,5 +114,68 @@
   args={{
     priceBreakdown: priceBreakdownTaxExclusiveWithMultipleTaxItems,
     trialPhase: subscriptionOptionWithTrial.trial,
+  }}
+/>
+<Story
+  name="Disabled Tax Discount"
+  args={{
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithDiscountPrice,
+    ),
+    basePhase: subscriptionOptionWithDiscountPrice.base,
+    promotionalPricePhase: subscriptionOptionWithDiscountPrice.discountPrice,
+  }}
+/>
+<Story
+  name="Disabled Tax Forever Discount"
+  args={{
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithDiscountPriceForever,
+    ),
+    basePhase: subscriptionOptionWithDiscountPriceForever.base,
+    promotionalPricePhase:
+      subscriptionOptionWithDiscountPriceForever.discountPrice,
+  }}
+/>
+<Story
+  name="Tax Inclusive Discount"
+  args={{
+    priceBreakdown: getPriceBreakdownTaxInclusive(
+      subscriptionOptionWithDiscountPrice,
+    ),
+    basePhase: subscriptionOptionWithDiscountPrice.base,
+    promotionalPricePhase: subscriptionOptionWithDiscountPrice.discountPrice,
+  }}
+/>
+<Story
+  name="Tax Inclusive Forever Discount"
+  args={{
+    priceBreakdown: getPriceBreakdownTaxInclusive(
+      subscriptionOptionWithDiscountPriceForever,
+    ),
+    basePhase: subscriptionOptionWithDiscountPriceForever.base,
+    promotionalPricePhase:
+      subscriptionOptionWithDiscountPriceForever.discountPrice,
+  }}
+/>
+<Story
+  name="Tax Exclusive Discount"
+  args={{
+    priceBreakdown: getPriceBreakdownTaxExclusive(
+      subscriptionOptionWithDiscountPrice,
+    ),
+    basePhase: subscriptionOptionWithDiscountPrice.base,
+    promotionalPricePhase: subscriptionOptionWithDiscountPrice.discountPrice,
+  }}
+/>
+<Story
+  name="Tax Exclusive Forever Discount"
+  args={{
+    priceBreakdown: getPriceBreakdownTaxExclusive(
+      subscriptionOptionWithDiscountPriceForever,
+    ),
+    basePhase: subscriptionOptionWithDiscountPriceForever.base,
+    promotionalPricePhase:
+      subscriptionOptionWithDiscountPriceForever.discountPrice,
   }}
 />

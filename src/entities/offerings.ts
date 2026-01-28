@@ -4,6 +4,7 @@ import {
   type TargetingResponse,
 } from "../networking/responses/offerings-response";
 import type {
+  DiscountPriceResponse,
   NonSubscriptionOptionResponse,
   PriceResponse,
   PricingPhaseResponse,
@@ -150,6 +151,34 @@ export interface PricingPhase {
 }
 
 /**
+ * Represents the price and duration information for a discount price phase.
+ * @public
+ */
+export interface DiscountPricePhase {
+  /**
+   * The duration of the phase in ISO 8601 format.
+   */
+  readonly timeWindow: string | null;
+  /**
+   * The duration mode of the discount price.
+   */
+  readonly durationMode: "one_time" | "time_window" | "forever";
+  /**
+   * The price for the purchase option.
+   */
+  readonly price: Price | null;
+  /**
+   * The name of the discount, if this is a discount pricing phase.
+   * Only present for discount prices, null for intro prices and trials.
+   */
+  readonly name: string | null;
+  /**
+   * The period of the discount price.
+   */
+  readonly period: Period | null;
+}
+
+/**
  * Represents a possible option to purchase a product.
  * @public
  */
@@ -177,13 +206,21 @@ export interface SubscriptionOption extends PurchaseOption {
   readonly base: PricingPhase;
   /**
    * The trial information for this subscription option if available.
+   * Only present when discountPrice is null.
    */
   readonly trial: PricingPhase | null;
 
   /**
    * The introductory price period for this subscription option if available.
+   * Only present when discountPrice is null.
    */
   readonly introPrice: PricingPhase | null;
+
+  /**
+   * The discount price period for this subscription option if available.
+   * When present, introPrice and trial will be null.
+   */
+  readonly discountPrice: DiscountPricePhase | null;
 }
 
 /**
@@ -195,6 +232,10 @@ export interface NonSubscriptionOption extends PurchaseOption {
    * The base price for the product.
    */
   readonly basePrice: Price;
+  /**
+   * The discount price for the product if available.
+   */
+  readonly discountPrice: DiscountPricePhase | null;
 }
 
 /**
@@ -318,14 +359,23 @@ export interface Product {
    * Free trial phase information for subscriptions.
    * Null for non-subscriptions or when no free trial is available.
    * Convenience accessor for defaultSubscriptionOption?.trial.
+   * Only present when discountPricePhase is null.
    */
   readonly freeTrialPhase: PricingPhase | null;
   /**
    * Introductory price phase information for subscriptions.
    * Null for non-subscriptions or when no introductory price is available.
    * Convenience accessor for defaultSubscriptionOption?.introPrice.
+   * Only present when discountPricePhase is null.
    */
   readonly introPricePhase: PricingPhase | null;
+  /**
+   * Discount price phase information for subscriptions and non-subscriptions.
+   * Null when no discount price is available.
+   * Convenience accessor for defaultSubscriptionOption?.discountPrice or defaultNonSubscriptionOption?.discountPrice.
+   * When present, introPricePhase and freeTrialPhase will be null.
+   */
+  readonly discountPricePhase: DiscountPricePhase | null;
 }
 
 /**
@@ -447,13 +497,15 @@ export interface Offerings {
  */
 export type PurchaseMetadata = Record<string, string | null>;
 
+const toDiscountPrice = (amountMicros: number, currency: string): Price => ({
+  amount: amountMicros / 10000,
+  amountMicros: amountMicros,
+  currency: currency,
+  formattedPrice: formatPrice(amountMicros, currency),
+});
+
 const toPrice = (priceData: PriceResponse): Price => {
-  return {
-    amount: priceData.amount_micros / 10000,
-    amountMicros: priceData.amount_micros,
-    currency: priceData.currency,
-    formattedPrice: formatPrice(priceData.amount_micros, priceData.currency),
-  };
+  return toDiscountPrice(priceData.amount_micros, priceData.currency);
 };
 
 const toPricingPhase = (optionPhase: PricingPhaseResponse): PricingPhase => {
@@ -504,6 +556,19 @@ const toPricingPhase = (optionPhase: PricingPhaseResponse): PricingPhase => {
     pricePerYear: pricePerYear,
   };
 };
+
+const toDiscountPricePhase = (
+  optionPhase: DiscountPriceResponse,
+): DiscountPricePhase => ({
+  // TODO: Remove fallbacks
+  timeWindow: optionPhase.time_window ?? null,
+  durationMode: optionPhase.duration_mode ?? "forever",
+  price: toDiscountPrice(optionPhase.amount_micros, optionPhase.currency),
+  name: optionPhase.name,
+  period: optionPhase.time_window
+    ? parseISODuration(optionPhase.time_window)
+    : null,
+});
 
 function getPriceConversionFactor(period: Period): {
   toWeek: number;
@@ -556,7 +621,10 @@ const toSubscriptionOption = (
     base: toPricingPhase(option.base),
     trial: option.trial ? toPricingPhase(option.trial) : null,
     introPrice: option.intro_price ? toPricingPhase(option.intro_price) : null,
-  } as SubscriptionOption;
+    discountPrice: option.discount
+      ? toDiscountPricePhase(option.discount)
+      : null,
+  };
 };
 
 const toNonSubscriptionOption = (
@@ -572,7 +640,10 @@ const toNonSubscriptionOption = (
     id: option.id,
     priceId: option.price_id,
     basePrice: toPrice(option.base_price),
-  } as NonSubscriptionOption;
+    discountPrice: option.discount
+      ? toDiscountPricePhase(option.discount)
+      : null,
+  };
 };
 
 const toProduct = (
@@ -653,6 +724,7 @@ const toNonSubscriptionProduct = (
     period: null,
     freeTrialPhase: null,
     introPricePhase: null,
+    discountPricePhase: defaultOption.discountPrice,
   };
 };
 
@@ -716,6 +788,7 @@ const toSubscriptionProduct = (
     period: defaultOption.base.period,
     freeTrialPhase: defaultOption.trial,
     introPricePhase: defaultOption.introPrice,
+    discountPricePhase: defaultOption.discountPrice,
   };
 };
 

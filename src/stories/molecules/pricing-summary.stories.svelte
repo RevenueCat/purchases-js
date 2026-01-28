@@ -17,12 +17,19 @@
     subscriptionOptionWithMultipleWeeksIntroPriceRecurring,
     subscriptionOptionWithMultipleYearsIntroPriceRecurring,
     subscriptionOptionWithSingleWeekWithTrialAndIntroPriceRecurring,
+    subscriptionOptionWithDiscountPriceForever,
+    subscriptionOptionWithDiscountPrice,
+    nonSubscriptionOptionWithDiscountPrice,
     nonSubscriptionOption,
+    nonSubscriptionBasePricingPhase,
   } from "../fixtures";
   import { getPriceBreakdownTaxDisabled } from "../helpers/get-price-breakdown";
 
   import { parseISODuration } from "../../helpers/duration-helper";
-  import type { PricingPhase } from "../../entities/offerings";
+  import type {
+    PricingPhase,
+    DiscountPricePhase,
+  } from "../../entities/offerings";
   import type { PriceBreakdown } from "../../ui/ui-types";
 
   const billingDurations = ["P1W", "P1M", "P3M", "P6M", "P1Y", null];
@@ -33,9 +40,11 @@
     priceBreakdown: PriceBreakdown;
     basePhase?: PricingPhase | null;
     introPricePhase?: PricingPhase | null;
+    discountPricePhase?: DiscountPricePhase | null;
     trialPhase?: PricingPhase | null;
     billingDuration?: string | null;
     introDuration?: string | null;
+    discountDuration?: string | null;
     introCycles?: number | null;
     trialDuration?: string | null;
   };
@@ -50,12 +59,14 @@
     args: {
       billingDuration: null,
       introDuration: null,
+      discountDuration: null,
       introCycles: null,
       trialDuration: null,
+      discountPriceDuration: null,
     } as any,
     argTypes: {
       billingDuration: { control: "select", options: billingDurations },
-      introDuration: { control: "select", options: introDurations },
+      promotionalPriceDuration: { control: "select", options: introDurations },
       introCycles: {
         control: { type: "number", min: 1, max: 12, step: 1 },
       },
@@ -122,6 +133,7 @@
   {@const trialPhase = args.trialPhase
     ? setPeriodDuration(args.trialDuration, args.trialPhase, defaultTrialPhase)
     : null}
+
   {@const introPricePhase = args.introPricePhase
     ? setCyclesCount(
         args.introCycles,
@@ -133,14 +145,57 @@
       )
     : null}
 
-  <PricingSummary {priceBreakdown} {basePhase} {trialPhase} {introPricePhase} />
+  <!-- TODO: FIX -->
+  {@const discountPricePhase = args.discountPricePhase ?? null}
+
+  <PricingSummary
+    {priceBreakdown}
+    {basePhase}
+    {trialPhase}
+    {introPricePhase}
+    {discountPricePhase}
+  />
 {/snippet}
+
+<Story
+  name="Non Subscription with Discount"
+  args={{
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      nonSubscriptionOptionWithDiscountPrice,
+    ),
+    basePhase: nonSubscriptionBasePricingPhase,
+    discountPricePhase: nonSubscriptionOptionWithDiscountPrice.discountPrice,
+  }}
+/>
 
 <Story
   name="Subscription"
   args={{
     priceBreakdown: getPriceBreakdownTaxDisabled(subscriptionOption),
     basePhase: subscriptionOption.base,
+  }}
+/>
+
+<Story
+  name="Subscription with Forever Discount"
+  args={{
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithDiscountPriceForever,
+    ),
+    basePhase: subscriptionOption.base,
+    discountPricePhase:
+      subscriptionOptionWithDiscountPriceForever.discountPrice,
+  }}
+/>
+
+<Story
+  name="Subscription with Time Window Discount"
+  args={{
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithDiscountPrice,
+    ),
+    basePhase: subscriptionOption.base,
+    discountPricePhase: subscriptionOptionWithDiscountPrice.discountPrice,
   }}
 />
 
