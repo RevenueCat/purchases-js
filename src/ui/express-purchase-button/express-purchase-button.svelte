@@ -1,5 +1,4 @@
 <script lang="ts">
-  import type { Package, PurchaseOption } from "../../entities/offerings";
   import {
     PurchaseFlowError,
     PurchaseFlowErrorCode,
@@ -16,16 +15,11 @@
     StripeService,
     StripeServiceError,
   } from "../../stripe/stripe-service";
-  import {
-    type GatewayParams,
-    type StripeElementsConfiguration,
-  } from "../../networking/responses/stripe-elements";
-  import { DEFAULT_FONT_FAMILY } from "../theme/text";
   import { writable } from "svelte/store";
   import { translatorContextKey } from "../localization/constants";
   import { brandingContextKey } from "../constants";
   import type { StripeExpressCheckoutConfiguration } from "../../stripe/stripe-express-checkout-configuration";
-  import { toExpressPurchaseOptions } from "./stripe-helpers";
+  import { initStripe, updateStripe } from "./stripe-helpers";
 
   import type { ExpressPurchaseButtonProps } from "./express-purchase-button-props";
   import type {
@@ -83,98 +77,6 @@
     onError(error);
   };
 
-  const updateStripe = async (
-    elements: StripeElements,
-    gatewayParams: GatewayParams,
-    managementUrl: string,
-    rcPackage: Package,
-    purchaseOption: PurchaseOption,
-  ) => {
-    if (!gatewayParams.elements_configuration) {
-      throw new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase);
-    }
-
-    StripeService.updateElementsConfiguration(
-      elements,
-      gatewayParams.elements_configuration,
-    );
-
-    const options = toExpressPurchaseOptions(
-      rcPackage,
-      purchaseOption,
-      managementUrl,
-      translator,
-    );
-    return { expOptions: options };
-  };
-
-  const initStripe = async (
-    gatewayParams: GatewayParams,
-    managementUrl: string,
-  ) => {
-    if (!gatewayParams.elements_configuration) {
-      throw new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase);
-    }
-
-    // Aiming for a pure function so that it can be extracted
-    // Not assigning any state variable in here.
-    const stripeAccountId = gatewayParams.stripe_account_id;
-    const publishableApiKey = gatewayParams.publishable_api_key;
-    const stripeLocale = StripeService.getStripeLocale(
-      translator.bcp47Locale || translator.fallbackBcp47Locale,
-    );
-
-    const stripeVariables = {
-      // Floating labels size cannot be overriden in Stripe since `!important` is being used.
-      // There we set fontSizeBase to the desired label size
-      // and update the input font size to 16px.
-      fontSizeBase: "14px",
-      fontFamily: DEFAULT_FONT_FAMILY,
-      // Spacing is hardcoded to 16px to match the desired gaps in mobile/desktop
-      // which do not match the design system spacing. Also we cannot use "rem" units
-      // since the fontSizeBase is set to 14px per the comment above.
-      spacingGridRow: "16px",
-    };
-
-    const isMobile =
-      window.matchMedia && window.matchMedia("(max-width: 767px)").matches;
-
-    let viewport: "mobile" | "desktop" = "mobile";
-
-    if (isMobile) {
-      viewport = "mobile";
-    } else {
-      viewport = "desktop";
-    }
-
-    if (!stripeAccountId || !publishableApiKey) {
-      throw new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase);
-    }
-
-    const elementsConfiguration: StripeElementsConfiguration =
-      gatewayParams.elements_configuration;
-
-    const { stripe: stripeInstance, elements: elementsInstance } =
-      await StripeService.initializeStripe(
-        stripeAccountId,
-        publishableApiKey,
-        elementsConfiguration,
-        brandingInfo,
-        stripeLocale,
-        stripeVariables,
-        viewport,
-      );
-
-    const options = toExpressPurchaseOptions(
-      rcPackage,
-      purchaseOption,
-      managementUrl,
-      translator,
-    );
-
-    return { stripeInstance, elementsInstance, expOptions: options };
-  };
-
   let checkoutStarted = false;
   const reInitPurchase = async () => {
     if (checkoutStarted) {
@@ -202,7 +104,7 @@
     }
 
     // Management URL is assigned later in startCheckout when we have an operation session.
-    const managementUrl = "";
+    const managementUrl = "http://blank";
 
     try {
       if (!stripe || !elements) {
@@ -210,17 +112,22 @@
           await initStripe(
             prepareCheckoutResponse.stripe_gateway_params,
             managementUrl,
+            rcPackage,
+            purchaseOption,
+            translator,
+            brandingInfo,
           );
         stripe = stripeInstance;
         elements = elementsInstance;
         expressCheckoutOptions = expOptions;
       } else {
-        const { expOptions } = await updateStripe(
+        const { expOptions } = updateStripe(
           elements,
           prepareCheckoutResponse.stripe_gateway_params,
           managementUrl,
           rcPackage,
           purchaseOption,
+          translator,
         );
         expressCheckoutOptions = expOptions;
       }
@@ -388,12 +295,13 @@
         );
       }
 
-      const { expOptions: options } = await updateStripe(
+      const { expOptions: options } = updateStripe(
         elements,
         checkoutStartResult.gateway_params,
         managementUrl,
         rcPackage,
         purchaseOption,
+        translator,
       );
 
       return { applePay: options.applePay } as ClickResolveDetails;
