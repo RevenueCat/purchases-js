@@ -8,8 +8,8 @@ importers:
   .:
     dependencies:
       "@revenuecat/purchases-js":
-        specifier: file:../..
-        version: file:../..
+        specifier: link:../..
+        version: link:../..
       react:
         specifier: ^19.0.0
         version: 19.1.0
@@ -647,9 +647,6 @@ packages:
       }
     engines: { node: ">=18" }
     hasBin: true
-
-  "@revenuecat/purchases-js@file:../..":
-    resolution: { directory: ../.., type: directory }
 
   "@rolldown/pluginutils@1.0.0-beta.27":
     resolution:
@@ -3609,8 +3606,6 @@ snapshots:
   "@playwright/test@1.56.1":
     dependencies:
       playwright: 1.56.1
-
-  "@revenuecat/purchases-js@file:../..": {}
 
   "@rolldown/pluginutils@1.0.0-beta.27": {}
 
