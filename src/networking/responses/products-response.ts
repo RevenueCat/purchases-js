@@ -1,7 +1,6 @@
 export interface PriceResponse {
   amount_micros: number;
   currency: string;
-  discounted_amount_micros: number | null;
 }
 
 export interface PricingPhaseResponse {
@@ -10,10 +9,14 @@ export interface PricingPhaseResponse {
   cycle_count: number;
 }
 
+export interface DiscountPriceResponse extends PriceResponse {
+  name: string | null;
+}
+
 export interface PurchaseOptionResponse {
   id: string;
   price_id: string;
-  discount_name: string | null;
+  discount_price: DiscountPriceResponse | null;
 }
 
 export interface SubscriptionOptionResponse extends PurchaseOptionResponse {
