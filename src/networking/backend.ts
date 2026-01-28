@@ -2,7 +2,6 @@ import { type OfferingsResponse } from "./responses/offerings-response";
 import { performRequest, performRequestWithStatus } from "./http-client";
 import {
   CheckoutCalculateTaxEndpoint,
-  CheckoutClientCredentials,
   CheckoutCompleteEndpoint,
   CheckoutPrepareEndpoint,
   CheckoutStartEndpoint,
@@ -33,7 +32,6 @@ import type { CheckoutCompleteResponse } from "./responses/checkout-complete-res
 import type { CheckoutCalculateTaxResponse } from "./responses/checkout-calculate-tax-response";
 import { isWebBillingSandboxApiKey } from "../helpers/api-key-helper";
 import type { IdentifyResponse } from "./responses/identify-response";
-import type { GetClientCredentialsResponse } from "./responses/get-client-credentials-response";
 import type { CheckoutPrepareResponse } from "./responses/checkout-prepare-response";
 
 export class Backend {
@@ -126,16 +124,6 @@ export class Backend {
   async getBrandingInfo(): Promise<BrandingInfoResponse> {
     return await performRequest<null, BrandingInfoResponse>(
       new GetBrandingInfoEndpoint(),
-      {
-        apiKey: this.API_KEY,
-        httpConfig: this.httpConfig,
-      },
-    );
-  }
-
-  async getClientCredentials(): Promise<GetClientCredentialsResponse> {
-    return await performRequest<null, GetClientCredentialsResponse>(
-      new CheckoutClientCredentials(),
       {
         apiKey: this.API_KEY,
         httpConfig: this.httpConfig,

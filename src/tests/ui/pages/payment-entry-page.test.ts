@@ -8,7 +8,6 @@ import {
   rcPackage,
   stripeElementsConfiguration,
 } from "../../../stories/fixtures";
-import { getClientCredentialsResponse } from "../../test-responses";
 import { SDKEventName } from "../../../behavioural-events/sdk-events";
 import { createEventsTrackerMock } from "../../mocks/events-tracker-mock-provider";
 import { eventsTrackerContextKey } from "../../../ui/constants";
@@ -75,8 +74,6 @@ const purchaseOperationHelperMock: PurchaseOperationHelper = {
     Promise.resolve(
       checkoutCalculateTaxResponse as CheckoutCalculateTaxResponse,
     ),
-  getClientCredentials: async () =>
-    Promise.resolve(getClientCredentialsResponse),
   checkoutStart: async () =>
     Promise.resolve(checkoutStartResponse as CheckoutStartResponse),
   checkoutComplete: async () =>

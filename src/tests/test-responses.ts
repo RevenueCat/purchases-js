@@ -10,7 +10,6 @@ import type { CheckoutCompleteResponse } from "../networking/responses/checkout-
 import { StripeElementsSetupFutureUsage } from "../networking/responses/stripe-elements";
 import { StripeElementsMode } from "../networking/responses/stripe-elements";
 import type { SubscriberResponse } from "../networking/responses/subscriber-response";
-import type { GetClientCredentialsResponse } from "../networking/responses/get-client-credentials-response";
 
 const monthlyProductResponse: ProductResponse = {
   identifier: "monthly",
@@ -214,20 +213,6 @@ export const offeringsWithIntroPriceArray = [
     paywall_components: null,
   },
 ];
-
-export const getClientCredentialsResponse: GetClientCredentialsResponse = {
-  stripe_gateway_params: {
-    publishable_api_key: "test_publishable_api_key",
-    stripe_account_id: "test_stripe_account_id",
-  },
-  paypal_gateway_params: {
-    client_access_token: "test_paypal_access_token",
-  },
-  paddle_billing_params: {
-    client_side_token: "test_client_side_token",
-    is_sandbox: true,
-  },
-};
 
 export const customerInfoResponse: SubscriberResponse = {
   request_date: "2024-01-22T13:23:07Z",

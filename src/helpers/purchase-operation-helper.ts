@@ -25,7 +25,6 @@ import { type IEventsTracker } from "../behavioural-events/events-tracker";
 import type { CheckoutCompleteResponse } from "../networking/responses/checkout-complete-response";
 import type { CheckoutCalculateTaxResponse } from "../networking/responses/checkout-calculate-tax-response";
 import { handleCheckoutSessionFailed } from "./checkout-error-handler";
-import type { GetClientCredentialsResponse } from "../networking/responses/get-client-credentials-response";
 import type { CheckoutPrepareResponse } from "../networking/responses/checkout-prepare-response";
 
 export enum PurchaseFlowErrorCode {
@@ -131,27 +130,6 @@ export class PurchaseOperationHelper {
     this.backend = backend;
     this.eventsTracker = eventsTracker;
     this.maxNumberAttempts = maxNumberAttempts;
-  }
-
-  async getClientCredentials(): Promise<GetClientCredentialsResponse> {
-    try {
-      return await this.backend.getClientCredentials();
-    } catch (error) {
-      if (error instanceof PurchasesError) {
-        throw PurchaseFlowError.fromPurchasesError(
-          error,
-          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-        );
-      } else {
-        const errorMessage =
-          "Unknown error downloading credentials " + String(error);
-        Logger.errorLog(errorMessage);
-        throw new PurchaseFlowError(
-          PurchaseFlowErrorCode.UnknownError,
-          errorMessage,
-        );
-      }
-    }
   }
 
   async prepareCheckout(

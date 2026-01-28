@@ -1,7 +1,6 @@
 import { describe, expect, test } from "vitest";
 import {
   GetBrandingInfoEndpoint,
-  CheckoutClientCredentials,
   GetCheckoutStatusEndpoint,
   GetCustomerInfoEndpoint,
   GetOfferingsEndpoint,
@@ -114,18 +113,6 @@ describe("getBrandingInfo endpoint", () => {
 
   test("has correct urlPath", () => {
     expect(endpoint.urlPath()).toBe("/rcbilling/v1/branding");
-  });
-});
-
-describe("checkoutClientCredentials endpoint", () => {
-  const endpoint = new CheckoutClientCredentials();
-
-  test("uses correct method", () => {
-    expect(endpoint.method).toBe("GET");
-  });
-
-  test("has correct urlPath", () => {
-    expect(endpoint.urlPath()).toBe("/rcbilling/v1/checkout/credentials");
   });
 });
 

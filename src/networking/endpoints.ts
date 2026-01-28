@@ -91,15 +91,6 @@ export class GetBrandingInfoEndpoint implements Endpoint {
   }
 }
 
-export class CheckoutClientCredentials implements Endpoint {
-  method: HttpMethodType = "GET";
-  name: string = "getCheckoutClientCredentials";
-
-  urlPath(): string {
-    return `${RC_BILLING_PATH}/checkout/credentials`;
-  }
-}
-
 export class CheckoutPrepareEndpoint implements Endpoint {
   method: HttpMethodType = "POST";
   name: string = "postCheckoutPrepare";
