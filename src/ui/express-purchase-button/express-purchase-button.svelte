@@ -1,14 +1,8 @@
 <script lang="ts">
-  import type {
-    Package,
-    Product,
-    SubscriptionOption,
-  } from "../../entities/offerings";
   import {
     PurchaseFlowError,
     PurchaseFlowErrorCode,
   } from "../../helpers/purchase-operation-helper";
-  import { type PriceBreakdown } from "../ui-types";
   import ExpressCheckoutElement from "../molecules/stripe-express-checkout-element.svelte";
   import { setContext } from "svelte";
   import type {
@@ -21,13 +15,11 @@
     StripeService,
     StripeServiceError,
   } from "../../stripe/stripe-service";
-  import { DEFAULT_FONT_FAMILY } from "../theme/text";
   import { writable } from "svelte/store";
   import { translatorContextKey } from "../localization/constants";
   import { brandingContextKey } from "../constants";
   import type { StripeExpressCheckoutConfiguration } from "../../stripe/stripe-express-checkout-configuration";
-  import { getInitialPriceFromPurchaseOption } from "../../helpers/purchase-option-price-helper";
-  import type { WebBillingCheckoutStartResponse } from "../../networking/responses/checkout-start-response";
+  import { initStripe, updateStripe } from "./stripe-helpers";
 
   import type { ExpressPurchaseButtonProps } from "./express-purchase-button-props";
   import type {
@@ -44,6 +36,7 @@
     createCheckoutSessionStartEvent,
   } from "../../behavioural-events/sdk-event-helpers";
   import type { SDKEventPurchaseMode } from "../../behavioural-events/event";
+  import type { CheckoutPrepareResponse } from "../../networking/responses/checkout-prepare-response";
 
   const {
     customerEmail,
@@ -73,7 +66,6 @@
 
   let expressCheckoutOptions: StripeExpressCheckoutConfiguration | null =
     $state(null);
-  let managementUrl: string | null = $state(null);
 
   const handleError = (error: PurchaseFlowError) => {
     const event = createCheckoutFlowErrorEvent({
@@ -85,129 +77,63 @@
     onError(error);
   };
 
-  const initStripe = async (
-    checkoutStartResponse: WebBillingCheckoutStartResponse,
-    rcPackage: Package,
-  ) => {
-    const gatewayParams = checkoutStartResponse.gateway_params;
-    // Aiming for a pure function so that it can be extracted
-    // Not assigning any state variable in here.
-    const stripeAccountId = gatewayParams.stripe_account_id;
-    const publishableApiKey = gatewayParams.publishable_api_key;
-    const stripeLocale = StripeService.getStripeLocale(
-      translator.bcp47Locale || translator.fallbackBcp47Locale,
-    );
-
-    const stripeVariables = {
-      // Floating labels size cannot be overriden in Stripe since `!important` is being used.
-      // There we set fontSizeBase to the desired label size
-      // and update the input font size to 16px.
-      fontSizeBase: "14px",
-      fontFamily: DEFAULT_FONT_FAMILY,
-      // Spacing is hardcoded to 16px to match the desired gaps in mobile/desktop
-      // which do not match the design system spacing. Also we cannot use "rem" units
-      // since the fontSizeBase is set to 14px per the comment above.
-      spacingGridRow: "16px",
-    };
-
-    const isMobile =
-      window.matchMedia && window.matchMedia("(max-width: 767px)").matches;
-
-    let viewport: "mobile" | "desktop" = "mobile";
-
-    if (isMobile) {
-      viewport = "mobile";
-    } else {
-      viewport = "desktop";
-    }
-
-    if (
-      !stripeAccountId ||
-      !publishableApiKey ||
-      !gatewayParams.elements_configuration
-    ) {
-      throw new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase);
-    }
-
-    const { stripe: stripeInstance, elements: elementsInstance } =
-      await StripeService.initializeStripe(
-        stripeAccountId,
-        publishableApiKey,
-        gatewayParams.elements_configuration,
-        brandingInfo,
-        stripeLocale,
-        stripeVariables,
-        viewport,
-      );
-
-    const productDetails: Product = rcPackage.webBillingProduct;
-    const { subscriptionOption, priceBreakdown } =
-      resolveExpressCheckoutPricingDetails(productDetails, purchaseOption.id);
-    const managementUrl = checkoutStartResponse.management_url;
-
-    const options =
-      StripeService.buildStripeExpressCheckoutOptionsForSubscription(
-        productDetails,
-        priceBreakdown,
-        subscriptionOption,
-        translator,
-        managementUrl,
-        2,
-        1,
-      );
-
-    return { stripeInstance, elementsInstance, expOptions: options };
-  };
-
-  const updateStripe = async (
-    checkoutStartResponse: WebBillingCheckoutStartResponse,
-    elements: StripeElements,
-  ) => {
-    if (!checkoutStartResponse.gateway_params?.elements_configuration) {
-      throw new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase);
-    }
-
-    StripeService.updateElementsConfiguration(
-      elements,
-      checkoutStartResponse.gateway_params.elements_configuration,
-    );
-  };
-
   let checkoutStarted = false;
   const reInitPurchase = async () => {
     if (checkoutStarted) {
       return;
     }
     checkoutStarted = true;
-    managementUrl = null;
-
-    let checkoutStartResult: WebBillingCheckoutStartResponse | null = null;
+    let prepareCheckoutResponse: CheckoutPrepareResponse;
     try {
-      checkoutStartResult = await purchaseOperationHelper.checkoutStart(
-        appUserId,
+      prepareCheckoutResponse = await purchaseOperationHelper.prepareCheckout(
         rcPackage.webBillingProduct.identifier,
         purchaseOption,
-        rcPackage.webBillingProduct.presentedOfferingContext,
-        customerEmail,
-        metadata,
       );
-      managementUrl = checkoutStartResult.management_url;
     } catch (e) {
+      handleError(e as PurchaseFlowError);
       return;
     }
+
+    if (!prepareCheckoutResponse.stripe_gateway_params) {
+      const missingGatewayParamsError = new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "We couldn’t download Stripe params for this purchase. Please try again.",
+      );
+      handleError(missingGatewayParamsError);
+      return;
+    }
+
+    // Management URL is assigned later in startCheckout when we have an operation session.
+    const managementUrl = "http://blank";
 
     try {
       if (!stripe || !elements) {
         const { stripeInstance, elementsInstance, expOptions } =
-          await initStripe(checkoutStartResult, rcPackage);
+          await initStripe(
+            prepareCheckoutResponse.stripe_gateway_params,
+            managementUrl,
+            rcPackage,
+            purchaseOption,
+            translator,
+            brandingInfo,
+          );
         stripe = stripeInstance;
         elements = elementsInstance;
         expressCheckoutOptions = expOptions;
       } else {
-        await updateStripe(checkoutStartResult, elements);
+        const { expOptions } = updateStripe(
+          elements,
+          prepareCheckoutResponse.stripe_gateway_params,
+          managementUrl,
+          rcPackage,
+          purchaseOption,
+          translator,
+        );
+        expressCheckoutOptions = expOptions;
       }
     } catch (e) {
       handleError(e as PurchaseFlowError);
+      return;
     }
 
     isLoading = false;
@@ -342,7 +268,7 @@
     }
   };
 
-  const onExpressClicked = (event: StripeExpressCheckoutElementClickEvent) => {
+  const startCheckout = async () => {
     const sessionStartEvent = createCheckoutSessionStartEvent({
       appearance: brandingInfo?.appearance,
       rcPackage,
@@ -352,32 +278,45 @@
     });
     eventsTracker.trackSDKEvent(sessionStartEvent);
     try {
-      const productDetails: Product = rcPackage.webBillingProduct;
-      if (!managementUrl) {
+      const checkoutStartResult = await purchaseOperationHelper.checkoutStart(
+        appUserId,
+        rcPackage.webBillingProduct.identifier,
+        purchaseOption,
+        rcPackage.webBillingProduct.presentedOfferingContext,
+        customerEmail,
+        metadata,
+      );
+
+      const managementUrl = checkoutStartResult.management_url;
+
+      if (!elements) {
         throw new PurchaseFlowError(
           PurchaseFlowErrorCode.ErrorSettingUpPurchase,
         );
       }
-      const { subscriptionOption, priceBreakdown } =
-        resolveExpressCheckoutPricingDetails(productDetails, purchaseOption.id);
 
-      const options =
-        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
-          productDetails,
-          priceBreakdown,
-          subscriptionOption,
-          translator,
-          managementUrl,
-        );
+      const { expOptions: options } = updateStripe(
+        elements,
+        checkoutStartResult.gateway_params,
+        managementUrl,
+        rcPackage,
+        purchaseOption,
+        translator,
+      );
 
-      event.resolve({ applePay: options.applePay } as ClickResolveDetails);
+      return { applePay: options.applePay } as ClickResolveDetails;
     } catch (error) {
       handleError(
         error instanceof PurchaseFlowError
           ? error
           : new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase),
       );
+      throw error;
     }
+  };
+
+  const onExpressClicked = (event: StripeExpressCheckoutElementClickEvent) => {
+    startCheckout().then((options) => event.resolve(options));
   };
 
   const onExpressCancelled = () => {
@@ -385,64 +324,6 @@
       createCheckoutSessionEndClosedEvent({ mode: "express_purchase_button" }),
     );
   };
-
-  // Extracted helper: pick the subscription option chosen for the Express Checkout flow.
-  function getSubscriptionOptionForExpressCheckout(
-    productDetails: Product,
-    purchaseOptionId: string,
-  ): SubscriptionOption {
-    const subscriptionOption =
-      productDetails.subscriptionOptions?.[purchaseOptionId] ||
-      productDetails.defaultSubscriptionOption;
-
-    if (!subscriptionOption) {
-      throw new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase);
-    }
-
-    return subscriptionOption;
-  }
-
-  // Extracted helper: build the price breakdown displayed inside the Express Checkout modal.
-  function buildExpressCheckoutPriceBreakdown(
-    productDetails: Product,
-    subscriptionOption: SubscriptionOption,
-  ): PriceBreakdown {
-    const initialPrice = getInitialPriceFromPurchaseOption(
-      productDetails,
-      subscriptionOption,
-    );
-
-    // Design decision: We will always show the price before taxes in the
-    // express checkout modal.
-    // We will charge, according to the billing address retrieved by the
-    // wallet, if any, but it would be visible only in the invoice.
-    // This is the behavior of other IAP stores, and we want to be as close
-    // as possible to that in this component.
-    return {
-      currency: initialPrice.currency,
-      taxCalculationStatus: "unavailable",
-      totalAmountInMicros: initialPrice.amountMicros,
-      totalExcludingTaxInMicros: initialPrice.amountMicros,
-      taxAmountInMicros: null,
-      taxBreakdown: null,
-    };
-  }
-
-  // Extracted helper: return the subscription option and price data needed by multiple flows.
-  function resolveExpressCheckoutPricingDetails(
-    productDetails: Product,
-    purchaseOptionId: string,
-  ) {
-    const subscriptionOption = getSubscriptionOptionForExpressCheckout(
-      productDetails,
-      purchaseOptionId,
-    );
-    const priceBreakdown = buildExpressCheckoutPriceBreakdown(
-      productDetails,
-      subscriptionOption,
-    );
-    return { subscriptionOption, priceBreakdown };
-  }
 
   function onExpressCheckoutElementReady(
     event: StripeExpressCheckoutElementReadyEvent,

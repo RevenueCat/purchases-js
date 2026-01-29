@@ -22,7 +22,10 @@ import {
   type CheckoutStatusResponse,
 } from "../../networking/responses/checkout-status-response";
 import { type IEventsTracker } from "../../behavioural-events/events-tracker";
-import { checkoutStartResponse } from "../test-responses";
+import {
+  checkoutPrepareResponse,
+  checkoutStartResponse,
+} from "../test-responses";
 import { BackendErrorCode, ErrorCode } from "../../entities/errors";
 import { checkoutCalculateTaxResponse } from "../../stories/fixtures";
 
@@ -71,6 +74,14 @@ describe("PurchaseOperationHelper", () => {
           return httpResponse;
         },
       ),
+    );
+  }
+
+  function setCheckoutPrepareResponse(httpResponse: HttpResponse) {
+    server.use(
+      http.post("http://localhost:8000/rcbilling/v1/checkout/prepare", () => {
+        return httpResponse;
+      }),
     );
   }
 
@@ -193,6 +204,38 @@ describe("PurchaseOperationHelper", () => {
         PurchaseFlowErrorCode.InvalidPaddleAPIKeyError,
         "There was a credentials issue. Check the underlying error for more details.",
         "Invalid or expired Paddle API Key.",
+      ),
+    );
+  });
+
+  test("prepareCheckout returns the backend response", async () => {
+    setCheckoutPrepareResponse(
+      HttpResponse.json(checkoutPrepareResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+
+    const response = await purchaseOperationHelper.prepareCheckout(
+      "test-product-id",
+      { id: "base_option", priceId: "test-price-id" },
+    );
+    expect(response).toEqual(checkoutPrepareResponse);
+  });
+
+  test("prepareCheckout fails if /checkout/prepare fails", async () => {
+    setCheckoutPrepareResponse(
+      HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
+    );
+
+    await expectPromiseToPurchaseFlowError(
+      purchaseOperationHelper.prepareCheckout("test-product-id", {
+        id: "base_option",
+        priceId: "test-price-id",
+      }),
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "Unknown backend error.",
+        "Request: postCheckoutPrepare. Status code: 500. Body: null.",
       ),
     );
   });
