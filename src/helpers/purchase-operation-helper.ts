@@ -25,6 +25,7 @@ import { type IEventsTracker } from "../behavioural-events/events-tracker";
 import type { CheckoutCompleteResponse } from "../networking/responses/checkout-complete-response";
 import type { CheckoutCalculateTaxResponse } from "../networking/responses/checkout-calculate-tax-response";
 import { handleCheckoutSessionFailed } from "./checkout-error-handler";
+import type { CheckoutPrepareResponse } from "../networking/responses/checkout-prepare-response";
 
 export enum PurchaseFlowErrorCode {
   ErrorSettingUpPurchase = 0,
@@ -129,6 +130,33 @@ export class PurchaseOperationHelper {
     this.backend = backend;
     this.eventsTracker = eventsTracker;
     this.maxNumberAttempts = maxNumberAttempts;
+  }
+
+  async prepareCheckout(
+    productId: string,
+    purchaseOption: PurchaseOption,
+  ): Promise<CheckoutPrepareResponse> {
+    try {
+      return await this.backend.postCheckoutPrepare<CheckoutPrepareResponse>(
+        productId,
+        purchaseOption,
+      );
+    } catch (error) {
+      if (error instanceof PurchasesError) {
+        throw PurchaseFlowError.fromPurchasesError(
+          error,
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        );
+      } else {
+        const errorMessage =
+          "Unknown error preparing purchase: " + String(error);
+        Logger.errorLog(errorMessage);
+        throw new PurchaseFlowError(
+          PurchaseFlowErrorCode.UnknownError,
+          errorMessage,
+        );
+      }
+    }
   }
 
   async checkoutStart(

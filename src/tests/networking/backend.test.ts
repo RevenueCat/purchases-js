@@ -4,6 +4,7 @@ import { http, HttpResponse } from "msw";
 import {
   checkoutStartResponse,
   checkoutCompleteResponse,
+  checkoutPrepareResponse,
   customerInfoResponse,
   offeringsArray,
   productsResponse,
@@ -503,6 +504,46 @@ describe("getProducts request", () => {
         ErrorCode.NetworkError,
         "Error performing request. Please check your network connection and try again.",
         "Failed to fetch",
+      ),
+    );
+  });
+});
+
+describe("postCheckoutPrepare request", () => {
+  function setCheckoutPrepareResponse(httpResponse: HttpResponse) {
+    server.use(
+      http.post("http://localhost:8000/rcbilling/v1/checkout/prepare", () => {
+        return httpResponse;
+      }),
+    );
+  }
+
+  test("can post checkout prepare successfully", async () => {
+    setCheckoutPrepareResponse(
+      HttpResponse.json(checkoutPrepareResponse, { status: 200 }),
+    );
+
+    const backendResponse = await backend.postCheckoutPrepare("monthly", {
+      id: "base_option",
+      priceId: "test_price_id",
+    });
+    expect(backendResponse).toEqual(checkoutPrepareResponse);
+  });
+
+  test("throws an error if the backend returns a server error", async () => {
+    setCheckoutPrepareResponse(
+      HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
+    );
+
+    await expectPromiseToError(
+      backend.postCheckoutPrepare("monthly", {
+        id: "base_option",
+        priceId: "test_price_id",
+      }),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        "Request: postCheckoutPrepare. Status code: 500. Body: null.",
       ),
     );
   });

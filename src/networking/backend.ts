@@ -3,15 +3,17 @@ import { performRequest, performRequestWithStatus } from "./http-client";
 import {
   CheckoutCalculateTaxEndpoint,
   CheckoutCompleteEndpoint,
+  CheckoutPrepareEndpoint,
   CheckoutStartEndpoint,
   GetBrandingInfoEndpoint,
   GetCheckoutStatusEndpoint,
   GetCustomerInfoEndpoint,
   GetOfferingsEndpoint,
   GetProductsEndpoint,
-  PostReceiptEndpoint,
   GetVirtualCurrenciesEndpoint,
   IdentifyEndpoint,
+  PostReceiptEndpoint,
+  SetAttributesEndpoint,
 } from "./endpoints";
 import { type SubscriberResponse } from "./responses/subscriber-response";
 import type { CheckoutStartResponse } from "./responses/checkout-start-response";
@@ -28,9 +30,9 @@ import type {
 import type { PurchasesContext } from "../entities/purchases-config";
 import type { CheckoutCompleteResponse } from "./responses/checkout-complete-response";
 import type { CheckoutCalculateTaxResponse } from "./responses/checkout-calculate-tax-response";
-import { SetAttributesEndpoint } from "./endpoints";
 import { isWebBillingSandboxApiKey } from "../helpers/api-key-helper";
 import type { IdentifyResponse } from "./responses/identify-response";
+import type { CheckoutPrepareResponse } from "./responses/checkout-prepare-response";
 
 export class Backend {
   private readonly API_KEY: string;
@@ -127,6 +129,34 @@ export class Backend {
         httpConfig: this.httpConfig,
       },
     );
+  }
+
+  async postCheckoutPrepare<
+    T extends CheckoutPrepareResponse = CheckoutPrepareResponse,
+  >(productId: string, purchaseOption: PurchaseOption): Promise<T> {
+    type CheckoutPrepareRequestBody = {
+      product_id: string;
+      price_id: string;
+      offer_id?: string;
+    };
+
+    const requestBody: CheckoutPrepareRequestBody = {
+      product_id: productId,
+      price_id: purchaseOption.priceId,
+    };
+
+    if (purchaseOption.id !== "base_option") {
+      requestBody.offer_id = purchaseOption.id;
+    }
+
+    return (await performRequest<CheckoutPrepareRequestBody, T>(
+      new CheckoutPrepareEndpoint(),
+      {
+        apiKey: this.API_KEY,
+        body: requestBody,
+        httpConfig: this.httpConfig,
+      },
+    )) as T;
   }
 
   async postCheckoutStart<
