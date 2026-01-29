@@ -13,6 +13,7 @@ import {
 
 integrationTest("Displays all packages", async ({ page, userId }) => {
   page = await navigateToLandingUrl(page, userId);
+  await expect(page.getByText(/30[,.]00/)).toBeVisible();
   const packageCards = await getPackageCards(page);
 
   expect(packageCards.length).toBe(5);
@@ -29,6 +30,7 @@ integrationTest(
     const offeringId = "default_download";
     page = await navigateToLandingUrl(page, userId, { offeringId });
 
+    await expect(page.getByText(/30[,.]00/)).toBeVisible();
     const packageCards = await getPackageCards(page);
     expect(packageCards.length).toBe(3);
     expect(packageCards[0]).toHaveText(/30[,.]00/);
