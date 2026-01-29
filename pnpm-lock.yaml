@@ -4,9 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-overrides:
-  lodash: 4.17.23
-
 importers:
   .:
     devDependencies:
@@ -118,6 +115,9 @@ importers:
       lint-staged:
         specifier: ^15.2.10
         version: 15.3.0
+      lodash:
+        specifier: 4.17.23
+        version: 4.17.23
       msw:
         specifier: ^2.0.4
         version: 2.7.0(@types/node@22.10.5)(typescript@5.8.2)
