@@ -62,6 +62,7 @@
     "prepare": "husky"
   },
   "devDependencies": {
+    "@babel/runtime": "^7.26.10",
     "@eslint/js": "^9.16.0",
     "@microsoft/api-extractor": "^7.48.0",
     "@paddle/paddle-js": "^1.5.1",

@@ -10,6 +10,9 @@ overrides:
 importers:
   .:
     devDependencies:
+      "@babel/runtime":
+        specifier: ^7.26.10
+        version: 7.28.6
       "@eslint/js":
         specifier: ^9.16.0
         version: 9.17.0
@@ -197,10 +200,10 @@ packages:
     engines: { node: ">=6.0.0" }
     hasBin: true
 
-  "@babel/runtime@7.26.0":
+  "@babel/runtime@7.28.6":
     resolution:
       {
-        integrity: sha512-FDSOghenHTiToteC/QRlv2q3DhPZ/oOXTBoirfWNx1Cx3TMVcGWQtMMmQcSvb/JjpNeGzx8Pq/b4fKEJuWm1sw==,
+        integrity: sha512-05WQkdpL9COIMz4LjTxGpPNCdlpyimKppYNoJ5Di5EUObifl8t4tuLuUBBZEpoLYOmfvIWrsp9fCl0HoPRVTdA==,
       }
     engines: { node: ">=6.9.0" }
 
@@ -4580,12 +4583,6 @@ packages:
       }
     engines: { node: ">= 0.4" }
 
-  regenerator-runtime@0.14.1:
-    resolution:
-      {
-        integrity: sha512-dYnhHh0nJoMfnkZs6GmmhFknAGRrLznOu5nc9ML+EJxGvrx6H7teuevqVqCuPcPK//3eDrrjQhehXVx9cnkGdw==,
-      }
-
   regexp.prototype.flags@1.5.4:
     resolution:
       {
@@ -5867,9 +5864,7 @@ snapshots:
     dependencies:
       "@babel/types": 7.28.4
 
-  "@babel/runtime@7.26.0":
-    dependencies:
-      regenerator-runtime: 0.14.1
+  "@babel/runtime@7.28.6": {}
 
   "@babel/types@7.28.4":
     dependencies:
@@ -6589,7 +6584,7 @@ snapshots:
   "@testing-library/dom@10.4.0":
     dependencies:
       "@babel/code-frame": 7.26.2
-      "@babel/runtime": 7.26.0
+      "@babel/runtime": 7.28.6
       "@types/aria-query": 5.0.4
       aria-query: 5.3.0
       chalk: 4.1.2
@@ -8616,7 +8611,7 @@ snapshots:
 
   polished@4.3.1:
     dependencies:
-      "@babel/runtime": 7.26.0
+      "@babel/runtime": 7.28.6
 
   possible-typed-array-names@1.0.0: {}
 
@@ -8726,8 +8721,6 @@ snapshots:
       get-intrinsic: 1.2.7
       get-proto: 1.0.1
       which-builtin-type: 1.2.1
-
-  regenerator-runtime@0.14.1: {}
 
   regexp.prototype.flags@1.5.4:
     dependencies:
