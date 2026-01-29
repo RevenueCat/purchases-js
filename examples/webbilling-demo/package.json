@@ -2,6 +2,11 @@
   "name": "webbilling-demo",
   "private": true,
   "version": "0.0.1",
+  "pnpm": {
+    "overrides": {
+      "axios": "1.13.2"
+    }
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
