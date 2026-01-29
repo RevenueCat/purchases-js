@@ -3,6 +3,11 @@
   "description": "Web subscriptions made easy. Powered by RevenueCat",
   "private": false,
   "version": "1.24.3",
+  "pnpm": {
+    "overrides": {
+      "lodash": "4.17.23"
+    }
+  },
   "type": "module",
   "files": [
     "dist"
