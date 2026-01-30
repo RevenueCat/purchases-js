@@ -18,7 +18,7 @@ export type RouteFulfillOptions = {
 export const getBackButtons = (page: Page) =>
   page.locator("button.stack:has(svg)[style*='visibility: visible']");
 
-export const CARD_SELECTOR = "div.card";
+export const CARD_SELECTOR = ".packages div.card";
 export const PACKAGE_SELECTOR = "button.rc-pw-package";
 export const TAX_SKELETON_SELECTOR = "div[data-testid='tax-loading-skeleton']";
 
