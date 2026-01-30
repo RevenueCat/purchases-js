@@ -1,4 +1,3 @@
-import { generateUUID } from "../helpers/uuid-helper";
 import { RC_ANALYTICS_ENDPOINT } from "../helpers/constants";
 import { HttpMethods } from "msw";
 import { getHeaders } from "../networking/http-client";
@@ -11,6 +10,7 @@ import {
   type SDKEventContextSource,
 } from "./sdk-event-context";
 import type { WorkflowContext } from "../entities/purchases-config";
+import { TraceIdManager } from "../helpers/trace-id-manager";
 
 const MIN_INTERVAL_RETRY = 2_000;
 const MAX_INTERVAL_RETRY = 5 * 60_000;
@@ -47,7 +47,7 @@ export default class EventsTracker implements IEventsTracker {
   private readonly eventsQueue: Array<Event> = [];
   private readonly eventsUrl: string;
   private readonly flushManager: FlushManager;
-  private readonly traceId: string = generateUUID();
+  private readonly traceIdManager: TraceIdManager;
   private appUserId: string;
   private readonly isSilent: boolean;
   private rcSource: string | null;
@@ -60,6 +60,9 @@ export default class EventsTracker implements IEventsTracker {
     this.isSilent = props.silent || false;
     this.rcSource = props.rcSource;
     this.workflowContext = props.workflowContext;
+    this.traceIdManager = new TraceIdManager(
+      props.workflowContext?.workflowIdentifier,
+    );
     this.flushManager = new FlushManager(
       MIN_INTERVAL_RETRY,
       MAX_INTERVAL_RETRY,
@@ -73,7 +76,7 @@ export default class EventsTracker implements IEventsTracker {
   }
 
   public getTraceId() {
-    return this.traceId;
+    return this.traceIdManager.getTraceId();
   }
 
   public trackSDKEvent(props: SDKEvent): void {
@@ -92,7 +95,7 @@ export default class EventsTracker implements IEventsTracker {
     try {
       const event = new Event({
         eventName: props.eventName,
-        traceId: this.traceId,
+        traceId: this.traceIdManager.getTraceId(),
         appUserId: this.appUserId,
         context: buildEventContext(props.source, this.rcSource),
         workflowIdentifier: this.workflowContext?.workflowIdentifier,
