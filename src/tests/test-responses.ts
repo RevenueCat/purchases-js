@@ -281,6 +281,8 @@ export const customerInfoResponse: SubscriberResponse = {
         expires_date: "2024-01-22T16:48:42Z",
         grace_period_expires_date: null,
         is_sandbox: true,
+        management_url:
+          "https://test-management-url.revenuecat.com/manage/one_transaction_id",
         original_purchase_date: "2023-11-20T16:48:42Z",
         period_type: "normal",
         purchase_date: "2024-01-21T16:48:42Z",
@@ -296,6 +298,8 @@ export const customerInfoResponse: SubscriberResponse = {
         expires_date: "2054-01-22T16:48:42Z",
         grace_period_expires_date: null,
         is_sandbox: true,
+        management_url:
+          "https://test-management-url.revenuecat.com/manage/another_transaction_id",
         original_purchase_date: "2023-11-20T16:48:42Z",
         period_type: "normal",
         purchase_date: "2024-01-21T16:48:42Z",

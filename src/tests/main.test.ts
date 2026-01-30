@@ -438,6 +438,8 @@ test("can get customer info", async () => {
         periodType: "normal",
         refundedAt: null,
         storeTransactionId: "another_transaction_id",
+        managementURL:
+          "https://test-management-url.revenuecat.com/manage/another_transaction_id",
         isActive: true,
         willRenew: true,
       },
@@ -455,6 +457,8 @@ test("can get customer info", async () => {
         periodType: "normal",
         refundedAt: null,
         storeTransactionId: "one_transaction_id",
+        managementURL:
+          "https://test-management-url.revenuecat.com/manage/one_transaction_id",
         isActive: false,
         willRenew: true,
       },
