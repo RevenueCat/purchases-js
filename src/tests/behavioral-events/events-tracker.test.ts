@@ -420,4 +420,71 @@ describe("EventsTracker", (test) => {
       ]),
     });
   });
+
+  test("uses provided trace_id when specified", async () => {
+    const customTraceId = "custom-trace-id-123";
+    const eventsTracker = new EventsTracker({
+      apiKey: testApiKey,
+      appUserId: "someAppUserId",
+      rcSource: "rcSource",
+      trace_id: customTraceId,
+    });
+
+    eventsTracker.trackExternalEvent({
+      eventName: "external",
+      source: "sdk",
+      properties: { mode: defaultPurchaseMode },
+    });
+
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(APIPostRequest).toHaveBeenCalledWith({
+      url: eventsURL,
+      json: {
+        events: [
+          {
+            id: expect.any(String),
+            type: "web_billing",
+            timestamp_ms: date.getTime(),
+            event_name: "external",
+            app_user_id: "someAppUserId",
+            context: expect.any(Object),
+            properties: expect.objectContaining({
+              mode: defaultPurchaseMode,
+              trace_id: customTraceId,
+            }),
+          },
+        ],
+      },
+    });
+
+    eventsTracker.dispose();
+  });
+
+  test("getTraceId returns the provided trace_id", () => {
+    const customTraceId = "custom-trace-id-456";
+    const eventsTracker = new EventsTracker({
+      apiKey: testApiKey,
+      appUserId: "someAppUserId",
+      rcSource: "rcSource",
+      trace_id: customTraceId,
+    });
+
+    expect(eventsTracker.getTraceId()).toBe(customTraceId);
+
+    eventsTracker.dispose();
+  });
+
+  test("getTraceId returns generated trace_id when not provided", () => {
+    const eventsTracker = new EventsTracker({
+      apiKey: testApiKey,
+      appUserId: "someAppUserId",
+      rcSource: "rcSource",
+    });
+
+    const traceId = eventsTracker.getTraceId();
+    expect(traceId).toBe("c1365463-ce59-4b83-b61b-ef0d883e9047");
+
+    eventsTracker.dispose();
+  });
 });
