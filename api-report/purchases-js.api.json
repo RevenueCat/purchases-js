@@ -4070,7 +4070,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "() => void"
+                  "text": "(unmountPaywall: () => void) => void"
                 },
                 {
                   "kind": "Content",
