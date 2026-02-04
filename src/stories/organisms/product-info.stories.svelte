@@ -13,21 +13,22 @@
     subscriptionOptionWithTrialAndIntroPriceRecurring,
     nonSubscriptionOption,
     consumableProduct,
-    priceBreakdownTaxDisabled,
-    priceBreakdownTaxDisabledIntroPriceRecurring,
-    priceBreakdownTaxInclusive,
-    priceBreakdownTaxInclusiveWithIntroPricePaidUpfront,
-    priceBreakdownTaxInclusiveWithIntroPriceRecurring,
-    priceBreakdownTaxExclusive,
-    priceBreakdownTaxExclusiveWithIntroPricePaidUpfront,
-    priceBreakdownTaxExclusiveWithIntroPriceRecurring,
   } from "../fixtures";
+  import {
+    getPriceBreakdownTaxDisabled,
+    getPriceBreakdownTaxInclusive,
+    getPriceBreakdownTaxExclusive,
+  } from "../helpers/get-price-breakdown";
 
   const { Story } = defineMeta({
     component: ProductInfo,
     title: "Organisms/ProductInfo",
     // @ts-expect-error ignore typing of decorator
     decorators: [renderInsideNavbarBody],
+    args: {
+      productDetails: product,
+      showProductDescription: true,
+    },
     parameters: {
       chromatic: {
         modes: brandingModes,
@@ -37,62 +38,58 @@
 </script>
 
 <Story
-  name="Default"
+  name="Subscription"
   args={{
-    productDetails: product,
     purchaseOption: subscriptionOption,
-    showProductDescription: true,
-    priceBreakdown: priceBreakdownTaxDisabled,
+    priceBreakdown: getPriceBreakdownTaxDisabled(subscriptionOption),
   }}
 />
 
 <Story
   name="Trial"
   args={{
-    productDetails: product,
     purchaseOption: subscriptionOptionWithTrial,
-    showProductDescription: true,
-    priceBreakdown: priceBreakdownTaxDisabled,
+    priceBreakdown: getPriceBreakdownTaxDisabled(subscriptionOptionWithTrial),
   }}
 />
 
 <Story
   name="Intro Price - Paid Upfront"
   args={{
-    productDetails: product,
     purchaseOption: subscriptionOptionWithIntroPricePaidUpfront,
-    showProductDescription: true,
-    priceBreakdown: priceBreakdownTaxDisabledIntroPriceRecurring,
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithIntroPricePaidUpfront,
+    ),
   }}
 />
 
 <Story
   name="Intro Price - Recurring"
   args={{
-    productDetails: product,
     purchaseOption: subscriptionOptionWithIntroPriceRecurring,
-    showProductDescription: true,
-    priceBreakdown: priceBreakdownTaxDisabledIntroPriceRecurring,
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithIntroPriceRecurring,
+    ),
   }}
 />
 
 <Story
   name="Trial + Intro Price - Paid Upfront"
   args={{
-    productDetails: product,
     purchaseOption: subscriptionOptionWithTrialAndIntroPricePaidUpfront,
-    showProductDescription: true,
-    priceBreakdown: priceBreakdownTaxDisabledIntroPriceRecurring,
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithTrialAndIntroPricePaidUpfront,
+    ),
   }}
 />
 
 <Story
   name="Trial + Intro Price - Recurring"
   args={{
-    productDetails: product,
     purchaseOption: subscriptionOptionWithTrialAndIntroPriceRecurring,
-    showProductDescription: true,
-    priceBreakdown: priceBreakdownTaxDisabledIntroPriceRecurring,
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithTrialAndIntroPriceRecurring,
+    ),
   }}
 />
 
@@ -101,87 +98,80 @@
   args={{
     productDetails: consumableProduct,
     purchaseOption: nonSubscriptionOption,
-    showProductDescription: true,
-    priceBreakdown: priceBreakdownTaxDisabled,
+    priceBreakdown: getPriceBreakdownTaxDisabled(nonSubscriptionOption),
   }}
 />
 
 <Story
   name="Tax Inclusive"
   args={{
-    productDetails: product,
     purchaseOption: subscriptionOption,
-    showProductDescription: true,
-    priceBreakdown: priceBreakdownTaxInclusive,
+    priceBreakdown: getPriceBreakdownTaxInclusive(subscriptionOption),
   }}
 />
 
 <Story
   name="Tax Inclusive with Trial + Intro Price - Paid Upfront"
   args={{
-    productDetails: product,
     purchaseOption: subscriptionOptionWithTrialAndIntroPricePaidUpfront,
-    showProductDescription: true,
-    priceBreakdown: priceBreakdownTaxInclusiveWithIntroPricePaidUpfront,
+    priceBreakdown: getPriceBreakdownTaxInclusive(
+      subscriptionOptionWithTrialAndIntroPricePaidUpfront,
+    ),
   }}
 />
 
 <Story
   name="Tax Inclusive with Intro Price - Paid Upfront"
   args={{
-    productDetails: product,
     purchaseOption: subscriptionOptionWithIntroPricePaidUpfront,
-    showProductDescription: true,
-    priceBreakdown: priceBreakdownTaxInclusiveWithIntroPricePaidUpfront,
+    priceBreakdown: getPriceBreakdownTaxInclusive(
+      subscriptionOptionWithIntroPricePaidUpfront,
+    ),
   }}
 />
 
 <Story
   name="Tax Inclusive with Intro Price - Recurring"
   args={{
-    productDetails: product,
     purchaseOption: subscriptionOptionWithIntroPriceRecurring,
-    showProductDescription: true,
-    priceBreakdown: priceBreakdownTaxInclusiveWithIntroPriceRecurring,
+    priceBreakdown: getPriceBreakdownTaxInclusive(
+      subscriptionOptionWithIntroPriceRecurring,
+    ),
   }}
 />
 
 <Story
   name="Tax Exclusive"
   args={{
-    productDetails: product,
     purchaseOption: subscriptionOption,
-    showProductDescription: true,
-    priceBreakdown: priceBreakdownTaxExclusive,
+    priceBreakdown: getPriceBreakdownTaxExclusive(subscriptionOption),
   }}
 />
 
 <Story
   name="Tax Exclusive with trial"
   args={{
-    productDetails: product,
     purchaseOption: subscriptionOptionWithTrial,
-    showProductDescription: true,
-    priceBreakdown: priceBreakdownTaxExclusive,
+    priceBreakdown: getPriceBreakdownTaxExclusive(subscriptionOptionWithTrial),
   }}
 />
 
 <Story
   name="Tax Exclusive with Trial + Intro Price - Paid Upfront"
   args={{
-    productDetails: product,
     purchaseOption: subscriptionOptionWithTrialAndIntroPricePaidUpfront,
-    showProductDescription: true,
-    priceBreakdown: priceBreakdownTaxExclusiveWithIntroPricePaidUpfront,
+    priceBreakdown: getPriceBreakdownTaxExclusive(
+      subscriptionOptionWithTrialAndIntroPricePaidUpfront,
+    ),
   }}
 />
 
 <Story
   name="Tax Exclusive with Intro Price - Recurring"
   args={{
-    productDetails: product,
     purchaseOption: subscriptionOptionWithIntroPriceRecurring,
-    showProductDescription: true,
-    priceBreakdown: priceBreakdownTaxExclusiveWithIntroPriceRecurring,
+    priceBreakdown: getPriceBreakdownTaxExclusive(
+      subscriptionOptionWithIntroPriceRecurring,
+    ),
   }}
 />
