@@ -345,7 +345,7 @@ export class Purchases {
   }
 
   private static configureInternal(config: PurchasesConfig): void {
-    const { apiKey, appUserId, httpConfig, flags, context } = config;
+    const { apiKey, appUserId, httpConfig, flags, context, trace_id } = config;
     const finalHttpConfig = httpConfig ?? defaultHttpConfig;
     const finalFlags = flags ?? defaultFlagsConfig;
 
@@ -356,6 +356,7 @@ export class Purchases {
       finalHttpConfig,
       finalFlags,
       context,
+      trace_id,
     );
   }
 
@@ -419,6 +420,7 @@ export class Purchases {
     httpConfig: HttpConfig = defaultHttpConfig,
     flags: FlagsConfig = defaultFlagsConfig,
     context?: PurchasesContext,
+    trace_id?: string,
   ) {
     this._API_KEY = apiKey;
     this._appUserId = appUserId;
@@ -442,6 +444,7 @@ export class Purchases {
       silent: !this._flags.collectAnalyticsEvents,
       rcSource: this._flags.rcSource ?? null,
       workflowContext: this._context?.workflowContext,
+      trace_id: trace_id,
     });
     this.backend = new Backend(this._API_KEY, httpConfig, this._context);
     this.inMemoryCache = new InMemoryCache();
