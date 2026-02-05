@@ -1582,4 +1582,25 @@ export class Purchases {
   public _trackEvent(props: TrackEventProps): void {
     this.eventsTracker.trackExternalEvent(props);
   }
+
+  /**
+   * Immediately flush all pending events to the server.
+   *
+   * This method is useful before programmatic navigation to ensure events are delivered.
+   * The SDK uses fetch with keepalive:true to allow delivery during navigation, but
+   * calling this method before navigation provides additional reliability.
+   *
+   * Notes:
+   * - Temporarily stops automatic event flushing, then restarts after completion
+   * - Events are sent in batches if the payload exceeds the keepalive size limit (50KB)
+   * - If a batch fails, remaining batches will not be attempted
+   * - Safe to call multiple times; concurrent calls will be serialized
+   * - Returns immediately if tracker is disposed
+   *
+   * @returns Promise that resolves when all events have been flushed or an error occurs
+   * @internal
+   */
+  public _flushAllEvents(): Promise<void> {
+    return this.eventsTracker.flushAllEvents();
+  }
 }

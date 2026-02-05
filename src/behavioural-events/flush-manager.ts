@@ -8,6 +8,7 @@ export class FlushManager {
   private currentDelay: number;
   private timeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
   private executingCallback: boolean = false;
+  private stopped: boolean = false;
 
   constructor(
     initialDelay: number,
@@ -23,6 +24,10 @@ export class FlushManager {
   }
 
   public tryFlush() {
+    if (this.stopped) {
+      return;
+    }
+
     if (this.backingOff()) {
       Logger.debugLog(`Backing off, not flushing`);
       return;
@@ -32,11 +37,25 @@ export class FlushManager {
     this.executeCallbackWithRetries();
   }
 
+  public start() {
+    this.stopped = false;
+  }
+
   public stop() {
+    this.stopped = true;
     this.clearTimeout();
   }
 
+  public flushImmediately(): Promise<void> {
+    this.clearTimeout();
+    return this.callback();
+  }
+
   public schedule(delay?: number) {
+    if (this.stopped) {
+      return;
+    }
+
     if (this.timeoutId !== undefined) {
       return;
     }

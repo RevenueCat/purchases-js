@@ -113,6 +113,7 @@ describe("EventsTracker", (test) => {
           },
         ],
       },
+      keepalive: true,
     });
   });
 
@@ -456,6 +457,7 @@ describe("EventsTracker", (test) => {
           },
         ],
       },
+      keepalive: true,
     });
 
     eventsTracker.dispose();
@@ -486,5 +488,457 @@ describe("EventsTracker", (test) => {
     expect(traceId).toBe("c1365463-ce59-4b83-b61b-ef0d883e9047");
 
     eventsTracker.dispose();
+  });
+
+  test<EventsTrackerFixtures>("flushAllEvents immediately flushes pending events", async ({
+    eventsTracker,
+  }) => {
+    eventsTracker.trackExternalEvent({
+      eventName: "test_event_1",
+      source: "customer",
+    });
+    eventsTracker.trackExternalEvent({
+      eventName: "test_event_2",
+      source: "customer",
+    });
+
+    await eventsTracker.flushAllEvents();
+
+    // When tracking events, the first event triggers an immediate flush
+    // The second event is queued and will be flushed by flushAllEvents()
+    // So we expect 2 separate flush calls
+    expect(APIPostRequest).toHaveBeenCalledTimes(2);
+
+    expect(APIPostRequest).toHaveBeenCalledWith({
+      url: eventsURL,
+      json: {
+        events: [
+          {
+            id: expect.any(String),
+            timestamp_ms: date.getTime(),
+            type: "web_billing",
+            event_name: "test_event_1",
+            app_user_id: "someAppUserId",
+            context: {
+              library_name: "purchases-js",
+              library_version: "1.0.0",
+              source: "customer",
+              rc_source: "rcSource",
+            },
+            properties: {
+              mode: defaultPurchaseMode,
+              trace_id: expect.any(String),
+            },
+          },
+        ],
+      },
+      keepalive: true,
+    });
+
+    expect(APIPostRequest).toHaveBeenCalledWith({
+      url: eventsURL,
+      json: {
+        events: [
+          {
+            id: expect.any(String),
+            timestamp_ms: date.getTime(),
+            type: "web_billing",
+            event_name: "test_event_2",
+            app_user_id: "someAppUserId",
+            context: {
+              library_name: "purchases-js",
+              library_version: "1.0.0",
+              source: "customer",
+              rc_source: "rcSource",
+            },
+            properties: {
+              mode: defaultPurchaseMode,
+              trace_id: expect.any(String),
+            },
+          },
+        ],
+      },
+      keepalive: true,
+    });
+  });
+
+  test<EventsTrackerFixtures>("flushAllEvents works when queue is empty", async ({
+    eventsTracker,
+  }) => {
+    // Flush with empty queue should not throw
+    await eventsTracker.flushAllEvents();
+
+    expect(APIPostRequest).not.toHaveBeenCalled();
+  });
+
+  test<EventsTrackerFixtures>("flushAllEvents called while flush in progress does not corrupt isFlushing", async ({
+    eventsTracker,
+  }) => {
+    let resolveFirst: () => void;
+    const firstRequestDone = new Promise<void>((r) => {
+      resolveFirst = r;
+    });
+
+    server.use(
+      http.post(eventsURL, async ({ request }) => {
+        const json = (await request.json()) as {
+          events: Array<{ event_name: string }>;
+        };
+        APIPostRequest({ url: eventsURL, json, keepalive: request.keepalive });
+        if (json.events?.some((e) => e.event_name === "first")) {
+          await firstRequestDone;
+          return HttpResponse.json(json, { status: 201 });
+        }
+        return HttpResponse.json(json, { status: 201 });
+      }),
+    );
+
+    eventsTracker.trackExternalEvent({
+      eventName: "first",
+      source: "sdk",
+    });
+    await vi.advanceTimersToNextTimerAsync();
+    expect(APIPostRequest).toHaveBeenCalledTimes(1);
+
+    eventsTracker.trackExternalEvent({
+      eventName: "second",
+      source: "sdk",
+    });
+    const flushAllPromise = eventsTracker.flushAllEvents();
+    await vi.advanceTimersByTimeAsync(0);
+    resolveFirst!();
+    await flushAllPromise;
+
+    expect(APIPostRequest).toHaveBeenCalledTimes(2);
+
+    eventsTracker.trackExternalEvent({
+      eventName: "after_reentrant",
+      source: "sdk",
+    });
+    await vi.advanceTimersToNextTimerAsync();
+    expect(APIPostRequest).toHaveBeenCalledTimes(3);
+  });
+
+  test<EventsTrackerFixtures>("maintains event ordering after failed flush", async ({
+    eventsTracker,
+  }) => {
+    let attempts = 0;
+
+    server.use(
+      http.post(eventsURL, async ({ request }) => {
+        ++attempts;
+        const json = (await request.json()) as {
+          events: Array<{ event_name: string }>;
+        };
+        APIPostRequest({ url: eventsURL, json, keepalive: request.keepalive });
+
+        if (attempts === 1) {
+          return new HttpResponse(null, { status: 500 });
+        }
+        return HttpResponse.json(json, { status: 201 });
+      }),
+    );
+
+    eventsTracker.trackExternalEvent({
+      eventName: "first",
+      source: "sdk",
+    });
+    eventsTracker.trackExternalEvent({
+      eventName: "second",
+      source: "sdk",
+    });
+    eventsTracker.trackExternalEvent({
+      eventName: "third",
+      source: "sdk",
+    });
+
+    // First flush attempt will fail - advance just enough to let it complete
+    await vi.advanceTimersByTimeAsync(100);
+    expect(APIPostRequest).toHaveBeenCalledTimes(1);
+
+    // Retry should send all events in correct order
+    await vi.advanceTimersByTimeAsync(2_000 * MAX_JITTER_MULTIPLIER);
+    expect(APIPostRequest).toHaveBeenCalledTimes(2);
+
+    // Verify events are in correct order on retry
+    const secondCall = APIPostRequest.mock.calls[1][0] as {
+      json: { events: Array<{ event_name: string }> };
+    };
+    expect(secondCall.json.events).toMatchObject([
+      { event_name: "first" },
+      { event_name: "second" },
+      { event_name: "third" },
+    ]);
+  });
+
+  test<EventsTrackerFixtures>("FlushManager restarts after flushAllEvents", async ({
+    eventsTracker,
+  }) => {
+    eventsTracker.trackExternalEvent({
+      eventName: "before_flush",
+      source: "sdk",
+    });
+
+    await eventsTracker.flushAllEvents();
+    expect(APIPostRequest).toHaveBeenCalledTimes(1);
+
+    // Track new event after flushAllEvents
+    eventsTracker.trackExternalEvent({
+      eventName: "after_flush",
+      source: "sdk",
+    });
+
+    // Automatic flush should still work
+    await vi.advanceTimersToNextTimerAsync();
+    expect(APIPostRequest).toHaveBeenCalledTimes(2);
+
+    expect(APIPostRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        json: expect.objectContaining({
+          events: expect.arrayContaining([
+            expect.objectContaining({ event_name: "after_flush" }),
+          ]),
+        }),
+      }),
+    );
+  });
+
+  test<EventsTrackerFixtures>("dispose flushes pending events", async ({
+    eventsTracker,
+  }) => {
+    eventsTracker.trackExternalEvent({
+      eventName: "before_dispose",
+      source: "sdk",
+    });
+
+    eventsTracker.dispose();
+
+    // Give the dispose flush a chance to execute
+    await vi.advanceTimersByTimeAsync(100);
+
+    expect(APIPostRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        json: expect.objectContaining({
+          events: expect.arrayContaining([
+            expect.objectContaining({ event_name: "before_dispose" }),
+          ]),
+        }),
+      }),
+    );
+  });
+
+  test<EventsTrackerFixtures>("dispose prevents further operations", async ({
+    eventsTracker,
+  }) => {
+    eventsTracker.dispose();
+
+    // Track event after dispose
+    eventsTracker.trackExternalEvent({
+      eventName: "after_dispose",
+      source: "sdk",
+    });
+
+    await vi.advanceTimersToNextTimerAsync();
+
+    // No events should be tracked or flushed
+    expect(APIPostRequest).not.toHaveBeenCalled();
+
+    // flushAllEvents should return immediately
+    await eventsTracker.flushAllEvents();
+    expect(APIPostRequest).not.toHaveBeenCalled();
+  });
+
+  test<EventsTrackerFixtures>("batches large events to respect keepalive size limit", async ({
+    eventsTracker,
+  }) => {
+    const largeProperty = "x".repeat(30 * 1024); // 30KB string
+
+    // Track 3 events that together exceed 50KB
+    eventsTracker.trackExternalEvent({
+      eventName: "large_event_1",
+      source: "sdk",
+      properties: { mode: defaultPurchaseMode, data: largeProperty },
+    });
+    eventsTracker.trackExternalEvent({
+      eventName: "large_event_2",
+      source: "sdk",
+      properties: { mode: defaultPurchaseMode, data: largeProperty },
+    });
+    eventsTracker.trackExternalEvent({
+      eventName: "large_event_3",
+      source: "sdk",
+      properties: { mode: defaultPurchaseMode, data: largeProperty },
+    });
+
+    await eventsTracker.flushAllEvents();
+
+    // Should be split into multiple batches
+    expect(APIPostRequest.mock.calls.length).toBeGreaterThan(1);
+
+    // Verify all events were sent
+    const allEvents = APIPostRequest.mock.calls.flatMap(
+      (call) =>
+        (
+          call[0] as {
+            json: { events: Array<{ event_name: string }> };
+          }
+        ).json.events,
+    );
+    expect(allEvents).toMatchObject([
+      { event_name: "large_event_1" },
+      { event_name: "large_event_2" },
+      { event_name: "large_event_3" },
+    ]);
+  });
+
+  test("dispose can be called multiple times safely", async () => {
+    const eventsTracker = new EventsTracker({
+      apiKey: testApiKey,
+      appUserId: "someAppUserId",
+      rcSource: "rcSource",
+    });
+
+    eventsTracker.dispose();
+    eventsTracker.dispose(); // Should not throw or cause issues
+    eventsTracker.dispose();
+
+    expect(APIPostRequest).not.toHaveBeenCalled();
+  });
+
+  test<EventsTrackerFixtures>("single oversized event is removed from queue with warning", async ({
+    eventsTracker,
+  }) => {
+    const warnSpy = vi.spyOn(Logger, "warnLog");
+
+    // Create an event that exceeds 50KB
+    const largeData = "x".repeat(60 * 1024);
+
+    eventsTracker.trackExternalEvent({
+      eventName: "oversized_event",
+      source: "sdk",
+      properties: { mode: defaultPurchaseMode, data: largeData },
+    });
+
+    // Wait for flush attempt
+    await vi.advanceTimersToNextTimerAsync();
+
+    // Should log warning about oversized event
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining("Event exceeds keepalive size limit"),
+    );
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining("oversized_event"),
+    );
+
+    // Event should not be sent
+    expect(APIPostRequest).not.toHaveBeenCalled();
+
+    // Queue should be empty (event removed)
+    // Track another event to verify queue is unblocked
+    eventsTracker.trackExternalEvent({
+      eventName: "after_oversized",
+      source: "sdk",
+    });
+
+    await vi.advanceTimersToNextTimerAsync();
+
+    // This event should flush successfully
+    expect(APIPostRequest).toHaveBeenCalledTimes(1);
+    expect(APIPostRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        json: expect.objectContaining({
+          events: expect.arrayContaining([
+            expect.objectContaining({ event_name: "after_oversized" }),
+          ]),
+        }),
+      }),
+    );
+
+    warnSpy.mockRestore();
+  });
+
+  test<EventsTrackerFixtures>("oversized event followed by normal events", async ({
+    eventsTracker,
+  }) => {
+    const warnSpy = vi.spyOn(Logger, "warnLog");
+
+    // Create an oversized event
+    const largeData = "x".repeat(60 * 1024);
+    eventsTracker.trackExternalEvent({
+      eventName: "oversized",
+      source: "sdk",
+      properties: { mode: defaultPurchaseMode, data: largeData },
+    });
+
+    // Add normal events
+    eventsTracker.trackExternalEvent({
+      eventName: "normal_1",
+      source: "sdk",
+    });
+    eventsTracker.trackExternalEvent({
+      eventName: "normal_2",
+      source: "sdk",
+    });
+
+    // Flush all events
+    await eventsTracker.flushAllEvents();
+
+    // Oversized event should be logged and removed
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("oversized"));
+
+    // Normal events should be flushed
+    const allEvents = APIPostRequest.mock.calls.flatMap(
+      (call) =>
+        (
+          call[0] as {
+            json: { events: Array<{ event_name: string }> };
+          }
+        ).json.events,
+    );
+
+    expect(allEvents).toMatchObject([
+      { event_name: "normal_1" },
+      { event_name: "normal_2" },
+    ]);
+
+    // Should NOT contain oversized event
+    expect(allEvents.find((e) => e.event_name === "oversized")).toBeUndefined();
+
+    warnSpy.mockRestore();
+  });
+
+  test<EventsTrackerFixtures>("batching respects size limit without O(n²) overhead", async ({
+    eventsTracker,
+  }) => {
+    // Track multiple events with various sizes
+    for (let i = 0; i < 10; i++) {
+      eventsTracker.trackExternalEvent({
+        eventName: `event_${i}`,
+        source: "sdk",
+        properties: {
+          mode: defaultPurchaseMode,
+          data: "x".repeat(3000), // Each event ~3KB
+        },
+      });
+    }
+
+    await eventsTracker.flushAllEvents();
+
+    // All events should be sent (might be in multiple batches)
+    const allEvents = APIPostRequest.mock.calls.flatMap(
+      (call) =>
+        (
+          call[0] as {
+            json: { events: Array<{ event_name: string }> };
+          }
+        ).json.events,
+    );
+
+    expect(allEvents.length).toBe(10);
+    for (let i = 0; i < 10; i++) {
+      expect(allEvents).toContainEqual(
+        expect.objectContaining({ event_name: `event_${i}` }),
+      );
+    }
   });
 });
