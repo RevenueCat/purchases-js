@@ -131,7 +131,7 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
   };
 
   return (
-    <div className="card">
+    <div role="button" className="card" onClick={onClick}>
       {renderTrialBadge()}
       {renderIntroPricing()}
       {renderRegularPricing()}
@@ -139,10 +139,7 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
       <div className="productName">{pkg.webBillingProduct.displayName}</div>
 
       <div className="packageCTA">
-        <Button
-          caption={trial ? "Start Free Trial" : "Choose plan"}
-          onClick={onClick}
-        />
+        <Button caption={trial ? "Start Free Trial" : "Choose plan"} />
       </div>
     </div>
   );
@@ -267,7 +264,6 @@ const PaywallPage: React.FC = () => {
             backgroundColor: "#f7f8f9",
             padding: "8px 16px",
             borderRadius: "4px",
-            marginBottom: "16px",
             display: "inline-block",
             fontSize: "14px",
             fontWeight: "500",
