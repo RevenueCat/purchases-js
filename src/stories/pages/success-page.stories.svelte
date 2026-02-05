@@ -4,12 +4,8 @@
   import SuccessPage from "../../ui/pages/success-page.svelte";
   import FullscreenTemplate from "../../ui/layout/fullscreen-template.svelte";
   import { brandingLanguageViewportModes } from "../../../.storybook/modes";
-  import {
-    brandingInfos,
-    priceBreakdownTaxDisabled,
-    product,
-    subscriptionOption,
-  } from "../fixtures";
+  import { brandingInfos, product, subscriptionOption } from "../fixtures";
+  import { getPriceBreakdownTaxDisabled } from "../helpers/get-price-breakdown";
   import { PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
   import { LocalizationKeys } from "../../ui/localization/supportedLanguages";
   import { getContext } from "svelte";
@@ -64,7 +60,7 @@
     lastError={null}
     gatewayParams={{}}
     purchaseOperationHelper={null as unknown as PurchaseOperationHelper}
-    defaultPriceBreakdown={priceBreakdownTaxDisabled}
+    defaultPriceBreakdown={getPriceBreakdownTaxDisabled(subscriptionOption)}
     isInElement={context.globals.viewport === "embedded"}
     onError={() => {}}
     onClose={() => {}}

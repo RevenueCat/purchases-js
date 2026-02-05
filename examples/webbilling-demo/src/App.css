@@ -175,14 +175,14 @@ button.button:focus-visible {
 }
 
 .rc-paywall {
-  max-width: 972px;
+  max-width: 1200px;
   padding: 32px;
   margin: auto;
 }
 
 .rc-paywall h1 {
-  margin-top: 120px;
-  margin-bottom: 72px;
+  margin-top: 3rem;
+  margin-bottom: 4rem;
   font-size: 52px;
   line-height: 118.2%;
   text-align: center;
@@ -199,7 +199,7 @@ button.button:focus-visible {
 .packages {
   display: flex;
   flex-direction: row;
-  overflow-x: auto;
+  flex-wrap: wrap;
   padding-bottom: 32px;
   gap: 20px;
   width: 100%;
@@ -487,8 +487,8 @@ button.button:focus-visible {
 
 @media (max-width: 600px) {
   .rc-paywall h1 {
-    margin-top: 32px;
-    margin-bottom: 32px;
+    margin-top: 2rem;
+    margin-bottom: 3rem;
     font-size: 32px;
   }
 

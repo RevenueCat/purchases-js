@@ -19,7 +19,7 @@
     "prettier:ci": "prettier --check ."
   },
   "dependencies": {
-    "@revenuecat/purchases-js": "file:../..",
+    "@revenuecat/purchases-js": "link:../..",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.12.0",

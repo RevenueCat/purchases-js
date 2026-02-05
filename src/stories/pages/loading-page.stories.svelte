@@ -2,12 +2,8 @@
   import { defineMeta, type StoryContext } from "@storybook/addon-svelte-csf";
   import PurchasesInner from "../../ui/purchases-ui-inner.svelte";
   import { brandingLanguageViewportModes } from "../../../.storybook/modes";
-  import {
-    brandingInfos,
-    priceBreakdownTaxDisabled,
-    product,
-    subscriptionOption,
-  } from "../fixtures";
+  import { brandingInfos, product, subscriptionOption } from "../fixtures";
+  import { getPriceBreakdownTaxDisabled } from "../helpers/get-price-breakdown";
   import { PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
 
   const defaultArgs = {
@@ -57,7 +53,7 @@
     lastError={null}
     gatewayParams={{}}
     purchaseOperationHelper={null as unknown as PurchaseOperationHelper}
-    defaultPriceBreakdown={priceBreakdownTaxDisabled}
+    defaultPriceBreakdown={getPriceBreakdownTaxDisabled(subscriptionOption)}
     isInElement={context.globals.viewport === "embedded"}
     onError={() => {}}
     onClose={() => {}}

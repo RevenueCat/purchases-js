@@ -1,5 +1,6 @@
 import type { BrandingInfoResponse } from "../networking/responses/branding-response";
 import { eventsTrackerContextKey } from "../ui/constants";
+import type { Price, PricingPhase } from "../entities/offerings";
 import {
   type NonSubscriptionOption,
   type Package,
@@ -19,329 +20,259 @@ import {
 } from "../networking/responses/stripe-elements";
 import type { PriceBreakdown } from "src/ui/ui-types";
 import type { CheckoutCompleteResponse } from "../networking/responses/checkout-complete-response";
+import { getPriceBreakdownTaxDisabled } from "./helpers/get-price-breakdown";
+import { formatPrice } from "../helpers/price-labels";
 
-const subscriptionOptionBasePrice = {
+const getPrice = (amount: number, currency = "USD"): Price => {
+  const amountMicros = amount * 10000;
+  const formattedPrice = formatPrice(amountMicros, currency);
+  return { amount, amountMicros, currency, formattedPrice };
+};
+
+/**
+ * Pricing phase
+ */
+
+const subscriptionOptionBasePrice: PricingPhase = {
   periodDuration: "P1M",
   period: {
     unit: PeriodUnit.Month,
     number: 1,
   },
-  price: {
-    amount: 990,
-    amountMicros: 9900000,
-    currency: "USD",
-    formattedPrice: "9.90$",
-  },
+  price: getPrice(990),
   cycleCount: 0,
-  pricePerWeek: {
-    amount: 227.64,
-    amountMicros: 2276418,
-    currency: "USD",
-    formattedPrice: "2.28$",
+  pricePerWeek: getPrice(228),
+  pricePerMonth: getPrice(990),
+  pricePerYear: getPrice(11879),
+};
+
+const trialPriceOneWeek: PricingPhase = {
+  periodDuration: "P1W",
+  period: {
+    number: 1,
+    unit: PeriodUnit.Week,
   },
-  pricePerMonth: {
-    amount: 990,
-    amountMicros: 9900000,
-    currency: "USD",
-    formattedPrice: "9.90$",
+  cycleCount: 1,
+  price: null,
+  pricePerWeek: null,
+  pricePerMonth: null,
+  pricePerYear: null,
+};
+
+const introPriceMonthly: PricingPhase = {
+  periodDuration: "P1M",
+  period: {
+    number: 1,
+    unit: PeriodUnit.Month,
   },
-  pricePerYear: {
-    amount: 11879.31,
-    amountMicros: 118793101,
-    currency: "USD",
-    formattedPrice: "118.79$",
+  cycleCount: 1,
+  price: getPrice(349),
+  pricePerWeek: getPrice(149),
+  pricePerMonth: getPrice(349),
+  pricePerYear: getPrice(5949),
+};
+
+const introPriceSingleWeek: PricingPhase = {
+  ...introPriceMonthly,
+  periodDuration: "P1W",
+  period: {
+    number: 1,
+    unit: PeriodUnit.Week,
+  },
+  price: introPriceMonthly.pricePerWeek,
+};
+
+const introPriceMultipleWeeks: PricingPhase = {
+  ...introPriceSingleWeek,
+  period: {
+    number: 2,
+    unit: PeriodUnit.Week,
   },
 };
 
-export const subscriptionOption: SubscriptionOption = {
-  id: "option_id_1",
-  priceId: "price_1",
-  base: subscriptionOptionBasePrice,
-  trial: null,
-  introPrice: null,
-};
-
-export const subscriptionOptionWithTrial: SubscriptionOption = {
-  id: "option_id_1",
-  priceId: "price_1",
-  base: subscriptionOption.base,
-  trial: {
-    periodDuration: "P1W",
-    period: {
-      number: 1,
-      unit: PeriodUnit.Week,
-    },
-    cycleCount: 1,
-    price: null,
-    pricePerWeek: null,
-    pricePerMonth: null,
-    pricePerYear: null,
+const introPriceYearly: PricingPhase = {
+  ...introPriceMonthly,
+  periodDuration: "P1Y",
+  period: {
+    number: 1,
+    unit: PeriodUnit.Year,
   },
-  introPrice: null,
+  price: introPriceMonthly.pricePerYear,
 };
 
 // Intro price - Paid upfront (6 months for $19.99, one time)
-export const subscriptionOptionWithIntroPricePaidUpfront: SubscriptionOption = {
-  id: "option_id_intro_upfront",
-  priceId: "price_intro_upfront",
-  base: subscriptionOption.base,
-  trial: null,
-  introPrice: {
-    periodDuration: "P6M",
-    period: {
-      number: 6,
-      unit: PeriodUnit.Month,
-    },
-    cycleCount: 1, // Paid upfront - one payment
-    price: {
-      amount: 1999,
-      amountMicros: 19990000,
-      currency: "USD",
-      formattedPrice: "$19.99",
-    },
-    pricePerWeek: {
-      amount: 767,
-      amountMicros: 7670000,
-      currency: "USD",
-      formattedPrice: "$7.67",
-    },
-    pricePerMonth: {
-      amount: 333,
-      amountMicros: 3330000,
-      currency: "USD",
-      formattedPrice: "$3.33",
-    },
-    pricePerYear: {
-      amount: 3998,
-      amountMicros: 39980000,
-      currency: "USD",
-      formattedPrice: "$39.98",
-    },
+const introPriceSixMonthsPaidUpfront: PricingPhase = {
+  periodDuration: "P6M",
+  period: {
+    number: 6,
+    unit: PeriodUnit.Month,
   },
+  cycleCount: 1, // Paid upfront - one payment
+  price: getPrice(1999),
+  pricePerWeek: getPrice(73),
+  pricePerMonth: getPrice(317),
+  pricePerYear: getPrice(3853),
 };
 
-// Intro price - Recurring (3 months for $4.99 each)
-export const subscriptionOptionWithIntroPriceRecurring: SubscriptionOption = {
-  id: "option_id_intro_recurring",
-  priceId: "price_intro_recurring",
-  base: subscriptionOption.base,
-  trial: null,
-  introPrice: {
-    periodDuration: "P1M",
-    period: {
-      number: 1,
-      unit: PeriodUnit.Month,
-    },
-    cycleCount: 3, // Recurring - 3 payments
-    price: {
-      amount: 499,
-      amountMicros: 4990000,
-      currency: "USD",
-      formattedPrice: "$4.99",
-    },
-    pricePerWeek: {
-      amount: 115,
-      amountMicros: 1150000,
-      currency: "USD",
-      formattedPrice: "$1.15",
-    },
-    pricePerMonth: {
-      amount: 499,
-      amountMicros: 4990000,
-      currency: "USD",
-      formattedPrice: "$4.99",
-    },
-    pricePerYear: {
-      amount: 5988,
-      amountMicros: 59880000,
-      currency: "USD",
-      formattedPrice: "$59.88",
-    },
-  },
+/**
+ * Non-subscription fixtures
+ */
+
+export const nonSubscriptionBasePricingPhase: PricingPhase = {
+  periodDuration: null,
+  period: null,
+  cycleCount: 1,
+  price: subscriptionOptionBasePrice.price!,
+  pricePerWeek: null,
+  pricePerMonth: null,
+  pricePerYear: null,
 };
 
-// Trial + Intro price - Paid upfront
-export const subscriptionOptionWithTrialAndIntroPricePaidUpfront: SubscriptionOption =
-  {
+const createNonSubscriptionOption = (
+  fields: Partial<NonSubscriptionOption> = {},
+): NonSubscriptionOption => {
+  return {
+    id: "nonsub_option_id_1",
+    priceId: "nonsub_price_1",
+    basePrice: subscriptionOptionBasePrice.price!,
+    ...fields,
+  };
+};
+
+export const nonSubscriptionOption = createNonSubscriptionOption();
+
+/**
+ * Subscription fixtures
+ */
+
+const createSubscriptionOption = (
+  fields: Partial<SubscriptionOption> = {},
+): SubscriptionOption => {
+  return {
+    id: "option_id_1",
+    priceId: "price_1",
+    base: subscriptionOptionBasePrice,
+    trial: null,
+    introPrice: null,
+    ...fields,
+  };
+};
+
+export const subscriptionOption = createSubscriptionOption();
+
+// Trial
+export const subscriptionOptionWithTrial = createSubscriptionOption({
+  id: "option_id_trial",
+  priceId: "price_trial",
+  trial: trialPriceOneWeek,
+});
+
+// Intro price (Paid upfront)
+export const subscriptionOptionWithIntroPricePaidUpfront =
+  createSubscriptionOption({
+    id: "option_id_intro_upfront",
+    priceId: "price_intro_upfront",
+    introPrice: introPriceSixMonthsPaidUpfront,
+  });
+
+// Intro price (Recurring)
+export const subscriptionOptionWithIntroPriceRecurring =
+  createSubscriptionOption({
+    id: "option_id_intro_recurring",
+    priceId: "price_intro_recurring",
+    introPrice: { ...introPriceMonthly, cycleCount: 3 },
+  });
+
+// Trial + Intro price (Paid upfront)
+export const subscriptionOptionWithTrialAndIntroPricePaidUpfront =
+  createSubscriptionOption({
     id: "option_id_trial_intro_upfront",
     priceId: "price_trial_intro_upfront",
-    base: subscriptionOption.base,
-    trial: {
-      periodDuration: "P1W",
-      period: {
-        number: 1,
-        unit: PeriodUnit.Week,
-      },
-      cycleCount: 1,
-      price: null,
-      pricePerWeek: null,
-      pricePerMonth: null,
-      pricePerYear: null,
-    },
-    introPrice: subscriptionOptionWithIntroPricePaidUpfront.introPrice,
-  };
+    introPrice: introPriceSixMonthsPaidUpfront,
+    trial: trialPriceOneWeek,
+  });
 
-// Trial + Intro price - Recurring
-export const subscriptionOptionWithTrialAndIntroPriceRecurring: SubscriptionOption =
-  {
+// Trial + Intro price (Recurring)
+export const subscriptionOptionWithTrialAndIntroPriceRecurring =
+  createSubscriptionOption({
     id: "option_id_trial_intro_recurring",
     priceId: "price_trial_intro_recurring",
-    base: subscriptionOption.base,
-    trial: {
-      periodDuration: "P1W",
-      period: {
-        number: 1,
-        unit: PeriodUnit.Week,
-      },
-      cycleCount: 1,
-      price: null,
-      pricePerWeek: null,
-      pricePerMonth: null,
-      pricePerYear: null,
-    },
-    introPrice: subscriptionOptionWithIntroPriceRecurring.introPrice,
-  };
+    introPrice: { ...introPriceMonthly, cycleCount: 3 },
+    trial: trialPriceOneWeek,
+  });
 
-export const subscriptionOptionWithSingleWeekWithTrialAndIntroPriceRecurring: SubscriptionOption =
-  {
-    id: "option_id_single_week_with_trial_recurring",
-    priceId: "price_single_week_recurring",
-    base: subscriptionOption.base,
-    trial: {
-      periodDuration: "P1W",
-      period: {
-        number: 1,
-        unit: PeriodUnit.Week,
-      },
-      cycleCount: 1,
-      price: null,
-      pricePerWeek: null,
-      pricePerMonth: null,
-      pricePerYear: null,
-    },
-    introPrice: {
-      ...subscriptionOptionBasePrice,
-      periodDuration: "P1W",
-      period: {
-        number: 1,
-        unit: PeriodUnit.Week,
-      },
-      cycleCount: 1,
-    },
-  };
-
-export const subscriptionOptionWithSingleWeekIntroPriceRecurring: SubscriptionOption =
-  {
+// Intro price (Recurring) - Single week
+export const subscriptionOptionWithSingleWeekIntroPriceRecurring =
+  createSubscriptionOption({
     id: "option_id_single_week_recurring",
     priceId: "price_single_week_recurring",
-    base: subscriptionOption.base,
-    trial: null,
-    introPrice: {
-      ...subscriptionOptionBasePrice,
-      periodDuration: "P1W",
-      period: {
-        number: 1,
-        unit: PeriodUnit.Week,
-      },
-      cycleCount: 1,
-    },
-  };
+    introPrice: introPriceSingleWeek,
+  });
 
-export const subscriptionOptionWithMultipleWeeksIntroPriceRecurring: SubscriptionOption =
-  {
+// Trial + Intro price (Recurring) - Single week
+export const subscriptionOptionWithSingleWeekWithTrialAndIntroPriceRecurring =
+  createSubscriptionOption({
+    id: "option_id_single_week_with_trial_recurring",
+    priceId: "price_single_week_recurring",
+    introPrice: introPriceSingleWeek,
+    trial: trialPriceOneWeek,
+  });
+
+// Intro price (Recurring) - Multiple weeks
+export const subscriptionOptionWithMultipleWeeksIntroPriceRecurring =
+  createSubscriptionOption({
     id: "option_id_multiple_weeks_recurring",
     priceId: "price_multiple_weeks_recurring",
-    base: subscriptionOption.base,
-    trial: null,
-    introPrice: {
-      ...subscriptionOptionBasePrice,
-      periodDuration: "P1W",
-      period: {
-        number: 2,
-        unit: PeriodUnit.Week,
-      },
-      cycleCount: 1,
-    },
-  };
+    introPrice: introPriceMultipleWeeks,
+  });
 
-export const subscriptionOptionWithSingleMonthIntroPriceRecurring: SubscriptionOption =
-  {
+// Intro price (Recurring) - Single month
+export const subscriptionOptionWithSingleMonthIntroPriceRecurring =
+  createSubscriptionOption({
     id: "option_id_single_month_recurring",
     priceId: "price_single_month_recurring",
-    base: subscriptionOption.base,
-    trial: null,
-    introPrice: {
-      ...subscriptionOptionBasePrice,
-      periodDuration: "P1M",
-      period: {
-        number: 1,
-        unit: PeriodUnit.Month,
-      },
-      cycleCount: 1,
-    },
-  };
+    introPrice: introPriceMonthly,
+  });
 
-export const subscriptionOptionWithMultipleMonthsIntroPriceRecurring: SubscriptionOption =
-  {
+// Intro price (Recurring) - Multiple months
+export const subscriptionOptionWithMultipleMonthsIntroPriceRecurring =
+  createSubscriptionOption({
     id: "option_id_multiple_months_recurring",
     priceId: "price_multiple_months_recurring",
-    base: subscriptionOption.base,
-    trial: null,
     introPrice: {
-      ...subscriptionOptionBasePrice,
-      periodDuration: "P1M",
+      ...introPriceMonthly,
       period: {
         number: 2,
         unit: PeriodUnit.Month,
       },
-      cycleCount: 1,
     },
-  };
+  });
 
-export const subscriptionOptionWithSingleYearIntroPriceRecurring: SubscriptionOption =
-  {
+// Intro price (Recurring) - Single year
+export const subscriptionOptionWithSingleYearIntroPriceRecurring =
+  createSubscriptionOption({
     id: "option_id_single_year_recurring",
     priceId: "price_single_year_recurring",
-    base: subscriptionOption.base,
-    trial: null,
-    introPrice: {
-      ...subscriptionOptionBasePrice,
-      periodDuration: "P1Y",
-      period: {
-        number: 1,
-        unit: PeriodUnit.Year,
-      },
-      cycleCount: 1,
-    },
-  };
+    introPrice: introPriceYearly,
+  });
 
-export const subscriptionOptionWithMultipleYearsIntroPriceRecurring: SubscriptionOption =
-  {
+// Intro price (Recurring) - Multiple years
+export const subscriptionOptionWithMultipleYearsIntroPriceRecurring =
+  createSubscriptionOption({
     id: "option_id_multiple_years_recurring",
     priceId: "price_multiple_years_recurring",
-    base: subscriptionOption.base,
-    trial: null,
     introPrice: {
-      ...subscriptionOptionBasePrice,
-      periodDuration: "P1Y",
+      ...introPriceYearly,
       period: {
         number: 2,
         unit: PeriodUnit.Year,
       },
-      cycleCount: 1,
     },
-  };
+  });
 
-export const nonSubscriptionOption: NonSubscriptionOption = {
-  id: "option_id_1",
-  priceId: "price_1",
-  basePrice: {
-    amount: 1995,
-    amountMicros: 19950000,
-    currency: "USD",
-    formattedPrice: "19.95$",
-  },
-};
+/**
+ * Product fixtures
+ */
 
 export const product: Product = {
   identifier: "some_product_123",
@@ -351,12 +282,7 @@ export const product: Product = {
     "It is long indeed so that it spans multiple lines.",
   title: "Fantastic Cat Pro",
   productType: ProductType.Subscription,
-  currentPrice: {
-    amount: 990,
-    amountMicros: 9900000,
-    currency: "USD",
-    formattedPrice: "9.90$",
-  },
+  currentPrice: getPrice(990),
   normalPeriodDuration: "P1M",
   presentedOfferingIdentifier: "some_offering_identifier",
   presentedOfferingContext: {
@@ -372,12 +298,7 @@ export const product: Product = {
   subscriptionOptions: {
     option_id_1: subscriptionOption,
   },
-  price: {
-    amount: 990,
-    amountMicros: 9900000,
-    currency: "USD",
-    formattedPrice: "9.90$",
-  },
+  price: getPrice(990),
   period: {
     number: 1,
     unit: PeriodUnit.Month,
@@ -432,6 +353,10 @@ export const rcPackage: Package = {
   rcBillingProduct: product,
   webBillingProduct: product,
 };
+
+/**
+ * Branding fixtures
+ */
 
 export const colorfulBrandingAppearance: BrandingAppearance = {
   shapes: "rounded",
@@ -645,92 +570,19 @@ export const brandingInfos: Record<string, BrandingInfoResponse> = {
   },
 };
 
-export const priceBreakdownTaxDisabled: PriceBreakdown = {
-  currency: "USD",
-  totalAmountInMicros: 9900000,
-  totalExcludingTaxInMicros: 9900000,
-  taxCalculationStatus: "unavailable",
-  taxAmountInMicros: 0,
-  taxBreakdown: null,
-};
-
-export const priceBreakdownTaxDisabledIntroPriceRecurring: PriceBreakdown = {
-  currency: "USD",
-  totalAmountInMicros: 3490000,
-  totalExcludingTaxInMicros: 3490000,
-  taxCalculationStatus: "unavailable",
-  taxAmountInMicros: 0,
-  taxBreakdown: null,
-};
-
-export const priceBreakdownTaxDisabledIntroPricePaidUpfront: PriceBreakdown = {
-  currency: "USD",
-  totalAmountInMicros: 19990000,
-  totalExcludingTaxInMicros: 19990000,
-  taxCalculationStatus: "unavailable",
-  taxAmountInMicros: 0,
-  taxBreakdown: null,
-};
+/**
+ * Tax calculation price breakdowns
+ */
 
 export const priceBreakdownNotCollectingTax: PriceBreakdown = {
-  currency: "USD",
-  totalAmountInMicros: 9900000,
-  totalExcludingTaxInMicros: 9900000,
+  ...getPriceBreakdownTaxDisabled(subscriptionOption),
   taxCalculationStatus: "calculated",
-  taxAmountInMicros: 0,
   taxBreakdown: [],
 };
 
-export const priceBreakdownTaxInclusive: PriceBreakdown = {
-  ...priceBreakdownTaxDisabled,
-  totalAmountInMicros: 1718000 + 8180000,
-  totalExcludingTaxInMicros: 8180000,
-  taxAmountInMicros: 1718000,
-  taxCalculationStatus: "calculated",
-  taxBreakdown: [
-    {
-      tax_amount_in_micros: 1718000,
-      display_name: "VAT - Spain (21%)",
-    },
-  ],
-};
-
-export const priceBreakdownTaxInclusiveWithIntroPricePaidUpfront: PriceBreakdown =
-  {
-    ...priceBreakdownTaxInclusive,
-    totalAmountInMicros: 19990000,
-    totalExcludingTaxInMicros: 15792100,
-    taxAmountInMicros: 4197900,
-    taxCalculationStatus: "calculated",
-    taxBreakdown: [
-      {
-        tax_amount_in_micros: 4197900,
-        display_name: "VAT - Spain (21%)",
-      },
-    ],
-  };
-
-export const priceBreakdownTaxInclusiveWithIntroPriceRecurring: PriceBreakdown =
-  {
-    ...priceBreakdownTaxInclusive,
-    totalAmountInMicros: 3490000,
-    totalExcludingTaxInMicros: 2757100,
-    taxAmountInMicros: 732900,
-    taxCalculationStatus: "calculated",
-    taxBreakdown: [
-      {
-        tax_amount_in_micros: 732900,
-        display_name: "VAT - Spain (21%)",
-      },
-    ],
-  };
-
-export const priceBreakdownTaxExclusive: PriceBreakdown = {
-  ...priceBreakdownTaxDisabled,
-  totalAmountInMicros: 693000 + 9900000,
-  totalExcludingTaxInMicros: 9900000,
-  taxAmountInMicros: 693000,
-  taxCalculationStatus: "calculated",
+export const priceBreakdownTaxLoading: PriceBreakdown = {
+  ...getPriceBreakdownTaxDisabled(subscriptionOption),
+  taxCalculationStatus: "loading",
   taxBreakdown: [
     {
       tax_amount_in_micros: 693000,
@@ -739,50 +591,13 @@ export const priceBreakdownTaxExclusive: PriceBreakdown = {
   ],
 };
 
-export const priceBreakdownTaxExclusiveWithIntroPricePaidUpfront: PriceBreakdown =
-  {
-    ...priceBreakdownTaxExclusive,
-    totalAmountInMicros: 19990000 + 1399300,
-    totalExcludingTaxInMicros: 19990000,
-    taxAmountInMicros: 1399300,
-    taxCalculationStatus: "calculated",
-    taxBreakdown: [
-      {
-        tax_amount_in_micros: 1399300,
-        display_name: "Tax Rate - NY (7%)",
-      },
-    ],
-  };
-
-export const priceBreakdownTaxExclusiveWithIntroPriceRecurring: PriceBreakdown =
-  {
-    ...priceBreakdownTaxExclusive,
-    totalAmountInMicros: 3490000 + 244300,
-    totalExcludingTaxInMicros: 3490000,
-    taxAmountInMicros: 244300,
-    taxCalculationStatus: "calculated",
-    taxBreakdown: [
-      {
-        tax_amount_in_micros: 244300,
-        display_name: "Tax Rate - NY (7%)",
-      },
-    ],
-  };
-
-export const priceBreakdownTaxLoading: PriceBreakdown = {
-  ...priceBreakdownTaxExclusive,
-  totalAmountInMicros: 9900000,
-  taxCalculationStatus: "loading",
-};
-
 export const priceBreakdownTaxPending: PriceBreakdown = {
-  ...priceBreakdownTaxExclusive,
-  totalAmountInMicros: 9900000,
+  ...priceBreakdownTaxLoading,
   taxCalculationStatus: "pending",
 };
 
 export const priceBreakdownTaxExclusiveWithMultipleTaxItems: PriceBreakdown = {
-  ...priceBreakdownTaxDisabled,
+  currency: "USD",
   totalAmountInMicros: 9900000 + 495000 + 987525,
   totalExcludingTaxInMicros: 9900000,
   taxAmountInMicros: 495000 + 987525,

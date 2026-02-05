@@ -3,11 +3,8 @@
   import { defineMeta, type StoryContext } from "@storybook/addon-svelte-csf";
   import { renderInsideMain } from "../decorators/layout-decorators";
   import { brandingModes } from "../../../.storybook/modes";
-  import {
-    subscriptionOption,
-    subscriptionOptionWithTrial,
-    priceBreakdownTaxDisabled,
-  } from "../fixtures";
+  import { subscriptionOption, subscriptionOptionWithTrial } from "../fixtures";
+  import { getPriceBreakdownTaxDisabled } from "../helpers/get-price-breakdown";
   import type { ComponentProps } from "svelte";
 
   let { Story } = defineMeta({
@@ -39,7 +36,7 @@
   name="With Trial"
   args={{
     subscriptionOption: subscriptionOptionWithTrial,
-    priceBreakdown: priceBreakdownTaxDisabled,
+    priceBreakdown: getPriceBreakdownTaxDisabled(subscriptionOptionWithTrial),
   }}
 />
 
@@ -48,7 +45,7 @@
   args={{
     disabled: true,
     subscriptionOption: subscriptionOptionWithTrial,
-    priceBreakdown: priceBreakdownTaxDisabled,
+    priceBreakdown: getPriceBreakdownTaxDisabled(subscriptionOptionWithTrial),
   }}
 />
 
@@ -70,7 +67,7 @@
 <Story
   name="With price"
   args={{
-    priceBreakdown: priceBreakdownTaxDisabled,
+    priceBreakdown: getPriceBreakdownTaxDisabled(subscriptionOption),
   }}
 />
 
@@ -78,6 +75,6 @@
   name="With price Disabled"
   args={{
     disabled: true,
-    priceBreakdown: priceBreakdownTaxDisabled,
+    priceBreakdown: getPriceBreakdownTaxDisabled(subscriptionOption),
   }}
 />

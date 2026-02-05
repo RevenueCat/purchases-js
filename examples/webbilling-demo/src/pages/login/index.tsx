@@ -7,6 +7,7 @@ const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const [displayName, setDisplayName] = useState("");
   const [nickname, setNickname] = useState("");
+  const [appUserId, setAppUserId] = useState("");
   const [useCustomLogger, setUseCustomLogger] = useState(true);
 
   const navigateToAppUserIDPaywall = (appUserId?: string) => {
@@ -37,6 +38,8 @@ const LoginPage: React.FC = () => {
           id="app-user-id"
           placeholder="Your app user ID"
           className="input-field"
+          value={appUserId}
+          onChange={(e) => setAppUserId(e.target.value)}
         />
         <div className="attributes-section">
           <h3>Optional Attributes</h3>
@@ -72,11 +75,6 @@ const LoginPage: React.FC = () => {
           <Button
             caption="Continue"
             onClick={() => {
-              const appUserId = (
-                document.getElementById(
-                  "app-user-id",
-                ) as HTMLInputElement | null
-              )?.value;
               navigateToAppUserIDPaywall(appUserId);
             }}
           />
@@ -84,7 +82,7 @@ const LoginPage: React.FC = () => {
             caption="Skip"
             onClick={() => {
               navigateToAppUserIDPaywall(
-                Purchases.generateRevenueCatAnonymousAppUserId(),
+                appUserId || Purchases.generateRevenueCatAnonymousAppUserId(),
               );
             }}
           />

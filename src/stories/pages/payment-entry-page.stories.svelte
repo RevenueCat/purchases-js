@@ -5,21 +5,20 @@
   import {
     brandingInfos,
     checkoutStartResponse,
-    priceBreakdownTaxDisabled,
-    priceBreakdownTaxInclusive,
     product,
     subscriptionOption,
     subscriptionOptionWithTrial,
     subscriptionOptionWithTrialAndIntroPricePaidUpfront,
-    priceBreakdownTaxDisabledIntroPricePaidUpfront,
-    priceBreakdownTaxInclusiveWithIntroPricePaidUpfront,
-    priceBreakdownTaxInclusiveWithIntroPriceRecurring,
     subscriptionOptionWithTrialAndIntroPriceRecurring,
     subscriptionOptionWithIntroPriceRecurring,
     subscriptionOptionWithIntroPricePaidUpfront,
     consumableProduct,
     nonSubscriptionOption,
   } from "../fixtures";
+  import {
+    getPriceBreakdownTaxInclusive,
+    getPriceBreakdownTaxDisabled,
+  } from "../helpers/get-price-breakdown";
   import { PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
 
   const defaultArgs = {
@@ -76,7 +75,9 @@
     gatewayParams={checkoutStartResponse.gateway_params}
     {purchaseOperationHelper}
     defaultPriceBreakdown={args.defaultPriceBreakdown ??
-      (args.withTaxes ? priceBreakdownTaxInclusive : priceBreakdownTaxDisabled)}
+      (args.withTaxes
+        ? getPriceBreakdownTaxInclusive(subscriptionOption)
+        : undefined)}
     isInElement={context.globals.viewport === "embedded"}
     onError={() => {}}
     onClose={() => {}}
@@ -148,7 +149,9 @@
   args={{
     ...defaultArgs,
     currentPage: "payment-entry",
-    defaultPriceBreakdown: priceBreakdownTaxDisabledIntroPricePaidUpfront,
+    defaultPriceBreakdown: getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithTrialAndIntroPricePaidUpfront,
+    ),
     productDetails: {
       ...product,
       subscriptionOptions: {
@@ -227,7 +230,9 @@
   args={{
     ...defaultArgs,
     currentPage: "payment-entry",
-    defaultPriceBreakdown: priceBreakdownTaxInclusiveWithIntroPricePaidUpfront,
+    defaultPriceBreakdown: getPriceBreakdownTaxInclusive(
+      subscriptionOptionWithTrialAndIntroPricePaidUpfront,
+    ),
     productDetails: {
       ...product,
       subscriptionOptions: {
@@ -251,7 +256,9 @@
   args={{
     ...defaultArgs,
     currentPage: "payment-entry",
-    defaultPriceBreakdown: priceBreakdownTaxInclusiveWithIntroPriceRecurring,
+    defaultPriceBreakdown: getPriceBreakdownTaxInclusive(
+      subscriptionOptionWithTrialAndIntroPriceRecurring,
+    ),
     productDetails: {
       ...product,
       subscriptionOptions: {
@@ -275,7 +282,9 @@
   args={{
     ...defaultArgs,
     currentPage: "payment-entry",
-    defaultPriceBreakdown: priceBreakdownTaxInclusiveWithIntroPricePaidUpfront,
+    defaultPriceBreakdown: getPriceBreakdownTaxInclusive(
+      subscriptionOptionWithIntroPricePaidUpfront,
+    ),
     productDetails: {
       ...product,
       subscriptionOptions: {
@@ -299,7 +308,9 @@
   args={{
     ...defaultArgs,
     currentPage: "payment-entry",
-    defaultPriceBreakdown: priceBreakdownTaxInclusiveWithIntroPriceRecurring,
+    defaultPriceBreakdown: getPriceBreakdownTaxInclusive(
+      subscriptionOptionWithIntroPriceRecurring,
+    ),
     productDetails: {
       ...product,
       subscriptionOptions: {
@@ -325,7 +336,7 @@
     currentPage: "payment-entry",
     withTaxes: true,
     defaultPriceBreakdown: {
-      ...priceBreakdownTaxInclusive,
+      ...getPriceBreakdownTaxInclusive(subscriptionOption),
       taxCalculationStatus: "miss-match",
     },
   }}
