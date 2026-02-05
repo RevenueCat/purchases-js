@@ -113,6 +113,7 @@ describe("EventsTracker", (test) => {
           },
         ],
       },
+      keepalive: true,
     });
   });
 
@@ -456,6 +457,7 @@ describe("EventsTracker", (test) => {
           },
         ],
       },
+      keepalive: true,
     });
 
     eventsTracker.dispose();

@@ -126,6 +126,7 @@ export default class EventsTracker implements IEventsTracker {
       method: HttpMethods.POST,
       headers: getHeaders(this.apiKey),
       body: JSON.stringify({ events: eventsToFlush }),
+      keepalive: true,
     })
       .then((response) => {
         if (response.status === 200 || response.status === 201) {
