@@ -5,14 +5,17 @@
   import { brandingModes } from "../../../.storybook/modes";
   import {
     priceBreakdownNotCollectingTax,
-    priceBreakdownTaxDisabled,
-    priceBreakdownTaxExclusive,
     priceBreakdownTaxExclusiveWithMultipleTaxItems,
-    priceBreakdownTaxInclusive,
     priceBreakdownTaxLoading,
     priceBreakdownTaxPending,
+    subscriptionOption,
     subscriptionOptionWithTrial,
   } from "../fixtures";
+  import {
+    getPriceBreakdownTaxDisabled,
+    getPriceBreakdownTaxExclusive,
+    getPriceBreakdownTaxInclusive,
+  } from "../helpers/get-price-breakdown";
   import type { ComponentProps } from "svelte";
 
   let { Story } = defineMeta({
@@ -34,7 +37,8 @@
 
 {#snippet template(args: Args, _context: Context)}
   <PricingTable
-    priceBreakdown={args.priceBreakdown ?? priceBreakdownTaxDisabled}
+    priceBreakdown={args.priceBreakdown ??
+      getPriceBreakdownTaxDisabled(subscriptionOption)}
     trialPhase={args.trialPhase ?? null}
   />
 {/snippet}
@@ -72,26 +76,26 @@
 <Story
   name="Tax Inclusive"
   args={{
-    priceBreakdown: priceBreakdownTaxInclusive,
+    priceBreakdown: getPriceBreakdownTaxInclusive(subscriptionOption),
   }}
 />
 <Story
   name="Tax Inclusive Trial"
   args={{
-    priceBreakdown: priceBreakdownTaxInclusive,
+    priceBreakdown: getPriceBreakdownTaxInclusive(subscriptionOptionWithTrial),
     trialPhase: subscriptionOptionWithTrial.trial,
   }}
 />
 <Story
   name="Tax Exclusive"
   args={{
-    priceBreakdown: priceBreakdownTaxExclusive,
+    priceBreakdown: getPriceBreakdownTaxExclusive(subscriptionOption),
   }}
 />
 <Story
   name="Tax Exclusive Trial"
   args={{
-    priceBreakdown: priceBreakdownTaxExclusive,
+    priceBreakdown: getPriceBreakdownTaxExclusive(subscriptionOptionWithTrial),
     trialPhase: subscriptionOptionWithTrial.trial,
   }}
 />
