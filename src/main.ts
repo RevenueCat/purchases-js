@@ -635,6 +635,11 @@ export class Purchases {
           certainHTMLTarget.parentNode.removeChild(certainHTMLTarget);
         }
       };
+      const closePaywall = () => {
+        Logger.debugLog("Purchase cancelled by user");
+        unmountPaywall();
+        reject(new PurchasesError(ErrorCode.UserCancelledError));
+      };
 
       const walletButtonRender = isWebBillingApiKey(this._API_KEY)
         ? (
@@ -709,15 +714,13 @@ export class Purchases {
           uiConfig: offering.uiConfig!,
           onBackClicked: () => {
             if (paywallParams.onBack) {
-              paywallParams.onBack(unmountPaywall);
+              paywallParams.onBack(closePaywall);
               return;
             }
 
             // Opinionated approach
             // closing the current purchase and emptying the paywall.
-            Logger.debugLog("Purchase cancelled by user");
-            unmountPaywall();
-            reject(new PurchasesError(ErrorCode.UserCancelledError));
+            closePaywall();
           },
           onRestorePurchasesClicked: onRestorePurchasesClicked,
           onPurchaseClicked: (selectedPackageId: string) => {
