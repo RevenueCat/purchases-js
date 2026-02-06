@@ -15,6 +15,10 @@ const RCPaywallNoTargetElementPassedPage: React.FC = () => {
     purchases
       .presentPaywall({
         selectedLocale: lang || undefined,
+        onBack: (unmountPaywall) => {
+          console.log("Back button clicked");
+          unmountPaywall();
+        },
       })
       .then((purchaseResult: PurchaseResult) => {
         const { customerInfo, redemptionInfo } = purchaseResult;

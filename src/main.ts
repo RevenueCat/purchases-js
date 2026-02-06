@@ -712,7 +712,7 @@ export class Purchases {
           uiConfig: offering.uiConfig!,
           onBackClicked: () => {
             if (paywallParams.onBack) {
-              paywallParams.onBack();
+              paywallParams.onBack(unmountPaywall);
               return;
             }
 
