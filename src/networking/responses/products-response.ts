@@ -9,9 +9,14 @@ export interface PricingPhaseResponse {
   cycle_count: number;
 }
 
+export interface DiscountPriceResponse extends PriceResponse {
+  name: string | null;
+}
+
 export interface PurchaseOptionResponse {
   id: string;
   price_id: string;
+  discount: DiscountPriceResponse | null;
 }
 
 export interface SubscriptionOptionResponse extends PurchaseOptionResponse {
