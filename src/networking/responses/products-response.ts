@@ -16,7 +16,7 @@ export interface DiscountPriceResponse extends PriceResponse {
 export interface PurchaseOptionResponse {
   id: string;
   price_id: string;
-  discount_price: DiscountPriceResponse | null;
+  discount: DiscountPriceResponse | null;
 }
 
 export interface SubscriptionOptionResponse extends PurchaseOptionResponse {
