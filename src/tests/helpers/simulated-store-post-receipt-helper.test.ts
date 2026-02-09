@@ -75,6 +75,7 @@ describe("postSimulatedStoreReceipt", () => {
       expect.stringMatching(/^test_.*test-uuid-123$/),
       mockProduct.presentedOfferingContext,
       "purchase",
+      undefined,
     );
 
     expect(result.storeTransaction.productIdentifier).toBe(
@@ -118,6 +119,7 @@ describe("postSimulatedStoreReceipt", () => {
       expect.stringMatching(/^test_.*test-uuid-123$/),
       consumableProduct.presentedOfferingContext,
       "purchase",
+      undefined,
     );
 
     expect(result.storeTransaction.productIdentifier).toBe(

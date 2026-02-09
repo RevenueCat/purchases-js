@@ -191,6 +191,7 @@ describe("PurchasesUI", () => {
       "test@test.com",
       { utm_term: "something" },
       { stepId: "test-step-123" },
+      undefined,
     );
   });
 
@@ -214,6 +215,7 @@ describe("PurchasesUI", () => {
       rcPackage.webBillingProduct.presentedOfferingContext,
       "test@test.com",
       { utm_term: "something" },
+      undefined,
       undefined,
     );
   });

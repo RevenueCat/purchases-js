@@ -736,6 +736,56 @@ describe("postCheckoutStart request", () => {
     expect(requestBody.presented_step_id).toBeUndefined();
   });
 
+  test("includes paywall_id in request when provided", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutStart(
+      "someAppUserId",
+      "monthly",
+      {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      { id: "base_option", priceId: "test_price_id" },
+      "test-trace-id",
+      undefined,
+      undefined,
+      undefined,
+      "test-paywall-123",
+    );
+
+    expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.paywall).toEqual({ paywall_id: "test-paywall-123" });
+  });
+
+  test("omits paywall_id from request when not provided", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutStart(
+      "someAppUserId",
+      "monthly",
+      {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      { id: "base_option", priceId: "test_price_id" },
+      "test-trace-id",
+    );
+
+    expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.paywall).toBeUndefined();
+  });
+
   test("throws an error if the backend returns a server error", async () => {
     setCheckoutStartResponse(
       HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
