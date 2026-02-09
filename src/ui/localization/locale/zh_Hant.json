@@ -97,5 +97,7 @@
   "payment_entry_page.terms_link_label": "條款",
   "payment_entry_page.subscription_terms_info": "訂閱即表示您同意允許 {{appName}} 根據其條款向您收費，直到您取消為止。",
   "loading_page.keep_page_open": "程序即將完成。請保持此頁面開啟。",
-  "loading_page.processing_payment": "正在處理付款"
+  "loading_page.processing_payment": "正在處理付款",
+  "pricing_table.discount": "折扣",
+  "pricing_table.subtotal": "小計"
 }

@@ -97,5 +97,7 @@
   "payment_entry_page.terms_link_label": "ข้อกำหนด",
   "payment_entry_page.subscription_terms_info": "เมื่อสมัครรับข้อมูล แสดงว่าคุณยินยอมให้ {{appName}} เรียกเก็บเงินจากคุณตามข้อกำหนดจนกว่าคุณจะยกเลิก",
   "loading_page.keep_page_open": "กระบวนการเกือบเสร็จสมบูรณ์แล้ว โปรดเปิดหน้านี้ไว้",
-  "loading_page.processing_payment": "กำลังดำเนินการชำระเงิน"
+  "loading_page.processing_payment": "กำลังดำเนินการชำระเงิน",
+  "pricing_table.discount": "ส่วนลด",
+  "pricing_table.subtotal": "ราคารวมย่อย"
 }
