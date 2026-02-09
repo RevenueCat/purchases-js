@@ -97,5 +97,7 @@
   "payment_entry_page.terms_link_label": "Uvjeti",
   "payment_entry_page.subscription_terms_info": "Pretplatom se slažete da ćete dopustiti {{appName}} da vam naplaćuje u skladu s njihovim uvjetima dok ne otkažete.",
   "loading_page.keep_page_open": "Proces je skoro gotov. Ostavite ovu stranicu otvorenom.",
-  "loading_page.processing_payment": "Obrada uplate"
+  "loading_page.processing_payment": "Obrada uplate",
+  "pricing_table.discount": "Popust",
+  "pricing_table.subtotal": "Međuzbroj"
 }

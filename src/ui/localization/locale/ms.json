@@ -97,5 +97,7 @@
   "payment_entry_page.terms_link_label": "Terma",
   "payment_entry_page.subscription_terms_info": "Dengan melanggan, anda bersetuju untuk membenarkan {{appName}} mengenakan bayaran kepada anda mengikut terma mereka sehingga anda membatalkan.",
   "loading_page.keep_page_open": "Proses hampir selesai. Pastikan halaman ini dibuka.",
-  "loading_page.processing_payment": "Memproses pembayaran"
+  "loading_page.processing_payment": "Memproses pembayaran",
+  "pricing_table.discount": "Diskaun",
+  "pricing_table.subtotal": "Subtotal"
 }
