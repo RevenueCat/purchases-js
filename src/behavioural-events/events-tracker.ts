@@ -193,17 +193,13 @@ export default class EventsTracker implements IEventsTracker {
     }
   }
 
-  private doFlush(): Promise<void> {
-    if (this.isFlushing || this.isDisposed) {
-      return Promise.resolve();
-    }
-
-    if (this.eventsQueue.length === 0) {
-      return Promise.resolve();
-    }
-
-    this.isFlushing = true;
-
+  /**
+   * Builds a batch of events that fits within browser keepalive size limit.
+   * Browsers impose ~64KB limit on fetch() requests with keepalive:true.
+   * https://developer.mozilla.org/en-US/docs/Web/API/RequestInit#keepalive
+   * Returns null if the first event exceeds the limit (and removes it from queue).
+   */
+  private batchEventsForKeepalive(): Array<Event> | null {
     const eventsToFlush: Array<Event> = [];
     let batchSize = 16; // Account for {"events":[]} wrapper overhead
 
@@ -221,11 +217,30 @@ export default class EventsTracker implements IEventsTracker {
           `Event exceeds keepalive size limit (${eventSize} bytes): ${event.data.eventName}`,
         );
         this.eventsQueue.shift();
-        this.isFlushing = false;
-        return Promise.resolve();
+        return null;
       } else {
         break;
       }
+    }
+
+    return eventsToFlush;
+  }
+
+  private doFlush(): Promise<void> {
+    if (this.isFlushing || this.isDisposed) {
+      return Promise.resolve();
+    }
+
+    if (this.eventsQueue.length === 0) {
+      return Promise.resolve();
+    }
+
+    this.isFlushing = true;
+
+    const eventsToFlush = this.batchEventsForKeepalive();
+    if (!eventsToFlush) {
+      this.isFlushing = false;
+      return Promise.resolve();
     }
 
     // Only remove from queue after successful delivery
