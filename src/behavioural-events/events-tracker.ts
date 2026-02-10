@@ -122,18 +122,20 @@ export default class EventsTracker implements IEventsTracker {
       return;
     }
 
-    this.isDisposed = true;
     this.flushManager.stop();
 
     // Attempt to flush remaining events with keepalive.
     // We don't await this because keepalive is designed to complete
     // even after the page unloads. The fetch() call starts synchronously,
     // and the browser will keep it alive during navigation/unload.
+    // Set isDisposed AFTER starting the flush so doFlush() doesn't bail early.
     if (this.eventsQueue.length > 0 && !this.isFlushing) {
       this.doFlush().catch((error) => {
         Logger.debugLog(`Failed to flush events on dispose: ${error}`);
       });
     }
+
+    this.isDisposed = true;
   }
 
   public async flushAllEvents(): Promise<void> {
@@ -141,18 +143,16 @@ export default class EventsTracker implements IEventsTracker {
       return Promise.resolve();
     }
 
-    // Wait for any in-progress flush to complete
     if (this.currentFlushPromise) {
       try {
         await this.currentFlushPromise;
       } catch {
-        // Ignore errors from in-progress flush
+        // Ignore errors
       }
     }
 
     this.flushManager.stop();
 
-    // Flush all batches in a loop
     while (this.eventsQueue.length > 0 && !this.isDisposed) {
       const queueLengthBefore = this.eventsQueue.length;
 
@@ -168,7 +168,6 @@ export default class EventsTracker implements IEventsTracker {
       }
     }
 
-    // Restart FlushManager
     if (!this.isDisposed) {
       this.flushManager.start();
       if (this.eventsQueue.length > 0) {
@@ -178,7 +177,6 @@ export default class EventsTracker implements IEventsTracker {
   }
 
   private flushEvents(): Promise<void> {
-    // Prevent concurrent flushes
     if (this.isFlushing) {
       Logger.debugLog("Flush already in progress, skipping");
       return Promise.resolve();
@@ -206,13 +204,12 @@ export default class EventsTracker implements IEventsTracker {
 
     this.isFlushing = true;
 
-    // Batch events up to size limit with O(n) algorithm
     const eventsToFlush: Array<Event> = [];
     let batchSize = 16; // Account for {"events":[]} wrapper overhead
 
     for (const event of this.eventsQueue) {
       const eventSize = this.estimateSingleEventSize(event);
-      const separator = eventsToFlush.length > 0 ? 1 : 0; // Comma separator
+      const separator = eventsToFlush.length > 0 ? 1 : 0;
       const newBatchSize = batchSize + eventSize + separator;
 
       if (newBatchSize <= MAX_KEEPALIVE_BATCH_SIZE) {
@@ -227,11 +224,11 @@ export default class EventsTracker implements IEventsTracker {
         this.isFlushing = false;
         return Promise.resolve();
       } else {
-        break; // Batch is full
+        break;
       }
     }
 
-    // DON'T remove from queue yet - only after success
+    // Only remove from queue after successful delivery
     const flushPromise = fetch(this.eventsUrl, {
       method: HttpMethods.POST,
       headers: getHeaders(this.apiKey),
@@ -240,10 +237,8 @@ export default class EventsTracker implements IEventsTracker {
     })
       .then((response) => {
         if (response.status === 200 || response.status === 201) {
-          // SUCCESS: Only now remove events
           this.eventsQueue.splice(0, eventsToFlush.length);
 
-          // Schedule another flush if more events remain
           if (this.eventsQueue.length > 0) {
             this.flushManager.schedule();
           }
@@ -253,7 +248,6 @@ export default class EventsTracker implements IEventsTracker {
         throw new Error("Events failed to flush due to server error");
       })
       .catch((error) => {
-        // FAILURE: Events still in queue, no unshift needed
         Logger.debugLog("Error while flushing events");
         throw error;
       })

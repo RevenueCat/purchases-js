@@ -121,4 +121,33 @@ describe("FlushManager", () => {
 
     mathRandomSpy.mockRestore();
   });
+
+  test("start() resets backoff delay after failures", async () => {
+    callbackSpy.mockImplementation(() => {
+      throw new Error("Mocked error");
+    });
+
+    // Trigger backoff by failing multiple times
+    flushManager.tryFlush();
+    await vi.advanceTimersByTimeAsync(1_000 + 2_000 + 4_000);
+    expect(callbackSpy).toHaveBeenCalledTimes(4);
+
+    // Current delay should be 8000ms (exponential backoff)
+    callbackSpy.mockClear();
+
+    // Stop and restart - should reset backoff
+    flushManager.stop();
+    flushManager.start();
+
+    // Now success should work immediately
+    callbackSpy.mockReturnValue(Promise.resolve());
+    flushManager.tryFlush();
+    expect(callbackSpy).toHaveBeenCalledTimes(1);
+
+    // Next attempt should use initial delay (1000ms), not backed-off delay
+    callbackSpy.mockClear();
+    flushManager.tryFlush();
+    await vi.advanceTimersByTimeAsync(1_000);
+    expect(callbackSpy).toHaveBeenCalledTimes(1);
+  });
 });

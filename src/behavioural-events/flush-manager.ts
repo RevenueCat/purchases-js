@@ -39,6 +39,7 @@ export class FlushManager {
 
   public start() {
     this.stopped = false;
+    this.currentDelay = this.initialDelay; // Reset backoff state
   }
 
   public stop() {

@@ -703,6 +703,69 @@ describe("EventsTracker", (test) => {
     );
   });
 
+  test<EventsTrackerFixtures>("FlushManager resets backoff after flushAllEvents with failures", async ({
+    eventsTracker,
+  }) => {
+    let attempts = 0;
+
+    server.use(
+      http.post(eventsURL, async ({ request }) => {
+        ++attempts;
+        const json = (await request.json()) as {
+          events: Array<{ event_name: string }>;
+        };
+        APIPostRequest({ url: eventsURL, json, keepalive: request.keepalive });
+
+        // Fail first 2 attempts, then succeed
+        if (attempts <= 2) {
+          return new HttpResponse(null, { status: 500 });
+        }
+        return HttpResponse.json(json, { status: 201 });
+      }),
+    );
+
+    // Track event and let it fail twice (triggering backoff)
+    eventsTracker.trackExternalEvent({
+      eventName: "event_with_failures",
+      source: "sdk",
+    });
+
+    // First attempt fails
+    await vi.advanceTimersByTimeAsync(100);
+    expect(APIPostRequest).toHaveBeenCalledTimes(1);
+
+    // Second attempt fails (after 2s backoff)
+    await vi.advanceTimersByTimeAsync(2_000 * MAX_JITTER_MULTIPLIER);
+    expect(APIPostRequest).toHaveBeenCalledTimes(2);
+
+    APIPostRequest.mockClear();
+
+    // Now flushAllEvents - should succeed on third attempt
+    await eventsTracker.flushAllEvents();
+    expect(APIPostRequest).toHaveBeenCalledTimes(1);
+
+    APIPostRequest.mockClear();
+
+    // Track new event - automatic flush should work immediately
+    // (verifies backoff was reset by start())
+    eventsTracker.trackExternalEvent({
+      eventName: "after_backoff_reset",
+      source: "sdk",
+    });
+
+    await vi.advanceTimersToNextTimerAsync();
+    expect(APIPostRequest).toHaveBeenCalledTimes(1);
+    expect(APIPostRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        json: expect.objectContaining({
+          events: expect.arrayContaining([
+            expect.objectContaining({ event_name: "after_backoff_reset" }),
+          ]),
+        }),
+      }),
+    );
+  });
+
   test<EventsTrackerFixtures>("dispose flushes pending events", async ({
     eventsTracker,
   }) => {
@@ -746,6 +809,57 @@ describe("EventsTracker", (test) => {
     // flushAllEvents should return immediately
     await eventsTracker.flushAllEvents();
     expect(APIPostRequest).not.toHaveBeenCalled();
+  });
+
+  test<EventsTrackerFixtures>("dispose flushes queued events even after failed attempts", async ({
+    eventsTracker,
+  }) => {
+    let attempts = 0;
+
+    server.use(
+      http.post(eventsURL, async ({ request }) => {
+        ++attempts;
+        const json = (await request.json()) as {
+          events: Array<{ event_name: string }>;
+        };
+        APIPostRequest({ url: eventsURL, json, keepalive: request.keepalive });
+
+        // Fail the first attempt
+        if (attempts === 1) {
+          return new HttpResponse(null, { status: 500 });
+        }
+        return HttpResponse.json(json, { status: 201 });
+      }),
+    );
+
+    // Track event and let it fail
+    eventsTracker.trackExternalEvent({
+      eventName: "queued_event",
+      source: "sdk",
+    });
+
+    await vi.advanceTimersByTimeAsync(100);
+    expect(APIPostRequest).toHaveBeenCalledTimes(1);
+    expect(attempts).toBe(1);
+
+    // Event should still be in queue after failure
+    APIPostRequest.mockClear();
+
+    // Now dispose - should flush the queued event
+    eventsTracker.dispose();
+    await vi.advanceTimersByTimeAsync(100);
+
+    expect(attempts).toBe(2);
+    expect(APIPostRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        json: expect.objectContaining({
+          events: expect.arrayContaining([
+            expect.objectContaining({ event_name: "queued_event" }),
+          ]),
+        }),
+        keepalive: true,
+      }),
+    );
   });
 
   test<EventsTrackerFixtures>("batches large events to respect keepalive size limit", async ({
