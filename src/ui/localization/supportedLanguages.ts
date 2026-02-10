@@ -122,6 +122,8 @@ export enum LocalizationKeys {
   PricingTotalExcludingTax = "pricing_table.total_excluding_tax",
   PricingTableTrialEnds = "pricing_table.trial_ends",
   PricingTableTotalDueToday = "pricing_table.total_due_today",
+  PricingTableSubtotal = "pricing_table.subtotal",
+  PricingTableDiscount = "pricing_table.discount",
   PricingTableTax = "pricing_table.tax",
   PricingTableEnterBillingAddressToCalculate = "pricing_table.enter_billing_address_to_calculate",
   PricingTableEnterStateOrPostalCodeToCalculate = "pricing_table.enter_state_or_postal_code_to_calculate",

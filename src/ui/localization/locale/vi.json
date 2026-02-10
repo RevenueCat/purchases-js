@@ -97,5 +97,7 @@
   "payment_entry_page.terms_link_label": "Điều khoản",
   "payment_entry_page.subscription_terms_info": "Bằng cách đăng ký, bạn đồng ý cho phép {{appName}} tính phí bạn theo các điều khoản của họ cho đến khi bạn hủy.",
   "loading_page.keep_page_open": "Quá trình gần hoàn tất. Vui lòng giữ trang này mở.",
-  "loading_page.processing_payment": "Đang xử lý thanh toán"
+  "loading_page.processing_payment": "Đang xử lý thanh toán",
+  "pricing_table.discount": "Giảm giá",
+  "pricing_table.subtotal": "Tổng cộng"
 }
