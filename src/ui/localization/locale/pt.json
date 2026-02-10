@@ -97,5 +97,7 @@
   "payment_entry_page.terms_link_label": "Termos",
   "payment_entry_page.subscription_terms_info": "Ao subscrever, concorda em permitir que a {{appName}} lhe cobre de acordo com os seus termos até cancelar.",
   "loading_page.keep_page_open": "O processo está quase concluído. Mantenha esta página aberta.",
-  "loading_page.processing_payment": "Processando o pagamento"
+  "loading_page.processing_payment": "Processando o pagamento",
+  "pricing_table.discount": "Desconto",
+  "pricing_table.subtotal": "Subtotal"
 }

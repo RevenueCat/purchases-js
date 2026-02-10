@@ -97,5 +97,7 @@
   "payment_entry_page.terms_link_label": "Bedingungen",
   "payment_entry_page.subscription_terms_info": "Mit dem Abonnieren erklären Sie sich damit einverstanden, dass {{appName}} Ihnen gemäß ihren Bedingungen Gebühren berechnet, bis Sie kündigen.",
   "loading_page.keep_page_open": "Der Vorgang ist fast abgeschlossen. Bitte lassen Sie diese Seite geöffnet.",
-  "loading_page.processing_payment": "Zahlung wird verarbeitet"
+  "loading_page.processing_payment": "Zahlung wird verarbeitet",
+  "pricing_table.discount": "Rabatt",
+  "pricing_table.subtotal": "Zwischensumme"
 }

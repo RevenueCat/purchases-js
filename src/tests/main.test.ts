@@ -123,6 +123,28 @@ describe("Purchases.configure()", () => {
     expect(purchases).toBeDefined();
   });
 
+  test("passes trace_id to EventsTracker when provided", () => {
+    const customTraceId = "test-trace-id-789";
+    const purchases = Purchases.configure({
+      apiKey: testApiKey,
+      appUserId: testUserId,
+      trace_id: customTraceId,
+    });
+
+    expect(purchases["eventsTracker"].getTraceId()).toBe(customTraceId);
+  });
+
+  test("EventsTracker generates trace_id when not provided", () => {
+    const purchases = Purchases.configure({
+      apiKey: testApiKey,
+      appUserId: testUserId,
+    });
+
+    const traceId = purchases["eventsTracker"].getTraceId();
+    expect(traceId).toBeTruthy();
+    expect(typeof traceId).toBe("string");
+  });
+
   test("throws error if given invalid api key", () => {
     expect(() =>
       Purchases.configure({

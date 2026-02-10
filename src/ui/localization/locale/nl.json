@@ -97,5 +97,7 @@
   "payment_entry_page.terms_link_label": "Voorwaarden",
   "payment_entry_page.subscription_terms_info": "Door u te abonneren, stemt u ermee in dat {{appName}} u kosten in rekening brengt volgens hun voorwaarden totdat u annuleert.",
   "loading_page.keep_page_open": "Het proces is bijna voltooid. Houd deze pagina open.",
-  "loading_page.processing_payment": "Betaling verwerken"
+  "loading_page.processing_payment": "Betaling verwerken",
+  "pricing_table.discount": "Korting",
+  "pricing_table.subtotal": "Subtotaal"
 }

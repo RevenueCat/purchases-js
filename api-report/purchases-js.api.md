@@ -444,6 +444,7 @@ export interface PurchasesConfig {
     flags?: FlagsConfig;
     httpConfig?: HttpConfig;
     /* Excluded from this release type: context */
+    /* Excluded from this release type: trace_id */
 }
 
 // @public

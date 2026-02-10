@@ -97,5 +97,7 @@
   "payment_entry_page.terms_link_label": "Умови",
   "payment_entry_page.subscription_terms_info": "Підписуючись, ви погоджуєтеся дозволити {{appName}} стягувати з вас плату відповідно до їхніх умов, поки ви не скасуєте підписку.",
   "loading_page.keep_page_open": "Процес майже завершено. Залиште цю сторінку відкритою.",
-  "loading_page.processing_payment": "Обробка платежу"
+  "loading_page.processing_payment": "Обробка платежу",
+  "pricing_table.discount": "Знижка",
+  "pricing_table.subtotal": "Сума до сплати"
 }
