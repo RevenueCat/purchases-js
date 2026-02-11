@@ -1,8 +1,10 @@
 ## RevenueCat SDK
-### ✨ New Features
-* Enable overriding of trace_id on Purchases instantiation (#742) via Jamie Holwill (@jholwill)
-* WEB-3627: Exposing the management url in the single subscriptions by product id (#727) via Nicola Sacco (@nicfix)
 ### 🐞 Bugfixes
-* Web 3521: Allow multiple express purchase buttons to be rendered (#737) via Nicola Sacco (@nicfix)
+* Enable explicit client flushing of pending events (#747) via Jamie Holwill (@jholwill)
 ### 📦 Dependency Updates
-* Bump dependencies (#740) via James O'Donnell (@james-od)
+* Bump purchases-ui-js to 3.7.0 (#753) via Jamie Holwill (@jholwill)
+
+### 🔄 Other Changes
+* Add discount translations (#751) via Burdock (@lburdock)
+* Improve fixtures for stories (#746) via Burdock (@lburdock)
+* Fix hot reloading (#743) via Burdock (@lburdock)
