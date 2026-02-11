@@ -435,6 +435,7 @@ export class Purchases {
     static setLogLevel(logLevel: LogLevel): void;
     static setPlatformInfo(platformInfo: PlatformInfo): void;
     /* Excluded from this release type: _trackEvent */
+    /* Excluded from this release type: _flushAllEvents */
 }
 
 // @public

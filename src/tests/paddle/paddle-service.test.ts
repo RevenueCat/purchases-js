@@ -94,6 +94,7 @@ describe("PaddleService", () => {
       trackSDKEvent: () => {},
       trackExternalEvent: () => {},
       dispose: () => {},
+      flushAllEvents: () => Promise.resolve(),
     };
     paddleService = new PaddleService(backend, eventsTrackerMock);
 
@@ -498,6 +499,7 @@ describe("PaddleService", () => {
         trackSDKEvent: () => {},
         trackExternalEvent: () => {},
         dispose: () => {},
+        flushAllEvents: () => Promise.resolve(),
       });
 
       await expect(
