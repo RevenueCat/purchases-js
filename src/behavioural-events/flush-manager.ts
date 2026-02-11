@@ -1,20 +1,34 @@
 import { Logger } from "../helpers/logger";
 
+export interface FlushOptions {
+  /**
+   * When true, the callback should flush until the queue is empty even if the
+   * tracker is disposed. Used by dispose() so the same drain path sends all batches.
+   */
+  ignoreDisposed?: boolean;
+}
+
+/**
+ * Callback returns true when the queue is empty (no more work to flush).
+ */
+export type FlushCallback = (options?: FlushOptions) => Promise<boolean>;
+
 export class FlushManager {
   private readonly initialDelay: number;
   private readonly maxDelay: number;
   private readonly jitterPercent: number;
-  private readonly callback: () => Promise<void>;
+  private readonly callback: FlushCallback;
   private currentDelay: number;
   private timeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
   private executingCallback: boolean = false;
   private stopped: boolean = false;
+  private currentFlushPromise: Promise<void> | null = null;
 
   constructor(
     initialDelay: number,
     maxDelay: number,
     jitterPercent: number,
-    callback: () => Promise<void>,
+    callback: FlushCallback,
   ) {
     this.initialDelay = initialDelay;
     this.currentDelay = initialDelay;
@@ -34,7 +48,9 @@ export class FlushManager {
     }
 
     this.clearTimeout();
-    this.executeCallbackWithRetries();
+    this.executeCallbackWithRetries().catch(() => {
+      // Rejection already handled in executeCallbackWithRetries (backoff)
+    });
   }
 
   public start() {
@@ -47,9 +63,38 @@ export class FlushManager {
     this.clearTimeout();
   }
 
-  public flushImmediately(): Promise<void> {
+  /**
+   * Clears any scheduled flush and runs the callback once.
+   * Returns the callback result (true = queue empty).
+   * Runs the callback even when stopped (used by flushUntilDrain).
+   */
+  public flushImmediately(options?: FlushOptions): Promise<boolean> {
     this.clearTimeout();
-    return this.callback();
+    return this.executeCallbackWithRetries(options);
+  }
+
+  /**
+   * Waits for any in-flight flush, then stops scheduling, runs the callback until it reports queue empty (or throws), then starts again.
+   */
+  public async flushUntilDrain(options?: FlushOptions): Promise<void> {
+    const inFlight = this.currentFlushPromise;
+    if (inFlight) {
+      try {
+        await inFlight;
+      } catch {
+        // Ignore errors; callback already handled backoff
+      }
+    }
+
+    this.stop();
+    try {
+      let queueEmpty = false;
+      while (!queueEmpty) {
+        queueEmpty = await this.flushImmediately(options);
+      }
+    } finally {
+      this.start();
+    }
   }
 
   public schedule(delay?: number) {
@@ -64,7 +109,9 @@ export class FlushManager {
     const delayWithJitter = this.addJitter(delay || this.currentDelay);
     this.timeoutId = setTimeout(() => {
       this.timeoutId = undefined;
-      this.executeCallbackWithRetries();
+      this.executeCallbackWithRetries().catch(() => {
+        // Rejection already handled in executeCallbackWithRetries (backoff)
+      });
     }, delayWithJitter);
   }
 
@@ -84,22 +131,38 @@ export class FlushManager {
     }
   }
 
-  private async executeCallbackWithRetries() {
+  private async executeCallbackWithRetries(
+    options?: FlushOptions,
+  ): Promise<boolean> {
     if (this.executingCallback) {
       Logger.debugLog("Callback already running, rescheduling");
       this.schedule();
-      return;
+      return true;
     }
 
     this.executingCallback = true;
+    let callbackPromise: Promise<boolean>;
+    try {
+      callbackPromise = Promise.resolve(this.callback(options));
+    } catch (e) {
+      callbackPromise = Promise.reject(e);
+    }
+    // Exposed promise resolves when flush completes (success or failure) to avoid unhandled rejections
+    this.currentFlushPromise = callbackPromise.then(
+      () => undefined,
+      () => undefined,
+    );
 
     try {
-      await this.callback();
+      const queueEmpty = await callbackPromise;
       this.reset();
+      return queueEmpty;
     } catch {
       this.backoff();
+      return true; // Treat error as "stop draining" to avoid infinite retry in flushUntilDrain
     } finally {
       this.executingCallback = false;
+      this.currentFlushPromise = null;
     }
   }
 

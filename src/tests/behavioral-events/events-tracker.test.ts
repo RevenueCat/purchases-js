@@ -22,6 +22,25 @@ vi.mock("../../behavioural-events/sdk-event-context", () => ({
 
 const MAX_JITTER_MULTIPLIER = 1 + 0.1;
 
+function getEventsFromPostCalls(
+  calls: Array<unknown[]>,
+): Array<{ event_name: string }> {
+  return calls.flatMap(
+    (call) =>
+      (call[0] as { json: { events: Array<{ event_name: string }> } }).json
+        .events,
+  );
+}
+
+/** Returns a promise and its resolve for tests that control resolution timing. */
+function deferred<T>(): { promise: Promise<T>; resolve: (value: T) => void } {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((r) => {
+    resolve = r;
+  });
+  return { promise, resolve };
+}
+
 describe("EventsTracker", (test) => {
   const date = new Date(1988, 10, 18, 13, 37, 0);
   vi.mock("../../helpers/uuid-helper", () => ({
@@ -302,69 +321,6 @@ describe("EventsTracker", (test) => {
     expect(successFlushMock).toHaveBeenCalled();
   });
 
-  test<EventsTrackerFixtures>("retries tracking events exponentially", async ({
-    eventsTracker,
-  }) => {
-    let attempts = 0;
-    const successFlushMock = vi.fn();
-
-    server.use(
-      http.post(eventsURL, async ({ request }) => {
-        ++attempts;
-
-        switch (attempts) {
-          case 1:
-            return new HttpResponse(null, { status: 500 });
-          case 2:
-            await new Promise((resolve) => setTimeout(resolve, 1_000));
-            throw new Error("Unexpected error");
-          case 3:
-            await new Promise((resolve) => setTimeout(resolve, 20_000));
-            throw new Error("Unexpected error");
-          case 4:
-            successFlushMock();
-            return HttpResponse.json(await request.json(), { status: 201 });
-          default:
-            throw new Error("Unexpected call");
-        }
-      }),
-    );
-
-    eventsTracker.trackExternalEvent({
-      eventName: "external",
-      source: "wpl",
-    });
-
-    // Attempt 1: First direct attempt to flush without timeout
-    await vi.advanceTimersByTimeAsync(100 * MAX_JITTER_MULTIPLIER);
-    expect(successFlushMock).not.toHaveBeenCalled();
-    loggerMock.mockClear();
-
-    // Attempt 2: Wait for next flush
-    await vi.advanceTimersByTimeAsync(2_000 * MAX_JITTER_MULTIPLIER);
-    expect(successFlushMock).not.toHaveBeenCalled();
-    loggerMock.mockClear();
-
-    // Attempt 2: Wait for request to complete
-    await vi.advanceTimersByTimeAsync(1_000 * MAX_JITTER_MULTIPLIER);
-    expect(successFlushMock).not.toHaveBeenCalled();
-    loggerMock.mockClear();
-
-    // Attempt 3: Wait for next flush
-    await vi.advanceTimersByTimeAsync(4_000 * MAX_JITTER_MULTIPLIER);
-    expect(successFlushMock).not.toHaveBeenCalled();
-    loggerMock.mockClear();
-
-    // Attempt 3: Wait for request to complete
-    await vi.advanceTimersByTimeAsync(20_000 * MAX_JITTER_MULTIPLIER);
-    expect(successFlushMock).not.toHaveBeenCalled();
-    loggerMock.mockClear();
-
-    // Attempt 4: Wait for next flush
-    await vi.advanceTimersByTimeAsync(8_000 * MAX_JITTER_MULTIPLIER);
-    expect(successFlushMock).toHaveBeenCalled();
-  });
-
   test<EventsTrackerFixtures>("does not lose events due to race conditions on the request", async ({
     eventsTracker,
   }) => {
@@ -490,6 +446,10 @@ describe("EventsTracker", (test) => {
     eventsTracker.dispose();
   });
 
+  // FlushManager (scheduling, backoff, flushUntilDrain, in-flight wait) is unit-tested in
+  // flush-manager.test.ts. The tests below verify the same behaviour at integration level
+  // (EventsTracker + HTTP): no duplicate tests, same scenarios through the full stack.
+
   test<EventsTrackerFixtures>("flushAllEvents immediately flushes pending events", async ({
     eventsTracker,
   }) => {
@@ -571,13 +531,11 @@ describe("EventsTracker", (test) => {
     expect(APIPostRequest).not.toHaveBeenCalled();
   });
 
-  test<EventsTrackerFixtures>("flushAllEvents called while flush in progress does not corrupt isFlushing", async ({
+  test<EventsTrackerFixtures>("flushAllEvents waits for in-flight flush then drains", async ({
     eventsTracker,
   }) => {
-    let resolveFirst: () => void;
-    const firstRequestDone = new Promise<void>((r) => {
-      resolveFirst = r;
-    });
+    const { promise: firstRequestDone, resolve: resolveFirst } =
+      deferred<void>();
 
     server.use(
       http.post(eventsURL, async ({ request }) => {
@@ -606,7 +564,7 @@ describe("EventsTracker", (test) => {
     });
     const flushAllPromise = eventsTracker.flushAllEvents();
     await vi.advanceTimersByTimeAsync(0);
-    resolveFirst!();
+    resolveFirst();
     await flushAllPromise;
 
     expect(APIPostRequest).toHaveBeenCalledTimes(2);
@@ -862,6 +820,40 @@ describe("EventsTracker", (test) => {
     );
   });
 
+  test<EventsTrackerFixtures>("dispose drains all batches", async ({
+    eventsTracker,
+  }) => {
+    const largeProperty = "x".repeat(30 * 1024); // 30KB string
+
+    eventsTracker.trackExternalEvent({
+      eventName: "large_1",
+      source: "sdk",
+      properties: { mode: defaultPurchaseMode, data: largeProperty },
+    });
+    eventsTracker.trackExternalEvent({
+      eventName: "large_2",
+      source: "sdk",
+      properties: { mode: defaultPurchaseMode, data: largeProperty },
+    });
+    eventsTracker.trackExternalEvent({
+      eventName: "large_3",
+      source: "sdk",
+      properties: { mode: defaultPurchaseMode, data: largeProperty },
+    });
+
+    eventsTracker.dispose();
+    // Drain runs fire-and-forget; advance so all batches complete
+    await vi.advanceTimersByTimeAsync(500);
+
+    const allEvents = getEventsFromPostCalls(APIPostRequest.mock.calls);
+    expect(allEvents).toMatchObject([
+      { event_name: "large_1" },
+      { event_name: "large_2" },
+      { event_name: "large_3" },
+    ]);
+    expect(APIPostRequest.mock.calls.length).toBeGreaterThan(1);
+  });
+
   test<EventsTrackerFixtures>("batches large events to respect keepalive size limit", async ({
     eventsTracker,
   }) => {
@@ -889,15 +881,7 @@ describe("EventsTracker", (test) => {
     // Should be split into multiple batches
     expect(APIPostRequest.mock.calls.length).toBeGreaterThan(1);
 
-    // Verify all events were sent
-    const allEvents = APIPostRequest.mock.calls.flatMap(
-      (call) =>
-        (
-          call[0] as {
-            json: { events: Array<{ event_name: string }> };
-          }
-        ).json.events,
-    );
+    const allEvents = getEventsFromPostCalls(APIPostRequest.mock.calls);
     expect(allEvents).toMatchObject([
       { event_name: "large_event_1" },
       { event_name: "large_event_2" },
@@ -1000,16 +984,7 @@ describe("EventsTracker", (test) => {
     // Oversized event should be logged and removed
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("oversized"));
 
-    // Normal events should be flushed
-    const allEvents = APIPostRequest.mock.calls.flatMap(
-      (call) =>
-        (
-          call[0] as {
-            json: { events: Array<{ event_name: string }> };
-          }
-        ).json.events,
-    );
-
+    const allEvents = getEventsFromPostCalls(APIPostRequest.mock.calls);
     expect(allEvents).toMatchObject([
       { event_name: "normal_1" },
       { event_name: "normal_2" },
@@ -1038,16 +1013,7 @@ describe("EventsTracker", (test) => {
 
     await eventsTracker.flushAllEvents();
 
-    // All events should be sent (might be in multiple batches)
-    const allEvents = APIPostRequest.mock.calls.flatMap(
-      (call) =>
-        (
-          call[0] as {
-            json: { events: Array<{ event_name: string }> };
-          }
-        ).json.events,
-    );
-
+    const allEvents = getEventsFromPostCalls(APIPostRequest.mock.calls);
     expect(allEvents.length).toBe(10);
     for (let i = 0; i < 10; i++) {
       expect(allEvents).toContainEqual(

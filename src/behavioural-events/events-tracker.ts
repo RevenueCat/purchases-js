@@ -2,7 +2,7 @@ import { generateUUID } from "../helpers/uuid-helper";
 import { RC_ANALYTICS_ENDPOINT } from "../helpers/constants";
 import { HttpMethods } from "msw";
 import { getHeaders } from "../networking/http-client";
-import { FlushManager } from "./flush-manager";
+import { FlushManager, type FlushOptions } from "./flush-manager";
 import { Logger } from "../helpers/logger";
 import { defaultPurchaseMode, Event, type EventProperties } from "./event";
 import type { SDKEvent } from "./sdk-events";
@@ -56,9 +56,7 @@ export default class EventsTracker implements IEventsTracker {
   private readonly isSilent: boolean;
   private rcSource: string | null;
   private readonly workflowContext?: WorkflowContext;
-  private isFlushing: boolean = false;
   private isDisposed: boolean = false;
-  private currentFlushPromise: Promise<void> | null = null;
 
   constructor(props: EventsTrackerProps) {
     this.apiKey = props.apiKey;
@@ -72,7 +70,7 @@ export default class EventsTracker implements IEventsTracker {
       MIN_INTERVAL_RETRY,
       MAX_INTERVAL_RETRY,
       JITTER_PERCENT,
-      this.flushEvents.bind(this),
+      this.doFlush.bind(this),
     );
   }
 
@@ -124,15 +122,12 @@ export default class EventsTracker implements IEventsTracker {
 
     this.flushManager.stop();
 
-    // Attempt to flush remaining events with keepalive.
-    // We don't await this because keepalive is designed to complete
-    // even after the page unloads. The fetch() call starts synchronously,
-    // and the browser will keep it alive during navigation/unload.
-    // Set isDisposed AFTER starting the flush so doFlush() doesn't bail early.
-    if (this.eventsQueue.length > 0 && !this.isFlushing) {
-      this.doFlush().catch((error) => {
-        Logger.debugLog(`Failed to flush events on dispose: ${error}`);
-      });
+    if (this.eventsQueue.length > 0) {
+      this.flushManager
+        .flushUntilDrain({ ignoreDisposed: true })
+        .catch((error) => {
+          Logger.debugLog(`Failed to flush events on dispose: ${error}`);
+        });
     }
 
     this.isDisposed = true;
@@ -140,49 +135,14 @@ export default class EventsTracker implements IEventsTracker {
 
   public async flushAllEvents(): Promise<void> {
     if (this.isDisposed) {
-      return Promise.resolve();
+      return;
     }
 
-    if (this.currentFlushPromise) {
-      try {
-        await this.currentFlushPromise;
-      } catch {
-        // Ignore errors
-      }
+    await this.flushManager.flushUntilDrain();
+
+    if (!this.isDisposed && this.eventsQueue.length > 0) {
+      this.flushManager.schedule();
     }
-
-    this.flushManager.stop();
-
-    while (this.eventsQueue.length > 0 && !this.isDisposed) {
-      const queueLengthBefore = this.eventsQueue.length;
-
-      try {
-        await this.doFlush();
-      } catch {
-        break; // Stop on error to avoid infinite loop
-      }
-
-      // Safety check: if no events were removed, break to avoid infinite loop
-      if (this.eventsQueue.length === queueLengthBefore) {
-        break;
-      }
-    }
-
-    if (!this.isDisposed) {
-      this.flushManager.start();
-      if (this.eventsQueue.length > 0) {
-        this.flushManager.schedule();
-      }
-    }
-  }
-
-  private flushEvents(): Promise<void> {
-    if (this.isFlushing) {
-      Logger.debugLog("Flush already in progress, skipping");
-      return Promise.resolve();
-    }
-
-    return this.doFlush();
   }
 
   private estimateSingleEventSize(event: Event): number {
@@ -226,25 +186,22 @@ export default class EventsTracker implements IEventsTracker {
     return eventsToFlush;
   }
 
-  private doFlush(): Promise<void> {
-    if (this.isFlushing || this.isDisposed) {
-      return Promise.resolve();
+  private doFlush(options?: FlushOptions): Promise<boolean> {
+    if (!options?.ignoreDisposed && this.isDisposed) {
+      return Promise.resolve(true);
     }
 
     if (this.eventsQueue.length === 0) {
-      return Promise.resolve();
+      return Promise.resolve(true);
     }
-
-    this.isFlushing = true;
 
     const eventsToFlush = this.batchEventsForKeepalive();
     if (!eventsToFlush) {
-      this.isFlushing = false;
-      return Promise.resolve();
+      return Promise.resolve(this.eventsQueue.length === 0);
     }
 
     // Only remove from queue after successful delivery
-    const flushPromise = fetch(this.eventsUrl, {
+    return fetch(this.eventsUrl, {
       method: HttpMethods.POST,
       headers: getHeaders(this.apiKey),
       body: JSON.stringify({ events: eventsToFlush }),
@@ -257,7 +214,7 @@ export default class EventsTracker implements IEventsTracker {
           if (this.eventsQueue.length > 0) {
             this.flushManager.schedule();
           }
-          return;
+          return this.eventsQueue.length === 0;
         }
         Logger.debugLog("Events failed to flush due to server error");
         throw new Error("Events failed to flush due to server error");
@@ -265,13 +222,6 @@ export default class EventsTracker implements IEventsTracker {
       .catch((error) => {
         Logger.debugLog("Error while flushing events");
         throw error;
-      })
-      .finally(() => {
-        this.isFlushing = false;
-        this.currentFlushPromise = null;
       });
-
-    this.currentFlushPromise = flushPromise;
-    return flushPromise;
   }
 }
