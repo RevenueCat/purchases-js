@@ -97,5 +97,7 @@
   "payment_entry_page.terms_link_label": "Koşullar",
   "payment_entry_page.subscription_terms_info": "Abone olarak, iptal edene kadar {{appName}}'in sizi şartlarına göre ücretlendirmesine izin vermeyi kabul edersiniz.",
   "loading_page.keep_page_open": "İşlem neredeyse tamamlandı. Bu sayfayı açık tutun.",
-  "loading_page.processing_payment": "Ödeme işleniyor"
+  "loading_page.processing_payment": "Ödeme işleniyor",
+  "pricing_table.discount": "İndirim",
+  "pricing_table.subtotal": "Ara Toplam"
 }

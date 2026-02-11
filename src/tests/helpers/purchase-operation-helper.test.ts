@@ -48,6 +48,7 @@ describe("PurchaseOperationHelper", () => {
       trackSDKEvent: () => {},
       trackExternalEvent: () => {},
       dispose: () => {},
+      flushAllEvents: () => Promise.resolve(),
     };
     purchaseOperationHelper = new PurchaseOperationHelper(
       backend,
