@@ -36,6 +36,17 @@ export interface PresentPaywallParams {
 
   /**
    * Callback to be called when the paywall tries to navigate back.
+   *
+   * Example:
+   * ```ts
+   * onBack: (closePaywall) => {
+   *   // You may want to keep the paywall open while showing a confirmation
+   *   // modal or logging analytics, then close it if the user confirms.
+   *   // If you want the back action to dismiss the paywall immediately,
+   *   // call closePaywall() right away.
+   *   closePaywall();
+   * }
+   * ```
    */
   readonly onBack?: (closePaywall: () => void) => void;
 
