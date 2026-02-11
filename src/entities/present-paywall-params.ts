@@ -37,7 +37,7 @@ export interface PresentPaywallParams {
   /**
    * Callback to be called when the paywall tries to navigate back.
    */
-  readonly onBack?: () => void;
+  readonly onBack?: (closePaywall: () => void) => void;
 
   /**
    * Callback to be called when the paywall tries to visit the customer center.
