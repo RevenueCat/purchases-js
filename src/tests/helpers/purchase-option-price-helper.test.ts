@@ -4,33 +4,22 @@ import type {
   Product,
   SubscriptionOption,
   NonSubscriptionOption,
-  Price,
-  DiscountPricePhase,
 } from "../../entities/offerings";
 import { ProductType } from "../../entities/offerings";
 import { PeriodUnit } from "../../helpers/duration-helper";
+import {
+  discountPhaseOneTimeConsumable,
+  discountPhaseTimeWindow,
+  trialPhaseP1W,
+  pricePhaseP1M1499,
+  introPhaseP1M199,
+} from "../fixtures/price-phases";
+import { toPrice } from "../utils/fixtures-utils";
 
 describe("getInitialPriceFromPurchaseOption", () => {
-  const mockPrice: Price = {
-    amount: 999,
-    amountMicros: 9990000,
-    currency: "USD",
-    formattedPrice: "$9.99",
-  };
-
-  const mockIntroPrice: Price = {
-    amount: 199,
-    amountMicros: 1990000,
-    currency: "USD",
-    formattedPrice: "$1.99",
-  };
-
-  const mockBasePrice: Price = {
-    amount: 1499,
-    amountMicros: 14990000,
-    currency: "USD",
-    formattedPrice: "$14.99",
-  };
+  const mockPrice = toPrice(9990000, "USD");
+  const mockIntroPrice = introPhaseP1M199.price!;
+  const mockBasePrice = pricePhaseP1M1499.price!;
 
   const mockSubscriptionProduct: Product = {
     identifier: "test_subscription",
@@ -87,26 +76,10 @@ describe("getInitialPriceFromPurchaseOption", () => {
       const subscriptionOption: SubscriptionOption = {
         id: "test_option",
         priceId: "test_price_id",
-        base: {
-          periodDuration: "P1M",
-          period: { number: 1, unit: PeriodUnit.Month },
-          cycleCount: 1,
-          price: mockBasePrice,
-          pricePerWeek: null,
-          pricePerMonth: null,
-          pricePerYear: null,
-        },
+        base: pricePhaseP1M1499,
         trial: null,
         discountPrice: null,
-        introPrice: {
-          periodDuration: "P1M",
-          period: { number: 1, unit: PeriodUnit.Month },
-          cycleCount: 3,
-          price: mockIntroPrice,
-          pricePerWeek: null,
-          pricePerMonth: null,
-          pricePerYear: null,
-        },
+        introPrice: introPhaseP1M199,
       };
 
       const result = getInitialPriceFromPurchaseOption(
@@ -117,101 +90,34 @@ describe("getInitialPriceFromPurchaseOption", () => {
       expect(result).toEqual(mockIntroPrice);
     });
 
-    test("returns discount price when both discount and intro price are available", () => {
-      const mockDiscountPrice: Price = {
-        amount: 299,
-        amountMicros: 2990000,
+    test("returns discount price when available", () => {
+      const subscriptionOption: SubscriptionOption = {
+        id: "test_option",
+        priceId: "test_price_id",
+        base: pricePhaseP1M1499,
+        trial: null,
+        introPrice: null,
+        discountPrice: discountPhaseTimeWindow,
+      };
+
+      const result = getInitialPriceFromPurchaseOption(
+        mockSubscriptionProduct,
+        subscriptionOption,
+      );
+
+      expect(result).toEqual({
+        amount: 1200,
+        amountMicros: 12000000,
         currency: "USD",
-        formattedPrice: "$2.99",
-      };
-
-      const subscriptionOption: SubscriptionOption = {
-        id: "test_option",
-        priceId: "test_price_id",
-        base: {
-          periodDuration: "P1M",
-          period: { number: 1, unit: PeriodUnit.Month },
-          cycleCount: 1,
-          price: mockBasePrice,
-          pricePerWeek: null,
-          pricePerMonth: null,
-          pricePerYear: null,
-        },
-        trial: null,
-        discountPrice: {
-          timeWindow: "P1M",
-          durationMode: "time_window",
-          price: mockDiscountPrice,
-          name: "Black Friday 50%",
-          period: { number: 1, unit: PeriodUnit.Month },
-          cycleCount: 1,
-        },
-        introPrice: {
-          periodDuration: "P1M",
-          period: { number: 1, unit: PeriodUnit.Month },
-          cycleCount: 3,
-          price: mockIntroPrice,
-          pricePerWeek: null,
-          pricePerMonth: null,
-          pricePerYear: null,
-        },
-      };
-
-      const result = getInitialPriceFromPurchaseOption(
-        mockSubscriptionProduct,
-        subscriptionOption,
-      );
-
-      expect(result).toEqual(mockDiscountPrice);
+        formattedPrice: "$12.00",
+      });
     });
 
-    test("returns intro price when discount price is not available but intro price is", () => {
+    test("returns base price when intro price and discount price are not available", () => {
       const subscriptionOption: SubscriptionOption = {
         id: "test_option",
         priceId: "test_price_id",
-        base: {
-          periodDuration: "P1M",
-          period: { number: 1, unit: PeriodUnit.Month },
-          cycleCount: 1,
-          price: mockBasePrice,
-          pricePerWeek: null,
-          pricePerMonth: null,
-          pricePerYear: null,
-        },
-        trial: null,
-        discountPrice: null,
-        introPrice: {
-          periodDuration: "P1M",
-          period: { number: 1, unit: PeriodUnit.Month },
-          cycleCount: 3,
-          price: mockIntroPrice,
-          pricePerWeek: null,
-          pricePerMonth: null,
-          pricePerYear: null,
-        },
-      };
-
-      const result = getInitialPriceFromPurchaseOption(
-        mockSubscriptionProduct,
-        subscriptionOption,
-      );
-
-      expect(result).toEqual(mockIntroPrice);
-    });
-
-    test("returns base price when intro price is not available", () => {
-      const subscriptionOption: SubscriptionOption = {
-        id: "test_option",
-        priceId: "test_price_id",
-        base: {
-          periodDuration: "P1M",
-          period: { number: 1, unit: PeriodUnit.Month },
-          cycleCount: 1,
-          price: mockBasePrice,
-          pricePerWeek: null,
-          pricePerMonth: null,
-          pricePerYear: null,
-        },
+        base: pricePhaseP1M1499,
         trial: null,
         discountPrice: null,
         introPrice: null,
@@ -229,21 +135,11 @@ describe("getInitialPriceFromPurchaseOption", () => {
       const subscriptionOption: SubscriptionOption = {
         id: "test_option",
         priceId: "test_price_id",
-        base: {
-          periodDuration: "P1M",
-          period: { number: 1, unit: PeriodUnit.Month },
-          cycleCount: 1,
-          price: mockBasePrice,
-          pricePerWeek: null,
-          pricePerMonth: null,
-          pricePerYear: null,
-        },
+        base: pricePhaseP1M1499,
         trial: null,
         discountPrice: null,
         introPrice: {
-          periodDuration: "P1M",
-          period: { number: 1, unit: PeriodUnit.Month },
-          cycleCount: 3,
+          ...introPhaseP1M199,
           price: null,
           pricePerWeek: null,
           pricePerMonth: null,
@@ -264,15 +160,7 @@ describe("getInitialPriceFromPurchaseOption", () => {
       const subscriptionOption: SubscriptionOption = {
         id: "test_option",
         priceId: "test_price_id",
-        base: {
-          periodDuration: "P1M",
-          period: { number: 1, unit: PeriodUnit.Month },
-          cycleCount: 1,
-          price: null,
-          pricePerWeek: null,
-          pricePerMonth: null,
-          pricePerYear: null,
-        },
+        base: pricePhaseP1M1499,
         trial: null,
         discountPrice: null,
         introPrice: null,
@@ -290,34 +178,10 @@ describe("getInitialPriceFromPurchaseOption", () => {
       const subscriptionOption: SubscriptionOption = {
         id: "test_option",
         priceId: "test_price_id",
-        base: {
-          periodDuration: "P1M",
-          period: { number: 1, unit: PeriodUnit.Month },
-          cycleCount: 1,
-          price: mockBasePrice,
-          pricePerWeek: null,
-          pricePerMonth: null,
-          pricePerYear: null,
-        },
-        trial: {
-          periodDuration: "P1W",
-          period: { number: 1, unit: PeriodUnit.Week },
-          cycleCount: 1,
-          price: null,
-          pricePerWeek: null,
-          pricePerMonth: null,
-          pricePerYear: null,
-        },
+        base: pricePhaseP1M1499,
+        trial: trialPhaseP1W,
         discountPrice: null,
-        introPrice: {
-          periodDuration: "P1M",
-          period: { number: 1, unit: PeriodUnit.Month },
-          cycleCount: 6,
-          price: mockIntroPrice,
-          pricePerWeek: null,
-          pricePerMonth: null,
-          pricePerYear: null,
-        },
+        introPrice: introPhaseP1M199,
       };
 
       const result = getInitialPriceFromPurchaseOption(
@@ -368,27 +232,11 @@ describe("getInitialPriceFromPurchaseOption", () => {
     });
 
     test("returns discount price when available for non-subscription products", () => {
-      const discountPrice: Price = {
-        amount: 1499,
-        amountMicros: 14990000,
-        currency: "USD",
-        formattedPrice: "$14.99",
-      };
-
-      const discountPricePhase: DiscountPricePhase = {
-        timeWindow: null,
-        durationMode: "one_time",
-        price: discountPrice,
-        name: "Holiday Sale",
-        period: { number: 1, unit: PeriodUnit.Month },
-        cycleCount: 1,
-      };
-
       const nonSubscriptionOption: NonSubscriptionOption = {
         id: "test_option",
         priceId: "test_price_id",
         basePrice: mockPrice,
-        discountPrice: discountPricePhase,
+        discountPrice: discountPhaseOneTimeConsumable,
       };
 
       const result = getInitialPriceFromPurchaseOption(
@@ -396,7 +244,12 @@ describe("getInitialPriceFromPurchaseOption", () => {
         nonSubscriptionOption,
       );
 
-      expect(result).toEqual(discountPrice);
+      expect(result).toEqual({
+        amount: 1100,
+        amountMicros: 11000000,
+        currency: "USD",
+        formattedPrice: "$11.00",
+      });
     });
   });
 

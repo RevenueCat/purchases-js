@@ -1,4 +1,5 @@
 import type { VariableDictionary } from "@revenuecat/purchases-ui-js";
+import type { NonSubscriptionOption } from "../entities/offerings";
 import { type SubscriptionOption } from "../entities/offerings";
 import { type Translator } from "../ui/localization/translator";
 import { PeriodUnit, type Period } from "./duration-helper";
@@ -29,6 +30,7 @@ export function setOfferVariables(
   product: SubscriptionOption,
   translator: Translator,
   variables: VariableDictionary,
+  basePeriod: Period | null = null,
 ) {
   const primaryOffer =
     product.discountPrice ?? product.trial ?? product.introPrice;
@@ -39,7 +41,11 @@ export function setOfferVariables(
     return;
   }
 
-  const { period, price } = primaryOffer;
+  const { period: offerPeriod, price } = primaryOffer;
+
+  // Forever discounts use the same period as the base price
+  const isForeverDiscount = product.discountPrice?.durationMode === "forever";
+  const period = offerPeriod ?? (isForeverDiscount ? basePeriod : null);
 
   if (price !== null) {
     const priceVariables = getPriceVariables(price, period, translator);
@@ -83,4 +89,21 @@ export function setOfferVariables(
     variables["product.secondary_offer_period_abbreviated"] =
       periodVars.periodAbbreviated;
   }
+}
+
+export function setNonSubscriptionOfferVariables(
+  product: NonSubscriptionOption,
+  translator: Translator,
+  variables: VariableDictionary,
+) {
+  const primaryOfferPrice = product.discountPrice?.price ?? null;
+
+  if (primaryOfferPrice === null) {
+    return;
+  }
+
+  variables["product.offer_price"] = translator.formatPrice(
+    primaryOfferPrice.amountMicros,
+    primaryOfferPrice.currency,
+  );
 }

@@ -20,12 +20,12 @@
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
 
-  const formattedPrice = $derived.by(() => {
-    return $translator.formatPrice(
+  const formattedPrice = $derived(
+    $translator.formatPrice(
       basePhase?.price?.amountMicros ?? 0,
       priceBreakdown.currency,
-    );
-  });
+    ),
+  );
 
   const formattedPromoPrice = $derived(
     discountPricePhase?.price

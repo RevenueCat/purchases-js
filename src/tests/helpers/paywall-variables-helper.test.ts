@@ -3,36 +3,30 @@ import { parseOfferingIntoVariables } from "../../helpers/paywall-variables-help
 import { Translator } from "../../ui/localization/translator";
 import { englishLocale } from "../../ui/localization/constants";
 import { PeriodUnit } from "../../helpers/duration-helper";
-import { toOffering } from "../utils/fixtures-utils";
+import {
+  toOffering,
+  toNonSubscriptionOffering,
+  toPrice,
+} from "../utils/fixtures-utils";
 import type { VariableDictionary } from "@revenuecat/purchases-ui-js";
 import type {
   PricingPhase,
   SubscriptionOption,
 } from "../../entities/offerings";
-
+import {
+  discountPhaseOneTime,
+  discountPhaseTimeWindow,
+  discountPhaseForever,
+  trialPhaseP2W,
+} from "../fixtures/price-phases";
 const enTranslator = new Translator({}, englishLocale);
 
 describe("getPaywallVariables", () => {
-  const trial: SubscriptionOption["trial"] = {
-    period: { unit: PeriodUnit.Week, number: 2 },
-    periodDuration: "P2W",
-    cycleCount: 1,
-    price: null,
-    pricePerWeek: null,
-    pricePerMonth: null,
-    pricePerYear: null,
-  } satisfies PricingPhase;
-
   const introPrice: SubscriptionOption["introPrice"] = {
     period: { unit: PeriodUnit.Month, number: 2 },
     periodDuration: "P2M",
     cycleCount: 1,
-    price: {
-      amount: 4500,
-      amountMicros: 4500000,
-      currency: "EUR",
-      formattedPrice: "45.00€",
-    },
+    price: toPrice(4500000, "EUR"),
     pricePerWeek: null,
     pricePerMonth: null,
     pricePerYear: null,
@@ -40,6 +34,7 @@ describe("getPaywallVariables", () => {
 
   beforeEach(() => {
     vi.useFakeTimers();
+    vi.setSystemTime("2025-10-30T12:00:00.000Z");
   });
 
   afterEach(() => {
@@ -47,8 +42,6 @@ describe("getPaywallVariables", () => {
   });
 
   test("should return expected paywall variables", () => {
-    vi.setSystemTime(new Date("2025-10-30T00:00:00.000Z"));
-
     const off = toOffering([
       {
         packageIdentifier: "$rc_monthly",
@@ -59,7 +52,7 @@ describe("getPaywallVariables", () => {
         //pricePerWeekMicros: 2100000,
         //pricePerMonthMicros: 9000000,
         //pricePerYearMicros: 109500000,
-        trial,
+        trial: trialPhaseP2W,
         introPrice,
       },
       {
@@ -72,7 +65,7 @@ describe("getPaywallVariables", () => {
         //pricePerMonthMicros: 39000000,
         //pricePerWeekMicros: 9000000,
         //pricePerYearMicros: 474000000,
-        trial,
+        trial: trialPhaseP2W,
       },
       {
         packageIdentifier: "$rc_yearly",
@@ -343,6 +336,154 @@ describe("getPaywallVariables", () => {
 
     Object.values(variables).forEach((variable, idx) => {
       expect(variable["product.relative_discount"]).toBe(expectedValues[idx]);
+    });
+  });
+
+  describe("Discount price logic for subscriptions", () => {
+    test("Subscription with one-time discountPrice uses discountPrice as primary offer", () => {
+      const off = toOffering([
+        {
+          packageIdentifier: "$rc_monthly",
+          identifier: "monthly_one_time_discount",
+          title: "Monthly One-Time Discount",
+          basePriceMicros: 9000000,
+          discountPrice: discountPhaseOneTime,
+        },
+      ]);
+
+      const variables = parseOfferingIntoVariables(off, enTranslator);
+
+      expect(variables.$rc_monthly).toEqual(
+        expect.objectContaining({
+          "product.offer_price": "$10.00",
+          "product.offer_price_per_day": "$0.33",
+          "product.offer_price_per_week": "$2.31",
+          "product.offer_price_per_month": "$10.00",
+          "product.offer_price_per_year": "$120.00",
+          "product.offer_period": "month",
+          "product.offer_period_abbreviated": "mo",
+          "product.offer_period_with_unit": "1 month",
+          "product.offer_period_in_days": "30",
+          "product.offer_period_in_weeks": "4.33",
+          "product.offer_period_in_months": "1",
+          "product.offer_period_in_years": "0",
+          "product.offer_end_date": "November 30, 2025",
+          "product.secondary_offer_price": "",
+          "product.secondary_offer_period": "",
+          "product.secondary_offer_period_abbreviated": "",
+        }),
+      );
+    });
+
+    test("Subscription with time window discountPrice uses discountPrice as primary offer", () => {
+      const off = toOffering([
+        {
+          packageIdentifier: "$rc_monthly",
+          identifier: "monthly_time_window_discount",
+          title: "Monthly Time Window Discount",
+          basePriceMicros: 9000000,
+          discountPrice: discountPhaseTimeWindow,
+        },
+      ]);
+
+      const variables = parseOfferingIntoVariables(off, enTranslator);
+
+      expect(variables.$rc_monthly).toEqual(
+        expect.objectContaining({
+          "product.offer_price": "$12.00",
+          "product.offer_price_per_day": "$0.40",
+          "product.offer_price_per_week": "$2.77",
+          "product.offer_price_per_month": "$12.00",
+          "product.offer_price_per_year": "$144.00",
+          "product.offer_period": "month",
+          "product.offer_period_abbreviated": "mo",
+          "product.offer_period_with_unit": "1 month",
+          "product.offer_period_in_days": "30",
+          "product.offer_period_in_weeks": "4.33",
+          "product.offer_period_in_months": "1",
+          "product.offer_period_in_years": "0",
+          "product.offer_end_date": "November 30, 2025",
+          "product.secondary_offer_price": "",
+          "product.secondary_offer_period": "",
+          "product.secondary_offer_period_abbreviated": "",
+        }),
+      );
+    });
+
+    test("Subscription with forever discountPrice uses discountPrice as primary offer", () => {
+      const off = toOffering([
+        {
+          packageIdentifier: "$rc_monthly",
+          identifier: "monthly_forever_discount",
+          title: "Monthly Forever Discount",
+          basePriceMicros: 9000000,
+          discountPrice: discountPhaseForever,
+        },
+      ]);
+
+      const variables = parseOfferingIntoVariables(off, enTranslator);
+
+      expect(variables.$rc_monthly).toEqual(
+        expect.objectContaining({
+          "product.offer_price": "$13.00",
+          "product.offer_price_per_day": "$0.43",
+          "product.offer_price_per_week": "$3.00",
+          "product.offer_price_per_month": "$13.00",
+          "product.offer_price_per_year": "$156.00",
+          "product.offer_period": "month",
+          "product.offer_period_abbreviated": "mo",
+          "product.offer_period_with_unit": "1 month",
+          "product.offer_period_in_days": "30",
+          "product.offer_period_in_weeks": "4.33",
+          "product.offer_period_in_months": "1",
+          "product.offer_period_in_years": "0",
+          "product.offer_end_date": "November 30, 2025",
+          "product.secondary_offer_price": "",
+          "product.secondary_offer_period": "",
+          "product.secondary_offer_period_abbreviated": "",
+        }),
+      );
+    });
+  });
+
+  describe("Discount price logic for non-subscriptions", () => {
+    test("Non-subscription with discountPrice sets offer_price", () => {
+      const off = toNonSubscriptionOffering([
+        {
+          packageIdentifier: "lifetime",
+          identifier: "lifetime_discount",
+          title: "Lifetime Discount",
+          basePriceMicros: 100000000,
+          discountPrice: discountPhaseOneTime,
+        },
+      ]);
+
+      const variables = parseOfferingIntoVariables(off, enTranslator);
+
+      expect(variables.lifetime).toEqual(
+        expect.objectContaining({
+          "product.offer_price": "$10.00",
+        }),
+      );
+    });
+
+    test("Non-subscription without discountPrice does not set offer_price", () => {
+      const off = toNonSubscriptionOffering([
+        {
+          packageIdentifier: "lifetime",
+          identifier: "lifetime_basic",
+          title: "Lifetime Basic",
+          basePriceMicros: 100000000,
+        },
+      ]);
+
+      const variables = parseOfferingIntoVariables(off, enTranslator);
+
+      expect(variables.lifetime).toEqual(
+        expect.objectContaining({
+          "product.offer_price": "",
+        }),
+      );
     });
   });
 });

@@ -14,6 +14,7 @@ import {
 import { PeriodUnit } from "../helpers/duration-helper";
 import { ErrorCode, PurchasesError } from "../entities/errors";
 import { OfferingKeyword } from "../entities/get-offerings-params";
+import { trialPhaseP1W } from "./fixtures/price-phases";
 
 describe("getOfferings", () => {
   const expectedMonthlyPackage = createMonthlyPackageMock();
@@ -53,18 +54,7 @@ describe("getOfferings", () => {
         formattedPrice: "$60.83",
       },
     },
-    trial: {
-      cycleCount: 1,
-      periodDuration: "P1W",
-      period: {
-        number: 1,
-        unit: PeriodUnit.Week,
-      },
-      price: null,
-      pricePerWeek: null,
-      pricePerMonth: null,
-      pricePerYear: null,
-    },
+    trial: trialPhaseP1W,
     introPrice: null,
     discountPrice: null,
   };
@@ -126,18 +116,7 @@ describe("getOfferings", () => {
         number: 1,
         unit: PeriodUnit.Month,
       },
-      freeTrialPhase: {
-        cycleCount: 1,
-        periodDuration: "P1W",
-        period: {
-          number: 1,
-          unit: PeriodUnit.Week,
-        },
-        price: null,
-        pricePerWeek: null,
-        pricePerMonth: null,
-        pricePerYear: null,
-      },
+      freeTrialPhase: trialPhaseP1W,
       introPricePhase: null,
       discountPricePhase: null,
     };
@@ -215,18 +194,7 @@ describe("getOfferings", () => {
         number: 1,
         unit: PeriodUnit.Month,
       },
-      freeTrialPhase: {
-        cycleCount: 1,
-        periodDuration: "P1W",
-        period: {
-          number: 1,
-          unit: PeriodUnit.Week,
-        },
-        price: null,
-        pricePerWeek: null,
-        pricePerMonth: null,
-        pricePerYear: null,
-      },
+      freeTrialPhase: trialPhaseP1W,
       introPricePhase: null,
       discountPricePhase: null,
     };
@@ -414,18 +382,7 @@ describe("getOfferings", () => {
         number: 1,
         unit: PeriodUnit.Month,
       },
-      freeTrialPhase: {
-        cycleCount: 1,
-        periodDuration: "P1W",
-        period: {
-          number: 1,
-          unit: PeriodUnit.Week,
-        },
-        price: null,
-        pricePerWeek: null,
-        pricePerMonth: null,
-        pricePerYear: null,
-      },
+      freeTrialPhase: trialPhaseP1W,
       introPricePhase: null,
       discountPricePhase: null,
     };
@@ -569,15 +526,6 @@ describe("getOfferings", () => {
           .webBillingProduct;
       const subscriptionOption = offeringProduct?.defaultSubscriptionOption;
 
-      const expectedTrial = {
-        cycleCount: 1,
-        periodDuration: "P1W",
-        period: { number: 1, unit: PeriodUnit.Week },
-        price: null,
-        pricePerMonth: null,
-        pricePerWeek: null,
-        pricePerYear: null,
-      };
       const expectedIntroPrice = {
         cycleCount: 6,
         periodDuration: "P1M",
@@ -594,8 +542,8 @@ describe("getOfferings", () => {
       };
 
       // Convenience accessors for the trial phase
-      expect(offeringProduct?.freeTrialPhase).toStrictEqual(expectedTrial);
-      expect(subscriptionOption?.trial).toStrictEqual(expectedTrial);
+      expect(offeringProduct?.freeTrialPhase).toStrictEqual(trialPhaseP1W);
+      expect(subscriptionOption?.trial).toStrictEqual(trialPhaseP1W);
 
       // Convenience accessors for the intro price phase
       expect(offeringProduct?.introPricePhase).toStrictEqual(

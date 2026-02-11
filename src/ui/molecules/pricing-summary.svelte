@@ -130,7 +130,7 @@
     return null;
   });
 
-  const trialTypographySize = $derived("heading-lg");
+  const trialTypographySize = "heading-lg";
   const promoTypographySize = $derived(hasTrial ? "heading-md" : "heading-lg");
   const baseTypographySize = $derived(
     hasTrial || hasLimitedTimePromotion ? "heading-md" : "heading-lg",

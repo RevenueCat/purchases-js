@@ -80,7 +80,9 @@
     null;
 
   $: firstPaymentPrice =
-    nonSubscriptionOption?.basePrice || firstSubscriptionPricingPhase?.price;
+    nonSubscriptionOption?.discountPrice?.price ||
+    nonSubscriptionOption?.basePrice ||
+    firstSubscriptionPricingPhase?.price;
 
   $: firstPriceFormatted = firstPaymentPrice
     ? formatPrice(
