@@ -48,17 +48,6 @@ export interface CustomerInfo {
 }
 
 // @public
-export interface DiscountPhase {
-    readonly cycleCount: number;
-    readonly durationMode: "one_time" | "time_window" | "forever";
-    readonly name: string | null;
-    readonly period: Period | null;
-    readonly periodDuration: string | null;
-    readonly price: Price;
-    readonly timeWindow: string | null;
-}
-
-// @public
 export interface EntitlementInfo {
     readonly billingIssueDetectedAt: Date | null;
     readonly expirationDate: Date | null;

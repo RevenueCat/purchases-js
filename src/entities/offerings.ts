@@ -152,7 +152,7 @@ export interface PricingPhase {
 
 /**
  * Represents the price and duration information for a discount price phase.
- * @public
+ * @internal
  */
 export interface DiscountPhase {
   /**
