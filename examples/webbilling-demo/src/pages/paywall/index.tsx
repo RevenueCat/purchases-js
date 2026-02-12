@@ -79,11 +79,6 @@ const getCurrentPrice = (webBillingProduct: Product) => {
     return getFormattedPrice(price, normalPeriodDuration);
   }
 
-  // Permanent discounts use the base price's period duration
-  if (hasPermanentDiscountPrice(webBillingProduct)) {
-    return getFormattedPrice(promotionalPrice.price, normalPeriodDuration);
-  }
-
   return getFormattedPrice(
     promotionalPrice.price,
     promotionalPrice?.periodDuration ?? null,
