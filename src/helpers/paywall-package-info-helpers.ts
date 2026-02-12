@@ -16,7 +16,7 @@ function getPackageInfo(pkg: Package): PackageInfo {
     return {
       hasTrial: subscriptionOption.trial !== null,
       hasIntroOffer:
-        subscriptionOption.discountPrice !== null ||
+        subscriptionOption.discount !== null ||
         subscriptionOption.introPrice !== null,
     };
   }
@@ -25,7 +25,7 @@ function getPackageInfo(pkg: Package): PackageInfo {
   if (!isSubscription && nonSubscriptionOption) {
     return {
       hasTrial: false,
-      hasIntroOffer: nonSubscriptionOption.discountPrice !== null,
+      hasIntroOffer: nonSubscriptionOption.discount !== null,
     };
   }
 

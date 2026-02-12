@@ -43,7 +43,7 @@ describe("getInitialPriceFromPurchaseOption", () => {
     period: { number: 1, unit: PeriodUnit.Month },
     freeTrialPhase: null,
     introPricePhase: null,
-    discountPricePhase: null,
+    discountPhase: null,
   };
 
   const mockNonSubscriptionProduct: Product = {
@@ -68,7 +68,7 @@ describe("getInitialPriceFromPurchaseOption", () => {
     period: null,
     freeTrialPhase: null,
     introPricePhase: null,
-    discountPricePhase: null,
+    discountPhase: null,
   };
 
   describe("subscription products", () => {
@@ -78,7 +78,7 @@ describe("getInitialPriceFromPurchaseOption", () => {
         priceId: "test_price_id",
         base: pricePhaseP1M1499,
         trial: null,
-        discountPrice: null,
+        discount: null,
         introPrice: introPhaseP1M199,
       };
 
@@ -97,7 +97,7 @@ describe("getInitialPriceFromPurchaseOption", () => {
         base: pricePhaseP1M1499,
         trial: null,
         introPrice: null,
-        discountPrice: discountPhaseTimeWindow,
+        discount: discountPhaseTimeWindow,
       };
 
       const result = getInitialPriceFromPurchaseOption(
@@ -119,7 +119,7 @@ describe("getInitialPriceFromPurchaseOption", () => {
         priceId: "test_price_id",
         base: pricePhaseP1M1499,
         trial: null,
-        discountPrice: null,
+        discount: null,
         introPrice: null,
       };
 
@@ -137,7 +137,7 @@ describe("getInitialPriceFromPurchaseOption", () => {
         priceId: "test_price_id",
         base: pricePhaseP1M1499,
         trial: null,
-        discountPrice: null,
+        discount: null,
         introPrice: {
           ...introPhaseP1M199,
           price: null,
@@ -162,7 +162,7 @@ describe("getInitialPriceFromPurchaseOption", () => {
         priceId: "test_price_id",
         base: pricePhaseP1M1499,
         trial: null,
-        discountPrice: null,
+        discount: null,
         introPrice: null,
       };
 
@@ -180,7 +180,7 @@ describe("getInitialPriceFromPurchaseOption", () => {
         priceId: "test_price_id",
         base: pricePhaseP1M1499,
         trial: trialPhaseP1W,
-        discountPrice: null,
+        discount: null,
         introPrice: introPhaseP1M199,
       };
 
@@ -199,7 +199,7 @@ describe("getInitialPriceFromPurchaseOption", () => {
         id: "test_option",
         priceId: "test_price_id",
         basePrice: mockPrice,
-        discountPrice: null,
+        discount: null,
       };
 
       const result = getInitialPriceFromPurchaseOption(
@@ -220,7 +220,7 @@ describe("getInitialPriceFromPurchaseOption", () => {
         id: "test_option",
         priceId: "test_price_id",
         basePrice: mockPrice,
-        discountPrice: null,
+        discount: null,
       };
 
       const result = getInitialPriceFromPurchaseOption(
@@ -236,7 +236,7 @@ describe("getInitialPriceFromPurchaseOption", () => {
         id: "test_option",
         priceId: "test_price_id",
         basePrice: mockPrice,
-        discountPrice: discountPhaseOneTimeConsumable,
+        discount: discountPhaseOneTimeConsumable,
       };
 
       const result = getInitialPriceFromPurchaseOption(
@@ -264,7 +264,7 @@ describe("getInitialPriceFromPurchaseOption", () => {
         id: "test_option",
         priceId: "test_price_id",
         basePrice: mockPrice,
-        discountPrice: null,
+        discount: null,
       };
 
       const result = getInitialPriceFromPurchaseOption(

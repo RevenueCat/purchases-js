@@ -9,7 +9,7 @@ export interface PricingPhaseResponse {
   cycle_count: number;
 }
 
-export interface DiscountPriceResponse extends PriceResponse {
+export interface DiscountResponse extends PriceResponse {
   name: string | null;
   duration_mode: "one_time" | "time_window" | "forever";
   time_window: string | null;
@@ -18,7 +18,7 @@ export interface DiscountPriceResponse extends PriceResponse {
 export interface PurchaseOptionResponse {
   id: string;
   price_id: string;
-  discount: DiscountPriceResponse | null;
+  discount: DiscountResponse | null;
 }
 
 export interface SubscriptionOptionResponse extends PurchaseOptionResponse {

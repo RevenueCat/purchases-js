@@ -31,10 +31,9 @@ export function setOfferVariables(
   translator: Translator,
   variables: VariableDictionary,
 ) {
-  const primaryOffer =
-    product.discountPrice ?? product.trial ?? product.introPrice;
+  const primaryOffer = product.discount ?? product.trial ?? product.introPrice;
   const secondaryOffer =
-    product.trial && !product.discountPrice ? product.introPrice : null;
+    product.trial && !product.discount ? product.introPrice : null;
 
   if (primaryOffer === null) {
     return;
@@ -91,7 +90,7 @@ export function setNonSubscriptionOfferVariables(
   translator: Translator,
   variables: VariableDictionary,
 ) {
-  const primaryOfferPrice = product.discountPrice?.price ?? null;
+  const primaryOfferPrice = product.discount?.price ?? null;
 
   if (primaryOfferPrice === null) {
     return;

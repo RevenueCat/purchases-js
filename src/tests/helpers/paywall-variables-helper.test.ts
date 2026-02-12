@@ -340,14 +340,14 @@ describe("getPaywallVariables", () => {
   });
 
   describe("Discount price logic for subscriptions", () => {
-    test("Subscription with one-time discountPrice uses discountPrice as primary offer", () => {
+    test("Subscription with one-time discount uses discount as primary offer", () => {
       const off = toOffering([
         {
           packageIdentifier: "$rc_monthly",
           identifier: "monthly_one_time_discount",
           title: "Monthly One-Time Discount",
           basePriceMicros: 9000000,
-          discountPrice: discountPhaseOneTime,
+          discount: discountPhaseOneTime,
         },
       ]);
 
@@ -375,14 +375,14 @@ describe("getPaywallVariables", () => {
       );
     });
 
-    test("Subscription with time window discountPrice uses discountPrice as primary offer", () => {
+    test("Subscription with time window discount uses discount as primary offer", () => {
       const off = toOffering([
         {
           packageIdentifier: "$rc_monthly",
           identifier: "monthly_time_window_discount",
           title: "Monthly Time Window Discount",
           basePriceMicros: 9000000,
-          discountPrice: discountPhaseTimeWindow,
+          discount: discountPhaseTimeWindow,
         },
       ]);
 
@@ -410,14 +410,14 @@ describe("getPaywallVariables", () => {
       );
     });
 
-    test("Subscription with forever discountPrice uses discountPrice as primary offer", () => {
+    test("Subscription with forever discount uses discount as primary offer", () => {
       const off = toOffering([
         {
           packageIdentifier: "$rc_monthly",
           identifier: "monthly_forever_discount",
           title: "Monthly Forever Discount",
           basePriceMicros: 9000000,
-          discountPrice: discountPhaseForever,
+          discount: discountPhaseForever,
         },
       ]);
 
@@ -447,14 +447,14 @@ describe("getPaywallVariables", () => {
   });
 
   describe("Discount price logic for non-subscriptions", () => {
-    test("Non-subscription with discountPrice sets offer_price", () => {
+    test("Non-subscription with discount sets offer_price", () => {
       const off = toNonSubscriptionOffering([
         {
           packageIdentifier: "lifetime",
           identifier: "lifetime_discount",
           title: "Lifetime Discount",
           basePriceMicros: 100000000,
-          discountPrice: discountPhaseOneTime,
+          discount: discountPhaseOneTime,
         },
       ]);
 
@@ -467,7 +467,7 @@ describe("getPaywallVariables", () => {
       );
     });
 
-    test("Non-subscription without discountPrice does not set offer_price", () => {
+    test("Non-subscription without discount does not set offer_price", () => {
       const off = toNonSubscriptionOffering([
         {
           packageIdentifier: "lifetime",

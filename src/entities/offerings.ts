@@ -4,7 +4,7 @@ import {
   type TargetingResponse,
 } from "../networking/responses/offerings-response";
 import type {
-  DiscountPriceResponse,
+  DiscountResponse,
   NonSubscriptionOptionResponse,
   PriceResponse,
   PricingPhaseResponse,
@@ -154,7 +154,7 @@ export interface PricingPhase {
  * Represents the price and duration information for a discount price phase.
  * @public
  */
-export interface DiscountPricePhase {
+export interface DiscountPhase {
   /**
    * The duration mode for the discount.
    * Represents how long the discount will apply to invoices.
@@ -219,21 +219,22 @@ export interface SubscriptionOption extends PurchaseOption {
   readonly base: PricingPhase;
   /**
    * The trial information for this subscription option if available.
-   * Only present when discountPrice is null.
+   * Only present when discount is null.
    */
   readonly trial: PricingPhase | null;
 
   /**
    * The introductory price period for this subscription option if available.
-   * Only present when discountPrice is null.
+   * Only present when discount is null.
    */
   readonly introPrice: PricingPhase | null;
 
   /**
    * The discount price period for this subscription option if available.
    * When present, introPrice and trial will be null.
+   * @internal
    */
-  readonly discountPrice: DiscountPricePhase | null;
+  readonly discount: DiscountPhase | null;
 }
 
 /**
@@ -247,8 +248,9 @@ export interface NonSubscriptionOption extends PurchaseOption {
   readonly basePrice: Price;
   /**
    * The discount price for the product if available.
+   * @internal
    */
-  readonly discountPrice: DiscountPricePhase | null;
+  readonly discount: DiscountPhase | null;
 }
 
 /**
@@ -372,23 +374,24 @@ export interface Product {
    * Free trial phase information for subscriptions.
    * Null for non-subscriptions or when no free trial is available.
    * Convenience accessor for defaultSubscriptionOption?.trial.
-   * Only present when discountPricePhase is null.
+   * Only present when discountPhase is null.
    */
   readonly freeTrialPhase: PricingPhase | null;
   /**
    * Introductory price phase information for subscriptions.
    * Null for non-subscriptions or when no introductory price is available.
    * Convenience accessor for defaultSubscriptionOption?.introPrice.
-   * Only present when discountPricePhase is null.
+   * Only present when discountPhase is null.
    */
   readonly introPricePhase: PricingPhase | null;
   /**
    * Discount price phase information for subscriptions and non-subscriptions.
    * Null when no discount price is available.
-   * Convenience accessor for defaultSubscriptionOption?.discountPrice or defaultNonSubscriptionOption?.discountPrice.
+   * Convenience accessor for defaultSubscriptionOption?.discount or defaultNonSubscriptionOption?.discount.
    * When present, introPricePhase and freeTrialPhase will be null.
+   * @internal
    */
-  readonly discountPricePhase: DiscountPricePhase | null;
+  readonly discountPhase: DiscountPhase | null;
 }
 
 /**
@@ -572,10 +575,10 @@ const toPricingPhase = (optionPhase: PricingPhaseResponse): PricingPhase => {
   };
 };
 
-const toDiscountPricePhase = (
-  optionPhase: DiscountPriceResponse,
+const toDiscountPhase = (
+  optionPhase: DiscountResponse,
   basePeriodDuration: string | null,
-): DiscountPricePhase => {
+): DiscountPhase => {
   const durationMode = optionPhase.duration_mode ?? "one_time";
   let periodDuration = optionPhase.time_window ?? null;
 
@@ -660,8 +663,8 @@ const toSubscriptionOption = (
     base: toPricingPhase(option.base),
     trial: option.trial ? toPricingPhase(option.trial) : null,
     introPrice: option.intro_price ? toPricingPhase(option.intro_price) : null,
-    discountPrice: option.discount
-      ? toDiscountPricePhase(option.discount, option.base?.period_duration)
+    discount: option.discount
+      ? toDiscountPhase(option.discount, option.base?.period_duration)
       : null,
   };
 };
@@ -679,9 +682,7 @@ const toNonSubscriptionOption = (
     id: option.id,
     priceId: option.price_id,
     basePrice: toPrice(option.base_price),
-    discountPrice: option.discount
-      ? toDiscountPricePhase(option.discount, null)
-      : null,
+    discount: option.discount ? toDiscountPhase(option.discount, null) : null,
   };
 };
 
@@ -763,7 +764,7 @@ const toNonSubscriptionProduct = (
     period: null,
     freeTrialPhase: null,
     introPricePhase: null,
-    discountPricePhase: defaultOption.discountPrice,
+    discountPhase: defaultOption.discount,
   };
 };
 
@@ -827,7 +828,7 @@ const toSubscriptionProduct = (
     period: defaultOption.base.period,
     freeTrialPhase: defaultOption.trial,
     introPricePhase: defaultOption.introPrice,
-    discountPricePhase: defaultOption.discountPrice,
+    discountPhase: defaultOption.discount,
   };
 };
 

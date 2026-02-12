@@ -11,12 +11,12 @@
     subscriptionOptionWithIntroPriceRecurring,
     subscriptionOptionWithTrialAndIntroPricePaidUpfront,
     subscriptionOptionWithTrialAndIntroPriceRecurring,
-    subscriptionOptionWithDiscountPriceForever,
-    subscriptionOptionWithDiscountPrice,
+    subscriptionOptionWithDiscountForever,
+    subscriptionOptionWithDiscount,
     nonSubscriptionOption,
-    nonSubscriptionOptionWithDiscountPrice,
+    nonSubscriptionOptionWithDiscount,
     consumableProduct,
-    subscriptionOptionWithDiscountPriceOneTime,
+    subscriptionOptionWithDiscountOneTime,
   } from "../fixtures";
   import {
     getPriceBreakdownTaxDisabled,
@@ -52,9 +52,9 @@
 <Story
   name="Subscription with One-time Discount"
   args={{
-    purchaseOption: subscriptionOptionWithDiscountPriceOneTime,
+    purchaseOption: subscriptionOptionWithDiscountOneTime,
     priceBreakdown: getPriceBreakdownTaxDisabled(
-      subscriptionOptionWithDiscountPriceOneTime,
+      subscriptionOptionWithDiscountOneTime,
     ),
   }}
 />
@@ -62,9 +62,9 @@
 <Story
   name="Subscription with Time Window Discount"
   args={{
-    purchaseOption: subscriptionOptionWithDiscountPrice,
+    purchaseOption: subscriptionOptionWithDiscount,
     priceBreakdown: getPriceBreakdownTaxDisabled(
-      subscriptionOptionWithDiscountPrice,
+      subscriptionOptionWithDiscount,
     ),
   }}
 />
@@ -72,9 +72,9 @@
 <Story
   name="Subscription with Forever Discount"
   args={{
-    purchaseOption: subscriptionOptionWithDiscountPriceForever,
+    purchaseOption: subscriptionOptionWithDiscountForever,
     priceBreakdown: getPriceBreakdownTaxDisabled(
-      subscriptionOptionWithDiscountPriceForever,
+      subscriptionOptionWithDiscountForever,
     ),
   }}
 />
@@ -140,9 +140,9 @@
   name="Non-subscription with Discount"
   args={{
     productDetails: consumableProduct,
-    purchaseOption: nonSubscriptionOptionWithDiscountPrice,
+    purchaseOption: nonSubscriptionOptionWithDiscount,
     priceBreakdown: getPriceBreakdownTaxDisabled(
-      nonSubscriptionOptionWithDiscountPrice,
+      nonSubscriptionOptionWithDiscount,
     ),
   }}
 />
@@ -188,9 +188,9 @@
 <Story
   name="Tax Inclusive with with One-time Discount"
   args={{
-    purchaseOption: subscriptionOptionWithDiscountPriceOneTime,
+    purchaseOption: subscriptionOptionWithDiscountOneTime,
     priceBreakdown: getPriceBreakdownTaxInclusive(
-      subscriptionOptionWithDiscountPriceOneTime,
+      subscriptionOptionWithDiscountOneTime,
     ),
   }}
 />
@@ -198,9 +198,9 @@
 <Story
   name="Tax Inclusive with Time Window Discount"
   args={{
-    purchaseOption: subscriptionOptionWithDiscountPrice,
+    purchaseOption: subscriptionOptionWithDiscount,
     priceBreakdown: getPriceBreakdownTaxInclusive(
-      subscriptionOptionWithDiscountPrice,
+      subscriptionOptionWithDiscount,
     ),
   }}
 />
@@ -208,9 +208,9 @@
 <Story
   name="Tax Inclusive with Forever Discount"
   args={{
-    purchaseOption: subscriptionOptionWithDiscountPriceForever,
+    purchaseOption: subscriptionOptionWithDiscountForever,
     priceBreakdown: getPriceBreakdownTaxInclusive(
-      subscriptionOptionWithDiscountPriceForever,
+      subscriptionOptionWithDiscountForever,
     ),
   }}
 />
@@ -228,9 +228,9 @@
   name="Tax Inclusive with Non-subscription with Discount"
   args={{
     productDetails: consumableProduct,
-    purchaseOption: nonSubscriptionOptionWithDiscountPrice,
+    purchaseOption: nonSubscriptionOptionWithDiscount,
     priceBreakdown: getPriceBreakdownTaxInclusive(
-      nonSubscriptionOptionWithDiscountPrice,
+      nonSubscriptionOptionWithDiscount,
     ),
   }}
 />
@@ -274,9 +274,9 @@
 <Story
   name="Tax Exclusive with with One-time Discount"
   args={{
-    purchaseOption: subscriptionOptionWithDiscountPriceOneTime,
+    purchaseOption: subscriptionOptionWithDiscountOneTime,
     priceBreakdown: getPriceBreakdownTaxExclusive(
-      subscriptionOptionWithDiscountPriceOneTime,
+      subscriptionOptionWithDiscountOneTime,
     ),
   }}
 />
@@ -284,9 +284,9 @@
 <Story
   name="Tax Exclusive with Time Window Discount"
   args={{
-    purchaseOption: subscriptionOptionWithDiscountPrice,
+    purchaseOption: subscriptionOptionWithDiscount,
     priceBreakdown: getPriceBreakdownTaxExclusive(
-      subscriptionOptionWithDiscountPrice,
+      subscriptionOptionWithDiscount,
     ),
   }}
 />
@@ -294,9 +294,9 @@
 <Story
   name="Tax Exclusive with Forever Discount"
   args={{
-    purchaseOption: subscriptionOptionWithDiscountPriceForever,
+    purchaseOption: subscriptionOptionWithDiscountForever,
     priceBreakdown: getPriceBreakdownTaxExclusive(
-      subscriptionOptionWithDiscountPriceForever,
+      subscriptionOptionWithDiscountForever,
     ),
   }}
 />
@@ -314,9 +314,9 @@
   name="Tax Exclusive with Non-subscription with Discount"
   args={{
     productDetails: consumableProduct,
-    purchaseOption: nonSubscriptionOptionWithDiscountPrice,
+    purchaseOption: nonSubscriptionOptionWithDiscount,
     priceBreakdown: getPriceBreakdownTaxExclusive(
-      nonSubscriptionOptionWithDiscountPrice,
+      nonSubscriptionOptionWithDiscount,
     ),
   }}
 />

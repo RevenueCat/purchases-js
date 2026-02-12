@@ -5,7 +5,7 @@
     type SubscriptionOption,
     type NonSubscriptionOption,
     type PricingPhase,
-    type DiscountPricePhase,
+    type DiscountPhase,
   } from "../../entities/offerings";
   import PricingTable from "../molecules/pricing-table.svelte";
   import ProductHeader from "../molecules/product-header.svelte";
@@ -43,15 +43,13 @@
       : null;
 
   const trialPhase = subscriptionOption?.trial ?? null;
-  const discountPricePhase =
-    subscriptionOption?.discountPrice ??
-    nonSubscriptionOption?.discountPrice ??
-    null;
+  const discountPhase =
+    subscriptionOption?.discount ?? nonSubscriptionOption?.discount ?? null;
   const introPricePhase = subscriptionOption?.introPrice ?? null;
-  const promotionalPricePhase: PricingPhase | DiscountPricePhase | null =
-    subscriptionOption?.discountPrice ??
+  const promotionalPricePhase: PricingPhase | DiscountPhase | null =
+    subscriptionOption?.discount ??
     subscriptionOption?.introPrice ??
-    nonSubscriptionOption?.discountPrice ??
+    nonSubscriptionOption?.discount ??
     null;
 </script>
 
@@ -63,14 +61,14 @@
         {priceBreakdown}
         {basePhase}
         {trialPhase}
-        {discountPricePhase}
+        {discountPhase}
         {introPricePhase}
       />
     {:else}
       <PricingSummaryNonSubscription
         {priceBreakdown}
         {basePhase}
-        {discountPricePhase}
+        {discountPhase}
       />
     {/if}
   </div>
@@ -79,7 +77,7 @@
     {trialPhase}
     {basePhase}
     {promotionalPricePhase}
-    hasDiscount={!!discountPricePhase}
+    hasDiscount={!!discountPhase}
   />
 </div>
 

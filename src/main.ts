@@ -108,7 +108,7 @@ import { getWindow, getDocument } from "./helpers/browser-globals";
 
 export { ProductType } from "./entities/offerings";
 export type {
-  DiscountPricePhase,
+  DiscountPhase,
   NonSubscriptionOption,
   Offering,
   Offerings,

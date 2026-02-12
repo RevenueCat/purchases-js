@@ -4,7 +4,7 @@
   import { renderInsideNavbarBody } from "../decorators/layout-decorators";
   import PricingSummaryNonSubscription from "../../ui/molecules/pricing-summary-non-subscription.svelte";
   import {
-    nonSubscriptionOptionWithDiscountPrice,
+    nonSubscriptionOptionWithDiscount,
     nonSubscriptionOption,
     nonSubscriptionBasePricingPhase,
   } from "../fixtures";
@@ -37,8 +37,8 @@
   name="Non Subscription with Discount"
   args={{
     priceBreakdown: getPriceBreakdownTaxDisabled(
-      nonSubscriptionOptionWithDiscountPrice,
+      nonSubscriptionOptionWithDiscount,
     ),
-    discountPricePhase: nonSubscriptionOptionWithDiscountPrice.discountPrice,
+    discountPhase: nonSubscriptionOptionWithDiscount.discount,
   }}
 />

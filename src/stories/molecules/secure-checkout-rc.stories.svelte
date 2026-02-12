@@ -12,8 +12,8 @@
     subscriptionOptionWithIntroPriceRecurring,
     subscriptionOptionWithTrialAndIntroPricePaidUpfront,
     subscriptionOptionWithTrialAndIntroPriceRecurring,
-    nonSubscriptionOptionWithDiscountPrice,
-    subscriptionOptionWithDiscountPriceOneTime,
+    nonSubscriptionOptionWithDiscount,
+    subscriptionOptionWithDiscountOneTime,
   } from "../fixtures";
 
   const { Story } = defineMeta({
@@ -43,7 +43,7 @@
   name="Non Subscription + discount with branding info"
   args={{
     brandingInfo,
-    purchaseOption: nonSubscriptionOptionWithDiscountPrice,
+    purchaseOption: nonSubscriptionOptionWithDiscount,
   }}
 />
 
@@ -77,7 +77,7 @@
   name="One-time discount with branding info"
   args={{
     brandingInfo,
-    purchaseOption: subscriptionOptionWithDiscountPriceOneTime,
+    purchaseOption: subscriptionOptionWithDiscountOneTime,
   }}
 />
 

@@ -12,7 +12,7 @@
   import { type PriceBreakdown } from "../ui-types";
   import {
     type PricingPhase,
-    type DiscountPricePhase,
+    type DiscountPhase,
   } from "../../entities/offerings";
   import Typography from "../atoms/typography.svelte";
 
@@ -20,7 +20,7 @@
     priceBreakdown: PriceBreakdown;
     basePhase: PricingPhase | null;
     trialPhase: PricingPhase | null;
-    discountPricePhase: DiscountPricePhase | null;
+    discountPhase: DiscountPhase | null;
     introPricePhase: PricingPhase | null;
   };
 
@@ -28,19 +28,19 @@
     priceBreakdown,
     basePhase,
     trialPhase,
-    discountPricePhase,
+    discountPhase,
     introPricePhase,
   }: Props = $props();
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
   const hasTrial = $derived(!!trialPhase?.periodDuration);
   const isPromoPaidUpfront = $derived(introPricePhase?.cycleCount === 1);
-  const promotionalPricePhase = $derived(discountPricePhase || introPricePhase);
+  const promotionalPricePhase = $derived(discountPhase || introPricePhase);
   const hasForeverPromotion = $derived(
-    !!(discountPricePhase && discountPricePhase.durationMode === "forever"),
+    !!(discountPhase && discountPhase.durationMode === "forever"),
   );
   const hasLimitedTimePromotion = $derived(
-    !!(introPricePhase || (discountPricePhase && !hasForeverPromotion)),
+    !!(introPricePhase || (discountPhase && !hasForeverPromotion)),
   );
 
   const promoPriceDurationText = $derived.by(() => {
@@ -76,16 +76,14 @@
     }
 
     if (
-      discountPricePhase &&
-      discountPricePhase.period &&
-      discountPricePhase?.durationMode === "time_window"
+      discountPhase &&
+      discountPhase.period &&
+      discountPhase?.durationMode === "time_window"
     ) {
       return (
-        $translator.translatePeriodFrequency(
-          1,
-          discountPricePhase.period.unit,
-          { useMultipleWords: true },
-        ) || ""
+        $translator.translatePeriodFrequency(1, discountPhase.period.unit, {
+          useMultipleWords: true,
+        }) || ""
       );
     }
 
@@ -115,7 +113,7 @@
   );
 
   const formattedPrice = $derived.by(() => {
-    const useBasePhasePrice = introPricePhase || discountPricePhase;
+    const useBasePhasePrice = introPricePhase || discountPhase;
 
     const micros = useBasePhasePrice
       ? (basePhase?.price?.amountMicros ?? 0)

@@ -17,16 +17,13 @@
     subscriptionOptionWithMultipleWeeksIntroPriceRecurring,
     subscriptionOptionWithMultipleYearsIntroPriceRecurring,
     subscriptionOptionWithSingleWeekWithTrialAndIntroPriceRecurring,
-    subscriptionOptionWithDiscountPriceForever,
-    subscriptionOptionWithDiscountPrice,
+    subscriptionOptionWithDiscountForever,
+    subscriptionOptionWithDiscount,
   } from "../fixtures";
   import { getPriceBreakdownTaxDisabled } from "../helpers/get-price-breakdown";
 
   import { parseISODuration } from "../../helpers/duration-helper";
-  import type {
-    PricingPhase,
-    DiscountPricePhase,
-  } from "../../entities/offerings";
+  import type { PricingPhase, DiscountPhase } from "../../entities/offerings";
   import type { PriceBreakdown } from "../../ui/ui-types";
 
   const billingDurations = ["P1W", "P1M", "P3M", "P6M", "P1Y", null];
@@ -37,11 +34,10 @@
     priceBreakdown: PriceBreakdown;
     basePhase?: PricingPhase | null;
     introPricePhase?: PricingPhase | null;
-    discountPricePhase?: DiscountPricePhase | null;
+    discountPhase?: DiscountPhase | null;
     trialPhase?: PricingPhase | null;
     billingDuration?: string | null;
     introDuration?: string | null;
-    discountDuration?: string | null;
     introCycles?: number | null;
     trialDuration?: string | null;
   };
@@ -56,10 +52,8 @@
     args: {
       billingDuration: null,
       introDuration: null,
-      discountDuration: null,
       introCycles: null,
       trialDuration: null,
-      discountPriceDuration: null,
     } as any,
     argTypes: {
       billingDuration: { control: "select", options: billingDurations },
@@ -140,14 +134,14 @@
         ),
       )
     : null}
-  {@const discountPricePhase = args.discountPricePhase ?? null}
+  {@const discountPhase = args.discountPhase ?? null}
 
   <PricingSummary
     {priceBreakdown}
     {basePhase}
     {trialPhase}
     {introPricePhase}
-    {discountPricePhase}
+    {discountPhase}
   />
 {/snippet}
 
@@ -163,11 +157,10 @@
   name="Subscription with Forever Discount"
   args={{
     priceBreakdown: getPriceBreakdownTaxDisabled(
-      subscriptionOptionWithDiscountPriceForever,
+      subscriptionOptionWithDiscountForever,
     ),
     basePhase: subscriptionOption.base,
-    discountPricePhase:
-      subscriptionOptionWithDiscountPriceForever.discountPrice,
+    discountPhase: subscriptionOptionWithDiscountForever.discount,
   }}
 />
 
@@ -175,10 +168,10 @@
   name="Subscription with Time Window Discount"
   args={{
     priceBreakdown: getPriceBreakdownTaxDisabled(
-      subscriptionOptionWithDiscountPrice,
+      subscriptionOptionWithDiscount,
     ),
     basePhase: subscriptionOption.base,
-    discountPricePhase: subscriptionOptionWithDiscountPrice.discountPrice,
+    discountPhase: subscriptionOptionWithDiscount.discount,
   }}
 />
 

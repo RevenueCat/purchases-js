@@ -6,17 +6,17 @@
   import { type PriceBreakdown } from "../ui-types";
   import {
     type PricingPhase,
-    type DiscountPricePhase,
+    type DiscountPhase,
   } from "../../entities/offerings";
   import Typography from "../atoms/typography.svelte";
 
   export type Props = {
     priceBreakdown: PriceBreakdown;
     basePhase: PricingPhase | null;
-    discountPricePhase: DiscountPricePhase | null;
+    discountPhase: DiscountPhase | null;
   };
 
-  let { priceBreakdown, basePhase, discountPricePhase }: Props = $props();
+  let { priceBreakdown, basePhase, discountPhase }: Props = $props();
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
 
@@ -28,10 +28,10 @@
   );
 
   const formattedPromoPrice = $derived(
-    discountPricePhase?.price
+    discountPhase?.price
       ? $translator.formatPrice(
-          discountPricePhase.price.amountMicros,
-          discountPricePhase.price.currency,
+          discountPhase.price.amountMicros,
+          discountPhase.price.currency,
         )
       : "",
   );

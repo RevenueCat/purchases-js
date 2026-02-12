@@ -8,7 +8,7 @@
   import { getNextRenewalDate } from "../../helpers/duration-helper";
   import {
     type PricingPhase,
-    type DiscountPricePhase,
+    type DiscountPhase,
   } from "../../entities/offerings";
   import PricingDropdown from "./pricing-dropdown.svelte";
   import Skeleton from "../atoms/skeleton.svelte";
@@ -18,7 +18,7 @@
     priceBreakdown: PriceBreakdown;
     trialPhase: PricingPhase | null;
     basePhase: PricingPhase | null;
-    promotionalPricePhase: PricingPhase | DiscountPricePhase | null;
+    promotionalPricePhase: PricingPhase | DiscountPhase | null;
     hasDiscount: boolean;
   }
 

@@ -9,8 +9,8 @@
     priceBreakdownTaxLoading,
     priceBreakdownTaxPending,
     subscriptionOption,
-    subscriptionOptionWithDiscountPrice,
-    subscriptionOptionWithDiscountPriceForever,
+    subscriptionOptionWithDiscount,
+    subscriptionOptionWithDiscountForever,
     subscriptionOptionWithTrial,
   } from "../fixtures";
   import {
@@ -112,10 +112,10 @@
   name="Disabled Tax Discount"
   args={{
     priceBreakdown: getPriceBreakdownTaxDisabled(
-      subscriptionOptionWithDiscountPrice,
+      subscriptionOptionWithDiscount,
     ),
-    basePhase: subscriptionOptionWithDiscountPrice.base,
-    promotionalPricePhase: subscriptionOptionWithDiscountPrice.discountPrice,
+    basePhase: subscriptionOptionWithDiscount.base,
+    promotionalPricePhase: subscriptionOptionWithDiscount.discount,
     hasDiscount: true,
   }}
 />
@@ -123,11 +123,10 @@
   name="Disabled Tax Forever Discount"
   args={{
     priceBreakdown: getPriceBreakdownTaxDisabled(
-      subscriptionOptionWithDiscountPriceForever,
+      subscriptionOptionWithDiscountForever,
     ),
-    basePhase: subscriptionOptionWithDiscountPriceForever.base,
-    promotionalPricePhase:
-      subscriptionOptionWithDiscountPriceForever.discountPrice,
+    basePhase: subscriptionOptionWithDiscountForever.base,
+    promotionalPricePhase: subscriptionOptionWithDiscountForever.discount,
     hasDiscount: true,
   }}
 />
@@ -135,10 +134,10 @@
   name="Tax Inclusive Discount"
   args={{
     priceBreakdown: getPriceBreakdownTaxInclusive(
-      subscriptionOptionWithDiscountPrice,
+      subscriptionOptionWithDiscount,
     ),
-    basePhase: subscriptionOptionWithDiscountPrice.base,
-    promotionalPricePhase: subscriptionOptionWithDiscountPrice.discountPrice,
+    basePhase: subscriptionOptionWithDiscount.base,
+    promotionalPricePhase: subscriptionOptionWithDiscount.discount,
     hasDiscount: true,
   }}
 />
@@ -146,11 +145,10 @@
   name="Tax Inclusive Forever Discount"
   args={{
     priceBreakdown: getPriceBreakdownTaxInclusive(
-      subscriptionOptionWithDiscountPriceForever,
+      subscriptionOptionWithDiscountForever,
     ),
-    basePhase: subscriptionOptionWithDiscountPriceForever.base,
-    promotionalPricePhase:
-      subscriptionOptionWithDiscountPriceForever.discountPrice,
+    basePhase: subscriptionOptionWithDiscountForever.base,
+    promotionalPricePhase: subscriptionOptionWithDiscountForever.discount,
     hasDiscount: true,
   }}
 />
@@ -158,10 +156,10 @@
   name="Tax Exclusive Discount"
   args={{
     priceBreakdown: getPriceBreakdownTaxExclusive(
-      subscriptionOptionWithDiscountPrice,
+      subscriptionOptionWithDiscount,
     ),
-    basePhase: subscriptionOptionWithDiscountPrice.base,
-    promotionalPricePhase: subscriptionOptionWithDiscountPrice.discountPrice,
+    basePhase: subscriptionOptionWithDiscount.base,
+    promotionalPricePhase: subscriptionOptionWithDiscount.discount,
     hasDiscount: true,
   }}
 />
@@ -169,11 +167,10 @@
   name="Tax Exclusive Forever Discount"
   args={{
     priceBreakdown: getPriceBreakdownTaxExclusive(
-      subscriptionOptionWithDiscountPriceForever,
+      subscriptionOptionWithDiscountForever,
     ),
-    basePhase: subscriptionOptionWithDiscountPriceForever.base,
-    promotionalPricePhase:
-      subscriptionOptionWithDiscountPriceForever.discountPrice,
+    basePhase: subscriptionOptionWithDiscountForever.base,
+    promotionalPricePhase: subscriptionOptionWithDiscountForever.discount,
     hasDiscount: true,
   }}
 />

@@ -1,7 +1,4 @@
-import type {
-  DiscountPricePhase,
-  PricingPhase,
-} from "../../entities/offerings";
+import type { DiscountPhase, PricingPhase } from "../../entities/offerings";
 import { PeriodUnit } from "../../helpers/duration-helper";
 import { toPrice } from "../utils/fixtures-utils";
 
@@ -22,7 +19,7 @@ export const trialPhaseP2W: PricingPhase = {
   cycleCount: 1,
 };
 
-export const discountPhaseOneTime: DiscountPricePhase = {
+export const discountPhaseOneTime: DiscountPhase = {
   timeWindow: null,
   periodDuration: "P1M",
   durationMode: "one_time",
@@ -32,7 +29,7 @@ export const discountPhaseOneTime: DiscountPricePhase = {
   cycleCount: 1,
 };
 
-export const discountPhaseOneTimeConsumable: DiscountPricePhase = {
+export const discountPhaseOneTimeConsumable: DiscountPhase = {
   timeWindow: null,
   periodDuration: null,
   durationMode: "one_time",
@@ -42,7 +39,7 @@ export const discountPhaseOneTimeConsumable: DiscountPricePhase = {
   cycleCount: 0,
 };
 
-export const discountPhaseTimeWindow: DiscountPricePhase = {
+export const discountPhaseTimeWindow: DiscountPhase = {
   timeWindow: "P3M",
   periodDuration: "P3M",
   durationMode: "time_window",
@@ -52,7 +49,7 @@ export const discountPhaseTimeWindow: DiscountPricePhase = {
   cycleCount: 3,
 };
 
-export const discountPhaseForever: DiscountPricePhase = {
+export const discountPhaseForever: DiscountPhase = {
   timeWindow: null,
   periodDuration: "P1M",
   durationMode: "forever",

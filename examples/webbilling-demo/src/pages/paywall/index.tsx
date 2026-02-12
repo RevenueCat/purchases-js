@@ -55,12 +55,12 @@ const getLongPeriodLabel = (period: string | null) =>
   getPeriodLabel(period, longPeriodLabels);
 
 // True for a subscription with a forever discount or a non-subscription product with any discount
-const hasPermanentDiscountPrice = (webBillingProduct: Product) => {
-  const { discountPricePhase, productType } = webBillingProduct;
-  if (!discountPricePhase) return false;
+const hasPermanentDiscount = (webBillingProduct: Product) => {
+  // @ts-expect-error - accessing @internal field
+  const { discountPhase, productType } = webBillingProduct;
+  if (!discountPhase) return false;
   return (
-    discountPricePhase.durationMode === "forever" ||
-    productType !== "subscription"
+    discountPhase.durationMode === "forever" || productType !== "subscription"
   );
 };
 
@@ -71,10 +71,11 @@ const getFormattedPrice = (price: Price | null, period: string | null) => {
 };
 
 const getCurrentPrice = (webBillingProduct: Product) => {
-  const { price, normalPeriodDuration, discountPricePhase, introPricePhase } =
+  // @ts-expect-error - accessing @internal field
+  const { price, normalPeriodDuration, discountPhase, introPricePhase } =
     webBillingProduct;
 
-  const promotionalPrice = discountPricePhase ?? introPricePhase;
+  const promotionalPrice = discountPhase ?? introPricePhase;
   if (!promotionalPrice) {
     return getFormattedPrice(price, normalPeriodDuration);
   }
@@ -98,13 +99,14 @@ const formattedCombinedPeriod = (
 };
 
 const getPriceDetails = (webBillingProduct: Product) => {
-  const { discountPricePhase, introPricePhase, price, normalPeriodDuration } =
+  // @ts-expect-error - accessing @internal field
+  const { discountPhase, introPricePhase, price, normalPeriodDuration } =
     webBillingProduct;
-  const promotionalPrice = discountPricePhase ?? introPricePhase;
+  const promotionalPrice = discountPhase ?? introPricePhase;
   if (!promotionalPrice) return null;
   const formattedBasePrice = getFormattedPrice(price, normalPeriodDuration);
 
-  if (hasPermanentDiscountPrice(webBillingProduct)) {
+  if (hasPermanentDiscount(webBillingProduct)) {
     return `discounted from ${formattedBasePrice}`;
   }
 
@@ -121,13 +123,14 @@ export const Badge = ({
 }: {
   webBillingProduct: Product;
 }) => {
-  const { discountPricePhase, freeTrialPhase } = webBillingProduct;
-  if (discountPricePhase) {
+  // @ts-expect-error - accessing @internal field
+  const { discountPhase, freeTrialPhase } = webBillingProduct;
+  if (discountPhase) {
     return (
       <div className="freeTrial">
-        {hasPermanentDiscountPrice(webBillingProduct)
+        {hasPermanentDiscount(webBillingProduct)
           ? "Lifetime"
-          : getLongPeriodLabel(discountPricePhase.timeWindow)}{" "}
+          : getLongPeriodLabel(discountPhase.timeWindow)}{" "}
         Discount
       </div>
     );

@@ -102,7 +102,7 @@ describe("parseOfferingIntoPackageInfoPerPackage", () => {
         packageIdentifier: "$rc_monthly",
         identifier: "monthly_discount",
         title: "Monthly Discount",
-        discountPrice: discountPhaseOneTime,
+        discount: discountPhaseOneTime,
       },
     ]);
 
@@ -121,7 +121,7 @@ describe("parseOfferingIntoPackageInfoPerPackage", () => {
         packageIdentifier: "lifetime",
         identifier: "lifetime_discount",
         title: "Lifetime Discount",
-        discountPrice: discountPhaseOneTime,
+        discount: discountPhaseOneTime,
       },
     ]);
 
@@ -184,7 +184,7 @@ describe("parseOfferingIntoPackageInfoPerPackage", () => {
         packageIdentifier: "discount_only",
         identifier: "discount_only_id",
         title: "Discount Only",
-        discountPrice: discountPhaseOneTime,
+        discount: discountPhaseOneTime,
       },
     ]);
 

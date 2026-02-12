@@ -48,7 +48,7 @@ export interface CustomerInfo {
 }
 
 // @public
-export interface DiscountPricePhase {
+export interface DiscountPhase {
     readonly cycleCount: number;
     readonly durationMode: "one_time" | "time_window" | "forever";
     readonly name: string | null;
@@ -190,7 +190,7 @@ export enum LogLevel {
 // @public
 export interface NonSubscriptionOption extends PurchaseOption {
     readonly basePrice: Price;
-    readonly discountPrice: DiscountPricePhase | null;
+    /* Excluded from this release type: discount */
 }
 
 // @public
@@ -343,7 +343,6 @@ export interface Product {
     readonly defaultPurchaseOption: PurchaseOption;
     readonly defaultSubscriptionOption: SubscriptionOption | null;
     readonly description: string | null;
-    readonly discountPricePhase: DiscountPricePhase | null;
     // @deprecated
     readonly displayName: string;
     readonly freeTrialPhase: PricingPhase | null;
@@ -360,6 +359,7 @@ export interface Product {
         [optionId: string]: SubscriptionOption;
     };
     readonly title: string;
+    /* Excluded from this release type: discountPhase */
 }
 
 // @public
@@ -569,9 +569,9 @@ export interface SubscriptionInfo {
 // @public
 export interface SubscriptionOption extends PurchaseOption {
     readonly base: PricingPhase;
-    readonly discountPrice: DiscountPricePhase | null;
     readonly introPrice: PricingPhase | null;
     readonly trial: PricingPhase | null;
+    /* Excluded from this release type: discount */
 }
 
 // @public
