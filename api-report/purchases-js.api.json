@@ -796,6 +796,192 @@
         },
         {
           "kind": "Interface",
+          "canonicalReference": "@revenuecat/purchases-js!DiscountPricePhase:interface",
+          "docComment": "/**\n * Represents the price and duration information for a discount price phase.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare interface DiscountPricePhase "
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "name": "DiscountPricePhase",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!DiscountPricePhase#cycleCount:member",
+              "docComment": "/**\n * The number of cycles this option's discount price repeats.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly cycleCount: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "cycleCount",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!DiscountPricePhase#durationMode:member",
+              "docComment": "/**\n * The duration mode for the discount. Represents how long the discount will apply to invoices.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly durationMode: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"one_time\" | \"time_window\" | \"forever\""
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "durationMode",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!DiscountPricePhase#name:member",
+              "docComment": "/**\n * The customer-facing name of the discount\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly name: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "name",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!DiscountPricePhase#period:member",
+              "docComment": "/**\n * The duration of the discount phase as a {@link Period}.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly period: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Period",
+                  "canonicalReference": "@revenuecat/purchases-js!Period:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "period",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!DiscountPricePhase#price:member",
+              "docComment": "/**\n * The price for the purchase option.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly price: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Price",
+                  "canonicalReference": "@revenuecat/purchases-js!Price:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "price",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!DiscountPricePhase#timeWindow:member",
+              "docComment": "/**\n * The duration of the phase in ISO 8601 format. Null for one_time and forever duration modes.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly timeWindow: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "timeWindow",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
+          "kind": "Interface",
           "canonicalReference": "@revenuecat/purchases-js!EntitlementInfo:interface",
           "docComment": "/**\n * This object gives you access to all the information about the status of a user's entitlements.\n *\n * @public\n */\n",
           "excerptTokens": [
@@ -2457,6 +2643,38 @@
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!NonSubscriptionOption#discountPrice:member",
+              "docComment": "/**\n * The discount price for the product if available.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly discountPrice: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "DiscountPricePhase",
+                  "canonicalReference": "@revenuecat/purchases-js!DiscountPricePhase:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "discountPrice",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
               }
             }
           ],
@@ -4756,6 +4974,38 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!Product#discountPricePhase:member",
+              "docComment": "/**\n * Discount price phase information for subscriptions and non-subscriptions. Null when no discount price is available. Convenience accessor for defaultSubscriptionOption?.discountPrice or defaultNonSubscriptionOption?.discountPrice. When present, introPricePhase and freeTrialPhase will be null.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly discountPricePhase: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "DiscountPricePhase",
+                  "canonicalReference": "@revenuecat/purchases-js!DiscountPricePhase:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "discountPricePhase",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!Product#displayName:member",
               "docComment": "/**\n * Name of the product.\n *\n * @deprecated\n *\n * - Use {@link Product.title} instead.\n */\n",
               "excerptTokens": [
@@ -4784,7 +5034,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!Product#freeTrialPhase:member",
-              "docComment": "/**\n * Free trial phase information for subscriptions. Null for non-subscriptions or when no free trial is available. Convenience accessor for defaultSubscriptionOption?.trial.\n */\n",
+              "docComment": "/**\n * Free trial phase information for subscriptions. Null for non-subscriptions or when no free trial is available. Convenience accessor for defaultSubscriptionOption?.trial. Only present when discountPricePhase is null.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4843,7 +5093,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!Product#introPricePhase:member",
-              "docComment": "/**\n * Introductory price phase information for subscriptions. Null for non-subscriptions or when no introductory price is available. Convenience accessor for defaultSubscriptionOption?.introPrice.\n */\n",
+              "docComment": "/**\n * Introductory price phase information for subscriptions. Null for non-subscriptions or when no introductory price is available. Convenience accessor for defaultSubscriptionOption?.introPrice. Only present when discountPricePhase is null.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9156,8 +9406,40 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!SubscriptionOption#discountPrice:member",
+              "docComment": "/**\n * The discount price period for this subscription option if available. When present, introPrice and trial will be null.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly discountPrice: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "DiscountPricePhase",
+                  "canonicalReference": "@revenuecat/purchases-js!DiscountPricePhase:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "discountPrice",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!SubscriptionOption#introPrice:member",
-              "docComment": "/**\n * The introductory price period for this subscription option if available.\n */\n",
+              "docComment": "/**\n * The introductory price period for this subscription option if available. Only present when discountPrice is null.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9189,7 +9471,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!SubscriptionOption#trial:member",
-              "docComment": "/**\n * The trial information for this subscription option if available.\n */\n",
+              "docComment": "/**\n * The trial information for this subscription option if available. Only present when discountPrice is null.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
