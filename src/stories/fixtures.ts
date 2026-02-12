@@ -120,7 +120,8 @@ const introPriceSixMonthsPaidUpfront: PricingPhase = {
 
 // The one_time timeWindow will always match the subscription's base price period duration
 const discountPriceOneTime: DiscountPricePhase = {
-  timeWindow: "P1M",
+  periodDuration: "P1M",
+  timeWindow: null,
   durationMode: "one_time",
   price: getPrice(895),
   name: "One-time Discount 20%",
@@ -133,6 +134,7 @@ const discountPriceOneTime: DiscountPricePhase = {
 
 const discountPriceTimeWindow: DiscountPricePhase = {
   timeWindow: "P3M",
+  periodDuration: "P3M",
   durationMode: "time_window",
   price: getPrice(799),
   name: "Holiday Sale 20%",
@@ -146,10 +148,14 @@ const discountPriceTimeWindow: DiscountPricePhase = {
 
 const discountPriceForever: DiscountPricePhase = {
   timeWindow: null,
+  periodDuration: "P1M",
   durationMode: "forever",
   price: getPrice(688),
   name: "Forever Discount 30%",
-  period: null,
+  period: {
+    number: 1,
+    unit: PeriodUnit.Month,
+  },
   cycleCount: 0,
 };
 

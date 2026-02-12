@@ -174,11 +174,19 @@ export interface DiscountPricePhase {
    */
   readonly name: string | null;
   /**
+   * The duration of the discount phase in ISO 8601 format.
+   * Matches the timeWindow property for the time_window duration mode.
+   * Uses the base period duration for one_time and forever duration modes.
+   */
+  readonly periodDuration: string | null;
+  /**
    * The duration of the discount phase as a {@link Period}.
+   * Calculated from the periodDuration property.
    */
   readonly period: Period | null;
   /**
    * The number of cycles this option's discount price repeats.
+   * 0 if not applicable.
    */
   readonly cycleCount: number;
 }
@@ -569,32 +577,35 @@ const toDiscountPricePhase = (
   basePeriodDuration: string | null,
 ): DiscountPricePhase => {
   const durationMode = optionPhase.duration_mode ?? "one_time";
-  let timeWindow = optionPhase.time_window ?? null;
+  let periodDuration = optionPhase.time_window ?? null;
 
-  // One-time discounts will use the base period duration
+  // One-time and forever discounts will use the base period duration
   if (
-    durationMode === "one_time" &&
-    timeWindow === null &&
+    (durationMode === "one_time" || durationMode === "forever") &&
+    periodDuration === null &&
     basePeriodDuration !== null
   ) {
-    timeWindow = basePeriodDuration;
+    periodDuration = basePeriodDuration;
   }
 
   let period: Period | null = null;
   let cycleCount: number | null = null;
-  const parsedDuration = timeWindow ? parseISODuration(timeWindow) : null;
+  const parsedDuration = periodDuration
+    ? parseISODuration(periodDuration)
+    : null;
   if (parsedDuration) {
     period = { number: 1, unit: parsedDuration.unit };
-    cycleCount = parsedDuration.number;
+    cycleCount = durationMode === "forever" ? 0 : parsedDuration.number;
   }
 
   return {
-    timeWindow: timeWindow,
+    timeWindow: optionPhase.time_window,
     durationMode: durationMode,
     price: getPriceForCurrency(optionPhase.amount_micros, optionPhase.currency),
     name: optionPhase.name,
     period: period,
     cycleCount: cycleCount ?? 0,
+    periodDuration: periodDuration,
   };
 };
 

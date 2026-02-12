@@ -812,7 +812,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!DiscountPricePhase#cycleCount:member",
-              "docComment": "/**\n * The number of cycles this option's discount price repeats.\n */\n",
+              "docComment": "/**\n * The number of cycles this option's discount price repeats. 0 if not applicable.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -893,7 +893,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!DiscountPricePhase#period:member",
-              "docComment": "/**\n * The duration of the discount phase as a {@link Period}.\n */\n",
+              "docComment": "/**\n * The duration of the discount phase as a {@link Period}. Calculated from the periodDuration property.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -920,6 +920,33 @@
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 3
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!DiscountPricePhase#periodDuration:member",
+              "docComment": "/**\n * The duration of the discount phase in ISO 8601 format. Matches the timeWindow property for the time_window duration mode. Uses the base period duration for one_time and forever duration modes.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly periodDuration: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "periodDuration",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
               }
             },
             {

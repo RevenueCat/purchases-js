@@ -273,7 +273,7 @@ function parsePackageIntoVariables(
             },
           );
 
-    setOfferVariables(purchaseOption, translator, baseObject, basePeriod);
+    setOfferVariables(purchaseOption, translator, baseObject);
   }
 
   if (productIsNonSubscription(productType, purchaseOption)) {

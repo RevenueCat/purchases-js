@@ -638,7 +638,8 @@ describe("getOfferings", () => {
 
       const expectedDiscountPrice = {
         durationMode: "one_time",
-        timeWindow: "P1M",
+        timeWindow: null,
+        periodDuration: "P1M",
         name: "One-Time 20% Discount",
         price: {
           amount: 800,
@@ -679,6 +680,7 @@ describe("getOfferings", () => {
       const expectedDiscountPrice = {
         durationMode: "one_time",
         timeWindow: null,
+        periodDuration: null,
         name: "Consumable 20% Discount",
         price: {
           amount: 80,
@@ -712,6 +714,7 @@ describe("getOfferings", () => {
       const expectedDiscountPrice = {
         durationMode: "time_window",
         timeWindow: "P3M",
+        periodDuration: "P3M",
         name: "Holiday Sale 30%",
         price: {
           amount: 700,
@@ -740,6 +743,7 @@ describe("getOfferings", () => {
       const expectedDiscountPrice = {
         durationMode: "forever",
         timeWindow: null,
+        periodDuration: "P1M",
         name: "Forever 40% Discount",
         price: {
           amount: 600,
@@ -747,7 +751,7 @@ describe("getOfferings", () => {
           currency: "USD",
           formattedPrice: "$6.00",
         },
-        period: null,
+        period: { number: 1, unit: PeriodUnit.Month },
         cycleCount: 0,
       };
       expect(defaultSubscriptionOption?.discountPrice).toStrictEqual(

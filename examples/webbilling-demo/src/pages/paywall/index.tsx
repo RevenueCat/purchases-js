@@ -86,7 +86,7 @@ const getCurrentPrice = (webBillingProduct: Product) => {
 
   return getFormattedPrice(
     promotionalPrice.price,
-    discountPricePhase?.timeWindow ?? introPricePhase?.periodDuration ?? null,
+    promotionalPrice?.periodDuration ?? null,
   );
 };
 

@@ -53,6 +53,7 @@ export interface DiscountPricePhase {
     readonly durationMode: "one_time" | "time_window" | "forever";
     readonly name: string | null;
     readonly period: Period | null;
+    readonly periodDuration: string | null;
     readonly price: Price;
     readonly timeWindow: string | null;
 }

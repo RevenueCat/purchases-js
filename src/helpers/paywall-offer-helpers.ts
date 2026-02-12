@@ -30,7 +30,6 @@ export function setOfferVariables(
   product: SubscriptionOption,
   translator: Translator,
   variables: VariableDictionary,
-  basePeriod: Period | null = null,
 ) {
   const primaryOffer =
     product.discountPrice ?? product.trial ?? product.introPrice;
@@ -41,11 +40,7 @@ export function setOfferVariables(
     return;
   }
 
-  const { period: offerPeriod, price } = primaryOffer;
-
-  // Forever discounts use the same period as the base price
-  const isForeverDiscount = product.discountPrice?.durationMode === "forever";
-  const period = offerPeriod ?? (isForeverDiscount ? basePeriod : null);
+  const { period, price } = primaryOffer;
 
   if (price !== null) {
     const priceVariables = getPriceVariables(price, period, translator);

@@ -23,7 +23,8 @@ export const trialPhaseP2W: PricingPhase = {
 };
 
 export const discountPhaseOneTime: DiscountPricePhase = {
-  timeWindow: "P1M",
+  timeWindow: null,
+  periodDuration: "P1M",
   durationMode: "one_time",
   price: toPrice(10000000, "USD"),
   name: "One-time Discount 20%",
@@ -33,6 +34,7 @@ export const discountPhaseOneTime: DiscountPricePhase = {
 
 export const discountPhaseOneTimeConsumable: DiscountPricePhase = {
   timeWindow: null,
+  periodDuration: null,
   durationMode: "one_time",
   price: toPrice(11000000, "USD"),
   name: "Consumable 20% Discount",
@@ -42,6 +44,7 @@ export const discountPhaseOneTimeConsumable: DiscountPricePhase = {
 
 export const discountPhaseTimeWindow: DiscountPricePhase = {
   timeWindow: "P3M",
+  periodDuration: "P3M",
   durationMode: "time_window",
   price: toPrice(12000000, "USD"),
   name: "Holiday Sale 20%",
@@ -51,10 +54,11 @@ export const discountPhaseTimeWindow: DiscountPricePhase = {
 
 export const discountPhaseForever: DiscountPricePhase = {
   timeWindow: null,
+  periodDuration: "P1M",
   durationMode: "forever",
   price: toPrice(13000000, "USD"),
   name: "Forever Discount 30%",
-  period: null,
+  period: { number: 1, unit: PeriodUnit.Month },
   cycleCount: 0,
 };
 
