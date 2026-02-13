@@ -219,19 +219,16 @@ export interface SubscriptionOption extends PurchaseOption {
   readonly base: PricingPhase;
   /**
    * The trial information for this subscription option if available.
-   * Only present when discount is null.
    */
   readonly trial: PricingPhase | null;
 
   /**
    * The introductory price period for this subscription option if available.
-   * Only present when discount is null.
    */
   readonly introPrice: PricingPhase | null;
 
   /**
    * The discount price period for this subscription option if available.
-   * When present, introPrice and trial will be null.
    * @internal
    */
   readonly discount: DiscountPhase | null;
@@ -374,21 +371,18 @@ export interface Product {
    * Free trial phase information for subscriptions.
    * Null for non-subscriptions or when no free trial is available.
    * Convenience accessor for defaultSubscriptionOption?.trial.
-   * Only present when discountPhase is null.
    */
   readonly freeTrialPhase: PricingPhase | null;
   /**
    * Introductory price phase information for subscriptions.
    * Null for non-subscriptions or when no introductory price is available.
    * Convenience accessor for defaultSubscriptionOption?.introPrice.
-   * Only present when discountPhase is null.
    */
   readonly introPricePhase: PricingPhase | null;
   /**
    * Discount price phase information for subscriptions and non-subscriptions.
    * Null when no discount price is available.
    * Convenience accessor for defaultSubscriptionOption?.discount or defaultNonSubscriptionOption?.discount.
-   * When present, introPricePhase and freeTrialPhase will be null.
    * @internal
    */
   readonly discountPhase: DiscountPhase | null;

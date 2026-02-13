@@ -4784,7 +4784,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!Product#freeTrialPhase:member",
-              "docComment": "/**\n * Free trial phase information for subscriptions. Null for non-subscriptions or when no free trial is available. Convenience accessor for defaultSubscriptionOption?.trial. Only present when discountPhase is null.\n */\n",
+              "docComment": "/**\n * Free trial phase information for subscriptions. Null for non-subscriptions or when no free trial is available. Convenience accessor for defaultSubscriptionOption?.trial.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4843,7 +4843,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!Product#introPricePhase:member",
-              "docComment": "/**\n * Introductory price phase information for subscriptions. Null for non-subscriptions or when no introductory price is available. Convenience accessor for defaultSubscriptionOption?.introPrice. Only present when discountPhase is null.\n */\n",
+              "docComment": "/**\n * Introductory price phase information for subscriptions. Null for non-subscriptions or when no introductory price is available. Convenience accessor for defaultSubscriptionOption?.introPrice.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9157,7 +9157,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!SubscriptionOption#introPrice:member",
-              "docComment": "/**\n * The introductory price period for this subscription option if available. Only present when discount is null.\n */\n",
+              "docComment": "/**\n * The introductory price period for this subscription option if available.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -9189,7 +9189,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!SubscriptionOption#trial:member",
-              "docComment": "/**\n * The trial information for this subscription option if available. Only present when discount is null.\n */\n",
+              "docComment": "/**\n * The trial information for this subscription option if available.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
