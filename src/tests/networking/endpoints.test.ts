@@ -57,7 +57,7 @@ describe("getProducts endpoint", () => {
 
   test("has correct urlPath for common app user id", () => {
     expect(endpoint.urlPath()).toBe(
-      "/rcbilling/v1/subscribers/someAppUserId/products?id=monthly&id=annual",
+      "/rcbilling/v1/subscribers/someAppUserId/products?support_discounts=true&id=monthly&id=annual",
     );
   });
 
@@ -68,7 +68,7 @@ describe("getProducts endpoint", () => {
         "productIdWithoutEncoding",
       ]).urlPath(),
     ).toBe(
-      "/rcbilling/v1/subscribers/some%2BUser%2Fid%23That%24Requires%26Encoding/products?id=product%2Bid%2FThat%24requires!Encoding&id=productIdWithoutEncoding",
+      "/rcbilling/v1/subscribers/some%2BUser%2Fid%23That%24Requires%26Encoding/products?support_discounts=true&id=product%2Bid%2FThat%24requires!Encoding&id=productIdWithoutEncoding",
     );
   });
 });

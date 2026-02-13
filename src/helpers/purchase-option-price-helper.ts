@@ -10,11 +10,13 @@ import type {
  * Gets the initial price from a purchase option, considering intro pricing for subscriptions.
  *
  * For subscription products:
- * - Returns the intro price if available
- * - Falls back to the base price
+ * - Returns the discount price if available
+ * - Falls back to the intro price if available
+ * - Falls back to the base price if neither are available
  *
  * For non-subscription products:
- * - Returns the base price
+ * - Returns the discount price if available
+ * - Falls back to the base price if no discount price is available
  *
  * @param productDetails - The product details
  * @param purchaseOption - The purchase option to get the price from
@@ -30,16 +32,20 @@ export function getInitialPriceFromPurchaseOption(
   if (isSubscription) {
     const subscriptionOptionToUse = purchaseOption as SubscriptionOption;
 
-    const initialPrice = subscriptionOptionToUse.introPrice
-      ? subscriptionOptionToUse.introPrice.price
-      : subscriptionOptionToUse.base.price;
+    const initialPrice =
+      subscriptionOptionToUse.discount?.price ??
+      subscriptionOptionToUse.introPrice?.price ??
+      subscriptionOptionToUse.base.price;
 
     if (initialPrice) {
       return initialPrice;
     }
   } else {
     const nonSubscriptionOptionToUse = purchaseOption as NonSubscriptionOption;
-    return nonSubscriptionOptionToUse.basePrice;
+    return (
+      nonSubscriptionOptionToUse.discount?.price ??
+      nonSubscriptionOptionToUse.basePrice
+    );
   }
 
   // Fallback to price if we can't find the specific option

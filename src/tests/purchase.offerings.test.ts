@@ -14,6 +14,7 @@ import {
 import { PeriodUnit } from "../helpers/duration-helper";
 import { ErrorCode, PurchasesError } from "../entities/errors";
 import { OfferingKeyword } from "../entities/get-offerings-params";
+import { trialPhaseP1W } from "./fixtures/price-phases";
 
 describe("getOfferings", () => {
   const expectedMonthlyPackage = createMonthlyPackageMock();
@@ -53,19 +54,9 @@ describe("getOfferings", () => {
         formattedPrice: "$60.83",
       },
     },
-    trial: {
-      cycleCount: 1,
-      periodDuration: "P1W",
-      period: {
-        number: 1,
-        unit: PeriodUnit.Week,
-      },
-      price: null,
-      pricePerWeek: null,
-      pricePerMonth: null,
-      pricePerYear: null,
-    },
+    trial: trialPhaseP1W,
     introPrice: null,
+    discount: null,
   };
 
   test("can get offerings", async () => {
@@ -125,19 +116,9 @@ describe("getOfferings", () => {
         number: 1,
         unit: PeriodUnit.Month,
       },
-      freeTrialPhase: {
-        cycleCount: 1,
-        periodDuration: "P1W",
-        period: {
-          number: 1,
-          unit: PeriodUnit.Week,
-        },
-        price: null,
-        pricePerWeek: null,
-        pricePerMonth: null,
-        pricePerYear: null,
-      },
+      freeTrialPhase: trialPhaseP1W,
       introPricePhase: null,
+      discountPhase: null,
     };
 
     const package2: Package = {
@@ -213,19 +194,9 @@ describe("getOfferings", () => {
         number: 1,
         unit: PeriodUnit.Month,
       },
-      freeTrialPhase: {
-        cycleCount: 1,
-        periodDuration: "P1W",
-        period: {
-          number: 1,
-          unit: PeriodUnit.Week,
-        },
-        price: null,
-        pricePerWeek: null,
-        pricePerMonth: null,
-        pricePerYear: null,
-      },
+      freeTrialPhase: trialPhaseP1W,
       introPricePhase: null,
+      discountPhase: null,
     };
     const package2: Package = {
       identifier: "package_2",
@@ -337,6 +308,16 @@ describe("getOfferings", () => {
       },
       current: expectedOffering,
     });
+
+    const offeringProduct =
+      offerings.current?.availablePackages[0].webBillingProduct;
+    const nonSubscriptionOption = offeringProduct?.defaultNonSubscriptionOption;
+
+    expect(nonSubscriptionOption?.basePrice).toBeDefined();
+    expect(nonSubscriptionOption?.discount).toBeNull();
+    expect(offeringProduct?.freeTrialPhase).toBeNull();
+    expect(offeringProduct?.introPricePhase).toBeNull();
+    expect(offeringProduct?.discountPhase).toBeNull();
   });
 
   test("gets offerings with valid currency", async () => {
@@ -401,19 +382,9 @@ describe("getOfferings", () => {
         number: 1,
         unit: PeriodUnit.Month,
       },
-      freeTrialPhase: {
-        cycleCount: 1,
-        periodDuration: "P1W",
-        period: {
-          number: 1,
-          unit: PeriodUnit.Week,
-        },
-        price: null,
-        pricePerWeek: null,
-        pricePerMonth: null,
-        pricePerYear: null,
-      },
+      freeTrialPhase: trialPhaseP1W,
       introPricePhase: null,
+      discountPhase: null,
     };
 
     const package2: Package = {
@@ -470,6 +441,7 @@ describe("getOfferings", () => {
       monthly: expectedMonthlyPackage,
       weekly: null,
       paywallComponents: null,
+      uiConfig: undefined,
     };
 
     const expectedOfferings: Offerings = {
@@ -480,6 +452,21 @@ describe("getOfferings", () => {
     };
 
     expect(offerings).toEqual(expectedOfferings);
+
+    const offeringProduct =
+      offerings.current?.availablePackages[0].webBillingProduct;
+    const subscriptionOption = offeringProduct?.defaultSubscriptionOption;
+
+    expect(subscriptionOption?.base).toBeDefined();
+
+    expect(offeringProduct?.freeTrialPhase).toBeNull();
+    expect(subscriptionOption?.trial).toBeNull();
+
+    expect(offeringProduct?.introPricePhase).toBeNull();
+    expect(subscriptionOption?.introPrice).toBeNull();
+
+    expect(offeringProduct?.discountPhase).toBeNull();
+    expect(subscriptionOption?.discount).toBeNull();
   });
 
   test("returns no offerings when offering identifier is invalid", async () => {
@@ -497,40 +484,75 @@ describe("getOfferings", () => {
       const purchases = configurePurchases("appUserIdWithIntroPricing");
       const offerings = await purchases.getOfferings();
 
-      // Find the offering with intro pricing
-      const introOffering = offerings.all["offering_intro"];
-      expect(introOffering).toBeDefined();
+      // Find the product with intro pricing
+      const offeringProduct =
+        offerings.all["offering_intro"]?.availablePackages[0].webBillingProduct;
+      const subscriptionOption = offeringProduct?.defaultSubscriptionOption;
 
-      const introPackage = introOffering.availablePackages[0];
-      expect(introPackage).toBeDefined();
+      const expectedIntroPrice = {
+        cycleCount: 3,
+        periodDuration: "P1M",
+        period: { number: 1, unit: PeriodUnit.Month },
+        price: {
+          amount: 199,
+          amountMicros: 1990000,
+          currency: "USD",
+          formattedPrice: "$1.99",
+        },
+        pricePerMonth: expect.objectContaining({ amountMicros: 1990000 }),
+        pricePerWeek: expect.objectContaining({ amountMicros: 464333 }),
+        pricePerYear: expect.objectContaining({ amountMicros: 24211667 }),
+      };
 
-      const subscriptionOption =
-        introPackage.webBillingProduct.defaultSubscriptionOption;
-      expect(subscriptionOption).toBeDefined();
-      expect(subscriptionOption!.introPrice).toBeDefined();
-      expect(subscriptionOption!.introPrice!.price).toBeDefined();
-      expect(subscriptionOption!.introPrice!.cycleCount).toBeGreaterThan(0);
+      // Convenience accessors for the intro price phase
+      expect(offeringProduct?.introPricePhase).toStrictEqual(
+        expectedIntroPrice,
+      );
+      expect(subscriptionOption?.introPrice).toStrictEqual(expectedIntroPrice);
+
+      expect(offeringProduct?.freeTrialPhase).toBeNull();
+      expect(subscriptionOption?.trial).toBeNull();
+
+      expect(offeringProduct?.discountPhase).toBeNull();
+      expect(subscriptionOption?.discount).toBeNull();
     });
 
     test("can parse offerings with trial and intro pricing", async () => {
       const purchases = configurePurchases("appUserIdWithTrialAndIntroPricing");
       const offerings = await purchases.getOfferings();
 
-      const trialIntroOffering = offerings.all["offering_trial_intro"];
-      expect(trialIntroOffering).toBeDefined();
+      const offeringProduct =
+        offerings.all["offering_trial_intro"]?.availablePackages[0]
+          .webBillingProduct;
+      const subscriptionOption = offeringProduct?.defaultSubscriptionOption;
 
-      const trialIntroPackage = trialIntroOffering.availablePackages[0];
-      expect(trialIntroPackage).toBeDefined();
+      const expectedIntroPrice = {
+        cycleCount: 6,
+        periodDuration: "P1M",
+        period: { number: 1, unit: PeriodUnit.Month },
+        price: {
+          amount: 499,
+          amountMicros: 4990000,
+          currency: "USD",
+          formattedPrice: "$4.99",
+        },
+        pricePerMonth: expect.objectContaining({ amountMicros: 4990000 }),
+        pricePerWeek: expect.objectContaining({ amountMicros: 1164333 }),
+        pricePerYear: expect.objectContaining({ amountMicros: 60711667 }),
+      };
 
-      const subscriptionOption =
-        trialIntroPackage.webBillingProduct.defaultSubscriptionOption;
-      expect(subscriptionOption).toBeDefined();
+      // Convenience accessors for the trial phase
+      expect(offeringProduct?.freeTrialPhase).toStrictEqual(trialPhaseP1W);
+      expect(subscriptionOption?.trial).toStrictEqual(trialPhaseP1W);
 
-      // Verify both trial and intro price are present
-      expect(subscriptionOption!.trial).toBeDefined();
-      expect(subscriptionOption!.trial!.price).toBeNull();
-      expect(subscriptionOption!.introPrice).toBeDefined();
-      expect(subscriptionOption!.introPrice!.price).toBeDefined();
+      // Convenience accessors for the intro price phase
+      expect(offeringProduct?.introPricePhase).toStrictEqual(
+        expectedIntroPrice,
+      );
+      expect(subscriptionOption?.introPrice).toStrictEqual(expectedIntroPrice);
+
+      expect(offeringProduct?.discountPhase).toBeNull();
+      expect(subscriptionOption?.discount).toBeNull();
     });
 
     test("maintains backward compatibility with options without intro pricing", async () => {
@@ -547,6 +569,195 @@ describe("getOfferings", () => {
         monthlyPackage!.webBillingProduct.defaultSubscriptionOption;
       expect(subscriptionOption).toBeDefined();
       expect(subscriptionOption!.introPrice).toBeNull();
+    });
+
+    test("can parse offerings with intro price with a null price", async () => {
+      const purchases = configurePurchases("appUserIdWithIntroPriceNullPrice");
+      const offerings = await purchases.getOfferings();
+
+      const subscriptionOption =
+        offerings.all["offering_intro_null_price"]?.availablePackages[0]
+          ?.webBillingProduct.defaultSubscriptionOption;
+
+      expect(subscriptionOption?.introPrice).toStrictEqual({
+        cycleCount: 3,
+        periodDuration: "P1M",
+        period: { number: 1, unit: PeriodUnit.Month },
+        price: null,
+        pricePerMonth: null,
+        pricePerWeek: null,
+        pricePerYear: null,
+      });
+    });
+
+    test("can parse offerings with intro price paid upfront", async () => {
+      const purchases = configurePurchases("appUserIdWithUpfrontIntroPrice");
+      const offerings = await purchases.getOfferings();
+
+      const subscriptionOption =
+        offerings.all["offering_intro_upfront"]?.availablePackages[0]
+          ?.webBillingProduct.defaultSubscriptionOption;
+
+      expect(subscriptionOption?.introPrice).toStrictEqual({
+        cycleCount: 1,
+        periodDuration: "P6M",
+        period: { number: 6, unit: PeriodUnit.Month },
+        price: {
+          amount: 699,
+          amountMicros: 6990000,
+          currency: "USD",
+          formattedPrice: "$6.99",
+        },
+        pricePerMonth: expect.objectContaining({ amountMicros: 1165000 }),
+        pricePerWeek: expect.objectContaining({ amountMicros: 271833 }),
+        pricePerYear: expect.objectContaining({ amountMicros: 14174167 }),
+      });
+    });
+
+    test("filters out the offering when purchase option has null base", async () => {
+      const purchases = configurePurchases("appUserIdWithNullBase");
+      const offerings = await purchases.getOfferings();
+      expect(offerings.all["offering_null_base"]).toBeUndefined();
+      expect(offerings.current).toBeNull();
+    });
+  });
+
+  describe("discount pricing support", () => {
+    test("can parse offerings with one-time discount", async () => {
+      const purchases = configurePurchases("appUserIdWithOneTimeDiscount");
+      const offerings = await purchases.getOfferings();
+
+      const {
+        defaultSubscriptionOption,
+        discountPhase,
+        freeTrialPhase,
+        introPricePhase,
+      } =
+        offerings.all["offering_one_time_discount"].availablePackages[0]
+          .webBillingProduct;
+
+      const expectedDiscount = {
+        durationMode: "one_time",
+        timeWindow: null,
+        periodDuration: "P1M",
+        name: "One-Time 20% Discount",
+        price: {
+          amount: 800,
+          amountMicros: 8000000,
+          currency: "USD",
+          formattedPrice: "$8.00",
+        },
+        period: { number: 1, unit: PeriodUnit.Month },
+        cycleCount: 1,
+      };
+
+      expect(defaultSubscriptionOption?.discount).toStrictEqual(
+        expectedDiscount,
+      );
+      expect(discountPhase).toStrictEqual(expectedDiscount);
+
+      expect(freeTrialPhase).toBeNull();
+      expect(defaultSubscriptionOption?.trial).toBeNull();
+
+      expect(introPricePhase).toBeNull();
+      expect(defaultSubscriptionOption?.introPrice).toBeNull();
+    });
+
+    test("can parse consumable product with one-time discount", async () => {
+      const purchases = configurePurchases("appUserIdWithConsumableDiscount");
+      const offerings = await purchases.getOfferings();
+
+      const {
+        defaultNonSubscriptionOption,
+        discountPhase,
+        freeTrialPhase,
+        introPricePhase,
+        defaultSubscriptionOption,
+      } =
+        offerings.all["offering_consumable_discount"].availablePackages[0]
+          .webBillingProduct;
+
+      const expectedDiscount = {
+        durationMode: "one_time",
+        timeWindow: null,
+        periodDuration: null,
+        name: "Consumable 20% Discount",
+        price: {
+          amount: 80,
+          amountMicros: 800000,
+          currency: "USD",
+          formattedPrice: "$0.80",
+        },
+        period: null,
+        cycleCount: 0,
+      };
+
+      expect(defaultNonSubscriptionOption?.discount).toStrictEqual(
+        expectedDiscount,
+      );
+      expect(discountPhase).toStrictEqual(expectedDiscount);
+
+      // Consumable products don't have subscription phases
+      expect(freeTrialPhase).toBeNull();
+      expect(introPricePhase).toBeNull();
+      expect(defaultSubscriptionOption).toBeNull();
+    });
+
+    test("can parse offerings with time window discount", async () => {
+      const purchases = configurePurchases("appUserIdWithTimeWindowDiscount");
+      const offerings = await purchases.getOfferings();
+
+      const { defaultSubscriptionOption, discountPhase } =
+        offerings.all["offering_time_window_discount"].availablePackages[0]
+          .webBillingProduct;
+
+      const expectedDiscount = {
+        durationMode: "time_window",
+        timeWindow: "P3M",
+        periodDuration: "P3M",
+        name: "Holiday Sale 30%",
+        price: {
+          amount: 700,
+          amountMicros: 7000000,
+          currency: "USD",
+          formattedPrice: "$7.00",
+        },
+        period: { number: 1, unit: PeriodUnit.Month },
+        cycleCount: 3,
+      };
+
+      expect(defaultSubscriptionOption?.discount).toStrictEqual(
+        expectedDiscount,
+      );
+      expect(discountPhase).toStrictEqual(expectedDiscount);
+    });
+
+    test("can parse offerings with forever discount", async () => {
+      const purchases = configurePurchases("appUserIdWithForeverDiscount");
+      const offerings = await purchases.getOfferings();
+
+      const { defaultSubscriptionOption, discountPhase } =
+        offerings.all["offering_forever_discount"].availablePackages[0]
+          .webBillingProduct;
+
+      const expectedDiscount = {
+        durationMode: "forever",
+        timeWindow: null,
+        periodDuration: "P1M",
+        name: "Forever 40% Discount",
+        price: {
+          amount: 600,
+          amountMicros: 6000000,
+          currency: "USD",
+          formattedPrice: "$6.00",
+        },
+        period: { number: 1, unit: PeriodUnit.Month },
+        cycleCount: 0,
+      };
+      expect(defaultSubscriptionOption?.discount).toStrictEqual(
+        expectedDiscount,
+      );
+      expect(discountPhase).toStrictEqual(expectedDiscount);
     });
   });
 });

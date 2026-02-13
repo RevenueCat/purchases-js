@@ -1,4 +1,5 @@
 import type { VariableDictionary } from "@revenuecat/purchases-ui-js";
+import type { NonSubscriptionOption } from "../entities/offerings";
 import { type SubscriptionOption } from "../entities/offerings";
 import { type Translator } from "../ui/localization/translator";
 import { PeriodUnit, type Period } from "./duration-helper";
@@ -30,8 +31,9 @@ export function setOfferVariables(
   translator: Translator,
   variables: VariableDictionary,
 ) {
-  const primaryOffer = product.trial ?? product.introPrice;
-  const secondaryOffer = product.trial ? product.introPrice : null;
+  const primaryOffer = product.discount ?? product.trial ?? product.introPrice;
+  const secondaryOffer =
+    product.trial && !product.discount ? product.introPrice : null;
 
   if (primaryOffer === null) {
     return;
@@ -81,4 +83,21 @@ export function setOfferVariables(
     variables["product.secondary_offer_period_abbreviated"] =
       periodVars.periodAbbreviated;
   }
+}
+
+export function setNonSubscriptionOfferVariables(
+  product: NonSubscriptionOption,
+  translator: Translator,
+  variables: VariableDictionary,
+) {
+  const primaryOfferPrice = product.discount?.price ?? null;
+
+  if (primaryOfferPrice === null) {
+    return;
+  }
+
+  variables["product.offer_price"] = translator.formatPrice(
+    primaryOfferPrice.amountMicros,
+    primaryOfferPrice.currency,
+  );
 }
