@@ -296,7 +296,7 @@ export interface PresentPaywallParams {
     readonly hideBackButtons?: boolean;
     readonly htmlTarget?: HTMLElement;
     readonly offering?: Offering;
-    readonly onBack?: () => void;
+    readonly onBack?: (closePaywall: () => void) => void;
     readonly onNavigateToUrl?: (url: string) => void;
     readonly onPurchaseError?: (error: Error) => void;
     readonly onVisitCustomerCenter?: () => void;
@@ -437,6 +437,7 @@ export class Purchases {
     static setLogLevel(logLevel: LogLevel): void;
     static setPlatformInfo(platformInfo: PlatformInfo): void;
     /* Excluded from this release type: _trackEvent */
+    /* Excluded from this release type: _flushAllEvents */
 }
 
 // @public
