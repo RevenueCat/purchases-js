@@ -77,6 +77,22 @@
 
     if (
       discountPhase &&
+      discountPhase.durationMode === "time_window" &&
+      basePhase?.period
+    ) {
+      return (
+        $translator.translatePeriodFrequency(
+          basePhase.period.number,
+          basePhase.period.unit,
+          {
+            useMultipleWords: true,
+          },
+        ) || ""
+      );
+    }
+
+    if (
+      discountPhase &&
       discountPhase.period &&
       discountPhase?.durationMode === "time_window"
     ) {
