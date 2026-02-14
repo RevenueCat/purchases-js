@@ -48,6 +48,7 @@
     skipSuccessPage: boolean;
     termsAndConditionsUrl?: string;
     workflowPurchaseContext?: WorkflowPurchaseContext;
+    paywallId?: string;
     onFinished: (operationResult: OperationSessionSuccessfulResult) => void;
     onError: (error: PurchaseFlowError) => void;
     onClose: (() => void) | undefined;
@@ -70,6 +71,7 @@
     skipSuccessPage = false,
     termsAndConditionsUrl,
     workflowPurchaseContext,
+    paywallId,
     onFinished,
     onError,
     onClose,
@@ -160,6 +162,7 @@
         email,
         metadata,
         workflowPurchaseContext,
+        paywallId,
       )
       .then((result) => {
         lastError = null;
@@ -179,6 +182,7 @@
               email,
               metadata,
               workflowPurchaseContext,
+              paywallId,
             )
             .then((result) => {
               lastError = null;

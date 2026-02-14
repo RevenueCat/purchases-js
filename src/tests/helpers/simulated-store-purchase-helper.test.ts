@@ -130,6 +130,7 @@ describe("purchaseSimulatedStoreProduct", () => {
       expect.stringMatching(/^test_.*test-uuid-123$/),
       mockPurchaseParams.rcPackage.webBillingProduct.presentedOfferingContext,
       "purchase",
+      undefined,
     );
 
     expect(result).toEqual({
