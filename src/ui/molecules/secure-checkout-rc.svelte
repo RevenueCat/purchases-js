@@ -73,10 +73,15 @@
   }
 
   $: firstSubscriptionPricingPhase =
-    subscriptionOption?.introPrice || subscriptionOption?.base;
+    subscriptionOption?.discount ??
+    subscriptionOption?.introPrice ??
+    subscriptionOption?.base ??
+    null;
 
   $: firstPaymentPrice =
-    nonSubscriptionOption?.basePrice || firstSubscriptionPricingPhase?.price;
+    nonSubscriptionOption?.discount?.price ||
+    nonSubscriptionOption?.basePrice ||
+    firstSubscriptionPricingPhase?.price;
 
   $: firstPriceFormatted = firstPaymentPrice
     ? formatPrice(

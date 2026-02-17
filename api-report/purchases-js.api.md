@@ -179,6 +179,7 @@ export enum LogLevel {
 // @public
 export interface NonSubscriptionOption extends PurchaseOption {
     readonly basePrice: Price;
+    /* Excluded from this release type: discount */
 }
 
 // @public
@@ -295,7 +296,7 @@ export interface PresentPaywallParams {
     readonly hideBackButtons?: boolean;
     readonly htmlTarget?: HTMLElement;
     readonly offering?: Offering;
-    readonly onBack?: () => void;
+    readonly onBack?: (closePaywall: () => void) => void;
     readonly onNavigateToUrl?: (url: string) => void;
     readonly onPurchaseError?: (error: Error) => void;
     readonly onVisitCustomerCenter?: () => void;
@@ -347,6 +348,7 @@ export interface Product {
         [optionId: string]: SubscriptionOption;
     };
     readonly title: string;
+    /* Excluded from this release type: discountPhase */
 }
 
 // @public
@@ -435,6 +437,7 @@ export class Purchases {
     static setLogLevel(logLevel: LogLevel): void;
     static setPlatformInfo(platformInfo: PlatformInfo): void;
     /* Excluded from this release type: _trackEvent */
+    /* Excluded from this release type: _flushAllEvents */
 }
 
 // @public
@@ -558,6 +561,7 @@ export interface SubscriptionOption extends PurchaseOption {
     readonly base: PricingPhase;
     readonly introPrice: PricingPhase | null;
     readonly trial: PricingPhase | null;
+    /* Excluded from this release type: discount */
 }
 
 // @public

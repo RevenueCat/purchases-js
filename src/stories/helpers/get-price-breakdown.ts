@@ -9,6 +9,7 @@ const getPriceFromOption = (
   option: SubscriptionOption | NonSubscriptionOption,
 ) => {
   return (
+    (option as SubscriptionOption).discount?.price?.amountMicros ??
     (option as SubscriptionOption).introPrice?.price?.amountMicros ??
     (option as SubscriptionOption).base?.price?.amountMicros ??
     (option as NonSubscriptionOption).basePrice?.amountMicros ??
@@ -52,7 +53,7 @@ export const getPriceBreakdownTaxInclusive = (
 };
 
 export const getPriceBreakdownTaxExclusive = (
-  option: SubscriptionOption,
+  option: SubscriptionOption | NonSubscriptionOption,
 ): PriceBreakdown => {
   const price = getPriceFromOption(option);
   const taxAmountInMicros = Math.round(price * 0.07);

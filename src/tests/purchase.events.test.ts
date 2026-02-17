@@ -60,6 +60,7 @@ describe("Purchases.configure()", () => {
           },
         ],
       },
+      keepalive: true,
     });
   });
 
@@ -111,6 +112,7 @@ describe("Purchases.configure()", () => {
           },
         ],
       },
+      keepalive: true,
     });
   });
 
@@ -153,6 +155,7 @@ describe("Purchases.configure()", () => {
           },
         ],
       },
+      keepalive: true,
     });
   });
 
@@ -226,6 +229,7 @@ describe("Purchases.configure()", () => {
           },
         ],
       },
+      keepalive: true,
     });
   });
 
@@ -277,6 +281,7 @@ describe("Purchases.configure()", () => {
           },
         ],
       },
+      keepalive: true,
     });
   });
 
@@ -328,6 +333,7 @@ describe("Purchases.configure()", () => {
           },
         ],
       },
+      keepalive: true,
     });
   });
 });

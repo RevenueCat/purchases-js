@@ -9,6 +9,7 @@ import React, { useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { apiKey, usePurchasesLoaderData } from "../../util/PurchasesLoader";
 import LogoutButton from "../../components/LogoutButton";
+import { Badge, PriceContainer } from "../paywall";
 
 const isPaddleApiKey = (apiKey: string): boolean => {
   return /^pdl_[a-zA-Z0-9_.-]+$/.test(apiKey);
@@ -20,40 +21,6 @@ interface IPackageCardProps {
   purchases: Purchases;
 }
 
-const priceLabels: Record<string, string> = {
-  P3M: "quarter",
-  P6M: "6mo",
-  P1M: "mo",
-  P1Y: "yr",
-  P2M: "2mo",
-  P1D: "day",
-  PT1H: "hr",
-  P1W: "wk",
-};
-
-const trialLabels: Record<string, string> = {
-  P3D: "3 days",
-  P1W: "1 week",
-  P2W: "2 weeks",
-  P1M: "1 month",
-  P2M: "2 months",
-  P3M: "3 months",
-  P6M: "6 months",
-  P1Y: "1 year",
-};
-
-const formattedCombinedPeriod = (
-  cycleCount: number,
-  period?: number,
-  unit?: string,
-) => {
-  if (!period || !unit) {
-    return "";
-  }
-  const cyclesInIntroDuration = cycleCount * period;
-  return `${cyclesInIntroDuration} ${unit}${cyclesInIntroDuration > 1 ? "s" : ""}`;
-};
-
 export const PackageCard: React.FC<IPackageCardProps> = ({
   pkg,
   offering,
@@ -61,79 +28,6 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
 }) => {
   const purchaseButtonContainerRef = useRef<HTMLDivElement>(null);
   const hasPresentedRef = useRef(false);
-
-  const originalPriceByProduct: Record<string, string> | null =
-    (offering.metadata?.original_price_by_product as Record<string, string>) ??
-    null;
-
-  const price = pkg.webBillingProduct.price;
-  const originalPrice = originalPriceByProduct
-    ? originalPriceByProduct[pkg.webBillingProduct.identifier]
-    : null;
-
-  const trial = pkg.webBillingProduct.freeTrialPhase;
-  const introPrice = pkg.webBillingProduct.introPricePhase;
-
-  const renderTrialBadge = () => {
-    if (!trial) return null;
-
-    const trialLabel = trial.periodDuration
-      ? trialLabels[trial.periodDuration] || trial.periodDuration
-      : "";
-
-    return <div className="freeTrial">{trialLabel} free trial</div>;
-  };
-
-  const renderIntroPricing = () => {
-    if (!introPrice) return null;
-
-    return (
-      <div className="introPrice">
-        <div className="currentPrice">
-          {introPrice.price?.formattedPrice}
-          {introPrice.periodDuration &&
-            `/${priceLabels[introPrice.periodDuration]}`}
-          <div className="futurePrice">
-            for{" "}
-            {formattedCombinedPeriod(
-              introPrice.cycleCount,
-              introPrice.period?.number,
-              introPrice.period?.unit,
-            )}
-            , then {price?.formattedPrice}
-            {pkg.webBillingProduct.period &&
-              `/${
-                priceLabels[pkg.webBillingProduct.normalPeriodDuration || ""] ||
-                pkg.webBillingProduct.normalPeriodDuration
-              }`}
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const renderRegularPricing = () => {
-    if (!price || introPrice) return null;
-
-    const periodLabel = pkg.webBillingProduct.normalPeriodDuration
-      ? priceLabels[pkg.webBillingProduct.normalPeriodDuration] ||
-        pkg.webBillingProduct.normalPeriodDuration
-      : "";
-
-    return (
-      <>
-        {!trial && originalPrice && (
-          <div className="previousPrice">{originalPrice}</div>
-        )}
-
-        <div className="currentPrice">
-          <div>{price.formattedPrice}</div>
-          {periodLabel && <div>/{periodLabel}</div>}
-        </div>
-      </>
-    );
-  };
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -157,14 +51,20 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
 
   return (
     <div className="card">
-      {renderTrialBadge()}
-      {renderIntroPricing()}
-      {renderRegularPricing()}
+      <Badge webBillingProduct={pkg.webBillingProduct} />
+      <div className="cardContent">
+        <PriceContainer
+          webBillingProduct={pkg.webBillingProduct}
+          offering={offering}
+        />
 
-      <div className="productName">{pkg.webBillingProduct.displayName}</div>
+        <div>
+          <div className="productName">{pkg.webBillingProduct.title}</div>
 
-      <div className="packageCTA">
-        <div ref={purchaseButtonContainerRef} />
+          <div className="packageCTA">
+            <div ref={purchaseButtonContainerRef} />
+          </div>
+        </div>
       </div>
     </div>
   );
