@@ -4062,7 +4062,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PresentPaywallParams#onBack:member",
-              "docComment": "/**\n * Callback to be called when the paywall tries to navigate back.\n */\n",
+              "docComment": "/**\n * Callback to be called when the paywall tries to navigate back.\n *\n * Example:\n * ```ts\n * onBack: (closePaywall) => {\n *   // You may want to keep the paywall open while showing a confirmation\n *   // modal or logging analytics, then close it if the user confirms.\n *   // If you want the back action to dismiss the paywall immediately,\n *   // call closePaywall() right away.\n *   closePaywall();\n * }\n * ```\n *\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
