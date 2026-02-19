@@ -1051,8 +1051,9 @@ export class Purchases {
     const isInElement = htmlTarget !== undefined;
 
     return new Promise((resolve, reject) => {
+      const win = getWindow();
       if (!isInElement) {
-        window.history.pushState({ checkoutOpen: true }, "");
+        win.history.pushState({ checkoutOpen: true }, "");
       }
 
       const unmountPurchaseUi = () => {
@@ -1068,7 +1069,7 @@ export class Purchases {
       );
 
       if (!isInElement && onClose) {
-        window.addEventListener("popstate", onClose as EventListener);
+        win.addEventListener("popstate", onClose as EventListener);
       }
 
       const onFinished = this.createCheckoutOnFinishedHandler(
