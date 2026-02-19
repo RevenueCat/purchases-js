@@ -996,6 +996,56 @@ describe("EventsTracker", (test) => {
     warnSpy.mockRestore();
   });
 
+  test.each([
+    {
+      label: "uses proxy URL when httpConfig.proxyURL is provided",
+      proxyURL: "http://my-proxy.local:9999",
+      expectedEventsURL: "http://my-proxy.local:9999/v1/events",
+    },
+    {
+      label: "uses default analytics endpoint when no httpConfig is provided",
+      proxyURL: undefined,
+      expectedEventsURL: eventsURL,
+    },
+  ])("$label", async ({ proxyURL, expectedEventsURL }) => {
+    const postSpy = vi.fn();
+
+    server.use(
+      http.post(expectedEventsURL, async ({ request }) => {
+        const json = await request.json();
+        postSpy({ url: expectedEventsURL, json, keepalive: request.keepalive });
+        return HttpResponse.json({}, { status: 200 });
+      }),
+    );
+
+    const eventsTracker = new EventsTracker({
+      apiKey: testApiKey,
+      appUserId: "someAppUserId",
+      rcSource: "rcSource",
+      httpConfig: proxyURL ? { proxyURL } : undefined,
+    });
+
+    eventsTracker.trackExternalEvent({
+      eventName: "proxy_test_event",
+      source: "sdk",
+    });
+
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(postSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        url: expectedEventsURL,
+        json: expect.objectContaining({
+          events: expect.arrayContaining([
+            expect.objectContaining({ event_name: "proxy_test_event" }),
+          ]),
+        }),
+      }),
+    );
+
+    eventsTracker.dispose();
+  });
+
   test<EventsTrackerFixtures>("batching respects size limit without O(n²) overhead", async ({
     eventsTracker,
   }) => {
