@@ -13,6 +13,7 @@
   import PricingDropdown from "./pricing-dropdown.svelte";
   import Skeleton from "../atoms/skeleton.svelte";
   import Typography from "../atoms/typography.svelte";
+  import { getDurationInDays } from "../../helpers/paywall-period-helpers";
 
   interface Props {
     priceBreakdown: PriceBreakdown;
@@ -62,6 +63,43 @@
   const totalDueToday = $derived(
     trialEndDate ? 0 : priceBreakdown.totalAmountInMicros,
   );
+
+  const discountDurationSuffix = $derived.by(() => {
+    if (
+      !promotionalPricePhase ||
+      !("durationMode" in promotionalPricePhase) ||
+      promotionalPricePhase.durationMode !== "time_window"
+    ) {
+      return "";
+    }
+
+    const basePeriod = basePhase?.period;
+    const discountPeriod = promotionalPricePhase.period;
+    if (
+      !basePeriod ||
+      !discountPeriod ||
+      promotionalPricePhase.cycleCount <= 0
+    ) {
+      return "";
+    }
+
+    const billingCycleDays = getDurationInDays(basePeriod);
+    const discountWindowDays = getDurationInDays({
+      number: discountPeriod.number * promotionalPricePhase.cycleCount,
+      unit: discountPeriod.unit,
+    });
+
+    if (billingCycleDays <= 0 || discountWindowDays <= billingCycleDays) {
+      return "";
+    }
+
+    const translatedPeriod = $translator.translatePeriod(
+      discountPeriod.number * promotionalPricePhase.cycleCount,
+      discountPeriod.unit,
+    );
+
+    return translatedPeriod ? ` (${translatedPeriod})` : "";
+  });
 </script>
 
 {#snippet pricingTable()}
@@ -92,7 +130,7 @@
               "name" in promotionalPricePhase &&
               promotionalPricePhase.name
                 ? `: ${promotionalPricePhase.name}`
-                : ""}
+                : ""}{discountDurationSuffix}
             </Typography>
           </div>
         </div>
