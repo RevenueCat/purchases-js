@@ -334,6 +334,22 @@ export const subscriptionOptionWithDiscount = createSubscriptionOption({
   discount: discountTimeWindow,
 });
 
+// Discount (Time window) - 3 month window, weekly billing cycle
+export const subscriptionOptionWithWeeklyBillingAndThreeMonthDiscount =
+  createSubscriptionOption({
+    id: "option_id_discount_time_window_weekly",
+    priceId: "price_discount_time_window_weekly",
+    base: {
+      ...subscriptionOptionBasePrice,
+      periodDuration: "P1W",
+      period: {
+        number: 1,
+        unit: PeriodUnit.Week,
+      },
+    },
+    discount: discountTimeWindow,
+  });
+
 // Discount (Forever)
 export const subscriptionOptionWithDiscountForever = createSubscriptionOption({
   id: "option_id_discount_forever",

@@ -13,6 +13,7 @@
     subscriptionOptionWithTrialAndIntroPriceRecurring,
     subscriptionOptionWithDiscountForever,
     subscriptionOptionWithDiscount,
+    subscriptionOptionWithWeeklyBillingAndThreeMonthDiscount,
     nonSubscriptionOption,
     nonSubscriptionOptionWithDiscount,
     consumableProduct,
@@ -65,6 +66,16 @@
     purchaseOption: subscriptionOptionWithDiscount,
     priceBreakdown: getPriceBreakdownTaxDisabled(
       subscriptionOptionWithDiscount,
+    ),
+  }}
+/>
+
+<Story
+  name="Subscription with Time Window Discount longer than the billing cycle"
+  args={{
+    purchaseOption: subscriptionOptionWithWeeklyBillingAndThreeMonthDiscount,
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithWeeklyBillingAndThreeMonthDiscount,
     ),
   }}
 />
