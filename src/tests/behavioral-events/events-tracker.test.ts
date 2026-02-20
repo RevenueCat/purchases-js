@@ -998,16 +998,16 @@ describe("EventsTracker", (test) => {
 
   test.each([
     {
-      label: "uses proxy URL when httpConfig.proxyURL is provided",
-      proxyURL: "http://my-proxy.local:9999",
+      label: "uses eventsURL when httpConfig.eventsURL is provided",
+      eventsURL: "http://my-proxy.local:9999",
       expectedEventsURL: "http://my-proxy.local:9999/v1/events",
     },
     {
       label: "uses default analytics endpoint when no httpConfig is provided",
-      proxyURL: undefined,
+      eventsURL: undefined,
       expectedEventsURL: eventsURL,
     },
-  ])("$label", async ({ proxyURL, expectedEventsURL }) => {
+  ])("$label", async ({ eventsURL: eventsURLOverride, expectedEventsURL }) => {
     const postSpy = vi.fn();
 
     server.use(
@@ -1022,7 +1022,9 @@ describe("EventsTracker", (test) => {
       apiKey: testApiKey,
       appUserId: "someAppUserId",
       rcSource: "rcSource",
-      httpConfig: proxyURL ? { proxyURL } : undefined,
+      httpConfig: eventsURLOverride
+        ? { eventsURL: eventsURLOverride }
+        : undefined,
     });
 
     eventsTracker.trackExternalEvent({
