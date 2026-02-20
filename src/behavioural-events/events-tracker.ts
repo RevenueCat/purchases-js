@@ -62,7 +62,7 @@ export default class EventsTracker implements IEventsTracker {
 
   constructor(props: EventsTrackerProps) {
     this.apiKey = props.apiKey;
-    this.eventsUrl = `${props.httpConfig?.eventsURL ?? RC_ANALYTICS_ENDPOINT}/v1/events`;
+    this.eventsUrl = `${props.httpConfig?.eventsURL ?? props.httpConfig?.proxyURL ?? RC_ANALYTICS_ENDPOINT}/v1/events`;
     this.appUserId = props.appUserId;
     this.isSilent = props.silent || false;
     this.rcSource = props.rcSource;
