@@ -16,6 +16,8 @@ declare global {
 
 export const apiKey = window.__RC_API_KEY__ || import.meta.env.VITE_RC_API_KEY;
 const canary = import.meta.env.VITE_RC_CANARY;
+const proxyURL = import.meta.env.VITE_RC_PROXY_URL as string | undefined;
+const eventsURL = import.meta.env.VITE_RC_EVENTS_URL as string | undefined;
 
 type IPurchasesLoaderData = {
   purchases: Purchases;
@@ -93,7 +95,7 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
       Purchases.configure({
         apiKey,
         appUserId,
-        httpConfig: { additionalHeaders },
+        httpConfig: { additionalHeaders, proxyURL, eventsURL },
         flags: flagsConfig,
       });
     } else {
