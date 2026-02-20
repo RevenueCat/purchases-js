@@ -1,33 +1,15 @@
 import { type Period, PeriodUnit } from "../../helpers/duration-helper";
-import type {
-  SubscriptionOption,
-  DiscountPhase,
-  Price,
-  PurchaseOption,
-} from "../../entities/offerings";
+import type { SubscriptionOption } from "../../entities/offerings";
 import {
   type Offering,
   type Package,
   PackageType,
   type Product,
   ProductType,
-  type NonSubscriptionOption,
 } from "../../entities/offerings";
 import { formatPrice } from "../../helpers/price-labels";
 
-const DEFAULT_PURCHASE_OPTION: PurchaseOption = {
-  id: "base_option",
-  priceId: "prcb358d16d7b7744bb8ab0",
-};
-
-export interface MinimumBaseProductInfo {
-  identifier: string;
-  title: string;
-  price: Price;
-  productType: ProductType;
-}
-
-export interface MinimumSubscriptionProductInfo {
+export interface MinimumProductInfo {
   identifier: string;
   title: string;
   period?: Period;
@@ -38,24 +20,9 @@ export interface MinimumSubscriptionProductInfo {
   currency?: string;
   trial?: SubscriptionOption["trial"];
   introPrice?: SubscriptionOption["introPrice"];
-  discount?: SubscriptionOption["discount"];
 }
 
-export interface MinimumPackageInfo extends MinimumSubscriptionProductInfo {
-  packageIdentifier: string;
-}
-
-export interface MinimumNonSubscriptionProductInfo {
-  identifier: string;
-  title: string;
-  basePriceMicros?: number;
-  currency?: string;
-  discount?: DiscountPhase | null;
-  productType?: ProductType.Consumable | ProductType.NonConsumable;
-}
-
-export interface MinimumNonSubscriptionPackageInfo
-  extends MinimumNonSubscriptionProductInfo {
+export interface MinimumPackageInfo extends MinimumProductInfo {
   packageIdentifier: string;
 }
 
@@ -96,51 +63,7 @@ export const buildPackage = (packageId: string, product: Product) => {
       : PackageType.Custom,
   } as Package;
 };
-
-export const toPrice = (amountMicros: number, currency: string): Price => ({
-  amount: Math.floor(amountMicros / 10000),
-  amountMicros: amountMicros,
-  currency: currency,
-  formattedPrice: formatPrice(amountMicros, currency),
-});
-
-export interface MinimumBaseProductInfo {
-  identifier: string;
-  title: string;
-  price: Price;
-  productType: ProductType;
-}
-
-const buildProduct: (
-  data: MinimumBaseProductInfo & Partial<Product>,
-) => Product = ({ identifier, title, price, ...rest }) => ({
-  identifier: identifier,
-  displayName: title,
-  title: title,
-  description: `Description for ${identifier}`,
-  currentPrice: price,
-  price: price,
-  presentedOfferingIdentifier: "MultiCurrencyTest",
-  presentedOfferingContext: {
-    offeringIdentifier: "MultiCurrencyTest",
-    targetingContext: null,
-    placementIdentifier: null,
-  },
-  defaultPurchaseOption: DEFAULT_PURCHASE_OPTION,
-  defaultSubscriptionOption: null,
-  subscriptionOptions: {},
-  defaultNonSubscriptionOption: null,
-  freeTrialPhase: null,
-  introPricePhase: null,
-  discountPhase: null,
-  normalPeriodDuration: null,
-  period: null,
-  ...rest,
-});
-
-const buildSubscriptionProduct: (
-  data: MinimumSubscriptionProductInfo,
-) => Product = ({
+export const buildProduct: (data: MinimumProductInfo) => Product = ({
   identifier,
   title,
   period = { unit: PeriodUnit.Month, number: 1 },
@@ -151,85 +74,69 @@ const buildSubscriptionProduct: (
   currency = "EUR",
   trial = null,
   introPrice = null,
-  discount = null,
 }) => {
-  const basePrice = toPrice(basePriceMicros, currency);
+  const toPrice = (amountMicros: number, currency: string) => ({
+    amount: Math.floor(amountMicros / 10000),
+    amountMicros: amountMicros,
+    currency: currency,
+    formattedPrice: formatPrice(amountMicros, currency),
+  });
 
-  const subscriptionOption: SubscriptionOption = {
-    ...DEFAULT_PURCHASE_OPTION,
+  const basePrice = toPrice(basePriceMicros, currency);
+  const pricePerWeek = toPrice(pricePerWeekMicros, currency);
+  const pricePerYear = toPrice(pricePerYearMicros, currency);
+  const pricePerMonth = toPrice(pricePerMonthMicros, currency);
+
+  const subscriptionOption = {
+    id: "base_option",
+    priceId: "prcb358d16d7b7744bb8ab0",
     base: {
       periodDuration: "P1M",
       period: period,
       cycleCount: 1,
       price: basePrice,
-      pricePerWeek: toPrice(pricePerWeekMicros, currency),
-      pricePerMonth: toPrice(pricePerMonthMicros, currency),
-      pricePerYear: toPrice(pricePerYearMicros, currency),
+      pricePerWeek: pricePerWeek,
+      pricePerMonth: pricePerMonth,
+      pricePerYear: pricePerYear,
     },
     trial,
     introPrice,
-    discount,
-  };
+  } satisfies SubscriptionOption;
 
-  return buildProduct({
-    identifier,
-    title,
-    price: basePrice,
+  return {
+    identifier: identifier,
+    displayName: title,
+    title: title,
+    description:
+      "Just the best for Italian supercalifragilisticexpialidocious plumbers, groom them on a monthly basis",
     productType: ProductType.Subscription,
-    period,
+    currentPrice: basePrice,
+    price: basePrice,
+    period: period,
     normalPeriodDuration: "P1M",
+    presentedOfferingIdentifier: "MultiCurrencyTest",
+    presentedOfferingContext: {
+      offeringIdentifier: "MultiCurrencyTest",
+      targetingContext: null,
+      placementIdentifier: null,
+    },
+    defaultPurchaseOption: {
+      id: "base_option",
+      priceId: "prcb358d16d7b7744bb8ab0",
+    },
     defaultSubscriptionOption: subscriptionOption,
     subscriptionOptions: {
       base_option: subscriptionOption,
     },
-    freeTrialPhase: trial,
-    introPricePhase: introPrice,
-    discountPhase: discount,
-  });
+    defaultNonSubscriptionOption: null,
+    freeTrialPhase: null,
+    introPricePhase: null,
+  };
 };
-
 export const toOffering = (productInfo: MinimumPackageInfo[]) => {
   return buildOffering(
     productInfo.map((pi) =>
-      buildPackage(pi.packageIdentifier, buildSubscriptionProduct(pi)),
-    ),
-  );
-};
-
-export const buildNonSubscriptionProduct: (
-  data: MinimumNonSubscriptionProductInfo,
-) => Product = ({
-  identifier,
-  title,
-  basePriceMicros = 100000000,
-  currency = "EUR",
-  discount = null,
-  productType = ProductType.NonConsumable,
-}) => {
-  const basePrice = toPrice(basePriceMicros, currency);
-
-  const nonSubscriptionOption: NonSubscriptionOption = {
-    ...DEFAULT_PURCHASE_OPTION,
-    basePrice,
-    discount,
-  };
-
-  return buildProduct({
-    identifier,
-    title,
-    price: basePrice,
-    productType,
-    defaultNonSubscriptionOption: nonSubscriptionOption,
-    discountPhase: discount,
-  });
-};
-
-export const toNonSubscriptionOffering = (
-  productInfo: MinimumNonSubscriptionPackageInfo[],
-) => {
-  return buildOffering(
-    productInfo.map((pi) =>
-      buildPackage(pi.packageIdentifier, buildNonSubscriptionProduct(pi)),
+      buildPackage(pi.packageIdentifier, buildProduct(pi)),
     ),
   );
 };

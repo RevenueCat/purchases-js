@@ -9,27 +9,19 @@ function getPackageInfo(pkg: Package): PackageInfo {
   // This would not work with Paddle.
   const product = pkg.webBillingProduct;
 
-  const isSubscription = product.productType === ProductType.Subscription;
+  if (product.productType !== ProductType.Subscription) {
+    return {};
+  }
+
   const subscriptionOption = product.defaultSubscriptionOption;
-
-  if (isSubscription && subscriptionOption) {
-    return {
-      hasTrial: subscriptionOption.trial !== null,
-      hasIntroOffer:
-        subscriptionOption.discount !== null ||
-        subscriptionOption.introPrice !== null,
-    };
+  if (!subscriptionOption) {
+    return {};
   }
 
-  const nonSubscriptionOption = product.defaultNonSubscriptionOption;
-  if (!isSubscription && nonSubscriptionOption) {
-    return {
-      hasTrial: false,
-      hasIntroOffer: nonSubscriptionOption.discount !== null,
-    };
-  }
-
-  return {};
+  return {
+    hasTrial: subscriptionOption.trial !== null,
+    hasIntroOffer: subscriptionOption.introPrice !== null,
+  };
 }
 
 export function parseOfferingIntoPackageInfoPerPackage(

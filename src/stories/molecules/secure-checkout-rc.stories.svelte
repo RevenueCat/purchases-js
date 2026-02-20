@@ -1,6 +1,6 @@
 <script module lang="ts">
   import { brandingModes } from "../../../.storybook/modes";
-  import { defineMeta } from "@storybook/addon-svelte-csf";
+  import { defineMeta, type StoryContext } from "@storybook/addon-svelte-csf";
   import { renderInsideNavbarBody } from "../decorators/layout-decorators";
   import SecureCheckoutRC from "../../ui/molecules/secure-checkout-rc.svelte";
   import { brandingInfo } from "../fixtures";
@@ -12,9 +12,8 @@
     subscriptionOptionWithIntroPriceRecurring,
     subscriptionOptionWithTrialAndIntroPricePaidUpfront,
     subscriptionOptionWithTrialAndIntroPriceRecurring,
-    nonSubscriptionOptionWithDiscount,
-    subscriptionOptionWithDiscountOneTime,
   } from "../fixtures";
+  import type { ComponentProps } from "svelte";
 
   const { Story } = defineMeta({
     component: SecureCheckoutRC,
@@ -26,8 +25,19 @@
         modes: brandingModes,
       },
     },
+    // @ts-expect-error ignore importing before initializing
+    render: template,
   });
+  type Args = ComponentProps<typeof SecureCheckoutRC>;
+  type Context = StoryContext<typeof SecureCheckoutRC>;
 </script>
+
+{#snippet template(args: Args, _context: Context)}
+  <SecureCheckoutRC
+    brandingInfo={args.brandingInfo}
+    purchaseOption={args.purchaseOption}
+  />
+{/snippet}
 
 <Story
   name="Without Extra Info"
@@ -37,14 +47,6 @@
 <Story
   name="Non Subscription with branding info"
   args={{ brandingInfo, purchaseOption: nonSubscriptionOption }}
-/>
-
-<Story
-  name="Non Subscription + discount with branding info"
-  args={{
-    brandingInfo,
-    purchaseOption: nonSubscriptionOptionWithDiscount,
-  }}
 />
 
 <Story
@@ -70,14 +72,6 @@
   args={{
     brandingInfo,
     purchaseOption: subscriptionOptionWithIntroPriceRecurring,
-  }}
-/>
-
-<Story
-  name="One-time discount with branding info"
-  args={{
-    brandingInfo,
-    purchaseOption: subscriptionOptionWithDiscountOneTime,
   }}
 />
 

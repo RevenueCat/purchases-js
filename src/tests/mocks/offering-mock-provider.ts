@@ -51,7 +51,6 @@ export function createMonthlyPackageMock(
     },
     trial: null,
     introPrice: null,
-    discount: null,
   };
 
   const webBillingProduct = {
@@ -91,7 +90,6 @@ export function createMonthlyPackageMock(
     },
     freeTrialPhase: null,
     introPricePhase: null,
-    discountPhase: null,
   };
 
   return {
@@ -171,7 +169,6 @@ export function createMonthlyPackageWithIntroPriceMock(): Package {
         formattedPrice: "$23.88",
       },
     },
-    discount: null,
   };
 
   const webBillingProduct = {
@@ -245,7 +242,6 @@ export function createMonthlyPackageWithIntroPriceMock(): Package {
         formattedPrice: "$23.88",
       },
     },
-    discountPhase: null,
   };
 
   return {
@@ -336,7 +332,6 @@ export function createMonthlyPackageWithTrialAndIntroPriceMock(): Package {
         formattedPrice: "$59.88",
       },
     },
-    discount: null,
   };
 
   const webBillingProduct = {
@@ -421,7 +416,6 @@ export function createMonthlyPackageWithTrialAndIntroPriceMock(): Package {
         formattedPrice: "$59.88",
       },
     },
-    discountPhase: null,
   };
 
   return {
@@ -461,7 +455,6 @@ export function createConsumablePackageMock(): Package {
         currency: "USD",
         formattedPrice: "$1.00",
       },
-      discount: null,
     } as NonSubscriptionOption,
     defaultSubscriptionOption: null,
     defaultNonSubscriptionOption: {
@@ -473,7 +466,6 @@ export function createConsumablePackageMock(): Package {
         currency: "USD",
         formattedPrice: "$1.00",
       },
-      discount: null,
     },
     subscriptionOptions: {},
     price: {
@@ -485,7 +477,6 @@ export function createConsumablePackageMock(): Package {
     period: null,
     freeTrialPhase: null,
     introPricePhase: null,
-    discountPhase: null,
   };
 
   return {

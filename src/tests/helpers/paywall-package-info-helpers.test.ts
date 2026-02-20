@@ -1,13 +1,38 @@
 import { describe, expect, test } from "vitest";
 import { parseOfferingIntoPackageInfoPerPackage } from "../../helpers/paywall-package-info-helpers";
-import { toOffering, toNonSubscriptionOffering } from "../utils/fixtures-utils";
-import {
-  discountPhaseOneTime,
-  trialPhaseP2W,
-  pricePhaseP1M1499,
-} from "../fixtures/price-phases";
+import { PeriodUnit } from "../../helpers/duration-helper";
+import { toOffering } from "../utils/fixtures-utils";
+import type {
+  PricingPhase,
+  SubscriptionOption,
+} from "../../entities/offerings";
 
 describe("parseOfferingIntoPackageInfoPerPackage", () => {
+  const trial: SubscriptionOption["trial"] = {
+    period: { unit: PeriodUnit.Week, number: 2 },
+    periodDuration: "P2W",
+    cycleCount: 1,
+    price: null,
+    pricePerWeek: null,
+    pricePerMonth: null,
+    pricePerYear: null,
+  } satisfies PricingPhase;
+
+  const introPrice: SubscriptionOption["introPrice"] = {
+    period: { unit: PeriodUnit.Month, number: 2 },
+    periodDuration: "P2M",
+    cycleCount: 1,
+    price: {
+      amount: 4500,
+      amountMicros: 4500000,
+      currency: "EUR",
+      formattedPrice: "45.00€",
+    },
+    pricePerWeek: null,
+    pricePerMonth: null,
+    pricePerYear: null,
+  } satisfies PricingPhase;
+
   test("Packages with no trial and no intro offer", () => {
     const off = toOffering([
       {
@@ -35,7 +60,7 @@ describe("parseOfferingIntoPackageInfoPerPackage", () => {
         packageIdentifier: "$rc_weekly",
         identifier: "weekly_trial",
         title: "Weekly Trial",
-        trial: trialPhaseP2W,
+        trial,
       },
     ]);
 
@@ -57,7 +82,7 @@ describe("parseOfferingIntoPackageInfoPerPackage", () => {
         packageIdentifier: "$rc_yearly",
         identifier: "yearly_intro",
         title: "Yearly Intro",
-        introPrice: pricePhaseP1M1499,
+        introPrice,
       },
     ]);
 
@@ -79,8 +104,8 @@ describe("parseOfferingIntoPackageInfoPerPackage", () => {
         packageIdentifier: "custom_both",
         identifier: "custom_both_id",
         title: "Custom Both",
-        trial: trialPhaseP2W,
-        introPrice: pricePhaseP1M1499,
+        trial,
+        introPrice,
       },
     ]);
 
@@ -96,65 +121,7 @@ describe("parseOfferingIntoPackageInfoPerPackage", () => {
     );
   });
 
-  test("Packages with only discount price", () => {
-    const off = toOffering([
-      {
-        packageIdentifier: "$rc_monthly",
-        identifier: "monthly_discount",
-        title: "Monthly Discount",
-        discount: discountPhaseOneTime,
-      },
-    ]);
-
-    const result = parseOfferingIntoPackageInfoPerPackage(off);
-    expect(result).toStrictEqual({
-      $rc_monthly: {
-        hasTrial: false,
-        hasIntroOffer: true,
-      },
-    });
-  });
-
-  test("Non-subscription packages with discount price", () => {
-    const off = toNonSubscriptionOffering([
-      {
-        packageIdentifier: "lifetime",
-        identifier: "lifetime_discount",
-        title: "Lifetime Discount",
-        discount: discountPhaseOneTime,
-      },
-    ]);
-
-    const result = parseOfferingIntoPackageInfoPerPackage(off);
-
-    expect(result).toStrictEqual({
-      lifetime: {
-        hasTrial: false,
-        hasIntroOffer: true,
-      },
-    });
-  });
-
-  test("Non-subscription packages without discount price", () => {
-    const off = toNonSubscriptionOffering([
-      {
-        packageIdentifier: "lifetime",
-        identifier: "lifetime_basic",
-        title: "Lifetime Basic",
-      },
-    ]);
-
-    const result = parseOfferingIntoPackageInfoPerPackage(off);
-
-    expect(result).toStrictEqual({
-      lifetime: {
-        hasTrial: false,
-        hasIntroOffer: false,
-      },
-    });
-  });
-
-  test("Multiple packages with mixed trial/intro/discount combinations", () => {
+  test("Multiple packages with mixed trial/intro combinations", () => {
     const off = toOffering([
       {
         packageIdentifier: "$rc_monthly",
@@ -165,52 +132,44 @@ describe("parseOfferingIntoPackageInfoPerPackage", () => {
         packageIdentifier: "$rc_weekly",
         identifier: "weekly_trial",
         title: "Weekly Trial",
-        trial: trialPhaseP2W,
+        trial,
       },
       {
         packageIdentifier: "$rc_yearly",
         identifier: "yearly_intro",
         title: "Yearly Intro",
-        introPrice: pricePhaseP1M1499,
+        introPrice,
       },
       {
         packageIdentifier: "custom_both",
         identifier: "custom_both_id",
         title: "Custom Both",
-        trial: trialPhaseP2W,
-        introPrice: pricePhaseP1M1499,
-      },
-      {
-        packageIdentifier: "discount_only",
-        identifier: "discount_only_id",
-        title: "Discount Only",
-        discount: discountPhaseOneTime,
+        trial,
+        introPrice,
       },
     ]);
 
     const result = parseOfferingIntoPackageInfoPerPackage(off);
 
-    expect(result).toStrictEqual({
-      $rc_monthly: {
-        hasTrial: false,
-        hasIntroOffer: false,
-      },
-      $rc_weekly: {
-        hasTrial: true,
-        hasIntroOffer: false,
-      },
-      $rc_yearly: {
-        hasTrial: false,
-        hasIntroOffer: true,
-      },
-      custom_both: {
-        hasTrial: true,
-        hasIntroOffer: true,
-      },
-      discount_only: {
-        hasTrial: false,
-        hasIntroOffer: true,
-      },
-    });
+    expect(result).toEqual(
+      expect.objectContaining({
+        $rc_monthly: expect.objectContaining({
+          hasTrial: false,
+          hasIntroOffer: false,
+        }),
+        $rc_weekly: expect.objectContaining({
+          hasTrial: true,
+          hasIntroOffer: false,
+        }),
+        $rc_yearly: expect.objectContaining({
+          hasTrial: false,
+          hasIntroOffer: true,
+        }),
+        custom_both: expect.objectContaining({
+          hasTrial: true,
+          hasIntroOffer: true,
+        }),
+      }),
+    );
   });
 });

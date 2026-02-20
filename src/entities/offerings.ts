@@ -4,7 +4,6 @@ import {
   type TargetingResponse,
 } from "../networking/responses/offerings-response";
 import type {
-  DiscountResponse,
   NonSubscriptionOptionResponse,
   PriceResponse,
   PricingPhaseResponse,
@@ -151,47 +150,6 @@ export interface PricingPhase {
 }
 
 /**
- * Represents the price and duration information for a discount price phase.
- * @internal
- */
-export interface DiscountPhase {
-  /**
-   * The duration mode for the discount.
-   * Represents how long the discount will apply to invoices.
-   */
-  readonly durationMode: "one_time" | "time_window" | "forever";
-  /**
-   * The duration of the phase in ISO 8601 format.
-   * Null for one_time and forever duration modes.
-   */
-  readonly timeWindow: string | null;
-  /**
-   * The price for the purchase option.
-   */
-  readonly price: Price;
-  /**
-   * The customer-facing name of the discount
-   */
-  readonly name: string | null;
-  /**
-   * The duration of the discount phase in ISO 8601 format.
-   * Matches the timeWindow property for the time_window duration mode.
-   * Uses the base period duration for one_time and forever duration modes.
-   */
-  readonly periodDuration: string | null;
-  /**
-   * The duration of the discount phase as a {@link Period}.
-   * Calculated from the periodDuration property.
-   */
-  readonly period: Period | null;
-  /**
-   * The number of cycles this option's discount price repeats.
-   * 0 if not applicable.
-   */
-  readonly cycleCount: number;
-}
-
-/**
  * Represents a possible option to purchase a product.
  * @public
  */
@@ -226,12 +184,6 @@ export interface SubscriptionOption extends PurchaseOption {
    * The introductory price period for this subscription option if available.
    */
   readonly introPrice: PricingPhase | null;
-
-  /**
-   * The discount price period for this subscription option if available.
-   * @internal
-   */
-  readonly discount: DiscountPhase | null;
 }
 
 /**
@@ -243,11 +195,6 @@ export interface NonSubscriptionOption extends PurchaseOption {
    * The base price for the product.
    */
   readonly basePrice: Price;
-  /**
-   * The discount price for the product if available.
-   * @internal
-   */
-  readonly discount: DiscountPhase | null;
 }
 
 /**
@@ -379,13 +326,6 @@ export interface Product {
    * Convenience accessor for defaultSubscriptionOption?.introPrice.
    */
   readonly introPricePhase: PricingPhase | null;
-  /**
-   * Discount price phase information for subscriptions and non-subscriptions.
-   * Null when no discount price is available.
-   * Convenience accessor for defaultSubscriptionOption?.discount or defaultNonSubscriptionOption?.discount.
-   * @internal
-   */
-  readonly discountPhase: DiscountPhase | null;
 }
 
 /**
@@ -507,18 +447,14 @@ export interface Offerings {
  */
 export type PurchaseMetadata = Record<string, string | null>;
 
-const getPriceForCurrency = (
-  amountMicros: number,
-  currency: string,
-): Price => ({
-  amount: amountMicros / 10000,
-  amountMicros: amountMicros,
-  currency: currency,
-  formattedPrice: formatPrice(amountMicros, currency),
-});
-
-const toPrice = (priceData: PriceResponse): Price =>
-  getPriceForCurrency(priceData.amount_micros, priceData.currency);
+const toPrice = (priceData: PriceResponse): Price => {
+  return {
+    amount: priceData.amount_micros / 10000,
+    amountMicros: priceData.amount_micros,
+    currency: priceData.currency,
+    formattedPrice: formatPrice(priceData.amount_micros, priceData.currency),
+  };
+};
 
 const toPricingPhase = (optionPhase: PricingPhaseResponse): PricingPhase => {
   const periodDuration = optionPhase.period_duration;
@@ -566,43 +502,6 @@ const toPricingPhase = (optionPhase: PricingPhaseResponse): PricingPhase => {
     pricePerWeek: pricePerWeek,
     pricePerMonth: pricePerMonth,
     pricePerYear: pricePerYear,
-  };
-};
-
-const toDiscountPhase = (
-  optionPhase: DiscountResponse,
-  basePeriodDuration: string | null,
-): DiscountPhase => {
-  const durationMode = optionPhase.duration_mode ?? "one_time";
-  let periodDuration = optionPhase.time_window ?? null;
-
-  // One-time and forever discounts will use the base period duration
-  if (
-    (durationMode === "one_time" || durationMode === "forever") &&
-    periodDuration === null &&
-    basePeriodDuration !== null
-  ) {
-    periodDuration = basePeriodDuration;
-  }
-
-  let period: Period | null = null;
-  let cycleCount: number | null = null;
-  const parsedDuration = periodDuration
-    ? parseISODuration(periodDuration)
-    : null;
-  if (parsedDuration) {
-    period = { number: 1, unit: parsedDuration.unit };
-    cycleCount = durationMode === "forever" ? 0 : parsedDuration.number;
-  }
-
-  return {
-    timeWindow: optionPhase.time_window,
-    durationMode: durationMode,
-    price: getPriceForCurrency(optionPhase.amount_micros, optionPhase.currency),
-    name: optionPhase.name,
-    period: period,
-    cycleCount: cycleCount ?? 0,
-    periodDuration: periodDuration,
   };
 };
 
@@ -657,10 +556,7 @@ const toSubscriptionOption = (
     base: toPricingPhase(option.base),
     trial: option.trial ? toPricingPhase(option.trial) : null,
     introPrice: option.intro_price ? toPricingPhase(option.intro_price) : null,
-    discount: option.discount
-      ? toDiscountPhase(option.discount, option.base?.period_duration)
-      : null,
-  };
+  } as SubscriptionOption;
 };
 
 const toNonSubscriptionOption = (
@@ -676,8 +572,7 @@ const toNonSubscriptionOption = (
     id: option.id,
     priceId: option.price_id,
     basePrice: toPrice(option.base_price),
-    discount: option.discount ? toDiscountPhase(option.discount, null) : null,
-  };
+  } as NonSubscriptionOption;
 };
 
 const toProduct = (
@@ -758,7 +653,6 @@ const toNonSubscriptionProduct = (
     period: null,
     freeTrialPhase: null,
     introPricePhase: null,
-    discountPhase: defaultOption.discount,
   };
 };
 
@@ -822,7 +716,6 @@ const toSubscriptionProduct = (
     period: defaultOption.base.period,
     freeTrialPhase: defaultOption.trial,
     introPricePhase: defaultOption.introPrice,
-    discountPhase: defaultOption.discount,
   };
 };
 

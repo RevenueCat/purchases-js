@@ -17,7 +17,6 @@ export function purchaseSimulatedStoreProduct(
   const productType = product.productType;
   const freeTrialPhase = product.freeTrialPhase;
   const introPricePhase = product.introPricePhase;
-  const discountPhase = product.discountPhase;
   const basePrice = product.price;
 
   const formatPeriod = (
@@ -52,7 +51,6 @@ export function purchaseSimulatedStoreProduct(
           ? formatPeriod(freeTrialPhase.period)
           : undefined,
         introPriceFormatted: introPricePhase?.price?.formattedPrice,
-        discountFormatted: discountPhase?.price?.formattedPrice,
         onValidPurchase: async () => {
           cleanup();
           Logger.debugLog(

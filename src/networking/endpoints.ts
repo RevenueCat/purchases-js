@@ -54,7 +54,7 @@ export class GetProductsEndpoint implements Endpoint {
       .map(encodeURIComponent)
       .join("&id=");
     const currencyParam = this.currency ? `&currency=${this.currency}` : "";
-    return `${RC_BILLING_PATH}/subscribers/${encodedAppUserId}/products?support_discounts=true&id=${encodedProductIds}${currencyParam}`;
+    return `${RC_BILLING_PATH}/subscribers/${encodedAppUserId}/products?id=${encodedProductIds}${currencyParam}`;
   }
 }
 
