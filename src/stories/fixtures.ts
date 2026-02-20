@@ -131,11 +131,14 @@ export const nonSubscriptionBasePricingPhase: PricingPhase = {
 const createNonSubscriptionOption = (
   fields: Partial<NonSubscriptionOption> = {},
 ): NonSubscriptionOption => {
+  const { discountPrice, ...restFields } = fields;
+
   return {
     id: "nonsub_option_id_1",
     priceId: "nonsub_price_1",
     basePrice: subscriptionOptionBasePrice.price!,
-    ...fields,
+    discountPrice: discountPrice ?? null,
+    ...restFields,
   };
 };
 
@@ -148,13 +151,16 @@ export const nonSubscriptionOption = createNonSubscriptionOption();
 const createSubscriptionOption = (
   fields: Partial<SubscriptionOption> = {},
 ): SubscriptionOption => {
+  const { discountPrice, ...restFields } = fields;
+
   return {
     id: "option_id_1",
     priceId: "price_1",
     base: subscriptionOptionBasePrice,
     trial: null,
     introPrice: null,
-    ...fields,
+    discountPrice: discountPrice ?? null,
+    ...restFields,
   };
 };
 
@@ -305,6 +311,7 @@ export const product: Product = {
   },
   freeTrialPhase: subscriptionOption.trial,
   introPricePhase: subscriptionOption.introPrice,
+  discountPricePhase: subscriptionOption.discountPrice,
 };
 
 export const consumableProduct: Product = {
@@ -319,6 +326,7 @@ export const consumableProduct: Product = {
   period: null,
   freeTrialPhase: null,
   introPricePhase: null,
+  discountPricePhase: nonSubscriptionOption.discountPrice,
 };
 
 export const nonConsumableProduct: Product = {
@@ -333,6 +341,7 @@ export const nonConsumableProduct: Product = {
   period: null,
   freeTrialPhase: null,
   introPricePhase: null,
+  discountPricePhase: nonSubscriptionOption.discountPrice,
 };
 
 export const trialProduct: Product = {
@@ -345,6 +354,7 @@ export const trialProduct: Product = {
   // Convenience accessors for trial product
   freeTrialPhase: subscriptionOptionWithTrial.trial,
   introPricePhase: subscriptionOptionWithTrial.introPrice,
+  discountPricePhase: subscriptionOptionWithTrial.discountPrice,
 };
 
 export const rcPackage: Package = {

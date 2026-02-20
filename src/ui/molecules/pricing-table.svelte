@@ -6,7 +6,10 @@
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import { type PriceBreakdown } from "../ui-types";
   import { getNextRenewalDate } from "../../helpers/duration-helper";
-  import { type PricingPhase } from "../../entities/offerings";
+  import {
+    type PricingPhase,
+    type DiscountPricePhase,
+  } from "../../entities/offerings";
   import PricingDropdown from "./pricing-dropdown.svelte";
   import Skeleton from "../atoms/skeleton.svelte";
   import Typography from "../atoms/typography.svelte";
@@ -14,9 +17,18 @@
   interface Props {
     priceBreakdown: PriceBreakdown;
     trialPhase: PricingPhase | null;
+    basePhase?: PricingPhase | null;
+    promotionalPricePhase?: PricingPhase | DiscountPricePhase | null;
+    hasDiscount?: boolean;
   }
 
-  const { priceBreakdown, trialPhase }: Props = $props();
+  const {
+    priceBreakdown,
+    trialPhase,
+    basePhase = null,
+    promotionalPricePhase = null,
+    hasDiscount = false,
+  }: Props = $props();
 
   let trialEndDate = $state<Date | null>(null);
   if (trialPhase?.period) {
@@ -31,10 +43,116 @@
       priceBreakdown.taxBreakdown &&
       priceBreakdown.taxBreakdown.length > 0,
   );
+
+  const subtotalAmount = $derived(
+    basePhase?.price?.amountMicros ?? priceBreakdown.totalAmountInMicros,
+  );
+
+  const discountAmount = $derived.by(() => {
+    if (!hasDiscount) return 0;
+
+    const base = basePhase?.price?.amountMicros;
+    const promo = promotionalPricePhase?.price?.amountMicros;
+    if (base == null || promo == null) return 0;
+
+    return base - promo;
+  });
+
+  const periodToDays = (period: { number: number; unit: string }): number => {
+    switch (period.unit) {
+      case "day":
+        return period.number;
+      case "week":
+        return period.number * 7;
+      case "month":
+        return period.number * 30;
+      case "year":
+        return period.number * 365;
+      default:
+        return 0;
+    }
+  };
+
+  const discountDurationSuffix = $derived.by(() => {
+    if (
+      !promotionalPricePhase ||
+      !("durationMode" in promotionalPricePhase) ||
+      promotionalPricePhase.durationMode !== "time_window"
+    ) {
+      return "";
+    }
+
+    const basePeriod = basePhase?.period;
+    const discountPeriod = promotionalPricePhase.period;
+    if (
+      !basePeriod ||
+      !discountPeriod ||
+      promotionalPricePhase.cycleCount <= 0
+    ) {
+      return "";
+    }
+
+    const billingCycleDays = periodToDays(basePeriod);
+    const discountWindowDays = periodToDays({
+      number: discountPeriod.number * promotionalPricePhase.cycleCount,
+      unit: discountPeriod.unit,
+    });
+
+    if (billingCycleDays <= 0 || discountWindowDays <= billingCycleDays) {
+      return "";
+    }
+
+    const translatedPeriod = $translator.translatePeriod(
+      discountPeriod.number * promotionalPricePhase.cycleCount,
+      discountPeriod.unit,
+    );
+
+    return translatedPeriod ? ` (${translatedPeriod})` : "";
+  });
 </script>
 
 {#snippet pricingTable()}
   <div class="rcb-pricing-table">
+    {#if hasDiscount}
+      <div class="rcb-pricing-table-row">
+        <div class="rcb-pricing-table-header">
+          <div class="rcb-pricing-table-value">
+            <Typography size="body-small">
+              {$translator.translate(LocalizationKeys.PricingTableSubtotal)}
+            </Typography>
+          </div>
+        </div>
+        <div class="rcb-pricing-table-value">
+          <Typography size="body-small">
+            {$translator.formatPrice(subtotalAmount, priceBreakdown.currency)}
+          </Typography>
+        </div>
+      </div>
+
+      <div class="rcb-pricing-table-row">
+        <div class="rcb-pricing-table-header">
+          <div class="rcb-pricing-table-value">
+            <Typography size="body-small">
+              {$translator.translate(
+                LocalizationKeys.PricingTableDiscount,
+              )}{promotionalPricePhase &&
+              "name" in promotionalPricePhase &&
+              promotionalPricePhase.name
+                ? `: ${promotionalPricePhase.name}`
+                : ""}{discountDurationSuffix}
+            </Typography>
+          </div>
+        </div>
+        <div class="rcb-pricing-table-value">
+          <Typography size="body-small">
+            -{$translator.formatPrice(discountAmount, priceBreakdown.currency)}
+          </Typography>
+        </div>
+      </div>
+
+      <div class="rcb-pricing-table-separator"></div>
+    {/if}
+
     {#if showTaxBreakdown}
       <div class="rcb-pricing-table-row">
         <div class="rcb-pricing-table-header">

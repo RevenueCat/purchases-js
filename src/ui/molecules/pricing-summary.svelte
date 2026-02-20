@@ -64,9 +64,7 @@
 
   const formattedPrice = $derived(
     $translator.formatPrice(
-      hasIntroPrice
-        ? (basePhase?.price?.amountMicros ?? 0)
-        : priceBreakdown.totalAmountInMicros,
+      basePhase?.price?.amountMicros ?? priceBreakdown.totalAmountInMicros,
       priceBreakdown.currency,
     ),
   );
