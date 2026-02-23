@@ -1,7 +1,7 @@
 import { type Period, PeriodUnit } from "../../helpers/duration-helper";
 import type {
   SubscriptionOption,
-  DiscountPhase,
+  DiscountPricePhase,
   Price,
   PurchaseOption,
 } from "../../entities/offerings";
@@ -38,7 +38,7 @@ export interface MinimumSubscriptionProductInfo {
   currency?: string;
   trial?: SubscriptionOption["trial"];
   introPrice?: SubscriptionOption["introPrice"];
-  discount?: SubscriptionOption["discount"];
+  discountPrice?: SubscriptionOption["discountPrice"];
 }
 
 export interface MinimumPackageInfo extends MinimumSubscriptionProductInfo {
@@ -50,7 +50,7 @@ export interface MinimumNonSubscriptionProductInfo {
   title: string;
   basePriceMicros?: number;
   currency?: string;
-  discount?: DiscountPhase | null;
+  discountPrice?: DiscountPricePhase | null;
   productType?: ProductType.Consumable | ProductType.NonConsumable;
 }
 
@@ -132,7 +132,7 @@ const buildProduct: (
   defaultNonSubscriptionOption: null,
   freeTrialPhase: null,
   introPricePhase: null,
-  discountPhase: null,
+  discountPricePhase: null,
   normalPeriodDuration: null,
   period: null,
   ...rest,
@@ -151,7 +151,7 @@ const buildSubscriptionProduct: (
   currency = "EUR",
   trial = null,
   introPrice = null,
-  discount = null,
+  discountPrice = null,
 }) => {
   const basePrice = toPrice(basePriceMicros, currency);
 
@@ -168,7 +168,7 @@ const buildSubscriptionProduct: (
     },
     trial,
     introPrice,
-    discount,
+    discountPrice,
   };
 
   return buildProduct({
@@ -184,7 +184,7 @@ const buildSubscriptionProduct: (
     },
     freeTrialPhase: trial,
     introPricePhase: introPrice,
-    discountPhase: discount,
+    discountPricePhase: discountPrice,
   });
 };
 
@@ -203,7 +203,7 @@ export const buildNonSubscriptionProduct: (
   title,
   basePriceMicros = 100000000,
   currency = "EUR",
-  discount = null,
+  discountPrice = null,
   productType = ProductType.NonConsumable,
 }) => {
   const basePrice = toPrice(basePriceMicros, currency);
@@ -211,7 +211,7 @@ export const buildNonSubscriptionProduct: (
   const nonSubscriptionOption: NonSubscriptionOption = {
     ...DEFAULT_PURCHASE_OPTION,
     basePrice,
-    discount,
+    discountPrice,
   };
 
   return buildProduct({
@@ -220,7 +220,7 @@ export const buildNonSubscriptionProduct: (
     price: basePrice,
     productType,
     defaultNonSubscriptionOption: nonSubscriptionOption,
-    discountPhase: discount,
+    discountPricePhase: discountPrice,
   });
 };
 

@@ -179,7 +179,6 @@ export enum LogLevel {
 // @public
 export interface NonSubscriptionOption extends PurchaseOption {
     readonly basePrice: Price;
-    /* Excluded from this release type: discount */
 }
 
 // @public
@@ -348,7 +347,6 @@ export interface Product {
         [optionId: string]: SubscriptionOption;
     };
     readonly title: string;
-    /* Excluded from this release type: discountPhase */
 }
 
 // @public
@@ -561,7 +559,6 @@ export interface SubscriptionOption extends PurchaseOption {
     readonly base: PricingPhase;
     readonly introPrice: PricingPhase | null;
     readonly trial: PricingPhase | null;
-    /* Excluded from this release type: discount */
 }
 
 // @public

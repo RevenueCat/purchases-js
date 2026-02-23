@@ -8,7 +8,7 @@
   import { getNextRenewalDate } from "../../helpers/duration-helper";
   import {
     type PricingPhase,
-    type DiscountPhase,
+    type DiscountPricePhase,
   } from "../../entities/offerings";
   import PricingDropdown from "./pricing-dropdown.svelte";
   import Skeleton from "../atoms/skeleton.svelte";
@@ -17,24 +17,23 @@
   interface Props {
     priceBreakdown: PriceBreakdown;
     trialPhase: PricingPhase | null;
-    basePhase: PricingPhase | null;
-    promotionalPricePhase: PricingPhase | DiscountPhase | null;
-    hasDiscount: boolean;
+    basePhase?: PricingPhase | null;
+    promotionalPricePhase?: PricingPhase | DiscountPricePhase | null;
+    hasDiscount?: boolean;
   }
 
   const {
     priceBreakdown,
     trialPhase,
-    basePhase,
-    promotionalPricePhase,
-    hasDiscount,
+    basePhase = null,
+    promotionalPricePhase = null,
+    hasDiscount = false,
   }: Props = $props();
 
-  const trialEndDate = $derived(
-    trialPhase?.period
-      ? getNextRenewalDate(new Date(), trialPhase.period, true)
-      : null,
-  );
+  let trialEndDate = $state<Date | null>(null);
+  if (trialPhase?.period) {
+    trialEndDate = getNextRenewalDate(new Date(), trialPhase.period, true);
+  }
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
 
@@ -59,9 +58,57 @@
     return base - promo;
   });
 
-  const totalDueToday = $derived(
-    trialEndDate ? 0 : priceBreakdown.totalAmountInMicros,
-  );
+  const periodToDays = (period: { number: number; unit: string }): number => {
+    switch (period.unit) {
+      case "day":
+        return period.number;
+      case "week":
+        return period.number * 7;
+      case "month":
+        return period.number * 30;
+      case "year":
+        return period.number * 365;
+      default:
+        return 0;
+    }
+  };
+
+  const discountDurationSuffix = $derived.by(() => {
+    if (
+      !promotionalPricePhase ||
+      !("durationMode" in promotionalPricePhase) ||
+      promotionalPricePhase.durationMode !== "time_window"
+    ) {
+      return "";
+    }
+
+    const basePeriod = basePhase?.period;
+    const discountPeriod = promotionalPricePhase.period;
+    if (
+      !basePeriod ||
+      !discountPeriod ||
+      promotionalPricePhase.cycleCount <= 0
+    ) {
+      return "";
+    }
+
+    const billingCycleDays = periodToDays(basePeriod);
+    const discountWindowDays = periodToDays({
+      number: discountPeriod.number * promotionalPricePhase.cycleCount,
+      unit: discountPeriod.unit,
+    });
+
+    if (billingCycleDays <= 0 || discountWindowDays <= billingCycleDays) {
+      return "";
+    }
+
+    const translatedPeriod = $translator.translatePeriod(
+      discountPeriod.number * promotionalPricePhase.cycleCount,
+      discountPeriod.unit,
+    );
+
+    return translatedPeriod ? ` (${translatedPeriod})` : "";
+  });
 </script>
 
 {#snippet pricingTable()}
@@ -92,7 +139,7 @@
               "name" in promotionalPricePhase &&
               promotionalPricePhase.name
                 ? `: ${promotionalPricePhase.name}`
-                : ""}
+                : ""}{discountDurationSuffix}
             </Typography>
           </div>
         </div>
@@ -204,7 +251,14 @@
       </div>
       <div class="rcb-pricing-table-value">
         <Typography size="body-small">
-          {$translator.formatPrice(totalDueToday, priceBreakdown.currency)}
+          {#if trialEndDate}
+            {$translator.formatPrice(0, priceBreakdown.currency)}
+          {:else}
+            {$translator.formatPrice(
+              priceBreakdown.totalAmountInMicros,
+              priceBreakdown.currency,
+            )}
+          {/if}
         </Typography>
       </div>
     </div>

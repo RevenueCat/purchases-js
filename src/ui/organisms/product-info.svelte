@@ -5,12 +5,11 @@
     type SubscriptionOption,
     type NonSubscriptionOption,
     type PricingPhase,
-    type DiscountPhase,
+    type DiscountPricePhase,
   } from "../../entities/offerings";
   import PricingTable from "../molecules/pricing-table.svelte";
   import ProductHeader from "../molecules/product-header.svelte";
   import PricingSummary from "../molecules/pricing-summary.svelte";
-  import PricingSummaryNonSubscription from "../molecules/pricing-summary-non-subscription.svelte";
   import { type PriceBreakdown } from "../ui-types";
 
   export let productDetails: Product;
@@ -26,10 +25,12 @@
     ? (purchaseOption as NonSubscriptionOption)
     : null;
 
-  // For subscriptions: use base phase directly
-  // For non-subscriptions: create a PricingPhase from basePrice
-  const basePhase: PricingPhase | null = isSubscription
-    ? (subscriptionOption?.base ?? null)
+  const basePhase = subscriptionOption?.base ?? null;
+  const trialPhase = subscriptionOption?.trial ?? null;
+  const introPricePhase = subscriptionOption?.introPrice ?? null;
+
+  const basePhaseForTable: PricingPhase | null = subscriptionOption?.base
+    ? subscriptionOption.base
     : nonSubscriptionOption?.basePrice
       ? {
           periodDuration: null,
@@ -42,42 +43,31 @@
         }
       : null;
 
-  const trialPhase = subscriptionOption?.trial ?? null;
-  const discountPhase =
-    subscriptionOption?.discount ?? nonSubscriptionOption?.discount ?? null;
-  const introPricePhase = subscriptionOption?.introPrice ?? null;
-  const promotionalPricePhase: PricingPhase | DiscountPhase | null =
-    subscriptionOption?.discount ??
-    subscriptionOption?.introPrice ??
-    nonSubscriptionOption?.discount ??
+  const promotionalPricePhaseForTable:
+    | PricingPhase
+    | DiscountPricePhase
+    | null =
+    subscriptionOption?.discountPrice ??
+    nonSubscriptionOption?.discountPrice ??
     null;
 </script>
 
 <div class="rcb-pricing-info">
   <div class="rcb-pricing-info-header">
     <ProductHeader {productDetails} {showProductDescription} />
-    {#if isSubscription}
-      <PricingSummary
-        {priceBreakdown}
-        {basePhase}
-        {trialPhase}
-        {discountPhase}
-        {introPricePhase}
-      />
-    {:else}
-      <PricingSummaryNonSubscription
-        {priceBreakdown}
-        {basePhase}
-        {discountPhase}
-      />
-    {/if}
+    <PricingSummary
+      {priceBreakdown}
+      {basePhase}
+      {trialPhase}
+      {introPricePhase}
+    />
   </div>
   <PricingTable
     {priceBreakdown}
     {trialPhase}
-    {basePhase}
-    {promotionalPricePhase}
-    hasDiscount={!!discountPhase}
+    basePhase={basePhaseForTable}
+    promotionalPricePhase={promotionalPricePhaseForTable}
+    hasDiscount={!!promotionalPricePhaseForTable}
   />
 </div>
 

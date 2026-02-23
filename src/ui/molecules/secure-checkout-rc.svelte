@@ -72,14 +72,15 @@
     return LocalizationKeys.PaymentEntryPageSubscriptionTermsInfo;
   }
 
+  // Use discountPrice or introPrice directly (only one will be present from backend)
   $: firstSubscriptionPricingPhase =
-    subscriptionOption?.discount ??
+    subscriptionOption?.discountPrice ??
     subscriptionOption?.introPrice ??
     subscriptionOption?.base ??
     null;
 
   $: firstPaymentPrice =
-    nonSubscriptionOption?.discount?.price ||
+    nonSubscriptionOption?.discountPrice?.price ||
     nonSubscriptionOption?.basePrice ||
     firstSubscriptionPricingPhase?.price;
 

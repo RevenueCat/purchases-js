@@ -33,7 +33,7 @@ export function getInitialPriceFromPurchaseOption(
     const subscriptionOptionToUse = purchaseOption as SubscriptionOption;
 
     const initialPrice =
-      subscriptionOptionToUse.discount?.price ??
+      subscriptionOptionToUse.discountPrice?.price ??
       subscriptionOptionToUse.introPrice?.price ??
       subscriptionOptionToUse.base.price;
 
@@ -43,7 +43,7 @@ export function getInitialPriceFromPurchaseOption(
   } else {
     const nonSubscriptionOptionToUse = purchaseOption as NonSubscriptionOption;
     return (
-      nonSubscriptionOptionToUse.discount?.price ??
+      nonSubscriptionOptionToUse.discountPrice?.price ??
       nonSubscriptionOptionToUse.basePrice
     );
   }

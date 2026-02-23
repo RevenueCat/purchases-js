@@ -17,13 +17,12 @@
     subscriptionOptionWithMultipleWeeksIntroPriceRecurring,
     subscriptionOptionWithMultipleYearsIntroPriceRecurring,
     subscriptionOptionWithSingleWeekWithTrialAndIntroPriceRecurring,
-    subscriptionOptionWithDiscountForever,
-    subscriptionOptionWithDiscount,
+    nonSubscriptionOption,
   } from "../fixtures";
   import { getPriceBreakdownTaxDisabled } from "../helpers/get-price-breakdown";
 
   import { parseISODuration } from "../../helpers/duration-helper";
-  import type { PricingPhase, DiscountPhase } from "../../entities/offerings";
+  import type { PricingPhase } from "../../entities/offerings";
   import type { PriceBreakdown } from "../../ui/ui-types";
 
   const billingDurations = ["P1W", "P1M", "P3M", "P6M", "P1Y", null];
@@ -34,7 +33,6 @@
     priceBreakdown: PriceBreakdown;
     basePhase?: PricingPhase | null;
     introPricePhase?: PricingPhase | null;
-    discountPhase?: DiscountPhase | null;
     trialPhase?: PricingPhase | null;
     billingDuration?: string | null;
     introDuration?: string | null;
@@ -134,15 +132,8 @@
         ),
       )
     : null}
-  {@const discountPhase = args.discountPhase ?? null}
 
-  <PricingSummary
-    {priceBreakdown}
-    {basePhase}
-    {trialPhase}
-    {introPricePhase}
-    {discountPhase}
-  />
+  <PricingSummary {priceBreakdown} {basePhase} {trialPhase} {introPricePhase} />
 {/snippet}
 
 <Story
@@ -150,28 +141,6 @@
   args={{
     priceBreakdown: getPriceBreakdownTaxDisabled(subscriptionOption),
     basePhase: subscriptionOption.base,
-  }}
-/>
-
-<Story
-  name="Subscription with Forever Discount"
-  args={{
-    priceBreakdown: getPriceBreakdownTaxDisabled(
-      subscriptionOptionWithDiscountForever,
-    ),
-    basePhase: subscriptionOption.base,
-    discountPhase: subscriptionOptionWithDiscountForever.discount,
-  }}
-/>
-
-<Story
-  name="Subscription with Time Window Discount"
-  args={{
-    priceBreakdown: getPriceBreakdownTaxDisabled(
-      subscriptionOptionWithDiscount,
-    ),
-    basePhase: subscriptionOption.base,
-    discountPhase: subscriptionOptionWithDiscount.discount,
   }}
 />
 
@@ -229,6 +198,13 @@
     trialPhase: subscriptionOptionWithTrialAndIntroPriceRecurring.trial,
     introPricePhase:
       subscriptionOptionWithTrialAndIntroPriceRecurring.introPrice,
+  }}
+/>
+
+<Story
+  name="Non Subscription"
+  args={{
+    priceBreakdown: getPriceBreakdownTaxDisabled(nonSubscriptionOption),
   }}
 />
 

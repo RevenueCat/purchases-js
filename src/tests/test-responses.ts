@@ -876,7 +876,7 @@ export function getRequestHandlers(): RequestHandler[] {
   requestHandlers.push(
     http.post(eventsURL, async ({ request }) => {
       const json = await request.json();
-      APIPostRequest({ url: eventsURL, json, keepalive: request.keepalive });
+      APIPostRequest({ url: eventsURL, json });
       return HttpResponse.json({}, { status: 200 });
     }),
   );

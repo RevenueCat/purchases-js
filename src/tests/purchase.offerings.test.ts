@@ -56,7 +56,7 @@ describe("getOfferings", () => {
     },
     trial: trialPhaseP1W,
     introPrice: null,
-    discount: null,
+    discountPrice: null,
   };
 
   test("can get offerings", async () => {
@@ -118,7 +118,7 @@ describe("getOfferings", () => {
       },
       freeTrialPhase: trialPhaseP1W,
       introPricePhase: null,
-      discountPhase: null,
+      discountPricePhase: null,
     };
 
     const package2: Package = {
@@ -196,7 +196,7 @@ describe("getOfferings", () => {
       },
       freeTrialPhase: trialPhaseP1W,
       introPricePhase: null,
-      discountPhase: null,
+      discountPricePhase: null,
     };
     const package2: Package = {
       identifier: "package_2",
@@ -314,10 +314,10 @@ describe("getOfferings", () => {
     const nonSubscriptionOption = offeringProduct?.defaultNonSubscriptionOption;
 
     expect(nonSubscriptionOption?.basePrice).toBeDefined();
-    expect(nonSubscriptionOption?.discount).toBeNull();
+    expect(nonSubscriptionOption?.discountPrice).toBeNull();
     expect(offeringProduct?.freeTrialPhase).toBeNull();
     expect(offeringProduct?.introPricePhase).toBeNull();
-    expect(offeringProduct?.discountPhase).toBeNull();
+    expect(offeringProduct?.discountPricePhase).toBeNull();
   });
 
   test("gets offerings with valid currency", async () => {
@@ -384,7 +384,7 @@ describe("getOfferings", () => {
       },
       freeTrialPhase: trialPhaseP1W,
       introPricePhase: null,
-      discountPhase: null,
+      discountPricePhase: null,
     };
 
     const package2: Package = {
@@ -465,8 +465,8 @@ describe("getOfferings", () => {
     expect(offeringProduct?.introPricePhase).toBeNull();
     expect(subscriptionOption?.introPrice).toBeNull();
 
-    expect(offeringProduct?.discountPhase).toBeNull();
-    expect(subscriptionOption?.discount).toBeNull();
+    expect(offeringProduct?.discountPricePhase).toBeNull();
+    expect(subscriptionOption?.discountPrice).toBeNull();
   });
 
   test("returns no offerings when offering identifier is invalid", async () => {
@@ -513,8 +513,8 @@ describe("getOfferings", () => {
       expect(offeringProduct?.freeTrialPhase).toBeNull();
       expect(subscriptionOption?.trial).toBeNull();
 
-      expect(offeringProduct?.discountPhase).toBeNull();
-      expect(subscriptionOption?.discount).toBeNull();
+      expect(offeringProduct?.discountPricePhase).toBeNull();
+      expect(subscriptionOption?.discountPrice).toBeNull();
     });
 
     test("can parse offerings with trial and intro pricing", async () => {
@@ -551,8 +551,8 @@ describe("getOfferings", () => {
       );
       expect(subscriptionOption?.introPrice).toStrictEqual(expectedIntroPrice);
 
-      expect(offeringProduct?.discountPhase).toBeNull();
-      expect(subscriptionOption?.discount).toBeNull();
+      expect(offeringProduct?.discountPricePhase).toBeNull();
+      expect(subscriptionOption?.discountPrice).toBeNull();
     });
 
     test("maintains backward compatibility with options without intro pricing", async () => {
@@ -629,17 +629,16 @@ describe("getOfferings", () => {
 
       const {
         defaultSubscriptionOption,
-        discountPhase,
+        discountPricePhase,
         freeTrialPhase,
         introPricePhase,
       } =
         offerings.all["offering_one_time_discount"].availablePackages[0]
           .webBillingProduct;
 
-      const expectedDiscount = {
+      const expectedDiscountPrice = {
         durationMode: "one_time",
-        timeWindow: null,
-        periodDuration: "P1M",
+        timeWindow: "P1M",
         name: "One-Time 20% Discount",
         price: {
           amount: 800,
@@ -651,10 +650,10 @@ describe("getOfferings", () => {
         cycleCount: 1,
       };
 
-      expect(defaultSubscriptionOption?.discount).toStrictEqual(
-        expectedDiscount,
+      expect(defaultSubscriptionOption?.discountPrice).toStrictEqual(
+        expectedDiscountPrice,
       );
-      expect(discountPhase).toStrictEqual(expectedDiscount);
+      expect(discountPricePhase).toStrictEqual(expectedDiscountPrice);
 
       expect(freeTrialPhase).toBeNull();
       expect(defaultSubscriptionOption?.trial).toBeNull();
@@ -669,7 +668,7 @@ describe("getOfferings", () => {
 
       const {
         defaultNonSubscriptionOption,
-        discountPhase,
+        discountPricePhase,
         freeTrialPhase,
         introPricePhase,
         defaultSubscriptionOption,
@@ -677,10 +676,9 @@ describe("getOfferings", () => {
         offerings.all["offering_consumable_discount"].availablePackages[0]
           .webBillingProduct;
 
-      const expectedDiscount = {
+      const expectedDiscountPrice = {
         durationMode: "one_time",
         timeWindow: null,
-        periodDuration: null,
         name: "Consumable 20% Discount",
         price: {
           amount: 80,
@@ -692,10 +690,10 @@ describe("getOfferings", () => {
         cycleCount: 0,
       };
 
-      expect(defaultNonSubscriptionOption?.discount).toStrictEqual(
-        expectedDiscount,
+      expect(defaultNonSubscriptionOption?.discountPrice).toStrictEqual(
+        expectedDiscountPrice,
       );
-      expect(discountPhase).toStrictEqual(expectedDiscount);
+      expect(discountPricePhase).toStrictEqual(expectedDiscountPrice);
 
       // Consumable products don't have subscription phases
       expect(freeTrialPhase).toBeNull();
@@ -707,14 +705,13 @@ describe("getOfferings", () => {
       const purchases = configurePurchases("appUserIdWithTimeWindowDiscount");
       const offerings = await purchases.getOfferings();
 
-      const { defaultSubscriptionOption, discountPhase } =
+      const { defaultSubscriptionOption, discountPricePhase } =
         offerings.all["offering_time_window_discount"].availablePackages[0]
           .webBillingProduct;
 
-      const expectedDiscount = {
+      const expectedDiscountPrice = {
         durationMode: "time_window",
         timeWindow: "P3M",
-        periodDuration: "P3M",
         name: "Holiday Sale 30%",
         price: {
           amount: 700,
@@ -726,24 +723,23 @@ describe("getOfferings", () => {
         cycleCount: 3,
       };
 
-      expect(defaultSubscriptionOption?.discount).toStrictEqual(
-        expectedDiscount,
+      expect(defaultSubscriptionOption?.discountPrice).toStrictEqual(
+        expectedDiscountPrice,
       );
-      expect(discountPhase).toStrictEqual(expectedDiscount);
+      expect(discountPricePhase).toStrictEqual(expectedDiscountPrice);
     });
 
     test("can parse offerings with forever discount", async () => {
       const purchases = configurePurchases("appUserIdWithForeverDiscount");
       const offerings = await purchases.getOfferings();
 
-      const { defaultSubscriptionOption, discountPhase } =
+      const { defaultSubscriptionOption, discountPricePhase } =
         offerings.all["offering_forever_discount"].availablePackages[0]
           .webBillingProduct;
 
-      const expectedDiscount = {
+      const expectedDiscountPrice = {
         durationMode: "forever",
         timeWindow: null,
-        periodDuration: "P1M",
         name: "Forever 40% Discount",
         price: {
           amount: 600,
@@ -751,13 +747,13 @@ describe("getOfferings", () => {
           currency: "USD",
           formattedPrice: "$6.00",
         },
-        period: { number: 1, unit: PeriodUnit.Month },
+        period: null,
         cycleCount: 0,
       };
-      expect(defaultSubscriptionOption?.discount).toStrictEqual(
-        expectedDiscount,
+      expect(defaultSubscriptionOption?.discountPrice).toStrictEqual(
+        expectedDiscountPrice,
       );
-      expect(discountPhase).toStrictEqual(expectedDiscount);
+      expect(discountPricePhase).toStrictEqual(expectedDiscountPrice);
     });
   });
 });
