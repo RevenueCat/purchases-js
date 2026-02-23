@@ -1,3 +1,8 @@
+## 1.26.2
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Fixed an issue with scrolling in chrome. (#775) via Nicola Sacco (@nicfix)
+
 ## 1.26.1
 ### 🔄 Other Changes
 * Bump purchases-ui-js package to 3.7.1 (#764) via Jamie Holwill (@jholwill)
