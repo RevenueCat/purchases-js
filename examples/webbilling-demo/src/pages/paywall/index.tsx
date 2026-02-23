@@ -80,10 +80,12 @@ const getCurrentPrice = (webBillingProduct: Product) => {
     return getFormattedPrice(price, normalPeriodDuration);
   }
 
-  return getFormattedPrice(
-    promotionalPrice.price,
-    promotionalPrice?.periodDuration ?? null,
-  );
+  const promotionalPricePeriod =
+    discountPhase != null
+      ? normalPeriodDuration
+      : (promotionalPrice?.periodDuration ?? null);
+
+  return getFormattedPrice(promotionalPrice.price, promotionalPricePeriod);
 };
 
 const formattedCombinedPeriod = (
