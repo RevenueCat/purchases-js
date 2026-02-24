@@ -27,7 +27,6 @@
     display: flex;
     box-sizing: border-box;
     flex-direction: column;
-    overflow-y: auto;
     overscroll-behavior: none;
   }
 
