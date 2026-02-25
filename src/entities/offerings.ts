@@ -189,6 +189,18 @@ export interface DiscountPhase {
    * 0 if not applicable.
    */
   readonly cycleCount: number;
+  /**
+   * The type of discount applied to this purchase option.
+   */
+  readonly discountType: "percentage" | "fixed" | null;
+  /**
+   * The percentage discount amount, if this discount is percentage-based.
+   */
+  readonly percentage: number | null;
+  /**
+   * The fixed discount amount, if this discount is fixed-amount based.
+   */
+  readonly fixedAmount: Price | null;
 }
 
 /**
@@ -603,6 +615,15 @@ const toDiscountPhase = (
     period: period,
     cycleCount: cycleCount ?? 0,
     periodDuration: periodDuration,
+    discountType: optionPhase.discount_type ?? null,
+    percentage: optionPhase.percentage ?? null,
+    fixedAmount:
+      optionPhase.fixed_amount_micros != null
+        ? getPriceForCurrency(
+            optionPhase.fixed_amount_micros,
+            optionPhase.currency,
+          )
+        : null,
   };
 };
 

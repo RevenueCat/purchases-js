@@ -649,6 +649,9 @@ describe("getOfferings", () => {
         },
         period: { number: 1, unit: PeriodUnit.Month },
         cycleCount: 1,
+        discountType: "percentage",
+        percentage: 20,
+        fixedAmount: null,
       };
 
       expect(defaultSubscriptionOption?.discount).toStrictEqual(
@@ -690,6 +693,9 @@ describe("getOfferings", () => {
         },
         period: null,
         cycleCount: 0,
+        discountType: "percentage",
+        percentage: 20,
+        fixedAmount: null,
       };
 
       expect(defaultNonSubscriptionOption?.discount).toStrictEqual(
@@ -724,6 +730,9 @@ describe("getOfferings", () => {
         },
         period: { number: 1, unit: PeriodUnit.Month },
         cycleCount: 3,
+        discountType: "percentage",
+        percentage: 30,
+        fixedAmount: null,
       };
 
       expect(defaultSubscriptionOption?.discount).toStrictEqual(
@@ -753,6 +762,9 @@ describe("getOfferings", () => {
         },
         period: { number: 1, unit: PeriodUnit.Month },
         cycleCount: 0,
+        discountType: "percentage",
+        percentage: 40,
+        fixedAmount: null,
       };
       expect(defaultSubscriptionOption?.discount).toStrictEqual(
         expectedDiscount,

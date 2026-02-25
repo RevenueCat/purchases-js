@@ -189,6 +189,9 @@ const monthlyWithOneTimeDiscountProductResponse: ProductResponse = {
       discount: {
         duration_mode: "one_time",
         time_window: null,
+        discount_type: "percentage",
+        percentage: 20,
+        fixed_amount_micros: null,
         amount_micros: 8000000,
         currency: "USD",
         name: "One-Time 20% Discount",
@@ -220,6 +223,9 @@ const monthlyWithTimeWindowDiscountProductResponse: ProductResponse = {
       discount: {
         duration_mode: "time_window",
         time_window: "P3M",
+        discount_type: "percentage",
+        percentage: 30,
+        fixed_amount_micros: null,
         amount_micros: 7000000,
         currency: "USD",
         name: "Holiday Sale 30%",
@@ -251,6 +257,9 @@ const monthlyWithForeverDiscountProductResponse: ProductResponse = {
       discount: {
         duration_mode: "forever",
         time_window: null,
+        discount_type: "percentage",
+        percentage: 40,
+        fixed_amount_micros: null,
         amount_micros: 6000000,
         currency: "USD",
         name: "Forever 40% Discount",
@@ -349,6 +358,9 @@ const consumableWithOneTimeDiscountProductResponse: ProductResponse = {
       discount: {
         duration_mode: "one_time",
         time_window: null,
+        discount_type: "percentage",
+        percentage: 20,
+        fixed_amount_micros: null,
         amount_micros: 800000,
         currency: "USD",
         name: "Consumable 20% Discount",
