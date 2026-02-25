@@ -119,8 +119,8 @@ const discountOneTime: DiscountPhase = {
   periodDuration: "P1M",
   timeWindow: null,
   durationMode: "one_time",
-  price: getPrice(895),
-  name: "One-time Discount 20%",
+  price: getPrice(100),
+  name: "One-time Discount to $1",
   period: {
     number: 1,
     unit: PeriodUnit.Month,
@@ -133,7 +133,7 @@ const discountTimeWindow: DiscountPhase = {
   periodDuration: "P3M",
   durationMode: "time_window",
   price: getPrice(799),
-  name: "Holiday Sale 20%",
+  name: "Holiday Sale $7.99",
   // Calculated from the time window
   period: {
     number: 1,
@@ -189,6 +189,20 @@ export const nonSubscriptionOptionWithDiscount = createNonSubscriptionOption({
   priceId: "nonsub_price_discount",
   discount: discountOneTime,
 });
+
+export const nonSubscriptionOptionWithFixedAmountDiscount =
+  createNonSubscriptionOption({
+    id: "nonsub_option_id_fixed_amount_discount",
+    priceId: "nonsub_price_fixed_amount_discount",
+    discount: discountOneTime,
+  });
+
+export const nonSubscriptionOptionWithTimeWindowDiscount =
+  createNonSubscriptionOption({
+    id: "nonsub_option_id_time_window_discount",
+    priceId: "nonsub_price_time_window_discount",
+    discount: discountTimeWindow,
+  });
 
 /**
  * Subscription fixtures
@@ -327,12 +341,51 @@ export const subscriptionOptionWithDiscountOneTime = createSubscriptionOption({
   discount: discountOneTime,
 });
 
+export const subscriptionOptionWithFixedAmountDiscount =
+  createSubscriptionOption({
+    id: "option_id_discount_one_time_fixed_amount",
+    priceId: "price_discount_one_time_fixed_amount",
+    discount: discountOneTime,
+  });
+
 // Discount (Time window)
 export const subscriptionOptionWithDiscount = createSubscriptionOption({
   id: "option_id_discount_time_window",
   priceId: "price_discount_time_window",
   discount: discountTimeWindow,
 });
+
+// Discount (Time window) - 3 month window, weekly billing cycle
+export const subscriptionOptionWithWeeklyBillingAndThreeMonthDiscount =
+  createSubscriptionOption({
+    id: "option_id_discount_time_window_weekly",
+    priceId: "price_discount_time_window_weekly",
+    base: {
+      ...subscriptionOptionBasePrice,
+      periodDuration: "P1W",
+      period: {
+        number: 1,
+        unit: PeriodUnit.Week,
+      },
+    },
+    discount: discountTimeWindow,
+  });
+
+// Discount (Time window) - 6 month window, yearly billing cycle
+export const subscriptionOptionWithYearlyBillingAndSixMonthDiscount =
+  createSubscriptionOption({
+    id: "option_id_discount_time_window_yearly",
+    priceId: "price_discount_time_window_yearly",
+    base: {
+      ...subscriptionOptionBasePrice,
+      periodDuration: "P1Y",
+      period: {
+        number: 1,
+        unit: PeriodUnit.Year,
+      },
+    },
+    discount: discountTimeWindow,
+  });
 
 // Discount (Forever)
 export const subscriptionOptionWithDiscountForever = createSubscriptionOption({

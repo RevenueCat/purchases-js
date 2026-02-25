@@ -35,20 +35,14 @@
   const translator: Writable<Translator> = getContext(translatorContextKey);
   const hasTrial = $derived(!!trialPhase?.periodDuration);
   const isPromoPaidUpfront = $derived(introPricePhase?.cycleCount === 1);
-  const promotionalPricePhase = $derived(discountPhase || introPricePhase);
-  const hasForeverPromotion = $derived(
-    !!(discountPhase && discountPhase.durationMode === "forever"),
-  );
-  const hasLimitedTimePromotion = $derived(
-    !!(introPricePhase || (discountPhase && !hasForeverPromotion)),
-  );
+  const hasLimitedTimePromotion = $derived(!!introPricePhase);
 
   const promoPriceDurationText = $derived.by(() => {
-    if (!hasLimitedTimePromotion || !promotionalPricePhase?.period) return "";
+    if (!hasLimitedTimePromotion || !introPricePhase?.period) return "";
 
     const totalPeriods =
-      promotionalPricePhase.period.number * promotionalPricePhase?.cycleCount;
-    const unit = promotionalPricePhase.period.unit;
+      introPricePhase.period.number * introPricePhase?.cycleCount;
+    const unit = introPricePhase.period.unit;
 
     if (totalPeriods == null || unit == null) return "";
 
@@ -67,23 +61,11 @@
   });
 
   const promoFrequencyText = $derived.by(() => {
-    if (!promotionalPricePhase?.period) return "";
+    if (!introPricePhase?.period) return "";
 
     if (isPromoPaidUpfront) {
       return $translator.translate(
         LocalizationKeys.ProductInfoIntroPricePhasePaidOnce,
-      );
-    }
-
-    if (
-      discountPhase &&
-      discountPhase.period &&
-      discountPhase?.durationMode === "time_window"
-    ) {
-      return (
-        $translator.translatePeriodFrequency(1, discountPhase.period.unit, {
-          useMultipleWords: true,
-        }) || ""
       );
     }
 
@@ -113,11 +95,10 @@
   );
 
   const formattedPrice = $derived.by(() => {
-    const useBasePhasePrice = introPricePhase || discountPhase;
-
-    const micros = useBasePhasePrice
-      ? (basePhase?.price?.amountMicros ?? 0)
-      : priceBreakdown.totalAmountInMicros;
+    const micros =
+      introPricePhase || discountPhase
+        ? (basePhase?.price?.amountMicros ?? 0)
+        : priceBreakdown.totalAmountInMicros;
 
     return $translator.formatPrice(micros, priceBreakdown.currency);
   });
@@ -171,14 +152,9 @@
   {/if}
 
   <div>
-    <Typography size={baseTypographySize} strikethrough={hasForeverPromotion}>
+    <Typography size={baseTypographySize}>
       {formattedPrice}
     </Typography>
-    {#if hasForeverPromotion}
-      <Typography size={baseTypographySize}>
-        {formattedPromoPrice}
-      </Typography>
-    {/if}
 
     {#if basePhase?.period}
       <Typography size="body-small">

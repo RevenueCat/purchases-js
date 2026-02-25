@@ -39,6 +39,7 @@ export const RC_PAYWALL_WITH_LATAM_TRANSLATION_OFFERING_ID =
 export const NON_TAX_TEST_API_KEY = process.env.VITE_RC_NON_TAX_E2E_API_KEY;
 export const TAX_TEST_API_KEY = process.env.VITE_RC_TAX_E2E_API_KEY;
 export const TAX_TEST_OFFERING_ID = "rcb_e2e_taxes";
+export const TAX_TEST_OFFERING_ID_WITH_DISCOUNT = "rcb_e2e_taxes_discounted";
 export const LOCAL_URL = "http://localhost:3001/";
 export const BASE_URL =
   (process.env?.VITE_RC_BILLING_DEMO_URL as string | undefined) ?? LOCAL_URL;
@@ -103,6 +104,46 @@ export const SPAIN_TAX_RESPONSE: RouteFulfillOptions = {
     tax_amount_in_micros: 1730000,
     total_amount_in_micros: 9990000,
     total_excluding_tax_in_micros: 8260000,
+    tax_inclusive: true,
+  } as CheckoutCalculateTaxResponse),
+};
+
+export const SPAIN_TAX_INCLUSIVE_DISCOUNTED_RESPONSE: RouteFulfillOptions = {
+  status: 200,
+  contentType: "application/json",
+  body: JSON.stringify({
+    mocked: true,
+    currency: "USD",
+    failed_reason: undefined,
+    gateway_params: {
+      elements_configuration: {
+        amount: 792,
+        currency: "usd",
+        mode: "payment",
+        payment_method_types: ["card"],
+        setup_future_usage: "off_session",
+      },
+    },
+    operation_session_id: "MOCKED",
+    tax_breakdown: [
+      {
+        display_name: "VAT - Spain (21%)",
+        tax_amount_in_micros: 1374545,
+      },
+    ],
+    pricing_phases: {
+      base: {
+        tax_breakdown: [
+          {
+            display_name: "VAT - Spain (21%)",
+            tax_amount_in_micros: 1374545,
+          },
+        ],
+      },
+    },
+    tax_amount_in_micros: 1374545,
+    total_amount_in_micros: 7920000,
+    total_excluding_tax_in_micros: 6545455,
     tax_inclusive: true,
   } as CheckoutCalculateTaxResponse),
 };
