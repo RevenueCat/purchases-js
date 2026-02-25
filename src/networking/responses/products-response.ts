@@ -13,7 +13,7 @@ export interface DiscountResponse extends PriceResponse {
   name: string | null;
   duration_mode: "one_time" | "time_window" | "forever";
   time_window: string | null;
-  discount_type?: "percentage" | "fixed" | null;
+  discount_type?: "percentage" | "fixed_amount" | null;
   percentage?: number | null;
   fixed_amount_micros?: number | null;
 }

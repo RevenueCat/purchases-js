@@ -192,7 +192,7 @@ export interface DiscountPhase {
   /**
    * The type of discount applied to this purchase option.
    */
-  readonly discountType: "percentage" | "fixed" | null;
+  readonly discountType: "percentage" | "fixed_amount" | null;
   /**
    * The percentage discount amount, if this discount is percentage-based.
    */
