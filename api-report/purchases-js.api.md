@@ -155,6 +155,7 @@ export interface GetOfferingsParams {
 export interface HttpConfig {
     additionalHeaders?: Record<string, string>;
     proxyURL?: string;
+    /* Excluded from this release type: eventsURL */
 }
 
 // @public
