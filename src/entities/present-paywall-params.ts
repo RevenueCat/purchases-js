@@ -1,4 +1,5 @@
 import type { Offering } from "./offerings";
+import type { CustomVariables } from "@revenuecat/purchases-ui-js";
 
 /**
  * Parameters for the {@link Purchases.presentPaywall} method.
@@ -70,4 +71,9 @@ export interface PresentPaywallParams {
    * Whether to hide back buttons in the paywall. Defaults to false.
    */
   readonly hideBackButtons?: boolean;
+
+  /**
+   * TODO: write this doc
+   * */
+  readonly customVariables?: CustomVariables;
 }
