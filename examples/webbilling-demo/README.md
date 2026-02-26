@@ -6,6 +6,7 @@
   - `npm i`
   - `npm run build`
 - Install dependencies for the webbilling-demo app
+
   - `npm i`
 
 - Set the following env variables. You can set them in a `.env` file in the root of this demo app.
