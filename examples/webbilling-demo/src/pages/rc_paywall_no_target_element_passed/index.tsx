@@ -2,6 +2,8 @@ import type { PurchaseResult } from "@revenuecat/purchases-js";
 import { Purchases } from "@revenuecat/purchases-js";
 import React from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { usePaywallSettings } from "../../hooks/usePaywallSettings";
+import SettingsGearButton from "../../components/SettingsGearButton";
 
 // This page is used to test the case where no html element is passed to the paywall.
 // The SDK will create an overlay with a transparent background and render the paywall in it.
@@ -9,12 +11,14 @@ const RCPaywallNoTargetElementPassedPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const lang = searchParams.get("lang");
+  const { openSettings, settings } = usePaywallSettings();
 
   const onShowPaywallClicked = () => {
     const purchases = Purchases.getSharedInstance();
     purchases
       .presentPaywall({
         selectedLocale: lang || undefined,
+        customVariables: settings,
         onBack: (unmountPaywall) => {
           console.log("Back button clicked");
           unmountPaywall();
@@ -49,6 +53,7 @@ const RCPaywallNoTargetElementPassedPage: React.FC = () => {
       }}
     >
       <button onClick={onShowPaywallClicked}>Show paywall</button>
+      <SettingsGearButton onClick={openSettings} />
     </div>
   );
 };
