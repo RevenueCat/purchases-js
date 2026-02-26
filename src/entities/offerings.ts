@@ -192,7 +192,7 @@ export interface DiscountPhase {
   /**
    * The type of discount applied to this purchase option.
    */
-  readonly discountType: "percentage" | "fixed_amount" | null;
+  readonly discountType: "percentage" | "fixed_amount";
   /**
    * The percentage discount amount, if this discount is percentage-based.
    */
@@ -615,7 +615,7 @@ const toDiscountPhase = (
     period: period,
     cycleCount: cycleCount ?? 0,
     periodDuration: periodDuration,
-    discountType: optionPhase.discount_type ?? null,
+    discountType: optionPhase.discount_type,
     percentage: optionPhase.percentage ?? null,
     fixedAmount:
       optionPhase.fixed_amount_micros != null
