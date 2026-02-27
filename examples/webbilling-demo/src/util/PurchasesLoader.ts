@@ -106,6 +106,8 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
       purchases.getOfferings({
         currency: currency || undefined,
         offeringIdentifier: offeringId || undefined,
+
+        // @ts-expect-error - discountCode is experimental
         discountCode: discountCode || undefined,
       }),
     ]);
