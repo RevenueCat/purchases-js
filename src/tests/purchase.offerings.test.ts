@@ -341,6 +341,31 @@ describe("getOfferings", () => {
     );
   });
 
+  test("gets offerings with discountCode", async () => {
+    const purchases = configurePurchases();
+    await purchases.getOfferings({ discountCode: "SUMMER2024" }).then(
+      (offerings) => {
+        expect(offerings.current).not.toBeNull();
+      },
+      () => assert.fail("Getting offerings with discountCode failed"),
+    );
+  });
+
+  test("gets offerings with both currency and discountCode", async () => {
+    const purchases = configurePurchases();
+    await purchases
+      .getOfferings({ currency: "EUR", discountCode: "SUMMER2024" })
+      .then(
+        (offerings) => {
+          expect(offerings.current).not.toBeNull();
+        },
+        () =>
+          assert.fail(
+            "Getting offerings with currency and discountCode failed",
+          ),
+      );
+  });
+
   test("can get offerings with a specific offering identifier", async () => {
     const purchases = configurePurchases();
     const offerings = await purchases.getOfferings({
