@@ -823,6 +823,7 @@ export class Purchases {
       appUserId,
       productIds,
       params?.currency,
+      params?.discountCode,
     );
 
     this.logMissingProductIds(productIds, productsResponse.product_details);
