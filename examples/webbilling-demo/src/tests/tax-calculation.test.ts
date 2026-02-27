@@ -17,6 +17,7 @@ import {
   STRIPE_TAX_NOT_ACTIVE_RESPONSE,
   INVALID_TAX_ORIGIN_RESPONSE,
   MISSING_STRIPE_PERMISSION_RESPONSE,
+  TAX_TEST_DISCOUNT_CODE,
 } from "./helpers/fixtures";
 import {
   integrationTest,
@@ -47,11 +48,12 @@ const navigateToTaxesLandingUrl = (
   page: Page,
   userId: string,
   offeringId: string = TAX_TEST_OFFERING_ID,
+  discountCode?: string,
 ) =>
   navigateToLandingUrl(
     page,
     userId,
-    { offeringId: offeringId },
+    { offeringId: offeringId, discountCode: discountCode },
     TAX_TEST_API_KEY,
   );
 
@@ -244,6 +246,7 @@ const mockTaxCalculationRequest = async (
             page,
             userId,
             TAX_TEST_OFFERING_ID_WITH_DISCOUNT,
+            TAX_TEST_DISCOUNT_CODE,
           );
 
           const packageCards = await getPackageCards(page);
@@ -259,11 +262,11 @@ const mockTaxCalculationRequest = async (
           await expect(lines[1].getByText(/Discount/)).toBeVisible();
           await expect(lines[1].getByText("-$1.00")).toBeVisible();
           await expect(lines[2].getByText(/Total excluding tax/)).toBeVisible();
-          await expect(lines[2].getByText("$6.55")).toBeVisible();
+          await expect(lines[2].getByText("$7.43")).toBeVisible();
           await expect(lines[3].getByText(/VAT - Spain \(21%\)/)).toBeVisible();
-          await expect(lines[3].getByText("$1.37")).toBeVisible();
+          await expect(lines[3].getByText("$1.56")).toBeVisible();
           await expect(lines[4].getByText(/Total due today/)).toBeVisible();
-          await expect(lines[4].getByText("$7.92")).toBeVisible();
+          await expect(lines[4].getByText("$8.99")).toBeVisible();
         },
       );
 
