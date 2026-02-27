@@ -126,6 +126,9 @@ const discountOneTime: DiscountPhase = {
     unit: PeriodUnit.Month,
   },
   cycleCount: 1,
+  discountType: "percentage",
+  percentage: 20,
+  fixedAmount: null,
 };
 
 const discountTimeWindow: DiscountPhase = {
@@ -140,6 +143,9 @@ const discountTimeWindow: DiscountPhase = {
     unit: PeriodUnit.Month,
   },
   cycleCount: 3,
+  discountType: "percentage",
+  percentage: 20,
+  fixedAmount: null,
 };
 
 const discountForever: DiscountPhase = {
@@ -153,6 +159,9 @@ const discountForever: DiscountPhase = {
     unit: PeriodUnit.Month,
   },
   cycleCount: 0,
+  discountType: "percentage",
+  percentage: 30,
+  fixedAmount: null,
 };
 
 /**
