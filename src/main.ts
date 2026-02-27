@@ -161,6 +161,10 @@ export type { PurchasesConfig } from "./entities/purchases-config";
 export type { VirtualCurrencies } from "./entities/virtual-currencies";
 export type { VirtualCurrency } from "./entities/virtual-currency";
 export type { PresentPaywallParams } from "./entities/present-paywall-params";
+export {
+  CustomVariableValue,
+  type CustomVariables,
+} from "@revenuecat/purchases-ui-js";
 export type {
   PresentExpressPurchaseButtonParams,
   ExpressPurchaseButtonUpdater,
@@ -747,6 +751,7 @@ export class Purchases {
           infoPerPackage,
           hideBackButtons: paywallParams.hideBackButtons,
           walletButtonRender,
+          customVariables: paywallParams.customVariables,
         },
       });
 

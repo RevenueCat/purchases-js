@@ -1,4 +1,5 @@
 import type { Offering } from "./offerings";
+import type { CustomVariables } from "@revenuecat/purchases-ui-js";
 
 /**
  * Parameters for the {@link Purchases.presentPaywall} method.
@@ -70,4 +71,23 @@ export interface PresentPaywallParams {
    * Whether to hide back buttons in the paywall. Defaults to false.
    */
   readonly hideBackButtons?: boolean;
+
+  /**
+   * Custom variables to pass to the paywall at runtime, overriding defaults set
+   * in the RevenueCat dashboard.
+   *
+   * Variables must be defined in the dashboard first. Reference them in paywall
+   * text using the `custom.` prefix (e.g. `{{ custom.player_name }}`).
+   *
+   * @example
+   * ```ts
+   * presentPaywall({
+   *   customVariables: {
+   *     player_name: CustomVariableValue.string('Ada'),
+   *     level: CustomVariableValue.string('42'),
+   *   },
+   * });
+   * ```
+   */
+  readonly customVariables?: CustomVariables;
 }

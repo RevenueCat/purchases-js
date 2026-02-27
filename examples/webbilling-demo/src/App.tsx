@@ -17,6 +17,7 @@ import RCPaywallNoTargetElementPassedPage from "./pages/rc_paywall_no_target_ele
 import RedemptionLinksTester from "./pages/redemption_links_tester";
 import RCPaywallLauncherPage from "./pages/rc_paywall_launcher";
 import ExpressPurchaseButtonsPackageSelector from "./pages/express_purchase_buttons";
+import RCPaywallSettingsPage from "./pages/rc_paywall_settings";
 
 const router = createBrowserRouter([
   {
@@ -77,6 +78,10 @@ const router = createBrowserRouter([
         <RCPaywallNoTargetElementPassedPage />
       </WithoutEntitlement>
     ),
+  },
+  {
+    path: "/rc_paywall_settings",
+    element: <RCPaywallSettingsPage />,
   },
   {
     path: "/express_purchase_buttons/:app_user_id",

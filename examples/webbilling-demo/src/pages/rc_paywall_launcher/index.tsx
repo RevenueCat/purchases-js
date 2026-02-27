@@ -1,16 +1,20 @@
 import type { PaywallPurchaseResult } from "@revenuecat/purchases-js";
 import { Purchases, PurchasesError } from "@revenuecat/purchases-js";
 import React from "react";
+import { usePaywallSettings } from "../../hooks/usePaywallSettings";
+import SettingsGearButton from "../../components/SettingsGearButton";
 
 const RCPaywallLauncherPage: React.FC = () => {
   const [purchaseResult, setPurchaseResult] =
     React.useState<PaywallPurchaseResult | null>(null);
   const [error, setError] = React.useState<PurchasesError | null>(null);
+  const { openSettings, settings } = usePaywallSettings();
 
   const onLaunchPaywallClicked = () => {
     const purchases = Purchases.getSharedInstance();
     purchases
       .presentPaywall({
+        customVariables: settings,
         onPurchaseError: (error) => {
           console.error(
             `There was a purchase error inside the paywall: ${error}`,
@@ -159,6 +163,7 @@ const RCPaywallLauncherPage: React.FC = () => {
       ) : !error ? (
         <p>No purchase result yet. Click the button to launch the paywall.</p>
       ) : null}
+      <SettingsGearButton onClick={openSettings} />
     </div>
   );
 };
