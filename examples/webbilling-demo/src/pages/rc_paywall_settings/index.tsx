@@ -71,7 +71,7 @@ const RCPaywallSettingsPage: React.FC = () => {
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {entries.map((entry, index) => (
             <div
-              key={entry.key}
+              key={index}
               style={{ display: "flex", gap: 8, alignItems: "center" }}
             >
               <input
