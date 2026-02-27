@@ -2,18 +2,9 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   type CustomVariableEntry,
+  readEntries,
   writeEntries,
 } from "../../hooks/usePaywallSettings";
-
-function readEntries(): CustomVariableEntry[] {
-  try {
-    const raw = localStorage.getItem("rc_paywall_custom_variables");
-    if (!raw) return [];
-    return JSON.parse(raw) as CustomVariableEntry[];
-  } catch {
-    return [];
-  }
-}
 
 const RCPaywallSettingsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -80,7 +71,7 @@ const RCPaywallSettingsPage: React.FC = () => {
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {entries.map((entry, index) => (
             <div
-              key={index}
+              key={entry.key}
               style={{ display: "flex", gap: 8, alignItems: "center" }}
             >
               <input
