@@ -149,6 +149,7 @@ export interface FlagsConfig {
 export interface GetOfferingsParams {
     readonly currency?: string;
     readonly offeringIdentifier?: string | OfferingKeyword;
+    /* Excluded from this release type: discountCode */
 }
 
 // @public
