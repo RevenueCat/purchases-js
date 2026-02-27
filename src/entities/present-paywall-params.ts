@@ -73,7 +73,21 @@ export interface PresentPaywallParams {
   readonly hideBackButtons?: boolean;
 
   /**
-   * TODO: write this doc
-   * */
+   * Custom variables to pass to the paywall at runtime, overriding defaults set
+   * in the RevenueCat dashboard.
+   *
+   * Variables must be defined in the dashboard first. Reference them in paywall
+   * text using the `custom.` prefix (e.g. `{{ custom.player_name }}`).
+   *
+   * @example
+   * ```ts
+   * presentPaywall({
+   *   customVariables: {
+   *     player_name: CustomVariableValue.string('Ada'),
+   *     level: CustomVariableValue.string('42'),
+   *   },
+   * });
+   * ```
+   */
   readonly customVariables?: CustomVariables;
 }
