@@ -9,7 +9,7 @@ const STORAGE_KEY = "rc_paywall_custom_variables";
 
 export type CustomVariableEntry = { key: string; value: string };
 
-function readEntries(): CustomVariableEntry[] {
+export function readEntries(): CustomVariableEntry[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
