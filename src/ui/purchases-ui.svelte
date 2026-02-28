@@ -28,6 +28,7 @@
   import type { PurchaseMetadata } from "../entities/offerings";
   import type { WorkflowPurchaseContext } from "../entities/purchase-params";
   import { writable } from "svelte/store";
+  import type { BrandingAppearance } from "../entities/branding";
   import { type GatewayParams } from "../networking/responses/stripe-elements";
   import { validateEmail } from "../helpers/validators";
 
@@ -98,8 +99,11 @@
     defaultLocale,
   );
   let translatorStore = writable(translator);
+  const brandingAppearanceStore = writable<BrandingAppearance | null>(
+    brandingInfo?.appearance ?? null,
+  );
   setContext(translatorContextKey, translatorStore);
-  setContext(brandingContextKey, brandingInfo?.appearance);
+  setContext(brandingContextKey, brandingAppearanceStore);
 
   onMount(() => {
     if (!isInElement) {

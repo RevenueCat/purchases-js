@@ -16,6 +16,8 @@ declare global {
 
 export const apiKey = window.__RC_API_KEY__ || import.meta.env.VITE_RC_API_KEY;
 const canary = import.meta.env.VITE_RC_CANARY;
+export const isPaddleApiKey = /^pdl_[a-zA-Z0-9_.-]+$/.test(apiKey);
+export const isStripeApiKey = /^strp_[a-zA-Z0-9_.-]+$/.test(apiKey);
 
 type IPurchasesLoaderData = {
   purchases: Purchases;

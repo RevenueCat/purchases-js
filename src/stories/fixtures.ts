@@ -555,6 +555,7 @@ const accountId = import.meta.env.VITE_STORYBOOK_ACCOUNT_ID;
 
 export const checkoutStartResponse: WebBillingCheckoutStartResponse = {
   operation_session_id: "rcbopsess_test_test_test",
+  stripe_billing_params: null,
   gateway_params: {
     publishable_api_key: publishableApiKey,
     stripe_account_id: accountId,
