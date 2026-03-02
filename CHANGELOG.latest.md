@@ -1,7 +1,6 @@
 ## RevenueCat SDK
-### ✨ New Features
-* Add discounts (#752) via Burdock (@lburdock)
+### 🐞 Bugfixes
+* [WEB-3781] simplify discounts aproach v2 (#773) via James O'Donnell (@james-od)
 
 ### 🔄 Other Changes
-* Bump fastlane from 2.231.1 to 2.232.1 (#757) via dependabot[bot] (@dependabot[bot])
-* docs: add onBack callback example (#756) via Nicola Sacco (@nicfix)
+* Fix purchase flow e2e tests (#777) via James O'Donnell (@james-od)

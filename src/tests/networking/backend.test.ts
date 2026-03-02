@@ -420,7 +420,11 @@ describe("getOfferings request", () => {
 });
 
 describe("getProducts request", () => {
-  function setProductsResponse(httpResponse: HttpResponse, currency?: string) {
+  function setProductsResponse(
+    httpResponse: HttpResponse,
+    currency?: string,
+    discountCode?: string,
+  ) {
     const baseUrl =
       "http://localhost:8000/rcbilling/v1/subscribers/someAppUserId/products";
     server.use(
@@ -428,11 +432,13 @@ describe("getProducts request", () => {
         const url = new URL(request.url);
         const productIds = url.searchParams.getAll("id");
         const urlCurrency = url.searchParams.get("currency");
+        const urlDiscountCode = url.searchParams.get("discountCode");
         if (
           productIds.includes("monthly") &&
           productIds.includes("monthly_2") &&
           productIds.length === 2 &&
-          (urlCurrency === null || urlCurrency === currency)
+          (urlCurrency === null || urlCurrency === currency) &&
+          (urlDiscountCode === null || urlDiscountCode === discountCode)
         ) {
           return httpResponse;
         }
@@ -458,6 +464,38 @@ describe("getProducts request", () => {
         "someAppUserId",
         ["monthly", "monthly_2"],
         "USD",
+      ),
+    ).toEqual(productsResponse);
+  });
+
+  test("passes request with discountCode successfully", async () => {
+    setProductsResponse(
+      HttpResponse.json(productsResponse, { status: 200 }),
+      undefined,
+      "SUMMER2024",
+    );
+    expect(
+      await backend.getProducts(
+        "someAppUserId",
+        ["monthly", "monthly_2"],
+        undefined,
+        "SUMMER2024",
+      ),
+    ).toEqual(productsResponse);
+  });
+
+  test("passes request with both currency and discountCode successfully", async () => {
+    setProductsResponse(
+      HttpResponse.json(productsResponse, { status: 200 }),
+      "USD",
+      "SUMMER2024",
+    );
+    expect(
+      await backend.getProducts(
+        "someAppUserId",
+        ["monthly", "monthly_2"],
+        "USD",
+        "SUMMER2024",
       ),
     ).toEqual(productsResponse);
   });

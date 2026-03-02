@@ -6,8 +6,10 @@ import {
   ITALY_CUSTOMER_DETAILS,
   NEW_YORK_CUSTOMER_DETAILS,
   SPAIN_TAX_RESPONSE,
+  SPAIN_TAX_INCLUSIVE_DISCOUNTED_RESPONSE,
   TAX_TEST_API_KEY,
   TAX_TEST_OFFERING_ID,
+  TAX_TEST_OFFERING_ID_WITH_DISCOUNT,
   NOT_COLLECTING_TAX_RESPONSE,
   INVALID_TAX_LOCATION_RESPONSE,
   NEW_YORK_TAX_RESPONSE,
@@ -15,6 +17,7 @@ import {
   STRIPE_TAX_NOT_ACTIVE_RESPONSE,
   INVALID_TAX_ORIGIN_RESPONSE,
   MISSING_STRIPE_PERMISSION_RESPONSE,
+  TAX_TEST_DISCOUNT_CODE,
 } from "./helpers/fixtures";
 import {
   integrationTest,
@@ -41,11 +44,16 @@ import type { RouteFulfillOptions } from "./helpers/test-helpers";
 const TAX_BREAKDOWN_ITEM_SELECTOR = ".rcb-pricing-table-row";
 const TAX_ROUTE_PATH = "**/checkout/*/calculate_taxes";
 
-const navigateToTaxesLandingUrl = (page: Page, userId: string) =>
+const navigateToTaxesLandingUrl = (
+  page: Page,
+  userId: string,
+  offeringId: string = TAX_TEST_OFFERING_ID,
+  discountCode?: string,
+) =>
   navigateToLandingUrl(
     page,
     userId,
-    { offeringId: TAX_TEST_OFFERING_ID },
+    { offeringId: offeringId, discountCode: discountCode },
     TAX_TEST_API_KEY,
   );
 
@@ -221,6 +229,44 @@ const mockTaxCalculationRequest = async (
           await expect(lines[1].getByText("$1.80")).toBeVisible();
           await expect(lines[2].getByText(/Total due today/)).toBeVisible();
           await expect(lines[2].getByText("$9.99")).toBeVisible();
+        },
+      );
+
+      integrationTest(
+        "Displays correct discount and tax-inclusive totals",
+        async ({ page, userId }) => {
+          if (mockMode) {
+            await mockTaxCalculationRequest(
+              page,
+              SPAIN_TAX_INCLUSIVE_DISCOUNTED_RESPONSE,
+            );
+          }
+
+          page = await navigateToTaxesLandingUrl(
+            page,
+            userId,
+            TAX_TEST_OFFERING_ID_WITH_DISCOUNT,
+            TAX_TEST_DISCOUNT_CODE,
+          );
+
+          const packageCards = await getPackageCards(page);
+          await startPurchaseFlow(packageCards[0]);
+
+          const pricingRows = page.locator(TAX_BREAKDOWN_ITEM_SELECTOR);
+          await expect(pricingRows).toHaveCount(5);
+
+          const lines = await pricingRows.all();
+          expect(lines).toHaveLength(5);
+          await expect(lines[0].getByText(/Subtotal/)).toBeVisible();
+          await expect(lines[0].getByText("$9.99")).toBeVisible();
+          await expect(lines[1].getByText(/Discount/)).toBeVisible();
+          await expect(lines[1].getByText("-$1.00")).toBeVisible();
+          await expect(lines[2].getByText(/Total excluding tax/)).toBeVisible();
+          await expect(lines[2].getByText("$7.43")).toBeVisible();
+          await expect(lines[3].getByText(/VAT - Spain \(21%\)/)).toBeVisible();
+          await expect(lines[3].getByText("$1.56")).toBeVisible();
+          await expect(lines[4].getByText(/Total due today/)).toBeVisible();
+          await expect(lines[4].getByText("$8.99")).toBeVisible();
         },
       );
 

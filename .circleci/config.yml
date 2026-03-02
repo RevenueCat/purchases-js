@@ -204,6 +204,13 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Skip E2E tests if requested
+          command: |
+            if [ "${SKIP_E2E_TESTS:-false}" = "true" ] || [ "${SKIP_E2E_TESTS:-0}" = "1" ]; then
+              echo "Skipping E2E tests because SKIP_E2E_TESTS is enabled"
+              circleci-agent step halt
+            fi
+      - run:
           name: Update ENV for E2E test
           command: |
             echo 'export VITE_RC_API_KEY=${E2E_RC_API_KEY}; export VITE_RC_TAX_E2E_API_KEY=${E2E_RC_TAX_E2E_API_KEY}; export VITE_SKIP_TAX_REAL_TESTS_UNTIL=${VITE_SKIP_TAX_REAL_TESTS_UNTIL}; export VITE_ALLOW_PAYWALLS_TESTS=true' >> "$BASH_ENV"

@@ -1,3 +1,21 @@
+## 1.26.3
+## RevenueCat SDK
+### 🐞 Bugfixes
+* [WEB-3781] simplify discounts aproach v2 (#773) via James O'Donnell (@james-od)
+
+### 🔄 Other Changes
+* Fix purchase flow e2e tests (#777) via James O'Donnell (@james-od)
+
+## 1.26.2
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Fixed an issue with scrolling in chrome. (#775) via Nicola Sacco (@nicfix)
+
+## 1.26.1
+### 🔄 Other Changes
+* Bump purchases-ui-js package to 3.7.1 (#764) via Jamie Holwill (@jholwill)
+* Bump fastlane-plugin-revenuecat_internal from `e6454e3` to `afc9219` (#761) via dependabot[bot] (@dependabot[bot])
+
 ## 1.26.0
 ## RevenueCat SDK
 ### ✨ New Features

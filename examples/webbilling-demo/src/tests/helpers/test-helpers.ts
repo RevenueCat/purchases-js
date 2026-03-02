@@ -79,6 +79,7 @@ export async function navigateToLandingUrl(
     $displayName?: string;
     nickname?: string;
     hideBackButtons?: boolean;
+    discountCode?: string;
   },
   apiKey?: string,
 ) {
@@ -100,6 +101,7 @@ export async function navigateToLandingUrl(
     email,
     $displayName,
     nickname,
+    discountCode,
   } = queryString ?? {};
 
   const params = new URLSearchParams();
@@ -139,6 +141,9 @@ export async function navigateToLandingUrl(
   if (queryString?.hideBackButtons !== undefined) {
     params.append("hideBackButtons", queryString.hideBackButtons.toString());
   }
+  if (discountCode) {
+    params.append("discountCode", discountCode);
+  }
 
   const rcPaywallPath = offeringId ? "rc_paywall" : "rc_paywall_no_offering";
 
@@ -172,7 +177,7 @@ export const getPaywallPurchaseButtons = (page: Page) =>
 
 export const getStripePaymentFrame = (page: Page) =>
   page.frameLocator(
-    "iframe[src*='https://js.stripe.com/v3/elements-inner-payment']",
+    "#payment-element iframe[title='Secure payment input frame']",
   );
 
 export const getStripeEmailFrame = (page: Page) =>
@@ -182,6 +187,12 @@ export const getStripe3DSFrame = (page: Page) =>
   page.frameLocator(
     "iframe[src*='https://js.stripe.com/v3/three-ds-2-challenge']",
   );
+
+async function waitForCheckoutFormReady(page: Page): Promise<void> {
+  const formContainer = page.locator(".rc-checkout-form-container");
+  await expect(formContainer).toBeVisible();
+  await expect(formContainer).not.toHaveClass(/invisible/);
+}
 
 export async function enterEmail(page: Page, email: string): Promise<void> {
   const stripeFrame = getStripeEmailFrame(page);
@@ -207,13 +218,15 @@ export async function enterCreditCardDetails(
   const expiration = cardInfo?.expiration || `01 / ${expirationYear}`;
   const securityCode = cardInfo?.securityCode || "123";
 
-  page.locator("button[data-testid='PayButton']").waitFor();
+  await waitForCheckoutFormReady(page);
+  await page.locator("button[data-testid='PayButton']").waitFor();
   const checkoutTitle = page.getByText("Secure Checkout");
 
   await expect(checkoutTitle).toBeVisible();
   const stripeFrame = getStripePaymentFrame(page);
 
   const numberInput = stripeFrame.getByPlaceholder("1234 1234 1234");
+  await expect(numberInput).toBeVisible();
   await numberInput.fill(cardNumber);
 
   // Inserting the country first just to make sure that the change event is triggered by Stripe
@@ -291,10 +304,10 @@ export async function confirmStripeEmailError(page: Page, message: string) {
 }
 
 export async function confirmStripeEmailFieldNotVisible(page: Page) {
-  // Wait for the credit card to be loaded
-  const numberInput =
-    getStripePaymentFrame(page).getByPlaceholder("1234 1234 1234");
-  await expect(numberInput).toBeVisible();
+  await waitForCheckoutFormReady(page);
+  await expect(
+    page.locator("#payment-element iframe[title='Secure payment input frame']"),
+  ).toBeVisible();
 
   // Then check that the email field is not visible
   const stripeFrame = getStripeEmailFrame(page);
