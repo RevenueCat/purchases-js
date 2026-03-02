@@ -589,6 +589,7 @@ export class Purchases {
         selectedLocale: finalLocale,
         defaultLocale:
           offering.paywallComponents?.default_locale || englishLocale,
+        paywallId: offering.paywallComponents?.id,
       });
 
       return { ...purchaseResult, selectedPackage: pkg };
@@ -1087,6 +1088,7 @@ export class Purchases {
           purchaseOption: purchaseOptionToUse,
           customerEmail,
           workflowPurchaseContext,
+          paywallId: params.paywallId,
           onFinished,
           onClose,
           onError,
@@ -1350,6 +1352,7 @@ export class Purchases {
       product,
       this.backend,
       this._appUserId,
+      undefined,
     );
   }
 

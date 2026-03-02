@@ -171,6 +171,7 @@ export class Backend {
     email?: string,
     metadata: PurchaseMetadata | undefined = undefined,
     stepId?: string,
+    paywallId?: string,
   ): Promise<T> {
     type CheckoutStartRequestBody = {
       app_user_id: string;
@@ -188,6 +189,9 @@ export class Backend {
       email?: string;
       metadata?: PurchaseMetadata;
       trace_id: string;
+      paywall?: {
+        paywall_id: string;
+      };
     };
 
     const requestBody: CheckoutStartRequestBody = {
@@ -227,6 +231,12 @@ export class Backend {
 
     if (stepId) {
       requestBody.presented_step_id = stepId;
+    }
+
+    if (paywallId) {
+      requestBody.paywall = {
+        paywall_id: paywallId,
+      };
     }
 
     return (await performRequest<CheckoutStartRequestBody, T>(
@@ -347,6 +357,7 @@ export class Backend {
     fetchToken: string,
     presentedOfferingContext: PresentedOfferingContext,
     initiationSource: string,
+    paywallId?: string,
   ): Promise<SubscriberResponse> {
     type PostReceiptTargetingRule = {
       rule_id: string;
@@ -362,6 +373,9 @@ export class Backend {
       presented_workflow_id?: string | null;
       applied_targeting_rule?: PostReceiptTargetingRule | null;
       initiation_source: string;
+      paywall?: {
+        paywall_id: string;
+      };
     };
 
     let targetingInfo: PostReceiptTargetingRule | null = null;
@@ -386,6 +400,12 @@ export class Backend {
       applied_targeting_rule: targetingInfo,
       initiation_source: initiationSource,
     };
+
+    if (paywallId) {
+      requestBody.paywall = {
+        paywall_id: paywallId,
+      };
+    }
 
     return await performRequest<PostReceiptRequestBody, SubscriberResponse>(
       new PostReceiptEndpoint(),

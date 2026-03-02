@@ -209,6 +209,43 @@ describe("PurchaseOperationHelper", () => {
     );
   });
 
+  test("checkoutStart passes paywallId to backend when provided", async () => {
+    const mockPostCheckoutStart = vi
+      .spyOn(backend, "postCheckoutStart")
+      .mockResolvedValue(checkoutStartResponse);
+
+    await purchaseOperationHelper.checkoutStart(
+      "test-app-user-id",
+      "test-product-id",
+      { id: "test-option-id", priceId: "test-price-id" },
+      {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      "test@example.com",
+      undefined,
+      undefined,
+      "paywall-abc-123",
+    );
+
+    expect(mockPostCheckoutStart).toHaveBeenCalledWith(
+      "test-app-user-id",
+      "test-product-id",
+      {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      { id: "test-option-id", priceId: "test-price-id" },
+      testTraceId,
+      "test@example.com",
+      undefined,
+      undefined,
+      "paywall-abc-123",
+    );
+  });
+
   test("prepareCheckout returns the backend response", async () => {
     setCheckoutPrepareResponse(
       HttpResponse.json(checkoutPrepareResponse, {
