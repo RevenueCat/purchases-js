@@ -34,6 +34,7 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
   const searchParams = new URL(request.url).searchParams;
   const currency = searchParams.get("currency");
   const offeringId = searchParams.get("offeringId");
+  const discountCode = searchParams.get("discountCode") || undefined;
   const rcSource = searchParams.get("rcSource") || undefined;
   const optOutOfAutoUTM =
     searchParams.get("optOutOfAutoUTM") === "true" || false;
@@ -115,6 +116,9 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
       purchases.getOfferings({
         currency: currency || undefined,
         offeringIdentifier: offeringId || undefined,
+
+        // @ts-expect-error - discountCode is experimental
+        discountCode: discountCode || undefined,
       }),
     ]);
 

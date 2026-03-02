@@ -79,6 +79,7 @@ export async function navigateToLandingUrl(
     $displayName?: string;
     nickname?: string;
     hideBackButtons?: boolean;
+    discountCode?: string;
   },
   apiKey?: string,
 ) {
@@ -100,6 +101,7 @@ export async function navigateToLandingUrl(
     email,
     $displayName,
     nickname,
+    discountCode,
   } = queryString ?? {};
 
   const params = new URLSearchParams();
@@ -138,6 +140,9 @@ export async function navigateToLandingUrl(
   }
   if (queryString?.hideBackButtons !== undefined) {
     params.append("hideBackButtons", queryString.hideBackButtons.toString());
+  }
+  if (discountCode) {
+    params.append("discountCode", discountCode);
   }
 
   const rcPaywallPath = offeringId ? "rc_paywall" : "rc_paywall_no_offering";
