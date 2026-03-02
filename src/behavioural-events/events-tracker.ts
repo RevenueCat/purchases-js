@@ -11,6 +11,7 @@ import {
   type SDKEventContextSource,
 } from "./sdk-event-context";
 import type { WorkflowContext } from "../entities/purchases-config";
+import type { HttpConfig } from "../entities/http-config";
 
 const MIN_INTERVAL_RETRY = 2_000;
 const MAX_INTERVAL_RETRY = 5 * 60_000;
@@ -30,6 +31,7 @@ export interface EventsTrackerProps {
   silent?: boolean;
   workflowContext?: WorkflowContext;
   trace_id?: string;
+  httpConfig?: HttpConfig;
 }
 
 export interface IEventsTracker {
@@ -60,7 +62,7 @@ export default class EventsTracker implements IEventsTracker {
 
   constructor(props: EventsTrackerProps) {
     this.apiKey = props.apiKey;
-    this.eventsUrl = `${RC_ANALYTICS_ENDPOINT}/v1/events`;
+    this.eventsUrl = `${props.httpConfig?.eventsURL ?? RC_ANALYTICS_ENDPOINT}/v1/events`;
     this.appUserId = props.appUserId;
     this.isSilent = props.silent || false;
     this.rcSource = props.rcSource;
