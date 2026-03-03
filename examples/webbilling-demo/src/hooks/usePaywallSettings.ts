@@ -7,6 +7,10 @@ import {
 
 const STORAGE_KEY = "rc_paywall_custom_variables";
 
+export type Settings = {
+  customVariables: CustomVariables;
+};
+
 export type CustomVariableEntry = { key: string; value: string };
 
 export function readEntries(): CustomVariableEntry[] {
@@ -37,12 +41,14 @@ function buildCustomVariables(entries: CustomVariableEntry[]): CustomVariables {
 
 export function usePaywallSettings(): {
   openSettings: () => void;
-  settings: CustomVariables;
+  settings: Settings;
 } {
   const navigate = useNavigate();
 
-  const settings = useMemo(() => {
-    return buildCustomVariables(readEntries());
+  const settings = useMemo<Settings>(() => {
+    return {
+      customVariables: buildCustomVariables(readEntries()),
+    };
   }, []);
 
   const openSettings = useCallback(() => {
