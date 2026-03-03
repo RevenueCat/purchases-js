@@ -43,6 +43,7 @@ const RCPaywallSettingsPage: React.FC = () => {
         alignItems: "flex-start",
         minHeight: "100vh",
         padding: 40,
+        colorScheme: "light",
         backgroundColor: "#f5f5f5",
       }}
     >
