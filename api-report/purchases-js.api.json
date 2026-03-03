@@ -3978,6 +3978,34 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PresentPaywallParams#customVariables:member",
+              "docComment": "/**\n * Custom variables to pass to the paywall at runtime, overriding defaults set in the RevenueCat dashboard.\n *\n * Variables must be defined in the dashboard first. Reference them in paywall text using the `custom.` prefix (e.g. `{{ custom.player_name }}`).\n *\n * @example\n * ```ts\n * presentPaywall({\n *   customVariables: {\n *     player_name: CustomVariableValue.string('Ada'),\n *     level: CustomVariableValue.string('42'),\n *   },\n * });\n * ```\n *\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly customVariables?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "CustomVariables",
+                  "canonicalReference": "@revenuecat/purchases-ui-js!CustomVariables:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "customVariables",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PresentPaywallParams#hideBackButtons:member",
               "docComment": "/**\n * Whether to hide back buttons in the paywall. Defaults to false.\n */\n",
               "excerptTokens": [
