@@ -11,14 +11,17 @@ const RCPaywallNoTargetElementPassedPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const lang = searchParams.get("lang");
-  const { openSettings, settings } = usePaywallSettings();
+  const {
+    openSettings,
+    settings: { customVariables },
+  } = usePaywallSettings();
 
   const onShowPaywallClicked = () => {
     const purchases = Purchases.getSharedInstance();
     purchases
       .presentPaywall({
         selectedLocale: lang || undefined,
-        customVariables: settings,
+        customVariables,
         onBack: (unmountPaywall) => {
           console.log("Back button clicked");
           unmountPaywall();

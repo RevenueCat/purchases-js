@@ -11,7 +11,10 @@ const RCPaywallNoOfferingPassedPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const lang = searchParams.get("lang");
-  const { openSettings, settings } = usePaywallSettings();
+  const {
+    openSettings,
+    settings: { customVariables },
+  } = usePaywallSettings();
 
   useEffect(() => {
     const target = document.getElementById("paywall");
@@ -25,7 +28,7 @@ const RCPaywallNoOfferingPassedPage: React.FC = () => {
       .presentPaywall({
         htmlTarget: document.getElementById("paywall") || undefined,
         selectedLocale: lang || undefined,
-        customVariables: settings,
+        customVariables,
       })
       .then((purchaseResult: PurchaseResult) => {
         const { customerInfo, redemptionInfo } = purchaseResult;
@@ -44,7 +47,7 @@ const RCPaywallNoOfferingPassedPage: React.FC = () => {
         );
       })
       .catch((err: Error) => console.log(`Error: ${err}`));
-  }, [navigate, lang, settings]);
+  }, [navigate, lang, customVariables]);
 
   return (
     <>

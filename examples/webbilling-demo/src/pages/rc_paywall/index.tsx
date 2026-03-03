@@ -12,7 +12,10 @@ const RCPaywallPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const lang = searchParams.get("lang");
   const hideBackButtons = searchParams.get("hideBackButtons") === "true";
-  const { openSettings, settings } = usePaywallSettings();
+  const {
+    openSettings,
+    settings: { customVariables },
+  } = usePaywallSettings();
 
   useEffect(() => {
     const target = document.getElementById("paywall");
@@ -28,7 +31,7 @@ const RCPaywallPage: React.FC = () => {
         htmlTarget: document.getElementById("paywall") || undefined,
         selectedLocale: lang || undefined,
         hideBackButtons: hideBackButtons,
-        customVariables: settings,
+        customVariables,
       })
       .then((purchaseResult: PurchaseResult) => {
         const { customerInfo, redemptionInfo } = purchaseResult;
@@ -47,7 +50,7 @@ const RCPaywallPage: React.FC = () => {
         );
       })
       .catch((err: Error) => console.log(`Error: ${err}`));
-  }, [offering, navigate, lang, hideBackButtons, settings]);
+  }, [offering, navigate, lang, hideBackButtons, customVariables]);
 
   if (!offering) {
     console.error("No offering found");

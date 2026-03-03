@@ -8,13 +8,16 @@ const RCPaywallLauncherPage: React.FC = () => {
   const [purchaseResult, setPurchaseResult] =
     React.useState<PaywallPurchaseResult | null>(null);
   const [error, setError] = React.useState<PurchasesError | null>(null);
-  const { openSettings, settings } = usePaywallSettings();
+  const {
+    openSettings,
+    settings: { customVariables },
+  } = usePaywallSettings();
 
   const onLaunchPaywallClicked = () => {
     const purchases = Purchases.getSharedInstance();
     purchases
       .presentPaywall({
-        customVariables: settings,
+        customVariables,
         onPurchaseError: (error) => {
           console.error(
             `There was a purchase error inside the paywall: ${error}`,
