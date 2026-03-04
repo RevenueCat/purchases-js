@@ -1,37 +1,14 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  type CustomVariableEntry,
-  readEntries,
-  writeEntries,
-} from "../../hooks/usePaywallSettings";
+import { usePaywallSettingsEditor } from "../../hooks/usePaywallSettings";
 
 const RCPaywallSettingsPage: React.FC = () => {
   const navigate = useNavigate();
-  const [entries, setEntries] = useState<CustomVariableEntry[]>(readEntries);
-
-  const updateKey = (index: number, key: string) => {
-    setEntries((prev) =>
-      prev.map((entry, i) => (i === index ? { ...entry, key } : entry)),
-    );
-  };
-
-  const updateValue = (index: number, value: string) => {
-    setEntries((prev) =>
-      prev.map((entry, i) => (i === index ? { ...entry, value } : entry)),
-    );
-  };
-
-  const removeEntry = (index: number) => {
-    setEntries((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const addEntry = () => {
-    setEntries((prev) => [...prev, { key: "", value: "" }]);
-  };
+  const { entries, updateKey, updateValue, removeEntry, addEntry, save } =
+    usePaywallSettingsEditor();
 
   const handleSave = () => {
-    writeEntries(entries);
+    save();
     navigate(-1);
   };
 

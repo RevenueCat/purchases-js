@@ -1,4 +1,4 @@
-import { useMemo, useCallback } from "react";
+import { useMemo, useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   CustomVariableValue,
@@ -56,4 +56,58 @@ export function usePaywallSettings(): {
   }, [navigate]);
 
   return { openSettings, settings };
+}
+
+export function usePaywallSettingsEditor(): {
+  entries: CustomVariableEntry[];
+  updateKey: (index: number, key: string) => void;
+  updateValue: (index: number, value: string) => void;
+  removeEntry: (index: number) => void;
+  addEntry: () => void;
+  save: () => void;
+} {
+  const [entries, setEntries] = useState<CustomVariableEntry[]>(readEntries);
+
+  const updateKey = useCallback((index: number, key: string) => {
+    setEntries((prev) => {
+      const newEntries = [...prev];
+      const entry = newEntries[index];
+      const updatedEntry = { ...entry, key };
+      newEntries[index] = updatedEntry;
+
+      return newEntries;
+    });
+  }, []);
+
+  const updateValue = useCallback((index: number, value: string) => {
+    setEntries((prev) => {
+      const newEntries = [...prev];
+      const entry = newEntries[index];
+      const updatedEntry = { ...entry, value };
+      newEntries[index] = updatedEntry;
+
+      return newEntries;
+    });
+  }, []);
+
+  const removeEntry = useCallback((index: number) => {
+    setEntries((prev) => prev.filter((_, i) => i !== index));
+  }, []);
+
+  const addEntry = useCallback(() => {
+    setEntries((prev) => [...prev, { key: "", value: "" }]);
+  }, []);
+
+  const save = useCallback(() => {
+    writeEntries(entries);
+  }, [entries]);
+
+  return {
+    entries,
+    updateKey,
+    updateValue,
+    removeEntry,
+    addEntry,
+    save,
+  };
 }
