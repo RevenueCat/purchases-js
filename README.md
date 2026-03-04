@@ -47,18 +47,18 @@ pnpm install
 pnpm run build:dev
 ```
 
-To avoid publishing the package you can use Yarn's link feature:
+To avoid publishing the package you can use pnpm's link feature:
 
 1. In the purchases-js directory, register the package:
 
 ```bash
-yarn link
+pnpm link
 ```
 
 2. In your testing project, link to the registered package:
 
 ```bash
-yarn link "@revenuecat/purchases-js"
+pnpm link "@revenuecat/purchases-js"
 ```
 
 > **Note:** Any changes you make to the library will be automatically reflected in your testing project after running `pnpm run build:dev` or `pnpm run build`.
