@@ -1,4 +1,3 @@
 ### 🔄 Other Changes
-* Allow httpConfig to set the eventsURL destination (#769) via Jamie Holwill (@jholwill)
-* [WEB-3797] feat: Add discount code support to product/offerings fetch (experimental) (#785) via Víctor Ferrer García (@vicfergar)
-* Adding support for the new discount fields returned by khepri (#782) via Nicola Sacco (@nicfix)
+* Update sdks-common-config orb to 3.13.0 (#794) via Cesar de la Vega (@vegaro)
+* [EXTERNAL] chore: update linking docs to pnpm by @candrepa1  (#791) (#793) via Nicola Sacco (@nicfix)
