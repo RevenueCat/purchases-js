@@ -1,6 +1,3 @@
-## RevenueCat SDK
-### 🐞 Bugfixes
-* [WEB-3781] simplify discounts aproach v2 (#773) via James O'Donnell (@james-od)
-
 ### 🔄 Other Changes
-* Fix purchase flow e2e tests (#777) via James O'Donnell (@james-od)
+* Update sdks-common-config orb to 3.13.0 (#794) via Cesar de la Vega (@vegaro)
+* [EXTERNAL] chore: update linking docs to pnpm by @candrepa1  (#791) (#793) via Nicola Sacco (@nicfix)
