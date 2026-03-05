@@ -7,6 +7,9 @@ import {
   toOffering,
   toNonSubscriptionOffering,
   toPrice,
+  buildOffering,
+  buildPackage,
+  buildNonSubscriptionProduct,
 } from "../utils/fixtures-utils";
 import type { VariableDictionary } from "@revenuecat/purchases-ui-js";
 import type {
@@ -337,6 +340,69 @@ describe("getPaywallVariables", () => {
     Object.values(variables).forEach((variable, idx) => {
       expect(variable["product.relative_discount"]).toBe(expectedValues[idx]);
     });
+  });
+
+  test("sub_relative_discount excludes non-subscription packages from highest price calculation", () => {
+    /**
+     * Lifetime: €100.00 (non-subscription, should be excluded from comparison)
+     * Monthly: €3.00/month = should be 88% off relative to weekly
+     * Weekly: €6.00/week = €25.98/month (most expensive subscription)
+     * Without the fix, lifetime's raw price (100000000 micros) would be treated
+     * as the highest, inflating all subscription discounts.
+     */
+    const subscriptionPackages = toOffering([
+      {
+        packageIdentifier: "$rc_monthly",
+        identifier: "monthly_bingo",
+        title: "Mario",
+        basePriceMicros: 3000000,
+      },
+      {
+        packageIdentifier: "$rc_weekly",
+        identifier: "weekly_bingo",
+        title: "Luigi",
+        period: { unit: PeriodUnit.Week, number: 1 },
+        basePriceMicros: 6000000,
+      },
+    ]);
+
+    const lifetimePackage = buildPackage(
+      "lifetime",
+      buildNonSubscriptionProduct({
+        identifier: "lifetime_product",
+        title: "Lifetime",
+        basePriceMicros: 100000000,
+      }),
+    );
+
+    const mixedOffering = buildOffering([
+      ...subscriptionPackages.availablePackages,
+      lifetimePackage,
+    ]);
+
+    const variables = parseOfferingIntoVariables(mixedOffering, enTranslator);
+
+    // Monthly discount should be relative to weekly (most expensive subscription),
+    // not the lifetime product
+    expect(variables.$rc_monthly["product.relative_discount"]).toBe("88%");
+    // Weekly is the most expensive subscription, no discount
+    expect(variables.$rc_weekly["product.relative_discount"]).toBe("");
+    // Lifetime should always have empty relative discount
+    expect(variables.lifetime["product.relative_discount"]).toBe("");
+  });
+
+  test("sub_relative_discount works when offering has only non-subscription packages", () => {
+    const off = toNonSubscriptionOffering([
+      {
+        packageIdentifier: "lifetime",
+        identifier: "lifetime_product",
+        title: "Lifetime",
+        basePriceMicros: 100000000,
+      },
+    ]);
+
+    const variables = parseOfferingIntoVariables(off, enTranslator);
+    expect(variables.lifetime["product.relative_discount"]).toBe("");
   });
 
   describe("Discount price logic for subscriptions", () => {
