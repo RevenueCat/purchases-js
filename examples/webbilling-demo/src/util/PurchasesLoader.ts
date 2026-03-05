@@ -1,6 +1,7 @@
 import type { CustomerInfo, Offering } from "@revenuecat/purchases-js";
 import {
   type FlagsConfig,
+  type HttpConfig,
   type LogHandler,
   LogLevel,
   Purchases,
@@ -16,6 +17,8 @@ declare global {
 
 export const apiKey = window.__RC_API_KEY__ || import.meta.env.VITE_RC_API_KEY;
 const canary = import.meta.env.VITE_RC_CANARY;
+const proxyURL = import.meta.env.VITE_RC_PROXY_URL as string | undefined;
+const eventsURL = import.meta.env.VITE_RC_EVENTS_URL as string | undefined;
 
 type IPurchasesLoaderData = {
   purchases: Purchases;
@@ -43,6 +46,13 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
   const additionalHeaders: Record<string, string> = {};
   if (canary) {
     additionalHeaders["X-RC-Canary"] = canary;
+  }
+
+  const httpConfig: HttpConfig = { additionalHeaders, proxyURL };
+  if (eventsURL) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    httpConfig.eventsURL = eventsURL;
   }
 
   const flagsConfig: FlagsConfig = {
@@ -94,7 +104,7 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
       Purchases.configure({
         apiKey,
         appUserId,
-        httpConfig: { additionalHeaders },
+        httpConfig,
         flags: flagsConfig,
       });
     } else {
