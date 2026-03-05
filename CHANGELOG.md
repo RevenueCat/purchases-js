@@ -1,3 +1,8 @@
+## 1.27.0
+### 🔄 Other Changes
+* Update sdks-common-config orb to 3.13.0 (#794) via Cesar de la Vega (@vegaro)
+* [EXTERNAL] chore: update linking docs to pnpm by @candrepa1  (#791) (#793) via Nicola Sacco (@nicfix)
+
 ## 1.26.4
 ### 🔄 Other Changes
 * Allow httpConfig to set the eventsURL destination (#769) via Jamie Holwill (@jholwill)
