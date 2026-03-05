@@ -25,7 +25,7 @@ aliases:
 parameters:
   action:
     type: enum
-    enum: [ default, bump ]
+    enum: [ default, bump, docs-only ]
     default: default
   version:
     type: string
@@ -289,3 +289,9 @@ workflows:
           <<: *release-tags
           requires:
             - make-release
+
+  docs-only:
+    when:
+      equal: [ docs-only, << pipeline.parameters.action >> ]
+    jobs:
+      - docs-deploy
