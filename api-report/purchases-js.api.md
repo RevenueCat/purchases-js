@@ -149,12 +149,14 @@ export interface FlagsConfig {
 export interface GetOfferingsParams {
     readonly currency?: string;
     readonly offeringIdentifier?: string | OfferingKeyword;
+    /* Excluded from this release type: discountCode */
 }
 
 // @public
 export interface HttpConfig {
     additionalHeaders?: Record<string, string>;
     proxyURL?: string;
+    /* Excluded from this release type: eventsURL */
 }
 
 // @public

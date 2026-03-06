@@ -111,9 +111,10 @@ export class Backend {
     appUserId: string,
     productIds: string[],
     currency?: string,
+    discountCode?: string,
   ): Promise<ProductsResponse> {
     return await performRequest<null, ProductsResponse>(
-      new GetProductsEndpoint(appUserId, productIds, currency),
+      new GetProductsEndpoint(appUserId, productIds, currency, discountCode),
       {
         apiKey: this.API_KEY,
         httpConfig: this.httpConfig,

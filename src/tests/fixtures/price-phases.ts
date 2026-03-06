@@ -27,6 +27,9 @@ export const discountPhaseOneTime: DiscountPhase = {
   name: "One-time Discount 20%",
   period: { number: 1, unit: PeriodUnit.Month },
   cycleCount: 1,
+  discountType: "percentage",
+  percentage: 20,
+  fixedAmount: null,
 };
 
 export const discountPhaseOneTimeConsumable: DiscountPhase = {
@@ -37,6 +40,9 @@ export const discountPhaseOneTimeConsumable: DiscountPhase = {
   name: "Consumable 20% Discount",
   period: null,
   cycleCount: 0,
+  discountType: "percentage",
+  percentage: 20,
+  fixedAmount: null,
 };
 
 export const discountPhaseTimeWindow: DiscountPhase = {
@@ -47,6 +53,9 @@ export const discountPhaseTimeWindow: DiscountPhase = {
   name: "Holiday Sale 20%",
   period: { number: 1, unit: PeriodUnit.Month },
   cycleCount: 3,
+  discountType: "percentage",
+  percentage: 20,
+  fixedAmount: null,
 };
 
 export const discountPhaseForever: DiscountPhase = {
@@ -57,6 +66,9 @@ export const discountPhaseForever: DiscountPhase = {
   name: "Forever Discount 30%",
   period: { number: 1, unit: PeriodUnit.Month },
   cycleCount: 0,
+  discountType: "percentage",
+  percentage: 30,
+  fixedAmount: null,
 };
 
 export const pricePhaseP1M1499: PricingPhase = {

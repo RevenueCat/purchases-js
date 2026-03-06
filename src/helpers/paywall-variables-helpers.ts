@@ -140,11 +140,18 @@ export function parseOfferingIntoVariables(
 ): Record<string, VariableDictionary> {
   const packages = offering.availablePackages;
 
-  const highestPricePackage = packages.reduce((prev, current) => {
-    const prevMonthlyPrice = getPackageMonthlyPrice(prev);
-    const currentMonthlyPrice = getPackageMonthlyPrice(current);
-    return prevMonthlyPrice > currentMonthlyPrice ? prev : current;
-  });
+  const subscriptionPackages = packages.filter(
+    (pkg) => pkg.webBillingProduct.productType === ProductType.Subscription,
+  );
+
+  const highestPricePackage =
+    subscriptionPackages.length > 0
+      ? subscriptionPackages.reduce((prev, current) => {
+          const prevMonthlyPrice = getPackageMonthlyPrice(prev);
+          const currentMonthlyPrice = getPackageMonthlyPrice(current);
+          return prevMonthlyPrice > currentMonthlyPrice ? prev : current;
+        })
+      : null;
 
   return packages.reduce(
     (packagesById, pkg) => {
@@ -161,7 +168,7 @@ export function parseOfferingIntoVariables(
 
 function parsePackageIntoVariables(
   pkg: Package,
-  highestPricePackage: Package,
+  highestPricePackage: Package | null,
   translator: Translator,
 ) {
   const webBillingProduct = pkg.webBillingProduct;
@@ -258,20 +265,23 @@ function parsePackageIntoVariables(
     }
 
     // Calculate discount based on monthly equivalent prices
-    const packageMonthlyPrice = getPackageMonthlyPrice(pkg);
-    const highestMonthlyPrice = getPackageMonthlyPrice(highestPricePackage);
-    const discount =
-      ((highestMonthlyPrice - packageMonthlyPrice) * 100) / highestMonthlyPrice;
+    if (highestPricePackage) {
+      const packageMonthlyPrice = getPackageMonthlyPrice(pkg);
+      const highestMonthlyPrice = getPackageMonthlyPrice(highestPricePackage);
+      const discount =
+        ((highestMonthlyPrice - packageMonthlyPrice) * 100) /
+        highestMonthlyPrice;
 
-    baseObject["product.relative_discount"] =
-      discount < 1
-        ? ""
-        : translator.translate(
-            LocalizationKeys.PaywallVariablesSubRelativeDiscount,
-            {
-              discount: discount.toFixed(0),
-            },
-          );
+      baseObject["product.relative_discount"] =
+        discount < 1
+          ? ""
+          : translator.translate(
+              LocalizationKeys.PaywallVariablesSubRelativeDiscount,
+              {
+                discount: discount.toFixed(0),
+              },
+            );
+    }
 
     setOfferVariables(purchaseOption, translator, baseObject);
   }

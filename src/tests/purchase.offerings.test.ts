@@ -341,6 +341,31 @@ describe("getOfferings", () => {
     );
   });
 
+  test("gets offerings with discountCode", async () => {
+    const purchases = configurePurchases();
+    await purchases.getOfferings({ discountCode: "SUMMER2024" }).then(
+      (offerings) => {
+        expect(offerings.current).not.toBeNull();
+      },
+      () => assert.fail("Getting offerings with discountCode failed"),
+    );
+  });
+
+  test("gets offerings with both currency and discountCode", async () => {
+    const purchases = configurePurchases();
+    await purchases
+      .getOfferings({ currency: "EUR", discountCode: "SUMMER2024" })
+      .then(
+        (offerings) => {
+          expect(offerings.current).not.toBeNull();
+        },
+        () =>
+          assert.fail(
+            "Getting offerings with currency and discountCode failed",
+          ),
+      );
+  });
+
   test("can get offerings with a specific offering identifier", async () => {
     const purchases = configurePurchases();
     const offerings = await purchases.getOfferings({
@@ -649,6 +674,9 @@ describe("getOfferings", () => {
         },
         period: { number: 1, unit: PeriodUnit.Month },
         cycleCount: 1,
+        discountType: "percentage",
+        percentage: 20,
+        fixedAmount: null,
       };
 
       expect(defaultSubscriptionOption?.discount).toStrictEqual(
@@ -690,6 +718,9 @@ describe("getOfferings", () => {
         },
         period: null,
         cycleCount: 0,
+        discountType: "percentage",
+        percentage: 20,
+        fixedAmount: null,
       };
 
       expect(defaultNonSubscriptionOption?.discount).toStrictEqual(
@@ -701,6 +732,43 @@ describe("getOfferings", () => {
       expect(freeTrialPhase).toBeNull();
       expect(introPricePhase).toBeNull();
       expect(defaultSubscriptionOption).toBeNull();
+    });
+
+    test("can parse offerings with fixed amount discount", async () => {
+      const purchases = configurePurchases("appUserIdWithFixedAmountDiscount");
+      const offerings = await purchases.getOfferings();
+
+      const { defaultSubscriptionOption, discountPhase } =
+        offerings.all["offering_fixed_amount_discount"].availablePackages[0]
+          .webBillingProduct;
+
+      const expectedDiscount = {
+        durationMode: "one_time",
+        timeWindow: null,
+        periodDuration: "P1M",
+        name: "$2.50 Off",
+        price: {
+          amount: 750,
+          amountMicros: 7500000,
+          currency: "USD",
+          formattedPrice: "$7.50",
+        },
+        period: { number: 1, unit: PeriodUnit.Month },
+        cycleCount: 1,
+        discountType: "fixed_amount",
+        percentage: null,
+        fixedAmount: {
+          amount: 250,
+          amountMicros: 2500000,
+          currency: "USD",
+          formattedPrice: "$2.50",
+        },
+      };
+
+      expect(defaultSubscriptionOption?.discount).toStrictEqual(
+        expectedDiscount,
+      );
+      expect(discountPhase).toStrictEqual(expectedDiscount);
     });
 
     test("can parse offerings with time window discount", async () => {
@@ -724,6 +792,9 @@ describe("getOfferings", () => {
         },
         period: { number: 1, unit: PeriodUnit.Month },
         cycleCount: 3,
+        discountType: "percentage",
+        percentage: 30,
+        fixedAmount: null,
       };
 
       expect(defaultSubscriptionOption?.discount).toStrictEqual(
@@ -753,6 +824,9 @@ describe("getOfferings", () => {
         },
         period: { number: 1, unit: PeriodUnit.Month },
         cycleCount: 0,
+        discountType: "percentage",
+        percentage: 40,
+        fixedAmount: null,
       };
       expect(defaultSubscriptionOption?.discount).toStrictEqual(
         expectedDiscount,

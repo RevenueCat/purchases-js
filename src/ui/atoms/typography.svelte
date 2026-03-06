@@ -17,23 +17,17 @@
     size?: Size;
     children?: Snippet;
     branded?: boolean;
-    strikethrough?: boolean;
   };
 </script>
 
 <script lang="ts">
-  const {
-    children,
-    size = "body-base",
-    branded = false,
-    strikethrough = false,
-  }: Props = $props();
+  const { children, size = "body-base", branded = false }: Props = $props();
 </script>
 
 <span
   class="rcb-typography rcb-typography-{size} {branded
     ? 'rcb-typography-branded'
-    : ''} {strikethrough ? 'rcb-typography-strikethrough' : ''}"
+    : ''}"
 >
   {@render children?.()}
 </span>
@@ -42,10 +36,6 @@
   .rcb-typography {
     display: inline-block;
     line-height: normal;
-  }
-
-  .rcb-typography-strikethrough {
-    text-decoration: line-through;
   }
 
   /* svelte-ignore css-unused-selector */

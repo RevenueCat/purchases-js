@@ -13,8 +13,13 @@
     subscriptionOptionWithTrialAndIntroPriceRecurring,
     subscriptionOptionWithDiscountForever,
     subscriptionOptionWithDiscount,
+    subscriptionOptionWithWeeklyBillingAndThreeMonthDiscount,
+    subscriptionOptionWithYearlyBillingAndSixMonthDiscount,
+    subscriptionOptionWithFixedAmountDiscount,
     nonSubscriptionOption,
     nonSubscriptionOptionWithDiscount,
+    nonSubscriptionOptionWithFixedAmountDiscount,
+    nonSubscriptionOptionWithTimeWindowDiscount,
     consumableProduct,
     subscriptionOptionWithDiscountOneTime,
   } from "../fixtures";
@@ -65,6 +70,36 @@
     purchaseOption: subscriptionOptionWithDiscount,
     priceBreakdown: getPriceBreakdownTaxDisabled(
       subscriptionOptionWithDiscount,
+    ),
+  }}
+/>
+
+<Story
+  name="Subscription with Time Window Discount longer than the billing cycle"
+  args={{
+    purchaseOption: subscriptionOptionWithWeeklyBillingAndThreeMonthDiscount,
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithWeeklyBillingAndThreeMonthDiscount,
+    ),
+  }}
+/>
+
+<Story
+  name="Subscription with Time Window Discount shorter than the billing cycle"
+  args={{
+    purchaseOption: subscriptionOptionWithYearlyBillingAndSixMonthDiscount,
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithYearlyBillingAndSixMonthDiscount,
+    ),
+  }}
+/>
+
+<Story
+  name="Subscription with Fixed Amount Discount"
+  args={{
+    purchaseOption: subscriptionOptionWithFixedAmountDiscount,
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithFixedAmountDiscount,
     ),
   }}
 />
@@ -143,6 +178,28 @@
     purchaseOption: nonSubscriptionOptionWithDiscount,
     priceBreakdown: getPriceBreakdownTaxDisabled(
       nonSubscriptionOptionWithDiscount,
+    ),
+  }}
+/>
+
+<Story
+  name="Non-subscription with Fixed Amount Discount"
+  args={{
+    productDetails: consumableProduct,
+    purchaseOption: nonSubscriptionOptionWithFixedAmountDiscount,
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      nonSubscriptionOptionWithFixedAmountDiscount,
+    ),
+  }}
+/>
+
+<Story
+  name="Non-subscription with Time Window Discount"
+  args={{
+    productDetails: consumableProduct,
+    purchaseOption: nonSubscriptionOptionWithTimeWindowDiscount,
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      nonSubscriptionOptionWithTimeWindowDiscount,
     ),
   }}
 />

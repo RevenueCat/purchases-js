@@ -189,6 +189,9 @@ const monthlyWithOneTimeDiscountProductResponse: ProductResponse = {
       discount: {
         duration_mode: "one_time",
         time_window: null,
+        discount_type: "percentage",
+        percentage: 20,
+        fixed_amount_micros: null,
         amount_micros: 8000000,
         currency: "USD",
         name: "One-Time 20% Discount",
@@ -220,6 +223,9 @@ const monthlyWithTimeWindowDiscountProductResponse: ProductResponse = {
       discount: {
         duration_mode: "time_window",
         time_window: "P3M",
+        discount_type: "percentage",
+        percentage: 30,
+        fixed_amount_micros: null,
         amount_micros: 7000000,
         currency: "USD",
         name: "Holiday Sale 30%",
@@ -251,9 +257,46 @@ const monthlyWithForeverDiscountProductResponse: ProductResponse = {
       discount: {
         duration_mode: "forever",
         time_window: null,
+        discount_type: "percentage",
+        percentage: 40,
+        fixed_amount_micros: null,
         amount_micros: 6000000,
         currency: "USD",
         name: "Forever 40% Discount",
+      },
+    },
+  },
+};
+
+const monthlyWithFixedAmountDiscountProductResponse: ProductResponse = {
+  identifier: "monthly_fixed_amount_discount",
+  product_type: "subscription",
+  title: "Monthly with Fixed Amount Discount",
+  description: "Monthly subscription with fixed amount discount",
+  default_purchase_option_id: "fixed_amount_discount_option",
+  purchase_options: {
+    fixed_amount_discount_option: {
+      id: "fixed_amount_discount_option",
+      price_id: "test_fixed_amount_discount_price_id",
+      base: {
+        period_duration: "P1M",
+        cycle_count: 1,
+        price: {
+          amount_micros: 10000000,
+          currency: "USD",
+        },
+      },
+      trial: null,
+      intro_price: null,
+      discount: {
+        duration_mode: "one_time",
+        time_window: null,
+        discount_type: "fixed_amount",
+        percentage: null,
+        fixed_amount_micros: 2500000,
+        amount_micros: 7500000,
+        currency: "USD",
+        name: "$2.50 Off",
       },
     },
   },
@@ -349,6 +392,9 @@ const consumableWithOneTimeDiscountProductResponse: ProductResponse = {
       discount: {
         duration_mode: "one_time",
         time_window: null,
+        discount_type: "percentage",
+        percentage: 20,
+        fixed_amount_micros: null,
         amount_micros: 800000,
         currency: "USD",
         name: "Consumable 20% Discount",
@@ -378,6 +424,10 @@ export const productsWithDiscountsResponse: ProductsResponse = {
     monthlyWithTimeWindowDiscountProductResponse,
     monthlyWithForeverDiscountProductResponse,
   ],
+};
+
+export const productsWithFixedAmountDiscountResponse: ProductsResponse = {
+  product_details: [monthlyWithFixedAmountDiscountProductResponse],
 };
 
 export const productsWithIntroPriceNullPriceResponse: ProductsResponse = {
@@ -483,6 +533,21 @@ export const offeringsWithDiscountsArray = [
       {
         identifier: "$rc_monthly_forever_discount",
         platform_product_identifier: "monthly_forever_discount",
+      },
+    ],
+    paywall_components: null,
+  },
+];
+
+export const offeringsWithFixedAmountDiscountArray = [
+  {
+    identifier: "offering_fixed_amount_discount",
+    description: "Offering with Fixed Amount Discount",
+    metadata: null,
+    packages: [
+      {
+        identifier: "$rc_monthly_fixed_amount_discount",
+        platform_product_identifier: "monthly_fixed_amount_discount",
       },
     ],
     paywall_components: null,
@@ -726,6 +791,10 @@ const offeringsResponsesPerUserId: { [userId: string]: OfferingsResponse } = {
     current_offering_id: "offering_forever_discount",
     offerings: offeringsWithDiscountsArray,
   },
+  appUserIdWithFixedAmountDiscount: {
+    current_offering_id: "offering_fixed_amount_discount",
+    offerings: offeringsWithFixedAmountDiscountArray,
+  },
   appUserIdWithIntroPriceNullPrice: {
     current_offering_id: "offering_intro_null_price",
     offerings: offeringsWithIntroPriceNullPriceArray,
@@ -752,6 +821,7 @@ const productsResponsesPerUserId: { [userId: string]: object } = {
   appUserIdWithOneTimeDiscount: productsWithDiscountsResponse,
   appUserIdWithTimeWindowDiscount: productsWithDiscountsResponse,
   appUserIdWithForeverDiscount: productsWithDiscountsResponse,
+  appUserIdWithFixedAmountDiscount: productsWithFixedAmountDiscountResponse,
   appUserIdWithIntroPriceNullPrice: productsWithIntroPriceNullPriceResponse,
   appUserIdWithUpfrontIntroPrice: productsWithUpfrontIntroPriceResponse,
   appUserIdWithNullBase: productsWithNullBaseResponse,

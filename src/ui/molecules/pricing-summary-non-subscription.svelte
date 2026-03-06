@@ -4,19 +4,15 @@
   import { getContext } from "svelte";
   import { translatorContextKey } from "../localization/constants";
   import { type PriceBreakdown } from "../ui-types";
-  import {
-    type PricingPhase,
-    type DiscountPhase,
-  } from "../../entities/offerings";
+  import { type PricingPhase } from "../../entities/offerings";
   import Typography from "../atoms/typography.svelte";
 
   export type Props = {
     priceBreakdown: PriceBreakdown;
     basePhase: PricingPhase | null;
-    discountPhase: DiscountPhase | null;
   };
 
-  let { priceBreakdown, basePhase, discountPhase }: Props = $props();
+  let { priceBreakdown, basePhase }: Props = $props();
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
 
@@ -27,25 +23,11 @@
     ),
   );
 
-  const formattedPromoPrice = $derived(
-    discountPhase?.price
-      ? $translator.formatPrice(
-          discountPhase.price.amountMicros,
-          discountPhase.price.currency,
-        )
-      : "",
-  );
-
   const baseTypographySize = "heading-lg";
 </script>
 
 <div>
-  <Typography size={baseTypographySize} strikethrough={!!formattedPromoPrice}>
+  <Typography size={baseTypographySize}>
     {formattedPrice}
   </Typography>
-  {#if formattedPromoPrice}
-    <Typography size={baseTypographySize}>
-      {formattedPromoPrice}
-    </Typography>
-  {/if}
 </div>

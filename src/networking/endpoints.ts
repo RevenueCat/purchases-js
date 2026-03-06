@@ -41,11 +41,18 @@ export class GetProductsEndpoint implements Endpoint {
   private readonly appUserId: string;
   private readonly productIds: string[];
   private readonly currency: string | undefined;
+  private readonly discountCode: string | undefined;
 
-  constructor(appUserId: string, productIds: string[], currency?: string) {
+  constructor(
+    appUserId: string,
+    productIds: string[],
+    currency?: string,
+    discountCode?: string,
+  ) {
     this.appUserId = appUserId;
     this.productIds = productIds;
     this.currency = currency;
+    this.discountCode = discountCode;
   }
 
   urlPath(): string {
@@ -54,7 +61,10 @@ export class GetProductsEndpoint implements Endpoint {
       .map(encodeURIComponent)
       .join("&id=");
     const currencyParam = this.currency ? `&currency=${this.currency}` : "";
-    return `${RC_BILLING_PATH}/subscribers/${encodedAppUserId}/products?support_discounts=true&id=${encodedProductIds}${currencyParam}`;
+    const discountCodeParam = this.discountCode
+      ? `&discount_code=${encodeURIComponent(this.discountCode)}`
+      : "";
+    return `${RC_BILLING_PATH}/subscribers/${encodedAppUserId}/products?id=${encodedProductIds}${currencyParam}${discountCodeParam}`;
   }
 }
 

@@ -447,6 +447,7 @@ export class Purchases {
       rcSource: this._flags.rcSource ?? null,
       workflowContext: this._context?.workflowContext,
       trace_id: trace_id,
+      httpConfig,
     });
     this.backend = new Backend(this._API_KEY, httpConfig, this._context);
     this.inMemoryCache = new InMemoryCache();
@@ -825,6 +826,7 @@ export class Purchases {
       appUserId,
       productIds,
       params?.currency,
+      params?.discountCode,
     );
 
     this.logMissingProductIds(productIds, productsResponse.product_details);

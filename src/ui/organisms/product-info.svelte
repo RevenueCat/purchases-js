@@ -65,11 +65,7 @@
         {introPricePhase}
       />
     {:else}
-      <PricingSummaryNonSubscription
-        {priceBreakdown}
-        {basePhase}
-        {discountPhase}
-      />
+      <PricingSummaryNonSubscription {priceBreakdown} {basePhase} />
     {/if}
   </div>
   <PricingTable
