@@ -105,6 +105,7 @@ import type {
 } from "./entities/present-express-purchase-button-params";
 import { ExpressPurchaseButtonWrapper } from "./ui/express-purchase-button/express-purchase-button-wrapper.svelte";
 import { getWindow, getDocument } from "./helpers/browser-globals";
+import { StripeService } from "./stripe/stripe-service";
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -350,6 +351,7 @@ export class Purchases {
     const finalFlags = flags ?? defaultFlagsConfig;
 
     Purchases.validateConfig(config);
+    StripeService.preloadStripeModule();
     Purchases.instance = new Purchases(
       apiKey,
       appUserId,
