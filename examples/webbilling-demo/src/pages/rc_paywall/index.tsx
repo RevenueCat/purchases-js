@@ -3,6 +3,8 @@ import { Purchases } from "@revenuecat/purchases-js";
 import React, { useEffect } from "react";
 import { usePurchasesLoaderData } from "../../util/PurchasesLoader";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { usePaywallSettings } from "../../hooks/usePaywallSettings";
+import SettingsGearButton from "../../components/SettingsGearButton";
 
 const RCPaywallPage: React.FC = () => {
   const { offering } = usePurchasesLoaderData();
@@ -10,6 +12,10 @@ const RCPaywallPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const lang = searchParams.get("lang");
   const hideBackButtons = searchParams.get("hideBackButtons") === "true";
+  const {
+    openSettings,
+    settings: { customVariables },
+  } = usePaywallSettings();
 
   useEffect(() => {
     const target = document.getElementById("paywall");
@@ -25,6 +31,7 @@ const RCPaywallPage: React.FC = () => {
         htmlTarget: document.getElementById("paywall") || undefined,
         selectedLocale: lang || undefined,
         hideBackButtons: hideBackButtons,
+        customVariables,
       })
       .then((purchaseResult: PurchaseResult) => {
         const { customerInfo, redemptionInfo } = purchaseResult;
@@ -43,7 +50,7 @@ const RCPaywallPage: React.FC = () => {
         );
       })
       .catch((err: Error) => console.log(`Error: ${err}`));
-  }, [offering, navigate, lang, hideBackButtons]);
+  }, [offering, navigate, lang, hideBackButtons, customVariables]);
 
   if (!offering) {
     console.error("No offering found");
@@ -53,6 +60,7 @@ const RCPaywallPage: React.FC = () => {
   return (
     <>
       <div style={{ minHeight: "100vh" }} id="paywall"></div>
+      <SettingsGearButton onClick={openSettings} />
     </>
   );
 };

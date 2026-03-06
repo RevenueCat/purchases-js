@@ -4,6 +4,9 @@
 
 ```ts
 
+import { CustomVariables } from '@revenuecat/purchases-ui-js';
+import { CustomVariableValue } from '@revenuecat/purchases-ui-js';
+
 // @public
 export interface BrandingAppearance {
     // (undocumented)
@@ -46,6 +49,10 @@ export interface CustomerInfo {
         [productId: string]: SubscriptionInfo;
     };
 }
+
+export { CustomVariables }
+
+export { CustomVariableValue }
 
 // @public
 export interface EntitlementInfo {
@@ -295,6 +302,7 @@ export interface PresentedOfferingContext {
 // @public
 export interface PresentPaywallParams {
     readonly customerEmail?: string;
+    readonly customVariables?: CustomVariables;
     readonly hideBackButtons?: boolean;
     readonly htmlTarget?: HTMLElement;
     readonly offering?: Offering;

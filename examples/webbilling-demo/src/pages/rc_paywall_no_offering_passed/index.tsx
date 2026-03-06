@@ -2,6 +2,8 @@ import type { PurchaseResult } from "@revenuecat/purchases-js";
 import { Purchases } from "@revenuecat/purchases-js";
 import React, { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { usePaywallSettings } from "../../hooks/usePaywallSettings";
+import SettingsGearButton from "../../components/SettingsGearButton";
 
 // This page is used to test the case where no offering is passed to the paywall.
 // We expect the sdk to be smart enough to pick the .current offering autonomously.
@@ -9,6 +11,10 @@ const RCPaywallNoOfferingPassedPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const lang = searchParams.get("lang");
+  const {
+    openSettings,
+    settings: { customVariables },
+  } = usePaywallSettings();
 
   useEffect(() => {
     const target = document.getElementById("paywall");
@@ -22,6 +28,7 @@ const RCPaywallNoOfferingPassedPage: React.FC = () => {
       .presentPaywall({
         htmlTarget: document.getElementById("paywall") || undefined,
         selectedLocale: lang || undefined,
+        customVariables,
       })
       .then((purchaseResult: PurchaseResult) => {
         const { customerInfo, redemptionInfo } = purchaseResult;
@@ -40,11 +47,12 @@ const RCPaywallNoOfferingPassedPage: React.FC = () => {
         );
       })
       .catch((err: Error) => console.log(`Error: ${err}`));
-  }, [navigate, lang]);
+  }, [navigate, lang, customVariables]);
 
   return (
     <>
       <div id="paywall"></div>
+      <SettingsGearButton onClick={openSettings} />
     </>
   );
 };
