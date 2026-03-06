@@ -18,7 +18,7 @@ const SettingsGearButton: React.FC<
       color: "#fff",
       fontSize: 20,
       cursor: "pointer",
-      zIndex: 9998,
+      zIndex: 999,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
