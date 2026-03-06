@@ -14,9 +14,8 @@ export type RouteFulfillOptions = {
   status?: number | undefined;
 };
 
-// Infer from the demo paywall that the only button with an svg is the back button.
 export const getBackButtons = (page: Page) =>
-  page.locator("button.stack:has(svg)[style*='visibility: visible']");
+  page.locator("[data-testid='button-navigate_back']");
 
 export const CARD_SELECTOR = ".packages div.card";
 export const PACKAGE_SELECTOR = "button.rc-pw-package";
