@@ -43,6 +43,12 @@ export interface PurchaseParams {
   workflowPurchaseContext?: WorkflowPurchaseContext;
 
   /**
+   * The paywall ID from which this purchase originated, if applicable.
+   * @internal
+   */
+  paywallId?: string;
+
+  /**
    * The locale to use for the purchase flow. If not specified, English will be used
    */
   selectedLocale?: string;
