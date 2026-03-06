@@ -2,6 +2,74 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { usePaywallSettingsEditor } from "../../hooks/usePaywallSettings";
 
+const styles = {
+  page: {
+    minHeight: "100vh",
+    boxSizing: "border-box" as const,
+    padding: "40px",
+    backgroundColor: "var(--color-page-muted)",
+    colorScheme: "light" as const,
+  },
+  card: {
+    maxWidth: "640px",
+    margin: "0 auto",
+    padding: "32px",
+    borderRadius: "16px",
+    backgroundColor: "var(--color-page-surface)",
+    boxShadow: "0 8px 24px rgba(0, 0, 0, 0.08)",
+  },
+  title: {
+    margin: "0 0 8px",
+    fontSize: "24px",
+    fontWeight: 600,
+  },
+  description: {
+    margin: "0 0 24px",
+    fontSize: "14px",
+    color: "var(--color-text-muted)",
+  },
+  sectionTitle: {
+    margin: "0 0 12px",
+    fontSize: "15px",
+    fontWeight: 600,
+  },
+  list: {
+    display: "flex",
+    flexDirection: "column" as const,
+    gap: "10px",
+  },
+  row: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    flexWrap: "wrap" as const,
+  },
+  keyInput: {
+    flex: 1,
+    minWidth: "140px",
+  },
+  valueInput: {
+    flex: 2,
+    minWidth: "220px",
+  },
+  removeButton: {
+    flexShrink: 0,
+    minWidth: "44px",
+    paddingInline: 0,
+    fontSize: "18px",
+  },
+  addButton: {
+    marginTop: "12px",
+  },
+  actions: {
+    marginTop: "28px",
+    display: "flex",
+    justifyContent: "flex-end",
+    gap: "10px",
+    flexWrap: "wrap" as const,
+  },
+} satisfies Record<string, React.CSSProperties>;
+
 const RCPaywallSettingsPage: React.FC = () => {
   const navigate = useNavigate();
   const { entries, updateKey, updateValue, removeEntry, addEntry, save } =
@@ -13,83 +81,39 @@ const RCPaywallSettingsPage: React.FC = () => {
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "flex-start",
-        minHeight: "100vh",
-        padding: 40,
-        colorScheme: "light",
-        backgroundColor: "#f5f5f5",
-      }}
-    >
-      <div
-        style={{
-          backgroundColor: "#fff",
-          borderRadius: 8,
-          padding: 32,
-          width: "100%",
-          maxWidth: 600,
-          boxShadow: "0 2px 12px rgba(0,0,0,0.1)",
-        }}
-      >
-        <h2 style={{ margin: "0 0 8px", fontSize: 20, fontWeight: 600 }}>
-          Paywall Settings
-        </h2>
-        <p style={{ margin: "0 0 24px", color: "#666", fontSize: 14 }}>
+    <div style={styles.page}>
+      <div style={styles.card}>
+        <h2 style={styles.title}>Paywall Settings</h2>
+        <p style={styles.description}>
           Configure custom variables passed to presentPaywall. These are stored
           in localStorage and shared across all RC paywall pages.
         </p>
 
-        <h3 style={{ margin: "0 0 12px", fontSize: 15, fontWeight: 600 }}>
-          Custom Variables
-        </h3>
+        <h3 style={styles.sectionTitle}>Custom Variables</h3>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <div style={styles.list}>
           {entries.map((entry, index) => (
-            <div
-              key={index}
-              style={{ display: "flex", gap: 8, alignItems: "center" }}
-            >
+            <div key={index} style={styles.row}>
               <input
                 type="text"
                 placeholder="key"
                 value={entry.key}
                 onChange={(e) => updateKey(index, e.target.value)}
-                style={{
-                  flex: 1,
-                  padding: "8px 12px",
-                  border: "1px solid #ccc",
-                  borderRadius: 4,
-                  fontSize: 14,
-                }}
+                className="compact-input"
+                style={styles.keyInput}
               />
               <input
                 type="text"
                 placeholder="value"
                 value={entry.value}
                 onChange={(e) => updateValue(index, e.target.value)}
-                style={{
-                  flex: 2,
-                  padding: "8px 12px",
-                  border: "1px solid #ccc",
-                  borderRadius: 4,
-                  fontSize: 14,
-                }}
+                className="compact-input"
+                style={styles.valueInput}
               />
               <button
                 onClick={() => removeEntry(index)}
-                style={{
-                  padding: "8px 12px",
-                  border: "1px solid #e44",
-                  borderRadius: 4,
-                  backgroundColor: "#fff",
-                  color: "#e44",
-                  cursor: "pointer",
-                  fontSize: 14,
-                  lineHeight: 1,
-                }}
+                className="compact-button compact-button--danger"
+                style={styles.removeButton}
               >
                 ✕
               </button>
@@ -99,52 +123,22 @@ const RCPaywallSettingsPage: React.FC = () => {
 
         <button
           onClick={addEntry}
-          style={{
-            marginTop: 12,
-            padding: "8px 16px",
-            border: "1px solid #999",
-            borderRadius: 4,
-            backgroundColor: "#fff",
-            cursor: "pointer",
-            fontSize: 14,
-          }}
+          className="compact-button compact-button--secondary"
+          style={styles.addButton}
         >
           + Add Variable
         </button>
 
-        <div
-          style={{
-            marginTop: 28,
-            display: "flex",
-            gap: 10,
-            justifyContent: "flex-end",
-          }}
-        >
+        <div style={styles.actions}>
           <button
             onClick={() => navigate(-1)}
-            style={{
-              padding: "10px 22px",
-              border: "1px solid #ccc",
-              borderRadius: 4,
-              backgroundColor: "#fff",
-              cursor: "pointer",
-              fontSize: 14,
-            }}
+            className="compact-button compact-button--secondary"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
-            style={{
-              padding: "10px 22px",
-              border: "none",
-              borderRadius: 4,
-              backgroundColor: "#333",
-              color: "#fff",
-              cursor: "pointer",
-              fontSize: 14,
-              fontWeight: 600,
-            }}
+            className="compact-button compact-button--primary"
           >
             Save & Back
           </button>
