@@ -148,8 +148,7 @@ export enum ErrorCode {
 export interface FlagsConfig {
     autoCollectUTMAsMetadata?: boolean;
     collectAnalyticsEvents?: boolean;
-    /* Excluded from this release type: rcSource */
-    /* Excluded from this release type: forceEnableWalletMethods */
+    storeLoadTime?: StoreLoadTime;
 }
 
 // @public
@@ -538,6 +537,9 @@ export enum ReservedCustomerAttribute {
 
 // @public
 export type Store = "app_store" | "mac_app_store" | "play_store" | "amazon" | "stripe" | "rc_billing" | "promotional" | "paddle" | "test_store" | "unknown";
+
+// @public
+export type StoreLoadTime = "configuration" | "purchase_start";
 
 // @public
 export interface StoreTransaction {
