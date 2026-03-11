@@ -18,6 +18,7 @@ import RedemptionLinksTester from "./pages/redemption_links_tester";
 import RCPaywallLauncherPage from "./pages/rc_paywall_launcher";
 import ExpressPurchaseButtonsPackageSelector from "./pages/express_purchase_buttons";
 import RCPaywallSettingsPage from "./pages/rc_paywall_settings";
+import RCPaywallInElementPage from "./pages/rc_paywall_in_element";
 
 const router = createBrowserRouter([
   {
@@ -58,6 +59,15 @@ const router = createBrowserRouter([
     element: (
       <WithoutEntitlement>
         <RCPaywallLauncherPage />
+      </WithoutEntitlement>
+    ),
+  },
+  {
+    path: "/rc_paywall_in_element/:app_user_id",
+    loader: loadPurchases,
+    element: (
+      <WithoutEntitlement>
+        <RCPaywallInElementPage />
       </WithoutEntitlement>
     ),
   },

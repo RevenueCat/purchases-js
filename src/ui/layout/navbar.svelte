@@ -8,19 +8,21 @@
     headerContent?: Snippet<[]>;
     bodyContent?: Snippet<[]>;
     brandingAppearance?: BrandingAppearance | null;
+    isInElement: boolean;
   };
 
   const {
     headerContent,
     bodyContent,
     brandingAppearance = undefined,
+    isInElement,
   }: Props = $props();
 
   const style = $derived(new Theme(brandingAppearance).productInfoStyleVars);
 </script>
 
-<div class="rcb-ui-navbar" {style}>
-  <SectionLayout location="navbar">
+<div class="rcb-ui-navbar" class:rcb-ui-navbar-in-element={isInElement} {style}>
+  <SectionLayout location="navbar" {isInElement}>
     <div class="navbar-header">
       {@render headerContent?.()}
     </div>
@@ -52,6 +54,11 @@
       width: 50vw;
       display: flex;
       justify-content: flex-end;
+    }
+
+    .rcb-ui-navbar.rcb-ui-navbar-in-element {
+      width: 45%;
+      flex: 0 0 45%;
     }
 
     .navbar-header {

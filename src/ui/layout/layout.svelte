@@ -2,10 +2,14 @@
   import { type Snippet } from "svelte";
 
   export let style = "";
+  export let isInElement = false;
   export let children: Snippet;
 </script>
 
-<div id="layout-query-container">
+<div
+  id="layout-query-container"
+  class:layout-query-container-in-element={isInElement}
+>
   <div class="rcb-ui-layout" {style}>
     {@render children?.()}
   </div>
@@ -19,6 +23,10 @@
     container-name: layout-query-container;
     overflow-y: auto;
     overscroll-behavior: none;
+  }
+
+  #layout-query-container.layout-query-container-in-element {
+    overflow: hidden;
   }
 
   .rcb-ui-layout {

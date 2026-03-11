@@ -14,6 +14,23 @@ export type RouteFulfillOptions = {
   status?: number | undefined;
 };
 
+type NavigationQueryString = {
+  offeringId?: string;
+  useRcPaywall?: boolean;
+  lang?: string;
+  utm_source?: string;
+  utm_medium?: string;
+  utm_campaign?: string;
+  utm_term?: string;
+  utm_content?: string;
+  optOutOfAutoUTM?: boolean;
+  email?: string;
+  $displayName?: string;
+  nickname?: string;
+  hideBackButtons?: boolean;
+  discountCode?: string;
+};
+
 // Infer from the demo paywall that the only button with an svg is the back button.
 export const getBackButtons = (page: Page) =>
   page.locator("[data-testid='button-navigate_back']");
@@ -65,22 +82,7 @@ export const getEmailFromUserId = (userId: string) =>
 export async function navigateToLandingUrl(
   page: Page,
   userId: string,
-  queryString?: {
-    offeringId?: string;
-    useRcPaywall?: boolean;
-    lang?: string;
-    utm_source?: string;
-    utm_medium?: string;
-    utm_campaign?: string;
-    utm_term?: string;
-    utm_content?: string;
-    optOutOfAutoUTM?: boolean;
-    email?: string;
-    $displayName?: string;
-    nickname?: string;
-    hideBackButtons?: boolean;
-    discountCode?: string;
-  },
+  queryString?: NavigationQueryString,
   apiKey?: string,
 ) {
   const key = apiKey ?? NON_TAX_TEST_API_KEY;
@@ -148,6 +150,56 @@ export async function navigateToLandingUrl(
   const rcPaywallPath = offeringId ? "rc_paywall" : "rc_paywall_no_offering";
 
   const url = `${BASE_URL}${useRcPaywall ? rcPaywallPath : "paywall"}/${encodeURIComponent(userId)}?${params.toString()}`;
+  await page.goto(url);
+
+  return page;
+}
+
+export async function navigateToInElementPaywallUrl(
+  page: Page,
+  userId: string,
+  queryString?: NavigationQueryString,
+  apiKey?: string,
+) {
+  const key = apiKey ?? NON_TAX_TEST_API_KEY;
+  if (key) {
+    await page.addInitScript(`window.__RC_API_KEY__ = "${key}";`);
+  }
+
+  const {
+    offeringId,
+    lang,
+    hideBackButtons,
+    email,
+    $displayName,
+    nickname,
+    discountCode,
+  } = queryString ?? {};
+
+  const params = new URLSearchParams();
+  if (offeringId) {
+    params.append("offeringId", offeringId);
+  }
+  if (lang) {
+    params.append("lang", lang);
+  }
+  if (hideBackButtons !== undefined) {
+    params.append("hideBackButtons", hideBackButtons.toString());
+  }
+  if (email) {
+    params.append("email", email);
+  }
+  if ($displayName) {
+    params.append("$displayName", $displayName);
+  }
+  if (nickname) {
+    params.append("nickname", nickname);
+  }
+  if (discountCode) {
+    params.append("discountCode", discountCode);
+  }
+
+  const url = `${BASE_URL}rc_paywall_in_element/${encodeURIComponent(userId)}?${params.toString()}`;
   await page.goto(url);
 
   return page;

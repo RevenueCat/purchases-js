@@ -7,14 +7,15 @@
   type Props = {
     children: Snippet;
     brandingAppearance: BrandingAppearance | null | undefined;
+    isInElement: boolean;
   };
 
-  const { children, brandingAppearance }: Props = $props();
+  const { children, brandingAppearance, isInElement }: Props = $props();
   const style = $derived(new Theme(brandingAppearance).formStyleVars);
 </script>
 
-<div class="rcb-ui-main" {style}>
-  <SectionLayout location="main-block">
+<div class="rcb-ui-main" class:rcb-ui-main-in-element={isInElement} {style}>
+  <SectionLayout location="main-block" {isInElement}>
     {@render children?.()}
   </SectionLayout>
 </div>
@@ -24,5 +25,9 @@
     flex: 1;
     display: flex;
     background-color: var(--rc-color-background);
+  }
+
+  .rcb-ui-main.rcb-ui-main-in-element {
+    flex: 1 1 0%;
   }
 </style>
