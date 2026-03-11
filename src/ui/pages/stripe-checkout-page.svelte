@@ -77,8 +77,12 @@
   });
 </script>
 
-<div class="stripe-checkout-container">
-  <div bind:this={checkoutContainer} class="stripe-checkout-mount"></div>
+<div class="stripe-checkout-container" data-testid="stripe-checkout-container">
+  <div
+    bind:this={checkoutContainer}
+    class="stripe-checkout-mount"
+    data-testid="stripe-checkout-mount"
+  ></div>
 </div>
 
 <style>
