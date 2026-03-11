@@ -179,6 +179,24 @@ describe("Purchases.configure()", () => {
     ).not.toThrow();
   });
 
+  test("throws error if given invalid stripe api key", () => {
+    expect(() =>
+      Purchases.configure({
+        apiKey: "strp_test invalidchar",
+        appUserId: testUserId,
+      }),
+    ).toThrowError(PurchasesError);
+  });
+
+  test("does not throw error if given valid stripe api key", () => {
+    expect(() =>
+      Purchases.configure({
+        apiKey: "strp_valid_key",
+        appUserId: testUserId,
+      }),
+    ).not.toThrow();
+  });
+
   test("does not throw error if given valid web billing api key", () => {
     expect(() =>
       Purchases.configure({
@@ -627,6 +645,12 @@ describe("Purchases.identifyUser", () => {
 });
 
 describe("Purchases.purchase()", () => {
+  type PurchaseRouterMethods = {
+    performPaddlePurchase: (params: unknown) => Promise<unknown>;
+    performStripePurchase: (params: unknown) => Promise<unknown>;
+    performWebBillingPurchase: (params: unknown) => Promise<unknown>;
+  };
+
   test("pressing back button unmounts the component", async () => {
     const unmountSpy = vi.spyOn(svelte, "unmount").mockImplementation(() => {
       return Promise.resolve();
@@ -707,6 +731,90 @@ describe("Purchases.purchase()", () => {
     purchases.close();
     // Forcing the body to cleanup to not affect other tests
     document.body.innerHTML = "";
+  });
+
+  test("routes purchases to Paddle flow for pdl_ api keys", async () => {
+    const purchases = configurePurchases(
+      testUserId,
+      "rcSource",
+      "pdl_test_key",
+    );
+    const purchasesInternal = purchases as unknown as PurchaseRouterMethods;
+    const performPaddlePurchaseSpy = vi
+      .spyOn(purchasesInternal, "performPaddlePurchase")
+      .mockResolvedValue({});
+    const performStripePurchaseSpy = vi.spyOn(
+      purchasesInternal,
+      "performStripePurchase",
+    );
+    const performWebBillingPurchaseSpy = vi.spyOn(
+      purchasesInternal,
+      "performWebBillingPurchase",
+    );
+
+    await purchases.purchase({
+      rcPackage: createMonthlyPackageMock(),
+    });
+
+    expect(performPaddlePurchaseSpy).toHaveBeenCalledOnce();
+    expect(performStripePurchaseSpy).not.toHaveBeenCalled();
+    expect(performWebBillingPurchaseSpy).not.toHaveBeenCalled();
+  });
+
+  test("routes purchases to Stripe Checkout flow for strp_ api keys", async () => {
+    const purchases = configurePurchases(
+      testUserId,
+      "rcSource",
+      "strp_test_key",
+    );
+    const purchasesInternal = purchases as unknown as PurchaseRouterMethods;
+    const performStripePurchaseSpy = vi
+      .spyOn(purchasesInternal, "performStripePurchase")
+      .mockResolvedValue({});
+    const performPaddlePurchaseSpy = vi.spyOn(
+      purchasesInternal,
+      "performPaddlePurchase",
+    );
+    const performWebBillingPurchaseSpy = vi.spyOn(
+      purchasesInternal,
+      "performWebBillingPurchase",
+    );
+
+    await purchases.purchase({
+      rcPackage: createMonthlyPackageMock(),
+    });
+
+    expect(performStripePurchaseSpy).toHaveBeenCalledOnce();
+    expect(performPaddlePurchaseSpy).not.toHaveBeenCalled();
+    expect(performWebBillingPurchaseSpy).not.toHaveBeenCalled();
+  });
+
+  test("routes purchases to web billing flow for rcb_ api keys", async () => {
+    const purchases = configurePurchases(
+      testUserId,
+      "rcSource",
+      "rcb_test_key",
+    );
+    const purchasesInternal = purchases as unknown as PurchaseRouterMethods;
+    const performWebBillingPurchaseSpy = vi
+      .spyOn(purchasesInternal, "performWebBillingPurchase")
+      .mockResolvedValue({});
+    const performPaddlePurchaseSpy = vi.spyOn(
+      purchasesInternal,
+      "performPaddlePurchase",
+    );
+    const performStripePurchaseSpy = vi.spyOn(
+      purchasesInternal,
+      "performStripePurchase",
+    );
+
+    await purchases.purchase({
+      rcPackage: createMonthlyPackageMock(),
+    });
+
+    expect(performWebBillingPurchaseSpy).toHaveBeenCalledOnce();
+    expect(performPaddlePurchaseSpy).not.toHaveBeenCalled();
+    expect(performStripePurchaseSpy).not.toHaveBeenCalled();
   });
 
   test("throws error if api key is not provided", () => {
