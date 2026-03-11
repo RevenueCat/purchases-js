@@ -84,7 +84,8 @@ export interface PresentPaywallParams {
    * presentPaywall({
    *   customVariables: {
    *     player_name: CustomVariableValue.string('Ada'),
-   *     level: CustomVariableValue.string('42'),
+   *     level: CustomVariableValue.number(42),
+   *     is_premium: CustomVariableValue.boolean(true),
    *   },
    * });
    * ```
