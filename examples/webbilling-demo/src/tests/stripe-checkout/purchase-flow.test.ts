@@ -4,6 +4,7 @@ import { integrationTest } from "../helpers/integration-test";
 import {
   confirmPaymentComplete,
   getPackageCards,
+  skipPaywallsTestIfDisabled,
   startPurchaseFlow,
 } from "../helpers/test-helpers";
 import {
@@ -32,6 +33,47 @@ integrationTest.describe("Stripe Checkout flow", () => {
       expect(packageCards.length).toBeGreaterThan(0);
 
       await startPurchaseFlow(packageCards[0]);
+      await completeStripeCheckoutEmbeddedForm(page, email, fullName);
+      await confirmPaymentComplete(page);
+
+      await Promise.all([
+        page.waitForURL(/\/success\//),
+        page.getByRole("button", { name: /continue/i }).click(),
+      ]);
+
+      await expect(
+        page.getByText("Enjoy your premium experience."),
+      ).toBeVisible();
+    },
+  );
+
+  integrationTest(
+    "Purchases monthly product from RC Paywall with Stripe Checkout",
+    async ({ page, userId, email }) => {
+      skipPaywallsTestIfDisabled(integrationTest);
+
+      const fullName = `E2E ${userId.replace(/_/g, " ")}`;
+
+      page = await navigateToStripeCheckoutLandingUrl(page, userId, {
+        useRcPaywall: true,
+        lang: "en",
+        email,
+      });
+
+      await expect(page.getByText("E2E Tests for Purchases JS")).toBeVisible();
+      await expect(
+        page.getByText(
+          "Testing current Offering is picked when no offering is passed",
+        ),
+      ).toBeVisible();
+
+      const monthlyPackage = page.getByText("monthly", { exact: true });
+      await monthlyPackage.click();
+
+      const purchaseButton = page.getByText(/Subscribe/i);
+      await expect(purchaseButton).toBeVisible();
+      await purchaseButton.click();
+
       await completeStripeCheckoutEmbeddedForm(page, email, fullName);
       await confirmPaymentComplete(page);
 
