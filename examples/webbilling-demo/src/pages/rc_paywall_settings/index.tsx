@@ -1,6 +1,9 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { usePaywallSettingsEditor } from "../../hooks/usePaywallSettings";
+import {
+  usePaywallSettingsEditor,
+  type CustomVariableType,
+} from "../../hooks/usePaywallSettings";
 
 const styles = {
   page: {
@@ -44,13 +47,17 @@ const styles = {
     gap: "8px",
     flexWrap: "wrap" as const,
   },
+  typeSelect: {
+    flexShrink: 0,
+    minWidth: "90px",
+  },
   keyInput: {
     flex: 1,
-    minWidth: "140px",
+    minWidth: "120px",
   },
   valueInput: {
     flex: 2,
-    minWidth: "220px",
+    minWidth: "160px",
   },
   removeButton: {
     flexShrink: 0,
@@ -72,8 +79,15 @@ const styles = {
 
 const RCPaywallSettingsPage: React.FC = () => {
   const navigate = useNavigate();
-  const { entries, updateKey, updateValue, removeEntry, addEntry, save } =
-    usePaywallSettingsEditor();
+  const {
+    entries,
+    updateKey,
+    updateValue,
+    updateType,
+    removeEntry,
+    addEntry,
+    save,
+  } = usePaywallSettingsEditor();
 
   const handleSave = () => {
     save();
@@ -94,6 +108,18 @@ const RCPaywallSettingsPage: React.FC = () => {
         <div style={styles.list}>
           {entries.map((entry, index) => (
             <div key={index} style={styles.row}>
+              <select
+                value={entry.type}
+                onChange={(e) =>
+                  updateType(index, e.target.value as CustomVariableType)
+                }
+                className="compact-input"
+                style={styles.typeSelect}
+              >
+                <option value="string">string</option>
+                <option value="number">number</option>
+                <option value="boolean">boolean</option>
+              </select>
               <input
                 type="text"
                 placeholder="key"
@@ -102,14 +128,26 @@ const RCPaywallSettingsPage: React.FC = () => {
                 className="compact-input"
                 style={styles.keyInput}
               />
-              <input
-                type="text"
-                placeholder="value"
-                value={entry.value}
-                onChange={(e) => updateValue(index, e.target.value)}
-                className="compact-input"
-                style={styles.valueInput}
-              />
+              {entry.type === "boolean" ? (
+                <select
+                  value={entry.value}
+                  onChange={(e) => updateValue(index, e.target.value)}
+                  className="compact-input"
+                  style={styles.valueInput}
+                >
+                  <option value="true">true</option>
+                  <option value="false">false</option>
+                </select>
+              ) : (
+                <input
+                  type={entry.type === "number" ? "number" : "text"}
+                  placeholder="value"
+                  value={entry.value}
+                  onChange={(e) => updateValue(index, e.target.value)}
+                  className="compact-input"
+                  style={styles.valueInput}
+                />
+              )}
               <button
                 onClick={() => removeEntry(index)}
                 className="compact-button compact-button--danger"
