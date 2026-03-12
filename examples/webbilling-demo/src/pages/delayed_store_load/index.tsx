@@ -1,8 +1,10 @@
 import type { PaywallPurchaseResult } from "@revenuecat/purchases-js";
 import { Purchases, PurchasesError } from "@revenuecat/purchases-js";
 import React from "react";
+import { usePurchasesLoaderData } from "../../util/PurchasesLoader";
 
 const DelayedStoreLoadPage: React.FC = () => {
+  const { offering } = usePurchasesLoaderData();
   const [purchaseResult, setPurchaseResult] =
     React.useState<PaywallPurchaseResult | null>(null);
   const [error, setError] = React.useState<PurchasesError | null>(null);
@@ -11,6 +13,7 @@ const DelayedStoreLoadPage: React.FC = () => {
     const purchases = Purchases.getSharedInstance();
     purchases
       .presentPaywall({
+        offering,
         onPurchaseError: (error) => {
           console.error(
             `There was a purchase error inside the paywall: ${error}`,

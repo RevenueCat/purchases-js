@@ -20,6 +20,7 @@ import {
 } from "./helpers/test-helpers";
 import { integrationTest } from "./helpers/integration-test";
 import {
+  BASE_URL,
   RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES,
   RC_PAYWALL_WITH_LATAM_TRANSLATION_OFFERING_ID,
 } from "./helpers/fixtures";
@@ -31,6 +32,28 @@ test.describe("Purchase flow", () => {
       page = await navigateToLandingUrl(page, userId);
       const packageCards = await getPackageCards(page);
       await performPurchase(page, packageCards[1], email);
+    },
+  );
+
+  integrationTest(
+    "Purchase a subscription product with delayed store load",
+    async ({ page, userId, email }) => {
+      await page.goto(
+        `${BASE_URL}delayed_store_load/${encodeURIComponent(userId)}?offeringId=${RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES}`,
+      );
+
+      await expect(page.getByText("Delayed Store Load Test")).toBeVisible();
+
+      await page.getByRole("button", { name: "Launch Paywall" }).click();
+
+      const weekly = page.getByText("weekly", { exact: true });
+      await weekly.click();
+
+      const purchaseButton = page.getByText("PURCHASE weekly", { exact: true });
+      await expect(purchaseButton).toBeVisible();
+
+      // Target the parent element of the purchase button since the function targets the button itself
+      await performPurchase(page, purchaseButton.locator("../../.."), email);
     },
   );
 
