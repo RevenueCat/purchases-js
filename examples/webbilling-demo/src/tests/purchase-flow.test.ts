@@ -36,6 +36,17 @@ test.describe("Purchase flow", () => {
   );
 
   integrationTest(
+    "Purchase a subscription product with deferred store load on regular paywall",
+    async ({ page, userId, email }) => {
+      page = await navigateToLandingUrl(page, userId, {
+        storeLoadTime: "purchase_start",
+      });
+      const packageCards = await getPackageCards(page);
+      await performPurchase(page, packageCards[1], email);
+    },
+  );
+
+  integrationTest(
     "Purchase a subscription product with delayed store load",
     async ({ page, userId, email }) => {
       await page.goto(
@@ -238,6 +249,23 @@ test.describe("Purchase error paths", () => {
     await clickPayButton(page);
     await confirmStripeCardError(page, "Your card was declined.");
   });
+
+  integrationTest(
+    "Handled card declined errors with deferred store load",
+    async ({ page, userId }) => {
+      page = await navigateToLandingUrl(page, userId, {
+        storeLoadTime: "purchase_start",
+      });
+      const email = getEmailFromUserId(userId);
+
+      const packageCards = await getPackageCards(page);
+      await startPurchaseFlow(packageCards[1]);
+      await enterEmail(page, email);
+      await enterCreditCardDetails(page, "4000 0000 0000 0002");
+      await clickPayButton(page);
+      await confirmStripeCardError(page, "Your card was declined.");
+    },
+  );
 
   integrationTest(
     "Email deliverability errors after card declined errors",
