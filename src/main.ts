@@ -144,7 +144,7 @@ export type { StoreTransaction } from "./entities/store-transaction";
 export { PeriodUnit } from "./helpers/duration-helper";
 export type { Period } from "./helpers/duration-helper";
 export type { HttpConfig } from "./entities/http-config";
-export type { FlagsConfig } from "./entities/flags-config";
+export type { FlagsConfig, StoreLoadTime } from "./entities/flags-config";
 export { LogLevel } from "./entities/logging";
 export type { LogHandler } from "./entities/logging";
 export type { IdentifyResult } from "./entities/identify-result";
@@ -355,7 +355,9 @@ export class Purchases {
     const finalFlags = flags ?? defaultFlagsConfig;
 
     Purchases.validateConfig(config);
-    StripeService.preloadStripeModule();
+    if (finalFlags.storeLoadTime === "configuration") {
+      StripeService.preloadStripeModule();
+    }
     Purchases.instance = new Purchases(
       apiKey,
       appUserId,

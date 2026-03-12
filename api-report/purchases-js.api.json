@@ -1998,6 +1998,34 @@
                 "startIndex": 1,
                 "endIndex": 2
               }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!FlagsConfig#storeLoadTime:member",
+              "docComment": "/**\n * Determines when the store module (e.g. Stripe) is loaded. - `\"configuration\"`: Preloaded when the SDK is configured (default). - `\"purchase_start\"`: Loaded on demand when a purchase is started.\n *\n * @defaultValue\n *\n * \"configuration\"\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "storeLoadTime?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StoreLoadTime",
+                  "canonicalReference": "@revenuecat/purchases-js!StoreLoadTime:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "storeLoadTime",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
             }
           ],
           "extendsTokenRanges": []
@@ -8541,6 +8569,32 @@
           "fileUrlPath": "dist/Purchases.es.d.ts",
           "releaseTag": "Public",
           "name": "Store",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "@revenuecat/purchases-js!StoreLoadTime:type",
+          "docComment": "/**\n * Determines when the store module (e.g. Stripe) is loaded. - `\"configuration\"`: The store module is preloaded when the SDK is configured. - `\"purchase_start\"`: The store module is loaded on demand when a purchase is started.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare type StoreLoadTime = "
+            },
+            {
+              "kind": "Content",
+              "text": "\"configuration\" | \"purchase_start\""
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "name": "StoreLoadTime",
           "typeTokenRange": {
             "startIndex": 1,
             "endIndex": 2
