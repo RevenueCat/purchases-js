@@ -3,6 +3,7 @@ import { STRIPE_CHECKOUT_TEST_API_KEY } from "../helpers/fixtures";
 import { integrationTest } from "../helpers/integration-test";
 import {
   confirmPaymentComplete,
+  confirmPaymentError,
   getPackageCards,
   skipPaywallsTestIfDisabled,
   startPurchaseFlow,
@@ -44,6 +45,37 @@ integrationTest.describe("Stripe Checkout flow", () => {
       await expect(
         page.getByText("Enjoy your premium experience."),
       ).toBeVisible();
+    },
+  );
+
+  integrationTest(
+    "Shows an error screen when checkout/start returns missing stripe checkout params",
+    async ({ page, userId, email }) => {
+      page = await navigateToStripeCheckoutLandingUrl(page, userId, {
+        email,
+      });
+
+      await expect(page.getByText("Stripe Checkout demo")).toBeVisible();
+
+      await page.route("*/**/checkout/start", async (route) => {
+        const response = await route.fetch();
+        const json = (await response.json()) as Record<string, unknown>;
+
+        await route.fulfill({
+          response,
+          json: {
+            ...json,
+            stripe_billing_params: null,
+          },
+        });
+      });
+
+      const packageCards = await getPackageCards(page);
+      expect(packageCards.length).toBeGreaterThan(0);
+
+      await startPurchaseFlow(packageCards[0]);
+      await confirmPaymentError(page, "Something went wrong");
+      await confirmPaymentError(page, /Purchase not started due to an error/i);
     },
   );
 

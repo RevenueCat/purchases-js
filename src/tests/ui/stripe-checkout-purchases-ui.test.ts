@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom";
-import { render, waitFor } from "@testing-library/svelte";
+import { render, screen, waitFor } from "@testing-library/svelte";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import type { ComponentProps } from "svelte";
 import StripeCheckoutPurchasesUi from "../../ui/stripe-checkout-purchases-ui.svelte";
@@ -143,6 +143,26 @@ describe("StripeCheckoutPurchasesUi", () => {
         undefined,
       );
     });
+  });
+
+  test("shows error page when checkoutStart returns missing stripe checkout params", async () => {
+    vi.spyOn(purchaseOperationHelperMock, "checkoutStart").mockResolvedValue(
+      checkoutStartResponseWithoutStripeParams,
+    );
+
+    render(StripeCheckoutPurchasesUi, {
+      props: {
+        ...baseProps,
+      },
+    });
+
+    const errorTitle = await screen.findByText("Something went wrong");
+    expect(errorTitle).toBeInTheDocument();
+
+    const errorMessage = await screen.findByText(
+      /Purchase not started due to an error/i,
+    );
+    expect(errorMessage).toBeInTheDocument();
   });
 
   test("passes paywallId to checkoutStart when provided", async () => {

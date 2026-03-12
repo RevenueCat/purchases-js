@@ -25,7 +25,7 @@
     isSandbox: boolean;
     lastError: PurchaseFlowError | null;
     isInElement: boolean;
-    stripeBillingParams: StripeBillingParams;
+    stripeBillingParams: StripeBillingParams | null;
     onContinue: () => void;
     onError: (error: PurchaseFlowError) => void;
     closeWithError: () => void;
@@ -56,9 +56,28 @@
 >
   {#snippet mainContent()}
     {#if currentPage === "stripe-checkout"}
-      <div class="stripe-checkout-wrapper" class:fullscreen={!isInElement}>
-        <StripeCheckoutPage {stripeBillingParams} {onContinue} {onError} />
-      </div>
+      {#if stripeBillingParams}
+        <div class="stripe-checkout-wrapper" class:fullscreen={!isInElement}>
+          <StripeCheckoutPage {stripeBillingParams} {onContinue} {onError} />
+        </div>
+      {:else}
+        <div class="rcb-ui-loading-container">
+          <ColLayout gap="medium" align="center">
+            <Spinner color="var(--rc-color-grey-text-dark)" />
+            <Typography size="heading-md"
+              >{$translator.translate(
+                LocalizationKeys.LoadingPageProcessingPayment,
+              )}</Typography
+            >
+
+            <Typography size="body-small"
+              >{$translator.translate(
+                LocalizationKeys.LoadingPageKeepPageOpen,
+              )}</Typography
+            ></ColLayout
+          >
+        </div>
+      {/if}
     {:else if currentPage === "loading"}
       <div class="rcb-ui-loading-container">
         <ColLayout gap="medium" align="center">

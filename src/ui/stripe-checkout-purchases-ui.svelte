@@ -221,18 +221,16 @@
   });
 </script>
 
-{#if stripeBillingParams}
-  <StripeCheckoutPurchasesUiInner
-    {currentPage}
-    {brandingInfo}
-    brandingAppearance={mergedBrandingAppearance}
-    {productDetails}
-    {isSandbox}
-    lastError={error}
-    {isInElement}
-    {stripeBillingParams}
-    onContinue={handleContinue}
-    onError={handleError}
-    {closeWithError}
-  />
-{/if}
+<StripeCheckoutPurchasesUiInner
+  {currentPage}
+  {brandingInfo}
+  brandingAppearance={mergedBrandingAppearance}
+  {productDetails}
+  {isSandbox}
+  lastError={error}
+  {isInElement}
+  {stripeBillingParams}
+  onContinue={handleContinue}
+  onError={handleError}
+  {closeWithError}
+/>
