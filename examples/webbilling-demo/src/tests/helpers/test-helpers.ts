@@ -2,7 +2,7 @@ import type { APIResponse } from "@playwright/test";
 import { type Page, type Locator, expect } from "@playwright/test";
 import { BASE_URL, NON_TAX_TEST_API_KEY } from "./fixtures";
 import type { integrationTest } from "./integration-test";
-import { ALLOW_PAYWALLS_TESTS } from "./integration-test";
+import { ALLOW_PAYWALLS_TESTS, SKIP_STRIPE_TESTS } from "./integration-test";
 
 export type RouteFulfillOptions = {
   body?: string | Buffer | undefined;
@@ -26,6 +26,13 @@ export const skipPaywallsTestIfDisabled = (test: typeof integrationTest) => {
   test.skip(
     !ALLOW_PAYWALLS_TESTS,
     "Paywalls tests are disabled. To enable, set VITE_ALLOW_PAYWALLS_TESTS=true in the environment variables.",
+  );
+};
+
+export const skipStripeTestsIfDisabled = (test: typeof integrationTest) => {
+  test.skip(
+    SKIP_STRIPE_TESTS,
+    "Stripe tests are disabled. To enable them, unset VITE_SKIP_STRIPE_TESTS or set it to false.",
   );
 };
 

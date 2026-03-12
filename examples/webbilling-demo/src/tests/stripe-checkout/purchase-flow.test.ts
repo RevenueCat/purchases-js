@@ -6,6 +6,7 @@ import {
   confirmPaymentError,
   getPackageCards,
   skipPaywallsTestIfDisabled,
+  skipStripeTestsIfDisabled,
   startPurchaseFlow,
 } from "../helpers/test-helpers";
 import {
@@ -14,6 +15,8 @@ import {
 } from "./test-helpers";
 
 integrationTest.describe("Stripe Checkout flow", () => {
+  skipStripeTestsIfDisabled(integrationTest);
+
   integrationTest.skip(
     !STRIPE_CHECKOUT_TEST_API_KEY,
     "Stripe Checkout E2E tests require VITE_RC_STRIPE_CHECKOUT_E2E_API_KEY.",

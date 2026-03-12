@@ -16,6 +16,7 @@ import {
   navigateToLandingUrl,
   performPurchase,
   skipPaywallsTestIfDisabled,
+  skipStripeTestsIfDisabled,
   startPurchaseFlow,
 } from "./helpers/test-helpers";
 import { integrationTest } from "./helpers/integration-test";
@@ -25,6 +26,8 @@ import {
 } from "./helpers/fixtures";
 
 test.describe("Purchase flow", () => {
+  skipStripeTestsIfDisabled(integrationTest);
+
   integrationTest(
     "Purchase a subscription product",
     async ({ page, userId, email }) => {

@@ -37,6 +37,7 @@ import {
   getPackageCards,
   getStripePaymentFrame,
   navigateToLandingUrl,
+  skipStripeTestsIfDisabled,
   startPurchaseFlow,
 } from "./helpers/test-helpers";
 import type { RouteFulfillOptions } from "./helpers/test-helpers";
@@ -76,6 +77,8 @@ const mockTaxCalculationRequest = async (
   integrationTest.describe(
     `Tax calculation (${mockMode ? "mocked" : "real"})`,
     () => {
+      skipStripeTestsIfDisabled(integrationTest);
+
       integrationTest.skip(
         !mockMode && SKIP_TAX_REAL_TESTS,
         `Tax calculation ${mockMode ? "mocked" : "real"} tests are disabled.
