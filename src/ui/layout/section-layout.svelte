@@ -5,14 +5,18 @@
   type Props = {
     location: "navbar" | "main-block";
     children?: Snippet<[]>;
+    isInElement?: boolean;
   };
 
-  const { location, children }: Props = $props();
+  const { location, children, isInElement = false }: Props = $props();
 
   const locationClass = `rcb-${location}`;
 </script>
 
-<div class="layout-wrapper-outer {locationClass}">
+<div
+  class="layout-wrapper-outer {locationClass}"
+  class:layout-wrapper-outer-in-element={isInElement}
+>
   <div class="layout-wrapper">
     <div
       class="layout-content {locationClass}"
@@ -91,6 +95,10 @@
     .layout-wrapper-outer {
       padding-top: var(--rc-spacing-outerPaddingTop-desktop);
       padding-bottom: var(--rc-spacing-outerPadding-desktop);
+    }
+
+    .layout-wrapper-outer.rcb-navbar.layout-wrapper-outer-in-element {
+      padding-top: 48px;
     }
   }
 </style>

@@ -39,15 +39,16 @@
   {#if isSandbox}
     <SandboxBanner style={colorVariables} {isInElement} {brandingInfo} />
   {/if}
-  <Layout style={colorVariables}>
+  <Layout {isInElement} style={colorVariables}>
     {#if navbarHeaderContent || navbarBodyContent}
       <NavBar
+        {isInElement}
         brandingAppearance={brandingInfo?.appearance}
         headerContent={navbarHeaderContent}
         bodyContent={navbarBodyContent}
       />
     {/if}
-    <Main brandingAppearance={brandingInfo?.appearance}>
+    <Main {isInElement} brandingAppearance={brandingInfo?.appearance}>
       {@render mainContent?.()}
     </Main>
   </Layout>
