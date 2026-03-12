@@ -193,6 +193,8 @@
         return;
       }
 
+      isSandbox =
+        result.stripe_billing_params.environment.toLowerCase() === "sandbox";
       stripeBillingParams = result.stripe_billing_params;
       currentPage = "stripe-checkout";
     } catch (e: PurchaseFlowError | unknown) {

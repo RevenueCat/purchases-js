@@ -57,7 +57,7 @@
   {#snippet mainContent()}
     {#if currentPage === "stripe-checkout"}
       {#if stripeBillingParams}
-        <div class="stripe-checkout-wrapper" class:fullscreen={!isInElement}>
+        <div class="stripe-checkout-wrapper">
           <StripeCheckoutPage {stripeBillingParams} {onContinue} {onError} />
         </div>
       {:else}
@@ -123,12 +123,5 @@
     display: flex;
     flex-direction: column;
     overflow: hidden auto;
-  }
-
-  .stripe-checkout-wrapper.fullscreen {
-    position: fixed;
-    inset: 0;
-    z-index: 1000001;
-    overscroll-behavior: none;
   }
 </style>

@@ -35,6 +35,29 @@ const checkoutStartResponseWithoutStripeParams: WebBillingCheckoutStartResponse 
     paddle_billing_params: null,
   };
 
+const createCheckoutStartResponseWithStripeParams = (
+  environment: string,
+): WebBillingCheckoutStartResponse => ({
+  operation_session_id: "test-operation-session-id",
+  stripe_billing_params: {
+    client_secret: "cs_test_123",
+    environment,
+    publishable_api_key: "pk_test_123",
+    stripe_account_id: "acct_test_123",
+  },
+  gateway_params: {
+    stripe_account_id: "test-stripe-account-id",
+    publishable_api_key: "test-publishable-key",
+    elements_configuration: {
+      mode: StripeElementsMode.Setup,
+      payment_method_types: ["card"],
+      setup_future_usage: StripeElementsSetupFutureUsage.OffSession,
+    },
+  },
+  management_url: "https://test-management-url.revenuecat.com",
+  paddle_billing_params: null,
+});
+
 const purchaseOperationHelperMock: PurchaseOperationHelper = {
   checkoutStart: async () =>
     Promise.resolve(checkoutStartResponseWithoutStripeParams),
@@ -214,5 +237,39 @@ describe("StripeCheckoutPurchasesUi", () => {
         undefined,
       );
     });
+  });
+
+  test("shows sandbox banner when stripe billing environment is sandbox", async () => {
+    vi.spyOn(purchaseOperationHelperMock, "checkoutStart").mockResolvedValue(
+      createCheckoutStartResponseWithStripeParams("sandbox"),
+    );
+
+    render(StripeCheckoutPurchasesUi, {
+      props: {
+        ...baseProps,
+      },
+    });
+
+    const sandboxBanner = await screen.findByText("SANDBOX");
+    expect(sandboxBanner).toBeInTheDocument();
+  });
+
+  test("does not show sandbox banner when stripe billing environment is production", async () => {
+    const checkoutStartSpy = vi
+      .spyOn(purchaseOperationHelperMock, "checkoutStart")
+      .mockResolvedValue(
+        createCheckoutStartResponseWithStripeParams("production"),
+      );
+
+    render(StripeCheckoutPurchasesUi, {
+      props: {
+        ...baseProps,
+      },
+    });
+
+    await waitFor(() => {
+      expect(checkoutStartSpy).toHaveBeenCalledTimes(1);
+    });
+    expect(screen.queryByText("SANDBOX")).not.toBeInTheDocument();
   });
 });
