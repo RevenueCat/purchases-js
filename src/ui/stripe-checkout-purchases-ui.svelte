@@ -42,6 +42,7 @@
     metadata: PurchaseMetadata | undefined;
     purchaseOperationHelper: PurchaseOperationHelper;
     workflowPurchaseContext?: WorkflowPurchaseContext;
+    paywallId?: string;
   }
 
   const {
@@ -61,6 +62,7 @@
     metadata,
     purchaseOperationHelper,
     workflowPurchaseContext,
+    paywallId,
   }: Props = $props();
   let productDetails: Product = rcPackage.webBillingProduct;
   let translator: Translator = new Translator(
@@ -178,6 +180,7 @@
         email,
         metadata,
         workflowPurchaseContext,
+        paywallId,
       );
 
       if (!result.stripe_billing_params) {

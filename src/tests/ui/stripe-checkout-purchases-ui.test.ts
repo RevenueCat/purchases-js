@@ -89,6 +89,7 @@ describe("StripeCheckoutPurchasesUi", () => {
         "test@example.com",
         { utm_term: "something" },
         { stepId: "test-step-123" },
+        undefined,
       );
     });
   });
@@ -112,6 +113,7 @@ describe("StripeCheckoutPurchasesUi", () => {
         rcPackage.webBillingProduct.presentedOfferingContext,
         "test@example.com",
         { utm_term: "something" },
+        undefined,
         undefined,
       );
     });
@@ -137,6 +139,58 @@ describe("StripeCheckoutPurchasesUi", () => {
         rcPackage.webBillingProduct.presentedOfferingContext,
         undefined,
         { utm_term: "something" },
+        undefined,
+        undefined,
+      );
+    });
+  });
+
+  test("passes paywallId to checkoutStart when provided", async () => {
+    const checkoutStartSpy = vi
+      .spyOn(purchaseOperationHelperMock, "checkoutStart")
+      .mockResolvedValue(checkoutStartResponseWithoutStripeParams);
+
+    render(StripeCheckoutPurchasesUi, {
+      props: {
+        ...baseProps,
+        paywallId: "paywall-abc-123",
+      },
+    });
+
+    await waitFor(() => {
+      expect(checkoutStartSpy).toHaveBeenCalledWith(
+        "test-app-user-id",
+        rcPackage.webBillingProduct.identifier,
+        subscriptionOption,
+        rcPackage.webBillingProduct.presentedOfferingContext,
+        "test@example.com",
+        { utm_term: "something" },
+        undefined,
+        "paywall-abc-123",
+      );
+    });
+  });
+
+  test("passes undefined paywallId to checkoutStart when not provided", async () => {
+    const checkoutStartSpy = vi
+      .spyOn(purchaseOperationHelperMock, "checkoutStart")
+      .mockResolvedValue(checkoutStartResponseWithoutStripeParams);
+
+    render(StripeCheckoutPurchasesUi, {
+      props: {
+        ...baseProps,
+      },
+    });
+
+    await waitFor(() => {
+      expect(checkoutStartSpy).toHaveBeenCalledWith(
+        "test-app-user-id",
+        rcPackage.webBillingProduct.identifier,
+        subscriptionOption,
+        rcPackage.webBillingProduct.presentedOfferingContext,
+        "test@example.com",
+        { utm_term: "something" },
+        undefined,
         undefined,
       );
     });
