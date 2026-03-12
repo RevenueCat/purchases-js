@@ -11,7 +11,12 @@ export type Settings = {
   customVariables: CustomVariables;
 };
 
-export type CustomVariableEntry = { key: string; value: string };
+export type CustomVariableType = "string" | "number" | "boolean";
+export type CustomVariableEntry = {
+  key: string;
+  value: string;
+  type: CustomVariableType;
+};
 
 export function readEntries(): CustomVariableEntry[] {
   try {
@@ -30,12 +35,17 @@ export function writeEntries(entries: CustomVariableEntry[]) {
 
 function buildCustomVariables(entries: CustomVariableEntry[]): CustomVariables {
   const result: CustomVariables = {};
-  for (const { key, value } of entries) {
+  entries.forEach(({ key, value, type }) => {
     const trimmed = key.trim();
-    if (trimmed !== "") {
+
+    if (type === "number") {
+      result[trimmed] = CustomVariableValue.number(Number(value));
+    } else if (type === "boolean") {
+      result[trimmed] = CustomVariableValue.boolean(value === "true");
+    } else {
       result[trimmed] = CustomVariableValue.string(value);
     }
-  }
+  });
   return result;
 }
 
@@ -62,6 +72,7 @@ export function usePaywallSettingsEditor(): {
   entries: CustomVariableEntry[];
   updateKey: (index: number, key: string) => void;
   updateValue: (index: number, value: string) => void;
+  updateType: (index: number, type: CustomVariableType) => void;
   removeEntry: (index: number) => void;
   addEntry: () => void;
   save: () => void;
@@ -90,12 +101,23 @@ export function usePaywallSettingsEditor(): {
     });
   }, []);
 
+  const updateType = useCallback((index: number, type: CustomVariableType) => {
+    setEntries((prev) => {
+      const newEntries = [...prev];
+      const entry = newEntries[index];
+      const defaultValue =
+        type === "boolean" ? "true" : type === "number" ? "0" : "";
+      newEntries[index] = { ...entry, type, value: defaultValue };
+      return newEntries;
+    });
+  }, []);
+
   const removeEntry = useCallback((index: number) => {
     setEntries((prev) => prev.filter((_, i) => i !== index));
   }, []);
 
   const addEntry = useCallback(() => {
-    setEntries((prev) => [...prev, { key: "", value: "" }]);
+    setEntries((prev) => [...prev, { key: "", value: "", type: "string" }]);
   }, []);
 
   const save = useCallback(() => {
@@ -106,6 +128,7 @@ export function usePaywallSettingsEditor(): {
     entries,
     updateKey,
     updateValue,
+    updateType,
     removeEntry,
     addEntry,
     save,
