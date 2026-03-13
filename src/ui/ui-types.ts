@@ -3,6 +3,7 @@ import type { TaxBreakdown } from "../networking/responses/checkout-calculate-ta
 export type CurrentPage =
   | "payment-entry-loading"
   | "payment-entry"
+  | "stripe-checkout"
   | "success"
   | "error";
 

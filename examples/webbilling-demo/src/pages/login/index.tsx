@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Button from "../../components/Button";
 import { useNavigate } from "react-router-dom";
 import { Purchases } from "@revenuecat/purchases-js";
+import { isPaddleApiKey, isStripeApiKey } from "../../util/PurchasesLoader";
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -79,7 +80,13 @@ const LoginPage: React.FC = () => {
             }}
           />
           <Button
-            caption="Skip"
+            caption={
+              isPaddleApiKey
+                ? "Skip to Paddle"
+                : isStripeApiKey
+                  ? "Skip to Stripe Checkout"
+                  : "Skip to Web Billing"
+            }
             onClick={() => {
               navigateToAppUserIDPaywall(
                 appUserId || Purchases.generateRevenueCatAnonymousAppUserId(),

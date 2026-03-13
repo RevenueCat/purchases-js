@@ -38,6 +38,8 @@ export const RC_PAYWALL_WITH_LATAM_TRANSLATION_OFFERING_ID =
   "rc_paywalls_e2e_test_latam_es";
 export const NON_TAX_TEST_API_KEY = process.env.VITE_RC_NON_TAX_E2E_API_KEY;
 export const TAX_TEST_API_KEY = process.env.VITE_RC_TAX_E2E_API_KEY;
+export const STRIPE_CHECKOUT_TEST_API_KEY =
+  process.env.VITE_RC_STRIPE_CHECKOUT_E2E_API_KEY;
 export const TAX_TEST_OFFERING_ID = "rcb_e2e_taxes";
 export const TAX_TEST_OFFERING_ID_WITH_DISCOUNT = "rcb_e2e_taxes_discounted";
 export const TAX_TEST_DISCOUNT_CODE = "FOREVER10";
