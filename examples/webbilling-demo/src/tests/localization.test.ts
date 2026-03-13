@@ -3,7 +3,6 @@ import {
   getPackageCards,
   navigateToLandingUrl,
   skipPaywallsTestIfDisabled,
-  skipStripeTestsIfDisabled,
   startPurchaseFlow,
 } from "./helpers/test-helpers";
 import { integrationTest } from "./helpers/integration-test";
@@ -19,8 +18,6 @@ const TEST_CASES = [
 
 TEST_CASES.forEach(([lang, subscribeTo, weekly, monthly, yearly]) => {
   integrationTest(`Displays in ${lang}`, async ({ page, userId }) => {
-    skipStripeTestsIfDisabled(integrationTest);
-
     page = await navigateToLandingUrl(page, userId, { lang });
 
     const packageCards = await getPackageCards(page);
