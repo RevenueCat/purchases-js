@@ -64,7 +64,7 @@ integrationTest.describe("Stripe Checkout flow", () => {
       expect(packageCards.length).toBeGreaterThan(0);
 
       await startPurchaseFlow(packageCards[0]);
-      await completeStripeCheckoutEmbeddedForm(page, email, fullName);
+      await completeStripeCheckoutEmbeddedForm(page, email, fullName, false);
       await confirmPaymentComplete(page);
 
       await Promise.all([
