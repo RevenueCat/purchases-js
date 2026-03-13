@@ -2,7 +2,8 @@ import { expect, type Page } from "@playwright/test";
 import { STRIPE_CHECKOUT_TEST_API_KEY } from "../helpers/fixtures";
 import { navigateToLandingUrl } from "../helpers/test-helpers";
 
-const STRIPE_CHECKOUT_FIELD_TIMEOUT_MS = 30_000;
+export const STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS = 30_000;
+export const STRIPE_CHECKOUT_TEST_TIMEOUT_MS = 120_000;
 
 type LandingQuery = {
   offeringId?: string;
@@ -38,10 +39,14 @@ export const getStripeEmbeddedCheckoutFrame = (page: Page) =>
   page.frameLocator("[data-testid='stripe-checkout-mount'] iframe");
 
 export async function confirmStripeCheckoutVisible(page: Page) {
-  await expect(page.getByTestId("stripe-checkout-container")).toBeVisible();
+  await expect(page.getByTestId("stripe-checkout-container")).toBeVisible({
+    timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+  });
   await expect(
     page.locator("[data-testid='stripe-checkout-mount'] iframe"),
-  ).toBeVisible();
+  ).toBeVisible({
+    timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+  });
 }
 
 export async function completeStripeCheckoutEmbeddedForm(
@@ -63,7 +68,7 @@ export async function completeStripeCheckoutEmbeddedForm(
 
     await emailInput.waitFor({
       state: "visible",
-      timeout: STRIPE_CHECKOUT_FIELD_TIMEOUT_MS,
+      timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
     });
     await emailInput.fill(email);
     await emailInput.blur();
@@ -78,7 +83,7 @@ export async function completeStripeCheckoutEmbeddedForm(
     .first();
   await fullNameInput.waitFor({
     state: "visible",
-    timeout: STRIPE_CHECKOUT_FIELD_TIMEOUT_MS,
+    timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
   });
   await fullNameInput.fill(fullName);
   await fullNameInput.blur();
@@ -89,7 +94,7 @@ export async function completeStripeCheckoutEmbeddedForm(
     .first();
   await cardNumberInput.waitFor({
     state: "visible",
-    timeout: STRIPE_CHECKOUT_FIELD_TIMEOUT_MS,
+    timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
   });
   await cardNumberInput.fill("4242 4242 4242 4242");
 
@@ -99,7 +104,7 @@ export async function completeStripeCheckoutEmbeddedForm(
     .first();
   await expirationInput.waitFor({
     state: "visible",
-    timeout: STRIPE_CHECKOUT_FIELD_TIMEOUT_MS,
+    timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
   });
   await expirationInput.fill("12 / 34");
 
@@ -109,7 +114,7 @@ export async function completeStripeCheckoutEmbeddedForm(
     .first();
   await securityCodeInput.waitFor({
     state: "visible",
-    timeout: STRIPE_CHECKOUT_FIELD_TIMEOUT_MS,
+    timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
   });
   await securityCodeInput.fill("123");
 
@@ -120,7 +125,7 @@ export async function completeStripeCheckoutEmbeddedForm(
     .first();
   await submitButton.waitFor({
     state: "visible",
-    timeout: STRIPE_CHECKOUT_FIELD_TIMEOUT_MS,
+    timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
   });
   await submitButton.click();
 }

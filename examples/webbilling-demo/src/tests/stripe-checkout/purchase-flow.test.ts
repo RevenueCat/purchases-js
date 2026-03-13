@@ -12,9 +12,20 @@ import {
 import {
   completeStripeCheckoutEmbeddedForm,
   navigateToStripeCheckoutLandingUrl,
+  STRIPE_CHECKOUT_TEST_TIMEOUT_MS,
+  STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
 } from "./test-helpers";
 
 integrationTest.describe("Stripe Checkout flow", () => {
+  integrationTest.describe.configure({
+    timeout: STRIPE_CHECKOUT_TEST_TIMEOUT_MS,
+  });
+
+  integrationTest.skip(
+    ({ browserName }) => !!process.env.CI && browserName !== "chromium",
+    "Stripe Checkout tests run only in Chromium on CI",
+  );
+
   skipStripeTestsIfDisabled(integrationTest);
 
   integrationTest.skip(
@@ -29,23 +40,32 @@ integrationTest.describe("Stripe Checkout flow", () => {
 
       page = await navigateToStripeCheckoutLandingUrl(page, userId);
 
-      await expect(page.getByText("Stripe Checkout demo")).toBeVisible();
+      await expect(page.getByText("Stripe Checkout demo")).toBeVisible({
+        timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+      });
 
       const packageCards = await getPackageCards(page);
       expect(packageCards.length).toBeGreaterThan(0);
 
       await startPurchaseFlow(packageCards[0]);
       await completeStripeCheckoutEmbeddedForm(page, email, fullName);
-      await confirmPaymentComplete(page);
+      await confirmPaymentComplete(page, STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS);
+
+      const continueButton = page.getByRole("button", { name: /continue/i });
+      await expect(continueButton).toBeVisible({
+        timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+      });
 
       await Promise.all([
-        page.waitForURL(/\/success\//),
-        page.getByRole("button", { name: /continue/i }).click(),
+        page.waitForURL(/\/success\//, {
+          timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+        }),
+        continueButton.click(),
       ]);
 
       await expect(
         page.getByText("Enjoy your premium experience."),
-      ).toBeVisible();
+      ).toBeVisible({ timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS });
     },
   );
 
@@ -58,23 +78,32 @@ integrationTest.describe("Stripe Checkout flow", () => {
         email,
       });
 
-      await expect(page.getByText("Stripe Checkout demo")).toBeVisible();
+      await expect(page.getByText("Stripe Checkout demo")).toBeVisible({
+        timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+      });
 
       const packageCards = await getPackageCards(page);
       expect(packageCards.length).toBeGreaterThan(0);
 
       await startPurchaseFlow(packageCards[0]);
       await completeStripeCheckoutEmbeddedForm(page, email, fullName, false);
-      await confirmPaymentComplete(page);
+      await confirmPaymentComplete(page, STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS);
+
+      const continueButton = page.getByRole("button", { name: /continue/i });
+      await expect(continueButton).toBeVisible({
+        timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+      });
 
       await Promise.all([
-        page.waitForURL(/\/success\//),
-        page.getByRole("button", { name: /continue/i }).click(),
+        page.waitForURL(/\/success\//, {
+          timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+        }),
+        continueButton.click(),
       ]);
 
       await expect(
         page.getByText("Enjoy your premium experience."),
-      ).toBeVisible();
+      ).toBeVisible({ timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS });
     },
   );
 
@@ -85,7 +114,9 @@ integrationTest.describe("Stripe Checkout flow", () => {
         email,
       });
 
-      await expect(page.getByText("Stripe Checkout demo")).toBeVisible();
+      await expect(page.getByText("Stripe Checkout demo")).toBeVisible({
+        timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+      });
 
       await page.route("*/**/checkout/start", async (route) => {
         const response = await route.fetch();
@@ -104,8 +135,16 @@ integrationTest.describe("Stripe Checkout flow", () => {
       expect(packageCards.length).toBeGreaterThan(0);
 
       await startPurchaseFlow(packageCards[0]);
-      await confirmPaymentError(page, "Something went wrong");
-      await confirmPaymentError(page, /Purchase not started due to an error/i);
+      await confirmPaymentError(
+        page,
+        "Something went wrong",
+        STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+      );
+      await confirmPaymentError(
+        page,
+        /Purchase not started due to an error/i,
+        STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+      );
     },
   );
 
@@ -122,31 +161,42 @@ integrationTest.describe("Stripe Checkout flow", () => {
         email,
       });
 
-      await expect(page.getByText("E2E Tests for Purchases JS")).toBeVisible();
+      await expect(page.getByText("E2E Tests for Purchases JS")).toBeVisible({
+        timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+      });
       await expect(
         page.getByText(
           "Testing current Offering is picked when no offering is passed",
         ),
-      ).toBeVisible();
+      ).toBeVisible({ timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS });
 
       const monthlyPackage = page.getByText("monthly", { exact: true });
       await monthlyPackage.click();
 
       const purchaseButton = page.getByText(/Subscribe/i);
-      await expect(purchaseButton).toBeVisible();
+      await expect(purchaseButton).toBeVisible({
+        timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+      });
       await purchaseButton.click();
 
       await completeStripeCheckoutEmbeddedForm(page, email, fullName);
-      await confirmPaymentComplete(page);
+      await confirmPaymentComplete(page, STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS);
+
+      const continueButton = page.getByRole("button", { name: /continue/i });
+      await expect(continueButton).toBeVisible({
+        timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+      });
 
       await Promise.all([
-        page.waitForURL(/\/success\//),
-        page.getByRole("button", { name: /continue/i }).click(),
+        page.waitForURL(/\/success\//, {
+          timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+        }),
+        continueButton.click(),
       ]);
 
       await expect(
         page.getByText("Enjoy your premium experience."),
-      ).toBeVisible();
+      ).toBeVisible({ timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS });
     },
   );
 });

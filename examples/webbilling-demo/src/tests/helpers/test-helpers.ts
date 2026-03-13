@@ -284,17 +284,22 @@ export async function confirmTaxNotCalculating(page: Page) {
   await expect(page.locator(TAX_SKELETON_SELECTOR)).not.toBeVisible();
 }
 
-export async function confirmPaymentComplete(page: Page) {
+export async function confirmPaymentComplete(page: Page, timeout?: number) {
   const successText = page.getByText("Payment complete");
-  await expect(successText).toBeVisible();
+  await expect(successText).toBeVisible(
+    timeout !== undefined ? { timeout } : undefined,
+  );
 }
 
 export async function confirmPaymentError(
   page: Page,
   message: string | RegExp,
+  timeout?: number,
 ) {
   const errorText = page.getByText(message);
-  await expect(errorText).toBeVisible();
+  await expect(errorText).toBeVisible(
+    timeout !== undefined ? { timeout } : undefined,
+  );
 }
 
 export async function clickCancelStripe3DSButton(page: Page) {
