@@ -48,23 +48,26 @@ export async function completeStripeCheckoutEmbeddedForm(
   page: Page,
   email: string,
   fullName: string,
+  fillEmail: boolean = true,
 ) {
   await confirmStripeCheckoutVisible(page);
 
   const checkoutFrame = getStripeEmbeddedCheckoutFrame(page);
 
-  const emailInput = checkoutFrame
-    .getByLabel(/email/i)
-    .or(checkoutFrame.getByPlaceholder(/email@example.com/i))
-    .or(checkoutFrame.locator("[name='email']"))
-    .first();
+  if (fillEmail) {
+    const emailInput = checkoutFrame
+      .getByLabel(/email/i)
+      .or(checkoutFrame.getByPlaceholder(/email@example.com/i))
+      .or(checkoutFrame.locator("[name='email']"))
+      .first();
 
-  await emailInput.waitFor({
-    state: "visible",
-    timeout: STRIPE_CHECKOUT_FIELD_TIMEOUT_MS,
-  });
-  await emailInput.fill(email);
-  await emailInput.blur();
+    await emailInput.waitFor({
+      state: "visible",
+      timeout: STRIPE_CHECKOUT_FIELD_TIMEOUT_MS,
+    });
+    await emailInput.fill(email);
+    await emailInput.blur();
+  }
 
   const fullNameInput = checkoutFrame
     .getByLabel(/full name on card/i)

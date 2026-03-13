@@ -27,6 +27,33 @@ integrationTest.describe("Stripe Checkout flow", () => {
     async ({ page, userId, email }) => {
       const fullName = `E2E ${userId.replace(/_/g, " ")}`;
 
+      page = await navigateToStripeCheckoutLandingUrl(page, userId);
+
+      await expect(page.getByText("Stripe Checkout demo")).toBeVisible();
+
+      const packageCards = await getPackageCards(page);
+      expect(packageCards.length).toBeGreaterThan(0);
+
+      await startPurchaseFlow(packageCards[0]);
+      await completeStripeCheckoutEmbeddedForm(page, email, fullName);
+      await confirmPaymentComplete(page);
+
+      await Promise.all([
+        page.waitForURL(/\/success\//),
+        page.getByRole("button", { name: /continue/i }).click(),
+      ]);
+
+      await expect(
+        page.getByText("Enjoy your premium experience."),
+      ).toBeVisible();
+    },
+  );
+
+  integrationTest(
+    "Purchases a product with embedded Stripe Checkout passing the email as query parameter",
+    async ({ page, userId, email }) => {
+      const fullName = `E2E ${userId.replace(/_/g, " ")}`;
+
       page = await navigateToStripeCheckoutLandingUrl(page, userId, {
         email,
       });
