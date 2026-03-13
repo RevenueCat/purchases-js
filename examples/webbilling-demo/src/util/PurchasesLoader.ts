@@ -3,6 +3,7 @@ import {
   type FlagsConfig,
   type HttpConfig,
   type LogHandler,
+  type StoreLoadTime,
   LogLevel,
   Purchases,
 } from "@revenuecat/purchases-js";
@@ -41,6 +42,8 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
   const optOutOfAutoUTM =
     searchParams.get("optOutOfAutoUTM") === "true" || false;
   const useCustomLogger = searchParams.get("useCustomLogger") === "true";
+  const storeLoadTime =
+    (searchParams.get("storeLoadTime") as StoreLoadTime) || undefined;
 
   if (!appUserId) {
     throw redirect("/");
@@ -59,6 +62,7 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
 
   const flagsConfig: FlagsConfig = {
     autoCollectUTMAsMetadata: !optOutOfAutoUTM,
+    ...(storeLoadTime ? { storeLoadTime } : {}),
   };
   if (rcSource) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -142,4 +146,15 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
 const usePurchasesLoaderData: () => IPurchasesLoaderData = () =>
   useLoaderData() as IPurchasesLoaderData;
 
-export { loadPurchases, usePurchasesLoaderData };
+const loadPurchasesWithDelayedStore: LoaderFunction<
+  IPurchasesLoaderData
+> = async (args) => {
+  const url = new URL(args.request.url);
+  url.searchParams.set("storeLoadTime", "purchase_start");
+  return loadPurchases({
+    ...args,
+    request: new Request(url, args.request),
+  });
+};
+
+export { loadPurchases, loadPurchasesWithDelayedStore, usePurchasesLoaderData };

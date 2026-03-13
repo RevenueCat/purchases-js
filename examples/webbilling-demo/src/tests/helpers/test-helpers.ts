@@ -1,5 +1,6 @@
 import type { APIResponse } from "@playwright/test";
 import { type Page, type Locator, expect } from "@playwright/test";
+import type { StoreLoadTime } from "@revenuecat/purchases-js";
 import { BASE_URL, NON_TAX_TEST_API_KEY } from "./fixtures";
 import type { integrationTest } from "./integration-test";
 import { ALLOW_PAYWALLS_TESTS, SKIP_STRIPE_TESTS } from "./integration-test";
@@ -87,6 +88,7 @@ export async function navigateToLandingUrl(
     nickname?: string;
     hideBackButtons?: boolean;
     discountCode?: string;
+    storeLoadTime?: StoreLoadTime;
   },
   apiKey?: string,
 ) {
@@ -109,6 +111,7 @@ export async function navigateToLandingUrl(
     $displayName,
     nickname,
     discountCode,
+    storeLoadTime,
   } = queryString ?? {};
 
   const params = new URLSearchParams();
@@ -150,6 +153,9 @@ export async function navigateToLandingUrl(
   }
   if (discountCode) {
     params.append("discountCode", discountCode);
+  }
+  if (storeLoadTime) {
+    params.append("storeLoadTime", storeLoadTime);
   }
 
   const rcPaywallPath = offeringId ? "rc_paywall" : "rc_paywall_no_offering";
