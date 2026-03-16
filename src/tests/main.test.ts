@@ -194,6 +194,15 @@ describe("Purchases.configure()", () => {
         apiKey: "strp_valid_key",
         appUserId: testUserId,
       }),
+    ).toThrow();
+  });
+
+  test("does not throw error if given valid stripe sandbox api key", () => {
+    expect(() =>
+      Purchases.configure({
+        apiKey: "strp_sb_valid_key",
+        appUserId: testUserId,
+      }),
     ).not.toThrow();
   });
 
@@ -761,11 +770,11 @@ describe("Purchases.purchase()", () => {
     expect(performWebBillingPurchaseSpy).not.toHaveBeenCalled();
   });
 
-  test("routes purchases to Stripe Checkout flow for strp_ api keys", async () => {
+  test("routes purchases to Stripe Checkout flow for strp_sb_ api keys", async () => {
     const purchases = configurePurchases(
       testUserId,
       "rcSource",
-      "strp_test_key",
+      "strp_sb_test_key",
     );
     const purchasesInternal = purchases as unknown as PurchaseRouterMethods;
     const performStripePurchaseSpy = vi
@@ -787,6 +796,15 @@ describe("Purchases.purchase()", () => {
     expect(performStripePurchaseSpy).toHaveBeenCalledOnce();
     expect(performPaddlePurchaseSpy).not.toHaveBeenCalled();
     expect(performWebBillingPurchaseSpy).not.toHaveBeenCalled();
+  });
+
+  test("throws error if api key Stripe prod", () => {
+    expect(() =>
+      Purchases.configure({
+        apiKey: "strp_test_key",
+        appUserId: "someUser",
+      }),
+    ).toThrowError(PurchasesError);
   });
 
   test("routes purchases to web billing flow for rcb_ api keys", async () => {
