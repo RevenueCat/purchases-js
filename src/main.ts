@@ -655,6 +655,44 @@ export class Purchases {
         reject(new PurchasesError(ErrorCode.UserCancelledError));
       };
 
+      const listener = paywallParams.listener;
+
+      const notifyPurchaseStarted = (pkg: Package) => {
+        if (listener?.onPurchaseStarted) {
+          try {
+            listener.onPurchaseStarted(pkg);
+          } catch (e) {
+            Logger.errorLog(`Error in listener.onPurchaseStarted: ${e}`);
+          }
+        }
+      };
+
+      const notifyPurchaseError = (err: Error) => {
+        if (
+          err instanceof PurchasesError &&
+          err.errorCode === ErrorCode.UserCancelledError
+        ) {
+          if (listener?.onPurchaseCancelled) {
+            try {
+              listener.onPurchaseCancelled();
+            } catch (e) {
+              Logger.errorLog(`Error in listener.onPurchaseCancelled: ${e}`);
+            }
+          }
+        } else {
+          if (listener?.onPurchaseError) {
+            try {
+              listener.onPurchaseError(err);
+            } catch (e) {
+              Logger.errorLog(`Error in listener.onPurchaseError: ${e}`);
+            }
+          }
+          if (paywallParams.onPurchaseError) {
+            paywallParams.onPurchaseError(err);
+          }
+        }
+      };
+
       const walletButtonRender = isWebBillingApiKey(this._API_KEY)
         ? (
             element: HTMLElement,
@@ -671,14 +709,7 @@ export class Purchases {
               return {};
             }
             let buttonUpdater: ExpressPurchaseButtonUpdater | null = null;
-            const walletListener = paywallParams.listener;
-            if (walletListener?.onPurchaseStarted) {
-              try {
-                walletListener.onPurchaseStarted(pkg);
-              } catch (e) {
-                Logger.errorLog(`Error in listener.onPurchaseStarted: ${e}`);
-              }
-            }
+            notifyPurchaseStarted(pkg);
             this.presentExpressPurchaseButton({
               rcPackage: pkg,
               customerEmail: paywallParams.customerEmail,
@@ -696,33 +727,7 @@ export class Purchases {
                 Logger.errorLog(
                   `Error presenting express purchase button: ${err}`,
                 );
-                if (
-                  err instanceof PurchasesError &&
-                  err.errorCode === ErrorCode.UserCancelledError
-                ) {
-                  if (walletListener?.onPurchaseCancelled) {
-                    try {
-                      walletListener.onPurchaseCancelled();
-                    } catch (e) {
-                      Logger.errorLog(
-                        `Error in listener.onPurchaseCancelled: ${e}`,
-                      );
-                    }
-                  }
-                } else {
-                  if (walletListener?.onPurchaseError) {
-                    try {
-                      walletListener.onPurchaseError(err);
-                    } catch (e) {
-                      Logger.errorLog(
-                        `Error in listener.onPurchaseError: ${e}`,
-                      );
-                    }
-                  }
-                  if (paywallParams.onPurchaseError) {
-                    paywallParams.onPurchaseError(err);
-                  }
-                }
+                notifyPurchaseError(err);
               });
 
             return {
@@ -770,16 +775,11 @@ export class Purchases {
           },
           onRestorePurchasesClicked: onRestorePurchasesClicked,
           onPurchaseClicked: (selectedPackageId: string) => {
-            const listener = paywallParams.listener;
             const pkg = offering.availablePackages.find(
               (p) => p.identifier === selectedPackageId,
             );
-            if (pkg && listener?.onPurchaseStarted) {
-              try {
-                listener.onPurchaseStarted(pkg);
-              } catch (e) {
-                Logger.errorLog(`Error in listener.onPurchaseStarted: ${e}`);
-              }
+            if (pkg) {
+              notifyPurchaseStarted(pkg);
             }
             startPurchaseFlow(selectedPackageId)
               .then((purchaseResult) => {
@@ -788,33 +788,7 @@ export class Purchases {
               })
               .catch((err) => {
                 Logger.errorLog(`Error performing purchase: ${err}`);
-                if (
-                  err instanceof PurchasesError &&
-                  err.errorCode === ErrorCode.UserCancelledError
-                ) {
-                  if (listener?.onPurchaseCancelled) {
-                    try {
-                      listener.onPurchaseCancelled();
-                    } catch (e) {
-                      Logger.errorLog(
-                        `Error in listener.onPurchaseCancelled: ${e}`,
-                      );
-                    }
-                  }
-                } else {
-                  if (listener?.onPurchaseError) {
-                    try {
-                      listener.onPurchaseError(err);
-                    } catch (e) {
-                      Logger.errorLog(
-                        `Error in listener.onPurchaseError: ${e}`,
-                      );
-                    }
-                  }
-                  if (paywallParams.onPurchaseError) {
-                    paywallParams.onPurchaseError(err);
-                  }
-                }
+                notifyPurchaseError(err);
               });
           },
           onError: (err: unknown) => {
