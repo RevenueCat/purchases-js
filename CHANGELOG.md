@@ -1,7 +1,7 @@
 ## 1.29.0
 ## RevenueCat SDK
 ### ✨ New Features
-* WEB-3784: Add Stripe Checkout (#768) via Nicola Sacco (@nicfix)
+* WEB-3784: Add Stripe Checkout for internal testing - coming soon (#768) via Nicola Sacco (@nicfix)
 * Add storeLoadTime flag to defer store module loading (#796) via Toni Rico (@tonidero)
 
 ## RevenueCatUI SDK
