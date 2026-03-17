@@ -775,9 +775,7 @@ export class Purchases {
           },
           onRestorePurchasesClicked: onRestorePurchasesClicked,
           onPurchaseClicked: (selectedPackageId: string) => {
-            const pkg = offering.availablePackages.find(
-              (p) => p.identifier === selectedPackageId,
-            );
+            const pkg = offering.packagesById[selectedPackageId];
             if (pkg) {
               notifyPurchaseStarted(pkg);
             }
