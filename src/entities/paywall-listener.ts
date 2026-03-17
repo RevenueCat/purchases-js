@@ -3,7 +3,6 @@ import type { PurchasesError } from "./errors";
 
 /**
  * Listener for paywall purchase lifecycle events.
- * All methods are optional, matching Android's default empty implementations.
  * @public
  */
 export interface PaywallListener {
@@ -13,7 +12,8 @@ export interface PaywallListener {
   onPurchaseStarted?: (rcPackage: Package) => void;
 
   /**
-   * Called when a purchase flow fails with an error.
+   * Callback called when an error that won't close the paywall occurs.
+   * For example, a retryable error during the purchase process.
    */
   onPurchaseError?: (error: PurchasesError) => void;
 
