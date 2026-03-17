@@ -162,6 +162,7 @@ export type { PurchasesConfig } from "./entities/purchases-config";
 export type { VirtualCurrencies } from "./entities/virtual-currencies";
 export type { VirtualCurrency } from "./entities/virtual-currency";
 export type { PresentPaywallParams } from "./entities/present-paywall-params";
+export type { PaywallListener } from "./entities/paywall-listener";
 export {
   CustomVariableValue,
   type CustomVariables,
@@ -670,6 +671,14 @@ export class Purchases {
               return {};
             }
             let buttonUpdater: ExpressPurchaseButtonUpdater | null = null;
+            const walletListener = paywallParams.listener;
+            if (walletListener?.onPurchaseStarted) {
+              try {
+                walletListener.onPurchaseStarted(pkg);
+              } catch (e) {
+                Logger.errorLog(`Error in listener.onPurchaseStarted: ${e}`);
+              }
+            }
             this.presentExpressPurchaseButton({
               rcPackage: pkg,
               customerEmail: paywallParams.customerEmail,
@@ -687,8 +696,32 @@ export class Purchases {
                 Logger.errorLog(
                   `Error presenting express purchase button: ${err}`,
                 );
-                if (paywallParams.onPurchaseError) {
-                  paywallParams.onPurchaseError(err);
+                if (
+                  err instanceof PurchasesError &&
+                  err.errorCode === ErrorCode.UserCancelledError
+                ) {
+                  if (walletListener?.onPurchaseCancelled) {
+                    try {
+                      walletListener.onPurchaseCancelled();
+                    } catch (e) {
+                      Logger.errorLog(
+                        `Error in listener.onPurchaseCancelled: ${e}`,
+                      );
+                    }
+                  }
+                } else {
+                  if (walletListener?.onPurchaseError) {
+                    try {
+                      walletListener.onPurchaseError(err);
+                    } catch (e) {
+                      Logger.errorLog(
+                        `Error in listener.onPurchaseError: ${e}`,
+                      );
+                    }
+                  }
+                  if (paywallParams.onPurchaseError) {
+                    paywallParams.onPurchaseError(err);
+                  }
                 }
               });
 
@@ -737,6 +770,17 @@ export class Purchases {
           },
           onRestorePurchasesClicked: onRestorePurchasesClicked,
           onPurchaseClicked: (selectedPackageId: string) => {
+            const listener = paywallParams.listener;
+            const pkg = offering.availablePackages.find(
+              (p) => p.identifier === selectedPackageId,
+            );
+            if (pkg && listener?.onPurchaseStarted) {
+              try {
+                listener.onPurchaseStarted(pkg);
+              } catch (e) {
+                Logger.errorLog(`Error in listener.onPurchaseStarted: ${e}`);
+              }
+            }
             startPurchaseFlow(selectedPackageId)
               .then((purchaseResult) => {
                 unmountPaywall();
@@ -744,8 +788,32 @@ export class Purchases {
               })
               .catch((err) => {
                 Logger.errorLog(`Error performing purchase: ${err}`);
-                if (paywallParams.onPurchaseError) {
-                  paywallParams.onPurchaseError(err);
+                if (
+                  err instanceof PurchasesError &&
+                  err.errorCode === ErrorCode.UserCancelledError
+                ) {
+                  if (listener?.onPurchaseCancelled) {
+                    try {
+                      listener.onPurchaseCancelled();
+                    } catch (e) {
+                      Logger.errorLog(
+                        `Error in listener.onPurchaseCancelled: ${e}`,
+                      );
+                    }
+                  }
+                } else {
+                  if (listener?.onPurchaseError) {
+                    try {
+                      listener.onPurchaseError(err);
+                    } catch (e) {
+                      Logger.errorLog(
+                        `Error in listener.onPurchaseError: ${e}`,
+                      );
+                    }
+                  }
+                  if (paywallParams.onPurchaseError) {
+                    paywallParams.onPurchaseError(err);
+                  }
                 }
               });
           },
