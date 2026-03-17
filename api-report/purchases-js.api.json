@@ -3529,7 +3529,7 @@
         {
           "kind": "Interface",
           "canonicalReference": "@revenuecat/purchases-js!PaywallListener:interface",
-          "docComment": "/**\n * Listener for paywall purchase lifecycle events. All methods are optional, matching Android's default empty implementations.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Listener for paywall purchase lifecycle events.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -3571,7 +3571,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PaywallListener#onPurchaseError:member",
-              "docComment": "/**\n * Called when a purchase flow fails with an error.\n */\n",
+              "docComment": "/**\n * Callback called when an error that won't close the paywall occurs. For example, a retryable error during the purchase process.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -3583,8 +3583,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "PurchasesError",
-                  "canonicalReference": "@revenuecat/purchases-js!PurchasesError:class"
+                  "text": "Error",
+                  "canonicalReference": "!Error:interface"
                 },
                 {
                   "kind": "Content",

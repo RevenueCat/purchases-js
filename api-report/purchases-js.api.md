@@ -262,7 +262,7 @@ export enum PackageType {
 // @public
 export interface PaywallListener {
     onPurchaseCancelled?: () => void;
-    onPurchaseError?: (error: PurchasesError) => void;
+    onPurchaseError?: (error: Error) => void;
     onPurchaseStarted?: (rcPackage: Package) => void;
 }
 
