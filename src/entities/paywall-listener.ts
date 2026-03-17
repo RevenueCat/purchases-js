@@ -1,5 +1,4 @@
 import type { Package } from "./offerings";
-import type { PurchasesError } from "./errors";
 
 /**
  * Listener for paywall purchase lifecycle events.
@@ -15,7 +14,7 @@ export interface PaywallListener {
    * Callback called when an error that won't close the paywall occurs.
    * For example, a retryable error during the purchase process.
    */
-  onPurchaseError?: (error: PurchasesError) => void;
+  onPurchaseError?: (error: Error) => void;
 
   /**
    * Called when the user cancels the purchase flow.
