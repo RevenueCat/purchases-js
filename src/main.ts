@@ -584,7 +584,7 @@ export class Purchases {
     );
 
     const paywallSessionId = generateUUID();
-    let purchaseStarted = false;
+    let purchaseCancelled = false;
 
     const trackPaywallEvent = (type: PaywallEventType) => {
       this.eventsTracker.trackPaywallEvent({
@@ -676,7 +676,10 @@ export class Purchases {
       };
       const closePaywall = () => {
         Logger.debugLog("Purchase cancelled by user");
-        trackPaywallEvent(purchaseStarted ? "paywall_cancel" : "paywall_close");
+        if (purchaseCancelled) {
+          trackPaywallEvent("paywall_cancel");
+        }
+        trackPaywallEvent("paywall_close");
         unmountPaywall();
         reject(new PurchasesError(ErrorCode.UserCancelledError));
       };
@@ -697,7 +700,6 @@ export class Purchases {
               return {};
             }
             let buttonUpdater: ExpressPurchaseButtonUpdater | null = null;
-            purchaseStarted = true;
             this.presentExpressPurchaseButton({
               rcPackage: pkg,
               customerEmail: paywallParams.customerEmail,
@@ -712,6 +714,7 @@ export class Purchases {
                 resolve({ ...purchaseResult, selectedPackage: pkg });
               })
               .catch((err) => {
+                purchaseCancelled = true;
                 Logger.errorLog(
                   `Error presenting express purchase button: ${err}`,
                 );
@@ -765,13 +768,13 @@ export class Purchases {
           },
           onRestorePurchasesClicked: onRestorePurchasesClicked,
           onPurchaseClicked: (selectedPackageId: string) => {
-            purchaseStarted = true;
             startPurchaseFlow(selectedPackageId)
               .then((purchaseResult) => {
                 unmountPaywall();
                 resolve(purchaseResult);
               })
               .catch((err) => {
+                purchaseCancelled = true;
                 Logger.errorLog(`Error performing purchase: ${err}`);
                 if (paywallParams.onPurchaseError) {
                   paywallParams.onPurchaseError(err);
