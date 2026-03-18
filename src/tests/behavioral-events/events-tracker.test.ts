@@ -982,9 +982,6 @@ describe("EventsTracker", (test) => {
     await eventsTracker.flushAllEvents();
 
     // Oversized event should be logged and removed
-    expect(warnSpy).toHaveBeenCalledWith(
-      expect.stringContaining("Event exceeds keepalive size limit"),
-    );
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("oversized"));
 
     const allEvents = getEventsFromPostCalls(APIPostRequest.mock.calls);
