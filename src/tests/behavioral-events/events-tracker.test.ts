@@ -924,6 +924,9 @@ describe("EventsTracker", (test) => {
     expect(warnSpy).toHaveBeenCalledWith(
       expect.stringContaining("Event exceeds keepalive size limit"),
     );
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining("oversized_event"),
+    );
 
     // Event should not be sent
     expect(APIPostRequest).not.toHaveBeenCalled();
@@ -982,6 +985,7 @@ describe("EventsTracker", (test) => {
     expect(warnSpy).toHaveBeenCalledWith(
       expect.stringContaining("Event exceeds keepalive size limit"),
     );
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("oversized"));
 
     const allEvents = getEventsFromPostCalls(APIPostRequest.mock.calls);
     expect(allEvents).toMatchObject([

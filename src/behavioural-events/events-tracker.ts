@@ -200,8 +200,12 @@ export default class EventsTracker implements IEventsTracker {
         batchSize = newBatchSize;
       } else if (eventsToFlush.length === 0) {
         // First event exceeds limit - remove it to unblock queue
+        const eventLabel =
+          event instanceof PaywallEvent
+            ? event.data.type
+            : event.data.eventName;
         Logger.warnLog(
-          `Event exceeds keepalive size limit (${eventSize} bytes)`,
+          `Event exceeds keepalive size limit (${eventSize} bytes): ${eventLabel}`,
         );
         this.eventsQueue.shift();
         return null;

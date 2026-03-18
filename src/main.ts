@@ -661,14 +661,35 @@ export class Purchases {
 
     return new Promise((resolve, reject) => {
       let component: ReturnType<typeof mount> | null = null;
-      let purchaseCompleted = false;
+      let paywallCloseTracked = false;
+
+      const trackPaywallCloseIfNeeded = () => {
+        if (paywallCloseTracked) {
+          return;
+        }
+        trackPaywallEvent("paywall_close");
+        paywallCloseTracked = true;
+      };
+
+      const trackPaywallCloseIfContainerWasCleared = () => {
+        const maybeTrackClose = () => {
+          if (certainHTMLTarget.childElementCount === 0) {
+            trackPaywallCloseIfNeeded();
+          }
+        };
+
+        // Some close paths clear the container right after the cancel error is
+        // surfaced. Re-check on the next microtask/tick to avoid missing close.
+        maybeTrackClose();
+        Promise.resolve().then(maybeTrackClose);
+        setTimeout(maybeTrackClose, 0);
+      };
 
       const unmountPaywall = () => {
-        if (!purchaseCompleted) {
-          trackPaywallEvent("paywall_close");
-        }
+        trackPaywallCloseIfNeeded();
         if (component) {
           unmount(component);
+          component = null;
         }
         certainHTMLTarget.innerHTML = "";
 
@@ -680,7 +701,16 @@ export class Purchases {
       const closePaywall = () => {
         Logger.debugLog("Purchase cancelled by user");
         unmountPaywall();
-        reject(new PurchasesError(ErrorCode.UserCancelledError));
+        void this.eventsTracker
+          .flushAllEvents()
+          .catch((error) => {
+            Logger.debugLog(
+              `Failed to flush paywall events on close: ${error}`,
+            );
+          })
+          .finally(() => {
+            reject(new PurchasesError(ErrorCode.UserCancelledError));
+          });
       };
 
       const walletButtonRender = isWebBillingApiKey(this._API_KEY)
@@ -709,12 +739,12 @@ export class Purchases {
               },
             })
               .then((purchaseResult) => {
-                purchaseCompleted = true;
                 unmountPaywall();
                 resolve({ ...purchaseResult, selectedPackage: pkg });
               })
               .catch((err) => {
                 trackPaywallEvent("paywall_cancel");
+                trackPaywallCloseIfContainerWasCleared();
                 Logger.errorLog(
                   `Error presenting express purchase button: ${err}`,
                 );
@@ -770,12 +800,12 @@ export class Purchases {
           onPurchaseClicked: (selectedPackageId: string) => {
             startPurchaseFlow(selectedPackageId)
               .then((purchaseResult) => {
-                purchaseCompleted = true;
                 unmountPaywall();
                 resolve(purchaseResult);
               })
               .catch((err) => {
                 trackPaywallEvent("paywall_cancel");
+                trackPaywallCloseIfContainerWasCleared();
                 Logger.errorLog(`Error performing purchase: ${err}`);
                 if (paywallParams.onPurchaseError) {
                   paywallParams.onPurchaseError(err);
