@@ -671,21 +671,15 @@ export class Purchases {
         paywallCloseTracked = true;
       };
 
-      const trackPaywallCloseIfContainerWasCleared = () => {
-        const maybeTrackClose = () => {
-          if (certainHTMLTarget.childElementCount === 0) {
-            trackPaywallCloseIfNeeded();
-          }
-        };
-
-        // Some close paths clear the container right after the cancel error is
-        // surfaced. Re-check on the next microtask/tick to avoid missing close.
-        maybeTrackClose();
-        Promise.resolve().then(maybeTrackClose);
-        setTimeout(maybeTrackClose, 0);
-      };
+      const containerObserver = new MutationObserver(() => {
+        if (certainHTMLTarget.childElementCount === 0) {
+          trackPaywallCloseIfNeeded();
+          containerObserver.disconnect();
+        }
+      });
 
       const unmountPaywall = () => {
+        containerObserver.disconnect();
         trackPaywallCloseIfNeeded();
         if (component) {
           unmount(component);
@@ -701,16 +695,10 @@ export class Purchases {
       const closePaywall = () => {
         Logger.debugLog("Purchase cancelled by user");
         unmountPaywall();
-        void this.eventsTracker
-          .flushAllEvents()
-          .catch((error) => {
-            Logger.debugLog(
-              `Failed to flush paywall events on close: ${error}`,
-            );
-          })
-          .finally(() => {
-            reject(new PurchasesError(ErrorCode.UserCancelledError));
-          });
+        reject(new PurchasesError(ErrorCode.UserCancelledError));
+        void this.eventsTracker.flushAllEvents().catch((error) => {
+          Logger.debugLog(`Failed to flush paywall events on close: ${error}`);
+        });
       };
 
       const walletButtonRender = isWebBillingApiKey(this._API_KEY)
@@ -741,10 +729,20 @@ export class Purchases {
               .then((purchaseResult) => {
                 unmountPaywall();
                 resolve({ ...purchaseResult, selectedPackage: pkg });
+                void this.eventsTracker.flushAllEvents().catch((error) => {
+                  Logger.debugLog(
+                    `Failed to flush paywall events after purchase: ${error}`,
+                  );
+                });
               })
               .catch((err) => {
-                trackPaywallEvent("paywall_cancel");
-                trackPaywallCloseIfContainerWasCleared();
+                if (
+                  err instanceof PurchasesError &&
+                  err.errorCode === ErrorCode.UserCancelledError
+                ) {
+                  trackPaywallEvent("paywall_cancel");
+                }
+
                 Logger.errorLog(
                   `Error presenting express purchase button: ${err}`,
                 );
@@ -802,10 +800,20 @@ export class Purchases {
               .then((purchaseResult) => {
                 unmountPaywall();
                 resolve(purchaseResult);
+                void this.eventsTracker.flushAllEvents().catch((error) => {
+                  Logger.debugLog(
+                    `Failed to flush paywall events after purchase: ${error}`,
+                  );
+                });
               })
               .catch((err) => {
-                trackPaywallEvent("paywall_cancel");
-                trackPaywallCloseIfContainerWasCleared();
+                if (
+                  err instanceof PurchasesError &&
+                  err.errorCode === ErrorCode.UserCancelledError
+                ) {
+                  trackPaywallEvent("paywall_cancel");
+                }
+
                 Logger.errorLog(`Error performing purchase: ${err}`);
                 if (paywallParams.onPurchaseError) {
                   paywallParams.onPurchaseError(err);
@@ -824,6 +832,7 @@ export class Purchases {
         },
       });
 
+      containerObserver.observe(certainHTMLTarget, { childList: true });
       trackPaywallEvent("paywall_impression");
 
       if (certainHTMLTarget.style.opacity === "0") {

@@ -94,13 +94,21 @@ describe("Purchases.presentPaywall() paywall events", () => {
     ).toEqual(["paywall_impression", "paywall_cancel", "paywall_close"]);
   });
 
-  test("flushes queued events before rejecting when paywall is closed after cancel", async () => {
+  test("rejects immediately without waiting for flush when paywall is closed", async () => {
     const purchases = configurePurchases();
     const offering = createOfferingWithPaywall();
-    const packageId = offering.availablePackages[0]!.identifier;
+    let flushResolved = false;
     const flushAllEventsSpy = vi
       .spyOn(purchases["eventsTracker"], "flushAllEvents")
-      .mockResolvedValue();
+      .mockImplementation(
+        () =>
+          new Promise((resolve) => {
+            setTimeout(() => {
+              flushResolved = true;
+              resolve();
+            }, 1000);
+          }),
+      );
     vi.spyOn(purchases, "purchase").mockRejectedValue(
       new PurchasesError(ErrorCode.UserCancelledError),
     );
@@ -108,7 +116,7 @@ describe("Purchases.presentPaywall() paywall events", () => {
     const paywallPromise = purchases.presentPaywall({ offering });
 
     expect(paywallProps).toBeDefined();
-    paywallProps!.onPurchaseClicked(packageId);
+    paywallProps!.onPurchaseClicked(offering.availablePackages[0]!.identifier);
     paywallProps!.onBackClicked();
 
     await expect(paywallPromise).rejects.toHaveProperty(
@@ -116,9 +124,39 @@ describe("Purchases.presentPaywall() paywall events", () => {
       ErrorCode.UserCancelledError,
     );
     expect(flushAllEventsSpy).toHaveBeenCalledTimes(1);
+    expect(flushResolved).toBe(false);
   });
 
-  test("fires paywall_close when purchase cancellation clears the paywall container", async () => {
+  test("does not fire paywall_cancel for non-cancellation errors", async () => {
+    const purchases = configurePurchases();
+    const offering = createOfferingWithPaywall();
+    const packageId = offering.availablePackages[0]!.identifier;
+    const trackPaywallEventSpy = vi.spyOn(
+      purchases["eventsTracker"],
+      "trackPaywallEvent",
+    );
+    vi.spyOn(purchases, "purchase").mockRejectedValue(
+      new PurchasesError(ErrorCode.NetworkError),
+    );
+
+    const paywallPromise = purchases.presentPaywall({
+      offering,
+      onPurchaseError: () => {},
+    });
+    void paywallPromise.catch(() => undefined);
+
+    expect(paywallProps).toBeDefined();
+    paywallProps!.onPurchaseClicked(packageId);
+
+    await vi.waitFor(() => {
+      expect(trackPaywallEventSpy).toHaveBeenCalledTimes(1);
+    });
+    expect(
+      trackPaywallEventSpy.mock.calls.map(([event]) => event.type),
+    ).toEqual(["paywall_impression"]);
+  });
+
+  test("fires paywall_close when external code clears the paywall container", async () => {
     const purchases = configurePurchases();
     const offering = createOfferingWithPaywall();
     const packageId = offering.availablePackages[0]!.identifier;
@@ -148,43 +186,12 @@ describe("Purchases.presentPaywall() paywall events", () => {
     await vi.waitFor(() => {
       expect(
         trackPaywallEventSpy.mock.calls.map(([event]) => event.type),
-      ).toEqual(["paywall_impression", "paywall_cancel", "paywall_close"]);
-    });
-  });
-
-  test("fires paywall_close when purchase cancellation clears the paywall container asynchronously", async () => {
-    const purchases = configurePurchases();
-    const offering = createOfferingWithPaywall();
-    const packageId = offering.availablePackages[0]!.identifier;
-    const htmlTarget = document.createElement("div");
-    htmlTarget.id = "paywall-root";
-    document.body.appendChild(htmlTarget);
-
-    const trackPaywallEventSpy = vi.spyOn(
-      purchases["eventsTracker"],
-      "trackPaywallEvent",
-    );
-    vi.spyOn(purchases, "purchase").mockImplementation(async () => {
-      setTimeout(() => {
-        htmlTarget.innerHTML = "";
-      }, 0);
-      throw new PurchasesError(ErrorCode.UserCancelledError);
-    });
-
-    const paywallPromise = purchases.presentPaywall({
-      offering,
-      htmlTarget,
-      purchaseHtmlTarget: htmlTarget,
-    });
-    void paywallPromise.catch(() => undefined);
-
-    expect(paywallProps).toBeDefined();
-    paywallProps!.onPurchaseClicked(packageId);
-
-    await vi.waitFor(() => {
-      expect(
-        trackPaywallEventSpy.mock.calls.map(([event]) => event.type),
-      ).toEqual(["paywall_impression", "paywall_cancel", "paywall_close"]);
+      ).toEqual(
+        // MutationObserver fires synchronously when the container is cleared
+        // (during the purchase), so paywall_close arrives before the catch
+        // block fires paywall_cancel.
+        ["paywall_impression", "paywall_close", "paywall_cancel"],
+      );
     });
   });
 });
