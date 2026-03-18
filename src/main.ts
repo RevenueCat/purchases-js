@@ -661,8 +661,12 @@ export class Purchases {
 
     return new Promise((resolve, reject) => {
       let component: ReturnType<typeof mount> | null = null;
+      let purchaseCompleted = false;
 
       const unmountPaywall = () => {
+        if (!purchaseCompleted) {
+          trackPaywallEvent("paywall_close");
+        }
         if (component) {
           unmount(component);
         }
@@ -675,7 +679,6 @@ export class Purchases {
       };
       const closePaywall = () => {
         Logger.debugLog("Purchase cancelled by user");
-        trackPaywallEvent("paywall_close");
         unmountPaywall();
         reject(new PurchasesError(ErrorCode.UserCancelledError));
       };
@@ -706,6 +709,7 @@ export class Purchases {
               },
             })
               .then((purchaseResult) => {
+                purchaseCompleted = true;
                 unmountPaywall();
                 resolve({ ...purchaseResult, selectedPackage: pkg });
               })
@@ -766,6 +770,7 @@ export class Purchases {
           onPurchaseClicked: (selectedPackageId: string) => {
             startPurchaseFlow(selectedPackageId)
               .then((purchaseResult) => {
+                purchaseCompleted = true;
                 unmountPaywall();
                 resolve(purchaseResult);
               })
