@@ -92,6 +92,7 @@ import {
   type PurchasesContext,
 } from "./entities/purchases-config";
 import { generateUUID } from "./helpers/uuid-helper";
+import { type PaywallEventType } from "./behavioural-events/paywall-event";
 import type { PlatformInfo } from "./entities/platform-info";
 import type { ReservedCustomerAttribute } from "./entities/attributes";
 import { purchaseSimulatedStoreProduct } from "./helpers/simulated-store-purchase-helper";
@@ -582,6 +583,29 @@ export class Purchases {
       offering.paywallComponents.default_locale,
     );
 
+    const paywallSessionId = generateUUID();
+    let purchaseStarted = false;
+
+    const trackPaywallEvent = (type: PaywallEventType) => {
+      this.eventsTracker.trackPaywallEvent({
+        type,
+        appUserId: this._appUserId,
+        sessionId: paywallSessionId,
+        offeringId: offering.identifier,
+        paywallRevision: 0,
+        paywallRcPublicId: offering.paywallComponents?.id ?? null,
+        ...(type === "paywall_impression"
+          ? {
+              displayMode: "full_screen",
+              darkMode:
+                getWindow()?.matchMedia?.("(prefers-color-scheme: dark)")
+                  .matches ?? false,
+              locale: finalLocale,
+            }
+          : {}),
+      });
+    };
+
     const startPurchaseFlow = async (
       selectedPackageId: string,
     ): Promise<PaywallPurchaseResult> => {
@@ -652,6 +676,7 @@ export class Purchases {
       };
       const closePaywall = () => {
         Logger.debugLog("Purchase cancelled by user");
+        trackPaywallEvent(purchaseStarted ? "paywall_cancel" : "paywall_close");
         unmountPaywall();
         reject(new PurchasesError(ErrorCode.UserCancelledError));
       };
@@ -672,6 +697,7 @@ export class Purchases {
               return {};
             }
             let buttonUpdater: ExpressPurchaseButtonUpdater | null = null;
+            purchaseStarted = true;
             this.presentExpressPurchaseButton({
               rcPackage: pkg,
               customerEmail: paywallParams.customerEmail,
@@ -739,6 +765,7 @@ export class Purchases {
           },
           onRestorePurchasesClicked: onRestorePurchasesClicked,
           onPurchaseClicked: (selectedPackageId: string) => {
+            purchaseStarted = true;
             startPurchaseFlow(selectedPackageId)
               .then((purchaseResult) => {
                 unmountPaywall();
@@ -762,6 +789,8 @@ export class Purchases {
           customVariables: paywallParams.customVariables,
         },
       });
+
+      trackPaywallEvent("paywall_impression");
 
       if (certainHTMLTarget.style.opacity === "0") {
         certainHTMLTarget.style.opacity = "1";
