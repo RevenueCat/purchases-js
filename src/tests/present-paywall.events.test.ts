@@ -38,7 +38,7 @@ const createOfferingWithPaywall = (): Offering => {
       components_localizations: {
         en_US: {},
       },
-    } as Offering["paywallComponents"],
+    } as unknown as Offering["paywallComponents"],
     uiConfig: {} as Offering["uiConfig"],
   };
 };
@@ -50,7 +50,8 @@ describe("Purchases.presentPaywall() paywall events", () => {
     paywallProps = undefined;
     vi.mocked(mount).mockImplementation((_component, options) => {
       paywallProps = options.props as PaywallMountProps;
-      options.target.innerHTML = "<div data-testid='paywall-root'></div>";
+      (options.target as Element).innerHTML =
+        "<div data-testid='paywall-root'></div>";
       return {} as ReturnType<typeof mount>;
     });
   });
