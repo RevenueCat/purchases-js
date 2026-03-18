@@ -584,7 +584,6 @@ export class Purchases {
     );
 
     const paywallSessionId = generateUUID();
-    let purchaseCancelled = false;
 
     const trackPaywallEvent = (type: PaywallEventType) => {
       this.eventsTracker.trackPaywallEvent({
@@ -676,9 +675,6 @@ export class Purchases {
       };
       const closePaywall = () => {
         Logger.debugLog("Purchase cancelled by user");
-        if (purchaseCancelled) {
-          trackPaywallEvent("paywall_cancel");
-        }
         trackPaywallEvent("paywall_close");
         unmountPaywall();
         reject(new PurchasesError(ErrorCode.UserCancelledError));
@@ -714,7 +710,7 @@ export class Purchases {
                 resolve({ ...purchaseResult, selectedPackage: pkg });
               })
               .catch((err) => {
-                purchaseCancelled = true;
+                trackPaywallEvent("paywall_cancel");
                 Logger.errorLog(
                   `Error presenting express purchase button: ${err}`,
                 );
@@ -774,7 +770,7 @@ export class Purchases {
                 resolve(purchaseResult);
               })
               .catch((err) => {
-                purchaseCancelled = true;
+                trackPaywallEvent("paywall_cancel");
                 Logger.errorLog(`Error performing purchase: ${err}`);
                 if (paywallParams.onPurchaseError) {
                   paywallParams.onPurchaseError(err);
