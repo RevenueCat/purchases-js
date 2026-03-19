@@ -36,10 +36,10 @@ describe("getOfferings", () => {
         formattedPrice: "$5.00",
       },
       pricePerWeek: {
-        amount: 116.6667,
-        amountMicros: 1166667,
+        amount: 116,
+        amountMicros: 1160000,
         currency: "USD",
-        formattedPrice: "$1.17",
+        formattedPrice: "$1.16",
       },
       pricePerMonth: {
         amount: 500,
@@ -48,8 +48,8 @@ describe("getOfferings", () => {
         formattedPrice: "$5.00",
       },
       pricePerYear: {
-        amount: 6083.3333,
-        amountMicros: 60833333,
+        amount: 6083,
+        amountMicros: 60830000,
         currency: "USD",
         formattedPrice: "$60.83",
       },
@@ -525,8 +525,8 @@ describe("getOfferings", () => {
           formattedPrice: "$1.99",
         },
         pricePerMonth: expect.objectContaining({ amountMicros: 1990000 }),
-        pricePerWeek: expect.objectContaining({ amountMicros: 464333 }),
-        pricePerYear: expect.objectContaining({ amountMicros: 24211667 }),
+        pricePerWeek: expect.objectContaining({ amountMicros: 460000 }),
+        pricePerYear: expect.objectContaining({ amountMicros: 24210000 }),
       };
 
       // Convenience accessors for the intro price phase
@@ -562,8 +562,8 @@ describe("getOfferings", () => {
           formattedPrice: "$4.99",
         },
         pricePerMonth: expect.objectContaining({ amountMicros: 4990000 }),
-        pricePerWeek: expect.objectContaining({ amountMicros: 1164333 }),
-        pricePerYear: expect.objectContaining({ amountMicros: 60711667 }),
+        pricePerWeek: expect.objectContaining({ amountMicros: 1160000 }),
+        pricePerYear: expect.objectContaining({ amountMicros: 60710000 }),
       };
 
       // Convenience accessors for the trial phase
@@ -633,9 +633,9 @@ describe("getOfferings", () => {
           currency: "USD",
           formattedPrice: "$6.99",
         },
-        pricePerMonth: expect.objectContaining({ amountMicros: 1165000 }),
-        pricePerWeek: expect.objectContaining({ amountMicros: 271833 }),
-        pricePerYear: expect.objectContaining({ amountMicros: 14174167 }),
+        pricePerMonth: expect.objectContaining({ amountMicros: 1160000 }),
+        pricePerWeek: expect.objectContaining({ amountMicros: 270000 }),
+        pricePerYear: expect.objectContaining({ amountMicros: 14170000 }),
       });
     });
 

@@ -12,7 +12,10 @@ import type {
   SubscriptionOptionResponse,
 } from "../networking/responses/products-response";
 import { notEmpty } from "../helpers/type-helper";
-import { formatPrice } from "../helpers/price-labels";
+import {
+  floorMicrosToCurrencyUnit,
+  formatPrice,
+} from "../helpers/price-labels";
 import { Logger } from "../helpers/logger";
 import {
   parseISODuration,
@@ -545,7 +548,10 @@ const toPricingPhase = (optionPhase: PricingPhaseResponse): PricingPhase => {
     const factor = getPriceConversionFactor(period);
     const conversionFromMicrosToCents = 10000;
 
-    const weeklyAmountMicros = Math.round(price.amountMicros * factor.toWeek);
+    const weeklyAmountMicros = floorMicrosToCurrencyUnit(
+      price.amountMicros * factor.toWeek,
+      price.currency,
+    );
     pricePerWeek = {
       amount: weeklyAmountMicros / conversionFromMicrosToCents,
       amountMicros: weeklyAmountMicros,
@@ -553,7 +559,10 @@ const toPricingPhase = (optionPhase: PricingPhaseResponse): PricingPhase => {
       formattedPrice: formatPrice(weeklyAmountMicros, price.currency),
     };
 
-    const monthlyAmountMicros = Math.round(price.amountMicros * factor.toMonth);
+    const monthlyAmountMicros = floorMicrosToCurrencyUnit(
+      price.amountMicros * factor.toMonth,
+      price.currency,
+    );
     pricePerMonth = {
       amount: monthlyAmountMicros / conversionFromMicrosToCents,
       amountMicros: monthlyAmountMicros,
@@ -561,7 +570,10 @@ const toPricingPhase = (optionPhase: PricingPhaseResponse): PricingPhase => {
       formattedPrice: formatPrice(monthlyAmountMicros, price.currency),
     };
 
-    const yearlyAmountMicros = Math.round(price.amountMicros * factor.toYear);
+    const yearlyAmountMicros = floorMicrosToCurrencyUnit(
+      price.amountMicros * factor.toYear,
+      price.currency,
+    );
     pricePerYear = {
       amount: yearlyAmountMicros / conversionFromMicrosToCents,
       amountMicros: yearlyAmountMicros,
