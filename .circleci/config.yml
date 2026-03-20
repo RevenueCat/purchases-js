@@ -199,6 +199,26 @@ jobs:
                 --exit-once-uploaded
             fi
 
+  tag-release-branch:
+    docker:
+      - image: cimg/ruby:3.3.0
+    shell: /bin/bash --login -o pipefail
+    steps:
+      - checkout
+      - revenuecat/setup-git-credentials
+      - revenuecat/trust-github-key
+      - revenuecat/install-gem-unix-dependencies:
+          cache-version: v1
+      - run:
+          name: Check Release PR is approved
+          command: |
+            echo "Verifying that the release PR has been approved by an org member with write permissions."
+            echo "This check prevents tagging a release before the PR is properly reviewed."
+            bundle exec fastlane run validate_pr_approved
+      - run:
+          name: Tag branch
+          command: bundle exec fastlane tag_current_branch
+
   test-e2e:
     docker:
       - image: mcr.microsoft.com/playwright:v1.56.1-jammy
@@ -280,7 +300,7 @@ workflows:
             - test-e2e
           type: approval
           <<: *release-branches
-      - revenuecat/tag-current-branch:
+      - tag-release-branch:
           requires:
             - hold
           <<: *release-branches
