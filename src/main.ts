@@ -713,21 +713,23 @@ export class Purchases {
         });
       };
 
+      const onError = (message: string) => (error: Error) => {
+        if (
+          error instanceof PurchasesError &&
+          error.errorCode === ErrorCode.UserCancelledError
+        ) {
+          trackPaywallEvent("paywall_cancel");
+        }
+
+        Logger.errorLog(`${message}: ${error}`);
+        paywallParams.onPurchaseError?.(error);
+      };
+
       const walletButtonRender = this.getWalletButtonRender(
         offering,
         onSuccess,
         paywallParams.customerEmail,
-        (error) => {
-          if (
-            error instanceof PurchasesError &&
-            error.errorCode === ErrorCode.UserCancelledError
-          ) {
-            trackPaywallEvent("paywall_cancel");
-          }
-
-          Logger.errorLog(`Error presenting express purchase button: ${error}`);
-          paywallParams.onPurchaseError?.(error);
-        },
+        onError("Error presenting express purchase button"),
       );
 
       certainHTMLTarget.innerHTML = "";
@@ -753,19 +755,7 @@ export class Purchases {
           onPurchaseClicked: (selectedPackageId: string) => {
             startPurchaseFlow(selectedPackageId)
               .then(onSuccess)
-              .catch((err) => {
-                if (
-                  err instanceof PurchasesError &&
-                  err.errorCode === ErrorCode.UserCancelledError
-                ) {
-                  trackPaywallEvent("paywall_cancel");
-                }
-
-                Logger.errorLog(`Error performing purchase: ${err}`);
-                if (paywallParams.onPurchaseError) {
-                  paywallParams.onPurchaseError(err);
-                }
-              });
+              .catch(onError("Error performing purchase"));
           },
           onError: (err: unknown) => {
             unmountPaywall();
