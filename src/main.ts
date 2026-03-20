@@ -62,6 +62,7 @@ import {
 } from "./entities/purchase-result";
 import { mount, unmount } from "svelte";
 import { type PresentPaywallParams } from "./entities/present-paywall-params";
+import type { WalletButtonRender } from "@revenuecat/purchases-ui-js";
 import { Paywall, type PaywallData } from "@revenuecat/purchases-ui-js";
 import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
 import {
@@ -692,6 +693,7 @@ export class Purchases {
           certainHTMLTarget.parentNode.removeChild(certainHTMLTarget);
         }
       };
+
       const closePaywall = () => {
         Logger.debugLog("Purchase cancelled by user");
         unmountPaywall();
@@ -701,79 +703,32 @@ export class Purchases {
         });
       };
 
-      const walletButtonRender = isWebBillingApiKey(this._API_KEY)
-        ? (
-            element: HTMLElement,
-            {
-              selectedPackageId,
-              onReady,
-            }: {
-              selectedPackageId: string;
-              onReady?: (walletsAvailable: boolean) => void;
-            },
-          ) => {
-            const pkg = offering.packagesById[selectedPackageId];
-            if (!pkg) {
-              return {};
-            }
-            let buttonUpdater: ExpressPurchaseButtonUpdater | null = null;
-            this.presentExpressPurchaseButton({
-              rcPackage: pkg,
-              customerEmail: paywallParams.customerEmail,
-              htmlTarget: element,
-              onButtonReady: (updater, walletsAvailable) => {
-                buttonUpdater = updater;
-                onReady?.(walletsAvailable);
-              },
-            })
-              .then((purchaseResult) => {
-                unmountPaywall();
-                resolve({ ...purchaseResult, selectedPackage: pkg });
-                void this.eventsTracker.flushAllEvents().catch((error) => {
-                  Logger.debugLog(
-                    `Failed to flush paywall events after purchase: ${error}`,
-                  );
-                });
-              })
-              .catch((err) => {
-                if (
-                  err instanceof PurchasesError &&
-                  err.errorCode === ErrorCode.UserCancelledError
-                ) {
-                  trackPaywallEvent("paywall_cancel");
-                }
+      const onSuccess = (result: PaywallPurchaseResult) => {
+        unmountPaywall();
+        resolve(result);
+        void this.eventsTracker.flushAllEvents().catch((error) => {
+          Logger.debugLog(
+            `Failed to flush paywall events after purchase: ${error}`,
+          );
+        });
+      };
 
-                Logger.errorLog(
-                  `Error presenting express purchase button: ${err}`,
-                );
-                if (paywallParams.onPurchaseError) {
-                  paywallParams.onPurchaseError(err);
-                }
-              });
-
-            return {
-              destroy() {
-                element.innerHTML = "";
-              },
-              update({
-                selectedPackageId,
-              }: {
-                selectedPackageId: string;
-                onReady?: () => void;
-              }) {
-                if (buttonUpdater) {
-                  const pkg = offering.packagesById[selectedPackageId];
-                  if (!pkg) {
-                    return;
-                  }
-                  const purchaseOptionToUse =
-                    pkg.webBillingProduct.defaultPurchaseOption;
-                  buttonUpdater.updatePurchase(pkg, purchaseOptionToUse);
-                }
-              },
-            };
+      const walletButtonRender = this.getWalletButtonRender(
+        offering,
+        onSuccess,
+        paywallParams.customerEmail,
+        (error) => {
+          if (
+            error instanceof PurchasesError &&
+            error.errorCode === ErrorCode.UserCancelledError
+          ) {
+            trackPaywallEvent("paywall_cancel");
           }
-        : undefined;
+
+          Logger.errorLog(`Error presenting express purchase button: ${error}`);
+          paywallParams.onPurchaseError?.(error);
+        },
+      );
 
       certainHTMLTarget.innerHTML = "";
       component = mount(Paywall, {
@@ -797,15 +752,7 @@ export class Purchases {
           onRestorePurchasesClicked: onRestorePurchasesClicked,
           onPurchaseClicked: (selectedPackageId: string) => {
             startPurchaseFlow(selectedPackageId)
-              .then((purchaseResult) => {
-                unmountPaywall();
-                resolve(purchaseResult);
-                void this.eventsTracker.flushAllEvents().catch((error) => {
-                  Logger.debugLog(
-                    `Failed to flush paywall events after purchase: ${error}`,
-                  );
-                });
-              })
+              .then(onSuccess)
               .catch((err) => {
                 if (
                   err instanceof PurchasesError &&
@@ -1048,6 +995,70 @@ export class Purchases {
         onError,
       });
     });
+  }
+
+  /**
+   * Renders a wallet button for the supported wallets (Apple Pay/Google Pay).
+   * When clicked it uses the wallet UI to execute the purchase instead of
+   * the checkout flow that would be shown with `.purchase`.
+   * @param offering - The offering to render the wallet button for.
+   * @param onSuccess - The callback to be called when the purchase is successful.
+   * @param customerEmail - The email of the user. If undefined, RevenueCat will ask the customer for their email.
+   * @param onPurchaseError - The callback to be called when the purchase fails.
+   */
+  public getWalletButtonRender(
+    offering: Offering,
+    onSuccess: (purchaseResult: PaywallPurchaseResult) => void,
+    customerEmail?: string,
+    onError?: (error: Error) => void,
+  ): WalletButtonRender | undefined {
+    if (!isWebBillingApiKey(this._API_KEY)) {
+      return undefined;
+    }
+
+    return (element: HTMLElement, { selectedPackageId, onReady }) => {
+      const pkg = offering.packagesById[selectedPackageId];
+      if (!pkg) {
+        return {};
+      }
+
+      let buttonUpdater: ExpressPurchaseButtonUpdater | null = null;
+      this.presentExpressPurchaseButton({
+        rcPackage: pkg,
+        customerEmail: customerEmail,
+        htmlTarget: element,
+        onButtonReady: (updater, walletsAvailable) => {
+          buttonUpdater = updater;
+          onReady?.(walletsAvailable);
+        },
+      })
+        .then((purchaseResult) => {
+          onSuccess({ ...purchaseResult, selectedPackage: pkg });
+        })
+        .catch(onError);
+
+      return {
+        destroy() {
+          element.innerHTML = "";
+        },
+        update({
+          selectedPackageId,
+        }: {
+          selectedPackageId: string;
+          onReady?: () => void;
+        }) {
+          if (buttonUpdater) {
+            const pkg = offering.packagesById[selectedPackageId];
+            if (!pkg) {
+              return;
+            }
+            const purchaseOptionToUse =
+              pkg.webBillingProduct.defaultPurchaseOption;
+            buttonUpdater.updatePurchase(pkg, purchaseOptionToUse);
+          }
+        },
+      };
+    };
   }
 
   /**
