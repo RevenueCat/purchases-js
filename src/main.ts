@@ -165,6 +165,7 @@ export type { PurchasesConfig } from "./entities/purchases-config";
 export type { VirtualCurrencies } from "./entities/virtual-currencies";
 export type { VirtualCurrency } from "./entities/virtual-currency";
 export type { PresentPaywallParams } from "./entities/present-paywall-params";
+export type { PaywallListener } from "./entities/paywall-listener";
 export {
   CustomVariableValue,
   type CustomVariables,
@@ -701,6 +702,44 @@ export class Purchases {
         });
       };
 
+      const listener = paywallParams.listener;
+
+      const notifyPurchaseStarted = (pkg: Package) => {
+        if (listener?.onPurchaseStarted) {
+          try {
+            listener.onPurchaseStarted(pkg);
+          } catch (e) {
+            Logger.errorLog(`Error in listener.onPurchaseStarted: ${e}`);
+          }
+        }
+      };
+
+      const notifyPurchaseError = (err: Error) => {
+        if (
+          err instanceof PurchasesError &&
+          err.errorCode === ErrorCode.UserCancelledError
+        ) {
+          if (listener?.onPurchaseCancelled) {
+            try {
+              listener.onPurchaseCancelled();
+            } catch (e) {
+              Logger.errorLog(`Error in listener.onPurchaseCancelled: ${e}`);
+            }
+          }
+        } else {
+          if (listener?.onPurchaseError) {
+            try {
+              listener.onPurchaseError(err);
+            } catch (e) {
+              Logger.errorLog(`Error in listener.onPurchaseError: ${e}`);
+            }
+          }
+          if (paywallParams.onPurchaseError) {
+            paywallParams.onPurchaseError(err);
+          }
+        }
+      };
+
       const walletButtonRender = isWebBillingApiKey(this._API_KEY)
         ? (
             element: HTMLElement,
@@ -717,6 +756,7 @@ export class Purchases {
               return {};
             }
             let buttonUpdater: ExpressPurchaseButtonUpdater | null = null;
+            notifyPurchaseStarted(pkg);
             this.presentExpressPurchaseButton({
               rcPackage: pkg,
               customerEmail: paywallParams.customerEmail,
@@ -746,9 +786,7 @@ export class Purchases {
                 Logger.errorLog(
                   `Error presenting express purchase button: ${err}`,
                 );
-                if (paywallParams.onPurchaseError) {
-                  paywallParams.onPurchaseError(err);
-                }
+                notifyPurchaseError(err);
               });
 
             return {
@@ -796,6 +834,10 @@ export class Purchases {
           },
           onRestorePurchasesClicked: onRestorePurchasesClicked,
           onPurchaseClicked: (selectedPackageId: string) => {
+            const pkg = offering.packagesById[selectedPackageId];
+            if (pkg) {
+              notifyPurchaseStarted(pkg);
+            }
             startPurchaseFlow(selectedPackageId)
               .then((purchaseResult) => {
                 unmountPaywall();
@@ -815,9 +857,7 @@ export class Purchases {
                 }
 
                 Logger.errorLog(`Error performing purchase: ${err}`);
-                if (paywallParams.onPurchaseError) {
-                  paywallParams.onPurchaseError(err);
-                }
+                notifyPurchaseError(err);
               });
           },
           onError: (err: unknown) => {

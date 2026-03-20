@@ -260,6 +260,13 @@ export enum PackageType {
 }
 
 // @public
+export interface PaywallListener {
+    onPurchaseCancelled?: () => void;
+    onPurchaseError?: (error: Error) => void;
+    onPurchaseStarted?: (rcPackage: Package) => void;
+}
+
+// @public
 export interface PaywallPurchaseResult extends PurchaseResult {
     selectedPackage: Package;
 }
@@ -304,9 +311,11 @@ export interface PresentPaywallParams {
     readonly customVariables?: CustomVariables;
     readonly hideBackButtons?: boolean;
     readonly htmlTarget?: HTMLElement;
+    readonly listener?: PaywallListener;
     readonly offering?: Offering;
     readonly onBack?: (closePaywall: () => void) => void;
     readonly onNavigateToUrl?: (url: string) => void;
+    // @deprecated
     readonly onPurchaseError?: (error: Error) => void;
     readonly onVisitCustomerCenter?: () => void;
     readonly purchaseHtmlTarget?: HTMLElement;
