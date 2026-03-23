@@ -333,16 +333,19 @@ describe("PayPalService", () => {
         params: purchaseParams,
       });
 
-      // Simulate popup closing
-      mockPopup.closed = true;
-      await vi.advanceTimersByTimeAsync(500);
-
-      await expect(purchasePromise).rejects.toThrow(
+      // Attach rejection handler before advancing timers to avoid unhandled rejection
+      const expectation = expect(purchasePromise).rejects.toThrow(
         new PurchaseFlowError(
           PurchaseFlowErrorCode.ErrorChargingPayment,
           "Payment charge failed",
         ),
       );
+
+      // Simulate popup closing
+      mockPopup.closed = true;
+      await vi.advanceTimersByTimeAsync(500);
+
+      await expectation;
 
       vi.useRealTimers();
     });
@@ -375,16 +378,19 @@ describe("PayPalService", () => {
         params: purchaseParams,
       });
 
-      // Simulate popup closing
-      mockPopup.closed = true;
-      await vi.advanceTimersByTimeAsync(500);
-
-      await expect(purchasePromise).rejects.toThrow(
+      // Attach rejection handler before advancing timers to avoid unhandled rejection
+      const expectation = expect(purchasePromise).rejects.toThrow(
         new PurchaseFlowError(
           PurchaseFlowErrorCode.UnknownError,
           "Missing required fields in operation response.",
         ),
       );
+
+      // Simulate popup closing
+      mockPopup.closed = true;
+      await vi.advanceTimersByTimeAsync(500);
+
+      await expectation;
 
       vi.useRealTimers();
     });
@@ -409,12 +415,16 @@ describe("PayPalService", () => {
         params: purchaseParams,
       });
 
+      // Attach rejection handler before advancing timers to avoid unhandled rejection
+      const expectation =
+        expect(purchasePromise).rejects.toThrow(PurchaseFlowError);
+
       // Simulate popup closing
       mockPopup.closed = true;
       await vi.advanceTimersByTimeAsync(500);
       await vi.runAllTimersAsync();
 
-      await expect(purchasePromise).rejects.toThrow(PurchaseFlowError);
+      await expectation;
 
       vi.useRealTimers();
     });
