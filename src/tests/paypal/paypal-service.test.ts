@@ -9,56 +9,18 @@ import {
   CheckoutStatusErrorCodes,
   type CheckoutStatusResponse,
 } from "../../networking/responses/checkout-status-response";
-import { type IEventsTracker } from "../../behavioural-events/events-tracker";
-import type { PayPalCheckoutStartResponse } from "../../networking/responses/checkout-start-response";
 import {
   PurchaseFlowError,
   PurchaseFlowErrorCode,
 } from "../../helpers/purchase-operation-helper";
-import { ErrorCode, BackendErrorCode } from "../../entities/errors";
-import { createMonthlyPackageMock } from "../mocks/offering-mock-provider";
 import { setupMswServer } from "../utils/setup-msw-server";
 
-const testTraceId = "test-trace-id";
 const operationSessionId = "test-operation-session-id";
-const orderId = "test-order-id";
 const approvalUrl = "https://www.sandbox.paypal.com/checkoutnow?token=test";
 
-const checkoutStartEndpoint =
-  "http://localhost:8000/rcbilling/v1/checkout/start";
 const operationStatusEndpoint = `http://localhost:8000/rcbilling/v1/checkout/${operationSessionId}`;
 
-const paypalCheckoutStartResponse: PayPalCheckoutStartResponse = {
-  operation_session_id: operationSessionId,
-  gateway_params: null,
-  management_url: null,
-  paypal_billing_params: {
-    order_id: orderId,
-    approval_url: approvalUrl,
-    is_sandbox: true,
-  },
-};
-
-const mockHandlers = [
-  http.post(checkoutStartEndpoint, async (req) => {
-    const json = (await req.request.json()) as Record<string, unknown>;
-
-    expect(json["trace_id"]).toBe(testTraceId);
-
-    return HttpResponse.json(paypalCheckoutStartResponse, {
-      status: StatusCodes.OK,
-    });
-  }),
-];
-
-const purchaseParams = {
-  rcPackage: createMonthlyPackageMock(),
-  purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
-  appUserId: "test-app-user-id",
-  presentedOfferingIdentifier: "test-offering-id",
-};
-
-const server = setupMswServer(...mockHandlers);
+const server = setupMswServer();
 
 describe("PayPalService", () => {
   let backend: Backend;
@@ -67,16 +29,7 @@ describe("PayPalService", () => {
 
   beforeEach(() => {
     backend = new Backend("test_api_key");
-    const eventsTrackerMock: IEventsTracker = {
-      getTraceId: () => testTraceId,
-      updateUser: () => Promise.resolve(),
-      trackSDKEvent: () => {},
-      trackExternalEvent: () => {},
-      trackPaywallEvent: () => {},
-      dispose: () => {},
-      flushAllEvents: () => Promise.resolve(),
-    };
-    paypalService = new PayPalService(backend, eventsTrackerMock);
+    paypalService = new PayPalService(backend);
 
     mockPopup = {
       closed: false,
@@ -88,75 +41,6 @@ describe("PayPalService", () => {
     vi.clearAllMocks();
   });
 
-  describe("startCheckout", () => {
-    const startCheckoutArgs = {
-      appUserId: "test-app-user-id",
-      productId: "test-product-id",
-      presentedOfferingContext: {
-        offeringIdentifier: "test-offering-id",
-        targetingContext: null,
-        placementIdentifier: null,
-      },
-      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
-    };
-
-    test("starts checkout successfully", async () => {
-      const result = await paypalService.startCheckout(startCheckoutArgs);
-      expect(result).toEqual(paypalCheckoutStartResponse);
-    });
-
-    test("fails if /checkout/start fails", async () => {
-      server.use(
-        http.post(checkoutStartEndpoint, () =>
-          HttpResponse.json(null, {
-            status: StatusCodes.INTERNAL_SERVER_ERROR,
-          }),
-        ),
-      );
-
-      const expectedError = new PurchaseFlowError(
-        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-        "Unknown backend error.",
-        "Request: postCheckoutStart. Status code: 500. Body: null.",
-        ErrorCode.UnknownBackendError,
-        { backendErrorCode: undefined },
-        false,
-      );
-
-      await expect(
-        paypalService.startCheckout(startCheckoutArgs),
-      ).rejects.toThrow(expectedError);
-    });
-
-    test("fails if user already subscribed to product", async () => {
-      server.use(
-        http.post(checkoutStartEndpoint, () =>
-          HttpResponse.json(
-            {
-              code: 7772,
-              message:
-                "This subscriber is already subscribed to the requested product.",
-            },
-            { status: StatusCodes.CONFLICT },
-          ),
-        ),
-      );
-
-      const expectedError = new PurchaseFlowError(
-        PurchaseFlowErrorCode.AlreadyPurchasedError,
-        "This product is already active for the user.",
-        "This subscriber is already subscribed to the requested product.",
-        ErrorCode.ProductAlreadyPurchasedError,
-        { backendErrorCode: BackendErrorCode.BackendAlreadySubscribedError },
-        false,
-      );
-
-      await expect(
-        paypalService.startCheckout(startCheckoutArgs),
-      ).rejects.toThrow(expectedError);
-    });
-  });
-
   describe("purchase", () => {
     test("opens popup window with approval URL", async () => {
       const onCheckoutLoaded = vi.fn();
@@ -164,11 +48,9 @@ describe("PayPalService", () => {
 
       const purchasePromise = paypalService.purchase({
         operationSessionId,
-        orderId,
         approvalUrl,
         onCheckoutLoaded,
         onClose,
-        params: purchaseParams,
       });
 
       expect(onCheckoutLoaded).toHaveBeenCalled();
@@ -188,11 +70,9 @@ describe("PayPalService", () => {
       await expect(
         paypalService.purchase({
           operationSessionId,
-          orderId,
           approvalUrl,
           onCheckoutLoaded: vi.fn(),
           onClose: vi.fn(),
-          params: purchaseParams,
         }),
       ).rejects.toThrow(
         new PurchaseFlowError(
@@ -228,11 +108,9 @@ describe("PayPalService", () => {
 
       const purchasePromise = paypalService.purchase({
         operationSessionId,
-        orderId,
         approvalUrl,
         onCheckoutLoaded: vi.fn(),
         onClose: vi.fn(),
-        params: purchaseParams,
       });
 
       // Simulate popup closing (user completed payment on PayPal)
@@ -276,11 +154,9 @@ describe("PayPalService", () => {
 
       const purchasePromise = paypalService.purchase({
         operationSessionId,
-        orderId,
         approvalUrl,
         onCheckoutLoaded: vi.fn(),
         onClose,
-        params: purchaseParams,
       });
 
       // Simulate popup closing (user cancelled)
@@ -293,8 +169,6 @@ describe("PayPalService", () => {
       }
       await vi.runAllTimersAsync();
 
-      // onClose should have been called since max attempts were reached
-      // (user closed popup without completing payment)
       expect(onClose).toHaveBeenCalled();
 
       // Clean up - the promise won't reject since onClose was called instead
@@ -326,11 +200,9 @@ describe("PayPalService", () => {
 
       const purchasePromise = paypalService.purchase({
         operationSessionId,
-        orderId,
         approvalUrl,
         onCheckoutLoaded: vi.fn(),
         onClose: vi.fn(),
-        params: purchaseParams,
       });
 
       // Attach rejection handler before advancing timers to avoid unhandled rejection
@@ -371,11 +243,9 @@ describe("PayPalService", () => {
 
       const purchasePromise = paypalService.purchase({
         operationSessionId,
-        orderId,
         approvalUrl,
         onCheckoutLoaded: vi.fn(),
         onClose: vi.fn(),
-        params: purchaseParams,
       });
 
       // Attach rejection handler before advancing timers to avoid unhandled rejection
@@ -408,11 +278,9 @@ describe("PayPalService", () => {
 
       const purchasePromise = paypalService.purchase({
         operationSessionId,
-        orderId,
         approvalUrl,
         onCheckoutLoaded: vi.fn(),
         onClose: vi.fn(),
-        params: purchaseParams,
       });
 
       // Attach rejection handler before advancing timers to avoid unhandled rejection

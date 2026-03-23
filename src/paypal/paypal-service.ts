@@ -1,103 +1,31 @@
-import { ErrorCode, PurchasesError } from "../entities/errors";
+import { PurchasesError } from "../entities/errors";
 import { getWindow } from "../helpers/browser-globals";
 import {
   PurchaseFlowError,
   PurchaseFlowErrorCode,
 } from "../helpers/purchase-operation-helper";
 import type { Backend } from "../networking/backend";
-import type {
-  Package,
-  PurchaseOption,
-  PresentedOfferingContext,
-  PurchaseMetadata,
-} from "../main";
 import type { CheckoutStatusResponse } from "../networking/responses/checkout-status-response";
 import { CheckoutSessionStatus } from "../networking/responses/checkout-status-response";
 import { toRedemptionInfo } from "../entities/redemption-info";
 import type { OperationSessionSuccessfulResult } from "../helpers/purchase-operation-helper";
 import { handleCheckoutSessionFailed } from "../helpers/checkout-error-handler";
-import type { PayPalCheckoutStartResponse } from "../networking/responses/checkout-start-response";
-import type { IEventsTracker } from "../behavioural-events/events-tracker";
 
 interface PayPalPurchaseParams {
-  rcPackage: Package;
-  purchaseOption: PurchaseOption;
-  appUserId: string;
-  presentedOfferingIdentifier: string;
-  customerEmail?: string;
-  locale?: string;
-}
-
-interface PayPalPurchase {
   operationSessionId: string;
-  orderId: string;
   approvalUrl: string;
   onCheckoutLoaded: () => void;
-  params: PayPalPurchaseParams;
   onClose: () => void;
-}
-
-interface PayPalStartCheckoutParams {
-  appUserId: string;
-  productId: string;
-  presentedOfferingContext: PresentedOfferingContext;
-  purchaseOption: PurchaseOption;
-  customerEmail?: string;
-  metadata?: PurchaseMetadata;
 }
 
 export class PayPalService {
   private readonly backend: Backend;
-  private readonly eventsTracker: IEventsTracker;
   private readonly maxNumberAttempts: number;
   private readonly waitMSBetweenAttempts = 1000;
 
-  constructor(
-    backend: Backend,
-    eventsTracker: IEventsTracker,
-    maxNumberAttempts: number = 10,
-  ) {
+  constructor(backend: Backend, maxNumberAttempts: number = 10) {
     this.backend = backend;
-    this.eventsTracker = eventsTracker;
     this.maxNumberAttempts = maxNumberAttempts;
-  }
-
-  async startCheckout({
-    appUserId,
-    productId,
-    presentedOfferingContext,
-    purchaseOption,
-    customerEmail,
-    metadata,
-  }: PayPalStartCheckoutParams): Promise<PayPalCheckoutStartResponse> {
-    try {
-      const traceId = this.eventsTracker.getTraceId();
-      const startResponse =
-        await this.backend.postCheckoutStart<PayPalCheckoutStartResponse>(
-          appUserId,
-          productId,
-          presentedOfferingContext,
-          purchaseOption,
-          traceId,
-          customerEmail ?? undefined,
-          metadata,
-        );
-
-      return startResponse;
-    } catch (error) {
-      if (error instanceof PurchasesError) {
-        throw PurchaseFlowError.fromPurchasesError(
-          error,
-          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-          error.errorCode === ErrorCode.InvalidCredentialsError,
-        );
-      } else {
-        throw new PurchaseFlowError(
-          PurchaseFlowErrorCode.UnknownError,
-          `Error starting PayPal checkout: ${error}`,
-        );
-      }
-    }
   }
 
   async purchase({
@@ -105,7 +33,7 @@ export class PayPalService {
     approvalUrl,
     onCheckoutLoaded,
     onClose,
-  }: PayPalPurchase): Promise<OperationSessionSuccessfulResult> {
+  }: PayPalPurchaseParams): Promise<OperationSessionSuccessfulResult> {
     return new Promise<OperationSessionSuccessfulResult>((resolve, reject) => {
       onCheckoutLoaded();
 
@@ -159,15 +87,8 @@ export class PayPalService {
   }
 
   private async pollOperationStatus(
-    operationSessionId: string | null,
+    operationSessionId: string,
   ): Promise<OperationSessionSuccessfulResult> {
-    if (!operationSessionId) {
-      throw new PurchaseFlowError(
-        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-        "No purchase in progress",
-      );
-    }
-
     return new Promise<OperationSessionSuccessfulResult>((resolve, reject) => {
       const checkForOperationStatus = (checkCount = 1) => {
         if (checkCount > this.maxNumberAttempts) {

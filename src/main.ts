@@ -6,7 +6,7 @@ import type {
 } from "./entities/offerings";
 import PurchasesUi from "./ui/purchases-ui.svelte";
 import PaddlePurchasesUi from "./ui/paddle-purchases-ui.svelte";
-import PayPalPurchasesUi from "./ui/paypal-purchases-ui.svelte";
+
 import StripeCheckoutPurchasesUi from "./ui/stripe-checkout-purchases-ui.svelte";
 
 import { type CustomerInfo, toCustomerInfo } from "./entities/customer-info";
@@ -25,7 +25,6 @@ import { RC_ENDPOINT } from "./helpers/constants";
 import { Backend } from "./networking/backend";
 import {
   isPaddleApiKey,
-  isPayPalApiKey,
   isSimulatedStoreApiKey,
   isStripeApiKey,
   isWebBillingApiKey,
@@ -37,7 +36,7 @@ import {
   PurchaseOperationHelper,
 } from "./helpers/purchase-operation-helper";
 import { PaddleService } from "./paddle/paddle-service";
-import { PayPalService } from "./paypal/paypal-service";
+
 import { type LogHandler, type LogLevel } from "./entities/logging";
 import { Logger } from "./helpers/logger";
 import {
@@ -1079,11 +1078,6 @@ export class Purchases {
       return await this.performPaddlePurchase(params);
     }
 
-    const isPayPal = isPayPalApiKey(this._API_KEY);
-    if (isPayPal) {
-      return await this.performPayPalPurchase(params);
-    }
-
     const isStripe = isStripeApiKey(this._API_KEY);
     if (isStripe) {
       return await this.performStripePurchase(params);
@@ -1312,113 +1306,6 @@ export class Purchases {
           skipSuccessPage,
         },
       });
-    });
-  }
-
-  private async performPayPalPurchase(
-    params: PurchaseParams,
-  ): Promise<PurchaseResult> {
-    const {
-      rcPackage,
-      purchaseOption,
-      customerEmail,
-      selectedLocale = englishLocale,
-      defaultLocale = englishLocale,
-      skipSuccessPage = false,
-      htmlTarget,
-    } = params;
-    const certainHTMLTarget = this.resolveHTMLTarget(htmlTarget);
-
-    const appUserId = this._appUserId;
-
-    Logger.debugLog(
-      `Presenting PayPal checkout for package ${rcPackage.identifier}`,
-    );
-
-    const purchaseOptionToUse =
-      purchaseOption ?? rcPackage.webBillingProduct.defaultPurchaseOption;
-
-    const utmParamsMetadata = this._flags.autoCollectUTMAsMetadata
-      ? autoParseUTMParams()
-      : {};
-    const metadata = {
-      source: "paypal",
-      ...utmParamsMetadata,
-      ...(params.metadata || {}),
-    };
-
-    const finalBrandingInfo: BrandingInfoResponse | null = this._brandingInfo;
-
-    if (finalBrandingInfo && params.brandingAppearanceOverride) {
-      finalBrandingInfo.appearance = params.brandingAppearanceOverride;
-    }
-
-    const event = createCheckoutSessionStartEvent({
-      appearance: this._brandingInfo?.appearance,
-      rcPackage,
-      purchaseOptionToUse,
-      customerEmail,
-    });
-    this.eventsTracker.trackSDKEvent(event);
-
-    const paypalService = new PayPalService(this.backend, this.eventsTracker);
-
-    let component: ReturnType<typeof mount> | null = null;
-    const isInElement = htmlTarget !== undefined;
-
-    return new Promise((resolve, reject) => {
-      const win = getWindow();
-      if (!isInElement) {
-        win.history.pushState({ checkoutOpen: true }, "");
-      }
-
-      const unmountPayPalPurchaseUi = () => {
-        if (component) {
-          unmount(component);
-        }
-        certainHTMLTarget.innerHTML = "";
-      };
-
-      const onClose =
-        this.createCheckoutOnCloseHandler(reject, unmountPayPalPurchaseUi) ??
-        (() => {
-          unmountPayPalPurchaseUi();
-        });
-
-      const onFinished = this.createCheckoutOnFinishedHandler(
-        resolve,
-        appUserId,
-        rcPackage,
-        unmountPayPalPurchaseUi,
-      );
-
-      const onError = this.createCheckoutOnErrorHandler(reject);
-
-      if (!component) {
-        component = mount(PayPalPurchasesUi, {
-          target: certainHTMLTarget,
-          props: {
-            eventsTracker: this.eventsTracker,
-            brandingInfo: this._brandingInfo,
-            selectedLocale: selectedLocale || defaultLocale,
-            defaultLocale,
-            customTranslations: params.labelsOverride,
-            isInElement,
-            onClose,
-            onFinished,
-            onError,
-            skipSuccessPage,
-            productDetails: rcPackage.webBillingProduct,
-            rcPackage,
-            appUserId,
-            purchaseOption: purchaseOptionToUse,
-            customerEmail,
-            metadata,
-            unmountPayPalPurchaseUi,
-            paypalService,
-          },
-        });
-      }
     });
   }
 

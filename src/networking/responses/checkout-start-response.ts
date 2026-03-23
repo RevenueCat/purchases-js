@@ -18,12 +18,19 @@ export interface StripeBillingParams {
   appearance?: Partial<BrandingAppearance> | null;
 }
 
+export interface PayPalGatewayParams {
+  order_id: string;
+  approval_url: string;
+  is_sandbox: boolean;
+}
+
 export interface WebBillingCheckoutStartResponse {
   operation_session_id: string;
   gateway_params: GatewayParams;
   stripe_billing_params: StripeBillingParams | null;
   management_url: string;
   paddle_billing_params: null;
+  paypal_gateway_params: PayPalGatewayParams | null;
 }
 
 export interface PaddleCheckoutStartResponse {
@@ -37,18 +44,6 @@ export interface PaddleCheckoutStartResponse {
   };
 }
 
-export interface PayPalCheckoutStartResponse {
-  operation_session_id: string;
-  gateway_params: null;
-  management_url: string | null;
-  paypal_billing_params: {
-    order_id: string;
-    approval_url: string;
-    is_sandbox: boolean;
-  };
-}
-
 export type CheckoutStartResponse =
   | WebBillingCheckoutStartResponse
-  | PaddleCheckoutStartResponse
-  | PayPalCheckoutStartResponse;
+  | PaddleCheckoutStartResponse;

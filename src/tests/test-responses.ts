@@ -612,7 +612,7 @@ export const checkoutPrepareResponse: CheckoutPrepareResponse = {
     },
   },
   paypal_gateway_params: {
-    client_access_token: "test_paypal_access_token",
+    is_sandbox: true,
   },
   paddle_billing_params: {
     client_side_token: "test_client_side_token",

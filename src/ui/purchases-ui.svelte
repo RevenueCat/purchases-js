@@ -30,6 +30,7 @@
   import { writable } from "svelte/store";
   import type { BrandingAppearance } from "../entities/branding";
   import { type GatewayParams } from "../networking/responses/stripe-elements";
+  import type { PayPalGatewayParams } from "../networking/responses/checkout-start-response";
   import { validateEmail } from "../helpers/validators";
 
   interface Props {
@@ -89,6 +90,7 @@
   let operationResult: OperationSessionSuccessfulResult | null = $state(null);
   let gatewayParams: GatewayParams = $state({});
   let managementUrl: string | null = $state(null);
+  let paypalGatewayParams: PayPalGatewayParams | null = $state(null);
 
   let originalHtmlHeight: string | null = $state(null);
   let originalHtmlOverflow: string | null = $state(null);
@@ -173,6 +175,7 @@
         currentPage = "payment-entry";
         gatewayParams = result.gateway_params;
         managementUrl = result.management_url;
+        paypalGatewayParams = result.paypal_gateway_params ?? null;
       })
       .catch((e: PurchaseFlowError) => {
         if (e.errorCode === PurchaseFlowErrorCode.MissingEmailError) {
@@ -259,6 +262,7 @@
   {lastError}
   {gatewayParams}
   {managementUrl}
+  {paypalGatewayParams}
   {purchaseOperationHelper}
   {isInElement}
   {termsAndConditionsUrl}

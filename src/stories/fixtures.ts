@@ -563,6 +563,7 @@ export const checkoutStartResponse: WebBillingCheckoutStartResponse = {
   },
   management_url: "https://manage.revenuecat.com/test_test_test",
   paddle_billing_params: null,
+  paypal_gateway_params: null,
 };
 
 export const checkoutCalculateTaxResponse: CheckoutCalculateTaxResponse = {

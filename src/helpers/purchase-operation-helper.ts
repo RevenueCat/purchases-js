@@ -132,6 +132,14 @@ export class PurchaseOperationHelper {
     this.maxNumberAttempts = maxNumberAttempts;
   }
 
+  get currentOperationSessionId(): string | null {
+    return this.operationSessionId;
+  }
+
+  getBackend(): Backend {
+    return this.backend;
+  }
+
   async prepareCheckout(
     productId: string,
     purchaseOption: PurchaseOption,
