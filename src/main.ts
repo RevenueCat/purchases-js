@@ -991,10 +991,12 @@ export class Purchases {
    * Renders a wallet button for the supported wallets (Apple Pay/Google Pay).
    * When clicked it uses the wallet UI to execute the purchase instead of
    * the checkout flow that would be shown with `.purchase`.
+   * @internal
    * @param offering - The offering to render the wallet button for.
    * @param onSuccess - The callback to be called when the purchase is successful.
    * @param customerEmail - The email of the user. If undefined, RevenueCat will ask the customer for their email.
    * @param onPurchaseError - The callback to be called when the purchase fails.
+   * @returns Function that renders the wallet button.
    */
   public getWalletButtonRender(
     offering: Offering,
