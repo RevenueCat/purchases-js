@@ -857,6 +857,7 @@ export const checkoutStartResponse: CheckoutStartResponse = {
   stripe_billing_params: null,
   management_url: "https://test-management-url.revenuecat.com",
   paddle_billing_params: null,
+  paypal_gateway_params: null,
 };
 
 export const checkoutCompleteResponse: CheckoutCompleteResponse = {
