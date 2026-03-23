@@ -2,6 +2,7 @@ const rc_api_key_regex = /^rcb_[a-zA-Z0-9_.-]+$/;
 const paddle_api_key_regex = /^pdl_[a-zA-Z0-9_.-]+$/;
 const rc_simulated_store_api_key_regex = /^test_[a-zA-Z0-9_.-]+$/;
 const stripe_api_key_regex = /^strp_[a-zA-Z0-9_.-]+$/;
+const paypal_api_key_regex = /^pypl_[a-zA-Z0-9_.-]+$/;
 
 export function isWebBillingSandboxApiKey(apiKey: string): boolean {
   return apiKey ? apiKey.startsWith("rcb_sb_") : false;
@@ -21,6 +22,10 @@ export function isStripeApiKey(apiKey: string): boolean {
   // Supporting only sandbox api keys for now, we'll add support for live api keys
   // when we make the feature generally available
   return isStripeApiKey && isSandboxStripeApiKey;
+}
+
+export function isPayPalApiKey(apiKey: string): boolean {
+  return apiKey ? paypal_api_key_regex.test(apiKey) : false;
 }
 
 export function isSimulatedStoreApiKey(apiKey: string): boolean {
