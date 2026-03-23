@@ -130,6 +130,7 @@ export class ErrorCodeUtils {
       case BackendErrorCode.BackendInvalidAuthToken:
       case BackendErrorCode.BackendInvalidAPIKey:
       case BackendErrorCode.BackendInvalidPaddleAPIKey:
+      case BackendErrorCode.BackendInvalidPayPalAPIKey:
         return ErrorCode.InvalidCredentialsError;
       case BackendErrorCode.BackendInvalidPaymentModeOrIntroPriceNotProvided:
       case BackendErrorCode.BackendProductIdForGoogleReceiptNotProvided:
@@ -235,6 +236,7 @@ export enum BackendErrorCode {
   BackendGatewaySetupErrorMissingRequiredPermission = 7900,
   BackendGatewaySetupErrorSandboxModeOnly = 7901,
   BackendInvalidPaddleAPIKey = 7967,
+  BackendInvalidPayPalAPIKey = 7968,
 }
 
 /**

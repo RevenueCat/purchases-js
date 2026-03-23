@@ -38,6 +38,7 @@ export enum PurchaseFlowErrorCode {
   StripeInvalidTaxOriginAddress = 7,
   StripeMissingRequiredPermission = 8,
   InvalidPaddleAPIKeyError = 9,
+  InvalidPayPalAPIKeyError = 10,
 }
 
 export class PurchaseFlowError extends Error {
@@ -101,6 +102,8 @@ export class PurchaseFlowError extends Error {
         return PurchaseFlowErrorCode.StripeMissingRequiredPermission;
       case BackendErrorCode.BackendInvalidPaddleAPIKey:
         return PurchaseFlowErrorCode.InvalidPaddleAPIKeyError;
+      case BackendErrorCode.BackendInvalidPayPalAPIKey:
+        return PurchaseFlowErrorCode.InvalidPayPalAPIKeyError;
       default:
         return null;
     }
