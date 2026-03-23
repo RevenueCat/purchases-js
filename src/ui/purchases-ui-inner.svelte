@@ -28,7 +28,7 @@
     isInElement: boolean;
     gatewayParams: GatewayParams;
     managementUrl: string | null;
-    paypalGatewayParams: PayPalGatewayParams | null;
+    paypalGatewayParams?: PayPalGatewayParams | null;
     customerEmail: string | null;
     forceEnableWalletMethods: boolean;
     defaultPriceBreakdown?: PriceBreakdown;
@@ -50,7 +50,7 @@
     isInElement,
     gatewayParams,
     managementUrl,
-    paypalGatewayParams,
+    paypalGatewayParams = null,
     customerEmail,
     forceEnableWalletMethods,
     defaultPriceBreakdown,
