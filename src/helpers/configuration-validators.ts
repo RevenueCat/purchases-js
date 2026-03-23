@@ -2,6 +2,7 @@ import { ErrorCode, PurchasesError } from "../entities/errors";
 import { SDK_HEADERS } from "../networking/http-client";
 import {
   isPaddleApiKey,
+  isPayPalApiKey,
   isSimulatedStoreApiKey,
   isStripeApiKey,
   isWebBillingApiKey,
@@ -12,7 +13,8 @@ export function validateApiKey(apiKey: string) {
     isWebBillingApiKey(apiKey) ||
     isSimulatedStoreApiKey(apiKey) ||
     isPaddleApiKey(apiKey) ||
-    isStripeApiKey(apiKey);
+    isStripeApiKey(apiKey) ||
+    isPayPalApiKey(apiKey);
 
   if (!isValidApiKey) {
     throw new PurchasesError(
