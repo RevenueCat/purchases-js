@@ -6,6 +6,7 @@ import type {
 } from "./entities/offerings";
 import PurchasesUi from "./ui/purchases-ui.svelte";
 import PaddlePurchasesUi from "./ui/paddle-purchases-ui.svelte";
+
 import StripeCheckoutPurchasesUi from "./ui/stripe-checkout-purchases-ui.svelte";
 
 import { type CustomerInfo, toCustomerInfo } from "./entities/customer-info";
@@ -35,6 +36,7 @@ import {
   PurchaseOperationHelper,
 } from "./helpers/purchase-operation-helper";
 import { PaddleService } from "./paddle/paddle-service";
+
 import { type LogHandler, type LogLevel } from "./entities/logging";
 import { Logger } from "./helpers/logger";
 import {

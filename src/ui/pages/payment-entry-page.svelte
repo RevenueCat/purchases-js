@@ -46,12 +46,15 @@
   import StripeElementsComponent from "../molecules/stripe-elements.svelte";
   import PriceUpdateInfo from "../molecules/price-update-info.svelte";
   import { getInitialPriceFromPurchaseOption } from "../../helpers/purchase-option-price-helper";
+  import type { PayPalGatewayParams } from "../../networking/responses/checkout-start-response";
+  import { PayPalService } from "../../paypal/paypal-service";
 
   type View = "loading" | "form" | "error";
 
   interface Props {
     gatewayParams: GatewayParams;
     managementUrl: string | null;
+    paypalGatewayParams?: PayPalGatewayParams | null;
     productDetails: Product;
     purchaseOption: PurchaseOption;
     brandingInfo: BrandingInfoResponse | null;
@@ -74,6 +77,7 @@
   const {
     gatewayParams,
     managementUrl,
+    paypalGatewayParams,
     productDetails,
     purchaseOption,
     brandingInfo,
@@ -529,6 +533,34 @@
     }
   }
 
+  let paypalProcessing = $state(false);
+
+  async function handlePayPalClick(): Promise<void> {
+    if (paypalProcessing || !paypalGatewayParams) return;
+
+    paypalProcessing = true;
+    const paypalService = new PayPalService(
+      purchaseOperationHelper.getBackend(),
+    );
+
+    try {
+      await paypalService.purchase({
+        operationSessionId: purchaseOperationHelper.currentOperationSessionId!,
+        approvalUrl: paypalGatewayParams.approval_url,
+        onCheckoutLoaded: () => {},
+        onClose: () => {
+          paypalProcessing = false;
+        },
+      });
+      onContinue();
+    } catch (error) {
+      paypalProcessing = false;
+      if (error instanceof PurchaseFlowError) {
+        onError(error);
+      }
+    }
+  }
+
   const handleErrorTryAgain = () => {
     modalErrorMessage = undefined;
   };
@@ -584,6 +616,27 @@
           {expressCheckoutOptions}
         />
       </div>
+
+      {#if paypalGatewayParams}
+        <div class="rc-paypal-separator">
+          <span class="rc-paypal-separator-line"></span>
+          <span class="rc-paypal-separator-text">or</span>
+          <span class="rc-paypal-separator-line"></span>
+        </div>
+        <button
+          type="button"
+          class="rc-paypal-button"
+          disabled={paypalProcessing}
+          onclick={handlePayPalClick}
+          data-testid="paypal-button"
+        >
+          {#if paypalProcessing}
+            Pay with PayPal...
+          {:else}
+            Pay with PayPal
+          {/if}
+        </button>
+      {/if}
 
       <div
         class="rc-checkout-price-update-info-container"
@@ -714,6 +767,46 @@
     .rc-checkout-price-update-info-container {
       margin-top: var(--rc-spacing-gapXLarge-desktop);
     }
+  }
+
+  .rc-paypal-separator {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: var(--rc-spacing-gapXLarge-mobile) 0;
+  }
+
+  .rc-paypal-separator-line {
+    flex: 1;
+    height: 1px;
+    background-color: var(--rc-color-border, #e0e0e0);
+  }
+
+  .rc-paypal-separator-text {
+    font-size: 13px;
+    color: var(--rc-color-text-secondary, #6b7280);
+  }
+
+  .rc-paypal-button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    background-color: #ffc439;
+    color: #003087;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .rc-paypal-button:hover:not(:disabled) {
+    background-color: #f0b72a;
+  }
+
+  .rc-paypal-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 
   form {

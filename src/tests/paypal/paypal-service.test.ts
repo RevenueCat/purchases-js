@@ -1,0 +1,300 @@
+import { beforeEach, describe, expect, test, vi } from "vitest";
+import { PayPalService } from "../../paypal/paypal-service";
+import { Backend } from "../../networking/backend";
+import { HttpResponse } from "msw";
+import { http } from "msw";
+import { StatusCodes } from "http-status-codes";
+import {
+  CheckoutSessionStatus,
+  CheckoutStatusErrorCodes,
+  type CheckoutStatusResponse,
+} from "../../networking/responses/checkout-status-response";
+import {
+  PurchaseFlowError,
+  PurchaseFlowErrorCode,
+} from "../../helpers/purchase-operation-helper";
+import { setupMswServer } from "../utils/setup-msw-server";
+
+const operationSessionId = "test-operation-session-id";
+const approvalUrl = "https://www.sandbox.paypal.com/checkoutnow?token=test";
+
+const operationStatusEndpoint = `http://localhost:8000/rcbilling/v1/checkout/${operationSessionId}`;
+
+const server = setupMswServer();
+
+describe("PayPalService", () => {
+  let backend: Backend;
+  let paypalService: PayPalService;
+  let mockPopup: { closed: boolean; close: () => void };
+
+  beforeEach(() => {
+    backend = new Backend("test_api_key");
+    paypalService = new PayPalService(backend);
+
+    mockPopup = {
+      closed: false,
+      close: vi.fn(),
+    };
+
+    vi.stubGlobal("open", vi.fn().mockReturnValue(mockPopup));
+
+    vi.clearAllMocks();
+  });
+
+  describe("purchase", () => {
+    test("opens popup window with approval URL", async () => {
+      const onCheckoutLoaded = vi.fn();
+      const onClose = vi.fn();
+
+      const purchasePromise = paypalService.purchase({
+        operationSessionId,
+        approvalUrl,
+        onCheckoutLoaded,
+        onClose,
+      });
+
+      expect(onCheckoutLoaded).toHaveBeenCalled();
+      expect(window.open).toHaveBeenCalledWith(
+        approvalUrl,
+        "paypal-checkout",
+        expect.stringContaining("width="),
+      );
+
+      // Clean up
+      purchasePromise.catch(() => {});
+    });
+
+    test("rejects if popup is blocked", async () => {
+      vi.stubGlobal("open", vi.fn().mockReturnValue(null));
+
+      await expect(
+        paypalService.purchase({
+          operationSessionId,
+          approvalUrl,
+          onCheckoutLoaded: vi.fn(),
+          onClose: vi.fn(),
+        }),
+      ).rejects.toThrow(
+        new PurchaseFlowError(
+          PurchaseFlowErrorCode.UnknownError,
+          "Failed to open PayPal checkout window. Please allow popups for this site.",
+        ),
+      );
+    });
+
+    test("polls operation status after popup closes and resolves on success", async () => {
+      vi.useFakeTimers();
+
+      const getOperationStatusResponse: CheckoutStatusResponse = {
+        operation: {
+          status: CheckoutSessionStatus.Succeeded,
+          is_expired: false,
+          error: null,
+          redemption_info: {
+            redeem_url: "test-url://redeem_my_rcb?token=1234",
+          },
+          store_transaction_identifier: "test-store-transaction-id",
+          product_identifier: "test-product-id",
+          purchase_date: "2025-01-15T04:21:11Z",
+        },
+      };
+      server.use(
+        http.get(operationStatusEndpoint, () =>
+          HttpResponse.json(getOperationStatusResponse, {
+            status: StatusCodes.OK,
+          }),
+        ),
+      );
+
+      const purchasePromise = paypalService.purchase({
+        operationSessionId,
+        approvalUrl,
+        onCheckoutLoaded: vi.fn(),
+        onClose: vi.fn(),
+      });
+
+      // Simulate popup closing (user completed payment on PayPal)
+      mockPopup.closed = true;
+      await vi.advanceTimersByTimeAsync(500);
+
+      const result = await purchasePromise;
+
+      expect(result).toEqual({
+        redemptionInfo: {
+          redeemUrl: "test-url://redeem_my_rcb?token=1234",
+        },
+        operationSessionId: operationSessionId,
+        storeTransactionIdentifier: "test-store-transaction-id",
+        productIdentifier: "test-product-id",
+        purchaseDate: new Date("2025-01-15T04:21:11Z"),
+      });
+
+      vi.useRealTimers();
+    });
+
+    test("calls onClose when user closes popup and polling times out", async () => {
+      vi.useFakeTimers();
+
+      const onClose = vi.fn();
+
+      server.use(
+        http.get(operationStatusEndpoint, () =>
+          HttpResponse.json(
+            {
+              operation: {
+                status: CheckoutSessionStatus.Started,
+                is_expired: false,
+                error: null,
+              },
+            },
+            { status: StatusCodes.OK },
+          ),
+        ),
+      );
+
+      const purchasePromise = paypalService.purchase({
+        operationSessionId,
+        approvalUrl,
+        onCheckoutLoaded: vi.fn(),
+        onClose,
+      });
+
+      // Simulate popup closing (user cancelled)
+      mockPopup.closed = true;
+      await vi.advanceTimersByTimeAsync(500);
+
+      // Advance past all polling attempts
+      for (let i = 0; i < 10; i++) {
+        await vi.advanceTimersByTimeAsync(1000);
+      }
+      await vi.runAllTimersAsync();
+
+      expect(onClose).toHaveBeenCalled();
+
+      // Clean up - the promise won't reject since onClose was called instead
+      purchasePromise.catch(() => {});
+
+      vi.useRealTimers();
+    });
+
+    test("rejects if operation status is failed", async () => {
+      vi.useFakeTimers();
+
+      server.use(
+        http.get(operationStatusEndpoint, () =>
+          HttpResponse.json(
+            {
+              operation: {
+                status: CheckoutSessionStatus.Failed,
+                is_expired: false,
+                error: {
+                  code: CheckoutStatusErrorCodes.PaymentChargeFailed,
+                  message: "test-error-message",
+                },
+              },
+            },
+            { status: StatusCodes.OK },
+          ),
+        ),
+      );
+
+      const purchasePromise = paypalService.purchase({
+        operationSessionId,
+        approvalUrl,
+        onCheckoutLoaded: vi.fn(),
+        onClose: vi.fn(),
+      });
+
+      // Attach rejection handler before advancing timers to avoid unhandled rejection
+      const expectation = expect(purchasePromise).rejects.toThrow(
+        new PurchaseFlowError(
+          PurchaseFlowErrorCode.ErrorChargingPayment,
+          "Payment charge failed",
+        ),
+      );
+
+      // Simulate popup closing
+      mockPopup.closed = true;
+      await vi.advanceTimersByTimeAsync(500);
+
+      await expectation;
+
+      vi.useRealTimers();
+    });
+
+    test("rejects if operation status response is missing required fields", async () => {
+      vi.useFakeTimers();
+
+      server.use(
+        http.get(operationStatusEndpoint, () =>
+          HttpResponse.json(
+            {
+              operation: {
+                status: CheckoutSessionStatus.Succeeded,
+                is_expired: false,
+                error: null,
+                // missing store_transaction_identifier, product_identifier, purchase_date
+              },
+            },
+            { status: StatusCodes.OK },
+          ),
+        ),
+      );
+
+      const purchasePromise = paypalService.purchase({
+        operationSessionId,
+        approvalUrl,
+        onCheckoutLoaded: vi.fn(),
+        onClose: vi.fn(),
+      });
+
+      // Attach rejection handler before advancing timers to avoid unhandled rejection
+      const expectation = expect(purchasePromise).rejects.toThrow(
+        new PurchaseFlowError(
+          PurchaseFlowErrorCode.UnknownError,
+          "Missing required fields in operation response.",
+        ),
+      );
+
+      // Simulate popup closing
+      mockPopup.closed = true;
+      await vi.advanceTimersByTimeAsync(500);
+
+      await expectation;
+
+      vi.useRealTimers();
+    });
+
+    test("rejects if getCheckoutStatus fails with network error", async () => {
+      vi.useFakeTimers();
+
+      server.use(
+        http.get(operationStatusEndpoint, () =>
+          HttpResponse.json(null, {
+            status: StatusCodes.INTERNAL_SERVER_ERROR,
+          }),
+        ),
+      );
+
+      const purchasePromise = paypalService.purchase({
+        operationSessionId,
+        approvalUrl,
+        onCheckoutLoaded: vi.fn(),
+        onClose: vi.fn(),
+      });
+
+      // Attach rejection handler before advancing timers to avoid unhandled rejection
+      const expectation =
+        expect(purchasePromise).rejects.toThrow(PurchaseFlowError);
+
+      // Simulate popup closing
+      mockPopup.closed = true;
+      await vi.advanceTimersByTimeAsync(500);
+      await vi.runAllTimersAsync();
+
+      await expectation;
+
+      vi.useRealTimers();
+    });
+  });
+});

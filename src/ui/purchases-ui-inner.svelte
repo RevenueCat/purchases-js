@@ -14,6 +14,7 @@
   } from "../helpers/purchase-operation-helper";
   import Template from "./layout/template.svelte";
   import { type GatewayParams } from "../networking/responses/stripe-elements";
+  import type { PayPalGatewayParams } from "../networking/responses/checkout-start-response";
   import BrandingHeader from "./molecules/branding-header.svelte";
 
   interface Props {
@@ -27,6 +28,7 @@
     isInElement: boolean;
     gatewayParams: GatewayParams;
     managementUrl: string | null;
+    paypalGatewayParams?: PayPalGatewayParams | null;
     customerEmail: string | null;
     forceEnableWalletMethods: boolean;
     defaultPriceBreakdown?: PriceBreakdown;
@@ -48,6 +50,7 @@
     isInElement,
     gatewayParams,
     managementUrl,
+    paypalGatewayParams = null,
     customerEmail,
     forceEnableWalletMethods,
     defaultPriceBreakdown,
@@ -108,6 +111,7 @@
         {purchaseOperationHelper}
         {gatewayParams}
         {managementUrl}
+        {paypalGatewayParams}
         {customerEmail}
         {forceEnableWalletMethods}
         {defaultPriceBreakdown}
