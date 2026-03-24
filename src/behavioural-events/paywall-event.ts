@@ -1,3 +1,4 @@
+import type { PresentedOfferingContext } from "../entities/offerings";
 import { generateUUID } from "../helpers/uuid-helper";
 
 export type PaywallEventType =
@@ -44,6 +45,7 @@ interface BasePaywallEventData {
   offeringId: string;
   paywallRevision: number;
   paywallRcPublicId: string | null;
+  presentedOfferingContext?: PresentedOfferingContext;
 }
 
 interface PaywallDisplayData {
@@ -73,6 +75,12 @@ export type PaywallEventData =
   | PaywallCloseOrCancelEventData
   | PaywallComponentInteractionEventData;
 
+type PresentedOfferingContextPayload = {
+  placement_identifier?: string;
+  targeting_revision?: number;
+  targeting_rule_id?: string;
+};
+
 type CommonPaywallEventPayload = {
   version: 1;
   id: string;
@@ -82,6 +90,7 @@ type CommonPaywallEventPayload = {
   paywall_revision: number;
   timestamp: number;
   paywall_rc_public_id: string | null;
+  presented_offering_context?: PresentedOfferingContextPayload;
 };
 
 type PaywallDisplayPayload = {
@@ -191,6 +200,50 @@ const toComponentInteractionPayload = (
   return payload as PaywallComponentInteractionPayload;
 };
 
+function toPresentedOfferingContextPayload(
+  context: PresentedOfferingContext | undefined,
+): PresentedOfferingContextPayload | undefined {
+  if (!context) return undefined;
+  if (!context.placementIdentifier && !context.targetingContext) {
+    return undefined;
+  }
+  return {
+    ...(context.placementIdentifier
+      ? { placement_identifier: context.placementIdentifier }
+      : {}),
+    ...(context.targetingContext
+      ? {
+          targeting_revision: context.targetingContext.revision,
+          targeting_rule_id: context.targetingContext.ruleId,
+        }
+      : {}),
+  };
+}
+
+const toCommonPayload = (
+  data: BasePaywallEventData,
+  id: string,
+  timestamp: number,
+): CommonPaywallEventPayload => {
+  const payload: CommonPaywallEventPayload = {
+    version: 1,
+    id,
+    app_user_id: data.appUserId,
+    session_id: data.sessionId,
+    offering_id: data.offeringId,
+    paywall_revision: data.paywallRevision,
+    timestamp,
+    paywall_rc_public_id: data.paywallRcPublicId,
+  };
+  const contextPayload = toPresentedOfferingContextPayload(
+    data.presentedOfferingContext,
+  );
+  if (contextPayload) {
+    payload.presented_offering_context = contextPayload;
+  }
+  return payload;
+};
+
 export class PaywallEvent {
   public readonly id: string;
   public readonly timestamp: number;
@@ -203,16 +256,7 @@ export class PaywallEvent {
   }
 
   public toJSON(): PaywallEventPayload {
-    const commonPayload: CommonPaywallEventPayload = {
-      version: 1,
-      id: this.id,
-      app_user_id: this.data.appUserId,
-      session_id: this.data.sessionId,
-      offering_id: this.data.offeringId,
-      paywall_revision: this.data.paywallRevision,
-      timestamp: this.timestamp,
-      paywall_rc_public_id: this.data.paywallRcPublicId,
-    };
+    const commonPayload = toCommonPayload(this.data, this.id, this.timestamp);
 
     switch (this.data.type) {
       case "paywall_impression":
