@@ -290,3 +290,8 @@ workflows:
           <<: *release-tags
           requires:
             - make-release
+      - revenuecat/merge-release-pr:
+          repo_name: purchases-js
+          requires:
+            - docs-deploy
+          <<: *release-tags
