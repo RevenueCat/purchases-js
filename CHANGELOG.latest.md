@@ -1,8 +1,10 @@
 ## RevenueCat SDK
 ### ✨ New Features
-* WEB-3784: Add Stripe Checkout (#768) via Nicola Sacco (@nicfix)
-* Add storeLoadTime flag to defer store module loading (#796) via Toni Rico (@tonidero)
+* Refactor wallet button renderer (#810) via Marek Dabek (@marek-dabek)
+### 🐞 Bugfixes
+* Add font-family to simulated store modal (#809) via Perttu (@plahteenlahti)
+* Fix price-per-period rounding to floor instead of round-half-up (#807) via Dan Pannasch (@dpannasch)
 
-## RevenueCatUI SDK
-### ✨ New Features
-* PW-874 | Support visibility overrides (#801) via Rosie Watson (@RosieWatson)
+### 🔄 Other Changes
+* Require PR approval before release tagging (#811) via Antonio Pallares (@ajpallares)
+* PW-1121 | Add paywall events (impression, close, cancel) (#806) via Drago Crnjac (@popcorn)
