@@ -9,6 +9,10 @@ export const SKIP_STRIPE_TESTS =
   process.env.VITE_SKIP_STRIPE_TESTS === "true" ||
   process.env.VITE_SKIP_STRIPE_TESTS === "1";
 
+export const SKIP_PADDLE_TESTS =
+  process.env.VITE_SKIP_PADDLE_TESTS === "true" ||
+  process.env.VITE_SKIP_PADDLE_TESTS === "1";
+
 export const SKIP_TAX_REAL_TESTS = (() => {
   const skipUntilDate = process.env.VITE_SKIP_TAX_REAL_TESTS_UNTIL;
   if (!skipUntilDate) return false;
