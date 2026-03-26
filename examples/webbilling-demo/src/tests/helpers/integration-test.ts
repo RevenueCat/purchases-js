@@ -59,14 +59,20 @@ interface TestFixtures {
 }
 
 export const integrationTest = test.extend<TestFixtures>({
-  userId: async ({ browserName }, use) => {
-    const userId = getUserId(browserName);
-    await use(userId);
-  },
-  email: async ({ userId }, use) => {
-    const email = getEmailFromUserId(userId);
-    await use(email);
-  },
+  userId: [
+    async ({ browserName }, use) => {
+      const userId = getUserId(browserName);
+      await use(userId);
+    },
+    { scope: "test" },
+  ],
+  email: [
+    async ({ userId }, use) => {
+      const email = getEmailFromUserId(userId);
+      await use(email);
+    },
+    { scope: "test" },
+  ],
   page: async ({ browser }, use) => {
     const page = await browser.newPage();
     await use(page);
