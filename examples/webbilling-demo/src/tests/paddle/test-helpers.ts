@@ -1,13 +1,14 @@
 import { expect, type Page } from "@playwright/test";
 import { PADDLE_TEST_API_KEY } from "../helpers/fixtures";
-import {
-  type RouteFulfillOptions,
-  navigateToLandingUrl,
-} from "../helpers/test-helpers";
+import { navigateToLandingUrl } from "../helpers/test-helpers";
 
 export const PADDLE_UI_STEP_TIMEOUT_MS = 30_000;
 export const PADDLE_TEST_TIMEOUT_MS = 120_000;
 export const PADDLE_TEST_OFFERING_ID = "Paddle E2E Test Offering";
+export const PADDLE_TEST_CARD_NUMBER = "4242 4242 4242 4242";
+export const PADDLE_TEST_CARD_CVV = "100";
+export const PADDLE_TEST_CARD_EXPIRY = "12 / 34";
+export const PADDLE_TEST_POSTCODE = "12345";
 
 type LandingQuery = {
   offeringId?: string;
@@ -24,11 +25,6 @@ type LandingQuery = {
   nickname?: string;
   hideBackButtons?: boolean;
   discountCode?: string;
-};
-
-type MockPaddleConfig = {
-  autoComplete?: boolean;
-  autoClose?: boolean;
 };
 
 export async function navigateToPaddleLandingUrl(
@@ -49,106 +45,130 @@ export async function navigateToPaddleLandingUrl(
   );
 }
 
-export async function installMockPaddleBilling(
-  page: Page,
-  config: MockPaddleConfig = {},
-) {
-  const { autoComplete = true, autoClose = false } = config;
+export const getPaddleCheckoutIframe = (page: Page) => page.locator("iframe");
 
-  await page.addInitScript(
-    ({ autoCompleteInMock, autoCloseInMock }) => {
-      type PaddleEvent = { name: string; data?: Record<string, unknown> };
+export const getPaddleCheckoutFrame = (page: Page) =>
+  page.frameLocator("iframe");
 
-      let eventCallback:
-        | ((event: PaddleEvent) => void | Promise<void>)
-        | undefined;
+export async function confirmPaddleCheckoutVisible(page: Page) {
+  const iframe = getPaddleCheckoutIframe(page);
+  await expect(iframe).toBeVisible({ timeout: PADDLE_UI_STEP_TIMEOUT_MS });
 
-      const emit = (event: PaddleEvent, delayMS: number = 0) => {
-        window.setTimeout(() => {
-          if (eventCallback) {
-            void eventCallback(event);
-          }
-        }, delayMS);
-      };
-
-      const paddleInstance = {
-        Initialized: false,
-        Environment: {
-          set: () => {},
-        },
-        Initialize: () => {
-          paddleInstance.Initialized = true;
-        },
-        Update: (params: {
-          eventCallback?: (event: PaddleEvent) => void | Promise<void>;
-        }) => {
-          if (params?.eventCallback) {
-            eventCallback = params.eventCallback;
-          }
-        },
-        Checkout: {
-          open: () => {
-            emit({ name: "checkout.loaded" }, 0);
-
-            if (autoCloseInMock) {
-              emit(
-                {
-                  name: "checkout.closed",
-                  data: { status: "closed_by_user" },
-                },
-                10,
-              );
-              return;
-            }
-
-            if (autoCompleteInMock) {
-              emit({ name: "checkout.completed" }, 20);
-            }
-          },
-          close: () => {},
-        },
-      };
-
-      (
-        window as Window & {
-          PaddleBillingV1?: unknown;
-        }
-      ).PaddleBillingV1 = paddleInstance;
-    },
-    {
-      autoCompleteInMock: autoComplete,
-      autoCloseInMock: autoClose,
-    },
-  );
+  const checkoutFrame = getPaddleCheckoutFrame(page);
+  await expect(
+    checkoutFrame.getByRole("textbox", { name: /card number/i }),
+  ).toBeVisible({
+    timeout: PADDLE_UI_STEP_TIMEOUT_MS,
+  });
 }
 
-export async function mockSuccessfulPaddleCheckoutStatus(
+export async function completePaddleCheckoutForm(
   page: Page,
-  productIdentifier: string = "paddle_monthly",
+  email: string,
+  fullName: string,
+  fillEmail: boolean = true,
 ) {
-  await page.route("*/**/checkout/*", async (route) => {
-    if (route.request().method() !== "GET") {
-      await route.continue();
-      return;
-    }
+  await confirmPaddleCheckoutVisible(page);
+  const checkoutFrame = getPaddleCheckoutFrame(page);
 
-    const mockedResponse: RouteFulfillOptions = {
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify({
-        operation: {
-          status: "succeeded",
-          is_expired: false,
-          redemption_info: null,
-          store_transaction_identifier: "test-store-transaction-id",
-          product_identifier: productIdentifier,
-          purchase_date: new Date().toISOString(),
-        },
-      }),
-    };
-
-    await route.fulfill(mockedResponse);
+  const emailInput = checkoutFrame.getByRole("textbox", {
+    name: /email address/i,
   });
+
+  if (fillEmail) {
+    await emailInput.waitFor({
+      state: "visible",
+      timeout: PADDLE_UI_STEP_TIMEOUT_MS,
+    });
+
+    await emailInput.fill(email);
+    await emailInput.blur();
+  } else {
+    const emailSummary = checkoutFrame.getByText(email, {
+      exact: true,
+    });
+
+    await expect(emailInput.or(emailSummary).first()).toBeVisible({
+      timeout: PADDLE_UI_STEP_TIMEOUT_MS,
+    });
+
+    if (await emailInput.isVisible()) {
+      await expect(emailInput).toHaveValue(email);
+    }
+  }
+
+  const cardNumberInput = checkoutFrame.getByRole("textbox", {
+    name: /card number/i,
+  });
+  await cardNumberInput.click();
+  await cardNumberInput.clear();
+  await cardNumberInput.pressSequentially(PADDLE_TEST_CARD_NUMBER, {
+    delay: 15,
+  });
+  await cardNumberInput.blur();
+
+  const expirationInput = checkoutFrame.getByRole("textbox", {
+    name: /expiry/i,
+  });
+  await expirationInput.click();
+  await expirationInput.clear();
+  await expirationInput.pressSequentially(PADDLE_TEST_CARD_EXPIRY, {
+    delay: 15,
+  });
+  await expirationInput.blur();
+
+  const securityCodeInput = checkoutFrame.getByRole("textbox", {
+    name: /cvv|security code/i,
+  });
+  await securityCodeInput.click();
+  await securityCodeInput.clear();
+  await securityCodeInput.pressSequentially(PADDLE_TEST_CARD_CVV, {
+    delay: 15,
+  });
+  await securityCodeInput.blur();
+
+  const cardHolderInput = checkoutFrame.getByRole("textbox", {
+    name: /card holder|name on card/i,
+  });
+  await cardHolderInput.click();
+  await cardHolderInput.clear();
+  await cardHolderInput.pressSequentially(fullName, { delay: 10 });
+  await cardHolderInput.blur();
+
+  const postcodeInput = checkoutFrame.getByRole("textbox", {
+    name: /zip\/postcode|postcode/i,
+  });
+  await postcodeInput.click();
+  await postcodeInput.clear();
+  await postcodeInput.pressSequentially(PADDLE_TEST_POSTCODE, { delay: 15 });
+  await postcodeInput.blur();
+
+  const payButton = checkoutFrame.getByRole("button", {
+    name: /^pay /i,
+  });
+  await payButton.waitFor({
+    state: "visible",
+    timeout: PADDLE_UI_STEP_TIMEOUT_MS,
+  });
+  await expect(payButton).toBeEnabled({ timeout: PADDLE_UI_STEP_TIMEOUT_MS });
+
+  const paddleCheckoutSubmission = page.waitForRequest(
+    (request) => {
+      if (request.method() !== "POST") {
+        return false;
+      }
+
+      return /checkout-service\.paddle\.com\/transaction-checkout\//.test(
+        request.url(),
+      );
+    },
+    {
+      timeout: PADDLE_UI_STEP_TIMEOUT_MS,
+    },
+  );
+
+  await payButton.click();
+  await paddleCheckoutSubmission;
 }
 
 export async function confirmPaddleProcessingPayment(page: Page) {

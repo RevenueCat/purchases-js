@@ -2,7 +2,6 @@ import { expect } from "@playwright/test";
 import { PADDLE_TEST_API_KEY } from "../helpers/fixtures";
 import { integrationTest } from "../helpers/integration-test";
 import {
-  confirmPaymentComplete,
   confirmPaymentError,
   getPackageCards,
   getPaywallPackageCards,
@@ -12,15 +11,16 @@ import {
   startPurchaseFlow,
 } from "../helpers/test-helpers";
 import {
+  completePaddleCheckoutForm,
   confirmPaddleProcessingPayment,
-  installMockPaddleBilling,
-  mockSuccessfulPaddleCheckoutStatus,
   navigateToPaddleLandingUrl,
   PADDLE_TEST_TIMEOUT_MS,
   PADDLE_UI_STEP_TIMEOUT_MS,
 } from "./test-helpers";
 
 integrationTest.describe("Paddle flow", () => {
+  const paddleCardholderName = "RevenueCat E2E";
+
   integrationTest.describe.configure({
     timeout: PADDLE_TEST_TIMEOUT_MS,
   });
@@ -39,10 +39,7 @@ integrationTest.describe("Paddle flow", () => {
 
   integrationTest(
     "Purchases a product with Paddle",
-    async ({ page, userId }) => {
-      await installMockPaddleBilling(page);
-      await mockSuccessfulPaddleCheckoutStatus(page);
-
+    async ({ page, userId, email }) => {
       page = await navigateToPaddleLandingUrl(page, userId);
 
       await expect(page.getByText("Paddle demo")).toBeVisible({
@@ -53,22 +50,14 @@ integrationTest.describe("Paddle flow", () => {
       expect(packageCards.length).toBeGreaterThan(0);
 
       await startPurchaseFlow(packageCards[0]);
+      await completePaddleCheckoutForm(page, email, paddleCardholderName);
       await confirmPaddleProcessingPayment(page);
-      await confirmPaymentComplete(page, PADDLE_UI_STEP_TIMEOUT_MS);
-
-      const continueButton = page.getByRole("button", { name: /continue/i });
-      await expect(continueButton).toBeVisible({
-        timeout: PADDLE_UI_STEP_TIMEOUT_MS,
-      });
     },
   );
 
   integrationTest(
     "Purchases a product with Paddle passing the email as query parameter",
     async ({ page, userId, email }) => {
-      await installMockPaddleBilling(page);
-      await mockSuccessfulPaddleCheckoutStatus(page);
-
       page = await navigateToPaddleLandingUrl(page, userId, {
         email,
       });
@@ -81,21 +70,19 @@ integrationTest.describe("Paddle flow", () => {
       expect(packageCards.length).toBeGreaterThan(0);
 
       await startPurchaseFlow(packageCards[0]);
+      await completePaddleCheckoutForm(
+        page,
+        email,
+        paddleCardholderName,
+        false,
+      );
       await confirmPaddleProcessingPayment(page);
-      await confirmPaymentComplete(page, PADDLE_UI_STEP_TIMEOUT_MS);
-
-      const continueButton = page.getByRole("button", { name: /continue/i });
-      await expect(continueButton).toBeVisible({
-        timeout: PADDLE_UI_STEP_TIMEOUT_MS,
-      });
     },
   );
 
   integrationTest(
     "Shows an error screen when checkout/start returns missing paddle checkout params",
     async ({ page, userId, email }) => {
-      await installMockPaddleBilling(page);
-
       page = await navigateToPaddleLandingUrl(page, userId, {
         email,
       });
@@ -139,9 +126,6 @@ integrationTest.describe("Paddle flow", () => {
     async ({ page, userId, email }) => {
       skipPaywallsTestIfDisabled(integrationTest);
 
-      await installMockPaddleBilling(page);
-      await mockSuccessfulPaddleCheckoutStatus(page);
-
       page = await navigateToPaddleLandingUrl(page, userId, {
         useRcPaywall: true,
         lang: "en",
@@ -156,13 +140,13 @@ integrationTest.describe("Paddle flow", () => {
       expect(purchaseButtons.length).toBeGreaterThan(0);
       await purchaseButtons[0].click();
 
+      await completePaddleCheckoutForm(
+        page,
+        email,
+        paddleCardholderName,
+        false,
+      );
       await confirmPaddleProcessingPayment(page);
-      await confirmPaymentComplete(page, PADDLE_UI_STEP_TIMEOUT_MS);
-
-      const continueButton = page.getByRole("button", { name: /continue/i });
-      await expect(continueButton).toBeVisible({
-        timeout: PADDLE_UI_STEP_TIMEOUT_MS,
-      });
     },
   );
 });

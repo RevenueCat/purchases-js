@@ -82,6 +82,12 @@ export const integrationTest = test.extend<TestFixtures>({
 
 integrationTest.beforeEach(async ({ page }) => {
   await page.route("**/v1/events", async (route) => {
+    const url = route.request().url();
+    if (!url.includes("revenuecat.com/v1/events")) {
+      await route.continue();
+      return;
+    }
+
     await route.fulfill({
       status: 200,
       body: JSON.stringify({}),
