@@ -854,6 +854,7 @@ export const checkoutStartResponse: CheckoutStartResponse = {
       setup_future_usage: StripeElementsSetupFutureUsage.OffSession,
     },
   },
+  stripe_billing_params: null,
   management_url: "https://test-management-url.revenuecat.com",
   paddle_billing_params: null,
 };

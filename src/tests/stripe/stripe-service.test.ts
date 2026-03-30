@@ -6,6 +6,7 @@ import {
 import type {
   Stripe,
   StripeElementLocale,
+  StripeEmbeddedCheckout,
   StripeElements,
   StripeError,
 } from "@stripe/stripe-js";
@@ -155,6 +156,88 @@ describe("StripeService", () => {
           mockConfig.localeToUse,
           mockConfig.stripeVariables,
           mockConfig.viewport,
+        ),
+      ).rejects.toEqual({
+        code: StripeServiceErrorCode.ErrorLoadingStripe,
+        gatewayErrorCode: "failed_to_load",
+        message: "Failed to load",
+      });
+    });
+  });
+
+  describe("initializeStripeCheckout", () => {
+    const stripeBillingParams = {
+      client_secret: "cs_test_123",
+      environment: "sandbox",
+      publishable_api_key: "pk_test_123",
+      stripe_account_id: "acct_123",
+      branding_settings: null,
+      appearance: null,
+    };
+
+    test("throws error when required configuration is missing", async () => {
+      await expect(
+        StripeService.initializeStripeCheckout("", "", undefined, undefined),
+      ).rejects.toEqual({
+        code: StripeServiceErrorCode.ErrorLoadingStripe,
+        gatewayErrorCode: undefined,
+        message: "Stripe configuration is missing",
+      });
+    });
+
+    test("initializes embedded checkout with client secret and onComplete callback", async () => {
+      const mockEmbeddedCheckout = {} as StripeEmbeddedCheckout;
+      const initEmbeddedCheckout = vi
+        .fn()
+        .mockResolvedValue(mockEmbeddedCheckout);
+      const mockStripe: Partial<Stripe> = {
+        initEmbeddedCheckout,
+      };
+      const onComplete = vi.fn();
+
+      vi.mocked(loadStripe).mockResolvedValue(mockStripe as Stripe);
+
+      const result = await StripeService.initializeStripeCheckout(
+        "acct_123",
+        "pk_test_123",
+        stripeBillingParams,
+        onComplete,
+      );
+
+      expect(loadStripe).toHaveBeenCalledWith("pk_test_123", {
+        stripeAccount: "acct_123",
+      });
+      expect(initEmbeddedCheckout).toHaveBeenCalledWith({
+        fetchClientSecret: expect.any(Function),
+        onComplete,
+      });
+
+      const fetchClientSecret = initEmbeddedCheckout.mock.calls[0]?.[0]
+        ?.fetchClientSecret as () => Promise<string>;
+      await expect(fetchClientSecret()).resolves.toBe("cs_test_123");
+
+      expect(result).toEqual({
+        stripe: mockStripe,
+        embeddedCheckout: mockEmbeddedCheckout,
+      });
+    });
+
+    test("throws mapped initialization error when embedded checkout initialization fails", async () => {
+      const mockStripe: Partial<Stripe> = {
+        initEmbeddedCheckout: vi.fn().mockRejectedValue({
+          type: "api_connection_error",
+          code: "failed_to_load",
+          message: "Failed to load",
+        } as StripeError),
+      };
+
+      vi.mocked(loadStripe).mockResolvedValue(mockStripe as Stripe);
+
+      await expect(
+        StripeService.initializeStripeCheckout(
+          "acct_123",
+          "pk_test_123",
+          stripeBillingParams,
         ),
       ).rejects.toEqual({
         code: StripeServiceErrorCode.ErrorLoadingStripe,

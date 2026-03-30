@@ -93,6 +93,7 @@ describe("PaddleService", () => {
       updateUser: () => Promise.resolve(),
       trackSDKEvent: () => {},
       trackExternalEvent: () => {},
+      trackPaywallEvent: () => {},
       dispose: () => {},
       flushAllEvents: () => Promise.resolve(),
     };
@@ -498,6 +499,7 @@ describe("PaddleService", () => {
         updateUser: () => Promise.resolve(),
         trackSDKEvent: () => {},
         trackExternalEvent: () => {},
+        trackPaywallEvent: () => {},
         dispose: () => {},
         flushAllEvents: () => Promise.resolve(),
       });

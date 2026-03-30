@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  revenuecat: revenuecat/sdks-common-config@3.13.0
+  revenuecat: revenuecat/sdks-common-config@3.16.0
   aws-cli: circleci/aws-cli@4.1.3
   node: circleci/node@7.2.1
 
@@ -214,7 +214,7 @@ jobs:
       - run:
           name: Update ENV for E2E test
           command: |
-            echo 'export VITE_RC_API_KEY=${E2E_RC_API_KEY}; export VITE_RC_TAX_E2E_API_KEY=${E2E_RC_TAX_E2E_API_KEY}; export VITE_SKIP_TAX_REAL_TESTS_UNTIL=${VITE_SKIP_TAX_REAL_TESTS_UNTIL}; export VITE_ALLOW_PAYWALLS_TESTS=true' >> "$BASH_ENV"
+            echo 'export VITE_RC_API_KEY=${E2E_RC_API_KEY}; export VITE_RC_TAX_E2E_API_KEY=${E2E_RC_TAX_E2E_API_KEY}; export VITE_RC_STRIPE_CHECKOUT_E2E_API_KEY=${E2E_RC_STRIPE_CHECKOUT_E2E_API_KEY}; export VITE_SKIP_TAX_REAL_TESTS_UNTIL=${VITE_SKIP_TAX_REAL_TESTS_UNTIL}; export VITE_SKIP_STRIPE_TESTS=${VITE_SKIP_STRIPE_TESTS:-false}; export VITE_ALLOW_PAYWALLS_TESTS=true' >> "$BASH_ENV"
             source "$BASH_ENV"
       - install-dependencies
       - run:
@@ -290,3 +290,8 @@ workflows:
           <<: *release-tags
           requires:
             - make-release
+      - revenuecat/merge-release-pr:
+          repo_name: purchases-js
+          requires:
+            - docs-deploy
+          <<: *release-tags

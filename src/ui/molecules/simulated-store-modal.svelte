@@ -79,6 +79,20 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    font-family:
+      -apple-system,
+      BlinkMacSystemFont,
+      avenir next,
+      avenir,
+      segoe ui,
+      helvetica neue,
+      helvetica,
+      Cantarell,
+      Ubuntu,
+      roboto,
+      noto,
+      arial,
+      sans-serif;
     /** One more than the paywall */
     z-index: 1000002;
   }

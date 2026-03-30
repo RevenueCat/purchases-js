@@ -8,22 +8,34 @@
   import { buildBrandingSources } from "../../helpers/build-branding-sources";
   import AppLogo from "../atoms/app-logo.svelte";
   import Typography from "../atoms/typography.svelte";
+  import type { BrandingAppearance } from "../../entities/branding";
 
   export interface Props {
     brandingInfo: BrandingInfoResponse | null;
+    brandingAppearance?: BrandingAppearance | null;
     isInElement: boolean;
     isSandbox: boolean;
     mainContent?: Snippet<[]>;
   }
 
-  const { brandingInfo, isInElement, isSandbox, mainContent }: Props = $props();
+  const {
+    brandingInfo,
+    brandingAppearance,
+    isInElement,
+    isSandbox,
+    mainContent,
+  }: Props = $props();
+
+  const derivedBrandingAppearance = $derived(
+    brandingAppearance ?? brandingInfo?.appearance ?? null,
+  );
 
   const colorVariables = $derived(
-    new Theme(brandingInfo?.appearance).pageStyleVars,
+    new Theme(derivedBrandingAppearance).pageStyleVars,
   );
 
   const pageBgColor = $derived(
-    brandingInfo?.appearance?.color_page_bg ?? "#ffffff",
+    derivedBrandingAppearance?.color_page_bg ?? "#ffffff",
   );
 
   const { wordmarkSrc, wordmarkSrcWebp, src, srcWebp } = $derived(
@@ -32,7 +44,7 @@
 </script>
 
 <Container
-  brandingAppearance={brandingInfo?.appearance}
+  brandingAppearance={derivedBrandingAppearance}
   brandFontConfig={brandingInfo?.brand_font_config}
   {isInElement}
 >

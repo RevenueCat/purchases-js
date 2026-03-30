@@ -20,6 +20,7 @@
   import { brandingContextKey } from "../constants";
   import type { StripeExpressCheckoutConfiguration } from "../../stripe/stripe-express-checkout-configuration";
   import { initStripe, updateStripe } from "./stripe-helpers";
+  import type { BrandingAppearance } from "../../entities/branding";
 
   import type { ExpressPurchaseButtonProps } from "./express-purchase-button-props";
   import type {
@@ -56,8 +57,11 @@
   const mode: SDKEventPurchaseMode = "express_purchase_button";
 
   let translatorStore = writable(translator);
+  const brandingAppearanceStore = writable<BrandingAppearance | null>(
+    brandingInfo?.appearance ?? null,
+  );
   setContext(translatorContextKey, translatorStore);
-  setContext(brandingContextKey, brandingInfo?.appearance);
+  setContext(brandingContextKey, brandingAppearanceStore);
 
   let isLoading = $state(true);
   let isPurchasing = $state(false);

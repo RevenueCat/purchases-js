@@ -3,7 +3,7 @@ import { type Page, type Locator, expect } from "@playwright/test";
 import type { StoreLoadTime } from "@revenuecat/purchases-js";
 import { BASE_URL, NON_TAX_TEST_API_KEY } from "./fixtures";
 import type { integrationTest } from "./integration-test";
-import { ALLOW_PAYWALLS_TESTS } from "./integration-test";
+import { ALLOW_PAYWALLS_TESTS, SKIP_STRIPE_TESTS } from "./integration-test";
 
 export type RouteFulfillOptions = {
   body?: string | Buffer | undefined;
@@ -27,6 +27,13 @@ export const skipPaywallsTestIfDisabled = (test: typeof integrationTest) => {
   test.skip(
     !ALLOW_PAYWALLS_TESTS,
     "Paywalls tests are disabled. To enable, set VITE_ALLOW_PAYWALLS_TESTS=true in the environment variables.",
+  );
+};
+
+export const skipStripeTestsIfDisabled = (test: typeof integrationTest) => {
+  test.skip(
+    SKIP_STRIPE_TESTS,
+    "Stripe tests are disabled. To enable them, unset VITE_SKIP_STRIPE_TESTS or set it to false.",
   );
 };
 
@@ -277,17 +284,22 @@ export async function confirmTaxNotCalculating(page: Page) {
   await expect(page.locator(TAX_SKELETON_SELECTOR)).not.toBeVisible();
 }
 
-export async function confirmPaymentComplete(page: Page) {
+export async function confirmPaymentComplete(page: Page, timeout?: number) {
   const successText = page.getByText("Payment complete");
-  await expect(successText).toBeVisible();
+  await expect(successText).toBeVisible(
+    timeout !== undefined ? { timeout } : undefined,
+  );
 }
 
 export async function confirmPaymentError(
   page: Page,
   message: string | RegExp,
+  timeout?: number,
 ) {
   const errorText = page.getByText(message);
-  await expect(errorText).toBeVisible();
+  await expect(errorText).toBeVisible(
+    timeout !== undefined ? { timeout } : undefined,
+  );
 }
 
 export async function clickCancelStripe3DSButton(page: Page) {

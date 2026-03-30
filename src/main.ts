@@ -6,6 +6,7 @@ import type {
 } from "./entities/offerings";
 import PurchasesUi from "./ui/purchases-ui.svelte";
 import PaddlePurchasesUi from "./ui/paddle-purchases-ui.svelte";
+import StripeCheckoutPurchasesUi from "./ui/stripe-checkout-purchases-ui.svelte";
 
 import { type CustomerInfo, toCustomerInfo } from "./entities/customer-info";
 import {
@@ -24,6 +25,7 @@ import { Backend } from "./networking/backend";
 import {
   isPaddleApiKey,
   isSimulatedStoreApiKey,
+  isStripeApiKey,
   isWebBillingApiKey,
   isWebBillingSandboxApiKey,
 } from "./helpers/api-key-helper";
@@ -60,6 +62,7 @@ import {
 } from "./entities/purchase-result";
 import { mount, unmount } from "svelte";
 import { type PresentPaywallParams } from "./entities/present-paywall-params";
+import type { WalletButtonRender } from "@revenuecat/purchases-ui-js";
 import { Paywall, type PaywallData } from "@revenuecat/purchases-ui-js";
 import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
 import {
@@ -90,6 +93,7 @@ import {
   type PurchasesContext,
 } from "./entities/purchases-config";
 import { generateUUID } from "./helpers/uuid-helper";
+import { type PaywallEventType } from "./behavioural-events/paywall-event";
 import type { PlatformInfo } from "./entities/platform-info";
 import type { ReservedCustomerAttribute } from "./entities/attributes";
 import { purchaseSimulatedStoreProduct } from "./helpers/simulated-store-purchase-helper";
@@ -581,6 +585,28 @@ export class Purchases {
       offering.paywallComponents.default_locale,
     );
 
+    const paywallSessionId = generateUUID();
+
+    const trackPaywallEvent = (type: PaywallEventType) => {
+      this.eventsTracker.trackPaywallEvent({
+        type,
+        appUserId: this._appUserId,
+        sessionId: paywallSessionId,
+        offeringId: offering.identifier,
+        paywallRevision: 0,
+        paywallRcPublicId: offering.paywallComponents?.id ?? null,
+        ...(type === "paywall_impression"
+          ? {
+              displayMode: "full_screen",
+              darkMode:
+                getWindow()?.matchMedia?.("(prefers-color-scheme: dark)")
+                  .matches ?? false,
+              locale: finalLocale,
+            }
+          : {}),
+      });
+    };
+
     const startPurchaseFlow = async (
       selectedPackageId: string,
     ): Promise<PaywallPurchaseResult> => {
@@ -637,10 +663,29 @@ export class Purchases {
 
     return new Promise((resolve, reject) => {
       let component: ReturnType<typeof mount> | null = null;
+      let paywallCloseTracked = false;
+
+      const trackPaywallCloseIfNeeded = () => {
+        if (paywallCloseTracked) {
+          return;
+        }
+        trackPaywallEvent("paywall_close");
+        paywallCloseTracked = true;
+      };
+
+      const containerObserver = new MutationObserver(() => {
+        if (certainHTMLTarget.childElementCount === 0) {
+          trackPaywallCloseIfNeeded();
+          containerObserver.disconnect();
+        }
+      });
 
       const unmountPaywall = () => {
+        containerObserver.disconnect();
+        trackPaywallCloseIfNeeded();
         if (component) {
           unmount(component);
+          component = null;
         }
         certainHTMLTarget.innerHTML = "";
 
@@ -649,10 +694,14 @@ export class Purchases {
           certainHTMLTarget.parentNode.removeChild(certainHTMLTarget);
         }
       };
+
       const closePaywall = () => {
         Logger.debugLog("Purchase cancelled by user");
         unmountPaywall();
         reject(new PurchasesError(ErrorCode.UserCancelledError));
+        void this.eventsTracker.flushAllEvents().catch((error) => {
+          Logger.debugLog(`Failed to flush paywall events on close: ${error}`);
+        });
       };
 
       const listener = paywallParams.listener;
@@ -693,66 +742,34 @@ export class Purchases {
         }
       };
 
-      const walletButtonRender = isWebBillingApiKey(this._API_KEY)
-        ? (
-            element: HTMLElement,
-            {
-              selectedPackageId,
-              onReady,
-            }: {
-              selectedPackageId: string;
-              onReady?: (walletsAvailable: boolean) => void;
-            },
-          ) => {
-            const pkg = offering.packagesById[selectedPackageId];
-            if (!pkg) {
-              return {};
-            }
-            let buttonUpdater: ExpressPurchaseButtonUpdater | null = null;
-            notifyPurchaseStarted(pkg);
-            this.presentExpressPurchaseButton({
-              rcPackage: pkg,
-              customerEmail: paywallParams.customerEmail,
-              htmlTarget: element,
-              onButtonReady: (updater, walletsAvailable) => {
-                buttonUpdater = updater;
-                onReady?.(walletsAvailable);
-              },
-            })
-              .then((purchaseResult) => {
-                unmountPaywall();
-                resolve({ ...purchaseResult, selectedPackage: pkg });
-              })
-              .catch((err) => {
-                Logger.errorLog(
-                  `Error presenting express purchase button: ${err}`,
-                );
-                notifyPurchaseError(err);
-              });
+      const onSuccess = (result: PaywallPurchaseResult) => {
+        unmountPaywall();
+        resolve(result);
+        void this.eventsTracker.flushAllEvents().catch((error) => {
+          Logger.debugLog(
+            `Failed to flush paywall events after purchase: ${error}`,
+          );
+        });
+      };
 
-            return {
-              destroy() {
-                element.innerHTML = "";
-              },
-              update({
-                selectedPackageId,
-              }: {
-                selectedPackageId: string;
-                onReady?: () => void;
-              }) {
-                if (buttonUpdater) {
-                  const pkg = offering.packagesById[selectedPackageId];
-                  if (!pkg) {
-                    return;
-                  }
-                  const purchaseOptionToUse =
-                    pkg.webBillingProduct.defaultPurchaseOption;
-                  buttonUpdater.updatePurchase(pkg, purchaseOptionToUse);
-                }
-              },
-            };
-          }
-        : undefined;
+      const onError = (message: string) => (error: Error) => {
+        if (
+          error instanceof PurchasesError &&
+          error.errorCode === ErrorCode.UserCancelledError
+        ) {
+          trackPaywallEvent("paywall_cancel");
+        }
+
+        Logger.errorLog(`${message}: ${error}`);
+        notifyPurchaseError(error);
+      };
+
+      const walletButtonRender = this.getWalletButtonRender(
+        offering,
+        onSuccess,
+        paywallParams.customerEmail,
+        onError("Error presenting express purchase button"),
+      );
 
       certainHTMLTarget.innerHTML = "";
       component = mount(Paywall, {
@@ -780,14 +797,8 @@ export class Purchases {
               notifyPurchaseStarted(pkg);
             }
             startPurchaseFlow(selectedPackageId)
-              .then((purchaseResult) => {
-                unmountPaywall();
-                resolve(purchaseResult);
-              })
-              .catch((err) => {
-                Logger.errorLog(`Error performing purchase: ${err}`);
-                notifyPurchaseError(err);
-              });
+              .then(onSuccess)
+              .catch(onError("Error performing purchase"));
           },
           onError: (err: unknown) => {
             unmountPaywall();
@@ -800,6 +811,9 @@ export class Purchases {
           customVariables: paywallParams.customVariables,
         },
       });
+
+      containerObserver.observe(certainHTMLTarget, { childList: true });
+      trackPaywallEvent("paywall_impression");
 
       if (certainHTMLTarget.style.opacity === "0") {
         certainHTMLTarget.style.opacity = "1";
@@ -1017,6 +1031,72 @@ export class Purchases {
   }
 
   /**
+   * Renders a wallet button for the supported wallets (Apple Pay/Google Pay).
+   * When clicked it uses the wallet UI to execute the purchase instead of
+   * the checkout flow that would be shown with `.purchase`.
+   * @internal
+   * @param offering - The offering to render the wallet button for.
+   * @param onSuccess - The callback to be called when the purchase is successful.
+   * @param customerEmail - The email of the user. If undefined, RevenueCat will ask the customer for their email.
+   * @param onPurchaseError - The callback to be called when the purchase fails.
+   * @returns Function that renders the wallet button.
+   */
+  public getWalletButtonRender(
+    offering: Offering,
+    onSuccess: (purchaseResult: PaywallPurchaseResult) => void,
+    customerEmail?: string,
+    onError?: (error: Error) => void,
+  ): WalletButtonRender | undefined {
+    if (!isWebBillingApiKey(this._API_KEY)) {
+      return undefined;
+    }
+
+    return (element: HTMLElement, { selectedPackageId, onReady }) => {
+      const pkg = offering.packagesById[selectedPackageId];
+      if (!pkg) {
+        return {};
+      }
+
+      let buttonUpdater: ExpressPurchaseButtonUpdater | null = null;
+      this.presentExpressPurchaseButton({
+        rcPackage: pkg,
+        customerEmail: customerEmail,
+        htmlTarget: element,
+        onButtonReady: (updater, walletsAvailable) => {
+          buttonUpdater = updater;
+          onReady?.(walletsAvailable);
+        },
+      })
+        .then((purchaseResult) => {
+          onSuccess({ ...purchaseResult, selectedPackage: pkg });
+        })
+        .catch(onError);
+
+      return {
+        destroy() {
+          element.innerHTML = "";
+        },
+        update({
+          selectedPackageId,
+        }: {
+          selectedPackageId: string;
+          onReady?: () => void;
+        }) {
+          if (buttonUpdater) {
+            const pkg = offering.packagesById[selectedPackageId];
+            if (!pkg) {
+              return;
+            }
+            const purchaseOptionToUse =
+              pkg.webBillingProduct.defaultPurchaseOption;
+            buttonUpdater.updatePurchase(pkg, purchaseOptionToUse);
+          }
+        },
+      };
+    };
+  }
+
+  /**
    * Method to perform a purchase for a given package. You can obtain the
    * package from {@link Purchases.getOfferings}. This method will present the purchase
    * form on your site, using the given HTML element as the mount point, if
@@ -1042,7 +1122,123 @@ export class Purchases {
       return await this.performPaddlePurchase(params);
     }
 
+    const isStripe = isStripeApiKey(this._API_KEY);
+    if (isStripe) {
+      return await this.performStripePurchase(params);
+    }
+
     return await this.performWebBillingPurchase(params);
+  }
+
+  private async performStripePurchase(
+    params: PurchaseParams,
+  ): Promise<PurchaseResult> {
+    const {
+      rcPackage,
+      purchaseOption,
+      htmlTarget,
+      customerEmail,
+      workflowPurchaseContext,
+      paywallId,
+      selectedLocale = englishLocale,
+      defaultLocale = englishLocale,
+      skipSuccessPage = false,
+    } = params;
+
+    const certainHTMLTarget = this.resolveHTMLTarget(htmlTarget);
+
+    const appUserId = this._appUserId;
+
+    Logger.debugLog(
+      `Presenting Stripe checkout for package ${rcPackage.identifier}`,
+    );
+
+    const localeToBeUsed = selectedLocale || defaultLocale;
+
+    const purchaseOptionToUse =
+      purchaseOption ?? rcPackage.webBillingProduct.defaultPurchaseOption;
+
+    const event = createCheckoutSessionStartEvent({
+      appearance: this._brandingInfo?.appearance,
+      rcPackage,
+      purchaseOptionToUse,
+      customerEmail,
+    });
+    this.eventsTracker.trackSDKEvent(event);
+
+    const utmParamsMetadata = this._flags.autoCollectUTMAsMetadata
+      ? autoParseUTMParams()
+      : {};
+    const metadata = { ...utmParamsMetadata, ...(params.metadata || {}) };
+
+    let component: ReturnType<typeof mount> | null = null;
+
+    const finalBrandingInfo: BrandingInfoResponse | null = this._brandingInfo;
+
+    if (finalBrandingInfo && params.brandingAppearanceOverride) {
+      finalBrandingInfo.appearance = params.brandingAppearanceOverride;
+    }
+
+    const isInElement = htmlTarget !== undefined;
+
+    return new Promise((resolve, reject) => {
+      const win = getWindow();
+      if (!isInElement) {
+        win.history.pushState({ checkoutOpen: true }, "");
+      }
+
+      const unmountPurchaseUi = () => {
+        if (component) {
+          unmount(component);
+        }
+        certainHTMLTarget.innerHTML = "";
+      };
+
+      const onClose = this.createCheckoutOnCloseHandler(
+        reject,
+        unmountPurchaseUi,
+      );
+
+      if (!isInElement && onClose) {
+        win.addEventListener("popstate", onClose as EventListener);
+      }
+
+      const onFinished = this.createCheckoutOnFinishedHandler(
+        resolve,
+        appUserId,
+        rcPackage,
+        unmountPurchaseUi,
+      );
+
+      const onError = this.createCheckoutOnErrorHandler(
+        reject,
+        unmountPurchaseUi,
+      );
+
+      component = mount(StripeCheckoutPurchasesUi, {
+        target: certainHTMLTarget,
+        props: {
+          isInElement: isInElement,
+          appUserId,
+          rcPackage,
+          purchaseOption: purchaseOptionToUse,
+          customerEmail,
+          workflowPurchaseContext,
+          paywallId,
+          onFinished,
+          onClose,
+          onError,
+          eventsTracker: this.eventsTracker,
+          brandingInfo: this._brandingInfo,
+          purchaseOperationHelper: this.purchaseOperationHelper,
+          selectedLocale: localeToBeUsed,
+          metadata: metadata,
+          defaultLocale,
+          customTranslations: params.labelsOverride,
+          skipSuccessPage,
+        },
+      });
+    });
   }
 
   private async performWebBillingPurchase(
