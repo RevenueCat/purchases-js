@@ -62,6 +62,7 @@ import {
 } from "./entities/purchase-result";
 import { mount, unmount } from "svelte";
 import { type PresentPaywallParams } from "./entities/present-paywall-params";
+import { type PaywallListener } from "./entities/paywall-listener";
 import type { WalletButtonRender } from "@revenuecat/purchases-ui-js";
 import { Paywall, type PaywallData } from "@revenuecat/purchases-ui-js";
 import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
@@ -769,6 +770,7 @@ export class Purchases {
         onSuccess,
         paywallParams.customerEmail,
         onError("Error presenting express purchase button"),
+        listener,
       );
 
       certainHTMLTarget.innerHTML = "";
@@ -1026,6 +1028,7 @@ export class Purchases {
         translator,
         onFinished,
         onError,
+        listener: params.listener,
       });
     });
   }
@@ -1046,6 +1049,7 @@ export class Purchases {
     onSuccess: (purchaseResult: PaywallPurchaseResult) => void,
     customerEmail?: string,
     onError?: (error: Error) => void,
+    listener?: PaywallListener,
   ): WalletButtonRender | undefined {
     if (!isWebBillingApiKey(this._API_KEY)) {
       return undefined;
@@ -1066,6 +1070,7 @@ export class Purchases {
           buttonUpdater = updater;
           onReady?.(walletsAvailable);
         },
+        listener,
       })
         .then((purchaseResult) => {
           onSuccess({ ...purchaseResult, selectedPackage: pkg });
