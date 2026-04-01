@@ -158,16 +158,17 @@
     }
 
     purchaseOperationHelper
-      .checkoutStart(
+      .checkoutStart({
         appUserId,
         productId,
         purchaseOption,
-        rcPackage.webBillingProduct.presentedOfferingContext,
-        email,
+        presentedOfferingContext:
+          rcPackage.webBillingProduct.presentedOfferingContext,
+        customerEmail: email,
         metadata,
         workflowPurchaseContext,
         paywallId,
-      )
+      })
       .then((result) => {
         lastError = null;
         currentPage = "payment-entry";
@@ -178,16 +179,17 @@
         if (e.errorCode === PurchaseFlowErrorCode.MissingEmailError) {
           email = undefined;
           return purchaseOperationHelper
-            .checkoutStart(
+            .checkoutStart({
               appUserId,
               productId,
               purchaseOption,
-              rcPackage.webBillingProduct.presentedOfferingContext,
-              email,
+              presentedOfferingContext:
+                rcPackage.webBillingProduct.presentedOfferingContext,
+              customerEmail: email,
               metadata,
               workflowPurchaseContext,
               paywallId,
-            )
+            })
             .then((result) => {
               lastError = null;
               currentPage = "payment-entry";

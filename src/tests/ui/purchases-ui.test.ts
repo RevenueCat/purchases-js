@@ -183,16 +183,16 @@ describe("PurchasesUI", () => {
 
     await new Promise(process.nextTick);
 
-    expect(checkoutStartSpy).toHaveBeenCalledWith(
-      "app-user-id",
-      rcPackage.webBillingProduct.identifier,
-      subscriptionOption,
-      rcPackage.webBillingProduct.presentedOfferingContext,
-      "test@test.com",
-      { utm_term: "something" },
-      { stepId: "test-step-123" },
-      undefined,
-    );
+    expect(checkoutStartSpy).toHaveBeenCalledWith({
+      appUserId: "app-user-id",
+      productId: rcPackage.webBillingProduct.identifier,
+      purchaseOption: subscriptionOption,
+      presentedOfferingContext:
+        rcPackage.webBillingProduct.presentedOfferingContext,
+      customerEmail: "test@test.com",
+      metadata: { utm_term: "something" },
+      workflowPurchaseContext: { stepId: "test-step-123" },
+    });
   });
 
   test("passes undefined workflowPurchaseContext to checkoutStart when not provided", async () => {
@@ -208,15 +208,14 @@ describe("PurchasesUI", () => {
 
     await new Promise(process.nextTick);
 
-    expect(checkoutStartSpy).toHaveBeenCalledWith(
-      "app-user-id",
-      rcPackage.webBillingProduct.identifier,
-      subscriptionOption,
-      rcPackage.webBillingProduct.presentedOfferingContext,
-      "test@test.com",
-      { utm_term: "something" },
-      undefined,
-      undefined,
-    );
+    expect(checkoutStartSpy).toHaveBeenCalledWith({
+      appUserId: "app-user-id",
+      productId: rcPackage.webBillingProduct.identifier,
+      purchaseOption: subscriptionOption,
+      presentedOfferingContext:
+        rcPackage.webBillingProduct.presentedOfferingContext,
+      customerEmail: "test@test.com",
+      metadata: { utm_term: "something" },
+    });
   });
 });
