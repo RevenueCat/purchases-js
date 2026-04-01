@@ -290,6 +290,7 @@
           rcPackage.webBillingProduct.presentedOfferingContext,
         customerEmail,
         metadata,
+        locale: translator.selectedLocale,
       });
 
       const managementUrl = checkoutStartResult.management_url;

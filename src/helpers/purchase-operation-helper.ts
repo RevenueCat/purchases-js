@@ -121,6 +121,9 @@ interface CheckoutStartParams {
   // Customer data
   customerEmail?: string;
   metadata?: PurchaseMetadata;
+  // Resolved from selectedLocale/defaultLocale at the public API layer.
+  // Future: consider adding localeSource?: "selected" | "browser".
+  locale?: string;
 }
 
 export interface OperationSessionSuccessfulResult {
@@ -184,6 +187,7 @@ export class PurchaseOperationHelper {
     paywallId,
     customerEmail,
     metadata,
+    locale,
   }: CheckoutStartParams): Promise<WebBillingCheckoutStartResponse> {
     try {
       const traceId = this.eventsTracker.getTraceId();
@@ -200,6 +204,7 @@ export class PurchaseOperationHelper {
           paywallId,
           customerEmail,
           metadata,
+          locale,
         });
       this.operationSessionId = checkoutStartResponse.operation_session_id;
       return checkoutStartResponse;
