@@ -716,6 +716,14 @@ describe("PurchaseOperationHelper", () => {
       }),
     );
     const getCheckoutStatusResponse: CheckoutStatusResponse = {
+      attribution_metadata: {
+        meta: {
+          canonical_event_id: "fb-order-id",
+          canonical_event_name: "Subscribe",
+          workflow_event_id: "workflow-event-id",
+          workflow_event_name: "workflows_purchase",
+        },
+      },
       operation: {
         status: CheckoutSessionStatus.Succeeded,
         is_expired: false,
@@ -753,6 +761,14 @@ describe("PurchaseOperationHelper", () => {
     );
     expect(pollResult.productIdentifier).toEqual("test-product_identifier");
     expect(pollResult.purchaseDate).toEqual(new Date("2025-07-15T04:21:11Z"));
+    expect(pollResult.attributionMetadata).toEqual({
+      meta: {
+        canonical_event_id: "fb-order-id",
+        canonical_event_name: "Subscribe",
+        workflow_event_id: "workflow-event-id",
+        workflow_event_name: "workflows_purchase",
+      },
+    });
   });
 
   test("pollCurrentPurchaseForCompletion success with missing info in poll returns error", async () => {

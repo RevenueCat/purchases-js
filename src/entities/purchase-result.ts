@@ -26,6 +26,11 @@ export interface PurchaseResult {
    * The store transaction associated with the purchase.
    */
   readonly storeTransaction: StoreTransaction;
+
+  /**
+   * Opaque attribution metadata returned by the checkout status response.
+   */
+  readonly attributionMetadata?: Record<string, unknown>;
 }
 
 /**

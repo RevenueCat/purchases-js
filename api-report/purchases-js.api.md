@@ -393,6 +393,7 @@ export interface PurchaseParams {
 
 // @public
 export interface PurchaseResult {
+    readonly attributionMetadata?: Record<string, unknown>;
     readonly customerInfo: CustomerInfo;
     readonly operationSessionId: string;
     readonly redemptionInfo: RedemptionInfo | null;

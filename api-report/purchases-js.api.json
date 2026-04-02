@@ -4007,7 +4007,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PresentPaywallParams#customVariables:member",
-              "docComment": "/**\n * Custom variables to pass to the paywall at runtime, overriding defaults set in the RevenueCat dashboard.\n *\n * Variables must be defined in the dashboard first. Reference them in paywall text using the `custom.` prefix (e.g. `{{ custom.player_name }}`).\n *\n * @example\n * ```ts\n * presentPaywall({\n *   customVariables: {\n *     player_name: CustomVariableValue.string('Ada'),\n *     level: CustomVariableValue.string('42'),\n *   },\n * });\n * ```\n *\n */\n",
+              "docComment": "/**\n * Custom variables to pass to the paywall at runtime, overriding defaults set in the RevenueCat dashboard.\n *\n * Variables must be defined in the dashboard first. Reference them in paywall text using the `custom.` prefix (e.g. `{{ custom.player_name }}`).\n *\n * @example\n * ```ts\n * presentPaywall({\n *   customVariables: {\n *     player_name: CustomVariableValue.string('Ada'),\n *     level: CustomVariableValue.number(42),\n *     is_premium: CustomVariableValue.boolean(true),\n *   },\n * });\n * ```\n *\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -5604,6 +5604,38 @@
           "name": "PurchaseResult",
           "preserveMemberOrder": false,
           "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PurchaseResult#attributionMetadata:member",
+              "docComment": "/**\n * Opaque attribution metadata returned by the checkout status response.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly attributionMetadata?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, unknown>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "attributionMetadata",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              }
+            },
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PurchaseResult#customerInfo:member",

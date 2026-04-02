@@ -310,6 +310,8 @@ export class PaddleService {
                   storeTransactionIdentifier: storeTransactionIdentifier ?? "",
                   productIdentifier: productIdentifier,
                   purchaseDate: purchaseDate ?? new Date(),
+                  attributionMetadata:
+                    operationResponse.attribution_metadata ?? undefined,
                 });
                 return;
               case CheckoutSessionStatus.Failed:

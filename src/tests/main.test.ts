@@ -835,6 +835,59 @@ describe("Purchases.purchase()", () => {
     expect(performStripePurchaseSpy).not.toHaveBeenCalled();
   });
 
+  test("passes attributionMetadata through the purchase result", async () => {
+    const purchases = configurePurchases();
+    const customerInfo = { originalAppUserId: "test-user-id" } as CustomerInfo;
+    type PurchasesWithCustomerInfoGetter = Purchases & {
+      _getCustomerInfoForUserId: (appUserId: string) => Promise<CustomerInfo>;
+    };
+    const purchasesWithCustomerInfoGetter =
+      purchases as PurchasesWithCustomerInfoGetter;
+    vi.spyOn(
+      purchasesWithCustomerInfoGetter,
+      "_getCustomerInfoForUserId",
+    ).mockResolvedValue(customerInfo);
+
+    const resolve = vi.fn();
+    const onFinished = purchases["createCheckoutOnFinishedHandler"](
+      resolve,
+      "test-app-user-id",
+      createMonthlyPackageMock(),
+    );
+
+    const attributionMetadata = {
+      meta: {
+        canonical_event_id: "fb-order-id",
+        canonical_event_name: "Subscribe",
+        workflow_event_id: "workflow-event-id",
+        workflow_event_name: "workflows_purchase",
+      },
+    };
+
+    await onFinished({
+      redemptionInfo: null,
+      operationSessionId: "test-operation-session-id",
+      storeTransactionIdentifier: "test-store-transaction-id",
+      productIdentifier: "test-product-id",
+      purchaseDate: new Date("2024-01-01T00:00:00.000Z"),
+      attributionMetadata,
+    });
+
+    expect(resolve).toHaveBeenCalledWith(
+      expect.objectContaining({
+        customerInfo,
+        redemptionInfo: null,
+        operationSessionId: "test-operation-session-id",
+        attributionMetadata,
+        storeTransaction: {
+          storeTransactionId: "test-store-transaction-id",
+          productIdentifier: "monthly",
+          purchaseDate: new Date("2024-01-01T00:00:00.000Z"),
+        },
+      }),
+    );
+  });
+
   test("throws error if api key is not provided", () => {
     // @ts-expect-error - we want to test the error case
     expect(() => Purchases.configure()).toThrowError(PurchasesError);
