@@ -39,10 +39,10 @@ interface CheckoutStartRequestParams {
   appUserId: string;
   productId: string;
   purchaseOption: PurchaseOption;
-  presentedOfferingContext: PresentedOfferingContext;
   traceId: string;
 
   // Presentation context
+  presentedOfferingContext: PresentedOfferingContext;
   presentedStepId?: string;
   paywallId?: string;
 

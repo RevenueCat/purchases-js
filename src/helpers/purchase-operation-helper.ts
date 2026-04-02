@@ -112,9 +112,9 @@ interface CheckoutStartParams {
   appUserId: string;
   productId: string;
   purchaseOption: PurchaseOption;
-  presentedOfferingContext: PresentedOfferingContext;
 
   // Presentation context
+  presentedOfferingContext: PresentedOfferingContext;
   workflowPurchaseContext?: WorkflowPurchaseContext;
   paywallId?: string;
 
