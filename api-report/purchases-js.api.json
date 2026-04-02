@@ -5606,38 +5606,6 @@
           "members": [
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!PurchaseResult#attributionMetadata:member",
-              "docComment": "/**\n * Opaque attribution metadata returned by the checkout status response.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "readonly attributionMetadata?: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Record",
-                  "canonicalReference": "!Record:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": "<string, unknown>"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": true,
-              "isOptional": true,
-              "releaseTag": "Public",
-              "name": "attributionMetadata",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 3
-              }
-            },
-            {
-              "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PurchaseResult#customerInfo:member",
               "docComment": "/**\n * The customer information after the purchase.\n */\n",
               "excerptTokens": [

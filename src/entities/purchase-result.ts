@@ -29,6 +29,7 @@ export interface PurchaseResult {
 
   /**
    * Opaque attribution metadata returned by the checkout status response.
+   * @internal
    */
   readonly attributionMetadata?: Record<string, unknown>;
 }
