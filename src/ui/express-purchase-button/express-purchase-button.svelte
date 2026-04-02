@@ -282,14 +282,15 @@
     });
     eventsTracker.trackSDKEvent(sessionStartEvent);
     try {
-      const checkoutStartResult = await purchaseOperationHelper.checkoutStart(
+      const checkoutStartResult = await purchaseOperationHelper.checkoutStart({
         appUserId,
-        rcPackage.webBillingProduct.identifier,
+        productId: rcPackage.webBillingProduct.identifier,
         purchaseOption,
-        rcPackage.webBillingProduct.presentedOfferingContext,
+        presentedOfferingContext:
+          rcPackage.webBillingProduct.presentedOfferingContext,
         customerEmail,
         metadata,
-      );
+      });
 
       const managementUrl = checkoutStartResult.management_url;
 

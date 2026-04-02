@@ -34,6 +34,23 @@ import { isWebBillingSandboxApiKey } from "../helpers/api-key-helper";
 import type { IdentifyResponse } from "./responses/identify-response";
 import type { CheckoutPrepareResponse } from "./responses/checkout-prepare-response";
 
+interface CheckoutStartRequestParams {
+  // Purchase identity
+  appUserId: string;
+  productId: string;
+  purchaseOption: PurchaseOption;
+  traceId: string;
+
+  // Presentation context
+  presentedOfferingContext: PresentedOfferingContext;
+  presentedStepId?: string;
+  paywallId?: string;
+
+  // Customer data
+  customerEmail?: string;
+  metadata?: PurchaseMetadata;
+}
+
 export class Backend {
   private readonly API_KEY: string;
   private readonly httpConfig: HttpConfig;
@@ -162,17 +179,17 @@ export class Backend {
 
   async postCheckoutStart<
     T extends CheckoutStartResponse = CheckoutStartResponse,
-  >(
-    appUserId: string,
-    productId: string,
-    presentedOfferingContext: PresentedOfferingContext,
-    purchaseOption: PurchaseOption,
-    traceId: string,
-    email?: string,
-    metadata: PurchaseMetadata | undefined = undefined,
-    stepId?: string,
-    paywallId?: string,
-  ): Promise<T> {
+  >({
+    appUserId,
+    productId,
+    purchaseOption,
+    presentedOfferingContext,
+    traceId,
+    presentedStepId,
+    paywallId,
+    customerEmail,
+    metadata,
+  }: CheckoutStartRequestParams): Promise<T> {
     type CheckoutStartRequestBody = {
       app_user_id: string;
       product_id: string;
@@ -197,7 +214,7 @@ export class Backend {
     const requestBody: CheckoutStartRequestBody = {
       app_user_id: appUserId,
       product_id: productId,
-      email: email,
+      email: customerEmail,
       price_id: purchaseOption.priceId,
       presented_offering_identifier:
         presentedOfferingContext.offeringIdentifier,
@@ -229,8 +246,8 @@ export class Backend {
         this.purchasesContext.workflowContext.workflowIdentifier;
     }
 
-    if (stepId) {
-      requestBody.presented_step_id = stepId;
+    if (presentedStepId) {
+      requestBody.presented_step_id = presentedStepId;
     }
 
     if (paywallId) {

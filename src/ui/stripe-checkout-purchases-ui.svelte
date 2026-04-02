@@ -172,16 +172,17 @@
     }
 
     try {
-      const result = await purchaseOperationHelper.checkoutStart(
+      const result = await purchaseOperationHelper.checkoutStart({
         appUserId,
         productId,
         purchaseOption,
-        rcPackage.webBillingProduct.presentedOfferingContext,
-        email,
+        presentedOfferingContext:
+          rcPackage.webBillingProduct.presentedOfferingContext,
+        customerEmail: email,
         metadata,
         workflowPurchaseContext,
         paywallId,
-      );
+      });
 
       if (!result.stripe_billing_params) {
         handleError(

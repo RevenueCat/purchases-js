@@ -107,6 +107,22 @@ export class PurchaseFlowError extends Error {
   }
 }
 
+interface CheckoutStartParams {
+  // Purchase identity
+  appUserId: string;
+  productId: string;
+  purchaseOption: PurchaseOption;
+
+  // Presentation context
+  presentedOfferingContext: PresentedOfferingContext;
+  workflowPurchaseContext?: WorkflowPurchaseContext;
+  paywallId?: string;
+
+  // Customer data
+  customerEmail?: string;
+  metadata?: PurchaseMetadata;
+}
+
 export interface OperationSessionSuccessfulResult {
   redemptionInfo: RedemptionInfo | null;
   operationSessionId: string;
@@ -159,32 +175,32 @@ export class PurchaseOperationHelper {
     }
   }
 
-  async checkoutStart(
-    appUserId: string,
-    productId: string,
-    purchaseOption: PurchaseOption,
-    presentedOfferingContext: PresentedOfferingContext,
-    email?: string,
-    metadata?: PurchaseMetadata,
-    workflowPurchaseContext?: WorkflowPurchaseContext,
-    paywallId?: string,
-  ): Promise<WebBillingCheckoutStartResponse> {
+  async checkoutStart({
+    appUserId,
+    productId,
+    purchaseOption,
+    presentedOfferingContext,
+    workflowPurchaseContext,
+    paywallId,
+    customerEmail,
+    metadata,
+  }: CheckoutStartParams): Promise<WebBillingCheckoutStartResponse> {
     try {
       const traceId = this.eventsTracker.getTraceId();
-      const stepId = workflowPurchaseContext?.stepId;
+      const presentedStepId = workflowPurchaseContext?.stepId;
 
       const checkoutStartResponse =
-        await this.backend.postCheckoutStart<WebBillingCheckoutStartResponse>(
+        await this.backend.postCheckoutStart<WebBillingCheckoutStartResponse>({
           appUserId,
           productId,
-          presentedOfferingContext,
           purchaseOption,
+          presentedOfferingContext,
           traceId,
-          email,
-          metadata,
-          stepId,
+          presentedStepId,
           paywallId,
-        );
+          customerEmail,
+          metadata,
+        });
       this.operationSessionId = checkoutStartResponse.operation_session_id;
       return checkoutStartResponse;
     } catch (error) {
