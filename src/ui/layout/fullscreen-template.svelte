@@ -2,35 +2,33 @@
   import Container from "./container.svelte";
   import SandboxBanner from "../molecules/sandbox-banner.svelte";
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
-  import { type Snippet } from "svelte";
+  import { getContext, type Snippet } from "svelte";
   import { Theme } from "../theme/theme";
   import type { BrandingAppearance } from "../../entities/branding";
+  import type { Writable } from "svelte/store";
+  import { brandingContextKey } from "../constants";
 
   export interface Props {
     brandingInfo: BrandingInfoResponse | null;
-    brandingAppearance?: BrandingAppearance | null;
     isInElement: boolean;
     isSandbox: boolean;
     mainContent?: Snippet<[]>;
     hideHeader?: boolean;
   }
 
-  const {
-    brandingInfo,
-    brandingAppearance,
-    isInElement,
-    isSandbox,
-    mainContent,
-  }: Props = $props();
+  const { brandingInfo, isInElement, isSandbox, mainContent }: Props = $props();
 
+  const brandingAppearanceStore =
+    getContext<Writable<BrandingAppearance | null | undefined>>(
+      brandingContextKey,
+    );
   const derivedBrandingAppearance = $derived(
-    brandingAppearance ?? brandingInfo?.appearance ?? null,
+    $brandingAppearanceStore ?? undefined,
   );
 
   const colorVariables = $derived(
     new Theme(derivedBrandingAppearance).pageStyleVars,
   );
-
   const pageBackground = $derived(
     derivedBrandingAppearance?.color_page_bg ?? "#ffffff",
   );

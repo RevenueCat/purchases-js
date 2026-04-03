@@ -4,7 +4,7 @@
   import StripeCheckoutPage from "./pages/stripe-checkout-page.svelte";
   import FullscreenTemplate from "./layout/fullscreen-template.svelte";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
-  import type { Product } from "../main";
+  import type { BrandingAppearance, Product } from "../main";
   import { PurchaseFlowError } from "../helpers/purchase-operation-helper";
   import Typography from "./atoms/typography.svelte";
   import Spinner from "./atoms/spinner.svelte";
@@ -15,13 +15,17 @@
   import { type Writable } from "svelte/store";
   import ColLayout from "./layout/col-layout.svelte";
   import type { StripeBillingParams } from "../networking/responses/checkout-start-response";
-  import type { BrandingAppearance } from "../entities/branding";
   import { Theme } from "./theme/theme";
+  import { brandingContextKey } from "./constants";
 
   interface Props {
-    currentPage: "loading" | "stripe-checkout" | "success" | "error";
+    currentPage:
+      | "loading"
+      | "stripe-checkout"
+      | "success"
+      | "error"
+      | "purchasing";
     brandingInfo: BrandingInfoResponse | null;
-    brandingAppearance: BrandingAppearance | null;
     productDetails: Product;
     isSandbox: boolean;
     lastError: PurchaseFlowError | null;
@@ -35,7 +39,6 @@
   const {
     currentPage,
     brandingInfo,
-    brandingAppearance,
     productDetails,
     isSandbox,
     lastError,
@@ -46,21 +49,25 @@
     closeWithError,
   }: Props = $props();
 
-  const colorVariables = $derived(new Theme(brandingAppearance).pageStyleVars);
+  const brandingAppearanceStore =
+    getContext<Writable<BrandingAppearance | null | undefined>>(
+      brandingContextKey,
+    );
+  const derivedBrandingAppearance = $derived(
+    $brandingAppearanceStore ?? undefined,
+  );
 
+  const colorVariables = $derived(
+    new Theme(derivedBrandingAppearance).pageStyleVars,
+  );
   const productInfoBg = $derived(
-    brandingAppearance?.color_product_info_bg ?? "#ffffff",
+    derivedBrandingAppearance?.color_product_info_bg ?? "#ffffff",
   );
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
 </script>
 
-<FullscreenTemplate
-  {brandingInfo}
-  {brandingAppearance}
-  {isInElement}
-  {isSandbox}
->
+<FullscreenTemplate {brandingInfo} {isInElement} {isSandbox}>
   {#snippet mainContent()}
     {#if currentPage === "stripe-checkout"}
       {#if stripeBillingParams}
@@ -70,10 +77,12 @@
         >
           <StripeCheckoutPage {stripeBillingParams} {onContinue} {onError} />
         </div>
-      {:else}
-        <div class="rcb-ui-loading-container">
-          <ColLayout gap="medium" align="center">
-            <Spinner color="var(--rc-color-grey-text-dark)" />
+      {/if}
+    {:else if currentPage === "loading" || currentPage === "purchasing"}
+      <div class="rcb-ui-loading-container">
+        <ColLayout gap="medium" align="center">
+          <Spinner color="var(--rc-color-grey-text-dark)" />
+          {#if currentPage === "purchasing"}
             <Typography size="heading-md"
               >{$translator.translate(
                 LocalizationKeys.LoadingPageProcessingPayment,
@@ -85,24 +94,7 @@
                 LocalizationKeys.LoadingPageKeepPageOpen,
               )}</Typography
             >
-          </ColLayout>
-        </div>
-      {/if}
-    {:else if currentPage === "loading"}
-      <div class="rcb-ui-loading-container">
-        <ColLayout gap="medium" align="center">
-          <Spinner color="var(--rc-color-grey-text-dark)" />
-          <Typography size="heading-md"
-            >{$translator.translate(
-              LocalizationKeys.LoadingPageProcessingPayment,
-            )}</Typography
-          >
-
-          <Typography size="body-small"
-            >{$translator.translate(
-              LocalizationKeys.LoadingPageKeepPageOpen,
-            )}</Typography
-          >
+          {/if}
         </ColLayout>
       </div>
     {:else if currentPage === "success"}
