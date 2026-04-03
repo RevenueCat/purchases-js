@@ -100,7 +100,7 @@
 
   const handleContinue = () => {
     if (currentPage === "stripe-checkout") {
-      currentPage = "loading";
+      currentPage = "purchasing";
       purchaseOperationHelper
         .pollCurrentPurchaseForCompletion()
         .then((pollResult) => {

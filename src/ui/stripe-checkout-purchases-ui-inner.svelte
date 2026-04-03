@@ -16,6 +16,7 @@
   import ColLayout from "./layout/col-layout.svelte";
   import type { StripeBillingParams } from "../networking/responses/checkout-start-response";
   import type { BrandingAppearance } from "../entities/branding";
+  import { Theme } from "./theme/theme";
 
   interface Props {
     currentPage: "loading" | "stripe-checkout" | "success" | "error";
@@ -45,6 +46,12 @@
     closeWithError,
   }: Props = $props();
 
+  const colorVariables = $derived(new Theme(brandingAppearance).pageStyleVars);
+
+  const productInfoBg = $derived(
+    brandingAppearance?.color_product_info_bg ?? "#ffffff",
+  );
+
   const translator: Writable<Translator> = getContext(translatorContextKey);
 </script>
 
@@ -57,7 +64,10 @@
   {#snippet mainContent()}
     {#if currentPage === "stripe-checkout"}
       {#if stripeBillingParams}
-        <div class="stripe-checkout-wrapper">
+        <div
+          class="stripe-checkout-wrapper"
+          style="{colorVariables}; background-color: {productInfoBg}"
+        >
           <StripeCheckoutPage {stripeBillingParams} {onContinue} {onError} />
         </div>
       {:else}
@@ -74,8 +84,8 @@
               >{$translator.translate(
                 LocalizationKeys.LoadingPageKeepPageOpen,
               )}</Typography
-            ></ColLayout
-          >
+            >
+          </ColLayout>
         </div>
       {/if}
     {:else if currentPage === "loading"}
@@ -92,8 +102,8 @@
             >{$translator.translate(
               LocalizationKeys.LoadingPageKeepPageOpen,
             )}</Typography
-          ></ColLayout
-        >
+          >
+        </ColLayout>
       </div>
     {:else if currentPage === "success"}
       <SuccessPage {onContinue} fullWidth={true} />
@@ -119,9 +129,17 @@
 
   .stripe-checkout-wrapper {
     width: 100%;
-    height: 100%;
+    min-height: 100%;
     display: flex;
     flex-direction: column;
     overflow: hidden auto;
+  }
+
+  /* 991px is the breakpoint for the mobile layout in Stripe Checkout */
+  @media (min-width: 991px) {
+    .stripe-checkout-wrapper {
+      justify-content: center;
+      align-items: center;
+    }
   }
 </style>
