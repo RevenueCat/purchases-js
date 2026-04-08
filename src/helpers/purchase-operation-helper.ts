@@ -263,7 +263,10 @@ export class PurchaseOperationHelper {
     }
   }
 
-  async checkoutComplete(email?: string): Promise<CheckoutCompleteResponse> {
+  async checkoutComplete(
+    email?: string,
+    locale?: string,
+  ): Promise<CheckoutCompleteResponse> {
     const operationSessionId = this.operationSessionId;
     if (!operationSessionId) {
       throw new PurchaseFlowError(
@@ -273,7 +276,11 @@ export class PurchaseOperationHelper {
     }
 
     try {
-      return await this.backend.postCheckoutComplete(operationSessionId, email);
+      return await this.backend.postCheckoutComplete(
+        operationSessionId,
+        email,
+        locale,
+      );
     } catch (error) {
       if (error instanceof PurchasesError) {
         throw PurchaseFlowError.fromPurchasesError(

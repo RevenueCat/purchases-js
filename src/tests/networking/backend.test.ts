@@ -1039,6 +1039,36 @@ describe("postCheckoutComplete request", () => {
     expect(result).toEqual(checkoutCompleteResponse);
   });
 
+  test("includes locale in request when provided", async () => {
+    setCheckoutCompleteResponse(
+      HttpResponse.json(checkoutCompleteResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutComplete(
+      "someOperationSessionId",
+      undefined,
+      "es",
+    );
+
+    expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.locale).toBe("es");
+  });
+
+  test("omits locale from request when not provided", async () => {
+    setCheckoutCompleteResponse(
+      HttpResponse.json(checkoutCompleteResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutComplete("someOperationSessionId");
+
+    expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.locale).toBeUndefined();
+  });
+
   test("throws an error if the backend returns a server error", async () => {
     setCheckoutCompleteResponse(
       HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),

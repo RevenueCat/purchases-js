@@ -307,14 +307,20 @@ export class Backend {
   async postCheckoutComplete(
     operationSessionId: string,
     email?: string,
+    locale?: string,
   ): Promise<CheckoutCompleteResponse> {
     type CheckoutCompleteRequestBody = {
       email?: string;
+      locale?: string;
     };
 
     const requestBody: CheckoutCompleteRequestBody = {
       email: email,
     };
+
+    if (locale) {
+      requestBody.locale = locale;
+    }
 
     return await performRequest<
       CheckoutCompleteRequestBody,

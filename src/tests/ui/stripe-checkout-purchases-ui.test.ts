@@ -241,6 +241,27 @@ describe("StripeCheckoutPurchasesUi", () => {
     });
   });
 
+  test("passes selectedLocale as locale to checkoutStart", async () => {
+    const checkoutStartSpy = vi
+      .spyOn(purchaseOperationHelperMock, "checkoutStart")
+      .mockResolvedValue(checkoutStartResponseWithoutStripeParams);
+
+    render(StripeCheckoutPurchasesUi, {
+      props: {
+        ...baseProps,
+        selectedLocale: "es",
+      },
+    });
+
+    await waitFor(() => {
+      expect(checkoutStartSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          locale: "es",
+        }),
+      );
+    });
+  });
+
   test("shows sandbox banner when stripe billing environment is sandbox", async () => {
     vi.spyOn(purchaseOperationHelperMock, "checkoutStart").mockResolvedValue(
       createCheckoutStartResponseWithStripeParams("sandbox"),
