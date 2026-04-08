@@ -4,10 +4,10 @@
   import ModalSection from "./modal-section.svelte";
   import MessageLayoutError from "./message-layout-error.svelte";
   import MessageLayoutSuccess from "./message-layout-success.svelte";
+  import type { Snippet } from "svelte";
   import { getContext } from "svelte";
   import { brandingContextKey } from "../constants";
   import type { BrandingAppearance } from "../../entities/branding";
-  import type { Snippet } from "svelte";
   import type { Writable } from "svelte/store";
 
   let {
@@ -69,6 +69,13 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    padding-left: var(--rc-spacing-outerPadding-mobile);
+    padding-right: var(--rc-spacing-outerPadding-mobile);
+  }
+
+  .message-layout-footer {
+    padding-left: var(--rc-spacing-outerPadding-mobile);
+    padding-right: var(--rc-spacing-outerPadding-mobile);
   }
 
   @container layout-query-container (width < 768px) {
@@ -83,6 +90,7 @@
       min-height: 354px;
       gap: var(--rc-spacing-gapXXLarge-desktop);
     }
+
     .message-layout-content {
       justify-content: flex-start;
       flex-grow: 1;
