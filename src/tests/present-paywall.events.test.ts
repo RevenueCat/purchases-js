@@ -4,6 +4,9 @@ import { configurePurchases } from "./base.purchases_test";
 import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
 import { ErrorCode, PurchasesError } from "../main";
 import type { Offering } from "../entities/offerings";
+import type { CompleteWorkflowNavigateArgs } from "../entities/present-paywall-params";
+import * as browserGlobals from "../helpers/browser-globals";
+import { Logger } from "../helpers/logger";
 
 vi.mock("svelte", () => ({
   mount: vi.fn(),
@@ -13,6 +16,9 @@ vi.mock("svelte", () => ({
 type PaywallMountProps = {
   onPurchaseClicked: (selectedPackageId: string) => void;
   onBackClicked: () => void;
+  onCompleteWorkflowNavigate: (
+    args: CompleteWorkflowNavigateArgs,
+  ) => void | Promise<void>;
 };
 
 const createOfferingWithPaywall = (): Offering => {
@@ -193,5 +199,125 @@ describe("Purchases.presentPaywall() paywall events", () => {
         ["paywall_impression", "paywall_close", "paywall_cancel"],
       );
     });
+  });
+});
+
+describe("Purchases.presentPaywall() complete workflow navigation", () => {
+  let paywallProps: PaywallMountProps | undefined;
+  let assignMock: ReturnType<typeof vi.fn>;
+  let openMock: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    paywallProps = undefined;
+    assignMock = vi.fn();
+    openMock = vi.fn().mockReturnValue({ focus: vi.fn() });
+    vi.spyOn(browserGlobals, "getWindow").mockReturnValue({
+      open: openMock,
+      location: { assign: assignMock },
+      matchMedia: vi.fn().mockReturnValue({ matches: false }),
+    } as unknown as Window);
+
+    vi.mocked(mount).mockImplementation((_component, options) => {
+      paywallProps = options.props as PaywallMountProps;
+      (options.target as Element).innerHTML =
+        "<div data-testid='paywall-root'></div>";
+      return {} as ReturnType<typeof mount>;
+    });
+  });
+
+  afterEach(() => {
+    vi.mocked(browserGlobals.getWindow).mockRestore();
+    vi.clearAllMocks();
+    document.body.innerHTML = "";
+  });
+
+  test("default external_browser opens a new tab for https URLs", async () => {
+    const purchases = configurePurchases();
+    const offering = createOfferingWithPaywall();
+
+    void purchases.presentPaywall({ offering });
+
+    expect(paywallProps).toBeDefined();
+    await paywallProps!.onCompleteWorkflowNavigate({
+      url: "https://example.com/exit",
+      method: "external_browser",
+    });
+
+    expect(openMock).toHaveBeenCalledWith(
+      "https://example.com/exit",
+      "_blank",
+      "noopener,noreferrer",
+    );
+    expect(assignMock).not.toHaveBeenCalled();
+  });
+
+  test("default in_app_browser navigates in the same tab", async () => {
+    const purchases = configurePurchases();
+    const offering = createOfferingWithPaywall();
+
+    void purchases.presentPaywall({ offering });
+
+    await paywallProps!.onCompleteWorkflowNavigate({
+      url: "https://example.com/in-app",
+      method: "in_app_browser",
+    });
+
+    expect(assignMock).toHaveBeenCalledWith("https://example.com/in-app");
+    expect(openMock).not.toHaveBeenCalled();
+  });
+
+  test("default deep_link allows non-http(s) schemes", async () => {
+    const purchases = configurePurchases();
+    const offering = createOfferingWithPaywall();
+
+    void purchases.presentPaywall({ offering });
+
+    await paywallProps!.onCompleteWorkflowNavigate({
+      url: "myapp://complete",
+      method: "deep_link",
+    });
+
+    expect(assignMock).toHaveBeenCalledWith("myapp://complete");
+    expect(openMock).not.toHaveBeenCalled();
+  });
+
+  test("custom onCompleteWorkflowNavigate runs instead of default navigation", async () => {
+    const custom = vi.fn().mockResolvedValue(undefined);
+    const purchases = configurePurchases();
+    const offering = createOfferingWithPaywall();
+
+    void purchases.presentPaywall({
+      offering,
+      onCompleteWorkflowNavigate: custom,
+    });
+
+    await paywallProps!.onCompleteWorkflowNavigate({
+      url: "https://example.com",
+      method: "external_browser",
+    });
+
+    expect(custom).toHaveBeenCalledWith({
+      url: "https://example.com",
+      method: "external_browser",
+    });
+    expect(openMock).not.toHaveBeenCalled();
+    expect(assignMock).not.toHaveBeenCalled();
+  });
+
+  test("default navigation blocks disallowed URLs", async () => {
+    const purchases = configurePurchases();
+    const offering = createOfferingWithPaywall();
+    const warnSpy = vi.spyOn(Logger, "warnLog").mockImplementation(() => {});
+
+    void purchases.presentPaywall({ offering });
+
+    await paywallProps!.onCompleteWorkflowNavigate({
+      url: "javascript:void(0)",
+      method: "in_app_browser",
+    });
+
+    expect(warnSpy).toHaveBeenCalled();
+    expect(openMock).not.toHaveBeenCalled();
+    expect(assignMock).not.toHaveBeenCalled();
   });
 });
