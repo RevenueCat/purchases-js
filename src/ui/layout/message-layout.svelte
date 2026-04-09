@@ -40,7 +40,10 @@
 </script>
 
 <div class="message-layout" class:message-layout-full-width={fullWidth}>
-  <div class="message-layout-content">
+  <div
+    class="message-layout-content"
+    class:message-layout-content-full-width={fullWidth}
+  >
     <ModalSection>
       {#if type === "success"}
         <MessageLayoutSuccess {title} {icon} />
@@ -49,7 +52,10 @@
       {/if}
     </ModalSection>
   </div>
-  <div class="message-layout-footer">
+  <div
+    class="message-layout-footer"
+    class:message-layout-footer-full-width={fullWidth}
+  >
     <ModalFooter>
       <Button onclick={handleClick} type="submit" {brandingAppearance}
         >{closeButtonTitle}</Button
@@ -69,11 +75,14 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+  }
+
+  .message-layout-content-full-width {
     padding-left: var(--rc-spacing-outerPadding-mobile);
     padding-right: var(--rc-spacing-outerPadding-mobile);
   }
 
-  .message-layout-footer {
+  .message-layout-footer-full-width {
     padding-left: var(--rc-spacing-outerPadding-mobile);
     padding-right: var(--rc-spacing-outerPadding-mobile);
   }
