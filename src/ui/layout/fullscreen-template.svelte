@@ -23,7 +23,7 @@
       brandingContextKey,
     );
   const derivedBrandingAppearance = $derived(
-    $brandingAppearanceStore ?? undefined,
+    $brandingAppearanceStore ?? brandingInfo?.appearance ?? null,
   );
 
   const colorVariables = $derived(
