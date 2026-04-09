@@ -16,11 +16,7 @@ export function isPaddleApiKey(apiKey: string): boolean {
 }
 
 export function isStripeApiKey(apiKey: string): boolean {
-  const isStripeApiKey = apiKey ? stripe_api_key_regex.test(apiKey) : false;
-  const isSandboxStripeApiKey = apiKey ? apiKey.startsWith("strp_sb_") : false;
-  // Supporting only sandbox api keys for now, we'll add support for live api keys
-  // when we make the feature generally available
-  return isStripeApiKey && isSandboxStripeApiKey;
+  return apiKey ? stripe_api_key_regex.test(apiKey) : false;
 }
 
 export function isSimulatedStoreApiKey(apiKey: string): boolean {

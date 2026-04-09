@@ -74,33 +74,22 @@
   setContext(translatorContextKey, translatorStore);
   setContext(eventsTrackerContextKey, eventsTracker);
 
+  const brandingAppearanceStore = writable<BrandingAppearance | null>(
+    brandingInfo?.appearance ?? null,
+  );
+  setContext(brandingContextKey, brandingAppearanceStore);
+
   let isSandbox = $state(false);
   let operationResult = $state<OperationSessionSuccessfulResult | null>(null);
   let error = $state<PurchaseFlowError | null>(null);
-  let currentPage = $state<"loading" | "stripe-checkout" | "success" | "error">(
-    "loading",
-  );
+  let currentPage = $state<
+    "loading" | "stripe-checkout" | "success" | "error" | "purchasing"
+  >("loading");
   let stripeBillingParams = $state<StripeBillingParams | null>(null);
-
-  // Update branding store when stripeBillingParams are returned
-  const mergedBrandingAppearance = $derived(
-    (stripeBillingParams?.appearance ?? null) as BrandingAppearance | null,
-  );
-  const brandingAppearanceStore = writable<BrandingAppearance | null>(null);
-  setContext(brandingContextKey, brandingAppearanceStore);
-  $effect(() => {
-    brandingAppearanceStore.set(mergedBrandingAppearance);
-  });
-
-  $effect(() => {
-    if (currentPage === "success" && operationResult && skipSuccessPage) {
-      onFinished(operationResult);
-    }
-  });
 
   const handleContinue = () => {
     if (currentPage === "stripe-checkout") {
-      currentPage = "loading";
+      currentPage = "purchasing";
       purchaseOperationHelper
         .pollCurrentPurchaseForCompletion()
         .then((pollResult) => {
@@ -227,7 +216,6 @@
 <StripeCheckoutPurchasesUiInner
   {currentPage}
   {brandingInfo}
-  brandingAppearance={mergedBrandingAppearance}
   {productDetails}
   {isSandbox}
   lastError={error}
