@@ -819,6 +819,53 @@ describe("postCheckoutStart request", () => {
     expect(requestBody.paywall).toBeUndefined();
   });
 
+  test("includes locale in request when provided", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutStart({
+      appUserId: "someAppUserId",
+      productId: "monthly",
+      presentedOfferingContext: {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      purchaseOption: { id: "base_option", priceId: "test_price_id" },
+      traceId: "test-trace-id",
+      locale: "es",
+    });
+
+    expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.locale).toBe("es");
+  });
+
+  test("omits locale from request when not provided", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutStart({
+      appUserId: "someAppUserId",
+      productId: "monthly",
+      presentedOfferingContext: {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      purchaseOption: { id: "base_option", priceId: "test_price_id" },
+      traceId: "test-trace-id",
+    });
+
+    expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.locale).toBeUndefined();
+  });
+
   test("throws an error if the backend returns a server error", async () => {
     setCheckoutStartResponse(
       HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
@@ -990,6 +1037,36 @@ describe("postCheckoutComplete request", () => {
     });
 
     expect(result).toEqual(checkoutCompleteResponse);
+  });
+
+  test("includes locale in request when provided", async () => {
+    setCheckoutCompleteResponse(
+      HttpResponse.json(checkoutCompleteResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutComplete(
+      "someOperationSessionId",
+      undefined,
+      "es",
+    );
+
+    expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.locale).toBe("es");
+  });
+
+  test("omits locale from request when not provided", async () => {
+    setCheckoutCompleteResponse(
+      HttpResponse.json(checkoutCompleteResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutComplete("someOperationSessionId");
+
+    expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.locale).toBeUndefined();
   });
 
   test("throws an error if the backend returns a server error", async () => {

@@ -116,6 +116,7 @@ describe("PaddlePurchasesUI", () => {
         purchaseOption: subscriptionOption,
         customerEmail: undefined,
         metadata: undefined,
+        locale: "en",
       });
     });
 

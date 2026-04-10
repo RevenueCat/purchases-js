@@ -196,8 +196,10 @@
 
     await StripeService.submitElements(elements);
 
-    const completeResponse =
-      await purchaseOperationHelper.checkoutComplete(email);
+    const completeResponse = await purchaseOperationHelper.checkoutComplete(
+      email,
+      translator.selectedLocale,
+    );
     const newClientSecret = completeResponse?.gateway_params?.client_secret;
 
     if (!newClientSecret) {
@@ -290,6 +292,7 @@
           rcPackage.webBillingProduct.presentedOfferingContext,
         customerEmail,
         metadata,
+        locale: translator.selectedLocale,
       });
 
       const managementUrl = checkoutStartResult.management_url;

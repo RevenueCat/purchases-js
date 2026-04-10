@@ -121,6 +121,9 @@ interface CheckoutStartParams {
   // Customer data
   customerEmail?: string;
   metadata?: PurchaseMetadata;
+  // Resolved from selectedLocale/defaultLocale at the public API layer.
+  // Future: consider adding localeSource?: "selected" | "browser".
+  locale?: string;
 }
 
 export interface OperationSessionSuccessfulResult {
@@ -184,6 +187,7 @@ export class PurchaseOperationHelper {
     paywallId,
     customerEmail,
     metadata,
+    locale,
   }: CheckoutStartParams): Promise<WebBillingCheckoutStartResponse> {
     try {
       const traceId = this.eventsTracker.getTraceId();
@@ -200,6 +204,7 @@ export class PurchaseOperationHelper {
           paywallId,
           customerEmail,
           metadata,
+          locale,
         });
       this.operationSessionId = checkoutStartResponse.operation_session_id;
       return checkoutStartResponse;
@@ -258,7 +263,10 @@ export class PurchaseOperationHelper {
     }
   }
 
-  async checkoutComplete(email?: string): Promise<CheckoutCompleteResponse> {
+  async checkoutComplete(
+    email?: string,
+    locale?: string,
+  ): Promise<CheckoutCompleteResponse> {
     const operationSessionId = this.operationSessionId;
     if (!operationSessionId) {
       throw new PurchaseFlowError(
@@ -268,7 +276,11 @@ export class PurchaseOperationHelper {
     }
 
     try {
-      return await this.backend.postCheckoutComplete(operationSessionId, email);
+      return await this.backend.postCheckoutComplete(
+        operationSessionId,
+        email,
+        locale,
+      );
     } catch (error) {
       if (error instanceof PurchasesError) {
         throw PurchaseFlowError.fromPurchasesError(

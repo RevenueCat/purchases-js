@@ -317,6 +317,23 @@ describe("PaddleService", () => {
         paddleService.startCheckout(startCheckoutArgs),
       ).rejects.toThrow(expectedError);
     });
+
+    test("passes locale to backend when provided", async () => {
+      vi.mocked(initPaddle).mockResolvedValue(mockPaddleInstance);
+
+      const mockPostCheckoutStart = vi
+        .spyOn(backend, "postCheckoutStart")
+        .mockResolvedValue(paddleCheckoutStartResponse);
+
+      await paddleService.startCheckout({
+        ...startCheckoutArgs,
+        locale: "es",
+      });
+
+      expect(mockPostCheckoutStart).toHaveBeenCalledWith(
+        expect.objectContaining({ locale: "es" }),
+      );
+    });
   });
 
   describe("purchase", () => {
