@@ -171,6 +171,7 @@
         metadata,
         workflowPurchaseContext,
         paywallId,
+        locale: selectedLocale,
       });
 
       if (!result.stripe_billing_params) {
