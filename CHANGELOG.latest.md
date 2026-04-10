@@ -1,10 +1,12 @@
 ## RevenueCat SDK
 ### ✨ New Features
-* Refactor wallet button renderer (#810) via Marek Dabek (@marek-dabek)
-### 🐞 Bugfixes
-* Add font-family to simulated store modal (#809) via Perttu (@plahteenlahti)
-* Fix price-per-period rounding to floor instead of round-half-up (#807) via Dan Pannasch (@dpannasch)
+* WEB-3903: Stripe Checkout branding support (#828) via Nicola Sacco (@nicfix)
+
+## RevenueCatUI SDK
+### ✨ New Features
+* PW-1201 | Bump `purchases-ui-js` package to enable promo text overrides for discounts (#832) via Rosie Watson (@RosieWatson)
 
 ### 🔄 Other Changes
-* Require PR approval before release tagging (#811) via Antonio Pallares (@ajpallares)
-* PW-1121 | Add paywall events (impression, close, cancel) (#806) via Drago Crnjac (@popcorn)
+* Refactor checkoutStart/postCheckoutStart to use params objects (#825) via Volodymyr Kartavyi (@vkartaviy)
+* Fix package.json to reflect correct version (#824) via Toni Rico (@tonidero)
+* Merge release PR after deploy (#812) via Antonio Pallares (@ajpallares)
