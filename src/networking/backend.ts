@@ -49,6 +49,8 @@ interface CheckoutStartRequestParams {
   // Customer data
   customerEmail?: string;
   metadata?: PurchaseMetadata;
+  // Locale for lifecycle emails.
+  locale?: string;
 }
 
 export class Backend {
@@ -189,6 +191,7 @@ export class Backend {
     paywallId,
     customerEmail,
     metadata,
+    locale,
   }: CheckoutStartRequestParams): Promise<T> {
     type CheckoutStartRequestBody = {
       app_user_id: string;
@@ -206,6 +209,7 @@ export class Backend {
       email?: string;
       metadata?: PurchaseMetadata;
       trace_id: string;
+      locale?: string;
       paywall?: {
         paywall_id: string;
       };
@@ -256,6 +260,10 @@ export class Backend {
       };
     }
 
+    if (locale) {
+      requestBody.locale = locale;
+    }
+
     return (await performRequest<CheckoutStartRequestBody, T>(
       new CheckoutStartEndpoint(),
       {
@@ -299,14 +307,20 @@ export class Backend {
   async postCheckoutComplete(
     operationSessionId: string,
     email?: string,
+    locale?: string,
   ): Promise<CheckoutCompleteResponse> {
     type CheckoutCompleteRequestBody = {
       email?: string;
+      locale?: string;
     };
 
     const requestBody: CheckoutCompleteRequestBody = {
       email: email,
     };
+
+    if (locale) {
+      requestBody.locale = locale;
+    }
 
     return await performRequest<
       CheckoutCompleteRequestBody,

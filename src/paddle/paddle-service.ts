@@ -56,6 +56,7 @@ interface PaddleStartCheckoutParams {
   purchaseOption: PurchaseOption;
   customerEmail?: string;
   metadata?: PurchaseMetadata;
+  locale?: string;
 }
 
 export class PaddleService {
@@ -127,6 +128,7 @@ export class PaddleService {
     purchaseOption,
     customerEmail,
     metadata,
+    locale,
   }: PaddleStartCheckoutParams): Promise<PaddleCheckoutStartResponse> {
     try {
       const traceId = this.eventsTracker.getTraceId();
@@ -139,6 +141,7 @@ export class PaddleService {
           traceId,
           customerEmail: customerEmail ?? undefined,
           metadata,
+          locale,
         });
 
       await this.initializePaddle(

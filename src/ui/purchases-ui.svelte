@@ -168,6 +168,7 @@
         metadata,
         workflowPurchaseContext,
         paywallId,
+        locale: selectedLocale,
       })
       .then((result) => {
         lastError = null;

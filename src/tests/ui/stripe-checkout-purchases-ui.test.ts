@@ -113,6 +113,7 @@ describe("StripeCheckoutPurchasesUi", () => {
         customerEmail: "test@example.com",
         metadata: { utm_term: "something" },
         workflowPurchaseContext: { stepId: "test-step-123" },
+        locale: "en",
       });
     });
   });
@@ -137,6 +138,7 @@ describe("StripeCheckoutPurchasesUi", () => {
           rcPackage.webBillingProduct.presentedOfferingContext,
         customerEmail: "test@example.com",
         metadata: { utm_term: "something" },
+        locale: "en",
       });
     });
   });
@@ -162,6 +164,7 @@ describe("StripeCheckoutPurchasesUi", () => {
           rcPackage.webBillingProduct.presentedOfferingContext,
         customerEmail: undefined,
         metadata: { utm_term: "something" },
+        locale: "en",
       });
     });
   });
@@ -208,6 +211,7 @@ describe("StripeCheckoutPurchasesUi", () => {
         customerEmail: "test@example.com",
         metadata: { utm_term: "something" },
         paywallId: "paywall-abc-123",
+        locale: "en",
       });
     });
   });
@@ -232,7 +236,29 @@ describe("StripeCheckoutPurchasesUi", () => {
           rcPackage.webBillingProduct.presentedOfferingContext,
         customerEmail: "test@example.com",
         metadata: { utm_term: "something" },
+        locale: "en",
       });
+    });
+  });
+
+  test("passes selectedLocale as locale to checkoutStart", async () => {
+    const checkoutStartSpy = vi
+      .spyOn(purchaseOperationHelperMock, "checkoutStart")
+      .mockResolvedValue(checkoutStartResponseWithoutStripeParams);
+
+    render(StripeCheckoutPurchasesUi, {
+      props: {
+        ...baseProps,
+        selectedLocale: "es",
+      },
+    });
+
+    await waitFor(() => {
+      expect(checkoutStartSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          locale: "es",
+        }),
+      );
     });
   });
 

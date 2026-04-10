@@ -245,6 +245,28 @@ describe("PurchaseOperationHelper", () => {
     });
   });
 
+  test("checkoutStart passes locale to backend when provided", async () => {
+    const mockPostCheckoutStart = vi
+      .spyOn(backend, "postCheckoutStart")
+      .mockResolvedValue(checkoutStartResponse);
+
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      locale: "es",
+    });
+
+    expect(mockPostCheckoutStart).toHaveBeenCalledWith(
+      expect.objectContaining({ locale: "es" }),
+    );
+  });
+
   test("prepareCheckout returns the backend response", async () => {
     setCheckoutPrepareResponse(
       HttpResponse.json(checkoutPrepareResponse, {
