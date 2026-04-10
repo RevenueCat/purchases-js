@@ -93,7 +93,10 @@ import {
   type PurchasesContext,
 } from "./entities/purchases-config";
 import { generateUUID } from "./helpers/uuid-helper";
-import { type PaywallEventType } from "./behavioural-events/paywall-event";
+import {
+  type ComponentInteractionData,
+  type PaywallEventType,
+} from "./behavioural-events/paywall-event";
 import type { PlatformInfo } from "./entities/platform-info";
 import type { ReservedCustomerAttribute } from "./entities/attributes";
 import { purchaseSimulatedStoreProduct } from "./helpers/simulated-store-purchase-helper";
@@ -585,8 +588,27 @@ export class Purchases {
     );
 
     const paywallSessionId = generateUUID();
+    const paywallDisplayData = {
+      displayMode: "full_screen",
+      darkMode:
+        getWindow()?.matchMedia?.("(prefers-color-scheme: dark)").matches ??
+        false,
+      locale: finalLocale,
+    };
 
-    const trackPaywallEvent = (type: PaywallEventType) => {
+    const getProductIdentifierForPackageId = (packageId?: string) => {
+      if (packageId === undefined) {
+        return undefined;
+      }
+
+      return offering.availablePackages.find(
+        (pkg) => pkg.identifier === packageId,
+      )?.webBillingProduct.identifier;
+    };
+
+    const trackPaywallEvent = (
+      type: Exclude<PaywallEventType, "paywall_component_interacted">,
+    ) => {
       this.eventsTracker.trackPaywallEvent({
         type,
         appUserId: this._appUserId,
@@ -596,11 +618,7 @@ export class Purchases {
         paywallRcPublicId: offering.paywallComponents?.id ?? null,
         ...(type === "paywall_impression"
           ? {
-              displayMode: "full_screen",
-              darkMode:
-                getWindow()?.matchMedia?.("(prefers-color-scheme: dark)")
-                  .matches ?? false,
-              locale: finalLocale,
+              ...paywallDisplayData,
             }
           : {}),
       });
@@ -662,14 +680,47 @@ export class Purchases {
 
     return new Promise((resolve, reject) => {
       let component: ReturnType<typeof mount> | null = null;
+      let paywallImpressionTracked = false;
       let paywallCloseTracked = false;
 
       const trackPaywallCloseIfNeeded = () => {
         if (paywallCloseTracked) {
           return;
         }
-        trackPaywallEvent("paywall_close");
         paywallCloseTracked = true;
+        trackPaywallEvent("paywall_close");
+      };
+
+      const trackComponentInteraction = (data: ComponentInteractionData) => {
+        if (!paywallImpressionTracked || paywallCloseTracked) {
+          return;
+        }
+
+        this.eventsTracker.trackPaywallEvent({
+          type: "paywall_component_interacted",
+          appUserId: this._appUserId,
+          sessionId: paywallSessionId,
+          offeringId: offering.identifier,
+          paywallRevision: 0,
+          paywallRcPublicId: offering.paywallComponents?.id ?? null,
+          ...paywallDisplayData,
+          ...data,
+          originProductIdentifier:
+            data.originProductIdentifier ??
+            getProductIdentifierForPackageId(data.originPackageIdentifier),
+          destinationProductIdentifier:
+            data.destinationProductIdentifier ??
+            getProductIdentifierForPackageId(data.destinationPackageIdentifier),
+          defaultProductIdentifier:
+            data.defaultProductIdentifier ??
+            getProductIdentifierForPackageId(data.defaultPackageIdentifier),
+          currentProductIdentifier:
+            data.currentProductIdentifier ??
+            getProductIdentifierForPackageId(data.currentPackageIdentifier),
+          resultingProductIdentifier:
+            data.resultingProductIdentifier ??
+            getProductIdentifierForPackageId(data.resultingPackageIdentifier),
+        });
       };
 
       const containerObserver = new MutationObserver(() => {
@@ -766,11 +817,15 @@ export class Purchases {
           hideBackButtons: paywallParams.hideBackButtons,
           walletButtonRender,
           customVariables: paywallParams.customVariables,
+          onComponentInteraction: (data: ComponentInteractionData) => {
+            trackComponentInteraction(data);
+          },
         },
       });
 
       containerObserver.observe(certainHTMLTarget, { childList: true });
       trackPaywallEvent("paywall_impression");
+      paywallImpressionTracked = true;
 
       if (certainHTMLTarget.style.opacity === "0") {
         certainHTMLTarget.style.opacity = "1";

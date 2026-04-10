@@ -91,4 +91,51 @@ describe("PaywallEvent", () => {
 
     expect(event.toJSON().paywall_rc_public_id).toBeNull();
   });
+
+  it("serializes component interaction events with interaction payload", () => {
+    const event = new PaywallEvent({
+      type: "paywall_component_interacted",
+      appUserId: "user-123",
+      sessionId: "session-456",
+      offeringId: "offering-789",
+      paywallRevision: 0,
+      paywallRcPublicId: "pw-public-id",
+      displayMode: "full_screen",
+      darkMode: true,
+      locale: "es_ES",
+      componentType: "package",
+      componentName: "Annual Package",
+      componentValue: "$rc_annual",
+      originPackageIdentifier: "$rc_monthly",
+      destinationPackageIdentifier: "$rc_annual",
+      defaultPackageIdentifier: "$rc_monthly",
+      originProductIdentifier: "monthly_product",
+      destinationProductIdentifier: "annual_product",
+      defaultProductIdentifier: "monthly_product",
+    });
+
+    expect(event.toJSON()).toEqual({
+      type: "paywall_component_interacted",
+      version: 1,
+      id: "test-uuid-1234",
+      app_user_id: "user-123",
+      session_id: "session-456",
+      offering_id: "offering-789",
+      paywall_revision: 0,
+      timestamp: expect.any(Number),
+      paywall_rc_public_id: "pw-public-id",
+      display_mode: "full_screen",
+      dark_mode: true,
+      locale: "es_ES",
+      component_type: "package",
+      component_name: "Annual Package",
+      component_value: "$rc_annual",
+      origin_package_id: "$rc_monthly",
+      destination_package_id: "$rc_annual",
+      default_package_id: "$rc_monthly",
+      origin_product_id: "monthly_product",
+      destination_product_id: "annual_product",
+      default_product_id: "monthly_product",
+    });
+  });
 });

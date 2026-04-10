@@ -3,7 +3,8 @@ import { mount } from "svelte";
 import { configurePurchases } from "./base.purchases_test";
 import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
 import { ErrorCode, PurchasesError } from "../main";
-import type { Offering } from "../entities/offerings";
+import type { Offering, Package } from "../entities/offerings";
+import type { ComponentInteractionData } from "../behavioural-events/paywall-event";
 
 vi.mock("svelte", () => ({
   mount: vi.fn(),
@@ -13,20 +14,28 @@ vi.mock("svelte", () => ({
 type PaywallMountProps = {
   onPurchaseClicked: (selectedPackageId: string) => void;
   onBackClicked: () => void;
+  onComponentInteraction: (data: ComponentInteractionData) => void;
 };
 
-const createOfferingWithPaywall = (): Offering => {
-  const monthlyPackage = createMonthlyPackageMock();
+const createOfferingWithPaywall = (
+  availablePackages: Package[] = [createMonthlyPackageMock()],
+): Offering => {
+  const monthlyPackage =
+    availablePackages.find((pkg) => pkg.identifier === "$rc_monthly") ??
+    availablePackages[0]!;
+  const annualPackage =
+    availablePackages.find((pkg) => pkg.identifier === "$rc_annual") ?? null;
+
   return {
     identifier: "paywall-offering-id",
     serverDescription: "paywall offering",
     metadata: null,
-    packagesById: {
-      [monthlyPackage.identifier]: monthlyPackage,
-    },
-    availablePackages: [monthlyPackage],
+    packagesById: Object.fromEntries(
+      availablePackages.map((pkg) => [pkg.identifier, pkg]),
+    ),
+    availablePackages,
     lifetime: null,
-    annual: null,
+    annual: annualPackage,
     sixMonth: null,
     threeMonth: null,
     twoMonth: null,
@@ -40,6 +49,22 @@ const createOfferingWithPaywall = (): Offering => {
       },
     } as unknown as Offering["paywallComponents"],
     uiConfig: {} as Offering["uiConfig"],
+  };
+};
+
+const createAnnualPackageMock = (): Package => {
+  const monthlyPackage = createMonthlyPackageMock();
+  return {
+    ...monthlyPackage,
+    identifier: "$rc_annual",
+    rcBillingProduct: {
+      ...monthlyPackage.rcBillingProduct,
+      identifier: "annual",
+    },
+    webBillingProduct: {
+      ...monthlyPackage.webBillingProduct,
+      identifier: "annual",
+    },
   };
 };
 
@@ -193,5 +218,152 @@ describe("Purchases.presentPaywall() paywall events", () => {
         ["paywall_impression", "paywall_close", "paywall_cancel"],
       );
     });
+  });
+
+  test("fires paywall_component_interacted when ui-js reports a button interaction", async () => {
+    const purchases = configurePurchases();
+    const offering = createOfferingWithPaywall();
+    const trackPaywallEventSpy = vi.spyOn(
+      purchases["eventsTracker"],
+      "trackPaywallEvent",
+    );
+
+    const paywallPromise = purchases.presentPaywall({ offering });
+    void paywallPromise.catch(() => undefined);
+
+    expect(paywallProps).toBeDefined();
+    paywallProps!.onComponentInteraction({
+      componentType: "button",
+      componentName: "Terms Button",
+      componentValue: "navigate_to_terms",
+      componentURL: "https://example.com/terms",
+    });
+
+    await vi.waitFor(() => {
+      expect(trackPaywallEventSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "paywall_component_interacted",
+          componentType: "button",
+          componentName: "Terms Button",
+          componentValue: "navigate_to_terms",
+          componentURL: "https://example.com/terms",
+        }),
+      );
+    });
+
+    paywallProps!.onBackClicked();
+    await expect(paywallPromise).rejects.toHaveProperty(
+      "errorCode",
+      ErrorCode.UserCancelledError,
+    );
+  });
+
+  test("enriches package interactions with product identifiers", async () => {
+    const purchases = configurePurchases();
+    const monthlyPackage = createMonthlyPackageMock();
+    const annualPackage = createAnnualPackageMock();
+    const offering = createOfferingWithPaywall([monthlyPackage, annualPackage]);
+    const trackPaywallEventSpy = vi.spyOn(
+      purchases["eventsTracker"],
+      "trackPaywallEvent",
+    );
+
+    const paywallPromise = purchases.presentPaywall({ offering });
+    void paywallPromise.catch(() => undefined);
+
+    expect(paywallProps).toBeDefined();
+    paywallProps!.onComponentInteraction({
+      componentType: "package",
+      componentName: "Annual Package",
+      componentValue: annualPackage.identifier,
+      originPackageIdentifier: monthlyPackage.identifier,
+      destinationPackageIdentifier: annualPackage.identifier,
+      defaultPackageIdentifier: monthlyPackage.identifier,
+    });
+
+    await vi.waitFor(() => {
+      expect(trackPaywallEventSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "paywall_component_interacted",
+          componentType: "package",
+          originPackageIdentifier: monthlyPackage.identifier,
+          destinationPackageIdentifier: annualPackage.identifier,
+          defaultPackageIdentifier: monthlyPackage.identifier,
+          originProductIdentifier: "monthly",
+          destinationProductIdentifier: "annual",
+          defaultProductIdentifier: "monthly",
+        }),
+      );
+    });
+
+    paywallProps!.onBackClicked();
+    await expect(paywallPromise).rejects.toHaveProperty(
+      "errorCode",
+      ErrorCode.UserCancelledError,
+    );
+  });
+
+  test("does not fire paywall_component_interacted before impression is tracked", async () => {
+    vi.mocked(mount).mockImplementationOnce((_component, options) => {
+      paywallProps = options.props as PaywallMountProps;
+      paywallProps.onComponentInteraction({
+        componentType: "button",
+        componentName: "Terms Button",
+        componentValue: "navigate_to_terms",
+      });
+      (options.target as Element).innerHTML =
+        "<div data-testid='paywall-root'></div>";
+      return {} as ReturnType<typeof mount>;
+    });
+
+    const purchases = configurePurchases();
+    const offering = createOfferingWithPaywall();
+    const trackPaywallEventSpy = vi.spyOn(
+      purchases["eventsTracker"],
+      "trackPaywallEvent",
+    );
+
+    const paywallPromise = purchases.presentPaywall({ offering });
+    void paywallPromise.catch(() => undefined);
+
+    expect(paywallProps).toBeDefined();
+    paywallProps!.onBackClicked();
+    await expect(paywallPromise).rejects.toHaveProperty(
+      "errorCode",
+      ErrorCode.UserCancelledError,
+    );
+
+    expect(
+      trackPaywallEventSpy.mock.calls.map(([event]) => event.type),
+    ).toEqual(["paywall_impression", "paywall_close"]);
+  });
+
+  test("does not fire paywall_component_interacted after the paywall has closed", async () => {
+    const purchases = configurePurchases();
+    const offering = createOfferingWithPaywall();
+    const trackPaywallEventSpy = vi.spyOn(
+      purchases["eventsTracker"],
+      "trackPaywallEvent",
+    );
+
+    const paywallPromise = purchases.presentPaywall({ offering });
+    void paywallPromise.catch(() => undefined);
+
+    expect(paywallProps).toBeDefined();
+    paywallProps!.onBackClicked();
+    await expect(paywallPromise).rejects.toHaveProperty(
+      "errorCode",
+      ErrorCode.UserCancelledError,
+    );
+
+    paywallProps!.onComponentInteraction({
+      componentType: "button",
+      componentName: "Terms Button",
+      componentValue: "navigate_to_terms",
+    });
+
+    expect(
+      trackPaywallEventSpy.mock.calls.map(([event]) => event.type),
+    ).toEqual(["paywall_impression", "paywall_close"]);
   });
 });
