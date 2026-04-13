@@ -525,7 +525,7 @@ const mockTaxCalculationRequest = async (
 });
 
 integrationTest.describe("Tax calculation setup errors", () => {
-  integrationTest.fixme("Stripe tax not active", async ({ page, userId }) => {
+  integrationTest("Stripe tax not active", async ({ page, userId }) => {
     await page.route(TAX_ROUTE_PATH, async (route) => {
       await route.fulfill(STRIPE_TAX_NOT_ACTIVE_RESPONSE);
 
@@ -536,31 +536,25 @@ integrationTest.describe("Tax calculation setup errors", () => {
     });
   });
 
-  integrationTest.fixme(
-    "Invalid tax origin address",
-    async ({ page, userId }) => {
-      await page.route(TAX_ROUTE_PATH, async (route) => {
-        await route.fulfill(INVALID_TAX_ORIGIN_RESPONSE);
-      });
+  integrationTest("Invalid tax origin address", async ({ page, userId }) => {
+    await page.route(TAX_ROUTE_PATH, async (route) => {
+      await route.fulfill(INVALID_TAX_ORIGIN_RESPONSE);
+    });
 
-      page = await navigateToTaxesLandingUrl(page, userId);
-      const packageCards = await getPackageCards(page);
-      await startPurchaseFlow(packageCards[0]);
-      await confirmPaymentError(page, /Invalid tax origin address/);
-    },
-  );
+    page = await navigateToTaxesLandingUrl(page, userId);
+    const packageCards = await getPackageCards(page);
+    await startPurchaseFlow(packageCards[0]);
+    await confirmPaymentError(page, /Invalid tax origin address/);
+  });
 
-  integrationTest.fixme(
-    "Missing Stripe permission",
-    async ({ page, userId }) => {
-      await page.route(TAX_ROUTE_PATH, async (route) => {
-        await route.fulfill(MISSING_STRIPE_PERMISSION_RESPONSE);
-      });
+  integrationTest("Missing Stripe permission", async ({ page, userId }) => {
+    await page.route(TAX_ROUTE_PATH, async (route) => {
+      await route.fulfill(MISSING_STRIPE_PERMISSION_RESPONSE);
+    });
 
-      page = await navigateToTaxesLandingUrl(page, userId);
-      const packageCards = await getPackageCards(page);
-      await startPurchaseFlow(packageCards[0]);
-      await confirmPaymentError(page, "Missing Stripe permission");
-    },
-  );
+    page = await navigateToTaxesLandingUrl(page, userId);
+    const packageCards = await getPackageCards(page);
+    await startPurchaseFlow(packageCards[0]);
+    await confirmPaymentError(page, "Missing Stripe permission");
+  });
 });
