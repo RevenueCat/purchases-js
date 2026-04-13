@@ -34,4 +34,5 @@ export interface CheckoutStatusInnerResponse {
 
 export interface CheckoutStatusResponse {
   readonly operation: CheckoutStatusInnerResponse;
+  readonly attribution_metadata?: Record<string, unknown>;
 }

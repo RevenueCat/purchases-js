@@ -950,6 +950,7 @@ export class Purchases {
           customerInfo: await this._getCustomerInfoForUserId(appUserId),
           redemptionInfo: operationResult.redemptionInfo,
           operationSessionId: operationResult.operationSessionId,
+          attributionMetadata: operationResult.attributionMetadata,
           storeTransaction: {
             storeTransactionId: operationResult.storeTransactionIdentifier,
             productIdentifier: rcPackage.webBillingProduct.identifier,
@@ -1492,6 +1493,7 @@ export class Purchases {
         customerInfo: await this._getCustomerInfoForUserId(appUserId),
         redemptionInfo: operationResult.redemptionInfo,
         operationSessionId: operationResult.operationSessionId,
+        attributionMetadata: operationResult.attributionMetadata,
         storeTransaction: {
           storeTransactionId: operationResult.storeTransactionIdentifier,
           productIdentifier: rcPackage.webBillingProduct.identifier,
