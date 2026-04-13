@@ -33,6 +33,11 @@ integrationTest.describe("Stripe Checkout flow", () => {
     "Stripe Checkout E2E tests require VITE_RC_STRIPE_CHECKOUT_E2E_API_KEY.",
   );
 
+  integrationTest.afterEach(async () => {
+    // Sleep between tests to avoid hitting the rate limit of the Stripe Checkout API.
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  });
+
   integrationTest(
     "Purchases a product with embedded Stripe Checkout",
     async ({ page, userId, email }) => {

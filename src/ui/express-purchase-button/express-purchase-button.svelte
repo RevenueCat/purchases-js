@@ -196,8 +196,10 @@
 
     await StripeService.submitElements(elements);
 
-    const completeResponse =
-      await purchaseOperationHelper.checkoutComplete(email);
+    const completeResponse = await purchaseOperationHelper.checkoutComplete(
+      email,
+      translator.selectedLocale,
+    );
     const newClientSecret = completeResponse?.gateway_params?.client_secret;
 
     if (!newClientSecret) {
@@ -282,14 +284,16 @@
     });
     eventsTracker.trackSDKEvent(sessionStartEvent);
     try {
-      const checkoutStartResult = await purchaseOperationHelper.checkoutStart(
+      const checkoutStartResult = await purchaseOperationHelper.checkoutStart({
         appUserId,
-        rcPackage.webBillingProduct.identifier,
+        productId: rcPackage.webBillingProduct.identifier,
         purchaseOption,
-        rcPackage.webBillingProduct.presentedOfferingContext,
+        presentedOfferingContext:
+          rcPackage.webBillingProduct.presentedOfferingContext,
         customerEmail,
         metadata,
-      );
+        locale: translator.selectedLocale,
+      });
 
       const managementUrl = checkoutStartResult.management_url;
 

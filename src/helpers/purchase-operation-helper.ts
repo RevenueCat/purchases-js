@@ -107,6 +107,25 @@ export class PurchaseFlowError extends Error {
   }
 }
 
+interface CheckoutStartParams {
+  // Purchase identity
+  appUserId: string;
+  productId: string;
+  purchaseOption: PurchaseOption;
+
+  // Presentation context
+  presentedOfferingContext: PresentedOfferingContext;
+  workflowPurchaseContext?: WorkflowPurchaseContext;
+  paywallId?: string;
+
+  // Customer data
+  customerEmail?: string;
+  metadata?: PurchaseMetadata;
+  // Resolved from selectedLocale/defaultLocale at the public API layer.
+  // Future: consider adding localeSource?: "selected" | "browser".
+  locale?: string;
+}
+
 export interface OperationSessionSuccessfulResult {
   redemptionInfo: RedemptionInfo | null;
   operationSessionId: string;
@@ -160,32 +179,34 @@ export class PurchaseOperationHelper {
     }
   }
 
-  async checkoutStart(
-    appUserId: string,
-    productId: string,
-    purchaseOption: PurchaseOption,
-    presentedOfferingContext: PresentedOfferingContext,
-    email?: string,
-    metadata?: PurchaseMetadata,
-    workflowPurchaseContext?: WorkflowPurchaseContext,
-    paywallId?: string,
-  ): Promise<WebBillingCheckoutStartResponse> {
+  async checkoutStart({
+    appUserId,
+    productId,
+    purchaseOption,
+    presentedOfferingContext,
+    workflowPurchaseContext,
+    paywallId,
+    customerEmail,
+    metadata,
+    locale,
+  }: CheckoutStartParams): Promise<WebBillingCheckoutStartResponse> {
     try {
       const traceId = this.eventsTracker.getTraceId();
-      const stepId = workflowPurchaseContext?.stepId;
+      const presentedStepId = workflowPurchaseContext?.stepId;
 
       const checkoutStartResponse =
-        await this.backend.postCheckoutStart<WebBillingCheckoutStartResponse>(
+        await this.backend.postCheckoutStart<WebBillingCheckoutStartResponse>({
           appUserId,
           productId,
-          presentedOfferingContext,
           purchaseOption,
+          presentedOfferingContext,
           traceId,
-          email,
-          metadata,
-          stepId,
+          presentedStepId,
           paywallId,
-        );
+          customerEmail,
+          metadata,
+          locale,
+        });
       this.operationSessionId = checkoutStartResponse.operation_session_id;
       return checkoutStartResponse;
     } catch (error) {
@@ -243,7 +264,10 @@ export class PurchaseOperationHelper {
     }
   }
 
-  async checkoutComplete(email?: string): Promise<CheckoutCompleteResponse> {
+  async checkoutComplete(
+    email?: string,
+    locale?: string,
+  ): Promise<CheckoutCompleteResponse> {
     const operationSessionId = this.operationSessionId;
     if (!operationSessionId) {
       throw new PurchaseFlowError(
@@ -253,7 +277,11 @@ export class PurchaseOperationHelper {
     }
 
     try {
-      return await this.backend.postCheckoutComplete(operationSessionId, email);
+      return await this.backend.postCheckoutComplete(
+        operationSessionId,
+        email,
+        locale,
+      );
     } catch (error) {
       if (error instanceof PurchasesError) {
         throw PurchaseFlowError.fromPurchasesError(

@@ -104,16 +104,17 @@ describe("StripeCheckoutPurchasesUi", () => {
     });
 
     await waitFor(() => {
-      expect(checkoutStartSpy).toHaveBeenCalledWith(
-        "test-app-user-id",
-        rcPackage.webBillingProduct.identifier,
-        subscriptionOption,
-        rcPackage.webBillingProduct.presentedOfferingContext,
-        "test@example.com",
-        { utm_term: "something" },
-        { stepId: "test-step-123" },
-        undefined,
-      );
+      expect(checkoutStartSpy).toHaveBeenCalledWith({
+        appUserId: "test-app-user-id",
+        productId: rcPackage.webBillingProduct.identifier,
+        purchaseOption: subscriptionOption,
+        presentedOfferingContext:
+          rcPackage.webBillingProduct.presentedOfferingContext,
+        customerEmail: "test@example.com",
+        metadata: { utm_term: "something" },
+        workflowPurchaseContext: { stepId: "test-step-123" },
+        locale: "en",
+      });
     });
   });
 
@@ -129,16 +130,16 @@ describe("StripeCheckoutPurchasesUi", () => {
     });
 
     await waitFor(() => {
-      expect(checkoutStartSpy).toHaveBeenCalledWith(
-        "test-app-user-id",
-        rcPackage.webBillingProduct.identifier,
-        subscriptionOption,
-        rcPackage.webBillingProduct.presentedOfferingContext,
-        "test@example.com",
-        { utm_term: "something" },
-        undefined,
-        undefined,
-      );
+      expect(checkoutStartSpy).toHaveBeenCalledWith({
+        appUserId: "test-app-user-id",
+        productId: rcPackage.webBillingProduct.identifier,
+        purchaseOption: subscriptionOption,
+        presentedOfferingContext:
+          rcPackage.webBillingProduct.presentedOfferingContext,
+        customerEmail: "test@example.com",
+        metadata: { utm_term: "something" },
+        locale: "en",
+      });
     });
   });
 
@@ -155,16 +156,16 @@ describe("StripeCheckoutPurchasesUi", () => {
     });
 
     await waitFor(() => {
-      expect(checkoutStartSpy).toHaveBeenCalledWith(
-        "test-app-user-id",
-        rcPackage.webBillingProduct.identifier,
-        subscriptionOption,
-        rcPackage.webBillingProduct.presentedOfferingContext,
-        undefined,
-        { utm_term: "something" },
-        undefined,
-        undefined,
-      );
+      expect(checkoutStartSpy).toHaveBeenCalledWith({
+        appUserId: "test-app-user-id",
+        productId: rcPackage.webBillingProduct.identifier,
+        purchaseOption: subscriptionOption,
+        presentedOfferingContext:
+          rcPackage.webBillingProduct.presentedOfferingContext,
+        customerEmail: undefined,
+        metadata: { utm_term: "something" },
+        locale: "en",
+      });
     });
   });
 
@@ -201,16 +202,17 @@ describe("StripeCheckoutPurchasesUi", () => {
     });
 
     await waitFor(() => {
-      expect(checkoutStartSpy).toHaveBeenCalledWith(
-        "test-app-user-id",
-        rcPackage.webBillingProduct.identifier,
-        subscriptionOption,
-        rcPackage.webBillingProduct.presentedOfferingContext,
-        "test@example.com",
-        { utm_term: "something" },
-        undefined,
-        "paywall-abc-123",
-      );
+      expect(checkoutStartSpy).toHaveBeenCalledWith({
+        appUserId: "test-app-user-id",
+        productId: rcPackage.webBillingProduct.identifier,
+        purchaseOption: subscriptionOption,
+        presentedOfferingContext:
+          rcPackage.webBillingProduct.presentedOfferingContext,
+        customerEmail: "test@example.com",
+        metadata: { utm_term: "something" },
+        paywallId: "paywall-abc-123",
+        locale: "en",
+      });
     });
   });
 
@@ -226,15 +228,36 @@ describe("StripeCheckoutPurchasesUi", () => {
     });
 
     await waitFor(() => {
+      expect(checkoutStartSpy).toHaveBeenCalledWith({
+        appUserId: "test-app-user-id",
+        productId: rcPackage.webBillingProduct.identifier,
+        purchaseOption: subscriptionOption,
+        presentedOfferingContext:
+          rcPackage.webBillingProduct.presentedOfferingContext,
+        customerEmail: "test@example.com",
+        metadata: { utm_term: "something" },
+        locale: "en",
+      });
+    });
+  });
+
+  test("passes selectedLocale as locale to checkoutStart", async () => {
+    const checkoutStartSpy = vi
+      .spyOn(purchaseOperationHelperMock, "checkoutStart")
+      .mockResolvedValue(checkoutStartResponseWithoutStripeParams);
+
+    render(StripeCheckoutPurchasesUi, {
+      props: {
+        ...baseProps,
+        selectedLocale: "es",
+      },
+    });
+
+    await waitFor(() => {
       expect(checkoutStartSpy).toHaveBeenCalledWith(
-        "test-app-user-id",
-        rcPackage.webBillingProduct.identifier,
-        subscriptionOption,
-        rcPackage.webBillingProduct.presentedOfferingContext,
-        "test@example.com",
-        { utm_term: "something" },
-        undefined,
-        undefined,
+        expect.objectContaining({
+          locale: "es",
+        }),
       );
     });
   });
