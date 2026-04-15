@@ -1,6 +1,7 @@
 ## RevenueCat SDK
 ### ✨ New Features
-* Pass checkout locale to /checkout/start (#826) via Volodymyr Kartavyi (@vkartaviy)
+* FUN-2156: Update purchases-js to support new onCompleteWorkflowNavigate param (#838) via Franco Correa (@francocorreasosa)
 
 ### 🔄 Other Changes
-* Fix for package.json version that drifted from .version file (#835) via Nicola Sacco (@nicfix)
+* FUN-2085: Pass attribution metadata through purchase results (#827) via Jamie Holwill (@jholwill)
+* Bump fastlane-plugin-revenuecat_internal (#834) via Antonio Pallares (@ajpallares)
