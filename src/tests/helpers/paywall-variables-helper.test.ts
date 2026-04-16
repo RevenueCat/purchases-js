@@ -20,6 +20,7 @@ import {
   discountPhaseOneTime,
   discountPhaseTimeWindow,
   discountPhaseForever,
+  introPhaseP1M199,
   trialPhaseP2W,
 } from "../fixtures/price-phases";
 const enTranslator = new Translator({}, englishLocale);
@@ -463,12 +464,47 @@ describe("getPaywallVariables", () => {
           "product.offer_price_per_year": "$144.00",
           "product.offer_period": "month",
           "product.offer_period_abbreviated": "mo",
-          "product.offer_period_with_unit": "1 month",
-          "product.offer_period_in_days": "30",
-          "product.offer_period_in_weeks": "4.33",
-          "product.offer_period_in_months": "1",
+          "product.offer_period_with_unit": "3 months",
+          "product.offer_period_in_days": "90",
+          "product.offer_period_in_weeks": "12.99",
+          "product.offer_period_in_months": "3",
           "product.offer_period_in_years": "0",
-          "product.offer_end_date": "November 30, 2025",
+          "product.offer_end_date": "January 30, 2026",
+          "product.secondary_offer_price": "",
+          "product.secondary_offer_period": "",
+          "product.secondary_offer_period_abbreviated": "",
+        }),
+      );
+    });
+
+    test("Subscription with multi-cycle intro price uses the full promo window for offer duration", () => {
+      const off = toOffering([
+        {
+          packageIdentifier: "$rc_monthly",
+          identifier: "monthly_multi_cycle_intro_price",
+          title: "Monthly Multi-Cycle Intro Price",
+          basePriceMicros: 9000000,
+          introPrice: introPhaseP1M199,
+        },
+      ]);
+
+      const variables = parseOfferingIntoVariables(off, enTranslator);
+
+      expect(variables.$rc_monthly).toEqual(
+        expect.objectContaining({
+          "product.offer_price": "$1.99",
+          "product.offer_price_per_day": "$0.06",
+          "product.offer_price_per_week": "$0.45",
+          "product.offer_price_per_month": "$1.99",
+          "product.offer_price_per_year": "$23.88",
+          "product.offer_period": "month",
+          "product.offer_period_abbreviated": "mo",
+          "product.offer_period_with_unit": "3 months",
+          "product.offer_period_in_days": "90",
+          "product.offer_period_in_weeks": "12.99",
+          "product.offer_period_in_months": "3",
+          "product.offer_period_in_years": "0",
+          "product.offer_end_date": "January 30, 2026",
           "product.secondary_offer_price": "",
           "product.secondary_offer_period": "",
           "product.secondary_offer_period_abbreviated": "",
@@ -496,14 +532,14 @@ describe("getPaywallVariables", () => {
           "product.offer_price_per_week": "$3.00",
           "product.offer_price_per_month": "$13.00",
           "product.offer_price_per_year": "$156.00",
-          "product.offer_period": "month",
-          "product.offer_period_abbreviated": "mo",
-          "product.offer_period_with_unit": "1 month",
-          "product.offer_period_in_days": "30",
-          "product.offer_period_in_weeks": "4.33",
-          "product.offer_period_in_months": "1",
-          "product.offer_period_in_years": "0",
-          "product.offer_end_date": "November 30, 2025",
+          "product.offer_period": "",
+          "product.offer_period_abbreviated": "",
+          "product.offer_period_with_unit": "",
+          "product.offer_period_in_days": "",
+          "product.offer_period_in_weeks": "",
+          "product.offer_period_in_months": "",
+          "product.offer_period_in_years": "",
+          "product.offer_end_date": "",
           "product.secondary_offer_price": "",
           "product.secondary_offer_period": "",
           "product.secondary_offer_period_abbreviated": "",

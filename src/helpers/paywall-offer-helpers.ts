@@ -1,29 +1,38 @@
 import type { VariableDictionary } from "@revenuecat/purchases-ui-js";
-import type { NonSubscriptionOption } from "../entities/offerings";
-import { type SubscriptionOption } from "../entities/offerings";
+import type {
+  DiscountPhase,
+  NonSubscriptionOption,
+  PricingPhase,
+  SubscriptionOption,
+} from "../entities/offerings";
 import { type Translator } from "../ui/localization/translator";
-import { PeriodUnit, type Period } from "./duration-helper";
+import { getNextRenewalDate, type Period } from "./duration-helper";
 import { getPeriodVariables } from "./paywall-period-helpers";
 import { getPriceVariables } from "./paywall-price-helpers";
 
-function getOfferEndDate(period: Period, translator: Translator): string {
-  const date = new Date();
-  switch (period.unit) {
-    case PeriodUnit.Year:
-      date.setFullYear(date.getFullYear() + period.number);
-      break;
-    case PeriodUnit.Month:
-      date.setMonth(date.getMonth() + period.number);
-      break;
-    case PeriodUnit.Week:
-      date.setDate(date.getDate() + period.number * 7);
-      break;
-    case PeriodUnit.Day:
-      date.setDate(date.getDate() + period.number);
-      break;
+type OfferPhase = PricingPhase | DiscountPhase;
+
+function getOfferDuration(offer: OfferPhase): Period | null {
+  if (offer.period === null) {
+    return null;
   }
 
-  return translator.translateDate(date, { dateStyle: "long" }) ?? "";
+  if ("durationMode" in offer && offer.durationMode === "forever") {
+    return null;
+  }
+
+  const cycleCount = offer.cycleCount > 0 ? offer.cycleCount : 1;
+  return {
+    number: offer.period.number * cycleCount,
+    unit: offer.period.unit,
+  };
+}
+
+function getOfferEndDate(period: Period, translator: Translator): string {
+  const date = getNextRenewalDate(new Date(), period, true);
+  return date
+    ? (translator.translateDate(date, { dateStyle: "long" }) ?? "")
+    : "";
 }
 
 export function setOfferVariables(
@@ -40,7 +49,7 @@ export function setOfferVariables(
   }
 
   const { period, price } = primaryOffer;
-
+  const offerDuration = getOfferDuration(primaryOffer);
   if (price !== null) {
     const priceVariables = getPriceVariables(price, period, translator);
     variables["product.offer_price"] = translator.formatPrice(
@@ -53,8 +62,8 @@ export function setOfferVariables(
     variables["product.offer_price_per_year"] = priceVariables.pricePerYear;
   }
 
-  if (period !== null) {
-    const periodVars = getPeriodVariables(period, translator);
+  if (offerDuration !== null) {
+    const periodVars = getPeriodVariables(offerDuration, translator);
     variables["product.offer_period"] = periodVars.period;
     variables["product.offer_period_abbreviated"] =
       periodVars.periodAbbreviated;
@@ -63,7 +72,10 @@ export function setOfferVariables(
     variables["product.offer_period_in_weeks"] = periodVars.periodInWeeks;
     variables["product.offer_period_in_months"] = periodVars.periodInMonths;
     variables["product.offer_period_in_years"] = periodVars.periodInYears;
-    variables["product.offer_end_date"] = getOfferEndDate(period, translator);
+    variables["product.offer_end_date"] = getOfferEndDate(
+      offerDuration,
+      translator,
+    );
   }
 
   if (secondaryOffer === null) {
