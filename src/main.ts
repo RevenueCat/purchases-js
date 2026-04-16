@@ -365,7 +365,7 @@ export class Purchases {
     Purchases.validateConfig(config);
     if (
       finalFlags.storeLoadTime === "configuration" &&
-      isWebBillingApiKey(apiKey)
+      (isWebBillingApiKey(apiKey) || isStripeApiKey(apiKey))
     ) {
       StripeService.preloadStripeModule();
     }

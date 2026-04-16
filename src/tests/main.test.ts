@@ -313,13 +313,13 @@ describe("Purchases.configure()", () => {
     spy.mockRestore();
   });
 
-  test("does not preload Stripe module for stripe api key", () => {
+  test("preloads Stripe module for stripe api key with default storeLoadTime", () => {
     const spy = vi.spyOn(StripeService, "preloadStripeModule");
     Purchases.configure({
       apiKey: "strp_valid_key",
       appUserId: testUserId,
     });
-    expect(spy).not.toHaveBeenCalled();
+    expect(spy).toHaveBeenCalled();
     spy.mockRestore();
   });
 
