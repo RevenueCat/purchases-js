@@ -1,7 +1,8 @@
-## RevenueCat SDK
+## RevenueCatUI SDK
 ### ✨ New Features
-* FUN-2156: Update purchases-js to support new onCompleteWorkflowNavigate param (#838) via Franco Correa (@francocorreasosa)
+* WFL-26 | Bump purchases-ui-js to add support for header component (#841) via Rosie Watson (@RosieWatson)
+### 🐞 Bugfixes
+* Bump purchases-ui-js to 3.11.1 (#843) via Franco Correa (@francocorreasosa)
 
 ### 🔄 Other Changes
-* FUN-2085: Pass attribution metadata through purchase results (#827) via Jamie Holwill (@jholwill)
-* Bump fastlane-plugin-revenuecat_internal (#834) via Antonio Pallares (@ajpallares)
+* Only preload Stripe module for Stripe-based API keys (#844) via Toni Rico (@tonidero)
