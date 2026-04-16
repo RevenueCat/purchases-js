@@ -363,7 +363,10 @@ export class Purchases {
     const finalFlags = flags ?? defaultFlagsConfig;
 
     Purchases.validateConfig(config);
-    if (finalFlags.storeLoadTime === "configuration") {
+    if (
+      finalFlags.storeLoadTime === "configuration" &&
+      isWebBillingApiKey(apiKey)
+    ) {
       StripeService.preloadStripeModule();
     }
     Purchases.instance = new Purchases(
