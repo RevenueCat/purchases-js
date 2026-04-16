@@ -12,18 +12,37 @@ import { getPriceVariables } from "./paywall-price-helpers";
 
 type OfferPhase = PricingPhase | DiscountPhase;
 
+function getOfferCycleCount(offer: OfferPhase): number {
+  return offer.cycleCount > 0 ? offer.cycleCount : 1;
+}
+
+function isForeverOffer(offer: OfferPhase): boolean {
+  return "durationMode" in offer && offer.durationMode === "forever";
+}
+
+function getOfferPriceAmountMicros(offer: OfferPhase): number | null {
+  if (offer.price === null) {
+    return null;
+  }
+
+  if (isForeverOffer(offer)) {
+    return offer.price.amountMicros;
+  }
+
+  return offer.price.amountMicros * getOfferCycleCount(offer);
+}
+
 function getOfferDuration(offer: OfferPhase): Period | null {
   if (offer.period === null) {
     return null;
   }
 
-  if ("durationMode" in offer && offer.durationMode === "forever") {
+  if (isForeverOffer(offer)) {
     return null;
   }
 
-  const cycleCount = offer.cycleCount > 0 ? offer.cycleCount : 1;
   return {
-    number: offer.period.number * cycleCount,
+    number: offer.period.number * getOfferCycleCount(offer),
     unit: offer.period.unit,
   };
 }
@@ -52,8 +71,9 @@ export function setOfferVariables(
   const offerDuration = getOfferDuration(primaryOffer);
   if (price !== null) {
     const priceVariables = getPriceVariables(price, period, translator);
+    const offerPriceAmountMicros = getOfferPriceAmountMicros(primaryOffer);
     variables["product.offer_price"] = translator.formatPrice(
-      price.amountMicros,
+      offerPriceAmountMicros ?? price.amountMicros,
       price.currency,
     );
     variables["product.offer_price_per_day"] = priceVariables.pricePerDay;

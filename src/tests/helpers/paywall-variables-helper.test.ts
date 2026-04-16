@@ -104,7 +104,7 @@ describe("getPaywallVariables", () => {
           "product.price_per_period": "€9.00/month",
           "product.period_with_unit": "1 month",
           "product.period_in_days": "30",
-          "product.period_in_weeks": "4.33",
+          "product.period_in_weeks": "4",
           "product.period_in_months": "1",
           "product.period_in_years": "0",
           "product.periodly": "monthly",
@@ -200,7 +200,7 @@ describe("getPaywallVariables", () => {
           "product.offer_period_abbreviated": "mo",
           "product.offer_period_in_days": "60",
           "product.offer_period_in_months": "2",
-          "product.offer_period_in_weeks": "8.66",
+          "product.offer_period_in_weeks": "8",
           "product.offer_period_in_years": "0",
           "product.offer_period_with_unit": "2 months",
           "product.offer_end_date": "December 30, 2025",
@@ -216,7 +216,7 @@ describe("getPaywallVariables", () => {
           "product.period_with_unit": "1 month",
           "product.period_in_days": "30",
           "product.period_in_months": "1",
-          "product.period_in_weeks": "4.33",
+          "product.period_in_weeks": "4",
           "product.period_in_years": "0",
           "product.periodly": "monthly",
           "product.period": "month",
@@ -431,7 +431,7 @@ describe("getPaywallVariables", () => {
           "product.offer_period_abbreviated": "mo",
           "product.offer_period_with_unit": "1 month",
           "product.offer_period_in_days": "30",
-          "product.offer_period_in_weeks": "4.33",
+          "product.offer_period_in_weeks": "4",
           "product.offer_period_in_months": "1",
           "product.offer_period_in_years": "0",
           "product.offer_end_date": "November 30, 2025",
@@ -457,7 +457,7 @@ describe("getPaywallVariables", () => {
 
       expect(variables.$rc_monthly).toEqual(
         expect.objectContaining({
-          "product.offer_price": "$12.00",
+          "product.offer_price": "$36.00",
           "product.offer_price_per_day": "$0.40",
           "product.offer_price_per_week": "$2.77",
           "product.offer_price_per_month": "$12.00",
@@ -466,7 +466,7 @@ describe("getPaywallVariables", () => {
           "product.offer_period_abbreviated": "mo",
           "product.offer_period_with_unit": "3 months",
           "product.offer_period_in_days": "90",
-          "product.offer_period_in_weeks": "12.99",
+          "product.offer_period_in_weeks": "12",
           "product.offer_period_in_months": "3",
           "product.offer_period_in_years": "0",
           "product.offer_end_date": "January 30, 2026",
@@ -492,7 +492,7 @@ describe("getPaywallVariables", () => {
 
       expect(variables.$rc_monthly).toEqual(
         expect.objectContaining({
-          "product.offer_price": "$1.99",
+          "product.offer_price": "$5.97",
           "product.offer_price_per_day": "$0.06",
           "product.offer_price_per_week": "$0.45",
           "product.offer_price_per_month": "$1.99",
@@ -501,7 +501,7 @@ describe("getPaywallVariables", () => {
           "product.offer_period_abbreviated": "mo",
           "product.offer_period_with_unit": "3 months",
           "product.offer_period_in_days": "90",
-          "product.offer_period_in_weeks": "12.99",
+          "product.offer_period_in_weeks": "12",
           "product.offer_period_in_months": "3",
           "product.offer_period_in_years": "0",
           "product.offer_end_date": "January 30, 2026",
