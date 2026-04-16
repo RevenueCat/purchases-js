@@ -1,6 +1,8 @@
-## RevenueCat SDK
+## RevenueCatUI SDK
 ### ✨ New Features
-* Pass checkout locale to /checkout/start (#826) via Volodymyr Kartavyi (@vkartaviy)
+* WFL-26 | Bump purchases-ui-js to add support for header component (#841) via Rosie Watson (@RosieWatson)
+### 🐞 Bugfixes
+* Bump purchases-ui-js to 3.11.1 (#843) via Franco Correa (@francocorreasosa)
 
 ### 🔄 Other Changes
-* Fix for package.json version that drifted from .version file (#835) via Nicola Sacco (@nicfix)
+* Only preload Stripe module for Stripe-based API keys (#844) via Toni Rico (@tonidero)

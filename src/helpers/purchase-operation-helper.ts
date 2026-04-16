@@ -132,6 +132,7 @@ export interface OperationSessionSuccessfulResult {
   storeTransactionIdentifier: string;
   productIdentifier: string;
   purchaseDate: Date;
+  attributionMetadata?: Record<string, unknown>;
 }
 
 export class PurchaseOperationHelper {
@@ -361,6 +362,8 @@ export class PurchaseOperationHelper {
                   storeTransactionIdentifier: storeTransactionIdentifier,
                   productIdentifier: productIdentifier,
                   purchaseDate: purchaseDate,
+                  attributionMetadata:
+                    operationResponse.attribution_metadata ?? undefined,
                 });
                 return;
               case CheckoutSessionStatus.Failed:

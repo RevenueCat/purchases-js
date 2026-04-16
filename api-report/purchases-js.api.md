@@ -397,6 +397,7 @@ export interface PurchaseResult {
     readonly operationSessionId: string;
     readonly redemptionInfo: RedemptionInfo | null;
     readonly storeTransaction: StoreTransaction;
+    /* Excluded from this release type: attributionMetadata */
 }
 
 // @public

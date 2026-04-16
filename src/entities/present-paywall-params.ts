@@ -1,5 +1,10 @@
 import type { Offering } from "./offerings";
-import type { CustomVariables } from "@revenuecat/purchases-ui-js";
+import type {
+  CompleteWorkflowNavigateArgs,
+  CustomVariables,
+} from "@revenuecat/purchases-ui-js";
+
+export type { CompleteWorkflowNavigateArgs };
 
 /**
  * Parameters for the {@link Purchases.presentPaywall} method.
@@ -34,6 +39,16 @@ export interface PresentPaywallParams {
    * Callback to be called when the paywall tries to navigate to an external URL.
    */
   readonly onNavigateToUrl?: (url: string) => void;
+
+  /**
+   * Called when the paywall uses a complete_workflow button (exit URL).
+   * If omitted, the SDK opens the URL: new tab for `external_browser`, same tab for
+   * `in_app_browser` / `deep_link`.
+   * @internal
+   */
+  readonly onCompleteWorkflowNavigate?: (
+    args: CompleteWorkflowNavigateArgs,
+  ) => void | Promise<void>;
 
   /**
    * Callback to be called when the paywall tries to navigate back.

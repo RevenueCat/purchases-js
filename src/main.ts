@@ -61,7 +61,10 @@ import {
   type PurchaseResult,
 } from "./entities/purchase-result";
 import { mount, unmount } from "svelte";
-import { type PresentPaywallParams } from "./entities/present-paywall-params";
+import {
+  type CompleteWorkflowNavigateArgs,
+  type PresentPaywallParams,
+} from "./entities/present-paywall-params";
 import type { WalletButtonRender } from "@revenuecat/purchases-ui-js";
 import { Paywall, type PaywallData } from "@revenuecat/purchases-ui-js";
 import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
@@ -112,6 +115,7 @@ import type {
 } from "./entities/present-express-purchase-button-params";
 import { ExpressPurchaseButtonWrapper } from "./ui/express-purchase-button/express-purchase-button-wrapper.svelte";
 import { getWindow, getDocument } from "./helpers/browser-globals";
+import { isAllowedCompleteWorkflowNavigateUrl } from "./helpers/complete-workflow-navigate-url";
 import { StripeService } from "./stripe/stripe-service";
 
 export { ProductType } from "./entities/offerings";
@@ -362,7 +366,10 @@ export class Purchases {
     const finalFlags = flags ?? defaultFlagsConfig;
 
     Purchases.validateConfig(config);
-    if (finalFlags.storeLoadTime === "configuration") {
+    if (
+      finalFlags.storeLoadTime === "configuration" &&
+      (isWebBillingApiKey(apiKey) || isStripeApiKey(apiKey))
+    ) {
       StripeService.preloadStripeModule();
     }
     Purchases.instance = new Purchases(
@@ -660,6 +667,29 @@ export class Purchases {
       win.open(url, "_blank")?.focus();
     };
 
+    const onCompleteWorkflowNavigate = async (
+      args: CompleteWorkflowNavigateArgs,
+    ) => {
+      if (paywallParams.onCompleteWorkflowNavigate) {
+        await paywallParams.onCompleteWorkflowNavigate(args);
+        return;
+      }
+
+      if (!isAllowedCompleteWorkflowNavigateUrl(args.url, args.method)) {
+        Logger.warnLog(
+          "Blocked complete-workflow navigation to a disallowed URL.",
+        );
+        return;
+      }
+
+      const win = getWindow();
+      if (args.method === "external_browser") {
+        win.open(args.url, "_blank", "noopener,noreferrer")?.focus();
+      } else {
+        win.location.assign(args.url);
+      }
+    };
+
     const onRestorePurchasesClicked = () => {
       // DO NOTHING
     };
@@ -790,6 +820,8 @@ export class Purchases {
           paywallData: offering.paywallComponents!,
           selectedLocale: finalLocale,
           onNavigateToUrlClicked: navigateToUrl,
+          appUserId: this._appUserId,
+          onCompleteWorkflowNavigate,
           onVisitCustomerCenterClicked: onVisitCustomerCenterClicked,
           uiConfig: offering.uiConfig!,
           onBackClicked: () => {
@@ -1005,6 +1037,7 @@ export class Purchases {
           customerInfo: await this._getCustomerInfoForUserId(appUserId),
           redemptionInfo: operationResult.redemptionInfo,
           operationSessionId: operationResult.operationSessionId,
+          attributionMetadata: operationResult.attributionMetadata,
           storeTransaction: {
             storeTransactionId: operationResult.storeTransactionIdentifier,
             productIdentifier: rcPackage.webBillingProduct.identifier,
@@ -1547,6 +1580,7 @@ export class Purchases {
         customerInfo: await this._getCustomerInfoForUserId(appUserId),
         redemptionInfo: operationResult.redemptionInfo,
         operationSessionId: operationResult.operationSessionId,
+        attributionMetadata: operationResult.attributionMetadata,
         storeTransaction: {
           storeTransactionId: operationResult.storeTransactionIdentifier,
           productIdentifier: rcPackage.webBillingProduct.identifier,
