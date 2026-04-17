@@ -7,7 +7,10 @@ import type {
 } from "../entities/offerings";
 import { type Translator } from "../ui/localization/translator";
 import { getNextRenewalDate, type Period } from "./duration-helper";
-import { getPeriodVariables } from "./paywall-period-helpers";
+import {
+  getDurationInDays,
+  getPeriodVariables,
+} from "./paywall-period-helpers";
 import { getPriceVariables } from "./paywall-price-helpers";
 
 type OfferPhase = PricingPhase | DiscountPhase;
@@ -20,13 +23,59 @@ function isForeverOffer(offer: OfferPhase): boolean {
   return "durationMode" in offer && offer.durationMode === "forever";
 }
 
-function getOfferPriceAmountMicros(offer: OfferPhase): number | null {
+function isTimeWindowOffer(offer: OfferPhase): offer is DiscountPhase {
+  return "durationMode" in offer && offer.durationMode === "time_window";
+}
+
+function getOfferPricingPeriod(
+  product: SubscriptionOption,
+  offer: OfferPhase,
+): Period | null {
+  if (isTimeWindowOffer(offer)) {
+    return product.base.period;
+  }
+
+  return offer.period;
+}
+
+function getTimeWindowBillingCycleCount(
+  product: SubscriptionOption,
+  offerDuration: Period | null,
+): number {
+  const billingPeriod = product.base.period;
+
+  if (billingPeriod === null || offerDuration === null) {
+    return 1;
+  }
+
+  const billingPeriodInDays = getDurationInDays(billingPeriod);
+  const offerDurationInDays = getDurationInDays(offerDuration);
+
+  if (billingPeriodInDays <= 0 || offerDurationInDays <= 0) {
+    return 1;
+  }
+
+  return Math.max(1, Math.floor(offerDurationInDays / billingPeriodInDays));
+}
+
+function getOfferPriceAmountMicros(
+  product: SubscriptionOption,
+  offer: OfferPhase,
+  offerDuration: Period | null,
+): number | null {
   if (offer.price === null) {
     return null;
   }
 
   if (isForeverOffer(offer)) {
     return offer.price.amountMicros;
+  }
+
+  if (isTimeWindowOffer(offer)) {
+    return (
+      offer.price.amountMicros *
+      getTimeWindowBillingCycleCount(product, offerDuration)
+    );
   }
 
   return offer.price.amountMicros * getOfferCycleCount(offer);
@@ -67,11 +116,20 @@ export function setOfferVariables(
     return;
   }
 
-  const { period, price } = primaryOffer;
   const offerDuration = getOfferDuration(primaryOffer);
+  const offerPricingPeriod = getOfferPricingPeriod(product, primaryOffer);
+  const { price } = primaryOffer;
   if (price !== null) {
-    const priceVariables = getPriceVariables(price, period, translator);
-    const offerPriceAmountMicros = getOfferPriceAmountMicros(primaryOffer);
+    const priceVariables = getPriceVariables(
+      price,
+      offerPricingPeriod,
+      translator,
+    );
+    const offerPriceAmountMicros = getOfferPriceAmountMicros(
+      product,
+      primaryOffer,
+      offerDuration,
+    );
     variables["product.offer_price"] = translator.formatPrice(
       offerPriceAmountMicros ?? price.amountMicros,
       price.currency,
