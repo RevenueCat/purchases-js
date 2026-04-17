@@ -54,6 +54,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "extract-api": "api-extractor run --local --verbose",
+    "check-version-consistency": "node scripts/check-version-consistency.mjs",
     "prepare": "husky"
   },
   "devDependencies": {
