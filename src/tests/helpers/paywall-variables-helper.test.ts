@@ -457,7 +457,7 @@ describe("getPaywallVariables", () => {
 
       expect(variables.$rc_monthly).toEqual(
         expect.objectContaining({
-          "product.offer_price": "$36.00",
+          "product.offer_price": "$12.00",
           "product.offer_price_per_day": "$0.40",
           "product.offer_price_per_week": "$2.77",
           "product.offer_price_per_month": "$12.00",
@@ -510,7 +510,7 @@ describe("getPaywallVariables", () => {
 
       expect(variables.$rc_weekly).toEqual(
         expect.objectContaining({
-          "product.offer_price": "$600.00",
+          "product.offer_price": "$75.00",
           "product.offer_price_per_day": "$10.71",
           "product.offer_price_per_week": "$75.00",
           "product.offer_price_per_month": "$324.75",
@@ -545,7 +545,7 @@ describe("getPaywallVariables", () => {
 
       expect(variables.$rc_monthly).toEqual(
         expect.objectContaining({
-          "product.offer_price": "$5.97",
+          "product.offer_price": "$1.99",
           "product.offer_price_per_day": "$0.06",
           "product.offer_price_per_week": "$0.45",
           "product.offer_price_per_month": "$1.99",
@@ -558,6 +558,52 @@ describe("getPaywallVariables", () => {
           "product.offer_period_in_months": "3",
           "product.offer_period_in_years": "0",
           "product.offer_end_date": "January 30, 2026",
+          "product.secondary_offer_price": "",
+          "product.secondary_offer_period": "",
+          "product.secondary_offer_period_abbreviated": "",
+        }),
+      );
+    });
+
+    test("Subscription with paid-upfront intro price keeps offer_price as the upfront charge", () => {
+      const introPricePaidUpfront: SubscriptionOption["introPrice"] = {
+        period: { unit: PeriodUnit.Month, number: 6 },
+        periodDuration: "P6M",
+        cycleCount: 1,
+        price: toPrice(6990000, "USD"),
+        pricePerWeek: toPrice(270000, "USD"),
+        pricePerMonth: toPrice(1160000, "USD"),
+        pricePerYear: toPrice(14170000, "USD"),
+      } satisfies PricingPhase;
+
+      const off = toOffering([
+        {
+          packageIdentifier: "$rc_monthly",
+          identifier: "monthly_paid_upfront_intro_price",
+          title: "Monthly Paid Upfront Intro Price",
+          basePriceMicros: 9000000,
+          currency: "USD",
+          introPrice: introPricePaidUpfront,
+        },
+      ]);
+
+      const variables = parseOfferingIntoVariables(off, enTranslator);
+
+      expect(variables.$rc_monthly).toEqual(
+        expect.objectContaining({
+          "product.offer_price": "$6.99",
+          "product.offer_price_per_day": "$0.03",
+          "product.offer_price_per_week": "$0.26",
+          "product.offer_price_per_month": "$1.16",
+          "product.offer_price_per_year": "$13.98",
+          "product.offer_period": "month",
+          "product.offer_period_abbreviated": "mo",
+          "product.offer_period_with_unit": "6 months",
+          "product.offer_period_in_days": "180",
+          "product.offer_period_in_weeks": "25",
+          "product.offer_period_in_months": "6",
+          "product.offer_period_in_years": "0",
+          "product.offer_end_date": "April 30, 2026",
           "product.secondary_offer_price": "",
           "product.secondary_offer_period": "",
           "product.secondary_offer_period_abbreviated": "",
