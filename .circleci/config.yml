@@ -142,6 +142,9 @@ jobs:
       - revenuecat/setup-git-credentials
       - install-dependencies
       - run:
+          name: Check version consistency
+          command: pnpm run check-version-consistency
+      - run:
           name: Install dependencies webbilling-demo
           working_directory: examples/webbilling-demo
           command: pnpm install
