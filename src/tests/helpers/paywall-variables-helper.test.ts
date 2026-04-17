@@ -530,6 +530,58 @@ describe("getPaywallVariables", () => {
       );
     });
 
+    test("Subscription with time window discount shorter than billing cadence discounts the first monthly bill", () => {
+      const monthlyShortWindowDiscount = {
+        timeWindow: "P1W",
+        periodDuration: "P1W",
+        durationMode: "time_window",
+        price: toPrice(5000000, "USD"),
+        name: "Monthly Short Window Discount",
+        period: { number: 1, unit: PeriodUnit.Week },
+        cycleCount: 1,
+        discountType: "percentage",
+        percentage: 50,
+        fixedAmount: null,
+      } satisfies NonNullable<SubscriptionOption["discount"]>;
+
+      const off = toOffering([
+        {
+          packageIdentifier: "$rc_monthly",
+          identifier: "monthly_short_window_discount",
+          title: "Monthly Short Window Discount",
+          basePriceMicros: 10000000,
+          pricePerWeekMicros: 2330000,
+          pricePerMonthMicros: 10000000,
+          pricePerYearMicros: 120000000,
+          currency: "USD",
+          discount: monthlyShortWindowDiscount,
+        },
+      ]);
+
+      const variables = parseOfferingIntoVariables(off, enTranslator);
+
+      expect(variables.$rc_monthly).toEqual(
+        expect.objectContaining({
+          "product.offer_price": "$5.00",
+          "product.offer_price_per_day": "$0.16",
+          "product.offer_price_per_week": "$1.15",
+          "product.offer_price_per_month": "$5.00",
+          "product.offer_price_per_year": "$60.00",
+          "product.offer_period": "week",
+          "product.offer_period_abbreviated": "wk",
+          "product.offer_period_with_unit": "1 week",
+          "product.offer_period_in_days": "7",
+          "product.offer_period_in_weeks": "1",
+          "product.offer_period_in_months": "0",
+          "product.offer_period_in_years": "0",
+          "product.offer_end_date": "November 6, 2025",
+          "product.secondary_offer_price": "",
+          "product.secondary_offer_period": "",
+          "product.secondary_offer_period_abbreviated": "",
+        }),
+      );
+    });
+
     test("Subscription with multi-cycle intro price uses the full promo window for offer duration", () => {
       const off = toOffering([
         {
