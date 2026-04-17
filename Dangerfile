@@ -22,8 +22,9 @@ unless head_branch.to_s.start_with?('release/')
 
     fail(
       "`#{path}` contains a version change, but this PR is not targeting a `release/*` branch. " \
-      "Versions are managed by Fastlane — please revert the change and run `bundle exec fastlane bump` " \
-      "to cut a release. See `fastlane/Fastfile` for the release flow."
+      "Versions are managed by Fastlane — please revert the change and either run `bundle exec fastlane bump` " \
+      "locally, or trigger the `manual-trigger-bump` pipeline in CircleCI with the `action` parameter set to " \
+      "`bump`. See `fastlane/Fastfile` and `.circleci/config.yml` for the release flow."
     )
   end
 end

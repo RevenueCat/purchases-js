@@ -35,8 +35,10 @@ if (unique.size > 1) {
     console.error(`  ${file}: ${value}`);
   }
   console.error(
-    "\nThese files must stay in lockstep. Run `bundle exec fastlane bump` " +
-      "to cut a release rather than editing them by hand.",
+    "\nThese files must stay in lockstep. To cut a release, run " +
+      "`bundle exec fastlane bump` locally, or trigger the " +
+      "`manual-trigger-bump` pipeline in CircleCI with the `action` " +
+      "parameter set to `bump` — don't edit these files by hand.",
   );
   process.exit(1);
 }
