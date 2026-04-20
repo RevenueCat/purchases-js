@@ -47,6 +47,7 @@
     customTranslations?: CustomTranslations;
     isInElement: boolean;
     skipSuccessPage: boolean;
+    showDiscountCodeField: boolean;
     termsAndConditionsUrl?: string;
     workflowPurchaseContext?: WorkflowPurchaseContext;
     paywallId?: string;
@@ -70,6 +71,7 @@
     customTranslations = {},
     isInElement,
     skipSuccessPage = false,
+    showDiscountCodeField = false,
     termsAndConditionsUrl,
     workflowPurchaseContext,
     paywallId,
@@ -265,6 +267,7 @@
   {purchaseOperationHelper}
   {isInElement}
   {termsAndConditionsUrl}
+  {showDiscountCodeField}
   {forceEnableWalletMethods}
   customerEmail={email ?? null}
   {closeWithError}

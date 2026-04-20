@@ -74,6 +74,11 @@ export interface PurchaseParams {
   skipSuccessPage?: boolean;
 
   /**
+   * If set to true, the Web Billing checkout will show a discount input code field.
+   */
+  showDiscountCodeField?: boolean;
+
+  /**
    * Defines an optional override for the default branding appearance.
    *
    * This property is used internally at RevenueCat to handle dynamic themes such

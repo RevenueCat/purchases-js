@@ -628,6 +628,7 @@ export class Purchases {
         rcPackage: pkg,
         htmlTarget: paywallParams.purchaseHtmlTarget,
         customerEmail: paywallParams.customerEmail,
+        showDiscountCodeField: paywallParams.showDiscountCodeField,
         selectedLocale: finalLocale,
         defaultLocale:
           offering.paywallComponents?.default_locale || englishLocale,
@@ -1243,6 +1244,7 @@ export class Purchases {
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
       skipSuccessPage = false,
+      showDiscountCodeField = false,
     } = params;
 
     const certainHTMLTarget = this.resolveHTMLTarget(htmlTarget);
@@ -1337,6 +1339,7 @@ export class Purchases {
           defaultLocale,
           customTranslations: params.labelsOverride,
           termsAndConditionsUrl: params.termsAndConditionsUrl,
+          showDiscountCodeField,
           skipSuccessPage,
         },
       });

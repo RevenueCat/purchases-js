@@ -36,6 +36,12 @@ export interface PresentPaywallParams {
   readonly customerEmail?: string;
 
   /**
+   * If set to true, the Web Billing checkout shown from the paywall
+   * will display a discount input code field.
+   */
+  readonly showDiscountCodeField?: boolean;
+
+  /**
    * Callback to be called when the paywall tries to navigate to an external URL.
    */
   readonly onNavigateToUrl?: (url: string) => void;

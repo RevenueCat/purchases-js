@@ -17,6 +17,8 @@
   export let purchaseOption: PurchaseOption;
   export let showProductDescription: boolean;
   export let priceBreakdown: PriceBreakdown;
+  export let showDiscountCodeField = false;
+  export let discountCode = "";
 
   const isSubscription = productDetails.productType === "subscription";
   const subscriptionOption = isSubscription
@@ -56,6 +58,20 @@
 <div class="rcb-pricing-info">
   <div class="rcb-pricing-info-header">
     <ProductHeader {productDetails} {showProductDescription} />
+    {#if showDiscountCodeField}
+      <div>
+        <label for="rc-discount-code"> Discount code </label>
+        <div>
+          <input
+            id="rc-discount-code"
+            type="text"
+            bind:value={discountCode}
+            autocomplete="off"
+          />
+          <button type="button" disabled> Apply </button>
+        </div>
+      </div>
+    {/if}
     {#if isSubscription}
       <PricingSummary
         {priceBreakdown}

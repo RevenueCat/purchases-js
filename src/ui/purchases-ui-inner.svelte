@@ -31,6 +31,7 @@
     forceEnableWalletMethods: boolean;
     defaultPriceBreakdown?: PriceBreakdown;
     termsAndConditionsUrl?: string;
+    showDiscountCodeField: boolean;
     closeWithError: () => void;
     onContinue: () => void;
     onError: (error: PurchaseFlowError) => void;
@@ -52,6 +53,7 @@
     forceEnableWalletMethods,
     defaultPriceBreakdown,
     termsAndConditionsUrl,
+    showDiscountCodeField,
     closeWithError,
     onContinue,
     onError,
@@ -73,6 +75,7 @@
       taxBreakdown: null,
     },
   );
+  let discountCode = $state("");
 
   const onPriceBreakdownUpdated = (value: PriceBreakdown) => {
     priceBreakdown = value;
@@ -93,6 +96,8 @@
       purchaseOption={purchaseOptionToUse}
       showProductDescription={brandingInfo?.appearance
         ?.show_product_description ?? false}
+      {showDiscountCodeField}
+      bind:discountCode
       {priceBreakdown}
     />
   {/snippet}

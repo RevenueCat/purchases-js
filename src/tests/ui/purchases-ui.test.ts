@@ -55,6 +55,7 @@ const basicProps = {
   isSandbox: true,
   branding: brandingInfo,
   customerEmail: "test@test.com",
+  showDiscountCodeField: false,
   onClose: vi.fn(),
 };
 
