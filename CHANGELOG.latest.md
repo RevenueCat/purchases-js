@@ -1,8 +1,6 @@
-## RevenueCatUI SDK
+## RevenueCat SDK
 ### ✨ New Features
-* WFL-26 | Bump purchases-ui-js to add support for header component (#841) via Rosie Watson (@RosieWatson)
-### 🐞 Bugfixes
-* Bump purchases-ui-js to 3.11.1 (#843) via Franco Correa (@francocorreasosa)
+* [WEB-3965] Fix offer variables in paywalls (#846) via James O'Donnell (@james-od)
 
 ### 🔄 Other Changes
-* Only preload Stripe module for Stripe-based API keys (#844) via Toni Rico (@tonidero)
+* Guard against accidental version bumps outside release branches (#847) via Toni Rico (@tonidero)
