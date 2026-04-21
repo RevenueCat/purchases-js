@@ -31,17 +31,17 @@
     forceEnableWalletMethods: boolean;
     defaultPriceBreakdown?: PriceBreakdown;
     termsAndConditionsUrl?: string;
-    showDiscountCodeField: boolean;
-    draftDiscountCode: string;
-    appliedDiscountCode: string | null;
-    discountCodeError: string | null;
-    isUpdatingDiscountCode: boolean;
-    isDiscountCodeControlsEnabled: boolean;
+    showDiscountCodeField?: boolean;
+    draftDiscountCode?: string;
+    appliedDiscountCode?: string | null;
+    discountCodeError?: string | null;
+    isUpdatingDiscountCode?: boolean;
+    isDiscountCodeControlsEnabled?: boolean;
     closeWithError: () => void;
-    onDraftDiscountCodeChange: (discountCode: string) => void;
-    onApplyDiscountCode: () => void | Promise<void>;
-    onRemoveDiscountCode: () => void | Promise<void>;
-    onPaymentProcessingChange: (isProcessing: boolean) => void;
+    onDraftDiscountCodeChange?: (discountCode: string) => void;
+    onApplyDiscountCode?: () => void | Promise<void>;
+    onRemoveDiscountCode?: () => void | Promise<void>;
+    onPaymentProcessingChange?: (isProcessing: boolean) => void;
     onContinue: () => void;
     onError: (error: PurchaseFlowError) => void;
     onClose?: () => void;
@@ -62,17 +62,17 @@
     forceEnableWalletMethods,
     defaultPriceBreakdown,
     termsAndConditionsUrl,
-    showDiscountCodeField,
-    draftDiscountCode,
-    appliedDiscountCode,
-    discountCodeError,
-    isUpdatingDiscountCode,
-    isDiscountCodeControlsEnabled,
+    showDiscountCodeField = false,
+    draftDiscountCode = "",
+    appliedDiscountCode = null,
+    discountCodeError = null,
+    isUpdatingDiscountCode = false,
+    isDiscountCodeControlsEnabled = false,
     closeWithError,
-    onDraftDiscountCodeChange,
-    onApplyDiscountCode,
-    onRemoveDiscountCode,
-    onPaymentProcessingChange,
+    onDraftDiscountCodeChange = undefined,
+    onApplyDiscountCode = undefined,
+    onRemoveDiscountCode = undefined,
+    onPaymentProcessingChange = undefined,
     onContinue,
     onError,
     onClose = undefined,
