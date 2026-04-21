@@ -79,6 +79,20 @@ export interface PurchaseParams {
   showDiscountCodeField?: boolean;
 
   /**
+   * Initial discount code to display as applied in the Web Billing checkout.
+   * This is useful when the code originated outside of the checkout UI,
+   * for example from a URL parameter.
+   */
+  discountCode?: string;
+
+  /**
+   * Called when the applied discount code changes in the Web Billing checkout.
+   * This can be used by host applications to keep external state, such as the URL,
+   * in sync with the checkout.
+   */
+  onDiscountCodeChanged?: (discountCode: string | null) => void;
+
+  /**
    * Defines an optional override for the default branding appearance.
    *
    * This property is used internally at RevenueCat to handle dynamic themes such

@@ -713,7 +713,7 @@ const toNonSubscriptionOption = (
   };
 };
 
-const toProduct = (
+export const toProduct = (
   productDetailsData: ProductResponse,
   presentedOfferingContext: PresentedOfferingContext,
 ): Product | null => {

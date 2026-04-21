@@ -19,18 +19,36 @@
   export let priceBreakdown: PriceBreakdown;
   export let showDiscountCodeField = false;
   export let discountCode = "";
+  export let appliedDiscountCode: string | null = null;
+  export let discountCodeError: string | null = null;
+  export let isUpdatingDiscountCode = false;
+  export let onDiscountCodeChange:
+    | ((discountCode: string) => void)
+    | undefined = undefined;
+  export let onApplyDiscountCode: (() => void | Promise<void>) | undefined =
+    undefined;
+  export let onRemoveDiscountCode: (() => void | Promise<void>) | undefined =
+    undefined;
 
-  const isSubscription = productDetails.productType === "subscription";
-  const subscriptionOption = isSubscription
+  let isSubscription: boolean;
+  let subscriptionOption: SubscriptionOption | null;
+  let nonSubscriptionOption: NonSubscriptionOption | null;
+  let basePhase: PricingPhase | null;
+  let resolvedDiscountPhase: DiscountPhase | null;
+  let shouldOverridePromoWithDiscount: boolean;
+  let trialPhase: PricingPhase | null;
+  let discountPhase: DiscountPhase | null;
+  let introPricePhase: PricingPhase | null;
+  let promotionalPricePhase: PricingPhase | DiscountPhase | null;
+
+  $: isSubscription = productDetails.productType === "subscription";
+  $: subscriptionOption = isSubscription
     ? (purchaseOption as SubscriptionOption)
     : null;
-  const nonSubscriptionOption = !isSubscription
+  $: nonSubscriptionOption = !isSubscription
     ? (purchaseOption as NonSubscriptionOption)
     : null;
-
-  // For subscriptions: use base phase directly
-  // For non-subscriptions: create a PricingPhase from basePrice
-  const basePhase: PricingPhase | null = isSubscription
+  $: basePhase = isSubscription
     ? (subscriptionOption?.base ?? null)
     : nonSubscriptionOption?.basePrice
       ? {
@@ -43,22 +61,38 @@
           pricePerYear: null,
         }
       : null;
-
-  const trialPhase = subscriptionOption?.trial ?? null;
-  const discountPhase =
+  $: resolvedDiscountPhase =
     subscriptionOption?.discount ?? nonSubscriptionOption?.discount ?? null;
-  const introPricePhase = subscriptionOption?.introPrice ?? null;
-  const promotionalPricePhase: PricingPhase | DiscountPhase | null =
-    subscriptionOption?.discount ??
-    subscriptionOption?.introPrice ??
-    nonSubscriptionOption?.discount ??
+  $: shouldOverridePromoWithDiscount =
+    appliedDiscountCode !== null && resolvedDiscountPhase !== null;
+  $: trialPhase = shouldOverridePromoWithDiscount
+    ? null
+    : (subscriptionOption?.trial ?? null);
+  $: discountPhase = resolvedDiscountPhase;
+  $: introPricePhase = shouldOverridePromoWithDiscount
+    ? null
+    : (subscriptionOption?.introPrice ?? null);
+  $: promotionalPricePhase =
+    resolvedDiscountPhase ??
+    (shouldOverridePromoWithDiscount ? null : subscriptionOption?.introPrice) ??
     null;
 </script>
 
 <div class="rcb-pricing-info">
   <div class="rcb-pricing-info-header">
     <ProductHeader {productDetails} {showProductDescription} />
-    {#if showDiscountCodeField}
+    {#if appliedDiscountCode}
+      <div>
+        <span>{appliedDiscountCode}</span>
+        <button
+          type="button"
+          disabled={isUpdatingDiscountCode}
+          onclick={() => onRemoveDiscountCode?.()}
+        >
+          {isUpdatingDiscountCode ? "Removing..." : "Remove"}
+        </button>
+      </div>
+    {:else if showDiscountCodeField}
       <div>
         <label for="rc-discount-code"> Discount code </label>
         <div>
@@ -67,9 +101,20 @@
             type="text"
             bind:value={discountCode}
             autocomplete="off"
+            disabled={isUpdatingDiscountCode}
+            oninput={() => onDiscountCodeChange?.(discountCode)}
           />
-          <button type="button" disabled> Apply </button>
+          <button
+            type="button"
+            disabled={isUpdatingDiscountCode || !discountCode.trim()}
+            onclick={() => onApplyDiscountCode?.()}
+          >
+            {isUpdatingDiscountCode ? "Applying..." : "Apply"}
+          </button>
         </div>
+        {#if discountCodeError}
+          <div>{discountCodeError}</div>
+        {/if}
       </div>
     {/if}
     {#if isSubscription}

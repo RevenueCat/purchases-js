@@ -42,6 +42,18 @@ export interface PresentPaywallParams {
   readonly showDiscountCodeField?: boolean;
 
   /**
+   * Initial discount code to apply to the checkout when one already exists
+   * outside of the paywall UI, for example in the hosting page's URL.
+   */
+  readonly discountCode?: string;
+
+  /**
+   * Called when the applied discount code changes in the checkout shown from
+   * the paywall. This can be used to sync host state such as URL parameters.
+   */
+  readonly onDiscountCodeChanged?: (discountCode: string | null) => void;
+
+  /**
    * Callback to be called when the paywall tries to navigate to an external URL.
    */
   readonly onNavigateToUrl?: (url: string) => void;

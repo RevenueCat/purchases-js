@@ -32,7 +32,14 @@
     defaultPriceBreakdown?: PriceBreakdown;
     termsAndConditionsUrl?: string;
     showDiscountCodeField: boolean;
+    draftDiscountCode: string;
+    appliedDiscountCode: string | null;
+    discountCodeError: string | null;
+    isUpdatingDiscountCode: boolean;
     closeWithError: () => void;
+    onDraftDiscountCodeChange: (discountCode: string) => void;
+    onApplyDiscountCode: () => void | Promise<void>;
+    onRemoveDiscountCode: () => void | Promise<void>;
     onContinue: () => void;
     onError: (error: PurchaseFlowError) => void;
     onClose?: () => void;
@@ -54,7 +61,14 @@
     defaultPriceBreakdown,
     termsAndConditionsUrl,
     showDiscountCodeField,
+    draftDiscountCode,
+    appliedDiscountCode,
+    discountCodeError,
+    isUpdatingDiscountCode,
     closeWithError,
+    onDraftDiscountCodeChange,
+    onApplyDiscountCode,
+    onRemoveDiscountCode,
     onContinue,
     onError,
     onClose = undefined,
@@ -75,7 +89,22 @@
       taxBreakdown: null,
     },
   );
-  let discountCode = $state("");
+
+  $effect(() => {
+    const updatedInitialPrice = getInitialPriceFromPurchaseOption(
+      productDetails,
+      purchaseOptionToUse,
+    );
+
+    priceBreakdown = defaultPriceBreakdown ?? {
+      currency: updatedInitialPrice.currency,
+      totalAmountInMicros: updatedInitialPrice.amountMicros,
+      totalExcludingTaxInMicros: updatedInitialPrice.amountMicros,
+      taxCalculationStatus: "unavailable",
+      taxAmountInMicros: null,
+      taxBreakdown: null,
+    };
+  });
 
   const onPriceBreakdownUpdated = (value: PriceBreakdown) => {
     priceBreakdown = value;
@@ -97,7 +126,13 @@
       showProductDescription={brandingInfo?.appearance
         ?.show_product_description ?? false}
       {showDiscountCodeField}
-      bind:discountCode
+      discountCode={draftDiscountCode}
+      {appliedDiscountCode}
+      {discountCodeError}
+      {isUpdatingDiscountCode}
+      onDiscountCodeChange={onDraftDiscountCodeChange}
+      {onApplyDiscountCode}
+      {onRemoveDiscountCode}
       {priceBreakdown}
     />
   {/snippet}
