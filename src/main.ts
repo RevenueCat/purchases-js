@@ -889,6 +889,10 @@ export class Purchases {
     return toOfferings(offeringsResponse, productsResponse);
   }
 
+  /**
+   * Used by internal RC code to fetch a fresh product payload.
+   * @internal
+   */
   public async _getProductWithDiscountCode(
     rcPackage: Package,
     purchaseOption: PurchaseOption,
