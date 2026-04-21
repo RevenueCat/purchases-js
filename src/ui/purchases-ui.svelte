@@ -109,6 +109,7 @@
   );
   let discountCodeError: string | null = $state(null);
   let isUpdatingDiscountCode = $state(false);
+  let isPaymentProcessing = $state(false);
 
   let currentPage: CurrentPage = $state("payment-entry-loading");
   let operationResult: OperationSessionSuccessfulResult | null = $state(null);
@@ -283,6 +284,10 @@
     discountCodeError = null;
   };
 
+  const handlePaymentProcessingChange = (nextIsProcessing: boolean) => {
+    isPaymentProcessing = nextIsProcessing;
+  };
+
   const restartCheckoutWithDiscountCode = async (
     nextDiscountCode: string | null,
   ) => {
@@ -416,12 +421,15 @@
   {appliedDiscountCode}
   {discountCodeError}
   {isUpdatingDiscountCode}
+  isDiscountCodeControlsEnabled={currentPage === "payment-entry" &&
+    !isPaymentProcessing}
   {forceEnableWalletMethods}
   customerEmail={email ?? null}
   {closeWithError}
   onDraftDiscountCodeChange={handleDraftDiscountCodeChange}
   onApplyDiscountCode={handleApplyDiscountCode}
   onRemoveDiscountCode={handleRemoveDiscountCode}
+  onPaymentProcessingChange={handlePaymentProcessingChange}
   onContinue={handleContinue}
   onError={handleError}
   {onClose}

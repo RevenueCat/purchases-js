@@ -22,6 +22,7 @@
   export let appliedDiscountCode: string | null = null;
   export let discountCodeError: string | null = null;
   export let isUpdatingDiscountCode = false;
+  export let isDiscountCodeControlsEnabled = false;
   export let onDiscountCodeChange:
     | ((discountCode: string) => void)
     | undefined = undefined;
@@ -84,13 +85,15 @@
     {#if appliedDiscountCode}
       <div>
         <span>{appliedDiscountCode}</span>
-        <button
-          type="button"
-          disabled={isUpdatingDiscountCode}
-          onclick={() => onRemoveDiscountCode?.()}
-        >
-          {isUpdatingDiscountCode ? "Removing..." : "Remove"}
-        </button>
+        {#if isDiscountCodeControlsEnabled}
+          <button
+            type="button"
+            disabled={isUpdatingDiscountCode}
+            onclick={() => onRemoveDiscountCode?.()}
+          >
+            {isUpdatingDiscountCode ? "Removing..." : "Remove"}
+          </button>
+        {/if}
       </div>
     {:else if showDiscountCodeField}
       <div>
@@ -101,12 +104,14 @@
             type="text"
             bind:value={discountCode}
             autocomplete="off"
-            disabled={isUpdatingDiscountCode}
+            disabled={isUpdatingDiscountCode || !isDiscountCodeControlsEnabled}
             oninput={() => onDiscountCodeChange?.(discountCode)}
           />
           <button
             type="button"
-            disabled={isUpdatingDiscountCode || !discountCode.trim()}
+            disabled={isUpdatingDiscountCode ||
+              !isDiscountCodeControlsEnabled ||
+              !discountCode.trim()}
             onclick={() => onApplyDiscountCode?.()}
           >
             {isUpdatingDiscountCode ? "Applying..." : "Apply"}

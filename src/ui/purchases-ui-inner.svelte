@@ -36,10 +36,12 @@
     appliedDiscountCode: string | null;
     discountCodeError: string | null;
     isUpdatingDiscountCode: boolean;
+    isDiscountCodeControlsEnabled: boolean;
     closeWithError: () => void;
     onDraftDiscountCodeChange: (discountCode: string) => void;
     onApplyDiscountCode: () => void | Promise<void>;
     onRemoveDiscountCode: () => void | Promise<void>;
+    onPaymentProcessingChange: (isProcessing: boolean) => void;
     onContinue: () => void;
     onError: (error: PurchaseFlowError) => void;
     onClose?: () => void;
@@ -65,10 +67,12 @@
     appliedDiscountCode,
     discountCodeError,
     isUpdatingDiscountCode,
+    isDiscountCodeControlsEnabled,
     closeWithError,
     onDraftDiscountCodeChange,
     onApplyDiscountCode,
     onRemoveDiscountCode,
+    onPaymentProcessingChange,
     onContinue,
     onError,
     onClose = undefined,
@@ -130,6 +134,7 @@
       {appliedDiscountCode}
       {discountCodeError}
       {isUpdatingDiscountCode}
+      {isDiscountCodeControlsEnabled}
       onDiscountCodeChange={onDraftDiscountCodeChange}
       {onApplyDiscountCode}
       {onRemoveDiscountCode}
@@ -155,6 +160,7 @@
         {onContinue}
         {onError}
         {onPriceBreakdownUpdated}
+        onProcessingStateChange={onPaymentProcessingChange}
       />
     {/if}
 
