@@ -21,6 +21,7 @@ type PaywallMountProps = {
   onCompleteWorkflowNavigate: (
     args: CompleteWorkflowNavigateArgs,
   ) => void | Promise<void>;
+  onNavigateToUrlClicked: (url: string) => void;
 };
 
 const createOfferingWithPaywall = (
@@ -256,6 +257,117 @@ describe("Purchases.presentPaywall() paywall events", () => {
         }),
       );
     });
+
+    paywallProps!.onBackClicked();
+    await expect(paywallPromise).rejects.toHaveProperty(
+      "errorCode",
+      ErrorCode.UserCancelledError,
+    );
+  });
+
+  test("does not open a second tab for text link callbacks when ui-js keeps native navigation", async () => {
+    const purchases = configurePurchases();
+    const offering = createOfferingWithPaywall();
+    const htmlTarget = document.createElement("div");
+    document.body.appendChild(htmlTarget);
+    const openSpy = vi.spyOn(window, "open").mockReturnValue({
+      focus: vi.fn(),
+    } as unknown as Window);
+
+    const paywallPromise = purchases.presentPaywall({ offering, htmlTarget });
+    void paywallPromise.catch(() => undefined);
+
+    expect(paywallProps).toBeDefined();
+    const link = document.createElement("a");
+    link.setAttribute("href", "#details");
+    htmlTarget.appendChild(link);
+    link.dispatchEvent(
+      new MouseEvent("click", { bubbles: true, cancelable: true }),
+    );
+
+    paywallProps!.onComponentInteraction({
+      componentType: "text",
+      componentName: "Legal Text",
+      componentValue: "navigate_to_url",
+      componentURL: "#details",
+    });
+    paywallProps!.onNavigateToUrlClicked("#details");
+    await Promise.resolve();
+
+    expect(openSpy).not.toHaveBeenCalled();
+
+    paywallProps!.onBackClicked();
+    await expect(paywallPromise).rejects.toHaveProperty(
+      "errorCode",
+      ErrorCode.UserCancelledError,
+    );
+  });
+
+  test("still opens a new tab for text link callbacks when ui-js prevents default", async () => {
+    const purchases = configurePurchases();
+    const offering = createOfferingWithPaywall();
+    const htmlTarget = document.createElement("div");
+    document.body.appendChild(htmlTarget);
+    const focus = vi.fn();
+    const openSpy = vi.spyOn(window, "open").mockReturnValue({
+      focus,
+    } as unknown as Window);
+
+    const paywallPromise = purchases.presentPaywall({ offering, htmlTarget });
+    void paywallPromise.catch(() => undefined);
+
+    expect(paywallProps).toBeDefined();
+    const link = document.createElement("a");
+    link.setAttribute("href", "#details");
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+    });
+    htmlTarget.appendChild(link);
+    link.dispatchEvent(
+      new MouseEvent("click", { bubbles: true, cancelable: true }),
+    );
+
+    paywallProps!.onComponentInteraction({
+      componentType: "text",
+      componentName: "Legal Text",
+      componentValue: "navigate_to_url",
+      componentURL: "#details",
+    });
+    paywallProps!.onNavigateToUrlClicked("#details");
+    await Promise.resolve();
+
+    expect(openSpy).toHaveBeenCalledWith("#details", "_blank");
+    expect(focus).toHaveBeenCalled();
+
+    paywallProps!.onBackClicked();
+    await expect(paywallPromise).rejects.toHaveProperty(
+      "errorCode",
+      ErrorCode.UserCancelledError,
+    );
+  });
+
+  test("still opens a new tab for button URL callbacks", async () => {
+    const purchases = configurePurchases();
+    const offering = createOfferingWithPaywall();
+    const focus = vi.fn();
+    const openSpy = vi.spyOn(window, "open").mockReturnValue({
+      focus,
+    } as unknown as Window);
+
+    const paywallPromise = purchases.presentPaywall({ offering });
+    void paywallPromise.catch(() => undefined);
+
+    expect(paywallProps).toBeDefined();
+    paywallProps!.onComponentInteraction({
+      componentType: "button",
+      componentName: "Terms Button",
+      componentValue: "navigate_to_terms",
+      componentURL: "https://example.com/terms",
+    });
+    paywallProps!.onNavigateToUrlClicked("https://example.com/terms");
+
+    expect(openSpy).toHaveBeenCalledWith("https://example.com/terms", "_blank");
+    expect(focus).toHaveBeenCalled();
 
     paywallProps!.onBackClicked();
     await expect(paywallPromise).rejects.toHaveProperty(

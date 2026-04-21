@@ -655,9 +655,68 @@ export class Purchases {
       return { ...purchaseResult, selectedPackage: pkg };
     };
 
+    let lastNavigationInteraction: Pick<
+      ComponentInteractionData,
+      "componentType" | "componentURL"
+    > | null = null;
+    let lastTextLinkClick: {
+      url: string;
+      defaultPrevented: boolean;
+    } | null = null;
+
+    const recordTextLinkClick = (event: MouseEvent) => {
+      const target = event.target;
+      if (!(target instanceof Element)) {
+        return;
+      }
+
+      const anchor = target.closest("a[href]");
+      if (
+        !(anchor instanceof HTMLAnchorElement) ||
+        !certainHTMLTarget.contains(anchor)
+      ) {
+        return;
+      }
+
+      const url = anchor.getAttribute("href") ?? anchor.href;
+      if (!url) {
+        return;
+      }
+
+      lastTextLinkClick = {
+        url,
+        defaultPrevented: event.defaultPrevented,
+      };
+    };
+
     const navigateToUrl = (url: string) => {
+      const navigationInteraction =
+        lastNavigationInteraction?.componentURL === url
+          ? lastNavigationInteraction
+          : null;
+      lastNavigationInteraction = null;
+
       if (paywallParams.onNavigateToUrl) {
         paywallParams.onNavigateToUrl(url);
+        return;
+      }
+
+      // purchases-ui-js text links now preserve native browser navigation, but
+      // older versions still prevent default and rely on the host callback to
+      // navigate. Defer the fallback until after bubbling so both contracts work.
+      if (navigationInteraction?.componentType === "text") {
+        queueMicrotask(() => {
+          const textLinkClick =
+            lastTextLinkClick?.url === url ? lastTextLinkClick : null;
+          lastTextLinkClick = null;
+
+          if (textLinkClick?.defaultPrevented !== true) {
+            return;
+          }
+
+          const win = getWindow();
+          win.open(url, "_blank")?.focus();
+        });
         return;
       }
 
@@ -713,6 +772,8 @@ export class Purchases {
       let paywallImpressionTracked = false;
       let paywallCloseTracked = false;
 
+      certainHTMLTarget.addEventListener("click", recordTextLinkClick);
+
       const trackPaywallCloseIfNeeded = () => {
         if (paywallCloseTracked) {
           return;
@@ -762,6 +823,7 @@ export class Purchases {
 
       const unmountPaywall = () => {
         containerObserver.disconnect();
+        certainHTMLTarget.removeEventListener("click", recordTextLinkClick);
         trackPaywallCloseIfNeeded();
         if (component) {
           unmount(component);
@@ -850,6 +912,13 @@ export class Purchases {
           walletButtonRender,
           customVariables: paywallParams.customVariables,
           onComponentInteraction: (data: ComponentInteractionData) => {
+            lastNavigationInteraction =
+              data.componentURL === undefined
+                ? null
+                : {
+                    componentType: data.componentType,
+                    componentURL: data.componentURL,
+                  };
             trackComponentInteraction(data);
           },
         },
