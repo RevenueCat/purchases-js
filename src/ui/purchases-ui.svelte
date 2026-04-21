@@ -172,21 +172,23 @@
       : false,
   );
 
-  const startCheckout = async (
+  const startCheckout = (
     nextProductDetails: Product,
     nextPurchaseOption: PurchaseOption,
     nextEmail: string | undefined,
   ) => {
     const nextProductId = nextProductDetails.identifier ?? null;
     if (nextProductId === null) {
-      throw new PurchaseFlowError(
-        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-        "Product ID was not set before purchase.",
+      return Promise.reject(
+        new PurchaseFlowError(
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+          "Product ID was not set before purchase.",
+        ),
       );
     }
 
-    try {
-      const result = await purchaseOperationHelper.checkoutStart({
+    return purchaseOperationHelper
+      .checkoutStart({
         appUserId,
         productId: nextProductId,
         purchaseOption: nextPurchaseOption,
@@ -196,31 +198,28 @@
         workflowPurchaseContext,
         paywallId,
         locale: selectedLocale,
+      })
+      .then((result) => ({ result, emailToUse: nextEmail }))
+      .catch((e: PurchaseFlowError) => {
+        if (e.errorCode !== PurchaseFlowErrorCode.MissingEmailError) {
+          throw e;
+        }
+
+        return purchaseOperationHelper
+          .checkoutStart({
+            appUserId,
+            productId: nextProductId,
+            purchaseOption: nextPurchaseOption,
+            presentedOfferingContext:
+              nextProductDetails.presentedOfferingContext,
+            customerEmail: undefined,
+            metadata,
+            workflowPurchaseContext,
+            paywallId,
+            locale: selectedLocale,
+          })
+          .then((result) => ({ result, emailToUse: undefined }));
       });
-
-      return { result, emailToUse: nextEmail };
-    } catch (e: unknown) {
-      if (
-        e instanceof PurchaseFlowError &&
-        e.errorCode === PurchaseFlowErrorCode.MissingEmailError
-      ) {
-        const result = await purchaseOperationHelper.checkoutStart({
-          appUserId,
-          productId: nextProductId,
-          purchaseOption: nextPurchaseOption,
-          presentedOfferingContext: nextProductDetails.presentedOfferingContext,
-          customerEmail: undefined,
-          metadata,
-          workflowPurchaseContext,
-          paywallId,
-          locale: selectedLocale,
-        });
-
-        return { result, emailToUse: undefined };
-      }
-
-      throw e;
-    }
   };
 
   onMount(async () => {
@@ -252,9 +251,7 @@
             purchaseOptionToUse = discountResult.purchaseOption;
             appliedDiscountCode = discountCode;
           }
-        } catch {
-          appliedDiscountCode = null;
-        }
+        } catch {}
       }
 
       const { result, emailToUse } = await startCheckout(

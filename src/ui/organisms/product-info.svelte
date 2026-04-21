@@ -47,6 +47,8 @@
   $: nonSubscriptionOption = !isSubscription
     ? (purchaseOption as NonSubscriptionOption)
     : null;
+  // For subscriptions: use base phase directly
+  // For non-subscriptions: create a PricingPhase from basePrice
   $: basePhase = isSubscription
     ? (subscriptionOption?.base ?? null)
     : nonSubscriptionOption?.basePrice
@@ -60,9 +62,9 @@
           pricePerYear: null,
         }
       : null;
+  $: trialPhase = subscriptionOption?.trial ?? null;
   $: discountPhase =
     subscriptionOption?.discount ?? nonSubscriptionOption?.discount ?? null;
-  $: trialPhase = subscriptionOption?.trial ?? null;
   $: introPricePhase = subscriptionOption?.introPrice ?? null;
   $: promotionalPricePhase =
     discountPhase ?? subscriptionOption?.introPrice ?? null;
