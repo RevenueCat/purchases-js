@@ -35,8 +35,6 @@
   let subscriptionOption: SubscriptionOption | null;
   let nonSubscriptionOption: NonSubscriptionOption | null;
   let basePhase: PricingPhase | null;
-  let resolvedDiscountPhase: DiscountPhase | null;
-  let shouldOverridePromoWithDiscount: boolean;
   let trialPhase: PricingPhase | null;
   let discountPhase: DiscountPhase | null;
   let introPricePhase: PricingPhase | null;
@@ -62,21 +60,12 @@
           pricePerYear: null,
         }
       : null;
-  $: resolvedDiscountPhase =
+  $: discountPhase =
     subscriptionOption?.discount ?? nonSubscriptionOption?.discount ?? null;
-  $: shouldOverridePromoWithDiscount =
-    appliedDiscountCode !== null && resolvedDiscountPhase !== null;
-  $: trialPhase = shouldOverridePromoWithDiscount
-    ? null
-    : (subscriptionOption?.trial ?? null);
-  $: discountPhase = resolvedDiscountPhase;
-  $: introPricePhase = shouldOverridePromoWithDiscount
-    ? null
-    : (subscriptionOption?.introPrice ?? null);
+  $: trialPhase = subscriptionOption?.trial ?? null;
+  $: introPricePhase = subscriptionOption?.introPrice ?? null;
   $: promotionalPricePhase =
-    resolvedDiscountPhase ??
-    (shouldOverridePromoWithDiscount ? null : subscriptionOption?.introPrice) ??
-    null;
+    discountPhase ?? subscriptionOption?.introPrice ?? null;
 </script>
 
 <div class="rcb-pricing-info">
