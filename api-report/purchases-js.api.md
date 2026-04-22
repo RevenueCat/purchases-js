@@ -216,6 +216,7 @@ export interface Offering {
     readonly sixMonth: Package | null;
     readonly threeMonth: Package | null;
     readonly twoMonth: Package | null;
+    readonly webCheckoutURL?: string | null;
     readonly weekly: Package | null;
     /* Excluded from this release type: paywallComponents */
     /* Excluded from this release type: uiConfig */
@@ -244,6 +245,7 @@ export interface Package {
     // @deprecated
     readonly rcBillingProduct: Product;
     readonly webBillingProduct: Product;
+    readonly webCheckoutURL?: string | null;
 }
 
 // @public
