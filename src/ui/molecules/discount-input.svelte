@@ -1,6 +1,5 @@
 <script lang="ts">
   import Icon from "../atoms/icon.svelte";
-  import WarningIcon from "../../assets/warning.svg?raw";
 
   export let showDiscountCodeField = false;
   export let discountCode = "";
@@ -129,7 +128,7 @@
       {#if discountCodeError}
         <div class="rcb-discount-error" role="alert">
           <span class="rcb-discount-error-icon" aria-hidden="true">
-            {@html WarningIcon}
+            <Icon name="warning" />
           </span>
           <span>{displayDiscountCodeError}</span>
         </div>
