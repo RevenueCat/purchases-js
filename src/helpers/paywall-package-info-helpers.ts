@@ -56,7 +56,12 @@ function getPackageInfo(
     };
   }
 
-  return { ...checkoutFields };
+  return {
+    hasTrial: false,
+    hasIntroOffer: false,
+    hasPromoOffer: false,
+    ...checkoutFields,
+  };
 }
 
 export function parseOfferingIntoPackageInfoPerPackage(
