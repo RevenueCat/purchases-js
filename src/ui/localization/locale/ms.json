@@ -99,5 +99,6 @@
   "loading_page.keep_page_open": "Proses hampir selesai. Pastikan halaman ini dibuka.",
   "loading_page.processing_payment": "Memproses pembayaran",
   "pricing_table.discount": "Diskaun",
-  "pricing_table.subtotal": "Subtotal"
+  "pricing_table.subtotal": "Subtotal",
+  "pricing_dropdown.add_promo_code": "Tambah kod promo"
 }

@@ -99,5 +99,6 @@
   "loading_page.keep_page_open": "İşlem neredeyse tamamlandı. Bu sayfayı açık tutun.",
   "loading_page.processing_payment": "Ödeme işleniyor",
   "pricing_table.discount": "İndirim",
-  "pricing_table.subtotal": "Ara Toplam"
+  "pricing_table.subtotal": "Ara Toplam",
+  "pricing_dropdown.add_promo_code": "{{{pricing_dropdown.add_promo_code}}} kupon kodu ekle"
 }

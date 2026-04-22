@@ -99,5 +99,6 @@
   "loading_page.keep_page_open": "Processen er næsten færdig. Hold denne side åben.",
   "loading_page.processing_payment": "Behandler betaling",
   "pricing_table.discount": "Rabat",
-  "pricing_table.subtotal": "Subtotal"
+  "pricing_table.subtotal": "Subtotal",
+  "pricing_dropdown.add_promo_code": "Tilføj rabatkode"
 }

@@ -99,5 +99,6 @@
   "loading_page.keep_page_open": "התהליך כמעט הסתיים. השאר דף זה פתוח.",
   "loading_page.processing_payment": "מעבד תשלום תבעה",
   "pricing_table.discount": "הנחה",
-  "pricing_table.subtotal": "סכום ביניים"
+  "pricing_table.subtotal": "סכום ביניים",
+  "pricing_dropdown.add_promo_code": "הוסף קוד קידום מכירות"
 }

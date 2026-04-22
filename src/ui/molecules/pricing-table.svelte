@@ -60,11 +60,12 @@
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
 
-  const showTaxBreakdown = $derived(
-    priceBreakdown.taxCalculationStatus !== "unavailable" &&
-      priceBreakdown.taxCalculationStatus !== "disabled" &&
-      priceBreakdown.taxBreakdown &&
-      priceBreakdown.taxBreakdown.length > 0,
+  const showDetailsControls = $derived(
+    showDiscountCodeField ||
+      (priceBreakdown.taxCalculationStatus !== "unavailable" &&
+        priceBreakdown.taxCalculationStatus !== "disabled" &&
+        priceBreakdown.taxBreakdown &&
+        priceBreakdown.taxBreakdown.length > 0),
   );
 
   const subtotalAmount = $derived(
@@ -219,7 +220,7 @@
       {/if}
     {/if}
 
-    {#if showTaxBreakdown}
+    {#if showDetailsControls}
       <div class="rcb-pricing-table-row">
         <div class="rcb-pricing-table-header">
           <Typography size="body-small">
@@ -324,8 +325,8 @@
   </div>
 {/snippet}
 
-{#if showTaxBreakdown}
-  <PricingDropdown>
+{#if showDetailsControls}
+  <PricingDropdown {showDiscountCodeField}>
     {@render pricingTable()}
   </PricingDropdown>
 {:else}

@@ -99,5 +99,6 @@
   "loading_page.keep_page_open": "A folyamat majdnem befejeződött. Tartsa nyitva ezt az oldalt.",
   "loading_page.processing_payment": "Fizetés feldolgozása",
   "pricing_table.discount": "Kedvezmény",
-  "pricing_table.subtotal": "Részösszeg"
+  "pricing_table.subtotal": "Részösszeg",
+  "pricing_dropdown.add_promo_code": "Promóciós kód hozzáadása"
 }

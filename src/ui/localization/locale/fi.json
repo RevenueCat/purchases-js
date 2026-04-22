@@ -99,5 +99,6 @@
   "loading_page.keep_page_open": "Prosessi on melkein valmis. Pidä tämä sivu auki.",
   "loading_page.processing_payment": "Maksua käsitellään",
   "pricing_table.discount": "Alennus",
-  "pricing_table.subtotal": "Välisumma"
+  "pricing_table.subtotal": "Välisumma",
+  "pricing_dropdown.add_promo_code": "Lisää kampanjakoodi"
 }

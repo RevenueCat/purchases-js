@@ -99,5 +99,6 @@
   "loading_page.keep_page_open": "Η διαδικασία σχεδόν ολοκληρώθηκε. Κρατήστε αυτή τη σελίδα ανοιχτή.",
   "loading_page.processing_payment": "Επεξεργασία πληρωμής",
   "pricing_table.discount": "Έκπτωση",
-  "pricing_table.subtotal": "Υποσύνολο"
+  "pricing_table.subtotal": "Υποσύνολο",
+  "pricing_dropdown.add_promo_code": "Προσθήκη κωδικού προσφοράς"
 }

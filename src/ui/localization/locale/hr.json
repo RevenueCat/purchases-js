@@ -99,5 +99,6 @@
   "loading_page.keep_page_open": "Proces je skoro gotov. Ostavite ovu stranicu otvorenom.",
   "loading_page.processing_payment": "Obrada uplate",
   "pricing_table.discount": "Popust",
-  "pricing_table.subtotal": "Međuzbroj"
+  "pricing_table.subtotal": "Međuzbroj",
+  "pricing_dropdown.add_promo_code": "Dodaj promotivni kod"
 }
