@@ -98,6 +98,7 @@ import {
 import { generateUUID } from "./helpers/uuid-helper";
 import {
   type ComponentInteractionData,
+  type PaywallComponentInteractionEventData,
   type PaywallEventType,
 } from "./behavioural-events/paywall-event";
 import type { PlatformInfo } from "./entities/platform-info";
@@ -595,6 +596,13 @@ export class Purchases {
     );
 
     const paywallSessionId = generateUUID();
+    const paywallBaseEventData = {
+      appUserId: this._appUserId,
+      sessionId: paywallSessionId,
+      offeringId: offering.identifier,
+      paywallRevision: 0,
+      paywallRcPublicId: offering.paywallComponents?.id ?? null,
+    };
     const paywallDisplayData = {
       displayMode: "full_screen",
       darkMode:
@@ -602,27 +610,64 @@ export class Purchases {
         false,
       locale: finalLocale,
     };
+    const productIdsByPackage = new Map(
+      offering.availablePackages.map((pkg) => [
+        pkg.identifier,
+        pkg.webBillingProduct.identifier,
+      ]),
+    );
 
     const getProductIdentifierForPackageId = (packageId?: string) => {
       if (packageId === undefined) {
         return undefined;
       }
 
-      return offering.availablePackages.find(
-        (pkg) => pkg.identifier === packageId,
-      )?.webBillingProduct.identifier;
+      return productIdsByPackage.get(packageId);
     };
+
+    const toInteractionEvent = (
+      data: ComponentInteractionData,
+    ): PaywallComponentInteractionEventData => ({
+      type: "paywall_component_interacted",
+      ...paywallBaseEventData,
+      ...paywallDisplayData,
+      componentType: data.componentType,
+      componentName: data.componentName,
+      componentValue: data.componentValue,
+      componentURL: data.componentURL,
+      originIndex: data.originIndex,
+      destinationIndex: data.destinationIndex,
+      originContextName: data.originContextName,
+      destinationContextName: data.destinationContextName,
+      defaultIndex: data.defaultIndex,
+      originPackageIdentifier: data.originPackageIdentifier,
+      destinationPackageIdentifier: data.destinationPackageIdentifier,
+      defaultPackageIdentifier: data.defaultPackageIdentifier,
+      originProductIdentifier:
+        data.originProductIdentifier ??
+        getProductIdentifierForPackageId(data.originPackageIdentifier),
+      destinationProductIdentifier:
+        data.destinationProductIdentifier ??
+        getProductIdentifierForPackageId(data.destinationPackageIdentifier),
+      defaultProductIdentifier:
+        data.defaultProductIdentifier ??
+        getProductIdentifierForPackageId(data.defaultPackageIdentifier),
+      currentPackageIdentifier: data.currentPackageIdentifier,
+      resultingPackageIdentifier: data.resultingPackageIdentifier,
+      currentProductIdentifier:
+        data.currentProductIdentifier ??
+        getProductIdentifierForPackageId(data.currentPackageIdentifier),
+      resultingProductIdentifier:
+        data.resultingProductIdentifier ??
+        getProductIdentifierForPackageId(data.resultingPackageIdentifier),
+    });
 
     const trackPaywallEvent = (
       type: Exclude<PaywallEventType, "paywall_component_interacted">,
     ) => {
       this.eventsTracker.trackPaywallEvent({
         type,
-        appUserId: this._appUserId,
-        sessionId: paywallSessionId,
-        offeringId: offering.identifier,
-        paywallRevision: 0,
-        paywallRcPublicId: offering.paywallComponents?.id ?? null,
+        ...paywallBaseEventData,
         ...(type === "paywall_impression"
           ? {
               ...paywallDisplayData,
@@ -787,31 +832,18 @@ export class Purchases {
           return;
         }
 
-        this.eventsTracker.trackPaywallEvent({
-          type: "paywall_component_interacted",
-          appUserId: this._appUserId,
-          sessionId: paywallSessionId,
-          offeringId: offering.identifier,
-          paywallRevision: 0,
-          paywallRcPublicId: offering.paywallComponents?.id ?? null,
-          ...paywallDisplayData,
-          ...data,
-          originProductIdentifier:
-            data.originProductIdentifier ??
-            getProductIdentifierForPackageId(data.originPackageIdentifier),
-          destinationProductIdentifier:
-            data.destinationProductIdentifier ??
-            getProductIdentifierForPackageId(data.destinationPackageIdentifier),
-          defaultProductIdentifier:
-            data.defaultProductIdentifier ??
-            getProductIdentifierForPackageId(data.defaultPackageIdentifier),
-          currentProductIdentifier:
-            data.currentProductIdentifier ??
-            getProductIdentifierForPackageId(data.currentPackageIdentifier),
-          resultingProductIdentifier:
-            data.resultingProductIdentifier ??
-            getProductIdentifierForPackageId(data.resultingPackageIdentifier),
-        });
+        this.eventsTracker.trackPaywallEvent(toInteractionEvent(data));
+      };
+
+      const onComponentInteraction = (data: ComponentInteractionData) => {
+        lastNavigationInteraction =
+          data.componentURL === undefined
+            ? null
+            : {
+                componentType: data.componentType,
+                componentURL: data.componentURL,
+              };
+        trackComponentInteraction(data);
       };
 
       const containerObserver = new MutationObserver(() => {
@@ -911,16 +943,7 @@ export class Purchases {
           hideBackButtons: paywallParams.hideBackButtons,
           walletButtonRender,
           customVariables: paywallParams.customVariables,
-          onComponentInteraction: (data: ComponentInteractionData) => {
-            lastNavigationInteraction =
-              data.componentURL === undefined
-                ? null
-                : {
-                    componentType: data.componentType,
-                    componentURL: data.componentURL,
-                  };
-            trackComponentInteraction(data);
-          },
+          onComponentInteraction,
         },
       });
 

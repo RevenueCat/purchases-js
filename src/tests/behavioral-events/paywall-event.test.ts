@@ -92,7 +92,7 @@ describe("PaywallEvent", () => {
     expect(event.toJSON().paywall_rc_public_id).toBeNull();
   });
 
-  it("serializes component interaction events with interaction payload", () => {
+  it("serializes component interaction events with mapped interaction payload fields", () => {
     const event = new PaywallEvent({
       type: "paywall_component_interacted",
       appUserId: "user-123",
@@ -106,12 +106,22 @@ describe("PaywallEvent", () => {
       componentType: "package",
       componentName: "Annual Package",
       componentValue: "$rc_annual",
+      componentURL: "https://example.com/annual",
+      originIndex: 0,
+      destinationIndex: 1,
+      originContextName: "Package Picker",
+      destinationContextName: "Sticky Footer",
+      defaultIndex: 0,
       originPackageIdentifier: "$rc_monthly",
       destinationPackageIdentifier: "$rc_annual",
       defaultPackageIdentifier: "$rc_monthly",
       originProductIdentifier: "monthly_product",
       destinationProductIdentifier: "annual_product",
       defaultProductIdentifier: "monthly_product",
+      currentPackageIdentifier: "$rc_monthly",
+      resultingPackageIdentifier: "$rc_annual",
+      currentProductIdentifier: "monthly_product",
+      resultingProductIdentifier: "annual_product",
     });
 
     expect(event.toJSON()).toEqual({
@@ -130,12 +140,22 @@ describe("PaywallEvent", () => {
       component_type: "package",
       component_name: "Annual Package",
       component_value: "$rc_annual",
+      component_url: "https://example.com/annual",
+      origin_index: 0,
+      destination_index: 1,
+      origin_context_name: "Package Picker",
+      destination_context_name: "Sticky Footer",
+      default_index: 0,
       origin_package_id: "$rc_monthly",
       destination_package_id: "$rc_annual",
       default_package_id: "$rc_monthly",
       origin_product_id: "monthly_product",
       destination_product_id: "annual_product",
       default_product_id: "monthly_product",
+      current_package_id: "$rc_monthly",
+      resulting_package_id: "$rc_annual",
+      current_product_id: "monthly_product",
+      resulting_product_id: "annual_product",
     });
   });
 });

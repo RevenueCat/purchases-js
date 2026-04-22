@@ -46,11 +46,16 @@ interface BasePaywallEventData {
   paywallRcPublicId: string | null;
 }
 
-interface PaywallImpressionEventData extends BasePaywallEventData {
-  type: "paywall_impression";
+interface PaywallDisplayData {
   displayMode?: string;
   darkMode?: boolean;
   locale?: string;
+}
+
+interface PaywallImpressionEventData
+  extends BasePaywallEventData,
+    PaywallDisplayData {
+  type: "paywall_impression";
 }
 
 interface PaywallCloseOrCancelEventData extends BasePaywallEventData {
@@ -59,11 +64,9 @@ interface PaywallCloseOrCancelEventData extends BasePaywallEventData {
 
 export interface PaywallComponentInteractionEventData
   extends BasePaywallEventData,
+    PaywallDisplayData,
     ComponentInteractionData {
   type: "paywall_component_interacted";
-  displayMode?: string;
-  darkMode?: boolean;
-  locale?: string;
 }
 
 export type PaywallEventData =
@@ -71,9 +74,8 @@ export type PaywallEventData =
   | PaywallCloseOrCancelEventData
   | PaywallComponentInteractionEventData;
 
-type PaywallEventPayload = {
-  type: string;
-  version: number;
+type CommonPaywallEventPayload = {
+  version: 1;
   id: string;
   app_user_id: string;
   session_id: string;
@@ -81,12 +83,18 @@ type PaywallEventPayload = {
   paywall_revision: number;
   timestamp: number;
   paywall_rc_public_id: string | null;
+};
+
+type PaywallDisplayPayload = {
   display_mode?: string;
   dark_mode?: boolean;
   locale?: string;
-  component_type?: string;
+};
+
+type PaywallComponentInteractionPayload = {
+  component_type: ComponentInteractionType;
+  component_value: string;
   component_name?: string;
-  component_value?: string;
   component_url?: string;
   origin_index?: number;
   destination_index?: number;
@@ -105,6 +113,85 @@ type PaywallEventPayload = {
   resulting_product_id?: string;
 };
 
+type PaywallImpressionEventPayload = CommonPaywallEventPayload &
+  PaywallDisplayPayload & {
+    type: "paywall_impression";
+  };
+
+type PaywallCloseOrCancelEventPayload = CommonPaywallEventPayload & {
+  type: "paywall_close" | "paywall_cancel";
+};
+
+type PaywallComponentInteractionEventPayload = CommonPaywallEventPayload &
+  PaywallDisplayPayload &
+  PaywallComponentInteractionPayload & {
+    type: "paywall_component_interacted";
+  };
+
+type PaywallEventPayload =
+  | PaywallImpressionEventPayload
+  | PaywallCloseOrCancelEventPayload
+  | PaywallComponentInteractionEventPayload;
+
+const INTERACTION_FIELD_MAP = {
+  componentType: "component_type",
+  componentName: "component_name",
+  componentValue: "component_value",
+  componentURL: "component_url",
+  originIndex: "origin_index",
+  destinationIndex: "destination_index",
+  originContextName: "origin_context_name",
+  destinationContextName: "destination_context_name",
+  defaultIndex: "default_index",
+  originPackageIdentifier: "origin_package_id",
+  destinationPackageIdentifier: "destination_package_id",
+  defaultPackageIdentifier: "default_package_id",
+  originProductIdentifier: "origin_product_id",
+  destinationProductIdentifier: "destination_product_id",
+  defaultProductIdentifier: "default_product_id",
+  currentPackageIdentifier: "current_package_id",
+  resultingPackageIdentifier: "resulting_package_id",
+  currentProductIdentifier: "current_product_id",
+  resultingProductIdentifier: "resulting_product_id",
+} as const satisfies Record<
+  keyof ComponentInteractionData,
+  keyof PaywallComponentInteractionPayload
+>;
+
+const interactionFieldEntries = Object.entries(INTERACTION_FIELD_MAP) as Array<
+  [
+    keyof typeof INTERACTION_FIELD_MAP,
+    (typeof INTERACTION_FIELD_MAP)[keyof typeof INTERACTION_FIELD_MAP],
+  ]
+>;
+
+const toDisplayPayload = (data: PaywallDisplayData): PaywallDisplayPayload => {
+  if (data.displayMode === undefined) {
+    return {};
+  }
+
+  return {
+    display_mode: data.displayMode,
+    dark_mode: data.darkMode ?? false,
+    locale: data.locale ?? "en_US",
+  };
+};
+
+const toComponentInteractionPayload = (
+  data: ComponentInteractionData,
+): PaywallComponentInteractionPayload => {
+  const payload: Partial<PaywallComponentInteractionPayload> = {};
+
+  for (const [sourceKey, destinationKey] of interactionFieldEntries) {
+    const value = data[sourceKey];
+    if (value !== undefined) {
+      Object.assign(payload, { [destinationKey]: value });
+    }
+  }
+
+  return payload as PaywallComponentInteractionPayload;
+};
+
 export class PaywallEvent {
   public readonly id: string;
   public readonly timestamp: number;
@@ -117,8 +204,7 @@ export class PaywallEvent {
   }
 
   public toJSON(): PaywallEventPayload {
-    const payload: PaywallEventPayload = {
-      type: this.data.type,
+    const commonPayload: CommonPaywallEventPayload = {
       version: 1,
       id: this.id,
       app_user_id: this.data.appUserId,
@@ -129,69 +215,26 @@ export class PaywallEvent {
       paywall_rc_public_id: this.data.paywallRcPublicId,
     };
 
-    if ("displayMode" in this.data && this.data.displayMode !== undefined) {
-      payload.display_mode = this.data.displayMode;
-      payload.dark_mode = this.data.darkMode ?? false;
-      payload.locale = this.data.locale ?? "en_US";
+    switch (this.data.type) {
+      case "paywall_impression":
+        return {
+          type: this.data.type,
+          ...commonPayload,
+          ...toDisplayPayload(this.data),
+        };
+      case "paywall_close":
+      case "paywall_cancel":
+        return {
+          type: this.data.type,
+          ...commonPayload,
+        };
+      case "paywall_component_interacted":
+        return {
+          type: this.data.type,
+          ...commonPayload,
+          ...toDisplayPayload(this.data),
+          ...toComponentInteractionPayload(this.data),
+        };
     }
-
-    if (this.data.type === "paywall_component_interacted") {
-      payload.component_type = this.data.componentType;
-      payload.component_value = this.data.componentValue;
-
-      if (this.data.componentName !== undefined) {
-        payload.component_name = this.data.componentName;
-      }
-      if (this.data.componentURL !== undefined) {
-        payload.component_url = this.data.componentURL;
-      }
-      if (this.data.originIndex !== undefined) {
-        payload.origin_index = this.data.originIndex;
-      }
-      if (this.data.destinationIndex !== undefined) {
-        payload.destination_index = this.data.destinationIndex;
-      }
-      if (this.data.originContextName !== undefined) {
-        payload.origin_context_name = this.data.originContextName;
-      }
-      if (this.data.destinationContextName !== undefined) {
-        payload.destination_context_name = this.data.destinationContextName;
-      }
-      if (this.data.defaultIndex !== undefined) {
-        payload.default_index = this.data.defaultIndex;
-      }
-      if (this.data.originPackageIdentifier !== undefined) {
-        payload.origin_package_id = this.data.originPackageIdentifier;
-      }
-      if (this.data.destinationPackageIdentifier !== undefined) {
-        payload.destination_package_id = this.data.destinationPackageIdentifier;
-      }
-      if (this.data.defaultPackageIdentifier !== undefined) {
-        payload.default_package_id = this.data.defaultPackageIdentifier;
-      }
-      if (this.data.originProductIdentifier !== undefined) {
-        payload.origin_product_id = this.data.originProductIdentifier;
-      }
-      if (this.data.destinationProductIdentifier !== undefined) {
-        payload.destination_product_id = this.data.destinationProductIdentifier;
-      }
-      if (this.data.defaultProductIdentifier !== undefined) {
-        payload.default_product_id = this.data.defaultProductIdentifier;
-      }
-      if (this.data.currentPackageIdentifier !== undefined) {
-        payload.current_package_id = this.data.currentPackageIdentifier;
-      }
-      if (this.data.resultingPackageIdentifier !== undefined) {
-        payload.resulting_package_id = this.data.resultingPackageIdentifier;
-      }
-      if (this.data.currentProductIdentifier !== undefined) {
-        payload.current_product_id = this.data.currentProductIdentifier;
-      }
-      if (this.data.resultingProductIdentifier !== undefined) {
-        payload.resulting_product_id = this.data.resultingProductIdentifier;
-      }
-    }
-
-    return payload;
   }
 }
