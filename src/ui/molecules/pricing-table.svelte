@@ -10,6 +10,7 @@
     type PricingPhase,
     type DiscountPhase,
   } from "../../entities/offerings";
+  import DiscountInput from "./discount-input.svelte";
   import PricingDropdown from "./pricing-dropdown.svelte";
   import Skeleton from "../atoms/skeleton.svelte";
   import Typography from "../atoms/typography.svelte";
@@ -21,6 +22,16 @@
     basePhase: PricingPhase | null;
     promotionalPricePhase: PricingPhase | DiscountPhase | null;
     hasDiscount: boolean;
+    showDiscountCodeField: boolean;
+    discountCode: string;
+    appliedDiscountCode: string | null;
+    appliedDiscountPercentage: number | null;
+    discountCodeError: string | null;
+    isUpdatingDiscountCode: boolean;
+    isDiscountCodeControlsEnabled: boolean;
+    onDiscountCodeChange: ((discountCode: string) => void) | undefined;
+    onApplyDiscountCode: (() => void | Promise<void>) | undefined;
+    onRemoveDiscountCode: (() => void | Promise<void>) | undefined;
   }
 
   const {
@@ -29,6 +40,16 @@
     basePhase,
     promotionalPricePhase,
     hasDiscount,
+    showDiscountCodeField,
+    discountCode,
+    appliedDiscountCode,
+    appliedDiscountPercentage,
+    discountCodeError,
+    isUpdatingDiscountCode,
+    isDiscountCodeControlsEnabled,
+    onDiscountCodeChange,
+    onApplyDiscountCode,
+    onRemoveDiscountCode,
   }: Props = $props();
 
   const trialEndDate = $derived(
@@ -104,7 +125,7 @@
 
 {#snippet pricingTable()}
   <div class="rcb-pricing-table">
-    {#if hasDiscount}
+    {#if hasDiscount && !showDiscountCodeField}
       <div class="rcb-pricing-table-row">
         <div class="rcb-pricing-table-header">
           <div class="rcb-pricing-table-value">
@@ -142,6 +163,60 @@
       </div>
 
       <div class="rcb-pricing-table-separator"></div>
+    {/if}
+
+    {#if showDiscountCodeField}
+      {#if !appliedDiscountCode}
+        <DiscountInput
+          {showDiscountCodeField}
+          {discountCode}
+          {appliedDiscountCode}
+          {appliedDiscountPercentage}
+          {discountCodeError}
+          {isUpdatingDiscountCode}
+          {isDiscountCodeControlsEnabled}
+          {onDiscountCodeChange}
+          {onApplyDiscountCode}
+          {onRemoveDiscountCode}
+        />
+      {:else}
+        <div class="rcb-pricing-table-row">
+          <div class="rcb-pricing-table-header">
+            <div class="rcb-pricing-table-value">
+              <Typography size="body-small">
+                {$translator.translate(LocalizationKeys.PricingTableSubtotal)}
+              </Typography>
+            </div>
+          </div>
+          <div class="rcb-pricing-table-value">
+            <Typography size="body-small">
+              {$translator.formatPrice(subtotalAmount, priceBreakdown.currency)}
+            </Typography>
+          </div>
+        </div>
+        <div class="rcb-pricing-table-row">
+          <DiscountInput
+            {showDiscountCodeField}
+            {discountCode}
+            {appliedDiscountCode}
+            {appliedDiscountPercentage}
+            {discountCodeError}
+            {isUpdatingDiscountCode}
+            {isDiscountCodeControlsEnabled}
+            {onDiscountCodeChange}
+            {onApplyDiscountCode}
+            {onRemoveDiscountCode}
+          />
+          <div class="rcb-pricing-table-value">
+            <Typography size="body-small">
+              -{$translator.formatPrice(
+                discountAmount,
+                priceBreakdown.currency,
+              )}
+            </Typography>
+          </div>
+        </div>
+      {/if}
     {/if}
 
     {#if showTaxBreakdown}

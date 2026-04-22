@@ -73,46 +73,6 @@
 <div class="rcb-pricing-info">
   <div class="rcb-pricing-info-header">
     <ProductHeader {productDetails} {showProductDescription} />
-    {#if appliedDiscountCode}
-      <div>
-        <span>{appliedDiscountCode}</span>
-        {#if isDiscountCodeControlsEnabled}
-          <button
-            type="button"
-            disabled={isUpdatingDiscountCode}
-            onclick={() => onRemoveDiscountCode?.()}
-          >
-            {isUpdatingDiscountCode ? "Removing..." : "Remove"}
-          </button>
-        {/if}
-      </div>
-    {:else if showDiscountCodeField}
-      <div>
-        <label for="rc-discount-code"> Discount code </label>
-        <div>
-          <input
-            id="rc-discount-code"
-            type="text"
-            bind:value={discountCode}
-            autocomplete="off"
-            disabled={isUpdatingDiscountCode || !isDiscountCodeControlsEnabled}
-            oninput={() => onDiscountCodeChange?.(discountCode)}
-          />
-          <button
-            type="button"
-            disabled={isUpdatingDiscountCode ||
-              !isDiscountCodeControlsEnabled ||
-              !discountCode.trim()}
-            onclick={() => onApplyDiscountCode?.()}
-          >
-            {isUpdatingDiscountCode ? "Applying..." : "Apply"}
-          </button>
-        </div>
-        {#if discountCodeError}
-          <div>{discountCodeError}</div>
-        {/if}
-      </div>
-    {/if}
     {#if isSubscription}
       <PricingSummary
         {priceBreakdown}
@@ -131,6 +91,16 @@
     {basePhase}
     {promotionalPricePhase}
     hasDiscount={!!discountPhase}
+    {showDiscountCodeField}
+    {discountCode}
+    {appliedDiscountCode}
+    appliedDiscountPercentage={discountPhase?.percentage ?? null}
+    {discountCodeError}
+    {isUpdatingDiscountCode}
+    {isDiscountCodeControlsEnabled}
+    {onDiscountCodeChange}
+    {onApplyDiscountCode}
+    {onRemoveDiscountCode}
   />
 </div>
 
