@@ -882,7 +882,9 @@ const toPackage = (
     identifier: packageData.identifier,
     rcBillingProduct: product,
     webBillingProduct: product,
-    webCheckoutURL: packageData.web_checkout_url ?? null,
+    ...(packageData.web_checkout_url
+      ? { webCheckoutURL: packageData.web_checkout_url }
+      : {}),
     packageType: getPackageType(packageData.identifier),
   };
 };
@@ -922,7 +924,9 @@ export const toOffering = (
     identifier: offeringsData.identifier,
     serverDescription: offeringsData.description,
     metadata: offeringsData.metadata,
-    webCheckoutURL: offeringsData.web_checkout_url ?? null,
+    ...(offeringsData.web_checkout_url
+      ? { webCheckoutURL: offeringsData.web_checkout_url }
+      : {}),
     packagesById: packagesById,
     availablePackages: packages as Package[],
     lifetime: packagesById[PackageType.Lifetime] ?? null,
@@ -933,7 +937,7 @@ export const toOffering = (
     monthly: packagesById[PackageType.Monthly] ?? null,
     weekly: packagesById[PackageType.Weekly] ?? null,
     paywallComponents: offeringsData.paywall_components,
-    uiConfig: uiConfig,
+    ...(uiConfig !== undefined ? { uiConfig } : {}),
   };
 };
 

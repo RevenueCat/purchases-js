@@ -54,9 +54,9 @@ describe("PaywallEvent", () => {
 
     expect(json.type).toBe("paywall_close");
     expect(json.version).toBe(1);
-    expect(json.display_mode).toBeUndefined();
-    expect(json.dark_mode).toBeUndefined();
-    expect(json.locale).toBeUndefined();
+    expect(json).not.toHaveProperty("display_mode");
+    expect(json).not.toHaveProperty("dark_mode");
+    expect(json).not.toHaveProperty("locale");
   });
 
   it("serializes cancel event without visual fields", () => {
@@ -68,7 +68,7 @@ describe("PaywallEvent", () => {
     const json = event.toJSON();
 
     expect(json.type).toBe("paywall_cancel");
-    expect(json.display_mode).toBeUndefined();
+    expect(json).not.toHaveProperty("display_mode");
   });
 
   it("defaults dark_mode to false and locale to en_US when displayMode set", () => {
@@ -79,8 +79,11 @@ describe("PaywallEvent", () => {
 
     const json = event.toJSON();
 
-    expect(json.dark_mode).toBe(false);
-    expect(json.locale).toBe("en_US");
+    expect(json.type).toBe("paywall_impression");
+    if (json.type === "paywall_impression") {
+      expect(json.dark_mode).toBe(false);
+      expect(json.locale).toBe("en_US");
+    }
   });
 
   it("handles null paywallRcPublicId", () => {
