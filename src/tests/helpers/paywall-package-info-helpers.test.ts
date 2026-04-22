@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { parseOfferingIntoPackageInfoPerPackage } from "../../helpers/paywall-package-info-helpers";
+import type { Offering } from "../../entities/offerings";
 import { toOffering, toNonSubscriptionOffering } from "../utils/fixtures-utils";
 import {
   discountPhaseOneTime,
@@ -216,5 +217,81 @@ describe("parseOfferingIntoPackageInfoPerPackage", () => {
         hasPromoOffer: true,
       },
     });
+  });
+
+  test("includes webCheckoutURL from package when present", () => {
+    const off = toOffering([
+      {
+        packageIdentifier: "$rc_monthly",
+        identifier: "monthly_basic",
+        title: "Monthly Basic",
+      },
+    ]);
+    const monthly = off.packagesById["$rc_monthly"]!;
+    off.packagesById["$rc_monthly"] = {
+      ...monthly,
+      webCheckoutURL: "https://checkout.example.com/monthly",
+    };
+
+    const result = parseOfferingIntoPackageInfoPerPackage(off);
+
+    expect(result).toStrictEqual({
+      $rc_monthly: {
+        hasTrial: false,
+        hasIntroOffer: false,
+        hasPromoOffer: false,
+        webCheckoutURL: "https://checkout.example.com/monthly",
+      },
+    });
+  });
+
+  test("falls back to offering webCheckoutURL when package has none", () => {
+    const off = toOffering([
+      {
+        packageIdentifier: "$rc_monthly",
+        identifier: "monthly_basic",
+        title: "Monthly Basic",
+      },
+    ]);
+    const withOfferingUrl: Offering = {
+      ...off,
+      webCheckoutURL: "https://checkout.example.com/offering",
+    };
+
+    const result = parseOfferingIntoPackageInfoPerPackage(withOfferingUrl);
+
+    expect(result).toStrictEqual({
+      $rc_monthly: {
+        hasTrial: false,
+        hasIntroOffer: false,
+        hasPromoOffer: false,
+        webCheckoutURL: "https://checkout.example.com/offering",
+      },
+    });
+  });
+
+  test("package webCheckoutURL takes precedence over offering", () => {
+    const off = toOffering([
+      {
+        packageIdentifier: "$rc_monthly",
+        identifier: "monthly_basic",
+        title: "Monthly Basic",
+      },
+    ]);
+    const monthly = off.packagesById["$rc_monthly"]!;
+    off.packagesById["$rc_monthly"] = {
+      ...monthly,
+      webCheckoutURL: "https://checkout.example.com/package",
+    };
+    const withOfferingUrl: Offering = {
+      ...off,
+      webCheckoutURL: "https://checkout.example.com/offering",
+    };
+
+    const result = parseOfferingIntoPackageInfoPerPackage(withOfferingUrl);
+
+    expect(result.$rc_monthly?.webCheckoutURL).toBe(
+      "https://checkout.example.com/package",
+    );
   });
 });
