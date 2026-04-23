@@ -488,6 +488,22 @@ export class Purchases {
     const htmlTarget = paywallParams.htmlTarget;
     let wasRootAutoCreated = false;
 
+    const offering = paywallParams.offering
+      ? paywallParams.offering
+      : (await this.getOfferings()).current;
+    if (!offering) {
+      throw new Error("No offering found.");
+    }
+    if (!offering.paywallComponents) {
+      throw new Error("This offering doesn't have a paywall attached.");
+    }
+
+    if (!offering.uiConfig) {
+      throw new Error(
+        "No ui_config found for this offering, please contact support!",
+      );
+    }
+
     const doc = getDocument();
     let resolvedHTMLTarget = htmlTarget ?? doc.getElementById("rcb-ui-pw-root");
 
@@ -523,22 +539,6 @@ export class Purchases {
     }
 
     const certainHTMLTarget = resolvedHTMLTarget as unknown as HTMLElement;
-
-    const offering = paywallParams.offering
-      ? paywallParams.offering
-      : (await this.getOfferings()).current;
-    if (!offering) {
-      throw new Error("No offering found.");
-    }
-    if (!offering.paywallComponents) {
-      throw new Error("This offering doesn't have a paywall attached.");
-    }
-
-    if (!offering.uiConfig) {
-      throw new Error(
-        "No ui_config found for this offering, please contact support!",
-      );
-    }
 
     const calculateLocale = (
       paywallData: PaywallData,
