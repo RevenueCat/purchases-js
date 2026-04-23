@@ -294,7 +294,7 @@ describe("PurchasesUI", () => {
       },
     });
 
-    const discountCodeInput = screen.getByLabelText("Discount code");
+    const discountCodeInput = screen.getByLabelText("Promo code");
     await waitFor(() => {
       expect(discountCodeInput).not.toBeDisabled();
     });
@@ -354,7 +354,9 @@ describe("PurchasesUI", () => {
       },
     });
 
-    const removeButton = await screen.findByRole("button", { name: "Remove" });
+    const removeButton = await screen.findByRole("button", {
+      name: "Remove promo code SAVE10",
+    });
     await fireEvent.click(removeButton);
 
     await waitFor(() => {
@@ -381,7 +383,7 @@ describe("PurchasesUI", () => {
         }),
       );
       expect(onDiscountCodeChanged).toHaveBeenCalledWith(null);
-      expect(screen.getByLabelText("Discount code")).toBeTruthy();
+      expect(screen.getByLabelText("Promo code")).toBeTruthy();
     });
   });
 
@@ -403,7 +405,7 @@ describe("PurchasesUI", () => {
       },
     });
 
-    const discountCodeInput = screen.getByLabelText("Discount code");
+    const discountCodeInput = screen.getByLabelText("Promo code");
     await waitFor(() => {
       expect(discountCodeInput).not.toBeDisabled();
     });
@@ -414,7 +416,7 @@ describe("PurchasesUI", () => {
     await fireEvent.click(screen.getByRole("button", { name: "Apply" }));
 
     await waitFor(() => {
-      expect(screen.getByText("Invalid discount code.")).toBeTruthy();
+      expect(screen.getByText("Code can’t be applied.")).toBeTruthy();
     });
 
     expect(checkoutStartSpy).toHaveBeenCalledTimes(1);

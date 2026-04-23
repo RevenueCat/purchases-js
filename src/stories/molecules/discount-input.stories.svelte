@@ -10,6 +10,7 @@
   const { Story } = defineMeta({
     component: DiscountInput,
     title: "Molecules/DiscountInput",
+    // @ts-ignore ignore typing of decorator
     decorators: [renderInsideNavbarBody],
     args: {
       onDiscountCodeChange: noop,
@@ -21,6 +22,7 @@
         modes: brandingModes,
       },
     },
+    // @ts-ignore ignore importing before initializing
     render: template,
   });
 
