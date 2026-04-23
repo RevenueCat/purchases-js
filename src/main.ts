@@ -65,7 +65,10 @@ import {
   type CompleteWorkflowNavigateArgs,
   type PresentPaywallParams,
 } from "./entities/present-paywall-params";
-import type { WalletButtonRender } from "@revenuecat/purchases-ui-js";
+import type {
+  ComponentInteractionData,
+  WalletButtonRender,
+} from "@revenuecat/purchases-ui-js";
 import { Paywall, type PaywallData } from "@revenuecat/purchases-ui-js";
 import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
 import {
@@ -96,7 +99,10 @@ import {
   type PurchasesContext,
 } from "./entities/purchases-config";
 import { generateUUID } from "./helpers/uuid-helper";
-import { type PaywallEventType } from "./behavioural-events/paywall-event";
+import {
+  type PaywallComponentInteractionEventData,
+  type PaywallEventType,
+} from "./behavioural-events/paywall-event";
 import type { PlatformInfo } from "./entities/platform-info";
 import type { ReservedCustomerAttribute } from "./entities/attributes";
 import { purchaseSimulatedStoreProduct } from "./helpers/simulated-store-purchase-helper";
@@ -593,24 +599,93 @@ export class Purchases {
 
     const paywallSessionId = generateUUID();
 
-    const trackPaywallEvent = (type: PaywallEventType) => {
-      this.eventsTracker.trackPaywallEvent({
-        type,
-        appUserId: this._appUserId,
-        sessionId: paywallSessionId,
-        offeringId: offering.identifier,
-        paywallRevision: 0,
-        paywallRcPublicId: offering.paywallComponents?.id ?? null,
-        ...(type === "paywall_impression"
-          ? {
-              displayMode: "full_screen",
-              darkMode:
-                getWindow()?.matchMedia?.("(prefers-color-scheme: dark)")
-                  .matches ?? false,
-              locale: finalLocale,
-            }
-          : {}),
-      });
+    const paywallBaseEventData = {
+      appUserId: this._appUserId,
+      sessionId: paywallSessionId,
+      offeringId: offering.identifier,
+      paywallRevision: 0,
+      paywallRcPublicId: offering.paywallComponents?.id ?? null,
+    };
+
+    const paywallDisplayData = {
+      displayMode: "full_screen",
+      darkMode:
+        getWindow()?.matchMedia?.("(prefers-color-scheme: dark)").matches ??
+        false,
+      locale: finalLocale,
+    };
+
+    const productIdsByPackage = new Map(
+      offering.availablePackages.map((pkg) => [
+        pkg.identifier,
+        pkg.webBillingProduct.identifier,
+      ]),
+    );
+
+    const getProductIdentifierForPackageId = (packageId?: string) => {
+      if (packageId === undefined) {
+        return undefined;
+      }
+      return productIdsByPackage.get(packageId);
+    };
+
+    /** Package/product fields exist only on some `ComponentInteractionData` variants; this widens the merge for enrichment. */
+    type PaywallComponentInteractionEnrichment = {
+      originPackageId?: string;
+      destinationPackageId?: string;
+      defaultPackageId?: string;
+      currentPackageId?: string;
+      resultingPackageId?: string;
+      originProductId?: string;
+      destinationProductId?: string;
+      defaultProductId?: string;
+      currentProductId?: string;
+      resultingProductId?: string;
+    };
+
+    const toInteractionEvent = (
+      data: ComponentInteractionData,
+    ): PaywallComponentInteractionEventData => {
+      const merged = {
+        type: "paywall_component_interacted" as const,
+        ...paywallBaseEventData,
+        ...paywallDisplayData,
+        ...data,
+      } as PaywallComponentInteractionEventData &
+        PaywallComponentInteractionEnrichment;
+      merged.originProductId =
+        merged.originProductId ??
+        getProductIdentifierForPackageId(merged.originPackageId);
+      merged.destinationProductId =
+        merged.destinationProductId ??
+        getProductIdentifierForPackageId(merged.destinationPackageId);
+      merged.defaultProductId =
+        merged.defaultProductId ??
+        getProductIdentifierForPackageId(merged.defaultPackageId);
+      merged.currentProductId =
+        merged.currentProductId ??
+        getProductIdentifierForPackageId(merged.currentPackageId);
+      merged.resultingProductId =
+        merged.resultingProductId ??
+        getProductIdentifierForPackageId(merged.resultingPackageId);
+      return merged as PaywallComponentInteractionEventData;
+    };
+
+    const trackPaywallEvent = (
+      type: Exclude<PaywallEventType, "paywall_component_interacted">,
+    ) => {
+      if (type === "paywall_impression") {
+        this.eventsTracker.trackPaywallEvent({
+          type: "paywall_impression",
+          ...paywallBaseEventData,
+          ...paywallDisplayData,
+        });
+      } else {
+        this.eventsTracker.trackPaywallEvent({
+          type,
+          ...paywallBaseEventData,
+        });
+      }
     };
 
     const startPurchaseFlow = async (
@@ -693,6 +768,14 @@ export class Purchases {
     return new Promise((resolve, reject) => {
       let component: ReturnType<typeof mount> | null = null;
       let paywallCloseTracked = false;
+      let paywallInteractionsDisabled = false;
+
+      const trackComponentInteraction = (data: ComponentInteractionData) => {
+        if (paywallInteractionsDisabled || paywallCloseTracked) {
+          return;
+        }
+        this.eventsTracker.trackPaywallEvent(toInteractionEvent(data));
+      };
 
       const trackPaywallCloseIfNeeded = () => {
         if (paywallCloseTracked) {
@@ -710,6 +793,7 @@ export class Purchases {
       });
 
       const unmountPaywall = () => {
+        paywallInteractionsDisabled = true;
         containerObserver.disconnect();
         trackPaywallCloseIfNeeded();
         if (component) {
@@ -798,6 +882,7 @@ export class Purchases {
           hideBackButtons: paywallParams.hideBackButtons,
           walletButtonRender,
           customVariables: paywallParams.customVariables,
+          onComponentInteraction: trackComponentInteraction,
         },
       });
 
