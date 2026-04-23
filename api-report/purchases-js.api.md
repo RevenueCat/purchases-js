@@ -203,6 +203,7 @@ export interface NonSubscriptionTransaction {
 export interface Offering {
     readonly annual: Package | null;
     readonly availablePackages: Package[];
+    readonly hasPaywall: boolean;
     readonly identifier: string;
     readonly lifetime: Package | null;
     readonly metadata: {
