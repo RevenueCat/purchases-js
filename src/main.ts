@@ -598,7 +598,6 @@ export class Purchases {
     );
 
     const paywallSessionId = generateUUID();
-
     const paywallBaseEventData = {
       appUserId: this._appUserId,
       sessionId: paywallSessionId,
@@ -606,7 +605,6 @@ export class Purchases {
       paywallRevision: 0,
       paywallRcPublicId: offering.paywallComponents?.id ?? null,
     };
-
     const paywallDisplayData = {
       displayMode: "full_screen",
       darkMode:
@@ -614,7 +612,6 @@ export class Purchases {
         false,
       locale: finalLocale,
     };
-
     const productIdsByPackage = new Map(
       offering.availablePackages.map((pkg) => [
         pkg.identifier,
@@ -626,10 +623,11 @@ export class Purchases {
       if (packageId === undefined) {
         return undefined;
       }
+
       return productIdsByPackage.get(packageId);
     };
 
-    /** Package/product fields exist only on some `ComponentInteractionData` variants; this widens the merge for enrichment. */
+    /** Product fields exist only on some `ComponentInteractionData` variants; widens merge for enrichment. */
     type PaywallComponentInteractionEnrichment = {
       originPackageId?: string;
       destinationPackageId?: string;
@@ -674,18 +672,15 @@ export class Purchases {
     const trackPaywallEvent = (
       type: Exclude<PaywallEventType, "paywall_component_interacted">,
     ) => {
-      if (type === "paywall_impression") {
-        this.eventsTracker.trackPaywallEvent({
-          type: "paywall_impression",
-          ...paywallBaseEventData,
-          ...paywallDisplayData,
-        });
-      } else {
-        this.eventsTracker.trackPaywallEvent({
-          type,
-          ...paywallBaseEventData,
-        });
-      }
+      this.eventsTracker.trackPaywallEvent({
+        type,
+        ...paywallBaseEventData,
+        ...(type === "paywall_impression"
+          ? {
+              ...paywallDisplayData,
+            }
+          : {}),
+      });
     };
 
     const startPurchaseFlow = async (
@@ -712,9 +707,68 @@ export class Purchases {
       return { ...purchaseResult, selectedPackage: pkg };
     };
 
+    let lastNavigationInteraction: {
+      componentType: ComponentInteractionData["componentType"];
+      componentURL: string;
+    } | null = null;
+    let lastTextLinkClick: {
+      url: string;
+      defaultPrevented: boolean;
+    } | null = null;
+
+    const recordTextLinkClick = (event: MouseEvent) => {
+      const target = event.target;
+      if (!(target instanceof Element)) {
+        return;
+      }
+
+      const anchor = target.closest("a[href]");
+      if (
+        !(anchor instanceof HTMLAnchorElement) ||
+        !certainHTMLTarget.contains(anchor)
+      ) {
+        return;
+      }
+
+      const url = anchor.getAttribute("href") ?? anchor.href;
+      if (!url) {
+        return;
+      }
+
+      lastTextLinkClick = {
+        url,
+        defaultPrevented: event.defaultPrevented,
+      };
+    };
+
     const navigateToUrl = (url: string) => {
+      const navigationInteraction =
+        lastNavigationInteraction?.componentURL === url
+          ? lastNavigationInteraction
+          : null;
+      lastNavigationInteraction = null;
+
       if (paywallParams.onNavigateToUrl) {
         paywallParams.onNavigateToUrl(url);
+        return;
+      }
+
+      // purchases-ui-js text links now preserve native browser navigation, but
+      // older versions still prevent default and rely on the host callback to
+      // navigate. Defer the fallback until after bubbling so both contracts work.
+      if (navigationInteraction?.componentType === "text") {
+        queueMicrotask(() => {
+          const textLinkClick =
+            lastTextLinkClick?.url === url ? lastTextLinkClick : null;
+          lastTextLinkClick = null;
+
+          if (textLinkClick?.defaultPrevented !== true) {
+            return;
+          }
+
+          const win = getWindow();
+          win.open(url, "_blank")?.focus();
+        });
         return;
       }
 
@@ -767,22 +821,43 @@ export class Purchases {
 
     return new Promise((resolve, reject) => {
       let component: ReturnType<typeof mount> | null = null;
+      let paywallImpressionTracked = false;
       let paywallCloseTracked = false;
       let paywallInteractionsDisabled = false;
 
-      const trackComponentInteraction = (data: ComponentInteractionData) => {
-        if (paywallInteractionsDisabled || paywallCloseTracked) {
-          return;
-        }
-        this.eventsTracker.trackPaywallEvent(toInteractionEvent(data));
-      };
+      certainHTMLTarget.addEventListener("click", recordTextLinkClick);
 
       const trackPaywallCloseIfNeeded = () => {
         if (paywallCloseTracked) {
           return;
         }
-        trackPaywallEvent("paywall_close");
         paywallCloseTracked = true;
+        trackPaywallEvent("paywall_close");
+      };
+
+      const trackComponentInteraction = (data: ComponentInteractionData) => {
+        if (
+          paywallInteractionsDisabled ||
+          !paywallImpressionTracked ||
+          paywallCloseTracked
+        ) {
+          return;
+        }
+
+        this.eventsTracker.trackPaywallEvent(toInteractionEvent(data));
+      };
+
+      const onComponentInteraction = (data: ComponentInteractionData) => {
+        lastNavigationInteraction =
+          "componentURL" in data &&
+          data.componentURL !== undefined &&
+          data.componentURL !== ""
+            ? {
+                componentType: data.componentType,
+                componentURL: data.componentURL,
+              }
+            : null;
+        trackComponentInteraction(data);
       };
 
       const containerObserver = new MutationObserver(() => {
@@ -795,6 +870,7 @@ export class Purchases {
       const unmountPaywall = () => {
         paywallInteractionsDisabled = true;
         containerObserver.disconnect();
+        certainHTMLTarget.removeEventListener("click", recordTextLinkClick);
         trackPaywallCloseIfNeeded();
         if (component) {
           unmount(component);
@@ -882,12 +958,13 @@ export class Purchases {
           hideBackButtons: paywallParams.hideBackButtons,
           walletButtonRender,
           customVariables: paywallParams.customVariables,
-          onComponentInteraction: trackComponentInteraction,
+          onComponentInteraction,
         },
       });
 
       containerObserver.observe(certainHTMLTarget, { childList: true });
       trackPaywallEvent("paywall_impression");
+      paywallImpressionTracked = true;
 
       if (certainHTMLTarget.style.opacity === "0") {
         certainHTMLTarget.style.opacity = "1";

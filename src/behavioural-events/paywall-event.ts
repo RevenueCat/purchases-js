@@ -1,6 +1,8 @@
 import { generateUUID } from "../helpers/uuid-helper";
 import type { ComponentInteractionData } from "@revenuecat/purchases-ui-js";
 
+export type { ComponentInteractionData } from "@revenuecat/purchases-ui-js";
+
 export type PaywallEventType =
   | "paywall_impression"
   | "paywall_close"
@@ -16,9 +18,9 @@ type PaywallSessionFields = {
 };
 
 type PaywallDisplayFields = {
-  displayMode: string;
-  darkMode: boolean;
-  locale: string;
+  displayMode?: string;
+  darkMode?: boolean;
+  locale?: string;
 };
 
 export type PaywallImpressionEventData = PaywallSessionFields &
@@ -42,7 +44,7 @@ export type PaywallEventData =
   | PaywallComponentInteractionEventData;
 
 type CommonPaywallEventPayload = {
-  version: number;
+  version: 1;
   id: string;
   app_user_id: string;
   session_id: string;
@@ -150,10 +152,14 @@ const toComponentInteractionPayload = (
 const toDisplayPayload = (
   data: PaywallDisplayFields,
 ): PaywallDisplayPayload => {
+  if (data.displayMode === undefined) {
+    return {};
+  }
+
   return {
     display_mode: data.displayMode,
-    dark_mode: data.darkMode,
-    locale: data.locale,
+    dark_mode: data.darkMode ?? false,
+    locale: data.locale ?? "en_US",
   };
 };
 
