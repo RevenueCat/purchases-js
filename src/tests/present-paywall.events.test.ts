@@ -38,6 +38,7 @@ const createOfferingWithPaywall = (): Offering => {
     twoMonth: null,
     monthly: monthlyPackage,
     weekly: null,
+    hasPaywall: true,
     paywallComponents: {
       id: "paywall-public-id",
       default_locale: "en_US",

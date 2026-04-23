@@ -10,11 +10,14 @@ import {
   type Package,
   PackageType,
   ProductType,
+  toOffering,
 } from "../entities/offerings";
 import { PeriodUnit } from "../helpers/duration-helper";
 import { ErrorCode, PurchasesError } from "../entities/errors";
 import { OfferingKeyword } from "../entities/get-offerings-params";
 import { trialPhaseP1W } from "./fixtures/price-phases";
+import { offeringsArray, productsResponse } from "./test-responses";
+import type { PaywallData } from "@revenuecat/purchases-ui-js";
 
 describe("getOfferings", () => {
   const expectedMonthlyPackage = createMonthlyPackageMock();
@@ -64,6 +67,7 @@ describe("getOfferings", () => {
     const offerings = await purchases.getOfferings();
 
     const currentOffering: Offering = {
+      hasPaywall: false,
       paywallComponents: null,
       serverDescription: "Offering 1",
       identifier: "offering_1",
@@ -132,6 +136,7 @@ describe("getOfferings", () => {
       all: {
         offering_1: currentOffering,
         offering_2: {
+          hasPaywall: false,
           paywallComponents: null,
           serverDescription: "Offering 2",
           identifier: "offering_2",
@@ -208,6 +213,7 @@ describe("getOfferings", () => {
     const expectedOfferings: Offerings = {
       all: {
         offering_1: {
+          hasPaywall: false,
           paywallComponents: null,
           serverDescription: "Offering 1",
           identifier: "offering_1",
@@ -225,6 +231,7 @@ describe("getOfferings", () => {
           weekly: null,
         },
         offering_2: {
+          hasPaywall: false,
           paywallComponents: null,
           serverDescription: "Offering 2",
           identifier: "offering_2",
@@ -255,6 +262,7 @@ describe("getOfferings", () => {
     const packageWithoutTargeting = createMonthlyPackageMock(null);
 
     const offering_1: Offering = {
+      hasPaywall: false,
       paywallComponents: null,
       serverDescription: "Offering 1",
       identifier: "offering_1",
@@ -286,6 +294,7 @@ describe("getOfferings", () => {
     const offerings = await purchases.getOfferings();
     const expectedConsumablePackage = createConsumablePackageMock();
     const expectedOffering: Offering = {
+      hasPaywall: false,
       paywallComponents: null,
       serverDescription: "Offering consumable",
       identifier: "offering_consumables",
@@ -318,6 +327,23 @@ describe("getOfferings", () => {
     expect(offeringProduct?.freeTrialPhase).toBeNull();
     expect(offeringProduct?.introPricePhase).toBeNull();
     expect(offeringProduct?.discountPhase).toBeNull();
+  });
+
+  test("sets hasPaywall when paywall data exists", () => {
+    const offering = toOffering(
+      true,
+      {
+        ...offeringsArray[0],
+        paywall_components: { id: "paywall_123" } as PaywallData,
+      },
+      {
+        [productsResponse.product_details[0].identifier]:
+          productsResponse.product_details[0],
+      },
+    );
+
+    expect(offering).not.toBeNull();
+    expect(offering?.hasPaywall).toBe(true);
   });
 
   test("gets offerings with valid currency", async () => {
@@ -422,6 +448,7 @@ describe("getOfferings", () => {
     const expectedOfferings: Offerings = {
       all: {
         offering_2: {
+          hasPaywall: false,
           serverDescription: "Offering 2",
           identifier: "offering_2",
           metadata: null,
@@ -465,6 +492,7 @@ describe("getOfferings", () => {
       twoMonth: null,
       monthly: expectedMonthlyPackage,
       weekly: null,
+      hasPaywall: false,
       paywallComponents: null,
       uiConfig: undefined,
     };
