@@ -4,6 +4,7 @@
   import { brandingModes } from "../../../.storybook/modes";
   import { renderInsideNavbarBody } from "../decorators/layout-decorators";
   import DiscountInput from "../../ui/molecules/discount-input.svelte";
+  import { LocalizationKeys } from "../../ui/localization/supportedLanguages";
 
   const noop = () => {};
 
@@ -89,7 +90,7 @@
   args={{
     showDiscountCodeField: true,
     discountCode: "BADCODE",
-    discountCodeError: "Invalid discount code.",
+    discountCodeError: LocalizationKeys.DiscountInputErrorApplyFailed,
     isDiscountCodeControlsEnabled: true,
   }}
 />

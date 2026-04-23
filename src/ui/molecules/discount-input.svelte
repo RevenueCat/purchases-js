@@ -1,11 +1,16 @@
 <script lang="ts">
+  import { getContext } from "svelte";
+  import { type Writable } from "svelte/store";
   import Icon from "../atoms/icon.svelte";
+  import { translatorContextKey } from "../localization/constants";
+  import { LocalizationKeys } from "../localization/supportedLanguages";
+  import type { Translator } from "../localization/translator";
 
   export let showDiscountCodeField = false;
   export let discountCode = "";
   export let appliedDiscountCode: string | null = null;
   export let appliedDiscountPercentage: number | null = null;
-  export let discountCodeError: string | null = null;
+  export let discountCodeError: LocalizationKeys | null = null;
   export let isUpdatingDiscountCode = false;
   export let isDiscountCodeControlsEnabled = false;
   export let onDiscountCodeChange:
@@ -17,6 +22,7 @@
     undefined;
 
   let isDiscountCodeFocused = false;
+  const translator: Writable<Translator> = getContext(translatorContextKey);
 
   const normalizeDiscountCode = (value: string) => value.toUpperCase();
 
@@ -42,17 +48,26 @@
     isDiscountCodeControlsEnabled &&
     !isUpdatingDiscountCode &&
     hasDiscountCodeValue;
-  $: displayDiscountCodeError =
-    discountCodeError === "Enter a discount code."
-      ? discountCodeError
-      : "Code can’t be applied.";
+  $: displayDiscountCodeError = discountCodeError
+    ? $translator.translate(discountCodeError)
+    : null;
   $: appliedDiscountLabel =
     appliedDiscountPercentage === null
       ? null
-      : `${appliedDiscountPercentage}% off`;
+      : $translator.translate(
+          LocalizationKeys.DiscountInputAppliedDiscountPercentage,
+          {
+            amount: appliedDiscountPercentage,
+          },
+        );
   $: displayAppliedDiscountCode = appliedDiscountCode
     ? normalizeDiscountCode(appliedDiscountCode)
     : null;
+  $: removePromoCodeLabel = displayAppliedDiscountCode
+    ? $translator.translate(LocalizationKeys.DiscountInputRemovePromoCode, {
+        code: displayAppliedDiscountCode,
+      })
+    : "";
 </script>
 
 <div class="rcb-product-price-container">
@@ -63,7 +78,7 @@
           class="rcb-applied-discount-chip"
           type="button"
           disabled={isUpdatingDiscountCode}
-          aria-label={`Remove promo code ${displayAppliedDiscountCode}`}
+          aria-label={removePromoCodeLabel}
           onclick={() => onRemoveDiscountCode?.()}
         >
           <span class="rcb-applied-discount-code"
@@ -95,7 +110,7 @@
           class:rcb-discount-field--floating={isDiscountFieldFloating}
         >
           <label class="rcb-discount-field-label" for="rc-discount-code">
-            Promo code
+            {$translator.translate(LocalizationKeys.DiscountInputLabel)}
           </label>
 
           <input
@@ -122,7 +137,9 @@
             !discountCode.trim()}
           onclick={() => onApplyDiscountCode?.()}
         >
-          {isUpdatingDiscountCode ? "Applying..." : "Apply"}
+          {isUpdatingDiscountCode
+            ? $translator.translate(LocalizationKeys.DiscountInputApplying)
+            : $translator.translate(LocalizationKeys.DiscountInputApply)}
         </button>
       </div>
       {#if discountCodeError}
@@ -265,7 +282,7 @@
     height: 16px;
   }
 
-  .rcb-discount-error-icon :global(svg) {
+  .rcb-discount-error-icon {
     display: block;
     width: 16px;
     height: 16px;
@@ -328,7 +345,7 @@
     color: var(--rc-color-grey-text-light);
   }
 
-  .rcb-applied-discount-icon :global(svg) {
+  .rcb-applied-discount-icon {
     width: 16px;
     height: 16px;
   }

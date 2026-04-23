@@ -31,6 +31,7 @@
   import type { BrandingAppearance } from "../entities/branding";
   import { type GatewayParams } from "../networking/responses/stripe-elements";
   import { validateEmail } from "../helpers/validators";
+  import { LocalizationKeys } from "./localization/supportedLanguages";
 
   interface Props {
     customerEmail: string | undefined;
@@ -107,7 +108,7 @@
       ? discountCode
       : null,
   );
-  let discountCodeError: string | null = $state(null);
+  let discountCodeError: LocalizationKeys | null = $state(null);
   let isUpdatingDiscountCode = $state(false);
   let isPaymentProcessing = $state(false);
 
@@ -290,7 +291,7 @@
   ) => {
     const normalizedDiscountCode = nextDiscountCode?.trim() || null;
     if (nextDiscountCode !== null && normalizedDiscountCode === null) {
-      discountCodeError = "Enter a discount code.";
+      discountCodeError = LocalizationKeys.DiscountInputErrorEmpty;
       return;
     }
 
@@ -312,7 +313,7 @@
         normalizedDiscountCode &&
         !hasDiscount(nextProductDetails, nextPurchaseOption)
       ) {
-        throw new Error("Invalid discount code.");
+        throw new Error("Discount code did not update product pricing.");
       }
 
       currentPage = "payment-entry-loading";
@@ -333,14 +334,11 @@
       draftDiscountCode = normalizedDiscountCode ?? "";
       lastError = null;
       onDiscountCodeChanged?.(normalizedDiscountCode);
-    } catch (error) {
+    } catch {
       if (currentPage === "payment-entry-loading") {
         currentPage = "payment-entry";
       }
-      discountCodeError =
-        error instanceof Error
-          ? error.message
-          : "Failed to apply discount code.";
+      discountCodeError = LocalizationKeys.DiscountInputErrorApplyFailed;
     } finally {
       isUpdatingDiscountCode = false;
     }

@@ -26,7 +26,7 @@
     discountCode: string;
     appliedDiscountCode: string | null;
     appliedDiscountPercentage: number | null;
-    discountCodeError: string | null;
+    discountCodeError: LocalizationKeys | null;
     isUpdatingDiscountCode: boolean;
     isDiscountCodeControlsEnabled: boolean;
     onDiscountCodeChange: ((discountCode: string) => void) | undefined;
