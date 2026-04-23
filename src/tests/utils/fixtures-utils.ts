@@ -81,6 +81,7 @@ export const buildOffering = (packages: Package[] = []) => {
     twoMonth: findByType(PackageType.TwoMonth),
     monthly: findByType(PackageType.Monthly),
     weekly: findByType(PackageType.Weekly),
+    hasPaywall: false,
     paywallComponents: null,
   };
 
