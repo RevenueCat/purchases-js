@@ -1,6 +1,7 @@
 import type {
   Offering,
   Package,
+  PaywallListener,
   PurchaseResult,
   Purchases,
 } from "@revenuecat/purchases-js";
@@ -10,6 +11,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { apiKey, usePurchasesLoaderData } from "../../util/PurchasesLoader";
 import LogoutButton from "../../components/LogoutButton";
 import { Badge, PriceContainer } from "../paywall";
+import { useToast, type ToastType } from "../../hooks/useToast";
+import ToastContainer from "../../components/ToastContainer";
 
 const isPaddleApiKey = (apiKey: string): boolean => {
   return /^pdl_[a-zA-Z0-9_.-]+$/.test(apiKey);
@@ -19,12 +22,14 @@ interface IPackageCardProps {
   pkg: Package;
   offering: Offering;
   purchases: Purchases;
+  showToast: (message: string, type?: ToastType) => void;
 }
 
 export const PackageCard: React.FC<IPackageCardProps> = ({
   pkg,
   offering,
   purchases,
+  showToast,
 }) => {
   const purchaseButtonContainerRef = useRef<HTMLDivElement>(null);
   const hasPresentedRef = useRef(false);
@@ -36,12 +41,28 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
     if (purchaseButtonContainerRef.current === null) return;
     if (purchaseButtonContainerRef.current.children.length > 0) return;
 
+    const listener: PaywallListener = {
+      onPurchaseStarted: (rcPackage) => {
+        showToast(
+          `Purchase started: ${rcPackage.webBillingProduct.title} (${rcPackage.identifier})`,
+          "info",
+        );
+      },
+      onPurchaseError: (error) => {
+        showToast(`Purchase error: ${error.message}`, "error");
+      },
+      onPurchaseCancelled: () => {
+        showToast("Purchase cancelled by user", "error");
+      },
+    };
+
     purchases
       // @ts-expect-error This method is marked as internal for now but it's public.'
       .presentExpressPurchaseButton({
         rcPackage: pkg,
         purchaseOption: pkg.webBillingProduct.defaultPurchaseOption,
         htmlTarget: purchaseButtonContainerRef.current,
+        listener: listener,
       })
       .then((purchaseResult: PurchaseResult) => {
         console.log(`Purchase result: ${JSON.stringify(purchaseResult)}`);
@@ -76,6 +97,7 @@ const ExpressPurchaseButtonsPackageSelector: React.FC = () => {
   const displayName = searchParams.get("$displayName");
   const nickname = searchParams.get("nickname");
   const attributesSetRef = useRef(false);
+  const { toasts, showToast, removeToast } = useToast();
 
   useEffect(() => {
     const setAttributes = async () => {
@@ -142,6 +164,7 @@ const ExpressPurchaseButtonsPackageSelector: React.FC = () => {
                 pkg={pkg}
                 offering={offering}
                 purchases={purchases}
+                showToast={showToast}
               />
             ) : null,
           )}
@@ -151,6 +174,7 @@ const ExpressPurchaseButtonsPackageSelector: React.FC = () => {
           processed.
         </div>
       </div>
+      <ToastContainer toasts={toasts} onDismiss={removeToast} />
     </>
   );
 };

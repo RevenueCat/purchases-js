@@ -203,6 +203,7 @@ export interface NonSubscriptionTransaction {
 export interface Offering {
     readonly annual: Package | null;
     readonly availablePackages: Package[];
+    readonly hasPaywall: boolean;
     readonly identifier: string;
     readonly lifetime: Package | null;
     readonly metadata: {
@@ -216,6 +217,7 @@ export interface Offering {
     readonly sixMonth: Package | null;
     readonly threeMonth: Package | null;
     readonly twoMonth: Package | null;
+    readonly webCheckoutURL?: string | null;
     readonly weekly: Package | null;
     /* Excluded from this release type: paywallComponents */
     /* Excluded from this release type: uiConfig */
@@ -244,6 +246,7 @@ export interface Package {
     // @deprecated
     readonly rcBillingProduct: Product;
     readonly webBillingProduct: Product;
+    readonly webCheckoutURL?: string | null;
 }
 
 // @public
@@ -257,6 +260,13 @@ export enum PackageType {
     TwoMonth = "$rc_two_month",
     Unknown = "unknown",
     Weekly = "$rc_weekly"
+}
+
+// @public
+export interface PaywallListener {
+    onPurchaseCancelled?: () => void;
+    onPurchaseError?: (error: Error) => void;
+    onPurchaseStarted?: (rcPackage: Package) => void;
 }
 
 // @public
@@ -304,9 +314,11 @@ export interface PresentPaywallParams {
     readonly customVariables?: CustomVariables;
     readonly hideBackButtons?: boolean;
     readonly htmlTarget?: HTMLElement;
+    readonly listener?: PaywallListener;
     readonly offering?: Offering;
     readonly onBack?: (closePaywall: () => void) => void;
     readonly onNavigateToUrl?: (url: string) => void;
+    // @deprecated
     readonly onPurchaseError?: (error: Error) => void;
     readonly onVisitCustomerCenter?: () => void;
     readonly purchaseHtmlTarget?: HTMLElement;

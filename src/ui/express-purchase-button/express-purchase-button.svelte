@@ -52,6 +52,7 @@
     onFinished,
     onError,
     onReady,
+    listener,
   }: ExpressPurchaseButtonProps = $props();
 
   const mode: SDKEventPurchaseMode = "express_purchase_button";
@@ -324,6 +325,7 @@
   };
 
   const onExpressClicked = (event: StripeExpressCheckoutElementClickEvent) => {
+    listener?.onPurchaseStarted?.(rcPackage);
     startCheckout().then((options) => event.resolve(options));
   };
 
@@ -331,6 +333,7 @@
     eventsTracker.trackSDKEvent(
       createCheckoutSessionEndClosedEvent({ mode: "express_purchase_button" }),
     );
+    listener?.onPurchaseCancelled?.();
   };
 
   function onExpressCheckoutElementReady(
