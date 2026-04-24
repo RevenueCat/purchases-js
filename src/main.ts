@@ -72,7 +72,8 @@ import type {
   ComponentInteractionData as UIComponentInteractionData,
   WalletButtonRender,
 } from "@revenuecat/purchases-ui-js";
-import { Paywall, type PaywallData } from "@revenuecat/purchases-ui-js";
+import { type PaywallData } from "@revenuecat/purchases-ui-js";
+import PaywallWithShell from "./ui/paywall-with-shell.svelte";
 import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
 import {
   buildVariablesPerPackage,
@@ -980,7 +981,7 @@ export class Purchases {
       );
 
       certainHTMLTarget.innerHTML = "";
-      component = mount(Paywall, {
+      component = mount(PaywallWithShell, {
         target: certainHTMLTarget,
         props: {
           paywallData: offering.paywallComponents!,
