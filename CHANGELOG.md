@@ -1,4 +1,4 @@
-## 1.35.1
+## 1.35.0
 ## RevenueCat SDK
 ### 📦 Dependency Updates
 * Bump purchases-ui-js version (#851) via Marek Dabek (@marek-dabek)
