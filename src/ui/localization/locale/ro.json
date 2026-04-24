@@ -100,5 +100,6 @@
   "loading_page.processing_payment": "Se procesează plata",
   "pricing_table.discount": "Reducere",
   "pricing_table.subtotal": "Subtotal",
-  "pricing_dropdown.add_promo_code": "Adaugă cod promoțional"
+  "pricing_dropdown.add_promo_code": "Adaugă cod promoțional",
+  "discount_input.label": "Cod promoțional"
 }

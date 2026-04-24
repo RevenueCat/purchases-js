@@ -100,5 +100,6 @@
   "loading_page.processing_payment": "Probíhá zpracování platby",
   "pricing_table.discount": "Sleva",
   "pricing_table.subtotal": "Mezisoučet",
-  "pricing_dropdown.add_promo_code": "Přidat promo kód"
+  "pricing_dropdown.add_promo_code": "Přidat promo kód",
+  "discount_input.label": "Promo kód"
 }

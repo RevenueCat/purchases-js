@@ -10,7 +10,7 @@
   export let discountCode = "";
   export let appliedDiscountCode: string | null = null;
   export let appliedDiscountPercentage: number | null = null;
-  export let discountCodeError: LocalizationKeys | null = null;
+  export let discountCodeError: string | null = null;
   export let isUpdatingDiscountCode = false;
   export let isDiscountCodeControlsEnabled = false;
   export let onDiscountCodeChange:
@@ -48,26 +48,17 @@
     isDiscountCodeControlsEnabled &&
     !isUpdatingDiscountCode &&
     hasDiscountCodeValue;
-  $: displayDiscountCodeError = discountCodeError
-    ? $translator.translate(discountCodeError)
-    : null;
+  $: displayDiscountCodeError =
+    discountCodeError === "Enter a discount code."
+      ? discountCodeError
+      : "Code can't be applied.";
   $: appliedDiscountLabel =
     appliedDiscountPercentage === null
       ? null
-      : $translator.translate(
-          LocalizationKeys.DiscountInputAppliedDiscountPercentage,
-          {
-            amount: appliedDiscountPercentage,
-          },
-        );
+      : `${appliedDiscountPercentage}% off`;
   $: displayAppliedDiscountCode = appliedDiscountCode
     ? normalizeDiscountCode(appliedDiscountCode)
     : null;
-  $: removePromoCodeLabel = displayAppliedDiscountCode
-    ? $translator.translate(LocalizationKeys.DiscountInputRemovePromoCode, {
-        code: displayAppliedDiscountCode,
-      })
-    : "";
 </script>
 
 <div class="rcb-product-price-container">
@@ -78,7 +69,7 @@
           class="rcb-applied-discount-chip"
           type="button"
           disabled={isUpdatingDiscountCode}
-          aria-label={removePromoCodeLabel}
+          aria-label={`Remove promo code ${displayAppliedDiscountCode}`}
           onclick={() => onRemoveDiscountCode?.()}
         >
           <span class="rcb-applied-discount-code"
@@ -137,9 +128,7 @@
             !discountCode.trim()}
           onclick={() => onApplyDiscountCode?.()}
         >
-          {isUpdatingDiscountCode
-            ? $translator.translate(LocalizationKeys.DiscountInputApplying)
-            : $translator.translate(LocalizationKeys.DiscountInputApply)}
+          {isUpdatingDiscountCode ? "Applying..." : "Apply"}
         </button>
       </div>
       {#if discountCodeError}

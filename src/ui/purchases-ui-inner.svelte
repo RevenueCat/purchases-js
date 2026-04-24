@@ -15,7 +15,6 @@
   import Template from "./layout/template.svelte";
   import { type GatewayParams } from "../networking/responses/stripe-elements";
   import BrandingHeader from "./molecules/branding-header.svelte";
-  import { type LocalizationKeys } from "./localization/supportedLanguages";
 
   interface Props {
     currentPage: CurrentPage;
@@ -35,7 +34,7 @@
     showDiscountCodeField?: boolean;
     draftDiscountCode?: string;
     appliedDiscountCode?: string | null;
-    discountCodeError?: LocalizationKeys | null;
+    discountCodeError?: string | null;
     isUpdatingDiscountCode?: boolean;
     isDiscountCodeControlsEnabled?: boolean;
     closeWithError: () => void;

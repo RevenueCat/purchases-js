@@ -100,5 +100,6 @@
   "loading_page.processing_payment": "Обробка платежу",
   "pricing_table.discount": "Знижка",
   "pricing_table.subtotal": "Сума до сплати",
-  "pricing_dropdown.add_promo_code": "Додати промокод"
+  "pricing_dropdown.add_promo_code": "Додати промокод",
+  "discount_input.label": "Промокод"
 }

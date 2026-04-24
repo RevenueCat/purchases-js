@@ -100,5 +100,6 @@
   "loading_page.processing_payment": "Đang xử lý thanh toán",
   "pricing_table.discount": "Giảm giá",
   "pricing_table.subtotal": "Tổng cộng",
-  "pricing_dropdown.add_promo_code": "Thêm mã khuyến mãi"
+  "pricing_dropdown.add_promo_code": "Thêm mã khuyến mãi",
+  "discount_input.label": "Mã khuyến mãi"
 }

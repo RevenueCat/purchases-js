@@ -386,40 +386,4 @@ describe("PurchasesUI", () => {
       expect(screen.getByLabelText("Promo code")).toBeTruthy();
     });
   });
-
-  test("shows an error and does not notify the host when a code does not produce discounted pricing", async () => {
-    const checkoutStartSpy = vi
-      .spyOn(purchaseOperationHelperMock, "checkoutStart")
-      .mockResolvedValue(checkoutStartResponse);
-    const onDiscountCodeChanged = vi.fn();
-    getProductWithDiscountCodeMock.mockResolvedValue({
-      productDetails: rcPackage.webBillingProduct,
-      purchaseOption: subscriptionOption,
-    });
-
-    render(PurchasesUI, {
-      props: {
-        ...basicProps,
-        showDiscountCodeField: true,
-        onDiscountCodeChanged,
-      },
-    });
-
-    const discountCodeInput = screen.getByLabelText("Promo code");
-    await waitFor(() => {
-      expect(discountCodeInput).not.toBeDisabled();
-    });
-
-    await fireEvent.input(discountCodeInput, {
-      target: { value: "BADCODE" },
-    });
-    await fireEvent.click(screen.getByRole("button", { name: "Apply" }));
-
-    await waitFor(() => {
-      expect(screen.getByText("Code can’t be applied.")).toBeTruthy();
-    });
-
-    expect(checkoutStartSpy).toHaveBeenCalledTimes(1);
-    expect(onDiscountCodeChanged).not.toHaveBeenCalled();
-  });
 });

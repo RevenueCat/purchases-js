@@ -100,5 +100,6 @@
   "loading_page.processing_payment": "Memproses pembayaran",
   "pricing_table.discount": "Diskaun",
   "pricing_table.subtotal": "Subtotal",
-  "pricing_dropdown.add_promo_code": "Tambah kod promo"
+  "pricing_dropdown.add_promo_code": "Tambah kod promo",
+  "discount_input.label": "Kod promo"
 }

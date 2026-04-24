@@ -100,5 +100,6 @@
   "loading_page.processing_payment": "Behandlar betalning",
   "pricing_table.discount": "Rabatt",
   "pricing_table.subtotal": "Delsumma",
-  "pricing_dropdown.add_promo_code": "Lägg till kampanjkod"
+  "pricing_dropdown.add_promo_code": "Lägg till kampanjkod",
+  "discount_input.label": "Kampanjkod"
 }

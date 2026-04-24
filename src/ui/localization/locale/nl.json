@@ -100,5 +100,6 @@
   "loading_page.processing_payment": "Betaling verwerken",
   "pricing_table.discount": "Korting",
   "pricing_table.subtotal": "Subtotaal",
-  "pricing_dropdown.add_promo_code": "Promotiecode toevoegen"
+  "pricing_dropdown.add_promo_code": "Promotiecode toevoegen",
+  "discount_input.label": "Promotiecode"
 }

@@ -11,7 +11,6 @@
   import ProductHeader from "../molecules/product-header.svelte";
   import PricingSummary from "../molecules/pricing-summary.svelte";
   import PricingSummaryNonSubscription from "../molecules/pricing-summary-non-subscription.svelte";
-  import { type LocalizationKeys } from "../localization/supportedLanguages";
   import { type PriceBreakdown } from "../ui-types";
 
   export let productDetails: Product;
@@ -21,7 +20,7 @@
   export let showDiscountCodeField = false;
   export let discountCode = "";
   export let appliedDiscountCode: string | null = null;
-  export let discountCodeError: LocalizationKeys | null = null;
+  export let discountCodeError: string | null = null;
   export let isUpdatingDiscountCode = false;
   export let isDiscountCodeControlsEnabled = false;
   export let onDiscountCodeChange:

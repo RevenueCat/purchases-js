@@ -100,5 +100,6 @@
   "loading_page.processing_payment": "Fizetés feldolgozása",
   "pricing_table.discount": "Kedvezmény",
   "pricing_table.subtotal": "Részösszeg",
-  "pricing_dropdown.add_promo_code": "Promóciós kód hozzáadása"
+  "pricing_dropdown.add_promo_code": "Promóciós kód hozzáadása",
+  "discount_input.label": "Promóciós kód"
 }

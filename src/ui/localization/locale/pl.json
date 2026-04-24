@@ -100,5 +100,6 @@
   "loading_page.processing_payment": "Przetwarzanie płatności",
   "pricing_table.discount": "Rabat",
   "pricing_table.subtotal": "Suma częściowa",
-  "pricing_dropdown.add_promo_code": "Dodaj kod promocyjny"
+  "pricing_dropdown.add_promo_code": "Dodaj kod promocyjny",
+  "discount_input.label": "Kod promocyjny"
 }

@@ -100,5 +100,6 @@
   "loading_page.processing_payment": "S'està processant el pagament",
   "pricing_table.discount": "Descompte",
   "pricing_table.subtotal": "Subtotal",
-  "pricing_dropdown.add_promo_code": "Afegir codi promocional"
+  "pricing_dropdown.add_promo_code": "Afegir codi promocional",
+  "discount_input.label": "Codi promocional"
 }

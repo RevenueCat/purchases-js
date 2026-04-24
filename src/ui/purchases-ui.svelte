@@ -31,7 +31,6 @@
   import type { BrandingAppearance } from "../entities/branding";
   import { type GatewayParams } from "../networking/responses/stripe-elements";
   import { validateEmail } from "../helpers/validators";
-  import { LocalizationKeys } from "./localization/supportedLanguages";
 
   interface Props {
     customerEmail: string | undefined;
@@ -108,7 +107,7 @@
       ? discountCode
       : null,
   );
-  let discountCodeError: LocalizationKeys | null = $state(null);
+  let discountCodeError: string | null = $state(null);
   let isUpdatingDiscountCode = $state(false);
   let isPaymentProcessing = $state(false);
 
@@ -291,7 +290,7 @@
   ) => {
     const normalizedDiscountCode = nextDiscountCode?.trim() || null;
     if (nextDiscountCode !== null && normalizedDiscountCode === null) {
-      discountCodeError = LocalizationKeys.DiscountInputErrorEmpty;
+      discountCodeError = "Enter a discount code.";
       return;
     }
 
@@ -334,11 +333,14 @@
       draftDiscountCode = normalizedDiscountCode ?? "";
       lastError = null;
       onDiscountCodeChanged?.(normalizedDiscountCode);
-    } catch {
+    } catch (error) {
       if (currentPage === "payment-entry-loading") {
         currentPage = "payment-entry";
       }
-      discountCodeError = LocalizationKeys.DiscountInputErrorApplyFailed;
+      discountCodeError =
+        error instanceof Error
+          ? error.message
+          : "Failed to apply discount code.";
     } finally {
       isUpdatingDiscountCode = false;
     }

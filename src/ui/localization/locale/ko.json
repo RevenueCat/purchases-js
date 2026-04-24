@@ -100,5 +100,6 @@
   "loading_page.processing_payment": "결제 처리 중",
   "pricing_table.discount": "할인",
   "pricing_table.subtotal": "소계",
-  "pricing_dropdown.add_promo_code": "프로모션 코드 추가"
+  "pricing_dropdown.add_promo_code": "프로모션 코드 추가",
+  "discount_input.label": "프로모션 코드"
 }

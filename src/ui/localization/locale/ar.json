@@ -100,5 +100,6 @@
   "loading_page.processing_payment": "جاري معالجة الدفع",
   "pricing_table.discount": "خصم",
   "pricing_table.subtotal": "المجموع الفرعي",
-  "pricing_dropdown.add_promo_code": "أضف رمزًا ترويجيًا"
+  "pricing_dropdown.add_promo_code": "أضف رمزًا ترويجيًا",
+  "discount_input.label": "رمز ترويجي"
 }

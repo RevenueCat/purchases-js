@@ -100,5 +100,6 @@
   "loading_page.processing_payment": "Maksua käsitellään",
   "pricing_table.discount": "Alennus",
   "pricing_table.subtotal": "Välisumma",
-  "pricing_dropdown.add_promo_code": "Lisää kampanjakoodi"
+  "pricing_dropdown.add_promo_code": "Lisää kampanjakoodi",
+  "discount_input.label": "Kampanjakoodi"
 }

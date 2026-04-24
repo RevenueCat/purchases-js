@@ -100,5 +100,6 @@
   "loading_page.processing_payment": "भुगतान संसाधित किया जा रहा है",
   "pricing_table.discount": "छूट",
   "pricing_table.subtotal": "उपकुल योग",
-  "pricing_dropdown.add_promo_code": "प्रोमो_कोड_जोड़ें"
+  "pricing_dropdown.add_promo_code": "प्रोमो_कोड_जोड़ें",
+  "discount_input.label": "प्रोमो कोड"
 }

@@ -100,5 +100,6 @@
   "loading_page.processing_payment": "Επεξεργασία πληρωμής",
   "pricing_table.discount": "Έκπτωση",
   "pricing_table.subtotal": "Υποσύνολο",
-  "pricing_dropdown.add_promo_code": "Προσθήκη κωδικού προσφοράς"
+  "pricing_dropdown.add_promo_code": "Προσθήκη κωδικού προσφοράς",
+  "discount_input.label": "Κωδικός προσφοράς"
 }

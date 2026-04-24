@@ -100,5 +100,6 @@
   "loading_page.processing_payment": "מעבד תשלום תבעה",
   "pricing_table.discount": "הנחה",
   "pricing_table.subtotal": "סכום ביניים",
-  "pricing_dropdown.add_promo_code": "הוסף קוד קידום מכירות"
+  "pricing_dropdown.add_promo_code": "הוסף קוד קידום מכירות",
+  "discount_input.label": "קוד פרומו"
 }

@@ -100,5 +100,6 @@
   "loading_page.processing_payment": "กำลังดำเนินการชำระเงิน",
   "pricing_table.discount": "ส่วนลด",
   "pricing_table.subtotal": "ราคารวมย่อย",
-  "pricing_dropdown.add_promo_code": "เพิ่มรหัสโปรโมชั่น"
+  "pricing_dropdown.add_promo_code": "เพิ่มรหัสโปรโมชั่น",
+  "discount_input.label": "รหัสโปรโมชั่น"
 }
