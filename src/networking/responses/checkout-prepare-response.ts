@@ -3,7 +3,7 @@ import type { GatewayParams } from "./stripe-elements";
 export type CheckoutPrepareStripeGatewayParams = GatewayParams;
 
 export interface CheckoutPreparePayPalGatewayParams {
-  client_access_token: string;
+  is_sandbox: boolean;
 }
 
 export interface CheckoutPreparePaddleBillingParams {

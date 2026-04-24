@@ -7,12 +7,19 @@ export interface StripeBillingParams {
   stripe_account_id: string;
 }
 
+export interface PayPalGatewayParams {
+  order_id: string;
+  approval_url: string;
+  is_sandbox: boolean;
+}
+
 export interface WebBillingCheckoutStartResponse {
   operation_session_id: string;
   gateway_params: GatewayParams;
   stripe_billing_params: StripeBillingParams | null;
   management_url: string;
   paddle_billing_params: null;
+  paypal_gateway_params: PayPalGatewayParams | null;
 }
 
 export interface PaddleCheckoutStartResponse {
