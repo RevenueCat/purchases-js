@@ -562,6 +562,7 @@ export interface SubscriptionInfo {
     readonly ownershipType: OwnershipType;
     readonly periodType: PeriodType;
     readonly productIdentifier: string;
+    readonly productPlanIdentifier: string | null;
     readonly purchaseDate: Date;
     readonly refundedAt: Date | null;
     readonly store: Store;
