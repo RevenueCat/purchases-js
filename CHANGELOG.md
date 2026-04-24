@@ -1,3 +1,15 @@
+## 1.36.0
+## RevenueCat SDK
+### ✨ New Features
+* [WEB-4179] Add public paywall availability to offerings (#852) via Nicola Sacco (@nicfix)
+### 🐞 Bugfixes
+* Bump purchases-ui-js to 3.12.0 (#855) via Franco Correa (@francocorreasosa)
+
+## 1.35.1
+## RevenueCat SDK
+### 📦 Dependency Updates
+* Bump purchases-ui-js version (#851) via Marek Dabek (@marek-dabek)
+
 ## 1.35.0
 ## RevenueCat SDK
 ### 📦 Dependency Updates
