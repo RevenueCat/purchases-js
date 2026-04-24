@@ -2731,6 +2731,33 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!Offering#hasPaywall:member",
+              "docComment": "/**\n * Whether this offering has an attached paywall configured in the RevenueCat dashboard.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly hasPaywall: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "hasPaywall",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!Offering#identifier:member",
               "docComment": "/**\n * Unique identifier defined in RevenueCat dashboard.\n */\n",
               "excerptTokens": [
@@ -3004,6 +3031,33 @@
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 3
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!Offering#webCheckoutURL:member",
+              "docComment": "/**\n * The default web checkout URL for this offering, if available.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly webCheckoutURL?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "webCheckoutURL",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
               }
             },
             {
@@ -3312,6 +3366,33 @@
               "isOptional": false,
               "releaseTag": "Public",
               "name": "webBillingProduct",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!Package#webCheckoutURL:member",
+              "docComment": "/**\n * The web checkout URL for this package, if available.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly webCheckoutURL?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "webCheckoutURL",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -4290,7 +4371,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PresentPaywallParams#onNavigateToUrl:member",
-              "docComment": "/**\n * Callback to be called when the paywall tries to navigate to an external URL.\n */\n",
+              "docComment": "/**\n * Callback to be called when the paywall tries to navigate to an external URL.\n *\n * Markdown text links keep their native browser navigation. Use this callback for side effects or to customize how button-driven URL actions are handled.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",

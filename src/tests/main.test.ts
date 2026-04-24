@@ -26,6 +26,7 @@ import { waitFor } from "@testing-library/svelte";
 import { http, HttpResponse } from "msw";
 import { expectPromiseToError } from "./test-helpers";
 import { StatusCodes } from "http-status-codes";
+import { StripeService } from "../stripe/stripe-service";
 
 describe("Purchases.configure() legacy", () => {
   test("throws error if given invalid api key", () => {
@@ -194,7 +195,7 @@ describe("Purchases.configure()", () => {
         apiKey: "strp_valid_key",
         appUserId: testUserId,
       }),
-    ).toThrow();
+    ).not.toThrow();
   });
 
   test("does not throw error if given valid stripe sandbox api key", () => {
@@ -290,6 +291,46 @@ describe("Purchases.configure()", () => {
         apiKey: testApiKey,
       } as PurchasesConfig),
     ).toThrowError(PurchasesError);
+  });
+
+  test("preloads Stripe module for web billing api key with default storeLoadTime", () => {
+    const spy = vi.spyOn(StripeService, "preloadStripeModule");
+    Purchases.configure({
+      apiKey: testApiKey,
+      appUserId: testUserId,
+    });
+    expect(spy).toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  test("does not preload Stripe module for paddle api key", () => {
+    const spy = vi.spyOn(StripeService, "preloadStripeModule");
+    Purchases.configure({
+      apiKey: "pdl_valid_key",
+      appUserId: testUserId,
+    });
+    expect(spy).not.toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  test("preloads Stripe module for stripe api key with default storeLoadTime", () => {
+    const spy = vi.spyOn(StripeService, "preloadStripeModule");
+    Purchases.configure({
+      apiKey: "strp_valid_key",
+      appUserId: testUserId,
+    });
+    expect(spy).toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  test("does not preload Stripe module for simulated store api key", () => {
+    const spy = vi.spyOn(StripeService, "preloadStripeModule");
+    Purchases.configure({
+      apiKey: "test_valid_key",
+      appUserId: testUserId,
+    });
+    expect(spy).not.toHaveBeenCalled();
+    spy.mockRestore();
   });
 });
 
@@ -770,11 +811,11 @@ describe("Purchases.purchase()", () => {
     expect(performWebBillingPurchaseSpy).not.toHaveBeenCalled();
   });
 
-  test("routes purchases to Stripe Checkout flow for strp_sb_ api keys", async () => {
+  test("routes purchases to Stripe Checkout flow for strp_ api keys", async () => {
     const purchases = configurePurchases(
       testUserId,
       "rcSource",
-      "strp_sb_test_key",
+      "strp_test_key",
     );
     const purchasesInternal = purchases as unknown as PurchaseRouterMethods;
     const performStripePurchaseSpy = vi
@@ -796,15 +837,6 @@ describe("Purchases.purchase()", () => {
     expect(performStripePurchaseSpy).toHaveBeenCalledOnce();
     expect(performPaddlePurchaseSpy).not.toHaveBeenCalled();
     expect(performWebBillingPurchaseSpy).not.toHaveBeenCalled();
-  });
-
-  test("throws error if api key Stripe prod", () => {
-    expect(() =>
-      Purchases.configure({
-        apiKey: "strp_test_key",
-        appUserId: "someUser",
-      }),
-    ).toThrowError(PurchasesError);
   });
 
   test("routes purchases to web billing flow for rcb_ api keys", async () => {
@@ -833,6 +865,59 @@ describe("Purchases.purchase()", () => {
     expect(performWebBillingPurchaseSpy).toHaveBeenCalledOnce();
     expect(performPaddlePurchaseSpy).not.toHaveBeenCalled();
     expect(performStripePurchaseSpy).not.toHaveBeenCalled();
+  });
+
+  test("passes attributionMetadata through the purchase result", async () => {
+    const purchases = configurePurchases();
+    const customerInfo = { originalAppUserId: "test-user-id" } as CustomerInfo;
+    type PurchasesWithCustomerInfoGetter = Purchases & {
+      _getCustomerInfoForUserId: (appUserId: string) => Promise<CustomerInfo>;
+    };
+    const purchasesWithCustomerInfoGetter =
+      purchases as PurchasesWithCustomerInfoGetter;
+    vi.spyOn(
+      purchasesWithCustomerInfoGetter,
+      "_getCustomerInfoForUserId",
+    ).mockResolvedValue(customerInfo);
+
+    const resolve = vi.fn();
+    const onFinished = purchases["createCheckoutOnFinishedHandler"](
+      resolve,
+      "test-app-user-id",
+      createMonthlyPackageMock(),
+    );
+
+    const attributionMetadata = {
+      meta: {
+        canonical_event_id: "fb-order-id",
+        canonical_event_name: "Subscribe",
+        workflow_event_id: "workflow-event-id",
+        workflow_event_name: "workflows_purchase",
+      },
+    };
+
+    await onFinished({
+      redemptionInfo: null,
+      operationSessionId: "test-operation-session-id",
+      storeTransactionIdentifier: "test-store-transaction-id",
+      productIdentifier: "test-product-id",
+      purchaseDate: new Date("2024-01-01T00:00:00.000Z"),
+      attributionMetadata,
+    });
+
+    expect(resolve).toHaveBeenCalledWith(
+      expect.objectContaining({
+        customerInfo,
+        redemptionInfo: null,
+        operationSessionId: "test-operation-session-id",
+        attributionMetadata,
+        storeTransaction: {
+          storeTransactionId: "test-store-transaction-id",
+          productIdentifier: "monthly",
+          purchaseDate: new Date("2024-01-01T00:00:00.000Z"),
+        },
+      }),
+    );
   });
 
   test("throws error if api key is not provided", () => {

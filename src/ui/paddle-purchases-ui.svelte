@@ -145,6 +145,7 @@
         purchaseOption,
         customerEmail,
         metadata,
+        locale: selectedLocale,
       });
       isSandbox = startResponse.paddle_billing_params.is_sandbox;
     } catch (e) {

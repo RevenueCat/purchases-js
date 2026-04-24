@@ -56,6 +56,7 @@ interface PaddleStartCheckoutParams {
   purchaseOption: PurchaseOption;
   customerEmail?: string;
   metadata?: PurchaseMetadata;
+  locale?: string;
 }
 
 export class PaddleService {
@@ -127,19 +128,21 @@ export class PaddleService {
     purchaseOption,
     customerEmail,
     metadata,
+    locale,
   }: PaddleStartCheckoutParams): Promise<PaddleCheckoutStartResponse> {
     try {
       const traceId = this.eventsTracker.getTraceId();
       const startResponse =
-        await this.backend.postCheckoutStart<PaddleCheckoutStartResponse>(
+        await this.backend.postCheckoutStart<PaddleCheckoutStartResponse>({
           appUserId,
           productId,
-          presentedOfferingContext,
           purchaseOption,
+          presentedOfferingContext,
           traceId,
-          customerEmail ?? undefined,
+          customerEmail: customerEmail ?? undefined,
           metadata,
-        );
+          locale,
+        });
 
       await this.initializePaddle(
         startResponse.paddle_billing_params.client_side_token,
@@ -310,6 +313,8 @@ export class PaddleService {
                   storeTransactionIdentifier: storeTransactionIdentifier ?? "",
                   productIdentifier: productIdentifier,
                   purchaseDate: purchaseDate ?? new Date(),
+                  attributionMetadata:
+                    operationResponse.attribution_metadata ?? undefined,
                 });
                 return;
               case CheckoutSessionStatus.Failed:

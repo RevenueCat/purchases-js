@@ -203,6 +203,7 @@ export interface NonSubscriptionTransaction {
 export interface Offering {
     readonly annual: Package | null;
     readonly availablePackages: Package[];
+    readonly hasPaywall: boolean;
     readonly identifier: string;
     readonly lifetime: Package | null;
     readonly metadata: {
@@ -216,6 +217,7 @@ export interface Offering {
     readonly sixMonth: Package | null;
     readonly threeMonth: Package | null;
     readonly twoMonth: Package | null;
+    readonly webCheckoutURL?: string | null;
     readonly weekly: Package | null;
     /* Excluded from this release type: paywallComponents */
     /* Excluded from this release type: uiConfig */
@@ -244,6 +246,7 @@ export interface Package {
     // @deprecated
     readonly rcBillingProduct: Product;
     readonly webBillingProduct: Product;
+    readonly webCheckoutURL?: string | null;
 }
 
 // @public
@@ -406,6 +409,7 @@ export interface PurchaseResult {
     readonly operationSessionId: string;
     readonly redemptionInfo: RedemptionInfo | null;
     readonly storeTransaction: StoreTransaction;
+    /* Excluded from this release type: attributionMetadata */
 }
 
 // @public

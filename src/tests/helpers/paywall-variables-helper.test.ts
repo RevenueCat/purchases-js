@@ -20,6 +20,7 @@ import {
   discountPhaseOneTime,
   discountPhaseTimeWindow,
   discountPhaseForever,
+  introPhaseP1M199,
   trialPhaseP2W,
 } from "../fixtures/price-phases";
 const enTranslator = new Translator({}, englishLocale);
@@ -103,7 +104,7 @@ describe("getPaywallVariables", () => {
           "product.price_per_period": "€9.00/month",
           "product.period_with_unit": "1 month",
           "product.period_in_days": "30",
-          "product.period_in_weeks": "4.33",
+          "product.period_in_weeks": "4",
           "product.period_in_months": "1",
           "product.period_in_years": "0",
           "product.periodly": "monthly",
@@ -199,7 +200,7 @@ describe("getPaywallVariables", () => {
           "product.offer_period_abbreviated": "mo",
           "product.offer_period_in_days": "60",
           "product.offer_period_in_months": "2",
-          "product.offer_period_in_weeks": "8.66",
+          "product.offer_period_in_weeks": "8",
           "product.offer_period_in_years": "0",
           "product.offer_period_with_unit": "2 months",
           "product.offer_end_date": "December 30, 2025",
@@ -215,7 +216,7 @@ describe("getPaywallVariables", () => {
           "product.period_with_unit": "1 month",
           "product.period_in_days": "30",
           "product.period_in_months": "1",
-          "product.period_in_weeks": "4.33",
+          "product.period_in_weeks": "4",
           "product.period_in_years": "0",
           "product.periodly": "monthly",
           "product.period": "month",
@@ -430,7 +431,7 @@ describe("getPaywallVariables", () => {
           "product.offer_period_abbreviated": "mo",
           "product.offer_period_with_unit": "1 month",
           "product.offer_period_in_days": "30",
-          "product.offer_period_in_weeks": "4.33",
+          "product.offer_period_in_weeks": "4",
           "product.offer_period_in_months": "1",
           "product.offer_period_in_years": "0",
           "product.offer_end_date": "November 30, 2025",
@@ -463,12 +464,198 @@ describe("getPaywallVariables", () => {
           "product.offer_price_per_year": "$144.00",
           "product.offer_period": "month",
           "product.offer_period_abbreviated": "mo",
-          "product.offer_period_with_unit": "1 month",
-          "product.offer_period_in_days": "30",
-          "product.offer_period_in_weeks": "4.33",
-          "product.offer_period_in_months": "1",
+          "product.offer_period_with_unit": "3 months",
+          "product.offer_period_in_days": "90",
+          "product.offer_period_in_weeks": "12",
+          "product.offer_period_in_months": "3",
           "product.offer_period_in_years": "0",
-          "product.offer_end_date": "November 30, 2025",
+          "product.offer_end_date": "January 30, 2026",
+          "product.secondary_offer_price": "",
+          "product.secondary_offer_period": "",
+          "product.secondary_offer_period_abbreviated": "",
+        }),
+      );
+    });
+
+    test("Subscription with time window discount uses base billing cadence for weekly offers", () => {
+      const weeklyTimeWindowDiscount = {
+        timeWindow: "P2M",
+        periodDuration: "P2M",
+        durationMode: "time_window",
+        price: toPrice(75000000, "USD"),
+        name: "Weekly Time Window Discount",
+        period: { number: 1, unit: PeriodUnit.Month },
+        cycleCount: 2,
+        discountType: "percentage",
+        percentage: 25,
+        fixedAmount: null,
+      } satisfies NonNullable<SubscriptionOption["discount"]>;
+
+      const off = toOffering([
+        {
+          packageIdentifier: "$rc_weekly",
+          identifier: "weekly_time_window_discount",
+          title: "Weekly Time Window Discount",
+          period: { unit: PeriodUnit.Week, number: 1 },
+          basePriceMicros: 100000000,
+          pricePerWeekMicros: 100000000,
+          pricePerMonthMicros: 428570000,
+          pricePerYearMicros: 5214280000,
+          currency: "USD",
+          discount: weeklyTimeWindowDiscount,
+        },
+      ]);
+
+      const variables = parseOfferingIntoVariables(off, enTranslator);
+
+      expect(variables.$rc_weekly).toEqual(
+        expect.objectContaining({
+          "product.offer_price": "$75.00",
+          "product.offer_price_per_day": "$10.71",
+          "product.offer_price_per_week": "$75.00",
+          "product.offer_price_per_month": "$324.75",
+          "product.offer_price_per_year": "$3,900.00",
+          "product.offer_period": "month",
+          "product.offer_period_abbreviated": "mo",
+          "product.offer_period_with_unit": "2 months",
+          "product.offer_period_in_days": "60",
+          "product.offer_period_in_weeks": "8",
+          "product.offer_period_in_months": "2",
+          "product.offer_period_in_years": "0",
+          "product.offer_end_date": "December 30, 2025",
+          "product.secondary_offer_price": "",
+          "product.secondary_offer_period": "",
+          "product.secondary_offer_period_abbreviated": "",
+        }),
+      );
+    });
+
+    test("Subscription with time window discount shorter than billing cadence discounts the first monthly bill", () => {
+      const monthlyShortWindowDiscount = {
+        timeWindow: "P1W",
+        periodDuration: "P1W",
+        durationMode: "time_window",
+        price: toPrice(5000000, "USD"),
+        name: "Monthly Short Window Discount",
+        period: { number: 1, unit: PeriodUnit.Week },
+        cycleCount: 1,
+        discountType: "percentage",
+        percentage: 50,
+        fixedAmount: null,
+      } satisfies NonNullable<SubscriptionOption["discount"]>;
+
+      const off = toOffering([
+        {
+          packageIdentifier: "$rc_monthly",
+          identifier: "monthly_short_window_discount",
+          title: "Monthly Short Window Discount",
+          basePriceMicros: 10000000,
+          pricePerWeekMicros: 2330000,
+          pricePerMonthMicros: 10000000,
+          pricePerYearMicros: 120000000,
+          currency: "USD",
+          discount: monthlyShortWindowDiscount,
+        },
+      ]);
+
+      const variables = parseOfferingIntoVariables(off, enTranslator);
+
+      expect(variables.$rc_monthly).toEqual(
+        expect.objectContaining({
+          "product.offer_price": "$5.00",
+          "product.offer_price_per_day": "$0.16",
+          "product.offer_price_per_week": "$1.15",
+          "product.offer_price_per_month": "$5.00",
+          "product.offer_price_per_year": "$60.00",
+          "product.offer_period": "week",
+          "product.offer_period_abbreviated": "wk",
+          "product.offer_period_with_unit": "1 week",
+          "product.offer_period_in_days": "7",
+          "product.offer_period_in_weeks": "1",
+          "product.offer_period_in_months": "0",
+          "product.offer_period_in_years": "0",
+          "product.offer_end_date": "November 6, 2025",
+          "product.secondary_offer_price": "",
+          "product.secondary_offer_period": "",
+          "product.secondary_offer_period_abbreviated": "",
+        }),
+      );
+    });
+
+    test("Subscription with multi-cycle intro price uses the full promo window for offer duration", () => {
+      const off = toOffering([
+        {
+          packageIdentifier: "$rc_monthly",
+          identifier: "monthly_multi_cycle_intro_price",
+          title: "Monthly Multi-Cycle Intro Price",
+          basePriceMicros: 9000000,
+          introPrice: introPhaseP1M199,
+        },
+      ]);
+
+      const variables = parseOfferingIntoVariables(off, enTranslator);
+
+      expect(variables.$rc_monthly).toEqual(
+        expect.objectContaining({
+          "product.offer_price": "$1.99",
+          "product.offer_price_per_day": "$0.06",
+          "product.offer_price_per_week": "$0.45",
+          "product.offer_price_per_month": "$1.99",
+          "product.offer_price_per_year": "$23.88",
+          "product.offer_period": "month",
+          "product.offer_period_abbreviated": "mo",
+          "product.offer_period_with_unit": "3 months",
+          "product.offer_period_in_days": "90",
+          "product.offer_period_in_weeks": "12",
+          "product.offer_period_in_months": "3",
+          "product.offer_period_in_years": "0",
+          "product.offer_end_date": "January 30, 2026",
+          "product.secondary_offer_price": "",
+          "product.secondary_offer_period": "",
+          "product.secondary_offer_period_abbreviated": "",
+        }),
+      );
+    });
+
+    test("Subscription with paid-upfront intro price keeps offer_price as the upfront charge", () => {
+      const introPricePaidUpfront: SubscriptionOption["introPrice"] = {
+        period: { unit: PeriodUnit.Month, number: 6 },
+        periodDuration: "P6M",
+        cycleCount: 1,
+        price: toPrice(6990000, "USD"),
+        pricePerWeek: toPrice(270000, "USD"),
+        pricePerMonth: toPrice(1160000, "USD"),
+        pricePerYear: toPrice(14170000, "USD"),
+      } satisfies PricingPhase;
+
+      const off = toOffering([
+        {
+          packageIdentifier: "$rc_monthly",
+          identifier: "monthly_paid_upfront_intro_price",
+          title: "Monthly Paid Upfront Intro Price",
+          basePriceMicros: 9000000,
+          currency: "USD",
+          introPrice: introPricePaidUpfront,
+        },
+      ]);
+
+      const variables = parseOfferingIntoVariables(off, enTranslator);
+
+      expect(variables.$rc_monthly).toEqual(
+        expect.objectContaining({
+          "product.offer_price": "$6.99",
+          "product.offer_price_per_day": "$0.03",
+          "product.offer_price_per_week": "$0.26",
+          "product.offer_price_per_month": "$1.16",
+          "product.offer_price_per_year": "$13.98",
+          "product.offer_period": "month",
+          "product.offer_period_abbreviated": "mo",
+          "product.offer_period_with_unit": "6 months",
+          "product.offer_period_in_days": "180",
+          "product.offer_period_in_weeks": "25",
+          "product.offer_period_in_months": "6",
+          "product.offer_period_in_years": "0",
+          "product.offer_end_date": "April 30, 2026",
           "product.secondary_offer_price": "",
           "product.secondary_offer_period": "",
           "product.secondary_offer_period_abbreviated": "",
@@ -496,14 +683,14 @@ describe("getPaywallVariables", () => {
           "product.offer_price_per_week": "$3.00",
           "product.offer_price_per_month": "$13.00",
           "product.offer_price_per_year": "$156.00",
-          "product.offer_period": "month",
-          "product.offer_period_abbreviated": "mo",
-          "product.offer_period_with_unit": "1 month",
-          "product.offer_period_in_days": "30",
-          "product.offer_period_in_weeks": "4.33",
-          "product.offer_period_in_months": "1",
-          "product.offer_period_in_years": "0",
-          "product.offer_end_date": "November 30, 2025",
+          "product.offer_period": "",
+          "product.offer_period_abbreviated": "",
+          "product.offer_period_with_unit": "",
+          "product.offer_period_in_days": "",
+          "product.offer_period_in_weeks": "",
+          "product.offer_period_in_months": "",
+          "product.offer_period_in_years": "",
+          "product.offer_end_date": "",
           "product.secondary_offer_price": "",
           "product.secondary_offer_period": "",
           "product.secondary_offer_period_abbreviated": "",

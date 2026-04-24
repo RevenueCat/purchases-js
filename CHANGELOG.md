@@ -1,3 +1,69 @@
+## 1.36.0
+## RevenueCat SDK
+### ✨ New Features
+* [WEB-4179] Add public paywall availability to offerings (#852) via Nicola Sacco (@nicfix)
+### 🐞 Bugfixes
+* Bump purchases-ui-js to 3.12.0 (#855) via Franco Correa (@francocorreasosa)
+
+## 1.35.1
+## RevenueCat SDK
+### 📦 Dependency Updates
+* Bump purchases-ui-js version (#851) via Marek Dabek (@marek-dabek)
+
+## 1.35.0
+## RevenueCat SDK
+### 📦 Dependency Updates
+* Bump purchases-ui-js version (#851) via Marek Dabek (@marek-dabek)
+
+## 1.35.0
+## RevenueCat SDK
+### ✨ New Features
+* [WEB-3965] Fix offer variables in paywalls (#846) via James O'Donnell (@james-od)
+
+### 🔄 Other Changes
+* Guard against accidental version bumps outside release branches (#847) via Toni Rico (@tonidero)
+
+## 1.34.0
+## RevenueCatUI SDK
+### ✨ New Features
+* WFL-26 | Bump purchases-ui-js to add support for header component (#841) via Rosie Watson (@RosieWatson)
+### 🐞 Bugfixes
+* Bump purchases-ui-js to 3.11.1 (#843) via Franco Correa (@francocorreasosa)
+
+### 🔄 Other Changes
+* Only preload Stripe module for Stripe-based API keys (#844) via Toni Rico (@tonidero)
+
+## 1.33.0
+## RevenueCat SDK
+### ✨ New Features
+* FUN-2156: Update purchases-js to support new onCompleteWorkflowNavigate param (#838) via Franco Correa (@francocorreasosa)
+
+### 🔄 Other Changes
+* FUN-2085: Pass attribution metadata through purchase results (#827) via Jamie Holwill (@jholwill)
+* Bump fastlane-plugin-revenuecat_internal (#834) via Antonio Pallares (@ajpallares)
+
+## 1.32.0
+## RevenueCat SDK
+### ✨ New Features
+* Pass checkout locale to /checkout/start (#826) via Volodymyr Kartavyi (@vkartaviy)
+
+### 🔄 Other Changes
+* Fix for package.json version that drifted from .version file (#835) via Nicola Sacco (@nicfix)
+
+## 1.31.0
+## RevenueCat SDK
+### ✨ New Features
+* WEB-3903: Stripe Checkout branding support (#828) via Nicola Sacco (@nicfix)
+
+## RevenueCatUI SDK
+### ✨ New Features
+* PW-1201 | Bump `purchases-ui-js` package to enable promo text overrides for discounts (#832) via Rosie Watson (@RosieWatson)
+
+### 🔄 Other Changes
+* Refactor checkoutStart/postCheckoutStart to use params objects (#825) via Volodymyr Kartavyi (@vkartaviy)
+* Fix package.json to reflect correct version (#824) via Toni Rico (@tonidero)
+* Merge release PR after deploy (#812) via Antonio Pallares (@ajpallares)
+
 ## 1.30.0
 ## RevenueCat SDK
 ### ✨ New Features
