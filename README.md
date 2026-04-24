@@ -63,6 +63,47 @@ pnpm link "@revenuecat/purchases-js"
 
 > **Note:** Any changes you make to the library will be automatically reflected in your testing project after running `pnpm run build:dev` or `pnpm run build`.
 
+### Using a local `@revenuecat/purchases-ui-js`
+
+When you need to iterate on both `purchases-js` and `purchases-ui-js` together, you can point this repo at a sibling checkout using a `pnpm-workspace.yaml` override (instead of manually editing `package.json`).
+
+1. Place the two repos side by side, for example:
+
+```
+Developer/
+  purchases-js/
+  purchases-ui-js/
+```
+
+2. In `purchases-js`, create or edit `pnpm-workspace.yaml` and add:
+
+```yaml
+overrides:
+  "@revenuecat/purchases-ui-js": "link:../purchases-ui-js"
+```
+
+Use the **scoped** package name (`@revenuecat/purchases-ui-js`). A key like `purchases-ui-js` will not apply the override.
+
+3. Reinstall dependencies from the `purchases-js` root:
+
+```bash
+pnpm install
+```
+
+4. Verify the override resolved:
+
+```bash
+pnpm why @revenuecat/purchases-ui-js
+```
+
+You should see `link:../purchases-ui-js`.
+
+5. Build the UI package when you change it (from `purchases-ui-js`), then rebuild or run dev builds in `purchases-js` as needed.
+
+#### Reverting
+
+Remove the override from `pnpm-workspace.yaml` and run `pnpm install` again to return to the published `@revenuecat/purchases-ui-js` version.
+
 ## Running Storybook
 
 ```bash
