@@ -26,16 +26,16 @@ export interface ComponentInteractionData {
   originContextName?: string;
   destinationContextName?: string;
   defaultIndex?: number;
-  originPackageIdentifier?: string;
-  destinationPackageIdentifier?: string;
-  defaultPackageIdentifier?: string;
-  originProductIdentifier?: string;
-  destinationProductIdentifier?: string;
-  defaultProductIdentifier?: string;
-  currentPackageIdentifier?: string;
-  resultingPackageIdentifier?: string;
-  currentProductIdentifier?: string;
-  resultingProductIdentifier?: string;
+  originPackageId?: string;
+  destinationPackageId?: string;
+  defaultPackageId?: string;
+  originProductId?: string;
+  destinationProductId?: string;
+  defaultProductId?: string;
+  currentPackageId?: string;
+  resultingPackageId?: string;
+  currentProductId?: string;
+  resultingProductId?: string;
 }
 
 interface BasePaywallEventData {
@@ -52,15 +52,14 @@ interface PaywallDisplayData {
   locale?: string;
 }
 
-interface PaywallImpressionEventData
-  extends BasePaywallEventData,
-    PaywallDisplayData {
-  type: "paywall_impression";
-}
+export type PaywallImpressionEventData = BasePaywallEventData &
+  PaywallDisplayData & {
+    type: "paywall_impression";
+  };
 
-interface PaywallCloseOrCancelEventData extends BasePaywallEventData {
+export type PaywallCloseOrCancelEventData = BasePaywallEventData & {
   type: "paywall_close" | "paywall_cancel";
-}
+};
 
 export interface PaywallComponentInteractionEventData
   extends BasePaywallEventData,
@@ -101,16 +100,16 @@ type PaywallComponentInteractionPayload = {
   origin_context_name?: string;
   destination_context_name?: string;
   default_index?: number;
-  origin_package_identifier?: string;
-  destination_package_identifier?: string;
-  default_package_identifier?: string;
-  origin_product_identifier?: string;
-  destination_product_identifier?: string;
-  default_product_identifier?: string;
-  current_package_identifier?: string;
-  resulting_package_identifier?: string;
-  current_product_identifier?: string;
-  resulting_product_identifier?: string;
+  origin_package_id?: string;
+  destination_package_id?: string;
+  default_package_id?: string;
+  origin_product_id?: string;
+  destination_product_id?: string;
+  default_product_id?: string;
+  current_package_id?: string;
+  resulting_package_id?: string;
+  current_product_id?: string;
+  resulting_product_id?: string;
 };
 
 type PaywallImpressionEventPayload = CommonPaywallEventPayload &
@@ -128,7 +127,7 @@ type PaywallComponentInteractionEventPayload = CommonPaywallEventPayload &
     type: "paywall_component_interacted";
   };
 
-type PaywallEventPayload =
+export type PaywallEventPayload =
   | PaywallImpressionEventPayload
   | PaywallCloseOrCancelEventPayload
   | PaywallComponentInteractionEventPayload;
@@ -143,16 +142,16 @@ const INTERACTION_FIELD_MAP = {
   originContextName: "origin_context_name",
   destinationContextName: "destination_context_name",
   defaultIndex: "default_index",
-  originPackageIdentifier: "origin_package_identifier",
-  destinationPackageIdentifier: "destination_package_identifier",
-  defaultPackageIdentifier: "default_package_identifier",
-  originProductIdentifier: "origin_product_identifier",
-  destinationProductIdentifier: "destination_product_identifier",
-  defaultProductIdentifier: "default_product_identifier",
-  currentPackageIdentifier: "current_package_identifier",
-  resultingPackageIdentifier: "resulting_package_identifier",
-  currentProductIdentifier: "current_product_identifier",
-  resultingProductIdentifier: "resulting_product_identifier",
+  originPackageId: "origin_package_id",
+  destinationPackageId: "destination_package_id",
+  defaultPackageId: "default_package_id",
+  originProductId: "origin_product_id",
+  destinationProductId: "destination_product_id",
+  defaultProductId: "default_product_id",
+  currentPackageId: "current_package_id",
+  resultingPackageId: "resulting_package_id",
+  currentProductId: "current_product_id",
+  resultingProductId: "resulting_product_id",
 } as const satisfies Record<
   keyof ComponentInteractionData,
   keyof PaywallComponentInteractionPayload

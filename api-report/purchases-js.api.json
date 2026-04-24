@@ -2731,6 +2731,33 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!Offering#hasPaywall:member",
+              "docComment": "/**\n * Whether this offering has an attached paywall configured in the RevenueCat dashboard.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly hasPaywall: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "hasPaywall",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!Offering#identifier:member",
               "docComment": "/**\n * Unique identifier defined in RevenueCat dashboard.\n */\n",
               "excerptTokens": [

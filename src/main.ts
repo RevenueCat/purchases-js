@@ -65,7 +65,10 @@ import {
   type CompleteWorkflowNavigateArgs,
   type PresentPaywallParams,
 } from "./entities/present-paywall-params";
-import type { WalletButtonRender } from "@revenuecat/purchases-ui-js";
+import type {
+  ComponentInteractionData as UIComponentInteractionData,
+  WalletButtonRender,
+} from "@revenuecat/purchases-ui-js";
 import { Paywall, type PaywallData } from "@revenuecat/purchases-ui-js";
 import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
 import {
@@ -97,7 +100,6 @@ import {
 } from "./entities/purchases-config";
 import { generateUUID } from "./helpers/uuid-helper";
 import {
-  type ComponentInteractionData,
   type PaywallComponentInteractionEventData,
   type PaywallEventType,
 } from "./behavioural-events/paywall-event";
@@ -118,6 +120,25 @@ import { ExpressPurchaseButtonWrapper } from "./ui/express-purchase-button/expre
 import { getWindow, getDocument } from "./helpers/browser-globals";
 import { isAllowedCompleteWorkflowNavigateUrl } from "./helpers/complete-workflow-navigate-url";
 import { StripeService } from "./stripe/stripe-service";
+
+type UIComponentInteractionFields = UIComponentInteractionData & {
+  componentURL?: string;
+  originIndex?: number;
+  destinationIndex?: number;
+  originContextName?: string;
+  destinationContextName?: string;
+  defaultIndex?: number;
+  originPackageId?: string;
+  destinationPackageId?: string;
+  defaultPackageId?: string;
+  originProductId?: string;
+  destinationProductId?: string;
+  defaultProductId?: string;
+  currentPackageId?: string;
+  resultingPackageId?: string;
+  currentProductId?: string;
+  resultingProductId?: string;
+};
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -626,41 +647,45 @@ export class Purchases {
     };
 
     const toInteractionEvent = (
-      data: ComponentInteractionData,
-    ): PaywallComponentInteractionEventData => ({
-      type: "paywall_component_interacted",
-      ...paywallBaseEventData,
-      ...paywallDisplayData,
-      componentType: data.componentType,
-      componentName: data.componentName,
-      componentValue: data.componentValue,
-      componentURL: data.componentURL,
-      originIndex: data.originIndex,
-      destinationIndex: data.destinationIndex,
-      originContextName: data.originContextName,
-      destinationContextName: data.destinationContextName,
-      defaultIndex: data.defaultIndex,
-      originPackageIdentifier: data.originPackageIdentifier,
-      destinationPackageIdentifier: data.destinationPackageIdentifier,
-      defaultPackageIdentifier: data.defaultPackageIdentifier,
-      originProductIdentifier:
-        data.originProductIdentifier ??
-        getProductIdentifierForPackageId(data.originPackageIdentifier),
-      destinationProductIdentifier:
-        data.destinationProductIdentifier ??
-        getProductIdentifierForPackageId(data.destinationPackageIdentifier),
-      defaultProductIdentifier:
-        data.defaultProductIdentifier ??
-        getProductIdentifierForPackageId(data.defaultPackageIdentifier),
-      currentPackageIdentifier: data.currentPackageIdentifier,
-      resultingPackageIdentifier: data.resultingPackageIdentifier,
-      currentProductIdentifier:
-        data.currentProductIdentifier ??
-        getProductIdentifierForPackageId(data.currentPackageIdentifier),
-      resultingProductIdentifier:
-        data.resultingProductIdentifier ??
-        getProductIdentifierForPackageId(data.resultingPackageIdentifier),
-    });
+      data: UIComponentInteractionData,
+    ): PaywallComponentInteractionEventData => {
+      const interaction = data as UIComponentInteractionFields;
+
+      return {
+        type: "paywall_component_interacted",
+        ...paywallBaseEventData,
+        ...paywallDisplayData,
+        componentType: data.componentType,
+        componentName: data.componentName,
+        componentValue: data.componentValue,
+        componentURL: interaction.componentURL,
+        originIndex: interaction.originIndex,
+        destinationIndex: interaction.destinationIndex,
+        originContextName: interaction.originContextName,
+        destinationContextName: interaction.destinationContextName,
+        defaultIndex: interaction.defaultIndex,
+        originPackageId: interaction.originPackageId,
+        destinationPackageId: interaction.destinationPackageId,
+        defaultPackageId: interaction.defaultPackageId,
+        originProductId:
+          interaction.originProductId ??
+          getProductIdentifierForPackageId(interaction.originPackageId),
+        destinationProductId:
+          interaction.destinationProductId ??
+          getProductIdentifierForPackageId(interaction.destinationPackageId),
+        defaultProductId:
+          interaction.defaultProductId ??
+          getProductIdentifierForPackageId(interaction.defaultPackageId),
+        currentPackageId: interaction.currentPackageId,
+        resultingPackageId: interaction.resultingPackageId,
+        currentProductId:
+          interaction.currentProductId ??
+          getProductIdentifierForPackageId(interaction.currentPackageId),
+        resultingProductId:
+          interaction.resultingProductId ??
+          getProductIdentifierForPackageId(interaction.resultingPackageId),
+      };
+    };
 
     const trackPaywallEvent = (
       type: Exclude<PaywallEventType, "paywall_component_interacted">,
@@ -700,10 +725,10 @@ export class Purchases {
       return { ...purchaseResult, selectedPackage: pkg };
     };
 
-    let lastNavigationInteraction: Pick<
-      ComponentInteractionData,
-      "componentType" | "componentURL"
-    > | null = null;
+    let lastNavigationInteraction: {
+      componentType: UIComponentInteractionData["componentType"];
+      componentURL?: string;
+    } | null = null;
     let lastTextLinkClick: {
       url: string;
       defaultPrevented: boolean;
@@ -827,7 +852,7 @@ export class Purchases {
         trackPaywallEvent("paywall_close");
       };
 
-      const trackComponentInteraction = (data: ComponentInteractionData) => {
+      const trackComponentInteraction = (data: UIComponentInteractionData) => {
         if (!paywallImpressionTracked || paywallCloseTracked) {
           return;
         }
@@ -835,13 +860,14 @@ export class Purchases {
         this.eventsTracker.trackPaywallEvent(toInteractionEvent(data));
       };
 
-      const onComponentInteraction = (data: ComponentInteractionData) => {
+      const onComponentInteraction = (data: UIComponentInteractionData) => {
+        const interaction = data as UIComponentInteractionFields;
         lastNavigationInteraction =
-          data.componentURL === undefined
+          interaction.componentURL === undefined
             ? null
             : {
                 componentType: data.componentType,
-                componentURL: data.componentURL,
+                componentURL: interaction.componentURL,
               };
         trackComponentInteraction(data);
       };

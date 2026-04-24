@@ -490,6 +490,10 @@ export interface Offering {
    * Weekly package type configured in the RevenueCat dashboard, if available.
    */
   readonly weekly: Package | null;
+  /**
+   * Whether this offering has an attached paywall configured in the RevenueCat dashboard.
+   */
+  readonly hasPaywall: boolean;
 
   /**
    * The paywall components configured in the RevenueCat dashboard, if available.
@@ -936,6 +940,7 @@ export const toOffering = (
     twoMonth: packagesById[PackageType.TwoMonth] ?? null,
     monthly: packagesById[PackageType.Monthly] ?? null,
     weekly: packagesById[PackageType.Weekly] ?? null,
+    hasPaywall: offeringsData.paywall_components != null,
     paywallComponents: offeringsData.paywall_components,
     ...(uiConfig !== undefined ? { uiConfig } : {}),
   };

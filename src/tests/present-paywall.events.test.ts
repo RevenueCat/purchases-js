@@ -5,7 +5,7 @@ import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
 import { ErrorCode, PurchasesError } from "../main";
 import type { Offering, Package } from "../entities/offerings";
 import type { CompleteWorkflowNavigateArgs } from "../entities/present-paywall-params";
-import type { ComponentInteractionData } from "../behavioural-events/paywall-event";
+import type { ComponentInteractionData } from "@revenuecat/purchases-ui-js";
 import * as browserGlobals from "../helpers/browser-globals";
 import { Logger } from "../helpers/logger";
 
@@ -48,6 +48,7 @@ const createOfferingWithPaywall = (
     twoMonth: null,
     monthly: monthlyPackage,
     weekly: null,
+    hasPaywall: true,
     paywallComponents: {
       id: "paywall-public-id",
       default_locale: "en_US",
@@ -394,9 +395,9 @@ describe("Purchases.presentPaywall() paywall events", () => {
       componentType: "package",
       componentName: "Annual Package",
       componentValue: annualPackage.identifier,
-      originPackageIdentifier: monthlyPackage.identifier,
-      destinationPackageIdentifier: annualPackage.identifier,
-      defaultPackageIdentifier: monthlyPackage.identifier,
+      originPackageId: monthlyPackage.identifier,
+      destinationPackageId: annualPackage.identifier,
+      defaultPackageId: monthlyPackage.identifier,
     });
 
     await vi.waitFor(() => {
@@ -404,12 +405,12 @@ describe("Purchases.presentPaywall() paywall events", () => {
         expect.objectContaining({
           type: "paywall_component_interacted",
           componentType: "package",
-          originPackageIdentifier: monthlyPackage.identifier,
-          destinationPackageIdentifier: annualPackage.identifier,
-          defaultPackageIdentifier: monthlyPackage.identifier,
-          originProductIdentifier: "monthly",
-          destinationProductIdentifier: "annual",
-          defaultProductIdentifier: "monthly",
+          originPackageId: monthlyPackage.identifier,
+          destinationPackageId: annualPackage.identifier,
+          defaultPackageId: monthlyPackage.identifier,
+          originProductId: "monthly",
+          destinationProductId: "annual",
+          defaultProductId: "monthly",
         }),
       );
     });

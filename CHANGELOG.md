@@ -1,5 +1,10 @@
 ## 1.35.0
 ## RevenueCat SDK
+### 📦 Dependency Updates
+* Bump purchases-ui-js version (#851) via Marek Dabek (@marek-dabek)
+
+## 1.35.0
+## RevenueCat SDK
 ### ✨ New Features
 * [WEB-3965] Fix offer variables in paywalls (#846) via James O'Donnell (@james-od)
 
