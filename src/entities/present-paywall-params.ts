@@ -37,6 +37,9 @@ export interface PresentPaywallParams {
 
   /**
    * Callback to be called when the paywall tries to navigate to an external URL.
+   *
+   * Markdown text links keep their native browser navigation. Use this callback
+   * for side effects or to customize how button-driven URL actions are handled.
    */
   readonly onNavigateToUrl?: (url: string) => void;
 

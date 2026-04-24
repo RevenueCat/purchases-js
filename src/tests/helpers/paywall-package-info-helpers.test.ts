@@ -1,11 +1,15 @@
 import { describe, expect, test } from "vitest";
+import type { PackageInfo } from "@revenuecat/purchases-ui-js";
 import { parseOfferingIntoPackageInfoPerPackage } from "../../helpers/paywall-package-info-helpers";
+import type { Offering } from "../../entities/offerings";
 import { toOffering, toNonSubscriptionOffering } from "../utils/fixtures-utils";
 import {
   discountPhaseOneTime,
   trialPhaseP2W,
   pricePhaseP1M1499,
 } from "../fixtures/price-phases";
+
+type PackageInfoWithCheckout = PackageInfo & { webCheckoutURL?: string };
 
 describe("parseOfferingIntoPackageInfoPerPackage", () => {
   test("Packages with no trial, no intro offer, and no promo offer", () => {
@@ -216,5 +220,88 @@ describe("parseOfferingIntoPackageInfoPerPackage", () => {
         hasPromoOffer: true,
       },
     });
+  });
+
+  test("includes webCheckoutURL from package when present", () => {
+    const off = toOffering([
+      {
+        packageIdentifier: "$rc_monthly",
+        identifier: "monthly_basic",
+        title: "Monthly Basic",
+      },
+    ]);
+    const monthly = off.packagesById["$rc_monthly"]!;
+    off.packagesById["$rc_monthly"] = {
+      ...monthly,
+      webCheckoutURL: "https://checkout.example.com/monthly",
+    };
+
+    const result = parseOfferingIntoPackageInfoPerPackage(off) as Record<
+      string,
+      PackageInfoWithCheckout
+    >;
+
+    expect(result).toStrictEqual({
+      $rc_monthly: {
+        hasTrial: false,
+        hasIntroOffer: false,
+        hasPromoOffer: false,
+        webCheckoutURL: "https://checkout.example.com/monthly",
+      },
+    });
+  });
+
+  test("falls back to offering webCheckoutURL when package has none", () => {
+    const off = toOffering([
+      {
+        packageIdentifier: "$rc_monthly",
+        identifier: "monthly_basic",
+        title: "Monthly Basic",
+      },
+    ]);
+    const withOfferingUrl: Offering = {
+      ...off,
+      webCheckoutURL: "https://checkout.example.com/offering",
+    };
+
+    const result = parseOfferingIntoPackageInfoPerPackage(
+      withOfferingUrl,
+    ) as Record<string, PackageInfoWithCheckout>;
+
+    expect(result).toStrictEqual({
+      $rc_monthly: {
+        hasTrial: false,
+        hasIntroOffer: false,
+        hasPromoOffer: false,
+        webCheckoutURL: "https://checkout.example.com/offering",
+      },
+    });
+  });
+
+  test("package webCheckoutURL takes precedence over offering", () => {
+    const off = toOffering([
+      {
+        packageIdentifier: "$rc_monthly",
+        identifier: "monthly_basic",
+        title: "Monthly Basic",
+      },
+    ]);
+    const monthly = off.packagesById["$rc_monthly"]!;
+    off.packagesById["$rc_monthly"] = {
+      ...monthly,
+      webCheckoutURL: "https://checkout.example.com/package",
+    };
+    const withOfferingUrl: Offering = {
+      ...off,
+      webCheckoutURL: "https://checkout.example.com/offering",
+    };
+
+    const result = parseOfferingIntoPackageInfoPerPackage(
+      withOfferingUrl,
+    ) as Record<string, PackageInfoWithCheckout>;
+
+    expect(result.$rc_monthly?.webCheckoutURL).toBe(
+      "https://checkout.example.com/package",
+    );
   });
 });
