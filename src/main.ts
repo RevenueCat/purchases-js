@@ -128,16 +128,16 @@ type UIComponentInteractionFields = UIComponentInteractionData & {
   originContextName?: string;
   destinationContextName?: string;
   defaultIndex?: number;
-  originPackageIdentifier?: string;
-  destinationPackageIdentifier?: string;
-  defaultPackageIdentifier?: string;
-  originProductIdentifier?: string;
-  destinationProductIdentifier?: string;
-  defaultProductIdentifier?: string;
-  currentPackageIdentifier?: string;
-  resultingPackageIdentifier?: string;
-  currentProductIdentifier?: string;
-  resultingProductIdentifier?: string;
+  originPackageId?: string;
+  destinationPackageId?: string;
+  defaultPackageId?: string;
+  originProductId?: string;
+  destinationProductId?: string;
+  defaultProductId?: string;
+  currentPackageId?: string;
+  resultingPackageId?: string;
+  currentProductId?: string;
+  resultingProductId?: string;
 };
 
 export { ProductType } from "./entities/offerings";
@@ -664,34 +664,26 @@ export class Purchases {
         originContextName: interaction.originContextName,
         destinationContextName: interaction.destinationContextName,
         defaultIndex: interaction.defaultIndex,
-        originPackageId: interaction.originPackageIdentifier,
-        destinationPackageId: interaction.destinationPackageIdentifier,
-        defaultPackageId: interaction.defaultPackageIdentifier,
+        originPackageId: interaction.originPackageId,
+        destinationPackageId: interaction.destinationPackageId,
+        defaultPackageId: interaction.defaultPackageId,
         originProductId:
-          interaction.originProductIdentifier ??
-          getProductIdentifierForPackageId(interaction.originPackageIdentifier),
+          interaction.originProductId ??
+          getProductIdentifierForPackageId(interaction.originPackageId),
         destinationProductId:
-          interaction.destinationProductIdentifier ??
-          getProductIdentifierForPackageId(
-            interaction.destinationPackageIdentifier,
-          ),
+          interaction.destinationProductId ??
+          getProductIdentifierForPackageId(interaction.destinationPackageId),
         defaultProductId:
-          interaction.defaultProductIdentifier ??
-          getProductIdentifierForPackageId(
-            interaction.defaultPackageIdentifier,
-          ),
-        currentPackageId: interaction.currentPackageIdentifier,
-        resultingPackageId: interaction.resultingPackageIdentifier,
+          interaction.defaultProductId ??
+          getProductIdentifierForPackageId(interaction.defaultPackageId),
+        currentPackageId: interaction.currentPackageId,
+        resultingPackageId: interaction.resultingPackageId,
         currentProductId:
-          interaction.currentProductIdentifier ??
-          getProductIdentifierForPackageId(
-            interaction.currentPackageIdentifier,
-          ),
+          interaction.currentProductId ??
+          getProductIdentifierForPackageId(interaction.currentPackageId),
         resultingProductId:
-          interaction.resultingProductIdentifier ??
-          getProductIdentifierForPackageId(
-            interaction.resultingPackageIdentifier,
-          ),
+          interaction.resultingProductId ??
+          getProductIdentifierForPackageId(interaction.resultingPackageId),
       };
     };
 

@@ -395,9 +395,9 @@ describe("Purchases.presentPaywall() paywall events", () => {
       componentType: "package",
       componentName: "Annual Package",
       componentValue: annualPackage.identifier,
-      originPackageIdentifier: monthlyPackage.identifier,
-      destinationPackageIdentifier: annualPackage.identifier,
-      defaultPackageIdentifier: monthlyPackage.identifier,
+      originPackageId: monthlyPackage.identifier,
+      destinationPackageId: annualPackage.identifier,
+      defaultPackageId: monthlyPackage.identifier,
     });
 
     await vi.waitFor(() => {
