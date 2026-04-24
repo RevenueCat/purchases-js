@@ -1,5 +1,4 @@
 import { generateUUID } from "../helpers/uuid-helper";
-import type { ComponentInteractionData } from "@revenuecat/purchases-ui-js";
 
 export type PaywallEventType =
   | "paywall_impression"
@@ -7,34 +6,67 @@ export type PaywallEventType =
   | "paywall_cancel"
   | "paywall_component_interacted";
 
-type PaywallSessionFields = {
+export type ComponentInteractionType =
+  | "tab"
+  | "switch"
+  | "carousel"
+  | "button"
+  | "text"
+  | "package"
+  | "package_selection_sheet"
+  | "purchase_button";
+
+export interface ComponentInteractionData {
+  componentType: ComponentInteractionType;
+  componentName?: string;
+  componentValue: string;
+  componentURL?: string;
+  originIndex?: number;
+  destinationIndex?: number;
+  originContextName?: string;
+  destinationContextName?: string;
+  defaultIndex?: number;
+  originPackageId?: string;
+  destinationPackageId?: string;
+  defaultPackageId?: string;
+  originProductId?: string;
+  destinationProductId?: string;
+  defaultProductId?: string;
+  currentPackageId?: string;
+  resultingPackageId?: string;
+  currentProductId?: string;
+  resultingProductId?: string;
+}
+
+interface BasePaywallEventData {
   appUserId: string;
   sessionId: string;
   offeringId: string;
   paywallRevision: number;
   paywallRcPublicId: string | null;
-};
+}
 
-type PaywallDisplayFields = {
-  displayMode: string;
-  darkMode: boolean;
-  locale: string;
-};
+interface PaywallDisplayData {
+  displayMode?: string;
+  darkMode?: boolean;
+  locale?: string;
+}
 
-export type PaywallImpressionEventData = PaywallSessionFields &
-  PaywallDisplayFields & {
+export type PaywallImpressionEventData = BasePaywallEventData &
+  PaywallDisplayData & {
     type: "paywall_impression";
   };
 
-export type PaywallCloseOrCancelEventData = PaywallSessionFields & {
+export type PaywallCloseOrCancelEventData = BasePaywallEventData & {
   type: "paywall_close" | "paywall_cancel";
 };
 
-export type PaywallComponentInteractionEventData = PaywallSessionFields &
-  PaywallDisplayFields &
-  ComponentInteractionData & {
-    type: "paywall_component_interacted";
-  };
+export interface PaywallComponentInteractionEventData
+  extends BasePaywallEventData,
+    PaywallDisplayData,
+    ComponentInteractionData {
+  type: "paywall_component_interacted";
+}
 
 export type PaywallEventData =
   | PaywallImpressionEventData
@@ -42,7 +74,7 @@ export type PaywallEventData =
   | PaywallComponentInteractionEventData;
 
 type CommonPaywallEventPayload = {
-  version: number;
+  version: 1;
   id: string;
   app_user_id: string;
   session_id: string;
@@ -59,7 +91,7 @@ type PaywallDisplayPayload = {
 };
 
 type PaywallComponentInteractionPayload = {
-  component_type: ComponentInteractionData["componentType"];
+  component_type: ComponentInteractionType;
   component_value: string;
   component_name?: string;
   component_url?: string;
@@ -120,41 +152,43 @@ const INTERACTION_FIELD_MAP = {
   resultingPackageId: "resulting_package_id",
   currentProductId: "current_product_id",
   resultingProductId: "resulting_product_id",
-} as const;
+} as const satisfies Record<
+  keyof ComponentInteractionData,
+  keyof PaywallComponentInteractionPayload
+>;
 
-type InteractionFieldSource = Record<string, unknown>;
+const interactionFieldEntries = Object.entries(INTERACTION_FIELD_MAP) as Array<
+  [
+    keyof typeof INTERACTION_FIELD_MAP,
+    (typeof INTERACTION_FIELD_MAP)[keyof typeof INTERACTION_FIELD_MAP],
+  ]
+>;
+
+const toDisplayPayload = (data: PaywallDisplayData): PaywallDisplayPayload => {
+  if (data.displayMode === undefined) {
+    return {};
+  }
+
+  return {
+    display_mode: data.displayMode,
+    dark_mode: data.darkMode ?? false,
+    locale: data.locale ?? "en_US",
+  };
+};
 
 const toComponentInteractionPayload = (
   data: ComponentInteractionData,
 ): PaywallComponentInteractionPayload => {
-  const source = data as unknown as InteractionFieldSource;
   const payload: Partial<PaywallComponentInteractionPayload> = {};
 
-  for (const [sourceKey, destKey] of Object.entries(
-    INTERACTION_FIELD_MAP,
-  ) as Array<
-    [
-      keyof typeof INTERACTION_FIELD_MAP,
-      keyof PaywallComponentInteractionPayload,
-    ]
-  >) {
-    const value = source[sourceKey as string];
+  for (const [sourceKey, destinationKey] of interactionFieldEntries) {
+    const value = data[sourceKey];
     if (value !== undefined) {
-      Object.assign(payload, { [destKey]: value });
+      Object.assign(payload, { [destinationKey]: value });
     }
   }
 
   return payload as PaywallComponentInteractionPayload;
-};
-
-const toDisplayPayload = (
-  data: PaywallDisplayFields,
-): PaywallDisplayPayload => {
-  return {
-    display_mode: data.displayMode,
-    dark_mode: data.darkMode,
-    locale: data.locale,
-  };
 };
 
 export class PaywallEvent {
