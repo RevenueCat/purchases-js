@@ -61,6 +61,7 @@ import {
   type PurchaseResult,
 } from "./entities/purchase-result";
 import { mount, unmount } from "svelte";
+import { type PaywallListener } from "./entities/paywall-listener";
 import {
   type CompleteWorkflowNavigateArgs,
   type PresentPaywallParams,
@@ -195,6 +196,7 @@ export type { PurchasesConfig } from "./entities/purchases-config";
 export type { VirtualCurrencies } from "./entities/virtual-currencies";
 export type { VirtualCurrency } from "./entities/virtual-currency";
 export type { PresentPaywallParams } from "./entities/present-paywall-params";
+export type { PaywallListener } from "./entities/paywall-listener";
 export {
   CustomVariableValue,
   type CustomVariables,
@@ -904,6 +906,44 @@ export class Purchases {
         });
       };
 
+      const listener = paywallParams.listener;
+
+      const notifyPurchaseStarted = (pkg: Package) => {
+        if (listener?.onPurchaseStarted) {
+          try {
+            listener.onPurchaseStarted(pkg);
+          } catch (e) {
+            Logger.errorLog(`Error in listener.onPurchaseStarted: ${e}`);
+          }
+        }
+      };
+
+      const notifyPurchaseError = (err: Error) => {
+        if (
+          err instanceof PurchasesError &&
+          err.errorCode === ErrorCode.UserCancelledError
+        ) {
+          if (listener?.onPurchaseCancelled) {
+            try {
+              listener.onPurchaseCancelled();
+            } catch (e) {
+              Logger.errorLog(`Error in listener.onPurchaseCancelled: ${e}`);
+            }
+          }
+        } else {
+          if (listener?.onPurchaseError) {
+            try {
+              listener.onPurchaseError(err);
+            } catch (e) {
+              Logger.errorLog(`Error in listener.onPurchaseError: ${e}`);
+            }
+          }
+          if (paywallParams.onPurchaseError) {
+            paywallParams.onPurchaseError(err);
+          }
+        }
+      };
+
       const onSuccess = (result: PaywallPurchaseResult) => {
         unmountPaywall();
         resolve(result);
@@ -923,7 +963,7 @@ export class Purchases {
         }
 
         Logger.errorLog(`${message}: ${error}`);
-        paywallParams.onPurchaseError?.(error);
+        notifyPurchaseError(error);
       };
 
       const walletButtonRender = this.getWalletButtonRender(
@@ -931,6 +971,7 @@ export class Purchases {
         onSuccess,
         paywallParams.customerEmail,
         onError("Error presenting express purchase button"),
+        listener,
       );
 
       certainHTMLTarget.innerHTML = "";
@@ -956,6 +997,10 @@ export class Purchases {
           },
           onRestorePurchasesClicked: onRestorePurchasesClicked,
           onPurchaseClicked: (selectedPackageId: string) => {
+            const pkg = offering.packagesById[selectedPackageId];
+            if (pkg) {
+              notifyPurchaseStarted(pkg);
+            }
             startPurchaseFlow(selectedPackageId)
               .then(onSuccess)
               .catch(onError("Error performing purchase"));
@@ -1189,6 +1234,7 @@ export class Purchases {
         translator,
         onFinished,
         onError,
+        listener: params.listener,
       });
     });
   }
@@ -1209,6 +1255,7 @@ export class Purchases {
     onSuccess: (purchaseResult: PaywallPurchaseResult) => void,
     customerEmail?: string,
     onError?: (error: Error) => void,
+    listener?: PaywallListener,
   ): WalletButtonRender | undefined {
     if (!isWebBillingApiKey(this._API_KEY)) {
       return undefined;
@@ -1229,6 +1276,7 @@ export class Purchases {
           buttonUpdater = updater;
           onReady?.(walletsAvailable);
         },
+        listener,
       })
         .then((purchaseResult) => {
           onSuccess({ ...purchaseResult, selectedPackage: pkg });

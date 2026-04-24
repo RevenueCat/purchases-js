@@ -1,4 +1,5 @@
 import type { Offering } from "./offerings";
+import type { PaywallListener } from "./paywall-listener";
 import type {
   CompleteWorkflowNavigateArgs,
   CustomVariables,
@@ -77,8 +78,14 @@ export interface PresentPaywallParams {
   /**
    * Callback called when an error that won't close the paywall occurs.
    * For example, a retryable error during the purchase process.
+   * @deprecated Use `listener.onPurchaseError` instead.
    */
   readonly onPurchaseError?: (error: Error) => void;
+
+  /**
+   * Optional listener for paywall purchase lifecycle events.
+   */
+  readonly listener?: PaywallListener;
 
   /**
    * The locale to use for the paywall and the checkout flow.

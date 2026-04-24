@@ -15,6 +15,7 @@ import type {
   CustomTranslations,
   Translator,
 } from "../localization/translator";
+import type { PaywallListener } from "../../entities/paywall-listener";
 
 export interface ExpressPurchaseButtonProps {
   customerEmail: string | undefined;
@@ -31,4 +32,5 @@ export interface ExpressPurchaseButtonProps {
   onFinished: (operationResult: OperationSessionSuccessfulResult) => void;
   onError: (error: PurchaseFlowError) => void;
   onReady?: (walletsAvailable: boolean) => void;
+  listener?: PaywallListener;
 }
