@@ -14,14 +14,20 @@ import {
 integrationTest("Displays all packages", async ({ page, userId }) => {
   page = await navigateToLandingUrl(page, userId);
   await expect(page.getByText(/30[,.]00/)).toBeVisible();
-  const packageCards = await getPackageCards(page);
 
-  expect(packageCards.length).toBe(5);
-  expect(packageCards[0]).toHaveText(/30[,.]00/);
-  expect(packageCards[1]).toHaveText(/19[,.]99/);
-  expect(packageCards[2]).toHaveText(/15[,.]00/);
-  expect(packageCards[3]).toHaveText(/99[,.]99/);
-  expect(packageCards[4]).toHaveText(/2[,.]99/);
+  const packageCards = page.locator(".packages > div.card");
+  await expect(packageCards).toHaveCount(5);
+
+  const pricePatterns = [
+    /30[,.]00/,
+    /19[,.]99/,
+    /15[,.]00/,
+    /99[,.]99/,
+    /2[,.]99/,
+  ];
+  for (const pattern of pricePatterns) {
+    await expect(packageCards.filter({ hasText: pattern })).toHaveCount(1);
+  }
 });
 
 integrationTest(

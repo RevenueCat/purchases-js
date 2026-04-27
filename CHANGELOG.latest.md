@@ -1,6 +1,5 @@
 ## RevenueCat SDK
 ### ✨ New Features
-* [WEB-3965] Fix offer variables in paywalls (#846) via James O'Donnell (@james-od)
-
-### 🔄 Other Changes
-* Guard against accidental version bumps outside release branches (#847) via Toni Rico (@tonidero)
+* [WEB-4179] Add public paywall availability to offerings (#852) via Nicola Sacco (@nicfix)
+### 🐞 Bugfixes
+* Bump purchases-ui-js to 3.12.0 (#855) via Franco Correa (@francocorreasosa)

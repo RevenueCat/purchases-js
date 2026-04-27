@@ -1,5 +1,6 @@
 import type { Package, PurchaseMetadata, PurchaseOption } from "./offerings";
 import type { CustomTranslations } from "../ui/localization/translator";
+import type { PaywallListener } from "./paywall-listener";
 
 /**
  * Callback to be called when the express purchase button is ready to be updated.
@@ -65,4 +66,8 @@ export interface PresentExpressPurchaseButtonParams {
     updater: ExpressPurchaseButtonUpdater,
     walletsAvailable: boolean,
   ) => void;
+  /**
+   * Optional listener for purchase lifecycle events.
+   */
+  listener?: PaywallListener;
 }

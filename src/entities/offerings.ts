@@ -423,6 +423,10 @@ export interface Package {
    */
   readonly webBillingProduct: Product;
   /**
+   * The web checkout URL for this package, if available.
+   */
+  readonly webCheckoutURL?: string | null;
+  /**
    * The type of package.
    */
   readonly packageType: PackageType;
@@ -446,6 +450,10 @@ export interface Offering {
    * Offering metadata defined in RevenueCat dashboard.
    */
   readonly metadata: { [key: string]: unknown } | null;
+  /**
+   * The default web checkout URL for this offering, if available.
+   */
+  readonly webCheckoutURL?: string | null;
   /**
    * A map of all the packages available for purchase keyed by package ID.
    */
@@ -482,6 +490,10 @@ export interface Offering {
    * Weekly package type configured in the RevenueCat dashboard, if available.
    */
   readonly weekly: Package | null;
+  /**
+   * Whether this offering has an attached paywall configured in the RevenueCat dashboard.
+   */
+  readonly hasPaywall: boolean;
 
   /**
    * The paywall components configured in the RevenueCat dashboard, if available.
@@ -874,6 +886,9 @@ const toPackage = (
     identifier: packageData.identifier,
     rcBillingProduct: product,
     webBillingProduct: product,
+    ...(packageData.web_checkout_url
+      ? { webCheckoutURL: packageData.web_checkout_url }
+      : {}),
     packageType: getPackageType(packageData.identifier),
   };
 };
@@ -913,6 +928,9 @@ export const toOffering = (
     identifier: offeringsData.identifier,
     serverDescription: offeringsData.description,
     metadata: offeringsData.metadata,
+    ...(offeringsData.web_checkout_url
+      ? { webCheckoutURL: offeringsData.web_checkout_url }
+      : {}),
     packagesById: packagesById,
     availablePackages: packages as Package[],
     lifetime: packagesById[PackageType.Lifetime] ?? null,
@@ -922,8 +940,9 @@ export const toOffering = (
     twoMonth: packagesById[PackageType.TwoMonth] ?? null,
     monthly: packagesById[PackageType.Monthly] ?? null,
     weekly: packagesById[PackageType.Weekly] ?? null,
+    hasPaywall: offeringsData.paywall_components != null,
     paywallComponents: offeringsData.paywall_components,
-    uiConfig: uiConfig,
+    ...(uiConfig !== undefined ? { uiConfig } : {}),
   };
 };
 
