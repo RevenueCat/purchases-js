@@ -47,6 +47,9 @@
     customTranslations?: CustomTranslations;
     isInElement: boolean;
     skipSuccessPage: boolean;
+    showDiscountCodeField: boolean;
+    discountCode?: string;
+    onDiscountCodeChanged?: (discountCode: string | null) => void;
     termsAndConditionsUrl?: string;
     workflowPurchaseContext?: WorkflowPurchaseContext;
     paywallId?: string;
@@ -70,6 +73,9 @@
     customTranslations = {},
     isInElement,
     skipSuccessPage = false,
+    showDiscountCodeField = false,
+    discountCode = undefined,
+    onDiscountCodeChanged,
     termsAndConditionsUrl,
     workflowPurchaseContext,
     paywallId,
@@ -81,9 +87,29 @@
   const emailError = customerEmail ? validateEmail(customerEmail) : null;
   let email = $state(emailError ? undefined : customerEmail);
 
-  let productDetails: Product = rcPackage.webBillingProduct;
+  function hasDiscount(
+    nextProductDetails: Product,
+    nextPurchaseOption: PurchaseOption,
+  ): boolean {
+    return (
+      !!nextProductDetails.subscriptionOptions[nextPurchaseOption.id]
+        ?.discount ||
+      !!nextProductDetails.defaultNonSubscriptionOption?.discount
+    );
+  }
+
+  let productDetails: Product = $state(rcPackage.webBillingProduct);
+  let purchaseOptionToUse: PurchaseOption = $state(purchaseOption);
   let lastError: PurchaseFlowError | null = $state(null);
-  const productId = rcPackage.webBillingProduct.identifier ?? null;
+  let draftDiscountCode = $state(discountCode ?? "");
+  let appliedDiscountCode: string | null = $state(
+    discountCode && hasDiscount(rcPackage.webBillingProduct, purchaseOption)
+      ? discountCode
+      : null,
+  );
+  let discountCodeError: string | null = $state(null);
+  let isUpdatingDiscountCode = $state(false);
+  let isPaymentProcessing = $state(false);
 
   let currentPage: CurrentPage = $state("payment-entry-loading");
   let operationResult: OperationSessionSuccessfulResult | null = $state(null);
@@ -146,65 +172,187 @@
       : false,
   );
 
-  onMount(async () => {
-    if (productId === null) {
-      handleError(
+  const startCheckout = (
+    nextProductDetails: Product,
+    nextPurchaseOption: PurchaseOption,
+    nextEmail: string | undefined,
+  ) => {
+    const nextProductId = nextProductDetails.identifier ?? null;
+    if (nextProductId === null) {
+      return Promise.reject(
         new PurchaseFlowError(
           PurchaseFlowErrorCode.ErrorSettingUpPurchase,
           "Product ID was not set before purchase.",
         ),
       );
-      return;
     }
 
-    purchaseOperationHelper
+    return purchaseOperationHelper
       .checkoutStart({
         appUserId,
-        productId,
-        purchaseOption,
-        presentedOfferingContext:
-          rcPackage.webBillingProduct.presentedOfferingContext,
-        customerEmail: email,
+        productId: nextProductId,
+        purchaseOption: nextPurchaseOption,
+        presentedOfferingContext: nextProductDetails.presentedOfferingContext,
+        customerEmail: nextEmail,
         metadata,
         workflowPurchaseContext,
         paywallId,
         locale: selectedLocale,
       })
-      .then((result) => {
-        lastError = null;
-        currentPage = "payment-entry";
-        gatewayParams = result.gateway_params;
-        managementUrl = result.management_url;
-      })
+      .then((result) => ({ result, emailToUse: nextEmail }))
       .catch((e: PurchaseFlowError) => {
-        if (e.errorCode === PurchaseFlowErrorCode.MissingEmailError) {
-          email = undefined;
-          return purchaseOperationHelper
-            .checkoutStart({
-              appUserId,
-              productId,
-              purchaseOption,
-              presentedOfferingContext:
-                rcPackage.webBillingProduct.presentedOfferingContext,
-              customerEmail: email,
-              metadata,
-              workflowPurchaseContext,
-              paywallId,
-            })
-            .then((result) => {
-              lastError = null;
-              currentPage = "payment-entry";
-              gatewayParams = result.gateway_params;
-              managementUrl = result.management_url;
-            })
-            .catch((e: PurchaseFlowError) => {
-              handleError(e);
-            });
-        } else {
-          handleError(e);
+        if (e.errorCode !== PurchaseFlowErrorCode.MissingEmailError) {
+          throw e;
         }
+
+        return purchaseOperationHelper
+          .checkoutStart({
+            appUserId,
+            productId: nextProductId,
+            purchaseOption: nextPurchaseOption,
+            presentedOfferingContext:
+              nextProductDetails.presentedOfferingContext,
+            customerEmail: undefined,
+            metadata,
+            workflowPurchaseContext,
+            paywallId,
+            locale: selectedLocale,
+          })
+          .then((result) => ({ result, emailToUse: undefined }));
       });
+  };
+
+  onMount(async () => {
+    try {
+      let initialProductDetails = productDetails;
+      let initialPurchaseOption = purchaseOptionToUse;
+
+      if (
+        discountCode &&
+        !hasDiscount(initialProductDetails, initialPurchaseOption)
+      ) {
+        try {
+          const discountResult = await purchases._getProductWithDiscountCode(
+            rcPackage,
+            initialPurchaseOption,
+            initialProductDetails.price.currency,
+            discountCode,
+          );
+
+          if (
+            hasDiscount(
+              discountResult.productDetails,
+              discountResult.purchaseOption,
+            )
+          ) {
+            initialProductDetails = discountResult.productDetails;
+            initialPurchaseOption = discountResult.purchaseOption;
+            productDetails = discountResult.productDetails;
+            purchaseOptionToUse = discountResult.purchaseOption;
+            appliedDiscountCode = discountCode;
+          }
+        } catch {}
+      }
+
+      const { result, emailToUse } = await startCheckout(
+        initialProductDetails,
+        initialPurchaseOption,
+        email,
+      );
+      lastError = null;
+      email = emailToUse;
+      currentPage = "payment-entry";
+      gatewayParams = result.gateway_params;
+      managementUrl = result.management_url;
+    } catch (e) {
+      handleError(
+        e instanceof PurchaseFlowError
+          ? e
+          : new PurchaseFlowError(
+              PurchaseFlowErrorCode.UnknownError,
+              e instanceof Error ? e.message : String(e),
+            ),
+      );
+    }
   });
+
+  const handleDraftDiscountCodeChange = (nextDiscountCode: string) => {
+    draftDiscountCode = nextDiscountCode;
+    discountCodeError = null;
+  };
+
+  const handlePaymentProcessingChange = (nextIsProcessing: boolean) => {
+    isPaymentProcessing = nextIsProcessing;
+  };
+
+  const restartCheckoutWithDiscountCode = async (
+    nextDiscountCode: string | null,
+  ) => {
+    const normalizedDiscountCode = nextDiscountCode?.trim() || null;
+    if (nextDiscountCode !== null && normalizedDiscountCode === null) {
+      discountCodeError = "Enter a discount code.";
+      return;
+    }
+
+    isUpdatingDiscountCode = true;
+    discountCodeError = null;
+
+    try {
+      const {
+        productDetails: nextProductDetails,
+        purchaseOption: nextPurchaseOption,
+      } = await purchases._getProductWithDiscountCode(
+        rcPackage,
+        purchaseOptionToUse,
+        productDetails.price.currency,
+        normalizedDiscountCode ?? undefined,
+      );
+
+      if (
+        normalizedDiscountCode &&
+        !hasDiscount(nextProductDetails, nextPurchaseOption)
+      ) {
+        throw new Error("Discount code did not update product pricing.");
+      }
+
+      currentPage = "payment-entry-loading";
+
+      const { result, emailToUse } = await startCheckout(
+        nextProductDetails,
+        nextPurchaseOption,
+        email,
+      );
+
+      productDetails = nextProductDetails;
+      purchaseOptionToUse = nextPurchaseOption;
+      email = emailToUse;
+      gatewayParams = result.gateway_params;
+      managementUrl = result.management_url;
+      currentPage = "payment-entry";
+      appliedDiscountCode = normalizedDiscountCode;
+      draftDiscountCode = normalizedDiscountCode ?? "";
+      lastError = null;
+      onDiscountCodeChanged?.(normalizedDiscountCode);
+    } catch (error) {
+      if (currentPage === "payment-entry-loading") {
+        currentPage = "payment-entry";
+      }
+      discountCodeError =
+        error instanceof Error
+          ? error.message
+          : "Failed to apply discount code.";
+    } finally {
+      isUpdatingDiscountCode = false;
+    }
+  };
+
+  const handleApplyDiscountCode = async () => {
+    await restartCheckoutWithDiscountCode(draftDiscountCode);
+  };
+
+  const handleRemoveDiscountCode = async () => {
+    await restartCheckoutWithDiscountCode(null);
+  };
 
   const handleContinue = () => {
     if (currentPage === "payment-entry") {
@@ -258,16 +406,27 @@
   currentPage={currentPage as CurrentPage}
   {brandingInfo}
   {productDetails}
-  purchaseOptionToUse={purchaseOption}
+  {purchaseOptionToUse}
   {lastError}
   {gatewayParams}
   {managementUrl}
   {purchaseOperationHelper}
   {isInElement}
   {termsAndConditionsUrl}
+  {showDiscountCodeField}
+  {draftDiscountCode}
+  {appliedDiscountCode}
+  {discountCodeError}
+  {isUpdatingDiscountCode}
+  isDiscountCodeControlsEnabled={currentPage === "payment-entry" &&
+    !isPaymentProcessing}
   {forceEnableWalletMethods}
   customerEmail={email ?? null}
   {closeWithError}
+  onDraftDiscountCodeChange={handleDraftDiscountCodeChange}
+  onApplyDiscountCode={handleApplyDiscountCode}
+  onRemoveDiscountCode={handleRemoveDiscountCode}
+  onPaymentProcessingChange={handlePaymentProcessingChange}
   onContinue={handleContinue}
   onError={handleError}
   {onClose}

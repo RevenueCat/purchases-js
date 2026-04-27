@@ -99,5 +99,7 @@
   "loading_page.keep_page_open": "El procés està gairebé acabat. Mantingueu aquesta pàgina oberta.",
   "loading_page.processing_payment": "S'està processant el pagament",
   "pricing_table.discount": "Descompte",
-  "pricing_table.subtotal": "Subtotal"
+  "pricing_table.subtotal": "Subtotal",
+  "pricing_dropdown.add_promo_code": "Afegir codi promocional",
+  "discount_input.label": "Codi promocional"
 }

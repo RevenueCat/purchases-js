@@ -3,7 +3,9 @@ import type {
   Offerings,
   Package,
   Product,
+  PurchaseOption,
 } from "./entities/offerings";
+import { toProduct } from "./entities/offerings";
 import PurchasesUi from "./ui/purchases-ui.svelte";
 import PaddlePurchasesUi from "./ui/paddle-purchases-ui.svelte";
 import StripeCheckoutPurchasesUi from "./ui/stripe-checkout-purchases-ui.svelte";
@@ -61,6 +63,7 @@ import {
   type PurchaseResult,
 } from "./entities/purchase-result";
 import { mount, unmount } from "svelte";
+import { type PaywallListener } from "./entities/paywall-listener";
 import {
   type CompleteWorkflowNavigateArgs,
   type PresentPaywallParams,
@@ -195,6 +198,7 @@ export type { PurchasesConfig } from "./entities/purchases-config";
 export type { VirtualCurrencies } from "./entities/virtual-currencies";
 export type { VirtualCurrency } from "./entities/virtual-currency";
 export type { PresentPaywallParams } from "./entities/present-paywall-params";
+export type { PaywallListener } from "./entities/paywall-listener";
 export {
   CustomVariableValue,
   type CustomVariables,
@@ -716,6 +720,9 @@ export class Purchases {
         rcPackage: pkg,
         htmlTarget: paywallParams.purchaseHtmlTarget,
         customerEmail: paywallParams.customerEmail,
+        showDiscountCodeField: paywallParams.showDiscountCodeField,
+        discountCode: paywallParams.discountCode,
+        onDiscountCodeChanged: paywallParams.onDiscountCodeChanged,
         selectedLocale: finalLocale,
         defaultLocale:
           offering.paywallComponents?.default_locale || englishLocale,
@@ -904,6 +911,44 @@ export class Purchases {
         });
       };
 
+      const listener = paywallParams.listener;
+
+      const notifyPurchaseStarted = (pkg: Package) => {
+        if (listener?.onPurchaseStarted) {
+          try {
+            listener.onPurchaseStarted(pkg);
+          } catch (e) {
+            Logger.errorLog(`Error in listener.onPurchaseStarted: ${e}`);
+          }
+        }
+      };
+
+      const notifyPurchaseError = (err: Error) => {
+        if (
+          err instanceof PurchasesError &&
+          err.errorCode === ErrorCode.UserCancelledError
+        ) {
+          if (listener?.onPurchaseCancelled) {
+            try {
+              listener.onPurchaseCancelled();
+            } catch (e) {
+              Logger.errorLog(`Error in listener.onPurchaseCancelled: ${e}`);
+            }
+          }
+        } else {
+          if (listener?.onPurchaseError) {
+            try {
+              listener.onPurchaseError(err);
+            } catch (e) {
+              Logger.errorLog(`Error in listener.onPurchaseError: ${e}`);
+            }
+          }
+          if (paywallParams.onPurchaseError) {
+            paywallParams.onPurchaseError(err);
+          }
+        }
+      };
+
       const onSuccess = (result: PaywallPurchaseResult) => {
         unmountPaywall();
         resolve(result);
@@ -923,7 +968,7 @@ export class Purchases {
         }
 
         Logger.errorLog(`${message}: ${error}`);
-        paywallParams.onPurchaseError?.(error);
+        notifyPurchaseError(error);
       };
 
       const walletButtonRender = this.getWalletButtonRender(
@@ -931,6 +976,7 @@ export class Purchases {
         onSuccess,
         paywallParams.customerEmail,
         onError("Error presenting express purchase button"),
+        listener,
       );
 
       certainHTMLTarget.innerHTML = "";
@@ -956,6 +1002,10 @@ export class Purchases {
           },
           onRestorePurchasesClicked: onRestorePurchasesClicked,
           onPurchaseClicked: (selectedPackageId: string) => {
+            const pkg = offering.packagesById[selectedPackageId];
+            if (pkg) {
+              notifyPurchaseStarted(pkg);
+            }
             startPurchaseFlow(selectedPackageId)
               .then(onSuccess)
               .catch(onError("Error performing purchase"));
@@ -1055,6 +1105,53 @@ export class Purchases {
 
     this.logMissingProductIds(productIds, productsResponse.product_details);
     return toOfferings(offeringsResponse, productsResponse);
+  }
+
+  /**
+   * Used by internal RC code to fetch a fresh product payload.
+   * @internal
+   */
+  public async _getProductWithDiscountCode(
+    rcPackage: Package,
+    purchaseOption: PurchaseOption,
+    currency?: string,
+    discountCode?: string,
+  ): Promise<{ productDetails: Product; purchaseOption: PurchaseOption }> {
+    const productId = rcPackage.webBillingProduct.identifier;
+    if (!productId) {
+      throw new Error("Product ID was not set before applying discount code.");
+    }
+
+    const productsResponse = await this.backend.getProducts(
+      this._appUserId,
+      [productId],
+      currency,
+      discountCode,
+    );
+
+    const productResponse = productsResponse.product_details.find(
+      (product) => product.identifier === productId,
+    );
+    if (!productResponse) {
+      throw new Error(`No product was found for ${productId}.`);
+    }
+
+    const productDetails = toProduct(
+      productResponse,
+      rcPackage.webBillingProduct.presentedOfferingContext,
+    );
+    if (productDetails == null) {
+      throw new Error(
+        `Product ${productId} could not be resolved for checkout.`,
+      );
+    }
+
+    return {
+      productDetails,
+      purchaseOption:
+        productDetails.subscriptionOptions[purchaseOption.id] ??
+        productDetails.defaultPurchaseOption,
+    };
   }
 
   /**
@@ -1189,6 +1286,7 @@ export class Purchases {
         translator,
         onFinished,
         onError,
+        listener: params.listener,
       });
     });
   }
@@ -1209,6 +1307,7 @@ export class Purchases {
     onSuccess: (purchaseResult: PaywallPurchaseResult) => void,
     customerEmail?: string,
     onError?: (error: Error) => void,
+    listener?: PaywallListener,
   ): WalletButtonRender | undefined {
     if (!isWebBillingApiKey(this._API_KEY)) {
       return undefined;
@@ -1229,6 +1328,7 @@ export class Purchases {
           buttonUpdater = updater;
           onReady?.(walletsAvailable);
         },
+        listener,
       })
         .then((purchaseResult) => {
           onSuccess({ ...purchaseResult, selectedPackage: pkg });
@@ -1416,6 +1516,9 @@ export class Purchases {
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
       skipSuccessPage = false,
+      showDiscountCodeField = false,
+      discountCode,
+      onDiscountCodeChanged,
     } = params;
 
     const certainHTMLTarget = this.resolveHTMLTarget(htmlTarget);
@@ -1510,6 +1613,9 @@ export class Purchases {
           defaultLocale,
           customTranslations: params.labelsOverride,
           termsAndConditionsUrl: params.termsAndConditionsUrl,
+          showDiscountCodeField,
+          discountCode,
+          onDiscountCodeChanged,
           skipSuccessPage,
         },
       });

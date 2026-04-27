@@ -1,4 +1,5 @@
 import type { Offering } from "./offerings";
+import type { PaywallListener } from "./paywall-listener";
 import type {
   CompleteWorkflowNavigateArgs,
   CustomVariables,
@@ -34,6 +35,27 @@ export interface PresentPaywallParams {
    * If passed the checkout flow will not ask for it to the customer.
    */
   readonly customerEmail?: string;
+
+  /**
+   * @experimental
+   * If set to true, the Web Billing checkout shown from the paywall
+   * will display a discount input code field.
+   */
+  readonly showDiscountCodeField?: boolean;
+
+  /**
+   * @experimental
+   * Initial discount code to apply to the checkout when one already exists
+   * outside of the paywall UI, for example in the hosting page's URL.
+   */
+  readonly discountCode?: string;
+
+  /**
+   * @experimental
+   * Called when the applied discount code changes in the checkout shown from
+   * the paywall. This can be used to sync host state such as URL parameters.
+   */
+  readonly onDiscountCodeChanged?: (discountCode: string | null) => void;
 
   /**
    * Callback to be called when the paywall tries to navigate to an external URL.
@@ -77,8 +99,14 @@ export interface PresentPaywallParams {
   /**
    * Callback called when an error that won't close the paywall occurs.
    * For example, a retryable error during the purchase process.
+   * @deprecated Use `listener.onPurchaseError` instead.
    */
   readonly onPurchaseError?: (error: Error) => void;
+
+  /**
+   * Optional listener for paywall purchase lifecycle events.
+   */
+  readonly listener?: PaywallListener;
 
   /**
    * The locale to use for the paywall and the checkout flow.
@@ -92,7 +120,7 @@ export interface PresentPaywallParams {
 
   /**
    * Custom variables to pass to the paywall at runtime, overriding defaults set
-   * in the RevenueCat dashboard.
+   * in the RevenueCat dashboard.f
    *
    * Variables must be defined in the dashboard first. Reference them in paywall
    * text using the `custom.` prefix (e.g. `{{ custom.player_name }}`).

@@ -3609,6 +3609,123 @@
         },
         {
           "kind": "Interface",
+          "canonicalReference": "@revenuecat/purchases-js!PaywallListener:interface",
+          "docComment": "/**\n * Listener for paywall purchase lifecycle events.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare interface PaywallListener "
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "name": "PaywallListener",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PaywallListener#onPurchaseCancelled:member",
+              "docComment": "/**\n * Called when the user cancels the purchase flow.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "onPurchaseCancelled?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "() => void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "onPurchaseCancelled",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PaywallListener#onPurchaseError:member",
+              "docComment": "/**\n * Callback called when an error that won't close the paywall occurs. For example, a retryable error during the purchase process.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "onPurchaseError?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "(error: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Error",
+                  "canonicalReference": "!Error:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ") => void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "onPurchaseError",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 4
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PaywallListener#onPurchaseStarted:member",
+              "docComment": "/**\n * Called when a purchase flow is about to start for the given package.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "onPurchaseStarted?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "(rcPackage: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Package",
+                  "canonicalReference": "@revenuecat/purchases-js!Package:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ") => void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "onPurchaseStarted",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 4
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
+          "kind": "Interface",
           "canonicalReference": "@revenuecat/purchases-js!PaywallPurchaseResult:interface",
           "docComment": "/**\n * Represents the result of a purchase operation initiated from a paywall.\n *\n * @public\n */\n",
           "excerptTokens": [
@@ -4115,6 +4232,33 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PresentPaywallParams#discountCode:member",
+              "docComment": "/**\n * Initial discount code to apply to the checkout when one already exists outside of the paywall UI, for example in the hosting page's URL.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly discountCode?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "discountCode",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PresentPaywallParams#hideBackButtons:member",
               "docComment": "/**\n * Whether to hide back buttons in the paywall. Defaults to false.\n */\n",
               "excerptTokens": [
@@ -4163,6 +4307,34 @@
               "isOptional": true,
               "releaseTag": "Public",
               "name": "htmlTarget",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PresentPaywallParams#listener:member",
+              "docComment": "/**\n * Optional listener for paywall purchase lifecycle events.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly listener?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "PaywallListener",
+                  "canonicalReference": "@revenuecat/purchases-js!PaywallListener:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "listener",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -4225,6 +4397,33 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PresentPaywallParams#onDiscountCodeChanged:member",
+              "docComment": "/**\n * Called when the applied discount code changes in the checkout shown from the paywall. This can be used to sync host state such as URL parameters.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly onDiscountCodeChanged?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "(discountCode: string | null) => void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "onDiscountCodeChanged",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PresentPaywallParams#onNavigateToUrl:member",
               "docComment": "/**\n * Callback to be called when the paywall tries to navigate to an external URL.\n *\n * Markdown text links keep their native browser navigation. Use this callback for side effects or to customize how button-driven URL actions are handled.\n */\n",
               "excerptTokens": [
@@ -4253,7 +4452,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PresentPaywallParams#onPurchaseError:member",
-              "docComment": "/**\n * Callback called when an error that won't close the paywall occurs. For example, a retryable error during the purchase process.\n */\n",
+              "docComment": "/**\n * Callback called when an error that won't close the paywall occurs. For example, a retryable error during the purchase process.\n *\n * @deprecated\n *\n * Use `listener.onPurchaseError` instead.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4363,6 +4562,33 @@
               "isOptional": true,
               "releaseTag": "Public",
               "name": "selectedLocale",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PresentPaywallParams#showDiscountCodeField:member",
+              "docComment": "/**\n * If set to true, the Web Billing checkout shown from the paywall will display a discount input code field.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly showDiscountCodeField?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "showDiscountCodeField",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -5499,6 +5725,33 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PurchaseParams#discountCode:member",
+              "docComment": "/**\n * Initial discount code to display as applied in the Web Billing checkout. This is useful when the code originated outside of the checkout UI, for example from a URL parameter.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "discountCode?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "discountCode",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PurchaseParams#htmlTarget:member",
               "docComment": "/**\n * The HTML element where the billing view should be added. If undefined, a new div will be created at the root of the page and appended to the body.\n */\n",
               "excerptTokens": [
@@ -5548,6 +5801,33 @@
               "isOptional": true,
               "releaseTag": "Public",
               "name": "metadata",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PurchaseParams#onDiscountCodeChanged:member",
+              "docComment": "/**\n * Called when the applied discount code changes in the Web Billing checkout. This can be used by host applications to keep external state, such as the URL, in sync with the checkout.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "onDiscountCodeChanged?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "(discountCode: string | null) => void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "onDiscountCodeChanged",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -5635,6 +5915,33 @@
               "isOptional": true,
               "releaseTag": "Public",
               "name": "selectedLocale",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PurchaseParams#showDiscountCodeField:member",
+              "docComment": "/**\n * If set to true, the Web Billing checkout will show a discount input code field.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "showDiscountCodeField?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "showDiscountCodeField",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2

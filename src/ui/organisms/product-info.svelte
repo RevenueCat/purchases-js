@@ -17,18 +17,39 @@
   export let purchaseOption: PurchaseOption;
   export let showProductDescription: boolean;
   export let priceBreakdown: PriceBreakdown;
+  export let showDiscountCodeField = false;
+  export let discountCode = "";
+  export let appliedDiscountCode: string | null = null;
+  export let discountCodeError: string | null = null;
+  export let isUpdatingDiscountCode = false;
+  export let isDiscountCodeControlsEnabled = false;
+  export let onDiscountCodeChange:
+    | ((discountCode: string) => void)
+    | undefined = undefined;
+  export let onApplyDiscountCode: (() => void | Promise<void>) | undefined =
+    undefined;
+  export let onRemoveDiscountCode: (() => void | Promise<void>) | undefined =
+    undefined;
 
-  const isSubscription = productDetails.productType === "subscription";
-  const subscriptionOption = isSubscription
+  let isSubscription: boolean;
+  let subscriptionOption: SubscriptionOption | null;
+  let nonSubscriptionOption: NonSubscriptionOption | null;
+  let basePhase: PricingPhase | null;
+  let trialPhase: PricingPhase | null;
+  let discountPhase: DiscountPhase | null;
+  let introPricePhase: PricingPhase | null;
+  let promotionalPricePhase: PricingPhase | DiscountPhase | null;
+
+  $: isSubscription = productDetails.productType === "subscription";
+  $: subscriptionOption = isSubscription
     ? (purchaseOption as SubscriptionOption)
     : null;
-  const nonSubscriptionOption = !isSubscription
+  $: nonSubscriptionOption = !isSubscription
     ? (purchaseOption as NonSubscriptionOption)
     : null;
-
   // For subscriptions: use base phase directly
   // For non-subscriptions: create a PricingPhase from basePrice
-  const basePhase: PricingPhase | null = isSubscription
+  $: basePhase = isSubscription
     ? (subscriptionOption?.base ?? null)
     : nonSubscriptionOption?.basePrice
       ? {
@@ -41,16 +62,12 @@
           pricePerYear: null,
         }
       : null;
-
-  const trialPhase = subscriptionOption?.trial ?? null;
-  const discountPhase =
+  $: trialPhase = subscriptionOption?.trial ?? null;
+  $: discountPhase =
     subscriptionOption?.discount ?? nonSubscriptionOption?.discount ?? null;
-  const introPricePhase = subscriptionOption?.introPrice ?? null;
-  const promotionalPricePhase: PricingPhase | DiscountPhase | null =
-    subscriptionOption?.discount ??
-    subscriptionOption?.introPrice ??
-    nonSubscriptionOption?.discount ??
-    null;
+  $: introPricePhase = subscriptionOption?.introPrice ?? null;
+  $: promotionalPricePhase =
+    discountPhase ?? subscriptionOption?.introPrice ?? null;
 </script>
 
 <div class="rcb-pricing-info">
@@ -74,6 +91,16 @@
     {basePhase}
     {promotionalPricePhase}
     hasDiscount={!!discountPhase}
+    {showDiscountCodeField}
+    {discountCode}
+    {appliedDiscountCode}
+    appliedDiscountPercentage={discountPhase?.percentage ?? null}
+    {discountCodeError}
+    {isUpdatingDiscountCode}
+    {isDiscountCodeControlsEnabled}
+    {onDiscountCodeChange}
+    {onApplyDiscountCode}
+    {onRemoveDiscountCode}
   />
 </div>
 
