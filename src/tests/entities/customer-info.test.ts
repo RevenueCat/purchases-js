@@ -140,6 +140,7 @@ describe("customer info parsing", () => {
       subscriptionsByProductIdentifier: {
         weekly_test: {
           productIdentifier: "weekly_test",
+          productPlanIdentifier: null,
           purchaseDate: new Date("2024-01-31T13:46:23Z"),
           originalPurchaseDate: new Date("2024-01-24T13:46:23Z"),
           expiresDate: new Date("2124-02-07T13:46:23Z"),
@@ -419,6 +420,7 @@ describe("customer info parsing", () => {
           ownershipType: "UNKNOWN",
           periodType: "normal",
           productIdentifier: "basic",
+          productPlanIdentifier: "monthly",
           purchaseDate: new Date("2019-07-26T23:45:40Z"),
           refundedAt: null,
           store: "app_store",
@@ -437,6 +439,7 @@ describe("customer info parsing", () => {
           ownershipType: "UNKNOWN",
           periodType: "normal",
           productIdentifier: "pro",
+          productPlanIdentifier: "monthly",
           purchaseDate: new Date("2019-07-26T23:45:40Z"),
           refundedAt: null,
           store: "app_store",
@@ -547,6 +550,7 @@ describe("customer info parsing", () => {
       subscriptionsByProductIdentifier: {
         weekly_test: {
           productIdentifier: "weekly_test",
+          productPlanIdentifier: null,
           purchaseDate: new Date("2024-01-31T13:46:23Z"),
           originalPurchaseDate: new Date("2024-01-24T13:46:23Z"),
           expiresDate: new Date("2124-02-07T13:46:23Z"),

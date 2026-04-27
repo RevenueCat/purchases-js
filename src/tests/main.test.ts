@@ -516,6 +516,7 @@ test("can get customer info", async () => {
     subscriptionsByProductIdentifier: {
       black_f_friday_worten: {
         productIdentifier: "black_f_friday_worten",
+        productPlanIdentifier: null,
         purchaseDate: new Date("2024-01-21T16:48:42.000Z"),
         originalPurchaseDate: new Date("2023-11-20T16:48:42.000Z"),
         expiresDate: new Date("2054-01-22T16:48:42.000Z"),
@@ -535,6 +536,7 @@ test("can get customer info", async () => {
       },
       black_f_friday_worten_2: {
         productIdentifier: "black_f_friday_worten_2",
+        productPlanIdentifier: null,
         purchaseDate: new Date("2024-01-21T16:48:42.000Z"),
         originalPurchaseDate: new Date("2023-11-20T16:48:42.000Z"),
         expiresDate: new Date("2024-01-22T16:48:42.000Z"),
