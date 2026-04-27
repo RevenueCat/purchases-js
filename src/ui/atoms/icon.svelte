@@ -55,4 +55,4 @@
   }
 </script>
 
-<MappedIcon {...args} />
+\<MappedIcon {...args} />
