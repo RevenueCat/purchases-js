@@ -63,6 +63,7 @@
     onContinue: () => void;
     onError: (error: PurchaseFlowError) => void;
     onPriceBreakdownUpdated: (priceBreakdown: PriceBreakdown) => void;
+    onProcessingStateChange?: (isProcessing: boolean) => void;
   }
 
   class TaxCustomerDetailsMissMatchError extends Error {}
@@ -85,6 +86,7 @@
     onContinue,
     onError,
     onPriceBreakdownUpdated,
+    onProcessingStateChange = undefined,
   }: Props = $props();
 
   const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
@@ -173,6 +175,10 @@
 
   $effect(() => {
     onPriceBreakdownUpdated(priceBreakdown);
+  });
+
+  $effect(() => {
+    onProcessingStateChange?.(processing);
   });
 
   onMount(async () => {

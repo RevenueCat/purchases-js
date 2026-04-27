@@ -37,6 +37,27 @@ export interface PresentPaywallParams {
   readonly customerEmail?: string;
 
   /**
+   * @experimental
+   * If set to true, the Web Billing checkout shown from the paywall
+   * will display a discount input code field.
+   */
+  readonly showDiscountCodeField?: boolean;
+
+  /**
+   * @experimental
+   * Initial discount code to apply to the checkout when one already exists
+   * outside of the paywall UI, for example in the hosting page's URL.
+   */
+  readonly discountCode?: string;
+
+  /**
+   * @experimental
+   * Called when the applied discount code changes in the checkout shown from
+   * the paywall. This can be used to sync host state such as URL parameters.
+   */
+  readonly onDiscountCodeChanged?: (discountCode: string | null) => void;
+
+  /**
    * Callback to be called when the paywall tries to navigate to an external URL.
    *
    * Markdown text links keep their native browser navigation. Use this callback
@@ -99,7 +120,7 @@ export interface PresentPaywallParams {
 
   /**
    * Custom variables to pass to the paywall at runtime, overriding defaults set
-   * in the RevenueCat dashboard.
+   * in the RevenueCat dashboard.f
    *
    * Variables must be defined in the dashboard first. Reference them in paywall
    * text using the `custom.` prefix (e.g. `{{ custom.player_name }}`).

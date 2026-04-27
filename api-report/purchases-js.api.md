@@ -312,17 +312,20 @@ export interface PresentedOfferingContext {
 export interface PresentPaywallParams {
     readonly customerEmail?: string;
     readonly customVariables?: CustomVariables;
+    readonly discountCode?: string;
     readonly hideBackButtons?: boolean;
     readonly htmlTarget?: HTMLElement;
     readonly listener?: PaywallListener;
     readonly offering?: Offering;
     readonly onBack?: (closePaywall: () => void) => void;
+    readonly onDiscountCodeChanged?: (discountCode: string | null) => void;
     readonly onNavigateToUrl?: (url: string) => void;
     // @deprecated
     readonly onPurchaseError?: (error: Error) => void;
     readonly onVisitCustomerCenter?: () => void;
     readonly purchaseHtmlTarget?: HTMLElement;
     readonly selectedLocale?: string;
+    readonly showDiscountCodeField?: boolean;
 }
 
 // @public
@@ -392,11 +395,14 @@ export interface PurchaseOption {
 export interface PurchaseParams {
     customerEmail?: string;
     defaultLocale?: string;
+    discountCode?: string;
     htmlTarget?: HTMLElement;
     metadata?: PurchaseMetadata;
+    onDiscountCodeChanged?: (discountCode: string | null) => void;
     purchaseOption?: PurchaseOption | null;
     rcPackage: Package;
     selectedLocale?: string;
+    showDiscountCodeField?: boolean;
     skipSuccessPage?: boolean;
     /* Excluded from this release type: brandingAppearanceOverride */
     /* Excluded from this release type: labelsOverride */
