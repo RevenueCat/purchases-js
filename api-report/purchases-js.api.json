@@ -9397,6 +9397,33 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!SubscriptionInfo#productPlanIdentifier:member",
+              "docComment": "/**\n * The base plan identifier of the subscription (For Google Play subs only).\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly productPlanIdentifier: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "productPlanIdentifier",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!SubscriptionInfo#purchaseDate:member",
               "docComment": "/**\n * Date when the last subscription period started.\n */\n",
               "excerptTokens": [
