@@ -51,10 +51,7 @@ const RCPaywallNoOfferingPassedPage: React.FC = () => {
 
   return (
     <>
-      <div
-        style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
-        id="paywall"
-      ></div>
+      <div id="paywall"></div>
       <SettingsGearButton onClick={openSettings} />
     </>
   );
