@@ -1,4 +1,4 @@
-import type { WalletButtonStyleType } from "@revenuecat/purchases-ui-js";
+import type { WalletButtonTheme } from "@revenuecat/purchases-ui-js";
 import type { IEventsTracker } from "../../behavioural-events/events-tracker";
 import type {
   Package,
@@ -34,5 +34,5 @@ export interface ExpressPurchaseButtonProps {
   onError: (error: PurchaseFlowError) => void;
   onReady?: (walletsAvailable: boolean) => void;
   listener?: PaywallListener;
-  walletButtonStyle?: WalletButtonStyleType;
+  walletButtonTheme?: WalletButtonTheme;
 }

@@ -18,7 +18,7 @@ import {
 } from "../../helpers/purchase-operation-helper";
 import { getNullableWindow } from "../../helpers/browser-globals";
 import type { BrandingInfoResponse } from "../../networking/responses/branding-response";
-import type { WalletButtonStyleType } from "@revenuecat/purchases-ui-js";
+import type { WalletButtonTheme } from "@revenuecat/purchases-ui-js";
 
 const getSubscriptionOptionForExpressCheckout = (
   productDetails: Product,
@@ -80,7 +80,7 @@ export const toExpressPurchaseOptions = (
   purchaseOption: PurchaseOption,
   managementUrl: string,
   translator: Translator,
-  walletButtonStyle?: WalletButtonStyleType,
+  walletButtonTheme?: WalletButtonTheme,
 ) => {
   const productDetails: Product = rcPackage.webBillingProduct;
   const { subscriptionOption, priceBreakdown } =
@@ -97,12 +97,12 @@ export const toExpressPurchaseOptions = (
       1,
     );
 
-  if (walletButtonStyle) {
+  if (walletButtonTheme) {
     options.buttonTheme = {
-      applePay: walletButtonStyle,
+      applePay: walletButtonTheme,
       // Google Pay only supports "black" | "white"
       googlePay:
-        walletButtonStyle === "white-outline" ? "white" : walletButtonStyle,
+        walletButtonTheme === "white-outline" ? "white" : walletButtonTheme,
     };
   }
 
@@ -116,7 +116,7 @@ export const updateStripe = (
   rcPackage: Package,
   purchaseOption: PurchaseOption,
   translator: Translator,
-  walletButtonStyle?: WalletButtonStyleType,
+  walletButtonTheme?: WalletButtonTheme,
 ) => {
   if (!gatewayParams.elements_configuration) {
     throw new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase);
@@ -132,7 +132,7 @@ export const updateStripe = (
     purchaseOption,
     managementUrl,
     translator,
-    walletButtonStyle,
+    walletButtonTheme,
   );
   return { expOptions: options };
 };
@@ -144,7 +144,7 @@ export const initStripe = async (
   purchaseOption: PurchaseOption,
   translator: Translator,
   brandingInfo: BrandingInfoResponse | null,
-  walletButtonStyle?: WalletButtonStyleType,
+  walletButtonTheme?: WalletButtonTheme,
 ) => {
   if (!gatewayParams.elements_configuration) {
     throw new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase);
@@ -205,7 +205,7 @@ export const initStripe = async (
     purchaseOption,
     managementUrl,
     translator,
-    walletButtonStyle,
+    walletButtonTheme,
   );
 
   return { stripeInstance, elementsInstance, expOptions: options };

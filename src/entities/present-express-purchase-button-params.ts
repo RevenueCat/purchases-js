@@ -1,4 +1,4 @@
-import type { WalletButtonStyleType } from "@revenuecat/purchases-ui-js";
+import type { WalletButtonTheme } from "@revenuecat/purchases-ui-js";
 import type { CustomTranslations } from "../ui/localization/translator";
 import type { Package, PurchaseMetadata, PurchaseOption } from "./offerings";
 import type { PaywallListener } from "./paywall-listener";
@@ -70,10 +70,10 @@ export interface PresentExpressPurchaseButtonParams {
    * Optional listener for purchase lifecycle events.
    */
   listener?: PaywallListener;
-  /*
-   * @internal
-   * Style for the wallet button appearance. Matches Apple Pay button styles:
-   * 'black', 'white', or 'white-outline'.
+  /**
+   * Theme for the Stripe wallet button appearance.
+   * Matches Apple Pay button styles: 'black', 'white', or 'white-outline'
+   * @default "black"
    */
-  walletButtonStyle?: WalletButtonStyleType;
+  walletButtonTheme?: WalletButtonTheme;
 }

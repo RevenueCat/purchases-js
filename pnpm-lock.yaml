@@ -725,7 +725,7 @@ packages:
   "@revenuecat/purchases-ui-js@3.12.1":
     resolution:
       {
-        integrity: sha512-Un96Z0tS1A7Ie01Fj8vGBfUikoIMl/kzwdCK+F2IG+KgihBOo52MuDE9w0rasgYyWv1nkiXOWUiIRknKa9Z6og==,
+        integrity: sha512-87Z+tKSTsVbujdELcxebfhmNf5NbIleXFxlqxdcVQLAo/RaLWn2TcM0YOQQ7M5aOWLKt/44I2CcUQT56KcYETQ==,
       }
     engines: { node: ^22.18 || ^24.11 }
     peerDependencies:

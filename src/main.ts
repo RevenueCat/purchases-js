@@ -1211,7 +1211,7 @@ export class Purchases {
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
       onButtonReady = () => {},
-      walletButtonStyle,
+      walletButtonTheme,
     } = params;
 
     if (htmlTarget === undefined) {
@@ -1288,7 +1288,7 @@ export class Purchases {
         onFinished,
         onError,
         listener: params.listener,
-        walletButtonStyle,
+        walletButtonTheme,
       });
     });
   }
@@ -1317,7 +1317,7 @@ export class Purchases {
 
     return (
       element: HTMLElement,
-      { selectedPackageId, onReady, walletButtonStyle },
+      { selectedPackageId, onReady, walletButtonTheme },
     ) => {
       const pkg = offering.packagesById[selectedPackageId];
       if (!pkg) {
@@ -1334,7 +1334,7 @@ export class Purchases {
           onReady?.(walletsAvailable);
         },
         listener,
-        walletButtonStyle,
+        walletButtonTheme,
       })
         .then((purchaseResult) => {
           onSuccess({ ...purchaseResult, selectedPackage: pkg });

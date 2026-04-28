@@ -53,7 +53,7 @@
     onError,
     onReady,
     listener,
-    walletButtonStyle,
+    walletButtonTheme,
   }: ExpressPurchaseButtonProps = $props();
 
   const mode: SDKEventPurchaseMode = "express_purchase_button";
@@ -122,7 +122,7 @@
             purchaseOption,
             translator,
             brandingInfo,
-            walletButtonStyle,
+            walletButtonTheme,
           );
         stripe = stripeInstance;
         elements = elementsInstance;
@@ -135,7 +135,7 @@
           rcPackage,
           purchaseOption,
           translator,
-          walletButtonStyle,
+          walletButtonTheme,
         );
         expressCheckoutOptions = expOptions;
       }
@@ -314,7 +314,7 @@
         rcPackage,
         purchaseOption,
         translator,
-        walletButtonStyle,
+        walletButtonTheme,
       );
 
       return { applePay: options.applePay } as ClickResolveDetails;
