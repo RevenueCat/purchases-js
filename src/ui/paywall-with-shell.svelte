@@ -1,13 +1,13 @@
 <script lang="ts">
   import { type ComponentProps } from "svelte";
-  import { Paywall, WorkflowShell } from "@revenuecat/purchases-ui-js";
+  import { Main, Paywall } from "@revenuecat/purchases-ui-js";
 
   const props: ComponentProps<typeof Paywall> = $props();
 </script>
 
-<WorkflowShell
+<Main
   paywallData={props.paywallData}
   preferredColorMode={props.preferredColorMode}
 >
   <Paywall {...props} />
-</WorkflowShell>
+</Main>
