@@ -535,11 +535,8 @@ export class Purchases {
       element.style.height = "100%";
       element.style.overflow = "auto";
       element.style.backgroundColor = "rgba(0, 0, 0, 0.4)";
-      if (doc.body.offsetWidth > 968) {
-        element.style.display = "flex";
-        element.style.justifyContent = "center";
-        element.style.alignItems = "center";
-      }
+      element.style.display = "flex";
+      element.style.flexDirection = "column";
       element.style.transition = "opacity 0.3s";
       element.style.opacity = "0";
       doc.body.appendChild(element);
