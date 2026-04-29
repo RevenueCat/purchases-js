@@ -72,8 +72,7 @@ import type {
   ComponentInteractionData as UIComponentInteractionData,
   WalletButtonRender,
 } from "@revenuecat/purchases-ui-js";
-import { type PaywallData } from "@revenuecat/purchases-ui-js";
-import PaywallWithShell from "./ui/paywall-with-shell.svelte";
+import { Paywall, type PaywallData } from "@revenuecat/purchases-ui-js";
 import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
 import {
   buildVariablesPerPackage,
@@ -535,10 +534,8 @@ export class Purchases {
       element.style.height = "100%";
       element.style.overflow = "auto";
       element.style.backgroundColor = "var(--rc-purchases-ui-bg-color, Canvas)";
-      element.style.colorScheme = "light dark";
       if (doc.body.offsetWidth > 968) {
         element.style.display = "flex";
-        element.style.flexDirection = "column";
         element.style.justifyContent = "center";
         element.style.alignItems = "center";
       }
@@ -983,7 +980,7 @@ export class Purchases {
       );
 
       certainHTMLTarget.innerHTML = "";
-      component = mount(PaywallWithShell, {
+      component = mount(Paywall, {
         target: certainHTMLTarget,
         props: {
           paywallData: offering.paywallComponents!,
