@@ -1,3 +1,7 @@
+## 1.38.0
+### 🔄 Other Changes
+* Handle background safe area colors via purchases-ui-js@4.1.0 (#860) via Jamie Holwill (@jholwill)
+
 ## 1.37.0
 ## RevenueCat SDK
 ### ✨ New Features
