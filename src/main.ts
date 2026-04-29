@@ -534,9 +534,11 @@ export class Purchases {
       element.style.width = "100%";
       element.style.height = "100%";
       element.style.overflow = "auto";
-      element.style.backgroundColor = "rgba(0, 0, 0, 0.4)";
+      element.style.backgroundColor = "var(--rc-purchases-ui-bg-color, Canvas)";
+      element.style.colorScheme = "light dark";
       if (doc.body.offsetWidth > 968) {
         element.style.display = "flex";
+        element.style.flexDirection = "column";
         element.style.justifyContent = "center";
         element.style.alignItems = "center";
       }
