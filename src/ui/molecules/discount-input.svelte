@@ -231,9 +231,7 @@
     min-width: 82px;
     min-height: 48px;
     padding: 0 16px;
-    border: none;
     border-radius: var(--rc-shape-input-button-border-radius);
-    background-color: var(--rc-color-grey-ui-light);
     color: var(--rc-color-grey-text-light);
     font: var(--rc-text-bodyBase-desktop);
     transition:
@@ -243,12 +241,14 @@
   }
 
   .rcb-discount-action-button--enabled {
-    background-color: var(--rc-color-grey-ui-dark);
+    border: 1px solid var(--rc-color-grey-ui-dark);
+    background-color: var(--rc-color-grey-ui-light);
     color: var(--rc-color-grey-text-light);
     cursor: pointer;
   }
 
   .rcb-discount-action-button:disabled {
+    background-color: var(--rc-color-grey-ui-light);
     cursor: not-allowed;
     opacity: 0.7;
   }
