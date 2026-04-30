@@ -9,7 +9,7 @@
   export let showDiscountCodeField = false;
   export let discountCode = "";
   export let appliedDiscountCode: string | null = null;
-  export let appliedDiscountPercentage: number | null = null;
+  export let discountSuffix: string | null = null;
   export let discountCodeError: string | null = null;
   export let isUpdatingDiscountCode = false;
   export let isDiscountCodeControlsEnabled = false;
@@ -52,10 +52,6 @@
     discountCodeError === "Enter a discount code."
       ? discountCodeError
       : "Code can't be applied.";
-  $: appliedDiscountLabel =
-    appliedDiscountPercentage === null
-      ? null
-      : `${appliedDiscountPercentage}% off`;
   $: displayAppliedDiscountCode = appliedDiscountCode
     ? normalizeDiscountCode(appliedDiscountCode)
     : null;
@@ -88,8 +84,11 @@
           >
         </div>
       {/if}
-      {#if appliedDiscountLabel}
-        <div class="rcb-applied-discount-label">{appliedDiscountLabel}</div>
+      {#if discountSuffix}
+        <div class="rcb-applied-discount-label">
+          {" "}
+          {discountSuffix}
+        </div>
       {/if}
     </div>
   {:else if showDiscountCodeField}
@@ -179,7 +178,7 @@
   }
 
   .rcb-discount-field--focused {
-    border-color: var(--rc-color-focus);
+    border-color: var(--rc-color-grey-text-light);
   }
 
   .rcb-discount-field-label {
@@ -232,11 +231,9 @@
     min-width: 82px;
     min-height: 48px;
     padding: 0 16px;
-    border: none;
     border-radius: var(--rc-shape-input-button-border-radius);
-    background-color: var(--rc-color-grey-ui-light);
     color: var(--rc-color-grey-text-light);
-    font: var(--rc-text-labelButton-mobile);
+    font: var(--rc-text-bodyBase-desktop);
     transition:
       background-color 150ms ease,
       color 150ms ease,
@@ -244,12 +241,14 @@
   }
 
   .rcb-discount-action-button--enabled {
-    background-color: var(--rc-color-primary);
-    color: var(--rc-color-primary-text);
+    border: 1px solid var(--rc-color-grey-ui-dark);
+    background-color: var(--rc-color-grey-ui-light);
+    color: var(--rc-color-grey-text-light);
     cursor: pointer;
   }
 
   .rcb-discount-action-button:disabled {
+    background-color: var(--rc-color-grey-ui-light);
     cursor: not-allowed;
     opacity: 0.7;
   }
@@ -293,8 +292,8 @@
     gap: 8px;
     width: fit-content;
     max-width: 100%;
-    padding: 0 8px 0 8px;
-    border: 1px solid var(--rc-color-grey-text-light);
+    padding: 0 12px;
+    border: 1px solid var(--rc-color-grey-ui-light);
     border-radius: var(--rc-shape-input-button-border-radius);
     background-color: var(--rc-color-grey-ui-light);
     color: var(--rc-color-grey-text-dark);
