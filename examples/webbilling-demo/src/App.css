@@ -16,7 +16,8 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
+  /* The demo only supports light mode */
+  color-scheme: light;
   color: #000000;
   background-color: #ffffff;
 
@@ -61,6 +62,13 @@ a:hover {
 
 body {
   margin: 0;
+}
+
+/* Opt in to iOS safe-area painting: with viewport-fit=cover in index.html, the
+   html canvas extends into the safe-area strips, so painting it with the variable
+   purchases-ui-js publishes makes the paywall's solid bg colour reach the strips. */
+html {
+  background: var(--rc-purchases-ui-bg-color, Canvas);
 }
 
 button.button {
