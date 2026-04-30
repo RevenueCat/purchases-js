@@ -87,6 +87,8 @@
   );
 
   const discountSuffix = $derived.by(() => {
+    if (appliedDiscountPercentage == null) return null;
+
     if (
       !promotionalPricePhase ||
       !("durationMode" in promotionalPricePhase) ||
@@ -152,7 +154,7 @@
               "name" in promotionalPricePhase &&
               promotionalPricePhase.name
                 ? `: ${promotionalPricePhase.name}`
-                : ""} ({discountSuffix})
+                : ""}{discountSuffix ? ` (${discountSuffix})` : ""}
             </Typography>
           </div>
         </div>
