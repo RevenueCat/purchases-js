@@ -23,7 +23,11 @@ import {
 } from "../entities/redemption-info";
 import { type IEventsTracker } from "../behavioural-events/events-tracker";
 import type { CheckoutCompleteResponse } from "../networking/responses/checkout-complete-response";
-import type { CheckoutCalculateTaxResponse } from "../networking/responses/checkout-calculate-tax-response";
+import {
+  CheckoutCalculateTaxFailedReason,
+  type CheckoutCalculateTaxResponse,
+  type CheckoutRepriceResponse,
+} from "../networking/responses/checkout-calculate-tax-response";
 import { handleCheckoutSessionFailed } from "./checkout-error-handler";
 import type { CheckoutPrepareResponse } from "../networking/responses/checkout-prepare-response";
 
@@ -152,6 +156,52 @@ export class PurchaseOperationHelper {
     this.maxNumberAttempts = maxNumberAttempts;
   }
 
+  private static getBackendErrorCodeForInterruptedCheckout(
+    failedReason: CheckoutCalculateTaxResponse["failed_reason"],
+  ): BackendErrorCode | null {
+    switch (failedReason) {
+      case CheckoutCalculateTaxFailedReason.taxes_not_active:
+      case CheckoutCalculateTaxFailedReason.stripe_tax_unsupported_country:
+        return BackendErrorCode.BackendGatewaySetupErrorStripeTaxNotActive;
+      case CheckoutCalculateTaxFailedReason.invalid_origin_address:
+      case CheckoutCalculateTaxFailedReason.invalid_head_office_address:
+        return BackendErrorCode.BackendGatewaySetupErrorInvalidTaxOriginAddress;
+      case CheckoutCalculateTaxFailedReason.missing_required_permission:
+        return BackendErrorCode.BackendGatewaySetupErrorMissingRequiredPermission;
+      default:
+        return null;
+    }
+  }
+
+  private static throwIfCheckoutShouldBeInterrupted(
+    response: CheckoutCalculateTaxResponse | CheckoutRepriceResponse,
+  ): void {
+    if (!response.interrupt_checkout) {
+      return;
+    }
+
+    const backendErrorCode =
+      PurchaseOperationHelper.getBackendErrorCodeForInterruptedCheckout(
+        response.failed_reason,
+      );
+
+    if (backendErrorCode == null) {
+      throw new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "There was a problem with the store.",
+        response.failed_reason ?? "Checkout interrupted.",
+      );
+    }
+
+    throw PurchaseFlowError.fromPurchasesError(
+      PurchasesError.getForBackendError(
+        backendErrorCode,
+        response.failed_reason ?? null,
+      ),
+      PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+    );
+  }
+
   async prepareCheckout(
     productId: string,
     purchaseOption: PurchaseOption,
@@ -241,13 +291,18 @@ export class PurchaseOperationHelper {
     }
 
     try {
-      return await this.backend.postCheckoutCalculateTax(
+      const response = await this.backend.postCheckoutCalculateTax(
         operationSessionId,
         countryCode,
         postalCode,
         signal,
       );
+      PurchaseOperationHelper.throwIfCheckoutShouldBeInterrupted(response);
+      return response;
     } catch (error) {
+      if (error instanceof PurchaseFlowError) {
+        throw error;
+      }
       if (error instanceof PurchasesError) {
         throw PurchaseFlowError.fromPurchasesError(
           error,
@@ -255,6 +310,45 @@ export class PurchaseOperationHelper {
         );
       } else {
         const errorMessage = "Unknown error calculating tax: " + String(error);
+        Logger.errorLog(errorMessage);
+        throw new PurchaseFlowError(
+          PurchaseFlowErrorCode.UnknownError,
+          errorMessage,
+        );
+      }
+    }
+  }
+
+  async checkoutReprice(
+    discountCode?: string | null,
+  ): Promise<CheckoutRepriceResponse> {
+    const operationSessionId = this.operationSessionId;
+    if (!operationSessionId) {
+      throw new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "No purchase started",
+      );
+    }
+
+    try {
+      const response = await this.backend.postCheckoutReprice(
+        operationSessionId,
+        discountCode,
+      );
+      PurchaseOperationHelper.throwIfCheckoutShouldBeInterrupted(response);
+      return response;
+    } catch (error) {
+      if (error instanceof PurchaseFlowError) {
+        throw error;
+      }
+      if (error instanceof PurchasesError) {
+        throw PurchaseFlowError.fromPurchasesError(
+          error,
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        );
+      } else {
+        const errorMessage =
+          "Unknown error repricing checkout: " + String(error);
         Logger.errorLog(errorMessage);
         throw new PurchaseFlowError(
           PurchaseFlowErrorCode.UnknownError,

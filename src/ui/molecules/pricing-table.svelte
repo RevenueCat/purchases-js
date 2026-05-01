@@ -59,6 +59,9 @@
   );
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
+  const appliedDiscount = $derived(
+    priceBreakdown.appliedDiscounts?.[0] ?? null,
+  );
 
   const showDetailsControls = $derived(
     showDiscountCodeField ||
@@ -69,10 +72,15 @@
   );
 
   const subtotalAmount = $derived(
-    basePhase?.price?.amountMicros ?? priceBreakdown.totalAmountInMicros,
+    priceBreakdown.originalAmountInMicros ??
+      basePhase?.price?.amountMicros ??
+      priceBreakdown.totalAmountInMicros,
   );
 
   const discountAmount = $derived.by(() => {
+    if (appliedDiscount) {
+      return appliedDiscount.discountedAmountInMicros;
+    }
     if (!hasDiscount) return 0;
 
     const base = basePhase?.price?.amountMicros;
@@ -87,14 +95,15 @@
   );
 
   const discountSuffix = $derived.by(() => {
-    if (appliedDiscountPercentage == null) return null;
+    const percentage = appliedDiscount?.percentage ?? appliedDiscountPercentage;
+    if (percentage == null) return null;
 
     if (
       !promotionalPricePhase ||
       !("durationMode" in promotionalPricePhase) ||
       promotionalPricePhase.durationMode !== "time_window"
     ) {
-      return `${appliedDiscountPercentage}% off`;
+      return `${percentage}% off`;
     }
 
     const basePeriod = basePhase?.period;
@@ -104,7 +113,7 @@
       !discountPeriod ||
       promotionalPricePhase.cycleCount <= 0
     ) {
-      return `${appliedDiscountPercentage}% off`;
+      return `${percentage}% off`;
     }
 
     const billingCycleDays = getDurationInDays(basePeriod);
@@ -114,7 +123,7 @@
     });
 
     if (billingCycleDays <= 0 || discountWindowDays <= billingCycleDays) {
-      return `${appliedDiscountPercentage}% off`;
+      return `${percentage}% off`;
     }
 
     const translatedPeriod = $translator.translatePeriod(
@@ -122,13 +131,13 @@
       discountPeriod.unit,
     );
 
-    return `${appliedDiscountPercentage}% off for ${translatedPeriod}`;
+    return `${percentage}% off for ${translatedPeriod}`;
   });
 </script>
 
 {#snippet pricingTable()}
   <div class="rcb-pricing-table">
-    {#if hasDiscount && !showDiscountCodeField}
+    {#if (hasDiscount || appliedDiscount) && !showDiscountCodeField}
       <div class="rcb-pricing-table-row">
         <div class="rcb-pricing-table-header">
           <div class="rcb-pricing-table-value">
@@ -150,11 +159,13 @@
             <Typography size="body-small">
               {$translator.translate(
                 LocalizationKeys.PricingTableDiscount,
-              )}{promotionalPricePhase &&
-              "name" in promotionalPricePhase &&
-              promotionalPricePhase.name
-                ? `: ${promotionalPricePhase.name}`
-                : ""}{discountSuffix ? ` (${discountSuffix})` : ""}
+              )}{appliedDiscount?.displayName
+                ? `: ${appliedDiscount.displayName}`
+                : promotionalPricePhase &&
+                    "name" in promotionalPricePhase &&
+                    promotionalPricePhase.name
+                  ? `: ${promotionalPricePhase.name}`
+                  : ""}{discountSuffix ? ` (${discountSuffix})` : ""}
             </Typography>
           </div>
         </div>

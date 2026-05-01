@@ -4,6 +4,7 @@ import {
   CheckoutCalculateTaxEndpoint,
   CheckoutCompleteEndpoint,
   CheckoutPrepareEndpoint,
+  CheckoutRepriceEndpoint,
   CheckoutStartEndpoint,
   GetBrandingInfoEndpoint,
   GetCheckoutStatusEndpoint,
@@ -29,7 +30,10 @@ import type {
 } from "../entities/offerings";
 import type { PurchasesContext } from "../entities/purchases-config";
 import type { CheckoutCompleteResponse } from "./responses/checkout-complete-response";
-import type { CheckoutCalculateTaxResponse } from "./responses/checkout-calculate-tax-response";
+import type {
+  CheckoutCalculateTaxResponse,
+  CheckoutRepriceResponse,
+} from "./responses/checkout-calculate-tax-response";
 import { isWebBillingSandboxApiKey } from "../helpers/api-key-helper";
 import type { IdentifyResponse } from "./responses/identify-response";
 import type { CheckoutPrepareResponse } from "./responses/checkout-prepare-response";
@@ -302,6 +306,28 @@ export class Backend {
       },
       signal,
     );
+  }
+
+  async postCheckoutReprice(
+    operationSessionId: string,
+    discountCode?: string | null,
+  ): Promise<CheckoutRepriceResponse> {
+    type CheckoutRepriceRequestBody = {
+      discount_code?: string | null;
+    };
+
+    const requestBody: CheckoutRepriceRequestBody = {
+      discount_code: discountCode,
+    };
+
+    return await performRequest<
+      CheckoutRepriceRequestBody,
+      CheckoutRepriceResponse
+    >(new CheckoutRepriceEndpoint(operationSessionId), {
+      apiKey: this.API_KEY,
+      body: requestBody,
+      httpConfig: this.httpConfig,
+    });
   }
 
   async postCheckoutComplete(

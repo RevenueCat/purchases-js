@@ -34,6 +34,7 @@
   } from "../../networking/responses/stripe-elements";
   import {
     CheckoutCalculateTaxFailedReason,
+    type CheckoutPricingResponse,
     type TaxBreakdown,
   } from "../../networking/responses/checkout-calculate-tax-response";
   import type { Stripe, StripeElements } from "@stripe/stripe-js";
@@ -46,6 +47,7 @@
   import StripeElementsComponent from "../molecules/stripe-elements.svelte";
   import PriceUpdateInfo from "../molecules/price-update-info.svelte";
   import { getInitialPriceFromPurchaseOption } from "../../helpers/purchase-option-price-helper";
+  import { createPriceBreakdownFromCheckoutPricingResponse } from "../price-breakdown-utils";
 
   type View = "loading" | "form" | "error";
 
@@ -105,23 +107,34 @@
         ? "unavailable"
         : "disabled"),
   );
-  let taxAmountInMicros: number | null = $state(null);
-  let taxBreakdown: TaxBreakdown[] | null = $state(null);
+  let originalAmountInMicros: number = $state(
+    defaultPriceBreakdown?.originalAmountInMicros ?? initialPrice.amountMicros,
+  );
+  let taxAmountInMicros: number | null = $state(
+    defaultPriceBreakdown?.taxAmountInMicros ?? null,
+  );
+  let taxBreakdown: TaxBreakdown[] | null = $state(
+    defaultPriceBreakdown?.taxBreakdown ?? null,
+  );
   let totalExcludingTaxInMicros: number | null = $state(
-    initialPrice.amountMicros,
+    defaultPriceBreakdown?.totalExcludingTaxInMicros ??
+      initialPrice.amountMicros,
   );
-  let totalAmountInMicros: number | null = $state(initialPrice.amountMicros);
+  let totalAmountInMicros: number | null = $state(
+    defaultPriceBreakdown?.totalAmountInMicros ?? initialPrice.amountMicros,
+  );
+  let appliedDiscounts = $state(defaultPriceBreakdown?.appliedDiscounts ?? []);
 
-  let priceBreakdown: PriceBreakdown = $derived(
-    defaultPriceBreakdown ?? {
-      currency: initialPrice.currency,
-      totalAmountInMicros,
-      totalExcludingTaxInMicros,
-      taxCalculationStatus,
-      taxAmountInMicros,
-      taxBreakdown,
-    },
-  );
+  let priceBreakdown: PriceBreakdown = $derived({
+    currency: initialPrice.currency,
+    originalAmountInMicros,
+    totalAmountInMicros,
+    totalExcludingTaxInMicros,
+    taxCalculationStatus,
+    taxAmountInMicros,
+    taxBreakdown,
+    appliedDiscounts,
+  });
 
   let elementsConfiguration: StripeElementsConfiguration | undefined = $state(
     gatewayParams.elements_configuration,
@@ -178,6 +191,25 @@
   });
 
   $effect(() => {
+    if (!defaultPriceBreakdown) {
+      return;
+    }
+
+    taxCalculationStatus = defaultPriceBreakdown.taxCalculationStatus;
+    originalAmountInMicros =
+      defaultPriceBreakdown.originalAmountInMicros ?? initialPrice.amountMicros;
+    taxAmountInMicros = defaultPriceBreakdown.taxAmountInMicros;
+    taxBreakdown = defaultPriceBreakdown.taxBreakdown;
+    totalExcludingTaxInMicros = defaultPriceBreakdown.totalExcludingTaxInMicros;
+    totalAmountInMicros = defaultPriceBreakdown.totalAmountInMicros;
+    appliedDiscounts = defaultPriceBreakdown.appliedDiscounts ?? [];
+  });
+
+  $effect(() => {
+    elementsConfiguration = gatewayParams.elements_configuration;
+  });
+
+  $effect(() => {
     onProcessingStateChange?.(processing);
   });
 
@@ -218,6 +250,7 @@
 
         signal?.throwIfAborted();
 
+        let nextTaxCalculationStatus: TaxCalculationStatus;
         if (taxCalculation.failed_reason) {
           const isInitialCalculation = !taxCustomerDetails;
           if (
@@ -225,25 +258,43 @@
             taxCalculation.failed_reason ===
               CheckoutCalculateTaxFailedReason.invalid_tax_location
           ) {
-            taxCalculationStatus = "pending";
+            nextTaxCalculationStatus = "pending";
           } else {
-            taxCalculationStatus = "disabled";
+            nextTaxCalculationStatus = "disabled";
           }
         } else {
-          taxCalculationStatus = "calculated";
+          nextTaxCalculationStatus = "calculated";
         }
 
-        taxAmountInMicros = taxCalculation.tax_amount_in_micros;
-        totalExcludingTaxInMicros =
-          taxCalculation.total_excluding_tax_in_micros;
-        totalAmountInMicros = taxCalculation.total_amount_in_micros;
-        taxBreakdown = taxCalculation.tax_breakdown;
-
-        elementsConfiguration =
-          taxCalculation.gateway_params.elements_configuration;
-
-        lastTaxCustomerDetails = taxCustomerDetails;
+        applyCheckoutPricingResponse(
+          taxCalculation,
+          nextTaxCalculationStatus,
+          taxCustomerDetails,
+        );
       });
+  }
+
+  function applyCheckoutPricingResponse(
+    pricingResponse: CheckoutPricingResponse,
+    nextTaxCalculationStatus: TaxCalculationStatus,
+    taxCustomerDetails: TaxCustomerDetails | null,
+  ) {
+    const nextPriceBreakdown = createPriceBreakdownFromCheckoutPricingResponse(
+      pricingResponse,
+      nextTaxCalculationStatus,
+    );
+
+    taxCalculationStatus = nextPriceBreakdown.taxCalculationStatus;
+    originalAmountInMicros =
+      nextPriceBreakdown.originalAmountInMicros ?? initialPrice.amountMicros;
+    taxAmountInMicros = nextPriceBreakdown.taxAmountInMicros;
+    taxBreakdown = nextPriceBreakdown.taxBreakdown;
+    totalExcludingTaxInMicros = nextPriceBreakdown.totalExcludingTaxInMicros;
+    totalAmountInMicros = nextPriceBreakdown.totalAmountInMicros;
+    appliedDiscounts = nextPriceBreakdown.appliedDiscounts ?? [];
+    elementsConfiguration =
+      pricingResponse.gateway_params.elements_configuration;
+    lastTaxCustomerDetails = taxCustomerDetails;
   }
 
   function handleStripeLoadingComplete() {

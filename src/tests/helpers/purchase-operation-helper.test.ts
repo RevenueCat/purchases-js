@@ -98,6 +98,17 @@ describe("PurchaseOperationHelper", () => {
     );
   }
 
+  function setCheckoutRepriceResponse(httpResponse: HttpResponse) {
+    server.use(
+      http.post(
+        `http://localhost:8000/rcbilling/v1/checkout/${operationSessionId}/reprice`,
+        () => {
+          return httpResponse;
+        },
+      ),
+    );
+  }
+
   function setCheckoutCompleteResponse(httpResponse: HttpResponse) {
     server.use(
       http.post(
@@ -370,6 +381,46 @@ describe("PurchaseOperationHelper", () => {
     expect(result).toEqual(checkoutCalculateTaxResponse);
   });
 
+  test("checkoutCalculateTax interrupts checkout for sandbox setup errors in payload", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    setCheckoutCalculateTaxResponse(
+      HttpResponse.json(
+        {
+          failed_reason: "missing_required_permission",
+          interrupt_checkout: true,
+          tax_breakdown: [],
+        },
+        {
+          status: StatusCodes.OK,
+        },
+      ),
+    );
+
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    });
+
+    await expectPromiseToPurchaseFlowError(
+      purchaseOperationHelper.checkoutCalculateTax(),
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.StripeMissingRequiredPermission,
+        "There was a problem with the store.",
+        "missing_required_permission",
+      ),
+    );
+  });
+
   test("checkoutCalculateTax throws error in production mode for sandbox mode only error", async () => {
     vi.spyOn(backend, "getIsSandbox").mockReturnValue(false);
 
@@ -405,6 +456,48 @@ describe("PurchaseOperationHelper", () => {
         PurchaseFlowErrorCode.ErrorSettingUpPurchase,
         "There was a problem with the store.",
         "Sandbox mode only error",
+      ),
+    );
+  });
+
+  test("checkoutReprice interrupts checkout for sandbox setup errors in payload", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    setCheckoutRepriceResponse(
+      HttpResponse.json(
+        {
+          failed_reason: "taxes_not_active",
+          interrupt_checkout: true,
+          original_amount_in_micros: 9990000,
+          applied_discounts: [],
+          tax_breakdown: [],
+        },
+        {
+          status: StatusCodes.OK,
+        },
+      ),
+    );
+
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    });
+
+    await expectPromiseToPurchaseFlowError(
+      purchaseOperationHelper.checkoutReprice("SAVE10"),
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.StripeTaxNotActive,
+        "There was a problem with the store.",
+        "taxes_not_active",
       ),
     );
   });

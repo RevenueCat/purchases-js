@@ -133,6 +133,20 @@ export class CheckoutCalculateTaxEndpoint implements Endpoint {
   }
 }
 
+export class CheckoutRepriceEndpoint implements Endpoint {
+  method: HttpMethodType = "POST";
+  name: string = "postCheckoutReprice";
+  private readonly operationSessionId: string;
+
+  constructor(operationSessionId: string) {
+    this.operationSessionId = operationSessionId;
+  }
+
+  urlPath(): string {
+    return `${RC_BILLING_PATH}/checkout/${this.operationSessionId}/reprice`;
+  }
+}
+
 export class CheckoutCompleteEndpoint implements Endpoint {
   method: HttpMethodType = "POST";
   name: string = "postCheckoutComplete";

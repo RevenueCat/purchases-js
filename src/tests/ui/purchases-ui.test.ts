@@ -6,16 +6,21 @@ import {
   brandingInfo,
   checkoutCalculateTaxResponse,
   checkoutStartResponse,
-  product,
   rcPackage,
   subscriptionOption,
-  subscriptionOptionWithDiscount,
 } from "../../stories/fixtures";
 import type { Purchases } from "../../main";
-import { type PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
+import {
+  PurchaseFlowError,
+  PurchaseFlowErrorCode,
+  type PurchaseOperationHelper,
+} from "../../helpers/purchase-operation-helper";
 import { createEventsTrackerMock } from "../mocks/events-tracker-mock-provider";
 import type { CheckoutStartResponse } from "../../networking/responses/checkout-start-response";
-import type { CheckoutCalculateTaxResponse } from "../../networking/responses/checkout-calculate-tax-response";
+import type {
+  CheckoutCalculateTaxResponse,
+  CheckoutRepriceResponse,
+} from "../../networking/responses/checkout-calculate-tax-response";
 import {
   checkoutCompleteResponse,
   checkoutPrepareResponse,
@@ -23,20 +28,25 @@ import {
 import type { CheckoutCompleteResponse } from "../../networking/responses/checkout-complete-response";
 
 const eventsTrackerMock = createEventsTrackerMock();
-const getProductWithDiscountCodeMock = vi.fn();
 
-const discountedProduct = {
-  ...structuredClone(product),
-  defaultPurchaseOption: subscriptionOptionWithDiscount,
-  defaultSubscriptionOption: subscriptionOptionWithDiscount,
-  subscriptionOptions: {
-    [subscriptionOptionWithDiscount.id]: subscriptionOptionWithDiscount,
-  },
-  price: subscriptionOptionWithDiscount.base.price,
-  freeTrialPhase: subscriptionOptionWithDiscount.trial,
-  discountPhase: subscriptionOptionWithDiscount.discount,
-  introPricePhase: subscriptionOptionWithDiscount.introPrice,
-};
+const createCheckoutRepriceResponse = (
+  discountCode: string | null,
+): CheckoutRepriceResponse => ({
+  ...structuredClone(checkoutCalculateTaxResponse),
+  original_amount_in_micros:
+    checkoutCalculateTaxResponse.total_excluding_tax_in_micros,
+  applied_discounts: discountCode
+    ? [
+        {
+          identifier: "discount-id",
+          display_name: "SAVE10",
+          discounted_amount_in_micros: 1000000,
+          percentage: 10,
+          discount_code: discountCode,
+        },
+      ]
+    : [],
+});
 
 const purchaseOperationHelperMock: PurchaseOperationHelper = {
   prepareCheckout: async () => Promise.resolve(checkoutPrepareResponse),
@@ -50,12 +60,13 @@ const purchaseOperationHelperMock: PurchaseOperationHelper = {
     Promise.resolve(checkoutCompleteResponse as CheckoutCompleteResponse),
   pollCurrentPurchaseForCompletion: async () =>
     Promise.resolve({ redemptionInfo: null, operationSessionId: "op-id" }),
+  checkoutReprice: async () =>
+    Promise.resolve(createCheckoutRepriceResponse(null)),
 } as unknown as PurchaseOperationHelper;
 
 const purchasesMock: Purchases = {
   isSandbox: () => true,
   close: vi.fn(),
-  _getProductWithDiscountCode: getProductWithDiscountCodeMock,
 } as unknown as Purchases;
 
 const basicProps = {
@@ -237,14 +248,13 @@ describe("PurchasesUI", () => {
     });
   });
 
-  test("bootstraps with an incoming discount code when discounted product data resolves", async () => {
+  test("bootstraps with an incoming discount code by repricing the checkout", async () => {
     const checkoutStartSpy = vi
       .spyOn(purchaseOperationHelperMock, "checkoutStart")
       .mockResolvedValue(checkoutStartResponse);
-    getProductWithDiscountCodeMock.mockResolvedValue({
-      productDetails: discountedProduct,
-      purchaseOption: subscriptionOptionWithDiscount,
-    });
+    const checkoutRepriceSpy = vi
+      .spyOn(purchaseOperationHelperMock, "checkoutReprice")
+      .mockResolvedValue(createCheckoutRepriceResponse("SAVE10"));
 
     render(PurchasesUI, {
       props: {
@@ -255,36 +265,52 @@ describe("PurchasesUI", () => {
     });
 
     await waitFor(() => {
-      expect(getProductWithDiscountCodeMock).toHaveBeenCalledWith(
-        rcPackage,
-        subscriptionOption,
-        rcPackage.webBillingProduct.price.currency,
-        "SAVE10",
-      );
-    });
-
-    await waitFor(() => {
       expect(checkoutStartSpy).toHaveBeenCalledWith(
         expect.objectContaining({
-          productId: discountedProduct.identifier,
-          purchaseOption: subscriptionOptionWithDiscount,
-          presentedOfferingContext: discountedProduct.presentedOfferingContext,
+          productId: rcPackage.webBillingProduct.identifier,
+          purchaseOption: subscriptionOption,
+          presentedOfferingContext:
+            rcPackage.webBillingProduct.presentedOfferingContext,
           customerEmail: "test@test.com",
         }),
       );
-      expect(screen.getByText("SAVE10")).toBeTruthy();
+      expect(checkoutRepriceSpy).toHaveBeenCalledWith("SAVE10");
+      expect(
+        screen.getByRole("button", { name: "Remove promo code SAVE10" }),
+      ).toBeTruthy();
+      expect(screen.queryByLabelText("Promo code")).toBeNull();
     });
   });
 
-  test("applies a discount code, restarts checkout, and notifies the host", async () => {
-    const checkoutStartSpy = vi
-      .spyOn(purchaseOperationHelperMock, "checkoutStart")
-      .mockResolvedValue(checkoutStartResponse);
-    const onDiscountCodeChanged = vi.fn();
-    getProductWithDiscountCodeMock.mockResolvedValue({
-      productDetails: discountedProduct,
-      purchaseOption: subscriptionOptionWithDiscount,
+  test("shows the error page if incoming repricing hits a fatal interrupt", async () => {
+    const interruptError = new PurchaseFlowError(
+      PurchaseFlowErrorCode.StripeMissingRequiredPermission,
+      "There was a problem with the store.",
+      "missing_required_permission",
+    );
+
+    vi.spyOn(purchaseOperationHelperMock, "checkoutReprice").mockRejectedValue(
+      interruptError,
+    );
+
+    render(PurchasesUI, {
+      props: {
+        ...basicProps,
+        showDiscountCodeField: true,
+        discountCode: "SAVE10",
+      },
     });
+
+    await waitFor(() => {
+      expect(screen.getByText("Missing Stripe permission")).toBeTruthy();
+    });
+  });
+
+  test("applies a discount code, reprices checkout, and notifies the host", async () => {
+    const onDiscountCodeChanged = vi.fn();
+    const checkoutRepriceSpy = vi
+      .spyOn(purchaseOperationHelperMock, "checkoutReprice")
+      .mockResolvedValue(createCheckoutRepriceResponse("SAVE10"));
 
     render(PurchasesUI, {
       props: {
@@ -305,45 +331,20 @@ describe("PurchasesUI", () => {
     await fireEvent.click(screen.getByRole("button", { name: "Apply" }));
 
     await waitFor(() => {
-      expect(getProductWithDiscountCodeMock).toHaveBeenCalledWith(
-        rcPackage,
-        subscriptionOption,
-        rcPackage.webBillingProduct.price.currency,
-        "SAVE10",
-      );
-    });
-
-    await waitFor(() => {
-      expect(checkoutStartSpy).toHaveBeenCalledTimes(2);
-    });
-
-    await waitFor(() => {
-      expect(checkoutStartSpy).toHaveBeenLastCalledWith(
-        expect.objectContaining({
-          productId: discountedProduct.identifier,
-          purchaseOption: subscriptionOptionWithDiscount,
-          presentedOfferingContext: discountedProduct.presentedOfferingContext,
-        }),
-      );
+      expect(checkoutRepriceSpy).toHaveBeenCalledWith("SAVE10");
       expect(onDiscountCodeChanged).toHaveBeenCalledWith("SAVE10");
-      expect(screen.getByText("SAVE10")).toBeTruthy();
+      expect(
+        screen.getByRole("button", { name: "Remove promo code SAVE10" }),
+      ).toBeTruthy();
     });
   });
 
-  test("removes an applied discount code, restarts checkout, and restores the input", async () => {
-    const checkoutStartSpy = vi
-      .spyOn(purchaseOperationHelperMock, "checkoutStart")
-      .mockResolvedValue(checkoutStartResponse);
+  test("removes an applied discount code, reprices checkout, and restores the input", async () => {
     const onDiscountCodeChanged = vi.fn();
-    getProductWithDiscountCodeMock
-      .mockResolvedValueOnce({
-        productDetails: discountedProduct,
-        purchaseOption: subscriptionOptionWithDiscount,
-      })
-      .mockResolvedValueOnce({
-        productDetails: rcPackage.webBillingProduct,
-        purchaseOption: subscriptionOption,
-      });
+    const checkoutRepriceSpy = vi
+      .spyOn(purchaseOperationHelperMock, "checkoutReprice")
+      .mockResolvedValueOnce(createCheckoutRepriceResponse("SAVE10"))
+      .mockResolvedValueOnce(createCheckoutRepriceResponse(null));
 
     render(PurchasesUI, {
       props: {
@@ -360,28 +361,7 @@ describe("PurchasesUI", () => {
     await fireEvent.click(removeButton);
 
     await waitFor(() => {
-      expect(getProductWithDiscountCodeMock).toHaveBeenNthCalledWith(
-        2,
-        rcPackage,
-        subscriptionOptionWithDiscount,
-        rcPackage.webBillingProduct.price.currency,
-        undefined,
-      );
-    });
-
-    await waitFor(() => {
-      expect(checkoutStartSpy).toHaveBeenCalledTimes(2);
-    });
-
-    await waitFor(() => {
-      expect(checkoutStartSpy).toHaveBeenLastCalledWith(
-        expect.objectContaining({
-          productId: rcPackage.webBillingProduct.identifier,
-          purchaseOption: subscriptionOption,
-          presentedOfferingContext:
-            rcPackage.webBillingProduct.presentedOfferingContext,
-        }),
-      );
+      expect(checkoutRepriceSpy).toHaveBeenNthCalledWith(2, null);
       expect(onDiscountCodeChanged).toHaveBeenCalledWith(null);
       expect(screen.getByLabelText("Promo code")).toBeTruthy();
     });

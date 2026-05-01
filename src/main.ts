@@ -3,9 +3,7 @@ import type {
   Offerings,
   Package,
   Product,
-  PurchaseOption,
 } from "./entities/offerings";
-import { toProduct } from "./entities/offerings";
 import PurchasesUi from "./ui/purchases-ui.svelte";
 import PaddlePurchasesUi from "./ui/paddle-purchases-ui.svelte";
 import StripeCheckoutPurchasesUi from "./ui/stripe-checkout-purchases-ui.svelte";
@@ -1108,53 +1106,6 @@ export class Purchases {
   }
 
   /**
-   * Used by internal RC code to fetch a fresh product payload.
-   * @internal
-   */
-  public async _getProductWithDiscountCode(
-    rcPackage: Package,
-    purchaseOption: PurchaseOption,
-    currency?: string,
-    discountCode?: string,
-  ): Promise<{ productDetails: Product; purchaseOption: PurchaseOption }> {
-    const productId = rcPackage.webBillingProduct.identifier;
-    if (!productId) {
-      throw new Error("Product ID was not set before applying discount code.");
-    }
-
-    const productsResponse = await this.backend.getProducts(
-      this._appUserId,
-      [productId],
-      currency,
-      discountCode,
-    );
-
-    const productResponse = productsResponse.product_details.find(
-      (product) => product.identifier === productId,
-    );
-    if (!productResponse) {
-      throw new Error(`No product was found for ${productId}.`);
-    }
-
-    const productDetails = toProduct(
-      productResponse,
-      rcPackage.webBillingProduct.presentedOfferingContext,
-    );
-    if (productDetails == null) {
-      throw new Error(
-        `Product ${productId} could not be resolved for checkout.`,
-      );
-    }
-
-    return {
-      productDetails,
-      purchaseOption:
-        productDetails.subscriptionOptions[purchaseOption.id] ??
-        productDetails.defaultPurchaseOption,
-    };
-  }
-
-  /**
    * Convenience method to check whether a user is entitled to a specific
    * entitlement. This will use {@link Purchases.getCustomerInfo} under the hood.
    * @param entitlementIdentifier - The entitlement identifier you want to check.
@@ -1541,6 +1492,7 @@ export class Purchases {
       purchaseOptionToUse,
       customerEmail,
     });
+    console.log("LOGGING: Call createCheckoutSessionStartEvent");
     this.eventsTracker.trackSDKEvent(event);
 
     const utmParamsMetadata = this._flags.autoCollectUTMAsMetadata

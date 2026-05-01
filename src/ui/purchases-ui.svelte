@@ -30,7 +30,13 @@
   import { writable } from "svelte/store";
   import type { BrandingAppearance } from "../entities/branding";
   import { type GatewayParams } from "../networking/responses/stripe-elements";
+  import {
+    CheckoutCalculateTaxFailedReason,
+    type CheckoutPricingResponse,
+  } from "../networking/responses/checkout-calculate-tax-response";
   import { validateEmail } from "../helpers/validators";
+  import { createPriceBreakdownFromCheckoutPricingResponse } from "./price-breakdown-utils";
+  import type { PriceBreakdown, TaxCalculationStatus } from "./ui-types";
 
   interface Props {
     customerEmail: string | undefined;
@@ -87,26 +93,11 @@
   const emailError = customerEmail ? validateEmail(customerEmail) : null;
   let email = $state(emailError ? undefined : customerEmail);
 
-  function hasDiscount(
-    nextProductDetails: Product,
-    nextPurchaseOption: PurchaseOption,
-  ): boolean {
-    return (
-      !!nextProductDetails.subscriptionOptions[nextPurchaseOption.id]
-        ?.discount ||
-      !!nextProductDetails.defaultNonSubscriptionOption?.discount
-    );
-  }
-
   let productDetails: Product = $state(rcPackage.webBillingProduct);
   let purchaseOptionToUse: PurchaseOption = $state(purchaseOption);
   let lastError: PurchaseFlowError | null = $state(null);
   let draftDiscountCode = $state(discountCode ?? "");
-  let appliedDiscountCode: string | null = $state(
-    discountCode && hasDiscount(rcPackage.webBillingProduct, purchaseOption)
-      ? discountCode
-      : null,
-  );
+  let appliedDiscountCode: string | null = $state(null);
   let discountCodeError: string | null = $state(null);
   let isUpdatingDiscountCode = $state(false);
   let isPaymentProcessing = $state(false);
@@ -114,6 +105,7 @@
   let currentPage: CurrentPage = $state("payment-entry-loading");
   let operationResult: OperationSessionSuccessfulResult | null = $state(null);
   let gatewayParams: GatewayParams = $state({});
+  let currentPriceBreakdown: PriceBreakdown | undefined = $state(undefined);
   let managementUrl: string | null = $state(null);
 
   let originalHtmlHeight: string | null = $state(null);
@@ -222,48 +214,72 @@
       });
   };
 
+  const getTaxCalculationStatusForPricingResponse = (
+    failedReason?: string,
+  ): TaxCalculationStatus => {
+    if (!failedReason) {
+      return "calculated";
+    }
+
+    if (
+      failedReason === CheckoutCalculateTaxFailedReason.invalid_tax_location
+    ) {
+      return "pending";
+    }
+
+    return "disabled";
+  };
+
+  const isInterruptCheckoutError = (
+    error: unknown,
+  ): error is PurchaseFlowError =>
+    error instanceof PurchaseFlowError &&
+    [
+      PurchaseFlowErrorCode.StripeTaxNotActive,
+      PurchaseFlowErrorCode.StripeInvalidTaxOriginAddress,
+      PurchaseFlowErrorCode.StripeMissingRequiredPermission,
+    ].includes(error.errorCode);
+
+  const applyPricingResponse = (response: CheckoutPricingResponse) => {
+    currentPriceBreakdown = createPriceBreakdownFromCheckoutPricingResponse(
+      response,
+      getTaxCalculationStatusForPricingResponse(response.failed_reason),
+    );
+    gatewayParams = {
+      ...gatewayParams,
+      elements_configuration: response.gateway_params.elements_configuration,
+    };
+    appliedDiscountCode =
+      "applied_discounts" in response
+        ? (response.applied_discounts[0]?.discount_code ?? null)
+        : null;
+  };
+
   onMount(async () => {
     try {
-      let initialProductDetails = productDetails;
-      let initialPurchaseOption = purchaseOptionToUse;
-
-      if (
-        discountCode &&
-        !hasDiscount(initialProductDetails, initialPurchaseOption)
-      ) {
-        try {
-          const discountResult = await purchases._getProductWithDiscountCode(
-            rcPackage,
-            initialPurchaseOption,
-            initialProductDetails.price.currency,
-            discountCode,
-          );
-
-          if (
-            hasDiscount(
-              discountResult.productDetails,
-              discountResult.purchaseOption,
-            )
-          ) {
-            initialProductDetails = discountResult.productDetails;
-            initialPurchaseOption = discountResult.purchaseOption;
-            productDetails = discountResult.productDetails;
-            purchaseOptionToUse = discountResult.purchaseOption;
-            appliedDiscountCode = discountCode;
-          }
-        } catch {}
-      }
-
       const { result, emailToUse } = await startCheckout(
-        initialProductDetails,
-        initialPurchaseOption,
+        productDetails,
+        purchaseOptionToUse,
         email,
       );
       lastError = null;
       email = emailToUse;
-      currentPage = "payment-entry";
       gatewayParams = result.gateway_params;
       managementUrl = result.management_url;
+
+      if (discountCode) {
+        try {
+          const pricingResponse =
+            await purchaseOperationHelper.checkoutReprice(discountCode);
+          applyPricingResponse(pricingResponse);
+        } catch (error) {
+          if (isInterruptCheckoutError(error)) {
+            throw error;
+          }
+        }
+      }
+
+      currentPage = "payment-entry";
     } catch (e) {
       handleError(
         e instanceof PurchaseFlowError
@@ -285,7 +301,7 @@
     isPaymentProcessing = nextIsProcessing;
   };
 
-  const restartCheckoutWithDiscountCode = async (
+  const repriceCheckoutWithDiscountCode = async (
     nextDiscountCode: string | null,
   ) => {
     const normalizedDiscountCode = nextDiscountCode?.trim() || null;
@@ -298,45 +314,19 @@
     discountCodeError = null;
 
     try {
-      const {
-        productDetails: nextProductDetails,
-        purchaseOption: nextPurchaseOption,
-      } = await purchases._getProductWithDiscountCode(
-        rcPackage,
-        purchaseOptionToUse,
-        productDetails.price.currency,
-        normalizedDiscountCode ?? undefined,
+      const pricingResponse = await purchaseOperationHelper.checkoutReprice(
+        normalizedDiscountCode,
       );
-
-      if (
-        normalizedDiscountCode &&
-        !hasDiscount(nextProductDetails, nextPurchaseOption)
-      ) {
-        throw new Error("Discount code did not update product pricing.");
-      }
-
-      currentPage = "payment-entry-loading";
-
-      const { result, emailToUse } = await startCheckout(
-        nextProductDetails,
-        nextPurchaseOption,
-        email,
-      );
-
-      productDetails = nextProductDetails;
-      purchaseOptionToUse = nextPurchaseOption;
-      email = emailToUse;
-      gatewayParams = result.gateway_params;
-      managementUrl = result.management_url;
-      currentPage = "payment-entry";
-      appliedDiscountCode = normalizedDiscountCode;
+      applyPricingResponse(pricingResponse);
       draftDiscountCode = normalizedDiscountCode ?? "";
       lastError = null;
       onDiscountCodeChanged?.(normalizedDiscountCode);
     } catch (error) {
-      if (currentPage === "payment-entry-loading") {
-        currentPage = "payment-entry";
+      if (isInterruptCheckoutError(error)) {
+        handleError(error);
+        return;
       }
+
       discountCodeError =
         error instanceof Error
           ? error.message
@@ -347,11 +337,11 @@
   };
 
   const handleApplyDiscountCode = async () => {
-    await restartCheckoutWithDiscountCode(draftDiscountCode);
+    await repriceCheckoutWithDiscountCode(draftDiscountCode);
   };
 
   const handleRemoveDiscountCode = async () => {
-    await restartCheckoutWithDiscountCode(null);
+    await repriceCheckoutWithDiscountCode(null);
   };
 
   const handleContinue = () => {
@@ -422,6 +412,7 @@
     !isPaymentProcessing}
   {forceEnableWalletMethods}
   customerEmail={email ?? null}
+  defaultPriceBreakdown={currentPriceBreakdown}
   {closeWithError}
   onDraftDiscountCodeChange={handleDraftDiscountCodeChange}
   onApplyDiscountCode={handleApplyDiscountCode}
