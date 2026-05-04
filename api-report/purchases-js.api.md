@@ -555,7 +555,7 @@ export enum ReservedCustomerAttribute {
 }
 
 // @public
-export type Store = "app_store" | "mac_app_store" | "play_store" | "amazon" | "stripe" | "rc_billing" | "promotional" | "paddle" | "test_store" | "unknown";
+export type Store = "app_store" | "mac_app_store" | "play_store" | "amazon" | "stripe" | "rc_billing" | "promotional" | "paddle" | "test_store" | "galaxy" | "unknown";
 
 // @public
 export type StoreLoadTime = "configuration" | "purchase_start";
