@@ -7,6 +7,7 @@
     checkoutStartResponse,
     product,
     subscriptionOption,
+    subscriptionOptionWithDiscountOneTime,
     subscriptionOptionWithTrial,
     subscriptionOptionWithTrialAndIntroPricePaidUpfront,
     subscriptionOptionWithTrialAndIntroPriceRecurring,
@@ -153,6 +154,15 @@
   args={{
     ...defaultArgs,
     currentPage: "payment-entry",
+    productDetails: {
+      ...product,
+      subscriptionOptions: {
+        ...product.subscriptionOptions,
+        [subscriptionOptionWithDiscountOneTime.id]:
+          subscriptionOptionWithDiscountOneTime,
+      },
+    },
+    purchaseOptionToUse: subscriptionOptionWithDiscountOneTime,
     showDiscountCodeField: true,
     appliedDiscountCode: "SAVE10",
     isDiscountCodeControlsEnabled: true,

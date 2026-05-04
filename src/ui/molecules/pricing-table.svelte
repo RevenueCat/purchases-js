@@ -86,13 +86,15 @@
     trialEndDate ? 0 : priceBreakdown.totalAmountInMicros,
   );
 
-  const discountDurationSuffix = $derived.by(() => {
+  const discountSuffix = $derived.by(() => {
+    if (appliedDiscountPercentage == null) return null;
+
     if (
       !promotionalPricePhase ||
       !("durationMode" in promotionalPricePhase) ||
       promotionalPricePhase.durationMode !== "time_window"
     ) {
-      return "";
+      return `${appliedDiscountPercentage}% off`;
     }
 
     const basePeriod = basePhase?.period;
@@ -102,7 +104,7 @@
       !discountPeriod ||
       promotionalPricePhase.cycleCount <= 0
     ) {
-      return "";
+      return `${appliedDiscountPercentage}% off`;
     }
 
     const billingCycleDays = getDurationInDays(basePeriod);
@@ -112,7 +114,7 @@
     });
 
     if (billingCycleDays <= 0 || discountWindowDays <= billingCycleDays) {
-      return "";
+      return `${appliedDiscountPercentage}% off`;
     }
 
     const translatedPeriod = $translator.translatePeriod(
@@ -120,7 +122,7 @@
       discountPeriod.unit,
     );
 
-    return translatedPeriod ? ` (${translatedPeriod})` : "";
+    return `${appliedDiscountPercentage}% off for ${translatedPeriod}`;
   });
 </script>
 
@@ -152,7 +154,7 @@
               "name" in promotionalPricePhase &&
               promotionalPricePhase.name
                 ? `: ${promotionalPricePhase.name}`
-                : ""}{discountDurationSuffix}
+                : ""}{discountSuffix ? ` (${discountSuffix})` : ""}
             </Typography>
           </div>
         </div>
@@ -172,7 +174,7 @@
           {showDiscountCodeField}
           {discountCode}
           {appliedDiscountCode}
-          {appliedDiscountPercentage}
+          {discountSuffix}
           {discountCodeError}
           {isUpdatingDiscountCode}
           {isDiscountCodeControlsEnabled}
@@ -200,7 +202,7 @@
             {showDiscountCodeField}
             {discountCode}
             {appliedDiscountCode}
-            {appliedDiscountPercentage}
+            {discountSuffix}
             {discountCodeError}
             {isUpdatingDiscountCode}
             {isDiscountCodeControlsEnabled}
