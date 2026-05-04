@@ -20,6 +20,7 @@ export type Store =
   | "promotional"
   | "paddle"
   | "test_store"
+  | "galaxy"
   | "unknown";
 
 /**
