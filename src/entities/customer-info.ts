@@ -440,19 +440,6 @@ function toDateIfNotNull(value: string | undefined | null): Date | null {
   return new Date(value);
 }
 
-function toSubscriptionPrice(
-  price: { amount: number; currency: string } | undefined | null,
-): Price | null {
-  if (price == null) return null;
-  const amountMicros = price.amount * 1_000_000;
-  return {
-    amount: price.amount * 100,
-    amountMicros,
-    currency: price.currency,
-    formattedPrice: formatPrice(amountMicros, price.currency),
-  };
-}
-
 export function toCustomerInfo(
   customerInfoResponse: SubscriberResponse,
 ): CustomerInfo {
@@ -512,7 +499,17 @@ export function toCustomerInfo(
             isActive: isActive(response.expires_date),
             willRenew: getWillRenew(response.expires_date, response),
             displayName: response.display_name ?? null,
-            price: toSubscriptionPrice(response.price),
+            price: response.price
+              ? {
+                  amount: response.price.amount * 100,
+                  amountMicros: response.price.amount * 1_000_000,
+                  currency: response.price.currency,
+                  formattedPrice: formatPrice(
+                    response.price.amount * 1_000_000,
+                    response.price.currency,
+                  ),
+                }
+              : null,
           },
         ],
       ),
