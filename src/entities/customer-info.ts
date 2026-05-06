@@ -2,6 +2,7 @@ import {
   type NonSubscriptionResponse,
   type SubscriberEntitlementResponse,
   type SubscriberResponse,
+  type SubscriberSubscriptionPriceResponse,
   type SubscriberSubscriptionResponse,
 } from "../networking/responses/subscriber-response";
 import { ErrorCode, PurchasesError } from "./errors";
@@ -440,6 +441,21 @@ function toDateIfNotNull(value: string | undefined | null): Date | null {
   return new Date(value);
 }
 
+function toSubscriptionPrice(
+  price: SubscriberSubscriptionPriceResponse | undefined | null,
+): Price | null {
+  if (price == null) return null;
+  // Round to avoid IEEE-754 noise (e.g. 19.99 * 100 = 1998.9999...)
+  // since `amount` and `amountMicros` semantically represent integers.
+  const amountMicros = Math.round(price.amount * 1_000_000);
+  return {
+    amount: Math.round(price.amount * 100),
+    amountMicros,
+    currency: price.currency,
+    formattedPrice: formatPrice(amountMicros, price.currency),
+  };
+}
+
 export function toCustomerInfo(
   customerInfoResponse: SubscriberResponse,
 ): CustomerInfo {
@@ -499,17 +515,7 @@ export function toCustomerInfo(
             isActive: isActive(response.expires_date),
             willRenew: getWillRenew(response.expires_date, response),
             displayName: response.display_name ?? null,
-            price: response.price
-              ? {
-                  amount: response.price.amount * 100,
-                  amountMicros: response.price.amount * 1_000_000,
-                  currency: response.price.currency,
-                  formattedPrice: formatPrice(
-                    response.price.amount * 1_000_000,
-                    response.price.currency,
-                  ),
-                }
-              : null,
+            price: toSubscriptionPrice(response.price),
           },
         ],
       ),
