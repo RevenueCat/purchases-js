@@ -119,6 +119,8 @@ export enum LocalizationKeys {
   PaywallVariablesTotalPriceAndPerMonth = "paywall_variables.total_price_and_per_month",
   PricingDropdownShowDetails = "pricing_dropdown.show_details",
   PricingDropdownHideDetails = "pricing_dropdown.hide_details",
+  PricingDropdownAddPromoCode = "pricing_dropdown.add_promo_code",
+  DiscountInputLabel = "discount_input.label",
   PricingTotalExcludingTax = "pricing_table.total_excluding_tax",
   PricingTableTrialEnds = "pricing_table.trial_ends",
   PricingTableTotalDueToday = "pricing_table.total_due_today",

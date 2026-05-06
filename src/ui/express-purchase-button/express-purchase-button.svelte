@@ -52,6 +52,8 @@
     onFinished,
     onError,
     onReady,
+    listener,
+    walletButtonTheme,
   }: ExpressPurchaseButtonProps = $props();
 
   const mode: SDKEventPurchaseMode = "express_purchase_button";
@@ -120,6 +122,7 @@
             purchaseOption,
             translator,
             brandingInfo,
+            walletButtonTheme,
           );
         stripe = stripeInstance;
         elements = elementsInstance;
@@ -132,6 +135,7 @@
           rcPackage,
           purchaseOption,
           translator,
+          walletButtonTheme,
         );
         expressCheckoutOptions = expOptions;
       }
@@ -310,6 +314,7 @@
         rcPackage,
         purchaseOption,
         translator,
+        walletButtonTheme,
       );
 
       return { applePay: options.applePay } as ClickResolveDetails;
@@ -324,6 +329,7 @@
   };
 
   const onExpressClicked = (event: StripeExpressCheckoutElementClickEvent) => {
+    listener?.onPurchaseStarted?.(rcPackage);
     startCheckout().then((options) => event.resolve(options));
   };
 
@@ -331,6 +337,7 @@
     eventsTracker.trackSDKEvent(
       createCheckoutSessionEndClosedEvent({ mode: "express_purchase_button" }),
     );
+    listener?.onPurchaseCancelled?.();
   };
 
   function onExpressCheckoutElementReady(

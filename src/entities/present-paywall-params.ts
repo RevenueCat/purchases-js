@@ -1,4 +1,5 @@
 import type { Offering } from "./offerings";
+import type { PaywallListener } from "./paywall-listener";
 import type {
   CompleteWorkflowNavigateArgs,
   CustomVariables,
@@ -36,7 +37,31 @@ export interface PresentPaywallParams {
   readonly customerEmail?: string;
 
   /**
+   * @experimental
+   * If set to true, the Web Billing checkout shown from the paywall
+   * will display a discount input code field.
+   */
+  readonly showDiscountCodeField?: boolean;
+
+  /**
+   * @experimental
+   * Initial discount code to apply to the checkout when one already exists
+   * outside of the paywall UI, for example in the hosting page's URL.
+   */
+  readonly discountCode?: string;
+
+  /**
+   * @experimental
+   * Called when the applied discount code changes in the checkout shown from
+   * the paywall. This can be used to sync host state such as URL parameters.
+   */
+  readonly onDiscountCodeChanged?: (discountCode: string | null) => void;
+
+  /**
    * Callback to be called when the paywall tries to navigate to an external URL.
+   *
+   * Markdown text links keep their native browser navigation. Use this callback
+   * for side effects or to customize how button-driven URL actions are handled.
    */
   readonly onNavigateToUrl?: (url: string) => void;
 
@@ -74,8 +99,14 @@ export interface PresentPaywallParams {
   /**
    * Callback called when an error that won't close the paywall occurs.
    * For example, a retryable error during the purchase process.
+   * @deprecated Use `listener.onPurchaseError` instead.
    */
   readonly onPurchaseError?: (error: Error) => void;
+
+  /**
+   * Optional listener for paywall purchase lifecycle events.
+   */
+  readonly listener?: PaywallListener;
 
   /**
    * The locale to use for the paywall and the checkout flow.

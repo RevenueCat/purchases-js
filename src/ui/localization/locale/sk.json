@@ -99,5 +99,7 @@
   "loading_page.keep_page_open": "Proces sa takmer dokončil. Nechajte túto stránku otvorenú.",
   "loading_page.processing_payment": "Spracováva sa platba",
   "pricing_table.discount": "Zľava",
-  "pricing_table.subtotal": "Medzisúčet"
+  "pricing_table.subtotal": "Medzisúčet",
+  "pricing_dropdown.add_promo_code": "Pridať promo kód",
+  "discount_input.label": "Propagačný kód"
 }

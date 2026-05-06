@@ -99,5 +99,7 @@
   "loading_page.keep_page_open": "กระบวนการเกือบเสร็จสมบูรณ์แล้ว โปรดเปิดหน้านี้ไว้",
   "loading_page.processing_payment": "กำลังดำเนินการชำระเงิน",
   "pricing_table.discount": "ส่วนลด",
-  "pricing_table.subtotal": "ราคารวมย่อย"
+  "pricing_table.subtotal": "ราคารวมย่อย",
+  "pricing_dropdown.add_promo_code": "เพิ่มรหัสโปรโมชั่น",
+  "discount_input.label": "รหัสโปรโมชั่น"
 }

@@ -217,6 +217,7 @@ export interface Offering {
     readonly sixMonth: Package | null;
     readonly threeMonth: Package | null;
     readonly twoMonth: Package | null;
+    readonly webCheckoutURL?: string | null;
     readonly weekly: Package | null;
     /* Excluded from this release type: paywallComponents */
     /* Excluded from this release type: uiConfig */
@@ -245,6 +246,7 @@ export interface Package {
     // @deprecated
     readonly rcBillingProduct: Product;
     readonly webBillingProduct: Product;
+    readonly webCheckoutURL?: string | null;
 }
 
 // @public
@@ -258,6 +260,13 @@ export enum PackageType {
     TwoMonth = "$rc_two_month",
     Unknown = "unknown",
     Weekly = "$rc_weekly"
+}
+
+// @public
+export interface PaywallListener {
+    onPurchaseCancelled?: () => void;
+    onPurchaseError?: (error: Error) => void;
+    onPurchaseStarted?: (rcPackage: Package) => void;
 }
 
 // @public
@@ -303,15 +312,20 @@ export interface PresentedOfferingContext {
 export interface PresentPaywallParams {
     readonly customerEmail?: string;
     readonly customVariables?: CustomVariables;
+    readonly discountCode?: string;
     readonly hideBackButtons?: boolean;
     readonly htmlTarget?: HTMLElement;
+    readonly listener?: PaywallListener;
     readonly offering?: Offering;
     readonly onBack?: (closePaywall: () => void) => void;
+    readonly onDiscountCodeChanged?: (discountCode: string | null) => void;
     readonly onNavigateToUrl?: (url: string) => void;
+    // @deprecated
     readonly onPurchaseError?: (error: Error) => void;
     readonly onVisitCustomerCenter?: () => void;
     readonly purchaseHtmlTarget?: HTMLElement;
     readonly selectedLocale?: string;
+    readonly showDiscountCodeField?: boolean;
 }
 
 // @public
@@ -381,11 +395,14 @@ export interface PurchaseOption {
 export interface PurchaseParams {
     customerEmail?: string;
     defaultLocale?: string;
+    discountCode?: string;
     htmlTarget?: HTMLElement;
     metadata?: PurchaseMetadata;
+    onDiscountCodeChanged?: (discountCode: string | null) => void;
     purchaseOption?: PurchaseOption | null;
     rcPackage: Package;
     selectedLocale?: string;
+    showDiscountCodeField?: boolean;
     skipSuccessPage?: boolean;
     /* Excluded from this release type: brandingAppearanceOverride */
     /* Excluded from this release type: labelsOverride */
@@ -538,7 +555,7 @@ export enum ReservedCustomerAttribute {
 }
 
 // @public
-export type Store = "app_store" | "mac_app_store" | "play_store" | "amazon" | "stripe" | "rc_billing" | "promotional" | "paddle" | "test_store" | "unknown";
+export type Store = "app_store" | "mac_app_store" | "play_store" | "amazon" | "stripe" | "rc_billing" | "promotional" | "paddle" | "test_store" | "galaxy" | "unknown";
 
 // @public
 export type StoreLoadTime = "configuration" | "purchase_start";
@@ -564,6 +581,7 @@ export interface SubscriptionInfo {
     readonly periodType: PeriodType;
     readonly price: Price | null;
     readonly productIdentifier: string;
+    readonly productPlanIdentifier: string | null;
     readonly purchaseDate: Date;
     readonly refundedAt: Date | null;
     readonly store: Store;

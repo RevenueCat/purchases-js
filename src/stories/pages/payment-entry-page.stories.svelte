@@ -7,6 +7,7 @@
     checkoutStartResponse,
     product,
     subscriptionOption,
+    subscriptionOptionWithDiscountOneTime,
     subscriptionOptionWithTrial,
     subscriptionOptionWithTrialAndIntroPricePaidUpfront,
     subscriptionOptionWithTrialAndIntroPriceRecurring,
@@ -47,7 +48,7 @@
         diffThreshold: 0.49,
       },
     },
-    // @ts-expect-error ignore importing before initializing
+    // @ts-ignore ignore importing before initializing
     render: template,
   });
   type StoryArgs = any;
@@ -83,6 +84,15 @@
     onClose={() => {}}
     managementUrl="http://test.com"
     termsAndConditionsUrl={args.termsAndConditionsUrl}
+    showDiscountCodeField={args.showDiscountCodeField}
+    draftDiscountCode={args.draftDiscountCode}
+    appliedDiscountCode={args.appliedDiscountCode}
+    discountCodeError={args.discountCodeError}
+    isUpdatingDiscountCode={args.isUpdatingDiscountCode}
+    isDiscountCodeControlsEnabled={args.isDiscountCodeControlsEnabled}
+    onDraftDiscountCodeChange={args.onDraftDiscountCodeChange}
+    onApplyDiscountCode={args.onApplyDiscountCode}
+    onRemoveDiscountCode={args.onRemoveDiscountCode}
     forceEnableWalletMethods={args.forceEnableWalletMethods}
   />
 {/snippet}
@@ -100,6 +110,63 @@
 <Story
   name="With Sandbox Banner"
   args={{ ...defaultArgs, currentPage: "payment-entry", isSandbox: true }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
+  }}
+/>
+
+<Story
+  name="With Promo Code Field"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    showDiscountCodeField: true,
+    isDiscountCodeControlsEnabled: true,
+  }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
+  }}
+/>
+
+<Story
+  name="With Promo Code Field Error"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    showDiscountCodeField: true,
+    draftDiscountCode: "BADCODE",
+    discountCodeError: "Invalid discount code.",
+    isDiscountCodeControlsEnabled: true,
+  }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
+  }}
+/>
+
+<Story
+  name="With Applied Promo Code"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    productDetails: {
+      ...product,
+      subscriptionOptions: {
+        ...product.subscriptionOptions,
+        [subscriptionOptionWithDiscountOneTime.id]:
+          subscriptionOptionWithDiscountOneTime,
+      },
+    },
+    purchaseOptionToUse: subscriptionOptionWithDiscountOneTime,
+    showDiscountCodeField: true,
+    appliedDiscountCode: "SAVE10",
+    isDiscountCodeControlsEnabled: true,
+  }}
   parameters={{
     chromatic: {
       delay: 1000,

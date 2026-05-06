@@ -37,3 +37,4 @@
 <Story name="Chevron Left" args={{ name: "chevron-left" }} />
 <Story name="Chevron Right" args={{ name: "chevron-right" }} />
 <Story name="Info" args={{ name: "info" }} />
+<Story name="Warning" args={{ name: "warning" }} />

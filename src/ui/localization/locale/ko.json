@@ -99,5 +99,7 @@
   "loading_page.keep_page_open": "거의 완료되었습니다. 이 페이지를 계속 열어 두세요.",
   "loading_page.processing_payment": "결제 처리 중",
   "pricing_table.discount": "할인",
-  "pricing_table.subtotal": "소계"
+  "pricing_table.subtotal": "소계",
+  "pricing_dropdown.add_promo_code": "프로모션 코드 추가",
+  "discount_input.label": "프로모션 코드"
 }

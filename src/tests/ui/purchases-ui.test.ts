@@ -1,13 +1,15 @@
 import "@testing-library/jest-dom";
-import { render, fireEvent, screen } from "@testing-library/svelte";
+import { render, fireEvent, screen, waitFor } from "@testing-library/svelte";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import PurchasesUI from "../../ui/purchases-ui.svelte";
 import {
   brandingInfo,
   checkoutCalculateTaxResponse,
   checkoutStartResponse,
+  product,
   rcPackage,
   subscriptionOption,
+  subscriptionOptionWithDiscount,
 } from "../../stories/fixtures";
 import type { Purchases } from "../../main";
 import { type PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
@@ -21,6 +23,20 @@ import {
 import type { CheckoutCompleteResponse } from "../../networking/responses/checkout-complete-response";
 
 const eventsTrackerMock = createEventsTrackerMock();
+const getProductWithDiscountCodeMock = vi.fn();
+
+const discountedProduct = {
+  ...structuredClone(product),
+  defaultPurchaseOption: subscriptionOptionWithDiscount,
+  defaultSubscriptionOption: subscriptionOptionWithDiscount,
+  subscriptionOptions: {
+    [subscriptionOptionWithDiscount.id]: subscriptionOptionWithDiscount,
+  },
+  price: subscriptionOptionWithDiscount.base.price,
+  freeTrialPhase: subscriptionOptionWithDiscount.trial,
+  discountPhase: subscriptionOptionWithDiscount.discount,
+  introPricePhase: subscriptionOptionWithDiscount.introPrice,
+};
 
 const purchaseOperationHelperMock: PurchaseOperationHelper = {
   prepareCheckout: async () => Promise.resolve(checkoutPrepareResponse),
@@ -39,6 +55,7 @@ const purchaseOperationHelperMock: PurchaseOperationHelper = {
 const purchasesMock: Purchases = {
   isSandbox: () => true,
   close: vi.fn(),
+  _getProductWithDiscountCode: getProductWithDiscountCodeMock,
 } as unknown as Purchases;
 
 const basicProps = {
@@ -55,6 +72,7 @@ const basicProps = {
   isSandbox: true,
   branding: brandingInfo,
   customerEmail: "test@test.com",
+  showDiscountCodeField: false,
   onClose: vi.fn(),
 };
 
@@ -216,6 +234,156 @@ describe("PurchasesUI", () => {
         rcPackage.webBillingProduct.presentedOfferingContext,
       customerEmail: "test@test.com",
       metadata: { utm_term: "something" },
+    });
+  });
+
+  test("bootstraps with an incoming discount code when discounted product data resolves", async () => {
+    const checkoutStartSpy = vi
+      .spyOn(purchaseOperationHelperMock, "checkoutStart")
+      .mockResolvedValue(checkoutStartResponse);
+    getProductWithDiscountCodeMock.mockResolvedValue({
+      productDetails: discountedProduct,
+      purchaseOption: subscriptionOptionWithDiscount,
+    });
+
+    render(PurchasesUI, {
+      props: {
+        ...basicProps,
+        showDiscountCodeField: true,
+        discountCode: "SAVE10",
+      },
+    });
+
+    await waitFor(() => {
+      expect(getProductWithDiscountCodeMock).toHaveBeenCalledWith(
+        rcPackage,
+        subscriptionOption,
+        rcPackage.webBillingProduct.price.currency,
+        "SAVE10",
+      );
+    });
+
+    await waitFor(() => {
+      expect(checkoutStartSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          productId: discountedProduct.identifier,
+          purchaseOption: subscriptionOptionWithDiscount,
+          presentedOfferingContext: discountedProduct.presentedOfferingContext,
+          customerEmail: "test@test.com",
+        }),
+      );
+      expect(screen.getByText("SAVE10")).toBeTruthy();
+    });
+  });
+
+  test("applies a discount code, restarts checkout, and notifies the host", async () => {
+    const checkoutStartSpy = vi
+      .spyOn(purchaseOperationHelperMock, "checkoutStart")
+      .mockResolvedValue(checkoutStartResponse);
+    const onDiscountCodeChanged = vi.fn();
+    getProductWithDiscountCodeMock.mockResolvedValue({
+      productDetails: discountedProduct,
+      purchaseOption: subscriptionOptionWithDiscount,
+    });
+
+    render(PurchasesUI, {
+      props: {
+        ...basicProps,
+        showDiscountCodeField: true,
+        onDiscountCodeChanged,
+      },
+    });
+
+    const discountCodeInput = screen.getByLabelText("Promo code");
+    await waitFor(() => {
+      expect(discountCodeInput).not.toBeDisabled();
+    });
+
+    await fireEvent.input(discountCodeInput, {
+      target: { value: "SAVE10" },
+    });
+    await fireEvent.click(screen.getByRole("button", { name: "Apply" }));
+
+    await waitFor(() => {
+      expect(getProductWithDiscountCodeMock).toHaveBeenCalledWith(
+        rcPackage,
+        subscriptionOption,
+        rcPackage.webBillingProduct.price.currency,
+        "SAVE10",
+      );
+    });
+
+    await waitFor(() => {
+      expect(checkoutStartSpy).toHaveBeenCalledTimes(2);
+    });
+
+    await waitFor(() => {
+      expect(checkoutStartSpy).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          productId: discountedProduct.identifier,
+          purchaseOption: subscriptionOptionWithDiscount,
+          presentedOfferingContext: discountedProduct.presentedOfferingContext,
+        }),
+      );
+      expect(onDiscountCodeChanged).toHaveBeenCalledWith("SAVE10");
+      expect(screen.getByText("SAVE10")).toBeTruthy();
+    });
+  });
+
+  test("removes an applied discount code, restarts checkout, and restores the input", async () => {
+    const checkoutStartSpy = vi
+      .spyOn(purchaseOperationHelperMock, "checkoutStart")
+      .mockResolvedValue(checkoutStartResponse);
+    const onDiscountCodeChanged = vi.fn();
+    getProductWithDiscountCodeMock
+      .mockResolvedValueOnce({
+        productDetails: discountedProduct,
+        purchaseOption: subscriptionOptionWithDiscount,
+      })
+      .mockResolvedValueOnce({
+        productDetails: rcPackage.webBillingProduct,
+        purchaseOption: subscriptionOption,
+      });
+
+    render(PurchasesUI, {
+      props: {
+        ...basicProps,
+        showDiscountCodeField: true,
+        discountCode: "SAVE10",
+        onDiscountCodeChanged,
+      },
+    });
+
+    const removeButton = await screen.findByRole("button", {
+      name: "Remove promo code SAVE10",
+    });
+    await fireEvent.click(removeButton);
+
+    await waitFor(() => {
+      expect(getProductWithDiscountCodeMock).toHaveBeenNthCalledWith(
+        2,
+        rcPackage,
+        subscriptionOptionWithDiscount,
+        rcPackage.webBillingProduct.price.currency,
+        undefined,
+      );
+    });
+
+    await waitFor(() => {
+      expect(checkoutStartSpy).toHaveBeenCalledTimes(2);
+    });
+
+    await waitFor(() => {
+      expect(checkoutStartSpy).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          productId: rcPackage.webBillingProduct.identifier,
+          purchaseOption: subscriptionOption,
+          presentedOfferingContext:
+            rcPackage.webBillingProduct.presentedOfferingContext,
+        }),
+      );
+      expect(onDiscountCodeChanged).toHaveBeenCalledWith(null);
+      expect(screen.getByLabelText("Promo code")).toBeTruthy();
     });
   });
 });

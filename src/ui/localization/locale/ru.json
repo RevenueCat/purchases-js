@@ -99,5 +99,7 @@
   "loading_page.keep_page_open": "Процесс почти завершен. Не закрывайте эту страницу.",
   "loading_page.processing_payment": "Обработка платежа",
   "pricing_table.discount": "Скидка",
-  "pricing_table.subtotal": "Итого"
+  "pricing_table.subtotal": "Итого",
+  "pricing_dropdown.add_promo_code": "Добавить промокод",
+  "discount_input.label": "Промокод"
 }

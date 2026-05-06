@@ -23,6 +23,7 @@ export type Store =
   | "promotional"
   | "paddle"
   | "test_store"
+  | "galaxy"
   | "unknown";
 
 /**
@@ -170,6 +171,10 @@ export interface SubscriptionInfo {
    * The product identifier.
    */
   readonly productIdentifier: string;
+  /**
+   * The base plan identifier of the subscription (For Google Play subs only).
+   */
+  readonly productPlanIdentifier: string | null;
   /**
    * Date when the last subscription period started.
    */
@@ -489,6 +494,7 @@ export function toCustomerInfo(
           productIdentifier,
           {
             productIdentifier,
+            productPlanIdentifier: response.product_plan_identifier ?? null,
             purchaseDate: new Date(response.purchase_date),
             originalPurchaseDate: toDateIfNotNull(
               response.original_purchase_date,
