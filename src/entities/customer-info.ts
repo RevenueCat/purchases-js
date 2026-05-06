@@ -5,6 +5,8 @@ import {
   type SubscriberSubscriptionResponse,
 } from "../networking/responses/subscriber-response";
 import { ErrorCode, PurchasesError } from "./errors";
+import { type Price } from "./offerings";
+import { formatPrice } from "../helpers/price-labels";
 
 /**
  * The store where the user originally subscribed.
@@ -240,6 +242,14 @@ export interface SubscriptionInfo {
    * Whether the subscription will renew at the next billing period.
    */
   readonly willRenew: boolean;
+  /**
+   * The display name of the subscription as configured in the RevenueCat dashboard.
+   */
+  readonly displayName: string | null;
+  /**
+   * Paid price for the subscription.
+   */
+  readonly price: Price | null;
 }
 
 /**
@@ -430,6 +440,19 @@ function toDateIfNotNull(value: string | undefined | null): Date | null {
   return new Date(value);
 }
 
+function toSubscriptionPrice(
+  price: { amount: number; currency: string } | undefined | null,
+): Price | null {
+  if (price == null) return null;
+  const amountMicros = price.amount * 1_000_000;
+  return {
+    amount: price.amount * 100,
+    amountMicros,
+    currency: price.currency,
+    formattedPrice: formatPrice(amountMicros, price.currency),
+  };
+}
+
 export function toCustomerInfo(
   customerInfoResponse: SubscriberResponse,
 ): CustomerInfo {
@@ -488,6 +511,8 @@ export function toCustomerInfo(
             managementURL: response.management_url ?? null,
             isActive: isActive(response.expires_date),
             willRenew: getWillRenew(response.expires_date, response),
+            displayName: response.display_name ?? null,
+            price: toSubscriptionPrice(response.price),
           },
         ],
       ),

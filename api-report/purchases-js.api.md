@@ -553,6 +553,7 @@ export interface StoreTransaction {
 // @public
 export interface SubscriptionInfo {
     readonly billingIssuesDetectedAt: Date | null;
+    readonly displayName: string | null;
     readonly expiresDate: Date | null;
     readonly gracePeriodExpiresDate: Date | null;
     readonly isActive: boolean;
@@ -561,6 +562,7 @@ export interface SubscriptionInfo {
     readonly originalPurchaseDate: Date | null;
     readonly ownershipType: OwnershipType;
     readonly periodType: PeriodType;
+    readonly price: Price | null;
     readonly productIdentifier: string;
     readonly purchaseDate: Date;
     readonly refundedAt: Date | null;
