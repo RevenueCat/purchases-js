@@ -158,6 +158,8 @@ describe("customer info parsing", () => {
             "https://test-management-url.revenuecat.com/manage/weekly_test",
           isActive: true,
           willRenew: true,
+          displayName: null,
+          price: null,
         },
       },
     };
@@ -427,6 +429,8 @@ describe("customer info parsing", () => {
           storeTransactionId: null,
           unsubscribeDetectedAt: null,
           willRenew: true,
+          displayName: null,
+          price: null,
         },
         pro: {
           billingIssuesDetectedAt: null,
@@ -446,6 +450,8 @@ describe("customer info parsing", () => {
           storeTransactionId: null,
           unsubscribeDetectedAt: null,
           willRenew: true,
+          displayName: null,
+          price: null,
         },
       },
     };
@@ -568,10 +574,59 @@ describe("customer info parsing", () => {
             "txRcb1486347e9afce2143eec187a781f82e8..1706708783",
           isActive: true,
           willRenew: true,
+          displayName: null,
+          price: null,
         },
       },
     };
     const customerInfo = toCustomerInfo(subscriberResponse);
     expect(customerInfo).toEqual(expectedCustomerInfo);
+  });
+
+  test("subscriber info with display_name and price is parsed correctly", () => {
+    const subscriberResponse: SubscriberResponse = {
+      request_date: "2024-01-31T15:10:21Z",
+      request_date_ms: 1706713821860,
+      subscriber: {
+        entitlements: {},
+        first_seen: "2024-01-23T13:22:12Z",
+        last_seen: "2024-01-29T15:40:09Z",
+        management_url: null,
+        non_subscriptions: {},
+        original_app_user_id: "someUserTest6",
+        original_application_version: null,
+        original_purchase_date: null,
+        other_purchases: {},
+        subscriptions: {
+          monthly_premium: {
+            auto_resume_date: null,
+            billing_issues_detected_at: null,
+            display_name: "Monthly Premium",
+            expires_date: "2124-02-07T13:46:23Z",
+            grace_period_expires_date: null,
+            is_sandbox: true,
+            management_url: null,
+            original_purchase_date: "2024-01-24T13:46:23Z",
+            period_type: "normal",
+            price: { amount: 3.59, currency: "EUR" },
+            purchase_date: "2024-01-31T13:46:23Z",
+            refunded_at: null,
+            store: "rc_billing",
+            store_transaction_id: null,
+            unsubscribe_detected_at: null,
+          },
+        },
+      },
+    };
+    const customerInfo = toCustomerInfo(subscriberResponse);
+    const subscription =
+      customerInfo.subscriptionsByProductIdentifier["monthly_premium"];
+    expect(subscription.displayName).toBe("Monthly Premium");
+    expect(subscription.price).toEqual({
+      amount: 359,
+      amountMicros: 3_590_000,
+      currency: "EUR",
+      formattedPrice: "€3.59",
+    });
   });
 });

@@ -533,6 +533,8 @@ test("can get customer info", async () => {
           "https://test-management-url.revenuecat.com/manage/another_transaction_id",
         isActive: true,
         willRenew: true,
+        displayName: null,
+        price: null,
       },
       black_f_friday_worten_2: {
         productIdentifier: "black_f_friday_worten_2",
@@ -553,6 +555,8 @@ test("can get customer info", async () => {
           "https://test-management-url.revenuecat.com/manage/one_transaction_id",
         isActive: false,
         willRenew: true,
+        displayName: null,
+        price: null,
       },
     },
   };
