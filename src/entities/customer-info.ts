@@ -444,7 +444,7 @@ function toDateIfNotNull(value: string | undefined | null): Date | null {
 function toSubscriptionPrice(
   price: SubscriberSubscriptionPriceResponse | undefined | null,
 ): Price | null {
-  if (price == null) return null;
+  if (!price) return null;
   const amountMicros = price.amount * 1_000_000;
   return {
     amount: price.amount * 100,
