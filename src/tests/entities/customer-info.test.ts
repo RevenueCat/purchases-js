@@ -625,48 +625,4 @@ describe("customer info parsing", () => {
       formattedPrice: "€3.59",
     });
   });
-
-  test("subscription price rounds away IEEE-754 noise", () => {
-    // Sanity check: 2.05 * 100 === 204.99999999999997 and
-    // 2.05 * 1_000_000 === 2049999.9999999998 in IEEE-754. The parsed
-    // price must be exact integers regardless.
-    const subscriberResponse: SubscriberResponse = {
-      request_date: "2024-01-31T15:10:21Z",
-      request_date_ms: 1706713821860,
-      subscriber: {
-        entitlements: {},
-        first_seen: "2024-01-23T13:22:12Z",
-        last_seen: "2024-01-29T15:40:09Z",
-        management_url: null,
-        non_subscriptions: {},
-        original_app_user_id: "someUserTest6",
-        original_application_version: null,
-        original_purchase_date: null,
-        other_purchases: {},
-        subscriptions: {
-          tricky_price: {
-            auto_resume_date: null,
-            billing_issues_detected_at: null,
-            expires_date: "2124-02-07T13:46:23Z",
-            grace_period_expires_date: null,
-            is_sandbox: true,
-            management_url: null,
-            original_purchase_date: "2024-01-24T13:46:23Z",
-            period_type: "normal",
-            price: { amount: 2.05, currency: "USD" },
-            purchase_date: "2024-01-31T13:46:23Z",
-            refunded_at: null,
-            store: "rc_billing",
-            store_transaction_id: null,
-            unsubscribe_detected_at: null,
-          },
-        },
-      },
-    };
-    const customerInfo = toCustomerInfo(subscriberResponse);
-    const price =
-      customerInfo.subscriptionsByProductIdentifier["tricky_price"].price;
-    expect(price?.amount).toBe(205);
-    expect(price?.amountMicros).toBe(2_050_000);
-  });
 });

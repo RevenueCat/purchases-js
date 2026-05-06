@@ -445,11 +445,9 @@ function toSubscriptionPrice(
   price: SubscriberSubscriptionPriceResponse | undefined | null,
 ): Price | null {
   if (price == null) return null;
-  // Round to avoid IEEE-754 noise (e.g. 19.99 * 100 = 1998.9999...)
-  // since `amount` and `amountMicros` semantically represent integers.
-  const amountMicros = Math.round(price.amount * 1_000_000);
+  const amountMicros = price.amount * 1_000_000;
   return {
-    amount: Math.round(price.amount * 100),
+    amount: price.amount * 100,
     amountMicros,
     currency: price.currency,
     formattedPrice: formatPrice(amountMicros, price.currency),
