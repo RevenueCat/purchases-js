@@ -40,11 +40,7 @@ export interface CheckoutCalculateTaxResponse {
   interrupt_checkout?: boolean;
 }
 
-export interface CheckoutRepriceResponse extends CheckoutCalculateTaxResponse {
-  original_amount_in_micros: number;
-  applied_discounts: CheckoutAppliedDiscountResponse[];
+export interface CheckoutPricingResponse extends CheckoutCalculateTaxResponse {
+  original_amount_in_micros?: number;
+  applied_discounts?: CheckoutAppliedDiscountResponse[];
 }
-
-export type CheckoutPricingResponse =
-  | CheckoutCalculateTaxResponse
-  | CheckoutRepriceResponse;

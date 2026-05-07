@@ -6,11 +6,9 @@ export function createPriceBreakdownFromCheckoutPricingResponse(
   taxCalculationStatus: TaxCalculationStatus,
 ): PriceBreakdown {
   const originalAmountInMicros =
-    "original_amount_in_micros" in response
-      ? response.original_amount_in_micros
-      : response.total_excluding_tax_in_micros;
-  const appliedDiscounts =
-    "applied_discounts" in response ? response.applied_discounts : [];
+    response.original_amount_in_micros ??
+    response.total_excluding_tax_in_micros;
+  const appliedDiscounts = response.applied_discounts ?? [];
 
   return {
     currency: response.currency,

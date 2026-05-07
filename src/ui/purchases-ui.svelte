@@ -250,9 +250,7 @@
       elements_configuration: response.gateway_params.elements_configuration,
     };
     appliedDiscountCode =
-      "applied_discounts" in response
-        ? (response.applied_discounts[0]?.discount_code ?? null)
-        : null;
+      response.applied_discounts?.[0]?.discount_code ?? null;
   };
 
   onMount(async () => {
@@ -270,7 +268,9 @@
       if (discountCode) {
         try {
           const pricingResponse =
-            await purchaseOperationHelper.checkoutReprice(discountCode);
+            await purchaseOperationHelper.checkoutRefreshPricing({
+              discountCode,
+            });
           applyPricingResponse(pricingResponse);
         } catch (error) {
           if (isInterruptCheckoutError(error)) {
@@ -301,7 +301,7 @@
     isPaymentProcessing = nextIsProcessing;
   };
 
-  const repriceCheckoutWithDiscountCode = async (
+  const refreshCheckoutPricingWithDiscountCode = async (
     nextDiscountCode: string | null,
   ) => {
     const normalizedDiscountCode = nextDiscountCode?.trim() || null;
@@ -314,9 +314,10 @@
     discountCodeError = null;
 
     try {
-      const pricingResponse = await purchaseOperationHelper.checkoutReprice(
-        normalizedDiscountCode,
-      );
+      const pricingResponse =
+        await purchaseOperationHelper.checkoutRefreshPricing({
+          discountCode: normalizedDiscountCode,
+        });
       applyPricingResponse(pricingResponse);
       draftDiscountCode = normalizedDiscountCode ?? "";
       lastError = null;
@@ -337,11 +338,11 @@
   };
 
   const handleApplyDiscountCode = async () => {
-    await repriceCheckoutWithDiscountCode(draftDiscountCode);
+    await refreshCheckoutPricingWithDiscountCode(draftDiscountCode);
   };
 
   const handleRemoveDiscountCode = async () => {
-    await repriceCheckoutWithDiscountCode(null);
+    await refreshCheckoutPricingWithDiscountCode(null);
   };
 
   const handleContinue = () => {

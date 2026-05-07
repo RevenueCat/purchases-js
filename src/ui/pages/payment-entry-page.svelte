@@ -231,11 +231,11 @@
     signal?: AbortSignal,
   ) {
     await purchaseOperationHelper
-      .checkoutCalculateTax(
-        taxCustomerDetails?.countryCode,
-        taxCustomerDetails?.postalCode,
+      .checkoutRefreshPricing({
+        countryCode: taxCustomerDetails?.countryCode,
+        postalCode: taxCustomerDetails?.postalCode,
         signal,
-      )
+      })
       .then((taxCalculation) => {
         /*
          * The event will be tracked as soon as the request ends,

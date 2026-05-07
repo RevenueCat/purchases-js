@@ -1,10 +1,9 @@
 import { type OfferingsResponse } from "./responses/offerings-response";
 import { performRequest, performRequestWithStatus } from "./http-client";
 import {
-  CheckoutCalculateTaxEndpoint,
   CheckoutCompleteEndpoint,
   CheckoutPrepareEndpoint,
-  CheckoutRepriceEndpoint,
+  CheckoutRefreshPricingEndpoint,
   CheckoutStartEndpoint,
   GetBrandingInfoEndpoint,
   GetCheckoutStatusEndpoint,
@@ -30,10 +29,7 @@ import type {
 } from "../entities/offerings";
 import type { PurchasesContext } from "../entities/purchases-config";
 import type { CheckoutCompleteResponse } from "./responses/checkout-complete-response";
-import type {
-  CheckoutCalculateTaxResponse,
-  CheckoutRepriceResponse,
-} from "./responses/checkout-calculate-tax-response";
+import type { CheckoutPricingResponse } from "./responses/checkout-calculate-tax-response";
 import { isWebBillingSandboxApiKey } from "../helpers/api-key-helper";
 import type { IdentifyResponse } from "./responses/identify-response";
 import type { CheckoutPrepareResponse } from "./responses/checkout-prepare-response";
@@ -55,6 +51,13 @@ interface CheckoutStartRequestParams {
   metadata?: PurchaseMetadata;
   // Locale for lifecycle emails.
   locale?: string;
+}
+
+interface CheckoutRefreshPricingParams {
+  countryCode?: string;
+  postalCode?: string;
+  discountCode?: string | null;
+  signal?: AbortSignal | null;
 }
 
 export class Backend {
@@ -278,27 +281,32 @@ export class Backend {
     )) as T;
   }
 
-  async postCheckoutCalculateTax(
+  async patchCheckoutRefreshPricing(
     operationSessionId: string,
-    countryCode?: string,
-    postalCode?: string,
-    signal?: AbortSignal | null,
-  ): Promise<CheckoutCalculateTaxResponse> {
-    type CheckoutCalculateTaxRequestBody = {
+    {
+      countryCode,
+      postalCode,
+      discountCode,
+      signal,
+    }: CheckoutRefreshPricingParams = {},
+  ): Promise<CheckoutPricingResponse> {
+    type CheckoutRefreshPricingRequestBody = {
       country_code?: string;
       postal_code?: string;
+      discount_code?: string | null;
     };
 
-    const requestBody: CheckoutCalculateTaxRequestBody = {
+    const requestBody: CheckoutRefreshPricingRequestBody = {
       country_code: countryCode,
       postal_code: postalCode,
+      discount_code: discountCode,
     };
 
     return await performRequest<
-      CheckoutCalculateTaxRequestBody,
-      CheckoutCalculateTaxResponse
+      CheckoutRefreshPricingRequestBody,
+      CheckoutPricingResponse
     >(
-      new CheckoutCalculateTaxEndpoint(operationSessionId),
+      new CheckoutRefreshPricingEndpoint(operationSessionId),
       {
         apiKey: this.API_KEY,
         body: requestBody,
@@ -306,28 +314,6 @@ export class Backend {
       },
       signal,
     );
-  }
-
-  async postCheckoutReprice(
-    operationSessionId: string,
-    discountCode?: string | null,
-  ): Promise<CheckoutRepriceResponse> {
-    type CheckoutRepriceRequestBody = {
-      discount_code?: string | null;
-    };
-
-    const requestBody: CheckoutRepriceRequestBody = {
-      discount_code: discountCode,
-    };
-
-    return await performRequest<
-      CheckoutRepriceRequestBody,
-      CheckoutRepriceResponse
-    >(new CheckoutRepriceEndpoint(operationSessionId), {
-      apiKey: this.API_KEY,
-      body: requestBody,
-      httpConfig: this.httpConfig,
-    });
   }
 
   async postCheckoutComplete(

@@ -25,8 +25,7 @@ import { type IEventsTracker } from "../behavioural-events/events-tracker";
 import type { CheckoutCompleteResponse } from "../networking/responses/checkout-complete-response";
 import {
   CheckoutCalculateTaxFailedReason,
-  type CheckoutCalculateTaxResponse,
-  type CheckoutRepriceResponse,
+  type CheckoutPricingResponse,
 } from "../networking/responses/checkout-calculate-tax-response";
 import { handleCheckoutSessionFailed } from "./checkout-error-handler";
 import type { CheckoutPrepareResponse } from "../networking/responses/checkout-prepare-response";
@@ -130,6 +129,13 @@ interface CheckoutStartParams {
   locale?: string;
 }
 
+interface CheckoutRefreshPricingParams {
+  countryCode?: string;
+  postalCode?: string;
+  discountCode?: string | null;
+  signal?: AbortSignal | null;
+}
+
 export interface OperationSessionSuccessfulResult {
   redemptionInfo: RedemptionInfo | null;
   operationSessionId: string;
@@ -157,7 +163,7 @@ export class PurchaseOperationHelper {
   }
 
   private static getBackendErrorCodeForInterruptedCheckout(
-    failedReason: CheckoutCalculateTaxResponse["failed_reason"],
+    failedReason: CheckoutPricingResponse["failed_reason"],
   ): BackendErrorCode | null {
     switch (failedReason) {
       case CheckoutCalculateTaxFailedReason.taxes_not_active:
@@ -174,7 +180,7 @@ export class PurchaseOperationHelper {
   }
 
   private static throwIfCheckoutShouldBeInterrupted(
-    response: CheckoutCalculateTaxResponse | CheckoutRepriceResponse,
+    response: CheckoutPricingResponse,
   ): void {
     if (!response.interrupt_checkout) {
       return;
@@ -277,11 +283,12 @@ export class PurchaseOperationHelper {
     }
   }
 
-  async checkoutCalculateTax(
-    countryCode?: string,
-    postalCode?: string,
-    signal?: AbortSignal | null,
-  ): Promise<CheckoutCalculateTaxResponse> {
+  async checkoutRefreshPricing({
+    countryCode,
+    postalCode,
+    discountCode,
+    signal,
+  }: CheckoutRefreshPricingParams = {}): Promise<CheckoutPricingResponse> {
     const operationSessionId = this.operationSessionId;
     if (!operationSessionId) {
       throw new PurchaseFlowError(
@@ -291,49 +298,14 @@ export class PurchaseOperationHelper {
     }
 
     try {
-      const response = await this.backend.postCheckoutCalculateTax(
+      const response = await this.backend.patchCheckoutRefreshPricing(
         operationSessionId,
-        countryCode,
-        postalCode,
-        signal,
-      );
-      PurchaseOperationHelper.throwIfCheckoutShouldBeInterrupted(response);
-      return response;
-    } catch (error) {
-      if (error instanceof PurchaseFlowError) {
-        throw error;
-      }
-      if (error instanceof PurchasesError) {
-        throw PurchaseFlowError.fromPurchasesError(
-          error,
-          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-        );
-      } else {
-        const errorMessage = "Unknown error calculating tax: " + String(error);
-        Logger.errorLog(errorMessage);
-        throw new PurchaseFlowError(
-          PurchaseFlowErrorCode.UnknownError,
-          errorMessage,
-        );
-      }
-    }
-  }
-
-  async checkoutReprice(
-    discountCode?: string | null,
-  ): Promise<CheckoutRepriceResponse> {
-    const operationSessionId = this.operationSessionId;
-    if (!operationSessionId) {
-      throw new PurchaseFlowError(
-        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-        "No purchase started",
-      );
-    }
-
-    try {
-      const response = await this.backend.postCheckoutReprice(
-        operationSessionId,
-        discountCode,
+        {
+          countryCode,
+          postalCode,
+          discountCode,
+          signal,
+        },
       );
       PurchaseOperationHelper.throwIfCheckoutShouldBeInterrupted(response);
       return response;
@@ -348,7 +320,7 @@ export class PurchaseOperationHelper {
         );
       } else {
         const errorMessage =
-          "Unknown error repricing checkout: " + String(error);
+          "Unknown error refreshing checkout pricing: " + String(error);
         Logger.errorLog(errorMessage);
         throw new PurchaseFlowError(
           PurchaseFlowErrorCode.UnknownError,

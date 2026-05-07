@@ -87,21 +87,10 @@ describe("PurchaseOperationHelper", () => {
     );
   }
 
-  function setCheckoutCalculateTaxResponse(httpResponse: HttpResponse) {
+  function setCheckoutRefreshPricingResponse(httpResponse: HttpResponse) {
     server.use(
-      http.post(
-        `http://localhost:8000/rcbilling/v1/checkout/${operationSessionId}/calculate_taxes`,
-        () => {
-          return httpResponse;
-        },
-      ),
-    );
-  }
-
-  function setCheckoutRepriceResponse(httpResponse: HttpResponse) {
-    server.use(
-      http.post(
-        `http://localhost:8000/rcbilling/v1/checkout/${operationSessionId}/reprice`,
+      http.patch(
+        `http://localhost:8000/rcbilling/v1/checkout/${operationSessionId}`,
         () => {
           return httpResponse;
         },
@@ -310,9 +299,9 @@ describe("PurchaseOperationHelper", () => {
     );
   });
 
-  test("checkoutCalculateTax fails if checkoutStart not called before", async () => {
+  test("checkoutRefreshPricing fails if checkoutStart not called before", async () => {
     await expectPromiseToPurchaseFlowError(
-      purchaseOperationHelper.checkoutCalculateTax(),
+      purchaseOperationHelper.checkoutRefreshPricing(),
       new PurchaseFlowError(
         PurchaseFlowErrorCode.ErrorSettingUpPurchase,
         "No purchase started",
@@ -320,7 +309,7 @@ describe("PurchaseOperationHelper", () => {
     );
   });
 
-  test("checkoutCalculateTax returns succeeds if tax breakdown is empty", async () => {
+  test("checkoutRefreshPricing returns succeeds if tax breakdown is empty", async () => {
     setCheckoutStartResponse(
       HttpResponse.json(checkoutStartResponse, {
         status: StatusCodes.OK,
@@ -329,7 +318,7 @@ describe("PurchaseOperationHelper", () => {
     const checkoutCalculateTaxResponse = {
       tax_breakdown: [],
     };
-    setCheckoutCalculateTaxResponse(
+    setCheckoutRefreshPricingResponse(
       HttpResponse.json(checkoutCalculateTaxResponse, {
         status: StatusCodes.OK,
       }),
@@ -346,11 +335,11 @@ describe("PurchaseOperationHelper", () => {
       },
     });
 
-    const result = await purchaseOperationHelper.checkoutCalculateTax();
+    const result = await purchaseOperationHelper.checkoutRefreshPricing();
     expect(result).toEqual(checkoutCalculateTaxResponse);
   });
 
-  test("checkoutCalculateTax returns failed tax calculation error", async () => {
+  test("checkoutRefreshPricing returns failed tax calculation error", async () => {
     setCheckoutStartResponse(
       HttpResponse.json(checkoutStartResponse, {
         status: StatusCodes.OK,
@@ -360,7 +349,7 @@ describe("PurchaseOperationHelper", () => {
       failed_reason: "invalid_tax_location",
       tax_breakdown: [],
     };
-    setCheckoutCalculateTaxResponse(
+    setCheckoutRefreshPricingResponse(
       HttpResponse.json(checkoutCalculateTaxResponse, {
         status: StatusCodes.OK,
       }),
@@ -377,17 +366,17 @@ describe("PurchaseOperationHelper", () => {
       },
     });
 
-    const result = await purchaseOperationHelper.checkoutCalculateTax();
+    const result = await purchaseOperationHelper.checkoutRefreshPricing();
     expect(result).toEqual(checkoutCalculateTaxResponse);
   });
 
-  test("checkoutCalculateTax interrupts checkout for sandbox setup errors in payload", async () => {
+  test("checkoutRefreshPricing interrupts checkout for sandbox setup errors in payload", async () => {
     setCheckoutStartResponse(
       HttpResponse.json(checkoutStartResponse, {
         status: StatusCodes.OK,
       }),
     );
-    setCheckoutCalculateTaxResponse(
+    setCheckoutRefreshPricingResponse(
       HttpResponse.json(
         {
           failed_reason: "missing_required_permission",
@@ -412,7 +401,7 @@ describe("PurchaseOperationHelper", () => {
     });
 
     await expectPromiseToPurchaseFlowError(
-      purchaseOperationHelper.checkoutCalculateTax(),
+      purchaseOperationHelper.checkoutRefreshPricing(),
       new PurchaseFlowError(
         PurchaseFlowErrorCode.StripeMissingRequiredPermission,
         "There was a problem with the store.",
@@ -421,7 +410,7 @@ describe("PurchaseOperationHelper", () => {
     );
   });
 
-  test("checkoutCalculateTax throws error in production mode for sandbox mode only error", async () => {
+  test("checkoutRefreshPricing throws error in production mode for sandbox mode only error", async () => {
     vi.spyOn(backend, "getIsSandbox").mockReturnValue(false);
 
     setCheckoutStartResponse(
@@ -429,7 +418,7 @@ describe("PurchaseOperationHelper", () => {
         status: StatusCodes.OK,
       }),
     );
-    setCheckoutCalculateTaxResponse(
+    setCheckoutRefreshPricingResponse(
       HttpResponse.json(
         {
           code: BackendErrorCode.BackendGatewaySetupErrorSandboxModeOnly,
@@ -451,7 +440,7 @@ describe("PurchaseOperationHelper", () => {
     });
 
     await expectPromiseToPurchaseFlowError(
-      purchaseOperationHelper.checkoutCalculateTax(),
+      purchaseOperationHelper.checkoutRefreshPricing(),
       new PurchaseFlowError(
         PurchaseFlowErrorCode.ErrorSettingUpPurchase,
         "There was a problem with the store.",
@@ -460,13 +449,13 @@ describe("PurchaseOperationHelper", () => {
     );
   });
 
-  test("checkoutReprice interrupts checkout for sandbox setup errors in payload", async () => {
+  test("checkoutRefreshPricing interrupts checkout for discount sandbox setup errors in payload", async () => {
     setCheckoutStartResponse(
       HttpResponse.json(checkoutStartResponse, {
         status: StatusCodes.OK,
       }),
     );
-    setCheckoutRepriceResponse(
+    setCheckoutRefreshPricingResponse(
       HttpResponse.json(
         {
           failed_reason: "taxes_not_active",
@@ -493,7 +482,9 @@ describe("PurchaseOperationHelper", () => {
     });
 
     await expectPromiseToPurchaseFlowError(
-      purchaseOperationHelper.checkoutReprice("SAVE10"),
+      purchaseOperationHelper.checkoutRefreshPricing({
+        discountCode: "SAVE10",
+      }),
       new PurchaseFlowError(
         PurchaseFlowErrorCode.StripeTaxNotActive,
         "There was a problem with the store.",
@@ -502,13 +493,13 @@ describe("PurchaseOperationHelper", () => {
     );
   });
 
-  test("checkoutCalculateTax throws error for unexpected backend errors", async () => {
+  test("checkoutRefreshPricing throws error for unexpected backend errors", async () => {
     setCheckoutStartResponse(
       HttpResponse.json(checkoutStartResponse, {
         status: StatusCodes.OK,
       }),
     );
-    setCheckoutCalculateTaxResponse(
+    setCheckoutRefreshPricingResponse(
       HttpResponse.json(
         {
           code: 9999,
@@ -530,22 +521,22 @@ describe("PurchaseOperationHelper", () => {
     });
 
     await expectPromiseToPurchaseFlowError(
-      purchaseOperationHelper.checkoutCalculateTax(),
+      purchaseOperationHelper.checkoutRefreshPricing(),
       new PurchaseFlowError(
         PurchaseFlowErrorCode.ErrorSettingUpPurchase,
         "Unknown backend error.",
-        'Request: postCheckoutCalculateTax. Status code: 500. Body: {"code":9999,"message":"Unexpected backend error"}.',
+        'Request: patchCheckoutRefreshPricing. Status code: 500. Body: {"code":9999,"message":"Unexpected backend error"}.',
       ),
     );
   });
 
-  test("checkoutCalculateTax throws error for Network error", async () => {
+  test("checkoutRefreshPricing throws error for Network error", async () => {
     setCheckoutStartResponse(
       HttpResponse.json(checkoutStartResponse, {
         status: StatusCodes.OK,
       }),
     );
-    setCheckoutCalculateTaxResponse(HttpResponse.error());
+    setCheckoutRefreshPricingResponse(HttpResponse.error());
 
     await purchaseOperationHelper.checkoutStart({
       appUserId: "test-app-user-id",
@@ -559,7 +550,7 @@ describe("PurchaseOperationHelper", () => {
     });
 
     await expectPromiseToPurchaseFlowError(
-      purchaseOperationHelper.checkoutCalculateTax(),
+      purchaseOperationHelper.checkoutRefreshPricing(),
       new PurchaseFlowError(
         PurchaseFlowErrorCode.NetworkError,
         "Error performing request. Please check your network connection and try again.",
@@ -568,13 +559,13 @@ describe("PurchaseOperationHelper", () => {
     );
   });
 
-  test("checkoutCalculateTax succeeds if tax location is valid", async () => {
+  test("checkoutRefreshPricing succeeds if tax location is valid", async () => {
     setCheckoutStartResponse(
       HttpResponse.json(checkoutStartResponse, {
         status: StatusCodes.OK,
       }),
     );
-    setCheckoutCalculateTaxResponse(
+    setCheckoutRefreshPricingResponse(
       HttpResponse.json(checkoutCalculateTaxResponse, {
         status: StatusCodes.OK,
       }),
@@ -591,7 +582,7 @@ describe("PurchaseOperationHelper", () => {
       },
     });
 
-    const result = await purchaseOperationHelper.checkoutCalculateTax();
+    const result = await purchaseOperationHelper.checkoutRefreshPricing();
     expect(result).toEqual(checkoutCalculateTaxResponse);
   });
 

@@ -179,10 +179,11 @@
     } = await StripeService.extractTaxCustomerDetails(elements, stripe);
 
     if (brandingInfo?.gateway_tax_collection_enabled) {
-      const taxCalculation = await purchaseOperationHelper.checkoutCalculateTax(
-        taxCustomerDetails.countryCode,
-        taxCustomerDetails.postalCode,
-      );
+      const taxCalculation =
+        await purchaseOperationHelper.checkoutRefreshPricing({
+          countryCode: taxCustomerDetails.countryCode,
+          postalCode: taxCustomerDetails.postalCode,
+        });
 
       const taxEvent = createCheckoutPaymentTaxCalculationEvent({
         taxCalculation,
