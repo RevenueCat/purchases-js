@@ -1,6 +1,6 @@
 import type { RouteFulfillOptions } from "./test-helpers";
 
-type CheckoutCalculateTaxResponse = {
+type CheckoutPricingResponse = {
   operation_session_id: string;
   currency: string;
   total_amount_in_micros: number;
@@ -108,7 +108,7 @@ export const SPAIN_TAX_RESPONSE: RouteFulfillOptions = {
     total_amount_in_micros: 9990000,
     total_excluding_tax_in_micros: 8260000,
     tax_inclusive: true,
-  } as CheckoutCalculateTaxResponse),
+  } as CheckoutPricingResponse),
 };
 
 export const SPAIN_TAX_INCLUSIVE_DISCOUNTED_RESPONSE: RouteFulfillOptions = {
@@ -148,7 +148,7 @@ export const SPAIN_TAX_INCLUSIVE_DISCOUNTED_RESPONSE: RouteFulfillOptions = {
     total_amount_in_micros: 8990000,
     total_excluding_tax_in_micros: 7430000,
     tax_inclusive: true,
-  } as CheckoutCalculateTaxResponse),
+  } as CheckoutPricingResponse),
 };
 
 export const ITALY_TAX_RESPONSE: RouteFulfillOptions = {
@@ -188,7 +188,7 @@ export const ITALY_TAX_RESPONSE: RouteFulfillOptions = {
     total_amount_in_micros: 9990000,
     total_excluding_tax_in_micros: 8190000,
     tax_inclusive: true,
-  } as CheckoutCalculateTaxResponse),
+  } as CheckoutPricingResponse),
 };
 
 export const NEW_YORK_TAX_RESPONSE: RouteFulfillOptions = {
@@ -228,7 +228,7 @@ export const NEW_YORK_TAX_RESPONSE: RouteFulfillOptions = {
     total_amount_in_micros: 9990000,
     total_excluding_tax_in_micros: 9990000,
     tax_inclusive: false,
-  } as CheckoutCalculateTaxResponse),
+  } as CheckoutPricingResponse),
 };
 
 export const NOT_COLLECTING_TAX_RESPONSE: RouteFulfillOptions = {
@@ -258,7 +258,7 @@ export const NOT_COLLECTING_TAX_RESPONSE: RouteFulfillOptions = {
     total_amount_in_micros: 9990000,
     total_excluding_tax_in_micros: 9990000,
     tax_inclusive: false,
-  } as CheckoutCalculateTaxResponse),
+  } as CheckoutPricingResponse),
 };
 
 export const INVALID_TAX_LOCATION_RESPONSE: RouteFulfillOptions = {
@@ -288,7 +288,7 @@ export const INVALID_TAX_LOCATION_RESPONSE: RouteFulfillOptions = {
     total_amount_in_micros: 9990000,
     total_excluding_tax_in_micros: 9990000,
     tax_inclusive: true,
-  } as CheckoutCalculateTaxResponse),
+  } as CheckoutPricingResponse),
 };
 
 export const STRIPE_TAX_NOT_ACTIVE_RESPONSE: RouteFulfillOptions = {

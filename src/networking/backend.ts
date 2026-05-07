@@ -29,7 +29,7 @@ import type {
 } from "../entities/offerings";
 import type { PurchasesContext } from "../entities/purchases-config";
 import type { CheckoutCompleteResponse } from "./responses/checkout-complete-response";
-import type { CheckoutPricingResponse } from "./responses/checkout-calculate-tax-response";
+import type { CheckoutPricingResponse } from "./responses/checkout-pricing-response";
 import { isWebBillingSandboxApiKey } from "../helpers/api-key-helper";
 import type { IdentifyResponse } from "./responses/identify-response";
 import type { CheckoutPrepareResponse } from "./responses/checkout-prepare-response";

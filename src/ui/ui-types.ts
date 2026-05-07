@@ -1,4 +1,4 @@
-import type { TaxBreakdown } from "../networking/responses/checkout-calculate-tax-response";
+import type { TaxBreakdown } from "../networking/responses/checkout-pricing-response";
 
 export type CurrentPage =
   | "payment-entry-loading"

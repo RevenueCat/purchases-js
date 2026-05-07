@@ -33,10 +33,10 @@
     StripeElementsConfiguration,
   } from "../../networking/responses/stripe-elements";
   import {
-    CheckoutCalculateTaxFailedReason,
+    CheckoutPricingFailedReason,
     type CheckoutPricingResponse,
     type TaxBreakdown,
-  } from "../../networking/responses/checkout-calculate-tax-response";
+  } from "../../networking/responses/checkout-pricing-response";
   import type { Stripe, StripeElements } from "@stripe/stripe-js";
   import {
     StripeService,
@@ -256,7 +256,7 @@
           if (
             isInitialCalculation &&
             taxCalculation.failed_reason ===
-              CheckoutCalculateTaxFailedReason.invalid_tax_location
+              CheckoutPricingFailedReason.invalid_tax_location
           ) {
             nextTaxCalculationStatus = "pending";
           } else {

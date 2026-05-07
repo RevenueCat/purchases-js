@@ -4,7 +4,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import PurchasesUI from "../../ui/purchases-ui.svelte";
 import {
   brandingInfo,
-  checkoutCalculateTaxResponse,
+  checkoutPricingResponse,
   checkoutStartResponse,
   rcPackage,
   subscriptionOption,
@@ -17,7 +17,7 @@ import {
 } from "../../helpers/purchase-operation-helper";
 import { createEventsTrackerMock } from "../mocks/events-tracker-mock-provider";
 import type { CheckoutStartResponse } from "../../networking/responses/checkout-start-response";
-import type { CheckoutPricingResponse } from "../../networking/responses/checkout-calculate-tax-response";
+import type { CheckoutPricingResponse } from "../../networking/responses/checkout-pricing-response";
 import {
   checkoutCompleteResponse,
   checkoutPrepareResponse,
@@ -29,9 +29,9 @@ const eventsTrackerMock = createEventsTrackerMock();
 const createCheckoutPricingResponse = (
   discountCode: string | null,
 ): CheckoutPricingResponse => ({
-  ...structuredClone(checkoutCalculateTaxResponse),
+  ...structuredClone(checkoutPricingResponse),
   original_amount_in_micros:
-    checkoutCalculateTaxResponse.total_excluding_tax_in_micros,
+    checkoutPricingResponse.total_excluding_tax_in_micros,
   applied_discounts: discountCode
     ? [
         {
@@ -92,7 +92,7 @@ describe("PurchasesUI", () => {
 
     const calculateTaxSpy = vi
       .spyOn(purchaseOperationHelperMock, "checkoutRefreshPricing")
-      .mockResolvedValue(checkoutCalculateTaxResponse);
+      .mockResolvedValue(checkoutPricingResponse);
 
     render(PurchasesUI, {
       props: {
@@ -116,7 +116,7 @@ describe("PurchasesUI", () => {
 
     const calculateTaxSpy = vi
       .spyOn(purchaseOperationHelperMock, "checkoutRefreshPricing")
-      .mockResolvedValue(checkoutCalculateTaxResponse);
+      .mockResolvedValue(checkoutPricingResponse);
 
     render(PurchasesUI, {
       props: {

@@ -13,7 +13,7 @@ export interface CheckoutAppliedDiscountResponse {
   discount_code: string | null;
 }
 
-export enum CheckoutCalculateTaxFailedReason {
+export enum CheckoutPricingFailedReason {
   tax_collection_disabled = "tax_collection_disabled",
   invalid_tax_location = "invalid_tax_location",
   rate_limit_exceeded = "rate_limit_exceeded",
@@ -25,7 +25,7 @@ export enum CheckoutCalculateTaxFailedReason {
   unexpected_gateway_error = "unexpected_gateway_error",
 }
 
-export interface CheckoutCalculateTaxResponse {
+export interface CheckoutPricingResponse {
   operation_session_id: string;
   currency: string;
   total_amount_in_micros: number;
@@ -36,11 +36,8 @@ export interface CheckoutCalculateTaxResponse {
   gateway_params: {
     elements_configuration: StripeElementsConfiguration;
   };
-  failed_reason?: CheckoutCalculateTaxFailedReason | string;
+  failed_reason?: CheckoutPricingFailedReason | string;
   interrupt_checkout?: boolean;
-}
-
-export interface CheckoutPricingResponse extends CheckoutCalculateTaxResponse {
   original_amount_in_micros?: number;
   applied_discounts?: CheckoutAppliedDiscountResponse[];
 }

@@ -13,7 +13,7 @@ import { PeriodUnit } from "../helpers/duration-helper";
 import { PurchaseFlowError } from "../helpers/purchase-operation-helper";
 import type { WebBillingCheckoutStartResponse } from "../networking/responses/checkout-start-response";
 import type { BrandingAppearance } from "../entities/branding";
-import type { CheckoutCalculateTaxResponse } from "../networking/responses/checkout-calculate-tax-response";
+import type { CheckoutPricingResponse } from "../networking/responses/checkout-pricing-response";
 import {
   StripeElementsMode,
   StripeElementsSetupFutureUsage,
@@ -565,7 +565,7 @@ export const checkoutStartResponse: WebBillingCheckoutStartResponse = {
   paddle_billing_params: null,
 };
 
-export const checkoutCalculateTaxResponse: CheckoutCalculateTaxResponse = {
+export const checkoutPricingResponse: CheckoutPricingResponse = {
   operation_session_id: "operation-session-id",
   currency: "USD",
   total_amount_in_micros: 9990000 + 400000,

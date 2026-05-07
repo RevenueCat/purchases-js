@@ -31,9 +31,9 @@
   import type { BrandingAppearance } from "../entities/branding";
   import { type GatewayParams } from "../networking/responses/stripe-elements";
   import {
-    CheckoutCalculateTaxFailedReason,
+    CheckoutPricingFailedReason,
     type CheckoutPricingResponse,
-  } from "../networking/responses/checkout-calculate-tax-response";
+  } from "../networking/responses/checkout-pricing-response";
   import { validateEmail } from "../helpers/validators";
   import { createPriceBreakdownFromCheckoutPricingResponse } from "./price-breakdown-utils";
   import type { PriceBreakdown, TaxCalculationStatus } from "./ui-types";
@@ -221,9 +221,7 @@
       return "calculated";
     }
 
-    if (
-      failedReason === CheckoutCalculateTaxFailedReason.invalid_tax_location
-    ) {
+    if (failedReason === CheckoutPricingFailedReason.invalid_tax_location) {
       return "pending";
     }
 

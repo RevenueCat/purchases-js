@@ -27,7 +27,7 @@ import {
   checkoutStartResponse,
 } from "../test-responses";
 import { BackendErrorCode, ErrorCode } from "../../entities/errors";
-import { checkoutCalculateTaxResponse } from "../../stories/fixtures";
+import { checkoutPricingResponse } from "../../stories/fixtures";
 
 describe("PurchaseOperationHelper", () => {
   let server: SetupServer;
@@ -315,11 +315,11 @@ describe("PurchaseOperationHelper", () => {
         status: StatusCodes.OK,
       }),
     );
-    const checkoutCalculateTaxResponse = {
+    const checkoutPricingResponse = {
       tax_breakdown: [],
     };
     setCheckoutRefreshPricingResponse(
-      HttpResponse.json(checkoutCalculateTaxResponse, {
+      HttpResponse.json(checkoutPricingResponse, {
         status: StatusCodes.OK,
       }),
     );
@@ -336,7 +336,7 @@ describe("PurchaseOperationHelper", () => {
     });
 
     const result = await purchaseOperationHelper.checkoutRefreshPricing();
-    expect(result).toEqual(checkoutCalculateTaxResponse);
+    expect(result).toEqual(checkoutPricingResponse);
   });
 
   test("checkoutRefreshPricing returns failed tax calculation error", async () => {
@@ -345,12 +345,12 @@ describe("PurchaseOperationHelper", () => {
         status: StatusCodes.OK,
       }),
     );
-    const checkoutCalculateTaxResponse = {
+    const checkoutPricingResponse = {
       failed_reason: "invalid_tax_location",
       tax_breakdown: [],
     };
     setCheckoutRefreshPricingResponse(
-      HttpResponse.json(checkoutCalculateTaxResponse, {
+      HttpResponse.json(checkoutPricingResponse, {
         status: StatusCodes.OK,
       }),
     );
@@ -367,7 +367,7 @@ describe("PurchaseOperationHelper", () => {
     });
 
     const result = await purchaseOperationHelper.checkoutRefreshPricing();
-    expect(result).toEqual(checkoutCalculateTaxResponse);
+    expect(result).toEqual(checkoutPricingResponse);
   });
 
   test("checkoutRefreshPricing interrupts checkout for sandbox setup errors in payload", async () => {
@@ -566,7 +566,7 @@ describe("PurchaseOperationHelper", () => {
       }),
     );
     setCheckoutRefreshPricingResponse(
-      HttpResponse.json(checkoutCalculateTaxResponse, {
+      HttpResponse.json(checkoutPricingResponse, {
         status: StatusCodes.OK,
       }),
     );
@@ -583,7 +583,7 @@ describe("PurchaseOperationHelper", () => {
     });
 
     const result = await purchaseOperationHelper.checkoutRefreshPricing();
-    expect(result).toEqual(checkoutCalculateTaxResponse);
+    expect(result).toEqual(checkoutPricingResponse);
   });
 
   test("checkoutComplete fails if checkoutStart not called before", async () => {

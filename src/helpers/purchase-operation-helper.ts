@@ -24,9 +24,9 @@ import {
 import { type IEventsTracker } from "../behavioural-events/events-tracker";
 import type { CheckoutCompleteResponse } from "../networking/responses/checkout-complete-response";
 import {
-  CheckoutCalculateTaxFailedReason,
+  CheckoutPricingFailedReason,
   type CheckoutPricingResponse,
-} from "../networking/responses/checkout-calculate-tax-response";
+} from "../networking/responses/checkout-pricing-response";
 import { handleCheckoutSessionFailed } from "./checkout-error-handler";
 import type { CheckoutPrepareResponse } from "../networking/responses/checkout-prepare-response";
 
@@ -166,13 +166,13 @@ export class PurchaseOperationHelper {
     failedReason: CheckoutPricingResponse["failed_reason"],
   ): BackendErrorCode | null {
     switch (failedReason) {
-      case CheckoutCalculateTaxFailedReason.taxes_not_active:
-      case CheckoutCalculateTaxFailedReason.stripe_tax_unsupported_country:
+      case CheckoutPricingFailedReason.taxes_not_active:
+      case CheckoutPricingFailedReason.stripe_tax_unsupported_country:
         return BackendErrorCode.BackendGatewaySetupErrorStripeTaxNotActive;
-      case CheckoutCalculateTaxFailedReason.invalid_origin_address:
-      case CheckoutCalculateTaxFailedReason.invalid_head_office_address:
+      case CheckoutPricingFailedReason.invalid_origin_address:
+      case CheckoutPricingFailedReason.invalid_head_office_address:
         return BackendErrorCode.BackendGatewaySetupErrorInvalidTaxOriginAddress;
-      case CheckoutCalculateTaxFailedReason.missing_required_permission:
+      case CheckoutPricingFailedReason.missing_required_permission:
         return BackendErrorCode.BackendGatewaySetupErrorMissingRequiredPermission;
       default:
         return null;

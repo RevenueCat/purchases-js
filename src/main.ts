@@ -1492,7 +1492,6 @@ export class Purchases {
       purchaseOptionToUse,
       customerEmail,
     });
-    console.log("LOGGING: Call createCheckoutSessionStartEvent");
     this.eventsTracker.trackSDKEvent(event);
 
     const utmParamsMetadata = this._flags.autoCollectUTMAsMetadata

@@ -1,4 +1,4 @@
-import type { CheckoutPricingResponse } from "../networking/responses/checkout-calculate-tax-response";
+import type { CheckoutPricingResponse } from "../networking/responses/checkout-pricing-response";
 import type { PriceBreakdown, TaxCalculationStatus } from "./ui-types";
 
 export function createPriceBreakdownFromCheckoutPricingResponse(
