@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { mount } from "svelte";
 import { configurePurchases } from "./base.purchases_test";
 import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
-import { ErrorCode, PurchasesError } from "../main";
+import { CustomVariableValue, ErrorCode, PurchasesError } from "../main";
 import type { Offering, Package } from "../entities/offerings";
 import type { CompleteWorkflowNavigateArgs } from "../entities/present-paywall-params";
 import type { ComponentInteractionData } from "@revenuecat/purchases-ui-js";
@@ -604,5 +604,47 @@ describe("Purchases.presentPaywall() complete workflow navigation", () => {
     expect(warnSpy).toHaveBeenCalled();
     expect(openMock).not.toHaveBeenCalled();
     expect(assignMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("Purchases.presentPaywall() custom variables", () => {
+  let mountedProps: Record<string, unknown> | undefined;
+
+  beforeEach(() => {
+    mountedProps = undefined;
+    vi.mocked(mount).mockImplementation((_component, options) => {
+      mountedProps = options.props as Record<string, unknown>;
+      (options.target as Element).innerHTML =
+        "<div data-testid='paywall-root'></div>";
+      return {} as ReturnType<typeof mount>;
+    });
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+    document.body.innerHTML = "";
+  });
+
+  test("passes customVariables to the Paywall mount", () => {
+    const purchases = configurePurchases();
+    const offering = createOfferingWithPaywall();
+    const customVariables = {
+      player_name: CustomVariableValue.string("Ada"),
+      level: CustomVariableValue.number(42),
+      is_premium: CustomVariableValue.boolean(true),
+    };
+
+    void purchases.presentPaywall({ offering, customVariables });
+
+    expect(mountedProps?.customVariables).toEqual(customVariables);
+  });
+
+  test("passes undefined customVariables when not provided", () => {
+    const purchases = configurePurchases();
+    const offering = createOfferingWithPaywall();
+
+    void purchases.presentPaywall({ offering });
+
+    expect(mountedProps?.customVariables).toBeUndefined();
   });
 });
