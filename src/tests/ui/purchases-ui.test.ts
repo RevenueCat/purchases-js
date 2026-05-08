@@ -28,6 +28,10 @@ const eventsTrackerMock = createEventsTrackerMock();
 
 const createCheckoutPricingResponse = (
   discountCode: string | null,
+  options?: {
+    durationMode?: "time_window" | null;
+    timeWindow?: string | null;
+  },
 ): CheckoutPricingResponse => ({
   ...structuredClone(checkoutPricingResponse),
   original_amount_in_micros:
@@ -40,6 +44,8 @@ const createCheckoutPricingResponse = (
           discounted_amount_in_micros: 1000000,
           percentage: 10,
           discount_code: discountCode,
+          duration_mode: options?.durationMode ?? null,
+          time_window: options?.timeWindow ?? null,
         },
       ]
     : [],
@@ -334,6 +340,39 @@ describe("PurchasesUI", () => {
       expect(
         screen.getByRole("button", { name: "Remove promo code SAVE10" }),
       ).toBeTruthy();
+    });
+  });
+
+  test("renders time-window discount labels from refreshed pricing metadata", async () => {
+    vi.spyOn(
+      purchaseOperationHelperMock,
+      "checkoutRefreshPricing",
+    ).mockResolvedValue(
+      createCheckoutPricingResponse("SAVE10", {
+        durationMode: "time_window",
+        timeWindow: "P3M",
+      }),
+    );
+
+    render(PurchasesUI, {
+      props: {
+        ...basicProps,
+        showDiscountCodeField: true,
+      },
+    });
+
+    const discountCodeInput = screen.getByLabelText("Promo code");
+    await waitFor(() => {
+      expect(discountCodeInput).not.toBeDisabled();
+    });
+
+    await fireEvent.input(discountCodeInput, {
+      target: { value: "SAVE10" },
+    });
+    await fireEvent.click(screen.getByRole("button", { name: "Apply" }));
+
+    await waitFor(() => {
+      expect(screen.getByText("10% off for 3 months")).toBeTruthy();
     });
   });
 

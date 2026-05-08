@@ -21,6 +21,8 @@ export type AppliedDiscount = {
   discountedAmountInMicros: number;
   percentage: number | null;
   discountCode: string | null;
+  durationMode?: "time_window" | null;
+  timeWindow?: string | null;
 };
 
 export type PriceBreakdown = {

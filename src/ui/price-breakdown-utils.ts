@@ -24,6 +24,8 @@ export function createPriceBreakdownFromCheckoutPricingResponse(
       discountedAmountInMicros: discount.discounted_amount_in_micros,
       percentage: discount.percentage,
       discountCode: discount.discount_code,
+      durationMode: discount.duration_mode,
+      timeWindow: discount.time_window,
     })),
   };
 }

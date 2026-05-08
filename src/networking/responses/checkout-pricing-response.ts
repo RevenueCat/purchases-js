@@ -11,6 +11,8 @@ export interface CheckoutAppliedDiscountResponse {
   discounted_amount_in_micros: number;
   percentage: number | null;
   discount_code: string | null;
+  duration_mode?: "time_window" | null;
+  time_window?: string | null;
 }
 
 export enum CheckoutPricingFailedReason {

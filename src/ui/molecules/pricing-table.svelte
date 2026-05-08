@@ -5,7 +5,11 @@
   import { translatorContextKey } from "../localization/constants";
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import { type PriceBreakdown } from "../ui-types";
-  import { getNextRenewalDate } from "../../helpers/duration-helper";
+  import {
+    getNextRenewalDate,
+    parseISODuration,
+    type Period,
+  } from "../../helpers/duration-helper";
   import {
     type PricingPhase,
     type DiscountPhase,
@@ -94,9 +98,41 @@
     trialEndDate ? 0 : priceBreakdown.totalAmountInMicros,
   );
 
+  const getTimeWindowDiscountSuffix = (
+    percentage: number,
+    discountDuration: Period | null,
+  ): string => {
+    const basePeriod = basePhase?.period;
+    if (!basePeriod || !discountDuration) {
+      return `${percentage}% off`;
+    }
+
+    const billingCycleDays = getDurationInDays(basePeriod);
+    const discountWindowDays = getDurationInDays(discountDuration);
+    if (billingCycleDays <= 0 || discountWindowDays <= billingCycleDays) {
+      return `${percentage}% off`;
+    }
+
+    const translatedPeriod = $translator.translatePeriod(
+      discountDuration.number,
+      discountDuration.unit,
+    );
+    return `${percentage}% off for ${translatedPeriod}`;
+  };
+
   const discountSuffix = $derived.by(() => {
     const percentage = appliedDiscount?.percentage ?? appliedDiscountPercentage;
     if (percentage == null) return null;
+
+    if (
+      appliedDiscount?.durationMode === "time_window" &&
+      appliedDiscount.timeWindow
+    ) {
+      return getTimeWindowDiscountSuffix(
+        percentage,
+        parseISODuration(appliedDiscount.timeWindow),
+      );
+    }
 
     if (
       !promotionalPricePhase ||
@@ -106,32 +142,15 @@
       return `${percentage}% off`;
     }
 
-    const basePeriod = basePhase?.period;
     const discountPeriod = promotionalPricePhase.period;
-    if (
-      !basePeriod ||
-      !discountPeriod ||
-      promotionalPricePhase.cycleCount <= 0
-    ) {
+    if (!discountPeriod || promotionalPricePhase.cycleCount <= 0) {
       return `${percentage}% off`;
     }
 
-    const billingCycleDays = getDurationInDays(basePeriod);
-    const discountWindowDays = getDurationInDays({
+    return getTimeWindowDiscountSuffix(percentage, {
       number: discountPeriod.number * promotionalPricePhase.cycleCount,
       unit: discountPeriod.unit,
     });
-
-    if (billingCycleDays <= 0 || discountWindowDays <= billingCycleDays) {
-      return `${percentage}% off`;
-    }
-
-    const translatedPeriod = $translator.translatePeriod(
-      discountPeriod.number * promotionalPricePhase.cycleCount,
-      discountPeriod.unit,
-    );
-
-    return `${percentage}% off for ${translatedPeriod}`;
   });
 </script>
 
