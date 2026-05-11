@@ -1,0 +1,14 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`buildPaywallMountProps > produces a stable prop bag for a fixture offering 1`] = `
+{
+  "defaultLocale": "en_US",
+  "hideBackButtons": false,
+  "packageIds": [
+    "$rc_monthly",
+  ],
+  "paywallDataId": "fixture-paywall-id",
+  "selectedLocale": "en_US",
+  "uiConfigKeys": [],
+}
+`;

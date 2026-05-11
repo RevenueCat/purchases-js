@@ -72,13 +72,14 @@ import type {
   ComponentInteractionData as UIComponentInteractionData,
   WalletButtonRender,
 } from "@revenuecat/purchases-ui-js";
-import { Paywall, type PaywallData } from "@revenuecat/purchases-ui-js";
+import { Paywall } from "@revenuecat/purchases-ui-js";
 import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
 import {
   buildVariablesPerPackage,
   type BuildVariablesPerPackageOptions,
 } from "./helpers/paywall-variables-helpers";
 import { Translator } from "./ui/localization/translator";
+import { buildPaywallMountProps } from "./helpers/paywall-mount-props";
 import { englishLocale } from "./ui/localization/constants";
 import type { TrackEventProps } from "./behavioural-events/events-tracker";
 import EventsTracker, {
@@ -114,7 +115,6 @@ import { InMemoryCache } from "./helpers/in-memory-cache";
 import type { VirtualCurrencies } from "./entities/virtual-currencies";
 import { toVirtualCurrencies } from "./entities/virtual-currencies";
 import type { IdentifyResult } from "./entities/identify-result";
-import { parseOfferingIntoPackageInfoPerPackage } from "./helpers/paywall-package-info-helpers";
 import type {
   ExpressPurchaseButtonUpdater,
   PresentExpressPurchaseButtonParams,
@@ -559,66 +559,14 @@ export class Purchases {
     if (!offering) {
       throw new Error("No offering found.");
     }
-    if (!offering.paywallComponents) {
-      throw new Error("This offering doesn't have a paywall attached.");
-    }
+    const mountProps = buildPaywallMountProps({
+      offering,
+      selectedLocale: paywallParams.selectedLocale ?? navigator.language,
+      hideBackButtons: paywallParams.hideBackButtons ?? false,
+      customVariables: paywallParams.customVariables,
+    });
 
-    if (!offering.uiConfig) {
-      throw new Error(
-        "No ui_config found for this offering, please contact support!",
-      );
-    }
-
-    const calculateLocale = (
-      paywallData: PaywallData,
-      selectedLocale: string,
-    ) => {
-      const localesSupportedByPaywall: { [key: string]: string[] } = {};
-
-      const toLocalePrefix = (potentialLocale: string) => {
-        return potentialLocale.toLowerCase().split("_")[0];
-      };
-
-      Object.keys(paywallData.components_localizations).forEach((l) => {
-        if (localesSupportedByPaywall[toLocalePrefix(l)] === undefined) {
-          localesSupportedByPaywall[toLocalePrefix(l)] = [];
-        }
-        localesSupportedByPaywall[toLocalePrefix(l)].push(l);
-      });
-
-      const localesGroup =
-        localesSupportedByPaywall[toLocalePrefix(selectedLocale)];
-      if (!localesGroup) {
-        return paywallData.default_locale;
-      }
-
-      const bestMatch = localesGroup.find(
-        (l) => l.toLowerCase() === selectedLocale,
-      );
-
-      if (bestMatch) {
-        return bestMatch;
-      }
-
-      // Finding best match for the selected locale group.
-      return localesGroup[0];
-    };
-
-    // Resolving the correct locale to use.
-    const selectedLocale = paywallParams.selectedLocale
-      ? paywallParams.selectedLocale
-      : navigator.language;
-
-    const finalLocale = calculateLocale(
-      offering.paywallComponents,
-      selectedLocale,
-    );
-
-    const translator = new Translator(
-      {},
-      finalLocale,
-      offering.paywallComponents.default_locale,
-    );
+    const finalLocale = mountProps.selectedLocale;
 
     const paywallSessionId = generateUUID();
     const paywallBaseEventData = {
@@ -838,12 +786,6 @@ export class Purchases {
       // DO NOTHING, RC's customer center is not supported in web
     };
 
-    const variablesPerPackage = buildVariablesPerPackage(offering, {
-      translator,
-    });
-
-    const infoPerPackage = parseOfferingIntoPackageInfoPerPackage(offering);
-
     return new Promise((resolve, reject) => {
       let component: ReturnType<typeof mount> | null = null;
       let paywallImpressionTracked = false;
@@ -983,13 +925,11 @@ export class Purchases {
       component = mount(Paywall, {
         target: certainHTMLTarget,
         props: {
-          paywallData: offering.paywallComponents!,
-          selectedLocale: finalLocale,
-          onNavigateToUrlClicked: navigateToUrl,
+          ...mountProps,
           appUserId: this._appUserId,
+          onNavigateToUrlClicked: navigateToUrl,
           onCompleteWorkflowNavigate,
           onVisitCustomerCenterClicked: onVisitCustomerCenterClicked,
-          uiConfig: offering.uiConfig!,
           onBackClicked: () => {
             if (paywallParams.onBack) {
               paywallParams.onBack(closePaywall);
@@ -1014,11 +954,7 @@ export class Purchases {
             unmountPaywall();
             reject(err);
           },
-          variablesPerPackage,
-          infoPerPackage,
-          hideBackButtons: paywallParams.hideBackButtons,
           walletButtonRender,
-          customVariables: paywallParams.customVariables,
           onComponentInteraction,
         },
       });
