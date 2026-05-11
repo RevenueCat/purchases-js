@@ -1,0 +1,120 @@
+import type { PaywallData } from "@revenuecat/purchases-ui-js";
+
+export interface WalkEntry {
+  id: string;
+  type: string;
+  name?: string;
+}
+
+// Minimal local shape aliases to avoid importing unexported subpaths from the
+// purchases-ui-js package.  Each interface mirrors only the fields we read.
+
+interface HasId {
+  id: string;
+  type: string;
+  name?: string;
+}
+
+interface StackLike extends HasId {
+  type: "stack";
+  components?: ComponentLike[];
+  badge?: { stack: StackLike } | null;
+}
+
+interface ComponentLike extends HasId {
+  // child stacks present on wrapping component types
+  stack?: StackLike;
+  // tabs
+  control?: { stack: StackLike };
+  tabs?: Array<HasId & { stack: StackLike }>;
+  // carousel
+  pages?: StackLike[];
+  // timeline
+  items?: Array<
+    HasId & {
+      icon?: HasId;
+      title?: HasId;
+      description?: HasId | null;
+    }
+  >;
+  // stack children
+  components?: ComponentLike[];
+}
+
+export function* walkPaywallTree(
+  paywallData: PaywallData,
+): Generator<WalkEntry, void, void> {
+  const root = paywallData.components_config.base;
+  yield* walkStack(root.stack as unknown as StackLike);
+  if (root.sticky_footer) {
+    yield* walkComponent(root.sticky_footer as unknown as ComponentLike);
+  }
+}
+
+function* walkComponent(node: ComponentLike): Generator<WalkEntry, void, void> {
+  yield { id: node.id, type: node.type, name: node.name };
+
+  switch (node.type) {
+    case "stack":
+      yield* walkStackChildren(node as StackLike);
+      break;
+
+    case "footer":
+    case "purchase_button":
+    case "package":
+      if (node.stack) {
+        yield* walkStack(node.stack);
+      }
+      break;
+
+    case "tabs":
+      if (node.control?.stack) {
+        yield* walkStack(node.control.stack);
+      }
+      if (node.tabs) {
+        for (const tab of node.tabs) {
+          yield { id: tab.id, type: tab.type, name: tab.name };
+          yield* walkStackChildren(tab.stack as StackLike);
+        }
+      }
+      break;
+
+    case "carousel":
+      if (node.pages) {
+        for (const page of node.pages) {
+          yield* walkStack(page);
+        }
+      }
+      break;
+
+    case "timeline":
+      if (node.items) {
+        for (const item of node.items) {
+          yield { id: item.id, type: item.type, name: item.name };
+          if (item.icon) yield* walkComponent(item.icon as ComponentLike);
+          if (item.title) yield* walkComponent(item.title as ComponentLike);
+          if (item.description)
+            yield* walkComponent(item.description as ComponentLike);
+        }
+      }
+      break;
+
+    default:
+      break;
+  }
+}
+
+function* walkStack(stack: StackLike): Generator<WalkEntry, void, void> {
+  yield* walkComponent(stack as ComponentLike);
+}
+
+function* walkStackChildren(
+  stack: StackLike,
+): Generator<WalkEntry, void, void> {
+  for (const child of stack.components ?? []) {
+    yield* walkComponent(child);
+  }
+  if (stack.badge) {
+    yield* walkStack(stack.badge.stack);
+  }
+}
