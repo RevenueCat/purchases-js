@@ -1,4 +1,4 @@
-import type { PaywallData } from "@revenuecat/purchases-ui-js";
+import type { PaywallData, UIConfig } from "@revenuecat/purchases-ui-js";
 import type { Offering } from "../../entities/offerings";
 import { createMonthlyPackageMock } from "../mocks/offering-mock-provider";
 
@@ -40,8 +40,8 @@ export function fixtureOffering(
   };
 }
 
-export function fixtureUiConfig(): Offering["uiConfig"] {
-  return { app: { fonts: {} } } as Offering["uiConfig"];
+export function fixtureUiConfig(): UIConfig {
+  return { app: { fonts: {} } } as UIConfig;
 }
 
 /**

@@ -68,13 +68,8 @@ export async function extractPaywallLayout(
     component = mount(Paywall, {
       target: container,
       props: {
-        paywallData: mountProps.paywallData,
-        uiConfig: mountProps.uiConfig,
-        selectedLocale: mountProps.selectedLocale,
-        variablesPerPackage: mountProps.variablesPerPackage,
-        infoPerPackage: mountProps.infoPerPackage,
-        customVariables: mountProps.customVariables,
-        hideBackButtons: mountProps.hideBackButtons,
+        ...mountProps,
+        appUserId: "__extract__",
         onNavigateToUrlClicked: noop,
         onCompleteWorkflowNavigate: noop,
         onVisitCustomerCenterClicked: noop,
@@ -84,7 +79,7 @@ export async function extractPaywallLayout(
         onError: noop,
         walletButtonRender: undefined,
         onComponentInteraction: noop,
-      },
+      } as never,
     });
 
     await waitForLayout();

@@ -4,7 +4,11 @@ export interface WalkEntry {
   id: string;
   type: string;
   name?: string;
-  node: unknown; // the original Component object, useful for callers that need package_id, etc.
+  /**
+   * The original component node from the paywall data. Optional; consumers that
+   * only need id/type/name (e.g., the DOM layout reader) don't need to provide it.
+   */
+  node?: unknown;
 }
 
 // Minimal local shape aliases to avoid importing unexported subpaths from the

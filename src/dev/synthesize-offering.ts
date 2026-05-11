@@ -13,7 +13,8 @@ function collectPackageIds(paywallData: PaywallData): string[] {
   const seen = new Set<string>();
   for (const entry of walkPaywallTree(paywallData)) {
     if (entry.type !== "package") continue;
-    const pid = (entry.node as { package_id?: unknown }).package_id;
+    const pid = (entry.node as { package_id?: unknown } | undefined)
+      ?.package_id;
     if (typeof pid === "string") seen.add(pid);
   }
   return [...seen];
