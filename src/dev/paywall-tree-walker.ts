@@ -68,13 +68,15 @@ function* walkComponent(node: ComponentLike): Generator<WalkEntry, void, void> {
       break;
 
     case "tabs":
+      // TabControl is a structural wrapper without an `id`; only its inner
+      // stack is walked.
       if (node.control?.stack) {
         yield* walkStack(node.control.stack);
       }
       if (node.tabs) {
         for (const tab of node.tabs) {
           yield { id: tab.id, type: tab.type, name: tab.name };
-          yield* walkStackChildren(tab.stack as StackLike);
+          yield* walkStack(tab.stack as StackLike);
         }
       }
       break;
