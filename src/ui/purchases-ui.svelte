@@ -274,6 +274,19 @@
           if (isInterruptCheckoutError(error)) {
             throw error;
           }
+          if (showDiscountCodeField) {
+            discountCodeError =
+              error instanceof Error
+                ? error.message
+                : "Failed to apply discount code.";
+          } else {
+            throw error instanceof PurchaseFlowError
+              ? error
+              : new PurchaseFlowError(
+                  PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+                  "Failed to apply discount code.",
+                );
+          }
         }
       }
 
