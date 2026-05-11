@@ -124,6 +124,10 @@ import { getWindow, getDocument } from "./helpers/browser-globals";
 import { isAllowedCompleteWorkflowNavigateUrl } from "./helpers/complete-workflow-navigate-url";
 import { StripeService } from "./stripe/stripe-service";
 
+if (__RC_PAYWALL_EXTRACTOR__) {
+  void import("./dev/extract-install").then((m) => m.installExtractor());
+}
+
 type UIComponentInteractionFields = UIComponentInteractionData & {
   componentURL?: string;
   originIndex?: number;
