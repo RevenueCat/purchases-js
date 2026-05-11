@@ -4,6 +4,7 @@ export interface WalkEntry {
   id: string;
   type: string;
   name?: string;
+  node: unknown; // the original Component object, useful for callers that need package_id, etc.
 }
 
 // Minimal local shape aliases to avoid importing unexported subpaths from the
@@ -52,7 +53,7 @@ export function* walkPaywallTree(
 }
 
 function* walkComponent(node: ComponentLike): Generator<WalkEntry, void, void> {
-  yield { id: node.id, type: node.type, name: node.name };
+  yield { id: node.id, type: node.type, name: node.name, node };
 
   switch (node.type) {
     case "stack":
@@ -75,7 +76,7 @@ function* walkComponent(node: ComponentLike): Generator<WalkEntry, void, void> {
       }
       if (node.tabs) {
         for (const tab of node.tabs) {
-          yield { id: tab.id, type: tab.type, name: tab.name };
+          yield { id: tab.id, type: tab.type, name: tab.name, node: tab };
           yield* walkStack(tab.stack as StackLike);
         }
       }
@@ -92,7 +93,7 @@ function* walkComponent(node: ComponentLike): Generator<WalkEntry, void, void> {
     case "timeline":
       if (node.items) {
         for (const item of node.items) {
-          yield { id: item.id, type: item.type, name: item.name };
+          yield { id: item.id, type: item.type, name: item.name, node: item };
           if (item.icon) yield* walkComponent(item.icon as ComponentLike);
           if (item.title) yield* walkComponent(item.title as ComponentLike);
           if (item.description)

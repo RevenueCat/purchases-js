@@ -7,28 +7,15 @@ import {
   ProductType,
 } from "../entities/offerings";
 import { PeriodUnit } from "../helpers/duration-helper";
+import { walkPaywallTree } from "./paywall-tree-walker";
 
 function collectPackageIds(paywallData: PaywallData): string[] {
   const seen = new Set<string>();
-
-  const visit = (node: unknown): void => {
-    if (!node || typeof node !== "object") return;
-    const n = node as {
-      type?: string;
-      package_id?: string;
-      components?: unknown[];
-      stack?: unknown;
-    };
-    if (n.type === "package" && typeof n.package_id === "string") {
-      seen.add(n.package_id);
-    }
-    if (Array.isArray(n.components)) {
-      for (const c of n.components) visit(c);
-    }
-    if (n.stack) visit(n.stack);
-  };
-
-  visit(paywallData.components_config.base.stack);
+  for (const entry of walkPaywallTree(paywallData)) {
+    if (entry.type !== "package") continue;
+    const pid = (entry.node as { package_id?: unknown }).package_id;
+    if (typeof pid === "string") seen.add(pid);
+  }
   return [...seen];
 }
 

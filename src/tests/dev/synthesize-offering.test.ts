@@ -89,4 +89,129 @@ describe("synthesizeOffering", () => {
     expect(result.packagesById["annual"]).toBeDefined();
     expect(result.packagesById["monthly"].identifier).toBe("monthly");
   });
+
+  it("collects package_ids from packages inside sticky_footer", () => {
+    const data = pw([]);
+    (data.components_config.base as { sticky_footer?: unknown }).sticky_footer =
+      {
+        type: "footer",
+        id: "footer",
+        name: "footer",
+        stack: {
+          type: "stack",
+          id: "footer-stack",
+          name: "footer-stack",
+          components: [
+            {
+              type: "package",
+              id: "footer-pkg-id",
+              name: "fp",
+              package_id: "monthly",
+              stack: {
+                type: "stack",
+                id: "fp-stack",
+                name: "fp-stack",
+                components: [],
+                size: { width: { type: "fit" }, height: { type: "fit" } },
+                dimension: {
+                  type: "vertical",
+                  alignment: "center",
+                  distribution: "start",
+                },
+                spacing: 0,
+                margin: { top: 0, bottom: 0, leading: 0, trailing: 0 },
+                padding: { top: 0, bottom: 0, leading: 0, trailing: 0 },
+                background_color: null,
+                background: null,
+                border: null,
+                shape: null,
+                shadow: null,
+              },
+            },
+          ],
+          size: { width: { type: "fit" }, height: { type: "fit" } },
+          dimension: {
+            type: "vertical",
+            alignment: "center",
+            distribution: "start",
+          },
+          spacing: 0,
+          margin: { top: 0, bottom: 0, leading: 0, trailing: 0 },
+          padding: { top: 0, bottom: 0, leading: 0, trailing: 0 },
+          background_color: null,
+          background: null,
+          border: null,
+          shape: null,
+          shadow: null,
+        },
+      };
+    const result = synthesizeOffering(data, uiConfig);
+    expect(result.availablePackages.map((p) => p.identifier)).toContain(
+      "monthly",
+    );
+  });
+
+  it("collects package_ids from packages inside a carousel", () => {
+    const data = pw([]);
+    (
+      data.components_config.base.stack as unknown as { components: unknown[] }
+    ).components.push({
+      type: "carousel",
+      id: "car",
+      name: "car",
+      pages: [
+        {
+          type: "stack",
+          id: "page-1",
+          name: "page-1",
+          components: [
+            {
+              type: "package",
+              id: "car-pkg",
+              name: "cp",
+              package_id: "annual",
+              stack: {
+                type: "stack",
+                id: "cp-stack",
+                name: "cp-stack",
+                components: [],
+                size: { width: { type: "fit" }, height: { type: "fit" } },
+                dimension: {
+                  type: "vertical",
+                  alignment: "center",
+                  distribution: "start",
+                },
+                spacing: 0,
+                margin: { top: 0, bottom: 0, leading: 0, trailing: 0 },
+                padding: { top: 0, bottom: 0, leading: 0, trailing: 0 },
+                background_color: null,
+                background: null,
+                border: null,
+                shape: null,
+                shadow: null,
+              },
+            },
+          ],
+          size: { width: { type: "fit" }, height: { type: "fit" } },
+          dimension: {
+            type: "vertical",
+            alignment: "center",
+            distribution: "start",
+          },
+          spacing: 0,
+          margin: { top: 0, bottom: 0, leading: 0, trailing: 0 },
+          padding: { top: 0, bottom: 0, leading: 0, trailing: 0 },
+          background_color: null,
+          background: null,
+          border: null,
+          shape: null,
+          shadow: null,
+        },
+      ],
+    });
+    const result = synthesizeOffering(data, uiConfig);
+    expect(result.availablePackages.map((p) => p.identifier)).toContain(
+      "annual",
+    );
+  });
 });
