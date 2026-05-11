@@ -54,7 +54,10 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "extract-api": "api-extractor run --local --verbose",
+    "check-extractor-stripped": "node scripts/check-extractor-stripped.mjs",
     "check-version-consistency": "node scripts/check-version-consistency.mjs",
+    "extract": "node scripts/extract-paywall-layout.mjs",
+    "extract:e2e": "node scripts/extract-paywall-layout.e2e.test.mjs",
     "prepare": "husky"
   },
   "devDependencies": {
@@ -62,6 +65,7 @@
     "@eslint/js": "^9.16.0",
     "@microsoft/api-extractor": "^7.48.0",
     "@paddle/paddle-js": "^1.5.1",
+    "@playwright/test": "^1.59.1",
     "@revenuecat/purchases-ui-js": "4.6.0-extractor.0",
     "@storybook/addon-essentials": "^8.6.15",
     "@storybook/addon-interactions": "^8.6.15",

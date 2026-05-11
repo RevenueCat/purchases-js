@@ -19,6 +19,9 @@ importers:
       "@paddle/paddle-js":
         specifier: ^1.5.1
         version: 1.5.1
+      "@playwright/test":
+        specifier: ^1.59.1
+        version: 1.59.1
       "@revenuecat/purchases-ui-js":
         specifier: 4.6.0-extractor.0
         version: 4.6.0-extractor.0(svelte@5.46.4)
@@ -721,6 +724,14 @@ packages:
         integrity: sha512-cq8o4cWH0ibXh9VGi5P20Tu9XF/0fFXl9EUinr9QfTM7a7p0oTA4iJRCQWppXR1Pg8dSM0UCItCkPwsk9qWWYA==,
       }
     engines: { node: ^12.20.0 || ^14.18.0 || >=16.0.0 }
+
+  "@playwright/test@1.59.1":
+    resolution:
+      {
+        integrity: sha512-PG6q63nQg5c9rIi4/Z5lR5IVF7yU5MqmKaPOe0HSc0O2cX1fPi96sUQu5j7eo4gKCkB2AnNGoWt7y4/Xx3Kcqg==,
+      }
+    engines: { node: ">=18" }
+    hasBin: true
 
   "@revenuecat/purchases-ui-js@4.6.0-extractor.0":
     resolution:
@@ -3086,6 +3097,14 @@ packages:
         integrity: sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==,
       }
 
+  fsevents@2.3.2:
+    resolution:
+      {
+        integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==,
+      }
+    engines: { node: ^8.16.0 || ^10.6.0 || >=11.0.0 }
+    os: [darwin]
+
   fsevents@2.3.3:
     resolution:
       {
@@ -4367,6 +4386,22 @@ packages:
       {
         integrity: sha512-SIqCzDRg0s9npO5XQ3tNZioRY1uK06lA41ynBC1YmFTmnY6FjUjVt6s4LoADmwoig1qqD0oK8h1p/8mlMx8Oig==,
       }
+
+  playwright-core@1.59.1:
+    resolution:
+      {
+        integrity: sha512-HBV/RJg81z5BiiZ9yPzIiClYV/QMsDCKUyogwH9p3MCP6IYjUFu/MActgYAvK0oWyV9NlwM3GLBjADyWgydVyg==,
+      }
+    engines: { node: ">=18" }
+    hasBin: true
+
+  playwright@1.59.1:
+    resolution:
+      {
+        integrity: sha512-C8oWjPR3F81yljW9o5OxcWzfh6avkVwDD2VYdwIGqTkl+OGFISgypqzfu7dOe4QNLL2aqcWBmI3PMtLIK233lw==,
+      }
+    engines: { node: ">=18" }
+    hasBin: true
 
   pngjs@5.0.0:
     resolution:
@@ -6155,6 +6190,10 @@ snapshots:
 
   "@pkgr/core@0.1.1": {}
 
+  "@playwright/test@1.59.1":
+    dependencies:
+      playwright: 1.59.1
+
   "@revenuecat/purchases-ui-js@4.6.0-extractor.0(svelte@5.46.4)":
     dependencies:
       qrcode: 1.5.4
@@ -7869,6 +7908,9 @@ snapshots:
 
   fs.realpath@1.0.0: {}
 
+  fsevents@2.3.2:
+    optional: true
+
   fsevents@2.3.3:
     optional: true
 
@@ -8606,6 +8648,14 @@ snapshots:
       confbox: 0.2.2
       exsolve: 1.0.7
       pathe: 2.0.3
+
+  playwright-core@1.59.1: {}
+
+  playwright@1.59.1:
+    dependencies:
+      playwright-core: 1.59.1
+    optionalDependencies:
+      fsevents: 2.3.2
 
   pngjs@5.0.0: {}
 
