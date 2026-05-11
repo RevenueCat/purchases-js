@@ -42,4 +42,13 @@ export default [
       "no-restricted-globals": "off",
     },
   },
+  {
+    // Node.js CLI scripts — allow process/Node globals and browser globals
+    // used inside page.evaluate() / page.waitForFunction() callbacks.
+    files: ["scripts/**/*.mjs", "scripts/**/*.cjs"],
+    languageOptions: { globals: { ...globals.node, ...globals.browser } },
+    rules: {
+      "no-restricted-globals": "off",
+    },
+  },
 ];
