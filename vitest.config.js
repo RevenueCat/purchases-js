@@ -59,6 +59,7 @@ export default defineConfig(() => ({
   },
   define: {
     "process.env.VITEST": JSON.stringify(true),
+    __RC_PAYWALL_EXTRACTOR__: JSON.stringify(true),
   },
   // If you need to define other Vite configurations, they can go here
   // ...

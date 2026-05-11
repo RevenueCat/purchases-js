@@ -7,7 +7,10 @@ import { svelte } from "@sveltejs/vite-plugin-svelte";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
+  define: {
+    __RC_PAYWALL_EXTRACTOR__: JSON.stringify(mode !== "production"),
+  },
   build: {
     lib: {
       entry: resolve(__dirname, "src/main.ts"),
@@ -21,4 +24,4 @@ export default defineConfig({
     }),
     svelte({ compilerOptions: { css: "injected" } }),
   ],
-});
+}));

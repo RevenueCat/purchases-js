@@ -3,3 +3,5 @@ declare module "*.svelte" {
 }
 
 declare global {}
+
+declare const __RC_PAYWALL_EXTRACTOR__: boolean;
