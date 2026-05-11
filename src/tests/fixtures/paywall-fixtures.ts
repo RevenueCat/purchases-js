@@ -1,3 +1,4 @@
+import type { PaywallData } from "@revenuecat/purchases-ui-js";
 import type { Offering } from "../../entities/offerings";
 import { createMonthlyPackageMock } from "../mocks/offering-mock-provider";
 
@@ -40,5 +41,41 @@ export function fixtureOffering(
 }
 
 export function fixtureUiConfig(): Offering["uiConfig"] {
-  return {} as Offering["uiConfig"];
+  return { app: { fonts: {} } } as Offering["uiConfig"];
+}
+
+/**
+ * Minimal PaywallData fixture with a real stack hierarchy so tests can assert
+ * component ids are present in the extracted layout.
+ *
+ * Only "text" and "image" leaf types are used because the Paywall component's
+ * internal tree walker returns [] for unknown/leaf types, avoiding traversal
+ * errors from incomplete component shapes (e.g. missing nested stacks).
+ */
+export function fixturePaywallData(): PaywallData {
+  return {
+    id: "fixture-paywall-id",
+    default_locale: "en_US",
+    components_localizations: {
+      en_US: {},
+    },
+    components_config: {
+      base: {
+        stack: {
+          id: "root-stack",
+          type: "stack",
+          components: [
+            {
+              id: "child-text-1",
+              type: "text",
+            },
+            {
+              id: "child-text-2",
+              type: "text",
+            },
+          ],
+        } as PaywallData["components_config"]["base"]["stack"],
+      },
+    },
+  } as unknown as PaywallData;
 }
