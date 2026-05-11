@@ -3,6 +3,7 @@ import type { RouteFulfillOptions } from "./test-helpers";
 type CheckoutPricingResponse = {
   operation_session_id: string;
   currency: string;
+  original_amount_in_micros?: number;
   total_amount_in_micros: number;
   tax_amount_in_micros: number;
   total_excluding_tax_in_micros: number;
@@ -28,6 +29,15 @@ type CheckoutPricingResponse = {
       setup_future_usage: "off_session";
     };
   };
+  applied_discounts?: Array<{
+    identifier: string | null;
+    display_name: string;
+    discounted_amount_in_micros: number;
+    percentage: number | null;
+    discount_code: string | null;
+    duration_mode?: "time_window" | null;
+    time_window?: string | null;
+  }>;
   failed_reason?: string;
 };
 
@@ -118,6 +128,7 @@ export const SPAIN_TAX_INCLUSIVE_DISCOUNTED_RESPONSE: RouteFulfillOptions = {
     mocked: true,
     currency: "USD",
     failed_reason: undefined,
+    original_amount_in_micros: 9990000,
     gateway_params: {
       elements_configuration: {
         amount: 899,
@@ -144,6 +155,15 @@ export const SPAIN_TAX_INCLUSIVE_DISCOUNTED_RESPONSE: RouteFulfillOptions = {
         ],
       },
     },
+    applied_discounts: [
+      {
+        identifier: "forever_10",
+        display_name: "Forever 10% Off",
+        discounted_amount_in_micros: 1000000,
+        percentage: 10,
+        discount_code: TAX_TEST_DISCOUNT_CODE,
+      },
+    ],
     tax_amount_in_micros: 1560000,
     total_amount_in_micros: 8990000,
     total_excluding_tax_in_micros: 7430000,
