@@ -1,3 +1,3 @@
-## RevenueCatUI SDK
-### 🐞 Bugfixes
-* Paywalls | Update purchases-ui-js to support visibility from custom variables w/tests (#870) via Rosie Watson (@RosieWatson)
+## RevenueCat SDK
+### ✨ New Features
+* Bump purchases-ui-js to 4.5.1 (#872) via Franco Correa (@francocorreasosa)
