@@ -1,2 +1,3 @@
-### 🔄 Other Changes
-* Handle background safe area colors via purchases-ui-js@4.1.0 (#860) via Jamie Holwill (@jholwill)
+## RevenueCatUI SDK
+### 🐞 Bugfixes
+* Paywalls | Update purchases-ui-js to support visibility from custom variables w/tests (#870) via Rosie Watson (@RosieWatson)

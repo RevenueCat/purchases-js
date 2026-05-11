@@ -120,7 +120,7 @@ export interface PresentPaywallParams {
 
   /**
    * Custom variables to pass to the paywall at runtime, overriding defaults set
-   * in the RevenueCat dashboard.f
+   * in the RevenueCat dashboard.
    *
    * Variables must be defined in the dashboard first. Reference them in paywall
    * text using the `custom.` prefix (e.g. `{{ custom.player_name }}`).
