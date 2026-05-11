@@ -175,6 +175,9 @@ jobs:
           name: Build
           command: pnpm run build
       - run:
+          name: Verify extractor was stripped from prod bundle
+          command: pnpm run check-extractor-stripped
+      - run:
           name: Extract API using api-extractor
           command: pnpm run extract-api
       - run:
@@ -223,6 +226,9 @@ jobs:
       - run:
           name: Build purchases-js
           command: pnpm run build
+      - run:
+          name: Run paywall layout extractor E2E
+          command: pnpm exec playwright install chromium && pnpm run extract:e2e
       - run:
           name: Pack purchases-js
           command: pnpm pack
