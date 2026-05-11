@@ -10,7 +10,12 @@ function parseArgs(argv) {
   const out = { darkMode: false };
   for (let i = 2; i < argv.length; i++) {
     const a = argv[i];
-    const next = () => argv[++i];
+    const next = () => {
+      if (i + 1 >= argv.length) {
+        throw new Error(`${a} requires a value`);
+      }
+      return argv[++i];
+    };
     switch (a) {
       case "--input":
         out.input = next();
@@ -44,7 +49,16 @@ function parseArgs(argv) {
     if (out[required] == null)
       throw new Error(`Missing required --${required}`);
   }
+  requirePositiveNumber(out.width, "width");
+  requirePositiveNumber(out.height, "height");
+  if (out.scale !== undefined) requirePositiveNumber(out.scale, "scale");
   return out;
+}
+
+function requirePositiveNumber(value, name) {
+  if (!Number.isFinite(value) || value <= 0) {
+    throw new Error(`--${name} must be a positive number (got: ${value})`);
+  }
 }
 
 async function readJson(path) {
@@ -122,15 +136,16 @@ async function main() {
   }
   const url = `http://localhost:${port}/`;
 
-  const browser = await chromium.launch({ headless: true });
-  const context = await browser.newContext({
-    viewport: { width: args.width, height: args.height },
-    deviceScaleFactor: args.scale ?? 1,
-    colorScheme: args.darkMode ? "dark" : "light",
-  });
-  const page = await context.newPage();
-
+  console.log("Launching browser...");
+  let browser;
   try {
+    browser = await chromium.launch({ headless: true });
+    const context = await browser.newContext({
+      viewport: { width: args.width, height: args.height },
+      deviceScaleFactor: args.scale ?? 1,
+      colorScheme: args.darkMode ? "dark" : "light",
+    });
+    const page = await context.newPage();
     await page.goto(url);
     await page.waitForFunction(
       () => typeof window.__rcExtractPaywallLayout__ === "function",
@@ -150,7 +165,7 @@ async function main() {
     );
     console.log(`Wrote ${args.out}`);
   } finally {
-    await browser.close();
+    if (browser) await browser.close();
     await server.close();
   }
 }
