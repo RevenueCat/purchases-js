@@ -49,7 +49,7 @@ export default defineConfig(() => ({
 
     // Other configurations like shims for APIs or polyfills can also be included
     // ...
-    exclude: [...configDefaults.exclude, "examples/**"],
+    exclude: [...configDefaults.exclude, "examples/**", "scripts/**"],
 
     // Set environment variables for tests
     env: {

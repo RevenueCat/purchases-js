@@ -1,0 +1,84 @@
+{
+  "paywallData": {
+    "id": "fixture-pw",
+    "default_locale": "en_US",
+    "components_localizations": {
+      "en_US": { "title-lid": "Unlock access", "buy-lid": "Buy now" }
+    },
+    "components_config": {
+      "base": {
+        "stack": {
+          "type": "stack",
+          "id": "root-stack",
+          "name": "root",
+          "components": [
+            {
+              "type": "text",
+              "id": "title",
+              "name": "title-text",
+              "text_lid": "title-lid",
+              "font_size": "heading_l",
+              "font_weight": "bold",
+              "horizontal_alignment": "center",
+              "color": { "light": { "type": "hex", "value": "#000000" } },
+              "padding": {
+                "top": 16,
+                "bottom": 16,
+                "leading": 16,
+                "trailing": 16
+              },
+              "margin": { "top": 0, "bottom": 0, "leading": 0, "trailing": 0 },
+              "size": {
+                "width": { "type": "fill" },
+                "height": { "type": "fit" }
+              }
+            },
+            {
+              "type": "text",
+              "id": "subtitle",
+              "name": "subtitle-text",
+              "text_lid": "buy-lid",
+              "font_size": "body_m",
+              "font_weight": "regular",
+              "horizontal_alignment": "center",
+              "color": { "light": { "type": "hex", "value": "#444444" } },
+              "padding": {
+                "top": 8,
+                "bottom": 8,
+                "leading": 16,
+                "trailing": 16
+              },
+              "margin": { "top": 0, "bottom": 0, "leading": 0, "trailing": 0 },
+              "size": {
+                "width": { "type": "fill" },
+                "height": { "type": "fit" }
+              }
+            }
+          ],
+          "size": { "width": { "type": "fill" }, "height": { "type": "fit" } },
+          "dimension": {
+            "type": "vertical",
+            "alignment": "center",
+            "distribution": "start"
+          },
+          "spacing": 0,
+          "margin": { "top": 0, "bottom": 0, "leading": 0, "trailing": 0 },
+          "padding": { "top": 32, "bottom": 32, "leading": 16, "trailing": 16 },
+          "background_color": {
+            "light": { "type": "hex", "value": "#ffffff" }
+          },
+          "background": null,
+          "border": null,
+          "shape": null,
+          "shadow": null
+        }
+      }
+    }
+  },
+  "uiConfig": {
+    "app": {
+      "colors": {},
+      "fonts": {}
+    }
+  }
+}
