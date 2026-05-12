@@ -17,7 +17,17 @@ export interface Frame {
 export interface ExtractInput {
   paywallData: PaywallData;
   uiConfig: UIConfig;
+  /**
+   * Full offering object. When provided, variables/packages render with the
+   * real product data. When absent, a minimal offering is synthesized.
+   */
   offering?: Offering;
+  /**
+   * Identifier to report in `metadata.offeringId` when no full `offering` is
+   * supplied. Useful when normalizing from an RC `/offerings` API response
+   * where the offering identifier is known but no package data is available.
+   */
+  offeringId?: string;
   locale: string;
   darkMode?: boolean;
   viewport: { width: number; height: number; scale?: number };

@@ -20,6 +20,12 @@ function parseArgs(argv) {
       case "--input":
         out.input = next();
         break;
+      case "--offerings":
+        out.offerings = next();
+        break;
+      case "--offering-id":
+        out.offeringId = next();
+        break;
       case "--offering":
         out.offering = next();
         break;
@@ -45,7 +51,10 @@ function parseArgs(argv) {
         throw new Error(`Unknown arg: ${a}`);
     }
   }
-  for (const required of ["input", "locale", "width", "height", "out"]) {
+  if (out.input == null && out.offerings == null) {
+    throw new Error("Missing required --input or --offerings");
+  }
+  for (const required of ["locale", "width", "height", "out"]) {
     if (out[required] == null)
       throw new Error(`Missing required --${required}`);
   }
@@ -53,6 +62,48 @@ function parseArgs(argv) {
   requirePositiveNumber(out.height, "height");
   if (out.scale !== undefined) requirePositiveNumber(out.scale, "scale");
   return out;
+}
+
+/**
+ * Normalize an RC `/offerings`-shaped JSON into an ExtractInput-friendly
+ * `{ paywallData, uiConfig }` pair. The API response uses snake_case keys and
+ * may omit `id`, `default_locale`, or `ui_config` entirely; we synthesize
+ * sensible fallbacks.
+ */
+function normalizeOfferingsPayload(payload, offeringIdArg) {
+  if (!payload || !Array.isArray(payload.offerings)) {
+    throw new Error(
+      "--offerings file must be a JSON object with an `offerings` array (RC /offerings response shape).",
+    );
+  }
+  const wantedId = offeringIdArg ?? payload.current_offering_id ?? null;
+  const offering =
+    (wantedId && payload.offerings.find((o) => o.identifier === wantedId)) ||
+    payload.offerings[0];
+  if (!offering) {
+    throw new Error("`offerings` array is empty.");
+  }
+  const pw = offering.paywall_components;
+  if (!pw) {
+    throw new Error(
+      `Offering "${offering.identifier ?? "(unknown)"}" has no paywall_components.`,
+    );
+  }
+  const localeKeys = Object.keys(pw.components_localizations ?? {});
+  const paywallData = {
+    ...pw,
+    id: pw.id ?? offering.identifier ?? "paywall",
+    default_locale: pw.default_locale ?? localeKeys[0] ?? "en_US",
+  };
+  const uiConfig = offering.ui_config ??
+    payload.ui_config ?? {
+      app: { fonts: {}, colors: {} },
+    };
+  return {
+    paywallData,
+    uiConfig,
+    offeringIdentifier: offering.identifier ?? null,
+  };
 }
 
 function requirePositiveNumber(value, name) {
@@ -67,13 +118,31 @@ async function readJson(path) {
 
 async function main() {
   const args = parseArgs(process.argv);
-  const inputPayload = await readJson(args.input);
+
+  let paywallData;
+  let uiConfig;
+  let customVariables;
+  let offeringId;
   const offering = args.offering ? await readJson(args.offering) : undefined;
 
+  if (args.offerings) {
+    const payload = await readJson(args.offerings);
+    const normalized = normalizeOfferingsPayload(payload, args.offeringId);
+    paywallData = normalized.paywallData;
+    uiConfig = normalized.uiConfig;
+    offeringId = normalized.offeringIdentifier ?? undefined;
+  } else {
+    const inputPayload = await readJson(args.input);
+    paywallData = inputPayload.paywallData;
+    uiConfig = inputPayload.uiConfig;
+    customVariables = inputPayload.customVariables;
+  }
+
   const extractInput = {
-    paywallData: inputPayload.paywallData,
-    uiConfig: inputPayload.uiConfig,
+    paywallData,
+    uiConfig,
     offering,
+    offeringId,
     locale: args.locale,
     darkMode: args.darkMode,
     viewport: {
@@ -81,7 +150,7 @@ async function main() {
       height: args.height,
       scale: args.scale ?? 1,
     },
-    customVariables: inputPayload.customVariables,
+    customVariables,
   };
 
   // Two issues to fix in the dev-server transform pipeline:

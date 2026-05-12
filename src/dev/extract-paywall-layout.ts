@@ -94,7 +94,7 @@ export async function extractPaywallLayout(
       platform: "web",
       platformVersion: getNullableWindow()?.navigator.userAgent ?? "unknown",
       extractorVersion: EXTRACTOR_VERSION,
-      offeringId: isReal ? offering.identifier : null,
+      offeringId: isReal ? offering.identifier : (input.offeringId ?? null),
       locale: mountProps.selectedLocale,
       timestamp: new Date().toISOString(),
       viewport: { width: viewport.width, height: viewport.height, scale },
