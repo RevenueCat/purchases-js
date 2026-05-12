@@ -31,6 +31,7 @@ type CheckoutPricingResponse = {
     time_window?: string | null;
   }>;
   failed_reason?: string;
+  interrupt_checkout?: boolean;
 };
 
 export const RC_PAYWALL_TEST_OFFERING_ID = "rc_paywalls_e2e_test_2";
@@ -253,31 +254,52 @@ export const INVALID_TAX_LOCATION_RESPONSE: RouteFulfillOptions = {
   } as CheckoutPricingResponse),
 };
 
-export const STRIPE_TAX_NOT_ACTIVE_RESPONSE: RouteFulfillOptions = {
-  status: 422,
-  json: {
+function createInterruptedCheckoutPricingResponse(
+  failedReason: string,
+): CheckoutPricingResponse {
+  return {
     mocked: true,
-    code: 7898,
-    message:
-      "Stripe account setup error: Stripe Tax must be active to calculate taxes.",
-  },
+    currency: "USD",
+    failed_reason: failedReason,
+    interrupt_checkout: true,
+    gateway_params: {
+      elements_configuration: {
+        amount: 999,
+        currency: "usd",
+        mode: "payment",
+        payment_method_types: ["card"],
+        setup_future_usage: "off_session",
+      },
+    },
+    operation_session_id: "MOCKED",
+    tax_breakdown: [],
+    tax_amount_in_micros: 0,
+    total_amount_in_micros: 9990000,
+    total_excluding_tax_in_micros: 9990000,
+    tax_inclusive: true,
+  } as CheckoutPricingResponse;
+}
+
+export const STRIPE_TAX_NOT_ACTIVE_RESPONSE: RouteFulfillOptions = {
+  status: 200,
+  contentType: "application/json",
+  body: JSON.stringify(
+    createInterruptedCheckoutPricingResponse("taxes_not_active"),
+  ),
 };
 
 export const INVALID_TAX_ORIGIN_RESPONSE: RouteFulfillOptions = {
-  status: 422,
-  json: {
-    mocked: true,
-    code: 7899,
-    message:
-      "Stripe account setup error: Origin address for Stripe Tax is missing or invalid.",
-  },
+  status: 200,
+  contentType: "application/json",
+  body: JSON.stringify(
+    createInterruptedCheckoutPricingResponse("invalid_origin_address"),
+  ),
 };
 
 export const MISSING_STRIPE_PERMISSION_RESPONSE: RouteFulfillOptions = {
-  status: 422,
-  json: {
-    mocked: true,
-    code: 7900,
-    message: "Stripe account setup error: Required permission is missing.",
-  },
+  status: 200,
+  contentType: "application/json",
+  body: JSON.stringify(
+    createInterruptedCheckoutPricingResponse("missing_required_permission"),
+  ),
 };
