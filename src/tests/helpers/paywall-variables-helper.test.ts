@@ -22,6 +22,7 @@ import {
   discountPhaseForever,
   introPhaseP1M199,
   trialPhaseP2W,
+  trialPhaseP7D,
 } from "../fixtures/price-phases";
 const enTranslator = new Translator({}, englishLocale);
 
@@ -694,6 +695,95 @@ describe("getPaywallVariables", () => {
           "product.secondary_offer_price": "",
           "product.secondary_offer_period": "",
           "product.secondary_offer_period_abbreviated": "",
+        }),
+      );
+    });
+  });
+
+  describe("Trial logic for subscriptions", () => {
+    test("Subscription with day-unit trial (e.g. Stripe trial_days) populates offer_period variables", () => {
+      const off = toOffering([
+        {
+          packageIdentifier: "$rc_monthly",
+          identifier: "monthly_stripe_trial",
+          title: "Monthly Stripe Trial",
+          basePriceMicros: 9000000,
+          trial: trialPhaseP7D,
+        },
+      ]);
+
+      const variables = parseOfferingIntoVariables(off, enTranslator);
+
+      expect(variables.$rc_monthly).toEqual(
+        expect.objectContaining({
+          "product.offer_price": "",
+          "product.offer_price_per_day": "",
+          "product.offer_price_per_week": "",
+          "product.offer_price_per_month": "",
+          "product.offer_price_per_year": "",
+          "product.offer_period": "day",
+          "product.offer_period_abbreviated": "d",
+          "product.offer_period_with_unit": "7 days",
+          "product.offer_period_in_days": "7",
+          "product.offer_period_in_weeks": "0",
+          "product.offer_period_in_months": "0",
+          "product.offer_period_in_years": "0",
+          "product.offer_end_date": "November 6, 2025",
+          "product.secondary_offer_price": "",
+          "product.secondary_offer_period": "",
+          "product.secondary_offer_period_abbreviated": "",
+        }),
+      );
+    });
+
+    test("Subscription with trial and intro price exposes intro price as secondary offer", () => {
+      const off = toOffering([
+        {
+          packageIdentifier: "$rc_monthly",
+          identifier: "monthly_trial_with_intro",
+          title: "Monthly Trial With Intro",
+          basePriceMicros: 9000000,
+          trial: trialPhaseP7D,
+          introPrice: introPhaseP1M199,
+        },
+      ]);
+
+      const variables = parseOfferingIntoVariables(off, enTranslator);
+
+      expect(variables.$rc_monthly).toEqual(
+        expect.objectContaining({
+          "product.offer_period": "day",
+          "product.offer_period_with_unit": "7 days",
+          "product.offer_period_in_days": "7",
+          "product.offer_end_date": "November 6, 2025",
+          "product.secondary_offer_price": "$1.99",
+          "product.secondary_offer_period": "month",
+          "product.secondary_offer_period_abbreviated": "mo",
+        }),
+      );
+    });
+
+    test("Subscription without trial or other offers leaves offer variables empty", () => {
+      const off = toOffering([
+        {
+          packageIdentifier: "$rc_monthly",
+          identifier: "monthly_no_offer",
+          title: "Monthly No Offer",
+          basePriceMicros: 9000000,
+        },
+      ]);
+
+      const variables = parseOfferingIntoVariables(off, enTranslator);
+
+      expect(variables.$rc_monthly).toEqual(
+        expect.objectContaining({
+          "product.offer_price": "",
+          "product.offer_period": "",
+          "product.offer_period_with_unit": "",
+          "product.offer_period_in_days": "",
+          "product.offer_end_date": "",
+          "product.secondary_offer_price": "",
+          "product.secondary_offer_period": "",
         }),
       );
     });
