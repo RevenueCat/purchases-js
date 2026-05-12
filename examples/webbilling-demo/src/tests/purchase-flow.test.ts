@@ -222,7 +222,7 @@ test.describe("Purchase error paths", () => {
     await enterEmail(page, "invalid-email");
     await confirmStripeEmailError(
       page,
-      /Your email address is (invalid|incomplete)\./,
+      /^Your email address is (?:incomplete|invalid)\.$/,
     );
   });
 
