@@ -34,6 +34,16 @@ Login @ [app.revenuecat.com](https://app.revenuecat.com)
 
 See the [RevenueCat docs](https://www.revenuecat.com/docs/web/web-billing) and the [SDK Reference](https://revenuecat.github.io/purchases-js-docs).
 
+## The `/pure` entrypoint
+
+A secondary entrypoint, `@revenuecat/purchases-js/pure`, is also published. It exposes the exact same public API as the default entrypoint, but internally resolves `@stripe/stripe-js` to its [`/pure`](https://docs.stripe.com/sdks/stripejs-versioning#stripejs-pure-loader) variant. This means Stripe.js is not auto-loaded when the SDK module is evaluated — the `<script>` tag is only inserted into the page when a purchase actually begins.
+
+Use this entrypoint when bundling `@revenuecat/purchases-js` inside a library that sets Rollup's `output.inlineDynamicImports: true`, which would otherwise flatten the SDK's internal dynamic `import("@stripe/stripe-js")` into a static import and trigger Stripe.js to load at SDK initialization. For all other consumers, the default entrypoint is the right choice.
+
+```ts
+import { Purchases } from "@revenuecat/purchases-js/pure";
+```
+
 # Development
 
 ## Install the library in a local project

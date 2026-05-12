@@ -1,0 +1,142 @@
+import type { CustomerInfo, Offering } from "@revenuecat/purchases-js/pure";
+import {
+  type FlagsConfig,
+  type HttpConfig,
+  type LogHandler,
+  type StoreLoadTime,
+  LogLevel,
+  Purchases,
+} from "@revenuecat/purchases-js/pure";
+import type { LoaderFunction } from "react-router-dom";
+import { redirect, useLoaderData } from "react-router-dom";
+
+declare global {
+  interface Window {
+    __RC_API_KEY__?: string;
+  }
+}
+
+const apiKey = window.__RC_API_KEY__ || import.meta.env.VITE_RC_API_KEY;
+const canary = import.meta.env.VITE_RC_CANARY;
+const proxyURL = import.meta.env.VITE_RC_PROXY_URL as string | undefined;
+const eventsURL = import.meta.env.VITE_RC_EVENTS_URL as string | undefined;
+
+type IPurchasesPureLoaderData = {
+  purchases: Purchases;
+  customerInfo: CustomerInfo;
+  offering: Offering;
+};
+
+const loadPurchasesPure: LoaderFunction<IPurchasesPureLoaderData> = async ({
+  params,
+  request,
+}) => {
+  const appUserId = params["app_user_id"];
+  const searchParams = new URL(request.url).searchParams;
+  const currency = searchParams.get("currency");
+  const offeringId = searchParams.get("offeringId");
+  const discountCode = searchParams.get("discountCode") || undefined;
+  const rcSource = searchParams.get("rcSource") || undefined;
+  const optOutOfAutoUTM =
+    searchParams.get("optOutOfAutoUTM") === "true" || false;
+  const useCustomLogger = searchParams.get("useCustomLogger") === "true";
+  const storeLoadTime =
+    (searchParams.get("storeLoadTime") as StoreLoadTime) || undefined;
+
+  if (!appUserId) {
+    throw redirect("/");
+  }
+  const additionalHeaders: Record<string, string> = {};
+  if (canary) {
+    additionalHeaders["X-RC-Canary"] = canary;
+  }
+
+  const httpConfig: HttpConfig = { additionalHeaders, proxyURL };
+  if (eventsURL) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    httpConfig.eventsURL = eventsURL;
+  }
+
+  const flagsConfig: FlagsConfig = {
+    autoCollectUTMAsMetadata: !optOutOfAutoUTM,
+    ...(storeLoadTime ? { storeLoadTime } : {}),
+  };
+  if (rcSource) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    flagsConfig.rcSource = rcSource;
+  }
+
+  if (useCustomLogger) {
+    const healthLogHandler: LogHandler = (level, message) => {
+      const healthIcon = "🏥";
+      const logMessage = `${healthIcon} ${message}`;
+
+      switch (level) {
+        case LogLevel.Error:
+          console.error(logMessage);
+          break;
+        case LogLevel.Warn:
+          console.warn(logMessage);
+          break;
+        case LogLevel.Info:
+          console.info(logMessage);
+          break;
+        case LogLevel.Debug:
+          console.debug(logMessage);
+          break;
+        case LogLevel.Verbose:
+          console.debug(logMessage);
+          break;
+      }
+    };
+
+    Purchases.setLogHandler(healthLogHandler);
+  } else {
+    Purchases.setLogHandler(null);
+  }
+
+  Purchases.setLogLevel(LogLevel.Verbose);
+  try {
+    if (!Purchases.isConfigured()) {
+      Purchases.configure({
+        apiKey,
+        appUserId,
+        httpConfig,
+        flags: flagsConfig,
+      });
+    } else {
+      await Purchases.getSharedInstance().changeUser(appUserId);
+    }
+    const purchases = Purchases.getSharedInstance();
+    const [customerInfo, offerings] = await Promise.all([
+      purchases.getCustomerInfo(),
+      purchases.getOfferings({
+        currency: currency || undefined,
+        offeringIdentifier: offeringId || undefined,
+
+        // @ts-expect-error - discountCode is experimental
+        discountCode: discountCode || undefined,
+      }),
+    ]);
+
+    const offering = offeringId
+      ? offerings.all[offeringId] || null
+      : offerings.current || null;
+
+    return {
+      purchases,
+      customerInfo,
+      offering,
+    };
+  } catch (error) {
+    console.error(error);
+    throw redirect("/");
+  }
+};
+
+const usePurchasesPureLoaderData: () => IPurchasesPureLoaderData = () =>
+  useLoaderData() as IPurchasesPureLoaderData;
+
+export { loadPurchasesPure, usePurchasesPureLoaderData };

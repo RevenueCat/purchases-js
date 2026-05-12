@@ -29,6 +29,11 @@ const LoginPage: React.FC = () => {
     }
   };
 
+  const navigateToPureEntrypoint = (appUserId?: string) => {
+    const id = appUserId || Purchases.generateRevenueCatAnonymousAppUserId();
+    navigate(`/pure/${encodeURIComponent(id)}`);
+  };
+
   return (
     <div className="login">
       <h1>Hello! What's your user ID?</h1>
@@ -92,6 +97,10 @@ const LoginPage: React.FC = () => {
                 appUserId || Purchases.generateRevenueCatAnonymousAppUserId(),
               );
             }}
+          />
+          <Button
+            caption="Try /pure entrypoint"
+            onClick={() => navigateToPureEntrypoint(appUserId)}
           />
         </div>
       </form>

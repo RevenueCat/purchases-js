@@ -14,6 +14,7 @@ import {
   loadPurchases,
   loadPurchasesWithDelayedStore,
 } from "./util/PurchasesLoader";
+import { loadPurchasesPure } from "./util/PurchasesLoaderPure";
 import RCPaywallPage from "./pages/rc_paywall";
 import DelayedStoreLoadPage from "./pages/delayed_store_load";
 import RCPaywallNoOfferingPassedPage from "./pages/rc_paywall_no_offering_passed";
@@ -22,6 +23,7 @@ import RedemptionLinksTester from "./pages/redemption_links_tester";
 import RCPaywallLauncherPage from "./pages/rc_paywall_launcher";
 import ExpressPurchaseButtonsPackageSelector from "./pages/express_purchase_buttons";
 import RCPaywallSettingsPage from "./pages/rc_paywall_settings";
+import PurePage from "./pages/pure";
 
 const router = createBrowserRouter([
   {
@@ -102,6 +104,15 @@ const router = createBrowserRouter([
     element: (
       <WithoutEntitlement>
         <DelayedStoreLoadPage />
+      </WithoutEntitlement>
+    ),
+  },
+  {
+    path: "/pure/:app_user_id",
+    loader: loadPurchasesPure,
+    element: (
+      <WithoutEntitlement>
+        <PurePage />
       </WithoutEntitlement>
     ),
   },
