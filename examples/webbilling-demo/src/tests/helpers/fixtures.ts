@@ -12,14 +12,6 @@ type CheckoutPricingResponse = {
     display_name: string;
     tax_amount_in_micros: number;
   }>;
-  pricing_phases: {
-    base: {
-      tax_breakdown: Array<{
-        display_name: string;
-        tax_amount_in_micros: number;
-      }>;
-    };
-  };
   gateway_params: {
     elements_configuration: {
       amount: number;
@@ -104,16 +96,6 @@ export const SPAIN_TAX_RESPONSE: RouteFulfillOptions = {
         tax_amount_in_micros: 1730000,
       },
     ],
-    pricing_phases: {
-      base: {
-        tax_breakdown: [
-          {
-            display_name: "VAT - Spain (21%)",
-            tax_amount_in_micros: 1730000,
-          },
-        ],
-      },
-    },
     tax_amount_in_micros: 1730000,
     total_amount_in_micros: 9990000,
     total_excluding_tax_in_micros: 8260000,
@@ -145,16 +127,6 @@ export const SPAIN_TAX_INCLUSIVE_DISCOUNTED_RESPONSE: RouteFulfillOptions = {
         tax_amount_in_micros: 1560000,
       },
     ],
-    pricing_phases: {
-      base: {
-        tax_breakdown: [
-          {
-            display_name: "VAT - Spain (21%)",
-            tax_amount_in_micros: 1560000,
-          },
-        ],
-      },
-    },
     applied_discounts: [
       {
         identifier: "forever_10",
@@ -194,16 +166,6 @@ export const ITALY_TAX_RESPONSE: RouteFulfillOptions = {
         tax_amount_in_micros: 1800000,
       },
     ],
-    pricing_phases: {
-      base: {
-        tax_breakdown: [
-          {
-            display_name: "VAT - Italy (22%)",
-            tax_amount_in_micros: 1800000,
-          },
-        ],
-      },
-    },
     tax_amount_in_micros: 1800000,
     total_amount_in_micros: 9990000,
     total_excluding_tax_in_micros: 8190000,
@@ -234,16 +196,6 @@ export const NEW_YORK_TAX_RESPONSE: RouteFulfillOptions = {
         tax_amount_in_micros: 0,
       },
     ],
-    pricing_phases: {
-      base: {
-        tax_breakdown: [
-          {
-            display_name: "Sales Tax - New York (Exempt)",
-            tax_amount_in_micros: 0,
-          },
-        ],
-      },
-    },
     tax_amount_in_micros: 0,
     total_amount_in_micros: 9990000,
     total_excluding_tax_in_micros: 9990000,
@@ -269,11 +221,6 @@ export const NOT_COLLECTING_TAX_RESPONSE: RouteFulfillOptions = {
     },
     operation_session_id: "MOCKED",
     tax_breakdown: [],
-    pricing_phases: {
-      base: {
-        tax_breakdown: [],
-      },
-    },
     tax_amount_in_micros: 0,
     total_amount_in_micros: 9990000,
     total_excluding_tax_in_micros: 9990000,
@@ -299,11 +246,6 @@ export const INVALID_TAX_LOCATION_RESPONSE: RouteFulfillOptions = {
     },
     operation_session_id: "MOCKED",
     tax_breakdown: [],
-    pricing_phases: {
-      base: {
-        tax_breakdown: [],
-      },
-    },
     tax_amount_in_micros: 0,
     total_amount_in_micros: 9990000,
     total_excluding_tax_in_micros: 9990000,
