@@ -90,7 +90,10 @@ import {
   createCheckoutSessionEndFinishedEvent,
   createCheckoutSessionStartEvent,
 } from "./behavioural-events/sdk-event-helpers";
-import { SDKEventName } from "./behavioural-events/sdk-events";
+import {
+  type PaywallContext,
+  SDKEventName,
+} from "./behavioural-events/sdk-events";
 import { autoParseUTMParams } from "./helpers/utm-params";
 import {
   defaultFlagsConfig,
@@ -1805,11 +1808,7 @@ export class Purchases {
 
   private createCheckoutOnCloseHandler(
     reject: (error: PurchasesError) => void,
-    paywallContext: {
-      paywallSessionId: string | null;
-      paywallId: string | null;
-      offeringId: string | null;
-    },
+    paywallContext: PaywallContext,
     callback?: () => void,
   ): (() => void) | undefined {
     const shouldPassOnCloseBehaviour =
@@ -1842,11 +1841,7 @@ export class Purchases {
     resolve: (value: PurchaseResult) => void,
     appUserId: string,
     rcPackage: Package,
-    paywallContext: {
-      paywallSessionId: string | null;
-      paywallId: string | null;
-      offeringId: string | null;
-    },
+    paywallContext: PaywallContext,
     callback?: () => void,
   ): (operationResult: OperationSessionSuccessfulResult) => Promise<void> {
     const onFinished = async (
@@ -1882,11 +1877,7 @@ export class Purchases {
 
   private createCheckoutOnErrorHandler(
     reject: (error: PurchasesError) => void,
-    paywallContext: {
-      paywallSessionId: string | null;
-      paywallId: string | null;
-      offeringId: string | null;
-    },
+    paywallContext: PaywallContext,
     callback?: () => void,
   ): (error: PurchaseFlowError) => void {
     const onError = (e: PurchaseFlowError) => {
