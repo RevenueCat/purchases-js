@@ -1440,9 +1440,7 @@ export class Purchases {
       rcPackage,
       purchaseOptionToUse,
       customerEmail,
-      paywallSessionId: paywallContext.paywallSessionId,
-      paywallId: paywallContext.paywallId,
-      offeringId: paywallContext.offeringId,
+      ...paywallContext,
     });
     this.eventsTracker.trackSDKEvent(event);
 
@@ -1568,9 +1566,7 @@ export class Purchases {
       rcPackage,
       purchaseOptionToUse,
       customerEmail,
-      paywallSessionId: paywallContext.paywallSessionId,
-      paywallId: paywallContext.paywallId,
-      offeringId: paywallContext.offeringId,
+      ...paywallContext,
     });
     this.eventsTracker.trackSDKEvent(event);
 
@@ -1709,9 +1705,7 @@ export class Purchases {
       rcPackage,
       purchaseOptionToUse,
       customerEmail,
-      paywallSessionId: paywallContext.paywallSessionId,
-      paywallId: paywallContext.paywallId,
-      offeringId: paywallContext.offeringId,
+      ...paywallContext,
     });
     this.eventsTracker.trackSDKEvent(event);
 
@@ -1822,9 +1816,7 @@ export class Purchases {
 
     const onClose = () => {
       const event = createCheckoutSessionEndClosedEvent({
-        paywallSessionId: paywallContext.paywallSessionId,
-        paywallId: paywallContext.paywallId,
-        offeringId: paywallContext.offeringId,
+        ...paywallContext,
       });
       this.eventsTracker.trackSDKEvent(event);
       const win = getWindow();
@@ -1851,9 +1843,7 @@ export class Purchases {
     ) => {
       const event = createCheckoutSessionEndFinishedEvent({
         redemptionInfo: operationResult.redemptionInfo,
-        paywallSessionId: paywallContext.paywallSessionId,
-        paywallId: paywallContext.paywallId,
-        offeringId: paywallContext.offeringId,
+        ...paywallContext,
       });
       this.eventsTracker.trackSDKEvent(event);
       this.inMemoryCache.invalidateAllCaches();
@@ -1886,9 +1876,7 @@ export class Purchases {
       const event = createCheckoutSessionEndErroredEvent({
         errorCode: e.errorCode?.toString(),
         errorMessage: e.message,
-        paywallSessionId: paywallContext.paywallSessionId,
-        paywallId: paywallContext.paywallId,
-        offeringId: paywallContext.offeringId,
+        ...paywallContext,
       });
       this.eventsTracker.trackSDKEvent(event);
 
