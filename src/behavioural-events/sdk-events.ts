@@ -60,6 +60,9 @@ export interface CheckoutSessionStartEvent extends ISDKEvent {
     selectedPackageId: string;
     selectedPurchaseOption: string;
     customerEmailProvidedByDeveloper: boolean;
+    paywallSessionId: string | null;
+    paywallId: string | null;
+    offeringId: string | null;
   };
 }
 
@@ -69,6 +72,9 @@ export interface CheckoutSessionFinishedEvent extends ISDKEvent {
     mode: SDKEventPurchaseMode;
     outcome: "finished";
     withRedemptionInfo: boolean;
+    paywallSessionId: string | null;
+    paywallId: string | null;
+    offeringId: string | null;
   };
 }
 
@@ -77,6 +83,9 @@ export interface CheckoutSessionClosedEvent extends ISDKEvent {
   properties: {
     mode: SDKEventPurchaseMode;
     outcome: "closed";
+    paywallSessionId: string | null;
+    paywallId: string | null;
+    offeringId: string | null;
   };
 }
 
@@ -87,6 +96,9 @@ export interface CheckoutSessionErroredEvent extends ISDKEvent {
     outcome: "errored";
     errorCode: string | null;
     errorMessage: string;
+    paywallSessionId: string | null;
+    paywallId: string | null;
+    offeringId: string | null;
   };
 }
 
