@@ -19,9 +19,11 @@
   import { translatorContextKey } from "../localization/constants";
   import { Translator } from "../localization/translator";
   import { formatPrice } from "../../helpers/price-labels";
+  import { getDurationInDays } from "../../helpers/paywall-period-helpers";
   import { getNextRenewalDate } from "../../helpers/duration-helper";
   import type { BrandingInfoResponse } from "../../networking/responses/branding-response";
   import type {
+    DiscountPhase,
     PurchaseOption,
     SubscriptionOption,
     NonSubscriptionOption,
@@ -72,6 +74,63 @@
     return LocalizationKeys.PaymentEntryPageSubscriptionTermsInfo;
   }
 
+  // TODO WEB-4205 - Translations
+  const DISCOUNT_FOREVER_TERMS_INFO =
+    "Discount applied to your subscription. Auto-renews at the discounted rate. Cancel anytime.";
+  const DISCOUNT_ONE_TIME_TERMS_INFO =
+    "Discount applies to your first payment only. Subscription auto-renews at the standard rate. Cancel anytime.";
+  const DISCOUNT_ONE_CYCLE_TERMS_INFO =
+    "One-time discount applied. Auto-renews at the standard rate. Cancel anytime.";
+  const DISCOUNT_LIMITED_TIME_TERMS_INFO =
+    "Limited-time discount. Auto-renews at the standard rate. Cancel anytime.";
+
+  function discountOnlyAppliesToFirstBillingCycle(
+    subscription: SubscriptionOption,
+    discount: DiscountPhase,
+  ): boolean {
+    if (discount.durationMode !== "time_window") {
+      return false;
+    }
+
+    const basePeriod = subscription.base.period;
+    const discountPeriod = discount.period;
+
+    if (!basePeriod || !discountPeriod || discount.cycleCount <= 0) {
+      return false;
+    }
+
+    const billingCycleDays = getDurationInDays(basePeriod);
+    const discountWindowDays = getDurationInDays({
+      number: discountPeriod.number * discount.cycleCount,
+      unit: discountPeriod.unit,
+    });
+
+    return billingCycleDays > 0 && discountWindowDays <= billingCycleDays;
+  }
+
+  function getDiscountTermsInfo(
+    subscription: SubscriptionOption | null,
+  ): string | null {
+    const discount = subscription?.discount;
+
+    if (!subscription || !discount) {
+      return null;
+    }
+
+    switch (discount.durationMode) {
+      case "forever":
+        return DISCOUNT_FOREVER_TERMS_INFO;
+      case "one_time":
+        return DISCOUNT_ONE_CYCLE_TERMS_INFO;
+      case "time_window":
+        return discountOnlyAppliesToFirstBillingCycle(subscription, discount)
+          ? DISCOUNT_ONE_TIME_TERMS_INFO
+          : DISCOUNT_LIMITED_TIME_TERMS_INFO;
+      default:
+        return null;
+    }
+  }
+
   $: firstSubscriptionPricingPhase =
     subscriptionOption?.discount ??
     subscriptionOption?.introPrice ??
@@ -110,7 +169,7 @@
       )
     : null;
 
-  $: termsInfo =
+  $: translatedTermsInfo =
     brandingInfo && firstPaymentPrice
       ? $translator.translate(termsKey, {
           appName: brandingInfo?.app_name,
@@ -119,6 +178,10 @@
           renewalDate,
         })
       : null;
+
+  $: discountTermsInfo = getDiscountTermsInfo(subscriptionOption);
+
+  $: termsInfo = discountTermsInfo ?? translatedTermsInfo;
 
   $: subscriptionInfo = subscriptionOption
     ? $translator.translate(LocalizationKeys.PaymentEntryPageSubscriptionInfo)
