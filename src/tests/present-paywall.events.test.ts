@@ -485,6 +485,34 @@ describe("Purchases.presentPaywall() paywall events", () => {
       trackPaywallEventSpy.mock.calls.map(([event]) => event.type),
     ).toEqual(["paywall_impression", "paywall_close"]);
   });
+
+  test("forwards paywall context into purchase() so checkout events can be attributed", async () => {
+    const purchases = configurePurchases();
+    const offering = createOfferingWithPaywall();
+    const packageId = offering.availablePackages[0]!.identifier;
+
+    const purchaseSpy = vi
+      .spyOn(purchases, "purchase")
+      .mockRejectedValueOnce(new PurchasesError(ErrorCode.UserCancelledError));
+
+    const paywallPromise = purchases.presentPaywall({ offering });
+    void paywallPromise.catch(() => undefined);
+
+    expect(paywallProps).toBeDefined();
+    paywallProps!.onPurchaseClicked(packageId);
+
+    await vi.waitFor(() => expect(purchaseSpy).toHaveBeenCalled());
+
+    expect(purchaseSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        paywallId: "paywall-public-id",
+        offeringId: "paywall-offering-id",
+        paywallSessionId: expect.stringMatching(
+          /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+        ),
+      }),
+    );
+  });
 });
 
 describe("Purchases.presentPaywall() complete workflow navigation", () => {

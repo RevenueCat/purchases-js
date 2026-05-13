@@ -730,6 +730,8 @@ export class Purchases {
         defaultLocale:
           offering.paywallComponents?.default_locale || englishLocale,
         paywallId: offering.paywallComponents?.id,
+        paywallSessionId,
+        offeringId: offering.identifier,
       });
 
       return { ...purchaseResult, selectedPackage: pkg };
