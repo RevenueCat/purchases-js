@@ -42,7 +42,7 @@ import {
 import type { RouteFulfillOptions } from "./helpers/test-helpers";
 
 const TAX_BREAKDOWN_ITEM_SELECTOR = ".rcb-pricing-table-row";
-const TAX_ROUTE_PATH = "**/checkout/*";
+const REFRESH_PRICING_PATH = "**/checkout/*";
 
 const isPricingRefreshRequest = (request: Request) =>
   request.method() === "PATCH";
@@ -51,7 +51,7 @@ async function routePricingRefreshRequest(
   page: Page,
   handler: (route: Route, request: Request) => Promise<void>,
 ) {
-  await page.route(TAX_ROUTE_PATH, async (route) => {
+  await page.route(REFRESH_PRICING_PATH, async (route) => {
     const request = route.request();
 
     if (!isPricingRefreshRequest(request)) {

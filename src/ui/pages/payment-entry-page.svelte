@@ -34,6 +34,7 @@
   } from "../../networking/responses/stripe-elements";
   import {
     CheckoutPricingFailedReason,
+    createPriceBreakdownFromCheckoutPricingResponse,
     type CheckoutPricingResponse,
     type TaxBreakdown,
   } from "../../networking/responses/checkout-pricing-response";
@@ -47,7 +48,6 @@
   import StripeElementsComponent from "../molecules/stripe-elements.svelte";
   import PriceUpdateInfo from "../molecules/price-update-info.svelte";
   import { getInitialPriceFromPurchaseOption } from "../../helpers/purchase-option-price-helper";
-  import { createPriceBreakdownFromCheckoutPricingResponse } from "../price-breakdown-utils";
 
   type View = "loading" | "form" | "error";
 

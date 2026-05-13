@@ -1,4 +1,5 @@
 import type { StripeElementsConfiguration } from "./stripe-elements";
+import type { PriceBreakdown, TaxCalculationStatus } from "../../ui/ui-types";
 
 export interface TaxBreakdown {
   tax_amount_in_micros: number;
@@ -42,4 +43,33 @@ export interface CheckoutPricingResponse {
   interrupt_checkout?: boolean;
   original_amount_in_micros?: number;
   applied_discounts?: CheckoutAppliedDiscountResponse[];
+}
+
+export function createPriceBreakdownFromCheckoutPricingResponse(
+  response: CheckoutPricingResponse,
+  taxCalculationStatus: TaxCalculationStatus,
+): PriceBreakdown {
+  const originalAmountInMicros =
+    response.original_amount_in_micros ??
+    response.total_excluding_tax_in_micros;
+  const appliedDiscounts = response.applied_discounts ?? [];
+
+  return {
+    currency: response.currency,
+    originalAmountInMicros,
+    totalAmountInMicros: response.total_amount_in_micros,
+    totalExcludingTaxInMicros: response.total_excluding_tax_in_micros,
+    taxCalculationStatus,
+    taxAmountInMicros: response.tax_amount_in_micros,
+    taxBreakdown: response.tax_breakdown,
+    appliedDiscounts: appliedDiscounts.map((discount) => ({
+      identifier: discount.identifier,
+      displayName: discount.display_name,
+      discountedAmountInMicros: discount.discounted_amount_in_micros,
+      percentage: discount.percentage,
+      discountCode: discount.discount_code,
+      durationMode: discount.duration_mode,
+      timeWindow: discount.time_window,
+    })),
+  };
 }

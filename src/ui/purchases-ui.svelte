@@ -33,9 +33,9 @@
   import {
     CheckoutPricingFailedReason,
     type CheckoutPricingResponse,
+    createPriceBreakdownFromCheckoutPricingResponse,
   } from "../networking/responses/checkout-pricing-response";
   import { validateEmail } from "../helpers/validators";
-  import { createPriceBreakdownFromCheckoutPricingResponse } from "./price-breakdown-utils";
   import type { PriceBreakdown, TaxCalculationStatus } from "./ui-types";
 
   interface Props {

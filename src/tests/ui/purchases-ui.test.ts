@@ -280,6 +280,7 @@ describe("PurchasesUI", () => {
         screen.getByRole("button", { name: "Remove promo code SAVE10" }),
       ).toBeTruthy();
       expect(screen.queryByLabelText("Promo code")).toBeNull();
+      expect(screen.getByText("-$1.00")).toBeTruthy();
     });
   });
 
@@ -340,6 +341,7 @@ describe("PurchasesUI", () => {
       expect(
         screen.getByRole("button", { name: "Remove promo code SAVE10" }),
       ).toBeTruthy();
+      expect(screen.getByText("-$1.00")).toBeTruthy();
     });
   });
 
@@ -391,6 +393,12 @@ describe("PurchasesUI", () => {
         onDiscountCodeChanged,
       },
     });
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: "Remove promo code SAVE10" }),
+      ).toBeTruthy();
+      expect(screen.getByText("-$1.00")).toBeTruthy();
+    });
 
     const removeButton = await screen.findByRole("button", {
       name: "Remove promo code SAVE10",
@@ -403,6 +411,7 @@ describe("PurchasesUI", () => {
       });
       expect(onDiscountCodeChanged).toHaveBeenCalledWith(null);
       expect(screen.getByLabelText("Promo code")).toBeTruthy();
+      expect(screen.queryByText("-$1.00")).toBeNull();
     });
   });
 });
