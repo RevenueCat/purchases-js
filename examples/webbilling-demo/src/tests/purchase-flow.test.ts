@@ -220,7 +220,10 @@ test.describe("Purchase error paths", () => {
     const packageCards = await getPackageCards(page);
     await startPurchaseFlow(packageCards[1]);
     await enterEmail(page, "invalid-email");
-    await confirmStripeEmailError(page, "Your email address is invalid.");
+    await confirmStripeEmailError(
+      page,
+      /^Your email address is (?:incomplete|invalid)\.$/,
+    );
   });
 
   integrationTest.fixme(

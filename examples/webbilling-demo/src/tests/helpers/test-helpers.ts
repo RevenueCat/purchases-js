@@ -315,7 +315,10 @@ export async function confirmStripeCardError(page: Page, message: string) {
   await expect(cardError).toBeVisible();
 }
 
-export async function confirmStripeEmailError(page: Page, message: string) {
+export async function confirmStripeEmailError(
+  page: Page,
+  message: string | RegExp,
+) {
   const stripeFrame = getStripeEmailFrame(page);
   const emailError = stripeFrame.getByText(message);
   await expect(emailError).toBeVisible();
