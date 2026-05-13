@@ -19,6 +19,13 @@ export const trialPhaseP2W: PricingPhase = {
   cycleCount: 1,
 };
 
+export const trialPhaseP7D: PricingPhase = {
+  ...trialPhaseP1W,
+  periodDuration: "P7D",
+  period: { number: 7, unit: PeriodUnit.Day },
+  cycleCount: 1,
+};
+
 export const discountPhaseOneTime: DiscountPhase = {
   timeWindow: null,
   periodDuration: "P1M",
