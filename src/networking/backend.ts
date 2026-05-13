@@ -318,6 +318,7 @@ export class Backend {
       product_id: string;
       currency: string;
       app_user_id: string;
+      store_user_id: string;
       presented_offering_identifier: string;
       presented_placement_identifier: string | null;
       presented_workflow_id?: string | null;
@@ -338,6 +339,7 @@ export class Backend {
       product_id: productId,
       currency: currency,
       app_user_id: appUserId,
+      store_user_id: appUserId,
       presented_offering_identifier:
         presentedOfferingContext.offeringIdentifier,
       presented_placement_identifier:

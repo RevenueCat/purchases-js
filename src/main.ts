@@ -21,9 +21,13 @@ import { type ProductResponse } from "./networking/responses/products-response";
 import { RC_ENDPOINT } from "./helpers/constants";
 import { Backend } from "./networking/backend";
 import {
+  isAmazonApiKey,
   isSimulatedStoreApiKey,
   isWebBillingSandboxApiKey,
 } from "./helpers/api-key-helper";
+import type { BillingHandler } from "./helpers/billing-handler";
+import { WebBillingHandler } from "./helpers/web-billing-handler";
+import { AmazonBillingHandler } from "./helpers/amazon-billing-handler";
 import {
   type OperationSessionSuccessfulResult,
   type PurchaseFlowError,
@@ -184,6 +188,9 @@ export class Purchases {
 
   /** @internal */
   private readonly inMemoryCache: InMemoryCache;
+
+  /** @internal */
+  private readonly billingHandler: BillingHandler;
 
   /** @internal */
   private static instance: Purchases | undefined = undefined;
@@ -414,8 +421,36 @@ export class Purchases {
       this.backend,
       this.eventsTracker,
     );
+
+    // Initialize billing handler based on API key
+    this.billingHandler = this.createBillingHandler(apiKey);
+
     this.eventsTracker.trackSDKEvent({
       eventName: SDKEventName.SDKInitialized,
+    });
+  }
+
+  /** @internal */
+  private createBillingHandler(apiKey: string): BillingHandler {
+    const onCacheInvalidate = () => this.inMemoryCache.invalidateAllCaches();
+
+    if (isAmazonApiKey(apiKey)) {
+      Logger.debugLog("Initializing Purchases SDK with Amazon API Key");
+      return new AmazonBillingHandler({
+        backend: this.backend,
+        onCacheInvalidate,
+      });
+    }
+
+    // Default to Web Billing (Stripe)
+    return new WebBillingHandler({
+      backend: this.backend,
+      eventsTracker: this.eventsTracker,
+      purchaseOperationHelper: this.purchaseOperationHelper,
+      getBrandingInfo: () => this._brandingInfo,
+      flags: this._flags,
+      isSandbox: isWebBillingSandboxApiKey(apiKey),
+      onCacheInvalidate,
     });
   }
 
@@ -690,7 +725,7 @@ export class Purchases {
       .flatMap((o: OfferingResponse) => o.packages)
       .map((p: PackageResponse) => p.platform_product_identifier);
 
-    const productsResponse = await this.backend.getProducts(
+    const productsResponse = await this.billingHandler.getProducts(
       appUserId,
       productIds,
       params?.currency,
@@ -766,6 +801,23 @@ export class Purchases {
       this.inMemoryCache.invalidateAllCaches();
       return purchaseResult;
     }
+
+    // For Amazon, use the billing handler directly
+    if (isAmazonApiKey(this._API_KEY)) {
+      const purchaseOptionToUse =
+        purchaseOption ?? rcPackage.webBillingProduct.defaultPurchaseOption;
+      return await this.billingHandler.purchase({
+        appUserId: this._appUserId,
+        rcPackage,
+        purchaseOption: purchaseOptionToUse,
+        customerEmail,
+        metadata: params.metadata,
+        selectedLocale,
+        defaultLocale,
+        skipSuccessPage,
+      });
+    }
+
     let resolvedHTMLTarget =
       htmlTarget ?? document.getElementById("rcb-ui-root");
 
@@ -954,6 +1006,19 @@ export class Purchases {
    */
   public async getCustomerInfo(): Promise<CustomerInfo> {
     return await this._getCustomerInfoForUserId(this._appUserId);
+  }
+
+  /**
+   * Syncs purchases from the store. For Amazon, this fetches purchase updates
+   * and posts receipts to RevenueCat. For Web Billing, this is a no-op since
+   * the RC backend is the source of truth.
+   *
+   * @param reset - If true, fetches all purchases. If false, fetches only updates since last call. Defaults to false.
+   * @returns The latest customer info after syncing.
+   */
+  public async syncPurchases(reset: boolean = false): Promise<CustomerInfo> {
+    await this.billingHandler.syncPurchases(this._appUserId, reset);
+    return await this.getCustomerInfo();
   }
 
   /**
