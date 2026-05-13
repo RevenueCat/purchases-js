@@ -891,6 +891,7 @@ describe("Purchases.purchase()", () => {
       resolve,
       "test-app-user-id",
       createMonthlyPackageMock(),
+      { paywallSessionId: null, paywallId: null, offeringId: null },
     );
 
     const attributionMetadata = {
