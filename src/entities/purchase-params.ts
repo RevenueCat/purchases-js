@@ -49,6 +49,20 @@ export interface PurchaseParams {
   paywallId?: string;
 
   /**
+   * The paywall session UUID for the paywall instance that initiated this
+   * purchase. Used to correlate paywall events with the resulting checkout
+   * events in analytics.
+   * @internal
+   */
+  paywallSessionId?: string;
+
+  /**
+   * The identifier of the offering this purchase originated from, if applicable.
+   * @internal
+   */
+  offeringId?: string;
+
+  /**
    * The locale to use for the purchase flow. If not specified, English will be used
    */
   selectedLocale?: string;
