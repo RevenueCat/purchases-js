@@ -196,7 +196,7 @@
       </Typography>
     </p>
   {/if}
-  {#if subscriptionInfo}
+  {#if subscriptionInfo && !discountTermsInfo}
     <p class="footer-caption">
       <Typography size="caption-default">{subscriptionInfo}</Typography>
     </p>
