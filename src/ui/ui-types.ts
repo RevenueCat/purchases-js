@@ -1,4 +1,4 @@
-import type { TaxBreakdown } from "../networking/responses/checkout-calculate-tax-response";
+import type { TaxBreakdown } from "../networking/responses/checkout-pricing-response";
 
 export type CurrentPage =
   | "payment-entry-loading"
@@ -15,11 +15,23 @@ export type TaxCalculationStatus =
   | "disabled"
   | "miss-match"; // Billing details do not match the calculation;
 
+export type AppliedDiscount = {
+  identifier: string | null;
+  displayName: string;
+  discountedAmountInMicros: number;
+  percentage: number | null;
+  discountCode: string | null;
+  durationMode?: "time_window" | null;
+  timeWindow?: string | null;
+};
+
 export type PriceBreakdown = {
   currency: string;
+  originalAmountInMicros?: number;
   totalAmountInMicros: number;
   totalExcludingTaxInMicros: number;
   taxCalculationStatus: TaxCalculationStatus;
   taxAmountInMicros: number | null;
   taxBreakdown: TaxBreakdown[] | null;
+  appliedDiscounts?: AppliedDiscount[];
 };

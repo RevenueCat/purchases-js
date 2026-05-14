@@ -15,8 +15,8 @@ import { SDKEventName } from "./sdk-events";
 import type { Package, PurchaseOption } from "../entities/offerings";
 import type { RedemptionInfo } from "../entities/redemption-info";
 import type { BrandingAppearance } from "../entities/branding";
-import type { CheckoutCalculateTaxResponse } from "../networking/responses/checkout-calculate-tax-response";
-import { CheckoutCalculateTaxFailedReason } from "../networking/responses/checkout-calculate-tax-response";
+import type { CheckoutPricingResponse } from "../networking/responses/checkout-pricing-response";
+import { CheckoutPricingFailedReason } from "../networking/responses/checkout-pricing-response";
 import type { TaxCustomerDetails } from "src/stripe/stripe-service";
 import { defaultPurchaseMode, type SDKEventPurchaseMode } from "./event";
 
@@ -153,12 +153,12 @@ export function createCheckoutPaymentTaxCalculationEvent({
   mode = defaultPurchaseMode,
 }: {
   mode?: SDKEventPurchaseMode;
-  taxCalculation: CheckoutCalculateTaxResponse;
+  taxCalculation: CheckoutPricingResponse;
   taxCustomerDetails: TaxCustomerDetails | null;
 }): CheckoutPaymentTaxCalculationEvent {
   const outcome =
     taxCalculation.failed_reason ===
-    CheckoutCalculateTaxFailedReason.tax_collection_disabled
+    CheckoutPricingFailedReason.tax_collection_disabled
       ? "disabled"
       : taxCalculation.failed_reason
         ? "failed"

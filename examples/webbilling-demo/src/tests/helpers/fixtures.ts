@@ -1,8 +1,9 @@
 import type { RouteFulfillOptions } from "./test-helpers";
 
-type CheckoutCalculateTaxResponse = {
+type CheckoutPricingResponse = {
   operation_session_id: string;
   currency: string;
+  original_amount_in_micros?: number;
   total_amount_in_micros: number;
   tax_amount_in_micros: number;
   total_excluding_tax_in_micros: number;
@@ -11,14 +12,6 @@ type CheckoutCalculateTaxResponse = {
     display_name: string;
     tax_amount_in_micros: number;
   }>;
-  pricing_phases: {
-    base: {
-      tax_breakdown: Array<{
-        display_name: string;
-        tax_amount_in_micros: number;
-      }>;
-    };
-  };
   gateway_params: {
     elements_configuration: {
       amount: number;
@@ -28,7 +21,17 @@ type CheckoutCalculateTaxResponse = {
       setup_future_usage: "off_session";
     };
   };
+  applied_discounts?: Array<{
+    identifier: string | null;
+    display_name: string;
+    discounted_amount_in_micros: number;
+    percentage: number | null;
+    discount_code: string | null;
+    duration_mode?: "time_window" | null;
+    time_window?: string | null;
+  }>;
   failed_reason?: string;
+  interrupt_checkout?: boolean;
 };
 
 export const RC_PAYWALL_TEST_OFFERING_ID = "rc_paywalls_e2e_test_2";
@@ -94,21 +97,11 @@ export const SPAIN_TAX_RESPONSE: RouteFulfillOptions = {
         tax_amount_in_micros: 1730000,
       },
     ],
-    pricing_phases: {
-      base: {
-        tax_breakdown: [
-          {
-            display_name: "VAT - Spain (21%)",
-            tax_amount_in_micros: 1730000,
-          },
-        ],
-      },
-    },
     tax_amount_in_micros: 1730000,
     total_amount_in_micros: 9990000,
     total_excluding_tax_in_micros: 8260000,
     tax_inclusive: true,
-  } as CheckoutCalculateTaxResponse),
+  } as CheckoutPricingResponse),
 };
 
 export const SPAIN_TAX_INCLUSIVE_DISCOUNTED_RESPONSE: RouteFulfillOptions = {
@@ -118,6 +111,7 @@ export const SPAIN_TAX_INCLUSIVE_DISCOUNTED_RESPONSE: RouteFulfillOptions = {
     mocked: true,
     currency: "USD",
     failed_reason: undefined,
+    original_amount_in_micros: 9990000,
     gateway_params: {
       elements_configuration: {
         amount: 899,
@@ -134,21 +128,20 @@ export const SPAIN_TAX_INCLUSIVE_DISCOUNTED_RESPONSE: RouteFulfillOptions = {
         tax_amount_in_micros: 1560000,
       },
     ],
-    pricing_phases: {
-      base: {
-        tax_breakdown: [
-          {
-            display_name: "VAT - Spain (21%)",
-            tax_amount_in_micros: 1560000,
-          },
-        ],
+    applied_discounts: [
+      {
+        identifier: "forever_10",
+        display_name: "Forever 10% Off",
+        discounted_amount_in_micros: 1000000,
+        percentage: 10,
+        discount_code: TAX_TEST_DISCOUNT_CODE,
       },
-    },
+    ],
     tax_amount_in_micros: 1560000,
     total_amount_in_micros: 8990000,
     total_excluding_tax_in_micros: 7430000,
     tax_inclusive: true,
-  } as CheckoutCalculateTaxResponse),
+  } as CheckoutPricingResponse),
 };
 
 export const ITALY_TAX_RESPONSE: RouteFulfillOptions = {
@@ -174,21 +167,11 @@ export const ITALY_TAX_RESPONSE: RouteFulfillOptions = {
         tax_amount_in_micros: 1800000,
       },
     ],
-    pricing_phases: {
-      base: {
-        tax_breakdown: [
-          {
-            display_name: "VAT - Italy (22%)",
-            tax_amount_in_micros: 1800000,
-          },
-        ],
-      },
-    },
     tax_amount_in_micros: 1800000,
     total_amount_in_micros: 9990000,
     total_excluding_tax_in_micros: 8190000,
     tax_inclusive: true,
-  } as CheckoutCalculateTaxResponse),
+  } as CheckoutPricingResponse),
 };
 
 export const NEW_YORK_TAX_RESPONSE: RouteFulfillOptions = {
@@ -214,21 +197,11 @@ export const NEW_YORK_TAX_RESPONSE: RouteFulfillOptions = {
         tax_amount_in_micros: 0,
       },
     ],
-    pricing_phases: {
-      base: {
-        tax_breakdown: [
-          {
-            display_name: "Sales Tax - New York (Exempt)",
-            tax_amount_in_micros: 0,
-          },
-        ],
-      },
-    },
     tax_amount_in_micros: 0,
     total_amount_in_micros: 9990000,
     total_excluding_tax_in_micros: 9990000,
     tax_inclusive: false,
-  } as CheckoutCalculateTaxResponse),
+  } as CheckoutPricingResponse),
 };
 
 export const NOT_COLLECTING_TAX_RESPONSE: RouteFulfillOptions = {
@@ -249,16 +222,11 @@ export const NOT_COLLECTING_TAX_RESPONSE: RouteFulfillOptions = {
     },
     operation_session_id: "MOCKED",
     tax_breakdown: [],
-    pricing_phases: {
-      base: {
-        tax_breakdown: [],
-      },
-    },
     tax_amount_in_micros: 0,
     total_amount_in_micros: 9990000,
     total_excluding_tax_in_micros: 9990000,
     tax_inclusive: false,
-  } as CheckoutCalculateTaxResponse),
+  } as CheckoutPricingResponse),
 };
 
 export const INVALID_TAX_LOCATION_RESPONSE: RouteFulfillOptions = {
@@ -279,43 +247,59 @@ export const INVALID_TAX_LOCATION_RESPONSE: RouteFulfillOptions = {
     },
     operation_session_id: "MOCKED",
     tax_breakdown: [],
-    pricing_phases: {
-      base: {
-        tax_breakdown: [],
-      },
-    },
     tax_amount_in_micros: 0,
     total_amount_in_micros: 9990000,
     total_excluding_tax_in_micros: 9990000,
     tax_inclusive: true,
-  } as CheckoutCalculateTaxResponse),
+  } as CheckoutPricingResponse),
 };
 
-export const STRIPE_TAX_NOT_ACTIVE_RESPONSE: RouteFulfillOptions = {
-  status: 422,
-  json: {
+function createInterruptedCheckoutPricingResponse(
+  failedReason: string,
+): CheckoutPricingResponse {
+  return {
     mocked: true,
-    code: 7898,
-    message:
-      "Stripe account setup error: Stripe Tax must be active to calculate taxes.",
-  },
+    currency: "USD",
+    failed_reason: failedReason,
+    interrupt_checkout: true,
+    gateway_params: {
+      elements_configuration: {
+        amount: 999,
+        currency: "usd",
+        mode: "payment",
+        payment_method_types: ["card"],
+        setup_future_usage: "off_session",
+      },
+    },
+    operation_session_id: "MOCKED",
+    tax_breakdown: [],
+    tax_amount_in_micros: 0,
+    total_amount_in_micros: 9990000,
+    total_excluding_tax_in_micros: 9990000,
+    tax_inclusive: true,
+  } as CheckoutPricingResponse;
+}
+
+export const STRIPE_TAX_NOT_ACTIVE_RESPONSE: RouteFulfillOptions = {
+  status: 200,
+  contentType: "application/json",
+  body: JSON.stringify(
+    createInterruptedCheckoutPricingResponse("taxes_not_active"),
+  ),
 };
 
 export const INVALID_TAX_ORIGIN_RESPONSE: RouteFulfillOptions = {
-  status: 422,
-  json: {
-    mocked: true,
-    code: 7899,
-    message:
-      "Stripe account setup error: Origin address for Stripe Tax is missing or invalid.",
-  },
+  status: 200,
+  contentType: "application/json",
+  body: JSON.stringify(
+    createInterruptedCheckoutPricingResponse("invalid_origin_address"),
+  ),
 };
 
 export const MISSING_STRIPE_PERMISSION_RESPONSE: RouteFulfillOptions = {
-  status: 422,
-  json: {
-    mocked: true,
-    code: 7900,
-    message: "Stripe account setup error: Required permission is missing.",
-  },
+  status: 200,
+  contentType: "application/json",
+  body: JSON.stringify(
+    createInterruptedCheckoutPricingResponse("missing_required_permission"),
+  ),
 };

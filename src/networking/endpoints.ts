@@ -1,4 +1,4 @@
-type HttpMethodType = "GET" | "POST";
+type HttpMethodType = "GET" | "POST" | "PATCH";
 
 const SUBSCRIBERS_PATH = "/v1/subscribers";
 const RC_BILLING_PATH = "/rcbilling/v1";
@@ -119,9 +119,9 @@ export class CheckoutStartEndpoint implements Endpoint {
   }
 }
 
-export class CheckoutCalculateTaxEndpoint implements Endpoint {
-  method: HttpMethodType = "POST";
-  name: string = "postCheckoutCalculateTax";
+export class CheckoutRefreshPricingEndpoint implements Endpoint {
+  method: HttpMethodType = "PATCH";
+  name: string = "patchCheckoutRefreshPricing";
   private readonly operationSessionId: string;
 
   constructor(operationSessionId: string) {
@@ -129,7 +129,7 @@ export class CheckoutCalculateTaxEndpoint implements Endpoint {
   }
 
   urlPath(): string {
-    return `${RC_BILLING_PATH}/checkout/${this.operationSessionId}/calculate_taxes`;
+    return `${RC_BILLING_PATH}/checkout/${this.operationSessionId}`;
   }
 }
 

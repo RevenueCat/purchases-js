@@ -1,4 +1,4 @@
-import type { Page, Request } from "@playwright/test";
+import type { Page, Request, Route } from "@playwright/test";
 import { expect } from "@playwright/test";
 import {
   FLORIDA_CUSTOMER_DETAILS,
@@ -42,7 +42,26 @@ import {
 import type { RouteFulfillOptions } from "./helpers/test-helpers";
 
 const TAX_BREAKDOWN_ITEM_SELECTOR = ".rcb-pricing-table-row";
-const TAX_ROUTE_PATH = "**/checkout/*/calculate_taxes";
+const REFRESH_PRICING_PATH = "**/checkout/*";
+
+const isPricingRefreshRequest = (request: Request) =>
+  request.method() === "PATCH";
+
+async function routePricingRefreshRequest(
+  page: Page,
+  handler: (route: Route, request: Request) => Promise<void>,
+) {
+  await page.route(REFRESH_PRICING_PATH, async (route) => {
+    const request = route.request();
+
+    if (!isPricingRefreshRequest(request)) {
+      await route.fallback();
+      return;
+    }
+
+    await handler(route, request);
+  });
+}
 
 const navigateToTaxesLandingUrl = (
   page: Page,
@@ -62,12 +81,12 @@ const mockTaxCalculationRequest = async (
   fulfillment: RouteFulfillOptions,
 ) => {
   let completed = false;
-  await page.route(TAX_ROUTE_PATH, async (route) => {
+  await routePricingRefreshRequest(page, async (route) => {
     if (!completed) {
       await route.fulfill(fulfillment);
       completed = true;
     } else {
-      route.fallback();
+      await route.fallback();
     }
   });
 };
@@ -90,18 +109,18 @@ const mockTaxCalculationRequest = async (
       integrationTest.beforeEach(async ({ page }) => {
         if (mockMode) {
           // Prevent the real requests from being performed
-          await page.route(TAX_ROUTE_PATH, async (route) => {
-            route.abort();
+          await routePricingRefreshRequest(page, async (route) => {
+            await route.abort();
           });
         } else {
           // Fail the test if the rate limit is reached
-          await page.route(TAX_ROUTE_PATH, async (route) => {
+          await routePricingRefreshRequest(page, async (route) => {
             const response = await route.fetch();
             const json = await response.json();
             if (json["failed_reason"] === "rate_limit_exceeded") {
               throw new Error("Stripe Tax Calculation API rate limit reached.");
             }
-            route.fulfill({ response, json });
+            await route.fulfill({ response, json });
           });
         }
       });
@@ -363,14 +382,14 @@ const mockTaxCalculationRequest = async (
           await expect(page.getByText("Total excluding tax")).toBeVisible();
           await expect(page.getByText("Total due today")).toBeVisible();
 
-          await page.route(TAX_ROUTE_PATH, async (route) => {
-            const body = await route.request().postDataJSON();
+          await routePricingRefreshRequest(page, async (route, request) => {
+            const body = await request.postDataJSON();
             if (body !== null && body["country_code"] === "IT") {
               setTimeout(async () => {
-                route.fallback();
+                await route.fallback();
               }, 10_000);
             } else {
-              route.fallback();
+              await route.fallback();
             }
           });
 
@@ -379,7 +398,7 @@ const mockTaxCalculationRequest = async (
             (request) => {
               italyTaxCalculationRequest = request;
               return (
-                request.url().includes("/calculate_taxes") &&
+                isPricingRefreshRequest(request) &&
                 request.postDataJSON().country_code === "IT"
               );
             },
@@ -387,7 +406,7 @@ const mockTaxCalculationRequest = async (
 
           const newYorkTaxCalculationRequestPromise = page.waitForRequest(
             (request) =>
-              request.url().includes("/calculate_taxes") &&
+              isPricingRefreshRequest(request) &&
               request.postDataJSON().country_code === "US",
           );
 
@@ -479,7 +498,7 @@ const mockTaxCalculationRequest = async (
           await expect(page.getByText("Total due today")).toBeVisible();
 
           let calculateTaxesCount = 0;
-          await page.route(TAX_ROUTE_PATH, async (route) => {
+          await routePricingRefreshRequest(page, async (route) => {
             calculateTaxesCount++;
             await route.fallback();
           });
@@ -526,7 +545,7 @@ const mockTaxCalculationRequest = async (
 
 integrationTest.describe("Tax calculation setup errors", () => {
   integrationTest.fixme("Stripe tax not active", async ({ page, userId }) => {
-    await page.route(TAX_ROUTE_PATH, async (route) => {
+    await routePricingRefreshRequest(page, async (route) => {
       await route.fulfill(STRIPE_TAX_NOT_ACTIVE_RESPONSE);
 
       page = await navigateToTaxesLandingUrl(page, userId);
@@ -539,7 +558,7 @@ integrationTest.describe("Tax calculation setup errors", () => {
   integrationTest.fixme(
     "Invalid tax origin address",
     async ({ page, userId }) => {
-      await page.route(TAX_ROUTE_PATH, async (route) => {
+      await routePricingRefreshRequest(page, async (route) => {
         await route.fulfill(INVALID_TAX_ORIGIN_RESPONSE);
       });
 
@@ -553,7 +572,7 @@ integrationTest.describe("Tax calculation setup errors", () => {
   integrationTest.fixme(
     "Missing Stripe permission",
     async ({ page, userId }) => {
-      await page.route(TAX_ROUTE_PATH, async (route) => {
+      await routePricingRefreshRequest(page, async (route) => {
         await route.fulfill(MISSING_STRIPE_PERMISSION_RESPONSE);
       });
 

@@ -39,9 +39,9 @@ integrationTest(
     await expect(page.getByText(/30[,.]00/)).toBeVisible();
     const packageCards = await getPackageCards(page);
     expect(packageCards.length).toBe(3);
-    expect(packageCards[0]).toHaveText(/30[,.]00/);
-    expect(packageCards[1]).toHaveText(/15[,.]00/);
-    expect(packageCards[2]).toHaveText(/19[,.]99/);
+    await expect(packageCards[0]).toHaveText(/30[,.]00/);
+    await expect(packageCards[1]).toHaveText(/15[,.]00/);
+    await expect(packageCards[2]).toHaveText(/19[,.]99/);
   },
 );
 
