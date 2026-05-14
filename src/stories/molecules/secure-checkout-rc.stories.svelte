@@ -2,6 +2,8 @@
   import { brandingModes } from "../../../.storybook/modes";
   import { defineMeta } from "@storybook/addon-svelte-csf";
   import { renderInsideNavbarBody } from "../decorators/layout-decorators";
+  import type { SubscriptionOption } from "../../entities/offerings";
+  import { PeriodUnit } from "../../helpers/duration-helper";
   import SecureCheckoutRC from "../../ui/molecules/secure-checkout-rc.svelte";
   import { brandingInfo } from "../fixtures";
   import {
@@ -13,8 +15,31 @@
     subscriptionOptionWithTrialAndIntroPricePaidUpfront,
     subscriptionOptionWithTrialAndIntroPriceRecurring,
     nonSubscriptionOptionWithDiscount,
+    subscriptionOptionWithDiscount,
+    subscriptionOptionWithDiscountForever,
     subscriptionOptionWithDiscountOneTime,
   } from "../fixtures";
+
+  const subscriptionOptionWithShortWindowDiscount = {
+    ...subscriptionOption,
+    id: "option_id_discount_short_window",
+    priceId: "price_discount_short_window",
+    discount: {
+      timeWindow: "P1W",
+      periodDuration: "P1W",
+      durationMode: "time_window",
+      price: subscriptionOptionWithDiscountOneTime.discount!.price,
+      name: "Short Window Discount",
+      period: {
+        number: 1,
+        unit: PeriodUnit.Week,
+      },
+      cycleCount: 1,
+      discountType: "percentage",
+      percentage: 20,
+      fixedAmount: null,
+    },
+  } satisfies SubscriptionOption;
 
   const { Story } = defineMeta({
     component: SecureCheckoutRC,
@@ -78,6 +103,30 @@
   args={{
     brandingInfo,
     purchaseOption: subscriptionOptionWithDiscountOneTime,
+  }}
+/>
+
+<Story
+  name="Limited-time discount with branding info"
+  args={{
+    brandingInfo,
+    purchaseOption: subscriptionOptionWithDiscount,
+  }}
+/>
+
+<Story
+  name="Forever discount with branding info"
+  args={{
+    brandingInfo,
+    purchaseOption: subscriptionOptionWithDiscountForever,
+  }}
+/>
+
+<Story
+  name="One-cycle time-window discount with branding info"
+  args={{
+    brandingInfo,
+    purchaseOption: subscriptionOptionWithShortWindowDiscount,
   }}
 />
 
