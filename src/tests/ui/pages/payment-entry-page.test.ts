@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import PaymentEntryPage from "../../../ui/pages/payment-entry-page.svelte";
 import {
   brandingInfo,
-  checkoutCalculateTaxResponse,
+  checkoutPricingResponse,
   checkoutStartResponse,
   rcPackage,
   stripeElementsConfiguration,
@@ -28,7 +28,7 @@ import type {
 } from "@stripe/stripe-js";
 import type { ComponentProps } from "svelte";
 import type { GatewayParams } from "../../../networking/responses/stripe-elements";
-import type { CheckoutCalculateTaxResponse } from "../../../networking/responses/checkout-calculate-tax-response";
+import type { CheckoutPricingResponse } from "../../../networking/responses/checkout-pricing-response";
 import { defaultPurchaseMode } from "../../../behavioural-events/event";
 
 vi.mock("../../../stripe/stripe-service", async () => {
@@ -72,10 +72,8 @@ vi.mock("../../../stripe/stripe-service", async () => {
 const eventsTrackerMock = createEventsTrackerMock();
 const purchaseOperationHelperMock: PurchaseOperationHelper = {
   prepareCheckout: async () => Promise.resolve(checkoutPrepareResponse),
-  checkoutCalculateTax: async () =>
-    Promise.resolve(
-      checkoutCalculateTaxResponse as CheckoutCalculateTaxResponse,
-    ),
+  checkoutRefreshPricing: async () =>
+    Promise.resolve(checkoutPricingResponse as CheckoutPricingResponse),
   checkoutStart: async () =>
     Promise.resolve(checkoutStartResponse as CheckoutStartResponse),
   checkoutComplete: async () =>

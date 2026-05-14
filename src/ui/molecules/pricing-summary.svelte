@@ -36,6 +36,9 @@
   const hasTrial = $derived(!!trialPhase?.periodDuration);
   const isPromoPaidUpfront = $derived(introPricePhase?.cycleCount === 1);
   const hasLimitedTimePromotion = $derived(!!introPricePhase);
+  const hasAppliedDiscount = $derived(
+    !!discountPhase || (priceBreakdown.appliedDiscounts?.length ?? 0) > 0,
+  );
 
   const promoPriceDurationText = $derived.by(() => {
     if (!hasLimitedTimePromotion || !introPricePhase?.period) return "";
@@ -96,7 +99,7 @@
 
   const formattedPrice = $derived.by(() => {
     const micros =
-      introPricePhase || discountPhase
+      introPricePhase || hasAppliedDiscount
         ? (basePhase?.price?.amountMicros ?? 0)
         : priceBreakdown.totalAmountInMicros;
 
