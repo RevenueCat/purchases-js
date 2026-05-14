@@ -27,6 +27,13 @@ export async function extractPaywallLayout(
     offering,
   } = input;
   const scale = viewport.scale ?? 1;
+  // Internal flag used by the orchestrator's screenshot mode: when set, skip
+  // the unmount / container.remove / matchMedia-restore cleanup so Playwright
+  // can take a PNG of the rendered paywall before the page is torn down. Not
+  // part of the public ExtractInput contract; the browser closing handles
+  // cleanup regardless.
+  const skipCleanup =
+    (input as { __skipCleanup?: boolean }).__skipCleanup === true;
 
   const doc = getDocument();
   const container = doc.createElement("div");
@@ -87,6 +94,10 @@ export async function extractPaywallLayout(
     const containerRect = container.getBoundingClientRect();
     const components: Record<string, ComponentLayout> = {};
     for (const entry of walkPaywallTree(paywallData)) {
+      // Per SCHEMA.md §1: emit one entry for every dashboard ID.
+      // `readComponentLayout` returns a `rendered: false` placeholder when
+      // the DOM node is missing, hidden, or has a zero-area frame — never
+      // null.
       components[entry.id] = readComponentLayout({ entry, container });
     }
 
@@ -108,13 +119,15 @@ export async function extractPaywallLayout(
 
     return { metadata, components };
   } finally {
-    try {
-      if (component) unmount(component);
-    } catch {
-      // Ignore unmount errors — best-effort cleanup.
+    if (!skipCleanup) {
+      try {
+        if (component) unmount(component);
+      } catch {
+        // Ignore unmount errors — best-effort cleanup.
+      }
+      container.remove();
+      restoreMatchMedia();
     }
-    container.remove();
-    restoreMatchMedia();
   }
 }
 

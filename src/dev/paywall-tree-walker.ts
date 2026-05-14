@@ -64,9 +64,18 @@ function* walkComponent(node: ComponentLike): Generator<WalkEntry, void, void> {
       yield* walkStackChildren(node as StackLike);
       break;
 
+    // Every button-family component wraps a `stack` that may contain its own
+    // nested components (icon + label, etc.). Without descending into
+    // `node.stack` for these types, any dashboard ID inside a button is
+    // invisible to the extractor — which then shows up as a coverage gap
+    // when comparing against iOS/Android.
     case "footer":
-    case "purchase_button":
     case "package":
+    case "button":
+    case "purchase_button":
+    case "wallet_button":
+    case "redemption_button":
+    case "express_purchase_button":
       if (node.stack) {
         yield* walkStack(node.stack);
       }

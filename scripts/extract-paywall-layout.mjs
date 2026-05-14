@@ -221,9 +221,12 @@ async function main() {
       null,
       { timeout: 10_000 },
     );
+    // Pass __skipCleanup so the in-page extractor leaves the paywall mounted
+    // after measurement — we need to screenshot it before the browser closes.
+    // The browser teardown in `finally` handles all cleanup regardless.
     const result = await page.evaluate(
       (input) => window.__rcExtractPaywallLayout__(input),
-      extractInput,
+      { ...extractInput, __skipCleanup: true },
     );
 
     await mkdir(dirname(resolve(args.out)), { recursive: true });
@@ -233,6 +236,25 @@ async function main() {
       "utf8",
     );
     console.log(`Wrote ${args.out}`);
+
+    // Take a PNG snapshot of the rendered paywall alongside the JSON. The
+    // path mirrors `--out` with the .json extension swapped for .png; if
+    // `--out` doesn't end in .json we just append .png.
+    const outPath = resolve(args.out);
+    const pngPath = outPath.endsWith(".json")
+      ? outPath.slice(0, -5) + ".png"
+      : outPath + ".png";
+    // `fullPage: false` (the default) captures just the viewport, which is
+    // exactly the area the extractor sized the container to. The paywall is
+    // inside `[data-rc-extractor-root]`; we screenshot that element directly
+    // so any framework chrome or background outside the container is excluded.
+    const root = page.locator('[data-rc-extractor-root="true"]');
+    if ((await root.count()) > 0) {
+      await root.first().screenshot({ path: pngPath });
+    } else {
+      await page.screenshot({ path: pngPath });
+    }
+    console.log(`Wrote ${pngPath}`);
   } finally {
     if (browser) await browser.close();
     await server.close();

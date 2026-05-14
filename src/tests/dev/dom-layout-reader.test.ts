@@ -1,21 +1,40 @@
 import { describe, expect, it, beforeEach } from "vitest";
 import {
   readComponentLayout,
+  mapComponentType,
   mapNativeType,
 } from "../../dev/dom-layout-reader";
 
 describe("mapNativeType", () => {
-  it("maps known types to the fixed vocabulary", () => {
+  it("maps known types to the closed vocabulary (SCHEMA.md §6)", () => {
     expect(mapNativeType("text")).toBe("StaticText");
     expect(mapNativeType("image")).toBe("Image");
-    expect(mapNativeType("icon")).toBe("Image");
+    expect(mapNativeType("icon")).toBe("Icon");
     expect(mapNativeType("purchase_button")).toBe("Button");
     expect(mapNativeType("button")).toBe("Button");
     expect(mapNativeType("wallet_button")).toBe("Button");
     expect(mapNativeType("redemption_button")).toBe("Button");
     expect(mapNativeType("express_purchase_button")).toBe("Button");
-    expect(mapNativeType("stack")).toBe("Other");
+    expect(mapNativeType("stack")).toBe("Container");
+    expect(mapNativeType("package")).toBe("Container");
+    expect(mapNativeType("footer")).toBe("Container");
+    expect(mapNativeType("input_text")).toBe("Input");
     expect(mapNativeType("anything-else")).toBe("Other");
+  });
+});
+
+describe("mapComponentType", () => {
+  it("collapses dashboard types into the schema's `type` enum", () => {
+    expect(mapComponentType("text")).toBe("text");
+    expect(mapComponentType("image")).toBe("image");
+    expect(mapComponentType("icon")).toBe("icon");
+    expect(mapComponentType("purchase_button")).toBe("button");
+    expect(mapComponentType("wallet_button")).toBe("button");
+    expect(mapComponentType("input_single_choice")).toBe("input");
+    expect(mapComponentType("stack")).toBe("container");
+    expect(mapComponentType("package")).toBe("container");
+    // Unknown types fall through to the safest default.
+    expect(mapComponentType("anything-else")).toBe("container");
   });
 });
 
@@ -28,62 +47,94 @@ describe("readComponentLayout", () => {
     document.body.appendChild(container);
   });
 
-  it("returns rendered=false when no DOM node matches the id", () => {
+  function stubRect(el: Element, x: number, y: number, w: number, h: number) {
+    (el as { getBoundingClientRect: () => DOMRect }).getBoundingClientRect =
+      () =>
+        ({
+          x,
+          y,
+          width: w,
+          height: h,
+          top: y,
+          left: x,
+          right: x + w,
+          bottom: y + h,
+          toJSON: () => ({}),
+        }) as DOMRect;
+  }
+
+  const zeroFrame = { x: 0, y: 0, width: 0, height: 0 };
+
+  it("emits rendered: false when no DOM node matches the id", () => {
+    expect(
+      readComponentLayout({
+        entry: { id: "missing", type: "text", name: "n" },
+        container,
+      }),
+    ).toEqual({
+      componentId: "missing",
+      type: "text",
+      rendered: false,
+      frame: zeroFrame,
+      state: { enabled: true, selected: false },
+    });
+  });
+
+  it("emits rendered: false when the element has display:none", () => {
+    const el = document.createElement("span");
+    el.setAttribute("data-rc-component-id", "hidden");
+    el.style.display = "none";
+    container.appendChild(el);
+    stubRect(el, 0, 0, 0, 0);
+    stubRect(container, 0, 0, 0, 0);
+
     const layout = readComponentLayout({
-      entry: { id: "missing", type: "text", name: "n" },
+      entry: { id: "hidden", type: "text", name: undefined },
       container,
     });
     expect(layout.rendered).toBe(false);
-    expect(layout.frame).toEqual({ x: 0, y: 0, width: 0, height: 0 });
+    expect(layout.frame).toEqual(zeroFrame);
     expect(layout.nativeType).toBeUndefined();
   });
 
-  it("returns rendered=true with the relative frame for a matching node", () => {
-    container.style.position = "absolute";
-    container.style.left = "10px";
-    container.style.top = "20px";
+  it("emits rendered: false when the frame has zero width or height", () => {
+    const el = document.createElement("span");
+    el.setAttribute("data-rc-component-id", "empty");
+    container.appendChild(el);
+    stubRect(el, 0, 0, 100, 0);
+    stubRect(container, 0, 0, 100, 100);
+
+    const layout = readComponentLayout({
+      entry: { id: "empty", type: "text", name: undefined },
+      container,
+    });
+    expect(layout.rendered).toBe(false);
+    expect(layout.frame).toEqual(zeroFrame);
+  });
+
+  it("emits the spec-shaped component for a matching node", () => {
     const el = document.createElement("span");
     el.setAttribute("data-rc-component-id", "title");
     el.setAttribute("data-rc-component-type", "text");
     el.textContent = "Hello";
     container.appendChild(el);
 
-    el.getBoundingClientRect = () =>
-      ({
-        x: 26,
-        y: 232,
-        width: 340,
-        height: 30,
-        top: 232,
-        left: 26,
-        right: 366,
-        bottom: 262,
-        toJSON: () => ({}),
-      }) as DOMRect;
-    container.getBoundingClientRect = () =>
-      ({
-        x: 10,
-        y: 20,
-        width: 0,
-        height: 0,
-        top: 20,
-        left: 10,
-        right: 10,
-        bottom: 20,
-        toJSON: () => ({}),
-      }) as DOMRect;
+    stubRect(el, 26, 232, 340, 30);
+    stubRect(container, 10, 20, 0, 0);
 
     const layout = readComponentLayout({
       entry: { id: "title", type: "text", name: "title-name" },
       container,
     });
-    expect(layout.rendered).toBe(true);
-    expect(layout.frame).toEqual({ x: 16, y: 212, width: 340, height: 30 });
-    expect(layout.nativeType).toBe("StaticText");
-    expect(layout.domTag).toBe("span");
-    expect(layout.label).toBe("Hello");
-    expect(layout.dashboardName).toBe("title-name");
-    expect(layout.state).toEqual({ enabled: true, selected: false });
+    expect(layout).toEqual({
+      componentId: "title",
+      type: "text",
+      rendered: true,
+      nativeType: "StaticText",
+      label: "Hello",
+      frame: { x: 16, y: 212, width: 340, height: 30 },
+      state: { enabled: true, selected: false },
+    });
   });
 
   it("respects data-rc-selected when present", () => {
@@ -92,36 +143,17 @@ describe("readComponentLayout", () => {
     el.setAttribute("data-rc-component-type", "package");
     el.setAttribute("data-rc-selected", "true");
     container.appendChild(el);
-    el.getBoundingClientRect = () =>
-      ({
-        x: 0,
-        y: 0,
-        width: 1,
-        height: 1,
-        top: 0,
-        left: 0,
-        right: 1,
-        bottom: 1,
-        toJSON: () => ({}),
-      }) as DOMRect;
-    container.getBoundingClientRect = () =>
-      ({
-        x: 0,
-        y: 0,
-        width: 1,
-        height: 1,
-        top: 0,
-        left: 0,
-        right: 1,
-        bottom: 1,
-        toJSON: () => ({}),
-      }) as DOMRect;
+    stubRect(el, 0, 0, 1, 1);
+    stubRect(container, 0, 0, 1, 1);
 
     const layout = readComponentLayout({
       entry: { id: "pkg", type: "package", name: undefined },
       container,
     });
+    expect(layout.rendered).toBe(true);
     expect(layout.state.selected).toBe(true);
+    expect(layout.type).toBe("container");
+    expect(layout.nativeType).toBe("Container");
   });
 
   it("marks aria-disabled elements as enabled=false", () => {
@@ -130,35 +162,16 @@ describe("readComponentLayout", () => {
     el.setAttribute("data-rc-component-type", "purchase_button");
     el.setAttribute("aria-disabled", "true");
     container.appendChild(el);
-    el.getBoundingClientRect = () =>
-      ({
-        x: 0,
-        y: 0,
-        width: 1,
-        height: 1,
-        top: 0,
-        left: 0,
-        right: 1,
-        bottom: 1,
-        toJSON: () => ({}),
-      }) as DOMRect;
-    container.getBoundingClientRect = () =>
-      ({
-        x: 0,
-        y: 0,
-        width: 1,
-        height: 1,
-        top: 0,
-        left: 0,
-        right: 1,
-        bottom: 1,
-        toJSON: () => ({}),
-      }) as DOMRect;
+    stubRect(el, 0, 0, 1, 1);
+    stubRect(container, 0, 0, 1, 1);
 
     const layout = readComponentLayout({
       entry: { id: "b", type: "purchase_button", name: undefined },
       container,
     });
+    expect(layout.rendered).toBe(true);
     expect(layout.state.enabled).toBe(false);
+    expect(layout.type).toBe("button");
+    expect(layout.nativeType).toBe("Button");
   });
 });

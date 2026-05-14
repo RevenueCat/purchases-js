@@ -99,7 +99,7 @@ describe("walkPaywallTree", () => {
     ]);
   });
 
-  it("captures dashboardType (raw .type) and dashboardName (raw .name)", () => {
+  it("yields each entry with its dashboard-side type and name", () => {
     const entries = [...walkPaywallTree(minimalPaywall())];
     const byId = Object.fromEntries(entries.map((e) => [e.id, e]));
     expect(byId["title"].type).toBe("text");
