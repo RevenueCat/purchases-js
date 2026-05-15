@@ -26,7 +26,10 @@
   import { eventsTrackerContextKey, brandingContextKey } from "./constants";
   import { createCheckoutFlowErrorEvent } from "../behavioural-events/sdk-event-helpers";
   import type { PurchaseMetadata } from "../entities/offerings";
-  import type { WorkflowPurchaseContext } from "../entities/purchase-params";
+  import type {
+    AttributionMetadata,
+    WorkflowPurchaseContext,
+  } from "../entities/purchase-params";
   import { writable } from "svelte/store";
   import type { BrandingAppearance } from "../entities/branding";
   import { type GatewayParams } from "../networking/responses/stripe-elements";
@@ -58,6 +61,7 @@
     onDiscountCodeChanged?: (discountCode: string | null) => void;
     termsAndConditionsUrl?: string;
     workflowPurchaseContext?: WorkflowPurchaseContext;
+    attributionMetadata?: AttributionMetadata;
     paywallId?: string;
     onFinished: (operationResult: OperationSessionSuccessfulResult) => void;
     onError: (error: PurchaseFlowError) => void;
@@ -84,6 +88,7 @@
     onDiscountCodeChanged,
     termsAndConditionsUrl,
     workflowPurchaseContext,
+    attributionMetadata,
     paywallId,
     onFinished,
     onError,
@@ -188,6 +193,7 @@
         customerEmail: nextEmail,
         metadata,
         workflowPurchaseContext,
+        attributionMetadata,
         paywallId,
         locale: selectedLocale,
       })
@@ -207,6 +213,7 @@
             customerEmail: undefined,
             metadata,
             workflowPurchaseContext,
+            attributionMetadata,
             paywallId,
             locale: selectedLocale,
           })

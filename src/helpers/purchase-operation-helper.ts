@@ -15,7 +15,11 @@ import {
   type PurchaseMetadata,
   type PurchaseOption,
 } from "../entities/offerings";
-import type { WorkflowPurchaseContext } from "../entities/purchase-params";
+import type {
+  AttributionMetadata,
+  PurchaseResponseAttributionMetadata,
+  WorkflowPurchaseContext,
+} from "../entities/purchase-params";
 import { Logger } from "./logger";
 import {
   type RedemptionInfo,
@@ -127,6 +131,8 @@ interface CheckoutStartParams {
   // Resolved from selectedLocale/defaultLocale at the public API layer.
   // Future: consider adding localeSource?: "selected" | "browser".
   locale?: string;
+
+  attributionMetadata?: AttributionMetadata;
 }
 
 interface CheckoutRefreshPricingParams {
@@ -142,7 +148,7 @@ export interface OperationSessionSuccessfulResult {
   storeTransactionIdentifier: string;
   productIdentifier: string;
   purchaseDate: Date;
-  attributionMetadata?: Record<string, unknown>;
+  attributionMetadata?: PurchaseResponseAttributionMetadata;
 }
 
 export class PurchaseOperationHelper {
@@ -245,6 +251,7 @@ export class PurchaseOperationHelper {
     customerEmail,
     metadata,
     locale,
+    attributionMetadata,
   }: CheckoutStartParams): Promise<WebBillingCheckoutStartResponse> {
     try {
       const traceId = this.eventsTracker.getTraceId();
@@ -262,6 +269,7 @@ export class PurchaseOperationHelper {
           customerEmail,
           metadata,
           locale,
+          attributionMetadata,
         });
       this.operationSessionId = checkoutStartResponse.operation_session_id;
       return checkoutStartResponse;

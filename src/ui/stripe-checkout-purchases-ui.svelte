@@ -20,7 +20,10 @@
   import type { StripeBillingParams } from "../networking/responses/checkout-start-response";
   import StripeCheckoutPurchasesUiInner from "./stripe-checkout-purchases-ui-inner.svelte";
   import { normalizeToPurchaseFlowError } from "../helpers/normalize-to-purchase-flow-error";
-  import type { WorkflowPurchaseContext } from "../entities/purchase-params";
+  import type {
+    AttributionMetadata,
+    WorkflowPurchaseContext,
+  } from "../entities/purchase-params";
   import { validateEmail } from "../helpers/validators";
   import type { Package } from "../main";
   import type { BrandingAppearance } from "../entities/branding";
@@ -42,6 +45,7 @@
     metadata: PurchaseMetadata | undefined;
     purchaseOperationHelper: PurchaseOperationHelper;
     workflowPurchaseContext?: WorkflowPurchaseContext;
+    attributionMetadata?: AttributionMetadata;
     paywallId?: string;
   }
 
@@ -62,6 +66,7 @@
     metadata,
     purchaseOperationHelper,
     workflowPurchaseContext,
+    attributionMetadata,
     paywallId,
   }: Props = $props();
   let productDetails: Product = rcPackage.webBillingProduct;
@@ -170,6 +175,7 @@
         customerEmail: email,
         metadata,
         workflowPurchaseContext,
+        attributionMetadata,
         paywallId,
         locale: selectedLocale,
       });
