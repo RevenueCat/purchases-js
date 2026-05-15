@@ -3,6 +3,9 @@ import type { Package, PurchaseMetadata, PurchaseOption } from "./offerings";
 import type { BrandingAppearance } from "./branding";
 import type { CustomTranslations } from "../ui/localization/translator";
 
+type JsonPrimitive = string | number | boolean | null;
+type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
+
 /**
  * Typed Meta Conversions API fields within an attribution metadata basket.
  * All fields are optional — only include what the browser context provides.
@@ -21,7 +24,7 @@ export type MetaCapiAttributionMetadata = {
  * key/value pairs are accepted and passed through opaquely.
  * @internal
  */
-export type AttributionMetadata = Record<string, unknown> &
+export type AttributionMetadata = Record<string, JsonValue> &
   MetaCapiAttributionMetadata;
 
 /**
