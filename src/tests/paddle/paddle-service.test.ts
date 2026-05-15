@@ -334,6 +334,28 @@ describe("PaddleService", () => {
         expect.objectContaining({ locale: "es" }),
       );
     });
+
+    test("passes attributionMetadata to backend when provided", async () => {
+      vi.mocked(initPaddle).mockResolvedValue(mockPaddleInstance);
+
+      const mockPostCheckoutStart = vi
+        .spyOn(backend, "postCheckoutStart")
+        .mockResolvedValue(paddleCheckoutStartResponse);
+
+      const attributionMetadata = {
+        fbp: "fb.1.123456789.987654321",
+        fbc: "fb.1.123456789.IwAR1234",
+      };
+
+      await paddleService.startCheckout({
+        ...startCheckoutArgs,
+        attributionMetadata,
+      });
+
+      expect(mockPostCheckoutStart).toHaveBeenCalledWith(
+        expect.objectContaining({ attributionMetadata }),
+      );
+    });
   });
 
   describe("purchase", () => {

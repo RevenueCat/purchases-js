@@ -24,6 +24,7 @@ import type {
   PresentedOfferingContext,
   PurchaseMetadata,
 } from "../main";
+import type { AttributionMetadata } from "../entities/purchase-params";
 import type { CheckoutStatusResponse } from "../networking/responses/checkout-status-response";
 import { CheckoutSessionStatus } from "../networking/responses/checkout-status-response";
 import { toRedemptionInfo } from "../entities/redemption-info";
@@ -57,6 +58,7 @@ interface PaddleStartCheckoutParams {
   customerEmail?: string;
   metadata?: PurchaseMetadata;
   locale?: string;
+  attributionMetadata?: AttributionMetadata;
 }
 
 export class PaddleService {
@@ -129,6 +131,7 @@ export class PaddleService {
     customerEmail,
     metadata,
     locale,
+    attributionMetadata,
   }: PaddleStartCheckoutParams): Promise<PaddleCheckoutStartResponse> {
     try {
       const traceId = this.eventsTracker.getTraceId();
@@ -142,6 +145,7 @@ export class PaddleService {
           customerEmail: customerEmail ?? undefined,
           metadata,
           locale,
+          attributionMetadata,
         });
 
       await this.initializePaddle(

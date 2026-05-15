@@ -18,6 +18,7 @@
     PresentedOfferingContext,
     Package,
   } from "../entities/offerings";
+  import type { AttributionMetadata } from "../entities/purchase-params";
   import { PaddleService } from "../paddle/paddle-service";
   import { normalizeToPurchaseFlowError } from "../helpers/normalize-to-purchase-flow-error";
   import type { PaddleCheckoutStartResponse } from "../networking/responses/checkout-start-response";
@@ -41,6 +42,7 @@
     purchaseOption: PurchaseOption;
     customerEmail: string | undefined;
     metadata: PurchaseMetadata | undefined;
+    attributionMetadata?: AttributionMetadata;
     unmountPaddlePurchaseUi: () => void;
     paddleService: PaddleService;
   }
@@ -62,6 +64,7 @@
     purchaseOption,
     customerEmail,
     metadata,
+    attributionMetadata,
     unmountPaddlePurchaseUi,
     paddleService,
   }: Props = $props();
@@ -146,6 +149,7 @@
         customerEmail,
         metadata,
         locale: selectedLocale,
+        attributionMetadata,
       });
       isSandbox = startResponse.paddle_billing_params.is_sandbox;
     } catch (e) {
