@@ -10,7 +10,7 @@ import type {
   StripeElements,
   StripeError,
 } from "@stripe/stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
+import { loadStripe } from "@stripe/stripe-js/pure";
 import type { StripeElementsConfiguration } from "../../networking/responses/stripe-elements";
 import type { BrandingInfoResponse } from "../../networking/responses/branding-response";
 import { Translator } from "../../ui/localization/translator";
