@@ -26,7 +26,6 @@ import { waitFor } from "@testing-library/svelte";
 import { http, HttpResponse } from "msw";
 import { expectPromiseToError } from "./test-helpers";
 import { StatusCodes } from "http-status-codes";
-import { StripeService } from "../stripe/stripe-service";
 
 describe("Purchases.configure() legacy", () => {
   test("throws error if given invalid api key", () => {
@@ -291,46 +290,6 @@ describe("Purchases.configure()", () => {
         apiKey: testApiKey,
       } as PurchasesConfig),
     ).toThrowError(PurchasesError);
-  });
-
-  test("preloads Stripe module for web billing api key with default storeLoadTime", () => {
-    const spy = vi.spyOn(StripeService, "preloadStripeModule");
-    Purchases.configure({
-      apiKey: testApiKey,
-      appUserId: testUserId,
-    });
-    expect(spy).toHaveBeenCalled();
-    spy.mockRestore();
-  });
-
-  test("does not preload Stripe module for paddle api key", () => {
-    const spy = vi.spyOn(StripeService, "preloadStripeModule");
-    Purchases.configure({
-      apiKey: "pdl_valid_key",
-      appUserId: testUserId,
-    });
-    expect(spy).not.toHaveBeenCalled();
-    spy.mockRestore();
-  });
-
-  test("preloads Stripe module for stripe api key with default storeLoadTime", () => {
-    const spy = vi.spyOn(StripeService, "preloadStripeModule");
-    Purchases.configure({
-      apiKey: "strp_valid_key",
-      appUserId: testUserId,
-    });
-    expect(spy).toHaveBeenCalled();
-    spy.mockRestore();
-  });
-
-  test("does not preload Stripe module for simulated store api key", () => {
-    const spy = vi.spyOn(StripeService, "preloadStripeModule");
-    Purchases.configure({
-      apiKey: "test_valid_key",
-      appUserId: testUserId,
-    });
-    expect(spy).not.toHaveBeenCalled();
-    spy.mockRestore();
   });
 });
 

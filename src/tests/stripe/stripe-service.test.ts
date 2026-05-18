@@ -17,7 +17,7 @@ import { Translator } from "../../ui/localization/translator";
 import { product, trialProduct } from "../../stories/fixtures";
 import type { PriceBreakdown } from "../../ui/ui-types";
 
-vi.mock("@stripe/stripe-js", () => ({
+vi.mock("@stripe/stripe-js/pure", () => ({
   loadStripe: vi.fn(),
 }));
 

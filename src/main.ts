@@ -118,9 +118,8 @@ import type {
   PresentExpressPurchaseButtonParams,
 } from "./entities/present-express-purchase-button-params";
 import { ExpressPurchaseButtonWrapper } from "./ui/express-purchase-button/express-purchase-button-wrapper.svelte";
-import { getWindow, getDocument } from "./helpers/browser-globals";
+import { getDocument, getWindow } from "./helpers/browser-globals";
 import { isAllowedCompleteWorkflowNavigateUrl } from "./helpers/complete-workflow-navigate-url";
-import { StripeService } from "./stripe/stripe-service";
 
 type UIComponentInteractionFields = UIComponentInteractionData & {
   componentURL?: string;
@@ -390,12 +389,6 @@ export class Purchases {
     const finalFlags = flags ?? defaultFlagsConfig;
 
     Purchases.validateConfig(config);
-    if (
-      finalFlags.storeLoadTime === "configuration" &&
-      (isWebBillingApiKey(apiKey) || isStripeApiKey(apiKey))
-    ) {
-      StripeService.preloadStripeModule();
-    }
     Purchases.instance = new Purchases(
       apiKey,
       appUserId,
