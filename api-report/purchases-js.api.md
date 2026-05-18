@@ -148,6 +148,7 @@ export enum ErrorCode {
 export interface FlagsConfig {
     autoCollectUTMAsMetadata?: boolean;
     collectAnalyticsEvents?: boolean;
+    // @deprecated
     storeLoadTime?: StoreLoadTime;
 }
 
@@ -557,7 +558,7 @@ export enum ReservedCustomerAttribute {
 // @public
 export type Store = "app_store" | "mac_app_store" | "play_store" | "amazon" | "stripe" | "rc_billing" | "promotional" | "paddle" | "test_store" | "galaxy" | "unknown";
 
-// @public
+// @public @deprecated
 export type StoreLoadTime = "configuration" | "purchase_start";
 
 // @public
