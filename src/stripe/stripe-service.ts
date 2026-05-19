@@ -5,9 +5,11 @@ import type {
   Stripe,
   StripeElementLocale,
   StripeElements,
-  StripeError,
   StripeEmbeddedCheckout,
+  StripeError,
 } from "@stripe/stripe-js";
+import { loadStripe } from "@stripe/stripe-js/pure";
+
 import type { BrandingInfoResponse } from "../networking/responses/branding-response";
 import { Theme } from "../ui/theme/theme";
 import { DEFAULT_TEXT_STYLES } from "../ui/theme/text";
@@ -41,32 +43,6 @@ export type TaxCustomerDetails = {
 };
 
 export class StripeService {
-  /* eslint-disable @typescript-eslint/consistent-type-imports */
-  private static stripeModulePromise: Promise<
-    typeof import("@stripe/stripe-js")
-  > | null = null;
-  /* eslint-enable @typescript-eslint/consistent-type-imports */
-
-  static preloadStripeModule(): void {
-    if (!StripeService.stripeModulePromise) {
-      StripeService.stripeModulePromise = import("@stripe/stripe-js");
-    }
-  }
-
-  private static async getLoadStripe() {
-    if (!StripeService.stripeModulePromise) {
-      StripeService.stripeModulePromise = import("@stripe/stripe-js");
-    }
-    const { loadStripe } = await StripeService.stripeModulePromise.catch(() => {
-      throw new StripeServiceError(
-        StripeServiceErrorCode.ErrorLoadingStripe,
-        undefined,
-        "Failed to load Stripe library",
-      );
-    });
-    return loadStripe;
-  }
-
   private static FORM_VALIDATED_CARD_ERROR_CODES = [
     "card_declined",
     "expired_card",
@@ -107,8 +83,6 @@ export class StripeService {
     stripeAccountId: string,
     publishableApiKey: string,
   ): Promise<{ stripe: Stripe }> {
-    const loadStripe = await StripeService.getLoadStripe();
-
     const stripe = await loadStripe(publishableApiKey, {
       stripeAccount: stripeAccountId,
     }).catch((error) => {
