@@ -88,7 +88,10 @@ import {
   createCheckoutSessionEndFinishedEvent,
   createCheckoutSessionStartEvent,
 } from "./behavioural-events/sdk-event-helpers";
-import { SDKEventName } from "./behavioural-events/sdk-events";
+import {
+  type PaywallContext,
+  SDKEventName,
+} from "./behavioural-events/sdk-events";
 import { autoParseUTMParams } from "./helpers/utm-params";
 import {
   defaultFlagsConfig,
@@ -718,6 +721,8 @@ export class Purchases {
         defaultLocale:
           offering.paywallComponents?.default_locale || englishLocale,
         paywallId: offering.paywallComponents?.id,
+        paywallSessionId,
+        offeringId: offering.identifier,
       });
 
       return { ...purchaseResult, selectedPackage: pkg };
@@ -1348,10 +1353,18 @@ export class Purchases {
       customerEmail,
       workflowPurchaseContext,
       paywallId,
+      paywallSessionId,
+      offeringId,
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
       skipSuccessPage = false,
     } = params;
+
+    const paywallContext = {
+      paywallSessionId: paywallSessionId ?? null,
+      paywallId: paywallId ?? null,
+      offeringId: offeringId ?? null,
+    };
 
     const certainHTMLTarget = this.resolveHTMLTarget(htmlTarget);
 
@@ -1371,6 +1384,7 @@ export class Purchases {
       rcPackage,
       purchaseOptionToUse,
       customerEmail,
+      ...paywallContext,
     });
     this.eventsTracker.trackSDKEvent(event);
 
@@ -1404,6 +1418,7 @@ export class Purchases {
 
       const onClose = this.createCheckoutOnCloseHandler(
         reject,
+        paywallContext,
         unmountPurchaseUi,
       );
 
@@ -1415,11 +1430,13 @@ export class Purchases {
         resolve,
         appUserId,
         rcPackage,
+        paywallContext,
         unmountPurchaseUi,
       );
 
       const onError = this.createCheckoutOnErrorHandler(
         reject,
+        paywallContext,
         unmountPurchaseUi,
       );
 
@@ -1458,6 +1475,9 @@ export class Purchases {
       htmlTarget,
       customerEmail,
       workflowPurchaseContext,
+      paywallId,
+      paywallSessionId,
+      offeringId,
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
       skipSuccessPage = false,
@@ -1465,6 +1485,12 @@ export class Purchases {
       discountCode,
       onDiscountCodeChanged,
     } = params;
+
+    const paywallContext = {
+      paywallSessionId: paywallSessionId ?? null,
+      paywallId: paywallId ?? null,
+      offeringId: offeringId ?? null,
+    };
 
     const certainHTMLTarget = this.resolveHTMLTarget(htmlTarget);
 
@@ -1484,6 +1510,7 @@ export class Purchases {
       rcPackage,
       purchaseOptionToUse,
       customerEmail,
+      ...paywallContext,
     });
     this.eventsTracker.trackSDKEvent(event);
 
@@ -1517,6 +1544,7 @@ export class Purchases {
 
       const onClose = this.createCheckoutOnCloseHandler(
         reject,
+        paywallContext,
         unmountPurchaseUi,
       );
 
@@ -1528,11 +1556,13 @@ export class Purchases {
         resolve,
         appUserId,
         rcPackage,
+        paywallContext,
         unmountPurchaseUi,
       );
 
       const onError = this.createCheckoutOnErrorHandler(
         reject,
+        paywallContext,
         unmountPurchaseUi,
       );
 
@@ -1545,7 +1575,7 @@ export class Purchases {
           purchaseOption: purchaseOptionToUse,
           customerEmail,
           workflowPurchaseContext,
-          paywallId: params.paywallId,
+          paywallId,
           onFinished,
           onClose,
           onError,
@@ -1574,11 +1604,20 @@ export class Purchases {
       rcPackage,
       purchaseOption,
       customerEmail,
+      paywallId,
+      paywallSessionId,
+      offeringId,
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
       skipSuccessPage = false,
       htmlTarget,
     } = params;
+
+    const paywallContext = {
+      paywallSessionId: paywallSessionId ?? null,
+      paywallId: paywallId ?? null,
+      offeringId: offeringId ?? null,
+    };
     const certainHTMLTarget = this.resolveHTMLTarget(htmlTarget);
 
     const appUserId = this._appUserId;
@@ -1610,6 +1649,7 @@ export class Purchases {
       rcPackage,
       purchaseOptionToUse,
       customerEmail,
+      ...paywallContext,
     });
     this.eventsTracker.trackSDKEvent(event);
 
@@ -1632,7 +1672,11 @@ export class Purchases {
       };
 
       const onClose =
-        this.createCheckoutOnCloseHandler(reject, unmountPaddlePurchaseUi) ??
+        this.createCheckoutOnCloseHandler(
+          reject,
+          paywallContext,
+          unmountPaddlePurchaseUi,
+        ) ??
         // Always unmount PaddlePurchaseUi when the user closes the checkout modal
         (() => {
           unmountPaddlePurchaseUi();
@@ -1642,12 +1686,13 @@ export class Purchases {
         resolve,
         appUserId,
         rcPackage,
+        paywallContext,
         unmountPaddlePurchaseUi,
       );
 
       // Don't pass in unmountPaddlePurchaseUi to onError. We usually want to show
       // errors on PaddlePurchaseUi's error page instead of unmounting the UI.
-      const onError = this.createCheckoutOnErrorHandler(reject);
+      const onError = this.createCheckoutOnErrorHandler(reject, paywallContext);
 
       if (!component) {
         component = mount(PaddlePurchasesUi, {
@@ -1703,6 +1748,7 @@ export class Purchases {
 
   private createCheckoutOnCloseHandler(
     reject: (error: PurchasesError) => void,
+    paywallContext: PaywallContext,
     callback?: () => void,
   ): (() => void) | undefined {
     const shouldPassOnCloseBehaviour =
@@ -1713,7 +1759,9 @@ export class Purchases {
     }
 
     const onClose = () => {
-      const event = createCheckoutSessionEndClosedEvent();
+      const event = createCheckoutSessionEndClosedEvent({
+        ...paywallContext,
+      });
       this.eventsTracker.trackSDKEvent(event);
       const win = getWindow();
       win.removeEventListener("popstate", onClose as EventListener);
@@ -1731,6 +1779,7 @@ export class Purchases {
     resolve: (value: PurchaseResult) => void,
     appUserId: string,
     rcPackage: Package,
+    paywallContext: PaywallContext,
     callback?: () => void,
   ): (operationResult: OperationSessionSuccessfulResult) => Promise<void> {
     const onFinished = async (
@@ -1738,6 +1787,7 @@ export class Purchases {
     ) => {
       const event = createCheckoutSessionEndFinishedEvent({
         redemptionInfo: operationResult.redemptionInfo,
+        ...paywallContext,
       });
       this.eventsTracker.trackSDKEvent(event);
       this.inMemoryCache.invalidateAllCaches();
@@ -1763,12 +1813,14 @@ export class Purchases {
 
   private createCheckoutOnErrorHandler(
     reject: (error: PurchasesError) => void,
+    paywallContext: PaywallContext,
     callback?: () => void,
   ): (error: PurchaseFlowError) => void {
     const onError = (e: PurchaseFlowError) => {
       const event = createCheckoutSessionEndErroredEvent({
         errorCode: e.errorCode?.toString(),
         errorMessage: e.message,
+        ...paywallContext,
       });
       this.eventsTracker.trackSDKEvent(event);
 

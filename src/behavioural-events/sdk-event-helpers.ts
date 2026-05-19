@@ -64,12 +64,18 @@ export function createCheckoutSessionStartEvent({
   purchaseOptionToUse,
   customerEmail,
   mode = defaultPurchaseMode,
+  paywallSessionId = null,
+  paywallId = null,
+  offeringId = null,
 }: {
   appearance: BrandingAppearance | null | undefined;
   rcPackage: Package;
   purchaseOptionToUse: PurchaseOption;
   customerEmail: string | undefined;
   mode?: SDKEventPurchaseMode;
+  paywallSessionId?: string | null;
+  paywallId?: string | null;
+  offeringId?: string | null;
 }): CheckoutSessionStartEvent {
   return {
     eventName: SDKEventName.CheckoutSessionStart,
@@ -94,6 +100,9 @@ export function createCheckoutSessionStartEvent({
       selectedPackageId: rcPackage.identifier,
       selectedPurchaseOption: purchaseOptionToUse.id,
       customerEmailProvidedByDeveloper: Boolean(customerEmail),
+      paywallSessionId,
+      paywallId,
+      offeringId,
     },
   };
 }
@@ -101,9 +110,15 @@ export function createCheckoutSessionStartEvent({
 export function createCheckoutSessionEndFinishedEvent({
   redemptionInfo,
   mode = defaultPurchaseMode,
+  paywallSessionId = null,
+  paywallId = null,
+  offeringId = null,
 }: {
   mode?: SDKEventPurchaseMode;
   redemptionInfo: RedemptionInfo | null;
+  paywallSessionId?: string | null;
+  paywallId?: string | null;
+  offeringId?: string | null;
 }): CheckoutSessionFinishedEvent {
   return {
     eventName: SDKEventName.CheckoutSessionEnd,
@@ -111,18 +126,27 @@ export function createCheckoutSessionEndFinishedEvent({
       mode: mode,
       outcome: "finished",
       withRedemptionInfo: Boolean(redemptionInfo),
+      paywallSessionId,
+      paywallId,
+      offeringId,
     },
   };
 }
 
 export function createCheckoutSessionEndClosedEvent(properties?: {
-  mode: SDKEventPurchaseMode;
+  mode?: SDKEventPurchaseMode;
+  paywallSessionId?: string | null;
+  paywallId?: string | null;
+  offeringId?: string | null;
 }): CheckoutSessionClosedEvent {
   return {
     eventName: SDKEventName.CheckoutSessionEnd,
     properties: {
       mode: properties?.mode ?? defaultPurchaseMode,
       outcome: "closed",
+      paywallSessionId: properties?.paywallSessionId ?? null,
+      paywallId: properties?.paywallId ?? null,
+      offeringId: properties?.offeringId ?? null,
     },
   };
 }
@@ -131,10 +155,16 @@ export function createCheckoutSessionEndErroredEvent({
   errorCode,
   errorMessage,
   mode = defaultPurchaseMode,
+  paywallSessionId = null,
+  paywallId = null,
+  offeringId = null,
 }: {
   mode?: SDKEventPurchaseMode;
   errorCode: string | null;
   errorMessage: string;
+  paywallSessionId?: string | null;
+  paywallId?: string | null;
+  offeringId?: string | null;
 }): CheckoutSessionErroredEvent {
   return {
     eventName: SDKEventName.CheckoutSessionEnd,
@@ -143,6 +173,9 @@ export function createCheckoutSessionEndErroredEvent({
       outcome: "errored",
       errorCode: errorCode,
       errorMessage: errorMessage,
+      paywallSessionId,
+      paywallId,
+      offeringId,
     },
   };
 }

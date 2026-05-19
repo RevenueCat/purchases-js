@@ -1,5 +1,11 @@
 import { type EventProperties, type SDKEventPurchaseMode } from "./event";
 
+export type PaywallContext = {
+  paywallSessionId: string | null;
+  paywallId: string | null;
+  offeringId: string | null;
+};
+
 export type SDKEvent =
   | SDKInitializedEvent
   | CheckoutSessionStartEvent
@@ -60,7 +66,7 @@ export interface CheckoutSessionStartEvent extends ISDKEvent {
     selectedPackageId: string;
     selectedPurchaseOption: string;
     customerEmailProvidedByDeveloper: boolean;
-  };
+  } & PaywallContext;
 }
 
 export interface CheckoutSessionFinishedEvent extends ISDKEvent {
@@ -69,7 +75,7 @@ export interface CheckoutSessionFinishedEvent extends ISDKEvent {
     mode: SDKEventPurchaseMode;
     outcome: "finished";
     withRedemptionInfo: boolean;
-  };
+  } & PaywallContext;
 }
 
 export interface CheckoutSessionClosedEvent extends ISDKEvent {
@@ -77,7 +83,7 @@ export interface CheckoutSessionClosedEvent extends ISDKEvent {
   properties: {
     mode: SDKEventPurchaseMode;
     outcome: "closed";
-  };
+  } & PaywallContext;
 }
 
 export interface CheckoutSessionErroredEvent extends ISDKEvent {
@@ -87,7 +93,7 @@ export interface CheckoutSessionErroredEvent extends ISDKEvent {
     outcome: "errored";
     errorCode: string | null;
     errorMessage: string;
-  };
+  } & PaywallContext;
 }
 
 export interface CheckoutFlowErrorEvent extends ISDKEvent {

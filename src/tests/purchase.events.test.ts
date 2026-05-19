@@ -114,6 +114,9 @@ describe("Purchases.configure()", () => {
               selected_package_id: "$rc_monthly",
               selected_product_id: "monthly",
               selected_purchase_option: "base_option",
+              paywall_session_id: null,
+              paywall_id: null,
+              offering_id: null,
             },
           },
         ],
@@ -157,6 +160,58 @@ describe("Purchases.configure()", () => {
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               outcome: "finished",
               with_redemption_info: false,
+              paywall_session_id: null,
+              paywall_id: null,
+              offering_id: null,
+            },
+          },
+        ],
+      },
+      keepalive: true,
+    });
+  });
+
+  test("includes paywall context on checkout_session_end when purchase() is called with paywall params", async () => {
+    vi.mocked(mount).mockImplementation((_component, options) => {
+      options.props?.onFinished("test-operation-session-id", null);
+      return vi.fn();
+    });
+
+    const purchases = Purchases.getSharedInstance();
+    const offerings = await purchases.getOfferings();
+    const packageToBuy = offerings.current?.availablePackages[0];
+
+    await purchases.purchase({
+      rcPackage: packageToBuy!,
+      paywallId: "paywall-public-id",
+      paywallSessionId: "paywall-session-uuid",
+      offeringId: "paywall-offering-id",
+    });
+
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(APIPostRequest).toHaveBeenLastCalledWith({
+      url: "http://localhost:8000/v1/events",
+      json: {
+        events: [
+          {
+            id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+            type: "web_billing",
+            event_name: "checkout_session_end",
+            timestamp_ms: date.getTime(),
+            app_user_id: "someAppUserId",
+            context: {
+              source: "sdk",
+              rc_source: "rcSource",
+            },
+            properties: {
+              mode: defaultPurchaseMode,
+              trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+              outcome: "finished",
+              with_redemption_info: false,
+              paywall_session_id: "paywall-session-uuid",
+              paywall_id: "paywall-public-id",
+              offering_id: "paywall-offering-id",
             },
           },
         ],
@@ -231,6 +286,9 @@ describe("Purchases.configure()", () => {
               mode: defaultPurchaseMode,
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               outcome: "closed",
+              paywall_session_id: null,
+              paywall_id: null,
+              offering_id: null,
             },
           },
         ],
@@ -283,6 +341,9 @@ describe("Purchases.configure()", () => {
               outcome: "errored",
               error_code: "0",
               error_message: "Unexpected error",
+              paywall_session_id: null,
+              paywall_id: null,
+              offering_id: null,
             },
           },
         ],
@@ -335,6 +396,9 @@ describe("Purchases.configure()", () => {
               trace_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
               outcome: "finished",
               with_redemption_info: false,
+              paywall_session_id: null,
+              paywall_id: null,
+              offering_id: null,
             },
           },
         ],
