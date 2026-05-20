@@ -183,7 +183,13 @@ export type { LogHandler } from "./entities/logging";
 export type { IdentifyResult } from "./entities/identify-result";
 export type { GetOfferingsParams } from "./entities/get-offerings-params";
 export { OfferingKeyword } from "./entities/get-offerings-params";
-export type { PurchaseParams } from "./entities/purchase-params";
+export type {
+  AttributionMetadata,
+  MetaCapiAttributionMetadata,
+  MetaCanonicalAttributionMetadata,
+  PurchaseResponseAttributionMetadata,
+  PurchaseParams,
+} from "./entities/purchase-params";
 export type { RedemptionInfo } from "./entities/redemption-info";
 export type {
   PurchaseResult,
@@ -1347,6 +1353,7 @@ export class Purchases {
       htmlTarget,
       customerEmail,
       workflowPurchaseContext,
+      attributionMetadata,
       paywallId,
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
@@ -1432,6 +1439,7 @@ export class Purchases {
           purchaseOption: purchaseOptionToUse,
           customerEmail,
           workflowPurchaseContext,
+          attributionMetadata,
           paywallId,
           onFinished,
           onClose,
@@ -1458,6 +1466,7 @@ export class Purchases {
       htmlTarget,
       customerEmail,
       workflowPurchaseContext,
+      attributionMetadata,
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
       skipSuccessPage = false,
@@ -1545,6 +1554,7 @@ export class Purchases {
           purchaseOption: purchaseOptionToUse,
           customerEmail,
           workflowPurchaseContext,
+          attributionMetadata,
           paywallId: params.paywallId,
           onFinished,
           onClose,
@@ -1574,6 +1584,7 @@ export class Purchases {
       rcPackage,
       purchaseOption,
       customerEmail,
+      attributionMetadata,
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
       skipSuccessPage = false,
@@ -1668,6 +1679,7 @@ export class Purchases {
             appUserId,
             purchaseOption: purchaseOptionToUse,
             customerEmail,
+            attributionMetadata,
             metadata,
             unmountPaddlePurchaseUi,
             paddleService,

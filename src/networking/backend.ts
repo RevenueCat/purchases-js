@@ -33,6 +33,7 @@ import type { CheckoutPricingResponse } from "./responses/checkout-pricing-respo
 import { isWebBillingSandboxApiKey } from "../helpers/api-key-helper";
 import type { IdentifyResponse } from "./responses/identify-response";
 import type { CheckoutPrepareResponse } from "./responses/checkout-prepare-response";
+import type { AttributionMetadata } from "../entities/purchase-params";
 
 interface CheckoutStartRequestParams {
   // Purchase identity
@@ -51,6 +52,8 @@ interface CheckoutStartRequestParams {
   metadata?: PurchaseMetadata;
   // Locale for lifecycle emails.
   locale?: string;
+
+  attributionMetadata?: AttributionMetadata;
 }
 
 interface CheckoutRefreshPricingParams {
@@ -199,6 +202,7 @@ export class Backend {
     customerEmail,
     metadata,
     locale,
+    attributionMetadata,
   }: CheckoutStartRequestParams): Promise<T> {
     type CheckoutStartRequestBody = {
       app_user_id: string;
@@ -220,6 +224,7 @@ export class Backend {
       paywall?: {
         paywall_id: string;
       };
+      attribution_metadata?: AttributionMetadata;
     };
 
     const requestBody: CheckoutStartRequestBody = {
@@ -269,6 +274,10 @@ export class Backend {
 
     if (locale) {
       requestBody.locale = locale;
+    }
+
+    if (attributionMetadata) {
+      requestBody.attribution_metadata = attributionMetadata;
     }
 
     return (await performRequest<CheckoutStartRequestBody, T>(

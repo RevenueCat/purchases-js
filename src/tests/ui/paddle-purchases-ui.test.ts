@@ -140,6 +140,30 @@ describe("PaddlePurchasesUI", () => {
     });
   });
 
+  test("passes attributionMetadata to startCheckout when provided", async () => {
+    const paddleServiceMock = createPaddleServiceMock();
+    const startCheckoutSpy = vi.spyOn(paddleServiceMock, "startCheckout");
+    const attributionMetadata = {
+      fbp: "fb.1.123456789.987654321",
+      fbc: "fb.1.123456789.IwAR1234",
+    };
+
+    render(PaddlePurchasesUI, {
+      props: {
+        ...baseProps,
+        paddleService: paddleServiceMock,
+        attributionMetadata,
+      },
+      context: defaultContext,
+    });
+
+    await waitFor(() => {
+      expect(startCheckoutSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ attributionMetadata }),
+      );
+    });
+  });
+
   test("transitions to loading page when checkout is loaded", async () => {
     const paddleServiceMock = createPaddleServiceMock();
     let onCheckoutLoadedCallback: (() => void) | undefined;
