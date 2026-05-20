@@ -1,3 +1,11 @@
+## 1.41.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Migrated to using stripe pure (#882) via Nicola Sacco (@nicfix)
+
+### 🔄 Other Changes
+* FUN-2196: Add attribution metadata input channel to purchases.purchase() (#875) via Jamie Holwill (@jholwill)
+
 ## 1.41.0
 ## RevenueCat SDK
 ### ✨ New Features

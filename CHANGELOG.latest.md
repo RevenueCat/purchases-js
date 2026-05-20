@@ -1,7 +1,6 @@
 ## RevenueCat SDK
-### ✨ New Features
-* [WEB-3760] Terms copy for discounts (#879) via James O'Donnell (@james-od)
-* [WEB-4224] Simplify checkout refresh after applying code (#865) via James O'Donnell (@james-od)
+### 🐞 Bugfixes
+* Migrated to using stripe pure (#882) via Nicola Sacco (@nicfix)
 
 ### 🔄 Other Changes
-* [WST-609] Add Stripe day-unit trial coverage for paywall variables (#874) via Volodymyr Kartavyi (@vkartaviy)
+* FUN-2196: Add attribution metadata input channel to purchases.purchase() (#875) via Jamie Holwill (@jholwill)
