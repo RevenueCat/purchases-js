@@ -729,6 +729,17 @@ const offeringsResponsesPerUserId: { [userId: string]: OfferingsResponse } = {
       revision: 123,
     },
   },
+  appUserIdWithPlacementsFallbackOnly: {
+    current_offering_id: "offering_1",
+    offerings: offeringsArray,
+    placements: {
+      fallback_offering_id: "offering_1",
+    },
+    targeting: {
+      rule_id: "test_rule_id",
+      revision: 123,
+    },
+  },
   appUserIdWithoutCurrentOfferingId: {
     current_offering_id: null,
     offerings: offeringsArray,
@@ -811,6 +822,7 @@ const offeringsResponsesPerUserId: { [userId: string]: OfferingsResponse } = {
 
 const productsResponsesPerUserId: { [userId: string]: object } = {
   someAppUserId: productsResponse,
+  appUserIdWithPlacementsFallbackOnly: productsResponse,
   appUserIdWithoutCurrentOfferingId: productsResponse,
   appUserIdWithMissingProducts: { product_details: [monthlyProductResponse] },
   appUserIdWithNonSubscriptionProducts: {

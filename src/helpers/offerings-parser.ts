@@ -49,11 +49,7 @@ export const findOfferingByPlacementId = (
   allOfferings: { [offeringId: string]: Offering },
   placementId: string,
 ): Offering | null => {
-  const offeringIdsByPlacement =
-    placementsData.offering_ids_by_placement ?? null;
-  if (offeringIdsByPlacement == null) {
-    return null;
-  }
+  const offeringIdsByPlacement = placementsData.offering_ids_by_placement ?? {};
   const fallbackOfferingId = placementsData.fallback_offering_id ?? null;
   let offering: Offering | undefined;
   if (placementId in offeringIdsByPlacement) {
@@ -62,10 +58,10 @@ export const findOfferingByPlacementId = (
       return null;
     }
     offering = allOfferings[offeringId];
-    if (offering == undefined) {
+    if (offering == undefined && fallbackOfferingId != null) {
       offering = allOfferings[fallbackOfferingId];
     }
-  } else {
+  } else if (fallbackOfferingId != null) {
     offering = allOfferings[fallbackOfferingId];
   }
 

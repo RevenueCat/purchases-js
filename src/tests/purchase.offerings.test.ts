@@ -895,4 +895,16 @@ describe("getOfferings placements", () => {
         .presentedOfferingContext.placementIdentifier,
     ).toEqual("test_placement_id");
   });
+
+  test("gets fallback offering when offering_ids_by_placement is omitted", async () => {
+    const purchases = configurePurchases("appUserIdWithPlacementsFallbackOnly");
+    const offeringWithPlacement =
+      await purchases.getCurrentOfferingForPlacement("any_placement_id");
+    expect(offeringWithPlacement).not.toBeNull();
+    expect(offeringWithPlacement?.identifier).toEqual("offering_1");
+    expect(
+      offeringWithPlacement!.availablePackages[0].webBillingProduct
+        .presentedOfferingContext.placementIdentifier,
+    ).toEqual("any_placement_id");
+  });
 });
