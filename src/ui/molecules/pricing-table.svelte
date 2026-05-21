@@ -262,33 +262,31 @@
       {/if}
     {/if}
 
-    {#if showDetailsControls}
-      {#if showTaxBreakdown}
-        <div class="rcb-pricing-table-row">
-          <div class="rcb-pricing-table-header">
-            <Typography size="body-small">
-              {$translator.translate(LocalizationKeys.PricingTotalExcludingTax)}
-            </Typography>
-          </div>
-          <div class="rcb-pricing-table-value">
-            <Typography size="body-small">
-              {#if isTaxCalculationPending}
-                <Skeleton>
-                  {$translator.formatPrice(
-                    priceBreakdown.totalExcludingTaxInMicros,
-                    priceBreakdown.currency,
-                  )}
-                </Skeleton>
-              {:else}
+    {#if showTaxBreakdown}
+      <div class="rcb-pricing-table-row">
+        <div class="rcb-pricing-table-header">
+          <Typography size="body-small">
+            {$translator.translate(LocalizationKeys.PricingTotalExcludingTax)}
+          </Typography>
+        </div>
+        <div class="rcb-pricing-table-value">
+          <Typography size="body-small">
+            {#if isTaxCalculationPending}
+              <Skeleton>
                 {$translator.formatPrice(
                   priceBreakdown.totalExcludingTaxInMicros,
                   priceBreakdown.currency,
                 )}
-              {/if}
-            </Typography>
-          </div>
+              </Skeleton>
+            {:else}
+              {$translator.formatPrice(
+                priceBreakdown.totalExcludingTaxInMicros,
+                priceBreakdown.currency,
+              )}
+            {/if}
+          </Typography>
         </div>
-      {/if}
+      </div>
 
       {#if priceBreakdown.taxCalculationStatus === "loading"}
         <div class="rcb-pricing-table-row" data-testid="tax-loading-skeleton">
@@ -338,9 +336,7 @@
         {/each}
       {/if}
 
-      {#if showTaxBreakdown}
-        <div class="rcb-pricing-table-separator"></div>
-      {/if}
+      <div class="rcb-pricing-table-separator"></div>
     {/if}
 
     {#if trialEndDate}
