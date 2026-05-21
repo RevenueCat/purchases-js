@@ -271,7 +271,7 @@
         </div>
         <div class="rcb-pricing-table-value">
           <Typography size="body-small">
-            {#if isTaxCalculationPending}
+            {#if priceBreakdown.taxCalculationStatus === "loading"}
               <Skeleton>
                 {$translator.formatPrice(
                   priceBreakdown.totalExcludingTaxInMicros,
