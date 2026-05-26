@@ -31,19 +31,61 @@ type RGB = {
 };
 
 const hexToRGB = (color: string): RGB | null => {
-  if (color.length == 7)
-    return {
-      r: parseInt(color.slice(1, 3), 16),
-      g: parseInt(color.slice(3, 5), 16),
-      b: parseInt(color.slice(5, 7), 16),
-    };
-  if (color.length == 4)
-    return {
-      r: parseInt(color[1], 16),
-      g: parseInt(color[2], 16),
-      b: parseInt(color[3], 16),
-    };
-  return null;
+  const hex =
+    color.length === 4
+      ? `${color[1]}${color[1]}${color[2]}${color[2]}${color[3]}${color[3]}`
+      : color.length === 7
+        ? color.slice(1)
+        : null;
+
+  if (!hex) {
+    return null;
+  }
+
+  const r = parseInt(hex.slice(0, 2), 16);
+  const g = parseInt(hex.slice(2, 4), 16);
+  const b = parseInt(hex.slice(4, 6), 16);
+
+  if (isNaN(r) || isNaN(g) || isNaN(b)) {
+    return null;
+  }
+
+  return { r, g, b };
+};
+
+const relativeLuminance = ({ r, g, b }: RGB) => {
+  // Gamma correction
+  const gammaCorrect = (color: number) => {
+    color = color / 255;
+    return color <= 0.03928
+      ? color / 12.92
+      : Math.pow((color + 0.055) / 1.055, 2.4);
+  };
+
+  // Calculate relative luminance with gamma correction
+  return (
+    0.2126 * gammaCorrect(r) +
+    0.7152 * gammaCorrect(g) +
+    0.0722 * gammaCorrect(b)
+  );
+};
+
+const contrastRatio = (color1: RGB, color2: RGB) => {
+  const luminance1 = relativeLuminance(color1);
+  const luminance2 = relativeLuminance(color2);
+  const lighter = Math.max(luminance1, luminance2);
+  const darker = Math.min(luminance1, luminance2);
+
+  return (lighter + 0.05) / (darker + 0.05);
+};
+
+const contrastingTextColor = (rgb: RGB) => {
+  const black = { r: 0, g: 0, b: 0 };
+  const white = { r: 255, g: 255, b: 255 };
+
+  return contrastRatio(rgb, black) > contrastRatio(rgb, white)
+    ? "black"
+    : "white";
 };
 
 const isLightColor = ({
@@ -54,22 +96,8 @@ const isLightColor = ({
 }: RGB & {
   luminanceThreshold: number;
 }) => {
-  // Gamma correction
-  const gammaCorrect = (color: number) => {
-    color = color / 255;
-    return color <= 0.03928
-      ? color / 12.92
-      : Math.pow((color + 0.055) / 1.055, 2.4);
-  };
-
-  // Calculate relative luminance with gamma correction
-  const luminance =
-    0.2126 * gammaCorrect(r) +
-    0.7152 * gammaCorrect(g) +
-    0.0722 * gammaCorrect(b);
-
   // Return whether the background is light
-  return luminance > luminanceThreshold;
+  return relativeLuminance({ r, g, b }) > luminanceThreshold;
 };
 
 export const DEFAULT_LUMINANCE_THRESHOLD = 0.37;
@@ -112,14 +140,9 @@ export function applyAlpha(baseColor: string, alpha: number): string {
   const defaultRgb = { r: 255, g: 255, b: 255 };
   const normalizedAlpha = Math.max(0, Math.min(1, alpha));
 
-  let appliedBaseColor = baseColor;
-
-  let baseRgb = hexToRGB(baseColor) || defaultRgb;
-
-  if (isNaN(baseRgb.r) || isNaN(baseRgb.g) || isNaN(baseRgb.b)) {
-    baseRgb = defaultRgb;
-    appliedBaseColor = "#FFFFFF";
-  }
+  const parsedBaseRgb = hexToRGB(baseColor);
+  const baseRgb = parsedBaseRgb || defaultRgb;
+  const appliedBaseColor = parsedBaseRgb ? baseColor : "#FFFFFF";
 
   const baseIsLight = isLightColor({
     ...baseRgb,
@@ -137,7 +160,6 @@ const textColorsForBackground = (
   backgroundColor: string,
   primaryColor: string,
   defaultColors: Colors,
-  luminanceThreshold: number = DEFAULT_LUMINANCE_THRESHOLD,
 ) => {
   const textColors = {
     "grey-text-dark": defaultColors["grey-text-dark"],
@@ -159,9 +181,7 @@ const textColorsForBackground = (
   if (primaryColor?.startsWith("#")) {
     const rgb = hexToRGB(primaryColor);
     if (rgb !== null) {
-      textColors["primary-text"] = isLightColor({ ...rgb, luminanceThreshold })
-        ? "black"
-        : "white";
+      textColors["primary-text"] = contrastingTextColor(rgb);
     }
   }
 
