@@ -52,6 +52,10 @@ export enum ReservedCustomerAttribute {
    */
   AmplitudeUserId = "$amplitudeUserId",
   /**
+   * The Amplitude session ID of the customer.
+   */
+  AmplitudeSessionId = "$amplitudeSessionId",
+  /**
    * Appsflyer Id. The unique Appsflyer identifier for the customer.
    */
   AppsflyerId = "$appsflyerId",

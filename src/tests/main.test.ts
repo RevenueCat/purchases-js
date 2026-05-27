@@ -941,6 +941,7 @@ describe("setAttributes", () => {
     await purchases.setAttributes({
       [ReservedCustomerAttribute.DisplayName]: "John",
       [ReservedCustomerAttribute.Email]: "john@example.com",
+      [ReservedCustomerAttribute.AmplitudeSessionId]: "1714000000000",
       age: "30",
     });
 
@@ -949,6 +950,10 @@ describe("setAttributes", () => {
         $displayName: { value: "John", updated_at_ms: expect.any(Number) },
         $email: {
           value: "john@example.com",
+          updated_at_ms: expect.any(Number),
+        },
+        $amplitudeSessionId: {
+          value: "1714000000000",
           updated_at_ms: expect.any(Number),
         },
         age: { value: "30", updated_at_ms: expect.any(Number) },
