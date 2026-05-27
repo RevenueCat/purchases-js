@@ -35,7 +35,6 @@
     brandingInfo: BrandingInfoResponse | null;
     forceEnableWalletMethods: boolean;
     skipEmail: boolean;
-    billingAddressRequired: boolean;
     onLoadingComplete: () => void;
     onError: (error: StripeServiceError) => void;
     onEmailChange: (complete: boolean, email: string) => void;
@@ -59,7 +58,6 @@
     brandingInfo,
     forceEnableWalletMethods,
     skipEmail,
-    billingAddressRequired,
     onLoadingComplete,
     onError,
     onEmailChange,
@@ -225,7 +223,6 @@
       onSubmit={onExpressCheckoutElementSubmit}
       {expressCheckoutOptions}
       {forceEnableWalletMethods}
-      {billingAddressRequired}
     />
     {#if !skipEmail}
       <LinkAuthenticationElement
