@@ -335,7 +335,8 @@
           </div>
         {/each}
       {/if}
-
+    {/if}
+    {#if showTaxBreakdown || appliedDiscountCode}
       <div class="rcb-pricing-table-separator"></div>
     {/if}
 
