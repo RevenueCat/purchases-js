@@ -722,6 +722,7 @@ const offeringsResponsesPerUserId: { [userId: string]: OfferingsResponse } = {
       offering_ids_by_placement: {
         test_placement_id: "offering_2",
         test_null_placement_id: null,
+        test_unknown_offering_placement_id: "nonexistent_offering",
       },
     },
     targeting: {
@@ -734,6 +735,42 @@ const offeringsResponsesPerUserId: { [userId: string]: OfferingsResponse } = {
     offerings: offeringsArray,
     placements: {
       fallback_offering_id: "offering_1",
+    },
+    targeting: {
+      rule_id: "test_rule_id",
+      revision: 123,
+    },
+  },
+  appUserIdWithPlacementsNoFallback: {
+    current_offering_id: "offering_1",
+    offerings: offeringsArray,
+    placements: {
+      fallback_offering_id: null,
+      offering_ids_by_placement: {
+        test_null_placement_id: null,
+      },
+    },
+    targeting: {
+      rule_id: "test_rule_id",
+      revision: 123,
+    },
+  },
+  appUserIdWithInvalidFallback: {
+    current_offering_id: "offering_1",
+    offerings: offeringsArray,
+    placements: {
+      fallback_offering_id: "nonexistent_offering",
+    },
+    targeting: {
+      rule_id: "test_rule_id",
+      revision: 123,
+    },
+  },
+  appUserIdWithEmptyPlacements: {
+    current_offering_id: "offering_1",
+    offerings: offeringsArray,
+    placements: {
+      fallback_offering_id: null,
     },
     targeting: {
       rule_id: "test_rule_id",
@@ -823,6 +860,9 @@ const offeringsResponsesPerUserId: { [userId: string]: OfferingsResponse } = {
 const productsResponsesPerUserId: { [userId: string]: object } = {
   someAppUserId: productsResponse,
   appUserIdWithPlacementsFallbackOnly: productsResponse,
+  appUserIdWithPlacementsNoFallback: productsResponse,
+  appUserIdWithInvalidFallback: productsResponse,
+  appUserIdWithEmptyPlacements: productsResponse,
   appUserIdWithoutCurrentOfferingId: productsResponse,
   appUserIdWithMissingProducts: { product_details: [monthlyProductResponse] },
   appUserIdWithNonSubscriptionProducts: {
