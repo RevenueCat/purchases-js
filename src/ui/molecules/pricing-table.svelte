@@ -67,12 +67,20 @@
     priceBreakdown.appliedDiscounts?.[0] ?? null,
   );
 
+  const isTaxCalculationPending = $derived(
+    priceBreakdown.taxCalculationStatus === "loading" ||
+      priceBreakdown.taxCalculationStatus === "pending",
+  );
+
+  const showTaxBreakdown = $derived(
+    priceBreakdown.taxCalculationStatus !== "unavailable" &&
+      priceBreakdown.taxCalculationStatus !== "disabled" &&
+      (isTaxCalculationPending ||
+        (priceBreakdown.taxBreakdown?.length ?? 0) > 0),
+  );
+
   const showDetailsControls = $derived(
-    showDiscountCodeField ||
-      (priceBreakdown.taxCalculationStatus !== "unavailable" &&
-        priceBreakdown.taxCalculationStatus !== "disabled" &&
-        priceBreakdown.taxBreakdown &&
-        priceBreakdown.taxBreakdown.length > 0),
+    showDiscountCodeField || showTaxBreakdown,
   );
 
   const subtotalAmount = $derived(
@@ -227,7 +235,9 @@
             </Typography>
           </div>
         </div>
-        <div class="rcb-pricing-table-row">
+        <div
+          class="rcb-pricing-table-row rcb-pricing-table-row-applied-discount"
+        >
           <DiscountInput
             {showDiscountCodeField}
             {discountCode}
@@ -252,7 +262,7 @@
       {/if}
     {/if}
 
-    {#if showDetailsControls}
+    {#if showTaxBreakdown}
       <div class="rcb-pricing-table-row">
         <div class="rcb-pricing-table-header">
           <Typography size="body-small">
@@ -261,10 +271,19 @@
         </div>
         <div class="rcb-pricing-table-value">
           <Typography size="body-small">
-            {$translator.formatPrice(
-              priceBreakdown.totalExcludingTaxInMicros,
-              priceBreakdown.currency,
-            )}
+            {#if priceBreakdown.taxCalculationStatus === "loading"}
+              <Skeleton>
+                {$translator.formatPrice(
+                  priceBreakdown.totalExcludingTaxInMicros,
+                  priceBreakdown.currency,
+                )}
+              </Skeleton>
+            {:else}
+              {$translator.formatPrice(
+                priceBreakdown.totalExcludingTaxInMicros,
+                priceBreakdown.currency,
+              )}
+            {/if}
           </Typography>
         </div>
       </div>
@@ -316,7 +335,8 @@
           </div>
         {/each}
       {/if}
-
+    {/if}
+    {#if showTaxBreakdown || appliedDiscountCode}
       <div class="rcb-pricing-table-separator"></div>
     {/if}
 
@@ -377,6 +397,10 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+  }
+
+  .rcb-pricing-table-row-applied-discount {
+    align-items: flex-end;
   }
 
   .rcb-pricing-table-separator {

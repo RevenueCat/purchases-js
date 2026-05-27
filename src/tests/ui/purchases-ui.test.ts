@@ -32,24 +32,36 @@ const createCheckoutPricingResponse = (
     durationMode?: "time_window" | null;
     timeWindow?: string | null;
   },
-): CheckoutPricingResponse => ({
-  ...structuredClone(checkoutPricingResponse),
-  original_amount_in_micros:
-    checkoutPricingResponse.total_excluding_tax_in_micros,
-  applied_discounts: discountCode
-    ? [
-        {
-          identifier: "discount-id",
-          display_name: "SAVE10",
-          discounted_amount_in_micros: 1000000,
-          percentage: 10,
-          discount_code: discountCode,
-          duration_mode: options?.durationMode ?? null,
-          time_window: options?.timeWindow ?? null,
-        },
-      ]
-    : [],
-});
+): CheckoutPricingResponse => {
+  const subtotalInMicros =
+    checkoutPricingResponse.total_excluding_tax_in_micros;
+  const discountedAmountInMicros = 1000000;
+  const discountedSubtotalInMicros = discountCode
+    ? subtotalInMicros - discountedAmountInMicros
+    : subtotalInMicros;
+
+  return {
+    ...structuredClone(checkoutPricingResponse),
+    original_amount_in_micros: subtotalInMicros,
+    total_excluding_tax_in_micros: discountedSubtotalInMicros,
+    total_amount_in_micros: discountedSubtotalInMicros,
+    tax_amount_in_micros: 0,
+    tax_breakdown: [],
+    applied_discounts: discountCode
+      ? [
+          {
+            identifier: "discount-id",
+            display_name: "SAVE10",
+            discounted_amount_in_micros: discountedAmountInMicros,
+            percentage: 10,
+            discount_code: discountCode,
+            duration_mode: options?.durationMode ?? null,
+            time_window: options?.timeWindow ?? null,
+          },
+        ]
+      : [],
+  };
+};
 
 const purchaseOperationHelperMock: PurchaseOperationHelper = {
   prepareCheckout: async () => Promise.resolve(checkoutPrepareResponse),
@@ -342,6 +354,7 @@ describe("PurchasesUI", () => {
         screen.getByRole("button", { name: "Remove promo code SAVE10" }),
       ).toBeTruthy();
       expect(screen.getByText("-$1.00")).toBeTruthy();
+      expect(screen.queryByText("Total excluding tax")).not.toBeInTheDocument();
     });
   });
 
