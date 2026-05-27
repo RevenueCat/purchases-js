@@ -877,11 +877,30 @@ describe("getOfferings placements", () => {
     ).toEqual("missing_placement_id");
   });
 
-  test("gets null offering if placement id has null offering id", async () => {
+  test("gets fallback offering if placement id has null offering id", async () => {
     const purchases = configurePurchases();
     const offeringWithPlacement =
       await purchases.getCurrentOfferingForPlacement("test_null_placement_id");
-    expect(offeringWithPlacement).toBeNull();
+    expect(offeringWithPlacement).not.toBeNull();
+    expect(offeringWithPlacement?.identifier).toEqual("offering_1");
+    expect(
+      offeringWithPlacement!.availablePackages[0].webBillingProduct
+        .presentedOfferingContext.placementIdentifier,
+    ).toEqual("test_null_placement_id");
+  });
+
+  test("gets fallback offering if placement id maps to a non-existent offering", async () => {
+    const purchases = configurePurchases();
+    const offeringWithPlacement =
+      await purchases.getCurrentOfferingForPlacement(
+        "test_unknown_offering_placement_id",
+      );
+    expect(offeringWithPlacement).not.toBeNull();
+    expect(offeringWithPlacement?.identifier).toEqual("offering_1");
+    expect(
+      offeringWithPlacement!.availablePackages[0].webBillingProduct
+        .presentedOfferingContext.placementIdentifier,
+    ).toEqual("test_unknown_offering_placement_id");
   });
 
   test("gets correct offering if placement id is valid", async () => {
@@ -894,5 +913,45 @@ describe("getOfferings placements", () => {
       offeringWithPlacement!.availablePackages[0].webBillingProduct
         .presentedOfferingContext.placementIdentifier,
     ).toEqual("test_placement_id");
+  });
+
+  test("gets fallback offering when offering_ids_by_placement is omitted", async () => {
+    const purchases = configurePurchases("appUserIdWithPlacementsFallbackOnly");
+    const offeringWithPlacement =
+      await purchases.getCurrentOfferingForPlacement("any_placement_id");
+    expect(offeringWithPlacement).not.toBeNull();
+    expect(offeringWithPlacement?.identifier).toEqual("offering_1");
+    expect(
+      offeringWithPlacement!.availablePackages[0].webBillingProduct
+        .presentedOfferingContext.placementIdentifier,
+    ).toEqual("any_placement_id");
+  });
+
+  test("gets null offering when placement has null offering id and no fallback is set", async () => {
+    const purchases = configurePurchases("appUserIdWithPlacementsNoFallback");
+    const offeringWithPlacement =
+      await purchases.getCurrentOfferingForPlacement("test_null_placement_id");
+    expect(offeringWithPlacement).toBeNull();
+  });
+
+  test("gets null offering when placement id is missing and no fallback is set", async () => {
+    const purchases = configurePurchases("appUserIdWithPlacementsNoFallback");
+    const offeringWithPlacement =
+      await purchases.getCurrentOfferingForPlacement("missing_placement_id");
+    expect(offeringWithPlacement).toBeNull();
+  });
+
+  test("gets null offering when fallback offering id does not exist in offerings", async () => {
+    const purchases = configurePurchases("appUserIdWithInvalidFallback");
+    const offeringWithPlacement =
+      await purchases.getCurrentOfferingForPlacement("any_placement_id");
+    expect(offeringWithPlacement).toBeNull();
+  });
+
+  test("gets null offering when fallback is null and offering_ids_by_placement is omitted", async () => {
+    const purchases = configurePurchases("appUserIdWithEmptyPlacements");
+    const offeringWithPlacement =
+      await purchases.getCurrentOfferingForPlacement("any_placement_id");
+    expect(offeringWithPlacement).toBeNull();
   });
 });
