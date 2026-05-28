@@ -634,7 +634,6 @@
           {brandingInfo}
           {forceEnableWalletMethods}
           skipEmail={!!customerEmail}
-          billingAddressRequired={taxCalculationStatus !== "disabled"}
           onLoadingComplete={handleStripeLoadingComplete}
           onError={handleStripeElementError}
           onEmailChange={handleEmailChange}
