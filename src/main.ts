@@ -70,7 +70,14 @@ import type {
   ComponentInteractionData as UIComponentInteractionData,
   WalletButtonRender,
 } from "@revenuecat/purchases-ui-js";
-import { Paywall, type PaywallData } from "@revenuecat/purchases-ui-js";
+import {
+  Paywall,
+  type PaywallData,
+  Workflow,
+  workflowDataToNavData,
+  type WorkflowData,
+  type UIConfig,
+} from "@revenuecat/purchases-ui-js";
 import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
 import {
   buildVariablesPerPackage,
@@ -556,11 +563,20 @@ export class Purchases {
     if (!offering) {
       throw new Error("No offering found.");
     }
-    if (!offering.paywallComponents) {
+
+    // Check for a workflow associated with this offering.
+    const workflowsResponse = await this.backend
+      .getWorkflows(this._appUserId)
+      .catch(() => null);
+    const matchedWorkflowSummary = workflowsResponse?.workflows.find(
+      (w) => w.offering_id === offering.identifier,
+    );
+
+    if (!matchedWorkflowSummary && !offering.paywallComponents) {
       throw new Error("This offering doesn't have a paywall attached.");
     }
 
-    if (!offering.uiConfig) {
+    if (!matchedWorkflowSummary && !offering.uiConfig) {
       throw new Error(
         "No ui_config found for this offering, please contact support!",
       );
@@ -606,15 +622,16 @@ export class Purchases {
       ? paywallParams.selectedLocale
       : navigator.language;
 
-    const finalLocale = calculateLocale(
-      offering.paywallComponents,
-      selectedLocale,
-    );
+    // finalLocale and translator are only needed for the paywall path — the
+    // Workflow component handles locale resolution internally.
+    const finalLocale = offering.paywallComponents
+      ? calculateLocale(offering.paywallComponents, selectedLocale)
+      : selectedLocale;
 
     const translator = new Translator(
       {},
       finalLocale,
-      offering.paywallComponents.default_locale,
+      offering.paywallComponents?.default_locale ?? englishLocale,
     );
 
     const paywallSessionId = generateUUID();
@@ -725,7 +742,7 @@ export class Purchases {
         onDiscountCodeChanged: paywallParams.onDiscountCodeChanged,
         selectedLocale: finalLocale,
         defaultLocale:
-          offering.paywallComponents?.default_locale || englishLocale,
+          offering.paywallComponents?.default_locale ?? englishLocale,
         paywallId: offering.paywallComponents?.id,
       });
 
@@ -844,6 +861,197 @@ export class Purchases {
 
     const infoPerPackage = parseOfferingIntoPackageInfoPerPackage(offering);
 
+    const listener = paywallParams.listener;
+
+    const notifyPurchaseStarted = (pkg: Package) => {
+      if (listener?.onPurchaseStarted) {
+        try {
+          listener.onPurchaseStarted(pkg);
+        } catch (e) {
+          Logger.errorLog(`Error in listener.onPurchaseStarted: ${e}`);
+        }
+      }
+    };
+
+    const notifyPurchaseError = (err: Error) => {
+      if (
+        err instanceof PurchasesError &&
+        err.errorCode === ErrorCode.UserCancelledError
+      ) {
+        if (listener?.onPurchaseCancelled) {
+          try {
+            listener.onPurchaseCancelled();
+          } catch (e) {
+            Logger.errorLog(`Error in listener.onPurchaseCancelled: ${e}`);
+          }
+        }
+      } else {
+        if (listener?.onPurchaseError) {
+          try {
+            listener.onPurchaseError(err);
+          } catch (e) {
+            Logger.errorLog(`Error in listener.onPurchaseError: ${e}`);
+          }
+        }
+        if (paywallParams.onPurchaseError) {
+          paywallParams.onPurchaseError(err);
+        }
+      }
+    };
+
+    // ── Workflow path ────────────────────────────────────────────────────────
+    // If a workflow is associated with this offering, fetch its full data and
+    // mount the Workflow component instead of Paywall.
+    if (matchedWorkflowSummary) {
+      const workflowDataResponse = await this.backend.getWorkflowById(
+        this._appUserId,
+        matchedWorkflowSummary.id,
+      );
+      const workflowNavData = workflowDataToNavData(
+        workflowDataResponse as unknown as WorkflowData,
+      );
+      if (!workflowNavData) {
+        throw new Error(
+          "Failed to resolve workflow navigation data for this offering.",
+        );
+      }
+
+      return new Promise((resolve, reject) => {
+        let component: ReturnType<typeof mount> | null = null;
+        let paywallImpressionTracked = false;
+        let paywallCloseTracked = false;
+
+        certainHTMLTarget.addEventListener("click", recordTextLinkClick);
+
+        const trackPaywallCloseIfNeeded = () => {
+          if (paywallCloseTracked) return;
+          paywallCloseTracked = true;
+          trackPaywallEvent("paywall_close");
+        };
+
+        const trackComponentInteraction = (
+          data: UIComponentInteractionData,
+        ) => {
+          if (!paywallImpressionTracked || paywallCloseTracked) return;
+          this.eventsTracker.trackPaywallEvent(toInteractionEvent(data));
+        };
+
+        const onComponentInteraction = (data: UIComponentInteractionData) => {
+          const interaction = data as UIComponentInteractionFields;
+          lastNavigationInteraction =
+            interaction.componentURL === undefined
+              ? null
+              : {
+                  componentType: data.componentType,
+                  componentURL: interaction.componentURL,
+                };
+          trackComponentInteraction(data);
+        };
+
+        const containerObserver = new MutationObserver(() => {
+          if (certainHTMLTarget.childElementCount === 0) {
+            trackPaywallCloseIfNeeded();
+            containerObserver.disconnect();
+          }
+        });
+
+        const unmountPaywall = () => {
+          containerObserver.disconnect();
+          certainHTMLTarget.removeEventListener("click", recordTextLinkClick);
+          trackPaywallCloseIfNeeded();
+          if (component) {
+            unmount(component);
+            component = null;
+          }
+          certainHTMLTarget.innerHTML = "";
+          if (wasRootAutoCreated && certainHTMLTarget.parentNode) {
+            certainHTMLTarget.parentNode.removeChild(certainHTMLTarget);
+          }
+        };
+
+        const closePaywall = () => {
+          Logger.debugLog("Purchase cancelled by user");
+          unmountPaywall();
+          reject(new PurchasesError(ErrorCode.UserCancelledError));
+          void this.eventsTracker.flushAllEvents().catch((error) => {
+            Logger.debugLog(
+              `Failed to flush paywall events on close: ${error}`,
+            );
+          });
+        };
+
+        const onSuccess = (result: PaywallPurchaseResult) => {
+          unmountPaywall();
+          resolve(result);
+          void this.eventsTracker.flushAllEvents().catch((error) => {
+            Logger.debugLog(
+              `Failed to flush paywall events after purchase: ${error}`,
+            );
+          });
+        };
+
+        const onError = (message: string) => (error: Error) => {
+          if (
+            error instanceof PurchasesError &&
+            error.errorCode === ErrorCode.UserCancelledError
+          ) {
+            trackPaywallEvent("paywall_cancel");
+          }
+          Logger.errorLog(`${message}: ${error}`);
+          notifyPurchaseError(error);
+        };
+
+        const walletButtonRender = this.getWalletButtonRender(
+          offering,
+          onSuccess,
+          paywallParams.customerEmail,
+          onError("Error presenting express purchase button"),
+          paywallParams.listener,
+        );
+
+        certainHTMLTarget.innerHTML = "";
+        component = mount(Workflow, {
+          target: certainHTMLTarget,
+          props: {
+            workflow: workflowNavData,
+            uiConfig: workflowDataResponse.ui_config as unknown as UIConfig,
+            selectedLocale,
+            variablesPerPackage,
+            walletButtonRender,
+            onPurchaseClicked: (selectedPackageId: string) => {
+              const pkg = offering.packagesById[selectedPackageId];
+              if (pkg) {
+                notifyPurchaseStarted(pkg);
+              }
+              startPurchaseFlow(selectedPackageId)
+                .then(onSuccess)
+                .catch(onError("Error performing purchase"));
+            },
+            onClose: closePaywall,
+            onExitBack: () => {
+              if (paywallParams.onBack) {
+                paywallParams.onBack(closePaywall);
+                return;
+              }
+              closePaywall();
+            },
+            onCompleteWorkflowNavigate,
+            onComponentInteraction,
+            customVariables: paywallParams.customVariables,
+          },
+        });
+
+        containerObserver.observe(certainHTMLTarget, { childList: true });
+        trackPaywallEvent("paywall_impression");
+        paywallImpressionTracked = true;
+
+        if (certainHTMLTarget.style.opacity === "0") {
+          certainHTMLTarget.style.opacity = "1";
+        }
+      });
+    }
+
+    // ── Paywall path ─────────────────────────────────────────────────────────
     return new Promise((resolve, reject) => {
       let component: ReturnType<typeof mount> | null = null;
       let paywallImpressionTracked = false;
@@ -909,44 +1117,6 @@ export class Purchases {
         void this.eventsTracker.flushAllEvents().catch((error) => {
           Logger.debugLog(`Failed to flush paywall events on close: ${error}`);
         });
-      };
-
-      const listener = paywallParams.listener;
-
-      const notifyPurchaseStarted = (pkg: Package) => {
-        if (listener?.onPurchaseStarted) {
-          try {
-            listener.onPurchaseStarted(pkg);
-          } catch (e) {
-            Logger.errorLog(`Error in listener.onPurchaseStarted: ${e}`);
-          }
-        }
-      };
-
-      const notifyPurchaseError = (err: Error) => {
-        if (
-          err instanceof PurchasesError &&
-          err.errorCode === ErrorCode.UserCancelledError
-        ) {
-          if (listener?.onPurchaseCancelled) {
-            try {
-              listener.onPurchaseCancelled();
-            } catch (e) {
-              Logger.errorLog(`Error in listener.onPurchaseCancelled: ${e}`);
-            }
-          }
-        } else {
-          if (listener?.onPurchaseError) {
-            try {
-              listener.onPurchaseError(err);
-            } catch (e) {
-              Logger.errorLog(`Error in listener.onPurchaseError: ${e}`);
-            }
-          }
-          if (paywallParams.onPurchaseError) {
-            paywallParams.onPurchaseError(err);
-          }
-        }
       };
 
       const onSuccess = (result: PaywallPurchaseResult) => {
