@@ -11,6 +11,10 @@ import {
   GetOfferingsEndpoint,
   GetProductsEndpoint,
   GetVirtualCurrenciesEndpoint,
+  GetWorkflowDataByIdEndpoint,
+  GetWorkflowDataEndpoint,
+  GetWorkflowMetadataEndpoint,
+  GetWorkflowsEndpoint,
   IdentifyEndpoint,
   PostReceiptEndpoint,
   SetAttributesEndpoint,
@@ -21,6 +25,12 @@ import { type ProductsResponse } from "./responses/products-response";
 import { type BrandingInfoResponse } from "./responses/branding-response";
 import { type CheckoutStatusResponse } from "./responses/checkout-status-response";
 import { type VirtualCurrenciesResponse } from "./responses/virtual-currencies-response";
+import type {
+  WorkflowDataAction,
+  WorkflowDataResponse,
+  WorkflowMetadataResponse,
+  WorkflowsListResponse,
+} from "./responses/workflow-response";
 import { defaultHttpConfig, type HttpConfig } from "../entities/http-config";
 import type {
   PresentedOfferingContext,
@@ -31,6 +41,7 @@ import type { PurchasesContext } from "../entities/purchases-config";
 import type { CheckoutCompleteResponse } from "./responses/checkout-complete-response";
 import type { CheckoutPricingResponse } from "./responses/checkout-pricing-response";
 import { isWebBillingSandboxApiKey } from "../helpers/api-key-helper";
+import { RC_ENDPOINT } from "../helpers/constants";
 import type { IdentifyResponse } from "./responses/identify-response";
 import type { CheckoutPrepareResponse } from "./responses/checkout-prepare-response";
 import type { AttributionMetadata } from "../entities/purchase-params";
@@ -479,5 +490,122 @@ export class Backend {
         httpConfig: this.httpConfig,
       },
     );
+  }
+
+  /**
+   * Fetch the list of published workflows for an app user.
+   * Each entry includes an optional `offering_id` that can be matched against
+   * an offering's identifier to determine whether to show a workflow instead
+   * of a standalone paywall.
+   *
+   * GET /v1/subscribers/{appUserId}/workflows
+   */
+  async getWorkflows(appUserId: string): Promise<WorkflowsListResponse> {
+    return await performRequest<null, WorkflowsListResponse>(
+      new GetWorkflowsEndpoint(appUserId),
+      {
+        apiKey: this.API_KEY,
+        httpConfig: this.httpConfig,
+      },
+    );
+  }
+
+  /**
+   * Fetch the full workflow data for a specific workflow by its ID.
+   * Handles both inline responses and CDN redirects.
+   *
+   * GET /v1/subscribers/{appUserId}/workflows/{workflowId}
+   */
+  async getWorkflowById(
+    appUserId: string,
+    workflowId: string,
+  ): Promise<WorkflowDataResponse> {
+    const dataOrAction = await performRequest<
+      null,
+      WorkflowDataAction | WorkflowDataResponse
+    >(new GetWorkflowDataByIdEndpoint(appUserId, workflowId), {
+      apiKey: this.API_KEY,
+      httpConfig: this.httpConfig,
+    });
+
+    if (!("action" in dataOrAction)) {
+      return dataOrAction;
+    }
+
+    if (dataOrAction.action === "inline") {
+      return dataOrAction.data;
+    }
+
+    // CDN redirect — fetch directly (no auth needed, public CDN).
+    const cdnResponse = await fetch(dataOrAction.url);
+    if (!cdnResponse.ok) {
+      throw new Error(
+        `Failed to fetch workflow from CDN: ${cdnResponse.statusText}`,
+      );
+    }
+    return (await cdnResponse.json()) as WorkflowDataResponse;
+  }
+
+  /**
+   * Fetch a workflow for a given app user in two steps:
+   *
+   * 1. GET /workflows/v1/workflow/{workflowLinkId} — public endpoint, no auth.
+   *    Returns `api_key` and `workflow_url` (contains `{app_user_id}` template).
+   *
+   * 2. GET {workflow_url} — authenticated with the `api_key` from step 1.
+   *    Returns the full `WorkflowDataResponse`, either inline or via CDN redirect.
+   */
+  async getWorkflow(
+    workflowLinkId: string,
+    appUserId: string,
+  ): Promise<WorkflowDataResponse> {
+    // Step 1: fetch metadata (public — send an empty string as the api key so
+    // the Authorization header is still well-formed but carries no credentials).
+    const metadata = await performRequest<null, WorkflowMetadataResponse>(
+      new GetWorkflowMetadataEndpoint(workflowLinkId),
+      {
+        apiKey: "",
+        httpConfig: this.httpConfig,
+      },
+    );
+
+    // Substitute {app_user_id} in the workflow_url template.
+    const resolvedUrl = metadata.workflow_url.replace(
+      "{app_user_id}",
+      encodeURIComponent(appUserId),
+    );
+
+    // Step 2: resolve to a path relative to the base URL so the existing
+    // http-client infrastructure (proxy support, error handling) is used.
+    const baseUrl = this.httpConfig?.proxyURL ?? RC_ENDPOINT;
+    const path = resolvedUrl.startsWith(baseUrl)
+      ? resolvedUrl.slice(baseUrl.length)
+      : resolvedUrl;
+
+    const dataOrAction = await performRequest<
+      null,
+      WorkflowDataAction | WorkflowDataResponse
+    >(new GetWorkflowDataEndpoint(path), {
+      apiKey: metadata.api_key,
+      httpConfig: this.httpConfig,
+    });
+
+    // Handle CDN redirect or inline response.
+    if (!("action" in dataOrAction)) {
+      return dataOrAction;
+    }
+
+    if (dataOrAction.action === "inline") {
+      return dataOrAction.data;
+    }
+
+    // CDN redirect — fetch directly (no auth needed, public CDN).
+    const cdnResponse = await fetch(dataOrAction.url);
+    if (!cdnResponse.ok) {
+      throw new Error(
+        `Failed to fetch workflow from CDN: ${cdnResponse.statusText}`,
+      );
+    }
+    return (await cdnResponse.json()) as WorkflowDataResponse;
   }
 }

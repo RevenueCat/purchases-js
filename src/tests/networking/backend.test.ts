@@ -1660,3 +1660,475 @@ describe("getVirtualCurrencies request", () => {
     );
   });
 });
+
+describe("getWorkflows request", () => {
+  const APP_USER_ID = "someAppUserId";
+  const WORKFLOWS_LIST_URL = `http://localhost:8000/v1/subscribers/${APP_USER_ID}/workflows`;
+
+  const workflowsListResponse = {
+    workflows: [
+      {
+        id: "wf_aaa111",
+        display_name: "Onboarding Workflow",
+        offering_id: "offering_default",
+        prefetch: true,
+      },
+      {
+        id: "wf_bbb222",
+        display_name: "Upsell Workflow",
+        offering_id: null,
+        prefetch: true,
+      },
+    ],
+    ui_config: {
+      app: { colors: {}, fonts: {} },
+      localizations: {},
+      variable_config: {},
+    },
+  };
+
+  function setWorkflowsListResponse(httpResponse: HttpResponse) {
+    server.use(http.get(WORKFLOWS_LIST_URL, () => httpResponse));
+  }
+
+  test("returns workflows list successfully", async () => {
+    setWorkflowsListResponse(
+      HttpResponse.json(workflowsListResponse, { status: 200 }),
+    );
+    const result = await backend.getWorkflows(APP_USER_ID);
+    expect(result).toEqual(workflowsListResponse);
+  });
+
+  test("encodes app user ID in the URL", async () => {
+    const specialUserId = "user with spaces";
+    server.use(
+      http.get(
+        `http://localhost:8000/v1/subscribers/${encodeURIComponent(specialUserId)}/workflows`,
+        () => HttpResponse.json(workflowsListResponse, { status: 200 }),
+      ),
+    );
+    const result = await backend.getWorkflows(specialUserId);
+    expect(result).toEqual(workflowsListResponse);
+  });
+
+  test("throws an error if the backend returns a server error", async () => {
+    setWorkflowsListResponse(
+      HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
+    );
+    await expectPromiseToError(
+      backend.getWorkflows(APP_USER_ID),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        "Request: getWorkflows. Status code: 500. Body: null.",
+      ),
+    );
+  });
+
+  test("throws a known error if the backend returns invalid API key error", async () => {
+    setWorkflowsListResponse(
+      HttpResponse.json(
+        {
+          code: BackendErrorCode.BackendInvalidAPIKey,
+          message: "API key was wrong",
+        },
+        { status: StatusCodes.BAD_REQUEST },
+      ),
+    );
+    await expectPromiseToError(
+      backend.getWorkflows(APP_USER_ID),
+      new PurchasesError(
+        ErrorCode.InvalidCredentialsError,
+        "There was a credentials issue. Check the underlying error for more details.",
+        "API key was wrong",
+      ),
+    );
+  });
+});
+
+describe("getWorkflowById request", () => {
+  const APP_USER_ID = "someAppUserId";
+  const WORKFLOW_ID = "wf_aaa111";
+  const WORKFLOW_BY_ID_URL = `http://localhost:8000/v1/subscribers/${APP_USER_ID}/workflows/${WORKFLOW_ID}`;
+
+  const workflowDataResponse = {
+    id: WORKFLOW_ID,
+    display_name: "Onboarding Workflow",
+    initial_step_id: "step_1",
+    steps: {
+      step_1: {
+        id: "step_1",
+        screen_id: "screen_welcome",
+        type: "screen",
+        param_values: {},
+        trigger_actions: {},
+        triggers: {},
+        outputs: {},
+        metadata: null,
+      },
+    },
+    screens: {
+      screen_welcome: {
+        name: "Welcome",
+        template_name: "template_a",
+        revision: 1,
+        asset_base_url: "https://assets.example.com",
+        components_config: {},
+        components_localizations: {},
+        default_locale: "en",
+        config: {},
+        offering_id: "off_abc",
+        offering_identifier: "default",
+        automatically_scale_font_size: null,
+        exit_offers: {},
+      },
+    },
+    ui_config: {},
+    content_max_width: undefined,
+    metadata: null,
+  };
+
+  function setWorkflowByIdResponse(httpResponse: HttpResponse) {
+    server.use(http.get(WORKFLOW_BY_ID_URL, () => httpResponse));
+  }
+
+  test("returns workflow data for inline response", async () => {
+    setWorkflowByIdResponse(
+      HttpResponse.json(
+        { action: "inline", data: workflowDataResponse },
+        { status: 200 },
+      ),
+    );
+    const result = await backend.getWorkflowById(APP_USER_ID, WORKFLOW_ID);
+    expect(result).toEqual(workflowDataResponse);
+  });
+
+  test("returns workflow data when response has no action field (direct inline)", async () => {
+    setWorkflowByIdResponse(
+      HttpResponse.json(workflowDataResponse, { status: 200 }),
+    );
+    const result = await backend.getWorkflowById(APP_USER_ID, WORKFLOW_ID);
+    expect(result).toEqual(workflowDataResponse);
+  });
+
+  test("fetches from CDN when use_cdn action is returned", async () => {
+    const cdnUrl = "https://cdn.example.com/workflow-abc.json";
+    setWorkflowByIdResponse(
+      HttpResponse.json({ action: "use_cdn", url: cdnUrl }, { status: 200 }),
+    );
+    server.use(
+      http.get(cdnUrl, () =>
+        HttpResponse.json(workflowDataResponse, { status: 200 }),
+      ),
+    );
+    const result = await backend.getWorkflowById(APP_USER_ID, WORKFLOW_ID);
+    expect(result).toEqual(workflowDataResponse);
+  });
+
+  test("throws an error when CDN fetch fails", async () => {
+    const cdnUrl = "https://cdn.example.com/workflow-abc.json";
+    setWorkflowByIdResponse(
+      HttpResponse.json({ action: "use_cdn", url: cdnUrl }, { status: 200 }),
+    );
+    server.use(
+      http.get(cdnUrl, () =>
+        HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
+      ),
+    );
+    await expect(
+      backend.getWorkflowById(APP_USER_ID, WORKFLOW_ID),
+    ).rejects.toThrow("Failed to fetch workflow from CDN");
+  });
+
+  test("encodes app user ID and workflow ID in the URL", async () => {
+    const specialUserId = "user/with/slashes";
+    const specialWorkflowId = "wf_special+id";
+    server.use(
+      http.get(
+        `http://localhost:8000/v1/subscribers/${encodeURIComponent(specialUserId)}/workflows/${encodeURIComponent(specialWorkflowId)}`,
+        () => HttpResponse.json(workflowDataResponse, { status: 200 }),
+      ),
+    );
+    const result = await backend.getWorkflowById(
+      specialUserId,
+      specialWorkflowId,
+    );
+    expect(result).toEqual(workflowDataResponse);
+  });
+
+  test("throws an error if the backend returns a server error", async () => {
+    setWorkflowByIdResponse(
+      HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
+    );
+    await expectPromiseToError(
+      backend.getWorkflowById(APP_USER_ID, WORKFLOW_ID),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        "Request: getWorkflowData. Status code: 500. Body: null.",
+      ),
+    );
+  });
+
+  test("throws a known error if the backend returns invalid API key error", async () => {
+    setWorkflowByIdResponse(
+      HttpResponse.json(
+        {
+          code: BackendErrorCode.BackendInvalidAPIKey,
+          message: "API key was wrong",
+        },
+        { status: StatusCodes.BAD_REQUEST },
+      ),
+    );
+    await expectPromiseToError(
+      backend.getWorkflowById(APP_USER_ID, WORKFLOW_ID),
+      new PurchasesError(
+        ErrorCode.InvalidCredentialsError,
+        "There was a credentials issue. Check the underlying error for more details.",
+        "API key was wrong",
+      ),
+    );
+  });
+});
+
+describe("getWorkflow request", () => {
+  const WORKFLOW_LINK_ID = "test-link-id";
+  const APP_USER_ID = "test-user-123";
+  const ENCODED_APP_USER_ID = encodeURIComponent(APP_USER_ID);
+  const METADATA_URL = `http://localhost:8000/workflows/v1/workflow/${encodeURIComponent(WORKFLOW_LINK_ID)}`;
+  const WORKFLOW_DATA_PATH = `/rcbilling/v1/subscribers/${ENCODED_APP_USER_ID}/workflow`;
+  const WORKFLOW_DATA_URL = `http://localhost:8000${WORKFLOW_DATA_PATH}`;
+
+  const metadataResponse = {
+    api_key: "wf_api_key_abc123",
+    workflow_url: `http://localhost:8000${WORKFLOW_DATA_PATH.replace(ENCODED_APP_USER_ID, "{app_user_id}")}`,
+    workflow_id: "wf_001",
+    allow_anonymous_purchases: false,
+  };
+
+  const workflowDataResponse = {
+    id: "wf_001",
+    display_name: "Test Workflow",
+    initial_step_id: "step_1",
+    steps: {
+      step_1: {
+        id: "step_1",
+        screen_id: "screen_welcome",
+        type: "screen",
+        param_values: {},
+        trigger_actions: {},
+        triggers: {},
+        outputs: {},
+        metadata: null,
+      },
+    },
+    screens: {
+      screen_welcome: {
+        name: "Welcome",
+        template_name: "template_a",
+        revision: 1,
+        asset_base_url: "https://assets.example.com",
+        components_config: {},
+        components_localizations: {},
+        default_locale: "en",
+        config: {},
+        offering_id: null,
+      },
+    },
+    ui_config: {},
+    content_max_width: undefined,
+    metadata: null,
+  };
+
+  function setMetadataResponse(httpResponse: HttpResponse) {
+    server.use(http.get(METADATA_URL, () => httpResponse));
+  }
+
+  function setWorkflowDataResponse(httpResponse: HttpResponse) {
+    server.use(http.get(WORKFLOW_DATA_URL, () => httpResponse));
+  }
+
+  test("returns workflow data for inline response", async () => {
+    setMetadataResponse(HttpResponse.json(metadataResponse, { status: 200 }));
+    setWorkflowDataResponse(
+      HttpResponse.json(
+        { action: "inline", data: workflowDataResponse },
+        { status: 200 },
+      ),
+    );
+
+    const result = await backend.getWorkflow(WORKFLOW_LINK_ID, APP_USER_ID);
+    expect(result).toEqual(workflowDataResponse);
+  });
+
+  test("returns workflow data when response has no action field (direct inline)", async () => {
+    setMetadataResponse(HttpResponse.json(metadataResponse, { status: 200 }));
+    setWorkflowDataResponse(
+      HttpResponse.json(workflowDataResponse, { status: 200 }),
+    );
+
+    const result = await backend.getWorkflow(WORKFLOW_LINK_ID, APP_USER_ID);
+    expect(result).toEqual(workflowDataResponse);
+  });
+
+  test("fetches from CDN when use_cdn action is returned", async () => {
+    const cdnUrl = "https://cdn.example.com/workflow-abc.json";
+    setMetadataResponse(HttpResponse.json(metadataResponse, { status: 200 }));
+    setWorkflowDataResponse(
+      HttpResponse.json({ action: "use_cdn", url: cdnUrl }, { status: 200 }),
+    );
+    server.use(
+      http.get(cdnUrl, () =>
+        HttpResponse.json(workflowDataResponse, { status: 200 }),
+      ),
+    );
+
+    const result = await backend.getWorkflow(WORKFLOW_LINK_ID, APP_USER_ID);
+    expect(result).toEqual(workflowDataResponse);
+  });
+
+  test("throws an error when CDN fetch fails", async () => {
+    const cdnUrl = "https://cdn.example.com/workflow-abc.json";
+    setMetadataResponse(HttpResponse.json(metadataResponse, { status: 200 }));
+    setWorkflowDataResponse(
+      HttpResponse.json({ action: "use_cdn", url: cdnUrl }, { status: 200 }),
+    );
+    server.use(
+      http.get(cdnUrl, () =>
+        HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
+      ),
+    );
+
+    await expect(
+      backend.getWorkflow(WORKFLOW_LINK_ID, APP_USER_ID),
+    ).rejects.toThrow("Failed to fetch workflow from CDN");
+  });
+
+  test("substitutes {app_user_id} in workflow_url with encoded user ID", async () => {
+    const specialUserId = "user with spaces+special";
+    const encodedSpecialUser = encodeURIComponent(specialUserId);
+    const specialDataPath = `/rcbilling/v1/subscribers/${encodedSpecialUser}/workflow`;
+
+    server.use(
+      http.get(METADATA_URL, () =>
+        HttpResponse.json(
+          {
+            ...metadataResponse,
+            workflow_url: `http://localhost:8000${specialDataPath.replace(encodedSpecialUser, "{app_user_id}")}`,
+          },
+          { status: 200 },
+        ),
+      ),
+      http.get(`http://localhost:8000${specialDataPath}`, () =>
+        HttpResponse.json(workflowDataResponse, { status: 200 }),
+      ),
+    );
+
+    const result = await backend.getWorkflow(WORKFLOW_LINK_ID, specialUserId);
+    expect(result).toEqual(workflowDataResponse);
+  });
+
+  test("step 1 sends no credentials (empty Bearer token)", async () => {
+    setMetadataResponse(HttpResponse.json(metadataResponse, { status: 200 }));
+    setWorkflowDataResponse(
+      HttpResponse.json(workflowDataResponse, { status: 200 }),
+    );
+
+    const requests: Request[] = [];
+    server.events.on("request:start", (req) => {
+      requests.push(req.request);
+    });
+
+    await backend.getWorkflow(WORKFLOW_LINK_ID, APP_USER_ID);
+
+    const metadataReq = requests.find((r) => r.url === METADATA_URL);
+    expect(metadataReq).toBeDefined();
+    // Empty api key → "Bearer" with no trailing credentials
+    expect(metadataReq?.headers.get("Authorization")).toEqual("Bearer");
+  });
+
+  test("step 2 sends api_key from step 1 as Bearer token", async () => {
+    setMetadataResponse(HttpResponse.json(metadataResponse, { status: 200 }));
+    setWorkflowDataResponse(
+      HttpResponse.json(workflowDataResponse, { status: 200 }),
+    );
+
+    const requests: Request[] = [];
+    server.events.on("request:start", (req) => {
+      requests.push(req.request);
+    });
+
+    await backend.getWorkflow(WORKFLOW_LINK_ID, APP_USER_ID);
+
+    const dataReq = requests.find((r) => r.url === WORKFLOW_DATA_URL);
+    expect(dataReq).toBeDefined();
+    expect(dataReq?.headers.get("Authorization")).toEqual(
+      `Bearer ${metadataResponse.api_key}`,
+    );
+  });
+
+  test("throws an error if step 1 metadata fetch fails", async () => {
+    setMetadataResponse(
+      HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
+    );
+
+    await expectPromiseToError(
+      backend.getWorkflow(WORKFLOW_LINK_ID, APP_USER_ID),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        "Request: getWorkflowMetadata. Status code: 500. Body: null.",
+      ),
+    );
+  });
+
+  test("throws an error if step 2 workflow data fetch fails", async () => {
+    setMetadataResponse(HttpResponse.json(metadataResponse, { status: 200 }));
+    setWorkflowDataResponse(
+      HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
+    );
+
+    await expectPromiseToError(
+      backend.getWorkflow(WORKFLOW_LINK_ID, APP_USER_ID),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        "Request: getWorkflowData. Status code: 500. Body: null.",
+      ),
+    );
+  });
+
+  test("throws a known error if step 1 returns invalid API key error", async () => {
+    setMetadataResponse(
+      HttpResponse.json(
+        {
+          code: BackendErrorCode.BackendInvalidAPIKey,
+          message: "API key was wrong",
+        },
+        { status: StatusCodes.BAD_REQUEST },
+      ),
+    );
+
+    await expectPromiseToError(
+      backend.getWorkflow(WORKFLOW_LINK_ID, APP_USER_ID),
+      new PurchasesError(
+        ErrorCode.InvalidCredentialsError,
+        "There was a credentials issue. Check the underlying error for more details.",
+        "API key was wrong",
+      ),
+    );
+  });
+
+  test("throws network error if cannot reach server during step 1", async () => {
+    setMetadataResponse(HttpResponse.error());
+
+    await expectPromiseToError(
+      backend.getWorkflow(WORKFLOW_LINK_ID, APP_USER_ID),
+      new PurchasesError(
+        ErrorCode.NetworkError,
+        "Error performing request. Please check your network connection and try again.",
+        "Failed to fetch",
+      ),
+    );
+  });
+});

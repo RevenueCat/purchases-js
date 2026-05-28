@@ -200,6 +200,84 @@ export class GetVirtualCurrenciesEndpoint implements Endpoint {
   }
 }
 
+/**
+ * GET /v1/subscribers/{appUserId}/workflows — returns the list of published
+ * workflows for an app, each with an optional offering_id for matching.
+ */
+export class GetWorkflowsEndpoint implements Endpoint {
+  method: HttpMethodType = "GET";
+  name: string = "getWorkflows";
+  private readonly appUserId: string;
+
+  constructor(appUserId: string) {
+    this.appUserId = appUserId;
+  }
+
+  urlPath(): string {
+    return `${SUBSCRIBERS_PATH}/${encodeURIComponent(this.appUserId)}/workflows`;
+  }
+}
+
+/**
+ * GET /v1/subscribers/{appUserId}/workflows/{workflowId} — returns the full
+ * workflow payload, either inline or as a CDN redirect.
+ */
+export class GetWorkflowDataByIdEndpoint implements Endpoint {
+  method: HttpMethodType = "GET";
+  name: string = "getWorkflowData";
+  private readonly appUserId: string;
+  private readonly workflowId: string;
+
+  constructor(appUserId: string, workflowId: string) {
+    this.appUserId = appUserId;
+    this.workflowId = workflowId;
+  }
+
+  urlPath(): string {
+    return `${SUBSCRIBERS_PATH}/${encodeURIComponent(this.appUserId)}/workflows/${encodeURIComponent(this.workflowId)}`;
+  }
+}
+
+const WORKFLOWS_PATH = "/workflows/v1";
+
+/**
+ * Step 1: fetch workflow metadata (public API key + workflow_url template).
+ * No Authorization header is sent — this is a public endpoint.
+ */
+export class GetWorkflowMetadataEndpoint implements Endpoint {
+  method: HttpMethodType = "GET";
+  name: string = "getWorkflowMetadata";
+  private readonly workflowLinkId: string;
+
+  constructor(workflowLinkId: string) {
+    this.workflowLinkId = workflowLinkId;
+  }
+
+  urlPath(): string {
+    return `${WORKFLOWS_PATH}/workflow/${encodeURIComponent(this.workflowLinkId)}`;
+  }
+}
+
+/**
+ * Step 2: fetch the full workflow payload from the subscriber endpoint.
+ * The path is taken verbatim from the workflow_url returned by step 1
+ * (after substituting {app_user_id}), and is authenticated with the
+ * api_key returned by step 1.
+ */
+export class GetWorkflowDataEndpoint implements Endpoint {
+  method: HttpMethodType = "GET";
+  name: string = "getWorkflowData";
+  private readonly path: string;
+
+  constructor(path: string) {
+    this.path = path;
+  }
+
+  urlPath(): string {
+    return this.path;
+  }
+}
+
 export type SupportedEndpoint =
   | GetOfferingsEndpoint
   | PurchaseEndpoint
@@ -209,4 +287,8 @@ export type SupportedEndpoint =
   | GetCheckoutStatusEndpoint
   | SetAttributesEndpoint
   | PostReceiptEndpoint
-  | GetVirtualCurrenciesEndpoint;
+  | GetVirtualCurrenciesEndpoint
+  | GetWorkflowsEndpoint
+  | GetWorkflowDataByIdEndpoint
+  | GetWorkflowMetadataEndpoint
+  | GetWorkflowDataEndpoint;
