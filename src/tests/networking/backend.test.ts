@@ -1744,6 +1744,49 @@ describe("getWorkflows request", () => {
       ),
     );
   });
+
+  test("throws unknown error if the backend returns a request error with unknown error code in body", async () => {
+    setWorkflowsListResponse(
+      HttpResponse.json(
+        { code: 1234567890, message: "Invalid error message" },
+        { status: StatusCodes.BAD_REQUEST },
+      ),
+    );
+    await expectPromiseToError(
+      backend.getWorkflows(APP_USER_ID),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        'Request: getWorkflows. Status code: 400. Body: {"code":1234567890,"message":"Invalid error message"}.',
+      ),
+    );
+  });
+
+  test("throws unknown error if the backend returns a request error without error code in body", async () => {
+    setWorkflowsListResponse(
+      HttpResponse.json(null, { status: StatusCodes.BAD_REQUEST }),
+    );
+    await expectPromiseToError(
+      backend.getWorkflows(APP_USER_ID),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        "Request: getWorkflows. Status code: 400. Body: null.",
+      ),
+    );
+  });
+
+  test("throws network error if cannot reach server", async () => {
+    setWorkflowsListResponse(HttpResponse.error());
+    await expectPromiseToError(
+      backend.getWorkflows(APP_USER_ID),
+      new PurchasesError(
+        ErrorCode.NetworkError,
+        "Error performing request. Please check your network connection and try again.",
+        "Failed to fetch",
+      ),
+    );
+  });
 });
 
 describe("getWorkflowById request", () => {
@@ -1886,6 +1929,49 @@ describe("getWorkflowById request", () => {
         ErrorCode.InvalidCredentialsError,
         "There was a credentials issue. Check the underlying error for more details.",
         "API key was wrong",
+      ),
+    );
+  });
+
+  test("throws unknown error if the backend returns a request error with unknown error code in body", async () => {
+    setWorkflowByIdResponse(
+      HttpResponse.json(
+        { code: 1234567890, message: "Invalid error message" },
+        { status: StatusCodes.BAD_REQUEST },
+      ),
+    );
+    await expectPromiseToError(
+      backend.getWorkflowById(APP_USER_ID, WORKFLOW_ID),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        'Request: getWorkflowData. Status code: 400. Body: {"code":1234567890,"message":"Invalid error message"}.',
+      ),
+    );
+  });
+
+  test("throws unknown error if the backend returns a request error without error code in body", async () => {
+    setWorkflowByIdResponse(
+      HttpResponse.json(null, { status: StatusCodes.BAD_REQUEST }),
+    );
+    await expectPromiseToError(
+      backend.getWorkflowById(APP_USER_ID, WORKFLOW_ID),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        "Request: getWorkflowData. Status code: 400. Body: null.",
+      ),
+    );
+  });
+
+  test("throws network error if cannot reach server", async () => {
+    setWorkflowByIdResponse(HttpResponse.error());
+    await expectPromiseToError(
+      backend.getWorkflowById(APP_USER_ID, WORKFLOW_ID),
+      new PurchasesError(
+        ErrorCode.NetworkError,
+        "Error performing request. Please check your network connection and try again.",
+        "Failed to fetch",
       ),
     );
   });
