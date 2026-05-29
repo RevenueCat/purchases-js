@@ -71,7 +71,7 @@ export interface WorkflowDataResponse {
   steps: Record<string, WorkflowStep>;
   screens: Record<string, WorkflowScreen>;
   ui_config: Record<string, unknown>;
-  content_max_width: number | undefined;
+  content_max_width: number | null;
   metadata?: Record<string, unknown> | null;
 }
 
