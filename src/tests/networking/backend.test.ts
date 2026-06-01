@@ -1663,7 +1663,7 @@ describe("getVirtualCurrencies request", () => {
 
 describe("getWorkflows request", () => {
   const APP_USER_ID = "someAppUserId";
-  const WORKFLOWS_LIST_URL = `http://localhost:8000/v1/subscribers/${APP_USER_ID}/workflows`;
+  const WORKFLOWS_LIST_URL = `http://localhost:8000/v1/subscribers/${APP_USER_ID}/workflows?type=paywall`;
 
   const workflowsListResponse = {
     workflows: [
@@ -1703,7 +1703,7 @@ describe("getWorkflows request", () => {
     const specialUserId = "user with spaces";
     server.use(
       http.get(
-        `http://localhost:8000/v1/subscribers/${encodeURIComponent(specialUserId)}/workflows`,
+        `http://localhost:8000/v1/subscribers/${encodeURIComponent(specialUserId)}/workflows?type=paywall`,
         () => HttpResponse.json(workflowsListResponse, { status: 200 }),
       ),
     );
