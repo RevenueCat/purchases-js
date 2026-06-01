@@ -1045,8 +1045,15 @@ export function getRequestHandlers(): RequestHandler[] {
   );
 
   requestHandlers.push(
-    http.get("http://localhost:8000/v1/subscribers/:userId/workflows", () =>
-      HttpResponse.json({ workflows: [], ui_config: {} }, { status: 200 }),
+    http.get(
+      "http://localhost:8000/v1/subscribers/:userId/workflows",
+      ({ request }) => {
+        APIGetRequest({ url: request.url });
+        return HttpResponse.json(
+          { workflows: [], ui_config: {} },
+          { status: 200 },
+        );
+      },
     ),
   );
 
