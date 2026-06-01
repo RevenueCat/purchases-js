@@ -266,7 +266,7 @@ export class GetWorkflowMetadataEndpoint implements Endpoint {
  */
 export class GetWorkflowDataEndpoint implements Endpoint {
   method: HttpMethodType = "GET";
-  name: string = "getWorkflowData";
+  name: string = "getWorkflowDataFromCdn";
   private readonly path: string;
 
   constructor(path: string) {
