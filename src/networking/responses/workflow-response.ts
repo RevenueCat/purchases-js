@@ -7,7 +7,6 @@ export interface WorkflowMetadataResponse {
   api_key: string;
   workflow_url: string;
   workflow_id: string;
-  allow_anonymous_purchases: boolean | undefined;
 }
 
 /**
