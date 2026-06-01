@@ -214,7 +214,7 @@ export class GetWorkflowsEndpoint implements Endpoint {
   }
 
   urlPath(): string {
-    return `${SUBSCRIBERS_PATH}/${encodeURIComponent(this.appUserId)}/workflows`;
+    return `${SUBSCRIBERS_PATH}/${encodeURIComponent(this.appUserId)}/workflows?type=paywall`;
   }
 }
 
@@ -283,7 +283,12 @@ export type SupportedEndpoint =
   | PurchaseEndpoint
   | GetProductsEndpoint
   | GetCustomerInfoEndpoint
+  | IdentifyEndpoint
   | GetBrandingInfoEndpoint
+  | CheckoutPrepareEndpoint
+  | CheckoutStartEndpoint
+  | CheckoutRefreshPricingEndpoint
+  | CheckoutCompleteEndpoint
   | GetCheckoutStatusEndpoint
   | SetAttributesEndpoint
   | PostReceiptEndpoint
