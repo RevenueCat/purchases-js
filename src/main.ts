@@ -77,6 +77,7 @@ import {
   workflowDataToNavData,
   type WorkflowData,
   type UIConfig,
+  mergeCustomVariables,
 } from "@revenuecat/purchases-ui-js";
 import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
 import {
@@ -1036,8 +1037,19 @@ export class Purchases {
               closePaywall();
             },
             onCompleteWorkflowNavigate,
+            onNavigateToUrlClicked: navigateToUrl,
+            onRestorePurchasesClicked,
+            onVisitCustomerCenterClicked,
             onComponentInteraction,
-            customVariables: paywallParams.customVariables,
+            globalVariables: paywallParams.customVariables
+              ? mergeCustomVariables(
+                  paywallParams.customVariables,
+                  workflowDataResponse.ui_config as unknown as UIConfig,
+                )
+              : undefined,
+            maxContentWidth: workflowDataResponse.content_max_width
+              ? String(workflowDataResponse.content_max_width)
+              : undefined,
           },
         });
 
