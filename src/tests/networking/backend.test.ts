@@ -1989,7 +1989,6 @@ describe("getWorkflow request", () => {
     api_key: "wf_api_key_abc123",
     workflow_url: `http://localhost:8000${WORKFLOW_DATA_PATH.replace(ENCODED_APP_USER_ID, "{app_user_id}")}`,
     workflow_id: "wf_001",
-    allow_anonymous_purchases: false,
   };
 
   const workflowDataResponse = {
@@ -2179,7 +2178,7 @@ describe("getWorkflow request", () => {
       new PurchasesError(
         ErrorCode.UnknownBackendError,
         "Unknown backend error.",
-        "Request: getWorkflowData. Status code: 500. Body: null.",
+        "Request: getWorkflowDataFromCdn. Status code: 500. Body: null.",
       ),
     );
   });
