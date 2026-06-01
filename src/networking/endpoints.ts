@@ -283,12 +283,7 @@ export type SupportedEndpoint =
   | PurchaseEndpoint
   | GetProductsEndpoint
   | GetCustomerInfoEndpoint
-  | IdentifyEndpoint
   | GetBrandingInfoEndpoint
-  | CheckoutPrepareEndpoint
-  | CheckoutStartEndpoint
-  | CheckoutRefreshPricingEndpoint
-  | CheckoutCompleteEndpoint
   | GetCheckoutStatusEndpoint
   | SetAttributesEndpoint
   | PostReceiptEndpoint
