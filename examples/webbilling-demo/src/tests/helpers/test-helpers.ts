@@ -1,8 +1,9 @@
 import type { APIResponse } from "@playwright/test";
 import { type Page, type Locator, expect } from "@playwright/test";
+import type { StoreLoadTime } from "@revenuecat/purchases-js";
 import { BASE_URL, NON_TAX_TEST_API_KEY } from "./fixtures";
 import type { integrationTest } from "./integration-test";
-import { ALLOW_PAYWALLS_TESTS } from "./integration-test";
+import { ALLOW_PAYWALLS_TESTS, SKIP_STRIPE_TESTS } from "./integration-test";
 
 export type RouteFulfillOptions = {
   body?: string | Buffer | undefined;
@@ -16,9 +17,9 @@ export type RouteFulfillOptions = {
 
 // Infer from the demo paywall that the only button with an svg is the back button.
 export const getBackButtons = (page: Page) =>
-  page.locator("button.stack:has(svg)[style*='visibility: visible']");
+  page.locator("[data-testid='button-navigate_back']");
 
-export const CARD_SELECTOR = "div.card";
+export const CARD_SELECTOR = ".packages div.card";
 export const PACKAGE_SELECTOR = "button.rc-pw-package";
 export const TAX_SKELETON_SELECTOR = "div[data-testid='tax-loading-skeleton']";
 
@@ -26,6 +27,13 @@ export const skipPaywallsTestIfDisabled = (test: typeof integrationTest) => {
   test.skip(
     !ALLOW_PAYWALLS_TESTS,
     "Paywalls tests are disabled. To enable, set VITE_ALLOW_PAYWALLS_TESTS=true in the environment variables.",
+  );
+};
+
+export const skipStripeTestsIfDisabled = (test: typeof integrationTest) => {
+  test.skip(
+    SKIP_STRIPE_TESTS,
+    "Stripe tests are disabled. To enable them, unset VITE_SKIP_STRIPE_TESTS or set it to false.",
   );
 };
 
@@ -79,6 +87,8 @@ export async function navigateToLandingUrl(
     $displayName?: string;
     nickname?: string;
     hideBackButtons?: boolean;
+    discountCode?: string;
+    storeLoadTime?: StoreLoadTime;
   },
   apiKey?: string,
 ) {
@@ -100,6 +110,8 @@ export async function navigateToLandingUrl(
     email,
     $displayName,
     nickname,
+    discountCode,
+    storeLoadTime,
   } = queryString ?? {};
 
   const params = new URLSearchParams();
@@ -139,6 +151,12 @@ export async function navigateToLandingUrl(
   if (queryString?.hideBackButtons !== undefined) {
     params.append("hideBackButtons", queryString.hideBackButtons.toString());
   }
+  if (discountCode) {
+    params.append("discountCode", discountCode);
+  }
+  if (storeLoadTime) {
+    params.append("storeLoadTime", storeLoadTime);
+  }
 
   const rcPaywallPath = offeringId ? "rc_paywall" : "rc_paywall_no_offering";
 
@@ -172,7 +190,7 @@ export const getPaywallPurchaseButtons = (page: Page) =>
 
 export const getStripePaymentFrame = (page: Page) =>
   page.frameLocator(
-    "iframe[src*='https://js.stripe.com/v3/elements-inner-payment']",
+    "#payment-element iframe[title='Secure payment input frame']",
   );
 
 export const getStripeEmailFrame = (page: Page) =>
@@ -182,6 +200,12 @@ export const getStripe3DSFrame = (page: Page) =>
   page.frameLocator(
     "iframe[src*='https://js.stripe.com/v3/three-ds-2-challenge']",
   );
+
+async function waitForCheckoutFormReady(page: Page): Promise<void> {
+  const formContainer = page.locator(".rc-checkout-form-container");
+  await expect(formContainer).toBeVisible();
+  await expect(formContainer).not.toHaveClass(/invisible/);
+}
 
 export async function enterEmail(page: Page, email: string): Promise<void> {
   const stripeFrame = getStripeEmailFrame(page);
@@ -207,13 +231,15 @@ export async function enterCreditCardDetails(
   const expiration = cardInfo?.expiration || `01 / ${expirationYear}`;
   const securityCode = cardInfo?.securityCode || "123";
 
-  page.locator("button[data-testid='PayButton']").waitFor();
+  await waitForCheckoutFormReady(page);
+  await page.locator("button[data-testid='PayButton']").waitFor();
   const checkoutTitle = page.getByText("Secure Checkout");
 
   await expect(checkoutTitle).toBeVisible();
   const stripeFrame = getStripePaymentFrame(page);
 
   const numberInput = stripeFrame.getByPlaceholder("1234 1234 1234");
+  await expect(numberInput).toBeVisible();
   await numberInput.fill(cardNumber);
 
   // Inserting the country first just to make sure that the change event is triggered by Stripe
@@ -258,17 +284,22 @@ export async function confirmTaxNotCalculating(page: Page) {
   await expect(page.locator(TAX_SKELETON_SELECTOR)).not.toBeVisible();
 }
 
-export async function confirmPaymentComplete(page: Page) {
+export async function confirmPaymentComplete(page: Page, timeout?: number) {
   const successText = page.getByText("Payment complete");
-  await expect(successText).toBeVisible();
+  await expect(successText).toBeVisible(
+    timeout !== undefined ? { timeout } : undefined,
+  );
 }
 
 export async function confirmPaymentError(
   page: Page,
   message: string | RegExp,
+  timeout?: number,
 ) {
   const errorText = page.getByText(message);
-  await expect(errorText).toBeVisible();
+  await expect(errorText).toBeVisible(
+    timeout !== undefined ? { timeout } : undefined,
+  );
 }
 
 export async function clickCancelStripe3DSButton(page: Page) {
@@ -284,17 +315,20 @@ export async function confirmStripeCardError(page: Page, message: string) {
   await expect(cardError).toBeVisible();
 }
 
-export async function confirmStripeEmailError(page: Page, message: string) {
+export async function confirmStripeEmailError(
+  page: Page,
+  message: string | RegExp,
+) {
   const stripeFrame = getStripeEmailFrame(page);
   const emailError = stripeFrame.getByText(message);
   await expect(emailError).toBeVisible();
 }
 
 export async function confirmStripeEmailFieldNotVisible(page: Page) {
-  // Wait for the credit card to be loaded
-  const numberInput =
-    getStripePaymentFrame(page).getByPlaceholder("1234 1234 1234");
-  await expect(numberInput).toBeVisible();
+  await waitForCheckoutFormReady(page);
+  await expect(
+    page.locator("#payment-element iframe[title='Secure payment input frame']"),
+  ).toBeVisible();
 
   // Then check that the email field is not visible
   const stripeFrame = getStripeEmailFrame(page);

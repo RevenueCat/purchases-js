@@ -39,7 +39,6 @@
     onClick?: (event: StripeExpressCheckoutElementClickEvent) => void;
     onCancel?: () => void;
     elements: StripeElements;
-    billingAddressRequired: boolean;
     forceEnableWalletMethods: boolean;
     expressCheckoutOptions?: StripeExpressCheckoutConfiguration;
     hideCheckoutSeparator?: boolean;
@@ -52,7 +51,6 @@
     onClick,
     onCancel,
     elements,
-    billingAddressRequired,
     forceEnableWalletMethods,
     expressCheckoutOptions,
     hideCheckoutSeparator = false,
@@ -107,7 +105,6 @@
     try {
       expressCheckoutElement = StripeService.createExpressCheckoutElement(
         elements,
-        billingAddressRequired,
         forceEnableWalletMethods,
         expressCheckoutOptions,
       );

@@ -1,6 +1,15 @@
 export const supportedRCSources = ["app", "embedded"];
 
 /**
+ * Determines when the store module (e.g. Stripe) is loaded.
+ * - `"configuration"`: The store module is preloaded when the SDK is configured.
+ * - `"purchase_start"`: The store module is loaded on demand when a purchase is started.
+ * @public
+ * @deprecated we always load stripe only when needed
+ */
+export type StoreLoadTime = "configuration" | "purchase_start";
+
+/**
  * Flags used to enable or disable certain features in the sdk.
  * @public
  */
@@ -39,9 +48,19 @@ export interface FlagsConfig {
    * @internal
    */
   forceEnableWalletMethods?: boolean;
+
+  /**
+   * Determines when the store module (e.g. Stripe) is loaded.
+   * - `"configuration"`: Preloaded when the SDK is configured (default).
+   * - `"purchase_start"`: Loaded on demand when a purchase is started.
+   * @defaultValue "configuration"
+   * @deprecated we always load stripe only when needed
+   */
+  storeLoadTime?: StoreLoadTime;
 }
 
 export const defaultFlagsConfig: FlagsConfig = {
   autoCollectUTMAsMetadata: true,
   collectAnalyticsEvents: true,
+  storeLoadTime: "configuration",
 };

@@ -1,6 +1,6 @@
 import React from "react";
 
-const Button: React.FC<{ caption: string; onClick: () => void }> = ({
+const Button: React.FC<{ caption: string; onClick?: () => void }> = ({
   caption,
   onClick,
 }) => {

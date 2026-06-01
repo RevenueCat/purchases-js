@@ -5,11 +5,11 @@
   import { brandingLanguageViewportModes } from "../../../.storybook/modes";
   import {
     brandingInfos,
-    priceBreakdownTaxDisabled,
     product,
     purchaseFlowErrors,
     subscriptionOption,
   } from "../fixtures";
+  import { getPriceBreakdownTaxDisabled } from "../helpers/get-price-breakdown";
 
   let { Story } = defineMeta({
     component: PaddlePurchasesUiInner,
@@ -19,7 +19,7 @@
       purchaseOption: subscriptionOption,
       isSandbox: false,
       lastError: null,
-      defaultPriceBreakdown: priceBreakdownTaxDisabled,
+      defaultPriceBreakdown: getPriceBreakdownTaxDisabled(subscriptionOption),
       onContinue: () => {},
       closeWithError: () => {},
       onClose: () => {},

@@ -9,6 +9,7 @@ import { type CheckoutStartResponse } from "../networking/responses/checkout-sta
 import type { CheckoutCompleteResponse } from "../networking/responses/checkout-complete-response";
 import { StripeElementsSetupFutureUsage } from "../networking/responses/stripe-elements";
 import { StripeElementsMode } from "../networking/responses/stripe-elements";
+import type { CheckoutPrepareResponse } from "../networking/responses/checkout-prepare-response";
 import type { SubscriberResponse } from "../networking/responses/subscriber-response";
 
 const monthlyProductResponse: ProductResponse = {
@@ -31,6 +32,7 @@ const monthlyProductResponse: ProductResponse = {
       },
       trial: null,
       intro_price: null,
+      discount: null,
     },
   },
 };
@@ -59,6 +61,7 @@ const monthly2ProductResponse: ProductResponse = {
         price: null,
       },
       intro_price: null,
+      discount: null,
     },
   },
 };
@@ -84,12 +87,45 @@ const monthlyWithIntroPriceProductResponse: ProductResponse = {
       trial: null,
       intro_price: {
         period_duration: "P1M",
-        cycle_count: 3,
+        cycle_count: 3, // Recurring for 3 cycles
         price: {
           amount_micros: 1990000,
           currency: "USD",
         },
       },
+      discount: null,
+    },
+  },
+};
+
+const monthlyWithUpfrontIntroPriceProductResponse: ProductResponse = {
+  identifier: "monthly_intro_upfront",
+  product_type: "subscription",
+  title: "Monthly with Intro Price Paid Upfront",
+  description: "Monthly subscription with introductory pricing paid upfront",
+  default_purchase_option_id: "intro_upfront_option",
+  purchase_options: {
+    intro_upfront_option: {
+      id: "intro_upfront_option",
+      price_id: "test_intro_upfront_price_id",
+      base: {
+        period_duration: "P1M",
+        cycle_count: 1,
+        price: {
+          amount_micros: 9990000,
+          currency: "USD",
+        },
+      },
+      trial: null,
+      intro_price: {
+        period_duration: "P6M",
+        cycle_count: 1, // One-time upfront payment
+        price: {
+          amount_micros: 6990000,
+          currency: "USD",
+        },
+      },
+      discount: null,
     },
   },
 };
@@ -125,6 +161,197 @@ const monthlyWithTrialAndIntroPriceProductResponse: ProductResponse = {
           currency: "USD",
         },
       },
+      discount: null,
+    },
+  },
+};
+
+const monthlyWithOneTimeDiscountProductResponse: ProductResponse = {
+  identifier: "monthly_one_time_discount",
+  product_type: "subscription",
+  title: "Monthly with One-Time Discount",
+  description: "Monthly subscription with one-time discount",
+  default_purchase_option_id: "one_time_discount_option",
+  purchase_options: {
+    one_time_discount_option: {
+      id: "one_time_discount_option",
+      price_id: "test_one_time_discount_price_id",
+      base: {
+        period_duration: "P1M",
+        cycle_count: 1,
+        price: {
+          amount_micros: 10000000,
+          currency: "USD",
+        },
+      },
+      trial: null,
+      intro_price: null,
+      discount: {
+        duration_mode: "one_time",
+        time_window: null,
+        discount_type: "percentage",
+        percentage: 20,
+        fixed_amount_micros: null,
+        amount_micros: 8000000,
+        currency: "USD",
+        name: "One-Time 20% Discount",
+      },
+    },
+  },
+};
+
+const monthlyWithTimeWindowDiscountProductResponse: ProductResponse = {
+  identifier: "monthly_time_window_discount",
+  product_type: "subscription",
+  title: "Monthly with Time Window Discount",
+  description: "Monthly subscription with time window discount",
+  default_purchase_option_id: "time_window_discount_option",
+  purchase_options: {
+    time_window_discount_option: {
+      id: "time_window_discount_option",
+      price_id: "test_time_window_discount_price_id",
+      base: {
+        period_duration: "P1M",
+        cycle_count: 1,
+        price: {
+          amount_micros: 10000000,
+          currency: "USD",
+        },
+      },
+      trial: null,
+      intro_price: null,
+      discount: {
+        duration_mode: "time_window",
+        time_window: "P3M",
+        discount_type: "percentage",
+        percentage: 30,
+        fixed_amount_micros: null,
+        amount_micros: 7000000,
+        currency: "USD",
+        name: "Holiday Sale 30%",
+      },
+    },
+  },
+};
+
+const monthlyWithForeverDiscountProductResponse: ProductResponse = {
+  identifier: "monthly_forever_discount",
+  product_type: "subscription",
+  title: "Monthly with Forever Discount",
+  description: "Monthly subscription with forever discount",
+  default_purchase_option_id: "forever_discount_option",
+  purchase_options: {
+    forever_discount_option: {
+      id: "forever_discount_option",
+      price_id: "test_forever_discount_price_id",
+      base: {
+        period_duration: "P1M",
+        cycle_count: 1,
+        price: {
+          amount_micros: 10000000,
+          currency: "USD",
+        },
+      },
+      trial: null,
+      intro_price: null,
+      discount: {
+        duration_mode: "forever",
+        time_window: null,
+        discount_type: "percentage",
+        percentage: 40,
+        fixed_amount_micros: null,
+        amount_micros: 6000000,
+        currency: "USD",
+        name: "Forever 40% Discount",
+      },
+    },
+  },
+};
+
+const monthlyWithFixedAmountDiscountProductResponse: ProductResponse = {
+  identifier: "monthly_fixed_amount_discount",
+  product_type: "subscription",
+  title: "Monthly with Fixed Amount Discount",
+  description: "Monthly subscription with fixed amount discount",
+  default_purchase_option_id: "fixed_amount_discount_option",
+  purchase_options: {
+    fixed_amount_discount_option: {
+      id: "fixed_amount_discount_option",
+      price_id: "test_fixed_amount_discount_price_id",
+      base: {
+        period_duration: "P1M",
+        cycle_count: 1,
+        price: {
+          amount_micros: 10000000,
+          currency: "USD",
+        },
+      },
+      trial: null,
+      intro_price: null,
+      discount: {
+        duration_mode: "one_time",
+        time_window: null,
+        discount_type: "fixed_amount",
+        percentage: null,
+        fixed_amount_micros: 2500000,
+        amount_micros: 7500000,
+        currency: "USD",
+        name: "$2.50 Off",
+      },
+    },
+  },
+};
+
+const monthlyWithIntroPriceNullPriceProductResponse: ProductResponse = {
+  identifier: "monthly_intro_null_price",
+  product_type: "subscription",
+  title: "Monthly with Intro Price Null Price",
+  description: "Monthly subscription with intro price that has null price",
+  default_purchase_option_id: "intro_null_price_option",
+  purchase_options: {
+    intro_null_price_option: {
+      id: "intro_null_price_option",
+      price_id: "test_intro_null_price_id",
+      base: {
+        period_duration: "P1M",
+        cycle_count: 1,
+        price: {
+          amount_micros: 9990000,
+          currency: "USD",
+        },
+      },
+      trial: null,
+      intro_price: {
+        period_duration: "P1M",
+        cycle_count: 3,
+        price: null,
+      },
+      discount: null,
+    },
+  },
+};
+
+const productWithNullBaseResponse: ProductResponse = {
+  identifier: "monthly_null_base",
+  product_type: "subscription",
+  title: "Monthly with Null Base",
+  description: "Monthly subscription with null base phase",
+  default_purchase_option_id: "null_base_option",
+  purchase_options: {
+    null_base_option: {
+      id: "null_base_option",
+      price_id: "test_price_id",
+      base: null,
+      trial: null,
+      intro_price: {
+        period_duration: "P1M",
+        cycle_count: 3,
+        price: {
+          amount_micros: 1990000,
+          currency: "USD",
+        },
+      },
+      discount: null,
     },
   },
 };
@@ -143,6 +370,35 @@ const consumableProductResponse: ProductResponse = {
         amount_micros: 1000000,
         currency: "USD",
       },
+      discount: null,
+    },
+  },
+};
+
+const consumableWithOneTimeDiscountProductResponse: ProductResponse = {
+  identifier: "test-consumable-one-time-discount",
+  product_type: "consumable",
+  title: "Consumable with One-Time Discount",
+  description: "Consumable product with one-time discount",
+  default_purchase_option_id: "consumable_discount_option",
+  purchase_options: {
+    consumable_discount_option: {
+      id: "consumable_discount_option",
+      price_id: "test_consumable_discount_price_id",
+      base_price: {
+        amount_micros: 1000000,
+        currency: "USD",
+      },
+      discount: {
+        duration_mode: "one_time",
+        time_window: null,
+        discount_type: "percentage",
+        percentage: 20,
+        fixed_amount_micros: null,
+        amount_micros: 800000,
+        currency: "USD",
+        name: "Consumable 20% Discount",
+      },
     },
   },
 };
@@ -158,6 +414,36 @@ export const productsWithIntroPriceResponse: ProductsResponse = {
     monthlyWithIntroPriceProductResponse,
     monthlyWithTrialAndIntroPriceProductResponse,
   ],
+};
+
+export const productsWithDiscountsResponse: ProductsResponse = {
+  product_details: [
+    monthlyProductResponse,
+    monthly2ProductResponse,
+    monthlyWithOneTimeDiscountProductResponse,
+    monthlyWithTimeWindowDiscountProductResponse,
+    monthlyWithForeverDiscountProductResponse,
+  ],
+};
+
+export const productsWithFixedAmountDiscountResponse: ProductsResponse = {
+  product_details: [monthlyWithFixedAmountDiscountProductResponse],
+};
+
+export const productsWithIntroPriceNullPriceResponse: ProductsResponse = {
+  product_details: [monthlyWithIntroPriceNullPriceProductResponse],
+};
+
+export const productsWithUpfrontIntroPriceResponse: ProductsResponse = {
+  product_details: [monthlyWithUpfrontIntroPriceProductResponse],
+};
+
+export const productsWithNullBaseResponse: ProductsResponse = {
+  product_details: [productWithNullBaseResponse],
+};
+
+export const productsWithConsumableDiscountResponse: ProductsResponse = {
+  product_details: [consumableWithOneTimeDiscountProductResponse],
 };
 
 export const offeringsArray = [
@@ -214,6 +500,126 @@ export const offeringsWithIntroPriceArray = [
   },
 ];
 
+export const offeringsWithDiscountsArray = [
+  {
+    identifier: "offering_one_time_discount",
+    description: "Offering with One-Time Discount",
+    metadata: null,
+    packages: [
+      {
+        identifier: "$rc_monthly_one_time_discount",
+        platform_product_identifier: "monthly_one_time_discount",
+      },
+    ],
+    paywall_components: null,
+  },
+  {
+    identifier: "offering_time_window_discount",
+    description: "Offering with Time Window Discount",
+    metadata: null,
+    packages: [
+      {
+        identifier: "$rc_monthly_time_window_discount",
+        platform_product_identifier: "monthly_time_window_discount",
+      },
+    ],
+    paywall_components: null,
+  },
+  {
+    identifier: "offering_forever_discount",
+    description: "Offering with Forever Discount",
+    metadata: null,
+    packages: [
+      {
+        identifier: "$rc_monthly_forever_discount",
+        platform_product_identifier: "monthly_forever_discount",
+      },
+    ],
+    paywall_components: null,
+  },
+];
+
+export const offeringsWithFixedAmountDiscountArray = [
+  {
+    identifier: "offering_fixed_amount_discount",
+    description: "Offering with Fixed Amount Discount",
+    metadata: null,
+    packages: [
+      {
+        identifier: "$rc_monthly_fixed_amount_discount",
+        platform_product_identifier: "monthly_fixed_amount_discount",
+      },
+    ],
+    paywall_components: null,
+  },
+];
+
+export const offeringsWithIntroPriceNullPriceArray = [
+  {
+    identifier: "offering_intro_null_price",
+    description: "Offering with Intro Price Null Price",
+    metadata: null,
+    packages: [
+      {
+        identifier: "$rc_monthly_intro_null_price",
+        platform_product_identifier: "monthly_intro_null_price",
+      },
+    ],
+    paywall_components: null,
+  },
+];
+
+export const offeringsWithUpfrontIntroPriceArray = [
+  {
+    identifier: "offering_intro_upfront",
+    description: "Offering with Intro Price Paid Upfront",
+    metadata: null,
+    packages: [
+      {
+        identifier: "$rc_monthly_intro_upfront",
+        platform_product_identifier: "monthly_intro_upfront",
+      },
+    ],
+    paywall_components: null,
+  },
+];
+
+export const offeringsWithNullBaseArray = [
+  {
+    identifier: "offering_null_base",
+    description: "Offering with Product Having Null Base",
+    metadata: null,
+    packages: [
+      {
+        identifier: "$rc_monthly_null_base",
+        platform_product_identifier: "monthly_null_base",
+      },
+    ],
+    paywall_components: null,
+  },
+];
+
+export const checkoutPrepareResponse: CheckoutPrepareResponse = {
+  stripe_gateway_params: {
+    publishable_api_key: "test_publishable_api_key",
+    stripe_account_id: "test_stripe_account_id",
+    elements_configuration: {
+      mode: StripeElementsMode.Payment,
+      payment_method_types: ["card"],
+      setup_future_usage: StripeElementsSetupFutureUsage.OnSession,
+      amount: 300,
+      currency: "USD",
+    },
+  },
+  paypal_gateway_params: {
+    client_access_token: "test_paypal_access_token",
+  },
+  paddle_billing_params: {
+    client_side_token: "test_client_side_token",
+    is_sandbox: true,
+  },
+};
+
 export const customerInfoResponse: SubscriberResponse = {
   request_date: "2024-01-22T13:23:07Z",
   request_date_ms: 1705929787636,
@@ -259,6 +665,8 @@ export const customerInfoResponse: SubscriberResponse = {
         expires_date: "2024-01-22T16:48:42Z",
         grace_period_expires_date: null,
         is_sandbox: true,
+        management_url:
+          "https://test-management-url.revenuecat.com/manage/one_transaction_id",
         original_purchase_date: "2023-11-20T16:48:42Z",
         period_type: "normal",
         purchase_date: "2024-01-21T16:48:42Z",
@@ -274,6 +682,8 @@ export const customerInfoResponse: SubscriberResponse = {
         expires_date: "2054-01-22T16:48:42Z",
         grace_period_expires_date: null,
         is_sandbox: true,
+        management_url:
+          "https://test-management-url.revenuecat.com/manage/another_transaction_id",
         original_purchase_date: "2023-11-20T16:48:42Z",
         period_type: "normal",
         purchase_date: "2024-01-21T16:48:42Z",
@@ -312,7 +722,55 @@ const offeringsResponsesPerUserId: { [userId: string]: OfferingsResponse } = {
       offering_ids_by_placement: {
         test_placement_id: "offering_2",
         test_null_placement_id: null,
+        test_unknown_offering_placement_id: "nonexistent_offering",
       },
+    },
+    targeting: {
+      rule_id: "test_rule_id",
+      revision: 123,
+    },
+  },
+  appUserIdWithPlacementsFallbackOnly: {
+    current_offering_id: "offering_1",
+    offerings: offeringsArray,
+    placements: {
+      fallback_offering_id: "offering_1",
+    },
+    targeting: {
+      rule_id: "test_rule_id",
+      revision: 123,
+    },
+  },
+  appUserIdWithPlacementsNoFallback: {
+    current_offering_id: "offering_1",
+    offerings: offeringsArray,
+    placements: {
+      fallback_offering_id: null,
+      offering_ids_by_placement: {
+        test_null_placement_id: null,
+      },
+    },
+    targeting: {
+      rule_id: "test_rule_id",
+      revision: 123,
+    },
+  },
+  appUserIdWithInvalidFallback: {
+    current_offering_id: "offering_1",
+    offerings: offeringsArray,
+    placements: {
+      fallback_offering_id: "nonexistent_offering",
+    },
+    targeting: {
+      rule_id: "test_rule_id",
+      revision: 123,
+    },
+  },
+  appUserIdWithEmptyPlacements: {
+    current_offering_id: "offering_1",
+    offerings: offeringsArray,
+    placements: {
+      fallback_offering_id: null,
     },
     targeting: {
       rule_id: "test_rule_id",
@@ -344,6 +802,23 @@ const offeringsResponsesPerUserId: { [userId: string]: OfferingsResponse } = {
       },
     ],
   },
+  appUserIdWithConsumableDiscount: {
+    current_offering_id: "offering_consumable_discount",
+    offerings: [
+      {
+        identifier: "offering_consumable_discount",
+        description: "Offering with Consumable Discount",
+        metadata: null,
+        packages: [
+          {
+            identifier: "test-consumable-discount-package",
+            platform_product_identifier: "test-consumable-one-time-discount",
+          },
+        ],
+        paywall_components: null,
+      },
+    ],
+  },
   appUserIdWithIntroPricing: {
     current_offering_id: "offering_intro",
     offerings: offeringsWithIntroPriceArray,
@@ -352,10 +827,42 @@ const offeringsResponsesPerUserId: { [userId: string]: OfferingsResponse } = {
     current_offering_id: "offering_trial_intro",
     offerings: offeringsWithIntroPriceArray,
   },
+  appUserIdWithOneTimeDiscount: {
+    current_offering_id: "offering_one_time_discount",
+    offerings: offeringsWithDiscountsArray,
+  },
+  appUserIdWithTimeWindowDiscount: {
+    current_offering_id: "offering_time_window_discount",
+    offerings: offeringsWithDiscountsArray,
+  },
+  appUserIdWithForeverDiscount: {
+    current_offering_id: "offering_forever_discount",
+    offerings: offeringsWithDiscountsArray,
+  },
+  appUserIdWithFixedAmountDiscount: {
+    current_offering_id: "offering_fixed_amount_discount",
+    offerings: offeringsWithFixedAmountDiscountArray,
+  },
+  appUserIdWithIntroPriceNullPrice: {
+    current_offering_id: "offering_intro_null_price",
+    offerings: offeringsWithIntroPriceNullPriceArray,
+  },
+  appUserIdWithUpfrontIntroPrice: {
+    current_offering_id: "offering_intro_upfront",
+    offerings: offeringsWithUpfrontIntroPriceArray,
+  },
+  appUserIdWithNullBase: {
+    current_offering_id: "offering_null_base",
+    offerings: offeringsWithNullBaseArray,
+  },
 };
 
 const productsResponsesPerUserId: { [userId: string]: object } = {
   someAppUserId: productsResponse,
+  appUserIdWithPlacementsFallbackOnly: productsResponse,
+  appUserIdWithPlacementsNoFallback: productsResponse,
+  appUserIdWithInvalidFallback: productsResponse,
+  appUserIdWithEmptyPlacements: productsResponse,
   appUserIdWithoutCurrentOfferingId: productsResponse,
   appUserIdWithMissingProducts: { product_details: [monthlyProductResponse] },
   appUserIdWithNonSubscriptionProducts: {
@@ -363,6 +870,14 @@ const productsResponsesPerUserId: { [userId: string]: object } = {
   },
   appUserIdWithIntroPricing: productsWithIntroPriceResponse,
   appUserIdWithTrialAndIntroPricing: productsWithIntroPriceResponse,
+  appUserIdWithOneTimeDiscount: productsWithDiscountsResponse,
+  appUserIdWithTimeWindowDiscount: productsWithDiscountsResponse,
+  appUserIdWithForeverDiscount: productsWithDiscountsResponse,
+  appUserIdWithFixedAmountDiscount: productsWithFixedAmountDiscountResponse,
+  appUserIdWithIntroPriceNullPrice: productsWithIntroPriceNullPriceResponse,
+  appUserIdWithUpfrontIntroPrice: productsWithUpfrontIntroPriceResponse,
+  appUserIdWithNullBase: productsWithNullBaseResponse,
+  appUserIdWithConsumableDiscount: productsWithConsumableDiscountResponse,
 };
 
 const customerInfoResponsePerUserId: { [userId: string]: object } = {
@@ -391,6 +906,7 @@ export const checkoutStartResponse: CheckoutStartResponse = {
       setup_future_usage: StripeElementsSetupFutureUsage.OffSession,
     },
   },
+  stripe_billing_params: null,
   management_url: "https://test-management-url.revenuecat.com",
   paddle_billing_params: null,
 };
@@ -483,7 +999,7 @@ export function getRequestHandlers(): RequestHandler[] {
   requestHandlers.push(
     http.post(eventsURL, async ({ request }) => {
       const json = await request.json();
-      APIPostRequest({ url: eventsURL, json });
+      APIPostRequest({ url: eventsURL, json, keepalive: request.keepalive });
       return HttpResponse.json({}, { status: 200 });
     }),
   );

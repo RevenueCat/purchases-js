@@ -10,12 +10,18 @@ import LoginPage from "./pages/login";
 import LandingPage from "./pages/landingPage";
 import PaywallPage from "./pages/paywall";
 import SuccessPage from "./pages/success";
-import { loadPurchases } from "./util/PurchasesLoader";
+import {
+  loadPurchases,
+  loadPurchasesWithDelayedStore,
+} from "./util/PurchasesLoader";
 import RCPaywallPage from "./pages/rc_paywall";
+import DelayedStoreLoadPage from "./pages/delayed_store_load";
 import RCPaywallNoOfferingPassedPage from "./pages/rc_paywall_no_offering_passed";
 import RCPaywallNoTargetElementPassedPage from "./pages/rc_paywall_no_target_element_passed";
 import RedemptionLinksTester from "./pages/redemption_links_tester";
 import RCPaywallLauncherPage from "./pages/rc_paywall_launcher";
+import ExpressPurchaseButtonsPackageSelector from "./pages/express_purchase_buttons";
+import RCPaywallSettingsPage from "./pages/rc_paywall_settings";
 
 const router = createBrowserRouter([
   {
@@ -74,6 +80,28 @@ const router = createBrowserRouter([
     element: (
       <WithoutEntitlement>
         <RCPaywallNoTargetElementPassedPage />
+      </WithoutEntitlement>
+    ),
+  },
+  {
+    path: "/rc_paywall_settings",
+    element: <RCPaywallSettingsPage />,
+  },
+  {
+    path: "/express_purchase_buttons/:app_user_id",
+    loader: loadPurchases,
+    element: (
+      <WithoutEntitlement>
+        <ExpressPurchaseButtonsPackageSelector />
+      </WithoutEntitlement>
+    ),
+  },
+  {
+    path: "/delayed_store_load/:app_user_id",
+    loader: loadPurchasesWithDelayedStore,
+    element: (
+      <WithoutEntitlement>
+        <DelayedStoreLoadPage />
       </WithoutEntitlement>
     ),
   },

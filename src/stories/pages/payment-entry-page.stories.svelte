@@ -5,21 +5,21 @@
   import {
     brandingInfos,
     checkoutStartResponse,
-    priceBreakdownTaxDisabled,
-    priceBreakdownTaxInclusive,
     product,
     subscriptionOption,
+    subscriptionOptionWithDiscountOneTime,
     subscriptionOptionWithTrial,
     subscriptionOptionWithTrialAndIntroPricePaidUpfront,
-    priceBreakdownTaxDisabledIntroPricePaidUpfront,
-    priceBreakdownTaxInclusiveWithIntroPricePaidUpfront,
-    priceBreakdownTaxInclusiveWithIntroPriceRecurring,
     subscriptionOptionWithTrialAndIntroPriceRecurring,
     subscriptionOptionWithIntroPriceRecurring,
     subscriptionOptionWithIntroPricePaidUpfront,
     consumableProduct,
     nonSubscriptionOption,
   } from "../fixtures";
+  import {
+    getPriceBreakdownTaxInclusive,
+    getPriceBreakdownTaxDisabled,
+  } from "../helpers/get-price-breakdown";
   import { PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
 
   const defaultArgs = {
@@ -48,7 +48,7 @@
         diffThreshold: 0.49,
       },
     },
-    // @ts-expect-error ignore importing before initializing
+    // @ts-ignore ignore importing before initializing
     render: template,
   });
   type StoryArgs = any;
@@ -76,12 +76,23 @@
     gatewayParams={checkoutStartResponse.gateway_params}
     {purchaseOperationHelper}
     defaultPriceBreakdown={args.defaultPriceBreakdown ??
-      (args.withTaxes ? priceBreakdownTaxInclusive : priceBreakdownTaxDisabled)}
+      (args.withTaxes
+        ? getPriceBreakdownTaxInclusive(subscriptionOption)
+        : undefined)}
     isInElement={context.globals.viewport === "embedded"}
     onError={() => {}}
     onClose={() => {}}
     managementUrl="http://test.com"
     termsAndConditionsUrl={args.termsAndConditionsUrl}
+    showDiscountCodeField={args.showDiscountCodeField}
+    draftDiscountCode={args.draftDiscountCode}
+    appliedDiscountCode={args.appliedDiscountCode}
+    discountCodeError={args.discountCodeError}
+    isUpdatingDiscountCode={args.isUpdatingDiscountCode}
+    isDiscountCodeControlsEnabled={args.isDiscountCodeControlsEnabled}
+    onDraftDiscountCodeChange={args.onDraftDiscountCodeChange}
+    onApplyDiscountCode={args.onApplyDiscountCode}
+    onRemoveDiscountCode={args.onRemoveDiscountCode}
     forceEnableWalletMethods={args.forceEnableWalletMethods}
   />
 {/snippet}
@@ -99,6 +110,63 @@
 <Story
   name="With Sandbox Banner"
   args={{ ...defaultArgs, currentPage: "payment-entry", isSandbox: true }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
+  }}
+/>
+
+<Story
+  name="With Promo Code Field"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    showDiscountCodeField: true,
+    isDiscountCodeControlsEnabled: true,
+  }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
+  }}
+/>
+
+<Story
+  name="With Promo Code Field Error"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    showDiscountCodeField: true,
+    draftDiscountCode: "BADCODE",
+    discountCodeError: "Invalid discount code.",
+    isDiscountCodeControlsEnabled: true,
+  }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
+  }}
+/>
+
+<Story
+  name="With Applied Promo Code"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    productDetails: {
+      ...product,
+      subscriptionOptions: {
+        ...product.subscriptionOptions,
+        [subscriptionOptionWithDiscountOneTime.id]:
+          subscriptionOptionWithDiscountOneTime,
+      },
+    },
+    purchaseOptionToUse: subscriptionOptionWithDiscountOneTime,
+    showDiscountCodeField: true,
+    appliedDiscountCode: "SAVE10",
+    isDiscountCodeControlsEnabled: true,
+  }}
   parameters={{
     chromatic: {
       delay: 1000,
@@ -148,7 +216,9 @@
   args={{
     ...defaultArgs,
     currentPage: "payment-entry",
-    defaultPriceBreakdown: priceBreakdownTaxDisabledIntroPricePaidUpfront,
+    defaultPriceBreakdown: getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithTrialAndIntroPricePaidUpfront,
+    ),
     productDetails: {
       ...product,
       subscriptionOptions: {
@@ -227,7 +297,9 @@
   args={{
     ...defaultArgs,
     currentPage: "payment-entry",
-    defaultPriceBreakdown: priceBreakdownTaxInclusiveWithIntroPricePaidUpfront,
+    defaultPriceBreakdown: getPriceBreakdownTaxInclusive(
+      subscriptionOptionWithTrialAndIntroPricePaidUpfront,
+    ),
     productDetails: {
       ...product,
       subscriptionOptions: {
@@ -251,7 +323,9 @@
   args={{
     ...defaultArgs,
     currentPage: "payment-entry",
-    defaultPriceBreakdown: priceBreakdownTaxInclusiveWithIntroPriceRecurring,
+    defaultPriceBreakdown: getPriceBreakdownTaxInclusive(
+      subscriptionOptionWithTrialAndIntroPriceRecurring,
+    ),
     productDetails: {
       ...product,
       subscriptionOptions: {
@@ -275,7 +349,9 @@
   args={{
     ...defaultArgs,
     currentPage: "payment-entry",
-    defaultPriceBreakdown: priceBreakdownTaxInclusiveWithIntroPricePaidUpfront,
+    defaultPriceBreakdown: getPriceBreakdownTaxInclusive(
+      subscriptionOptionWithIntroPricePaidUpfront,
+    ),
     productDetails: {
       ...product,
       subscriptionOptions: {
@@ -299,7 +375,9 @@
   args={{
     ...defaultArgs,
     currentPage: "payment-entry",
-    defaultPriceBreakdown: priceBreakdownTaxInclusiveWithIntroPriceRecurring,
+    defaultPriceBreakdown: getPriceBreakdownTaxInclusive(
+      subscriptionOptionWithIntroPriceRecurring,
+    ),
     productDetails: {
       ...product,
       subscriptionOptions: {
@@ -325,7 +403,7 @@
     currentPage: "payment-entry",
     withTaxes: true,
     defaultPriceBreakdown: {
-      ...priceBreakdownTaxInclusive,
+      ...getPriceBreakdownTaxInclusive(subscriptionOption),
       taxCalculationStatus: "miss-match",
     },
   }}

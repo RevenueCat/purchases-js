@@ -5,9 +5,11 @@ import type {
   Stripe,
   StripeElementLocale,
   StripeElements,
+  StripeEmbeddedCheckout,
   StripeError,
 } from "@stripe/stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
+import { loadStripe } from "@stripe/stripe-js/pure";
+
 import type { BrandingInfoResponse } from "../networking/responses/branding-response";
 import { Theme } from "../ui/theme/theme";
 import { DEFAULT_TEXT_STYLES } from "../ui/theme/text";
@@ -19,6 +21,7 @@ import type { StripeExpressCheckoutElementOptions } from "@stripe/stripe-js/dist
 import { type Period, PeriodUnit } from "../helpers/duration-helper";
 import type { StripeExpressCheckoutConfiguration } from "./stripe-express-checkout-configuration";
 import type { PriceBreakdown } from "../ui/ui-types";
+import type { StripeBillingParams } from "../networking/responses/checkout-start-response";
 
 export enum StripeServiceErrorCode {
   ErrorLoadingStripe = 0,
@@ -76,6 +79,27 @@ export class StripeService {
     return locale as StripeElementLocale;
   }
 
+  static async getStripeClient(
+    stripeAccountId: string,
+    publishableApiKey: string,
+  ): Promise<{ stripe: Stripe }> {
+    const stripe = await loadStripe(publishableApiKey, {
+      stripeAccount: stripeAccountId,
+    }).catch((error) => {
+      throw this.mapInitializationError(error);
+    });
+
+    if (!stripe) {
+      throw {
+        code: StripeServiceErrorCode.ErrorLoadingStripe,
+        gatewayErrorCode: undefined,
+        message: "Stripe client not found",
+      };
+    }
+
+    return { stripe };
+  }
+
   static async initializeStripe(
     stripeAccountId: string,
     publishableApiKey: string,
@@ -93,19 +117,10 @@ export class StripeService {
       };
     }
 
-    const stripe = await loadStripe(publishableApiKey, {
-      stripeAccount: stripeAccountId,
-    }).catch((error) => {
-      throw this.mapInitializationError(error);
-    });
-
-    if (!stripe) {
-      throw {
-        code: StripeServiceErrorCode.ErrorLoadingStripe,
-        gatewayErrorCode: undefined,
-        message: "Stripe client not found",
-      };
-    }
+    const { stripe } = await this.getStripeClient(
+      stripeAccountId,
+      publishableApiKey,
+    );
 
     const theme = new Theme(brandingInfo?.appearance);
     const customShape = theme.shape;
@@ -174,6 +189,40 @@ export class StripeService {
     return { stripe, elements };
   }
 
+  static async initializeStripeCheckout(
+    stripeAccountId?: string,
+    publishableApiKey?: string,
+    StripeBillingParams?: StripeBillingParams,
+    onComplete?: () => void,
+  ): Promise<{ stripe: Stripe; embeddedCheckout: StripeEmbeddedCheckout }> {
+    if (!stripeAccountId || !publishableApiKey || !StripeBillingParams) {
+      throw {
+        code: StripeServiceErrorCode.ErrorLoadingStripe,
+        gatewayErrorCode: undefined,
+        message: "Stripe configuration is missing",
+      };
+    }
+
+    const { stripe } = await this.getStripeClient(
+      stripeAccountId,
+      publishableApiKey,
+    );
+
+    let embeddedCheckout: StripeEmbeddedCheckout;
+
+    try {
+      embeddedCheckout = await stripe.initEmbeddedCheckout({
+        fetchClientSecret: () =>
+          Promise.resolve(StripeBillingParams.client_secret),
+        onComplete,
+      });
+    } catch (error) {
+      throw this.mapInitializationError(error as StripeError);
+    }
+
+    return { stripe, embeddedCheckout };
+  }
+
   static updateElementsConfiguration(
     elements: StripeElements,
     elementsConfiguration: StripeElementsConfiguration,
@@ -225,12 +274,11 @@ export class StripeService {
 
   static createExpressCheckoutElement(
     elements: StripeElements,
-    billingAddressRequired: boolean,
     forceEnableWalletMethods: boolean,
     expressCheckoutOptions?: StripeExpressCheckoutConfiguration,
   ) {
     const options = {
-      billingAddressRequired,
+      billingAddressRequired: true,
       emailRequired: true,
       ...(forceEnableWalletMethods
         ? {

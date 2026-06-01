@@ -16,7 +16,8 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
+  /* The demo only supports light mode */
+  color-scheme: light;
   color: #000000;
   background-color: #ffffff;
 
@@ -27,10 +28,16 @@
   -webkit-text-size-adjust: 100%;
   --color-green: #b4fab7;
   --color-grey-ui-dark: #dfdfdf;
+  --color-grey-ui: #c9c9c9;
   --color-purple: #9c4eff;
   --color-shade-1: #d8b9ff;
   --color-shade-2: #ffcdc2;
   --color-shade-3: #ffc1cc;
+  --color-text-muted: #666666;
+  --color-text-strong: #333333;
+  --color-danger: #d94a4a;
+  --color-page-surface: #ffffff;
+  --color-page-muted: #f5f5f5;
 }
 
 h1,
@@ -55,6 +62,13 @@ a:hover {
 
 body {
   margin: 0;
+}
+
+/* Opt in to iOS safe-area painting: with viewport-fit=cover in index.html, the
+   html canvas extends into the safe-area strips, so painting it with the variable
+   purchases-ui-js publishes makes the paywall's solid bg colour reach the strips. */
+html {
+  background: var(--rc-purchases-ui-bg-color, Canvas);
 }
 
 button.button {
@@ -95,6 +109,52 @@ button.button:hover {
 button.button:focus,
 button.button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+.compact-input {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--color-grey-ui);
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 20px;
+  background-color: var(--color-page-surface);
+}
+
+.compact-input:focus {
+  outline: 2px solid transparent;
+  border-color: var(--color-purple);
+}
+
+.compact-button {
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1px solid var(--color-grey-ui);
+  background-color: var(--color-page-surface);
+  color: var(--color-text-strong);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  padding: 10px 16px;
+}
+
+.compact-button--secondary {
+  background-color: var(--color-page-surface);
+}
+
+.compact-button--primary {
+  border-color: var(--color-text-strong);
+  background-color: var(--color-text-strong);
+  color: var(--color-page-surface);
+}
+
+.compact-button--danger {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
 }
 
 .landing {
@@ -175,14 +235,14 @@ button.button:focus-visible {
 }
 
 .rc-paywall {
-  max-width: 972px;
+  max-width: 1200px;
   padding: 32px;
   margin: auto;
 }
 
 .rc-paywall h1 {
-  margin-top: 120px;
-  margin-bottom: 72px;
+  margin-top: 3rem;
+  margin-bottom: 4rem;
   font-size: 52px;
   line-height: 118.2%;
   text-align: center;
@@ -199,7 +259,7 @@ button.button:focus-visible {
 .packages {
   display: flex;
   flex-direction: row;
-  overflow-x: auto;
+  flex-wrap: wrap;
   padding-bottom: 32px;
   gap: 20px;
   width: 100%;
@@ -242,16 +302,28 @@ button.button:focus-visible {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
+.cardContent {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.priceContainer {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .previousPrice {
   text-decoration: line-through;
-  height: 36px;
 }
 
 .currentPrice {
   font-size: 40px;
   line-height: 44px;
-  min-height: 60px;
-  margin: 12px 0;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -261,8 +333,6 @@ button.button:focus-visible {
 }
 
 .futurePrice {
-  min-height: 50px;
-  margin: 8px 0 16px;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -280,14 +350,17 @@ button.button:focus-visible {
 .freeTrial {
   background: var(--color-purple);
   color: white;
-  padding: 8px 16px;
+  padding: 4px 16px;
   border-radius: 16px;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 16px;
   display: inline-block;
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translate(-50%);
 }
 
 .rc-paywall .notice {
@@ -301,7 +374,7 @@ button.button:focus-visible {
 .productName {
   /* font-size: 18px; */
   font-weight: 700;
-  margin: 16px 0 8px;
+  margin: 0 8px;
   line-height: 1.4;
 }
 
@@ -487,8 +560,8 @@ button.button:focus-visible {
 
 @media (max-width: 600px) {
   .rc-paywall h1 {
-    margin-top: 32px;
-    margin-bottom: 32px;
+    margin-top: 2rem;
+    margin-bottom: 3rem;
     font-size: 32px;
   }
 

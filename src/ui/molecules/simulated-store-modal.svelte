@@ -4,6 +4,7 @@
   export let basePrice: string;
   export let freeTrialPeriod: string | undefined = undefined;
   export let introPriceFormatted: string | undefined = undefined;
+  export let discountFormatted: string | undefined = undefined;
   export let onValidPurchase: () => void;
   export let onFailedPurchase: () => void;
   export let onCancel: () => void;
@@ -31,6 +32,9 @@
           {/if}
           {#if introPriceFormatted}
             <p><strong>Intro Price:</strong> {introPriceFormatted}</p>
+          {/if}
+          {#if discountFormatted}
+            <p><strong>Discount Price:</strong> {discountFormatted}</p>
           {/if}
         </div>
       </div>
@@ -75,6 +79,20 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    font-family:
+      -apple-system,
+      BlinkMacSystemFont,
+      avenir next,
+      avenir,
+      segoe ui,
+      helvetica neue,
+      helvetica,
+      Cantarell,
+      Ubuntu,
+      roboto,
+      noto,
+      arial,
+      sans-serif;
     /** One more than the paywall */
     z-index: 1000002;
   }

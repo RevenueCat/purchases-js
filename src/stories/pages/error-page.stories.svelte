@@ -6,11 +6,11 @@
   import { brandingLanguageViewportModes } from "../../../.storybook/modes";
   import {
     brandingInfos,
-    priceBreakdownTaxDisabled,
     product,
     purchaseFlowErrors,
     subscriptionOption,
   } from "../fixtures";
+  import { getPriceBreakdownTaxDisabled } from "../helpers/get-price-breakdown";
   import { PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
 
   const defaultArgs = {
@@ -59,7 +59,7 @@
     customerEmail={null}
     gatewayParams={{}}
     purchaseOperationHelper={null as unknown as PurchaseOperationHelper}
-    defaultPriceBreakdown={priceBreakdownTaxDisabled}
+    defaultPriceBreakdown={getPriceBreakdownTaxDisabled(subscriptionOption)}
     isInElement={context.globals.viewport === "embedded"}
     onError={() => {}}
     onClose={() => {}}

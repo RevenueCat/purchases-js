@@ -69,4 +69,11 @@ export interface PurchasesConfig {
    * @internal
    */
   context?: PurchasesContext;
+  /**
+   * Optional external trace_id for analytics event tracking.
+   * If provided, this trace_id will be used for all events tracked by the SDK.
+   * If not provided, the SDK will generate an ephemeral trace_id automatically.
+   * @internal
+   */
+  trace_id?: string;
 }

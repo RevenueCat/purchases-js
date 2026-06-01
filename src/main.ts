@@ -6,6 +6,7 @@ import type {
 } from "./entities/offerings";
 import PurchasesUi from "./ui/purchases-ui.svelte";
 import PaddlePurchasesUi from "./ui/paddle-purchases-ui.svelte";
+import StripeCheckoutPurchasesUi from "./ui/stripe-checkout-purchases-ui.svelte";
 
 import { type CustomerInfo, toCustomerInfo } from "./entities/customer-info";
 import {
@@ -24,6 +25,7 @@ import { Backend } from "./networking/backend";
 import {
   isPaddleApiKey,
   isSimulatedStoreApiKey,
+  isStripeApiKey,
   isWebBillingApiKey,
   isWebBillingSandboxApiKey,
 } from "./helpers/api-key-helper";
@@ -59,7 +61,15 @@ import {
   type PurchaseResult,
 } from "./entities/purchase-result";
 import { mount, unmount } from "svelte";
-import { type PresentPaywallParams } from "./entities/present-paywall-params";
+import { type PaywallListener } from "./entities/paywall-listener";
+import {
+  type CompleteWorkflowNavigateArgs,
+  type PresentPaywallParams,
+} from "./entities/present-paywall-params";
+import type {
+  ComponentInteractionData as UIComponentInteractionData,
+  WalletButtonRender,
+} from "@revenuecat/purchases-ui-js";
 import { Paywall, type PaywallData } from "@revenuecat/purchases-ui-js";
 import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
 import {
@@ -90,6 +100,10 @@ import {
   type PurchasesContext,
 } from "./entities/purchases-config";
 import { generateUUID } from "./helpers/uuid-helper";
+import {
+  type PaywallComponentInteractionEventData,
+  type PaywallEventType,
+} from "./behavioural-events/paywall-event";
 import type { PlatformInfo } from "./entities/platform-info";
 import type { ReservedCustomerAttribute } from "./entities/attributes";
 import { purchaseSimulatedStoreProduct } from "./helpers/simulated-store-purchase-helper";
@@ -104,7 +118,27 @@ import type {
   PresentExpressPurchaseButtonParams,
 } from "./entities/present-express-purchase-button-params";
 import { ExpressPurchaseButtonWrapper } from "./ui/express-purchase-button/express-purchase-button-wrapper.svelte";
-import { getWindow, getDocument } from "./helpers/browser-globals";
+import { getDocument, getWindow } from "./helpers/browser-globals";
+import { isAllowedCompleteWorkflowNavigateUrl } from "./helpers/complete-workflow-navigate-url";
+
+type UIComponentInteractionFields = UIComponentInteractionData & {
+  componentURL?: string;
+  originIndex?: number;
+  destinationIndex?: number;
+  originContextName?: string;
+  destinationContextName?: string;
+  defaultIndex?: number;
+  originPackageId?: string;
+  destinationPackageId?: string;
+  defaultPackageId?: string;
+  originProductId?: string;
+  destinationProductId?: string;
+  defaultProductId?: string;
+  currentPackageId?: string;
+  resultingPackageId?: string;
+  currentProductId?: string;
+  resultingProductId?: string;
+};
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -143,13 +177,19 @@ export type { StoreTransaction } from "./entities/store-transaction";
 export { PeriodUnit } from "./helpers/duration-helper";
 export type { Period } from "./helpers/duration-helper";
 export type { HttpConfig } from "./entities/http-config";
-export type { FlagsConfig } from "./entities/flags-config";
+export type { FlagsConfig, StoreLoadTime } from "./entities/flags-config";
 export { LogLevel } from "./entities/logging";
 export type { LogHandler } from "./entities/logging";
 export type { IdentifyResult } from "./entities/identify-result";
 export type { GetOfferingsParams } from "./entities/get-offerings-params";
 export { OfferingKeyword } from "./entities/get-offerings-params";
-export type { PurchaseParams } from "./entities/purchase-params";
+export type {
+  AttributionMetadata,
+  MetaCapiAttributionMetadata,
+  MetaCanonicalAttributionMetadata,
+  PurchaseResponseAttributionMetadata,
+  PurchaseParams,
+} from "./entities/purchase-params";
 export type { RedemptionInfo } from "./entities/redemption-info";
 export type {
   PurchaseResult,
@@ -161,6 +201,11 @@ export type { PurchasesConfig } from "./entities/purchases-config";
 export type { VirtualCurrencies } from "./entities/virtual-currencies";
 export type { VirtualCurrency } from "./entities/virtual-currency";
 export type { PresentPaywallParams } from "./entities/present-paywall-params";
+export type { PaywallListener } from "./entities/paywall-listener";
+export {
+  CustomVariableValue,
+  type CustomVariables,
+} from "@revenuecat/purchases-ui-js";
 export type {
   PresentExpressPurchaseButtonParams,
   ExpressPurchaseButtonUpdater,
@@ -345,7 +390,7 @@ export class Purchases {
   }
 
   private static configureInternal(config: PurchasesConfig): void {
-    const { apiKey, appUserId, httpConfig, flags, context } = config;
+    const { apiKey, appUserId, httpConfig, flags, context, trace_id } = config;
     const finalHttpConfig = httpConfig ?? defaultHttpConfig;
     const finalFlags = flags ?? defaultFlagsConfig;
 
@@ -356,6 +401,7 @@ export class Purchases {
       finalHttpConfig,
       finalFlags,
       context,
+      trace_id,
     );
   }
 
@@ -419,6 +465,7 @@ export class Purchases {
     httpConfig: HttpConfig = defaultHttpConfig,
     flags: FlagsConfig = defaultFlagsConfig,
     context?: PurchasesContext,
+    trace_id?: string,
   ) {
     this._API_KEY = apiKey;
     this._appUserId = appUserId;
@@ -442,6 +489,8 @@ export class Purchases {
       silent: !this._flags.collectAnalyticsEvents,
       rcSource: this._flags.rcSource ?? null,
       workflowContext: this._context?.workflowContext,
+      trace_id: trace_id,
+      httpConfig,
     });
     this.backend = new Backend(this._API_KEY, httpConfig, this._context);
     this.inMemoryCache = new InMemoryCache();
@@ -481,7 +530,7 @@ export class Purchases {
       element.style.width = "100%";
       element.style.height = "100%";
       element.style.overflow = "auto";
-      element.style.backgroundColor = "rgba(0, 0, 0, 0.4)";
+      element.style.backgroundColor = "var(--rc-purchases-ui-bg-color, Canvas)";
       if (doc.body.offsetWidth > 968) {
         element.style.display = "flex";
         element.style.justifyContent = "center";
@@ -568,6 +617,91 @@ export class Purchases {
       offering.paywallComponents.default_locale,
     );
 
+    const paywallSessionId = generateUUID();
+    const paywallBaseEventData = {
+      appUserId: this._appUserId,
+      sessionId: paywallSessionId,
+      offeringId: offering.identifier,
+      paywallRevision: 0,
+      paywallRcPublicId: offering.paywallComponents?.id ?? null,
+    };
+    const paywallDisplayData = {
+      displayMode: "full_screen",
+      darkMode:
+        getWindow()?.matchMedia?.("(prefers-color-scheme: dark)").matches ??
+        false,
+      locale: finalLocale,
+    };
+    const productIdsByPackage = new Map(
+      offering.availablePackages.map((pkg) => [
+        pkg.identifier,
+        pkg.webBillingProduct.identifier,
+      ]),
+    );
+
+    const getProductIdentifierForPackageId = (packageId?: string) => {
+      if (packageId === undefined) {
+        return undefined;
+      }
+
+      return productIdsByPackage.get(packageId);
+    };
+
+    const toInteractionEvent = (
+      data: UIComponentInteractionData,
+    ): PaywallComponentInteractionEventData => {
+      const interaction = data as UIComponentInteractionFields;
+
+      return {
+        type: "paywall_component_interacted",
+        ...paywallBaseEventData,
+        ...paywallDisplayData,
+        componentType: data.componentType,
+        componentName: data.componentName,
+        componentValue: data.componentValue,
+        componentURL: interaction.componentURL,
+        originIndex: interaction.originIndex,
+        destinationIndex: interaction.destinationIndex,
+        originContextName: interaction.originContextName,
+        destinationContextName: interaction.destinationContextName,
+        defaultIndex: interaction.defaultIndex,
+        originPackageId: interaction.originPackageId,
+        destinationPackageId: interaction.destinationPackageId,
+        defaultPackageId: interaction.defaultPackageId,
+        originProductId:
+          interaction.originProductId ??
+          getProductIdentifierForPackageId(interaction.originPackageId),
+        destinationProductId:
+          interaction.destinationProductId ??
+          getProductIdentifierForPackageId(interaction.destinationPackageId),
+        defaultProductId:
+          interaction.defaultProductId ??
+          getProductIdentifierForPackageId(interaction.defaultPackageId),
+        currentPackageId: interaction.currentPackageId,
+        resultingPackageId: interaction.resultingPackageId,
+        currentProductId:
+          interaction.currentProductId ??
+          getProductIdentifierForPackageId(interaction.currentPackageId),
+        resultingProductId:
+          interaction.resultingProductId ??
+          getProductIdentifierForPackageId(interaction.resultingPackageId),
+      };
+    };
+
+    const trackPaywallEvent = (
+      type: Exclude<PaywallEventType, "paywall_component_interacted">,
+    ) => {
+      this.eventsTracker.trackPaywallEvent({
+        type,
+        ...paywallBaseEventData,
+        ...(type === "paywall_impression"
+          ? {
+              ...paywallDisplayData,
+            }
+          : {}),
+      });
+    };
+
     const startPurchaseFlow = async (
       selectedPackageId: string,
     ): Promise<PaywallPurchaseResult> => {
@@ -583,17 +717,80 @@ export class Purchases {
         rcPackage: pkg,
         htmlTarget: paywallParams.purchaseHtmlTarget,
         customerEmail: paywallParams.customerEmail,
+        showDiscountCodeField: paywallParams.showDiscountCodeField,
+        discountCode: paywallParams.discountCode,
+        onDiscountCodeChanged: paywallParams.onDiscountCodeChanged,
         selectedLocale: finalLocale,
         defaultLocale:
           offering.paywallComponents?.default_locale || englishLocale,
+        paywallId: offering.paywallComponents?.id,
       });
 
       return { ...purchaseResult, selectedPackage: pkg };
     };
 
+    let lastNavigationInteraction: {
+      componentType: UIComponentInteractionData["componentType"];
+      componentURL?: string;
+    } | null = null;
+    let lastTextLinkClick: {
+      url: string;
+      defaultPrevented: boolean;
+    } | null = null;
+
+    const recordTextLinkClick = (event: MouseEvent) => {
+      const target = event.target;
+      if (!(target instanceof Element)) {
+        return;
+      }
+
+      const anchor = target.closest("a[href]");
+      if (
+        !(anchor instanceof HTMLAnchorElement) ||
+        !certainHTMLTarget.contains(anchor)
+      ) {
+        return;
+      }
+
+      const url = anchor.getAttribute("href") ?? anchor.href;
+      if (!url) {
+        return;
+      }
+
+      lastTextLinkClick = {
+        url,
+        defaultPrevented: event.defaultPrevented,
+      };
+    };
+
     const navigateToUrl = (url: string) => {
+      const navigationInteraction =
+        lastNavigationInteraction?.componentURL === url
+          ? lastNavigationInteraction
+          : null;
+      lastNavigationInteraction = null;
+
       if (paywallParams.onNavigateToUrl) {
         paywallParams.onNavigateToUrl(url);
+        return;
+      }
+
+      // purchases-ui-js text links now preserve native browser navigation, but
+      // older versions still prevent default and rely on the host callback to
+      // navigate. Defer the fallback until after bubbling so both contracts work.
+      if (navigationInteraction?.componentType === "text") {
+        queueMicrotask(() => {
+          const textLinkClick =
+            lastTextLinkClick?.url === url ? lastTextLinkClick : null;
+          lastTextLinkClick = null;
+
+          if (textLinkClick?.defaultPrevented !== true) {
+            return;
+          }
+
+          const win = getWindow();
+          win.open(url, "_blank")?.focus();
+        });
         return;
       }
 
@@ -601,6 +798,29 @@ export class Purchases {
       // navigating to the URL in a new tab.
       const win = getWindow();
       win.open(url, "_blank")?.focus();
+    };
+
+    const onCompleteWorkflowNavigate = async (
+      args: CompleteWorkflowNavigateArgs,
+    ) => {
+      if (paywallParams.onCompleteWorkflowNavigate) {
+        await paywallParams.onCompleteWorkflowNavigate(args);
+        return;
+      }
+
+      if (!isAllowedCompleteWorkflowNavigateUrl(args.url, args.method)) {
+        Logger.warnLog(
+          "Blocked complete-workflow navigation to a disallowed URL.",
+        );
+        return;
+      }
+
+      const win = getWindow();
+      if (args.method === "external_browser") {
+        win.open(args.url, "_blank", "noopener,noreferrer")?.focus();
+      } else {
+        win.location.assign(args.url);
+      }
     };
 
     const onRestorePurchasesClicked = () => {
@@ -623,10 +843,53 @@ export class Purchases {
 
     return new Promise((resolve, reject) => {
       let component: ReturnType<typeof mount> | null = null;
+      let paywallImpressionTracked = false;
+      let paywallCloseTracked = false;
+
+      certainHTMLTarget.addEventListener("click", recordTextLinkClick);
+
+      const trackPaywallCloseIfNeeded = () => {
+        if (paywallCloseTracked) {
+          return;
+        }
+        paywallCloseTracked = true;
+        trackPaywallEvent("paywall_close");
+      };
+
+      const trackComponentInteraction = (data: UIComponentInteractionData) => {
+        if (!paywallImpressionTracked || paywallCloseTracked) {
+          return;
+        }
+
+        this.eventsTracker.trackPaywallEvent(toInteractionEvent(data));
+      };
+
+      const onComponentInteraction = (data: UIComponentInteractionData) => {
+        const interaction = data as UIComponentInteractionFields;
+        lastNavigationInteraction =
+          interaction.componentURL === undefined
+            ? null
+            : {
+                componentType: data.componentType,
+                componentURL: interaction.componentURL,
+              };
+        trackComponentInteraction(data);
+      };
+
+      const containerObserver = new MutationObserver(() => {
+        if (certainHTMLTarget.childElementCount === 0) {
+          trackPaywallCloseIfNeeded();
+          containerObserver.disconnect();
+        }
+      });
 
       const unmountPaywall = () => {
+        containerObserver.disconnect();
+        certainHTMLTarget.removeEventListener("click", recordTextLinkClick);
+        trackPaywallCloseIfNeeded();
         if (component) {
           unmount(component);
+          component = null;
         }
         certainHTMLTarget.innerHTML = "";
 
@@ -636,67 +899,82 @@ export class Purchases {
         }
       };
 
-      const walletButtonRender = isWebBillingApiKey(this._API_KEY)
-        ? (
-            element: HTMLElement,
-            {
-              selectedPackageId,
-              onReady,
-            }: {
-              selectedPackageId: string;
-              onReady?: (walletsAvailable: boolean) => void;
-            },
-          ) => {
-            const pkg = offering.packagesById[selectedPackageId];
-            if (!pkg) {
-              return {};
-            }
-            let buttonUpdater: ExpressPurchaseButtonUpdater | null = null;
-            this.presentExpressPurchaseButton({
-              rcPackage: pkg,
-              customerEmail: paywallParams.customerEmail,
-              htmlTarget: element,
-              onButtonReady: (updater, walletsAvailable) => {
-                buttonUpdater = updater;
-                onReady?.(walletsAvailable);
-              },
-            })
-              .then((purchaseResult) => {
-                unmountPaywall();
-                resolve({ ...purchaseResult, selectedPackage: pkg });
-              })
-              .catch((err) => {
-                Logger.errorLog(
-                  `Error presenting express purchase button: ${err}`,
-                );
-                if (paywallParams.onPurchaseError) {
-                  paywallParams.onPurchaseError(err);
-                }
-              });
+      const closePaywall = () => {
+        Logger.debugLog("Purchase cancelled by user");
+        unmountPaywall();
+        reject(new PurchasesError(ErrorCode.UserCancelledError));
+        void this.eventsTracker.flushAllEvents().catch((error) => {
+          Logger.debugLog(`Failed to flush paywall events on close: ${error}`);
+        });
+      };
 
-            return {
-              destroy() {
-                element.innerHTML = "";
-              },
-              update({
-                selectedPackageId,
-              }: {
-                selectedPackageId: string;
-                onReady?: () => void;
-              }) {
-                if (buttonUpdater) {
-                  const pkg = offering.packagesById[selectedPackageId];
-                  if (!pkg) {
-                    return;
-                  }
-                  const purchaseOptionToUse =
-                    pkg.webBillingProduct.defaultPurchaseOption;
-                  buttonUpdater.updatePurchase(pkg, purchaseOptionToUse);
-                }
-              },
-            };
+      const listener = paywallParams.listener;
+
+      const notifyPurchaseStarted = (pkg: Package) => {
+        if (listener?.onPurchaseStarted) {
+          try {
+            listener.onPurchaseStarted(pkg);
+          } catch (e) {
+            Logger.errorLog(`Error in listener.onPurchaseStarted: ${e}`);
           }
-        : undefined;
+        }
+      };
+
+      const notifyPurchaseError = (err: Error) => {
+        if (
+          err instanceof PurchasesError &&
+          err.errorCode === ErrorCode.UserCancelledError
+        ) {
+          if (listener?.onPurchaseCancelled) {
+            try {
+              listener.onPurchaseCancelled();
+            } catch (e) {
+              Logger.errorLog(`Error in listener.onPurchaseCancelled: ${e}`);
+            }
+          }
+        } else {
+          if (listener?.onPurchaseError) {
+            try {
+              listener.onPurchaseError(err);
+            } catch (e) {
+              Logger.errorLog(`Error in listener.onPurchaseError: ${e}`);
+            }
+          }
+          if (paywallParams.onPurchaseError) {
+            paywallParams.onPurchaseError(err);
+          }
+        }
+      };
+
+      const onSuccess = (result: PaywallPurchaseResult) => {
+        unmountPaywall();
+        resolve(result);
+        void this.eventsTracker.flushAllEvents().catch((error) => {
+          Logger.debugLog(
+            `Failed to flush paywall events after purchase: ${error}`,
+          );
+        });
+      };
+
+      const onError = (message: string) => (error: Error) => {
+        if (
+          error instanceof PurchasesError &&
+          error.errorCode === ErrorCode.UserCancelledError
+        ) {
+          trackPaywallEvent("paywall_cancel");
+        }
+
+        Logger.errorLog(`${message}: ${error}`);
+        notifyPurchaseError(error);
+      };
+
+      const walletButtonRender = this.getWalletButtonRender(
+        offering,
+        onSuccess,
+        paywallParams.customerEmail,
+        onError("Error presenting express purchase button"),
+        listener,
+      );
 
       certainHTMLTarget.innerHTML = "";
       component = mount(Paywall, {
@@ -705,33 +983,29 @@ export class Purchases {
           paywallData: offering.paywallComponents!,
           selectedLocale: finalLocale,
           onNavigateToUrlClicked: navigateToUrl,
+          appUserId: this._appUserId,
+          onCompleteWorkflowNavigate,
           onVisitCustomerCenterClicked: onVisitCustomerCenterClicked,
           uiConfig: offering.uiConfig!,
           onBackClicked: () => {
             if (paywallParams.onBack) {
-              paywallParams.onBack();
+              paywallParams.onBack(closePaywall);
               return;
             }
 
             // Opinionated approach
             // closing the current purchase and emptying the paywall.
-            Logger.debugLog("Purchase cancelled by user");
-            unmountPaywall();
-            reject(new PurchasesError(ErrorCode.UserCancelledError));
+            closePaywall();
           },
           onRestorePurchasesClicked: onRestorePurchasesClicked,
           onPurchaseClicked: (selectedPackageId: string) => {
+            const pkg = offering.packagesById[selectedPackageId];
+            if (pkg) {
+              notifyPurchaseStarted(pkg);
+            }
             startPurchaseFlow(selectedPackageId)
-              .then((purchaseResult) => {
-                unmountPaywall();
-                resolve(purchaseResult);
-              })
-              .catch((err) => {
-                Logger.errorLog(`Error performing purchase: ${err}`);
-                if (paywallParams.onPurchaseError) {
-                  paywallParams.onPurchaseError(err);
-                }
-              });
+              .then(onSuccess)
+              .catch(onError("Error performing purchase"));
           },
           onError: (err: unknown) => {
             unmountPaywall();
@@ -741,8 +1015,14 @@ export class Purchases {
           infoPerPackage,
           hideBackButtons: paywallParams.hideBackButtons,
           walletButtonRender,
+          customVariables: paywallParams.customVariables,
+          onComponentInteraction,
         },
       });
+
+      containerObserver.observe(certainHTMLTarget, { childList: true });
+      trackPaywallEvent("paywall_impression");
+      paywallImpressionTracked = true;
 
       if (certainHTMLTarget.style.opacity === "0") {
         certainHTMLTarget.style.opacity = "1";
@@ -817,6 +1097,7 @@ export class Purchases {
       appUserId,
       productIds,
       params?.currency,
+      params?.discountCode,
     );
 
     this.logMissingProductIds(productIds, productsResponse.product_details);
@@ -880,6 +1161,7 @@ export class Purchases {
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
       onButtonReady = () => {},
+      walletButtonTheme,
     } = params;
 
     if (htmlTarget === undefined) {
@@ -921,6 +1203,7 @@ export class Purchases {
           customerInfo: await this._getCustomerInfoForUserId(appUserId),
           redemptionInfo: operationResult.redemptionInfo,
           operationSessionId: operationResult.operationSessionId,
+          attributionMetadata: operationResult.attributionMetadata,
           storeTransaction: {
             storeTransactionId: operationResult.storeTransactionIdentifier,
             productIdentifier: rcPackage.webBillingProduct.identifier,
@@ -954,8 +1237,77 @@ export class Purchases {
         translator,
         onFinished,
         onError,
+        listener: params.listener,
+        walletButtonTheme,
       });
     });
+  }
+
+  /**
+   * Renders a wallet button for the supported wallets (Apple Pay/Google Pay).
+   * When clicked it uses the wallet UI to execute the purchase instead of
+   * the checkout flow that would be shown with `.purchase`.
+   * @internal
+   * @param offering - The offering to render the wallet button for.
+   * @param onSuccess - The callback to be called when the purchase is successful.
+   * @param customerEmail - The email of the user. If undefined, RevenueCat will ask the customer for their email.
+   * @param onPurchaseError - The callback to be called when the purchase fails.
+   * @returns Function that renders the wallet button.
+   */
+  public getWalletButtonRender(
+    offering: Offering,
+    onSuccess: (purchaseResult: PaywallPurchaseResult) => void,
+    customerEmail?: string,
+    onError?: (error: Error) => void,
+    listener?: PaywallListener,
+  ): WalletButtonRender | undefined {
+    if (!isWebBillingApiKey(this._API_KEY)) {
+      return undefined;
+    }
+
+    return (
+      element: HTMLElement,
+      { selectedPackageId, onReady, walletButtonTheme },
+    ) => {
+      const pkg = offering.packagesById[selectedPackageId];
+      if (!pkg) {
+        return {};
+      }
+
+      let buttonUpdater: ExpressPurchaseButtonUpdater | null = null;
+      this.presentExpressPurchaseButton({
+        rcPackage: pkg,
+        customerEmail: customerEmail,
+        htmlTarget: element,
+        onButtonReady: (updater, walletsAvailable) => {
+          buttonUpdater = updater;
+          onReady?.(walletsAvailable);
+        },
+        listener,
+        walletButtonTheme,
+      })
+        .then((purchaseResult) => {
+          onSuccess({ ...purchaseResult, selectedPackage: pkg });
+        })
+        .catch(onError);
+
+      return {
+        destroy() {
+          element.innerHTML = "";
+        },
+        update({ selectedPackageId }) {
+          if (buttonUpdater) {
+            const pkg = offering.packagesById[selectedPackageId];
+            if (!pkg) {
+              return;
+            }
+            const purchaseOptionToUse =
+              pkg.webBillingProduct.defaultPurchaseOption;
+            buttonUpdater.updatePurchase(pkg, purchaseOptionToUse);
+          }
+        },
+      };
+    };
   }
 
   /**
@@ -984,7 +1336,125 @@ export class Purchases {
       return await this.performPaddlePurchase(params);
     }
 
+    const isStripe = isStripeApiKey(this._API_KEY);
+    if (isStripe) {
+      return await this.performStripePurchase(params);
+    }
+
     return await this.performWebBillingPurchase(params);
+  }
+
+  private async performStripePurchase(
+    params: PurchaseParams,
+  ): Promise<PurchaseResult> {
+    const {
+      rcPackage,
+      purchaseOption,
+      htmlTarget,
+      customerEmail,
+      workflowPurchaseContext,
+      attributionMetadata,
+      paywallId,
+      selectedLocale = englishLocale,
+      defaultLocale = englishLocale,
+      skipSuccessPage = false,
+    } = params;
+
+    const certainHTMLTarget = this.resolveHTMLTarget(htmlTarget);
+
+    const appUserId = this._appUserId;
+
+    Logger.debugLog(
+      `Presenting Stripe checkout for package ${rcPackage.identifier}`,
+    );
+
+    const localeToBeUsed = selectedLocale || defaultLocale;
+
+    const purchaseOptionToUse =
+      purchaseOption ?? rcPackage.webBillingProduct.defaultPurchaseOption;
+
+    const event = createCheckoutSessionStartEvent({
+      appearance: this._brandingInfo?.appearance,
+      rcPackage,
+      purchaseOptionToUse,
+      customerEmail,
+    });
+    this.eventsTracker.trackSDKEvent(event);
+
+    const utmParamsMetadata = this._flags.autoCollectUTMAsMetadata
+      ? autoParseUTMParams()
+      : {};
+    const metadata = { ...utmParamsMetadata, ...(params.metadata || {}) };
+
+    let component: ReturnType<typeof mount> | null = null;
+
+    const finalBrandingInfo: BrandingInfoResponse | null = this._brandingInfo;
+
+    if (finalBrandingInfo && params.brandingAppearanceOverride) {
+      finalBrandingInfo.appearance = params.brandingAppearanceOverride;
+    }
+
+    const isInElement = htmlTarget !== undefined;
+
+    return new Promise((resolve, reject) => {
+      const win = getWindow();
+      if (!isInElement) {
+        win.history.pushState({ checkoutOpen: true }, "");
+      }
+
+      const unmountPurchaseUi = () => {
+        if (component) {
+          unmount(component);
+        }
+        certainHTMLTarget.innerHTML = "";
+      };
+
+      const onClose = this.createCheckoutOnCloseHandler(
+        reject,
+        unmountPurchaseUi,
+      );
+
+      if (!isInElement && onClose) {
+        win.addEventListener("popstate", onClose as EventListener);
+      }
+
+      const onFinished = this.createCheckoutOnFinishedHandler(
+        resolve,
+        appUserId,
+        rcPackage,
+        unmountPurchaseUi,
+      );
+
+      const onError = this.createCheckoutOnErrorHandler(
+        reject,
+        unmountPurchaseUi,
+      );
+
+      component = mount(StripeCheckoutPurchasesUi, {
+        target: certainHTMLTarget,
+        props: {
+          isInElement: isInElement,
+          appUserId,
+          rcPackage,
+          purchaseOption: purchaseOptionToUse,
+          customerEmail,
+          workflowPurchaseContext,
+          attributionMetadata,
+          paywallId,
+          onFinished,
+          onClose,
+          onError,
+          eventsTracker: this.eventsTracker,
+          brandingInfo: this._brandingInfo,
+          purchaseOperationHelper: this.purchaseOperationHelper,
+          selectedLocale: localeToBeUsed,
+          metadata: metadata,
+          defaultLocale,
+          customTranslations: params.labelsOverride,
+          skipSuccessPage,
+        },
+      });
+    });
   }
 
   private async performWebBillingPurchase(
@@ -996,9 +1466,13 @@ export class Purchases {
       htmlTarget,
       customerEmail,
       workflowPurchaseContext,
+      attributionMetadata,
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
       skipSuccessPage = false,
+      showDiscountCodeField = false,
+      discountCode,
+      onDiscountCodeChanged,
     } = params;
 
     const certainHTMLTarget = this.resolveHTMLTarget(htmlTarget);
@@ -1080,6 +1554,8 @@ export class Purchases {
           purchaseOption: purchaseOptionToUse,
           customerEmail,
           workflowPurchaseContext,
+          attributionMetadata,
+          paywallId: params.paywallId,
           onFinished,
           onClose,
           onError,
@@ -1092,6 +1568,9 @@ export class Purchases {
           defaultLocale,
           customTranslations: params.labelsOverride,
           termsAndConditionsUrl: params.termsAndConditionsUrl,
+          showDiscountCodeField,
+          discountCode,
+          onDiscountCodeChanged,
           skipSuccessPage,
         },
       });
@@ -1105,6 +1584,7 @@ export class Purchases {
       rcPackage,
       purchaseOption,
       customerEmail,
+      attributionMetadata,
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
       skipSuccessPage = false,
@@ -1199,6 +1679,7 @@ export class Purchases {
             appUserId,
             purchaseOption: purchaseOptionToUse,
             customerEmail,
+            attributionMetadata,
             metadata,
             unmountPaddlePurchaseUi,
             paddleService,
@@ -1280,6 +1761,7 @@ export class Purchases {
         customerInfo: await this._getCustomerInfoForUserId(appUserId),
         redemptionInfo: operationResult.redemptionInfo,
         operationSessionId: operationResult.operationSessionId,
+        attributionMetadata: operationResult.attributionMetadata,
         storeTransaction: {
           storeTransactionId: operationResult.storeTransactionIdentifier,
           productIdentifier: rcPackage.webBillingProduct.identifier,
@@ -1343,6 +1825,7 @@ export class Purchases {
       product,
       this.backend,
       this._appUserId,
+      undefined,
     );
   }
 
@@ -1578,5 +2061,26 @@ export class Purchases {
    */
   public _trackEvent(props: TrackEventProps): void {
     this.eventsTracker.trackExternalEvent(props);
+  }
+
+  /**
+   * Immediately flush all pending events to the server.
+   *
+   * This method is useful before programmatic navigation to ensure events are delivered.
+   * The SDK uses fetch with keepalive:true to allow delivery during navigation, but
+   * calling this method before navigation provides additional reliability.
+   *
+   * Notes:
+   * - Temporarily stops automatic event flushing, then restarts after completion
+   * - Events are sent in batches if the payload exceeds the keepalive size limit (50KB)
+   * - If a batch fails, remaining batches will not be attempted
+   * - Safe to call multiple times; concurrent calls will be serialized
+   * - Returns immediately if tracker is disposed
+   *
+   * @returns Promise that resolves when all events have been flushed or an error occurs
+   * @internal
+   */
+  public _flushAllEvents(): Promise<void> {
+    return this.eventsTracker.flushAllEvents();
   }
 }

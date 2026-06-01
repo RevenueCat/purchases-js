@@ -1,16 +1,18 @@
+import type { WalletButtonTheme } from "@revenuecat/purchases-ui-js";
+import type { IEventsTracker } from "../../behavioural-events/events-tracker";
 import type {
   Package,
   PurchaseMetadata,
   PurchaseOption,
 } from "../../entities/offerings";
-import type { BrandingInfoResponse } from "../../networking/responses/branding-response";
-import type { Purchases } from "../../main";
-import type { IEventsTracker } from "../../behavioural-events/events-tracker";
+import type { PaywallListener } from "../../entities/paywall-listener";
 import type {
   OperationSessionSuccessfulResult,
   PurchaseFlowError,
   PurchaseOperationHelper,
 } from "../../helpers/purchase-operation-helper";
+import type { Purchases } from "../../main";
+import type { BrandingInfoResponse } from "../../networking/responses/branding-response";
 import type {
   CustomTranslations,
   Translator,
@@ -31,4 +33,6 @@ export interface ExpressPurchaseButtonProps {
   onFinished: (operationResult: OperationSessionSuccessfulResult) => void;
   onError: (error: PurchaseFlowError) => void;
   onReady?: (walletsAvailable: boolean) => void;
+  listener?: PaywallListener;
+  walletButtonTheme?: WalletButtonTheme;
 }

@@ -123,6 +123,28 @@ describe("Purchases.configure()", () => {
     expect(purchases).toBeDefined();
   });
 
+  test("passes trace_id to EventsTracker when provided", () => {
+    const customTraceId = "test-trace-id-789";
+    const purchases = Purchases.configure({
+      apiKey: testApiKey,
+      appUserId: testUserId,
+      trace_id: customTraceId,
+    });
+
+    expect(purchases["eventsTracker"].getTraceId()).toBe(customTraceId);
+  });
+
+  test("EventsTracker generates trace_id when not provided", () => {
+    const purchases = Purchases.configure({
+      apiKey: testApiKey,
+      appUserId: testUserId,
+    });
+
+    const traceId = purchases["eventsTracker"].getTraceId();
+    expect(traceId).toBeTruthy();
+    expect(typeof traceId).toBe("string");
+  });
+
   test("throws error if given invalid api key", () => {
     expect(() =>
       Purchases.configure({
@@ -152,6 +174,33 @@ describe("Purchases.configure()", () => {
     expect(() =>
       Purchases.configure({
         apiKey: "pdl_valid_key",
+        appUserId: testUserId,
+      }),
+    ).not.toThrow();
+  });
+
+  test("throws error if given invalid stripe api key", () => {
+    expect(() =>
+      Purchases.configure({
+        apiKey: "strp_test invalidchar",
+        appUserId: testUserId,
+      }),
+    ).toThrowError(PurchasesError);
+  });
+
+  test("does not throw error if given valid stripe api key", () => {
+    expect(() =>
+      Purchases.configure({
+        apiKey: "strp_valid_key",
+        appUserId: testUserId,
+      }),
+    ).not.toThrow();
+  });
+
+  test("does not throw error if given valid stripe sandbox api key", () => {
+    expect(() =>
+      Purchases.configure({
+        apiKey: "strp_sb_valid_key",
         appUserId: testUserId,
       }),
     ).not.toThrow();
@@ -426,6 +475,7 @@ test("can get customer info", async () => {
     subscriptionsByProductIdentifier: {
       black_f_friday_worten: {
         productIdentifier: "black_f_friday_worten",
+        productPlanIdentifier: null,
         purchaseDate: new Date("2024-01-21T16:48:42.000Z"),
         originalPurchaseDate: new Date("2023-11-20T16:48:42.000Z"),
         expiresDate: new Date("2054-01-22T16:48:42.000Z"),
@@ -438,11 +488,16 @@ test("can get customer info", async () => {
         periodType: "normal",
         refundedAt: null,
         storeTransactionId: "another_transaction_id",
+        managementURL:
+          "https://test-management-url.revenuecat.com/manage/another_transaction_id",
         isActive: true,
         willRenew: true,
+        displayName: null,
+        price: null,
       },
       black_f_friday_worten_2: {
         productIdentifier: "black_f_friday_worten_2",
+        productPlanIdentifier: null,
         purchaseDate: new Date("2024-01-21T16:48:42.000Z"),
         originalPurchaseDate: new Date("2023-11-20T16:48:42.000Z"),
         expiresDate: new Date("2024-01-22T16:48:42.000Z"),
@@ -455,8 +510,12 @@ test("can get customer info", async () => {
         periodType: "normal",
         refundedAt: null,
         storeTransactionId: "one_transaction_id",
+        managementURL:
+          "https://test-management-url.revenuecat.com/manage/one_transaction_id",
         isActive: false,
         willRenew: true,
+        displayName: null,
+        price: null,
       },
     },
   };
@@ -601,6 +660,12 @@ describe("Purchases.identifyUser", () => {
 });
 
 describe("Purchases.purchase()", () => {
+  type PurchaseRouterMethods = {
+    performPaddlePurchase: (params: unknown) => Promise<unknown>;
+    performStripePurchase: (params: unknown) => Promise<unknown>;
+    performWebBillingPurchase: (params: unknown) => Promise<unknown>;
+  };
+
   test("pressing back button unmounts the component", async () => {
     const unmountSpy = vi.spyOn(svelte, "unmount").mockImplementation(() => {
       return Promise.resolve();
@@ -681,6 +746,143 @@ describe("Purchases.purchase()", () => {
     purchases.close();
     // Forcing the body to cleanup to not affect other tests
     document.body.innerHTML = "";
+  });
+
+  test("routes purchases to Paddle flow for pdl_ api keys", async () => {
+    const purchases = configurePurchases(
+      testUserId,
+      "rcSource",
+      "pdl_test_key",
+    );
+    const purchasesInternal = purchases as unknown as PurchaseRouterMethods;
+    const performPaddlePurchaseSpy = vi
+      .spyOn(purchasesInternal, "performPaddlePurchase")
+      .mockResolvedValue({});
+    const performStripePurchaseSpy = vi.spyOn(
+      purchasesInternal,
+      "performStripePurchase",
+    );
+    const performWebBillingPurchaseSpy = vi.spyOn(
+      purchasesInternal,
+      "performWebBillingPurchase",
+    );
+
+    await purchases.purchase({
+      rcPackage: createMonthlyPackageMock(),
+    });
+
+    expect(performPaddlePurchaseSpy).toHaveBeenCalledOnce();
+    expect(performStripePurchaseSpy).not.toHaveBeenCalled();
+    expect(performWebBillingPurchaseSpy).not.toHaveBeenCalled();
+  });
+
+  test("routes purchases to Stripe Checkout flow for strp_ api keys", async () => {
+    const purchases = configurePurchases(
+      testUserId,
+      "rcSource",
+      "strp_test_key",
+    );
+    const purchasesInternal = purchases as unknown as PurchaseRouterMethods;
+    const performStripePurchaseSpy = vi
+      .spyOn(purchasesInternal, "performStripePurchase")
+      .mockResolvedValue({});
+    const performPaddlePurchaseSpy = vi.spyOn(
+      purchasesInternal,
+      "performPaddlePurchase",
+    );
+    const performWebBillingPurchaseSpy = vi.spyOn(
+      purchasesInternal,
+      "performWebBillingPurchase",
+    );
+
+    await purchases.purchase({
+      rcPackage: createMonthlyPackageMock(),
+    });
+
+    expect(performStripePurchaseSpy).toHaveBeenCalledOnce();
+    expect(performPaddlePurchaseSpy).not.toHaveBeenCalled();
+    expect(performWebBillingPurchaseSpy).not.toHaveBeenCalled();
+  });
+
+  test("routes purchases to web billing flow for rcb_ api keys", async () => {
+    const purchases = configurePurchases(
+      testUserId,
+      "rcSource",
+      "rcb_test_key",
+    );
+    const purchasesInternal = purchases as unknown as PurchaseRouterMethods;
+    const performWebBillingPurchaseSpy = vi
+      .spyOn(purchasesInternal, "performWebBillingPurchase")
+      .mockResolvedValue({});
+    const performPaddlePurchaseSpy = vi.spyOn(
+      purchasesInternal,
+      "performPaddlePurchase",
+    );
+    const performStripePurchaseSpy = vi.spyOn(
+      purchasesInternal,
+      "performStripePurchase",
+    );
+
+    await purchases.purchase({
+      rcPackage: createMonthlyPackageMock(),
+    });
+
+    expect(performWebBillingPurchaseSpy).toHaveBeenCalledOnce();
+    expect(performPaddlePurchaseSpy).not.toHaveBeenCalled();
+    expect(performStripePurchaseSpy).not.toHaveBeenCalled();
+  });
+
+  test("passes attributionMetadata through the purchase result", async () => {
+    const purchases = configurePurchases();
+    const customerInfo = { originalAppUserId: "test-user-id" } as CustomerInfo;
+    type PurchasesWithCustomerInfoGetter = Purchases & {
+      _getCustomerInfoForUserId: (appUserId: string) => Promise<CustomerInfo>;
+    };
+    const purchasesWithCustomerInfoGetter =
+      purchases as PurchasesWithCustomerInfoGetter;
+    vi.spyOn(
+      purchasesWithCustomerInfoGetter,
+      "_getCustomerInfoForUserId",
+    ).mockResolvedValue(customerInfo);
+
+    const resolve = vi.fn();
+    const onFinished = purchases["createCheckoutOnFinishedHandler"](
+      resolve,
+      "test-app-user-id",
+      createMonthlyPackageMock(),
+    );
+
+    const attributionMetadata = {
+      meta: {
+        canonical_event_id: "fb-order-id",
+        canonical_event_name: "Subscribe",
+        workflow_event_id: "workflow-event-id",
+        workflow_event_name: "workflows_purchase",
+      },
+    };
+
+    await onFinished({
+      redemptionInfo: null,
+      operationSessionId: "test-operation-session-id",
+      storeTransactionIdentifier: "test-store-transaction-id",
+      productIdentifier: "test-product-id",
+      purchaseDate: new Date("2024-01-01T00:00:00.000Z"),
+      attributionMetadata,
+    });
+
+    expect(resolve).toHaveBeenCalledWith(
+      expect.objectContaining({
+        customerInfo,
+        redemptionInfo: null,
+        operationSessionId: "test-operation-session-id",
+        attributionMetadata,
+        storeTransaction: {
+          storeTransactionId: "test-store-transaction-id",
+          productIdentifier: "monthly",
+          purchaseDate: new Date("2024-01-01T00:00:00.000Z"),
+        },
+      }),
+    );
   });
 
   test("throws error if api key is not provided", () => {

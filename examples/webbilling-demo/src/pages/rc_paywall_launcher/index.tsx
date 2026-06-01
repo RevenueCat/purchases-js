@@ -1,21 +1,46 @@
-import type { PaywallPurchaseResult } from "@revenuecat/purchases-js";
+import type {
+  PaywallListener,
+  PaywallPurchaseResult,
+} from "@revenuecat/purchases-js";
 import { Purchases, PurchasesError } from "@revenuecat/purchases-js";
 import React from "react";
+import { usePaywallSettings } from "../../hooks/usePaywallSettings";
+import { useToast } from "../../hooks/useToast";
+import SettingsGearButton from "../../components/SettingsGearButton";
+import ToastContainer from "../../components/ToastContainer";
 
 const RCPaywallLauncherPage: React.FC = () => {
   const [purchaseResult, setPurchaseResult] =
     React.useState<PaywallPurchaseResult | null>(null);
   const [error, setError] = React.useState<PurchasesError | null>(null);
+  const {
+    openSettings,
+    settings: { customVariables },
+  } = usePaywallSettings();
+  const { toasts, showToast, removeToast } = useToast();
 
   const onLaunchPaywallClicked = () => {
     const purchases = Purchases.getSharedInstance();
+
+    const listener: PaywallListener = {
+      onPurchaseStarted: (rcPackage) => {
+        showToast(
+          `Purchase started: ${rcPackage.webBillingProduct.title} (${rcPackage.identifier})`,
+          "info",
+        );
+      },
+      onPurchaseError: (error) => {
+        showToast(`Purchase error: ${error.message}`, "error");
+      },
+      onPurchaseCancelled: () => {
+        showToast("Purchase cancelled by user", "error");
+      },
+    };
+
     purchases
       .presentPaywall({
-        onPurchaseError: (error) => {
-          console.error(
-            `There was a purchase error inside the paywall: ${error}`,
-          );
-        },
+        customVariables,
+        listener,
       })
       .then((purchaseResult: PaywallPurchaseResult) => {
         setPurchaseResult(purchaseResult);
@@ -159,6 +184,8 @@ const RCPaywallLauncherPage: React.FC = () => {
       ) : !error ? (
         <p>No purchase result yet. Click the button to launch the paywall.</p>
       ) : null}
+      <SettingsGearButton onClick={openSettings} />
+      <ToastContainer toasts={toasts} onDismiss={removeToast} />
     </div>
   );
 };

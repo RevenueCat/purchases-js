@@ -22,7 +22,11 @@
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
 
-  const brandingAppearance = getContext<BrandingAppearance>(brandingContextKey);
+  const brandingAppearanceStore =
+    getContext<Writable<BrandingAppearance | null | undefined>>(
+      brandingContextKey,
+    );
+  const brandingAppearance = $derived($brandingAppearanceStore ?? undefined);
 
   const formattedPrice = $derived(
     priceBreakdown

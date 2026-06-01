@@ -2,9 +2,12 @@ import {
   type NonSubscriptionResponse,
   type SubscriberEntitlementResponse,
   type SubscriberResponse,
+  type SubscriberSubscriptionPriceResponse,
   type SubscriberSubscriptionResponse,
 } from "../networking/responses/subscriber-response";
 import { ErrorCode, PurchasesError } from "./errors";
+import { type Price } from "./offerings";
+import { formatPrice } from "../helpers/price-labels";
 
 /**
  * The store where the user originally subscribed.
@@ -20,6 +23,7 @@ export type Store =
   | "promotional"
   | "paddle"
   | "test_store"
+  | "galaxy"
   | "unknown";
 
 /**
@@ -168,6 +172,10 @@ export interface SubscriptionInfo {
    */
   readonly productIdentifier: string;
   /**
+   * The base plan identifier of the subscription (For Google Play subs only).
+   */
+  readonly productPlanIdentifier: string | null;
+  /**
    * Date when the last subscription period started.
    */
   readonly purchaseDate: Date;
@@ -228,6 +236,10 @@ export interface SubscriptionInfo {
    */
   readonly storeTransactionId: string | null;
   /**
+   * URL to manage this subscription, if available.
+   */
+  readonly managementURL: string | null;
+  /**
    * Whether the subscription is currently active
    * (at the time this object was obtained).
    */
@@ -236,6 +248,14 @@ export interface SubscriptionInfo {
    * Whether the subscription will renew at the next billing period.
    */
   readonly willRenew: boolean;
+  /**
+   * The display name of the subscription as configured in the RevenueCat dashboard.
+   */
+  readonly displayName: string | null;
+  /**
+   * Paid price for the subscription.
+   */
+  readonly price: Price | null;
 }
 
 /**
@@ -426,6 +446,19 @@ function toDateIfNotNull(value: string | undefined | null): Date | null {
   return new Date(value);
 }
 
+function toSubscriptionPrice(
+  price: SubscriberSubscriptionPriceResponse | undefined | null,
+): Price | null {
+  if (!price) return null;
+  const amountMicros = price.amount * 1_000_000;
+  return {
+    amount: price.amount * 100,
+    amountMicros,
+    currency: price.currency,
+    formattedPrice: formatPrice(amountMicros, price.currency),
+  };
+}
+
 export function toCustomerInfo(
   customerInfoResponse: SubscriberResponse,
 ): CustomerInfo {
@@ -461,6 +494,7 @@ export function toCustomerInfo(
           productIdentifier,
           {
             productIdentifier,
+            productPlanIdentifier: response.product_plan_identifier ?? null,
             purchaseDate: new Date(response.purchase_date),
             originalPurchaseDate: toDateIfNotNull(
               response.original_purchase_date,
@@ -481,8 +515,11 @@ export function toCustomerInfo(
             periodType: response.period_type,
             refundedAt: toDateIfNotNull(response.refunded_at),
             storeTransactionId: response.store_transaction_id || null,
+            managementURL: response.management_url ?? null,
             isActive: isActive(response.expires_date),
             willRenew: getWillRenew(response.expires_date, response),
+            displayName: response.display_name ?? null,
+            price: toSubscriptionPrice(response.price),
           },
         ],
       ),

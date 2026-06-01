@@ -1,4 +1,4 @@
-import type { Page, Request } from "@playwright/test";
+import type { Page, Request, Route } from "@playwright/test";
 import { expect } from "@playwright/test";
 import {
   FLORIDA_CUSTOMER_DETAILS,
@@ -6,8 +6,10 @@ import {
   ITALY_CUSTOMER_DETAILS,
   NEW_YORK_CUSTOMER_DETAILS,
   SPAIN_TAX_RESPONSE,
+  SPAIN_TAX_INCLUSIVE_DISCOUNTED_RESPONSE,
   TAX_TEST_API_KEY,
   TAX_TEST_OFFERING_ID,
+  TAX_TEST_OFFERING_ID_WITH_DISCOUNT,
   NOT_COLLECTING_TAX_RESPONSE,
   INVALID_TAX_LOCATION_RESPONSE,
   NEW_YORK_TAX_RESPONSE,
@@ -15,6 +17,7 @@ import {
   STRIPE_TAX_NOT_ACTIVE_RESPONSE,
   INVALID_TAX_ORIGIN_RESPONSE,
   MISSING_STRIPE_PERMISSION_RESPONSE,
+  TAX_TEST_DISCOUNT_CODE,
 } from "./helpers/fixtures";
 import {
   integrationTest,
@@ -39,13 +42,37 @@ import {
 import type { RouteFulfillOptions } from "./helpers/test-helpers";
 
 const TAX_BREAKDOWN_ITEM_SELECTOR = ".rcb-pricing-table-row";
-const TAX_ROUTE_PATH = "**/checkout/*/calculate_taxes";
+const REFRESH_PRICING_PATH = "**/checkout/*";
 
-const navigateToTaxesLandingUrl = (page: Page, userId: string) =>
+const isPricingRefreshRequest = (request: Request) =>
+  request.method() === "PATCH";
+
+async function routePricingRefreshRequest(
+  page: Page,
+  handler: (route: Route, request: Request) => Promise<void>,
+) {
+  await page.route(REFRESH_PRICING_PATH, async (route) => {
+    const request = route.request();
+
+    if (!isPricingRefreshRequest(request)) {
+      await route.fallback();
+      return;
+    }
+
+    await handler(route, request);
+  });
+}
+
+const navigateToTaxesLandingUrl = (
+  page: Page,
+  userId: string,
+  offeringId: string = TAX_TEST_OFFERING_ID,
+  discountCode?: string,
+) =>
   navigateToLandingUrl(
     page,
     userId,
-    { offeringId: TAX_TEST_OFFERING_ID },
+    { offeringId: offeringId, discountCode: discountCode },
     TAX_TEST_API_KEY,
   );
 
@@ -54,12 +81,12 @@ const mockTaxCalculationRequest = async (
   fulfillment: RouteFulfillOptions,
 ) => {
   let completed = false;
-  await page.route(TAX_ROUTE_PATH, async (route) => {
+  await routePricingRefreshRequest(page, async (route) => {
     if (!completed) {
       await route.fulfill(fulfillment);
       completed = true;
     } else {
-      route.fallback();
+      await route.fallback();
     }
   });
 };
@@ -82,18 +109,18 @@ const mockTaxCalculationRequest = async (
       integrationTest.beforeEach(async ({ page }) => {
         if (mockMode) {
           // Prevent the real requests from being performed
-          await page.route(TAX_ROUTE_PATH, async (route) => {
-            route.abort();
+          await routePricingRefreshRequest(page, async (route) => {
+            await route.abort();
           });
         } else {
           // Fail the test if the rate limit is reached
-          await page.route(TAX_ROUTE_PATH, async (route) => {
+          await routePricingRefreshRequest(page, async (route) => {
             const response = await route.fetch();
             const json = await response.json();
             if (json["failed_reason"] === "rate_limit_exceeded") {
               throw new Error("Stripe Tax Calculation API rate limit reached.");
             }
-            route.fulfill({ response, json });
+            await route.fulfill({ response, json });
           });
         }
       });
@@ -225,6 +252,44 @@ const mockTaxCalculationRequest = async (
       );
 
       integrationTest(
+        "Displays correct discount and tax-inclusive totals",
+        async ({ page, userId }) => {
+          if (mockMode) {
+            await mockTaxCalculationRequest(
+              page,
+              SPAIN_TAX_INCLUSIVE_DISCOUNTED_RESPONSE,
+            );
+          }
+
+          page = await navigateToTaxesLandingUrl(
+            page,
+            userId,
+            TAX_TEST_OFFERING_ID_WITH_DISCOUNT,
+            TAX_TEST_DISCOUNT_CODE,
+          );
+
+          const packageCards = await getPackageCards(page);
+          await startPurchaseFlow(packageCards[0]);
+
+          const pricingRows = page.locator(TAX_BREAKDOWN_ITEM_SELECTOR);
+          await expect(pricingRows).toHaveCount(5);
+
+          const lines = await pricingRows.all();
+          expect(lines).toHaveLength(5);
+          await expect(lines[0].getByText(/Subtotal/)).toBeVisible();
+          await expect(lines[0].getByText("$9.99")).toBeVisible();
+          await expect(lines[1].getByText(/Discount/)).toBeVisible();
+          await expect(lines[1].getByText("-$1.00")).toBeVisible();
+          await expect(lines[2].getByText(/Total excluding tax/)).toBeVisible();
+          await expect(lines[2].getByText("$7.43")).toBeVisible();
+          await expect(lines[3].getByText(/VAT - Spain \(21%\)/)).toBeVisible();
+          await expect(lines[3].getByText("$1.56")).toBeVisible();
+          await expect(lines[4].getByText(/Total due today/)).toBeVisible();
+          await expect(lines[4].getByText("$8.99")).toBeVisible();
+        },
+      );
+
+      integrationTest(
         "Does NOT display taxes if not collecting in location",
         async ({ page, userId, email }) => {
           if (mockMode) {
@@ -317,14 +382,14 @@ const mockTaxCalculationRequest = async (
           await expect(page.getByText("Total excluding tax")).toBeVisible();
           await expect(page.getByText("Total due today")).toBeVisible();
 
-          await page.route(TAX_ROUTE_PATH, async (route) => {
-            const body = await route.request().postDataJSON();
+          await routePricingRefreshRequest(page, async (route, request) => {
+            const body = await request.postDataJSON();
             if (body !== null && body["country_code"] === "IT") {
               setTimeout(async () => {
-                route.fallback();
+                await route.fallback();
               }, 10_000);
             } else {
-              route.fallback();
+              await route.fallback();
             }
           });
 
@@ -333,7 +398,7 @@ const mockTaxCalculationRequest = async (
             (request) => {
               italyTaxCalculationRequest = request;
               return (
-                request.url().includes("/calculate_taxes") &&
+                isPricingRefreshRequest(request) &&
                 request.postDataJSON().country_code === "IT"
               );
             },
@@ -341,7 +406,7 @@ const mockTaxCalculationRequest = async (
 
           const newYorkTaxCalculationRequestPromise = page.waitForRequest(
             (request) =>
-              request.url().includes("/calculate_taxes") &&
+              isPricingRefreshRequest(request) &&
               request.postDataJSON().country_code === "US",
           );
 
@@ -433,7 +498,7 @@ const mockTaxCalculationRequest = async (
           await expect(page.getByText("Total due today")).toBeVisible();
 
           let calculateTaxesCount = 0;
-          await page.route(TAX_ROUTE_PATH, async (route) => {
+          await routePricingRefreshRequest(page, async (route) => {
             calculateTaxesCount++;
             await route.fallback();
           });
@@ -480,7 +545,7 @@ const mockTaxCalculationRequest = async (
 
 integrationTest.describe("Tax calculation setup errors", () => {
   integrationTest.fixme("Stripe tax not active", async ({ page, userId }) => {
-    await page.route(TAX_ROUTE_PATH, async (route) => {
+    await routePricingRefreshRequest(page, async (route) => {
       await route.fulfill(STRIPE_TAX_NOT_ACTIVE_RESPONSE);
 
       page = await navigateToTaxesLandingUrl(page, userId);
@@ -493,7 +558,7 @@ integrationTest.describe("Tax calculation setup errors", () => {
   integrationTest.fixme(
     "Invalid tax origin address",
     async ({ page, userId }) => {
-      await page.route(TAX_ROUTE_PATH, async (route) => {
+      await routePricingRefreshRequest(page, async (route) => {
         await route.fulfill(INVALID_TAX_ORIGIN_RESPONSE);
       });
 
@@ -507,7 +572,7 @@ integrationTest.describe("Tax calculation setup errors", () => {
   integrationTest.fixme(
     "Missing Stripe permission",
     async ({ page, userId }) => {
-      await page.route(TAX_ROUTE_PATH, async (route) => {
+      await routePricingRefreshRequest(page, async (route) => {
         await route.fulfill(MISSING_STRIPE_PERMISSION_RESPONSE);
       });
 

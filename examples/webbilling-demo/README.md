@@ -21,21 +21,14 @@ export VITE_RC_API_KEY = 'your public api key'
 npm run dev
 ```
 
-> **NOTE:** If you encounter connection errors to `localhost:8000` when testing the demo, this is because the demo is running in development mode which tries to connect to a local RevenueCat backend server. To fix this:
+> **NOTE:** In development mode, the SDK connects to `localhost:8000` by default (set in the root `.env.development`). If you want to point the demo at production or a custom backend instead, set the following env vars in your `.env` file in this demo directory:
 >
-> 1. **Update the root `.env.development` file** with production endpoints:
->    ```bash
->    VITE_RC_ENDPOINT=https://api.revenuecat.com
->    VITE_RC_ANALYTICS_ENDPOINT=https://e.revenue.cat
->    ```
-> 2. **Rebuild the main purchases-js library** (from the root directory):
->    ```bash
->    npm run build
->    ```
-> 3. **Restart the demo** (from this directory):
->    ```bash
->    npm run dev
->    ```
+> ```bash
+> VITE_RC_PROXY_URL=https://api.revenuecat.com
+> VITE_RC_EVENTS_URL=https://e.revenue.cat
+> ```
+>
+> No library rebuild is needed — these are passed via `httpConfig` at runtime.
 >
 > **Expected behavior:** When using your Web Billing product API key, you should see customers created in Sandbox in your dashboard after completing purchases. View activity at https://app.revenuecat.com/activity after a few minutes to see sandbox transactions and customer data.
 
@@ -63,6 +56,14 @@ The SDK automatically detects Paddle API keys and routes to the Paddle flow. The
 ```bash
 export VITE_RC_NON_TAX_E2E_API_KEY = 'your e2e tests public api key'
 export VITE_RC_TAX_E2E_API_KEY = 'your e2e tests public api key'
+export VITE_RC_STRIPE_CHECKOUT_E2E_API_KEY = 'your stripe checkout e2e tests public api key'
+```
+
+Optional flags:
+
+```bash
+# Useful if Stripe rate limiting is causing flaky CI runs.
+export VITE_SKIP_STRIPE_TESTS=true
 ```
 
 Install playwright

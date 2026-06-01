@@ -31,7 +31,17 @@
     forceEnableWalletMethods: boolean;
     defaultPriceBreakdown?: PriceBreakdown;
     termsAndConditionsUrl?: string;
+    showDiscountCodeField?: boolean;
+    draftDiscountCode?: string;
+    appliedDiscountCode?: string | null;
+    discountCodeError?: string | null;
+    isUpdatingDiscountCode?: boolean;
+    isDiscountCodeControlsEnabled?: boolean;
     closeWithError: () => void;
+    onDraftDiscountCodeChange?: (discountCode: string) => void;
+    onApplyDiscountCode?: () => void | Promise<void>;
+    onRemoveDiscountCode?: () => void | Promise<void>;
+    onPaymentProcessingChange?: (isProcessing: boolean) => void;
     onContinue: () => void;
     onError: (error: PurchaseFlowError) => void;
     onClose?: () => void;
@@ -52,7 +62,17 @@
     forceEnableWalletMethods,
     defaultPriceBreakdown,
     termsAndConditionsUrl,
+    showDiscountCodeField = false,
+    draftDiscountCode = "",
+    appliedDiscountCode = null,
+    discountCodeError = null,
+    isUpdatingDiscountCode = false,
+    isDiscountCodeControlsEnabled = false,
     closeWithError,
+    onDraftDiscountCodeChange = undefined,
+    onApplyDiscountCode = undefined,
+    onRemoveDiscountCode = undefined,
+    onPaymentProcessingChange = undefined,
     onContinue,
     onError,
     onClose = undefined,
@@ -74,6 +94,22 @@
     },
   );
 
+  $effect(() => {
+    const updatedInitialPrice = getInitialPriceFromPurchaseOption(
+      productDetails,
+      purchaseOptionToUse,
+    );
+
+    priceBreakdown = defaultPriceBreakdown ?? {
+      currency: updatedInitialPrice.currency,
+      totalAmountInMicros: updatedInitialPrice.amountMicros,
+      totalExcludingTaxInMicros: updatedInitialPrice.amountMicros,
+      taxCalculationStatus: "unavailable",
+      taxAmountInMicros: null,
+      taxBreakdown: null,
+    };
+  });
+
   const onPriceBreakdownUpdated = (value: PriceBreakdown) => {
     priceBreakdown = value;
   };
@@ -93,6 +129,15 @@
       purchaseOption={purchaseOptionToUse}
       showProductDescription={brandingInfo?.appearance
         ?.show_product_description ?? false}
+      {showDiscountCodeField}
+      discountCode={draftDiscountCode}
+      {appliedDiscountCode}
+      {discountCodeError}
+      {isUpdatingDiscountCode}
+      {isDiscountCodeControlsEnabled}
+      onDiscountCodeChange={onDraftDiscountCodeChange}
+      {onApplyDiscountCode}
+      {onRemoveDiscountCode}
       {priceBreakdown}
     />
   {/snippet}
@@ -115,6 +160,7 @@
         {onContinue}
         {onError}
         {onPriceBreakdownUpdated}
+        onProcessingStateChange={onPaymentProcessingChange}
       />
     {/if}
 

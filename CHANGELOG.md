@@ -1,3 +1,224 @@
+## 1.41.2
+## RevenueCat SDK
+### 🐞 Bugfixes
+* [WEB-4282] Hide "Total excluding tax" when no tax (#886) via James O'Donnell (@james-od)
+* fix: fall back to fallback_offering_id when offering_ids_by_placement is omitted (#885) via Tarek M. Ben Lechhab (@bilqisium)
+* Fix: Asterisks in markdown — Update purchases-ui-js (#887) via Jacob Rakidzich (@JZDesign)
+
+## 1.41.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Migrated to using stripe pure (#882) via Nicola Sacco (@nicfix)
+
+### 🔄 Other Changes
+* FUN-2196: Add attribution metadata input channel to purchases.purchase() (#875) via Jamie Holwill (@jholwill)
+
+## 1.41.0
+## RevenueCat SDK
+### ✨ New Features
+* [WEB-3760] Terms copy for discounts (#879) via James O'Donnell (@james-od)
+* [WEB-4224] Simplify checkout refresh after applying code (#865) via James O'Donnell (@james-od)
+
+### 🔄 Other Changes
+* [WST-609] Add Stripe day-unit trial coverage for paywall variables (#874) via Volodymyr Kartavyi (@vkartaviy)
+
+## 1.40.0
+## RevenueCat SDK
+### ✨ New Features
+* Bump purchases-ui-js to 4.5.1 (#872) via Franco Correa (@francocorreasosa)
+
+## 1.39.1
+## RevenueCatUI SDK
+### 🐞 Bugfixes
+* Paywalls | Update purchases-ui-js to support visibility from custom variables w/tests (#870) via Rosie Watson (@RosieWatson)
+
+## 1.39.0
+## RevenueCat SDK
+### ✨ New Features
+* Add galaxy store to Store type (#866) via Toni Rico (@tonidero)
+### 🐞 Bugfixes
+* Add displayName and price to SubscriptionInfo (#868) via andsolleiro (@andsolleiro)
+* [WEB-3962] Show discount percentage and duration at checkout (#863) via James O'Donnell (@james-od)
+
+## 1.38.0
+### 🔄 Other Changes
+* Handle background safe area colors via purchases-ui-js@4.1.0 (#860) via Jamie Holwill (@jholwill)
+
+## 1.37.0
+## RevenueCat SDK
+### ✨ New Features
+* Add express checkout theme support (#861) via Marek Dabek (@marek-dabek)
+* Add `productPlanIdentifier` to `SubscriptionInfo` (#859) via Toni Rico (@tonidero)
+* [WEB-4171] Discount input (#849) via James O'Donnell (@james-od)
+* feat: Add PaywallListener for purchase lifecycle callbacks (#804) via Toni Rico (@tonidero)
+
+### 🔄 Other Changes
+* Docs: local dev linking for @revenuecat/purchases-ui-js (#850) via Monika Mateska (@MonikaMateska)
+* Track paywall component interaction events (#837) via Jacob Rakidzich (@JZDesign)
+
+## 1.36.0
+## RevenueCat SDK
+### ✨ New Features
+* [WEB-4179] Add public paywall availability to offerings (#852) via Nicola Sacco (@nicfix)
+### 🐞 Bugfixes
+* Bump purchases-ui-js to 3.12.0 (#855) via Franco Correa (@francocorreasosa)
+
+## 1.35.1
+## RevenueCat SDK
+### 📦 Dependency Updates
+* Bump purchases-ui-js version (#851) via Marek Dabek (@marek-dabek)
+
+## 1.35.0
+## RevenueCat SDK
+### 📦 Dependency Updates
+* Bump purchases-ui-js version (#851) via Marek Dabek (@marek-dabek)
+
+## 1.35.0
+## RevenueCat SDK
+### ✨ New Features
+* [WEB-3965] Fix offer variables in paywalls (#846) via James O'Donnell (@james-od)
+
+### 🔄 Other Changes
+* Guard against accidental version bumps outside release branches (#847) via Toni Rico (@tonidero)
+
+## 1.34.0
+## RevenueCatUI SDK
+### ✨ New Features
+* WFL-26 | Bump purchases-ui-js to add support for header component (#841) via Rosie Watson (@RosieWatson)
+### 🐞 Bugfixes
+* Bump purchases-ui-js to 3.11.1 (#843) via Franco Correa (@francocorreasosa)
+
+### 🔄 Other Changes
+* Only preload Stripe module for Stripe-based API keys (#844) via Toni Rico (@tonidero)
+
+## 1.33.0
+## RevenueCat SDK
+### ✨ New Features
+* FUN-2156: Update purchases-js to support new onCompleteWorkflowNavigate param (#838) via Franco Correa (@francocorreasosa)
+
+### 🔄 Other Changes
+* FUN-2085: Pass attribution metadata through purchase results (#827) via Jamie Holwill (@jholwill)
+* Bump fastlane-plugin-revenuecat_internal (#834) via Antonio Pallares (@ajpallares)
+
+## 1.32.0
+## RevenueCat SDK
+### ✨ New Features
+* Pass checkout locale to /checkout/start (#826) via Volodymyr Kartavyi (@vkartaviy)
+
+### 🔄 Other Changes
+* Fix for package.json version that drifted from .version file (#835) via Nicola Sacco (@nicfix)
+
+## 1.31.0
+## RevenueCat SDK
+### ✨ New Features
+* WEB-3903: Stripe Checkout branding support (#828) via Nicola Sacco (@nicfix)
+
+## RevenueCatUI SDK
+### ✨ New Features
+* PW-1201 | Bump `purchases-ui-js` package to enable promo text overrides for discounts (#832) via Rosie Watson (@RosieWatson)
+
+### 🔄 Other Changes
+* Refactor checkoutStart/postCheckoutStart to use params objects (#825) via Volodymyr Kartavyi (@vkartaviy)
+* Fix package.json to reflect correct version (#824) via Toni Rico (@tonidero)
+* Merge release PR after deploy (#812) via Antonio Pallares (@ajpallares)
+
+## 1.30.0
+## RevenueCat SDK
+### ✨ New Features
+* Refactor wallet button renderer (#810) via Marek Dabek (@marek-dabek)
+### 🐞 Bugfixes
+* Add font-family to simulated store modal (#809) via Perttu (@plahteenlahti)
+* Fix price-per-period rounding to floor instead of round-half-up (#807) via Dan Pannasch (@dpannasch)
+
+### 🔄 Other Changes
+* Require PR approval before release tagging (#811) via Antonio Pallares (@ajpallares)
+* PW-1121 | Add paywall events (impression, close, cancel) (#806) via Drago Crnjac (@popcorn)
+
+## 1.29.0
+## RevenueCat SDK
+### ✨ New Features
+* WEB-3784: Add Stripe Checkout for internal testing - coming soon (#768) via Nicola Sacco (@nicfix)
+* Add storeLoadTime flag to defer store module loading (#796) via Toni Rico (@tonidero)
+
+## RevenueCatUI SDK
+### ✨ New Features
+* PW-874 | Support visibility overrides (#801) via Rosie Watson (@RosieWatson)
+
+## 1.28.0
+## RevenueCat SDK
+### ✨ New Features
+* feat(paywalls): PW-987 add support for Custom Variables (#783) via Azat Valiev (@azvaliev)
+### 🐞 Bugfixes
+* Fix relative discount calculation to exclude non-subscription packages (#786) via Tarek M. Ben Lechhab (@bilqisium)
+
+## RevenueCatUI SDK
+### ✨ New Features
+* PW-1097 | Add support for number and boolean Custom Variables (#797) via Rosie Watson (@RosieWatson)
+
+### 🔄 Other Changes
+* Send `paywall_id` to server when starting a checkout session (#750) via Toni Rico (@tonidero)
+* Delay stripe import until SDK configuration (#765) via Toni Rico (@tonidero)
+
+## 1.27.0
+### 🔄 Other Changes
+* Update sdks-common-config orb to 3.13.0 (#794) via Cesar de la Vega (@vegaro)
+* [EXTERNAL] chore: update linking docs to pnpm by @candrepa1  (#791) (#793) via Nicola Sacco (@nicfix)
+
+## 1.26.4
+### 🔄 Other Changes
+* Allow httpConfig to set the eventsURL destination (#769) via Jamie Holwill (@jholwill)
+* [WEB-3797] feat: Add discount code support to product/offerings fetch (experimental) (#785) via Víctor Ferrer García (@vicfergar)
+* Adding support for the new discount fields returned by khepri (#782) via Nicola Sacco (@nicfix)
+
+## 1.26.3
+## RevenueCat SDK
+### 🐞 Bugfixes
+* [WEB-3781] simplify discounts aproach v2 (#773) via James O'Donnell (@james-od)
+
+### 🔄 Other Changes
+* Fix purchase flow e2e tests (#777) via James O'Donnell (@james-od)
+
+## 1.26.2
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Fixed an issue with scrolling in chrome. (#775) via Nicola Sacco (@nicfix)
+
+## 1.26.1
+### 🔄 Other Changes
+* Bump purchases-ui-js package to 3.7.1 (#764) via Jamie Holwill (@jholwill)
+* Bump fastlane-plugin-revenuecat_internal from `e6454e3` to `afc9219` (#761) via dependabot[bot] (@dependabot[bot])
+
+## 1.26.0
+## RevenueCat SDK
+### ✨ New Features
+* Add discounts (#752) via Burdock (@lburdock)
+
+### 🔄 Other Changes
+* Bump fastlane from 2.231.1 to 2.232.1 (#757) via dependabot[bot] (@dependabot[bot])
+* docs: add onBack callback example (#756) via Nicola Sacco (@nicfix)
+
+## 1.25.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Enable explicit client flushing of pending events (#747) via Jamie Holwill (@jholwill)
+### 📦 Dependency Updates
+* Bump purchases-ui-js to 3.7.0 (#753) via Jamie Holwill (@jholwill)
+
+### 🔄 Other Changes
+* Add discount translations (#751) via Burdock (@lburdock)
+* Improve fixtures for stories (#746) via Burdock (@lburdock)
+* Fix hot reloading (#743) via Burdock (@lburdock)
+
+## 1.25.0
+## RevenueCat SDK
+### ✨ New Features
+* Enable overriding of trace_id on Purchases instantiation (#742) via Jamie Holwill (@jholwill)
+* WEB-3627: Exposing the management url in the single subscriptions by product id (#727) via Nicola Sacco (@nicfix)
+### 🐞 Bugfixes
+* Web 3521: Allow multiple express purchase buttons to be rendered (#737) via Nicola Sacco (@nicfix)
+### 📦 Dependency Updates
+* Bump dependencies (#740) via James O'Donnell (@james-od)
+
 ## 1.24.3
 ## RevenueCat SDK
 ### 🐞 Bugfixes

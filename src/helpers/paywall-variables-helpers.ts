@@ -5,6 +5,7 @@ import {
   ProductType,
   type PurchaseOption,
   type SubscriptionOption,
+  type NonSubscriptionOption,
 } from "../entities/offerings";
 import {
   Translator,
@@ -20,7 +21,10 @@ import {
   WEEKS_PER_MONTH,
 } from "./paywall-period-helpers";
 import { getPriceVariables } from "./paywall-price-helpers";
-import { setOfferVariables } from "./paywall-offer-helpers";
+import {
+  setNonSubscriptionOfferVariables,
+  setOfferVariables,
+} from "./paywall-offer-helpers";
 import { englishLocale } from "../ui/localization/constants";
 
 export interface BuildVariablesPerPackageOptions {
@@ -81,6 +85,12 @@ function getDefaultPurchaseOption(
   if (pkg.webBillingProduct.productType === ProductType.Subscription) {
     return pkg.webBillingProduct.defaultSubscriptionOption;
   }
+  if (
+    pkg.webBillingProduct.productType === ProductType.NonConsumable ||
+    pkg.webBillingProduct.productType === ProductType.Consumable
+  ) {
+    return pkg.webBillingProduct.defaultNonSubscriptionOption;
+  }
   return pkg.webBillingProduct.defaultPurchaseOption;
 }
 
@@ -89,6 +99,13 @@ function productIsSubscription(
   product: PurchaseOption | undefined | null,
 ): product is SubscriptionOption {
   return productType === ProductType.Subscription && product != null;
+}
+
+function productIsNonSubscription(
+  productType: ProductType,
+  product: PurchaseOption | undefined | null,
+): product is NonSubscriptionOption {
+  return productType !== ProductType.Subscription && product != null;
 }
 
 function getPricePerPeriod(
@@ -123,11 +140,18 @@ export function parseOfferingIntoVariables(
 ): Record<string, VariableDictionary> {
   const packages = offering.availablePackages;
 
-  const highestPricePackage = packages.reduce((prev, current) => {
-    const prevMonthlyPrice = getPackageMonthlyPrice(prev);
-    const currentMonthlyPrice = getPackageMonthlyPrice(current);
-    return prevMonthlyPrice > currentMonthlyPrice ? prev : current;
-  });
+  const subscriptionPackages = packages.filter(
+    (pkg) => pkg.webBillingProduct.productType === ProductType.Subscription,
+  );
+
+  const highestPricePackage =
+    subscriptionPackages.length > 0
+      ? subscriptionPackages.reduce((prev, current) => {
+          const prevMonthlyPrice = getPackageMonthlyPrice(prev);
+          const currentMonthlyPrice = getPackageMonthlyPrice(current);
+          return prevMonthlyPrice > currentMonthlyPrice ? prev : current;
+        })
+      : null;
 
   return packages.reduce(
     (packagesById, pkg) => {
@@ -144,7 +168,7 @@ export function parseOfferingIntoVariables(
 
 function parsePackageIntoVariables(
   pkg: Package,
-  highestPricePackage: Package,
+  highestPricePackage: Package | null,
   translator: Translator,
 ) {
   const webBillingProduct = pkg.webBillingProduct;
@@ -241,29 +265,28 @@ function parsePackageIntoVariables(
     }
 
     // Calculate discount based on monthly equivalent prices
-    const packageMonthlyPrice = getPackageMonthlyPrice(pkg);
-    const highestMonthlyPrice = getPackageMonthlyPrice(highestPricePackage);
-    const discount =
-      ((highestMonthlyPrice - packageMonthlyPrice) * 100) / highestMonthlyPrice;
+    if (highestPricePackage) {
+      const packageMonthlyPrice = getPackageMonthlyPrice(pkg);
+      const highestMonthlyPrice = getPackageMonthlyPrice(highestPricePackage);
+      const discount =
+        ((highestMonthlyPrice - packageMonthlyPrice) * 100) /
+        highestMonthlyPrice;
 
-    baseObject["product.relative_discount"] =
-      discount < 1
-        ? ""
-        : translator.translate(
-            LocalizationKeys.PaywallVariablesSubRelativeDiscount,
-            {
-              discount: discount.toFixed(0),
-            },
-          );
+      baseObject["product.relative_discount"] =
+        discount < 1
+          ? ""
+          : translator.translate(
+              LocalizationKeys.PaywallVariablesSubRelativeDiscount,
+              {
+                discount: discount.toFixed(0),
+              },
+            );
+    }
 
     setOfferVariables(purchaseOption, translator, baseObject);
   }
 
-  if (
-    (productType === ProductType.NonConsumable ||
-      productType === ProductType.Consumable) &&
-    purchaseOption
-  ) {
+  if (productIsNonSubscription(productType, purchaseOption)) {
     baseObject["product.price"] = formattedPrice;
     baseObject["product.price_per_period"] = formattedPrice;
     baseObject["product.price_per_period_abbreviated"] = formattedPrice;
@@ -281,6 +304,8 @@ function parsePackageIntoVariables(
     baseObject["product.relative_discount"] = "";
     baseObject["product.period"] = "";
     baseObject["product.period_abbreviated"] = "";
+
+    setNonSubscriptionOfferVariables(purchaseOption, translator, baseObject);
   }
 
   return baseObject;

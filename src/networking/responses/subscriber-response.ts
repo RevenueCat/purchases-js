@@ -12,18 +12,26 @@ export interface SubscriberEntitlementResponse {
   purchase_date: string;
 }
 
+export interface SubscriberSubscriptionPriceResponse {
+  amount: number;
+  currency: string;
+}
+
 export interface SubscriberSubscriptionResponse {
   auto_resume_date?: string | null;
   billing_issues_detected_at: string | null;
+  display_name?: string | null;
   expires_date: string | null;
   grace_period_expires_date?: string | null;
   is_sandbox: boolean;
   original_purchase_date: string;
   period_type: PeriodType;
+  price?: SubscriberSubscriptionPriceResponse | null;
   product_plan_identifier?: string | null;
   purchase_date: string;
   refunded_at?: string | null;
   store: Store;
+  management_url?: string | null;
   store_transaction_id?: string | null;
   unsubscribe_detected_at: string | null;
   ownership_type?: OwnershipType | null;

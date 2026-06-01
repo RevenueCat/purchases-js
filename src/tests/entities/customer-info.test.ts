@@ -71,6 +71,8 @@ describe("customer info parsing", () => {
             expires_date: "2124-02-07T13:46:23Z",
             grace_period_expires_date: null,
             is_sandbox: true,
+            management_url:
+              "https://test-management-url.revenuecat.com/manage/weekly_test",
             original_purchase_date: "2024-01-24T13:46:23Z",
             period_type: "normal",
             purchase_date: "2024-01-31T13:46:23Z",
@@ -138,6 +140,7 @@ describe("customer info parsing", () => {
       subscriptionsByProductIdentifier: {
         weekly_test: {
           productIdentifier: "weekly_test",
+          productPlanIdentifier: null,
           purchaseDate: new Date("2024-01-31T13:46:23Z"),
           originalPurchaseDate: new Date("2024-01-24T13:46:23Z"),
           expiresDate: new Date("2124-02-07T13:46:23Z"),
@@ -151,8 +154,12 @@ describe("customer info parsing", () => {
           refundedAt: null,
           storeTransactionId:
             "txRcb1486347e9afce2143eec187a781f82e8..1706708783",
+          managementURL:
+            "https://test-management-url.revenuecat.com/manage/weekly_test",
           isActive: true,
           willRenew: true,
+          displayName: null,
+          price: null,
         },
       },
     };
@@ -218,6 +225,7 @@ describe("customer info parsing", () => {
           pro: {
             billing_issues_detected_at: null,
             is_sandbox: true,
+            management_url: "https://apps.apple.com/account/subscriptions",
             original_purchase_date: "2019-07-26T23:30:41Z",
             purchase_date: "2019-07-26T23:45:40Z",
             product_plan_identifier: "monthly",
@@ -229,6 +237,7 @@ describe("customer info parsing", () => {
           basic: {
             billing_issues_detected_at: null,
             is_sandbox: true,
+            management_url: "https://apps.apple.com/account/subscriptions",
             original_purchase_date: "2019-07-26T23:30:41Z",
             purchase_date: "2019-07-26T23:45:40Z",
             product_plan_identifier: "monthly",
@@ -408,16 +417,20 @@ describe("customer info parsing", () => {
           gracePeriodExpiresDate: null,
           isActive: false,
           isSandbox: true,
+          managementURL: "https://apps.apple.com/account/subscriptions",
           originalPurchaseDate: new Date("2019-07-26T23:30:41Z"),
           ownershipType: "UNKNOWN",
           periodType: "normal",
           productIdentifier: "basic",
+          productPlanIdentifier: "monthly",
           purchaseDate: new Date("2019-07-26T23:45:40Z"),
           refundedAt: null,
           store: "app_store",
           storeTransactionId: null,
           unsubscribeDetectedAt: null,
           willRenew: true,
+          displayName: null,
+          price: null,
         },
         pro: {
           billingIssuesDetectedAt: null,
@@ -425,16 +438,20 @@ describe("customer info parsing", () => {
           gracePeriodExpiresDate: null,
           isActive: true,
           isSandbox: true,
+          managementURL: "https://apps.apple.com/account/subscriptions",
           originalPurchaseDate: new Date("2019-07-26T23:30:41Z"),
           ownershipType: "UNKNOWN",
           periodType: "normal",
           productIdentifier: "pro",
+          productPlanIdentifier: "monthly",
           purchaseDate: new Date("2019-07-26T23:45:40Z"),
           refundedAt: null,
           store: "app_store",
           storeTransactionId: null,
           unsubscribeDetectedAt: null,
           willRenew: true,
+          displayName: null,
+          price: null,
         },
       },
     };
@@ -470,6 +487,8 @@ describe("customer info parsing", () => {
             expires_date: "2124-02-07T13:46:23Z",
             grace_period_expires_date: null,
             is_sandbox: true,
+            management_url:
+              "https://test-management-url.revenuecat.com/manage/paddle_weekly_test",
             original_purchase_date: "2024-01-24T13:46:23Z",
             period_type: "normal",
             purchase_date: "2024-01-31T13:46:23Z",
@@ -537,6 +556,7 @@ describe("customer info parsing", () => {
       subscriptionsByProductIdentifier: {
         weekly_test: {
           productIdentifier: "weekly_test",
+          productPlanIdentifier: null,
           purchaseDate: new Date("2024-01-31T13:46:23Z"),
           originalPurchaseDate: new Date("2024-01-24T13:46:23Z"),
           expiresDate: new Date("2124-02-07T13:46:23Z"),
@@ -545,6 +565,8 @@ describe("customer info parsing", () => {
           isSandbox: true,
           billingIssuesDetectedAt: null,
           gracePeriodExpiresDate: null,
+          managementURL:
+            "https://test-management-url.revenuecat.com/manage/paddle_weekly_test",
           ownershipType: "UNKNOWN",
           periodType: "normal",
           refundedAt: null,
@@ -552,10 +574,59 @@ describe("customer info parsing", () => {
             "txRcb1486347e9afce2143eec187a781f82e8..1706708783",
           isActive: true,
           willRenew: true,
+          displayName: null,
+          price: null,
         },
       },
     };
     const customerInfo = toCustomerInfo(subscriberResponse);
     expect(customerInfo).toEqual(expectedCustomerInfo);
+  });
+
+  test("subscriber info with display_name and price is parsed correctly", () => {
+    const subscriberResponse: SubscriberResponse = {
+      request_date: "2024-01-31T15:10:21Z",
+      request_date_ms: 1706713821860,
+      subscriber: {
+        entitlements: {},
+        first_seen: "2024-01-23T13:22:12Z",
+        last_seen: "2024-01-29T15:40:09Z",
+        management_url: null,
+        non_subscriptions: {},
+        original_app_user_id: "someUserTest6",
+        original_application_version: null,
+        original_purchase_date: null,
+        other_purchases: {},
+        subscriptions: {
+          monthly_premium: {
+            auto_resume_date: null,
+            billing_issues_detected_at: null,
+            display_name: "Monthly Premium",
+            expires_date: "2124-02-07T13:46:23Z",
+            grace_period_expires_date: null,
+            is_sandbox: true,
+            management_url: null,
+            original_purchase_date: "2024-01-24T13:46:23Z",
+            period_type: "normal",
+            price: { amount: 3.59, currency: "EUR" },
+            purchase_date: "2024-01-31T13:46:23Z",
+            refunded_at: null,
+            store: "rc_billing",
+            store_transaction_id: null,
+            unsubscribe_detected_at: null,
+          },
+        },
+      },
+    };
+    const customerInfo = toCustomerInfo(subscriberResponse);
+    const subscription =
+      customerInfo.subscriptionsByProductIdentifier["monthly_premium"];
+    expect(subscription.displayName).toBe("Monthly Premium");
+    expect(subscription.price).toEqual({
+      amount: 359,
+      amountMicros: 3_590_000,
+      currency: "EUR",
+      formattedPrice: "€3.59",
+    });
   });
 });

@@ -1,17 +1,19 @@
 import { type OfferingsResponse } from "./responses/offerings-response";
 import { performRequest, performRequestWithStatus } from "./http-client";
 import {
-  CheckoutCalculateTaxEndpoint,
   CheckoutCompleteEndpoint,
+  CheckoutPrepareEndpoint,
+  CheckoutRefreshPricingEndpoint,
   CheckoutStartEndpoint,
   GetBrandingInfoEndpoint,
   GetCheckoutStatusEndpoint,
   GetCustomerInfoEndpoint,
   GetOfferingsEndpoint,
   GetProductsEndpoint,
-  PostReceiptEndpoint,
   GetVirtualCurrenciesEndpoint,
   IdentifyEndpoint,
+  PostReceiptEndpoint,
+  SetAttributesEndpoint,
 } from "./endpoints";
 import { type SubscriberResponse } from "./responses/subscriber-response";
 import type { CheckoutStartResponse } from "./responses/checkout-start-response";
@@ -27,10 +29,39 @@ import type {
 } from "../entities/offerings";
 import type { PurchasesContext } from "../entities/purchases-config";
 import type { CheckoutCompleteResponse } from "./responses/checkout-complete-response";
-import type { CheckoutCalculateTaxResponse } from "./responses/checkout-calculate-tax-response";
-import { SetAttributesEndpoint } from "./endpoints";
+import type { CheckoutPricingResponse } from "./responses/checkout-pricing-response";
 import { isWebBillingSandboxApiKey } from "../helpers/api-key-helper";
 import type { IdentifyResponse } from "./responses/identify-response";
+import type { CheckoutPrepareResponse } from "./responses/checkout-prepare-response";
+import type { AttributionMetadata } from "../entities/purchase-params";
+
+interface CheckoutStartRequestParams {
+  // Purchase identity
+  appUserId: string;
+  productId: string;
+  purchaseOption: PurchaseOption;
+  traceId: string;
+
+  // Presentation context
+  presentedOfferingContext: PresentedOfferingContext;
+  presentedStepId?: string;
+  paywallId?: string;
+
+  // Customer data
+  customerEmail?: string;
+  metadata?: PurchaseMetadata;
+  // Locale for lifecycle emails.
+  locale?: string;
+
+  attributionMetadata?: AttributionMetadata;
+}
+
+interface CheckoutRefreshPricingParams {
+  countryCode?: string;
+  postalCode?: string;
+  discountCode?: string | null;
+  signal?: AbortSignal | null;
+}
 
 export class Backend {
   private readonly API_KEY: string;
@@ -109,9 +140,10 @@ export class Backend {
     appUserId: string,
     productIds: string[],
     currency?: string,
+    discountCode?: string,
   ): Promise<ProductsResponse> {
     return await performRequest<null, ProductsResponse>(
-      new GetProductsEndpoint(appUserId, productIds, currency),
+      new GetProductsEndpoint(appUserId, productIds, currency, discountCode),
       {
         apiKey: this.API_KEY,
         httpConfig: this.httpConfig,
@@ -129,18 +161,49 @@ export class Backend {
     );
   }
 
+  async postCheckoutPrepare<
+    T extends CheckoutPrepareResponse = CheckoutPrepareResponse,
+  >(productId: string, purchaseOption: PurchaseOption): Promise<T> {
+    type CheckoutPrepareRequestBody = {
+      product_id: string;
+      price_id: string;
+      offer_id?: string;
+    };
+
+    const requestBody: CheckoutPrepareRequestBody = {
+      product_id: productId,
+      price_id: purchaseOption.priceId,
+    };
+
+    if (purchaseOption.id !== "base_option") {
+      requestBody.offer_id = purchaseOption.id;
+    }
+
+    return (await performRequest<CheckoutPrepareRequestBody, T>(
+      new CheckoutPrepareEndpoint(),
+      {
+        apiKey: this.API_KEY,
+        body: requestBody,
+        httpConfig: this.httpConfig,
+      },
+    )) as T;
+  }
+
   async postCheckoutStart<
     T extends CheckoutStartResponse = CheckoutStartResponse,
-  >(
-    appUserId: string,
-    productId: string,
-    presentedOfferingContext: PresentedOfferingContext,
-    purchaseOption: PurchaseOption,
-    traceId: string,
-    email?: string,
-    metadata: PurchaseMetadata | undefined = undefined,
-    stepId?: string,
-  ): Promise<T> {
+  >({
+    appUserId,
+    productId,
+    purchaseOption,
+    presentedOfferingContext,
+    traceId,
+    presentedStepId,
+    paywallId,
+    customerEmail,
+    metadata,
+    locale,
+    attributionMetadata,
+  }: CheckoutStartRequestParams): Promise<T> {
     type CheckoutStartRequestBody = {
       app_user_id: string;
       product_id: string;
@@ -157,12 +220,17 @@ export class Backend {
       email?: string;
       metadata?: PurchaseMetadata;
       trace_id: string;
+      locale?: string;
+      paywall?: {
+        paywall_id: string;
+      };
+      attribution_metadata?: AttributionMetadata;
     };
 
     const requestBody: CheckoutStartRequestBody = {
       app_user_id: appUserId,
       product_id: productId,
-      email: email,
+      email: customerEmail,
       price_id: purchaseOption.priceId,
       presented_offering_identifier:
         presentedOfferingContext.offeringIdentifier,
@@ -194,8 +262,22 @@ export class Backend {
         this.purchasesContext.workflowContext.workflowIdentifier;
     }
 
-    if (stepId) {
-      requestBody.presented_step_id = stepId;
+    if (presentedStepId) {
+      requestBody.presented_step_id = presentedStepId;
+    }
+
+    if (paywallId) {
+      requestBody.paywall = {
+        paywall_id: paywallId,
+      };
+    }
+
+    if (locale) {
+      requestBody.locale = locale;
+    }
+
+    if (attributionMetadata) {
+      requestBody.attribution_metadata = attributionMetadata;
     }
 
     return (await performRequest<CheckoutStartRequestBody, T>(
@@ -208,27 +290,32 @@ export class Backend {
     )) as T;
   }
 
-  async postCheckoutCalculateTax(
+  async patchCheckoutRefreshPricing(
     operationSessionId: string,
-    countryCode?: string,
-    postalCode?: string,
-    signal?: AbortSignal | null,
-  ): Promise<CheckoutCalculateTaxResponse> {
-    type CheckoutCalculateTaxRequestBody = {
+    {
+      countryCode,
+      postalCode,
+      discountCode,
+      signal,
+    }: CheckoutRefreshPricingParams = {},
+  ): Promise<CheckoutPricingResponse> {
+    type CheckoutRefreshPricingRequestBody = {
       country_code?: string;
       postal_code?: string;
+      discount_code?: string | null;
     };
 
-    const requestBody: CheckoutCalculateTaxRequestBody = {
+    const requestBody: CheckoutRefreshPricingRequestBody = {
       country_code: countryCode,
       postal_code: postalCode,
+      discount_code: discountCode,
     };
 
     return await performRequest<
-      CheckoutCalculateTaxRequestBody,
-      CheckoutCalculateTaxResponse
+      CheckoutRefreshPricingRequestBody,
+      CheckoutPricingResponse
     >(
-      new CheckoutCalculateTaxEndpoint(operationSessionId),
+      new CheckoutRefreshPricingEndpoint(operationSessionId),
       {
         apiKey: this.API_KEY,
         body: requestBody,
@@ -241,14 +328,20 @@ export class Backend {
   async postCheckoutComplete(
     operationSessionId: string,
     email?: string,
+    locale?: string,
   ): Promise<CheckoutCompleteResponse> {
     type CheckoutCompleteRequestBody = {
       email?: string;
+      locale?: string;
     };
 
     const requestBody: CheckoutCompleteRequestBody = {
       email: email,
     };
+
+    if (locale) {
+      requestBody.locale = locale;
+    }
 
     return await performRequest<
       CheckoutCompleteRequestBody,
@@ -316,6 +409,7 @@ export class Backend {
     fetchToken: string,
     presentedOfferingContext: PresentedOfferingContext,
     initiationSource: string,
+    paywallId?: string,
   ): Promise<SubscriberResponse> {
     type PostReceiptTargetingRule = {
       rule_id: string;
@@ -331,6 +425,9 @@ export class Backend {
       presented_workflow_id?: string | null;
       applied_targeting_rule?: PostReceiptTargetingRule | null;
       initiation_source: string;
+      paywall?: {
+        paywall_id: string;
+      };
     };
 
     let targetingInfo: PostReceiptTargetingRule | null = null;
@@ -355,6 +452,12 @@ export class Backend {
       applied_targeting_rule: targetingInfo,
       initiation_source: initiationSource,
     };
+
+    if (paywallId) {
+      requestBody.paywall = {
+        paywall_id: paywallId,
+      };
+    }
 
     return await performRequest<PostReceiptRequestBody, SubscriberResponse>(
       new PostReceiptEndpoint(),

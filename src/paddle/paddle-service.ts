@@ -24,6 +24,7 @@ import type {
   PresentedOfferingContext,
   PurchaseMetadata,
 } from "../main";
+import type { AttributionMetadata } from "../entities/purchase-params";
 import type { CheckoutStatusResponse } from "../networking/responses/checkout-status-response";
 import { CheckoutSessionStatus } from "../networking/responses/checkout-status-response";
 import { toRedemptionInfo } from "../entities/redemption-info";
@@ -56,6 +57,8 @@ interface PaddleStartCheckoutParams {
   purchaseOption: PurchaseOption;
   customerEmail?: string;
   metadata?: PurchaseMetadata;
+  locale?: string;
+  attributionMetadata?: AttributionMetadata;
 }
 
 export class PaddleService {
@@ -127,19 +130,23 @@ export class PaddleService {
     purchaseOption,
     customerEmail,
     metadata,
+    locale,
+    attributionMetadata,
   }: PaddleStartCheckoutParams): Promise<PaddleCheckoutStartResponse> {
     try {
       const traceId = this.eventsTracker.getTraceId();
       const startResponse =
-        await this.backend.postCheckoutStart<PaddleCheckoutStartResponse>(
+        await this.backend.postCheckoutStart<PaddleCheckoutStartResponse>({
           appUserId,
           productId,
-          presentedOfferingContext,
           purchaseOption,
+          presentedOfferingContext,
           traceId,
-          customerEmail ?? undefined,
+          customerEmail: customerEmail ?? undefined,
           metadata,
-        );
+          locale,
+          attributionMetadata,
+        });
 
       await this.initializePaddle(
         startResponse.paddle_billing_params.client_side_token,
@@ -310,6 +317,8 @@ export class PaddleService {
                   storeTransactionIdentifier: storeTransactionIdentifier ?? "",
                   productIdentifier: productIdentifier,
                   purchaseDate: purchaseDate ?? new Date(),
+                  attributionMetadata:
+                    operationResponse.attribution_metadata ?? undefined,
                 });
                 return;
               case CheckoutSessionStatus.Failed:

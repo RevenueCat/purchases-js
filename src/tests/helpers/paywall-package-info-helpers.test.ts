@@ -1,39 +1,18 @@
 import { describe, expect, test } from "vitest";
+import type { PackageInfo } from "@revenuecat/purchases-ui-js";
 import { parseOfferingIntoPackageInfoPerPackage } from "../../helpers/paywall-package-info-helpers";
-import { PeriodUnit } from "../../helpers/duration-helper";
-import { toOffering } from "../utils/fixtures-utils";
-import type {
-  PricingPhase,
-  SubscriptionOption,
-} from "../../entities/offerings";
+import type { Offering } from "../../entities/offerings";
+import { toOffering, toNonSubscriptionOffering } from "../utils/fixtures-utils";
+import {
+  discountPhaseOneTime,
+  trialPhaseP2W,
+  pricePhaseP1M1499,
+} from "../fixtures/price-phases";
+
+type PackageInfoWithCheckout = PackageInfo & { webCheckoutURL?: string };
 
 describe("parseOfferingIntoPackageInfoPerPackage", () => {
-  const trial: SubscriptionOption["trial"] = {
-    period: { unit: PeriodUnit.Week, number: 2 },
-    periodDuration: "P2W",
-    cycleCount: 1,
-    price: null,
-    pricePerWeek: null,
-    pricePerMonth: null,
-    pricePerYear: null,
-  } satisfies PricingPhase;
-
-  const introPrice: SubscriptionOption["introPrice"] = {
-    period: { unit: PeriodUnit.Month, number: 2 },
-    periodDuration: "P2M",
-    cycleCount: 1,
-    price: {
-      amount: 4500,
-      amountMicros: 4500000,
-      currency: "EUR",
-      formattedPrice: "45.00€",
-    },
-    pricePerWeek: null,
-    pricePerMonth: null,
-    pricePerYear: null,
-  } satisfies PricingPhase;
-
-  test("Packages with no trial and no intro offer", () => {
+  test("Packages with no trial, no intro offer, and no promo offer", () => {
     const off = toOffering([
       {
         packageIdentifier: "$rc_monthly",
@@ -44,14 +23,13 @@ describe("parseOfferingIntoPackageInfoPerPackage", () => {
 
     const result = parseOfferingIntoPackageInfoPerPackage(off);
 
-    expect(result).toEqual(
-      expect.objectContaining({
-        $rc_monthly: expect.objectContaining({
-          hasTrial: false,
-          hasIntroOffer: false,
-        }),
-      }),
-    );
+    expect(result).toStrictEqual({
+      $rc_monthly: {
+        hasTrial: false,
+        hasIntroOffer: false,
+        hasPromoOffer: false,
+      },
+    });
   });
 
   test("Packages with only trial", () => {
@@ -60,20 +38,19 @@ describe("parseOfferingIntoPackageInfoPerPackage", () => {
         packageIdentifier: "$rc_weekly",
         identifier: "weekly_trial",
         title: "Weekly Trial",
-        trial,
+        trial: trialPhaseP2W,
       },
     ]);
 
     const result = parseOfferingIntoPackageInfoPerPackage(off);
 
-    expect(result).toEqual(
-      expect.objectContaining({
-        $rc_weekly: expect.objectContaining({
-          hasTrial: true,
-          hasIntroOffer: false,
-        }),
-      }),
-    );
+    expect(result).toStrictEqual({
+      $rc_weekly: {
+        hasTrial: true,
+        hasIntroOffer: false,
+        hasPromoOffer: false,
+      },
+    });
   });
 
   test("Packages with only intro offer", () => {
@@ -82,20 +59,19 @@ describe("parseOfferingIntoPackageInfoPerPackage", () => {
         packageIdentifier: "$rc_yearly",
         identifier: "yearly_intro",
         title: "Yearly Intro",
-        introPrice,
+        introPrice: pricePhaseP1M1499,
       },
     ]);
 
     const result = parseOfferingIntoPackageInfoPerPackage(off);
 
-    expect(result).toEqual(
-      expect.objectContaining({
-        $rc_yearly: expect.objectContaining({
-          hasTrial: false,
-          hasIntroOffer: true,
-        }),
-      }),
-    );
+    expect(result).toStrictEqual({
+      $rc_yearly: {
+        hasTrial: false,
+        hasIntroOffer: true,
+        hasPromoOffer: false,
+      },
+    });
   });
 
   test("Packages with both trial and intro offer", () => {
@@ -104,24 +80,84 @@ describe("parseOfferingIntoPackageInfoPerPackage", () => {
         packageIdentifier: "custom_both",
         identifier: "custom_both_id",
         title: "Custom Both",
-        trial,
-        introPrice,
+        trial: trialPhaseP2W,
+        introPrice: pricePhaseP1M1499,
       },
     ]);
 
     const result = parseOfferingIntoPackageInfoPerPackage(off);
 
-    expect(result).toEqual(
-      expect.objectContaining({
-        custom_both: expect.objectContaining({
-          hasTrial: true,
-          hasIntroOffer: true,
-        }),
-      }),
-    );
+    expect(result).toStrictEqual({
+      custom_both: {
+        hasTrial: true,
+        hasIntroOffer: true,
+        hasPromoOffer: false,
+      },
+    });
   });
 
-  test("Multiple packages with mixed trial/intro combinations", () => {
+  test("Packages with only promo offer (discount)", () => {
+    const off = toOffering([
+      {
+        packageIdentifier: "$rc_monthly",
+        identifier: "monthly_discount",
+        title: "Monthly Discount",
+        discount: discountPhaseOneTime,
+      },
+    ]);
+
+    const result = parseOfferingIntoPackageInfoPerPackage(off);
+    expect(result).toStrictEqual({
+      $rc_monthly: {
+        hasTrial: false,
+        hasIntroOffer: false,
+        hasPromoOffer: true,
+      },
+    });
+  });
+
+  test("Non-subscription packages with promo offer (discount)", () => {
+    const off = toNonSubscriptionOffering([
+      {
+        packageIdentifier: "lifetime",
+        identifier: "lifetime_discount",
+        title: "Lifetime Discount",
+        discount: discountPhaseOneTime,
+      },
+    ]);
+
+    const result = parseOfferingIntoPackageInfoPerPackage(off);
+
+    expect(result).toStrictEqual({
+      lifetime: {
+        hasTrial: false,
+        hasIntroOffer: false,
+        hasPromoOffer: true,
+      },
+    });
+  });
+
+  test("Non-subscription packages without promo offer", () => {
+    const off = toNonSubscriptionOffering([
+      {
+        packageIdentifier: "lifetime",
+        identifier: "lifetime_basic",
+        title: "Lifetime Basic",
+      },
+    ]);
+
+    const result = parseOfferingIntoPackageInfoPerPackage(off);
+
+    expect(result).toStrictEqual({
+      lifetime: {
+        hasTrial: false,
+        hasIntroOffer: false,
+        hasPromoOffer: false,
+      },
+    });
+  });
+
+  test("Multiple packages with mixed trial/intro/promo combinations", () => {
     const off = toOffering([
       {
         packageIdentifier: "$rc_monthly",
@@ -132,44 +168,140 @@ describe("parseOfferingIntoPackageInfoPerPackage", () => {
         packageIdentifier: "$rc_weekly",
         identifier: "weekly_trial",
         title: "Weekly Trial",
-        trial,
+        trial: trialPhaseP2W,
       },
       {
         packageIdentifier: "$rc_yearly",
         identifier: "yearly_intro",
         title: "Yearly Intro",
-        introPrice,
+        introPrice: pricePhaseP1M1499,
       },
       {
         packageIdentifier: "custom_both",
         identifier: "custom_both_id",
         title: "Custom Both",
-        trial,
-        introPrice,
+        trial: trialPhaseP2W,
+        introPrice: pricePhaseP1M1499,
+      },
+      {
+        packageIdentifier: "promo_only",
+        identifier: "promo_only_id",
+        title: "Promo Only",
+        discount: discountPhaseOneTime,
       },
     ]);
 
     const result = parseOfferingIntoPackageInfoPerPackage(off);
 
-    expect(result).toEqual(
-      expect.objectContaining({
-        $rc_monthly: expect.objectContaining({
-          hasTrial: false,
-          hasIntroOffer: false,
-        }),
-        $rc_weekly: expect.objectContaining({
-          hasTrial: true,
-          hasIntroOffer: false,
-        }),
-        $rc_yearly: expect.objectContaining({
-          hasTrial: false,
-          hasIntroOffer: true,
-        }),
-        custom_both: expect.objectContaining({
-          hasTrial: true,
-          hasIntroOffer: true,
-        }),
-      }),
+    expect(result).toStrictEqual({
+      $rc_monthly: {
+        hasTrial: false,
+        hasIntroOffer: false,
+        hasPromoOffer: false,
+      },
+      $rc_weekly: {
+        hasTrial: true,
+        hasIntroOffer: false,
+        hasPromoOffer: false,
+      },
+      $rc_yearly: {
+        hasTrial: false,
+        hasIntroOffer: true,
+        hasPromoOffer: false,
+      },
+      custom_both: {
+        hasTrial: true,
+        hasIntroOffer: true,
+        hasPromoOffer: false,
+      },
+      promo_only: {
+        hasTrial: false,
+        hasIntroOffer: false,
+        hasPromoOffer: true,
+      },
+    });
+  });
+
+  test("includes webCheckoutURL from package when present", () => {
+    const off = toOffering([
+      {
+        packageIdentifier: "$rc_monthly",
+        identifier: "monthly_basic",
+        title: "Monthly Basic",
+      },
+    ]);
+    const monthly = off.packagesById["$rc_monthly"]!;
+    off.packagesById["$rc_monthly"] = {
+      ...monthly,
+      webCheckoutURL: "https://checkout.example.com/monthly",
+    };
+
+    const result = parseOfferingIntoPackageInfoPerPackage(off) as Record<
+      string,
+      PackageInfoWithCheckout
+    >;
+
+    expect(result).toStrictEqual({
+      $rc_monthly: {
+        hasTrial: false,
+        hasIntroOffer: false,
+        hasPromoOffer: false,
+        webCheckoutURL: "https://checkout.example.com/monthly",
+      },
+    });
+  });
+
+  test("falls back to offering webCheckoutURL when package has none", () => {
+    const off = toOffering([
+      {
+        packageIdentifier: "$rc_monthly",
+        identifier: "monthly_basic",
+        title: "Monthly Basic",
+      },
+    ]);
+    const withOfferingUrl: Offering = {
+      ...off,
+      webCheckoutURL: "https://checkout.example.com/offering",
+    };
+
+    const result = parseOfferingIntoPackageInfoPerPackage(
+      withOfferingUrl,
+    ) as Record<string, PackageInfoWithCheckout>;
+
+    expect(result).toStrictEqual({
+      $rc_monthly: {
+        hasTrial: false,
+        hasIntroOffer: false,
+        hasPromoOffer: false,
+        webCheckoutURL: "https://checkout.example.com/offering",
+      },
+    });
+  });
+
+  test("package webCheckoutURL takes precedence over offering", () => {
+    const off = toOffering([
+      {
+        packageIdentifier: "$rc_monthly",
+        identifier: "monthly_basic",
+        title: "Monthly Basic",
+      },
+    ]);
+    const monthly = off.packagesById["$rc_monthly"]!;
+    off.packagesById["$rc_monthly"] = {
+      ...monthly,
+      webCheckoutURL: "https://checkout.example.com/package",
+    };
+    const withOfferingUrl: Offering = {
+      ...off,
+      webCheckoutURL: "https://checkout.example.com/offering",
+    };
+
+    const result = parseOfferingIntoPackageInfoPerPackage(
+      withOfferingUrl,
+    ) as Record<string, PackageInfoWithCheckout>;
+
+    expect(result.$rc_monthly?.webCheckoutURL).toBe(
+      "https://checkout.example.com/package",
     );
   });
 });

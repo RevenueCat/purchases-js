@@ -1,4 +1,5 @@
 import type { CustomerInfo } from "./customer-info";
+import type { PurchaseResponseAttributionMetadata } from "./purchase-params";
 import type { RedemptionInfo } from "./redemption-info";
 import type { StoreTransaction } from "./store-transaction";
 import type { Package } from "./offerings";
@@ -26,6 +27,12 @@ export interface PurchaseResult {
    * The store transaction associated with the purchase.
    */
   readonly storeTransaction: StoreTransaction;
+
+  /**
+   * Attribution metadata returned by the checkout status response.
+   * @internal
+   */
+  readonly attributionMetadata?: PurchaseResponseAttributionMetadata;
 }
 
 /**

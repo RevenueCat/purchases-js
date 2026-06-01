@@ -18,10 +18,12 @@
     PresentedOfferingContext,
     Package,
   } from "../entities/offerings";
+  import type { AttributionMetadata } from "../entities/purchase-params";
   import { PaddleService } from "../paddle/paddle-service";
-  import { PurchasesError } from "../entities/errors";
+  import { normalizeToPurchaseFlowError } from "../helpers/normalize-to-purchase-flow-error";
   import type { PaddleCheckoutStartResponse } from "../networking/responses/checkout-start-response";
   import PaddlePurchasesUiInner from "./paddle-purchases-ui-inner.svelte";
+  import type { BrandingAppearance } from "../entities/branding";
 
   interface Props {
     brandingInfo: BrandingInfoResponse | null;
@@ -40,6 +42,7 @@
     purchaseOption: PurchaseOption;
     customerEmail: string | undefined;
     metadata: PurchaseMetadata | undefined;
+    attributionMetadata?: AttributionMetadata;
     unmountPaddlePurchaseUi: () => void;
     paddleService: PaddleService;
   }
@@ -61,6 +64,7 @@
     purchaseOption,
     customerEmail,
     metadata,
+    attributionMetadata,
     unmountPaddlePurchaseUi,
     paddleService,
   }: Props = $props();
@@ -71,8 +75,11 @@
     defaultLocale,
   );
   let translatorStore = writable(translator);
+  const brandingAppearanceStore = writable<BrandingAppearance | null>(
+    brandingInfo?.appearance ?? null,
+  );
   setContext(translatorContextKey, translatorStore);
-  setContext(brandingContextKey, brandingInfo?.appearance);
+  setContext(brandingContextKey, brandingAppearanceStore);
   setContext(eventsTrackerContextKey, eventsTracker);
 
   let isSandbox = $state(false);
@@ -103,25 +110,6 @@
         ),
     );
     unmountPaddlePurchaseUi();
-  };
-
-  const normalizeToPurchaseFlowError = (
-    e: unknown,
-    defaultMessage: string,
-  ): PurchaseFlowError => {
-    if (e instanceof PurchaseFlowError) {
-      return e;
-    } else if (e instanceof PurchasesError) {
-      return PurchaseFlowError.fromPurchasesError(
-        e,
-        PurchaseFlowErrorCode.UnknownError,
-      );
-    } else {
-      return new PurchaseFlowError(
-        PurchaseFlowErrorCode.UnknownError,
-        defaultMessage,
-      );
-    }
   };
 
   let originalHtmlHeight: string | null = null;
@@ -160,6 +148,8 @@
         purchaseOption,
         customerEmail,
         metadata,
+        locale: selectedLocale,
+        attributionMetadata,
       });
       isSandbox = startResponse.paddle_billing_params.is_sandbox;
     } catch (e) {

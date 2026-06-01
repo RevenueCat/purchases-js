@@ -17,6 +17,7 @@ export function purchaseSimulatedStoreProduct(
   const productType = product.productType;
   const freeTrialPhase = product.freeTrialPhase;
   const introPricePhase = product.introPricePhase;
+  const discountPhase = product.discountPhase;
   const basePrice = product.price;
 
   const formatPeriod = (
@@ -51,6 +52,7 @@ export function purchaseSimulatedStoreProduct(
           ? formatPeriod(freeTrialPhase.period)
           : undefined,
         introPriceFormatted: introPricePhase?.price?.formattedPrice,
+        discountFormatted: discountPhase?.price?.formattedPrice,
         onValidPurchase: async () => {
           cleanup();
           Logger.debugLog(
@@ -58,7 +60,12 @@ export function purchaseSimulatedStoreProduct(
           );
           try {
             resolve(
-              await postSimulatedStoreReceipt(product, backend, appUserId),
+              await postSimulatedStoreReceipt(
+                product,
+                backend,
+                appUserId,
+                purchaseParams.paywallId,
+              ),
             );
           } catch (error) {
             reject(error);

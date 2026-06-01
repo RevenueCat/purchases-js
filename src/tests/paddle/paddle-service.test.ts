@@ -93,7 +93,9 @@ describe("PaddleService", () => {
       updateUser: () => Promise.resolve(),
       trackSDKEvent: () => {},
       trackExternalEvent: () => {},
+      trackPaywallEvent: () => {},
       dispose: () => {},
+      flushAllEvents: () => Promise.resolve(),
     };
     paddleService = new PaddleService(backend, eventsTrackerMock);
 
@@ -315,6 +317,45 @@ describe("PaddleService", () => {
         paddleService.startCheckout(startCheckoutArgs),
       ).rejects.toThrow(expectedError);
     });
+
+    test("passes locale to backend when provided", async () => {
+      vi.mocked(initPaddle).mockResolvedValue(mockPaddleInstance);
+
+      const mockPostCheckoutStart = vi
+        .spyOn(backend, "postCheckoutStart")
+        .mockResolvedValue(paddleCheckoutStartResponse);
+
+      await paddleService.startCheckout({
+        ...startCheckoutArgs,
+        locale: "es",
+      });
+
+      expect(mockPostCheckoutStart).toHaveBeenCalledWith(
+        expect.objectContaining({ locale: "es" }),
+      );
+    });
+
+    test("passes attributionMetadata to backend when provided", async () => {
+      vi.mocked(initPaddle).mockResolvedValue(mockPaddleInstance);
+
+      const mockPostCheckoutStart = vi
+        .spyOn(backend, "postCheckoutStart")
+        .mockResolvedValue(paddleCheckoutStartResponse);
+
+      const attributionMetadata = {
+        fbp: "fb.1.123456789.987654321",
+        fbc: "fb.1.123456789.IwAR1234",
+      };
+
+      await paddleService.startCheckout({
+        ...startCheckoutArgs,
+        attributionMetadata,
+      });
+
+      expect(mockPostCheckoutStart).toHaveBeenCalledWith(
+        expect.objectContaining({ attributionMetadata }),
+      );
+    });
   });
 
   describe("purchase", () => {
@@ -497,7 +538,9 @@ describe("PaddleService", () => {
         updateUser: () => Promise.resolve(),
         trackSDKEvent: () => {},
         trackExternalEvent: () => {},
+        trackPaywallEvent: () => {},
         dispose: () => {},
+        flushAllEvents: () => Promise.resolve(),
       });
 
       await expect(

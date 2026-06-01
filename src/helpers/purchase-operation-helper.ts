@@ -15,7 +15,11 @@ import {
   type PurchaseMetadata,
   type PurchaseOption,
 } from "../entities/offerings";
-import type { WorkflowPurchaseContext } from "../entities/purchase-params";
+import type {
+  AttributionMetadata,
+  PurchaseResponseAttributionMetadata,
+  WorkflowPurchaseContext,
+} from "../entities/purchase-params";
 import { Logger } from "./logger";
 import {
   type RedemptionInfo,
@@ -23,8 +27,12 @@ import {
 } from "../entities/redemption-info";
 import { type IEventsTracker } from "../behavioural-events/events-tracker";
 import type { CheckoutCompleteResponse } from "../networking/responses/checkout-complete-response";
-import type { CheckoutCalculateTaxResponse } from "../networking/responses/checkout-calculate-tax-response";
+import {
+  CheckoutPricingFailedReason,
+  type CheckoutPricingResponse,
+} from "../networking/responses/checkout-pricing-response";
 import { handleCheckoutSessionFailed } from "./checkout-error-handler";
+import type { CheckoutPrepareResponse } from "../networking/responses/checkout-prepare-response";
 
 export enum PurchaseFlowErrorCode {
   ErrorSettingUpPurchase = 0,
@@ -106,12 +114,41 @@ export class PurchaseFlowError extends Error {
   }
 }
 
+interface CheckoutStartParams {
+  // Purchase identity
+  appUserId: string;
+  productId: string;
+  purchaseOption: PurchaseOption;
+
+  // Presentation context
+  presentedOfferingContext: PresentedOfferingContext;
+  workflowPurchaseContext?: WorkflowPurchaseContext;
+  paywallId?: string;
+
+  // Customer data
+  customerEmail?: string;
+  metadata?: PurchaseMetadata;
+  // Resolved from selectedLocale/defaultLocale at the public API layer.
+  // Future: consider adding localeSource?: "selected" | "browser".
+  locale?: string;
+
+  attributionMetadata?: AttributionMetadata;
+}
+
+interface CheckoutRefreshPricingParams {
+  countryCode?: string;
+  postalCode?: string;
+  discountCode?: string | null;
+  signal?: AbortSignal | null;
+}
+
 export interface OperationSessionSuccessfulResult {
   redemptionInfo: RedemptionInfo | null;
   operationSessionId: string;
   storeTransactionIdentifier: string;
   productIdentifier: string;
   purchaseDate: Date;
+  attributionMetadata?: PurchaseResponseAttributionMetadata;
 }
 
 export class PurchaseOperationHelper {
@@ -131,30 +168,109 @@ export class PurchaseOperationHelper {
     this.maxNumberAttempts = maxNumberAttempts;
   }
 
-  async checkoutStart(
-    appUserId: string,
+  private static getBackendErrorCodeForInterruptedCheckout(
+    failedReason: CheckoutPricingResponse["failed_reason"],
+  ): BackendErrorCode | null {
+    switch (failedReason) {
+      case CheckoutPricingFailedReason.taxes_not_active:
+      case CheckoutPricingFailedReason.stripe_tax_unsupported_country:
+        return BackendErrorCode.BackendGatewaySetupErrorStripeTaxNotActive;
+      case CheckoutPricingFailedReason.invalid_origin_address:
+      case CheckoutPricingFailedReason.invalid_head_office_address:
+        return BackendErrorCode.BackendGatewaySetupErrorInvalidTaxOriginAddress;
+      case CheckoutPricingFailedReason.missing_required_permission:
+        return BackendErrorCode.BackendGatewaySetupErrorMissingRequiredPermission;
+      default:
+        return null;
+    }
+  }
+
+  private static throwIfCheckoutShouldBeInterrupted(
+    response: CheckoutPricingResponse,
+  ): void {
+    if (!response.interrupt_checkout) {
+      return;
+    }
+
+    const backendErrorCode =
+      PurchaseOperationHelper.getBackendErrorCodeForInterruptedCheckout(
+        response.failed_reason,
+      );
+
+    if (backendErrorCode == null) {
+      throw new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "There was a problem with the store.",
+        response.failed_reason ?? "Checkout interrupted.",
+      );
+    }
+
+    throw PurchaseFlowError.fromPurchasesError(
+      PurchasesError.getForBackendError(
+        backendErrorCode,
+        response.failed_reason ?? null,
+      ),
+      PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+    );
+  }
+
+  async prepareCheckout(
     productId: string,
     purchaseOption: PurchaseOption,
-    presentedOfferingContext: PresentedOfferingContext,
-    email?: string,
-    metadata?: PurchaseMetadata,
-    workflowPurchaseContext?: WorkflowPurchaseContext,
-  ): Promise<WebBillingCheckoutStartResponse> {
+  ): Promise<CheckoutPrepareResponse> {
+    try {
+      return await this.backend.postCheckoutPrepare<CheckoutPrepareResponse>(
+        productId,
+        purchaseOption,
+      );
+    } catch (error) {
+      if (error instanceof PurchasesError) {
+        throw PurchaseFlowError.fromPurchasesError(
+          error,
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        );
+      } else {
+        const errorMessage =
+          "Unknown error preparing purchase: " + String(error);
+        Logger.errorLog(errorMessage);
+        throw new PurchaseFlowError(
+          PurchaseFlowErrorCode.UnknownError,
+          errorMessage,
+        );
+      }
+    }
+  }
+
+  async checkoutStart({
+    appUserId,
+    productId,
+    purchaseOption,
+    presentedOfferingContext,
+    workflowPurchaseContext,
+    paywallId,
+    customerEmail,
+    metadata,
+    locale,
+    attributionMetadata,
+  }: CheckoutStartParams): Promise<WebBillingCheckoutStartResponse> {
     try {
       const traceId = this.eventsTracker.getTraceId();
-      const stepId = workflowPurchaseContext?.stepId;
+      const presentedStepId = workflowPurchaseContext?.stepId;
 
       const checkoutStartResponse =
-        await this.backend.postCheckoutStart<WebBillingCheckoutStartResponse>(
+        await this.backend.postCheckoutStart<WebBillingCheckoutStartResponse>({
           appUserId,
           productId,
-          presentedOfferingContext,
           purchaseOption,
+          presentedOfferingContext,
           traceId,
-          email,
+          presentedStepId,
+          paywallId,
+          customerEmail,
           metadata,
-          stepId,
-        );
+          locale,
+          attributionMetadata,
+        });
       this.operationSessionId = checkoutStartResponse.operation_session_id;
       return checkoutStartResponse;
     } catch (error) {
@@ -175,11 +291,12 @@ export class PurchaseOperationHelper {
     }
   }
 
-  async checkoutCalculateTax(
-    countryCode?: string,
-    postalCode?: string,
-    signal?: AbortSignal | null,
-  ): Promise<CheckoutCalculateTaxResponse> {
+  async checkoutRefreshPricing({
+    countryCode,
+    postalCode,
+    discountCode,
+    signal,
+  }: CheckoutRefreshPricingParams = {}): Promise<CheckoutPricingResponse> {
     const operationSessionId = this.operationSessionId;
     if (!operationSessionId) {
       throw new PurchaseFlowError(
@@ -189,20 +306,29 @@ export class PurchaseOperationHelper {
     }
 
     try {
-      return await this.backend.postCheckoutCalculateTax(
+      const response = await this.backend.patchCheckoutRefreshPricing(
         operationSessionId,
-        countryCode,
-        postalCode,
-        signal,
+        {
+          countryCode,
+          postalCode,
+          discountCode,
+          signal,
+        },
       );
+      PurchaseOperationHelper.throwIfCheckoutShouldBeInterrupted(response);
+      return response;
     } catch (error) {
+      if (error instanceof PurchaseFlowError) {
+        throw error;
+      }
       if (error instanceof PurchasesError) {
         throw PurchaseFlowError.fromPurchasesError(
           error,
           PurchaseFlowErrorCode.ErrorSettingUpPurchase,
         );
       } else {
-        const errorMessage = "Unknown error calculating tax: " + String(error);
+        const errorMessage =
+          "Unknown error refreshing checkout pricing: " + String(error);
         Logger.errorLog(errorMessage);
         throw new PurchaseFlowError(
           PurchaseFlowErrorCode.UnknownError,
@@ -212,7 +338,10 @@ export class PurchaseOperationHelper {
     }
   }
 
-  async checkoutComplete(email?: string): Promise<CheckoutCompleteResponse> {
+  async checkoutComplete(
+    email?: string,
+    locale?: string,
+  ): Promise<CheckoutCompleteResponse> {
     const operationSessionId = this.operationSessionId;
     if (!operationSessionId) {
       throw new PurchaseFlowError(
@@ -222,7 +351,11 @@ export class PurchaseOperationHelper {
     }
 
     try {
-      return await this.backend.postCheckoutComplete(operationSessionId, email);
+      return await this.backend.postCheckoutComplete(
+        operationSessionId,
+        email,
+        locale,
+      );
     } catch (error) {
       if (error instanceof PurchasesError) {
         throw PurchaseFlowError.fromPurchasesError(
@@ -303,6 +436,8 @@ export class PurchaseOperationHelper {
                   storeTransactionIdentifier: storeTransactionIdentifier,
                   productIdentifier: productIdentifier,
                   purchaseDate: purchaseDate,
+                  attributionMetadata:
+                    operationResponse.attribution_metadata ?? undefined,
                 });
                 return;
               case CheckoutSessionStatus.Failed:

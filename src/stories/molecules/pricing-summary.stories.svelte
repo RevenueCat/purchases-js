@@ -4,9 +4,6 @@
   import { renderInsideNavbarBody } from "../decorators/layout-decorators";
   import PricingSummary from "../../ui/molecules/pricing-summary.svelte";
   import {
-    priceBreakdownTaxDisabled,
-    priceBreakdownTaxDisabledIntroPricePaidUpfront,
-    priceBreakdownTaxDisabledIntroPriceRecurring,
     subscriptionOption,
     subscriptionOptionWithIntroPricePaidUpfront,
     subscriptionOptionWithIntroPriceRecurring,
@@ -20,10 +17,13 @@
     subscriptionOptionWithMultipleWeeksIntroPriceRecurring,
     subscriptionOptionWithMultipleYearsIntroPriceRecurring,
     subscriptionOptionWithSingleWeekWithTrialAndIntroPriceRecurring,
+    subscriptionOptionWithDiscountForever,
+    subscriptionOptionWithDiscount,
   } from "../fixtures";
+  import { getPriceBreakdownTaxDisabled } from "../helpers/get-price-breakdown";
 
   import { parseISODuration } from "../../helpers/duration-helper";
-  import type { PricingPhase } from "../../entities/offerings";
+  import type { PricingPhase, DiscountPhase } from "../../entities/offerings";
   import type { PriceBreakdown } from "../../ui/ui-types";
 
   const billingDurations = ["P1W", "P1M", "P3M", "P6M", "P1Y", null];
@@ -34,6 +34,7 @@
     priceBreakdown: PriceBreakdown;
     basePhase?: PricingPhase | null;
     introPricePhase?: PricingPhase | null;
+    discountPhase?: DiscountPhase | null;
     trialPhase?: PricingPhase | null;
     billingDuration?: string | null;
     introDuration?: string | null;
@@ -133,22 +134,51 @@
         ),
       )
     : null}
+  {@const discountPhase = args.discountPhase ?? null}
 
-  <PricingSummary {priceBreakdown} {basePhase} {trialPhase} {introPricePhase} />
+  <PricingSummary
+    {priceBreakdown}
+    {basePhase}
+    {trialPhase}
+    {introPricePhase}
+    {discountPhase}
+  />
 {/snippet}
 
 <Story
   name="Subscription"
   args={{
-    priceBreakdown: priceBreakdownTaxDisabled,
+    priceBreakdown: getPriceBreakdownTaxDisabled(subscriptionOption),
     basePhase: subscriptionOption.base,
+  }}
+/>
+
+<Story
+  name="Subscription with Forever Discount"
+  args={{
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithDiscountForever,
+    ),
+    basePhase: subscriptionOption.base,
+    discountPhase: subscriptionOptionWithDiscountForever.discount,
+  }}
+/>
+
+<Story
+  name="Subscription with Time Window Discount"
+  args={{
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithDiscount,
+    ),
+    basePhase: subscriptionOption.base,
+    discountPhase: subscriptionOptionWithDiscount.discount,
   }}
 />
 
 <Story
   name="Trial"
   args={{
-    priceBreakdown: priceBreakdownTaxDisabled,
+    priceBreakdown: getPriceBreakdownTaxDisabled(subscriptionOptionWithTrial),
     basePhase: subscriptionOption.base,
     trialPhase: subscriptionOptionWithTrial.trial,
   }}
@@ -157,7 +187,9 @@
 <Story
   name="Intro Price - Paid Upfront"
   args={{
-    priceBreakdown: priceBreakdownTaxDisabledIntroPricePaidUpfront,
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithIntroPricePaidUpfront,
+    ),
     basePhase: subscriptionOptionWithIntroPricePaidUpfront.base,
     introPricePhase: subscriptionOptionWithIntroPricePaidUpfront.introPrice,
   }}
@@ -166,7 +198,9 @@
 <Story
   name="Intro Price - Recurring"
   args={{
-    priceBreakdown: priceBreakdownTaxDisabledIntroPriceRecurring,
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithIntroPriceRecurring,
+    ),
     basePhase: subscriptionOptionWithIntroPriceRecurring.base,
     introPricePhase: subscriptionOptionWithIntroPriceRecurring.introPrice,
   }}
@@ -175,7 +209,9 @@
 <Story
   name="Trial + Intro Price - Paid Upfront"
   args={{
-    priceBreakdown: priceBreakdownTaxDisabledIntroPricePaidUpfront,
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithTrialAndIntroPricePaidUpfront,
+    ),
     basePhase: subscriptionOptionWithTrialAndIntroPricePaidUpfront.base,
     trialPhase: subscriptionOptionWithTrialAndIntroPricePaidUpfront.trial,
     introPricePhase:
@@ -186,7 +222,9 @@
 <Story
   name="Trial + Intro Price - Recurring"
   args={{
-    priceBreakdown: priceBreakdownTaxDisabledIntroPriceRecurring,
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithTrialAndIntroPriceRecurring,
+    ),
     basePhase: subscriptionOptionWithTrialAndIntroPriceRecurring.base,
     trialPhase: subscriptionOptionWithTrialAndIntroPriceRecurring.trial,
     introPricePhase:
@@ -195,16 +233,11 @@
 />
 
 <Story
-  name="Non Subscription"
-  args={{
-    priceBreakdown: priceBreakdownTaxDisabled,
-  }}
-/>
-
-<Story
   name="Intro Price - Single Week"
   args={{
-    priceBreakdown: priceBreakdownTaxDisabledIntroPriceRecurring,
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithSingleWeekIntroPriceRecurring,
+    ),
     basePhase: subscriptionOptionWithSingleWeekIntroPriceRecurring.base,
     introPricePhase:
       subscriptionOptionWithSingleWeekIntroPriceRecurring.introPrice,
@@ -214,7 +247,9 @@
 <Story
   name="Intro Price - Multiple Weeks"
   args={{
-    priceBreakdown: priceBreakdownTaxDisabledIntroPriceRecurring,
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithMultipleWeeksIntroPriceRecurring,
+    ),
     basePhase: subscriptionOptionWithMultipleWeeksIntroPriceRecurring.base,
     introPricePhase:
       subscriptionOptionWithMultipleWeeksIntroPriceRecurring.introPrice,
@@ -224,7 +259,9 @@
 <Story
   name="Intro Price - Single Month"
   args={{
-    priceBreakdown: priceBreakdownTaxDisabledIntroPriceRecurring,
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithSingleMonthIntroPriceRecurring,
+    ),
     basePhase: subscriptionOptionWithSingleMonthIntroPriceRecurring.base,
     introPricePhase:
       subscriptionOptionWithSingleMonthIntroPriceRecurring.introPrice,
@@ -234,7 +271,9 @@
 <Story
   name="Intro Price - Multiple Months"
   args={{
-    priceBreakdown: priceBreakdownTaxDisabledIntroPriceRecurring,
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithMultipleMonthsIntroPriceRecurring,
+    ),
     basePhase: subscriptionOptionWithMultipleMonthsIntroPriceRecurring.base,
     introPricePhase:
       subscriptionOptionWithMultipleMonthsIntroPriceRecurring.introPrice,
@@ -244,7 +283,9 @@
 <Story
   name="Intro Price - Single Year"
   args={{
-    priceBreakdown: priceBreakdownTaxDisabledIntroPriceRecurring,
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithSingleYearIntroPriceRecurring,
+    ),
     basePhase: subscriptionOptionWithSingleYearIntroPriceRecurring.base,
     introPricePhase:
       subscriptionOptionWithSingleYearIntroPriceRecurring.introPrice,
@@ -254,7 +295,9 @@
 <Story
   name="Intro Price - Multiple Years"
   args={{
-    priceBreakdown: priceBreakdownTaxDisabledIntroPriceRecurring,
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithMultipleYearsIntroPriceRecurring,
+    ),
     basePhase: subscriptionOptionWithMultipleYearsIntroPriceRecurring.base,
     introPricePhase:
       subscriptionOptionWithMultipleYearsIntroPriceRecurring.introPrice,
@@ -264,7 +307,9 @@
 <Story
   name="Intro Price - Single Week with Trial"
   args={{
-    priceBreakdown: priceBreakdownTaxDisabledIntroPriceRecurring,
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithSingleWeekWithTrialAndIntroPriceRecurring,
+    ),
     basePhase:
       subscriptionOptionWithSingleWeekWithTrialAndIntroPriceRecurring.base,
     trialPhase:

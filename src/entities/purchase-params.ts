@@ -3,6 +3,51 @@ import type { Package, PurchaseMetadata, PurchaseOption } from "./offerings";
 import type { BrandingAppearance } from "./branding";
 import type { CustomTranslations } from "../ui/localization/translator";
 
+type JsonPrimitive = string | number | boolean | null;
+type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
+
+/**
+ * Typed Meta Conversions API fields within an attribution metadata basket.
+ * All fields are optional — only include what the browser context provides.
+ * @internal
+ */
+export type MetaCapiAttributionMetadata = {
+  fbp?: string;
+  fbc?: string;
+  client_user_agent?: string;
+  event_source_url?: string;
+};
+
+/**
+ * An open basket of attribution signals forwarded to the backend.
+ * Typed Meta CAPI fields are available for known signals; any additional
+ * key/value pairs are accepted and passed through opaquely.
+ * @internal
+ */
+export type AttributionMetadata = Record<string, JsonValue> &
+  MetaCapiAttributionMetadata;
+
+/**
+ * Meta canonical event identifiers returned in a successful purchase response,
+ * used for deduplication on the CAPI side.
+ * @internal
+ */
+export type MetaCanonicalAttributionMetadata = {
+  canonical_event_id: string;
+  canonical_event_name: string;
+  workflow_event_id?: string;
+  workflow_event_name?: string | null;
+};
+
+/**
+ * Attribution metadata returned from the backend after a successful purchase.
+ * Keyed by provider name; typed Meta fields are available under `meta`.
+ * @internal
+ */
+export type PurchaseResponseAttributionMetadata = Record<string, unknown> & {
+  meta?: MetaCanonicalAttributionMetadata;
+};
+
 /**
  * Contextual information specific to workflow purchases.
  * @internal
@@ -43,6 +88,18 @@ export interface PurchaseParams {
   workflowPurchaseContext?: WorkflowPurchaseContext;
 
   /**
+   * Attribution signals to forward to the backend for CAPI event matching.
+   * @internal
+   */
+  attributionMetadata?: AttributionMetadata;
+
+  /**
+   * The paywall ID from which this purchase originated, if applicable.
+   * @internal
+   */
+  paywallId?: string;
+
+  /**
    * The locale to use for the purchase flow. If not specified, English will be used
    */
   selectedLocale?: string;
@@ -66,6 +123,28 @@ export interface PurchaseParams {
    * Defaults to `false`.
    */
   skipSuccessPage?: boolean;
+
+  /**
+   * @experimental
+   * If set to true, the Web Billing checkout will show a discount input code field.
+   */
+  showDiscountCodeField?: boolean;
+
+  /**
+   * @experimental
+   * Initial discount code to display as applied in the Web Billing checkout.
+   * This is useful when the code originated outside of the checkout UI,
+   * for example from a URL parameter.
+   */
+  discountCode?: string;
+
+  /**
+   * @experimental
+   * Called when the applied discount code changes in the Web Billing checkout.
+   * This can be used by host applications to keep external state, such as the URL,
+   * in sync with the checkout.
+   */
+  onDiscountCodeChanged?: (discountCode: string | null) => void;
 
   /**
    * Defines an optional override for the default branding appearance.
