@@ -202,10 +202,10 @@ const toComponentInteractionPayload = (
 
 function toPresentedOfferingContextPayload(
   context: PresentedOfferingContext | undefined,
-): PresentedOfferingContextPayload | undefined {
-  if (!context) return undefined;
+): PresentedOfferingContextPayload | null {
+  if (!context) return null;
   if (!context.placementIdentifier && !context.targetingContext) {
-    return undefined;
+    return null;
   }
   return {
     ...(context.placementIdentifier
