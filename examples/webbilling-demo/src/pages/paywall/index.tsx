@@ -184,6 +184,8 @@ const PaywallPage: React.FC = () => {
   const displayName = searchParams.get("$displayName");
   const nickname = searchParams.get("nickname");
   const skipSuccessPage = searchParams.get("skipSuccessPage") === "true";
+  const showDiscountCodeField =
+    searchParams.get("showDiscountCodeField") === "true";
   const attributesSetRef = useRef(false);
 
   useEffect(() => {
@@ -247,6 +249,7 @@ const PaywallPage: React.FC = () => {
         await purchases.purchase({
           rcPackage: pkg,
           purchaseOption: option,
+          showDiscountCodeField,
           selectedLocale: lang || navigator.language,
           customerEmail: email || undefined,
           skipSuccessPage: skipSuccessPage,

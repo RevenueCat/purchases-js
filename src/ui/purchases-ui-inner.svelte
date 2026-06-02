@@ -15,6 +15,7 @@
   import Template from "./layout/template.svelte";
   import { type GatewayParams } from "../networking/responses/stripe-elements";
   import BrandingHeader from "./molecules/branding-header.svelte";
+  import type { CheckoutPricingResponse } from "../networking/responses/checkout-pricing-response";
 
   interface Props {
     currentPage: CurrentPage;
@@ -42,12 +43,16 @@
     onApplyDiscountCode?: () => void | Promise<void>;
     onRemoveDiscountCode?: () => void | Promise<void>;
     onPaymentProcessingChange?: (isProcessing: boolean) => void;
+    onSessionPricingUpdated?: (
+      pricingResponse: CheckoutPricingResponse,
+      priceBreakdown: PriceBreakdown,
+    ) => void;
     onContinue: () => void;
     onError: (error: PurchaseFlowError) => void;
     onClose?: () => void;
   }
 
-  const {
+  let {
     currentPage,
     brandingInfo,
     productDetails,
@@ -73,6 +78,7 @@
     onApplyDiscountCode = undefined,
     onRemoveDiscountCode = undefined,
     onPaymentProcessingChange = undefined,
+    onSessionPricingUpdated = undefined,
     onContinue,
     onError,
     onClose = undefined,
@@ -160,6 +166,7 @@
         {onContinue}
         {onError}
         {onPriceBreakdownUpdated}
+        {onSessionPricingUpdated}
         onProcessingStateChange={onPaymentProcessingChange}
       />
     {/if}

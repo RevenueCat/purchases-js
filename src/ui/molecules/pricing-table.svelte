@@ -29,7 +29,7 @@
     onRemoveDiscountCode: (() => void | Promise<void>) | undefined;
   }
 
-  const {
+  let {
     priceBreakdown,
     trialPhase,
     basePhase,

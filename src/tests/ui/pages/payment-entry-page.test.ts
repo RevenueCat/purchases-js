@@ -6,6 +6,7 @@ import {
   checkoutPricingResponse,
   checkoutStartResponse,
   rcPackage,
+  subscriptionOption,
   stripeElementsConfiguration,
 } from "../../../stories/fixtures";
 import { checkoutPrepareResponse } from "../../test-responses";
@@ -442,5 +443,51 @@ describe("PurchasesUI", () => {
         error_code: null,
       },
     });
+  });
+
+  test("updates the initial price breakdown when the purchase option changes before session pricing exists", async () => {
+    const onPriceBreakdownUpdated = vi.fn();
+    const updatedPurchaseOption = {
+      ...structuredClone(subscriptionOption),
+      base: {
+        ...structuredClone(subscriptionOption).base,
+        price: {
+          ...structuredClone(subscriptionOption).base.price!,
+          amountMicros: 1230000,
+          currency: "EUR",
+        },
+      },
+    };
+
+    const component = render(PaymentEntryPage, {
+      props: {
+        ...basicProps,
+        brandingInfo: {
+          ...brandingInfo,
+          gateway_tax_collection_enabled: false,
+        },
+        onPriceBreakdownUpdated,
+      },
+      context: defaultContext,
+    });
+
+    await component.rerender({
+      ...basicProps,
+      brandingInfo: {
+        ...brandingInfo,
+        gateway_tax_collection_enabled: false,
+      },
+      purchaseOption: updatedPurchaseOption,
+      onPriceBreakdownUpdated,
+    });
+
+    expect(onPriceBreakdownUpdated).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        currency: "EUR",
+        originalAmountInMicros: 1230000,
+        totalExcludingTaxInMicros: 1230000,
+        totalAmountInMicros: 1230000,
+      }),
+    );
   });
 });

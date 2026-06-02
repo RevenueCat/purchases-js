@@ -584,6 +584,21 @@ export const checkoutPricingResponse: CheckoutPricingResponse = {
       amount: 999 + 40,
     },
   },
+  selected_purchase_option: {
+    id: "option_id_1",
+    price_id: "price_1",
+    base: {
+      period_duration: "P1M",
+      cycle_count: 0,
+      price: {
+        amount_micros: 9990000,
+        currency: "USD",
+      },
+    },
+    trial: null,
+    intro_price: null,
+    discount: null,
+  },
 };
 
 export const checkoutCompleteResponse: CheckoutCompleteResponse = {
