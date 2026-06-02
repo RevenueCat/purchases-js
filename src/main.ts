@@ -624,6 +624,9 @@ export class Purchases {
       offeringId: offering.identifier,
       paywallRevision: 0,
       paywallRcPublicId: offering.paywallComponents?.id ?? null,
+      presentedOfferingContext:
+        offering.availablePackages[0]?.webBillingProduct
+          ?.presentedOfferingContext,
     };
     const paywallDisplayData = {
       displayMode: "full_screen",
