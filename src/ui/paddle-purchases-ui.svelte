@@ -26,6 +26,7 @@
   import PaddlePurchasesUiInner from "./paddle-purchases-ui-inner.svelte";
   import PaddleInlineCheckoutPage from "./paddle-inline-checkout-page.svelte";
   import type { BrandingAppearance } from "../entities/branding";
+  import { isHexColorLight } from "./theme/utils";
 
   interface Props {
     brandingInfo: BrandingInfoResponse | null;
@@ -109,6 +110,15 @@
   const onCheckoutTotals = (totals: PaddleCheckoutTotals) => {
     paddleTotals = totals;
   };
+
+  // Paddle's inline checkout only exposes a light/dark theme (deeper colors are
+  // configured in the Paddle dashboard). Pick the variant that matches the
+  // merchant's page background so the embedded checkout blends with our UI.
+  const paddleCheckoutTheme = isHexColorLight(
+    brandingInfo?.appearance?.color_page_bg ?? "#ffffff",
+  )
+    ? "light"
+    : "dark";
 
   $effect(() => {
     if (currentPage === "success" && operationResult && skipSuccessPage) {
@@ -215,6 +225,7 @@
         },
         ...(useInlineCheckout && {
           displayMode: "inline" as const,
+          theme: paddleCheckoutTheme,
           onCheckoutTotals,
           onCheckoutCompleted,
         }),

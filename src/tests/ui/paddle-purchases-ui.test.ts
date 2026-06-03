@@ -20,6 +20,7 @@ import {
   PurchaseFlowErrorCode,
 } from "../../helpers/purchase-operation-helper";
 import type { ComponentProps } from "svelte";
+import type { BrandingAppearance } from "../../entities/branding";
 
 const eventsTrackerMock = createEventsTrackerMock();
 
@@ -539,6 +540,56 @@ describe("PaddlePurchasesUI", () => {
       await waitFor(() => {
         expect(purchaseSpy).toHaveBeenCalledWith(
           expect.objectContaining({ displayMode: "inline" }),
+        );
+      });
+    });
+
+    const brandingWithPageBg = (color: string) => ({
+      ...brandingInfo,
+      appearance: {
+        ...(brandingInfo.appearance ?? ({} as BrandingAppearance)),
+        color_page_bg: color,
+      },
+    });
+
+    test("passes a light theme when the page background is light", async () => {
+      const paddleServiceMock = createPaddleServiceMock();
+      const purchaseSpy = vi.spyOn(paddleServiceMock, "purchase");
+
+      render(PaddlePurchasesUI, {
+        props: {
+          ...baseProps,
+          useInlineCheckout: true,
+          brandingInfo: brandingWithPageBg("#ffffff"),
+          paddleService: paddleServiceMock,
+        },
+        context: defaultContext,
+      });
+
+      await waitFor(() => {
+        expect(purchaseSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ theme: "light" }),
+        );
+      });
+    });
+
+    test("passes a dark theme when the page background is dark", async () => {
+      const paddleServiceMock = createPaddleServiceMock();
+      const purchaseSpy = vi.spyOn(paddleServiceMock, "purchase");
+
+      render(PaddlePurchasesUI, {
+        props: {
+          ...baseProps,
+          useInlineCheckout: true,
+          brandingInfo: brandingWithPageBg("#101010"),
+          paddleService: paddleServiceMock,
+        },
+        context: defaultContext,
+      });
+
+      await waitFor(() => {
+        expect(purchaseSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ theme: "dark" }),
         );
       });
     });

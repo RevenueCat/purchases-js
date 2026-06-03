@@ -50,6 +50,9 @@ interface PaddlePurchaseParams {
  */
 export type PaddleCheckoutDisplayMode = "overlay" | "inline";
 
+/** Paddle checkout color theme. Mapped from the merchant's branding. */
+export type PaddleCheckoutTheme = "light" | "dark";
+
 /**
  * Order totals surfaced by Paddle's checkout events (`checkout.loaded` /
  * `checkout.updated`). Amounts are in major currency units (e.g. 9.99). Lets
@@ -85,6 +88,7 @@ interface BuildPaddleCheckoutOptionsParams {
   locale: string;
   customerEmail?: string;
   displayMode?: PaddleCheckoutDisplayMode;
+  theme?: PaddleCheckoutTheme;
 }
 
 /**
@@ -98,9 +102,10 @@ export function buildPaddleCheckoutOptions({
   locale,
   customerEmail,
   displayMode = "overlay",
+  theme = "light",
 }: BuildPaddleCheckoutOptionsParams): CheckoutOpenOptions {
   const commonSettings = {
-    theme: "light" as Theme,
+    theme: theme as Theme,
     variant: "one-page" as Variant,
     locale,
     allowLogout: false,
@@ -137,6 +142,7 @@ interface PaddlePurchase {
   params: PaddlePurchaseParams;
   onClose: () => void;
   displayMode?: PaddleCheckoutDisplayMode;
+  theme?: PaddleCheckoutTheme;
   /**
    * Invoked with the order totals whenever Paddle reports them
    * (`checkout.loaded` and `checkout.updated`). Used by the inline UI to render
@@ -291,6 +297,7 @@ export class PaddleService {
     onClose,
     params,
     displayMode = "overlay",
+    theme = "light",
     onCheckoutTotals,
     onCheckoutCompleted,
   }: PaddlePurchase): Promise<OperationSessionSuccessfulResult> {
@@ -373,6 +380,7 @@ export class PaddleService {
         locale,
         customerEmail,
         displayMode,
+        theme,
       });
 
       try {
