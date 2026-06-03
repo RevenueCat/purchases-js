@@ -543,6 +543,33 @@ describe("PaddlePurchasesUI", () => {
       });
     });
 
+    test("shows the processing state and hides the container after checkout completes", async () => {
+      const paddleServiceMock = createPaddleServiceMock();
+      // Drive the onCheckoutCompleted callback, then keep the promise pending
+      // so the processing (polling) state stays on screen.
+      vi.spyOn(paddleServiceMock, "purchase").mockImplementation(
+        async (params) => {
+          params.onCheckoutCompleted?.();
+          return new Promise(() => {});
+        },
+      );
+
+      render(PaddlePurchasesUI, {
+        props: {
+          ...baseProps,
+          useInlineCheckout: true,
+          paddleService: paddleServiceMock,
+        },
+        context: defaultContext,
+      });
+
+      const loadingText = await screen.findByText("Processing payment");
+      expect(loadingText).toBeInTheDocument();
+      expect(
+        screen.queryByTestId("paddle-inline-checkout-container"),
+      ).not.toBeInTheDocument();
+    });
+
     test("does not render the inline container or pass displayMode by default", async () => {
       const paddleServiceMock = createPaddleServiceMock();
       const purchaseSpy = vi.spyOn(paddleServiceMock, "purchase");

@@ -1,9 +1,17 @@
 <script lang="ts">
+  import { getContext } from "svelte";
+  import { type Writable } from "svelte/store";
   import Template from "./layout/template.svelte";
   import PaddleOrderSummary from "./organisms/paddle-order-summary.svelte";
   import SuccessPage from "./pages/success-page.svelte";
   import ErrorPage from "./pages/error-page.svelte";
   import Icon from "./atoms/icon.svelte";
+  import Spinner from "./atoms/spinner.svelte";
+  import Typography from "./atoms/typography.svelte";
+  import ColLayout from "./layout/col-layout.svelte";
+  import { translatorContextKey } from "./localization/constants";
+  import { Translator } from "./localization/translator";
+  import { LocalizationKeys } from "./localization/supportedLanguages";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import type { Product, PurchaseOption } from "../entities/offerings";
   import {
@@ -22,6 +30,7 @@
     // Live order totals from Paddle's checkout events; render the order summary.
     totals: PaddleCheckoutTotals | null;
     currentPage: "waiting" | "loading" | "success" | "error";
+    checkoutCompleted: boolean;
     lastError: PurchaseFlowError | null;
     onContinue: () => void;
     closeWithError: () => void;
@@ -36,10 +45,13 @@
     purchaseOption,
     totals,
     currentPage,
+    checkoutCompleted,
     lastError,
     onContinue,
     closeWithError,
   }: Props = $props();
+
+  const translator: Writable<Translator> = getContext(translatorContextKey);
 
   const appName = brandingInfo?.app_name ?? null;
 </script>
@@ -80,6 +92,24 @@
         onDismiss={closeWithError}
         appName={brandingInfo?.app_name ?? null}
       />
+    {:else if checkoutCompleted}
+      <!-- Paddle reported completion; show a processing state while we poll the
+           backend for the final status (the checkout iframe is gone by now). -->
+      <div class="rcb-paddle-processing">
+        <ColLayout gap="medium" align="center">
+          <Spinner color="var(--rc-color-grey-text-dark)" />
+          <Typography size="heading-md"
+            >{$translator.translate(
+              LocalizationKeys.LoadingPageProcessingPayment,
+            )}</Typography
+          >
+          <Typography size="body-small"
+            >{$translator.translate(
+              LocalizationKeys.LoadingPageKeepPageOpen,
+            )}</Typography
+          >
+        </ColLayout>
+      </div>
     {:else}
       <!-- Paddle injects its inline checkout iframe into this container (its
            frameTarget className). The element must already exist in the DOM when
@@ -104,5 +134,13 @@
     cursor: pointer;
     color: var(--rc-color-accent);
     font: inherit;
+  }
+
+  .rcb-paddle-processing {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    min-height: 450px;
+    align-items: center;
   }
 </style>
