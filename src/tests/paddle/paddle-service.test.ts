@@ -655,6 +655,42 @@ describe("PaddleService", () => {
       });
     });
 
+    test("invokes onCheckoutCompleted when CHECKOUT_COMPLETED event fires", async () => {
+      const getOperationStatusResponse: CheckoutStatusResponse = {
+        operation: {
+          status: CheckoutSessionStatus.Succeeded,
+          is_expired: false,
+          error: null,
+          redemption_info: null,
+          store_transaction_identifier: "test-store-transaction-id",
+          product_identifier: "test-product-id",
+          purchase_date: "2025-01-15T04:21:11Z",
+        },
+      };
+      server.use(
+        http.get(operationStatusEndpoint, () =>
+          HttpResponse.json(getOperationStatusResponse, {
+            status: StatusCodes.OK,
+          }),
+        ),
+      );
+
+      const onCheckoutCompleted = vi.fn();
+      const purchasePromise = paddleService.purchase({
+        operationSessionId,
+        transactionId,
+        onCheckoutLoaded: vi.fn(),
+        onClose: vi.fn(),
+        params: purchaseParams,
+        onCheckoutCompleted,
+      });
+
+      await paddleEventCallback(checkoutCompletedEvent);
+      await purchasePromise;
+
+      expect(onCheckoutCompleted).toHaveBeenCalledTimes(1);
+    });
+
     test("calls onClose when user closes checkout", async () => {
       const onClose = vi.fn();
 
