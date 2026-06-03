@@ -114,7 +114,9 @@
     <div class="rcb-paddle-summary-product">
       <Typography size="body-base">{productName}</Typography>
       {#if priceName}
-        <span class="rcb-paddle-summary-muted">{priceName}</span>
+        <span class="rcb-paddle-summary-muted rcb-paddle-summary-price-name"
+          >{priceName}</span
+        >
       {/if}
       <div class="rcb-paddle-summary-product-price">
         <span>{formatAmount(totalMicros)}</span>
@@ -188,6 +190,12 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
+    /* Extra separation between the amount/billing line and the product block. */
+    margin-top: var(--rc-spacing-gapLarge-mobile, 16px);
+  }
+
+  .rcb-paddle-summary-price-name {
+    font-size: 0.8125rem;
   }
 
   .rcb-paddle-summary-product-price {
@@ -196,6 +204,8 @@
     gap: 6px;
     font-weight: 600;
     font-size: 1.25rem;
+    /* A bit more separation from the price-name line above. */
+    margin-top: var(--rc-spacing-gapSmall-mobile, 8px);
   }
 
   .rcb-paddle-summary-row {
