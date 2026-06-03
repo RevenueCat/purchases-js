@@ -193,6 +193,18 @@ export class PaddleService {
     return this.paddleInstance;
   }
 
+  /**
+   * Closes Paddle's checkout via `Paddle.Checkout.close()`. For the inline
+   * presentation this removes the embedded iframe from the DOM so we can return
+   * the user to the previous step (see Paddle's branded inline checkout docs).
+   * Safe no-op if Paddle isn't initialized.
+   */
+  closeCheckout(): void {
+    if (this.paddleInstance?.Initialized) {
+      this.paddleInstance.Checkout.close();
+    }
+  }
+
   async startCheckout({
     appUserId,
     productId,

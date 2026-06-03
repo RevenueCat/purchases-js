@@ -53,6 +53,7 @@ const createPaddleServiceMock = (): PaddleService => {
   return {
     startCheckout: vi.fn().mockResolvedValue(paddleCheckoutStartResponse),
     purchase: vi.fn().mockResolvedValue(operationSessionSuccessfulResult),
+    closeCheckout: vi.fn(),
   } as unknown as PaddleService;
 };
 
@@ -581,6 +582,9 @@ describe("PaddlePurchasesUI", () => {
       const closeButtons = await screen.findAllByTestId("close-button");
       expect(closeButtons.length).toBeGreaterThan(0);
       closeButtons[0].click();
+      // Inline cancel tears down Paddle's iframe via Checkout.close(), then
+      // runs the normal close flow.
+      expect(paddleServiceMock.closeCheckout).toHaveBeenCalled();
       expect(onClose).toHaveBeenCalled();
     });
 

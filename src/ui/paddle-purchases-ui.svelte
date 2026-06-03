@@ -110,6 +110,14 @@
     }
   };
 
+  // Inline checkout embeds Paddle's iframe in our page, so cancelling must tear
+  // it down via Paddle.Checkout.close() before unmounting our UI (per Paddle's
+  // branded inline checkout guidance), then run the normal close/cancel flow.
+  const handleInlineClose = () => {
+    paddleService.closeCheckout();
+    onClose();
+  };
+
   const closeWithError = () => {
     onError(
       error ??
@@ -234,7 +242,7 @@
       {brandingInfo}
       {isSandbox}
       {isInElement}
-      {onClose}
+      onClose={handleInlineClose}
       {productDetails}
       {purchaseOption}
     />
