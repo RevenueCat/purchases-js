@@ -639,6 +639,9 @@ describe("PaddlePurchasesUI", () => {
           subtotalAmount: 8.26,
           taxAmount: 1.74,
           totalAmount: 10,
+          recurringTotalAmount: 10,
+          productName: "Premium",
+          priceName: "monthly",
         });
         return new Promise(() => {});
       });

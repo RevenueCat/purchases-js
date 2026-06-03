@@ -61,6 +61,12 @@ export interface PaddleCheckoutTotals {
   subtotalAmount: number;
   taxAmount: number;
   totalAmount: number;
+  /** Recurring total (incl. tax) for the next billing period, if subscription. */
+  recurringTotalAmount: number | null;
+  /** Product name from Paddle's first checkout item (e.g. "Premium"). */
+  productName: string | null;
+  /** Price name from Paddle's first checkout item (e.g. "monthly"). */
+  priceName: string | null;
 }
 
 /**
@@ -285,11 +291,15 @@ export class PaddleService {
 
     const forwardTotals = (data: PaddleEventData["data"]) => {
       if (onCheckoutTotals && data?.totals) {
+        const item = data.items?.[0];
         onCheckoutTotals({
           currencyCode: data.currency_code,
           subtotalAmount: data.totals.subtotal,
           taxAmount: data.totals.tax,
           totalAmount: data.totals.total,
+          recurringTotalAmount: data.recurring_totals?.total ?? null,
+          productName: item?.product?.name ?? null,
+          priceName: item?.price_name ?? null,
         });
       }
     };

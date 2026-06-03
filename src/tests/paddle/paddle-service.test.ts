@@ -537,6 +537,8 @@ describe("PaddleService", () => {
         data: {
           currency_code: "USD",
           totals: { subtotal: 8.26, tax: 1.74, total: 10 },
+          recurring_totals: { subtotal: 8.26, tax: 1.74, total: 10 },
+          items: [{ price_name: "monthly", product: { name: "Premium" } }],
         },
       } as unknown as PaddleEventData);
 
@@ -545,6 +547,9 @@ describe("PaddleService", () => {
         subtotalAmount: 8.26,
         taxAmount: 1.74,
         totalAmount: 10,
+        recurringTotalAmount: 10,
+        productName: "Premium",
+        priceName: "monthly",
       });
 
       await paddleEventCallback({
@@ -560,6 +565,9 @@ describe("PaddleService", () => {
         subtotalAmount: 9.0,
         taxAmount: 1.9,
         totalAmount: 10.9,
+        recurringTotalAmount: null,
+        productName: null,
+        priceName: null,
       });
 
       purchasePromise.catch(() => {});

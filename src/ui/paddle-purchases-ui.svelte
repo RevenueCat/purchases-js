@@ -26,8 +26,6 @@
   import PaddlePurchasesUiInner from "./paddle-purchases-ui-inner.svelte";
   import PaddleInlineCheckoutPage from "./paddle-inline-checkout-page.svelte";
   import type { BrandingAppearance } from "../entities/branding";
-  import { type PriceBreakdown } from "./ui-types";
-  import { getInitialPriceFromPurchaseOption } from "../helpers/purchase-option-price-helper";
 
   interface Props {
     brandingInfo: BrandingInfoResponse | null;
@@ -107,39 +105,6 @@
   const onCheckoutTotals = (totals: PaddleCheckoutTotals) => {
     paddleTotals = totals;
   };
-
-  const toMicros = (amount: number): number => Math.round(amount * 1_000_000);
-
-  // Before Paddle reports totals, fall back to the option's initial price (no
-  // tax breakdown yet); once totals arrive, show the full Subtotal/Tax/Total.
-  const inlinePriceBreakdown: PriceBreakdown = $derived.by(() => {
-    if (paddleTotals) {
-      const taxInMicros = toMicros(paddleTotals.taxAmount);
-      return {
-        currency: paddleTotals.currencyCode,
-        totalAmountInMicros: toMicros(paddleTotals.totalAmount),
-        totalExcludingTaxInMicros: toMicros(paddleTotals.subtotalAmount),
-        taxAmountInMicros: taxInMicros,
-        taxBreakdown:
-          taxInMicros > 0
-            ? [{ tax_amount_in_micros: taxInMicros, display_name: "Tax" }]
-            : [],
-        taxCalculationStatus: "calculated",
-      };
-    }
-    const initialPrice = getInitialPriceFromPurchaseOption(
-      productDetails,
-      purchaseOption,
-    );
-    return {
-      currency: initialPrice.currency,
-      totalAmountInMicros: initialPrice.amountMicros,
-      totalExcludingTaxInMicros: initialPrice.amountMicros,
-      taxAmountInMicros: null,
-      taxBreakdown: null,
-      taxCalculationStatus: "unavailable",
-    };
-  });
 
   $effect(() => {
     if (currentPage === "success" && operationResult && skipSuccessPage) {
@@ -291,7 +256,7 @@
     onClose={handleInlineClose}
     {productDetails}
     {purchaseOption}
-    priceBreakdown={inlinePriceBreakdown}
+    totals={paddleTotals}
     {currentPage}
     lastError={error}
     onContinue={handleContinue}
