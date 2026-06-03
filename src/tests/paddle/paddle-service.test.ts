@@ -140,6 +140,17 @@ describe("buildPaddleCheckoutOptions", () => {
     });
   });
 
+  test("defaults to the light theme and respects an explicit theme", () => {
+    expect(
+      buildPaddleCheckoutOptions({ transactionId, locale: "en" }).settings,
+    ).toEqual(expect.objectContaining({ theme: "light" }));
+
+    expect(
+      buildPaddleCheckoutOptions({ transactionId, locale: "en", theme: "dark" })
+        .settings,
+    ).toEqual(expect.objectContaining({ theme: "dark" }));
+  });
+
   test("includes customer email when provided and omits it otherwise", () => {
     const withEmail = buildPaddleCheckoutOptions({
       transactionId,
