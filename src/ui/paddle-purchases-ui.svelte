@@ -49,10 +49,10 @@
     unmountPaddlePurchaseUi: () => void;
     paddleService: PaddleService;
     /**
-     * Internal flag (defaults to false). When true, Paddle's checkout is
-     * embedded inline in our own container instead of opening as an overlay.
-     * Not yet exposed through the public configure() surface — wiring and the
-     * inline state machine land in follow-up PRs.
+     * Controls how Paddle's checkout is presented. Defaults to `true`
+     * (inline — embedded in our own container). Set to `false` to fall back to
+     * the legacy overlay (modal popup) presentation; this fallback is kept for
+     * one release and is expected to be removed once inline has soaked.
      */
     useInlineCheckout?: boolean;
   }
@@ -77,7 +77,7 @@
     attributionMetadata,
     unmountPaddlePurchaseUi,
     paddleService,
-    useInlineCheckout = false,
+    useInlineCheckout = true,
   }: Props = $props();
 
   let translator: Translator = new Translator(

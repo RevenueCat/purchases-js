@@ -123,22 +123,27 @@ describe("PaddlePurchasesUI", () => {
     });
 
     await waitFor(() => {
-      expect(purchaseSpy).toHaveBeenCalledWith({
-        operationSessionId: "test-operation-session-id",
-        transactionId: "test-transaction-id",
-        onCheckoutLoaded: expect.any(Function),
-        onClose: expect.any(Function),
-        params: {
-          rcPackage: rcPackage,
-          purchaseOption: subscriptionOption,
-          appUserId: "test-app-user-id",
-          presentedOfferingIdentifier:
-            rcPackage.webBillingProduct.presentedOfferingContext
-              .offeringIdentifier,
-          customerEmail: undefined,
-          locale: "en",
-        },
-      });
+      // Inline is the default presentation after the cutover.
+      expect(purchaseSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          operationSessionId: "test-operation-session-id",
+          transactionId: "test-transaction-id",
+          onCheckoutLoaded: expect.any(Function),
+          onClose: expect.any(Function),
+          onCheckoutCompleted: expect.any(Function),
+          displayMode: "inline",
+          params: {
+            rcPackage: rcPackage,
+            purchaseOption: subscriptionOption,
+            appUserId: "test-app-user-id",
+            presentedOfferingIdentifier:
+              rcPackage.webBillingProduct.presentedOfferingContext
+                .offeringIdentifier,
+            customerEmail: undefined,
+            locale: "en",
+          },
+        }),
+      );
     });
   });
 
@@ -166,7 +171,7 @@ describe("PaddlePurchasesUI", () => {
     });
   });
 
-  test("transitions to loading page when checkout is loaded", async () => {
+  test("transitions to loading page when checkout is loaded (overlay)", async () => {
     const paddleServiceMock = createPaddleServiceMock();
     let onCheckoutLoadedCallback: (() => void) | undefined;
 
@@ -182,7 +187,13 @@ describe("PaddlePurchasesUI", () => {
     );
 
     render(PaddlePurchasesUI, {
-      props: { ...baseProps, paddleService: paddleServiceMock },
+      // Overlay shows the processing spinner while open; inline shows the
+      // checkout container instead, so this behavior is overlay-specific.
+      props: {
+        ...baseProps,
+        useInlineCheckout: false,
+        paddleService: paddleServiceMock,
+      },
       context: defaultContext,
     });
 
@@ -621,12 +632,16 @@ describe("PaddlePurchasesUI", () => {
       ).not.toBeInTheDocument();
     });
 
-    test("does not render the inline container or pass displayMode by default", async () => {
+    test("falls back to overlay (no inline container, no displayMode) when disabled", async () => {
       const paddleServiceMock = createPaddleServiceMock();
       const purchaseSpy = vi.spyOn(paddleServiceMock, "purchase");
 
       render(PaddlePurchasesUI, {
-        props: { ...baseProps, paddleService: paddleServiceMock },
+        props: {
+          ...baseProps,
+          useInlineCheckout: false,
+          paddleService: paddleServiceMock,
+        },
         context: defaultContext,
       });
 
