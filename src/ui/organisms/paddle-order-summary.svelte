@@ -1,113 +1,157 @@
 <script lang="ts">
   import { getContext } from "svelte";
   import { type Writable } from "svelte/store";
-  import ProductHeader from "../molecules/product-header.svelte";
-  import PricingTable from "../molecules/pricing-table.svelte";
   import Typography from "../atoms/typography.svelte";
   import { Theme } from "../theme/theme";
   import { translatorContextKey } from "../localization/constants";
   import { Translator } from "../localization/translator";
+  import { getInitialPriceFromPurchaseOption } from "../../helpers/purchase-option-price-helper";
   import type { BrandingInfoResponse } from "../../networking/responses/branding-response";
   import {
     type Product,
     type PurchaseOption,
     type SubscriptionOption,
-    type NonSubscriptionOption,
-    type PricingPhase,
   } from "../../entities/offerings";
-  import { type PriceBreakdown } from "../ui-types";
+  import { type Period } from "../../helpers/duration-helper";
+  import type { PaddleCheckoutTotals } from "../../paddle/paddle-service";
 
   interface Props {
     brandingInfo: BrandingInfoResponse | null;
     productDetails: Product;
     purchaseOption: PurchaseOption;
-    priceBreakdown: PriceBreakdown;
+    // Live order totals from Paddle's checkout events (null until the inline
+    // checkout reports them); drives the breakdown + recurring amount.
+    totals: PaddleCheckoutTotals | null;
   }
 
-  const {
-    brandingInfo,
-    productDetails,
-    purchaseOption,
-    priceBreakdown,
-  }: Props = $props();
+  const { brandingInfo, productDetails, purchaseOption, totals }: Props =
+    $props();
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
 
-  // Card chrome comes from the same branding/appearance config the rest of the
-  // checkout uses: the form background for the cards, the shape preset for the
-  // corner radius. The amount uses the primary (buttons) color.
+  // Card chrome from the branding/appearance config: form background for the
+  // cards, primary (buttons) color for the amount. Corner radius is generous to
+  // match the hosted overlay summary.
   const theme = new Theme(brandingInfo?.appearance ?? null);
   const cardBackground = theme.formColors.background;
-  const cardRadius = theme.shape["input-border-radius"];
 
   const isSubscription = productDetails.productType === "subscription";
-  const subscriptionOption = isSubscription
-    ? (purchaseOption as SubscriptionOption)
+  const basePeriod: Period | null = isSubscription
+    ? ((purchaseOption as SubscriptionOption)?.base?.period ?? null)
     : null;
-  const nonSubscriptionOption = !isSubscription
-    ? (purchaseOption as NonSubscriptionOption)
-    : null;
-  const basePhase: PricingPhase | null = isSubscription
-    ? (subscriptionOption?.base ?? null)
-    : nonSubscriptionOption?.basePrice
-      ? {
-          periodDuration: null,
-          period: null,
-          cycleCount: 1,
-          price: nonSubscriptionOption.basePrice,
-          pricePerWeek: null,
-          pricePerMonth: null,
-          pricePerYear: null,
-        }
-      : null;
-  const trialPhase = subscriptionOption?.trial ?? null;
+
+  const toMicros = (amount: number): number => Math.round(amount * 1_000_000);
+
+  const fallbackPrice = getInitialPriceFromPurchaseOption(
+    productDetails,
+    purchaseOption,
+  );
+  const currency = $derived(totals?.currencyCode ?? fallbackPrice.currency);
+  const totalMicros = $derived(
+    totals ? toMicros(totals.totalAmount) : fallbackPrice.amountMicros,
+  );
+
+  const formatAmount = (micros: number): string =>
+    $translator.formatPrice(micros, currency);
+
+  const periodUnitLabel = $derived(
+    basePeriod ? $translator.translatePeriodUnit(basePeriod.unit) : null,
+  );
+  const billedFrequencyLabel = $derived(
+    basePeriod
+      ? $translator.translatePeriodFrequency(basePeriod.number, basePeriod.unit)
+      : null,
+  );
+
+  const productName = $derived(totals?.productName ?? productDetails.title);
+  const priceName = $derived(totals?.priceName ?? null);
+  const hasTax = $derived(!!totals && totals.taxAmount > 0);
+
+  // Best-effort next billing date for the recurring row: today + the base
+  // period. The exact Paddle renewal date isn't exposed through checkout events.
+  const nextBillingLabel = $derived.by(() => {
+    if (!totals || totals.recurringTotalAmount === null || !basePeriod)
+      return null;
+    const date = new Date();
+    const n = basePeriod.number;
+    switch (basePeriod.unit) {
+      case "day":
+        date.setDate(date.getDate() + n);
+        break;
+      case "week":
+        date.setDate(date.getDate() + 7 * n);
+        break;
+      case "month":
+        date.setMonth(date.getMonth() + n);
+        break;
+      case "year":
+        date.setFullYear(date.getFullYear() + n);
+        break;
+      default:
+        return null;
+    }
+    return new Intl.DateTimeFormat(undefined, {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }).format(date);
+  });
 </script>
 
-<div
-  class="rcb-paddle-summary"
-  style="--rcb-card-bg: {cardBackground}; --rcb-card-radius: {cardRadius};"
->
+<div class="rcb-paddle-summary" style="--rcb-card-bg: {cardBackground};">
+  <!-- Product card -->
   <div class="rcb-paddle-summary-card">
-    <div class="rcb-paddle-summary-amount">
-      {$translator.formatPrice(
-        priceBreakdown.totalAmountInMicros,
-        priceBreakdown.currency,
-      )}
+    <div class="rcb-paddle-summary-amount-row">
+      <span class="rcb-paddle-summary-amount">{formatAmount(totalMicros)}</span>
+      {#if hasTax}
+        <span class="rcb-paddle-summary-muted">inc. VAT</span>
+      {/if}
     </div>
-    <ProductHeader
-      {productDetails}
-      showProductDescription={brandingInfo?.appearance
-        ?.show_product_description ?? false}
-    />
-    {#if basePhase?.period}
-      <Typography size="body-small">
-        {$translator.translatePeriodFrequency(
-          basePhase.period.number,
-          basePhase.period.unit,
-        )}
-      </Typography>
+    {#if billedFrequencyLabel}
+      <Typography size="body-small">billed {billedFrequencyLabel}</Typography>
     {/if}
+
+    <div class="rcb-paddle-summary-product">
+      <Typography size="body-base">{productName}</Typography>
+      {#if priceName}
+        <span class="rcb-paddle-summary-muted">{priceName}</span>
+      {/if}
+      <div class="rcb-paddle-summary-product-price">
+        <span>{formatAmount(totalMicros)}</span>
+        {#if periodUnitLabel}
+          <span class="rcb-paddle-summary-muted">/ {periodUnitLabel}</span>
+        {/if}
+      </div>
+    </div>
   </div>
 
-  <div class="rcb-paddle-summary-card">
-    <PricingTable
-      {priceBreakdown}
-      {trialPhase}
-      {basePhase}
-      promotionalPricePhase={null}
-      hasDiscount={false}
-      showDiscountCodeField={false}
-      discountCode=""
-      appliedDiscountCode={null}
-      appliedDiscountPercentage={null}
-      discountCodeError={null}
-      isUpdatingDiscountCode={false}
-      isDiscountCodeControlsEnabled={false}
-      onDiscountCodeChange={undefined}
-      onApplyDiscountCode={undefined}
-      onRemoveDiscountCode={undefined}
-    />
-  </div>
+  <!-- Totals breakdown card -->
+  {#if totals}
+    <div class="rcb-paddle-summary-card">
+      <div class="rcb-paddle-summary-row">
+        <span class="rcb-paddle-summary-muted">Subtotal</span>
+        <span>{formatAmount(toMicros(totals.subtotalAmount))}</span>
+      </div>
+      {#if hasTax}
+        <div class="rcb-paddle-summary-row">
+          <span class="rcb-paddle-summary-muted">VAT</span>
+          <span>{formatAmount(toMicros(totals.taxAmount))}</span>
+        </div>
+      {/if}
+      <hr class="rcb-paddle-summary-divider" />
+      <div class="rcb-paddle-summary-row rcb-paddle-summary-row-strong">
+        <span>Total</span>
+        <span>{formatAmount(toMicros(totals.totalAmount))}</span>
+      </div>
+      {#if totals.recurringTotalAmount !== null && nextBillingLabel}
+        <div class="rcb-paddle-summary-row">
+          <span class="rcb-paddle-summary-muted">Due on {nextBillingLabel}</span
+          >
+          <span>{formatAmount(toMicros(totals.recurringTotalAmount))}</span>
+        </div>
+      {/if}
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -120,17 +164,58 @@
 
   .rcb-paddle-summary-card {
     background: var(--rcb-card-bg);
-    border-radius: var(--rcb-card-radius);
-    padding: var(--rc-spacing-gapLarge-mobile, 24px);
+    border-radius: 16px;
+    padding: 28px;
     display: flex;
     flex-direction: column;
     gap: var(--rc-spacing-gapMedium-mobile, 12px);
+  }
+
+  .rcb-paddle-summary-amount-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
   }
 
   .rcb-paddle-summary-amount {
     color: var(--rc-color-primary);
     font-weight: 700;
     font-size: 2rem;
-    line-height: 1.2;
+    line-height: 1.1;
+  }
+
+  .rcb-paddle-summary-product {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .rcb-paddle-summary-product-price {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 1.25rem;
+  }
+
+  .rcb-paddle-summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .rcb-paddle-summary-row-strong {
+    font-weight: 700;
+  }
+
+  .rcb-paddle-summary-muted {
+    color: var(--rc-color-grey-text-light);
+  }
+
+  .rcb-paddle-summary-divider {
+    border: none;
+    border-top: 1px solid var(--rc-color-grey-ui-light);
+    margin: 4px 0;
+    width: 100%;
   }
 </style>

@@ -6,8 +6,10 @@
   import Icon from "./atoms/icon.svelte";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import type { Product, PurchaseOption } from "../entities/offerings";
-  import { type PriceBreakdown } from "./ui-types";
-  import { PADDLE_INLINE_FRAME_TARGET } from "../paddle/paddle-service";
+  import {
+    PADDLE_INLINE_FRAME_TARGET,
+    type PaddleCheckoutTotals,
+  } from "../paddle/paddle-service";
   import { type PurchaseFlowError } from "../helpers/purchase-operation-helper";
 
   interface Props {
@@ -17,9 +19,8 @@
     onClose: () => void;
     productDetails: Product;
     purchaseOption: PurchaseOption;
-    // Built from Paddle's checkout-totals events; renders the Subtotal/Tax/Total
-    // breakdown in the order-summary panel (same component as Web Billing).
-    priceBreakdown: PriceBreakdown;
+    // Live order totals from Paddle's checkout events; render the order summary.
+    totals: PaddleCheckoutTotals | null;
     currentPage: "waiting" | "loading" | "success" | "error";
     lastError: PurchaseFlowError | null;
     onContinue: () => void;
@@ -33,7 +34,7 @@
     onClose,
     productDetails,
     purchaseOption,
-    priceBreakdown,
+    totals,
     currentPage,
     lastError,
     onContinue,
@@ -65,7 +66,7 @@
       {brandingInfo}
       {productDetails}
       {purchaseOption}
-      {priceBreakdown}
+      {totals}
     />
   {/snippet}
   {#snippet mainContent()}
