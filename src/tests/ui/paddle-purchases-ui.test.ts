@@ -608,5 +608,53 @@ describe("PaddlePurchasesUI", () => {
         screen.queryByTestId("paddle-return-button"),
       ).not.toBeInTheDocument();
     });
+
+    test("passes onCheckoutTotals to purchase when inline", async () => {
+      const paddleServiceMock = createPaddleServiceMock();
+      const purchaseSpy = vi.spyOn(paddleServiceMock, "purchase");
+
+      render(PaddlePurchasesUI, {
+        props: {
+          ...baseProps,
+          useInlineCheckout: true,
+          paddleService: paddleServiceMock,
+        },
+        context: defaultContext,
+      });
+
+      await waitFor(() => {
+        expect(purchaseSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ onCheckoutTotals: expect.any(Function) }),
+        );
+      });
+    });
+
+    test("renders the tax breakdown from Paddle totals", async () => {
+      const paddleServiceMock = createPaddleServiceMock();
+      // Report totals (incl. tax) the way Paddle's checkout.loaded event does,
+      // then keep the checkout open so the summary stays on screen.
+      vi.spyOn(paddleServiceMock, "purchase").mockImplementation((params) => {
+        params.onCheckoutTotals?.({
+          currencyCode: "USD",
+          subtotalAmount: 8.26,
+          taxAmount: 1.74,
+          totalAmount: 10,
+        });
+        return new Promise(() => {});
+      });
+
+      render(PaddlePurchasesUI, {
+        props: {
+          ...baseProps,
+          useInlineCheckout: true,
+          paddleService: paddleServiceMock,
+        },
+        context: defaultContext,
+      });
+
+      // The subtotal (excl. tax) only renders when the tax breakdown is shown,
+      // i.e. when we feed Paddle's calculated totals into the price breakdown.
+      expect(await screen.findByText("$8.26")).toBeInTheDocument();
+    });
   });
 });
