@@ -17,8 +17,8 @@ importers:
         specifier: ^7.48.0
         version: 7.52.13(@types/node@22.10.5)
       "@paddle/paddle-js":
-        specifier: ^1.5.1
-        version: 1.5.1
+        specifier: ^1.6.4
+        version: 1.6.4
       "@revenuecat/purchases-ui-js":
         specifier: ^4.5.2
         version: 4.5.2(svelte@5.46.4)
@@ -709,10 +709,10 @@ packages:
         integrity: sha512-U69T3ItWHvLwGg5eJ0n3I62nWuE6ilHlmz7zM0npLBRvPRd7e6NYmg54vvRtP5mZG7kZqZCFVdsTWo7BPtBujg==,
       }
 
-  "@paddle/paddle-js@1.5.1":
+  "@paddle/paddle-js@1.6.4":
     resolution:
       {
-        integrity: sha512-n5btAxhRt3ws0/7g8tlz5yH1kYbN3DRp4pKQD5F2hueovmn6rasxrlJJgd33+dI9amA2w2OjkV+mxuori4eEJA==,
+        integrity: sha512-ncfnS6I8mCX6krZ3Sgz2iAYivGmhdI81yt9mT6prtPj4Ipd9J3M12LCJRUFL4FB7BYeeuV04c33RSEnbZUBCaA==,
       }
 
   "@pkgr/core@0.1.1":
@@ -6151,7 +6151,7 @@ snapshots:
 
   "@open-draft/until@2.1.0": {}
 
-  "@paddle/paddle-js@1.5.1": {}
+  "@paddle/paddle-js@1.6.4": {}
 
   "@pkgr/core@0.1.1": {}
 
