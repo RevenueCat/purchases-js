@@ -559,5 +559,48 @@ describe("PaddlePurchasesUI", () => {
         screen.queryByTestId("paddle-inline-checkout-container"),
       ).not.toBeInTheDocument();
     });
+
+    test("renders a close button that invokes onClose when not in an element", async () => {
+      const paddleServiceMock = createPaddleServiceMock();
+      vi.spyOn(paddleServiceMock, "purchase").mockImplementation(
+        () => new Promise(() => {}),
+      );
+      const onClose = vi.fn();
+
+      render(PaddlePurchasesUI, {
+        props: {
+          ...baseProps,
+          useInlineCheckout: true,
+          onClose,
+          paddleService: paddleServiceMock,
+        },
+        context: defaultContext,
+      });
+
+      const closeButton = await screen.findByTestId("close-button");
+      closeButton.click();
+      expect(onClose).toHaveBeenCalled();
+    });
+
+    test("does not render the close button when embedded in an element", async () => {
+      const paddleServiceMock = createPaddleServiceMock();
+      vi.spyOn(paddleServiceMock, "purchase").mockImplementation(
+        () => new Promise(() => {}),
+      );
+
+      render(PaddlePurchasesUI, {
+        props: {
+          ...baseProps,
+          useInlineCheckout: true,
+          isInElement: true,
+          paddleService: paddleServiceMock,
+        },
+        context: defaultContext,
+      });
+
+      // Wait for the inline container to mount, then assert no close affordance.
+      await screen.findByTestId("paddle-inline-checkout-container");
+      expect(screen.queryByTestId("close-button")).not.toBeInTheDocument();
+    });
   });
 });
