@@ -235,6 +235,8 @@
       {isSandbox}
       {isInElement}
       {onClose}
+      {productDetails}
+      {purchaseOption}
     />
   {:else}
     <PaddlePurchasesUiInner

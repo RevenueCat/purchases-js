@@ -577,8 +577,10 @@ describe("PaddlePurchasesUI", () => {
         context: defaultContext,
       });
 
-      const closeButton = await screen.findByTestId("close-button");
-      closeButton.click();
+      // BrandingHeader renders both a back and a close button (same testid).
+      const closeButtons = await screen.findAllByTestId("close-button");
+      expect(closeButtons.length).toBeGreaterThan(0);
+      closeButtons[0].click();
       expect(onClose).toHaveBeenCalled();
     });
 
@@ -600,7 +602,7 @@ describe("PaddlePurchasesUI", () => {
 
       // Wait for the inline container to mount, then assert no close affordance.
       await screen.findByTestId("paddle-inline-checkout-container");
-      expect(screen.queryByTestId("close-button")).not.toBeInTheDocument();
+      expect(screen.queryAllByTestId("close-button")).toHaveLength(0);
     });
   });
 });
