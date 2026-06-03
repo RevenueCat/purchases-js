@@ -236,28 +236,20 @@
 </script>
 
 {#if useInlineCheckout}
-  {#if currentPage === "waiting" || currentPage === "loading"}
-    <!-- Paddle's inline checkout iframe mounts into the container rendered here. -->
-    <PaddleInlineCheckoutPage
-      {brandingInfo}
-      {isSandbox}
-      {isInElement}
-      onClose={handleInlineClose}
-      {productDetails}
-      {purchaseOption}
-    />
-  {:else}
-    <PaddlePurchasesUiInner
-      currentPage={currentPage as "loading" | "success" | "error"}
-      {brandingInfo}
-      {productDetails}
-      {isSandbox}
-      lastError={error}
-      {isInElement}
-      onContinue={handleContinue}
-      {closeWithError}
-    />
-  {/if}
+  <!-- Single branded two-column shell for every inline state (form / success /
+       error), so there's no swap between different root templates. -->
+  <PaddleInlineCheckoutPage
+    {brandingInfo}
+    {isSandbox}
+    {isInElement}
+    onClose={handleInlineClose}
+    {productDetails}
+    {purchaseOption}
+    {currentPage}
+    lastError={error}
+    onContinue={handleContinue}
+    {closeWithError}
+  />
 {:else if currentPage !== "waiting"}
   <PaddlePurchasesUiInner
     currentPage={currentPage as "loading" | "success" | "error"}

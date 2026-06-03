@@ -1,12 +1,15 @@
 <script lang="ts">
-  import FullscreenTemplate from "./layout/fullscreen-template.svelte";
-  import BrandingHeader from "./molecules/branding-header.svelte";
+  import Template from "./layout/template.svelte";
   import ProductInfo from "./organisms/product-info.svelte";
+  import SuccessPage from "./pages/success-page.svelte";
+  import ErrorPage from "./pages/error-page.svelte";
+  import Icon from "./atoms/icon.svelte";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import type { Product, PurchaseOption } from "../entities/offerings";
   import { getInitialPriceFromPurchaseOption } from "../helpers/purchase-option-price-helper";
   import { type PriceBreakdown } from "./ui-types";
   import { PADDLE_INLINE_FRAME_TARGET } from "../paddle/paddle-service";
+  import { type PurchaseFlowError } from "../helpers/purchase-operation-helper";
 
   interface Props {
     brandingInfo: BrandingInfoResponse | null;
@@ -15,6 +18,10 @@
     onClose: () => void;
     productDetails: Product;
     purchaseOption: PurchaseOption;
+    currentPage: "waiting" | "loading" | "success" | "error";
+    lastError: PurchaseFlowError | null;
+    onContinue: () => void;
+    closeWithError: () => void;
   }
 
   const {
@@ -24,9 +31,13 @@
     onClose,
     productDetails,
     purchaseOption,
+    currentPage,
+    lastError,
+    onContinue,
+    closeWithError,
   }: Props = $props();
 
-  // Paddle's iframe shows the authoritative totals; the product-info panel
+  // Paddle's iframe shows the authoritative totals; the order-summary panel
   // mirrors the Web Billing / Stripe layout using the option's initial price.
   const initialPrice = getInitialPriceFromPurchaseOption(
     productDetails,
@@ -40,23 +51,48 @@
     taxAmountInMicros: null,
     taxBreakdown: null,
   };
+
+  const appName = brandingInfo?.app_name ?? null;
 </script>
 
-<FullscreenTemplate {brandingInfo} {isInElement} {isSandbox}>
+<Template {brandingInfo} {isInElement} {isSandbox} {onClose}>
+  {#snippet navbarHeaderContent()}
+    {#if !isInElement}
+      <!-- Inline checkout embeds Paddle's iframe in our page, so we provide the
+           back affordance (Paddle's own "Return to <seller>" link only exists in
+           the overlay/hosted checkout, not inline). -->
+      <button
+        type="button"
+        class="rcb-paddle-return-button"
+        data-testid="paddle-return-button"
+        onclick={onClose}
+      >
+        <Icon name="back" />
+        <span>{appName ? `Return to ${appName}` : "Back"}</span>
+      </button>
+    {/if}
+  {/snippet}
+  {#snippet navbarBodyContent()}
+    <ProductInfo
+      {productDetails}
+      {purchaseOption}
+      showProductDescription={brandingInfo?.appearance
+        ?.show_product_description ?? false}
+      {priceBreakdown}
+    />
+  {/snippet}
   {#snippet mainContent()}
-    <div class="rcb-paddle-inline-checkout">
-      {#if !isInElement}
-        <!-- Inline checkout has no Paddle-provided dismiss (unlike the overlay
-             modal), so render our own branded header with a back/close button. -->
-        <BrandingHeader {brandingInfo} {onClose} showCloseButton={true} />
-      {/if}
-      <ProductInfo
+    {#if currentPage === "success"}
+      <SuccessPage {onContinue} />
+    {:else if currentPage === "error"}
+      <ErrorPage
+        {lastError}
         {productDetails}
-        {purchaseOption}
-        showProductDescription={brandingInfo?.appearance
-          ?.show_product_description ?? false}
-        {priceBreakdown}
+        supportEmail={brandingInfo?.support_email ?? null}
+        onDismiss={closeWithError}
+        appName={brandingInfo?.app_name ?? null}
       />
+    {:else}
       <!-- Paddle injects its inline checkout iframe into this container (its
            frameTarget className). The element must already exist in the DOM when
            PaddleService.purchase() calls Paddle.Checkout.open(). -->
@@ -65,16 +101,20 @@
         data-testid="paddle-inline-checkout-container"
         style="width: 100%; min-height: 450px;"
       ></div>
-    </div>
+    {/if}
   {/snippet}
-</FullscreenTemplate>
+</Template>
 
 <style>
-  .rcb-paddle-inline-checkout {
-    width: 100%;
-    max-width: 768px;
-    display: flex;
-    flex-direction: column;
-    gap: var(--rc-spacing-gapLarge-mobile, 16px);
+  .rcb-paddle-return-button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--rc-spacing-gapSmall-mobile, 8px);
+    padding: 8px 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: var(--rc-color-accent);
+    font: inherit;
   }
 </style>
