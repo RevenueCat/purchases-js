@@ -1,5 +1,9 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { PaddleService } from "../../paddle/paddle-service";
+import {
+  PaddleService,
+  buildPaddleCheckoutOptions,
+  PADDLE_INLINE_FRAME_TARGET,
+} from "../../paddle/paddle-service";
 import { Backend } from "../../networking/backend";
 import { HttpResponse } from "msw";
 import { http } from "msw";
@@ -80,6 +84,76 @@ const purchaseParams = {
 };
 
 const server = setupMswServer(...mockHandlers);
+
+describe("buildPaddleCheckoutOptions", () => {
+  const commonSettings = {
+    theme: "light",
+    variant: "one-page",
+    allowLogout: false,
+    showAddDiscounts: false,
+    showAddTaxId: false,
+    allowDiscountRemoval: false,
+  };
+
+  test("defaults to overlay display mode", () => {
+    const options = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "en",
+    });
+
+    expect(options.settings).toEqual({
+      ...commonSettings,
+      locale: "en",
+      displayMode: "overlay",
+    });
+    expect(options.transactionId).toBe(transactionId);
+  });
+
+  test("overlay mode does not set inline frame settings", () => {
+    const options = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "en",
+      displayMode: "overlay",
+    });
+
+    expect(options.settings).not.toHaveProperty("frameTarget");
+    expect(options.settings).not.toHaveProperty("frameInitialHeight");
+    expect(options.settings).not.toHaveProperty("frameStyle");
+  });
+
+  test("inline mode sets the frame target, height and style", () => {
+    const options = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "es",
+      displayMode: "inline",
+    });
+
+    expect(options.settings).toEqual({
+      ...commonSettings,
+      locale: "es",
+      displayMode: "inline",
+      frameTarget: PADDLE_INLINE_FRAME_TARGET,
+      frameInitialHeight: 450,
+      frameStyle:
+        "width:100%; min-width:312px; background-color:transparent; border:none;",
+    });
+  });
+
+  test("includes customer email when provided and omits it otherwise", () => {
+    const withEmail = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "en",
+      customerEmail: "test@example.com",
+    });
+    expect(withEmail.customer).toEqual({ email: "test@example.com" });
+
+    const withoutEmail = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "en",
+    });
+    expect(withoutEmail).not.toHaveProperty("customer");
+  });
+});
 
 describe("PaddleService", () => {
   let backend: Backend;
@@ -387,6 +461,46 @@ describe("PaddleService", () => {
       expect(onCheckoutLoaded).toHaveBeenCalled();
 
       // Ignore errors - this test only verifies CHECKOUT_LOADED behavior
+      purchasePromise.catch(() => {});
+    });
+
+    test("opens an overlay checkout by default", async () => {
+      const purchasePromise = paddleService.purchase({
+        operationSessionId,
+        transactionId,
+        onCheckoutLoaded: vi.fn(),
+        onClose: vi.fn(),
+        params: purchaseParams,
+      });
+
+      expect(mockPaddleInstance.Checkout?.open).toHaveBeenCalledWith(
+        expect.objectContaining({
+          settings: expect.objectContaining({ displayMode: "overlay" }),
+        }),
+      );
+
+      purchasePromise.catch(() => {});
+    });
+
+    test("opens an inline checkout when displayMode is inline", async () => {
+      const purchasePromise = paddleService.purchase({
+        operationSessionId,
+        transactionId,
+        onCheckoutLoaded: vi.fn(),
+        onClose: vi.fn(),
+        params: purchaseParams,
+        displayMode: "inline",
+      });
+
+      expect(mockPaddleInstance.Checkout?.open).toHaveBeenCalledWith(
+        expect.objectContaining({
+          settings: expect.objectContaining({
+            displayMode: "inline",
+            frameTarget: PADDLE_INLINE_FRAME_TARGET,
+          }),
+        }),
+      );
+
       purchasePromise.catch(() => {});
     });
 
