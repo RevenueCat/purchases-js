@@ -561,7 +561,7 @@ describe("PaddlePurchasesUI", () => {
       ).not.toBeInTheDocument();
     });
 
-    test("renders a close button that invokes onClose when not in an element", async () => {
+    test("renders a return button that invokes onClose when not in an element", async () => {
       const paddleServiceMock = createPaddleServiceMock();
       vi.spyOn(paddleServiceMock, "purchase").mockImplementation(
         () => new Promise(() => {}),
@@ -578,17 +578,15 @@ describe("PaddlePurchasesUI", () => {
         context: defaultContext,
       });
 
-      // BrandingHeader renders both a back and a close button (same testid).
-      const closeButtons = await screen.findAllByTestId("close-button");
-      expect(closeButtons.length).toBeGreaterThan(0);
-      closeButtons[0].click();
+      const returnButton = await screen.findByTestId("paddle-return-button");
+      returnButton.click();
       // Inline cancel tears down Paddle's iframe via Checkout.close(), then
       // runs the normal close flow.
       expect(paddleServiceMock.closeCheckout).toHaveBeenCalled();
       expect(onClose).toHaveBeenCalled();
     });
 
-    test("does not render the close button when embedded in an element", async () => {
+    test("does not render the return button when embedded in an element", async () => {
       const paddleServiceMock = createPaddleServiceMock();
       vi.spyOn(paddleServiceMock, "purchase").mockImplementation(
         () => new Promise(() => {}),
@@ -604,9 +602,11 @@ describe("PaddlePurchasesUI", () => {
         context: defaultContext,
       });
 
-      // Wait for the inline container to mount, then assert no close affordance.
+      // Wait for the inline container to mount, then assert no return affordance.
       await screen.findByTestId("paddle-inline-checkout-container");
-      expect(screen.queryAllByTestId("close-button")).toHaveLength(0);
+      expect(
+        screen.queryByTestId("paddle-return-button"),
+      ).not.toBeInTheDocument();
     });
   });
 });
