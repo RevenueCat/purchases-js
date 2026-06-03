@@ -20,11 +20,14 @@
   } from "../entities/offerings";
   import type { AttributionMetadata } from "../entities/purchase-params";
   import { PaddleService } from "../paddle/paddle-service";
+  import type { PaddleCheckoutTotals } from "../paddle/paddle-service";
   import { normalizeToPurchaseFlowError } from "../helpers/normalize-to-purchase-flow-error";
   import type { PaddleCheckoutStartResponse } from "../networking/responses/checkout-start-response";
   import PaddlePurchasesUiInner from "./paddle-purchases-ui-inner.svelte";
   import PaddleInlineCheckoutPage from "./paddle-inline-checkout-page.svelte";
   import type { BrandingAppearance } from "../entities/branding";
+  import { type PriceBreakdown } from "./ui-types";
+  import { getInitialPriceFromPurchaseOption } from "../helpers/purchase-option-price-helper";
 
   interface Props {
     brandingInfo: BrandingInfoResponse | null;
@@ -97,6 +100,46 @@
   let currentPage = $state<"waiting" | "loading" | "success" | "error">(
     "waiting",
   );
+
+  // Order totals reported by Paddle's checkout events; drives the inline order
+  // summary's Subtotal/Tax/Total breakdown and updates live.
+  let paddleTotals = $state<PaddleCheckoutTotals | null>(null);
+  const onCheckoutTotals = (totals: PaddleCheckoutTotals) => {
+    paddleTotals = totals;
+  };
+
+  const toMicros = (amount: number): number => Math.round(amount * 1_000_000);
+
+  // Before Paddle reports totals, fall back to the option's initial price (no
+  // tax breakdown yet); once totals arrive, show the full Subtotal/Tax/Total.
+  const inlinePriceBreakdown: PriceBreakdown = $derived.by(() => {
+    if (paddleTotals) {
+      const taxInMicros = toMicros(paddleTotals.taxAmount);
+      return {
+        currency: paddleTotals.currencyCode,
+        totalAmountInMicros: toMicros(paddleTotals.totalAmount),
+        totalExcludingTaxInMicros: toMicros(paddleTotals.subtotalAmount),
+        taxAmountInMicros: taxInMicros,
+        taxBreakdown:
+          taxInMicros > 0
+            ? [{ tax_amount_in_micros: taxInMicros, display_name: "Tax" }]
+            : [],
+        taxCalculationStatus: "calculated",
+      };
+    }
+    const initialPrice = getInitialPriceFromPurchaseOption(
+      productDetails,
+      purchaseOption,
+    );
+    return {
+      currency: initialPrice.currency,
+      totalAmountInMicros: initialPrice.amountMicros,
+      totalExcludingTaxInMicros: initialPrice.amountMicros,
+      taxAmountInMicros: null,
+      taxBreakdown: null,
+      taxCalculationStatus: "unavailable",
+    };
+  });
 
   $effect(() => {
     if (currentPage === "success" && operationResult && skipSuccessPage) {
@@ -195,7 +238,10 @@
           customerEmail,
           locale: selectedLocale || defaultLocale,
         },
-        ...(useInlineCheckout && { displayMode: "inline" as const }),
+        ...(useInlineCheckout && {
+          displayMode: "inline" as const,
+          onCheckoutTotals,
+        }),
       });
 
       if (skipSuccessPage) {
@@ -245,6 +291,7 @@
     onClose={handleInlineClose}
     {productDetails}
     {purchaseOption}
+    priceBreakdown={inlinePriceBreakdown}
     {currentPage}
     lastError={error}
     onContinue={handleContinue}

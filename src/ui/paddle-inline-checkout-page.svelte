@@ -1,12 +1,11 @@
 <script lang="ts">
   import Template from "./layout/template.svelte";
-  import ProductInfo from "./organisms/product-info.svelte";
+  import PaddleOrderSummary from "./organisms/paddle-order-summary.svelte";
   import SuccessPage from "./pages/success-page.svelte";
   import ErrorPage from "./pages/error-page.svelte";
   import Icon from "./atoms/icon.svelte";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import type { Product, PurchaseOption } from "../entities/offerings";
-  import { getInitialPriceFromPurchaseOption } from "../helpers/purchase-option-price-helper";
   import { type PriceBreakdown } from "./ui-types";
   import { PADDLE_INLINE_FRAME_TARGET } from "../paddle/paddle-service";
   import { type PurchaseFlowError } from "../helpers/purchase-operation-helper";
@@ -18,6 +17,9 @@
     onClose: () => void;
     productDetails: Product;
     purchaseOption: PurchaseOption;
+    // Built from Paddle's checkout-totals events; renders the Subtotal/Tax/Total
+    // breakdown in the order-summary panel (same component as Web Billing).
+    priceBreakdown: PriceBreakdown;
     currentPage: "waiting" | "loading" | "success" | "error";
     lastError: PurchaseFlowError | null;
     onContinue: () => void;
@@ -31,26 +33,12 @@
     onClose,
     productDetails,
     purchaseOption,
+    priceBreakdown,
     currentPage,
     lastError,
     onContinue,
     closeWithError,
   }: Props = $props();
-
-  // Paddle's iframe shows the authoritative totals; the order-summary panel
-  // mirrors the Web Billing / Stripe layout using the option's initial price.
-  const initialPrice = getInitialPriceFromPurchaseOption(
-    productDetails,
-    purchaseOption,
-  );
-  const priceBreakdown: PriceBreakdown = {
-    currency: initialPrice.currency,
-    totalAmountInMicros: initialPrice.amountMicros,
-    totalExcludingTaxInMicros: initialPrice.amountMicros,
-    taxCalculationStatus: "unavailable",
-    taxAmountInMicros: null,
-    taxBreakdown: null,
-  };
 
   const appName = brandingInfo?.app_name ?? null;
 </script>
@@ -73,11 +61,10 @@
     {/if}
   {/snippet}
   {#snippet navbarBodyContent()}
-    <ProductInfo
+    <PaddleOrderSummary
+      {brandingInfo}
       {productDetails}
       {purchaseOption}
-      showProductDescription={brandingInfo?.appearance
-        ?.show_product_description ?? false}
       {priceBreakdown}
     />
   {/snippet}

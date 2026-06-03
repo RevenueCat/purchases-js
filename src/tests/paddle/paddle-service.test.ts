@@ -36,6 +36,7 @@ vi.mock("@paddle/paddle-js", () => ({
   initializePaddle: vi.fn(),
   CheckoutEventNames: {
     CHECKOUT_LOADED: "checkout.loaded",
+    CHECKOUT_UPDATED: "checkout.updated",
     CHECKOUT_COMPLETED: "checkout.completed",
     CHECKOUT_CLOSED: "checkout.closed",
   },
@@ -516,6 +517,50 @@ describe("PaddleService", () => {
           }),
         }),
       );
+
+      purchasePromise.catch(() => {});
+    });
+
+    test("forwards order totals on checkout.loaded and checkout.updated", async () => {
+      const onCheckoutTotals = vi.fn();
+      const purchasePromise = paddleService.purchase({
+        operationSessionId,
+        transactionId,
+        onCheckoutLoaded: vi.fn(),
+        onClose: vi.fn(),
+        params: purchaseParams,
+        onCheckoutTotals,
+      });
+
+      await paddleEventCallback({
+        name: CheckoutEventNames.CHECKOUT_LOADED,
+        data: {
+          currency_code: "USD",
+          totals: { subtotal: 8.26, tax: 1.74, total: 10 },
+        },
+      } as unknown as PaddleEventData);
+
+      expect(onCheckoutTotals).toHaveBeenCalledWith({
+        currencyCode: "USD",
+        subtotalAmount: 8.26,
+        taxAmount: 1.74,
+        totalAmount: 10,
+      });
+
+      await paddleEventCallback({
+        name: CheckoutEventNames.CHECKOUT_UPDATED,
+        data: {
+          currency_code: "USD",
+          totals: { subtotal: 9.0, tax: 1.9, total: 10.9 },
+        },
+      } as unknown as PaddleEventData);
+
+      expect(onCheckoutTotals).toHaveBeenLastCalledWith({
+        currencyCode: "USD",
+        subtotalAmount: 9.0,
+        taxAmount: 1.9,
+        totalAmount: 10.9,
+      });
 
       purchasePromise.catch(() => {});
     });
