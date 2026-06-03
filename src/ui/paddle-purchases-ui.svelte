@@ -23,6 +23,7 @@
   import { normalizeToPurchaseFlowError } from "../helpers/normalize-to-purchase-flow-error";
   import type { PaddleCheckoutStartResponse } from "../networking/responses/checkout-start-response";
   import PaddlePurchasesUiInner from "./paddle-purchases-ui-inner.svelte";
+  import PaddleInlineCheckoutPage from "./paddle-inline-checkout-page.svelte";
   import type { BrandingAppearance } from "../entities/branding";
 
   interface Props {
@@ -45,6 +46,13 @@
     attributionMetadata?: AttributionMetadata;
     unmountPaddlePurchaseUi: () => void;
     paddleService: PaddleService;
+    /**
+     * Internal flag (defaults to false). When true, Paddle's checkout is
+     * embedded inline in our own container instead of opening as an overlay.
+     * Not yet exposed through the public configure() surface — wiring and the
+     * inline state machine land in follow-up PRs.
+     */
+    useInlineCheckout?: boolean;
   }
 
   const {
@@ -67,6 +75,7 @@
     attributionMetadata,
     unmountPaddlePurchaseUi,
     paddleService,
+    useInlineCheckout = false,
   }: Props = $props();
 
   let translator: Translator = new Translator(
@@ -178,6 +187,7 @@
           customerEmail,
           locale: selectedLocale || defaultLocale,
         },
+        ...(useInlineCheckout && { displayMode: "inline" as const }),
       });
 
       if (skipSuccessPage) {
@@ -217,7 +227,23 @@
   });
 </script>
 
-{#if currentPage !== "waiting"}
+{#if useInlineCheckout}
+  {#if currentPage === "waiting" || currentPage === "loading"}
+    <!-- Paddle's inline checkout iframe mounts into the container rendered here. -->
+    <PaddleInlineCheckoutPage {brandingInfo} {isSandbox} {isInElement} />
+  {:else}
+    <PaddlePurchasesUiInner
+      currentPage={currentPage as "loading" | "success" | "error"}
+      {brandingInfo}
+      {productDetails}
+      {isSandbox}
+      lastError={error}
+      {isInElement}
+      onContinue={handleContinue}
+      {closeWithError}
+    />
+  {/if}
+{:else if currentPage !== "waiting"}
   <PaddlePurchasesUiInner
     currentPage={currentPage as "loading" | "success" | "error"}
     {brandingInfo}

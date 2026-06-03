@@ -498,4 +498,66 @@ describe("PaddlePurchasesUI", () => {
     const sandboxBanner = await screen.findByText("SANDBOX");
     expect(sandboxBanner).toBeInTheDocument();
   });
+
+  describe("inline checkout (useInlineCheckout)", () => {
+    test("renders the inline checkout container when enabled", async () => {
+      const paddleServiceMock = createPaddleServiceMock();
+      // Keep purchase pending so the inline container stays mounted.
+      vi.spyOn(paddleServiceMock, "purchase").mockImplementation(
+        () => new Promise(() => {}),
+      );
+
+      render(PaddlePurchasesUI, {
+        props: {
+          ...baseProps,
+          useInlineCheckout: true,
+          paddleService: paddleServiceMock,
+        },
+        context: defaultContext,
+      });
+
+      const container = await screen.findByTestId(
+        "paddle-inline-checkout-container",
+      );
+      expect(container).toBeInTheDocument();
+    });
+
+    test("calls purchase with displayMode inline when enabled", async () => {
+      const paddleServiceMock = createPaddleServiceMock();
+      const purchaseSpy = vi.spyOn(paddleServiceMock, "purchase");
+
+      render(PaddlePurchasesUI, {
+        props: {
+          ...baseProps,
+          useInlineCheckout: true,
+          paddleService: paddleServiceMock,
+        },
+        context: defaultContext,
+      });
+
+      await waitFor(() => {
+        expect(purchaseSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ displayMode: "inline" }),
+        );
+      });
+    });
+
+    test("does not render the inline container or pass displayMode by default", async () => {
+      const paddleServiceMock = createPaddleServiceMock();
+      const purchaseSpy = vi.spyOn(paddleServiceMock, "purchase");
+
+      render(PaddlePurchasesUI, {
+        props: { ...baseProps, paddleService: paddleServiceMock },
+        context: defaultContext,
+      });
+
+      await waitFor(() => {
+        expect(purchaseSpy).toHaveBeenCalled();
+      });
+      expect(purchaseSpy.mock.calls[0][0]).not.toHaveProperty("displayMode");
+      expect(
+        screen.queryByTestId("paddle-inline-checkout-container"),
+      ).not.toBeInTheDocument();
+    });
+  });
 });
