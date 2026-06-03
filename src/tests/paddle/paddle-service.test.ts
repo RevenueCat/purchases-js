@@ -299,6 +299,22 @@ describe("PaddleService", () => {
     });
   });
 
+  describe("closeCheckout", () => {
+    test("calls Paddle Checkout.close when initialized", async () => {
+      vi.mocked(initPaddle).mockResolvedValue(mockPaddleInstance);
+      await paddleService.initializePaddle("test-token", true);
+
+      paddleService.closeCheckout();
+
+      expect(mockPaddleInstance.Checkout?.close).toHaveBeenCalledTimes(1);
+    });
+
+    test("is a no-op when Paddle is not initialized", () => {
+      expect(() => paddleService.closeCheckout()).not.toThrow();
+      expect(mockPaddleInstance.Checkout?.close).not.toHaveBeenCalled();
+    });
+  });
+
   describe("startCheckout", () => {
     const startCheckoutArgs = {
       appUserId: "test-app-user-id",
