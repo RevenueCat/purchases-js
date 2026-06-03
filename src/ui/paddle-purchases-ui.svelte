@@ -230,7 +230,12 @@
 {#if useInlineCheckout}
   {#if currentPage === "waiting" || currentPage === "loading"}
     <!-- Paddle's inline checkout iframe mounts into the container rendered here. -->
-    <PaddleInlineCheckoutPage {brandingInfo} {isSandbox} {isInElement} />
+    <PaddleInlineCheckoutPage
+      {brandingInfo}
+      {isSandbox}
+      {isInElement}
+      {onClose}
+    />
   {:else}
     <PaddlePurchasesUiInner
       currentPage={currentPage as "loading" | "success" | "error"}
