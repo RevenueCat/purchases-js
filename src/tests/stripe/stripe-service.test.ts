@@ -521,5 +521,287 @@ describe("StripeService", () => {
         },
       });
     });
+
+    test("does not add lineItems when there is no applied discount", () => {
+      const expressCheckoutOptionsStripeService =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          priceBreakdown,
+          product.subscriptionOptions.option_id_1,
+          translator,
+          managementUrl,
+        );
+
+      expect(expressCheckoutOptionsStripeService.lineItems).toBeUndefined();
+    });
+
+    test("adds lineItems with subtotal and negative discount entries when a discount is applied", () => {
+      const priceBreakdownWithDiscount: PriceBreakdown = {
+        currency: "USD",
+        originalAmountInMicros: 12000000,
+        totalAmountInMicros: 10000000,
+        totalExcludingTaxInMicros: 10000000,
+        taxCalculationStatus: "calculated",
+        taxAmountInMicros: 0,
+        taxBreakdown: [],
+        appliedDiscounts: [
+          {
+            identifier: "discount-id",
+            displayName: "SAVE20",
+            discountedAmountInMicros: 2000000,
+            percentage: 20,
+            discountCode: "SAVE20",
+          },
+        ],
+      };
+
+      const expressCheckoutOptionsStripeService =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          priceBreakdownWithDiscount,
+          product.subscriptionOptions.option_id_1,
+          translator,
+          managementUrl,
+        );
+
+      expect(expressCheckoutOptionsStripeService.lineItems).toStrictEqual([
+        { name: product.title, amount: 1200 },
+        { name: "Discount: SAVE20", amount: -200 },
+      ]);
+
+      const sum = expressCheckoutOptionsStripeService.lineItems!.reduce(
+        (acc, item) => acc + item.amount,
+        0,
+      );
+      expect(sum).toBe(
+        StripeService.microsToMinimumAmountPrice(
+          priceBreakdownWithDiscount.totalAmountInMicros,
+          priceBreakdownWithDiscount.currency,
+        ),
+      );
+    });
+
+    test("adds a tax lineItem when tax is present so the line items sum to the total", () => {
+      const priceBreakdownWithDiscountAndTax: PriceBreakdown = {
+        currency: "USD",
+        originalAmountInMicros: 12000000,
+        totalAmountInMicros: 10800000,
+        totalExcludingTaxInMicros: 10000000,
+        taxCalculationStatus: "calculated",
+        taxAmountInMicros: 800000,
+        taxBreakdown: [
+          { tax_amount_in_micros: 800000, display_name: "VAT (8%)" },
+        ],
+        appliedDiscounts: [
+          {
+            identifier: "discount-id",
+            displayName: "SAVE20",
+            discountedAmountInMicros: 2000000,
+            percentage: 20,
+            discountCode: "SAVE20",
+          },
+        ],
+      };
+
+      const expressCheckoutOptionsStripeService =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          priceBreakdownWithDiscountAndTax,
+          product.subscriptionOptions.option_id_1,
+          translator,
+          managementUrl,
+        );
+
+      expect(expressCheckoutOptionsStripeService.lineItems).toStrictEqual([
+        { name: product.title, amount: 1200 },
+        { name: "Discount: SAVE20", amount: -200 },
+        { name: "Tax", amount: 80 },
+      ]);
+
+      const sum = expressCheckoutOptionsStripeService.lineItems!.reduce(
+        (acc, item) => acc + item.amount,
+        0,
+      );
+      expect(sum).toBe(
+        StripeService.microsToMinimumAmountPrice(
+          priceBreakdownWithDiscountAndTax.totalAmountInMicros,
+          priceBreakdownWithDiscountAndTax.currency,
+        ),
+      );
+    });
+
+    test("falls back to a generic 'Discount' label when displayName is empty", () => {
+      const priceBreakdownWithUnnamedDiscount: PriceBreakdown = {
+        currency: "USD",
+        originalAmountInMicros: 12000000,
+        totalAmountInMicros: 10000000,
+        totalExcludingTaxInMicros: 10000000,
+        taxCalculationStatus: "calculated",
+        taxAmountInMicros: 0,
+        taxBreakdown: [],
+        appliedDiscounts: [
+          {
+            identifier: null,
+            displayName: "",
+            discountedAmountInMicros: 2000000,
+            percentage: null,
+            discountCode: null,
+          },
+        ],
+      };
+
+      const expressCheckoutOptionsStripeService =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          priceBreakdownWithUnnamedDiscount,
+          product.subscriptionOptions.option_id_1,
+          translator,
+          managementUrl,
+        );
+
+      expect(expressCheckoutOptionsStripeService.lineItems).toStrictEqual([
+        { name: product.title, amount: 1200 },
+        { name: "Discount", amount: -200 },
+      ]);
+    });
+
+    test("appends the discount name to the Apple Pay paymentDescription and regularBilling label", () => {
+      const priceBreakdownWithDiscount: PriceBreakdown = {
+        currency: "USD",
+        originalAmountInMicros: 12000000,
+        totalAmountInMicros: 10000000,
+        totalExcludingTaxInMicros: 10000000,
+        taxCalculationStatus: "calculated",
+        taxAmountInMicros: 0,
+        taxBreakdown: [],
+        appliedDiscounts: [
+          {
+            identifier: "discount-id",
+            displayName: "SAVE20",
+            discountedAmountInMicros: 2000000,
+            percentage: 20,
+            discountCode: "SAVE20",
+          },
+        ],
+      };
+
+      const expressCheckoutOptionsStripeService =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          priceBreakdownWithDiscount,
+          product.subscriptionOptions.option_id_1,
+          translator,
+          managementUrl,
+        );
+
+      const expectedLabel = `${product.title} (SAVE20)`;
+      expect(
+        expressCheckoutOptionsStripeService.applePay?.recurringPaymentRequest
+          ?.paymentDescription,
+      ).toBe(expectedLabel);
+      expect(
+        expressCheckoutOptionsStripeService.applePay?.recurringPaymentRequest
+          ?.regularBilling.label,
+      ).toBe(expectedLabel);
+    });
+
+    test("joins multiple discounts in the discount suffix", () => {
+      const priceBreakdownWithDiscounts: PriceBreakdown = {
+        currency: "USD",
+        originalAmountInMicros: 12000000,
+        totalAmountInMicros: 7000000,
+        totalExcludingTaxInMicros: 7000000,
+        taxCalculationStatus: "calculated",
+        taxAmountInMicros: 0,
+        taxBreakdown: [],
+        appliedDiscounts: [
+          {
+            identifier: "discount-id",
+            displayName: "SAVE20",
+            discountedAmountInMicros: 2000000,
+            percentage: 20,
+            discountCode: "SAVE20",
+          },
+          {
+            identifier: "referral",
+            displayName: "REFERRAL",
+            discountedAmountInMicros: 3000000,
+            percentage: null,
+            discountCode: "REFERRAL",
+          },
+        ],
+      };
+
+      const expressCheckoutOptionsStripeService =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          priceBreakdownWithDiscounts,
+          product.subscriptionOptions.option_id_1,
+          translator,
+          managementUrl,
+        );
+
+      const expectedLabel = `${product.title} (SAVE20, REFERRAL)`;
+      expect(
+        expressCheckoutOptionsStripeService.applePay?.recurringPaymentRequest
+          ?.regularBilling.label,
+      ).toBe(expectedLabel);
+    });
+
+    test("uses the localized 'Discount' fallback in the label when no displayName or code is available", () => {
+      const priceBreakdownWithUnnamedDiscount: PriceBreakdown = {
+        currency: "USD",
+        originalAmountInMicros: 12000000,
+        totalAmountInMicros: 10000000,
+        totalExcludingTaxInMicros: 10000000,
+        taxCalculationStatus: "calculated",
+        taxAmountInMicros: 0,
+        taxBreakdown: [],
+        appliedDiscounts: [
+          {
+            identifier: null,
+            displayName: "",
+            discountedAmountInMicros: 2000000,
+            percentage: null,
+            discountCode: null,
+          },
+        ],
+      };
+
+      const expressCheckoutOptionsStripeService =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          priceBreakdownWithUnnamedDiscount,
+          product.subscriptionOptions.option_id_1,
+          translator,
+          managementUrl,
+        );
+
+      const expectedLabel = `${product.title} (Discount)`;
+      expect(
+        expressCheckoutOptionsStripeService.applePay?.recurringPaymentRequest
+          ?.regularBilling.label,
+      ).toBe(expectedLabel);
+    });
+
+    test("leaves the Apple Pay label unchanged when there is no discount", () => {
+      const expressCheckoutOptionsStripeService =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          priceBreakdown,
+          product.subscriptionOptions.option_id_1,
+          translator,
+          managementUrl,
+        );
+
+      expect(
+        expressCheckoutOptionsStripeService.applePay?.recurringPaymentRequest
+          ?.regularBilling.label,
+      ).toBe(product.title);
+      expect(
+        expressCheckoutOptionsStripeService.applePay?.recurringPaymentRequest
+          ?.paymentDescription,
+      ).toBe(product.title);
+    });
   });
 });

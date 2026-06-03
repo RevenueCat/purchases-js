@@ -184,6 +184,7 @@ const PaywallPage: React.FC = () => {
   const displayName = searchParams.get("$displayName");
   const nickname = searchParams.get("nickname");
   const skipSuccessPage = searchParams.get("skipSuccessPage") === "true";
+  const discountCode = searchParams.get("discountCode") || undefined;
   const attributesSetRef = useRef(false);
 
   useEffect(() => {
@@ -250,6 +251,7 @@ const PaywallPage: React.FC = () => {
           selectedLocale: lang || navigator.language,
           customerEmail: email || undefined,
           skipSuccessPage: skipSuccessPage,
+          discountCode,
           // @ts-expect-error This method is marked as internal for now but it's public.'
           labelsOverride: {
             en: {

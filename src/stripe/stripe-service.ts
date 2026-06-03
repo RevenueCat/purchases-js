@@ -18,9 +18,10 @@ import type { Product, SubscriptionOption } from "../entities/offerings";
 import type { Translator } from "../ui/localization/translator";
 import { LocalizationKeys } from "../ui/localization/supportedLanguages";
 import type { StripeExpressCheckoutElementOptions } from "@stripe/stripe-js/dist/stripe-js/elements/index";
+import type { LineItem } from "@stripe/stripe-js/dist/stripe-js/elements/express-checkout";
 import { type Period, PeriodUnit } from "../helpers/duration-helper";
 import type { StripeExpressCheckoutConfiguration } from "./stripe-express-checkout-configuration";
-import type { PriceBreakdown } from "../ui/ui-types";
+import type { AppliedDiscount, PriceBreakdown } from "../ui/ui-types";
 import type { StripeBillingParams } from "../networking/responses/checkout-start-response";
 
 export enum StripeServiceErrorCode {
@@ -497,6 +498,25 @@ export class StripeService {
       ? StripeService.applePayPeriod(basePeriod)
       : {};
 
+    const lineItems = StripeService.buildExpressCheckoutLineItems(
+      productDetails,
+      priceBreakdown,
+      translator,
+    );
+
+    // Apple Pay's subscription sheet de-emphasizes the generic `lineItems`
+    // array in favor of `recurringPaymentRequest`, so we also surface the
+    // active discount in the recurring billing label and the payment
+    // description to make sure customers see something other than just the
+    // discounted total.
+    const discountSuffix = StripeService.buildAppliedDiscountSuffix(
+      priceBreakdown.appliedDiscounts,
+      translator,
+    );
+    const recurringLabel = discountSuffix
+      ? `${productDetails.title} ${discountSuffix}`
+      : productDetails.title;
+
     return {
       layout: {
         maxRows,
@@ -504,9 +524,11 @@ export class StripeService {
         overflow,
       },
 
+      ...(lineItems ? { lineItems } : {}),
+
       applePay: {
         recurringPaymentRequest: {
-          paymentDescription: productDetails.title,
+          paymentDescription: recurringLabel,
           managementURL: managementUrl,
           trialBilling: hasTrial
             ? {
@@ -515,7 +537,7 @@ export class StripeService {
               }
             : undefined,
           regularBilling: {
-            label: productDetails.title,
+            label: recurringLabel,
             amount: priceMinimumAmount,
             recurringPaymentStartDate: recurringPaymentStartDate,
             ...recurringPeriod,
@@ -523,5 +545,97 @@ export class StripeService {
         },
       },
     };
+  }
+
+  /**
+   * Builds a short parenthesized suffix describing the applied discount(s),
+   * e.g. ` (SAVE20)` or ` (SAVE20, REFERRAL)`, to be appended to Apple Pay
+   * `paymentDescription` / `regularBilling.label` so the discount is visible
+   * in the subscription sheet. Falls back to the localized "Discount" label
+   * when no display name or code is available.
+   */
+  private static buildAppliedDiscountSuffix(
+    appliedDiscounts: AppliedDiscount[] | undefined,
+    translator: Translator,
+  ): string | undefined {
+    if (!appliedDiscounts || appliedDiscounts.length === 0) {
+      return undefined;
+    }
+    const names = appliedDiscounts
+      .map((d) => d.displayName || d.discountCode)
+      .filter((n): n is string => !!n);
+    const label =
+      names.length > 0
+        ? names.join(", ")
+        : translator.translate(LocalizationKeys.PricingTableDiscount);
+    return `(${label})`;
+  }
+
+  /**
+   * Builds the line items to be shown in the native wallet payment sheet
+   * (Apple Pay, Google Pay) when launching an express checkout.
+   *
+   * Returns `undefined` when there's no discount applied, in which case
+   * the wallet UI will just display the total without a breakdown.
+   *
+   * When a discount is applied, returns an array including the subscription
+   * subtotal, one entry per applied discount (with negative amounts) and,
+   * if applicable, the tax amount so the line items sum to the charged total.
+   */
+  static buildExpressCheckoutLineItems(
+    productDetails: Product,
+    priceBreakdown: PriceBreakdown,
+    translator: Translator,
+  ): LineItem[] | undefined {
+    const appliedDiscounts = priceBreakdown.appliedDiscounts ?? [];
+    if (appliedDiscounts.length === 0) {
+      return undefined;
+    }
+
+    const subtotalInMicros =
+      priceBreakdown.originalAmountInMicros ??
+      priceBreakdown.totalExcludingTaxInMicros;
+
+    const lineItems: LineItem[] = [
+      {
+        name: productDetails.title,
+        amount: StripeService.microsToMinimumAmountPrice(
+          subtotalInMicros,
+          priceBreakdown.currency,
+        ),
+      },
+      ...appliedDiscounts.map((discount) => ({
+        name: StripeService.buildDiscountLineItemName(discount, translator),
+        amount: -StripeService.microsToMinimumAmountPrice(
+          discount.discountedAmountInMicros,
+          priceBreakdown.currency,
+        ),
+      })),
+    ];
+
+    const taxAmountInMicros = priceBreakdown.taxAmountInMicros ?? 0;
+    if (taxAmountInMicros > 0) {
+      lineItems.push({
+        name: translator.translate(LocalizationKeys.PricingTableTax),
+        amount: StripeService.microsToMinimumAmountPrice(
+          taxAmountInMicros,
+          priceBreakdown.currency,
+        ),
+      });
+    }
+
+    return lineItems;
+  }
+
+  private static buildDiscountLineItemName(
+    discount: AppliedDiscount,
+    translator: Translator,
+  ): string {
+    const discountLabel = translator.translate(
+      LocalizationKeys.PricingTableDiscount,
+    );
+    return discount.displayName
+      ? `${discountLabel}: ${discount.displayName}`
+      : discountLabel;
   }
 }
