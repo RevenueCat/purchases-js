@@ -508,9 +508,6 @@ export class StripeService {
     );
 
     if (!isSubscription) {
-      console.log("LOGGING: lineItems", lineItems);
-      // Consumable / non-consumable: no recurring payment request. Apple Pay
-      // and Google Pay both render top-level lineItems for one-off carts.
       return {
         layout,
         ...(lineItems ? { lineItems } : {}),
@@ -534,40 +531,6 @@ export class StripeService {
     };
   }
 
-  /**
-   * @deprecated Use {@link buildStripeExpressCheckoutOptions} instead.
-   */
-  static buildStripeExpressCheckoutOptionsForSubscription(
-    productDetails: Product,
-    priceBreakdown: PriceBreakdown,
-    subscriptionOption: SubscriptionOption,
-    translator: Translator,
-    managementUrl: string,
-    maxRows?: number,
-    maxColumns?: number,
-    overflow?: "auto" | "never",
-  ): StripeExpressCheckoutConfiguration {
-    return StripeService.buildStripeExpressCheckoutOptions(
-      productDetails,
-      priceBreakdown,
-      subscriptionOption,
-      translator,
-      managementUrl,
-      maxRows,
-      maxColumns,
-      overflow,
-    );
-  }
-
-  /**
-   * Builds a [subtotal, discount] line item pair when a discount applies,
-   * so that both Apple Pay (one-off) and Google Pay render the discount in
-   * the payment sheet. Returns undefined when there is no discount to show.
-   *
-   * Stripe requires sum(lineItems) === elements.amount. We compute the
-   * subtotal as `totalAmountInMicros + discountAmount` so the math always
-   * balances against the post-discount total provided by the caller.
-   */
   private static buildExpressLineItems(
     productDetails: Product,
     priceBreakdown: PriceBreakdown,
@@ -606,11 +569,6 @@ export class StripeService {
     ];
   }
 
-  /**
-   * Returns the discount amount (positive) expressed in the currency's
-   * minimum unit, derived from the first-invoice total and the product's
-   * full price.
-   */
   private static computeDiscountAmountMinor(
     productDetails: Product,
     priceBreakdown: PriceBreakdown,
@@ -650,10 +608,6 @@ export class StripeService {
    *   - forever: no intro slot — the discounted price IS the recurring
    *     price, so we just put it directly in `regularBilling` with the
    *     discount name as the label.
-   *
-   * Precedence: a free trial wins the `trialBilling` slot. When trial and
-   * discount both exist, the discount is not surfaced in the Apple Pay
-   * sheet (Google Pay still gets it via top-level `lineItems`).
    */
   private static buildApplePayRecurringRequest(
     productDetails: Product,
@@ -756,9 +710,6 @@ export class StripeService {
         managementURL: managementUrl,
         ...(trialBilling ? { trialBilling } : {}),
         regularBilling,
-        ...(discount?.percentage != null
-          ? { billingAgreement: `${discount.percentage}% off applied` }
-          : {}),
       },
     };
   }

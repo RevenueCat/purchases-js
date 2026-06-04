@@ -461,7 +461,6 @@ describe("StripeService", () => {
       maxRows: undefined,
       overflow: undefined,
     };
-    // The base/regular price for the test fixture product is $9.90 (990 cents).
     const baseBreakdown: PriceBreakdown = {
       currency: "USD",
       totalAmountInMicros: 9_900_000,
@@ -547,7 +546,6 @@ describe("StripeService", () => {
     });
 
     test("subscription with one_time discount: line items + Apple Pay 1-period intro then full regularBilling", () => {
-      // discountOneTime: $1.00 first month, then $9.90/month recurring
       const breakdown = makeBreakdown(1_000_000);
       const result = StripeService.buildStripeExpressCheckoutOptions(
         product,
@@ -577,13 +575,9 @@ describe("StripeService", () => {
         recurringPaymentIntervalUnit: "month",
         recurringPaymentIntervalCount: 1,
       });
-      expect(result.applePay?.recurringPaymentRequest?.billingAgreement).toBe(
-        "20% off applied",
-      );
     });
 
     test("subscription with time_window discount: line items + Apple Pay N-cycle intro then full regularBilling", () => {
-      // discountTimeWindow: $7.99/month for 3 months, then $9.90/month recurring
       const breakdown = makeBreakdown(7_990_000);
       const result = StripeService.buildStripeExpressCheckoutOptions(
         product,
@@ -613,13 +607,9 @@ describe("StripeService", () => {
         recurringPaymentIntervalUnit: "month",
         recurringPaymentIntervalCount: 1,
       });
-      expect(result.applePay?.recurringPaymentRequest?.billingAgreement).toBe(
-        "20% off applied",
-      );
     });
 
     test("subscription with forever discount: line items + Apple Pay regularBilling labelled with discount", () => {
-      // discountForever: $6.88/month, every month (no intro period)
       const breakdown = makeBreakdown(6_880_000);
       const result = StripeService.buildStripeExpressCheckoutOptions(
         product,
@@ -644,16 +634,9 @@ describe("StripeService", () => {
         recurringPaymentIntervalUnit: "month",
         recurringPaymentIntervalCount: 1,
       });
-      expect(result.applePay?.recurringPaymentRequest?.billingAgreement).toBe(
-        "30% off applied",
-      );
     });
 
     test("weekly subscription with multi-month discount: trialBilling uses base (weekly) interval, not the discount window", () => {
-      // Regression: discount.period describes the DURATION of the discount
-      // window, not the billing frequency. A weekly subscription with a
-      // 3-month discount must still bill weekly during the discount —
-      // expressed as base-cycle interval + recurringPaymentEndDate.
       const breakdown = makeBreakdown(7_990_000);
       const result = StripeService.buildStripeExpressCheckoutOptions(
         product,
@@ -695,7 +678,6 @@ describe("StripeService", () => {
     });
 
     test("consumable with discount: line items, no recurring request", () => {
-      // discountOneTime on the consumable: subtotal $9.90, pay $1.00
       const breakdown = makeBreakdown(1_000_000);
       const result = StripeService.buildStripeExpressCheckoutOptions(
         consumableProduct,

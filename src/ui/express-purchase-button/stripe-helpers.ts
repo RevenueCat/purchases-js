@@ -104,7 +104,6 @@ export const toExpressPurchaseOptions = (
     2,
     1,
   );
-  console.log("LOGGING: options", options);
 
   if (walletButtonTheme) {
     options.buttonTheme = {
