@@ -12,7 +12,12 @@
     type PurchaseOption,
     type SubscriptionOption,
   } from "../../entities/offerings";
-  import { type Period } from "../../helpers/duration-helper";
+  import {
+    getNextRenewalDate,
+    type Period,
+  } from "../../helpers/duration-helper";
+  import { toBcp47Locale } from "../../helpers/locale-helper";
+  import { LocalizationKeys } from "../localization/supportedLanguages";
   import type { PaddleCheckoutTotals } from "../../paddle/paddle-service";
 
   interface Props {
@@ -35,9 +40,13 @@
   const theme = new Theme(brandingInfo?.appearance ?? null);
   const cardBackground = theme.formColors.background;
 
-  const isSubscription = productDetails.productType === "subscription";
-  const basePeriod: Period | null = isSubscription
-    ? ((purchaseOption as SubscriptionOption)?.base?.period ?? null)
+  // Type guard instead of an unchecked `as SubscriptionOption` cast: only
+  // subscription options expose `base`, which carries the renewal period.
+  const isSubscriptionOption = (
+    option: PurchaseOption,
+  ): option is SubscriptionOption => "base" in option;
+  const basePeriod: Period | null = isSubscriptionOption(purchaseOption)
+    ? (purchaseOption.base.period ?? null)
     : null;
 
   const toMicros = (amount: number): number => Math.round(amount * 1_000_000);
@@ -68,33 +77,19 @@
   const hasTax = $derived(!!totals && totals.taxAmount > 0);
 
   // Best-effort next billing date for the recurring row: today + the base
-  // period. The exact Paddle renewal date isn't exposed through checkout events.
+  // period, formatted in the active locale. Reuses getNextRenewalDate so the
+  // leap-year / month-overflow edge cases live in one place. The exact Paddle
+  // renewal date isn't exposed through checkout events.
   const nextBillingLabel = $derived.by(() => {
     if (!totals || totals.recurringTotalAmount === null || !basePeriod)
       return null;
-    const date = new Date();
-    const n = basePeriod.number;
-    switch (basePeriod.unit) {
-      case "day":
-        date.setDate(date.getDate() + n);
-        break;
-      case "week":
-        date.setDate(date.getDate() + 7 * n);
-        break;
-      case "month":
-        date.setMonth(date.getMonth() + n);
-        break;
-      case "year":
-        date.setFullYear(date.getFullYear() + n);
-        break;
-      default:
-        return null;
-    }
-    return new Intl.DateTimeFormat(undefined, {
+    const renewalDate = getNextRenewalDate(new Date(), basePeriod, true);
+    if (!renewalDate) return null;
+    return new Intl.DateTimeFormat(toBcp47Locale($translator.selectedLocale), {
       day: "numeric",
       month: "long",
       year: "numeric",
-    }).format(date);
+    }).format(renewalDate);
   });
 </script>
 
@@ -104,7 +99,7 @@
     <div class="rcb-paddle-summary-amount-row">
       <span class="rcb-paddle-summary-amount">{formatAmount(totalMicros)}</span>
       {#if hasTax}
-        <span class="rcb-paddle-summary-muted">inc. VAT</span>
+        <span class="rcb-paddle-summary-muted">inc. tax</span>
       {/if}
     </div>
     {#if billedFrequencyLabel}
@@ -131,18 +126,26 @@
   {#if totals}
     <div class="rcb-paddle-summary-card">
       <div class="rcb-paddle-summary-row">
-        <span class="rcb-paddle-summary-muted">Subtotal</span>
+        <span class="rcb-paddle-summary-muted"
+          >{$translator.translate(LocalizationKeys.PricingTableSubtotal)}</span
+        >
         <span>{formatAmount(toMicros(totals.subtotalAmount))}</span>
       </div>
       {#if hasTax}
         <div class="rcb-paddle-summary-row">
-          <span class="rcb-paddle-summary-muted">VAT</span>
+          <span class="rcb-paddle-summary-muted"
+            >{$translator.translate(LocalizationKeys.PricingTableTax)}</span
+          >
           <span>{formatAmount(toMicros(totals.taxAmount))}</span>
         </div>
       {/if}
       <hr class="rcb-paddle-summary-divider" />
       <div class="rcb-paddle-summary-row rcb-paddle-summary-row-strong">
-        <span>Total</span>
+        <span
+          >{$translator.translate(
+            LocalizationKeys.PricingTableTotalDueToday,
+          )}</span
+        >
         <span>{formatAmount(toMicros(totals.totalAmount))}</span>
       </div>
       {#if totals.recurringTotalAmount !== null && nextBillingLabel}
