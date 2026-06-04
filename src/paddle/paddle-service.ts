@@ -3,7 +3,6 @@ import type {
   DisplayMode,
   Paddle,
   PaddleEventData,
-  Theme,
   Variant,
   Version,
 } from "@paddle/paddle-js";
@@ -105,7 +104,7 @@ export function buildPaddleCheckoutOptions({
   theme = "light",
 }: BuildPaddleCheckoutOptionsParams): CheckoutOpenOptions {
   const commonSettings = {
-    theme: theme as Theme,
+    theme,
     variant: "one-page" as Variant,
     locale,
     allowLogout: false,
