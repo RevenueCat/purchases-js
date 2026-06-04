@@ -1,6 +1,10 @@
 <script module lang="ts">
   import { getContext, onDestroy, onMount } from "svelte";
-  import type { Product, PurchaseOption } from "../../entities/offerings";
+  import {
+    ProductType,
+    type Product,
+    type PurchaseOption,
+  } from "../../entities/offerings";
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
   import IconError from "../atoms/icons/icon-error.svelte";
   import MessageLayout from "../layout/message-layout.svelte";
@@ -174,17 +178,31 @@
         taxCalculationStatus === "miss-match"),
   );
 
+  // Resolve the right purchase option for the Express Checkout Element so
+  // that non-subscription products (consumable / non-consumable) also get
+  // their discount lineItems forwarded to Apple Pay / Google Pay. The
+  // payment-entry-page previously only handled subscriptionOption, which
+  // meant the ECE on this page received `undefined` for non-subscriptions
+  // and rendered just the final price with no breakdown.
+  const expressCheckoutPurchaseOption =
+    productDetails.productType === ProductType.Subscription
+      ? subscriptionOption
+      : productDetails.defaultNonSubscriptionOption;
+
   let expressCheckoutOptions = $derived(
-    subscriptionOption && managementUrl && priceBreakdown
-      ? StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+    expressCheckoutPurchaseOption &&
+      priceBreakdown &&
+      (productDetails.productType !== ProductType.Subscription || managementUrl)
+      ? StripeService.buildStripeExpressCheckoutOptions(
           productDetails,
           priceBreakdown,
-          subscriptionOption,
+          expressCheckoutPurchaseOption,
           $translator,
-          managementUrl,
+          managementUrl ?? "",
         )
       : undefined,
   );
+  console.log("LOGGING: expressCheckoutOptions", expressCheckoutOptions);
 
   $effect(() => {
     onPriceBreakdownUpdated(priceBreakdown);

@@ -1,8 +1,10 @@
-import type {
-  Package,
-  Product,
-  PurchaseOption,
-  SubscriptionOption,
+import {
+  ProductType,
+  type NonSubscriptionOption,
+  type Package,
+  type Product,
+  type PurchaseOption,
+  type SubscriptionOption,
 } from "../../entities/offerings";
 import type { Translator } from "../localization/translator";
 import type { GatewayParams } from "../../networking/responses/stripe-elements";
@@ -20,28 +22,35 @@ import { getNullableWindow } from "../../helpers/browser-globals";
 import type { BrandingInfoResponse } from "../../networking/responses/branding-response";
 import type { WalletButtonTheme } from "@revenuecat/purchases-ui-js";
 
-const getSubscriptionOptionForExpressCheckout = (
+const getPurchaseOptionForExpressCheckout = (
   productDetails: Product,
   purchaseOptionId: string,
-): SubscriptionOption => {
-  const subscriptionOption =
-    productDetails.subscriptionOptions?.[purchaseOptionId] ||
-    productDetails.defaultSubscriptionOption;
+): SubscriptionOption | NonSubscriptionOption => {
+  if (productDetails.productType === ProductType.Subscription) {
+    const subscriptionOption =
+      productDetails.subscriptionOptions?.[purchaseOptionId] ||
+      productDetails.defaultSubscriptionOption;
 
-  if (!subscriptionOption) {
-    throw new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase);
+    if (!subscriptionOption) {
+      throw new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase);
+    }
+    return subscriptionOption;
   }
 
-  return subscriptionOption;
+  const nonSubscriptionOption = productDetails.defaultNonSubscriptionOption;
+  if (!nonSubscriptionOption) {
+    throw new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase);
+  }
+  return nonSubscriptionOption;
 };
 
 const buildExpressCheckoutPriceBreakdown = (
   productDetails: Product,
-  subscriptionOption: SubscriptionOption,
+  purchaseOption: SubscriptionOption | NonSubscriptionOption,
 ): PriceBreakdown => {
   const initialPrice = getInitialPriceFromPurchaseOption(
     productDetails,
-    subscriptionOption,
+    purchaseOption,
   );
 
   // Design decision: We will always show the price before taxes in the
@@ -64,15 +73,15 @@ const resolveExpressCheckoutPricingDetails = (
   productDetails: Product,
   purchaseOptionId: string,
 ) => {
-  const subscriptionOption = getSubscriptionOptionForExpressCheckout(
+  const purchaseOption = getPurchaseOptionForExpressCheckout(
     productDetails,
     purchaseOptionId,
   );
   const priceBreakdown = buildExpressCheckoutPriceBreakdown(
     productDetails,
-    subscriptionOption,
+    purchaseOption,
   );
-  return { subscriptionOption, priceBreakdown };
+  return { purchaseOption, priceBreakdown };
 };
 
 export const toExpressPurchaseOptions = (
@@ -83,19 +92,19 @@ export const toExpressPurchaseOptions = (
   walletButtonTheme?: WalletButtonTheme,
 ) => {
   const productDetails: Product = rcPackage.webBillingProduct;
-  const { subscriptionOption, priceBreakdown } =
+  const { purchaseOption: resolvedOption, priceBreakdown } =
     resolveExpressCheckoutPricingDetails(productDetails, purchaseOption.id);
 
-  const options =
-    StripeService.buildStripeExpressCheckoutOptionsForSubscription(
-      productDetails,
-      priceBreakdown,
-      subscriptionOption,
-      translator,
-      managementUrl,
-      2,
-      1,
-    );
+  const options = StripeService.buildStripeExpressCheckoutOptions(
+    productDetails,
+    priceBreakdown,
+    resolvedOption,
+    translator,
+    managementUrl,
+    2,
+    1,
+  );
+  console.log("LOGGING: options", options);
 
   if (walletButtonTheme) {
     options.buttonTheme = {
