@@ -140,9 +140,8 @@
     appliedDiscounts,
   });
 
-  let elementsConfiguration: StripeElementsConfiguration | undefined = $state(
-    gatewayParams.elements_configuration,
-  );
+  let baseElementsConfiguration: StripeElementsConfiguration | undefined =
+    $state(gatewayParams.elements_configuration);
 
   let lastTaxCustomerDetails: TaxCustomerDetails | null = $state(null);
 
@@ -197,6 +196,20 @@
       : undefined,
   );
 
+  let elementsConfiguration: StripeElementsConfiguration | undefined = $derived(
+    baseElementsConfiguration &&
+      expressCheckoutOptions?.lineItems &&
+      priceBreakdown.totalAmountInMicros != null
+      ? {
+          ...baseElementsConfiguration,
+          amount: StripeService.microsToMinimumAmountPrice(
+            priceBreakdown.totalAmountInMicros,
+            priceBreakdown.currency,
+          ),
+        }
+      : baseElementsConfiguration,
+  );
+
   $effect(() => {
     onPriceBreakdownUpdated(priceBreakdown);
   });
@@ -217,7 +230,7 @@
   });
 
   $effect(() => {
-    elementsConfiguration = gatewayParams.elements_configuration;
+    baseElementsConfiguration = gatewayParams.elements_configuration;
   });
 
   $effect(() => {
@@ -303,7 +316,7 @@
     totalExcludingTaxInMicros = nextPriceBreakdown.totalExcludingTaxInMicros;
     totalAmountInMicros = nextPriceBreakdown.totalAmountInMicros;
     appliedDiscounts = nextPriceBreakdown.appliedDiscounts ?? [];
-    elementsConfiguration =
+    baseElementsConfiguration =
       pricingResponse.gateway_params.elements_configuration;
     lastTaxCustomerDetails = taxCustomerDetails;
   }

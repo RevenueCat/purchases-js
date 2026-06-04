@@ -65,6 +65,8 @@ vi.mock("../../../stripe/stripe-service", async () => {
       updateElementsConfiguration: vi.fn(),
       getStripeLocale: vi.fn().mockImplementation((locale: string) => locale),
       confirmIntent: vi.fn(),
+      microsToMinimumAmountPrice:
+        actual.StripeService.microsToMinimumAmountPrice,
     },
   };
 });

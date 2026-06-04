@@ -6,6 +6,7 @@
     brandingInfos,
     checkoutStartResponse,
     product,
+    stripeElementsConfiguration,
     subscriptionOption,
     subscriptionOptionWithDiscountOneTime,
     subscriptionOptionWithTrial,
@@ -73,7 +74,7 @@
     closeWithError={() => {}}
     customerEmail={args.customerEmail}
     lastError={null}
-    gatewayParams={checkoutStartResponse.gateway_params}
+    gatewayParams={args.gatewayParams ?? checkoutStartResponse.gateway_params}
     {purchaseOperationHelper}
     defaultPriceBreakdown={args.defaultPriceBreakdown ??
       (args.withTaxes
@@ -166,6 +167,13 @@
     showDiscountCodeField: true,
     appliedDiscountCode: "SAVE10",
     isDiscountCodeControlsEnabled: true,
+    gatewayParams: {
+      ...checkoutStartResponse.gateway_params,
+      elements_configuration: {
+        ...stripeElementsConfiguration,
+        amount: 100,
+      },
+    },
   }}
   parameters={{
     chromatic: {
