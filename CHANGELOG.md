@@ -1,3 +1,8 @@
+## 1.42.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Bump purchases-ui-js to 4.7.2 (#902) via Monika Mateska (@MonikaMateska)
+
 ## 1.42.0
 ## RevenueCat SDK
 ### ✨ New Features
