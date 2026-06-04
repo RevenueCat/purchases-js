@@ -75,7 +75,8 @@ const isLightColor = ({
 export const DEFAULT_LUMINANCE_THRESHOLD = 0.37;
 
 /**
- * Returns whether a hex color (e.g. "#ffffff" or "#fff") reads as light.
+ * Returns whether a 6-digit hex color (e.g. "#ffffff") reads as light.
+ * Shorthand (#fff) is not expanded — branding colors are always 6-digit.
  * Unparseable colors fall back to `true` (light), matching the default
  * white-ish backgrounds used across the checkout UI.
  */
