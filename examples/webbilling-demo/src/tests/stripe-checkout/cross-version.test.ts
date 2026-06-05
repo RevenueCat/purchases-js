@@ -15,12 +15,10 @@ import {
   STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
 } from "./test-helpers";
 
-// Stripe.js ships as named release trains, and the embedded-checkout method was
-// renamed across them (initEmbeddedCheckout -> createEmbeddedCheckoutPage in
-// dahlia). A merchant self-loads one train, Stripe.js is a single global per
-// page, and our loader reuses whatever is already there - so the SDK runs
-// against whatever train the merchant loaded. Pin each train, then run a real
-// checkout to prove the SDK works across all of them.
+// Stripe.js is a single global per page and our loader reuses whatever train a
+// merchant self-loaded, so the SDK must work against any of them - even though
+// the embedded-checkout method was renamed across trains
+// (initEmbeddedCheckout -> createEmbeddedCheckoutPage in dahlia).
 const STRIPE_JS_TRAINS = ["basil", "clover", "dahlia"] as const;
 
 async function preloadStripeJsTrain(page: Page, train: string): Promise<void> {
@@ -85,8 +83,8 @@ integrationTest.describe("Stripe Checkout cross-version compatibility", () => {
         await startPurchaseFlow(packageCards[0]);
         await confirmStripeCheckoutVisible(page);
 
-        // The SDK must reuse the train the page already loaded, not inject its
-        // own - a second train would be the method-name mismatch we guard for.
+        // The SDK reuses the page's train rather than injecting its own; a
+        // second train would mean it bypassed the merchant's Stripe.js.
         expect([...new Set(await loadedStripeJsTrains(page))]).toEqual([train]);
 
         await completeStripeCheckoutEmbeddedForm(page, email, fullName, false);
