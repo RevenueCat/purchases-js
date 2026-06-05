@@ -6,9 +6,9 @@ import { skipStripeTestsIfDisabled } from "../helpers/test-helpers";
 integrationTest.describe("Stripe Checkout E2E configuration", () => {
   skipStripeTestsIfDisabled(integrationTest);
 
-  // A missing key makes the whole Stripe Checkout suite (including the
-  // cross-version matrix) skip while CI still reports green - hiding the gap.
-  // Fail loudly on CI instead so a dropped secret cannot pass unnoticed.
+  // A missing key skips the whole Stripe Checkout suite (including the
+  // cross-version matrix) while CI still reports green, so fail loudly here
+  // instead and surface the dropped secret.
   integrationTest(
     "Stripe Checkout E2E key is set on CI so the suite cannot silently skip",
     () => {
@@ -18,7 +18,7 @@ integrationTest.describe("Stripe Checkout E2E configuration", () => {
       );
       expect(
         STRIPE_CHECKOUT_TEST_API_KEY,
-        "E2E_RC_STRIPE_CHECKOUT_E2E_API_KEY is not set; the Stripe Checkout E2E suite would skip. Configure the secret in CircleCI.",
+        "VITE_RC_STRIPE_CHECKOUT_E2E_API_KEY is not set; the Stripe Checkout E2E suite would skip. Configure the secret in CircleCI.",
       ).toBeTruthy();
     },
   );
