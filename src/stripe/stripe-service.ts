@@ -25,7 +25,7 @@ import { LocalizationKeys } from "../ui/localization/supportedLanguages";
 import type { StripeExpressCheckoutElementOptions } from "@stripe/stripe-js/dist/stripe-js/elements/index";
 import type { LineItem } from "@stripe/stripe-js/dist/stripe-js/elements/express-checkout";
 import { type Period, PeriodUnit } from "../helpers/duration-helper";
-import { formatDiscountDisplayLabel } from "../helpers/discount-suffix-helper";
+import { resolveDiscountBreakdown } from "../helpers/discount-breakdown-helper";
 import type { StripeExpressCheckoutConfiguration } from "./stripe-express-checkout-configuration";
 import type { PriceBreakdown } from "../ui/ui-types";
 import type { StripeBillingParams } from "../networking/responses/checkout-start-response";
@@ -573,56 +573,40 @@ export class StripeService {
   private static buildExpressLineItems(
     productDetails: Product,
     priceBreakdown: PriceBreakdown,
-    discount: DiscountPhase | null,
+    purchaseOptionDiscount: DiscountPhase | null,
     fullPriceMicros: number,
     basePeriod: Period | null | undefined,
     translator: Translator,
   ): LineItem[] | undefined {
-    if (!discount) return undefined;
-
-    const totalMinimumAmount = StripeService.microsToMinimumAmountPrice(
-      priceBreakdown.totalAmountInMicros,
-      priceBreakdown.currency,
-    );
-
-    const discountMinimumAmount = StripeService.computeDiscountMinimumAmount(
+    const breakdown = resolveDiscountBreakdown({
+      priceBreakdown,
+      purchaseOptionDiscount,
       fullPriceMicros,
-      discount,
-      priceBreakdown.currency,
-    );
-
-    if (discountMinimumAmount <= 0) return undefined;
-
-    const subtotalMinimumAmount = totalMinimumAmount + discountMinimumAmount;
-    const discountLabel = formatDiscountDisplayLabel(
-      discount.name,
-      discount,
       basePeriod,
       translator,
-      translator.translate(LocalizationKeys.PricingTableDiscount),
+      fallbackDiscountName: translator.translate(
+        LocalizationKeys.PricingTableDiscount,
+      ),
+    });
+    if (!breakdown) return undefined;
+
+    const { currency } = priceBreakdown;
+    const totalMinimumAmount = StripeService.microsToMinimumAmountPrice(
+      priceBreakdown.totalAmountInMicros,
+      currency,
     );
+    const discountMinimumAmount = StripeService.microsToMinimumAmountPrice(
+      breakdown.discountAmountInMicros,
+      currency,
+    );
+    if (discountMinimumAmount <= 0) return undefined;
 
     return [
-      { name: productDetails.title, amount: subtotalMinimumAmount },
-      { name: discountLabel, amount: -discountMinimumAmount },
+      {
+        name: productDetails.title,
+        amount: totalMinimumAmount + discountMinimumAmount,
+      },
+      { name: breakdown.label, amount: -discountMinimumAmount },
     ];
-  }
-
-  private static computeDiscountMinimumAmount(
-    fullPriceMicros: number,
-    discount: DiscountPhase,
-    currency: string,
-  ): number {
-    const fullPriceMinimumAmount = StripeService.microsToMinimumAmountPrice(
-      fullPriceMicros,
-      currency,
-    );
-
-    const discountedMinimumAmount = StripeService.microsToMinimumAmountPrice(
-      discount.price.amountMicros,
-      currency,
-    );
-
-    return fullPriceMinimumAmount - discountedMinimumAmount;
   }
 }

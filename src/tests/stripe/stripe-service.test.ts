@@ -618,6 +618,68 @@ describe("StripeService", () => {
       ]);
       expectLineItemsBalance(result.lineItems, 799);
     });
+
+    test("subscription with applied promo code only: line items from appliedDiscounts", () => {
+      const breakdown: PriceBreakdown = {
+        ...makeBreakdown(8_900_000),
+        originalAmountInMicros: 9_900_000,
+        appliedDiscounts: [
+          {
+            identifier: "save10",
+            displayName: "SAVE10",
+            discountedAmountInMicros: 1_000_000,
+            percentage: 10,
+            discountCode: "SAVE10",
+          },
+        ],
+      };
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          breakdown,
+          subscriptionOption,
+          translator,
+          managementUrl,
+        );
+
+      expect(result.lineItems).toStrictEqual([
+        { name: product.title, amount: 990 },
+        { name: "SAVE10 (10% off)", amount: -100 },
+      ]);
+      expectLineItemsBalance(result.lineItems, 890);
+    });
+
+    test("subscription with applied time_window promo: line items with duration suffix", () => {
+      const breakdown: PriceBreakdown = {
+        ...makeBreakdown(8_900_000),
+        originalAmountInMicros: 9_900_000,
+        appliedDiscounts: [
+          {
+            identifier: "holiday",
+            displayName: "Holiday Sale",
+            discountedAmountInMicros: 1_000_000,
+            percentage: 10,
+            discountCode: "HOLIDAY",
+            durationMode: "time_window",
+            timeWindow: "P3M",
+          },
+        ],
+      };
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          breakdown,
+          subscriptionOption,
+          translator,
+          managementUrl,
+        );
+
+      expect(result.lineItems).toStrictEqual([
+        { name: product.title, amount: 990 },
+        { name: "Holiday Sale (10% off for 3 months)", amount: -100 },
+      ]);
+      expectLineItemsBalance(result.lineItems, 890);
+    });
   });
 
   describe("buildStripeExpressCheckoutOptionsForNonSubscription", () => {
@@ -698,6 +760,36 @@ describe("StripeService", () => {
         { name: "One-time Discount to $1 (20% off)", amount: -890 },
       ]);
       expectLineItemsBalance(result.lineItems, 100);
+    });
+
+    test("consumable with applied promo code only: line items from appliedDiscounts", () => {
+      const breakdown: PriceBreakdown = {
+        ...makeBreakdown(8_900_000),
+        originalAmountInMicros: 9_900_000,
+        appliedDiscounts: [
+          {
+            identifier: "save10",
+            displayName: "SAVE10",
+            discountedAmountInMicros: 1_000_000,
+            percentage: 10,
+            discountCode: "SAVE10",
+          },
+        ],
+      };
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForNonSubscription(
+          consumableProduct,
+          breakdown,
+          nonSubscriptionOption,
+          translator,
+        );
+
+      expect(result.applePay).toBeUndefined();
+      expect(result.lineItems).toStrictEqual([
+        { name: consumableProduct.title, amount: 990 },
+        { name: "SAVE10 (10% off)", amount: -100 },
+      ]);
+      expectLineItemsBalance(result.lineItems, 890);
     });
   });
 });
