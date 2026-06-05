@@ -31,6 +31,7 @@ import type {
 } from "@stripe/stripe-js/dist/stripe-js/elements/apple-pay";
 import type { LineItem } from "@stripe/stripe-js/dist/stripe-js/elements/express-checkout";
 import { type Period, PeriodUnit } from "../helpers/duration-helper";
+import { formatDiscountDisplayLabel } from "../helpers/discount-suffix-helper";
 import type { StripeExpressCheckoutConfiguration } from "./stripe-express-checkout-configuration";
 import type { PriceBreakdown } from "../ui/ui-types";
 import type { StripeBillingParams } from "../networking/responses/checkout-start-response";
@@ -559,9 +560,17 @@ export class StripeService {
     if (discountAmountMinor <= 0) return undefined;
 
     const subtotalMinor = totalMinor + discountAmountMinor;
-    const discountLabel =
-      discount.name ??
-      translator.translate(LocalizationKeys.PricingTableDiscount);
+    const basePeriod =
+      productDetails.productType === ProductType.Subscription
+        ? (purchaseOption as SubscriptionOption).base.period
+        : null;
+    const discountLabel = formatDiscountDisplayLabel(
+      discount.name,
+      discount,
+      basePeriod,
+      translator,
+      translator.translate(LocalizationKeys.PricingTableDiscount),
+    );
 
     return [
       { name: productDetails.title, amount: subtotalMinor },

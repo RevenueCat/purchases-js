@@ -5,11 +5,7 @@
   import { translatorContextKey } from "../localization/constants";
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import { type PriceBreakdown } from "../ui-types";
-  import {
-    getNextRenewalDate,
-    parseISODuration,
-    type Period,
-  } from "../../helpers/duration-helper";
+  import { getNextRenewalDate } from "../../helpers/duration-helper";
   import {
     type PricingPhase,
     type DiscountPhase,
@@ -18,7 +14,7 @@
   import PricingDropdown from "./pricing-dropdown.svelte";
   import Skeleton from "../atoms/skeleton.svelte";
   import Typography from "../atoms/typography.svelte";
-  import { getDurationInDays } from "../../helpers/paywall-period-helpers";
+  import { formatDiscountSuffixForPricingTable } from "../../helpers/discount-suffix-helper";
 
   interface Props {
     priceBreakdown: PriceBreakdown;
@@ -106,60 +102,15 @@
     trialEndDate ? 0 : priceBreakdown.totalAmountInMicros,
   );
 
-  const getTimeWindowDiscountSuffix = (
-    percentage: number,
-    discountDuration: Period | null,
-  ): string => {
-    const basePeriod = basePhase?.period;
-    if (!basePeriod || !discountDuration) {
-      return `${percentage}% off`;
-    }
-
-    const billingCycleDays = getDurationInDays(basePeriod);
-    const discountWindowDays = getDurationInDays(discountDuration);
-    if (billingCycleDays <= 0 || discountWindowDays <= billingCycleDays) {
-      return `${percentage}% off`;
-    }
-
-    const translatedPeriod = $translator.translatePeriod(
-      discountDuration.number,
-      discountDuration.unit,
-    );
-    return `${percentage}% off for ${translatedPeriod}`;
-  };
-
-  const discountSuffix = $derived.by(() => {
-    const percentage = appliedDiscount?.percentage ?? appliedDiscountPercentage;
-    if (percentage == null) return null;
-
-    if (
-      appliedDiscount?.durationMode === "time_window" &&
-      appliedDiscount.timeWindow
-    ) {
-      return getTimeWindowDiscountSuffix(
-        percentage,
-        parseISODuration(appliedDiscount.timeWindow),
-      );
-    }
-
-    if (
-      !promotionalPricePhase ||
-      !("durationMode" in promotionalPricePhase) ||
-      promotionalPricePhase.durationMode !== "time_window"
-    ) {
-      return `${percentage}% off`;
-    }
-
-    const discountPeriod = promotionalPricePhase.period;
-    if (!discountPeriod || promotionalPricePhase.cycleCount <= 0) {
-      return `${percentage}% off`;
-    }
-
-    return getTimeWindowDiscountSuffix(percentage, {
-      number: discountPeriod.number * promotionalPricePhase.cycleCount,
-      unit: discountPeriod.unit,
-    });
-  });
+  const discountSuffix = $derived(
+    formatDiscountSuffixForPricingTable({
+      appliedDiscount,
+      appliedDiscountPercentage,
+      promotionalPricePhase,
+      basePeriod: basePhase?.period,
+      translator: $translator,
+    }),
+  );
 </script>
 
 {#snippet pricingTable()}

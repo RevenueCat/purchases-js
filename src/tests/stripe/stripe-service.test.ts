@@ -557,7 +557,7 @@ describe("StripeService", () => {
 
       expect(result.lineItems).toStrictEqual([
         { name: product.title, amount: 990 },
-        { name: "One-time Discount to $1", amount: -890 },
+        { name: "One-time Discount to $1 (20% off)", amount: -890 },
       ]);
       expectLineItemsBalance(result.lineItems, 100);
 
@@ -589,7 +589,7 @@ describe("StripeService", () => {
 
       expect(result.lineItems).toStrictEqual([
         { name: product.title, amount: 990 },
-        { name: "Holiday Sale $7.99", amount: -191 },
+        { name: "Holiday Sale $7.99 (20% off for 3 months)", amount: -191 },
       ]);
       expectLineItemsBalance(result.lineItems, 799);
 
@@ -621,7 +621,7 @@ describe("StripeService", () => {
 
       expect(result.lineItems).toStrictEqual([
         { name: product.title, amount: 990 },
-        { name: "Forever Discount 30%", amount: -302 },
+        { name: "Forever Discount 30% (30% off)", amount: -302 },
       ]);
       expectLineItemsBalance(result.lineItems, 688);
 
@@ -690,7 +690,7 @@ describe("StripeService", () => {
       expect(result.applePay).toBeUndefined();
       expect(result.lineItems).toStrictEqual([
         { name: consumableProduct.title, amount: 990 },
-        { name: "One-time Discount to $1", amount: -890 },
+        { name: "One-time Discount to $1 (20% off)", amount: -890 },
       ]);
       expectLineItemsBalance(result.lineItems, 100);
     });
@@ -708,7 +708,7 @@ describe("StripeService", () => {
       expect(result.applePay).toBeUndefined();
       expect(result.lineItems).toStrictEqual([
         { name: nonConsumableProduct.title, amount: 990 },
-        { name: "One-time Discount to $1", amount: -890 },
+        { name: "One-time Discount to $1 (20% off)", amount: -890 },
       ]);
       expectLineItemsBalance(result.lineItems, 100);
     });
