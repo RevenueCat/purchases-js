@@ -111,15 +111,11 @@
       translator: $translator,
     }),
   );
-
-  const showDiscountBreakdown = $derived(
-    (hasDiscount || appliedDiscount) && !showDiscountCodeField,
-  );
 </script>
 
 {#snippet pricingTable()}
   <div class="rcb-pricing-table">
-    {#if showDiscountBreakdown}
+    {#if (hasDiscount || appliedDiscount) && !showDiscountCodeField}
       <div class="rcb-pricing-table-row">
         <div class="rcb-pricing-table-header">
           <div class="rcb-pricing-table-value">
@@ -157,6 +153,8 @@
           </Typography>
         </div>
       </div>
+
+      <div class="rcb-pricing-table-separator"></div>
     {/if}
 
     {#if showDiscountCodeField}
@@ -289,7 +287,7 @@
         {/each}
       {/if}
     {/if}
-    {#if showTaxBreakdown || appliedDiscount || showDiscountBreakdown}
+    {#if showTaxBreakdown || appliedDiscountCode}
       <div class="rcb-pricing-table-separator"></div>
     {/if}
 
