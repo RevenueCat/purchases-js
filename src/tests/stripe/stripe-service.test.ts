@@ -222,6 +222,35 @@ describe("StripeService", () => {
       });
     });
 
+    test("uses createEmbeddedCheckoutPage when the loaded Stripe.js exposes it (dahlia)", async () => {
+      const mockEmbeddedCheckout = {} as StripeEmbeddedCheckout;
+      const createEmbeddedCheckoutPage = vi
+        .fn()
+        .mockResolvedValue(mockEmbeddedCheckout);
+      const initEmbeddedCheckout = vi.fn();
+      const mockStripe = {
+        createEmbeddedCheckoutPage,
+        initEmbeddedCheckout,
+      } as unknown as Stripe;
+      const onComplete = vi.fn();
+
+      vi.mocked(loadStripe).mockResolvedValue(mockStripe);
+
+      const result = await StripeService.initializeStripeCheckout(
+        "acct_123",
+        "pk_test_123",
+        stripeBillingParams,
+        onComplete,
+      );
+
+      expect(createEmbeddedCheckoutPage).toHaveBeenCalledWith({
+        fetchClientSecret: expect.any(Function),
+        onComplete,
+      });
+      expect(initEmbeddedCheckout).not.toHaveBeenCalled();
+      expect(result.embeddedCheckout).toBe(mockEmbeddedCheckout);
+    });
+
     test("throws mapped initialization error when embedded checkout initialization fails", async () => {
       const mockStripe: Partial<Stripe> = {
         initEmbeddedCheckout: vi.fn().mockRejectedValue({

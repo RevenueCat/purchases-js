@@ -211,7 +211,16 @@ export class StripeService {
     let embeddedCheckout: StripeEmbeddedCheckout;
 
     try {
-      embeddedCheckout = await stripe.initEmbeddedCheckout({
+      // Stripe renamed initEmbeddedCheckout -> createEmbeddedCheckoutPage in its
+      // dahlia release. Stripe.js is a single global per page, so a merchant's
+      // own newer Stripe.js can be the instance we get - use whichever exists.
+      const createEmbeddedCheckout =
+        (
+          stripe as Stripe & {
+            createEmbeddedCheckoutPage?: Stripe["initEmbeddedCheckout"];
+          }
+        ).createEmbeddedCheckoutPage ?? stripe.initEmbeddedCheckout;
+      embeddedCheckout = await createEmbeddedCheckout.call(stripe, {
         fetchClientSecret: () =>
           Promise.resolve(StripeBillingParams.client_secret),
         onComplete,
