@@ -211,16 +211,14 @@ export class StripeService {
     let embeddedCheckout: StripeEmbeddedCheckout;
 
     try {
-      // Stripe.js is a single global per page, so a merchant's own (newer)
-      // copy can be the instance we get. It renamed initEmbeddedCheckout ->
-      // createEmbeddedCheckoutPage, so detect whichever the loaded version has.
-      const createEmbeddedCheckout =
-        (
-          stripe as Stripe & {
-            createEmbeddedCheckoutPage?: Stripe["initEmbeddedCheckout"];
-          }
-        ).createEmbeddedCheckoutPage ?? stripe.initEmbeddedCheckout;
-      embeddedCheckout = await createEmbeddedCheckout.call(stripe, {
+      // createEmbeddedCheckoutPage works on every Stripe.js release train and is
+      // the only name that works on dahlia (initEmbeddedCheckout throws there).
+      // It is not in the basil-era types yet, so cast to reach it.
+      embeddedCheckout = await (
+        stripe as Stripe & {
+          createEmbeddedCheckoutPage: Stripe["initEmbeddedCheckout"];
+        }
+      ).createEmbeddedCheckoutPage({
         fetchClientSecret: () =>
           Promise.resolve(StripeBillingParams.client_secret),
         onComplete,
