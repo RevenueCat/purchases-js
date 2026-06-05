@@ -211,9 +211,9 @@ export class StripeService {
     let embeddedCheckout: StripeEmbeddedCheckout;
 
     try {
-      // Stripe renamed initEmbeddedCheckout -> createEmbeddedCheckoutPage in its
-      // dahlia release. Stripe.js is a single global per page, so a merchant's
-      // own newer Stripe.js can be the instance we get - use whichever exists.
+      // Stripe.js is a single global per page, so a merchant's own (newer)
+      // copy can be the instance we get. It renamed initEmbeddedCheckout ->
+      // createEmbeddedCheckoutPage, so detect whichever the loaded version has.
       const createEmbeddedCheckout =
         (
           stripe as Stripe & {
