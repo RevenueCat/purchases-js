@@ -18,8 +18,6 @@ import {
   type DiscountPhase,
   type NonSubscriptionOption,
   type Product,
-  ProductType,
-  type PurchaseOption,
   type SubscriptionOption,
 } from "../entities/offerings";
 import type { Translator } from "../ui/localization/translator";
@@ -478,10 +476,10 @@ export class StripeService {
     return Math.floor(priceMicros / 10_000);
   }
 
-  static buildStripeExpressCheckoutOptions(
+  static buildStripeExpressCheckoutOptionsForSubscription(
     productDetails: Product,
     priceBreakdown: PriceBreakdown,
-    purchaseOption: PurchaseOption,
+    subscriptionOption: SubscriptionOption,
     translator: Translator,
     managementUrl: string,
     maxRows?: number,
@@ -490,24 +488,16 @@ export class StripeService {
   ): StripeExpressCheckoutConfiguration {
     const layout = { maxRows, maxColumns, overflow };
 
-    const isSubscription =
-      productDetails.productType === ProductType.Subscription;
-
     const lineItems = StripeService.buildExpressLineItems(
       productDetails,
       priceBreakdown,
-      purchaseOption,
+      subscriptionOption.discount,
+      subscriptionOption.base.price?.amountMicros ??
+        productDetails.price.amountMicros,
+      subscriptionOption.base.period,
       translator,
     );
 
-    if (!isSubscription) {
-      return {
-        layout,
-        ...(lineItems ? { lineItems } : {}),
-      };
-    }
-
-    const subscriptionOption = purchaseOption as SubscriptionOption;
     const priceMinimumAmount = StripeService.microsToMinimumAmountPrice(
       priceBreakdown.totalAmountInMicros,
       priceBreakdown.currency,
@@ -554,38 +544,56 @@ export class StripeService {
     };
   }
 
+  static buildStripeExpressCheckoutOptionsForNonSubscription(
+    productDetails: Product,
+    priceBreakdown: PriceBreakdown,
+    nonSubscriptionOption: NonSubscriptionOption,
+    translator: Translator,
+    maxRows?: number,
+    maxColumns?: number,
+    overflow?: "auto" | "never",
+  ): StripeExpressCheckoutConfiguration {
+    const layout = { maxRows, maxColumns, overflow };
+
+    const lineItems = StripeService.buildExpressLineItems(
+      productDetails,
+      priceBreakdown,
+      nonSubscriptionOption.discount,
+      nonSubscriptionOption.basePrice.amountMicros,
+      null,
+      translator,
+    );
+
+    return {
+      layout,
+      ...(lineItems ? { lineItems } : {}),
+    };
+  }
+
   private static buildExpressLineItems(
     productDetails: Product,
     priceBreakdown: PriceBreakdown,
-    purchaseOption: PurchaseOption,
+    discount: DiscountPhase | null,
+    fullPriceMicros: number,
+    basePeriod: Period | null | undefined,
     translator: Translator,
   ): LineItem[] | undefined {
-    const discount =
-      productDetails.productType === ProductType.Subscription
-        ? (purchaseOption as SubscriptionOption).discount
-        : (purchaseOption as NonSubscriptionOption).discount;
-
     if (!discount) return undefined;
 
-    const totalMinor = StripeService.microsToMinimumAmountPrice(
+    const totalMinimumAmount = StripeService.microsToMinimumAmountPrice(
       priceBreakdown.totalAmountInMicros,
       priceBreakdown.currency,
     );
 
-    const discountAmountMinor = StripeService.computeDiscountAmountMinor(
-      productDetails,
-      priceBreakdown,
-      purchaseOption,
+    const discountMinimumAmount = StripeService.computeDiscountMinimumAmount(
+      fullPriceMicros,
       discount,
+      priceBreakdown.currency,
     );
 
-    if (discountAmountMinor <= 0) return undefined;
+    if (discountMinimumAmount <= 0) return undefined;
 
-    const subtotalMinor = totalMinor + discountAmountMinor;
-    const basePeriod =
-      productDetails.productType === ProductType.Subscription
-        ? (purchaseOption as SubscriptionOption).base.period
-        : null;
+    const subtotalMinimumAmount = totalMinimumAmount + discountMinimumAmount;
     const discountLabel = formatDiscountDisplayLabel(
       discount.name,
       discount,
@@ -595,33 +603,26 @@ export class StripeService {
     );
 
     return [
-      { name: productDetails.title, amount: subtotalMinor },
-      { name: discountLabel, amount: -discountAmountMinor },
+      { name: productDetails.title, amount: subtotalMinimumAmount },
+      { name: discountLabel, amount: -discountMinimumAmount },
     ];
   }
 
-  private static computeDiscountAmountMinor(
-    productDetails: Product,
-    priceBreakdown: PriceBreakdown,
-    purchaseOption: PurchaseOption,
+  private static computeDiscountMinimumAmount(
+    fullPriceMicros: number,
     discount: DiscountPhase,
+    currency: string,
   ): number {
-    const fullPriceMicros =
-      productDetails.productType === ProductType.Subscription
-        ? ((purchaseOption as SubscriptionOption).base.price?.amountMicros ??
-          productDetails.price.amountMicros)
-        : (purchaseOption as NonSubscriptionOption).basePrice.amountMicros;
-
-    const fullPriceMinor = StripeService.microsToMinimumAmountPrice(
+    const fullPriceMinimumAmount = StripeService.microsToMinimumAmountPrice(
       fullPriceMicros,
-      priceBreakdown.currency,
+      currency,
     );
 
-    const discountedMinor = StripeService.microsToMinimumAmountPrice(
+    const discountedMinimumAmount = StripeService.microsToMinimumAmountPrice(
       discount.price.amountMicros,
-      priceBreakdown.currency,
+      currency,
     );
 
-    return fullPriceMinor - discountedMinor;
+    return fullPriceMinimumAmount - discountedMinimumAmount;
   }
 }

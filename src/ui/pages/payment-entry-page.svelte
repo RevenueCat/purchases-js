@@ -177,23 +177,26 @@
         taxCalculationStatus === "miss-match"),
   );
 
-  const expressCheckoutPurchaseOption =
-    productDetails.productType === ProductType.Subscription
-      ? subscriptionOption
-      : productDetails.defaultNonSubscriptionOption;
-
   let expressCheckoutOptions = $derived(
-    expressCheckoutPurchaseOption &&
-      priceBreakdown &&
-      (productDetails.productType !== ProductType.Subscription || managementUrl)
-      ? StripeService.buildStripeExpressCheckoutOptions(
-          productDetails,
-          priceBreakdown,
-          expressCheckoutPurchaseOption,
-          $translator,
-          managementUrl ?? "",
-        )
-      : undefined,
+    priceBreakdown &&
+      (productDetails.productType === ProductType.Subscription
+        ? subscriptionOption && managementUrl
+          ? StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+              productDetails,
+              priceBreakdown,
+              subscriptionOption,
+              $translator,
+              managementUrl,
+            )
+          : undefined
+        : productDetails.defaultNonSubscriptionOption
+          ? StripeService.buildStripeExpressCheckoutOptionsForNonSubscription(
+              productDetails,
+              priceBreakdown,
+              productDetails.defaultNonSubscriptionOption,
+              $translator,
+            )
+          : undefined),
   );
 
   let elementsConfiguration: StripeElementsConfiguration | undefined = $derived(

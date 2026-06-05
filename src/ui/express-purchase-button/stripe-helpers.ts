@@ -22,28 +22,6 @@ import { getNullableWindow } from "../../helpers/browser-globals";
 import type { BrandingInfoResponse } from "../../networking/responses/branding-response";
 import type { WalletButtonTheme } from "@revenuecat/purchases-ui-js";
 
-const getPurchaseOptionForExpressCheckout = (
-  productDetails: Product,
-  purchaseOptionId: string,
-): SubscriptionOption | NonSubscriptionOption => {
-  if (productDetails.productType === ProductType.Subscription) {
-    const subscriptionOption =
-      productDetails.subscriptionOptions?.[purchaseOptionId] ||
-      productDetails.defaultSubscriptionOption;
-
-    if (!subscriptionOption) {
-      throw new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase);
-    }
-    return subscriptionOption;
-  }
-
-  const nonSubscriptionOption = productDetails.defaultNonSubscriptionOption;
-  if (!nonSubscriptionOption) {
-    throw new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase);
-  }
-  return nonSubscriptionOption;
-};
-
 const buildExpressCheckoutPriceBreakdown = (
   productDetails: Product,
   purchaseOption: SubscriptionOption | NonSubscriptionOption,
@@ -69,21 +47,6 @@ const buildExpressCheckoutPriceBreakdown = (
   };
 };
 
-const resolveExpressCheckoutPricingDetails = (
-  productDetails: Product,
-  purchaseOptionId: string,
-) => {
-  const purchaseOption = getPurchaseOptionForExpressCheckout(
-    productDetails,
-    purchaseOptionId,
-  );
-  const priceBreakdown = buildExpressCheckoutPriceBreakdown(
-    productDetails,
-    purchaseOption,
-  );
-  return { purchaseOption, priceBreakdown };
-};
-
 export const toExpressPurchaseOptions = (
   rcPackage: Package,
   purchaseOption: PurchaseOption,
@@ -92,18 +55,52 @@ export const toExpressPurchaseOptions = (
   walletButtonTheme?: WalletButtonTheme,
 ) => {
   const productDetails: Product = rcPackage.webBillingProduct;
-  const { purchaseOption: resolvedOption, priceBreakdown } =
-    resolveExpressCheckoutPricingDetails(productDetails, purchaseOption.id);
 
-  const options = StripeService.buildStripeExpressCheckoutOptions(
-    productDetails,
-    priceBreakdown,
-    resolvedOption,
-    translator,
-    managementUrl,
-    2,
-    1,
-  );
+  let options;
+  if (productDetails.productType === ProductType.Subscription) {
+    const subscriptionOption =
+      productDetails.subscriptionOptions?.[purchaseOption.id] ||
+      productDetails.defaultSubscriptionOption;
+
+    if (!subscriptionOption) {
+      throw new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase);
+    }
+
+    const priceBreakdown = buildExpressCheckoutPriceBreakdown(
+      productDetails,
+      subscriptionOption,
+    );
+
+    options = StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+      productDetails,
+      priceBreakdown,
+      subscriptionOption,
+      translator,
+      managementUrl,
+      2,
+      1,
+    );
+  } else {
+    const nonSubscriptionOption = productDetails.defaultNonSubscriptionOption;
+
+    if (!nonSubscriptionOption) {
+      throw new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase);
+    }
+
+    const priceBreakdown = buildExpressCheckoutPriceBreakdown(
+      productDetails,
+      nonSubscriptionOption,
+    );
+
+    options = StripeService.buildStripeExpressCheckoutOptionsForNonSubscription(
+      productDetails,
+      priceBreakdown,
+      nonSubscriptionOption,
+      translator,
+      2,
+      1,
+    );
+  }
 
   if (walletButtonTheme) {
     options.buttonTheme = {

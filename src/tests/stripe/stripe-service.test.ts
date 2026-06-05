@@ -443,7 +443,7 @@ describe("StripeService", () => {
     });
   });
 
-  describe("buildStripeExpressCheckoutOptions", () => {
+  describe("buildStripeExpressCheckoutOptionsForSubscription", () => {
     beforeEach(() => {
       vi.useFakeTimers();
       vi.setSystemTime(new Date("2025-01-01T00:00:00.000Z"));
@@ -480,21 +480,22 @@ describe("StripeService", () => {
     // enforces silently — mismatches cause the wallet to drop them.
     const expectLineItemsBalance = (
       lineItems: Array<{ amount: number }> | undefined,
-      totalMinorAmount: number,
+      totalMinimumAmount: number,
     ) => {
       if (lineItems === undefined) return;
       const sum = lineItems.reduce((acc, item) => acc + item.amount, 0);
-      expect(sum).toBe(totalMinorAmount);
+      expect(sum).toBe(totalMinimumAmount);
     };
 
     test("subscription with trial: no line items, free trial in Apple Pay", () => {
-      const result = StripeService.buildStripeExpressCheckoutOptions(
-        trialProduct,
-        baseBreakdown,
-        trialProduct.subscriptionOptions.option_id_1,
-        translator,
-        managementUrl,
-      );
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          trialProduct,
+          baseBreakdown,
+          trialProduct.subscriptionOptions.option_id_1,
+          translator,
+          managementUrl,
+        );
 
       expect(result).toStrictEqual({
         layout: baseLayout,
@@ -519,13 +520,14 @@ describe("StripeService", () => {
     });
 
     test("subscription without trial or discount: no line items", () => {
-      const result = StripeService.buildStripeExpressCheckoutOptions(
-        product,
-        baseBreakdown,
-        subscriptionOption,
-        translator,
-        managementUrl,
-      );
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          baseBreakdown,
+          subscriptionOption,
+          translator,
+          managementUrl,
+        );
 
       expect(result).toStrictEqual({
         layout: baseLayout,
@@ -547,13 +549,14 @@ describe("StripeService", () => {
 
     test("subscription with one_time discount: line items", () => {
       const breakdown = makeBreakdown(1_000_000);
-      const result = StripeService.buildStripeExpressCheckoutOptions(
-        product,
-        breakdown,
-        subscriptionOptionWithDiscountOneTime,
-        translator,
-        managementUrl,
-      );
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          breakdown,
+          subscriptionOptionWithDiscountOneTime,
+          translator,
+          managementUrl,
+        );
 
       expect(result.lineItems).toStrictEqual([
         { name: product.title, amount: 990 },
@@ -564,13 +567,14 @@ describe("StripeService", () => {
 
     test("subscription with time_window discount: line items", () => {
       const breakdown = makeBreakdown(7_990_000);
-      const result = StripeService.buildStripeExpressCheckoutOptions(
-        product,
-        breakdown,
-        subscriptionOptionWithDiscount,
-        translator,
-        managementUrl,
-      );
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          breakdown,
+          subscriptionOptionWithDiscount,
+          translator,
+          managementUrl,
+        );
 
       expect(result.lineItems).toStrictEqual([
         { name: product.title, amount: 990 },
@@ -581,13 +585,14 @@ describe("StripeService", () => {
 
     test("subscription with forever discount: line items", () => {
       const breakdown = makeBreakdown(6_880_000);
-      const result = StripeService.buildStripeExpressCheckoutOptions(
-        product,
-        breakdown,
-        subscriptionOptionWithDiscountForever,
-        translator,
-        managementUrl,
-      );
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          breakdown,
+          subscriptionOptionWithDiscountForever,
+          translator,
+          managementUrl,
+        );
 
       expect(result.lineItems).toStrictEqual([
         { name: product.title, amount: 990 },
@@ -598,13 +603,14 @@ describe("StripeService", () => {
 
     test("weekly subscription with multi-month discount: line items", () => {
       const breakdown = makeBreakdown(7_990_000);
-      const result = StripeService.buildStripeExpressCheckoutOptions(
-        product,
-        breakdown,
-        subscriptionOptionWithWeeklyBillingAndThreeMonthDiscount,
-        translator,
-        managementUrl,
-      );
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          breakdown,
+          subscriptionOptionWithWeeklyBillingAndThreeMonthDiscount,
+          translator,
+          managementUrl,
+        );
 
       expect(result.lineItems).toStrictEqual([
         { name: product.title, amount: 990 },
@@ -612,15 +618,47 @@ describe("StripeService", () => {
       ]);
       expectLineItemsBalance(result.lineItems, 799);
     });
+  });
+
+  describe("buildStripeExpressCheckoutOptionsForNonSubscription", () => {
+    const translator = new Translator();
+    const baseLayout = {
+      maxColumns: undefined,
+      maxRows: undefined,
+      overflow: undefined,
+    };
+    const baseBreakdown: PriceBreakdown = {
+      currency: "USD",
+      totalAmountInMicros: 9_900_000,
+      totalExcludingTaxInMicros: 9_900_000,
+      taxCalculationStatus: "calculated",
+      taxAmountInMicros: 0,
+      taxBreakdown: [],
+    };
+
+    const makeBreakdown = (totalAmountInMicros: number): PriceBreakdown => ({
+      ...baseBreakdown,
+      totalAmountInMicros,
+      totalExcludingTaxInMicros: totalAmountInMicros,
+    });
+
+    const expectLineItemsBalance = (
+      lineItems: Array<{ amount: number }> | undefined,
+      totalMinimumAmount: number,
+    ) => {
+      if (lineItems === undefined) return;
+      const sum = lineItems.reduce((acc, item) => acc + item.amount, 0);
+      expect(sum).toBe(totalMinimumAmount);
+    };
 
     test("consumable without discount: no recurring request, no line items", () => {
-      const result = StripeService.buildStripeExpressCheckoutOptions(
-        consumableProduct,
-        baseBreakdown,
-        nonSubscriptionOption,
-        translator,
-        managementUrl,
-      );
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForNonSubscription(
+          consumableProduct,
+          baseBreakdown,
+          nonSubscriptionOption,
+          translator,
+        );
 
       expect(result).toStrictEqual({ layout: baseLayout });
       expect(result.applePay).toBeUndefined();
@@ -628,13 +666,13 @@ describe("StripeService", () => {
 
     test("consumable with discount: line items, no recurring request", () => {
       const breakdown = makeBreakdown(1_000_000);
-      const result = StripeService.buildStripeExpressCheckoutOptions(
-        consumableProduct,
-        breakdown,
-        nonSubscriptionOptionWithDiscount,
-        translator,
-        managementUrl,
-      );
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForNonSubscription(
+          consumableProduct,
+          breakdown,
+          nonSubscriptionOptionWithDiscount,
+          translator,
+        );
 
       expect(result.applePay).toBeUndefined();
       expect(result.lineItems).toStrictEqual([
@@ -646,13 +684,13 @@ describe("StripeService", () => {
 
     test("non-consumable with discount: line items, no recurring request", () => {
       const breakdown = makeBreakdown(1_000_000);
-      const result = StripeService.buildStripeExpressCheckoutOptions(
-        nonConsumableProduct,
-        breakdown,
-        nonSubscriptionOptionWithDiscount,
-        translator,
-        managementUrl,
-      );
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForNonSubscription(
+          nonConsumableProduct,
+          breakdown,
+          nonSubscriptionOptionWithDiscount,
+          translator,
+        );
 
       expect(result.applePay).toBeUndefined();
       expect(result.lineItems).toStrictEqual([
