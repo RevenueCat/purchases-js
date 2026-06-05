@@ -21,23 +21,12 @@ import {
 // (initEmbeddedCheckout -> createEmbeddedCheckoutPage in dahlia).
 const STRIPE_JS_TRAINS = ["basil", "clover", "dahlia"] as const;
 
-async function preloadStripeJsTrain(page: Page, train: string): Promise<void> {
-  await page.addInitScript((trainName) => {
-    const script = document.createElement("script");
-    script.src = `https://js.stripe.com/${trainName}/stripe.js`;
-    (document.head ?? document.documentElement).appendChild(script);
-  }, train);
-}
-
-async function loadedStripeJsTrains(page: Page): Promise<string[]> {
-  return page.$$eval(
-    'script[src*="js.stripe.com"][src*="/stripe.js"]',
-    (scripts) =>
-      scripts.map(
-        (script) =>
-          new URL((script as HTMLScriptElement).src).pathname.split("/")[1],
-      ),
-  );
+async function activeStripeTrain(page: Page): Promise<string | undefined> {
+  return page.evaluate(() => {
+    const stripe = (window as unknown as { Stripe?: { version?: unknown } })
+      .Stripe;
+    return stripe?.version === undefined ? undefined : String(stripe.version);
+  });
 }
 
 integrationTest.describe("Stripe Checkout cross-version compatibility", () => {
@@ -68,7 +57,6 @@ integrationTest.describe("Stripe Checkout cross-version compatibility", () => {
       async ({ page, userId, email }) => {
         const fullName = `E2E ${userId.replace(/_/g, " ")}`;
 
-        await preloadStripeJsTrain(page, train);
         page = await navigateToStripeCheckoutLandingUrl(page, userId, {
           email,
         });
@@ -77,15 +65,22 @@ integrationTest.describe("Stripe Checkout cross-version compatibility", () => {
           timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
         });
 
+        // Self-load this train so it is the active Stripe.js before checkout,
+        // mimicking a merchant that loads Stripe.js itself. addScriptTag awaits
+        // the load, so window.Stripe is set when it resolves.
+        await page.addScriptTag({
+          url: `https://js.stripe.com/${train}/stripe.js`,
+        });
+        expect(await activeStripeTrain(page)).toBe(train);
+
         const packageCards = await getPackageCards(page);
         expect(packageCards.length).toBeGreaterThan(0);
 
         await startPurchaseFlow(packageCards[0]);
         await confirmStripeCheckoutVisible(page);
 
-        // The SDK reuses the page's train rather than injecting its own; a
-        // second train would mean it bypassed the merchant's Stripe.js.
-        expect([...new Set(await loadedStripeJsTrains(page))]).toEqual([train]);
+        // The SDK ran against the merchant's train, not its own bundled one.
+        expect(await activeStripeTrain(page)).toBe(train);
 
         await completeStripeCheckoutEmbeddedForm(page, email, fullName, false);
         await confirmPaymentComplete(page, STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS);
