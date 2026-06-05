@@ -9,6 +9,7 @@ import {
 import type { Translator } from "../localization/translator";
 import type { GatewayParams } from "../../networking/responses/stripe-elements";
 import { StripeService } from "../../stripe/stripe-service";
+import { resolveDiscountBreakdownForPurchaseOption } from "../../helpers/discount-breakdown-helper";
 import type { StripeElements } from "@stripe/stripe-js";
 import type { StripeElementsConfiguration } from "../../networking/responses/stripe-elements";
 import { DEFAULT_FONT_FAMILY } from "../theme/text";
@@ -21,6 +22,31 @@ import {
 import { getNullableWindow } from "../../helpers/browser-globals";
 import type { BrandingInfoResponse } from "../../networking/responses/branding-response";
 import type { WalletButtonTheme } from "@revenuecat/purchases-ui-js";
+
+const getCheckoutPurchaseOption = (
+  productDetails: Product,
+  purchaseOption: PurchaseOption,
+): SubscriptionOption | NonSubscriptionOption => {
+  if (productDetails.productType === ProductType.Subscription) {
+    const subscriptionOption =
+      productDetails.subscriptionOptions?.[purchaseOption.id] ||
+      productDetails.defaultSubscriptionOption;
+
+    if (!subscriptionOption) {
+      throw new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase);
+    }
+
+    return subscriptionOption;
+  }
+
+  const nonSubscriptionOption = productDetails.defaultNonSubscriptionOption;
+
+  if (!nonSubscriptionOption) {
+    throw new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase);
+  }
+
+  return nonSubscriptionOption;
+};
 
 const buildExpressCheckoutPriceBreakdown = (
   productDetails: Product,
@@ -55,52 +81,41 @@ export const toExpressPurchaseOptions = (
   walletButtonTheme?: WalletButtonTheme,
 ) => {
   const productDetails: Product = rcPackage.webBillingProduct;
+  const checkoutPurchaseOption = getCheckoutPurchaseOption(
+    productDetails,
+    purchaseOption,
+  );
+  const priceBreakdown = buildExpressCheckoutPriceBreakdown(
+    productDetails,
+    checkoutPurchaseOption,
+  );
+  const resolvedDiscount = resolveDiscountBreakdownForPurchaseOption({
+    priceBreakdown,
+    productDetails,
+    purchaseOption: checkoutPurchaseOption,
+    translator,
+  });
 
-  let options;
-  if (productDetails.productType === ProductType.Subscription) {
-    const subscriptionOption =
-      productDetails.subscriptionOptions?.[purchaseOption.id] ||
-      productDetails.defaultSubscriptionOption;
-
-    if (!subscriptionOption) {
-      throw new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase);
-    }
-
-    const priceBreakdown = buildExpressCheckoutPriceBreakdown(
-      productDetails,
-      subscriptionOption,
-    );
-
-    options = StripeService.buildStripeExpressCheckoutOptionsForSubscription(
-      productDetails,
-      priceBreakdown,
-      subscriptionOption,
-      translator,
-      managementUrl,
-      2,
-      1,
-    );
-  } else {
-    const nonSubscriptionOption = productDetails.defaultNonSubscriptionOption;
-
-    if (!nonSubscriptionOption) {
-      throw new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase);
-    }
-
-    const priceBreakdown = buildExpressCheckoutPriceBreakdown(
-      productDetails,
-      nonSubscriptionOption,
-    );
-
-    options = StripeService.buildStripeExpressCheckoutOptionsForNonSubscription(
-      productDetails,
-      priceBreakdown,
-      nonSubscriptionOption,
-      translator,
-      2,
-      1,
-    );
-  }
+  const isSubscription =
+    productDetails.productType === ProductType.Subscription;
+  const options = isSubscription
+    ? StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+        productDetails,
+        priceBreakdown,
+        checkoutPurchaseOption as SubscriptionOption,
+        translator,
+        managementUrl,
+        resolvedDiscount,
+        2,
+        1,
+      )
+    : StripeService.buildStripeExpressCheckoutOptionsForNonSubscription(
+        productDetails,
+        priceBreakdown,
+        resolvedDiscount,
+        2,
+        1,
+      );
 
   if (walletButtonTheme) {
     options.buttonTheme = {

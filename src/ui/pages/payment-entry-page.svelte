@@ -52,6 +52,7 @@
   import StripeElementsComponent from "../molecules/stripe-elements.svelte";
   import PriceUpdateInfo from "../molecules/price-update-info.svelte";
   import { getInitialPriceFromPurchaseOption } from "../../helpers/purchase-option-price-helper";
+  import { resolveDiscountBreakdownForPurchaseOption } from "../../helpers/discount-breakdown-helper";
 
   type View = "loading" | "form" | "error";
 
@@ -177,6 +178,15 @@
         taxCalculationStatus === "miss-match"),
   );
 
+  let resolvedDiscount = $derived(
+    resolveDiscountBreakdownForPurchaseOption({
+      priceBreakdown,
+      productDetails,
+      purchaseOption,
+      translator: $translator,
+    }),
+  );
+
   let expressCheckoutOptions = $derived(
     priceBreakdown &&
       (productDetails.productType === ProductType.Subscription
@@ -187,14 +197,14 @@
               subscriptionOption,
               $translator,
               managementUrl,
+              resolvedDiscount,
             )
           : undefined
         : productDetails.defaultNonSubscriptionOption
           ? StripeService.buildStripeExpressCheckoutOptionsForNonSubscription(
               productDetails,
               priceBreakdown,
-              productDetails.defaultNonSubscriptionOption,
-              $translator,
+              resolvedDiscount,
             )
           : undefined),
   );
