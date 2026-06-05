@@ -545,7 +545,7 @@ describe("StripeService", () => {
       });
     });
 
-    test("subscription with one_time discount: line items + Apple Pay 1-period intro then full regularBilling", () => {
+    test("subscription with one_time discount: line items with standard Apple Pay billing", () => {
       const breakdown = makeBreakdown(1_000_000);
       const result = StripeService.buildStripeExpressCheckoutOptions(
         product,
@@ -561,23 +561,19 @@ describe("StripeService", () => {
       ]);
       expectLineItemsBalance(result.lineItems, 100);
 
-      expect(result.applePay?.recurringPaymentRequest?.trialBilling).toEqual({
-        label: "One-time Discount to $1",
-        amount: 100,
-        recurringPaymentEndDate: new Date("2025-02-01T00:00:00.000Z"),
-        recurringPaymentIntervalUnit: "month",
-        recurringPaymentIntervalCount: 1,
-      });
+      expect(
+        result.applePay?.recurringPaymentRequest?.trialBilling,
+      ).toBeUndefined();
       expect(result.applePay?.recurringPaymentRequest?.regularBilling).toEqual({
         label: product.title,
-        amount: 990,
-        recurringPaymentStartDate: new Date("2025-02-01T00:00:00.000Z"),
+        amount: 100,
+        recurringPaymentStartDate: undefined,
         recurringPaymentIntervalUnit: "month",
         recurringPaymentIntervalCount: 1,
       });
     });
 
-    test("subscription with time_window discount: line items + Apple Pay N-cycle intro then full regularBilling", () => {
+    test("subscription with time_window discount: line items with standard Apple Pay billing", () => {
       const breakdown = makeBreakdown(7_990_000);
       const result = StripeService.buildStripeExpressCheckoutOptions(
         product,
@@ -593,23 +589,19 @@ describe("StripeService", () => {
       ]);
       expectLineItemsBalance(result.lineItems, 799);
 
-      expect(result.applePay?.recurringPaymentRequest?.trialBilling).toEqual({
-        label: "Holiday Sale $7.99",
-        amount: 799,
-        recurringPaymentEndDate: new Date("2025-04-01T00:00:00.000Z"),
-        recurringPaymentIntervalUnit: "month",
-        recurringPaymentIntervalCount: 1,
-      });
+      expect(
+        result.applePay?.recurringPaymentRequest?.trialBilling,
+      ).toBeUndefined();
       expect(result.applePay?.recurringPaymentRequest?.regularBilling).toEqual({
         label: product.title,
-        amount: 990,
-        recurringPaymentStartDate: new Date("2025-04-01T00:00:00.000Z"),
+        amount: 799,
+        recurringPaymentStartDate: undefined,
         recurringPaymentIntervalUnit: "month",
         recurringPaymentIntervalCount: 1,
       });
     });
 
-    test("subscription with forever discount: line items + Apple Pay regularBilling labelled with discount", () => {
+    test("subscription with forever discount: line items with standard Apple Pay billing", () => {
       const breakdown = makeBreakdown(6_880_000);
       const result = StripeService.buildStripeExpressCheckoutOptions(
         product,
@@ -629,14 +621,15 @@ describe("StripeService", () => {
         result.applePay?.recurringPaymentRequest?.trialBilling,
       ).toBeUndefined();
       expect(result.applePay?.recurringPaymentRequest?.regularBilling).toEqual({
-        label: "Forever Discount 30%",
+        label: product.title,
         amount: 688,
+        recurringPaymentStartDate: undefined,
         recurringPaymentIntervalUnit: "month",
         recurringPaymentIntervalCount: 1,
       });
     });
 
-    test("weekly subscription with multi-month discount: trialBilling uses base (weekly) interval, not the discount window", () => {
+    test("weekly subscription with multi-month discount: line items with weekly Apple Pay interval", () => {
       const breakdown = makeBreakdown(7_990_000);
       const result = StripeService.buildStripeExpressCheckoutOptions(
         product,
@@ -646,19 +639,21 @@ describe("StripeService", () => {
         managementUrl,
       );
 
+      expect(result.lineItems).toStrictEqual([
+        { name: product.title, amount: 990 },
+        { name: "Holiday Sale $7.99 (20% off for 3 months)", amount: -191 },
+      ]);
+      expectLineItemsBalance(result.lineItems, 799);
+
       // Apple Pay doesn't accept "week" as a recurringPaymentIntervalUnit —
       // weekly periods are encoded as 7 days.
-      expect(result.applePay?.recurringPaymentRequest?.trialBilling).toEqual({
-        label: "Holiday Sale $7.99",
-        amount: 799,
-        recurringPaymentEndDate: new Date("2025-04-01T00:00:00.000Z"),
-        recurringPaymentIntervalUnit: "day",
-        recurringPaymentIntervalCount: 7,
-      });
+      expect(
+        result.applePay?.recurringPaymentRequest?.trialBilling,
+      ).toBeUndefined();
       expect(result.applePay?.recurringPaymentRequest?.regularBilling).toEqual({
         label: product.title,
-        amount: 990,
-        recurringPaymentStartDate: new Date("2025-04-01T00:00:00.000Z"),
+        amount: 799,
+        recurringPaymentStartDate: undefined,
         recurringPaymentIntervalUnit: "day",
         recurringPaymentIntervalCount: 7,
       });

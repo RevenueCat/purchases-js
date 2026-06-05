@@ -25,10 +25,6 @@ import {
 import type { Translator } from "../ui/localization/translator";
 import { LocalizationKeys } from "../ui/localization/supportedLanguages";
 import type { StripeExpressCheckoutElementOptions } from "@stripe/stripe-js/dist/stripe-js/elements/index";
-import type {
-  ApplePayOption,
-  ApplePayRegularBilling,
-} from "@stripe/stripe-js/dist/stripe-js/elements/apple-pay";
 import type { LineItem } from "@stripe/stripe-js/dist/stripe-js/elements/express-checkout";
 import { type Period, PeriodUnit } from "../helpers/duration-helper";
 import { formatDiscountDisplayLabel } from "../helpers/discount-suffix-helper";
@@ -497,10 +493,6 @@ export class StripeService {
     const isSubscription =
       productDetails.productType === ProductType.Subscription;
 
-    const discount = isSubscription
-      ? (purchaseOption as SubscriptionOption).discount
-      : (purchaseOption as NonSubscriptionOption).discount;
-
     const lineItems = StripeService.buildExpressLineItems(
       productDetails,
       priceBreakdown,
@@ -516,19 +508,49 @@ export class StripeService {
     }
 
     const subscriptionOption = purchaseOption as SubscriptionOption;
-    const applePay = StripeService.buildApplePayRecurringRequest(
-      productDetails,
-      priceBreakdown,
-      subscriptionOption,
-      discount,
-      translator,
-      managementUrl,
+    const priceMinimumAmount = StripeService.microsToMinimumAmountPrice(
+      priceBreakdown.totalAmountInMicros,
+      priceBreakdown.currency,
     );
+
+    const hasTrial = subscriptionOption.trial;
+    const trialPeriod = subscriptionOption.trial?.period;
+    const basePeriod = subscriptionOption.base.period;
+
+    const recurringPaymentStartDate =
+      hasTrial && trialPeriod
+        ? StripeService.nextDateForPeriod(trialPeriod, new Date())
+        : undefined;
+
+    const recurringPeriod = basePeriod
+      ? StripeService.applePayPeriod(basePeriod)
+      : {};
 
     return {
       layout,
       ...(lineItems ? { lineItems } : {}),
-      applePay,
+      applePay: {
+        recurringPaymentRequest: {
+          paymentDescription: productDetails.title,
+          managementURL: managementUrl,
+          ...(hasTrial
+            ? {
+                trialBilling: {
+                  label: translator.translate(
+                    LocalizationKeys.ApplePayFreeTrial,
+                  ),
+                  amount: 0,
+                },
+              }
+            : {}),
+          regularBilling: {
+            label: productDetails.title,
+            amount: priceMinimumAmount,
+            recurringPaymentStartDate: recurringPaymentStartDate,
+            ...recurringPeriod,
+          },
+        },
+      },
     };
   }
 
@@ -601,125 +623,5 @@ export class StripeService {
     );
 
     return fullPriceMinor - discountedMinor;
-  }
-
-  /**
-   * Builds the `applePay.recurringPaymentRequest` for subscriptions.
-   *
-   * Apple Pay's recurring sheet only has two slots: `trialBilling` (a single
-   * intro line, positive amounts only — Stripe rejects negative values) and
-   * `regularBilling` (the ongoing line). We therefore model discounts as
-   * "intro pricing" rather than discount lines:
-   *
-   *   - one_time / time_window: `trialBilling` carries the discounted price
-   *     for the discount window, `regularBilling` is the full base price
-   *     that kicks in after.
-   *   - forever: no intro slot — the discounted price IS the recurring
-   *     price, so we just put it directly in `regularBilling` with the
-   *     discount name as the label.
-   */
-  private static buildApplePayRecurringRequest(
-    productDetails: Product,
-    priceBreakdown: PriceBreakdown,
-    subscriptionOption: SubscriptionOption,
-    discount: DiscountPhase | null,
-    translator: Translator,
-    managementUrl: string,
-  ): ApplePayOption {
-    const basePriceMinor = StripeService.microsToMinimumAmountPrice(
-      subscriptionOption.base.price?.amountMicros ??
-        priceBreakdown.totalAmountInMicros,
-      priceBreakdown.currency,
-    );
-    const basePeriod = subscriptionOption.base.period;
-    const recurringPeriod = basePeriod
-      ? StripeService.applePayPeriod(basePeriod)
-      : {};
-
-    const hasTrial = !!subscriptionOption.trial;
-    const trialPeriod = subscriptionOption.trial?.period;
-
-    let trialBilling: ApplePayRegularBilling | undefined;
-    let regularBilling: ApplePayRegularBilling;
-
-    if (hasTrial) {
-      trialBilling = {
-        label: translator.translate(LocalizationKeys.ApplePayFreeTrial),
-        amount: 0,
-      };
-      regularBilling = {
-        label: productDetails.title,
-        amount: basePriceMinor,
-        recurringPaymentStartDate: trialPeriod
-          ? StripeService.nextDateForPeriod(trialPeriod, new Date())
-          : undefined,
-        ...recurringPeriod,
-      };
-    } else if (discount && discount.durationMode === "forever") {
-      const discountedMinor = StripeService.microsToMinimumAmountPrice(
-        discount.price.amountMicros,
-        priceBreakdown.currency,
-      );
-      regularBilling = {
-        label: discount.name ?? productDetails.title,
-        amount: discountedMinor,
-        ...recurringPeriod,
-      };
-    } else if (
-      discount &&
-      (discount.durationMode === "one_time" ||
-        discount.durationMode === "time_window")
-    ) {
-      const discountedMinor = StripeService.microsToMinimumAmountPrice(
-        discount.price.amountMicros,
-        priceBreakdown.currency,
-      );
-
-      // The discount's `period` + `cycleCount` describe the duration of the
-      // discount WINDOW (e.g. "1 month"), not the billing frequency. The
-      // user is still charged on the base subscription cycle (e.g. weekly),
-      // so the recurring interval on trialBilling must come from
-      // `basePeriod`, and the discount duration is conveyed via the
-      // `recurringPaymentEndDate` / `recurringPaymentStartDate` pair.
-      const discountWindow: Period | undefined =
-        discount.period && discount.cycleCount > 0
-          ? { number: discount.cycleCount, unit: discount.period.unit }
-          : (basePeriod ?? undefined);
-      const discountEndDate = discountWindow
-        ? StripeService.nextDateForPeriod(discountWindow, new Date())
-        : undefined;
-
-      trialBilling = {
-        label:
-          discount.name ??
-          translator.translate(LocalizationKeys.PricingTableDiscount),
-        amount: discountedMinor,
-        recurringPaymentEndDate: discountEndDate,
-        ...recurringPeriod,
-      };
-
-      regularBilling = {
-        label: productDetails.title,
-        amount: basePriceMinor,
-        recurringPaymentStartDate: discountEndDate,
-        ...recurringPeriod,
-      };
-    } else {
-      regularBilling = {
-        label: productDetails.title,
-        amount: basePriceMinor,
-        recurringPaymentStartDate: undefined,
-        ...recurringPeriod,
-      };
-    }
-
-    return {
-      recurringPaymentRequest: {
-        paymentDescription: productDetails.title,
-        managementURL: managementUrl,
-        ...(trialBilling ? { trialBilling } : {}),
-        regularBilling,
-      },
-    };
   }
 }
