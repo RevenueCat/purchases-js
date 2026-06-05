@@ -5,6 +5,7 @@ import type {
   Stripe,
   StripeElementLocale,
   StripeElements,
+  StripeElementsOptionsMode,
   StripeEmbeddedCheckout,
   StripeError,
 } from "@stripe/stripe-js";
@@ -181,7 +182,9 @@ export class StripeService {
             },
           },
         },
-      });
+        // Backend guarantees payment-mode amount/currency; v9 types elements()
+        // options as a discriminated union, so assert the union shape.
+      } as StripeElementsOptionsMode);
     } catch (error) {
       throw this.mapInitializationError(error as StripeError);
     }
@@ -213,12 +216,7 @@ export class StripeService {
     try {
       // createEmbeddedCheckoutPage works on every Stripe.js release train and is
       // the only name that works on dahlia (initEmbeddedCheckout throws there).
-      // It is not in the basil-era types yet, so cast to reach it.
-      embeddedCheckout = await (
-        stripe as Stripe & {
-          createEmbeddedCheckoutPage: Stripe["initEmbeddedCheckout"];
-        }
-      ).createEmbeddedCheckoutPage({
+      embeddedCheckout = await stripe.createEmbeddedCheckoutPage({
         fetchClientSecret: () =>
           Promise.resolve(StripeBillingParams.client_secret),
         onComplete,

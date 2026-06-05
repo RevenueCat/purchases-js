@@ -50,8 +50,8 @@ importers:
         specifier: ^8.6.15
         version: 8.6.15(storybook@8.6.15(prettier@3.4.2))
       "@stripe/stripe-js":
-        specifier: ^7.3.1
-        version: 7.3.1
+        specifier: ^9.7.0
+        version: 9.7.0
       "@sveltejs/vite-plugin-svelte":
         specifier: ^6.2.1
         version: 6.2.1(svelte@5.46.4)(vite@6.4.1(@types/node@22.10.5)(yaml@2.6.1))
@@ -1254,10 +1254,10 @@ packages:
     peerDependencies:
       storybook: ^8.2.0 || ^8.3.0-0 || ^8.4.0-0 || ^8.5.0-0 || ^8.6.0-0
 
-  "@stripe/stripe-js@7.3.1":
+  "@stripe/stripe-js@9.7.0":
     resolution:
       {
-        integrity: sha512-pTzb864TQWDRQBPLgSPFRoyjSDUqpCkbEgTzpsjiTjGz1Z5SxZNXJek28w1s6Dyry4CyW4/Izj5jHE/J9hCJYQ==,
+        integrity: sha512-r1ElolvWXM4aYnZZVHvKW3EDL8JcwEuIgTuWxlB5lvC+YsvjkQ0gX35x9d8dTDubX395fViLVqkaolVs1PmIQQ==,
       }
     engines: { node: ">=12.16" }
 
@@ -6554,7 +6554,7 @@ snapshots:
     dependencies:
       storybook: 8.6.15(prettier@3.4.2)
 
-  "@stripe/stripe-js@7.3.1": {}
+  "@stripe/stripe-js@9.7.0": {}
 
   "@sveltejs/acorn-typescript@1.0.8(acorn@8.15.0)":
     dependencies:
