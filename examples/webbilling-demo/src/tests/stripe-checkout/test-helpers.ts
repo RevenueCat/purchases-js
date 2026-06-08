@@ -2,8 +2,8 @@ import { expect, type Page } from "@playwright/test";
 import { STRIPE_CHECKOUT_TEST_API_KEY } from "../helpers/fixtures";
 import { navigateToLandingUrl } from "../helpers/test-helpers";
 
-export const STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS = 30_000;
-export const STRIPE_CHECKOUT_TEST_TIMEOUT_MS = 120_000;
+export const STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS = 60_000;
+export const STRIPE_CHECKOUT_TEST_TIMEOUT_MS = 240_000;
 
 type LandingQuery = {
   offeringId?: string;
