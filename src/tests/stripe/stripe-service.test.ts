@@ -190,12 +190,12 @@ describe("StripeService", () => {
       const createEmbeddedCheckoutPage = vi
         .fn()
         .mockResolvedValue(mockEmbeddedCheckout);
-      const mockStripe = {
+      const mockStripe: Partial<Stripe> = {
         createEmbeddedCheckoutPage,
-      } as unknown as Stripe;
+      };
       const onComplete = vi.fn();
 
-      vi.mocked(loadStripe).mockResolvedValue(mockStripe);
+      vi.mocked(loadStripe).mockResolvedValue(mockStripe as Stripe);
 
       const result = await StripeService.initializeStripeCheckout(
         "acct_123",
@@ -223,15 +223,15 @@ describe("StripeService", () => {
     });
 
     test("throws mapped initialization error when embedded checkout initialization fails", async () => {
-      const mockStripe = {
+      const mockStripe: Partial<Stripe> = {
         createEmbeddedCheckoutPage: vi.fn().mockRejectedValue({
           type: "api_connection_error",
           code: "failed_to_load",
           message: "Failed to load",
         } as StripeError),
-      } as unknown as Stripe;
+      };
 
-      vi.mocked(loadStripe).mockResolvedValue(mockStripe);
+      vi.mocked(loadStripe).mockResolvedValue(mockStripe as Stripe);
 
       await expect(
         StripeService.initializeStripeCheckout(
