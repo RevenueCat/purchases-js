@@ -23,7 +23,7 @@ import {
 // Stripe's checkout form against the merchant's self-loaded train. Completing
 // the payment is left to purchase-flow.test.ts (local only) - completion runs
 // server-side at Stripe, behaves identically across trains, and Stripe blocks
-// it from CI datacenter IPs.
+// it from CI datacenter IPs (https://docs.stripe.com/automated-testing).
 const STRIPE_JS_TRAINS = ["basil", "clover", "dahlia"] as const;
 
 async function activeStripeTrain(page: Page): Promise<string | undefined> {

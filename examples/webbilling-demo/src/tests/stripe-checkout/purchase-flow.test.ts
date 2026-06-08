@@ -19,6 +19,8 @@ import {
 // Stripe blocks the embedded checkout from completing on CI cloud/datacenter
 // IPs - the success callback never fires - so these full-completion tests run
 // locally only. cross-version.test.ts covers per-train mounting in CI.
+// Ref: https://docs.stripe.com/automated-testing - frontends like Stripe
+// Checkout have anti-automation measures that block this from CI.
 const LOCAL_ONLY_COMPLETION =
   "Stripe blocks payment completion from CI datacenter IPs; runs locally.";
 
