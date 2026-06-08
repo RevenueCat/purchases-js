@@ -2,14 +2,13 @@ import { expect, type Page } from "@playwright/test";
 import { STRIPE_CHECKOUT_TEST_API_KEY } from "../helpers/fixtures";
 import { integrationTest } from "../helpers/integration-test";
 import {
-  confirmPaymentComplete,
   getPackageCards,
   skipStripeTestsIfDisabled,
   startPurchaseFlow,
 } from "../helpers/test-helpers";
 import {
-  completeStripeCheckoutEmbeddedForm,
   confirmStripeCheckoutVisible,
+  getStripeEmbeddedCheckoutFrame,
   navigateToStripeCheckoutLandingUrl,
   STRIPE_CHECKOUT_TEST_TIMEOUT_MS,
   STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
@@ -19,6 +18,12 @@ import {
 // merchant self-loaded, so the SDK must work against any of them - even though
 // the embedded-checkout method was renamed across trains
 // (initEmbeddedCheckout -> createEmbeddedCheckoutPage in dahlia).
+//
+// This matrix asserts the only train-sensitive part: the SDK's call mounts
+// Stripe's checkout form against the merchant's self-loaded train. Completing
+// the payment is left to purchase-flow.test.ts (local only) - completion runs
+// server-side at Stripe, behaves identically across trains, and Stripe blocks
+// it from CI datacenter IPs.
 const STRIPE_JS_TRAINS = ["basil", "clover", "dahlia"] as const;
 
 async function activeStripeTrain(page: Page): Promise<string | undefined> {
@@ -53,10 +58,8 @@ integrationTest.describe("Stripe Checkout cross-version compatibility", () => {
 
   for (const train of STRIPE_JS_TRAINS) {
     integrationTest(
-      `completes embedded checkout when the page self-loads Stripe.js ${train}`,
+      `mounts embedded checkout against self-loaded Stripe.js ${train}`,
       async ({ page, userId, email }) => {
-        const fullName = `E2E ${userId.replace(/_/g, " ")}`;
-
         page = await navigateToStripeCheckoutLandingUrl(page, userId, {
           email,
         });
@@ -77,29 +80,21 @@ integrationTest.describe("Stripe Checkout cross-version compatibility", () => {
         expect(packageCards.length).toBeGreaterThan(0);
 
         await startPurchaseFlow(packageCards[0]);
+
+        // The SDK called createEmbeddedCheckoutPage and Stripe mounted its form.
+        // A method missing on this train would throw IntegrationError here, so
+        // the iframe and its card field would never render.
         await confirmStripeCheckoutVisible(page);
-
-        // The SDK ran against the merchant's train, not its own bundled one.
-        expect(await activeStripeTrain(page)).toBe(train);
-
-        await completeStripeCheckoutEmbeddedForm(page, email, fullName, false);
-        await confirmPaymentComplete(page, STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS);
-
-        const continueButton = page.getByRole("button", { name: /continue/i });
-        await expect(continueButton).toBeVisible({
-          timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
-        });
-
-        await Promise.all([
-          page.waitForURL(/\/success\//, {
-            timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
-          }),
-          continueButton.click(),
-        ]);
-
+        const checkoutFrame = getStripeEmbeddedCheckoutFrame(page);
         await expect(
-          page.getByText("Enjoy your premium experience."),
+          checkoutFrame
+            .getByLabel(/card number/i)
+            .or(checkoutFrame.getByPlaceholder(/1234 1234/i))
+            .first(),
         ).toBeVisible({ timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS });
+
+        // ...and it ran against the merchant's train, not the SDK's bundled one.
+        expect(await activeStripeTrain(page)).toBe(train);
       },
     );
   }
