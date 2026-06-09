@@ -776,6 +776,88 @@ describe("Purchases.purchase()", () => {
     expect(performWebBillingPurchaseSpy).not.toHaveBeenCalled();
   });
 
+  describe("Paddle inline checkout gate (WST-700)", () => {
+    const brandingUrl = "http://localhost:8000/rcbilling/v1/branding";
+
+    const overrideBranding = (overrides: Record<string, unknown>) => {
+      server.use(
+        http.get(brandingUrl, () =>
+          HttpResponse.json(
+            {
+              app_icon: null,
+              app_icon_webp: null,
+              app_wordmark: null,
+              app_wordmark_webp: null,
+              appearance: null,
+              id: "test-app-id",
+              app_name: "Test Company name",
+              support_email: "test-rcbilling-support@revenuecat.com",
+              gateway_tax_collection_enabled: false,
+              brand_font_config: null,
+              ...overrides,
+            },
+            { status: 200 },
+          ),
+        ),
+      );
+    };
+
+    // Mount Paddle's UI without actually rendering it, so we can inspect the
+    // props the gate wires in without booting the real inline checkout.
+    const mountWithoutRendering = () => {
+      vi.spyOn(svelte, "unmount").mockResolvedValue(undefined);
+      return vi
+        .spyOn(svelte, "mount")
+        .mockReturnValue({} as ReturnType<typeof svelte.mount>);
+    };
+
+    const triggerPaddlePurchaseAndReadProps = async () => {
+      const mountSpy = mountWithoutRendering();
+      const purchases = configurePurchases(
+        testUserId,
+        "rcSource",
+        "pdl_test_key",
+      );
+      // Don't await: the purchase promise only settles on close/finish, and the
+      // UI is mocked out. We only care about the props handed to mount().
+      purchases
+        .purchase({ rcPackage: createMonthlyPackageMock() })
+        .catch(() => {});
+
+      await waitFor(() => expect(mountSpy).toHaveBeenCalled());
+      const props = mountSpy.mock.calls[0][1].props as {
+        useInlineCheckout?: boolean;
+      };
+
+      purchases.close();
+      document.body.innerHTML = "";
+      return props;
+    };
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    test("uses inline checkout when the branding flag is enabled", async () => {
+      overrideBranding({ paddle_inline_checkout_enabled: true });
+      const props = await triggerPaddlePurchaseAndReadProps();
+      expect(props.useInlineCheckout).toBe(true);
+    });
+
+    test("falls back to the legacy overlay when the flag is disabled", async () => {
+      overrideBranding({ paddle_inline_checkout_enabled: false });
+      const props = await triggerPaddlePurchaseAndReadProps();
+      expect(props.useInlineCheckout).toBe(false);
+    });
+
+    test("falls back to the legacy overlay when the flag is absent", async () => {
+      // Default branding response carries no flag; the `?? false` fallback must
+      // keep existing projects on the overlay until RevenueCat opts them in.
+      const props = await triggerPaddlePurchaseAndReadProps();
+      expect(props.useInlineCheckout).toBe(false);
+    });
+  });
+
   test("routes purchases to Stripe Checkout flow for strp_ api keys", async () => {
     const purchases = configurePurchases(
       testUserId,

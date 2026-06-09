@@ -49,10 +49,16 @@
     unmountPaddlePurchaseUi: () => void;
     paddleService: PaddleService;
     /**
-     * Internal flag (defaults to false). When true, Paddle's checkout is
-     * embedded inline in our own container instead of opening as an overlay.
-     * Not yet exposed through the public configure() surface — wiring and the
-     * inline state machine land in follow-up PRs.
+     * Controls how Paddle's checkout is presented. Defaults to `false`
+     * (legacy overlay / modal popup). When `true`, the checkout is embedded
+     * inline in our own container.
+     *
+     * This is driven by the per-project backend flag
+     * `paddle_inline_checkout_enabled` from the branding-info response, wired in
+     * at the mount site in main.ts (WST-700). It is not exposed through the
+     * public configure() surface — RevenueCat toggles it server-side so the
+     * rollout can be staged. Defaulting to `false` keeps existing projects on
+     * the overlay until they're opted in.
      */
     useInlineCheckout?: boolean;
   }

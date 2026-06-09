@@ -1693,6 +1693,11 @@ export class Purchases {
             metadata,
             unmountPaddlePurchaseUi,
             paddleService,
+            // Gate the inline checkout behind the per-project backend flag
+            // (WST-700). Absent/false => legacy overlay, so existing projects
+            // see no change until RevenueCat opts them in server-side.
+            useInlineCheckout:
+              this._brandingInfo?.paddle_inline_checkout_enabled ?? false,
           },
         });
       }
