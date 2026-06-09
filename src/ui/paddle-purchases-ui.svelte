@@ -55,7 +55,7 @@
      *
      * This is driven by the per-project backend flag
      * `paddle_inline_checkout_enabled` from the branding-info response, wired in
-     * at the mount site in main.ts (WST-700). It is not exposed through the
+     * at the mount site in main.ts. It is not exposed through the
      * public configure() surface — RevenueCat toggles it server-side so the
      * rollout can be staged. Defaulting to `false` keeps existing projects on
      * the overlay until they're opted in.

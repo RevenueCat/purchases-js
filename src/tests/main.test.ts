@@ -776,7 +776,7 @@ describe("Purchases.purchase()", () => {
     expect(performWebBillingPurchaseSpy).not.toHaveBeenCalled();
   });
 
-  describe("Paddle inline checkout gate (WST-700)", () => {
+  describe("Paddle inline checkout gate", () => {
     const brandingUrl = "http://localhost:8000/rcbilling/v1/branding";
 
     const overrideBranding = (overrides: Record<string, unknown>) => {
