@@ -1,3 +1,3 @@
 ## RevenueCat SDK
 ### 🐞 Bugfixes
-* Bump purchases-ui-js to 4.7.2 (#902) via Monika Mateska (@MonikaMateska)
+* chore: bump @stripe/stripe-js to v9 (dahlia) (#907) via Volodymyr Kartavyi (@vkartaviy)
