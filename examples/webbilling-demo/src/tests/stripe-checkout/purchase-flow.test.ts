@@ -2,7 +2,6 @@ import { expect } from "@playwright/test";
 import { STRIPE_CHECKOUT_TEST_API_KEY } from "../helpers/fixtures";
 import { integrationTest } from "../helpers/integration-test";
 import {
-  confirmPaymentComplete,
   confirmPaymentError,
   getPackageCards,
   skipPaywallsTestIfDisabled,
@@ -11,18 +10,17 @@ import {
 } from "../helpers/test-helpers";
 import {
   completeStripeCheckoutEmbeddedForm,
+  confirmPaymentCompleteOrSkipOnCaptcha,
   navigateToStripeCheckoutLandingUrl,
   STRIPE_CHECKOUT_TEST_TIMEOUT_MS,
   STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
 } from "./test-helpers";
 
-// Stripe blocks the embedded checkout from completing on CI cloud/datacenter
-// IPs - the success callback never fires - so these full-completion tests run
-// locally only (https://docs.stripe.com/automated-testing).
-// cross-version.test.ts covers per-train mounting in CI.
-const LOCAL_ONLY_COMPLETION =
-  "Stripe blocks payment completion from CI datacenter IPs; runs locally.";
-
+// Stripe challenges checkouts from CI cloud/datacenter IPs with a CAPTCHA
+// that a test cannot solve (https://docs.stripe.com/automated-testing).
+// The full-completion tests run best effort on CI: they go through the whole
+// flow and skip if the CAPTCHA shows up (see
+// confirmPaymentCompleteOrSkipOnCaptcha). Locally they always run in full.
 integrationTest.describe("Stripe Checkout flow", () => {
   integrationTest.describe.configure({
     timeout: STRIPE_CHECKOUT_TEST_TIMEOUT_MS,
@@ -48,8 +46,6 @@ integrationTest.describe("Stripe Checkout flow", () => {
   integrationTest(
     "Purchases a product with embedded Stripe Checkout",
     async ({ page, userId, email }) => {
-      integrationTest.skip(!!process.env.CI, LOCAL_ONLY_COMPLETION);
-
       const fullName = `E2E ${userId.replace(/_/g, " ")}`;
 
       page = await navigateToStripeCheckoutLandingUrl(page, userId);
@@ -63,7 +59,11 @@ integrationTest.describe("Stripe Checkout flow", () => {
 
       await startPurchaseFlow(packageCards[0]);
       await completeStripeCheckoutEmbeddedForm(page, email, fullName);
-      await confirmPaymentComplete(page, STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS);
+      await confirmPaymentCompleteOrSkipOnCaptcha(
+        integrationTest,
+        page,
+        STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+      );
 
       const continueButton = page.getByRole("button", { name: /continue/i });
       await expect(continueButton).toBeVisible({
@@ -86,8 +86,6 @@ integrationTest.describe("Stripe Checkout flow", () => {
   integrationTest(
     "Purchases a product with embedded Stripe Checkout passing the email as query parameter",
     async ({ page, userId, email }) => {
-      integrationTest.skip(!!process.env.CI, LOCAL_ONLY_COMPLETION);
-
       const fullName = `E2E ${userId.replace(/_/g, " ")}`;
 
       page = await navigateToStripeCheckoutLandingUrl(page, userId, {
@@ -103,7 +101,11 @@ integrationTest.describe("Stripe Checkout flow", () => {
 
       await startPurchaseFlow(packageCards[0]);
       await completeStripeCheckoutEmbeddedForm(page, email, fullName, false);
-      await confirmPaymentComplete(page, STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS);
+      await confirmPaymentCompleteOrSkipOnCaptcha(
+        integrationTest,
+        page,
+        STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+      );
 
       const continueButton = page.getByRole("button", { name: /continue/i });
       await expect(continueButton).toBeVisible({
@@ -167,7 +169,6 @@ integrationTest.describe("Stripe Checkout flow", () => {
   integrationTest(
     "Purchases monthly product from RC Paywall with Stripe Checkout",
     async ({ page, userId, email }) => {
-      integrationTest.skip(!!process.env.CI, LOCAL_ONLY_COMPLETION);
       skipPaywallsTestIfDisabled(integrationTest);
 
       const fullName = `E2E ${userId.replace(/_/g, " ")}`;
@@ -197,7 +198,11 @@ integrationTest.describe("Stripe Checkout flow", () => {
       await purchaseButton.click();
 
       await completeStripeCheckoutEmbeddedForm(page, email, fullName);
-      await confirmPaymentComplete(page, STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS);
+      await confirmPaymentCompleteOrSkipOnCaptcha(
+        integrationTest,
+        page,
+        STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+      );
 
       const continueButton = page.getByRole("button", { name: /continue/i });
       await expect(continueButton).toBeVisible({

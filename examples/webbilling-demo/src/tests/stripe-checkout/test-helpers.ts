@@ -1,5 +1,9 @@
 import { expect, type Page } from "@playwright/test";
 import { STRIPE_CHECKOUT_TEST_API_KEY } from "../helpers/fixtures";
+import {
+  type integrationTest,
+  SKIP_STRIPE_TESTS_ON_CAPTCHA,
+} from "../helpers/integration-test";
 import { navigateToLandingUrl } from "../helpers/test-helpers";
 
 export const STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS = 60_000;
@@ -37,6 +41,41 @@ export async function navigateToStripeCheckoutLandingUrl(
 
 export const getStripeEmbeddedCheckoutFrame = (page: Page) =>
   page.frameLocator("[data-testid='stripe-checkout-mount'] iframe");
+
+// hCaptcha challenge frames use a #frame=challenge fragment; Cloudflare
+// Turnstile loads from challenges.cloudflare.com.
+const CAPTCHA_FRAME_URL_PATTERN =
+  /hcaptcha\.com\/.*frame=challenge|challenges\.cloudflare\.com/i;
+
+export const hasCaptchaChallenge = (page: Page) =>
+  page.frames().some((frame) => CAPTCHA_FRAME_URL_PATTERN.test(frame.url()));
+
+/**
+ * Stripe sometimes presents a CAPTCHA challenge after submitting the checkout
+ * form, which a test cannot solve. When VITE_SKIP_STRIPE_TESTS_ON_CAPTCHA is
+ * set (only in CI), the test is skipped instead of failing so a CAPTCHA does
+ * not block releases. Locally the variable is unset and the test fails as
+ * usual.
+ */
+export async function confirmPaymentCompleteOrSkipOnCaptcha(
+  test: typeof integrationTest,
+  page: Page,
+  timeout: number,
+) {
+  const successText = page.getByText("Payment complete");
+  const deadline = Date.now() + timeout;
+  while (Date.now() < deadline) {
+    if (await successText.isVisible()) {
+      return;
+    }
+    test.skip(
+      SKIP_STRIPE_TESTS_ON_CAPTCHA && hasCaptchaChallenge(page),
+      "Stripe presented a CAPTCHA challenge that cannot be solved by the test.",
+    );
+    await page.waitForTimeout(500);
+  }
+  await expect(successText).toBeVisible({ timeout: 1_000 });
+}
 
 export async function confirmStripeCheckoutVisible(page: Page) {
   await expect(page.getByTestId("stripe-checkout-container")).toBeVisible({
