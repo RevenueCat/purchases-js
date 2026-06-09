@@ -15,12 +15,4 @@ export type BrandingInfoResponse = {
   sandbox_configuration?: {
     checkout_feedback_form_url: string | null;
   };
-  /**
-   * Per-project gate for the Paddle inline checkout rollout.
-   * When `true`, the SDK presents Paddle's checkout inline (embedded in our own
-   * container); when absent or `false`, it falls back to the legacy overlay
-   * (modal popup). Toggled server-side by RevenueCat so the rollout can be
-   * staged and large/managed accounts can opt in without shipping a code change.
-   */
-  paddle_inline_checkout_enabled?: boolean;
 };

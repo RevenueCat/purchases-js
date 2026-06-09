@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, setContext, onDestroy } from "svelte";
+  import { onMount, setContext, onDestroy, tick } from "svelte";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import { translatorContextKey } from "./localization/constants";
   import { Translator } from "./localization/translator";
@@ -48,19 +48,6 @@
     attributionMetadata?: AttributionMetadata;
     unmountPaddlePurchaseUi: () => void;
     paddleService: PaddleService;
-    /**
-     * Controls how Paddle's checkout is presented. Defaults to `false`
-     * (legacy overlay / modal popup). When `true`, the checkout is embedded
-     * inline in our own container.
-     *
-     * This is driven by the per-project backend flag
-     * `paddle_inline_checkout_enabled` from the branding-info response, wired in
-     * at the mount site in main.ts. It is not exposed through the
-     * public configure() surface — RevenueCat toggles it server-side so the
-     * rollout can be staged. Defaulting to `false` keeps existing projects on
-     * the overlay until they're opted in.
-     */
-    useInlineCheckout?: boolean;
   }
 
   const {
@@ -83,7 +70,6 @@
     attributionMetadata,
     unmountPaddlePurchaseUi,
     paddleService,
-    useInlineCheckout = false,
   }: Props = $props();
 
   let translator: Translator = new Translator(
@@ -109,6 +95,11 @@
   // poll resolving. Used by the inline path to swap the checkout iframe for a
   // processing state instead of leaving an empty container on screen.
   let checkoutCompleted = $state(false);
+
+  // How Paddle's checkout is presented. Defaults to the legacy overlay; set to
+  // inline only when the per-project backend flag (returned on the checkout
+  // start response) enables it. Resolved after startCheckout, below.
+  let useInlineCheckout = $state(false);
 
   // Order totals reported by Paddle's checkout events; drives the inline order
   // summary's Subtotal/Tax/Total breakdown and updates live.
@@ -203,6 +194,18 @@
         attributionMetadata,
       });
       isSandbox = startResponse.paddle_billing_params.is_sandbox;
+
+      // Gate the inline presentation on the per-project backend flag. Absent =>
+      // legacy overlay, so projects that haven't been opted in are unaffected.
+      useInlineCheckout =
+        startResponse.checkout_config?.paddle_config?.inline_checkout_enabled ??
+        false;
+      // Paddle injects its iframe into the inline container (frameTarget), so
+      // that element must be in the DOM before purchase() opens the checkout.
+      // Flush the render now that we know the presentation mode.
+      if (useInlineCheckout) {
+        await tick();
+      }
     } catch (e) {
       const purchaseFlowError = normalizeToPurchaseFlowError(
         e,
