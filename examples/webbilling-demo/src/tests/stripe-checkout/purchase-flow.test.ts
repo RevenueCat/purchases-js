@@ -16,11 +16,9 @@ import {
   STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
 } from "./test-helpers";
 
-// Stripe challenges checkouts from CI cloud/datacenter IPs with a CAPTCHA
-// that a test cannot solve (https://docs.stripe.com/automated-testing).
-// The full-completion tests run best effort on CI: they go through the whole
-// flow and skip if the CAPTCHA shows up (see
-// confirmPaymentCompleteOrSkipOnCaptcha). Locally they always run in full.
+// Stripe challenges checkouts from CI cloud/datacenter IPs with a CAPTCHA a
+// test cannot solve (https://docs.stripe.com/automated-testing), so on CI the
+// full-completion tests run the whole flow and skip on CAPTCHA rather than fail.
 integrationTest.describe("Stripe Checkout flow", () => {
   integrationTest.describe.configure({
     timeout: STRIPE_CHECKOUT_TEST_TIMEOUT_MS,

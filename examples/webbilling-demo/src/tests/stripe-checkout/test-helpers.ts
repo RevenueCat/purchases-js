@@ -50,13 +50,9 @@ const CAPTCHA_FRAME_URL_PATTERN =
 export const hasCaptchaChallenge = (page: Page) =>
   page.frames().some((frame) => CAPTCHA_FRAME_URL_PATTERN.test(frame.url()));
 
-/**
- * Stripe sometimes presents a CAPTCHA challenge after submitting the checkout
- * form, which a test cannot solve. When VITE_SKIP_STRIPE_TESTS_ON_CAPTCHA is
- * set (only in CI), the test is skipped instead of failing so a CAPTCHA does
- * not block releases. Locally the variable is unset and the test fails as
- * usual.
- */
+// A CAPTCHA the test cannot solve only blocks releases on CI, where
+// SKIP_STRIPE_TESTS_ON_CAPTCHA is set; locally the var is unset and the test
+// fails as usual.
 export async function confirmPaymentCompleteOrSkipOnCaptcha(
   test: typeof integrationTest,
   page: Page,
