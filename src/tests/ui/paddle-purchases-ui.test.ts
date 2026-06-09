@@ -53,13 +53,15 @@ const operationSessionSuccessfulResult: OperationSessionSuccessfulResult = {
 const createPaddleServiceMock = ({
   inlineCheckoutEnabled = false,
 }: { inlineCheckoutEnabled?: boolean } = {}): PaddleService => {
-  // The backend gates inline checkout per project via the checkout start
-  // response; the UI derives its presentation mode from it.
+  // The backend gates inline checkout per project via inline_checkout_enabled
+  // on the checkout start response's paddle_billing_params; the UI derives its
+  // presentation mode from it.
   const startResponse: PaddleCheckoutStartResponse = {
     ...paddleCheckoutStartResponse,
-    ...(inlineCheckoutEnabled && {
-      checkout_config: { paddle_config: { inline_checkout_enabled: true } },
-    }),
+    paddle_billing_params: {
+      ...paddleCheckoutStartResponse.paddle_billing_params,
+      inline_checkout_enabled: inlineCheckoutEnabled,
+    },
   };
   return {
     startCheckout: vi.fn().mockResolvedValue(startResponse),
@@ -511,7 +513,7 @@ describe("PaddlePurchasesUI", () => {
     expect(sandboxBanner).toBeInTheDocument();
   });
 
-  describe("inline checkout (gated by checkout_config.paddle_config)", () => {
+  describe("inline checkout (gated by paddle_billing_params.inline_checkout_enabled)", () => {
     test("renders the inline checkout container when enabled", async () => {
       const paddleServiceMock = createPaddleServiceMock({
         inlineCheckoutEnabled: true,

@@ -198,8 +198,7 @@
       // Gate the inline presentation on the per-project backend flag. Absent =>
       // legacy overlay, so projects that haven't been opted in are unaffected.
       useInlineCheckout =
-        startResponse.checkout_config?.paddle_config?.inline_checkout_enabled ??
-        false;
+        startResponse.paddle_billing_params.inline_checkout_enabled ?? false;
       // Paddle injects its iframe into the inline container (frameTarget), so
       // that element must be in the DOM before purchase() opens the checkout.
       // Flush the render now that we know the presentation mode.
