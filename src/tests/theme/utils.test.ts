@@ -1,5 +1,26 @@
 import { describe, expect, test } from "vitest";
-import { applyAlpha, isHexColorLight } from "../../ui/theme/utils";
+import type { BrandingAppearance } from "../../entities/branding";
+import {
+  applyAlpha,
+  isHexColorLight,
+  toFormColors,
+} from "../../ui/theme/utils";
+
+const brandingAppearanceWithPrimaryColor = (
+  color_buttons_primary: string,
+  color_buttons_primary_text?: string | null,
+): BrandingAppearance => ({
+  color_buttons_primary,
+  color_buttons_primary_text,
+  color_accent: "#767676",
+  color_error: "#B0171F",
+  color_product_info_bg: "#EFF3FA",
+  color_form_bg: "#FFFFFF",
+  color_page_bg: "#FFFFFF",
+  font: "default",
+  shapes: "default",
+  show_product_description: true,
+});
 
 describe("isHexColorLight", () => {
   test("returns true for light colors", () => {
@@ -17,6 +38,7 @@ describe("isHexColorLight", () => {
     expect(isHexColorLight("")).toBe(true);
   });
 });
+
 describe("overlayColor", () => {
   test("applies black overlay for a light color", () => {
     expect(applyAlpha("#FFFFFF", 0.1)).toBe("#E6E6E6"); // 10% black overlay on white
@@ -44,5 +66,23 @@ describe("overlayColor", () => {
 
   test("handles incorrect alpha input gracefully", () => {
     expect(applyAlpha("#FFFFFF", -4)).toBe("#FFFFFF");
+  });
+});
+
+describe("toFormColors", () => {
+  test("uses the primary text override when present", () => {
+    expect(
+      toFormColors(brandingAppearanceWithPrimaryColor("#13C892", "#FFFFFF"))[
+        "primary-text"
+      ],
+    ).toBe("#FFFFFF");
+  });
+
+  test("uses automatic primary text color when primary text override is null", () => {
+    expect(
+      toFormColors(brandingAppearanceWithPrimaryColor("#13C892", null))[
+        "primary-text"
+      ],
+    ).toBe("black");
   });
 });

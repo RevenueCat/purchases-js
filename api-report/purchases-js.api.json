@@ -244,6 +244,33 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!BrandingAppearance#color_buttons_primary_text:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "color_buttons_primary_text?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "color_buttons_primary_text",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!BrandingAppearance#color_error:member",
               "docComment": "",
               "excerptTokens": [
