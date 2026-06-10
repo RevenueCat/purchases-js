@@ -96,10 +96,14 @@
   // processing state instead of leaving an empty container on screen.
   let checkoutCompleted = $state(false);
 
-  // How Paddle's checkout is presented. Defaults to the legacy overlay; set to
-  // inline only when the per-project backend flag (returned on the checkout
-  // start response) enables it. Resolved after startCheckout, below.
-  let useInlineCheckout = $state(false);
+  // The Paddle checkout start response, set once startCheckout resolves.
+  let startResponse = $state<PaddleCheckoutStartResponse | null>(null);
+  // How Paddle's checkout is presented: inline only when the per-project backend
+  // flag on the start response enables it, otherwise the legacy overlay. Absent
+  // => overlay, so projects that haven't been opted in are unaffected.
+  const useInlineCheckout = $derived(
+    startResponse?.paddle_billing_params.inline_checkout_enabled ?? false,
+  );
 
   // Order totals reported by Paddle's checkout events; drives the inline order
   // summary's Subtotal/Tax/Total breakdown and updates live.
@@ -181,9 +185,9 @@
       placementIdentifier: null,
     };
 
-    let startResponse: PaddleCheckoutStartResponse;
+    let resp: PaddleCheckoutStartResponse;
     try {
-      startResponse = await paddleService.startCheckout({
+      resp = await paddleService.startCheckout({
         appUserId,
         productId: productDetails.identifier,
         presentedOfferingContext,
@@ -193,15 +197,16 @@
         locale: selectedLocale,
         attributionMetadata,
       });
-      isSandbox = startResponse.paddle_billing_params.is_sandbox;
+      // Drives the derived useInlineCheckout (and the template) below.
+      startResponse = resp;
+      isSandbox = resp.paddle_billing_params.is_sandbox;
 
-      // Gate the inline presentation on the per-project backend flag. Absent =>
-      // legacy overlay, so projects that haven't been opted in are unaffected.
-      useInlineCheckout =
-        startResponse.paddle_billing_params.inline_checkout_enabled ?? false;
       // Paddle injects its iframe into the inline container (frameTarget), so
       // that element must be in the DOM before purchase() opens the checkout.
-      // Flush the render now that we know the presentation mode.
+      // The presentation mode is only known now (after startCheckout), so flush
+      // the pending render that adds the container. ($derived changes how the
+      // value is computed, not when the DOM updates, so this await is still
+      // required.)
       if (useInlineCheckout) {
         await tick();
       }
@@ -218,8 +223,8 @@
 
     try {
       const result = await paddleService.purchase({
-        operationSessionId: startResponse.operation_session_id,
-        transactionId: startResponse.paddle_billing_params?.transaction_id,
+        operationSessionId: resp.operation_session_id,
+        transactionId: resp.paddle_billing_params?.transaction_id,
         onCheckoutLoaded,
         onClose,
         params: {
