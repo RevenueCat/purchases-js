@@ -16,7 +16,6 @@ type LandingQuery = {
   utm_content?: string;
   optOutOfAutoUTM?: boolean;
   email?: string;
-  customerEmail?: string;
   $displayName?: string;
   nickname?: string;
   hideBackButtons?: boolean;

@@ -11,7 +11,7 @@ const RCPaywallNoOfferingPassedPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const lang = searchParams.get("lang");
-  const customerEmail = searchParams.get("customerEmail");
+  const email = searchParams.get("email");
   const {
     openSettings,
     settings: { customVariables },
@@ -30,7 +30,7 @@ const RCPaywallNoOfferingPassedPage: React.FC = () => {
         htmlTarget: document.getElementById("paywall") || undefined,
         selectedLocale: lang || undefined,
         customVariables,
-        customerEmail: customerEmail || undefined,
+        customerEmail: email || undefined,
       })
       .then((purchaseResult: PurchaseResult) => {
         const { customerInfo, redemptionInfo } = purchaseResult;
@@ -49,7 +49,7 @@ const RCPaywallNoOfferingPassedPage: React.FC = () => {
         );
       })
       .catch((err: Error) => console.log(`Error: ${err}`));
-  }, [navigate, lang, customVariables, customerEmail]);
+  }, [navigate, lang, customVariables, email]);
 
   return (
     <>

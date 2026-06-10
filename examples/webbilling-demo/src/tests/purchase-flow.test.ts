@@ -185,14 +185,14 @@ test.describe("Purchase flow", () => {
   );
 
   integrationTest(
-    "Purchase from RC Paywall skipping the email with customerEmail",
+    "Purchase from RC Paywall skipping the email with email query parameter",
     async ({ page, userId, email }) => {
       skipPaywallsTestIfDisabled(integrationTest);
 
       page = await navigateToLandingUrl(page, userId, {
         offeringId: RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES,
         useRcPaywall: true,
-        customerEmail: email,
+        email,
       });
 
       const title = page.getByText("E2E Tests for Purchases JS");

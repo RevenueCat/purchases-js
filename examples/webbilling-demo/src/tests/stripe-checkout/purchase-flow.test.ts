@@ -219,14 +219,14 @@ integrationTest.describe("Stripe Checkout flow", () => {
   );
 
   integrationTest(
-    "Prefills email from RC Paywall customerEmail with Stripe Checkout",
+    "Prefills email from RC Paywall email query parameter with Stripe Checkout",
     async ({ page, userId, email }) => {
       skipPaywallsTestIfDisabled(integrationTest);
 
       page = await navigateToStripeCheckoutLandingUrl(page, userId, {
         useRcPaywall: true,
         lang: "en",
-        customerEmail: email,
+        email,
       });
 
       await expect(page.getByText("E2E Tests for Purchases JS")).toBeVisible({
