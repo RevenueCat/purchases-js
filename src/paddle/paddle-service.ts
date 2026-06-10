@@ -51,6 +51,25 @@ interface PaddlePurchaseParams {
 export type PaddleCheckoutDisplayMode = "overlay" | "inline";
 
 /**
+ * Order totals surfaced by Paddle's checkout events (`checkout.loaded` /
+ * `checkout.updated`). Amounts are in major currency units (e.g. 9.99). Lets
+ * the inline UI render the same Subtotal/Tax/Total breakdown Paddle's overlay
+ * shows, and keep it updated live as the customer enters their address.
+ */
+export interface PaddleCheckoutTotals {
+  currencyCode: string;
+  subtotalAmount: number;
+  taxAmount: number;
+  totalAmount: number;
+  /** Recurring total (incl. tax) for the next billing period, if subscription. */
+  recurringTotalAmount: number | null;
+  /** Product name from Paddle's first checkout item (e.g. "Premium"). */
+  productName: string | null;
+  /** Price name from Paddle's first checkout item (e.g. "monthly"). */
+  priceName: string | null;
+}
+
+/**
  * Class name of the container element Paddle injects its inline checkout iframe
  * into. The element must already exist in the DOM when `Checkout.open()` is
  * called. Only relevant when displayMode is "inline".
@@ -118,6 +137,12 @@ interface PaddlePurchase {
   params: PaddlePurchaseParams;
   onClose: () => void;
   displayMode?: PaddleCheckoutDisplayMode;
+  /**
+   * Invoked with the order totals whenever Paddle reports them
+   * (`checkout.loaded` and `checkout.updated`). Used by the inline UI to render
+   * the Subtotal/Tax/Total breakdown.
+   */
+  onCheckoutTotals?: (totals: PaddleCheckoutTotals) => void;
 }
 
 interface PaddleStartCheckoutParams {
@@ -193,6 +218,18 @@ export class PaddleService {
     return this.paddleInstance;
   }
 
+  /**
+   * Closes Paddle's checkout via `Paddle.Checkout.close()`. For the inline
+   * presentation this removes the embedded iframe from the DOM so we can return
+   * the user to the previous step (see Paddle's branded inline checkout docs).
+   * Safe no-op if Paddle isn't initialized.
+   */
+  closeCheckout(): void {
+    if (this.paddleInstance?.Initialized) {
+      this.paddleInstance.Checkout.close();
+    }
+  }
+
   async startCheckout({
     appUserId,
     productId,
@@ -247,9 +284,25 @@ export class PaddleService {
     onClose,
     params,
     displayMode = "overlay",
+    onCheckoutTotals,
   }: PaddlePurchase): Promise<OperationSessionSuccessfulResult> {
     const paddleInstance = this.getPaddleInstance();
     const { customerEmail, locale = "en" } = params;
+
+    const forwardTotals = (data: PaddleEventData["data"]) => {
+      if (onCheckoutTotals && data?.totals) {
+        const item = data.items?.[0];
+        onCheckoutTotals({
+          currencyCode: data.currency_code,
+          subtotalAmount: data.totals.subtotal,
+          taxAmount: data.totals.tax,
+          totalAmount: data.totals.total,
+          recurringTotalAmount: data.recurring_totals?.total ?? null,
+          productName: item?.product?.name ?? null,
+          priceName: item?.price_name ?? null,
+        });
+      }
+    };
 
     return new Promise<OperationSessionSuccessfulResult>((resolve, reject) => {
       paddleInstance.Update({
@@ -260,6 +313,10 @@ export class PaddleService {
           try {
             if (eventName === CheckoutEventNames.CHECKOUT_LOADED) {
               onCheckoutLoaded();
+              forwardTotals(data);
+            } else if (eventName === CheckoutEventNames.CHECKOUT_UPDATED) {
+              // Totals change as the customer enters their address (tax) etc.
+              forwardTotals(data);
             } else if (eventName === CheckoutEventNames.CHECKOUT_COMPLETED) {
               // Close Paddle's success page to show the PaddlePurchaseUi status page
               paddleInstance.Checkout.close();
