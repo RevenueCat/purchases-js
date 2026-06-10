@@ -156,6 +156,7 @@ export async function completePaddleCheckoutForm(
       timeout: PADDLE_UI_STEP_TIMEOUT_MS,
     });
     await emailInput.fill(email);
+    await emailInput.blur();
   } else {
     // When the email arrives via query param Paddle may either prefill the
     // input or collapse it into a read-only summary line.
@@ -186,7 +187,22 @@ export async function completePaddleCheckoutForm(
   await expect(submitButton).toBeEnabled({
     timeout: PADDLE_UI_STEP_TIMEOUT_MS,
   });
-  await submitButton.click();
+
+  // Paddle authenticates the filled email asynchronously and silently
+  // swallows submits that land mid-authentication, so re-click until the
+  // form actually transitions away.
+  const deadline = Date.now() + PADDLE_UI_STEP_TIMEOUT_MS;
+  while (await submitButton.isVisible()) {
+    if (Date.now() > deadline) {
+      throw new Error(
+        "Paddle checkout form did not submit within the allotted time.",
+      );
+    }
+    if (await submitButton.isEnabled()) {
+      await submitButton.click();
+    }
+    await new Promise((resolve) => setTimeout(resolve, 2_000));
+  }
 }
 
 // Inline mode shows an RC-rendered processing state between Paddle's
