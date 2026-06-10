@@ -492,14 +492,6 @@ export class Backend {
     );
   }
 
-  /**
-   * Fetch the list of published workflows for an app user.
-   * Each entry includes an optional `offering_id` that can be matched against
-   * an offering's identifier to determine whether to show a workflow instead
-   * of a standalone paywall.
-   *
-   * GET /v1/subscribers/{appUserId}/workflows
-   */
   async getWorkflows(appUserId: string): Promise<WorkflowsListResponse> {
     return await performRequest<null, WorkflowsListResponse>(
       new GetWorkflowsEndpoint(appUserId),
@@ -510,12 +502,6 @@ export class Backend {
     );
   }
 
-  /**
-   * Fetch the full workflow data for a specific workflow by its ID.
-   * Handles both inline responses and CDN redirects.
-   *
-   * GET /v1/subscribers/{appUserId}/workflows/{workflowId}
-   */
   async getWorkflowById(
     appUserId: string,
     workflowId: string,
@@ -546,15 +532,6 @@ export class Backend {
     return (await cdnResponse.json()) as WorkflowDataResponse;
   }
 
-  /**
-   * Fetch a workflow for a given app user in two steps:
-   *
-   * 1. GET /workflows/v1/workflow/{workflowLinkId} — public endpoint, no auth.
-   *    Returns `api_key` and `workflow_url` (contains `{app_user_id}` template).
-   *
-   * 2. GET {workflow_url} — authenticated with the `api_key` from step 1.
-   *    Returns the full `WorkflowDataResponse`, either inline or via CDN redirect.
-   */
   async getWorkflow(
     workflowLinkId: string,
     appUserId: string,

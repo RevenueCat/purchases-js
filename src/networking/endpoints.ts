@@ -200,10 +200,6 @@ export class GetVirtualCurrenciesEndpoint implements Endpoint {
   }
 }
 
-/**
- * GET /v1/subscribers/{appUserId}/workflows — returns the list of published
- * workflows for an app, each with an optional offering_id for matching.
- */
 export class GetWorkflowsEndpoint implements Endpoint {
   method: HttpMethodType = "GET";
   name: string = "getWorkflows";
@@ -218,10 +214,6 @@ export class GetWorkflowsEndpoint implements Endpoint {
   }
 }
 
-/**
- * GET /v1/subscribers/{appUserId}/workflows/{workflowId} — returns the full
- * workflow payload, either inline or as a CDN redirect.
- */
 export class GetWorkflowDataByIdEndpoint implements Endpoint {
   method: HttpMethodType = "GET";
   name: string = "getWorkflowData";
@@ -240,10 +232,6 @@ export class GetWorkflowDataByIdEndpoint implements Endpoint {
 
 const WORKFLOWS_PATH = "/workflows/v1";
 
-/**
- * Step 1: fetch workflow metadata (public API key + workflow_url template).
- * No Authorization header is sent — this is a public endpoint.
- */
 export class GetWorkflowMetadataEndpoint implements Endpoint {
   method: HttpMethodType = "GET";
   name: string = "getWorkflowMetadata";
@@ -258,12 +246,6 @@ export class GetWorkflowMetadataEndpoint implements Endpoint {
   }
 }
 
-/**
- * Step 2: fetch the full workflow payload from the subscriber endpoint.
- * The path is taken verbatim from the workflow_url returned by step 1
- * (after substituting {app_user_id}), and is authenticated with the
- * api_key returned by step 1.
- */
 export class GetWorkflowDataEndpoint implements Endpoint {
   method: HttpMethodType = "GET";
   name: string = "getWorkflowDataFromCdn";
