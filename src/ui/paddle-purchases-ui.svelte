@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, setContext, onDestroy } from "svelte";
+  import { onMount, setContext, onDestroy, tick } from "svelte";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import { translatorContextKey } from "./localization/constants";
   import { Translator } from "./localization/translator";
@@ -48,13 +48,6 @@
     attributionMetadata?: AttributionMetadata;
     unmountPaddlePurchaseUi: () => void;
     paddleService: PaddleService;
-    /**
-     * Internal flag (defaults to false). When true, Paddle's checkout is
-     * embedded inline in our own container instead of opening as an overlay.
-     * Not yet exposed through the public configure() surface — wiring and the
-     * inline state machine land in follow-up PRs.
-     */
-    useInlineCheckout?: boolean;
   }
 
   const {
@@ -77,7 +70,6 @@
     attributionMetadata,
     unmountPaddlePurchaseUi,
     paddleService,
-    useInlineCheckout = false,
   }: Props = $props();
 
   let translator: Translator = new Translator(
@@ -103,6 +95,15 @@
   // poll resolving. Used by the inline path to swap the checkout iframe for a
   // processing state instead of leaving an empty container on screen.
   let checkoutCompleted = $state(false);
+
+  // The Paddle checkout start response, set once startCheckout resolves.
+  let startResponse = $state<PaddleCheckoutStartResponse | null>(null);
+  // How Paddle's checkout is presented: inline only when the per-project backend
+  // flag on the start response enables it, otherwise the legacy overlay. Absent
+  // => overlay, so projects that haven't been opted in are unaffected.
+  const useInlineCheckout = $derived(
+    startResponse?.paddle_billing_params.inline_checkout_enabled ?? false,
+  );
 
   // Order totals reported by Paddle's checkout events; drives the inline order
   // summary's Subtotal/Tax/Total breakdown and updates live.
@@ -184,9 +185,9 @@
       placementIdentifier: null,
     };
 
-    let startResponse: PaddleCheckoutStartResponse;
+    let resp: PaddleCheckoutStartResponse;
     try {
-      startResponse = await paddleService.startCheckout({
+      resp = await paddleService.startCheckout({
         appUserId,
         productId: productDetails.identifier,
         presentedOfferingContext,
@@ -196,7 +197,19 @@
         locale: selectedLocale,
         attributionMetadata,
       });
-      isSandbox = startResponse.paddle_billing_params.is_sandbox;
+      // Drives the derived useInlineCheckout (and the template) below.
+      startResponse = resp;
+      isSandbox = resp.paddle_billing_params.is_sandbox;
+
+      // Paddle injects its iframe into the inline container (frameTarget), so
+      // that element must be in the DOM before purchase() opens the checkout.
+      // The presentation mode is only known now (after startCheckout), so flush
+      // the pending render that adds the container. ($derived changes how the
+      // value is computed, not when the DOM updates, so this await is still
+      // required.)
+      if (useInlineCheckout) {
+        await tick();
+      }
     } catch (e) {
       const purchaseFlowError = normalizeToPurchaseFlowError(
         e,
@@ -210,8 +223,8 @@
 
     try {
       const result = await paddleService.purchase({
-        operationSessionId: startResponse.operation_session_id,
-        transactionId: startResponse.paddle_billing_params?.transaction_id,
+        operationSessionId: resp.operation_session_id,
+        transactionId: resp.paddle_billing_params?.transaction_id,
         onCheckoutLoaded,
         onClose,
         params: {
