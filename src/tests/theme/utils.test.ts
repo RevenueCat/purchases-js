@@ -1,5 +1,22 @@
 import { describe, expect, test } from "vitest";
-import { applyAlpha } from "../../ui/theme/utils";
+import { applyAlpha, isHexColorLight } from "../../ui/theme/utils";
+
+describe("isHexColorLight", () => {
+  test("returns true for light colors", () => {
+    expect(isHexColorLight("#ffffff")).toBe(true);
+    expect(isHexColorLight("#EFF3FA")).toBe(true);
+  });
+
+  test("returns false for dark colors", () => {
+    expect(isHexColorLight("#000000")).toBe(false);
+    expect(isHexColorLight("#1a1a2e")).toBe(false);
+  });
+
+  test("falls back to light for unparseable colors", () => {
+    expect(isHexColorLight("transparent")).toBe(true);
+    expect(isHexColorLight("")).toBe(true);
+  });
+});
 describe("overlayColor", () => {
   test("applies black overlay for a light color", () => {
     expect(applyAlpha("#FFFFFF", 0.1)).toBe("#E6E6E6"); // 10% black overlay on white
