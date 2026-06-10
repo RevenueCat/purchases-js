@@ -59,14 +59,20 @@ interface TestFixtures {
 }
 
 export const integrationTest = test.extend<TestFixtures>({
-  userId: async ({ browserName }, use) => {
-    const userId = getUserId(browserName);
-    await use(userId);
-  },
-  email: async ({ userId }, use) => {
-    const email = getEmailFromUserId(userId);
-    await use(email);
-  },
+  userId: [
+    async ({ browserName }, use) => {
+      const userId = getUserId(browserName);
+      await use(userId);
+    },
+    { scope: "test" },
+  ],
+  email: [
+    async ({ userId }, use) => {
+      const email = getEmailFromUserId(userId);
+      await use(email);
+    },
+    { scope: "test" },
+  ],
   page: async ({ browser }, use) => {
     const page = await browser.newPage();
     await use(page);
@@ -76,6 +82,14 @@ export const integrationTest = test.extend<TestFixtures>({
 
 integrationTest.beforeEach(async ({ page }) => {
   await page.route("**/v1/events", async (route) => {
+    // Only stub RevenueCat's events endpoint; other providers (e.g. Paddle)
+    // expose /v1/events-like endpoints of their own that must go through.
+    const url = route.request().url();
+    if (!url.includes("revenuecat.com/v1/events")) {
+      await route.continue();
+      return;
+    }
+
     await route.fulfill({
       status: 200,
       body: JSON.stringify({}),
