@@ -10,6 +10,7 @@ import {
   startPurchaseFlow,
 } from "../helpers/test-helpers";
 import {
+  confirmStripeCheckoutEmailPrefilled,
   completeStripeCheckoutEmbeddedForm,
   navigateToStripeCheckoutLandingUrl,
   STRIPE_CHECKOUT_TEST_TIMEOUT_MS,
@@ -214,6 +215,39 @@ integrationTest.describe("Stripe Checkout flow", () => {
       await expect(
         page.getByText("Enjoy your premium experience."),
       ).toBeVisible({ timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS });
+    },
+  );
+
+  integrationTest(
+    "Prefills email from RC Paywall customerEmail with Stripe Checkout",
+    async ({ page, userId, email }) => {
+      skipPaywallsTestIfDisabled(integrationTest);
+
+      page = await navigateToStripeCheckoutLandingUrl(page, userId, {
+        useRcPaywall: true,
+        lang: "en",
+        customerEmail: email,
+      });
+
+      await expect(page.getByText("E2E Tests for Purchases JS")).toBeVisible({
+        timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+      });
+      await expect(
+        page.getByText(
+          "Testing current Offering is picked when no offering is passed",
+        ),
+      ).toBeVisible({ timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS });
+
+      const monthlyPackage = page.getByText("monthly", { exact: true });
+      await monthlyPackage.click();
+
+      const purchaseButton = page.getByText(/Subscribe/i);
+      await expect(purchaseButton).toBeVisible({
+        timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+      });
+      await purchaseButton.click();
+
+      await confirmStripeCheckoutEmailPrefilled(page, email);
     },
   );
 });

@@ -183,6 +183,34 @@ test.describe("Purchase flow", () => {
       await confirmPaymentComplete(page);
     },
   );
+
+  integrationTest(
+    "Purchase from RC Paywall skipping the email with customerEmail",
+    async ({ page, userId, email }) => {
+      skipPaywallsTestIfDisabled(integrationTest);
+
+      page = await navigateToLandingUrl(page, userId, {
+        offeringId: RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES,
+        useRcPaywall: true,
+        customerEmail: email,
+      });
+
+      const title = page.getByText("E2E Tests for Purchases JS");
+      await expect(title).toBeVisible();
+
+      const weekly = page.getByText("weekly", { exact: true });
+      await weekly.click();
+
+      const purchaseButton = page.getByText("PURCHASE weekly", { exact: true });
+      await expect(purchaseButton).toBeVisible();
+      await purchaseButton.click();
+
+      await confirmStripeEmailFieldNotVisible(page);
+      await enterCreditCardDetails(page, "4242 4242 4242 4242");
+      await clickPayButton(page);
+      await confirmPaymentComplete(page);
+    },
+  );
 });
 
 test.describe("Purchase error paths", () => {

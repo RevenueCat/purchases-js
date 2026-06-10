@@ -84,6 +84,7 @@ export async function navigateToLandingUrl(
     utm_content?: string;
     optOutOfAutoUTM?: boolean;
     email?: string;
+    customerEmail?: string;
     $displayName?: string;
     nickname?: string;
     hideBackButtons?: boolean;
@@ -108,6 +109,7 @@ export async function navigateToLandingUrl(
     utm_medium,
     optOutOfAutoUTM,
     email,
+    customerEmail,
     $displayName,
     nickname,
     discountCode,
@@ -141,6 +143,9 @@ export async function navigateToLandingUrl(
   }
   if (email) {
     params.append("email", email);
+  }
+  if (customerEmail) {
+    params.append("customerEmail", customerEmail);
   }
   if ($displayName) {
     params.append("$displayName", $displayName);
