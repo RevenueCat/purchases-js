@@ -20,6 +20,7 @@ import {
   PurchaseFlowErrorCode,
 } from "../../helpers/purchase-operation-helper";
 import type { ComponentProps } from "svelte";
+import type { BrandingAppearance } from "../../entities/branding";
 
 const eventsTrackerMock = createEventsTrackerMock();
 
@@ -53,6 +54,7 @@ const createPaddleServiceMock = (): PaddleService => {
   return {
     startCheckout: vi.fn().mockResolvedValue(paddleCheckoutStartResponse),
     purchase: vi.fn().mockResolvedValue(operationSessionSuccessfulResult),
+    closeCheckout: vi.fn(),
   } as unknown as PaddleService;
 };
 
@@ -497,5 +499,243 @@ describe("PaddlePurchasesUI", () => {
 
     const sandboxBanner = await screen.findByText("SANDBOX");
     expect(sandboxBanner).toBeInTheDocument();
+  });
+
+  describe("inline checkout (useInlineCheckout)", () => {
+    test("renders the inline checkout container when enabled", async () => {
+      const paddleServiceMock = createPaddleServiceMock();
+      // Keep purchase pending so the inline container stays mounted.
+      vi.spyOn(paddleServiceMock, "purchase").mockImplementation(
+        () => new Promise(() => {}),
+      );
+
+      render(PaddlePurchasesUI, {
+        props: {
+          ...baseProps,
+          useInlineCheckout: true,
+          paddleService: paddleServiceMock,
+        },
+        context: defaultContext,
+      });
+
+      const container = await screen.findByTestId(
+        "paddle-inline-checkout-container",
+      );
+      expect(container).toBeInTheDocument();
+    });
+
+    test("calls purchase with displayMode inline when enabled", async () => {
+      const paddleServiceMock = createPaddleServiceMock();
+      const purchaseSpy = vi.spyOn(paddleServiceMock, "purchase");
+
+      render(PaddlePurchasesUI, {
+        props: {
+          ...baseProps,
+          useInlineCheckout: true,
+          paddleService: paddleServiceMock,
+        },
+        context: defaultContext,
+      });
+
+      await waitFor(() => {
+        expect(purchaseSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ displayMode: "inline" }),
+        );
+      });
+    });
+
+    const brandingWithPageBg = (color: string) => ({
+      ...brandingInfo,
+      appearance: {
+        ...(brandingInfo.appearance ?? ({} as BrandingAppearance)),
+        color_page_bg: color,
+      },
+    });
+
+    test("passes a light theme when the page background is light", async () => {
+      const paddleServiceMock = createPaddleServiceMock();
+      const purchaseSpy = vi.spyOn(paddleServiceMock, "purchase");
+
+      render(PaddlePurchasesUI, {
+        props: {
+          ...baseProps,
+          useInlineCheckout: true,
+          brandingInfo: brandingWithPageBg("#ffffff"),
+          paddleService: paddleServiceMock,
+        },
+        context: defaultContext,
+      });
+
+      await waitFor(() => {
+        expect(purchaseSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ theme: "light" }),
+        );
+      });
+    });
+
+    test("passes a dark theme when the page background is dark", async () => {
+      const paddleServiceMock = createPaddleServiceMock();
+      const purchaseSpy = vi.spyOn(paddleServiceMock, "purchase");
+
+      render(PaddlePurchasesUI, {
+        props: {
+          ...baseProps,
+          useInlineCheckout: true,
+          brandingInfo: brandingWithPageBg("#101010"),
+          paddleService: paddleServiceMock,
+        },
+        context: defaultContext,
+      });
+
+      await waitFor(() => {
+        expect(purchaseSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ theme: "dark" }),
+        );
+      });
+    });
+
+    test("shows the processing state and hides the container after checkout completes", async () => {
+      const paddleServiceMock = createPaddleServiceMock();
+      // Drive the onCheckoutCompleted callback, then keep the promise pending
+      // so the processing (polling) state stays on screen.
+      vi.spyOn(paddleServiceMock, "purchase").mockImplementation(
+        async (params) => {
+          params.onCheckoutCompleted?.();
+          return new Promise(() => {});
+        },
+      );
+
+      render(PaddlePurchasesUI, {
+        props: {
+          ...baseProps,
+          useInlineCheckout: true,
+          paddleService: paddleServiceMock,
+        },
+        context: defaultContext,
+      });
+
+      const loadingText = await screen.findByText("Processing payment");
+      expect(loadingText).toBeInTheDocument();
+      expect(
+        screen.queryByTestId("paddle-inline-checkout-container"),
+      ).not.toBeInTheDocument();
+    });
+
+    test("does not render the inline container or pass displayMode by default", async () => {
+      const paddleServiceMock = createPaddleServiceMock();
+      const purchaseSpy = vi.spyOn(paddleServiceMock, "purchase");
+
+      render(PaddlePurchasesUI, {
+        props: { ...baseProps, paddleService: paddleServiceMock },
+        context: defaultContext,
+      });
+
+      await waitFor(() => {
+        expect(purchaseSpy).toHaveBeenCalled();
+      });
+      expect(purchaseSpy.mock.calls[0][0]).not.toHaveProperty("displayMode");
+      expect(
+        screen.queryByTestId("paddle-inline-checkout-container"),
+      ).not.toBeInTheDocument();
+    });
+
+    test("renders a return button that invokes onClose when not in an element", async () => {
+      const paddleServiceMock = createPaddleServiceMock();
+      vi.spyOn(paddleServiceMock, "purchase").mockImplementation(
+        () => new Promise(() => {}),
+      );
+      const onClose = vi.fn();
+
+      render(PaddlePurchasesUI, {
+        props: {
+          ...baseProps,
+          useInlineCheckout: true,
+          onClose,
+          paddleService: paddleServiceMock,
+        },
+        context: defaultContext,
+      });
+
+      const returnButton = await screen.findByTestId("paddle-return-button");
+      returnButton.click();
+      // Inline cancel tears down Paddle's iframe via Checkout.close(), then
+      // runs the normal close flow.
+      expect(paddleServiceMock.closeCheckout).toHaveBeenCalled();
+      expect(onClose).toHaveBeenCalled();
+    });
+
+    test("does not render the return button when embedded in an element", async () => {
+      const paddleServiceMock = createPaddleServiceMock();
+      vi.spyOn(paddleServiceMock, "purchase").mockImplementation(
+        () => new Promise(() => {}),
+      );
+
+      render(PaddlePurchasesUI, {
+        props: {
+          ...baseProps,
+          useInlineCheckout: true,
+          isInElement: true,
+          paddleService: paddleServiceMock,
+        },
+        context: defaultContext,
+      });
+
+      // Wait for the inline container to mount, then assert no return affordance.
+      await screen.findByTestId("paddle-inline-checkout-container");
+      expect(
+        screen.queryByTestId("paddle-return-button"),
+      ).not.toBeInTheDocument();
+    });
+
+    test("passes onCheckoutTotals to purchase when inline", async () => {
+      const paddleServiceMock = createPaddleServiceMock();
+      const purchaseSpy = vi.spyOn(paddleServiceMock, "purchase");
+
+      render(PaddlePurchasesUI, {
+        props: {
+          ...baseProps,
+          useInlineCheckout: true,
+          paddleService: paddleServiceMock,
+        },
+        context: defaultContext,
+      });
+
+      await waitFor(() => {
+        expect(purchaseSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ onCheckoutTotals: expect.any(Function) }),
+        );
+      });
+    });
+
+    test("renders the tax breakdown from Paddle totals", async () => {
+      const paddleServiceMock = createPaddleServiceMock();
+      // Report totals (incl. tax) the way Paddle's checkout.loaded event does,
+      // then keep the checkout open so the summary stays on screen.
+      vi.spyOn(paddleServiceMock, "purchase").mockImplementation((params) => {
+        params.onCheckoutTotals?.({
+          currencyCode: "USD",
+          subtotalAmount: 8.26,
+          taxAmount: 1.74,
+          totalAmount: 10,
+          recurringTotalAmount: 10,
+          productName: "Premium",
+          priceName: "monthly",
+        });
+        return new Promise(() => {});
+      });
+
+      render(PaddlePurchasesUI, {
+        props: {
+          ...baseProps,
+          useInlineCheckout: true,
+          paddleService: paddleServiceMock,
+        },
+        context: defaultContext,
+      });
+
+      // The subtotal (excl. tax) only renders when the tax breakdown is shown,
+      // i.e. when we feed Paddle's calculated totals into the price breakdown.
+      expect(await screen.findByText("$8.26")).toBeInTheDocument();
+    });
   });
 });
