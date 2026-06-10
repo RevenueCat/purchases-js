@@ -8,9 +8,9 @@ export const PADDLE_TEST_TIMEOUT_MS = 240_000;
 export const PADDLE_TEST_OFFERING_ID = "paddle_e2e_test";
 
 export const PADDLE_TEST_CARD_NUMBER = "4242 4242 4242 4242";
-export const PADDLE_TEST_CARD_EXPIRY = "12 / 34";
-export const PADDLE_TEST_CARD_CVV = "100";
-export const PADDLE_TEST_POSTCODE = "12345";
+export const PADDLE_TEST_CARD_CVV = "123";
+// Andorra requires no postcode, which keeps the form deterministic.
+export const PADDLE_TEST_COUNTRY = "Andorra";
 
 export type PaddleCheckoutMode = "inline" | "overlay";
 
@@ -97,11 +97,10 @@ export const getPaddleReturnButton = (page: Page) =>
   page.getByTestId("paddle-return-button");
 
 // Overlay mode: Paddle.js appends its own full-screen iframe to <body>.
-// The iframe is served from *.paddle.com (sandbox-buy.paddle.com in sandbox).
-// TODO(WST-713): verify the exact iframe attributes headed against the
-// sandbox and pin a more specific selector (e.g. name="paddle_frame").
+// Selector proven in rc-billing-checkout's Paddle E2E suite
+// (src/e2e/test-helpers.ts).
 export const getPaddleOverlayFrame = (page: Page) =>
-  page.frameLocator("iframe[src*='paddle.com']");
+  page.frameLocator("iframe.paddle-frame, iframe[name='paddle_frame']");
 
 export async function confirmPaddleInlineCheckoutVisible(page: Page) {
   await expect(
@@ -115,16 +114,18 @@ export async function confirmPaddleInlineCheckoutVisible(page: Page) {
 export async function confirmPaddleCheckoutFormVisible(
   checkoutFrame: FrameLocator,
 ) {
-  await expect(
-    checkoutFrame.getByRole("textbox", { name: /card number/i }),
-  ).toBeVisible({ timeout: PADDLE_UI_STEP_TIMEOUT_MS });
+  await expect(checkoutFrame.getByTestId("cardNumberInput")).toBeVisible({
+    timeout: PADDLE_UI_STEP_TIMEOUT_MS,
+  });
 }
 
 /**
- * Fills Paddle's checkout form. Works for both presentation modes: pass the
- * frame returned by getPaddleInlineCheckoutFrame or getPaddleOverlayFrame.
+ * Fills Paddle's checkout form and submits it. Works for both presentation
+ * modes: pass the frame returned by getPaddleInlineCheckoutFrame or
+ * getPaddleOverlayFrame.
  *
- * Field locators ported from #820 (credit: @nicfix).
+ * Field locators (Paddle's own test ids) and fill order proven in
+ * rc-billing-checkout's Paddle E2E suite (src/e2e/test-helpers.ts).
  */
 export async function completePaddleCheckoutForm(
   checkoutFrame: FrameLocator,
@@ -134,17 +135,27 @@ export async function completePaddleCheckoutForm(
 ) {
   await confirmPaddleCheckoutFormVisible(checkoutFrame);
 
-  const emailInput = checkoutFrame.getByRole("textbox", {
-    name: /email address/i,
-  });
+  await checkoutFrame.getByLabel("Country").selectOption(PADDLE_TEST_COUNTRY);
 
+  const cardNumberInput = checkoutFrame.getByTestId("cardNumberInput");
+  await expect(cardNumberInput).toBeVisible({
+    timeout: PADDLE_UI_STEP_TIMEOUT_MS,
+  });
+  await cardNumberInput.fill(PADDLE_TEST_CARD_NUMBER);
+
+  const expirationYear = (new Date().getFullYear() % 100) + 3;
+  await checkoutFrame
+    .getByPlaceholder("MM / YY")
+    .fill(`01 / ${expirationYear}`);
+  await checkoutFrame.getByLabel("CVV").fill(PADDLE_TEST_CARD_CVV);
+  await checkoutFrame.getByLabel("Card holder").fill(fullName);
+
+  const emailInput = checkoutFrame.getByTestId("authenticationEmailInput");
   if (fillEmail) {
-    await emailInput.waitFor({
-      state: "visible",
+    await expect(emailInput).toBeVisible({
       timeout: PADDLE_UI_STEP_TIMEOUT_MS,
     });
     await emailInput.fill(email);
-    await emailInput.blur();
   } else {
     // When the email arrives via query param Paddle may either prefill the
     // input or collapse it into a read-only summary line.
@@ -157,55 +168,17 @@ export async function completePaddleCheckoutForm(
     }
   }
 
-  const cardNumberInput = checkoutFrame.getByRole("textbox", {
-    name: /card number/i,
-  });
-  await cardNumberInput.waitFor({
-    state: "visible",
+  // Paddle authenticates the email asynchronously; the logout link appearing
+  // signals the form is ready to submit.
+  await expect(checkoutFrame.getByTestId("logoutLinkTextCTA")).toBeVisible({
     timeout: PADDLE_UI_STEP_TIMEOUT_MS,
   });
-  await cardNumberInput.fill(PADDLE_TEST_CARD_NUMBER);
 
-  const cardholderNameInput = checkoutFrame.getByRole("textbox", {
-    name: /name on card|cardholder name/i,
-  });
-  await cardholderNameInput.waitFor({
-    state: "visible",
+  const submitButton = checkoutFrame.getByTestId("cardPaymentFormSubmitButton");
+  await expect(submitButton).toBeVisible({
     timeout: PADDLE_UI_STEP_TIMEOUT_MS,
   });
-  await cardholderNameInput.fill(fullName);
-
-  const expiryInput = checkoutFrame.getByRole("textbox", {
-    name: /expiry|expiration/i,
-  });
-  await expiryInput.waitFor({
-    state: "visible",
-    timeout: PADDLE_UI_STEP_TIMEOUT_MS,
-  });
-  await expiryInput.fill(PADDLE_TEST_CARD_EXPIRY);
-
-  const cvvInput = checkoutFrame.getByRole("textbox", {
-    name: /security code|cvv|cvc/i,
-  });
-  await cvvInput.waitFor({
-    state: "visible",
-    timeout: PADDLE_UI_STEP_TIMEOUT_MS,
-  });
-  await cvvInput.fill(PADDLE_TEST_CARD_CVV);
-
-  // Paddle only asks for a postcode in some country configurations.
-  const postcodeInput = checkoutFrame.getByRole("textbox", {
-    name: /postal code|zip code|postcode/i,
-  });
-  if (await postcodeInput.isVisible()) {
-    await postcodeInput.fill(PADDLE_TEST_POSTCODE);
-  }
-
-  const submitButton = checkoutFrame
-    .getByRole("button", { name: /pay|subscribe|start trial|continue/i })
-    .first();
-  await submitButton.waitFor({
-    state: "visible",
+  await expect(submitButton).toBeEnabled({
     timeout: PADDLE_UI_STEP_TIMEOUT_MS,
   });
   await submitButton.click();
