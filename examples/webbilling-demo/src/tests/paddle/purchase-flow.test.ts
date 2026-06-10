@@ -66,9 +66,11 @@ integrationTest.describe("Paddle flow", () => {
         "Something went wrong",
         PADDLE_UI_STEP_TIMEOUT_MS,
       );
+      // The Paddle flow surfaces this as an unknown error, unlike the
+      // Stripe Checkout flow's "Purchase not started" copy.
       await confirmPaymentError(
         page,
-        /Purchase not started due to an error/i,
+        /An unknown error occurred/i,
         PADDLE_UI_STEP_TIMEOUT_MS,
       );
     },
