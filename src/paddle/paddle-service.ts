@@ -143,6 +143,13 @@ interface PaddlePurchase {
    * the Subtotal/Tax/Total breakdown.
    */
   onCheckoutTotals?: (totals: PaddleCheckoutTotals) => void;
+  /**
+   * Invoked when Paddle reports the checkout completed, before we close the
+   * checkout and start polling the backend for the final status. Lets the UI
+   * swap the (now finished) checkout for a processing state — relevant for the
+   * inline presentation, where the checkout iframe is otherwise still visible.
+   */
+  onCheckoutCompleted?: () => void;
 }
 
 interface PaddleStartCheckoutParams {
@@ -285,6 +292,7 @@ export class PaddleService {
     params,
     displayMode = "overlay",
     onCheckoutTotals,
+    onCheckoutCompleted,
   }: PaddlePurchase): Promise<OperationSessionSuccessfulResult> {
     const paddleInstance = this.getPaddleInstance();
     const { customerEmail, locale = "en" } = params;
@@ -318,7 +326,11 @@ export class PaddleService {
               // Totals change as the customer enters their address (tax) etc.
               forwardTotals(data);
             } else if (eventName === CheckoutEventNames.CHECKOUT_COMPLETED) {
-              // Close Paddle's success page to show the PaddlePurchaseUi status page
+              // Let the UI move to a processing state before we tear down the
+              // checkout (matters for inline, where the iframe is still on-page).
+              onCheckoutCompleted?.();
+              // Close Paddle's checkout (overlay success page / inline frame) so
+              // the PaddlePurchaseUi status page is shown while we poll.
               paddleInstance.Checkout.close();
               const checkoutStatus =
                 await this.pollOperationStatus(operationSessionId);

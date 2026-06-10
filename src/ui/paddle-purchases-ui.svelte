@@ -98,6 +98,10 @@
   let currentPage = $state<"waiting" | "loading" | "success" | "error">(
     "waiting",
   );
+  // Tracks the window between Paddle reporting completion and the backend
+  // poll resolving. Used by the inline path to swap the checkout iframe for a
+  // processing state instead of leaving an empty container on screen.
+  let checkoutCompleted = $state(false);
 
   // Order totals reported by Paddle's checkout events; drives the inline order
   // summary's Subtotal/Tax/Total breakdown and updates live.
@@ -157,6 +161,12 @@
       currentPage = "loading";
     };
 
+    // Paddle reported completion; show the processing state while we poll.
+    const onCheckoutCompleted = () => {
+      checkoutCompleted = true;
+      currentPage = "loading";
+    };
+
     const presentedOfferingContext: PresentedOfferingContext = {
       offeringIdentifier:
         productDetails.presentedOfferingContext.offeringIdentifier,
@@ -206,6 +216,7 @@
         ...(useInlineCheckout && {
           displayMode: "inline" as const,
           onCheckoutTotals,
+          onCheckoutCompleted,
         }),
       });
 
@@ -247,8 +258,8 @@
 </script>
 
 {#if useInlineCheckout}
-  <!-- Single branded two-column shell for every inline state (form / success /
-       error), so there's no swap between different root templates. -->
+  <!-- Single branded two-column shell for every inline state (form / processing
+       / success / error), so there's no swap between different root templates. -->
   <PaddleInlineCheckoutPage
     {brandingInfo}
     {isSandbox}
@@ -258,6 +269,7 @@
     {purchaseOption}
     totals={paddleTotals}
     {currentPage}
+    {checkoutCompleted}
     lastError={error}
     onContinue={handleContinue}
     {closeWithError}
