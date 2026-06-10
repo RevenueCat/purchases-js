@@ -20,9 +20,11 @@
   } from "../entities/offerings";
   import type { AttributionMetadata } from "../entities/purchase-params";
   import { PaddleService } from "../paddle/paddle-service";
+  import type { PaddleCheckoutTotals } from "../paddle/paddle-service";
   import { normalizeToPurchaseFlowError } from "../helpers/normalize-to-purchase-flow-error";
   import type { PaddleCheckoutStartResponse } from "../networking/responses/checkout-start-response";
   import PaddlePurchasesUiInner from "./paddle-purchases-ui-inner.svelte";
+  import PaddleInlineCheckoutPage from "./paddle-inline-checkout-page.svelte";
   import type { BrandingAppearance } from "../entities/branding";
 
   interface Props {
@@ -45,6 +47,13 @@
     attributionMetadata?: AttributionMetadata;
     unmountPaddlePurchaseUi: () => void;
     paddleService: PaddleService;
+    /**
+     * Internal flag (defaults to false). When true, Paddle's checkout is
+     * embedded inline in our own container instead of opening as an overlay.
+     * Not yet exposed through the public configure() surface — wiring and the
+     * inline state machine land in follow-up PRs.
+     */
+    useInlineCheckout?: boolean;
   }
 
   const {
@@ -67,6 +76,7 @@
     attributionMetadata,
     unmountPaddlePurchaseUi,
     paddleService,
+    useInlineCheckout = false,
   }: Props = $props();
 
   let translator: Translator = new Translator(
@@ -89,6 +99,13 @@
     "waiting",
   );
 
+  // Order totals reported by Paddle's checkout events; drives the inline order
+  // summary's Subtotal/Tax/Total breakdown and updates live.
+  let paddleTotals = $state<PaddleCheckoutTotals | null>(null);
+  const onCheckoutTotals = (totals: PaddleCheckoutTotals) => {
+    paddleTotals = totals;
+  };
+
   $effect(() => {
     if (currentPage === "success" && operationResult && skipSuccessPage) {
       onFinished(operationResult);
@@ -99,6 +116,14 @@
     if (currentPage === "success" && operationResult) {
       onFinished(operationResult);
     }
+  };
+
+  // Inline checkout embeds Paddle's iframe in our page, so cancelling must tear
+  // it down via Paddle.Checkout.close() before unmounting our UI (per Paddle's
+  // branded inline checkout guidance), then run the normal close/cancel flow.
+  const handleInlineClose = () => {
+    paddleService.closeCheckout();
+    onClose();
   };
 
   const closeWithError = () => {
@@ -178,6 +203,10 @@
           customerEmail,
           locale: selectedLocale || defaultLocale,
         },
+        ...(useInlineCheckout && {
+          displayMode: "inline" as const,
+          onCheckoutTotals,
+        }),
       });
 
       if (skipSuccessPage) {
@@ -217,7 +246,23 @@
   });
 </script>
 
-{#if currentPage !== "waiting"}
+{#if useInlineCheckout}
+  <!-- Single branded two-column shell for every inline state (form / success /
+       error), so there's no swap between different root templates. -->
+  <PaddleInlineCheckoutPage
+    {brandingInfo}
+    {isSandbox}
+    {isInElement}
+    onClose={handleInlineClose}
+    {productDetails}
+    {purchaseOption}
+    totals={paddleTotals}
+    {currentPage}
+    lastError={error}
+    onContinue={handleContinue}
+    {closeWithError}
+  />
+{:else if currentPage !== "waiting"}
   <PaddlePurchasesUiInner
     currentPage={currentPage as "loading" | "success" | "error"}
     {brandingInfo}
