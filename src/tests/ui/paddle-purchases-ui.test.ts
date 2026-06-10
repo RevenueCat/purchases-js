@@ -50,9 +50,21 @@ const operationSessionSuccessfulResult: OperationSessionSuccessfulResult = {
   purchaseDate: new Date("2024-01-01"),
 };
 
-const createPaddleServiceMock = (): PaddleService => {
+const createPaddleServiceMock = ({
+  inlineCheckoutEnabled = false,
+}: { inlineCheckoutEnabled?: boolean } = {}): PaddleService => {
+  // The backend gates inline checkout per project via inline_checkout_enabled
+  // on the checkout start response's paddle_billing_params; the UI derives its
+  // presentation mode from it.
+  const startResponse: PaddleCheckoutStartResponse = {
+    ...paddleCheckoutStartResponse,
+    paddle_billing_params: {
+      ...paddleCheckoutStartResponse.paddle_billing_params,
+      inline_checkout_enabled: inlineCheckoutEnabled,
+    },
+  };
   return {
-    startCheckout: vi.fn().mockResolvedValue(paddleCheckoutStartResponse),
+    startCheckout: vi.fn().mockResolvedValue(startResponse),
     purchase: vi.fn().mockResolvedValue(operationSessionSuccessfulResult),
     closeCheckout: vi.fn(),
   } as unknown as PaddleService;
@@ -501,9 +513,11 @@ describe("PaddlePurchasesUI", () => {
     expect(sandboxBanner).toBeInTheDocument();
   });
 
-  describe("inline checkout (useInlineCheckout)", () => {
+  describe("inline checkout (gated by paddle_billing_params.inline_checkout_enabled)", () => {
     test("renders the inline checkout container when enabled", async () => {
-      const paddleServiceMock = createPaddleServiceMock();
+      const paddleServiceMock = createPaddleServiceMock({
+        inlineCheckoutEnabled: true,
+      });
       // Keep purchase pending so the inline container stays mounted.
       vi.spyOn(paddleServiceMock, "purchase").mockImplementation(
         () => new Promise(() => {}),
@@ -512,7 +526,6 @@ describe("PaddlePurchasesUI", () => {
       render(PaddlePurchasesUI, {
         props: {
           ...baseProps,
-          useInlineCheckout: true,
           paddleService: paddleServiceMock,
         },
         context: defaultContext,
@@ -525,13 +538,14 @@ describe("PaddlePurchasesUI", () => {
     });
 
     test("calls purchase with displayMode inline when enabled", async () => {
-      const paddleServiceMock = createPaddleServiceMock();
+      const paddleServiceMock = createPaddleServiceMock({
+        inlineCheckoutEnabled: true,
+      });
       const purchaseSpy = vi.spyOn(paddleServiceMock, "purchase");
 
       render(PaddlePurchasesUI, {
         props: {
           ...baseProps,
-          useInlineCheckout: true,
           paddleService: paddleServiceMock,
         },
         context: defaultContext,
@@ -553,13 +567,14 @@ describe("PaddlePurchasesUI", () => {
     });
 
     test("passes a light theme when the page background is light", async () => {
-      const paddleServiceMock = createPaddleServiceMock();
+      const paddleServiceMock = createPaddleServiceMock({
+        inlineCheckoutEnabled: true,
+      });
       const purchaseSpy = vi.spyOn(paddleServiceMock, "purchase");
 
       render(PaddlePurchasesUI, {
         props: {
           ...baseProps,
-          useInlineCheckout: true,
           brandingInfo: brandingWithPageBg("#ffffff"),
           paddleService: paddleServiceMock,
         },
@@ -574,13 +589,14 @@ describe("PaddlePurchasesUI", () => {
     });
 
     test("passes a dark theme when the page background is dark", async () => {
-      const paddleServiceMock = createPaddleServiceMock();
+      const paddleServiceMock = createPaddleServiceMock({
+        inlineCheckoutEnabled: true,
+      });
       const purchaseSpy = vi.spyOn(paddleServiceMock, "purchase");
 
       render(PaddlePurchasesUI, {
         props: {
           ...baseProps,
-          useInlineCheckout: true,
           brandingInfo: brandingWithPageBg("#101010"),
           paddleService: paddleServiceMock,
         },
@@ -595,7 +611,9 @@ describe("PaddlePurchasesUI", () => {
     });
 
     test("shows the processing state and hides the container after checkout completes", async () => {
-      const paddleServiceMock = createPaddleServiceMock();
+      const paddleServiceMock = createPaddleServiceMock({
+        inlineCheckoutEnabled: true,
+      });
       // Drive the onCheckoutCompleted callback, then keep the promise pending
       // so the processing (polling) state stays on screen.
       vi.spyOn(paddleServiceMock, "purchase").mockImplementation(
@@ -608,7 +626,6 @@ describe("PaddlePurchasesUI", () => {
       render(PaddlePurchasesUI, {
         props: {
           ...baseProps,
-          useInlineCheckout: true,
           paddleService: paddleServiceMock,
         },
         context: defaultContext,
@@ -640,7 +657,9 @@ describe("PaddlePurchasesUI", () => {
     });
 
     test("renders a return button that invokes onClose when not in an element", async () => {
-      const paddleServiceMock = createPaddleServiceMock();
+      const paddleServiceMock = createPaddleServiceMock({
+        inlineCheckoutEnabled: true,
+      });
       vi.spyOn(paddleServiceMock, "purchase").mockImplementation(
         () => new Promise(() => {}),
       );
@@ -649,7 +668,6 @@ describe("PaddlePurchasesUI", () => {
       render(PaddlePurchasesUI, {
         props: {
           ...baseProps,
-          useInlineCheckout: true,
           onClose,
           paddleService: paddleServiceMock,
         },
@@ -665,7 +683,9 @@ describe("PaddlePurchasesUI", () => {
     });
 
     test("does not render the return button when embedded in an element", async () => {
-      const paddleServiceMock = createPaddleServiceMock();
+      const paddleServiceMock = createPaddleServiceMock({
+        inlineCheckoutEnabled: true,
+      });
       vi.spyOn(paddleServiceMock, "purchase").mockImplementation(
         () => new Promise(() => {}),
       );
@@ -673,7 +693,6 @@ describe("PaddlePurchasesUI", () => {
       render(PaddlePurchasesUI, {
         props: {
           ...baseProps,
-          useInlineCheckout: true,
           isInElement: true,
           paddleService: paddleServiceMock,
         },
@@ -688,13 +707,14 @@ describe("PaddlePurchasesUI", () => {
     });
 
     test("passes onCheckoutTotals to purchase when inline", async () => {
-      const paddleServiceMock = createPaddleServiceMock();
+      const paddleServiceMock = createPaddleServiceMock({
+        inlineCheckoutEnabled: true,
+      });
       const purchaseSpy = vi.spyOn(paddleServiceMock, "purchase");
 
       render(PaddlePurchasesUI, {
         props: {
           ...baseProps,
-          useInlineCheckout: true,
           paddleService: paddleServiceMock,
         },
         context: defaultContext,
@@ -708,7 +728,9 @@ describe("PaddlePurchasesUI", () => {
     });
 
     test("renders the tax breakdown from Paddle totals", async () => {
-      const paddleServiceMock = createPaddleServiceMock();
+      const paddleServiceMock = createPaddleServiceMock({
+        inlineCheckoutEnabled: true,
+      });
       // Report totals (incl. tax) the way Paddle's checkout.loaded event does,
       // then keep the checkout open so the summary stays on screen.
       vi.spyOn(paddleServiceMock, "purchase").mockImplementation((params) => {
@@ -727,7 +749,6 @@ describe("PaddlePurchasesUI", () => {
       render(PaddlePurchasesUI, {
         props: {
           ...baseProps,
-          useInlineCheckout: true,
           paddleService: paddleServiceMock,
         },
         context: defaultContext,
