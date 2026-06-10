@@ -196,7 +196,7 @@ integrationTest.describe("Stripe Checkout flow", () => {
       });
       await purchaseButton.click();
 
-      await completeStripeCheckoutEmbeddedForm(page, email, fullName);
+      await completeStripeCheckoutEmbeddedForm(page, email, fullName, false);
       await confirmPaymentCompleteOrSkipOnCaptcha(
         integrationTest,
         page,
