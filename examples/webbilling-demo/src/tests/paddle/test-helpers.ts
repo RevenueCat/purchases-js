@@ -102,13 +102,10 @@ export const getPaddleReturnButton = (page: Page) =>
 export const getPaddleOverlayFrame = (page: Page) =>
   page.frameLocator("iframe.paddle-frame, iframe[name='paddle_frame']");
 
-// Paddle renders its own close affordance inside the overlay frame.
-// TODO(WST-713): verify the exact control headed against the sandbox.
+// Paddle's overlay close affordance, verified against the sandbox: a
+// "Return to {seller name}" button rendered inside the overlay frame.
 export const getPaddleOverlayCloseButton = (checkoutFrame: FrameLocator) =>
-  checkoutFrame
-    .getByRole("button", { name: /close/i })
-    .or(checkoutFrame.locator("[aria-label*='close' i]"))
-    .first();
+  checkoutFrame.getByRole("button", { name: /^return to/i }).first();
 
 export async function confirmPaddleInlineCheckoutVisible(page: Page) {
   await expect(
