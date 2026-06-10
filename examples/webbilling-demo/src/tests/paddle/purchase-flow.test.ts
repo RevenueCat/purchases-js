@@ -41,9 +41,12 @@ async function confirmSuccessPage(page: Page) {
     continueButton.click(),
   ]);
 
-  await expect(page.getByText("Enjoy your premium experience.")).toBeVisible({
-    timeout: PADDLE_UI_STEP_TIMEOUT_MS,
-  });
+  // Unlike the Stripe E2E projects, the Paddle E2E project's products grant
+  // no entitlement yet, so the entitlement-gated success page content
+  // ("Enjoy your premium experience.") cannot be asserted. Reaching /success/
+  // already proves the purchase completed and the SDK resolved the promise.
+  // Once an entitlement is attached to the paddle_e2e_test offering's
+  // products, assert the success page copy here like the Stripe suite does.
 }
 
 integrationTest.describe("Paddle flow", () => {
