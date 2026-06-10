@@ -5,9 +5,7 @@ import { navigateToLandingUrl } from "../helpers/test-helpers";
 export const PADDLE_UI_STEP_TIMEOUT_MS = 60_000;
 export const PADDLE_TEST_TIMEOUT_MS = 240_000;
 
-// TODO(WST-707): confirm this is the offering *identifier* (not the display
-// name) in the Paddle E2E project before enabling the suite.
-export const PADDLE_TEST_OFFERING_ID = "Paddle E2E Test Offering";
+export const PADDLE_TEST_OFFERING_ID = "paddle_e2e_test";
 
 export const PADDLE_TEST_CARD_NUMBER = "4242 4242 4242 4242";
 export const PADDLE_TEST_CARD_EXPIRY = "12 / 34";
