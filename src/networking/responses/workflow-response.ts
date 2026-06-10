@@ -23,18 +23,6 @@ export interface WorkflowScreen {
   exit_offers: Record<string, unknown>;
 }
 
-export interface WorkflowSummary {
-  id: string;
-  display_name: string;
-  offering_id: string | null;
-  prefetch: boolean;
-}
-
-export interface WorkflowsListResponse {
-  workflows: WorkflowSummary[];
-  ui_config: Record<string, unknown>;
-}
-
 export type WorkflowDataResponse = WorkflowData;
 
 interface WorkflowUseCDNAction {
