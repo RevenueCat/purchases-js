@@ -1652,6 +1652,13 @@ export class Purchases {
           unmountPaddlePurchaseUi();
         });
 
+      // Cancel the checkout on browser back. The inline checkout has no
+      // Paddle-provided dismiss, so this (and the in-page close button) are the
+      // ways to back out. Mirrors the Web Billing / Stripe flows.
+      if (!isInElement) {
+        win.addEventListener("popstate", onClose as EventListener);
+      }
+
       const onFinished = this.createCheckoutOnFinishedHandler(
         resolve,
         appUserId,
