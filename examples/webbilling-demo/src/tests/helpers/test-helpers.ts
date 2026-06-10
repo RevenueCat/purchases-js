@@ -246,7 +246,6 @@ export async function enterCreditCardDetails(
   // This is a bug that we are trying to workaround, however we know that setting the country/postal code as last
   // might not trigger the update event.
   // Also changing it might not trigger it.
-
   await stripeFrame.getByLabel("Country").selectOption(countryCode);
 
   if (postalCode !== undefined) {
@@ -262,7 +261,17 @@ export async function enterSecurityCode(page: Page, code: string) {
   await stripeFrame.getByLabel("Security Code").fill(code);
 }
 
-export async function clickPayButton(page: Page) {
+export async function clickPayButton(
+  page: Page,
+  waitForAnimations: number = 3000,
+) {
+  // The postal code is not shown at the beginning, however when the country is selected
+  // the postal code is shown after a short delay and takes the position of the purchase button.
+  // this causes the following step to click on the zipcode again instead of the purchase button since
+  // it gets moved between the moment in which the element is found and when it's clicked in the test.
+  // The following wait makes sure that all animations are completed before proceeding with the test.
+  await page.waitForTimeout(waitForAnimations);
+
   const button = page.locator(
     "button[data-testid='PayButton']:not([disabled])",
   );
