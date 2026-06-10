@@ -900,15 +900,14 @@ export class Purchases {
       }
     };
 
-    // ── Workflow path ────────────────────────────────────────────────────────
-    // If a workflow is associated with this offering, fetch its full data and
-    // mount the Workflow component instead of Paywall.
+    let workflowNavData: ReturnType<typeof workflowDataToNavData> | undefined;
+    let workflowDataResponse: WorkflowData | undefined;
     if (matchedWorkflowSummary) {
-      const workflowDataResponse = await this.backend.getWorkflowById(
+      workflowDataResponse = await this.backend.getWorkflowById(
         this._appUserId,
         matchedWorkflowSummary.id,
       );
-      const workflowNavData = workflowDataToNavData(
+      workflowNavData = workflowDataToNavData(
         workflowDataResponse as unknown as WorkflowData,
       );
       if (!workflowNavData) {
@@ -916,101 +915,103 @@ export class Purchases {
           "Failed to resolve workflow navigation data for this offering.",
         );
       }
+    }
 
-      return new Promise((resolve, reject) => {
-        let component: ReturnType<typeof mount> | null = null;
-        let paywallImpressionTracked = false;
-        let paywallCloseTracked = false;
+    return new Promise((resolve, reject) => {
+      let component: ReturnType<typeof mount> | null = null;
+      let paywallImpressionTracked = false;
+      let paywallCloseTracked = false;
 
-        certainHTMLTarget.addEventListener("click", recordTextLinkClick);
+      certainHTMLTarget.addEventListener("click", recordTextLinkClick);
 
-        const trackPaywallCloseIfNeeded = () => {
-          if (paywallCloseTracked) return;
-          paywallCloseTracked = true;
-          trackPaywallEvent("paywall_close");
-        };
+      const trackPaywallCloseIfNeeded = () => {
+        if (paywallCloseTracked) {
+          return;
+        }
+        paywallCloseTracked = true;
+        trackPaywallEvent("paywall_close");
+      };
 
-        const trackComponentInteraction = (
-          data: UIComponentInteractionData,
-        ) => {
-          if (!paywallImpressionTracked || paywallCloseTracked) return;
-          this.eventsTracker.trackPaywallEvent(toInteractionEvent(data));
-        };
+      const trackComponentInteraction = (data: UIComponentInteractionData) => {
+        if (!paywallImpressionTracked || paywallCloseTracked) {
+          return;
+        }
+        this.eventsTracker.trackPaywallEvent(toInteractionEvent(data));
+      };
 
-        const onComponentInteraction = (data: UIComponentInteractionData) => {
-          const interaction = data as UIComponentInteractionFields;
-          lastNavigationInteraction =
-            interaction.componentURL === undefined
-              ? null
-              : {
-                  componentType: data.componentType,
-                  componentURL: interaction.componentURL,
-                };
-          trackComponentInteraction(data);
-        };
+      const onComponentInteraction = (data: UIComponentInteractionData) => {
+        const interaction = data as UIComponentInteractionFields;
+        lastNavigationInteraction =
+          interaction.componentURL === undefined
+            ? null
+            : {
+                componentType: data.componentType,
+                componentURL: interaction.componentURL,
+              };
+        trackComponentInteraction(data);
+      };
 
-        const containerObserver = new MutationObserver(() => {
-          if (certainHTMLTarget.childElementCount === 0) {
-            trackPaywallCloseIfNeeded();
-            containerObserver.disconnect();
-          }
-        });
-
-        const unmountPaywall = () => {
-          containerObserver.disconnect();
-          certainHTMLTarget.removeEventListener("click", recordTextLinkClick);
+      const containerObserver = new MutationObserver(() => {
+        if (certainHTMLTarget.childElementCount === 0) {
           trackPaywallCloseIfNeeded();
-          if (component) {
-            unmount(component);
-            component = null;
-          }
-          certainHTMLTarget.innerHTML = "";
-          if (wasRootAutoCreated && certainHTMLTarget.parentNode) {
-            certainHTMLTarget.parentNode.removeChild(certainHTMLTarget);
-          }
-        };
+          containerObserver.disconnect();
+        }
+      });
 
-        const closePaywall = () => {
-          Logger.debugLog("Purchase cancelled by user");
-          unmountPaywall();
-          reject(new PurchasesError(ErrorCode.UserCancelledError));
-          void this.eventsTracker.flushAllEvents().catch((error) => {
-            Logger.debugLog(
-              `Failed to flush paywall events on close: ${error}`,
-            );
-          });
-        };
-
-        const onSuccess = (result: PaywallPurchaseResult) => {
-          unmountPaywall();
-          resolve(result);
-          void this.eventsTracker.flushAllEvents().catch((error) => {
-            Logger.debugLog(
-              `Failed to flush paywall events after purchase: ${error}`,
-            );
-          });
-        };
-
-        const onError = (message: string) => (error: Error) => {
-          if (
-            error instanceof PurchasesError &&
-            error.errorCode === ErrorCode.UserCancelledError
-          ) {
-            trackPaywallEvent("paywall_cancel");
-          }
-          Logger.errorLog(`${message}: ${error}`);
-          notifyPurchaseError(error);
-        };
-
-        const walletButtonRender = this.getWalletButtonRender(
-          offering,
-          onSuccess,
-          paywallParams.customerEmail,
-          onError("Error presenting express purchase button"),
-          paywallParams.listener,
-        );
-
+      const unmountPaywall = () => {
+        containerObserver.disconnect();
+        certainHTMLTarget.removeEventListener("click", recordTextLinkClick);
+        trackPaywallCloseIfNeeded();
+        if (component) {
+          unmount(component);
+          component = null;
+        }
         certainHTMLTarget.innerHTML = "";
+        if (wasRootAutoCreated && certainHTMLTarget.parentNode) {
+          certainHTMLTarget.parentNode.removeChild(certainHTMLTarget);
+        }
+      };
+
+      const closePaywall = () => {
+        Logger.debugLog("Purchase cancelled by user");
+        unmountPaywall();
+        reject(new PurchasesError(ErrorCode.UserCancelledError));
+        void this.eventsTracker.flushAllEvents().catch((error) => {
+          Logger.debugLog(`Failed to flush paywall events on close: ${error}`);
+        });
+      };
+
+      const onSuccess = (result: PaywallPurchaseResult) => {
+        unmountPaywall();
+        resolve(result);
+        void this.eventsTracker.flushAllEvents().catch((error) => {
+          Logger.debugLog(
+            `Failed to flush paywall events after purchase: ${error}`,
+          );
+        });
+      };
+
+      const onError = (message: string) => (error: Error) => {
+        if (
+          error instanceof PurchasesError &&
+          error.errorCode === ErrorCode.UserCancelledError
+        ) {
+          trackPaywallEvent("paywall_cancel");
+        }
+        Logger.errorLog(`${message}: ${error}`);
+        notifyPurchaseError(error);
+      };
+
+      const walletButtonRender = this.getWalletButtonRender(
+        offering,
+        onSuccess,
+        paywallParams.customerEmail,
+        onError("Error presenting express purchase button"),
+        listener,
+      );
+
+      certainHTMLTarget.innerHTML = "";
+      if (workflowNavData && workflowDataResponse) {
         component = mount(Workflow, {
           target: certainHTMLTarget,
           props: {
@@ -1052,158 +1053,50 @@ export class Purchases {
               : undefined,
           },
         });
+      } else {
+        component = mount(Paywall, {
+          target: certainHTMLTarget,
+          props: {
+            paywallData: offering.paywallComponents!,
+            selectedLocale: finalLocale,
+            onNavigateToUrlClicked: navigateToUrl,
+            appUserId: this._appUserId,
+            onCompleteWorkflowNavigate,
+            onVisitCustomerCenterClicked: onVisitCustomerCenterClicked,
+            uiConfig: offering.uiConfig!,
+            onBackClicked: () => {
+              if (paywallParams.onBack) {
+                paywallParams.onBack(closePaywall);
+                return;
+              }
 
-        containerObserver.observe(certainHTMLTarget, { childList: true });
-        trackPaywallEvent("paywall_impression");
-        paywallImpressionTracked = true;
-
-        if (certainHTMLTarget.style.opacity === "0") {
-          certainHTMLTarget.style.opacity = "1";
-        }
-      });
-    }
-
-    // ── Paywall path ─────────────────────────────────────────────────────────
-    return new Promise((resolve, reject) => {
-      let component: ReturnType<typeof mount> | null = null;
-      let paywallImpressionTracked = false;
-      let paywallCloseTracked = false;
-
-      certainHTMLTarget.addEventListener("click", recordTextLinkClick);
-
-      const trackPaywallCloseIfNeeded = () => {
-        if (paywallCloseTracked) {
-          return;
-        }
-        paywallCloseTracked = true;
-        trackPaywallEvent("paywall_close");
-      };
-
-      const trackComponentInteraction = (data: UIComponentInteractionData) => {
-        if (!paywallImpressionTracked || paywallCloseTracked) {
-          return;
-        }
-
-        this.eventsTracker.trackPaywallEvent(toInteractionEvent(data));
-      };
-
-      const onComponentInteraction = (data: UIComponentInteractionData) => {
-        const interaction = data as UIComponentInteractionFields;
-        lastNavigationInteraction =
-          interaction.componentURL === undefined
-            ? null
-            : {
-                componentType: data.componentType,
-                componentURL: interaction.componentURL,
-              };
-        trackComponentInteraction(data);
-      };
-
-      const containerObserver = new MutationObserver(() => {
-        if (certainHTMLTarget.childElementCount === 0) {
-          trackPaywallCloseIfNeeded();
-          containerObserver.disconnect();
-        }
-      });
-
-      const unmountPaywall = () => {
-        containerObserver.disconnect();
-        certainHTMLTarget.removeEventListener("click", recordTextLinkClick);
-        trackPaywallCloseIfNeeded();
-        if (component) {
-          unmount(component);
-          component = null;
-        }
-        certainHTMLTarget.innerHTML = "";
-
-        // Remove auto-created root from DOM
-        if (wasRootAutoCreated && certainHTMLTarget.parentNode) {
-          certainHTMLTarget.parentNode.removeChild(certainHTMLTarget);
-        }
-      };
-
-      const closePaywall = () => {
-        Logger.debugLog("Purchase cancelled by user");
-        unmountPaywall();
-        reject(new PurchasesError(ErrorCode.UserCancelledError));
-        void this.eventsTracker.flushAllEvents().catch((error) => {
-          Logger.debugLog(`Failed to flush paywall events on close: ${error}`);
+              // Opinionated approach
+              // closing the current purchase and emptying the paywall.
+              closePaywall();
+            },
+            onRestorePurchasesClicked: onRestorePurchasesClicked,
+            onPurchaseClicked: (selectedPackageId: string) => {
+              const pkg = offering.packagesById[selectedPackageId];
+              if (pkg) {
+                notifyPurchaseStarted(pkg);
+              }
+              startPurchaseFlow(selectedPackageId)
+                .then(onSuccess)
+                .catch(onError("Error performing purchase"));
+            },
+            onError: (err: unknown) => {
+              unmountPaywall();
+              reject(err);
+            },
+            variablesPerPackage,
+            infoPerPackage,
+            hideBackButtons: paywallParams.hideBackButtons,
+            walletButtonRender,
+            customVariables: paywallParams.customVariables,
+            onComponentInteraction,
+          },
         });
-      };
-
-      const onSuccess = (result: PaywallPurchaseResult) => {
-        unmountPaywall();
-        resolve(result);
-        void this.eventsTracker.flushAllEvents().catch((error) => {
-          Logger.debugLog(
-            `Failed to flush paywall events after purchase: ${error}`,
-          );
-        });
-      };
-
-      const onError = (message: string) => (error: Error) => {
-        if (
-          error instanceof PurchasesError &&
-          error.errorCode === ErrorCode.UserCancelledError
-        ) {
-          trackPaywallEvent("paywall_cancel");
-        }
-
-        Logger.errorLog(`${message}: ${error}`);
-        notifyPurchaseError(error);
-      };
-
-      const walletButtonRender = this.getWalletButtonRender(
-        offering,
-        onSuccess,
-        paywallParams.customerEmail,
-        onError("Error presenting express purchase button"),
-        listener,
-      );
-
-      certainHTMLTarget.innerHTML = "";
-      component = mount(Paywall, {
-        target: certainHTMLTarget,
-        props: {
-          paywallData: offering.paywallComponents!,
-          selectedLocale: finalLocale,
-          onNavigateToUrlClicked: navigateToUrl,
-          appUserId: this._appUserId,
-          onCompleteWorkflowNavigate,
-          onVisitCustomerCenterClicked: onVisitCustomerCenterClicked,
-          uiConfig: offering.uiConfig!,
-          onBackClicked: () => {
-            if (paywallParams.onBack) {
-              paywallParams.onBack(closePaywall);
-              return;
-            }
-
-            // Opinionated approach
-            // closing the current purchase and emptying the paywall.
-            closePaywall();
-          },
-          onRestorePurchasesClicked: onRestorePurchasesClicked,
-          onPurchaseClicked: (selectedPackageId: string) => {
-            const pkg = offering.packagesById[selectedPackageId];
-            if (pkg) {
-              notifyPurchaseStarted(pkg);
-            }
-            startPurchaseFlow(selectedPackageId)
-              .then(onSuccess)
-              .catch(onError("Error performing purchase"));
-          },
-          onError: (err: unknown) => {
-            unmountPaywall();
-            reject(err);
-          },
-          variablesPerPackage,
-          infoPerPackage,
-          hideBackButtons: paywallParams.hideBackButtons,
-          walletButtonRender,
-          customVariables: paywallParams.customVariables,
-          onComponentInteraction,
-        },
-      });
+      }
 
       containerObserver.observe(certainHTMLTarget, { childList: true });
       trackPaywallEvent("paywall_impression");
