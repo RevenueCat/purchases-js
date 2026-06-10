@@ -1827,7 +1827,7 @@ describe("getWorkflowById request", () => {
       },
     },
     ui_config: {},
-    content_max_width: undefined,
+    content_max_width: null,
     metadata: null,
   };
 
@@ -2021,7 +2021,7 @@ describe("getWorkflow request", () => {
       },
     },
     ui_config: {},
-    content_max_width: undefined,
+    content_max_width: null,
     metadata: null,
   };
 

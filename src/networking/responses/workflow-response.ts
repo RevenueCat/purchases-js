@@ -1,3 +1,7 @@
+import type { WorkflowData, WorkflowStep } from "@revenuecat/purchases-ui-js";
+
+export type { WorkflowStep };
+
 /**
  * Response from GET /workflows/v1/workflow/{workflowLinkId}.
  * Returns the public API key and a workflow_url template for the subscriber
@@ -7,20 +11,6 @@ export interface WorkflowMetadataResponse {
   api_key: string;
   workflow_url: string;
   workflow_id: string;
-}
-
-/**
- * A single step in a workflow, referencing a screen by ID.
- */
-export interface WorkflowStep {
-  id: string;
-  screen_id: string;
-  type: string;
-  param_values: Record<string, unknown>;
-  trigger_actions: Record<string, unknown>;
-  triggers: Record<string, unknown>;
-  outputs: Record<string, unknown>;
-  metadata: Record<string, unknown> | null;
 }
 
 /**
@@ -61,18 +51,9 @@ export interface WorkflowsListResponse {
 
 /**
  * Response from GET {workflow_url} — the full workflow payload.
- * May be returned inline or via a CDN redirect.
+ * Re-uses WorkflowData from @revenuecat/purchases-ui-js to avoid duplication.
  */
-export interface WorkflowDataResponse {
-  id: string;
-  display_name: string;
-  initial_step_id: string;
-  steps: Record<string, WorkflowStep>;
-  screens: Record<string, WorkflowScreen>;
-  ui_config: Record<string, unknown>;
-  content_max_width: number | undefined;
-  metadata?: Record<string, unknown> | null;
-}
+export type WorkflowDataResponse = WorkflowData;
 
 /**
  * Redirect to a CDN-hosted workflow payload.
