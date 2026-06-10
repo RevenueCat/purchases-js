@@ -168,13 +168,18 @@ export async function completePaddleCheckoutForm(
     }
   }
 
-  // Paddle authenticates the email asynchronously; the logout link appearing
-  // signals the form is ready to submit.
-  await expect(checkoutFrame.getByTestId("logoutLinkTextCTA")).toBeVisible({
-    timeout: PADDLE_UI_STEP_TIMEOUT_MS,
-  });
-
-  const submitButton = checkoutFrame.getByTestId("cardPaymentFormSubmitButton");
+  // Verified against the sandbox: this checkout renders the submit as
+  // "Subscribe now"/"Pay now" and shows no logout link (unlike the checkout
+  // rc-billing-checkout tests against). The test id is kept first in case
+  // Paddle ships it here too.
+  const submitButton = checkoutFrame
+    .getByTestId("cardPaymentFormSubmitButton")
+    .or(
+      checkoutFrame.getByRole("button", {
+        name: /subscribe now|pay now|pay|subscribe|start trial/i,
+      }),
+    )
+    .first();
   await expect(submitButton).toBeVisible({
     timeout: PADDLE_UI_STEP_TIMEOUT_MS,
   });
