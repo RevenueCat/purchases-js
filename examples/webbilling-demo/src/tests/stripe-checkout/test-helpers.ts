@@ -42,6 +42,16 @@ export async function navigateToStripeCheckoutLandingUrl(
 export const getStripeEmbeddedCheckoutFrame = (page: Page) =>
   page.frameLocator("[data-testid='stripe-checkout-mount'] iframe");
 
+const getStripeCheckoutEmailInput = (page: Page) => {
+  const checkoutFrame = getStripeEmbeddedCheckoutFrame(page);
+
+  return checkoutFrame
+    .getByLabel(/email/i)
+    .or(checkoutFrame.getByPlaceholder(/email@example.com/i))
+    .or(checkoutFrame.locator("[name='email']"))
+    .first();
+};
+
 // hCaptcha challenge frames use a #frame=challenge fragment; Cloudflare
 // Turnstile loads from challenges.cloudflare.com.
 const CAPTCHA_FRAME_URL_PATTERN =
@@ -84,6 +94,44 @@ export async function confirmStripeCheckoutVisible(page: Page) {
   });
 }
 
+export async function confirmStripeCheckoutEmailPrefilled(
+  page: Page,
+  email: string,
+) {
+  await confirmStripeCheckoutVisible(page);
+
+  const checkoutFrameElement = page.locator(
+    "[data-testid='stripe-checkout-mount'] iframe",
+  );
+  const checkoutFrameHandle = await checkoutFrameElement.elementHandle();
+  const checkoutFrame = await checkoutFrameHandle?.contentFrame();
+
+  await expect
+    .poll(
+      async () => {
+        return await checkoutFrame?.evaluate(() => {
+          const formControlValues = Array.from(
+            document.querySelectorAll("input, textarea, select"),
+          ).map((element) => {
+            if (
+              element instanceof HTMLInputElement ||
+              element instanceof HTMLTextAreaElement ||
+              element instanceof HTMLSelectElement
+            ) {
+              return element.value;
+            }
+
+            return "";
+          });
+
+          return [document.body.innerText, ...formControlValues].join("\n");
+        });
+      },
+      { timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS },
+    )
+    .toContain(email);
+}
+
 export async function completeStripeCheckoutEmbeddedForm(
   page: Page,
   email: string,
@@ -95,11 +143,7 @@ export async function completeStripeCheckoutEmbeddedForm(
   const checkoutFrame = getStripeEmbeddedCheckoutFrame(page);
 
   if (fillEmail) {
-    const emailInput = checkoutFrame
-      .getByLabel(/email/i)
-      .or(checkoutFrame.getByPlaceholder(/email@example.com/i))
-      .or(checkoutFrame.locator("[name='email']"))
-      .first();
+    const emailInput = getStripeCheckoutEmailInput(page);
 
     await emailInput.waitFor({
       state: "visible",
