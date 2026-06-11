@@ -150,40 +150,48 @@ integrationTest.describe("Paddle flow", () => {
     },
   );
 
-  integrationTest(
-    "Purchases a product from RC Paywall with Paddle",
-    async ({ page, userId, email }) => {
-      skipPaywallsTestIfDisabled(integrationTest);
+  (["inline", "overlay"] as const).forEach((mode) => {
+    integrationTest(
+      `Purchases a product from RC Paywall with the ${mode} checkout`,
+      async ({ page, userId, email }) => {
+        skipPaywallsTestIfDisabled(integrationTest);
 
-      const fullName = `E2E ${userId.replace(/_/g, " ")}`;
+        const fullName = `E2E ${userId.replace(/_/g, " ")}`;
 
-      page = await navigateToPaddleLandingUrl(page, userId, {
-        useRcPaywall: true,
-        lang: "en",
-        email,
-      });
-      await forcePaddleCheckoutMode(page, "overlay");
+        page = await navigateToPaddleLandingUrl(page, userId, {
+          useRcPaywall: true,
+          lang: "en",
+          email,
+        });
+        await forcePaddleCheckoutMode(page, mode);
 
-      // The paddle_e2e_test offering uses a V2 paywall: package buttons
-      // labeled by duration ("30 DAYS", "12 MONTHS", "LIFETIME") and a
-      // Continue CTA.
-      const packageButton = page
-        .getByRole("button", { name: /days|months|lifetime/i })
-        .first();
-      await expect(packageButton).toBeVisible({
-        timeout: PADDLE_UI_STEP_TIMEOUT_MS,
-      });
-      await packageButton.click();
+        // The paddle_e2e_test offering uses a V2 paywall: package buttons
+        // labeled by duration ("30 DAYS", "12 MONTHS", "LIFETIME") and a
+        // Continue CTA.
+        const packageButton = page
+          .getByRole("button", { name: /days|months|lifetime/i })
+          .first();
+        await expect(packageButton).toBeVisible({
+          timeout: PADDLE_UI_STEP_TIMEOUT_MS,
+        });
+        await packageButton.click();
 
-      await page.getByRole("button", { name: /^continue$/i }).click();
+        await page.getByRole("button", { name: /^continue$/i }).click();
 
-      const overlayFrame = getPaddleOverlayFrame(page);
-      await confirmPaddleCheckoutFormVisible(overlayFrame);
-      await completePaddleCheckoutForm(overlayFrame, email, fullName, false);
+        let checkoutFrame;
+        if (mode === "inline") {
+          await confirmPaddleInlineCheckoutVisible(page);
+          checkoutFrame = getPaddleInlineCheckoutFrame(page);
+        } else {
+          checkoutFrame = getPaddleOverlayFrame(page);
+        }
+        await confirmPaddleCheckoutFormVisible(checkoutFrame);
+        await completePaddleCheckoutForm(checkoutFrame, email, fullName, false);
 
-      await confirmSuccessPage(page);
-    },
-  );
+        await confirmSuccessPage(page);
+      },
+    );
+  });
 
   integrationTest(
     "Shows an error screen when checkout/start returns missing paddle checkout params",
