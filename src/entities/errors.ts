@@ -4,7 +4,7 @@ import {
 } from "../helpers/purchase-operation-helper";
 import { ErrorCode, getPublicMessage } from "../generated/error-codes";
 
-export { ErrorCode };
+export { ErrorCode } from "../generated/error-codes";
 
 export class ErrorCodeUtils {
   // This is the message shown to developers. It is not intended to be displayed to end customers.
