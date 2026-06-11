@@ -9,7 +9,7 @@
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
 
   import {
-    OperationSessionSuccessfulResult,
+    type OperationSessionSuccessfulResult,
     PurchaseFlowError,
     PurchaseFlowErrorCode,
     PurchaseOperationHelper,
