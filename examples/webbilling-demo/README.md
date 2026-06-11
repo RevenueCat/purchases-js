@@ -60,6 +60,8 @@ export VITE_RC_STRIPE_CHECKOUT_E2E_API_KEY = 'your stripe checkout e2e tests pub
 export VITE_RC_PADDLE_E2E_API_KEY = 'your paddle e2e tests public api key'
 ```
 
+The Paddle suite also includes a smoke test against a hosted Web Purchase Link — note this exercises the deployed checkout app and released SDK, not the local build. Override the link with `VITE_RC_PADDLE_E2E_WPL_URL` if it gets rotated.
+
 Optional flags:
 
 ```bash
