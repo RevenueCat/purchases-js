@@ -5,7 +5,9 @@ import {
   confirmPaymentComplete,
   confirmPaymentError,
   getPackageCards,
+  getPaywallPurchaseButtons,
   skipPaddleTestsIfDisabled,
+  skipPaywallsTestIfDisabled,
   startPurchaseFlow,
 } from "../helpers/test-helpers";
 import {
@@ -116,6 +118,60 @@ integrationTest.describe("Paddle flow", () => {
       },
     );
   });
+
+  integrationTest(
+    "Purchases a product with the inline checkout passing the email as query parameter",
+    async ({ page, userId, email }) => {
+      const fullName = `E2E ${userId.replace(/_/g, " ")}`;
+
+      page = await navigateToPaddleLandingUrl(page, userId, { email });
+      await forcePaddleCheckoutMode(page, "inline");
+
+      await expect(page.getByText("Paddle demo")).toBeVisible({
+        timeout: PADDLE_UI_STEP_TIMEOUT_MS,
+      });
+
+      const packageCards = await getPackageCards(page);
+      expect(packageCards.length).toBeGreaterThan(0);
+
+      await startPurchaseFlow(packageCards[0]);
+      await confirmPaddleInlineCheckoutVisible(page);
+      await completePaddleCheckoutForm(
+        getPaddleInlineCheckoutFrame(page),
+        email,
+        fullName,
+        false,
+      );
+
+      await confirmSuccessPage(page);
+    },
+  );
+
+  integrationTest(
+    "Purchases a product from RC Paywall with Paddle",
+    async ({ page, userId, email }) => {
+      skipPaywallsTestIfDisabled(integrationTest);
+
+      const fullName = `E2E ${userId.replace(/_/g, " ")}`;
+
+      page = await navigateToPaddleLandingUrl(page, userId, {
+        useRcPaywall: true,
+        lang: "en",
+        email,
+      });
+      await forcePaddleCheckoutMode(page, "overlay");
+
+      const purchaseButtons = await getPaywallPurchaseButtons(page);
+      expect(purchaseButtons.length).toBeGreaterThan(0);
+      await purchaseButtons[0].click();
+
+      const overlayFrame = getPaddleOverlayFrame(page);
+      await confirmPaddleCheckoutFormVisible(overlayFrame);
+      await completePaddleCheckoutForm(overlayFrame, email, fullName, false);
+
+      await confirmSuccessPage(page);
+    },
+  );
 
   integrationTest(
     "Shows an error screen when checkout/start returns missing paddle checkout params",

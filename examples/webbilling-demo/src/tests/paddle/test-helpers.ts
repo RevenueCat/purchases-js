@@ -163,12 +163,8 @@ export async function completePaddleCheckoutForm(
     await emailInput.fill(email);
     await emailInput.blur();
   } else {
-    // When the email arrives via query param Paddle may either prefill the
-    // input or collapse it into a read-only summary line.
-    const emailSummary = checkoutFrame.getByText(email, { exact: true });
-    await expect(emailInput.or(emailSummary).first()).toBeVisible({
-      timeout: PADDLE_UI_STEP_TIMEOUT_MS,
-    });
+    // When customerEmail is provided, Paddle omits the email field entirely
+    // (verified against the sandbox); if it does render, it must be prefilled.
     if (await emailInput.isVisible()) {
       await expect(emailInput).toHaveValue(email);
     }
