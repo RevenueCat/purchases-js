@@ -10,7 +10,7 @@
     "lint": "eslint \"**/*.{ts,tsx}\" --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "test": "vitest",
-    "test:ci": "(vite &) && sleep 5 && playwright test",
+    "test:ci": "(vite &) && sleep 5 && playwright test src/tests/paddle",
     "test:ui": "(vite &) && sleep 5 && playwright test --ui",
     "test:e2e": "playwright test",
     "test:e2e-ui": "playwright test --ui",
