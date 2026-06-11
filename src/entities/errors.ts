@@ -2,7 +2,7 @@ import {
   type PurchaseFlowError,
   PurchaseFlowErrorCode,
 } from "../helpers/purchase-operation-helper";
-import { ErrorCode, getPublicMessage } from "./error-codes.generated";
+import { ErrorCode, getPublicMessage } from "../generated/error-codes";
 
 export { ErrorCode };
 
