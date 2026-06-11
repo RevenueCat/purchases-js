@@ -1,7 +1,10 @@
 ## RevenueCat SDK
-### ✨ New Features
-* [WEB-3760] Terms copy for discounts (#879) via James O'Donnell (@james-od)
-* [WEB-4224] Simplify checkout refresh after applying code (#865) via James O'Donnell (@james-od)
+### 🐞 Bugfixes
+* fix: waiting after filling the credit card form to make sure that all the animations are done (#908) via Nicola Sacco (@nicfix)
 
 ### 🔄 Other Changes
-* [WST-609] Add Stripe day-unit trial coverage for paywall variables (#874) via Volodymyr Kartavyi (@vkartaviy)
+* test(purchases-js): cover paywall customerEmail checkout flows (#914) via Nicola Sacco (@nicfix)
+* feat(paddle): gate inline checkout behind per-project backend flag (WST-700) (#911) via Roger Solé (@rogersole)
+* feat(paddle): map branding to inline checkout theme (WST-567 PR 4) (#899) via Roger Solé (@rogersole)
+* feat(paddle): inline checkout processing state after completion (WST-567 PR 3) (#898) via Roger Solé (@rogersole)
+* feat(paddle): inline checkout support at the service layer (WST-567 PR 1) (#896) via Roger Solé (@rogersole)

@@ -18,7 +18,7 @@ const baseData: PaywallEventData = {
 };
 
 describe("PaywallEvent", () => {
-  it("serializes impression event with visual fields", () => {
+  it("serializes impression event with visual fields and no context", () => {
     const event = new PaywallEvent({
       ...baseData,
       displayMode: "full_screen",
@@ -38,6 +38,43 @@ describe("PaywallEvent", () => {
       paywall_revision: 0,
       timestamp: expect.any(Number),
       paywall_rc_public_id: "pw-public-id",
+      display_mode: "full_screen",
+      dark_mode: true,
+      locale: "es_ES",
+    });
+    expect(json.presented_offering_context).toBeUndefined();
+  });
+
+  it("serializes full impression event with context and visual fields", () => {
+    const event = new PaywallEvent({
+      ...baseData,
+      displayMode: "full_screen",
+      darkMode: true,
+      locale: "es_ES",
+      presentedOfferingContext: {
+        offeringIdentifier: "offering-789",
+        placementIdentifier: "home_banner",
+        targetingContext: { revision: 3, ruleId: "rule_abc123" },
+      },
+    });
+
+    const json = event.toJSON();
+
+    expect(json).toEqual({
+      type: "paywall_impression",
+      version: 1,
+      id: "test-uuid-1234",
+      app_user_id: "user-123",
+      session_id: "session-456",
+      offering_id: "offering-789",
+      paywall_revision: 0,
+      timestamp: expect.any(Number),
+      paywall_rc_public_id: "pw-public-id",
+      presented_offering_context: {
+        placement_identifier: "home_banner",
+        targeting_revision: 3,
+        targeting_rule_id: "rule_abc123",
+      },
       display_mode: "full_screen",
       dark_mode: true,
       locale: "es_ES",
@@ -160,5 +197,114 @@ describe("PaywallEvent", () => {
       current_product_id: "monthly_product",
       resulting_product_id: "annual_product",
     });
+  });
+
+  it("includes presented_offering_context with placement and targeting", () => {
+    const event = new PaywallEvent({
+      ...baseData,
+      presentedOfferingContext: {
+        offeringIdentifier: "offering-789",
+        placementIdentifier: "home_banner",
+        targetingContext: { revision: 3, ruleId: "rule_abc123" },
+      },
+    });
+
+    expect(event.toJSON().presented_offering_context).toEqual({
+      placement_identifier: "home_banner",
+      targeting_revision: 3,
+      targeting_rule_id: "rule_abc123",
+    });
+  });
+
+  it("includes presented_offering_context with placement only", () => {
+    const event = new PaywallEvent({
+      ...baseData,
+      presentedOfferingContext: {
+        offeringIdentifier: "offering-789",
+        placementIdentifier: "home_banner",
+        targetingContext: null,
+      },
+    });
+
+    expect(event.toJSON().presented_offering_context).toEqual({
+      placement_identifier: "home_banner",
+    });
+  });
+
+  it("includes presented_offering_context with targeting only", () => {
+    const event = new PaywallEvent({
+      ...baseData,
+      presentedOfferingContext: {
+        offeringIdentifier: "offering-789",
+        placementIdentifier: null,
+        targetingContext: { revision: 7, ruleId: "rule_xyz" },
+      },
+    });
+
+    expect(event.toJSON().presented_offering_context).toEqual({
+      targeting_revision: 7,
+      targeting_rule_id: "rule_xyz",
+    });
+  });
+
+  it("omits presented_offering_context when no placement or targeting", () => {
+    const event = new PaywallEvent({
+      ...baseData,
+      presentedOfferingContext: {
+        offeringIdentifier: "offering-789",
+        placementIdentifier: null,
+        targetingContext: null,
+      },
+    });
+
+    expect(event.toJSON().presented_offering_context).toBeUndefined();
+  });
+
+  it("omits presented_offering_context when placementIdentifier is empty string", () => {
+    const event = new PaywallEvent({
+      ...baseData,
+      presentedOfferingContext: {
+        offeringIdentifier: "offering-789",
+        placementIdentifier: "",
+        targetingContext: null,
+      },
+    });
+
+    expect(event.toJSON().presented_offering_context).toBeUndefined();
+  });
+
+  it("omits presented_offering_context when not provided", () => {
+    const event = new PaywallEvent(baseData);
+
+    expect(event.toJSON().presented_offering_context).toBeUndefined();
+  });
+
+  it("JSON.stringify round-trip preserves presented_offering_context", () => {
+    const event = new PaywallEvent({
+      ...baseData,
+      presentedOfferingContext: {
+        offeringIdentifier: "offering-789",
+        placementIdentifier: "home_banner",
+        targetingContext: { revision: 3, ruleId: "rule_abc123" },
+      },
+    });
+
+    const serialized = JSON.stringify(event.toJSON());
+    const parsed = JSON.parse(serialized);
+
+    expect(parsed.presented_offering_context).toEqual({
+      placement_identifier: "home_banner",
+      targeting_revision: 3,
+      targeting_rule_id: "rule_abc123",
+    });
+  });
+
+  it("JSON.stringify omits presented_offering_context when absent", () => {
+    const event = new PaywallEvent(baseData);
+
+    const serialized = JSON.stringify(event.toJSON());
+    const parsed = JSON.parse(serialized);
+
+    expect(parsed.presented_offering_context).toBeUndefined();
   });
 });

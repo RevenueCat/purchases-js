@@ -362,7 +362,6 @@
       onReady={onExpressCheckoutElementReady}
       {expressCheckoutOptions}
       forceEnableWalletMethods={false}
-      billingAddressRequired={brandingInfo?.gateway_tax_collection_enabled}
       hideCheckoutSeparator={true}
     />
   {/if}

@@ -1,3 +1,50 @@
+## 1.42.3
+## RevenueCat SDK
+### 🐞 Bugfixes
+* fix: waiting after filling the credit card form to make sure that all the animations are done (#908) via Nicola Sacco (@nicfix)
+
+### 🔄 Other Changes
+* test(purchases-js): cover paywall customerEmail checkout flows (#914) via Nicola Sacco (@nicfix)
+* feat(paddle): gate inline checkout behind per-project backend flag (WST-700) (#911) via Roger Solé (@rogersole)
+* feat(paddle): map branding to inline checkout theme (WST-567 PR 4) (#899) via Roger Solé (@rogersole)
+* feat(paddle): inline checkout processing state after completion (WST-567 PR 3) (#898) via Roger Solé (@rogersole)
+* feat(paddle): inline checkout support at the service layer (WST-567 PR 1) (#896) via Roger Solé (@rogersole)
+
+## 1.42.2
+## RevenueCat SDK
+### 🐞 Bugfixes
+* chore: bump @stripe/stripe-js to v9 (dahlia) (#907) via Volodymyr Kartavyi (@vkartaviy)
+
+## 1.42.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Bump purchases-ui-js to 4.7.2 (#902) via Monika Mateska (@MonikaMateska)
+
+## 1.42.0
+## RevenueCat SDK
+### ✨ New Features
+* Add presented offering context to paywall events (#818) via Rick (@rickvdl)
+### 🐞 Bugfixes
+* [WEB-4304] fix: Force billing address collection in Express Checkout element (#891) via Víctor Ferrer García (@vicfergar)
+
+### 🔄 Other Changes
+* Bump jwt from 2.10.2 to 2.10.3 (#895) via dependabot[bot] (@dependabot[bot])
+
+## 1.41.2
+## RevenueCat SDK
+### 🐞 Bugfixes
+* [WEB-4282] Hide "Total excluding tax" when no tax (#886) via James O'Donnell (@james-od)
+* fix: fall back to fallback_offering_id when offering_ids_by_placement is omitted (#885) via Tarek M. Ben Lechhab (@bilqisium)
+* Fix: Asterisks in markdown — Update purchases-ui-js (#887) via Jacob Rakidzich (@JZDesign)
+
+## 1.41.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Migrated to using stripe pure (#882) via Nicola Sacco (@nicfix)
+
+### 🔄 Other Changes
+* FUN-2196: Add attribution metadata input channel to purchases.purchase() (#875) via Jamie Holwill (@jholwill)
+
 ## 1.41.0
 ## RevenueCat SDK
 ### ✨ New Features

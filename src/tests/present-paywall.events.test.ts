@@ -189,6 +189,29 @@ describe("Purchases.presentPaywall() paywall events", () => {
     ).toEqual(["paywall_impression"]);
   });
 
+  test("passes presentedOfferingContext to paywall events", async () => {
+    const purchases = configurePurchases();
+    const offering = createOfferingWithPaywall();
+    const trackPaywallEventSpy = vi.spyOn(
+      purchases["eventsTracker"],
+      "trackPaywallEvent",
+    );
+
+    const paywallPromise = purchases.presentPaywall({ offering });
+    void paywallPromise.catch(() => undefined);
+
+    expect(trackPaywallEventSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "paywall_impression",
+        presentedOfferingContext: {
+          offeringIdentifier: "offering_1",
+          targetingContext: { ruleId: "test_rule_id", revision: 123 },
+          placementIdentifier: null,
+        },
+      }),
+    );
+  });
+
   test("fires paywall_close when external code clears the paywall container", async () => {
     const purchases = configurePurchases();
     const offering = createOfferingWithPaywall();

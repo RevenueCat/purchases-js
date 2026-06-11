@@ -183,7 +183,13 @@ export type { LogHandler } from "./entities/logging";
 export type { IdentifyResult } from "./entities/identify-result";
 export type { GetOfferingsParams } from "./entities/get-offerings-params";
 export { OfferingKeyword } from "./entities/get-offerings-params";
-export type { PurchaseParams } from "./entities/purchase-params";
+export type {
+  AttributionMetadata,
+  MetaCapiAttributionMetadata,
+  MetaCanonicalAttributionMetadata,
+  PurchaseResponseAttributionMetadata,
+  PurchaseParams,
+} from "./entities/purchase-params";
 export type { RedemptionInfo } from "./entities/redemption-info";
 export type {
   PurchaseResult,
@@ -628,6 +634,9 @@ export class Purchases {
       offeringId: offering.identifier,
       paywallRevision: 0,
       paywallRcPublicId: offering.paywallComponents?.id ?? null,
+      presentedOfferingContext:
+        offering.availablePackages[0]?.webBillingProduct
+          ?.presentedOfferingContext,
     };
     const paywallDisplayData = {
       displayMode: "full_screen",
@@ -1357,6 +1366,7 @@ export class Purchases {
       htmlTarget,
       customerEmail,
       workflowPurchaseContext,
+      attributionMetadata,
       paywallId,
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
@@ -1442,6 +1452,7 @@ export class Purchases {
           purchaseOption: purchaseOptionToUse,
           customerEmail,
           workflowPurchaseContext,
+          attributionMetadata,
           paywallId,
           onFinished,
           onClose,
@@ -1468,6 +1479,7 @@ export class Purchases {
       htmlTarget,
       customerEmail,
       workflowPurchaseContext,
+      attributionMetadata,
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
       skipSuccessPage = false,
@@ -1555,6 +1567,7 @@ export class Purchases {
           purchaseOption: purchaseOptionToUse,
           customerEmail,
           workflowPurchaseContext,
+          attributionMetadata,
           paywallId: params.paywallId,
           onFinished,
           onClose,
@@ -1584,6 +1597,7 @@ export class Purchases {
       rcPackage,
       purchaseOption,
       customerEmail,
+      attributionMetadata,
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
       skipSuccessPage = false,
@@ -1648,6 +1662,13 @@ export class Purchases {
           unmountPaddlePurchaseUi();
         });
 
+      // Cancel the checkout on browser back. The inline checkout has no
+      // Paddle-provided dismiss, so this (and the in-page close button) are the
+      // ways to back out. Mirrors the Web Billing / Stripe flows.
+      if (!isInElement) {
+        win.addEventListener("popstate", onClose as EventListener);
+      }
+
       const onFinished = this.createCheckoutOnFinishedHandler(
         resolve,
         appUserId,
@@ -1678,6 +1699,7 @@ export class Purchases {
             appUserId,
             purchaseOption: purchaseOptionToUse,
             customerEmail,
+            attributionMetadata,
             metadata,
             unmountPaddlePurchaseUi,
             paddleService,

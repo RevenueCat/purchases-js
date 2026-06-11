@@ -21,7 +21,7 @@ export interface TargetingResponse {
 }
 
 export interface PlacementsResponse {
-  readonly fallback_offering_id: string;
+  readonly fallback_offering_id: string | null;
   readonly offering_ids_by_placement?: { [key: string]: string | null };
 }
 
