@@ -21,13 +21,6 @@ import {
   PADDLE_UI_STEP_TIMEOUT_MS,
 } from "./test-helpers";
 
-// TODO(WST-709): completion from CI datacenter IPs is unvalidated for the
-// Paddle sandbox (Stripe blocks it with a CAPTCHA). Skip the full-completion
-// tests on CI until the spike settles the question, mirroring the Stripe
-// Checkout suite's original LOCAL_ONLY_COMPLETION gating.
-const PADDLE_LOCAL_ONLY_COMPLETION =
-  "Paddle sandbox completion from CI IPs is unvalidated (WST-709); run locally.";
-
 async function confirmSuccessPage(page: Page) {
   await confirmPaymentComplete(page, PADDLE_UI_STEP_TIMEOUT_MS);
 
@@ -71,8 +64,6 @@ integrationTest.describe("Paddle flow", () => {
   integrationTest(
     "Purchases a product with the inline checkout",
     async ({ page, userId, email }) => {
-      integrationTest.skip(!!process.env.CI, PADDLE_LOCAL_ONLY_COMPLETION);
-
       const fullName = `E2E ${userId.replace(/_/g, " ")}`;
 
       page = await navigateToPaddleLandingUrl(page, userId);
@@ -119,8 +110,6 @@ integrationTest.describe("Paddle flow", () => {
   integrationTest(
     "Purchases a product with the overlay checkout",
     async ({ page, userId, email }) => {
-      integrationTest.skip(!!process.env.CI, PADDLE_LOCAL_ONLY_COMPLETION);
-
       const fullName = `E2E ${userId.replace(/_/g, " ")}`;
 
       page = await navigateToPaddleLandingUrl(page, userId);
