@@ -5,7 +5,6 @@ import {
   confirmPaymentComplete,
   confirmPaymentError,
   getPackageCards,
-  getPaywallPurchaseButtons,
   skipPaddleTestsIfDisabled,
   skipPaywallsTestIfDisabled,
   startPurchaseFlow,
@@ -26,7 +25,11 @@ import {
 async function confirmSuccessPage(page: Page) {
   await confirmPaymentComplete(page, PADDLE_UI_STEP_TIMEOUT_MS);
 
-  const continueButton = page.getByRole("button", { name: /continue/i });
+  // Scoped to the SDK page footer: a V2 paywall behind the checkout can have
+  // its own Continue CTA still mounted.
+  const continueButton = page
+    .getByRole("contentinfo")
+    .getByRole("button", { name: /continue/i });
   await expect(continueButton).toBeVisible({
     timeout: PADDLE_UI_STEP_TIMEOUT_MS,
   });
@@ -161,9 +164,18 @@ integrationTest.describe("Paddle flow", () => {
       });
       await forcePaddleCheckoutMode(page, "overlay");
 
-      const purchaseButtons = await getPaywallPurchaseButtons(page);
-      expect(purchaseButtons.length).toBeGreaterThan(0);
-      await purchaseButtons[0].click();
+      // The paddle_e2e_test offering uses a V2 paywall: package buttons
+      // labeled by duration ("30 DAYS", "12 MONTHS", "LIFETIME") and a
+      // Continue CTA.
+      const packageButton = page
+        .getByRole("button", { name: /days|months|lifetime/i })
+        .first();
+      await expect(packageButton).toBeVisible({
+        timeout: PADDLE_UI_STEP_TIMEOUT_MS,
+      });
+      await packageButton.click();
+
+      await page.getByRole("button", { name: /^continue$/i }).click();
 
       const overlayFrame = getPaddleOverlayFrame(page);
       await confirmPaddleCheckoutFormVisible(overlayFrame);
