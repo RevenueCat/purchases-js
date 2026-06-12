@@ -1034,7 +1034,8 @@ export class Purchases {
 
       certainHTMLTarget.innerHTML = "";
       if (workflowNavData && workflowDataResponse) {
-        component = mount(Workflow, {
+        try {
+          component = mount(Workflow, {
           target: certainHTMLTarget,
           props: {
             workflow: workflowNavData,
@@ -1075,6 +1076,11 @@ export class Purchases {
               : undefined,
           },
         });
+        } catch (err) {
+          unmountPaywall();
+          reject(err);
+          return;
+        }
       } else {
         component = mount(Paywall, {
           target: certainHTMLTarget,
