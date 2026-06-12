@@ -61,76 +61,61 @@ integrationTest.describe("Paddle flow", () => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
   });
 
-  integrationTest(
-    "Purchases a product with the inline checkout",
-    async ({ page, userId, email }) => {
-      const fullName = `E2E ${userId.replace(/_/g, " ")}`;
+  (["inline", "overlay"] as const).forEach((mode) => {
+    integrationTest(
+      `Purchases a product with the ${mode} checkout`,
+      async ({ page, userId, email }) => {
+        const fullName = `E2E ${userId.replace(/_/g, " ")}`;
 
-      page = await navigateToPaddleLandingUrl(page, userId);
-      await forcePaddleCheckoutMode(page, "inline");
+        page = await navigateToPaddleLandingUrl(page, userId);
+        await forcePaddleCheckoutMode(page, mode);
 
-      await expect(page.getByText("Paddle demo")).toBeVisible({
-        timeout: PADDLE_UI_STEP_TIMEOUT_MS,
-      });
+        await expect(page.getByText("Paddle demo")).toBeVisible({
+          timeout: PADDLE_UI_STEP_TIMEOUT_MS,
+        });
 
-      const packageCards = await getPackageCards(page);
-      expect(packageCards.length).toBeGreaterThan(0);
+        const packageCards = await getPackageCards(page);
+        expect(packageCards.length).toBeGreaterThan(0);
 
-      await startPurchaseFlow(packageCards[0]);
-      await confirmPaddleInlineCheckoutVisible(page);
-      await confirmSandboxBannerVisible(page);
+        await startPurchaseFlow(packageCards[0]);
 
-      // The RC-rendered order summary is fed by Paddle's checkout.updated
-      // totals; assert presence only — exact figures depend on address-entry
-      // timing and would be flaky.
-      await expect(page.locator(".rcb-paddle-summary")).toBeVisible({
-        timeout: PADDLE_UI_STEP_TIMEOUT_MS,
-      });
+        let checkoutFrame;
+        if (mode === "inline") {
+          await confirmPaddleInlineCheckoutVisible(page);
 
-      await completePaddleCheckoutForm(
-        getPaddleInlineCheckoutFrame(page),
-        email,
-        fullName,
-      );
+          // Inline renders RC chrome around Paddle's frame: the sandbox
+          // banner and the order summary fed by Paddle's checkout.updated
+          // totals. Assert presence only — exact figures depend on
+          // address-entry timing and would be flaky.
+          await confirmSandboxBannerVisible(page);
+          await expect(page.locator(".rcb-paddle-summary")).toBeVisible({
+            timeout: PADDLE_UI_STEP_TIMEOUT_MS,
+          });
 
-      // The processing state only shows between checkout.completed and the
-      // backend poll finishing, which can be near-instant — accept either it
-      // or the success page.
-      await expect(
-        page
-          .locator(".rcb-paddle-processing")
-          .or(page.getByText("Payment complete"))
-          .first(),
-      ).toBeVisible({ timeout: PADDLE_UI_STEP_TIMEOUT_MS });
+          checkoutFrame = getPaddleInlineCheckoutFrame(page);
+        } else {
+          checkoutFrame = getPaddleOverlayFrame(page);
+          await confirmPaddleCheckoutFormVisible(checkoutFrame);
+        }
 
-      await confirmSuccessPage(page);
-    },
-  );
+        await completePaddleCheckoutForm(checkoutFrame, email, fullName);
 
-  integrationTest(
-    "Purchases a product with the overlay checkout",
-    async ({ page, userId, email }) => {
-      const fullName = `E2E ${userId.replace(/_/g, " ")}`;
+        if (mode === "inline") {
+          // The processing state only shows between checkout.completed and
+          // the backend poll finishing, which can be near-instant — accept
+          // either it or the success page.
+          await expect(
+            page
+              .locator(".rcb-paddle-processing")
+              .or(page.getByText("Payment complete"))
+              .first(),
+          ).toBeVisible({ timeout: PADDLE_UI_STEP_TIMEOUT_MS });
+        }
 
-      page = await navigateToPaddleLandingUrl(page, userId);
-      await forcePaddleCheckoutMode(page, "overlay");
-
-      await expect(page.getByText("Paddle demo")).toBeVisible({
-        timeout: PADDLE_UI_STEP_TIMEOUT_MS,
-      });
-
-      const packageCards = await getPackageCards(page);
-      expect(packageCards.length).toBeGreaterThan(0);
-
-      await startPurchaseFlow(packageCards[0]);
-
-      const overlayFrame = getPaddleOverlayFrame(page);
-      await confirmPaddleCheckoutFormVisible(overlayFrame);
-      await completePaddleCheckoutForm(overlayFrame, email, fullName);
-
-      await confirmSuccessPage(page);
-    },
-  );
+        await confirmSuccessPage(page);
+      },
+    );
+  });
 
   integrationTest(
     "Shows an error screen when checkout/start returns missing paddle checkout params",
