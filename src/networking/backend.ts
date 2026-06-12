@@ -12,6 +12,7 @@ import {
   GetProductsEndpoint,
   GetVirtualCurrenciesEndpoint,
   GetWorkflowDataByIdEndpoint,
+  GetWorkflowsEndpoint,
   IdentifyEndpoint,
   PostReceiptEndpoint,
   SetAttributesEndpoint,
@@ -25,6 +26,7 @@ import { type VirtualCurrenciesResponse } from "./responses/virtual-currencies-r
 import type {
   WorkflowDataAction,
   WorkflowDataResponse,
+  WorkflowsListResponse,
 } from "./responses/workflow-response";
 import { defaultHttpConfig, type HttpConfig } from "../entities/http-config";
 import type {
@@ -479,6 +481,16 @@ export class Backend {
   ): Promise<VirtualCurrenciesResponse> {
     return await performRequest<null, VirtualCurrenciesResponse>(
       new GetVirtualCurrenciesEndpoint(appUserId),
+      {
+        apiKey: this.API_KEY,
+        httpConfig: this.httpConfig,
+      },
+    );
+  }
+
+  async getWorkflows(appUserId: string): Promise<WorkflowsListResponse> {
+    return await performRequest<null, WorkflowsListResponse>(
+      new GetWorkflowsEndpoint(appUserId),
       {
         apiKey: this.API_KEY,
         httpConfig: this.httpConfig,

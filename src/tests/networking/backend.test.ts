@@ -1661,6 +1661,134 @@ describe("getVirtualCurrencies request", () => {
   });
 });
 
+describe("getWorkflows request", () => {
+  const APP_USER_ID = "someAppUserId";
+  const WORKFLOWS_LIST_URL = `http://localhost:8000/v1/subscribers/${APP_USER_ID}/workflows?type=paywall`;
+
+  const workflowsListResponse = {
+    workflows: [
+      {
+        id: "wf_aaa111",
+        display_name: "Onboarding Workflow",
+        offering_id: "offering_default",
+        prefetch: true,
+      },
+      {
+        id: "wf_bbb222",
+        display_name: "Upsell Workflow",
+        offering_id: null,
+        prefetch: true,
+      },
+    ],
+    ui_config: {
+      app: { colors: {}, fonts: {} },
+      localizations: {},
+      variable_config: {},
+    },
+  };
+
+  function setWorkflowsListResponse(httpResponse: HttpResponse) {
+    server.use(http.get(WORKFLOWS_LIST_URL, () => httpResponse));
+  }
+
+  test("returns workflows list successfully", async () => {
+    setWorkflowsListResponse(
+      HttpResponse.json(workflowsListResponse, { status: 200 }),
+    );
+    const result = await backend.getWorkflows(APP_USER_ID);
+    expect(result).toEqual(workflowsListResponse);
+  });
+
+  test("encodes app user ID in the URL", async () => {
+    const specialUserId = "user with spaces";
+    server.use(
+      http.get(
+        `http://localhost:8000/v1/subscribers/${encodeURIComponent(specialUserId)}/workflows?type=paywall`,
+        () => HttpResponse.json(workflowsListResponse, { status: 200 }),
+      ),
+    );
+    const result = await backend.getWorkflows(specialUserId);
+    expect(result).toEqual(workflowsListResponse);
+  });
+
+  test("throws an error if the backend returns a server error", async () => {
+    setWorkflowsListResponse(
+      HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
+    );
+    await expectPromiseToError(
+      backend.getWorkflows(APP_USER_ID),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        "Request: getWorkflows. Status code: 500. Body: null.",
+      ),
+    );
+  });
+
+  test("throws a known error if the backend returns invalid API key error", async () => {
+    setWorkflowsListResponse(
+      HttpResponse.json(
+        {
+          code: BackendErrorCode.BackendInvalidAPIKey,
+          message: "API key was wrong",
+        },
+        { status: StatusCodes.BAD_REQUEST },
+      ),
+    );
+    await expectPromiseToError(
+      backend.getWorkflows(APP_USER_ID),
+      new PurchasesError(
+        ErrorCode.InvalidCredentialsError,
+        "There was a credentials issue. Check the underlying error for more details.",
+        "API key was wrong",
+      ),
+    );
+  });
+
+  test("throws unknown error if the backend returns a request error with unknown error code in body", async () => {
+    setWorkflowsListResponse(
+      HttpResponse.json(
+        { code: 1234567890, message: "Invalid error message" },
+        { status: StatusCodes.BAD_REQUEST },
+      ),
+    );
+    await expectPromiseToError(
+      backend.getWorkflows(APP_USER_ID),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        'Request: getWorkflows. Status code: 400. Body: {"code":1234567890,"message":"Invalid error message"}.',
+      ),
+    );
+  });
+
+  test("throws unknown error if the backend returns a request error without error code in body", async () => {
+    setWorkflowsListResponse(
+      HttpResponse.json(null, { status: StatusCodes.BAD_REQUEST }),
+    );
+    await expectPromiseToError(
+      backend.getWorkflows(APP_USER_ID),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        "Request: getWorkflows. Status code: 400. Body: null.",
+      ),
+    );
+  });
+
+  test("throws network error if cannot reach server", async () => {
+    setWorkflowsListResponse(HttpResponse.error());
+    await expectPromiseToError(
+      backend.getWorkflows(APP_USER_ID),
+      new PurchasesError(
+        ErrorCode.NetworkError,
+        "Error performing request. Please check your network connection and try again.",
+        "Failed to fetch",
+      ),
+    );
+  });
+});
+
 describe("getWorkflowById request", () => {
   const APP_USER_ID = "someAppUserId";
   const WORKFLOW_ID = "wf_aaa111";

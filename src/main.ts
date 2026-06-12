@@ -565,16 +565,19 @@ export class Purchases {
       throw new Error("No offering found.");
     }
 
-    // Check for a workflow associated with this offering by fetching it directly.
-    const workflowDataResponse = await this.backend
-      .getWorkflowById(this._appUserId, offering.identifier)
+    // Check for a workflow associated with this offering.
+    const workflowsResponse = await this.backend
+      .getWorkflows(this._appUserId)
       .catch(() => null);
+    const matchedWorkflowSummary = workflowsResponse?.workflows.find(
+      (w) => w.offering_id === offering.identifier,
+    );
 
-    if (!workflowDataResponse && !offering.paywallComponents) {
+    if (!matchedWorkflowSummary && !offering.paywallComponents) {
       throw new Error("This offering doesn't have a paywall attached.");
     }
 
-    if (!workflowDataResponse && !offering.uiConfig) {
+    if (!matchedWorkflowSummary && !offering.uiConfig) {
       throw new Error(
         "No ui_config found for this offering, please contact support!",
       );
@@ -898,7 +901,12 @@ export class Purchases {
     };
 
     let workflowNavData: ReturnType<typeof workflowDataToNavData> | undefined;
-    if (workflowDataResponse) {
+    let workflowDataResponse: WorkflowData | undefined;
+    if (matchedWorkflowSummary) {
+      workflowDataResponse = await this.backend.getWorkflowById(
+        this._appUserId,
+        matchedWorkflowSummary.id,
+      );
       workflowNavData = workflowDataToNavData(
         workflowDataResponse as unknown as WorkflowData,
       );

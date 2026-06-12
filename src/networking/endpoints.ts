@@ -200,6 +200,20 @@ export class GetVirtualCurrenciesEndpoint implements Endpoint {
   }
 }
 
+export class GetWorkflowsEndpoint implements Endpoint {
+  method: HttpMethodType = "GET";
+  name: string = "getWorkflows";
+  private readonly appUserId: string;
+
+  constructor(appUserId: string) {
+    this.appUserId = appUserId;
+  }
+
+  urlPath(): string {
+    return `${SUBSCRIBERS_PATH}/${encodeURIComponent(this.appUserId)}/workflows?type=paywall`;
+  }
+}
+
 export class GetWorkflowDataByIdEndpoint implements Endpoint {
   method: HttpMethodType = "GET";
   name: string = "getWorkflowData";
@@ -226,4 +240,5 @@ export type SupportedEndpoint =
   | SetAttributesEndpoint
   | PostReceiptEndpoint
   | GetVirtualCurrenciesEndpoint
+  | GetWorkflowsEndpoint
   | GetWorkflowDataByIdEndpoint;
