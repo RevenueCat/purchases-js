@@ -725,6 +725,7 @@ export class Purchases {
 
     const startPurchaseFlow = async (
       selectedPackageId: string,
+      checkoutLocale: string = finalLocale,
     ): Promise<PaywallPurchaseResult> => {
       const pkg = offering.availablePackages.find(
         (p) => p.identifier === selectedPackageId,
@@ -741,7 +742,7 @@ export class Purchases {
         showDiscountCodeField: paywallParams.showDiscountCodeField,
         discountCode: paywallParams.discountCode,
         onDiscountCodeChanged: paywallParams.onDiscountCodeChanged,
-        selectedLocale: finalLocale,
+        selectedLocale: checkoutLocale,
         defaultLocale:
           offering.paywallComponents?.default_locale ?? englishLocale,
         paywallId: offering.paywallComponents?.id,
@@ -903,16 +904,23 @@ export class Purchases {
     let workflowNavData: ReturnType<typeof workflowDataToNavData> | undefined;
     let workflowDataResponse: WorkflowData | undefined;
     if (matchedWorkflowSummary) {
-      workflowDataResponse = await this.backend.getWorkflowById(
-        this._appUserId,
-        matchedWorkflowSummary.id,
-      );
-      workflowNavData = workflowDataToNavData(
-        workflowDataResponse as unknown as WorkflowData,
-      );
-      if (!workflowNavData) {
-        throw new Error(
-          "Failed to resolve workflow navigation data for this offering.",
+      const workflowData = await this.backend
+        .getWorkflowById(this._appUserId, matchedWorkflowSummary.id)
+        .catch((e) => {
+          Logger.warnLog(
+            `Failed to fetch workflow data, falling back to standard paywall: ${e}`,
+          );
+          return null;
+        });
+      const navData = workflowData
+        ? workflowDataToNavData(workflowData as unknown as WorkflowData)
+        : null;
+      if (workflowData && navData) {
+        workflowDataResponse = workflowData;
+        workflowNavData = navData;
+      } else if (workflowData && !navData) {
+        Logger.warnLog(
+          "Failed to resolve workflow navigation data, falling back to standard paywall.",
         );
       }
     }
@@ -1025,7 +1033,7 @@ export class Purchases {
               if (pkg) {
                 notifyPurchaseStarted(pkg);
               }
-              startPurchaseFlow(selectedPackageId)
+              startPurchaseFlow(selectedPackageId, selectedLocale)
                 .then(onSuccess)
                 .catch(onError("Error performing purchase"));
             },
