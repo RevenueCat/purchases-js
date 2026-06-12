@@ -61,11 +61,6 @@ integrationTest.describe("Paddle flow", () => {
     "Paddle E2E tests require VITE_RC_PADDLE_E2E_API_KEY.",
   );
 
-  integrationTest.afterEach(async () => {
-    // Sleep between tests to stay clear of Paddle sandbox rate limits.
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-  });
-
   (["inline", "overlay"] as const).forEach((mode) => {
     integrationTest(
       `Purchases a product with the ${mode} checkout`,
