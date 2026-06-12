@@ -1,3 +1,6 @@
 ## RevenueCat SDK
 ### 🐞 Bugfixes
-* chore: bump @stripe/stripe-js to v9 (dahlia) (#907) via Volodymyr Kartavyi (@vkartaviy)
+* feat: expose Purchases.buildInfoPerPackage for workflows (#921) via Franco Correa (@francocorreasosa)
+
+### 🔄 Other Changes
+* Adopt generated error codes (#915) via Álvaro Brey (@AlvaroBrey)
