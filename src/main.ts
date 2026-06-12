@@ -303,6 +303,16 @@ export class Purchases {
     return buildVariablesPerPackage(offering, options);
   }
 
+  /**
+   * Build package info (trial/intro/promo offer flags and checkout URL) for
+   * each package in an offering, keyed by package identifier.
+   * Used to support Paywalls in Workflows.
+   * @internal
+   */
+  static buildInfoPerPackage(offering: Offering) {
+    return parseOfferingIntoPackageInfoPerPackage(offering);
+  }
+
   /** @internal */
   static getPlatformInfo(): PlatformInfo | undefined {
     return Purchases._platformInfo;

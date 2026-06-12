@@ -3,7 +3,6 @@ import type {
   DisplayMode,
   Paddle,
   PaddleEventData,
-  Theme,
   Variant,
   Version,
 } from "@paddle/paddle-js";
@@ -50,6 +49,9 @@ interface PaddlePurchaseParams {
  */
 export type PaddleCheckoutDisplayMode = "overlay" | "inline";
 
+/** Paddle checkout color theme. Mapped from the merchant's branding. */
+export type PaddleCheckoutTheme = "light" | "dark";
+
 /**
  * Order totals surfaced by Paddle's checkout events (`checkout.loaded` /
  * `checkout.updated`). Amounts are in major currency units (e.g. 9.99). Lets
@@ -85,6 +87,7 @@ interface BuildPaddleCheckoutOptionsParams {
   locale: string;
   customerEmail?: string;
   displayMode?: PaddleCheckoutDisplayMode;
+  theme?: PaddleCheckoutTheme;
 }
 
 /**
@@ -98,9 +101,10 @@ export function buildPaddleCheckoutOptions({
   locale,
   customerEmail,
   displayMode = "overlay",
+  theme = "light",
 }: BuildPaddleCheckoutOptionsParams): CheckoutOpenOptions {
   const commonSettings = {
-    theme: "light" as Theme,
+    theme,
     variant: "one-page" as Variant,
     locale,
     allowLogout: false,
@@ -137,12 +141,20 @@ interface PaddlePurchase {
   params: PaddlePurchaseParams;
   onClose: () => void;
   displayMode?: PaddleCheckoutDisplayMode;
+  theme?: PaddleCheckoutTheme;
   /**
    * Invoked with the order totals whenever Paddle reports them
    * (`checkout.loaded` and `checkout.updated`). Used by the inline UI to render
    * the Subtotal/Tax/Total breakdown.
    */
   onCheckoutTotals?: (totals: PaddleCheckoutTotals) => void;
+  /**
+   * Invoked when Paddle reports the checkout completed, before we close the
+   * checkout and start polling the backend for the final status. Lets the UI
+   * swap the (now finished) checkout for a processing state — relevant for the
+   * inline presentation, where the checkout iframe is otherwise still visible.
+   */
+  onCheckoutCompleted?: () => void;
 }
 
 interface PaddleStartCheckoutParams {
@@ -284,7 +296,9 @@ export class PaddleService {
     onClose,
     params,
     displayMode = "overlay",
+    theme = "light",
     onCheckoutTotals,
+    onCheckoutCompleted,
   }: PaddlePurchase): Promise<OperationSessionSuccessfulResult> {
     const paddleInstance = this.getPaddleInstance();
     const { customerEmail, locale = "en" } = params;
@@ -318,7 +332,11 @@ export class PaddleService {
               // Totals change as the customer enters their address (tax) etc.
               forwardTotals(data);
             } else if (eventName === CheckoutEventNames.CHECKOUT_COMPLETED) {
-              // Close Paddle's success page to show the PaddlePurchaseUi status page
+              // Let the UI move to a processing state before we tear down the
+              // checkout (matters for inline, where the iframe is still on-page).
+              onCheckoutCompleted?.();
+              // Close Paddle's checkout (overlay success page / inline frame) so
+              // the PaddlePurchaseUi status page is shown while we poll.
               paddleInstance.Checkout.close();
               const checkoutStatus =
                 await this.pollOperationStatus(operationSessionId);
@@ -361,6 +379,7 @@ export class PaddleService {
         locale,
         customerEmail,
         displayMode,
+        theme,
       });
 
       try {
