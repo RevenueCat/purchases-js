@@ -108,7 +108,7 @@ describe("Purchases.presentPaywall() paywall events", () => {
 
     const paywallPromise = purchases.presentPaywall({ offering });
 
-    expect(paywallProps).toBeDefined();
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
     paywallProps!.onPurchaseClicked(packageId);
     await vi.waitFor(() => {
       expect(trackPaywallEventSpy).toHaveBeenCalledWith(
@@ -148,7 +148,7 @@ describe("Purchases.presentPaywall() paywall events", () => {
 
     const paywallPromise = purchases.presentPaywall({ offering });
 
-    expect(paywallProps).toBeDefined();
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
     paywallProps!.onPurchaseClicked(offering.availablePackages[0]!.identifier);
     paywallProps!.onBackClicked();
 
@@ -178,7 +178,7 @@ describe("Purchases.presentPaywall() paywall events", () => {
     });
     void paywallPromise.catch(() => undefined);
 
-    expect(paywallProps).toBeDefined();
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
     paywallProps!.onPurchaseClicked(packageId);
 
     await vi.waitFor(() => {
@@ -200,15 +200,17 @@ describe("Purchases.presentPaywall() paywall events", () => {
     const paywallPromise = purchases.presentPaywall({ offering });
     void paywallPromise.catch(() => undefined);
 
-    expect(trackPaywallEventSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: "paywall_impression",
-        presentedOfferingContext: {
-          offeringIdentifier: "offering_1",
-          targetingContext: { ruleId: "test_rule_id", revision: 123 },
-          placementIdentifier: null,
-        },
-      }),
+    await vi.waitFor(() =>
+      expect(trackPaywallEventSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "paywall_impression",
+          presentedOfferingContext: {
+            offeringIdentifier: "offering_1",
+            targetingContext: { ruleId: "test_rule_id", revision: 123 },
+            placementIdentifier: null,
+          },
+        }),
+      ),
     );
   });
 
@@ -236,7 +238,7 @@ describe("Purchases.presentPaywall() paywall events", () => {
     });
     void paywallPromise.catch(() => undefined);
 
-    expect(paywallProps).toBeDefined();
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
     paywallProps!.onPurchaseClicked(packageId);
 
     await vi.waitFor(() => {
@@ -262,7 +264,7 @@ describe("Purchases.presentPaywall() paywall events", () => {
     const paywallPromise = purchases.presentPaywall({ offering });
     void paywallPromise.catch(() => undefined);
 
-    expect(paywallProps).toBeDefined();
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
     paywallProps!.onComponentInteraction({
       componentType: "button",
       componentName: "Terms Button",
@@ -301,7 +303,7 @@ describe("Purchases.presentPaywall() paywall events", () => {
     const paywallPromise = purchases.presentPaywall({ offering, htmlTarget });
     void paywallPromise.catch(() => undefined);
 
-    expect(paywallProps).toBeDefined();
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
     const link = document.createElement("a");
     link.setAttribute("href", "#details");
     htmlTarget.appendChild(link);
@@ -340,7 +342,7 @@ describe("Purchases.presentPaywall() paywall events", () => {
     const paywallPromise = purchases.presentPaywall({ offering, htmlTarget });
     void paywallPromise.catch(() => undefined);
 
-    expect(paywallProps).toBeDefined();
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
     const link = document.createElement("a");
     link.setAttribute("href", "#details");
     link.addEventListener("click", (event) => {
@@ -381,7 +383,7 @@ describe("Purchases.presentPaywall() paywall events", () => {
     const paywallPromise = purchases.presentPaywall({ offering });
     void paywallPromise.catch(() => undefined);
 
-    expect(paywallProps).toBeDefined();
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
     paywallProps!.onComponentInteraction({
       componentType: "button",
       componentName: "Terms Button",
@@ -413,7 +415,7 @@ describe("Purchases.presentPaywall() paywall events", () => {
     const paywallPromise = purchases.presentPaywall({ offering });
     void paywallPromise.catch(() => undefined);
 
-    expect(paywallProps).toBeDefined();
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
     paywallProps!.onComponentInteraction({
       componentType: "package",
       componentName: "Annual Package",
@@ -468,7 +470,7 @@ describe("Purchases.presentPaywall() paywall events", () => {
     const paywallPromise = purchases.presentPaywall({ offering });
     void paywallPromise.catch(() => undefined);
 
-    expect(paywallProps).toBeDefined();
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
     paywallProps!.onBackClicked();
     await expect(paywallPromise).rejects.toHaveProperty(
       "errorCode",
@@ -491,7 +493,7 @@ describe("Purchases.presentPaywall() paywall events", () => {
     const paywallPromise = purchases.presentPaywall({ offering });
     void paywallPromise.catch(() => undefined);
 
-    expect(paywallProps).toBeDefined();
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
     paywallProps!.onBackClicked();
     await expect(paywallPromise).rejects.toHaveProperty(
       "errorCode",
@@ -545,7 +547,7 @@ describe("Purchases.presentPaywall() complete workflow navigation", () => {
 
     void purchases.presentPaywall({ offering });
 
-    expect(paywallProps).toBeDefined();
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
     await paywallProps!.onCompleteWorkflowNavigate({
       url: "https://example.com/exit",
       method: "external_browser",
@@ -565,6 +567,7 @@ describe("Purchases.presentPaywall() complete workflow navigation", () => {
 
     void purchases.presentPaywall({ offering });
 
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
     await paywallProps!.onCompleteWorkflowNavigate({
       url: "https://example.com/in-app",
       method: "in_app_browser",
@@ -580,6 +583,7 @@ describe("Purchases.presentPaywall() complete workflow navigation", () => {
 
     void purchases.presentPaywall({ offering });
 
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
     await paywallProps!.onCompleteWorkflowNavigate({
       url: "myapp://complete",
       method: "deep_link",
@@ -599,6 +603,7 @@ describe("Purchases.presentPaywall() complete workflow navigation", () => {
       onCompleteWorkflowNavigate: custom,
     });
 
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
     await paywallProps!.onCompleteWorkflowNavigate({
       url: "https://example.com",
       method: "external_browser",
@@ -619,6 +624,7 @@ describe("Purchases.presentPaywall() complete workflow navigation", () => {
 
     void purchases.presentPaywall({ offering });
 
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
     await paywallProps!.onCompleteWorkflowNavigate({
       url: "javascript:void(0)",
       method: "in_app_browser",
@@ -648,7 +654,7 @@ describe("Purchases.presentPaywall() custom variables", () => {
     document.body.innerHTML = "";
   });
 
-  test("passes customVariables to the Paywall mount", () => {
+  test("passes customVariables to the Paywall mount", async () => {
     const purchases = configurePurchases();
     const offering = createOfferingWithPaywall();
     const customVariables = {
@@ -659,15 +665,17 @@ describe("Purchases.presentPaywall() custom variables", () => {
 
     void purchases.presentPaywall({ offering, customVariables });
 
+    await vi.waitFor(() => expect(mountedProps).toBeDefined());
     expect(mountedProps?.customVariables).toEqual(customVariables);
   });
 
-  test("passes undefined customVariables when not provided", () => {
+  test("passes undefined customVariables when not provided", async () => {
     const purchases = configurePurchases();
     const offering = createOfferingWithPaywall();
 
     void purchases.presentPaywall({ offering });
 
+    await vi.waitFor(() => expect(mountedProps).toBeDefined());
     expect(mountedProps?.customVariables).toBeUndefined();
   });
 });
