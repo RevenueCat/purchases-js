@@ -566,9 +566,9 @@ export class Purchases {
     }
 
     // Check for a workflow associated with this offering.
-    const workflowsResponse = await this.backend
-      .getWorkflows(this._appUserId)
-      .catch(() => null);
+    const workflowsResponse = this._flags.workflowsEndpointEnabled
+      ? await this.backend.getWorkflows(this._appUserId).catch(() => null)
+      : null;
     const matchedWorkflowSummary = workflowsResponse?.workflows.find(
       (w) => w.offering_id === offering.identifier,
     );
