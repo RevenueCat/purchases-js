@@ -569,7 +569,7 @@ export class Purchases {
     const workflowsResponse = this._flags.workflowsEndpointEnabled
       ? await this.backend.getWorkflows(this._appUserId).catch(() => null)
       : null;
-    const matchedWorkflowSummary = workflowsResponse?.workflows.find(
+    const matchedWorkflowSummary = workflowsResponse?.workflows?.find(
       (w) => w.offering_id === offering.identifier,
     );
 
@@ -918,10 +918,24 @@ export class Purchases {
       if (workflowData && navData) {
         workflowDataResponse = workflowData;
         workflowNavData = navData;
-      } else if (workflowData && !navData) {
-        Logger.warnLog(
-          "Failed to resolve workflow navigation data, falling back to standard paywall.",
-        );
+      } else {
+        if (workflowData && !navData) {
+          Logger.warnLog(
+            "Failed to resolve workflow navigation data, falling back to standard paywall.",
+          );
+        }
+        // If the workflow failed to load and there's no standard paywall to
+        // fall back to, throw rather than crashing on missing paywallComponents.
+        if (!offering.paywallComponents) {
+          throw new Error(
+            "This offering doesn't have a paywall attached and the workflow could not be loaded.",
+          );
+        }
+        if (!offering.uiConfig) {
+          throw new Error(
+            "No ui_config found for this offering, please contact support!",
+          );
+        }
       }
     }
 
