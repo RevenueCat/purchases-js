@@ -57,6 +57,7 @@ The SDK automatically detects Paddle API keys and routes to the Paddle flow. The
 export VITE_RC_NON_TAX_E2E_API_KEY = 'your e2e tests public api key'
 export VITE_RC_TAX_E2E_API_KEY = 'your e2e tests public api key'
 export VITE_RC_STRIPE_CHECKOUT_E2E_API_KEY = 'your stripe checkout e2e tests public api key'
+export VITE_RC_PADDLE_E2E_API_KEY = 'your paddle e2e tests public api key'
 ```
 
 Optional flags:
@@ -64,6 +65,9 @@ Optional flags:
 ```bash
 # Useful if Stripe rate limiting is causing flaky CI runs.
 export VITE_SKIP_STRIPE_TESTS=true
+
+# Useful to temporarily disable Paddle tests.
+export VITE_SKIP_PADDLE_TESTS=true
 ```
 
 Install playwright
