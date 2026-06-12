@@ -1020,9 +1020,6 @@ export class Purchases {
           error.errorCode === ErrorCode.UserCancelledError
         ) {
           trackPaywallEvent("paywall_cancel");
-        } else {
-          unmountPaywall();
-          reject(error);
         }
         Logger.errorLog(`${message}: ${error}`);
         notifyPurchaseError(error);
