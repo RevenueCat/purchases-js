@@ -122,33 +122,39 @@ integrationTest.describe("Paddle flow", () => {
     );
   });
 
-  integrationTest(
-    "Purchases a product with the inline checkout passing the email as query parameter",
-    async ({ page, userId, email }) => {
-      const fullName = `E2E ${userId.replace(/_/g, " ")}`;
+  (["inline", "overlay"] as const).forEach((mode) => {
+    integrationTest(
+      `Purchases a product with the ${mode} checkout passing the email as query parameter`,
+      async ({ page, userId, email }) => {
+        const fullName = `E2E ${userId.replace(/_/g, " ")}`;
 
-      page = await navigateToPaddleLandingUrl(page, userId, { email });
-      await forcePaddleCheckoutMode(page, "inline");
+        page = await navigateToPaddleLandingUrl(page, userId, { email });
+        await forcePaddleCheckoutMode(page, mode);
 
-      await expect(page.getByText("Paddle demo")).toBeVisible({
-        timeout: PADDLE_UI_STEP_TIMEOUT_MS,
-      });
+        await expect(page.getByText("Paddle demo")).toBeVisible({
+          timeout: PADDLE_UI_STEP_TIMEOUT_MS,
+        });
 
-      const packageCards = await getPackageCards(page);
-      expect(packageCards.length).toBeGreaterThan(0);
+        const packageCards = await getPackageCards(page);
+        expect(packageCards.length).toBeGreaterThan(0);
 
-      await startPurchaseFlow(packageCards[0]);
-      await confirmPaddleInlineCheckoutVisible(page);
-      await completePaddleCheckoutForm(
-        getPaddleInlineCheckoutFrame(page),
-        email,
-        fullName,
-        false,
-      );
+        await startPurchaseFlow(packageCards[0]);
 
-      await confirmSuccessPage(page);
-    },
-  );
+        let checkoutFrame;
+        if (mode === "inline") {
+          await confirmPaddleInlineCheckoutVisible(page);
+          checkoutFrame = getPaddleInlineCheckoutFrame(page);
+        } else {
+          checkoutFrame = getPaddleOverlayFrame(page);
+          await confirmPaddleCheckoutFormVisible(checkoutFrame);
+        }
+
+        await completePaddleCheckoutForm(checkoutFrame, email, fullName, false);
+
+        await confirmSuccessPage(page);
+      },
+    );
+  });
 
   (["inline", "overlay"] as const).forEach((mode) => {
     integrationTest(

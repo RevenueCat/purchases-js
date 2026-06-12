@@ -163,8 +163,11 @@ export async function completePaddleCheckoutForm(
     await emailInput.fill(email);
     await emailInput.blur();
   } else {
-    // When customerEmail is provided, Paddle omits the email field entirely
-    // (verified against the sandbox); if it does render, it must be prefilled.
+    // With customerEmail provided to purchase(), Paddle omits the email field
+    // entirely — in both presentation modes, since the email travels via
+    // /checkout/start before any presentation choice (verified against the
+    // sandbox). If Paddle's config ever renders it anyway, it must come
+    // prefilled.
     if (await emailInput.isVisible()) {
       await expect(emailInput).toHaveValue(email);
     }
