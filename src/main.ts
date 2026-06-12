@@ -737,6 +737,7 @@ export class Purchases {
         defaultLocale:
           offering.paywallComponents?.default_locale || englishLocale,
         paywallId: offering.paywallComponents?.id,
+        paywallSessionId,
       });
 
       return { ...purchaseResult, selectedPackage: pkg };
@@ -987,6 +988,7 @@ export class Purchases {
         paywallParams.customerEmail,
         onError("Error presenting express purchase button"),
         listener,
+        paywallSessionId,
       );
 
       certainHTMLTarget.innerHTML = "";
@@ -1175,6 +1177,7 @@ export class Purchases {
       defaultLocale = englishLocale,
       onButtonReady = () => {},
       walletButtonTheme,
+      paywallSessionId,
     } = params;
 
     if (htmlTarget === undefined) {
@@ -1252,6 +1255,7 @@ export class Purchases {
         onError,
         listener: params.listener,
         walletButtonTheme,
+        paywallSessionId,
       });
     });
   }
@@ -1273,6 +1277,7 @@ export class Purchases {
     customerEmail?: string,
     onError?: (error: Error) => void,
     listener?: PaywallListener,
+    paywallSessionId?: string,
   ): WalletButtonRender | undefined {
     if (!isWebBillingApiKey(this._API_KEY)) {
       return undefined;
@@ -1298,6 +1303,7 @@ export class Purchases {
         },
         listener,
         walletButtonTheme,
+        paywallSessionId,
       })
         .then((purchaseResult) => {
           onSuccess({ ...purchaseResult, selectedPackage: pkg });
@@ -1368,6 +1374,7 @@ export class Purchases {
       workflowPurchaseContext,
       attributionMetadata,
       paywallId,
+      paywallSessionId,
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
       skipSuccessPage = false,
@@ -1454,6 +1461,7 @@ export class Purchases {
           workflowPurchaseContext,
           attributionMetadata,
           paywallId,
+          paywallSessionId,
           onFinished,
           onClose,
           onError,
@@ -1569,6 +1577,7 @@ export class Purchases {
           workflowPurchaseContext,
           attributionMetadata,
           paywallId: params.paywallId,
+          paywallSessionId: params.paywallSessionId,
           onFinished,
           onClose,
           onError,

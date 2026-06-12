@@ -54,6 +54,7 @@
     onReady,
     listener,
     walletButtonTheme,
+    paywallSessionId,
   }: ExpressPurchaseButtonProps = $props();
 
   const mode: SDKEventPurchaseMode = "express_purchase_button";
@@ -297,6 +298,7 @@
           rcPackage.webBillingProduct.presentedOfferingContext,
         customerEmail,
         metadata,
+        paywallSessionId,
         locale: translator.selectedLocale,
       });
 

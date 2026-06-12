@@ -100,6 +100,14 @@ export interface PurchaseParams {
   paywallId?: string;
 
   /**
+   * The paywall session ID (one per presentPaywall() call) from which this
+   * purchase originated, if applicable. Used to mark the transaction as an
+   * RC Paywall purchase in reporting.
+   * @internal
+   */
+  paywallSessionId?: string;
+
+  /**
    * The locale to use for the purchase flow. If not specified, English will be used
    */
   selectedLocale?: string;

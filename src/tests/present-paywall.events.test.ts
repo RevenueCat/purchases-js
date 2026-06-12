@@ -189,6 +189,37 @@ describe("Purchases.presentPaywall() paywall events", () => {
     ).toEqual(["paywall_impression"]);
   });
 
+  test("threads the same paywall session id into the purchase call", async () => {
+    const purchases = configurePurchases();
+    const offering = createOfferingWithPaywall();
+    const packageId = offering.availablePackages[0]!.identifier;
+    const trackPaywallEventSpy = vi.spyOn(
+      purchases["eventsTracker"],
+      "trackPaywallEvent",
+    );
+    const purchaseSpy = vi
+      .spyOn(purchases, "purchase")
+      .mockRejectedValue(new PurchasesError(ErrorCode.UserCancelledError));
+
+    const paywallPromise = purchases.presentPaywall({ offering });
+    void paywallPromise.catch(() => undefined);
+
+    expect(paywallProps).toBeDefined();
+    paywallProps!.onPurchaseClicked(packageId);
+
+    await vi.waitFor(() => {
+      expect(purchaseSpy).toHaveBeenCalledTimes(1);
+    });
+
+    const impressionEvent = trackPaywallEventSpy.mock.calls
+      .map(([event]) => event)
+      .find((event) => event.type === "paywall_impression");
+    const purchaseParams = purchaseSpy.mock.calls[0]![0];
+
+    expect(purchaseParams.paywallSessionId).toBeDefined();
+    expect(purchaseParams.paywallSessionId).toBe(impressionEvent!.sessionId);
+  });
+
   test("passes presentedOfferingContext to paywall events", async () => {
     const purchases = configurePurchases();
     const offering = createOfferingWithPaywall();

@@ -819,6 +819,81 @@ describe("postCheckoutStart request", () => {
     expect(requestBody.paywall).toBeUndefined();
   });
 
+  test("includes paywall.session_id in request when provided", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutStart({
+      appUserId: "someAppUserId",
+      productId: "monthly",
+      presentedOfferingContext: {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      purchaseOption: { id: "base_option", priceId: "test_price_id" },
+      traceId: "test-trace-id",
+      paywallId: "test-paywall-123",
+      paywallSessionId: "test-session-456",
+    });
+
+    expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.paywall).toEqual({
+      paywall_id: "test-paywall-123",
+      session_id: "test-session-456",
+    });
+  });
+
+  test("includes paywall.session_id even without a paywall_id", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutStart({
+      appUserId: "someAppUserId",
+      productId: "monthly",
+      presentedOfferingContext: {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      purchaseOption: { id: "base_option", priceId: "test_price_id" },
+      traceId: "test-trace-id",
+      paywallSessionId: "test-session-456",
+    });
+
+    expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.paywall).toEqual({ session_id: "test-session-456" });
+  });
+
+  test("omits paywall from request when neither id provided", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutStart({
+      appUserId: "someAppUserId",
+      productId: "monthly",
+      presentedOfferingContext: {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      purchaseOption: { id: "base_option", priceId: "test_price_id" },
+      traceId: "test-trace-id",
+    });
+
+    expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.paywall).toBeUndefined();
+  });
+
   test("includes locale in request when provided", async () => {
     setCheckoutStartResponse(
       HttpResponse.json(checkoutStartResponse, { status: 200 }),

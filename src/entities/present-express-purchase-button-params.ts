@@ -76,4 +76,12 @@ export interface PresentExpressPurchaseButtonParams {
    * @default "black"
    */
   walletButtonTheme?: WalletButtonTheme;
+
+  /**
+   * The paywall session ID (one per presentPaywall() call) when this button is
+   * rendered inside a paywall. Used to mark the resulting transaction as an
+   * RC Paywall purchase in reporting.
+   * @internal
+   */
+  paywallSessionId?: string;
 }

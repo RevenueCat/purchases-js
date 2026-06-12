@@ -35,4 +35,5 @@ export interface ExpressPurchaseButtonProps {
   onReady?: (walletsAvailable: boolean) => void;
   listener?: PaywallListener;
   walletButtonTheme?: WalletButtonTheme;
+  paywallSessionId?: string;
 }
