@@ -567,7 +567,10 @@ export class Purchases {
 
     // Check for a workflow associated with this offering.
     const workflowsResponse = this._flags.workflowsEndpointEnabled
-      ? await this.backend.getWorkflows(this._appUserId).catch(() => null)
+      ? await this.backend.getWorkflows(this._appUserId).catch((e) => {
+          Logger.warnLog(`Failed to fetch workflows: ${e}`);
+          return null;
+        })
       : null;
     const matchedWorkflowSummary = workflowsResponse?.workflows?.find(
       (w) => w.offering_id === offering.identifier,
@@ -912,9 +915,7 @@ export class Purchases {
           );
           return null;
         });
-      const navData = workflowData
-        ? workflowDataToNavData(workflowData as unknown as WorkflowData)
-        : null;
+      const navData = workflowData ? workflowDataToNavData(workflowData) : null;
       if (workflowData && navData) {
         workflowDataResponse = workflowData;
         workflowNavData = navData;
@@ -1019,6 +1020,9 @@ export class Purchases {
           error.errorCode === ErrorCode.UserCancelledError
         ) {
           trackPaywallEvent("paywall_cancel");
+        } else {
+          unmountPaywall();
+          reject(error);
         }
         Logger.errorLog(`${message}: ${error}`);
         notifyPurchaseError(error);
@@ -1036,46 +1040,46 @@ export class Purchases {
       if (workflowNavData && workflowDataResponse) {
         try {
           component = mount(Workflow, {
-          target: certainHTMLTarget,
-          props: {
-            workflow: workflowNavData,
-            uiConfig: workflowDataResponse.ui_config as unknown as UIConfig,
-            selectedLocale,
-            variablesPerPackage,
-            walletButtonRender,
-            onPurchaseClicked: (selectedPackageId: string) => {
-              const pkg = offering.packagesById[selectedPackageId];
-              if (pkg) {
-                notifyPurchaseStarted(pkg);
-              }
-              startPurchaseFlow(selectedPackageId, selectedLocale)
-                .then(onSuccess)
-                .catch(onError("Error performing purchase"));
+            target: certainHTMLTarget,
+            props: {
+              workflow: workflowNavData,
+              uiConfig: workflowDataResponse.ui_config as unknown as UIConfig,
+              selectedLocale,
+              variablesPerPackage,
+              walletButtonRender,
+              onPurchaseClicked: (selectedPackageId: string) => {
+                const pkg = offering.packagesById[selectedPackageId];
+                if (pkg) {
+                  notifyPurchaseStarted(pkg);
+                }
+                startPurchaseFlow(selectedPackageId, selectedLocale)
+                  .then(onSuccess)
+                  .catch(onError("Error performing purchase"));
+              },
+              onClose: closePaywall,
+              onExitBack: () => {
+                if (paywallParams.onBack) {
+                  paywallParams.onBack(closePaywall);
+                  return;
+                }
+                closePaywall();
+              },
+              onCompleteWorkflowNavigate,
+              onNavigateToUrlClicked: navigateToUrl,
+              onRestorePurchasesClicked,
+              onVisitCustomerCenterClicked,
+              onComponentInteraction,
+              globalVariables: paywallParams.customVariables
+                ? mergeCustomVariables(
+                    paywallParams.customVariables,
+                    workflowDataResponse.ui_config as unknown as UIConfig,
+                  )
+                : undefined,
+              maxContentWidth: workflowDataResponse.content_max_width
+                ? String(workflowDataResponse.content_max_width)
+                : undefined,
             },
-            onClose: closePaywall,
-            onExitBack: () => {
-              if (paywallParams.onBack) {
-                paywallParams.onBack(closePaywall);
-                return;
-              }
-              closePaywall();
-            },
-            onCompleteWorkflowNavigate,
-            onNavigateToUrlClicked: navigateToUrl,
-            onRestorePurchasesClicked,
-            onVisitCustomerCenterClicked,
-            onComponentInteraction,
-            globalVariables: paywallParams.customVariables
-              ? mergeCustomVariables(
-                  paywallParams.customVariables,
-                  workflowDataResponse.ui_config as unknown as UIConfig,
-                )
-              : undefined,
-            maxContentWidth: workflowDataResponse.content_max_width
-              ? String(workflowDataResponse.content_max_width)
-              : undefined,
-          },
-        });
+          });
         } catch (err) {
           unmountPaywall();
           reject(err);

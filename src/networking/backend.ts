@@ -518,6 +518,12 @@ export class Backend {
       return dataOrAction.data;
     }
 
+    if (dataOrAction.action !== "use_cdn") {
+      throw new Error(
+        `Unexpected workflow action: ${(dataOrAction as WorkflowDataAction).action}`,
+      );
+    }
+
     // CDN redirect — fetch directly (no auth needed, public CDN).
     const cdnResponse = await fetch(dataOrAction.url);
     if (!cdnResponse.ok) {
