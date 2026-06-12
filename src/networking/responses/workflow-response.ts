@@ -2,12 +2,6 @@ import type { WorkflowData, WorkflowStep } from "@revenuecat/purchases-ui-js";
 
 export type { WorkflowStep };
 
-export interface WorkflowMetadataResponse {
-  api_key: string;
-  workflow_url: string;
-  workflow_id: string;
-}
-
 export interface WorkflowScreen {
   name: string;
   template_name: string;

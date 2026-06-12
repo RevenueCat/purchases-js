@@ -216,36 +216,6 @@ export class GetWorkflowDataByIdEndpoint implements Endpoint {
   }
 }
 
-const WORKFLOWS_PATH = "/workflows/v1";
-
-export class GetWorkflowMetadataEndpoint implements Endpoint {
-  method: HttpMethodType = "GET";
-  name: string = "getWorkflowMetadata";
-  private readonly workflowLinkId: string;
-
-  constructor(workflowLinkId: string) {
-    this.workflowLinkId = workflowLinkId;
-  }
-
-  urlPath(): string {
-    return `${WORKFLOWS_PATH}/workflow/${encodeURIComponent(this.workflowLinkId)}`;
-  }
-}
-
-export class GetWorkflowDataEndpoint implements Endpoint {
-  method: HttpMethodType = "GET";
-  name: string = "getWorkflowDataFromCdn";
-  private readonly path: string;
-
-  constructor(path: string) {
-    this.path = path;
-  }
-
-  urlPath(): string {
-    return this.path;
-  }
-}
-
 export type SupportedEndpoint =
   | GetOfferingsEndpoint
   | PurchaseEndpoint
@@ -256,6 +226,4 @@ export type SupportedEndpoint =
   | SetAttributesEndpoint
   | PostReceiptEndpoint
   | GetVirtualCurrenciesEndpoint
-  | GetWorkflowDataByIdEndpoint
-  | GetWorkflowMetadataEndpoint
-  | GetWorkflowDataEndpoint;
+  | GetWorkflowDataByIdEndpoint;
