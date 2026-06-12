@@ -60,8 +60,6 @@ export VITE_RC_STRIPE_CHECKOUT_E2E_API_KEY = 'your stripe checkout e2e tests pub
 export VITE_RC_PADDLE_E2E_API_KEY = 'your paddle e2e tests public api key'
 ```
 
-The Paddle E2E key is the public API key of the [Paddle E2E project](https://app.revenuecat.com/projects/e85e12d2/web/app3a34a3bf1b) (log in with the devservices@ credentials from 1Password).
-
 Optional flags:
 
 ```bash
