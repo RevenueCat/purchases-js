@@ -3,7 +3,11 @@ import { type Page, type Locator, expect } from "@playwright/test";
 import type { StoreLoadTime } from "@revenuecat/purchases-js";
 import { BASE_URL, NON_TAX_TEST_API_KEY } from "./fixtures";
 import type { integrationTest } from "./integration-test";
-import { ALLOW_PAYWALLS_TESTS, SKIP_STRIPE_TESTS } from "./integration-test";
+import {
+  ALLOW_PAYWALLS_TESTS,
+  SKIP_PADDLE_TESTS,
+  SKIP_STRIPE_TESTS,
+} from "./integration-test";
 
 export type RouteFulfillOptions = {
   body?: string | Buffer | undefined;
@@ -34,6 +38,13 @@ export const skipStripeTestsIfDisabled = (test: typeof integrationTest) => {
   test.skip(
     SKIP_STRIPE_TESTS,
     "Stripe tests are disabled. To enable them, unset VITE_SKIP_STRIPE_TESTS or set it to false.",
+  );
+};
+
+export const skipPaddleTestsIfDisabled = (test: typeof integrationTest) => {
+  test.skip(
+    SKIP_PADDLE_TESTS,
+    "Paddle tests are disabled. To enable them, unset VITE_SKIP_PADDLE_TESTS or set it to false.",
   );
 };
 
@@ -246,7 +257,6 @@ export async function enterCreditCardDetails(
   // This is a bug that we are trying to workaround, however we know that setting the country/postal code as last
   // might not trigger the update event.
   // Also changing it might not trigger it.
-
   await stripeFrame.getByLabel("Country").selectOption(countryCode);
 
   if (postalCode !== undefined) {
@@ -262,7 +272,17 @@ export async function enterSecurityCode(page: Page, code: string) {
   await stripeFrame.getByLabel("Security Code").fill(code);
 }
 
-export async function clickPayButton(page: Page) {
+export async function clickPayButton(
+  page: Page,
+  waitForAnimations: number = 3000,
+) {
+  // The postal code is not shown at the beginning, however when the country is selected
+  // the postal code is shown after a short delay and takes the position of the purchase button.
+  // this causes the following step to click on the zipcode again instead of the purchase button since
+  // it gets moved between the moment in which the element is found and when it's clicked in the test.
+  // The following wait makes sure that all animations are completed before proceeding with the test.
+  await page.waitForTimeout(waitForAnimations);
+
   const button = page.locator(
     "button[data-testid='PayButton']:not([disabled])",
   );

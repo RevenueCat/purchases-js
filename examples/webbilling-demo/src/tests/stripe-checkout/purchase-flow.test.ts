@@ -2,7 +2,6 @@ import { expect } from "@playwright/test";
 import { STRIPE_CHECKOUT_TEST_API_KEY } from "../helpers/fixtures";
 import { integrationTest } from "../helpers/integration-test";
 import {
-  confirmPaymentComplete,
   confirmPaymentError,
   getPackageCards,
   skipPaywallsTestIfDisabled,
@@ -10,12 +9,17 @@ import {
   startPurchaseFlow,
 } from "../helpers/test-helpers";
 import {
+  confirmStripeCheckoutEmailPrefilled,
   completeStripeCheckoutEmbeddedForm,
+  confirmPaymentCompleteOrSkipOnCaptcha,
   navigateToStripeCheckoutLandingUrl,
   STRIPE_CHECKOUT_TEST_TIMEOUT_MS,
   STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
 } from "./test-helpers";
 
+// Stripe challenges checkouts from CI cloud/datacenter IPs with a CAPTCHA a
+// test cannot solve (https://docs.stripe.com/automated-testing), so on CI the
+// full-completion tests run the whole flow and skip on CAPTCHA rather than fail.
 integrationTest.describe("Stripe Checkout flow", () => {
   integrationTest.describe.configure({
     timeout: STRIPE_CHECKOUT_TEST_TIMEOUT_MS,
@@ -54,7 +58,11 @@ integrationTest.describe("Stripe Checkout flow", () => {
 
       await startPurchaseFlow(packageCards[0]);
       await completeStripeCheckoutEmbeddedForm(page, email, fullName);
-      await confirmPaymentComplete(page, STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS);
+      await confirmPaymentCompleteOrSkipOnCaptcha(
+        integrationTest,
+        page,
+        STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+      );
 
       const continueButton = page.getByRole("button", { name: /continue/i });
       await expect(continueButton).toBeVisible({
@@ -92,7 +100,11 @@ integrationTest.describe("Stripe Checkout flow", () => {
 
       await startPurchaseFlow(packageCards[0]);
       await completeStripeCheckoutEmbeddedForm(page, email, fullName, false);
-      await confirmPaymentComplete(page, STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS);
+      await confirmPaymentCompleteOrSkipOnCaptcha(
+        integrationTest,
+        page,
+        STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+      );
 
       const continueButton = page.getByRole("button", { name: /continue/i });
       await expect(continueButton).toBeVisible({
@@ -184,8 +196,12 @@ integrationTest.describe("Stripe Checkout flow", () => {
       });
       await purchaseButton.click();
 
-      await completeStripeCheckoutEmbeddedForm(page, email, fullName);
-      await confirmPaymentComplete(page, STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS);
+      await completeStripeCheckoutEmbeddedForm(page, email, fullName, false);
+      await confirmPaymentCompleteOrSkipOnCaptcha(
+        integrationTest,
+        page,
+        STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+      );
 
       const continueButton = page.getByRole("button", { name: /continue/i });
       await expect(continueButton).toBeVisible({
@@ -202,6 +218,39 @@ integrationTest.describe("Stripe Checkout flow", () => {
       await expect(
         page.getByText("Enjoy your premium experience."),
       ).toBeVisible({ timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS });
+    },
+  );
+
+  integrationTest(
+    "Prefills email from RC Paywall email query parameter with Stripe Checkout",
+    async ({ page, userId, email }) => {
+      skipPaywallsTestIfDisabled(integrationTest);
+
+      page = await navigateToStripeCheckoutLandingUrl(page, userId, {
+        useRcPaywall: true,
+        lang: "en",
+        email,
+      });
+
+      await expect(page.getByText("E2E Tests for Purchases JS")).toBeVisible({
+        timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+      });
+      await expect(
+        page.getByText(
+          "Testing current Offering is picked when no offering is passed",
+        ),
+      ).toBeVisible({ timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS });
+
+      const monthlyPackage = page.getByText("monthly", { exact: true });
+      await monthlyPackage.click();
+
+      const purchaseButton = page.getByText(/Subscribe/i);
+      await expect(purchaseButton).toBeVisible({
+        timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+      });
+      await purchaseButton.click();
+
+      await confirmStripeCheckoutEmailPrefilled(page, email);
     },
   );
 });

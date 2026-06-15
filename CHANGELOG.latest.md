@@ -1,3 +1,6 @@
 ## RevenueCat SDK
 ### 🐞 Bugfixes
-* Bump purchases-ui-js to 4.7.2 (#902) via Monika Mateska (@MonikaMateska)
+* feat: expose Purchases.buildInfoPerPackage for workflows (#921) via Franco Correa (@francocorreasosa)
+
+### 🔄 Other Changes
+* Adopt generated error codes (#915) via Álvaro Brey (@AlvaroBrey)
