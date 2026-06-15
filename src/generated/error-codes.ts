@@ -67,7 +67,7 @@ export function getPublicMessage(errorCode: ErrorCode): string {
     case ErrorCode.UnexpectedBackendResponseError:
       return "Received unexpected response from the backend.";
     case ErrorCode.InvalidAppUserIdError:
-      return "The app user id is not valid.";
+      return "The app user ID is not valid.";
     case ErrorCode.OperationAlreadyInProgressError:
       return "The operation is already in progress.";
     case ErrorCode.UnknownBackendError:
