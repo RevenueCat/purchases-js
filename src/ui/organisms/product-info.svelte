@@ -12,6 +12,11 @@
   import PricingSummary from "../molecules/pricing-summary.svelte";
   import PricingSummaryNonSubscription from "../molecules/pricing-summary-non-subscription.svelte";
   import { type PriceBreakdown } from "../ui-types";
+  import { resolveDiscountBreakdownForPurchaseOption } from "../../helpers/discount-breakdown-helper";
+  import { getContext } from "svelte";
+  import { translatorContextKey } from "../localization/constants";
+  import { type Translator } from "../localization/translator";
+  import { type Writable } from "svelte/store";
 
   export let productDetails: Product;
   export let purchaseOption: PurchaseOption;
@@ -38,7 +43,8 @@
   let trialPhase: PricingPhase | null;
   let discountPhase: DiscountPhase | null;
   let introPricePhase: PricingPhase | null;
-  let promotionalPricePhase: PricingPhase | DiscountPhase | null;
+
+  const translator: Writable<Translator> = getContext(translatorContextKey);
 
   $: isSubscription = productDetails.productType === "subscription";
   $: subscriptionOption = isSubscription
@@ -66,8 +72,12 @@
   $: discountPhase =
     subscriptionOption?.discount ?? nonSubscriptionOption?.discount ?? null;
   $: introPricePhase = subscriptionOption?.introPrice ?? null;
-  $: promotionalPricePhase =
-    discountPhase ?? subscriptionOption?.introPrice ?? null;
+  $: resolvedDiscount = resolveDiscountBreakdownForPurchaseOption({
+    priceBreakdown,
+    productDetails,
+    purchaseOption,
+    translator: $translator,
+  });
 </script>
 
 <div class="rcb-pricing-info">
@@ -89,12 +99,10 @@
     {priceBreakdown}
     {trialPhase}
     {basePhase}
-    {promotionalPricePhase}
-    hasDiscount={!!discountPhase}
+    {resolvedDiscount}
     {showDiscountCodeField}
     {discountCode}
     {appliedDiscountCode}
-    appliedDiscountPercentage={discountPhase?.percentage ?? null}
     {discountCodeError}
     {isUpdatingDiscountCode}
     {isDiscountCodeControlsEnabled}

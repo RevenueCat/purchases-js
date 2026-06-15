@@ -1,12 +1,15 @@
-import type {
-  Package,
-  Product,
-  PurchaseOption,
-  SubscriptionOption,
+import {
+  ProductType,
+  type NonSubscriptionOption,
+  type Package,
+  type Product,
+  type PurchaseOption,
+  type SubscriptionOption,
 } from "../../entities/offerings";
 import type { Translator } from "../localization/translator";
 import type { GatewayParams } from "../../networking/responses/stripe-elements";
 import { StripeService } from "../../stripe/stripe-service";
+import { resolveDiscountBreakdownForPurchaseOption } from "../../helpers/discount-breakdown-helper";
 import type { StripeElements } from "@stripe/stripe-js";
 import type { StripeElementsConfiguration } from "../../networking/responses/stripe-elements";
 import { DEFAULT_FONT_FAMILY } from "../theme/text";
@@ -20,28 +23,38 @@ import { getNullableWindow } from "../../helpers/browser-globals";
 import type { BrandingInfoResponse } from "../../networking/responses/branding-response";
 import type { WalletButtonTheme } from "@revenuecat/purchases-ui-js";
 
-const getSubscriptionOptionForExpressCheckout = (
+const getCheckoutPurchaseOption = (
   productDetails: Product,
-  purchaseOptionId: string,
-): SubscriptionOption => {
-  const subscriptionOption =
-    productDetails.subscriptionOptions?.[purchaseOptionId] ||
-    productDetails.defaultSubscriptionOption;
+  purchaseOption: PurchaseOption,
+): SubscriptionOption | NonSubscriptionOption => {
+  if (productDetails.productType === ProductType.Subscription) {
+    const subscriptionOption =
+      productDetails.subscriptionOptions?.[purchaseOption.id] ||
+      productDetails.defaultSubscriptionOption;
 
-  if (!subscriptionOption) {
+    if (!subscriptionOption) {
+      throw new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase);
+    }
+
+    return subscriptionOption;
+  }
+
+  const nonSubscriptionOption = productDetails.defaultNonSubscriptionOption;
+
+  if (!nonSubscriptionOption) {
     throw new PurchaseFlowError(PurchaseFlowErrorCode.ErrorSettingUpPurchase);
   }
 
-  return subscriptionOption;
+  return nonSubscriptionOption;
 };
 
 const buildExpressCheckoutPriceBreakdown = (
   productDetails: Product,
-  subscriptionOption: SubscriptionOption,
+  purchaseOption: SubscriptionOption | NonSubscriptionOption,
 ): PriceBreakdown => {
   const initialPrice = getInitialPriceFromPurchaseOption(
     productDetails,
-    subscriptionOption,
+    purchaseOption,
   );
 
   // Design decision: We will always show the price before taxes in the
@@ -60,21 +73,6 @@ const buildExpressCheckoutPriceBreakdown = (
   };
 };
 
-const resolveExpressCheckoutPricingDetails = (
-  productDetails: Product,
-  purchaseOptionId: string,
-) => {
-  const subscriptionOption = getSubscriptionOptionForExpressCheckout(
-    productDetails,
-    purchaseOptionId,
-  );
-  const priceBreakdown = buildExpressCheckoutPriceBreakdown(
-    productDetails,
-    subscriptionOption,
-  );
-  return { subscriptionOption, priceBreakdown };
-};
-
 export const toExpressPurchaseOptions = (
   rcPackage: Package,
   purchaseOption: PurchaseOption,
@@ -83,19 +81,41 @@ export const toExpressPurchaseOptions = (
   walletButtonTheme?: WalletButtonTheme,
 ) => {
   const productDetails: Product = rcPackage.webBillingProduct;
-  const { subscriptionOption, priceBreakdown } =
-    resolveExpressCheckoutPricingDetails(productDetails, purchaseOption.id);
+  const checkoutPurchaseOption = getCheckoutPurchaseOption(
+    productDetails,
+    purchaseOption,
+  );
+  const priceBreakdown = buildExpressCheckoutPriceBreakdown(
+    productDetails,
+    checkoutPurchaseOption,
+  );
+  const resolvedDiscount = resolveDiscountBreakdownForPurchaseOption({
+    priceBreakdown,
+    productDetails,
+    purchaseOption: checkoutPurchaseOption,
+    translator,
+  });
 
-  const options =
-    StripeService.buildStripeExpressCheckoutOptionsForSubscription(
-      productDetails,
-      priceBreakdown,
-      subscriptionOption,
-      translator,
-      managementUrl,
-      2,
-      1,
-    );
+  const isSubscription =
+    productDetails.productType === ProductType.Subscription;
+  const options = isSubscription
+    ? StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+        productDetails,
+        priceBreakdown,
+        checkoutPurchaseOption as SubscriptionOption,
+        translator,
+        managementUrl,
+        resolvedDiscount,
+        2,
+        1,
+      )
+    : StripeService.buildStripeExpressCheckoutOptionsForNonSubscription(
+        productDetails,
+        priceBreakdown,
+        resolvedDiscount,
+        2,
+        1,
+      );
 
   if (walletButtonTheme) {
     options.buttonTheme = {

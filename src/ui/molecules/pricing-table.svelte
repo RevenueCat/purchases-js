@@ -5,31 +5,22 @@
   import { translatorContextKey } from "../localization/constants";
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import { type PriceBreakdown } from "../ui-types";
-  import {
-    getNextRenewalDate,
-    parseISODuration,
-    type Period,
-  } from "../../helpers/duration-helper";
-  import {
-    type PricingPhase,
-    type DiscountPhase,
-  } from "../../entities/offerings";
+  import { getNextRenewalDate } from "../../helpers/duration-helper";
+  import { type PricingPhase } from "../../entities/offerings";
+  import type { ResolvedDiscountBreakdown } from "../../helpers/discount-breakdown-helper";
   import DiscountInput from "./discount-input.svelte";
   import PricingDropdown from "./pricing-dropdown.svelte";
   import Skeleton from "../atoms/skeleton.svelte";
   import Typography from "../atoms/typography.svelte";
-  import { getDurationInDays } from "../../helpers/paywall-period-helpers";
 
   interface Props {
     priceBreakdown: PriceBreakdown;
     trialPhase: PricingPhase | null;
     basePhase: PricingPhase | null;
-    promotionalPricePhase: PricingPhase | DiscountPhase | null;
-    hasDiscount: boolean;
+    resolvedDiscount: ResolvedDiscountBreakdown | null;
     showDiscountCodeField: boolean;
     discountCode: string;
     appliedDiscountCode: string | null;
-    appliedDiscountPercentage: number | null;
     discountCodeError: string | null;
     isUpdatingDiscountCode: boolean;
     isDiscountCodeControlsEnabled: boolean;
@@ -42,12 +33,10 @@
     priceBreakdown,
     trialPhase,
     basePhase,
-    promotionalPricePhase,
-    hasDiscount,
+    resolvedDiscount,
     showDiscountCodeField,
     discountCode,
     appliedDiscountCode,
-    appliedDiscountPercentage,
     discountCodeError,
     isUpdatingDiscountCode,
     isDiscountCodeControlsEnabled,
@@ -63,9 +52,6 @@
   );
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
-  const appliedDiscount = $derived(
-    priceBreakdown.appliedDiscounts?.[0] ?? null,
-  );
 
   const isTaxCalculationPending = $derived(
     priceBreakdown.taxCalculationStatus === "loading" ||
@@ -89,82 +75,19 @@
       priceBreakdown.totalAmountInMicros,
   );
 
-  const discountAmount = $derived.by(() => {
-    if (appliedDiscount) {
-      return appliedDiscount.discountedAmountInMicros;
-    }
-    if (!hasDiscount) return 0;
-
-    const base = basePhase?.price?.amountMicros;
-    const promo = promotionalPricePhase?.price?.amountMicros;
-    if (base == null || promo == null) return 0;
-
-    return base - promo;
-  });
+  const discountAmount = $derived(
+    resolvedDiscount?.discountAmountInMicros ?? 0,
+  );
+  const discountSuffix = $derived(resolvedDiscount?.suffix ?? null);
 
   const totalDueToday = $derived(
     trialEndDate ? 0 : priceBreakdown.totalAmountInMicros,
   );
-
-  const getTimeWindowDiscountSuffix = (
-    percentage: number,
-    discountDuration: Period | null,
-  ): string => {
-    const basePeriod = basePhase?.period;
-    if (!basePeriod || !discountDuration) {
-      return `${percentage}% off`;
-    }
-
-    const billingCycleDays = getDurationInDays(basePeriod);
-    const discountWindowDays = getDurationInDays(discountDuration);
-    if (billingCycleDays <= 0 || discountWindowDays <= billingCycleDays) {
-      return `${percentage}% off`;
-    }
-
-    const translatedPeriod = $translator.translatePeriod(
-      discountDuration.number,
-      discountDuration.unit,
-    );
-    return `${percentage}% off for ${translatedPeriod}`;
-  };
-
-  const discountSuffix = $derived.by(() => {
-    const percentage = appliedDiscount?.percentage ?? appliedDiscountPercentage;
-    if (percentage == null) return null;
-
-    if (
-      appliedDiscount?.durationMode === "time_window" &&
-      appliedDiscount.timeWindow
-    ) {
-      return getTimeWindowDiscountSuffix(
-        percentage,
-        parseISODuration(appliedDiscount.timeWindow),
-      );
-    }
-
-    if (
-      !promotionalPricePhase ||
-      !("durationMode" in promotionalPricePhase) ||
-      promotionalPricePhase.durationMode !== "time_window"
-    ) {
-      return `${percentage}% off`;
-    }
-
-    const discountPeriod = promotionalPricePhase.period;
-    if (!discountPeriod || promotionalPricePhase.cycleCount <= 0) {
-      return `${percentage}% off`;
-    }
-
-    return getTimeWindowDiscountSuffix(percentage, {
-      number: discountPeriod.number * promotionalPricePhase.cycleCount,
-      unit: discountPeriod.unit,
-    });
-  });
 </script>
 
 {#snippet pricingTable()}
   <div class="rcb-pricing-table">
-    {#if (hasDiscount || appliedDiscount) && !showDiscountCodeField}
+    {#if resolvedDiscount && !showDiscountCodeField}
       <div class="rcb-pricing-table-row">
         <div class="rcb-pricing-table-header">
           <div class="rcb-pricing-table-value">
@@ -186,13 +109,9 @@
             <Typography size="body-small">
               {$translator.translate(
                 LocalizationKeys.PricingTableDiscount,
-              )}{appliedDiscount?.displayName
-                ? `: ${appliedDiscount.displayName}`
-                : promotionalPricePhase &&
-                    "name" in promotionalPricePhase &&
-                    promotionalPricePhase.name
-                  ? `: ${promotionalPricePhase.name}`
-                  : ""}{discountSuffix ? ` (${discountSuffix})` : ""}
+              )}{resolvedDiscount.displayName
+                ? `: ${resolvedDiscount.displayName}`
+                : ""}{discountSuffix ? ` (${discountSuffix})` : ""}
             </Typography>
           </div>
         </div>
