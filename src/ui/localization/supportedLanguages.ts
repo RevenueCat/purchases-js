@@ -26,6 +26,7 @@ import pt from "./locale/pt.json";
 import ro from "./locale/ro.json";
 import ru from "./locale/ru.json";
 import sk from "./locale/sk.json";
+import sl from "./locale/sl.json";
 import sv from "./locale/sv.json";
 import th from "./locale/th.json";
 import tr from "./locale/tr.json";
@@ -170,6 +171,7 @@ export const supportedLanguages: Record<
   ro,
   ru,
   sk,
+  sl,
   sv,
   th,
   tr,
