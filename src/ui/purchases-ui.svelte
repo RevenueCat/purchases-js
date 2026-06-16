@@ -63,6 +63,7 @@
     workflowPurchaseContext?: WorkflowPurchaseContext;
     attributionMetadata?: AttributionMetadata;
     paywallId?: string;
+    paywallSessionId?: string;
     onFinished: (operationResult: OperationSessionSuccessfulResult) => void;
     onError: (error: PurchaseFlowError) => void;
     onClose: (() => void) | undefined;
@@ -90,6 +91,7 @@
     workflowPurchaseContext,
     attributionMetadata,
     paywallId,
+    paywallSessionId,
     onFinished,
     onError,
     onClose,
@@ -195,6 +197,7 @@
         workflowPurchaseContext,
         attributionMetadata,
         paywallId,
+        paywallSessionId,
         locale: selectedLocale,
       })
       .then((result) => ({ result, emailToUse: nextEmail }))
@@ -215,6 +218,7 @@
             workflowPurchaseContext,
             attributionMetadata,
             paywallId,
+            paywallSessionId,
             locale: selectedLocale,
           })
           .then((result) => ({ result, emailToUse: undefined }));

@@ -124,6 +124,7 @@ interface CheckoutStartParams {
   presentedOfferingContext: PresentedOfferingContext;
   workflowPurchaseContext?: WorkflowPurchaseContext;
   paywallId?: string;
+  paywallSessionId?: string;
 
   // Customer data
   customerEmail?: string;
@@ -248,6 +249,7 @@ export class PurchaseOperationHelper {
     presentedOfferingContext,
     workflowPurchaseContext,
     paywallId,
+    paywallSessionId,
     customerEmail,
     metadata,
     locale,
@@ -266,6 +268,7 @@ export class PurchaseOperationHelper {
           traceId,
           presentedStepId,
           paywallId,
+          paywallSessionId,
           customerEmail,
           metadata,
           locale,
