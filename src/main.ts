@@ -759,6 +759,7 @@ export class Purchases {
         defaultLocale:
           offering.paywallComponents?.default_locale ?? englishLocale,
         paywallId: offering.paywallComponents?.id,
+        paywallSessionId,
       });
 
       return { ...purchaseResult, selectedPackage: pkg };
@@ -1472,6 +1473,7 @@ export class Purchases {
       workflowPurchaseContext,
       attributionMetadata,
       paywallId,
+      paywallSessionId,
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
       skipSuccessPage = false,
@@ -1558,6 +1560,7 @@ export class Purchases {
           workflowPurchaseContext,
           attributionMetadata,
           paywallId,
+          paywallSessionId,
           onFinished,
           onClose,
           onError,
@@ -1673,6 +1676,7 @@ export class Purchases {
           workflowPurchaseContext,
           attributionMetadata,
           paywallId: params.paywallId,
+          paywallSessionId: params.paywallSessionId,
           onFinished,
           onClose,
           onError,
