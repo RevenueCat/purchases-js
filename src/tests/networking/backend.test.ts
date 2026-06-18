@@ -819,7 +819,7 @@ describe("postCheckoutStart request", () => {
     expect(requestBody.paywall).toBeUndefined();
   });
 
-  test("includes paywall.session_id in request when provided", async () => {
+  test("includes paywall.paywall_session_id in request when provided", async () => {
     setCheckoutStartResponse(
       HttpResponse.json(checkoutStartResponse, { status: 200 }),
     );
@@ -843,11 +843,11 @@ describe("postCheckoutStart request", () => {
     const requestBody = await request.json();
     expect(requestBody.paywall).toEqual({
       paywall_id: "test-paywall-123",
-      session_id: "test-session-456",
+      paywall_session_id: "test-session-456",
     });
   });
 
-  test("includes paywall.session_id even without a paywall_id", async () => {
+  test("includes paywall.paywall_session_id even without a paywall_id", async () => {
     setCheckoutStartResponse(
       HttpResponse.json(checkoutStartResponse, { status: 200 }),
     );
@@ -868,7 +868,9 @@ describe("postCheckoutStart request", () => {
     expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
     const request = purchaseMethodAPIMock.mock.calls[0][0].request;
     const requestBody = await request.json();
-    expect(requestBody.paywall).toEqual({ session_id: "test-session-456" });
+    expect(requestBody.paywall).toEqual({
+      paywall_session_id: "test-session-456",
+    });
   });
 
   test("omits paywall from request when neither id provided", async () => {

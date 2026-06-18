@@ -225,7 +225,7 @@ export class Backend {
       locale?: string;
       paywall?: {
         paywall_id?: string;
-        session_id?: string;
+        paywall_session_id?: string;
       };
       attribution_metadata?: AttributionMetadata;
     };
@@ -272,7 +272,7 @@ export class Backend {
     if (paywallId || paywallSessionId) {
       requestBody.paywall = {
         ...(paywallId ? { paywall_id: paywallId } : {}),
-        ...(paywallSessionId ? { session_id: paywallSessionId } : {}),
+        ...(paywallSessionId ? { paywall_session_id: paywallSessionId } : {}),
       };
     }
 
