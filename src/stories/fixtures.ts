@@ -561,6 +561,7 @@ export const checkoutStartResponse: WebBillingCheckoutStartResponse = {
     stripe_account_id: accountId,
     elements_configuration: stripeElementsConfiguration,
   },
+  whop_gateway_params: null,
   management_url: "https://manage.revenuecat.com/test_test_test",
   paddle_billing_params: null,
 };

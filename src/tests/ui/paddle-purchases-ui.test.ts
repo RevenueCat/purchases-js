@@ -35,6 +35,7 @@ const paddleCheckoutStartResponse: PaddleCheckoutStartResponse = {
   operation_session_id: "test-operation-session-id",
   gateway_params: null,
   management_url: null,
+  whop_gateway_params: null,
   paddle_billing_params: {
     client_side_token: "test-client-side-token",
     is_sandbox: true,

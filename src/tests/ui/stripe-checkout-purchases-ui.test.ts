@@ -32,6 +32,7 @@ const checkoutStartResponseWithoutStripeParams: WebBillingCheckoutStartResponse 
       },
     },
     management_url: "https://test-management-url.revenuecat.com",
+    whop_gateway_params: null,
     paddle_billing_params: null,
   };
 
@@ -55,6 +56,7 @@ const createCheckoutStartResponseWithStripeParams = (
     },
   },
   management_url: "https://test-management-url.revenuecat.com",
+  whop_gateway_params: null,
   paddle_billing_params: null,
 });
 
