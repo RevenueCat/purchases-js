@@ -33,6 +33,7 @@
   import { writable } from "svelte/store";
   import type { BrandingAppearance } from "../entities/branding";
   import { type GatewayParams } from "../networking/responses/stripe-elements";
+  import type { WhopGatewayParams } from "../networking/responses/checkout-start-response";
   import {
     CheckoutPricingFailedReason,
     type CheckoutPricingResponse,
@@ -110,6 +111,7 @@
   let currentPage: CurrentPage = $state("payment-entry-loading");
   let operationResult: OperationSessionSuccessfulResult | null = $state(null);
   let gatewayParams: GatewayParams = $state({});
+  let whopGatewayParams: WhopGatewayParams | null = $state(null);
   let currentPriceBreakdown: PriceBreakdown | undefined = $state(undefined);
   let managementUrl: string | null = $state(null);
 
@@ -267,7 +269,8 @@
       );
       lastError = null;
       email = emailToUse;
-      gatewayParams = result.gateway_params;
+      gatewayParams = result.gateway_params ?? {};
+      whopGatewayParams = result.whop_gateway_params;
       managementUrl = result.management_url;
 
       if (discountCode) {
@@ -418,6 +421,7 @@
   {purchaseOptionToUse}
   {lastError}
   {gatewayParams}
+  {whopGatewayParams}
   {managementUrl}
   {purchaseOperationHelper}
   {isInElement}

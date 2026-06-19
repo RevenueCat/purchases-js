@@ -59,6 +59,7 @@
     customerEmail={null}
     lastError={null}
     gatewayParams={{}}
+    whopGatewayParams={null}
     purchaseOperationHelper={null as unknown as PurchaseOperationHelper}
     defaultPriceBreakdown={getPriceBreakdownTaxDisabled(subscriptionOption)}
     isInElement={context.globals.viewport === "embedded"}

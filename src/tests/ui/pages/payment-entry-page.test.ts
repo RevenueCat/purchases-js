@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/svelte";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import PaymentEntryPage from "../../../ui/pages/payment-entry-page.svelte";
+import StripePaymentEntryPage from "../../../ui/pages/stripe-payment-entry-page.svelte";
 import {
   brandingInfo,
   checkoutPricingResponse,
@@ -90,7 +90,7 @@ const gatewayParams: GatewayParams = {
   elements_configuration: stripeElementsConfiguration,
 };
 
-const basicProps: ComponentProps<PaymentEntryPage> = {
+const basicProps: ComponentProps<StripePaymentEntryPage> = {
   gatewayParams: gatewayParams,
   processing: false,
   productDetails: rcPackage.webBillingProduct,
@@ -127,7 +127,7 @@ describe("PurchasesUI", () => {
   });
 
   test("tracks the CheckoutPaymentFormImpression event when the payment entry is displayed and form loaded", async () => {
-    render(PaymentEntryPage, {
+    render(StripePaymentEntryPage, {
       props: { ...basicProps },
       context: defaultContext,
     });
@@ -184,7 +184,7 @@ describe("PurchasesUI", () => {
       linkAuthenticationElement,
     );
 
-    render(PaymentEntryPage, {
+    render(StripePaymentEntryPage, {
       props: { ...basicProps },
       context: defaultContext,
     });
@@ -209,7 +209,7 @@ describe("PurchasesUI", () => {
       new Error("Failed to initialize payment form"),
     );
 
-    render(PaymentEntryPage, {
+    render(StripePaymentEntryPage, {
       props: { ...basicProps },
       context: defaultContext,
     });
@@ -269,7 +269,7 @@ describe("PurchasesUI", () => {
       linkAuthenticationElement,
     );
 
-    render(PaymentEntryPage, {
+    render(StripePaymentEntryPage, {
       props: { ...basicProps },
       context: defaultContext,
     });
@@ -329,7 +329,7 @@ describe("PurchasesUI", () => {
       paymentElement,
     );
 
-    render(PaymentEntryPage, {
+    render(StripePaymentEntryPage, {
       props: { ...basicProps },
       context: defaultContext,
     });
@@ -395,7 +395,7 @@ describe("PurchasesUI", () => {
       paymentElement,
     );
 
-    render(PaymentEntryPage, {
+    render(StripePaymentEntryPage, {
       props: { ...basicProps },
       context: defaultContext,
     });
@@ -419,7 +419,7 @@ describe("PurchasesUI", () => {
   });
 
   test("tracks the CheckoutPaymentTaxCalculation event when the tax calculation on page load when enabled", async () => {
-    render(PaymentEntryPage, {
+    render(StripePaymentEntryPage, {
       props: {
         ...basicProps,
         brandingInfo: {

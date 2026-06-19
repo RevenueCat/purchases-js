@@ -300,6 +300,16 @@
         locale: translator.selectedLocale,
       });
 
+      if (
+        !checkoutStartResult.gateway_params ||
+        checkoutStartResult.whop_gateway_params
+      ) {
+        throw new PurchaseFlowError(
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+          "Express Purchase is not supported for this payment gateway.",
+        );
+      }
+
       const managementUrl = checkoutStartResult.management_url;
 
       if (!elements) {

@@ -21,11 +21,14 @@
     getPriceBreakdownTaxDisabled,
   } from "../helpers/get-price-breakdown";
   import { PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
+  import type { WhopGatewayParams } from "../../networking/responses/checkout-start-response";
 
   const defaultArgs = {
     productDetails: product,
     purchaseOptionToUse: subscriptionOption,
     purchaseOption: subscriptionOption,
+    gatewayParams: checkoutStartResponse.gateway_params,
+    whopGatewayParams: null as WhopGatewayParams | null,
     forceEnableWalletMethods: false,
     onContinue: () => {},
   };
@@ -73,7 +76,8 @@
     closeWithError={() => {}}
     customerEmail={args.customerEmail}
     lastError={null}
-    gatewayParams={checkoutStartResponse.gateway_params}
+    gatewayParams={args.gatewayParams}
+    whopGatewayParams={args.whopGatewayParams}
     {purchaseOperationHelper}
     defaultPriceBreakdown={args.defaultPriceBreakdown ??
       (args.withTaxes
@@ -265,6 +269,25 @@
   parameters={{
     chromatic: {
       delay: 1000,
+    },
+  }}
+/>
+
+<Story
+  name="With Whop Gateway"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    gatewayParams: null,
+    whopGatewayParams: {
+      checkout_session_id: "ch_test_123",
+      environment: "sandbox",
+      plan_id: "plan_test_123",
+    },
+  }}
+  parameters={{
+    chromatic: {
+      disableSnapshot: true,
     },
   }}
 />
