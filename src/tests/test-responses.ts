@@ -907,6 +907,7 @@ export const checkoutStartResponse: CheckoutStartResponse = {
     },
   },
   stripe_billing_params: null,
+  whop_gateway_params: null,
   management_url: "https://test-management-url.revenuecat.com",
   paddle_billing_params: null,
 };

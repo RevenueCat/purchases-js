@@ -7,18 +7,39 @@ export interface StripeBillingParams {
   stripe_account_id: string;
 }
 
-export interface WebBillingCheckoutStartResponse {
+export interface WhopGatewayParams {
+  checkout_session_id: string;
+  environment: string;
+  plan_id: string | null;
+}
+
+export interface StripeWebBillingCheckoutStartResponse {
   operation_session_id: string;
   gateway_params: GatewayParams;
   stripe_billing_params: StripeBillingParams | null;
+  whop_gateway_params: null;
   management_url: string;
   paddle_billing_params: null;
 }
+
+export interface WhopCheckoutStartResponse {
+  operation_session_id: string;
+  gateway_params: null;
+  stripe_billing_params: null;
+  whop_gateway_params: WhopGatewayParams;
+  management_url: string | null;
+  paddle_billing_params: null;
+}
+
+export type WebBillingCheckoutStartResponse =
+  | StripeWebBillingCheckoutStartResponse
+  | WhopCheckoutStartResponse;
 
 export interface PaddleCheckoutStartResponse {
   operation_session_id: string;
   gateway_params: null;
   management_url: string | null;
+  whop_gateway_params: null;
   paddle_billing_params: {
     client_side_token: string;
     is_sandbox: boolean;
