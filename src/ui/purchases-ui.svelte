@@ -34,6 +34,7 @@
   import type { BrandingAppearance } from "../entities/branding";
   import type { TaxCustomerDetails } from "../stripe/stripe-service";
   import { type GatewayParams } from "../networking/responses/stripe-elements";
+  import type { WhopGatewayParams } from "../networking/responses/checkout-start-response";
   import {
     CheckoutPricingFailedReason,
     type CheckoutPricingResponse,
@@ -128,6 +129,7 @@
   let currentPage: CurrentPage = $state("payment-entry-loading");
   let operationResult: OperationSessionSuccessfulResult | null = $state(null);
   let initialGatewayParams: GatewayParams = $state({});
+  let whopGatewayParams: WhopGatewayParams | null = $state(null);
   let managementUrl: string | null = $state(null);
   let currentPriceBreakdown = $state<PriceBreakdown | undefined>(undefined);
   let appliedDiscountCode: string | null = $derived(
@@ -315,7 +317,8 @@
       );
       lastError = null;
       email = emailToUse;
-      initialGatewayParams = result.gateway_params;
+      initialGatewayParams = result.gateway_params ?? {};
+      whopGatewayParams = result.whop_gateway_params;
       managementUrl = result.management_url;
 
       if (discountCode) {
@@ -468,6 +471,7 @@
   {purchaseOptionToUse}
   {lastError}
   {gatewayParams}
+  {whopGatewayParams}
   {managementUrl}
   {purchaseOperationHelper}
   {isInElement}

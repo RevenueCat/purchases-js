@@ -1,8 +1,8 @@
 <script module lang="ts">
   import { getContext, onDestroy, onMount } from "svelte";
   import {
-    ProductType,
     type Product,
+    ProductType,
     type PurchaseOption,
     type SubscriptionOption,
   } from "../../entities/offerings";
@@ -42,8 +42,8 @@
   } from "../../networking/responses/stripe-elements";
   import {
     CheckoutPricingFailedReason,
-    createPriceBreakdownFromCheckoutPricingResponse,
     type CheckoutPricingResponse,
+    createPriceBreakdownFromCheckoutPricingResponse,
     type TaxBreakdown,
   } from "../../networking/responses/checkout-pricing-response";
   import type {

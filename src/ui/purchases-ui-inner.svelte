@@ -1,5 +1,6 @@
 <script lang="ts">
-  import PaymentEntryPage from "./pages/payment-entry-page.svelte";
+  import StripePaymentEntryPage from "./pages/stripe-payment-entry-page.svelte";
+  import WhopPaymentEntryPage from "./pages/whop-payment-entry-page.svelte";
   import ErrorPage from "./pages/error-page.svelte";
   import SuccessPage from "./pages/success-page.svelte";
   import LoadingPage from "./pages/payment-entry-loading-page.svelte";
@@ -14,6 +15,7 @@
   } from "../helpers/purchase-operation-helper";
   import Template from "./layout/template.svelte";
   import { type GatewayParams } from "../networking/responses/stripe-elements";
+  import type { WhopGatewayParams } from "../networking/responses/checkout-start-response";
   import BrandingHeader from "./molecules/branding-header.svelte";
   import type { CheckoutPricingResponse } from "../networking/responses/checkout-pricing-response";
   import { writable, type Writable } from "svelte/store";
@@ -28,7 +30,8 @@
     lastError: PurchaseFlowError | null;
     purchaseOperationHelper: PurchaseOperationHelper;
     isInElement: boolean;
-    gatewayParams: GatewayParams;
+    gatewayParams: GatewayParams | null;
+    whopGatewayParams: WhopGatewayParams | null;
     managementUrl: string | null;
     customerEmail: string | null;
     forceEnableWalletMethods: boolean;
@@ -66,6 +69,7 @@
     purchaseOperationHelper,
     isInElement,
     gatewayParams,
+    whopGatewayParams,
     managementUrl,
     customerEmail,
     forceEnableWalletMethods,
@@ -125,6 +129,11 @@
   const onPriceBreakdownUpdated = (value: PriceBreakdown) => {
     priceBreakdown = value;
   };
+
+  // this is a hack, at the moment whop doesn't allow the checkout
+  // without redirecting somewhere, I am talking to the whop folks
+  // to try and avoid that.
+  const whopRedirectUrl = window?.location.href;
 </script>
 
 <Template {brandingInfo} {isInElement} {isSandbox} {onClose}>
@@ -158,24 +167,31 @@
       <LoadingPage />
     {/if}
     {#if currentPage === "payment-entry"}
-      <PaymentEntryPage
-        {productDetails}
-        purchaseOption={purchaseOptionToUse}
-        {brandingInfo}
-        {purchaseOperationHelper}
-        {gatewayParams}
-        {managementUrl}
-        {customerEmail}
-        {forceEnableWalletMethods}
-        {defaultPriceBreakdown}
-        {termsAndConditionsUrl}
-        {onContinue}
-        {onError}
-        {onPriceBreakdownUpdated}
-        {onSessionPricingUpdated}
-        onProcessingStateChange={onPaymentProcessingChange}
-        {lastTaxCustomerDetailsStore}
-      />
+      {#if whopGatewayParams}
+        <WhopPaymentEntryPage
+          {whopGatewayParams}
+          checkoutReturnUrl={whopRedirectUrl}
+        />
+      {:else if gatewayParams}
+        <StripePaymentEntryPage
+          {productDetails}
+          purchaseOption={purchaseOptionToUse}
+          {brandingInfo}
+          {purchaseOperationHelper}
+          {gatewayParams}
+          {managementUrl}
+          {customerEmail}
+          {forceEnableWalletMethods}
+          {defaultPriceBreakdown}
+          {termsAndConditionsUrl}
+          {onContinue}
+          {onError}
+          {onPriceBreakdownUpdated}
+          {onSessionPricingUpdated}
+          onProcessingStateChange={onPaymentProcessingChange}
+          {lastTaxCustomerDetailsStore}
+        />
+      {/if}
     {/if}
 
     {#if currentPage === "error"}
