@@ -47,6 +47,10 @@
       data-whop-checkout-session={whopGatewayParams.checkout_session_id}
       data-whop-checkout-return-url={checkoutReturnUrl}
       data-whop-checkout-environment={whopGatewayParams.environment}
+      data-whop-checkout-skip-redirect="true"
+      data-whop-checkout-oncomplete={() => {
+        alert("Payment completed!");
+      }}
     ></div>
   {/if}
 </div>
