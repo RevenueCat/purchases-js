@@ -1,3 +1,8 @@
+## 1.44.0
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Show correctly discounted price in footer (#894) via Burdock (@lburdock)
+
 ## 1.43.1
 ## RevenueCat SDK
 ### 🐞 Bugfixes
