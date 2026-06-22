@@ -18,7 +18,7 @@
     selectedPaymentMethod?: string;
   };
 
-  const { disabled, subscriptionOption, priceBreakdown }: Props = $props();
+  let { disabled, subscriptionOption, priceBreakdown }: Props = $props();
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
 
