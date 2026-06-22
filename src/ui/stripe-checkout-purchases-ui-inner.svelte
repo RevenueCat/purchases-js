@@ -16,6 +16,7 @@
   import ColLayout from "./layout/col-layout.svelte";
   import type { StripeBillingParams } from "../networking/responses/checkout-start-response";
   import { Theme } from "./theme/theme";
+  import { toProductInfoColors } from "./theme/utils";
   import { brandingContextKey } from "./constants";
 
   interface Props {
@@ -61,7 +62,7 @@
     new Theme(derivedBrandingAppearance).pageStyleVars,
   );
   const productInfoBg = $derived(
-    derivedBrandingAppearance?.color_product_info_bg ?? "#ffffff",
+    toProductInfoColors(derivedBrandingAppearance).background,
   );
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
