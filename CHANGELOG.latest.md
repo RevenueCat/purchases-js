@@ -1,14 +1,10 @@
 ## RevenueCat SDK
-### ✨ New Features
-* Add Slovenian support for paywalls (#932) via Monika Mateska (@MonikaMateska)
-* [WEB-4279] Discount line items in native wallets (#905) via James O'Donnell (@james-od)
-
-## RevenueCatUI SDK
-### ✨ New Features
-* WFL-217 | Add support for workflows endpoints (#913) via Rosie Watson (@RosieWatson)
+### 🐞 Bugfixes
+* fix(purchases-js): use default product background for Stripe Billing (#944) via Nicola Sacco (@nicfix)
 
 ### 🔄 Other Changes
-* [AUTOMATIC] Update generated error codes (#931) via RevenueCat Git Bot (@RCGitBot)
-* Danger: block manual edits to generated error codes (#930) via Álvaro Brey (@AlvaroBrey)
-* Add update-error-codes workflow (#926) via Álvaro Brey (@AlvaroBrey)
-* test(e2e): add full Paddle E2E coverage to webbilling-demo (WST-564) (#925) via Roger Solé (@rogersole)
+* Bump sdks-common-config orb to 4.1.0 (#943) via Álvaro Brey (@AlvaroBrey)
+* feat: send paywallSessionId in checkout/start (#939) via Deema AlShamaa (@dalshamaa)
+* Migrate update_error_codes to the outputs parameter (#942) via Álvaro Brey (@AlvaroBrey)
+* Update sdks-common-config orb to 3.21.2 (#941) via Antonio Pallares (@ajpallares)
+* chore: Add 3-day Dependabot cooldown, excluding fastlane plugin (#934) via Toni Rico (@tonidero)
