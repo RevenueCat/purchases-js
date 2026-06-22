@@ -512,6 +512,7 @@ export enum ReservedCustomerAttribute {
     AirshipChannelId = "$airshipChannelId",
     AmazonAdId = "$amazonAdId",
     AmplitudeDeviceId = "$amplitudeDeviceId",
+    AmplitudeSessionId = "$amplitudeSessionId",
     AmplitudeUserId = "$amplitudeUserId",
     AndroidId = "$androidId",
     APNSTokens = "$apnsTokens",

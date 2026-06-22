@@ -8075,6 +8075,27 @@
             },
             {
               "kind": "EnumMember",
+              "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.AmplitudeSessionId:member",
+              "docComment": "/**\n * The Amplitude session ID of the customer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "AmplitudeSessionId = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"$amplitudeSessionId\""
+                }
+              ],
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "name": "AmplitudeSessionId"
+            },
+            {
+              "kind": "EnumMember",
               "canonicalReference": "@revenuecat/purchases-js!ReservedCustomerAttribute.AmplitudeUserId:member",
               "docComment": "/**\n * The Amplitude user ID of the customer.\n */\n",
               "excerptTokens": [
