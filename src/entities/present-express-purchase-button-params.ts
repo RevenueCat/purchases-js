@@ -6,6 +6,7 @@ import type { PurchaseListener } from "./purchase-listener";
 /**
  * Callback to be called when the express purchase button is ready to be updated.
  * @experimental
+ * @public
  */
 export interface ExpressPurchaseButtonUpdater {
   /**
@@ -16,7 +17,40 @@ export interface ExpressPurchaseButtonUpdater {
 
 /**
  * Parameters for the {@link Purchases.presentExpressPurchaseButton} method.
+ *
+ * @example
+ * ```ts
+ * const offerings = await purchases.getOfferings();
+ * const pkg = offerings.current?.availablePackages[0];
+ * const htmlTarget = document.getElementById("express-purchase-button");
+ * const fallbackButton = document.getElementById("checkout-button");
+ *
+ * if (pkg && htmlTarget) {
+ *   let expressButtonUpdater: ExpressPurchaseButtonUpdater | undefined;
+ *
+ *   void purchases.presentExpressPurchaseButton({
+ *     rcPackage: pkg,
+ *     htmlTarget,
+ *     onButtonReady: (updater, walletsAvailable) => {
+ *       expressButtonUpdater = updater;
+ *       htmlTarget.hidden = !walletsAvailable;
+ *
+ *       if (fallbackButton) {
+ *         fallbackButton.hidden = walletsAvailable;
+ *       }
+ *     },
+ *   });
+ *
+ *   // If the customer selects a different package later, update the button
+ *   // instead of rendering a new one.
+ *   function onSelectedPackageChanged(nextPackage: Package) {
+ *     expressButtonUpdater?.updatePurchase(nextPackage);
+ *   }
+ * }
+ * ```
+ *
  * @experimental
+ * @public
  */
 export interface PresentExpressPurchaseButtonParams {
   /**
@@ -71,7 +105,7 @@ export interface PresentExpressPurchaseButtonParams {
   /**
    * Theme for the Stripe wallet button appearance.
    * Matches Apple Pay button styles: 'black', 'white', or 'white-outline'
-   * @default "black"
+   * Defaults to "black".
    */
   walletButtonTheme?: WalletButtonTheme;
 }
