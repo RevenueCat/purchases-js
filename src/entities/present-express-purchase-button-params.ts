@@ -28,9 +28,9 @@ export interface PresentExpressPurchaseButtonParams {
    */
   purchaseOption?: PurchaseOption | null;
   /**
-   * The HTML element where the billing view should be added. If undefined, a new div will be created at the root of the page and appended to the body.
+   * The HTML element where the express purchase button should be rendered.
    */
-  htmlTarget?: HTMLElement;
+  htmlTarget: HTMLElement;
   /**
    * The email of the user. If undefined, RevenueCat will ask the customer for their email.
    */

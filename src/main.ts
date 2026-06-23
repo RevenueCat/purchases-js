@@ -1282,11 +1282,6 @@ export class Purchases {
       walletButtonTheme,
     } = params;
 
-    if (htmlTarget === undefined) {
-      throw new Error(
-        "htmlTarget is required for presentExpressPurchaseButton",
-      );
-    }
     const appUserId = this._appUserId;
 
     if (!isWebBillingApiKey(this._API_KEY)) {
