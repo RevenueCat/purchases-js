@@ -283,6 +283,10 @@
       .checkoutRefreshPricing({
         countryCode: taxCustomerDetails?.countryCode,
         postalCode: taxCustomerDetails?.postalCode,
+        state: taxCustomerDetails?.state,
+        city: taxCustomerDetails?.city,
+        addressLine1: taxCustomerDetails?.addressLine1,
+        addressLine2: taxCustomerDetails?.addressLine2,
         signal,
       })
       .then((taxCalculation) => {
@@ -551,7 +555,12 @@
 
     const sameDetails =
       taxCustomerDetails.postalCode === lastTaxCustomerDetails?.postalCode &&
-      taxCustomerDetails.countryCode === lastTaxCustomerDetails?.countryCode;
+      taxCustomerDetails.countryCode === lastTaxCustomerDetails?.countryCode &&
+      taxCustomerDetails.state === lastTaxCustomerDetails?.state &&
+      taxCustomerDetails.city === lastTaxCustomerDetails?.city &&
+      taxCustomerDetails.addressLine1 ===
+        lastTaxCustomerDetails?.addressLine1 &&
+      taxCustomerDetails.addressLine2 === lastTaxCustomerDetails?.addressLine2;
 
     if (!sameDetails) {
       await recalculatePriceBreakdown(taxCustomerDetails, signal);

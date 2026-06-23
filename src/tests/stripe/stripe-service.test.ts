@@ -409,6 +409,70 @@ describe("StripeService", () => {
     });
   });
 
+  describe("extractTaxCustomerDetails", () => {
+    test("returns the full billing address from the confirmation token", async () => {
+      const mockElements = {} as StripeElements;
+      const mockStripe = {
+        createConfirmationToken: vi.fn().mockResolvedValue({
+          confirmationToken: {
+            id: "ctoken_123",
+            payment_method_preview: {
+              billing_details: {
+                address: {
+                  country: "US",
+                  postal_code: "10001",
+                  state: "NY",
+                  city: "New York",
+                  line1: "123 Main St",
+                  line2: "Apt 4",
+                },
+              },
+            },
+          },
+        }),
+      } as unknown as Stripe;
+
+      const { customerDetails, confirmationTokenId } =
+        await StripeService.extractTaxCustomerDetails(mockElements, mockStripe);
+
+      expect(confirmationTokenId).toBe("ctoken_123");
+      expect(customerDetails).toEqual({
+        countryCode: "US",
+        postalCode: "10001",
+        state: "NY",
+        city: "New York",
+        addressLine1: "123 Main St",
+        addressLine2: "Apt 4",
+      });
+    });
+
+    test("returns undefined fields when the billing address is missing", async () => {
+      const mockElements = {} as StripeElements;
+      const mockStripe = {
+        createConfirmationToken: vi.fn().mockResolvedValue({
+          confirmationToken: {
+            id: "ctoken_456",
+            payment_method_preview: {},
+          },
+        }),
+      } as unknown as Stripe;
+
+      const { customerDetails } = await StripeService.extractTaxCustomerDetails(
+        mockElements,
+        mockStripe,
+      );
+
+      expect(customerDetails).toEqual({
+        countryCode: undefined,
+        postalCode: undefined,
+        state: undefined,
+        city: undefined,
+        addressLine1: undefined,
+        addressLine2: undefined,
+      });
+    });
+  });
+
   describe("createLinkAuthenticationElement", () => {
     test("creates link authentication element with email", () => {
       const mockElements: Partial<StripeElements> = {
