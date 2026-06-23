@@ -210,6 +210,7 @@ export type { VirtualCurrencies } from "./entities/virtual-currencies";
 export type { VirtualCurrency } from "./entities/virtual-currency";
 export type { PresentPaywallParams } from "./entities/present-paywall-params";
 export type { PaywallListener } from "./entities/paywall-listener";
+export type { PurchaseListener } from "./entities/purchase-listener";
 export {
   CustomVariableValue,
   type CustomVariables,
@@ -1263,8 +1264,7 @@ export class Purchases {
    * Renders an Express Purchase button for the supported wallets (Apple Pay/Google Pay).
    * When clicked it uses the wallet UI to execute the purchase instead of
    * the checkout flow that would be shown with `.purchase`.
-   * @internal
-   * @param params - The parameters object to customise the purchase flow. Check {@link PurchaseParams}
+   * @param params - The parameters object to customise the purchase flow. Check {@link PresentExpressPurchaseButtonParams}
    * @returns Promise<PurchaseResult>
    */
   @requiresLoadedResources
@@ -1282,11 +1282,6 @@ export class Purchases {
       walletButtonTheme,
     } = params;
 
-    if (htmlTarget === undefined) {
-      throw new Error(
-        "htmlTarget is required for presentExpressPurchaseButton",
-      );
-    }
     const appUserId = this._appUserId;
 
     if (!isWebBillingApiKey(this._API_KEY)) {

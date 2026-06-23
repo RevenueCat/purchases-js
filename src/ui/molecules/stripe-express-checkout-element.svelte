@@ -23,6 +23,7 @@
     ClickResolveDetails,
     StripeExpressCheckoutElementClickEvent,
   } from "@stripe/stripe-js/dist/stripe-js/elements/express-checkout";
+  import { generateUUID } from "../../helpers/uuid-helper";
 
   export interface Props {
     onError: (error: StripeServiceError) => void | Promise<void>;
@@ -61,7 +62,7 @@
   let expressCheckoutElement: StripeExpressCheckoutElement | null = null;
   let hideExpressCheckoutElement = $state(false);
   // Allows having more than one in the page.
-  const expressCheckoutElementId = `express-checkout-element-${new Date().getTime()}`;
+  const expressCheckoutElementId = `express-checkout-element-${generateUUID()}`;
 
   const onCancelCallback = async () => {
     onCancel && onCancel();
