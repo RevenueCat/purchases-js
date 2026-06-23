@@ -62,6 +62,11 @@ vi.mock("../../../stripe/stripe-service", async () => {
         on: vi.fn(),
         destroy: vi.fn(),
       }),
+      createAddressElement: vi.fn().mockReturnValue({
+        mount: vi.fn(),
+        on: vi.fn(),
+        destroy: vi.fn(),
+      }),
       isStripeHandledFormError: vi.fn(),
       updateElementsConfiguration: vi.fn(),
       getStripeLocale: vi.fn().mockImplementation((locale: string) => locale),
@@ -489,5 +494,41 @@ describe("PurchasesUI", () => {
         totalAmountInMicros: 1230000,
       }),
     );
+  });
+
+  test("does not render the address element when full_address_collection_enabled is disabled", async () => {
+    const { container } = render(PaymentEntryPage, {
+      props: {
+        ...basicProps,
+        brandingInfo: {
+          ...brandingInfo,
+          full_address_collection_enabled: false,
+        },
+      },
+      context: defaultContext,
+    });
+
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(container.querySelector("#address-element")).toBeNull();
+    expect(StripeService.createAddressElement).not.toHaveBeenCalled();
+  });
+
+  test("renders the address element when full_address_collection_enabled is enabled", async () => {
+    const { container } = render(PaymentEntryPage, {
+      props: {
+        ...basicProps,
+        brandingInfo: {
+          ...brandingInfo,
+          full_address_collection_enabled: true,
+        },
+      },
+      context: defaultContext,
+    });
+
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(container.querySelector("#address-element")).not.toBeNull();
+    expect(StripeService.createAddressElement).toHaveBeenCalled();
   });
 });

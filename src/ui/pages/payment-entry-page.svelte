@@ -160,6 +160,7 @@
   let isEmailComplete = $state(customerEmail ? true : false);
   let isStripeLoading = $state(true);
   let isPaymentInfoComplete = $state(false);
+  let isAddressComplete = $state(!brandingInfo?.full_address_collection_enabled);
   let selectedPaymentMethod: string | undefined = $state(undefined);
   let modalErrorMessage: string | undefined = $state(undefined);
   let clientSecret: string | undefined = $state(undefined);
@@ -180,6 +181,7 @@
     !processing &&
       isPaymentInfoComplete &&
       isEmailComplete &&
+      isAddressComplete &&
       (taxCalculationStatus === "disabled" ||
         taxCalculationStatus === "calculated" ||
         taxCalculationStatus === "miss-match"),
@@ -367,6 +369,11 @@
   }) {
     selectedPaymentMethod = paymentMethod;
     isPaymentInfoComplete = complete;
+    await refreshTaxes();
+  }
+
+  async function handleAddressInfoChange(complete: boolean) {
+    isAddressComplete = complete;
     await refreshTaxes();
   }
 
@@ -683,6 +690,7 @@
           onError={handleStripeElementError}
           onEmailChange={handleEmailChange}
           onPaymentInfoChange={handlePaymentInfoChange}
+          onAddressInfoChange={handleAddressInfoChange}
           onExpressCheckoutElementSubmit={handleExpressCheckoutElementSubmit}
           {expressCheckoutOptions}
         />

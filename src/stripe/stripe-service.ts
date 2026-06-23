@@ -279,6 +279,15 @@ export class StripeService {
     });
   }
 
+  static createAddressElement(elements: StripeElements) {
+    return elements.create("address", {
+      mode: "billing",
+      display: {
+        name: "full",
+      },
+    });
+  }
+
   static createExpressCheckoutElement(
     elements: StripeElements,
     forceEnableWalletMethods: boolean,

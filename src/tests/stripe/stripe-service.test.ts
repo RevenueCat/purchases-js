@@ -392,6 +392,23 @@ describe("StripeService", () => {
     });
   });
 
+  describe("createAddressElement", () => {
+    test("creates a billing address element collecting the full name", () => {
+      const mockElements: Partial<StripeElements> = {
+        create: vi.fn(),
+      };
+
+      StripeService.createAddressElement(mockElements as StripeElements);
+
+      expect(mockElements.create).toHaveBeenCalledWith("address", {
+        mode: "billing",
+        display: {
+          name: "full",
+        },
+      });
+    });
+  });
+
   describe("createLinkAuthenticationElement", () => {
     test("creates link authentication element with email", () => {
       const mockElements: Partial<StripeElements> = {
