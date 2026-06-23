@@ -78,6 +78,7 @@ export const toExpressPurchaseOptions = (
   purchaseOption: PurchaseOption,
   managementUrl: string,
   translator: Translator,
+  appName?: string | null,
   walletButtonTheme?: WalletButtonTheme,
 ) => {
   const productDetails: Product = rcPackage.webBillingProduct;
@@ -126,6 +127,10 @@ export const toExpressPurchaseOptions = (
     };
   }
 
+  if (appName) {
+    options.business = { name: appName };
+  }
+
   return options;
 };
 
@@ -136,6 +141,7 @@ export const updateStripe = (
   rcPackage: Package,
   purchaseOption: PurchaseOption,
   translator: Translator,
+  brandingInfo: BrandingInfoResponse | null,
   walletButtonTheme?: WalletButtonTheme,
 ) => {
   if (!gatewayParams.elements_configuration) {
@@ -152,6 +158,7 @@ export const updateStripe = (
     purchaseOption,
     managementUrl,
     translator,
+    brandingInfo?.app_name,
     walletButtonTheme,
   );
   return { expOptions: options };
@@ -225,6 +232,7 @@ export const initStripe = async (
     purchaseOption,
     managementUrl,
     translator,
+    brandingInfo?.app_name,
     walletButtonTheme,
   );
 

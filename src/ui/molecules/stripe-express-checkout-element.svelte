@@ -71,11 +71,9 @@
   const onClickCallback = async (
     event: StripeExpressCheckoutElementClickEvent,
   ) => {
-    const options = {
-      ...(expressCheckoutOptions ? expressCheckoutOptions : {}),
-    } as ClickResolveDetails;
+    const { business: _business, ...options } = expressCheckoutOptions ?? {};
     onClick && onClick(event);
-    event.resolve(options);
+    event.resolve(options as ClickResolveDetails);
   };
 
   const onLoadErrorCallback = async (event: {
