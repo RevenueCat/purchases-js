@@ -6,6 +6,7 @@
 
 import { CustomVariables } from '@revenuecat/purchases-ui-js';
 import { CustomVariableValue } from '@revenuecat/purchases-ui-js';
+import { WalletButtonTheme } from '@revenuecat/purchases-ui-js';
 
 // @public
 export interface BrandingAppearance {
@@ -142,6 +143,11 @@ export enum ErrorCode {
     UnsupportedError = 24,
     // (undocumented)
     UserCancelledError = 1
+}
+
+// @public
+export interface ExpressPurchaseButtonUpdater {
+    updatePurchase: (pkg: Package, purchaseOption?: PurchaseOption) => void;
 }
 
 // @public
@@ -310,6 +316,20 @@ export interface PresentedOfferingContext {
 }
 
 // @public
+export interface PresentExpressPurchaseButtonParams {
+    customerEmail?: string;
+    defaultLocale?: string;
+    htmlTarget?: HTMLElement;
+    listener?: PaywallListener;
+    metadata?: PurchaseMetadata;
+    onButtonReady?: (updater: ExpressPurchaseButtonUpdater, walletsAvailable: boolean) => void;
+    purchaseOption?: PurchaseOption | null;
+    rcPackage: Package;
+    selectedLocale?: string;
+    walletButtonTheme?: WalletButtonTheme;
+}
+
+// @public
 export interface PresentPaywallParams {
     readonly customerEmail?: string;
     readonly customVariables?: CustomVariables;
@@ -455,6 +475,7 @@ export class Purchases {
     // (undocumented)
     isSandbox(): boolean;
     preload(): Promise<void>;
+    presentExpressPurchaseButton(params: PresentExpressPurchaseButtonParams): Promise<PurchaseResult>;
     presentPaywall(paywallParams: PresentPaywallParams): Promise<PaywallPurchaseResult>;
     purchase(params: PurchaseParams): Promise<PurchaseResult>;
     // @deprecated
