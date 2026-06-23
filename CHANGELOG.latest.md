@@ -1,3 +1,5 @@
 ## RevenueCat SDK
+### ✨ New Features
+* Expose express purchase button API (#948) via Nicola Sacco (@nicfix)
 ### 🐞 Bugfixes
-* Show correctly discounted price in footer (#894) via Burdock (@lburdock)
+* fix(stripe): show app name in express checkout (#949) via Nicola Sacco (@nicfix)
