@@ -58,13 +58,13 @@ export interface PresentExpressPurchaseButtonParams {
    */
   rcPackage: Package;
   /**
-   * The option to be used for this purchase. If not specified or null the default one will be used.
-   */
-  purchaseOption?: PurchaseOption | null;
-  /**
    * The HTML element where the express purchase button should be rendered.
    */
   htmlTarget: HTMLElement;
+  /**
+   * The option to be used for this purchase. If not specified or null the default one will be used.
+   */
+  purchaseOption?: PurchaseOption | null;
   /**
    * The email of the user. If undefined, RevenueCat will ask the customer for their email.
    */
