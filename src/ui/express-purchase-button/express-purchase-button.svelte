@@ -135,6 +135,7 @@
           rcPackage,
           purchaseOption,
           translator,
+          brandingInfo,
           walletButtonTheme,
         );
         expressCheckoutOptions = expOptions;
@@ -315,6 +316,7 @@
         rcPackage,
         purchaseOption,
         translator,
+        brandingInfo,
         walletButtonTheme,
       );
 
