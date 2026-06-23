@@ -57,7 +57,6 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
     };
 
     purchases
-      // @ts-expect-error This method is marked as internal for now but it's public.'
       .presentExpressPurchaseButton({
         rcPackage: pkg,
         purchaseOption: pkg.webBillingProduct.defaultPurchaseOption,

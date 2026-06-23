@@ -4,7 +4,6 @@ import type { Package, PurchaseMetadata, PurchaseOption } from "./offerings";
 import type { PaywallListener } from "./paywall-listener";
 /**
  * Callback to be called when the express purchase button is ready to be updated.
- * @internal
  * @experimental
  */
 export interface ExpressPurchaseButtonUpdater {
@@ -16,7 +15,6 @@ export interface ExpressPurchaseButtonUpdater {
 
 /**
  * Parameters for the {@link Purchases.presentExpressPurchaseButton} method.
- * @internal
  * @experimental
  */
 export interface PresentExpressPurchaseButtonParams {
@@ -59,7 +57,6 @@ export interface PresentExpressPurchaseButtonParams {
    */
   labelsOverride?: CustomTranslations;
   /**
-   * @internal
    * Callback to be called when the express purchase button is ready to be clicked.
    */
   onButtonReady?: (
