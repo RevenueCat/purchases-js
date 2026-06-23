@@ -270,11 +270,7 @@ export enum PackageType {
 }
 
 // @public
-export interface PaywallListener {
-    onPurchaseCancelled?: () => void;
-    onPurchaseError?: (error: Error) => void;
-    onPurchaseStarted?: (rcPackage: Package) => void;
-}
+export type PaywallListener = PurchaseListener;
 
 // @public
 export interface PaywallPurchaseResult extends PurchaseResult {
@@ -319,8 +315,8 @@ export interface PresentedOfferingContext {
 export interface PresentExpressPurchaseButtonParams {
     customerEmail?: string;
     defaultLocale?: string;
-    htmlTarget?: HTMLElement;
-    listener?: PaywallListener;
+    htmlTarget: HTMLElement;
+    listener?: PurchaseListener;
     metadata?: PurchaseMetadata;
     onButtonReady?: (updater: ExpressPurchaseButtonUpdater, walletsAvailable: boolean) => void;
     purchaseOption?: PurchaseOption | null;
@@ -401,6 +397,13 @@ export enum ProductType {
     Consumable = "consumable",
     NonConsumable = "non_consumable",
     Subscription = "subscription"
+}
+
+// @public
+export interface PurchaseListener {
+    onPurchaseCancelled?: () => void;
+    onPurchaseError?: (error: Error) => void;
+    onPurchaseStarted?: (rcPackage: Package) => void;
 }
 
 // @public
