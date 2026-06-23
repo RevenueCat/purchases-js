@@ -210,6 +210,7 @@ export type { VirtualCurrencies } from "./entities/virtual-currencies";
 export type { VirtualCurrency } from "./entities/virtual-currency";
 export type { PresentPaywallParams } from "./entities/present-paywall-params";
 export type { PaywallListener } from "./entities/paywall-listener";
+export type { PurchaseListener } from "./entities/purchase-listener";
 export {
   CustomVariableValue,
   type CustomVariables,
