@@ -27,6 +27,12 @@ export interface FlagsConfig {
   collectAnalyticsEvents?: boolean;
 
   /**
+   * If set to true, the checkout back button will be hidden.
+   * @defaultValue false
+   */
+  hideBackButton?: boolean;
+
+  /**
    * Describes the platform that originated the purchase.
    * This does not technically belong here but since the public Purchase configuration
    * does not use objects, it is the easiest way to pass this internal parameter.

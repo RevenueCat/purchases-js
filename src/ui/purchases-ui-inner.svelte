@@ -50,6 +50,7 @@
     onContinue: () => void;
     onError: (error: PurchaseFlowError) => void;
     onClose?: () => void;
+    hideBackButton?: boolean;
   }
 
   let {

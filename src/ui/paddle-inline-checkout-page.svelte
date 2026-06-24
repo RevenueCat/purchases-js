@@ -25,6 +25,7 @@
     isSandbox: boolean;
     isInElement: boolean;
     onClose: () => void;
+    hideBackButton?: boolean;
     productDetails: Product;
     purchaseOption: PurchaseOption;
     // Live order totals from Paddle's checkout events; render the order summary.
