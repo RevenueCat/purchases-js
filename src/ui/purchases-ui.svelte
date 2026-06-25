@@ -68,6 +68,7 @@
     onFinished: (operationResult: OperationSessionSuccessfulResult) => void;
     onError: (error: PurchaseFlowError) => void;
     onClose: (() => void) | undefined;
+    hideBackButton?: boolean;
   }
 
   const {
@@ -96,6 +97,7 @@
     onFinished,
     onError,
     onClose,
+    hideBackButton = false,
   }: Props = $props();
 
   const emailError = customerEmail ? validateEmail(customerEmail) : null;
@@ -467,4 +469,5 @@
   onContinue={handleContinue}
   onError={handleError}
   {onClose}
+  {hideBackButton}
 />

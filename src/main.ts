@@ -1688,6 +1688,7 @@ export class Purchases {
           discountCode,
           onDiscountCodeChanged,
           skipSuccessPage,
+          hideBackButton: this.shouldHideCheckoutBackButton(),
         },
       });
     });
@@ -1806,6 +1807,7 @@ export class Purchases {
             metadata,
             unmountPaddlePurchaseUi,
             paddleService,
+            hideBackButton: this.shouldHideCheckoutBackButton(),
           },
         });
       }
@@ -1860,6 +1862,14 @@ export class Purchases {
     };
 
     return onClose;
+  }
+
+  private shouldHideCheckoutBackButton(): boolean {
+    return (
+      this._flags.hideBackButton === true ||
+      (!!this._flags.rcSource &&
+        supportedRCSources.includes(this._flags.rcSource))
+    );
   }
 
   private createCheckoutOnFinishedHandler(

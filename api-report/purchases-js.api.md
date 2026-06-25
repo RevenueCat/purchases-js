@@ -154,6 +154,7 @@ export interface ExpressPurchaseButtonUpdater {
 export interface FlagsConfig {
     autoCollectUTMAsMetadata?: boolean;
     collectAnalyticsEvents?: boolean;
+    hideBackButton?: boolean;
     // @deprecated
     storeLoadTime?: StoreLoadTime;
 }

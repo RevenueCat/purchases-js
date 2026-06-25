@@ -50,6 +50,7 @@
     onContinue: () => void;
     onError: (error: PurchaseFlowError) => void;
     onClose?: () => void;
+    hideBackButton?: boolean;
   }
 
   let {
@@ -82,6 +83,7 @@
     onContinue,
     onError,
     onClose = undefined,
+    hideBackButton = false,
   }: Props = $props();
 
   const initialPrice = getInitialPriceFromPurchaseOption(
@@ -126,7 +128,7 @@
     <BrandingHeader
       {brandingInfo}
       {onClose}
-      showCloseButton={!isInElement && !!onClose}
+      showCloseButton={!isInElement && !!onClose && !hideBackButton}
     />
   {/snippet}
   {#snippet navbarBodyContent()}

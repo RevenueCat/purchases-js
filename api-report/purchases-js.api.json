@@ -2064,6 +2064,33 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!FlagsConfig#hideBackButton:member",
+              "docComment": "/**\n * If set to true, the checkout back button will be hidden.\n *\n * @defaultValue\n *\n * false\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "hideBackButton?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "hideBackButton",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!FlagsConfig#storeLoadTime:member",
               "docComment": "/**\n * Determines when the store module (e.g. Stripe) is loaded. - `\"configuration\"`: Preloaded when the SDK is configured (default). - `\"purchase_start\"`: Loaded on demand when a purchase is started.\n *\n * @deprecated\n *\n * we always load stripe only when needed\n *\n * @defaultValue\n *\n * \"configuration\"\n */\n",
               "excerptTokens": [

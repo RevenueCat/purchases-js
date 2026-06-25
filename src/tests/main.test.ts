@@ -748,6 +748,29 @@ describe("Purchases.purchase()", () => {
     document.body.innerHTML = "";
   });
 
+  test("does not show the back button when hideBackButton is true", async () => {
+    const purchases = Purchases.configure({
+      apiKey: testApiKey,
+      appUserId: testUserId,
+      flags: {
+        hideBackButton: true,
+      },
+    });
+    purchases.purchase({
+      rcPackage: createMonthlyPackageMock(),
+    });
+
+    await waitFor(() => {
+      const container = document.querySelector(".rcb-ui-root");
+      expect(container).not.toBeNull();
+      expect(document.querySelector(".rcb-back-button")).toBeNull();
+    });
+
+    purchases.close();
+    // Forcing the body to cleanup to not affect other tests
+    document.body.innerHTML = "";
+  });
+
   test("routes purchases to Paddle flow for pdl_ api keys", async () => {
     const purchases = configurePurchases(
       testUserId,
