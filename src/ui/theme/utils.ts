@@ -151,6 +151,7 @@ function toHex(val: number) {
 const textColorsForBackground = (
   backgroundColor: string,
   primaryColor: string,
+  primaryTextColorOverride: string | null | undefined,
   defaultColors: Colors,
   luminanceThreshold: number = DEFAULT_LUMINANCE_THRESHOLD,
 ) => {
@@ -171,7 +172,9 @@ const textColorsForBackground = (
   }
 
   // Find the text color for the primary color
-  if (primaryColor?.startsWith("#")) {
+  if (primaryTextColorOverride) {
+    textColors["primary-text"] = primaryTextColorOverride;
+  } else if (primaryColor?.startsWith("#")) {
     const rgb = hexToRGB(primaryColor);
     if (rgb !== null) {
       textColors["primary-text"] = isLightColor({ ...rgb, luminanceThreshold })
@@ -233,6 +236,7 @@ export const toColors = (
         ...textColorsForBackground(
           mappedColors.background,
           mappedColors.primary,
+          brandingAppearance.color_buttons_primary_text,
           defaultColors,
         ),
         ...colorsForButtonStates(mappedColors.primary),

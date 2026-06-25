@@ -5,6 +5,7 @@
  */
 export interface BrandingAppearance {
   color_buttons_primary: string;
+  color_buttons_primary_text?: string | null;
   color_accent: string;
   color_error: string;
   color_product_info_bg: string;

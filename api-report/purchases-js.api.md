@@ -15,6 +15,8 @@ export interface BrandingAppearance {
     // (undocumented)
     color_buttons_primary: string;
     // (undocumented)
+    color_buttons_primary_text?: string | null;
+    // (undocumented)
     color_error: string;
     // (undocumented)
     color_form_bg: string;
