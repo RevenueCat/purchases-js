@@ -9,7 +9,7 @@
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
 
   import {
-    OperationSessionSuccessfulResult,
+    type OperationSessionSuccessfulResult,
     PurchaseFlowError,
     PurchaseFlowErrorCode,
     PurchaseOperationHelper,
@@ -40,6 +40,7 @@
   } from "../networking/responses/checkout-pricing-response";
   import { validateEmail } from "../helpers/validators";
   import type { PriceBreakdown, TaxCalculationStatus } from "./ui-types";
+  import { getActiveCheckoutPurchaseOption } from "../helpers/checkout-session-purchase-option-helper";
 
   interface Props {
     customerEmail: string | undefined;
@@ -63,9 +64,11 @@
     workflowPurchaseContext?: WorkflowPurchaseContext;
     attributionMetadata?: AttributionMetadata;
     paywallId?: string;
+    paywallSessionId?: string;
     onFinished: (operationResult: OperationSessionSuccessfulResult) => void;
     onError: (error: PurchaseFlowError) => void;
     onClose: (() => void) | undefined;
+    hideBackButton?: boolean;
   }
 
   const {
@@ -90,28 +93,51 @@
     workflowPurchaseContext,
     attributionMetadata,
     paywallId,
+    paywallSessionId,
     onFinished,
     onError,
     onClose,
+    hideBackButton = false,
   }: Props = $props();
 
   const emailError = customerEmail ? validateEmail(customerEmail) : null;
   let email = $state(emailError ? undefined : customerEmail);
 
   let productDetails: Product = $state(rcPackage.webBillingProduct);
-  let purchaseOptionToUse: PurchaseOption = $state(purchaseOption);
+  let latestCheckoutPricingResponse = $state<CheckoutPricingResponse | null>(
+    null,
+  );
+  let purchaseOptionToUse: PurchaseOption = $derived(
+    getActiveCheckoutPurchaseOption(
+      productDetails,
+      purchaseOption,
+      latestCheckoutPricingResponse,
+    ),
+  );
   let lastError: PurchaseFlowError | null = $state(null);
   let draftDiscountCode = $state(discountCode ?? "");
-  let appliedDiscountCode: string | null = $state(null);
   let discountCodeError: string | null = $state(null);
   let isUpdatingDiscountCode = $state(false);
   let isPaymentProcessing = $state(false);
 
   let currentPage: CurrentPage = $state("payment-entry-loading");
   let operationResult: OperationSessionSuccessfulResult | null = $state(null);
-  let gatewayParams: GatewayParams = $state({});
-  let currentPriceBreakdown: PriceBreakdown | undefined = $state(undefined);
+  let initialGatewayParams: GatewayParams = $state({});
   let managementUrl: string | null = $state(null);
+  let currentPriceBreakdown = $state<PriceBreakdown | undefined>(undefined);
+  let appliedDiscountCode: string | null = $derived(
+    latestCheckoutPricingResponse?.applied_discounts?.[0]?.discount_code ??
+      null,
+  );
+  let gatewayParams: GatewayParams = $derived.by(() => ({
+    ...initialGatewayParams,
+    ...(latestCheckoutPricingResponse?.gateway_params?.elements_configuration
+      ? {
+          elements_configuration:
+            latestCheckoutPricingResponse.gateway_params.elements_configuration,
+        }
+      : {}),
+  }));
 
   let originalHtmlHeight: string | null = $state(null);
   let originalHtmlOverflow: string | null = $state(null);
@@ -195,6 +221,7 @@
         workflowPurchaseContext,
         attributionMetadata,
         paywallId,
+        paywallSessionId,
         locale: selectedLocale,
       })
       .then((result) => ({ result, emailToUse: nextEmail }))
@@ -215,6 +242,7 @@
             workflowPurchaseContext,
             attributionMetadata,
             paywallId,
+            paywallSessionId,
             locale: selectedLocale,
           })
           .then((result) => ({ result, emailToUse: undefined }));
@@ -245,17 +273,17 @@
       PurchaseFlowErrorCode.StripeMissingRequiredPermission,
     ].includes(error.errorCode);
 
-  const applyPricingResponse = (response: CheckoutPricingResponse) => {
-    currentPriceBreakdown = createPriceBreakdownFromCheckoutPricingResponse(
-      response,
-      getTaxCalculationStatusForPricingResponse(response.failed_reason),
-    );
-    gatewayParams = {
-      ...gatewayParams,
-      elements_configuration: response.gateway_params.elements_configuration,
-    };
-    appliedDiscountCode =
-      response.applied_discounts?.[0]?.discount_code ?? null;
+  const applyPricingResponse = (
+    response: CheckoutPricingResponse,
+    nextPriceBreakdown?: PriceBreakdown,
+  ) => {
+    latestCheckoutPricingResponse = response;
+    currentPriceBreakdown =
+      nextPriceBreakdown ??
+      createPriceBreakdownFromCheckoutPricingResponse(
+        response,
+        getTaxCalculationStatusForPricingResponse(response.failed_reason),
+      );
   };
 
   onMount(async () => {
@@ -267,7 +295,7 @@
       );
       lastError = null;
       email = emailToUse;
-      gatewayParams = result.gateway_params;
+      initialGatewayParams = result.gateway_params;
       managementUrl = result.management_url;
 
       if (discountCode) {
@@ -437,7 +465,9 @@
   onApplyDiscountCode={handleApplyDiscountCode}
   onRemoveDiscountCode={handleRemoveDiscountCode}
   onPaymentProcessingChange={handlePaymentProcessingChange}
+  onSessionPricingUpdated={applyPricingResponse}
   onContinue={handleContinue}
   onError={handleError}
   {onClose}
+  {hideBackButton}
 />

@@ -1,3 +1,5 @@
 ## RevenueCat SDK
+### ✨ New Features
+* Expose express purchase button API (#948) via Nicola Sacco (@nicfix)
 ### 🐞 Bugfixes
-* chore: bump @stripe/stripe-js to v9 (dahlia) (#907) via Volodymyr Kartavyi (@vkartaviy)
+* fix(stripe): show app name in express checkout (#949) via Nicola Sacco (@nicfix)

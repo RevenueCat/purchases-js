@@ -30,6 +30,7 @@ type CheckoutPricingResponse = {
     duration_mode?: "time_window" | null;
     time_window?: string | null;
   }>;
+  selected_purchase_option?: Record<string, unknown> | null;
   failed_reason?: string;
   interrupt_checkout?: boolean;
 };
@@ -43,6 +44,7 @@ export const NON_TAX_TEST_API_KEY = process.env.VITE_RC_NON_TAX_E2E_API_KEY;
 export const TAX_TEST_API_KEY = process.env.VITE_RC_TAX_E2E_API_KEY;
 export const STRIPE_CHECKOUT_TEST_API_KEY =
   process.env.VITE_RC_STRIPE_CHECKOUT_E2E_API_KEY;
+export const PADDLE_TEST_API_KEY = process.env.VITE_RC_PADDLE_E2E_API_KEY;
 export const TAX_TEST_OFFERING_ID = "rcb_e2e_taxes";
 export const TAX_TEST_OFFERING_ID_WITH_DISCOUNT = "rcb_e2e_taxes_discounted";
 export const TAX_TEST_DISCOUNT_CODE = "FOREVER10";

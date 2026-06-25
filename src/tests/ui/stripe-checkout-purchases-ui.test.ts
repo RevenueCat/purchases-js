@@ -295,4 +295,28 @@ describe("StripeCheckoutPurchasesUi", () => {
     });
     expect(screen.queryByText("SANDBOX")).not.toBeInTheDocument();
   });
+
+  test("uses default product background when branding appearance is not customized", async () => {
+    vi.spyOn(purchaseOperationHelperMock, "checkoutStart").mockResolvedValue(
+      createCheckoutStartResponseWithStripeParams("production"),
+    );
+
+    render(StripeCheckoutPurchasesUi, {
+      props: {
+        ...baseProps,
+        brandingInfo: {
+          ...brandingInfo,
+          appearance: null,
+        },
+      },
+    });
+
+    await waitFor(() => {
+      const wrapper = document.querySelector(".stripe-checkout-wrapper");
+      expect(wrapper).toBeInTheDocument();
+      expect(getComputedStyle(wrapper as Element).backgroundColor).toBe(
+        "rgb(239, 243, 250)",
+      );
+    });
+  });
 });

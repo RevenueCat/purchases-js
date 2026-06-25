@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  revenuecat: revenuecat/sdks-common-config@3.16.0
+  revenuecat: revenuecat/sdks-common-config@4.1.0
   aws-cli: circleci/aws-cli@4.1.3
   node: circleci/node@7.2.1
 
@@ -25,7 +25,7 @@ aliases:
 parameters:
   action:
     type: enum
-    enum: [ default, bump ]
+    enum: [ default, bump, update_error_codes ]
     default: default
   version:
     type: string
@@ -217,7 +217,7 @@ jobs:
       - run:
           name: Update ENV for E2E test
           command: |
-            echo 'export VITE_RC_API_KEY=${E2E_RC_API_KEY}; export VITE_RC_TAX_E2E_API_KEY=${E2E_RC_TAX_E2E_API_KEY}; export VITE_RC_STRIPE_CHECKOUT_E2E_API_KEY=${E2E_RC_STRIPE_CHECKOUT_E2E_API_KEY}; export VITE_SKIP_TAX_REAL_TESTS_UNTIL=${VITE_SKIP_TAX_REAL_TESTS_UNTIL}; export VITE_SKIP_STRIPE_TESTS=${VITE_SKIP_STRIPE_TESTS:-false}; export VITE_SKIP_STRIPE_TESTS_ON_CAPTCHA=${VITE_SKIP_STRIPE_TESTS_ON_CAPTCHA:-true}; export VITE_ALLOW_PAYWALLS_TESTS=true' >> "$BASH_ENV"
+            echo 'export VITE_RC_API_KEY=${E2E_RC_API_KEY}; export VITE_RC_TAX_E2E_API_KEY=${E2E_RC_TAX_E2E_API_KEY}; export VITE_RC_STRIPE_CHECKOUT_E2E_API_KEY=${E2E_RC_STRIPE_CHECKOUT_E2E_API_KEY}; export VITE_RC_PADDLE_E2E_API_KEY=${E2E_RC_PADDLE_E2E_API_KEY}; export VITE_SKIP_TAX_REAL_TESTS_UNTIL=${VITE_SKIP_TAX_REAL_TESTS_UNTIL}; export VITE_SKIP_STRIPE_TESTS=${VITE_SKIP_STRIPE_TESTS:-false}; export VITE_SKIP_PADDLE_TESTS=${VITE_SKIP_PADDLE_TESTS:-false}; export VITE_SKIP_STRIPE_TESTS_ON_CAPTCHA=${VITE_SKIP_STRIPE_TESTS_ON_CAPTCHA:-true}; export VITE_ALLOW_PAYWALLS_TESTS=true' >> "$BASH_ENV"
             source "$BASH_ENV"
       - install-dependencies
       - run:
@@ -246,8 +246,11 @@ jobs:
 workflows:
   danger:
     when:
-      not:
-        equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
+      and:
+        - not:
+            equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
+        - not:
+            equal: [ update_error_codes, << pipeline.parameters.action >> ]
     jobs:
       - revenuecat/danger
 
@@ -265,10 +268,32 @@ workflows:
     jobs:
       - revenuecat/automatic-bump
 
+  update-error-codes:
+    when:
+      equal: [ update_error_codes, << pipeline.parameters.action >> ]
+    jobs:
+      - revenuecat/update-error-codes:
+          platform: js
+          outputs: "error-codes.ts:src/generated/error-codes.ts"
+          commit_paths: "src/generated/error-codes.ts,api-report"
+          update_api_steps:
+            - install-dependencies
+            - revenuecat/install-gem-unix-dependencies:
+                cache-version: v1
+            - run:
+                name: Build
+                command: pnpm run build
+            - run:
+                name: Extract API
+                command: pnpm run extract-api
+
   test-deploy:
     when:
-      not:
-        equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
+      and:
+        - not:
+            equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
+        - not:
+            equal: [ update_error_codes, << pipeline.parameters.action >> ]
     jobs:
       - test
       - test-e2e

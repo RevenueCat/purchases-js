@@ -28,3 +28,5 @@ unless head_branch.to_s.start_with?('release/')
     )
   end
 end
+
+fail_on_generated_edits(["src/generated/"])

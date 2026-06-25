@@ -1,6 +1,11 @@
 <script module lang="ts">
   import { getContext, onDestroy, onMount } from "svelte";
-  import type { Product, PurchaseOption } from "../../entities/offerings";
+  import {
+    ProductType,
+    type Product,
+    type PurchaseOption,
+    type SubscriptionOption,
+  } from "../../entities/offerings";
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
   import IconError from "../atoms/icons/icon-error.svelte";
   import MessageLayout from "../layout/message-layout.svelte";
@@ -48,6 +53,7 @@
   import StripeElementsComponent from "../molecules/stripe-elements.svelte";
   import PriceUpdateInfo from "../molecules/price-update-info.svelte";
   import { getInitialPriceFromPurchaseOption } from "../../helpers/purchase-option-price-helper";
+  import { resolveDiscountBreakdownForPurchaseOption } from "../../helpers/discount-breakdown-helper";
 
   type View = "loading" | "form" | "error";
 
@@ -65,6 +71,10 @@
     onContinue: () => void;
     onError: (error: PurchaseFlowError) => void;
     onPriceBreakdownUpdated: (priceBreakdown: PriceBreakdown) => void;
+    onSessionPricingUpdated?: (
+      pricingResponse: CheckoutPricingResponse,
+      priceBreakdown: PriceBreakdown,
+    ) => void;
     onProcessingStateChange?: (isProcessing: boolean) => void;
   }
 
@@ -74,7 +84,7 @@
 <script lang="ts">
   import { defaultPurchaseMode } from "../../behavioural-events/event";
 
-  const {
+  let {
     gatewayParams,
     managementUrl,
     productDetails,
@@ -88,17 +98,18 @@
     onContinue,
     onError,
     onPriceBreakdownUpdated,
+    onSessionPricingUpdated = undefined,
     onProcessingStateChange = undefined,
   }: Props = $props();
 
   const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
   const translator = getContext<Writable<Translator>>(translatorContextKey);
-  const subscriptionOption =
-    productDetails.subscriptionOptions?.[purchaseOption.id];
+  const subscriptionOption = $derived(
+    "base" in purchaseOption ? (purchaseOption as SubscriptionOption) : null,
+  );
 
-  const initialPrice = getInitialPriceFromPurchaseOption(
-    productDetails,
-    purchaseOption,
+  const initialPrice = $derived(
+    getInitialPriceFromPurchaseOption(productDetails, purchaseOption),
   );
 
   let taxCalculationStatus: TaxCalculationStatus = $state<TaxCalculationStatus>(
@@ -174,20 +185,63 @@
         taxCalculationStatus === "miss-match"),
   );
 
+  let resolvedDiscount = $derived(
+    resolveDiscountBreakdownForPurchaseOption({
+      priceBreakdown,
+      productDetails,
+      purchaseOption,
+      translator: $translator,
+    }),
+  );
+
   let expressCheckoutOptions = $derived(
-    subscriptionOption && managementUrl && priceBreakdown
-      ? StripeService.buildStripeExpressCheckoutOptionsForSubscription(
-          productDetails,
-          priceBreakdown,
-          subscriptionOption,
-          $translator,
-          managementUrl,
-        )
-      : undefined,
+    priceBreakdown &&
+      (productDetails.productType === ProductType.Subscription
+        ? subscriptionOption && managementUrl
+          ? StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+              productDetails,
+              priceBreakdown,
+              subscriptionOption,
+              $translator,
+              managementUrl,
+              resolvedDiscount,
+            )
+          : undefined
+        : productDetails.defaultNonSubscriptionOption
+          ? StripeService.buildStripeExpressCheckoutOptionsForNonSubscription(
+              productDetails,
+              priceBreakdown,
+              resolvedDiscount,
+            )
+          : undefined),
   );
 
   $effect(() => {
     onPriceBreakdownUpdated(priceBreakdown);
+  });
+
+  function applyLocalPriceBreakdown(nextPriceBreakdown: PriceBreakdown) {
+    taxCalculationStatus = nextPriceBreakdown.taxCalculationStatus;
+    originalAmountInMicros =
+      nextPriceBreakdown.originalAmountInMicros ?? initialPrice.amountMicros;
+    taxAmountInMicros = nextPriceBreakdown.taxAmountInMicros;
+    taxBreakdown = nextPriceBreakdown.taxBreakdown;
+    totalExcludingTaxInMicros = nextPriceBreakdown.totalExcludingTaxInMicros;
+    totalAmountInMicros = nextPriceBreakdown.totalAmountInMicros;
+    appliedDiscounts = nextPriceBreakdown.appliedDiscounts ?? [];
+  }
+
+  $effect(() => {
+    if (defaultPriceBreakdown) {
+      return;
+    }
+
+    originalAmountInMicros = initialPrice.amountMicros;
+    taxAmountInMicros = null;
+    taxBreakdown = null;
+    totalExcludingTaxInMicros = initialPrice.amountMicros;
+    totalAmountInMicros = initialPrice.amountMicros;
+    appliedDiscounts = [];
   });
 
   $effect(() => {
@@ -195,14 +249,7 @@
       return;
     }
 
-    taxCalculationStatus = defaultPriceBreakdown.taxCalculationStatus;
-    originalAmountInMicros =
-      defaultPriceBreakdown.originalAmountInMicros ?? initialPrice.amountMicros;
-    taxAmountInMicros = defaultPriceBreakdown.taxAmountInMicros;
-    taxBreakdown = defaultPriceBreakdown.taxBreakdown;
-    totalExcludingTaxInMicros = defaultPriceBreakdown.totalExcludingTaxInMicros;
-    totalAmountInMicros = defaultPriceBreakdown.totalAmountInMicros;
-    appliedDiscounts = defaultPriceBreakdown.appliedDiscounts ?? [];
+    applyLocalPriceBreakdown(defaultPriceBreakdown);
   });
 
   $effect(() => {
@@ -284,16 +331,14 @@
       nextTaxCalculationStatus,
     );
 
-    taxCalculationStatus = nextPriceBreakdown.taxCalculationStatus;
-    originalAmountInMicros =
-      nextPriceBreakdown.originalAmountInMicros ?? initialPrice.amountMicros;
-    taxAmountInMicros = nextPriceBreakdown.taxAmountInMicros;
-    taxBreakdown = nextPriceBreakdown.taxBreakdown;
-    totalExcludingTaxInMicros = nextPriceBreakdown.totalExcludingTaxInMicros;
-    totalAmountInMicros = nextPriceBreakdown.totalAmountInMicros;
-    appliedDiscounts = nextPriceBreakdown.appliedDiscounts ?? [];
-    elementsConfiguration =
-      pricingResponse.gateway_params.elements_configuration;
+    if (onSessionPricingUpdated) {
+      onSessionPricingUpdated(pricingResponse, nextPriceBreakdown);
+    } else {
+      applyLocalPriceBreakdown(nextPriceBreakdown);
+      elementsConfiguration =
+        pricingResponse.gateway_params.elements_configuration;
+    }
+
     lastTaxCustomerDetails = taxCustomerDetails;
   }
 

@@ -15,11 +15,13 @@ import type { BrandingInfoResponse } from "../networking/responses/branding-resp
 import { Theme } from "../ui/theme/theme";
 import { DEFAULT_TEXT_STYLES } from "../ui/theme/text";
 import type { StripeElementsConfiguration } from "../networking/responses/stripe-elements";
-import type { Product, SubscriptionOption } from "../entities/offerings";
+import { type Product, type SubscriptionOption } from "../entities/offerings";
 import type { Translator } from "../ui/localization/translator";
 import { LocalizationKeys } from "../ui/localization/supportedLanguages";
 import type { StripeExpressCheckoutElementOptions } from "@stripe/stripe-js/dist/stripe-js/elements/index";
+import type { LineItem } from "@stripe/stripe-js/dist/stripe-js/elements/express-checkout";
 import { type Period, PeriodUnit } from "../helpers/duration-helper";
+import type { ResolvedDiscountBreakdown } from "../helpers/discount-breakdown-helper";
 import type { StripeExpressCheckoutConfiguration } from "./stripe-express-checkout-configuration";
 import type { PriceBreakdown } from "../ui/ui-types";
 import type { StripeBillingParams } from "../networking/responses/checkout-start-response";
@@ -474,16 +476,52 @@ export class StripeService {
     return Math.floor(priceMicros / 10_000);
   }
 
+  static toExpressCheckoutLineItems(
+    productTitle: string,
+    priceBreakdown: PriceBreakdown,
+    resolvedDiscount: ResolvedDiscountBreakdown,
+  ): LineItem[] {
+    const { currency } = priceBreakdown;
+    const totalMinimumAmount = StripeService.microsToMinimumAmountPrice(
+      priceBreakdown.totalAmountInMicros,
+      currency,
+    );
+    const discountMinimumAmount = StripeService.microsToMinimumAmountPrice(
+      resolvedDiscount.discountAmountInMicros,
+      currency,
+    );
+
+    return [
+      {
+        name: productTitle,
+        amount: totalMinimumAmount + discountMinimumAmount,
+      },
+      { name: resolvedDiscount.label, amount: -discountMinimumAmount },
+    ];
+  }
+
   static buildStripeExpressCheckoutOptionsForSubscription(
     productDetails: Product,
     priceBreakdown: PriceBreakdown,
     subscriptionOption: SubscriptionOption,
     translator: Translator,
     managementUrl: string,
+    resolvedDiscount: ResolvedDiscountBreakdown | null,
     maxRows?: number,
     maxColumns?: number,
     overflow?: "auto" | "never",
   ): StripeExpressCheckoutConfiguration {
+    const layout = { maxRows, maxColumns, overflow };
+
+    const lineItems =
+      resolvedDiscount && resolvedDiscount.discountAmountInMicros > 0
+        ? StripeService.toExpressCheckoutLineItems(
+            productDetails.title,
+            priceBreakdown,
+            resolvedDiscount,
+          )
+        : undefined;
+
     const priceMinimumAmount = StripeService.microsToMinimumAmountPrice(
       priceBreakdown.totalAmountInMicros,
       priceBreakdown.currency,
@@ -503,22 +541,22 @@ export class StripeService {
       : {};
 
     return {
-      layout: {
-        maxRows,
-        maxColumns,
-        overflow,
-      },
-
+      layout,
+      ...(lineItems ? { lineItems } : {}),
       applePay: {
         recurringPaymentRequest: {
           paymentDescription: productDetails.title,
           managementURL: managementUrl,
-          trialBilling: hasTrial
+          ...(hasTrial
             ? {
-                label: translator.translate(LocalizationKeys.ApplePayFreeTrial),
-                amount: 0,
+                trialBilling: {
+                  label: translator.translate(
+                    LocalizationKeys.ApplePayFreeTrial,
+                  ),
+                  amount: 0,
+                },
               }
-            : undefined,
+            : {}),
           regularBilling: {
             label: productDetails.title,
             amount: priceMinimumAmount,
@@ -527,6 +565,31 @@ export class StripeService {
           },
         },
       },
+    };
+  }
+
+  static buildStripeExpressCheckoutOptionsForNonSubscription(
+    productDetails: Product,
+    priceBreakdown: PriceBreakdown,
+    resolvedDiscount: ResolvedDiscountBreakdown | null,
+    maxRows?: number,
+    maxColumns?: number,
+    overflow?: "auto" | "never",
+  ): StripeExpressCheckoutConfiguration {
+    const layout = { maxRows, maxColumns, overflow };
+
+    const lineItems =
+      resolvedDiscount && resolvedDiscount.discountAmountInMicros > 0
+        ? StripeService.toExpressCheckoutLineItems(
+            productDetails.title,
+            priceBreakdown,
+            resolvedDiscount,
+          )
+        : undefined;
+
+    return {
+      layout,
+      ...(lineItems ? { lineItems } : {}),
     };
   }
 }

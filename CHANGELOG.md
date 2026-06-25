@@ -1,3 +1,63 @@
+## 1.45.0
+## RevenueCat SDK
+### ✨ New Features
+* Expose express purchase button API (#948) via Nicola Sacco (@nicfix)
+### 🐞 Bugfixes
+* fix(stripe): show app name in express checkout (#949) via Nicola Sacco (@nicfix)
+
+## 1.44.0
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Show correctly discounted price in footer (#894) via Burdock (@lburdock)
+
+## 1.43.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* fix(purchases-js): use default product background for Stripe Billing (#944) via Nicola Sacco (@nicfix)
+
+### 🔄 Other Changes
+* Bump sdks-common-config orb to 4.1.0 (#943) via Álvaro Brey (@AlvaroBrey)
+* feat: send paywallSessionId in checkout/start (#939) via Deema AlShamaa (@dalshamaa)
+* Migrate update_error_codes to the outputs parameter (#942) via Álvaro Brey (@AlvaroBrey)
+* Update sdks-common-config orb to 3.21.2 (#941) via Antonio Pallares (@ajpallares)
+* chore: Add 3-day Dependabot cooldown, excluding fastlane plugin (#934) via Toni Rico (@tonidero)
+
+## 1.43.0
+## RevenueCat SDK
+### ✨ New Features
+* Add Slovenian support for paywalls (#932) via Monika Mateska (@MonikaMateska)
+* [WEB-4279] Discount line items in native wallets (#905) via James O'Donnell (@james-od)
+
+## RevenueCatUI SDK
+### ✨ New Features
+* WFL-217 | Add support for workflows endpoints (#913) via Rosie Watson (@RosieWatson)
+
+### 🔄 Other Changes
+* [AUTOMATIC] Update generated error codes (#931) via RevenueCat Git Bot (@RCGitBot)
+* Danger: block manual edits to generated error codes (#930) via Álvaro Brey (@AlvaroBrey)
+* Add update-error-codes workflow (#926) via Álvaro Brey (@AlvaroBrey)
+* test(e2e): add full Paddle E2E coverage to webbilling-demo (WST-564) (#925) via Roger Solé (@rogersole)
+
+## 1.42.4
+## RevenueCat SDK
+### 🐞 Bugfixes
+* feat: expose Purchases.buildInfoPerPackage for workflows (#921) via Franco Correa (@francocorreasosa)
+
+### 🔄 Other Changes
+* Adopt generated error codes (#915) via Álvaro Brey (@AlvaroBrey)
+
+## 1.42.3
+## RevenueCat SDK
+### 🐞 Bugfixes
+* fix: waiting after filling the credit card form to make sure that all the animations are done (#908) via Nicola Sacco (@nicfix)
+
+### 🔄 Other Changes
+* test(purchases-js): cover paywall customerEmail checkout flows (#914) via Nicola Sacco (@nicfix)
+* feat(paddle): gate inline checkout behind per-project backend flag (WST-700) (#911) via Roger Solé (@rogersole)
+* feat(paddle): map branding to inline checkout theme (WST-567 PR 4) (#899) via Roger Solé (@rogersole)
+* feat(paddle): inline checkout processing state after completion (WST-567 PR 3) (#898) via Roger Solé (@rogersole)
+* feat(paddle): inline checkout support at the service layer (WST-567 PR 1) (#896) via Roger Solé (@rogersole)
+
 ## 1.42.2
 ## RevenueCat SDK
 ### 🐞 Bugfixes

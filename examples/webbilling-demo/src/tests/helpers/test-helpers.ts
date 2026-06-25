@@ -3,7 +3,11 @@ import { type Page, type Locator, expect } from "@playwright/test";
 import type { StoreLoadTime } from "@revenuecat/purchases-js";
 import { BASE_URL, NON_TAX_TEST_API_KEY } from "./fixtures";
 import type { integrationTest } from "./integration-test";
-import { ALLOW_PAYWALLS_TESTS, SKIP_STRIPE_TESTS } from "./integration-test";
+import {
+  ALLOW_PAYWALLS_TESTS,
+  SKIP_PADDLE_TESTS,
+  SKIP_STRIPE_TESTS,
+} from "./integration-test";
 
 export type RouteFulfillOptions = {
   body?: string | Buffer | undefined;
@@ -34,6 +38,13 @@ export const skipStripeTestsIfDisabled = (test: typeof integrationTest) => {
   test.skip(
     SKIP_STRIPE_TESTS,
     "Stripe tests are disabled. To enable them, unset VITE_SKIP_STRIPE_TESTS or set it to false.",
+  );
+};
+
+export const skipPaddleTestsIfDisabled = (test: typeof integrationTest) => {
+  test.skip(
+    SKIP_PADDLE_TESTS,
+    "Paddle tests are disabled. To enable them, unset VITE_SKIP_PADDLE_TESTS or set it to false.",
   );
 };
 
@@ -86,6 +97,7 @@ export async function navigateToLandingUrl(
     email?: string;
     $displayName?: string;
     nickname?: string;
+    hideCheckoutBackButton?: boolean;
     hideBackButtons?: boolean;
     discountCode?: string;
     storeLoadTime?: StoreLoadTime;
@@ -110,6 +122,7 @@ export async function navigateToLandingUrl(
     email,
     $displayName,
     nickname,
+    hideCheckoutBackButton,
     discountCode,
     storeLoadTime,
   } = queryString ?? {};
@@ -147,6 +160,9 @@ export async function navigateToLandingUrl(
   }
   if (nickname) {
     params.append("nickname", nickname);
+  }
+  if (hideCheckoutBackButton !== undefined) {
+    params.append("hideCheckoutBackButton", hideCheckoutBackButton.toString());
   }
   if (queryString?.hideBackButtons !== undefined) {
     params.append("hideBackButtons", queryString.hideBackButtons.toString());

@@ -11,6 +11,8 @@ import {
   GetOfferingsEndpoint,
   GetProductsEndpoint,
   GetVirtualCurrenciesEndpoint,
+  GetWorkflowDataByIdEndpoint,
+  GetWorkflowsEndpoint,
   IdentifyEndpoint,
   PostReceiptEndpoint,
   SetAttributesEndpoint,
@@ -21,6 +23,11 @@ import { type ProductsResponse } from "./responses/products-response";
 import { type BrandingInfoResponse } from "./responses/branding-response";
 import { type CheckoutStatusResponse } from "./responses/checkout-status-response";
 import { type VirtualCurrenciesResponse } from "./responses/virtual-currencies-response";
+import type {
+  WorkflowDataAction,
+  WorkflowDataResponse,
+  WorkflowsListResponse,
+} from "./responses/workflow-response";
 import { defaultHttpConfig, type HttpConfig } from "../entities/http-config";
 import type {
   PresentedOfferingContext,
@@ -46,6 +53,7 @@ interface CheckoutStartRequestParams {
   presentedOfferingContext: PresentedOfferingContext;
   presentedStepId?: string;
   paywallId?: string;
+  paywallSessionId?: string;
 
   // Customer data
   customerEmail?: string;
@@ -199,6 +207,7 @@ export class Backend {
     traceId,
     presentedStepId,
     paywallId,
+    paywallSessionId,
     customerEmail,
     metadata,
     locale,
@@ -223,6 +232,7 @@ export class Backend {
       locale?: string;
       paywall?: {
         paywall_id: string;
+        paywall_session_id?: string;
       };
       attribution_metadata?: AttributionMetadata;
     };
@@ -269,6 +279,7 @@ export class Backend {
     if (paywallId) {
       requestBody.paywall = {
         paywall_id: paywallId,
+        ...(paywallSessionId ? { paywall_session_id: paywallSessionId } : {}),
       };
     }
 
@@ -479,5 +490,51 @@ export class Backend {
         httpConfig: this.httpConfig,
       },
     );
+  }
+
+  async getWorkflows(appUserId: string): Promise<WorkflowsListResponse> {
+    return await performRequest<null, WorkflowsListResponse>(
+      new GetWorkflowsEndpoint(appUserId),
+      {
+        apiKey: this.API_KEY,
+        httpConfig: this.httpConfig,
+      },
+    );
+  }
+
+  async getWorkflowById(
+    appUserId: string,
+    workflowId: string,
+  ): Promise<WorkflowDataResponse> {
+    const dataOrAction = await performRequest<
+      null,
+      WorkflowDataAction | WorkflowDataResponse
+    >(new GetWorkflowDataByIdEndpoint(appUserId, workflowId), {
+      apiKey: this.API_KEY,
+      httpConfig: this.httpConfig,
+    });
+
+    if (!("action" in dataOrAction)) {
+      return dataOrAction;
+    }
+
+    if (dataOrAction.action === "inline") {
+      return dataOrAction.data;
+    }
+
+    if (dataOrAction.action !== "use_cdn") {
+      throw new Error(
+        `Unexpected workflow action: ${(dataOrAction as WorkflowDataAction).action}`,
+      );
+    }
+
+    // CDN redirect — fetch directly (no auth needed, public CDN).
+    const cdnResponse = await fetch(dataOrAction.url);
+    if (!cdnResponse.ok) {
+      throw new Error(
+        `Failed to fetch workflow from CDN: ${cdnResponse.statusText}`,
+      );
+    }
+    return (await cdnResponse.json()) as WorkflowDataResponse;
   }
 }

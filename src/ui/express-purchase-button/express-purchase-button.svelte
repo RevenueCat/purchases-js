@@ -135,6 +135,7 @@
           rcPackage,
           purchaseOption,
           translator,
+          brandingInfo,
           walletButtonTheme,
         );
         expressCheckoutOptions = expOptions;
@@ -315,10 +316,14 @@
         rcPackage,
         purchaseOption,
         translator,
+        brandingInfo,
         walletButtonTheme,
       );
 
-      return { applePay: options.applePay } as ClickResolveDetails;
+      return {
+        applePay: options.applePay,
+        lineItems: options.lineItems,
+      } as ClickResolveDetails;
     } catch (error) {
       handleError(
         error instanceof PurchaseFlowError

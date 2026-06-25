@@ -23,6 +23,7 @@ import {
   checkoutPrepareResponse,
 } from "../test-responses";
 import type { CheckoutCompleteResponse } from "../../networking/responses/checkout-complete-response";
+import type { SubscriptionOptionResponse } from "../../networking/responses/products-response";
 
 const eventsTrackerMock = createEventsTrackerMock();
 
@@ -31,6 +32,7 @@ const createCheckoutPricingResponse = (
   options?: {
     durationMode?: "time_window" | null;
     timeWindow?: string | null;
+    selectedPurchaseOption?: SubscriptionOptionResponse | null;
   },
 ): CheckoutPricingResponse => {
   const subtotalInMicros =
@@ -47,6 +49,7 @@ const createCheckoutPricingResponse = (
     total_amount_in_micros: discountedSubtotalInMicros,
     tax_amount_in_micros: 0,
     tax_breakdown: [],
+    selected_purchase_option: options?.selectedPurchaseOption,
     applied_discounts: discountCode
       ? [
           {
@@ -62,6 +65,74 @@ const createCheckoutPricingResponse = (
       : [],
   };
 };
+
+const createSessionSubscriptionOptionResponse = (
+  fields: Partial<SubscriptionOptionResponse> = {},
+): SubscriptionOptionResponse => ({
+  id: "session_option",
+  price_id: "session_price",
+  base: {
+    cycle_count: 1,
+    period_duration: "P1M",
+    price: {
+      amount_micros: 2990000,
+      currency: "USD",
+    },
+  },
+  trial: null,
+  intro_price: null,
+  discount: null,
+  ...fields,
+});
+
+const sessionTrialPurchaseOption = createSessionSubscriptionOptionResponse({
+  id: "session_trial_option",
+  price_id: "session_trial_price",
+  trial: {
+    cycle_count: 1,
+    period_duration: "P1W",
+    price: null,
+  },
+});
+
+const sessionIntroBasePurchaseOption = createSessionSubscriptionOptionResponse({
+  id: "base_option",
+  price_id: "session_base_price",
+  intro_price: {
+    cycle_count: 1,
+    period_duration: "P2W",
+    price: {
+      amount_micros: 4990000,
+      currency: "USD",
+    },
+  },
+});
+
+const sessionForeverFreePurchaseOption =
+  createSessionSubscriptionOptionResponse({
+    id: "discnt_foreverfree",
+    price_id: "session_foreverfree_price",
+    base: {
+      cycle_count: 1,
+      period_duration: "P1Y",
+      price: {
+        amount_micros: 100000000,
+        currency: "USD",
+      },
+    },
+    trial: null,
+    intro_price: null,
+    discount: {
+      name: "foreverfree",
+      currency: "USD",
+      amount_micros: 0,
+      duration_mode: "forever",
+      time_window: null,
+      discount_type: "percentage",
+      percentage: 100,
+      fixed_amount_micros: null,
+    },
+  });
 
 const purchaseOperationHelperMock: PurchaseOperationHelper = {
   prepareCheckout: async () => Promise.resolve(checkoutPrepareResponse),
@@ -110,7 +181,11 @@ describe("PurchasesUI", () => {
 
     const calculateTaxSpy = vi
       .spyOn(purchaseOperationHelperMock, "checkoutRefreshPricing")
-      .mockResolvedValue(checkoutPricingResponse);
+      .mockResolvedValue(
+        createCheckoutPricingResponse(null, {
+          selectedPurchaseOption: sessionTrialPurchaseOption,
+        }),
+      );
 
     render(PurchasesUI, {
       props: {
@@ -125,6 +200,12 @@ describe("PurchasesUI", () => {
     await new Promise(process.nextTick);
 
     expect(calculateTaxSpy).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(screen.getByText("Try free for 1 week")).toBeInTheDocument();
+      expect(
+        screen.getByText(/After your trial ends, you will be charged/i),
+      ).toBeInTheDocument();
+    });
   });
 
   test("does not perform tax calculation when gateway_tax_collection_enabled is false", async () => {
@@ -296,6 +377,57 @@ describe("PurchasesUI", () => {
     });
   });
 
+  test("does not render stale trial copy when session purchase option removes the trial", async () => {
+    vi.spyOn(purchaseOperationHelperMock, "checkoutStart").mockResolvedValue(
+      checkoutStartResponse,
+    );
+    vi.spyOn(
+      purchaseOperationHelperMock,
+      "checkoutRefreshPricing",
+    ).mockResolvedValue(
+      createCheckoutPricingResponse("FOREVERFREE", {
+        selectedPurchaseOption: sessionForeverFreePurchaseOption,
+      }),
+    );
+
+    render(PurchasesUI, {
+      props: {
+        ...basicProps,
+        brandingInfo: {
+          ...brandingInfo,
+          gateway_tax_collection_enabled: true,
+        },
+        showDiscountCodeField: true,
+        discountCode: "FOREVERFREE",
+      },
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByText(/After trial ends, on/i)).toBeNull();
+      expect(screen.queryByText(/After your trial ends/i)).toBeNull();
+      expect(screen.queryByRole("button", { name: /start trial/i })).toBeNull();
+      expect(
+        screen.getByRole("button", { name: "Remove promo code FOREVERFREE" }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  test("falls back to /products purchase option data before session purchase options exist", async () => {
+    render(PurchasesUI, {
+      props: {
+        ...basicProps,
+        brandingInfo,
+      },
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByText("Try free for 1 week")).toBeNull();
+      expect(
+        screen.getByText(/By subscribing, you agree to allow/i),
+      ).toBeInTheDocument();
+    });
+  });
+
   test("shows the error page if incoming pricing refresh hits a fatal interrupt", async () => {
     const interruptError = new PurchaseFlowError(
       PurchaseFlowErrorCode.StripeMissingRequiredPermission,
@@ -325,7 +457,11 @@ describe("PurchasesUI", () => {
     const onDiscountCodeChanged = vi.fn();
     const checkoutRefreshPricingSpy = vi
       .spyOn(purchaseOperationHelperMock, "checkoutRefreshPricing")
-      .mockResolvedValue(createCheckoutPricingResponse("SAVE10"));
+      .mockResolvedValue(
+        createCheckoutPricingResponse("SAVE10", {
+          selectedPurchaseOption: sessionTrialPurchaseOption,
+        }),
+      );
 
     render(PurchasesUI, {
       props: {
@@ -355,6 +491,7 @@ describe("PurchasesUI", () => {
       ).toBeTruthy();
       expect(screen.getByText("-$1.00")).toBeTruthy();
       expect(screen.queryByText("Total excluding tax")).not.toBeInTheDocument();
+      expect(screen.getByText("Try free for 1 week")).toBeInTheDocument();
     });
   });
 
@@ -395,8 +532,16 @@ describe("PurchasesUI", () => {
     const onDiscountCodeChanged = vi.fn();
     const checkoutRefreshPricingSpy = vi
       .spyOn(purchaseOperationHelperMock, "checkoutRefreshPricing")
-      .mockResolvedValueOnce(createCheckoutPricingResponse("SAVE10"))
-      .mockResolvedValueOnce(createCheckoutPricingResponse(null));
+      .mockResolvedValueOnce(
+        createCheckoutPricingResponse("SAVE10", {
+          selectedPurchaseOption: sessionTrialPurchaseOption,
+        }),
+      )
+      .mockResolvedValueOnce(
+        createCheckoutPricingResponse(null, {
+          selectedPurchaseOption: sessionIntroBasePurchaseOption,
+        }),
+      );
 
     render(PurchasesUI, {
       props: {
@@ -411,6 +556,7 @@ describe("PurchasesUI", () => {
         screen.getByRole("button", { name: "Remove promo code SAVE10" }),
       ).toBeTruthy();
       expect(screen.getByText("-$1.00")).toBeTruthy();
+      expect(screen.getByText("Try free for 1 week")).toBeInTheDocument();
     });
 
     const removeButton = await screen.findByRole("button", {
@@ -425,6 +571,46 @@ describe("PurchasesUI", () => {
       expect(onDiscountCodeChanged).toHaveBeenCalledWith(null);
       expect(screen.getByLabelText("Promo code")).toBeTruthy();
       expect(screen.queryByText("-$1.00")).toBeNull();
+      expect(screen.queryByText("Try free for 1 week")).toBeNull();
+      expect(screen.getByText(/First 2 weeks for/i)).toBeInTheDocument();
+    });
+  });
+
+  test("keeps the current active purchase option unchanged when applying an invalid discount code fails", async () => {
+    vi.spyOn(purchaseOperationHelperMock, "checkoutRefreshPricing")
+      .mockResolvedValueOnce(
+        createCheckoutPricingResponse(null, {
+          selectedPurchaseOption: sessionTrialPurchaseOption,
+        }),
+      )
+      .mockRejectedValueOnce(new Error("Invalid promo code."));
+
+    render(PurchasesUI, {
+      props: {
+        ...basicProps,
+        brandingInfo: {
+          ...brandingInfo,
+          gateway_tax_collection_enabled: true,
+        },
+        showDiscountCodeField: true,
+      },
+    });
+
+    const discountCodeInput = screen.getByLabelText("Promo code");
+    await waitFor(() => {
+      expect(discountCodeInput).not.toBeDisabled();
+      expect(screen.getByText("Try free for 1 week")).toBeInTheDocument();
+    });
+
+    await fireEvent.input(discountCodeInput, {
+      target: { value: "BADCODE" },
+    });
+    await fireEvent.click(screen.getByRole("button", { name: "Apply" }));
+
+    await waitFor(() => {
+      expect(screen.getByText("Code can't be applied.")).toBeInTheDocument();
+      expect(screen.getByText("Try free for 1 week")).toBeInTheDocument();
+      expect(screen.getByDisplayValue("BADCODE")).toBeInTheDocument();
     });
   });
 });

@@ -100,6 +100,12 @@ export interface PurchaseParams {
   paywallId?: string;
 
   /**
+   * The paywall session ID from which this purchase originated, if applicable.
+   * @internal
+   */
+  paywallSessionId?: string;
+
+  /**
    * The locale to use for the purchase flow. If not specified, English will be used
    */
   selectedLocale?: string;
