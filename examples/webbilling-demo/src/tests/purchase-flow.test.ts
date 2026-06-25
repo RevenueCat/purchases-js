@@ -47,6 +47,21 @@ test.describe("Purchase flow", () => {
   );
 
   integrationTest(
+    "Hides the checkout back button when hideCheckoutBackButton=true",
+    async ({ page, userId }) => {
+      page = await navigateToLandingUrl(page, userId, {
+        hideCheckoutBackButton: true,
+      });
+
+      const packageCards = await getPackageCards(page);
+      await startPurchaseFlow(packageCards[1]);
+
+      await expect(page.getByText("Secure Checkout")).toBeVisible();
+      await expect(page.locator(".rcb-back-button")).toHaveCount(0);
+    },
+  );
+
+  integrationTest(
     "Purchase a subscription product with delayed store load",
     async ({ page, userId, email }) => {
       await page.goto(
