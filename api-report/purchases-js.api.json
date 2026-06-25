@@ -1932,6 +1932,69 @@
         },
         {
           "kind": "Interface",
+          "canonicalReference": "@revenuecat/purchases-js!ExpressPurchaseButtonUpdater:interface",
+          "docComment": "/**\n * Callback to be called when the express purchase button is ready to be updated.\n *\n * @experimental @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare interface ExpressPurchaseButtonUpdater "
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "name": "ExpressPurchaseButtonUpdater",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!ExpressPurchaseButtonUpdater#updatePurchase:member",
+              "docComment": "/**\n * Updates the purchase option of the express purchase button.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "updatePurchase: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "(pkg: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Package",
+                  "canonicalReference": "@revenuecat/purchases-js!Package:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", purchaseOption?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "PurchaseOption",
+                  "canonicalReference": "@revenuecat/purchases-js!PurchaseOption:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ") => void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "updatePurchase",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 6
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
+          "kind": "Interface",
           "canonicalReference": "@revenuecat/purchases-js!FlagsConfig:interface",
           "docComment": "/**\n * Flags used to enable or disable certain features in the sdk.\n *\n * @public\n */\n",
           "excerptTokens": [
@@ -3608,121 +3671,31 @@
           ]
         },
         {
-          "kind": "Interface",
-          "canonicalReference": "@revenuecat/purchases-js!PaywallListener:interface",
+          "kind": "TypeAlias",
+          "canonicalReference": "@revenuecat/purchases-js!PaywallListener:type",
           "docComment": "/**\n * Listener for paywall purchase lifecycle events.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare interface PaywallListener "
+              "text": "export declare type PaywallListener = "
+            },
+            {
+              "kind": "Reference",
+              "text": "PurchaseListener",
+              "canonicalReference": "@revenuecat/purchases-js!PurchaseListener:interface"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
             }
           ],
           "fileUrlPath": "dist/Purchases.es.d.ts",
           "releaseTag": "Public",
           "name": "PaywallListener",
-          "preserveMemberOrder": false,
-          "members": [
-            {
-              "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!PaywallListener#onPurchaseCancelled:member",
-              "docComment": "/**\n * Called when the user cancels the purchase flow.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "onPurchaseCancelled?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "() => void"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": true,
-              "releaseTag": "Public",
-              "name": "onPurchaseCancelled",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              }
-            },
-            {
-              "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!PaywallListener#onPurchaseError:member",
-              "docComment": "/**\n * Callback called when an error that won't close the paywall occurs. For example, a retryable error during the purchase process.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "onPurchaseError?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "(error: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Error",
-                  "canonicalReference": "!Error:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": ") => void"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": true,
-              "releaseTag": "Public",
-              "name": "onPurchaseError",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 4
-              }
-            },
-            {
-              "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!PaywallListener#onPurchaseStarted:member",
-              "docComment": "/**\n * Called when a purchase flow is about to start for the given package.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "onPurchaseStarted?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "(rcPackage: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Package",
-                  "canonicalReference": "@revenuecat/purchases-js!Package:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": ") => void"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": true,
-              "releaseTag": "Public",
-              "name": "onPurchaseStarted",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 4
-              }
-            }
-          ],
-          "extendsTokenRanges": []
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
         },
         {
           "kind": "Interface",
@@ -4162,6 +4135,313 @@
         },
         {
           "kind": "Interface",
+          "canonicalReference": "@revenuecat/purchases-js!PresentExpressPurchaseButtonParams:interface",
+          "docComment": "/**\n * Parameters for the {@link Purchases.presentExpressPurchaseButton} method.\n *\n * @example\n * ```ts\n * const offerings = await purchases.getOfferings();\n * const pkg = offerings.current?.availablePackages[0];\n * const htmlTarget = document.getElementById(\"express-purchase-button\");\n * const fallbackButton = document.getElementById(\"checkout-button\");\n *\n * if (pkg && htmlTarget) {\n *   let expressButtonUpdater: ExpressPurchaseButtonUpdater | undefined;\n *\n *   void purchases.presentExpressPurchaseButton({\n *     rcPackage: pkg,\n *     htmlTarget,\n *     onButtonReady: (updater, walletsAvailable) => {\n *       expressButtonUpdater = updater;\n *       htmlTarget.hidden = !walletsAvailable;\n *\n *       if (fallbackButton) {\n *         fallbackButton.hidden = walletsAvailable;\n *       }\n *     },\n *   });\n *\n *   // If the customer selects a different package later, update the button\n *   // instead of rendering a new one.\n *   function onSelectedPackageChanged(nextPackage: Package) {\n *     expressButtonUpdater?.updatePurchase(nextPackage);\n *   }\n * }\n * ```\n *\n * @experimental @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare interface PresentExpressPurchaseButtonParams "
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "name": "PresentExpressPurchaseButtonParams",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PresentExpressPurchaseButtonParams#customerEmail:member",
+              "docComment": "/**\n * The email of the user. If undefined, RevenueCat will ask the customer for their email.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "customerEmail?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "customerEmail",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PresentExpressPurchaseButtonParams#defaultLocale:member",
+              "docComment": "/**\n * The default locale to use if the selectedLocale is not available. Defaults to english.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "defaultLocale?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "defaultLocale",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PresentExpressPurchaseButtonParams#htmlTarget:member",
+              "docComment": "/**\n * The HTML element where the express purchase button should be rendered.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "htmlTarget: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "HTMLElement",
+                  "canonicalReference": "!HTMLElement:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "htmlTarget",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PresentExpressPurchaseButtonParams#listener:member",
+              "docComment": "/**\n * Optional listener for purchase lifecycle events.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "listener?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "PurchaseListener",
+                  "canonicalReference": "@revenuecat/purchases-js!PurchaseListener:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "listener",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PresentExpressPurchaseButtonParams#metadata:member",
+              "docComment": "/**\n * The purchase metadata to be passed to the backend. Any information provided here will be propagated to the payment gateway and to the RC transaction as metadata.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "metadata?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "PurchaseMetadata",
+                  "canonicalReference": "@revenuecat/purchases-js!PurchaseMetadata:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "metadata",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PresentExpressPurchaseButtonParams#onButtonReady:member",
+              "docComment": "/**\n * Callback to be called when the express purchase button is ready to be clicked.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "onButtonReady?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "(updater: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ExpressPurchaseButtonUpdater",
+                  "canonicalReference": "@revenuecat/purchases-js!ExpressPurchaseButtonUpdater:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", walletsAvailable: boolean) => void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "onButtonReady",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 4
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PresentExpressPurchaseButtonParams#purchaseOption:member",
+              "docComment": "/**\n * The option to be used for this purchase. If not specified or null the default one will be used.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "purchaseOption?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "PurchaseOption",
+                  "canonicalReference": "@revenuecat/purchases-js!PurchaseOption:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "purchaseOption",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PresentExpressPurchaseButtonParams#rcPackage:member",
+              "docComment": "/**\n * The package you want to purchase. Obtained from {@link Purchases.getOfferings}.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "rcPackage: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Package",
+                  "canonicalReference": "@revenuecat/purchases-js!Package:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "rcPackage",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PresentExpressPurchaseButtonParams#selectedLocale:member",
+              "docComment": "/**\n * The locale to use for the purchase flow. If not specified, English will be used\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "selectedLocale?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "selectedLocale",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PresentExpressPurchaseButtonParams#walletButtonTheme:member",
+              "docComment": "/**\n * Theme for the Stripe wallet button appearance. Matches Apple Pay button styles: 'black', 'white', or 'white-outline' Defaults to \"black\".\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "walletButtonTheme?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "WalletButtonTheme",
+                  "canonicalReference": "@revenuecat/purchases-ui-js!WalletButtonTheme:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "walletButtonTheme",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
+          "kind": "Interface",
           "canonicalReference": "@revenuecat/purchases-js!PresentPaywallParams:interface",
           "docComment": "/**\n * Parameters for the {@link Purchases.presentPaywall} method.\n *\n * @public\n */\n",
           "excerptTokens": [
@@ -4324,7 +4604,7 @@
                 {
                   "kind": "Reference",
                   "text": "PaywallListener",
-                  "canonicalReference": "@revenuecat/purchases-js!PaywallListener:interface"
+                  "canonicalReference": "@revenuecat/purchases-js!PaywallListener:type"
                 },
                 {
                   "kind": "Content",
@@ -5550,6 +5830,123 @@
               "name": "Subscription"
             }
           ]
+        },
+        {
+          "kind": "Interface",
+          "canonicalReference": "@revenuecat/purchases-js!PurchaseListener:interface",
+          "docComment": "/**\n * Listener for purchase lifecycle events.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare interface PurchaseListener "
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "name": "PurchaseListener",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PurchaseListener#onPurchaseCancelled:member",
+              "docComment": "/**\n * Called when the user cancels the purchase flow.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "onPurchaseCancelled?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "() => void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "onPurchaseCancelled",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PurchaseListener#onPurchaseError:member",
+              "docComment": "/**\n * Callback called when an error that won't close the paywall occurs. For example, a retryable error during the purchase process.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "onPurchaseError?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "(error: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Error",
+                  "canonicalReference": "!Error:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ") => void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "onPurchaseError",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 4
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PurchaseListener#onPurchaseStarted:member",
+              "docComment": "/**\n * Called when a purchase flow is about to start for the given package.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "onPurchaseStarted?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "(rcPackage: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Package",
+                  "canonicalReference": "@revenuecat/purchases-js!Package:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ") => void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "onPurchaseStarted",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 4
+              }
+            }
+          ],
+          "extendsTokenRanges": []
         },
         {
           "kind": "TypeAlias",
@@ -7004,6 +7401,69 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "preload"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@revenuecat/purchases-js!Purchases#presentExpressPurchaseButton:member(1)",
+              "docComment": "/**\n * Renders an Express Purchase button for the supported wallets (Apple Pay/Google Pay). When clicked it uses the wallet UI to execute the purchase instead of the checkout flow that would be shown with `.purchase`.\n *\n * @param params - The parameters object to customise the purchase flow. Check {@link PresentExpressPurchaseButtonParams}\n *\n * @returns Promise<PurchaseResult>\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "presentExpressPurchaseButton(params: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "PresentExpressPurchaseButtonParams",
+                  "canonicalReference": "@revenuecat/purchases-js!PresentExpressPurchaseButtonParams:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "PurchaseResult",
+                  "canonicalReference": "@revenuecat/purchases-js!PurchaseResult:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 7
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "presentExpressPurchaseButton"
             },
             {
               "kind": "Method",

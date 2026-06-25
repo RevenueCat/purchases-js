@@ -745,6 +745,25 @@ export const toProduct = (
   }
 };
 
+export const toPurchaseOptionForProductType = (
+  productType: ProductType,
+  purchaseOptionResponse:
+    | SubscriptionOptionResponse
+    | NonSubscriptionOptionResponse,
+): PurchaseOption | null => {
+  if (productType === ProductType.Subscription) {
+    if ("base" in purchaseOptionResponse) {
+      return toSubscriptionOption(purchaseOptionResponse);
+    }
+    return null;
+  }
+
+  if ("base_price" in purchaseOptionResponse) {
+    return toNonSubscriptionOption(purchaseOptionResponse);
+  }
+  return null;
+};
+
 const toNonSubscriptionProduct = (
   productDetailsData: ProductResponse,
   presentedOfferingContext: PresentedOfferingContext,
