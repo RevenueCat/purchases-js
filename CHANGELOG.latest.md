@@ -1,5 +1,6 @@
 ## RevenueCat SDK
 ### ✨ New Features
-* Expose express purchase button API (#948) via Nicola Sacco (@nicfix)
-### 🐞 Bugfixes
-* fix(stripe): show app name in express checkout (#949) via Nicola Sacco (@nicfix)
+* WEB-4012 Add checkout back button visibility flag (#951) via Nicola Sacco (@nicfix)
+
+### 🔄 Other Changes
+* WEB-4366: Add billing CTA text color override (#912) via Ed Shelley (@MrEdwardo)
