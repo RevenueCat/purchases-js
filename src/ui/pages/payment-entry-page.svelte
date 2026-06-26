@@ -85,6 +85,14 @@
   }
 
   class TaxCustomerDetailsMissMatchError extends Error {}
+
+  /**
+   * Delay applied before triggering a tax recalculation in response to form
+   * changes. This debounces bursts of `change` events (e.g. while the customer
+   * is typing the address line 1 or line 2) so we only recalculate taxes once
+   * they pause, instead of firing a request on every keystroke.
+   */
+  const TAX_REFRESH_DEBOUNCE_MS = 500;
 </script>
 
 <script lang="ts">
@@ -173,6 +181,7 @@
   let clientSecret: string | undefined = $state(undefined);
   let processing = $state(false);
   let abortController: AbortController | null = $state(null);
+  let refreshTaxesTimeout: ReturnType<typeof setTimeout> | null = null;
   let view: View = $derived(
     isStripeLoading || processing
       ? "loading"
@@ -276,6 +285,10 @@
   });
 
   onDestroy(() => {
+    if (refreshTaxesTimeout) {
+      clearTimeout(refreshTaxesTimeout);
+      refreshTaxesTimeout = null;
+    }
     if (abortController) {
       abortController.abort();
       abortController = null;
@@ -365,13 +378,13 @@
     isStripeLoading = false;
   }
 
-  async function handleEmailChange(complete: boolean, emailValue: string) {
+  function handleEmailChange(complete: boolean, emailValue: string) {
     email = emailValue;
     isEmailComplete = complete;
-    await refreshTaxes();
+    scheduleRefreshTaxes();
   }
 
-  async function handlePaymentInfoChange({
+  function handlePaymentInfoChange({
     complete,
     paymentMethod,
   }: {
@@ -380,12 +393,37 @@
   }) {
     selectedPaymentMethod = paymentMethod;
     isPaymentInfoComplete = complete;
-    await refreshTaxes();
+    scheduleRefreshTaxes();
   }
 
-  async function handleAddressInfoChange(complete: boolean) {
+  function handleAddressInfoChange(complete: boolean) {
     isAddressComplete = complete;
-    await refreshTaxes();
+    scheduleRefreshTaxes();
+  }
+
+  /**
+   * Debounces tax recalculations triggered by form `change` events. Successive
+   * changes within {@link TAX_REFRESH_DEBOUNCE_MS} (e.g. while typing the
+   * address) reset the timer, so the recalculation only runs once the customer
+   * pauses, avoiding a burst of redundant tax calculations.
+   *
+   * The loading state is applied immediately (not debounced) so the UI reacts
+   * as soon as the customer starts typing, while the actual calculation only
+   * fires after the cooldown.
+   */
+  function scheduleRefreshTaxes(): void {
+    if (canRefreshTaxes() && taxCalculationStatus !== "loading") {
+      previousTaxCalculationStatus = taxCalculationStatus;
+      taxCalculationStatus = "loading";
+    }
+
+    if (refreshTaxesTimeout) {
+      clearTimeout(refreshTaxesTimeout);
+    }
+    refreshTaxesTimeout = setTimeout(() => {
+      refreshTaxesTimeout = null;
+      void refreshTaxes();
+    }, TAX_REFRESH_DEBOUNCE_MS);
   }
 
   async function handleSubmit(e?: Event): Promise<void> {
@@ -420,6 +458,21 @@
   }
 
   /**
+   * Whether a tax recalculation can run given the current form state. Tax
+   * refreshes are only valid for card payments once the email and payment
+   * information are complete and tax collection is enabled.
+   */
+  function canRefreshTaxes(): boolean {
+    return (
+      selectedPaymentMethod === "card" &&
+      isEmailComplete &&
+      isPaymentInfoComplete &&
+      !processing &&
+      taxCalculationStatus !== "disabled"
+    );
+  }
+
+  /**
    * Refreshes taxes in real-time as the customer enters payment details.
    *
    * This method can only be used for card payments, as it will trigger a native prompt
@@ -437,14 +490,7 @@
    * when multiple tax refresh requests are triggered in quick succession.
    */
   async function refreshTaxes(): Promise<void> {
-    if (
-      selectedPaymentMethod !== "card" ||
-      !isEmailComplete ||
-      !isPaymentInfoComplete ||
-      processing ||
-      taxCalculationStatus === "disabled"
-    )
-      return;
+    if (!canRefreshTaxes()) return;
 
     if (taxCalculationStatus !== "loading") {
       previousTaxCalculationStatus = taxCalculationStatus;
