@@ -31,7 +31,7 @@
   } from "../../behavioural-events/sdk-event-helpers";
   import { SDKEventName } from "../../behavioural-events/sdk-events";
   import Loading from "../molecules/loading.svelte";
-  import { type Writable } from "svelte/store";
+  import { writable, type Writable } from "svelte/store";
   import PaymentButton from "../molecules/payment-button.svelte";
   import type {
     GatewayParams,
@@ -76,6 +76,12 @@
       priceBreakdown: PriceBreakdown,
     ) => void;
     onProcessingStateChange?: (isProcessing: boolean) => void;
+    /**
+     * Shared store holding the last known tax customer details. It is lifted to
+     * the parent so that pricing refreshes triggered outside of this page (e.g.
+     * discount-code refreshes) can also forward the latest known tax location.
+     */
+    lastTaxCustomerDetailsStore?: Writable<TaxCustomerDetails | null>;
   }
 
   class TaxCustomerDetailsMissMatchError extends Error {}
@@ -100,6 +106,7 @@
     onPriceBreakdownUpdated,
     onSessionPricingUpdated = undefined,
     onProcessingStateChange = undefined,
+    lastTaxCustomerDetailsStore = writable<TaxCustomerDetails | null>(null),
   }: Props = $props();
 
   const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
@@ -151,8 +158,6 @@
     gatewayParams.elements_configuration,
   );
 
-  let lastTaxCustomerDetails: TaxCustomerDetails | null = $state(null);
-
   let stripe: Stripe | null = $state(null);
   let elements: StripeElements | null = $state(null);
 
@@ -160,7 +165,9 @@
   let isEmailComplete = $state(customerEmail ? true : false);
   let isStripeLoading = $state(true);
   let isPaymentInfoComplete = $state(false);
-  let isAddressComplete = $state(!brandingInfo?.full_address_collection_enabled);
+  let isAddressComplete = $state(
+    !brandingInfo?.full_address_collection_enabled,
+  );
   let selectedPaymentMethod: string | undefined = $state(undefined);
   let modalErrorMessage: string | undefined = $state(undefined);
   let clientSecret: string | undefined = $state(undefined);
@@ -345,7 +352,7 @@
         pricingResponse.gateway_params.elements_configuration;
     }
 
-    lastTaxCustomerDetails = taxCustomerDetails;
+    $lastTaxCustomerDetailsStore = taxCustomerDetails;
   }
 
   function handleStripeLoadingComplete() {
@@ -553,6 +560,7 @@
 
     signal?.throwIfAborted();
 
+    const lastTaxCustomerDetails = $lastTaxCustomerDetailsStore;
     const sameDetails =
       taxCustomerDetails.postalCode === lastTaxCustomerDetails?.postalCode &&
       taxCustomerDetails.countryCode === lastTaxCustomerDetails?.countryCode &&

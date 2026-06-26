@@ -15,12 +15,13 @@ import { createEventsTrackerMock } from "../../mocks/events-tracker-mock-provide
 import { eventsTrackerContextKey } from "../../../ui/constants";
 import type { PurchaseOperationHelper } from "../../../helpers/purchase-operation-helper";
 import type { CheckoutStartResponse } from "../../../networking/responses/checkout-start-response";
-import { writable } from "svelte/store";
+import { get, writable } from "svelte/store";
 import { Translator } from "../../../ui/localization/translator";
 import { translatorContextKey } from "../../../ui/localization/constants";
 import type {
   StripeServiceError,
   StripeServiceErrorCode,
+  TaxCustomerDetails,
 } from "../../../stripe/stripe-service";
 import { StripeService } from "../../../stripe/stripe-service";
 import type {
@@ -71,6 +72,7 @@ vi.mock("../../../stripe/stripe-service", async () => {
       updateElementsConfiguration: vi.fn(),
       getStripeLocale: vi.fn().mockImplementation((locale: string) => locale),
       confirmIntent: vi.fn(),
+      extractTaxCustomerDetails: vi.fn(),
     },
   };
 });
@@ -530,5 +532,96 @@ describe("PurchasesUI", () => {
 
     expect(container.querySelector("#address-element")).not.toBeNull();
     expect(StripeService.createAddressElement).toHaveBeenCalled();
+  });
+
+  test("forwards the full billing address and publishes it to the shared tax customer details store", async () => {
+    const taxCustomerDetails: TaxCustomerDetails = {
+      countryCode: "US",
+      postalCode: "94107",
+      state: "CA",
+      city: "San Francisco",
+      addressLine1: "354 Oyster Point Blvd",
+      addressLine2: "Floor 2",
+    };
+    vi.mocked(StripeService.extractTaxCustomerDetails).mockResolvedValue({
+      customerDetails: taxCustomerDetails,
+      confirmationTokenId: "ctoken-id",
+    });
+
+    const paymentElement = {
+      on: (
+        eventType: string,
+        callback: (event?: StripePaymentElementChangeEvent) => void,
+      ) => {
+        if (eventType === "ready") {
+          setTimeout(() => callback(), 0);
+        }
+        if (eventType === "change") {
+          setTimeout(() => {
+            callback({
+              complete: true,
+              value: { type: "card" },
+              elementType: "payment",
+              empty: false,
+              collapsed: false,
+            });
+          }, 100);
+        }
+      },
+      mount: vi.fn(),
+      destroy: vi.fn(),
+    };
+    vi.mocked(StripeService.createPaymentElement).mockReturnValue(
+      // @ts-expect-error - This is a mock
+      paymentElement,
+    );
+
+    const checkoutRefreshPricingSpy = vi.spyOn(
+      purchaseOperationHelperMock,
+      "checkoutRefreshPricing",
+    );
+
+    // Shared store lifted into the parent so discount-code refreshes can reuse
+    // the latest known tax location.
+    const lastTaxCustomerDetailsStore = writable<TaxCustomerDetails | null>(
+      null,
+    );
+
+    render(PaymentEntryPage, {
+      props: {
+        ...basicProps,
+        customerEmail: "test@test.com",
+        brandingInfo: {
+          ...brandingInfo,
+          gateway_tax_collection_enabled: true,
+          full_address_collection_enabled: true,
+        },
+        lastTaxCustomerDetailsStore,
+      },
+      context: defaultContext,
+    });
+
+    // Flush stripe initialization and the payment element ready/change events.
+    for (let i = 0; i < 6; i++) {
+      await vi.advanceTimersToNextTimerAsync();
+    }
+
+    expect(StripeService.extractTaxCustomerDetails).toHaveBeenCalled();
+
+    // The page forwards the full billing address on the pricing refresh.
+    expect(checkoutRefreshPricingSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        countryCode: "US",
+        postalCode: "94107",
+        state: "CA",
+        city: "San Francisco",
+        addressLine1: "354 Oyster Point Blvd",
+        addressLine2: "Floor 2",
+      }),
+    );
+
+    // And it publishes the details to the shared store so the parent can reuse
+    // them on discount-code refreshes.
+    expect(get(lastTaxCustomerDetailsStore)).toEqual(taxCustomerDetails);
   });
 });
