@@ -212,6 +212,57 @@ export const getStripePaymentFrame = (page: Page) =>
 export const getStripeEmailFrame = (page: Page) =>
   page.frameLocator("iframe[title='Secure email input frame']");
 
+// The Address Element is mounted inside the `#address-element` container.
+// Scope to that container so we don't match the payment/email iframes.
+export const getStripeAddressFrame = (page: Page) =>
+  page.frameLocator("#address-element iframe").first();
+
+export interface BillingAddressDetails {
+  name?: string;
+  line1?: string;
+  line2?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  countryCode?: string;
+}
+
+/**
+ * Fills the Stripe Address Element. Only the provided fields are filled, so it
+ * can be used to populate a partial address (e.g. everything except the name).
+ */
+export async function enterBillingAddress(
+  page: Page,
+  details: BillingAddressDetails,
+): Promise<void> {
+  const addressFrame = getStripeAddressFrame(page);
+
+  // Set the country first so dependent fields (e.g. the state dropdown) render.
+  if (details.countryCode !== undefined) {
+    await addressFrame
+      .getByLabel("Country or region")
+      .selectOption(details.countryCode);
+  }
+  if (details.name !== undefined) {
+    await addressFrame.getByLabel("Name").fill(details.name);
+  }
+  if (details.line1 !== undefined) {
+    await addressFrame.getByLabel("Address line 1").fill(details.line1);
+  }
+  if (details.line2 !== undefined) {
+    await addressFrame.getByLabel("Address line 2").fill(details.line2);
+  }
+  if (details.city !== undefined) {
+    await addressFrame.getByLabel("City").fill(details.city);
+  }
+  if (details.state !== undefined) {
+    await addressFrame.getByLabel("State").selectOption(details.state);
+  }
+  if (details.postalCode !== undefined) {
+    await addressFrame.getByLabel("ZIP").fill(details.postalCode);
+  }
+}
+
 export const getStripe3DSFrame = (page: Page) =>
   page.frameLocator(
     "iframe[src*='https://js.stripe.com/v3/three-ds-2-challenge']",
@@ -258,14 +309,27 @@ export async function enterCreditCardDetails(
   await expect(numberInput).toBeVisible();
   await numberInput.fill(cardNumber);
 
+  // When full billing address collection is enabled, the country/postal code
+  // live in the separate Address Element instead of the Payment Element. The
+  // `#address-element` container is only rendered in that case, so use its
+  // presence to decide where to fill the country.
+  const collectsFullAddress =
+    (await page.locator("#address-element").count()) > 0;
+
   // Inserting the country first just to make sure that the change event is triggered by Stripe
   // This is a bug that we are trying to workaround, however we know that setting the country/postal code as last
   // might not trigger the update event.
   // Also changing it might not trigger it.
-  await stripeFrame.getByLabel("Country").selectOption(countryCode);
+  if (collectsFullAddress) {
+    await getStripeAddressFrame(page)
+      .getByLabel("Country or region")
+      .selectOption(countryCode);
+  } else {
+    await stripeFrame.getByLabel("Country").selectOption(countryCode);
 
-  if (postalCode !== undefined) {
-    await stripeFrame.getByPlaceholder("12345").fill(postalCode);
+    if (postalCode !== undefined) {
+      await stripeFrame.getByPlaceholder("12345").fill(postalCode);
+    }
   }
 
   await stripeFrame.getByPlaceholder("MM / YY").fill(expiration);

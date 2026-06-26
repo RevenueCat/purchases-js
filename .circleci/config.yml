@@ -217,7 +217,18 @@ jobs:
       - run:
           name: Update ENV for E2E test
           command: |
-            echo 'export VITE_RC_API_KEY=${E2E_RC_API_KEY}; export VITE_RC_TAX_E2E_API_KEY=${E2E_RC_TAX_E2E_API_KEY}; export VITE_RC_STRIPE_CHECKOUT_E2E_API_KEY=${E2E_RC_STRIPE_CHECKOUT_E2E_API_KEY}; export VITE_RC_PADDLE_E2E_API_KEY=${E2E_RC_PADDLE_E2E_API_KEY}; export VITE_SKIP_TAX_REAL_TESTS_UNTIL=${VITE_SKIP_TAX_REAL_TESTS_UNTIL}; export VITE_SKIP_STRIPE_TESTS=${VITE_SKIP_STRIPE_TESTS:-false}; export VITE_SKIP_PADDLE_TESTS=${VITE_SKIP_PADDLE_TESTS:-false}; export VITE_SKIP_STRIPE_TESTS_ON_CAPTCHA=${VITE_SKIP_STRIPE_TESTS_ON_CAPTCHA:-true}; export VITE_ALLOW_PAYWALLS_TESTS=true' >> "$BASH_ENV"
+            {
+              echo 'export VITE_RC_API_KEY=${E2E_RC_API_KEY}'
+              echo 'export VITE_RC_TAX_E2E_API_KEY=${E2E_RC_TAX_E2E_API_KEY}'
+              echo 'export VITE_RC_STRIPE_CHECKOUT_E2E_API_KEY=${E2E_RC_STRIPE_CHECKOUT_E2E_API_KEY}'
+              echo 'export VITE_RC_PADDLE_E2E_API_KEY=${E2E_RC_PADDLE_E2E_API_KEY}'
+              echo 'export VITE_RC_FULL_ADDRESS_E2E_API_KEY=${E2E_RC_FULL_ADDRESS_E2E_API_KEY}'
+              echo 'export VITE_SKIP_TAX_REAL_TESTS_UNTIL=${VITE_SKIP_TAX_REAL_TESTS_UNTIL}'
+              echo 'export VITE_SKIP_STRIPE_TESTS=${VITE_SKIP_STRIPE_TESTS:-false}'
+              echo 'export VITE_SKIP_PADDLE_TESTS=${VITE_SKIP_PADDLE_TESTS:-false}'
+              echo 'export VITE_SKIP_STRIPE_TESTS_ON_CAPTCHA=${VITE_SKIP_STRIPE_TESTS_ON_CAPTCHA:-true}'
+              echo 'export VITE_ALLOW_PAYWALLS_TESTS=true'
+            } >> "$BASH_ENV"
             source "$BASH_ENV"
       - install-dependencies
       - run:
