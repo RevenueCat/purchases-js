@@ -24,6 +24,11 @@
   let addressElement: StripeAddressElement | null = null;
   const addressElementId = "address-element";
 
+  let lastComplete: boolean | null = null;
+  let lastTaxRelevantAddress:
+    | StripeAddressElementChangeEvent["value"]["address"]
+    | null = null;
+
   const onLoadErrorCallback = async (event: {
     elementType: "address";
     error: StripeError;
@@ -32,7 +37,40 @@
   };
 
   const onAddressChange = async (event: StripeAddressElementChangeEvent) => {
-    await onChange(event.complete);
+    const { complete } = event;
+    const address = event.value.address;
+
+    // Stripe emits a `change` event for any edit to the address element,
+    // including the name, which does not affect tax calculation. Only notify
+    // the parent when the completeness changes (so it can recalculate taxes
+    // once the address becomes valid) or when a tax-relevant field (country,
+    // postal code, state, city, line1, line2) actually changes.
+    const completeChanged = complete !== lastComplete;
+    const taxRelevantChanged = !isSameTaxRelevantAddress(
+      lastTaxRelevantAddress,
+      address,
+    );
+    if (!completeChanged && !taxRelevantChanged) {
+      return;
+    }
+
+    lastComplete = complete;
+    lastTaxRelevantAddress = address;
+    await onChange(complete);
+  };
+
+  const isSameTaxRelevantAddress = (
+    a: StripeAddressElementChangeEvent["value"]["address"] | null,
+    b: StripeAddressElementChangeEvent["value"]["address"],
+  ): boolean => {
+    return (
+      a?.country === b.country &&
+      a?.postal_code === b.postal_code &&
+      a?.state === b.state &&
+      a?.city === b.city &&
+      a?.line1 === b.line1 &&
+      a?.line2 === b.line2
+    );
   };
 
   onMount(() => {
