@@ -1,7 +1,6 @@
 import type {
   Offering,
   Package,
-  Period,
   Price,
   Product,
 } from "@revenuecat/purchases-js";
@@ -16,6 +15,7 @@ import {
   isPaddleApiKey,
   isStripeApiKey,
 } from "../../util/PurchasesLoader";
+import { getLongPeriodLabel, pluralizePeriod } from "../../util/period-label";
 import Button from "../../components/Button";
 import LogoutButton from "../../components/LogoutButton";
 
@@ -40,12 +40,6 @@ const getPeriodLabel = (
   period: string | null,
   labels: Record<string, string>,
 ) => labels[period ?? ""] ?? period ?? "";
-
-const pluralizePeriod = (count: number, unit: string) =>
-  `${count} ${unit}${count > 1 ? "s" : ""}`;
-
-const getLongPeriodLabel = (period: Period | null) =>
-  period ? pluralizePeriod(period.number, period.unit) : "";
 
 const getFormattedPrice = (price: Price | null, period: string | null) => {
   if (!price?.formattedPrice) return "";
