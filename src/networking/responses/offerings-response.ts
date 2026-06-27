@@ -3,6 +3,7 @@ import type { PaywallData, UIConfig } from "@revenuecat/purchases-ui-js";
 export interface PackageResponse {
   identifier: string;
   platform_product_identifier: string;
+  platform_product_plan_identifier?: string | null;
   web_checkout_url?: string | null;
 }
 

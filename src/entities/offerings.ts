@@ -890,13 +890,25 @@ const toSubscriptionProduct = (
   };
 };
 
+/**
+ * The product key for a package. Composite Stripe products carry the price on a
+ * separate plan field, so they key by `{product}:{plan}` and each price variant
+ * resolves to its own product.
+ */
+export const packageProductIdentifier = (
+  packageData: PackageResponse,
+): string =>
+  packageData.platform_product_plan_identifier
+    ? `${packageData.platform_product_identifier}:${packageData.platform_product_plan_identifier}`
+    : packageData.platform_product_identifier;
+
 const toPackage = (
   presentedOfferingContext: PresentedOfferingContext,
   packageData: PackageResponse,
   productDetailsData: { [productId: string]: ProductResponse },
 ): Package | null => {
   const webBillingProduct =
-    productDetailsData[packageData.platform_product_identifier];
+    productDetailsData[packageProductIdentifier(packageData)];
   if (webBillingProduct === undefined) return null;
   const product = toProduct(webBillingProduct, presentedOfferingContext);
   if (product === null) return null;

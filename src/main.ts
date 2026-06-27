@@ -4,6 +4,7 @@ import type {
   Package,
   Product,
 } from "./entities/offerings";
+import { packageProductIdentifier } from "./entities/offerings";
 import PurchasesUi from "./ui/purchases-ui.svelte";
 import PaddlePurchasesUi from "./ui/paddle-purchases-ui.svelte";
 import StripeCheckoutPurchasesUi from "./ui/stripe-checkout-purchases-ui.svelte";
@@ -1210,7 +1211,7 @@ export class Purchases {
   ): Promise<Offerings> {
     const productIds = offeringsResponse.offerings
       .flatMap((o: OfferingResponse) => o.packages)
-      .map((p: PackageResponse) => p.platform_product_identifier);
+      .map((p: PackageResponse) => packageProductIdentifier(p));
 
     const productsResponse = await this.backend.getProducts(
       appUserId,
