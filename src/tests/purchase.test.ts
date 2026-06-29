@@ -132,4 +132,85 @@ describe("preload", () => {
       appleTouchIcons[0]?.getAttribute("data-rc-apple-touch-icon"),
     ).toBeNull();
   });
+
+  test("does not inject an apple-touch-icon in a same-origin iframe when an ancestor already has one", async () => {
+    document.head.innerHTML =
+      '<link rel="apple-touch-icon" href="/host-provided-icon.png">';
+
+    const iframe = document.createElement("iframe");
+    document.body.appendChild(iframe);
+
+    expect(iframe.contentWindow).not.toBeNull();
+    expect(iframe.contentDocument).not.toBeNull();
+
+    const originalWindowDescriptor = Object.getOwnPropertyDescriptor(
+      globalThis,
+      "window",
+    );
+    const originalDocumentDescriptor = Object.getOwnPropertyDescriptor(
+      globalThis,
+      "document",
+    );
+
+    Object.defineProperty(globalThis, "window", {
+      configurable: true,
+      value: iframe.contentWindow,
+    });
+    Object.defineProperty(globalThis, "document", {
+      configurable: true,
+      value: iframe.contentDocument,
+    });
+
+    server.use(
+      http.get("http://localhost:8000/rcbilling/v1/branding", ({ request }) => {
+        APIGetRequest({ url: request.url });
+        return HttpResponse.json(
+          {
+            id: "test-app-id",
+            app_name: "Test Company name",
+            app_icon: "apple-touch-icon.png",
+            app_icon_webp: null,
+            app_wordmark: null,
+            app_wordmark_webp: null,
+            appearance: null,
+            support_email: "test-rcbilling-support@revenuecat.com",
+            gateway_tax_collection_enabled: false,
+            brand_font_config: null,
+          },
+          { status: 200 },
+        );
+      }),
+    );
+
+    let purchases: ReturnType<typeof configurePurchases> | undefined;
+
+    try {
+      purchases = configurePurchases();
+      await purchases.preload();
+    } finally {
+      purchases?.close();
+
+      if (originalWindowDescriptor) {
+        Object.defineProperty(globalThis, "window", originalWindowDescriptor);
+      }
+      if (originalDocumentDescriptor) {
+        Object.defineProperty(
+          globalThis,
+          "document",
+          originalDocumentDescriptor,
+        );
+      }
+    }
+
+    expect(
+      iframe.contentDocument?.head.querySelector(
+        'link[rel="apple-touch-icon"]',
+      ),
+    ).toBeNull();
+    expect(
+      document.head
+        .querySelector('link[rel="apple-touch-icon"]')
+        ?.getAttribute("href"),
+    ).toBe("/host-provided-icon.png");
+  });
 });

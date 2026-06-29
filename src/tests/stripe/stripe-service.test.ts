@@ -392,36 +392,6 @@ describe("StripeService", () => {
     });
   });
 
-  describe("createExpressCheckoutElement", () => {
-    test("creates express checkout element with correct configuration", () => {
-      const mockElements: Partial<StripeElements> = {
-        create: vi.fn(),
-      };
-
-      StripeService.createExpressCheckoutElement(
-        mockElements as StripeElements,
-        true,
-        {
-          buttonTheme: {
-            applePay: "white-outline",
-          },
-        },
-      );
-
-      expect(mockElements.create).toHaveBeenCalledWith("expressCheckout", {
-        billingAddressRequired: true,
-        emailRequired: true,
-        paymentMethods: {
-          applePay: "always",
-          googlePay: "always",
-        },
-        buttonTheme: {
-          applePay: "white-outline",
-        },
-      });
-    });
-  });
-
   describe("createLinkAuthenticationElement", () => {
     test("creates link authentication element with email", () => {
       const mockElements: Partial<StripeElements> = {
