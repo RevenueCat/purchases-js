@@ -253,6 +253,11 @@ export interface SubscriptionInfo {
    */
   readonly displayName: string | null;
   /**
+   * Date when a paused subscription is expected to automatically resume.
+   * Only set for Google Play subscriptions that have been paused; null otherwise.
+   */
+  readonly autoResumeDate: Date | null;
+  /**
    * Paid price for the subscription.
    */
   readonly price: Price | null;
@@ -519,6 +524,7 @@ export function toCustomerInfo(
             isActive: isActive(response.expires_date),
             willRenew: getWillRenew(response.expires_date, response),
             displayName: response.display_name ?? null,
+            autoResumeDate: toDateIfNotNull(response.auto_resume_date),
             price: toSubscriptionPrice(response.price),
           },
         ],
