@@ -6,6 +6,7 @@
 
 import { CustomVariables } from '@revenuecat/purchases-ui-js';
 import { CustomVariableValue } from '@revenuecat/purchases-ui-js';
+import { WalletButtonTheme } from '@revenuecat/purchases-ui-js';
 
 // @public
 export interface BrandingAppearance {
@@ -13,6 +14,8 @@ export interface BrandingAppearance {
     color_accent: string;
     // (undocumented)
     color_buttons_primary: string;
+    // (undocumented)
+    color_buttons_primary_text?: string | null;
     // (undocumented)
     color_error: string;
     // (undocumented)
@@ -145,9 +148,15 @@ export enum ErrorCode {
 }
 
 // @public
+export interface ExpressPurchaseButtonUpdater {
+    updatePurchase: (pkg: Package, purchaseOption?: PurchaseOption) => void;
+}
+
+// @public
 export interface FlagsConfig {
     autoCollectUTMAsMetadata?: boolean;
     collectAnalyticsEvents?: boolean;
+    hideBackButton?: boolean;
     // @deprecated
     storeLoadTime?: StoreLoadTime;
 }
@@ -264,11 +273,7 @@ export enum PackageType {
 }
 
 // @public
-export interface PaywallListener {
-    onPurchaseCancelled?: () => void;
-    onPurchaseError?: (error: Error) => void;
-    onPurchaseStarted?: (rcPackage: Package) => void;
-}
+export type PaywallListener = PurchaseListener;
 
 // @public
 export interface PaywallPurchaseResult extends PurchaseResult {
@@ -307,6 +312,20 @@ export interface PresentedOfferingContext {
     readonly offeringIdentifier: string;
     readonly placementIdentifier: string | null;
     readonly targetingContext: TargetingContext | null;
+}
+
+// @public
+export interface PresentExpressPurchaseButtonParams {
+    customerEmail?: string;
+    defaultLocale?: string;
+    htmlTarget: HTMLElement;
+    listener?: PurchaseListener;
+    metadata?: PurchaseMetadata;
+    onButtonReady?: (updater: ExpressPurchaseButtonUpdater, walletsAvailable: boolean) => void;
+    purchaseOption?: PurchaseOption | null;
+    rcPackage: Package;
+    selectedLocale?: string;
+    walletButtonTheme?: WalletButtonTheme;
 }
 
 // @public
@@ -384,6 +403,13 @@ export enum ProductType {
 }
 
 // @public
+export interface PurchaseListener {
+    onPurchaseCancelled?: () => void;
+    onPurchaseError?: (error: Error) => void;
+    onPurchaseStarted?: (rcPackage: Package) => void;
+}
+
+// @public
 export type PurchaseMetadata = Record<string, string | null>;
 
 // @public
@@ -455,6 +481,7 @@ export class Purchases {
     // (undocumented)
     isSandbox(): boolean;
     preload(): Promise<void>;
+    presentExpressPurchaseButton(params: PresentExpressPurchaseButtonParams): Promise<PurchaseResult>;
     presentPaywall(paywallParams: PresentPaywallParams): Promise<PaywallPurchaseResult>;
     purchase(params: PurchaseParams): Promise<PurchaseResult>;
     // @deprecated
@@ -570,6 +597,7 @@ export interface StoreTransaction {
 
 // @public
 export interface SubscriptionInfo {
+    readonly autoResumeDate: Date | null;
     readonly billingIssuesDetectedAt: Date | null;
     readonly displayName: string | null;
     readonly expiresDate: Date | null;

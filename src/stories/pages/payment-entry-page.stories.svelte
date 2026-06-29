@@ -154,6 +154,26 @@
   args={{
     ...defaultArgs,
     currentPage: "payment-entry",
+    defaultPriceBreakdown: {
+      currency: "USD",
+      originalAmountInMicros: 9900000,
+      totalAmountInMicros: 8900000,
+      totalExcludingTaxInMicros: 8900000,
+      taxCalculationStatus: "unavailable",
+      taxAmountInMicros: 0,
+      taxBreakdown: null,
+      appliedDiscounts: [
+        {
+          identifier: "discount-id",
+          displayName: "SAVE10",
+          discountedAmountInMicros: 1000000,
+          percentage: 10,
+          discountCode: "SAVE10",
+          durationMode: null,
+          timeWindow: null,
+        },
+      ],
+    },
     productDetails: {
       ...product,
       subscriptionOptions: {

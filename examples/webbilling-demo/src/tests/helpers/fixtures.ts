@@ -30,6 +30,7 @@ type CheckoutPricingResponse = {
     duration_mode?: "time_window" | null;
     time_window?: string | null;
   }>;
+  selected_purchase_option?: Record<string, unknown> | null;
   failed_reason?: string;
   interrupt_checkout?: boolean;
 };

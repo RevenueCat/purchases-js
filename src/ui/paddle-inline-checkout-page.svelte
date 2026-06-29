@@ -25,6 +25,7 @@
     isSandbox: boolean;
     isInElement: boolean;
     onClose: () => void;
+    hideBackButton?: boolean;
     productDetails: Product;
     purchaseOption: PurchaseOption;
     // Live order totals from Paddle's checkout events; render the order summary.
@@ -41,6 +42,7 @@
     isSandbox,
     isInElement,
     onClose,
+    hideBackButton = false,
     productDetails,
     purchaseOption,
     totals,
@@ -58,7 +60,7 @@
 
 <Template {brandingInfo} {isInElement} {isSandbox} {onClose}>
   {#snippet navbarHeaderContent()}
-    {#if !isInElement}
+    {#if !isInElement && !hideBackButton}
       <!-- Inline checkout embeds Paddle's iframe in our page, so we provide the
            back affordance (Paddle's own "Return to <seller>" link only exists in
            the overlay/hosted checkout, not inline). -->

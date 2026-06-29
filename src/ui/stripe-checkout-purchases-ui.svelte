@@ -47,6 +47,7 @@
     workflowPurchaseContext?: WorkflowPurchaseContext;
     attributionMetadata?: AttributionMetadata;
     paywallId?: string;
+    paywallSessionId?: string;
   }
 
   const {
@@ -68,6 +69,7 @@
     workflowPurchaseContext,
     attributionMetadata,
     paywallId,
+    paywallSessionId,
   }: Props = $props();
   let productDetails: Product = rcPackage.webBillingProduct;
   let translator: Translator = new Translator(
@@ -177,6 +179,7 @@
         workflowPurchaseContext,
         attributionMetadata,
         paywallId,
+        paywallSessionId,
         locale: selectedLocale,
       });
 

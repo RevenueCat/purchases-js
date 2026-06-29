@@ -159,6 +159,7 @@ describe("customer info parsing", () => {
           isActive: true,
           willRenew: true,
           displayName: null,
+          autoResumeDate: null,
           price: null,
         },
       },
@@ -430,6 +431,7 @@ describe("customer info parsing", () => {
           unsubscribeDetectedAt: null,
           willRenew: true,
           displayName: null,
+          autoResumeDate: null,
           price: null,
         },
         pro: {
@@ -451,6 +453,7 @@ describe("customer info parsing", () => {
           unsubscribeDetectedAt: null,
           willRenew: true,
           displayName: null,
+          autoResumeDate: null,
           price: null,
         },
       },
@@ -575,6 +578,7 @@ describe("customer info parsing", () => {
           isActive: true,
           willRenew: true,
           displayName: null,
+          autoResumeDate: null,
           price: null,
         },
       },
@@ -628,5 +632,42 @@ describe("customer info parsing", () => {
       currency: "EUR",
       formattedPrice: "€3.59",
     });
+    expect(subscription.autoResumeDate).toBeNull();
+  });
+
+  test("paused play store subscription has autoResumeDate parsed correctly", () => {
+    const autoResumeDateString = "2024-06-15T10:00:00Z";
+    const subscriberResponse: SubscriberResponse = {
+      request_date: "2024-05-01T00:00:00Z",
+      request_date_ms: 1714521600000,
+      subscriber: {
+        entitlements: {},
+        first_seen: "2024-01-01T00:00:00Z",
+        management_url: null,
+        non_subscriptions: {},
+        original_app_user_id: "pausedUser",
+        original_application_version: null,
+        original_purchase_date: null,
+        other_purchases: {},
+        subscriptions: {
+          play_monthly: {
+            auto_resume_date: autoResumeDateString,
+            billing_issues_detected_at: null,
+            expires_date: "2024-05-15T10:00:00Z",
+            grace_period_expires_date: null,
+            is_sandbox: false,
+            original_purchase_date: "2024-01-01T10:00:00Z",
+            period_type: "normal",
+            purchase_date: "2024-04-15T10:00:00Z",
+            store: "play_store",
+            unsubscribe_detected_at: "2024-05-01T00:00:00Z",
+          },
+        },
+      },
+    };
+    const customerInfo = toCustomerInfo(subscriberResponse);
+    const subscription =
+      customerInfo.subscriptionsByProductIdentifier["play_monthly"];
+    expect(subscription.autoResumeDate).toEqual(new Date(autoResumeDateString));
   });
 });

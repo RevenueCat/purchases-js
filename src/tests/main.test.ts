@@ -493,6 +493,7 @@ test("can get customer info", async () => {
         isActive: true,
         willRenew: true,
         displayName: null,
+        autoResumeDate: null,
         price: null,
       },
       black_f_friday_worten_2: {
@@ -515,6 +516,7 @@ test("can get customer info", async () => {
         isActive: false,
         willRenew: true,
         displayName: null,
+        autoResumeDate: null,
         price: null,
       },
     },
@@ -733,6 +735,29 @@ describe("Purchases.purchase()", () => {
 
   test("does not show the back button for rcSource='embedded'", async () => {
     const purchases = configurePurchases(testUserId, "embedded");
+    purchases.purchase({
+      rcPackage: createMonthlyPackageMock(),
+    });
+
+    await waitFor(() => {
+      const container = document.querySelector(".rcb-ui-root");
+      expect(container).not.toBeNull();
+      expect(document.querySelector(".rcb-back-button")).toBeNull();
+    });
+
+    purchases.close();
+    // Forcing the body to cleanup to not affect other tests
+    document.body.innerHTML = "";
+  });
+
+  test("does not show the back button when hideBackButton is true", async () => {
+    const purchases = Purchases.configure({
+      apiKey: testApiKey,
+      appUserId: testUserId,
+      flags: {
+        hideBackButton: true,
+      },
+    });
     purchases.purchase({
       rcPackage: createMonthlyPackageMock(),
     });

@@ -1,5 +1,9 @@
 import type { StripeElementsConfiguration } from "./stripe-elements";
 import type { PriceBreakdown, TaxCalculationStatus } from "../../ui/ui-types";
+import type {
+  NonSubscriptionOptionResponse,
+  SubscriptionOptionResponse,
+} from "./products-response";
 
 export interface TaxBreakdown {
   tax_amount_in_micros: number;
@@ -15,6 +19,15 @@ export interface CheckoutAppliedDiscountResponse {
   duration_mode?: "time_window" | null;
   time_window?: string | null;
 }
+
+export type CheckoutPurchaseOptionResponse =
+  | NonSubscriptionOptionResponse
+  | SubscriptionOptionResponse;
+
+export type CheckoutPurchaseOptionsResponse = Record<
+  string,
+  CheckoutPurchaseOptionResponse
+>;
 
 export enum CheckoutPricingFailedReason {
   tax_collection_disabled = "tax_collection_disabled",
@@ -43,6 +56,7 @@ export interface CheckoutPricingResponse {
   interrupt_checkout?: boolean;
   original_amount_in_micros?: number;
   applied_discounts?: CheckoutAppliedDiscountResponse[];
+  selected_purchase_option?: CheckoutPurchaseOptionResponse | null;
 }
 
 export function createPriceBreakdownFromCheckoutPricingResponse(

@@ -39,11 +39,15 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
   const offeringId = searchParams.get("offeringId");
   const discountCode = searchParams.get("discountCode") || undefined;
   const rcSource = searchParams.get("rcSource") || undefined;
+  const hideCheckoutBackButton =
+    searchParams.get("hideCheckoutBackButton") === "true";
   const optOutOfAutoUTM =
     searchParams.get("optOutOfAutoUTM") === "true" || false;
   const useCustomLogger = searchParams.get("useCustomLogger") === "true";
   const storeLoadTime =
     (searchParams.get("storeLoadTime") as StoreLoadTime) || undefined;
+  const enableWorkflows =
+    searchParams.get("enableWorkflows") === "true" || false;
 
   if (!appUserId) {
     throw redirect("/");
@@ -62,7 +66,9 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
 
   const flagsConfig: FlagsConfig = {
     autoCollectUTMAsMetadata: !optOutOfAutoUTM,
+    hideBackButton: hideCheckoutBackButton,
     ...(storeLoadTime ? { storeLoadTime } : {}),
+    ...(enableWorkflows ? { workflowsEndpointEnabled: true } : {}),
   };
   if (rcSource) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment

@@ -1,3 +1,35 @@
+## 1.46.0
+## RevenueCat SDK
+### ✨ New Features
+* WEB-4012 Add checkout back button visibility flag (#951) via Nicola Sacco (@nicfix)
+
+### 🔄 Other Changes
+* WEB-4366: Add billing CTA text color override (#912) via Ed Shelley (@MrEdwardo)
+
+## 1.45.0
+## RevenueCat SDK
+### ✨ New Features
+* Expose express purchase button API (#948) via Nicola Sacco (@nicfix)
+### 🐞 Bugfixes
+* fix(stripe): show app name in express checkout (#949) via Nicola Sacco (@nicfix)
+
+## 1.44.0
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Show correctly discounted price in footer (#894) via Burdock (@lburdock)
+
+## 1.43.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* fix(purchases-js): use default product background for Stripe Billing (#944) via Nicola Sacco (@nicfix)
+
+### 🔄 Other Changes
+* Bump sdks-common-config orb to 4.1.0 (#943) via Álvaro Brey (@AlvaroBrey)
+* feat: send paywallSessionId in checkout/start (#939) via Deema AlShamaa (@dalshamaa)
+* Migrate update_error_codes to the outputs parameter (#942) via Álvaro Brey (@AlvaroBrey)
+* Update sdks-common-config orb to 3.21.2 (#941) via Antonio Pallares (@ajpallares)
+* chore: Add 3-day Dependabot cooldown, excluding fastlane plugin (#934) via Toni Rico (@tonidero)
+
 ## 1.43.0
 ## RevenueCat SDK
 ### ✨ New Features

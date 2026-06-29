@@ -4,6 +4,7 @@
     ProductType,
     type Product,
     type PurchaseOption,
+    type SubscriptionOption,
   } from "../../entities/offerings";
   import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
   import IconError from "../atoms/icons/icon-error.svelte";
@@ -70,6 +71,10 @@
     onContinue: () => void;
     onError: (error: PurchaseFlowError) => void;
     onPriceBreakdownUpdated: (priceBreakdown: PriceBreakdown) => void;
+    onSessionPricingUpdated?: (
+      pricingResponse: CheckoutPricingResponse,
+      priceBreakdown: PriceBreakdown,
+    ) => void;
     onProcessingStateChange?: (isProcessing: boolean) => void;
   }
 
@@ -79,7 +84,7 @@
 <script lang="ts">
   import { defaultPurchaseMode } from "../../behavioural-events/event";
 
-  const {
+  let {
     gatewayParams,
     managementUrl,
     productDetails,
@@ -93,17 +98,18 @@
     onContinue,
     onError,
     onPriceBreakdownUpdated,
+    onSessionPricingUpdated = undefined,
     onProcessingStateChange = undefined,
   }: Props = $props();
 
   const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
   const translator = getContext<Writable<Translator>>(translatorContextKey);
-  const subscriptionOption =
-    productDetails.subscriptionOptions?.[purchaseOption.id];
+  const subscriptionOption = $derived(
+    "base" in purchaseOption ? (purchaseOption as SubscriptionOption) : null,
+  );
 
-  const initialPrice = getInitialPriceFromPurchaseOption(
-    productDetails,
-    purchaseOption,
+  const initialPrice = $derived(
+    getInitialPriceFromPurchaseOption(productDetails, purchaseOption),
   );
 
   let taxCalculationStatus: TaxCalculationStatus = $state<TaxCalculationStatus>(
@@ -214,19 +220,36 @@
     onPriceBreakdownUpdated(priceBreakdown);
   });
 
+  function applyLocalPriceBreakdown(nextPriceBreakdown: PriceBreakdown) {
+    taxCalculationStatus = nextPriceBreakdown.taxCalculationStatus;
+    originalAmountInMicros =
+      nextPriceBreakdown.originalAmountInMicros ?? initialPrice.amountMicros;
+    taxAmountInMicros = nextPriceBreakdown.taxAmountInMicros;
+    taxBreakdown = nextPriceBreakdown.taxBreakdown;
+    totalExcludingTaxInMicros = nextPriceBreakdown.totalExcludingTaxInMicros;
+    totalAmountInMicros = nextPriceBreakdown.totalAmountInMicros;
+    appliedDiscounts = nextPriceBreakdown.appliedDiscounts ?? [];
+  }
+
+  $effect(() => {
+    if (defaultPriceBreakdown) {
+      return;
+    }
+
+    originalAmountInMicros = initialPrice.amountMicros;
+    taxAmountInMicros = null;
+    taxBreakdown = null;
+    totalExcludingTaxInMicros = initialPrice.amountMicros;
+    totalAmountInMicros = initialPrice.amountMicros;
+    appliedDiscounts = [];
+  });
+
   $effect(() => {
     if (!defaultPriceBreakdown) {
       return;
     }
 
-    taxCalculationStatus = defaultPriceBreakdown.taxCalculationStatus;
-    originalAmountInMicros =
-      defaultPriceBreakdown.originalAmountInMicros ?? initialPrice.amountMicros;
-    taxAmountInMicros = defaultPriceBreakdown.taxAmountInMicros;
-    taxBreakdown = defaultPriceBreakdown.taxBreakdown;
-    totalExcludingTaxInMicros = defaultPriceBreakdown.totalExcludingTaxInMicros;
-    totalAmountInMicros = defaultPriceBreakdown.totalAmountInMicros;
-    appliedDiscounts = defaultPriceBreakdown.appliedDiscounts ?? [];
+    applyLocalPriceBreakdown(defaultPriceBreakdown);
   });
 
   $effect(() => {
@@ -308,16 +331,14 @@
       nextTaxCalculationStatus,
     );
 
-    taxCalculationStatus = nextPriceBreakdown.taxCalculationStatus;
-    originalAmountInMicros =
-      nextPriceBreakdown.originalAmountInMicros ?? initialPrice.amountMicros;
-    taxAmountInMicros = nextPriceBreakdown.taxAmountInMicros;
-    taxBreakdown = nextPriceBreakdown.taxBreakdown;
-    totalExcludingTaxInMicros = nextPriceBreakdown.totalExcludingTaxInMicros;
-    totalAmountInMicros = nextPriceBreakdown.totalAmountInMicros;
-    appliedDiscounts = nextPriceBreakdown.appliedDiscounts ?? [];
-    elementsConfiguration =
-      pricingResponse.gateway_params.elements_configuration;
+    if (onSessionPricingUpdated) {
+      onSessionPricingUpdated(pricingResponse, nextPriceBreakdown);
+    } else {
+      applyLocalPriceBreakdown(nextPriceBreakdown);
+      elementsConfiguration =
+        pricingResponse.gateway_params.elements_configuration;
+    }
+
     lastTaxCustomerDetails = taxCustomerDetails;
   }
 

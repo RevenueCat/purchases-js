@@ -97,6 +97,7 @@ export async function navigateToLandingUrl(
     email?: string;
     $displayName?: string;
     nickname?: string;
+    hideCheckoutBackButton?: boolean;
     hideBackButtons?: boolean;
     discountCode?: string;
     storeLoadTime?: StoreLoadTime;
@@ -121,6 +122,7 @@ export async function navigateToLandingUrl(
     email,
     $displayName,
     nickname,
+    hideCheckoutBackButton,
     discountCode,
     storeLoadTime,
   } = queryString ?? {};
@@ -158,6 +160,9 @@ export async function navigateToLandingUrl(
   }
   if (nickname) {
     params.append("nickname", nickname);
+  }
+  if (hideCheckoutBackButton !== undefined) {
+    params.append("hideCheckoutBackButton", hideCheckoutBackButton.toString());
   }
   if (queryString?.hideBackButtons !== undefined) {
     params.append("hideBackButtons", queryString.hideBackButtons.toString());

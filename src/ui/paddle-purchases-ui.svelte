@@ -48,6 +48,7 @@
     attributionMetadata?: AttributionMetadata;
     unmountPaddlePurchaseUi: () => void;
     paddleService: PaddleService;
+    hideBackButton?: boolean;
   }
 
   const {
@@ -70,6 +71,7 @@
     attributionMetadata,
     unmountPaddlePurchaseUi,
     paddleService,
+    hideBackButton = false,
   }: Props = $props();
 
   let translator: Translator = new Translator(
@@ -289,6 +291,7 @@
     {isSandbox}
     {isInElement}
     onClose={handleInlineClose}
+    {hideBackButton}
     {productDetails}
     {purchaseOption}
     totals={paddleTotals}

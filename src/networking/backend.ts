@@ -53,6 +53,7 @@ interface CheckoutStartRequestParams {
   presentedOfferingContext: PresentedOfferingContext;
   presentedStepId?: string;
   paywallId?: string;
+  paywallSessionId?: string;
 
   // Customer data
   customerEmail?: string;
@@ -206,6 +207,7 @@ export class Backend {
     traceId,
     presentedStepId,
     paywallId,
+    paywallSessionId,
     customerEmail,
     metadata,
     locale,
@@ -230,6 +232,7 @@ export class Backend {
       locale?: string;
       paywall?: {
         paywall_id: string;
+        paywall_session_id?: string;
       };
       attribution_metadata?: AttributionMetadata;
     };
@@ -276,6 +279,7 @@ export class Backend {
     if (paywallId) {
       requestBody.paywall = {
         paywall_id: paywallId,
+        ...(paywallSessionId ? { paywall_session_id: paywallSessionId } : {}),
       };
     }
 

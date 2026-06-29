@@ -706,6 +706,29 @@ describe("PaddlePurchasesUI", () => {
       ).not.toBeInTheDocument();
     });
 
+    test("does not render the return button when hideBackButton is true", async () => {
+      const paddleServiceMock = createPaddleServiceMock({
+        inlineCheckoutEnabled: true,
+      });
+      vi.spyOn(paddleServiceMock, "purchase").mockImplementation(
+        () => new Promise(() => {}),
+      );
+
+      render(PaddlePurchasesUI, {
+        props: {
+          ...baseProps,
+          hideBackButton: true,
+          paddleService: paddleServiceMock,
+        },
+        context: defaultContext,
+      });
+
+      await screen.findByTestId("paddle-inline-checkout-container");
+      expect(
+        screen.queryByTestId("paddle-return-button"),
+      ).not.toBeInTheDocument();
+    });
+
     test("passes onCheckoutTotals to purchase when inline", async () => {
       const paddleServiceMock = createPaddleServiceMock({
         inlineCheckoutEnabled: true,
