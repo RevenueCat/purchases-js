@@ -324,10 +324,14 @@ export async function enterBillingAddress(
     await addressFrame.getByLabel("City").fill(details.city);
   }
   if (details.state !== undefined) {
-    await addressFrame.getByLabel("State").selectOption(details.state);
+    // The label depends on the country (e.g. "State" in the US, "Province" in
+    // Canada).
+    await addressFrame.getByLabel(/State|Province/).selectOption(details.state);
   }
   if (details.postalCode !== undefined) {
-    await addressFrame.getByLabel("ZIP").fill(details.postalCode);
+    // The label depends on the country (e.g. "ZIP" in the US, "Postal code" in
+    // Canada).
+    await addressFrame.getByLabel(/ZIP|Postal code/).fill(details.postalCode);
   }
 }
 

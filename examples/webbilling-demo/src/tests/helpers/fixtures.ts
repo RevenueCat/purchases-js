@@ -89,6 +89,15 @@ export const NEW_YORK_FULL_ADDRESS = {
   countryCode: "US",
 };
 
+export const CANADA_FULL_ADDRESS = {
+  name: "Jane Doe",
+  line1: "290 Bremner Blvd",
+  city: "Toronto",
+  state: "ON",
+  postalCode: "M5V 3L9",
+  countryCode: "CA",
+};
+
 export const SPAIN_TAX_RESPONSE: RouteFulfillOptions = {
   status: 200,
   contentType: "application/json",
@@ -214,6 +223,36 @@ export const NEW_YORK_TAX_RESPONSE: RouteFulfillOptions = {
     ],
     tax_amount_in_micros: 0,
     total_amount_in_micros: 9990000,
+    total_excluding_tax_in_micros: 9990000,
+    tax_inclusive: false,
+  } as CheckoutPricingResponse),
+};
+
+export const CANADA_TAX_RESPONSE: RouteFulfillOptions = {
+  status: 200,
+  contentType: "application/json",
+  body: JSON.stringify({
+    mocked: true,
+    currency: "USD",
+    failed_reason: undefined,
+    gateway_params: {
+      elements_configuration: {
+        amount: 1129,
+        currency: "usd",
+        mode: "payment",
+        payment_method_types: ["card"],
+        setup_future_usage: "off_session",
+      },
+    },
+    operation_session_id: "MOCKED",
+    tax_breakdown: [
+      {
+        display_name: "HST - Ontario (13%)",
+        tax_amount_in_micros: 1298700,
+      },
+    ],
+    tax_amount_in_micros: 1298700,
+    total_amount_in_micros: 11288700,
     total_excluding_tax_in_micros: 9990000,
     tax_inclusive: false,
   } as CheckoutPricingResponse),

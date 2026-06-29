@@ -1,6 +1,8 @@
 import type { Page, Request, Route } from "@playwright/test";
 import { expect } from "@playwright/test";
 import {
+  CANADA_FULL_ADDRESS,
+  CANADA_TAX_RESPONSE,
   FLORIDA_CUSTOMER_DETAILS,
   FULL_ADDRESS_TEST_API_KEY,
   FULL_ADDRESS_TAX_TEST_OFFERING_ID,
@@ -177,6 +179,52 @@ const trackPricingRefreshRequests = async (page: Page, mockMode: boolean) => {
 
           const packageCards = await getPackageCards(page);
           await startPurchaseFlow(packageCards[0]);
+          await expect(page.getByText("Total excluding tax")).toBeVisible();
+          await expect(page.getByText("Total due today")).toBeVisible();
+        },
+      );
+
+      integrationTest(
+        "Reveals the full billing address when a tax-relevant country (Canada) is selected",
+        async ({ page, userId, email, browserName }) => {
+          // Stripe Address Element interactions are only reliable in Chromium.
+          integrationTest.skip(
+            browserName !== "chromium",
+            "Address Element interactions only run in Chromium",
+          );
+
+          if (mockMode) {
+            // Registered LIFO: the first request (initial calculation on mount)
+            // resolves to Spain, the second (after the Canadian address is
+            // entered) resolves to Canada.
+            await mockTaxCalculationRequest(page, CANADA_TAX_RESPONSE);
+            await mockTaxCalculationRequest(page, SPAIN_TAX_RESPONSE);
+          }
+
+          page = await navigateToTaxesLandingUrl(page, userId);
+
+          const packageCards = await getPackageCards(page);
+          await startPurchaseFlow(packageCards[0]);
+
+          await expect(page.getByText("Total due today")).toBeVisible();
+
+          await enterEmail(page, email);
+
+          // The country lives in the payment element initially, so the full
+          // address element is not rendered yet.
+          await expect(page.locator("#address-element")).toHaveCount(0);
+
+          // Selecting Canada (a tax-relevant country) triggers the transition to
+          // the full billing address form.
+          await enterCreditCardDetails(page, "4242 4242 4242 4242", {
+            countryCode: "CA",
+          });
+
+          await expect(page.locator("#address-element")).toBeVisible();
+
+          await enterBillingAddress(page, CANADA_FULL_ADDRESS);
+
+          await confirmTaxCalculation(page);
           await expect(page.getByText("Total excluding tax")).toBeVisible();
           await expect(page.getByText("Total due today")).toBeVisible();
         },
