@@ -18,7 +18,7 @@ export VITE_RC_API_KEY = 'your public web billing api key (prefixed with rcb_)'
 - Start the server
 
 ```bash
-pnpm run dev
+npm run dev
 ```
 
 > **NOTE:** In development mode, the SDK connects to `localhost:8000` by default (set in the root `.env.development`). If you want to point the demo at production or a custom backend instead, set the following env vars in your `.env` file in this demo directory:
