@@ -46,6 +46,7 @@
     onPaymentInfoChange: (params: {
       complete: boolean;
       paymentMethod: string | undefined;
+      countryCode: string | undefined;
     }) => void;
     onAddressInfoChange: (
       complete: boolean,
@@ -80,9 +81,25 @@
     $translator.bcp47Locale || $translator.fallbackBcp47Locale,
   );
 
-  const collectFullBillingAddress = $derived(
+  // Country selected in the payment element. We listen to the payment element's
+  // `change` events to detect it and decide whether the full billing address is
+  // needed for tax purposes.
+  let selectedCountry: string | undefined = $state(undefined);
+
+  // Once the full billing address is required (a tax-relevant country was
+  // selected) we keep collecting it for the rest of the session. There is no way
+  // to push a country back into the payment element, so switching back to the
+  // minimal form would lose the selection; latching keeps the address element as
+  // the single source of truth and lets the customer freely change the country
+  // afterwards (e.g. Canada -> Bulgaria).
+  let collectFullBillingAddress = $state(
     shouldCollectFullAddress(brandingInfo),
   );
+  $effect(() => {
+    if (shouldCollectFullAddress(brandingInfo, selectedCountry)) {
+      collectFullBillingAddress = true;
+    }
+  });
 
   let paymentElementReadyForSubmission = $state(false);
   let emailElementReadyForSubmission = $state(skipEmail);
@@ -180,9 +197,17 @@
   const onPaymentElementChange = async (
     event: StripePaymentElementChangeEvent,
   ) => {
+    const country = event.value.billingDetails?.address?.country;
+    // Keep the last country reported by the payment element. Once the address
+    // element is shown Stripe stops reporting the billing country here, so we
+    // must not overwrite it with an empty value.
+    if (country) {
+      selectedCountry = country;
+    }
     onPaymentInfoChange({
       complete: event.complete,
       paymentMethod: event.complete ? event.value.type : undefined,
+      countryCode: selectedCountry,
     });
   };
 
@@ -266,6 +291,7 @@
     {#if collectFullBillingAddress}
       <AddressElement
         {elements}
+        defaultCountryCode={selectedCountry}
         onReady={onAddressElementReady}
         onChange={onAddressElementChange}
         onError={onStripeElementsLoadingError}

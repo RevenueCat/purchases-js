@@ -595,6 +595,145 @@ describe("PurchasesUI", () => {
     expect(StripeService.createAddressElement).not.toHaveBeenCalled();
   });
 
+  const mockPaymentElementReportingCountries = (
+    countries: (string | null)[],
+  ) => {
+    const paymentElement = {
+      on: (
+        eventType: string,
+        callback: (event?: StripePaymentElementChangeEvent) => void,
+      ) => {
+        if (eventType === "ready") {
+          setTimeout(() => callback(), 0);
+        }
+        if (eventType === "change") {
+          countries.forEach((country, index) => {
+            setTimeout(
+              () => {
+                callback({
+                  complete: true,
+                  value: {
+                    type: "card",
+                    billingDetails: { address: { country } },
+                  },
+                  elementType: "payment",
+                  empty: false,
+                  collapsed: false,
+                } as unknown as StripePaymentElementChangeEvent);
+              },
+              100 * (index + 1),
+            );
+          });
+        }
+      },
+      mount: vi.fn(),
+      destroy: vi.fn(),
+    };
+    vi.mocked(StripeService.createPaymentElement).mockReturnValue(
+      // @ts-expect-error - This is a mock
+      paymentElement,
+    );
+  };
+
+  test("renders the address element when tax collection is enabled and a tax-relevant country is selected", async () => {
+    vi.mocked(StripeService.createAddressElement).mockClear();
+    mockPaymentElementReportingCountries(["CA"]);
+
+    const { container } = render(PaymentEntryPage, {
+      props: {
+        ...basicProps,
+        brandingInfo: {
+          ...brandingInfo,
+          gateway_tax_collection_enabled: true,
+          full_address_collection_mode: "if_required",
+        },
+      },
+      context: defaultContext,
+    });
+
+    for (let i = 0; i < 6; i++) {
+      await vi.advanceTimersToNextTimerAsync();
+    }
+
+    expect(container.querySelector("#address-element")).not.toBeNull();
+    expect(StripeService.createAddressElement).toHaveBeenCalledWith(
+      expect.anything(),
+      "CA",
+    );
+  });
+
+  test("does not render the address element when tax collection is enabled but the country is not tax-relevant", async () => {
+    vi.mocked(StripeService.createAddressElement).mockClear();
+    mockPaymentElementReportingCountries(["US"]);
+
+    const { container } = render(PaymentEntryPage, {
+      props: {
+        ...basicProps,
+        brandingInfo: {
+          ...brandingInfo,
+          gateway_tax_collection_enabled: true,
+          full_address_collection_mode: "if_required",
+        },
+      },
+      context: defaultContext,
+    });
+
+    for (let i = 0; i < 6; i++) {
+      await vi.advanceTimersToNextTimerAsync();
+    }
+
+    expect(container.querySelector("#address-element")).toBeNull();
+    expect(StripeService.createAddressElement).not.toHaveBeenCalled();
+  });
+
+  test("keeps the address element once a tax-relevant country was selected, even after switching to another country", async () => {
+    vi.mocked(StripeService.createAddressElement).mockClear();
+    // Select Canada (tax-relevant) and then Bulgaria (not tax-relevant).
+    mockPaymentElementReportingCountries(["CA", "BG"]);
+
+    const { container } = render(PaymentEntryPage, {
+      props: {
+        ...basicProps,
+        brandingInfo: {
+          ...brandingInfo,
+          gateway_tax_collection_enabled: true,
+          full_address_collection_mode: "if_required",
+        },
+      },
+      context: defaultContext,
+    });
+
+    for (let i = 0; i < 8; i++) {
+      await vi.advanceTimersToNextTimerAsync();
+    }
+
+    expect(container.querySelector("#address-element")).not.toBeNull();
+  });
+
+  test("does not render the address element for a tax-relevant country when tax collection is disabled", async () => {
+    vi.mocked(StripeService.createAddressElement).mockClear();
+    mockPaymentElementReportingCountries(["CA"]);
+
+    const { container } = render(PaymentEntryPage, {
+      props: {
+        ...basicProps,
+        brandingInfo: {
+          ...brandingInfo,
+          gateway_tax_collection_enabled: false,
+          full_address_collection_mode: "if_required",
+        },
+      },
+      context: defaultContext,
+    });
+
+    for (let i = 0; i < 6; i++) {
+      await vi.advanceTimersToNextTimerAsync();
+    }
+
+    expect(container.querySelector("#address-element")).toBeNull();
+    expect(StripeService.createAddressElement).not.toHaveBeenCalled();
+  });
+
   test("forwards the full billing address and publishes it to the shared tax customer details store", async () => {
     const taxCustomerDetails: TaxCustomerDetails = {
       countryCode: "US",

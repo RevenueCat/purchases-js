@@ -283,12 +283,20 @@ export class StripeService {
     });
   }
 
-  static createAddressElement(elements: StripeElements) {
+  static createAddressElement(
+    elements: StripeElements,
+    defaultCountryCode?: string,
+  ) {
     return elements.create("address", {
       mode: "billing",
       display: {
         name: "full",
       },
+      // Seed the country with the one already selected in the payment element so
+      // the full address form opens on the country the customer just picked.
+      ...(defaultCountryCode
+        ? { defaultValues: { address: { country: defaultCountryCode } } }
+        : {}),
     });
   }
 

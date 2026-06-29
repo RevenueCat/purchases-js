@@ -407,6 +407,26 @@ describe("StripeService", () => {
         },
       });
     });
+
+    test("seeds the address element with the provided default country", () => {
+      const mockElements: Partial<StripeElements> = {
+        create: vi.fn(),
+      };
+
+      StripeService.createAddressElement(mockElements as StripeElements, "CA");
+
+      expect(mockElements.create).toHaveBeenCalledWith("address", {
+        mode: "billing",
+        display: {
+          name: "full",
+        },
+        defaultValues: {
+          address: {
+            country: "CA",
+          },
+        },
+      });
+    });
   });
 
   describe("extractTaxCustomerDetails", () => {
