@@ -9,8 +9,9 @@ const LoginPage: React.FC = () => {
   const [displayName, setDisplayName] = useState("");
   const [nickname, setNickname] = useState("");
   const [appUserId, setAppUserId] = useState("");
-  const [useCustomLogger, setUseCustomLogger] = useState(true);
   const [offeringId, setOfferingId] = useState("");
+  const [useCustomLogger, setUseCustomLogger] = useState(true);
+  const [enableWorkflows, setEnableWorkflows] = useState(false);
 
   const navigateToAppUserIDPaywall = (
     appUserId?: string,
@@ -24,12 +25,15 @@ const LoginPage: React.FC = () => {
       if (nickname) {
         params.append("nickname", nickname);
       }
-      // Add custom logger preference
-      params.append("useCustomLogger", useCustomLogger.toString());
-
       if (offeringId.trim()) {
         params.append("offeringId", offeringId.trim());
       }
+      // Add custom logger preference
+      params.append("useCustomLogger", useCustomLogger.toString());
+      if (enableWorkflows) {
+        params.append("enableWorkflows", "true");
+      }
+
       const queryString = params.toString();
       const base = useRCPaywall ? "rc_paywall" : "paywall";
       const url = `/${base}/${encodeURIComponent(appUserId)}${queryString ? `?${queryString}` : ""}`;
@@ -88,6 +92,17 @@ const LoginPage: React.FC = () => {
             />
             <span className="checkbox-text">
               🏥 Use custom health logger (adds health icon to SDK logs)
+            </span>
+          </label>
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              checked={enableWorkflows}
+              onChange={(e) => setEnableWorkflows(e.target.checked)}
+              className="checkbox-input"
+            />
+            <span className="checkbox-text">
+              Enable multipage paywalls (workflows)
             </span>
           </label>
         </div>
