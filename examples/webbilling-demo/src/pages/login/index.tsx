@@ -9,9 +9,14 @@ const LoginPage: React.FC = () => {
   const [displayName, setDisplayName] = useState("");
   const [nickname, setNickname] = useState("");
   const [appUserId, setAppUserId] = useState("");
+  const [offeringId, setOfferingId] = useState("");
   const [useCustomLogger, setUseCustomLogger] = useState(true);
+  const [enableWorkflows, setEnableWorkflows] = useState(false);
 
-  const navigateToAppUserIDPaywall = (appUserId?: string) => {
+  const navigateToAppUserIDPaywall = (
+    appUserId?: string,
+    useRCPaywall = false,
+  ) => {
     if (appUserId) {
       const params = new URLSearchParams();
       if (displayName) {
@@ -20,11 +25,18 @@ const LoginPage: React.FC = () => {
       if (nickname) {
         params.append("nickname", nickname);
       }
+      if (offeringId.trim()) {
+        params.append("offeringId", offeringId.trim());
+      }
       // Add custom logger preference
       params.append("useCustomLogger", useCustomLogger.toString());
+      if (enableWorkflows) {
+        params.append("enableWorkflows", "true");
+      }
 
       const queryString = params.toString();
-      const url = `/paywall/${encodeURIComponent(appUserId)}${queryString ? `?${queryString}` : ""}`;
+      const base = useRCPaywall ? "rc_paywall" : "paywall";
+      const url = `/${base}/${encodeURIComponent(appUserId)}${queryString ? `?${queryString}` : ""}`;
       navigate(url);
     }
   };
@@ -42,22 +54,33 @@ const LoginPage: React.FC = () => {
           value={appUserId}
           onChange={(e) => setAppUserId(e.target.value)}
         />
-        <div className="attributes-section">
+        <div className="attributes-section" style={{ marginTop: "16px" }}>
           <h3>Optional Attributes</h3>
-          <input
-            type="text"
-            placeholder="Display Name"
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-            className="input-field"
-          />
-          <input
-            type="text"
-            placeholder="Nickname"
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
-            className="input-field"
-          />
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "12px" }}
+          >
+            <input
+              type="text"
+              placeholder="Offering identifier (leave blank for default offering)"
+              value={offeringId}
+              onChange={(e) => setOfferingId(e.target.value)}
+              className="input-field"
+            />
+            <input
+              type="text"
+              placeholder="Display Name"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              className="input-field"
+            />
+            <input
+              type="text"
+              placeholder="Nickname"
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
+              className="input-field"
+            />
+          </div>
         </div>
         <div className="logger-section">
           <label className="checkbox-label">
@@ -71,12 +94,29 @@ const LoginPage: React.FC = () => {
               🏥 Use custom health logger (adds health icon to SDK logs)
             </span>
           </label>
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              checked={enableWorkflows}
+              onChange={(e) => setEnableWorkflows(e.target.checked)}
+              className="checkbox-input"
+            />
+            <span className="checkbox-text">
+              Enable multipage paywalls (workflows)
+            </span>
+          </label>
         </div>
         <div className="button-group">
           <Button
             caption="Continue"
             onClick={() => {
               navigateToAppUserIDPaywall(appUserId);
+            }}
+          />
+          <Button
+            caption="Continue (RC Paywall)"
+            onClick={() => {
+              navigateToAppUserIDPaywall(appUserId, true);
             }}
           />
           <Button
