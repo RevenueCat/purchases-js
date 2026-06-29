@@ -498,14 +498,14 @@ describe("PurchasesUI", () => {
     );
   });
 
-  test("does not render the address element when full_address_collection_mode is never", async () => {
+  test("does not render the address element when full_address_collection_mode is if_required", async () => {
     vi.mocked(StripeService.createAddressElement).mockClear();
     const { container } = render(PaymentEntryPage, {
       props: {
         ...basicProps,
         brandingInfo: {
           ...brandingInfo,
-          full_address_collection_mode: "never",
+          full_address_collection_mode: "if_required",
         },
       },
       context: defaultContext,
@@ -535,7 +535,7 @@ describe("PurchasesUI", () => {
     expect(StripeService.createAddressElement).toHaveBeenCalled();
   });
 
-  test("treats unknown full_address_collection_mode values as never", async () => {
+  test("treats unknown full_address_collection_mode values as if_required", async () => {
     vi.mocked(StripeService.createAddressElement).mockClear();
     const { container } = render(PaymentEntryPage, {
       props: {
@@ -544,7 +544,7 @@ describe("PurchasesUI", () => {
           ...brandingInfo,
           // Simulate a future mode this client version does not understand.
           full_address_collection_mode:
-            "some_future_mode" as unknown as "never",
+            "some_future_mode" as unknown as "if_required",
         },
       },
       context: defaultContext,

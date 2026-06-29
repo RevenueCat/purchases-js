@@ -3,11 +3,12 @@ import type { BrandingAppearance } from "../../entities/branding";
 
 /**
  * Controls how the billing address is collected during checkout.
- * - `never`: the full address UI is never presented. Only country and postal
- *   code are collected, and postal code is US-only. (default behavior)
+ * - `if_required`: the full address UI is only presented when it is required,
+ *   e.g. for tax collection in the customer's country. Otherwise only country
+ *   and postal code are collected, and postal code is US-only. (default behavior)
  * - `always`: the full address UI is always presented.
  */
-export type FullAddressCollectionMode = "never" | "always";
+export type FullAddressCollectionMode = "if_required" | "always";
 
 export type BrandingInfoResponse = {
   app_icon: string | null;
@@ -27,9 +28,9 @@ export type BrandingInfoResponse = {
 };
 
 /**
- * Resolves whether the full billing address UI should be presented, based on
- * the branding configuration. Treats a missing mode and any unknown/future
- * mode as `never`.
+ * Resolves whether the full billing address UI should always be presented,
+ * based on the branding configuration. Treats a missing mode and any
+ * unknown/future mode as `if_required`.
  */
 export function shouldCollectFullAddress(
   brandingInfo:

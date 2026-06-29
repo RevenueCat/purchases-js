@@ -517,7 +517,7 @@ export const brandingInfo: BrandingInfoResponse = {
   app_wordmark_webp: null,
   appearance: null,
   gateway_tax_collection_enabled: false,
-  full_address_collection_mode: "never",
+  full_address_collection_mode: "if_required",
   brand_font_config: null,
 };
 
