@@ -491,7 +491,17 @@
    * when multiple tax refresh requests are triggered in quick succession.
    */
   async function refreshTaxes(): Promise<void> {
-    if (!canRefreshTaxes()) return;
+    if (!canRefreshTaxes()) {
+      // The form state may have changed between scheduling the debounced
+      // refresh (which optimistically shows the loading skeleton) and this
+      // timer firing. If a recalculation is no longer valid, restore the
+      // previous status so the UI doesn't get stuck calculating taxes (which
+      // would keep the pay button disabled).
+      if (taxCalculationStatus === "loading") {
+        taxCalculationStatus = previousTaxCalculationStatus;
+      }
+      return;
+    }
 
     if (taxCalculationStatus !== "loading") {
       previousTaxCalculationStatus = taxCalculationStatus;
