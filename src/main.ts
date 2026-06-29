@@ -126,8 +126,13 @@ import type {
   PresentExpressPurchaseButtonParams,
 } from "./entities/present-express-purchase-button-params";
 import { ExpressPurchaseButtonWrapper } from "./ui/express-purchase-button/express-purchase-button-wrapper.svelte";
-import { getDocument, getWindow } from "./helpers/browser-globals";
+import {
+  getDocument,
+  getNullableDocument,
+  getWindow,
+} from "./helpers/browser-globals";
 import { isAllowedCompleteWorkflowNavigateUrl } from "./helpers/complete-workflow-navigate-url";
+import { buildAssetURL } from "./networking/assets";
 
 type UIComponentInteractionFields = UIComponentInteractionData & {
   componentURL?: string;
@@ -470,6 +475,43 @@ export class Purchases {
       return;
     }
     this._brandingInfo = await this.backend.getBrandingInfo();
+    this.syncApplePayWebsiteIcon();
+  }
+
+  /** @internal */
+  private syncApplePayWebsiteIcon(): void {
+    const doc = getNullableDocument();
+    if (!doc) {
+      return;
+    }
+
+    const managedSelector = 'link[data-rc-apple-touch-icon="true"]';
+    const managedLink =
+      doc.head.querySelector<HTMLLinkElement>(managedSelector);
+    const existingLink = doc.head.querySelector<HTMLLinkElement>(
+      'link[rel~="apple-touch-icon"]',
+    );
+    const iconPath = this._brandingInfo?.app_icon?.trim();
+
+    if (!iconPath) {
+      managedLink?.remove();
+      return;
+    }
+
+    // Respect icons declared by the host page, since Apple Pay treats this as
+    // website metadata rather than SDK-scoped configuration.
+    if (existingLink && existingLink !== managedLink) {
+      return;
+    }
+
+    const iconLink = managedLink ?? doc.createElement("link");
+    iconLink.rel = "apple-touch-icon";
+    iconLink.href = buildAssetURL(iconPath);
+    iconLink.setAttribute("data-rc-apple-touch-icon", "true");
+
+    if (!managedLink) {
+      doc.head.appendChild(iconLink);
+    }
   }
 
   /** @internal */
@@ -2135,6 +2177,9 @@ export class Purchases {
       if (this.eventsTracker) {
         this.eventsTracker.dispose();
       }
+      getNullableDocument()
+        ?.head.querySelector('link[data-rc-apple-touch-icon="true"]')
+        ?.remove();
       Purchases.instance = undefined;
     } else {
       Logger.warnLog(
