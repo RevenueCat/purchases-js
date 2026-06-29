@@ -597,6 +597,7 @@ export interface StoreTransaction {
 
 // @public
 export interface SubscriptionInfo {
+    readonly autoResumeDate: Date | null;
     readonly billingIssuesDetectedAt: Date | null;
     readonly displayName: string | null;
     readonly expiresDate: Date | null;
