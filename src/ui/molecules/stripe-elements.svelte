@@ -8,7 +8,10 @@
     StripePaymentElementChangeEvent,
   } from "@stripe/stripe-js";
 
-  import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
+  import {
+    type BrandingInfoResponse,
+    shouldCollectFullAddress,
+  } from "../../networking/responses/branding-response";
   import PaymentElement from "./stripe-payment-element.svelte";
   import LinkAuthenticationElement from "./stripe-authentication-link-element.svelte";
   import ExpressCheckoutElement from "./stripe-express-checkout-element.svelte";
@@ -74,14 +77,14 @@
   );
 
   const collectFullBillingAddress = $derived(
-    brandingInfo?.full_address_collection_enabled ?? false,
+    shouldCollectFullAddress(brandingInfo),
   );
 
   let paymentElementReadyForSubmission = $state(false);
   let emailElementReadyForSubmission = $state(skipEmail);
   let expressCheckoutElementReadyForSubmission = $state(false);
   let addressElementReadyForSubmission = $state(
-    !brandingInfo?.full_address_collection_enabled,
+    !shouldCollectFullAddress(brandingInfo),
   );
 
   let stripeVariables: undefined | Appearance["variables"] = $state(undefined);

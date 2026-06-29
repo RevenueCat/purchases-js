@@ -498,13 +498,14 @@ describe("PurchasesUI", () => {
     );
   });
 
-  test("does not render the address element when full_address_collection_enabled is disabled", async () => {
+  test("does not render the address element when full_address_collection_mode is never", async () => {
+    vi.mocked(StripeService.createAddressElement).mockClear();
     const { container } = render(PaymentEntryPage, {
       props: {
         ...basicProps,
         brandingInfo: {
           ...brandingInfo,
-          full_address_collection_enabled: false,
+          full_address_collection_mode: "never",
         },
       },
       context: defaultContext,
@@ -516,13 +517,13 @@ describe("PurchasesUI", () => {
     expect(StripeService.createAddressElement).not.toHaveBeenCalled();
   });
 
-  test("renders the address element when full_address_collection_enabled is enabled", async () => {
+  test("renders the address element when full_address_collection_mode is always", async () => {
     const { container } = render(PaymentEntryPage, {
       props: {
         ...basicProps,
         brandingInfo: {
           ...brandingInfo,
-          full_address_collection_enabled: true,
+          full_address_collection_mode: "always",
         },
       },
       context: defaultContext,
@@ -532,6 +533,27 @@ describe("PurchasesUI", () => {
 
     expect(container.querySelector("#address-element")).not.toBeNull();
     expect(StripeService.createAddressElement).toHaveBeenCalled();
+  });
+
+  test("treats unknown full_address_collection_mode values as never", async () => {
+    vi.mocked(StripeService.createAddressElement).mockClear();
+    const { container } = render(PaymentEntryPage, {
+      props: {
+        ...basicProps,
+        brandingInfo: {
+          ...brandingInfo,
+          // Simulate a future mode this client version does not understand.
+          full_address_collection_mode:
+            "some_future_mode" as unknown as "never",
+        },
+      },
+      context: defaultContext,
+    });
+
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(container.querySelector("#address-element")).toBeNull();
+    expect(StripeService.createAddressElement).not.toHaveBeenCalled();
   });
 
   test("forwards the full billing address and publishes it to the shared tax customer details store", async () => {
@@ -594,7 +616,7 @@ describe("PurchasesUI", () => {
         brandingInfo: {
           ...brandingInfo,
           gateway_tax_collection_enabled: true,
-          full_address_collection_enabled: true,
+          full_address_collection_mode: "always",
         },
         lastTaxCustomerDetailsStore,
       },

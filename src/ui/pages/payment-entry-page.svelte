@@ -6,7 +6,10 @@
     type PurchaseOption,
     type SubscriptionOption,
   } from "../../entities/offerings";
-  import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
+  import {
+    type BrandingInfoResponse,
+    shouldCollectFullAddress,
+  } from "../../networking/responses/branding-response";
   import IconError from "../atoms/icons/icon-error.svelte";
   import MessageLayout from "../layout/message-layout.svelte";
 
@@ -173,9 +176,7 @@
   let isEmailComplete = $state(customerEmail ? true : false);
   let isStripeLoading = $state(true);
   let isPaymentInfoComplete = $state(false);
-  let isAddressComplete = $state(
-    !brandingInfo?.full_address_collection_enabled,
-  );
+  let isAddressComplete = $state(!shouldCollectFullAddress(brandingInfo));
   let selectedPaymentMethod: string | undefined = $state(undefined);
   let modalErrorMessage: string | undefined = $state(undefined);
   let clientSecret: string | undefined = $state(undefined);
