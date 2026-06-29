@@ -3,22 +3,22 @@
 ### Development
 
 - Install and build dependencies in the root `purchases-js`
-  - `npm i`
-  - `npm run build`
+  - `pnpm i`
+  - `pnpm run build`
 - Install dependencies for the webbilling-demo app
 
-  - `npm i`
+  - `pnpm i`
 
 - Set the following env variables. You can set them in a `.env` file in the root of this demo app.
 
 ```bash
-export VITE_RC_API_KEY = 'your public api key'
+export VITE_RC_API_KEY = 'your public web billing api key (prefixed with rcb_)'
 ```
 
 - Start the server
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 > **NOTE:** In development mode, the SDK connects to `localhost:8000` by default (set in the root `.env.development`). If you want to point the demo at production or a custom backend instead, set the following env vars in your `.env` file in this demo directory:
@@ -116,3 +116,14 @@ sudo npm run dev-fake-https -- --host somedomain.com --port 443
 ```
 
 Now you should be able to run safari with Apple Pay just by visiting `somedomain.com`.
+
+### Viewing Paywalls
+
+Before a paywall will appear, you need an offering configured in the [RevenueCat dashboard](https://app.revenuecat.com) with packages and a paywall attached.
+
+1. Go to the landing page and click **"Subscribe now"**
+2. Enter your app user ID
+3. Optionally enter an **offering identifier** to load a specific offering — leave blank to use the default offering
+4. Click **"Continue (RC Paywall)"** to view the RC paywall
+
+If you see a blank page or "No offering found!", check that your offering is set as the **default offering** in the dashboard (or that the identifier you entered is correct) and has a paywall configured.

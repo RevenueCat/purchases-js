@@ -10,8 +10,12 @@ const LoginPage: React.FC = () => {
   const [nickname, setNickname] = useState("");
   const [appUserId, setAppUserId] = useState("");
   const [useCustomLogger, setUseCustomLogger] = useState(true);
+  const [offeringId, setOfferingId] = useState("");
 
-  const navigateToAppUserIDPaywall = (appUserId?: string) => {
+  const navigateToAppUserIDPaywall = (
+    appUserId?: string,
+    useRCPaywall = false,
+  ) => {
     if (appUserId) {
       const params = new URLSearchParams();
       if (displayName) {
@@ -23,8 +27,12 @@ const LoginPage: React.FC = () => {
       // Add custom logger preference
       params.append("useCustomLogger", useCustomLogger.toString());
 
+      if (offeringId.trim()) {
+        params.append("offeringId", offeringId.trim());
+      }
       const queryString = params.toString();
-      const url = `/paywall/${encodeURIComponent(appUserId)}${queryString ? `?${queryString}` : ""}`;
+      const base = useRCPaywall ? "rc_paywall" : "paywall";
+      const url = `/${base}/${encodeURIComponent(appUserId)}${queryString ? `?${queryString}` : ""}`;
       navigate(url);
     }
   };
@@ -42,22 +50,33 @@ const LoginPage: React.FC = () => {
           value={appUserId}
           onChange={(e) => setAppUserId(e.target.value)}
         />
-        <div className="attributes-section">
+        <div className="attributes-section" style={{ marginTop: "16px" }}>
           <h3>Optional Attributes</h3>
-          <input
-            type="text"
-            placeholder="Display Name"
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-            className="input-field"
-          />
-          <input
-            type="text"
-            placeholder="Nickname"
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
-            className="input-field"
-          />
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "12px" }}
+          >
+            <input
+              type="text"
+              placeholder="Offering identifier (leave blank for default offering)"
+              value={offeringId}
+              onChange={(e) => setOfferingId(e.target.value)}
+              className="input-field"
+            />
+            <input
+              type="text"
+              placeholder="Display Name"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              className="input-field"
+            />
+            <input
+              type="text"
+              placeholder="Nickname"
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
+              className="input-field"
+            />
+          </div>
         </div>
         <div className="logger-section">
           <label className="checkbox-label">
@@ -77,6 +96,12 @@ const LoginPage: React.FC = () => {
             caption="Continue"
             onClick={() => {
               navigateToAppUserIDPaywall(appUserId);
+            }}
+          />
+          <Button
+            caption="Continue (RC Paywall)"
+            onClick={() => {
+              navigateToAppUserIDPaywall(appUserId, true);
             }}
           />
           <Button
