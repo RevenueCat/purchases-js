@@ -227,9 +227,73 @@ export interface BillingAddressDetails {
   countryCode?: string;
 }
 
+type StripeAddressFrame = ReturnType<typeof getStripeAddressFrame>;
+
 /**
- * Fills the Stripe Address Element. Only the provided fields are filled, so it
- * can be used to populate a partial address (e.g. everything except the name).
+ * Reveals the structured address fields (line 1/2, city, state, ZIP) when the
+ * Address Element is collapsed behind Google autocomplete.
+ *
+ * When the Address Element runs alongside the Payment Element, Stripe enables
+ * autocomplete and initially shows only a country dropdown and a single
+ * "Address" search field. Focusing/typing in that field opens a dropdown that
+ * always contains a static "Enter address manually" option — regardless of
+ * whether Google returns any predictions (they don't load on localhost, where
+ * Stripe's built-in Google Maps key is referrer-restricted). Clicking it
+ * expands the structured fields.
+ *
+ * The dropdown renders in a separate, dynamically-named Stripe iframe (not
+ * inside `#address-element`), so we scan every frame for the option and
+ * dispatch the click directly (a plain `.click()` can be flaky here).
+ */
+async function revealStructuredAddressFields(
+  page: Page,
+  addressFrame: StripeAddressFrame,
+): Promise<void> {
+  // Already expanded (autocomplete unavailable for this country, or a previous
+  // call already switched to manual entry): nothing to do.
+  if ((await addressFrame.getByLabel("Address line 1").count()) > 0) {
+    return;
+  }
+
+  const tryClickManualEntry = async (): Promise<boolean> => {
+    for (const frame of page.frames()) {
+      const manualEntry = frame.getByText("Enter address manually").first();
+      if (
+        (await manualEntry.count()) > 0 &&
+        (await manualEntry.isVisible().catch(() => false))
+      ) {
+        await manualEntry.dispatchEvent("click");
+        return true;
+      }
+    }
+    return false;
+  };
+
+  // Focus and type a character into the search field to surface the dropdown.
+  const searchField = addressFrame.getByLabel("Address", { exact: true });
+  await searchField.click();
+  if (!(await tryClickManualEntry())) {
+    await searchField.pressSequentially("5th avenue", { delay: 100 });
+  }
+
+  await expect
+    .poll(tryClickManualEntry, {
+      timeout: 10_000,
+      message:
+        "Could not find the Stripe 'Enter address manually' option to reveal the structured address fields",
+    })
+    .toBe(true);
+
+  // Wait for the structured fields to actually render before callers fill them.
+  await expect(addressFrame.getByLabel("Address line 1")).toBeVisible();
+}
+
+/**
+ * Fills the Stripe Address Element. The element runs alongside the Payment
+ * Element, so Stripe enables Google autocomplete and collapses the form into a
+ * single search field; we first switch to manual entry to reveal the structured
+ * fields, then fill them directly. Only the provided fields are filled, so a
+ * partial address can be populated (e.g. everything except the name).
  */
 export async function enterBillingAddress(
   page: Page,
@@ -243,6 +307,10 @@ export async function enterBillingAddress(
       .getByLabel("Country or region")
       .selectOption(details.countryCode);
   }
+
+  // Expand the structured fields if they're hidden behind autocomplete.
+  await revealStructuredAddressFields(page, addressFrame);
+
   if (details.name !== undefined) {
     await addressFrame.getByLabel("Name").fill(details.name);
   }
