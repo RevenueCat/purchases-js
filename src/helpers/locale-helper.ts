@@ -30,13 +30,6 @@ export const toBcp47Locale = (locale?: string): string | undefined => {
   return languageOnly;
 };
 
-/**
- * The buyer's browser locale (e.g. "ja-JP"), or undefined outside a browser.
- *
- * Used as the default `selectedLocale` for the checkout entry points so the
- * checkout UI and the lifecycle emails render in the buyer's language with no
- * extra configuration - the same behaviour the paywall flow already has. Pass
- * `selectedLocale` explicitly to override.
- */
+/** The buyer's browser locale, or undefined outside a browser. */
 export const getBrowserLocale = (): string | undefined =>
   getNullableWindow()?.navigator?.language;
