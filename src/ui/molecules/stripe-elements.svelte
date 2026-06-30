@@ -96,7 +96,12 @@
     shouldCollectFullAddress(brandingInfo),
   );
   $effect(() => {
-    if (shouldCollectFullAddress(brandingInfo, selectedCountry)) {
+    if (
+      shouldCollectFullAddress(
+        brandingInfo,
+        StripeService.countryRequiresFullAddressForTaxes(selectedCountry),
+      )
+    ) {
       collectFullBillingAddress = true;
     }
   });

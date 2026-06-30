@@ -68,6 +68,8 @@ vi.mock("../../../stripe/stripe-service", async () => {
         on: vi.fn(),
         destroy: vi.fn(),
       }),
+      countryRequiresFullAddressForTaxes:
+        actual.StripeService.countryRequiresFullAddressForTaxes,
       isStripeHandledFormError: vi.fn(),
       updateElementsConfiguration: vi.fn(),
       getStripeLocale: vi.fn().mockImplementation((locale: string) => locale),

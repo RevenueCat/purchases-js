@@ -283,6 +283,29 @@ export class StripeService {
     });
   }
 
+  /**
+   * Country codes (ISO 3166-1 alpha-2) that require the full billing address to
+   * be collected when tax collection is enabled, because country alone is not
+   * enough to resolve the tax rate.
+   * See https://docs.stripe.com/tax/customer-locations?#supported-formats
+   */
+  private static FULL_ADDRESS_REQUIRED_TAX_COUNTRY_CODES = ["CA", "PR", "IN"];
+
+  /**
+   * Whether the given country requires the full billing address to be collected
+   * to resolve taxes via Stripe Tax.
+   */
+  static countryRequiresFullAddressForTaxes(
+    countryCode?: string | null,
+  ): boolean {
+    return (
+      !!countryCode &&
+      StripeService.FULL_ADDRESS_REQUIRED_TAX_COUNTRY_CODES.includes(
+        countryCode,
+      )
+    );
+  }
+
   static createAddressElement(
     elements: StripeElements,
     defaultCountryCode?: string,

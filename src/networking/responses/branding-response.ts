@@ -28,22 +28,15 @@ export type BrandingInfoResponse = {
 };
 
 /**
- * Country codes (ISO 3166-1 alpha-2) that require the full billing address to be
- * collected when tax collection is enabled, because country alone
- * is not enough to resolve the tax rate.
- * see https://docs.stripe.com/tax/customer-locations?#supported-formats
- */
-export const FULL_ADDRESS_REQUIRED_TAX_COUNTRY_CODES = ["CA", "PR", "IN"];
-
-/**
  * Resolves whether the full billing address UI should be presented, based on the
- * branding configuration and the currently selected country.
+ * branding configuration and whether the selected country requires the full
+ * address to resolve taxes.
  *
  * The full address is collected when either:
  * - `full_address_collection_mode` is `always`, or
- * - tax collection is enabled and the selected country is one that requires the
- *   full address to resolve taxes (see
- *   {@link FULL_ADDRESS_REQUIRED_TAX_COUNTRY_CODES}).
+ * - tax collection is enabled and the selected country requires the full address
+ *   to resolve taxes (determined by the payment gateway, e.g.
+ *   `StripeService.countryRequiresFullAddressForTaxes`).
  *
  * Treats a missing mode and any unknown/future mode as `if_required`.
  */
@@ -55,7 +48,7 @@ export function shouldCollectFullAddress(
       >
     | null
     | undefined,
-  selectedCountryCode?: string | null,
+  selectedCountryRequiresFullAddressForTaxes: boolean = false,
 ): boolean {
   if (brandingInfo?.full_address_collection_mode === "always") {
     return true;
@@ -63,7 +56,6 @@ export function shouldCollectFullAddress(
 
   return (
     !!brandingInfo?.gateway_tax_collection_enabled &&
-    !!selectedCountryCode &&
-    FULL_ADDRESS_REQUIRED_TAX_COUNTRY_CODES.includes(selectedCountryCode)
+    selectedCountryRequiresFullAddressForTaxes
   );
 }
