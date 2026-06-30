@@ -468,14 +468,20 @@
 
   /**
    * Whether a tax recalculation can run given the current form state. Tax
-   * refreshes are only valid for card payments once the email and payment
-   * information are complete and tax collection is enabled.
+   * refreshes are only valid for card payments once the email, payment
+   * information and billing address are complete and tax collection is enabled.
+   *
+   * The billing address must be complete so we never calculate (and display)
+   * taxes from partial or missing address data while the customer is still
+   * filling in the Address Element. When full address collection is not enabled,
+   * `isAddressComplete` is always true, so this has no effect on that flow.
    */
   function canRefreshTaxes(): boolean {
     return (
       selectedPaymentMethod === "card" &&
       isEmailComplete &&
       isPaymentInfoComplete &&
+      isAddressComplete &&
       !processing &&
       taxCalculationStatus !== "disabled"
     );
