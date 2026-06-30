@@ -646,4 +646,99 @@ describe("PurchasesUI", () => {
     // them on discount-code refreshes.
     expect(get(lastTaxCustomerDetailsStore)).toEqual(taxCustomerDetails);
   });
+
+  test("keeps the tax status as 'calculated' after a successful debounced refresh in the checkout shell", async () => {
+    // Repro for the debounced-refresh revert bug.
+    //
+    // The refresh flow is: a form change schedules a debounced refresh that
+    // optimistically flips `taxCalculationStatus` to "loading" (showing the
+    // skeleton). When the timer fires, `refreshTaxes` recalculates and then a
+    // `finally` handler restores the *previous* status if the status is still
+    // "loading" (a safety net for aborted/short-circuited refreshes).
+    //
+    // In the checkout shell (`onSessionPricingUpdated` provided) the parent owns
+    // the canonical pricing, so a successful recalculation used to forward the
+    // result to the parent WITHOUT updating the local status. That left the
+    // status at "loading" when `finally` ran, so it reverted to the stale
+    // previous value (here "unavailable") instead of "calculated" until the
+    // parent's async round-trip landed -- briefly disabling pay / showing stale
+    // tax UI. The fix applies the breakdown locally too, so this stays
+    // "calculated" throughout.
+    vi.mocked(StripeService.extractTaxCustomerDetails).mockResolvedValue({
+      customerDetails: {
+        countryCode: "US",
+        postalCode: "94107",
+        state: "CA",
+        city: "San Francisco",
+        addressLine1: "354 Oyster Point Blvd",
+        addressLine2: "Floor 2",
+      },
+      confirmationTokenId: "ctoken-id",
+    });
+
+    const paymentElement = {
+      on: (
+        eventType: string,
+        callback: (event?: StripePaymentElementChangeEvent) => void,
+      ) => {
+        if (eventType === "ready") {
+          setTimeout(() => callback(), 0);
+        }
+        if (eventType === "change") {
+          setTimeout(() => {
+            callback({
+              complete: true,
+              value: { type: "card" },
+              elementType: "payment",
+              empty: false,
+              collapsed: false,
+            });
+          }, 100);
+        }
+      },
+      mount: vi.fn(),
+      destroy: vi.fn(),
+    };
+    vi.mocked(StripeService.createPaymentElement).mockReturnValue(
+      // @ts-expect-error - This is a mock
+      paymentElement,
+    );
+
+    const onPriceBreakdownUpdated = vi.fn();
+    // Shell mode: the parent owns the canonical pricing. We intentionally do
+    // NOT echo it back via `defaultPriceBreakdown`, so the only way the local
+    // status can become "calculated" is the page applying it itself.
+    const onSessionPricingUpdated = vi.fn();
+
+    render(PaymentEntryPage, {
+      props: {
+        ...basicProps,
+        customerEmail: "test@test.com",
+        brandingInfo: {
+          ...brandingInfo,
+          gateway_tax_collection_enabled: true,
+        },
+        onPriceBreakdownUpdated,
+        onSessionPricingUpdated,
+      },
+      context: defaultContext,
+    });
+
+    // Flush stripe init, the payment element ready/change events, the debounce
+    // timer and the refresh promise chain (including its `finally`).
+    for (let i = 0; i < 6; i++) {
+      await vi.advanceTimersToNextTimerAsync();
+    }
+
+    // The parent received the recalculated, "calculated" pricing.
+    expect(onSessionPricingUpdated).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ taxCalculationStatus: "calculated" }),
+    );
+
+    // The local status must reflect that success and must not have reverted to
+    // the stale "unavailable"/"loading" value after `finally` ran.
+    const lastBreakdown = onPriceBreakdownUpdated.mock.calls.at(-1)?.[0];
+    expect(lastBreakdown?.taxCalculationStatus).toBe("calculated");
+  });
 });

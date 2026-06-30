@@ -358,10 +358,18 @@
       nextTaxCalculationStatus,
     );
 
+    // Apply the breakdown locally regardless of mode. In the checkout shell the
+    // parent owns the canonical pricing (via onSessionPricingUpdated) and echoes
+    // it back through defaultPriceBreakdown, but that round-trip is asynchronous.
+    // Without an immediate local update, the page's taxCalculationStatus would
+    // stay "loading" when refreshTaxes' finally handler runs, causing it to
+    // revert to a stale previousTaxCalculationStatus (e.g. "pending") and briefly
+    // disable the pay button / show stale tax UI until the parent sync lands.
+    applyLocalPriceBreakdown(nextPriceBreakdown);
+
     if (onSessionPricingUpdated) {
       onSessionPricingUpdated(pricingResponse, nextPriceBreakdown);
     } else {
-      applyLocalPriceBreakdown(nextPriceBreakdown);
       elementsConfiguration =
         pricingResponse.gateway_params.elements_configuration;
     }
