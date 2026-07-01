@@ -97,7 +97,10 @@ import {
   createCheckoutSessionEndFinishedEvent,
   createCheckoutSessionStartEvent,
 } from "./behavioural-events/sdk-event-helpers";
-import { SDKEventName } from "./behavioural-events/sdk-events";
+import {
+  SDKEventName,
+  type WorkflowStepEntryReason,
+} from "./behavioural-events/sdk-events";
 import { autoParseUTMParams } from "./helpers/utm-params";
 import {
   defaultFlagsConfig,
@@ -1071,6 +1074,7 @@ export class Purchases {
                 },
               });
             } else {
+              const entryReason: WorkflowStepEntryReason = event.reason;
               // Fire step_started for the step being entered.
               this.eventsTracker.trackSDKEvent({
                 eventName: SDKEventName.WorkflowStepStarted,
@@ -1080,7 +1084,7 @@ export class Purchases {
                   ...(event.fromStepId !== undefined
                     ? { from_step_id: event.fromStepId }
                     : {}),
-                  entry_reason: event.reason,
+                  entry_reason: entryReason,
                   is_first_step: event.isFirstStep,
                   is_last_step: event.isLastStep,
                 },
