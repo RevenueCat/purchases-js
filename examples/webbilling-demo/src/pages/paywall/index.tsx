@@ -15,6 +15,7 @@ import {
   isPaddleApiKey,
   isStripeApiKey,
 } from "../../util/PurchasesLoader";
+import { getLongPeriodLabel, pluralizePeriod } from "../../util/period-label";
 import Button from "../../components/Button";
 import LogoutButton from "../../components/LogoutButton";
 
@@ -35,24 +36,10 @@ const shortPeriodLabels: Record<string, string> = {
   P1W: "wk",
 };
 
-const longPeriodLabels: Record<string, string> = {
-  P3D: "3 days",
-  P1W: "1 week",
-  P2W: "2 weeks",
-  P1M: "1 month",
-  P2M: "2 months",
-  P3M: "3 months",
-  P6M: "6 months",
-  P1Y: "1 year",
-};
-
 const getPeriodLabel = (
   period: string | null,
   labels: Record<string, string>,
 ) => labels[period ?? ""] ?? period ?? "";
-
-const getLongPeriodLabel = (period: string | null) =>
-  getPeriodLabel(period, longPeriodLabels);
 
 const getFormattedPrice = (price: Price | null, period: string | null) => {
   if (!price?.formattedPrice) return "";
@@ -81,8 +68,7 @@ const formattedCombinedPeriod = (
   if (!period || !unit) {
     return "";
   }
-  const cyclesInIntroDuration = cycleCount * period;
-  return `${cyclesInIntroDuration} ${unit}${cyclesInIntroDuration > 1 ? "s" : ""}`;
+  return pluralizePeriod(cycleCount * period, unit);
 };
 
 const getPriceDetails = (webBillingProduct: Product) => {
@@ -108,7 +94,7 @@ export const Badge = ({
   if (freeTrialPhase) {
     return (
       <div className="freeTrial">
-        {getLongPeriodLabel(freeTrialPhase.periodDuration)} free trial
+        {getLongPeriodLabel(freeTrialPhase.period)} free trial
       </div>
     );
   }
