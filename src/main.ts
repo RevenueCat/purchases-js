@@ -76,6 +76,7 @@ import {
   Workflow,
   workflowDataToNavData,
   type WorkflowData,
+  type WorkflowStepChangeEvent,
   type UIConfig,
   mergeCustomVariables,
 } from "@revenuecat/purchases-ui-js";
@@ -1048,6 +1049,49 @@ export class Purchases {
       certainHTMLTarget.innerHTML = "";
       if (workflowNavData && workflowDataResponse) {
         try {
+          const onWorkflowStepChanged = (event: WorkflowStepChangeEvent) => {
+            // Fire step_completed for the step being left.
+            if (event.reason === "completed") {
+              this.eventsTracker.trackSDKEvent({
+                eventName: SDKEventName.WorkflowStepCompleted,
+                properties: {
+                  workflow_id: event.workflowId,
+                  step_id: event.stepId,
+                  ...(event.toStepId !== undefined
+                    ? { to_step_id: event.toStepId }
+                    : {}),
+                  is_first_step: event.isFirstStep,
+                  is_last_step: event.isLastStep,
+                },
+              });
+            }
+
+            // Fire step_started for the step being entered.
+            if (event.reason !== "completed") {
+              this.eventsTracker.trackSDKEvent({
+                eventName: SDKEventName.WorkflowStepStarted,
+                properties: {
+                  workflow_id: event.workflowId,
+                  step_id: event.stepId,
+                  ...(event.fromStepId !== undefined
+                    ? { from_step_id: event.fromStepId }
+                    : {}),
+                  entry_reason: event.reason,
+                  is_first_step: event.isFirstStep,
+                  is_last_step: event.isLastStep,
+                },
+              });
+
+              // paywall_impression fires only on the purchasing step so that
+              // conversion metrics reflect meaningful impressions, not
+              // informational intro pages.
+              if (event.isLastStep && !paywallImpressionTracked) {
+                trackPaywallEvent("paywall_impression");
+                paywallImpressionTracked = true;
+              }
+            }
+          };
+
           component = mount(Workflow, {
             target: certainHTMLTarget,
             props: {
@@ -1078,6 +1122,7 @@ export class Purchases {
               onRestorePurchasesClicked,
               onVisitCustomerCenterClicked,
               onComponentInteraction,
+              onStepChanged: onWorkflowStepChanged,
               globalVariables: paywallParams.customVariables
                 ? mergeCustomVariables(
                     paywallParams.customVariables,
@@ -1140,8 +1185,12 @@ export class Purchases {
       }
 
       containerObserver.observe(certainHTMLTarget, { childList: true });
-      trackPaywallEvent("paywall_impression");
-      paywallImpressionTracked = true;
+      // For standard (non-workflow) paywalls, fire paywall_impression immediately.
+      // For workflows, impression is deferred to onStepChanged when is_last_step is reached.
+      if (!workflowNavData) {
+        trackPaywallEvent("paywall_impression");
+        paywallImpressionTracked = true;
+      }
 
       if (certainHTMLTarget.style.opacity === "0") {
         certainHTMLTarget.style.opacity = "1";
