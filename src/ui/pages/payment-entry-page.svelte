@@ -180,7 +180,27 @@
   let isEmailComplete = $state(customerEmail ? true : false);
   let isStripeLoading = $state(true);
   let isPaymentInfoComplete = $state(false);
-  let isAddressComplete = $state(!shouldCollectFullAddress(brandingInfo));
+  let selectedCountry: string | undefined = $state(undefined);
+  let isFullAddressComplete = $state(false);
+  // Mirrors the latching logic in stripe-elements.svelte: once the full billing
+  // address is required (a tax-relevant country was selected in the payment
+  // element) it stays required for the rest of the session.
+  let collectFullBillingAddress = $state(
+    shouldCollectFullAddress(brandingInfo),
+  );
+  $effect(() => {
+    if (
+      shouldCollectFullAddress(
+        brandingInfo,
+        StripeService.countryRequiresFullAddressForTaxes(selectedCountry),
+      )
+    ) {
+      collectFullBillingAddress = true;
+    }
+  });
+  const isAddressComplete = $derived(
+    !collectFullBillingAddress || isFullAddressComplete,
+  );
   let selectedPaymentMethod: string | undefined = $state(undefined);
   let modalErrorMessage: string | undefined = $state(undefined);
   let clientSecret: string | undefined = $state(undefined);
@@ -418,12 +438,15 @@
   function handlePaymentInfoChange({
     complete,
     paymentMethod,
+    countryCode,
   }: {
     complete: boolean;
     paymentMethod: string | undefined;
+    countryCode: string | undefined;
   }) {
     selectedPaymentMethod = paymentMethod;
     isPaymentInfoComplete = complete;
+    selectedCountry = countryCode;
     scheduleRefreshTaxes();
   }
 
@@ -431,7 +454,7 @@
     complete: boolean,
     address: StripeAddressElementChangeEvent["value"]["address"],
   ) {
-    isAddressComplete = complete;
+    isFullAddressComplete = complete;
     // Publish the address as it's typed so a discount refresh fired before the
     // debounced tax recalculation lands still carries it (instead of falling
     // back to IP geolocation).

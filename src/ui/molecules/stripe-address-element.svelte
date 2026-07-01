@@ -20,9 +20,11 @@
     onError: (error: StripeServiceError) => void | Promise<void>;
     onReady: () => void | Promise<void>;
     elements: StripeElements;
+    defaultCountryCode?: string;
   }
 
-  const { onChange, onError, onReady, elements }: Props = $props();
+  const { onChange, onError, onReady, elements, defaultCountryCode }: Props =
+    $props();
 
   let addressElement: StripeAddressElement | null = null;
   const addressElementId = "address-element";
@@ -78,7 +80,10 @@
 
   onMount(() => {
     try {
-      addressElement = StripeService.createAddressElement(elements);
+      addressElement = StripeService.createAddressElement(
+        elements,
+        defaultCountryCode,
+      );
       addressElement.mount(`#${addressElementId}`);
       addressElement.on("ready", onReady);
       addressElement.on("change", onAddressChange);

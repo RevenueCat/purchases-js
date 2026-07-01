@@ -28,15 +28,34 @@ export type BrandingInfoResponse = {
 };
 
 /**
- * Resolves whether the full billing address UI should always be presented,
- * based on the branding configuration. Treats a missing mode and any
- * unknown/future mode as `if_required`.
+ * Resolves whether the full billing address UI should be presented, based on the
+ * branding configuration and whether the selected country requires the full
+ * address to resolve taxes.
+ *
+ * The full address is collected when either:
+ * - `full_address_collection_mode` is `always`, or
+ * - tax collection is enabled and the selected country requires the full address
+ *   to resolve taxes (determined by the payment gateway, e.g.
+ *   `StripeService.countryRequiresFullAddressForTaxes`).
+ *
+ * Treats a missing mode and any unknown/future mode as `if_required`.
  */
 export function shouldCollectFullAddress(
   brandingInfo:
-    | Pick<BrandingInfoResponse, "full_address_collection_mode">
+    | Pick<
+        BrandingInfoResponse,
+        "full_address_collection_mode" | "gateway_tax_collection_enabled"
+      >
     | null
     | undefined,
+  selectedCountryRequiresFullAddressForTaxes: boolean = false,
 ): boolean {
-  return brandingInfo?.full_address_collection_mode === "always";
+  if (brandingInfo?.full_address_collection_mode === "always") {
+    return true;
+  }
+
+  return (
+    !!brandingInfo?.gateway_tax_collection_enabled &&
+    selectedCountryRequiresFullAddressForTaxes
+  );
 }
