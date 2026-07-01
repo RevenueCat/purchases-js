@@ -27,6 +27,17 @@ import type { SubscriptionOptionResponse } from "../../networking/responses/prod
 
 const eventsTrackerMock = createEventsTrackerMock();
 
+// Before the customer enters an address, every pricing refresh forwards the tax
+// location fields as undefined and lets the backend fall back to IP geolocation.
+const noTaxLocation = {
+  countryCode: undefined,
+  postalCode: undefined,
+  state: undefined,
+  city: undefined,
+  addressLine1: undefined,
+  addressLine2: undefined,
+};
+
 const createCheckoutPricingResponse = (
   discountCode: string | null,
   options?: {
@@ -367,6 +378,7 @@ describe("PurchasesUI", () => {
         }),
       );
       expect(checkoutRefreshPricingSpy).toHaveBeenCalledWith({
+        ...noTaxLocation,
         discountCode: "SAVE10",
       });
       expect(
@@ -483,6 +495,7 @@ describe("PurchasesUI", () => {
 
     await waitFor(() => {
       expect(checkoutRefreshPricingSpy).toHaveBeenCalledWith({
+        ...noTaxLocation,
         discountCode: "SAVE10",
       });
       expect(onDiscountCodeChanged).toHaveBeenCalledWith("SAVE10");
@@ -566,6 +579,7 @@ describe("PurchasesUI", () => {
 
     await waitFor(() => {
       expect(checkoutRefreshPricingSpy).toHaveBeenNthCalledWith(2, {
+        ...noTaxLocation,
         discountCode: null,
       });
       expect(onDiscountCodeChanged).toHaveBeenCalledWith(null);

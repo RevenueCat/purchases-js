@@ -42,11 +42,14 @@ export const RC_PAYWALL_WITH_LATAM_TRANSLATION_OFFERING_ID =
   "rc_paywalls_e2e_test_latam_es";
 export const NON_TAX_TEST_API_KEY = process.env.VITE_RC_NON_TAX_E2E_API_KEY;
 export const TAX_TEST_API_KEY = process.env.VITE_RC_TAX_E2E_API_KEY;
+export const FULL_ADDRESS_TEST_API_KEY =
+  process.env.VITE_RC_FULL_ADDRESS_E2E_API_KEY;
 export const STRIPE_CHECKOUT_TEST_API_KEY =
   process.env.VITE_RC_STRIPE_CHECKOUT_E2E_API_KEY;
 export const PADDLE_TEST_API_KEY = process.env.VITE_RC_PADDLE_E2E_API_KEY;
 export const TAX_TEST_OFFERING_ID = "rcb_e2e_taxes";
 export const TAX_TEST_OFFERING_ID_WITH_DISCOUNT = "rcb_e2e_taxes_discounted";
+export const FULL_ADDRESS_TAX_TEST_OFFERING_ID = "rcb_e2e_taxes_full_address";
 export const TAX_TEST_DISCOUNT_CODE = "FOREVER10";
 export const LOCAL_URL = "http://localhost:3001/";
 export const BASE_URL =
@@ -74,6 +77,16 @@ export const NEW_YORK_CUSTOMER_DETAILS = {
 
 export const ITALY_CUSTOMER_DETAILS = {
   countryCode: "IT",
+};
+
+export const NEW_YORK_FULL_ADDRESS = {
+  name: "Jane Doe",
+  line1: "350 5th Ave",
+  line2: "Floor 21",
+  city: "New York",
+  state: "NY",
+  postalCode: "10118",
+  countryCode: "US",
 };
 
 export const SPAIN_TAX_RESPONSE: RouteFulfillOptions = {

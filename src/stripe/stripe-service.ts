@@ -43,6 +43,10 @@ export class StripeServiceError {
 export type TaxCustomerDetails = {
   countryCode: string | undefined;
   postalCode: string | undefined;
+  state: string | undefined;
+  city: string | undefined;
+  addressLine1: string | undefined;
+  addressLine2: string | undefined;
 };
 
 export class StripeService {
@@ -279,6 +283,15 @@ export class StripeService {
     });
   }
 
+  static createAddressElement(elements: StripeElements) {
+    return elements.create("address", {
+      mode: "billing",
+      display: {
+        name: "full",
+      },
+    });
+  }
+
   static createExpressCheckoutElement(
     elements: StripeElements,
     forceEnableWalletMethods: boolean,
@@ -400,6 +413,10 @@ export class StripeService {
       customerDetails: {
         countryCode: billingAddress?.country ?? undefined,
         postalCode: billingAddress?.postal_code ?? undefined,
+        state: billingAddress?.state ?? undefined,
+        city: billingAddress?.city ?? undefined,
+        addressLine1: billingAddress?.line1 ?? undefined,
+        addressLine2: billingAddress?.line2 ?? undefined,
       },
       confirmationTokenId: confirmationToken.id,
     };

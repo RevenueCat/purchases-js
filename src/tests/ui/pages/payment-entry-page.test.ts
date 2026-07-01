@@ -15,12 +15,13 @@ import { createEventsTrackerMock } from "../../mocks/events-tracker-mock-provide
 import { eventsTrackerContextKey } from "../../../ui/constants";
 import type { PurchaseOperationHelper } from "../../../helpers/purchase-operation-helper";
 import type { CheckoutStartResponse } from "../../../networking/responses/checkout-start-response";
-import { writable } from "svelte/store";
+import { get, writable } from "svelte/store";
 import { Translator } from "../../../ui/localization/translator";
 import { translatorContextKey } from "../../../ui/localization/constants";
 import type {
   StripeServiceError,
   StripeServiceErrorCode,
+  TaxCustomerDetails,
 } from "../../../stripe/stripe-service";
 import { StripeService } from "../../../stripe/stripe-service";
 import type {
@@ -62,10 +63,16 @@ vi.mock("../../../stripe/stripe-service", async () => {
         on: vi.fn(),
         destroy: vi.fn(),
       }),
+      createAddressElement: vi.fn().mockReturnValue({
+        mount: vi.fn(),
+        on: vi.fn(),
+        destroy: vi.fn(),
+      }),
       isStripeHandledFormError: vi.fn(),
       updateElementsConfiguration: vi.fn(),
       getStripeLocale: vi.fn().mockImplementation((locale: string) => locale),
       confirmIntent: vi.fn(),
+      extractTaxCustomerDetails: vi.fn(),
     },
   };
 });
@@ -110,6 +117,45 @@ const defaultContext = new Map(
     [translatorContextKey]: writable(new Translator()),
   }),
 );
+
+/**
+ * Builds an Address Element mock that immediately fires `ready` and then a
+ * `change` event reporting the address as complete. Used to exercise the full
+ * address collection flow, where tax refreshes are gated on the billing
+ * address being complete.
+ */
+const createCompleteAddressElementMock = () => ({
+  on: (
+    eventType: string,
+    callback: (event?: {
+      complete: boolean;
+      value: { address: Record<string, string> };
+    }) => void,
+  ) => {
+    if (eventType === "ready") {
+      setTimeout(() => callback(), 0);
+    }
+    if (eventType === "change") {
+      setTimeout(() => {
+        callback({
+          complete: true,
+          value: {
+            address: {
+              country: "US",
+              postal_code: "94107",
+              state: "CA",
+              city: "San Francisco",
+              line1: "354 Oyster Point Blvd",
+              line2: "Floor 2",
+            },
+          },
+        });
+      }, 50);
+    }
+  },
+  mount: vi.fn(),
+  destroy: vi.fn(),
+});
 
 describe("PurchasesUI", () => {
   beforeEach(() => {
@@ -489,5 +535,360 @@ describe("PurchasesUI", () => {
         totalAmountInMicros: 1230000,
       }),
     );
+  });
+
+  test("does not render the address element when full_address_collection_mode is if_required", async () => {
+    vi.mocked(StripeService.createAddressElement).mockClear();
+    const { container } = render(PaymentEntryPage, {
+      props: {
+        ...basicProps,
+        brandingInfo: {
+          ...brandingInfo,
+          full_address_collection_mode: "if_required",
+        },
+      },
+      context: defaultContext,
+    });
+
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(container.querySelector("#address-element")).toBeNull();
+    expect(StripeService.createAddressElement).not.toHaveBeenCalled();
+  });
+
+  test("renders the address element when full_address_collection_mode is always", async () => {
+    const { container } = render(PaymentEntryPage, {
+      props: {
+        ...basicProps,
+        brandingInfo: {
+          ...brandingInfo,
+          full_address_collection_mode: "always",
+        },
+      },
+      context: defaultContext,
+    });
+
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(container.querySelector("#address-element")).not.toBeNull();
+    expect(StripeService.createAddressElement).toHaveBeenCalled();
+  });
+
+  test("treats unknown full_address_collection_mode values as if_required", async () => {
+    vi.mocked(StripeService.createAddressElement).mockClear();
+    const { container } = render(PaymentEntryPage, {
+      props: {
+        ...basicProps,
+        brandingInfo: {
+          ...brandingInfo,
+          // Simulate a future mode this client version does not understand.
+          full_address_collection_mode:
+            "some_future_mode" as unknown as "if_required",
+        },
+      },
+      context: defaultContext,
+    });
+
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(container.querySelector("#address-element")).toBeNull();
+    expect(StripeService.createAddressElement).not.toHaveBeenCalled();
+  });
+
+  test("forwards the full billing address and publishes it to the shared tax customer details store", async () => {
+    const taxCustomerDetails: TaxCustomerDetails = {
+      countryCode: "US",
+      postalCode: "94107",
+      state: "CA",
+      city: "San Francisco",
+      addressLine1: "354 Oyster Point Blvd",
+      addressLine2: "Floor 2",
+    };
+    vi.mocked(StripeService.extractTaxCustomerDetails).mockResolvedValue({
+      customerDetails: taxCustomerDetails,
+      confirmationTokenId: "ctoken-id",
+    });
+
+    const paymentElement = {
+      on: (
+        eventType: string,
+        callback: (event?: StripePaymentElementChangeEvent) => void,
+      ) => {
+        if (eventType === "ready") {
+          setTimeout(() => callback(), 0);
+        }
+        if (eventType === "change") {
+          setTimeout(() => {
+            callback({
+              complete: true,
+              value: { type: "card" },
+              elementType: "payment",
+              empty: false,
+              collapsed: false,
+            });
+          }, 100);
+        }
+      },
+      mount: vi.fn(),
+      destroy: vi.fn(),
+    };
+    vi.mocked(StripeService.createPaymentElement).mockReturnValue(
+      // @ts-expect-error - This is a mock
+      paymentElement,
+    );
+
+    // The billing address must report completion for tax refreshes to run when
+    // full address collection is enabled.
+    vi.mocked(StripeService.createAddressElement).mockReturnValue(
+      // @ts-expect-error - This is a mock
+      createCompleteAddressElementMock(),
+    );
+
+    const checkoutRefreshPricingSpy = vi.spyOn(
+      purchaseOperationHelperMock,
+      "checkoutRefreshPricing",
+    );
+
+    // Shared store lifted into the parent so discount-code refreshes can reuse
+    // the latest known tax location.
+    const lastTaxCustomerDetailsStore = writable<TaxCustomerDetails | null>(
+      null,
+    );
+
+    render(PaymentEntryPage, {
+      props: {
+        ...basicProps,
+        customerEmail: "test@test.com",
+        brandingInfo: {
+          ...brandingInfo,
+          gateway_tax_collection_enabled: true,
+          full_address_collection_mode: "always",
+        },
+        lastTaxCustomerDetailsStore,
+      },
+      context: defaultContext,
+    });
+
+    // Flush stripe initialization and the payment element ready/change events.
+    for (let i = 0; i < 6; i++) {
+      await vi.advanceTimersToNextTimerAsync();
+    }
+
+    expect(StripeService.extractTaxCustomerDetails).toHaveBeenCalled();
+
+    // The page forwards the full billing address on the pricing refresh.
+    expect(checkoutRefreshPricingSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        countryCode: "US",
+        postalCode: "94107",
+        state: "CA",
+        city: "San Francisco",
+        addressLine1: "354 Oyster Point Blvd",
+        addressLine2: "Floor 2",
+      }),
+    );
+
+    // And it publishes the details to the shared store so the parent can reuse
+    // them on discount-code refreshes.
+    expect(get(lastTaxCustomerDetailsStore)).toEqual(taxCustomerDetails);
+  });
+
+  test("does not recalculate taxes while the full billing address is incomplete", async () => {
+    // Repro for the partial-address tax bug.
+    //
+    // With full address collection enabled, the pay button is gated on the
+    // billing address being complete (`isFormReady`). Tax refreshes must be
+    // gated the same way: otherwise, as soon as the email and card are
+    // complete, taxes would be calculated and displayed from partial/missing
+    // address data while the customer is still typing the address, so the shown
+    // tax could differ from the address being entered.
+    vi.mocked(StripeService.extractTaxCustomerDetails).mockClear();
+    vi.mocked(StripeService.extractTaxCustomerDetails).mockResolvedValue({
+      customerDetails: {
+        countryCode: "US",
+        postalCode: "94107",
+        state: "CA",
+        city: "San Francisco",
+        addressLine1: "354 Oyster Point Blvd",
+        addressLine2: "Floor 2",
+      },
+      confirmationTokenId: "ctoken-id",
+    });
+
+    const paymentElement = {
+      on: (
+        eventType: string,
+        callback: (event?: StripePaymentElementChangeEvent) => void,
+      ) => {
+        if (eventType === "ready") {
+          setTimeout(() => callback(), 0);
+        }
+        if (eventType === "change") {
+          setTimeout(() => {
+            callback({
+              complete: true,
+              value: { type: "card" },
+              elementType: "payment",
+              empty: false,
+              collapsed: false,
+            });
+          }, 100);
+        }
+      },
+      mount: vi.fn(),
+      destroy: vi.fn(),
+    };
+    vi.mocked(StripeService.createPaymentElement).mockReturnValue(
+      // @ts-expect-error - This is a mock
+      paymentElement,
+    );
+
+    // The Address Element reports the address as incomplete (e.g. the customer
+    // has only typed part of it).
+    const incompleteAddressElement = {
+      on: (
+        eventType: string,
+        callback: (event?: {
+          complete: boolean;
+          value: { address: Record<string, string> };
+        }) => void,
+      ) => {
+        if (eventType === "ready") {
+          setTimeout(() => callback(), 0);
+        }
+        if (eventType === "change") {
+          setTimeout(() => {
+            callback({
+              complete: false,
+              value: { address: { country: "US", line1: "354 Oyster" } },
+            });
+          }, 50);
+        }
+      },
+      mount: vi.fn(),
+      destroy: vi.fn(),
+    };
+    vi.mocked(StripeService.createAddressElement).mockReturnValue(
+      // @ts-expect-error - This is a mock
+      incompleteAddressElement,
+    );
+
+    render(PaymentEntryPage, {
+      props: {
+        ...basicProps,
+        customerEmail: "test@test.com",
+        brandingInfo: {
+          ...brandingInfo,
+          gateway_tax_collection_enabled: true,
+          full_address_collection_mode: "always",
+        },
+      },
+      context: defaultContext,
+    });
+
+    // Flush stripe init, the element ready/change events, the debounce timer
+    // and any refresh promise chain.
+    for (let i = 0; i < 6; i++) {
+      await vi.advanceTimersToNextTimerAsync();
+    }
+
+    // Because the address is incomplete, the gated refresh path must never run,
+    // so the customer details are never extracted for a tax calculation.
+    expect(StripeService.extractTaxCustomerDetails).not.toHaveBeenCalled();
+  });
+
+  test("keeps the tax status as 'calculated' after a successful debounced refresh in the checkout shell", async () => {
+    // Repro for the debounced-refresh revert bug.
+    //
+    // The refresh flow is: a form change schedules a debounced refresh that
+    // optimistically flips `taxCalculationStatus` to "loading" (showing the
+    // skeleton). When the timer fires, `refreshTaxes` recalculates and then a
+    // `finally` handler restores the *previous* status if the status is still
+    // "loading" (a safety net for aborted/short-circuited refreshes).
+    //
+    // In the checkout shell (`onSessionPricingUpdated` provided) the parent owns
+    // the canonical pricing, so a successful recalculation used to forward the
+    // result to the parent WITHOUT updating the local status. That left the
+    // status at "loading" when `finally` ran, so it reverted to the stale
+    // previous value (here "unavailable") instead of "calculated" until the
+    // parent's async round-trip landed -- briefly disabling pay / showing stale
+    // tax UI. The fix applies the breakdown locally too, so this stays
+    // "calculated" throughout.
+    vi.mocked(StripeService.extractTaxCustomerDetails).mockResolvedValue({
+      customerDetails: {
+        countryCode: "US",
+        postalCode: "94107",
+        state: "CA",
+        city: "San Francisco",
+        addressLine1: "354 Oyster Point Blvd",
+        addressLine2: "Floor 2",
+      },
+      confirmationTokenId: "ctoken-id",
+    });
+
+    const paymentElement = {
+      on: (
+        eventType: string,
+        callback: (event?: StripePaymentElementChangeEvent) => void,
+      ) => {
+        if (eventType === "ready") {
+          setTimeout(() => callback(), 0);
+        }
+        if (eventType === "change") {
+          setTimeout(() => {
+            callback({
+              complete: true,
+              value: { type: "card" },
+              elementType: "payment",
+              empty: false,
+              collapsed: false,
+            });
+          }, 100);
+        }
+      },
+      mount: vi.fn(),
+      destroy: vi.fn(),
+    };
+    vi.mocked(StripeService.createPaymentElement).mockReturnValue(
+      // @ts-expect-error - This is a mock
+      paymentElement,
+    );
+
+    const onPriceBreakdownUpdated = vi.fn();
+    // Shell mode: the parent owns the canonical pricing. We intentionally do
+    // NOT echo it back via `defaultPriceBreakdown`, so the only way the local
+    // status can become "calculated" is the page applying it itself.
+    const onSessionPricingUpdated = vi.fn();
+
+    render(PaymentEntryPage, {
+      props: {
+        ...basicProps,
+        customerEmail: "test@test.com",
+        brandingInfo: {
+          ...brandingInfo,
+          gateway_tax_collection_enabled: true,
+        },
+        onPriceBreakdownUpdated,
+        onSessionPricingUpdated,
+      },
+      context: defaultContext,
+    });
+
+    // Flush stripe init, the payment element ready/change events, the debounce
+    // timer and the refresh promise chain (including its `finally`).
+    for (let i = 0; i < 6; i++) {
+      await vi.advanceTimersToNextTimerAsync();
+    }
+
+    // The parent received the recalculated, "calculated" pricing.
+    expect(onSessionPricingUpdated).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ taxCalculationStatus: "calculated" }),
+    );
+
+    // The local status must reflect that success and must not have reverted to
+    // the stale "unavailable"/"loading" value after `finally` ran.
+    const lastBreakdown = onPriceBreakdownUpdated.mock.calls.at(-1)?.[0];
+    expect(lastBreakdown?.taxCalculationStatus).toBe("calculated");
   });
 });
