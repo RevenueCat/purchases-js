@@ -130,8 +130,18 @@ import type {
   PresentExpressPurchaseButtonParams,
 } from "./entities/present-express-purchase-button-params";
 import { ExpressPurchaseButtonWrapper } from "./ui/express-purchase-button/express-purchase-button-wrapper.svelte";
-import { getDocument, getWindow } from "./helpers/browser-globals";
+import {
+  getDocument,
+  getNullableDocument,
+  getNullableWindow,
+  getWindow,
+} from "./helpers/browser-globals";
 import { isAllowedCompleteWorkflowNavigateUrl } from "./helpers/complete-workflow-navigate-url";
+import { buildAssetURL } from "./networking/assets";
+import {
+  removeManagedAppleTouchIcon,
+  syncManagedAppleTouchIcon,
+} from "./helpers/apple-touch-icon";
 
 type UIComponentInteractionFields = UIComponentInteractionData & {
   componentURL?: string;
@@ -474,6 +484,27 @@ export class Purchases {
       return;
     }
     this._brandingInfo = await this.backend.getBrandingInfo();
+    this.syncApplePayWebsiteIcon();
+  }
+
+  /** @internal */
+  private syncApplePayWebsiteIcon(): void {
+    if (!this._flags.applePayBrandingLogoEnabled) {
+      return;
+    }
+
+    const doc = getNullableDocument();
+    const win = getNullableWindow();
+    if (!doc) {
+      return;
+    }
+
+    const iconPath = this._brandingInfo?.app_icon?.trim();
+    syncManagedAppleTouchIcon({
+      doc,
+      win,
+      href: iconPath ? buildAssetURL(iconPath) : null,
+    });
   }
 
   /** @internal */
@@ -2191,6 +2222,12 @@ export class Purchases {
     if (Purchases.instance === this) {
       if (this.eventsTracker) {
         this.eventsTracker.dispose();
+      }
+      if (this._flags.applePayBrandingLogoEnabled) {
+        const doc = getNullableDocument();
+        if (doc) {
+          removeManagedAppleTouchIcon(doc);
+        }
       }
       Purchases.instance = undefined;
     } else {
