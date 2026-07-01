@@ -62,6 +62,9 @@
   {@const brandingInfo = {
     ...brandingInfos[context.globals.brandingName],
     gateway_tax_collection_enabled: args.withTaxes ?? false,
+    full_address_collection_mode:
+      args.fullAddressCollectionMode ??
+      brandingInfos[context.globals.brandingName].full_address_collection_mode,
   }}
   <PurchasesInner
     isSandbox={args.isSandbox}
@@ -281,6 +284,20 @@
     ...defaultArgs,
     currentPage: "payment-entry",
     withTaxes: true,
+  }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
+  }}
+/>
+
+<Story
+  name="With Full Billing Address"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    fullAddressCollectionMode: "always",
   }}
   parameters={{
     chromatic: {
