@@ -9646,6 +9646,38 @@
           "members": [
             {
               "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!SubscriptionInfo#autoResumeDate:member",
+              "docComment": "/**\n * Date when a paused subscription is expected to automatically resume. Only set for Google Play subscriptions that have been paused; null otherwise.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly autoResumeDate: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Date",
+                  "canonicalReference": "!Date:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "autoResumeDate",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!SubscriptionInfo#billingIssuesDetectedAt:member",
               "docComment": "/**\n * Date when RevenueCat detected any billing issues with this subscription. If and when the billing issue gets resolved, this field is set to null. Note the subscription may still be active, check the {@link SubscriptionInfo.expiresDate} attribute.\n */\n",
               "excerptTokens": [

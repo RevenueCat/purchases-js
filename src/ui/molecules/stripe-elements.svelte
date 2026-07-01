@@ -3,15 +3,20 @@
   import type {
     Appearance,
     Stripe,
+    StripeAddressElementChangeEvent,
     StripeElements,
     StripeLinkAuthenticationElementChangeEvent,
     StripePaymentElementChangeEvent,
   } from "@stripe/stripe-js";
 
-  import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
+  import {
+    type BrandingInfoResponse,
+    shouldCollectFullAddress,
+  } from "../../networking/responses/branding-response";
   import PaymentElement from "./stripe-payment-element.svelte";
   import LinkAuthenticationElement from "./stripe-authentication-link-element.svelte";
   import ExpressCheckoutElement from "./stripe-express-checkout-element.svelte";
+  import AddressElement from "./stripe-address-element.svelte";
 
   import { translatorContextKey } from "../localization/constants";
   import { Translator } from "../localization/translator";
@@ -42,6 +47,10 @@
       complete: boolean;
       paymentMethod: string | undefined;
     }) => void;
+    onAddressInfoChange: (
+      complete: boolean,
+      address: StripeAddressElementChangeEvent["value"]["address"],
+    ) => void;
     onExpressCheckoutElementSubmit: (
       paymentMethod: string,
       emailValue: string,
@@ -62,6 +71,7 @@
     onError,
     onEmailChange,
     onPaymentInfoChange,
+    onAddressInfoChange,
     onExpressCheckoutElementSubmit,
   }: Props = $props();
 
@@ -70,9 +80,16 @@
     $translator.bcp47Locale || $translator.fallbackBcp47Locale,
   );
 
+  const collectFullBillingAddress = $derived(
+    shouldCollectFullAddress(brandingInfo),
+  );
+
   let paymentElementReadyForSubmission = $state(false);
   let emailElementReadyForSubmission = $state(skipEmail);
   let expressCheckoutElementReadyForSubmission = $state(false);
+  let addressElementReadyForSubmission = $state(
+    !shouldCollectFullAddress(brandingInfo),
+  );
 
   let stripeVariables: undefined | Appearance["variables"] = $state(undefined);
   let viewport: "mobile" | "desktop" = $state("mobile");
@@ -114,43 +131,50 @@
     onLoadingComplete();
   };
 
+  const maybeCompleteLoading = () => {
+    if (
+      emailElementReadyForSubmission &&
+      paymentElementReadyForSubmission &&
+      expressCheckoutElementReadyForSubmission &&
+      addressElementReadyForSubmission
+    ) {
+      onLoadingComplete();
+    }
+  };
+
   const onLinkAuthenticationElementReady = async () => {
     if (!emailElementReadyForSubmission) {
       emailElementReadyForSubmission = true;
-      if (
-        emailElementReadyForSubmission &&
-        paymentElementReadyForSubmission &&
-        expressCheckoutElementReadyForSubmission
-      ) {
-        onLoadingComplete();
-      }
+      maybeCompleteLoading();
     }
   };
 
   const onExpressCheckoutElementReady = async () => {
     if (!expressCheckoutElementReadyForSubmission) {
       expressCheckoutElementReadyForSubmission = true;
-      if (
-        emailElementReadyForSubmission &&
-        paymentElementReadyForSubmission &&
-        expressCheckoutElementReadyForSubmission
-      ) {
-        onLoadingComplete();
-      }
+      maybeCompleteLoading();
     }
   };
 
   const onPaymentElementReady = async () => {
     if (!paymentElementReadyForSubmission) {
       paymentElementReadyForSubmission = true;
-      if (
-        emailElementReadyForSubmission &&
-        paymentElementReadyForSubmission &&
-        expressCheckoutElementReadyForSubmission
-      ) {
-        onLoadingComplete();
-      }
+      maybeCompleteLoading();
     }
+  };
+
+  const onAddressElementReady = async () => {
+    if (!addressElementReadyForSubmission) {
+      addressElementReadyForSubmission = true;
+      maybeCompleteLoading();
+    }
+  };
+
+  const onAddressElementChange = async (
+    complete: boolean,
+    address: StripeAddressElementChangeEvent["value"]["address"],
+  ) => {
+    onAddressInfoChange(complete, address);
   };
 
   const onPaymentElementChange = async (
@@ -239,6 +263,14 @@
       onChange={onPaymentElementChange}
       onError={onStripeElementsLoadingError}
     />
+    {#if collectFullBillingAddress}
+      <AddressElement
+        {elements}
+        onReady={onAddressElementReady}
+        onChange={onAddressElementChange}
+        onError={onStripeElementsLoadingError}
+      />
+    {/if}
   </div>
 {/if}
 

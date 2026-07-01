@@ -493,6 +493,7 @@ test("can get customer info", async () => {
         isActive: true,
         willRenew: true,
         displayName: null,
+        autoResumeDate: null,
         price: null,
       },
       black_f_friday_worten_2: {
@@ -515,6 +516,7 @@ test("can get customer info", async () => {
         isActive: false,
         willRenew: true,
         displayName: null,
+        autoResumeDate: null,
         price: null,
       },
     },
