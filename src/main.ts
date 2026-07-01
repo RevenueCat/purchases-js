@@ -965,11 +965,16 @@ export class Purchases {
           return;
         }
         paywallCloseTracked = true;
-        trackPaywallEvent("paywall_close");
+        // Only fire paywall_close if an impression was recorded. For workflows,
+        // a user may exit before reaching the purchasing step, in which case
+        // neither event should fire.
+        if (paywallImpressionTracked) {
+          trackPaywallEvent("paywall_close");
+        }
       };
 
       const trackComponentInteraction = (data: UIComponentInteractionData) => {
-        if (!paywallImpressionTracked || paywallCloseTracked) {
+        if (paywallCloseTracked) {
           return;
         }
         this.eventsTracker.trackPaywallEvent(toInteractionEvent(data));
@@ -1050,8 +1055,9 @@ export class Purchases {
       if (workflowNavData && workflowDataResponse) {
         try {
           const onWorkflowStepChanged = (event: WorkflowStepChangeEvent) => {
-            // Fire step_completed for the step being left.
             if (event.reason === "completed") {
+              // Fire step_completed for the step being left.
+              // toStepId is undefined when leaving via close/dismiss.
               this.eventsTracker.trackSDKEvent({
                 eventName: SDKEventName.WorkflowStepCompleted,
                 properties: {
@@ -1064,10 +1070,8 @@ export class Purchases {
                   is_last_step: event.isLastStep,
                 },
               });
-            }
-
-            // Fire step_started for the step being entered.
-            if (event.reason !== "completed") {
+            } else {
+              // Fire step_started for the step being entered.
               this.eventsTracker.trackSDKEvent({
                 eventName: SDKEventName.WorkflowStepStarted,
                 properties: {
