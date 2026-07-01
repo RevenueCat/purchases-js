@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/RevenueCat/fastlane-plugin-revenuecat_internal
-  revision: d911a06677d2926dd61beb80400b5b5e69fbc1df
+  revision: dab67655d71eaf08b40f74339e4bb17d16436c32
   branch: main
   specs:
     fastlane-plugin-revenuecat_internal (0.1.0)
@@ -238,7 +238,7 @@ GEM
     mime-types (3.7.0)
       logger
       mime-types-data (~> 3.2025, >= 3.2025.0507)
-    mime-types-data (3.2026.0407)
+    mime-types-data (3.2026.0701)
     mini_magick (4.13.2)
     mini_mime (1.1.5)
     minitest (6.0.6)
@@ -252,9 +252,9 @@ GEM
     naturally (2.3.0)
     netrc (0.11.0)
     nkf (0.3.0)
-    nokogiri (1.19.2-arm64-darwin)
+    nokogiri (1.19.4-arm64-darwin)
       racc (~> 1.4)
-    nokogiri (1.19.2-x86_64-linux-gnu)
+    nokogiri (1.19.4-x86_64-linux-gnu)
       racc (~> 1.4)
     octokit (10.0.0)
       faraday (>= 1, < 3)
