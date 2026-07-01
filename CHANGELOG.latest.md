@@ -8,7 +8,6 @@
 * Fix webbilling-demo trial badge to format every trial duration (#955) via Volodymyr Kartavyi (@vkartaviy)
 
 ### 🔄 Other Changes
-* [WEB-4434] test(stories): add full billing address payment entry story (#966) via Víctor Ferrer García (@vicfergar)
 * chore(deps): bump danger from 9.5.3 to 9.6.0 (#965) via dependabot[bot] (@dependabot[bot])
 * chore(deps): bump fastlane-plugin-revenuecat_internal from `d911a06` to `dab6765` (#964) via dependabot[bot] (@dependabot[bot])
 * WFL-382 | Include tracking for workflows (#963) via Rosie Watson (@RosieWatson)
