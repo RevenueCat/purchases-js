@@ -974,7 +974,7 @@ export class Purchases {
       };
 
       const trackComponentInteraction = (data: UIComponentInteractionData) => {
-        if (paywallCloseTracked) {
+        if (!paywallImpressionTracked || paywallCloseTracked) {
           return;
         }
         this.eventsTracker.trackPaywallEvent(toInteractionEvent(data));
