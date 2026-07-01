@@ -139,6 +139,10 @@ interface CheckoutStartParams {
 interface CheckoutRefreshPricingParams {
   countryCode?: string;
   postalCode?: string;
+  state?: string;
+  city?: string;
+  addressLine1?: string;
+  addressLine2?: string;
   discountCode?: string | null;
   signal?: AbortSignal | null;
 }
@@ -297,6 +301,10 @@ export class PurchaseOperationHelper {
   async checkoutRefreshPricing({
     countryCode,
     postalCode,
+    state,
+    city,
+    addressLine1,
+    addressLine2,
     discountCode,
     signal,
   }: CheckoutRefreshPricingParams = {}): Promise<CheckoutPricingResponse> {
@@ -314,6 +322,10 @@ export class PurchaseOperationHelper {
         {
           countryCode,
           postalCode,
+          state,
+          city,
+          addressLine1,
+          addressLine2,
           discountCode,
           signal,
         },

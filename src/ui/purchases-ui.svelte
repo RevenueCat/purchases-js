@@ -30,8 +30,9 @@
     AttributionMetadata,
     WorkflowPurchaseContext,
   } from "../entities/purchase-params";
-  import { writable } from "svelte/store";
+  import { get, writable } from "svelte/store";
   import type { BrandingAppearance } from "../entities/branding";
+  import type { TaxCustomerDetails } from "../stripe/stripe-service";
   import { type GatewayParams } from "../networking/responses/stripe-elements";
   import {
     CheckoutPricingFailedReason,
@@ -107,6 +108,10 @@
   let latestCheckoutPricingResponse = $state<CheckoutPricingResponse | null>(
     null,
   );
+  // Shared with the payment entry page so that every pricing refresh (including
+  // discount-code refreshes triggered here) forwards the latest known tax
+  // location. It stays null until the customer provides an address.
+  const lastTaxCustomerDetailsStore = writable<TaxCustomerDetails | null>(null);
   let purchaseOptionToUse: PurchaseOption = $derived(
     getActiveCheckoutPurchaseOption(
       productDetails,
@@ -273,6 +278,21 @@
       PurchaseFlowErrorCode.StripeMissingRequiredPermission,
     ].includes(error.errorCode);
 
+  // Spreads the latest known tax location (when available) so the backend
+  // always receives it. Each field is sent as undefined until the customer
+  // provides an address, in which case the backend falls back to IP geolocation.
+  const buildTaxLocationParams = () => {
+    const details = get(lastTaxCustomerDetailsStore);
+    return {
+      countryCode: details?.countryCode,
+      postalCode: details?.postalCode,
+      state: details?.state,
+      city: details?.city,
+      addressLine1: details?.addressLine1,
+      addressLine2: details?.addressLine2,
+    };
+  };
+
   const applyPricingResponse = (
     response: CheckoutPricingResponse,
     nextPriceBreakdown?: PriceBreakdown,
@@ -302,6 +322,7 @@
         try {
           const pricingResponse =
             await purchaseOperationHelper.checkoutRefreshPricing({
+              ...buildTaxLocationParams(),
               discountCode,
             });
           applyPricingResponse(pricingResponse);
@@ -362,6 +383,7 @@
     try {
       const pricingResponse =
         await purchaseOperationHelper.checkoutRefreshPricing({
+          ...buildTaxLocationParams(),
           discountCode: normalizedDiscountCode,
         });
       applyPricingResponse(pricingResponse);
@@ -470,4 +492,5 @@
   onError={handleError}
   {onClose}
   {hideBackButton}
+  {lastTaxCustomerDetailsStore}
 />

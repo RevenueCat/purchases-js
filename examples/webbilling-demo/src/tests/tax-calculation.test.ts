@@ -2,9 +2,12 @@ import type { Page, Request, Route } from "@playwright/test";
 import { expect } from "@playwright/test";
 import {
   FLORIDA_CUSTOMER_DETAILS,
+  FULL_ADDRESS_TEST_API_KEY,
+  FULL_ADDRESS_TAX_TEST_OFFERING_ID,
   INVALID_CUSTOMER_DETAILS,
   ITALY_CUSTOMER_DETAILS,
   NEW_YORK_CUSTOMER_DETAILS,
+  NEW_YORK_FULL_ADDRESS,
   SPAIN_TAX_RESPONSE,
   SPAIN_TAX_INCLUSIVE_DISCOUNTED_RESPONSE,
   TAX_TEST_API_KEY,
@@ -31,10 +34,12 @@ import {
   confirmTaxCalculating,
   confirmTaxCalculation,
   confirmTaxNotCalculating,
+  enterBillingAddress,
   enterCreditCardDetails,
   enterEmail,
   enterSecurityCode,
   getPackageCards,
+  getStripeAddressFrame,
   getStripePaymentFrame,
   navigateToLandingUrl,
   startPurchaseFlow,
@@ -89,6 +94,30 @@ const mockTaxCalculationRequest = async (
       await route.fallback();
     }
   });
+};
+
+/**
+ * Counts pricing refresh (tax calculation) requests. In mocked mode every
+ * request is fulfilled with a canned response; in real mode the request is
+ * proxied to the backend (failing the test if the rate limit is hit). Returns
+ * a counter object whose `count` reflects the number of requests observed.
+ */
+const trackPricingRefreshRequests = async (page: Page, mockMode: boolean) => {
+  const counter = { count: 0 };
+  await routePricingRefreshRequest(page, async (route) => {
+    counter.count++;
+    if (mockMode) {
+      await route.fulfill(NEW_YORK_TAX_RESPONSE);
+    } else {
+      const response = await route.fetch();
+      const json = await response.json();
+      if (json["failed_reason"] === "rate_limit_exceeded") {
+        throw new Error("Stripe Tax Calculation API rate limit reached.");
+      }
+      await route.fulfill({ response, json });
+    }
+  });
+  return counter;
 };
 
 [true, false].forEach((mockMode) => {
@@ -580,6 +609,127 @@ integrationTest.describe("Tax calculation setup errors", () => {
       const packageCards = await getPackageCards(page);
       await startPurchaseFlow(packageCards[0]);
       await confirmPaymentError(page, "Missing Stripe permission");
+    },
+  );
+});
+
+const navigateToFullAddressLandingUrl = (page: Page, userId: string) =>
+  navigateToLandingUrl(
+    page,
+    userId,
+    { offeringId: FULL_ADDRESS_TAX_TEST_OFFERING_ID },
+    FULL_ADDRESS_TEST_API_KEY,
+  );
+
+// Allow any pending debounced tax refresh (and its request) to flush before we
+// snapshot or assert request counts. Slightly larger than the client-side
+// debounce window (500ms).
+const DEBOUNCE_FLUSH_MS = 1500;
+
+[true, false].forEach((mockMode) => {
+  integrationTest.describe(
+    `Tax calculation with full address collection (${mockMode ? "mocked" : "real"})`,
+    () => {
+      integrationTest.skip(
+        !FULL_ADDRESS_TEST_API_KEY,
+        `Full billing address tax tests are disabled. To enable, set
+        VITE_RC_FULL_ADDRESS_E2E_API_KEY to an API key whose project has both
+        tax collection and full billing address collection enabled.`,
+      );
+
+      integrationTest.skip(
+        !mockMode && SKIP_TAX_REAL_TESTS,
+        `Real tax calculation tests are disabled.
+        To enable, set VITE_SKIP_TAX_REAL_TESTS_UNTIL=2025-02-21 in the environment variables.`,
+      );
+
+      // Stripe Address Element interactions are only reliable in Chromium.
+      integrationTest.skip(
+        ({ browserName }) => browserName !== "chromium",
+        "Full billing address tax tests only run in Chromium",
+      );
+
+      integrationTest(
+        "Debounces tax recalculation while typing the address line 1",
+        async ({ page, userId, email }) => {
+          const pricing = await trackPricingRefreshRequests(page, mockMode);
+
+          page = await navigateToFullAddressLandingUrl(page, userId);
+
+          const packageCards = await getPackageCards(page);
+          await startPurchaseFlow(packageCards[0]);
+
+          await enterEmail(page, email);
+          await enterCreditCardDetails(
+            page,
+            "4242 4242 4242 4242",
+            NEW_YORK_CUSTOMER_DETAILS,
+          );
+
+          // Fill the complete billing address (including the name) so the form
+          // validates and the initial tax calculation succeeds.
+          await enterBillingAddress(page, NEW_YORK_FULL_ADDRESS);
+
+          await confirmTaxCalculation(page);
+          // Let any debounced refresh triggered by the steps above flush.
+          await page.waitForTimeout(DEBOUNCE_FLUSH_MS);
+
+          const requestsBeforeTyping = pricing.count;
+
+          // Re-type the address line 1 character by character to emit a burst
+          // of `change` events. The debounce should coalesce them into a
+          // single tax calculation.
+          const line1Input =
+            getStripeAddressFrame(page).getByLabel("Address line 1");
+          await line1Input.fill("");
+          await line1Input.pressSequentially("1 Times Square");
+
+          await confirmTaxCalculation(page);
+          await page.waitForTimeout(DEBOUNCE_FLUSH_MS);
+
+          expect(pricing.count).toBe(requestsBeforeTyping + 1);
+        },
+      );
+
+      integrationTest(
+        "Does NOT recalculate taxes when only the name changes",
+        async ({ page, userId, email }) => {
+          const pricing = await trackPricingRefreshRequests(page, mockMode);
+
+          page = await navigateToFullAddressLandingUrl(page, userId);
+
+          const packageCards = await getPackageCards(page);
+          await startPurchaseFlow(packageCards[0]);
+
+          await enterEmail(page, email);
+          await enterCreditCardDetails(
+            page,
+            "4242 4242 4242 4242",
+            NEW_YORK_CUSTOMER_DETAILS,
+          );
+
+          // Fill the complete billing address (including the name) so the form
+          // validates and the initial tax calculation succeeds.
+          await enterBillingAddress(page, NEW_YORK_FULL_ADDRESS);
+
+          await confirmTaxCalculation(page);
+          await page.waitForTimeout(DEBOUNCE_FLUSH_MS);
+
+          const requestsBeforeName = pricing.count;
+
+          // Changing ONLY the name must neither show the loading skeleton nor
+          // trigger a tax recalculation, since the name is not a tax-relevant
+          // field.
+          const nameInput = getStripeAddressFrame(page).getByLabel("Name");
+          await nameInput.fill("");
+          await nameInput.pressSequentially("John Smith");
+
+          await confirmTaxNotCalculating(page);
+          await page.waitForTimeout(DEBOUNCE_FLUSH_MS);
+
+          expect(pricing.count).toBe(requestsBeforeName);
+        },
+      );
     },
   );
 });
