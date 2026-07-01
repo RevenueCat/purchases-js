@@ -154,6 +154,7 @@ export interface ExpressPurchaseButtonUpdater {
 
 // @public
 export interface FlagsConfig {
+    applePayBrandingLogoEnabled?: boolean;
     autoCollectUTMAsMetadata?: boolean;
     collectAnalyticsEvents?: boolean;
     hideBackButton?: boolean;

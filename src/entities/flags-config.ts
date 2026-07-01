@@ -33,6 +33,14 @@ export interface FlagsConfig {
   hideBackButton?: boolean;
 
   /**
+   * If set to true, the SDK injects the branding app icon as an
+   * `apple-touch-icon` link tag so it appears in the Apple Pay sheet.
+   * Best effort is made to not overwrite an existing `apple-touch-icon` on the page.
+   * @defaultValue false
+   */
+  applePayBrandingLogoEnabled?: boolean;
+
+  /**
    * Describes the platform that originated the purchase.
    * This does not technically belong here but since the public Purchase configuration
    * does not use objects, it is the easiest way to pass this internal parameter.

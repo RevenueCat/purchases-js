@@ -485,6 +485,10 @@ export class Purchases {
 
   /** @internal */
   private syncApplePayWebsiteIcon(): void {
+    if (!this._flags.applePayBrandingLogoEnabled) {
+      return;
+    }
+
     const doc = getNullableDocument();
     const win = getNullableWindow();
     if (!doc) {
@@ -2162,9 +2166,11 @@ export class Purchases {
       if (this.eventsTracker) {
         this.eventsTracker.dispose();
       }
-      const doc = getNullableDocument();
-      if (doc) {
-        removeManagedAppleTouchIcon(doc);
+      if (this._flags.applePayBrandingLogoEnabled) {
+        const doc = getNullableDocument();
+        if (doc) {
+          removeManagedAppleTouchIcon(doc);
+        }
       }
       Purchases.instance = undefined;
     } else {

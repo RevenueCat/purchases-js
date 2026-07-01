@@ -217,33 +217,6 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "@revenuecat/purchases-js!BrandingAppearance#color_buttons_primary:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "color_buttons_primary: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isReadonly": false,
-              "isOptional": false,
-              "releaseTag": "Public",
-              "name": "color_buttons_primary",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              }
-            },
-            {
-              "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!BrandingAppearance#color_buttons_primary_text:member",
               "docComment": "",
               "excerptTokens": [
@@ -264,6 +237,33 @@
               "isOptional": true,
               "releaseTag": "Public",
               "name": "color_buttons_primary_text",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!BrandingAppearance#color_buttons_primary:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "color_buttons_primary: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "color_buttons_primary",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -2035,6 +2035,33 @@
           "name": "FlagsConfig",
           "preserveMemberOrder": false,
           "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!FlagsConfig#applePayBrandingLogoEnabled:member",
+              "docComment": "/**\n * If set to true, the SDK injects the branding app icon as an `apple-touch-icon` link tag so it appears in the Apple Pay sheet. Best effort is made to not overwrite an existing `apple-touch-icon` on the page.\n *\n * @defaultValue\n *\n * false\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "applePayBrandingLogoEnabled?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "applePayBrandingLogoEnabled",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!FlagsConfig#autoCollectUTMAsMetadata:member",

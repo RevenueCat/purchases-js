@@ -1,8 +1,15 @@
 import { beforeEach, describe, expect, test } from "vitest";
-import { configurePurchases, server } from "./base.purchases_test";
+import {
+  configurePurchases,
+  server,
+  testApiKey,
+  testUserId,
+} from "./base.purchases_test";
 import { APIGetRequest, type GetRequest } from "./test-responses";
 import { http, HttpResponse } from "msw";
 import { buildAssetURL } from "../networking/assets";
+
+const applePayBrandingLogoFlags = { applePayBrandingLogoEnabled: true };
 
 beforeEach(() => {
   document.head.innerHTML = "";
@@ -56,7 +63,7 @@ describe("preload", () => {
     expect(APIGetRequest).not.toHaveBeenCalledWith(expectedRequest);
   });
 
-  test("injects an apple-touch-icon when branding provides one", async () => {
+  test("does not inject an apple-touch-icon when the flag is disabled", async () => {
     server.use(
       http.get("http://localhost:8000/rcbilling/v1/branding", ({ request }) => {
         APIGetRequest({ url: request.url });
@@ -79,6 +86,41 @@ describe("preload", () => {
     );
 
     const purchases = configurePurchases();
+    await purchases.preload();
+
+    expect(
+      document.head.querySelector('link[rel="apple-touch-icon"]'),
+    ).toBeNull();
+  });
+
+  test("injects an apple-touch-icon when branding provides one and the flag is enabled", async () => {
+    server.use(
+      http.get("http://localhost:8000/rcbilling/v1/branding", ({ request }) => {
+        APIGetRequest({ url: request.url });
+        return HttpResponse.json(
+          {
+            id: "test-app-id",
+            app_name: "Test Company name",
+            app_icon: "apple-touch-icon.png",
+            app_icon_webp: null,
+            app_wordmark: null,
+            app_wordmark_webp: null,
+            appearance: null,
+            support_email: "test-rcbilling-support@revenuecat.com",
+            gateway_tax_collection_enabled: false,
+            brand_font_config: null,
+          },
+          { status: 200 },
+        );
+      }),
+    );
+
+    const purchases = configurePurchases(
+      testUserId,
+      "rcSource",
+      testApiKey,
+      applePayBrandingLogoFlags,
+    );
     await purchases.preload();
 
     const appleTouchIcon = document.head.querySelector<HTMLLinkElement>(
@@ -118,7 +160,12 @@ describe("preload", () => {
       }),
     );
 
-    const purchases = configurePurchases();
+    const purchases = configurePurchases(
+      testUserId,
+      "rcSource",
+      testApiKey,
+      applePayBrandingLogoFlags,
+    );
     await purchases.preload();
 
     const appleTouchIcons = document.head.querySelectorAll(
@@ -185,7 +232,12 @@ describe("preload", () => {
     let purchases: ReturnType<typeof configurePurchases> | undefined;
 
     try {
-      purchases = configurePurchases();
+      purchases = configurePurchases(
+        testUserId,
+        "rcSource",
+        testApiKey,
+        applePayBrandingLogoFlags,
+      );
       await purchases.preload();
     } finally {
       purchases?.close();
