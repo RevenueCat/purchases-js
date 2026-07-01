@@ -3,6 +3,7 @@
   import type {
     Appearance,
     Stripe,
+    StripeAddressElementChangeEvent,
     StripeElements,
     StripeLinkAuthenticationElementChangeEvent,
     StripePaymentElementChangeEvent,
@@ -46,7 +47,10 @@
       complete: boolean;
       paymentMethod: string | undefined;
     }) => void;
-    onAddressInfoChange: (complete: boolean) => void;
+    onAddressInfoChange: (
+      complete: boolean,
+      address: StripeAddressElementChangeEvent["value"]["address"],
+    ) => void;
     onExpressCheckoutElementSubmit: (
       paymentMethod: string,
       emailValue: string,
@@ -166,8 +170,11 @@
     }
   };
 
-  const onAddressElementChange = async (complete: boolean) => {
-    onAddressInfoChange(complete);
+  const onAddressElementChange = async (
+    complete: boolean,
+    address: StripeAddressElementChangeEvent["value"]["address"],
+  ) => {
+    onAddressInfoChange(complete, address);
   };
 
   const onPaymentElementChange = async (

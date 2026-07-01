@@ -46,7 +46,11 @@
     type CheckoutPricingResponse,
     type TaxBreakdown,
   } from "../../networking/responses/checkout-pricing-response";
-  import type { Stripe, StripeElements } from "@stripe/stripe-js";
+  import type {
+    Stripe,
+    StripeAddressElementChangeEvent,
+    StripeElements,
+  } from "@stripe/stripe-js";
   import {
     StripeService,
     StripeServiceError,
@@ -193,6 +197,12 @@
 
   let previousTaxCalculationStatus: TaxCalculationStatus =
     $state("unavailable");
+
+  // The tax location the last calculation ran for, used to skip redundant
+  // recalculations. Kept separate from `lastTaxCustomerDetailsStore` (which is
+  // published eagerly as the address is typed) so those eager writes don't make
+  // recalculateTaxes think nothing changed and skip the tax call.
+  let lastCalculatedTaxCustomerDetails: TaxCustomerDetails | null = null;
 
   let isFormReady = $derived(
     !processing &&
@@ -374,7 +384,19 @@
         pricingResponse.gateway_params.elements_configuration;
     }
 
-    $lastTaxCustomerDetailsStore = taxCustomerDetails;
+    lastCalculatedTaxCustomerDetails = taxCustomerDetails;
+    publishTaxLocation(taxCustomerDetails);
+  }
+
+  // Publishes the entered tax location to the shared store so pricing refreshes
+  // triggered outside this page (e.g. discount-code refreshes in the parent) use
+  // the address on the form. Only publishes once a country is known, so we never
+  // downgrade a set location back to the IP-based fallback (nor let the initial
+  // recalculatePriceBreakdown(null) clobber an address already being typed).
+  function publishTaxLocation(details: TaxCustomerDetails | null) {
+    if (details?.countryCode) {
+      $lastTaxCustomerDetailsStore = details;
+    }
   }
 
   function handleStripeLoadingComplete() {
@@ -405,8 +427,22 @@
     scheduleRefreshTaxes();
   }
 
-  function handleAddressInfoChange(complete: boolean) {
+  function handleAddressInfoChange(
+    complete: boolean,
+    address: StripeAddressElementChangeEvent["value"]["address"],
+  ) {
     isAddressComplete = complete;
+    // Publish the address as it's typed so a discount refresh fired before the
+    // debounced tax recalculation lands still carries it (instead of falling
+    // back to IP geolocation).
+    publishTaxLocation({
+      countryCode: address.country ?? undefined,
+      postalCode: address.postal_code ?? undefined,
+      state: address.state ?? undefined,
+      city: address.city ?? undefined,
+      addressLine1: address.line1 ?? undefined,
+      addressLine2: address.line2 ?? undefined,
+    });
     scheduleRefreshTaxes();
   }
 
@@ -631,7 +667,7 @@
 
     signal?.throwIfAborted();
 
-    const lastTaxCustomerDetails = $lastTaxCustomerDetailsStore;
+    const lastTaxCustomerDetails = lastCalculatedTaxCustomerDetails;
     const sameDetails =
       taxCustomerDetails.postalCode === lastTaxCustomerDetails?.postalCode &&
       taxCustomerDetails.countryCode === lastTaxCustomerDetails?.countryCode &&

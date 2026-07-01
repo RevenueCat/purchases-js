@@ -13,7 +13,10 @@
   import { onDestroy, onMount } from "svelte";
 
   interface Props {
-    onChange: (complete: boolean) => void | Promise<void>;
+    onChange: (
+      complete: boolean,
+      address: StripeAddressElementChangeEvent["value"]["address"],
+    ) => void | Promise<void>;
     onError: (error: StripeServiceError) => void | Promise<void>;
     onReady: () => void | Promise<void>;
     elements: StripeElements;
@@ -56,7 +59,7 @@
 
     lastComplete = complete;
     lastTaxRelevantAddress = address;
-    await onChange(complete);
+    await onChange(complete, address);
   };
 
   const isSameTaxRelevantAddress = (
