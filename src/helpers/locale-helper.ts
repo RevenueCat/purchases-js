@@ -1,3 +1,5 @@
+import { getNullableWindow } from "./browser-globals";
+
 export const toBcp47Locale = (locale?: string): string | undefined => {
   if (!locale) {
     return locale;
@@ -27,3 +29,7 @@ export const toBcp47Locale = (locale?: string): string | undefined => {
 
   return languageOnly;
 };
+
+/** The buyer's browser locale, or undefined outside a browser. */
+export const getBrowserLocale = (): string | undefined =>
+  getNullableWindow()?.navigator?.language;
