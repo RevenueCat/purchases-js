@@ -1407,7 +1407,7 @@ export class Purchases {
           attributionMetadata: operationResult.attributionMetadata,
           storeTransaction: {
             storeTransactionId: operationResult.storeTransactionIdentifier,
-            productIdentifier: rcPackage.webBillingProduct.identifier,
+            productIdentifier: operationResult.productIdentifier,
             purchaseDate: operationResult.purchaseDate,
           },
         };
@@ -1475,6 +1475,8 @@ export class Purchases {
         return {};
       }
 
+      let currentPkg = pkg;
+
       let buttonUpdater: ExpressPurchaseButtonUpdater | null = null;
       this.presentExpressPurchaseButton({
         rcPackage: pkg,
@@ -1488,7 +1490,7 @@ export class Purchases {
         walletButtonTheme,
       })
         .then((purchaseResult) => {
-          onSuccess({ ...purchaseResult, selectedPackage: pkg });
+          onSuccess({ ...purchaseResult, selectedPackage: currentPkg });
         })
         .catch(onError);
 
@@ -1504,6 +1506,7 @@ export class Purchases {
             }
             const purchaseOptionToUse =
               pkg.webBillingProduct.defaultPurchaseOption;
+            currentPkg = pkg;
             buttonUpdater.updatePurchase(pkg, purchaseOptionToUse);
           }
         },
