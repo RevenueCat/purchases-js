@@ -42,11 +42,14 @@ export const RC_PAYWALL_WITH_LATAM_TRANSLATION_OFFERING_ID =
   "rc_paywalls_e2e_test_latam_es";
 export const NON_TAX_TEST_API_KEY = process.env.VITE_RC_NON_TAX_E2E_API_KEY;
 export const TAX_TEST_API_KEY = process.env.VITE_RC_TAX_E2E_API_KEY;
+export const FULL_ADDRESS_TEST_API_KEY =
+  process.env.VITE_RC_FULL_ADDRESS_E2E_API_KEY;
 export const STRIPE_CHECKOUT_TEST_API_KEY =
   process.env.VITE_RC_STRIPE_CHECKOUT_E2E_API_KEY;
 export const PADDLE_TEST_API_KEY = process.env.VITE_RC_PADDLE_E2E_API_KEY;
 export const TAX_TEST_OFFERING_ID = "rcb_e2e_taxes";
 export const TAX_TEST_OFFERING_ID_WITH_DISCOUNT = "rcb_e2e_taxes_discounted";
+export const FULL_ADDRESS_TAX_TEST_OFFERING_ID = "rcb_e2e_taxes_full_address";
 export const TAX_TEST_DISCOUNT_CODE = "FOREVER10";
 export const LOCAL_URL = "http://localhost:3001/";
 export const BASE_URL =
@@ -74,6 +77,25 @@ export const NEW_YORK_CUSTOMER_DETAILS = {
 
 export const ITALY_CUSTOMER_DETAILS = {
   countryCode: "IT",
+};
+
+export const NEW_YORK_FULL_ADDRESS = {
+  name: "Jane Doe",
+  line1: "350 5th Ave",
+  line2: "Floor 21",
+  city: "New York",
+  state: "NY",
+  postalCode: "10118",
+  countryCode: "US",
+};
+
+export const CANADA_FULL_ADDRESS = {
+  name: "Jane Doe",
+  line1: "290 Bremner Blvd",
+  city: "Toronto",
+  state: "ON",
+  postalCode: "M5V 3L9",
+  countryCode: "CA",
 };
 
 export const SPAIN_TAX_RESPONSE: RouteFulfillOptions = {
@@ -201,6 +223,36 @@ export const NEW_YORK_TAX_RESPONSE: RouteFulfillOptions = {
     ],
     tax_amount_in_micros: 0,
     total_amount_in_micros: 9990000,
+    total_excluding_tax_in_micros: 9990000,
+    tax_inclusive: false,
+  } as CheckoutPricingResponse),
+};
+
+export const CANADA_TAX_RESPONSE: RouteFulfillOptions = {
+  status: 200,
+  contentType: "application/json",
+  body: JSON.stringify({
+    mocked: true,
+    currency: "USD",
+    failed_reason: undefined,
+    gateway_params: {
+      elements_configuration: {
+        amount: 1129,
+        currency: "usd",
+        mode: "payment",
+        payment_method_types: ["card"],
+        setup_future_usage: "off_session",
+      },
+    },
+    operation_session_id: "MOCKED",
+    tax_breakdown: [
+      {
+        display_name: "HST - Ontario (13%)",
+        tax_amount_in_micros: 1298700,
+      },
+    ],
+    tax_amount_in_micros: 1298700,
+    total_amount_in_micros: 11288700,
     total_excluding_tax_in_micros: 9990000,
     tax_inclusive: false,
   } as CheckoutPricingResponse),

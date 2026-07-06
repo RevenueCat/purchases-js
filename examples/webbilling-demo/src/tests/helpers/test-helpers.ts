@@ -212,6 +212,129 @@ export const getStripePaymentFrame = (page: Page) =>
 export const getStripeEmailFrame = (page: Page) =>
   page.frameLocator("iframe[title='Secure email input frame']");
 
+// The Address Element is mounted inside the `#address-element` container.
+// Scope to that container so we don't match the payment/email iframes.
+export const getStripeAddressFrame = (page: Page) =>
+  page.frameLocator("#address-element iframe").first();
+
+export interface BillingAddressDetails {
+  name?: string;
+  line1?: string;
+  line2?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  countryCode?: string;
+}
+
+type StripeAddressFrame = ReturnType<typeof getStripeAddressFrame>;
+
+/**
+ * Reveals the structured address fields (line 1/2, city, state, ZIP) when the
+ * Address Element is collapsed behind Google autocomplete.
+ *
+ * When the Address Element runs alongside the Payment Element, Stripe enables
+ * autocomplete and initially shows only a country dropdown and a single
+ * "Address" search field. Focusing/typing in that field opens a dropdown that
+ * always contains a static "Enter address manually" option — regardless of
+ * whether Google returns any predictions (they don't load on localhost, where
+ * Stripe's built-in Google Maps key is referrer-restricted). Clicking it
+ * expands the structured fields.
+ *
+ * The dropdown renders in a separate, dynamically-named Stripe iframe (not
+ * inside `#address-element`), so we scan every frame for the option and
+ * dispatch the click directly (a plain `.click()` can be flaky here).
+ */
+async function revealStructuredAddressFields(
+  page: Page,
+  addressFrame: StripeAddressFrame,
+): Promise<void> {
+  // Already expanded (autocomplete unavailable for this country, or a previous
+  // call already switched to manual entry): nothing to do.
+  if ((await addressFrame.getByLabel("Address line 1").count()) > 0) {
+    return;
+  }
+
+  const tryClickManualEntry = async (): Promise<boolean> => {
+    for (const frame of page.frames()) {
+      const manualEntry = frame.getByText("Enter address manually").first();
+      if (
+        (await manualEntry.count()) > 0 &&
+        (await manualEntry.isVisible().catch(() => false))
+      ) {
+        await manualEntry.dispatchEvent("click");
+        return true;
+      }
+    }
+    return false;
+  };
+
+  // Focus and type a character into the search field to surface the dropdown.
+  const searchField = addressFrame.getByLabel("Address", { exact: true });
+  await searchField.click();
+  if (!(await tryClickManualEntry())) {
+    await searchField.pressSequentially("5th avenue", { delay: 100 });
+  }
+
+  await expect
+    .poll(tryClickManualEntry, {
+      timeout: 10_000,
+      message:
+        "Could not find the Stripe 'Enter address manually' option to reveal the structured address fields",
+    })
+    .toBe(true);
+
+  // Wait for the structured fields to actually render before callers fill them.
+  await expect(addressFrame.getByLabel("Address line 1")).toBeVisible();
+}
+
+/**
+ * Fills the Stripe Address Element. The element runs alongside the Payment
+ * Element, so Stripe enables Google autocomplete and collapses the form into a
+ * single search field; we first switch to manual entry to reveal the structured
+ * fields, then fill them directly. Only the provided fields are filled, so a
+ * partial address can be populated (e.g. everything except the name).
+ */
+export async function enterBillingAddress(
+  page: Page,
+  details: BillingAddressDetails,
+): Promise<void> {
+  const addressFrame = getStripeAddressFrame(page);
+
+  // Set the country first so dependent fields (e.g. the state dropdown) render.
+  if (details.countryCode !== undefined) {
+    await addressFrame
+      .getByLabel("Country or region")
+      .selectOption(details.countryCode);
+  }
+
+  // Expand the structured fields if they're hidden behind autocomplete.
+  await revealStructuredAddressFields(page, addressFrame);
+
+  if (details.name !== undefined) {
+    await addressFrame.getByLabel("Name").fill(details.name);
+  }
+  if (details.line1 !== undefined) {
+    await addressFrame.getByLabel("Address line 1").fill(details.line1);
+  }
+  if (details.line2 !== undefined) {
+    await addressFrame.getByLabel("Address line 2").fill(details.line2);
+  }
+  if (details.city !== undefined) {
+    await addressFrame.getByLabel("City").fill(details.city);
+  }
+  if (details.state !== undefined) {
+    // The label depends on the country (e.g. "State" in the US, "Province" in
+    // Canada).
+    await addressFrame.getByLabel(/State|Province/).selectOption(details.state);
+  }
+  if (details.postalCode !== undefined) {
+    // The label depends on the country (e.g. "ZIP" in the US, "Postal code" in
+    // Canada).
+    await addressFrame.getByLabel(/ZIP|Postal code/).fill(details.postalCode);
+  }
+}
+
 export const getStripe3DSFrame = (page: Page) =>
   page.frameLocator(
     "iframe[src*='https://js.stripe.com/v3/three-ds-2-challenge']",
@@ -258,14 +381,27 @@ export async function enterCreditCardDetails(
   await expect(numberInput).toBeVisible();
   await numberInput.fill(cardNumber);
 
+  // When full billing address collection is enabled, the country/postal code
+  // live in the separate Address Element instead of the Payment Element. The
+  // `#address-element` container is only rendered in that case, so use its
+  // presence to decide where to fill the country.
+  const collectsFullAddress =
+    (await page.locator("#address-element").count()) > 0;
+
   // Inserting the country first just to make sure that the change event is triggered by Stripe
   // This is a bug that we are trying to workaround, however we know that setting the country/postal code as last
   // might not trigger the update event.
   // Also changing it might not trigger it.
-  await stripeFrame.getByLabel("Country").selectOption(countryCode);
+  if (collectsFullAddress) {
+    await getStripeAddressFrame(page)
+      .getByLabel("Country or region")
+      .selectOption(countryCode);
+  } else {
+    await stripeFrame.getByLabel("Country").selectOption(countryCode);
 
-  if (postalCode !== undefined) {
-    await stripeFrame.getByPlaceholder("12345").fill(postalCode);
+    if (postalCode !== undefined) {
+      await stripeFrame.getByPlaceholder("12345").fill(postalCode);
+    }
   }
 
   await stripeFrame.getByPlaceholder("MM / YY").fill(expiration);

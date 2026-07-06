@@ -67,6 +67,10 @@ interface CheckoutStartRequestParams {
 interface CheckoutRefreshPricingParams {
   countryCode?: string;
   postalCode?: string;
+  state?: string;
+  city?: string;
+  addressLine1?: string;
+  addressLine2?: string;
   discountCode?: string | null;
   signal?: AbortSignal | null;
 }
@@ -306,6 +310,10 @@ export class Backend {
     {
       countryCode,
       postalCode,
+      state,
+      city,
+      addressLine1,
+      addressLine2,
       discountCode,
       signal,
     }: CheckoutRefreshPricingParams = {},
@@ -313,12 +321,20 @@ export class Backend {
     type CheckoutRefreshPricingRequestBody = {
       country_code?: string;
       postal_code?: string;
+      state?: string;
+      city?: string;
+      address_line1?: string;
+      address_line2?: string;
       discount_code?: string | null;
     };
 
     const requestBody: CheckoutRefreshPricingRequestBody = {
       country_code: countryCode,
       postal_code: postalCode,
+      state,
+      city,
+      address_line1: addressLine1,
+      address_line2: addressLine2,
       discount_code: discountCode,
     };
 

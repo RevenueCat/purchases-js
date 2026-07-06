@@ -16,6 +16,8 @@
   import { type GatewayParams } from "../networking/responses/stripe-elements";
   import BrandingHeader from "./molecules/branding-header.svelte";
   import type { CheckoutPricingResponse } from "../networking/responses/checkout-pricing-response";
+  import { writable, type Writable } from "svelte/store";
+  import type { TaxCustomerDetails } from "../stripe/stripe-service";
 
   interface Props {
     currentPage: CurrentPage;
@@ -51,6 +53,7 @@
     onError: (error: PurchaseFlowError) => void;
     onClose?: () => void;
     hideBackButton?: boolean;
+    lastTaxCustomerDetailsStore?: Writable<TaxCustomerDetails | null>;
   }
 
   let {
@@ -84,6 +87,7 @@
     onError,
     onClose = undefined,
     hideBackButton = false,
+    lastTaxCustomerDetailsStore = writable<TaxCustomerDetails | null>(null),
   }: Props = $props();
 
   const initialPrice = getInitialPriceFromPurchaseOption(
@@ -170,6 +174,7 @@
         {onPriceBreakdownUpdated}
         {onSessionPricingUpdated}
         onProcessingStateChange={onPaymentProcessingChange}
+        {lastTaxCustomerDetailsStore}
       />
     {/if}
 

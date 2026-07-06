@@ -76,6 +76,7 @@ import {
   Workflow,
   workflowDataToNavData,
   type WorkflowData,
+  type WorkflowStepChangeEvent,
   type UIConfig,
   mergeCustomVariables,
 } from "@revenuecat/purchases-ui-js";
@@ -97,7 +98,10 @@ import {
   createCheckoutSessionEndFinishedEvent,
   createCheckoutSessionStartEvent,
 } from "./behavioural-events/sdk-event-helpers";
-import { SDKEventName } from "./behavioural-events/sdk-events";
+import {
+  SDKEventName,
+  type WorkflowStepEntryReason,
+} from "./behavioural-events/sdk-events";
 import { autoParseUTMParams } from "./helpers/utm-params";
 import {
   defaultFlagsConfig,
@@ -127,8 +131,18 @@ import type {
   PresentExpressPurchaseButtonParams,
 } from "./entities/present-express-purchase-button-params";
 import { ExpressPurchaseButtonWrapper } from "./ui/express-purchase-button/express-purchase-button-wrapper.svelte";
-import { getDocument, getWindow } from "./helpers/browser-globals";
+import {
+  getDocument,
+  getNullableDocument,
+  getNullableWindow,
+  getWindow,
+} from "./helpers/browser-globals";
 import { isAllowedCompleteWorkflowNavigateUrl } from "./helpers/complete-workflow-navigate-url";
+import { buildAssetURL } from "./networking/assets";
+import {
+  removeManagedAppleTouchIcon,
+  syncManagedAppleTouchIcon,
+} from "./helpers/apple-touch-icon";
 
 type UIComponentInteractionFields = UIComponentInteractionData & {
   componentURL?: string;
@@ -471,6 +485,27 @@ export class Purchases {
       return;
     }
     this._brandingInfo = await this.backend.getBrandingInfo();
+    this.syncApplePayWebsiteIcon();
+  }
+
+  /** @internal */
+  private syncApplePayWebsiteIcon(): void {
+    if (!this._flags.applePayBrandingLogoEnabled) {
+      return;
+    }
+
+    const doc = getNullableDocument();
+    const win = getNullableWindow();
+    if (!doc) {
+      return;
+    }
+
+    const iconPath = this._brandingInfo?.app_icon?.trim();
+    syncManagedAppleTouchIcon({
+      doc,
+      win,
+      href: iconPath ? buildAssetURL(iconPath) : null,
+    });
   }
 
   /** @internal */
@@ -965,7 +1000,12 @@ export class Purchases {
           return;
         }
         paywallCloseTracked = true;
-        trackPaywallEvent("paywall_close");
+        // Only fire paywall_close if an impression was recorded. For workflows,
+        // a user may exit before reaching the purchasing step, in which case
+        // neither event should fire.
+        if (paywallImpressionTracked) {
+          trackPaywallEvent("paywall_close");
+        }
       };
 
       const trackComponentInteraction = (data: UIComponentInteractionData) => {
@@ -1049,6 +1089,49 @@ export class Purchases {
       certainHTMLTarget.innerHTML = "";
       if (workflowNavData && workflowDataResponse) {
         try {
+          const onWorkflowStepChanged = (event: WorkflowStepChangeEvent) => {
+            if (event.reason === "completed") {
+              // Fire step_completed for the step being left.
+              // toStepId is undefined when leaving via close/dismiss.
+              this.eventsTracker.trackSDKEvent({
+                eventName: SDKEventName.WorkflowStepCompleted,
+                properties: {
+                  workflow_id: event.workflowId,
+                  step_id: event.stepId,
+                  ...(event.toStepId !== undefined
+                    ? { to_step_id: event.toStepId }
+                    : {}),
+                  is_first_step: event.isFirstStep,
+                  is_last_step: event.isLastStep,
+                },
+              });
+            } else {
+              const entryReason: WorkflowStepEntryReason = event.reason;
+              // Fire step_started for the step being entered.
+              this.eventsTracker.trackSDKEvent({
+                eventName: SDKEventName.WorkflowStepStarted,
+                properties: {
+                  workflow_id: event.workflowId,
+                  step_id: event.stepId,
+                  ...(event.fromStepId !== undefined
+                    ? { from_step_id: event.fromStepId }
+                    : {}),
+                  entry_reason: entryReason,
+                  is_first_step: event.isFirstStep,
+                  is_last_step: event.isLastStep,
+                },
+              });
+
+              // paywall_impression fires only on the purchasing step so that
+              // conversion metrics reflect meaningful impressions, not
+              // informational intro pages.
+              if (event.isLastStep && !paywallImpressionTracked) {
+                trackPaywallEvent("paywall_impression");
+                paywallImpressionTracked = true;
+              }
+            }
+          };
+
           component = mount(Workflow, {
             target: certainHTMLTarget,
             props: {
@@ -1079,6 +1162,7 @@ export class Purchases {
               onRestorePurchasesClicked,
               onVisitCustomerCenterClicked,
               onComponentInteraction,
+              onStepChanged: onWorkflowStepChanged,
               globalVariables: paywallParams.customVariables
                 ? mergeCustomVariables(
                     paywallParams.customVariables,
@@ -1141,8 +1225,12 @@ export class Purchases {
       }
 
       containerObserver.observe(certainHTMLTarget, { childList: true });
-      trackPaywallEvent("paywall_impression");
-      paywallImpressionTracked = true;
+      // For standard (non-workflow) paywalls, fire paywall_impression immediately.
+      // For workflows, impression is deferred to onStepChanged when is_last_step is reached.
+      if (!workflowNavData) {
+        trackPaywallEvent("paywall_impression");
+        paywallImpressionTracked = true;
+      }
 
       if (certainHTMLTarget.style.opacity === "0") {
         certainHTMLTarget.style.opacity = "1";
@@ -1320,7 +1408,7 @@ export class Purchases {
           attributionMetadata: operationResult.attributionMetadata,
           storeTransaction: {
             storeTransactionId: operationResult.storeTransactionIdentifier,
-            productIdentifier: rcPackage.webBillingProduct.identifier,
+            productIdentifier: operationResult.productIdentifier,
             purchaseDate: operationResult.purchaseDate,
           },
         };
@@ -1388,6 +1476,8 @@ export class Purchases {
         return {};
       }
 
+      let currentPkg = pkg;
+
       let buttonUpdater: ExpressPurchaseButtonUpdater | null = null;
       this.presentExpressPurchaseButton({
         rcPackage: pkg,
@@ -1401,7 +1491,7 @@ export class Purchases {
         walletButtonTheme,
       })
         .then((purchaseResult) => {
-          onSuccess({ ...purchaseResult, selectedPackage: pkg });
+          onSuccess({ ...purchaseResult, selectedPackage: currentPkg });
         })
         .catch(onError);
 
@@ -1417,6 +1507,7 @@ export class Purchases {
             }
             const purchaseOptionToUse =
               pkg.webBillingProduct.defaultPurchaseOption;
+            currentPkg = pkg;
             buttonUpdater.updatePurchase(pkg, purchaseOptionToUse);
           }
         },
@@ -2135,6 +2226,12 @@ export class Purchases {
     if (Purchases.instance === this) {
       if (this.eventsTracker) {
         this.eventsTracker.dispose();
+      }
+      if (this._flags.applePayBrandingLogoEnabled) {
+        const doc = getNullableDocument();
+        if (doc) {
+          removeManagedAppleTouchIcon(doc);
+        }
       }
       Purchases.instance = undefined;
     } else {

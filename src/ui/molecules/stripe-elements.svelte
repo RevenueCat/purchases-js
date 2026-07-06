@@ -3,15 +3,20 @@
   import type {
     Appearance,
     Stripe,
+    StripeAddressElementChangeEvent,
     StripeElements,
     StripeLinkAuthenticationElementChangeEvent,
     StripePaymentElementChangeEvent,
   } from "@stripe/stripe-js";
 
-  import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
+  import {
+    type BrandingInfoResponse,
+    shouldCollectFullAddress,
+  } from "../../networking/responses/branding-response";
   import PaymentElement from "./stripe-payment-element.svelte";
   import LinkAuthenticationElement from "./stripe-authentication-link-element.svelte";
   import ExpressCheckoutElement from "./stripe-express-checkout-element.svelte";
+  import AddressElement from "./stripe-address-element.svelte";
 
   import { translatorContextKey } from "../localization/constants";
   import { Translator } from "../localization/translator";
@@ -41,7 +46,12 @@
     onPaymentInfoChange: (params: {
       complete: boolean;
       paymentMethod: string | undefined;
+      countryCode: string | undefined;
     }) => void;
+    onAddressInfoChange: (
+      complete: boolean,
+      address: StripeAddressElementChangeEvent["value"]["address"],
+    ) => void;
     onExpressCheckoutElementSubmit: (
       paymentMethod: string,
       emailValue: string,
@@ -62,6 +72,7 @@
     onError,
     onEmailChange,
     onPaymentInfoChange,
+    onAddressInfoChange,
     onExpressCheckoutElementSubmit,
   }: Props = $props();
 
@@ -70,9 +81,37 @@
     $translator.bcp47Locale || $translator.fallbackBcp47Locale,
   );
 
+  // Country selected in the payment element. We listen to the payment element's
+  // `change` events to detect it and decide whether the full billing address is
+  // needed for tax purposes.
+  let selectedCountry: string | undefined = $state(undefined);
+
+  // Once the full billing address is required (a tax-relevant country was
+  // selected) we keep collecting it for the rest of the session. There is no way
+  // to push a country back into the payment element, so switching back to the
+  // minimal form would lose the selection; latching keeps the address element as
+  // the single source of truth and lets the customer freely change the country
+  // afterwards (e.g. Canada -> Bulgaria).
+  let collectFullBillingAddress = $state(
+    shouldCollectFullAddress(brandingInfo),
+  );
+  $effect(() => {
+    if (
+      shouldCollectFullAddress(
+        brandingInfo,
+        StripeService.countryRequiresFullAddressForTaxes(selectedCountry),
+      )
+    ) {
+      collectFullBillingAddress = true;
+    }
+  });
+
   let paymentElementReadyForSubmission = $state(false);
   let emailElementReadyForSubmission = $state(skipEmail);
   let expressCheckoutElementReadyForSubmission = $state(false);
+  let addressElementReadyForSubmission = $state(
+    !shouldCollectFullAddress(brandingInfo),
+  );
 
   let stripeVariables: undefined | Appearance["variables"] = $state(undefined);
   let viewport: "mobile" | "desktop" = $state("mobile");
@@ -114,51 +153,66 @@
     onLoadingComplete();
   };
 
+  const maybeCompleteLoading = () => {
+    if (
+      emailElementReadyForSubmission &&
+      paymentElementReadyForSubmission &&
+      expressCheckoutElementReadyForSubmission &&
+      addressElementReadyForSubmission
+    ) {
+      onLoadingComplete();
+    }
+  };
+
   const onLinkAuthenticationElementReady = async () => {
     if (!emailElementReadyForSubmission) {
       emailElementReadyForSubmission = true;
-      if (
-        emailElementReadyForSubmission &&
-        paymentElementReadyForSubmission &&
-        expressCheckoutElementReadyForSubmission
-      ) {
-        onLoadingComplete();
-      }
+      maybeCompleteLoading();
     }
   };
 
   const onExpressCheckoutElementReady = async () => {
     if (!expressCheckoutElementReadyForSubmission) {
       expressCheckoutElementReadyForSubmission = true;
-      if (
-        emailElementReadyForSubmission &&
-        paymentElementReadyForSubmission &&
-        expressCheckoutElementReadyForSubmission
-      ) {
-        onLoadingComplete();
-      }
+      maybeCompleteLoading();
     }
   };
 
   const onPaymentElementReady = async () => {
     if (!paymentElementReadyForSubmission) {
       paymentElementReadyForSubmission = true;
-      if (
-        emailElementReadyForSubmission &&
-        paymentElementReadyForSubmission &&
-        expressCheckoutElementReadyForSubmission
-      ) {
-        onLoadingComplete();
-      }
+      maybeCompleteLoading();
     }
+  };
+
+  const onAddressElementReady = async () => {
+    if (!addressElementReadyForSubmission) {
+      addressElementReadyForSubmission = true;
+      maybeCompleteLoading();
+    }
+  };
+
+  const onAddressElementChange = async (
+    complete: boolean,
+    address: StripeAddressElementChangeEvent["value"]["address"],
+  ) => {
+    onAddressInfoChange(complete, address);
   };
 
   const onPaymentElementChange = async (
     event: StripePaymentElementChangeEvent,
   ) => {
+    const country = event.value.billingDetails?.address?.country;
+    // Keep the last country reported by the payment element. Once the address
+    // element is shown Stripe stops reporting the billing country here, so we
+    // must not overwrite it with an empty value.
+    if (country) {
+      selectedCountry = country;
+    }
     onPaymentInfoChange({
       complete: event.complete,
       paymentMethod: event.complete ? event.value.type : undefined,
+      countryCode: selectedCountry,
     });
   };
 
@@ -239,6 +293,15 @@
       onChange={onPaymentElementChange}
       onError={onStripeElementsLoadingError}
     />
+    {#if collectFullBillingAddress}
+      <AddressElement
+        {elements}
+        defaultCountryCode={selectedCountry}
+        onReady={onAddressElementReady}
+        onChange={onAddressElementChange}
+        onError={onStripeElementsLoadingError}
+      />
+    {/if}
   </div>
 {/if}
 

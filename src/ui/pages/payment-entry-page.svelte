@@ -6,7 +6,10 @@
     type PurchaseOption,
     type SubscriptionOption,
   } from "../../entities/offerings";
-  import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
+  import {
+    type BrandingInfoResponse,
+    shouldCollectFullAddress,
+  } from "../../networking/responses/branding-response";
   import IconError from "../atoms/icons/icon-error.svelte";
   import MessageLayout from "../layout/message-layout.svelte";
 
@@ -31,7 +34,7 @@
   } from "../../behavioural-events/sdk-event-helpers";
   import { SDKEventName } from "../../behavioural-events/sdk-events";
   import Loading from "../molecules/loading.svelte";
-  import { type Writable } from "svelte/store";
+  import { writable, type Writable } from "svelte/store";
   import PaymentButton from "../molecules/payment-button.svelte";
   import type {
     GatewayParams,
@@ -43,7 +46,11 @@
     type CheckoutPricingResponse,
     type TaxBreakdown,
   } from "../../networking/responses/checkout-pricing-response";
-  import type { Stripe, StripeElements } from "@stripe/stripe-js";
+  import type {
+    Stripe,
+    StripeAddressElementChangeEvent,
+    StripeElements,
+  } from "@stripe/stripe-js";
   import {
     StripeService,
     StripeServiceError,
@@ -76,9 +83,23 @@
       priceBreakdown: PriceBreakdown,
     ) => void;
     onProcessingStateChange?: (isProcessing: boolean) => void;
+    /**
+     * Shared store holding the last known tax customer details. It is lifted to
+     * the parent so that pricing refreshes triggered outside of this page (e.g.
+     * discount-code refreshes) can also forward the latest known tax location.
+     */
+    lastTaxCustomerDetailsStore?: Writable<TaxCustomerDetails | null>;
   }
 
   class TaxCustomerDetailsMissMatchError extends Error {}
+
+  /**
+   * Delay applied before triggering a tax recalculation in response to form
+   * changes. This debounces bursts of `change` events (e.g. while the customer
+   * is typing the address line 1 or line 2) so we only recalculate taxes once
+   * they pause, instead of firing a request on every keystroke.
+   */
+  const TAX_REFRESH_DEBOUNCE_MS = 500;
 </script>
 
 <script lang="ts">
@@ -100,6 +121,7 @@
     onPriceBreakdownUpdated,
     onSessionPricingUpdated = undefined,
     onProcessingStateChange = undefined,
+    lastTaxCustomerDetailsStore = writable<TaxCustomerDetails | null>(null),
   }: Props = $props();
 
   const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;
@@ -151,8 +173,6 @@
     gatewayParams.elements_configuration,
   );
 
-  let lastTaxCustomerDetails: TaxCustomerDetails | null = $state(null);
-
   let stripe: Stripe | null = $state(null);
   let elements: StripeElements | null = $state(null);
 
@@ -160,11 +180,33 @@
   let isEmailComplete = $state(customerEmail ? true : false);
   let isStripeLoading = $state(true);
   let isPaymentInfoComplete = $state(false);
+  let selectedCountry: string | undefined = $state(undefined);
+  let isFullAddressComplete = $state(false);
+  // Mirrors the latching logic in stripe-elements.svelte: once the full billing
+  // address is required (a tax-relevant country was selected in the payment
+  // element) it stays required for the rest of the session.
+  let collectFullBillingAddress = $state(
+    shouldCollectFullAddress(brandingInfo),
+  );
+  $effect(() => {
+    if (
+      shouldCollectFullAddress(
+        brandingInfo,
+        StripeService.countryRequiresFullAddressForTaxes(selectedCountry),
+      )
+    ) {
+      collectFullBillingAddress = true;
+    }
+  });
+  const isAddressComplete = $derived(
+    !collectFullBillingAddress || isFullAddressComplete,
+  );
   let selectedPaymentMethod: string | undefined = $state(undefined);
   let modalErrorMessage: string | undefined = $state(undefined);
   let clientSecret: string | undefined = $state(undefined);
   let processing = $state(false);
   let abortController: AbortController | null = $state(null);
+  let refreshTaxesTimeout: ReturnType<typeof setTimeout> | null = null;
   let view: View = $derived(
     isStripeLoading || processing
       ? "loading"
@@ -176,10 +218,17 @@
   let previousTaxCalculationStatus: TaxCalculationStatus =
     $state("unavailable");
 
+  // The tax location the last calculation ran for, used to skip redundant
+  // recalculations. Kept separate from `lastTaxCustomerDetailsStore` (which is
+  // published eagerly as the address is typed) so those eager writes don't make
+  // recalculateTaxes think nothing changed and skip the tax call.
+  let lastCalculatedTaxCustomerDetails: TaxCustomerDetails | null = null;
+
   let isFormReady = $derived(
     !processing &&
       isPaymentInfoComplete &&
       isEmailComplete &&
+      isAddressComplete &&
       (taxCalculationStatus === "disabled" ||
         taxCalculationStatus === "calculated" ||
         taxCalculationStatus === "miss-match"),
@@ -267,6 +316,10 @@
   });
 
   onDestroy(() => {
+    if (refreshTaxesTimeout) {
+      clearTimeout(refreshTaxesTimeout);
+      refreshTaxesTimeout = null;
+    }
     if (abortController) {
       abortController.abort();
       abortController = null;
@@ -281,6 +334,10 @@
       .checkoutRefreshPricing({
         countryCode: taxCustomerDetails?.countryCode,
         postalCode: taxCustomerDetails?.postalCode,
+        state: taxCustomerDetails?.state,
+        city: taxCustomerDetails?.city,
+        addressLine1: taxCustomerDetails?.addressLine1,
+        addressLine2: taxCustomerDetails?.addressLine2,
         signal,
       })
       .then((taxCalculation) => {
@@ -331,15 +388,35 @@
       nextTaxCalculationStatus,
     );
 
+    // Apply the breakdown locally regardless of mode. In the checkout shell the
+    // parent owns the canonical pricing (via onSessionPricingUpdated) and echoes
+    // it back through defaultPriceBreakdown, but that round-trip is asynchronous.
+    // Without an immediate local update, the page's taxCalculationStatus would
+    // stay "loading" when refreshTaxes' finally handler runs, causing it to
+    // revert to a stale previousTaxCalculationStatus (e.g. "pending") and briefly
+    // disable the pay button / show stale tax UI until the parent sync lands.
+    applyLocalPriceBreakdown(nextPriceBreakdown);
+
     if (onSessionPricingUpdated) {
       onSessionPricingUpdated(pricingResponse, nextPriceBreakdown);
     } else {
-      applyLocalPriceBreakdown(nextPriceBreakdown);
       elementsConfiguration =
         pricingResponse.gateway_params.elements_configuration;
     }
 
-    lastTaxCustomerDetails = taxCustomerDetails;
+    lastCalculatedTaxCustomerDetails = taxCustomerDetails;
+    publishTaxLocation(taxCustomerDetails);
+  }
+
+  // Publishes the entered tax location to the shared store so pricing refreshes
+  // triggered outside this page (e.g. discount-code refreshes in the parent) use
+  // the address on the form. Only publishes once a country is known, so we never
+  // downgrade a set location back to the IP-based fallback (nor let the initial
+  // recalculatePriceBreakdown(null) clobber an address already being typed).
+  function publishTaxLocation(details: TaxCustomerDetails | null) {
+    if (details?.countryCode) {
+      $lastTaxCustomerDetailsStore = details;
+    }
   }
 
   function handleStripeLoadingComplete() {
@@ -352,22 +429,69 @@
     isStripeLoading = false;
   }
 
-  async function handleEmailChange(complete: boolean, emailValue: string) {
+  function handleEmailChange(complete: boolean, emailValue: string) {
     email = emailValue;
     isEmailComplete = complete;
-    await refreshTaxes();
+    scheduleRefreshTaxes();
   }
 
-  async function handlePaymentInfoChange({
+  function handlePaymentInfoChange({
     complete,
     paymentMethod,
+    countryCode,
   }: {
     complete: boolean;
     paymentMethod: string | undefined;
+    countryCode: string | undefined;
   }) {
     selectedPaymentMethod = paymentMethod;
     isPaymentInfoComplete = complete;
-    await refreshTaxes();
+    selectedCountry = countryCode;
+    scheduleRefreshTaxes();
+  }
+
+  function handleAddressInfoChange(
+    complete: boolean,
+    address: StripeAddressElementChangeEvent["value"]["address"],
+  ) {
+    isFullAddressComplete = complete;
+    // Publish the address as it's typed so a discount refresh fired before the
+    // debounced tax recalculation lands still carries it (instead of falling
+    // back to IP geolocation).
+    publishTaxLocation({
+      countryCode: address.country ?? undefined,
+      postalCode: address.postal_code ?? undefined,
+      state: address.state ?? undefined,
+      city: address.city ?? undefined,
+      addressLine1: address.line1 ?? undefined,
+      addressLine2: address.line2 ?? undefined,
+    });
+    scheduleRefreshTaxes();
+  }
+
+  /**
+   * Debounces tax recalculations triggered by form `change` events. Successive
+   * changes within {@link TAX_REFRESH_DEBOUNCE_MS} (e.g. while typing the
+   * address) reset the timer, so the recalculation only runs once the customer
+   * pauses, avoiding a burst of redundant tax calculations.
+   *
+   * The loading state is applied immediately (not debounced) so the UI reacts
+   * as soon as the customer starts typing, while the actual calculation only
+   * fires after the cooldown.
+   */
+  function scheduleRefreshTaxes(): void {
+    if (canRefreshTaxes() && taxCalculationStatus !== "loading") {
+      previousTaxCalculationStatus = taxCalculationStatus;
+      taxCalculationStatus = "loading";
+    }
+
+    if (refreshTaxesTimeout) {
+      clearTimeout(refreshTaxesTimeout);
+    }
+    refreshTaxesTimeout = setTimeout(() => {
+      refreshTaxesTimeout = null;
+      void refreshTaxes();
+    }, TAX_REFRESH_DEBOUNCE_MS);
   }
 
   async function handleSubmit(e?: Event): Promise<void> {
@@ -402,6 +526,27 @@
   }
 
   /**
+   * Whether a tax recalculation can run given the current form state. Tax
+   * refreshes are only valid for card payments once the email, payment
+   * information and billing address are complete and tax collection is enabled.
+   *
+   * The billing address must be complete so we never calculate (and display)
+   * taxes from partial or missing address data while the customer is still
+   * filling in the Address Element. When full address collection is not enabled,
+   * `isAddressComplete` is always true, so this has no effect on that flow.
+   */
+  function canRefreshTaxes(): boolean {
+    return (
+      selectedPaymentMethod === "card" &&
+      isEmailComplete &&
+      isPaymentInfoComplete &&
+      isAddressComplete &&
+      !processing &&
+      taxCalculationStatus !== "disabled"
+    );
+  }
+
+  /**
    * Refreshes taxes in real-time as the customer enters payment details.
    *
    * This method can only be used for card payments, as it will trigger a native prompt
@@ -419,14 +564,17 @@
    * when multiple tax refresh requests are triggered in quick succession.
    */
   async function refreshTaxes(): Promise<void> {
-    if (
-      selectedPaymentMethod !== "card" ||
-      !isEmailComplete ||
-      !isPaymentInfoComplete ||
-      processing ||
-      taxCalculationStatus === "disabled"
-    )
+    if (!canRefreshTaxes()) {
+      // The form state may have changed between scheduling the debounced
+      // refresh (which optimistically shows the loading skeleton) and this
+      // timer firing. If a recalculation is no longer valid, restore the
+      // previous status so the UI doesn't get stuck calculating taxes (which
+      // would keep the pay button disabled).
+      if (taxCalculationStatus === "loading") {
+        taxCalculationStatus = previousTaxCalculationStatus;
+      }
       return;
+    }
 
     if (taxCalculationStatus !== "loading") {
       previousTaxCalculationStatus = taxCalculationStatus;
@@ -542,9 +690,15 @@
 
     signal?.throwIfAborted();
 
+    const lastTaxCustomerDetails = lastCalculatedTaxCustomerDetails;
     const sameDetails =
       taxCustomerDetails.postalCode === lastTaxCustomerDetails?.postalCode &&
-      taxCustomerDetails.countryCode === lastTaxCustomerDetails?.countryCode;
+      taxCustomerDetails.countryCode === lastTaxCustomerDetails?.countryCode &&
+      taxCustomerDetails.state === lastTaxCustomerDetails?.state &&
+      taxCustomerDetails.city === lastTaxCustomerDetails?.city &&
+      taxCustomerDetails.addressLine1 ===
+        lastTaxCustomerDetails?.addressLine1 &&
+      taxCustomerDetails.addressLine2 === lastTaxCustomerDetails?.addressLine2;
 
     if (!sameDetails) {
       await recalculatePriceBreakdown(taxCustomerDetails, signal);
@@ -683,6 +837,7 @@
           onError={handleStripeElementError}
           onEmailChange={handleEmailChange}
           onPaymentInfoChange={handlePaymentInfoChange}
+          onAddressInfoChange={handleAddressInfoChange}
           onExpressCheckoutElementSubmit={handleExpressCheckoutElementSubmit}
           {expressCheckoutOptions}
         />

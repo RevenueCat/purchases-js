@@ -43,6 +43,10 @@ export class StripeServiceError {
 export type TaxCustomerDetails = {
   countryCode: string | undefined;
   postalCode: string | undefined;
+  state: string | undefined;
+  city: string | undefined;
+  addressLine1: string | undefined;
+  addressLine2: string | undefined;
 };
 
 export class StripeService {
@@ -279,6 +283,46 @@ export class StripeService {
     });
   }
 
+  /**
+   * Country codes (ISO 3166-1 alpha-2) that require the full billing address to
+   * be collected when tax collection is enabled, because country alone is not
+   * enough to resolve the tax rate.
+   * See https://docs.stripe.com/tax/customer-locations?#supported-formats
+   */
+  private static FULL_ADDRESS_REQUIRED_TAX_COUNTRY_CODES = ["CA", "PR", "IN"];
+
+  /**
+   * Whether the given country requires the full billing address to be collected
+   * to resolve taxes via Stripe Tax.
+   */
+  static countryRequiresFullAddressForTaxes(
+    countryCode?: string | null,
+  ): boolean {
+    return (
+      !!countryCode &&
+      StripeService.FULL_ADDRESS_REQUIRED_TAX_COUNTRY_CODES.includes(
+        countryCode,
+      )
+    );
+  }
+
+  static createAddressElement(
+    elements: StripeElements,
+    defaultCountryCode?: string,
+  ) {
+    return elements.create("address", {
+      mode: "billing",
+      display: {
+        name: "full",
+      },
+      // Seed the country with the one already selected in the payment element so
+      // the full address form opens on the country the customer just picked.
+      ...(defaultCountryCode
+        ? { defaultValues: { address: { country: defaultCountryCode } } }
+        : {}),
+    });
+  }
+
   static createExpressCheckoutElement(
     elements: StripeElements,
     forceEnableWalletMethods: boolean,
@@ -400,6 +444,10 @@ export class StripeService {
       customerDetails: {
         countryCode: billingAddress?.country ?? undefined,
         postalCode: billingAddress?.postal_code ?? undefined,
+        state: billingAddress?.state ?? undefined,
+        city: billingAddress?.city ?? undefined,
+        addressLine1: billingAddress?.line1 ?? undefined,
+        addressLine2: billingAddress?.line2 ?? undefined,
       },
       confirmationTokenId: confirmationToken.id,
     };
