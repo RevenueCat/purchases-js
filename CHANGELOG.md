@@ -1,3 +1,8 @@
+## 1.47.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* [WEB-4448] Track correct package after purchase (#968) via James O'Donnell (@james-od)
+
 ## 1.47.0
 ## RevenueCat SDK
 ### ✨ New Features
