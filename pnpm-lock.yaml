@@ -731,6 +731,13 @@ packages:
     peerDependencies:
       svelte: ^5.46.4
 
+  "@revenuecat/workflow-web-components-sdk@0.1.4":
+    resolution:
+      {
+        integrity: sha512-8LGZkqNNE7MgziVSnH6s6yjVkK32g6Rzi92UYy9o5bhtBuYwtz5+qRVh+QG5cU+AVfaUCAMjm2Ep7iBwHNW7mw==,
+      }
+    engines: { node: ">=18" }
+
   "@rollup/pluginutils@5.1.4":
     resolution:
       {
@@ -6157,8 +6164,11 @@ snapshots:
 
   "@revenuecat/purchases-ui-js@4.8.6(svelte@5.46.4)":
     dependencies:
+      "@revenuecat/workflow-web-components-sdk": 0.1.4
       qrcode: 1.5.4
       svelte: 5.46.4
+
+  "@revenuecat/workflow-web-components-sdk@0.1.4": {}
 
   "@rollup/pluginutils@5.1.4(rollup@4.41.1)":
     dependencies:
