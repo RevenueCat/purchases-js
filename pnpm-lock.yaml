@@ -20,8 +20,8 @@ importers:
         specifier: ^1.6.4
         version: 1.6.4
       "@revenuecat/purchases-ui-js":
-        specifier: 4.8.4
-        version: 4.8.4(svelte@5.46.4)
+        specifier: 4.8.6
+        version: 4.8.6(svelte@5.46.4)
       "@storybook/addon-essentials":
         specifier: ^8.6.15
         version: 8.6.15(@types/react@19.0.10)(storybook@8.6.15(prettier@3.4.2))
@@ -722,14 +722,21 @@ packages:
       }
     engines: { node: ^12.20.0 || ^14.18.0 || >=16.0.0 }
 
-  "@revenuecat/purchases-ui-js@4.8.4":
+  "@revenuecat/purchases-ui-js@4.8.6":
     resolution:
       {
-        integrity: sha512-D3SjVeOnoSvxPOY5m7hdLzdJVWjgUWyY7TLES+mDmzREjHp+C1AWcDLMJzEHIvjPo/mKkLFBRQK/C5xLiBB3hA==,
+        integrity: sha512-yzylRJOdwufonJouTb/hQcqg5SWXUa7wwA2dd+HvTmf4qn7DtSqnCn7Eb0gimqT4kq6pm9i/5KQG6TNk875AtQ==,
       }
     engines: { node: ^22.18 || ^24.11 }
     peerDependencies:
       svelte: ^5.46.4
+
+  "@revenuecat/workflow-web-components-sdk@0.1.4":
+    resolution:
+      {
+        integrity: sha512-8LGZkqNNE7MgziVSnH6s6yjVkK32g6Rzi92UYy9o5bhtBuYwtz5+qRVh+QG5cU+AVfaUCAMjm2Ep7iBwHNW7mw==,
+      }
+    engines: { node: ">=18" }
 
   "@rollup/pluginutils@5.1.4":
     resolution:
@@ -6155,10 +6162,13 @@ snapshots:
 
   "@pkgr/core@0.1.1": {}
 
-  "@revenuecat/purchases-ui-js@4.8.4(svelte@5.46.4)":
+  "@revenuecat/purchases-ui-js@4.8.6(svelte@5.46.4)":
     dependencies:
+      "@revenuecat/workflow-web-components-sdk": 0.1.4
       qrcode: 1.5.4
       svelte: 5.46.4
+
+  "@revenuecat/workflow-web-components-sdk@0.1.4": {}
 
   "@rollup/pluginutils@5.1.4(rollup@4.41.1)":
     dependencies:
