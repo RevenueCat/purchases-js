@@ -267,6 +267,28 @@ describe("PurchaseOperationHelper", () => {
     );
   });
 
+  test("checkoutStart passes discountCode to backend when provided", async () => {
+    const mockPostCheckoutStart = vi
+      .spyOn(backend, "postCheckoutStart")
+      .mockResolvedValue(checkoutStartResponse);
+
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      discountCode: "SAVE20",
+    });
+
+    expect(mockPostCheckoutStart).toHaveBeenCalledWith(
+      expect.objectContaining({ discountCode: "SAVE20" }),
+    );
+  });
+
   test("prepareCheckout returns the backend response", async () => {
     setCheckoutPrepareResponse(
       HttpResponse.json(checkoutPrepareResponse, {

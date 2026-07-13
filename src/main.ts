@@ -1563,6 +1563,7 @@ export class Purchases {
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
       skipSuccessPage = false,
+      discountCode,
     } = params;
 
     const certainHTMLTarget = this.resolveHTMLTarget(htmlTarget);
@@ -1658,6 +1659,7 @@ export class Purchases {
           defaultLocale,
           customTranslations: params.labelsOverride,
           skipSuccessPage,
+          discountCode,
         },
       });
     });

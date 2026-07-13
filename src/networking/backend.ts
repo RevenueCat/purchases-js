@@ -62,6 +62,7 @@ interface CheckoutStartRequestParams {
   locale?: string;
 
   attributionMetadata?: AttributionMetadata;
+  discountCode?: string;
 }
 
 interface CheckoutRefreshPricingParams {
@@ -216,6 +217,7 @@ export class Backend {
     metadata,
     locale,
     attributionMetadata,
+    discountCode,
   }: CheckoutStartRequestParams): Promise<T> {
     type CheckoutStartRequestBody = {
       app_user_id: string;
@@ -239,6 +241,7 @@ export class Backend {
         paywall_session_id?: string;
       };
       attribution_metadata?: AttributionMetadata;
+      discount_code?: string;
     };
 
     const requestBody: CheckoutStartRequestBody = {
@@ -293,6 +296,10 @@ export class Backend {
 
     if (attributionMetadata) {
       requestBody.attribution_metadata = attributionMetadata;
+    }
+
+    if (discountCode) {
+      requestBody.discount_code = discountCode;
     }
 
     return (await performRequest<CheckoutStartRequestBody, T>(

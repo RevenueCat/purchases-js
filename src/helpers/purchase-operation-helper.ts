@@ -134,6 +134,7 @@ interface CheckoutStartParams {
   locale?: string;
 
   attributionMetadata?: AttributionMetadata;
+  discountCode?: string;
 }
 
 interface CheckoutRefreshPricingParams {
@@ -258,6 +259,7 @@ export class PurchaseOperationHelper {
     metadata,
     locale,
     attributionMetadata,
+    discountCode,
   }: CheckoutStartParams): Promise<WebBillingCheckoutStartResponse> {
     try {
       const traceId = this.eventsTracker.getTraceId();
@@ -277,6 +279,7 @@ export class PurchaseOperationHelper {
           metadata,
           locale,
           attributionMetadata,
+          ...(discountCode ? { discountCode } : {}),
         });
       this.operationSessionId = checkoutStartResponse.operation_session_id;
       return checkoutStartResponse;

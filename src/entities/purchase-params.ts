@@ -138,7 +138,8 @@ export interface PurchaseParams {
 
   /**
    * @experimental
-   * Initial discount code to display as applied in the Web Billing checkout.
+   * Initial discount code to apply in the RevenueCat Web Billing or Stripe
+   * Billing checkout.
    * This is useful when the code originated outside of the checkout UI,
    * for example from a URL parameter.
    */

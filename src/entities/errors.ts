@@ -37,6 +37,7 @@ export class ErrorCodeUtils {
       case BackendErrorCode.BackendOfferNotFound:
       case BackendErrorCode.BackendInvalidOperationSession:
       case BackendErrorCode.BackendPurchaseCannotBeCompleted:
+      case BackendErrorCode.BackendInvalidStripePromotionCode:
         return ErrorCode.PurchaseInvalidError;
       case BackendErrorCode.BackendAlreadySubscribedError:
         return ErrorCode.ProductAlreadyPurchasedError;
@@ -136,6 +137,7 @@ export enum BackendErrorCode {
   BackendGatewaySetupErrorMissingRequiredPermission = 7900,
   BackendGatewaySetupErrorSandboxModeOnly = 7901,
   BackendInvalidPaddleAPIKey = 7967,
+  BackendInvalidStripePromotionCode = 8099,
 }
 
 /**

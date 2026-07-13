@@ -637,6 +637,35 @@ describe("postCheckoutStart request", () => {
     expect(result).toEqual(checkoutStartResponse);
   });
 
+  test("includes discount_code when provided", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutStart({
+      appUserId: "someAppUserId",
+      productId: "monthly",
+      presentedOfferingContext: {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      purchaseOption: { id: "base_option", priceId: "test_price_id" },
+      traceId: "test-trace-id",
+      discountCode: "SAVE20",
+    });
+
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    expect(await request.json()).toEqual({
+      app_user_id: "someAppUserId",
+      product_id: "monthly",
+      price_id: "test_price_id",
+      presented_offering_identifier: "offering_1",
+      trace_id: "test-trace-id",
+      discount_code: "SAVE20",
+    });
+  });
+
   test("accepts an email if provided", async () => {
     setCheckoutStartResponse(
       HttpResponse.json(checkoutStartResponse, { status: 200 }),
