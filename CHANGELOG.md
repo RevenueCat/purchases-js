@@ -1,3 +1,8 @@
+## 1.47.3
+## RevenueCat SDK
+### 📦 Dependency Updates
+* chore: bump purchases-ui-js to 4.8.6 (#974) via Jamie Holwill (@jholwill)
+
 ## 1.47.2
 ## RevenueCat SDK
 ### 🐞 Bugfixes
