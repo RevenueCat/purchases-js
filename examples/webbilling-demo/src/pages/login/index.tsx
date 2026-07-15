@@ -10,6 +10,7 @@ const LoginPage: React.FC = () => {
   const [nickname, setNickname] = useState("");
   const [appUserId, setAppUserId] = useState("");
   const [offeringId, setOfferingId] = useState("");
+  const [discountCode, setDiscountCode] = useState("");
   const [useCustomLogger, setUseCustomLogger] = useState(true);
   const [enableWorkflows, setEnableWorkflows] = useState(false);
 
@@ -27,6 +28,9 @@ const LoginPage: React.FC = () => {
       }
       if (offeringId.trim()) {
         params.append("offeringId", offeringId.trim());
+      }
+      if (discountCode.trim()) {
+        params.append("discountCode", discountCode.trim());
       }
       // Add custom logger preference
       params.append("useCustomLogger", useCustomLogger.toString());
@@ -64,6 +68,13 @@ const LoginPage: React.FC = () => {
               placeholder="Offering identifier (leave blank for default offering)"
               value={offeringId}
               onChange={(e) => setOfferingId(e.target.value)}
+              className="input-field"
+            />
+            <input
+              type="text"
+              placeholder="Discount code (optional)"
+              value={discountCode}
+              onChange={(e) => setDiscountCode(e.target.value)}
               className="input-field"
             />
             <input
