@@ -171,6 +171,7 @@
         <WhopPaymentEntryPage
           {whopGatewayParams}
           checkoutReturnUrl={whopRedirectUrl}
+          brandingAppearance={brandingInfo?.appearance ?? null}
         />
       {:else if gatewayParams}
         <StripePaymentEntryPage

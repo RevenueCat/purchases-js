@@ -1,12 +1,25 @@
 <script lang="ts">
   import type { WhopGatewayParams } from "../../networking/responses/checkout-start-response";
+  import type { BrandingAppearance } from "../../entities/branding";
 
   interface Props {
     whopGatewayParams: WhopGatewayParams;
     checkoutReturnUrl: string;
+    brandingAppearance: BrandingAppearance | null;
   }
 
-  const { whopGatewayParams, checkoutReturnUrl }: Props = $props();
+  const { whopGatewayParams, checkoutReturnUrl, brandingAppearance }: Props =
+    $props();
+
+  const whopBorderRadius = $derived(
+    brandingAppearance?.shapes === "rectangle"
+      ? "0"
+      : brandingAppearance?.shapes === "rounded"
+        ? "8"
+        : brandingAppearance?.shapes === "pill"
+          ? "9999"
+          : undefined,
+  );
 
   let whopState = $state({ whopLoaded: false, whopError: null });
 
@@ -48,6 +61,9 @@
       data-whop-checkout-return-url={checkoutReturnUrl}
       data-whop-checkout-environment={whopGatewayParams.environment}
       data-whop-checkout-skip-redirect="true"
+      data-whop-checkout-theme-background-color={brandingAppearance?.color_form_bg}
+      data-whop-checkout-theme-accent-color={brandingAppearance?.color_buttons_primary}
+      data-whop-checkout-theme-border-radius={whopBorderRadius}
       data-whop-checkout-oncomplete={() => {
         alert("Payment completed!");
       }}
