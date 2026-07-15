@@ -52,6 +52,7 @@ interface CheckoutStartRequestParams {
   // Presentation context
   presentedOfferingContext: PresentedOfferingContext;
   presentedStepId?: string;
+  urlParameters?: Record<string, string | string[]>;
   paywallId?: string;
   paywallSessionId?: string;
 
@@ -210,6 +211,7 @@ export class Backend {
     presentedOfferingContext,
     traceId,
     presentedStepId,
+    urlParameters,
     paywallId,
     paywallSessionId,
     customerEmail,
@@ -234,6 +236,7 @@ export class Backend {
       metadata?: PurchaseMetadata;
       trace_id: string;
       locale?: string;
+      url_parameters?: Record<string, string | string[]>;
       paywall?: {
         paywall_id: string;
         paywall_session_id?: string;
@@ -278,6 +281,10 @@ export class Backend {
 
     if (presentedStepId) {
       requestBody.presented_step_id = presentedStepId;
+    }
+
+    if (urlParameters && Object.keys(urlParameters).length > 0) {
+      requestBody.url_parameters = urlParameters;
     }
 
     if (paywallId) {
