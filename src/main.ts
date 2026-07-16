@@ -44,6 +44,7 @@ import {
   validateProxyUrl,
 } from "./helpers/configuration-validators";
 import { type PurchaseParams } from "./entities/purchase-params";
+import { resolveCheckoutConsentRequired } from "./helpers/checkout-consent-helper";
 import { defaultHttpConfig, type HttpConfig } from "./entities/http-config";
 import {
   type GetOfferingsParams,
@@ -207,6 +208,7 @@ export type { GetOfferingsParams } from "./entities/get-offerings-params";
 export { OfferingKeyword } from "./entities/get-offerings-params";
 export type {
   AttributionMetadata,
+  CheckoutConsentConfig,
   MetaCapiAttributionMetadata,
   MetaCanonicalAttributionMetadata,
   PurchaseResponseAttributionMetadata,
@@ -1775,6 +1777,10 @@ export class Purchases {
           defaultLocale,
           customTranslations: params.labelsOverride,
           termsAndConditionsUrl: params.termsAndConditionsUrl,
+          checkoutConsentRequired: resolveCheckoutConsentRequired(
+            params.checkoutConsent,
+            this._brandingInfo,
+          ),
           showDiscountCodeField,
           discountCode,
           onDiscountCodeChanged,

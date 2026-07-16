@@ -34,6 +34,7 @@
     forceEnableWalletMethods: boolean;
     defaultPriceBreakdown?: PriceBreakdown;
     termsAndConditionsUrl?: string;
+    checkoutConsentRequired?: boolean;
     showDiscountCodeField?: boolean;
     draftDiscountCode?: string;
     appliedDiscountCode?: string | null;
@@ -71,6 +72,7 @@
     forceEnableWalletMethods,
     defaultPriceBreakdown,
     termsAndConditionsUrl,
+    checkoutConsentRequired = false,
     showDiscountCodeField = false,
     draftDiscountCode = "",
     appliedDiscountCode = null,
@@ -169,6 +171,7 @@
         {forceEnableWalletMethods}
         {defaultPriceBreakdown}
         {termsAndConditionsUrl}
+        {checkoutConsentRequired}
         {onContinue}
         {onError}
         {onPriceBreakdownUpdated}

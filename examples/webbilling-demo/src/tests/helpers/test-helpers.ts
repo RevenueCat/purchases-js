@@ -101,6 +101,7 @@ export async function navigateToLandingUrl(
     hideBackButtons?: boolean;
     discountCode?: string;
     storeLoadTime?: StoreLoadTime;
+    requireCheckoutConsent?: boolean;
   },
   apiKey?: string,
 ) {
@@ -125,6 +126,7 @@ export async function navigateToLandingUrl(
     hideCheckoutBackButton,
     discountCode,
     storeLoadTime,
+    requireCheckoutConsent,
   } = queryString ?? {};
 
   const params = new URLSearchParams();
@@ -172,6 +174,9 @@ export async function navigateToLandingUrl(
   }
   if (storeLoadTime) {
     params.append("storeLoadTime", storeLoadTime);
+  }
+  if (requireCheckoutConsent) {
+    params.append("requireCheckoutConsent", "true");
   }
 
   const rcPaywallPath = offeringId ? "rc_paywall" : "rc_paywall_no_offering";
@@ -429,6 +434,17 @@ export async function clickPayButton(
   );
   await button.waitFor();
   await button.click();
+}
+
+export async function acceptCheckoutConsent(page: Page) {
+  const checkbox = page.getByTestId("checkout-consent-checkbox");
+  await expect(checkbox).toBeVisible();
+  await checkbox.check();
+}
+
+export async function expectCheckoutConsentRequired(page: Page) {
+  await expect(page.getByTestId("checkout-consent")).toBeVisible();
+  await expect(page.getByTestId("PayButton")).toBeDisabled();
 }
 
 export async function confirmTaxCalculation(page: Page) {

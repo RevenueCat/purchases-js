@@ -7,72 +7,40 @@
    * - Subscription-specific features (trials, intro pricing)
    * - Payment security messaging
    *
-   * The component automatically selects the appropriate terms text based on:
-   * - Whether it's a subscription or one-time purchase
-   * - Whether there's a free trial period
-   * - Whether there's an introductory price
-   * - Whether intro pricing is paid upfront or recurring
+   * When hideSubscriptionDisclosure is true (checkout consent active),
+   * subscription disclosure paragraphs are omitted here — they render above
+   * Pay next to the consent checkbox. The secure-checkout line remains.
    */
   import Localized from "../localization/localized.svelte";
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import { getContext } from "svelte";
   import { translatorContextKey } from "../localization/constants";
   import { Translator } from "../localization/translator";
-  import { formatPrice } from "../../helpers/price-labels";
   import { getDurationInDays } from "../../helpers/paywall-period-helpers";
-  import { getNextRenewalDate } from "../../helpers/duration-helper";
   import type { BrandingInfoResponse } from "../../networking/responses/branding-response";
   import type {
     DiscountPhase,
     PurchaseOption,
     SubscriptionOption,
-    NonSubscriptionOption,
   } from "../../entities/offerings";
   import { type Writable } from "svelte/store";
   import Typography from "../atoms/typography.svelte";
+  import {
+    buildCheckoutDisclosureContent,
+    isSubscriptionOption,
+  } from "../../helpers/checkout-disclosure-helper";
 
   export let brandingInfo: BrandingInfoResponse | null = null;
   export let purchaseOption: PurchaseOption | null = null;
   export let termsAndConditionsUrl: string | null = null;
+  /** When true, hide footer disclosure copy shown beside the consent checkbox. */
+  export let hideSubscriptionDisclosure: boolean = false;
 
   const translator = getContext<Writable<Translator>>(translatorContextKey);
-
-  function isSubscriptionOption(
-    option: PurchaseOption | null,
-  ): option is SubscriptionOption {
-    return option != null && "base" in option;
-  }
-
-  function isNonSubscriptionOption(
-    option: PurchaseOption | null,
-  ): option is NonSubscriptionOption {
-    return option != null && "basePrice" in option;
-  }
 
   $: subscriptionOption = isSubscriptionOption(purchaseOption)
     ? purchaseOption
     : null;
-  $: nonSubscriptionOption = isNonSubscriptionOption(purchaseOption)
-    ? purchaseOption
-    : null;
-
-  $: termsKey = getTermsLocalizationKey(subscriptionOption);
-
-  function getTermsLocalizationKey(
-    subscription: SubscriptionOption | null,
-  ): LocalizationKeys {
-    if (!subscription) {
-      return LocalizationKeys.PaymentEntryPageOtpTermsInfo;
-    }
-
-    const hasTrial = !!subscription.trial;
-
-    if (hasTrial) {
-      return LocalizationKeys.PaymentEntryPageTrialSubscriptionTermsInfo;
-    }
-
-    return LocalizationKeys.PaymentEntryPageSubscriptionTermsInfo;
-  }
 
   // TODO WEB-4205 - Translations
   const DISCOUNT_FOREVER_TERMS_INFO =
@@ -131,57 +99,15 @@
     }
   }
 
-  $: firstSubscriptionPricingPhase =
-    subscriptionOption?.discount ??
-    subscriptionOption?.introPrice ??
-    subscriptionOption?.base ??
-    null;
-
-  $: firstPaymentPrice =
-    nonSubscriptionOption?.discount?.price ||
-    nonSubscriptionOption?.basePrice ||
-    firstSubscriptionPricingPhase?.price;
-
-  $: firstPriceFormatted = firstPaymentPrice
-    ? formatPrice(
-        firstPaymentPrice.amountMicros,
-        firstPaymentPrice.currency,
-        $translator.bcp47Locale || $translator.fallbackBcp47Locale,
-      )
-    : null;
-
-  $: perFrequency = firstSubscriptionPricingPhase?.period
-    ? $translator.translatePeriodFrequency(
-        firstSubscriptionPricingPhase?.period?.number || 1,
-        firstSubscriptionPricingPhase?.period?.unit,
-        { useMultipleWords: true },
-      )
-    : null;
-
-  $: renewalDate = subscriptionOption?.trial?.period
-    ? $translator.translateDate(
-        getNextRenewalDate(
-          new Date(),
-          subscriptionOption.trial.period,
-          true,
-        ) as Date,
-        { year: "numeric", month: "long", day: "numeric" },
-      )
-    : null;
-
-  $: translatedTermsInfo =
-    brandingInfo && firstPaymentPrice
-      ? $translator.translate(termsKey, {
-          appName: brandingInfo?.app_name,
-          price: firstPriceFormatted,
-          perFrequency,
-          renewalDate,
-        })
-      : null;
+  $: disclosure = buildCheckoutDisclosureContent({
+    brandingInfo,
+    purchaseOption,
+    translator: $translator,
+  });
 
   $: discountTermsInfo = getDiscountTermsInfo(subscriptionOption);
 
-  $: termsInfo = discountTermsInfo ?? translatedTermsInfo;
+  $: termsInfo = discountTermsInfo ?? disclosure.disclosureText;
 
   $: subscriptionInfo = subscriptionOption
     ? $translator.translate(LocalizationKeys.PaymentEntryPageSubscriptionInfo)
@@ -189,21 +115,21 @@
 </script>
 
 <div class="footer-caption-container">
-  {#if termsInfo}
+  {#if !hideSubscriptionDisclosure && termsInfo}
     <p class="footer-caption">
       <Typography size="caption-default">
         {termsInfo}
       </Typography>
     </p>
   {/if}
-  {#if subscriptionInfo && !discountTermsInfo}
+  {#if !hideSubscriptionDisclosure && subscriptionInfo && !discountTermsInfo}
     <p class="footer-caption">
       <Typography size="caption-default">{subscriptionInfo}</Typography>
     </p>
   {/if}
   <p class="footer-caption">
     <Typography size="caption-default">
-      {#if termsAndConditionsUrl}
+      {#if termsAndConditionsUrl && !hideSubscriptionDisclosure}
         <a
           class="terms-link"
           href={termsAndConditionsUrl}

@@ -627,4 +627,82 @@ describe("PurchasesUI", () => {
       expect(screen.getByDisplayValue("BADCODE")).toBeInTheDocument();
     });
   });
+
+  test("shows checkout consent when checkoutConsentRequired is true", async () => {
+    vi.spyOn(purchaseOperationHelperMock, "checkoutStart").mockResolvedValue(
+      checkoutStartResponse,
+    );
+    vi.spyOn(
+      purchaseOperationHelperMock,
+      "checkoutRefreshPricing",
+    ).mockResolvedValue(
+      createCheckoutPricingResponse(null, {
+        selectedPurchaseOption: sessionTrialPurchaseOption,
+      }),
+    );
+
+    render(PurchasesUI, {
+      props: {
+        ...basicProps,
+        brandingInfo: {
+          ...brandingInfo,
+          gateway_tax_collection_enabled: true,
+        },
+        checkoutConsentRequired: true,
+        termsAndConditionsUrl: "https://example.com/terms",
+        selectedLocale: "en",
+        defaultLocale: "en",
+        isInElement: true,
+        skipSuccessPage: false,
+      },
+    });
+
+    await new Promise(process.nextTick);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("checkout-consent")).toBeInTheDocument();
+      expect(screen.getByTestId("checkout-consent-terms-link")).toHaveAttribute(
+        "href",
+        "https://example.com/terms",
+      );
+    });
+  });
+
+  test("keeps checkout unchanged when checkoutConsentRequired is false", async () => {
+    vi.spyOn(purchaseOperationHelperMock, "checkoutStart").mockResolvedValue(
+      checkoutStartResponse,
+    );
+    vi.spyOn(
+      purchaseOperationHelperMock,
+      "checkoutRefreshPricing",
+    ).mockResolvedValue(
+      createCheckoutPricingResponse(null, {
+        selectedPurchaseOption: sessionTrialPurchaseOption,
+      }),
+    );
+
+    render(PurchasesUI, {
+      props: {
+        ...basicProps,
+        brandingInfo: {
+          ...brandingInfo,
+          gateway_tax_collection_enabled: true,
+        },
+        checkoutConsentRequired: false,
+        selectedLocale: "en",
+        defaultLocale: "en",
+        isInElement: true,
+        skipSuccessPage: false,
+      },
+    });
+
+    await new Promise(process.nextTick);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("checkout-consent")).not.toBeInTheDocument();
+      expect(
+        screen.getByText(/After your trial ends, you will be charged/i),
+      ).toBeInTheDocument();
+    });
+  });
 });

@@ -1,3 +1,4 @@
+import "@testing-library/jest-dom";
 import { fireEvent, render, screen } from "@testing-library/svelte";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import PaymentEntryPage from "../../../ui/pages/payment-entry-page.svelte";
@@ -7,6 +8,7 @@ import {
   checkoutStartResponse,
   rcPackage,
   subscriptionOption,
+  subscriptionOptionWithTrial,
   stripeElementsConfiguration,
 } from "../../../stories/fixtures";
 import { checkoutPrepareResponse } from "../../test-responses";
@@ -68,12 +70,24 @@ vi.mock("../../../stripe/stripe-service", async () => {
         on: vi.fn(),
         destroy: vi.fn(),
       }),
+      // Default throws so StripeElements completes loading via its error path
+      // (matches historical test behavior). Consent/wallet tests override this.
+      createExpressCheckoutElement: vi.fn().mockImplementation(() => {
+        throw new Error("Express checkout not available in tests");
+      }),
+      buildStripeExpressCheckoutOptionsForSubscription: vi
+        .fn()
+        .mockReturnValue({ business: { name: "Test" } }),
+      buildStripeExpressCheckoutOptionsForNonSubscription: vi
+        .fn()
+        .mockReturnValue({ business: { name: "Test" } }),
       countryRequiresFullAddressForTaxes:
         actual.StripeService.countryRequiresFullAddressForTaxes,
       isStripeHandledFormError: vi.fn(),
       updateElementsConfiguration: vi.fn(),
       getStripeLocale: vi.fn().mockImplementation((locale: string) => locale),
       confirmIntent: vi.fn(),
+      confirmElements: vi.fn().mockResolvedValue(undefined),
       extractTaxCustomerDetails: vi.fn(),
     },
   };
@@ -102,15 +116,79 @@ const gatewayParams: GatewayParams = {
 
 const basicProps: ComponentProps<PaymentEntryPage> = {
   gatewayParams: gatewayParams,
-  processing: false,
   productDetails: rcPackage.webBillingProduct,
   purchaseOption: rcPackage.webBillingProduct.defaultPurchaseOption,
   brandingInfo: brandingInfo,
   purchaseOperationHelper: purchaseOperationHelperMock,
   customerEmail: null,
+  forceEnableWalletMethods: false,
+  managementUrl: null,
   onContinue: vi.fn(),
   onError: vi.fn(),
   onPriceBreakdownUpdated: vi.fn(),
+};
+
+const mockWorkingExpressCheckoutElement = () => {
+  vi.mocked(StripeService.createExpressCheckoutElement).mockReturnValue(
+    // @ts-expect-error partial Stripe element mock
+    {
+      mount: vi.fn(),
+      on: vi.fn(
+        (
+          eventType: string,
+          callback: (event?: {
+            availablePaymentMethods?: Record<string, boolean>;
+          }) => void,
+        ) => {
+          if (eventType === "ready") {
+            setTimeout(
+              () => callback({ availablePaymentMethods: { applePay: true } }),
+              0,
+            );
+          }
+        },
+      ),
+      destroy: vi.fn(),
+    },
+  );
+};
+
+const mockCompleteCardPaymentElement = () => {
+  const paymentElement = {
+    on: (
+      eventType: string,
+      callback: (event?: StripePaymentElementChangeEvent) => void,
+    ) => {
+      if (eventType === "ready") {
+        setTimeout(() => callback(), 0);
+      }
+      if (eventType === "change") {
+        setTimeout(() => {
+          callback({
+            complete: true,
+            value: {
+              type: "card",
+            },
+            elementType: "payment",
+            empty: false,
+            collapsed: false,
+          });
+        }, 100);
+      }
+    },
+    mount: vi.fn(),
+    destroy: vi.fn(),
+  };
+  vi.mocked(StripeService.createPaymentElement).mockReturnValue(
+    // @ts-expect-error - This is a mock
+    paymentElement,
+  );
+};
+
+const flushPaymentFormTimers = async () => {
+  for (let i = 0; i < 6; i++) {
+    await vi.advanceTimersToNextTimerAsync();
+  }
 };
 
 const defaultContext = new Map(
@@ -162,6 +240,7 @@ const createCompleteAddressElementMock = () => ({
 describe("PurchasesUI", () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    eventsTrackerMock.trackSDKEvent.mockClear();
 
     vi.mocked(StripeService.initializeStripe).mockResolvedValue({
       // @ts-expect-error - This is a mock
@@ -173,6 +252,11 @@ describe("PurchasesUI", () => {
       },
     });
     vi.mocked(StripeService.isStripeHandledFormError).mockReturnValue(false);
+    vi.mocked(StripeService.createExpressCheckoutElement).mockImplementation(
+      () => {
+        throw new Error("Express checkout not available in tests");
+      },
+    );
   });
 
   test("tracks the CheckoutPaymentFormImpression event when the payment entry is displayed and form loaded", async () => {
@@ -1031,5 +1115,203 @@ describe("PurchasesUI", () => {
     // the stale "unavailable"/"loading" value after `finally` ran.
     const lastBreakdown = onPriceBreakdownUpdated.mock.calls.at(-1)?.[0];
     expect(lastBreakdown?.taxCalculationStatus).toBe("calculated");
+  });
+
+  describe("checkout consent", () => {
+    test("does not render consent UI when checkoutConsentRequired is false", async () => {
+      mockCompleteCardPaymentElement();
+
+      render(PaymentEntryPage, {
+        props: {
+          ...basicProps,
+          customerEmail: "test@test.com",
+          checkoutConsentRequired: false,
+        },
+        context: defaultContext,
+      });
+
+      await flushPaymentFormTimers();
+
+      expect(screen.queryByTestId("checkout-consent")).not.toBeInTheDocument();
+      expect(screen.getByTestId("PayButton")).not.toBeDisabled();
+    });
+
+    test("disables Pay until consent is checked, then enables it", async () => {
+      mockCompleteCardPaymentElement();
+
+      render(PaymentEntryPage, {
+        props: {
+          ...basicProps,
+          customerEmail: "test@test.com",
+          checkoutConsentRequired: true,
+          termsAndConditionsUrl: "https://example.com/terms",
+        },
+        context: defaultContext,
+      });
+
+      await flushPaymentFormTimers();
+
+      expect(screen.getByTestId("checkout-consent")).toBeInTheDocument();
+      expect(screen.getByTestId("PayButton")).toBeDisabled();
+
+      await fireEvent.click(screen.getByTestId("checkout-consent-checkbox"));
+
+      expect(screen.getByTestId("PayButton")).not.toBeDisabled();
+    });
+
+    test("blocks direct form submit while consent is unchecked", async () => {
+      mockCompleteCardPaymentElement();
+      const onContinue = vi.fn();
+      const checkoutCompleteSpy = vi.spyOn(
+        purchaseOperationHelperMock,
+        "checkoutComplete",
+      );
+      eventsTrackerMock.trackSDKEvent.mockClear();
+
+      render(PaymentEntryPage, {
+        props: {
+          ...basicProps,
+          customerEmail: "test@test.com",
+          checkoutConsentRequired: true,
+          onContinue,
+        },
+        context: defaultContext,
+      });
+
+      await flushPaymentFormTimers();
+      eventsTrackerMock.trackSDKEvent.mockClear();
+
+      await fireEvent.submit(screen.getByTestId("payment-form"));
+      await flushPaymentFormTimers();
+
+      expect(checkoutCompleteSpy).not.toHaveBeenCalled();
+      expect(onContinue).not.toHaveBeenCalled();
+      expect(
+        eventsTrackerMock.trackSDKEvent.mock.calls.some(
+          ([event]) =>
+            event.eventName === SDKEventName.CheckoutPaymentFormSubmit,
+        ),
+      ).toBe(false);
+    });
+
+    test("allows Enter-key submit after consent is checked", async () => {
+      mockCompleteCardPaymentElement();
+
+      render(PaymentEntryPage, {
+        props: {
+          ...basicProps,
+          customerEmail: "test@test.com",
+          checkoutConsentRequired: true,
+        },
+        context: defaultContext,
+      });
+
+      await flushPaymentFormTimers();
+
+      await fireEvent.click(screen.getByTestId("checkout-consent-checkbox"));
+      await fireEvent.submit(screen.getByTestId("payment-form"));
+      await flushPaymentFormTimers();
+
+      expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
+        eventName: SDKEventName.CheckoutPaymentFormSubmit,
+        properties: {
+          mode: defaultPurchaseMode,
+          selectedPaymentMethod: "card",
+        },
+      });
+    });
+
+    test("shows trial disclosure for trial purchase options", async () => {
+      mockCompleteCardPaymentElement();
+
+      render(PaymentEntryPage, {
+        props: {
+          ...basicProps,
+          purchaseOption: subscriptionOptionWithTrial,
+          customerEmail: "test@test.com",
+          checkoutConsentRequired: true,
+        },
+        context: defaultContext,
+      });
+
+      await flushPaymentFormTimers();
+
+      expect(
+        screen.getByTestId("checkout-consent-disclosure").textContent,
+      ).toMatch(/trial|charged/i);
+    });
+
+    test("shows non-trial disclosure for standard subscriptions", async () => {
+      mockCompleteCardPaymentElement();
+
+      render(PaymentEntryPage, {
+        props: {
+          ...basicProps,
+          purchaseOption: subscriptionOption,
+          customerEmail: "test@test.com",
+          checkoutConsentRequired: true,
+        },
+        context: defaultContext,
+      });
+
+      await flushPaymentFormTimers();
+
+      expect(
+        screen.getByTestId("checkout-consent-disclosure").textContent,
+      ).toMatch(/subscribing|agree/i);
+      expect(
+        screen.getByTestId("checkout-consent-disclosure").textContent,
+      ).toContain(brandingInfo.app_name!);
+    });
+
+    test("does not mount express checkout until consent is checked", async () => {
+      mockCompleteCardPaymentElement();
+      mockWorkingExpressCheckoutElement();
+      vi.mocked(StripeService.createExpressCheckoutElement).mockClear();
+
+      render(PaymentEntryPage, {
+        props: {
+          ...basicProps,
+          managementUrl: "https://example.com/manage",
+          customerEmail: "test@test.com",
+          checkoutConsentRequired: true,
+          forceEnableWalletMethods: true,
+        },
+        context: defaultContext,
+      });
+
+      await flushPaymentFormTimers();
+
+      expect(StripeService.createExpressCheckoutElement).not.toHaveBeenCalled();
+
+      await fireEvent.click(screen.getByTestId("checkout-consent-checkbox"));
+      await flushPaymentFormTimers();
+
+      expect(StripeService.createExpressCheckoutElement).toHaveBeenCalled();
+    });
+
+    test("does not mount express checkout while consent is unchecked", async () => {
+      mockCompleteCardPaymentElement();
+      mockWorkingExpressCheckoutElement();
+      vi.mocked(StripeService.createExpressCheckoutElement).mockClear();
+      const onContinue = vi.fn();
+
+      render(PaymentEntryPage, {
+        props: {
+          ...basicProps,
+          managementUrl: "https://example.com/manage",
+          customerEmail: "test@test.com",
+          checkoutConsentRequired: true,
+          forceEnableWalletMethods: true,
+          onContinue,
+        },
+        context: defaultContext,
+      });
+
+      await flushPaymentFormTimers();
+
+      expect(StripeService.createExpressCheckoutElement).not.toHaveBeenCalled();
+      expect(onContinue).not.toHaveBeenCalled();
+    });
   });
 });

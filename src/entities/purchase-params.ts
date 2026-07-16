@@ -60,6 +60,21 @@ export interface WorkflowPurchaseContext {
 }
 
 /**
+ * Configuration for requiring customer consent before checkout payment.
+ *
+ * When `required` is true, Web Billing hosted checkout shows a checkbox and
+ * default disclosure above Pay and blocks every payment submission path until
+ * checked. Disclosure copy uses the SDK’s built-in localization strings.
+ */
+export interface CheckoutConsentConfig {
+  /**
+   * When true, customers must accept the disclosure checkbox before paying.
+   * Defaults to false when this config is absent.
+   */
+  required: boolean;
+}
+
+/**
  * Parameters used to customise the purchase flow when invoking the `.purchase` method.
  * @public
  */
@@ -174,8 +189,20 @@ export interface PurchaseParams {
 
   /**
    * Link to the terms and conditions that should be shown in the checkout footer.
+   * When checkout consent is required, this URL is also used as the inline Terms
+   * link target in the disclosure.
    *
    * @internal
    */
   termsAndConditionsUrl?: string;
+
+  /**
+   * When set, controls whether Web Billing hosted checkout requires consent
+   * before payment. See {@link CheckoutConsentConfig}.
+   *
+   * When omitted, the SDK falls back to the branding appearance default
+   * (`appearance.require_checkout_consent`). Absence or `required: false`
+   * keeps existing checkout layout and purchase behavior unchanged.
+   */
+  checkoutConsent?: CheckoutConsentConfig;
 }

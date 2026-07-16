@@ -172,6 +172,8 @@ const PaywallPage: React.FC = () => {
   const skipSuccessPage = searchParams.get("skipSuccessPage") === "true";
   const showDiscountCodeField =
     searchParams.get("showDiscountCodeField") === "true";
+  const requireCheckoutConsent =
+    searchParams.get("requireCheckoutConsent") === "true";
   const attributesSetRef = useRef(false);
 
   useEffect(() => {
@@ -239,6 +241,12 @@ const PaywallPage: React.FC = () => {
           selectedLocale: lang || navigator.language,
           customerEmail: email || undefined,
           skipSuccessPage: skipSuccessPage,
+          checkoutConsent: requireCheckoutConsent
+            ? { required: true }
+            : undefined,
+          termsAndConditionsUrl: requireCheckoutConsent
+            ? "https://www.revenuecat.com/terms"
+            : undefined,
           // @ts-expect-error This method is marked as internal for now but it's public.'
           labelsOverride: {
             en: {

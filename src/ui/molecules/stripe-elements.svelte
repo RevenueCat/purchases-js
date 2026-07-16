@@ -39,6 +39,7 @@
     expressCheckoutOptions?: StripeExpressCheckoutConfiguration;
     brandingInfo: BrandingInfoResponse | null;
     forceEnableWalletMethods: boolean;
+    showExpressCheckout?: boolean;
     skipEmail: boolean;
     onLoadingComplete: () => void;
     onError: (error: StripeServiceError) => void;
@@ -67,6 +68,7 @@
     expressCheckoutOptions,
     brandingInfo,
     forceEnableWalletMethods,
+    showExpressCheckout = true,
     skipEmail,
     onLoadingComplete,
     onError,
@@ -108,7 +110,7 @@
 
   let paymentElementReadyForSubmission = $state(false);
   let emailElementReadyForSubmission = $state(skipEmail);
-  let expressCheckoutElementReadyForSubmission = $state(false);
+  let expressCheckoutElementReadyForSubmission = $state(!showExpressCheckout);
   let addressElementReadyForSubmission = $state(
     !shouldCollectFullAddress(brandingInfo),
   );
@@ -163,6 +165,13 @@
       onLoadingComplete();
     }
   };
+
+  $effect(() => {
+    if (!showExpressCheckout && !expressCheckoutElementReadyForSubmission) {
+      expressCheckoutElementReadyForSubmission = true;
+      maybeCompleteLoading();
+    }
+  });
 
   const onLinkAuthenticationElementReady = async () => {
     if (!emailElementReadyForSubmission) {
@@ -270,14 +279,16 @@
 
 {#if elements}
   <div class="rc-elements">
-    <ExpressCheckoutElement
-      {elements}
-      onError={onStripeElementsLoadingError}
-      onReady={onExpressCheckoutElementReady}
-      onSubmit={onExpressCheckoutElementSubmit}
-      {expressCheckoutOptions}
-      {forceEnableWalletMethods}
-    />
+    {#if showExpressCheckout}
+      <ExpressCheckoutElement
+        {elements}
+        onError={onStripeElementsLoadingError}
+        onReady={onExpressCheckoutElementReady}
+        onSubmit={onExpressCheckoutElementSubmit}
+        {expressCheckoutOptions}
+        {forceEnableWalletMethods}
+      />
+    {/if}
     {#if !skipEmail}
       <LinkAuthenticationElement
         {elements}

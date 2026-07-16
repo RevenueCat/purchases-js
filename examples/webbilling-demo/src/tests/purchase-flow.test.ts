@@ -1,5 +1,6 @@
 import test, { expect } from "@playwright/test";
 import {
+  acceptCheckoutConsent,
   clickCancelStripe3DSButton,
   clickPayButton,
   confirmPaymentComplete,
@@ -10,6 +11,7 @@ import {
   confirmStripeEmailFieldVisible,
   enterCreditCardDetails,
   enterEmail,
+  expectCheckoutConsentRequired,
   getBackButtons,
   getEmailFromUserId,
   getPackageCards,
@@ -32,6 +34,23 @@ test.describe("Purchase flow", () => {
       page = await navigateToLandingUrl(page, userId);
       const packageCards = await getPackageCards(page);
       await performPurchase(page, packageCards[1], email);
+    },
+  );
+
+  integrationTest(
+    "Requires checkout consent before Pay when enabled",
+    async ({ page, userId, email }) => {
+      page = await navigateToLandingUrl(page, userId, {
+        requireCheckoutConsent: true,
+        email,
+      });
+      const packageCards = await getPackageCards(page);
+      await startPurchaseFlow(packageCards[1]);
+      await enterCreditCardDetails(page, "4242 4242 4242 4242");
+      await expectCheckoutConsentRequired(page);
+      await acceptCheckoutConsent(page);
+      await clickPayButton(page);
+      await confirmPaymentComplete(page);
     },
   );
 

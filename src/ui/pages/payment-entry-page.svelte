@@ -18,6 +18,8 @@
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import SecureCheckoutRc from "../molecules/secure-checkout-rc.svelte";
+  import CheckoutConsent from "../molecules/checkout-consent.svelte";
+  import { isCheckoutConsentActive } from "../../helpers/checkout-consent-helper";
   import {
     PurchaseFlowError,
     PurchaseFlowErrorCode,
@@ -75,6 +77,7 @@
     forceEnableWalletMethods: boolean;
     defaultPriceBreakdown?: PriceBreakdown;
     termsAndConditionsUrl?: string | null;
+    checkoutConsentRequired?: boolean;
     onContinue: () => void;
     onError: (error: PurchaseFlowError) => void;
     onPriceBreakdownUpdated: (priceBreakdown: PriceBreakdown) => void;
@@ -116,6 +119,7 @@
     forceEnableWalletMethods,
     defaultPriceBreakdown,
     termsAndConditionsUrl,
+    checkoutConsentRequired = false,
     onContinue,
     onError,
     onPriceBreakdownUpdated,
@@ -224,11 +228,17 @@
   // recalculateTaxes think nothing changed and skip the tax call.
   let lastCalculatedTaxCustomerDetails: TaxCustomerDetails | null = null;
 
+  const consentActive = $derived(
+    isCheckoutConsentActive(checkoutConsentRequired, purchaseOption),
+  );
+  let consentChecked = $state(false);
+
   let isFormReady = $derived(
     !processing &&
       isPaymentInfoComplete &&
       isEmailComplete &&
       isAddressComplete &&
+      (!consentActive || consentChecked) &&
       (taxCalculationStatus === "disabled" ||
         taxCalculationStatus === "calculated" ||
         taxCalculationStatus === "miss-match"),
@@ -498,6 +508,8 @@
     e?.preventDefault();
 
     if (processing) return;
+    // Disabled styling alone is not a legal boundary — block unchecked consent.
+    if (consentActive && !consentChecked) return;
 
     const event = createCheckoutPaymentFormSubmitEvent({
       selectedPaymentMethod: selectedPaymentMethod ?? null,
@@ -518,6 +530,9 @@
     paymentMethod: string,
     emailValue: string,
   ) {
+    // Wallets should not be mounted until consent is accepted.
+    if (consentActive && !consentChecked) return;
+
     selectedPaymentMethod = paymentMethod;
     // If the customerEmail parameter was provided when starting the purchase
     // flow, prefer that value over the email returned by the wallet
@@ -832,6 +847,7 @@
           {elementsConfiguration}
           {brandingInfo}
           {forceEnableWalletMethods}
+          showExpressCheckout={!consentActive || consentChecked}
           skipEmail={!!customerEmail}
           onLoadingComplete={handleStripeLoadingComplete}
           onError={handleStripeElementError}
@@ -855,6 +871,15 @@
         class="rc-checkout-pay-container"
         class:fully-hidden={view !== "form"}
       >
+        {#if consentActive}
+          <CheckoutConsent
+            {brandingInfo}
+            {purchaseOption}
+            {termsAndConditionsUrl}
+            bind:checked={consentChecked}
+          />
+        {/if}
+
         <PaymentButton
           disabled={!isFormReady}
           {subscriptionOption}
@@ -868,6 +893,7 @@
             {brandingInfo}
             {purchaseOption}
             {termsAndConditionsUrl}
+            hideSubscriptionDisclosure={consentActive}
           />
         </div>
       </div>

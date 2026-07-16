@@ -62,6 +62,7 @@
     discountCode?: string;
     onDiscountCodeChanged?: (discountCode: string | null) => void;
     termsAndConditionsUrl?: string;
+    checkoutConsentRequired?: boolean;
     workflowPurchaseContext?: WorkflowPurchaseContext;
     attributionMetadata?: AttributionMetadata;
     paywallId?: string;
@@ -91,6 +92,7 @@
     discountCode = undefined,
     onDiscountCodeChanged,
     termsAndConditionsUrl,
+    checkoutConsentRequired = false,
     workflowPurchaseContext,
     attributionMetadata,
     paywallId,
@@ -472,6 +474,7 @@
   {purchaseOperationHelper}
   {isInElement}
   {termsAndConditionsUrl}
+  {checkoutConsentRequired}
   {showDiscountCodeField}
   {draftDiscountCode}
   {appliedDiscountCode}

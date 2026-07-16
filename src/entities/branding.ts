@@ -14,4 +14,5 @@ export interface BrandingAppearance {
   font: string;
   shapes: "default" | "rectangle" | "rounded" | "pill";
   show_product_description: boolean;
+  require_checkout_consent?: boolean | null;
 }

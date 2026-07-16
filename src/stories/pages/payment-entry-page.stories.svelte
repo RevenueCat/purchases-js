@@ -87,6 +87,7 @@
     onClose={() => {}}
     managementUrl="http://test.com"
     termsAndConditionsUrl={args.termsAndConditionsUrl}
+    checkoutConsentRequired={args.checkoutConsentRequired}
     showDiscountCodeField={args.showDiscountCodeField}
     draftDiscountCode={args.draftDiscountCode}
     appliedDiscountCode={args.appliedDiscountCode}
@@ -457,6 +458,67 @@
     ...defaultArgs,
     currentPage: "payment-entry",
     termsAndConditionsUrl: "https://www.revenuecat.com/terms",
+  }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
+  }}
+/>
+
+<Story
+  name="With Checkout Consent"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    checkoutConsentRequired: true,
+    termsAndConditionsUrl: "https://www.revenuecat.com/terms",
+  }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
+  }}
+/>
+
+<Story
+  name="With Checkout Consent Trial"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    purchaseOptionToUse: subscriptionOptionWithTrial,
+    checkoutConsentRequired: true,
+    termsAndConditionsUrl: "https://www.revenuecat.com/terms",
+  }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
+  }}
+/>
+
+<Story
+  name="With Checkout Consent Long Copy"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    checkoutConsentRequired: true,
+    termsAndConditionsUrl: "https://www.revenuecat.com/terms",
+  }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
+  }}
+/>
+
+<Story
+  name="With Checkout Consent Missing Terms URL"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    checkoutConsentRequired: true,
+    termsAndConditionsUrl: undefined,
   }}
   parameters={{
     chromatic: {
