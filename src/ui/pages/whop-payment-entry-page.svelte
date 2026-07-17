@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { WhopGatewayParams } from "../../networking/responses/checkout-start-response";
   import type { BrandingAppearance } from "../../entities/branding";
+  import { DEFAULT_FORM_COLORS } from "../theme/colors";
 
   interface Props {
     whopGatewayParams: WhopGatewayParams;
@@ -14,11 +15,16 @@
   const whopBorderRadius = $derived(
     brandingAppearance?.shapes === "rectangle"
       ? "0"
-      : brandingAppearance?.shapes === "rounded"
-        ? "8"
-        : brandingAppearance?.shapes === "pill"
-          ? "9999"
-          : undefined,
+      : brandingAppearance?.shapes === "pill"
+        ? "9999"
+        : "8",
+  );
+
+  const whopBackgroundColor = $derived(
+    brandingAppearance?.color_form_bg ?? DEFAULT_FORM_COLORS.white,
+  );
+  const whopAccentColor = $derived(
+    brandingAppearance?.color_buttons_primary ?? DEFAULT_FORM_COLORS.primary,
   );
 
   let whopState = $state({ whopLoaded: false, whopError: null });
@@ -61,8 +67,8 @@
       data-whop-checkout-return-url={checkoutReturnUrl}
       data-whop-checkout-environment={whopGatewayParams.environment}
       data-whop-checkout-skip-redirect="true"
-      data-whop-checkout-theme-background-color={brandingAppearance?.color_form_bg}
-      data-whop-checkout-theme-accent-color={brandingAppearance?.color_buttons_primary}
+      data-whop-checkout-theme-background-color={whopBackgroundColor}
+      data-whop-checkout-theme-accent-color={whopAccentColor}
       data-whop-checkout-theme-border-radius={whopBorderRadius}
       data-whop-checkout-oncomplete={() => {
         alert("Payment completed!");

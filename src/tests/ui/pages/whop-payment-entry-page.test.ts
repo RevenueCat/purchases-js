@@ -26,9 +26,10 @@ describe("WhopPaymentEntryPage", () => {
       },
     });
 
-    const loader = document.querySelector<HTMLScriptElement>(
+    const loaders = document.querySelectorAll<HTMLScriptElement>(
       'script[src="https://js.whop.com/static/checkout/loader.js"]',
     );
+    const loader = loaders.item(loaders.length - 1);
     expect(loader).not.toBeNull();
     await fireEvent.load(loader!);
 
@@ -45,5 +46,40 @@ describe("WhopPaymentEntryPage", () => {
     expect(
       checkout?.getAttribute("data-whop-checkout-theme-border-radius"),
     ).toBe("9999");
+  });
+
+  test("applies RevenueCat defaults when branding appearance is missing", async () => {
+    render(WhopPaymentEntryPage, {
+      props: {
+        whopGatewayParams: {
+          checkout_session_id: "ch_test_123",
+          plan_id: "plan_test_123",
+          environment: "sandbox",
+        },
+        checkoutReturnUrl: "https://example.com/checkout",
+        brandingAppearance: null,
+      },
+    });
+
+    const loaders = document.querySelectorAll<HTMLScriptElement>(
+      'script[src="https://js.whop.com/static/checkout/loader.js"]',
+    );
+    const loader = loaders.item(loaders.length - 1);
+    expect(loader).not.toBeNull();
+    await fireEvent.load(loader!);
+
+    const checkout = document.querySelector<HTMLElement>(
+      '[data-whop-checkout-session="ch_test_123"]',
+    );
+    expect(checkout).not.toBeNull();
+    expect(
+      checkout?.getAttribute("data-whop-checkout-theme-background-color"),
+    ).toBe("#ffffff");
+    expect(
+      checkout?.getAttribute("data-whop-checkout-theme-accent-color"),
+    ).toBe("#576CDB");
+    expect(
+      checkout?.getAttribute("data-whop-checkout-theme-border-radius"),
+    ).toBe("8");
   });
 });
