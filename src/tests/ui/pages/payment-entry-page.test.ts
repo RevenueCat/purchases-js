@@ -5,6 +5,7 @@ import {
   brandingInfo,
   checkoutPricingResponse,
   checkoutStartResponse,
+  consumableProduct,
   rcPackage,
   subscriptionOption,
   stripeElementsConfiguration,
@@ -64,6 +65,11 @@ vi.mock("../../../stripe/stripe-service", async () => {
         destroy: vi.fn(),
       }),
       createAddressElement: vi.fn().mockReturnValue({
+        mount: vi.fn(),
+        on: vi.fn(),
+        destroy: vi.fn(),
+      }),
+      createExpressCheckoutElement: vi.fn().mockReturnValue({
         mount: vi.fn(),
         on: vi.fn(),
         destroy: vi.fn(),
@@ -1031,5 +1037,153 @@ describe("PurchasesUI", () => {
     // the stale "unavailable"/"loading" value after `finally` ran.
     const lastBreakdown = onPriceBreakdownUpdated.mock.calls.at(-1)?.[0];
     expect(lastBreakdown?.taxCalculationStatus).toBe("calculated");
+  });
+
+  describe("checkout consent", () => {
+    const consentBranding = {
+      ...brandingInfo,
+      require_checkout_consent: true,
+    };
+    const termsUrl = "https://example.com/terms";
+
+    test("hides the consent checkbox when branding does not require it", async () => {
+      render(PaymentEntryPage, {
+        props: {
+          ...basicProps,
+          brandingInfo: { ...brandingInfo, require_checkout_consent: false },
+          termsAndConditionsUrl: termsUrl,
+        },
+        context: defaultContext,
+      });
+
+      await vi.advanceTimersToNextTimerAsync();
+      expect(screen.queryByTestId("CheckoutConsent")).toBeNull();
+    });
+
+    test("hides the consent checkbox when terms URL is missing", async () => {
+      render(PaymentEntryPage, {
+        props: {
+          ...basicProps,
+          brandingInfo: consentBranding,
+          termsAndConditionsUrl: null,
+        },
+        context: defaultContext,
+      });
+
+      await vi.advanceTimersToNextTimerAsync();
+      expect(screen.queryByTestId("CheckoutConsent")).toBeNull();
+    });
+
+    test("hides the consent checkbox for one-time purchases", async () => {
+      render(PaymentEntryPage, {
+        props: {
+          ...basicProps,
+          productDetails: consumableProduct,
+          purchaseOption: consumableProduct.defaultPurchaseOption,
+          brandingInfo: consentBranding,
+          termsAndConditionsUrl: termsUrl,
+        },
+        context: defaultContext,
+      });
+
+      await vi.advanceTimersToNextTimerAsync();
+      expect(screen.queryByTestId("CheckoutConsent")).toBeNull();
+    });
+
+    test("shows the consent checkbox for subscriptions when branding requires it and terms URL exists", async () => {
+      render(PaymentEntryPage, {
+        props: {
+          ...basicProps,
+          brandingInfo: consentBranding,
+          termsAndConditionsUrl: termsUrl,
+        },
+        context: defaultContext,
+      });
+
+      await vi.advanceTimersToNextTimerAsync();
+      expect(screen.getByTestId("CheckoutConsent")).toBeTruthy();
+      expect(
+        screen.getByTestId("CheckoutConsentTermsLink").getAttribute("href"),
+      ).toBe(termsUrl);
+    });
+
+    test("keeps Pay disabled until consent is checked", async () => {
+      vi.mocked(StripeService.createExpressCheckoutElement).mockReturnValue({
+        // @ts-expect-error - This is a mock
+        mount: vi.fn(),
+        on: vi.fn(
+          (
+            eventType: string,
+            callback: (event?: { availablePaymentMethods?: object }) => void,
+          ) => {
+            if (eventType === "ready") {
+              setTimeout(
+                () => callback({ availablePaymentMethods: { applePay: true } }),
+                0,
+              );
+            }
+          },
+        ),
+        destroy: vi.fn(),
+      });
+
+      const paymentElement = {
+        on: (
+          eventType: string,
+          callback: (event?: StripePaymentElementChangeEvent) => void,
+        ) => {
+          if (eventType === "ready") {
+            setTimeout(() => callback(), 0);
+          }
+          if (eventType === "change") {
+            setTimeout(() => {
+              callback({
+                complete: true,
+                value: {
+                  type: "card",
+                  billingDetails: { address: { country: "US" } },
+                },
+              } as StripePaymentElementChangeEvent);
+            }, 0);
+          }
+        },
+        mount: vi.fn(),
+        destroy: vi.fn(),
+      };
+      vi.mocked(StripeService.createPaymentElement).mockReturnValue(
+        // @ts-expect-error - This is a mock
+        paymentElement,
+      );
+      vi.mocked(StripeService.createLinkAuthenticationElement).mockReturnValue({
+        // @ts-expect-error - This is a mock
+        mount: vi.fn(),
+        on: vi.fn((eventType: string, callback: () => void) => {
+          if (eventType === "ready") {
+            setTimeout(() => callback(), 0);
+          }
+        }),
+        destroy: vi.fn(),
+      });
+
+      render(PaymentEntryPage, {
+        props: {
+          ...basicProps,
+          customerEmail: "test@test.com",
+          brandingInfo: consentBranding,
+          termsAndConditionsUrl: termsUrl,
+        },
+        context: defaultContext,
+      });
+
+      for (let i = 0; i < 4; i++) {
+        await vi.advanceTimersToNextTimerAsync();
+      }
+
+      const payButton = screen.getByTestId("PayButton") as HTMLButtonElement;
+      expect(payButton.disabled).toBe(true);
+
+      await fireEvent.click(screen.getByTestId("CheckoutConsentCheckbox"));
+      expect(payButton.disabled).toBe(false);
+    });
   });
 });

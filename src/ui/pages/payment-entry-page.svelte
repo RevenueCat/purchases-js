@@ -18,6 +18,8 @@
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import SecureCheckoutRc from "../molecules/secure-checkout-rc.svelte";
+  import CheckoutConsent from "../molecules/checkout-consent.svelte";
+  import { isCheckoutConsentRequired } from "../../helpers/checkout-consent-helper";
   import {
     PurchaseFlowError,
     PurchaseFlowErrorCode,
@@ -224,11 +226,21 @@
   // recalculateTaxes think nothing changed and skip the tax call.
   let lastCalculatedTaxCustomerDetails: TaxCustomerDetails | null = null;
 
+  let checkoutConsentRequired = $derived(
+    isCheckoutConsentRequired({
+      brandingInfo,
+      termsAndConditionsUrl,
+      productDetails,
+    }),
+  );
+  let checkoutConsentAccepted = $state(false);
+
   let isFormReady = $derived(
     !processing &&
       isPaymentInfoComplete &&
       isEmailComplete &&
       isAddressComplete &&
+      (!checkoutConsentRequired || checkoutConsentAccepted) &&
       (taxCalculationStatus === "disabled" ||
         taxCalculationStatus === "calculated" ||
         taxCalculationStatus === "miss-match"),
@@ -498,6 +510,7 @@
     e?.preventDefault();
 
     if (processing) return;
+    if (checkoutConsentRequired && !checkoutConsentAccepted) return;
 
     const event = createCheckoutPaymentFormSubmitEvent({
       selectedPaymentMethod: selectedPaymentMethod ?? null,
@@ -840,6 +853,8 @@
           onAddressInfoChange={handleAddressInfoChange}
           onExpressCheckoutElementSubmit={handleExpressCheckoutElementSubmit}
           {expressCheckoutOptions}
+          allowExpressCheckout={!checkoutConsentRequired ||
+            checkoutConsentAccepted}
         />
       </div>
 
@@ -855,6 +870,14 @@
         class="rc-checkout-pay-container"
         class:fully-hidden={view !== "form"}
       >
+        {#if checkoutConsentRequired && termsAndConditionsUrl}
+          <CheckoutConsent
+            appName={brandingInfo?.app_name}
+            {termsAndConditionsUrl}
+            bind:checked={checkoutConsentAccepted}
+            onChange={(accepted) => (checkoutConsentAccepted = accepted)}
+          />
+        {/if}
         <PaymentButton
           disabled={!isFormReady}
           {subscriptionOption}

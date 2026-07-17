@@ -518,6 +518,7 @@ export const brandingInfo: BrandingInfoResponse = {
   appearance: null,
   gateway_tax_collection_enabled: false,
   full_address_collection_mode: "if_required",
+  require_checkout_consent: false,
   brand_font_config: null,
 };
 
