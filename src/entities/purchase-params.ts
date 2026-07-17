@@ -65,6 +65,8 @@ export interface WorkflowPurchaseContext {
  * When `required` is true, Web Billing hosted checkout shows a checkbox and
  * default disclosure above Pay and blocks every payment submission path until
  * checked. Disclosure copy uses the SDK’s built-in localization strings.
+ *
+ * @public
  */
 export interface CheckoutConsentConfig {
   /**

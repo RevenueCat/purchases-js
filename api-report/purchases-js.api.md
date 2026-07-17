@@ -27,9 +27,16 @@ export interface BrandingAppearance {
     // (undocumented)
     font: string;
     // (undocumented)
+    require_checkout_consent?: boolean | null;
+    // (undocumented)
     shapes: "default" | "rectangle" | "rounded" | "pill";
     // (undocumented)
     show_product_description: boolean;
+}
+
+// @public
+export interface CheckoutConsentConfig {
+    required: boolean;
 }
 
 // @public
@@ -421,6 +428,7 @@ export interface PurchaseOption {
 
 // @public
 export interface PurchaseParams {
+    checkoutConsent?: CheckoutConsentConfig;
     customerEmail?: string;
     defaultLocale?: string;
     discountCode?: string;
@@ -432,9 +440,6 @@ export interface PurchaseParams {
     selectedLocale?: string;
     showDiscountCodeField?: boolean;
     skipSuccessPage?: boolean;
-    /* Excluded from this release type: brandingAppearanceOverride */
-    /* Excluded from this release type: labelsOverride */
-    /* Excluded from this release type: termsAndConditionsUrl */
 }
 
 // @public

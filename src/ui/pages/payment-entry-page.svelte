@@ -530,7 +530,7 @@
     paymentMethod: string,
     emailValue: string,
   ) {
-    // Wallets should not be mounted until consent is accepted.
+    // Wallets stay mounted but hidden until consent is accepted.
     if (consentActive && !consentChecked) return;
 
     selectedPaymentMethod = paymentMethod;
@@ -847,7 +847,7 @@
           {elementsConfiguration}
           {brandingInfo}
           {forceEnableWalletMethods}
-          showExpressCheckout={!consentActive || consentChecked}
+          expressCheckoutEnabled={!consentActive || consentChecked}
           skipEmail={!!customerEmail}
           onLoadingComplete={handleStripeLoadingComplete}
           onError={handleStripeElementError}

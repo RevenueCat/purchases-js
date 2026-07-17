@@ -406,6 +406,33 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!BrandingAppearance#require_checkout_consent:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "require_checkout_consent?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "require_checkout_consent",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!BrandingAppearance#shapes:member",
               "docComment": "",
               "excerptTokens": [
@@ -453,6 +480,51 @@
               "isOptional": false,
               "releaseTag": "Public",
               "name": "show_product_description",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
+          "kind": "Interface",
+          "canonicalReference": "@revenuecat/purchases-js!CheckoutConsentConfig:interface",
+          "docComment": "/**\n * Configuration for requiring customer consent before checkout payment.\n *\n * When `required` is true, Web Billing hosted checkout shows a checkbox and default disclosure above Pay and blocks every payment submission path until checked. Disclosure copy uses the SDK’s built-in localization strings.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare interface CheckoutConsentConfig "
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "name": "CheckoutConsentConfig",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!CheckoutConsentConfig#required:member",
+              "docComment": "/**\n * When true, customers must accept the disclosure checkbox before paying. Defaults to false when this config is absent.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "required: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "required",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -6147,6 +6219,34 @@
           "name": "PurchaseParams",
           "preserveMemberOrder": false,
           "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PurchaseParams#checkoutConsent:member",
+              "docComment": "/**\n * When set, controls whether Web Billing hosted checkout requires consent before payment. See {@link CheckoutConsentConfig}.\n *\n * When omitted, the SDK falls back to the branding appearance default (`appearance.require_checkout_consent`). Absence or `required: false` keeps existing checkout layout and purchase behavior unchanged.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "checkoutConsent?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "CheckoutConsentConfig",
+                  "canonicalReference": "@revenuecat/purchases-js!CheckoutConsentConfig:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "checkoutConsent",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PurchaseParams#customerEmail:member",

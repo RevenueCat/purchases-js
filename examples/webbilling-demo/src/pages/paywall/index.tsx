@@ -244,10 +244,10 @@ const PaywallPage: React.FC = () => {
           checkoutConsent: requireCheckoutConsent
             ? { required: true }
             : undefined,
+          // @ts-expect-error internal PurchaseParams fields used by the demo
           termsAndConditionsUrl: requireCheckoutConsent
             ? "https://www.revenuecat.com/terms"
             : undefined,
-          // @ts-expect-error This method is marked as internal for now but it's public.'
           labelsOverride: {
             en: {
               "payment_entry_page.button_start_trial":

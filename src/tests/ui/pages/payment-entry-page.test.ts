@@ -1264,7 +1264,7 @@ describe("PurchasesUI", () => {
       ).toContain(brandingInfo.app_name!);
     });
 
-    test("does not mount express checkout until consent is checked", async () => {
+    test("mounts express checkout while consent is unchecked so the card form is not remounted", async () => {
       mockCompleteCardPaymentElement();
       mockWorkingExpressCheckoutElement();
       vi.mocked(StripeService.createExpressCheckoutElement).mockClear();
@@ -1282,18 +1282,22 @@ describe("PurchasesUI", () => {
 
       await flushPaymentFormTimers();
 
-      expect(StripeService.createExpressCheckoutElement).not.toHaveBeenCalled();
+      expect(StripeService.createExpressCheckoutElement).toHaveBeenCalledTimes(
+        1,
+      );
 
       await fireEvent.click(screen.getByTestId("checkout-consent-checkbox"));
       await flushPaymentFormTimers();
 
-      expect(StripeService.createExpressCheckoutElement).toHaveBeenCalled();
+      // Checking consent only reveals the already-mounted wallets.
+      expect(StripeService.createExpressCheckoutElement).toHaveBeenCalledTimes(
+        1,
+      );
     });
 
-    test("does not mount express checkout while consent is unchecked", async () => {
+    test("blocks express checkout submit while consent is unchecked", async () => {
       mockCompleteCardPaymentElement();
       mockWorkingExpressCheckoutElement();
-      vi.mocked(StripeService.createExpressCheckoutElement).mockClear();
       const onContinue = vi.fn();
 
       render(PaymentEntryPage, {
@@ -1310,8 +1314,9 @@ describe("PurchasesUI", () => {
 
       await flushPaymentFormTimers();
 
-      expect(StripeService.createExpressCheckoutElement).not.toHaveBeenCalled();
+      expect(StripeService.createExpressCheckoutElement).toHaveBeenCalled();
       expect(onContinue).not.toHaveBeenCalled();
+      expect(screen.getByTestId("PayButton")).toBeDisabled();
     });
   });
 });

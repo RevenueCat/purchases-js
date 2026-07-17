@@ -7,9 +7,10 @@
    * - Subscription-specific features (trials, intro pricing)
    * - Payment security messaging
    *
-   * When hideSubscriptionDisclosure is true (checkout consent active),
-   * subscription disclosure paragraphs are omitted here — they render above
-   * Pay next to the consent checkbox. The secure-checkout line remains.
+   * When hideSubscriptionDisclosure is true (checkout consent active), only the
+   * built-in terms paragraph and Terms link are omitted here — those render
+   * beside the consent checkbox. Auto-renew copy, discount terms, and the
+   * secure-checkout line stay in the footer.
    */
   import Localized from "../localization/localized.svelte";
   import { LocalizationKeys } from "../localization/supportedLanguages";
@@ -33,7 +34,7 @@
   export let brandingInfo: BrandingInfoResponse | null = null;
   export let purchaseOption: PurchaseOption | null = null;
   export let termsAndConditionsUrl: string | null = null;
-  /** When true, hide footer disclosure copy shown beside the consent checkbox. */
+  /** When true, hide only the terms paragraph/link that consent pulls above Pay. */
   export let hideSubscriptionDisclosure: boolean = false;
 
   const translator = getContext<Writable<Translator>>(translatorContextKey);
@@ -115,14 +116,14 @@
 </script>
 
 <div class="footer-caption-container">
-  {#if !hideSubscriptionDisclosure && termsInfo}
+  {#if discountTermsInfo || (!hideSubscriptionDisclosure && termsInfo)}
     <p class="footer-caption">
       <Typography size="caption-default">
         {termsInfo}
       </Typography>
     </p>
   {/if}
-  {#if !hideSubscriptionDisclosure && subscriptionInfo && !discountTermsInfo}
+  {#if subscriptionInfo && !discountTermsInfo}
     <p class="footer-caption">
       <Typography size="caption-default">{subscriptionInfo}</Typography>
     </p>

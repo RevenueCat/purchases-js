@@ -43,6 +43,11 @@
     forceEnableWalletMethods: boolean;
     expressCheckoutOptions?: StripeExpressCheckoutConfiguration;
     hideCheckoutSeparator?: boolean;
+    /**
+     * When false, keep the Stripe element mounted but hide it and reject clicks.
+     * Used so consent can gate wallets without remounting the card form.
+     */
+    enabled?: boolean;
   }
 
   const {
@@ -55,6 +60,7 @@
     forceEnableWalletMethods,
     expressCheckoutOptions,
     hideCheckoutSeparator = false,
+    enabled = true,
   }: Props = $props();
 
   const translator = getContext<Writable<Translator>>(translatorContextKey);
@@ -71,6 +77,10 @@
   const onClickCallback = async (
     event: StripeExpressCheckoutElementClickEvent,
   ) => {
+    if (!enabled) {
+      event.reject();
+      return;
+    }
     const { business: _business, ...options } = expressCheckoutOptions ?? {};
     onClick && onClick(event);
     event.resolve(options as ClickResolveDetails);
@@ -125,12 +135,24 @@
 </script>
 
 {#if !hideExpressCheckoutElement}
-  <div id={expressCheckoutElementId}></div>
-  {#if !hideCheckoutSeparator}
-    <TextSeparator
-      text={$translator.translate(
-        LocalizationKeys.PaymentEntryPageExpressCheckoutDivider,
-      )}
-    />
-  {/if}
+  <div
+    class="rc-express-checkout"
+    class:rc-express-checkout--disabled={!enabled}
+    aria-hidden={!enabled}
+  >
+    <div id={expressCheckoutElementId}></div>
+    {#if !hideCheckoutSeparator}
+      <TextSeparator
+        text={$translator.translate(
+          LocalizationKeys.PaymentEntryPageExpressCheckoutDivider,
+        )}
+      />
+    {/if}
+  </div>
 {/if}
+
+<style>
+  .rc-express-checkout--disabled {
+    display: none;
+  }
+</style>

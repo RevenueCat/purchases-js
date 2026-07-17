@@ -40,6 +40,11 @@
     brandingInfo: BrandingInfoResponse | null;
     forceEnableWalletMethods: boolean;
     showExpressCheckout?: boolean;
+    /**
+     * When false, Express Checkout stays mounted but hidden and non-interactive.
+     * Defaults to true.
+     */
+    expressCheckoutEnabled?: boolean;
     skipEmail: boolean;
     onLoadingComplete: () => void;
     onError: (error: StripeServiceError) => void;
@@ -69,6 +74,7 @@
     brandingInfo,
     forceEnableWalletMethods,
     showExpressCheckout = true,
+    expressCheckoutEnabled = true,
     skipEmail,
     onLoadingComplete,
     onError,
@@ -287,6 +293,7 @@
         onSubmit={onExpressCheckoutElementSubmit}
         {expressCheckoutOptions}
         {forceEnableWalletMethods}
+        enabled={expressCheckoutEnabled}
       />
     {/if}
     {#if !skipEmail}
