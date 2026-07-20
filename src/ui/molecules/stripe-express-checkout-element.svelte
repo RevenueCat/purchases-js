@@ -135,13 +135,22 @@
   });
 </script>
 
-{#if !hideExpressCheckoutElement}
-  <div id={expressCheckoutElementId}></div>
-  {#if !hideCheckoutSeparator}
-    <TextSeparator
-      text={$translator.translate(
-        LocalizationKeys.PaymentEntryPageExpressCheckoutDivider,
-      )}
-    />
-  {/if}
+<div
+  id={expressCheckoutElementId}
+  class:rc-express-checkout-hidden={!expressCheckoutAllowed ||
+    hideExpressCheckoutElement}
+  aria-hidden={!expressCheckoutAllowed || hideExpressCheckoutElement}
+></div>
+{#if !hideCheckoutSeparator && expressCheckoutAllowed && !hideExpressCheckoutElement}
+  <TextSeparator
+    text={$translator.translate(
+      LocalizationKeys.PaymentEntryPageExpressCheckoutDivider,
+    )}
+  />
 {/if}
+
+<style>
+  .rc-express-checkout-hidden {
+    display: none;
+  }
+</style>
