@@ -101,5 +101,7 @@
   "pricing_table.discount": "割引",
   "pricing_table.subtotal": "小計",
   "pricing_dropdown.add_promo_code": "プロモーションコードを追加",
-  "discount_input.label": "プロモーションコード"
+  "discount_input.label": "プロモーションコード",
+  "payment_entry_page.checkout_consent_terms_of_service": "利用規約",
+  "payment_entry_page.checkout_consent_agreement": "{{appName}}の{{termsOfService}}に同意します。"
 }

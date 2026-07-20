@@ -101,5 +101,7 @@
   "price_update.title": "Posodobitev cene",
   "price_update.base_message": "Skupna cena je bila posodobljena z davkom glede na vaš naslov za obračun. Preglejte in poskusite znova. Vaša kartica bo bremenjena samo enkrat.",
   "price_update.trial_message": "Cena naročnine je bila posodobljena, da vključuje davek glede na vaš naslov za obračun. Brezplačni preizkus še vedno velja. Preglejte in poskusite znova.",
-  "apple_pay.free_trial": "Brezplačni preizkus"
+  "apple_pay.free_trial": "Brezplačni preizkus",
+  "payment_entry_page.checkout_consent_terms_of_service": "pogoji storitve",
+  "payment_entry_page.checkout_consent_agreement": "Strinjam se s/z {{appName}} {{termsOfService}}."
 }

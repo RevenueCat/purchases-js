@@ -101,5 +101,7 @@
   "pricing_table.discount": "Kedvezmény",
   "pricing_table.subtotal": "Részösszeg",
   "pricing_dropdown.add_promo_code": "Promóciós kód hozzáadása",
-  "discount_input.label": "Promóciós kód"
+  "discount_input.label": "Promóciós kód",
+  "payment_entry_page.checkout_consent_terms_of_service": "szolgáltatási feltételek",
+  "payment_entry_page.checkout_consent_agreement": "Elfogadom a {{appName}} {{termsOfService}}."
 }

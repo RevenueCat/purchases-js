@@ -101,5 +101,7 @@
   "pricing_table.discount": "折扣",
   "pricing_table.subtotal": "小計",
   "pricing_dropdown.add_promo_code": "新增優惠碼",
-  "discount_input.label": "促銷代碼"
+  "discount_input.label": "促銷代碼",
+  "payment_entry_page.checkout_consent_terms_of_service": "服務條款",
+  "payment_entry_page.checkout_consent_agreement": "我同意{{appName}}的{{termsOfService}}。"
 }

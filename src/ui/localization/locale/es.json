@@ -101,5 +101,7 @@
   "pricing_table.discount": "Descuento",
   "pricing_table.subtotal": "Subtotal",
   "pricing_dropdown.add_promo_code": "Añadir código promocional",
-  "discount_input.label": "Código promocional"
+  "discount_input.label": "Código promocional",
+  "payment_entry_page.checkout_consent_terms_of_service": "términos de servicio",
+  "payment_entry_page.checkout_consent_agreement": "Acepto los {{termsOfService}} de {{appName}}."
 }

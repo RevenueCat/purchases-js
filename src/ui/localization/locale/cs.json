@@ -101,5 +101,7 @@
   "pricing_table.discount": "Sleva",
   "pricing_table.subtotal": "Mezisoučet",
   "pricing_dropdown.add_promo_code": "Přidat promo kód",
-  "discount_input.label": "Promo kód"
+  "discount_input.label": "Promo kód",
+  "payment_entry_page.checkout_consent_terms_of_service": "podmínkami služby",
+  "payment_entry_page.checkout_consent_agreement": "Souhlasím s {{appName}} {{termsOfService}}."
 }
