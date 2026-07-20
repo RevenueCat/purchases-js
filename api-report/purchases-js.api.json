@@ -6451,6 +6451,33 @@
                 "startIndex": 1,
                 "endIndex": 2
               }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PurchaseParams#termsAndConditionsUrl:member",
+              "docComment": "/**\n * Link to the terms and conditions that should be shown in the checkout footer.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "termsAndConditionsUrl?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "termsAndConditionsUrl",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
             }
           ],
           "extendsTokenRanges": []
