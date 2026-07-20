@@ -28,7 +28,11 @@ import {
   checkoutStartResponse,
 } from "../test-responses";
 import { BackendErrorCode, ErrorCode } from "../../entities/errors";
-import { checkoutPricingResponse } from "../../stories/fixtures";
+import {
+  checkoutPricingResponse,
+  rcPackage,
+  subscriptionOption,
+} from "../../stories/fixtures";
 
 describe("PurchaseOperationHelper", () => {
   let server: SetupServer;
@@ -375,6 +379,51 @@ describe("PurchaseOperationHelper", () => {
         presentedStepId: "step-abc",
         urlParameters: { utm_source: "typedIn", fbp: "metaID" },
       }),
+    );
+  });
+
+  test("gets the purchase option containing a Stripe promotion code", async () => {
+    const purchaseOptionId = "stripe_promo;code=SAVE20";
+    const getProductsMock = vi.spyOn(backend, "getProducts").mockResolvedValue({
+      product_details: [
+        {
+          identifier: rcPackage.product.identifier,
+          product_type: "subscription",
+          title: "Monthly",
+          description: null,
+          default_purchase_option_id: purchaseOptionId,
+          purchase_options: {
+            [purchaseOptionId]: {
+              id: purchaseOptionId,
+              price_id: subscriptionOption.priceId,
+              discount: null,
+              base: {
+                period_duration: "P1M",
+                price: { amount_micros: 9900000, currency: "USD" },
+                cycle_count: 1,
+              },
+              trial: null,
+              intro_price: null,
+            },
+          },
+        },
+      ],
+    });
+
+    const result =
+      await purchaseOperationHelper.getPurchaseOptionForDiscountCode(
+        "test-app-user-id",
+        rcPackage.product,
+        subscriptionOption,
+        "SAVE20",
+      );
+
+    expect(result.id).toBe(purchaseOptionId);
+    expect(getProductsMock).toHaveBeenCalledWith(
+      "test-app-user-id",
+      [rcPackage.product.identifier],
+      rcPackage.product.price.currency,
+      "SAVE20",
     );
   });
 
