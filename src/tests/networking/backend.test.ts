@@ -637,7 +637,7 @@ describe("postCheckoutStart request", () => {
     expect(result).toEqual(checkoutStartResponse);
   });
 
-  test("includes discount_code when provided", async () => {
+  test("includes purchase_option_id for a non-base option", async () => {
     setCheckoutStartResponse(
       HttpResponse.json(checkoutStartResponse, { status: 200 }),
     );
@@ -650,9 +650,11 @@ describe("postCheckoutStart request", () => {
         targetingContext: null,
         placementIdentifier: null,
       },
-      purchaseOption: { id: "base_option", priceId: "test_price_id" },
+      purchaseOption: {
+        id: "stripe_promo;code=SAVE20",
+        priceId: "test_price_id",
+      },
       traceId: "test-trace-id",
-      discountCode: "SAVE20",
     });
 
     const request = purchaseMethodAPIMock.mock.calls[0][0].request;
@@ -662,7 +664,7 @@ describe("postCheckoutStart request", () => {
       price_id: "test_price_id",
       presented_offering_identifier: "offering_1",
       trace_id: "test-trace-id",
-      discount_code: "SAVE20",
+      purchase_option_id: "stripe_promo;code=SAVE20",
     });
   });
 

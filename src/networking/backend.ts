@@ -62,7 +62,6 @@ interface CheckoutStartRequestParams {
   locale?: string;
 
   attributionMetadata?: AttributionMetadata;
-  discountCode?: string;
 }
 
 interface CheckoutRefreshPricingParams {
@@ -217,7 +216,6 @@ export class Backend {
     metadata,
     locale,
     attributionMetadata,
-    discountCode,
   }: CheckoutStartRequestParams): Promise<T> {
     type CheckoutStartRequestBody = {
       app_user_id: string;
@@ -227,7 +225,7 @@ export class Backend {
       presented_placement_identifier?: string;
       presented_workflow_id?: string;
       presented_step_id?: string;
-      offer_id?: string;
+      purchase_option_id?: string;
       applied_targeting_rule?: {
         rule_id: string;
         revision: number;
@@ -241,7 +239,6 @@ export class Backend {
         paywall_session_id?: string;
       };
       attribution_metadata?: AttributionMetadata;
-      discount_code?: string;
     };
 
     const requestBody: CheckoutStartRequestBody = {
@@ -259,7 +256,7 @@ export class Backend {
     }
 
     if (purchaseOption.id !== "base_option") {
-      requestBody.offer_id = purchaseOption.id;
+      requestBody.purchase_option_id = purchaseOption.id;
     }
 
     if (presentedOfferingContext.targetingContext) {
@@ -296,10 +293,6 @@ export class Backend {
 
     if (attributionMetadata) {
       requestBody.attribution_metadata = attributionMetadata;
-    }
-
-    if (discountCode) {
-      requestBody.discount_code = discountCode;
     }
 
     return (await performRequest<CheckoutStartRequestBody, T>(

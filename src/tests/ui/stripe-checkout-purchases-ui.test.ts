@@ -262,25 +262,6 @@ describe("StripeCheckoutPurchasesUi", () => {
     });
   });
 
-  test("passes discountCode to checkoutStart when provided", async () => {
-    const checkoutStartSpy = vi
-      .spyOn(purchaseOperationHelperMock, "checkoutStart")
-      .mockResolvedValue(checkoutStartResponseWithoutStripeParams);
-
-    render(StripeCheckoutPurchasesUi, {
-      props: {
-        ...baseProps,
-        discountCode: "SAVE20",
-      },
-    });
-
-    await waitFor(() => {
-      expect(checkoutStartSpy).toHaveBeenCalledWith(
-        expect.objectContaining({ discountCode: "SAVE20" }),
-      );
-    });
-  });
-
   test("shows sandbox banner when stripe billing environment is sandbox", async () => {
     vi.spyOn(purchaseOperationHelperMock, "checkoutStart").mockResolvedValue(
       createCheckoutStartResponseWithStripeParams("sandbox"),

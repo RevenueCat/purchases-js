@@ -11,10 +11,13 @@ import {
   type CheckoutStatusResponse,
 } from "../networking/responses/checkout-status-response";
 import {
+  type Product,
   type PresentedOfferingContext,
   type PurchaseMetadata,
   type PurchaseOption,
+  toPurchaseOptionForProductType,
 } from "../entities/offerings";
+import type { ProductsResponse } from "../networking/responses/products-response";
 import type {
   AttributionMetadata,
   PurchaseResponseAttributionMetadata,
@@ -134,7 +137,6 @@ interface CheckoutStartParams {
   locale?: string;
 
   attributionMetadata?: AttributionMetadata;
-  discountCode?: string;
 }
 
 interface CheckoutRefreshPricingParams {
@@ -247,6 +249,42 @@ export class PurchaseOperationHelper {
     }
   }
 
+  async getPurchaseOptionForDiscountCode(
+    appUserId: string,
+    product: Product,
+    fallbackPurchaseOption: PurchaseOption,
+    discountCode: string | undefined,
+  ): Promise<PurchaseOption> {
+    if (!discountCode) {
+      return fallbackPurchaseOption;
+    }
+
+    const response: ProductsResponse = await this.backend.getProducts(
+      appUserId,
+      [product.identifier],
+      product.currentPrice.currency,
+      discountCode,
+    );
+    const productResponse = response.product_details.find(
+      (candidate) => candidate.identifier === product.identifier,
+    );
+    const purchaseOptionId = productResponse?.default_purchase_option_id;
+    const purchaseOptionResponse = purchaseOptionId
+      ? productResponse?.purchase_options[purchaseOptionId]
+      : undefined;
+
+    if (!purchaseOptionResponse) {
+      return fallbackPurchaseOption;
+    }
+
+    return (
+      toPurchaseOptionForProductType(
+        product.productType,
+        purchaseOptionResponse,
+      ) ?? fallbackPurchaseOption
+    );
+  }
+
   async checkoutStart({
     appUserId,
     productId,
@@ -259,7 +297,6 @@ export class PurchaseOperationHelper {
     metadata,
     locale,
     attributionMetadata,
-    discountCode,
   }: CheckoutStartParams): Promise<WebBillingCheckoutStartResponse> {
     try {
       const traceId = this.eventsTracker.getTraceId();
@@ -279,7 +316,6 @@ export class PurchaseOperationHelper {
           metadata,
           locale,
           attributionMetadata,
-          ...(discountCode ? { discountCode } : {}),
         });
       this.operationSessionId = checkoutStartResponse.operation_session_id;
       return checkoutStartResponse;

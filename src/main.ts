@@ -1576,8 +1576,15 @@ export class Purchases {
 
     const localeToBeUsed = selectedLocale || defaultLocale;
 
-    const purchaseOptionToUse =
+    const fallbackPurchaseOption =
       purchaseOption ?? rcPackage.webBillingProduct.defaultPurchaseOption;
+    const purchaseOptionToUse =
+      await this.purchaseOperationHelper.getPurchaseOptionForDiscountCode(
+        appUserId,
+        rcPackage.webBillingProduct,
+        fallbackPurchaseOption,
+        discountCode,
+      );
 
     const event = createCheckoutSessionStartEvent({
       appearance: this._brandingInfo?.appearance,
@@ -1659,7 +1666,6 @@ export class Purchases {
           defaultLocale,
           customTranslations: params.labelsOverride,
           skipSuccessPage,
-          discountCode,
         },
       });
     });

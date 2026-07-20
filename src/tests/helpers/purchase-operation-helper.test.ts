@@ -27,7 +27,11 @@ import {
   checkoutStartResponse,
 } from "../test-responses";
 import { BackendErrorCode, ErrorCode } from "../../entities/errors";
-import { checkoutPricingResponse } from "../../stories/fixtures";
+import {
+  checkoutPricingResponse,
+  rcPackage,
+  subscriptionOption,
+} from "../../stories/fixtures";
 
 describe("PurchaseOperationHelper", () => {
   let server: SetupServer;
@@ -267,25 +271,48 @@ describe("PurchaseOperationHelper", () => {
     );
   });
 
-  test("checkoutStart passes discountCode to backend when provided", async () => {
-    const mockPostCheckoutStart = vi
-      .spyOn(backend, "postCheckoutStart")
-      .mockResolvedValue(checkoutStartResponse);
-
-    await purchaseOperationHelper.checkoutStart({
-      appUserId: "test-app-user-id",
-      productId: "test-product-id",
-      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
-      presentedOfferingContext: {
-        offeringIdentifier: "test-offering-id",
-        targetingContext: null,
-        placementIdentifier: null,
-      },
-      discountCode: "SAVE20",
+  test("gets the purchase option containing a Stripe promotion code", async () => {
+    const purchaseOptionId = "stripe_promo;code=SAVE20";
+    const getProductsMock = vi.spyOn(backend, "getProducts").mockResolvedValue({
+      product_details: [
+        {
+          identifier: rcPackage.webBillingProduct.identifier,
+          product_type: "subscription",
+          title: "Monthly",
+          description: null,
+          default_purchase_option_id: purchaseOptionId,
+          purchase_options: {
+            [purchaseOptionId]: {
+              id: purchaseOptionId,
+              price_id: subscriptionOption.priceId,
+              discount: null,
+              base: {
+                period_duration: "P1M",
+                price: { amount_micros: 9900000, currency: "USD" },
+                cycle_count: 1,
+              },
+              trial: null,
+              intro_price: null,
+            },
+          },
+        },
+      ],
     });
 
-    expect(mockPostCheckoutStart).toHaveBeenCalledWith(
-      expect.objectContaining({ discountCode: "SAVE20" }),
+    const result =
+      await purchaseOperationHelper.getPurchaseOptionForDiscountCode(
+        "test-app-user-id",
+        rcPackage.webBillingProduct,
+        subscriptionOption,
+        "SAVE20",
+      );
+
+    expect(result.id).toBe(purchaseOptionId);
+    expect(getProductsMock).toHaveBeenCalledWith(
+      "test-app-user-id",
+      [rcPackage.webBillingProduct.identifier],
+      rcPackage.webBillingProduct.currentPrice.currency,
+      "SAVE20",
     );
   });
 
