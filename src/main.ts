@@ -87,6 +87,7 @@ import {
 } from "./helpers/paywall-variables-helpers";
 import { Translator } from "./ui/localization/translator";
 import { englishLocale } from "./ui/localization/constants";
+import { getBrowserLocale } from "./helpers/locale-helper";
 import type { TrackEventProps } from "./behavioural-events/events-tracker";
 import EventsTracker, {
   type IEventsTracker,
@@ -1364,7 +1365,7 @@ export class Purchases {
       purchaseOption,
       htmlTarget,
       customerEmail,
-      selectedLocale = englishLocale,
+      selectedLocale = getBrowserLocale() ?? englishLocale,
       defaultLocale = englishLocale,
       onButtonReady = () => {},
       walletButtonTheme,
@@ -1560,7 +1561,7 @@ export class Purchases {
       attributionMetadata,
       paywallId,
       paywallSessionId,
-      selectedLocale = englishLocale,
+      selectedLocale = getBrowserLocale() ?? englishLocale,
       defaultLocale = englishLocale,
       skipSuccessPage = false,
     } = params;
@@ -1673,7 +1674,7 @@ export class Purchases {
       customerEmail,
       workflowPurchaseContext,
       attributionMetadata,
-      selectedLocale = englishLocale,
+      selectedLocale = getBrowserLocale() ?? englishLocale,
       defaultLocale = englishLocale,
       skipSuccessPage = false,
       showDiscountCodeField = false,
@@ -1793,7 +1794,7 @@ export class Purchases {
       purchaseOption,
       customerEmail,
       attributionMetadata,
-      selectedLocale = englishLocale,
+      selectedLocale = getBrowserLocale() ?? englishLocale,
       defaultLocale = englishLocale,
       skipSuccessPage = false,
       htmlTarget,
