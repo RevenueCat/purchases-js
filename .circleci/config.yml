@@ -253,6 +253,21 @@ jobs:
           name: E2E tests webbilling-demo
           working_directory: examples/webbilling-demo
           command: pnpm run test:ci
+      # Capture Playwright artifacts (error-context.md, traces, screenshots) so
+      # failures can be diagnosed after the run. `when: always` so they upload
+      # even when the E2E step fails.
+      - store_artifacts:
+          path: examples/webbilling-demo/test-results
+          destination: playwright-test-results
+          when: always
+      - store_artifacts:
+          path: examples/webbilling-demo/playwright-report
+          destination: playwright-report
+          when: always
+      - store_artifacts:
+          path: examples/webbilling-demo/results.xml
+          destination: playwright-results.xml
+          when: always
 
 workflows:
   danger:
