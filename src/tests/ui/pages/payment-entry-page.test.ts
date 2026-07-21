@@ -69,11 +69,9 @@ vi.mock("../../../stripe/stripe-service", async () => {
         on: vi.fn(),
         destroy: vi.fn(),
       }),
-      createExpressCheckoutElement: vi.fn().mockReturnValue({
-        mount: vi.fn(),
-        on: vi.fn(),
-        destroy: vi.fn(),
-      }),
+      // Bare mock so create throws and the error path completes form loading.
+      // A stub that never fires `ready` leaves the form stuck loading.
+      createExpressCheckoutElement: vi.fn(),
       countryRequiresFullAddressForTaxes:
         actual.StripeService.countryRequiresFullAddressForTaxes,
       isStripeHandledFormError: vi.fn(),
@@ -1108,24 +1106,25 @@ describe("PurchasesUI", () => {
     });
 
     test("keeps Pay disabled until consent is checked", async () => {
-      vi.mocked(StripeService.createExpressCheckoutElement).mockReturnValue({
-        // @ts-expect-error - This is a mock
+      const expressCheckoutElement = {
         mount: vi.fn(),
-        on: vi.fn(
-          (
-            eventType: string,
-            callback: (event?: { availablePaymentMethods?: object }) => void,
-          ) => {
-            if (eventType === "ready") {
-              setTimeout(
-                () => callback({ availablePaymentMethods: { applePay: true } }),
-                0,
-              );
-            }
-          },
-        ),
+        on: (
+          eventType: string,
+          callback: (event?: { availablePaymentMethods?: object }) => void,
+        ) => {
+          if (eventType === "ready") {
+            setTimeout(
+              () => callback({ availablePaymentMethods: { applePay: true } }),
+              0,
+            );
+          }
+        },
         destroy: vi.fn(),
-      });
+      };
+      vi.mocked(StripeService.createExpressCheckoutElement).mockReturnValue(
+        // @ts-expect-error - This is a mock
+        expressCheckoutElement,
+      );
 
       const paymentElement = {
         on: (
@@ -1154,16 +1153,19 @@ describe("PurchasesUI", () => {
         // @ts-expect-error - This is a mock
         paymentElement,
       );
-      vi.mocked(StripeService.createLinkAuthenticationElement).mockReturnValue({
-        // @ts-expect-error - This is a mock
+      const linkAuthenticationElement = {
         mount: vi.fn(),
-        on: vi.fn((eventType: string, callback: () => void) => {
+        on: (eventType: string, callback: () => void) => {
           if (eventType === "ready") {
             setTimeout(() => callback(), 0);
           }
-        }),
+        },
         destroy: vi.fn(),
-      });
+      };
+      vi.mocked(StripeService.createLinkAuthenticationElement).mockReturnValue(
+        // @ts-expect-error - This is a mock
+        linkAuthenticationElement,
+      );
 
       render(PaymentEntryPage, {
         props: {

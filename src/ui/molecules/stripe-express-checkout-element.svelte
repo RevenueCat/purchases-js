@@ -63,12 +63,6 @@
 
   let expressCheckoutElement: StripeExpressCheckoutElement | null = null;
   let hideExpressCheckoutElement = $state(false);
-  // Mirror the prop into state so the onMount click handler always reads the
-  // latest value (destructured $props are not live inside that closure).
-  let expressCheckoutAllowed = $state(true);
-  $effect(() => {
-    expressCheckoutAllowed = allowExpressCheckout;
-  });
   // Allows having more than one in the page.
   const expressCheckoutElementId = `express-checkout-element-${generateUUID()}`;
 
@@ -79,7 +73,7 @@
   const onClickCallback = async (
     event: StripeExpressCheckoutElementClickEvent,
   ) => {
-    if (!expressCheckoutAllowed) {
+    if (!allowExpressCheckout) {
       return;
     }
     const { business: _business, ...options } = expressCheckoutOptions ?? {};
@@ -137,11 +131,11 @@
 
 <div
   id={expressCheckoutElementId}
-  class:rc-express-checkout-hidden={!expressCheckoutAllowed ||
+  class:rc-express-checkout-hidden={!allowExpressCheckout ||
     hideExpressCheckoutElement}
-  aria-hidden={!expressCheckoutAllowed || hideExpressCheckoutElement}
+  aria-hidden={!allowExpressCheckout || hideExpressCheckoutElement}
 ></div>
-{#if !hideCheckoutSeparator && expressCheckoutAllowed && !hideExpressCheckoutElement}
+{#if !hideCheckoutSeparator && allowExpressCheckout && !hideExpressCheckoutElement}
   <TextSeparator
     text={$translator.translate(
       LocalizationKeys.PaymentEntryPageExpressCheckoutDivider,
