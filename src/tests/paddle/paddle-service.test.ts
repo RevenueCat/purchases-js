@@ -351,6 +351,51 @@ describe("PaddleService", () => {
       });
     });
 
+    test("forwards url_parameters and presented_step_id from workflowPurchaseContext", async () => {
+      vi.mocked(initPaddle).mockResolvedValue(mockPaddleInstance);
+      let capturedBody: Record<string, unknown> | undefined;
+      server.use(
+        http.post(checkoutStartEndpoint, async (req) => {
+          capturedBody = (await req.request.json()) as Record<string, unknown>;
+          return HttpResponse.json(paddleCheckoutStartResponse, {
+            status: StatusCodes.OK,
+          });
+        }),
+      );
+
+      await paddleService.startCheckout({
+        ...startCheckoutArgs,
+        workflowPurchaseContext: {
+          stepId: "step-abc",
+          urlParameters: { utm_source: "typedIn", fbp: "metaID" },
+        },
+      });
+
+      expect(capturedBody?.presented_step_id).toBe("step-abc");
+      expect(capturedBody?.url_parameters).toEqual({
+        utm_source: "typedIn",
+        fbp: "metaID",
+      });
+    });
+
+    test("omits url_parameters and presented_step_id without workflowPurchaseContext", async () => {
+      vi.mocked(initPaddle).mockResolvedValue(mockPaddleInstance);
+      let capturedBody: Record<string, unknown> | undefined;
+      server.use(
+        http.post(checkoutStartEndpoint, async (req) => {
+          capturedBody = (await req.request.json()) as Record<string, unknown>;
+          return HttpResponse.json(paddleCheckoutStartResponse, {
+            status: StatusCodes.OK,
+          });
+        }),
+      );
+
+      await paddleService.startCheckout(startCheckoutArgs);
+
+      expect(capturedBody?.presented_step_id).toBeUndefined();
+      expect(capturedBody?.url_parameters).toBeUndefined();
+    });
+
     test("fails if /checkout/start fails", async () => {
       server.use(
         http.post(checkoutStartEndpoint, () =>
