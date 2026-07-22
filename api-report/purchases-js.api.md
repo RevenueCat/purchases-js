@@ -432,9 +432,7 @@ export interface PurchaseParams {
     selectedLocale?: string;
     showDiscountCodeField?: boolean;
     skipSuccessPage?: boolean;
-    /* Excluded from this release type: brandingAppearanceOverride */
-    /* Excluded from this release type: labelsOverride */
-    /* Excluded from this release type: termsAndConditionsUrl */
+    termsAndConditionsUrl?: string;
 }
 
 // @public

@@ -101,5 +101,7 @@
   "pricing_table.discount": "Rabatt",
   "pricing_table.subtotal": "Delsumma",
   "pricing_dropdown.add_promo_code": "Lägg till kampanjkod",
-  "discount_input.label": "Kampanjkod"
+  "discount_input.label": "Kampanjkod",
+  "payment_entry_page.checkout_consent_terms_of_service": "användarvillkor",
+  "payment_entry_page.checkout_consent_agreement": "Jag godkänner {{appName}} {{termsOfService}}."
 }

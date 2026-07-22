@@ -64,7 +64,7 @@ def translate_text(text, target_language, keys_context=None):
                 system_prompt += f"- {key}: {context}\n"
 
     data = {
-        "model": "gemini-2.0-flash",
+        "model": "gemini-2.5-flash",
         "messages": [
             {
                 "role": "system",

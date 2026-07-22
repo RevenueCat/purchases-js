@@ -101,5 +101,7 @@
   "pricing_table.discount": "छूट",
   "pricing_table.subtotal": "उपकुल योग",
   "pricing_dropdown.add_promo_code": "प्रोमो_कोड_जोड़ें",
-  "discount_input.label": "प्रोमो कोड"
+  "discount_input.label": "प्रोमो कोड",
+  "payment_entry_page.checkout_consent_terms_of_service": "सेवा की शर्तें",
+  "payment_entry_page.checkout_consent_agreement": "मैं {{appName}} की {{termsOfService}} से सहमत हूँ।"
 }

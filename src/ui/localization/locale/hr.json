@@ -101,5 +101,7 @@
   "pricing_table.discount": "Popust",
   "pricing_table.subtotal": "Međuzbroj",
   "pricing_dropdown.add_promo_code": "Dodaj promotivni kod",
-  "discount_input.label": "Promo kod"
+  "discount_input.label": "Promo kod",
+  "payment_entry_page.checkout_consent_terms_of_service": "uvjetima korištenja",
+  "payment_entry_page.checkout_consent_agreement": "Slažem se s {{appName}} {{termsOfService}}."
 }

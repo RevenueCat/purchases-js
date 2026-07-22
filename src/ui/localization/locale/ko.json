@@ -101,5 +101,7 @@
   "pricing_table.discount": "할인",
   "pricing_table.subtotal": "소계",
   "pricing_dropdown.add_promo_code": "프로모션 코드 추가",
-  "discount_input.label": "프로모션 코드"
+  "discount_input.label": "프로모션 코드",
+  "payment_entry_page.checkout_consent_terms_of_service": "이용 약관",
+  "payment_entry_page.checkout_consent_agreement": "{{appName}} {{termsOfService}}에 동의합니다."
 }

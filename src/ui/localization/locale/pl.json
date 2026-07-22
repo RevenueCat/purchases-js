@@ -101,5 +101,7 @@
   "pricing_table.discount": "Rabat",
   "pricing_table.subtotal": "Suma częściowa",
   "pricing_dropdown.add_promo_code": "Dodaj kod promocyjny",
-  "discount_input.label": "Kod promocyjny"
+  "discount_input.label": "Kod promocyjny",
+  "payment_entry_page.checkout_consent_terms_of_service": "regulamin",
+  "payment_entry_page.checkout_consent_agreement": "Akceptuję {{appName}} {{termsOfService}}."
 }

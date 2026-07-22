@@ -65,6 +65,7 @@
     full_address_collection_mode:
       args.fullAddressCollectionMode ??
       brandingInfos[context.globals.brandingName].full_address_collection_mode,
+    require_checkout_consent: args.requireCheckoutConsent ?? false,
   }}
   <PurchasesInner
     isSandbox={args.isSandbox}
@@ -103,6 +104,21 @@
 <Story
   name="Default"
   args={{ ...defaultArgs, currentPage: "payment-entry" }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
+  }}
+/>
+
+<Story
+  name="With Checkout Consent"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    requireCheckoutConsent: true,
+    termsAndConditionsUrl: "https://example.com/terms",
+  }}
   parameters={{
     chromatic: {
       delay: 1000,

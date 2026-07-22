@@ -101,5 +101,7 @@
   "pricing_table.discount": "Diskon",
   "pricing_table.subtotal": "Subtotal",
   "pricing_dropdown.add_promo_code": "Tambahkan kode promo",
-  "discount_input.label": "Kode promo"
+  "discount_input.label": "Kode promo",
+  "payment_entry_page.checkout_consent_terms_of_service": "ketentuan layanan",
+  "payment_entry_page.checkout_consent_agreement": "Saya menyetujui {{termsOfService}} {{appName}}."
 }

@@ -56,6 +56,7 @@
       paymentMethod: string,
       emailValue: string,
     ) => void;
+    allowExpressCheckout?: boolean;
   }
 
   let {
@@ -74,6 +75,7 @@
     onPaymentInfoChange,
     onAddressInfoChange,
     onExpressCheckoutElementSubmit,
+    allowExpressCheckout = true,
   }: Props = $props();
 
   const translator = getContext<Writable<Translator>>(translatorContextKey);
@@ -277,6 +279,7 @@
       onSubmit={onExpressCheckoutElementSubmit}
       {expressCheckoutOptions}
       {forceEnableWalletMethods}
+      {allowExpressCheckout}
     />
     {#if !skipEmail}
       <LinkAuthenticationElement
