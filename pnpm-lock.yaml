@@ -20,8 +20,8 @@ importers:
         specifier: ^1.6.4
         version: 1.6.4
       "@revenuecat/purchases-ui-js":
-        specifier: 4.8.6
-        version: 4.8.6(svelte@5.46.4)
+        specifier: 4.8.11
+        version: 4.8.11(svelte@5.46.4)
       "@storybook/addon-essentials":
         specifier: ^8.6.15
         version: 8.6.15(@types/react@19.0.10)(storybook@8.6.15(prettier@3.4.2))
@@ -722,10 +722,10 @@ packages:
       }
     engines: { node: ^12.20.0 || ^14.18.0 || >=16.0.0 }
 
-  "@revenuecat/purchases-ui-js@4.8.6":
+  "@revenuecat/purchases-ui-js@4.8.11":
     resolution:
       {
-        integrity: sha512-yzylRJOdwufonJouTb/hQcqg5SWXUa7wwA2dd+HvTmf4qn7DtSqnCn7Eb0gimqT4kq6pm9i/5KQG6TNk875AtQ==,
+        integrity: sha512-7cXXJiswPD8FHryxWcD1qRCmXzbVV0xlv5sqWfc/bFODEFLQVlfQHHoBNbUU9lnSqGTOXLKumVwZmNX6AMZKEw==,
       }
     engines: { node: ^22.18 || ^24.11 }
     peerDependencies:
@@ -3193,7 +3193,7 @@ packages:
       {
         integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==,
       }
-    deprecated: Glob versions prior to v9 are no longer supported
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   globals@13.24.0:
     resolution:
@@ -5500,6 +5500,7 @@ packages:
       {
         integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==,
       }
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   v8-compile-cache@2.4.0:
@@ -5645,6 +5646,7 @@ packages:
         integrity: sha512-6qN4hJdMwfYBtE3YBTTHhoeuUrDBPZmbQaxWAqSALV/MeEnR5z1xd8UKud2RAkFoPkmB+hli1TZSnyi84xz1vQ==,
       }
     engines: { node: ">=18" }
+    deprecated: Use @exodus/bytes instead for a more spec-conformant and faster implementation
 
   whatwg-mimetype@4.0.0:
     resolution:
@@ -6162,7 +6164,7 @@ snapshots:
 
   "@pkgr/core@0.1.1": {}
 
-  "@revenuecat/purchases-ui-js@4.8.6(svelte@5.46.4)":
+  "@revenuecat/purchases-ui-js@4.8.11(svelte@5.46.4)":
     dependencies:
       "@revenuecat/workflow-web-components-sdk": 0.1.4
       qrcode: 1.5.4
