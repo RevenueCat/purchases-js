@@ -131,7 +131,7 @@
 
 <div
   id={expressCheckoutElementId}
-  class:rc-express-checkout-hidden={!allowExpressCheckout ||
+  class:rcb-express-checkout-hidden={!allowExpressCheckout ||
     hideExpressCheckoutElement}
   aria-hidden={!allowExpressCheckout || hideExpressCheckoutElement}
 ></div>
@@ -144,7 +144,7 @@
 {/if}
 
 <style>
-  .rc-express-checkout-hidden {
+  .rcb-express-checkout-hidden {
     display: none;
   }
 </style>

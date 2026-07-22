@@ -49,10 +49,10 @@
   };
 </script>
 
-<label class="rc-checkout-consent" data-testid="CheckoutConsent">
+<label class="rcb-checkout-consent" data-testid="CheckoutConsent">
   <input
     type="checkbox"
-    class="rc-checkout-consent-checkbox"
+    class="rcb-checkout-consent-checkbox"
     data-testid="CheckoutConsentCheckbox"
     {checked}
     onchange={handleChange}
@@ -71,7 +71,7 @@
 </label>
 
 <style>
-  .rc-checkout-consent {
+  .rcb-checkout-consent {
     display: flex;
     align-items: flex-start;
     gap: 8px;
@@ -79,12 +79,12 @@
     cursor: pointer;
   }
 
-  .rc-checkout-consent-checkbox {
+  .rcb-checkout-consent-checkbox {
     margin-top: 2px;
     flex-shrink: 0;
   }
 
-  .rc-checkout-consent :global(a) {
+  .rcb-checkout-consent :global(a) {
     color: inherit;
     text-decoration: underline;
   }
