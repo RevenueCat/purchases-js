@@ -22,6 +22,7 @@ import RedemptionLinksTester from "./pages/redemption_links_tester";
 import RCPaywallLauncherPage from "./pages/rc_paywall_launcher";
 import ExpressPurchaseButtonsPackageSelector from "./pages/express_purchase_buttons";
 import RCPaywallSettingsPage from "./pages/rc_paywall_settings";
+import UpgradePage from "./pages/upgrade";
 
 const router = createBrowserRouter([
   {
@@ -113,6 +114,13 @@ const router = createBrowserRouter([
         <RedemptionLinksTester />
       </WithoutEntitlement>
     ),
+  },
+  {
+    // Headless upgrade PoC: no entitlement wrapper on purpose, since the
+    // whole point is that the user already has an active subscription.
+    path: "/upgrade/:app_user_id",
+    loader: loadPurchases,
+    element: <UpgradePage />,
   },
   {
     path: "/success/:app_user_id",

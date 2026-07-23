@@ -44,6 +44,10 @@ import {
   validateProxyUrl,
 } from "./helpers/configuration-validators";
 import { type PurchaseParams } from "./entities/purchase-params";
+import {
+  type ChangeProductParams,
+  type ProductChangeResult,
+} from "./entities/product-change-params";
 import { defaultHttpConfig, type HttpConfig } from "./entities/http-config";
 import {
   type GetOfferingsParams,
@@ -212,6 +216,10 @@ export type {
   PurchaseResponseAttributionMetadata,
   PurchaseParams,
 } from "./entities/purchase-params";
+export type {
+  ChangeProductParams,
+  ProductChangeResult,
+} from "./entities/product-change-params";
 export type { RedemptionInfo } from "./entities/redemption-info";
 export type {
   PurchaseResult,
@@ -2136,6 +2144,68 @@ export class Purchases {
       customerInfo: toCustomerInfo(result),
       wasCreated: result.was_created,
     };
+  }
+
+  /**
+   * Changes the current customer's active Web Billing subscription to a new
+   * product, following the product change paths configured in RevenueCat.
+   * Upgrades are applied immediately (charging the payment method on file,
+   * with a prorated credit for unused time); downgrades are deferred to the
+   * end of the current billing cycle.
+   *
+   * This is a headless operation: no UI is displayed and the customer does
+   * not re-enter payment details. The request is authenticated with a
+   * short-lived subscriber access token that your backend must mint with a
+   * secret API key via the RevenueCat Developer API `authenticate` endpoint.
+   *
+   * @param params - The {@link ChangeProductParams} for the change.
+   * @returns The {@link ProductChangeResult} describing the applied change.
+   * @throws {@link PurchasesError} if the token is invalid, no active Web
+   * Billing subscription exists, or no product change path is configured
+   * from the current product to the requested one.
+   * @experimental
+   */
+  public async changeProduct(
+    params: ChangeProductParams,
+  ): Promise<ProductChangeResult> {
+    const { newProductId, subscriberToken } = params;
+
+    this.validateSubscriberToken(subscriberToken);
+
+    const response = await this.backend.postSubscriptionChange(
+      newProductId,
+      subscriberToken,
+    );
+
+    return {
+      operationSessionId: response.operation_session_id,
+      changeTiming: response.change_timing,
+      newProductId: response.new_product_id,
+    };
+  }
+
+  /**
+   * Rejects anything shaped like a RevenueCat API key so a secret or public
+   * key is never sent (or exposed) where a subscriber token belongs.
+   */
+  private validateSubscriberToken(subscriberToken: string): void {
+    const looksLikeApiKey =
+      isWebBillingApiKey(subscriberToken) ||
+      isPaddleApiKey(subscriberToken) ||
+      isStripeApiKey(subscriberToken) ||
+      isSimulatedStoreApiKey(subscriberToken) ||
+      subscriberToken.startsWith("sk_");
+
+    if (looksLikeApiKey || !subscriberToken) {
+      throw new PurchasesError(
+        ErrorCode.ConfigurationError,
+        "Invalid subscriber token.",
+        "The subscriberToken must be a short-lived subscriber access token " +
+          "minted server-side with a secret API key via the RevenueCat " +
+          "Developer API authenticate endpoint. Never pass a RevenueCat API " +
+          "key from the browser.",
+      );
+    }
   }
 
   private async replaceUserId(newAppUserId: string): Promise<void> {

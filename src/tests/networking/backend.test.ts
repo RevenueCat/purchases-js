@@ -1317,6 +1317,84 @@ describe("setAttributes request", () => {
   });
 });
 
+describe("postSubscriptionChange request", () => {
+  const subscriptionChangeResponse = {
+    operation_session_id: "rcbopsess_test_id",
+    change_timing: "immediate",
+    new_product_id: "annual_product",
+  };
+
+  function setSubscriptionChangeResponse(httpResponse: HttpResponse) {
+    server.use(
+      http.post(
+        "http://localhost:8000/rcbilling/v1/subscription/change",
+        () => {
+          return httpResponse;
+        },
+      ),
+    );
+  }
+
+  test("performs the change and returns the parsed response", async () => {
+    setSubscriptionChangeResponse(
+      HttpResponse.json(subscriptionChangeResponse, { status: 201 }),
+    );
+
+    let requestPerformed: Request | undefined;
+    server.events.on("request:start", (req) => {
+      requestPerformed = req.request;
+    });
+
+    const response = await backend.postSubscriptionChange(
+      "annual_product",
+      "subscriber-token-jwt",
+    );
+
+    expect(response).toEqual(subscriptionChangeResponse);
+    expect(requestPerformed).not.toBeUndefined();
+    const body = await requestPerformed?.json();
+    expect(body).toEqual({ new_product_id: "annual_product" });
+  });
+
+  test("authenticates with the subscriber token instead of the API key", async () => {
+    setSubscriptionChangeResponse(
+      HttpResponse.json(subscriptionChangeResponse, { status: 201 }),
+    );
+
+    let requestPerformed: Request | undefined;
+    server.events.on("request:start", (req) => {
+      requestPerformed = req.request;
+    });
+
+    await backend.postSubscriptionChange(
+      "annual_product",
+      "subscriber-token-jwt",
+    );
+
+    const headers = requestPerformed?.headers;
+    expect(headers?.get("Authorization")).toEqual(
+      "Bearer subscriber-token-jwt",
+    );
+    // Other SDK headers are still sent.
+    expect(headers?.get("X-Platform")).toEqual("web");
+  });
+
+  test("throws an error if the backend returns an error", async () => {
+    setSubscriptionChangeResponse(
+      HttpResponse.json({}, { status: StatusCodes.NOT_FOUND }),
+    );
+
+    await expectPromiseToError(
+      backend.postSubscriptionChange("annual_product", "subscriber-token-jwt"),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        "Request: postSubscriptionChange. Status code: 404. Body: {}.",
+      ),
+    );
+  });
+});
+
 describe("postReceipt request", () => {
   const postReceiptAPIMock = vi.fn();
 

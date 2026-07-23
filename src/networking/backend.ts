@@ -16,12 +16,14 @@ import {
   IdentifyEndpoint,
   PostReceiptEndpoint,
   SetAttributesEndpoint,
+  SubscriptionChangeEndpoint,
 } from "./endpoints";
 import { type SubscriberResponse } from "./responses/subscriber-response";
 import type { CheckoutStartResponse } from "./responses/checkout-start-response";
 import { type ProductsResponse } from "./responses/products-response";
 import { type BrandingInfoResponse } from "./responses/branding-response";
 import { type CheckoutStatusResponse } from "./responses/checkout-status-response";
+import { type SubscriptionChangeResponse } from "./responses/subscription-change-response";
 import { type VirtualCurrenciesResponse } from "./responses/virtual-currencies-response";
 import type {
   WorkflowDataAction,
@@ -390,6 +392,38 @@ export class Backend {
         httpConfig: this.httpConfig,
       },
     );
+  }
+
+  /**
+   * Changes the customer's Web Billing subscription to a new product,
+   * following the product change paths configured in RevenueCat.
+   *
+   * Unlike the other RC Billing calls, this request is authenticated with a
+   * short-lived subscriber access token (minted server-side by the developer
+   * via the Developer API `authenticate` endpoint) instead of the public API
+   * key, since it mutates an existing subscription.
+   */
+  async postSubscriptionChange(
+    newProductId: string,
+    subscriberToken: string,
+  ): Promise<SubscriptionChangeResponse> {
+    type SubscriptionChangeRequestBody = {
+      new_product_id: string;
+    };
+
+    const requestBody: SubscriptionChangeRequestBody = {
+      new_product_id: newProductId,
+    };
+
+    return await performRequest<
+      SubscriptionChangeRequestBody,
+      SubscriptionChangeResponse
+    >(new SubscriptionChangeEndpoint(), {
+      apiKey: this.API_KEY,
+      body: requestBody,
+      headers: { Authorization: `Bearer ${subscriberToken}` },
+      httpConfig: this.httpConfig,
+    });
   }
 
   async setAttributes(

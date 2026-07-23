@@ -32,6 +32,15 @@ npm run dev
 >
 > **Expected behavior:** When using your Web Billing product API key, you should see customers created in Sandbox in your dashboard after completing purchases. View activity at https://app.revenuecat.com/activity after a few minutes to see sandbox transactions and customer data.
 
+### Headless upgrade PoC
+
+The `/upgrade/:app_user_id` page demonstrates the experimental headless product change flow (`Purchases.changeProduct`). It requires the demo token server, a separate process that plays the role of your backend: it holds a **secret** API key and mints short-lived subscriber access tokens via the Developer API `authenticate` endpoint. The secret key is read from a non-`VITE_` env var so it can never be bundled into frontend code.
+
+1. Copy `server/.env.example` to `server/.env` and fill in `RC_SECRET_API_KEY` (a V2 secret key with the `iam:authorization:issue_token` permission), `RC_PROJECT_ID` and `RC_APP_ID`. Point `RC_API_BASE` at your backend if not using production.
+2. Start the token server: `npm run token-server` (listens on port 8010; the Vite dev server proxies `/api` to it).
+3. Start the demo as usual (`npm run dev`) and open `/upgrade/<app_user_id>` for a customer with an active Web Billing subscription.
+4. Pick or type the target product identifier and confirm. A product change path from the current product to the target must be configured in RevenueCat; upgrades apply immediately with proration, downgrades are scheduled for the next renewal.
+
 ### Payment Methods
 
 The demo supports both **Web Billing** and **Paddle** payment flows:

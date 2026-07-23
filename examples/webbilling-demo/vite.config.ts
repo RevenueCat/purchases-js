@@ -10,6 +10,11 @@ export default defineConfig({
   },
   server: {
     port: 3001,
+    proxy: {
+      // Forwards token requests to the standalone demo token server
+      // (server/index.mjs), which holds the secret API key.
+      "/api": "http://localhost:8010",
+    },
     fs: {
       allow: [".."],
     },
