@@ -1,3 +1,8 @@
+## Unreleased
+## RevenueCat SDK
+### ✨ New Features
+* feat: forward funnel url parameters on checkout start via RevenueCat (@RevenueCat)
+
 ## 1.47.3
 ## RevenueCat SDK
 ### 📦 Dependency Updates
