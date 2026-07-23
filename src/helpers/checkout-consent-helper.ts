@@ -2,6 +2,26 @@ import { ProductType, type Product } from "../entities/offerings";
 import type { BrandingInfoResponse } from "../networking/responses/branding-response";
 
 /**
+ * Resolves the terms URL used by checkout. An explicitly provided purchase
+ * parameter always wins. The app-config URL is used only when checkout consent
+ * is enabled.
+ */
+export function resolveTermsAndConditionsUrl({
+  brandingInfo,
+  termsAndConditionsUrl,
+}: {
+  brandingInfo: BrandingInfoResponse | null | undefined;
+  termsAndConditionsUrl?: string;
+}): string | null | undefined {
+  return (
+    termsAndConditionsUrl ??
+    (brandingInfo?.require_checkout_consent
+      ? brandingInfo.terms_and_conditions_url
+      : undefined)
+  );
+}
+
+/**
  * Consent checkbox is shown only when branding requires it, a terms URL is
  * available, and the purchase is a subscription.
  */
