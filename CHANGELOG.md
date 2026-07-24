@@ -1,3 +1,7 @@
+## 1.48.1
+### 🔄 Other Changes
+* feat: forward funnel url parameters on checkout start (#985) via Patrick Rills (@patrickrills)
+
 ## 1.48.0
 ## RevenueCat SDK
 ### ✨ New Features
