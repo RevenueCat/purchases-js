@@ -12,13 +12,14 @@ export function resolveTermsAndConditionsUrl({
 }: {
   brandingInfo: BrandingInfoResponse | null | undefined;
   termsAndConditionsUrl?: string;
-}): string | null | undefined {
-  return (
+}): string | undefined {
+  const resolvedUrl =
     termsAndConditionsUrl ??
     (brandingInfo?.require_checkout_consent
       ? brandingInfo.terms_and_conditions_url
-      : undefined)
-  );
+      : undefined);
+
+  return resolvedUrl || undefined;
 }
 
 /**

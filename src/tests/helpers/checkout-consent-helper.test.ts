@@ -46,7 +46,7 @@ describe("resolveTermsAndConditionsUrl", () => {
     ).toBeUndefined();
   });
 
-  test("returns null when consent is required without a configured URL", () => {
+  test("does not resolve a URL when consent is required without one configured", () => {
     expect(
       resolveTermsAndConditionsUrl({
         brandingInfo: {
@@ -55,7 +55,7 @@ describe("resolveTermsAndConditionsUrl", () => {
           terms_and_conditions_url: null,
         },
       }),
-    ).toBeNull();
+    ).toBeUndefined();
   });
 });
 
