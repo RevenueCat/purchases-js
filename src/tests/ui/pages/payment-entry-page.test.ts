@@ -1058,7 +1058,7 @@ describe("PurchasesUI", () => {
       expect(screen.queryByTestId("CheckoutConsent")).toBeNull();
     });
 
-    test("hides the consent checkbox when terms URL is missing", async () => {
+    test("hides the entire consent row when terms URL is missing", async () => {
       render(PaymentEntryPage, {
         props: {
           ...basicProps,
@@ -1070,6 +1070,8 @@ describe("PurchasesUI", () => {
 
       await vi.advanceTimersToNextTimerAsync();
       expect(screen.queryByTestId("CheckoutConsent")).toBeNull();
+      expect(screen.queryByTestId("CheckoutConsentCheckbox")).toBeNull();
+      expect(screen.queryByTestId("CheckoutConsentTermsLink")).toBeNull();
     });
 
     test("hides the consent checkbox for one-time purchases", async () => {
