@@ -101,5 +101,7 @@
   "pricing_table.discount": "Rabat",
   "pricing_table.subtotal": "Subtotal",
   "pricing_dropdown.add_promo_code": "Tilføj rabatkode",
-  "discount_input.label": "Kampagnekode"
+  "discount_input.label": "Kampagnekode",
+  "payment_entry_page.checkout_consent_terms_of_service": "servicevilkår",
+  "payment_entry_page.checkout_consent_agreement": "Jeg accepterer {{appName}}'s {{termsOfService}}."
 }

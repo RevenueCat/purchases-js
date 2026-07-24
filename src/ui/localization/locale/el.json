@@ -101,5 +101,7 @@
   "pricing_table.discount": "Έκπτωση",
   "pricing_table.subtotal": "Υποσύνολο",
   "pricing_dropdown.add_promo_code": "Προσθήκη κωδικού προσφοράς",
-  "discount_input.label": "Κωδικός προσφοράς"
+  "discount_input.label": "Κωδικός προσφοράς",
+  "payment_entry_page.checkout_consent_terms_of_service": "όρους χρήσης",
+  "payment_entry_page.checkout_consent_agreement": "Συμφωνώ με τους {{appName}} {{termsOfService}}."
 }

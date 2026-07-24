@@ -101,5 +101,7 @@
   "pricing_table.discount": "Знижка",
   "pricing_table.subtotal": "Сума до сплати",
   "pricing_dropdown.add_promo_code": "Додати промокод",
-  "discount_input.label": "Промокод"
+  "discount_input.label": "Промокод",
+  "payment_entry_page.checkout_consent_terms_of_service": "умовами надання послуг",
+  "payment_entry_page.checkout_consent_agreement": "Я погоджуюся з {{appName}} {{termsOfService}}."
 }

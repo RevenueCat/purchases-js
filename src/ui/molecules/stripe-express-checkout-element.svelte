@@ -43,6 +43,7 @@
     forceEnableWalletMethods: boolean;
     expressCheckoutOptions?: StripeExpressCheckoutConfiguration;
     hideCheckoutSeparator?: boolean;
+    allowExpressCheckout?: boolean;
   }
 
   const {
@@ -55,6 +56,7 @@
     forceEnableWalletMethods,
     expressCheckoutOptions,
     hideCheckoutSeparator = false,
+    allowExpressCheckout = true,
   }: Props = $props();
 
   const translator = getContext<Writable<Translator>>(translatorContextKey);
@@ -71,6 +73,9 @@
   const onClickCallback = async (
     event: StripeExpressCheckoutElementClickEvent,
   ) => {
+    if (!allowExpressCheckout) {
+      return;
+    }
     const { business: _business, ...options } = expressCheckoutOptions ?? {};
     onClick && onClick(event);
     event.resolve(options as ClickResolveDetails);
@@ -124,13 +129,22 @@
   });
 </script>
 
-{#if !hideExpressCheckoutElement}
-  <div id={expressCheckoutElementId}></div>
-  {#if !hideCheckoutSeparator}
-    <TextSeparator
-      text={$translator.translate(
-        LocalizationKeys.PaymentEntryPageExpressCheckoutDivider,
-      )}
-    />
-  {/if}
+<div
+  id={expressCheckoutElementId}
+  class:rcb-express-checkout-hidden={!allowExpressCheckout ||
+    hideExpressCheckoutElement}
+  aria-hidden={!allowExpressCheckout || hideExpressCheckoutElement}
+></div>
+{#if !hideCheckoutSeparator && allowExpressCheckout && !hideExpressCheckoutElement}
+  <TextSeparator
+    text={$translator.translate(
+      LocalizationKeys.PaymentEntryPageExpressCheckoutDivider,
+    )}
+  />
 {/if}
+
+<style>
+  .rcb-express-checkout-hidden {
+    display: none;
+  }
+</style>

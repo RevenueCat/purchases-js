@@ -57,6 +57,12 @@ export interface WorkflowPurchaseContext {
    * The step ID from the workflow where the purchase is being initiated.
    */
   stepId?: string;
+  /**
+   * The funnel URL query parameters to forward to the backend so they can be
+   * attached to the server-generated workflow purchase event. Each key accepts a
+   * single value or, for repeated query-string keys, an array of values.
+   */
+  urlParameters?: Record<string, string | string[]>;
 }
 
 /**
@@ -175,8 +181,6 @@ export interface PurchaseParams {
 
   /**
    * Link to the terms and conditions that should be shown in the checkout footer.
-   *
-   * @internal
    */
   termsAndConditionsUrl?: string;
 }

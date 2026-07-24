@@ -316,6 +316,34 @@ describe("PurchaseOperationHelper", () => {
     );
   });
 
+  test("checkoutStart derives stepId and urlParameters from workflowPurchaseContext", async () => {
+    const mockPostCheckoutStart = vi
+      .spyOn(backend, "postCheckoutStart")
+      .mockResolvedValue(checkoutStartResponse);
+
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      workflowPurchaseContext: {
+        stepId: "step-abc",
+        urlParameters: { utm_source: "typedIn", fbp: "metaID" },
+      },
+    });
+
+    expect(mockPostCheckoutStart).toHaveBeenCalledWith(
+      expect.objectContaining({
+        presentedStepId: "step-abc",
+        urlParameters: { utm_source: "typedIn", fbp: "metaID" },
+      }),
+    );
+  });
+
   test("prepareCheckout returns the backend response", async () => {
     setCheckoutPrepareResponse(
       HttpResponse.json(checkoutPrepareResponse, {

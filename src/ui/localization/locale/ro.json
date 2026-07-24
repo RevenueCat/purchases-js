@@ -101,5 +101,7 @@
   "pricing_table.discount": "Reducere",
   "pricing_table.subtotal": "Subtotal",
   "pricing_dropdown.add_promo_code": "Adaugă cod promoțional",
-  "discount_input.label": "Cod promoțional"
+  "discount_input.label": "Cod promoțional",
+  "payment_entry_page.checkout_consent_terms_of_service": "condițiile de utilizare",
+  "payment_entry_page.checkout_consent_agreement": "Sunt de acord cu {{termsOfService}} ale {{appName}}."
 }

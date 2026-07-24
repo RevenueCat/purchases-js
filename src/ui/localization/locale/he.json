@@ -101,5 +101,7 @@
   "pricing_table.discount": "הנחה",
   "pricing_table.subtotal": "סכום ביניים",
   "pricing_dropdown.add_promo_code": "הוסף קוד קידום מכירות",
-  "discount_input.label": "קוד פרומו"
+  "discount_input.label": "קוד פרומו",
+  "payment_entry_page.checkout_consent_terms_of_service": "תנאי השירות",
+  "payment_entry_page.checkout_consent_agreement": "אני מסכים/ה ל{{termsOfService}} של {{appName}}."
 }

@@ -81,6 +81,8 @@ export enum LocalizationKeys {
   PaymentEntryPageSubscriptionTermsInfo = "payment_entry_page.subscription_terms_info",
   PaymentEntryPageOtpTermsInfo = "payment_entry_page.otp_terms_info",
   PaymentEntryPageTermsLinkLabel = "payment_entry_page.terms_link_label",
+  PaymentEntryPageCheckoutConsentAgreement = "payment_entry_page.checkout_consent_agreement",
+  PaymentEntryPageCheckoutConsentTermsOfService = "payment_entry_page.checkout_consent_terms_of_service",
   PaymentEntryPageSubscriptionInfo = "payment_entry_page.subscription_info",
   PaymentEntryPageButtonPay = "payment_entry_page.button_pay",
   PaymentEntryPageButtonStartTrial = "payment_entry_page.button_start_trial",

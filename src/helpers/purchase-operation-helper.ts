@@ -301,6 +301,7 @@ export class PurchaseOperationHelper {
     try {
       const traceId = this.eventsTracker.getTraceId();
       const presentedStepId = workflowPurchaseContext?.stepId;
+      const urlParameters = workflowPurchaseContext?.urlParameters;
 
       const checkoutStartResponse =
         await this.backend.postCheckoutStart<WebBillingCheckoutStartResponse>({
@@ -310,6 +311,7 @@ export class PurchaseOperationHelper {
           presentedOfferingContext,
           traceId,
           presentedStepId,
+          urlParameters,
           paywallId,
           paywallSessionId,
           customerEmail,
