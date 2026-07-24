@@ -1,59 +1,79 @@
-import type { ProductChangeResult } from "@revenuecat/purchases-js";
 import { PurchasesError } from "@revenuecat/purchases-js";
 import React, { useState } from "react";
 import { usePurchasesLoaderData } from "../../util/PurchasesLoader";
-import LogoutButton from "../../components/LogoutButton";
+
+// Local mirror of the internal ProductChangeResult type — changeProduct is
+// @internal and excluded from the public .d.ts for now.
+type ProductChangeResult = {
+  operationSessionId: string;
+  changeType: "immediate" | "deferred";
+  newProductId: string;
+};
 
 /**
- * PoC page for headless subscription upgrades through the web purchase flow.
+ * Demo page for headless subscription product changes through the web SDK.
  *
- * It fetches a short-lived subscriber access token from the demo token server
+ * Fetches a short-lived subscriber access token from the demo token server
  * (which holds the secret API key, mimicking the developer's backend) and
  * then calls Purchases.changeProduct with it. No checkout UI is shown and no
  * payment details are collected: the change is applied to the customer's
  * existing subscription using the payment method on file.
  */
 const UpgradePage: React.FC = () => {
-  const { purchases, customerInfo, offering } = usePurchasesLoaderData();
+  const { purchases, customerInfo } = usePurchasesLoaderData();
   const [newProductId, setNewProductId] = useState("");
+  const [sourceProductId, setSourceProductId] = useState("");
   const [inProgress, setInProgress] = useState(false);
   const [result, setResult] = useState<ProductChangeResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const activeProductIds = Array.from(customerInfo.activeSubscriptions);
-  const offeredProductIds = (offering?.availablePackages ?? [])
-    .map((pkg) => pkg.webBillingProduct?.identifier)
-    .filter((identifier): identifier is string => Boolean(identifier));
+  const hasMultipleActiveSubscriptions = activeProductIds.length > 1;
 
-  const performUpgrade = async () => {
+  const canConfirm =
+    Boolean(newProductId) &&
+    (!hasMultipleActiveSubscriptions || Boolean(sourceProductId));
+
+  const performChange = async () => {
     setInProgress(true);
     setResult(null);
     setError(null);
 
     try {
-      // Step 1: ask "our backend" (the demo token server) for a short-lived
-      // subscriber token. The secret API key never reaches the browser.
+      // Ask the demo token server for a short-lived subscriber token.
       const tokenResponse = await fetch("/api/upgrade-token", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ appUserId: purchases.getAppUserId() }),
       });
       if (!tokenResponse.ok) {
+        const body = await tokenResponse.text();
         throw new Error(
-          `Token server error (${tokenResponse.status}): ${await tokenResponse.text()}`,
+          `Failed to mint subscriber token (${tokenResponse.status}). ` +
+            `Check the token server env and secret API key. ${body}`,
         );
       }
       const { access_token: subscriberToken } = await tokenResponse.json();
 
-      // Step 2: perform the headless product change with the token.
-      const changeResult = await purchases.changeProduct({
+      // Perform the product change with the token.
+      // @ts-expect-error changeProduct is marked as internal for now
+      const changeResult: ProductChangeResult = await purchases.changeProduct({
         newProductId,
         subscriberToken,
+        ...(sourceProductId ? { sourceProductId } : {}),
       });
       setResult(changeResult);
     } catch (e) {
       if (e instanceof PurchasesError) {
-        setError(`PurchasesError: ${e.message} ${e.underlyingErrorMessage}`);
+        const underlying = e.underlyingErrorMessage
+          ? `\n${e.underlyingErrorMessage}`
+          : "";
+        setError(
+          `${e.message}${underlying}\n\n` +
+            "Common causes: missing product change path (404), " +
+            "expired/invalid subscriber token (401), or multiple active " +
+            "subscriptions without sourceProductId.",
+        );
       } else {
         setError(String(e));
       }
@@ -64,9 +84,8 @@ const UpgradePage: React.FC = () => {
 
   return (
     <>
-      <LogoutButton />
       <div className="rc-paywall">
-        <h1>Upgrade PoC (headless)</h1>
+        <h1>Change subscription</h1>
 
         <p>
           Current user: <code>{purchases.getAppUserId()}</code>
@@ -77,21 +96,6 @@ const UpgradePage: React.FC = () => {
             {activeProductIds.length > 0 ? activeProductIds.join(", ") : "none"}
           </code>
         </p>
-
-        {offeredProductIds.length > 0 && (
-          <p>
-            Products in current offering:{" "}
-            {offeredProductIds.map((identifier) => (
-              <button
-                key={identifier}
-                style={{ marginRight: "8px" }}
-                onClick={() => setNewProductId(identifier)}
-              >
-                {identifier}
-              </button>
-            ))}
-          </p>
-        )}
 
         <p>
           <label>
@@ -106,18 +110,47 @@ const UpgradePage: React.FC = () => {
           </label>
         </p>
 
+        {hasMultipleActiveSubscriptions && (
+          <>
+            <p>
+              <label>
+                Source product (required — multiple active subscriptions):{" "}
+                <input
+                  type="text"
+                  value={sourceProductId}
+                  placeholder="product identifier to change from"
+                  onChange={(event) => setSourceProductId(event.target.value)}
+                  style={{ width: "300px" }}
+                />
+              </label>
+            </p>
+            <p>
+              {activeProductIds.map((identifier) => (
+                <button
+                  key={identifier}
+                  style={{ marginRight: "8px" }}
+                  onClick={() => setSourceProductId(identifier)}
+                >
+                  Use source: {identifier}
+                </button>
+              ))}
+            </p>
+          </>
+        )}
+
         <button
           className="button"
-          disabled={inProgress || !newProductId}
-          onClick={performUpgrade}
+          disabled={inProgress || !canConfirm}
+          onClick={performChange}
+          style={{ marginTop: "8px" }}
         >
-          {inProgress ? "Changing..." : "Change subscription"}
+          {inProgress ? "Changing..." : "Confirm change"}
         </button>
 
         {result && (
           <div>
             <h2>
-              {result.changeTiming === "immediate"
+              {result.changeType === "immediate"
                 ? "Upgrade applied immediately"
                 : "Downgrade scheduled for next renewal"}
             </h2>
@@ -133,9 +166,8 @@ const UpgradePage: React.FC = () => {
         )}
 
         <div className="notice">
-          This is a proof of concept. The token server must be running (
-          <code>npm run token-server</code>) and a product change path must be
-          configured between the current and target products.
+          Requires the token server (<code>npm run token-server</code>) and a
+          configured product change path between the source and target products.
         </div>
       </div>
     </>

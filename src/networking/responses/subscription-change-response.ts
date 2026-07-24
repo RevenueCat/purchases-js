@@ -1,5 +1,5 @@
 export interface SubscriptionChangeResponse {
   operation_session_id: string;
-  change_timing: "immediate" | "deferred";
+  change_type: "immediate" | "deferred";
   new_product_id: string;
 }

@@ -2153,33 +2153,30 @@ export class Purchases {
    * with a prorated credit for unused time); downgrades are deferred to the
    * end of the current billing cycle.
    *
-   * This is a headless operation: no UI is displayed and the customer does
-   * not re-enter payment details. The request is authenticated with a
-   * short-lived subscriber access token that your backend must mint with a
-   * secret API key via the RevenueCat Developer API `authenticate` endpoint.
-   *
    * @param params - The {@link ChangeProductParams} for the change.
    * @returns The {@link ProductChangeResult} describing the applied change.
    * @throws {@link PurchasesError} if the token is invalid, no active Web
-   * Billing subscription exists, or no product change path is configured
-   * from the current product to the requested one.
-   * @experimental
+   * Billing subscription exists, multiple active subscriptions exist without
+   * {@link ChangeProductParams.sourceProductId}, or no product change path
+   * is configured from the current product to the requested one.
+   * @internal
    */
   public async changeProduct(
     params: ChangeProductParams,
   ): Promise<ProductChangeResult> {
-    const { newProductId, subscriberToken } = params;
+    const { newProductId, subscriberToken, sourceProductId } = params;
 
     this.validateSubscriberToken(subscriberToken);
 
     const response = await this.backend.postSubscriptionChange(
       newProductId,
       subscriberToken,
+      sourceProductId,
     );
 
     return {
       operationSessionId: response.operation_session_id,
-      changeTiming: response.change_timing,
+      changeType: response.change_type,
       newProductId: response.new_product_id,
     };
   }

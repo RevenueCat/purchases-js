@@ -1320,7 +1320,7 @@ describe("setAttributes request", () => {
 describe("postSubscriptionChange request", () => {
   const subscriptionChangeResponse = {
     operation_session_id: "rcbopsess_test_id",
-    change_timing: "immediate",
+    change_type: "immediate",
     new_product_id: "annual_product",
   };
 
@@ -1354,6 +1354,29 @@ describe("postSubscriptionChange request", () => {
     expect(requestPerformed).not.toBeUndefined();
     const body = await requestPerformed?.json();
     expect(body).toEqual({ new_product_id: "annual_product" });
+  });
+
+  test("includes source_product_id in the body when provided", async () => {
+    setSubscriptionChangeResponse(
+      HttpResponse.json(subscriptionChangeResponse, { status: 201 }),
+    );
+
+    let requestPerformed: Request | undefined;
+    server.events.on("request:start", (req) => {
+      requestPerformed = req.request;
+    });
+
+    await backend.postSubscriptionChange(
+      "annual_product",
+      "subscriber-token-jwt",
+      "monthly_product",
+    );
+
+    const body = await requestPerformed?.json();
+    expect(body).toEqual({
+      new_product_id: "annual_product",
+      source_product_id: "monthly_product",
+    });
   });
 
   test("authenticates with the subscriber token instead of the API key", async () => {

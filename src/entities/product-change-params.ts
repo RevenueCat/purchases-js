@@ -1,6 +1,6 @@
 /**
  * Parameters for {@link Purchases.changeProduct}.
- * @experimental
+ * @internal
  */
 export interface ChangeProductParams {
   /**
@@ -16,11 +16,18 @@ export interface ChangeProductParams {
    * browser. Never use a RevenueCat API key here.
    */
   subscriberToken: string;
+  /**
+   * Optional product identifier of the subscription to change. Required when
+   * the customer has more than one active Web Billing subscription; if
+   * omitted and exactly one active subscription exists, that subscription is
+   * used.
+   */
+  sourceProductId?: string;
 }
 
 /**
  * Result of {@link Purchases.changeProduct}.
- * @experimental
+ * @internal
  */
 export interface ProductChangeResult {
   /**
@@ -30,9 +37,10 @@ export interface ProductChangeResult {
   /**
    * Whether the change was applied immediately (upgrade, charged now with a
    * prorated credit for unused time) or deferred to the end of the current
-   * billing cycle (downgrade).
+   * billing cycle (downgrade). Matches the configured product change path
+   * `change_type`.
    */
-  changeTiming: "immediate" | "deferred";
+  changeType: "immediate" | "deferred";
   /**
    * The product identifier the subscription was (or will be) changed to.
    */

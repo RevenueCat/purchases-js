@@ -394,26 +394,22 @@ export class Backend {
     );
   }
 
-  /**
-   * Changes the customer's Web Billing subscription to a new product,
-   * following the product change paths configured in RevenueCat.
-   *
-   * Unlike the other RC Billing calls, this request is authenticated with a
-   * short-lived subscriber access token (minted server-side by the developer
-   * via the Developer API `authenticate` endpoint) instead of the public API
-   * key, since it mutates an existing subscription.
-   */
   async postSubscriptionChange(
     newProductId: string,
     subscriberToken: string,
+    sourceProductId?: string,
   ): Promise<SubscriptionChangeResponse> {
     type SubscriptionChangeRequestBody = {
       new_product_id: string;
+      source_product_id?: string;
     };
 
     const requestBody: SubscriptionChangeRequestBody = {
       new_product_id: newProductId,
     };
+    if (sourceProductId !== undefined) {
+      requestBody.source_product_id = sourceProductId;
+    }
 
     return await performRequest<
       SubscriptionChangeRequestBody,

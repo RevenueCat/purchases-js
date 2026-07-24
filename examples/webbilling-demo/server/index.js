@@ -1,20 +1,20 @@
 /**
  * Standalone demo token server.
  *
- * Plays the role of the developer's backend in the upgrade PoC: it holds the
- * secret API key and mints short-lived subscriber access tokens via the
- * RevenueCat Developer API `authenticate` endpoint. The browser only ever
+ * Plays the role of the developer's backend for headless product changes: it
+ * holds the secret API key and mints short-lived subscriber access tokens via
+ * the RevenueCat Developer API `authenticate` endpoint. The browser only ever
  * receives the short-lived token, never the secret key.
  *
  * This is intentionally a separate process from the Vite dev server so the
  * secret key never lives anywhere in the frontend source tree or its env.
  *
- * Usage: copy `.env.example` to `.env`, fill it in, then `npm run token-server`.
+ * Usage: copy `.env.example` to `.env`, fill it in, then `pnpm run token-server`.
  */
 
-import { Buffer } from "node:buffer";
 import { createServer } from "node:http";
 import process from "node:process";
+import { text } from "node:stream/consumers";
 import { fileURLToPath } from "node:url";
 import { config } from "dotenv";
 
@@ -38,9 +38,7 @@ if (!RC_SECRET_API_KEY || !RC_PROJECT_ID || !RC_APP_ID) {
 }
 
 async function readJsonBody(req) {
-  const chunks = [];
-  for await (const chunk of req) chunks.push(chunk);
-  return JSON.parse(Buffer.concat(chunks).toString("utf8") || "{}");
+  return JSON.parse((await text(req)) || "{}");
 }
 
 function sendJson(res, statusCode, body) {
@@ -61,8 +59,8 @@ const server = createServer(async (req, res) => {
       return;
     }
 
-    // In a real backend this is where you would check that the request comes
-    // from an authenticated session belonging to `appUserId`.
+    // In a production application this is where the session authentication for the appUserId would be checked.
+
     const headers = {
       Authorization: `Bearer ${RC_SECRET_API_KEY}`,
       "Content-Type": "application/json",

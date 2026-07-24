@@ -116,8 +116,6 @@ const router = createBrowserRouter([
     ),
   },
   {
-    // Headless upgrade PoC: no entitlement wrapper on purpose, since the
-    // whole point is that the user already has an active subscription.
     path: "/upgrade/:app_user_id",
     loader: loadPurchases,
     element: <UpgradePage />,
