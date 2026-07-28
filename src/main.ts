@@ -2212,7 +2212,7 @@ export class Purchases {
         resolve(result);
       };
 
-      const onError = this.createCheckoutOnErrorHandler(reject, unmountUi);
+      const onError = this.createCheckoutOnErrorHandler(reject);
 
       component = mount(UpgradeCheckoutUi, {
         target: certainHTMLTarget,

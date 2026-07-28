@@ -81,6 +81,7 @@
       return;
     }
     confirming = true;
+    loadError = null;
     try {
       const result =
         await productChangeOperationHelper.confirm(subscriberToken);
@@ -94,6 +95,7 @@
               "Failed to confirm product change.",
               e instanceof Error ? e.message : String(e),
             );
+      loadError = error.message;
       onError(error);
     } finally {
       confirming = false;
@@ -139,23 +141,21 @@
   {/snippet}
 
   {#snippet mainContent()}
-    <div class="upgrade-checkout">
+    <div class="rcb-upgrade-checkout">
       {#if loading}
         <Typography size="body-base">Loading upgrade checkout…</Typography>
-      {:else if loadError}
-        <Typography size="body-base">{loadError}</Typography>
       {:else if startData}
-        <div class="upgrade-details">
-          <div class="section">
-            <div class="section-label">
+        <div class="rcb-upgrade-details">
+          <div class="rcb-upgrade-section">
+            <div class="rcb-upgrade-section-label">
               <Typography size="body-small">Email</Typography>
             </div>
             <Typography size="body-base">{startData.email}</Typography>
           </div>
 
           {#if paymentMethodLabel}
-            <div class="section">
-              <div class="section-label">
+            <div class="rcb-upgrade-section">
+              <div class="rcb-upgrade-section-label">
                 <Typography size="body-small">Payment method</Typography>
               </div>
               <Typography size="body-base">{paymentMethodLabel}</Typography>
@@ -163,8 +163,8 @@
           {/if}
 
           {#if billingAddressLabel}
-            <div class="section">
-              <div class="section-label">
+            <div class="rcb-upgrade-section">
+              <div class="rcb-upgrade-section-label">
                 <Typography size="body-small">Billing address</Typography>
               </div>
               <Typography size="body-base">{billingAddressLabel}</Typography>
@@ -172,7 +172,7 @@
           {/if}
 
           {#if startData.change_type === "deferred"}
-            <div class="section section-label">
+            <div class="rcb-upgrade-section rcb-upgrade-section-label">
               <Typography size="body-small">
                 This change will take effect at the end of your current billing
                 period. You will not be charged now.
@@ -181,7 +181,11 @@
           {/if}
         </div>
 
-        <div class="upgrade-actions">
+        {#if loadError}
+          <Typography size="body-base">{loadError}</Typography>
+        {/if}
+
+        <div class="rcb-upgrade-actions">
           <Button
             disabled={confirming}
             onclick={handleConfirm}
@@ -190,46 +194,48 @@
             {confirming ? "Confirming…" : ctaLabel}
           </Button>
         </div>
+      {:else if loadError}
+        <Typography size="body-base">{loadError}</Typography>
       {/if}
     </div>
   {/snippet}
 </Template>
 
 <style>
-  .upgrade-checkout {
+  .rcb-upgrade-checkout {
     display: flex;
     flex-direction: column;
     gap: var(--rc-spacing-gapXXLarge-mobile);
     user-select: none;
   }
 
-  .upgrade-details {
+  .rcb-upgrade-details {
     display: flex;
     flex-direction: column;
     gap: var(--rc-spacing-gapXLarge-mobile);
   }
 
-  .section {
+  .rcb-upgrade-section {
     display: flex;
     flex-direction: column;
     gap: var(--rc-spacing-gapSmall-mobile);
   }
 
-  .section-label {
+  .rcb-upgrade-section-label {
     color: var(--rc-color-grey-text-light);
   }
 
-  .upgrade-actions {
+  .rcb-upgrade-actions {
     display: flex;
     flex-direction: column;
   }
 
   @container layout-query-container (width >= 768px) {
-    .upgrade-checkout {
+    .rcb-upgrade-checkout {
       gap: var(--rc-spacing-gapXXLarge-desktop);
     }
 
-    .upgrade-details {
+    .rcb-upgrade-details {
       gap: var(--rc-spacing-gapXLarge-desktop);
     }
   }

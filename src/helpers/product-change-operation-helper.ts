@@ -28,7 +28,11 @@ export class ProductChangeOperationHelper {
       this.startResponse = response;
       return response;
     } catch (error) {
-      throw this.toFlowError(error, "Failed to start product change checkout.");
+      throw this.toFlowError(
+        error,
+        "Failed to start product change checkout.",
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+      );
     }
   }
 
@@ -55,22 +59,24 @@ export class ProductChangeOperationHelper {
         newProductId: response.new_product_id,
       };
     } catch (error) {
-      throw this.toFlowError(error, "Failed to confirm product change.");
+      throw this.toFlowError(
+        error,
+        "Failed to confirm product change.",
+        PurchaseFlowErrorCode.ErrorChargingPayment,
+      );
     }
   }
 
   private toFlowError(
     error: unknown,
     fallbackMessage: string,
+    defaultFlowErrorCode: PurchaseFlowErrorCode,
   ): PurchaseFlowError {
     if (error instanceof PurchaseFlowError) {
       return error;
     }
     if (error instanceof PurchasesError) {
-      return PurchaseFlowError.fromPurchasesError(
-        error,
-        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-      );
+      return PurchaseFlowError.fromPurchasesError(error, defaultFlowErrorCode);
     }
     return new PurchaseFlowError(
       PurchaseFlowErrorCode.UnknownError,
