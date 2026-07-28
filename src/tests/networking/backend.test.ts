@@ -454,6 +454,73 @@ describe("getProducts request", () => {
     ).toEqual(productsResponse);
   });
 
+  test("requests each product only once", async () => {
+    const requestedProductIds: string[] = [];
+    server.use(
+      http.get(
+        "http://localhost:8000/rcbilling/v1/subscribers/someAppUserId/products",
+        ({ request }) => {
+          const productIds = new URL(request.url).searchParams.getAll("id");
+          requestedProductIds.push(...productIds);
+          return HttpResponse.json({
+            product_details: productIds.map((identifier) => ({
+              ...productsResponse.product_details[0],
+              identifier,
+            })),
+          });
+        },
+      ),
+    );
+
+    const response = await backend.getProducts("someAppUserId", [
+      "monthly",
+      "monthly_2",
+      "monthly",
+      "monthly_2",
+    ]);
+
+    expect(requestedProductIds).toEqual(["monthly", "monthly_2"]);
+    expect(
+      response.product_details.map(({ identifier }) => identifier),
+    ).toEqual(["monthly", "monthly_2"]);
+  });
+
+  test("batches large product catalogues into bounded URLs", async () => {
+    const productIds = Array.from(
+      { length: 250 },
+      (_, index) =>
+        `product_${index.toString().padStart(4, "0")}_long_identifier`,
+    );
+    const requestedBatches: string[][] = [];
+    const requestedUrlLengths: number[] = [];
+    server.use(
+      http.get(
+        "http://localhost:8000/rcbilling/v1/subscribers/someAppUserId/products",
+        ({ request }) => {
+          const url = new URL(request.url);
+          const requestedProductIds = url.searchParams.getAll("id");
+          requestedBatches.push(requestedProductIds);
+          requestedUrlLengths.push(`${url.pathname}${url.search}`.length);
+          return HttpResponse.json({
+            product_details: requestedProductIds.map((identifier) => ({
+              ...productsResponse.product_details[0],
+              identifier,
+            })),
+          });
+        },
+      ),
+    );
+
+    const response = await backend.getProducts("someAppUserId", productIds);
+
+    expect(requestedBatches.length).toBeGreaterThan(1);
+    expect(requestedUrlLengths.every((length) => length <= 3500)).toBe(true);
+    expect(requestedBatches.flat()).toEqual(productIds);
+    expect(
+      response.product_details.map(({ identifier }) => identifier),
+    ).toEqual(productIds);
+  });
+
   test("passes request with currency successfully", async () => {
     setProductsResponse(
       HttpResponse.json(productsResponse, { status: 200 }),
