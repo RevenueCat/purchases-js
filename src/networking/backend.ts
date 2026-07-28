@@ -42,7 +42,7 @@ import type { IdentifyResponse } from "./responses/identify-response";
 import type { CheckoutPrepareResponse } from "./responses/checkout-prepare-response";
 import type { AttributionMetadata } from "../entities/purchase-params";
 
-const MAX_GET_PRODUCTS_URL_PATH_LENGTH = 3500;
+const MAX_GET_PRODUCTS_URL_PATH_LENGTH = 2000;
 
 interface CheckoutStartRequestParams {
   // Purchase identity
@@ -165,27 +165,25 @@ export class Backend {
       discountCode,
     );
 
-    const responses = await Promise.all(
-      productIdBatches.map((productIdBatch) =>
-        performRequest<null, ProductsResponse>(
-          new GetProductsEndpoint(
-            appUserId,
-            productIdBatch,
-            currency,
-            discountCode,
-          ),
-          {
-            apiKey: this.API_KEY,
-            httpConfig: this.httpConfig,
-          },
+    const productDetails: ProductsResponse["product_details"] = [];
+    for (const productIdBatch of productIdBatches) {
+      const response = await performRequest<null, ProductsResponse>(
+        new GetProductsEndpoint(
+          appUserId,
+          productIdBatch,
+          currency,
+          discountCode,
         ),
-      ),
-    );
+        {
+          apiKey: this.API_KEY,
+          httpConfig: this.httpConfig,
+        },
+      );
+      productDetails.push(...response.product_details);
+    }
 
     return {
-      product_details: responses.flatMap(
-        (response) => response.product_details,
-      ),
+      product_details: productDetails,
     };
   }
 

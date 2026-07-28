@@ -485,6 +485,31 @@ describe("getProducts request", () => {
     ).toEqual(["monthly", "monthly_2"]);
   });
 
+  test("returns an empty response without a request when there are no product IDs", async () => {
+    let requestCount = 0;
+    server.events.on("request:start", () => {
+      requestCount += 1;
+    });
+
+    const response = await backend.getProducts("someAppUserId", []);
+
+    expect(response).toEqual({ product_details: [] });
+    expect(requestCount).toBe(0);
+  });
+
+  test("handles an empty product details response", async () => {
+    setProductsResponse(
+      HttpResponse.json({ product_details: [] }, { status: 200 }),
+    );
+
+    const response = await backend.getProducts("someAppUserId", [
+      "monthly",
+      "monthly_2",
+    ]);
+
+    expect(response).toEqual({ product_details: [] });
+  });
+
   test("batches large product catalogues into bounded URLs", async () => {
     const productIds = Array.from(
       { length: 250 },
@@ -493,14 +518,24 @@ describe("getProducts request", () => {
     );
     const requestedBatches: string[][] = [];
     const requestedUrlLengths: number[] = [];
+    let activeRequests = 0;
+    let maximumConcurrentRequests = 0;
     server.use(
       http.get(
         "http://localhost:8000/rcbilling/v1/subscribers/someAppUserId/products",
-        ({ request }) => {
+        async ({ request }) => {
+          activeRequests += 1;
+          maximumConcurrentRequests = Math.max(
+            maximumConcurrentRequests,
+            activeRequests,
+          );
+          await new Promise((resolve) => setTimeout(resolve, 10));
+
           const url = new URL(request.url);
           const requestedProductIds = url.searchParams.getAll("id");
           requestedBatches.push(requestedProductIds);
           requestedUrlLengths.push(`${url.pathname}${url.search}`.length);
+          activeRequests -= 1;
           return HttpResponse.json({
             product_details: requestedProductIds.map((identifier) => ({
               ...productsResponse.product_details[0],
@@ -514,11 +549,54 @@ describe("getProducts request", () => {
     const response = await backend.getProducts("someAppUserId", productIds);
 
     expect(requestedBatches.length).toBeGreaterThan(1);
-    expect(requestedUrlLengths.every((length) => length <= 3500)).toBe(true);
+    expect(requestedUrlLengths.every((length) => length <= 2000)).toBe(true);
+    expect(maximumConcurrentRequests).toBe(1);
     expect(requestedBatches.flat()).toEqual(productIds);
     expect(
       response.product_details.map(({ identifier }) => identifier),
     ).toEqual(productIds);
+  });
+
+  test("stops requesting batches when one batch fails", async () => {
+    const productIds = Array.from(
+      { length: 250 },
+      (_, index) =>
+        `product_${index.toString().padStart(4, "0")}_long_identifier`,
+    );
+    let requestCount = 0;
+    server.use(
+      http.get(
+        "http://localhost:8000/rcbilling/v1/subscribers/someAppUserId/products",
+        ({ request }) => {
+          requestCount += 1;
+          if (requestCount === 2) {
+            return HttpResponse.json(null, {
+              status: StatusCodes.INTERNAL_SERVER_ERROR,
+            });
+          }
+
+          const requestedProductIds = new URL(request.url).searchParams.getAll(
+            "id",
+          );
+          return HttpResponse.json({
+            product_details: requestedProductIds.map((identifier) => ({
+              ...productsResponse.product_details[0],
+              identifier,
+            })),
+          });
+        },
+      ),
+    );
+
+    await expectPromiseToError(
+      backend.getProducts("someAppUserId", productIds),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        "Request: getProducts. Status code: 500. Body: null.",
+      ),
+    );
+    expect(requestCount).toBe(2);
   });
 
   test("passes request with currency successfully", async () => {
