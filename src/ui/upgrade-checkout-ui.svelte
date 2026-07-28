@@ -146,33 +146,84 @@
         </div>
 
         {#if startData.price_breakdown}
+          {@const breakdown = startData.price_breakdown}
           <div class="section">
             <Typography size="body-small">Due today</Typography>
-            <Typography size="body-base">
-              {formatMoney(
-                startData.price_breakdown.total_amount_in_micros,
-                startData.price_breakdown.currency,
-              )}
-            </Typography>
-            {#if startData.price_breakdown.tax_amount_in_micros != null}
-              <Typography size="body-small">
-                Includes tax {formatMoney(
-                  startData.price_breakdown.tax_amount_in_micros,
-                  startData.price_breakdown.currency,
-                )}
-              </Typography>
-            {/if}
+            <div class="line-items">
+              <div class="line-item">
+                <Typography size="body-small">Subtotal</Typography>
+                <Typography size="body-small">
+                  {formatMoney(
+                    breakdown.total_excluding_tax_in_micros,
+                    breakdown.currency,
+                  )}
+                </Typography>
+              </div>
+              <div class="line-item">
+                <Typography size="body-small">Tax (estimated)</Typography>
+                {#if breakdown.tax_amount_in_micros != null}
+                  <Typography size="body-small">
+                    {formatMoney(
+                      breakdown.tax_amount_in_micros,
+                      breakdown.currency,
+                    )}
+                  </Typography>
+                {:else}
+                  <Typography size="body-small">Calculated later</Typography>
+                {/if}
+              </div>
+              <div class="line-item">
+                <Typography size="body-base">Total</Typography>
+                <Typography size="body-base">
+                  {formatMoney(
+                    breakdown.total_amount_in_micros,
+                    breakdown.currency,
+                  )}
+                </Typography>
+              </div>
+            </div>
           </div>
         {/if}
 
-        {#if startData.estimated_credit_in_micros != null && startData.estimated_credit_in_micros > 0}
+        {#if startData.estimated_renewal_price}
+          {@const breakdown = startData.estimated_renewal_price}
           <div class="section">
-            <Typography size="body-small">
-              Estimated credit for unused time: {formatMoney(
-                startData.estimated_credit_in_micros,
-                startData.to_product.currency,
-              )}
-            </Typography>
+            <Typography size="body-small"
+              >At next renewal (estimated)</Typography
+            >
+            <div class="line-items">
+              <div class="line-item">
+                <Typography size="body-small">Subtotal</Typography>
+                <Typography size="body-small">
+                  {formatMoney(
+                    breakdown.total_excluding_tax_in_micros,
+                    breakdown.currency,
+                  )}
+                </Typography>
+              </div>
+              <div class="line-item">
+                <Typography size="body-small">Tax (estimated)</Typography>
+                {#if breakdown.tax_amount_in_micros != null}
+                  <Typography size="body-small">
+                    {formatMoney(
+                      breakdown.tax_amount_in_micros,
+                      breakdown.currency,
+                    )}
+                  </Typography>
+                {:else}
+                  <Typography size="body-small">Calculated later</Typography>
+                {/if}
+              </div>
+              <div class="line-item">
+                <Typography size="body-base">Total</Typography>
+                <Typography size="body-base">
+                  {formatMoney(
+                    breakdown.total_amount_in_micros,
+                    breakdown.currency,
+                  )}
+                </Typography>
+              </div>
+            </div>
           </div>
         {/if}
 
@@ -240,6 +291,18 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
+  }
+
+  .line-items {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .line-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
   }
 
   .confirm-button {

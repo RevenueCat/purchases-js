@@ -84,7 +84,7 @@ describe("product change checkout networking", () => {
                 total_excluding_tax_in_micros: 99990000,
                 original_amount_in_micros: 99990000,
               },
-              estimated_credit_in_micros: 1000000,
+              estimated_renewal_price: null,
               email: "user@example.com",
               payment_method: {
                 type: "card",

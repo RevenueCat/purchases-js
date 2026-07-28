@@ -31,8 +31,13 @@ export interface SubscriptionChangeCheckoutStartResponse {
   change_type: "immediate" | "deferred";
   from_product: SubscriptionChangeProductSummary;
   to_product: SubscriptionChangeProductSummary;
+  /** Amount due now for immediate upgrades. Null for deferred changes. */
   price_breakdown: SubscriptionChangePriceBreakdownSummary | null;
-  estimated_credit_in_micros: number | null;
+  /**
+   * Estimated next-renewal total for deferred changes (quote-only tax).
+   * Null for immediate upgrades.
+   */
+  estimated_renewal_price: SubscriptionChangePriceBreakdownSummary | null;
   email: string;
   payment_method: SubscriptionChangePaymentMethodSummary | null;
   billing_address: SubscriptionChangeBillingAddressSummary | null;
