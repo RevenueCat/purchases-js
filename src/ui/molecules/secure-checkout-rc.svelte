@@ -201,6 +201,13 @@
       <Typography size="caption-default">{subscriptionInfo}</Typography>
     </p>
   {/if}
+  {#if brandingInfo?.rc_billing_checkout_footer}
+    <p class="footer-caption custom-checkout-footer">
+      <Typography size="caption-default">
+        {brandingInfo.rc_billing_checkout_footer}
+      </Typography>
+    </p>
+  {/if}
   <p class="footer-caption">
     <Typography size="caption-default">
       {#if termsAndConditionsUrl}
@@ -230,6 +237,10 @@
     color: var(--rc-color-grey-text-light);
     text-align: center;
     margin: 0;
+  }
+
+  .custom-checkout-footer {
+    white-space: pre-wrap;
   }
 
   .terms-link {
