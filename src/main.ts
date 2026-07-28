@@ -47,7 +47,7 @@ import {
 } from "./helpers/configuration-validators";
 import { type PurchaseParams } from "./entities/purchase-params";
 import {
-  type ChangeProductParams,
+  type PresentProductChangeParams,
   type ProductChangeResult,
 } from "./entities/product-change-params";
 import { defaultHttpConfig, type HttpConfig } from "./entities/http-config";
@@ -219,7 +219,7 @@ export type {
   PurchaseParams,
 } from "./entities/purchase-params";
 export type {
-  ChangeProductParams,
+  PresentProductChangeParams,
   ProductChangeResult,
 } from "./entities/product-change-params";
 export type { RedemptionInfo } from "./entities/redemption-info";
@@ -2155,14 +2155,15 @@ export class Purchases {
    * with a prorated credit for unused time); downgrades are deferred to the
    * end of the current billing cycle.
    *
-   * @param params - The {@link ChangeProductParams} for the change.
+   * @param params - The {@link PresentProductChangeParams} for the change.
    * @returns The {@link ProductChangeResult} describing the applied change.
    * @throws {@link PurchasesError} if the token is invalid, the subscription
    * cannot be changed, or no product change path is configured.
    * @internal
    */
-  public async changeProduct(
-    params: ChangeProductParams,
+  @requiresLoadedResources
+  public async presentProductChange(
+    params: PresentProductChangeParams,
   ): Promise<ProductChangeResult> {
     const { newProductId, subscriberToken, subscriptionId, htmlTarget } =
       params;
@@ -2177,8 +2178,6 @@ export class Purchases {
           "subscription to change.",
       );
     }
-
-    await this.preload();
 
     const certainHTMLTarget = this.resolveHTMLTarget(htmlTarget);
     const isInElement = htmlTarget !== undefined;

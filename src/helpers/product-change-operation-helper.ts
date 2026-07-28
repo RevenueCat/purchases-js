@@ -7,9 +7,6 @@ import {
 } from "./purchase-operation-helper";
 import { PurchasesError } from "../entities/errors";
 
-/**
- * Client helper for the upgrade-mode checkout flow: start → confirm.
- */
 export class ProductChangeOperationHelper {
   private operationSessionId: string | null = null;
   private startResponse: SubscriptionChangeCheckoutStartResponse | null = null;

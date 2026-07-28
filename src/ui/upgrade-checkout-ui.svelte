@@ -1,5 +1,7 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, setContext } from "svelte";
+  import { writable } from "svelte/store";
+  import { Button } from "@revenuecat/purchases-ui-js";
   import type { BrandingInfoResponse } from "../networking/responses/branding-response";
   import type { SubscriptionChangeCheckoutStartResponse } from "../networking/responses/subscription-change-response";
   import type { ProductChangeResult } from "../entities/product-change-params";
@@ -11,6 +13,9 @@
   import Template from "./layout/template.svelte";
   import BrandingHeader from "./molecules/branding-header.svelte";
   import Typography from "./atoms/typography.svelte";
+  import UpgradeProductInfo from "./organisms/upgrade-product-info.svelte";
+  import { Translator } from "./localization/translator";
+  import { translatorContextKey } from "./localization/constants";
 
   interface Props {
     newProductId: string;
@@ -43,6 +48,11 @@
   let startData = $state<SubscriptionChangeCheckoutStartResponse | null>(null);
   let loadError = $state<string | null>(null);
 
+  const brandingAppearance = $derived(brandingInfo?.appearance ?? undefined);
+
+  const translatorStore = writable(new Translator());
+  setContext(translatorContextKey, translatorStore);
+
   onMount(async () => {
     try {
       startData = await productChangeOperationHelper.start(
@@ -65,18 +75,6 @@
       loading = false;
     }
   });
-
-  function formatMoney(amountInMicros: number, currency: string): string {
-    const amount = amountInMicros / 1_000_000;
-    try {
-      return new Intl.NumberFormat(undefined, {
-        style: "currency",
-        currency,
-      }).format(amount);
-    } catch {
-      return `${amount.toFixed(2)} ${currency}`;
-    }
-  }
 
   async function handleConfirm() {
     if (!startData || confirming) {
@@ -105,11 +103,39 @@
   const ctaLabel = $derived(
     startData?.change_type === "deferred" ? "Confirm schedule" : "Pay now",
   );
+
+  const paymentMethodLabel = $derived.by(() => {
+    const paymentMethod = startData?.payment_method;
+    if (!paymentMethod) {
+      return null;
+    }
+    const brandOrType = paymentMethod.brand ?? paymentMethod.type;
+    return paymentMethod.last_4
+      ? `${brandOrType} •••• ${paymentMethod.last_4}`
+      : brandOrType;
+  });
+
+  const billingAddressLabel = $derived.by(() => {
+    const address = startData?.billing_address;
+    if (!address) {
+      return null;
+    }
+    return (
+      [address.postal_code, address.country_code].filter(Boolean).join(", ") ||
+      "On file"
+    );
+  });
 </script>
 
 <Template {brandingInfo} {isInElement} {isSandbox} {onClose}>
   {#snippet navbarHeaderContent()}
     <BrandingHeader {brandingInfo} showCloseButton={!isInElement} {onClose} />
+  {/snippet}
+
+  {#snippet navbarBodyContent()}
+    {#if startData}
+      <UpgradeProductInfo {startData} />
+    {/if}
   {/snippet}
 
   {#snippet mainContent()}
@@ -119,161 +145,51 @@
       {:else if loadError}
         <Typography size="body-base">{loadError}</Typography>
       {:else if startData}
-        <Typography size="heading-md">Change subscription</Typography>
-
-        <div class="section">
-          <Typography size="body-small">From</Typography>
-          <Typography size="body-base">
-            {startData.from_product.display_name ??
-              startData.from_product.product_id}
-            — {formatMoney(
-              startData.from_product.price_in_micros,
-              startData.from_product.currency,
-            )}
-          </Typography>
-        </div>
-
-        <div class="section">
-          <Typography size="body-small">To</Typography>
-          <Typography size="body-base">
-            {startData.to_product.display_name ??
-              startData.to_product.product_id}
-            — {formatMoney(
-              startData.to_product.price_in_micros,
-              startData.to_product.currency,
-            )}
-          </Typography>
-        </div>
-
-        {#if startData.price_breakdown}
-          {@const breakdown = startData.price_breakdown}
+        <div class="upgrade-details">
           <div class="section">
-            <Typography size="body-small">Due today</Typography>
-            <div class="line-items">
-              <div class="line-item">
-                <Typography size="body-small">Subtotal</Typography>
-                <Typography size="body-small">
-                  {formatMoney(
-                    breakdown.total_excluding_tax_in_micros,
-                    breakdown.currency,
-                  )}
-                </Typography>
-              </div>
-              <div class="line-item">
-                <Typography size="body-small">Tax (estimated)</Typography>
-                {#if breakdown.tax_amount_in_micros != null}
-                  <Typography size="body-small">
-                    {formatMoney(
-                      breakdown.tax_amount_in_micros,
-                      breakdown.currency,
-                    )}
-                  </Typography>
-                {:else}
-                  <Typography size="body-small">Calculated later</Typography>
-                {/if}
-              </div>
-              <div class="line-item">
-                <Typography size="body-base">Total</Typography>
-                <Typography size="body-base">
-                  {formatMoney(
-                    breakdown.total_amount_in_micros,
-                    breakdown.currency,
-                  )}
-                </Typography>
-              </div>
+            <div class="section-label">
+              <Typography size="body-small">Email</Typography>
             </div>
+            <Typography size="body-base">{startData.email}</Typography>
           </div>
-        {/if}
 
-        {#if startData.estimated_renewal_price}
-          {@const breakdown = startData.estimated_renewal_price}
-          <div class="section">
-            <Typography size="body-small"
-              >At next renewal (estimated)</Typography
-            >
-            <div class="line-items">
-              <div class="line-item">
-                <Typography size="body-small">Subtotal</Typography>
-                <Typography size="body-small">
-                  {formatMoney(
-                    breakdown.total_excluding_tax_in_micros,
-                    breakdown.currency,
-                  )}
-                </Typography>
+          {#if paymentMethodLabel}
+            <div class="section">
+              <div class="section-label">
+                <Typography size="body-small">Payment method</Typography>
               </div>
-              <div class="line-item">
-                <Typography size="body-small">Tax (estimated)</Typography>
-                {#if breakdown.tax_amount_in_micros != null}
-                  <Typography size="body-small">
-                    {formatMoney(
-                      breakdown.tax_amount_in_micros,
-                      breakdown.currency,
-                    )}
-                  </Typography>
-                {:else}
-                  <Typography size="body-small">Calculated later</Typography>
-                {/if}
-              </div>
-              <div class="line-item">
-                <Typography size="body-base">Total</Typography>
-                <Typography size="body-base">
-                  {formatMoney(
-                    breakdown.total_amount_in_micros,
-                    breakdown.currency,
-                  )}
-                </Typography>
-              </div>
+              <Typography size="body-base">{paymentMethodLabel}</Typography>
             </div>
-          </div>
-        {/if}
+          {/if}
 
-        {#if startData.change_type === "deferred"}
-          <div class="section">
-            <Typography size="body-small">
-              This change will take effect at the end of your current billing
-              period. You will not be charged now.
-            </Typography>
-          </div>
-        {/if}
+          {#if billingAddressLabel}
+            <div class="section">
+              <div class="section-label">
+                <Typography size="body-small">Billing address</Typography>
+              </div>
+              <Typography size="body-base">{billingAddressLabel}</Typography>
+            </div>
+          {/if}
 
-        <div class="section">
-          <Typography size="body-small">Email</Typography>
-          <Typography size="body-base">{startData.email}</Typography>
+          {#if startData.change_type === "deferred"}
+            <div class="section section-label">
+              <Typography size="body-small">
+                This change will take effect at the end of your current billing
+                period. You will not be charged now.
+              </Typography>
+            </div>
+          {/if}
         </div>
 
-        {#if startData.payment_method}
-          <div class="section">
-            <Typography size="body-small">Payment method</Typography>
-            <Typography size="body-base">
-              {startData.payment_method.brand ?? startData.payment_method.type}
-              {#if startData.payment_method.last_4}
-                •••• {startData.payment_method.last_4}
-              {/if}
-            </Typography>
-          </div>
-        {/if}
-
-        {#if startData.billing_address}
-          <div class="section">
-            <Typography size="body-small">Billing address</Typography>
-            <Typography size="body-base">
-              {[
-                startData.billing_address.postal_code,
-                startData.billing_address.country_code,
-              ]
-                .filter(Boolean)
-                .join(", ") || "On file"}
-            </Typography>
-          </div>
-        {/if}
-
-        <button
-          class="confirm-button"
-          disabled={confirming}
-          onclick={handleConfirm}
-        >
-          {confirming ? "Confirming…" : ctaLabel}
-        </button>
+        <div class="upgrade-actions">
+          <Button
+            disabled={confirming}
+            onclick={handleConfirm}
+            {brandingAppearance}
+          >
+            {confirming ? "Confirming…" : ctaLabel}
+          </Button>
+        </div>
       {/if}
     </div>
   {/snippet}
@@ -283,42 +199,38 @@
   .upgrade-checkout {
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    padding: 8px 0 24px;
+    gap: var(--rc-spacing-gapXXLarge-mobile);
+    user-select: none;
+  }
+
+  .upgrade-details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--rc-spacing-gapXLarge-mobile);
   }
 
   .section {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: var(--rc-spacing-gapSmall-mobile);
   }
 
-  .line-items {
+  .section-label {
+    color: var(--rc-color-grey-text-light);
+  }
+
+  .upgrade-actions {
     display: flex;
     flex-direction: column;
-    gap: 4px;
   }
 
-  .line-item {
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-  }
+  @container layout-query-container (width >= 768px) {
+    .upgrade-checkout {
+      gap: var(--rc-spacing-gapXXLarge-desktop);
+    }
 
-  .confirm-button {
-    margin-top: 8px;
-    border: none;
-    border-radius: 8px;
-    padding: 14px 16px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    background: var(--rc-color-accent, #000);
-    color: var(--rc-color-accent-foreground, #fff);
-  }
-
-  .confirm-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+    .upgrade-details {
+      gap: var(--rc-spacing-gapXLarge-desktop);
+    }
   }
 </style>

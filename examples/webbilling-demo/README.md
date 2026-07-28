@@ -32,7 +32,7 @@ npm run dev
 >
 > **Expected behavior:** When using your Web Billing product API key, you should see customers created in Sandbox in your dashboard after completing purchases. View activity at https://app.revenuecat.com/activity after a few minutes to see sandbox transactions and customer data.
 
-### Upgrade-mode checkout (`Purchases.changeProduct`)
+### Upgrade-mode checkout (`Purchases.presentProductChange`)
 
 #### Note this feature is currently experimental
 
