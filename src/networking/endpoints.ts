@@ -161,12 +161,26 @@ export class GetCheckoutStatusEndpoint implements Endpoint {
   }
 }
 
-export class SubscriptionChangeEndpoint implements Endpoint {
+export class SubscriptionChangeCheckoutStartEndpoint implements Endpoint {
   method: HttpMethodType = "POST";
-  name: string = "postSubscriptionChange";
+  name: string = "postSubscriptionChangeCheckoutStart";
 
   urlPath(): string {
-    return `${RC_BILLING_PATH}/subscription/change`;
+    return `${RC_BILLING_PATH}/subscription/change/checkout/start`;
+  }
+}
+
+export class SubscriptionChangeCheckoutConfirmEndpoint implements Endpoint {
+  method: HttpMethodType = "POST";
+  name: string = "postSubscriptionChangeCheckoutConfirm";
+  private readonly operationSessionId: string;
+
+  constructor(operationSessionId: string) {
+    this.operationSessionId = operationSessionId;
+  }
+
+  urlPath(): string {
+    return `${RC_BILLING_PATH}/subscription/change/checkout/${this.operationSessionId}/confirm`;
   }
 }
 
@@ -246,7 +260,8 @@ export type SupportedEndpoint =
   | GetCustomerInfoEndpoint
   | GetBrandingInfoEndpoint
   | GetCheckoutStatusEndpoint
-  | SubscriptionChangeEndpoint
+  | SubscriptionChangeCheckoutStartEndpoint
+  | SubscriptionChangeCheckoutConfirmEndpoint
   | SetAttributesEndpoint
   | PostReceiptEndpoint
   | GetVirtualCurrenciesEndpoint

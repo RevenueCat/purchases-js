@@ -2,8 +2,6 @@ import { PurchasesError } from "@revenuecat/purchases-js";
 import React, { useState } from "react";
 import { usePurchasesLoaderData } from "../../util/PurchasesLoader";
 
-// Local mirror of the internal ProductChangeResult type — changeProduct is
-// @internal and excluded from the public .d.ts for now.
 type ProductChangeResult = {
   operationSessionId: string;
   changeType: "immediate" | "deferred";
@@ -11,36 +9,30 @@ type ProductChangeResult = {
 };
 
 /**
- * Demo page for headless subscription product changes through the web SDK.
+ * Demo page for upgrade-mode checkout through the web SDK.
  *
- * Fetches a short-lived subscriber access token from the demo token server
- * (which holds the secret API key, mimicking the developer's backend) and
- * then calls Purchases.changeProduct with it. No checkout UI is shown and no
- * payment details are collected: the change is applied to the customer's
- * existing subscription using the payment method on file.
+ * Fetches a short-lived subscriber access token from the demo token server,
+ * then opens Purchases.changeProduct which mounts the upgrade checkout UI
+ * (start → confirm).
  */
 const UpgradePage: React.FC = () => {
   const { purchases, customerInfo } = usePurchasesLoaderData();
   const [newProductId, setNewProductId] = useState("");
-  const [sourceProductId, setSourceProductId] = useState("");
+  const [subscriptionId, setSubscriptionId] = useState("");
   const [inProgress, setInProgress] = useState(false);
   const [result, setResult] = useState<ProductChangeResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const activeProductIds = Array.from(customerInfo.activeSubscriptions);
-  const hasMultipleActiveSubscriptions = activeProductIds.length > 1;
 
-  const canConfirm =
-    Boolean(newProductId) &&
-    (!hasMultipleActiveSubscriptions || Boolean(sourceProductId));
+  const canConfirm = Boolean(newProductId) && Boolean(subscriptionId);
 
-  const performChange = async () => {
+  const openUpgradeCheckout = async () => {
     setInProgress(true);
     setResult(null);
     setError(null);
 
     try {
-      // Ask the demo token server for a short-lived subscriber token.
       const tokenResponse = await fetch("/api/upgrade-token", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -55,12 +47,11 @@ const UpgradePage: React.FC = () => {
       }
       const { access_token: subscriberToken } = await tokenResponse.json();
 
-      // Perform the product change with the token.
       // @ts-expect-error changeProduct is marked as internal for now
       const changeResult: ProductChangeResult = await purchases.changeProduct({
         newProductId,
         subscriberToken,
-        ...(sourceProductId ? { sourceProductId } : {}),
+        subscriptionId,
       });
       setResult(changeResult);
     } catch (e) {
@@ -68,12 +59,7 @@ const UpgradePage: React.FC = () => {
         const underlying = e.underlyingErrorMessage
           ? `\n${e.underlyingErrorMessage}`
           : "";
-        setError(
-          `${e.message}${underlying}\n\n` +
-            "Common causes: missing product change path (404), " +
-            "expired/invalid subscriber token (401), or multiple active " +
-            "subscriptions without sourceProductId.",
-        );
+        setError(`${e.message}${underlying}`);
       } else {
         setError(String(e));
       }
@@ -85,7 +71,7 @@ const UpgradePage: React.FC = () => {
   return (
     <>
       <div className="rc-paywall">
-        <h1>Change subscription</h1>
+        <h1>Upgrade checkout</h1>
 
         <p>
           Current user: <code>{purchases.getAppUserId()}</code>
@@ -110,41 +96,26 @@ const UpgradePage: React.FC = () => {
           </label>
         </p>
 
-        {hasMultipleActiveSubscriptions && (
-          <>
-            <p>
-              <label>
-                Source product (required — multiple active subscriptions):{" "}
-                <input
-                  type="text"
-                  value={sourceProductId}
-                  placeholder="product identifier to change from"
-                  onChange={(event) => setSourceProductId(event.target.value)}
-                  style={{ width: "300px" }}
-                />
-              </label>
-            </p>
-            <p>
-              {activeProductIds.map((identifier) => (
-                <button
-                  key={identifier}
-                  style={{ marginRight: "8px" }}
-                  onClick={() => setSourceProductId(identifier)}
-                >
-                  Use source: {identifier}
-                </button>
-              ))}
-            </p>
-          </>
-        )}
+        <p>
+          <label>
+            Subscription id (<code>sub…</code>):{" "}
+            <input
+              type="text"
+              value={subscriptionId}
+              placeholder="sub…"
+              onChange={(event) => setSubscriptionId(event.target.value)}
+              style={{ width: "300px" }}
+            />
+          </label>
+        </p>
 
         <button
           className="button"
           disabled={inProgress || !canConfirm}
-          onClick={performChange}
+          onClick={openUpgradeCheckout}
           style={{ marginTop: "8px" }}
         >
-          {inProgress ? "Changing..." : "Confirm change"}
+          {inProgress ? "Opening…" : "Open upgrade checkout"}
         </button>
 
         {result && (
@@ -166,8 +137,9 @@ const UpgradePage: React.FC = () => {
         )}
 
         <div className="notice">
-          Requires the token server (<code>npm run token-server</code>) and a
-          configured product change path between the source and target products.
+          Requires the token server (<code>npm run token-server</code>), a
+          configured product change path, and the RevenueCat subscription public
+          id (<code>sub…</code>) for the subscription to change.
         </div>
       </div>
     </>

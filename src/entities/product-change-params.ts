@@ -17,12 +17,17 @@ export interface ChangeProductParams {
    */
   subscriberToken: string;
   /**
-   * Optional product identifier of the subscription to change. Required when
-   * the customer has more than one active Web Billing subscription; if
-   * omitted and exactly one active subscription exists, that subscription is
-   * used.
+   * RevenueCat subscription public id (`sub…`) of the subscription to change.
+   *
+   * Typically obtained by the developer backend via the Developer API
+   * customer subscriptions list and passed to the client with the token.
    */
-  sourceProductId?: string;
+  subscriptionId: string;
+  /**
+   * The HTML element into which the upgrade checkout UI will be rendered.
+   * If undefined, a fullscreen modal is used.
+   */
+  htmlTarget?: HTMLElement;
 }
 
 /**

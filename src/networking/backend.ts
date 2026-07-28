@@ -16,14 +16,18 @@ import {
   IdentifyEndpoint,
   PostReceiptEndpoint,
   SetAttributesEndpoint,
-  SubscriptionChangeEndpoint,
+  SubscriptionChangeCheckoutConfirmEndpoint,
+  SubscriptionChangeCheckoutStartEndpoint,
 } from "./endpoints";
 import { type SubscriberResponse } from "./responses/subscriber-response";
 import type { CheckoutStartResponse } from "./responses/checkout-start-response";
 import { type ProductsResponse } from "./responses/products-response";
 import { type BrandingInfoResponse } from "./responses/branding-response";
 import { type CheckoutStatusResponse } from "./responses/checkout-status-response";
-import { type SubscriptionChangeResponse } from "./responses/subscription-change-response";
+import type {
+  SubscriptionChangeCheckoutStartResponse,
+  SubscriptionChangeConfirmResponse,
+} from "./responses/subscription-change-response";
 import { type VirtualCurrenciesResponse } from "./responses/virtual-currencies-response";
 import type {
   WorkflowDataAction,
@@ -394,32 +398,42 @@ export class Backend {
     );
   }
 
-  async postSubscriptionChange(
+  async postSubscriptionChangeCheckoutStart(
     newProductId: string,
+    subscriptionId: string,
     subscriberToken: string,
-    sourceProductId?: string,
-  ): Promise<SubscriptionChangeResponse> {
-    type SubscriptionChangeRequestBody = {
+  ): Promise<SubscriptionChangeCheckoutStartResponse> {
+    type RequestBody = {
       new_product_id: string;
-      source_product_id?: string;
+      subscription_id: string;
     };
-
-    const requestBody: SubscriptionChangeRequestBody = {
-      new_product_id: newProductId,
-    };
-    if (sourceProductId !== undefined) {
-      requestBody.source_product_id = sourceProductId;
-    }
 
     return await performRequest<
-      SubscriptionChangeRequestBody,
-      SubscriptionChangeResponse
-    >(new SubscriptionChangeEndpoint(), {
+      RequestBody,
+      SubscriptionChangeCheckoutStartResponse
+    >(new SubscriptionChangeCheckoutStartEndpoint(), {
       apiKey: this.API_KEY,
-      body: requestBody,
+      body: {
+        new_product_id: newProductId,
+        subscription_id: subscriptionId,
+      },
       headers: { Authorization: `Bearer ${subscriberToken}` },
       httpConfig: this.httpConfig,
     });
+  }
+
+  async postSubscriptionChangeCheckoutConfirm(
+    operationSessionId: string,
+    subscriberToken: string,
+  ): Promise<SubscriptionChangeConfirmResponse> {
+    return await performRequest<undefined, SubscriptionChangeConfirmResponse>(
+      new SubscriptionChangeCheckoutConfirmEndpoint(operationSessionId),
+      {
+        apiKey: this.API_KEY,
+        headers: { Authorization: `Bearer ${subscriberToken}` },
+        httpConfig: this.httpConfig,
+      },
+    );
   }
 
   async setAttributes(

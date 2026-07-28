@@ -7,6 +7,7 @@ import type {
 import PurchasesUi from "./ui/purchases-ui.svelte";
 import PaddlePurchasesUi from "./ui/paddle-purchases-ui.svelte";
 import StripeCheckoutPurchasesUi from "./ui/stripe-checkout-purchases-ui.svelte";
+import UpgradeCheckoutUi from "./ui/upgrade-checkout-ui.svelte";
 
 import { type CustomerInfo, toCustomerInfo } from "./entities/customer-info";
 import {
@@ -34,6 +35,7 @@ import {
   type PurchaseFlowError,
   PurchaseOperationHelper,
 } from "./helpers/purchase-operation-helper";
+import { ProductChangeOperationHelper } from "./helpers/product-change-operation-helper";
 import { PaddleService } from "./paddle/paddle-service";
 import { type LogHandler, type LogLevel } from "./entities/logging";
 import { Logger } from "./helpers/logger";
@@ -2147,38 +2149,88 @@ export class Purchases {
   }
 
   /**
-   * Changes the current customer's active Web Billing subscription to a new
-   * product, following the product change paths configured in RevenueCat.
+   * Presents upgrade-mode checkout to change the customer's Web Billing
+   * subscription to a new product along a configured product change path.
    * Upgrades are applied immediately (charging the payment method on file,
    * with a prorated credit for unused time); downgrades are deferred to the
    * end of the current billing cycle.
    *
    * @param params - The {@link ChangeProductParams} for the change.
    * @returns The {@link ProductChangeResult} describing the applied change.
-   * @throws {@link PurchasesError} if the token is invalid, no active Web
-   * Billing subscription exists, multiple active subscriptions exist without
-   * {@link ChangeProductParams.sourceProductId}, or no product change path
-   * is configured from the current product to the requested one.
+   * @throws {@link PurchasesError} if the token is invalid, the subscription
+   * cannot be changed, or no product change path is configured.
    * @internal
    */
   public async changeProduct(
     params: ChangeProductParams,
   ): Promise<ProductChangeResult> {
-    const { newProductId, subscriberToken, sourceProductId } = params;
+    const { newProductId, subscriberToken, subscriptionId, htmlTarget } =
+      params;
 
     this.validateSubscriberToken(subscriberToken);
 
-    const response = await this.backend.postSubscriptionChange(
-      newProductId,
-      subscriberToken,
-      sourceProductId,
+    if (!subscriptionId) {
+      throw new PurchasesError(
+        ErrorCode.PurchaseInvalidError,
+        "subscriptionId is required.",
+        "Pass the RevenueCat subscription public id (sub…) for the " +
+          "subscription to change.",
+      );
+    }
+
+    await this.preload();
+
+    const certainHTMLTarget = this.resolveHTMLTarget(htmlTarget);
+    const isInElement = htmlTarget !== undefined;
+    const productChangeOperationHelper = new ProductChangeOperationHelper(
+      this.backend,
     );
 
-    return {
-      operationSessionId: response.operation_session_id,
-      changeType: response.change_type,
-      newProductId: response.new_product_id,
-    };
+    let component: ReturnType<typeof mount> | null = null;
+
+    return new Promise((resolve, reject) => {
+      const win = getWindow();
+      if (!isInElement) {
+        win.history.pushState({ checkoutOpen: true }, "");
+      }
+
+      const unmountUi = () => {
+        if (component) {
+          unmount(component);
+        }
+        certainHTMLTarget.innerHTML = "";
+      };
+
+      const onClose = this.createCheckoutOnCloseHandler(reject, unmountUi);
+
+      if (!isInElement && onClose) {
+        win.addEventListener("popstate", onClose as EventListener);
+      }
+
+      const onFinished = (result: ProductChangeResult) => {
+        this.inMemoryCache.invalidateAllCaches();
+        unmountUi();
+        resolve(result);
+      };
+
+      const onError = this.createCheckoutOnErrorHandler(reject, unmountUi);
+
+      component = mount(UpgradeCheckoutUi, {
+        target: certainHTMLTarget,
+        props: {
+          newProductId,
+          subscriptionId,
+          subscriberToken,
+          brandingInfo: this._brandingInfo,
+          isInElement,
+          isSandbox: this.isSandbox(),
+          productChangeOperationHelper,
+          onFinished,
+          onClose,
+          onError,
+        },
+      });
+    });
   }
 
   /**

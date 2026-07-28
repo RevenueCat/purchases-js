@@ -1,7 +1,7 @@
 /**
  * Standalone demo token server.
  *
- * Plays the role of the developer's backend for headless product changes: it
+ * Plays the role of the developer's backend for upgrade-mode checkout: it
  * holds the secret API key and mints short-lived subscriber access tokens via
  * the RevenueCat Developer API `authenticate` endpoint. The browser only ever
  * receives the short-lived token, never the secret key.
