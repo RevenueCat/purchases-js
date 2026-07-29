@@ -993,7 +993,7 @@ describe("PurchaseOperationHelper", () => {
 
     await vi.runAllTimersAsync();
 
-    expect(callCount).toEqual(10);
+    expect(callCount).toEqual(30);
 
     await pollPromise;
 

@@ -166,7 +166,7 @@ export class PurchaseOperationHelper {
   constructor(
     backend: Backend,
     eventsTracker: IEventsTracker,
-    maxNumberAttempts: number = 10,
+    maxNumberAttempts: number = 30,
   ) {
     this.backend = backend;
     this.eventsTracker = eventsTracker;
