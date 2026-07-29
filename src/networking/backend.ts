@@ -42,6 +42,8 @@ import type { IdentifyResponse } from "./responses/identify-response";
 import type { CheckoutPrepareResponse } from "./responses/checkout-prepare-response";
 import type { AttributionMetadata } from "../entities/purchase-params";
 
+const MAX_GET_PRODUCTS_URL_PATH_LENGTH = 2000;
+
 interface CheckoutStartRequestParams {
   // Purchase identity
   appUserId: string;
@@ -155,13 +157,70 @@ export class Backend {
     currency?: string,
     discountCode?: string,
   ): Promise<ProductsResponse> {
-    return await performRequest<null, ProductsResponse>(
-      new GetProductsEndpoint(appUserId, productIds, currency, discountCode),
-      {
-        apiKey: this.API_KEY,
-        httpConfig: this.httpConfig,
-      },
+    const uniqueProductIds = Array.from(new Set(productIds));
+    const productIdBatches = this.batchProductIdsByUrlLength(
+      appUserId,
+      uniqueProductIds,
+      currency,
+      discountCode,
     );
+
+    const productDetails: ProductsResponse["product_details"] = [];
+    for (const productIdBatch of productIdBatches) {
+      const response = await performRequest<null, ProductsResponse>(
+        new GetProductsEndpoint(
+          appUserId,
+          productIdBatch,
+          currency,
+          discountCode,
+        ),
+        {
+          apiKey: this.API_KEY,
+          httpConfig: this.httpConfig,
+        },
+      );
+      productDetails.push(...response.product_details);
+    }
+
+    return {
+      product_details: productDetails,
+    };
+  }
+
+  private batchProductIdsByUrlLength(
+    appUserId: string,
+    productIds: string[],
+    currency?: string,
+    discountCode?: string,
+  ): string[][] {
+    const batches: string[][] = [];
+    let currentBatch: string[] = [];
+
+    for (const productId of productIds) {
+      const candidateBatch = [...currentBatch, productId];
+      const candidateUrlLength = new GetProductsEndpoint(
+        appUserId,
+        candidateBatch,
+        currency,
+        discountCode,
+      ).urlPath().length;
+
+      if (
+        currentBatch.length > 0 &&
+        candidateUrlLength > MAX_GET_PRODUCTS_URL_PATH_LENGTH
+      ) {
+        batches.push(currentBatch);
+        currentBatch = [productId];
+      } else {
+        currentBatch = candidateBatch;
+      }
+    }
+
+    if (currentBatch.length > 0) {
+      batches.push(currentBatch);
+    }
+
+    return batches;
   }
 
   async getBrandingInfo(): Promise<BrandingInfoResponse> {
