@@ -161,6 +161,15 @@ export class GetCheckoutStatusEndpoint implements Endpoint {
   }
 }
 
+export class SubscriptionChangeEndpoint implements Endpoint {
+  method: HttpMethodType = "POST";
+  name: string = "postSubscriptionChange";
+
+  urlPath(): string {
+    return `${RC_BILLING_PATH}/subscription/change`;
+  }
+}
+
 export class SetAttributesEndpoint implements Endpoint {
   method: HttpMethodType = "POST";
   name: string = "setAttributes";
@@ -237,6 +246,7 @@ export type SupportedEndpoint =
   | GetCustomerInfoEndpoint
   | GetBrandingInfoEndpoint
   | GetCheckoutStatusEndpoint
+  | SubscriptionChangeEndpoint
   | SetAttributesEndpoint
   | PostReceiptEndpoint
   | GetVirtualCurrenciesEndpoint
