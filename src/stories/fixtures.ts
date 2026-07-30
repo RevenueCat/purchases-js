@@ -20,6 +20,7 @@ import {
 } from "../networking/responses/stripe-elements";
 import type { PriceBreakdown } from "../ui/ui-types";
 import type { CheckoutCompleteResponse } from "../networking/responses/checkout-complete-response";
+import type { SubscriptionChangeCheckoutStartResponse } from "../networking/responses/subscription-change-response";
 import { getPriceBreakdownTaxDisabled } from "./helpers/get-price-breakdown";
 import { formatPrice } from "../helpers/price-labels";
 
@@ -768,3 +769,126 @@ export const priceBreakdownTaxExclusiveWithMultipleTaxItems: PriceBreakdown = {
     },
   ],
 };
+
+/**
+ * Upgrade / subscription-change checkout fixtures
+ */
+
+const subscriptionChangeFromProduct = {
+  product_id: "basic_monthly",
+  display_name: "Basic Monthly",
+  price_in_micros: 9990000,
+  currency: "USD",
+};
+
+const subscriptionChangeToProduct = {
+  product_id: "premium_monthly",
+  display_name: "Premium Monthly",
+  price_in_micros: 19990000,
+  currency: "USD",
+};
+
+const subscriptionChangePaymentMethod = {
+  type: "card",
+  last_4: "4242",
+  brand: "visa",
+  exp_month: 12,
+  exp_year: 2030,
+};
+
+const subscriptionChangeBillingAddress = {
+  country_code: "US",
+  postal_code: "10001",
+};
+
+const immediatePriceBreakdownWithTax = {
+  currency: "USD",
+  total_amount_in_micros: 5000000 + 400000,
+  tax_amount_in_micros: 400000,
+  total_excluding_tax_in_micros: 5000000,
+  original_amount_in_micros: null,
+};
+
+const immediatePriceBreakdownTaxPending = {
+  ...immediatePriceBreakdownWithTax,
+  tax_amount_in_micros: null,
+  total_amount_in_micros: 5000000,
+};
+
+const deferredRenewalPriceWithTax = {
+  currency: "USD",
+  total_amount_in_micros: 19990000 + 1599200,
+  tax_amount_in_micros: 1599200,
+  total_excluding_tax_in_micros: 19990000,
+  original_amount_in_micros: null,
+};
+
+const deferredRenewalPriceTaxPending = {
+  ...deferredRenewalPriceWithTax,
+  tax_amount_in_micros: null,
+  total_amount_in_micros: 19990000,
+};
+
+/** Immediate upgrade: due today with estimated tax, payment method + address on file. */
+export const subscriptionChangeImmediateWithTax: SubscriptionChangeCheckoutStartResponse =
+  {
+    operation_session_id: "rcbopsess_story_immediate_tax",
+    change_type: "immediate",
+    from_product: subscriptionChangeFromProduct,
+    to_product: subscriptionChangeToProduct,
+    price_breakdown: immediatePriceBreakdownWithTax,
+    estimated_renewal_price: null,
+    email: "customer@example.com",
+    payment_method: subscriptionChangePaymentMethod,
+    billing_address: subscriptionChangeBillingAddress,
+  };
+
+/** Immediate upgrade: tax will be calculated later. */
+export const subscriptionChangeImmediateTaxPending: SubscriptionChangeCheckoutStartResponse =
+  {
+    ...subscriptionChangeImmediateWithTax,
+    operation_session_id: "rcbopsess_story_immediate_tax_pending",
+    price_breakdown: immediatePriceBreakdownTaxPending,
+  };
+
+/** Immediate upgrade with only the required product/email fields. */
+export const subscriptionChangeImmediateMinimal: SubscriptionChangeCheckoutStartResponse =
+  {
+    operation_session_id: "rcbopsess_story_immediate_minimal",
+    change_type: "immediate",
+    from_product: {
+      ...subscriptionChangeFromProduct,
+      display_name: null,
+    },
+    to_product: {
+      ...subscriptionChangeToProduct,
+      display_name: null,
+    },
+    price_breakdown: immediatePriceBreakdownWithTax,
+    estimated_renewal_price: null,
+    email: "customer@example.com",
+    payment_method: null,
+    billing_address: null,
+  };
+
+/** Deferred change: no charge now, next-renewal estimate with tax. */
+export const subscriptionChangeDeferredWithTax: SubscriptionChangeCheckoutStartResponse =
+  {
+    operation_session_id: "rcbopsess_story_deferred_tax",
+    change_type: "deferred",
+    from_product: subscriptionChangeToProduct,
+    to_product: subscriptionChangeFromProduct,
+    price_breakdown: null,
+    estimated_renewal_price: deferredRenewalPriceWithTax,
+    email: "customer@example.com",
+    payment_method: subscriptionChangePaymentMethod,
+    billing_address: subscriptionChangeBillingAddress,
+  };
+
+/** Deferred change: next-renewal tax calculated later. */
+export const subscriptionChangeDeferredTaxPending: SubscriptionChangeCheckoutStartResponse =
+  {
+    ...subscriptionChangeDeferredWithTax,
+    operation_session_id: "rcbopsess_story_deferred_tax_pending",
+    estimated_renewal_price: deferredRenewalPriceTaxPending,
+  };

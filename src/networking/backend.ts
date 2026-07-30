@@ -16,12 +16,18 @@ import {
   IdentifyEndpoint,
   PostReceiptEndpoint,
   SetAttributesEndpoint,
+  SubscriptionChangeCheckoutConfirmEndpoint,
+  SubscriptionChangeCheckoutStartEndpoint,
 } from "./endpoints";
 import { type SubscriberResponse } from "./responses/subscriber-response";
 import type { CheckoutStartResponse } from "./responses/checkout-start-response";
 import { type ProductsResponse } from "./responses/products-response";
 import { type BrandingInfoResponse } from "./responses/branding-response";
 import { type CheckoutStatusResponse } from "./responses/checkout-status-response";
+import type {
+  SubscriptionChangeCheckoutStartResponse,
+  SubscriptionChangeConfirmResponse,
+} from "./responses/subscription-change-response";
 import { type VirtualCurrenciesResponse } from "./responses/virtual-currencies-response";
 import type {
   WorkflowDataAction,
@@ -41,6 +47,8 @@ import { isWebBillingSandboxApiKey } from "../helpers/api-key-helper";
 import type { IdentifyResponse } from "./responses/identify-response";
 import type { CheckoutPrepareResponse } from "./responses/checkout-prepare-response";
 import type { AttributionMetadata } from "../entities/purchase-params";
+
+const MAX_GET_PRODUCTS_URL_PATH_LENGTH = 2000;
 
 interface CheckoutStartRequestParams {
   // Purchase identity
@@ -155,13 +163,70 @@ export class Backend {
     currency?: string,
     discountCode?: string,
   ): Promise<ProductsResponse> {
-    return await performRequest<null, ProductsResponse>(
-      new GetProductsEndpoint(appUserId, productIds, currency, discountCode),
-      {
-        apiKey: this.API_KEY,
-        httpConfig: this.httpConfig,
-      },
+    const uniqueProductIds = Array.from(new Set(productIds));
+    const productIdBatches = this.batchProductIdsByUrlLength(
+      appUserId,
+      uniqueProductIds,
+      currency,
+      discountCode,
     );
+
+    const productDetails: ProductsResponse["product_details"] = [];
+    for (const productIdBatch of productIdBatches) {
+      const response = await performRequest<null, ProductsResponse>(
+        new GetProductsEndpoint(
+          appUserId,
+          productIdBatch,
+          currency,
+          discountCode,
+        ),
+        {
+          apiKey: this.API_KEY,
+          httpConfig: this.httpConfig,
+        },
+      );
+      productDetails.push(...response.product_details);
+    }
+
+    return {
+      product_details: productDetails,
+    };
+  }
+
+  private batchProductIdsByUrlLength(
+    appUserId: string,
+    productIds: string[],
+    currency?: string,
+    discountCode?: string,
+  ): string[][] {
+    const batches: string[][] = [];
+    let currentBatch: string[] = [];
+
+    for (const productId of productIds) {
+      const candidateBatch = [...currentBatch, productId];
+      const candidateUrlLength = new GetProductsEndpoint(
+        appUserId,
+        candidateBatch,
+        currency,
+        discountCode,
+      ).urlPath().length;
+
+      if (
+        currentBatch.length > 0 &&
+        candidateUrlLength > MAX_GET_PRODUCTS_URL_PATH_LENGTH
+      ) {
+        batches.push(currentBatch);
+        currentBatch = [productId];
+      } else {
+        currentBatch = candidateBatch;
+      }
+    }
+
+    if (currentBatch.length > 0) {
+      batches.push(currentBatch);
+    }
+
+    return batches;
   }
 
   async getBrandingInfo(): Promise<BrandingInfoResponse> {
@@ -394,6 +459,44 @@ export class Backend {
       new GetCheckoutStatusEndpoint(operationSessionId),
       {
         apiKey: this.API_KEY,
+        httpConfig: this.httpConfig,
+      },
+    );
+  }
+
+  async postSubscriptionChangeCheckoutStart(
+    newProductId: string,
+    subscriptionId: string,
+    subscriberToken: string,
+  ): Promise<SubscriptionChangeCheckoutStartResponse> {
+    type RequestBody = {
+      new_product_id: string;
+      subscription_id: string;
+    };
+
+    return await performRequest<
+      RequestBody,
+      SubscriptionChangeCheckoutStartResponse
+    >(new SubscriptionChangeCheckoutStartEndpoint(), {
+      apiKey: this.API_KEY,
+      body: {
+        new_product_id: newProductId,
+        subscription_id: subscriptionId,
+      },
+      headers: { Authorization: `Bearer ${subscriberToken}` },
+      httpConfig: this.httpConfig,
+    });
+  }
+
+  async postSubscriptionChangeCheckoutConfirm(
+    operationSessionId: string,
+    subscriberToken: string,
+  ): Promise<SubscriptionChangeConfirmResponse> {
+    return await performRequest<undefined, SubscriptionChangeConfirmResponse>(
+      new SubscriptionChangeCheckoutConfirmEndpoint(operationSessionId),
+      {
+        apiKey: this.API_KEY,
+        headers: { Authorization: `Bearer ${subscriberToken}` },
         httpConfig: this.httpConfig,
       },
     );
