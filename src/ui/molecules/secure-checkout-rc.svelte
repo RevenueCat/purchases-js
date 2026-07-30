@@ -189,24 +189,25 @@
 </script>
 
 <div class="footer-caption-container">
-  {#if termsInfo}
-    <p class="footer-caption">
-      <Typography size="caption-default">
-        {termsInfo}
-      </Typography>
-    </p>
-  {/if}
-  {#if subscriptionInfo && !discountTermsInfo}
-    <p class="footer-caption">
-      <Typography size="caption-default">{subscriptionInfo}</Typography>
-    </p>
-  {/if}
   {#if brandingInfo?.rc_billing_checkout_footer}
     <p class="footer-caption custom-checkout-footer">
       <Typography size="caption-default">
         {brandingInfo.rc_billing_checkout_footer}
       </Typography>
     </p>
+  {:else}
+    {#if termsInfo}
+      <p class="footer-caption">
+        <Typography size="caption-default">
+          {termsInfo}
+        </Typography>
+      </p>
+    {/if}
+    {#if subscriptionInfo && !discountTermsInfo}
+      <p class="footer-caption">
+        <Typography size="caption-default">{subscriptionInfo}</Typography>
+      </p>
+    {/if}
   {/if}
   <p class="footer-caption">
     <Typography size="caption-default">
