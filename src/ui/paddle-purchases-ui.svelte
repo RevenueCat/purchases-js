@@ -18,7 +18,10 @@
     PresentedOfferingContext,
     Package,
   } from "../entities/offerings";
-  import type { AttributionMetadata } from "../entities/purchase-params";
+  import type {
+    AttributionMetadata,
+    WorkflowPurchaseContext,
+  } from "../entities/purchase-params";
   import { PaddleService } from "../paddle/paddle-service";
   import type { PaddleCheckoutTotals } from "../paddle/paddle-service";
   import { normalizeToPurchaseFlowError } from "../helpers/normalize-to-purchase-flow-error";
@@ -46,6 +49,7 @@
     customerEmail: string | undefined;
     metadata: PurchaseMetadata | undefined;
     attributionMetadata?: AttributionMetadata;
+    workflowPurchaseContext?: WorkflowPurchaseContext;
     unmountPaddlePurchaseUi: () => void;
     paddleService: PaddleService;
     hideBackButton?: boolean;
@@ -69,6 +73,7 @@
     customerEmail,
     metadata,
     attributionMetadata,
+    workflowPurchaseContext,
     unmountPaddlePurchaseUi,
     paddleService,
     hideBackButton = false,
@@ -198,6 +203,7 @@
         metadata,
         locale: selectedLocale,
         attributionMetadata,
+        workflowPurchaseContext,
       });
       // Drives the derived useInlineCheckout (and the template) below.
       startResponse = resp;

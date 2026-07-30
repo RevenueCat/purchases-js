@@ -1,3 +1,25 @@
+## 1.49.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* fix: Extend web billing operation polling timeout (#1002) via Nicola Sacco (@nicfix)
+* Fix unbounded product detail request URLs (#998) via Nicola Sacco (@nicfix)
+
+### 🔄 Other Changes
+* chore(deps): bump fastlane-plugin-revenuecat_internal from `d392939` to `3421c88` (#1000) via dependabot[bot] (@dependabot[bot])
+* Setup mise for Node and Ruby (#994) via Álvaro Brey (@AlvaroBrey)
+
+## 1.49.0
+## RevenueCat SDK
+### ✨ New Features
+* [WEB-4507] Fall back to the app-config terms URL in checkout (#992) via Nicola Sacco (@nicfix)
+
+### 🔄 Other Changes
+* chore(deps): bump fastlane-plugin-revenuecat_internal from `b52fca5` to `d392939` (#993) via dependabot[bot] (@dependabot[bot])
+
+## 1.48.1
+### 🔄 Other Changes
+* feat: forward funnel url parameters on checkout start (#985) via Patrick Rills (@patrickrills)
+
 ## 1.48.0
 ## RevenueCat SDK
 ### ✨ New Features

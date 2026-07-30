@@ -351,6 +351,51 @@ describe("PaddleService", () => {
       });
     });
 
+    test("forwards url_parameters and presented_step_id from workflowPurchaseContext", async () => {
+      vi.mocked(initPaddle).mockResolvedValue(mockPaddleInstance);
+      let capturedBody: Record<string, unknown> | undefined;
+      server.use(
+        http.post(checkoutStartEndpoint, async (req) => {
+          capturedBody = (await req.request.json()) as Record<string, unknown>;
+          return HttpResponse.json(paddleCheckoutStartResponse, {
+            status: StatusCodes.OK,
+          });
+        }),
+      );
+
+      await paddleService.startCheckout({
+        ...startCheckoutArgs,
+        workflowPurchaseContext: {
+          stepId: "step-abc",
+          urlParameters: { utm_source: "typedIn", fbp: "metaID" },
+        },
+      });
+
+      expect(capturedBody?.presented_step_id).toBe("step-abc");
+      expect(capturedBody?.url_parameters).toEqual({
+        utm_source: "typedIn",
+        fbp: "metaID",
+      });
+    });
+
+    test("omits url_parameters and presented_step_id without workflowPurchaseContext", async () => {
+      vi.mocked(initPaddle).mockResolvedValue(mockPaddleInstance);
+      let capturedBody: Record<string, unknown> | undefined;
+      server.use(
+        http.post(checkoutStartEndpoint, async (req) => {
+          capturedBody = (await req.request.json()) as Record<string, unknown>;
+          return HttpResponse.json(paddleCheckoutStartResponse, {
+            status: StatusCodes.OK,
+          });
+        }),
+      );
+
+      await paddleService.startCheckout(startCheckoutArgs);
+
+      expect(capturedBody?.presented_step_id).toBeUndefined();
+      expect(capturedBody?.url_parameters).toBeUndefined();
+    });
+
     test("fails if /checkout/start fails", async () => {
       server.use(
         http.post(checkoutStartEndpoint, () =>
@@ -857,9 +902,11 @@ describe("PaddleService", () => {
     test("rejects after max attempts if status never succeeds", async () => {
       vi.useFakeTimers();
 
+      let callCount = 0;
       server.use(
-        http.get(operationStatusEndpoint, () =>
-          HttpResponse.json(
+        http.get(operationStatusEndpoint, () => {
+          callCount++;
+          return HttpResponse.json(
             {
               operation: {
                 status: CheckoutSessionStatus.InProgress,
@@ -870,8 +917,8 @@ describe("PaddleService", () => {
             {
               status: StatusCodes.OK,
             },
-          ),
-        ),
+          );
+        }),
       );
 
       const purchasePromise = paddleService.purchase({
@@ -890,9 +937,9 @@ describe("PaddleService", () => {
 
       // Advance timers to trigger all polling attempts
       // First attempt happens immediately when eventCallback is called
-      // Then we need to advance 10 more times to trigger attempts 2-11
-      // After 10 attempts, the 11th check (checkCount = 11) will exceed maxNumberAttempts (10) and reject
-      for (let i = 0; i < 10; i++) {
+      // Then we need to advance 30 more times to trigger attempts 2-31
+      // After 30 attempts, the 31st check exceeds maxNumberAttempts and rejects
+      for (let i = 0; i < 30; i++) {
         await vi.advanceTimersByTimeAsync(1000);
       }
 
@@ -900,6 +947,7 @@ describe("PaddleService", () => {
       await vi.runAllTimersAsync();
 
       const error = await rejectionPromise;
+      expect(callCount).toBe(30);
       expect(error).toBeInstanceOf(PurchaseFlowError);
       expect(error).toEqual(
         expect.objectContaining({

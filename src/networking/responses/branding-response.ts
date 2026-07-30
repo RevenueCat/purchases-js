@@ -22,6 +22,7 @@ export type BrandingInfoResponse = {
   gateway_tax_collection_enabled: boolean;
   full_address_collection_mode?: FullAddressCollectionMode;
   require_checkout_consent?: boolean | null;
+  terms_and_conditions_url?: string | null;
   brand_font_config: BrandFontConfig | null;
   sandbox_configuration?: {
     checkout_feedback_form_url: string | null;

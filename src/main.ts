@@ -58,6 +58,7 @@ import {
 import { validateCurrency } from "./helpers/validators";
 import { type BrandingInfoResponse } from "./networking/responses/branding-response";
 import { requiresLoadedResources } from "./helpers/decorators";
+import { resolveTermsAndConditionsUrl } from "./helpers/checkout-consent-helper";
 import {
   findOfferingByPlacementId,
   toOfferings,
@@ -1725,6 +1726,11 @@ export class Purchases {
       finalBrandingInfo.appearance = params.brandingAppearanceOverride;
     }
 
+    const termsAndConditionsUrl = resolveTermsAndConditionsUrl({
+      brandingInfo: finalBrandingInfo,
+      termsAndConditionsUrl: params.termsAndConditionsUrl,
+    });
+
     const isInElement = htmlTarget !== undefined;
 
     return new Promise((resolve, reject) => {
@@ -1784,7 +1790,7 @@ export class Purchases {
           metadata: metadata,
           defaultLocale,
           customTranslations: params.labelsOverride,
-          termsAndConditionsUrl: params.termsAndConditionsUrl,
+          termsAndConditionsUrl,
           showDiscountCodeField,
           discountCode,
           onDiscountCodeChanged,
@@ -1803,6 +1809,7 @@ export class Purchases {
       purchaseOption,
       customerEmail,
       attributionMetadata,
+      workflowPurchaseContext,
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
       skipSuccessPage = false,
@@ -1905,6 +1912,7 @@ export class Purchases {
             purchaseOption: purchaseOptionToUse,
             customerEmail,
             attributionMetadata,
+            workflowPurchaseContext,
             metadata,
             unmountPaddlePurchaseUi,
             paddleService,
