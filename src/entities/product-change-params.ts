@@ -13,13 +13,14 @@ export interface ChangeProductParams {
    * A short-lived subscriber access token authenticating the current
    * customer. This must be minted server-side using a secret API key via the
    * RevenueCat Developer API `authenticate` endpoint, and passed to the
-   * browser. Never use a RevenueCat API key here.
+   * browser.
    */
   subscriberToken: string;
   /**
    * RevenueCat subscription public id (`sub…`) of the subscription to change.
    *
-   * Typically obtained by the developer backend via the Developer API
+   * Typically obtained by your backend via the
+   * [Developer API](https://www.revenuecat.com/docs/api-v2)
    * customer subscriptions list and passed to the client with the token.
    */
   subscriptionId: string;

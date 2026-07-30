@@ -18,10 +18,6 @@ describe("Purchases.changeProduct", () => {
       new PurchasesError(
         ErrorCode.ConfigurationError,
         "Invalid subscriber token.",
-        "The subscriberToken must be a short-lived subscriber access token " +
-          "minted server-side with a secret API key via the RevenueCat " +
-          "Developer API authenticate endpoint. Never pass a RevenueCat API " +
-          "key from the browser.",
       ),
     );
   });
