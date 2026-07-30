@@ -623,12 +623,12 @@ export class Purchases {
     }
 
     // Check for a workflow associated with this offering.
-    const workflowsResponse = this._flags.workflowsEndpointEnabled
-      ? await this.backend.getWorkflows(this._appUserId).catch((e) => {
-          Logger.warnLog(`Failed to fetch workflows: ${e}`);
-          return null;
-        })
-      : null;
+    const workflowsResponse = await this.backend
+      .getWorkflows(this._appUserId)
+      .catch((e) => {
+        Logger.warnLog(`Failed to fetch workflows: ${e}`);
+        return null;
+      });
     const matchedWorkflowSummary = workflowsResponse?.workflows?.find(
       (w) => w.offering_id === offering.identifier,
     );
