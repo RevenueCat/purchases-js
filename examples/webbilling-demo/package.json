@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "token-server": "node server/index.js",
     "dev-fake-https": "vite --config vite-https.config.ts",
     "build": "tsc && vite build",
     "lint": "eslint \"**/*.{ts,tsx}\" --report-unused-disable-directives --max-warnings 0",

@@ -7,6 +7,7 @@ import type {
 import PurchasesUi from "./ui/purchases-ui.svelte";
 import PaddlePurchasesUi from "./ui/paddle-purchases-ui.svelte";
 import StripeCheckoutPurchasesUi from "./ui/stripe-checkout-purchases-ui.svelte";
+import UpgradeCheckoutUi from "./ui/upgrade-checkout-ui.svelte";
 
 import { type CustomerInfo, toCustomerInfo } from "./entities/customer-info";
 import {
@@ -34,6 +35,7 @@ import {
   type PurchaseFlowError,
   PurchaseOperationHelper,
 } from "./helpers/purchase-operation-helper";
+import { ProductChangeOperationHelper } from "./helpers/product-change-operation-helper";
 import { PaddleService } from "./paddle/paddle-service";
 import { type LogHandler, type LogLevel } from "./entities/logging";
 import { Logger } from "./helpers/logger";
@@ -44,6 +46,10 @@ import {
   validateProxyUrl,
 } from "./helpers/configuration-validators";
 import { type PurchaseParams } from "./entities/purchase-params";
+import {
+  type ChangeProductParams,
+  type ProductChangeResult,
+} from "./entities/product-change-params";
 import { defaultHttpConfig, type HttpConfig } from "./entities/http-config";
 import {
   type GetOfferingsParams,
@@ -213,6 +219,10 @@ export type {
   PurchaseResponseAttributionMetadata,
   PurchaseParams,
 } from "./entities/purchase-params";
+export type {
+  ChangeProductParams,
+  ProductChangeResult,
+} from "./entities/product-change-params";
 export type { RedemptionInfo } from "./entities/redemption-info";
 export type {
   PurchaseResult,
@@ -2144,6 +2154,110 @@ export class Purchases {
       customerInfo: toCustomerInfo(result),
       wasCreated: result.was_created,
     };
+  }
+
+  /**
+   * Presents upgrade-mode checkout to change the customer's Web Billing
+   * subscription to a new product along a configured product change path.
+   * Upgrades are applied immediately (charging the payment method on file,
+   * with a prorated credit for unused time); downgrades are deferred to the
+   * end of the current billing cycle.
+   *
+   * @param params - The {@link ChangeProductParams} for the change.
+   * @returns The {@link ProductChangeResult} describing the applied change.
+   * @throws {@link PurchasesError} if the token is invalid, the subscription
+   * cannot be changed, or no product change path is configured.
+   * @internal
+   */
+  @requiresLoadedResources
+  public async changeProduct(
+    params: ChangeProductParams,
+  ): Promise<ProductChangeResult> {
+    const { newProductId, subscriberToken, subscriptionId, htmlTarget } =
+      params;
+
+    this.validateSubscriberToken(subscriberToken);
+
+    if (!subscriptionId) {
+      throw new PurchasesError(
+        ErrorCode.PurchaseInvalidError,
+        "subscriptionId is required.",
+        "Pass the RevenueCat subscription public id (sub…) for the " +
+          "subscription to change.",
+      );
+    }
+
+    const certainHTMLTarget = this.resolveHTMLTarget(htmlTarget);
+    const isInElement = htmlTarget !== undefined;
+    const productChangeOperationHelper = new ProductChangeOperationHelper(
+      this.backend,
+    );
+
+    let component: ReturnType<typeof mount> | null = null;
+
+    return new Promise((resolve, reject) => {
+      const win = getWindow();
+      if (!isInElement) {
+        win.history.pushState({ checkoutOpen: true }, "");
+      }
+
+      const unmountUi = () => {
+        if (component) {
+          unmount(component);
+        }
+        certainHTMLTarget.innerHTML = "";
+      };
+
+      const onClose = this.createCheckoutOnCloseHandler(reject, unmountUi);
+
+      if (!isInElement && onClose) {
+        win.addEventListener("popstate", onClose as EventListener);
+      }
+
+      const onFinished = (result: ProductChangeResult) => {
+        this.inMemoryCache.invalidateAllCaches();
+        unmountUi();
+        resolve(result);
+      };
+
+      const onError = this.createCheckoutOnErrorHandler(reject);
+
+      component = mount(UpgradeCheckoutUi, {
+        target: certainHTMLTarget,
+        props: {
+          newProductId,
+          subscriptionId,
+          subscriberToken,
+          brandingInfo: this._brandingInfo,
+          isInElement,
+          isSandbox: this.isSandbox(),
+          productChangeOperationHelper,
+          onFinished,
+          onClose,
+          onError,
+        },
+      });
+    });
+  }
+
+  /**
+   * Rejects anything shaped like a RevenueCat API key so a secret or public
+   * key is never sent (or exposed) where a subscriber token belongs.
+   */
+  private validateSubscriberToken(subscriberToken: string): void {
+    const looksLikeApiKey =
+      isWebBillingApiKey(subscriberToken) ||
+      isPaddleApiKey(subscriberToken) ||
+      isStripeApiKey(subscriberToken) ||
+      isSimulatedStoreApiKey(subscriberToken) ||
+      subscriberToken.startsWith("sk_");
+
+    if (looksLikeApiKey || !subscriberToken) {
+      throw new PurchasesError(
+        ErrorCode.ConfigurationError,
+        "Invalid subscriber token.",
+      );
+    }
   }
 
   private async replaceUserId(newAppUserId: string): Promise<void> {
