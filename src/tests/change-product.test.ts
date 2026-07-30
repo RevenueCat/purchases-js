@@ -5,12 +5,12 @@ import { ErrorCode, PurchasesError } from "../entities/errors";
 import { expectPromiseToError } from "./test-helpers";
 import { Backend } from "../networking/backend";
 
-describe("Purchases.presentProductChange", () => {
+describe("Purchases.changeProduct", () => {
   test("rejects API-key shaped subscriber tokens", async () => {
     const purchases = configurePurchases();
 
     await expectPromiseToError(
-      purchases.presentProductChange({
+      purchases.changeProduct({
         newProductId: "annual_product",
         subscriberToken: "rcb_test_api_key",
         subscriptionId: "subabc123",
@@ -30,7 +30,7 @@ describe("Purchases.presentProductChange", () => {
     const purchases = configurePurchases();
 
     await expectPromiseToError(
-      purchases.presentProductChange({
+      purchases.changeProduct({
         newProductId: "annual_product",
         subscriberToken: "eyJhbGciOiJSUzI1NiJ9.subscriber.token",
         subscriptionId: "",

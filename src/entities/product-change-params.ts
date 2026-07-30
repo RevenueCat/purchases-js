@@ -1,8 +1,8 @@
 /**
- * Parameters for {@link Purchases.presentProductChange}.
+ * Parameters for {@link Purchases.changeProduct}.
  * @internal
  */
-export interface PresentProductChangeParams {
+export interface ChangeProductParams {
   /**
    * The product identifier of the Web Billing product to change the
    * customer's current subscription to. A product change path from the
@@ -31,7 +31,7 @@ export interface PresentProductChangeParams {
 }
 
 /**
- * Result of {@link Purchases.presentProductChange}.
+ * Result of {@link Purchases.changeProduct}.
  * @internal
  */
 export interface ProductChangeResult {

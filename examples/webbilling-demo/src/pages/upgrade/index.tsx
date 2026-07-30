@@ -12,7 +12,7 @@ type ProductChangeResult = {
  * Demo page for upgrade-mode checkout through the web SDK.
  *
  * Fetches a short-lived subscriber access token from the demo token server,
- * then opens Purchases.presentProductChange which mounts the upgrade checkout UI
+ * then opens Purchases.changeProduct which mounts the upgrade checkout UI
  * (start → confirm).
  */
 const UpgradePage: React.FC = () => {
@@ -48,8 +48,8 @@ const UpgradePage: React.FC = () => {
       const { access_token: subscriberToken } = await tokenResponse.json();
 
       const changeResult: ProductChangeResult =
-        // @ts-expect-error presentProductChange is marked as internal for now
-        await purchases.presentProductChange({
+        // @ts-expect-error changeProduct is marked as internal for now
+        await purchases.changeProduct({
           newProductId,
           subscriberToken,
           subscriptionId,
