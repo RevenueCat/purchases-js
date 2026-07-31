@@ -57,7 +57,7 @@
     {checked}
     onchange={handleChange}
   />
-  <Typography size="caption-default">
+  <Typography size="body-small">
     {agreementParts.before}<a
       href={termsAndConditionsUrl}
       target="_blank"
@@ -80,6 +80,8 @@
   }
 
   .rcb-checkout-consent-checkbox {
+    width: 16px;
+    height: 16px;
     margin-top: 2px;
     flex-shrink: 0;
   }
