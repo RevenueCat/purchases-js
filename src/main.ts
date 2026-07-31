@@ -685,7 +685,7 @@ export class Purchases {
 
     // finalLocale and translator are only needed for the standard paywall path.
     // The workflow path resolves its own locale below, against the workflow's
-    // screens (see workflowSelectedLocale).
+    // screens (see finalWorkflowLocale).
     const finalLocale = offering.paywallComponents
       ? calculateLocale(offering.paywallComponents, selectedLocale)
       : selectedLocale;
@@ -965,7 +965,7 @@ export class Purchases {
 
     let workflowNavData: ReturnType<typeof workflowDataToNavData> | undefined;
     let workflowDataResponse: WorkflowData | undefined;
-    let workflowSelectedLocale: string = selectedLocale;
+    let finalWorkflowLocale: string = selectedLocale;
     if (matchedWorkflowSummary) {
       const workflowData = await this.backend
         .getWorkflowById(this._appUserId, matchedWorkflowSummary.id)
@@ -986,10 +986,7 @@ export class Purchases {
         // initial screen is sufficient.
         const initialScreen = navData.pages[navData.initial_page_id];
         if (initialScreen) {
-          workflowSelectedLocale = calculateLocale(
-            initialScreen,
-            selectedLocale,
-          );
+          finalWorkflowLocale = calculateLocale(initialScreen, selectedLocale);
         }
       } else {
         if (workflowData && !navData) {
@@ -1161,7 +1158,7 @@ export class Purchases {
             props: {
               workflow: workflowNavData,
               uiConfig: workflowDataResponse.ui_config as unknown as UIConfig,
-              selectedLocale: workflowSelectedLocale,
+              selectedLocale: finalWorkflowLocale,
               hideBackButtons: paywallParams.hideBackButtons,
               variablesPerPackage,
               walletButtonRender,
@@ -1170,7 +1167,7 @@ export class Purchases {
                 if (pkg) {
                   notifyPurchaseStarted(pkg);
                 }
-                startPurchaseFlow(selectedPackageId, selectedLocale)
+                startPurchaseFlow(selectedPackageId, finalWorkflowLocale)
                   .then(onSuccess)
                   .catch(onError("Error performing purchase"));
               },
