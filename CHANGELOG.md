@@ -1,3 +1,9 @@
+## 1.50.0
+## RevenueCat SDK
+### ✨ New Features
+* WFL-384 | Enable support for multipage paywalls (#1004) via Rosie Watson (@RosieWatson)
+* [WEB-4522] Upgrade checkout UI (#996) via James O'Donnell (@james-od)
+
 ## 1.49.1
 ## RevenueCat SDK
 ### 🐞 Bugfixes
