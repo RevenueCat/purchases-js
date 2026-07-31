@@ -19,7 +19,7 @@ export function validateApiKey(apiKey: string) {
   if (!isValidApiKey) {
     throw new PurchasesError(
       ErrorCode.InvalidCredentialsError,
-      "Invalid API key. Use your Web Billing API key.",
+      "Invalid API key. Use a valid API key obtained from the RevenueCat Dashboard.",
     );
   }
 }
