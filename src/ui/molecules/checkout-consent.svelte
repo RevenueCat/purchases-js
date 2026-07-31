@@ -57,7 +57,7 @@
     {checked}
     onchange={handleChange}
   />
-  <Typography size="body-base">
+  <Typography size="body-small">
     {agreementParts.before}<a
       href={termsAndConditionsUrl}
       target="_blank"
@@ -84,6 +84,10 @@
     height: 24px;
     margin-top: 2px;
     flex-shrink: 0;
+  }
+
+  .rcb-checkout-consent :global(.rcb-typography) {
+    font-size: 15px;
   }
 
   .rcb-checkout-consent :global(a) {
