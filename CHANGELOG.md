@@ -1,3 +1,8 @@
+## 1.51.0
+## RevenueCat SDK
+### ✨ New Features
+* feat(checkout): show custom legal footer (#997) via Nicola Sacco (@nicfix)
+
 ## 1.50.0
 ## RevenueCat SDK
 ### ✨ New Features
