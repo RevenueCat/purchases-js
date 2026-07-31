@@ -57,7 +57,7 @@
     {checked}
     onchange={handleChange}
   />
-  <Typography size="body-small">
+  <Typography size="body-base">
     {agreementParts.before}<a
       href={termsAndConditionsUrl}
       target="_blank"
