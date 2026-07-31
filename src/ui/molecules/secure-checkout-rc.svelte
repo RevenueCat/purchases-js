@@ -190,7 +190,7 @@
 
 <div class="footer-caption-container">
   {#if brandingInfo?.checkout_footer}
-    <p class="footer-caption custom-checkout-footer">
+    <p class="footer-caption rcb-checkout-footer">
       <Typography size="caption-default">
         {brandingInfo.checkout_footer}
       </Typography>
@@ -240,7 +240,7 @@
     margin: 0;
   }
 
-  .custom-checkout-footer {
+  .rcb-checkout-footer {
     white-space: pre-wrap;
   }
 
