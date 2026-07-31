@@ -1,21 +1,9 @@
 /**
- * Parameters for {@link Purchases.changeProduct}.
+ * Options for changing an existing Web Billing subscription via
+ * {@link Purchases.purchase} with {@link PurchaseParams.productChangeInfo}.
  * @internal
  */
-export interface ChangeProductParams {
-  /**
-   * The product identifier of the Web Billing product to change the
-   * customer's current subscription to. A product change path from the
-   * current product to this product must be configured in RevenueCat.
-   */
-  newProductId: string;
-  /**
-   * A short-lived subscriber access token authenticating the current
-   * customer. This must be minted server-side using a secret API key via the
-   * RevenueCat Developer API `authenticate` endpoint, and passed to the
-   * browser.
-   */
-  subscriberToken: string;
+export interface ProductChangeInfo {
   /**
    * RevenueCat subscription public id (`sub…`) of the subscription to change.
    *
@@ -25,14 +13,17 @@ export interface ChangeProductParams {
    */
   subscriptionId: string;
   /**
-   * The HTML element into which the upgrade checkout UI will be rendered.
-   * If undefined, a fullscreen modal is used.
+   * Optional short-lived subscriber access token override for this call.
+   * Falls back to {@link PurchasesConfig.subscriberToken} when omitted.
+   *
+   * Minted server-side using a secret API key via the RevenueCat Developer
+   * API `authenticate` endpoint.
    */
-  htmlTarget?: HTMLElement;
+  subscriberToken?: string;
 }
 
 /**
- * Result of {@link Purchases.changeProduct}.
+ * Outcome of confirming a RevenueCat Billing product change.
  * @internal
  */
 export interface ProductChangeResult {

@@ -25,7 +25,7 @@
     isInElement: boolean;
     isSandbox: boolean;
     productChangeOperationHelper: ProductChangeOperationHelper;
-    onFinished: (result: ProductChangeResult) => void;
+    onFinished: (result: ProductChangeResult) => void | Promise<void>;
     onError: (error: PurchaseFlowError) => void;
     onClose: (() => void) | undefined;
   }
@@ -85,7 +85,7 @@
     try {
       const result =
         await productChangeOperationHelper.confirm(subscriberToken);
-      onFinished(result);
+      await onFinished(result);
     } catch (e) {
       const error =
         e instanceof PurchaseFlowError

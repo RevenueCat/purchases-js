@@ -32,11 +32,12 @@ npm run dev
 >
 > **Expected behavior:** When using your Web Billing product API key, you should see customers created in Sandbox in your dashboard after completing purchases. View activity at https://app.revenuecat.com/activity after a few minutes to see sandbox transactions and customer data.
 
-### Upgrade-mode checkout (`Purchases.changeProduct`)
+### Upgrade-mode checkout (`Purchases.purchase` + `productChangeInfo`)
 
 #### Note this feature is currently experimental
 
-The `/upgrade/:app_user_id` page demonstrates upgrade-mode checkout. It uses a small token server to serve as a backend: it holds a **secret** API key and mints short-lived subscriber access tokens via the Developer API `authenticate` endpoint. The secret key is read from a non-`VITE_` env var so it is never bundled into frontend code.
+The `/upgrade/:app_user_id` page demonstrates upgrade-mode checkout, calling the `purchase()` API with `productChangeInfo` and the target package as `rcPackage`.
+It uses a small token server to serve as a backend: it holds a **secret** API key and mints short-lived subscriber access tokens via the Developer API `authenticate` endpoint. The secret key is read from a non-`VITE_` env var so it is never bundled into frontend code.
 
 **Prerequisite:** configure a product change path in RevenueCat from the customer's current product to the target product. Without a path, start returns 404.
 
@@ -48,7 +49,7 @@ The `/upgrade/:app_user_id` page demonstrates upgrade-mode checkout. It uses a s
 2. Start the token server: `pnpm run token-server`
 3. In another terminal, start the demo: `pnpm run dev` (Vite proxies `/api` → the token server)
 4. Open `/upgrade/<app_user_id>` for a customer with an active Web Billing subscription
-5. Enter the target product identifier and the RevenueCat subscription public id (`sub…`)
+5. Pick the target package from the current offering and enter the RevenueCat subscription public id (`sub…`)
 6. Click **Open upgrade checkout**. The SDK starts a checkout session, shows from→to / pricing / PM on file, then confirms on CTA.
 
 ### Payment Methods

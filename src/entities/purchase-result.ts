@@ -33,6 +33,15 @@ export interface PurchaseResult {
    * @internal
    */
   readonly attributionMetadata?: PurchaseResponseAttributionMetadata;
+
+  /**
+   * Only present if the purchase was a RevenueCat Billing product change
+   * ({@link PurchaseParams.productChangeInfo}).
+   * @internal
+   */
+  readonly productChange?: {
+    changeType: "immediate" | "deferred";
+  };
 }
 
 /**
