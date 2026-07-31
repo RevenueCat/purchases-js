@@ -64,15 +64,6 @@ export interface FlagsConfig {
   forceEnableWalletMethods?: boolean;
 
   /**
-   * If set to `true`, the SDK will attempt to fetch and display a workflow
-   * when presenting a paywall, falling back to the standard paywall if none
-   * is found.
-   * @defaultValue false
-   * @internal
-   */
-  workflowsEndpointEnabled?: boolean;
-
-  /**
    * Determines when the store module (e.g. Stripe) is loaded.
    * - `"configuration"`: Preloaded when the SDK is configured (default).
    * - `"purchase_start"`: Loaded on demand when a purchase is started.
