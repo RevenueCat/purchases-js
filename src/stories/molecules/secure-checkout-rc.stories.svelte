@@ -82,7 +82,7 @@
   args={{
     brandingInfo: {
       ...brandingInfo,
-      rc_billing_checkout_footer:
+      checkout_footer:
         "By clicking Pay, you agree to start an auto-renewing annual subscription. Cancel before renewal to avoid the next charge.",
     },
     purchaseOption: subscriptionOption,

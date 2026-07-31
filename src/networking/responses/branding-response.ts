@@ -23,7 +23,7 @@ export type BrandingInfoResponse = {
   full_address_collection_mode?: FullAddressCollectionMode;
   require_checkout_consent?: boolean | null;
   terms_and_conditions_url?: string | null;
-  rc_billing_checkout_footer?: string | null;
+  checkout_footer?: string | null;
   brand_font_config: BrandFontConfig | null;
   sandbox_configuration?: {
     checkout_feedback_form_url: string | null;

@@ -189,10 +189,10 @@
 </script>
 
 <div class="footer-caption-container">
-  {#if brandingInfo?.rc_billing_checkout_footer}
+  {#if brandingInfo?.checkout_footer}
     <p class="footer-caption custom-checkout-footer">
       <Typography size="caption-default">
-        {brandingInfo.rc_billing_checkout_footer}
+        {brandingInfo.checkout_footer}
       </Typography>
     </p>
   {:else}
