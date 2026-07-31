@@ -80,8 +80,8 @@
   }
 
   .rcb-checkout-consent-checkbox {
-    width: 16px;
-    height: 16px;
+    width: 24px;
+    height: 24px;
     margin-top: 2px;
     flex-shrink: 0;
   }
