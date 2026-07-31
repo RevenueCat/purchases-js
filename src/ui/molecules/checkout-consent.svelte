@@ -73,7 +73,7 @@
 <style>
   .rcb-checkout-consent {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 8px;
     margin-bottom: 12px;
     cursor: pointer;
@@ -82,12 +82,7 @@
   .rcb-checkout-consent-checkbox {
     width: 24px;
     height: 24px;
-    margin-top: 2px;
     flex-shrink: 0;
-  }
-
-  .rcb-checkout-consent :global(.rcb-typography) {
-    font-size: 15px;
   }
 
   .rcb-checkout-consent :global(a) {
