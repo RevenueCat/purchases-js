@@ -683,8 +683,9 @@ export class Purchases {
       ? paywallParams.selectedLocale
       : navigator.language;
 
-    // finalLocale and translator are only needed for the paywall path — the
-    // Workflow component handles locale resolution internally.
+    // finalLocale and translator are only needed for the standard paywall path.
+    // The workflow path resolves its own locale below, against the workflow's
+    // screens (see workflowSelectedLocale).
     const finalLocale = offering.paywallComponents
       ? calculateLocale(offering.paywallComponents, selectedLocale)
       : selectedLocale;
@@ -964,6 +965,7 @@ export class Purchases {
 
     let workflowNavData: ReturnType<typeof workflowDataToNavData> | undefined;
     let workflowDataResponse: WorkflowData | undefined;
+    let workflowSelectedLocale: string = selectedLocale;
     if (matchedWorkflowSummary) {
       const workflowData = await this.backend
         .getWorkflowById(this._appUserId, matchedWorkflowSummary.id)
@@ -977,6 +979,18 @@ export class Purchases {
       if (workflowData && navData) {
         workflowDataResponse = workflowData;
         workflowNavData = navData;
+        // The workflow renderer does exact-key locale lookups only, so resolve
+        // the requested locale to a concrete key the workflow provides (e.g.
+        // "sk" -> "sk_SK"), mirroring what the standard paywall does. All
+        // screens in a workflow share the same locale, so resolving against the
+        // initial screen is sufficient.
+        const initialScreen = navData.pages[navData.initial_page_id];
+        if (initialScreen) {
+          workflowSelectedLocale = calculateLocale(
+            initialScreen,
+            selectedLocale,
+          );
+        }
       } else {
         if (workflowData && !navData) {
           Logger.warnLog(
@@ -1147,7 +1161,8 @@ export class Purchases {
             props: {
               workflow: workflowNavData,
               uiConfig: workflowDataResponse.ui_config as unknown as UIConfig,
-              selectedLocale,
+              selectedLocale: workflowSelectedLocale,
+              hideBackButtons: paywallParams.hideBackButtons,
               variablesPerPackage,
               walletButtonRender,
               onPurchaseClicked: (selectedPackageId: string) => {
