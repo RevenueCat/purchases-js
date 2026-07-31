@@ -1,6 +1,6 @@
 import React from 'react';
 import {Text, View} from 'react-native';
-import {ScreenContainer} from './ScreenContainer';
+import {ScreenContainer} from '../ScreenContainer';
 import {styles} from './HomeScreen.styles';
 
 export const HomeScreen = () => (
