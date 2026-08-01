@@ -59,6 +59,31 @@ describe("toPurchaseOptionForProductType", () => {
     });
   });
 
+  test("calculates a yearly subscription's monthly price using twelve months", () => {
+    const result = toPurchaseOptionForProductType(ProductType.Subscription, {
+      ...subscriptionOptionResponse,
+      base: {
+        cycle_count: 1,
+        period_duration: "P1Y",
+        price: {
+          amount_micros: 119_990_000,
+          currency: "USD",
+        },
+      },
+    });
+
+    expect(result).toMatchObject({
+      base: {
+        pricePerMonth: {
+          amount: 999,
+          amountMicros: 9_990_000,
+          currency: "USD",
+          formattedPrice: "$9.99",
+        },
+      },
+    });
+  });
+
   test("returns null when a subscription option is missing its base phase", () => {
     const result = toPurchaseOptionForProductType(ProductType.Subscription, {
       ...subscriptionOptionResponse,

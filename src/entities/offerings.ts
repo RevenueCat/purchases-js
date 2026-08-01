@@ -661,6 +661,7 @@ function getPriceConversionFactor(period: Period): {
   const DAYS_PER_WEEK = 7;
   const DAYS_PER_MONTH = 30.0;
   const DAYS_PER_YEAR = 365.0;
+  const MONTHS_PER_YEAR = 12;
 
   let daysInPeriod: number;
 
@@ -683,7 +684,11 @@ function getPriceConversionFactor(period: Period): {
   }
 
   const toWeek = daysInPeriod > 0 ? DAYS_PER_WEEK / daysInPeriod : 0;
-  const toMonth = daysInPeriod > 0 ? DAYS_PER_MONTH / daysInPeriod : 0;
+  let toMonth = daysInPeriod > 0 ? DAYS_PER_MONTH / daysInPeriod : 0;
+  if (unit === PeriodUnit.Year && number > 0) {
+    // Calendar years contain exactly 12 months.
+    toMonth = 1 / (number * MONTHS_PER_YEAR);
+  }
   const toYear = daysInPeriod > 0 ? DAYS_PER_YEAR / daysInPeriod : 0;
 
   return { toWeek, toMonth, toYear };
