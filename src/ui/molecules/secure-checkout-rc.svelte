@@ -189,17 +189,25 @@
 </script>
 
 <div class="footer-caption-container">
-  {#if termsInfo}
-    <p class="footer-caption">
+  {#if brandingInfo?.checkout_footer}
+    <p class="footer-caption rcb-checkout-footer">
       <Typography size="caption-default">
-        {termsInfo}
+        {brandingInfo.checkout_footer}
       </Typography>
     </p>
-  {/if}
-  {#if subscriptionInfo && !discountTermsInfo}
-    <p class="footer-caption">
-      <Typography size="caption-default">{subscriptionInfo}</Typography>
-    </p>
+  {:else}
+    {#if termsInfo}
+      <p class="footer-caption">
+        <Typography size="caption-default">
+          {termsInfo}
+        </Typography>
+      </p>
+    {/if}
+    {#if subscriptionInfo && !discountTermsInfo}
+      <p class="footer-caption">
+        <Typography size="caption-default">{subscriptionInfo}</Typography>
+      </p>
+    {/if}
   {/if}
   <p class="footer-caption">
     <Typography size="caption-default">
@@ -230,6 +238,10 @@
     color: var(--rc-color-grey-text-light);
     text-align: center;
     margin: 0;
+  }
+
+  .rcb-checkout-footer {
+    white-space: pre-wrap;
   }
 
   .terms-link {
