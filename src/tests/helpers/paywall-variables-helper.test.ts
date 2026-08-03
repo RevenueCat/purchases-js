@@ -148,8 +148,8 @@ describe("getPaywallVariables", () => {
           "product.periodly": "weekly",
           "product.period": "week",
           "product.period_abbreviated": "wk",
-          "product.price_per_year": "€468.00",
-          "product.price_per_month": "€38.97",
+          "product.price_per_year": "€469.28",
+          "product.price_per_month": "€39.10",
           "product.price_per_week": "€9.00",
           "product.price_per_day": "€1.28",
           "product.relative_discount": "",
@@ -224,7 +224,7 @@ describe("getPaywallVariables", () => {
           "product.period_abbreviated": "mo",
           "product.price_per_year": "€360.00",
           "product.price_per_month": "€30.00",
-          "product.price_per_week": "€6.92",
+          "product.price_per_week": "€6.90",
           "product.price_per_day": "€1.00",
           "product.relative_discount": "23%",
           "product.currency_code": "EUR",
@@ -249,10 +249,10 @@ describe("getPaywallVariables", () => {
       }),
     );
   });
-  test("sub_relative_discount is calculated correctly for same-priced packages", () => {
+  test("sub_relative_discount hides differences below 1%", () => {
     /**
      * Monthly: 9€/month
-     * Weekly: 2.08€/week - 9€/month
+     * Weekly: €2.08/week ≈ €9.04/month
      * Trial: 9€/month after trial
      */
     const off = toOffering([
@@ -298,7 +298,7 @@ describe("getPaywallVariables", () => {
   test("sub_relative_discount is calculated correctly for packages with different prices", () => {
     /**
      * Monthly: 3€/month = 88%off
-     * Weekly: 6€/week - 25.98€/month - most expensive
+     * Weekly: €6/week ≈ €26.07/month - most expensive
      * Trial: 9€/month after trial = 65%off
      */
     const expectedValues = ["88%", "", "65%"];
@@ -348,7 +348,7 @@ describe("getPaywallVariables", () => {
     /**
      * Lifetime: €100.00 (non-subscription, should be excluded from comparison)
      * Monthly: €3.00/month = should be 88% off relative to weekly
-     * Weekly: €6.00/week = €25.98/month (most expensive subscription)
+     * Weekly: €6.00/week ≈ €26.07/month (most expensive subscription)
      * Without the fix, lifetime's raw price (100000000 micros) would be treated
      * as the highest, inflating all subscription discounts.
      */
@@ -460,7 +460,7 @@ describe("getPaywallVariables", () => {
         expect.objectContaining({
           "product.offer_price": "$12.00",
           "product.offer_price_per_day": "$0.40",
-          "product.offer_price_per_week": "$2.77",
+          "product.offer_price_per_week": "$2.76",
           "product.offer_price_per_month": "$12.00",
           "product.offer_price_per_year": "$144.00",
           "product.offer_period": "month",
@@ -514,8 +514,8 @@ describe("getPaywallVariables", () => {
           "product.offer_price": "$75.00",
           "product.offer_price_per_day": "$10.71",
           "product.offer_price_per_week": "$75.00",
-          "product.offer_price_per_month": "$324.75",
-          "product.offer_price_per_year": "$3,900.00",
+          "product.offer_price_per_month": "$325.89",
+          "product.offer_price_per_year": "$3,910.71",
           "product.offer_period": "month",
           "product.offer_period_abbreviated": "mo",
           "product.offer_period_with_unit": "2 months",
@@ -681,7 +681,7 @@ describe("getPaywallVariables", () => {
         expect.objectContaining({
           "product.offer_price": "$13.00",
           "product.offer_price_per_day": "$0.43",
-          "product.offer_price_per_week": "$3.00",
+          "product.offer_price_per_week": "$2.99",
           "product.offer_price_per_month": "$13.00",
           "product.offer_price_per_year": "$156.00",
           "product.offer_period": "",

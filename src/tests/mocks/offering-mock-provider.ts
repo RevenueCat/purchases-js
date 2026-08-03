@@ -31,10 +31,10 @@ export function createMonthlyPackageMock(
         formattedPrice: "$3.00",
       },
       pricePerWeek: {
-        amount: 70,
-        amountMicros: 700000,
+        amount: 69,
+        amountMicros: 690000,
         currency: "USD",
-        formattedPrice: "$0.70",
+        formattedPrice: "$0.69",
       },
       pricePerMonth: {
         amount: 300,
@@ -43,10 +43,10 @@ export function createMonthlyPackageMock(
         formattedPrice: "$3.00",
       },
       pricePerYear: {
-        amount: 3650,
-        amountMicros: 36500000,
+        amount: 3600,
+        amountMicros: 36000000,
         currency: "USD",
-        formattedPrice: "$36.50",
+        formattedPrice: "$36.00",
       },
     },
     trial: null,
@@ -120,10 +120,10 @@ export function createMonthlyPackageWithIntroPriceMock(): Package {
         formattedPrice: "$9.99",
       },
       pricePerWeek: {
-        amount: 230,
-        amountMicros: 2300000,
+        amount: 229,
+        amountMicros: 2290000,
         currency: "USD",
-        formattedPrice: "$2.30",
+        formattedPrice: "$2.29",
       },
       pricePerMonth: {
         amount: 999,
@@ -153,10 +153,10 @@ export function createMonthlyPackageWithIntroPriceMock(): Package {
         formattedPrice: "$1.99",
       },
       pricePerWeek: {
-        amount: 46,
-        amountMicros: 460000,
+        amount: 45,
+        amountMicros: 450000,
         currency: "USD",
-        formattedPrice: "$0.46",
+        formattedPrice: "$0.45",
       },
       pricePerMonth: {
         amount: 199,
@@ -227,10 +227,10 @@ export function createMonthlyPackageWithIntroPriceMock(): Package {
         formattedPrice: "$1.99",
       },
       pricePerWeek: {
-        amount: 46,
-        amountMicros: 460000,
+        amount: 45,
+        amountMicros: 450000,
         currency: "USD",
-        formattedPrice: "$0.46",
+        formattedPrice: "$0.45",
       },
       pricePerMonth: {
         amount: 199,
@@ -274,10 +274,10 @@ export function createMonthlyPackageWithTrialAndIntroPriceMock(): Package {
         formattedPrice: "$14.99",
       },
       pricePerWeek: {
-        amount: 346,
-        amountMicros: 3460000,
+        amount: 344,
+        amountMicros: 3440000,
         currency: "USD",
-        formattedPrice: "$3.46",
+        formattedPrice: "$3.44",
       },
       pricePerMonth: {
         amount: 1499,
@@ -318,10 +318,10 @@ export function createMonthlyPackageWithTrialAndIntroPriceMock(): Package {
         formattedPrice: "$4.99",
       },
       pricePerWeek: {
-        amount: 115,
-        amountMicros: 1150000,
+        amount: 114,
+        amountMicros: 1140000,
         currency: "USD",
-        formattedPrice: "$1.15",
+        formattedPrice: "$1.14",
       },
       pricePerMonth: {
         amount: 499,
@@ -403,10 +403,10 @@ export function createMonthlyPackageWithTrialAndIntroPriceMock(): Package {
         formattedPrice: "$4.99",
       },
       pricePerWeek: {
-        amount: 115,
-        amountMicros: 1150000,
+        amount: 114,
+        amountMicros: 1140000,
         currency: "USD",
-        formattedPrice: "$1.15",
+        formattedPrice: "$1.14",
       },
       pricePerMonth: {
         amount: 499,
