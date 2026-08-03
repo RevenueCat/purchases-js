@@ -82,15 +82,15 @@ jobs:
           name: Build purchases-js
           command: pnpm run build
       - run:
-          name: Install dependencies vega purchase tester
+          name: Install Vega Purchase Tester dependencies
           working_directory: examples/amazonvega-demo/PurchaseTester
           command: pnpm install --frozen-lockfile
       - run:
-          name: Lint vega purchase tester
+          name: Lint Vega Purchase Tester
           working_directory: examples/amazonvega-demo/PurchaseTester
           command: pnpm run lint
       - run:
-          name: Build vega purchase tester
+          name: Build Vega Purchase Tester
           working_directory: examples/amazonvega-demo/PurchaseTester
           command: pnpm run build:release
 
