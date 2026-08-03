@@ -57,15 +57,8 @@
     "check-version-consistency": "node scripts/check-version-consistency.mjs",
     "prepare": "husky"
   },
-  "peerDependencies": {
-    "@amazon-devices/keplerscript-appstore-iap-lib": "2.12.16"
-  },
-  "peerDependenciesMeta": {
-    "@amazon-devices/keplerscript-appstore-iap-lib": {
-      "optional": true
-    }
-  },
   "devDependencies": {
+    "@amazon-devices/keplerscript-appstore-iap-lib": "2.12.16",
     "@babel/runtime": "^7.26.10",
     "@eslint/js": "^9.16.0",
     "@microsoft/api-extractor": "^7.48.0",

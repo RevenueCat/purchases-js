@@ -15,10 +15,7 @@ export default defineConfig({
       fileName: (format) => `Purchases.${format}.js`,
     },
     rollupOptions: {
-      external: [
-        "@amazon-devices/keplerscript-appstore-iap-lib",
-        "@amazon-devices/react-native-kepler",
-      ],
+      external: ["@amazon-devices/react-native-kepler"],
     },
   },
   plugins: [

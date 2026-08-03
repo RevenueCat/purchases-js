@@ -27,7 +27,7 @@ export class AmazonVegaBillingWrapper {
 
       throw new PurchasesError(
         ErrorCode.ConfigurationError,
-        "Amazon Vega IAP SDK is unavailable. Install @amazon-devices/keplerscript-appstore-iap-lib to use an Amazon API key.",
+        "Amazon Vega IAP SDK is unavailable.",
         error instanceof Error ? error.message : undefined,
       );
     }

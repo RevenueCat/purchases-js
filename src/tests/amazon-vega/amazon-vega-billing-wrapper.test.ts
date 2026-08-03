@@ -47,8 +47,7 @@ describe("AmazonVegaBillingWrapper", () => {
 
     await expect(getAmazonIapSdk(wrapper)).rejects.toMatchObject({
       errorCode: ErrorCode.ConfigurationError,
-      message:
-        "Amazon Vega IAP SDK is unavailable. Install @amazon-devices/keplerscript-appstore-iap-lib to use an Amazon API key.",
+      message: "Amazon Vega IAP SDK is unavailable.",
       underlyingErrorMessage: "Cannot find package",
     });
   });
