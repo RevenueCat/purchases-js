@@ -61,6 +61,31 @@ commands:
 
 
 jobs:
+  build-vega-purchase-tester:
+    docker:
+      - image: cimg/ruby:3.3.0-node
+    steps:
+      - checkout
+      - install-dependencies
+      - run:
+          name: Build purchases-js
+          command: pnpm run build
+      - run:
+          name: Install dependencies vega purchase tester
+          working_directory: examples/amazonvega-demo/PurchaseTester
+          command: pnpm install --frozen-lockfile
+      - run:
+          name: Verify Vega CLI
+          command: vega --version
+      - run:
+          name: Lint vega purchase tester
+          working_directory: examples/amazonvega-demo/PurchaseTester
+          command: pnpm run lint
+      - run:
+          name: Build vega purchase tester
+          working_directory: examples/amazonvega-demo/PurchaseTester
+          command: pnpm run build:release
+
   docs-deploy:
     docker:
       - image: cimg/ruby:3.3.0-node
@@ -317,6 +342,7 @@ workflows:
     jobs:
       - test
       - test-e2e
+      - build-vega-purchase-tester
       - deploy-demo:
           requires:
             - test
