@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
-import {ConfigureScreen} from './Screens/ConfigureScreen';
-import {HomeScreen} from './Screens/HomeScreen';
+import {ConfigureScreen} from './screens/ConfigureScreen';
+import {HomeScreen} from './screens/HomeScreen';
 
 export const App = () => {
   const [isConfigured, setIsConfigured] = useState(false);
