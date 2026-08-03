@@ -2,7 +2,6 @@ import { ErrorCode, PurchasesError } from "../entities/errors";
 import {
   type AmazonVegaSdk,
   type AmazonVegaSdkLoader,
-  loadAmazonVegaSdk,
 } from "./amazon-vega-sdk-loader";
 
 /**
@@ -11,13 +10,13 @@ import {
  * @internal
  */
 export class AmazonVegaBillingWrapper {
-  constructor(
-    private readonly amazonVegaSdkLoader: AmazonVegaSdkLoader = {
-      load: loadAmazonVegaSdk,
-    },
-  ) {}
+  constructor(private readonly amazonVegaSdkLoader: AmazonVegaSdkLoader) {}
 
-  // @ts-expect-error TS6133: This will be consumed by future functions in this class, like getProducts() and purchase().
+  /** Starts loading the Vega SDK through this wrapper's cached loader. */
+  public async preload(): Promise<void> {
+    await this.getAmazonIapSdk();
+  }
+
   private async getAmazonIapSdk(): Promise<AmazonVegaSdk> {
     try {
       return await this.amazonVegaSdkLoader.load();

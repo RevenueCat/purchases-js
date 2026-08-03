@@ -31,14 +31,3 @@ export function createAmazonVegaSdkLoader(
     },
   };
 }
-
-const amazonVegaSdkLoader = createAmazonVegaSdkLoader();
-
-/**
- * Starts loading the Vega SDK and returns the cached loading promise.
- * Future Amazon purchase handling can await this same promise.
- * @internal
- */
-export function loadAmazonVegaSdk(): Promise<AmazonVegaSdk> {
-  return amazonVegaSdkLoader.load();
-}

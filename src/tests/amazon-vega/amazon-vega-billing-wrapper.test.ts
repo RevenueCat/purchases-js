@@ -28,6 +28,16 @@ describe("AmazonVegaBillingWrapper", () => {
     expect(loader.load).toHaveBeenCalledOnce();
   });
 
+  test("preloads the Amazon SDK through its cached loader", async () => {
+    const loader: AmazonVegaSdkLoader = {
+      load: vi.fn(() => Promise.resolve({} as AmazonVegaSdk)),
+    };
+    const wrapper = new AmazonVegaBillingWrapper(loader);
+
+    await expect(wrapper.preload()).resolves.toBeUndefined();
+    expect(loader.load).toHaveBeenCalledOnce();
+  });
+
   test("converts an SDK loading failure into a configuration error", async () => {
     const underlyingError = new Error("Cannot find package");
     const loader: AmazonVegaSdkLoader = {
