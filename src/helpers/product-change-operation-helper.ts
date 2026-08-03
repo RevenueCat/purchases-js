@@ -15,13 +15,13 @@ export class ProductChangeOperationHelper {
 
   async start(
     newProductId: string,
-    subscriptionId: string,
+    fromProductIdentifier: string | undefined,
     subscriberToken: string,
   ): Promise<SubscriptionChangeCheckoutStartResponse> {
     try {
       const response = await this.backend.postSubscriptionChangeCheckoutStart(
         newProductId,
-        subscriptionId,
+        fromProductIdentifier,
         subscriberToken,
       );
       this.operationSessionId = response.operation_session_id;

@@ -68,7 +68,7 @@
   {@const productChangeOperationHelper = helperForArgs(args)}
   <UpgradeCheckoutUi
     newProductId={args.startData?.to_product.product_id ?? "premium_monthly"}
-    subscriptionId="sub_story_123"
+    fromProductIdentifier="premium_monthly"
     subscriberToken="subscriber_token_story"
     {brandingInfo}
     isInElement={context.globals.viewport === "embedded"}

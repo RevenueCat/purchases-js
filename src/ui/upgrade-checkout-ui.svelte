@@ -19,7 +19,7 @@
 
   interface Props {
     newProductId: string;
-    subscriptionId: string;
+    fromProductIdentifier?: string;
     subscriberToken: string;
     brandingInfo: BrandingInfoResponse | null;
     isInElement: boolean;
@@ -32,7 +32,7 @@
 
   const {
     newProductId,
-    subscriptionId,
+    fromProductIdentifier,
     subscriberToken,
     brandingInfo,
     isInElement,
@@ -57,7 +57,7 @@
     try {
       startData = await productChangeOperationHelper.start(
         newProductId,
-        subscriptionId,
+        fromProductIdentifier,
         subscriberToken,
       );
     } catch (e) {

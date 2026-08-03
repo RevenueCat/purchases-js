@@ -2203,20 +2203,12 @@ export class Purchases {
       );
     }
 
-    const { subscriptionId } = productChangeInfo;
+    const fromProductIdentifier =
+      productChangeInfo.fromProductIdentifier || undefined;
     const subscriberToken =
       productChangeInfo.subscriberToken ?? this._subscriberToken ?? undefined;
     const { rcPackage, htmlTarget } = params;
     const newProductId = rcPackage.webBillingProduct.identifier;
-
-    if (!subscriptionId) {
-      throw new PurchasesError(
-        ErrorCode.PurchaseInvalidError,
-        "subscriptionId is required.",
-        "Pass the RevenueCat subscription public id (sub…) for the " +
-          "subscription to change via productChangeInfo.subscriptionId.",
-      );
-    }
 
     if (!subscriberToken) {
       throw new PurchasesError(
@@ -2285,7 +2277,7 @@ export class Purchases {
         target: certainHTMLTarget,
         props: {
           newProductId,
-          subscriptionId,
+          fromProductIdentifier,
           subscriberToken,
           brandingInfo: this._brandingInfo,
           isInElement,

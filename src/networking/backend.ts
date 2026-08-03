@@ -466,23 +466,27 @@ export class Backend {
 
   async postSubscriptionChangeCheckoutStart(
     newProductId: string,
-    subscriptionId: string,
+    fromProductIdentifier: string | undefined,
     subscriberToken: string,
   ): Promise<SubscriptionChangeCheckoutStartResponse> {
     type RequestBody = {
       new_product_id: string;
-      subscription_id: string;
+      from_product_id?: string;
     };
+
+    const body: RequestBody = {
+      new_product_id: newProductId,
+    };
+    if (fromProductIdentifier) {
+      body.from_product_id = fromProductIdentifier;
+    }
 
     return await performRequest<
       RequestBody,
       SubscriptionChangeCheckoutStartResponse
     >(new SubscriptionChangeCheckoutStartEndpoint(), {
       apiKey: this.API_KEY,
-      body: {
-        new_product_id: newProductId,
-        subscription_id: subscriptionId,
-      },
+      body,
       headers: { Authorization: `Bearer ${subscriberToken}` },
       httpConfig: this.httpConfig,
     });
