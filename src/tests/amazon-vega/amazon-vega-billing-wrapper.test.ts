@@ -1,9 +1,6 @@
 import { describe, expect, test, vi } from "vitest";
 import { AmazonVegaBillingWrapper } from "../../amazon-vega/amazon-vega-billing-wrapper";
-import type {
-  AmazonVegaSdk,
-  AmazonVegaSdkLoader,
-} from "../../amazon-vega/amazon-vega-sdk-loader";
+import type { AmazonVegaSdk } from "../../amazon-vega/amazon-vega-sdk-loader";
 import { ErrorCode, PurchasesError } from "../../entities/errors";
 
 type AmazonIapSdkGetter = {
@@ -19,30 +16,24 @@ function getAmazonIapSdk(
 describe("AmazonVegaBillingWrapper", () => {
   test("returns the Amazon SDK from its loader", async () => {
     const sdk = {} as AmazonVegaSdk;
-    const loader: AmazonVegaSdkLoader = {
-      load: vi.fn(() => Promise.resolve(sdk)),
-    };
+    const loader = vi.fn(() => Promise.resolve(sdk));
     const wrapper = new AmazonVegaBillingWrapper(loader);
 
     await expect(getAmazonIapSdk(wrapper)).resolves.toBe(sdk);
-    expect(loader.load).toHaveBeenCalledOnce();
+    expect(loader).toHaveBeenCalledOnce();
   });
 
   test("preloads the Amazon SDK through its cached loader", async () => {
-    const loader: AmazonVegaSdkLoader = {
-      load: vi.fn(() => Promise.resolve({} as AmazonVegaSdk)),
-    };
+    const loader = vi.fn(() => Promise.resolve({} as AmazonVegaSdk));
     const wrapper = new AmazonVegaBillingWrapper(loader);
 
     await expect(wrapper.preload()).resolves.toBeUndefined();
-    expect(loader.load).toHaveBeenCalledOnce();
+    expect(loader).toHaveBeenCalledOnce();
   });
 
   test("converts an SDK loading failure into a configuration error", async () => {
     const underlyingError = new Error("Cannot find package");
-    const loader: AmazonVegaSdkLoader = {
-      load: vi.fn(() => Promise.reject(underlyingError)),
-    };
+    const loader = vi.fn(() => Promise.reject(underlyingError));
     const wrapper = new AmazonVegaBillingWrapper(loader);
 
     await expect(getAmazonIapSdk(wrapper)).rejects.toMatchObject({
@@ -57,18 +48,14 @@ describe("AmazonVegaBillingWrapper", () => {
       ErrorCode.ConfigurationError,
       "The Amazon SDK is incompatible",
     );
-    const loader: AmazonVegaSdkLoader = {
-      load: vi.fn(() => Promise.reject(loaderError)),
-    };
+    const loader = vi.fn(() => Promise.reject(loaderError));
     const wrapper = new AmazonVegaBillingWrapper(loader);
 
     await expect(getAmazonIapSdk(wrapper)).rejects.toBe(loaderError);
   });
 
   test("omits an underlying error message for non-Error loading failures", async () => {
-    const loader: AmazonVegaSdkLoader = {
-      load: vi.fn(() => Promise.reject("SDK unavailable")),
-    };
+    const loader = vi.fn(() => Promise.reject("SDK unavailable"));
     const wrapper = new AmazonVegaBillingWrapper(loader);
 
     await expect(getAmazonIapSdk(wrapper)).rejects.toMatchObject({

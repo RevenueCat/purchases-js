@@ -2,18 +2,15 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import { Logger } from "../helpers/logger";
 
 const mocks = vi.hoisted(() => {
-  const loader = {
-    load: vi.fn(() => Promise.resolve({})),
-  };
+  const loadAmazonVegaSdk = vi.fn(() => Promise.resolve({}));
 
   return {
-    createAmazonVegaSdkLoader: vi.fn(() => loader),
-    loader,
+    loadAmazonVegaSdk,
   };
 });
 
 vi.mock("../amazon-vega/amazon-vega-sdk-loader", () => ({
-  createAmazonVegaSdkLoader: mocks.createAmazonVegaSdkLoader,
+  loadAmazonVegaSdk: mocks.loadAmazonVegaSdk,
 }));
 
 import { Purchases } from "../main";
@@ -21,9 +18,8 @@ import { Purchases } from "../main";
 describe("Purchases.configure() Vega SDK loading", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
-    mocks.createAmazonVegaSdkLoader.mockClear();
-    mocks.loader.load.mockClear();
-    mocks.loader.load.mockResolvedValue({});
+    mocks.loadAmazonVegaSdk.mockClear();
+    mocks.loadAmazonVegaSdk.mockResolvedValue({});
   });
 
   test("starts loading the Vega SDK when configured with an Amazon API key", async () => {
@@ -34,8 +30,7 @@ describe("Purchases.configure() Vega SDK loading", () => {
     });
 
     expect(purchases).toBeDefined();
-    expect(mocks.createAmazonVegaSdkLoader).toHaveBeenCalledOnce();
-    expect(mocks.loader.load).toHaveBeenCalledOnce();
+    expect(mocks.loadAmazonVegaSdk).toHaveBeenCalledOnce();
     await vi.waitFor(() => {
       expect(debugLog).toHaveBeenCalledWith("Amazon Vega IAP SDK loaded.");
     });
@@ -47,19 +42,15 @@ describe("Purchases.configure() Vega SDK loading", () => {
     "pdl_valid_key",
     "strp_valid_key",
     "test_valid_key",
-  ])(
-    "does not create or load the Vega SDK for a %s configuration",
-    (apiKey) => {
-      Purchases.configure({ apiKey, appUserId: "appUserId" });
+  ])("does not load the Vega SDK for a %s configuration", (apiKey) => {
+    Purchases.configure({ apiKey, appUserId: "appUserId" });
 
-      expect(mocks.createAmazonVegaSdkLoader).not.toHaveBeenCalled();
-      expect(mocks.loader.load).not.toHaveBeenCalled();
-    },
-  );
+    expect(mocks.loadAmazonVegaSdk).not.toHaveBeenCalled();
+  });
 
   test("does not wait for the Vega SDK import before returning from configure", () => {
     let resolveImport: (() => void) | undefined;
-    mocks.loader.load.mockImplementationOnce(
+    mocks.loadAmazonVegaSdk.mockImplementationOnce(
       () => new Promise((resolve) => (resolveImport = () => resolve({}))),
     );
 

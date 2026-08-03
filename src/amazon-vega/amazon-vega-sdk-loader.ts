@@ -13,21 +13,12 @@ type AmazonVegaSdkImporter = () => Promise<AmazonVegaSdk>;
 const importAmazonVegaSdk: AmazonVegaSdkImporter = async () =>
   await import("@amazon-devices/keplerscript-appstore-iap-lib");
 
-/** @internal */
-export interface AmazonVegaSdkLoader {
-  load(): Promise<AmazonVegaSdk>;
-}
+let sdkPromise: Promise<AmazonVegaSdk> | undefined;
 
-/** @internal */
-export function createAmazonVegaSdkLoader(
+/** Loads the bundled Amazon Vega SDK once and returns the cached promise. */
+export function loadAmazonVegaSdk(
   importer: AmazonVegaSdkImporter = importAmazonVegaSdk,
-): AmazonVegaSdkLoader {
-  let sdkPromise: Promise<AmazonVegaSdk> | undefined;
-
-  return {
-    load(): Promise<AmazonVegaSdk> {
-      sdkPromise ??= importer();
-      return sdkPromise;
-    },
-  };
+): Promise<AmazonVegaSdk> {
+  sdkPromise ??= importer();
+  return sdkPromise;
 }

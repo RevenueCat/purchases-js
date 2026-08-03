@@ -31,7 +31,6 @@ import {
   isWebBillingApiKey,
   isWebBillingSandboxApiKey,
 } from "./helpers/api-key-helper";
-import { createAmazonVegaSdkLoader } from "./amazon-vega/amazon-vega-sdk-loader";
 import { AmazonVegaBillingWrapper } from "./amazon-vega/amazon-vega-billing-wrapper";
 import {
   type OperationSessionSuccessfulResult,
@@ -558,7 +557,7 @@ export class Purchases {
     this._subscriberToken = subscriberToken ?? null;
     this._context = context;
     this.amazonVegaBillingWrapper = isAmazonApiKey(apiKey)
-      ? new AmazonVegaBillingWrapper(createAmazonVegaSdkLoader())
+      ? new AmazonVegaBillingWrapper()
       : null;
     if (RC_ENDPOINT === undefined) {
       Logger.errorLog(
