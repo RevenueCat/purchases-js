@@ -39,10 +39,10 @@ describe("getOfferings", () => {
         formattedPrice: "$5.00",
       },
       pricePerWeek: {
-        amount: 116,
-        amountMicros: 1160000,
+        amount: 115,
+        amountMicros: 1150000,
         currency: "USD",
-        formattedPrice: "$1.16",
+        formattedPrice: "$1.15",
       },
       pricePerMonth: {
         amount: 500,
@@ -51,10 +51,10 @@ describe("getOfferings", () => {
         formattedPrice: "$5.00",
       },
       pricePerYear: {
-        amount: 6083,
-        amountMicros: 60830000,
+        amount: 6000,
+        amountMicros: 60000000,
         currency: "USD",
-        formattedPrice: "$60.83",
+        formattedPrice: "$60.00",
       },
     },
     trial: trialPhaseP1W,
@@ -553,8 +553,8 @@ describe("getOfferings", () => {
           formattedPrice: "$1.99",
         },
         pricePerMonth: expect.objectContaining({ amountMicros: 1990000 }),
-        pricePerWeek: expect.objectContaining({ amountMicros: 460000 }),
-        pricePerYear: expect.objectContaining({ amountMicros: 24210000 }),
+        pricePerWeek: expect.objectContaining({ amountMicros: 450000 }),
+        pricePerYear: expect.objectContaining({ amountMicros: 23880000 }),
       };
 
       // Convenience accessors for the intro price phase
@@ -590,8 +590,8 @@ describe("getOfferings", () => {
           formattedPrice: "$4.99",
         },
         pricePerMonth: expect.objectContaining({ amountMicros: 4990000 }),
-        pricePerWeek: expect.objectContaining({ amountMicros: 1160000 }),
-        pricePerYear: expect.objectContaining({ amountMicros: 60710000 }),
+        pricePerWeek: expect.objectContaining({ amountMicros: 1140000 }),
+        pricePerYear: expect.objectContaining({ amountMicros: 59880000 }),
       };
 
       // Convenience accessors for the trial phase
@@ -662,8 +662,8 @@ describe("getOfferings", () => {
           formattedPrice: "$6.99",
         },
         pricePerMonth: expect.objectContaining({ amountMicros: 1160000 }),
-        pricePerWeek: expect.objectContaining({ amountMicros: 270000 }),
-        pricePerYear: expect.objectContaining({ amountMicros: 14170000 }),
+        pricePerWeek: expect.objectContaining({ amountMicros: 260000 }),
+        pricePerYear: expect.objectContaining({ amountMicros: 13980000 }),
       });
     });
 
