@@ -433,6 +433,7 @@ export interface PurchaseParams {
     showDiscountCodeField?: boolean;
     skipSuccessPage?: boolean;
     termsAndConditionsUrl?: string;
+    /* Excluded from this release type: productChangeInfo */
 }
 
 // @public
@@ -442,6 +443,7 @@ export interface PurchaseResult {
     readonly redemptionInfo: RedemptionInfo | null;
     readonly storeTransaction: StoreTransaction;
     /* Excluded from this release type: attributionMetadata */
+    /* Excluded from this release type: productChange */
 }
 
 // @public
@@ -451,6 +453,7 @@ export class Purchases {
     /* Excluded from this release type: _brandingInfo */
     /* Excluded from this release type: _loadingResourcesPromise */
     /* Excluded from this release type: _flags */
+    /* Excluded from this release type: _subscriberToken */
     /* Excluded from this release type: _context */
     /* Excluded from this release type: backend */
     /* Excluded from this release type: purchaseOperationHelper */
@@ -501,6 +504,7 @@ export interface PurchasesConfig {
     appUserId: string;
     flags?: FlagsConfig;
     httpConfig?: HttpConfig;
+    /* Excluded from this release type: subscriberToken */
     /* Excluded from this release type: context */
     /* Excluded from this release type: trace_id */
 }

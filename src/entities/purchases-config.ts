@@ -65,6 +65,13 @@ export interface PurchasesConfig {
    */
   flags?: FlagsConfig;
   /**
+   * Optional short-lived subscriber access token used for RevenueCat Billing
+   * product-change checkout. Minted server-side via the Developer API (https://www.revenuecat.com/docs/api-v2)
+   * `authenticate` endpoint.
+   * @internal
+   */
+  subscriberToken?: string;
+  /**
    * Additional contextual information for the Purchases instance.
    * @internal
    */
