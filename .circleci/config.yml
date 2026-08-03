@@ -355,11 +355,13 @@ workflows:
           requires:
             - test
             - test-e2e
+            - build-vega-purchase-tester
           <<: *only-main
       - hold:
           requires:
             - test
             - test-e2e
+            - build-vega-purchase-tester
           type: approval
           <<: *release-branches
       - revenuecat/tag-current-branch:
