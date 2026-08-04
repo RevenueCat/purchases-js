@@ -50,13 +50,15 @@
 </script>
 
 <label class="rcb-checkout-consent" data-testid="CheckoutConsent">
-  <input
-    type="checkbox"
-    class="rcb-checkout-consent-checkbox"
-    data-testid="CheckoutConsentCheckbox"
-    {checked}
-    onchange={handleChange}
-  />
+  <span class="rcb-checkout-consent-checkbox-target">
+    <input
+      type="checkbox"
+      class="rcb-checkout-consent-checkbox"
+      data-testid="CheckoutConsentCheckbox"
+      {checked}
+      onchange={handleChange}
+    />
+  </span>
   <Typography size="body-small">
     {agreementParts.before}<a
       href={termsAndConditionsUrl}
@@ -75,14 +77,41 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 12px;
+    margin-top: 32px;
+    margin-bottom: 24px;
     cursor: pointer;
   }
 
-  .rcb-checkout-consent-checkbox {
-    width: 16px;
-    height: 16px;
+  .rcb-checkout-consent-checkbox-target {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    /* Negative margins collapse the tap target back to the checkbox's 20px
+       footprint so the row keeps its original alignment and spacing. */
+    margin: -12px;
+  }
+
+  .rcb-checkout-consent-checkbox {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    margin: 0;
+  }
+
+  @container layout-query-container (width >= 768px) {
+    .rcb-checkout-consent-checkbox-target {
+      width: 16px;
+      height: 16px;
+      margin: 0;
+    }
+
+    .rcb-checkout-consent-checkbox {
+      width: 16px;
+      height: 16px;
+    }
   }
 
   .rcb-checkout-consent :global(a) {
