@@ -20,7 +20,7 @@ import {
   type OfferingsResponse,
   type PackageResponse,
 } from "./networking/responses/offerings-response";
-import { type ProductResponse } from "./networking/responses/products-response";
+import type { ProductResponse } from "./networking/responses/products-response";
 import { RC_ENDPOINT } from "./helpers/constants";
 import { Backend } from "./networking/backend";
 import {
@@ -32,6 +32,7 @@ import {
   isWebBillingSandboxApiKey,
 } from "./helpers/api-key-helper";
 import { AmazonVegaBillingWrapper } from "./amazon-vega/amazon-vega-billing-wrapper";
+import { WebBillingBillingWrapper } from "./helpers/web-billing-billing-wrapper";
 import {
   type OperationSessionSuccessfulResult,
   type PurchaseFlowError,
@@ -148,6 +149,7 @@ import {
   removeManagedAppleTouchIcon,
   syncManagedAppleTouchIcon,
 } from "./helpers/apple-touch-icon";
+import type { BillingWrapper } from "./helpers/billing-wrapper";
 
 type UIComponentInteractionFields = UIComponentInteractionData & {
   componentURL?: string;
@@ -289,12 +291,8 @@ export class Purchases {
   /** @internal */
   private readonly inMemoryCache: InMemoryCache;
 
-  /**
-   * Created only for Amazon configurations. It retains the configuration-time
-   * SDK loading promise for the Amazon purchase implementation to await.
-   * @internal
-   */
-  private readonly amazonVegaBillingWrapper: AmazonVegaBillingWrapper | null;
+  /** @internal */
+  private readonly billingWrapper: BillingWrapper;
 
   /** @internal */
   private static instance: Purchases | undefined = undefined;
@@ -556,9 +554,6 @@ export class Purchases {
     this._flags = { ...defaultFlagsConfig, ...flags };
     this._subscriberToken = subscriberToken ?? null;
     this._context = context;
-    this.amazonVegaBillingWrapper = isAmazonApiKey(apiKey)
-      ? new AmazonVegaBillingWrapper()
-      : null;
     if (RC_ENDPOINT === undefined) {
       Logger.errorLog(
         "Project was build without some of the environment variables set",
@@ -582,35 +577,44 @@ export class Purchases {
     });
     this.backend = new Backend(this._API_KEY, httpConfig, this._context);
     this.inMemoryCache = new InMemoryCache();
-    this.preloadAmazonVegaSdk();
     this.purchaseOperationHelper = new PurchaseOperationHelper(
       this.backend,
       this.eventsTracker,
     );
+    this.billingWrapper = this.createBillingWrapper(apiKey);
     this.eventsTracker.trackSDKEvent({
       eventName: SDKEventName.SDKInitialized,
     });
   }
 
-  /**
-   * Begins loading the optional Amazon Vega SDK without changing the
-   * synchronous `configure` API. Amazon purchase handling will await the same
-   * cached loader promise before using the native SDK.
-   * @internal
-   */
-  private preloadAmazonVegaSdk(): void {
-    if (!this.amazonVegaBillingWrapper) {
-      return;
+  /** @internal */
+  private createBillingWrapper(apiKey: string): BillingWrapper {
+    const onCacheInvalidate = () => this.inMemoryCache.invalidateAllCaches();
+
+    if (isAmazonApiKey(apiKey)) {
+      Logger.debugLog("Initializing Amazon Vega IAP SDK.");
+      const wrapper = new AmazonVegaBillingWrapper();
+      void wrapper
+        .preload()
+        .then(() => Logger.debugLog("Amazon Vega IAP SDK loaded."))
+        .catch((error: unknown) => {
+          const message =
+            error instanceof PurchasesError ? error.message : String(error);
+          Logger.errorLog(`Failed to load Amazon Vega IAP SDK: ${message}`);
+        });
+      return wrapper;
     }
 
-    void this.amazonVegaBillingWrapper
-      .preload()
-      .then(() => Logger.debugLog("Amazon Vega IAP SDK loaded."))
-      .catch((error: unknown) => {
-        const message =
-          error instanceof PurchasesError ? error.message : String(error);
-        Logger.errorLog(`Failed to load Amazon Vega IAP SDK: ${message}`);
-      });
+    // Default to Web Billing (Stripe)
+    return new WebBillingBillingWrapper({
+      backend: this.backend,
+      eventsTracker: this.eventsTracker,
+      purchaseOperationHelper: this.purchaseOperationHelper,
+      getBrandingInfo: () => this._brandingInfo,
+      flags: this._flags,
+      isSandbox: isWebBillingSandboxApiKey(apiKey),
+      onCacheInvalidate,
+    });
   }
 
   /**
@@ -1368,7 +1372,7 @@ export class Purchases {
       .flatMap((o: OfferingResponse) => o.packages)
       .map((p: PackageResponse) => p.platform_product_identifier);
 
-    const productsResponse = await this.backend.getProducts(
+    const productsResponse = await this.billingWrapper.getProducts(
       appUserId,
       productIds,
       params?.currency,
