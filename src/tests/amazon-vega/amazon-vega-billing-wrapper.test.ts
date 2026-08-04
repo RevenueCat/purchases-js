@@ -1,7 +1,17 @@
 import { describe, expect, test, vi } from "vitest";
+import {
+  ProductDataResponseCode,
+  PurchasingService,
+} from "@amazon-devices/keplerscript-appstore-iap-lib";
 import { AmazonVegaBillingWrapper } from "../../amazon-vega/amazon-vega-billing-wrapper";
 import type { AmazonVegaSdk } from "../../amazon-vega/amazon-vega-sdk-loader";
 import { ErrorCode, PurchasesError } from "../../entities/errors";
+
+vi.mock("@amazon-devices/keplerscript-appstore-iap-lib", () => ({
+  ProductDataResponseCode: { SUCCESSFUL: 1 },
+  ProductType: { CONSUMABLE: 1, ENTITLED: 2, SUBSCRIPTION: 3 },
+  PurchasingService: { getProductData: vi.fn() },
+}));
 
 type AmazonIapSdkGetter = {
   getAmazonIapSdk(): Promise<AmazonVegaSdk>;
@@ -34,8 +44,15 @@ describe("AmazonVegaBillingWrapper", () => {
   test("loads the Amazon SDK before querying product details", async () => {
     const loader = vi.fn(() => Promise.resolve({} as AmazonVegaSdk));
     const wrapper = new AmazonVegaBillingWrapper(loader);
+    vi.mocked(PurchasingService.getProductData).mockResolvedValue({
+      responseCode: ProductDataResponseCode.SUCCESSFUL,
+      productData: new Map(),
+      unavailableSkus: [],
+    });
 
-    await expect(wrapper.queryProductDetails()).resolves.toBeUndefined();
+    await expect(wrapper.getProducts("appUserId", [])).resolves.toEqual({
+      product_details: [],
+    });
     expect(loader).toHaveBeenCalledOnce();
   });
 
