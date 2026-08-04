@@ -24,6 +24,7 @@ import { type ProductResponse } from "./networking/responses/products-response";
 import { RC_ENDPOINT } from "./helpers/constants";
 import { Backend } from "./networking/backend";
 import {
+  isAmazonApiKey,
   isPaddleApiKey,
   isSimulatedStoreApiKey,
   isStripeApiKey,
@@ -146,6 +147,9 @@ import {
   removeManagedAppleTouchIcon,
   syncManagedAppleTouchIcon,
 } from "./helpers/apple-touch-icon";
+import type { BillingWrapper } from "./helpers/billing-wrapper";
+import { AmazonBillingWrapper } from "./amazon/amazon-billing-wrapper";
+import { WebBillingBillingWrapper } from "./helpers/web-billing-billing-wrapper";
 
 type UIComponentInteractionFields = UIComponentInteractionData & {
   componentURL?: string;
@@ -286,6 +290,9 @@ export class Purchases {
 
   /** @internal */
   private readonly inMemoryCache: InMemoryCache;
+
+  /** @internal */
+  private readonly billingWrapper: BillingWrapper;
 
   /** @internal */
   private static instance: Purchases | undefined = undefined;
@@ -577,6 +584,15 @@ export class Purchases {
     this.eventsTracker.trackSDKEvent({
       eventName: SDKEventName.SDKInitialized,
     });
+    this.billingWrapper = this.buildBillingWrapper(this._API_KEY);
+  }
+
+  private buildBillingWrapper(apiKey: string): BillingWrapper {
+    if (isAmazonApiKey(apiKey)) {
+      return new AmazonBillingWrapper();
+    } else {
+      return new WebBillingBillingWrapper(this.backend);
+    }
   }
 
   /**
@@ -1335,7 +1351,7 @@ export class Purchases {
       .flatMap((o: OfferingResponse) => o.packages)
       .map((p: PackageResponse) => p.platform_product_identifier);
 
-    const productsResponse = await this.backend.getProducts(
+    const productsResponse = await this.billingWrapper.getProducts(
       appUserId,
       productIds,
       params?.currency,
