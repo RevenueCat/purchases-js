@@ -111,6 +111,9 @@
     "vite-plugin-dts": "^4.5.4",
     "vitest": "^3.2.4"
   },
+  "peerDependencies": {
+    "@amazon-devices/react-native-kepler": "^2.0.0"
+  },
   "lint-staged": {
     "**/*": [
       "prettier --write --ignore-unknown",
