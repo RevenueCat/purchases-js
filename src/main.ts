@@ -589,8 +589,6 @@ export class Purchases {
 
   /** @internal */
   private createBillingWrapper(apiKey: string): BillingWrapper {
-    const onCacheInvalidate = () => this.inMemoryCache.invalidateAllCaches();
-
     if (isAmazonApiKey(apiKey)) {
       Logger.debugLog("Initializing Amazon Vega IAP SDK.");
       const wrapper = new AmazonVegaBillingWrapper();
@@ -606,15 +604,7 @@ export class Purchases {
     }
 
     // Default to Web Billing (Stripe)
-    return new WebBillingBillingWrapper({
-      backend: this.backend,
-      eventsTracker: this.eventsTracker,
-      purchaseOperationHelper: this.purchaseOperationHelper,
-      getBrandingInfo: () => this._brandingInfo,
-      flags: this._flags,
-      isSandbox: isWebBillingSandboxApiKey(apiKey),
-      onCacheInvalidate,
-    });
+    return new WebBillingBillingWrapper(this.backend);
   }
 
   /**
