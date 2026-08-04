@@ -11,15 +11,9 @@ import {
   Translator,
   type CustomTranslations,
 } from "../ui/localization/translator";
-import { PeriodUnit } from "./duration-helper";
-
 import { LocalizationKeys } from "../ui/localization/supportedLanguages";
-import {
-  DAYS_PER_MONTH,
-  getPeriodVariables,
-  MONTHS_PER_YEAR,
-  WEEKS_PER_MONTH,
-} from "./paywall-period-helpers";
+import { getPeriodVariables } from "./paywall-period-helpers";
+import { getPricePerPeriodFactors } from "./price-conversion-helper";
 import { getPriceVariables } from "./paywall-price-helpers";
 import {
   setNonSubscriptionOfferVariables,
@@ -53,7 +47,6 @@ export function buildVariablesPerPackage(
   return parseOfferingIntoVariables(offering, translator);
 }
 
-// Helper function to get monthly equivalent price for any package
 function getPackageMonthlyPrice(pkg: Package): number {
   const price = pkg.webBillingProduct.price;
   const purchaseOption = getDefaultPurchaseOption(pkg);
@@ -65,18 +58,7 @@ function getPackageMonthlyPrice(pkg: Package): number {
     return price.amountMicros;
   }
 
-  switch (period.unit) {
-    case PeriodUnit.Year:
-      return price.amountMicros / MONTHS_PER_YEAR;
-    case PeriodUnit.Month:
-      return price.amountMicros / period.number;
-    case PeriodUnit.Week:
-      return (price.amountMicros * WEEKS_PER_MONTH) / period.number;
-    case PeriodUnit.Day:
-      return (price.amountMicros * DAYS_PER_MONTH) / period.number;
-    default:
-      return price.amountMicros / (period.number || 1);
-  }
+  return price.amountMicros * getPricePerPeriodFactors(period).perMonth;
 }
 
 function getDefaultPurchaseOption(

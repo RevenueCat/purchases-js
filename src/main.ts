@@ -46,10 +46,7 @@ import {
   validateProxyUrl,
 } from "./helpers/configuration-validators";
 import { type PurchaseParams } from "./entities/purchase-params";
-import {
-  type ChangeProductParams,
-  type ProductChangeResult,
-} from "./entities/product-change-params";
+import { type ProductChangeResult } from "./entities/product-change-params";
 import { defaultHttpConfig, type HttpConfig } from "./entities/http-config";
 import {
   type GetOfferingsParams,
@@ -220,7 +217,7 @@ export type {
   PurchaseParams,
 } from "./entities/purchase-params";
 export type {
-  ChangeProductParams,
+  ProductChangeInfo,
   ProductChangeResult,
 } from "./entities/product-change-params";
 export type { RedemptionInfo } from "./entities/redemption-info";
@@ -268,6 +265,9 @@ export class Purchases {
 
   /** @internal */
   private readonly _flags: FlagsConfig;
+
+  /** @internal */
+  private readonly _subscriberToken: string | null;
 
   /** @internal */
   private readonly _context?: PurchasesContext;
@@ -434,7 +434,15 @@ export class Purchases {
   }
 
   private static configureInternal(config: PurchasesConfig): void {
-    const { apiKey, appUserId, httpConfig, flags, context, trace_id } = config;
+    const {
+      apiKey,
+      appUserId,
+      httpConfig,
+      flags,
+      subscriberToken,
+      context,
+      trace_id,
+    } = config;
     const finalHttpConfig = httpConfig ?? defaultHttpConfig;
     const finalFlags = flags ?? defaultFlagsConfig;
 
@@ -444,6 +452,7 @@ export class Purchases {
       appUserId,
       finalHttpConfig,
       finalFlags,
+      subscriberToken,
       context,
       trace_id,
     );
@@ -529,12 +538,14 @@ export class Purchases {
     appUserId: string,
     httpConfig: HttpConfig = defaultHttpConfig,
     flags: FlagsConfig = defaultFlagsConfig,
+    subscriberToken?: string,
     context?: PurchasesContext,
     trace_id?: string,
   ) {
     this._API_KEY = apiKey;
     this._appUserId = appUserId;
     this._flags = { ...defaultFlagsConfig, ...flags };
+    this._subscriberToken = subscriberToken ?? null;
     this._context = context;
     if (RC_ENDPOINT === undefined) {
       Logger.errorLog(
@@ -1542,12 +1553,20 @@ export class Purchases {
    * package from {@link Purchases.getOfferings}. This method will present the purchase
    * form on your site, using the given HTML element as the mount point, if
    * provided, or as a modal if not.
+   *
+   * When {@link PurchaseParams.productChangeInfo} is set, presents upgrade-mode
+   * checkout for an existing RC Billing subscription instead of a new purchase.
+   *
    * @param params - The parameters object to customise the purchase flow. Check {@link PurchaseParams}
    * @returns a Promise for the customer and redemption info after the purchase is completed successfully.
    * @throws {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.
    */
   @requiresLoadedResources
   public async purchase(params: PurchaseParams): Promise<PurchaseResult> {
+    if (params.productChangeInfo) {
+      return await this.productChangePurchase(params);
+    }
+
     if (isSimulatedStoreApiKey(this._API_KEY)) {
       const purchaseResult = await purchaseSimulatedStoreProduct(
         params,
@@ -2170,34 +2189,45 @@ export class Purchases {
 
   /**
    * Presents upgrade-mode checkout to change the customer's Web Billing
-   * subscription to a new product along a configured product change path.
-   * Upgrades are applied immediately (charging the payment method on file,
-   * with a prorated credit for unused time); downgrades are deferred to the
-   * end of the current billing cycle.
-   *
-   * @param params - The {@link ChangeProductParams} for the change.
-   * @returns The {@link ProductChangeResult} describing the applied change.
-   * @throws {@link PurchasesError} if the token is invalid, the subscription
-   * cannot be changed, or no product change path is configured.
-   * @internal
+   * subscription to {@link PurchaseParams.rcPackage}'s product along a
+   * configured product change path.
    */
-  @requiresLoadedResources
-  public async changeProduct(
-    params: ChangeProductParams,
-  ): Promise<ProductChangeResult> {
-    const { newProductId, subscriberToken, subscriptionId, htmlTarget } =
-      params;
+  private async productChangePurchase(
+    params: PurchaseParams,
+  ): Promise<PurchaseResult> {
+    const productChangeInfo = params.productChangeInfo;
+    if (!productChangeInfo) {
+      throw new PurchasesError(
+        ErrorCode.PurchaseInvalidError,
+        "productChangeInfo is required.",
+      );
+    }
 
-    this.validateSubscriberToken(subscriberToken);
+    const { subscriptionId } = productChangeInfo;
+    const subscriberToken =
+      productChangeInfo.subscriberToken ?? this._subscriberToken ?? undefined;
+    const { rcPackage, htmlTarget } = params;
+    const newProductId = rcPackage.webBillingProduct.identifier;
 
     if (!subscriptionId) {
       throw new PurchasesError(
         ErrorCode.PurchaseInvalidError,
         "subscriptionId is required.",
         "Pass the RevenueCat subscription public id (sub…) for the " +
-          "subscription to change.",
+          "subscription to change via productChangeInfo.subscriptionId.",
       );
     }
+
+    if (!subscriberToken) {
+      throw new PurchasesError(
+        ErrorCode.ConfigurationError,
+        "subscriberToken is required for product changes.",
+        "Pass a subscriber access token via PurchasesConfig.subscriberToken " +
+          "or productChangeInfo.subscriberToken.",
+      );
+    }
+
+    this.validateSubscriberToken(subscriberToken);
 
     const certainHTMLTarget = this.resolveHTMLTarget(htmlTarget);
     const isInElement = htmlTarget !== undefined;
@@ -2226,10 +2256,27 @@ export class Purchases {
         win.addEventListener("popstate", onClose as EventListener);
       }
 
-      const onFinished = (result: ProductChangeResult) => {
+      const onFinished = async (result: ProductChangeResult) => {
         this.inMemoryCache.invalidateAllCaches();
         unmountUi();
-        resolve(result);
+        try {
+          const customerInfo = await this.getCustomerInfo();
+          resolve({
+            customerInfo,
+            redemptionInfo: null,
+            operationSessionId: result.operationSessionId,
+            storeTransaction: {
+              storeTransactionId: result.operationSessionId,
+              productIdentifier: result.newProductId,
+              purchaseDate: new Date(),
+            },
+            productChange: {
+              changeType: result.changeType,
+            },
+          });
+        } catch (error) {
+          reject(error);
+        }
       };
 
       const onError = this.createCheckoutOnErrorHandler(reject);

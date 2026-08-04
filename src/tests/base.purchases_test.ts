@@ -34,6 +34,7 @@ export function configurePurchases(
   rcSource: string = "rcSource",
   apiKey: string = testApiKey,
   flags: Partial<FlagsConfig> = {},
+  subscriberToken?: string,
 ): Purchases {
   return Purchases.configure({
     apiKey: apiKey,
@@ -43,5 +44,6 @@ export function configurePurchases(
       rcSource: rcSource,
       ...flags,
     },
+    subscriberToken,
   });
 }

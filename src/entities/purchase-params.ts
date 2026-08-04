@@ -2,6 +2,7 @@ import type { Package, PurchaseMetadata, PurchaseOption } from "./offerings";
 
 import type { BrandingAppearance } from "./branding";
 import type { CustomTranslations } from "../ui/localization/translator";
+import type { ProductChangeInfo } from "./product-change-params";
 
 type JsonPrimitive = string | number | boolean | null;
 type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
@@ -182,4 +183,13 @@ export interface PurchaseParams {
    * Link to the terms and conditions that should be shown in the checkout footer.
    */
   termsAndConditionsUrl?: string;
+
+  /**
+   * When set, {@link Purchases.purchase} presents upgrade-mode checkout to
+   * change the customer's existing Web Billing subscription to
+   * {@link PurchaseParams.rcPackage}'s product, instead of a new purchase.
+   * Requires a configured product change path in RevenueCat.
+   * @internal
+   */
+  productChangeInfo?: ProductChangeInfo | null;
 }

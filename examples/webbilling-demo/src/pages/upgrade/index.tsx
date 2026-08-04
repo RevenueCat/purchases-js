@@ -1,33 +1,36 @@
+import type { Package, PurchaseResult } from "@revenuecat/purchases-js";
 import { PurchasesError } from "@revenuecat/purchases-js";
 import React, { useState } from "react";
 import { usePurchasesLoaderData } from "../../util/PurchasesLoader";
-
-type ProductChangeResult = {
-  operationSessionId: string;
-  changeType: "immediate" | "deferred";
-  newProductId: string;
-};
 
 /**
  * Demo page for upgrade-mode checkout through the web SDK.
  *
  * Fetches a short-lived subscriber access token from the demo token server,
- * then opens Purchases.changeProduct which mounts the upgrade checkout UI
- * (start → confirm).
+ * then calls Purchases.purchase with productChangeInfo to mount the upgrade
+ * checkout UI (start → confirm). Target product is taken from the selected
+ * package (same shape a paywall would use).
  */
 const UpgradePage: React.FC = () => {
-  const { purchases, customerInfo } = usePurchasesLoaderData();
-  const [newProductId, setNewProductId] = useState("");
+  const { purchases, customerInfo, offering } = usePurchasesLoaderData();
+  const [selectedPackageId, setSelectedPackageId] = useState("");
   const [subscriptionId, setSubscriptionId] = useState("");
   const [inProgress, setInProgress] = useState(false);
-  const [result, setResult] = useState<ProductChangeResult | null>(null);
+  const [result, setResult] = useState<PurchaseResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const activeProductIds = Array.from(customerInfo.activeSubscriptions);
+  const packages: Package[] = offering?.availablePackages ?? [];
+  const selectedPackage =
+    packages.find((pkg) => pkg.identifier === selectedPackageId) ?? null;
 
-  const canConfirm = Boolean(newProductId) && Boolean(subscriptionId);
+  const canConfirm = Boolean(selectedPackage) && Boolean(subscriptionId);
 
   const openUpgradeCheckout = async () => {
+    if (!selectedPackage) {
+      return;
+    }
+
     setInProgress(true);
     setResult(null);
     setError(null);
@@ -47,14 +50,15 @@ const UpgradePage: React.FC = () => {
       }
       const { access_token: subscriberToken } = await tokenResponse.json();
 
-      const changeResult: ProductChangeResult =
-        // @ts-expect-error changeProduct is marked as internal for now
-        await purchases.changeProduct({
-          newProductId,
-          subscriberToken,
+      const purchaseResult: PurchaseResult = await purchases.purchase({
+        rcPackage: selectedPackage,
+        // @ts-expect-error productChangeInfo is marked as internal for now
+        productChangeInfo: {
           subscriptionId,
-        });
-      setResult(changeResult);
+          subscriberToken,
+        },
+      });
+      setResult(purchaseResult);
     } catch (e) {
       if (e instanceof PurchasesError) {
         const underlying = e.underlyingErrorMessage
@@ -68,6 +72,10 @@ const UpgradePage: React.FC = () => {
       setInProgress(false);
     }
   };
+
+  const changeType =
+    // @ts-expect-error productChange is marked as internal for now
+    result?.productChange?.changeType as "immediate" | "deferred" | undefined;
 
   return (
     <>
@@ -86,14 +94,19 @@ const UpgradePage: React.FC = () => {
 
         <p>
           <label>
-            Change to product:{" "}
-            <input
-              type="text"
-              value={newProductId}
-              placeholder="target product identifier"
-              onChange={(event) => setNewProductId(event.target.value)}
-              style={{ width: "300px" }}
-            />
+            Change to package:{" "}
+            <select
+              value={selectedPackageId}
+              onChange={(event) => setSelectedPackageId(event.target.value)}
+              style={{ width: "320px" }}
+            >
+              <option value="">Select a package</option>
+              {packages.map((pkg) => (
+                <option key={pkg.identifier} value={pkg.identifier}>
+                  {pkg.identifier} → {pkg.webBillingProduct.identifier}
+                </option>
+              ))}
+            </select>
           </label>
         </p>
 
@@ -122,9 +135,11 @@ const UpgradePage: React.FC = () => {
         {result && (
           <div>
             <h2>
-              {result.changeType === "immediate"
-                ? "Upgrade applied immediately"
-                : "Downgrade scheduled for next renewal"}
+              {changeType === "deferred"
+                ? "Downgrade scheduled for next renewal"
+                : changeType === "immediate"
+                  ? "Upgrade applied immediately"
+                  : "Product change completed"}
             </h2>
             <pre>{JSON.stringify(result, null, 2)}</pre>
           </div>
@@ -139,8 +154,11 @@ const UpgradePage: React.FC = () => {
 
         <div className="notice">
           Requires the token server (<code>npm run token-server</code>), a
-          configured product change path, and the RevenueCat subscription public
-          id (<code>sub…</code>) for the subscription to change.
+          configured product change path to the selected package's product, and
+          the RevenueCat subscription public id (<code>sub…</code>). Uses{" "}
+          <code>purchases.purchase</code> with <code>rcPackage</code> +{" "}
+          <code>productChangeInfo</code> (target product defaults from the
+          package).
         </div>
       </div>
     </>
