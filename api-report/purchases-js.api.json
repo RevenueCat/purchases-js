@@ -4594,7 +4594,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PresentPaywallParams#discountCode:member",
-              "docComment": "/**\n * Initial discount code to apply to the checkout when one already exists outside of the paywall UI, for example in the hosting page's URL.\n *\n * @experimental\n */\n",
+              "docComment": "/**\n * Initial discount code to apply to the checkout when one already exists outside of the paywall UI, for example in the hosting page's URL.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4759,7 +4759,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PresentPaywallParams#onDiscountCodeChanged:member",
-              "docComment": "/**\n * Called when the applied discount code changes in the checkout shown from the paywall. This can be used to sync host state such as URL parameters.\n *\n * @experimental\n */\n",
+              "docComment": "/**\n * Called when the applied discount code changes in the checkout shown from the paywall. This can be used to sync host state such as URL parameters.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -4931,7 +4931,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PresentPaywallParams#showDiscountCodeField:member",
-              "docComment": "/**\n * If set to true, the Web Billing checkout shown from the paywall will display a discount input code field.\n *\n * @experimental\n */\n",
+              "docComment": "/**\n * If set to true, the Web Billing checkout shown from the paywall will display a discount input code field.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -6204,7 +6204,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PurchaseParams#discountCode:member",
-              "docComment": "/**\n * Initial discount code to display as applied in the Web Billing checkout. This is useful when the code originated outside of the checkout UI, for example from a URL parameter.\n *\n * @experimental\n */\n",
+              "docComment": "/**\n * Initial discount code to display as applied in the Web Billing checkout. This is useful when the code originated outside of the checkout UI, for example from a URL parameter.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -6287,7 +6287,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PurchaseParams#onDiscountCodeChanged:member",
-              "docComment": "/**\n * Called when the applied discount code changes in the Web Billing checkout. This can be used by host applications to keep external state, such as the URL, in sync with the checkout.\n *\n * @experimental\n */\n",
+              "docComment": "/**\n * Called when the applied discount code changes in the Web Billing checkout. This can be used by host applications to keep external state, such as the URL, in sync with the checkout.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -6401,7 +6401,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PurchaseParams#showDiscountCodeField:member",
-              "docComment": "/**\n * If set to true, the Web Billing checkout will show a discount input code field.\n *\n * @experimental\n */\n",
+              "docComment": "/**\n * If set to true, the Web Billing checkout will show a discount input code field.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
