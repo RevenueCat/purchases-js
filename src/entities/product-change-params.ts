@@ -10,8 +10,30 @@ export interface ProductChangeInfo {
    * Typically obtained by your backend via the
    * [Developer API](https://www.revenuecat.com/docs/api-v2)
    * customer subscriptions list and passed to the client with the token.
+   *
+   * When omitted, the source will be inferred on the assumption that the app
+   * user has exactly one active Web Billing subscription.
+   * However if it is possible for an app user to have zero or multiple
+   * active Web Billing subscriptions then either this field or
+   * {@link productIdentifier} is required.
+   * If both are provided, they must refer to the same subscription.
    */
-  subscriptionId: string;
+  subscriptionId?: string;
+  /**
+   * Product identifier of the Web Billing subscription to change.
+   *
+   * Obtainable from {@link CustomerInfo.activeSubscriptions} or
+   * {@link CustomerInfo.subscriptionsByProductIdentifier} via
+   * {@link Purchases.getCustomerInfo}.
+   *
+   * When omitted, the source will be inferred on the assumption that the app
+   * user has exactly one active Web Billing subscription.
+   * However if it is possible for an app user to have zero or multiple
+   * active Web Billing subscriptions then either this field or
+   * {@link subscriptionId} is required.
+   * If both are provided, they must refer to the same subscription.
+   */
+  productIdentifier?: string;
   /**
    * Optional short-lived subscriber access token override for this call.
    * Falls back to {@link PurchasesConfig.subscriberToken} when omitted.

@@ -49,8 +49,9 @@ It uses a small token server to serve as a backend: it holds a **secret** API ke
 2. Start the token server: `pnpm run token-server`
 3. In another terminal, start the demo: `pnpm run dev` (Vite proxies `/api` → the token server)
 4. Open `/upgrade/<app_user_id>` for a customer with an active Web Billing subscription
-5. Pick the target package from the current offering and enter the RevenueCat subscription public id (`sub…`)
-6. Click **Open upgrade checkout**. The SDK starts a checkout session, shows from→to / pricing / PM on file, then confirms on CTA.
+5. Optionally pick a source product from active Web Billing subscriptions and/or enter a subscription public id (`sub…`). Either, both (must match), or neither (we infer a single active Web Billing subscription) is allowed. Provide at least one id if the user may have multiple active Web Billing subscriptions.
+6. Pick the target package from the current offering.
+7. Click **Open upgrade checkout**. The SDK starts a checkout session, shows from→to / pricing / PM on file, then confirms on CTA.
 
 ### Payment Methods
 
