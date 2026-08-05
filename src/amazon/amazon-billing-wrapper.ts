@@ -1,16 +1,10 @@
-import {
-  type Product as AmazonProduct,
-  ProductDataResponseCode,
-  type ProductDataResponse,
-  ProductType as AmazonProductType,
-  type Promotion,
-  PurchasingService,
-} from "@amazon-devices/keplerscript-appstore-iap-lib";
 import { ErrorCode, PurchasesError } from "../entities/errors";
 import {
-  type AmazonVegaSdk,
-  loadAmazonVegaSdk,
-} from "./amazon-vega-sdk-loader";
+  AmazonIapClientUnavailableError,
+  AmazonVegaIapClient,
+  type AmazonIapClient,
+  type AmazonProduct,
+} from "./amazon-vega-iap-client";
 import type { BillingWrapper } from "src/helpers/billing-wrapper";
 import type {
   PricingPhaseResponse,
@@ -20,8 +14,6 @@ import type {
   SubscriptionOptionResponse,
 } from "src/networking/responses/products-response";
 
-type AmazonVegaSdkLoader = () => Promise<AmazonVegaSdk>;
-
 /**
  * Amazon billing wrapper. Handles processing of various functions for the Amazon Store
  * when running on the Vega OS.
@@ -29,12 +21,12 @@ type AmazonVegaSdkLoader = () => Promise<AmazonVegaSdk>;
  */
 export class AmazonBillingWrapper implements BillingWrapper {
   constructor(
-    private readonly loadSdk: AmazonVegaSdkLoader = loadAmazonVegaSdk,
+    private readonly iapClient: AmazonIapClient = new AmazonVegaIapClient(),
   ) {}
 
-  /** Starts loading the Vega SDK through this wrapper's cached loader. */
+  /** Starts loading the native Amazon IAP client. */
   public async preload(): Promise<void> {
-    await this.getAmazonIapSdk();
+    await this.withUnavailableSdkError(() => this.iapClient.preload());
   }
 
   public async getProducts(
@@ -45,14 +37,11 @@ export class AmazonBillingWrapper implements BillingWrapper {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _discountCode?: string,
   ): Promise<ProductsResponse> {
-    await this.getAmazonIapSdk();
+    const response = await this.withUnavailableSdkError(() =>
+      this.iapClient.getProductData(productIds),
+    );
 
-    const response: ProductDataResponse =
-      await PurchasingService.getProductData({
-        skus: productIds,
-      });
-
-    if (response.responseCode !== ProductDataResponseCode.SUCCESSFUL) {
+    if (!response.isSuccessful) {
       throw new PurchasesError(
         ErrorCode.NetworkError,
         `Failed to fetch product data from Amazon: ${response.responseCode}`,
@@ -60,42 +49,46 @@ export class AmazonBillingWrapper implements BillingWrapper {
     }
 
     const products: ProductResponse[] = [];
-    response.productData.forEach((product: AmazonProduct, sku: string) => {
+    response.products.forEach((product) => {
       console.log("Product: ", product);
-      products.push(this.mapAmazonProductToProductResponse(product, sku));
+      products.push(this.mapAmazonProductToProductResponse(product));
     });
 
     return { product_details: products };
   }
 
-  private async getAmazonIapSdk(): Promise<AmazonVegaSdk> {
+  private async withUnavailableSdkError<T>(
+    operation: () => Promise<T>,
+  ): Promise<T> {
     try {
-      return await this.loadSdk();
+      return await operation();
     } catch (error) {
       if (error instanceof PurchasesError) {
+        throw error;
+      }
+
+      if (!(error instanceof AmazonIapClientUnavailableError)) {
         throw error;
       }
 
       throw new PurchasesError(
         ErrorCode.ConfigurationError,
         "Amazon Vega IAP SDK is unavailable.",
-        error instanceof Error ? error.message : undefined,
+        error.sdkError instanceof Error ? error.sdkError.message : undefined,
       );
     }
   }
 
   private mapAmazonProductToProductResponse(
     product: AmazonProduct,
-    sku: string,
   ): ProductResponse {
     const productType = this.mapAmazonProductType(product.productType);
-    const isSubscription =
-      product.productType === AmazonProductType.SUBSCRIPTION;
+    const isSubscription = product.productType === "subscription";
 
     const basePrice = product.price
       ? {
           amount_micros: Number(product.price.valueInMicros),
-          currency: product.price.priceCurrencyCode,
+          currency: product.price.currencyCode,
         }
       : null;
 
@@ -122,7 +115,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
       // Handle introductory pricing from promotions
       let introPhase: PricingPhaseResponse | null = null;
       const introPromotion = product.promotions?.find(
-        (p: Promotion) => p.type === "introductory",
+        (p) => p.type === "introductory",
       );
       if (introPromotion && introPromotion.plans.length > 0) {
         const introPlan = introPromotion.plans[0];
@@ -131,7 +124,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
           price: introPlan.price
             ? {
                 amount_micros: Number(introPlan.price.valueInMicros),
-                currency: introPlan.price.priceCurrencyCode,
+                currency: introPlan.price.currencyCode,
               }
             : null,
           cycle_count: Number(introPlan.priceCycles),
@@ -140,7 +133,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
 
       purchaseOptions["base_option"] = {
         id: "base_option",
-        price_id: sku,
+        price_id: product.identifier,
         base: basePricingPhase,
         trial: trialPhase,
         intro_price: introPhase,
@@ -148,13 +141,13 @@ export class AmazonBillingWrapper implements BillingWrapper {
     } else {
       purchaseOptions["base_option"] = {
         id: "base_option",
-        price_id: sku,
+        price_id: product.identifier,
         base_price: basePrice,
       } as NonSubscriptionOptionResponse;
     }
 
     return {
-      identifier: sku,
+      identifier: product.identifier,
       product_type: productType,
       title: product.title,
       description: product.description,
@@ -163,13 +156,15 @@ export class AmazonBillingWrapper implements BillingWrapper {
     };
   }
 
-  private mapAmazonProductType(amazonType: AmazonProductType): string {
+  private mapAmazonProductType(
+    amazonType: AmazonProduct["productType"],
+  ): string {
     switch (amazonType) {
-      case AmazonProductType.CONSUMABLE:
+      case "consumable":
         return "consumable";
-      case AmazonProductType.ENTITLED:
+      case "entitled":
         return "non_consumable";
-      case AmazonProductType.SUBSCRIPTION:
+      case "subscription":
         return "subscription";
       default:
         return "unknown";
