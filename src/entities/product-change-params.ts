@@ -13,7 +13,7 @@ export interface ProductChangeInfo {
    *
    * When omitted, the source will be inferred on the assumption that the app
    * user has exactly one active Web Billing subscription.
-   * However if it is possible for an app user to have zero or multiple
+   * However if it is possible for an app user to have multiple
    * active Web Billing subscriptions then either this field or
    * {@link productIdentifier} is required.
    * If both are provided, they must refer to the same subscription.
@@ -28,7 +28,7 @@ export interface ProductChangeInfo {
    *
    * When omitted, the source will be inferred on the assumption that the app
    * user has exactly one active Web Billing subscription.
-   * However if it is possible for an app user to have zero or multiple
+   * However if it is possible for an app user to multiple
    * active Web Billing subscriptions then either this field or
    * {@link subscriptionId} is required.
    * If both are provided, they must refer to the same subscription.
