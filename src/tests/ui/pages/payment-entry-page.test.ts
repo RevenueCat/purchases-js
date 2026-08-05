@@ -1107,6 +1107,28 @@ describe("PurchasesUI", () => {
       ).toBe(termsUrl);
     });
 
+    test("toggles consent when the checkbox tap target is clicked", async () => {
+      render(PaymentEntryPage, {
+        props: {
+          ...basicProps,
+          brandingInfo: consentBranding,
+          termsAndConditionsUrl: termsUrl,
+        },
+        context: defaultContext,
+      });
+
+      await vi.advanceTimersToNextTimerAsync();
+
+      const checkbox = screen.getByTestId(
+        "CheckoutConsentCheckbox",
+      ) as HTMLInputElement;
+      const tapTarget = checkbox.parentElement as HTMLElement;
+      expect(checkbox.checked).toBe(false);
+
+      await fireEvent.click(tapTarget);
+      expect(checkbox.checked).toBe(true);
+    });
+
     test("keeps Pay disabled until consent is checked", async () => {
       const expressCheckoutElement = {
         mount: vi.fn(),
