@@ -17,6 +17,7 @@ import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
 
 const SUBSCRIBER_TOKEN_1 = "eyJhbGciOiJSUzI1NiJ9.subscriber.token.1";
 const SUBSCRIBER_TOKEN_2 = "eyJhbGciOiJSUzI1NiJ9.subscriber.token.2";
+const FROM_PRODUCT_IDENTIFIER = "premium_monthly";
 const packageToBuy = createMonthlyPackageMock();
 
 describe("Purchases.purchase productChangeInfo", () => {
@@ -42,24 +43,28 @@ describe("Purchases.purchase productChangeInfo", () => {
     );
   });
 
-  test("requires subscriptionId", async () => {
+  test("allows omitting subscriptionId and productIdentifier for backend inference", async () => {
     const purchases = configurePurchases();
 
-    await expectPromiseToError(
-      purchases.purchase({
-        rcPackage: packageToBuy,
-        productChangeInfo: {
-          subscriptionId: "",
-          subscriberToken: SUBSCRIBER_TOKEN_1,
-        },
-      }),
-      new PurchasesError(
-        ErrorCode.PurchaseInvalidError,
-        "subscriptionId is required.",
-        "Pass the RevenueCat subscription public id (sub…) for the " +
-          "subscription to change via productChangeInfo.subscriptionId.",
-      ),
-    );
+    const startSpy = vi
+      .spyOn(ProductChangeOperationHelper.prototype, "start")
+      .mockResolvedValue(subscriptionChangeImmediateWithTax);
+
+    void purchases.purchase({
+      rcPackage: packageToBuy,
+      productChangeInfo: {
+        subscriberToken: SUBSCRIBER_TOKEN_1,
+      },
+    });
+
+    await vi.waitFor(() => {
+      expect(startSpy).toHaveBeenCalledWith(
+        packageToBuy.webBillingProduct.identifier,
+        undefined,
+        undefined,
+        SUBSCRIBER_TOKEN_1,
+      );
+    });
   });
 
   test("requires subscriberToken from configure or productChangeInfo", async () => {
@@ -108,6 +113,58 @@ describe("Purchases.purchase productChangeInfo", () => {
       expect(startSpy).toHaveBeenCalledWith(
         packageToBuy.webBillingProduct.identifier,
         "subabc123",
+        undefined,
+        SUBSCRIBER_TOKEN_1,
+      );
+    });
+  });
+
+  test("passes productIdentifier through to start", async () => {
+    const purchases = configurePurchases();
+
+    const startSpy = vi
+      .spyOn(ProductChangeOperationHelper.prototype, "start")
+      .mockResolvedValue(subscriptionChangeImmediateWithTax);
+
+    void purchases.purchase({
+      rcPackage: packageToBuy,
+      productChangeInfo: {
+        productIdentifier: FROM_PRODUCT_IDENTIFIER,
+        subscriberToken: SUBSCRIBER_TOKEN_1,
+      },
+    });
+
+    await vi.waitFor(() => {
+      expect(startSpy).toHaveBeenCalledWith(
+        packageToBuy.webBillingProduct.identifier,
+        undefined,
+        FROM_PRODUCT_IDENTIFIER,
+        SUBSCRIBER_TOKEN_1,
+      );
+    });
+  });
+
+  test("passes both subscriptionId and productIdentifier through to start", async () => {
+    const purchases = configurePurchases();
+
+    const startSpy = vi
+      .spyOn(ProductChangeOperationHelper.prototype, "start")
+      .mockResolvedValue(subscriptionChangeImmediateWithTax);
+
+    void purchases.purchase({
+      rcPackage: packageToBuy,
+      productChangeInfo: {
+        subscriptionId: "subabc123",
+        productIdentifier: FROM_PRODUCT_IDENTIFIER,
+        subscriberToken: SUBSCRIBER_TOKEN_1,
+      },
+    });
+
+    await vi.waitFor(() => {
+      expect(startSpy).toHaveBeenCalledWith(
+        packageToBuy.webBillingProduct.identifier,
+        "subabc123",
+        FROM_PRODUCT_IDENTIFIER,
         SUBSCRIBER_TOKEN_1,
       );
     });
@@ -141,6 +198,7 @@ describe("Purchases.purchase productChangeInfo", () => {
       expect(startSpy).toHaveBeenCalledWith(
         packageToBuy.webBillingProduct.identifier,
         "subabc123",
+        undefined,
         SUBSCRIBER_TOKEN_2,
       );
     });
@@ -150,10 +208,48 @@ describe("Purchases.purchase productChangeInfo", () => {
 describe("product change checkout networking", () => {
   const backend = new Backend("rcb_test_api_key");
 
-  test("start sends subscription_id and maps response", async () => {
+  const startSuccessResponse = {
+    operation_session_id: "rcbopsess_start",
+    change_type: "immediate",
+    from_product: {
+      product_id: "monthly",
+      display_name: "Monthly",
+      price_in_micros: 9990000,
+      currency: "USD",
+    },
+    to_product: {
+      product_id: "annual",
+      display_name: "Annual",
+      price_in_micros: 99990000,
+      currency: "USD",
+    },
+    price_breakdown: {
+      currency: "USD",
+      total_amount_in_micros: 99990000,
+      tax_amount_in_micros: null,
+      total_excluding_tax_in_micros: 99990000,
+      original_amount_in_micros: 99990000,
+    },
+    estimated_renewal_price: null,
+    email: "user@example.com",
+    payment_method: {
+      type: "card",
+      last_4: "4242",
+      brand: "visa",
+      exp_month: 12,
+      exp_year: 2030,
+    },
+    billing_address: {
+      country_code: "US",
+      postal_code: "12345",
+    },
+  };
+
+  test("start sends subscription_id only", async () => {
     let requestBody: {
       new_product_id?: string;
       subscription_id?: string;
+      from_product_id?: string;
     } = {};
     let authHeader: string | null = null;
 
@@ -163,45 +259,7 @@ describe("product change checkout networking", () => {
         async ({ request }) => {
           authHeader = request.headers.get("Authorization");
           requestBody = (await request.json()) as typeof requestBody;
-          return HttpResponse.json(
-            {
-              operation_session_id: "rcbopsess_start",
-              change_type: "immediate",
-              from_product: {
-                product_id: "monthly",
-                display_name: "Monthly",
-                price_in_micros: 9990000,
-                currency: "USD",
-              },
-              to_product: {
-                product_id: "annual",
-                display_name: "Annual",
-                price_in_micros: 99990000,
-                currency: "USD",
-              },
-              price_breakdown: {
-                currency: "USD",
-                total_amount_in_micros: 99990000,
-                tax_amount_in_micros: null,
-                total_excluding_tax_in_micros: 99990000,
-                original_amount_in_micros: 99990000,
-              },
-              estimated_renewal_price: null,
-              email: "user@example.com",
-              payment_method: {
-                type: "card",
-                last_4: "4242",
-                brand: "visa",
-                exp_month: 12,
-                exp_year: 2030,
-              },
-              billing_address: {
-                country_code: "US",
-                postal_code: "12345",
-              },
-            },
-            { status: 201 },
-          );
+          return HttpResponse.json(startSuccessResponse, { status: 201 });
         },
       ),
     );
@@ -209,6 +267,7 @@ describe("product change checkout networking", () => {
     const response = await backend.postSubscriptionChangeCheckoutStart(
       "annual",
       "subabc123",
+      undefined,
       SUBSCRIBER_TOKEN_1,
     );
 
@@ -218,6 +277,96 @@ describe("product change checkout networking", () => {
     });
     expect(authHeader).toBe(`Bearer ${SUBSCRIBER_TOKEN_1}`);
     expect(response.operation_session_id).toBe("rcbopsess_start");
+  });
+
+  test("start sends from_product_id only", async () => {
+    let requestBody: {
+      new_product_id?: string;
+      subscription_id?: string;
+      from_product_id?: string;
+    } = {};
+
+    server.use(
+      http.post(
+        "http://localhost:8000/rcbilling/v1/subscription/change/checkout/start",
+        async ({ request }) => {
+          requestBody = (await request.json()) as typeof requestBody;
+          return HttpResponse.json(startSuccessResponse, { status: 201 });
+        },
+      ),
+    );
+
+    await backend.postSubscriptionChangeCheckoutStart(
+      "annual",
+      undefined,
+      FROM_PRODUCT_IDENTIFIER,
+      SUBSCRIBER_TOKEN_1,
+    );
+
+    expect(requestBody).toEqual({
+      new_product_id: "annual",
+      from_product_id: FROM_PRODUCT_IDENTIFIER,
+    });
+  });
+
+  test("start omits both ids for inference", async () => {
+    let requestBody: {
+      new_product_id?: string;
+      subscription_id?: string;
+      from_product_id?: string;
+    } = {};
+
+    server.use(
+      http.post(
+        "http://localhost:8000/rcbilling/v1/subscription/change/checkout/start",
+        async ({ request }) => {
+          requestBody = (await request.json()) as typeof requestBody;
+          return HttpResponse.json(startSuccessResponse, { status: 201 });
+        },
+      ),
+    );
+
+    await backend.postSubscriptionChangeCheckoutStart(
+      "annual",
+      undefined,
+      undefined,
+      SUBSCRIBER_TOKEN_1,
+    );
+
+    expect(requestBody).toEqual({
+      new_product_id: "annual",
+    });
+  });
+
+  test("start sends both subscription_id and from_product_id", async () => {
+    let requestBody: {
+      new_product_id?: string;
+      subscription_id?: string;
+      from_product_id?: string;
+    } = {};
+
+    server.use(
+      http.post(
+        "http://localhost:8000/rcbilling/v1/subscription/change/checkout/start",
+        async ({ request }) => {
+          requestBody = (await request.json()) as typeof requestBody;
+          return HttpResponse.json(startSuccessResponse, { status: 201 });
+        },
+      ),
+    );
+
+    await backend.postSubscriptionChangeCheckoutStart(
+      "annual",
+      "subabc123",
+      FROM_PRODUCT_IDENTIFIER,
+      SUBSCRIBER_TOKEN_1,
+    );
+
+    expect(requestBody).toEqual({
+      new_product_id: "annual",
+      subscription_id: "subabc123",
+      from_product_id: FROM_PRODUCT_IDENTIFIER,
+    });
   });
 
   test("confirm posts to session confirm endpoint", async () => {

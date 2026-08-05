@@ -8,23 +8,35 @@ import { usePurchasesLoaderData } from "../../util/PurchasesLoader";
  *
  * Fetches a short-lived subscriber access token from the demo token server,
  * then calls Purchases.purchase with productChangeInfo to mount the upgrade
- * checkout UI (start → confirm). Target product is taken from the selected
- * package (same shape a paywall would use).
+ * checkout UI (start → confirm). Source may be a product id, subscription id,
+ * both, or omitted for backend inference; target product is taken from the
+ * selected package.
  */
 const UpgradePage: React.FC = () => {
   const { purchases, customerInfo, offering } = usePurchasesLoaderData();
+  const activeWebBillingProductIds = Object.values(
+    customerInfo.subscriptionsByProductIdentifier,
+  )
+    .filter(
+      (subscription) =>
+        subscription.store === "rc_billing" &&
+        customerInfo.activeSubscriptions.has(subscription.productIdentifier),
+    )
+    .map((subscription) => subscription.productIdentifier);
   const [selectedPackageId, setSelectedPackageId] = useState("");
+  const [productIdentifier, setProductIdentifier] = useState(
+    () => activeWebBillingProductIds[0] ?? "",
+  );
   const [subscriptionId, setSubscriptionId] = useState("");
   const [inProgress, setInProgress] = useState(false);
   const [result, setResult] = useState<PurchaseResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const activeProductIds = Array.from(customerInfo.activeSubscriptions);
   const packages: Package[] = offering?.availablePackages ?? [];
   const selectedPackage =
     packages.find((pkg) => pkg.identifier === selectedPackageId) ?? null;
 
-  const canConfirm = Boolean(selectedPackage) && Boolean(subscriptionId);
+  const canConfirm = Boolean(selectedPackage);
 
   const openUpgradeCheckout = async () => {
     if (!selectedPackage) {
@@ -54,7 +66,8 @@ const UpgradePage: React.FC = () => {
         rcPackage: selectedPackage,
         // @ts-expect-error productChangeInfo is marked as internal for now
         productChangeInfo: {
-          subscriptionId,
+          ...(subscriptionId ? { subscriptionId } : {}),
+          ...(productIdentifier ? { productIdentifier } : {}),
           subscriberToken,
         },
       });
@@ -86,10 +99,34 @@ const UpgradePage: React.FC = () => {
           Current user: <code>{purchases.getAppUserId()}</code>
         </p>
         <p>
-          Active subscription product(s):{" "}
-          <code>
-            {activeProductIds.length > 0 ? activeProductIds.join(", ") : "none"}
-          </code>
+          <label>
+            Change from product:{" "}
+            <select
+              value={productIdentifier}
+              onChange={(event) => setProductIdentifier(event.target.value)}
+              style={{ width: "320px" }}
+            >
+              <option value="">Infer / omit</option>
+              {activeWebBillingProductIds.map((productId) => (
+                <option key={productId} value={productId}>
+                  {productId}
+                </option>
+              ))}
+            </select>
+          </label>
+        </p>
+
+        <p>
+          <label>
+            Subscription id (<code>sub…</code>, optional):{" "}
+            <input
+              type="text"
+              value={subscriptionId}
+              placeholder="sub… (optional)"
+              onChange={(event) => setSubscriptionId(event.target.value)}
+              style={{ width: "300px" }}
+            />
+          </label>
         </p>
 
         <p>
@@ -107,19 +144,6 @@ const UpgradePage: React.FC = () => {
                 </option>
               ))}
             </select>
-          </label>
-        </p>
-
-        <p>
-          <label>
-            Subscription id (<code>sub…</code>):{" "}
-            <input
-              type="text"
-              value={subscriptionId}
-              placeholder="sub…"
-              onChange={(event) => setSubscriptionId(event.target.value)}
-              style={{ width: "300px" }}
-            />
           </label>
         </p>
 
@@ -153,12 +177,10 @@ const UpgradePage: React.FC = () => {
         )}
 
         <div className="notice">
-          Requires the token server (<code>npm run token-server</code>), a
-          configured product change path to the selected package's product, and
-          the RevenueCat subscription public id (<code>sub…</code>). Uses{" "}
-          <code>purchases.purchase</code> with <code>rcPackage</code> +{" "}
-          <code>productChangeInfo</code> (target product defaults from the
-          package).
+          Requires the token server (<code>npm run token-server</code>) and a
+          configured product change path to the selected package's product.
+          Source product and/or subscription id are optional; if both are
+          omitted the backend infers a single active Web Billing subscription.
         </div>
       </div>
     </>
