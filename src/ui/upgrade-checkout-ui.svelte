@@ -18,28 +18,24 @@
   import { translatorContextKey } from "./localization/constants";
 
   interface Props {
-    newProductId: string;
-    subscriptionId?: string;
-    productIdentifier?: string;
     subscriberToken: string;
     brandingInfo: BrandingInfoResponse | null;
     isInElement: boolean;
     isSandbox: boolean;
     productChangeOperationHelper: ProductChangeOperationHelper;
+    initialStartData?: SubscriptionChangeCheckoutStartResponse | null;
     onFinished: (result: ProductChangeResult) => void;
     onError: (error: PurchaseFlowError) => void;
     onClose: (() => void) | undefined;
   }
 
   const {
-    newProductId,
-    subscriptionId,
-    productIdentifier,
     subscriberToken,
     brandingInfo,
     isInElement,
     isSandbox,
     productChangeOperationHelper,
+    initialStartData = null,
     onFinished,
     onError,
     onClose,
@@ -55,14 +51,21 @@
   const translatorStore = writable(new Translator());
   setContext(translatorContextKey, translatorStore);
 
-  onMount(async () => {
+  onMount(() => {
     try {
-      startData = await productChangeOperationHelper.start(
-        newProductId,
-        subscriptionId,
-        productIdentifier,
-        subscriberToken,
-      );
+      if (initialStartData) {
+        productChangeOperationHelper.setStartResponse(initialStartData);
+        startData = initialStartData;
+        loading = false;
+        return;
+      }
+
+      const existing = productChangeOperationHelper.getStartResponse();
+      if (existing) {
+        startData = existing;
+        loading = false;
+        return;
+      }
     } catch (e) {
       const error =
         e instanceof PurchaseFlowError
@@ -74,7 +77,6 @@
             );
       loadError = error.message;
       onError(error);
-    } finally {
       loading = false;
     }
   });

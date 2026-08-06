@@ -7,12 +7,15 @@ export interface StripeBillingParams {
   stripe_account_id: string;
 }
 
+export type CheckoutMode = "purchase" | "subscription_change";
+
 export interface WebBillingCheckoutStartResponse {
   operation_session_id: string;
   gateway_params: GatewayParams;
   stripe_billing_params: StripeBillingParams | null;
   management_url: string;
   paddle_billing_params: null;
+  checkout_mode?: CheckoutMode;
 }
 
 export interface PaddleCheckoutStartResponse {
@@ -37,3 +40,9 @@ export interface PaddleCheckoutStartResponse {
 export type CheckoutStartResponse =
   | WebBillingCheckoutStartResponse
   | PaddleCheckoutStartResponse;
+
+export function isWebBillingCheckoutStartResponse(
+  response: CheckoutStartResponse,
+): response is WebBillingCheckoutStartResponse {
+  return response.gateway_params != null;
+}

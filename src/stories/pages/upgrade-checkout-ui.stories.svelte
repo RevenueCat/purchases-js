@@ -67,13 +67,12 @@
   {@const brandingInfo = { ...brandingInfos[context.globals.brandingName] }}
   {@const productChangeOperationHelper = helperForArgs(args)}
   <UpgradeCheckoutUi
-    newProductId={args.startData?.to_product.product_id ?? "premium_monthly"}
-    subscriptionId="sub_story_123"
     subscriberToken="subscriber_token_story"
     {brandingInfo}
     isInElement={context.globals.viewport === "embedded"}
     isSandbox={args.isSandbox ?? false}
     {productChangeOperationHelper}
+    initialStartData={args.startData}
     onFinished={() => {}}
     onError={() => {}}
     onClose={() => {}}

@@ -1,34 +1,67 @@
 import { type Backend } from "../networking/backend";
-import type { SubscriptionChangeCheckoutStartResponse } from "../networking/responses/subscription-change-response";
+import {
+  isSubscriptionChangeCheckoutStartResponse,
+  type SubscriptionChangeCheckoutStartResponse,
+} from "../networking/responses/subscription-change-response";
+import type { CheckoutStartResponse } from "../networking/responses/checkout-start-response";
 import type { ProductChangeResult } from "../entities/product-change-params";
 import {
+  type CheckoutStartParams,
   PurchaseFlowError,
   PurchaseFlowErrorCode,
 } from "./purchase-operation-helper";
 import { PurchasesError } from "../entities/errors";
+import { type IEventsTracker } from "../behavioural-events/events-tracker";
+
+type ProductChangeStartParams = CheckoutStartParams & {
+  subscriptionId?: string;
+  productIdentifier?: string;
+  subscriberToken: string;
+};
+
+type ProductChangeStartResult =
+  | {
+      mode: "subscription_change";
+      response: SubscriptionChangeCheckoutStartResponse;
+    }
+  | {
+      mode: "purchase";
+      response: CheckoutStartResponse;
+    };
 
 export class ProductChangeOperationHelper {
   private operationSessionId: string | null = null;
   private startResponse: SubscriptionChangeCheckoutStartResponse | null = null;
 
-  constructor(private readonly backend: Backend) {}
+  constructor(
+    private readonly backend: Backend,
+    private readonly eventsTracker: IEventsTracker,
+  ) {}
 
-  async start(
-    newProductId: string,
-    subscriptionId: string | undefined,
-    productIdentifier: string | undefined,
-    subscriberToken: string,
-  ): Promise<SubscriptionChangeCheckoutStartResponse> {
+  async start({
+    subscriptionId,
+    productIdentifier,
+    subscriberToken,
+    workflowPurchaseContext,
+    ...checkoutParams
+  }: ProductChangeStartParams): Promise<ProductChangeStartResult> {
     try {
-      const response = await this.backend.postSubscriptionChangeCheckoutStart(
-        newProductId,
-        subscriptionId,
-        productIdentifier,
+      const response = await this.backend.postCheckoutStart({
+        ...checkoutParams,
+        traceId: this.eventsTracker.getTraceId(),
+        presentedStepId: workflowPurchaseContext?.stepId,
+        urlParameters: workflowPurchaseContext?.urlParameters,
+        productChange: { subscriptionId, productIdentifier },
         subscriberToken,
-      );
-      this.operationSessionId = response.operation_session_id;
-      this.startResponse = response;
-      return response;
+      });
+
+      if (isSubscriptionChangeCheckoutStartResponse(response)) {
+        this.operationSessionId = response.operation_session_id;
+        this.startResponse = response;
+        return { mode: "subscription_change", response };
+      }
+
+      return { mode: "purchase", response };
     } catch (error) {
       throw this.toFlowError(
         error,
@@ -36,6 +69,11 @@ export class ProductChangeOperationHelper {
         PurchaseFlowErrorCode.ErrorSettingUpPurchase,
       );
     }
+  }
+
+  setStartResponse(response: SubscriptionChangeCheckoutStartResponse): void {
+    this.operationSessionId = response.operation_session_id;
+    this.startResponse = response;
   }
 
   getStartResponse(): SubscriptionChangeCheckoutStartResponse | null {
@@ -51,7 +89,7 @@ export class ProductChangeOperationHelper {
     }
 
     try {
-      const response = await this.backend.postSubscriptionChangeCheckoutConfirm(
+      const response = await this.backend.postCheckoutConfirm(
         this.operationSessionId,
         subscriberToken,
       );

@@ -36,6 +36,7 @@ import {
   PurchaseOperationHelper,
 } from "./helpers/purchase-operation-helper";
 import { ProductChangeOperationHelper } from "./helpers/product-change-operation-helper";
+import { isWebBillingCheckoutStartResponse } from "./networking/responses/checkout-start-response";
 import { PaddleService } from "./paddle/paddle-service";
 import { type LogHandler, type LogLevel } from "./entities/logging";
 import { Logger } from "./helpers/logger";
@@ -819,6 +820,7 @@ export class Purchases {
           offering.paywallComponents?.default_locale ?? englishLocale,
         paywallId: offering.paywallComponents?.id,
         paywallSessionId,
+        productChangeInfo: paywallParams.productChangeInfo,
       });
 
       return { ...purchaseResult, selectedPackage: pkg };
@@ -1564,7 +1566,13 @@ export class Purchases {
   @requiresLoadedResources
   public async purchase(params: PurchaseParams): Promise<PurchaseResult> {
     if (params.productChangeInfo) {
-      return await this.productChangePurchase(params);
+      const subscriberToken =
+        params.productChangeInfo.subscriberToken ??
+        this._subscriberToken ??
+        undefined;
+      if (subscriberToken) {
+        return await this.productChangePurchase(params);
+      }
     }
 
     if (isSimulatedStoreApiKey(this._API_KEY)) {
@@ -2188,9 +2196,9 @@ export class Purchases {
   }
 
   /**
-   * Presents upgrade-mode checkout to change the customer's Web Billing
-   * subscription to {@link PurchaseParams.rcPackage}'s product along a
-   * configured product change path.
+   * Asks to start checkout with a product-change option. If it
+   * returns a subscription-change session, mounts upgrade UI; otherwise falls
+   * back to a normal purchase.
    */
   private async productChangePurchase(
     params: PurchaseParams,
@@ -2207,25 +2215,77 @@ export class Purchases {
     const productIdentifier = productChangeInfo.productIdentifier || undefined;
     const subscriberToken =
       productChangeInfo.subscriberToken ?? this._subscriberToken ?? undefined;
-    const { rcPackage, htmlTarget } = params;
+    const {
+      rcPackage,
+      htmlTarget,
+      purchaseOption,
+      customerEmail,
+      workflowPurchaseContext,
+      attributionMetadata,
+      paywallId,
+      paywallSessionId,
+      selectedLocale = englishLocale,
+      defaultLocale = englishLocale,
+    } = params;
     const newProductId = rcPackage.webBillingProduct.identifier;
+    const purchaseOptionToUse =
+      purchaseOption ?? rcPackage.webBillingProduct.defaultPurchaseOption;
+    const localeToBeUsed = selectedLocale || defaultLocale;
+    const utmParamsMetadata = this._flags.autoCollectUTMAsMetadata
+      ? autoParseUTMParams()
+      : {};
+    const metadata = { ...utmParamsMetadata, ...(params.metadata || {}) };
 
     if (!subscriberToken) {
-      throw new PurchasesError(
-        ErrorCode.ConfigurationError,
-        "subscriberToken is required for product changes.",
-        "Pass a subscriber access token via PurchasesConfig.subscriberToken " +
-          "or productChangeInfo.subscriberToken.",
-      );
+      return await this.purchase({
+        ...params,
+        productChangeInfo: null,
+      });
     }
 
     this.validateSubscriberToken(subscriberToken);
 
-    const certainHTMLTarget = this.resolveHTMLTarget(htmlTarget);
-    const isInElement = htmlTarget !== undefined;
     const productChangeOperationHelper = new ProductChangeOperationHelper(
       this.backend,
+      this.eventsTracker,
     );
+
+    const startResult = await productChangeOperationHelper.start({
+      appUserId: this._appUserId,
+      productId: newProductId,
+      purchaseOption: purchaseOptionToUse,
+      presentedOfferingContext:
+        rcPackage.webBillingProduct.presentedOfferingContext,
+      subscriptionId,
+      productIdentifier,
+      subscriberToken,
+      customerEmail,
+      workflowPurchaseContext,
+      paywallId,
+      paywallSessionId,
+      metadata,
+      locale: localeToBeUsed,
+      attributionMetadata,
+    });
+
+    if (startResult.mode === "purchase") {
+      // Reuse the purchase session Khepri already created on fallthrough —
+      // do not call /checkout/start again.
+      if (isWebBillingCheckoutStartResponse(startResult.response)) {
+        this.purchaseOperationHelper.setCheckoutStartResponse(
+          startResult.response,
+        );
+      }
+      return await this.purchase({
+        ...params,
+        productChangeInfo: null,
+      });
+    }
+
+    const startData = startResult.response;
+
+    const certainHTMLTarget = this.resolveHTMLTarget(htmlTarget);
+    const isInElement = htmlTarget !== undefined;
 
     let component: ReturnType<typeof mount> | null = null;
 
@@ -2276,14 +2336,12 @@ export class Purchases {
       component = mount(UpgradeCheckoutUi, {
         target: certainHTMLTarget,
         props: {
-          newProductId,
-          subscriptionId,
-          productIdentifier,
           subscriberToken,
           brandingInfo: this._brandingInfo,
           isInElement,
           isSandbox: this.isSandbox(),
           productChangeOperationHelper,
+          initialStartData: startData,
           onFinished,
           onClose,
           onError,

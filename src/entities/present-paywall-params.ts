@@ -1,5 +1,6 @@
 import type { Offering } from "./offerings";
 import type { PaywallListener } from "./paywall-listener";
+import type { ProductChangeInfo } from "./product-change-params";
 import type {
   CompleteWorkflowNavigateArgs,
   CustomVariables,
@@ -137,4 +138,13 @@ export interface PresentPaywallParams {
    * ```
    */
   readonly customVariables?: CustomVariables;
+
+  /**
+   * Optional hint to enable suppot for upgrade/downgrades of an
+   * existing Web Billing subscription. Requires a subscriber access token
+   * (via {@link PurchasesConfig.subscriberToken} or
+   * {@link ProductChangeInfo.subscriberToken}).
+   * @internal
+   */
+  readonly productChangeInfo?: ProductChangeInfo | null;
 }

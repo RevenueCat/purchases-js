@@ -19,11 +19,18 @@ type ConfirmOutcome =
 /**
  * Storybook-only stub of {@link ProductChangeOperationHelper}.
  * Avoids network calls so each upgrade-checkout UI state can be rendered.
+ *
+ * - success: {@link getStartResponse} returns data (or pass `initialStartData`)
+ * - pending: {@link getStartResponse} returns null → UI stays on loading
+ * - error: {@link getStartResponse} throws → UI shows load error
  */
 export function createMockProductChangeOperationHelper(options: {
   start: StartOutcome;
   confirm?: ConfirmOutcome;
 }): ProductChangeOperationHelper {
+  let adoptedStart: SubscriptionChangeCheckoutStartResponse | null =
+    options.start.type === "success" ? options.start.data : null;
+
   const confirmOutcome: ConfirmOutcome = options.confirm ?? {
     type: "success",
     data: {
@@ -43,17 +50,22 @@ export function createMockProductChangeOperationHelper(options: {
   };
 
   const helper = {
-    async start(): Promise<SubscriptionChangeCheckoutStartResponse> {
-      if (options.start.type === "pending") {
-        return new Promise(() => {});
-      }
+    async start(): Promise<never> {
+      throw new Error(
+        "Mock ProductChangeOperationHelper.start() should not be called; start runs in main.ts before the UI mounts.",
+      );
+    },
+    setStartResponse(response: SubscriptionChangeCheckoutStartResponse): void {
+      adoptedStart = response;
+    },
+    getStartResponse(): SubscriptionChangeCheckoutStartResponse | null {
       if (options.start.type === "error") {
         throw new PurchaseFlowError(
           PurchaseFlowErrorCode.ErrorSettingUpPurchase,
           options.start.message,
         );
       }
-      return options.start.data;
+      return adoptedStart;
     },
     async confirm(): Promise<ProductChangeResult> {
       if (confirmOutcome.type === "pending") {
@@ -66,9 +78,6 @@ export function createMockProductChangeOperationHelper(options: {
         );
       }
       return confirmOutcome.data;
-    },
-    getStartResponse(): SubscriptionChangeCheckoutStartResponse | null {
-      return options.start.type === "success" ? options.start.data : null;
     },
   };
 
