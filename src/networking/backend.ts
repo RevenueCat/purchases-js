@@ -43,7 +43,10 @@ import type {
 import type { PurchasesContext } from "../entities/purchases-config";
 import type { CheckoutCompleteResponse } from "./responses/checkout-complete-response";
 import type { CheckoutPricingResponse } from "./responses/checkout-pricing-response";
-import { isWebBillingSandboxApiKey } from "../helpers/api-key-helper";
+import {
+  isStripeSandboxApiKey,
+  isWebBillingSandboxApiKey,
+} from "../helpers/api-key-helper";
 import type { IdentifyResponse } from "./responses/identify-response";
 import type { CheckoutPrepareResponse } from "./responses/checkout-prepare-response";
 import type { AttributionMetadata } from "../entities/purchase-params";
@@ -483,7 +486,7 @@ export class Backend {
         new_product_id: newProductId,
         subscription_id: subscriptionId,
       },
-      headers: { Authorization: `Bearer ${subscriberToken}` },
+      headers: this.subscriptionChangeHeaders(subscriberToken),
       httpConfig: this.httpConfig,
     });
   }
@@ -496,10 +499,31 @@ export class Backend {
       new SubscriptionChangeCheckoutConfirmEndpoint(operationSessionId),
       {
         apiKey: this.API_KEY,
-        headers: { Authorization: `Bearer ${subscriberToken}` },
+        headers: this.subscriptionChangeHeaders(subscriberToken),
         httpConfig: this.httpConfig,
       },
     );
+  }
+
+  /**
+   * The subscriber access token replaces the API key as the Authorization for
+   * product change calls.
+   *
+   * `X-Is-Sandbox` is derived from the API key prefix, and that check only
+   * knows about `rcb_sb_` keys, so a Stripe sandbox key would otherwise report
+   * itself as production. Scoped to these two endpoints so the header stays
+   * unchanged everywhere else.
+   */
+  private subscriptionChangeHeaders(subscriberToken: string): {
+    [key: string]: string;
+  } {
+    const headers: { [key: string]: string } = {
+      Authorization: `Bearer ${subscriberToken}`,
+    };
+    if (isStripeSandboxApiKey(this.API_KEY)) {
+      headers["X-Is-Sandbox"] = "true";
+    }
+    return headers;
   }
 
   async setAttributes(
