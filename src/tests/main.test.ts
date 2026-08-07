@@ -29,6 +29,16 @@ import { expectPromiseToError } from "./test-helpers";
 import { StatusCodes } from "http-status-codes";
 import type { BrandingInfoResponse } from "../networking/responses/branding-response";
 
+const { getAmazonProductData } = vi.hoisted(() => ({
+  getAmazonProductData: vi.fn(),
+}));
+
+vi.mock("@amazon-devices/keplerscript-appstore-iap-lib", () => ({
+  ProductDataResponseCode: { SUCCESSFUL: 1, NOT_SUPPORTED: 2, FAILED: 3 },
+  ProductType: { CONSUMABLE: 1, ENTITLED: 2, SUBSCRIPTION: 3 },
+  PurchasingService: { getProductData: getAmazonProductData },
+}));
+
 describe("Purchases.configure() legacy", () => {
   test("throws error if given invalid api key", () => {
     expect(() =>
@@ -310,6 +320,61 @@ describe("Purchases.configure()", () => {
         apiKey: testApiKey,
       } as PurchasesConfig),
     ).toThrowError(PurchasesError);
+  });
+});
+
+describe("billing wrapper selection", () => {
+  test("uses the Amazon IAP SDK for offerings with an Amazon API key", async () => {
+    getAmazonProductData.mockResolvedValue({
+      responseCode: 1,
+      productData: new Map(
+        ["monthly", "monthly_2"].map((sku) => [
+          sku,
+          {
+            coinsReward: { amount: 0 },
+            description: `${sku} description`,
+            price: {
+              priceStr: "$4.99",
+              priceCurrencyCode: "USD",
+              valueInMicros: 4_990_000n,
+            },
+            productType: 3,
+            sku,
+            smallIconUrl: "",
+            title: sku,
+            promotions: [],
+            subscriptionPeriod: "P1M",
+          },
+        ]),
+      ),
+      unavailableSkus: [],
+    });
+    const purchases = configurePurchases(
+      testUserId,
+      "rcSource",
+      "amzn_valid_key",
+    );
+
+    await purchases.getOfferings();
+
+    expect(getAmazonProductData).toHaveBeenCalledExactlyOnceWith({
+      skus: ["monthly", "monthly_2"],
+    });
+    expect(APIGetRequest).toHaveBeenCalledExactlyOnceWith({
+      url: `http://localhost:8000/v1/subscribers/${testUserId}/offerings`,
+    });
+  });
+
+  test("uses web billing for offerings with a non-Amazon API key", async () => {
+    getAmazonProductData.mockClear();
+    const purchases = configurePurchases();
+
+    await purchases.getOfferings();
+
+    expect(getAmazonProductData).not.toHaveBeenCalled();
+    expect(APIGetRequest).toHaveBeenCalledWith({
+      url: `http://localhost:8000/rcbilling/v1/subscribers/${testUserId}/products?id=monthly&id=monthly_2`,
+    });
   });
 });
 
