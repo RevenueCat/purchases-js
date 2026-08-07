@@ -11,3 +11,16 @@ id = "com.revenuecat.purchases_sample.main"
 runtime-module = "/com.amazon.kepler.keplerscript.runtime.loader_2@IKeplerScript_2_0"
 launch-type = "singleton"
 categories = ["com.amazon.category.main"]
+
+[[wants.service]]
+# The Appstore IAP library connects to this production/DevTest service when no
+# local amazon.config.json is present.
+id = "com.amazon.iap.core.service"
+
+[[wants.module]]
+id = "/com.amazon.iap.core@IIAPCoreUI"
+
+[needs]
+
+[[needs.module]]
+id = "/com.amazon.kepler.appstore.iap.purchase.core@IAppstoreIAPPurchaseCoreService"
