@@ -17,12 +17,12 @@ import type {
 type AmazonAppstoreIAPSDK = typeof AmazonVegaSdk;
 
 /**
- * Amazon billing wrapper. Defers loading the Amazon Appstore IAP library until
+ * Amazon billing wrapper. Defers loading the Amazon Appstore IAP SDK until
  * it is needed, so importing the core SDK remains safe in web environments.
  * @internal
  */
 export class AmazonBillingWrapper implements BillingWrapper {
-  private amazonAppstoreIapLibPromise:
+  private amazonAppstoreIAPSDKPromise:
     | Promise<AmazonAppstoreIAPSDK>
     | undefined;
 
@@ -34,19 +34,19 @@ export class AmazonBillingWrapper implements BillingWrapper {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _discountCode?: string,
   ): Promise<ProductsResponse> {
-    const amazonAppstoreIapLib = await this.getAmazonAppstoreIapLib();
+    const amazonAppstoreIAPSDK = await this.getAmazonAppstoreIAPSDK();
     return await this.getProductsFromAmazonAppstoreIapLib(
-      amazonAppstoreIapLib,
+      amazonAppstoreIAPSDK,
       productIds,
     );
   }
 
-  private getAmazonAppstoreIapLib(): Promise<AmazonAppstoreIAPSDK> {
-    return (this.amazonAppstoreIapLibPromise ??=
-      this.loadAmazonAppstoreIapLib());
+  private getAmazonAppstoreIAPSDK(): Promise<AmazonAppstoreIAPSDK> {
+    return (this.amazonAppstoreIAPSDKPromise ??=
+      this.loadAmazonAppstoreIAPSDK());
   }
 
-  private async loadAmazonAppstoreIapLib(): Promise<AmazonAppstoreIAPSDK> {
+  private async loadAmazonAppstoreIAPSDK(): Promise<AmazonAppstoreIAPSDK> {
     Logger.debugLog("Loading the Amazon AppStore IAP SDK.");
     const amazonSdkModule = "@amazon-devices/keplerscript-appstore-iap-lib";
 
