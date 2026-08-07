@@ -5,13 +5,12 @@ const { getProductData } = vi.hoisted(() => ({
 }));
 
 vi.mock("@amazon-devices/keplerscript-appstore-iap-lib", () => ({
-  ProductDataResponseCode: { SUCCESSFUL: 1 },
-  ProductType: { SUBSCRIPTION: 3 },
+  ProductDataResponseCode: { SUCCESSFUL: 1, NOT_SUPPORTED: 2, FAILED: 3 },
+  ProductType: { CONSUMABLE: 1, ENTITLED: 2, SUBSCRIPTION: 3 },
   PurchasingService: { getProductData },
 }));
 
 import { AmazonBillingWrapper } from "../../amazon/amazon-billing-wrapper";
-import type { AmazonVegaSdk } from "../../amazon/amazon-vega-sdk-loader";
 import {
   ProductDataResponseCode,
   ProductType,
@@ -40,15 +39,9 @@ describe("AmazonBillingWrapper", () => {
       unavailableSkus: [],
     });
 
-    const sdk = {
-      ProductDataResponseCode,
-      ProductType,
-      PurchasingService: { getProductData },
-    } as unknown as AmazonVegaSdk;
-    const result = await new AmazonBillingWrapper(async () => sdk).getProducts(
-      "user",
-      ["monthly"],
-    );
+    const result = await new AmazonBillingWrapper().getProducts("user", [
+      "monthly",
+    ]);
 
     expect(getProductData).toHaveBeenCalledWith({ skus: ["monthly"] });
 

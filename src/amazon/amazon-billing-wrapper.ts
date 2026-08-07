@@ -1,23 +1,17 @@
-import {
-  productsForProductDataResponse,
-  purchasesErrorForProductDataResponse,
-} from "./conversions/product-data-response-conversions";
-import {
-  type AmazonVegaSdk,
-  loadAmazonVegaSdk,
-} from "./amazon-vega-sdk-loader";
 import type { BillingWrapper } from "src/helpers/billing-wrapper";
 import type { ProductsResponse } from "src/networking/responses/products-response";
+import {
+  type AmazonVegaImplementation,
+  loadAmazonVegaImplementation,
+} from "./amazon-vega-implementation";
 
 /**
- * Amazon billing wrapper. Handles processing of various functions for the Amazon Store
- * when running on the Vega OS.
+ * Amazon billing wrapper. Defers loading the Vega-only implementation until it
+ * is needed, so importing the core SDK remains safe in web environments.
  * @internal
  */
 export class AmazonBillingWrapper implements BillingWrapper {
-  constructor(
-    private readonly loadSdk: () => Promise<AmazonVegaSdk> = loadAmazonVegaSdk,
-  ) {}
+  private implementationPromise: Promise<AmazonVegaImplementation> | undefined;
 
   public async getProducts(
     _appUserId: string,
@@ -27,41 +21,10 @@ export class AmazonBillingWrapper implements BillingWrapper {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _discountCode?: string,
   ): Promise<ProductsResponse> {
-    const sdk = await this.loadSdk();
-    const response = await sdk.PurchasingService.getProductData({
-      skus: productIds,
-    });
-    console.log(
-      `PurchaseService.getProductData() response tree\n${JSON.stringify(
-        response,
-        (_key, value) => {
-          if (value instanceof Map) {
-            return Object.fromEntries(value);
-          }
+    return await (await this.getImplementation()).getProducts(productIds);
+  }
 
-          if (typeof value === "bigint") {
-            return value.toString();
-          }
-
-          return value;
-        },
-        2,
-      )}`,
-    );
-
-    const purchasesError = purchasesErrorForProductDataResponse(
-      response,
-      sdk.ProductDataResponseCode,
-    );
-    if (purchasesError) {
-      throw purchasesError;
-    }
-
-    return {
-      product_details: productsForProductDataResponse(
-        response,
-        sdk.ProductType,
-      ),
-    };
+  private getImplementation(): Promise<AmazonVegaImplementation> {
+    return (this.implementationPromise ??= loadAmazonVegaImplementation());
   }
 }

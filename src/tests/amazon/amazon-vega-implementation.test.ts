@@ -1,5 +1,9 @@
 import { describe, expect, test, vi } from "vitest";
 
+const { getProductData } = vi.hoisted(() => ({
+  getProductData: vi.fn(),
+}));
+
 vi.mock("@amazon-devices/keplerscript-appstore-iap-lib", () => ({
   ProductDataResponseCode: {
     SUCCESSFUL: 1,
@@ -11,6 +15,7 @@ vi.mock("@amazon-devices/keplerscript-appstore-iap-lib", () => ({
     ENTITLED: 2,
     SUBSCRIPTION: 3,
   },
+  PurchasingService: { getProductData },
 }));
 
 import {
@@ -19,18 +24,10 @@ import {
   ProductDataResponseCode,
   ProductType,
 } from "@amazon-devices/keplerscript-appstore-iap-lib";
-import {
-  productsForProductDataResponse as mapProductsForProductDataResponse,
-  purchasesErrorForProductDataResponse as mapPurchasesErrorForProductDataResponse,
-} from "../../../amazon/conversions/product-data-response-conversions";
-import { ErrorCode, PurchasesError } from "../../../entities/errors";
-import { Logger } from "../../../helpers/logger";
-
-const purchasesErrorForProductDataResponse = (response: ProductDataResponse) =>
-  mapPurchasesErrorForProductDataResponse(response, ProductDataResponseCode);
-
-const productsForProductDataResponse = (response: ProductDataResponse) =>
-  mapProductsForProductDataResponse(response, ProductType);
+import { loadAmazonVegaImplementation } from "../../amazon/amazon-vega-implementation";
+import { ErrorCode } from "../../entities/errors";
+import type { PurchasesError } from "../../entities/errors";
+import { Logger } from "../../helpers/logger";
 
 const responseForCode = (
   responseCode: ProductDataResponseCode,
@@ -62,43 +59,34 @@ const responseForProducts = (products: Product[]): ProductDataResponse => ({
   unavailableSkus: [],
 });
 
-describe("purchasesErrorForProductDataResponse", () => {
-  test("returns no error for a successful response", () => {
-    expect(
-      purchasesErrorForProductDataResponse(
-        responseForCode(ProductDataResponseCode.SUCCESSFUL),
-      ),
-    ).toBeNull();
-  });
+async function getProducts(response: ProductDataResponse) {
+  getProductData.mockResolvedValue(response);
+  return await (
+    await loadAmazonVegaImplementation()
+  ).getProducts(["product-id"]);
+}
 
-  test("maps an unsupported response to an unsupported error", () => {
-    const error = purchasesErrorForProductDataResponse(
-      responseForCode(ProductDataResponseCode.NOT_SUPPORTED),
-    );
-
-    expect(error).toBeInstanceOf(PurchasesError);
-    expect(error).toMatchObject({
+describe("Amazon Vega implementation", () => {
+  test("maps an unsupported response to an unsupported error", async () => {
+    await expect(
+      getProducts(responseForCode(ProductDataResponseCode.NOT_SUPPORTED)),
+    ).rejects.toMatchObject({
       errorCode: ErrorCode.UnsupportedError,
       message: "Couldn't fetch product data, since is is unsupported.",
-    });
+    } satisfies Partial<PurchasesError>);
   });
 
-  test("maps a failed response to a store problem error", () => {
-    const error = purchasesErrorForProductDataResponse(
-      responseForCode(ProductDataResponseCode.FAILED),
-    );
-
-    expect(error).toBeInstanceOf(PurchasesError);
-    expect(error).toMatchObject({
+  test("maps a failed response to a store problem error", async () => {
+    await expect(
+      getProducts(responseForCode(ProductDataResponseCode.FAILED)),
+    ).rejects.toMatchObject({
       errorCode: ErrorCode.StoreProblemError,
       message: "An error occurred when fetching product data.",
-    });
+    } satisfies Partial<PurchasesError>);
   });
-});
 
-describe("productsForProductDataResponse", () => {
-  test("maps a consumable product", () => {
-    const products = productsForProductDataResponse(
+  test("maps a consumable product", async () => {
+    const { product_details: products } = await getProducts(
       responseForProducts([product()]),
     );
 
@@ -121,8 +109,8 @@ describe("productsForProductDataResponse", () => {
     ]);
   });
 
-  test("maps a subscription with trial and introductory pricing", () => {
-    const products = productsForProductDataResponse(
+  test("maps a subscription with trial and introductory pricing", async () => {
+    const { product_details: products } = await getProducts(
       responseForProducts([
         product({
           productType: ProductType.SUBSCRIPTION,
@@ -177,8 +165,8 @@ describe("productsForProductDataResponse", () => {
     ["14 Days", "P14D"],
     ["1 Month", "P1M"],
     ["p1m", "P1M"],
-  ])("normalizes Amazon period %s to %s", (period, expectedPeriod) => {
-    const products = productsForProductDataResponse(
+  ])("normalizes Amazon period %s to %s", async (period, expectedPeriod) => {
+    const { product_details: products } = await getProducts(
       responseForProducts([
         product({
           productType: ProductType.SUBSCRIPTION,
@@ -192,18 +180,18 @@ describe("productsForProductDataResponse", () => {
     });
   });
 
-  test("maps an entitled product to non-consumable", () => {
-    const products = productsForProductDataResponse(
+  test("maps an entitled product to non-consumable", async () => {
+    const { product_details: products } = await getProducts(
       responseForProducts([product({ productType: ProductType.ENTITLED })]),
     );
 
     expect(products[0].product_type).toBe("non_consumable");
   });
 
-  test("logs the raw Amazon value for an unknown product type", () => {
+  test("logs the raw Amazon value for an unknown product type", async () => {
     const warningLog = vi.spyOn(Logger, "warnLog").mockImplementation(() => {});
 
-    productsForProductDataResponse(
+    await getProducts(
       responseForProducts([product({ productType: 99 as ProductType })]),
     );
 
@@ -214,10 +202,10 @@ describe("productsForProductDataResponse", () => {
     warningLog.mockRestore();
   });
 
-  test("logs a warning and excludes products with a null price", () => {
+  test("logs a warning and excludes products with a null price", async () => {
     const warningLog = vi.spyOn(console, "warn").mockImplementation(() => {});
 
-    const products = productsForProductDataResponse(
+    const { product_details: products } = await getProducts(
       responseForProducts([
         product({ price: null as unknown as Product["price"] }),
         product({ sku: "available-product" }),
