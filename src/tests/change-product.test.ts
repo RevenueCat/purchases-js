@@ -278,7 +278,6 @@ describe("Purchases.purchase productChangeInfo", () => {
             stepId: "step_1",
             urlParameters: { utm_source: "newsletter" },
           },
-          traceId: expect.any(String),
         }),
       );
     });

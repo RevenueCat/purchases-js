@@ -37,6 +37,7 @@ import {
 } from "./helpers/purchase-operation-helper";
 import { ProductChangeOperationHelper } from "./helpers/product-change-operation-helper";
 import { isWebBillingCheckoutStartResponse } from "./networking/responses/checkout-start-response";
+import type { SubscriptionChangeCheckoutStartResponse } from "./networking/responses/subscription-change-response";
 import { PaddleService } from "./paddle/paddle-service";
 import { type LogHandler, type LogLevel } from "./entities/logging";
 import { Logger } from "./helpers/logger";
@@ -1556,8 +1557,11 @@ export class Purchases {
    * form on your site, using the given HTML element as the mount point, if
    * provided, or as a modal if not.
    *
-   * When {@link PurchaseParams.productChangeInfo} is set, presents upgrade-mode
-   * checkout for an existing RC Billing subscription instead of a new purchase.
+   * When {@link PurchaseParams.productChangeInfo} is set with a subscriber token,
+   * asks the backend to start checkout with a product-change option. If that
+   * returns a subscription-change session, presents upgrade-mode checkout;
+   * otherwise continues as a normal purchase (reusing the session already
+   * created by `/checkout/start`).
    *
    * @param params - The parameters object to customise the purchase flow. Check {@link PurchaseParams}
    * @returns a Promise for the customer and redemption info after the purchase is completed successfully.
@@ -1565,13 +1569,32 @@ export class Purchases {
    */
   @requiresLoadedResources
   public async purchase(params: PurchaseParams): Promise<PurchaseResult> {
-    if (params.productChangeInfo) {
-      const subscriberToken =
-        params.productChangeInfo.subscriberToken ??
-        this._subscriberToken ??
-        undefined;
-      if (subscriberToken) {
-        return await this.productChangePurchase(params);
+    const subscriberToken =
+      params.productChangeInfo?.subscriberToken ??
+      this._subscriberToken ??
+      undefined;
+
+    if (params.productChangeInfo && subscriberToken) {
+      const { helper, startResult } = await this.startProductChangeCheckout(
+        params,
+        subscriberToken,
+      );
+
+      if (startResult.mode === "subscription_change") {
+        return this.presentUpgradeCheckout(
+          params,
+          subscriberToken,
+          helper,
+          startResult.response,
+        );
+      }
+
+      // Valid fallthrough: backend already started a purchase session —
+      // continue into the normal purchase path.
+      if (isWebBillingCheckoutStartResponse(startResult.response)) {
+        this.purchaseOperationHelper.setCheckoutStartResponse(
+          startResult.response,
+        );
       }
     }
 
@@ -2196,13 +2219,13 @@ export class Purchases {
   }
 
   /**
-   * Asks to start checkout with a product-change option. If it
-   * returns a subscription-change session, mounts upgrade UI; otherwise falls
-   * back to a normal purchase.
+   * Starts checkout with a product-change option. Returns the helper (for
+   * confirm later) plus either a subscription-change or purchase session.
    */
-  private async productChangePurchase(
+  private async startProductChangeCheckout(
     params: PurchaseParams,
-  ): Promise<PurchaseResult> {
+    subscriberToken: string,
+  ) {
     const productChangeInfo = params.productChangeInfo;
     if (!productChangeInfo) {
       throw new PurchasesError(
@@ -2211,13 +2234,10 @@ export class Purchases {
       );
     }
 
-    const subscriptionId = productChangeInfo.subscriptionId || undefined;
-    const productIdentifier = productChangeInfo.productIdentifier || undefined;
-    const subscriberToken =
-      productChangeInfo.subscriberToken ?? this._subscriberToken ?? undefined;
+    this.validateSubscriberToken(subscriberToken);
+
     const {
       rcPackage,
-      htmlTarget,
       purchaseOption,
       customerEmail,
       workflowPurchaseContext,
@@ -2227,7 +2247,6 @@ export class Purchases {
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
     } = params;
-    const newProductId = rcPackage.webBillingProduct.identifier;
     const purchaseOptionToUse =
       purchaseOption ?? rcPackage.webBillingProduct.defaultPurchaseOption;
     const localeToBeUsed = selectedLocale || defaultLocale;
@@ -2236,28 +2255,19 @@ export class Purchases {
       : {};
     const metadata = { ...utmParamsMetadata, ...(params.metadata || {}) };
 
-    if (!subscriberToken) {
-      return await this.purchase({
-        ...params,
-        productChangeInfo: null,
-      });
-    }
-
-    this.validateSubscriberToken(subscriberToken);
-
-    const productChangeOperationHelper = new ProductChangeOperationHelper(
+    const helper = new ProductChangeOperationHelper(
       this.backend,
       this.eventsTracker,
     );
 
-    const startResult = await productChangeOperationHelper.start({
+    const startResult = await helper.start({
       appUserId: this._appUserId,
-      productId: newProductId,
+      productId: rcPackage.webBillingProduct.identifier,
       purchaseOption: purchaseOptionToUse,
       presentedOfferingContext:
         rcPackage.webBillingProduct.presentedOfferingContext,
-      subscriptionId,
-      productIdentifier,
+      subscriptionId: productChangeInfo.subscriptionId || undefined,
+      productIdentifier: productChangeInfo.productIdentifier || undefined,
       subscriberToken,
       customerEmail,
       workflowPurchaseContext,
@@ -2268,22 +2278,20 @@ export class Purchases {
       attributionMetadata,
     });
 
-    if (startResult.mode === "purchase") {
-      // Reuse the purchase session Khepri already created on fallthrough —
-      // do not call /checkout/start again.
-      if (isWebBillingCheckoutStartResponse(startResult.response)) {
-        this.purchaseOperationHelper.setCheckoutStartResponse(
-          startResult.response,
-        );
-      }
-      return await this.purchase({
-        ...params,
-        productChangeInfo: null,
-      });
-    }
+    return { helper, startResult };
+  }
 
-    const startData = startResult.response;
-
+  /**
+   * Mounts upgrade-mode checkout for an already-started subscription-change
+   * session.
+   */
+  private presentUpgradeCheckout(
+    params: PurchaseParams,
+    subscriberToken: string,
+    productChangeOperationHelper: ProductChangeOperationHelper,
+    startData: SubscriptionChangeCheckoutStartResponse,
+  ): Promise<PurchaseResult> {
+    const { htmlTarget } = params;
     const certainHTMLTarget = this.resolveHTMLTarget(htmlTarget);
     const isInElement = htmlTarget !== undefined;
 
