@@ -244,7 +244,9 @@ describe("AmazonBillingWrapper", () => {
     });
 
     test("logs a warning and excludes products with a null price", async () => {
-      const warningLog = vi.spyOn(console, "warn").mockImplementation(() => {});
+      const warningLog = vi
+        .spyOn(Logger, "warnLog")
+        .mockImplementation(() => {});
 
       const { product_details: products } = await getProducts(
         responseForProducts([
