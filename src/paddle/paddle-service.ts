@@ -89,6 +89,7 @@ interface BuildPaddleCheckoutOptionsParams {
   transactionId: string;
   locale: string;
   customerEmail?: string;
+  checkoutSettings?: Record<string, boolean>;
   displayMode?: PaddleCheckoutDisplayMode;
   theme?: PaddleCheckoutTheme;
 }
@@ -103,6 +104,7 @@ export function buildPaddleCheckoutOptions({
   transactionId,
   locale,
   customerEmail,
+  checkoutSettings = {},
   displayMode = "overlay",
   theme = "light",
 }: BuildPaddleCheckoutOptionsParams): CheckoutOpenOptions {
@@ -114,6 +116,7 @@ export function buildPaddleCheckoutOptions({
     showAddDiscounts: false,
     showAddTaxId: false,
     allowDiscountRemoval: false,
+    ...checkoutSettings,
   };
 
   const settings =
@@ -143,6 +146,7 @@ interface PaddlePurchase {
   onCheckoutLoaded: () => void;
   params: PaddlePurchaseParams;
   onClose: () => void;
+  checkoutSettings?: Record<string, boolean>;
   displayMode?: PaddleCheckoutDisplayMode;
   theme?: PaddleCheckoutTheme;
   /**
@@ -304,6 +308,7 @@ export class PaddleService {
     onCheckoutLoaded,
     onClose,
     params,
+    checkoutSettings,
     displayMode = "overlay",
     theme = "light",
     onCheckoutTotals,
@@ -387,6 +392,7 @@ export class PaddleService {
         transactionId,
         locale,
         customerEmail,
+        checkoutSettings,
         displayMode,
         theme,
       });
