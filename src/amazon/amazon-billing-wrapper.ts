@@ -1,6 +1,7 @@
 import type {
   Product,
   ProductDataResponse,
+  ProductType as AmazonProductType,
 } from "@amazon-devices/keplerscript-appstore-iap-lib";
 import type * as AmazonVegaSdk from "@amazon-devices/keplerscript-appstore-iap-lib";
 import { ErrorCode, PurchasesError } from "../entities/errors";
@@ -130,7 +131,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
     };
 
     const productTypeForAmazonProduct = (
-      productType: Product["productType"],
+      productType: AmazonProductType,
       sku: string,
     ): string | null => {
       switch (productType) {
@@ -234,19 +235,6 @@ export class AmazonBillingWrapper implements BillingWrapper {
     const response = await PurchasingService.getProductData({
       skus: productIds,
     });
-    console.log(
-      `PurchaseService.getProductData() response tree\n${JSON.stringify(
-        response,
-        (_key, value) => {
-          if (value instanceof Map) {
-            return Object.fromEntries(value);
-          }
-
-          return typeof value === "bigint" ? value.toString() : value;
-        },
-        2,
-      )}`,
-    );
 
     const purchasesError = purchasesErrorForProductDataResponse(response);
     if (purchasesError) {
