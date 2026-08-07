@@ -162,7 +162,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
       }
 
       if (product.price == null) {
-        console.warn(
+        Logger.warnLog(
           `The Amazon Store returned a null price for product ${product.sku}, ignoring it.`,
         );
         return null;
