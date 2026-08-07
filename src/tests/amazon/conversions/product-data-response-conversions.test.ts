@@ -20,11 +20,17 @@ import {
   ProductType,
 } from "@amazon-devices/keplerscript-appstore-iap-lib";
 import {
-  productsForProductDataResponse,
-  purchasesErrorForProductDataResponse,
+  productsForProductDataResponse as mapProductsForProductDataResponse,
+  purchasesErrorForProductDataResponse as mapPurchasesErrorForProductDataResponse,
 } from "../../../amazon/conversions/product-data-response-conversions";
 import { ErrorCode, PurchasesError } from "../../../entities/errors";
 import { Logger } from "../../../helpers/logger";
+
+const purchasesErrorForProductDataResponse = (response: ProductDataResponse) =>
+  mapPurchasesErrorForProductDataResponse(response, ProductDataResponseCode);
+
+const productsForProductDataResponse = (response: ProductDataResponse) =>
+  mapProductsForProductDataResponse(response, ProductType);
 
 const responseForCode = (
   responseCode: ProductDataResponseCode,

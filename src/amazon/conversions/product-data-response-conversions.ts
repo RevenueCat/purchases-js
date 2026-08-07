@@ -1,10 +1,10 @@
 import {
   type Product,
   type ProductDataResponse,
-  ProductDataResponseCode,
-  ProductType as AmazonProductType,
 } from "@amazon-devices/keplerscript-appstore-iap-lib";
+import type { AmazonVegaSdk } from "../amazon-vega-sdk-loader";
 import { ErrorCode, PurchasesError } from "../../entities/errors";
+import { Logger } from "../../helpers/logger";
 import type {
   NonSubscriptionOptionResponse,
   PriceResponse,
@@ -15,16 +15,17 @@ import { ProductType } from "../../entities/offerings";
 
 export function purchasesErrorForProductDataResponse(
   productDataResponse: ProductDataResponse,
+  responseCodes: AmazonVegaSdk["ProductDataResponseCode"],
 ): PurchasesError | null {
   switch (productDataResponse.responseCode) {
-    case ProductDataResponseCode.SUCCESSFUL:
+    case responseCodes.SUCCESSFUL:
       return null;
-    case ProductDataResponseCode.NOT_SUPPORTED:
+    case responseCodes.NOT_SUPPORTED:
       return new PurchasesError(
         ErrorCode.UnsupportedError,
         "Couldn't fetch product data, since is is unsupported.",
       );
-    case ProductDataResponseCode.FAILED:
+    case responseCodes.FAILED:
       return new PurchasesError(
         ErrorCode.StoreProblemError,
         "An error occurred when fetching product data.",
@@ -34,14 +35,22 @@ export function purchasesErrorForProductDataResponse(
 
 export function productsForProductDataResponse(
   productDataResponse: ProductDataResponse,
+  productTypes: AmazonVegaSdk["ProductType"],
 ): ProductResponse[] {
   return Array.from(productDataResponse.productData.values())
-    .map(productForAmazonProduct)
+    .map((product) => productForAmazonProduct(product, productTypes))
     .filter((product): product is ProductResponse => product !== null);
 }
 
-function productForAmazonProduct(product: Product): ProductResponse | null {
-  const productType = productTypeForAmazonProduct(product.productType);
+function productForAmazonProduct(
+  product: Product,
+  productTypes: AmazonVegaSdk["ProductType"],
+): ProductResponse | null {
+  const productType = productTypeForAmazonProduct(
+    product.productType,
+    productTypes,
+    product.sku,
+  );
 
   if (product.price == null) {
     console.warn(
@@ -146,13 +155,22 @@ function toISO8601Period(period: string | null | undefined): string | null {
     : null;
 }
 
-function productTypeForAmazonProduct(productType: AmazonProductType): string {
+function productTypeForAmazonProduct(
+  productType: Product["productType"],
+  productTypes: AmazonVegaSdk["ProductType"],
+  sku: string,
+): string {
   switch (productType) {
-    case AmazonProductType.CONSUMABLE:
+    case productTypes.CONSUMABLE:
       return "consumable";
-    case AmazonProductType.ENTITLED:
-      return "nonconsumable";
-    case AmazonProductType.SUBSCRIPTION:
+    case productTypes.ENTITLED:
+      return "non_consumable";
+    case productTypes.SUBSCRIPTION:
       return "subscription";
+    default:
+      Logger.warnLog(
+        `Detected unknown Amazon product type "${productType}" for product "${sku}". Ignoring it.`,
+      );
+      return "unknown";
   }
 }
