@@ -1,9 +1,11 @@
-import { PurchasingService } from "@amazon-devices/keplerscript-appstore-iap-lib";
-
 import {
   productsForProductDataResponse,
   purchasesErrorForProductDataResponse,
 } from "./conversions/product-data-response-conversions";
+import {
+  type AmazonVegaSdk,
+  loadAmazonVegaSdk,
+} from "./amazon-vega-sdk-loader";
 import type { BillingWrapper } from "src/helpers/billing-wrapper";
 import type { ProductsResponse } from "src/networking/responses/products-response";
 
@@ -13,6 +15,10 @@ import type { ProductsResponse } from "src/networking/responses/products-respons
  * @internal
  */
 export class AmazonBillingWrapper implements BillingWrapper {
+  constructor(
+    private readonly loadSdk: () => Promise<AmazonVegaSdk> = loadAmazonVegaSdk,
+  ) {}
+
   public async getProducts(
     _appUserId: string,
     productIds: string[],
@@ -21,7 +27,8 @@ export class AmazonBillingWrapper implements BillingWrapper {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _discountCode?: string,
   ): Promise<ProductsResponse> {
-    const response = await PurchasingService.getProductData({
+    const sdk = await this.loadSdk();
+    const response = await sdk.PurchasingService.getProductData({
       skus: productIds,
     });
     console.log(
@@ -42,11 +49,19 @@ export class AmazonBillingWrapper implements BillingWrapper {
       )}`,
     );
 
-    const purchasesError = purchasesErrorForProductDataResponse(response);
+    const purchasesError = purchasesErrorForProductDataResponse(
+      response,
+      sdk.ProductDataResponseCode,
+    );
     if (purchasesError) {
       throw purchasesError;
     }
 
-    return { product_details: productsForProductDataResponse(response) };
+    return {
+      product_details: productsForProductDataResponse(
+        response,
+        sdk.ProductType,
+      ),
+    };
   }
 }
