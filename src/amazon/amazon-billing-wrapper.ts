@@ -174,7 +174,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
       };
       const purchaseOptions: ProductResponse["purchase_options"] = {};
 
-      if (productType === "subscription") {
+      if (product.productType === ProductType.SUBSCRIPTION) {
         const introPlan = product.promotions.find(
           (promotion) => promotion.type === "introductory",
         )?.plans[0];
