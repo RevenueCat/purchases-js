@@ -3,6 +3,9 @@
   import ErrorPage from "./pages/error-page.svelte";
   import SuccessPage from "./pages/success-page.svelte";
   import LoadingPage from "./pages/payment-entry-loading-page.svelte";
+  import UpgradeConfirmPage from "./pages/upgrade-confirm-page.svelte";
+  import UpgradeProductInfo from "./organisms/upgrade-product-info.svelte";
+  import type { SubscriptionChangeCheckoutStartResponse } from "../networking/responses/subscription-change-response";
   import { type PriceBreakdown, type CurrentPage } from "./ui-types";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import type { Product, PurchaseOption } from "../main";
@@ -54,6 +57,10 @@
     onClose?: () => void;
     hideBackButton?: boolean;
     lastTaxCustomerDetailsStore?: Writable<TaxCustomerDetails | null>;
+    subscriptionChangeStartData?: SubscriptionChangeCheckoutStartResponse | null;
+    isConfirmingProductChange?: boolean;
+    productChangeConfirmError?: string | null;
+    onConfirmProductChange?: () => void;
   }
 
   let {
@@ -88,6 +95,10 @@
     onClose = undefined,
     hideBackButton = false,
     lastTaxCustomerDetailsStore = writable<TaxCustomerDetails | null>(null),
+    subscriptionChangeStartData = null,
+    isConfirmingProductChange = false,
+    productChangeConfirmError = null,
+    onConfirmProductChange = undefined,
   }: Props = $props();
 
   const initialPrice = getInitialPriceFromPurchaseOption(
@@ -136,22 +147,26 @@
     />
   {/snippet}
   {#snippet navbarBodyContent()}
-    <ProductInfo
-      {productDetails}
-      purchaseOption={purchaseOptionToUse}
-      showProductDescription={brandingInfo?.appearance
-        ?.show_product_description ?? false}
-      {showDiscountCodeField}
-      discountCode={draftDiscountCode}
-      {appliedDiscountCode}
-      {discountCodeError}
-      {isUpdatingDiscountCode}
-      {isDiscountCodeControlsEnabled}
-      onDiscountCodeChange={onDraftDiscountCodeChange}
-      {onApplyDiscountCode}
-      {onRemoveDiscountCode}
-      {priceBreakdown}
-    />
+    {#if subscriptionChangeStartData}
+      <UpgradeProductInfo startData={subscriptionChangeStartData} />
+    {:else}
+      <ProductInfo
+        {productDetails}
+        purchaseOption={purchaseOptionToUse}
+        showProductDescription={brandingInfo?.appearance
+          ?.show_product_description ?? false}
+        {showDiscountCodeField}
+        discountCode={draftDiscountCode}
+        {appliedDiscountCode}
+        {discountCodeError}
+        {isUpdatingDiscountCode}
+        {isDiscountCodeControlsEnabled}
+        onDiscountCodeChange={onDraftDiscountCodeChange}
+        {onApplyDiscountCode}
+        {onRemoveDiscountCode}
+        {priceBreakdown}
+      />
+    {/if}
   {/snippet}
   {#snippet mainContent()}
     {#if currentPage === "payment-entry-loading"}
@@ -175,6 +190,16 @@
         {onSessionPricingUpdated}
         onProcessingStateChange={onPaymentProcessingChange}
         {lastTaxCustomerDetailsStore}
+      />
+    {/if}
+
+    {#if currentPage === "upgrade-confirm" && subscriptionChangeStartData}
+      <UpgradeConfirmPage
+        startData={subscriptionChangeStartData}
+        confirming={isConfirmingProductChange}
+        confirmError={productChangeConfirmError}
+        brandingAppearance={brandingInfo?.appearance ?? undefined}
+        onConfirm={onConfirmProductChange ?? (() => {})}
       />
     {/if}
 
