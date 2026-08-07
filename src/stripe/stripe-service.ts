@@ -92,6 +92,11 @@ export class StripeService {
   ): Promise<{ stripe: Stripe }> {
     const stripe = await loadStripe(publishableApiKey, {
       stripeAccount: stripeAccountId,
+      // The Stripe.js testing assistant renders a floating debug panel over our
+      // checkout whenever Elements loads with a sandbox key. Since we render the
+      // checkout UI on the developer's behalf, that panel is unexpected.
+      // https://docs.stripe.com/sdks/stripejs-testing-assistant#hide-the-testing-assistant
+      developerTools: { assistant: { enabled: false } },
     }).catch((error) => {
       throw this.mapInitializationError(error);
     });

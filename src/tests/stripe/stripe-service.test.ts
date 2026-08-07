@@ -218,6 +218,7 @@ describe("StripeService", () => {
 
       expect(loadStripe).toHaveBeenCalledWith("pk_test_123", {
         stripeAccount: "acct_123",
+        developerTools: { assistant: { enabled: false } },
       });
       expect(createEmbeddedCheckoutPage).toHaveBeenCalledWith({
         fetchClientSecret: expect.any(Function),
