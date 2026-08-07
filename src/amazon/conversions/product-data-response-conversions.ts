@@ -13,9 +13,12 @@ import type {
 } from "../../networking/responses/products-response";
 import { ProductType } from "../../entities/offerings";
 
+type AmazonProductType = AmazonVegaSdk["ProductType"];
+type AmazonProductDataResponseCode = AmazonVegaSdk["ProductDataResponseCode"];
+
 export function purchasesErrorForProductDataResponse(
   productDataResponse: ProductDataResponse,
-  responseCodes: AmazonVegaSdk["ProductDataResponseCode"],
+  responseCodes: AmazonProductDataResponseCode,
 ): PurchasesError | null {
   switch (productDataResponse.responseCode) {
     case responseCodes.SUCCESSFUL:
@@ -35,7 +38,7 @@ export function purchasesErrorForProductDataResponse(
 
 export function productsForProductDataResponse(
   productDataResponse: ProductDataResponse,
-  productTypes: AmazonVegaSdk["ProductType"],
+  productTypes: AmazonProductType,
 ): ProductResponse[] {
   return Array.from(productDataResponse.productData.values())
     .map((product) => productForAmazonProduct(product, productTypes))
@@ -44,7 +47,7 @@ export function productsForProductDataResponse(
 
 function productForAmazonProduct(
   product: Product,
-  productTypes: AmazonVegaSdk["ProductType"],
+  productTypes: AmazonProductType,
 ): ProductResponse | null {
   const productType = productTypeForAmazonProduct(
     product.productType,
@@ -157,7 +160,7 @@ function toISO8601Period(period: string | null | undefined): string | null {
 
 function productTypeForAmazonProduct(
   productType: Product["productType"],
-  productTypes: AmazonVegaSdk["ProductType"],
+  productTypes: AmazonProductType,
   sku: string,
 ): string {
   switch (productType) {
