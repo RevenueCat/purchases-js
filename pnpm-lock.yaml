@@ -7,11 +7,10 @@ settings:
 importers:
 
   .:
-    dependencies:
+    devDependencies:
       '@amazon-devices/keplerscript-appstore-iap-lib':
         specifier: 2.12.16
         version: 2.12.16(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))
-    devDependencies:
       '@eslint/js':
         specifier: ^9.16.0
         version: 9.17.0
