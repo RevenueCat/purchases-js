@@ -39,6 +39,7 @@
     type CheckoutPricingResponse,
     createPriceBreakdownFromCheckoutPricingResponse,
   } from "../networking/responses/checkout-pricing-response";
+  import type { WebBillingCheckoutStartResponse } from "../networking/responses/checkout-start-response";
   import { validateEmail } from "../helpers/validators";
   import type { PriceBreakdown, TaxCalculationStatus } from "./ui-types";
   import { getActiveCheckoutPurchaseOption } from "../helpers/checkout-session-purchase-option-helper";
@@ -53,6 +54,7 @@
     purchases: Purchases;
     eventsTracker: IEventsTracker;
     purchaseOperationHelper: PurchaseOperationHelper;
+    initialCheckoutStartResponse?: WebBillingCheckoutStartResponse;
     selectedLocale: string;
     defaultLocale: string;
     customTranslations?: CustomTranslations;
@@ -82,6 +84,7 @@
     purchases,
     eventsTracker,
     purchaseOperationHelper,
+    initialCheckoutStartResponse,
     selectedLocale,
     defaultLocale,
     customTranslations = {},
@@ -200,6 +203,10 @@
       : false,
   );
 
+  let unusedInitialCheckoutStartResponse:
+    | WebBillingCheckoutStartResponse
+    | undefined = initialCheckoutStartResponse;
+
   const startCheckout = (
     nextProductDetails: Product,
     nextPurchaseOption: PurchaseOption,
@@ -213,6 +220,15 @@
           "Product ID was not set before purchase.",
         ),
       );
+    }
+
+    if (unusedInitialCheckoutStartResponse) {
+      const result = unusedInitialCheckoutStartResponse;
+      unusedInitialCheckoutStartResponse = undefined;
+      purchaseOperationHelper.setOperationSessionId(
+        result.operation_session_id,
+      );
+      return Promise.resolve({ result, emailToUse: nextEmail });
     }
 
     return purchaseOperationHelper

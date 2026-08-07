@@ -101,7 +101,6 @@ describe("Purchases.purchase productChangeInfo", () => {
         redemptionInfo: null,
       });
 
-    // Without a token we no longer error — upgrade cannot be attempted.
     await purchases.purchase({
       rcPackage: packageToBuy,
       productChangeInfo: {
@@ -305,10 +304,6 @@ describe("Purchases.purchase productChangeInfo", () => {
       },
     );
 
-    const adoptSpy = vi.spyOn(
-      purchases["purchaseOperationHelper"],
-      "setCheckoutStartResponse",
-    );
     const postCheckoutStartSpy = vi.spyOn(
       Backend.prototype,
       "postCheckoutStart",
@@ -316,7 +311,10 @@ describe("Purchases.purchase productChangeInfo", () => {
     const webBillingSpy = vi
       .spyOn(
         purchases as unknown as {
-          performWebBillingPurchase: (params: unknown) => Promise<unknown>;
+          performWebBillingPurchase: (
+            params: unknown,
+            startedCheckout?: unknown,
+          ) => Promise<unknown>;
         },
         "performWebBillingPurchase",
       )
@@ -332,9 +330,10 @@ describe("Purchases.purchase productChangeInfo", () => {
       },
     });
 
-    expect(adoptSpy).toHaveBeenCalledWith(purchaseStartResponse);
-    expect(webBillingSpy).toHaveBeenCalled();
-    // Fallthrough must not trigger a second /checkout/start via the helper path.
+    expect(webBillingSpy).toHaveBeenCalledWith(expect.anything(), {
+      initialCheckoutStartResponse: purchaseStartResponse,
+      skipHistoryPush: true,
+    });
     expect(postCheckoutStartSpy).not.toHaveBeenCalled();
   });
 });

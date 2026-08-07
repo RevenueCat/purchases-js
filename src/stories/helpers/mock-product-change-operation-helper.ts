@@ -1,5 +1,8 @@
 import type { ProductChangeResult } from "../../entities/product-change-params";
-import type { ProductChangeOperationHelper } from "../../helpers/product-change-operation-helper";
+import type {
+  ProductChangeOperationHelper,
+  ProductChangeStartResult,
+} from "../../helpers/product-change-operation-helper";
 import {
   PurchaseFlowError,
   PurchaseFlowErrorCode,
@@ -16,19 +19,15 @@ type ConfirmOutcome =
   | { type: "error"; message: string }
   | { type: "pending" };
 
-/**
- * Storybook-only stub of {@link ProductChangeOperationHelper}.
- * Avoids network calls so each upgrade-checkout UI state can be rendered.
- *
- * - success: {@link getStartResponse} returns data (or pass `initialStartData`)
- * - pending: {@link getStartResponse} returns null → UI stays on loading
- * - error: {@link getStartResponse} throws → UI shows load error
- */
+/** Storybook stub for {@link ProductChangeOperationHelper}. */
 export function createMockProductChangeOperationHelper(options: {
   start: StartOutcome;
   confirm?: ConfirmOutcome;
-}): ProductChangeOperationHelper {
-  let adoptedStart: SubscriptionChangeCheckoutStartResponse | null =
+}): {
+  helper: ProductChangeOperationHelper;
+  startCheckout: () => Promise<ProductChangeStartResult>;
+} {
+  let storedStart: SubscriptionChangeCheckoutStartResponse | null =
     options.start.type === "success" ? options.start.data : null;
 
   const confirmOutcome: ConfirmOutcome = options.confirm ?? {
@@ -49,23 +48,36 @@ export function createMockProductChangeOperationHelper(options: {
     },
   };
 
+  const startCheckout = (): Promise<ProductChangeStartResult> => {
+    if (options.start.type === "pending") {
+      return new Promise(() => {});
+    }
+    if (options.start.type === "error") {
+      return Promise.reject(
+        new PurchaseFlowError(
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+          options.start.message,
+        ),
+      );
+    }
+    storedStart = options.start.data;
+    return Promise.resolve({
+      mode: "subscription_change",
+      response: options.start.data,
+    });
+  };
+
   const helper = {
     async start(): Promise<never> {
       throw new Error(
-        "Mock ProductChangeOperationHelper.start() should not be called; start runs in main.ts before the UI mounts.",
+        "Mock ProductChangeOperationHelper.start() should not be called; the UI uses the startCheckout prop.",
       );
     },
     setStartResponse(response: SubscriptionChangeCheckoutStartResponse): void {
-      adoptedStart = response;
+      storedStart = response;
     },
     getStartResponse(): SubscriptionChangeCheckoutStartResponse | null {
-      if (options.start.type === "error") {
-        throw new PurchaseFlowError(
-          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-          options.start.message,
-        );
-      }
-      return adoptedStart;
+      return storedStart;
     },
     async confirm(): Promise<ProductChangeResult> {
       if (confirmOutcome.type === "pending") {
@@ -81,5 +93,8 @@ export function createMockProductChangeOperationHelper(options: {
     },
   };
 
-  return helper as unknown as ProductChangeOperationHelper;
+  return {
+    helper: helper as unknown as ProductChangeOperationHelper,
+    startCheckout,
+  };
 }

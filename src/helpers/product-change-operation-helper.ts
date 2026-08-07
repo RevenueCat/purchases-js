@@ -19,7 +19,7 @@ type ProductChangeStartParams = CheckoutStartParams & {
   subscriberToken: string;
 };
 
-type ProductChangeStartResult =
+export type ProductChangeStartResult =
   | {
       mode: "subscription_change";
       response: SubscriptionChangeCheckoutStartResponse;

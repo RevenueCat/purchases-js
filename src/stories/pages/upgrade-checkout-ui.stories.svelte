@@ -5,6 +5,7 @@
   import { brandingLanguageViewportModes } from "../../../.storybook/modes";
   import {
     brandingInfos,
+    rcPackage,
     subscriptionChangeDeferredTaxPending,
     subscriptionChangeDeferredWithTax,
     subscriptionChangeImmediateMinimal,
@@ -13,7 +14,6 @@
   } from "../fixtures";
   import { createMockProductChangeOperationHelper } from "../helpers/mock-product-change-operation-helper";
   import type { SubscriptionChangeCheckoutStartResponse } from "../../networking/responses/subscription-change-response";
-  import type { ProductChangeOperationHelper } from "../../helpers/product-change-operation-helper";
 
   type StoryArgs = {
     startData?: SubscriptionChangeCheckoutStartResponse;
@@ -39,7 +39,9 @@
     render: template,
   });
 
-  function helperForArgs(args: StoryArgs): ProductChangeOperationHelper {
+  function mockForArgs(
+    args: StoryArgs,
+  ): ReturnType<typeof createMockProductChangeOperationHelper> {
     if (args.startPending) {
       return createMockProductChangeOperationHelper({
         start: { type: "pending" },
@@ -65,13 +67,17 @@
   context: StoryContext<typeof UpgradeCheckoutUi>,
 )}
   {@const brandingInfo = { ...brandingInfos[context.globals.brandingName] }}
-  {@const productChangeOperationHelper = helperForArgs(args)}
+  {@const mock = mockForArgs(args)}
   <UpgradeCheckoutUi
     subscriberToken="subscriber_token_story"
+    {rcPackage}
+    purchaseOption={rcPackage.webBillingProduct.defaultPurchaseOption}
     {brandingInfo}
     isInElement={context.globals.viewport === "embedded"}
     isSandbox={args.isSandbox ?? false}
-    {productChangeOperationHelper}
+    productChangeOperationHelper={mock.helper}
+    startCheckout={mock.startCheckout}
+    onFallthrough={() => {}}
     initialStartData={args.startData}
     onFinished={() => {}}
     onError={() => {}}

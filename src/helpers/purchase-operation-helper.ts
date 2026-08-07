@@ -158,8 +158,6 @@ export interface OperationSessionSuccessfulResult {
 
 export class PurchaseOperationHelper {
   private operationSessionId: string | null = null;
-  private pendingCheckoutStartResponse: WebBillingCheckoutStartResponse | null =
-    null;
   private readonly backend: Backend;
   private readonly eventsTracker: IEventsTracker;
   private readonly maxNumberAttempts: number;
@@ -175,9 +173,8 @@ export class PurchaseOperationHelper {
     this.maxNumberAttempts = maxNumberAttempts;
   }
 
-  setCheckoutStartResponse(response: WebBillingCheckoutStartResponse): void {
-    this.operationSessionId = response.operation_session_id;
-    this.pendingCheckoutStartResponse = response;
+  setOperationSessionId(operationSessionId: string): void {
+    this.operationSessionId = operationSessionId;
   }
 
   private static getBackendErrorCodeForInterruptedCheckout(
@@ -266,13 +263,6 @@ export class PurchaseOperationHelper {
     locale,
     attributionMetadata,
   }: CheckoutStartParams): Promise<WebBillingCheckoutStartResponse> {
-    const pending = this.pendingCheckoutStartResponse;
-    if (pending) {
-      this.pendingCheckoutStartResponse = null;
-      this.operationSessionId = pending.operation_session_id;
-      return pending;
-    }
-
     try {
       const traceId = this.eventsTracker.getTraceId();
       const presentedStepId = workflowPurchaseContext?.stepId;
@@ -494,6 +484,5 @@ export class PurchaseOperationHelper {
 
   private clearPurchaseInProgress() {
     this.operationSessionId = null;
-    this.pendingCheckoutStartResponse = null;
   }
 }
