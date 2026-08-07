@@ -188,16 +188,17 @@ describe("AmazonBillingWrapper", () => {
     expect(products[0].product_type).toBe("non_consumable");
   });
 
-  test("logs the raw Amazon value for an unknown product type", async () => {
+  test("logs and excludes an unknown Amazon product type", async () => {
     const warningLog = vi.spyOn(Logger, "warnLog").mockImplementation(() => {});
 
-    await getProducts(
+    const { product_details: products } = await getProducts(
       responseForProducts([product({ productType: 99 as ProductType })]),
     );
 
     expect(warningLog).toHaveBeenCalledWith(
       'Detected unknown Amazon product type "99" for product "product-id". Ignoring it.',
     );
+    expect(products).toEqual([]);
 
     warningLog.mockRestore();
   });

@@ -14,14 +14,16 @@ import type {
   SubscriptionOptionResponse,
 } from "../networking/responses/products-response";
 
+type AmazonAppstoreIAPSDK = typeof AmazonVegaSdk;
+
 /**
- * Amazon billing wrapper. Defers loading the Vega SDK until it is needed, so
- * importing the core SDK remains safe in web environments.
+ * Amazon billing wrapper. Defers loading the Amazon Appstore IAP library until
+ * it is needed, so importing the core SDK remains safe in web environments.
  * @internal
  */
 export class AmazonBillingWrapper implements BillingWrapper {
-  private productsLoader:
-    | Promise<(productIds: string[]) => Promise<ProductsResponse>>
+  private amazonAppstoreIapLibPromise:
+    | Promise<AmazonAppstoreIAPSDK>
     | undefined;
 
   public async getProducts(
@@ -32,27 +34,26 @@ export class AmazonBillingWrapper implements BillingWrapper {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _discountCode?: string,
   ): Promise<ProductsResponse> {
-    return await (
-      await this.getProductsLoader()
-    )(productIds);
+    const amazonAppstoreIapLib = await this.getAmazonAppstoreIapLib();
+    return await this.getProductsFromAmazonAppstoreIapLib(
+      amazonAppstoreIapLib,
+      productIds,
+    );
   }
 
-  private getProductsLoader(): Promise<
-    (productIds: string[]) => Promise<ProductsResponse>
-  > {
-    return (this.productsLoader ??= this.loadProductsLoader());
+  private getAmazonAppstoreIapLib(): Promise<AmazonAppstoreIAPSDK> {
+    return (this.amazonAppstoreIapLibPromise ??=
+      this.loadAmazonAppstoreIapLib());
   }
 
-  private async loadProductsLoader(): Promise<
-    (productIds: string[]) => Promise<ProductsResponse>
-  > {
+  private async loadAmazonAppstoreIapLib(): Promise<AmazonAppstoreIAPSDK> {
+    Logger.debugLog("Loading the Amazon AppStore IAP SDK.");
     const amazonSdkModule = "@amazon-devices/keplerscript-appstore-iap-lib";
-    let amazonSdk: typeof AmazonVegaSdk;
 
     try {
       // Keep web bundlers from following this Vega-only dependency into its
       // Flow-based React Native source. Vega resolves it only at runtime.
-      amazonSdk = await import(/* @vite-ignore */ amazonSdkModule);
+      return await import(/* @vite-ignore */ amazonSdkModule);
     } catch (error) {
       throw new PurchasesError(
         ErrorCode.ConfigurationError,
@@ -60,9 +61,14 @@ export class AmazonBillingWrapper implements BillingWrapper {
         error instanceof Error ? error.message : undefined,
       );
     }
+  }
 
+  private async getProductsFromAmazonAppstoreIapLib(
+    amazonAppstoreIapLib: AmazonAppstoreIAPSDK,
+    productIds: string[],
+  ): Promise<ProductsResponse> {
     const { PurchasingService, ProductDataResponseCode, ProductType } =
-      amazonSdk;
+      amazonAppstoreIapLib;
 
     const purchasesErrorForProductDataResponse = (
       productDataResponse: ProductDataResponse,
@@ -126,7 +132,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
     const productTypeForAmazonProduct = (
       productType: Product["productType"],
       sku: string,
-    ): string => {
+    ): string | null => {
       switch (productType) {
         case ProductType.CONSUMABLE:
           return "consumable";
@@ -138,7 +144,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
           Logger.warnLog(
             `Detected unknown Amazon product type "${productType}" for product "${sku}". Ignoring it.`,
           );
-          return "unknown";
+          return null;
       }
     };
 
@@ -149,6 +155,10 @@ export class AmazonBillingWrapper implements BillingWrapper {
         product.productType,
         product.sku,
       );
+
+      if (productType == null) {
+        return null;
+      }
 
       if (product.price == null) {
         console.warn(
@@ -221,30 +231,28 @@ export class AmazonBillingWrapper implements BillingWrapper {
         .map(productForAmazonProduct)
         .filter((product): product is ProductResponse => product !== null);
 
-    return async (productIds: string[]): Promise<ProductsResponse> => {
-      const response = await PurchasingService.getProductData({
-        skus: productIds,
-      });
-      console.log(
-        `PurchaseService.getProductData() response tree\n${JSON.stringify(
-          response,
-          (_key, value) => {
-            if (value instanceof Map) {
-              return Object.fromEntries(value);
-            }
+    const response = await PurchasingService.getProductData({
+      skus: productIds,
+    });
+    console.log(
+      `PurchaseService.getProductData() response tree\n${JSON.stringify(
+        response,
+        (_key, value) => {
+          if (value instanceof Map) {
+            return Object.fromEntries(value);
+          }
 
-            return typeof value === "bigint" ? value.toString() : value;
-          },
-          2,
-        )}`,
-      );
+          return typeof value === "bigint" ? value.toString() : value;
+        },
+        2,
+      )}`,
+    );
 
-      const purchasesError = purchasesErrorForProductDataResponse(response);
-      if (purchasesError) {
-        throw purchasesError;
-      }
+    const purchasesError = purchasesErrorForProductDataResponse(response);
+    if (purchasesError) {
+      throw purchasesError;
+    }
 
-      return { product_details: productsForProductDataResponse(response) };
-    };
+    return { product_details: productsForProductDataResponse(response) };
   }
 }
