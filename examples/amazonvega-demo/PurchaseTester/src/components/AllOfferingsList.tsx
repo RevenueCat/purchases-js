@@ -25,9 +25,6 @@ export const AllOfferingsList = () => {
     const loadOfferings = async () => {
       try {
         const purchases = Purchases.getSharedInstance();
-        console.log('Fetching customer info');
-        const ci = await purchases.getCustomerInfo();
-        console.log(ci);
         const fetchedOfferings = await purchases.getOfferings();
         setOfferings(Object.values(fetchedOfferings.all));
         setError(null);
