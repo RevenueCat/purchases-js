@@ -6,7 +6,12 @@
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import { type PriceBreakdown } from "../ui-types";
   import { getNextRenewalDate } from "../../helpers/duration-helper";
-  import { type PricingPhase } from "../../entities/offerings";
+  import { getPeriodDurationLabel } from "../../helpers/price-labels";
+  import { getOfferDuration } from "../../helpers/paywall-offer-helpers";
+  import {
+    type DiscountPhase,
+    type PricingPhase,
+  } from "../../entities/offerings";
   import type { ResolvedDiscountBreakdown } from "../../helpers/discount-breakdown-helper";
   import DiscountInput from "./discount-input.svelte";
   import PricingDropdown from "./pricing-dropdown.svelte";
@@ -17,6 +22,8 @@
     priceBreakdown: PriceBreakdown;
     trialPhase: PricingPhase | null;
     basePhase: PricingPhase | null;
+    introPricePhase: PricingPhase | null;
+    discountPhase: DiscountPhase | null;
     resolvedDiscount: ResolvedDiscountBreakdown | null;
     showDiscountCodeField: boolean;
     discountCode: string;
@@ -35,6 +42,8 @@
     priceBreakdown,
     trialPhase,
     basePhase,
+    introPricePhase,
+    discountPhase,
     resolvedDiscount,
     showDiscountCodeField,
     discountCode,
@@ -56,6 +65,29 @@
   );
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
+
+  // When a paid intro phase steps up to the base price, tell the customer when
+  // that happens and how much it will be.
+  //
+  // Suppressed in two cases. With a trial the sequence is trial -> intro ->
+  // base, and one row cannot describe both step-ups; the trial row still states
+  // the trial end date, so that case is under-described rather than wrong. With
+  // a discount the intro price does not apply at all — a discount supersedes it
+  // everywhere else too (see paywall-offer-helpers' primaryOffer) — so an intro
+  // step-up date would describe a schedule that is not in effect. Discounts do
+  // not get a row of their own yet; that needs new copy in every locale.
+  const introDuration = $derived(
+    introPricePhase ? getOfferDuration(introPricePhase) : null,
+  );
+  const introPriceEndDate = $derived(
+    !trialEndDate && !discountPhase && introDuration
+      ? getNextRenewalDate(new Date(), introDuration, true)
+      : null,
+  );
+
+  const introPriceDurationLabel = $derived(
+    getPeriodDurationLabel(introDuration, $translator),
+  );
 
   const isTaxCalculationPending = $derived(
     priceBreakdown.taxCalculationStatus === "loading" ||
@@ -279,6 +311,34 @@
           <Typography size="body-small">
             {$translator.formatPrice(
               priceBreakdown.totalAmountInMicros,
+              priceBreakdown.currency,
+            )}
+          </Typography>
+        </div>
+      </div>
+    {:else if introPriceEndDate}
+      <div class="rcb-pricing-table-row">
+        <div class="rcb-pricing-table-header">
+          <Typography size="body-small">
+            {$translator.translate(
+              LocalizationKeys.ProductInfoPriceAfterIntroPrice,
+              {
+                introPriceDuration: introPriceDurationLabel,
+                renewalDate: $translator.translateDate(introPriceEndDate, {
+                  dateStyle: "medium",
+                }),
+              },
+            )}
+          </Typography>
+        </div>
+        <div class="rcb-pricing-table-value">
+          <Typography size="body-small">
+            <!-- The base price, not totalAmountInMicros: that is today's
+                 discounted intro total, while this row is what the customer
+                 pays once the intro phase ends. Matches the header. -->
+            {$translator.formatPrice(
+              basePhase?.price?.amountMicros ??
+                priceBreakdown.totalAmountInMicros,
               priceBreakdown.currency,
             )}
           </Typography>
