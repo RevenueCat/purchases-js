@@ -24,7 +24,7 @@ import {
   ProductDataResponseCode,
   ProductType,
 } from "@amazon-devices/keplerscript-appstore-iap-lib";
-import { loadAmazonVegaImplementation } from "../../amazon/amazon-vega-implementation";
+import { AmazonBillingWrapper } from "../../amazon/amazon-billing-wrapper";
 import { ErrorCode } from "../../entities/errors";
 import type { PurchasesError } from "../../entities/errors";
 import { Logger } from "../../helpers/logger";
@@ -61,12 +61,12 @@ const responseForProducts = (products: Product[]): ProductDataResponse => ({
 
 async function getProducts(response: ProductDataResponse) {
   getProductData.mockResolvedValue(response);
-  return await (
-    await loadAmazonVegaImplementation()
-  ).getProducts(["product-id"]);
+  return await new AmazonBillingWrapper().getProducts("app-user-id", [
+    "product-id",
+  ]);
 }
 
-describe("Amazon Vega implementation", () => {
+describe("AmazonBillingWrapper", () => {
   test("maps an unsupported response to an unsupported error", async () => {
     await expect(
       getProducts(responseForCode(ProductDataResponseCode.NOT_SUPPORTED)),
