@@ -737,7 +737,7 @@
       email,
       locale: $translator.selectedLocale,
     });
-    const newClientSecret = completeResponse?.gateway_params?.client_secret;
+    const newClientSecret = completeResponse.gateway_params?.client_secret;
     if (newClientSecret) clientSecret = newClientSecret;
   }
 

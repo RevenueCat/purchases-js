@@ -183,7 +183,10 @@
         locale: selectedLocale,
       });
 
-      if (!result.stripe_billing_params) {
+      if (
+        !("stripe_billing_params" in result) ||
+        !result.stripe_billing_params
+      ) {
         handleError(
           new PurchaseFlowError(
             PurchaseFlowErrorCode.ErrorSettingUpPurchase,

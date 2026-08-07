@@ -38,6 +38,7 @@
   } from "../../behavioural-events/sdk-event-helpers";
   import type { SDKEventPurchaseMode } from "../../behavioural-events/event";
   import type { CheckoutPrepareResponse } from "../../networking/responses/checkout-prepare-response";
+  import { isSubscriptionChangeCheckoutStartResponse } from "../../networking/responses/subscription-change-response";
 
   const {
     customerEmail,
@@ -206,7 +207,7 @@
       email,
       locale: translator.selectedLocale,
     });
-    const newClientSecret = completeResponse?.gateway_params?.client_secret;
+    const newClientSecret = completeResponse.gateway_params?.client_secret;
 
     if (!newClientSecret) {
       return false;
@@ -300,6 +301,13 @@
         metadata,
         locale: translator.selectedLocale,
       });
+
+      if (isSubscriptionChangeCheckoutStartResponse(checkoutStartResult)) {
+        throw new PurchaseFlowError(
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+          "Unexpected subscription-change response for express purchase.",
+        );
+      }
 
       const managementUrl = checkoutStartResult.management_url;
 

@@ -43,7 +43,7 @@
     isSubscriptionChangeCheckoutStartResponse,
     type SubscriptionChangeCheckoutStartResponse,
   } from "../networking/responses/subscription-change-response";
-  import type { ProductChangeResult } from "../entities/product-change-params";
+  import { type ProductChangeResult } from "../entities/product-change-params";
   import { validateEmail } from "../helpers/validators";
   import type { PriceBreakdown, TaxCalculationStatus } from "./ui-types";
   import { getActiveCheckoutPurchaseOption } from "../helpers/checkout-session-purchase-option-helper";
@@ -71,11 +71,6 @@
     attributionMetadata?: AttributionMetadata;
     paywallId?: string;
     paywallSessionId?: string;
-    /**
-     * When set, checkout starts in product-change mode: the backend is asked
-     * to change the given subscription to the purchased product. If the
-     * change is not possible, the session continues as a normal purchase.
-     */
     productChange?: {
       subscriptionId?: string;
       productIdentifier?: string;
@@ -298,7 +293,7 @@
     isConfirmingProductChange = true;
     productChangeConfirmError = null;
     try {
-      const result = await purchaseOperationHelper.checkoutComplete({
+      const result = await purchaseOperationHelper.completeProductChange({
         subscriberToken: productChange.subscriberToken,
       });
       onProductChangeFinished?.(result);

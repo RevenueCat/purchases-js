@@ -457,14 +457,6 @@ export class Backend {
 
   async postCheckoutComplete(
     operationSessionId: string,
-    options: { subscriberToken: string; email?: string; locale?: string },
-  ): Promise<SubscriptionChangeCompleteResponse>;
-  async postCheckoutComplete(
-    operationSessionId: string,
-    options?: { email?: string; locale?: string },
-  ): Promise<CheckoutCompleteResponse>;
-  async postCheckoutComplete(
-    operationSessionId: string,
     options: {
       email?: string;
       locale?: string;

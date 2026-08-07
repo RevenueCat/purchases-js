@@ -61,3 +61,14 @@ export function isSubscriptionChangeCheckoutStartResponse(
     response.checkout_mode === "subscription_change"
   );
 }
+
+export function isSubscriptionChangeCompleteResponse(
+  response: unknown,
+): response is SubscriptionChangeCompleteResponse {
+  return (
+    typeof response === "object" &&
+    response !== null &&
+    "checkout_mode" in response &&
+    response.checkout_mode === "subscription_change"
+  );
+}

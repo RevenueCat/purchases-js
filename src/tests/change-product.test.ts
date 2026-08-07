@@ -1,4 +1,11 @@
-import { afterEach, describe, expect, test, vi } from "vitest";
+import {
+  afterEach,
+  describe,
+  expect,
+  test,
+  vi,
+  type MockInstance,
+} from "vitest";
 import { http, HttpResponse } from "msw";
 import {
   configurePurchases,
@@ -19,27 +26,27 @@ import {
 import type { IEventsTracker } from "../behavioural-events/events-tracker";
 import { subscriptionChangeImmediateWithTax } from "../stories/fixtures";
 import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
+import type { WebBillingCheckoutStartResponse } from "../networking/responses/checkout-start-response";
 
 const SUBSCRIBER_TOKEN_1 = "eyJhbGciOiJSUzI1NiJ9.subscriber.token.1";
 const SUBSCRIBER_TOKEN_2 = "eyJhbGciOiJSUzI1NiJ9.subscriber.token.2";
 const FROM_PRODUCT_IDENTIFIER = "premium_monthly";
 const packageToBuy = createMonthlyPackageMock();
 
-const purchaseModeStartResponse = {
+const purchaseModeStartResponse: WebBillingCheckoutStartResponse = {
   operation_session_id: "rcbopsess_purchase_mode",
   gateway_params: {
     publishable_api_key: "pk_test",
     stripe_account_id: "acct_test",
-    elements_configuration: null,
   },
   stripe_billing_params: null,
   management_url: "https://example.com/manage",
   paddle_billing_params: null,
-  checkout_mode: "purchase" as const,
+  checkout_mode: "purchase",
 };
 
 function expectStartCalledWith(
-  startSpy: ReturnType<typeof vi.spyOn>,
+  startSpy: MockInstance<PurchaseOperationHelper["checkoutStart"]>,
   expected: {
     subscriptionId?: string;
     productIdentifier?: string;
@@ -576,10 +583,13 @@ describe("product change checkout networking", () => {
 
     expect(authHeader).toBe("Bearer rcb_test_api_key");
     expect(subscriberTokenHeader).toBe(SUBSCRIBER_TOKEN_1);
-    expect(response.new_product_id).toBe("annual");
+    expect(response).toMatchObject({
+      new_product_id: "annual",
+      checkout_mode: "subscription_change",
+    });
   });
 
-  test("helper checkoutComplete maps the subscription-change response after a start", async () => {
+  test("helper completeProductChange maps the subscription-change response after a start", async () => {
     server.use(
       http.post("http://localhost:8000/rcbilling/v1/checkout/start", async () =>
         HttpResponse.json(startSuccessResponse, { status: 201 }),
@@ -609,7 +619,7 @@ describe("product change checkout networking", () => {
       subscriberToken: SUBSCRIBER_TOKEN_1,
     });
 
-    const result = await helper.checkoutComplete({
+    const result = await helper.completeProductChange({
       subscriberToken: SUBSCRIBER_TOKEN_1,
     });
     expect(result).toEqual({
@@ -619,11 +629,11 @@ describe("product change checkout networking", () => {
     });
   });
 
-  test("helper checkoutComplete with subscriber token throws when no session was started", async () => {
+  test("helper completeProductChange throws when no session was started", async () => {
     const helper = new PurchaseOperationHelper(backend, eventsTrackerMock);
 
     await expect(
-      helper.checkoutComplete({ subscriberToken: SUBSCRIBER_TOKEN_1 }),
+      helper.completeProductChange({ subscriberToken: SUBSCRIBER_TOKEN_1 }),
     ).rejects.toThrow(
       new PurchaseFlowError(
         PurchaseFlowErrorCode.ErrorSettingUpPurchase,

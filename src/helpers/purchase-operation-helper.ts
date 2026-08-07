@@ -33,7 +33,10 @@ import {
 } from "../networking/responses/checkout-pricing-response";
 import { handleCheckoutSessionFailed } from "./checkout-error-handler";
 import type { CheckoutPrepareResponse } from "../networking/responses/checkout-prepare-response";
-import type { SubscriptionChangeCheckoutStartResponse } from "../networking/responses/subscription-change-response";
+import {
+  isSubscriptionChangeCompleteResponse,
+  type SubscriptionChangeCheckoutStartResponse,
+} from "../networking/responses/subscription-change-response";
 import type { ProductChangeResult } from "../entities/product-change-params";
 
 export enum PurchaseFlowErrorCode {
@@ -260,18 +263,6 @@ export class PurchaseOperationHelper {
     }
   }
 
-  // Callers that pass a productChange option can receive a
-  // subscription-change session; all others always get a purchase session.
-  async checkoutStart(
-    params: CheckoutStartParams & {
-      productChange: CheckoutStartParams["productChange"];
-    },
-  ): Promise<
-    WebBillingCheckoutStartResponse | SubscriptionChangeCheckoutStartResponse
-  >;
-  async checkoutStart(
-    params: Omit<CheckoutStartParams, "productChange" | "subscriberToken">,
-  ): Promise<WebBillingCheckoutStartResponse>;
   async checkoutStart({
     appUserId,
     productId,
@@ -389,72 +380,95 @@ export class PurchaseOperationHelper {
     }
   }
 
-  async checkoutComplete(options: {
-    subscriberToken: string;
-  }): Promise<ProductChangeResult>;
-  async checkoutComplete(options?: {
-    email?: string;
-    locale?: string;
-  }): Promise<CheckoutCompleteResponse>;
   async checkoutComplete(
     options: {
       email?: string;
       locale?: string;
-      subscriberToken?: string;
     } = {},
-  ): Promise<CheckoutCompleteResponse | ProductChangeResult> {
+  ): Promise<CheckoutCompleteResponse> {
     const operationSessionId = this.operationSessionId;
-    const isProductChange = options.subscriberToken != null;
     if (!operationSessionId) {
       throw new PurchaseFlowError(
         PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-        isProductChange
-          ? "No product change checkout session to complete."
-          : "No purchase started",
+        "No purchase started",
       );
     }
 
     try {
-      const { subscriberToken } = options;
-      if (subscriberToken != null) {
-        const response = await this.backend.postCheckoutComplete(
-          operationSessionId,
-          { subscriberToken },
+      const response = await this.backend.postCheckoutComplete(
+        operationSessionId,
+        {
+          email: options.email,
+          locale: options.locale,
+        },
+      );
+      if (isSubscriptionChangeCompleteResponse(response)) {
+        throw new PurchaseFlowError(
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+          "Unexpected subscription-change response for purchase checkout.",
         );
-        return {
-          operationSessionId: response.operation_session_id,
-          changeType: response.change_type,
-          newProductId: response.new_product_id,
-        };
       }
-
-      return await this.backend.postCheckoutComplete(operationSessionId, {
-        email: options.email,
-        locale: options.locale,
-      });
+      return response;
     } catch (error) {
+      if (error instanceof PurchaseFlowError) {
+        throw error;
+      }
       if (error instanceof PurchasesError) {
         throw PurchaseFlowError.fromPurchasesError(
           error,
-          isProductChange
-            ? PurchaseFlowErrorCode.ErrorChargingPayment
-            : PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
         );
       }
-      const errorMessage = isProductChange
-        ? "Failed to complete product change."
-        : "Unknown error starting purchase: " + String(error);
-      if (!isProductChange) {
-        Logger.errorLog(errorMessage);
-      }
+      const errorMessage = "Unknown error starting purchase: " + String(error);
+      Logger.errorLog(errorMessage);
       throw new PurchaseFlowError(
         PurchaseFlowErrorCode.UnknownError,
         errorMessage,
-        isProductChange
-          ? error instanceof Error
-            ? error.message
-            : String(error)
-          : undefined,
+      );
+    }
+  }
+
+  async completeProductChange(options: {
+    subscriberToken: string;
+  }): Promise<ProductChangeResult> {
+    const operationSessionId = this.operationSessionId;
+    if (!operationSessionId) {
+      throw new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "No product change checkout session to complete.",
+      );
+    }
+
+    try {
+      const response = await this.backend.postCheckoutComplete(
+        operationSessionId,
+        { subscriberToken: options.subscriberToken },
+      );
+      if (!isSubscriptionChangeCompleteResponse(response)) {
+        throw new PurchaseFlowError(
+          PurchaseFlowErrorCode.ErrorChargingPayment,
+          "Unexpected checkout complete response for product change.",
+        );
+      }
+      return {
+        operationSessionId: response.operation_session_id,
+        changeType: response.change_type,
+        newProductId: response.new_product_id,
+      };
+    } catch (error) {
+      if (error instanceof PurchaseFlowError) {
+        throw error;
+      }
+      if (error instanceof PurchasesError) {
+        throw PurchaseFlowError.fromPurchasesError(
+          error,
+          PurchaseFlowErrorCode.ErrorChargingPayment,
+        );
+      }
+      throw new PurchaseFlowError(
+        PurchaseFlowErrorCode.UnknownError,
+        "Failed to complete product change.",
+        error instanceof Error ? error.message : String(error),
       );
     }
   }
