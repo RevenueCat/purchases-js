@@ -834,6 +834,7 @@ export const subscriptionChangeImmediateWithTax: SubscriptionChangeCheckoutStart
   {
     operation_session_id: "rcbopsess_story_immediate_tax",
     change_type: "immediate",
+    checkout_mode: "subscription_change",
     from_product: subscriptionChangeFromProduct,
     to_product: subscriptionChangeToProduct,
     price_breakdown: immediatePriceBreakdownWithTax,
@@ -856,6 +857,7 @@ export const subscriptionChangeImmediateMinimal: SubscriptionChangeCheckoutStart
   {
     operation_session_id: "rcbopsess_story_immediate_minimal",
     change_type: "immediate",
+    checkout_mode: "subscription_change",
     from_product: {
       ...subscriptionChangeFromProduct,
       display_name: null,
@@ -876,6 +878,7 @@ export const subscriptionChangeDeferredWithTax: SubscriptionChangeCheckoutStartR
   {
     operation_session_id: "rcbopsess_story_deferred_tax",
     change_type: "deferred",
+    checkout_mode: "subscription_change",
     from_product: subscriptionChangeToProduct,
     to_product: subscriptionChangeFromProduct,
     price_breakdown: null,

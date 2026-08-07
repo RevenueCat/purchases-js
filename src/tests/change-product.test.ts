@@ -11,7 +11,12 @@ import { expectPromiseToError } from "./test-helpers";
 import { Backend } from "../networking/backend";
 import { Purchases } from "../main";
 import { defaultHttpConfig } from "../entities/http-config";
-import { ProductChangeOperationHelper } from "../helpers/product-change-operation-helper";
+import {
+  PurchaseFlowError,
+  PurchaseFlowErrorCode,
+  PurchaseOperationHelper,
+} from "../helpers/purchase-operation-helper";
+import type { IEventsTracker } from "../behavioural-events/events-tracker";
 import { subscriptionChangeImmediateWithTax } from "../stories/fixtures";
 import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
 
@@ -19,6 +24,19 @@ const SUBSCRIBER_TOKEN_1 = "eyJhbGciOiJSUzI1NiJ9.subscriber.token.1";
 const SUBSCRIBER_TOKEN_2 = "eyJhbGciOiJSUzI1NiJ9.subscriber.token.2";
 const FROM_PRODUCT_IDENTIFIER = "premium_monthly";
 const packageToBuy = createMonthlyPackageMock();
+
+const purchaseModeStartResponse = {
+  operation_session_id: "rcbopsess_purchase_mode",
+  gateway_params: {
+    publishable_api_key: "pk_test",
+    stripe_account_id: "acct_test",
+    elements_configuration: null,
+  },
+  stripe_billing_params: null,
+  management_url: "https://example.com/manage",
+  paddle_billing_params: null,
+  checkout_mode: "purchase" as const,
+};
 
 function expectStartCalledWith(
   startSpy: ReturnType<typeof vi.spyOn>,
@@ -31,10 +49,12 @@ function expectStartCalledWith(
   expect(startSpy).toHaveBeenCalledWith(
     expect.objectContaining({
       productId: packageToBuy.webBillingProduct.identifier,
-      subscriptionId: expected.subscriptionId,
-      productIdentifier: expected.productIdentifier,
-      subscriberToken: expected.subscriberToken,
       purchaseOption: packageToBuy.webBillingProduct.defaultPurchaseOption,
+      productChange: {
+        subscriptionId: expected.subscriptionId,
+        productIdentifier: expected.productIdentifier,
+      },
+      subscriberToken: expected.subscriberToken,
     }),
   );
 }
@@ -66,11 +86,8 @@ describe("Purchases.purchase productChangeInfo", () => {
     const purchases = configurePurchases();
 
     const startSpy = vi
-      .spyOn(ProductChangeOperationHelper.prototype, "start")
-      .mockResolvedValue({
-        mode: "subscription_change",
-        response: subscriptionChangeImmediateWithTax,
-      });
+      .spyOn(PurchaseOperationHelper.prototype, "checkoutStart")
+      .mockResolvedValue(subscriptionChangeImmediateWithTax);
 
     void purchases.purchase({
       rcPackage: packageToBuy,
@@ -86,30 +103,29 @@ describe("Purchases.purchase productChangeInfo", () => {
     });
   });
 
-  test("falls back to normal purchase when subscriberToken is missing", async () => {
+  test("starts a normal purchase without product change when subscriberToken is missing", async () => {
     const purchases = configurePurchases();
-    const startSpy = vi.spyOn(ProductChangeOperationHelper.prototype, "start");
-    const webBillingSpy = vi
-      .spyOn(
-        purchases as unknown as {
-          performWebBillingPurchase: (params: unknown) => Promise<unknown>;
-        },
-        "performWebBillingPurchase",
-      )
-      .mockResolvedValue({
-        customerInfo: {},
-        redemptionInfo: null,
-      });
 
-    await purchases.purchase({
+    const startSpy = vi
+      .spyOn(PurchaseOperationHelper.prototype, "checkoutStart")
+      .mockResolvedValue(purchaseModeStartResponse);
+
+    void purchases.purchase({
       rcPackage: packageToBuy,
       productChangeInfo: {
         subscriptionId: "subabc123",
       },
     });
 
-    expect(startSpy).not.toHaveBeenCalled();
-    expect(webBillingSpy).toHaveBeenCalled();
+    await vi.waitFor(() => {
+      expect(startSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          productId: packageToBuy.webBillingProduct.identifier,
+          productChange: undefined,
+          subscriberToken: undefined,
+        }),
+      );
+    });
   });
 
   test("uses subscriberToken from configure when productChangeInfo omits it", async () => {
@@ -125,11 +141,8 @@ describe("Purchases.purchase productChangeInfo", () => {
     });
 
     const startSpy = vi
-      .spyOn(ProductChangeOperationHelper.prototype, "start")
-      .mockResolvedValue({
-        mode: "subscription_change",
-        response: subscriptionChangeImmediateWithTax,
-      });
+      .spyOn(PurchaseOperationHelper.prototype, "checkoutStart")
+      .mockResolvedValue(subscriptionChangeImmediateWithTax);
 
     void purchases.purchase({
       rcPackage: packageToBuy,
@@ -146,15 +159,12 @@ describe("Purchases.purchase productChangeInfo", () => {
     });
   });
 
-  test("passes productIdentifier through to start", async () => {
+  test("passes productIdentifier through to checkout start", async () => {
     const purchases = configurePurchases();
 
     const startSpy = vi
-      .spyOn(ProductChangeOperationHelper.prototype, "start")
-      .mockResolvedValue({
-        mode: "subscription_change",
-        response: subscriptionChangeImmediateWithTax,
-      });
+      .spyOn(PurchaseOperationHelper.prototype, "checkoutStart")
+      .mockResolvedValue(subscriptionChangeImmediateWithTax);
 
     void purchases.purchase({
       rcPackage: packageToBuy,
@@ -172,15 +182,12 @@ describe("Purchases.purchase productChangeInfo", () => {
     });
   });
 
-  test("passes both subscriptionId and productIdentifier through to start", async () => {
+  test("passes both subscriptionId and productIdentifier through to checkout start", async () => {
     const purchases = configurePurchases();
 
     const startSpy = vi
-      .spyOn(ProductChangeOperationHelper.prototype, "start")
-      .mockResolvedValue({
-        mode: "subscription_change",
-        response: subscriptionChangeImmediateWithTax,
-      });
+      .spyOn(PurchaseOperationHelper.prototype, "checkoutStart")
+      .mockResolvedValue(subscriptionChangeImmediateWithTax);
 
     void purchases.purchase({
       rcPackage: packageToBuy,
@@ -213,11 +220,8 @@ describe("Purchases.purchase productChangeInfo", () => {
     });
 
     const startSpy = vi
-      .spyOn(ProductChangeOperationHelper.prototype, "start")
-      .mockResolvedValue({
-        mode: "subscription_change",
-        response: subscriptionChangeImmediateWithTax,
-      });
+      .spyOn(PurchaseOperationHelper.prototype, "checkoutStart")
+      .mockResolvedValue(subscriptionChangeImmediateWithTax);
 
     void purchases.purchase({
       rcPackage: packageToBuy,
@@ -238,11 +242,8 @@ describe("Purchases.purchase productChangeInfo", () => {
   test("product-change start forwards full purchase attribution fields", async () => {
     const purchases = configurePurchases();
     const startSpy = vi
-      .spyOn(ProductChangeOperationHelper.prototype, "start")
-      .mockResolvedValue({
-        mode: "subscription_change",
-        response: subscriptionChangeImmediateWithTax,
-      });
+      .spyOn(PurchaseOperationHelper.prototype, "checkoutStart")
+      .mockResolvedValue(subscriptionChangeImmediateWithTax);
 
     void purchases.purchase({
       rcPackage: packageToBuy,
@@ -265,7 +266,10 @@ describe("Purchases.purchase productChangeInfo", () => {
     await vi.waitFor(() => {
       expect(startSpy).toHaveBeenCalledWith(
         expect.objectContaining({
-          subscriptionId: "subabc123",
+          productChange: {
+            subscriptionId: "subabc123",
+            productIdentifier: undefined,
+          },
           subscriberToken: SUBSCRIBER_TOKEN_1,
           customerEmail: "buyer@example.com",
           paywallId: "pw_123",
@@ -282,59 +286,43 @@ describe("Purchases.purchase productChangeInfo", () => {
     });
   });
 
-  test("reuses fallthrough purchase session instead of starting again", async () => {
+  test("continues as a normal purchase in the same session when backend starts a purchase checkout", async () => {
     const purchases = configurePurchases();
-    const purchaseStartResponse = {
-      operation_session_id: "rcbopsess_fallthrough",
-      gateway_params: {
-        publishable_api_key: "pk_test",
-        stripe_account_id: "acct_test",
-        elements_configuration: null,
-      },
-      stripe_billing_params: null,
-      management_url: "https://example.com/manage",
-      paddle_billing_params: null,
-      checkout_mode: "purchase" as const,
-    };
 
-    vi.spyOn(ProductChangeOperationHelper.prototype, "start").mockResolvedValue(
-      {
-        mode: "purchase",
-        response: purchaseStartResponse,
-      },
-    );
+    let startCallCount = 0;
+    let requestBody: {
+      product_change?: {
+        subscription_id?: string;
+        from_product_id?: string;
+      };
+    } = {};
 
-    const postCheckoutStartSpy = vi.spyOn(
-      Backend.prototype,
-      "postCheckoutStart",
-    );
-    const webBillingSpy = vi
-      .spyOn(
-        purchases as unknown as {
-          performWebBillingPurchase: (
-            params: unknown,
-            startedCheckout?: unknown,
-          ) => Promise<unknown>;
+    server.use(
+      http.post(
+        "http://localhost:8000/rcbilling/v1/checkout/start",
+        async ({ request }) => {
+          startCallCount += 1;
+          requestBody = (await request.json()) as typeof requestBody;
+          return HttpResponse.json(purchaseModeStartResponse, { status: 201 });
         },
-        "performWebBillingPurchase",
-      )
-      .mockResolvedValue({
-        customerInfo: {},
-        redemptionInfo: null,
-      });
+      ),
+    );
 
-    await purchases.purchase({
+    void purchases.purchase({
       rcPackage: packageToBuy,
       productChangeInfo: {
         subscriberToken: SUBSCRIBER_TOKEN_1,
       },
     });
 
-    expect(webBillingSpy).toHaveBeenCalledWith(expect.anything(), {
-      initialCheckoutStartResponse: purchaseStartResponse,
-      skipHistoryPush: true,
+    await vi.waitFor(() => {
+      expect(startCallCount).toBe(1);
     });
-    expect(postCheckoutStartSpy).not.toHaveBeenCalled();
+    expect(requestBody.product_change).toEqual({});
+
+    // The session created by /checkout/start is reused; no second start call.
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(startCallCount).toBe(1);
   });
 });
 
@@ -389,6 +377,16 @@ describe("product change checkout networking", () => {
     targetingContext: null,
     placementIdentifier: null,
   };
+
+  const eventsTrackerMock = {
+    getTraceId: () => "trace-abc",
+    updateUser: () => Promise.resolve(),
+    trackSDKEvent: () => {},
+    trackExternalEvent: () => {},
+    trackPaywallEvent: () => {},
+    dispose: () => {},
+    flushAllEvents: () => Promise.resolve(),
+  } as unknown as IEventsTracker;
 
   test("unified start sends product_change with subscription_id only", async () => {
     let requestBody: {
@@ -496,7 +494,7 @@ describe("product change checkout networking", () => {
     expect(requestBody.product_change).toEqual({});
   });
 
-  test("product-change helper start includes purchase attribution fields", async () => {
+  test("helper checkoutStart includes purchase attribution fields alongside product_change", async () => {
     let requestBody: {
       product_change?: { subscription_id?: string };
       paywall?: { paywall_id?: string; paywall_session_id?: string };
@@ -518,22 +516,13 @@ describe("product change checkout networking", () => {
       ),
     );
 
-    const eventsTrackerMock = {
-      getTraceId: () => "trace-abc",
-      updateUser: () => Promise.resolve(),
-      trackSDKEvent: () => {},
-      trackExternalEvent: () => {},
-      trackPaywallEvent: () => {},
-      dispose: () => {},
-      flushAllEvents: () => Promise.resolve(),
-    };
-    const helper = new ProductChangeOperationHelper(backend, eventsTrackerMock);
-    await helper.start({
+    const helper = new PurchaseOperationHelper(backend, eventsTrackerMock);
+    await helper.checkoutStart({
       appUserId: testUserId,
       productId: "annual",
       purchaseOption,
       presentedOfferingContext,
-      subscriptionId: "subabc123",
+      productChange: { subscriptionId: "subabc123" },
       subscriberToken: SUBSCRIBER_TOKEN_1,
       customerEmail: "buyer@example.com",
       paywallId: "pw_123",
@@ -559,7 +548,7 @@ describe("product change checkout networking", () => {
     });
   });
 
-  test("confirm posts to unified checkout complete endpoint", async () => {
+  test("complete with subscriber token posts to unified checkout complete endpoint", async () => {
     let authHeader: string | null = null;
     let subscriberTokenHeader: string | null = null;
     server.use(
@@ -581,13 +570,65 @@ describe("product change checkout networking", () => {
       ),
     );
 
-    const response = await backend.postCheckoutConfirm(
-      "rcbopsess_start",
-      SUBSCRIBER_TOKEN_1,
-    );
+    const response = await backend.postCheckoutComplete("rcbopsess_start", {
+      subscriberToken: SUBSCRIBER_TOKEN_1,
+    });
 
     expect(authHeader).toBe("Bearer rcb_test_api_key");
     expect(subscriberTokenHeader).toBe(SUBSCRIBER_TOKEN_1);
     expect(response.new_product_id).toBe("annual");
+  });
+
+  test("helper checkoutComplete maps the subscription-change response after a start", async () => {
+    server.use(
+      http.post("http://localhost:8000/rcbilling/v1/checkout/start", async () =>
+        HttpResponse.json(startSuccessResponse, { status: 201 }),
+      ),
+      http.post(
+        "http://localhost:8000/rcbilling/v1/checkout/rcbopsess_start/complete",
+        async () =>
+          HttpResponse.json(
+            {
+              operation_session_id: "rcbopsess_start",
+              change_type: "immediate",
+              new_product_id: "annual",
+              checkout_mode: "subscription_change",
+            },
+            { status: 200 },
+          ),
+      ),
+    );
+
+    const helper = new PurchaseOperationHelper(backend, eventsTrackerMock);
+    await helper.checkoutStart({
+      appUserId: testUserId,
+      productId: "annual",
+      purchaseOption,
+      presentedOfferingContext,
+      productChange: { subscriptionId: "subabc123" },
+      subscriberToken: SUBSCRIBER_TOKEN_1,
+    });
+
+    const result = await helper.checkoutComplete({
+      subscriberToken: SUBSCRIBER_TOKEN_1,
+    });
+    expect(result).toEqual({
+      operationSessionId: "rcbopsess_start",
+      changeType: "immediate",
+      newProductId: "annual",
+    });
+  });
+
+  test("helper checkoutComplete with subscriber token throws when no session was started", async () => {
+    const helper = new PurchaseOperationHelper(backend, eventsTrackerMock);
+
+    await expect(
+      helper.checkoutComplete({ subscriberToken: SUBSCRIBER_TOKEN_1 }),
+    ).rejects.toThrow(
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "No product change checkout session to complete.",
+      ),
+    );
   });
 });

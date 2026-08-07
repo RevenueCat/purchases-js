@@ -7,7 +7,6 @@ import type {
 import PurchasesUi from "./ui/purchases-ui.svelte";
 import PaddlePurchasesUi from "./ui/paddle-purchases-ui.svelte";
 import StripeCheckoutPurchasesUi from "./ui/stripe-checkout-purchases-ui.svelte";
-import UpgradeCheckoutUi from "./ui/upgrade-checkout-ui.svelte";
 
 import { type CustomerInfo, toCustomerInfo } from "./entities/customer-info";
 import {
@@ -35,8 +34,6 @@ import {
   type PurchaseFlowError,
   PurchaseOperationHelper,
 } from "./helpers/purchase-operation-helper";
-import { ProductChangeOperationHelper } from "./helpers/product-change-operation-helper";
-import { type WebBillingCheckoutStartResponse } from "./networking/responses/checkout-start-response";
 import { PaddleService } from "./paddle/paddle-service";
 import { type LogHandler, type LogLevel } from "./entities/logging";
 import { Logger } from "./helpers/logger";
@@ -53,7 +50,7 @@ import {
   type GetOfferingsParams,
   OfferingKeyword,
 } from "./entities/get-offerings-params";
-import { validateCurrency, validateEmail } from "./helpers/validators";
+import { validateCurrency } from "./helpers/validators";
 import { type BrandingInfoResponse } from "./networking/responses/branding-response";
 import { requiresLoadedResources } from "./helpers/decorators";
 import { resolveTermsAndConditionsUrl } from "./helpers/checkout-consent-helper";
@@ -166,11 +163,6 @@ type UIComponentInteractionFields = UIComponentInteractionData & {
   currentProductId?: string;
   resultingProductId?: string;
 };
-
-interface StartedCheckoutSession {
-  initialCheckoutStartResponse?: WebBillingCheckoutStartResponse;
-  skipHistoryPush?: boolean;
-}
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -1562,10 +1554,9 @@ export class Purchases {
    * provided, or as a modal if not.
    *
    * When {@link PurchaseParams.productChangeInfo} is set with a subscriber token,
-   * asks the backend to start checkout with a product-change option. If that
-   * returns a subscription-change session, presents upgrade-mode checkout;
-   * otherwise continues as a normal purchase (reusing the session already
-   * created by `/checkout/start`).
+   * checkout starts in product-change mode: if the backend can change the
+   * existing subscription, an upgrade-confirm page is shown; otherwise the
+   * same checkout session continues as a normal purchase.
    *
    * @param params - The parameters object to customise the purchase flow. Check {@link PurchaseParams}
    * @returns a Promise for the customer and redemption info after the purchase is completed successfully.
@@ -1573,25 +1564,6 @@ export class Purchases {
    */
   @requiresLoadedResources
   public async purchase(params: PurchaseParams): Promise<PurchaseResult> {
-    const subscriberToken =
-      params.productChangeInfo?.subscriberToken ??
-      this._subscriberToken ??
-      undefined;
-    if (
-      params.productChangeInfo &&
-      subscriberToken &&
-      isWebBillingApiKey(this._API_KEY)
-    ) {
-      return await this.performProductChangePurchase(params, subscriberToken);
-    }
-
-    return await this.performPurchaseForStore(params);
-  }
-
-  private async performPurchaseForStore(
-    params: PurchaseParams,
-    startedCheckout?: StartedCheckoutSession,
-  ): Promise<PurchaseResult> {
     if (isSimulatedStoreApiKey(this._API_KEY)) {
       const purchaseResult = await purchaseSimulatedStoreProduct(
         params,
@@ -1612,7 +1584,7 @@ export class Purchases {
       return await this.performStripePurchase(params);
     }
 
-    return await this.performWebBillingPurchase(params, startedCheckout);
+    return await this.performWebBillingPurchase(params);
   }
 
   private async performStripePurchase(
@@ -1732,10 +1704,8 @@ export class Purchases {
 
   private async performWebBillingPurchase(
     params: PurchaseParams,
-    startedCheckout?: StartedCheckoutSession,
   ): Promise<PurchaseResult> {
-    const initialCheckoutStartResponse =
-      startedCheckout?.initialCheckoutStartResponse;
+    const productChange = this.resolveProductChange(params);
     const {
       rcPackage,
       purchaseOption,
@@ -1794,7 +1764,7 @@ export class Purchases {
 
     return new Promise((resolve, reject) => {
       const win = getWindow();
-      if (!isInElement && !startedCheckout?.skipHistoryPush) {
+      if (!isInElement) {
         win.history.pushState({ checkoutOpen: true }, "");
       }
 
@@ -1821,6 +1791,29 @@ export class Purchases {
         unmountPurchaseUi,
       );
 
+      const onProductChangeFinished = async (result: ProductChangeResult) => {
+        this.inMemoryCache.invalidateAllCaches();
+        unmountPurchaseUi();
+        try {
+          const customerInfo = await this.getCustomerInfo();
+          resolve({
+            customerInfo,
+            redemptionInfo: null,
+            operationSessionId: result.operationSessionId,
+            storeTransaction: {
+              storeTransactionId: result.operationSessionId,
+              productIdentifier: result.newProductId,
+              purchaseDate: new Date(),
+            },
+            productChange: {
+              changeType: result.changeType,
+            },
+          });
+        } catch (error) {
+          reject(error);
+        }
+      };
+
       const onError = this.createCheckoutOnErrorHandler(
         reject,
         unmountPurchaseUi,
@@ -1838,14 +1831,15 @@ export class Purchases {
           attributionMetadata,
           paywallId: params.paywallId,
           paywallSessionId: params.paywallSessionId,
+          productChange,
           onFinished,
+          onProductChangeFinished,
           onClose,
           onError,
           purchases: this,
           eventsTracker: this.eventsTracker,
           brandingInfo: this._brandingInfo,
           purchaseOperationHelper: this.purchaseOperationHelper,
-          initialCheckoutStartResponse,
           selectedLocale: localeToBeUsed,
           metadata: metadata,
           defaultLocale,
@@ -2216,147 +2210,36 @@ export class Purchases {
     };
   }
 
-  private async performProductChangePurchase(
-    params: PurchaseParams,
-    subscriberToken: string,
-  ): Promise<PurchaseResult> {
+  /**
+   * Resolves {@link PurchaseParams.productChangeInfo} into the product-change
+   * context passed to the checkout UI, or undefined when the purchase should
+   * proceed as a normal purchase (no info, no token, or non-Web Billing key).
+   */
+  private resolveProductChange(params: PurchaseParams):
+    | {
+        subscriptionId?: string;
+        productIdentifier?: string;
+        subscriberToken: string;
+      }
+    | undefined {
     const productChangeInfo = params.productChangeInfo;
-    if (!productChangeInfo) {
-      throw new PurchasesError(
-        ErrorCode.PurchaseInvalidError,
-        "productChangeInfo is required.",
-      );
+    if (!productChangeInfo || !isWebBillingApiKey(this._API_KEY)) {
+      return undefined;
+    }
+
+    const subscriberToken =
+      productChangeInfo.subscriberToken ?? this._subscriberToken ?? undefined;
+    if (!subscriberToken) {
+      return undefined;
     }
 
     this.validateSubscriberToken(subscriberToken);
 
-    const {
-      rcPackage,
-      purchaseOption,
-      htmlTarget,
-      customerEmail,
-      workflowPurchaseContext,
-      attributionMetadata,
-      paywallId,
-      paywallSessionId,
-      selectedLocale = englishLocale,
-      defaultLocale = englishLocale,
-    } = params;
-    const purchaseOptionToUse =
-      purchaseOption ?? rcPackage.webBillingProduct.defaultPurchaseOption;
-    const localeToBeUsed = selectedLocale || defaultLocale;
-    const utmParamsMetadata = this._flags.autoCollectUTMAsMetadata
-      ? autoParseUTMParams()
-      : {};
-    const metadata = { ...utmParamsMetadata, ...(params.metadata || {}) };
-    const emailError = customerEmail ? validateEmail(customerEmail) : null;
-    const validatedEmail = emailError ? undefined : customerEmail;
-
-    const productChangeOperationHelper = new ProductChangeOperationHelper(
-      this.backend,
-      this.eventsTracker,
-    );
-
-    const startCheckout = (email: string | undefined) =>
-      productChangeOperationHelper.start({
-        appUserId: this._appUserId,
-        productId: rcPackage.webBillingProduct.identifier,
-        purchaseOption: purchaseOptionToUse,
-        presentedOfferingContext:
-          rcPackage.webBillingProduct.presentedOfferingContext,
-        subscriptionId: productChangeInfo.subscriptionId || undefined,
-        productIdentifier: productChangeInfo.productIdentifier || undefined,
-        subscriberToken,
-        customerEmail: email,
-        workflowPurchaseContext,
-        paywallId,
-        paywallSessionId,
-        metadata,
-        locale: localeToBeUsed,
-        attributionMetadata,
-      });
-
-    const certainHTMLTarget = this.resolveHTMLTarget(htmlTarget);
-    const isInElement = htmlTarget !== undefined;
-
-    let component: ReturnType<typeof mount> | null = null;
-
-    return new Promise((resolve, reject) => {
-      const win = getWindow();
-      if (!isInElement) {
-        win.history.pushState({ checkoutOpen: true }, "");
-      }
-
-      const unmountUi = () => {
-        if (component) {
-          unmount(component);
-        }
-        certainHTMLTarget.innerHTML = "";
-      };
-
-      const onClose = this.createCheckoutOnCloseHandler(reject, unmountUi);
-
-      if (!isInElement && onClose) {
-        win.addEventListener("popstate", onClose as EventListener);
-      }
-
-      const onFinished = async (result: ProductChangeResult) => {
-        this.inMemoryCache.invalidateAllCaches();
-        unmountUi();
-        try {
-          const customerInfo = await this.getCustomerInfo();
-          resolve({
-            customerInfo,
-            redemptionInfo: null,
-            operationSessionId: result.operationSessionId,
-            storeTransaction: {
-              storeTransactionId: result.operationSessionId,
-              productIdentifier: result.newProductId,
-              purchaseDate: new Date(),
-            },
-            productChange: {
-              changeType: result.changeType,
-            },
-          });
-        } catch (error) {
-          reject(error);
-        }
-      };
-
-      const onError = this.createCheckoutOnErrorHandler(reject, unmountUi);
-
-      const onFallthrough = (
-        initialCheckoutStartResponse?: WebBillingCheckoutStartResponse,
-      ) => {
-        if (!isInElement && onClose) {
-          win.removeEventListener("popstate", onClose as EventListener);
-        }
-        unmountUi();
-        this.performPurchaseForStore(params, {
-          initialCheckoutStartResponse,
-          skipHistoryPush: true,
-        }).then(resolve, reject);
-      };
-
-      component = mount(UpgradeCheckoutUi, {
-        target: certainHTMLTarget,
-        props: {
-          subscriberToken,
-          customerEmail: validatedEmail,
-          rcPackage,
-          purchaseOption: purchaseOptionToUse,
-          brandingInfo: this._brandingInfo,
-          isInElement,
-          isSandbox: this.isSandbox(),
-          productChangeOperationHelper,
-          startCheckout,
-          onFallthrough,
-          onFinished,
-          onClose,
-          onError,
-        },
-      });
-    });
+    return {
+      subscriptionId: productChangeInfo.subscriptionId || undefined,
+      productIdentifier: productChangeInfo.productIdentifier || undefined,
+      subscriberToken,
+    };
   }
 
   /**

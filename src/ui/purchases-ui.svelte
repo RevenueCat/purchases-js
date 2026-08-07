@@ -39,7 +39,11 @@
     type CheckoutPricingResponse,
     createPriceBreakdownFromCheckoutPricingResponse,
   } from "../networking/responses/checkout-pricing-response";
-  import type { WebBillingCheckoutStartResponse } from "../networking/responses/checkout-start-response";
+  import {
+    isSubscriptionChangeCheckoutStartResponse,
+    type SubscriptionChangeCheckoutStartResponse,
+  } from "../networking/responses/subscription-change-response";
+  import type { ProductChangeResult } from "../entities/product-change-params";
   import { validateEmail } from "../helpers/validators";
   import type { PriceBreakdown, TaxCalculationStatus } from "./ui-types";
   import { getActiveCheckoutPurchaseOption } from "../helpers/checkout-session-purchase-option-helper";
@@ -54,7 +58,6 @@
     purchases: Purchases;
     eventsTracker: IEventsTracker;
     purchaseOperationHelper: PurchaseOperationHelper;
-    initialCheckoutStartResponse?: WebBillingCheckoutStartResponse;
     selectedLocale: string;
     defaultLocale: string;
     customTranslations?: CustomTranslations;
@@ -68,7 +71,18 @@
     attributionMetadata?: AttributionMetadata;
     paywallId?: string;
     paywallSessionId?: string;
+    /**
+     * When set, checkout starts in product-change mode: the backend is asked
+     * to change the given subscription to the purchased product. If the
+     * change is not possible, the session continues as a normal purchase.
+     */
+    productChange?: {
+      subscriptionId?: string;
+      productIdentifier?: string;
+      subscriberToken: string;
+    };
     onFinished: (operationResult: OperationSessionSuccessfulResult) => void;
+    onProductChangeFinished?: (result: ProductChangeResult) => void;
     onError: (error: PurchaseFlowError) => void;
     onClose: (() => void) | undefined;
     hideBackButton?: boolean;
@@ -84,7 +98,6 @@
     purchases,
     eventsTracker,
     purchaseOperationHelper,
-    initialCheckoutStartResponse,
     selectedLocale,
     defaultLocale,
     customTranslations = {},
@@ -98,7 +111,9 @@
     attributionMetadata,
     paywallId,
     paywallSessionId,
+    productChange = undefined,
     onFinished,
+    onProductChangeFinished = undefined,
     onError,
     onClose,
     hideBackButton = false,
@@ -203,9 +218,10 @@
       : false,
   );
 
-  let unusedInitialCheckoutStartResponse:
-    | WebBillingCheckoutStartResponse
-    | undefined = initialCheckoutStartResponse;
+  let subscriptionChangeStartData =
+    $state<SubscriptionChangeCheckoutStartResponse | null>(null);
+  let isConfirmingProductChange = $state(false);
+  let productChangeConfirmError = $state<string | null>(null);
 
   const startCheckout = (
     nextProductDetails: Product,
@@ -222,15 +238,6 @@
       );
     }
 
-    if (unusedInitialCheckoutStartResponse) {
-      const result = unusedInitialCheckoutStartResponse;
-      unusedInitialCheckoutStartResponse = undefined;
-      purchaseOperationHelper.setOperationSessionId(
-        result.operation_session_id,
-      );
-      return Promise.resolve({ result, emailToUse: nextEmail });
-    }
-
     return purchaseOperationHelper
       .checkoutStart({
         appUserId,
@@ -244,6 +251,13 @@
         paywallId,
         paywallSessionId,
         locale: selectedLocale,
+        productChange: productChange
+          ? {
+              subscriptionId: productChange.subscriptionId,
+              productIdentifier: productChange.productIdentifier,
+            }
+          : undefined,
+        subscriberToken: productChange?.subscriberToken,
       })
       .then((result) => ({ result, emailToUse: nextEmail }))
       .catch((e: PurchaseFlowError) => {
@@ -265,9 +279,42 @@
             paywallId,
             paywallSessionId,
             locale: selectedLocale,
+            productChange: productChange
+              ? {
+                  subscriptionId: productChange.subscriptionId,
+                  productIdentifier: productChange.productIdentifier,
+                }
+              : undefined,
+            subscriberToken: productChange?.subscriberToken,
           })
           .then((result) => ({ result, emailToUse: undefined }));
       });
+  };
+
+  const handleConfirmProductChange = async () => {
+    if (!productChange || isConfirmingProductChange) {
+      return;
+    }
+    isConfirmingProductChange = true;
+    productChangeConfirmError = null;
+    try {
+      const result = await purchaseOperationHelper.checkoutComplete({
+        subscriberToken: productChange.subscriberToken,
+      });
+      onProductChangeFinished?.(result);
+    } catch (e) {
+      const error =
+        e instanceof PurchaseFlowError
+          ? e
+          : new PurchaseFlowError(
+              PurchaseFlowErrorCode.ErrorChargingPayment,
+              "Failed to confirm product change.",
+              e instanceof Error ? e.message : String(e),
+            );
+      productChangeConfirmError = error.message;
+    } finally {
+      isConfirmingProductChange = false;
+    }
   };
 
   const getTaxCalculationStatusForPricingResponse = (
@@ -331,6 +378,13 @@
       );
       lastError = null;
       email = emailToUse;
+
+      if (isSubscriptionChangeCheckoutStartResponse(result)) {
+        subscriptionChangeStartData = result;
+        currentPage = "upgrade-confirm";
+        return;
+      }
+
       initialGatewayParams = result.gateway_params;
       managementUrl = result.management_url;
 
@@ -509,4 +563,8 @@
   {onClose}
   {hideBackButton}
   {lastTaxCustomerDetailsStore}
+  {subscriptionChangeStartData}
+  {isConfirmingProductChange}
+  {productChangeConfirmError}
+  onConfirmProductChange={handleConfirmProductChange}
 />

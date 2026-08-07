@@ -1321,7 +1321,7 @@ describe("postCheckoutComplete request", () => {
 
     const result = await backend.postCheckoutComplete(
       "someOperationSessionId",
-      "testemail@revenuecat.com",
+      { email: "testemail@revenuecat.com" },
     );
 
     expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
@@ -1342,11 +1342,9 @@ describe("postCheckoutComplete request", () => {
       HttpResponse.json(checkoutCompleteResponse, { status: 200 }),
     );
 
-    await backend.postCheckoutComplete(
-      "someOperationSessionId",
-      undefined,
-      "es",
-    );
+    await backend.postCheckoutComplete("someOperationSessionId", {
+      locale: "es",
+    });
 
     expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
     const request = purchaseMethodAPIMock.mock.calls[0][0].request;

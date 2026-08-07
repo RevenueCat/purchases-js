@@ -40,9 +40,3 @@ export interface PaddleCheckoutStartResponse {
 export type CheckoutStartResponse =
   | WebBillingCheckoutStartResponse
   | PaddleCheckoutStartResponse;
-
-export function isWebBillingCheckoutStartResponse(
-  response: CheckoutStartResponse,
-): response is WebBillingCheckoutStartResponse {
-  return response.gateway_params != null;
-}

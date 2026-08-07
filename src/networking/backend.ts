@@ -22,7 +22,10 @@ import type { CheckoutStartResponse } from "./responses/checkout-start-response"
 import { type ProductsResponse } from "./responses/products-response";
 import { type BrandingInfoResponse } from "./responses/branding-response";
 import { type CheckoutStatusResponse } from "./responses/checkout-status-response";
-import type { SubscriptionChangeConfirmResponse } from "./responses/subscription-change-response";
+import type {
+  SubscriptionChangeCheckoutStartResponse,
+  SubscriptionChangeCompleteResponse,
+} from "./responses/subscription-change-response";
 import { type VirtualCurrenciesResponse } from "./responses/virtual-currencies-response";
 import type {
   WorkflowDataAction,
@@ -274,7 +277,9 @@ export class Backend {
   }
 
   async postCheckoutStart<
-    T extends CheckoutStartResponse = CheckoutStartResponse,
+    T extends
+      | CheckoutStartResponse
+      | SubscriptionChangeCheckoutStartResponse = CheckoutStartResponse,
   >({
     appUserId,
     productId,
@@ -452,28 +457,42 @@ export class Backend {
 
   async postCheckoutComplete(
     operationSessionId: string,
-    email?: string,
-    locale?: string,
-  ): Promise<CheckoutCompleteResponse> {
+    options: { subscriberToken: string; email?: string; locale?: string },
+  ): Promise<SubscriptionChangeCompleteResponse>;
+  async postCheckoutComplete(
+    operationSessionId: string,
+    options?: { email?: string; locale?: string },
+  ): Promise<CheckoutCompleteResponse>;
+  async postCheckoutComplete(
+    operationSessionId: string,
+    options: {
+      email?: string;
+      locale?: string;
+      subscriberToken?: string;
+    } = {},
+  ): Promise<CheckoutCompleteResponse | SubscriptionChangeCompleteResponse> {
     type CheckoutCompleteRequestBody = {
       email?: string;
       locale?: string;
     };
 
-    const requestBody: CheckoutCompleteRequestBody = {
-      email: email,
-    };
-
-    if (locale) {
-      requestBody.locale = locale;
+    const requestBody: CheckoutCompleteRequestBody = {};
+    if (options.email) {
+      requestBody.email = options.email;
+    }
+    if (options.locale) {
+      requestBody.locale = options.locale;
     }
 
     return await performRequest<
       CheckoutCompleteRequestBody,
-      CheckoutCompleteResponse
+      CheckoutCompleteResponse | SubscriptionChangeCompleteResponse
     >(new CheckoutCompleteEndpoint(operationSessionId), {
       apiKey: this.API_KEY,
       body: requestBody,
+      headers: options.subscriberToken
+        ? { "X-RC-Subscriber-Token": options.subscriberToken }
+        : undefined,
       httpConfig: this.httpConfig,
     });
   }
@@ -485,20 +504,6 @@ export class Backend {
       new GetCheckoutStatusEndpoint(operationSessionId),
       {
         apiKey: this.API_KEY,
-        httpConfig: this.httpConfig,
-      },
-    );
-  }
-
-  async postCheckoutConfirm(
-    operationSessionId: string,
-    subscriberToken: string,
-  ): Promise<SubscriptionChangeConfirmResponse> {
-    return await performRequest<undefined, SubscriptionChangeConfirmResponse>(
-      new CheckoutCompleteEndpoint(operationSessionId),
-      {
-        apiKey: this.API_KEY,
-        headers: { "X-RC-Subscriber-Token": subscriberToken },
         httpConfig: this.httpConfig,
       },
     );

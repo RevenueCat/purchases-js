@@ -733,10 +733,10 @@
 
   // Helper function to complete the checkout
   async function completeCheckout(): Promise<void> {
-    const completeResponse = await purchaseOperationHelper.checkoutComplete(
+    const completeResponse = await purchaseOperationHelper.checkoutComplete({
       email,
-      $translator.selectedLocale,
-    );
+      locale: $translator.selectedLocale,
+    });
     const newClientSecret = completeResponse?.gateway_params?.client_secret;
     if (newClientSecret) clientSecret = newClientSecret;
   }
