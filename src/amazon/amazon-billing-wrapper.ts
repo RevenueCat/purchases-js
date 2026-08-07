@@ -46,10 +46,13 @@ export class AmazonBillingWrapper implements BillingWrapper {
   private async loadProductsLoader(): Promise<
     (productIds: string[]) => Promise<ProductsResponse>
   > {
+    const amazonSdkModule = "@amazon-devices/keplerscript-appstore-iap-lib";
     let amazonSdk: typeof AmazonVegaSdk;
 
     try {
-      amazonSdk = await import("@amazon-devices/keplerscript-appstore-iap-lib");
+      // Keep web bundlers from following this Vega-only dependency into its
+      // Flow-based React Native source. Vega resolves it only at runtime.
+      amazonSdk = await import(/* @vite-ignore */ amazonSdkModule);
     } catch (error) {
       throw new PurchasesError(
         ErrorCode.ConfigurationError,
