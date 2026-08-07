@@ -12,6 +12,7 @@
     subscriptionOptionWithDiscount,
     subscriptionOptionWithDiscountOneTime,
     subscriptionOptionWithDiscountForever,
+    subscriptionOptionWithSingleWeekIntroPriceRecurring,
     subscriptionOptionWithTrial,
     subscriptionOptionWithYearlyBillingAndSixMonthDiscount,
   } from "../fixtures";
@@ -36,6 +37,7 @@
   ) => ({
     priceBreakdown,
     basePhase: option.base,
+    discountPhase: option.discount,
     resolvedDiscount: resolveDiscountBreakdown({
       priceBreakdown,
       purchaseOptionDiscount: option.discount,
@@ -66,6 +68,8 @@
       priceBreakdown: getPriceBreakdownTaxDisabled(subscriptionOption),
       trialPhase: null,
       basePhase: null,
+      introPricePhase: null,
+      discountPhase: null,
       resolvedDiscount: null,
       showDiscountCodeField: false,
       appliedDiscountCode: null,
@@ -79,6 +83,29 @@
   name="Disabled Tax Trial"
   args={{
     trialPhase: subscriptionOptionWithTrial.trial,
+  }}
+/>
+<Story
+  name="Disabled Tax Intro Price"
+  args={{
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithSingleWeekIntroPriceRecurring,
+    ),
+    introPricePhase:
+      subscriptionOptionWithSingleWeekIntroPriceRecurring.introPrice,
+    basePhase: subscriptionOptionWithSingleWeekIntroPriceRecurring.base,
+  }}
+/>
+<Story
+  name="Disabled Tax Trial And Intro Price"
+  args={{
+    priceBreakdown: getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithSingleWeekIntroPriceRecurring,
+    ),
+    trialPhase: subscriptionOptionWithTrial.trial,
+    introPricePhase:
+      subscriptionOptionWithSingleWeekIntroPriceRecurring.introPrice,
+    basePhase: subscriptionOptionWithSingleWeekIntroPriceRecurring.base,
   }}
 />
 <Story

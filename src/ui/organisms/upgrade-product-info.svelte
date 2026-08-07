@@ -142,6 +142,8 @@
       {priceBreakdown}
       trialPhase={null}
       basePhase={null}
+      introPricePhase={null}
+      discountPhase={null}
       resolvedDiscount={null}
       showDiscountCodeField={false}
       discountCode=""
