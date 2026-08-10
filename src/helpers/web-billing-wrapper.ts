@@ -7,7 +7,7 @@ import type { BillingWrapper } from "./billing-wrapper";
  * Handles product fetching and purchases via RevenueCat's web billing infrastructure.
  * @internal
  */
-export class WebBillingBillingWrapper implements BillingWrapper {
+export class WebBillingWrapper implements BillingWrapper {
   constructor(private readonly backend: Backend) {}
 
   async getProducts(
