@@ -108,7 +108,7 @@ describe("AmazonBillingWrapper", () => {
         getProducts(responseForCode(ProductDataResponseCode.NOT_SUPPORTED)),
       ).rejects.toMatchObject({
         errorCode: ErrorCode.UnsupportedError,
-        message: "Couldn't fetch product data, since is is unsupported.",
+        message: "Couldn't fetch product data, since it is unsupported.",
       } satisfies Partial<PurchasesError>);
     });
 
