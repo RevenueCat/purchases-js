@@ -235,6 +235,7 @@
         transactionId: resp.paddle_billing_params?.transaction_id,
         onCheckoutLoaded,
         onClose,
+        checkoutSettings: resp.paddle_billing_params.checkout_settings,
         params: {
           rcPackage,
           purchaseOption,

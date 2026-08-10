@@ -9,6 +9,7 @@ export interface CheckoutPreparePayPalGatewayParams {
 export interface CheckoutPreparePaddleBillingParams {
   client_side_token: string;
   is_sandbox: boolean;
+  checkout_settings?: Record<string, boolean>;
 }
 
 export interface CheckoutPrepareResponse {
