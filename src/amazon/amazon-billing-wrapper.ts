@@ -87,6 +87,11 @@ export class AmazonBillingWrapper implements BillingWrapper {
             ErrorCode.StoreProblemError,
             "An error occurred when fetching product data.",
           );
+        default:
+          return new PurchasesError(
+            ErrorCode.StoreProblemError,
+            "An error occurred when fetching product data. An unrecognized ProductDataResponseCode was received.",
+          );
       }
     };
 

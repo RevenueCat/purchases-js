@@ -120,6 +120,15 @@ describe("AmazonBillingWrapper", () => {
         message: "An error occurred when fetching product data.",
       } satisfies Partial<PurchasesError>);
     });
+
+    test("maps an unrecognized response to a store problem error", async () => {
+      await expect(getProducts(responseForCode(999 as ProductDataResponseCode)))
+        .rejects.toMatchObject({
+          errorCode: ErrorCode.StoreProblemError,
+          message:
+            "An error occurred when fetching product data. An unrecognized ProductDataResponseCode was received.",
+        } satisfies Partial<PurchasesError>);
+    });
   });
 
   describe("product conversion", () => {
