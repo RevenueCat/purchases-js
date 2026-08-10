@@ -53,6 +53,14 @@ It uses a small token server to serve as a backend: it holds a **secret** API ke
 6. Pick the target package from the current offering.
 7. Click **Open upgrade checkout**. The SDK calls `/checkout/start` with a product-change hint (API key in `Authorization`, subscriber token in `X-RC-Subscriber-Token`). Returns an upgrade session when a change path exists, otherwise a normal purchase.
 
+### Upgrade from a paywall (`Purchases.presentPaywall` + `productChangeInfo`)
+
+Same token-server setup as above. Open `/upgrade-paywall/<app_user_id>` for a customer with an active Web Billing subscription and an offering that has an RC Paywall configured.
+
+1. Optionally pick a source product and/or enter a subscription public id (`sub…`)
+2. Click **Open upgrade paywall** — the SDK presents the offering paywall with `productChangeInfo`
+3. Pick a package on the paywall; checkout starts in product-change mode when a change path exists, otherwise as a normal purchase
+
 ### Payment Methods
 
 The demo supports both **Web Billing** and **Paddle** payment flows:
