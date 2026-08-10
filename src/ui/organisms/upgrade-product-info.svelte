@@ -88,6 +88,17 @@
       ? "Calculated later"
       : null,
   );
+
+  const estimatedRefundAmountInMicros = $derived(
+    startData.estimated_refund_amount_in_micros != null &&
+      startData.estimated_refund_amount_in_micros > 0
+      ? startData.estimated_refund_amount_in_micros
+      : null,
+  );
+
+  const refundCurrency = $derived(
+    startData.price_breakdown?.currency ?? startData.from_product.currency,
+  );
 </script>
 
 <div class="rcb-pricing-info">
@@ -132,6 +143,22 @@
     {pendingTaxLabel}
     {totalRowLabel}
   />
+
+  {#if estimatedRefundAmountInMicros != null}
+    <div class="rcb-estimated-refund">
+      <div class="rcb-estimated-refund-row">
+        <Typography size="body-small">
+          Estimated refund for unused time
+        </Typography>
+        <Typography size="body-small">
+          -{$translator.formatPrice(
+            estimatedRefundAmountInMicros,
+            refundCurrency,
+          )}
+        </Typography>
+      </div>
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -160,6 +187,20 @@
 
   .rcb-product-title {
     color: var(--rc-color-grey-text-dark);
+  }
+
+  .rcb-estimated-refund {
+    display: flex;
+    flex-direction: column;
+    gap: var(--rc-spacing-gapSmall-mobile);
+    color: var(--rc-color-grey-text-light);
+  }
+
+  .rcb-estimated-refund-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--rc-spacing-gapMedium-mobile);
   }
 
   @container layout-query-container (width >= 768px) {

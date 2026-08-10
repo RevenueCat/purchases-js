@@ -360,6 +360,7 @@ describe("product change checkout networking", () => {
       original_amount_in_micros: 99990000,
     },
     estimated_renewal_price: null,
+    estimated_refund_amount_in_micros: 4995000,
     email: "user@example.com",
     payment_method: {
       type: "card",

@@ -41,6 +41,11 @@ export interface SubscriptionChangeCheckoutStartResponse {
   email: string;
   payment_method: SubscriptionChangePaymentMethodSummary | null;
   billing_address: SubscriptionChangeBillingAddressSummary | null;
+  /**
+   * Estimated unused-time refund for immediate upgrades.
+   * Null when there is no refund.
+   */
+  estimated_refund_amount_in_micros?: number | null;
   checkout_mode?: "subscription_change";
 }
 
