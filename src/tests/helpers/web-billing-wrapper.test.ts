@@ -1,15 +1,15 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { WebBillingBillingWrapper } from "../../helpers/web-billing-billing-wrapper";
+import { WebBillingWrapper } from "../../helpers/web-billing-wrapper";
 import type { Backend } from "../../networking/backend";
 import type { ProductsResponse } from "../../networking/responses/products-response";
 
-describe("WebBillingBillingWrapper", () => {
+describe("WebBillingWrapper", () => {
   let getProducts: ReturnType<typeof vi.fn>;
-  let wrapper: WebBillingBillingWrapper;
+  let wrapper: WebBillingWrapper;
 
   beforeEach(() => {
     getProducts = vi.fn();
-    wrapper = new WebBillingBillingWrapper({
+    wrapper = new WebBillingWrapper({
       getProducts,
     } as unknown as Backend);
   });
