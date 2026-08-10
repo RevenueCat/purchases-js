@@ -795,12 +795,14 @@ describe("PaddlePurchasesUI", () => {
         purchaseOption,
         totalAmount = 3,
         recurringTotalAmount = 20,
+        selectedLocale = "en",
       }: {
         purchaseOption: ComponentProps<PaddlePurchasesUI>["purchaseOption"];
         // Paddle reports the same figure for both when there is no offer phase,
         // so tests for the plain case must pass a matching pair.
         totalAmount?: number;
         recurringTotalAmount?: number | null;
+        selectedLocale?: string;
       }) => {
         const paddleServiceMock = createPaddleServiceMock({
           inlineCheckoutEnabled: true,
@@ -823,6 +825,7 @@ describe("PaddlePurchasesUI", () => {
           props: {
             ...baseProps,
             purchaseOption,
+            selectedLocale,
             paddleService: paddleServiceMock,
           },
           context: defaultContext,
@@ -896,6 +899,19 @@ describe("PaddlePurchasesUI", () => {
           await screen.findByText("Due on September 7, 2026"),
         ).toBeInTheDocument();
         expect(await screen.findByText("billed monthly")).toBeInTheDocument();
+      });
+
+      test("formats the date for the region, not just the language", async () => {
+        // Only language-level translations exist, so the translator resolves
+        // en-GB to en. The date still has to follow the region's order.
+        renderWithTotals({
+          purchaseOption: subscriptionOptionWithSingleWeekIntroPriceRecurring,
+          selectedLocale: "en-GB",
+        });
+
+        expect(
+          await screen.findByText("Due on 14 August 2026"),
+        ).toBeInTheDocument();
       });
 
       test("describes a same-length intro that only differs in price", async () => {

@@ -21,6 +21,7 @@
     type OfferPhase,
   } from "../../helpers/paywall-offer-helpers";
   import { getPeriodDurationLabel } from "../../helpers/price-labels";
+  import { toBcp47Locale } from "../../helpers/locale-helper";
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import type { PaddleCheckoutTotals } from "../../paddle/paddle-service";
 
@@ -156,11 +157,13 @@
     if (recurringMicros === null || !firstPeriod) return null;
     const renewalDate = getNextRenewalDate(new Date(), firstPeriod, true);
     if (!renewalDate) return null;
-    return $translator.translateDate(renewalDate, {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
+    // Formatted off selectedLocale, not the translator's resolved locale: only
+    // language-level translations exist, so `en-GB` resolves to `en` and would
+    // render the US month-first order instead of day-first.
+    return renewalDate.toLocaleDateString(
+      toBcp47Locale($translator.selectedLocale),
+      { day: "numeric", month: "long", year: "numeric" },
+    );
   });
 </script>
 
