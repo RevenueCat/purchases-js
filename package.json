@@ -2,7 +2,7 @@
   "name": "@revenuecat/purchases-js",
   "description": "Web subscriptions made easy. Powered by RevenueCat",
   "private": false,
-  "version": "1.51.2",
+  "version": "1.52.0",
   "type": "module",
   "files": [
     "dist"
