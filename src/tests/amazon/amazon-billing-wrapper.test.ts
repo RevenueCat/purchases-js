@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 const { getProductData } = vi.hoisted(() => ({
   getProductData: vi.fn(),
@@ -67,6 +67,10 @@ async function getProducts(response: ProductDataResponse) {
 }
 
 describe("AmazonBillingWrapper", () => {
+  beforeEach(() => {
+    getProductData.mockClear();
+  });
+
   describe("product data requests", () => {
     test("loads and maps products from the Amazon IAP SDK", async () => {
       getProductData.mockResolvedValue(
@@ -98,6 +102,98 @@ describe("AmazonBillingWrapper", () => {
             trial: { period_duration: "P7D" },
           },
         },
+      });
+    });
+
+    test("deduplicates product IDs before requesting product data", async () => {
+      getProductData.mockResolvedValue(
+        responseForProducts([product({ sku: "monthly" })]),
+      );
+
+      await new AmazonBillingWrapper().getProducts("user", [
+        "monthly",
+        "yearly",
+        "monthly",
+        "yearly",
+      ]);
+
+      expect(getProductData).toHaveBeenCalledExactlyOnceWith({
+        skus: ["monthly", "yearly"],
+      });
+    });
+
+    test("requests fewer than 100 unique product IDs in a single batch", async () => {
+      const productIds = Array.from(
+        { length: 99 },
+        (_, index) => `product-${index}`,
+      );
+      getProductData.mockResolvedValue(responseForProducts([]));
+
+      await new AmazonBillingWrapper().getProducts("user", productIds);
+
+      expect(getProductData).toHaveBeenCalledExactlyOnceWith({
+        skus: productIds,
+      });
+    });
+
+    test("requests more than 100 unique product IDs in sequential batches and combines the results", async () => {
+      const productIds = Array.from(
+        { length: 201 },
+        (_, index) => `product-${index}`,
+      );
+      getProductData
+        .mockResolvedValueOnce(
+          responseForProducts([product({ sku: "product-0" })]),
+        )
+        .mockResolvedValueOnce(
+          responseForProducts([product({ sku: "product-100" })]),
+        )
+        .mockResolvedValueOnce(
+          responseForProducts([product({ sku: "product-200" })]),
+        );
+
+      const result = await new AmazonBillingWrapper().getProducts(
+        "user",
+        productIds,
+      );
+
+      expect(getProductData).toHaveBeenNthCalledWith(1, {
+        skus: productIds.slice(0, 100),
+      });
+      expect(getProductData).toHaveBeenNthCalledWith(2, {
+        skus: productIds.slice(100, 200),
+      });
+      expect(getProductData).toHaveBeenNthCalledWith(3, {
+        skus: productIds.slice(200),
+      });
+      expect(
+        result.product_details.map(({ identifier }) => identifier),
+      ).toEqual(["product-0", "product-100", "product-200"]);
+    });
+
+    test("deduplicates product IDs across batch boundaries", async () => {
+      const uniqueProductIds = Array.from(
+        { length: 101 },
+        (_, index) => `product-${index}`,
+      );
+      const requestedProductIds = [
+        ...uniqueProductIds.slice(0, 100),
+        "product-0",
+        "product-50",
+        "product-100",
+      ];
+      getProductData
+        .mockResolvedValueOnce(responseForProducts([]))
+        .mockResolvedValueOnce(responseForProducts([]));
+
+      await new AmazonBillingWrapper().getProducts("user", requestedProductIds);
+
+      expect(getProductData).toHaveBeenCalledTimes(2);
+      expect(getProductData).toHaveBeenNthCalledWith(1, {
+        skus: uniqueProductIds.slice(0, 100),
+      });
+      expect(getProductData).toHaveBeenNthCalledWith(2, {
+        skus: ["product-100"],
       });
     });
   });
