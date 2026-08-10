@@ -147,7 +147,7 @@ import {
 } from "./helpers/apple-touch-icon";
 import type { BillingWrapper } from "./helpers/billing-wrapper";
 import { AmazonBillingWrapper } from "./amazon/amazon-billing-wrapper";
-import { WebBillingBillingWrapper } from "./helpers/web-billing-billing-wrapper";
+import { WebBillingWrapper } from "./helpers/web-billing-wrapper";
 
 type UIComponentInteractionFields = UIComponentInteractionData & {
   componentURL?: string;
@@ -589,7 +589,7 @@ export class Purchases {
     if (isAmazonApiKey(apiKey)) {
       return new AmazonBillingWrapper();
     } else {
-      return new WebBillingBillingWrapper(this.backend);
+      return new WebBillingWrapper(this.backend);
     }
   }
 
