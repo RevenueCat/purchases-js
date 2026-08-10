@@ -80,7 +80,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
         case ProductDataResponseCode.NOT_SUPPORTED:
           return new PurchasesError(
             ErrorCode.UnsupportedError,
-            "Couldn't fetch product data, since is is unsupported.",
+            "Couldn't fetch product data, since it is unsupported.",
           );
         case ProductDataResponseCode.FAILED:
           return new PurchasesError(
