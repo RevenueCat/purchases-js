@@ -237,15 +237,30 @@ export class AmazonBillingWrapper implements BillingWrapper {
         .map(productForAmazonProduct)
         .filter((product): product is ProductResponse => product !== null);
 
-    const response = await PurchasingService.getProductData({
-      skus: productIds,
-    });
+    const uniqueProductIds = [...new Set(productIds)];
+    const productDetails: ProductResponse[] = [];
+    const maximumProductsPerRequest = 100;
 
-    const purchasesError = purchasesErrorForProductDataResponse(response);
-    if (purchasesError) {
-      throw purchasesError;
+    for (
+      let startIndex = 0;
+      startIndex < uniqueProductIds.length;
+      startIndex += maximumProductsPerRequest
+    ) {
+      const response = await PurchasingService.getProductData({
+        skus: uniqueProductIds.slice(
+          startIndex,
+          startIndex + maximumProductsPerRequest,
+        ),
+      });
+
+      const purchasesError = purchasesErrorForProductDataResponse(response);
+      if (purchasesError) {
+        throw purchasesError;
+      }
+
+      productDetails.push(...productsForProductDataResponse(response));
     }
 
-    return { product_details: productsForProductDataResponse(response) };
+    return { product_details: productDetails };
   }
 }
