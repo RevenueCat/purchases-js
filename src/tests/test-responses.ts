@@ -805,6 +805,16 @@ const offeringsResponsesPerUserId: { [userId: string]: OfferingsResponse } = {
       },
     },
   },
+  appUserIdWithMatchingPlacementAndFallback: {
+    current_offering_id: "offering_1",
+    offerings: offeringsArray,
+    placements: {
+      fallback_offering_id: "offering_1",
+      offering_ids_by_placement: {
+        test_placement_id: "offering_1",
+      },
+    },
+  },
   appUserIdWithNonSubscriptionProducts: {
     current_offering_id: "offering_consumables",
     offerings: [
@@ -886,6 +896,7 @@ const productsResponsesPerUserId: { [userId: string]: object } = {
   appUserIdWithEmptyPlacements: productsResponse,
   appUserIdWithoutCurrentOfferingId: productsResponse,
   appUserIdWithMissingProducts: { product_details: [monthlyProductResponse] },
+  appUserIdWithMatchingPlacementAndFallback: { product_details: [] },
   appUserIdWithNonSubscriptionProducts: {
     product_details: [consumableProductResponse],
   },

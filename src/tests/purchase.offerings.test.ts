@@ -979,6 +979,42 @@ describe("getOfferings placements", () => {
     });
   });
 
+  test("forwards currency and discount code when fetching placement products", async () => {
+    const appUserId = "appUserIdWithCurrentPlacementNoFallback";
+    const productsUrl = `http://localhost:8000/rcbilling/v1/subscribers/${appUserId}/products`;
+    const purchases = configurePurchases(appUserId);
+
+    const offeringWithPlacement =
+      await purchases.getCurrentOfferingForPlacement("upgrade_button", {
+        currency: "USD",
+        discountCode: "SUMMER2024",
+      });
+
+    expect(offeringWithPlacement?.identifier).toEqual("offering_2");
+    expect(APIGetRequest).toHaveBeenCalledWith({
+      url: `${productsUrl}?id=monthly_2&currency=USD&discount_code=SUMMER2024`,
+    });
+  });
+
+  test("fetches products once when placement and fallback use the same offering", async () => {
+    const appUserId = "appUserIdWithMatchingPlacementAndFallback";
+    const productsUrl = `http://localhost:8000/rcbilling/v1/subscribers/${appUserId}/products`;
+    const purchases = configurePurchases(appUserId);
+
+    const offeringWithPlacement =
+      await purchases.getCurrentOfferingForPlacement("test_placement_id");
+
+    expect(offeringWithPlacement).toBeNull();
+    expect(APIGetRequest).toHaveBeenCalledWith({
+      url: `${productsUrl}?id=monthly`,
+    });
+    expect(
+      APIGetRequest.mock.calls.filter(
+        ([request]) => request.url === `${productsUrl}?id=monthly`,
+      ),
+    ).toHaveLength(1);
+  });
+
   test("gets fallback offering when offering_ids_by_placement is omitted", async () => {
     const purchases = configurePurchases("appUserIdWithPlacementsFallbackOnly");
     const offeringWithPlacement =

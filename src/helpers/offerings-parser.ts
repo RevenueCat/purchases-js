@@ -11,7 +11,7 @@ import {
   type Offering,
   type Offerings,
   type Package,
-  toOffering,
+  toOffering as entitiesToOffering,
 } from "../entities/offerings";
 import { Logger } from "./logger";
 
@@ -44,36 +44,26 @@ const addPlacementContextToNullablePackage = (
   return addPlacementContextToPackage(rcPackage, placementId);
 };
 
-export const getOfferingIdsForPlacement = (
+export const getOfferingIdForPlacement = (
   placementsData: PlacementsResponse,
   placementId: string,
-): string[] => {
+): {
+  offeringIdForPlacement: string | null;
+  fallbackOfferingId: string | null;
+} => {
   const placementOfferingId =
     placementsData.offering_ids_by_placement?.[placementId] ?? null;
 
-  return Array.from(
-    new Set(
-      [placementOfferingId, placementsData.fallback_offering_id].filter(
-        (offeringId): offeringId is string =>
-          offeringId != null && offeringId.length > 0,
-      ),
-    ),
-  );
+  return {
+    offeringIdForPlacement: placementOfferingId,
+    fallbackOfferingId: placementsData.fallback_offering_id,
+  };
 };
 
-export const findOfferingByPlacementId = (
-  placementsData: PlacementsResponse,
-  allOfferings: { [offeringId: string]: Offering },
+export const enrichPackagesWithPlacementContext = (
   placementId: string,
-): Offering | null => {
-  const offering = getOfferingIdsForPlacement(placementsData, placementId)
-    .map((offeringId) => allOfferings[offeringId])
-    .find((candidate) => candidate != null);
-
-  if (!offering) {
-    return null;
-  }
-
+  offering: Offering,
+): Offering => {
   const packagesById = Object.fromEntries(
     Object.entries(offering.packagesById).map(([packageId, rcPackage]) => [
       packageId,
@@ -110,19 +100,55 @@ export const findOfferingByPlacementId = (
   };
 };
 
-export function toOfferings(
-  offeringsData: OfferingsResponse,
-  productsData: ProductsResponse,
-): Offerings {
+function toProductsByIdentifier(productsData: ProductsResponse): {
+  [productId: string]: ProductResponse;
+} {
   const productsMap: { [productId: string]: ProductResponse } = {};
   productsData.product_details.forEach((p: ProductResponse) => {
     productsMap[p.identifier] = p;
   });
+  return productsMap;
+}
+
+export function toOffering(
+  offeringIdentifier: string,
+  offeringsData: OfferingsResponse,
+  productsData: ProductsResponse,
+): Offering | null {
+  const offeringData = offeringsData.offerings.find(
+    (offering) => offering.identifier === offeringIdentifier,
+  );
+
+  if (!offeringData) {
+    return null;
+  }
+
+  const productsMap: { [productId: string]: ProductResponse } =
+    toProductsByIdentifier(productsData);
+
+  const isCurrent =
+    offeringData.identifier === offeringsData.current_offering_id;
+
+  return entitiesToOffering(
+    isCurrent,
+    offeringData,
+    productsMap,
+    offeringsData.targeting,
+    offeringsData.ui_config,
+  );
+}
+
+export function toOfferings(
+  offeringsData: OfferingsResponse,
+  productsData: ProductsResponse,
+): Offerings {
+  const productsMap: { [productId: string]: ProductResponse } =
+    toProductsByIdentifier(productsData);
 
   const allOfferings: { [offeringId: string]: Offering } = {};
   offeringsData.offerings.forEach((o: OfferingResponse) => {
     const isCurrent = o.identifier === offeringsData.current_offering_id;
-    const offering = toOffering(
+    const offering = entitiesToOffering(
       isCurrent,
       o,
       productsMap,
