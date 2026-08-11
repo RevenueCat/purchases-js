@@ -51,9 +51,9 @@ export interface SubscriptionChangeCompleteResponse {
   checkout_mode?: "subscription_change";
 }
 
-export function isSubscriptionChangeCheckoutStartResponse(
+function isSubscriptionChangeMode(
   response: unknown,
-): response is SubscriptionChangeCheckoutStartResponse {
+): response is { checkout_mode: "subscription_change" } {
   return (
     typeof response === "object" &&
     response !== null &&
@@ -62,13 +62,14 @@ export function isSubscriptionChangeCheckoutStartResponse(
   );
 }
 
+export function isSubscriptionChangeCheckoutStartResponse(
+  response: unknown,
+): response is SubscriptionChangeCheckoutStartResponse {
+  return isSubscriptionChangeMode(response) && "to_product" in response;
+}
+
 export function isSubscriptionChangeCompleteResponse(
   response: unknown,
 ): response is SubscriptionChangeCompleteResponse {
-  return (
-    typeof response === "object" &&
-    response !== null &&
-    "checkout_mode" in response &&
-    response.checkout_mode === "subscription_change"
-  );
+  return isSubscriptionChangeMode(response) && "new_product_id" in response;
 }
