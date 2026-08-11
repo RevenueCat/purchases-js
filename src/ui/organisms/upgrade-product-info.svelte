@@ -9,6 +9,7 @@
   import type { Translator } from "../localization/translator";
   import { translatorContextKey } from "../localization/constants";
   import PricingTable from "../molecules/pricing-table.svelte";
+  import SubscriptionChangeProducts from "../molecules/subscription-change-products.svelte";
   import Typography from "../atoms/typography.svelte";
 
   interface Props {
@@ -88,31 +89,20 @@
       ? "Calculated later"
       : null,
   );
+
+  const headerTitle = $derived(
+    startData.change_type === "deferred"
+      ? "Change your subscription"
+      : "Upgrade your subscription",
+  );
 </script>
 
 <div class="rcb-pricing-info">
   <div class="rcb-pricing-info-header">
-    <div class="rcb-upgrade-product">
-      <div class="rcb-upgrade-label">
-        <Typography size="body-base">Upgrade from</Typography>
-      </div>
-      <div class="rcb-product-title">
-        <Typography size="heading-lg" branded>
-          {fromTitle} — {fromPrice}
-        </Typography>
-      </div>
-    </div>
-
-    <div class="rcb-upgrade-product">
-      <div class="rcb-upgrade-label">
-        <Typography size="body-base">Upgrade to</Typography>
-      </div>
-      <div class="rcb-product-title">
-        <Typography size="heading-lg" branded>
-          {toTitle} — {toPrice}
-        </Typography>
-      </div>
-    </div>
+    <Typography size="heading-xl" branded>
+      {headerTitle}
+    </Typography>
+    <SubscriptionChangeProducts {fromTitle} {fromPrice} {toTitle} {toPrice} />
   </div>
 
   <PricingTable
@@ -145,34 +135,13 @@
   .rcb-pricing-info-header {
     display: flex;
     flex-direction: column;
-    gap: var(--rc-spacing-gapLarge-mobile);
-  }
-
-  .rcb-upgrade-product {
-    display: flex;
-    flex-direction: column;
-    gap: var(--rc-spacing-gapMedium-mobile);
-  }
-
-  .rcb-upgrade-label {
-    color: var(--rc-color-grey-text-light);
-  }
-
-  .rcb-product-title {
-    color: var(--rc-color-grey-text-dark);
+    /* 24px — no exact spacing token (gapXLarge is 16/32) */
+    gap: 1.5rem;
   }
 
   @container layout-query-container (width >= 768px) {
     .rcb-pricing-info {
       gap: var(--rc-spacing-gapXXXLarge-desktop);
-    }
-
-    .rcb-pricing-info-header {
-      gap: var(--rc-spacing-gapLarge-desktop);
-    }
-
-    .rcb-upgrade-product {
-      gap: var(--rc-spacing-gapMedium-desktop);
     }
   }
 </style>

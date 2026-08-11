@@ -198,7 +198,6 @@
         startData={subscriptionChangeStartData}
         confirming={isConfirmingProductChange}
         confirmError={productChangeConfirmError}
-        brandingAppearance={brandingInfo?.appearance ?? undefined}
         onConfirm={onConfirmProductChange ?? (() => {})}
       />
     {/if}

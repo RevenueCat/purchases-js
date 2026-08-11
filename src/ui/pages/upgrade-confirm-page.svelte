@@ -1,28 +1,33 @@
 <script lang="ts">
-  import { Button } from "@revenuecat/purchases-ui-js";
+  import { getContext } from "svelte";
+  import { type Writable } from "svelte/store";
   import type { SubscriptionChangeCheckoutStartResponse } from "../../networking/responses/subscription-change-response";
-  import type { BrandingAppearance } from "../../entities/branding";
+  import type { Translator } from "../localization/translator";
+  import { translatorContextKey } from "../localization/constants";
+  import SubscriptionChangeConfirmButton from "../molecules/subscription-change-confirm-button.svelte";
   import Typography from "../atoms/typography.svelte";
 
   interface Props {
     startData: SubscriptionChangeCheckoutStartResponse;
     confirming: boolean;
     confirmError: string | null;
-    brandingAppearance?: BrandingAppearance;
     onConfirm: () => void;
   }
 
-  const {
-    startData,
-    confirming,
-    confirmError,
-    brandingAppearance = undefined,
-    onConfirm,
-  }: Props = $props();
+  const { startData, confirming, confirmError, onConfirm }: Props = $props();
 
-  const ctaLabel = $derived(
-    startData.change_type === "deferred" ? "Confirm schedule" : "Pay now",
-  );
+  const translator: Writable<Translator> = getContext(translatorContextKey);
+
+  const formattedPrice = $derived.by(() => {
+    const breakdown = startData.price_breakdown;
+    if (!breakdown) {
+      return null;
+    }
+    return $translator.formatPrice(
+      breakdown.total_amount_in_micros,
+      breakdown.currency,
+    );
+  });
 
   const paymentMethodLabel = $derived.by(() => {
     const paymentMethod = startData.payment_method;
@@ -89,9 +94,12 @@
   {/if}
 
   <div class="rcb-upgrade-actions">
-    <Button disabled={confirming} onclick={onConfirm} {brandingAppearance}>
-      {confirming ? "Confirming…" : ctaLabel}
-    </Button>
+    <SubscriptionChangeConfirmButton
+      changeType={startData.change_type}
+      {formattedPrice}
+      {confirming}
+      onclick={onConfirm}
+    />
   </div>
 </div>
 
