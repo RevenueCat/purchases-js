@@ -44,25 +44,31 @@ const addPlacementContextToNullablePackage = (
   return addPlacementContextToPackage(rcPackage, placementId);
 };
 
+export const getOfferingIdsForPlacement = (
+  placementsData: PlacementsResponse,
+  placementId: string,
+): string[] => {
+  const placementOfferingId =
+    placementsData.offering_ids_by_placement?.[placementId] ?? null;
+
+  return Array.from(
+    new Set(
+      [placementOfferingId, placementsData.fallback_offering_id].filter(
+        (offeringId): offeringId is string =>
+          offeringId != null && offeringId.length > 0,
+      ),
+    ),
+  );
+};
+
 export const findOfferingByPlacementId = (
   placementsData: PlacementsResponse,
   allOfferings: { [offeringId: string]: Offering },
   placementId: string,
 ): Offering | null => {
-  const offeringIdsByPlacement = placementsData.offering_ids_by_placement ?? {};
-  const fallbackOfferingId = placementsData.fallback_offering_id;
-  let offering: Offering | undefined;
-
-  if (placementId in offeringIdsByPlacement) {
-    const offeringId = offeringIdsByPlacement[placementId] ?? null;
-    if (offeringId) {
-      offering = allOfferings[offeringId];
-    }
-  }
-
-  if (!offering && fallbackOfferingId && fallbackOfferingId in allOfferings) {
-    offering = allOfferings[fallbackOfferingId];
-  }
+  const offering = getOfferingIdsForPlacement(placementsData, placementId)
+    .map((offeringId) => allOfferings[offeringId])
+    .find((candidate) => candidate != null);
 
   if (!offering) {
     return null;

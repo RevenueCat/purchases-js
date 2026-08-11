@@ -58,6 +58,7 @@ import { requiresLoadedResources } from "./helpers/decorators";
 import { resolveTermsAndConditionsUrl } from "./helpers/checkout-consent-helper";
 import {
   findOfferingByPlacementId,
+  getOfferingIdsForPlacement,
   toOfferings,
 } from "./helpers/offerings-parser";
 import {
@@ -1309,21 +1310,43 @@ export class Purchases {
   ): Promise<Offering | null> {
     const appUserId = this._appUserId;
     const offeringsResponse = await this.backend.getOfferings(appUserId);
-
-    const offerings = await this.getAllOfferings(
-      offeringsResponse,
-      appUserId,
-      params,
-    );
     const placementData = offeringsResponse.placements ?? null;
     if (placementData == null) {
       return null;
     }
-    return findOfferingByPlacementId(
+
+    const offeringIds = getOfferingIdsForPlacement(
       placementData,
-      offerings.all,
       placementIdentifier,
     );
+
+    for (const offeringId of offeringIds) {
+      const offeringResponse = offeringsResponse.offerings.find(
+        (offering) => offering.identifier === offeringId,
+      );
+      if (offeringResponse == null) {
+        continue;
+      }
+
+      const offerings = await this.getAllOfferings(
+        {
+          ...offeringsResponse,
+          offerings: [offeringResponse],
+        },
+        appUserId,
+        params,
+      );
+      const offering = findOfferingByPlacementId(
+        placementData,
+        offerings.all,
+        placementIdentifier,
+      );
+      if (offering != null) {
+        return offering;
+      }
+    }
+
+    return null;
   }
 
   private async getAllOfferings(
