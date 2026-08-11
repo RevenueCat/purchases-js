@@ -41,14 +41,14 @@ export interface SubscriptionChangeCheckoutStartResponse {
   email: string;
   payment_method: SubscriptionChangePaymentMethodSummary | null;
   billing_address: SubscriptionChangeBillingAddressSummary | null;
-  checkout_mode?: "subscription_change";
+  checkout_mode: "subscription_change";
 }
 
 export interface SubscriptionChangeCompleteResponse {
   operation_session_id: string;
   change_type: "immediate" | "deferred";
   new_product_id: string;
-  checkout_mode?: "subscription_change";
+  checkout_mode: "subscription_change";
 }
 
 function isSubscriptionChangeMode(
