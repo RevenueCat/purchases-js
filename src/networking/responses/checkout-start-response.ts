@@ -7,6 +7,8 @@ export interface StripeBillingParams {
   stripe_account_id: string;
 }
 
+export type CheckoutMode = "purchase" | "subscription_change";
+
 export interface WebBillingCheckoutStartResponse {
   operation_session_id: string;
   gateway_params: GatewayParams;
