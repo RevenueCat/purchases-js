@@ -151,6 +151,44 @@ describe("buildPaddleCheckoutOptions", () => {
     ).toEqual(expect.objectContaining({ theme: "dark" }));
   });
 
+  test("merges checkout settings over RevenueCat defaults", () => {
+    const options = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "en",
+      checkoutSettings: { showAddTaxId: true },
+    });
+
+    expect(options.settings).toEqual(
+      expect.objectContaining({ showAddTaxId: true }),
+    );
+  });
+
+  test("keeps SDK-controlled layout settings", () => {
+    const options = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "en",
+      checkoutSettings: {
+        showAddTaxId: true,
+        displayMode: false,
+        frameTarget: false,
+        frameInitialHeight: false,
+        frameStyle: false,
+      },
+      displayMode: "inline",
+    });
+
+    expect(options.settings).toEqual(
+      expect.objectContaining({
+        showAddTaxId: true,
+        displayMode: "inline",
+        frameTarget: PADDLE_INLINE_FRAME_TARGET,
+        frameInitialHeight: 450,
+        frameStyle:
+          "width:100%; min-width:312px; background-color:transparent; border:none;",
+      }),
+    );
+  });
+
   test("includes customer email when provided and omits it otherwise", () => {
     const withEmail = buildPaddleCheckoutOptions({
       transactionId,
@@ -576,6 +614,28 @@ describe("PaddleService", () => {
 
       purchasePromise.catch(() => {});
     });
+
+    test.each([true, false])(
+      "passes showAddTaxId: %s to Paddle",
+      async (showAddTaxId) => {
+        const purchasePromise = paddleService.purchase({
+          operationSessionId,
+          transactionId,
+          onCheckoutLoaded: vi.fn(),
+          onClose: vi.fn(),
+          params: purchaseParams,
+          checkoutSettings: { showAddTaxId },
+        });
+
+        expect(mockPaddleInstance.Checkout?.open).toHaveBeenCalledWith(
+          expect.objectContaining({
+            settings: expect.objectContaining({ showAddTaxId }),
+          }),
+        );
+
+        purchasePromise.catch(() => {});
+      },
+    );
 
     test("forwards order totals on checkout.loaded and checkout.updated", async () => {
       const onCheckoutTotals = vi.fn();

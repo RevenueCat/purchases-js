@@ -15,7 +15,7 @@ export interface WebBillingCheckoutStartResponse {
   stripe_billing_params: StripeBillingParams | null;
   management_url: string;
   paddle_billing_params: null;
-  checkout_mode?: CheckoutMode;
+  checkout_mode: "purchase";
 }
 
 export interface PaddleCheckoutStartResponse {
@@ -26,6 +26,7 @@ export interface PaddleCheckoutStartResponse {
     client_side_token: string;
     is_sandbox: boolean;
     transaction_id: string;
+    checkout_settings?: Record<string, boolean>;
     /**
      * Per-project gate for the Paddle inline checkout rollout. When `true`,
      * present Paddle's checkout inline (embedded in our own container); when

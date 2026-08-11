@@ -1171,6 +1171,7 @@ export class Purchases {
               selectedLocale: finalWorkflowLocale,
               hideBackButtons: paywallParams.hideBackButtons,
               variablesPerPackage,
+              infoPerPackage,
               walletButtonRender,
               onPurchaseClicked: (selectedPackageId: string) => {
                 const pkg = offering.packagesById[selectedPackageId];

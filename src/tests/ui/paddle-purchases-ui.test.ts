@@ -6,6 +6,11 @@ import {
   brandingInfo,
   rcPackage,
   subscriptionOption,
+  subscriptionOptionWithDiscount,
+  subscriptionOptionWithSingleMonthIntroPriceRecurring,
+  subscriptionOptionWithSingleWeekIntroPriceRecurring,
+  subscriptionOptionWithSingleWeekWithTrialAndIntroPriceRecurring,
+  subscriptionOptionWithTrial,
 } from "../../stories/fixtures";
 import { createEventsTrackerMock } from "../mocks/events-tracker-mock-provider";
 import { eventsTrackerContextKey } from "../../ui/constants";
@@ -780,6 +785,193 @@ describe("PaddlePurchasesUI", () => {
       // The subtotal (excl. tax) only renders when the tax breakdown is shown,
       // i.e. when we feed Paddle's calculated totals into the price breakdown.
       expect(await screen.findByText("$8.26")).toBeInTheDocument();
+    });
+
+    describe("order summary next billing date", () => {
+      // Paddle doesn't expose the renewal date through checkout events, so the
+      // summary derives it from the purchase option. It must count from the
+      // intro/trial phase when there is one, not the base period.
+      const renderWithTotals = ({
+        purchaseOption,
+        totalAmount = 3,
+        recurringTotalAmount = 20,
+        selectedLocale = "en",
+      }: {
+        purchaseOption: ComponentProps<PaddlePurchasesUI>["purchaseOption"];
+        // Paddle reports the same figure for both when there is no offer phase,
+        // so tests for the plain case must pass a matching pair.
+        totalAmount?: number;
+        recurringTotalAmount?: number | null;
+        selectedLocale?: string;
+      }) => {
+        const paddleServiceMock = createPaddleServiceMock({
+          inlineCheckoutEnabled: true,
+        });
+        vi.spyOn(paddleServiceMock, "purchase").mockImplementation((params) => {
+          params.onCheckoutTotals?.({
+            currencyCode: "USD",
+            subtotalAmount: totalAmount,
+            taxAmount: 0,
+            totalAmount,
+            recurringTotalAmount,
+            productName: "Premium",
+            priceName: "Monthly sub",
+          });
+          // Keep the checkout open so the summary stays mounted.
+          return new Promise(() => {});
+        });
+
+        return render(PaddlePurchasesUI, {
+          props: {
+            ...baseProps,
+            purchaseOption,
+            selectedLocale,
+            paddleService: paddleServiceMock,
+          },
+          context: defaultContext,
+        });
+      };
+
+      beforeEach(() => {
+        vi.useFakeTimers({ shouldAdvanceTime: true });
+        vi.setSystemTime(new Date("2026-08-07T12:00:00Z"));
+      });
+
+      afterEach(() => {
+        vi.useRealTimers();
+      });
+
+      test("counts from the intro price period, not the base period", async () => {
+        // 1-week intro at $1.49, then $20.00/month. The next charge lands a week
+        // out (Aug 14), not a month out (Sep 7).
+        renderWithTotals({
+          purchaseOption: subscriptionOptionWithSingleWeekIntroPriceRecurring,
+        });
+
+        expect(
+          await screen.findByText("Due on August 14, 2026"),
+        ).toBeInTheDocument();
+        expect(
+          screen.queryByText("Due on September 7, 2026"),
+        ).not.toBeInTheDocument();
+      });
+
+      test("describes the intro window and the price it steps up to", async () => {
+        renderWithTotals({
+          purchaseOption: subscriptionOptionWithSingleWeekIntroPriceRecurring,
+        });
+
+        // Not "billed monthly", which would read as $3.00/month next to the
+        // headline amount while the customer is still in the intro week.
+        expect(
+          await screen.findByText("first week, then $20.00 monthly"),
+        ).toBeInTheDocument();
+        expect(screen.queryByText("billed monthly")).not.toBeInTheDocument();
+      });
+
+      test("shows the recurring price on the product row", async () => {
+        renderWithTotals({
+          purchaseOption: subscriptionOptionWithSingleWeekIntroPriceRecurring,
+        });
+
+        // "/ month" describes the recurring price, so the row pairs it with
+        // $20.00 rather than today's $3.00 intro total.
+        await screen.findByText("Due on August 14, 2026");
+        expect(screen.getAllByText("$20.00").length).toBeGreaterThan(0);
+      });
+
+      test("counts from the trial period when the option has a free trial", async () => {
+        renderWithTotals({ purchaseOption: subscriptionOptionWithTrial });
+
+        expect(
+          await screen.findByText("Due on August 14, 2026"),
+        ).toBeInTheDocument();
+      });
+
+      test("counts from the base period when there is no intro or trial", async () => {
+        // Nothing steps up, so Paddle reports the same figure for both.
+        renderWithTotals({
+          purchaseOption: subscriptionOption,
+          totalAmount: 20,
+        });
+
+        expect(
+          await screen.findByText("Due on September 7, 2026"),
+        ).toBeInTheDocument();
+        expect(await screen.findByText("billed monthly")).toBeInTheDocument();
+      });
+
+      test("formats the date for the region, not just the language", async () => {
+        // Only language-level translations exist, so the translator resolves
+        // en-GB to en. The date still has to follow the region's order.
+        renderWithTotals({
+          purchaseOption: subscriptionOptionWithSingleWeekIntroPriceRecurring,
+          selectedLocale: "en-GB",
+        });
+
+        expect(
+          await screen.findByText("Due on 14 August 2026"),
+        ).toBeInTheDocument();
+      });
+
+      test("describes a same-length intro that only differs in price", async () => {
+        // A first month at $3 against a $20 monthly base: the durations match,
+        // so only the amounts reveal the step-up.
+        renderWithTotals({
+          purchaseOption: subscriptionOptionWithSingleMonthIntroPriceRecurring,
+        });
+
+        expect(
+          await screen.findByText("first month, then $20.00 monthly"),
+        ).toBeInTheDocument();
+        expect(screen.queryByText("billed monthly")).not.toBeInTheDocument();
+      });
+
+      test("still describes the future when a discount supersedes a trial and intro", async () => {
+        // A discount replaces both the trial and the intro price, so there is
+        // no hidden middle phase and the step-up copy is safe to show.
+        renderWithTotals({
+          purchaseOption: {
+            ...subscriptionOptionWithSingleWeekWithTrialAndIntroPriceRecurring,
+            discount: subscriptionOptionWithDiscount.discount,
+          },
+        });
+
+        // 3-month time window discount, so the base price resumes 3 months out.
+        expect(
+          await screen.findByText("Due on November 7, 2026"),
+        ).toBeInTheDocument();
+        expect(
+          screen.getByText("first 3 months, then $20.00 monthly"),
+        ).toBeInTheDocument();
+      });
+
+      test("says nothing about the future when a trial precedes a paid intro", async () => {
+        // The sequence is trial -> intro -> base, so Paddle's recurring total is
+        // not what gets charged next. Better silent than confidently wrong.
+        renderWithTotals({
+          purchaseOption:
+            subscriptionOptionWithSingleWeekWithTrialAndIntroPriceRecurring,
+        });
+
+        expect(await screen.findByText("Total due today")).toBeInTheDocument();
+        expect(screen.queryByText(/^Due on /)).not.toBeInTheDocument();
+        expect(screen.getByText("billed monthly")).toBeInTheDocument();
+      });
+
+      test("hides the recurring row when Paddle reports no recurring total", async () => {
+        renderWithTotals({
+          purchaseOption: subscriptionOptionWithSingleWeekIntroPriceRecurring,
+          recurringTotalAmount: null,
+        });
+
+        // Total due today still renders; the future-charge row does not.
+        expect(await screen.findByText("Total due today")).toBeInTheDocument();
+        expect(screen.queryByText(/^Due on /)).not.toBeInTheDocument();
+        // Falls back to today's total on the product row, and to the plain
+        // cadence label under the headline amount.
+        expect(screen.getByText("billed monthly")).toBeInTheDocument();
+      });
     });
   });
 });

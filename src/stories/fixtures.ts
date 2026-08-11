@@ -566,6 +566,7 @@ export const checkoutStartResponse: WebBillingCheckoutStartResponse = {
   },
   management_url: "https://manage.revenuecat.com/test_test_test",
   paddle_billing_params: null,
+  checkout_mode: "purchase",
 };
 
 export const checkoutPricingResponse: CheckoutPricingResponse = {
@@ -607,6 +608,7 @@ export const checkoutPricingResponse: CheckoutPricingResponse = {
 export const checkoutCompleteResponse: CheckoutCompleteResponse = {
   operation_session_id: "operation-session-id",
   gateway_params: {},
+  checkout_mode: "purchase",
 };
 
 export const defaultContext = {

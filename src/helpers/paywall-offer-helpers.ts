@@ -10,7 +10,7 @@ import { getNextRenewalDate, type Period } from "./duration-helper";
 import { getPeriodVariables } from "./paywall-period-helpers";
 import { getPriceVariables } from "./paywall-price-helpers";
 
-type OfferPhase = PricingPhase | DiscountPhase;
+export type OfferPhase = PricingPhase | DiscountPhase;
 
 function getOfferCycleCount(offer: OfferPhase): number {
   return offer.cycleCount > 0 ? offer.cycleCount : 1;
@@ -35,7 +35,7 @@ function getOfferPricingPeriod(
   return offer.period;
 }
 
-function getOfferDuration(offer: OfferPhase): Period | null {
+export function getOfferDuration(offer: OfferPhase): Period | null {
   if (offer.period === null) {
     return null;
   }
