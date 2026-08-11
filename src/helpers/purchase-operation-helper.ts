@@ -33,6 +33,11 @@ import {
 } from "../networking/responses/checkout-pricing-response";
 import { handleCheckoutSessionFailed } from "./checkout-error-handler";
 import type { CheckoutPrepareResponse } from "../networking/responses/checkout-prepare-response";
+import {
+  isSubscriptionChangeCompleteResponse,
+  type SubscriptionChangeCheckoutStartResponse,
+} from "../networking/responses/subscription-change-response";
+import type { ProductChangeResult } from "../entities/product-change-params";
 
 export enum PurchaseFlowErrorCode {
   ErrorSettingUpPurchase = 0,
@@ -134,6 +139,18 @@ interface CheckoutStartParams {
   locale?: string;
 
   attributionMetadata?: AttributionMetadata;
+
+  /**
+   * When set, asks the backend to start a subscription-change
+   * (upgrade/downgrade) checkout instead of a new purchase. Requires
+   * {@link subscriberToken}. If the change is not possible, the backend
+   * falls back to a normal purchase session.
+   */
+  productChange?: {
+    subscriptionId?: string;
+    productIdentifier?: string;
+  };
+  subscriberToken?: string;
 }
 
 interface CheckoutRefreshPricingParams {
@@ -258,28 +275,36 @@ export class PurchaseOperationHelper {
     metadata,
     locale,
     attributionMetadata,
-  }: CheckoutStartParams): Promise<WebBillingCheckoutStartResponse> {
+    productChange,
+    subscriberToken,
+  }: CheckoutStartParams): Promise<
+    WebBillingCheckoutStartResponse | SubscriptionChangeCheckoutStartResponse
+  > {
     try {
       const traceId = this.eventsTracker.getTraceId();
       const presentedStepId = workflowPurchaseContext?.stepId;
       const urlParameters = workflowPurchaseContext?.urlParameters;
 
-      const checkoutStartResponse =
-        await this.backend.postCheckoutStart<WebBillingCheckoutStartResponse>({
-          appUserId,
-          productId,
-          purchaseOption,
-          presentedOfferingContext,
-          traceId,
-          presentedStepId,
-          urlParameters,
-          paywallId,
-          paywallSessionId,
-          customerEmail,
-          metadata,
-          locale,
-          attributionMetadata,
-        });
+      const checkoutStartResponse = await this.backend.postCheckoutStart<
+        | WebBillingCheckoutStartResponse
+        | SubscriptionChangeCheckoutStartResponse
+      >({
+        appUserId,
+        productId,
+        purchaseOption,
+        presentedOfferingContext,
+        traceId,
+        presentedStepId,
+        urlParameters,
+        paywallId,
+        paywallSessionId,
+        customerEmail,
+        metadata,
+        locale,
+        attributionMetadata,
+        productChange,
+        subscriberToken,
+      });
       this.operationSessionId = checkoutStartResponse.operation_session_id;
       return checkoutStartResponse;
     } catch (error) {
@@ -356,8 +381,10 @@ export class PurchaseOperationHelper {
   }
 
   async checkoutComplete(
-    email?: string,
-    locale?: string,
+    options: {
+      email?: string;
+      locale?: string;
+    } = {},
   ): Promise<CheckoutCompleteResponse> {
     const operationSessionId = this.operationSessionId;
     if (!operationSessionId) {
@@ -368,26 +395,81 @@ export class PurchaseOperationHelper {
     }
 
     try {
-      return await this.backend.postCheckoutComplete(
+      const response = await this.backend.postCheckoutComplete(
         operationSessionId,
-        email,
-        locale,
+        {
+          email: options.email,
+          locale: options.locale,
+        },
       );
+      if (isSubscriptionChangeCompleteResponse(response)) {
+        throw new PurchaseFlowError(
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+          "Unexpected subscription-change response for purchase checkout.",
+        );
+      }
+      return response;
     } catch (error) {
+      if (error instanceof PurchaseFlowError) {
+        throw error;
+      }
       if (error instanceof PurchasesError) {
         throw PurchaseFlowError.fromPurchasesError(
           error,
           PurchaseFlowErrorCode.ErrorSettingUpPurchase,
         );
-      } else {
-        const errorMessage =
-          "Unknown error starting purchase: " + String(error);
-        Logger.errorLog(errorMessage);
+      }
+      const errorMessage = "Unknown error starting purchase: " + String(error);
+      Logger.errorLog(errorMessage);
+      throw new PurchaseFlowError(
+        PurchaseFlowErrorCode.UnknownError,
+        errorMessage,
+      );
+    }
+  }
+
+  async completeProductChange(options: {
+    subscriberToken: string;
+  }): Promise<ProductChangeResult> {
+    const operationSessionId = this.operationSessionId;
+    if (!operationSessionId) {
+      throw new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "No product change checkout session to complete.",
+      );
+    }
+
+    try {
+      const response = await this.backend.postCheckoutComplete(
+        operationSessionId,
+        { subscriberToken: options.subscriberToken },
+      );
+      if (!isSubscriptionChangeCompleteResponse(response)) {
         throw new PurchaseFlowError(
-          PurchaseFlowErrorCode.UnknownError,
-          errorMessage,
+          PurchaseFlowErrorCode.ErrorChargingPayment,
+          "Unexpected checkout complete response for product change.",
         );
       }
+      return {
+        operationSessionId: response.operation_session_id,
+        changeType: response.change_type,
+        newProductId: response.new_product_id,
+      };
+    } catch (error) {
+      if (error instanceof PurchaseFlowError) {
+        throw error;
+      }
+      if (error instanceof PurchasesError) {
+        throw PurchaseFlowError.fromPurchasesError(
+          error,
+          PurchaseFlowErrorCode.ErrorChargingPayment,
+        );
+      }
+      throw new PurchaseFlowError(
+        PurchaseFlowErrorCode.UnknownError,
+        "Failed to complete product change.",
+        error instanceof Error ? error.message : String(error),
+      );
     }
   }
 

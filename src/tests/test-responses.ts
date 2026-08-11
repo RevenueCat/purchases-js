@@ -941,6 +941,7 @@ export const checkoutStartResponse: CheckoutStartResponse = {
   stripe_billing_params: null,
   management_url: "https://test-management-url.revenuecat.com",
   paddle_billing_params: null,
+  checkout_mode: "purchase",
 };
 
 export const checkoutCompleteResponse: CheckoutCompleteResponse = {
@@ -948,6 +949,7 @@ export const checkoutCompleteResponse: CheckoutCompleteResponse = {
   gateway_params: {
     client_secret: "test-client-secret",
   },
+  checkout_mode: "purchase",
 };
 
 export const getVirtualCurrenciesResponseWith3Currencies = {

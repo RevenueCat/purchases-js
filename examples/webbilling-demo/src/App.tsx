@@ -23,6 +23,7 @@ import RCPaywallLauncherPage from "./pages/rc_paywall_launcher";
 import ExpressPurchaseButtonsPackageSelector from "./pages/express_purchase_buttons";
 import RCPaywallSettingsPage from "./pages/rc_paywall_settings";
 import UpgradePage from "./pages/upgrade";
+import UpgradePaywallPage from "./pages/upgrade_paywall";
 
 const router = createBrowserRouter([
   {
@@ -119,6 +120,11 @@ const router = createBrowserRouter([
     path: "/upgrade/:app_user_id",
     loader: loadPurchases,
     element: <UpgradePage />,
+  },
+  {
+    path: "/upgrade-paywall/:app_user_id",
+    loader: loadPurchases,
+    element: <UpgradePaywallPage />,
   },
   {
     path: "/success/:app_user_id",

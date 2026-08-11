@@ -347,6 +347,7 @@ export interface PresentPaywallParams {
     readonly purchaseHtmlTarget?: HTMLElement;
     readonly selectedLocale?: string;
     readonly showDiscountCodeField?: boolean;
+    /* Excluded from this release type: productChangeInfo */
 }
 
 // @public

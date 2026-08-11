@@ -4,6 +4,7 @@ export type CurrentPage =
   | "payment-entry-loading"
   | "payment-entry"
   | "stripe-checkout"
+  | "upgrade-confirm"
   | "success"
   | "error";
 
