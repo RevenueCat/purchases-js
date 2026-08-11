@@ -13,6 +13,7 @@ export interface WebBillingCheckoutStartResponse {
   stripe_billing_params: StripeBillingParams | null;
   management_url: string;
   paddle_billing_params: null;
+  checkout_mode: "purchase";
 }
 
 export interface PaddleCheckoutStartResponse {

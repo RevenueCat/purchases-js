@@ -33,6 +33,7 @@ const checkoutStartResponseWithoutStripeParams: WebBillingCheckoutStartResponse 
     },
     management_url: "https://test-management-url.revenuecat.com",
     paddle_billing_params: null,
+    checkout_mode: "purchase",
   };
 
 const createCheckoutStartResponseWithStripeParams = (
@@ -56,6 +57,7 @@ const createCheckoutStartResponseWithStripeParams = (
   },
   management_url: "https://test-management-url.revenuecat.com",
   paddle_billing_params: null,
+  checkout_mode: "purchase",
 });
 
 const purchaseOperationHelperMock: PurchaseOperationHelper = {

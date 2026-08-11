@@ -7,7 +7,6 @@ import type {
 import PurchasesUi from "./ui/purchases-ui.svelte";
 import PaddlePurchasesUi from "./ui/paddle-purchases-ui.svelte";
 import StripeCheckoutPurchasesUi from "./ui/stripe-checkout-purchases-ui.svelte";
-import UpgradeCheckoutUi from "./ui/upgrade-checkout-ui.svelte";
 
 import { type CustomerInfo, toCustomerInfo } from "./entities/customer-info";
 import {
@@ -35,7 +34,6 @@ import {
   type PurchaseFlowError,
   PurchaseOperationHelper,
 } from "./helpers/purchase-operation-helper";
-import { ProductChangeOperationHelper } from "./helpers/product-change-operation-helper";
 import { PaddleService } from "./paddle/paddle-service";
 import { type LogHandler, type LogLevel } from "./entities/logging";
 import { Logger } from "./helpers/logger";
@@ -819,6 +817,7 @@ export class Purchases {
           offering.paywallComponents?.default_locale ?? englishLocale,
         paywallId: offering.paywallComponents?.id,
         paywallSessionId,
+        productChangeInfo: paywallParams.productChangeInfo,
       });
 
       return { ...purchaseResult, selectedPackage: pkg };
@@ -1555,8 +1554,10 @@ export class Purchases {
    * form on your site, using the given HTML element as the mount point, if
    * provided, or as a modal if not.
    *
-   * When {@link PurchaseParams.productChangeInfo} is set, presents upgrade-mode
-   * checkout for an existing RC Billing subscription instead of a new purchase.
+   * When {@link PurchaseParams.productChangeInfo} is set with a subscriber token,
+   * checkout starts in product-change mode: if the backend can change the
+   * existing subscription, an upgrade-confirm page is shown; otherwise the
+   * same checkout session continues as a normal purchase.
    *
    * @param params - The parameters object to customise the purchase flow. Check {@link PurchaseParams}
    * @returns a Promise for the customer and redemption info after the purchase is completed successfully.
@@ -1564,10 +1565,6 @@ export class Purchases {
    */
   @requiresLoadedResources
   public async purchase(params: PurchaseParams): Promise<PurchaseResult> {
-    if (params.productChangeInfo) {
-      return await this.productChangePurchase(params);
-    }
-
     if (isSimulatedStoreApiKey(this._API_KEY)) {
       const purchaseResult = await purchaseSimulatedStoreProduct(
         params,
@@ -1709,6 +1706,7 @@ export class Purchases {
   private async performWebBillingPurchase(
     params: PurchaseParams,
   ): Promise<PurchaseResult> {
+    const productChange = this.resolveProductChange(params);
     const {
       rcPackage,
       purchaseOption,
@@ -1794,6 +1792,29 @@ export class Purchases {
         unmountPurchaseUi,
       );
 
+      const onProductChangeFinished = async (result: ProductChangeResult) => {
+        this.inMemoryCache.invalidateAllCaches();
+        unmountPurchaseUi();
+        try {
+          const customerInfo = await this.getCustomerInfo();
+          resolve({
+            customerInfo,
+            redemptionInfo: null,
+            operationSessionId: result.operationSessionId,
+            storeTransaction: {
+              storeTransactionId: result.operationSessionId,
+              productIdentifier: result.newProductId,
+              purchaseDate: new Date(),
+            },
+            productChange: {
+              changeType: result.changeType,
+            },
+          });
+        } catch (error) {
+          reject(error);
+        }
+      };
+
       const onError = this.createCheckoutOnErrorHandler(
         reject,
         unmountPurchaseUi,
@@ -1811,7 +1832,9 @@ export class Purchases {
           attributionMetadata,
           paywallId: params.paywallId,
           paywallSessionId: params.paywallSessionId,
+          productChange,
           onFinished,
+          onProductChangeFinished,
           onClose,
           onError,
           purchases: this,
@@ -2189,108 +2212,35 @@ export class Purchases {
   }
 
   /**
-   * Presents upgrade-mode checkout to change the customer's Web Billing
-   * subscription to {@link PurchaseParams.rcPackage}'s product along a
-   * configured product change path.
+   * Resolves {@link PurchaseParams.productChangeInfo} into the product-change
+   * context passed to the checkout UI, or undefined when the purchase should
+   * proceed as a normal purchase (no info, no token, or non-Web Billing key).
    */
-  private async productChangePurchase(
-    params: PurchaseParams,
-  ): Promise<PurchaseResult> {
+  private resolveProductChange(params: PurchaseParams):
+    | {
+        subscriptionId?: string;
+        productIdentifier?: string;
+        subscriberToken: string;
+      }
+    | undefined {
     const productChangeInfo = params.productChangeInfo;
-    if (!productChangeInfo) {
-      throw new PurchasesError(
-        ErrorCode.PurchaseInvalidError,
-        "productChangeInfo is required.",
-      );
+    if (!productChangeInfo || !isWebBillingApiKey(this._API_KEY)) {
+      return undefined;
     }
 
-    const subscriptionId = productChangeInfo.subscriptionId || undefined;
-    const productIdentifier = productChangeInfo.productIdentifier || undefined;
     const subscriberToken =
       productChangeInfo.subscriberToken ?? this._subscriberToken ?? undefined;
-    const { rcPackage, htmlTarget } = params;
-    const newProductId = rcPackage.webBillingProduct.identifier;
-
     if (!subscriberToken) {
-      throw new PurchasesError(
-        ErrorCode.ConfigurationError,
-        "subscriberToken is required for product changes.",
-        "Pass a subscriber access token via PurchasesConfig.subscriberToken " +
-          "or productChangeInfo.subscriberToken.",
-      );
+      return undefined;
     }
 
     this.validateSubscriberToken(subscriberToken);
 
-    const certainHTMLTarget = this.resolveHTMLTarget(htmlTarget);
-    const isInElement = htmlTarget !== undefined;
-    const productChangeOperationHelper = new ProductChangeOperationHelper(
-      this.backend,
-    );
-
-    let component: ReturnType<typeof mount> | null = null;
-
-    return new Promise((resolve, reject) => {
-      const win = getWindow();
-      if (!isInElement) {
-        win.history.pushState({ checkoutOpen: true }, "");
-      }
-
-      const unmountUi = () => {
-        if (component) {
-          unmount(component);
-        }
-        certainHTMLTarget.innerHTML = "";
-      };
-
-      const onClose = this.createCheckoutOnCloseHandler(reject, unmountUi);
-
-      if (!isInElement && onClose) {
-        win.addEventListener("popstate", onClose as EventListener);
-      }
-
-      const onFinished = async (result: ProductChangeResult) => {
-        this.inMemoryCache.invalidateAllCaches();
-        unmountUi();
-        try {
-          const customerInfo = await this.getCustomerInfo();
-          resolve({
-            customerInfo,
-            redemptionInfo: null,
-            operationSessionId: result.operationSessionId,
-            storeTransaction: {
-              storeTransactionId: result.operationSessionId,
-              productIdentifier: result.newProductId,
-              purchaseDate: new Date(),
-            },
-            productChange: {
-              changeType: result.changeType,
-            },
-          });
-        } catch (error) {
-          reject(error);
-        }
-      };
-
-      const onError = this.createCheckoutOnErrorHandler(reject);
-
-      component = mount(UpgradeCheckoutUi, {
-        target: certainHTMLTarget,
-        props: {
-          newProductId,
-          subscriptionId,
-          productIdentifier,
-          subscriberToken,
-          brandingInfo: this._brandingInfo,
-          isInElement,
-          isSandbox: this.isSandbox(),
-          productChangeOperationHelper,
-          onFinished,
-          onClose,
-          onError,
-        },
-      });
-    });
+    return {
+      subscriptionId: productChangeInfo.subscriptionId || undefined,
+      productIdentifier: productChangeInfo.productIdentifier || undefined,
+      subscriberToken,
+    };
   }
 
   /**

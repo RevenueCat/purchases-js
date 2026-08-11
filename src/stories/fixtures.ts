@@ -566,6 +566,7 @@ export const checkoutStartResponse: WebBillingCheckoutStartResponse = {
   },
   management_url: "https://manage.revenuecat.com/test_test_test",
   paddle_billing_params: null,
+  checkout_mode: "purchase",
 };
 
 export const checkoutPricingResponse: CheckoutPricingResponse = {
@@ -607,6 +608,7 @@ export const checkoutPricingResponse: CheckoutPricingResponse = {
 export const checkoutCompleteResponse: CheckoutCompleteResponse = {
   operation_session_id: "operation-session-id",
   gateway_params: {},
+  checkout_mode: "purchase",
 };
 
 export const defaultContext = {
@@ -834,6 +836,7 @@ export const subscriptionChangeImmediateWithTax: SubscriptionChangeCheckoutStart
   {
     operation_session_id: "rcbopsess_story_immediate_tax",
     change_type: "immediate",
+    checkout_mode: "subscription_change",
     from_product: subscriptionChangeFromProduct,
     to_product: subscriptionChangeToProduct,
     price_breakdown: immediatePriceBreakdownWithTax,
@@ -856,6 +859,7 @@ export const subscriptionChangeImmediateMinimal: SubscriptionChangeCheckoutStart
   {
     operation_session_id: "rcbopsess_story_immediate_minimal",
     change_type: "immediate",
+    checkout_mode: "subscription_change",
     from_product: {
       ...subscriptionChangeFromProduct,
       display_name: null,
@@ -876,6 +880,7 @@ export const subscriptionChangeDeferredWithTax: SubscriptionChangeCheckoutStartR
   {
     operation_session_id: "rcbopsess_story_deferred_tax",
     change_type: "deferred",
+    checkout_mode: "subscription_change",
     from_product: subscriptionChangeToProduct,
     to_product: subscriptionChangeFromProduct,
     price_breakdown: null,

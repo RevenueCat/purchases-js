@@ -3,4 +3,5 @@ export interface CheckoutCompleteResponse {
   gateway_params: {
     client_secret?: string | null;
   };
+  checkout_mode: "purchase";
 }
