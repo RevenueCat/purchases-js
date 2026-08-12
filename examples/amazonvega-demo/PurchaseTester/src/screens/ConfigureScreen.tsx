@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {Pressable, Text, View} from 'react-native';
-import {Purchases} from '@revenuecat/purchases-js';
+import {LogLevel, Purchases} from '@revenuecat/purchases-js';
 import {API_KEY, APP_USER_ID} from '../constants';
 import {ScreenContainer} from '../ScreenContainer';
 import {styles} from './ConfigureScreen.styles';
@@ -22,6 +22,7 @@ export const ConfigureScreen = ({onConfigured}: ConfigureScreenProps) => {
         apiKey: API_KEY,
         appUserId,
       });
+      Purchases.setLogLevel(LogLevel.Info);
       console.log('Successfully configured the RevenueCat SDK.');
       setConfigureError(null);
       onConfigured();

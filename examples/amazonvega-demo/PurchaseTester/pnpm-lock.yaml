@@ -1814,6 +1814,9 @@ packages:
     resolution: {directory: ../../.., type: directory}
     peerDependencies:
       '@amazon-devices/keplerscript-appstore-iap-lib': 2.12.16
+    peerDependenciesMeta:
+      '@amazon-devices/keplerscript-appstore-iap-lib':
+        optional: true
 
   '@rnx-kit/tools-node@2.1.2':
     resolution:
@@ -8757,7 +8760,7 @@ snapshots:
       react-native: 0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0)
 
   '@revenuecat/purchases-js@file:../../..(@amazon-devices/keplerscript-appstore-iap-lib@2.12.16(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7)))':
-    dependencies:
+    optionalDependencies:
       '@amazon-devices/keplerscript-appstore-iap-lib': 2.12.16(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))
 
   '@rnx-kit/tools-node@2.1.2': {}

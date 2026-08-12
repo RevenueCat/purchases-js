@@ -2,7 +2,7 @@ schema-version = 1
 
 [package]
 title = "Purchase Tester"
-version = "0.1.0"
+version = "1"
 id = "com.revenuecat.purchases_sample"
 
 [components]

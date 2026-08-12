@@ -87,6 +87,27 @@ export const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
+  purchaseButton: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#0077B6',
+    borderRadius: 8,
+    marginTop: 16,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+  },
+  purchaseButtonDisabled: {
+    backgroundColor: '#8AAFC4',
+  },
+  purchaseButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  purchaseError: {
+    color: '#C62828',
+    fontSize: 16,
+    marginTop: 16,
+  },
   productSection: {
     borderBottomColor: 'rgba(20, 121, 184, 0.2)',
     borderBottomWidth: 1,
