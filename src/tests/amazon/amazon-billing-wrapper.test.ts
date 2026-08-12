@@ -99,7 +99,7 @@ const successfulPurchaseResponse = (): PurchaseResponse => ({
     productType: ProductType.SUBSCRIPTION,
     purchaseDate: new Date("2026-08-12T17:00:00Z"),
     receiptId: "amazon-receipt-id",
-    sku: "monthly",
+    sku: "premium-subscription",
     termSku: "monthly",
   },
   requestId: { requestIdStr: "request-id" },
@@ -292,7 +292,7 @@ describe("AmazonBillingWrapper", () => {
       });
     });
 
-    test("posts the Amazon receipt and fulfills it after a successful backend response", async () => {
+    test("uses a subscription receipt's term SKU when posting and returning the purchase", async () => {
       const backend = createBackend();
       const postReceipt = vi.mocked(backend.postReceipt);
       postReceipt.mockResolvedValue(customerInfoResponse);
@@ -327,6 +327,38 @@ describe("AmazonBillingWrapper", () => {
           storeTransactionId: "amazon-receipt-id",
         },
       });
+    });
+
+    test("uses a non-subscription receipt's SKU when posting and returning the purchase", async () => {
+      const backend = createBackend();
+      const params = { rcPackage: createMonthlyPackageMock() };
+      vi.mocked(backend.postReceipt).mockResolvedValue(customerInfoResponse);
+      purchase.mockResolvedValue({
+        ...successfulPurchaseResponse(),
+        receipt: {
+          ...successfulPurchaseResponse().receipt,
+          productType: ProductType.CONSUMABLE,
+          sku: "coin-pack",
+          termSku: "unused-term-sku",
+        },
+      });
+
+      const result = await new AmazonBillingWrapper(backend).purchase(
+        params,
+        appUserId,
+      );
+
+      expect(backend.postReceipt).toHaveBeenCalledWith(
+        appUserId,
+        "coin-pack",
+        "USD",
+        "amazon-receipt-id",
+        params.rcPackage.webBillingProduct.presentedOfferingContext,
+        "purchase",
+        undefined,
+        "amazon-store-user-id",
+      );
+      expect(result.storeTransaction.productIdentifier).toBe("coin-pack");
     });
 
     test.each([
