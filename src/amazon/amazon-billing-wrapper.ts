@@ -14,6 +14,9 @@ import type {
   ProductsResponse,
   SubscriptionOptionResponse,
 } from "../networking/responses/products-response";
+import type { PurchaseParams, PurchaseResult } from "../main";
+import type { Backend } from "../networking/backend";
+import { toCustomerInfo } from "../entities/customer-info";
 
 type AmazonAppstoreIAPSDK = typeof AmazonVegaSdk;
 
@@ -23,6 +26,8 @@ type AmazonAppstoreIAPSDK = typeof AmazonVegaSdk;
  * @internal
  */
 export class AmazonBillingWrapper implements BillingWrapper {
+  constructor(private readonly backend: Backend) {}
+
   private amazonAppstoreIAPSDKPromise:
     | Promise<AmazonAppstoreIAPSDK>
     | undefined;
@@ -40,6 +45,123 @@ export class AmazonBillingWrapper implements BillingWrapper {
       amazonAppstoreIAPSDK,
       productIds,
     );
+  }
+
+  async purchase(
+    params: PurchaseParams,
+    appUserId: string,
+  ): Promise<PurchaseResult> {
+    const amazonAppstoreIAPSDK = await this.getAmazonAppstoreIAPSDK();
+    const { PurchasingService, PurchaseResponseCode } = amazonAppstoreIAPSDK;
+    const { rcPackage } = params;
+    const sku = rcPackage.webBillingProduct.identifier;
+
+    Logger.infoLog(`Starting Amazon purchase for SKU: ${sku}`);
+
+    const response = await PurchasingService.purchase({ sku });
+    Logger.debugLog(`Amazon purchase response: ${JSON.stringify(response)}`);
+
+    switch (response.responseCode) {
+      case PurchaseResponseCode.SUCCESSFUL:
+        break;
+      case PurchaseResponseCode.ALREADY_PURCHASED:
+        throw new PurchasesError(
+          ErrorCode.ProductAlreadyPurchasedError,
+          "Product already purchased",
+        );
+      case PurchaseResponseCode.INVALID_SKU:
+        throw new PurchasesError(
+          ErrorCode.ProductNotAvailableForPurchaseError,
+          `Invalid SKU: ${sku}`,
+        );
+      case PurchaseResponseCode.NOT_SUPPORTED:
+        throw new PurchasesError(
+          ErrorCode.PurchaseNotAllowedError,
+          "Purchase not supported",
+        );
+      case PurchaseResponseCode.FAILED:
+        throw new PurchasesError(
+          ErrorCode.StoreProblemError,
+          "Amazon purchase failed",
+        );
+      default:
+        Logger.warnLog(
+          `Received an unexpected response code from Amazon when purchasing ${sku}: ${JSON.stringify(response.responseCode)}`,
+        );
+        throw new PurchasesError(
+          ErrorCode.StoreProblemError,
+          "Amazon purchase failed",
+        );
+    }
+
+    const receipt = response.receipt;
+    const storeUserId = response.userData.userId;
+
+    // Post receipt to RevenueCat backend
+    const subscriberResponse = await this.backend.postReceipt(
+      appUserId,
+      receipt.sku,
+      rcPackage.webBillingProduct.price.currency,
+      receipt.receiptId,
+      rcPackage.webBillingProduct.presentedOfferingContext,
+      "purchase",
+      undefined,
+      storeUserId,
+    );
+
+    await this.notifyFulfillment(receipt.receiptId);
+    Logger.debugLog("Amazon purchase completed successfully.");
+
+    return {
+      customerInfo: toCustomerInfo(subscriberResponse),
+      redemptionInfo: null,
+      operationSessionId: receipt.receiptId,
+      storeTransaction: {
+        storeTransactionId: receipt.receiptId,
+        productIdentifier: receipt.sku,
+        purchaseDate: receipt.purchaseDate,
+      },
+    };
+  }
+
+  private async notifyFulfillment(receiptId: string) {
+    const amazonAppstoreIAPSDK = await this.getAmazonAppstoreIAPSDK();
+    const {
+      PurchasingService,
+      FulfillmentResult,
+      NotifyFulfillmentResponseCode,
+    } = amazonAppstoreIAPSDK;
+
+    Logger.infoLog(
+      `Notifying Amazon Store of fulfillment for receipt ID ${receiptId}`,
+    );
+    const response = await PurchasingService.notifyFulfillment({
+      receiptId: receiptId,
+      fulfillmentResult: FulfillmentResult.FULFILLED,
+    });
+
+    switch (response.responseCode) {
+      case NotifyFulfillmentResponseCode.SUCCESSFUL:
+        Logger.debugLog(
+          `Successfully fulfilled receipt ID ${receiptId} with the Amazon Store.`,
+        );
+        break;
+      case NotifyFulfillmentResponseCode.NOT_SUPPORTED:
+        Logger.warnLog(
+          `Failed to fulfill receipt ID ${receiptId} with the Amazon Store: fulfillment is not supported.`,
+        );
+        break;
+      case NotifyFulfillmentResponseCode.FAILED:
+        Logger.warnLog(
+          `Failed to fulfill receipt ID ${receiptId} with the Amazon Store.`,
+        );
+        break;
+      default:
+        Logger.warnLog(
+          `Received an unexpected response code from Amazon when fulfilling receipt ID ${receiptId}.`,
+        );
+        break;
+    }
   }
 
   private getAmazonAppstoreIAPSDK(): Promise<AmazonAppstoreIAPSDK> {
@@ -246,12 +368,23 @@ export class AmazonBillingWrapper implements BillingWrapper {
       startIndex < uniqueProductIds.length;
       startIndex += maximumProductsPerRequest
     ) {
+      const skus = uniqueProductIds.slice(
+        startIndex,
+        startIndex + maximumProductsPerRequest,
+      );
+      Logger.infoLog(
+        `Fetching Amazon product data for SKUs: ${JSON.stringify(skus)}`,
+      );
       const response = await PurchasingService.getProductData({
-        skus: uniqueProductIds.slice(
-          startIndex,
-          startIndex + maximumProductsPerRequest,
-        ),
+        skus,
       });
+      Logger.infoLog(
+        `Amazon product data response: ${JSON.stringify({
+          responseCode: response.responseCode,
+          returnedSkus: Array.from(response.productData.keys()),
+          unavailableSkus: response.unavailableSkus,
+        })}`,
+      );
 
       const purchasesError = purchasesErrorForProductDataResponse(response);
       if (purchasesError) {
