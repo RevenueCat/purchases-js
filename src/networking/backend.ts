@@ -546,6 +546,7 @@ export class Backend {
     presentedOfferingContext: PresentedOfferingContext,
     initiationSource: string,
     paywallId?: string,
+    storeUserId?: string,
   ): Promise<SubscriberResponse> {
     type PostReceiptTargetingRule = {
       rule_id: string;
@@ -564,6 +565,7 @@ export class Backend {
       paywall?: {
         paywall_id: string;
       };
+      store_user_id?: string;
     };
 
     let targetingInfo: PostReceiptTargetingRule | null = null;
@@ -587,6 +589,7 @@ export class Backend {
         this.purchasesContext?.workflowContext?.workflowIdentifier,
       applied_targeting_rule: targetingInfo,
       initiation_source: initiationSource,
+      store_user_id: storeUserId,
     };
 
     if (paywallId) {

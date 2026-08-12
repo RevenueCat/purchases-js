@@ -95,6 +95,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
     }
 
     const receipt = response.receipt;
+    const storeUserId = response.userData.userId;
 
     // Post receipt to RevenueCat backend
     const subscriberResponse = await this.backend.postReceipt(
@@ -104,6 +105,8 @@ export class AmazonBillingWrapper implements BillingWrapper {
       receipt.receiptId,
       rcPackage.webBillingProduct.presentedOfferingContext,
       "purchase",
+      undefined,
+      storeUserId,
     );
 
     await this.notifyFulfillment(receipt.receiptId);
