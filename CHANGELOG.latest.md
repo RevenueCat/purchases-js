@@ -1,8 +1,7 @@
 ## RevenueCat SDK
-### ✨ New Features
-* feat(paddle): apply configurable Paddle checkout settings (WST-912) (#1027) via Roger Solé (@rogersole)
 ### 🐞 Bugfixes
-* fix(paddle): count the next charge date from the intro/trial phase (#1032) via Roger Solé (@rogersole)
+* [WEB-4590] Scope placement product fetches to resolved offerings (#1041) via Nicola Sacco (@nicfix)
 
 ### 🔄 Other Changes
-* chore(deps): bump fastlane-plugin-revenuecat_internal from `b4e1e7f` to `7fbbe66` (#1034) via dependabot[bot] (@dependabot[bot])
+* [WEB-4582] Demo page for product change from paywall (#1036) via James O'Donnell (@james-od)
+* [WEB-4571] Fold sub-change checkout into /start and /complete (#1029) via James O'Donnell (@james-od)
