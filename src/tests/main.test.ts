@@ -1027,6 +1027,43 @@ describe("Purchases.purchase()", () => {
     expect(performWebBillingPurchaseSpy).not.toHaveBeenCalled();
   });
 
+  test("invalidates caches after a successful Amazon purchase", async () => {
+    const purchases = configurePurchases(
+      testUserId,
+      "rcSource",
+      "amzn_valid_key",
+    );
+    const params = { rcPackage: createMonthlyPackageMock() };
+    let completeAmazonPurchase: () => void;
+    const amazonPurchaseSpy = vi
+      .spyOn(AmazonBillingWrapper.prototype, "purchase")
+      .mockImplementation(
+        () =>
+          new Promise((resolve) => {
+            completeAmazonPurchase = () => resolve({} as never);
+          }),
+      );
+    const invalidateAllCachesSpy = vi.spyOn(
+      purchases["inMemoryCache"],
+      "invalidateAllCaches",
+    );
+
+    const purchasePromise = purchases.purchase(params);
+
+    await waitFor(() => {
+      expect(amazonPurchaseSpy).toHaveBeenCalledExactlyOnceWith(
+        params,
+        testUserId,
+      );
+    });
+    expect(invalidateAllCachesSpy).not.toHaveBeenCalled();
+
+    completeAmazonPurchase!();
+    await purchasePromise;
+
+    expect(invalidateAllCachesSpy).toHaveBeenCalledOnce();
+  });
+
   test("passes attributionMetadata through the purchase result", async () => {
     const purchases = configurePurchases();
     const customerInfo = { originalAppUserId: "test-user-id" } as CustomerInfo;
