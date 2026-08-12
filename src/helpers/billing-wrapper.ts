@@ -26,7 +26,7 @@ export interface BillingWrapper {
   /**
    * Executes a purchase for the given parameters.
    * @param params - The purchase parameters.
-   * @param appuserId - The current appUserId.
+   * @param appUserId - The current appUserId.
    * @returns The result of the purchase operation.
    */
   purchase(params: PurchaseParams, appUserId: string): Promise<PurchaseResult>;
