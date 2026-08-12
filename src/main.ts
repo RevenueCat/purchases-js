@@ -1028,6 +1028,7 @@ export class Purchases {
       let component: ReturnType<typeof mount> | null = null;
       let paywallImpressionTracked = false;
       let paywallCloseTracked = false;
+      let purchaseInFlight = false;
 
       certainHTMLTarget.addEventListener("click", recordTextLinkClick);
 
@@ -1114,6 +1115,34 @@ export class Purchases {
         notifyPurchaseError(error);
       };
 
+      const handlePurchaseClicked = (
+        selectedPackageId: string,
+        checkoutLocale?: string,
+      ) => {
+        // Ignore repeated selections so we don't start overlapping checkouts
+        if (purchaseInFlight) {
+          return;
+        }
+        purchaseInFlight = true;
+
+        const pkg = offering.packagesById[selectedPackageId];
+        if (pkg) {
+          notifyPurchaseStarted(pkg);
+        }
+
+        const purchasePromise =
+          checkoutLocale === undefined
+            ? startPurchaseFlow(selectedPackageId)
+            : startPurchaseFlow(selectedPackageId, checkoutLocale);
+
+        purchasePromise
+          .then(onSuccess)
+          .catch(onError("Error performing purchase"))
+          .finally(() => {
+            purchaseInFlight = false;
+          });
+      };
+
       const walletButtonRender = this.getWalletButtonRender(
         offering,
         onSuccess,
@@ -1179,13 +1208,7 @@ export class Purchases {
               infoPerPackage,
               walletButtonRender,
               onPurchaseClicked: (selectedPackageId: string) => {
-                const pkg = offering.packagesById[selectedPackageId];
-                if (pkg) {
-                  notifyPurchaseStarted(pkg);
-                }
-                startPurchaseFlow(selectedPackageId, finalWorkflowLocale)
-                  .then(onSuccess)
-                  .catch(onError("Error performing purchase"));
+                handlePurchaseClicked(selectedPackageId, finalWorkflowLocale);
               },
               onClose: closePaywall,
               onExitBack: () => {
@@ -1239,15 +1262,7 @@ export class Purchases {
               closePaywall();
             },
             onRestorePurchasesClicked: onRestorePurchasesClicked,
-            onPurchaseClicked: (selectedPackageId: string) => {
-              const pkg = offering.packagesById[selectedPackageId];
-              if (pkg) {
-                notifyPurchaseStarted(pkg);
-              }
-              startPurchaseFlow(selectedPackageId)
-                .then(onSuccess)
-                .catch(onError("Error performing purchase"));
-            },
+            onPurchaseClicked: handlePurchaseClicked,
             onError: (err: unknown) => {
               unmountPaywall();
               reject(err);
