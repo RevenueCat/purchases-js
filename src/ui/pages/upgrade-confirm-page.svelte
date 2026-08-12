@@ -5,7 +5,10 @@
   import type { SubscriptionChangeCheckoutStartResponse } from "../../networking/responses/subscription-change-response";
   import type { BrandingAppearance } from "../../entities/branding";
   import type { BrandingInfoResponse } from "../../networking/responses/branding-response";
-  import type { PurchaseOption } from "../../entities/offerings";
+  import type {
+    PurchaseOption,
+    SubscriptionOption,
+  } from "../../entities/offerings";
   import type { Translator } from "../localization/translator";
   import { translatorContextKey } from "../localization/constants";
   import { LocalizationKeys } from "../localization/supportedLanguages";
@@ -35,6 +38,22 @@
   }: Props = $props();
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
+
+  // Product changes don't currently apply catalog trials/intros/discounts. Strip them so
+  // the footer doesn't show offer terms or a fabricated renewal date.
+  const footerPurchaseOption = $derived.by((): PurchaseOption | null => {
+    if (!purchaseOption || !("base" in purchaseOption)) {
+      return purchaseOption;
+    }
+    const subscriptionOption = purchaseOption as SubscriptionOption;
+    const withoutOffers: SubscriptionOption = {
+      ...subscriptionOption,
+      trial: null,
+      introPrice: null,
+      discount: null,
+    };
+    return withoutOffers;
+  });
 
   const isDeferred = $derived(startData.change_type === "deferred");
 
@@ -162,7 +181,11 @@
       {ctaLabel}
     </Button>
 
-    <SecureCheckoutRc {brandingInfo} {purchaseOption} {termsAndConditionsUrl} />
+    <SecureCheckoutRc
+      {brandingInfo}
+      purchaseOption={footerPurchaseOption}
+      {termsAndConditionsUrl}
+    />
   </div>
 </div>
 
