@@ -52,7 +52,8 @@ export class AmazonBillingWrapper implements BillingWrapper {
     appUserId: string,
   ): Promise<PurchaseResult> {
     const amazonAppstoreIAPSDK = await this.getAmazonAppstoreIAPSDK();
-    const { PurchasingService, PurchaseResponseCode } = amazonAppstoreIAPSDK;
+    const { PurchasingService, PurchaseResponseCode, ProductType } =
+      amazonAppstoreIAPSDK;
     const { rcPackage } = params;
     const sku = rcPackage.webBillingProduct.identifier;
 
@@ -96,11 +97,15 @@ export class AmazonBillingWrapper implements BillingWrapper {
 
     const receipt = response.receipt;
     const storeUserId = response.userData.userId;
+    const productIdentifier =
+      receipt.productType === ProductType.SUBSCRIPTION
+        ? receipt.termSku
+        : receipt.sku;
 
     // Post receipt to RevenueCat backend
     const subscriberResponse = await this.backend.postReceipt(
       appUserId,
-      receipt.sku,
+      productIdentifier,
       rcPackage.webBillingProduct.price.currency,
       receipt.receiptId,
       rcPackage.webBillingProduct.presentedOfferingContext,
@@ -124,7 +129,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
       operationSessionId: receipt.receiptId,
       storeTransaction: {
         storeTransactionId: receipt.receiptId,
-        productIdentifier: receipt.sku,
+        productIdentifier,
         purchaseDate: receipt.purchaseDate,
       },
     };
