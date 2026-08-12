@@ -1622,6 +1622,8 @@ describe("postReceipt request", () => {
         placementIdentifier: null,
       },
       "restore",
+      undefined,
+      "amazon_store_user_id",
     );
 
     expect(postReceiptAPIMock).toHaveBeenCalledTimes(1);
@@ -1639,6 +1641,7 @@ describe("postReceipt request", () => {
       presented_placement_identifier: null,
       applied_targeting_rule: null,
       initiation_source: "restore",
+      store_user_id: "amazon_store_user_id",
     });
 
     expect(result).toEqual(customerInfoResponse);
@@ -1683,31 +1686,6 @@ describe("postReceipt request", () => {
     });
 
     expect(result).toEqual(customerInfoResponse);
-  });
-
-  test("includes store user ID when provided", async () => {
-    setPostReceiptResponse(
-      HttpResponse.json(customerInfoResponse, { status: 200 }),
-    );
-
-    await backend.postReceipt(
-      "someAppUserId",
-      "monthly",
-      "EUR",
-      "test_fetch_token",
-      {
-        offeringIdentifier: "offering_1",
-        targetingContext: null,
-        placementIdentifier: null,
-      },
-      "purchase",
-      undefined,
-      "amazon_store_user_id",
-    );
-
-    const request = postReceiptAPIMock.mock.calls[0][0].request;
-    const requestBody = await request.json();
-    expect(requestBody.store_user_id).toBe("amazon_store_user_id");
   });
 
   test("handles placement identifier correctly", async () => {
