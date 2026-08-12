@@ -1729,10 +1729,13 @@ export class Purchases {
 
     const isAmazon = isAmazonApiKey(this._API_KEY);
     if (isAmazon) {
-      return await this.unwrappedAmazonBillingWrapper().purchase(
-        params,
-        this._appUserId,
-      );
+      const purchaseResult =
+        await this.unwrappedAmazonBillingWrapper().purchase(
+          params,
+          this._appUserId,
+        );
+      this.inMemoryCache.invalidateAllCaches();
+      return purchaseResult;
     }
 
     return await this.performWebBillingPurchase(
