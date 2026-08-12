@@ -163,3 +163,4 @@ yarn.lock
 # Vega Purchase Tester App
 examples/amazonvega-demo/PurchaseTester/buildinfo.json
 /examples/amazonvega-demo/PurchaseTester/build
+examples/amazonvega-demo/PurchaseTester/assets/raw/AppstoreAuthenticationKey.pem
