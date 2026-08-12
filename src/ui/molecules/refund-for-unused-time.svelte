@@ -1,4 +1,9 @@
 <script lang="ts">
+  import { getContext } from "svelte";
+  import { type Writable } from "svelte/store";
+  import type { Translator } from "../localization/translator";
+  import { translatorContextKey } from "../localization/constants";
+  import { LocalizationKeys } from "../localization/supportedLanguages";
   import Typography from "../atoms/typography.svelte";
 
   interface Props {
@@ -6,16 +11,21 @@
   }
 
   const { previousProductName }: Props = $props();
+
+  const translator: Writable<Translator> = getContext(translatorContextKey);
 </script>
 
 <div class="rcb-refund-for-unused-time">
   <div class="rcb-refund-for-unused-time-title">
-    <Typography size="body-small">Refund for unused time</Typography>
+    <Typography size="body-small">
+      {$translator.translate(LocalizationKeys.RefundForUnusedTimeTitle)}
+    </Typography>
   </div>
   <div class="rcb-refund-for-unused-time-message">
     <Typography size="caption-default">
-      Your payment method will be charged immediately and you'll receive a
-      refund for the time remaining on your {previousProductName} subscription.
+      {$translator.translate(LocalizationKeys.RefundForUnusedTimeMessage, {
+        previousProductName,
+      })}
     </Typography>
   </div>
 </div>

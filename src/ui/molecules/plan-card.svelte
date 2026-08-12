@@ -2,7 +2,10 @@
   import { getContext } from "svelte";
   import { type Writable } from "svelte/store";
   import type { BrandingAppearance } from "../../entities/branding";
+  import type { Translator } from "../localization/translator";
   import { brandingContextKey } from "../constants";
+  import { translatorContextKey } from "../localization/constants";
+  import { LocalizationKeys } from "../localization/supportedLanguages";
   import { DEFAULT_FORM_COLORS } from "../theme/colors";
   import { isHexColorLight } from "../theme/utils";
   import Typography from "../atoms/typography.svelte";
@@ -20,7 +23,13 @@
       brandingContextKey,
     );
 
-  const badgeLabel = $derived(variant === "current" ? "Current" : "New");
+  const translator: Writable<Translator> = getContext(translatorContextKey);
+
+  const badgeLabel = $derived(
+    variant === "current"
+      ? $translator.translate(LocalizationKeys.PlanCardCurrent)
+      : $translator.translate(LocalizationKeys.PlanCardNew),
+  );
 
   // White card + light primary could make a badge invisible.
   // Fall back to primary-text as the fill (black on white primary) for contrast.

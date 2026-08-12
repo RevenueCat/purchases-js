@@ -9,6 +9,7 @@
   import type { PriceBreakdown } from "../ui-types";
   import type { Translator } from "../localization/translator";
   import { translatorContextKey } from "../localization/constants";
+  import { LocalizationKeys } from "../localization/supportedLanguages";
   import { parseISODuration } from "../../helpers/duration-helper";
   import { formatPriceWithPeriod } from "../../helpers/price-labels";
   import PricingTable from "../molecules/pricing-table.svelte";
@@ -33,8 +34,12 @@
 
   const pageTitle = $derived(
     startData.change_type === "deferred"
-      ? "Change your subscription"
-      : "Upgrade your subscription",
+      ? $translator.translate(
+          LocalizationKeys.UpgradeProductInfoChangeSubscriptionTitle,
+        )
+      : $translator.translate(
+          LocalizationKeys.UpgradeProductInfoUpgradeSubscriptionTitle,
+        ),
   );
 
   function formatProductPrice(
@@ -68,7 +73,9 @@
         taxAmount != null
           ? [
               {
-                display_name: "Tax (estimated)",
+                display_name: $translator.translate(
+                  LocalizationKeys.UpgradeProductInfoTaxEstimated,
+                ),
                 tax_amount_in_micros: taxAmount,
               },
             ]
@@ -94,13 +101,17 @@
 
   const totalRowLabel = $derived(
     startData.change_type === "deferred" && startData.estimated_renewal_price
-      ? "Estimated at next renewal"
+      ? $translator.translate(
+          LocalizationKeys.UpgradeProductInfoEstimatedAtNextRenewal,
+        )
       : null,
   );
 
   const pendingTaxLabel = $derived(
     startData.price_breakdown || startData.estimated_renewal_price
-      ? "Calculated later"
+      ? $translator.translate(
+          LocalizationKeys.UpgradeProductInfoCalculatedLater,
+        )
       : null,
   );
 

@@ -8,6 +8,7 @@
   import type { PurchaseOption } from "../../entities/offerings";
   import type { Translator } from "../localization/translator";
   import { translatorContextKey } from "../localization/constants";
+  import { LocalizationKeys } from "../localization/supportedLanguages";
   import SecureCheckoutRc from "../molecules/secure-checkout-rc.svelte";
   import Typography from "../atoms/typography.svelte";
 
@@ -37,11 +38,17 @@
 
   const isDeferred = $derived(startData.change_type === "deferred");
 
-  const pageTitle = "Confirm payment";
+  const pageTitle = $derived(
+    $translator.translate(LocalizationKeys.UpgradeConfirmPageTitle),
+  );
   const pageSubtitle = $derived(
     isDeferred
-      ? "Review your payment details and schedule change"
-      : "Review your payment details and confirm upgrade",
+      ? $translator.translate(
+          LocalizationKeys.UpgradeConfirmPageSubtitleDeferred,
+        )
+      : $translator.translate(
+          LocalizationKeys.UpgradeConfirmPageSubtitleImmediate,
+        ),
   );
 
   const dueAmountLabel = $derived.by(() => {
@@ -57,14 +64,23 @@
 
   const ctaLabel = $derived.by(() => {
     if (confirming) {
-      return "Confirming…";
+      return $translator.translate(
+        LocalizationKeys.UpgradeConfirmPageConfirming,
+      );
     }
     if (isDeferred) {
-      return "Confirm schedule";
+      return $translator.translate(
+        LocalizationKeys.UpgradeConfirmPageConfirmSchedule,
+      );
     }
     return dueAmountLabel
-      ? `Confirm upgrade ∙ ${dueAmountLabel}`
-      : "Confirm upgrade";
+      ? $translator.translate(
+          LocalizationKeys.UpgradeConfirmPageConfirmUpgradeWithPrice,
+          { formattedPrice: dueAmountLabel },
+        )
+      : $translator.translate(
+          LocalizationKeys.UpgradeConfirmPageConfirmUpgrade,
+        );
   });
 
   const paymentMethodLabel = $derived.by(() => {
@@ -85,7 +101,7 @@
     }
     return (
       [address.postal_code, address.country_code].filter(Boolean).join(", ") ||
-      "On file"
+      $translator.translate(LocalizationKeys.UpgradeConfirmPageOnFile)
     );
   });
 </script>
@@ -103,7 +119,9 @@
   <div class="rcb-upgrade-details">
     <div class="rcb-upgrade-section">
       <div class="rcb-upgrade-section-label">
-        <Typography size="body-small">Email</Typography>
+        <Typography size="body-small">
+          {$translator.translate(LocalizationKeys.UpgradeConfirmPageEmail)}
+        </Typography>
       </div>
       <Typography size="body-base">{startData.email}</Typography>
     </div>
@@ -111,7 +129,11 @@
     {#if paymentMethodLabel}
       <div class="rcb-upgrade-section">
         <div class="rcb-upgrade-section-label">
-          <Typography size="body-small">Payment method</Typography>
+          <Typography size="body-small">
+            {$translator.translate(
+              LocalizationKeys.UpgradeConfirmPagePaymentMethod,
+            )}
+          </Typography>
         </div>
         <Typography size="body-base">{paymentMethodLabel}</Typography>
       </div>
@@ -120,7 +142,11 @@
     {#if billingAddressLabel}
       <div class="rcb-upgrade-section">
         <div class="rcb-upgrade-section-label">
-          <Typography size="body-small">Billing address</Typography>
+          <Typography size="body-small">
+            {$translator.translate(
+              LocalizationKeys.UpgradeConfirmPageBillingAddress,
+            )}
+          </Typography>
         </div>
         <Typography size="body-base">{billingAddressLabel}</Typography>
       </div>
