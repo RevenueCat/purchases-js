@@ -8,6 +8,7 @@
     subscriptionOption,
     subscriptionChangeDeferredTaxPending,
     subscriptionChangeDeferredWithTax,
+    subscriptionChangeImmediateLongNames,
     subscriptionChangeImmediateMinimal,
     subscriptionChangeImmediateTaxPending,
     subscriptionChangeImmediateWithTax,
@@ -117,4 +118,9 @@
     startData: subscriptionChangeImmediateWithTax,
     productChangeConfirmError: "Failed to confirm product change.",
   }}
+/>
+
+<Story
+  name="Long Product Names"
+  args={{ startData: subscriptionChangeImmediateLongNames }}
 />

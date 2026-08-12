@@ -70,6 +70,29 @@ export const formatPrice = (
   return formattedPrice.replace("US$", "$");
 };
 
+export const formatPriceWithPeriod = (
+  formattedPrice: string,
+  period: Period | null | undefined,
+  translator: Translator,
+): string => {
+  if (!period) {
+    return formattedPrice;
+  }
+
+  const periodLabel =
+    period.number === 1
+      ? translator.translatePeriodUnit(period.unit, {
+          noWhitespace: true,
+          short: true,
+        })
+      : translator.translatePeriod(period.number, period.unit, {
+          noWhitespace: true,
+          short: true,
+        });
+
+  return periodLabel ? `${formattedPrice}/${periodLabel}` : formattedPrice;
+};
+
 export const getTranslatedPeriodFrequency = (
   duration: string,
   translator: Translator,

@@ -345,12 +345,14 @@ describe("product change checkout networking", () => {
       display_name: "Monthly",
       price_in_micros: 9990000,
       currency: "USD",
+      period_duration: "P1M",
     },
     to_product: {
       product_id: "annual",
       display_name: "Annual",
       price_in_micros: 99990000,
       currency: "USD",
+      period_duration: "P1Y",
     },
     price_breakdown: {
       currency: "USD",
