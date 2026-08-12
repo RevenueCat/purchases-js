@@ -19,7 +19,10 @@ import {
   type OfferingsResponse,
   type PackageResponse,
 } from "./networking/responses/offerings-response";
-import { type ProductResponse } from "./networking/responses/products-response";
+import {
+  type ProductResponse,
+  type ProductsResponse,
+} from "./networking/responses/products-response";
 import { RC_ENDPOINT } from "./helpers/constants";
 import { Backend } from "./networking/backend";
 import {
@@ -55,7 +58,9 @@ import { type BrandingInfoResponse } from "./networking/responses/branding-respo
 import { requiresLoadedResources } from "./helpers/decorators";
 import { resolveTermsAndConditionsUrl } from "./helpers/checkout-consent-helper";
 import {
-  findOfferingByPlacementId,
+  enrichPackagesWithPlacementContext,
+  getOfferingIdForPlacement,
+  toOffering,
   toOfferings,
 } from "./helpers/offerings-parser";
 import {
@@ -1308,21 +1313,78 @@ export class Purchases {
   ): Promise<Offering | null> {
     const appUserId = this._appUserId;
     const offeringsResponse = await this.backend.getOfferings(appUserId);
-
-    const offerings = await this.getAllOfferings(
-      offeringsResponse,
-      appUserId,
-      params,
-    );
     const placementData = offeringsResponse.placements ?? null;
     if (placementData == null) {
       return null;
     }
-    return findOfferingByPlacementId(
-      placementData,
-      offerings.all,
-      placementIdentifier,
+
+    const { offeringIdForPlacement, fallbackOfferingId } =
+      getOfferingIdForPlacement(placementData, placementIdentifier);
+
+    if (!offeringIdForPlacement && !fallbackOfferingId) {
+      return null;
+    }
+
+    const offeringWithPreloadedProducts = offeringIdForPlacement
+      ? await this.findOfferingById(
+          offeringIdForPlacement,
+          offeringsResponse,
+          appUserId,
+          params,
+        )
+      : null;
+
+    if (offeringWithPreloadedProducts !== null) {
+      return enrichPackagesWithPlacementContext(
+        placementIdentifier,
+        offeringWithPreloadedProducts,
+      );
+    }
+
+    if (offeringIdForPlacement === fallbackOfferingId) {
+      return null;
+    }
+
+    const fallbackOfferingWithPreloadedProducts = fallbackOfferingId
+      ? await this.findOfferingById(
+          fallbackOfferingId,
+          offeringsResponse,
+          appUserId,
+          params,
+        )
+      : null;
+
+    if (fallbackOfferingWithPreloadedProducts !== null) {
+      return enrichPackagesWithPlacementContext(
+        placementIdentifier,
+        fallbackOfferingWithPreloadedProducts,
+      );
+    }
+
+    return null;
+  }
+
+  private async findOfferingById(
+    offeringIdentifier: string,
+    offeringsResponse: OfferingsResponse,
+    appUserId: string,
+    params?: GetOfferingsParams,
+  ): Promise<Offering | null> {
+    const offering = offeringsResponse.offerings.find(
+      (offering) => offering.identifier === offeringIdentifier,
     );
+
+    if (offering == null) {
+      return null;
+    }
+
+    const productsResponse = await this.fetchProductsForOfferings(
+      [offering],
+      appUserId,
+      params,
+    );
+
+    return toOffering(offeringIdentifier, offeringsResponse, productsResponse);
   }
 
   private async getAllOfferings(
@@ -1330,7 +1392,21 @@ export class Purchases {
     appUserId: string,
     params?: GetOfferingsParams,
   ): Promise<Offerings> {
-    const productIds = offeringsResponse.offerings
+    const productsResponse = await this.fetchProductsForOfferings(
+      offeringsResponse.offerings,
+      appUserId,
+      params,
+    );
+
+    return toOfferings(offeringsResponse, productsResponse);
+  }
+
+  private async fetchProductsForOfferings(
+    offerings: OfferingResponse[],
+    appUserId: string,
+    params?: GetOfferingsParams,
+  ): Promise<ProductsResponse> {
+    const productIds = offerings
       .flatMap((o: OfferingResponse) => o.packages)
       .map((p: PackageResponse) => p.platform_product_identifier);
 
@@ -1342,7 +1418,7 @@ export class Purchases {
     );
 
     this.logMissingProductIds(productIds, productsResponse.product_details);
-    return toOfferings(offeringsResponse, productsResponse);
+    return productsResponse;
   }
 
   /**
