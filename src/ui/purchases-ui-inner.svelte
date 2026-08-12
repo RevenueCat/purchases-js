@@ -148,7 +148,10 @@
   {/snippet}
   {#snippet navbarBodyContent()}
     {#if subscriptionChangeStartData}
-      <UpgradeProductInfo startData={subscriptionChangeStartData} />
+      <UpgradeProductInfo
+        startData={subscriptionChangeStartData}
+        purchaseOption={purchaseOptionToUse}
+      />
     {:else}
       <ProductInfo
         {productDetails}
@@ -199,6 +202,9 @@
         confirming={isConfirmingProductChange}
         confirmError={productChangeConfirmError}
         brandingAppearance={brandingInfo?.appearance ?? undefined}
+        {brandingInfo}
+        purchaseOption={purchaseOptionToUse}
+        {termsAndConditionsUrl}
         onConfirm={onConfirmProductChange ?? (() => {})}
       />
     {/if}

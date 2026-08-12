@@ -1,7 +1,14 @@
 <script lang="ts">
+  import { getContext } from "svelte";
+  import { type Writable } from "svelte/store";
   import { Button } from "@revenuecat/purchases-ui-js";
   import type { SubscriptionChangeCheckoutStartResponse } from "../../networking/responses/subscription-change-response";
   import type { BrandingAppearance } from "../../entities/branding";
+  import type { BrandingInfoResponse } from "../../networking/responses/branding-response";
+  import type { PurchaseOption } from "../../entities/offerings";
+  import type { Translator } from "../localization/translator";
+  import { translatorContextKey } from "../localization/constants";
+  import SecureCheckoutRc from "../molecules/secure-checkout-rc.svelte";
   import Typography from "../atoms/typography.svelte";
 
   interface Props {
@@ -9,6 +16,9 @@
     confirming: boolean;
     confirmError: string | null;
     brandingAppearance?: BrandingAppearance;
+    brandingInfo?: BrandingInfoResponse | null;
+    purchaseOption?: PurchaseOption | null;
+    termsAndConditionsUrl?: string | null;
     onConfirm: () => void;
   }
 
@@ -17,12 +27,45 @@
     confirming,
     confirmError,
     brandingAppearance = undefined,
+    brandingInfo = null,
+    purchaseOption = null,
+    termsAndConditionsUrl = null,
     onConfirm,
   }: Props = $props();
 
-  const ctaLabel = $derived(
-    startData.change_type === "deferred" ? "Confirm schedule" : "Pay now",
+  const translator: Writable<Translator> = getContext(translatorContextKey);
+
+  const isDeferred = $derived(startData.change_type === "deferred");
+
+  const pageTitle = "Confirm payment";
+  const pageSubtitle = $derived(
+    isDeferred
+      ? "Review your payment details and schedule change"
+      : "Review your payment details and confirm upgrade",
   );
+
+  const dueAmountLabel = $derived.by(() => {
+    const breakdown = startData.price_breakdown;
+    if (!breakdown) {
+      return null;
+    }
+    return $translator.formatPrice(
+      breakdown.total_amount_in_micros,
+      breakdown.currency,
+    );
+  });
+
+  const ctaLabel = $derived.by(() => {
+    if (confirming) {
+      return "Confirming…";
+    }
+    if (isDeferred) {
+      return "Confirm schedule";
+    }
+    return dueAmountLabel
+      ? `Confirm upgrade ∙ ${dueAmountLabel}`
+      : "Confirm upgrade";
+  });
 
   const paymentMethodLabel = $derived.by(() => {
     const paymentMethod = startData.payment_method;
@@ -48,6 +91,15 @@
 </script>
 
 <div class="rcb-upgrade-checkout">
+  <div class="rcb-upgrade-header">
+    <div class="rcb-upgrade-header-title">
+      <Typography size="heading-lg" branded>{pageTitle}</Typography>
+    </div>
+    <div class="rcb-upgrade-header-subtitle">
+      <Typography size="body-base">{pageSubtitle}</Typography>
+    </div>
+  </div>
+
   <div class="rcb-upgrade-details">
     <div class="rcb-upgrade-section">
       <div class="rcb-upgrade-section-label">
@@ -73,15 +125,6 @@
         <Typography size="body-base">{billingAddressLabel}</Typography>
       </div>
     {/if}
-
-    {#if startData.change_type === "deferred"}
-      <div class="rcb-upgrade-section rcb-upgrade-section-label">
-        <Typography size="body-small">
-          This change will take effect at the end of your current billing
-          period. You will not be charged now.
-        </Typography>
-      </div>
-    {/if}
   </div>
 
   {#if confirmError}
@@ -90,8 +133,10 @@
 
   <div class="rcb-upgrade-actions">
     <Button disabled={confirming} onclick={onConfirm} {brandingAppearance}>
-      {confirming ? "Confirming…" : ctaLabel}
+      {ctaLabel}
     </Button>
+
+    <SecureCheckoutRc {brandingInfo} {purchaseOption} {termsAndConditionsUrl} />
   </div>
 </div>
 
@@ -101,6 +146,20 @@
     flex-direction: column;
     gap: var(--rc-spacing-gapXXLarge-mobile);
     user-select: none;
+  }
+
+  .rcb-upgrade-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--rc-spacing-gapMedium-mobile);
+  }
+
+  .rcb-upgrade-header-title {
+    color: var(--rc-color-grey-text-dark);
+  }
+
+  .rcb-upgrade-header-subtitle {
+    color: var(--rc-color-grey-text-light);
   }
 
   .rcb-upgrade-details {
@@ -122,6 +181,7 @@
   .rcb-upgrade-actions {
     display: flex;
     flex-direction: column;
+    gap: var(--rc-spacing-gapXLarge-mobile);
   }
 
   @container layout-query-container (width >= 768px) {
@@ -129,7 +189,15 @@
       gap: var(--rc-spacing-gapXXLarge-desktop);
     }
 
+    .rcb-upgrade-header {
+      gap: var(--rc-spacing-gapMedium-desktop);
+    }
+
     .rcb-upgrade-details {
+      gap: var(--rc-spacing-gapXLarge-desktop);
+    }
+
+    .rcb-upgrade-actions {
       gap: var(--rc-spacing-gapXLarge-desktop);
     }
   }
