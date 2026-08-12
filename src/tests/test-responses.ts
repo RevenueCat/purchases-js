@@ -755,6 +755,20 @@ const offeringsResponsesPerUserId: { [userId: string]: OfferingsResponse } = {
       revision: 123,
     },
   },
+  appUserIdWithCurrentPlacementNoFallback: {
+    current_offering_id: "offering_2",
+    offerings: offeringsArray,
+    placements: {
+      fallback_offering_id: null,
+      offering_ids_by_placement: {
+        upgrade_button: "offering_2",
+      },
+    },
+    targeting: {
+      rule_id: "test_rule_id",
+      revision: 123,
+    },
+  },
   appUserIdWithInvalidFallback: {
     current_offering_id: "offering_1",
     offerings: offeringsArray,
@@ -784,6 +798,22 @@ const offeringsResponsesPerUserId: { [userId: string]: OfferingsResponse } = {
   appUserIdWithMissingProducts: {
     current_offering_id: "offering_2",
     offerings: offeringsArray,
+    placements: {
+      fallback_offering_id: "offering_1",
+      offering_ids_by_placement: {
+        test_placement_id: "offering_2",
+      },
+    },
+  },
+  appUserIdWithMatchingPlacementAndFallback: {
+    current_offering_id: "offering_1",
+    offerings: offeringsArray,
+    placements: {
+      fallback_offering_id: "offering_1",
+      offering_ids_by_placement: {
+        test_placement_id: "offering_1",
+      },
+    },
   },
   appUserIdWithNonSubscriptionProducts: {
     current_offering_id: "offering_consumables",
@@ -861,10 +891,12 @@ const productsResponsesPerUserId: { [userId: string]: object } = {
   someAppUserId: productsResponse,
   appUserIdWithPlacementsFallbackOnly: productsResponse,
   appUserIdWithPlacementsNoFallback: productsResponse,
+  appUserIdWithCurrentPlacementNoFallback: productsResponse,
   appUserIdWithInvalidFallback: productsResponse,
   appUserIdWithEmptyPlacements: productsResponse,
   appUserIdWithoutCurrentOfferingId: productsResponse,
   appUserIdWithMissingProducts: { product_details: [monthlyProductResponse] },
+  appUserIdWithMatchingPlacementAndFallback: { product_details: [] },
   appUserIdWithNonSubscriptionProducts: {
     product_details: [consumableProductResponse],
   },
