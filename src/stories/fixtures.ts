@@ -877,6 +877,20 @@ export const subscriptionChangeImmediateMinimal: SubscriptionChangeCheckoutStart
     billing_address: null,
   };
 
+export const subscriptionChangeImmediateLongNames: SubscriptionChangeCheckoutStartResponse =
+  {
+    ...subscriptionChangeImmediateWithTax,
+    operation_session_id: "rcbopsess_story_immediate_long_names",
+    from_product: {
+      ...subscriptionChangeFromProduct,
+      display_name: "someverylongproductnamesomevery someverylongproductname",
+    },
+    to_product: {
+      ...subscriptionChangeToProduct,
+      display_name: "somevery longproductname someverylongproductname",
+    },
+  };
+
 /** Deferred change: no charge now, next-renewal estimate with tax. */
 export const subscriptionChangeDeferredWithTax: SubscriptionChangeCheckoutStartResponse =
   {
