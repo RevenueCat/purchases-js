@@ -64,7 +64,7 @@ export class GetProductsEndpoint implements Endpoint {
     const discountCodeParam = this.discountCode
       ? `&discount_code=${encodeURIComponent(this.discountCode)}`
       : "";
-    return `${RC_BILLING_PATH}/subscribers/${encodedAppUserId}/products?id=${encodedProductIds}${currencyParam}${discountCodeParam}`;
+    return `${RC_BILLING_PATH}/subscribers/${encodedAppUserId}/products?id=${encodedProductIds}${currencyParam}${discountCodeParam}&supports_price_id=true`;
   }
 }
 
