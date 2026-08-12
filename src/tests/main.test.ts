@@ -28,6 +28,7 @@ import { http, HttpResponse } from "msw";
 import { expectPromiseToError } from "./test-helpers";
 import { StatusCodes } from "http-status-codes";
 import type { BrandingInfoResponse } from "../networking/responses/branding-response";
+import { AmazonBillingWrapper } from "../amazon/amazon-billing-wrapper";
 
 const { getAmazonProductData } = vi.hoisted(() => ({
   getAmazonProductData: vi.fn(),
@@ -989,6 +990,41 @@ describe("Purchases.purchase()", () => {
     expect(performWebBillingPurchaseSpy).toHaveBeenCalledOnce();
     expect(performPaddlePurchaseSpy).not.toHaveBeenCalled();
     expect(performStripePurchaseSpy).not.toHaveBeenCalled();
+  });
+
+  test("routes purchases to the Amazon billing wrapper for amzn_ API keys", async () => {
+    const purchases = configurePurchases(
+      testUserId,
+      "rcSource",
+      "amzn_valid_key",
+    );
+    const params = { rcPackage: createMonthlyPackageMock() };
+    const amazonPurchaseSpy = vi
+      .spyOn(AmazonBillingWrapper.prototype, "purchase")
+      .mockResolvedValue({} as never);
+    const purchasesInternal = purchases as unknown as PurchaseRouterMethods;
+    const performPaddlePurchaseSpy = vi.spyOn(
+      purchasesInternal,
+      "performPaddlePurchase",
+    );
+    const performStripePurchaseSpy = vi.spyOn(
+      purchasesInternal,
+      "performStripePurchase",
+    );
+    const performWebBillingPurchaseSpy = vi.spyOn(
+      purchasesInternal,
+      "performWebBillingPurchase",
+    );
+
+    await purchases.purchase(params);
+
+    expect(amazonPurchaseSpy).toHaveBeenCalledExactlyOnceWith(
+      params,
+      testUserId,
+    );
+    expect(performPaddlePurchaseSpy).not.toHaveBeenCalled();
+    expect(performStripePurchaseSpy).not.toHaveBeenCalled();
+    expect(performWebBillingPurchaseSpy).not.toHaveBeenCalled();
   });
 
   test("passes attributionMetadata through the purchase result", async () => {
