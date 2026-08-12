@@ -109,7 +109,13 @@ export class AmazonBillingWrapper implements BillingWrapper {
       storeUserId,
     );
 
-    await this.notifyFulfillment(receipt.receiptId);
+    try {
+      await this.notifyFulfillment(receipt.receiptId);
+    } catch (error: unknown) {
+      Logger.warnLog(
+        `Failed to fulfill receipt ID ${receipt.receiptId} with the Amazon Store: ${String(error)}`,
+      );
+    }
     Logger.debugLog("Amazon purchase completed successfully.");
 
     return {

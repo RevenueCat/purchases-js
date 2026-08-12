@@ -465,9 +465,12 @@ describe("AmazonBillingWrapper", () => {
       },
     );
 
-    test("propagates fulfillment request errors after posting the receipt", async () => {
+    test("returns a completed purchase when the fulfillment request fails", async () => {
       const backend = createBackend();
       const fulfillmentError = new Error("fulfillment unavailable");
+      const warningLog = vi
+        .spyOn(Logger, "warnLog")
+        .mockImplementation(() => {});
       vi.mocked(backend.postReceipt).mockResolvedValue(customerInfoResponse);
       notifyFulfillment.mockRejectedValue(fulfillmentError);
 
@@ -476,9 +479,14 @@ describe("AmazonBillingWrapper", () => {
           { rcPackage: createMonthlyPackageMock() },
           appUserId,
         ),
-      ).rejects.toBe(fulfillmentError);
+      ).resolves.toMatchObject({ operationSessionId: "amazon-receipt-id" });
 
       expect(backend.postReceipt).toHaveBeenCalledOnce();
+      await vi.waitFor(() => {
+        expect(warningLog).toHaveBeenCalledWith(
+          "Failed to fulfill receipt ID amazon-receipt-id with the Amazon Store: Error: fulfillment unavailable",
+        );
+      });
     });
   });
 
