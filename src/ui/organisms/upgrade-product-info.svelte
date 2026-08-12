@@ -6,14 +6,11 @@
     SubscriptionChangePriceBreakdownSummary,
     SubscriptionChangeProductSummary,
   } from "../../networking/responses/subscription-change-response";
-  import type {
-    PurchaseOption,
-    SubscriptionOption,
-  } from "../../entities/offerings";
   import type { PriceBreakdown } from "../ui-types";
   import type { Translator } from "../localization/translator";
   import { translatorContextKey } from "../localization/constants";
-  import { LocalizationKeys } from "../localization/supportedLanguages";
+  import { parseISODuration } from "../../helpers/duration-helper";
+  import { formatPriceWithPeriod } from "../../helpers/price-labels";
   import PricingTable from "../molecules/pricing-table.svelte";
   import PlanCard from "../molecules/plan-card.svelte";
   import RefundForUnusedTime from "../molecules/refund-for-unused-time.svelte";
@@ -21,10 +18,9 @@
 
   interface Props {
     startData: SubscriptionChangeCheckoutStartResponse;
-    purchaseOption?: PurchaseOption | null;
   }
 
-  let { startData, purchaseOption = null }: Props = $props();
+  let { startData }: Props = $props();
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
 
@@ -41,48 +37,16 @@
       : "Upgrade your subscription",
   );
 
-  function isSubscriptionOption(
-    option: PurchaseOption | null,
-  ): option is SubscriptionOption {
-    return option != null && "base" in option;
-  }
-
-  const billingPeriod = $derived(
-    isSubscriptionOption(purchaseOption) ? purchaseOption.base.period : null,
-  );
-
   function formatProductPrice(
     product: SubscriptionChangeProductSummary,
   ): string {
-    const formattedPrice = $translator.formatPrice(
-      product.price_in_micros,
-      product.currency,
-    );
-    const period = billingPeriod;
-    if (!period) {
-      return formattedPrice;
-    }
-
-    const periodLabel =
-      period.number === 1
-        ? $translator.translatePeriodUnit(period.unit, {
-            noWhitespace: true,
-            short: true,
-          })
-        : $translator.translatePeriod(period.number, period.unit, {
-            noWhitespace: true,
-            short: true,
-          });
-
-    if (!periodLabel) {
-      return formattedPrice;
-    }
-
-    return (
-      $translator.translate(LocalizationKeys.PaywallVariablesPricePerPeriod, {
-        formattedPrice,
-        period: periodLabel,
-      }) ?? `${formattedPrice}/${periodLabel}`
+    const period = product.period_duration
+      ? parseISODuration(product.period_duration)
+      : null;
+    return formatPriceWithPeriod(
+      $translator.formatPrice(product.price_in_micros, product.currency),
+      period,
+      $translator,
     );
   }
 

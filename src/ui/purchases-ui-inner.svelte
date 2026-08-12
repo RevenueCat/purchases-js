@@ -148,10 +148,7 @@
   {/snippet}
   {#snippet navbarBodyContent()}
     {#if subscriptionChangeStartData}
-      <UpgradeProductInfo
-        startData={subscriptionChangeStartData}
-        purchaseOption={purchaseOptionToUse}
-      />
+      <UpgradeProductInfo startData={subscriptionChangeStartData} />
     {:else}
       <ProductInfo
         {productDetails}
