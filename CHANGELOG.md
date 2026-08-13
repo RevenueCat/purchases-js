@@ -1,3 +1,11 @@
+## 1.52.2
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Block multiple purchase inits (#1045) via James O'Donnell (@james-od)
+
+### 🔄 Other Changes
+* [WEB-4530] Improved product change checkout (#1042) via James O'Donnell (@james-od)
+
 ## 1.52.1
 ## RevenueCat SDK
 ### 🐞 Bugfixes
